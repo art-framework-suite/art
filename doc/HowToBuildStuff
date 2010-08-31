@@ -1,0 +1,34 @@
+
+We are currently using scons (try 'man scons' on oink) to build stuff.
+
+For each directory in which there is stuff to build, you have to:
+
+  1. write a SConscript file in that directory (see below)
+  2. make a new entry for that directory in the top-level SConstruct file.
+
+= Writing SConscript files =
+
+Look at FWCore/Version/src/SConscript for an example of how to build a
+library from all the sources in a directory.
+
+Look at FWCore/Version/test/SConscript for an example of how to build
+tests that depend on some libraries.
+
+= Running scons =
+
+1. First make sure your environment is setup by sourcing bin/setup_mu2e.sh
+
+2. To build everything, type
+     scons -j 8
+   This does an 8-way parallel build.
+
+3. To build all the libraries, type
+     scons tmp/lib
+   Libraries will be createad in the tmp/lib directory.
+
+4. To build all the tests, type
+      scons tmp/test
+   test executables will be created in the tmp/test directory.
+
+
+

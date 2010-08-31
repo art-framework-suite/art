@@ -1,0 +1,32 @@
+# from the package itself
+./FWCore/Catalog/src/FileCatalog.cc
+./FWCore/Catalog/src/InputFileCatalog.cc
+./FWCore/Catalog/interface/InputFileCatalog.h
+./FWCore/Catalog/interface/FileCatalog.h
+./FWCore/Catalog/interface/SiteLocalConfig.h
+
+./FWCore/Sources/src/ExternalInputSource.cc
+./FWCore/Sources/src/EDInputSource.cc
+./FWCore/Sources/interface/ExternalInputSource.h
+./FWCore/Sources/interface/EDInputSource.h
+
+./IOPool/Input/src/PoolSource.cc
+./IOPool/Input/src/PoolSource.h
+./IOPool/Input/src/RootFile.h
+./IOPool/Input/src/RootFile.cc
+./IOPool/Input/src/RootInputFileSequence.h
+./IOPool/Input/src/RootInputFileSequence.cc
+./IOPool/Output/src/RootOutputFile.cc
+./IOPool/Output/src/PoolOutputModule.h
+./IOPool/Output/src/PoolOutputModule.cc
+
+scrap ./FWCore/MessageLogger/test/makeJobReport.cpp
+scrap ./FWCore/MessageLogger/interface/JobReport.h
+scrap ./FWCore/MessageService/test/makeJobReport.cpp
+
+scrap /FWCore/Services/src/SiteLocalConfigService.h
+scrap ./FWCore/Services/src/SiteLocalConfigService.cc
+
+cleaned ./IOPool/Common/bin/EdmFileUtil.cpp
+scrap ./IOPool/Streamer/src/StreamerFileReader.cc
+

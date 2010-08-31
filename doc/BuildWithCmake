@@ -1,0 +1,24 @@
+Development work is in progress to support cmake instead of scons.
+
+Cmake allows us to keep the source code, build, and 
+install directories separate. 
+
+The CMakeLists.txt files contain cmake directives.
+
+These build instructions presume you are in the bash shell.
+
+For purposes of illustration, we presume all work is being done
+in /some/path/to/my/dir and that the framework externals 
+are in /path/to/externals
+
+cd /some/path/to/my/dir
+svn co https://oink.fnal.gov/mu2e/trunk framework
+mkdir build install
+source /path/to/externals/setup
+setup fw_externals v0_4_1 (choose the appropriate release)
+source /some/path/to/my/dir/framework/bin/setup_fw.sh
+cd /some/path/to/my/dir/build
+cmake -DCMAKE_INSTALL_PREFIX=/local/frame/install $FW_HOME
+make
+make install
+

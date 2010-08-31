@@ -1,0 +1,128 @@
+
+Initial work list
+
+---------------
+1) Build system
+
+Vanilla or SRT are the two choices.
+We will try the vanilla.
+
+cmake? (we will not use this)
+
+This web page came in handy to explain features of gnumake:
+ http://www.gnu.org/software/automake/manual/make/Automatic-Prerequisites.html
+and so did this one
+ http://www.gnu.org/software/automake/manual/make/Pattern-Rules.html#Pattern-Rules
+
+-------------------------------------
+2) Which CMSSW version should we use?
+
+The branch tag is wmtanProvanence, which are changes after 3_0_0_pre2.
+
+cvs co -r wmtanProvenance FWCore IOPool/Input IOPool/Output 
+IOPool/Common IOPool/SecondaryInput IOPool/Streamer 
+DataFormats/CommonDataFormats/Streamer DataFormats/TestObjects 
+DataFormats/Provenance DataFormats/StdDictionaries 
+DataFormats/WrappedStdDictionaries IORawData/DaqSource 
+
+rm -fr */*FWLite* 
+rm -fr FWCore/ParameterSet 
+cvs co FWCore/ParameterSet 
+
+We will retain the initial directory structure while doing the
+evaluation, which is:
+
+Subsystem/Package/
+	interface
+	src
+	doc
+	python
+	test
+	bin
+	Buildfile
+
+We will get rid of Subsystem/Package, and just call it Package.
+We will rename interface to include.
+We will rename python to config.
+The Buildfile will become Makefile.
+
+---------------
+3) External dep
+
+(really want 5.18.00f, it has almost all of the CMS changes in it.
+Built ROOT 5.18.00f with: mathcore, builtin-freetype, cintex, exceptions, 
+pch, reflex, shared, soversion, xml, xft)
+(no rootmathmore)
+
+root = 5.18.00a-cms14
+rootcore = 5.18.00a-cms14
+rootcintex = 5.18.00a-cms14
+roothistmatrix = 5.18.00a-cms14
+rootrflx = 5.18.00a-cms14
+
+libsigc++ = 2.0.17-cms (used version 2.2.3)
+zlib = 1.2.3-cms (used system one 1.2.3)
+python = 2.4.2-cms2 (the system we developed on is 2.4.3 in slf5.2)
+
+OLD -->  gccxml (0.6.0 was installed because ROOT needed it.)
+gccxml (0.7.0-20070615) from http://lcgsoft.cern.ch/index.py?page=pkg_version&pkg=gccxml&vers=0.7.0_20070615
+
+uuid = 1.38-cms (there is one with linux - package uuidd 1.39-15.el5 64bit) 
+xerces-c = 2.7.0-cms (on hold until we need it)
+cppunit = 1.10.2-cms (1.12.1 in use)
+clhep =  1.9.3.2-cms (done)
+
+(we are using boost 1.37)
+boost_python = 1.34
+boost_filesystem = 1.34
+boost_regex = 1.34
+
+
+------------------------------------------------
+
+
+----------------------------------------------------
+4) TRAC or redmine use.
+We want to use one of these system.  Looks like redmine might
+be easier to install and get running (Ruby/Rails based).
+
+TRAC install: http://trac.edgewall.org/wiki/TracInstall
+
+redmine install: http://www.redmine.org/wiki/redmine/RedmineInstall
+
+------------------------------------
+
+5) Building boost
+Get version 1.37.0 from http://sourceforge.net/project/showfiles.php?group_id=7586&package_id=8041&release_id=637761
+
+Build directory: /work/downloads/boost_1_37_0
+
+python version 2.4.3
+
+./configure --prefix=/work/mu2e_externals/boost-1.37.0 --with-python=/usr/bin/python
+
+Problem: missing python-devel rpm (yum install python-devel.x86_64
+
+make and make install
+
+6) adding dependent libraries
+
+This needs to be done in each of the makefile - list the 
+external and internal libraries that this package depends upon.
+Check the lib and bin builds to make sure that these are added to the
+link line.
+
+------------------------------------------------
+
+Plugin locating and loading issues.
+
+CacheParser is used by PluginManager.cc to read the .edmplugincache
+file specified by standard.cc.  We can use "ls *plugin*" in the 
+$MU2E_HOME/tmp/lib directory to see all the plugins.  A simple
+way to make this work is to .... See CategoryToInfo and its use in
+PluginManager.h and PluginManager.cc (categoryToInfos_)
+
+See  EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) 
+in PluginFactory.h
+
+

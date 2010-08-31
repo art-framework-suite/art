@@ -1,0 +1,21 @@
+Making the framework build using the new externals structure.
+Packages are installed in the externals directory via upd.
+Libraries and headers are in subdirectories associated with each product.
+You setup fw_externals to get the appropriate set of packages.
+
+To make a test build of this branch:
+
+ssh -l fwdev patlxlg or patvm2 (SLF4 machines)
+Make a new playground directory:
+mkdir -p /archives/fwdev/playground/tN,
+ where N is some integer 
+cd tN
+svn checkout https://oink/mu2e/branches/new-externals
+
+source /archives/fwdev/flxi-externals/setup
+setup fw_externals 
+source new-externals/bin/setup_fw.sh
+cd new-externals
+scons
+
+Changes so far: replace all occurances of MU2E with FW

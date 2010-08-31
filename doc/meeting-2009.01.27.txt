@@ -1,0 +1,61 @@
+mu2e 2009.01.27 meeting 
+
+What is working?
+  - services
+  - read/write root files
+  - initial runtime
+  - initial build
+      -- with some warnings???  (during complete rebuild)
+  - external products
+  - build with debug/symbol table (-g)   flag for runtime bounds checking??
+               NOT A COMPILER FLAG, But rather a stl prepocessor directive
+	                           _GLIBCXX_DEBUG_???
+
+What is not working?
+   - high-level "instruction for use" web page
+   - external products in AFS space? (Linux, gcc 4.1.2)
+   - test suite
+   - STL with bounds checking (_GLIBCXX_DEBUG_ activates this)
+   - Base Release that can be used without entire checkout/build
+   - skeleton "package" generator (include example)                      
+       
+Where do some problems lie?
+   - plugin manager
+   - "main" routine (symbol table troubles)
+
+
+Work for this week
+1   - toy  Rob's example coded  + sinpler example (histogram integers)
+                                        `-- analyzer use, including histogram add,
+                                                                      2nd Run needed?
+2   - documentation pointers (to cms) & additional notes
+0   - repository backups   (TIBS? amitoj?)
+3   - base release working
+4   - External product install in AFS area
+
+Work for after this week
+   - restructure directories
+   - initial feature stripping (1. backward compat, 2. classes that are baggage, 3. scheduling issue)
+   - product-to-product reference (class)   hits (product), track(product) with 10 hits refers back to hits,
+                                                            higher level association class(product)
+   - pset language issues
+   - meta data storage enhancements  ((root) file bloat issue)   (i.e. overhead per event)
+   - plugin manager fixes
+   - standard setting conf files for message logger, other services
+
+Repository for code
+   - redmine/trac?
+   - svn browser
+   - tarball use
+   - user/infrastructure repository
+   - LXR use
+
+
+
+devisions of code (code types)
+  1 *infra code       (event, rough vector
+  2 *main (body of) experiment   (jet finding, track finding, main monte carlo, main reconstruction)
+  3 user    (my analysis, "quick side study") 
+
+* - needs to always be working
+

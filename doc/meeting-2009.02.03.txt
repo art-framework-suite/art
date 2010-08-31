@@ -1,0 +1,60 @@
+
+We discussed long build areas and user areas should work.
+
+Roles:
+ * framework core developer
+ * mu2e release developer
+ * user-developer
+ * user of release
+ * release administrator
+
+Where stuff resides:
+ * framework core - svn repository one
+ * mu2e - svn repository two
+ * user-developer area - separate repository from others
+
+Framework core should become an external product
+
+useful scripts:
+ * mu2e_init-user_build_area
+ * mu2e_checkout_mu2e
+ * mu2e_checkout_package
+ * mu2e_make_new_package
+ * mu2e_make_development_area
+
+areas concerned with release use and management;
+ * externals
+   * admin sets up,
+   * versioned as a whole
+   * many can exist
+ * base releases
+   * admin sets up, 
+   * specific tag checked out
+   * the entire mu2e repository checked out here
+   * many can exist
+ * development release
+   * can be co of all packages (whole release) and not tied to any base rel.
+   * user initilizes with script
+   * tied to specific base release
+   * initialized with no package checked-out packages
+   * user can incrementally add packages
+   * only checked out packages are built
+ * user build area
+   * simpler structure (perhaps)
+   * stored in user's own repository
+   * tied to base release
+
+more facts about development areas
+ * user build areas
+   * populated initially with skeleton code
+   * write a producer to run under mute
+   * result can not be put back in mu2e SVN
+   * requires mu2e build system (user standard mu2e dir structure?)
+   * can not rebuld any code from mu2e
+   * does note require SVN use
+ * development release
+   * write a producer to run under mute
+   * result can be put back in mu2e SVN
+   * requires SVN use
+
+

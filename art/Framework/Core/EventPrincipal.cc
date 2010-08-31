@@ -1,0 +1,259 @@
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/UnscheduledHandler.h"
+#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/Group.h"
+#include "art/Utilities/Algorithms.h"
+#include "art/Persistency/Common/BasicHandle.h"
+#include "art/Persistency/Provenance/BranchListIndex.h"
+#include "art/Persistency/Provenance/BranchIDList.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/Provenance.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
+
+#include <algorithm>
+
+namespace edm {
+  EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
+	boost::shared_ptr<ProductRegistry const> reg,
+	ProcessConfiguration const& pc,
+	boost::shared_ptr<History> history,
+	boost::shared_ptr<BranchMapper> mapper,
+	boost::shared_ptr<DelayedReader> rtrv) :
+	  Base(reg, pc, history->processHistoryID(), mapper, rtrv),
+	  aux_(aux),
+	  luminosityBlockPrincipal_(),
+	  unscheduledHandler_(),
+	  moduleLabelsRunning_(),
+	  history_(history),
+	  branchToProductIDHelper_() {
+	    if (reg->productProduced(InEvent)) {
+	      addToProcessHistory();
+	      // Add index into BranchIDListRegistry for products produced this process
+	      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size()-1);
+	    }
+	    // Fill in helper map for Branch to ProductID mapping
+	    for (BranchListIndexes::const_iterator
+		 it = history->branchListIndexes().begin(),
+		 itEnd = history->branchListIndexes().end();
+		 it != itEnd; ++it) {
+	      ProcessIndex pix = it - history->branchListIndexes().begin();
+	      branchToProductIDHelper_.insert(std::make_pair(*it, pix));
+	    }
+	  }
+
+  RunPrincipal const&
+  EventPrincipal::runPrincipal() const {
+    return luminosityBlockPrincipal().runPrincipal();
+  }
+
+  RunPrincipal &
+  EventPrincipal::runPrincipal() {
+    return luminosityBlockPrincipal().runPrincipal();
+  }
+
+  void
+  EventPrincipal::addOnDemandGroup(ConstBranchDescription const& desc) {
+    std::auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
+    Group const* group = getExistingGroup(*g);
+    if (group != 0) {
+      if(!group->onDemand()) {
+        ConstBranchDescription const& bd = group->productDescription();
+	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	  << "addGroup_: Problem found while adding product provenance, "
+	  << "product already exists for ("
+	  << bd.friendlyClassName() << ","
+	  << bd.moduleLabel() << ","
+	  << bd.productInstanceName() << ","
+	  << bd.processName()
+	  << ")\n";
+      }
+      replaceGroup(g);
+    } else {
+      addGroup_(g);
+    }
+  }
+
+  void
+  EventPrincipal::addGroup(ConstBranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+	 ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::addGroup(ConstBranchDescription const& bd,
+	 std::auto_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+	 ConstBranchDescription const& bd,
+	 boost::shared_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::addGroup(ConstBranchDescription const& bd,
+	 boost::shared_ptr<ProductProvenance> productProvenance) {
+    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
+    addOrReplaceGroup(g);
+  }
+
+  void
+  EventPrincipal::put(std::auto_ptr<EDProduct> edp,
+		ConstBranchDescription const& bd,
+		std::auto_ptr<ProductProvenance> productProvenance) {
+
+    if (edp.get() == 0) {
+      throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
+	<< "put: Cannot put because auto_ptr to product is null."
+	<< "\n";
+    }
+    ProductID pid = branchIDToProductID(bd.branchID());
+    // Group assumes ownership
+    if (!pid.isValid()) {
+      throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
+	<< "put: Cannot put product with null Product ID."
+	<< "\n";
+    }
+    branchMapperPtr()->insert(*productProvenance);
+    this->addGroup(edp, bd, productProvenance);
+  }
+
+  BranchID
+  EventPrincipal::productIDToBranchID(ProductID const& pid) const {
+    if (!pid.isValid()) {
+      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+        << "get by product ID: invalid ProductID supplied\n";
+    }
+    BranchID::value_type bid = 0;
+    try {
+      BranchListIndex blix = history().branchListIndexes().at(pid.processIndex()-1);
+      BranchIDList const& blist = BranchIDListRegistry::instance()->data().at(blix);
+      bid = blist.at(pid.productIndex()-1);
+    }
+    catch (std::exception) {
+      return BranchID();
+    }
+    return BranchID(bid);
+  }
+
+  ProductID
+  EventPrincipal::branchIDToProductID(BranchID const& bid) const {
+    if (!bid.isValid()) {
+      throw edm::Exception(edm::errors::NotFound,"InvalidID")
+        << "branchIDToProductID: invalid BranchID supplied\n";
+    }
+    BranchIDListHelper::BranchIDToIndexMap const& branchIDToIndexMap =
+      BranchIDListRegistry::instance()->extra().branchIDToIndexMap();
+    BranchIDListHelper::BranchIDToIndexMap::const_iterator it = branchIDToIndexMap.find(bid);
+    if (it == branchIDToIndexMap.end()) {
+      throw edm::Exception(edm::errors::NotFound,"Bad BranchID")
+        << "branchIDToProductID: productID cannot be determined from BranchID\n";
+    }
+    BranchListIndex blix = it->second.first;
+    ProductIndex productIndex = it->second.second;
+    std::map<BranchListIndex, ProcessIndex>:: const_iterator i = branchToProductIDHelper_.find(blix);
+    if (i == branchToProductIDHelper_.end()) {
+      throw edm::Exception(edm::errors::NotFound,"Bad branch ID")
+        << "branchIDToProductID: productID cannot be determined from BranchID\n";
+    }
+    ProcessIndex processIndex = i->second;
+    return ProductID(processIndex+1, productIndex+1);
+  }
+
+  BasicHandle
+  EventPrincipal::getByProductID(ProductID const& pid) const {
+    BranchID bid = productIDToBranchID(pid);
+    SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
+    if (g.get() == 0) {
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
+      *whyFailed
+	<< "get by product ID: no product with given id: "<< pid << "\n";
+      return BasicHandle(whyFailed);
+    }
+
+    // Check for case where we tried on demand production and
+    // it failed to produce the object
+    if (g->onDemand()) {
+      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
+      *whyFailed
+	<< "get by product ID: no product with given id: " << pid << "\n"
+        << "onDemand production failed to produce it.\n";
+      return BasicHandle(whyFailed);
+    }
+    return BasicHandle(g->product(), g->provenance());
+  }
+
+  EDProduct const *
+  EventPrincipal::getIt(ProductID const& pid) const {
+    return getByProductID(pid).wrapper();
+  }
+
+  Provenance
+  EventPrincipal::getProvenance(ProductID const& pid) const {
+    BranchID bid = productIDToBranchID(pid);
+    return getProvenance(bid);
+  }
+
+  void
+  EventPrincipal::setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
+    unscheduledHandler_ = iHandler;
+  }
+
+  EventSelectionIDVector const&
+  EventPrincipal::eventSelectionIDs() const
+  {
+    return history_->eventSelectionIDs();
+  }
+
+  bool
+  EventPrincipal::unscheduledFill(std::string const& moduleLabel) const {
+
+    // If it is a module already currently running in unscheduled
+    // mode, then there is a circular dependency related to which
+    // EDProducts modules require and produce.  There is no safe way
+    // to recover from this.  Here we check for this problem and throw
+    // an exception.
+    std::vector<std::string>::const_iterator i =
+      find_in_all(moduleLabelsRunning_, moduleLabel);
+
+    if (i != moduleLabelsRunning_.end()) {
+      throw edm::Exception(errors::LogicError)
+        << "Hit circular dependency while trying to run an unscheduled module.\n"
+        << "Current implementation of unscheduled execution cannot always determine\n"
+        << "the proper order for module execution.  It is also possible the modules\n"
+        << "have a built in circular dependence that will not work with any order.\n"
+        << "In the first case, scheduling some or all required modules in paths will help.\n"
+        << "In the second case, the modules themselves will have to be fixed.\n";
+    }
+
+    moduleLabelsRunning_.push_back(moduleLabel);
+
+    if (unscheduledHandler_) {
+      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal *>(this));
+    }
+    moduleLabelsRunning_.pop_back();
+    return true;
+  }
+
+  ProductID
+  EventPrincipal::oldToNewProductID_(ProductID const& oldProductID) const {
+    return branchIDToProductID(branchMapperPtr()->oldProductIDToBranchID(oldProductID));
+  }
+}

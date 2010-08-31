@@ -1,0 +1,39 @@
+#ifndef Integration_ViewAnalyzer_h
+#define Integration_ViewAnalyzer_h
+
+#include <string>
+
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/EDAnalyzer.h"
+
+namespace edmtest
+{
+
+  class ViewAnalyzer : public edm::EDAnalyzer
+  {
+  public:
+    explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
+    virtual ~ViewAnalyzer();
+    virtual void analyze(edm::Event const& e,
+			 edm::EventSetup const& /* unused */ );
+
+    template <class P, class V>
+    void testProduct(edm::Event const& e,
+		     std::string const& moduleLabel) const;
+
+    void testDSVProduct(edm::Event const& e,
+			std::string const& moduleLabel) const;
+
+    void testProductWithBaseClass(edm::Event const& e,
+ 			          std::string const& moduleLabel) const;
+
+    void testRefVector(edm::Event const& e,
+		       std::string const& moduleLabel) const;
+
+    void testRefToBaseVector(edm::Event const& e,
+			     std::string const& moduleLabel) const;
+  };
+
+}
+
+#endif

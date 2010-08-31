@@ -1,0 +1,84 @@
+# This is shamelessly cribbed from Ron Rechenmacher's ups bootstrap "setup"
+#
+# This script sets up the environment for a developer working on framework.
+# It is not intended for any other purpose, and may cause problems in other environments.
+#
+# When sourcing this file from a script, you may have to tell this
+# source file where it is via the fw_db shell (or env) variable.
+# I.e.:
+#    set fw_db=/some/path; source /some/path/this_file
+# or  fw_db=/some/path; . /some/path/this_file
+#
+# If FW_WORKDIR is undefined, it is set to whatever directory 
+# you are in when this script is invoked.
+# $FW_WORKDIR/lib is added to LD_LIBRARY_PATH
+
+test $?shell = 1 && set ss=csh || ss=sh
+#echo Shell type is $ss.
+
+# make some things similar. need to use set_ because sh builtin set would hide function set
+# Note: perhaps the trickiest thing in this file is the sh set_ function tries to return the same status
+#       as at the start of the function (which most likely is the result of a back-tick expression
+test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@";}'
+test "$ss" =  sh && eval 'set_() { ss=$?;for xx in "$@";do var=`expr "$xx" : "\([^=]*\)"`;val=`expr "$xx" : "[^=]*=\(.*\)"`;eval "$var=\"$val\"";done;return $ss; }'
+test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 'source() { file=$1; shift; . $file "$@"; }' && eval 'unsetenv() { unset "$@"; }'
+test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
+test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
+
+set_ msg2='You MUST setup the appropriate fw_externals product'
+tnotnull FW_EXTERNALS_DIR || echo "$msg2"
+
+# now is if we were passed a path or if not, if we can figure it out (maybe if we are interactive)
+#   bash, zsh, ksh and tcsh pass params to a source file, csh does not. but someone will be writing csh scripts
+set_ msg='Please set shell or env. variable fw_db (to be the path to the framework source code). Fix this and other errors may go away.'
+tnotnull fw_db && set_ db=`sh -c "cd $fw_db >/dev/null 2>&1 && pwd"` && vecho_ 'setting db from fw_db variable' || set_ db=
+
+test -z "$db" && tnotnull BASH_SOURCE && set_ me=`dirname $BASH_SOURCE` && set_ db=`sh -c "cd $me >/dev/null 2>&1 && pwd"` && vecho_ 'setting db via BASH_SOURCE'
+
+# history is applicable only for interactive t/csh
+test -z "$db" -a "$ss" = csh && test $?history = 0 && set history=5  # make sure history 1 works
+test -z "$db" -a "$ss" = csh && set me=`history 1|sed 's/^[ 	0-9:]*//'` && test -n "$me" && set me=`dirname $me[2]` \
+    && set db=`sh -c "cd $me >/dev/null 2>&1 && pwd"` && vecho_ 'setting db via interactive history'
+
+test -z "$db" && echo "$msg" || vecho_ "db=$db"
+test -n "$db" && setenv FW_CODE `dirname $db`
+#echo This script lives in $db
+
+tnotnull FW_WORKDIR && set_ fwdir=$FW_WORKDIR || set_ fwdir=`pwd`
+test -n "$fwdir" && setenv FW_WORKDIR $fwdir
+test -d "$fwdir/lib" || mkdir -p $fwdir/lib
+echo The workng build directory is $fwdir
+
+# if FW_HOME already exists, it will be changed
+# be sure to remove the old name from existing paths
+tnotnull FW_HOME && set_ oldhome=$FW_HOME && echo warning: FW_HOME changed from $FW_HOME to $FW_WORKDIR
+tnotnull oldhome && setenv PATH `echo :${PATH}: | sed -e "s|:${oldhome}/*bin:|:|" -e 's|^:||;s|:$||'`
+tnotnull oldhome && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${oldhome}/*lib:|:|" -e 's|^:||;s|:$||'`
+tnotnull oldhome && setenv PYTHONPATH `echo :${PYTHONPATH}: | sed -e "s|:${oldhome}:|:|" -e 's|^:||;s|:$||'`
+
+tnotnull FW_WORKDIR && setenv FW_HOME ${FW_WORKDIR}
+tnotnull FW_WORKDIR && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${FW_WORKDIR}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${FW_WORKDIR}/lib:${LD_LIBRARY_PATH}
+tnotnull FW_CODE && setenv PYTHONPATH `echo :${PYTHONPATH}: | sed -e "s|:${FW_CODE}:|:|" -e 's|^:||;s|:$||'`; setenv PYTHONPATH ${FW_CODE}:${PYTHONPATH}
+#echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
+echo $fwdir/lib has been added to LD_LIBRARY_PATH
+
+# FWCore/ParameterSet/src needs FW_PYTHON_INCLUDE
+# PYTHON_VERSION defined by setup of fw_externals
+tnotnull PYTHON_DIR && setenv FW_PYTHON_DIR $PYTHON_DIR
+tnotnull PYTHON_VERSION && setenv FW_PYTHON_VERSION $PYTHON_VERSION
+tnotnull FW_PYTHON_DIR && setenv FW_PYTHON_INCLUDE ${FW_PYTHON_DIR}/include/python${FW_PYTHON_VERSION}
+
+echo
+echo FW_CODE=$FW_CODE
+echo FW_HOME=$FW_HOME
+echo FW_WORKDIR=$FW_WORKDIR
+echo FW_EXTERNALS=$FW_EXTERNALS
+echo FW_PYTHON_DIR=$FW_PYTHON_DIR
+echo FW_PYTHON_VERSION=$FW_PYTHON_VERSION
+echo FW_PYTHON_INCLUDE=$FW_PYTHON_INCLUDE
+echo PYTHONPATH=$PYTHONPATH
+
+# cleanup before exiting
+test "$ss" = csh && unalias tnotnull nullout set_ vecho_ 
+unset ss msg db me fwdir oldhome py_ver
+unset set_ setenv unsetenv tnotnull source nullout vecho_
