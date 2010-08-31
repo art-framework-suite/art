@@ -1,40 +1,25 @@
 #ifndef ServiceRegistry_ServicesManager_h
 #define ServiceRegistry_ServicesManager_h
-// -*- C++ -*-
+
 //
 // Package:     ServiceRegistry
 // Class  :     ServicesManager
 //
-/**\class ServicesManager ServicesManager.h FWCore/ServiceRegistry/interface/ServicesManager.h
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:01 EDT 2005
-//
-//
-
-// system include files
-#include <vector>
-#include <iostream>
-#include <cassert>
-#include "boost/shared_ptr.hpp"
 
 // user include files
-#include "art/Utilities/TypeIDBase.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Framework/Services/Registry/ServiceMakerBase.h"
-#include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-
+#include "art/Framework/Services/Registry/ServiceLegacy.h"
+#include "art/Framework/Services/Registry/ServiceMakerBase.h"
+#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Utilities/EDMException.h"
+#include "art/Utilities/TypeIDBase.h"
 
-#include "art/Framework/Services/Basic/InitRootHandlers.h"      // temporary
+// system include files
+#include "boost/shared_ptr.hpp"
+#include <cassert>
+#include <iostream>
+#include <vector>
 
 // forward declarations
 namespace edm {
@@ -167,31 +152,7 @@ private:
 	  }
 	  //convert it to its actual type
 	  Type2Service::mapped_type second = itFound->second;
-#if 0
-	  std::cerr << "typeid.name*: " << typeid(*(second.get())).name() << "\n";          // N3edm15serviceregistry14ServiceWrapperINS_7service16InitRootHandlersEEE
-	  std::cerr << "typeid.id*: " << (void *)&typeid(*second.get()) << "\n";
-	  std::cerr << "typeid.name: "        << typeid(second.get()).name() << "\n";       // PN3edm15serviceregistry18ServiceWrapperBaseE
-	  std::cerr << "typeid.id: "         << (void *)&typeid(second.get()) << "\n";
-	  std::cerr << "typeid.name of SWB: " << typeid(ServiceWrapperBase).name() << "\n"; // N3edm15serviceregistry18ServiceWrapperBaseE
-	  std::cerr << "typeid.id of SWB: "  << (void *)&typeid(ServiceWrapperBase) << "\n";
-	  std::cerr << "Ttypeid.name: " << typeid(T).name() << "\n";
-	  std::cerr << "Ttypeid.id: " << (void*)&typeid(T) << "\n";
-	  ServiceWrapperBase *bbb = second.get();
-	  std::cerr << "base=" << (void*)bbb << "\n";
-	  Type2Service::mapped_type::element_type  *elem = second.get();
 
-	  ServiceWrapperBase *serviceB  = dynamic_cast<ServiceWrapperBase*>(elem);
-	  std::cerr << "serviceB " << (void*)serviceB << "\n";
-
-	  //ServiceWrapper<edm::service::InitRootHandlers> *serviceR = dynamic_cast<ServiceWrapper<edm::service::InitRootHandlers>*>(elem);
-	  //std::cerr << "serviceR " << (void*)serviceR << "\n";
-
-	  //ServiceWrapper<edm::RootHandlers> *serviceR = dynamic_cast<ServiceWrapper<edm::RootHandlers>*>(elem);
-	  //std::cerr << "serviceR " << (void*)serviceR << "\n";
-
-	  ServiceWrapper<T> *serviceT  = dynamic_cast<ServiceWrapper<T>*>(elem);
-	  std::cerr << "serviceT " << (void*)serviceT << "\n";
-#endif
           boost::shared_ptr<ServiceWrapper<T> > tmpxx = boost::dynamic_pointer_cast<ServiceWrapper<T> >(second);
 	  boost::shared_ptr<ServiceWrapper<T> > ptr(tmpxx);
 	  assert(0 != ptr.get());
@@ -201,4 +162,4 @@ private:
 }
 
 
-#endif
+#endif  // ServiceRegistry_ServicesManager_h
