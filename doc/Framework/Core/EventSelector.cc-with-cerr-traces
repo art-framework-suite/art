@@ -7,10 +7,10 @@
 // for maintenance purposes. 
 
 
-#include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Utilities/interface/Algorithms.h"
+#include "art/Framework/Core/EventSelector.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Core/TriggerNamesService.h"
+#include "art/Utilities/Algorithms.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
