@@ -9,7 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cstring>
 #include "art/Framework/Core/DataKey.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+#include "art/Framework/Core/HCTypeTagTemplate.icc"
 
 using namespace edm;
 using namespace edm::eventsetup;

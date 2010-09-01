@@ -10,7 +10,7 @@ Here are the necessary items:
  should be the following:
 
 ------------------------------------------------------------ 
-#include "FWCore/Utilities/interface/TestHelper.h"
+#include "art/Utilities/TestHelper.h"
 RUNTEST()
 ------------------------------------------------------------
 

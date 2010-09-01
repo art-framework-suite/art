@@ -13,13 +13,13 @@
 #include "art/Framework/Core/EventSetupRecordProviderFactoryManager.h"
 #include "art/Framework/Core/EventSetupRecordProviderFactoryTemplate.h"
 
-#include "FWCore/Framework/interface/HCMethods.icc"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+#include "art/Framework/Core/HCMethods.icc"
+#include "art/Framework/Core/HCTypeTagTemplate.icc"
 
 #include "art/Framework/Core/DataProxyTemplate.h"
 
 #include "art/Framework/Core/ESHandle.h"
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
+#include "art/Framework/Core/recordGetImplementation.icc"
 
 using namespace edm;
 using namespace edm::eventsetup;
