@@ -59,6 +59,7 @@ install(FILES Association.h
 	      Ptr.h
 	      PtrVectorBase.h
 	      PtrVector.h
+              RNGsnapshot.h
 	      RangeMap.h
 	      RefBase.h
 	      RefCoreGet.h
@@ -111,6 +112,7 @@ set( DataFormatsCommon_sources CacheStreamers.cc
 			       EDProduct.cc
 			       EDProductGetter.cc
 			       PtrVectorBase.cc
+                               RNGsnapshot.cc
 			       RefCore.cc
 			       RefCoreStreamer.cc
 			       traits.cc
