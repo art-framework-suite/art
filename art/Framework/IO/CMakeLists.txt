@@ -10,7 +10,7 @@ subdirs (Common/src)
 subdirs (Input/src)
 subdirs (Output/src)
 
-# build IOPool tests 
+# build IOPool tests
 subdirs (Common/test)
 subdirs (Input/test)
 subdirs (Output/test)

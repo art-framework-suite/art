@@ -14,7 +14,7 @@ namespace edm
       ProcessConfigurationType,
       EntryDescriptionType, // Obsolete
       ParentageType
-  };		
+  };
 }
 
 #endif // DataFormats_Provenance_HashedTypes_h

@@ -153,7 +153,7 @@ namespace edm
         noex_demanded = true;
       }
       and_noexception = basePathSpec.find("&noexception");
-      and_noex = basePathSpec.find("&noex");	
+      and_noex = basePathSpec.find("&noex");
       if (and_noexception != std::string::npos ||
 	   and_noex != std::string::npos)
           throw edm::Exception(errors::Configuration)
@@ -172,7 +172,7 @@ namespace edm
 	exception_spec = true;
 	realname = realname.substr(10, std::string::npos);
 	// strip off 10 chars, which is length of "exception@"
-      }	
+      }
       if (negative_criterion &&  exception_spec)
           throw edm::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
@@ -188,7 +188,7 @@ namespace edm
 
 
       // instead of "see if the name can be found in the full list of paths"
-      // we want to find all paths that match this name.	
+      // we want to find all paths that match this name.
       std::vector<Strings::const_iterator> matches =
 	      regexMatch(triggernames, realname);
 
@@ -240,7 +240,7 @@ namespace edm
 	    mustfail.push_back(bi);
 	  }
 	  all_must_fail_.push_back(mustfail);
-	} 	
+	}
       } else if (negative_criterion && noex_demanded) {
 	if (matches.empty()) {
             throw edm::Exception(errors::Configuration)
@@ -426,7 +426,7 @@ namespace edm
       if (tr[i->pos_].state() == bstate) return true;
     }
     return false;
-  } // acceptOneBit			
+  } // acceptOneBit
 
   // Indicate if *every* bit in the trigger results matches the desired value
   // at that position, based on the Bits array: true-->Pass, false-->Fail.
@@ -441,7 +441,7 @@ namespace edm
       if (tr[i->pos_].state() != bstate) return false;
     }
     return true;
-  } // acceptAllBits			
+  } // acceptAllBits
 
   /**
    * Tests if the specified trigger selection list (path spec) is valid
@@ -513,7 +513,7 @@ namespace edm
 
 	// Finally, check in case the selection element was a wildcarded
 	// negative such as "!*":
-	
+
         if (!oneResultMatched)  {
 	  for (unsigned int iPath = 0; iPath < fullTriggerCount; iPath++) {
             sampleResults[iPath] = HLTPathStatus(hlt::Fail, 0);
@@ -522,7 +522,7 @@ namespace edm
               oneResultMatched = true;
           }
         }
-	
+
         // if none of the possible trigger results matched the
         // selection element, then we declare the whole selection
         // list invalid
@@ -840,16 +840,16 @@ namespace edm
       hlt::HLTState s = inputResults [ipath].state();
       if (((aPassAbs[ipath]) && (s == hlt::Pass))
       		||
-	  ((aPassCon[ipath]) && (s == hlt::Pass))		
+	  ((aPassCon[ipath]) && (s == hlt::Pass))
       		||
-	  ((aFailAbs[ipath]) && (s == hlt::Fail))		
+	  ((aFailAbs[ipath]) && (s == hlt::Fail))
       		||
 	  ((aFailCon[ipath]) && (s == hlt::Fail))
 	        ||
 	  ((aExc[ipath]) && (s == hlt::Exception)))
       {
         mask[ipath] = s;
-      }		
+      }
     }
 
     // Based on the global status for the mask, create and return a
@@ -1060,7 +1060,7 @@ namespace edm
       if (b[i].accept_state_ == PassOrFail) x[b[i].pos_] = true;
     }
     return x;
-  } // expandDecisionList	
+  } // expandDecisionList
 
   // Determines whether a and b share a true bit at any position
   bool EventSelector::overlapping(std::vector<bool> const& a,
@@ -1109,7 +1109,7 @@ namespace edm
     if (!bPresent) return false;
     if (bSubset) return true;
 
-    return false;     				
+    return false;
   } // subset
 
   // Creates a vector of bits which is the OR of a and b
@@ -1124,6 +1124,6 @@ namespace edm
     } // a really sharp compiler will optimize the hell out of this,
       // exploiting word-size OR operations.
     return x;
-  } // combine			   			
+  } // combine
 
 }

@@ -11,7 +11,7 @@
 //
 //  1  mf 8/25/08	error summary information for
 //			LoggedErrorsSummary()
-//			
+//
 
 namespace edm
 {

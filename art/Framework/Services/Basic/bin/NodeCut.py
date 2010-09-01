@@ -112,7 +112,7 @@ class Parse:
             a=line.split()
             if ids.get(int(a[0]))!=None:
                 fout.write(line)
-        
+
     def trimPaths(cutoff):
         fin_paths = open(self.in_paths,'r')
         fout_paths = open(self.out_paths,'w')
@@ -126,7 +126,7 @@ def runme(in_nodefile, in_treefile, out_treefile, cutoff, cuttype)
     fin_paths = open(in_treefile,'r')
     fout = open(out_treefile,'w')
     tree = {}
-    
+
     for line in fin.xreadlines():
         a = line.split()
         id = int(a.pop(0))
@@ -135,7 +135,7 @@ def runme(in_nodefile, in_treefile, out_treefile, cutoff, cuttype)
             print tot
             continue
         head = int(a.pop(0))
-        
+
         for node in a:
             val = int(node)
             key = (head,val)
@@ -149,18 +149,18 @@ def runme(in_nodefile, in_treefile, out_treefile, cutoff, cuttype)
     for node in tree.items():
         # print node
         print >>fout, node[1], ' ', node[0][0], ' ', node[0][1]
-            
+
 if __name__ == "__main__":
     if len(sys.argv) < 5:
         print "usage: ", sys.argv[0], " in_prefix out_prefix cutoff type"
         print " type = 0 means accept one exact match for cutoff value"
         print " type = 1 means accept anything >= cutoff value"
         sys.exit(1)
-        
+
     in_nodefile = sys.argv[1]
     in_treefile = sys.argv[2]
     out_treefile = sys.argv[3]
     cutoff = int(sys.argv[4])
     cuttype = int(sys.argv[5])
-    
+
     runme(in_nodefile, in_treefile, out_treefile, cutoff, cuttype)

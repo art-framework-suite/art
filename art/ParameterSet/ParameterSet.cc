@@ -478,7 +478,7 @@ namespace edm {
 	for( ; first != last; ++first )
 	{
 	    explode(*first, results);
-        }	
+        }
       }
 
       names.clear();
@@ -498,7 +498,7 @@ namespace edm {
 	for( ; first != last; ++first )
 	{
 	    explode(*first, results);
-	}	
+	}
       }
     }
   }

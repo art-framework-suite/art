@@ -11,7 +11,7 @@
 //
 //  1  mf 8/25/08	keeping the error summary information for
 //			LoggedErrorsSummary()
-//			
+//
 
 
 using namespace edm;
@@ -61,7 +61,7 @@ MessageSender::~MessageSender()
 								// change log 1
       if ( errorSummaryIsBeingKept &&
            errorobj_p->xid().severity >= ELwarning )
-      {				
+      {
 	ELextendedID const & xid = errorobj_p->xid();
         ErrorSummaryMapKey key (xid.id, xid.module);
 	ErrorSummaryMapIterator i = errorSummaryMap.find(key);

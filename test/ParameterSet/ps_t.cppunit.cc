@@ -92,7 +92,7 @@ void trackedTestbody(T value)
     {
       std::cerr << "Unrecognized exception type thrown\n"
 		<< "no details available\n";
-      throw;	
+      throw;
     }
 }
 

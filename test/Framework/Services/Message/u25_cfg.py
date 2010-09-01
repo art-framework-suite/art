@@ -14,7 +14,7 @@ process.load("FWCore.MessageService.python.test.Services_cff")
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('u25_only'),
     statistics = cms.untracked.vstring('u25_only'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
     u25_only = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),

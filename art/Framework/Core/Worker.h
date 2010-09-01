@@ -233,7 +233,7 @@ namespace edm {
 	      state_ = Fail;
 	      break;
 	  }
-	
+
 	  default: {
 
 	      // we should not need to include the event/run/module names

@@ -23,7 +23,7 @@ process.DoodadESSource = cms.ESSource("DoodadESSource",
 process.get = cms.EDFilter("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('GadgetRcd'),
-        data = cms.vstring('edmtest::WhatsIt', 
+        data = cms.vstring('edmtest::WhatsIt',
                            'edmtest::Doodad/Two')
     )),
     verbose = cms.untracked.bool(True)

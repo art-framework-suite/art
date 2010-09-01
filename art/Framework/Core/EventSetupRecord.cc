@@ -92,7 +92,7 @@ EventSetupRecord::add(const DataKey& iKey ,
          (*proxies_.find(iKey)).second = iProxy ;
 	 return true;
       }
-	
+
       if(proxy->providerDescription()->isSource_ == iProxy->providerDescription()->isSource_) {
          //should lookup to see if there is a specified 'chosen' one and only if not, throw the exception
          throw cms::Exception("EventSetupConflict") <<"two EventSetup "<<

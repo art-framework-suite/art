@@ -80,7 +80,7 @@ int main(int argc, char **argv)
   for (node_iterator p(trie.initialNode()); p!=e; p++)
     std::cout << p.label() << " = " << p->value() << std::endl;
   std::cout << std::endl;
-	
+
   std::cout << "\nfull walk"<< std::endl;
   Print pr;
   edm::walkTrie(pr,*trie.initialNode());

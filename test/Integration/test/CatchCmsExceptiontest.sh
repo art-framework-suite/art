@@ -5,7 +5,7 @@ function die { echo $1: status $2 ;  exit $2; }
 
 pushd ${LOCAL_TMP_DIR}
 
-fw ${FW_HOME}/FWCore/Integration/test/CatchCmsExceptiontest_cfg.py &> CatchCmsException.log && die 'Failed in using CatchCmsException_cfg.py' $? 
+fw ${FW_HOME}/FWCore/Integration/test/CatchCmsExceptiontest_cfg.py &> CatchCmsException.log && die 'Failed in using CatchCmsException_cfg.py' $?
 
 grep -q WhatsItESProducer CatchCmsException.log || die 'Failed to find Producers name' $?
 

@@ -3,7 +3,7 @@
 # This script updates all the unit test outputs.
 # It should NOT be used until a suitable set of fws and comparisions
 # have been done, to see that the change is working correctly.
-# If in any doubt about some case, check the outputs by hand for that case. 
+# If in any doubt about some case, check the outputs by hand for that case.
 
 # This script needs to be maintained when new unit tests are added.
 

@@ -119,7 +119,7 @@ set( DataFormatsCommon_sources CacheStreamers.cc
 link_libraries( FWCoreUtilities
                 FWCoreServiceRegistry
 		${Boost_THREAD_LIBRARY}
-		${REFLEX} 
+		${REFLEX}
 		${MATRIX}
 		${CORE} )
 

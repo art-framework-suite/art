@@ -1,5 +1,5 @@
 install(FILES GetFileFormatVersion.h
-              GetReleaseVersion.h 
+              GetReleaseVersion.h
 	DESTINATION include/FWCore/Version/interface )
 
 >>><<<

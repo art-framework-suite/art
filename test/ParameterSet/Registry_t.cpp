@@ -146,7 +146,7 @@ int main()
   catch (boost::thread_resource_error & x)
   {
       std::cerr << "resource error: " << x.what()
-		<< "\nTry decreasing NUM_THREADS, and recompiling\n";	
+		<< "\nTry decreasing NUM_THREADS, and recompiling\n";
       rc = -3;
   }
 

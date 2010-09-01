@@ -7,16 +7,16 @@ class ToyDigi{
 
 public:
   ToyDigi ( int hitid,
-	    const ToyMCHit& hit, 
+	    const ToyMCHit& hit,
 	    const std::string& collection );
   virtual ~ToyDigi();
-  
+
   const ToyMCHit& parentHit() const;
 
   int channelID()  const { return _chan;}
   int tdc()        const { return _itdc;}
   int adc()        const { return _iadc;}
-  
+
 private:
 
   // Unique identifier of the hit from which this digi was made

@@ -2,7 +2,7 @@
 class ToyMCHit{
 
 public:
-  ToyMCHit ( int track_id, 
+  ToyMCHit ( int track_id,
 	     int channel_id,
 	     double distance,
 	     double pulse_height);
@@ -25,7 +25,7 @@ private:
   // Whatever it is we measure.
   double dist;
   double ph;
-  
+
 
 
 };

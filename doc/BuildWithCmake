@@ -1,14 +1,14 @@
 Development work is in progress to support cmake instead of scons.
 
-Cmake allows us to keep the source code, build, and 
-install directories separate. 
+Cmake allows us to keep the source code, build, and
+install directories separate.
 
 The CMakeLists.txt files contain cmake directives.
 
 These build instructions presume you are in the bash shell.
 
 For purposes of illustration, we presume all work is being done
-in /some/path/to/my/dir and that the framework externals 
+in /some/path/to/my/dir and that the framework externals
 are in /path/to/externals
 
 cd /some/path/to/my/dir

@@ -1,6 +1,6 @@
 # The following comments couldn't be translated into the new config version:
 
-# Configuration file for PrePoolInputTest 
+# Configuration file for PrePoolInputTest
 
 import FWCore.ParameterSet.python.Config as cms
 

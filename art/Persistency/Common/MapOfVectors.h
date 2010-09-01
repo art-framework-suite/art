@@ -67,8 +67,8 @@ namespace edm {
 	cache.second = range(data+(*off),data+(*(off+1)));
 	return cache;
       }
-	
-	
+
+
       key_iterator key;
       offset_iterator off;
       data_iterator data;

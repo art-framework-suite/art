@@ -106,10 +106,10 @@ public:
 
   virtual bool log( edm::ErrorObj & msg );  // Backdoor to log a formed message
                                             // to only this destination.
-				
+
   virtual void changeFile (std::ostream & os);
   virtual void changeFile (const ELstring & filename);
-  virtual void flush(); 				
+  virtual void flush();
 
   // -----  Helper methods invoked by other ErrorLogger classes
 

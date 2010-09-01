@@ -89,7 +89,7 @@ public:
   using ELtsErrorLog::setModule;		// These two are
   using ELtsErrorLog::setPackage;		//   IDENTICAL
 
-  using ELtsErrorLog::setProcess;		
+  using ELtsErrorLog::setProcess;
 	// Unlike ErrorLog, ThreadSafeErrorLog can have a process name
 	// distinct from that found in the ELadministrator
 
@@ -99,12 +99,12 @@ public:
 
   // -----  advanced control options:
 
-  using ELtsErrorLog::setHexTrigger;		
-  using ELtsErrorLog::setDiscardThreshold;		
-  using ELtsErrorLog::getELdestControl;		
+  using ELtsErrorLog::setHexTrigger;
+  using ELtsErrorLog::setDiscardThreshold;
+  using ELtsErrorLog::getELdestControl;
   using ELtsErrorLog::setDebugVerbosity;
   using ELtsErrorLog::setDebugMessages;
-		
+
   // -----  No member data; it is all held by ELtsErrorLog
 
 };  // ThreadSafeErrorLog

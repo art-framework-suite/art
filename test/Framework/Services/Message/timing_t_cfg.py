@@ -1,6 +1,6 @@
 # timing_t.cfg
 # NON-REGRESSSION Unit test configuration file for MessageLogger service:
-# This variant puts Timing into job report.  
+# This variant puts Timing into job report.
 # Tester should run with FrameworkJobReport.fwk and timing_t.log for proper timing info.
 
 import FWCore.ParameterSet.python.Config as cms
@@ -31,7 +31,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         noTimeStamps = cms.untracked.bool(True)
     ),
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
     destinations = cms.untracked.vstring('timing_t')
 )

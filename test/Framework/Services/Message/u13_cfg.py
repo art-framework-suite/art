@@ -38,10 +38,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'FwkReport',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u13_infos', 
+    destinations = cms.untracked.vstring('u13_infos',
         'u13_debugs')
 )
 

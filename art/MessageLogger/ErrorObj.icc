@@ -15,14 +15,14 @@
 
 #include<sstream>
 
-namespace edm {      
+namespace edm {
 
 // ----------------------------------------------------------------------
 // Methods for physicists adding to an ErrorObj:
 // ----------------------------------------------------------------------
 
 template <class T>
-ErrorObj & 
+ErrorObj &
 ErrorObj::opltlt ( const T & t )  {
   myOs.str(emptyString);
   myOs << t;
@@ -44,20 +44,20 @@ ErrorObj & operator<<( ErrorObj & e, const T & t )  {
   return e.opltlt(t);
 }  // operator<< <T>()
 
-inline 
-ErrorObj &  
+inline
+ErrorObj &
 ErrorObj::operator<< (  std::ostream&(*f)(std::ostream&) ) {
   f(myOs);
   myOs.str(emptyString);
   return *this;
-} 
+}
 
 inline
-ErrorObj &  
+ErrorObj &
 ErrorObj::operator<< ( std::ios_base&(*f)(std::ios_base&) ) {
   f(myOs);
   return *this;
-} 
+}
 
 
 // ----------------------------------------------------------------------

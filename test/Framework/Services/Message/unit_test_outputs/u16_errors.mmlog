@@ -22,8 +22,8 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 cat_A                1/1              1/2              
-    2 cat_B                1/1              1/2              
+    1 cat_A                1/1              1/2
+    2 cat_B                1/1              1/2
 
 Severity    # Occurrences   Total Occurrences
 --------    -------------   -----------------

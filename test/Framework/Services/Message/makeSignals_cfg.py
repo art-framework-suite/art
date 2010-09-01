@@ -29,9 +29,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkReport'),
-    destinations = cms.untracked.vstring('sig_infos', 
+    destinations = cms.untracked.vstring('sig_infos',
         'sig_debugs')
 )
 

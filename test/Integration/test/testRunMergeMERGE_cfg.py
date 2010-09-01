@@ -18,14 +18,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
+        'file:testRunMerge1.root',
+        'file:testRunMerge2.root',
         'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
     ),
     inputCommands = cms.untracked.vstring(
-        'keep *', 
+        'keep *',
         'drop *_C_*_*'
     )
 )
@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
 process.test = cms.EDFilter("TestMergeResults",
-                            
+
     #   These values below are just arbitrary and meaningless
     #   We are checking to see that the value we get out matches what
     #   was put in.
@@ -62,7 +62,7 @@ process.test = cms.EDFilter("TestMergeResults",
         10001,   30006,  10003,   # * begin run 1
         10001,   30006,  10003    # end run 1
     ),
-                            
+
     expectedEndRunProd = cms.untracked.vint32(
         0,           0,      0,   # start
         0,           0,      0,   # begin file 1
@@ -160,8 +160,8 @@ process.test = cms.EDFilter("TestMergeResults",
     expectedRespondToCloseOutputFiles = cms.untracked.int32(1),
 
     expectedInputFileNames = cms.untracked.vstring(
-        'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
+        'file:testRunMerge1.root',
+        'file:testRunMerge2.root',
         'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'
@@ -173,7 +173,7 @@ process.test = cms.EDFilter("TestMergeResults",
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMerge.root'),
     outputCommands = cms.untracked.vstring(
-        'keep *', 
+        'keep *',
         'drop *_makeThingToBeDropped_*_*',
         'drop *_B_*_*',
         'drop *_G_*_*',

@@ -63,10 +63,10 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
         #prefer all data in record 'OrangeRecord' from 'juicer'
         ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring())
     or
-        #prefer only "Orange" data in "OrangeRecord" from "juicer" 
+        #prefer only "Orange" data in "OrangeRecord" from "juicer"
         ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("ExtraPulp"))
-    or 
-        #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer" 
+    or
+        #prefer only "Orange" data with label "ExtraPulp" in "OrangeRecord" from "juicer"
         ESPrefer("ESJuicerProd", OrangeRecord=cms.vstring("Orange/ExtraPulp"))
     """
     def __init__(self,type_,targetLabel='',*arg,**kargs):
@@ -114,12 +114,12 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_SequenceLeaf):
     """base class for classes which denote framework event based 'modules'"""
-    __isStrict__ = False  
+    __isStrict__ = False
     def __init__(self,type_,*arg,**kargs):
         super(_Module,self).__init__(type_,*arg,**kargs)
         if _Module.__isStrict__:
             self.setIsFrozen()
-        saveOrigin(self, 2)    
+        saveOrigin(self, 2)
     def _clonesequence(self, lookuptable):
         try:
             return lookuptable[id(self)]
@@ -216,7 +216,7 @@ if __name__ == "__main__":
             self.assertEqual(juicer.dumpPythonAs("juicer", options), 'es_prefer_juicer = cms.ESPrefer("JuiceProducer","juicer")\n')
             juicer = ESPrefer("JuiceProducer",fooRcd=vstring())
             self.assertEqual(juicer.dumpConfig(options),
-"""JuiceProducer { 
+"""JuiceProducer {
     vstring fooRcd = {
     }
 
@@ -235,7 +235,7 @@ if __name__ == "__main__":
     fooRcd = cms.vstring()
 )
 """)
-        
+
         def testService(self):
             empty = Service("Empty")
             withParam = Service("Parameterized",foo=untracked(int32(1)), bar = untracked(string("it")))

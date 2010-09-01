@@ -53,36 +53,36 @@ project(FWCoreUtilities)
 set (FWCoreUtilities_VERSION_MAJOR 1)
 set (FWCoreUtilities_VERSION_MINOR 0)
 
-set( FWCoreUtilities_sources CPUTimer.cc 
-		       CRC32Calculator.cc 
-		       DebugMacros.cc 
-		       Digest.cc 
-		       EDMException.cc 
-		       Exception.cc 
-		       ExceptionCollector.cc 
-		       FriendlyName.cc 
-		       GlobalIdentifier.cc 
-		       GlobalMutex.cc 
-		       Guid.cc 
-		       InputTag.cc 
-		       MallocOpts.cc 
-		       md5.c 
-		       Parse.cc 
-		       Presence.cc 
-		       ReflexTools.cc 
-		       RegexMatch.cc 
-		       RootHandlers.cc 
-		       SingleConsumerQ.cc 
-		       TestHelper.cc 
-		       TypeID.cc 
-		       UnixSignalHandlers.cc 
+set( FWCoreUtilities_sources CPUTimer.cc
+		       CRC32Calculator.cc
+		       DebugMacros.cc
+		       Digest.cc
+		       EDMException.cc
+		       Exception.cc
+		       ExceptionCollector.cc
+		       FriendlyName.cc
+		       GlobalIdentifier.cc
+		       GlobalMutex.cc
+		       Guid.cc
+		       InputTag.cc
+		       MallocOpts.cc
+		       md5.c
+		       Parse.cc
+		       Presence.cc
+		       ReflexTools.cc
+		       RegexMatch.cc
+		       RootHandlers.cc
+		       SingleConsumerQ.cc
+		       TestHelper.cc
+		       TypeID.cc
+		       UnixSignalHandlers.cc
 		       WrappedClassName.cc )
 
-link_libraries( ${Boost_FILESYSTEM_LIBRARY} 
+link_libraries( ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_REGEX_LIBRARY}
 		${Boost_THREAD_LIBRARY}
-		${REFLEX} 
-		${CINT} 
+		${REFLEX}
+		${CINT}
 		dl )
 
 add_library(FWCoreUtilities SHARED ${FWCoreUtilities_sources} )

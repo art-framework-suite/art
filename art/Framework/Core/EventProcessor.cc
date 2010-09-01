@@ -296,7 +296,7 @@ namespace edm {
 	  try {
 	    std::vector<std::string> dataInfo =
 	      preferPSet.getParameter<std::vector<std::string> >(*itRecordName);
-	
+
 	    if(dataInfo.empty()) {
 	      //FUTURE: empty should just mean all data
 	      throw edm::Exception(errors::Configuration)

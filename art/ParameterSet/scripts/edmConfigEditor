@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 import cmd
 import readline
 import os
@@ -55,7 +55,7 @@ class CmsBuilder(cmd.Cmd):
 #        print self._builtInCommandNames
         if 0 != len(fileName):
             self.do__read(fileName)
-        
+
     def do_help(self,line):
         """Description: Show general help information
         Commands:
@@ -71,7 +71,7 @@ class CmsBuilder(cmd.Cmd):
             extraCommands = self.addedCommands
             extraCommands.sort()
             self.columnize(extraCommands)
-   
+
     def do_process(self,line):
         """Description: Show the configuration for the process
         Commands:
@@ -144,7 +144,7 @@ class CmsBuilder(cmd.Cmd):
             names = self._esModuleLabels.keys()
             names.sort()
             self.columnize(names)
- 
+
     def do_es_module(self,line):
         """Description: Show information about es_modules
         Commands:
@@ -155,7 +155,7 @@ class CmsBuilder(cmd.Cmd):
             return
         if(self.cfg):
             try:
-                self.__print_es_module(line) 
+                self.__print_es_module(line)
             except BadLabelException,e:
                 print "no es_module named '"+e.label+"'"
 
@@ -187,7 +187,7 @@ class CmsBuilder(cmd.Cmd):
             names = self._esSourceLabels.keys()
             names.sort()
             self.columnize(names)
- 
+
     def do_es_source(self,line):
         """Description: Show information about es_sources
         Commands:
@@ -279,7 +279,7 @@ class CmsBuilder(cmd.Cmd):
     def complete__read(self,text,line,begidx,endidx):
         space = line.rfind(' ',0,begidx);
         return [x[begidx-space-1:] for x in glob.glob(line[space+1:endidx]+"*")]
-        
+
     def do_path(self,line,dummy=''):
         """Description: Show the configuration of a path
         Commands:
@@ -302,7 +302,7 @@ class CmsBuilder(cmd.Cmd):
             paths = self.cfg.pathNames()
             paths.sort()
             self.columnize(paths)
-            
+
     def __print_path(self,pathName):
         """Prints the configuration of just one path"""
         if self.cfg:
@@ -310,7 +310,7 @@ class CmsBuilder(cmd.Cmd):
                 print "path: "+self.cfg.path(pathName)
             except KeyError:
                 raise BadLabelException(pathName)
-            
+
     def do_endpath(self,line,dummy=''):
         """Description: Show the configuration of an endpath
         Commands:
@@ -333,7 +333,7 @@ class CmsBuilder(cmd.Cmd):
             paths = self.cfg.endpathNames()
             paths.sort()
             self.columnize(paths)
-            
+
     def __print_endpath(self,pathName):
         """Prints the configuration of just one endpath"""
         if self.cfg:
@@ -341,7 +341,7 @@ class CmsBuilder(cmd.Cmd):
                 print "endpath: "+self.cfg.endpath(pathName)
             except KeyError:
                 raise BadLabelException(pathName)
-            
+
     def do_sequence(self,line,dummy=''):
         """Description: Show the configuration of a sequence
         Commands:
@@ -364,7 +364,7 @@ class CmsBuilder(cmd.Cmd):
             seqs = self.cfg.sequenceNames()
             seqs.sort()
             self.columnize(seqs)
-            
+
     def __print_sequence(self,seqName):
         """Prints the configuration of just one sequence"""
         if self.cfg:
@@ -372,7 +372,7 @@ class CmsBuilder(cmd.Cmd):
                 print "sequence: "+self.cfg.sequence(seqName)
             except KeyError:
                 raise BadLabelException(seqName)
-            
+
     def do_quit(self,line):
         """Description: quit application"""
         return True
@@ -421,7 +421,7 @@ class CmsBuilder(cmd.Cmd):
             print "es_source:"
             #self.do_es_source('')
             self.__print_with_indent(self.do_es_source)
-        
+
     def __print_pset(self,psetDict,indent):
         """print the contents of a pset"""
         keys = psetDict.keys()
@@ -437,7 +437,7 @@ class CmsBuilder(cmd.Cmd):
                     print indent+' {'
                     self.__print_pset(i,indent+"  ")
                     print indent+' }'
-                continue            
+                continue
             if 'v'==param[0][0]:
                 value = ''
                 for i in param[2]:
@@ -479,16 +479,16 @@ class CmsBuilder(cmd.Cmd):
                 print ' {'
                 self.__print_pset(i,"  ")
                 print ' }'
-            return            
+            return
         if param[0][0] == 'v':
             value = ''
             for i in param[2]:
                 value +=i+" "
         print "("+param[1]+" "+param[0]+") "+value
-        
+
     def __print_module_param(self,label,line):
         self.__print_pset_param(label,line,self.cfg.module(label))
-     
+
     def __print_pset_param(self,label,line,psetDict):
         labels = line.split('.')
         if 2 > len(labels):
@@ -505,9 +505,9 @@ class CmsBuilder(cmd.Cmd):
             if not x in param[2]:
                 print 'the label '+depth+' has no sub label '+x
                 return
-            param = param[2][x]            
+            param = param[2][x]
         self.__print_param_value(param)
-        
+
     def __add_module_label(self,label):
         """create new commands for the new module label"""
         self.__add_new_label(label,CmsBuilder.__module_help,CmsBuilder.__print_module,CmsBuilder.__module_complete)
@@ -586,17 +586,17 @@ class CmsBuilder(cmd.Cmd):
         print "Description: retrieve information about path "+label
         print "Commands:"
         print label+"    prints path description"
-    
+
     def __endpath_help(self,label):
         print "Description: retrieve information about endpath "+label
         print "Commands:"
         print label+"    prints endpath description"
-    
+
     def __sequence_help(self,label):
         print "Description: retrieve information about sequence "+label
         print "Commands:"
         print label+"    prints sequence description"
-    
+
     def __pset_help(self,label,lType):
         print "Description: retrieve information about "+lType+" "+label
         print "Commands:"
@@ -642,7 +642,7 @@ class CmsBuilder(cmd.Cmd):
     def __path_complete(self,label,text,line,begidx,endidx):
         #print '"'+text+'"'
         return []
-    
+
     def complete_path(self,text,line,begidx,endidx):
         #if the separator is not a space then no match
         # note: 4 is the length of the string 'path'
@@ -658,7 +658,7 @@ class CmsBuilder(cmd.Cmd):
     def __endpath_complete(self,label,text,line,begidx,endidx):
         #print '"'+text+'"'
         return []
-    
+
     def complete_endpath(self,text,line,begidx,endidx):
         #if the separator is not a space then no match
         # note: 4 is the length of the string 'path'
@@ -674,7 +674,7 @@ class CmsBuilder(cmd.Cmd):
     def __sequence_complete(self,label,text,line,begidx,endidx):
         #print '"'+text+'"'
         return []
-    
+
     def complete_sequence(self,text,line,begidx,endidx):
         #if the separator is not a space then no match
         # note: 4 is the length of the string 'path'
@@ -686,7 +686,7 @@ class CmsBuilder(cmd.Cmd):
 if __name__=="__main__":
     import sys
     import optparse
-    
+
     usage = "%prog [options] [configuration file name]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("--test", action="store_true", dest="test", default=False, help="run the builtin application tests")
@@ -695,7 +695,7 @@ if __name__=="__main__":
         print "run tests"
         import unittest
         import tempfile
-        
+
         class PrintIntercept:
             def __init__(self):
                 self.__lastPrint = ""
@@ -705,7 +705,7 @@ if __name__=="__main__":
                 self.__lastPrint += info
             def clear(self):
                 self.__lastPrint=""
-        
+
         class TestModuleCommand(unittest.TestCase):
             def setUp(self):
                 self.stdout = sys.stdout
@@ -829,11 +829,11 @@ if __name__=="__main__":
                         finally:
                             self.__reset()
 
-                    
+
 
         #the test system also reads the command line options so I must remove '--test'
         sys.argv.remove("--test")
-        
+
         unittest.main()
         sys.exit(0)
     fileName=""

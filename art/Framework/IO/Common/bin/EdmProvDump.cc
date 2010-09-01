@@ -439,7 +439,7 @@ ProvenanceDumper::work_() {
 	   itIdEnd = it->second.psetIDs().end();
 	 itId != itIdEnd;
 	 ++itId) {
-	
+
       std::stringstream s;
       s <<*itId;
       moduleToIdBranches[std::make_pair(it->second.processName(),it->second.moduleLabel())][s.str()].push_back(it->second);

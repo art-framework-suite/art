@@ -4,7 +4,7 @@
 //
 // Package:     HeteroContainer
 // Module:      HCTypeTag
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -89,7 +89,7 @@ class HCTypeTagNameHolder {
 // HCTypeTag::HCTypeTag(const HCTypeTag& rhs)
 // {
 //    // do actual copying here; if you implemented
-//    // operator= correctly, you may be able to use just say      
+//    // operator= correctly, you may be able to use just say
 //    *this = rhs;
 // }
 
@@ -127,11 +127,11 @@ HCTypeTag< Group >::findType(const std::string& iTypeName)
 {
    std::map<std::string, TypeIDBase>::iterator itFind = HCTypeTagNameHolder<Group>::typeNameToValueMap().find(
       iTypeName);
-   
+
    if(itFind == HCTypeTagNameHolder<Group>::typeNameToValueMap().end()) {
       return HCTypeTag< Group >();
    }
-   
+
    return HCTypeTag< Group >((*itFind).second, (*itFind).first.c_str());
 }
 

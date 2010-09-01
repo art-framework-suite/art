@@ -1,7 +1,7 @@
 %MSG-i expect_non_supercede_common_specific:  UnitTestClient_F:sendSomeMessages  Run: 1 Event: 1
-The following outputs are expected: 
-int7bycommondefault appearing in events 1,19,37 
-unlisted_category appearing in events 1,27 
+The following outputs are expected:
+int7bycommondefault appearing in events 1,19,37
+unlisted_category appearing in events 1,27
 
 %MSG
 %MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1

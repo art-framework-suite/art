@@ -82,7 +82,7 @@ LogError was used to send this other message
 TimeModule> 10 1 sendSomeMessages UnitTestClient_A 0.00029707
 TimeEvent> 10 1 0.00065589
 TimeReport> Time report complete in 0.017045 seconds
- Time Summary: 
+ Time Summary:
  Min: 0.000648022
  Max: 0.00337982
  Avg: 0.0017045

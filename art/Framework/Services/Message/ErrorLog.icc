@@ -16,8 +16,8 @@
 #include <cstdlib>
 
 
-namespace edm {       
-namespace service {       
+namespace edm {
+namespace service {
 
 
 // ----------------------------------------------------------------------
@@ -39,8 +39,8 @@ ErrorLog & operator<<( ErrorLog & e, const T & t )  {
   #ifdef ErrorLog_EMIT_TRACE
     std::cerr << "=:=:=: ErrorLog_EMIT_TRACE: " << t << "\n"
 	      << "                            " << ost.str() << std::endl;
-    std::cerr << "                            " << "sizeof(t) = " 
-						<<  sizeof(t) << std::endl; 
+    std::cerr << "                            " << "sizeof(t) = "
+						<<  sizeof(t) << std::endl;
   #endif
 
   return  e.emit( ost.str() );

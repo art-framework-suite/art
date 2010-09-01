@@ -5,7 +5,7 @@
 //
 // Package:     Framework
 // Class  :     recordGetImplementation
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -28,26 +28,26 @@
 namespace edm {
    namespace eventsetup {
       template <typename T>
-      template < typename DataT > 
-      void 
+      template < typename DataT >
+      void
       EventSetupRecordImplementation<T>::getImplementation(DataT const *& iData ,
 							   const char* iName,
-							   const ComponentDescription*& iDesc) const 
+							   const ComponentDescription*& iDesc) const
       {
 	 DataKey dataKey(DataKey::makeTypeTag<DataT>(),
 			 iName,
 			 DataKey::kDoNotCopyMemory);
-	 
-	 const DataProxyTemplate<T, DataT>* proxy = 
+
+	 const DataProxyTemplate<T, DataT>* proxy =
 	    static_cast<const DataProxyTemplate<T, DataT>* >(this->find(dataKey));
-	 
+
 	 const DataT* hold = 0;
-	 
+
 	 if(0!=proxy) {
 	    try{
 	       hold = proxy->get(static_cast<const T&>(*this), dataKey);
 	       iDesc = proxy->providerDescription();
-	       
+
 	    } catch(cms::Exception& e) {
 	       e<<"cms::Exception going through EventSetup component "
 		<<proxy->providerDescription()->type_
@@ -55,7 +55,7 @@ namespace edm {
 		<<"  while making data "<< dataKey.type().name()<<"/\""<<iName
 		<<" in record \""<<this->key().type().name()<<"\"\n";
 	       throw;
-	       
+
 	    } catch(std::exception& e){
 	       cms::Exception changedException("StdException");
 	       changedException
@@ -64,7 +64,7 @@ namespace edm {
 		  <<"  while making data "<< dataKey.type().name()<<"/\""<<iName<<" in record \""<<this->key().type().name()<<"\"\n"
 		  <<"  Previous information:\n  \"" << e.what()<<"\"\n";
 	       throw changedException;
-	       
+
 	    }
 	 }else{
 	    throw NoProxyException<DataT>(*this, dataKey);

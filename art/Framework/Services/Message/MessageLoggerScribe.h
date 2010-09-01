@@ -28,7 +28,7 @@ namespace service {
 //
 // Changes:
 //
-//   1 - 2/6/07  mf  	
+//   1 - 2/6/07  mf
 //	Set up ability to get a remembered pointer to the ErrorLog of an
 //      instance of MessageLoggerScribe, from a non-member function, via
 //	getErrorLog_ptr(), and a corresponding routine to remember the pointer
@@ -42,7 +42,7 @@ namespace service {
 //   3 - 3/13/07 mf
 //	 Added configure_ordinary_destinations, configure_fwkJobReports,
 //	 and configure_statistics to allow these to be broken out of
-//	 configure_errorlog. 	
+//	 configure_errorlog.
 //
 //   4 - 3/26/07 mf
 //	 Added configure_default_fwkJobReport, which implements the config
@@ -108,7 +108,7 @@ private:
   void  configure_fwkJobReports( );				// Change Log 3
   void  configure_ordinary_destinations( );			// Change Log 3
   void  configure_statistics( );				// Change Log 3
-  void  configure_dest( ELdestControl & dest_ctrl		
+  void  configure_dest( ELdestControl & dest_ctrl
                       , String const &  filename
 		      );
   void  configure_default_fwkJobReport( ELdestControl & dest_ctrl); //ChangeLog 4
@@ -160,7 +160,7 @@ private:
 		<< "Use of tracked parameters for the message service "
 		<< "is not allowed.\n"
 		<< "The .cfg file should be modified to make this untracked.\n";
-      throw e;		
+      throw e;
     } catch (...) {
       // This is not the usual tracked/untracked error; we can't add useful info
       throw;
@@ -182,7 +182,7 @@ private:
     T t;
     t = p->template getUntrackedParameter<T>(id, def);
     return t;
-  }								
+  }
 #endif
 
 

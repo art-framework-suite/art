@@ -1,7 +1,7 @@
 # Unit test configuration file for messageSummaryToJobReport
 #   Tests proper output of both ungrouped and grouped categories
-#   in summary placed in the FrameworkJobReport.xml. 
-#   Suggested regression-test usage (.sh file): 
+#   in summary placed in the FrameworkJobReport.xml.
+#   Suggested regression-test usage (.sh file):
 #   fw -j u27FJR.xml
 
 import FWCore.ParameterSet.python.Config as cms
@@ -31,9 +31,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob', 
-        'timer', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'FwkJob',
+        'timer',
         'trace'),
     destinations = cms.untracked.vstring('u27_infos')
 )

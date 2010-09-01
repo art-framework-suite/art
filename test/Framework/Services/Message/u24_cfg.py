@@ -31,9 +31,9 @@ process.MessageLogger = cms.Service("MessageLogger",
         extension = cms.untracked.string('log'),
         filename = cms.untracked.string('u24')
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u24_warnings', 
+    destinations = cms.untracked.vstring('u24_warnings',
         'u24_errors')
 )
 

@@ -121,16 +121,16 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 
 		res = nbTrie.find("Un", 2);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
-		
+
 		res = nbTrie.find("UN", 2);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 
 		res = nbTrie.find("", 0);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
-		
+
 		res = nbTrie.find("deux");
 		CPPUNIT_ASSERT_EQUAL((unsigned)2, res);
-		
+
 		res = nbTrie.find(" deux ", 6);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 	  }

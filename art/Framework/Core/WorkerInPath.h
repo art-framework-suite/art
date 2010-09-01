@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	
+
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.

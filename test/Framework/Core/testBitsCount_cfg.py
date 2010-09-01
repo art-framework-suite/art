@@ -78,7 +78,7 @@ process.outp4 = cms.OutputModule("SewerModule",
     shouldPass = cms.int32(4),
     name = cms.string('for_p1ap2a'),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p1a', 
+        SelectEvents = cms.vstring('p1a',
             'p2a')
     )
 )

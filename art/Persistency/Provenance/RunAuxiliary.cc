@@ -57,6 +57,6 @@ namespace edm {
   {
     allEventsProcessHistories_.insert(newAux.allEventsProcessHistories_.begin(),
 				      newAux.allEventsProcessHistories_.end());
-				
+
   }
 }

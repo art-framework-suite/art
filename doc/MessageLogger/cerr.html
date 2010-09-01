@@ -9,7 +9,7 @@
 
 <font color=red>
 <h1>CMS MessageLogger Service
-<br> 
+<br>
 Establishing a Destination to the <em>cerr</em> Stream</h1>
 </font>
 </center>
@@ -25,7 +25,7 @@ process TEST = {
                              , <font color=red>"cerr"</font>
                                              }
     PSet critical.txt     = { string threshold = "ERROR"   }
-    PSet detailedInfo.txt = { string threshold = "INFO"    } 
+    PSet detailedInfo.txt = { string threshold = "INFO"    }
     PSet <font color=red>cerr</font>             = { string threshold = "WARNING" }
   }
 
@@ -36,11 +36,11 @@ process TEST = {
 }
 </pre>
 
-The <font color=red>{ ..., "cerr", ... }</font> 
-in the list of destinations refers to message information streamed to 
-<em>std::cout</em> rather than to a file named cerr.  
+The <font color=red>{ ..., "cerr", ... }</font>
+in the list of destinations refers to message information streamed to
+<em>std::cout</em> rather than to a file named cerr.
 <p>
-It is 
+It is
 possible for a message to be sent to cerr even though no such stream is listed
 in the configuration file, since any message sent before services are configured
 will go to a cerr destination.  However, unless cerr appears in the configuration
@@ -56,7 +56,7 @@ an ordinary file named cout or cerr.
 
 <p><center>
 <a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> - 
+USCMS Software and Computing Home Page </a> -
 <a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
 <a href="parameters.html#example"> Configuration File </a>
 </center>

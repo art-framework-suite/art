@@ -17,14 +17,14 @@ link_libraries( IOPoolInput
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_THREAD_LIBRARY}
 		${CLHEP}
-                ${CORE} 
-		${REFLEX} 
-		${CINTEX} 
-		${CINT} 
-		${RIO} 
-		${NET} 
-		${TREE} 
-		${CPPUNIT} 
+                ${CORE}
+		${REFLEX}
+		${CINTEX}
+		${CINT}
+		${RIO}
+		${NET}
+		${TREE}
+		${CPPUNIT}
 		-luuid -ldl )
 
 add_executable( TestPoolInput TestPoolInput.cpp )

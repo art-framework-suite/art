@@ -31,7 +31,7 @@ set( FWCoreServiceRegistry_sources ActivityRegistry.cc
 link_libraries( FWCoreUtilities
                 FWCoreParameterSet
 		FWCorePluginManager
-                ${Boost_FILESYSTEM_LIBRARY} 
+                ${Boost_FILESYSTEM_LIBRARY}
 		${SIGC} )
 
 add_library(FWCoreServiceRegistry SHARED ${FWCoreServiceRegistry_sources} )

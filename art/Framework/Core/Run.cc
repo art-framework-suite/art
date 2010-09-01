@@ -67,7 +67,7 @@ namespace edm {
       {
 	ParameterSet temp;
 	psreg->getMapped(*i, temp);
-	psets.push_back(temp);	
+	psets.push_back(temp);
       }
 
     return false;

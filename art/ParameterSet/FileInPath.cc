@@ -367,7 +367,7 @@ namespace edm
       if (locateFile(pathPrefix, relativePath_)) {
 	// Convert relative path to canonical form, and save it.
 	relativePath_ = bf::path(relativePath_, bf::no_check).normalize().string();
-	
+
 	// Save the absolute path.
 	canonicalFilename_ = bf::complete(relativePath_,
 					  pathPrefix).string();
@@ -412,7 +412,7 @@ namespace edm
 	    }
 	  }
 	}
-	
+
 	// This is really gross --- this organization of if/else
 	// inside the while-loop should be changed so that
 	// this break isn't needed.

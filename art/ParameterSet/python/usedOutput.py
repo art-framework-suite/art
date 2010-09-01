@@ -11,7 +11,7 @@ def getModulesFromSequence(sequence,list):
          getModulesFromSequence(item,list)
     else:
          _getModulesFromOp(item,list)
-                                                    
+
 
 def _getModulesFromOp(op,list):
     for item in dir(op):
@@ -22,7 +22,7 @@ def _getModulesFromOp(op,list):
             _getModulesFromOp(o,list)
         elif isinstance(o,sqt._Sequenceable):
             _getModulesFromOp(o,list)
-                    
+
 
 def extractUsedOutputs(process):
     allEndPathModules = []
@@ -65,6 +65,6 @@ if __name__ == "__main__":
             list = []
             getModulesFromSequence(p.p,list)
             print len(list)
-                       
+
 
     unittest.main()

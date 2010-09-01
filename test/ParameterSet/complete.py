@@ -102,7 +102,7 @@ process.s4 = cms.Sequence(process.a)
 
 process.p1 = cms.Path((process.a+process.b)* process.c )
 process.p2 = cms.Path(process.s1+ (process.s3*process.s2) )
-  
+
 process.ep1 = cms.EndPath(process.y*process.z)
 
 process.schedule = cms.Schedule(process.p1, process.p2, process.ep1)
@@ -125,16 +125,16 @@ process.esm1 = cms.ESProducer("ESMType1",
     s= cms.string("hi")
   )
 
-ESMType2 = cms.ESProducer("ESMType2", 
+ESMType2 = cms.ESProducer("ESMType2",
     a=cms.int32(3)
   )
 process.add_(ESMType2)
 
-s1 = cms.Service("ServiceType1", 
+s1 = cms.Service("ServiceType1",
   b=cms.double(2)
 )
 
-s2 = cms.Service("ServiceType2", 
+s2 = cms.Service("ServiceType2",
   x=cms.double(1.5)
 )
 

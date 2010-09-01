@@ -403,7 +403,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         if len(params):
             #need to treat items both in params and myparams specially
             for key,value in params.iteritems():
-                if key in myparams:                    
+                if key in myparams:
                     if isinstance(value,_ParameterTypeBase):
                         myparams[key] =value
                     else:

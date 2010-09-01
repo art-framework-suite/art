@@ -6,27 +6,27 @@ set( cpp_files TestIntegration.cpp
 set( TestThingProducer_sources ThingProducer.cc ThingAlgorithm.cc )
 set( TestHistProducer_sources ThingProducer.cc ThingAlgorithm.cc )
 
-set( exe_list TestIntegrationEventHistory 
-	      TestIntegrationRef 
-	      TestIntegrationTransRef 
-	      TestIntegrationGeneratedSource 
-	      TestIntegrationExternalSource 
-	      TestIntegrationRawSource 
-	      TestIntegrationEventSetup 
-	      TestIntegrationHierarchyExample 
-	      TestIntegrationServiceExample 
-	      TestIntegrationView 
-	      TestIntegrationSeriesOfProcesses 
-	      TestIntegrationUnscheduledFailOnOutput 
-	      TestIntegrationParentless 
-	      TestIntegrationRunMerge 
-	      TestIntegrationParameterSet 
-	      CatchStdExceptiontest 
+set( exe_list TestIntegrationEventHistory
+	      TestIntegrationRef
+	      TestIntegrationTransRef
+	      TestIntegrationGeneratedSource
+	      TestIntegrationExternalSource
+	      TestIntegrationRawSource
+	      TestIntegrationEventSetup
+	      TestIntegrationHierarchyExample
+	      TestIntegrationServiceExample
+	      TestIntegrationView
+	      TestIntegrationSeriesOfProcesses
+	      TestIntegrationUnscheduledFailOnOutput
+	      TestIntegrationParentless
+	      TestIntegrationRunMerge
+	      TestIntegrationParameterSet
+	      CatchStdExceptiontest
 	      CatchCmsExceptiontest )
 
-link_libraries( FWCoreFramework 
+link_libraries( FWCoreFramework
                 FWCorePluginManager
-                FWCoreUtilities 
+                FWCoreUtilities
                 ${Boost_FILESYSTEM_LIBRARY}  )
 
 # more libraries to be added

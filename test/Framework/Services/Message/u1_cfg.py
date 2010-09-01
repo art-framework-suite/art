@@ -53,12 +53,12 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     fwkJobReports = cms.untracked.vstring('u1_job_report.mxml'),
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u1_warnings', 
-        'u1_errors', 
-        'u1_infos', 
-        'u1_debugs', 
+    destinations = cms.untracked.vstring('u1_warnings',
+        'u1_errors',
+        'u1_infos',
+        'u1_debugs',
         'u1_default')
 )
 

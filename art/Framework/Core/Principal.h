@@ -199,7 +199,7 @@ namespace edm {
 
   template <typename PROD>
   inline
-  boost::shared_ptr<Wrapper<PROD> const> 	
+  boost::shared_ptr<Wrapper<PROD> const>
   getProductByTag(Principal const& ep, InputTag const& tag) {
     return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process()).product());
   }

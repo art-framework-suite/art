@@ -7,7 +7,7 @@ set (FWCoreFW_VERSION_MINOR 0)
 
 set( FWCoreFW_sources muteapp.cc )
 
-link_libraries( FWCoreFW 
+link_libraries( FWCoreFW
                 DataFormatsProvenance
                 DataFormatsCommon
 		FWCoreMessageLogger
@@ -18,11 +18,11 @@ link_libraries( FWCoreFW
 		FWCoreServiceRegistry
 		FWCoreUtilities
 		FWCoreVersion
-                ${Boost_FILESYSTEM_LIBRARY} 
-                ${Boost_PROGRAM_OPTIONS_LIBRARY} 
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PROGRAM_OPTIONS_LIBRARY}
                 ${SIGC}
 		${CORE}
-		${REFLEX} 
+		${REFLEX}
 		${MATRIX} )
 
 add_library(FWCoreFW SHARED ${FWCoreFW_sources} )

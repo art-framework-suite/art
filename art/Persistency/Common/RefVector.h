@@ -136,7 +136,7 @@ namespace edm {
     bool hasProductCache() const {return refVector_.refCore().productPtr() != 0;}
 
     void fillView(ProductID const& id,
-		  std::vector<void const*>& pointers,		
+		  std::vector<void const*>& pointers,
 		  helper_vector& helpers) const;
 
   private:
@@ -183,7 +183,7 @@ namespace edm {
       member_type const* address = i->isNull() ? 0 : &**i;
       pointers.push_back(address);
       holder_type h(ref_type(i->id(), address, i->key(), product() ));
-      helpers.push_back( & h );	
+      helpers.push_back( & h );
     }
   }
 

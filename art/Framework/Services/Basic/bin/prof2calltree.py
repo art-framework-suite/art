@@ -48,12 +48,12 @@ class Node:
 
     def parentTicks(me,count):
         me.ticks_as_parent += int(count)
-    
+
     def childTicks(me,count):
         c = int(count)
         me.ticks_as_parent += c
         me.ticks_as_child += c
-        
+
     def recurTicks(me,count):
         me.ticks_as_parent_recur += int(count)
 
@@ -87,7 +87,7 @@ else:
     namefile = csv.reader(open(prefix+"nice_names","rb"),delimiter='\t')
     for row in namefile:
         names[int(row[0])] = Node(row[0],row[-1])
-    
+
 
 print >>outfile,"events: ticks"
 
@@ -141,12 +141,12 @@ for node in names.values():
     print >>outfile,"fn=(%d)"%node.fid
     print >>outfile,"0 %d"%cost
     #print >>outfile,"\n\n"
-    
+
     for child in node.children.keys():
         count = edges[(node.fid,child)].count
         print >>outfile,"cfn=(%d)"%child
         print >>outfile,"calls=%d 0"%count
         print >>outfile,"0 %d"%count
-        
+
     print >>outfile,"\n\n"
-            
+

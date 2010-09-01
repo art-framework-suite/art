@@ -1,5 +1,5 @@
 #ifndef ELTSERRORLOG_ICC
-  #error ELtsErrorLog.icc erroneously included by wrong file 
+  #error ELtsErrorLog.icc erroneously included by wrong file
 #endif
 
 // ----------------------------------------------------------------------
@@ -10,8 +10,8 @@
 
 #include <iostream>
 
-namespace edm {       
-namespace service {       
+namespace edm {
+namespace service {
 
 
 // ----------------------------------------------------------------------
@@ -25,8 +25,8 @@ void ELtsItem ( ELtsErrorLog & e, const T & t ) {
   if (e.e.discarding) return e;
   std::ostringstream  ost;
   ost << t << ' ';
-  e.msg.emit ( ost.str() ); 
-}  
+  e.msg.emit ( ost.str() );
+}
 
 // ----------------------------------------------------------------------
 // Message Continuation:

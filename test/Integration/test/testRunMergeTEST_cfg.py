@@ -19,8 +19,8 @@ process.source = cms.Source("PoolSource",
         'file:testRunMerge.root'
     ),
     secondaryFileNames = cms.untracked.vstring(
-        'file:testRunMerge1.root', 
-        'file:testRunMerge2.root', 
+        'file:testRunMerge1.root',
+        'file:testRunMerge2.root',
         'file:testRunMerge3.root',
         'file:testRunMerge4.root',
         'file:testRunMerge5.root'

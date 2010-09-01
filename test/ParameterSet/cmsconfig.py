@@ -40,8 +40,8 @@ def pset_dict_to_string(psetDict):
 
     for name, value in psetDict.iteritems():
         stream.write('%s' % printable_parameter(name, value))
-        stream.write('\n')        
-    
+        stream.write('\n')
+
     stream.write('}\n')
     return stream.getvalue()
 
@@ -64,13 +64,13 @@ class printable_parameter:
     representation of a single parameter, suitable for printing.
 
     Note that 'value' may in fact be a list."""
-    
+
     def __init__(self, aName, aValueTuple):
         self.name = aName
         self.type, self.trackedCode, self.value = aValueTuple
         # Because the configuration grammar treats tracked status as
         # the default, we only have to write 'untracked' as the
-        # tracking code if the parameter is untracked.        
+        # tracking code if the parameter is untracked.
         if self.trackedCode == "tracked":
             self.trackedCode = ""
         else:
@@ -102,7 +102,7 @@ class printable_parameter:
         """Print this parameter in the right format for a
         configuration file."""
         s = "%(trackedCode)s%(type)s %(name)s = %(value)s" % self.__dict__
-        return s    
+        return s
 
 # I'm not using new-style classes, because I'm not sure that we can
 # rely on a new enough version of Python to support their use.
@@ -110,7 +110,7 @@ class printable_parameter:
 class cmsconfig:
     """A class to provide convenient access to the contents of a
     parsed CMS configuration file."""
-    
+
     def __init__(self, stringrep):
         """Create a cmsconfig object from the contents of the (Python)
         exchange format for configuration files."""
@@ -235,7 +235,7 @@ class cmsconfig:
         # Let's try to make sure we lose no resources if something
         # fails in formatting...
         result = ""
-        
+
         try:
             stream = cStringIO.StringIO()
             self.__write_self_to_stream(stream)
@@ -243,7 +243,7 @@ class cmsconfig:
 
         finally:
             stream.close()
-        
+
         return result
 
     def asPythonString(self):
@@ -251,7 +251,7 @@ class cmsconfig:
        this object to facilitate saving and loading of python format"""
        result = "#!/usr/bin/env python\n"
        result += str(self.psdata)
-       return result 
+       return result
 
     def __write_self_to_stream(self, fileobj):
         """Private method.
@@ -270,11 +270,11 @@ class cmsconfig:
         fileobj."""
 
         # TODO: introduce, and deal with, top-level PSet objects and
-        # top-level block objects.        
+        # top-level block objects.
         self.__write_main_source(fileobj)
         self.__write_looper(fileobj)
         self.__write_psets(fileobj)
-        self.__write_es_sources(fileobj)        
+        self.__write_es_sources(fileobj)
         self.__write_es_modules(fileobj)
         self.__write_es_prefers(fileobj)
         self.__write_modules(fileobj)
@@ -367,7 +367,7 @@ class cmsconfig:
         for name in self.pathNames():
             fileobj.write("path %s = {%s}\n" % (name, self.path(name)))
 
-        
+
     def __write_endpaths(self, fileobj):
         """Private method.
         Return None
@@ -401,7 +401,7 @@ class cmsconfig:
         	self.__write_module_guts(mis, fileobj)
         	fileobj.write('}\n')
 
-    
+
     def __write_module_guts(self, moddict, fileobj):
         """Private method.
         Return None
@@ -418,8 +418,8 @@ class cmsconfig:
                 fileobj.write('%s' % printable_parameter(name, value))
                 fileobj.write('\n')
 
-            
-        
+
+
 if __name__ == "__main__":
     from sys import argv
     filename = "complete.pycfg"
@@ -429,5 +429,5 @@ if __name__ == "__main__":
     txt = file(filename).read()
     cfg = cmsconfig(txt)
     print cfg.asConfigurationString()
-    
+
 

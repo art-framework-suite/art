@@ -109,11 +109,11 @@ void PrintLoadingPlugins::askedToLoad(const std::string& iCategory,
       std::pair<PIItr,PIItr> range = std::equal_range(itFound->second.begin(),itFound->second.end(),i,PICompare());
 
       if(range.second - range.first > 1){
-	
+
 	 const boost::filesystem::path& loadable = range.first->loadable_;
-	
+
 	 libname = loadable.native_file_string();
-	
+
       }
 
       edm::LogAbsolute("GetPlugin")<<"Getting> '"<<iCategory<< "' "<<iPlugin

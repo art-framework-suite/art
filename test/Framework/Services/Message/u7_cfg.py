@@ -29,10 +29,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    destinations = cms.untracked.vstring('u7_log', 
+    destinations = cms.untracked.vstring('u7_log',
         'u7_restrict'),
-    categories = cms.untracked.vstring('FwkJob', 
-        'special', 
+    categories = cms.untracked.vstring('FwkJob',
+        'special',
         'FwkJob'),
     fwkJobReports = cms.untracked.vstring('u7_job_report.mxml')
 )

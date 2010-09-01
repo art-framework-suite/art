@@ -46,9 +46,9 @@ set( FWCoreParameterSet_sources Entry.cc
 				types.cc )
 
 link_libraries( FWCoreUtilities
-		FWCoreMessageLogger 
-                ${Boost_FILESYSTEM_LIBRARY} 
-                ${Boost_PYTHON_LIBRARY} 
+		FWCoreMessageLogger
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PYTHON_LIBRARY}
 		${SIGC}
 		${PYTHON} )
 

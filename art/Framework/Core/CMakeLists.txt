@@ -206,7 +206,7 @@ link_libraries( DataFormatsProvenance
 		FWCoreServiceRegistry
 		FWCoreUtilities
 		FWCoreVersion
-                ${Boost_FILESYSTEM_LIBRARY} 
+                ${Boost_FILESYSTEM_LIBRARY}
                 ${SIGC}
 		${CORE}
 		${REFLEX} )

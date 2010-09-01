@@ -223,7 +223,7 @@ namespace edm {
       case 0:
       {
 	hash_ = edm::detail::InvalidHash();
-      }	
+      }
       case 16:
       {
 	break;

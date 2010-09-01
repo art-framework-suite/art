@@ -9,14 +9,14 @@
 
 <font color=red>
 <h1>CMS MessageLogger Service
-<br> 
+<br>
 CMS Guidelines for Messages and Categories</h1>
 </font>
 </center>
 
 Messages sent to the logger are identified by two basic dimensions: a
 severity and a category.  There are four fixed severities; the MessageLogger
-can accept any string (of up to 20 letters) as a category. 
+can accept any string (of up to 20 letters) as a category.
 Here is some guidance for how to decide which
 severity to use, and which category to assign.
 
@@ -32,10 +32,10 @@ each level:
 </pre>
 </font>
 
-Here are some guidelines for the use of the functions. 
+Here are some guidelines for the use of the functions.
 <ol>
 <li>
-<font color=blue><code>LogDebug</code></font>: 
+<font color=blue><code>LogDebug</code></font>:
 There will be no message formatting overhead if the
 debugging messages are not enabled, the statement
 will be able to be removed completely at compile time with the proper defines.
@@ -45,7 +45,7 @@ algorithm that is useful for figuring
     out the behavior of the algorithm or reporting positions that the
 program has reached. Examples:
 <pre>
-  LogDebug("SegmentFinder") << "Matching segment" << i 
+  LogDebug("SegmentFinder") << "Matching segment" << i
                             << "in tracking volume" << vol;
   LogDebug("SegmentFinder") << "Starting to find candidates from"
                             << numhits << "hits";
@@ -53,10 +53,10 @@ program has reached. Examples:
 <li>
 Use this for messages that should not normally be issued when
 running on a farm in production.
-</ul>                                                                                
- 
+</ul>
+
 <li>
-<font color=blue><code>edm::LogDebug</code></font>: 
+<font color=blue><code>edm::LogDebug</code></font>:
 <ul>
 <li> Use this for low frequency or course-grained status reporting, such as
 <pre>
@@ -66,37 +66,37 @@ running on a farm in production.
 reports while running on a farm in production.
 </ul>
 
-<li>                                                                               
-<font color=blue><code>edm::LogWarning</code></font>: 
+<li>
+<font color=blue><code>edm::LogWarning</code></font>:
 <ul>
 <li> Use this when an algorithm encounters a perverse
 situation that does not cause an exception
 to be thrown, but the person running the program should be well aware
 of.  A simple example is
 <pre>
-  edm::LogWarning("Convergence") << "Could not satisfy convergence criteria in" 
+  edm::LogWarning("Convergence") << "Could not satisfy convergence criteria in"
                                  << iters << "iterations, continuing";
-  edm::LogWarning("TooMuchData") << "Found" << x 
+  edm::LogWarning("TooMuchData") << "Found" << x
                                  << "candidates, using only the top 100;
 </pre>
 </ul>
-                                                                                
-<li><font color=blue><code>edm::LogError</code></font>: 
+
+<li><font color=blue><code>edm::LogError</code></font>:
 This is only to be used to report errors that result from
-exceptions throws.  
+exceptions throws.
 <ul>
 <li>
 Do not use <font color=blue><code>edm::LogError</code></font>
 if you throw an exception - the system will make this call for you when
 the exception is caught.  Put all
-the information that you want reported into the exception.  
+the information that you want reported into the exception.
 <li>
-If you 
+If you
 have a situation where you encounter
 an error, but cannot throw an exception (i.e. can only return a bad
 return code), then it may be appropriate to issue a message via
-<font color=blue><code>edm::LogError</code></font> 
-</ul>                                                                          
+<font color=blue><code>edm::LogError</code></font>
+</ul>
 </ol>
 
 
@@ -110,28 +110,28 @@ When exceptions are caught by the framework, the category of the
 exception is used as the LogError
 category. Choosing general names for conditions will facitate filtering
 and output log browsing.
-<p>                                                                                
-For errors and warnings, category name examples include: 
-<pre> 
+<p>
+For errors and warnings, category name examples include:
+<pre>
   DataNotFound
   TooLittleData
   TooMuchData
   ReadoutError
   TimeBudgetExceeded
-</pre>                                                                                
+</pre>
 
 By convention, category names should be 20 characters or shorter.
-<p>                                                                              
+<p>
 A log message can be a member of more than one category using the syntax:
 <pre>
   edm::LogWarning("TooLittleData<font color=red>|</font>Tracking") << "...";
-</pre>                                                                           
+</pre>
 Such "compound" categories can, of course, exceed 20 characters.
 
 <p>
 For Info and Debug, category names can include the function that is
 being performed.  Be aware, however, that the module label will automatically
-be affixed to the message, so explicitly placing that into the category or 
+be affixed to the message, so explicitly placing that into the category or
 as an item in the message is superfluous.
 <p>
 

@@ -18,7 +18,7 @@ namespace edm
 		CurrentProcessingContext const* value) :
 	referenced_(&c)
       {
-	c = value;	
+	c = value;
       }
 
       ~CPCSentry() { *referenced_ = 0; }

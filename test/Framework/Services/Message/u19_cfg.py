@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     debugModules = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('u19_infos', 
+    destinations = cms.untracked.vstring('u19_infos',
         'u19_debugs'),
     u19_debugs = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
@@ -34,8 +34,8 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'FwkJob',
         'ridiculously_long_category_name'),
     fwkJobReports = cms.untracked.vstring('u1_job_report.mxml')
 )

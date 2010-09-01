@@ -1,5 +1,5 @@
 # Unit test configuration file for MessageLogger service:
-#   By-severity limit on a type of message, 
+#   By-severity limit on a type of message,
 #   and specific-category override of that default
 
 import FWCore.ParameterSet.python.Config as cms
@@ -25,9 +25,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkJob', 
-        'importantInfo', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'FwkJob',
+        'importantInfo',
         'routineInfo'),
     u21_warnings = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
@@ -45,7 +45,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         ),
         threshold = cms.untracked.string('INFO')
     ),
-    destinations = cms.untracked.vstring('u21_warnings', 
+    destinations = cms.untracked.vstring('u21_warnings',
         'u21_infos')
 )
 

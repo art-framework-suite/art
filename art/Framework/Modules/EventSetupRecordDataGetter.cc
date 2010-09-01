@@ -96,7 +96,7 @@ EventSetupRecordDataGetter::analyze(const edm::Event& /*iEvent*/, const edm::Eve
 	      //not found
 	      edm::LogWarning("DataGetter") <<"data item of type \""<< datumName <<"\" does not exist"<<std::endl;
 
-	
+
                continue;
             }
             eventsetup::DataKey datumKey(datumType, labelName.c_str());

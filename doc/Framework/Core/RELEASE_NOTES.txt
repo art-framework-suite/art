@@ -2,9 +2,9 @@
 21-07-05, SA
 
 Added Product Registration mechanism.
- 
-- EDProducer: Added product registration. Function produces<Product>("label") 
-              registers to an internal list, that then is read by the Worker 
+
+- EDProducer: Added product registration. Function produces<Product>("label")
+              registers to an internal list, that then is read by the Worker
               that wraps the EDProducter
 
 - InputSourceDescription: the ctor takes a  ptr to ProductRegistry, that can
@@ -13,7 +13,7 @@ Added Product Registration mechanism.
 - ProductRegistry: Added ProductRegistry, a list of ProductDescription objects,
                    describing the products of all modules
 
-- ScheduleBuilder: takes a ptr to the ProductRegistry in the ctor, then passes 
+- ScheduleBuilder: takes a ptr to the ProductRegistry in the ctor, then passes
                    it to the workers via WorkerParams
 
 - EventProcessor: FwkImpl now has in its data members a ProductRegistry object,
@@ -24,15 +24,15 @@ Added Product Registration mechanism.
                   mations from the EDProducer and fills the ProductRegistry
 
 
-Added cppunit tests 
+Added cppunit tests
 
 18-07-05
 
-First version of assert handling and plugin manager feedback handling 
+First version of assert handling and plugin manager feedback handling
 designed to improve the error messages coming from the framework
 when really bad thing happen in the seal utilities.  All the
 processing is in the ProblemTracker class and the example use is
-in mute.  This ProblemTracker class may need to be enhanced so 
+in mute.  This ProblemTracker class may need to be enhanced so
 framework code can add/subtract context information.
 
 The first version of exception processing controls have been added.
@@ -48,9 +48,9 @@ I suspect that we may see redundant information from derived
 classes (the what function is no longer solely in charge of
 adding data to the final message).
 
-This first version has catches for all the various sorts of 
+This first version has catches for all the various sorts of
 interesting thing in all the *Worker*.h classes.  This is where
-the framework calls developer-written code.  Currently the 
+the framework calls developer-written code.  Currently the
 exceptions that we cannot process are just repropagated and a
 message is sent to cerr indicating the context.  The cerr will
 turn into a message logger call when that interface is defined.
@@ -98,7 +98,7 @@ contained within the Framework library.  This is a temporary solution until
 we figure out how to split them out.
 
 An on-demand report of path/worker stats in not available.  The report only
-comes out at the endJob time.  The report does not include work-in-path stats, 
+comes out at the endJob time.  The report does not include work-in-path stats,
 only workers and paths.
 
 A "TriggerResultsAnalzer" is needed that looks at the trigger result to see
@@ -135,7 +135,7 @@ using the Tracer service.
 
 29-01-06
 
-Everything is working in the first release of the new scheduler with 
+Everything is working in the first release of the new scheduler with
 trigger results.  Some of the things that need to be addressed:
 
  1) The message logger is still not being used because of dependency
@@ -144,18 +144,18 @@ trigger results.  Some of the things that need to be addressed:
     library.  There is a way to separate them out, if necessary, bu it is
 	more than could be done in this release.
  3) The TriggerResults product is more complex than it needs to be.  The
-    stored entity is a vector<bool> instead of a bitbit<N> because I 
+    stored entity is a vector<bool> instead of a bitbit<N> because I
 	could not get the bitset working properly with ROOT.
- 4) The path statistics report is somewhat crude and does not include 
+ 4) The path statistics report is somewhat crude and does not include
     information about the module-in-path.  It only does module stats and
 	path summary stats.
- 5) There in no support in the parameter set language for addition 
+ 5) There in no support in the parameter set language for addition
     path algebra.  This includes inverting decisions of paths or modules
 	and disabling modules in paths.
  6) The scheduler summary (paths/modules) in now going to what will be
     the message logger.  Each line goes out as an individual message.  This
 	is undesirable behavior.  The report should go to std::cout, meaning
-	that routing cannot be easily done, or the report needs to be 
+	that routing cannot be easily done, or the report needs to be
 	accumulated in an ostringstream and then sent as one message.  I prefer
 	this last option.
  7) Path pre/post signals posting is not implemented.
@@ -163,8 +163,8 @@ trigger results.  Some of the things that need to be addressed:
     interface.  This is interesting for the trigger so the control
 	system can query a processor for current statistics.
 
- The output modules, as of this date,  have not been modified to 
- include/exclude events based on trigger bits.  They will need to 
+ The output modules, as of this date,  have not been modified to
+ include/exclude events based on trigger bits.  They will need to
  account for cases where there are zero, one, or more TriggerResults
  objects in the event.  The parameters must be able to choose the
  proper "process name".
@@ -173,7 +173,7 @@ trigger results.  Some of the things that need to be addressed:
 
 02-02-06
 
-Currently the endpath processing is trivial.  All modules in all 
+Currently the endpath processing is trivial.  All modules in all
 endpaths see the event regardless of trigger bits or prior success/failure
 of modules in the endpaths.  This means that if a filter-like path is
 in the endpath, it will not stop further processing in that endpath.
@@ -192,7 +192,7 @@ functions that provide information to the outputmodule are tested.
 List of tasks:
   1) assign module numbers to each module and make the total and the
   number available to Services during construction or through a signal.
-  2) change the existing service over to use this instead of doing a 
+  2) change the existing service over to use this instead of doing a
   lookup by module_label.
   3) finish automated unit testing of the TriggerResults and
   TriggerNamesService and Scheduler.
@@ -212,7 +212,7 @@ List of tasks:
   construction time.  The only way to do this is to get the names-to-bits
   information from the file header.
 
-  The endpath processing needs to be fixed.  Use a second set of objects 
+  The endpath processing needs to be fixed.  Use a second set of objects
   analogous to the path processing to do so. (place endpath modules into
   Paths whos results do not contribute to the saved TriggerResult)
 
@@ -230,7 +230,7 @@ List of tasks:
 03-02-06
 
 completed unit test scripts testBits*.cfg that excerise the trigger bit
-logic.  They also test the output module interface - in particular 
+logic.  They also test the output module interface - in particular
 they test the event selection logic.
 
 endpaths are now real paths
@@ -259,13 +259,13 @@ will need to be upgraded when it is fixed.
 
 06-02-06
 
-Now the listOfTriggers feature is complete.  If the "options" 
+Now the listOfTriggers feature is complete.  If the "options"
 pset of the process pset contains "makeTriggerResults", then the user
 is required to include "listOfTriggers".  The list must be a subset
 of the list of paths.  The list can have "*" as its first member, in
-which case all the paths are included.  This feature is implemented 
+which case all the paths are included.  This feature is implemented
 using entirely in Schedule.cc.  The test/testBitsCount.cfg script
-tests that a correctly specified listOfTriggers works properly; it 
+tests that a correctly specified listOfTriggers works properly; it
 does not check the bad cases.
 
 10-04-06 jbk
@@ -282,7 +282,7 @@ Note: The code in Schedule:runOneEvent replies on the fact that trigger bits
 are assigned sequencially and the set contains only the paths that are
 labelled as trigger paths (included in listOfTriggers if it is present).
 
-Note: The artificially generated "@trigger_paths" parameter (within 
+Note: The artificially generated "@trigger_paths" parameter (within
 @trigger_paths - yes, a bit obscure and confusing) is untracked.  This
 may not be a good idea.  To interpret bit names, care must be taken to
 make use of the "options" information i.e. listOfTriggers.  We are ok for
@@ -308,7 +308,7 @@ There are a number of ugly things.  See the comments in the state table
 in EventProcessor.cc.  Right now the state does not go to "Error" if
 a "beginJob" of a module throws an exception (unlike "run").  There is
 also a check at the front of beginJob that makes sure we are coming from
-the correct state.  There is a state diagram at 
+the correct state.  There is a state diagram at
  https://uimon.cern.ch/twiki/bin/view/CMS/EventProcessorStateHandlingProposal
 that is at this time up to date.  The "testFramework" test runs without
 modification.  The "Running" state should probably be "RunningAsync" and
@@ -319,7 +319,7 @@ This feature includes having the event loop run in its own thread and being
 able to ask it to shut it down.  Signal USR2 can be sent to mute and have
 the event processor finished up its work and shut down cleanly.
 
-Still missing or incomplete: 
+Still missing or incomplete:
   * total event timeout
   * Schedule features from EventFilter-land like global prescales and endpath
     disabling.
@@ -342,7 +342,7 @@ stuck in an invalid state at this point and the program should be shut
 down.  All the shutdown/wait/stop calls now return a "timedout" return
 code if they time out.
 
-Added a series of tests to eventprocessor_t.cpp that run the 
+Added a series of tests to eventprocessor_t.cpp that run the
 async event loop and attempt to time out.  The time out test is
 commented out due to a runtime error from the environment connected to
 pthread_cancel libraries.

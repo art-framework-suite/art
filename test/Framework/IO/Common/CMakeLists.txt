@@ -5,7 +5,7 @@ set( cpp_files TestEdmFastMerge.cpp )
 link_libraries( IOPoolCommon
                 DataFormatsProvenance
                 FWCoreUtilities
-		FWCoreServiceRegistry 
+		FWCoreServiceRegistry
 		${MATRIX} )
 
 add_executable( TestEdmFastMerge TestEdmFastMerge.cpp )

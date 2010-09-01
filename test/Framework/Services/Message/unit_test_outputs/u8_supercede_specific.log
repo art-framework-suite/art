@@ -1,6 +1,6 @@
 %MSG-i expect_supercede_specific:  UnitTestClient_E:sendSomeMessages  Run: 1 Event: 1
-The following outputs are expected: 
-lim2bycommondefault appearing in events 1,2,3,4,5,6,7,8,16,24,40 
+The following outputs are expected:
+lim2bycommondefault appearing in events 1,2,3,4,5,6,7,8,16,24,40
 
 %MSG
 %MSG-i lim2bycommondefault:  UnitTestClient_E:sendSomeMessages Run: 1 Event: 1

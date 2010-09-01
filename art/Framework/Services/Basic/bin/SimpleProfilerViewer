@@ -10,8 +10,8 @@ class Application(Frame):
     def __init__(self,filePrefix):
         Frame.__init__(self)
         self.profile = profilereader.ProfileData(filePrefix,sys.stdout)
-        top=self.winfo_toplevel() 
-        top.rowconfigure(0, weight=1) 
+        top=self.winfo_toplevel()
+        top.rowconfigure(0, weight=1)
         top.columnconfigure(0, weight=1)
         self.grid(sticky=N+S+E+W)
         self.rowconfigure(1,weight=1)
@@ -90,7 +90,7 @@ class Application(Frame):
             self.moveToFunction(funcName)
 
 import optparse
-    
+
 #usage = "%prog [options] []"
 usage = "%prog <a file from SimpleProfiler Service>"
 parser = optparse.OptionParser(usage=usage)

@@ -19,15 +19,15 @@ and so did this one
 
 The branch tag is wmtanProvanence, which are changes after 3_0_0_pre2.
 
-cvs co -r wmtanProvenance FWCore IOPool/Input IOPool/Output 
-IOPool/Common IOPool/SecondaryInput IOPool/Streamer 
-DataFormats/CommonDataFormats/Streamer DataFormats/TestObjects 
-DataFormats/Provenance DataFormats/StdDictionaries 
-DataFormats/WrappedStdDictionaries IORawData/DaqSource 
+cvs co -r wmtanProvenance FWCore IOPool/Input IOPool/Output
+IOPool/Common IOPool/SecondaryInput IOPool/Streamer
+DataFormats/CommonDataFormats/Streamer DataFormats/TestObjects
+DataFormats/Provenance DataFormats/StdDictionaries
+DataFormats/WrappedStdDictionaries IORawData/DaqSource
 
-rm -fr */*FWLite* 
-rm -fr FWCore/ParameterSet 
-cvs co FWCore/ParameterSet 
+rm -fr */*FWLite*
+rm -fr FWCore/ParameterSet
+cvs co FWCore/ParameterSet
 
 We will retain the initial directory structure while doing the
 evaluation, which is:
@@ -50,7 +50,7 @@ The Buildfile will become Makefile.
 3) External dep
 
 (really want 5.18.00f, it has almost all of the CMS changes in it.
-Built ROOT 5.18.00f with: mathcore, builtin-freetype, cintex, exceptions, 
+Built ROOT 5.18.00f with: mathcore, builtin-freetype, cintex, exceptions,
 pch, reflex, shared, soversion, xml, xft)
 (no rootmathmore)
 
@@ -67,7 +67,7 @@ python = 2.4.2-cms2 (the system we developed on is 2.4.3 in slf5.2)
 OLD -->  gccxml (0.6.0 was installed because ROOT needed it.)
 gccxml (0.7.0-20070615) from http://lcgsoft.cern.ch/index.py?page=pkg_version&pkg=gccxml&vers=0.7.0_20070615
 
-uuid = 1.38-cms (there is one with linux - package uuidd 1.39-15.el5 64bit) 
+uuid = 1.38-cms (there is one with linux - package uuidd 1.39-15.el5 64bit)
 xerces-c = 2.7.0-cms (on hold until we need it)
 cppunit = 1.10.2-cms (1.12.1 in use)
 clhep =  1.9.3.2-cms (done)
@@ -107,7 +107,7 @@ make and make install
 
 6) adding dependent libraries
 
-This needs to be done in each of the makefile - list the 
+This needs to be done in each of the makefile - list the
 external and internal libraries that this package depends upon.
 Check the lib and bin builds to make sure that these are added to the
 link line.
@@ -117,12 +117,12 @@ link line.
 Plugin locating and loading issues.
 
 CacheParser is used by PluginManager.cc to read the .edmplugincache
-file specified by standard.cc.  We can use "ls *plugin*" in the 
+file specified by standard.cc.  We can use "ls *plugin*" in the
 $MU2E_HOME/tmp/lib directory to see all the plugins.  A simple
 way to make this work is to .... See CategoryToInfo and its use in
 PluginManager.h and PluginManager.cc (categoryToInfos_)
 
-See  EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) 
+See  EDM_REGISTER_PLUGINFACTORY(_factory_,_category_)
 in PluginFactory.h
 
 

@@ -23,7 +23,7 @@ elif argv[1] == 'all':
     os.chdir(cwd)
 elif os.path.isdir(argv[1]):
     globList = argv[1].split('/')
-    nToks = len(globList) 
+    nToks = len(globList)
     if nToks < 2:
        globList.append('*')
     if nToks < 3:

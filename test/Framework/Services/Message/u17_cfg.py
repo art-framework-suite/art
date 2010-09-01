@@ -16,8 +16,8 @@ process.load("FWCore.MessageService.python.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring('u17_all'),
-    categories = cms.untracked.vstring('cat_P', 
-        'cat_S', 
+    categories = cms.untracked.vstring('cat_P',
+        'cat_S',
         'FwkJob'),
     u17_all = cms.untracked.PSet(
         noTimeStamps = cms.untracked.bool(True),

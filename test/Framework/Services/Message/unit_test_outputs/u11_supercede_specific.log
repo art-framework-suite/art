@@ -1,6 +1,6 @@
 %MSG-i expect_supercede_specific:  UnitTestClient_F:sendSomeMessages  Run: 1 Event: 1
-The following outputs are expected: 
-int7bycommondefault appearing in events 1,11,21,31,41 
+The following outputs are expected:
+int7bycommondefault appearing in events 1,11,21,31,41
 
 %MSG
 %MSG-i int4bydefault:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1

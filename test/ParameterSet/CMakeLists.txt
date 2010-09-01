@@ -11,7 +11,7 @@ set( cpp_files ParameterSetID_t.cpp
 link_libraries( FWCoreParameterSet
                 FWCorePluginManager
 		DataFormatsProvenance
-		FWCoreMessageLogger 
+		FWCoreMessageLogger
 		FWCoreUtilities
 		${MATRIX}
                 ${Boost_FILESYSTEM_LIBRARY}
@@ -23,9 +23,9 @@ link_libraries( FWCoreParameterSet
 add_executable( ParameterSetID_t ParameterSetID_t.cpp )
 add_executable( ParameterSetRecursing_t ParameterSetRecursing_t.cpp )
 add_executable( Registry_t Registry_t.cpp )
-add_executable( testParameterSet processbuilder_t.cppunit.cpp 
-                                 makeprocess_t.cppunit.cc 
-				 makepset_t.cppunit.cc 
+add_executable( testParameterSet processbuilder_t.cppunit.cpp
+                                 makeprocess_t.cppunit.cc
+				 makepset_t.cppunit.cc
 				 ps_t.cppunit.cc )
 add_executable( TestFWCoreParameterSetDriver TestFWCoreParameterSetDriver.cpp )
 #add_executable( UntrackedParameters_t UntrackedParameters_t.cpp )

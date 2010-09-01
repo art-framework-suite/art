@@ -7,10 +7,10 @@ set( cpp_files stdnamespaceadder_t.cppunit.cpp )
 link_libraries( FWCoreRootAutoLibraryLoader
                 FWCorePluginManager
                 DataFormatsProvenance
-                ${Boost_FILESYSTEM_LIBRARY} 
+                ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_REGEX_LIBRARY}
                 ${CORE}
-                ${REFLEX} 
+                ${REFLEX}
                 ${CINT} dl )
 
 add_executable( testFWCoreRootAutoLibraryLoader stdnamespaceadder_t.cppunit.cpp )

@@ -14,17 +14,17 @@ process.PrescaleService = cms.Service("PrescaleService",
         cms.PSet(
             pathName = cms.string('HLT2'),
             prescales = cms.vuint32(2, 5, 10)
-        ), 
+        ),
         cms.PSet(
             pathName = cms.string('HLT3'),
             prescales = cms.vuint32(5, 10, 20)
-        ), 
+        ),
         cms.PSet(
             pathName = cms.string('HLT4'),
             prescales = cms.vuint32(10, 20, 0)
         )),
-    lvl1Labels = cms.vstring('10E30', 
-        '10E31', 
+    lvl1Labels = cms.vstring('10E30',
+        '10E31',
         '10E32'),
     lvl1DefaultLabel = cms.untracked.string('10E31')
 )

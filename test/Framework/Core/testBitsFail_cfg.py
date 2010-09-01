@@ -117,7 +117,7 @@ process.outp3a = cms.OutputModule("SewerModule",
     shouldPass = cms.int32(70),
     name = cms.string('for_f4_f5'),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p4a', 
+        SelectEvents = cms.vstring('p4a',
             'p5a')
     )
 )
@@ -150,7 +150,7 @@ process.outp3b = cms.OutputModule("SewerModule",
     shouldPass = cms.int32(69),
     name = cms.string('for_!f4_!f5'),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p4b', 
+        SelectEvents = cms.vstring('p4b',
             'p5b')
     )
 )
@@ -183,7 +183,7 @@ process.outp6 = cms.OutputModule("SewerModule",
     shouldPass = cms.int32(99),
     name = cms.string('for_*_!*'),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('*', 
+        SelectEvents = cms.vstring('*',
             '!*')
     )
 )

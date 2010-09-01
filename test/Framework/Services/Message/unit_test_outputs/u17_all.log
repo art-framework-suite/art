@@ -1,4 +1,4 @@
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp}
 LogPrint: 0
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 0
@@ -34,7 +34,7 @@ LogPrint: 9
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 9
 %MSG
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp}
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 0
 %MSG
@@ -81,7 +81,7 @@ MessageLogger Summary
 
  type    category    Examples: run/evt        run/evt          run/evt
  ---- -------------------- ---------------- ---------------- ----------------
-    1 FwkReport            BeforeEvents     1/1              
+    1 FwkReport            BeforeEvents     1/1
     2 cat_P                1/1              1/1              1/2
     3 cat_S                1/1              1/1              1/2
 

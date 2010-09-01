@@ -12,8 +12,8 @@ process.options = FWCore.Framework.python.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageService.python.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
-    statistics = cms.untracked.vstring('u5_default', 
-        'u5_reset', 
+    statistics = cms.untracked.vstring('u5_default',
+        'u5_reset',
         'u5_noreset'),
     u5_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),

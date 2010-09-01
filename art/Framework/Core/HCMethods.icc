@@ -4,7 +4,7 @@
 //
 // Package:     <HeteroContainer>
 // Module:      HCMethods
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -65,27 +65,27 @@ namespace edm {
             static HCTypeTag< Key > typeTag = HCTypeTagTemplate<Type, Key>();
             return Key(typeTag, iIdTag);
          }
-         
+
          template< class Type, class Key>
          Key makeKey() {
             static HCTypeTag< Key > typeTag = HCTypeTagTemplate<Type, Key>();
             return Key(typeTag);
          }
-         
-         
+
+
          template<class Key, class ItemType, class Storage, class IdTag >
          bool insert(Storage& iStorage, ItemType* iItem, const IdTag& iIdTag) {
-            return iStorage.insert(makeKey< typename type_from_itemtype<Key, ItemType>::Type, 
+            return iStorage.insert(makeKey< typename type_from_itemtype<Key, ItemType>::Type,
                                     Key>(iIdTag) , iItem);
          }
-         
+
          template<  class Key, class ItemType, class Storage>
          bool insert(Storage& iStorage, ItemType* iItem) {
             return iStorage.insert(makeKey<ItemType,
                                     Key>() , iItem);
          }
-         
-         
+
+
          template< class Key, class ItemType, class Storage, class IdTag >
          ItemType* find(const Storage& iStorage, const IdTag& iIdTag) {
             //The cast should be safe since the Key tells us the type
@@ -93,7 +93,7 @@ namespace edm {
                                                 makeKey<typename type_from_itemtype<Key,
                                                 ItemType>::Type,Key>(iIdTag)));
          }
-         
+
          template< class Key, class ItemType, class Storage>
          ItemType* find(const Storage& iStorage) {
             //The cast should be safe since the Key tells us the type

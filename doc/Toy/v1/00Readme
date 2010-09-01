@@ -20,7 +20,7 @@ It also has two configuration files for the geometry:
 
 geom.conf  - describes the targets
 geom2.conf - overrides one parameter of geom.conf
-           
+
 
 Here is my idea for the base example job:
 
@@ -28,7 +28,7 @@ There is one initialization step:
 
 1) Instantiate the geometry manager using the file
    geom.conf;
-   I have not yet made a toy geometry system for this.  
+   I have not yet made a toy geometry system for this.
    Let me if you need it.
 
 Here is the event the event loop;

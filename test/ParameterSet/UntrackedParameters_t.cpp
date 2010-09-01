@@ -90,7 +90,7 @@ void testUntrackedInternal()
     assert( p2.getUntrackedParameter<ParameterSet>("ups",
 						   ParameterSet()) ==
 	    ParameterSet());
-	
+
     assert( p1 == p2 );
   }
   ParameterSet p;

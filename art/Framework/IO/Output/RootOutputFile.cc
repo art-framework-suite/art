@@ -336,7 +336,7 @@ namespace edm {
 	ProductList::iterator itCopy = it;
 	++it;
 	pList.erase(itCopy);
-	
+
       } else {
 	++it;
       }

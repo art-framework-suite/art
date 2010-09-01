@@ -1,6 +1,6 @@
 # Unit test configuration file for MessageLogger service:
 # LogVerbatim and LogTrace; also whether isInfoEnalbled() works
-# when it is enabled 
+# when it is enabled
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -39,10 +39,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'FwkReport',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u15_infos', 
+    destinations = cms.untracked.vstring('u15_infos',
         'u15_debugs')
 )
 

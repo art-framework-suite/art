@@ -17,7 +17,7 @@ set( FWCoreModules_sources AsciiOutputModule.cc
 			   XMLOutputModule.cc )
 
 
-link_libraries( DataFormatsProvenance  
+link_libraries( DataFormatsProvenance
                 FWCoreFramework
                 FWCoreParameterSet
  		${Boost_FILESYSTEM_LIBRARY}

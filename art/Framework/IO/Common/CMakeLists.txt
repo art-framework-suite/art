@@ -1,7 +1,7 @@
 
-install(FILES ClassFiller.h  
-              RefStreamer.h  
-	      RootServiceChecker.h  
+install(FILES ClassFiller.h
+              RefStreamer.h
+	      RootServiceChecker.h
 	      TransientStreamer.h
 	DESTINATION include/IOPool/Common/interface )
 >>><<<

@@ -191,26 +191,26 @@ namespace edm
   // instantiate these 4 operators.
   template <typename T, typename U>
   bool operator==(const value_ptr<T>& lhs,const U& rhs) {
-    lhs.this_type_does_not_support_comparisons();	
-    return false;	
+    lhs.this_type_does_not_support_comparisons();
+    return false;
   }
 
   template <typename T, typename U>
   bool operator!=(const value_ptr<T>& lhs,const U& rhs) {
-    lhs.this_type_does_not_support_comparisons();	
-    return false;	
+    lhs.this_type_does_not_support_comparisons();
+    return false;
   }
 
   template <typename T, typename U>
   bool operator==(const U& lhs,const value_ptr<T>& rhs) {
-    rhs.this_type_does_not_support_comparisons();	
-    return false;	
+    rhs.this_type_does_not_support_comparisons();
+    return false;
   }
 
   template <typename T, typename U>
   bool operator!=(const U& lhs,const value_ptr<T>& rhs) {
-    rhs.this_type_does_not_support_comparisons();	
-    return false;	
+    rhs.this_type_does_not_support_comparisons();
+    return false;
   }
 }
 

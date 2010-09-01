@@ -3,7 +3,7 @@
 #   overall defaults for all destinations, for unnamed categories                     -- u11_overall_unnamed
 #   overall defaults for all destinations, specific category                          -- u11_overall_specific
 # testing reportEverys
-#   default reportEvery for a destination superceding overall default                       -- u11_supercede_specific   
+#   default reportEvery for a destination superceding overall default                       -- u11_supercede_specific
 #   default reportEvery for a destination not superceding specific category overall default -- u11_non_supercede_common
 #   reportEvery for specific category superceding both defaults                             -- u11_specific
 # In the course of this, these cases also test reportEverys and limits interacting with each other
@@ -135,21 +135,21 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'int4bydefault', 
-        'int7bycommondefault', 
-        'int25bydefaults', 
-        'expect_overall_unnamed', 
-        'expect_overall_specific', 
-        'expect_supercede_specific', 
-        'expect_non_supercede_common_specific', 
-        'expect_specific', 
-        'FwkReport', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'int4bydefault',
+        'int7bycommondefault',
+        'int25bydefaults',
+        'expect_overall_unnamed',
+        'expect_overall_specific',
+        'expect_supercede_specific',
+        'expect_non_supercede_common_specific',
+        'expect_specific',
+        'FwkReport',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u11_overall_unnamed', 
-        'u11_overall_specific', 
-        'u11_supercede_specific', 
-        'u11_non_supercede_common', 
+    destinations = cms.untracked.vstring('u11_overall_unnamed',
+        'u11_overall_specific',
+        'u11_supercede_specific',
+        'u11_non_supercede_common',
         'u11_specific')
 )
 

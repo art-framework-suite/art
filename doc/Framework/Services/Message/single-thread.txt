@@ -1,7 +1,7 @@
 		Single-threaded MessageLogger design plan
 		-----------------------------------------
 
-		
+
 The key points of change are on either side of the queue:
 
 On the left:
@@ -19,13 +19,13 @@ There will be some commands with other slight changes as well.
 On the right:
 -------------
 
-MessageLoggerScribe::run()  
+MessageLoggerScribe::run()
 
 do  {
     MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
 
 has to become something that gets invoked directly,
-and when the break happens, the code needs to return to the 
+and when the break happens, the code needs to return to the
 calling routine.  The way to do this is to break off the meat
 of that internal do loop, into a call to runCommand(opcode, operand).
 
@@ -33,7 +33,7 @@ The remainder of changes on the "right" of the fence are in particulars
 of the specific commands.
 
 B) Notify_all() is now not going to be needed in the case of single-threaded.
-   That implies that the scribe ought to know whether it is single-treaded or 
+   That implies that the scribe ought to know whether it is single-treaded or
    not.
 
 
@@ -50,7 +50,7 @@ which we want handled by the logger.
 We create a SingleThreadMSPresence to substitute for the MessageServicePresence.
 
 That has been tested with the plug-in mechanism, by making it identical to the
-service it replaces, and using it against the unit tests.  Note that I had to 
+service it replaces, and using it against the unit tests.  Note that I had to
 include the new one in FWCore/MessageService/plugins/Module.cc also.
 
 
@@ -76,7 +76,7 @@ TODO:
 SingleThreadMSPresence ctor
   OK	create the (concrete) MessageLoggerScribe(true)
   OK	supply the pointer as an AbstractMLscribe to MessageLoggerQ
-  OK	Determine if we need to instantiate MessageLoggerQ early in the 
+  OK	Determine if we need to instantiate MessageLoggerQ early in the
 	    initializer list -- I don't think so, but...
 
 MessageLoggerQ
@@ -84,7 +84,7 @@ MessageLoggerQ
   OK	Obtain mlscribe_ptr
 	change commit sequence to mlscribe-ptr->runCommand
 	change each of the specialized handshake commands (in tandem with MLS)
-	
+
 MessageLoggerScribe
 	Deal with wind-down issues - may not need code changes, but...
 	change each of the specialized handshake commands (in tandem with MLQ)
@@ -92,14 +92,14 @@ MessageLoggerScribe
 MessageDrop
 	Inform MessageDrop about singleThread status
 	When single thread, don't use thread-specific singletons.
-	
+
 Testing
 
 
 Do we need to pre-instantiate MessageLoggerQ early in the SingleThreadMSPresence
 initializer list?  No, because before it is ever used, it will be instantiated
 by the code trying to use it.  There is no worry about interthread coherence
-in the single-thread mode. 
+in the single-thread mode.
 
 MessageDrop is also going to have to change, since it is a thread-specific
 static.  This in turn means it needsto be invformed and so forth.

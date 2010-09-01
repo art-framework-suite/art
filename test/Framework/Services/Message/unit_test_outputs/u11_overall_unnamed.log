@@ -1,6 +1,6 @@
 %MSG-i expect_overall_unnamed:  UnitTestClient_F:sendSomeMessages  Run: 1 Event: 1
-The following outputs are expected: 
-unlisted_category    appearing in events 1,6,11,16,21,26,31,36,41,46 
+The following outputs are expected:
+unlisted_category    appearing in events 1,6,11,16,21,26,31,36,41,46
 
 %MSG
 %MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1

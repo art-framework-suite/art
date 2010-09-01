@@ -10,10 +10,10 @@ process.options = FWCore.Framework.python.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.Services.InitRootHandlers_cfi")
 
 process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
-    moduleNames = cms.untracked.vstring('default', 
-        'module1', 
-        'module2', 
-        'module3', 
+    moduleNames = cms.untracked.vstring('default',
+        'module1',
+        'module2',
+        'module3',
         'module4'),
     default = cms.untracked.PSet(
         enableOverFlowEx = cms.untracked.bool(False),
@@ -61,7 +61,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkReport'),
     destinations = cms.untracked.vstring('fpe_infos')
 )

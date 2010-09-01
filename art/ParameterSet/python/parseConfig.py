@@ -168,7 +168,7 @@ def _handleInclude(fileName,otherFiles,recurseFiles,parser,validator,recursor):
         return values
     finally:
         _fileStack.pop()
-        
+
 def _handleUsing(using,otherUsings,process,allUsingLabels):
     """recursively go through the using blocks and return all the contained valued"""
     if using.value() in otherUsings:
@@ -372,7 +372,7 @@ def _makePSetFromList(values):
     d = _makeDictFromList(values)
     p = cms.PSet(*[],**d)
     return p
-    
+
 def _makePSet(s,loc,toks):
     """create a PSet from the tokens"""
     values = list(iter(toks[0]))
@@ -380,7 +380,7 @@ def _makePSet(s,loc,toks):
         return _makePSetFromList(values)
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"PSet contains the error \n"+str(e))
-        
+
 
 def _makeLabeledPSet(s,loc,toks):
     """create an PSet parameter from the tokens"""
@@ -401,7 +401,7 @@ class _ObjectHolder(object):
 def _makeVPSetFromList(values):
     items = [_makePSetFromList(x) for x in values]
     p = cms.VPSet(*items)
-    return p    
+    return p
 def _makeVPSet(s,loc,toks):
     """create an VPSet from the tokens"""
     values = list(iter(toks[0]))
@@ -434,7 +434,7 @@ def _makeLabeledSecSource(s,loc,toks):
 
 
 #This is ugly but I need to know the labels used by all using statements
-# in order to efficiently process the 
+# in order to efficiently process the
 _allUsingLabels = set()
 def _makeUsing(s,loc,toks):
     global _allUsingLabels
@@ -504,7 +504,7 @@ class _IncludeNode(cms._ParameterTypeBase):
         # we want something like "SimMuon.DT.mod_cfi"
         return self.pythonFileRoot().replace('/','.').replace('.data.','.')
     def dumpPython(self, options):
-        if options.isCfg: 
+        if options.isCfg:
             #return "import "+self.pythonModuleName()+"\nprocess.extend("+self.pythonModuleName()+")\n"
             return "process.load(\"" + self.pythonModuleName() + "\")\n"
         else:
@@ -535,7 +535,7 @@ class _IncludeNode(cms._ParameterTypeBase):
                 f.close()
                 os.chdir(pythonDir)
             os.chdir(cwd)
-          
+
 
 class _IncludeFromNode(_IncludeNode):
     """An IncludeNode with a label, so it will only
@@ -546,7 +546,7 @@ class _IncludeFromNode(_IncludeNode):
         self._fromLabel = fromLabel
     def extract(self, newLabel, otherFiles,recurseFiles,parser,validator,recursor):
         import copy
-        # First, expand everything, so blocks 
+        # First, expand everything, so blocks
         # don't worry about re-parsing
         wasHere = (self.filename in otherFiles)
         if wasHere:
@@ -596,7 +596,7 @@ _scopeEnd = pp.Suppress('}')
 label = letterstart.copy()
 label.setFailAction(_badLabel)
 untracked = pp.Optional('untracked')
-#use the setFailAction to catch cases where internal to a label is an unsupported character ' bad$la = ' 
+#use the setFailAction to catch cases where internal to a label is an unsupported character ' bad$la = '
 _equalTo = pp.Suppress('=').setFailAction(_badLabel)
 
 simpleParameter = pp.Group(untracked+simpleParameterType+label
@@ -641,8 +641,8 @@ vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeEnd
                           ).setParseAction(_makeLabeledVInputTag)
 
-eventIDParameter = pp.Group(untracked+pp.Keyword("EventID")+label+_equalTo 
-                   + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) ) 
+eventIDParameter = pp.Group(untracked+pp.Keyword("EventID")+label+_equalTo
+                   + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) )
                    ).setParseAction(_makeLabeledEventID)
 
 luminosityBlockIDParameter = pp.Group(untracked+pp.Keyword("LuminosityBlockID")+label+_equalTo
@@ -724,14 +724,14 @@ def _MakeESPrefer(s, loc, toks):
     label = 'es_prefer_'+toks[0][1]
     if len(toks[0]) == 4:
         # type, label
-        value = cms.ESPrefer(toks[0][2], toks[0][1]) 
+        value = cms.ESPrefer(toks[0][2], toks[0][1])
     elif len(toks[0])==3:
         value = cms.ESPrefer(toks[0][1])
     else:
         print "Strange parse of es_prefer "+str(toks)
     return (label,value)
 
-    
+
 typeWithParameters = pp.Group(letterstart+scopedParameters)
 
 #secsources are parameters but they behave like Plugins
@@ -955,7 +955,7 @@ class _EndPath(_ModuleSeries):
     def type(self):
         return 'endpath'
 
-    
+
 class _MakeSeries(object):
     def __init__(self,factory):
         self.factory = factory
@@ -995,7 +995,7 @@ def _makeSchedule(s,loc,toks):
     values = list(iter(toks[0][0]))
     p = _Schedule(values)
     return ('schedule',p)
-    
+
 schedule = pp.Group(pp.Keyword('schedule').suppress()+_equalTo+
                            _scopeBegin
                              +pp.Group(pp.Optional(pp.delimitedList(label)))
@@ -1096,7 +1096,7 @@ class _ReplaceSetter(object):
                             indented = True
                             options.indent()
                         result += '\n'+options.indentation()
-                element = _ReplaceSetter._pythonValue(x, options) 
+                element = _ReplaceSetter._pythonValue(x, options)
                 if element.find('InputTag') != -1:
                    isVInputTag = True
                 result += element
@@ -1106,7 +1106,7 @@ class _ReplaceSetter(object):
                result = "cms.VInputTag("+result+")"
             else:
                result = "["+result+"]"
-        # some frontier address strings have colons and slashes 
+        # some frontier address strings have colons and slashes
         #elif result.find(':') != -1 and result.find('/') == -1:
         #    result = repr(cms.InputTag._valueFromString(result))
         else:
@@ -1114,10 +1114,10 @@ class _ReplaceSetter(object):
             result = repr(value)
         return result
 
- 
+
 
 class _ParameterReplaceSetter(_ReplaceSetter):
-    """Base used to 'set' a PSet or VPSet replace node""" 
+    """Base used to 'set' a PSet or VPSet replace node"""
     def setValue(self,obj,attr):
         #need to preserve 'trackiness'
         theAt = getattr(obj,attr)
@@ -1210,7 +1210,7 @@ class _IncrementFromVariableSetter(_ReplaceSetter):
         try:
             if type(theAt) is type(self.value):
                 theAt.extend(self.value)
-            #see if theAt is a container and self.value can be added to it 
+            #see if theAt is a container and self.value can be added to it
             else:
                 theAt.append(self.value.value())
         except Exception, e:
@@ -1227,7 +1227,7 @@ class _IncrementFromVariableSetter(_ReplaceSetter):
         else:
            return ".append("+v+")"
 
-        
+
 
 class _MakeSetter(object):
     """Uses a 'factory' to create the proper Replace setter"""
@@ -1271,7 +1271,7 @@ _replaceExtendValue = (
                      ).setParseAction(_MakeSetter(_SimpleListTypeExtendSetter)) |
                      (pp.Group(letterstart+pp.OneOrMore(pp.Literal('.').suppress()+letterstart)).setParseAction(
                         _MakeSetter(_IncrementFromVariableSetter))) |
-                     ((quotedString|any).setParseAction(_MakeSetter(_SimpleListTypeAppendSetter))) 
+                     ((quotedString|any).setParseAction(_MakeSetter(_SimpleListTypeAppendSetter)))
                   )
 _plusEqualTo = pp.Suppress('+=')
 #NOTE: can't use '_equalTo' since it checks for a 'valid' label and gets confused
@@ -1284,7 +1284,7 @@ replace = pp.Group(pp.Keyword('replace').suppress()+
                    ((_plusEqualTo+_replaceExtendValue
                     ) | (
                     _eqTo+_replaceValue))
-                  ).setParseAction(_makeReplace) 
+                  ).setParseAction(_makeReplace)
 
 class _ProcessAdapter(object):
     def __init__(self,seqs,process):
@@ -1347,7 +1347,7 @@ def _finalizeProcessFragment(values,usingLabels):
         # maybe the user said something like 'replace a.b = {using bl}
         _findAndHandleProcessUsingBlock(values)
     except Exception, e:
-        raise RuntimeError("the configuration contains the error \n"+str(e))    
+        raise RuntimeError("the configuration contains the error \n"+str(e))
     #FIX: now need to create Sequences, Paths, EndPaths from the available
     # information
     #now we don't want 'source' to be added to 'd' but we do not want
@@ -1465,7 +1465,7 @@ def _makeProcess(s,loc,toks):
         # FIXME  <- !!
         global _lookuptable
         _lookuptable = {}
-        
+
         for label,obj in d.iteritems():
             setattr(p,label,obj)
             if not isinstance(obj,list): _lookuptable[obj] = label
@@ -1482,7 +1482,7 @@ def _makeProcess(s,loc,toks):
                pathlist.append( getattr(p,label))
             p.schedule = cms.Schedule(*pathlist)
     except Exception, e:
-        raise RuntimeError("the process contains the error \n"+str(e))    
+        raise RuntimeError("the process contains the error \n"+str(e))
 #    p = cms.PSet(*[],**d)
     return p
 
@@ -1610,7 +1610,7 @@ def parseConfigString(aString):
     global _allUsingLabels
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
-                    
+
 def dumpCfg(fileName):
     return cfgDumper.parseFile(_fileFactory(fileName))[0]
 
@@ -1665,7 +1665,7 @@ def importConfig(fileName):
     if ext != '.cff' and ext != '.cfi':
         raise RuntimeError("the file '"+fileName+"' has an unknown extension")
     return parseCffFile(fileName)
-    
+
 if __name__=="__main__":
     import unittest
     import StringIO
@@ -1754,7 +1754,7 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.vstring)
             self.assertEqual(d['blah'],['abc','def'])
-            
+
             t = onlyParameters.parseString("InputTag blah = tag")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.InputTag)
@@ -1779,7 +1779,7 @@ if __name__=="__main__":
             self.assertEqual(type(d['blah']),cms.InputTag)
             self.assertEqual(d['blah'].moduleLabel,'tag')
             self.assertEqual(d['blah'].processName,'proc')
-                                                 
+
             t = onlyParameters.parseString("InputTag blah = tag:youIt:Now")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.InputTag)
@@ -1817,7 +1817,7 @@ if __name__=="__main__":
             self.assertEqual(d['lbid'].luminosityBlock(), 2)
 
 
-            
+
             t=onlyParameters.parseString("PSet blah = {}")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.PSet)
@@ -1825,17 +1825,17 @@ if __name__=="__main__":
             t=onlyParameters.parseString("PSet blah = {int32 ick = 1 }")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.PSet)
-            self.assertEqual(d['blah'].ick.value(), 1)            
+            self.assertEqual(d['blah'].ick.value(), 1)
 
             t=onlyParameters.parseString("""PSet blah = {
                                          int32 ick = 1
                                          }""")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.PSet)
-            self.assertEqual(d['blah'].ick.value(), 1)            
+            self.assertEqual(d['blah'].ick.value(), 1)
 
             t=onlyParameters.parseString("""PSet blah = {
-                                         InputTag t1 = abc: 
+                                         InputTag t1 = abc:
                                          InputTag t2 = def:GHI
                                          }""")
             d=dict(iter(t))
@@ -1844,7 +1844,7 @@ if __name__=="__main__":
             t=onlyParameters.parseString("VPSet blah = {}")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VPSet)
-            
+
             t=onlyParameters.parseString("VPSet blah = { {} }")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VPSet)
@@ -1858,7 +1858,7 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VPSet)
             self.assertEqual(len(d['blah']),2)
-            
+
             t=onlyParameters.parseString("secsource blah = Foo {int32 ick=1}")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.SecSource)
@@ -1905,7 +1905,7 @@ PSet blah = {
                 d=dict(iter(t))
                 self.assertEqual(type(d['blah']),cms.PSet)
                 self.assertEqual(getattr(d['blah'],"blah").value(), 1)
-                
+
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'module foo = TestProd {}')
                 t=onlyProcessBody.parseString("include 'Sub/Pack/data/foo.cfi'")
                 d=dict(iter(t))
@@ -1913,7 +1913,7 @@ PSet blah = {
                 t = _findAndHandleProcessBlockIncludes(t)
                 d=dict(iter(t))
                 self.assertEqual(type(d['foo']),cms.EDProducer)
-                
+
                 #test ending with a comment
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', """module c = CProd {}
 #""")
@@ -1945,14 +1945,14 @@ PSet blah = {
                 d=dict(iter(t))
                 self.assertEqual(d['Sub/Pack/data/foo.cff'].filename, 'Sub/Pack/data/foo.cff')
                 t = _findAndHandleProcessBlockIncludes(t)
-                
+
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cff',
                                            """path p = {doesNotExist}""")
                 try:
                     process.parseString("""process T = { include 'Sub/Pack/data/foo.cff' }""")
                 except Exception,e:
                     self.assertEqual(str(e),
-"""the process contains the error 
+"""the process contains the error
 path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
  from file Sub/Pack/data/foo.cff (at char 4), (line:1, col:5)""")
                 else:
@@ -1978,13 +1978,13 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
                 pr.dumpConfig()
             finally:
                 _fileFactory = oldFactory
-            
+
         def testPlugin(self):
             t=plugin.parseString("source = PoolSource { }")
             d=dict(iter(t))
             self.assertEqual(type(d['source']),cms.Source)
             self.assertEqual(d['source'].type_(),"PoolSource")
-            
+
             t=plugin.parseString("source = PoolSource { }")
             d=dict(iter(t))
             self.assertEqual(type(d['source']),cms.Source)
@@ -1994,12 +1994,12 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
             d=dict(iter(t))
             self.assertEqual(type(d['MessageLogger']),cms.Service)
             self.assertEqual(d['MessageLogger'].type_(),"MessageLogger")
-            
+
             t=plugin.parseString("module foo = FooMod { }")
             d=dict(iter(t))
             self.assertEqual(type(d['foo']),cms.EDFilter)
             self.assertEqual(d['foo'].type_(),"FooMod")
-            
+
             t=plugin.parseString("module out = AsciiOutputModule { }")
             d=dict(iter(t))
             self.assertEqual(type(d['out']),cms.OutputModule)
@@ -2009,7 +2009,7 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
             d=dict(iter(t))
             self.assertEqual(type(d['foo']),cms.EDProducer)
             self.assertEqual(d['foo'].type_(),"FooProd")
-            
+
             t=plugin.parseString("module foo = FooProducer { }")
             d=dict(iter(t))
             self.assertEqual(type(d['foo']),cms.EDProducer)
@@ -2019,12 +2019,12 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
             d=dict(iter(t))
             self.assertEqual(type(d['NoLabel']),cms.ESProducer)
             self.assertEqual(d['NoLabel'].type_(),"NoLabel")
- 
+
             t=plugin.parseString("es_module foo = WithLabel {}")
             d=dict(iter(t))
             self.assertEqual(type(d['foo']),cms.ESProducer)
             self.assertEqual(d['foo'].type_(),"WithLabel")
-            
+
             t=plugin.parseString("""module mix = MixingModule {
             secsource input = PoolRASource {
                vstring fileNames = {}
@@ -2040,8 +2040,8 @@ path 'p' contains the error: 'Process' object has no attribute 'doesNotExist'
                 d = dict(iter(t))
                 self.assertEqual(type(d['bar']),cms.EDProducer)
                 self.assertEqual(d['bar'].type_(),"TestProd")
-                
-                
+
+
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi', 'es_module foo = TestProd {}')
                 t=plugin.parseString("es_module bar = foo from 'Sub/Pack/data/foo.cfi'")
                 t = _findAndHandleProcessBlockIncludes(t)
@@ -2137,7 +2137,7 @@ process RECO = {
             self.assertEqual(str(t[0].p),'foo*bar+~fii')
             self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
-            
+
             s="""
 process RECO = {
     module foo = FooProd {}
@@ -2257,7 +2257,7 @@ process RECO = {
    block toKeep3 = {
       vstring outputCommands = {"keep blah3_*_*_*"}
    }
-   
+
    block toKeepSim1 = {
       vstring outputCommands = {"keep blahs1_*_*_*"}
    }
@@ -2267,7 +2267,7 @@ process RECO = {
    block toKeepSim3 = {
       vstring outputCommands = {"keep blahs3_*_*_*"}
    }
-   
+
    replace FEVTEventContent.outputCommands += toKeep1.outputCommands
    replace FEVTEventContent.outputCommands += toKeep2.outputCommands
    replace FEVTEventContent.outputCommands += toKeep3.outputCommands
@@ -2311,7 +2311,7 @@ process RECO = {
    block toKeep3 = {
       vstring outputCommands = {"keep blah3_*_*_*"}
    }
-   
+
    block toKeepSim1 = {
       vstring outputCommands = {"keep blahs1_*_*_*"}
    }
@@ -2321,7 +2321,7 @@ process RECO = {
    block toKeepSim3 = {
       vstring outputCommands = {"keep blahs3_*_*_*"}
    }
-   
+
    replace FEVTEventContent.outputCommands += toKeep1.outputCommands
    replace FEVTEventContent.outputCommands += toKeep2.outputCommands
    replace FEVTEventContent.outputCommands += toKeep3.outputCommands
@@ -2363,7 +2363,7 @@ process RECO = {
    }
    block aTest = {
       vstring outputCommands = {"keep blah_*_*_*"}
-   }    
+   }
    block toKeep = {
       using aTest
    }
@@ -2372,7 +2372,7 @@ process RECO = {
 """
             self.assertRaises(RuntimeError,process.parseString,(s),**dict())
             #self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
-            
+
             _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
@@ -2382,7 +2382,7 @@ process RECO = {
    block toKeep = {
       vstring outputCommands = {"keep blah_*_*_*"}
    }
-   
+
    block final = {
         using outputStuff
     }
@@ -2417,13 +2417,13 @@ process TEST = {
     int32 foo = 1
     int32 fii = 2
   }
-  
+
   module second = AModule {
     using first
   }
-  
+
   replace first.foo = 2
-  
+
   replace second.fii = 3
 }
 """)
@@ -2431,26 +2431,26 @@ process TEST = {
             self.assertEqual(t[0].first.fii.value(),2)
             self.assertEqual(t[0].second.foo.value(),2)
             self.assertEqual(t[0].second.fii.value(),3)
-            
+
             _allUsingLabels = set()
             t=process.parseString("""
 process TEST = {
     es_module = UnnamedProd {
         int32 foo = 10
     }
-    
+
     es_module me = NamedProd {
         int32 fii = 5
     }
-    
+
     replace UnnamedProd.foo = 1
-    
+
     replace me.fii = 10
 }
 """)
             self.assertEqual(t[0].UnnamedProd.foo.value(),1)
             self.assertEqual(t[0].me.fii.value(),10)
-            
+
             _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
@@ -2461,7 +2461,7 @@ process RECO = {
       vstring outputCommands = {"keep blah_*_*_*"}
    }
    replace outputStuff.outputCommands += toKeep.outputCommands
-   
+
    source = PoolSource {
      untracked vstring fileNames = {"file:foo.root"}
      untracked vint32 foos = {1}
@@ -2529,7 +2529,7 @@ process RECO = {
 
             _allUsingLabels = set()
             t=process.parseString("""
-process USER = 
+process USER =
 {
         source = PoolInput
         {
@@ -2594,7 +2594,7 @@ process USER =
         path t2 = { A,B,C,D }
         path t3 = {s3&F}
         endpath te = { A&B }
-        
+
         schedule = {t1,t2}
 
 }
@@ -2609,7 +2609,7 @@ process USER =
 
             _allUsingLabels = set()
             t=process.parseString("""
-process USER = 
+process USER =
 {
     block a = {int32 i = 1}
     PSet b = {PSet c = {using a
@@ -2624,7 +2624,7 @@ process USER =
 
             _allUsingLabels = set()
             t=process.parseString("""
-process USER = 
+process USER =
 {
     block a = {int32 i = 1}
     PSet b = { PSet c = {}
@@ -2641,7 +2641,7 @@ process USER =
 
             _allUsingLabels = set()
             t=process.parseString("""
-process USER = 
+process USER =
 {
     block a = {int32 i = 1}
     PSet b = { PSet c = {} }
@@ -2654,7 +2654,7 @@ process USER =
             t[0].dumpConfig()
 
             t=process.parseString("""
-process USER = 
+process USER =
 {
     block a = {int32 i = 1}
     module b = BWorker { PSet c = {} }
@@ -2718,7 +2718,7 @@ process RECO = {
             self.assertEqual(t[0].FooESProd.type_(),"FooESProd")
             print t[0].dumpConfig()
 
-            
+
         def testPath(self):
             p = cms.Process('Test')
             p.out = cms.OutputModule('PoolOutputModule')
@@ -2734,7 +2734,7 @@ process RECO = {
             #print pth
 #            print t[0][1]
             t=path.parseString('path p = {a,b}')
-            self.assertEqual(str(t[0][1]),'(a,b)')            
+            self.assertEqual(str(t[0][1]),'(a,b)')
             self.checkRepr(t[0][1], 'cms.Path(a*b)')
             options = PrintOptions()
             options.isCfg = True
@@ -2816,7 +2816,7 @@ process RECO = {
         def checkRepr(self, obj, expected):
             # strip out whitespace & newlines
             observe = self.strip(repr(obj))
-            expect = self.strip(expected)    
+            expect = self.strip(expected)
             self.assertEqual(observe, expect)
         def testReplace(self):
             process = cms.Process("Test")
@@ -2913,7 +2913,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.PSet)
-            self.assertEqual(t[0][1].value.i.value(), 1) 
+            self.assertEqual(t[0][1].value.i.value(), 1)
             self.checkRepr(t[0][1], "a.b = cms.PSet(i=cms.int32(1))")
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.PSet(j=cms.uint32(5)))
@@ -2926,13 +2926,13 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.VPSet)
-            self.assertEqual(t[0][1].value[0].i.value(), 1) 
+            self.assertEqual(t[0][1].value[0].i.value(), 1)
             self.checkRepr(t[0][1], "a.b = cms.VPSet(cms.PSet(i=cms.int32(1)))")
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
             t[0][1].do(process)
             self.assertEqual(process.a.b[0].i.value(),1)
-            
+
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2))
             t=replace.parseString('replace a.b += 1')
@@ -2952,7 +2952,7 @@ process RECO = {
             self.checkRepr(t[0][1], "a.b.extend([1,3])")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1,3])
-            
+
             t=replace.parseString('replace a.b += "all that"')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
@@ -2977,7 +2977,7 @@ process RECO = {
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.PSet)
-            self.assertEqual(t[0][1].value.i.value(), 1) 
+            self.assertEqual(t[0][1].value.i.value(), 1)
             self.checkRepr(t[0][1], "a.b.append(cms.PSet(i=cms.int32(1)))")
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd',
@@ -2985,12 +2985,12 @@ process RECO = {
             t[0][1].do(process)
             self.assertEqual(len(process.a.b),2)
             self.assertEqual(process.a.b[1].i.value(),1)
-            
+
             t=replace.parseString('replace a.b += { { int32 i = 1 } }')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
             self.assertEqual(type(t[0][1].value),cms.VPSet)
-            self.assertEqual(t[0][1].value[0].i.value(), 1) 
+            self.assertEqual(t[0][1].value[0].i.value(), 1)
             self.checkRepr(t[0][1], "a.b.extend(cms.VPSet(cms.PSet(i=cms.int32(1))))")
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VPSet((cms.PSet(j=cms.uint32(5)))))
@@ -3007,7 +3007,7 @@ process RECO = {
             self.checkRepr(t[0][1], "a.b.append(process.a.c)")
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
-            
+
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.vuint32(2), c=cms.uint32(1))
             t=replace.parseString('replace a.b += a.c')
@@ -3025,23 +3025,23 @@ process RECO = {
             t = replace.parseString('replace a.b = foobar:')
             self.checkRepr(t[0][1], "a.b ='foobar:'")
             t[0][1].do(process)
-            self.assertEqual(process.a.b.configValue(),'foobar')                        
+            self.assertEqual(process.a.b.configValue(),'foobar')
 
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b = {foobar:}')
             self.checkRepr(t[0][1], "a.b = ['foobar:']")
             t[0][1].do(process)
-            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
-            self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])                        
+            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')
+            self.assertEqual(list(process.a.b),[cms.InputTag('foobar')])
 
             process = cms.Process("Test")
             process.a = cms.EDProducer('FooProd', b=cms.VInputTag((cms.InputTag("bar"))))
             t = replace.parseString('replace a.b += {foobar:}')
             self.checkRepr(t[0][1], "a.b.extend(['foobar:'])")
             t[0][1].do(process)
-            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')                        
-            self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])                        
+            #self.assertEqual(process.a.b.configValue('',''),'{\nfoobar::\n}\n')
+            self.assertEqual(list(process.a.b),[cms.InputTag("bar"),cms.InputTag('foobar')])
 
             process = cms.Process("Test")
             process.a = cms.EDProducer("FooProd", b = cms.uint32(1))

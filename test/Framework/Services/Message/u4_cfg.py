@@ -1,5 +1,5 @@
 # Unit test configuration file for MessageLogger service:
-# statistics destination :  output name specified; 
+# statistics destination :  output name specified;
 # threshold for statistics destination
 
 import FWCore.ParameterSet.python.Config as cms
@@ -15,8 +15,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     u4_statistics = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING')
     ),
-    statistics = cms.untracked.vstring('u4_statistics', 
-        'anotherStats', 
+    statistics = cms.untracked.vstring('u4_statistics',
+        'anotherStats',
         'u4_errors'),
     u4_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),

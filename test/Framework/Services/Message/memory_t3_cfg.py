@@ -33,8 +33,8 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'FwkReport', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'FwkReport',
         'FwkJob'),
     destinations = cms.untracked.vstring('memory_t3_infos')
 )

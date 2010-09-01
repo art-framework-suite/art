@@ -1,5 +1,5 @@
 # Unit test configuration file for MessageLogger service:
-# LogSystem, LogAbsolute, LogProblem, LogPrint, and LogVerbatim 
+# LogSystem, LogAbsolute, LogProblem, LogPrint, and LogVerbatim
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -26,7 +26,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     categories = cms.untracked.vstring('preEventProcessing'),
-    destinations = cms.untracked.vstring('u18_system', 
+    destinations = cms.untracked.vstring('u18_system',
         'u18_everything')
 )
 

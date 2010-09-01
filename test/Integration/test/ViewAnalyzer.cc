@@ -122,7 +122,7 @@ namespace edmtest
       {
     	RefToBase<value_t> ref = hview->refAt(i);
 	assert(ref.isNonnull());
-      }	
+      }
   }
 
   void

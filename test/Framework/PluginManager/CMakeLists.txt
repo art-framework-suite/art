@@ -15,7 +15,7 @@ add_executable( TestFWCorePluginManagerCacheParser cacheparser_t.cc )
 add_executable( TestFWCorePluginManagerPluginFactory pluginfactory_t.cc )
 add_executable( FileOperations_t FileOperations_t.cpp )
 target_link_libraries( TestFWCorePluginManagerPluginFactory TestFWCorePluginManagerDummyFactory )
-target_link_libraries( TestFWCorePluginManagerPluginManager TestFWCorePluginManagerDummyPlugins 
+target_link_libraries( TestFWCorePluginManagerPluginManager TestFWCorePluginManagerDummyPlugins
                                                             TestFWCorePluginManagerDummyFactory )
 
 add_test(FileOperations                          ${EXECUTABLE_OUTPUT_PATH}/FileOperations_t  )

@@ -13,7 +13,7 @@ public:
   void AnalyzeEvent( const Event& e);
 
 private:
-  
+
   std::string trackName;
   std::string digiName;
 

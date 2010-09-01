@@ -15,7 +15,7 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *', 
+    outputCommands = cms.untracked.vstring('drop *',
         'keep *_dummy_*_*'),
     fileName = cms.untracked.string('file:PoolDropTest.root')
 )

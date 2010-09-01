@@ -9,7 +9,7 @@
 
 <font color=red>
 <h1>CMS MessageLogger Service
-<br> 
+<br>
 Open Issues Concerning Features Wanted by CMS</h1>
 </font>
 </center>
@@ -32,12 +32,12 @@ Open Issues Concerning Features Wanted by CMS</h1>
 <h2>Multiple Message Categories </h2>
 
 <h3> The requirement </h3>
-A message can be issued  with multiple categoriess, as in 
+A message can be issued  with multiple categoriess, as in
 <pre>
   edm::LogWarning(tracking&amp;overflow) << "some more text";
 </pre>
 
-This is to be treated as both a category=tracking message, 
+This is to be treated as both a category=tracking message,
 and an category=overflow
 message.
 
@@ -47,7 +47,7 @@ What does it mean to be two types of message.  The easiest thing to do would
 be to issue two distinct messages but assumedly that is not the most desirable
 behavior.  The questions include:
 <ul>
-<li> How should the output message look?  (We implied that just including the 
+<li> How should the output message look?  (We implied that just including the
 combined categories as the ID would be OK.)
 <li> Which destinations should react to this message?  (Probably destinations
 that would react to either of the combined categories.)
@@ -63,23 +63,23 @@ When a message is issued
   edm::LogWarning(tracking&amp;overflow) << "some more text";
 </pre>
 message counts for both "tracking" and "overflow" ID's are incremented.
-If a given destination would react to <em>either</em> a "tracking" message 
+If a given destination would react to <em>either</em> a "tracking" message
 or an "overflow" message, it will react to this message, but only a single
 copy of the message output will appear.
 <p>
-In that message output, the category will look like tracking&amp;overflow, 
+In that message output, the category will look like tracking&amp;overflow,
 and even if
 the combined length is longer than the normally permitted length the full
 combined categoriess will appear.
-<p> 
+<p>
 Statistics destinations will note the appearance of one "tracking" message
-and one "overflow" message; thus the total of counts by message ID will no 
-longer match the total of counts by severity.  The context (of the first 
+and one "overflow" message; thus the total of counts by message ID will no
+longer match the total of counts by severity.  The context (of the first
 two and last one of each type of message) kept by the statistics destination
 will react as it would to a single message of each of the categories.  Thus it
 is possible to have the same context (event number or whatever) noted twice
 (in two different categories) caused by this one error message.
-   
+
 <h3> Work consequences </h3>
 
 The "issue the message twice" attitude would require no work on ErrorLogger
@@ -89,15 +89,15 @@ the desired behavior.
 The above proposal will require modifying the nature of a message ID within
 ErrorLogger.  At some points it is a potentially compound ID; at others (for
 example, in the limit maps and statistics maps) it is exactly as before.
-This is non-trivial, as the messageID penetrates much of the package, but 
+This is non-trivial, as the messageID penetrates much of the package, but
 as long as the behavior to shoot for is well-defined, this appears to be a
 solvable task.
 
 <h3> Decision and Plan </h3>
 
-The proposed treatment described above is agreed upon. 
+The proposed treatment described above is agreed upon.
 
-In order that the user be able to use the multiple-category syntax as soon as 
+In order that the user be able to use the multiple-category syntax as soon as
 possible, we will temporarily implement the double-message treatment.
 
 <hr>
@@ -136,10 +136,10 @@ We attach an ELlog4cplus destination always.
 We provide a special named destination parameter "log4cplus" by which a user
 can control filtering of messages to that destination.
 <li>
-We are told by CMS which log4cplus options to use, and we do not provide 
+We are told by CMS which log4cplus options to use, and we do not provide
 further flexibility from the .cfg file for the user changing those options.
 </ul>
-   
+
 <h3> Work consequences </h3>
 
 There are three potentially significant areas of work:
@@ -148,7 +148,7 @@ There are three potentially significant areas of work:
 product is mature and well documented) or arbitrarily hard.  We can give no
 estimate on how long this will take until we try it out.
 <li> Creating the ELlog4cplus destination will be some non-trivial but
-fixed amount of semi-routine work, since it is done with some knowledge of 
+fixed amount of semi-routine work, since it is done with some knowledge of
 how ELoutput works.
 <li> Providing the parameters to control flexibility will take about half a day
 per parameter, once we know what sort of .cfg control (if any) is needed by CMS.
@@ -156,13 +156,13 @@ per parameter, once we know what sort of .cfg control (if any) is needed by CMS.
 
 <h3> Decision and Plan </h3>
 
-Instead of the proposed treatment, we have created a 
-<font color = red>MLlog4cplus</font> service which ensures that 
-an ELlog4cplus destination is attached to the logger.  This has the 
+Instead of the proposed treatment, we have created a
+<font color = red>MLlog4cplus</font> service which ensures that
+an ELlog4cplus destination is attached to the logger.  This has the
 advantage of cutting any dependencies of MessageLogger on log4cplus (which is
 in xdaq).
 
-The log4cplus capability is as of 12/23/05 in place and tested.  It is up to 
+The log4cplus capability is as of 12/23/05 in place and tested.  It is up to
 the user to deal with log4cplus, in particular, to assign whatever appenders
 are needed for the job.
 
@@ -170,9 +170,9 @@ Two temporary conditions are left:
 <ol>
 <li>
 We currently assign a file_appender writing to log4cplus.output whenever
-the MLlog4cplus service is specified in the .cfg file; it is 
+the MLlog4cplus service is specified in the .cfg file; it is
 probable that CMS will want to change this default action.
-<li> 
+<li>
 We have not yet done the work to allow the user to control, via the .cfg file,
 MessageLogger filtering of the ELlog4cplus destination.
 </ol>
@@ -185,61 +185,61 @@ MessageLogger filtering of the ELlog4cplus destination.
 <h3> The requirement </h3>
 
 User code may sometimes generate messages which under many circumstances would
-be ignored by all destinations.  It would be desirable to be able to quickly 
+be ignored by all destinations.  It would be desirable to be able to quickly
 probe whether any destination would respond to a given message severity
-and category, so that the work of preparing and formating the message items 
+and category, so that the work of preparing and formating the message items
 can be skipped if appropriate.
 <p>
 
 There are two potential modes of usage for this capability.  The naive mode is
 to do the probe each time a message is to be prepared.  Another mode is to
 assume that the result of this probe will remain static, and to cache either
-the first result or the first negative result.  In that mode, a message 
+the first result or the first negative result.  In that mode, a message
 which would be ignored will cost only one conditional on the cached boolean.
 
 <h3> Questions </h3>
 
-Should we also try to automate this checking, to avoid the cost of the 
+Should we also try to automate this checking, to avoid the cost of the
 operator &lt;&lt; when the user appends items to the line to log a message?
 <p>
 Since the cost of a probe will not be trivial, should we cache results and
 consider the probe of each message type to be a one-shot affair?
 That is,
-if you have learned whether this type of message is reported, 
-should we assume that this answer will not change. 
+if you have learned whether this type of message is reported,
+should we assume that this answer will not change.
 This is not strictly true because of limits, but it may be a useful shortcut.
- 
+
 <h3> Proposed treatment </h3>
 
 Create 4 new functions:
 <font color=blue>
 <pre>
-  ProbeLogError   (const std::string & category);  
-  ProbeLogWarning (const std::string & category);  
-  ProbeLogInfo    (const std::string & category);  
-  ProbeLogDebug   (const std::string & category);  
+  ProbeLogError   (const std::string & category);
+  ProbeLogWarning (const std::string & category);
+  ProbeLogInfo    (const std::string & category);
+  ProbeLogDebug   (const std::string & category);
 </pre>
 </font>
 
-These would return true if any destination would respond to the 
+These would return true if any destination would respond to the
 corresponding message.
 <p>
-The first time a message type is probed, we must issue some sort of special 
-two-phase command to the MessageLoggerScribe, and it must cause an actual check 
+The first time a message type is probed, we must issue some sort of special
+two-phase command to the MessageLoggerScribe, and it must cause an actual check
 useing ErrorLogger code.
 Once a message type has been probed in this way, the answer will be cached.
 We should implement this cache via a map
 (in the local thread, to avoid the complications of locking against new
 entries by other threads) of all messages already probed.
-When the same message type is probed again, the map is consulted.  
+When the same message type is probed again, the map is consulted.
 <p>
-In order that we eventually get the efficiency of rapidly ignoring 
-which were previously reported but 
+In order that we eventually get the efficiency of rapidly ignoring
+which were previously reported but
 have reached their limit, when a true result is found in the map,
 one time in about twenty we should re-check.
 <p>
-We can 
-automate the check of the cached map to occur 
+We can
+automate the check of the cached map to occur
 whenever messages are issued.  (The user still has the option of probing
 to avoid work to prepare the items to be added to the message.)
 The rules would be:
@@ -248,37 +248,37 @@ The rules would be:
 If a message has never been probed, the LogXYZ commands always send that
 message along to the ErrorLogger.
 <li>
-If a message has ever been probed and found not to be reportable, 
-then the result of a probe (automatic or explicit) will be that the 
-message is not reportable.  For unreportable messages, 
+If a message has ever been probed and found not to be reportable,
+then the result of a probe (automatic or explicit) will be that the
+message is not reportable.  For unreportable messages,
 operator &lt;&lt to the results of the LogXYZ commands become no-ops.
 <li>
 Every 11-th time the cache of results is used and delivers true,
 that message is re-probed in case it is now being ignored.  This interval
-increases via an exponential backoff. 
+increases via an exponential backoff.
 <li>
 If a message has been probed and found to be reportable (either by the cache
-or by a new actual probe), 
+or by a new actual probe),
 then LogXYZ will send that message along to the ErrorLogger.
 </ul>
-However, we can check the local map:  
-if a message has already been probed and found to be ignored, 
-then the  operator &lt;&lt can become a no-op.  
+However, we can check the local map:
+if a message has already been probed and found to be ignored,
+then the  operator &lt;&lt can become a no-op.
 <p>
-This presents another mode of usage, one which we can recommend:  
-The user probes a message category 
+This presents another mode of usage, one which we can recommend:
+The user probes a message category
 just once, and relies on the system to obviate extra work by automatically
 checking when appropriate.
 <p>
 We do have to warn about the effect of this on message statistics:
 Messaages which are sent to the logger but ignored make it into the statistics,
 but messages which are never even sent do not.  (Assumedly, the user would
-not care about the count of messages in categories which are completely 
+not care about the count of messages in categories which are completely
 ignored.)
 
 <h3> Quick temporary treatment </h3>
 
-We can quickly implement the propbe functions as returning true, thus 
+We can quickly implement the propbe functions as returning true, thus
 allowing user code to start using this mechanism (with no efficiency gain
 until we implement the actual probing) immediately.
 
@@ -293,19 +293,19 @@ This will need to be created.  The difficulty should be moderate (time estimate
 of 1 day).
 <p>
 The MessageLoggerScribe will need a new opcode to do the probe.  The probe
-data structure would be a pointer to one integer (not a bool, because the 
+data structure would be a pointer to one integer (not a bool, because the
 probing end has to know when the result is now valid).  The probe routine
 (on the client side) will need to either sleep on that value changing, or
 otherwise wait till the true/false value is established.  This is not as
 easy as the other part, but probably will take another 1 day.
 <p>
-The establishment of the cache will be easy, 
-but the re-writes of LogWarning etc. to take 
+The establishment of the cache will be easy,
+but the re-writes of LogWarning etc. to take
 advantage of known non-response results will be subtle.
-In particular, the LogDebug macro may be very subtle if we don't want 
-to take the cost of forming and passing __FILE__ and __LINE__ when we don't 
-have to.  
-<p> 
+In particular, the LogDebug macro may be very subtle if we don't want
+to take the cost of forming and passing __FILE__ and __LINE__ when we don't
+have to.
+<p>
 The total time estimate for this feature is three solid days.
 
 <hr>
@@ -314,10 +314,10 @@ The total time estimate for this feature is three solid days.
 
 <h3> The requirement </h3>
 
-The ErrorLogger has a nice ELstatistics destination for summarizing 
+The ErrorLogger has a nice ELstatistics destination for summarizing
 the messages.
 <p>
-We need a way for MessageLogger service users to to specify a 
+We need a way for MessageLogger service users to to specify a
 statistics destination.
 
 <h3> Questions </h3>
@@ -329,7 +329,7 @@ or have some default destination?
 be part of the end-of-job or end-of-run activity of the MessageLogger
 service.)
 <li> How should we obtain the "short context" to report the contexts of the
-first two and last one of each type of message -- or should we punt that 
+first two and last one of each type of message -- or should we punt that
 feature?
 </ul>
 
@@ -343,14 +343,14 @@ allowing the user to provide a list.  This allows the user to control those
 features of the statistics destinations (including threshold and output control)
 which are needed.
 <li>
-By default, we create a single statistics destination sending its output to 
+By default, we create a single statistics destination sending its output to
 the first of the output destinations (or to the log4cplus destination).
 <li>
 The issue of context is solvable (we can obtain the event number, for example)
-but it is an open issue as to how we would do this.  For a start, we could 
+but it is an open issue as to how we would do this.  For a start, we could
 disable the noting of contexts.
 </ul>
-   
+
 <h3> Work consequences </h3>
 
 Other than the context issue, we can probably set up statistics in a day.
@@ -361,11 +361,11 @@ Other than the context issue, we can probably set up statistics in a day.
 <h2>Other Filtering Options  </h2>
 
 <h3> The requirement </h3>
-The ErrorLogger package supplies 
-other ways to specify limits and thresholds on which messages a destination will 
+The ErrorLogger package supplies
+other ways to specify limits and thresholds on which messages a destination will
 report.  For instance, one can set a limit for all message IDs <em>except</em>
 a specified type.
-The MessageLogger service might benefit from enabling some of these further 
+The MessageLogger service might benefit from enabling some of these further
 options via the configuration file.
 <p>
 <em>This requirement may or may not finally be requested.</em>
@@ -376,7 +376,7 @@ options via the configuration file.
 <ul>
 <li> Do we want exclusion limits?
 <li> Do we want rapid-discard thresholds?
-<li> Other flexibility (see the 
+<li> Other flexibility (see the
 <a href=
 "www.fnal.gov/docs/working-groups/fpcltf/Pkg/ErrorLogger/doc/html/0ErrorLogger.html">
 ZOOM ErrorLogger</a> documentation for possibilities)?
@@ -386,13 +386,13 @@ ZOOM ErrorLogger</a> documentation for possibilities)?
 Additional parameters in the .cfg file, either destination-specific lines
 within the destination PSet, or general lines within the service=MessageLogger
 PSet.
-   
+
 <h3> Work consequences </h3>
 
-Requires no modifications to the ErrorLogger package.  
+Requires no modifications to the ErrorLogger package.
 However, each degree of flexibility will require code in MessageLoggerScribe
 to understand the parameter and issue appropriate calls to the ErrorLogger.
-Also, each feature requires CMS MessageLogger service documentation (otherwise 
+Also, each feature requires CMS MessageLogger service documentation (otherwise
 it is next to useless).  The total time to enable a feature is about half a day.
 
 
@@ -403,10 +403,10 @@ it is next to useless).  The total time to enable a feature is about half a day.
 
 <h3> The requirement </h3>
 
-The ErrorLogger package supplies 
+The ErrorLogger package supplies
 ways to automatically append context information to messages.  The intent
-is to indicate event/run numbers without the message issuer having to think 
-about it.  Perhaps the MessageLogger service should support this. 
+is to indicate event/run numbers without the message issuer having to think
+about it.  Perhaps the MessageLogger service should support this.
 <p>
 <em>This requirement may or may not finally be requested.</em>
 
@@ -422,13 +422,13 @@ What should we use as the context?
 
 <h3> Proposed treatment </h3>
 
-We find out how to get context from an existing EDM service, and write a 
+We find out how to get context from an existing EDM service, and write a
 context supplier (in the ErrorLogger sense) to do so).  We propose that the
 format of the context not be user configurable.
-   
+
 <h3> Work consequences </h3>
 
-Requires no modifications to the ErrorLogger package.  
+Requires no modifications to the ErrorLogger package.
 Writing the context supplier is likely to take less than a day, assuming the
 info is available from the EDM.
 
@@ -453,16 +453,16 @@ Is endl any different in effect than \n?
 
 <h3> Proposed treatment </h3>
 
-The ErrorLogger package implementers originally attempted use std::endl 
+The ErrorLogger package implementers originally attempted use std::endl
 as a message terminator.
 This led to technical difficulties we could not, at that time, surmount
 (thus the introduction of the errmsg manipulator.
 <p>
-Jim Kowalkowski and Marc Paterno claim they know how to do this without 
+Jim Kowalkowski and Marc Paterno claim they know how to do this without
 those difficulties.  If so, we will adapt that technique, treating endl as
 a "force line termination" directive (as opposed to a message terminator).
 <p>
-If this is not easy, we should not do it, as the gain is slight.   
+If this is not easy, we should not do it, as the gain is slight.
 <h3> Work consequences </h3>
 
 Requires learning how to handle endl, and implementing that in ELoutput
@@ -489,12 +489,12 @@ might be desirable in the MessageLogger service.
 <li>
 What is the best way do instantiate the object?
 <li>
-How should the message be fired off to the log? 
+How should the message be fired off to the log?
 </ul>
 <h3> Proposed treatment </h3>
 
 The ErrorObj in the ErrorLogger package already has its severity and ID imbedded
-upon construction, and we propose to do the same here.  
+upon construction, and we propose to do the same here.
 We would provide 3 classes (the Debug form has complications we choose not to
 deal with:  InfoMessage, WarningMessage, and ErrorMessage.  The ctor would take
 the message ID.
@@ -509,14 +509,14 @@ should look like:
     WarningMessage warn ("thistypeoftrouble");
     warn << "information is";
     while (there_is_more_information) {
-      warn << get_a_piece_of_information(); 
+      warn << get_a_piece_of_information();
     }
   } // here warn goes out of scope and the message is dispatched
 </pre>
 
 <h3> Work consequences </h3>
 
-This would be straightforward since no ErrorLogger code need be modified.  
+This would be straightforward since no ErrorLogger code need be modified.
 Including documentation it should take a couple of days.
 
 
@@ -528,7 +528,7 @@ Including documentation it should take a couple of days.
 <h3> The requirement </h3>
 
 The current service allows control of the behavior of destinations (filtering
-and thresholds) and the overall logger, only via job-start configuration 
+and thresholds) and the overall logger, only via job-start configuration
 parameters found in the .cfg file.
 We could also support modification of these choices under programmatic control.
 <p>
@@ -546,9 +546,9 @@ What is the syntax of the code controlling logging behavior?
 <h3> Proposed treatment </h3>
 
 We immediately step onto a slippery slope (more like, step off a steep cliff)
-when we open up the idea of runtime control of these options.  
-Developing an interface for this control would take weeks at the least, and 
-there would inevitably be arguments over all the equally-good ways of expressing 
+when we open up the idea of runtime control of these options.
+Developing an interface for this control would take weeks at the least, and
+there would inevitably be arguments over all the equally-good ways of expressing
 the desired behavior.
 <p>
 The only sensible answers are to provide no post-configuration control at all,
@@ -560,12 +560,12 @@ documentation for how to use these.
 
 <h3> Work consequences </h3>
 
-If we can stick to our guns about just providing handles to raw ErrorLogger 
+If we can stick to our guns about just providing handles to raw ErrorLogger
 objects, this should not be too hard.  There may be a bit of work in developing
 an interface to get the ELdestControl for a given destination, but we
 probably already have the structures in place for that.
 <p>
-If we need to develop a separate CMS-approved interface for post-configuration 
+If we need to develop a separate CMS-approved interface for post-configuration
 adjustment of behavior, this will be a hopeless and endless task.
 
 

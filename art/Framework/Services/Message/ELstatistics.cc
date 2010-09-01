@@ -257,7 +257,7 @@ void  ELstatistics::zero()  {
 ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
 			// Major changes 8/16/07 mf, including making this
 			// a static member function instead of a free function
-			
+
   using std::ios;       /* _base ? */
   using std::setw;
   using std::right;
@@ -286,7 +286,7 @@ ELstring  ELstatistics::formSummary( ELmap_stats & stats )  {
     {								// 8/16/07 mf
        continue; // We will process these categories later
     }
-    							
+
     // -----  Emit new process and part I header, if needed:
     //
     if ( n == 0  || ! eq(lastProcess, (*i).first.process) ) {
@@ -465,10 +465,10 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
      // If this is a grouped category, wait till later to output its stats
     std::string cat = (*i).first.id;
     if ( groupedCategories.find(cat) != gcEnd )
-    {								
+    {
        continue; // We will process these categories later
     }
-    							
+
     // -----  Emit detailed message information:
     //
     std::ostringstream s;

@@ -71,14 +71,14 @@ void  MemoryTestClient_B::initializeMemoryPattern(int pattern) {
 	memoryPattern.push_back(   4.2   );
 	memoryPattern.push_back(   6.3   );
     break;
-    case 2:		
+    case 2:
 	memoryPattern.push_back(  43.1   );
 	memoryPattern.push_back(  17.1   );
 	memoryPattern.push_back(   2.1   );
 	memoryPattern.push_back( 119.5   );
 	memoryPattern.push_back(  19.5   );
   break;
-    case 3:		
+    case 3:
 	memoryPattern.push_back(   3.1   );
 	memoryPattern.push_back(   2.1   );
 	memoryPattern.push_back(  47.9   );
@@ -94,7 +94,7 @@ void  MemoryTestClient_B::initializeMemoryPattern(int pattern) {
 	memoryPattern.push_back(   2.1   );
 	memoryPattern.push_back(  17.1   );
     break;
-    case 4:		
+    case 4:
 	memoryPattern.push_back(  0   );
     break;
     default:

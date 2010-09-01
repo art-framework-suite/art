@@ -32,7 +32,7 @@ namespace edm {
     if (tree->IsZombie())
       throw edm::Exception(edm::errors::FatalRootError)
 	<< "Tree: " << name << " is a zombie." << "\n";
-				
+
     return assignTTree(filePtr, tree);
   }
 

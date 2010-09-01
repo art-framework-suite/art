@@ -98,10 +98,10 @@ protected:
 
   virtual void summarization ( const ELstring & fullTitle
                              , const ELstring & sumLines );
-			
+
   virtual void changeFile (std::ostream & os);
   virtual void changeFile (const ELstring & filename);
-  virtual void flush(); 				
+  virtual void flush();
 
 
 protected:

@@ -77,9 +77,9 @@ process.f4 = cms.EDFilter("TestFilterModule",
 process.a = cms.EDAnalyzer(
   "TestTriggerNames",
   trigPaths = cms.untracked.vstring(
-    'p01', 
-    'p02', 
-    'p03', 
+    'p01',
+    'p02',
+    'p03',
     'p04'
   ),
   endPaths = cms.untracked.vstring('e'),

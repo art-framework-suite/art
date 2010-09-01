@@ -12,7 +12,7 @@ subdirs (StdDictionaries/src)
 subdirs (TestObjects/src)
 subdirs (WrappedStdDictionaries/src)
 
-# build DataFormats tests 
+# build DataFormats tests
 subdirs (Common/test)
 subdirs (Provenance/test)
 

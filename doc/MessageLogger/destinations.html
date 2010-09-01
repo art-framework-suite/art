@@ -38,10 +38,10 @@ process TEST = {
 					              int32 timespan =  60
 					            }
 			      PSet WARNING        = { int32 limit    = 100
-			                              int32 timespan =  60 
+			                              int32 timespan =  60
 					            }
 			      PSet ERROR          = { int32 limit    = 100
-			                              int32 timespan =  60 
+			                              int32 timespan =  60
 					            }
 			      PSet trkwarning     = { int32 limit    = 20
 			                              int32 timespan = 1200
@@ -53,7 +53,7 @@ process TEST = {
 
     PSet jobdebug.txt =     { PSet default        = { int32 limit    = 1000000 }
                         }
-    PSet anotherfile.txt =  { PSet serious_matter = { int32 limit    = 1000 } 
+    PSet anotherfile.txt =  { PSet serious_matter = { int32 limit    = 1000 }
                             }
     PSet default = { int32 limit    = 10
                      int32 timespan = 60
@@ -69,13 +69,13 @@ process TEST = {
 
 
 The <font color=red>vstring destinations = </font> {"detailedInfo.txt", ... }
-parameter establishes one or more file (or ostream) destinations for the 
+parameter establishes one or more file (or ostream) destinations for the
 messages issued.  The destinations can be configured individually to establish
-filtering of messages.  Since this is a <em> vstring</em> parameter, the 
+filtering of messages.  Since this is a <em> vstring</em> parameter, the
 names of the destinations are separated by commas.
 <p>
 In this case, we have specified four files (perhaps overkill in ordinary
-circumstances, but we wished to use the four illustrate various configuration 
+circumstances, but we wished to use the four illustrate various configuration
 options).  We have also specified both cerr and cout; if this is done,
 it is recommended that cout be re-directed to a file, otherwise the message
 contents will be inter-mixed with those sent to cerr.
@@ -89,7 +89,7 @@ messages will be sent to cerr alone.
 
 <p><center>
 <a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> - 
+USCMS Software and Computing Home Page </a> -
 <a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
 <a href="parameters.html#complete"> Configuration File </a>
 </center>

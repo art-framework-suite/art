@@ -17,7 +17,7 @@ sys.path.append(os.environ["PWD"])
 path = sys.path[:]
 
 # get the dependencies
-importTree = getImportTree(filename, path)  
+importTree = getImportTree(filename, path)
 
 # finally dump the tree
 importTree.dump(0)

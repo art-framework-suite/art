@@ -173,7 +173,7 @@ namespace edm {
       // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
       std::vector<std::string>  shouldBeUsedLabels;
-	
+
       for(std::vector<std::string>::iterator itLabel = unusedLabels.begin(), itLabelEnd = unusedLabels.end();
 	  itLabel != itLabelEnd;
 	  ++itLabel) {

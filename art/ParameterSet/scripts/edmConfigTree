@@ -4,8 +4,8 @@
 # K. Banicz
 
 function findFileFor(){
-    # Return 0 if a file given by absolute path exists, or it converts a python name 
-    # to a file name and returns 0 if it finds it in CMSSW_SEARCH_PATH. 
+    # Return 0 if a file given by absolute path exists, or it converts a python name
+    # to a file name and returns 0 if it finds it in CMSSW_SEARCH_PATH.
 
     # argument 1: the sought file, or the python name to seek the corresponding file for
 
@@ -17,7 +17,7 @@ function findFileFor(){
 	IFS=:
 	for SEARCH_PATH in $CMSSW_SEARCH_PATH; do
 	    [ -f $SEARCH_PATH/$FILE_NAME ] && FOUND_FILE=$SEARCH_PATH/$FILE_NAME && return 0
-	done    
+	done
     fi
 
 

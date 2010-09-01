@@ -113,7 +113,7 @@ set( DataFormatsProvenance_sources BranchChildren.cc
 
 link_libraries( FWCoreUtilities
 		${Boost_THREAD_LIBRARY}
-		${REFLEX} 
+		${REFLEX}
 		${CORE} )
 
 add_library(DataFormatsProvenance SHARED ${DataFormatsProvenance_sources} )

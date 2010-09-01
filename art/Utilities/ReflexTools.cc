@@ -61,7 +61,7 @@ namespace edm
       (void)value_type_of(possible_ref, result);
       return true;
     } else {
-      result = possible_ref;	
+      result = possible_ref;
       return false;
     }
   }
@@ -75,7 +75,7 @@ namespace edm
       (void)value_type_of(possible_ref, result);
       return true;
     } else {
-      result = possible_ref;	
+      result = possible_ref;
       return false;
     }
   }

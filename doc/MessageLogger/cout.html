@@ -9,7 +9,7 @@
 
 <font color=red>
 <h1>CMS MessageLogger Service
-<br> 
+<br>
 Establishing a Destination to the <em>cout</em> Stream</h1>
 </font>
 </center>
@@ -25,7 +25,7 @@ process TEST = {
                       , "cerr"
                                              }
     PSet critical.txt     = { string threshold = "ERROR"   }
-    PSet detailedInfo.txt = { string threshold = "INFO"    } 
+    PSet detailedInfo.txt = { string threshold = "INFO"    }
     PSet cerr             = { string threshold = "WARNING" }
   }
   untracked PSet maxEvents = {untracked int32 input = 5}
@@ -36,11 +36,11 @@ process TEST = {
 </pre>
 
 
-The <font color=red>{ ..., "cout", ... }</font> 
-in the list of destinations refers to message information streamed to 
+The <font color=red>{ ..., "cout", ... }</font>
+in the list of destinations refers to message information streamed to
 <em>std::cout</em> rather than to a file named cout.  In this configuration
 file, no threshold is set for cout; the destination writing to cout will react
-to every message.  Also, this configuration file establishes destinations to 
+to every message.  Also, this configuration file establishes destinations to
 cout and cerr for illustration purposes, but in practice it would be confusing
 to send to both, since unless one or the other of the streams is
 re-directed, the output would appear entangled.
@@ -53,7 +53,7 @@ an ordinary file named cout or cerr.
 
 <p><center>
 <a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> - 
+USCMS Software and Computing Home Page </a> -
 <a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
 <a href="parameters.html#example"> Configuration File </a>
 </center>

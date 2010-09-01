@@ -113,7 +113,7 @@ namespace cms
 	  throw edm::Exception(edm::errors::LogicError)
 	    << "String of illegal length: "
 	    << hexy.size()
-	    << " given to MD5Result::fromHexifiedString";	
+	    << " given to MD5Result::fromHexifiedString";
 	}
       }
   }

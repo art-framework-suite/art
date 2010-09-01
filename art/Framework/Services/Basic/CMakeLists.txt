@@ -41,16 +41,16 @@ link_libraries( DataFormatsProvenance
 		FWCorePluginManager
 		FWCoreRootAutoLibraryLoader
 		FWCoreUtilities
-		${Boost_FILESYSTEM_LIBRARY} 
+		${Boost_FILESYSTEM_LIBRARY}
 		${Boost_THREAD_LIBRARY}
-		${CORE} 
-		${HIST} 
+		${CORE}
+		${HIST}
 		${TREE}
 		${GRAF}
 		${RIO}
 		${NET}
 		${CLHEP}
-		${REFLEX} 
+		${REFLEX}
 		${CINTEX} )
 
 add_library(FWCoreServices SHARED ${FWCoreServices_sources} )

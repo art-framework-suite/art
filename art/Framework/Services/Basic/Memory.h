@@ -32,7 +32,7 @@ namespace edm {
     {
       procInfo():vsize(),rss() {}
       procInfo(double sz, double rss_sz): vsize(sz),rss(rss_sz) {}
-	
+
       bool operator==(const procInfo& p) const
       { return vsize==p.vsize && rss==p.rss; }
 

@@ -4,7 +4,7 @@
 //
 // Changes:
 //
-//   1 - 3/22/06  mf  - in configure_dest()	
+//   1 - 3/22/06  mf  - in configure_dest()
 //	Repaired the fact that destination limits for categories
 //	were not being effective:
 //	a) use values from the destination specific default PSet
@@ -13,7 +13,7 @@
 //	   by a destination specific default PSet - set that limit or
 //	   timespan for that dest_ctrl via a "*" msgId.
 //
-//   2 - 3/22/06  mf  - in configure_dest()	
+//   2 - 3/22/06  mf  - in configure_dest()
 //	Enabled the use of -1 in the .cfg file to mean infinite limit
 //	or timespan.  This is done by:
 //	a) replacing the default value of -1 (by which we recognize
@@ -27,7 +27,7 @@
 //	a) Replaced default values directly in getAparameter with variables
 //	which can be examined all in one place.
 //	b) Carefully checked that we are never comparing to the empty PSet
-//	
+//
 //   4 - 4/28/06  mf  - in configure_dest()
 //	If a destination name does not have an extension, append .log
 //	(or in the case of a FwkJobReport, .xml).
@@ -220,10 +220,10 @@ MessageLoggerScribe::MessageLoggerScribe(bool singleThreadMode)	// changeLog 33
 , jobReportOption( )
 , clean_slate_configuration( true )
 , active( true )
-, singleThread (singleThreadMode)				
-, done (false)							
-, purge_mode (false)						
-, count (false)							
+, singleThread (singleThreadMode)
+, done (false)
+, purge_mode (false)
+, count (false)
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -580,7 +580,7 @@ void
     = getAparameter<int>(&default_pset,"timespan", COMMON_DEFAULT_TIMESPAN);
 						// change log 2a
     						// change log 3a
-					
+
   // grab all of this destination's parameters:
   PSet  dest_pset = getAparameter<PSet>(job_pset_p,filename,empty_PSet);
 
@@ -606,12 +606,12 @@ void
   } 						// change log 1b, 2a, 2b
   if ( dest_default_interval != NO_VALUE_SET ) {  // change log 6
     dest_ctrl.setInterval("*", dest_default_interval );
-  } 						
+  }
   if ( dest_default_timespan != NO_VALUE_SET ) {
     if ( dest_default_timespan < 0 ) dest_default_timespan = 2000000000;
     dest_ctrl.setTimespan("*", dest_default_timespan );
   } 						// change log 1b, 2a, 2b
-    						
+
   // establish this destination's threshold:
   String dest_threshold
      = getAparameter<String>(&dest_pset,"threshold", default_threshold);
@@ -675,7 +675,7 @@ void
       if ( timespan < 0 ) timespan = 2000000000;
       dest_ctrl.setTimespan(msgID, timespan);
     }						// change log 2a, 2b
-						
+
   }  // for
 
   // establish this destination's limit for each severity:
@@ -853,7 +853,7 @@ void
     stream_ps[actual_filename] = os_p;
 
     // now configure this destination:
-    configure_dest(dest_ctrl, psetname);	
+    configure_dest(dest_ctrl, psetname);
 
   }  // for [it = fwkJobReports.begin() to end()]
 
@@ -862,7 +862,7 @@ void
   if (jobReportExists && ( jobReportOption=="*" )) return;
   if (jobReportOption=="*") jobReportOption = "FrameworkJobReport.xml";
   // Check that this report is not already on order -- here the duplicate
-  // name would not be a configuration error, but we shouldn't do it twice			
+  // name would not be a configuration error, but we shouldn't do it twice
   std::string actual_filename = jobReportOption;
   if ( stream_ps.find(actual_filename)!=stream_ps.end() ) return;
 
@@ -873,7 +873,7 @@ void
   stream_ps[actual_filename] = os_p;
 
   // now configure this destination, in the jobreport default manner:
-  configure_default_fwkJobReport (dest_ctrl);	
+  configure_default_fwkJobReport (dest_ctrl);
 
 }
 
@@ -1057,7 +1057,7 @@ void
     // Modify the file name if extension or name is explicitly specified
     // change log 14 -- probably suspenders and a belt, because ouput option
     // is present, but uniformity is nice.
-					
+
     String explicit_filename
         = getAparameter<String>(&stat_pset,"filename",filename);
     if (explicit_filename != empty_String) filename = explicit_filename;
@@ -1149,7 +1149,7 @@ void
 {
   if( ! job_pset_p )
   {
-//  extern_dests.clear();				
+//  extern_dests.clear();
 //  change log 12, removed by change log 13
     return;
   }

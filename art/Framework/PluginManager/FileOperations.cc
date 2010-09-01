@@ -79,7 +79,7 @@ namespace plugin
 	  {
 	    string filename(i->path().leaf());
 	    if (regex_match(filename, libpattern)) result.push_back(filename);
-	  }	
+	  }
       }
   }
 }

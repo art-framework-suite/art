@@ -16,7 +16,7 @@ process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer",
 
 process.source = cms.Source("PoolSource",
     setRunNumber = cms.untracked.uint32(621),
-    fileNames = cms.untracked.vstring('file:PoolInputTest.root', 
+    fileNames = cms.untracked.vstring('file:PoolInputTest.root',
         'file:PoolInputOther.root')
 )
 

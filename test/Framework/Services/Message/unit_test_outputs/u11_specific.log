@@ -1,7 +1,7 @@
 %MSG-i expect_specific:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1
-The following outputs are expected: 
-int25bydefaults appearing in events 1,13,25,37,49 
-unlisted_category appearing in events 1,31 
+The following outputs are expected:
+int25bydefaults appearing in events 1,13,25,37,49
+unlisted_category appearing in events 1,31
 
 %MSG
 %MSG-i unlisted_category:  UnitTestClient_F:sendSomeMessages Run: 1 Event: 1

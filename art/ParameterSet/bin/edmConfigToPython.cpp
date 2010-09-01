@@ -42,7 +42,7 @@ int main()
     }
   catch ( ... )
     {
-      std::cerr << "Unidentified exception caught\n";	
+      std::cerr << "Unidentified exception caught\n";
     }
   return rc;
 }

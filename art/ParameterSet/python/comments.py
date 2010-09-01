@@ -1,16 +1,16 @@
 #!/bin/env python
 
 # tool to add comments to python configuration files
-# 
+#
 # this tool makes the following assumptions
-#  - for each file Subproject/Package/data/config.[cff,cfg,cfi] 
+#  - for each file Subproject/Package/data/config.[cff,cfg,cfi]
 #    there is a file Subproject/Package/python/config_[cff,cfg,cfi].py
 #  - comments are either in the line just above a command or just behind in the same line
 
 
 # should hold the comment ID
 # which is Comment.value and Comment.type = "trailing" or "inline"
-# 
+#
 
 from FWCore.ParameterSet.python import cfgName2py
 
@@ -63,11 +63,11 @@ def prepareReplaceDict(line, comment, replaceDict):
        # if it's a significant line, we're not in a comment any more
         else:
           replaceDict["@beginning"] +="\n"+comment.value
-    
+
 
 
 def identifyComments(configString):
-    
+
     replaceDict = {}
 
     replaceDict["@beginning"] = "# The following comments couldn't be translated into the new config version:\n"
@@ -104,7 +104,7 @@ def identifyComments(configString):
           words = line.lstrip().split()
           # at least <keyword> <label> = "
           if len(words) > 1:
-             prepareReplaceDict(line,comment,replaceDict)             
+             prepareReplaceDict(line,comment,replaceDict)
           if len(words) > 0:
              inComment = False
         else:
@@ -118,18 +118,18 @@ def identifyComments(configString):
                comment.type = "inline"
                # prepare the replaceDict
                prepareReplaceDict(line, comment, replaceDict)
-      
+
 
     return replaceDict
-          
-        
+
+
 
 
 def modifyPythonVersion(configString, replaceDict):
 
     # first put all comments at the beginning of the file which could not be assigned to any other token
     if replaceDict["@beginning"] != "# The following comments couldn't be translated into the new config version:\n":
-      configString = replaceDict["@beginning"]+"\n"+configString 
+      configString = replaceDict["@beginning"]+"\n"+configString
 
     replaceDict.pop("@beginning")
 
@@ -141,7 +141,7 @@ def modifyPythonVersion(configString, replaceDict):
                 indentation = line[0:line.find(keyword)]
                 if len([1 for l in configString.splitlines() if l.lstrip().startswith(keyword)]) !=1:
                     print "WARNING. Following keyword not unique:", keyword
-                    continue 
+                    continue
                 if comment.type == "inline":
                   newLine = line + " #"+comment.value+"\n"
                 else:
@@ -151,7 +151,7 @@ def modifyPythonVersion(configString, replaceDict):
 
 
     # now do the actual replacement
-    for original, new in actualReplacements.iteritems():        
+    for original, new in actualReplacements.iteritems():
         configString = configString.replace(original, new)
 
     return configString
@@ -160,10 +160,10 @@ def modifyPythonVersion(configString, replaceDict):
 def loopfile(cfgFileName):
    cfgFile = file(cfgFileName)
    cfgString = cfgFile.read()
-   
+
    pyFileName = cfgName2py.cfgName2py(cfgFileName)
 
-   try: 
+   try:
      pyFile = file(pyFileName)
      pyString = pyFile.read()
    except IOError:
@@ -178,14 +178,14 @@ def loopfile(cfgFileName):
    pyOutFile.write(newPyString)
    print "Wrote", pyFileName
    pyOutFile.close()
- 
+
 #out = file("foo_cfi.py","w")
 #out.write(configString)
 #print configString
 
 
 
-# 
+#
 import os
 from sys import argv
 
@@ -206,7 +206,7 @@ elif argv[1] == 'local':
             pass
     except OSError:
       pass
-    
+
 
 else:
   loopfile(argv[1])

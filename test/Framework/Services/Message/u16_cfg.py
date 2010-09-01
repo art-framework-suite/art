@@ -13,7 +13,7 @@ process.load("FWCore.MessageService.python.test.Services_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
     # put stats into u16_errors.mmlog and another file
-    statistics = cms.untracked.vstring('u16_statistics', 
+    statistics = cms.untracked.vstring('u16_statistics',
         'u16_errors'),
     # produce file u16_statistics.mslog
     u16_statistics = cms.untracked.PSet(
@@ -70,12 +70,12 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     fwkJobReports = cms.untracked.vstring('u16_job_report'),
     debugModules = cms.untracked.vstring('*'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u16_warnings', 
-        'u16_errors', 
-        'u16_infos', 
-        'u16_debugs', 
+    destinations = cms.untracked.vstring('u16_warnings',
+        'u16_errors',
+        'u16_infos',
+        'u16_debugs',
         'u16_default')
 )
 

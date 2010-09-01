@@ -55,7 +55,7 @@ class Package(object):
         self.stack = []
         if top:
             self.module = None
-        else:    
+        else:
             self.module = __import__(name,[],[],"*")
     def dump(self,level):
         indent = "  " * level
@@ -79,13 +79,13 @@ class Package(object):
                          self.hit.line = line
                          self.hit.stacks = list()
                          result.append(self.hit)
-                     self.hit.stacks.append(copy.copy(_stack)) 
+                     self.hit.stacks.append(copy.copy(_stack))
         # then go on with dependencies
         _stack.append(self.name)
         for package in self.dependencies:
             package.search(pattern,result)
-        _stack.pop() 
-        self.searched = True    
+        _stack.pop()
+        self.searched = True
 
 
 class mymf(modulefinder.ModuleFinder):
@@ -93,7 +93,7 @@ class mymf(modulefinder.ModuleFinder):
         self._depgraph = {}
         self._types = {}
         self._last_caller = None
-        #TODO - replace by environment variables CMSSW_BASE and CMSSW_RELEASE_BASE (*and* do it only if the global one is not empty like for IB areas)  
+        #TODO - replace by environment variables CMSSW_BASE and CMSSW_RELEASE_BASE (*and* do it only if the global one is not empty like for IB areas)
         self._localarea = os.path.expandvars('$CMSSW_BASE')
         self._globalarea = os.path.expandvars('$CMSSW_RELEASE_BASE')
         modulefinder.ModuleFinder.__init__(self,*args,**kwargs)
@@ -101,22 +101,22 @@ class mymf(modulefinder.ModuleFinder):
         old_last_caller = self._last_caller
         try:
             self._last_caller = caller
-            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist)  
+            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist)
         finally:
             self._last_caller = old_last_caller
 
     def import_module(self,partnam,fqname,parent):
-                              
+
         if partnam in ("FWCore","os"):
             r = None
         else:
             r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
-            # since the modulefinder is not able to look into the global area when coming from the local area, we force a second try   
+            # since the modulefinder is not able to look into the global area when coming from the local area, we force a second try
             if parent and not r and self._localarea != '' and self._globalarea != '':
                  parent.__file__ = parent.__file__.replace(self._localarea,self._globalarea)
                  parent.__path__[0] = parent.__path__[0].replace(self._localarea,self._globalarea)
             r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
-                                                         
+
         if r is not None:
             self._depgraph.setdefault(self._last_caller.__name__,{})[r.__name__] = 1
         return r
@@ -130,11 +130,11 @@ class mymf(modulefinder.ModuleFinder):
 def transformIntoGraph(depgraph,toplevel):
     packageDict = {}
     # create the top level config
-    packageDict[toplevel] = Package(toplevel, top = True) 
+    packageDict[toplevel] = Package(toplevel, top = True)
 
     # create package objects
     for key, value in depgraph.iteritems():
-        if key.count(".") == 2 and key != toplevel: 
+        if key.count(".") == 2 and key != toplevel:
             packageDict[key] = Package(key)
         for name in value.keys():
             if name.count(".") == 2: packageDict[name] = Package(name)
@@ -151,11 +151,11 @@ def transformIntoGraph(depgraph,toplevel):
 def getDependenciesFromConfig(filename,toplevelname,path):
     imports = [filename]
     config = open(filename)
-    
+
     for line in config.readlines():
         # look for all load statements
         if line.startswith("process.load"):
-            line = line.replace('"', "'") 
+            line = line.replace('"', "'")
             moduleName = line.split("'")[1]
             module = __import__(moduleName,[],[],"*")
             imports.append(inspect.getsourcefile(module))
@@ -182,14 +182,14 @@ def getDependenciesFromConfig(filename,toplevelname,path):
         name = packageNameFromFilename(item)
         if name != toplevelname:
             globalDependencyDict[toplevelname][name] = 1
-    return globalDependencyDict                                                
+    return globalDependencyDict
 
 
 def getDependenciesFromPythonFile(filename,toplevelname,path):
     modulefinder = mymf(path)
     modulefinder.run_script(filename)
     globalDependencyDict = modulefinder._depgraph
-    globalDependencyDict[toplevelname] = globalDependencyDict["__main__"] 
+    globalDependencyDict[toplevelname] = globalDependencyDict["__main__"]
     return globalDependencyDict
 
 
@@ -203,4 +203,4 @@ def getImportTree(filename,path):
         globalDependencyDict = getDependenciesFromPythonFile(filename,toplevelname,path)
     # transform this flat structure in a dependency tree
     dependencyGraph = transformIntoGraph(globalDependencyDict,toplevelname)
-    return dependencyGraph                                               
+    return dependencyGraph

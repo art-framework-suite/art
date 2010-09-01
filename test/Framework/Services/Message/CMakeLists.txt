@@ -4,7 +4,7 @@ project(FWCoreMessageServicesTest)
 file( GLOB cpp_files *.cpp )
 file( GLOB cc_files *.cc )
 
-link_libraries( DataFormatsProvenance  
+link_libraries( DataFormatsProvenance
 		FWCoreServiceRegistry
 		FWCoreMessageLogger
 		FWCoreParameterSet

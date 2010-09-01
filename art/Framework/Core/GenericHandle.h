@@ -163,9 +163,9 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
                                       std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const;
 
-template <> 	
-bool 	
-edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const; 	
+template <>
+bool
+edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const;
 
 }
 #endif

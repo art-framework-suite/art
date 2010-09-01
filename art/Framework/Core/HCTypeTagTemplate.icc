@@ -4,7 +4,7 @@
 //
 // Package:     HeteroContainer
 // Module:      HCTypeTagTemplate
-// 
+//
 // Description: <one line class summary>
 //
 // Implementation:
@@ -85,11 +85,11 @@ namespace edm {
       namespace heterocontainer {
 
       template<class T, class Group >
-      HCTypeTagTemplate<T,Group>::HCTypeTagTemplate() : 
+      HCTypeTagTemplate<T,Group>::HCTypeTagTemplate() :
          HCTypeTag<Group>(typeid(T), className()) {doRegistration();}
 
       template<class T, class Group >
-      void  
+      void
       HCTypeTagTemplate<T,Group>::doRegistration() {
          static bool registrationDone = false;
          if(!registrationDone){

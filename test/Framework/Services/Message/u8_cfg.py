@@ -4,7 +4,7 @@
 #   overall defaults for all destinations, for unnamed categories                     -- u8_overall_unnamed
 #   overall defaults for all destinations, specific category                          -- u8_overall_specific
 # testing limits
-#   default limit for a destination superceding overall default                       -- u8_supercede_specific   
+#   default limit for a destination superceding overall default                       -- u8_supercede_specific
 #   default limit for a destination not superceding specific category overall default -- u8_non_supercede_common
 #   limit for specific category superceding both defaults                             -- u8_specific
 
@@ -109,20 +109,20 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
-        'lim3bydefault', 
-        'lim2bycommondefault', 
-        'lim0bydefaults', 
-        'expect_overall_unnamed', 
-        'expect_overall_specific', 
-        'expect_supercede_specific', 
-        'expect_non_supercede_common_specific', 
-        'expect_specific', 
+    categories = cms.untracked.vstring('preEventProcessing',
+        'lim3bydefault',
+        'lim2bycommondefault',
+        'lim0bydefaults',
+        'expect_overall_unnamed',
+        'expect_overall_specific',
+        'expect_supercede_specific',
+        'expect_non_supercede_common_specific',
+        'expect_specific',
         'FwkJob'),
-    destinations = cms.untracked.vstring('u8_overall_unnamed', 
-        'u8_overall_specific', 
-        'u8_supercede_specific', 
-        'u8_non_supercede_common', 
+    destinations = cms.untracked.vstring('u8_overall_unnamed',
+        'u8_overall_specific',
+        'u8_supercede_specific',
+        'u8_non_supercede_common',
         'u8_specific')
 )
 

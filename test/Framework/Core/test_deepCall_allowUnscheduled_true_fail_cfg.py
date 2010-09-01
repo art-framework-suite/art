@@ -23,12 +23,12 @@ process.result1 = cms.EDProducer("AddIntsProducer",
 )
 
 process.result2 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('result1', 
+    labels = cms.vstring('result1',
         'one')
 )
 
 process.result4 = cms.EDProducer("AddIntsProducer",
-    labels = cms.vstring('result2', 
+    labels = cms.vstring('result2',
         'result2')
 )
 

@@ -1,4 +1,4 @@
-mu2e 2009.01.27 meeting 
+mu2e 2009.01.27 meeting
 
 What is working?
   - services
@@ -17,8 +17,8 @@ What is not working?
    - test suite
    - STL with bounds checking (_GLIBCXX_DEBUG_ activates this)
    - Base Release that can be used without entire checkout/build
-   - skeleton "package" generator (include example)                      
-       
+   - skeleton "package" generator (include example)
+
 Where do some problems lie?
    - plugin manager
    - "main" routine (symbol table troubles)
@@ -55,7 +55,7 @@ Repository for code
 devisions of code (code types)
   1 *infra code       (event, rough vector
   2 *main (body of) experiment   (jet finding, track finding, main monte carlo, main reconstruction)
-  3 user    (my analysis, "quick side study") 
+  3 user    (my analysis, "quick side study")
 
 * - needs to always be working
 

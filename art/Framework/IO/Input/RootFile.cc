@@ -714,7 +714,7 @@ namespace edm {
       if (!eventProcessHistoryIDs_.empty()) {
         if (eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
           EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
-          eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);	
+          eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
           assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
         }
 	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);

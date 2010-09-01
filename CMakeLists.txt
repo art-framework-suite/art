@@ -6,7 +6,7 @@
 #   make
 #   make test
 #   make install
-# If you change any of the Cmake* files in $FW_CODE, 
+# If you change any of the Cmake* files in $FW_CODE,
 # you need to run the cmake step again
 
 # use cmake 2.6 or later
@@ -18,7 +18,7 @@ project(framework)
 set (framework_VERSION_MAJOR 1)
 set (framework_VERSION_MINOR 0)
 
-# because we want to move these libraries about, 
+# because we want to move these libraries about,
 # do not embed full path in shared libraries or executables
 set (CMAKE_SKIP_RPATH)
 # get verbose output so we can debug cmake
@@ -71,7 +71,7 @@ find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
 # have to make sure cmake doesn't select the system libraries
 # define python library
 find_library( PYTHON  NAMES python2.4 PATHS $ENV{FW_PYTHON_DIR}/lib NO_DEFAULT_PATH )
-# define libsigc 
+# define libsigc
 find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_DIR}/lib NO_DEFAULT_PATH )
 # define cppunit
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_DIR}/lib   NO_DEFAULT_PATH )
@@ -82,9 +82,9 @@ set(BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set(BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 set(Boost_USE_MULTITHREADED ON)
 # search for Boost version 1.34 libraries
-find_package( Boost 1.34 COMPONENTS filesystem 
-                                    regex 
-				    thread 
+find_package( Boost 1.34 COMPONENTS filesystem
+                                    regex
+				    thread
 				    python
                                     program_options )
 
@@ -98,14 +98,14 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 # define some variables for genreflex
-set( GENREFLEX_FLAGS --deep 
-                     --fail_on_warnings 
-		     --capabilities=classes_ids.cc 
-                     -DCMS_DICT_IMPL 
-		     -D_REENTRANT 
-		     -DGNU_SOURCE 
-		     -DGNU_GCC 
-		     -DPROJECT_NAME="CMSSW" 
+set( GENREFLEX_FLAGS --deep
+                     --fail_on_warnings
+		     --capabilities=classes_ids.cc
+                     -DCMS_DICT_IMPL
+		     -D_REENTRANT
+		     -DGNU_SOURCE
+		     -DGNU_GCC
+		     -DPROJECT_NAME="CMSSW"
 		     -DPROJECT_VERSION="CMSSW_3_0_0_pre2" )
 set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 			-I $ENV{CLHEP_DIR}/include
@@ -119,17 +119,17 @@ set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 macro (build_plugin maindir subdir)
   add_library(${maindir}${subdir}_dict_plugin SHARED ${maindir}${subdir}_dict_plugin.cpp )
   add_library(${maindir}${subdir}_map_plugin SHARED ${maindir}${subdir}_map_plugin.cpp )
-  add_custom_command( 
+  add_custom_command(
      OUTPUT ${maindir}${subdir}_dict_plugin.cpp
      COMMAND ${GENREFLEX} ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src/classes.h
-        	 -s ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src/classes_def.xml 
+        	 -s ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src/classes_def.xml
 		 -I ${CMAKE_SOURCE_DIR}
 		 -I ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src
 		 ${GENREFLEX_INCLUDES}
-        	 -o ${maindir}${subdir}_dict_plugin.cpp  
+        	 -o ${maindir}${subdir}_dict_plugin.cpp
 		 ${GENREFLEX_FLAGS}
   )
-  add_custom_command( 
+  add_custom_command(
      OUTPUT ${maindir}${subdir}_map_plugin.cpp
      DEPENDS ${maindir}${subdir}_dict_plugin.cpp
      COMMAND mv classes_ids.cc ${maindir}${subdir}_map_plugin.cpp

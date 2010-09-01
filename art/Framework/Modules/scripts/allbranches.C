@@ -22,7 +22,7 @@ void allbranches()
       obj = key->ReadObj();
       if ( (obj->InheritsFrom("TTree")) ) {
         charname = ((TTree*)obj)->GetName();
-        std::cout << "\nAll branches for TTree " << charname 
+        std::cout << "\nAll branches for TTree " << charname
                   << " in file " << fname << "\n" << std::endl;
 	file->GetObject(charname,tree);
         if(tree) {

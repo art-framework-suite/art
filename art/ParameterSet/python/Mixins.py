@@ -38,7 +38,7 @@ class _ParameterTypeBase(object):
     def setIsTracked(self,trackness):
         self.__isTracked = trackness
     def isFrozen(self):
-        return self._isFrozen 
+        return self._isFrozen
     def setIsFrozen(self):
         self._isFrozen = True
 
@@ -103,7 +103,7 @@ class _Parameterizable(object):
                 self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
         self._isModified = False
-        
+
     def parameterNames_(self):
         """Returns the name of the parameters"""
         return self.__parameterNames[:]
@@ -163,13 +163,13 @@ class _Parameterizable(object):
     def __setattr__(self,name,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
-        if self.isFrozen() and not (name in ["_Labelable__label","_isFrozen"] or name.startswith('_')): 
+        if self.isFrozen() and not (name in ["_Labelable__label","_isFrozen"] or name.startswith('_')):
             message = "Object already added to a process. It is read only now\n"
             message +=  "    %s = %s" %(name, value)
             message += "\nThe original parameters are:\n"
-            message += self.dumpPython() + '\n'           
+            message += self.dumpPython() + '\n'
             raise ValueError(message)
-  
+
         if name[0]=='_':
             super(_Parameterizable,self).__setattr__(name,value)
             # RICK test
@@ -193,7 +193,7 @@ class _Parameterizable(object):
     def setIsFrozen(self):
         self._isFrozen = True
         for name in self.parameterNames_():
-            self.__dict__[name].setIsFrozen() 
+            self.__dict__[name].setIsFrozen()
     def __delattr__(self,name):
         if self.isFrozen():
             raise ValueError("Object already added to a process. It is read only now")
@@ -239,7 +239,7 @@ class _TypedParameterizable(_Parameterizable):
         #    del args['type_']
         arg = tuple([x for x in arg if x != None])
         super(_TypedParameterizable,self).__init__(*arg,**kargs)
-        saveOrigin(self, 1) 
+        saveOrigin(self, 1)
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def type_(self):
@@ -268,7 +268,7 @@ class _TypedParameterizable(_Parameterizable):
         if len(params):
             #need to treat items both in params and myparams specially
             for key,value in params.iteritems():
-                if key in myparams:                    
+                if key in myparams:
                     if isinstance(value,_ParameterTypeBase):
                         myparams[key] =value
                     else:
@@ -316,7 +316,7 @@ class _TypedParameterizable(_Parameterizable):
                             params[name] = getattr(default,name)
                         return params
         return None
-    
+
     def dumpConfig(self, options=PrintOptions()):
         config = self.__type +' { \n'
         for name in self.parameterNames_():
@@ -409,7 +409,7 @@ class _Unlabelable(object):
 
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
-    def __init__(self,*arg,**args):        
+    def __init__(self,*arg,**args):
         super(_ValidatingListBase,self).__init__(arg)
         if not self._isValid(iter(self)):
             raise TypeError("wrong types ("+','.join([str(type(value)) for value in iter(self)])+
@@ -525,13 +525,13 @@ def saveOrigin(obj, level):
     frame = inspect.stack()[level+1]
     filename = str(frame[1])
     lineNumber = int(frame[2])
-    obj._lineNumber = lineNumber 
+    obj._lineNumber = lineNumber
     obj._filename = filename # the full name
     try:
         obj._shortFilename = filename.split('python/')[1] #only the part below
     except:
         obj._shortFilename = filename
-                                    
+
 
 if __name__ == "__main__":
 
@@ -544,7 +544,7 @@ if __name__ == "__main__":
             #lists larger than 255 entries can not be initialized
             #using the constructor
             args = [i for i in xrange(0,300)]
-            
+
             t = TestList(*args)
             pdump= t.dumpPython()
             class cms(object):

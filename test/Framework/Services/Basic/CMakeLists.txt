@@ -21,11 +21,11 @@ target_link_libraries(TestFWCoreServicesDriver FWCoreServices
                 			       FWCoreParameterSet
                 			       FWCorePluginManager
                 			       FWCoreUtilities
-                			       ${Boost_FILESYSTEM_LIBRARY} 
-                			       ${Boost_PROGRAM_OPTIONS_LIBRARY} 
+                			       ${Boost_FILESYSTEM_LIBRARY}
+                			       ${Boost_PROGRAM_OPTIONS_LIBRARY}
                 			       ${SIGC}
                 			       ${CORE}
-                			       ${REFLEX} 
+                			       ${REFLEX}
                 			       ${CINTEX} )
 
 install ( TARGETS FWCoreServicesTest DESTINATION lib )

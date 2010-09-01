@@ -54,9 +54,9 @@ process.f2b = cms.EDFilter("TestFilterModule",
 process.a = cms.EDAnalyzer(
   "TestTriggerNames",
   trigPathsPrevious = cms.untracked.vstring(
-    'p01', 
-    'p02', 
-    'p03', 
+    'p01',
+    'p02',
+    'p03',
     'p04'
   ),
   streamerSource = cms.untracked.bool(True),

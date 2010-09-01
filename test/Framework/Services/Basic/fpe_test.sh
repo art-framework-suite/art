@@ -1,5 +1,5 @@
 #!/bin/bash
-# If successful this will dump core so disable that... 
+# If successful this will dump core so disable that...
 ulimit -c 0
 
 F1=${FW_HOME}/FWCore/Services/test/fpe_test_cfg.py

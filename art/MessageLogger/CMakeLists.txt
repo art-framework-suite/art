@@ -40,11 +40,11 @@ set( FWCoreMessageLogger_sources AbstractMLscribe.cc
 
 add_library(FWCoreMessageLogger SHARED ${FWCoreMessageLogger_sources} )
 target_link_libraries(FWCoreMessageLogger FWCoreUtilities
-                			  ${Boost_FILESYSTEM_LIBRARY} 
-                			  ${Boost_THREAD_LIBRARY} 
-					  ${CORE} 
-					  ${HIST} 
-					  ${REFLEX} 
+                			  ${Boost_FILESYSTEM_LIBRARY}
+                			  ${Boost_THREAD_LIBRARY}
+					  ${CORE}
+					  ${HIST}
+					  ${REFLEX}
 					  ${CINTEX} )
 
 install ( TARGETS FWCoreMessageLogger DESTINATION lib )

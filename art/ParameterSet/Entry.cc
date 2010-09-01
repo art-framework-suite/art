@@ -353,7 +353,7 @@ namespace edm {
     if (!encode(rep, val)) throwEncodeError("FileInPath");
     validate();
   }
-							
+
 
 // ----------------------------------------------------------------------
 // InputTag
@@ -594,7 +594,7 @@ namespace edm {
 	      onlytracked.push_back(tracked_part);
 	    }
 	    if(!encode(tracked_rep, onlytracked))
-	      throwEncodeError("vector<ParameterSet>");	
+	      throwEncodeError("vector<ParameterSet>");
 	  }
 	  size = tracked_rep.size() + 4;
 	  break;
@@ -602,7 +602,7 @@ namespace edm {
       default: // everything else
         {
 	  size = sizeOfString();
-	  break;	
+	  break;
 	}
     }
     return size;

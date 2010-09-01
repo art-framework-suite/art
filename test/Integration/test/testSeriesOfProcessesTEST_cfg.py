@@ -53,13 +53,13 @@ process.f2 = cms.EDFilter("TestFilterModule",
 process.a = cms.EDAnalyzer("TestTriggerNames",
   trigPathsPrevious = cms.untracked.vstring('p1', 'p2'),
   trigPaths = cms.untracked.vstring(
-    'path1', 
-    'path2', 
-    'path3', 
-    'path4', 
-    'path5', 
-    'path6', 
-    'path7', 
+    'path1',
+    'path2',
+    'path3',
+    'path4',
+    'path5',
+    'path6',
+    'path7',
     'path8'),
   dumpPSetRegistry = cms.untracked.bool(False)
 )
@@ -68,9 +68,9 @@ process.out1 = cms.OutputModule("SewerModule",
   shouldPass = cms.int32(60),
   name = cms.string('out1'),
   SelectEvents = cms.untracked.PSet(
-    SelectEvents = cms.vstring('p02:HLT', 
-      ' p03    :       HLT', 
-      'p2:PROD', 
+    SelectEvents = cms.vstring('p02:HLT',
+      ' p03    :       HLT',
+      'p2:PROD',
       'path1:TEST')
   )
 )

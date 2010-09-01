@@ -28,7 +28,7 @@ areas concerned with release use and management;
    * versioned as a whole
    * many can exist
  * base releases
-   * admin sets up, 
+   * admin sets up,
    * specific tag checked out
    * the entire mu2e repository checked out here
    * many can exist

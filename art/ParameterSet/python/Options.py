@@ -24,6 +24,6 @@ if __name__ == "__main__":
             a["B"] = 3
             a["A"]
             self.assertEqual(a.readKeys, set(["A"]))
-            self.assertEqual(a.unreadKeys, set(["B"]))                        
+            self.assertEqual(a.unreadKeys, set(["B"]))
 
     unittest.main()

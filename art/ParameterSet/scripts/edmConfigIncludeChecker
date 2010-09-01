@@ -1,7 +1,7 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 # Check needed by Martin Gruenewald for HLT studies
-# This isn't intended to be an example for nice coding... ;-) 
+# This isn't intended to be an example for nice coding... ;-)
 #
 # for questions: benedikt.hegner@cern.ch
 
@@ -26,20 +26,20 @@ class IncludeChecker(object):
              raise RuntimeError("The environment variable 'CMSSW_SEARCH_PATH' must be set for include to work")
         self.lpaths = paths.split(':')
 
-            
+
     def formatTraceback(self, traceback):
         tb = ""
         tr = copy.copy(traceback)
         tr.reverse()
         for item in tr:
             tb += "    %s\n" %item
-        return tb    
+        return tb
 
 
     # return includes defined in a single file
     def getIncludesFromFile(self, filename, currentFile):
         includes = []
-        f = None  
+        f = None
         # look for the file in the CMSSW_SEARCH_PATH
         for path in self.lpaths:
             path +='/'+filename
@@ -48,7 +48,7 @@ class IncludeChecker(object):
                 break
         if f is None:
             if os.path.exists(filename):
-                f = filename 
+                f = filename
             else:
                 self.missingIncludes.append(filename + "\n   Traceback:\n" +self.formatTraceback(self.traceback))
                 return includes, ""
@@ -69,30 +69,30 @@ class IncludeChecker(object):
         cStyleCommentsCounter = 0
         for line in theFile:
             if "/*" in line: cStyleCommentsCounter += 1
-            if "*/" in line: cStyleCommentsCounter -= 1 
+            if "*/" in line: cStyleCommentsCounter -= 1
             if ("include " in line or " from " in line) and not ("#" in line or "//" in line or  "/*" in line or  "*/" in line or (cStyleCommentsCounter!=0) ):
-                includeCandidate = line.split('"')[1] 
+                includeCandidate = line.split('"')[1]
                 if includeCandidate not in self.doneIncludes:
                   includes.append(includeCandidate)
-                theFile.close        
-        return includes, f             
+                theFile.close
+        return includes, f
 
 
     # here the real recursive include process
-    def getIncludesFromList(self, filelist,currentFile): 
+    def getIncludesFromList(self, filelist,currentFile):
         self.traceback.append(currentFile)
         for filename in filelist:
             includes, fullPathToFile = self.getIncludesFromFile(filename, currentFile)
-            self.doneIncludes.append(filename) 
+            self.doneIncludes.append(filename)
             self.getIncludesFromList(includes,fullPathToFile)
-        self.traceback.pop()                
+        self.traceback.pop()
 
 
     def check(self, filename):
         includes, fullPathToFile = self.getIncludesFromFile(filename, "toplevel")
         self.getIncludesFromList(includes, fullPathToFile)
 
-    
+
     def printResult(self):
         print "Included files:"
         print "---------------"
@@ -114,7 +114,7 @@ class IncludeChecker(object):
                 print "  ", item
 
 
-                
+
 ##########################
 if __name__ == "__main__":
 
@@ -123,6 +123,6 @@ if __name__ == "__main__":
         filename = args[1]
         checker = IncludeChecker()
         checker.check(filename)
-        checker.printResult()        
+        checker.printResult()
     else:
         print "Please specify a file to check"

@@ -160,11 +160,11 @@ private:
 
   // ---  traditional member data:
   //
-  ELstring                   process_;	
-  ELcontextSupplier *        context_;	
+  ELstring                   process_;
+  ELcontextSupplier *        context_;
   ELseverityLevel            abortThreshold_;
   ELseverityLevel            exitThreshold_;
-  std::list<ELdestination *> sinks_;		
+  std::list<ELdestination *> sinks_;
   ELseverityLevel            highSeverity_;
   int                        severityCounts_[ ELseverityLevel::nLevels ];
   edm::ErrorObj              msg;

@@ -14,10 +14,10 @@ set( FWCoreRootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
 
 link_libraries( FWCorePluginManager
                 DataFormatsProvenance
-                ${Boost_FILESYSTEM_LIBRARY} 
+                ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_REGEX_LIBRARY}
 		${CORE}
-		${REFLEX} 
+		${REFLEX}
 		${CINT} dl )
 
 add_library(FWCoreRootAutoLibraryLoader SHARED ${FWCoreRootAutoLibraryLoader_sources} )

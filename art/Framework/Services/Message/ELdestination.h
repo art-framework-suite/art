@@ -99,7 +99,7 @@ protected:
 
   virtual void changeFile (std::ostream & os);
   virtual void changeFile (const ELstring & filename);
-  virtual void flush(); 				
+  virtual void flush();
 
   // -----  Select output format options:
   //
@@ -134,7 +134,7 @@ protected:
 #ifndef DEFECT_NO_STATIC_CONST_INIT
   static const int defaultLineLength = 80;
 #else
-  static const int defaultLineLength;	
+  static const int defaultLineLength;
 #endif
 
   // -----  Verboten methods:

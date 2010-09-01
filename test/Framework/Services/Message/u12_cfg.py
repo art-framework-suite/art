@@ -19,7 +19,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         placeholder = cms.untracked.bool(True)
     ),
     categories = cms.untracked.vstring('preEventProcessing'),
-    destinations = cms.untracked.vstring('u12_warnings', 
+    destinations = cms.untracked.vstring('u12_warnings',
         'u12_placeholder')
 )
 

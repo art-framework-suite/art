@@ -14,7 +14,7 @@ def runme2(fid,infile,outfile):
     fout = open(outfile,'w')
     sub = ' ' + fid + '[ $]'
     r = re.compile(sub)
-    
+
     for line in fin.xreadlines():
         i = line.index(' ')+1
         s = r.search(line[i:])
@@ -29,7 +29,7 @@ def runme(fid,infile,outfile):
     print "up=",tot_up," down=",tot_down
     # trigger too difficult for now
     trigger = Parameters.parameters['find']['immediate_children_threshold']
-    
+
     for line in fin.xreadlines():
         a=line.split()
         b=a[2:]
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
         print "usage: ", sys.argv[0], " function_id input_file_prefix"
         sys.exit(1)
-        
+
     fid = sys.argv[1]
     infile = sys.argv[2]
     outfile = fid + Parameters.parameters['view']['out_file_suffix']

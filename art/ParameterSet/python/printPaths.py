@@ -23,7 +23,7 @@ def _printOp(op,indent, indentDelta):
     for i in dir(op):
         o = getattr(op,i)
         if isinstance(o,mod._Module):
-            print indent+"module: "+o.label_()+" <"+o.type_()+">"            
+            print indent+"module: "+o.label_()+" <"+o.type_()+">"
         elif isinstance(o, cms.Sequence):
             printPath(o,indent,indentDelta, "seq")
         elif isinstance(o,sqt._Sequenceable):
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             p.fii = cms.EDProducer("Fii")
             p.p = cms.Path(p.s*p.fii)
             printPath(p.p)
-            
+
             printPaths(p)
 
     unittest.main()

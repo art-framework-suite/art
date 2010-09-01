@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <BODY bgcolor="FFFFFF">
 <title>
-          CMS MessageLogger: Establishing Limits and Timespans 
+          CMS MessageLogger: Establishing Limits and Timespans
 </title>
 
 <center>
 <h1> <img src="header-public.gif" align="center"> </h1>
 
 <font color=red>
-<h1> 
+<h1>
 Establishing Limits and Timespans </h1>
 </font>
 </center>
@@ -39,10 +39,10 @@ process TEST = {
 					              int32 timespan =  60</font>
 					            }
 			      PSet WARNING        = { <font color=red>int32 limit    = 100
-			                              int32 timespan =  60</font> 
+			                              int32 timespan =  60</font>
 					            }
 			      PSet ERROR          = { <font color=red>int32 limit    = 100
-			                              int32 timespan =  60</font> 
+			                              int32 timespan =  60</font>
 					            }
 			      PSet trkwarning     = { <font color=red>int32 limit    = 20
 			                              int32 timespan = 1200</font>
@@ -54,7 +54,7 @@ process TEST = {
 
     PSet jobdebug.txt =     { PSet default        = { <font color=red>int32 limit    = 1000000</font> }
                             }
-    PSet anotherfile.txt =  { PSet serious_matter = { <font color=red>int32 limit    = 1000</font> } 
+    PSet anotherfile.txt =  { PSet serious_matter = { <font color=red>int32 limit    = 1000</font> }
                             }
     PSet default = { <font color=red>int32 limit    = 10
                      int32 timespan = 60</font>
@@ -68,22 +68,22 @@ process TEST = {
 </pre>
 
 The Pset entries <font color=red>int32 limit = ...</font> and
-<font color=red>int32 timespan = ...</font> establish that this 
+<font color=red>int32 timespan = ...</font> establish that this
 destination should report only so many messages of a specified
 specified messageID or severity level.  For example, detailedInfo.txt
-will report only the first twenty trkwarning messages, before 
-ignoring most of the rest (with an exponential backoff). 
+will report only the first twenty trkwarning messages, before
+ignoring most of the rest (with an exponential backoff).
 <p>
 The timespan, if supplied, directs the destination to reset its count of
 how many times a message of this type has been encountered if no messages
 of this type occur within that many seconds.  For example, if this job issues
-25 trkwarning messages at the start, then 25 additional messages more than 
+25 trkwarning messages at the start, then 25 additional messages more than
 20 minutes (1200 seconds) later, the first twenty of each group would be reported.
-A limit can be supplied without a timespan.  Supplying a timespan without a 
+A limit can be supplied without a timespan.  Supplying a timespan without a
 limit is meaningless.
 <p>
 These are optional.  Each destination can supply limit and timespan for all,
-some, or none of severity levels, listed message IDs, and default 
+some, or none of severity levels, listed message IDs, and default
 (all message IDs without explicit specification).  Note that if both the limit
 and the timespan are specified, they are not comma-separated (since they are
 two distinct elements in a PSet).
@@ -93,7 +93,7 @@ two distinct elements in a PSet).
 
 <p><center>
 <a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> - 
+USCMS Software and Computing Home Page </a> -
 <a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
 <a href="parameters.html#complete"> Configuration File </a>
 </center>

@@ -5,7 +5,7 @@ from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import *
 
 class _HardDependency(object):
-    """Information relevant for when a hard dependency, 
+    """Information relevant for when a hard dependency,
        which uses the * operator, is found"""
     def __init__(self, sequenceName, depSet):
         self.sequenceName = sequenceName
@@ -22,7 +22,7 @@ class _Sequenceable(object):
     def __invert__(self):
         return _SequenceNegation(self)
     def _clonesequence(self, lookuptable):
-        try: 
+        try:
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
@@ -58,11 +58,11 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self.__dict__["_isFrozen"] = False
         if len(arg) != 1:
             typename = format_typename(self)
-            msg = format_outerframe(2) 
+            msg = format_outerframe(2)
             msg += "%s takes exactly one input value. But the following ones are given:\n" %typename
             for item,i in zip(arg, xrange(1,20)):
                 msg += "    %i) %s \n"  %(i, item._errorstr())
-            msg += "Maybe you forgot to combine them via '*' or '+'."     
+            msg += "Maybe you forgot to combine them via '*' or '+'."
             raise TypeError(msg)
         self._checkIfSequenceable(arg[0])
         self._seq = arg[0]
@@ -70,7 +70,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def isFrozen(self):
         return self._isFrozen
     def setIsFrozen(self):
-        self._isFrozen = True 
+        self._isFrozen = True
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
@@ -210,7 +210,7 @@ class _SequenceOperator(_Sequenceable):
         if self._right == original:
             self._right = replacement
         else:
-            self._right._replace(original, replacement)                    
+            self._right._replace(original, replacement)
     def _remove(self, original):
         if self._left == original:  return (self._right, True) # left IS what we want to remove
         (self._left, found) = self._left._remove(original)     # otherwise clean left
@@ -407,7 +407,7 @@ class SequencePlaceholder(_Sequenceable):
         if options.isCfg:
            result += 'process.'
         result += +self._name+'\")\n'
-    
+
 
 class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
@@ -433,23 +433,23 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         errors = list()
         for seq in self:
             seq.visit(namesVisitor)
-            #seq.fillNamesList(names, processDict) 
+            #seq.fillNamesList(names, processDict)
             seq.findHardDependencies('schedule', dependencyDict)
         # dependencyDict is (label, list of _HardDependency objects,
         # where a _HardDependency contains a set of strings from one sequence
         for label, depList in dependencyDict.iteritems():
-            # see if it's in 
+            # see if it's in
             try:
                 thisPos = names.index(label)
                 # we had better find all the dependencies
                 for hardDep in depList:
                     for dep in hardDep.depsSet:
                         if names[0:thisPos].count(dep) == 0:
-                            ok = False 
+                            ok = False
                             message = "WARNING:"+label+" depends on "+dep+", as declared in " \
                                       + hardDep.sequenceName+", but not found in schedule"
                             print message
-            except:  
+            except:
                 # can't find it?  No big deal.
                 pass
 
@@ -598,7 +598,7 @@ if __name__=="__main__":
             t = TestVisitor(enters=[plusAB,a,b],
                             leaves=[a,b,plusAB])
             p.visit(t)
-            
+
             s=Sequence(plusAB)
             c=DummyModule("c")
             multSC = s*c
@@ -606,7 +606,7 @@ if __name__=="__main__":
             t=TestVisitor(enters=[multSC,s,plusAB,a,b,c],
                           leaves=[a,b,plusAB,s,c,multSC])
             p.visit(t)
-            
+
             notA= ~a
             p=Path(notA)
             t=TestVisitor(enters=[notA,a],leaves=[a,notA])
@@ -638,10 +638,10 @@ if __name__=="__main__":
             m3 = DummyModule("m3")
             m4 = DummyModule("m4")
             m5 = DummyModule("m5")
- 
+
             s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
             s2 = Sequence(m1*m2)
-            s3 = Sequence(~m1*s2)  
+            s3 = Sequence(~m1*s2)
             l = []
             namesVisitor = DecoratedNodeNameVisitor(l)
             s1.visit(namesVisitor)
@@ -667,7 +667,7 @@ if __name__=="__main__":
             s2 = Sequence(m1*s1)
             l = []
             namesVisitor = DecoratedNodeNameVisitor(l)
-            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}  
+            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}
             l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm2', '!m3'])
             l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', 'm2', '!m3'])
             s1.remove(m2)
@@ -678,7 +678,7 @@ if __name__=="__main__":
             l[:] = []; s2.visit(namesVisitor); self.assertEqual(l,['m1', 'm1'])
             s1 = Sequence( m1 + m2 + m1 + m2 )
             l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm2', 'm1', 'm2'])
-            s1.remove(m2) 
+            s1.remove(m2)
             l[:] = []; s1.visit(namesVisitor); self.assertEqual(l,['m1', 'm1', 'm2'])
             s1 = Sequence( m1 + m3 )
             s2 = Sequence( m2 + ignore(m3) + s1 + m3 )
@@ -728,11 +728,11 @@ if __name__=="__main__":
             self.assertEqual(deps['m5'][0].sequenceName, 'p5')
             self.assertEqual(deps['m3'][0].sequenceName, 's4')
     unittest.main()
-                          
 
 
-                           
-    
 
-        
-        
+
+
+
+
+

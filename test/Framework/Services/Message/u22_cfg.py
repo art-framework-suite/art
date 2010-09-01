@@ -1,5 +1,5 @@
 # Unit test configuration file for FlushMessageLog in MessageLogger service:
-#   Tests effect of LogFlush by cfg-configurable choices of how many 
+#   Tests effect of LogFlush by cfg-configurable choices of how many
 #   messages to use to clog the queue and whether or not FlushMessageLog
 #   is invoked.  Under normal testing, it will invoke FlushMessageLog in
 #   a situation where its absence would result in different output.
@@ -27,7 +27,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         )
     ),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
     destinations = cms.untracked.vstring('u22_warnings')
 )

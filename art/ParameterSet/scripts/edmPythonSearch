@@ -18,7 +18,7 @@ sys.path.append(os.environ["PWD"])
 path = sys.path[:]
 
 # get the import tree
-importTree = getImportTree(filename, path)  
+importTree = getImportTree(filename, path)
 
 # search the tree
 result = []
@@ -38,7 +38,7 @@ for item in result:
           froms.add('From ' + ' -> '.join(stack))
        print '\n'.join(froms)
     print '\n'
-                
+
 
 
 

@@ -1,5 +1,5 @@
 # Unit test configuration file for MessageLogger service:
-# statistics destination :  name not matching any destination; 
+# statistics destination :  name not matching any destination;
 # no PSet configuring it specially
 
 import FWCore.ParameterSet.python.Config as cms
@@ -23,7 +23,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     ),
     statistics = cms.untracked.vstring('u3_statistics'),
-    categories = cms.untracked.vstring('preEventProcessing', 
+    categories = cms.untracked.vstring('preEventProcessing',
         'FwkJob'),
     destinations = cms.untracked.vstring('u3_infos')
 )

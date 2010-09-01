@@ -1,7 +1,7 @@
 #error Wrong ThreadSafeErrorLog.icc
 
 #ifndef THREADSAFEERRORLOG_ICC
-  #error ThreadSafeErrorLog.icc erroneously included by wrong file 
+  #error ThreadSafeErrorLog.icc erroneously included by wrong file
 #endif
 
 // ----------------------------------------------------------------------
@@ -33,7 +33,7 @@
 #endif
 
 
-namespace edm {      
+namespace edm {
 
 
 // ----------------------------------------------------------------------
@@ -41,20 +41,20 @@ namespace edm {
 // ----------------------------------------------------------------------
 
 template<class Mutex>
-ThreadSafeErrorLog<Mutex>::ThreadSafeErrorLog() : ELtsErrorLog() {}  
+ThreadSafeErrorLog<Mutex>::ThreadSafeErrorLog() : ELtsErrorLog() {}
 
 template<class Mutex>
 ThreadSafeErrorLog<Mutex>::ThreadSafeErrorLog( const ELstring & pkgName )
-					 : ELtsErrorLog(pkgname) {}  
+					 : ELtsErrorLog(pkgname) {}
 
 template<class Mutex>
 ThreadSafeErrorLog<Mutex>::ThreadSafeErrorLog( const ErrorLog & ee )
 					      : ELtsErrorLog(ee) {}
 
 template<class Mutex>
-ThreadSafeErrorLog<Mutex>::ThreadSafeErrorLog( 
+ThreadSafeErrorLog<Mutex>::ThreadSafeErrorLog(
 		const ThreadSafeErrorLog<Mutex> & ee)
-			   		      : ELtsErrorLog(ee) {} 
+			   		      : ELtsErrorLog(ee) {}
 
 template<class Mutex> ThreadSafeErrorLog<Mutex>::~ThreadSafeErrorLog() {}
 
@@ -69,12 +69,12 @@ ThreadSafeErrorLog<Mutex>::operator()
   ( const ELseverityLevel & sev, const ELstring & id )
 {
   if (msgIsActive) {
-    Mutex LOCK; 
-    dispatch(msg); 
+    Mutex LOCK;
+    dispatch(msg);
   }
   initiateMsg (sev, id);
   return  *this;
-}  
+}
 
 // ----------------------------------------------------------------------
 // Message Continuation:
@@ -92,8 +92,8 @@ ThreadSafeErrorLog<Mutex> &
 // ----------------------------------------------------------------------
 
 #ifdef REMOVED
-template< class Mutex > 
-ThreadSafeErrorLog<Mutex> & 
+template< class Mutex >
+ThreadSafeErrorLog<Mutex> &
 ThreadSafeErrorLog<Mutex>::operator<<( void (* f)(ErrorLog &) )  {
 	// Note that this uses the SAME SIGNATURE as for ErrorLog.
 	// This class won't be invoking f, it will just use it as
@@ -104,7 +104,7 @@ ThreadSafeErrorLog<Mutex>::operator<<( void (* f)(ErrorLog &) )  {
   #endif
   if (e.discarding) return *this;
   return completeMsg();
-}  
+}
 #endif
 
 template <class Mutex>
@@ -113,8 +113,8 @@ ThreadSafeErrorLog<Mutex> & operator<<
     return e.completeMsg();
 }
 
-template< class Mutex > 
-ThreadSafeErrorLog<Mutex> & 
+template< class Mutex >
+ThreadSafeErrorLog<Mutex> &
 ThreadSafeErrorLog<Mutex>::completeMsg() {
   #ifdef ErrorLogENDMSG_TRACE
     std::cout << "=:=:=: completeMsg () -- msgIsActive = " << msgIsActive
@@ -130,9 +130,9 @@ ThreadSafeErrorLog<Mutex>::completeMsg() {
 
     { Mutex LOCK;	// Will obtain the mutex.  When we leave this
 			// code block, will the mutex will automatically
-			// be destructed, thus released in an exception-safe 
+			// be destructed, thus released in an exception-safe
 			// manner.
-      dispatch ( msg );  
+      dispatch ( msg );
     }
 
     #ifdef ErrorLogENDMSG_TRACE
@@ -143,17 +143,17 @@ ThreadSafeErrorLog<Mutex>::completeMsg() {
     msgIsActive = false;
   }
   return  *this;
-}  // completeMsg() 
+}  // completeMsg()
 
 
-template< class Mutex > 
-ThreadSafeErrorLog<Mutex> & 
+template< class Mutex >
+ThreadSafeErrorLog<Mutex> &
 ThreadSafeErrorLog<Mutex>::operator() ( ErrorObj & msg )  {
 
 
   // Unlike the behavior of ErrorLog, this class does not terminate an
   // active message upon receipt of a direct operator() (ErrorObj&).
-  // Instead, the newly received ErrorObj goes first, and does not 
+  // Instead, the newly received ErrorObj goes first, and does not
   // interfere with the one being built up.
 
   ELextendedID xid = msg.xid;
@@ -166,12 +166,12 @@ ThreadSafeErrorLog<Mutex>::operator() ( ErrorObj & msg )  {
 
 }  // operator()( )
 
-template< class Mutex > 
-ThreadSafeErrorLog<Mutex> & 
+template< class Mutex >
+ThreadSafeErrorLog<Mutex> &
 ThreadSafeErrorLog<Mutex>::operator() (int nbytes, char * data)  {
 
   Mutex LOCK;		// Will obtain the mutex.  ELrecv is a complicated
-			// beast, which involves in fact a number of 
+			// beast, which involves in fact a number of
 			// operator<< to a local ordinary ErrorLog.
 			// So we protect ourselves out here.
 

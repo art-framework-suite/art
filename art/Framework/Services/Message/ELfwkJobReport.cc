@@ -7,7 +7,7 @@
 //
 // Changes:
 //
-//   1 - 3/22/06  mf  - in configure_dest()	
+//   1 - 3/22/06  mf  - in configure_dest()
 //	Repaired the fact that destination limits for categories
 //	were not being effective:
 //	a) use values from the destination specific default PSet

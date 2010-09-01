@@ -28,7 +28,7 @@ namespace edm {
       actReg_(areg),
       maxEvents_(maxEvents),
       maxLumis_(maxLumis)
-	
+
     {}
 
     ModuleDescription moduleDescription_;

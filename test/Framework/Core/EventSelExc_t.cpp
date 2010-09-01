@@ -78,7 +78,7 @@ struct PathSpecifiers {
     if (s7 != "") path.push_back(s7);
     if (s8 != "") path.push_back(s8);
     if (s9 != "") path.push_back(s9);
-  }		
+  }
 };
 
 const HLTPathStatus pass = HLTPathStatus(edm::hlt::Pass);

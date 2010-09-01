@@ -33,7 +33,7 @@ set( FWCorePluginManager_sources CacheParser.cc
 				 standard.cc )
 
 link_libraries( FWCoreUtilities
-                ${Boost_FILESYSTEM_LIBRARY} 
+                ${Boost_FILESYSTEM_LIBRARY}
                 ${SIGC} )
 
 add_library(FWCorePluginManager SHARED ${FWCorePluginManager_sources} )

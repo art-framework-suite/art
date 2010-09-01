@@ -672,7 +672,7 @@ edm::Trie<T>::node(const char *str, unsigned strLen) const {
   unsigned		pos = 0;
   bool			found = true;
   const TrieNode<T>	*node = _initialNode;
-	
+
   while (found && pos < strLen)
     {
       found = false;

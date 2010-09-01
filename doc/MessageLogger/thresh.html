@@ -8,7 +8,7 @@
 <h1> <img src="header-public.gif" align="center"> </h1>
 
 <font color=red>
-<h1> 
+<h1>
 Establishing Thresholds for Destinations</h1>
 </font>
 </center>
@@ -39,10 +39,10 @@ process TEST = {
 					              int32 timespan =  60
 					            }
 			      PSet WARNING        = { int32 limit    = 100
-			                              int32 timespan =  60 
+			                              int32 timespan =  60
 					            }
 			      PSet ERROR          = { int32 limit    = 100
-			                              int32 timespan =  60 
+			                              int32 timespan =  60
 					            }
 			      PSet trkwarning     = { int32 limit    = 20
 			                              int32 timespan = 1200
@@ -54,7 +54,7 @@ process TEST = {
 
     PSet jobdebug.txt =     { PSet default        = { int32 limit    = 1000000 }
                             }
-    PSet anotherfile.txt =  { PSet serious_matter = { int32 limit    = 1000 } 
+    PSet anotherfile.txt =  { PSet serious_matter = { int32 limit    = 1000 }
                             }
     PSet default = { int32 limit    = 10
                      int32 timespan = 60
@@ -67,20 +67,20 @@ process TEST = {
 }
 </pre>
 
-The <font color=red>string threshold = "ERROR"</font> (or "INFO" or 
+The <font color=red>string threshold = "ERROR"</font> (or "INFO" or
 "WARNING") parameter
 in the PSets configuring critical.txt, detailedInfo.txt, and cerr respectively,
-tells the  
+tells the
 destination to ignore all messages
-with severity below <font color=red>ERROR</font> (or INFO or WARNING).  
-Thus the destination writing critical.txt will ignore all messages issued  
-using <font color=blue>LogDegbug</font>,   
+with severity below <font color=red>ERROR</font> (or INFO or WARNING).
+Thus the destination writing critical.txt will ignore all messages issued
+using <font color=blue>LogDegbug</font>,
 <font color=blue>LogInfo</font>, and  <font color=blue>LogWarning</font>.
 <p>
-This parameter is optional; if it is not present, the destination will 
+This parameter is optional; if it is not present, the destination will
 not filter out messages by their severity.  We do not illustrate setting the
-threshold to DEBUG, because there is no lower severity; thus 
-<em>string threshold = "DEBUG"</em> would be equivalent to omitting that 
+threshold to DEBUG, because there is no lower severity; thus
+<em>string threshold = "DEBUG"</em> would be equivalent to omitting that
 parameter.
 
 <p><center>
@@ -88,7 +88,7 @@ parameter.
 
 <p><center>
 <a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> - 
+USCMS Software and Computing Home Page </a> -
 <a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
 <a href="parameters.html#complete"> Configuration File </a>
 </center>

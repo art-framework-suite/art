@@ -1,7 +1,7 @@
 # The following comments couldn't be translated into the new config version:
 
 # Test storing OtherThing as well
-# Configuration file for PrePoolInputTest 
+# Configuration file for PrePoolInputTest
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -20,7 +20,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.output2 = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('keep *', 
+    outputCommands = cms.untracked.vstring('keep *',
         'drop *_Thing_*_*'),
     fileName = cms.untracked.string('PoolInputDropTest.root')
 )

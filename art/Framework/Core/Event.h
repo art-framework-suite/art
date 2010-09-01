@@ -183,9 +183,9 @@ namespace edm {
 	       std::string const& productInstanceName,
 	       Handle<View<ELEMENT> >& result) const;
 
-    template <typename ELEMENT> 	
-    bool 	
-    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const; 	
+    template <typename ELEMENT>
+    bool
+    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     void

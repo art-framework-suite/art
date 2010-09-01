@@ -372,7 +372,7 @@ namespace edm {
 	  if (T::isEvent_) ++total_passed_;
         }
         state_ = Latched;
-	
+
         if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
       }
       catch(cms::Exception& e) {

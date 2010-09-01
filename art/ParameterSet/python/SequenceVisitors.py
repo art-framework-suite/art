@@ -42,8 +42,8 @@ if __name__=="__main__":
             pathValidator = PathValidator()
             endpathValidator = EndPathValidator()
             p1.visit(pathValidator)
-            self.assertRaises(ValueError, p2.visit, pathValidator) 
-            ep1.visit(endpathValidator) 
+            self.assertRaises(ValueError, p2.visit, pathValidator)
+            ep1.visit(endpathValidator)
             self.assertRaises(ValueError, ep2.visit, endpathValidator)
             self.assertRaises(ValueError, ep3.visit, endpathValidator)
 

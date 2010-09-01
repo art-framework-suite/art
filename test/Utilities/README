@@ -9,7 +9,7 @@ Here are the necessary items:
  this is a C++ macro, not a CINT macro. The contents of your file
  should be the following:
 
------------------------------------------------------------- 
+------------------------------------------------------------
 #include "art/Utilities/TestHelper.h"
 RUNTEST()
 ------------------------------------------------------------
@@ -19,7 +19,7 @@ RUNTEST()
  is TestHelper (it should not be; you should name it
  'SubsystemPackagesMeaningfulName_t')
 
-  <bin file=TestHelper_t.cpp> 
+  <bin file=TestHelper_t.cpp>
      <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Utilities/test one.sh two.sh">
   </bin>
 

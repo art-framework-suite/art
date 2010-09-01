@@ -151,7 +151,7 @@ private:
 
 };  // LogSystem
 
-class LogInfo				
+class LogInfo
 {
 public:
   explicit LogInfo( std::string const & id )
@@ -311,13 +311,13 @@ class LogDebug_
 {
 public:
   explicit LogDebug_( std::string const & id, std::string const & file, int line )
-    : ap( new MessageSender(ELsuccess,id) ), debugEnabled(true) // Change log 8	
+    : ap( new MessageSender(ELsuccess,id) ), debugEnabled(true) // Change log 8
   { *this
           << " " 						// change log 1
 	  << stripLeadingDirectoryTree(file) 			// Change log 10
 	  << ":" << line << "\n"; }
-								
-  explicit LogDebug_()  : ap(), debugEnabled(false) {}		// Change log 8	
+
+  explicit LogDebug_()  : ap(), debugEnabled(false) {}		// Change log 8
   ~LogDebug_();
 
   template< class T >
@@ -358,7 +358,7 @@ public:
     : ap( new MessageSender(ELsuccess,id,true) )
     , debugEnabled(true) 					// Change log 8
   {  }
-  explicit LogTrace_()  : ap(), debugEnabled(false) {}		// Change log 8	
+  explicit LogTrace_()  : ap(), debugEnabled(false) {}		// Change log 8
   ~LogTrace_();
 
   template< class T >

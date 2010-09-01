@@ -6,17 +6,17 @@ Before Phase 1 Initial Release
 
 <ALL DONE!>
 
-		
+
 To Complete Phase 1
 -------------------
 
 <ALL DONE!>
-		
+
 
 Known for Phase 2
 -----------------
 
-statistics destination(s) 
+statistics destination(s)
 
 Destination connecting to log4cplus - set up the basics involving
 EventFilter package dependency and so forth.
@@ -59,7 +59,7 @@ Way to incorporate Module name
 
 ErrorLogger has a scheme for establishing debug verbosity levels and
 discriminating about whether a given message will be rapidly discarded
-based on the level assigned. The LogDebug mechanism should be able to 
+based on the level assigned. The LogDebug mechanism should be able to
 exploit that scheme.
 
 

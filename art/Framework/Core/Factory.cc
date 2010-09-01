@@ -52,7 +52,7 @@ namespace edm {
 	    << "framework plugin.\n"
 	    << "Try running EdmPluginDump to obtain a list of "
 	    << "available Plugins.";
-	
+
 	FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
 
 	std::pair<MakerMap::iterator,bool> ret =

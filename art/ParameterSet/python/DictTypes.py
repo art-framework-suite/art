@@ -90,7 +90,7 @@ if __name__=="__main__":
             self.assertRaises(AttributeError,operator.setitem,*(d,'a',2))
             d['b'].append(2)
             self.assertEqual(d['b'],[3,2])
-        
+
         def testSortedKeysDict(self):
             sd = SortedKeysDict()
             sd['a']=1
@@ -119,7 +119,7 @@ if __name__=="__main__":
             self.assertEqual(count-1,len(sd3))
             sd['d']=5
             self.assertEqual(5,sd['d'])
-            
+
         def testSortedAndFixedKeysDict(self):
             import operator
             sd = SortedAndFixedKeysDict({'a':1, 'b':[3]})

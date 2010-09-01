@@ -53,7 +53,7 @@ set( FWCoreMessageServices_sources ELadministrator.cc
 				   MsgContext.cc
 				   SingleThreadMSPresence.cc )
 
-link_libraries( DataFormatsProvenance  
+link_libraries( DataFormatsProvenance
 		FWCoreServiceRegistry
 		FWCoreMessageLogger
 		FWCoreParameterSet

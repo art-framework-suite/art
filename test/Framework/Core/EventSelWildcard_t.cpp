@@ -176,7 +176,7 @@ int main()
   // bits.
 
   boost::array<char*,numBits> cpaths =
-  	{{	
+  	{{
 		"HLTx1",   "HLTx2",   "HLTy1",   "HLTy2",
 		"CALIBx1", "CALIBx2", "CALIBy1", "CALIBy2",
 		"DEBUGx1", "DEBUGx2", "DEBUGy1", "DEBUGy2",

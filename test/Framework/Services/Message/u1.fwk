@@ -3,7 +3,7 @@
   <Report>
     <Severity> -e </Severity>
     <Category> cat_A </Category>
-    <Message> 
+    <Message>
       <Item> LogError was used to send this message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -12,7 +12,7 @@
   <Report>
     <Severity> -e </Severity>
     <Category> cat_B </Category>
-    <Message> 
+    <Message>
       <Item> LogError was used to send this other message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -21,7 +21,7 @@
   <Report>
     <Severity> -w </Severity>
     <Category> cat_A </Category>
-    <Message> 
+    <Message>
       <Item> LogWarning was used to send this message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -30,7 +30,7 @@
   <Report>
     <Severity> -w </Severity>
     <Category> cat_B </Category>
-    <Message> 
+    <Message>
       <Item> LogWarning was used to send this other message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -39,7 +39,7 @@
   <Report>
     <Severity> -i </Severity>
     <Category> cat_A </Category>
-    <Message> 
+    <Message>
       <Item> LogInfo was used to send this message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -48,7 +48,7 @@
   <Report>
     <Severity> -i </Severity>
     <Category> cat_B </Category>
-    <Message> 
+    <Message>
       <Item> LogInfo was used to send this other message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -57,7 +57,7 @@
   <Report>
     <Severity> -e </Severity>
     <Category> cat_A </Category>
-    <Message> 
+    <Message>
       <Item> LogError was used to send this message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -66,7 +66,7 @@
   <Report>
     <Severity> -e </Severity>
     <Category> cat_B </Category>
-    <Message> 
+    <Message>
       <Item> LogError was used to send this other message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -75,7 +75,7 @@
   <Report>
     <Severity> -w </Severity>
     <Category> cat_A </Category>
-    <Message> 
+    <Message>
       <Item> LogWarning was used to send this message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -84,7 +84,7 @@
   <Report>
     <Severity> -w </Severity>
     <Category> cat_B </Category>
-    <Message> 
+    <Message>
       <Item> LogWarning was used to send this other message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -93,7 +93,7 @@
   <Report>
     <Severity> -i </Severity>
     <Category> cat_A </Category>
-    <Message> 
+    <Message>
       <Item> LogInfo was used to send this message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>
@@ -102,7 +102,7 @@
   <Report>
     <Severity> -i </Severity>
     <Category> cat_B </Category>
-    <Message> 
+    <Message>
       <Item> LogInfo was used to send this other message  </Item>
     </Message>
     <Module> UnitTestClient_A:sendSomeMessages </Module>

@@ -2,10 +2,10 @@
 project(FWCoreFrameworkTest)
 
 
-set( FWCoreFrameworkTestDummyForEventSetup_sources DummyData.cc 
-                                                   DummyRecord.cc 
-						   DepRecord.cc 
-						   Dummy2Record.cc 
+set( FWCoreFrameworkTestDummyForEventSetup_sources DummyData.cc
+                                                   DummyRecord.cc
+						   DepRecord.cc
+						   Dummy2Record.cc
 						   DepOn2Record.cc )
 set( FWCoreFrameworkTest_sources MockEventProcessor.cc )
 set( FWCoreFrameworkTestDummySource_sources DummySource.cc
@@ -24,42 +24,42 @@ set( TestLoadableDummyEventSetupRecordRetriever_sources stubs/LoadableDummyEvent
 set( TestLoadableDummyProvider_sources stubs/LoadableDummyProvider.cc )
 set( FWCoreFrameworkTestDummyLooper_sources stubs/DummyLooper.cc )
 set( FWCoreFrameworkTestESDummyDataAnalyzer_sources stubs/TestESDummyDataAnalyzer.cc )
-set( FWCoreFrameworkTestPRegisterModules_sources stubs/TestPRegisterModule2.cc 
-                                                 stubs/TestPRegisterModule1.cc 
+set( FWCoreFrameworkTestPRegisterModules_sources stubs/TestPRegisterModule2.cc
+                                                 stubs/TestPRegisterModule1.cc
 						 stubs/TestPRegisterModules.cc )
-set( FWCoreFrameworkTestBeginEndJobAnalyzer_sources stubs/TestBeginEndJobAnalyzer.cc 
+set( FWCoreFrameworkTestBeginEndJobAnalyzer_sources stubs/TestBeginEndJobAnalyzer.cc
                                                     stubs/TestBeginEndJobAnalyzerModule.cc )
 set( FWCoreFrameworkTestFailuresAnalyzer_sources stubs/TestFailuresAnalyzer.cc )
 set( FWCoreFrameworkHistoryAnalyzer_sources stubs/HistoryAnalyzer.cc )
 
 
-set( TestFWCoreFramework_sources testRunner.cpp 
-                                 DummySource.cc 
-				 callback_t.cppunit.cc 
-				 datakey_t.cppunit.cc 
-				 dependentrecord_t.cppunit.cc 
-				 esproducer_t.cppunit.cc 
-				 esproducts_t.cppunit.cc 
-				 eventsetupplugin_t.cppunit.cc 
-				 eventsetuprecord_t.cppunit.cc 
-				 eventsetup_t.cppunit.cc 
-				 fullchain_t.cppunit.cc 
-				 interval_t.cppunit.cc 
-				 proxyfactoryproducer_t.cppunit.cc 
-				 maker2_t.cppunit.cc 
-				 maker_t.cppunit.cc 
-				 iovsyncvalue_t.cppunit.cc 
-				 productregistry.cppunit.cc 
-				 edproducer_productregistry_callback.cc 
-				 generichandle_t.cppunit.cc 
-				 event_getrefbeforeput_t.cppunit.cc 
+set( TestFWCoreFramework_sources testRunner.cpp
+                                 DummySource.cc
+				 callback_t.cppunit.cc
+				 datakey_t.cppunit.cc
+				 dependentrecord_t.cppunit.cc
+				 esproducer_t.cppunit.cc
+				 esproducts_t.cppunit.cc
+				 eventsetupplugin_t.cppunit.cc
+				 eventsetuprecord_t.cppunit.cc
+				 eventsetup_t.cppunit.cc
+				 fullchain_t.cppunit.cc
+				 interval_t.cppunit.cc
+				 proxyfactoryproducer_t.cppunit.cc
+				 maker2_t.cppunit.cc
+				 maker_t.cppunit.cc
+				 iovsyncvalue_t.cppunit.cc
+				 productregistry.cppunit.cc
+				 edproducer_productregistry_callback.cc
+				 generichandle_t.cppunit.cc
+				 event_getrefbeforeput_t.cppunit.cc
 				 intersectingiovrecordintervalfinder_t.cppunit.cc )
 #set( FWCoreFrameworkTestDummyService_sources stubs/DependsOnDummyService.cc
 #                                             stubs/DummyService.cc
 #                                             stubs/DummyServiceE0.cc )
 #set( FWCoreFrameworkTestDummyServicePlugin_sources stubs/Modules.cc )
-set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc 
-						eventprocessor2_t.cppunit.cc 
+set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
+						eventprocessor2_t.cppunit.cc
 						stubs/TestBeginEndJobAnalyzer.cc )
 
 #add_library(FWCoreFrameworkTestDummyService SHARED ${FWCoreServiceRegistryTestDummyService_sources} )
@@ -68,8 +68,8 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 link_libraries( FWCoreServiceRegistry
                 FWCoreParameterSet
                 FWCorePluginManager
-                FWCoreUtilities 
-                ${Boost_FILESYSTEM_LIBRARY} 
+                FWCoreUtilities
+                ${Boost_FILESYSTEM_LIBRARY}
                 ${SIGC}
 		${CORE}
 		${REFLEX} )

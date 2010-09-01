@@ -6,7 +6,7 @@ class FunctionInfo(object):
     """Holds the profiling information about one function
     """
     def __init__(self,attrList):
-        self.address =attrList[0] 
+        self.address =attrList[0]
         self.name =os.popen("c++filt  "+attrList[-1]).read().strip()
         self.leafCount = int(attrList[1])
         self.countOfFunctPlusChildWithRecursion = int(attrList[2])

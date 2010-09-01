@@ -1,6 +1,6 @@
 
-install(FILES FileCatalog.h  
-              InputFileCatalog.h  
+install(FILES FileCatalog.h
+              InputFileCatalog.h
 	      SiteLocalConfig.h
 	DESTINATION include/FWCore/Catalog/interface )
 >>><<<

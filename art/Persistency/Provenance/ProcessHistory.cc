@@ -39,7 +39,7 @@ namespace edm {
       }
     }
     // Name not found!
-    return false;				
+    return false;
   }
 
   bool

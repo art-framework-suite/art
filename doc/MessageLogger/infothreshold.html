@@ -9,7 +9,7 @@
 
 <font color=red>
 <h1>CMS MessageLogger Service
-<br> 
+<br>
 Setting a Destination's Threshold</h1>
 </font>
 </center>
@@ -25,7 +25,7 @@ process TEST = {
                              , "cerr"
                                              }
     PSet critical.txt     = { string threshold = "ERROR"   }
-    PSet detailedInfo.txt = { <font color=red>string threshold = "INFO"</font>    } 
+    PSet detailedInfo.txt = { <font color=red>string threshold = "INFO"</font>    }
     PSet cerr             = { string threshold = "WARNING" }
   }
   untracked PSet maxEvents = {untracked int32 input = 5}
@@ -37,7 +37,7 @@ process TEST = {
 
 
 The <font color=red>string threshold = "INFO"</font> parameter
-in the PSet configuring <font color=red>detailedInfo.txt</font> tells the 
+in the PSet configuring <font color=red>detailedInfo.txt</font> tells the
 destination producing the file critical.txt to ignore all messages
 with severity below <font color=red>INFO</font>.  Since only message
 issued using <font color=blue>LogDebug</font> are below this severity,
@@ -49,7 +49,7 @@ will ignore debug messages.
 
 <p><center>
 <a href="http://www.uscms.org/SoftwareComputing/index.html">
-USCMS Software and Computing Home Page </a> - 
+USCMS Software and Computing Home Page </a> -
 <a href="MessageLogger.html"> CMS MessageLogger Service Page </a> -
 <a href="parameters.html#example"> Configuration File </a>
 </center>

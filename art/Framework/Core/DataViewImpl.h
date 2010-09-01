@@ -137,10 +137,10 @@ namespace edm {
 	       std::string const& productInstanceName,
 	       Handle<PROD>& result) const;
 
-    /// same as above, but using the InputTag class 	
-    template <typename PROD> 	
-    bool 	
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	
+    /// same as above, but using the InputTag class
+    template <typename PROD>
+    bool
+    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
     template <typename PROD>
     void

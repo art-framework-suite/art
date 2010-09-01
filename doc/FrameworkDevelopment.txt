@@ -8,12 +8,12 @@ To make a test build of this branch:
 ssh -l fwdev patlxlg or patvm2 (SLF4 machines)
 Make a new playground directory:
 mkdir -p /archives/fwdev/playground/tN,
- where N is some integer 
+ where N is some integer
 cd tN
 svn checkout https://oink/mu2e/branches/new-externals
 
 source /archives/fwdev/flxi-externals/setup
-setup fw_externals 
+setup fw_externals
 source new-externals/bin/setup_fw.sh
 cd new-externals
 scons
