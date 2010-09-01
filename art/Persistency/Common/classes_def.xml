@@ -45,7 +45,6 @@
  <class name="edm::helpers::PostReadFixup">
    <field name="fixed_" transient="true"/>
  </class>
- <class name="edm::RangeMap<int,std::vector<float>,edm::CopyPolicy<float> >"/>
  <class name="std::pair<edm::ProductID, unsigned int>" />
  <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
  <class name="edm::ValueMap<int>" />

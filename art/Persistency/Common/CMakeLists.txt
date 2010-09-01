@@ -12,25 +12,20 @@ install(FILES AssociativeIterator.h
 	      DataFrameContainer.h
 	      DataFrame.h
 	      debugging_allocator.h
-	      DetSet2RangeMap.h
-	      DetSetAlgorithm.h
 	      DetSet.h
 	      DetSetNew.h
 	      EDCollection.h
 	      EDProductfwd.h
 	      EDProductGetter.h
 	      EDProduct.h
-	      fillPtrVector.h
 	      GetProduct.h
 	      getRef.h
 	      Handle.h
 	      HLTenums.h
 	      HLTGlobalStatus.h
 	      HLTPathStatus.h
-	      Holder.h
 	      HolderToVectorTrait.h
 	      IDVectorMap.h
-	      IndirectHolder.h
 	      MapOfVectors.h
 	      NewPolicy.h
 	      OrphanHandle.h
@@ -40,17 +35,14 @@ install(FILES AssociativeIterator.h
 	      PtrVectorBase.h
 	      PtrVector.h
               RNGsnapshot.h
-	      RangeMap.h
 	      RefCore.h
 	      RefCoreStreamer.h
-	      setPtr.h
 	      TestHandle.h
 	      traits.h
 	      TransientDataFrame.h
 	      Trie.h
 	      TriggerResults.h
 	      ValueMap.h
-	      VectorHolder.h
 	      Wrapper.h
 	DESTINATION include/DataFormats/Common/interface )
 >>><<<
