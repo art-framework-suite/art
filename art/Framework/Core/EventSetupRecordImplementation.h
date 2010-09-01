@@ -99,6 +99,6 @@ class EventSetupRecordImplementation : public EventSetupRecord
 };
    }
 }
-#include "FWCore/Framework/interface/recordGetImplementation.icc"
+#include "art/Framework/Core/recordGetImplementation.icc"
 
 #endif

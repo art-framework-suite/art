@@ -29,9 +29,9 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
-#include "FWCore/Framework/interface/HCMethods.icc"
-#include "FWCore/Framework/interface/eventSetupGetImplementation.icc"
+#include "art/Framework/Core/HCTypeTagTemplate.icc"
+#include "art/Framework/Core/HCMethods.icc"
+#include "art/Framework/Core/eventSetupGetImplementation.icc"
 
 #include "art/Framework/Core/EventSetupRecordProviderFactoryTemplate.h"
 

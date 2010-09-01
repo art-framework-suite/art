@@ -176,7 +176,7 @@ ErrorLog & operator<<( ErrorLog & e, const char s[] );
 // ----------------------------------------------------------------------
 
 #define ERRORLOG_ICC
-  #include "FWCore/MessageService/interface/ErrorLog.icc"
+  #include "art/Framework/Services/Message/ErrorLog.icc"
 #undef  ERRORLOG_ICC
 
 

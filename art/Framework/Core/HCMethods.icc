@@ -54,8 +54,8 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/HCMethods.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "art/Framework/Core/HCMethods.h"
+#include "art/Framework/Core/HCTypeTagTemplate.h"
 
 namespace edm {
    namespace eventsetup {

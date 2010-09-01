@@ -15,11 +15,11 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/HCMethods.h"
+#include "art/Framework/Core/eventSetupGetImplementation.h"
+#include "art/Framework/Core/EventSetup.h"
+#include "art/Framework/Core/HCMethods.h"
 
-#include "FWCore/Framework/interface/NoRecordException.h"
+#include "art/Framework/Core/NoRecordException.h"
 
 namespace edm {
    namespace eventsetup {

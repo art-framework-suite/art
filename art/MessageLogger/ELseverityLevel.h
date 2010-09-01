@@ -239,7 +239,7 @@ extern bool  operator>= ( ELseverityLevel const & e1
 // ----------------------------------------------------------------------
 
 #define ELSEVERITYLEVEL_ICC
-  #include "FWCore/MessageLogger/interface/ELseverityLevel.icc"
+  #include "art/MessageLogger/ELseverityLevel.icc"
 #undef  ELSEVERITYLEVEL_ICC
 
 

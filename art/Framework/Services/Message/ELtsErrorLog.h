@@ -136,6 +136,6 @@ inline void ELtsItem ( ELtsErrorLog & e, unsigned short n );
 }        // end of namespace edm
 
 #define ELTSERRORLOG_ICC
-#include "FWCore/MessageService/interface/ELtsErrorLog.icc"
+#include "art/Framework/Services/Message/ELtsErrorLog.icc"
 
 #endif  // ELTSERRORLOG_H

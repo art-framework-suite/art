@@ -135,7 +135,7 @@ inline ThreadSafeErrorLog<Mutex> &
 // ----------------------------------------------------------------------
 
 #define THREADSAFEERRORLOG_ICC
-  #include "FWCore/MessageLogger/interface/ThreadSafeErrorLog.icc"
+  #include "art/MessageLogger/ThreadSafeErrorLog.icc"
 #undef  THREADSAFEERRORLOG_ICC
 
 

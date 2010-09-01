@@ -36,7 +36,7 @@ the file that uses the 'EVENTSETUP_DATA_REG' macro must be in the same library a
 // user include files
 
 #include "art/Framework/Core/DataKey.h"
-#include "FWCore/Framework/interface/HCTypeTagTemplate.icc"
+#include "art/Framework/Core/HCTypeTagTemplate.icc"
 
 #define EVENTSETUP_DATA_REG(_dataclass_) namespace edm { namespace eventsetup {namespace heterocontainer { template<> const char* \
 HCTypeTagTemplate<_dataclass_, edm::eventsetup::DataKey>::className() { return # _dataclass_; } } } }\

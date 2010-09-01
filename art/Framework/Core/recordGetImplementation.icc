@@ -17,11 +17,11 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-#include "FWCore/Framework/interface/DataKey.h"
-#include "FWCore/Framework/interface/DataProxyTemplate.h"
-#include "FWCore/Framework/interface/NoProxyException.h"
-#include "FWCore/Framework/interface/ComponentDescription.h"
+#include "art/Framework/Core/EventSetupRecordImplementation.h"
+#include "art/Framework/Core/DataKey.h"
+#include "art/Framework/Core/DataProxyTemplate.h"
+#include "art/Framework/Core/NoProxyException.h"
+#include "art/Framework/Core/ComponentDescription.h"
 #include <iostream>
 
 

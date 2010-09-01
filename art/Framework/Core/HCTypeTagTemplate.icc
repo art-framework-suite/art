@@ -57,7 +57,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/HCTypeTagTemplate.h"
+#include "art/Framework/Core/HCTypeTagTemplate.h"
 
 // STL classes
 

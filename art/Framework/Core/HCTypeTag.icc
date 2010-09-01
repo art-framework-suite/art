@@ -54,7 +54,7 @@
 
 // user include files
 //#include "Logger/interface/report.h"
-#include "FWCore/Framework/interface/HCTypeTag.h"
+#include "art/Framework/Core/HCTypeTag.h"
 
 // STL classes
 

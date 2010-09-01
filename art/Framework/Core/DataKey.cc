@@ -132,5 +132,5 @@ DataKey::operator<(const DataKey& iRHS) const
    }
 }
 
-#include "FWCore/Framework/interface/HCTypeTag.icc"
+#include "art/Framework/Core/HCTypeTag.icc"
 template class edm::eventsetup::heterocontainer::HCTypeTag<edm::eventsetup::DataKey>;

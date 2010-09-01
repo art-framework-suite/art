@@ -149,7 +149,7 @@ void endmsg( ErrorLog & );
 // The icc file contains the template for operator<< (ErrorObj&, T)
 
 #define ERROROBJ_ICC
-  #include "FWCore/MessageLogger/interface/ErrorObj.icc"
+  #include "art/MessageLogger/ErrorObj.icc"
 #undef  ERROROBJ_ICC
 
 
