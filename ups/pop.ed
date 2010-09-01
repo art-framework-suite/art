@@ -1,3 +1,4 @@
+g/[ 	]$/s/[ 	]*$//
 g/#include/s:FWCore/Version/interface/GetFileFormatVersion.h:art/Version/GetFileFormatVersion.h:
 g/#include/s:FWCore/Version/interface/GetReleaseVersion.h:art/Version/GetReleaseVersion.h:
 g/#include/s:DataFormats/TestObjects/interface/OtherThing.h:test/TestObjects/OtherThing.h:
