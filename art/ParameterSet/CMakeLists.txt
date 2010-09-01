@@ -1,3 +1,33 @@
+# project name
+project(artParameterSet)
+
+set( artParameterSet_sources Entry.cc
+				FileInPath.cc
+				MakeParameterSets.cc
+				ParameterDescription.cc
+				ParameterDescriptionTemplate.cc
+				ParameterSet.cc
+				ParameterSetDescription.cc
+				ParameterSetDescriptionFillerBase.cc
+				ParameterSetEntry.cc
+				ProcessDesc.cc
+				pythonFileToConfigure.cc
+				PythonParameterSet.cc
+				PythonProcessDesc.cc
+				PythonWrapper.cc
+				Registry.cc
+				types.cc )
+
+link_libraries( artUtilities
+		FWCoreMessageLogger
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PYTHON_LIBRARY}
+		${SIGC}
+		${PYTHON} )
+
+add_library(artParameterSet SHARED ${artParameterSet_sources} )
+
+install ( TARGETS artParameterSet DESTINATION lib )
 install(FILES Entry.h
 	      FileInPath.h
 	      InputTag.h
@@ -19,39 +49,3 @@ install(FILES Entry.h
 	      split.h
 	      types.h
 	DESTINATION include/FWCore/ParameterSet/interface )
->>><<<
-# project name
-project(FWCoreParameterSet)
-
-# version number
-set (FWCoreParameterSet_VERSION_MAJOR 1)
-set (FWCoreParameterSet_VERSION_MINOR 0)
-
-set( FWCoreParameterSet_sources Entry.cc
-				FileInPath.cc
-				MakeParameterSets.cc
-				ParameterDescription.cc
-				ParameterDescriptionTemplate.cc
-				ParameterSet.cc
-				ParameterSetDescription.cc
-				ParameterSetDescriptionFillerBase.cc
-				ParameterSetDescriptionFillerPluginFactory.cc
-				ParameterSetEntry.cc
-				ProcessDesc.cc
-				pythonFileToConfigure.cc
-				PythonParameterSet.cc
-				PythonProcessDesc.cc
-				PythonWrapper.cc
-				Registry.cc
-				types.cc )
-
-link_libraries( FWCoreUtilities
-		FWCoreMessageLogger
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_PYTHON_LIBRARY}
-		${SIGC}
-		${PYTHON} )
-
-add_library(FWCoreParameterSet SHARED ${FWCoreParameterSet_sources} )
-
-install ( TARGETS FWCoreParameterSet DESTINATION lib )

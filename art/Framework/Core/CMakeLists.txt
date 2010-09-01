@@ -1,3 +1,114 @@
+# project name
+project(artFrameworkCore)
+
+set( artFrameworkCore_sources Actions.cc
+			     Breakpoints.cc
+			     CachedProducts.cc
+			     ComponentMaker.cc
+			     ConfigurableInputSource.cc
+			     CurrentProcessingContext.cc
+			     DataKey.cc
+			     DataKeyTags.cc
+			     DataProxy.cc
+			     DataProxyProvider.cc
+			     DataViewImpl.cc
+			     DelayedReader.cc
+			     DependentEventSetupRecordProvider.cc
+			     DependentRecordIntervalFinder.cc
+			     EDAnalyzer.cc
+			     EDFilter.cc
+			     EDLooper.cc
+			     EDProducer.cc
+			     EPStates.cc
+			     ESProducer.cc
+			     ESProducerLooper.cc
+			     ESProducts.cc
+			     ESProxyFactoryProducer.cc
+			     Event.cc
+			     EventPrincipal.cc
+			     EventProcessor.cc
+			     EventSelector.cc
+			     EventSetup.cc
+			     EventSetupProvider.cc
+			     EventSetupRecord.cc
+			     EventSetupRecordIntervalFinder.cc
+			     EventSetupRecordKey.cc
+			     EventSetupRecordProvider.cc
+			     EventSetupRecordProviderFactory.cc
+			     EventSetupRecordProviderFactoryManager.cc
+			     Factory.cc
+			     GeneratedInputSource.cc
+			     GenericHandle.cc
+			     GenericObjectOwner.cc
+			     Group.cc
+			     GroupSelector.cc
+			     GroupSelectorRules.cc
+			     IEventProcessor.cc
+			     InputSource.cc
+			     InputSourceFactory.cc
+			     IntersectingIOVRecordIntervalFinder.cc
+			     IOVSyncValue.cc
+			     LooperFactory.cc
+			     LuminosityBlock.cc
+			     LuminosityBlockPrincipal.cc
+			     MakeDataException.cc
+			     ModuleFactory.cc
+			     NoDataException.cc
+			     NoDelayedReader.cc
+			     OutputModule.cc
+			     OutputWorker.cc
+			     Path.cc
+			     PrincipalCache.cc
+			     Principal.cc
+			     ProducerBase.cc
+			     ProductRegistryHelper.cc
+			     Run.cc
+			     RunPrincipal.cc
+			     Schedule.cc
+			     SelectorBase.cc
+			     Selector.cc
+			     SignallingProductRegistry.cc
+			     SourceFactory.cc
+			     TFileDirectory.cc
+			     TH1AddDirectorySentry.cc
+			     TriggerNames.cc
+			     TriggerNamesService.cc
+			     TriggerResultInserter.cc
+			     ValidityInterval.cc
+			     Worker.cc
+			     WorkerInPath.cc
+			     WorkerMaker.cc
+			     WorkerRegistry.cc )
+
+link_libraries( artFrameworkCoreArt
+                DataFormatsProvenance
+                DataFormatsCommon
+		FWCoreMessageLogger
+		artFrameworkServicesBasic
+		artFrameworkCore
+		artParameterSet
+		artFrameworkPluginManager
+		artFrameworkServicesRegistry
+		artUtilities
+		artVersion
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                ${SIGC}
+		${CORE}
+		${REFLEX}
+		${MATRIX} )
+
+add_library(artFrameworkCore SHARED ${artFrameworkCore_sources} )
+
+set( artFrameworkCoreArt_sources artapp.cc )
+
+add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
+
+add_executable( art   art.cpp   )
+
+install ( TARGETS artFrameworkCore DESTINATION lib )
+install ( TARGETS artFrameworkCoreArt DESTINATION lib )
+install ( TARGETS art   DESTINATION bin )
 install(FILES Actions.h
 	      BranchActionType.h
 	      CachedProducts.h
@@ -110,140 +221,4 @@ install(FILES Actions.h
 	      UnknownModuleException.h
 	      UnscheduledHandler.h
 	      ValidityInterval.h
-	DESTINATION include/FWCore/Framework/interface )
->>><<<
-# project name
-project(FWCoreFramework)
-
-# version number
-set (FWCoreFramework_VERSION_MAJOR 1)
-set (FWCoreFramework_VERSION_MINOR 0)
-
-set( FWCoreFramework_sources Actions.cc
-			     Breakpoints.cc
-			     CachedProducts.cc
-			     ComponentMaker.cc
-			     ConfigurableInputSource.cc
-			     CurrentProcessingContext.cc
-			     DataKey.cc
-			     DataKeyTags.cc
-			     DataProxy.cc
-			     DataProxyProvider.cc
-			     DataViewImpl.cc
-			     DelayedReader.cc
-			     DependentEventSetupRecordProvider.cc
-			     DependentRecordIntervalFinder.cc
-			     EDAnalyzer.cc
-			     EDFilter.cc
-			     EDLooper.cc
-			     EDProducer.cc
-			     EPStates.cc
-			     ESProducer.cc
-			     ESProducerLooper.cc
-			     ESProducts.cc
-			     ESProxyFactoryProducer.cc
-			     Event.cc
-			     EventPrincipal.cc
-			     EventProcessor.cc
-			     EventSelector.cc
-			     EventSetup.cc
-			     EventSetupProvider.cc
-			     EventSetupRecord.cc
-			     EventSetupRecordIntervalFinder.cc
-			     EventSetupRecordKey.cc
-			     EventSetupRecordProvider.cc
-			     EventSetupRecordProviderFactory.cc
-			     EventSetupRecordProviderFactoryManager.cc
-			     Factory.cc
-			     GeneratedInputSource.cc
-			     GenericHandle.cc
-			     GenericObjectOwner.cc
-			     Group.cc
-			     GroupSelector.cc
-			     GroupSelectorRules.cc
-			     IEventProcessor.cc
-			     InputSource.cc
-			     InputSourceFactory.cc
-			     IntersectingIOVRecordIntervalFinder.cc
-			     IOVSyncValue.cc
-			     LooperFactory.cc
-			     LuminosityBlock.cc
-			     LuminosityBlockPrincipal.cc
-			     MakeDataException.cc
-			     ModuleFactory.cc
-			     NoDataException.cc
-			     NoDelayedReader.cc
-			     OutputModule.cc
-			     OutputWorker.cc
-			     Path.cc
-			     PrincipalCache.cc
-			     Principal.cc
-			     ProducerBase.cc
-			     ProductRegistryHelper.cc
-			     Run.cc
-			     RunPrincipal.cc
-			     Schedule.cc
-			     SelectorBase.cc
-			     Selector.cc
-			     SignallingProductRegistry.cc
-			     SourceFactory.cc
-			     TFileDirectory.cc
-			     TH1AddDirectorySentry.cc
-			     TriggerNames.cc
-			     TriggerNamesService.cc
-			     TriggerResultInserter.cc
-			     ValidityInterval.cc
-			     Worker.cc
-			     WorkerInPath.cc
-			     WorkerMaker.cc
-			     WorkerRegistry.cc )
-
-link_libraries( DataFormatsProvenance
-                DataFormatsCommon
-		FWCoreMessageLogger
-		FWCoreParameterSet
-		FWCorePluginManager
-		FWCoreServiceRegistry
-		FWCoreUtilities
-		FWCoreVersion
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${SIGC}
-		${CORE}
-		${REFLEX} )
-
-add_library(FWCoreFramework SHARED ${FWCoreFramework_sources} )
-
-install ( TARGETS FWCoreFramework DESTINATION lib )
-# project name
-project(FWCoreFW)
-
-# version number
-set (FWCoreFW_VERSION_MAJOR 1)
-set (FWCoreFW_VERSION_MINOR 0)
-
-set( FWCoreFW_sources artapp.cc )
-
-link_libraries( FWCoreFW
-                DataFormatsProvenance
-                DataFormatsCommon
-		FWCoreMessageLogger
-		FWCoreServices
-		FWCoreFramework
-		FWCoreParameterSet
-		FWCorePluginManager
-		FWCoreServiceRegistry
-		FWCoreUtilities
-		FWCoreVersion
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                ${SIGC}
-		${CORE}
-		${REFLEX}
-		${MATRIX} )
-
-add_library(FWCoreFW SHARED ${FWCoreFW_sources} )
-
-add_executable( art   art.cpp   )
-
-install ( TARGETS FWCoreFW DESTINATION lib )
-install ( TARGETS art   DESTINATION bin )
+	DESTINATION include/art/Framework/Core )

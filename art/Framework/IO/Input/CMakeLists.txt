@@ -1,11 +1,7 @@
 # project name
-project(IOPoolInput)
+project(artFrameworkIOInput)
 
-# version number
-set (IOPoolInput_VERSION_MAJOR 1)
-set (IOPoolInput_VERSION_MINOR 0)
-
-set( IOPoolInput_sources BranchMapperWithReader.cc
+set( artFrameworkIOInput_sources BranchMapperWithReader.cc
 			 DuplicateChecker.cc
 			 Module.cc
 			 PoolSource.cc
@@ -16,25 +12,25 @@ set( IOPoolInput_sources BranchMapperWithReader.cc
 			 RootTree.cc )
 
 
-link_libraries( IOPoolCommon
+link_libraries( artFrameworkIOCommon
                 DataFormatsCommon
 		DataFormatsProvenance
-		FWCoreSources
-		FWCoreCatalog
-		FWCoreServiceRegistry
-		FWCoreParameterSet
+		artFrameworkIOSources
+		artFrameworkIOCatalog
+		artFrameworkServicesRegistry
+		artParameterSet
 		FWCoreMessageLogger
-		FWCoreFramework
-		FWCoreUtilities
+		artFrameworkCore
+		artUtilities
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_THREAD_LIBRARY}
 		${CLHEP}
 		${REFLEX}
 		${CORE} )
 
-add_library(IOPoolInput SHARED ${IOPoolInput_sources} )
+add_library(artFrameworkIOInput SHARED ${artFrameworkIOInput_sources} )
 
 simple_plugin(PoolRASource_plugin)
 simple_plugin(PoolSource_plugin)
 
-install ( TARGETS IOPoolInput DESTINATION lib )
+install ( TARGETS artFrameworkIOInput DESTINATION lib )

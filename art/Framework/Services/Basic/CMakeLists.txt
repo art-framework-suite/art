@@ -1,19 +1,7 @@
-install(FILES CurrentModuleService.h
-	      PrintLoadingPlugins.h
-	      RandomNumberGeneratorService.h
-	      TFileService.h
-	      Timing.h
-	      UpdaterService.h
-	DESTINATION include/FWCore/Services/interface )
->>><<<
 # project name
-project(FWCoreServices)
+project(artFrameworkServicesBasic)
 
-# version number
-set (FWCoreServices_VERSION_MAJOR 1)
-set (FWCoreServices_VERSION_MINOR 0)
-
-set( FWCoreServices_sources CurrentModuleService.cc
+set( artFrameworkServicesBasic_sources CurrentModuleService.cc
 			    EnableFloatingPointExceptions.cc
 			    InitRootHandlers.cc
 			    LoadAllDictionaries.cc
@@ -34,13 +22,13 @@ set( FWCoreServices_sources CurrentModuleService.cc
 
 link_libraries( DataFormatsProvenance
                 DataFormatsCommon
-		FWCoreServiceRegistry
-		FWCoreCatalog
+		artFrameworkServicesRegistry
+		artFrameworkIOCatalog
 		FWCoreMessageLogger
-		FWCoreParameterSet
-		FWCorePluginManager
+		artParameterSet
+		artFrameworkPluginManager
 		FWCoreRootAutoLibraryLoader
-		FWCoreUtilities
+		artUtilitiess
 		${Boost_FILESYSTEM_LIBRARY}
 		${Boost_THREAD_LIBRARY}
 		${CORE}
@@ -53,7 +41,7 @@ link_libraries( DataFormatsProvenance
 		${REFLEX}
 		${CINTEX} )
 
-add_library(FWCoreServices SHARED ${FWCoreServices_sources} )
+add_library(artFrameworkServicesBasic SHARED ${artFrameworkServicesBasic_sources} )
 
 simple_plugin(CurrentModuleService_plugin)
 simple_plugin(EnableFloatingPointExceptions_plugin)
@@ -68,4 +56,11 @@ simple_plugin(Timing_plugin)
 simple_plugin(Tracer_plugin)
 simple_plugin(UnixSignalService_plugin)
 
-install ( TARGETS FWCoreServices DESTINATION lib )
+install ( TARGETS artFrameworkServicesBasic DESTINATION lib )
+install(FILES CurrentModuleService.h
+	      PrintLoadingPlugins.h
+	      RandomNumberGeneratorService.h
+	      TFileService.h
+	      Timing.h
+	      UpdaterService.h
+	DESTINATION include/art/Framework/Services/Basic )
