@@ -1,22 +1,18 @@
 # Declare the install path from the cmake command line
 # using either a relative or full path
 # Use setup_fw_development to define the build and code directories, then:
-#   cd $FW_WORKDIR
-#   cmake -DCMAKE_INSTALL_PREFIX=../install $FW_CODE (choose your install path)
+#   cd $ART_WORKDIR
+#   cmake -DCMAKE_INSTALL_PREFIX=../install $ART_CODE (choose your install path)
 #   make
 #   make test
 #   make install
-# If you change any of the Cmake* files in $FW_CODE,
+# If you change any of the Cmake* files in $ART_CODE, 
 # you need to run the cmake step again
 
 # use cmake 2.6 or later
 cmake_minimum_required (VERSION 2.6)
 # project name
-project(framework)
-
-# version number
-set (framework_VERSION_MAJOR 1)
-set (framework_VERSION_MINOR 0)
+project(art)
 
 # because we want to move these libraries about,
 # do not embed full path in shared libraries or executables
@@ -26,16 +22,16 @@ set (CMAKE_SKIP_RPATH)
 
 ENABLE_TESTING()
 
-# require FW_EXTERNALS
-set( FW_EXTERNALS $ENV{FW_EXTERNALS} )
-if ( NOT FW_EXTERNALS )
-  message(FATAL_ERROR "Can't locate FW_EXTERNALS, required for building framework")
+# require ART_EXTERNALS
+set( ART_EXTERNALS $ENV{ART_EXTERNALS} )
+if ( NOT ART_EXTERNALS )
+  message(FATAL_ERROR "Can't locate ART_EXTERNALS, required for building framework")
 endif ()
 
-# require FW_HOME
-set( FW_HOME $ENV{FW_HOME} )
-if ( NOT FW_HOME )
-  message(FATAL_ERROR "Can't locate FW_HOME, required for building framework")
+# require ART_HOME
+set( ART_HOME $ENV{ART_HOME} )
+if ( NOT ART_HOME )
+  message(FATAL_ERROR "Can't locate ART_HOME, required for building framework")
 endif ()
 
 # include search path
@@ -49,7 +45,6 @@ include_directories ( $ENV{ROOT_DIR}/cintex/inc )
 include_directories ( $ENV{BOOST_INC} )
 include_directories ( $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0 )
 include_directories ( $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
-include_directories ( $ENV{FW_PYTHON_INCLUDE} )
 
 # define ROOT libraries
 find_library( REFLEX NAMES Reflex PATHS $ENV{ROOTSYS}/lib )
@@ -69,9 +64,7 @@ find_program( GENREFLEX NAMES genreflex PATHS $ENV{ROOTSYS}/bin )
 find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
 
 # have to make sure cmake doesn't select the system libraries
-# define python library
-find_library( PYTHON  NAMES python2.4 PATHS $ENV{FW_PYTHON_DIR}/lib NO_DEFAULT_PATH )
-# define libsigc
+# define libsigc 
 find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_DIR}/lib NO_DEFAULT_PATH )
 # define cppunit
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_DIR}/lib   NO_DEFAULT_PATH )
@@ -82,10 +75,9 @@ set(BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set(BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 set(Boost_USE_MULTITHREADED ON)
 # search for Boost version 1.34 libraries
-find_package( Boost 1.34 COMPONENTS filesystem
-                                    regex
-				    thread
-				    python
+find_package( Boost 1.34 COMPONENTS filesystem 
+                                    regex 
+				    thread 
                                     program_options )
 
 
@@ -113,8 +105,7 @@ set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 			-I $ENV{ROOT_DIR}/cintex/inc
 			-I $ENV{BOOST_INC}
 			-I $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0
-			-I $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include
-			-I $ENV{FW_PYTHON_INCLUDE} )
+			-I $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
 # this is how we do the genreflex step
 macro (build_plugin maindir subdir)
   add_library(${maindir}${subdir}_dict_plugin SHARED ${maindir}${subdir}_dict_plugin.cpp )
@@ -146,6 +137,11 @@ endmacro (simple_plugin name)
 
 # subdirectories
 # cmake will automatically order the library builds according to declared dependencies
-subdirs (DataFormats)
-subdirs (FWCore)
-subdirs (IOPool)
+subdirs (art/Version)
+subdirs (art/Utilities)
+subdirs (art/ParameterSet)
+subdirs (art/Framework/Core)
+subdirs (art/Framework/IO)
+subdirs (art/Framework/Modules)
+subdirs (art/Framework/PluginManager)
+subdirs (art/Framework/Services)

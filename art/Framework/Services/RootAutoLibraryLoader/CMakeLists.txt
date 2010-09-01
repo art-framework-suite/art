@@ -1,18 +1,10 @@
-install(FILES CacheStreamers.h
-              RootAutoLibraryLoader.h
-	DESTINATION include/FWCore/RootAutoLibraryLoader/interface )
->>><<<
 # project name
-project(FWCoreRootAutoLibraryLoader)
+project(artFrameworkServicesRootAutoLibraryLoader)
 
-# version number
-set (FWCoreRootAutoLibraryLoader_VERSION_MAJOR 1)
-set (FWCoreRootAutoLibraryLoader_VERSION_MINOR 0)
-
-set( FWCoreRootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
+set( artFrameworkServicesRootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
                                          stdNamespaceAdder.cc )
 
-link_libraries( FWCorePluginManager
+link_libraries( artFrameworkPluginManager
                 DataFormatsProvenance
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_REGEX_LIBRARY}
@@ -20,6 +12,9 @@ link_libraries( FWCorePluginManager
 		${REFLEX}
 		${CINT} dl )
 
-add_library(FWCoreRootAutoLibraryLoader SHARED ${FWCoreRootAutoLibraryLoader_sources} )
+add_library(artFrameworkServicesRootAutoLibraryLoader SHARED ${artFrameworkServicesRootAutoLibraryLoader_sources} )
 
-install ( TARGETS FWCoreRootAutoLibraryLoader DESTINATION lib )
+install ( TARGETS artFrameworkServicesRootAutoLibraryLoader DESTINATION lib )
+install(FILES CacheStreamers.h
+              RootAutoLibraryLoader.h
+	DESTINATION include/art/Framework/Services/RootAutoLibraryLoader )

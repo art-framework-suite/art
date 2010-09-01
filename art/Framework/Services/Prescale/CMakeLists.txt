@@ -1,19 +1,14 @@
-install(FILES PrescaleService.h
-	DESTINATION include/FWCore/PrescaleService/interface )
->>><<<
 # project name
-project(FWCorePrescaleServices)
+project(artFrameworkServicesPrescale)
 
-# version number
-set (FWCorePrescaleServices_VERSION_MAJOR 1)
-set (FWCorePrescaleServices_VERSION_MINOR 0)
+set( artFrameworkServicesPrescale_sources PrescaleService.cc )
 
-set( FWCorePrescaleServices_sources PrescaleService.cc )
-
-link_libraries( FWCorePluginManager
-                FWCoreUtilities
+link_libraries( artFrameworkPluginManager
+                artUtilities
 		${Boost_THREAD_LIBRARY} )
 
-add_library(FWCorePrescaleServices SHARED ${FWCorePrescaleServices_sources} )
+add_library(artFrameworkServicesPrescale SHARED ${artFrameworkServicesPrescale_sources} )
 
-install ( TARGETS FWCorePrescaleServices DESTINATION lib )
+install ( TARGETS artFrameworkServicesPrescale DESTINATION lib )
+install(FILES PrescaleService.h
+	DESTINATION include/art/Framework/Services/Prescale )

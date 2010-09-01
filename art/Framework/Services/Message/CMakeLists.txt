@@ -1,3 +1,40 @@
+# project name
+project(artFrameworkServicesMessage)
+
+set( artFrameworkServicesMessage_sources ELadministrator.cc
+				   ELcollected.cc
+				   ELdestControl.cc
+				   ELdestination.cc
+				   ELerrorList.cc
+				   ELfwkJobReport.cc
+				   ELlimitsTable.cc
+				   ELoutput.cc
+				   ELrecv.cc
+				   ELstatistics.cc
+				   ELtsErrorLog.cc
+				   ErrorLog.cc
+				   HardwiredDefaults.cc
+				   MessageLogger.cc
+				   MessageLoggerDefaults.cc
+				   MessageLoggerScribe.cc
+				   MessageServicePresence.cc
+				   MsgContext.cc
+				   SingleThreadMSPresence.cc )
+
+link_libraries( DataFormatsProvenance
+		artFrameworkServicesRegistry
+		FWCoreMessageLogger
+		artParameterSet
+		artUtilities
+                ${Boost_THREAD_LIBRARY} )
+
+add_library(artFrameworkServicesMessage SHARED ${artFrameworkServicesMessage_sources} )
+
+simple_plugin(MessageLogger_plugin)
+simple_plugin(MessageServicePresence_plugin)
+simple_plugin(SingleThreadMSPresence_plugin)
+
+install ( TARGETS artFrameworkServicesMessage DESTINATION lib )
 install(FILES ELadministrator.h
 	      ELassertN.h
 	      ELcollected.h
@@ -25,45 +62,3 @@ install(FILES ELadministrator.h
 	      SingleThreadMSPresence.h
 	      ThreadSafeErrorLog.h
 	DESTINATION include/FWCore/MessageService/interface )
->>><<<
-# project name
-project(FWCoreMessageServices)
-
-# version number
-set (FWCoreMessageServices_VERSION_MAJOR 1)
-set (FWCoreMessageServices_VERSION_MINOR 0)
-
-set( FWCoreMessageServices_sources ELadministrator.cc
-				   ELcollected.cc
-				   ELdestControl.cc
-				   ELdestination.cc
-				   ELerrorList.cc
-				   ELfwkJobReport.cc
-				   ELlimitsTable.cc
-				   ELoutput.cc
-				   ELrecv.cc
-				   ELstatistics.cc
-				   ELtsErrorLog.cc
-				   ErrorLog.cc
-				   HardwiredDefaults.cc
-				   MessageLogger.cc
-				   MessageLoggerDefaults.cc
-				   MessageLoggerScribe.cc
-				   MessageServicePresence.cc
-				   MsgContext.cc
-				   SingleThreadMSPresence.cc )
-
-link_libraries( DataFormatsProvenance
-		FWCoreServiceRegistry
-		FWCoreMessageLogger
-		FWCoreParameterSet
-		FWCoreUtilities
-                ${Boost_THREAD_LIBRARY} )
-
-add_library(FWCoreMessageServices SHARED ${FWCoreMessageServices_sources} )
-
-simple_plugin(MessageLogger_plugin)
-simple_plugin(MessageServicePresence_plugin)
-simple_plugin(SingleThreadMSPresence_plugin)
-
-install ( TARGETS FWCoreMessageServices DESTINATION lib )

@@ -1,11 +1,7 @@
 # project name
-project(FWCoreModules)
+project(artFrameworkModules)
 
-# version number
-set (FWCoreModules_VERSION_MAJOR 1)
-set (FWCoreModules_VERSION_MINOR 0)
-
-set( FWCoreModules_sources AsciiOutputModule.cc
+set( artFrameworkModules_sources AsciiOutputModule.cc
 			   EmptyESSource.cc
 			   EmptySource.cc
 			   EventContentAnalyzer.cc
@@ -18,12 +14,12 @@ set( FWCoreModules_sources AsciiOutputModule.cc
 
 
 link_libraries( DataFormatsProvenance
-                FWCoreFramework
-                FWCoreParameterSet
+                artFrameworkCore
+                artParameterSet
  		${Boost_FILESYSTEM_LIBRARY}
 		${REFLEX} )
 
-add_library(FWCoreModules SHARED ${FWCoreModules_sources} )
+add_library(artFrameworkModules SHARED ${artFrameworkModules_sources} )
 
 simple_plugin(AsciiOutputModule_plugin)
 simple_plugin(EmptyESSource_plugin)
@@ -35,4 +31,4 @@ simple_plugin(Prescaler_plugin)
 simple_plugin(RandomNumberSaver_plugin)
 simple_plugin(XMLOutputModule_plugin)
 
-install ( TARGETS FWCoreModules DESTINATION lib )
+install ( TARGETS artFrameworkModules DESTINATION lib )
