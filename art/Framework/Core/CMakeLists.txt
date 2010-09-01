@@ -214,3 +214,36 @@ link_libraries( DataFormatsProvenance
 add_library(FWCoreFramework SHARED ${FWCoreFramework_sources} )
 
 install ( TARGETS FWCoreFramework DESTINATION lib )
+# project name
+project(FWCoreFW)
+
+# version number
+set (FWCoreFW_VERSION_MAJOR 1)
+set (FWCoreFW_VERSION_MINOR 0)
+
+set( FWCoreFW_sources artapp.cc )
+
+link_libraries( FWCoreFW
+                DataFormatsProvenance
+                DataFormatsCommon
+		FWCoreMessageLogger
+		FWCoreServices
+		FWCoreFramework
+		FWCoreParameterSet
+		FWCorePluginManager
+		FWCoreServiceRegistry
+		FWCoreUtilities
+		FWCoreVersion
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                ${SIGC}
+		${CORE}
+		${REFLEX}
+		${MATRIX} )
+
+add_library(FWCoreFW SHARED ${FWCoreFW_sources} )
+
+add_executable( art   art.cpp   )
+
+install ( TARGETS FWCoreFW DESTINATION lib )
+install ( TARGETS art   DESTINATION bin )
