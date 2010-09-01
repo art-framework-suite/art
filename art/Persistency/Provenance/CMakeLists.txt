@@ -52,7 +52,6 @@ install(FILES BranchChildren.h
 	      ProvenanceFwd.h
 	      Provenance.h
 	      ReleaseVersion.h
-	      RNGsnapshot.h
 	      RunAux.h
 	      RunAuxiliary.h
 	      RunID.h
@@ -101,7 +100,6 @@ set( DataFormatsProvenance_sources BranchChildren.cc
 				   ProductProvenance.cc
 				   ProductRegistry.cc
 				   Provenance.cc
-				   RNGsnapshot.cc
 				   RunAux.cc
 				   RunAuxiliary.cc
 				   RunID.cc
