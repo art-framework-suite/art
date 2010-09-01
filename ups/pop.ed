@@ -1,9 +1,4 @@
-g/ *$Author: .*$ */s///
-g/ *$Date: .*$ */s///
-g/ *$Id: .*$ */s///
-g/ *$Log: .*$ */s///
-g/ *$Revision: .*$ */s///
-g/[     ]$/s/[  ]*$//
+g/[ 	]$/s/[ 	]*$//
 g/#include/s:FWCore/Version/interface/GetFileFormatVersion.h:art/Version/GetFileFormatVersion.h:
 g/#include/s:FWCore/Version/interface/GetReleaseVersion.h:art/Version/GetReleaseVersion.h:
 g/#include/s:DataFormats/TestObjects/interface/OtherThing.h:test/TestObjects/OtherThing.h:
