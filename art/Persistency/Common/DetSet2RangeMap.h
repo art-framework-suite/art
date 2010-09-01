@@ -5,7 +5,9 @@
 #include "art/Persistency/Common/RangeMap.h"
 // #include "art/Persistency/Common/DetSetAlgorithm.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
+// This doesn't exist in Art. After consulation with MP,
+// this whole file will probably disappear too.
+// #include "DataFormats/DetId/interface/DetId.h"
 
 #include <boost/ref.hpp>
 // #include <boost/bind.hpp>
