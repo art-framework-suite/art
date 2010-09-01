@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <stdio.h>	// for perror
+#include <string.h>	// for memset
 
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/DebugMacros.h"
