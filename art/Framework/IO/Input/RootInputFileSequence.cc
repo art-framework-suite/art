@@ -15,7 +15,7 @@
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Services/Registry/Service.h"
 #ifdef USE_RANDOM
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #endif  // USE_RANDOM
 #include "art/Utilities/Algorithms.h"
 // #include "Utilities/StorageFactory/interface/StorageFactory.h"

@@ -8,6 +8,7 @@
 #include "art/Persistency/Common/RangeMap.h"
 #include "art/Persistency/Common/RefBase.h"
 #include "art/Persistency/Common/RefToBaseVector.h"
+#include "art/Persistency/Common/RNGsnapshot.h"
 #include "art/Persistency/Common/VectorHolder.h"
 #include "art/Persistency/Common/RefItem.h"
 #include "art/Persistency/Common/RefVectorBase.h"
@@ -65,5 +66,10 @@ namespace {
     edm::Wrapper<edm::ValueMap<bool> > wvm3;
     edm::Wrapper<edm::ValueMap<float> > wvm4;
     edm::Wrapper<edm::ValueMap<double> > wvm5;
+
+    edm::RNGsnapshot                             dummyRNGsnap;
+    std::vector<edm::RNGsnapshot>                dummyVectorRNGsnap;
+    edm::Wrapper<std::vector<edm::RNGsnapshot> > dummyWrapperVectorRNGsnap;
+
   };
 }
