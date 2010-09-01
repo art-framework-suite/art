@@ -19,7 +19,7 @@ set( artParameterSet_sources Entry.cc
 				types.cc )
 
 link_libraries( artUtilities
-		FWCoreMessageLogger
+		artMessageLogger
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_PYTHON_LIBRARY}
 		${SIGC}
@@ -48,4 +48,4 @@ install(FILES Entry.h
 	      Registry.h
 	      split.h
 	      types.h
-	DESTINATION include/FWCore/ParameterSet/interface )
+	DESTINATION include/art/ParameterSet )

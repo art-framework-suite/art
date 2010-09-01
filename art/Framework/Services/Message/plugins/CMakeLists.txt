@@ -1,16 +1,12 @@
 # project name
-project(FWCoreMessageServicePlugins)
+project(artFrameworkServicesMessagePlugins)
 
-# version number
-set (FWCoreMessageServicePlugins_VERSION_MAJOR 1)
-set (FWCoreMessageServicePlugins_VERSION_MINOR 0)
+set( artFrameworkServicesMessagePlugins_sources Module.cc )
 
-set( FWCoreMessageServicePlugins_sources Module.cc )
+link_libraries( artFrameworkServicesMessage
+		artFrameworkServicesRegistry
+		artFrameworkPluginManager )
 
-link_libraries( FWCoreMessageServices
-		FWCoreServiceRegistry
-		FWCorePluginManager )
+add_library(artFrameworkServicesMessagePlugins SHARED ${artFrameworkServicesMessagePlugins_sources} )
 
-add_library(FWCoreMessageServicePlugins SHARED ${FWCoreMessageServicePlugins_sources} )
-
-install ( TARGETS FWCoreMessageServicePlugins DESTINATION lib )
+install ( TARGETS artFrameworkServicesMessagePlugins DESTINATION lib )

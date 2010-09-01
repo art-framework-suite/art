@@ -1,15 +1,11 @@
 # project name
-project(FWCorePrescaleServicePlugins)
+project(artFrameworkServicesPrescalePlugins)
 
-# version number
-set (FWCorePrescaleServicePlugins_VERSION_MAJOR 1)
-set (FWCorePrescaleServicePlugins_VERSION_MINOR 0)
+set( artFrameworkServicesPrescalePlugins_sources Module.cc )
 
-set( FWCorePrescaleServicePlugins_sources Module.cc )
+link_libraries( artFrameworkServicesPrescale
+		artFrameworkServicesRegistry )
 
-link_libraries( FWCorePrescaleServices
-		FWCoreServiceRegistry )
+add_library(artFrameworkServicesPrescalePlugins SHARED ${artFrameworkServicesPrescalePlugins_sources} )
 
-add_library(FWCorePrescaleServicePlugins SHARED ${FWCorePrescaleServicePlugins_sources} )
-
-install ( TARGETS FWCorePrescaleServicePlugins DESTINATION lib )
+install ( TARGETS artFrameworkServicesPrescalePlugins DESTINATION lib )

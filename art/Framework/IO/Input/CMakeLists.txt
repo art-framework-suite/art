@@ -13,13 +13,13 @@ set( artFrameworkIOInput_sources BranchMapperWithReader.cc
 
 
 link_libraries( artFrameworkIOCommon
-                DataFormatsCommon
-		DataFormatsProvenance
+                artPersistencyCommon
+		artPersistencyProvenance
 		artFrameworkIOSources
 		artFrameworkIOCatalog
 		artFrameworkServicesRegistry
 		artParameterSet
-		FWCoreMessageLogger
+		artMessageLogger
 		artFrameworkCore
 		artUtilities
                 ${Boost_FILESYSTEM_LIBRARY}

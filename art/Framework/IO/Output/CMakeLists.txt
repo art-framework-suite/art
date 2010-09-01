@@ -6,11 +6,11 @@ set( artFrameworkIOOutput_sources PoolOutputModule.cc
 			  RootOutputTree.cc )
 
 link_libraries( artFrameworkIOCommon
-                DataFormatsCommon
-		DataFormatsProvenance
+                artPersistencyCommon
+		artPersistencyProvenance
 		artFrameworkServicesRegistry
 		artParameterSet
-		FWCoreMessageLogger
+		artMessageLogger
 		artFrameworkCore
 		artUtilities
                 ${Boost_FILESYSTEM_LIBRARY}

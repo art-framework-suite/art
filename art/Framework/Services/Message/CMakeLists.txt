@@ -21,9 +21,9 @@ set( artFrameworkServicesMessage_sources ELadministrator.cc
 				   MsgContext.cc
 				   SingleThreadMSPresence.cc )
 
-link_libraries( DataFormatsProvenance
+link_libraries( artPersistencyProvenance
 		artFrameworkServicesRegistry
-		FWCoreMessageLogger
+		artMessageLogger
 		artParameterSet
 		artUtilities
                 ${Boost_THREAD_LIBRARY} )
@@ -61,4 +61,4 @@ install(FILES ELadministrator.h
 	      NamedDestination.h
 	      SingleThreadMSPresence.h
 	      ThreadSafeErrorLog.h
-	DESTINATION include/FWCore/MessageService/interface )
+	DESTINATION include/art/Framework/Services/Message )

@@ -1,4 +1,29 @@
 
+# project name
+project(artPersistencyCommon)
+
+set( artPersistencyCommon_sources CacheStreamers.cc
+			       DataFrameContainer.cc
+			       EDProduct.cc
+			       EDProductGetter.cc
+			       PtrVectorBase.cc
+                               RNGsnapshot.cc
+			       RefCore.cc
+			       RefCoreStreamer.cc
+			       traits.cc)
+
+link_libraries( artUtilities
+                artFrameworkServicesRegistry
+		${Boost_THREAD_LIBRARY}
+		${REFLEX}
+		${MATRIX}
+		${CORE} )
+
+add_library(artPersistencyCommon SHARED ${artPersistencyCommon_sources} )
+
+build_plugin( Persistency Common )
+
+install ( TARGETS artPersistencyCommon DESTINATION lib )
 install(FILES AssociativeIterator.h
 	      BaseHolder.h
 	      BaseVectorHolder.h
@@ -52,34 +77,4 @@ install(FILES AssociativeIterator.h
 	      ValueMap.h
 	      VectorHolder.h
 	      Wrapper.h
-	DESTINATION include/DataFormats/Common/interface )
->>><<<
-# project name
-project(DataFormatsCommon)
-
-# version number
-set (DataFormatsCommon_VERSION_MAJOR 1)
-set (DataFormatsCommon_VERSION_MINOR 0)
-
-set( DataFormatsCommon_sources CacheStreamers.cc
-			       DataFrameContainer.cc
-			       EDProduct.cc
-			       EDProductGetter.cc
-			       PtrVectorBase.cc
-                               RNGsnapshot.cc
-			       RefCore.cc
-			       RefCoreStreamer.cc
-			       traits.cc)
-
-link_libraries( FWCoreUtilities
-                FWCoreServiceRegistry
-		${Boost_THREAD_LIBRARY}
-		${REFLEX}
-		${MATRIX}
-		${CORE} )
-
-add_library(DataFormatsCommon SHARED ${DataFormatsCommon_sources} )
-
-build_plugin( DataFormats Common )
-
-install ( TARGETS DataFormatsCommon DESTINATION lib )
+	DESTINATION include/art/Persistency/Common )
