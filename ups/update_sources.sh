@@ -4,15 +4,14 @@
 # ======================================================================
 # Prepare:
 
-TOP=art_v0_0_0 # adjust to be the top of your hierarchy
+TOP=ART # adjust to the top of your hierarchy
 
 
 # ======================================================================
-# Create initial editor script to remove CVS-isms & trailing whitespace:
-
-EDFILE=pop.ed
+# Run scripts to update
 
 for F in `find $TOP/ -name "*.h" -o -name "*.cc" -o -name "*.cpp"`; do
   echo $F
-  ed $F < $EDFILE > /dev/null 2>&1
+  ed $F < pop.ed > /dev/null 2>&1
+  ed $F < movedfile_20100901_112607.ed > /dev/null 2>&1
 done

@@ -23,7 +23,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Persistency/Provenance/RNGsnapshot.h"
+#include "art/Persistency/Common/RNGsnapshot.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"

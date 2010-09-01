@@ -6,7 +6,7 @@
 
 
 // Framework support:
-#include "art/Persistency/Provenance/RNGsnapshot.h"
+#include "art/Persistency/Common/RNGsnapshot.h"
 #include "art/Utilities/vectorTransform.h"
   using edm::RNGsnapshot;
 
