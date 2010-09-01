@@ -1,17 +1,12 @@
-install(FILES GetFileFormatVersion.h
-              GetReleaseVersion.h
-	DESTINATION include/FWCore/Version/interface )
-
->>><<<
 # project name
-project(FWCoreVersion)
+project(artVersion)
 
-# version number
-set (FWCoreVersion_VERSION_MAJOR 1)
-set (FWCoreVersion_VERSION_MINOR 0)
+set( artVersion_sources GetFileFormatVersion.cc GetReleaseVersion.cc )
 
-set( FWCoreVersion_sources GetFileFormatVersion.cc GetReleaseVersion.cc )
+add_library(artVersion SHARED ${artVersion_sources} )
 
-add_library(FWCoreVersion SHARED ${FWCoreVersion_sources} )
+install ( TARGETS artVersion DESTINATION lib )
+install(FILES GetFileFormatVersion.h
+              GetReleaseVersion.h 
+	DESTINATION include/art/Version )
 
-install ( TARGETS FWCoreVersion DESTINATION lib )
