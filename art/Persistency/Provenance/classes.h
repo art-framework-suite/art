@@ -1,4 +1,4 @@
-#include "art/Persistency/Common/Wrapper.h"
+//#include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -23,7 +23,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Persistency/Common/RNGsnapshot.h"
+//#include "art/Persistency/Common/RNGsnapshot.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
@@ -73,9 +73,9 @@ namespace {
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
   std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
 
-  edm::RNGsnapshot                             dummyRNGsnap;
-  std::vector<edm::RNGsnapshot>                dummyVectorRNGsnap;
-  edm::Wrapper<std::vector<edm::RNGsnapshot> > dummyWrapperVectorRNGsnap;
+//  edm::RNGsnapshot                             dummyRNGsnap;
+//  std::vector<edm::RNGsnapshot>                dummyVectorRNGsnap;
+//  edm::Wrapper<std::vector<edm::RNGsnapshot> > dummyWrapperVectorRNGsnap;
 
   // The remaining ones are for backward compatibility only.
   std::map<edm::ModuleDescriptionID, edm::ModuleDescription> dummyMapMod;
