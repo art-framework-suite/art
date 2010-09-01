@@ -10,7 +10,7 @@ TOP=${1:-ART}
 # ======================================================================
 # Run scripts to update
 
-for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS \) \
+for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups \) \
                        -prune \) -o -type f -print`; do
   echo "$F"
   ed "$F" < pop.ed > /dev/null 2>&1
