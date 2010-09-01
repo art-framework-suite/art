@@ -112,10 +112,10 @@ macro (build_plugin maindir subdir)
   add_library(${maindir}${subdir}_map_plugin SHARED ${maindir}${subdir}_map_plugin.cpp )
   add_custom_command(
      OUTPUT ${maindir}${subdir}_dict_plugin.cpp
-     COMMAND ${GENREFLEX} ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src/classes.h
-        	 -s ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src/classes_def.xml
+     COMMAND ${GENREFLEX} ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes.h
+        	 -s ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes_def.xml
 		 -I ${CMAKE_SOURCE_DIR}
-		 -I ${CMAKE_SOURCE_DIR}/${maindir}/${subdir}/src
+		 -I ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}
 		 ${GENREFLEX_INCLUDES}
         	 -o ${maindir}${subdir}_dict_plugin.cpp
 		 ${GENREFLEX_FLAGS}
@@ -145,3 +145,5 @@ subdirs (art/Framework/IO)
 subdirs (art/Framework/Modules)
 subdirs (art/Framework/PluginManager)
 subdirs (art/Framework/Services)
+subdirs (art/MessageLogger)
+subdirs (art/Persistency)
