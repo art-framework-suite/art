@@ -96,7 +96,6 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include "art/Framework/Core/Frameworkfwd.h"
 
 #include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/RefProd.h"
 #include "art/Persistency/Common/Wrapper.h"
 
 #include "art/Persistency/Provenance/BranchType.h"
