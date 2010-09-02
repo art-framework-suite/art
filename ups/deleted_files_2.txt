@@ -1,3 +1,4 @@
+art/Framework/Core/Callback.h
 art/Framework/Core/CallbackProxy.h
 art/Framework/Core/ComponentDescription.h
 art/Framework/Core/ComponentFactory.h
@@ -5,6 +6,8 @@ art/Framework/Core/ComponentMaker.cc
 art/Framework/Core/ComponentMaker.h
 art/Framework/Core/DataKey.cc
 art/Framework/Core/DataKey.h
+art/Framework/Core/DataKeyTags.cc
+art/Framework/Core/DataKeyTags.h
 art/Framework/Core/DataProxy.cc
 art/Framework/Core/DataProxy.h
 art/Framework/Core/DataProxyProvider.cc
@@ -47,6 +50,12 @@ art/Framework/Core/EventSetupRecordProviderFactoryManager.cc
 art/Framework/Core/EventSetupRecordProviderFactoryManager.h
 art/Framework/Core/EventSetupRecordProviderFactoryTemplate.h
 art/Framework/Core/EventSetupRecordProviderTemplate.h
+art/Framework/Core/HCMethods.h
+art/Framework/Core/HCMethods.icc
+art/Framework/Core/HCTypeTag.h
+art/Framework/Core/HCTypeTag.icc
+art/Framework/Core/HCTypeTagTemplate.h
+art/Framework/Core/HCTypeTagTemplate.icc
 art/Framework/Core/IntersectingIOVRecordIntervalFinder.cc
 art/Framework/Core/IntersectingIOVRecordIntervalFinder.h
 art/Framework/Core/LooperFactory.h
@@ -70,6 +79,7 @@ art/Framework/Core/eventSetupGetImplementation.icc
 art/Framework/Core/eventsetup_dependsOn.h
 art/Framework/Core/eventsetupdata_registration_macro.h
 art/Framework/Core/eventsetuprecord_registration_macro.h
+art/Framework/Core/produce_helpers.h
 art/Framework/Core/recordGetImplementation.h
 art/Framework/Modules/EmptyESSource.cc
 art/Framework/Modules/EmptyESSource.h
