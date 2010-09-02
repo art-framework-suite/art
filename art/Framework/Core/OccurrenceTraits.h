@@ -11,7 +11,6 @@ OccurrenceTraits:
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/EventSetup.h"
 #include "art/Framework/Core/LuminosityBlock.h"
 #include "art/Framework/Core/LuminosityBlockPrincipal.h"
 #include "art/Framework/Core/Run.h"
@@ -33,9 +32,9 @@ namespace edm {
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal const* ep) {
       a->preProcessEventSignal_(ep->id(), ep->time());
     }
-    static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep, EventSetup const* es) {
+    static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep) {
       Event ev(*ep, ModuleDescription());
-      a->postProcessEventSignal_(ev, *es);
+      a->postProcessEventSignal_(ev);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
       a->preProcessPathSignal_(s);
@@ -60,9 +59,9 @@ namespace edm {
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
       a->preBeginRunSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep, EventSetup const* es) {
+    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
-      a->postBeginRunSignal_(run, *es);
+      a->postBeginRunSignal_(run);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
       a->prePathBeginRunSignal_(s);
@@ -87,9 +86,9 @@ namespace edm {
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
       a->preEndRunSignal_(ep->id(), ep->endTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep, EventSetup const* es) {
+    static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
-      a->postEndRunSignal_(run, *es);
+      a->postEndRunSignal_(run);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
       a->prePathEndRunSignal_(s);
@@ -114,9 +113,9 @@ namespace edm {
     static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
       a->preBeginLumiSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep, EventSetup const* es) {
+    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep) {
       LuminosityBlock lumi(*ep, ModuleDescription());
-      a->postBeginLumiSignal_(lumi, *es);
+      a->postBeginLumiSignal_(lumi);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
       a->prePathBeginLumiSignal_(s);
@@ -141,9 +140,9 @@ namespace edm {
     static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
       a->preEndLumiSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep, EventSetup const* es) {
+    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep) {
       LuminosityBlock lumi(*ep, ModuleDescription());
-      a->postEndLumiSignal_(lumi, *es);
+      a->postEndLumiSignal_(lumi);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
       a->prePathEndLumiSignal_(s);

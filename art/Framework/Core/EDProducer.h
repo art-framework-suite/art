@@ -9,12 +9,12 @@ EDProducts into an Event.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/ParameterSet/ParameterSetfwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include <string>
 
@@ -37,17 +37,17 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal& ep, EventSetup const& c,
+    bool doEvent(EventPrincipal& ep
 		   CurrentProcessingContext const* cpcp);
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal & rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal & rp,
 		   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal & rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal & rp,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -59,13 +59,13 @@ namespace edm {
 
     std::string workerType() const {return "WorkerT<EDProducer>";}
 
-    virtual void produce(Event &, EventSetup const&) = 0;
-    virtual void beginJob(EventSetup const&){}
+    virtual void produce(Event &) = 0;
+    virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void beginRun(Run &, EventSetup const&){}
-    virtual void endRun(Run &, EventSetup const&){}
-    virtual void beginLuminosityBlock(LuminosityBlock &, EventSetup const&){}
-    virtual void endLuminosityBlock(LuminosityBlock &, EventSetup const&){}
+    virtual void beginRun(Run &){}
+    virtual void endRun(Run &){}
+    virtual void beginLuminosityBlock(LuminosityBlock &){}
+    virtual void endLuminosityBlock(LuminosityBlock &){}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}

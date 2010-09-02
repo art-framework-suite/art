@@ -40,12 +40,12 @@ Some examples of InputSource subclasses may be:
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Persistency/Provenance/LuminosityBlockID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/ProductRegistryHelper.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
@@ -176,7 +176,7 @@ namespace edm {
     std::string const& processGUID() const {return processGUID_;}
 
     /// Called by framework at beginning of job
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
 
     /// Called by framework at end of job
     void doEndJob();
@@ -285,7 +285,7 @@ namespace edm {
     void postRead(Event& event);
     virtual void endLuminosityBlock(LuminosityBlock &);
     virtual void endRun(Run &);
-    virtual void beginJob(EventSetup const&);
+    virtual void beginJob();
     virtual void endJob();
 
   private:

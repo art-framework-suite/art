@@ -1,22 +1,22 @@
 
-#include "art/Framework/Core/Schedule.h"
-#include "art/Utilities/GetPassID.h"
-#include "art/Version/GetReleaseVersion.h"
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/TriggerNamesService.h"
-#include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/Schedule.h"
+#include "art/Framework/Core/TriggerNamesService.h"
+#include "art/Framework/Core/TriggerReport.h"
+#include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerRegistry.h"
+#include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-#include "art/Framework/Core/TriggerResultInserter.h"
+#include "art/Utilities/GetPassID.h"
+#include "art/Version/GetReleaseVersion.h"
 
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
@@ -786,8 +786,8 @@ namespace edm {
     for_all(all_workers_, boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
   }
 
-  void Schedule::beginJob(EventSetup const& es) {
-    for_all(all_workers_, boost::bind(&Worker::beginJob, _1, boost::cref(es)));
+  void Schedule::beginJob() {
+    for_all(all_workers_, boost::bind(&Worker::beginJob, _1));
   }
 
   std::vector<ModuleDescription const*>
@@ -897,10 +897,8 @@ namespace edm {
   }
 
   void
-  Schedule::setupOnDemandSystem(EventPrincipal& ep,
-				EventSetup const& es) {
+  Schedule::setupOnDemandSystem(EventPrincipal& ep) {
     // NOTE: who owns the productdescrption?  Just copied by value
-    unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
     typedef std::vector<boost::shared_ptr<ConstBranchDescription const> > branches;
     for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();

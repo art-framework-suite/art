@@ -39,17 +39,17 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal& ep, EventSetup const& c,
+    bool doEvent(EventPrincipal& ep,
 		  CurrentProcessingContext const* cpc);
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal & rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal & rp,
 		   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal & rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal & rp,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -61,13 +61,13 @@ namespace edm {
 
     std::string workerType() const {return "WorkerT<EDFilter>";}
 
-    virtual bool filter(Event&, EventSetup const&) = 0;
-    virtual void beginJob(EventSetup const&){}
+    virtual bool filter(Event&) = 0;
+    virtual void beginJob(){}
     virtual void endJob(){}
-    virtual bool beginRun(Run &, EventSetup const&){return true;}
-    virtual bool endRun(Run &, EventSetup const&){return true;}
-    virtual bool beginLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
-    virtual bool endLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
+    virtual bool beginRun(Run &){return true;}
+    virtual bool endRun(Run &){return true;}
+    virtual bool beginLuminosityBlock(LuminosityBlock &){return true;}
+    virtual bool endLuminosityBlock(LuminosityBlock &){return true;}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}

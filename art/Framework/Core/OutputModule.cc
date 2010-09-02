@@ -2,21 +2,19 @@
 
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Core/OutputModule.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ParentageRegistry.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
-#include "art/Framework/Core/TriggerNamesService.h"
-
+#include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Framework/Core/CurrentProcessingContext.h"
-#include "art/Framework/Core/CPCSentry.h"
-
+#include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/Core/TriggerNamesService.h"
+#include "art/Framework/Services/Registry/Service.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/ParentageRegistry.h"
+#include "art/Utilities/DebugMacros.h"
 
 using std::vector;
 using std::string;
@@ -206,9 +204,9 @@ namespace edm {
 
   OutputModule::~OutputModule() { }
 
-  void OutputModule::doBeginJob(EventSetup const& c) {
+  void OutputModule::doBeginJob() {
     selectProducts();
-    beginJob(c);
+    beginJob();
   }
 
   void OutputModule::doEndJob() {
@@ -246,7 +244,6 @@ namespace edm {
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-			EventSetup const& c,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     PVSentry          products_sentry(selectors_, prodsValid_);
@@ -271,25 +268,8 @@ namespace edm {
     return true;
   }
 
-//   bool OutputModule::wantEvent(Event const& ev)
-//   {
-//     getTriggerResults(ev);
-//     bool eventAccepted = false;
-
-//     typedef vector<NamedEventSelector>::const_iterator iter;
-//     for (iter i = selectResult_.begin(), e = selectResult_.end();
-// 	 !eventAccepted && i!=e; ++i)
-//       {
-// 	eventAccepted = i->acceptEvent(*prods_);
-//       }
-
-//     FDEBUG(2) << "Accept event " << ep.id() << " " << eventAccepted << "\n";
-//     return eventAccepted;
-//   }
-
   bool
   OutputModule::doBeginRun(RunPrincipal const& rp,
-				EventSetup const& c,
 				CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginRun called\n";
@@ -299,7 +279,6 @@ namespace edm {
 
   bool
   OutputModule::doEndRun(RunPrincipal const& rp,
-			      EventSetup const& c,
 			      CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endRun called\n";
@@ -315,7 +294,6 @@ namespace edm {
 
   bool
   OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					    EventSetup const& c,
 					    CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginLuminosityBlock called\n";
@@ -325,7 +303,6 @@ namespace edm {
 
   bool
   OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					  EventSetup const& c,
 					  CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endLuminosityBlock called\n";

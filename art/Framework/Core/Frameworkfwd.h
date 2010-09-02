@@ -5,12 +5,12 @@
 
 Forward declarations of types in the EDM.
 
-
-
 ----------------------------------------------------------------------*/
+
 
 #include "art/Persistency/Common/EDProductfwd.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+
 
 namespace edm {
   class ConfigurableInputSource;
@@ -23,7 +23,6 @@ namespace edm {
   class EDProducer;
   class Event;
   class EventPrincipal;
-  class EventSetup;
   class FileBlock;
   class GeneratedInputSource;
   class Group;
@@ -56,4 +55,5 @@ namespace edm {
 // The following are trivial enough so that the real headers can be included.
 #include "art/Framework/Core/BranchActionType.h"
 
-#endif
+
+#endif  // Framework_Frameworkfwd_h

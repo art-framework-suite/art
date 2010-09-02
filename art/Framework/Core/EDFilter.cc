@@ -17,19 +17,19 @@ namespace edm
   { }
 
   bool
-  EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
+  EDFilter::doEvent(EventPrincipal& ep,
 		     CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Event e(ep, moduleDescription_);
-    rc = this->filter(e, c);
+    rc = this->filter(e);
     e.commit_();
     return rc;
   }
 
   void
-  EDFilter::doBeginJob(EventSetup const& es) {
-    this->beginJob(es);
+  EDFilter::doBeginJob() {
+    this->beginJob();
   }
 
   void EDFilter::doEndJob() {
@@ -37,45 +37,45 @@ namespace edm
   }
 
   bool
-  EDFilter::doBeginRun(RunPrincipal & rp, EventSetup const& c,
+  EDFilter::doBeginRun(RunPrincipal & rp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
-    rc = this->beginRun(r, c);
+    rc = this->beginRun(r);
     r.commit_();
     return rc;
   }
 
   bool
-  EDFilter::doEndRun(RunPrincipal & rp, EventSetup const& c,
+  EDFilter::doEndRun(RunPrincipal & rp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
-    rc = this->endRun(r, c);
+    rc = this->endRun(r);
     r.commit_();
     return rc;
   }
 
   bool
-  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     LuminosityBlock lb(lbp, moduleDescription_);
-    rc = this->beginLuminosityBlock(lb, c);
+    rc = this->beginLuminosityBlock(lb);
     lb.commit_();
     return rc;
   }
 
   bool
-  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp, EventSetup const& c,
+  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     LuminosityBlock lb(lbp, moduleDescription_);
-    rc = this->endLuminosityBlock(lb, c);
+    rc = this->endLuminosityBlock(lb);
     lb.commit_();
     return rc;
   }

@@ -44,19 +44,19 @@ namespace edm {
     T const& module() const {return *module_;}
 
   private:
-    virtual bool implDoBegin(EventPrincipal& ep, EventSetup const& c,
+    virtual bool implDoBegin(EventPrincipal& ep,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(EventPrincipal& ep, EventSetup const& c,
+    virtual bool implDoEnd(EventPrincipal& ep,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoBegin(RunPrincipal& rp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoEnd(RunPrincipal& rp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp,
                             CurrentProcessingContext const* cpc);
-    virtual void implBeginJob(EventSetup const&) ;
+    virtual void implBeginJob() ;
     virtual void implEndJob() ;
     virtual void implRespondToOpenInputFile(FileBlock const& fb);
     virtual void implRespondToCloseInputFile(FileBlock const& fb);
@@ -85,44 +85,44 @@ namespace edm {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c,
+  WorkerT<T>::implDoBegin(EventPrincipal& ep,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doEvent(ep, c, cpc);
+    return module_->doEvent(ep, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(EventPrincipal& , EventSetup const& ,
+  WorkerT<T>::implDoEnd(EventPrincipal& ,
 			   CurrentProcessingContext const*) {
     return false;
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c,
+  WorkerT<T>::implDoBegin(RunPrincipal& rp,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doBeginRun(rp, c, cpc);
+    return module_->doBeginRun(rp, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(RunPrincipal& rp, EventSetup const& c,
+  WorkerT<T>::implDoEnd(RunPrincipal& rp,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doEndRun(rp, c, cpc);
+    return module_->doEndRun(rp, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doBeginLuminosityBlock(lbp, c, cpc);
+    return module_->doBeginLuminosityBlock(lbp, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doEndLuminosityBlock(lbp, c, cpc);
+    return module_->doEndLuminosityBlock(lbp, cpc);
   }
 
   template <typename T>
@@ -133,8 +133,8 @@ namespace edm {
 
   template <typename T>
   void
-  WorkerT<T>::implBeginJob(EventSetup const& es) {
-    module_->doBeginJob(es);
+  WorkerT<T>::implBeginJob() {
+    module_->doBeginJob();
   }
 
   template <typename T>

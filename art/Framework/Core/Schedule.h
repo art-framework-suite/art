@@ -2,8 +2,6 @@
 #define FWCore_Framework_Schedule_h
 
 /*
-  Author: Jim Kowalkowski  28-01-06
-
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
   After construction, events can be fed to the object and passed through
@@ -66,38 +64,37 @@
 
 */
 
-#include "art/Utilities/Algorithms.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/Provenance.h"
-#include "art/Persistency/Common/HLTGlobalStatus.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Actions.h"
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/UnscheduledHandler.h"
 #include "art/Framework/Core/Worker.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/MessageLogger/MessageLogger.h"
+#include "art/ParameterSet/ParameterSet.h"
+#include "art/Persistency/Common/HLTGlobalStatus.h"
+#include "art/Persistency/Provenance/Provenance.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Utilities/Algorithms.h"
 
 #include "boost/shared_ptr.hpp"
 
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 namespace edm {
   namespace service {
     class TriggerNamesService;
   }
   class ActivityRegistry;
-  class EventSetup;
   class OutputWorker;
   class UnscheduledCallProducer;
   class RunStopwatch;
@@ -127,10 +124,9 @@ namespace edm {
     enum State { Ready=0, Running, Latched };
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal& principal,
-		     EventSetup const& eventSetup);
+    void processOneOccurrence(typename T::MyPrincipal& principal);
 
-    void beginJob(EventSetup const&);
+    void beginJob();
     void endJob();
 
     // Write the luminosity block
@@ -228,12 +224,12 @@ namespace edm {
     void resetAll();
 
     template <typename T>
-    bool runTriggerPaths(typename T::MyPrincipal &, EventSetup const&);
+    bool runTriggerPaths(typename T::MyPrincipal &);
 
     template <typename T>
-    void runEndPaths(typename T::MyPrincipal &, EventSetup const&);
+    void runEndPaths(typename T::MyPrincipal &);
 
-    void setupOnDemandSystem(EventPrincipal& principal, EventSetup const& es);
+    void setupOnDemandSystem(EventPrincipal& principal);
 
     void reportSkipped(EventPrincipal const& ep) const;
     void reportSkipped(LuminosityBlockPrincipal const&) const {}
@@ -282,19 +278,18 @@ namespace edm {
     template <typename T>
     class ScheduleSignalSentry {
     public:
-      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep, EventSetup const* es) :
-           a_(a),ep_(ep),es_(es) {
+      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep) :
+           a_(a),ep_(ep) {
         if (a_) T::preScheduleSignal(a_, ep_);
       }
       ~ScheduleSignalSentry() {
-        if (a_) if (ep_) T::postScheduleSignal(a_, ep_, es_);
+        if (a_) if (ep_) T::postScheduleSignal(a_, ep_);
       }
 
     private:
       // We own none of these resources.
       ActivityRegistry* a_;
       typename T::MyPrincipal*  ep_;
-      EventSetup const* es_;
     };
   }
 
@@ -307,14 +302,13 @@ namespace edm {
   class ProcessOneOccurrence {
   public:
     typedef void result_type;
-    ProcessOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& setup) :
-      ep(principal), es(setup) {};
+    ProcessOneOccurrence(typename T::MyPrincipal& principal) :
+      ep(principal) {};
 
-      void operator()(Path& p) {p.processOneOccurrence<T>(ep, es);}
+      void operator()(Path& p) {p.processOneOccurrence<T>(ep);}
 
   private:
     typename T::MyPrincipal&   ep;
-    EventSetup const& es;
   };
 
   class UnscheduledCallProducer : public UnscheduledHandler {
@@ -326,15 +320,14 @@ namespace edm {
     }
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
-			       EventPrincipal& event,
-			       const EventSetup& eventSetup) {
+			       EventPrincipal& event) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
 	  // Unscheduled reconstruction has no accepted definition
 	  // (yet) of the "current path". We indicate this by passing
 	  // a null pointer as the CurrentProcessingContext.
-	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, eventSetup, 0);
+	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, 0);
 	  return true;
       }
       return false;
@@ -351,7 +344,7 @@ namespace edm {
 
   template <typename T>
   void
-  Schedule::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es) {
+  Schedule::processOneOccurrence(typename T::MyPrincipal& ep) {
     this->resetAll();
     state_ = Running;
 
@@ -360,20 +353,20 @@ namespace edm {
 
     if (T::isEvent_) {
       ++total_events_;
-      setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep), es);
+      setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep));
     }
     try {
       //If the ScheduleSignalSentry object is used, it must live for the entire time the event is
       // being processed
       std::auto_ptr<ScheduleSignalSentry<T> > sentry;
       try {
- 	sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep, &es));
-        if (runTriggerPaths<T>(ep, es)) {
+ 	sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep));
+        if (runTriggerPaths<T>(ep)) {
 	  if (T::isEvent_) ++total_passed_;
         }
         state_ = Latched;
 
-        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, 0);
+        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, 0);
       }
       catch(cms::Exception& e) {
         actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
@@ -389,7 +382,7 @@ namespace edm {
         }
       }
 
-      if (endpathsAreActive_) runEndPaths<T>(ep, es);
+      if (endpathsAreActive_) runEndPaths<T>(ep);
     }
     catch(cms::Exception& ex) {
       actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.rootCause()) : actions::Rethrow);
@@ -425,17 +418,17 @@ namespace edm {
 
   template <typename T>
   bool
-  Schedule::runTriggerPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
-    for_all(trig_paths_, ProcessOneOccurrence<T>(ep, es));
+  Schedule::runTriggerPaths(typename T::MyPrincipal& ep) {
+    for_all(trig_paths_, ProcessOneOccurrence<T>(ep));
     return results_->accept();
   }
 
   template <typename T>
   void
-  Schedule::runEndPaths(typename T::MyPrincipal& ep, EventSetup const& es) {
+  Schedule::runEndPaths(typename T::MyPrincipal& ep) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_all(end_paths_, ProcessOneOccurrence<T>(ep, es));
+    for_all(end_paths_, ProcessOneOccurrence<T>(ep));
 
     // We could get rid of the functor ProcessOneOccurrence if we used
     // boost::lambda, but the use of lambda with member functions

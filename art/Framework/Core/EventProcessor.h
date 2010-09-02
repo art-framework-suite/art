@@ -8,29 +8,28 @@ configured in the user's main() function, and is set running.
 
 ----------------------------------------------------------------------*/
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "boost/shared_ptr.hpp"
-#include "boost/thread/thread.hpp"
 #include "boost/thread/condition.hpp"
+#include "boost/thread/thread.hpp"
 #include "boost/utility.hpp"
 
+#include "art/Framework/Core/Actions.h"
+#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/PrincipalCache.h"
+#include "art/Framework/Core/SignallingProductRegistry.h"
+#include "art/Framework/Core/WorkerRegistry.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Core/WorkerRegistry.h"
-#include "art/Framework/Core/SignallingProductRegistry.h"
-#include "art/Framework/Core/Actions.h"
+#include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/PrincipalCache.h"
 
 namespace statemachine {
   class Machine;
@@ -39,9 +38,6 @@ namespace statemachine {
 namespace edm {
 
   class ProcessDesc;
-  namespace eventsetup {
-    class EventSetupProvider;
-  }
 
   namespace event_processor
   {
@@ -388,7 +384,6 @@ namespace edm {
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
     std::auto_ptr<Schedule>                       schedule_;
-    std::auto_ptr<eventsetup::EventSetupProvider> esp_;
     ActionTable                                   act_table_;
 
     volatile event_processor::State               state_;

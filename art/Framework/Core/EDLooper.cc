@@ -1,4 +1,3 @@
-// -*- C++ -*-
 //
 // Package:     <package>
 // Module:      EDLooper
@@ -7,13 +6,12 @@
 // Created:     Wed Jul  5 11:44:26 EDT 2006
 //
 
+#include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/EDLooper.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/EventSetupProvider.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/Actions.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/Exception.h"
 
 #include "boost/bind.hpp"
@@ -25,12 +23,10 @@ namespace edm {
   EDLooper::~EDLooper() { }
 
   void
-  EDLooper::doStartingNewLoop() {
-    startingNewLoop(iCounter_);
-  }
+  EDLooper::doStartingNewLoop() { startingNewLoop(iCounter_); }
 
   EDLooper::Status
-  EDLooper::doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es) {
+  EDLooper::doDuringLoop(edm::EventPrincipal& eventPrincipal) {
     edm::ModuleDescription modDesc;
     modDesc.moduleName_="EDLooper";
     modDesc.moduleLabel_="";
@@ -38,7 +34,7 @@ namespace edm {
 
     Status status = kContinue;
     try {
-      status = duringLoop(event, es);
+      status = duringLoop(event);
     }
     catch(cms::Exception& e) {
       actions::ActionCodes action = (act_table_->find(e.rootCause()));
@@ -54,28 +50,12 @@ namespace edm {
     return status;
   }
 
-  EDLooper::Status
-  EDLooper::doEndOfLoop(const edm::EventSetup& es) {
-    return endOfLoop(es, iCounter_);
-  }
+  EDLooper::Status EDLooper::doEndOfLoop() { return endOfLoop(iCounter_); }
 
-  void
-  EDLooper::prepareForNextLoop(eventsetup::EventSetupProvider* esp) {
-    ++iCounter_;
+  void EDLooper::prepareForNextLoop() { ++iCounter_; }
 
-    const std::set<edm::eventsetup::EventSetupRecordKey>& keys = modifyingRecords();
-    for_all(keys,
-      boost::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords,
-                  esp, _1));
-  }
-
-  void EDLooper::beginOfJob(const edm::EventSetup&) { }
+  void EDLooper::beginOfJob() { }
 
   void EDLooper::endOfJob() { }
 
-  std::set<eventsetup::EventSetupRecordKey>
-  EDLooper::modifyingRecords() const
-  {
-    return std::set<eventsetup::EventSetupRecordKey> ();
-  }
 }

@@ -8,27 +8,25 @@ output stream.
 
 ----------------------------------------------------------------------*/
 
+#include <string>
 #include <vector>
 
 #include "boost/array.hpp"
 #include "boost/utility.hpp"
 
-#include "art/Persistency/Provenance/BranchChildren.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/ParentageID.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/Selections.h"
-
 #include "art/Framework/Core/CachedProducts.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/GroupSelector.h"
+#include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/ParameterSet/ParameterSetfwd.h"
-
-#include <string>
+#include "art/Persistency/Provenance/BranchChildren.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ParentageID.h"
+#include "art/Persistency/Provenance/Selections.h"
 
 namespace edm {
 
@@ -137,17 +135,17 @@ namespace edm {
     // private member functions
     //------------------------------------------------------------------
     void configure(OutputModuleDescription const& desc);
-    void doBeginJob(EventSetup const&);
+    void doBeginJob();
     void doEndJob();
-    bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+    bool doEvent(EventPrincipal const& ep,
 		    CurrentProcessingContext const* cpc);
-    bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+    bool doBeginRun(RunPrincipal const& rp,
 		    CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
+    bool doEndRun(RunPrincipal const& rp,
 		    CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 		    CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 		    CurrentProcessingContext const* cpc);
     void doWriteRun(RunPrincipal const& rp);
     void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
@@ -177,7 +175,7 @@ namespace edm {
     virtual bool shouldWeCloseFile() const {return false;}
 
     virtual void write(EventPrincipal const& e) = 0;
-    virtual void beginJob(EventSetup const&){}
+    virtual void beginJob(){}
     virtual void endJob(){}
     virtual void beginRun(RunPrincipal const& r){}
     virtual void endRun(RunPrincipal const& r){}

@@ -10,7 +10,6 @@ set( artFrameworkCore_sources Actions.cc
 			     DataProxyProvider.cc
 			     DataViewImpl.cc
 			     DelayedReader.cc
-			     DependentRecordIntervalFinder.cc
 			     EDAnalyzer.cc
 			     EDFilter.cc
 			     EDLooper.cc
@@ -30,13 +29,9 @@ set( artFrameworkCore_sources Actions.cc
 			     IEventProcessor.cc
 			     InputSource.cc
 			     InputSourceFactory.cc
-			     IntersectingIOVRecordIntervalFinder.cc
 			     IOVSyncValue.cc
-			     LooperFactory.cc
 			     LuminosityBlock.cc
 			     LuminosityBlockPrincipal.cc
-			     MakeDataException.cc
-			     ModuleFactory.cc
 			     NoDataException.cc
 			     NoDelayedReader.cc
 			     OutputModule.cc
@@ -52,7 +47,6 @@ set( artFrameworkCore_sources Actions.cc
 			     SelectorBase.cc
 			     Selector.cc
 			     SignallingProductRegistry.cc
-			     SourceFactory.cc
 			     TFileDirectory.cc
 			     TH1AddDirectorySentry.cc
 			     TriggerNames.cc
@@ -101,14 +95,11 @@ install(FILES Actions.h
 	      ConfigurableInputSource.h
 	      ConstProductRegistry.h
 	      CurrentProcessingContext.h
-	      data_default_record_trait.h
 	      DataKeyTags.h
 	      DataProxyProvider.h
 	      DataProxyTemplate.h
 	      DataViewImpl.h
 	      DelayedReader.h
-	      DependentRecordImplementation.h
-	      DependentRecordIntervalFinder.h
 	      EDAnalyzer.h
 	      EDFilter.h
 	      EDLooper.h
@@ -137,16 +128,11 @@ install(FILES Actions.h
 	      InputSource.h
 	      InputSourceMacros.h
 	      IOVSyncValue.h
-	      LooperFactory.h
 	      LuminosityBlock.h
 	      LuminosityBlockPrincipal.h
-	      MakeDataException.h
 	      MakerMacros.h
-	      ModuleFactory.h
 	      NoDataException.h
 	      NoDelayedReader.h
-	      NoProxyException.h
-	      NoRecordException.h
 	      OccurrenceTraits.h
 	      OutputModuleDescription.h
 	      OutputModule.h
@@ -157,13 +143,11 @@ install(FILES Actions.h
 	      ProxyArgumentFactoryTemplate.h
 	      ProxyFactoryBase.h
 	      ProxyFactoryTemplate.h
-	      recordGetImplementation.icc
 	      Run.h
 	      RunPrincipal.h
 	      Schedule.h
 	      SelectorBase.h
 	      Selector.h
-	      SourceFactory.h
 	      TFileDirectory.h
 	      TH1AddDirectorySentry.h
 	      TriggerNames.h

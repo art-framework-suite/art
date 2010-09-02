@@ -1,11 +1,11 @@
 
-#include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/Actions.h"
-#include "art/Utilities/Algorithms.h"
+#include "art/Framework/Core/Path.h"
 #include "art/MessageLogger/MessageLogger.h"
+#include "art/Utilities/Algorithms.h"
 
-#include <algorithm>
 #include "boost/bind.hpp"
+#include <algorithm>
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
@@ -96,6 +96,5 @@ namespace edm {
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
   }
-
 
 }

@@ -2,23 +2,18 @@
 #define FWCore_Framework_Path_h
 
 /*
-
-  Author: Jim Kowalkowski 28-01-06
-
-
-
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
   an event must pass through when this parh is processed.  The workers
   are held in WorkerInPath wrappers so that per path execution statistics
   can be kept for each worker.
-
 */
 
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
-#include "art/Framework/Core/WorkerInPath.h"
+#include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/Worker.h"
+#include "art/Framework/Core/WorkerInPath.h"
 #include "art/Persistency/Common/HLTenums.h"
 #include "art/Persistency/Common/TriggerResults.h"
 
@@ -26,8 +21,6 @@
 
 #include <string>
 #include <vector>
-
-#include "art/Framework/Core/RunStopwatch.h"
 
 namespace edm {
   class ParameterSet;
@@ -49,7 +42,7 @@ namespace edm {
 	 bool isEndPath);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&);
+    void processOneOccurrence(typename T::MyPrincipal&);
 
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return name_; }
@@ -129,8 +122,7 @@ namespace edm {
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal& ep,
-	     EventSetup const& es) {
+  void Path::processOneOccurrence(typename T::MyPrincipal& ep) {
 
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
@@ -159,7 +151,7 @@ namespace edm {
       assert (static_cast<int>(idx) == nwrwue);
       try {
         cpc.activate(idx, i->getWorker()->descPtr());
-        should_continue = i->runWorker<T>(ep, es, &cpc);
+        should_continue = i->runWorker<T>(ep, &cpc);
       }
       catch(cms::Exception& e) {
         // handleWorkerFailure may throw a new exception.
@@ -176,4 +168,4 @@ namespace edm {
 
 }
 
-#endif
+#endif  // FWCore_Framework_Path_h

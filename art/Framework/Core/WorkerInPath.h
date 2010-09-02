@@ -2,19 +2,13 @@
 #define FWCore_Framework_WorkerInPath_h
 
 /*
-
-	Author: Jim Kowalkowski 28-01-06
-
-
-
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
-
 */
 
-#include "art/Framework/Core/Worker.h"
-#include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/RunStopwatch.h"
+#include "art/Framework/Core/Worker.h"
 
 namespace edm {
 
@@ -26,7 +20,7 @@ namespace edm {
     WorkerInPath(Worker*, FilterAction theAction);
 
     template <typename T>
-    bool runWorker(typename T::MyPrincipal&, EventSetup const&,
+    bool runWorker(typename T::MyPrincipal&,
 		   CurrentProcessingContext const* cpc);
 
     std::pair<double,double> timeCpuReal() const {
@@ -58,7 +52,7 @@ namespace edm {
   };
 
   template <typename T>
-  bool WorkerInPath::runWorker(typename T::MyPrincipal & ep, EventSetup const & es,
+  bool WorkerInPath::runWorker(typename T::MyPrincipal & ep,
 			       CurrentProcessingContext const* cpc) {
 
     // A RunStopwatch, but only if we are processing an event.
@@ -94,5 +88,4 @@ namespace edm {
 
 }
 
-#endif
-
+#endif  // FWCore_Framework_WorkerInPath_h

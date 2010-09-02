@@ -1,5 +1,4 @@
 
-
 #include "art/Framework/Core/WorkerInPath.h"
 
 namespace edm {

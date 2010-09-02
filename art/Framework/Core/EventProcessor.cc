@@ -2,50 +2,43 @@
 #include "art/Framework/Core/EventProcessor.h"
 
 #include <exception>
-#include <utility>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <utility>
 
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 
-#include "art/Persistency/Provenance/ProcessConfiguration.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/EDMException.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/GetPassID.h"
-#include "art/Utilities/UnixSignalHandlers.h"
-#include "art/Utilities/ExceptionCollector.h"
-
-#include "art/Framework/Core/IOVSyncValue.h"
-#include "art/Framework/Core/SourceFactory.h"
-#include "art/Framework/Core/ModuleFactory.h"
-#include "art/Framework/Core/LooperFactory.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
-#include "art/Framework/Core/TriggerNamesService.h"
-#include "art/Framework/Core/InputSourceDescription.h"
-#include "art/Framework/Core/EventSetupProvider.h"
-#include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/OccurrenceTraits.h"
-
 #include "art/Framework/Core/Breakpoints.h"
+#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Framework/Core/EDLooper.h"
+#include "art/Framework/Core/EPStates.h"
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/IOVSyncValue.h"
+#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-
-#include "art/ParameterSet/ProcessDesc.h"
-#include "art/ParameterSet/PythonProcessDesc.h"
-
+#include "art/Framework/Core/LooperFactory.h"
+#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/ModuleFactory.h"
+#include "art/Framework/Core/OccurrenceTraits.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/Schedule.h"
+#include "art/Framework/Core/SourceFactory.h"
+#include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/MessageLogger/MessageLogger.h"
-
-#include "art/Framework/Core/Schedule.h"
-#include "art/Framework/Core/EDLooper.h"
-
-#include "art/Framework/Core/EPStates.h"
+#include "art/ParameterSet/ProcessDesc.h"
+#include "art/ParameterSet/PythonProcessDesc.h"
+#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ProcessConfiguration.h"
+#include "art/Utilities/DebugMacros.h"
+#include "art/Utilities/EDMException.h"
+#include "art/Utilities/ExceptionCollector.h"
+#include "art/Utilities/GetPassID.h"
+#include "art/Utilities/UnixSignalHandlers.h"
+#include "art/Version/GetReleaseVersion.h"
 
 using boost::shared_ptr;
 using edm::serviceregistry::ServiceLegacy;
@@ -255,133 +248,10 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  static
-  std::auto_ptr<eventsetup::EventSetupProvider>
-  makeEventSetupProvider(ParameterSet const& params)
-  {
-    using namespace edm::eventsetup;
-    std::vector<std::string> prefers =
-      params.getParameter<std::vector<std::string> >("@all_esprefers");
-
-    if(prefers.empty()) {
-      return std::auto_ptr<EventSetupProvider>(new EventSetupProvider());
-    }
-
-    EventSetupProvider::PreferredProviderInfo preferInfo;
-    EventSetupProvider::RecordToDataMap recordToData;
-
-    //recordToData.insert(std::make_pair(std::string("DummyRecord"),
-    //      std::make_pair(std::string("DummyData"),std::string())));
-    //preferInfo[ComponentDescription("DummyProxyProvider","",false)]=
-    //      recordToData;
-
-    for(std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
-	itName != itNameEnd;
-	++itName)
-      {
-        recordToData.clear();
-	ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
-        std::vector<std::string> recordNames = preferPSet.getParameterNames();
-        for(std::vector<std::string>::iterator itRecordName = recordNames.begin(),
-	    itRecordNameEnd = recordNames.end();
-            itRecordName != itRecordNameEnd;
-            ++itRecordName) {
-
-	  if((*itRecordName)[0] == '@') {
-	    //this is a 'hidden parameter' so skip it
-	    continue;
-	  }
-
-	  //this should be a record name with its info
-	  try {
-	    std::vector<std::string> dataInfo =
-	      preferPSet.getParameter<std::vector<std::string> >(*itRecordName);
-
-	    if(dataInfo.empty()) {
-	      //FUTURE: empty should just mean all data
-	      throw edm::Exception(errors::Configuration)
-		<< "The record named "
-		<< *itRecordName << " specifies no data items";
-	    }
-	    //FUTURE: 'any' should be a special name
-	    for(std::vector<std::string>::iterator itDatum = dataInfo.begin(),
-	        itDatumEnd = dataInfo.end();
-		itDatum != itDatumEnd;
-		++itDatum){
-	      std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
-	      std::string labelName;
-
-	      if(itDatum->size() != datumName.size()) {
-		labelName = std::string(*itDatum, datumName.size()+1);
-	      }
-	      recordToData.insert(std::make_pair(std::string(*itRecordName),
-						 std::make_pair(datumName,
-								labelName)));
-	    }
-	  } catch(cms::Exception const& iException) {
-	    cms::Exception theError("ESPreferConfigurationError");
-	    theError << "While parsing the es_prefer statement for type="
-		     << preferPSet.getParameter<std::string>("@module_type")
-		     << " label=\""
-		     << preferPSet.getParameter<std::string>("@module_label")
-		     << "\" an error occurred.";
-	    theError.append(iException);
-	    throw theError;
-	  }
-        }
-        preferInfo[ComponentDescription(preferPSet.getParameter<std::string>("@module_type"),
-                                        preferPSet.getParameter<std::string>("@module_label"),
-                                        false)]
-	  = recordToData;
-      }
-    return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(&preferInfo));
-  }
-
-  // ---------------------------------------------------------------
-  void
-  fillEventSetupProvider(edm::eventsetup::EventSetupProvider& cp,
-			 ParameterSet const& params,
-			 EventProcessor::CommonParams const& common)
-  {
-    using namespace edm::eventsetup;
-    std::vector<std::string> providers =
-      params.getParameter<std::vector<std::string> >("@all_esmodules");
-
-    for(std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
-	itName != itNameEnd;
-	++itName)
-      {
-	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
-	ModuleFactory::get()->addTo(cp,
-				    providerPSet,
-				    common.processName_,
-				    common.releaseVersion_,
-				    common.passID_);
-      }
-
-    std::vector<std::string> sources =
-      params.getParameter<std::vector<std::string> >("@all_essources");
-
-    for(std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end();
-	itName != itNameEnd;
-	++itName)
-      {
-	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
-	SourceFactory::get()->addTo(cp,
-				    providerPSet,
-				    common.processName_,
-				    common.releaseVersion_,
-				    common.passID_);
-    }
-  }
-
-  // ---------------------------------------------------------------
   boost::shared_ptr<edm::EDLooper>
-  fillLooper(edm::eventsetup::EventSetupProvider& cp,
-			 ParameterSet const& params,
-			 EventProcessor::CommonParams const& common)
+  fillLooper( ParameterSet const& params,
+              EventProcessor::CommonParams const& common)
   {
-    using namespace edm::eventsetup;
     boost::shared_ptr<edm::EDLooper> vLooper;
 
     std::vector<std::string> loopers =
@@ -398,7 +268,7 @@ namespace edm {
 	++itName)
       {
 	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
-	vLooper = LooperFactory::get()->addTo(cp,
+	vLooper = LooperFactory::get()->addTo(
 				    providerPSet,
 				    common.processName_,
 				    common.releaseVersion_,
@@ -424,7 +294,6 @@ namespace edm {
     serviceToken_(),
     input_(),
     schedule_(),
-    esp_(),
     act_table_(),
     state_(sInit),
     event_loop_(),
@@ -461,7 +330,6 @@ namespace edm {
     serviceToken_(),
     input_(),
     schedule_(),
-    esp_(),
     act_table_(),
     state_(sInit),
     event_loop_(),
@@ -498,7 +366,6 @@ namespace edm {
     serviceToken_(),
     input_(),
     schedule_(),
-    esp_(),
     act_table_(),
     state_(sInit),
     event_loop_(),
@@ -532,7 +399,6 @@ namespace edm {
     serviceToken_(),
     input_(),
     schedule_(),
-    esp_(),
     act_table_(),
     state_(sInit),
     event_loop_(),
@@ -629,10 +495,7 @@ namespace edm {
     			   maxEventsPset_.getUntrackedParameter<int>("input", -1),
     			   maxLumisPset_.getUntrackedParameter<int>("input", -1));
 
-    esp_ = makeEventSetupProvider(*parameterSet);
-    fillEventSetupProvider(*esp_, *parameterSet, common);
-
-    looper_ = fillLooper(*esp_, *parameterSet, common);
+    looper_ = fillLooper(*parameterSet, common);
     if (looper_) looper_->setActionTable(&act_table_);
 
     input_= makeInput(*parameterSet, common, preg_, actReg_);
@@ -677,7 +540,6 @@ namespace edm {
       }
 
     // manually destroy all these thing that may need the services around
-    esp_.reset();
     schedule_.reset();
     input_.reset();
     looper_.reset();
@@ -721,8 +583,7 @@ namespace edm {
   EventProcessor::procOneEvent(EventPrincipal *pep) {
     if(0 != pep) {
       IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
-      EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
+      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep);
     }
   }
 
@@ -795,13 +656,11 @@ namespace edm {
     // added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob'
     // to be called.
-    EventSetup const& es =
-      esp_->eventSetupForInstance(IOVSyncValue::beginOfTime());
     if(looper_) {
-       looper_->beginOfJob(es);
+       looper_->beginOfJob();
     }
     try {
-      input_->doBeginJob(es);
+      input_->doBeginJob();
     } catch(cms::Exception& e) {
       LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
       e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
@@ -813,7 +672,7 @@ namespace edm {
       LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
       throw;
     }
-    schedule_->beginJob(es);
+    schedule_->beginJob();
     actReg_->postBeginJobSignal_();
     // toerror.succeeded(); // should we add this?
   }
@@ -1484,7 +1343,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if (looper_) {
-      EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
+      EDLooper::Status status = looper_->doEndOfLoop();
       if (status != EDLooper::kContinue || forceLooperToEnd_) return true;
       else return false;
     }
@@ -1499,7 +1358,7 @@ namespace edm {
   }
 
   void EventProcessor::prepareForNextLoop() {
-    looper_->prepareForNextLoop(esp_.get());
+    looper_->prepareForNextLoop();
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
@@ -1540,8 +1399,7 @@ namespace edm {
     IOVSyncValue ts(EventID(runPrincipal.run(),0),
                     0,
                     runPrincipal.beginTime());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal, es);
+    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal);
     FDEBUG(1) << "\tbeginRun " << run << "\n";
   }
 
@@ -1551,8 +1409,7 @@ namespace edm {
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
                     LuminosityBlockID::maxLuminosityBlockNumber(),
                     runPrincipal.endTime());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal, es);
+    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
 
@@ -1561,8 +1418,7 @@ namespace edm {
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal, es);
+    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal);
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
@@ -1574,8 +1430,7 @@ namespace edm {
     IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
                     lumiPrincipal.luminosityBlock(),
                     lumiPrincipal.endTime());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal, es);
+    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal);
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
   }
 
@@ -1618,11 +1473,10 @@ namespace edm {
 
   void EventProcessor::processEvent() {
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->luminosityBlock(), sm_evp_->time());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_, es);
+    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
 
     if (looper_) {
-      EDLooper::Status status = looper_->doDuringLoop(*sm_evp_, esp_->eventSetup());
+      EDLooper::Status status = looper_->doDuringLoop(*sm_evp_);
       if (status != EDLooper::kContinue) shouldWeStop_ = true;
     }
 

@@ -1,5 +1,6 @@
 #ifndef FWCore_Framework_EDLooper_h
 #define FWCore_Framework_EDLooper_h
+
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -20,10 +21,6 @@
 #include <set>
 
 namespace edm {
-  namespace eventsetup {
-    class EventSetupRecordKey;
-    class EventSetupProvider;
-  }
   class ActionTable;
 
   class EDLooper
@@ -36,19 +33,19 @@ namespace edm {
       virtual ~EDLooper();
 
       void doStartingNewLoop();
-      Status doDuringLoop(edm::EventPrincipal& eventPrincipal, const edm::EventSetup& es);
-      Status doEndOfLoop(const edm::EventSetup& es);
-      void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
+      Status doDuringLoop(edm::EventPrincipal& eventPrincipal);
+      Status doEndOfLoop();
+      void prepareForNextLoop();
 
-      virtual void beginOfJob(const edm::EventSetup&);
+      virtual void beginOfJob();
       virtual void startingNewLoop(unsigned int ) = 0;
-      virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) = 0;
-      virtual Status endOfLoop(const edm::EventSetup&, unsigned int iCounter) = 0;
+      virtual Status duringLoop(const edm::Event&) = 0;
+      virtual Status endOfLoop(unsigned int iCounter) = 0;
       virtual void endOfJob();
 
       void setActionTable(ActionTable* actionTable) { act_table_ = actionTable; }
 
-      virtual std::set<eventsetup::EventSetupRecordKey> modifyingRecords() const;
+      virtual std::set<> modifyingRecords() const;
 
     private:
 
@@ -60,4 +57,4 @@ namespace edm {
   };
 }
 
-#endif
+#endif  // FWCore_Framework_EDLooper_h

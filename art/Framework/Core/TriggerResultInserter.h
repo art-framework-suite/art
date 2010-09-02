@@ -19,10 +19,9 @@
 
 namespace edm
 {
-  class ParameterSet;
   class Event;
-  class EventSetup;
   class HLTGlobalStatus;
+  class ParameterSet;
 
   class TriggerResultInserter : public edm::EDProducer
   {
@@ -37,7 +36,7 @@ namespace edm
     TriggerResultInserter(edm::ParameterSet const& ps, const TrigResPtr& trptr);
     virtual ~TriggerResultInserter();
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e);
 
   private:
     TrigResPtr trptr_;

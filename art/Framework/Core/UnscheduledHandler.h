@@ -1,6 +1,6 @@
 #ifndef FWCore_Framework_UnscheduledHandler_h
 #define FWCore_Framework_UnscheduledHandler_h
-// -*- C++ -*-
+
 //
 // Package:     Framework
 // Class  :     UnscheduledHandler
@@ -32,7 +32,7 @@ namespace edm {
    class UnscheduledHandler {
 
    public:
-   UnscheduledHandler(): m_setup(0) {}
+   UnscheduledHandler() {}
       virtual ~UnscheduledHandler() {}
 
       // ---------- const member functions ---------------------
@@ -43,11 +43,7 @@ namespace edm {
       ///returns true if found an EDProducer and ran it
       bool tryToFill(std::string const& label,
                              EventPrincipal& iEvent) {
-         assert(m_setup);
-         return tryToFillImpl(label, iEvent, *m_setup);
-      }
-      void setEventSetup(EventSetup const& iSetup) {
-         m_setup = &iSetup;
+         return tryToFillImpl(label, iEvent);
       }
    private:
       UnscheduledHandler(UnscheduledHandler const&); // stop default
@@ -55,11 +51,9 @@ namespace edm {
       const UnscheduledHandler& operator=(UnscheduledHandler const&); // stop default
 
       virtual bool tryToFillImpl(std::string const&,
-                                 EventPrincipal&,
-                                 EventSetup const&) = 0;
+                                 EventPrincipal&) = 0;
       // ---------- member data --------------------------------
-      const EventSetup* m_setup;
 };
 }
 
-#endif
+#endif  // FWCore_Framework_UnscheduledHandler_h

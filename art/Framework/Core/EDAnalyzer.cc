@@ -17,17 +17,17 @@ namespace edm
   { }
 
   bool
-  EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
+  EDAnalyzer::doEvent(EventPrincipal const& ep,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
-    this->analyze(e, c);
+    this->analyze(e);
     return true;
   }
 
   void
-  EDAnalyzer::doBeginJob(EventSetup const& es) {
-    this->beginJob(es);
+  EDAnalyzer::doBeginJob() {
+    this->beginJob();
   }
 
   void
@@ -36,38 +36,38 @@ namespace edm
   }
 
   bool
-  EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
+  EDAnalyzer::doBeginRun(RunPrincipal const& rp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-    this->beginRun(r, c);
+    this->beginRun(r);
     return true;
   }
 
   bool
-  EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
+  EDAnalyzer::doEndRun(RunPrincipal const& rp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
-    this->endRun(r, c);
+    this->endRun(r);
     return true;
   }
 
   bool
-  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(const_cast<LuminosityBlockPrincipal &>(lbp), moduleDescription_);
-    this->beginLuminosityBlock(lb, c);
+    this->beginLuminosityBlock(lb);
     return true;
   }
 
   bool
-  EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
+  EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     LuminosityBlock lb(const_cast<LuminosityBlockPrincipal &>(lbp), moduleDescription_);
-    this->endLuminosityBlock(lb, c);
+    this->endLuminosityBlock(lb);
     return true;
   }
 

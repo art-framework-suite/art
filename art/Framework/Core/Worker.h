@@ -23,20 +23,19 @@ the worker is reset().
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
+#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
+#include "art/Framework/Core/RunStopwatch.h"
+#include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/MessageLogger/MessageLogger.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 
 #include "boost/shared_ptr.hpp"
-
-#include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Core/Frameworkfwd.h"
 
 namespace edm {
 
@@ -48,9 +47,9 @@ namespace edm {
     virtual ~Worker();
 
     template <typename T>
-    bool doWork(typename T::MyPrincipal&, EventSetup const& c,
+    bool doWork(typename T::MyPrincipal&,
 		CurrentProcessingContext const* cpc);
-    void beginJob(EventSetup const&) ;
+    void beginJob() ;
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
     void respondToCloseInputFile(FileBlock const& fb) {implRespondToCloseInputFile(fb);}
@@ -84,19 +83,19 @@ namespace edm {
 
   protected:
     virtual std::string workerType() const = 0;
-    virtual bool implDoBegin(EventPrincipal&, EventSetup const& c,
+    virtual bool implDoBegin(EventPrincipal&,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(EventPrincipal&, EventSetup const& c,
+    virtual bool implDoEnd(EventPrincipal&,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoBegin(RunPrincipal& rp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(RunPrincipal& rp, EventSetup const& c,
+    virtual bool implDoEnd(RunPrincipal& rp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual void implBeginJob(EventSetup const&) = 0;
+    virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
 
   private:
@@ -147,7 +146,7 @@ namespace edm {
   }
 
    template <typename T>
-   bool Worker::doWork(typename T::MyPrincipal& ep, EventSetup const& es,
+   bool Worker::doWork(typename T::MyPrincipal& ep,
 		      CurrentProcessingContext const* cpc) {
 
     // A RunStopwatch, but only if we are processing an event.
@@ -184,9 +183,9 @@ namespace edm {
 
 	ModuleSignalSentry<T> cpp(actReg_.get(), md_);
 	if (T::begin_) {
-	  rc = implDoBegin(ep, es, cpc);
+	  rc = implDoBegin(ep, cpc);
 	} else {
-	  rc = implDoEnd(ep, es, cpc);
+	  rc = implDoEnd(ep, cpc);
         }
 
 	if (rc) {
@@ -315,4 +314,4 @@ namespace edm {
   }
 
 }
-#endif
+#endif  // FWCore_Framework_Worker_h

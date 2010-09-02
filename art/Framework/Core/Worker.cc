@@ -58,11 +58,11 @@ private:
     actReg_ = areg;
   }
 
-  void Worker::beginJob(EventSetup const& es) {
+  void Worker::beginJob() {
 
     try {
         ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
-	implBeginJob(es);
+	implBeginJob();
     }
     catch(cms::Exception& e) {
 	// should event id be included?

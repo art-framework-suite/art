@@ -1,6 +1,6 @@
 #ifndef FWCore_Framework_NoDataException_h
 #define FWCore_Framework_NoDataException_h
-// -*- C++ -*-
+
 //
 // Package:     Framework
 // Module:      NoDataException
@@ -67,7 +67,6 @@
 
 // user include files
 #include "art/Framework/Core/DataKey.h"
-#include "art/Framework/Core/EventSetupRecordKey.h"
 #include "art/Framework/Core/HCTypeTagTemplate.h"
 #include "art/Utilities/Exception.h"
 
@@ -78,17 +77,15 @@ namespace edm {
 class NoDataExceptionBase : public cms::Exception
 {
 public:
-  NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
-                        const DataKey& iDataKey,
+  NoDataExceptionBase( const DataKey& iDataKey,
                         const char* category_name = "NoDataException") ;
-  NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
-                        const DataKey& iDataKey,
+  NoDataExceptionBase( const DataKey& iDataKey,
                         const char* category_name ,
                         const std::string& iExtraInfo );
   virtual ~NoDataExceptionBase() throw();
   const DataKey& dataKey() const;
 protected:
-  static std::string standardMessage(const EventSetupRecordKey& iKey);
+  static std::string standardMessage();
   const std::string &beginDataTypeMessage() const;
   void endDataTypeMessage() const;
   // ---------- Constructors and destructor ----------------
@@ -96,7 +93,6 @@ protected:
   //const NoDataExceptionBase& operator=(const NoDataExceptionBase&); // allow default
 
   // ---------- data members -------------------------------
-  EventSetupRecordKey record_;
   DataKey dataKey_;
   mutable std::string dataTypeMessage_;
 };
@@ -105,20 +101,17 @@ template <class T>
  class NoDataException : public NoDataExceptionBase
 {
 public:
-  NoDataException(const EventSetupRecordKey& iRecordKey,
-                  const DataKey& iDataKey,
+  NoDataException(const DataKey& iDataKey,
                   const char* category_name = "NoDataException") :
-  NoDataExceptionBase(iRecordKey, iDataKey, category_name)
+  NoDataExceptionBase(iDataKey, category_name)
   {
     this->append(dataTypeMessage()+std::string("\n "));
-    this->append(standardMessage(iRecordKey));
   }
 
-  NoDataException(const EventSetupRecordKey& iRecordKey,
-                  const DataKey& iDataKey,
+  NoDataException(const DataKey& iDataKey,
                   const char* category_name ,
                   const std::string& iExtraInfo ) :
-  NoDataExceptionBase(iRecordKey, iDataKey, category_name, iExtraInfo)
+  NoDataExceptionBase(iDataKey, category_name, iExtraInfo)
   {
     this->append(dataTypeMessage()+std::string("\n "));
     this->append(iExtraInfo);
