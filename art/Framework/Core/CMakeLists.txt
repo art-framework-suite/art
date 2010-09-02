@@ -7,7 +7,6 @@ set( artFrameworkCore_sources Actions.cc
 			     ConfigurableInputSource.cc
 			     CurrentProcessingContext.cc
 			     DataKeyTags.cc
-			     DataProxyProvider.cc
 			     DataViewImpl.cc
 			     DelayedReader.cc
 			     EDAnalyzer.cc
