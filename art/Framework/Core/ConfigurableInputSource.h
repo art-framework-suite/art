@@ -23,15 +23,15 @@ namespace edm {
     virtual ~ConfigurableInputSource();
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;}
-    unsigned int numberEventsInLumi() const {return numberEventsInLumi_;}
+    unsigned int numberEventsInSubRun() const {return numberEventsInSubRun_;}
     TimeValue_t presentTime() const {return presentTime_;}
     unsigned int timeBetweenEvents() const {return timeBetweenEvents_;}
     unsigned int eventCreationDelay() const {return eventCreationDelay_;}
     unsigned int numberEventsInThisRun() const {return numberEventsInThisRun_;}
-    unsigned int numberEventsInThisLumi() const {return numberEventsInThisLumi_;}
+    unsigned int numberEventsInThisSubRun() const {return numberEventsInThisSubRun_;}
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
-    SubRunNumber_t luminosityBlock() const {return luminosityBlock_;}
+    SubRunNumber_t subRun() const {return subRun_;}
 
   protected:
 
@@ -41,7 +41,7 @@ namespace edm {
       eventSet_ = true;
     }
     void setTime(TimeValue_t t) {presentTime_ = t;}
-    void reallyReadEvent(SubRunNumber_t lumi);
+    void reallyReadEvent(SubRunNumber_t subRun);
 
   private:
     virtual ItemType getNextItemType();
@@ -56,26 +56,26 @@ namespace edm {
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
-    virtual void setLumi(SubRunNumber_t lb);
+    virtual void setSubRun(SubRunNumber_t lb);
     virtual void rewind_();
 
     unsigned int numberEventsInRun_;
-    unsigned int numberEventsInLumi_;
+    unsigned int numberEventsInSubRun_;
     TimeValue_t presentTime_;
     TimeValue_t origTime_;
     unsigned int timeBetweenEvents_;
     unsigned int eventCreationDelay_;  /* microseconds */
 
     unsigned int numberEventsInThisRun_;
-    unsigned int numberEventsInThisLumi_;
+    unsigned int numberEventsInThisSubRun_;
     unsigned int const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
-    SubRunNumber_t luminosityBlock_;
+    SubRunNumber_t subRun_;
     SubRunNumber_t origSubRunNumber_t_;
     bool newRun_;
-    bool newLumi_;
-    bool lumiSet_;
+    bool newSubRun_;
+    bool subRunSet_;
     bool eventSet_;
     std::auto_ptr<EventPrincipal> ep_;
     bool isRealData_;

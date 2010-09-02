@@ -802,8 +802,8 @@ bool
   std::vector<std::string> tokens = edm::tokenize(from, ":");
   assert(tokens.size() == 2);
   unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
-  unsigned int lumi = strtoul(tokens[1].c_str(), 0, 0);
-  to = edm::SubRunID(run, lumi);
+  unsigned int subRun = strtoul(tokens[1].c_str(), 0, 0);
+  to = edm::SubRunID(run, subRun);
   return true;
 }  // decode to SubRunID
 
@@ -813,7 +813,7 @@ bool
   edm::encode(std::string& to, const edm::SubRunID & from)
 {
   std::ostringstream os;
-  os << from.run() << ":" << from.luminosityBlock();
+  os << from.run() << ":" << from.subRun();
   to = os.str();
   return true;
 }
@@ -832,9 +832,9 @@ bool
   for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
       stringItr != stringItrEnd; ++stringItr)
   {
-    edm::SubRunID lumiID;
-    decode(lumiID, *stringItr);
-    to.push_back(lumiID);
+    edm::SubRunID subRunID;
+    decode(subRunID, *stringItr);
+    to.push_back(subRunID);
   }
   return true;
 }  // decode to VInputTag

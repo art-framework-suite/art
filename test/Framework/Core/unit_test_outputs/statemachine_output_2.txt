@@ -1,5 +1,5 @@
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: File 0 ***
 	startingNewLoop
  	readFile
@@ -9,7 +9,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -20,7 +20,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -31,7 +31,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -42,7 +42,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -53,7 +53,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -68,7 +68,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	deleteRunFromCache 1
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -79,7 +79,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 0 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles
@@ -90,7 +90,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
     *** nextItemType: File 1 ***
 	respondToCloseInputFile
 	closeInputFile
-	writeLumiCache
+	writeSubRunCache
 	writeRunCache
 	respondToCloseOutputFiles
 	closeOutputFiles

@@ -7,7 +7,7 @@
 //
 /**\class RunID RunID.h DataFormats/Provenance/interface/RunID.h
 
- Description: Holds run and luminosityBlock number.
+ Description: Holds run and subRun number.
 
  Usage:
     <usage>

@@ -24,7 +24,7 @@
 	actually in the configuration and (2) that each path in the
 	configuration has at most one HLTPrescaler: HLTPrescaler modules
 	are going to update their individual prescaleFactor at the
-	beginning of each lumi block, by querying the PrescaleService,
+	beginning of each subRun, by querying the PrescaleService,
 	providing the current *pathname* as key!
 
 

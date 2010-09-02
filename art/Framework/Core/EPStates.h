@@ -4,7 +4,7 @@
 /*
 
 
-The state machine that controls the processing of runs, luminosity
+The state machine that controls the processing of runs, subRun
 blocks, events, and loops is implemented using the boost statechart
 library and the states and events defined here.  This machine is
 used by the EventProcessor.
@@ -322,7 +322,7 @@ namespace statemachine {
     SubRunID currentSubRun_;
     std::set<SubRunID> previousSubRuns_;
     std::vector<SubRunID> unhandledSubRuns_;
-    bool lumiException_;
+    bool subRunException_;
   };
 
   class HandleEvent;
@@ -403,7 +403,7 @@ namespace statemachine {
       sc::custom_reaction<SubRun>,
       sc::custom_reaction<File> > reactions;
 
-    sc::result react(SubRun const& lumi);
+    sc::result react(SubRun const& subRun);
     sc::result react(File const& file);
   private:
     edm::IEventProcessor & ep_;

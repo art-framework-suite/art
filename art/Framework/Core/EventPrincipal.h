@@ -46,21 +46,21 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
-    SubRunPrincipal const& luminosityBlockPrincipal() const {
-      return *luminosityBlockPrincipal_;
+    SubRunPrincipal const& subRunPrincipal() const {
+      return *subRunPrincipal_;
     }
 
-    SubRunPrincipal & luminosityBlockPrincipal() {
-      return *luminosityBlockPrincipal_;
+    SubRunPrincipal & subRunPrincipal() {
+      return *subRunPrincipal_;
     }
 
     boost::shared_ptr<SubRunPrincipal>
-    luminosityBlockPrincipalSharedPtr() {
-      return luminosityBlockPrincipal_;
+    subRunPrincipalSharedPtr() {
+      return subRunPrincipal_;
     }
 
     void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> lbp) {
-      luminosityBlockPrincipal_ = lbp;
+      subRunPrincipal_ = lbp;
     }
 
     EventID const& id() const {
@@ -91,8 +91,8 @@ namespace edm {
       return aux_;
     }
 
-    SubRunNumber_t const& luminosityBlock() const {
-      return aux().luminosityBlock();
+    SubRunNumber_t const& subRun() const {
+      return aux().subRun();
     }
 
     RunNumber_t run() const {
@@ -155,7 +155,7 @@ namespace edm {
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
     EventAuxiliary aux_;
-    boost::shared_ptr<SubRunPrincipal> luminosityBlockPrincipal_;
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipal_;
 
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;

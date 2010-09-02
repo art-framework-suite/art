@@ -35,8 +35,8 @@ CurrentModuleService::CurrentModuleService( ParameterSet const & //unused
   r.watchPreModuleEndJob      ( this, & CurrentModuleService::note_module );
   r.watchPreModuleBeginRun    ( this, & CurrentModuleService::note_module );
   r.watchPreModuleEndRun      ( this, & CurrentModuleService::note_module );
-  r.watchPreModuleBeginLumi   ( this, & CurrentModuleService::note_module );
-  r.watchPreModuleEndLumi     ( this, & CurrentModuleService::note_module );
+  r.watchPreModuleBeginSubRun   ( this, & CurrentModuleService::note_module );
+  r.watchPreModuleEndSubRun     ( this, & CurrentModuleService::note_module );
 }  // CurrentModuleService()
 
 

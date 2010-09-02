@@ -131,7 +131,7 @@ namespace edm {
       std::cout << "Events are sorted such that fast copy is NOT possible in the default mode\n";
     }
 
-    fileIndex.sortBy_Run_Lumi_EventEntry();
+    fileIndex.sortBy_Run_SubRun_EventEntry();
     if (fileIndex.allEventsInEntryOrder()) {
       std::cout << "Events are sorted such that fast copy is possible in the \"noEventSort\" mode\n";
     }

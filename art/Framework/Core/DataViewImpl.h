@@ -58,7 +58,7 @@ event.put("apple", pFruits);
 
 
 Getting a reference to a product before that product is put into the
-event/lumiBlock/run.
+event/subrun/run.
 NOTE: The edm::RefProd returned will not work until after the
 edm::DataViewImpl has been committed (which happens after the
 EDProducer::produce method has ended)

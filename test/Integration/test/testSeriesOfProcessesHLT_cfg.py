@@ -20,16 +20,16 @@
 # They are not used here, just created for later
 # use.
 
-# Creates multiple luminosity blocks for a later
-# test of the maxLuminosityBlock parameter
+# Creates multiple subRuns for a later
+# test of the maxSubRun parameter
 
 import FWCore.ParameterSet.python.Config as cms
 
 process = cms.Process("HLT")
 
 process.source = cms.Source("EmptySource",
-  firstLuminosityBlock = cms.untracked.uint32(1),
-  numberEventsInLuminosityBlock = cms.untracked.uint32(5),
+  firstSubRun = cms.untracked.uint32(1),
+  numberEventsInSubRun = cms.untracked.uint32(5),
   firstEvent = cms.untracked.uint32(1),
   firstRun = cms.untracked.uint32(1),
   numberEventsInRun = cms.untracked.uint32(1000)

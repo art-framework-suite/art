@@ -76,7 +76,7 @@ namespace edm {
     virtual void respondToOpenInputFile(FileBlock const& fb);
     virtual void respondToCloseInputFile(FileBlock const& fb);
     virtual void write(EventPrincipal const& e);
-    virtual void writeLuminosityBlock(SubRunPrincipal const& lb);
+    virtual void writeSubRun(SubRunPrincipal const& lb);
     virtual void writeRun(RunPrincipal const& r);
 
     virtual bool isFileOpen() const;

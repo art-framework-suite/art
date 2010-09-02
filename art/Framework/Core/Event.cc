@@ -9,14 +9,14 @@
 namespace edm {
 
   namespace {
-    SubRun * newLumi(EventPrincipal& ep, ModuleDescription const& md) {
-      return (ep.luminosityBlockPrincipalSharedPtr() ? new SubRun(ep.luminosityBlockPrincipal(), md) : 0);
+    SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
+      return (ep.subRunPrincipalSharedPtr() ? new SubRun(ep.subRunPrincipal(), md) : 0);
     }
   }
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
 	DataViewImpl(ep, md, InEvent),
 	aux_(ep.aux()),
-	luminosityBlock_(newLumi(ep, md)),
+	subRun_(newSubRun(ep, md)),
 	gotBranchIDs_(),
 	gotViews_() {
     }

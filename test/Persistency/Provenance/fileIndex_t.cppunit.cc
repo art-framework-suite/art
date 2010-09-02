@@ -47,17 +47,17 @@ void testFileIndex::constructAndInsertTest()
 
   edm::FileIndex::const_iterator iter = fileIndex.begin();
   CPPUNIT_ASSERT(iter->run_ == 100);
-  CPPUNIT_ASSERT(iter->lumi_ == 101);
+  CPPUNIT_ASSERT(iter->subRun_ == 101);
   CPPUNIT_ASSERT(iter->event_ == 102);
   CPPUNIT_ASSERT(iter->entry_ == 1);
   CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kEvent);
 
   ++iter;
-  CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kLumi);
+  CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kSubRun);
 
   ++iter;
   CPPUNIT_ASSERT(iter->run_ == 300);
-  CPPUNIT_ASSERT(iter->lumi_ == 0);
+  CPPUNIT_ASSERT(iter->subRun_ == 0);
   CPPUNIT_ASSERT(iter->event_ == 0);
   CPPUNIT_ASSERT(iter->entry_ == 3);
   CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kRun);
@@ -94,7 +94,7 @@ void testFileIndex::eventSortAndSearchTest()
   fileIndex.addEntry(1, 2, 0, 2);
   fileIndex.addEntry(1, 2, 1, 2);
 
-  fileIndex.sortBy_Run_Lumi_Event();
+  fileIndex.sortBy_Run_SubRun_Event();
 
   edm::FileIndex shouldBe;
   shouldBe.addEntry(1, 0, 0, 8);
@@ -120,7 +120,7 @@ void testFileIndex::eventSortAndSearchTest()
   edm::FileIndex::const_iterator iter = fileIndex.findPosition( 3, 3, 2);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 12);
   CPPUNIT_ASSERT(iter->run_ == 3);
-  CPPUNIT_ASSERT(iter->lumi_ == 3);
+  CPPUNIT_ASSERT(iter->subRun_ == 3);
   CPPUNIT_ASSERT(iter->event_ == 2);
   CPPUNIT_ASSERT(iter->entry_ == 5);
 
@@ -166,20 +166,20 @@ void testFileIndex::eventSortAndSearchTest()
   iter = fileIndex.findEventPosition( 3, 0, 1, true);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 10);
 
-  iter = fileIndex.findLumiPosition( 3, 1, true);
+  iter = fileIndex.findSubRunPosition( 3, 1, true);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
-  iter = fileIndex.findLumiPosition( 3, 2, true);
+  iter = fileIndex.findSubRunPosition( 3, 2, true);
   CPPUNIT_ASSERT(iter == fileIndex.end());
 
-  iter = fileIndex.findLumiPosition( 3, 1, false);
+  iter = fileIndex.findSubRunPosition( 3, 1, false);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
-  iter = fileIndex.findLumiPosition( 3, 2, false);
+  iter = fileIndex.findSubRunPosition( 3, 2, false);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
-  CPPUNIT_ASSERT(fileIndex.containsLumi(3, 3, true));
-  CPPUNIT_ASSERT(!fileIndex.containsLumi(2, 3, true));
+  CPPUNIT_ASSERT(fileIndex.containsSubRun(3, 3, true));
+  CPPUNIT_ASSERT(!fileIndex.containsSubRun(2, 3, true));
 
   iter = fileIndex.findRunPosition( 3, true);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
@@ -193,19 +193,19 @@ void testFileIndex::eventSortAndSearchTest()
   CPPUNIT_ASSERT(fileIndex.containsRun(3, true));
   CPPUNIT_ASSERT(!fileIndex.containsRun(2, true));
 
-  iter = fileIndex.findLumiOrRunPosition( 1, 2);
+  iter = fileIndex.findSubRunOrRunPosition( 1, 2);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 1);
 
-  iter = fileIndex.findLumiOrRunPosition( 3, 0);
+  iter = fileIndex.findSubRunOrRunPosition( 3, 0);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
-  iter = fileIndex.findLumiOrRunPosition( 3, 4);
+  iter = fileIndex.findSubRunOrRunPosition( 3, 4);
   CPPUNIT_ASSERT(iter == fileIndex.end());
 
-  iter = fileIndex.findLumiOrRunPosition( 3, 2);
+  iter = fileIndex.findSubRunOrRunPosition( 3, 2);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
-  iter = fileIndex.findLumiOrRunPosition( 2, 1);
+  iter = fileIndex.findSubRunOrRunPosition( 2, 1);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
 }
@@ -235,7 +235,7 @@ void testFileIndex::eventEntrySortAndSearchTest()
   fileIndex.addEntry(1, 2, 0, 2);
   fileIndex.addEntry(1, 2, 1, 2);
 
-  fileIndex.sortBy_Run_Lumi_EventEntry();
+  fileIndex.sortBy_Run_SubRun_EventEntry();
 
   edm::FileIndex shouldBe;
   shouldBe.addEntry(1, 0, 0, 8);
@@ -255,16 +255,16 @@ void testFileIndex::eventEntrySortAndSearchTest()
 
   CPPUNIT_ASSERT(areEntryVectorsTheSame(fileIndex, shouldBe));
 
-  edm::FileIndex::const_iterator iter = fileIndex.findLumiPosition( 3, 1, true);
+  edm::FileIndex::const_iterator iter = fileIndex.findSubRunPosition( 3, 1, true);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
-  iter = fileIndex.findLumiPosition( 3, 2, true);
+  iter = fileIndex.findSubRunPosition( 3, 2, true);
   CPPUNIT_ASSERT(iter == fileIndex.end());
 
-  iter = fileIndex.findLumiPosition( 3, 1, false);
+  iter = fileIndex.findSubRunPosition( 3, 1, false);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
-  iter = fileIndex.findLumiPosition( 3, 2, false);
+  iter = fileIndex.findSubRunPosition( 3, 2, false);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
   iter = fileIndex.findRunPosition( 3, true);
@@ -276,19 +276,19 @@ void testFileIndex::eventEntrySortAndSearchTest()
   iter = fileIndex.findRunPosition( 2, false);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
-  iter = fileIndex.findLumiOrRunPosition( 1, 2);
+  iter = fileIndex.findSubRunOrRunPosition( 1, 2);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 1);
 
-  iter = fileIndex.findLumiOrRunPosition( 3, 0);
+  iter = fileIndex.findSubRunOrRunPosition( 3, 0);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
-  iter = fileIndex.findLumiOrRunPosition( 3, 4);
+  iter = fileIndex.findSubRunOrRunPosition( 3, 4);
   CPPUNIT_ASSERT(iter == fileIndex.end());
 
-  iter = fileIndex.findLumiOrRunPosition( 3, 2);
+  iter = fileIndex.findSubRunOrRunPosition( 3, 2);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
-  iter = fileIndex.findLumiOrRunPosition( 2, 1);
+  iter = fileIndex.findSubRunOrRunPosition( 2, 1);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 }
 
@@ -393,7 +393,7 @@ bool testFileIndex::areEntryVectorsTheSame(edm::FileIndex &i1, edm::FileIndex &i
        iter1 != i1.end();
        ++iter1, ++iter2) {
     if (iter1->run_ != iter2->run_ ||
-        iter1->lumi_ != iter2->lumi_ ||
+        iter1->subRun_ != iter2->subRun_ ||
         iter1->event_ != iter2->event_ ||
         iter1->entry_ != iter2->entry_) {
       return false;

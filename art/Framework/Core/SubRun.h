@@ -8,8 +8,8 @@
 //
 /**\class SubRun SubRun.h FWCore/Framework/interface/SubRun.h
 
-Description: This is the primary interface for accessing per luminosity block EDProducts
-and inserting new derived per luminosity block EDProducts.
+Description: This is the primary interface for accessing per subRun EDProducts
+and inserting new derived per subRun EDProducts.
 
 For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
@@ -39,7 +39,7 @@ namespace edm {
 
     typedef DataViewImpl Base;
     // AUX functions.
-    SubRunNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
+    SubRunNumber_t subRun() const {return aux_.subRun();}
 
     RunNumber_t run() const {
       return aux_.run();
@@ -83,10 +83,10 @@ namespace edm {
 
   private:
     SubRunPrincipal const&
-    luminosityBlockPrincipal() const;
+    subRunPrincipal() const;
 
     SubRunPrincipal &
-    luminosityBlockPrincipal();
+    subRunPrincipal();
 
     // commit_() is called to complete the transaction represented by
     // this DataViewImpl. The friendships required seems gross, but any

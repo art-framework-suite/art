@@ -20,7 +20,7 @@ namespace edm {
   TestRunSubRunSource::TestRunSubRunSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
-    runLumiEvent_(pset.getUntrackedParameter<std::vector<int> >("runLumiEvent", std::vector<int>())),
+    runSubRunEvent_(pset.getUntrackedParameter<std::vector<int> >("runSubRunEvent", std::vector<int>())),
     currentIndex_(0),
     firstTime_(true) {
   }
@@ -30,7 +30,7 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   TestRunSubRunSource::readRun_() {
-    unsigned int run = runLumiEvent_[currentIndex_];
+    unsigned int run = runSubRunEvent_[currentIndex_];
     Timestamp ts = Timestamp(1);  // 1 is just a meaningless number to make it compile for the test
 
     RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
@@ -41,44 +41,44 @@ namespace edm {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  TestRunSubRunSource::readLuminosityBlock_() {
-    unsigned int run = runLumiEvent_[currentIndex_];
-    unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
+  TestRunSubRunSource::readSubRun_() {
+    unsigned int run = runSubRunEvent_[currentIndex_];
+    unsigned int subRun = runSubRunEvent_[currentIndex_ + 1];
     Timestamp ts = Timestamp(1);
 
     RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> rp2(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
-    SubRunAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<SubRunPrincipal> luminosityBlockPrincipal(
-        new SubRunPrincipal(lumiAux, productRegistry(), processConfiguration()));
-    luminosityBlockPrincipal->setRunPrincipal(rp2);
+    SubRunAuxiliary subRunAux(rp2->run(), subRun, ts, Timestamp::invalidTimestamp());
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipal(
+        new SubRunPrincipal(subRunAux, productRegistry(), processConfiguration()));
+    subRunPrincipal->setRunPrincipal(rp2);
 
     currentIndex_ += 3;
-    return luminosityBlockPrincipal;
+    return subRunPrincipal;
   }
 
   std::auto_ptr<EventPrincipal>
   TestRunSubRunSource::readEvent_() {
     EventSourceSentry(*this);
-    unsigned int run = runLumiEvent_[currentIndex_];
-    unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
-    unsigned int event = runLumiEvent_[currentIndex_ + 2];
+    unsigned int run = runSubRunEvent_[currentIndex_];
+    unsigned int subRun = runSubRunEvent_[currentIndex_ + 1];
+    unsigned int event = runSubRunEvent_[currentIndex_ + 2];
     Timestamp ts = Timestamp(1);
 
     RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<RunPrincipal> rp2(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
-    SubRunAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
+    SubRunAuxiliary subRunAux(rp2->run(), subRun, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<SubRunPrincipal> lbp2(
-        new SubRunPrincipal(lumiAux, productRegistry(), processConfiguration()));
+        new SubRunPrincipal(subRunAux, productRegistry(), processConfiguration()));
     lbp2->setRunPrincipal(rp2);
 
     EventID id(run, event);
     currentIndex_ += 3;
-    EventAuxiliary eventAux(id, processGUID(), ts, lbp2->luminosityBlock(), false);
+    EventAuxiliary eventAux(id, processGUID(), ts, lbp2->subRun(), false);
     std::auto_ptr<EventPrincipal> result(
 	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     result->setSubRunPrincipal(lbp2);
@@ -91,18 +91,18 @@ namespace edm {
       firstTime_ = false;
       return InputSource::IsFile;
     }
-    if (currentIndex_ + 2 >= runLumiEvent_.size()) {
+    if (currentIndex_ + 2 >= runSubRunEvent_.size()) {
       return InputSource::IsStop;
     }
-    if (runLumiEvent_[currentIndex_] == 0) {
+    if (runSubRunEvent_[currentIndex_] == 0) {
       return InputSource::IsStop;
     }
     ItemType oldState = state();
     if (oldState == IsInvalid) return InputSource::IsFile;
-    if (runLumiEvent_[currentIndex_ + 1] == 0) {
+    if (runSubRunEvent_[currentIndex_ + 1] == 0) {
       return InputSource::IsRun;
     }
-    if (runLumiEvent_[currentIndex_ + 2] == 0) {
+    if (runSubRunEvent_[currentIndex_ + 2] == 0) {
       return InputSource::IsSubRun;
     }
     return InputSource::IsEvent;

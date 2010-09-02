@@ -7,7 +7,7 @@
 //
 /**\class SubRunID SubRunID.h DataFormats/Provenance/interface/SubRunID.h
 
- Description: Holds run and luminosityBlock number.
+ Description: Holds run and subRun number.
 
  Usage:
     <usage>
@@ -36,51 +36,51 @@ class SubRunID
    public:
 
 
-      SubRunID() : run_(0), luminosityBlock_(0) {}
+      SubRunID() : run_(0), subRun_(0) {}
       explicit SubRunID(boost::uint64_t id);
-      SubRunID(RunNumber_t iRun, SubRunNumber_t iLuminosityBlock) :
-	run_(iRun), luminosityBlock_(iLuminosityBlock) {}
+      SubRunID(RunNumber_t iRun, SubRunNumber_t iSubRun) :
+	run_(iRun), subRun_(iSubRun) {}
 
       //virtual ~SubRunID();
 
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
-      SubRunNumber_t luminosityBlock() const { return luminosityBlock_; }
+      SubRunNumber_t subRun() const { return subRun_; }
 
       boost::uint64_t value() const;
 
       //moving from one SubRunID to another one
       SubRunID next() const {
-         if(luminosityBlock_ != maxLuminosityBlockNumber()) {
-            return SubRunID(run_, luminosityBlock_+1);
+         if(subRun_ != maxSubRunNumber()) {
+            return SubRunID(run_, subRun_+1);
          }
          return SubRunID(run_+1, 1);
       }
       SubRunID nextRun() const {
          return SubRunID(run_+1, 0);
       }
-      SubRunID nextRunFirstLuminosityBlock() const {
+      SubRunID nextRunFirstSubRun() const {
          return SubRunID(run_+1, 1);
       }
-      SubRunID previousRunLastLuminosityBlock() const {
+      SubRunID previousRunLastSubRun() const {
          if(run_ > 1) {
-            return SubRunID(run_-1, maxLuminosityBlockNumber());
+            return SubRunID(run_-1, maxSubRunNumber());
          }
          return SubRunID(0,0);
       }
 
       SubRunID previous() const {
-         if(luminosityBlock_ > 1) {
-            return SubRunID(run_, luminosityBlock_-1);
+         if(subRun_ > 1) {
+            return SubRunID(run_, subRun_-1);
          }
          if(run_ != 0) {
-            return SubRunID(run_ -1, maxLuminosityBlockNumber());
+            return SubRunID(run_ -1, maxSubRunNumber());
          }
          return SubRunID(0,0);
       }
 
       bool operator==(SubRunID const& iRHS) const {
-         return iRHS.run_ == run_ && iRHS.luminosityBlock_ == luminosityBlock_;
+         return iRHS.run_ == run_ && iRHS.subRun_ == subRun_;
       }
       bool operator!=(SubRunID const& iRHS) const {
          return ! (*this == iRHS);
@@ -101,11 +101,11 @@ class SubRunID
 
       // ---------- static functions ---------------------------
 
-      static SubRunNumber_t maxLuminosityBlockNumber() {
+      static SubRunNumber_t maxSubRunNumber() {
          return 0xFFFFFFFFU;
       }
 
-      static SubRunID firstValidLuminosityBlock() {
+      static SubRunID firstValidSubRun() {
          return SubRunID(1, 1);
       }
       // ---------- member functions ---------------------------
@@ -116,7 +116,7 @@ class SubRunID
          //Run takes presidence for comparisions
          if(run_ == iRHS.run_) {
             Op<SubRunNumber_t> op_e;
-            return op_e(luminosityBlock_, iRHS.luminosityBlock_);
+            return op_e(subRun_, iRHS.subRun_);
          }
          Op<RunNumber_t> op;
          return op(run_, iRHS.run_) ;
@@ -127,7 +127,7 @@ class SubRunID
 
       // ---------- member data --------------------------------
       RunNumber_t run_;
-      SubRunNumber_t luminosityBlock_;
+      SubRunNumber_t subRun_;
 };
 
 std::ostream& operator<<(std::ostream& oStream, SubRunID const& iID);

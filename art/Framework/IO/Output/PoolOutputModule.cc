@@ -118,7 +118,7 @@ namespace edm {
       BranchType branchType = static_cast<BranchType>(i);
       if (inputFileCount_ == 0) {
         TTree * theTree = (branchType == InEvent ? fb.tree() :
-		          (branchType == InSubRun ? fb.lumiTree() :
+		          (branchType == InSubRun ? fb.subRunTree() :
                           fb.runTree()));
         fillSelectedItemList(branchType, theTree);
       }
@@ -143,9 +143,9 @@ namespace edm {
       rootOutputFile_->writeOne(e);
   }
 
-  void PoolOutputModule::writeLuminosityBlock(SubRunPrincipal const& lb) {
+  void PoolOutputModule::writeSubRun(SubRunPrincipal const& lb) {
       if (hasNewlyDroppedBranch()[InSubRun]) lb.addToProcessHistory();
-      rootOutputFile_->writeLuminosityBlock(lb);
+      rootOutputFile_->writeSubRun(lb);
   }
 
   void PoolOutputModule::writeRun(RunPrincipal const& r) {

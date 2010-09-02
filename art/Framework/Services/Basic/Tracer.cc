@@ -48,11 +48,11 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
    iRegistry.watchPreModuleEndRun(this, &Tracer::preModuleEndRun);
    iRegistry.watchPostModuleEndRun(this, &Tracer::postModuleEndRun);
 
-   iRegistry.watchPreModuleBeginLumi(this, &Tracer::preModuleBeginLumi);
-   iRegistry.watchPostModuleBeginLumi(this, &Tracer::postModuleBeginLumi);
+   iRegistry.watchPreModuleBeginSubRun(this, &Tracer::preModuleBeginSubRun);
+   iRegistry.watchPostModuleBeginSubRun(this, &Tracer::postModuleBeginSubRun);
 
-   iRegistry.watchPreModuleEndLumi(this, &Tracer::preModuleEndLumi);
-   iRegistry.watchPostModuleEndLumi(this, &Tracer::postModuleEndLumi);
+   iRegistry.watchPreModuleEndSubRun(this, &Tracer::preModuleEndSubRun);
+   iRegistry.watchPostModuleEndSubRun(this, &Tracer::postModuleEndSubRun);
 
    iRegistry.watchPreProcessPath(this, &Tracer::prePathEvent);
    iRegistry.watchPostProcessPath(this, &Tracer::postPathEvent);
@@ -63,11 +63,11 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
    iRegistry.watchPrePathEndRun(this, &Tracer::prePathEndRun);
    iRegistry.watchPostPathEndRun(this, &Tracer::postPathEndRun);
 
-   iRegistry.watchPrePathBeginLumi(this, &Tracer::prePathBeginLumi);
-   iRegistry.watchPostPathBeginLumi(this, &Tracer::postPathBeginLumi);
+   iRegistry.watchPrePathBeginSubRun(this, &Tracer::prePathBeginSubRun);
+   iRegistry.watchPostPathBeginSubRun(this, &Tracer::postPathBeginSubRun);
 
-   iRegistry.watchPrePathEndLumi(this, &Tracer::prePathEndLumi);
-   iRegistry.watchPostPathEndLumi(this, &Tracer::postPathEndLumi);
+   iRegistry.watchPrePathEndSubRun(this, &Tracer::prePathEndSubRun);
+   iRegistry.watchPostPathEndSubRun(this, &Tracer::postPathEndSubRun);
 
    iRegistry.watchPreProcessEvent(this, &Tracer::preEvent);
    iRegistry.watchPostProcessEvent(this, &Tracer::postEvent);
@@ -78,11 +78,11 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
    iRegistry.watchPreEndRun(this, &Tracer::preEndRun);
    iRegistry.watchPostEndRun(this, &Tracer::postEndRun);
 
-   iRegistry.watchPreBeginLumi(this, &Tracer::preBeginLumi);
-   iRegistry.watchPostBeginLumi(this, &Tracer::postBeginLumi);
+   iRegistry.watchPreBeginSubRun(this, &Tracer::preBeginSubRun);
+   iRegistry.watchPostBeginSubRun(this, &Tracer::postBeginSubRun);
 
-   iRegistry.watchPreEndLumi(this, &Tracer::preEndLumi);
-   iRegistry.watchPostEndLumi(this, &Tracer::postEndLumi);
+   iRegistry.watchPreEndSubRun(this, &Tracer::preEndSubRun);
+   iRegistry.watchPostEndSubRun(this, &Tracer::postEndSubRun);
 
    iRegistry.watchPreSource(this, &Tracer::preSourceEvent);
    iRegistry.watchPostSource(this, &Tracer::postSourceEvent);
@@ -96,8 +96,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
    iRegistry.watchPreSourceRun(this, &Tracer::preSourceRun);
    iRegistry.watchPostSourceRun(this, &Tracer::postSourceRun);
 
-   iRegistry.watchPreSourceLumi(this, &Tracer::preSourceLumi);
-   iRegistry.watchPostSourceLumi(this, &Tracer::postSourceLumi);
+   iRegistry.watchPreSourceSubRun(this, &Tracer::preSourceSubRun);
+   iRegistry.watchPostSourceSubRun(this, &Tracer::postSourceSubRun);
 
 }
 
@@ -144,12 +144,12 @@ Tracer::postSourceEvent () {
 }
 
 void
-Tracer::preSourceLumi() {
-  std::cout <<indention_<<indention_<<"source lumi"<<std::endl;
+Tracer::preSourceSubRun() {
+  std::cout <<indention_<<indention_<<"source subRun"<<std::endl;
 }
 void
-Tracer::postSourceLumi () {
-  std::cout <<indention_<<indention_<<"finished: source lumi"<<std::endl;
+Tracer::postSourceSubRun () {
+  std::cout <<indention_<<indention_<<"finished: source subRun"<<std::endl;
 }
 
 void
@@ -297,83 +297,83 @@ Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
 }
 
 void
-Tracer::preBeginLumi(SubRunID const& iID, Timestamp const& iTime) {
+Tracer::preBeginSubRun(SubRunID const& iID, Timestamp const& iTime) {
    depth_=0;
-   std::cout <<indention_<<indention_<<" processing begin lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
+   std::cout <<indention_<<indention_<<" processing begin subRun:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postBeginLumi(SubRun const&) {
-   std::cout <<indention_<<indention_<<" finished begin lumi:"<<std::endl;
-}
-
-void
-Tracer::prePathBeginLumi(std::string const& iName) {
-  std::cout <<indention_<<indention_<<indention_<<" processing path for begin lumi:"<<iName<<std::endl;
-}
-void
-Tracer::postPathBeginLumi(std::string const& iName, HLTPathStatus const&) {
-  std::cout <<indention_<<indention_<<indention_<<" finished path for begin lumi:"<<std::endl;
+Tracer::postBeginSubRun(SubRun const&) {
+   std::cout <<indention_<<indention_<<" finished begin subRun:"<<std::endl;
 }
 
 void
-Tracer::preModuleBeginLumi(ModuleDescription const& iDescription) {
+Tracer::prePathBeginSubRun(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for begin subRun:"<<iName<<std::endl;
+}
+void
+Tracer::postPathBeginSubRun(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for begin subRun:"<<std::endl;
+}
+
+void
+Tracer::preModuleBeginSubRun(ModuleDescription const& iDescription) {
    ++depth_;
    std::cout <<indention_<<indention_<<indention_;
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for begin lumi:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for begin subRun:" <<iDescription.moduleLabel_<<std::endl;
 }
 void
-Tracer::postModuleBeginLumi(ModuleDescription const& iDescription) {
+Tracer::postModuleBeginSubRun(ModuleDescription const& iDescription) {
    --depth_;
    std::cout <<indention_<<indention_<<indention_<<indention_;
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
 
-   std::cout<<" finished for begin lumi:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for begin subRun:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 void
-Tracer::preEndLumi(SubRunID const& iID, Timestamp const& iTime) {
+Tracer::preEndSubRun(SubRunID const& iID, Timestamp const& iTime) {
    depth_=0;
-   std::cout <<indention_<<indention_<<" processing end lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
+   std::cout <<indention_<<indention_<<" processing end subRun:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postEndLumi(SubRun const&) {
-   std::cout <<indention_<<indention_<<" finished end lumi:"<<std::endl;
-}
-
-void
-Tracer::prePathEndLumi(std::string const& iName) {
-  std::cout <<indention_<<indention_<<indention_<<" processing path for end lumi:"<<iName<<std::endl;
+Tracer::postEndSubRun(SubRun const&) {
+   std::cout <<indention_<<indention_<<" finished end subRun:"<<std::endl;
 }
 
 void
-Tracer::postPathEndLumi(std::string const& iName, HLTPathStatus const&) {
-  std::cout <<indention_<<indention_<<indention_<<" finished path for end lumi:"<<std::endl;
+Tracer::prePathEndSubRun(std::string const& iName) {
+  std::cout <<indention_<<indention_<<indention_<<" processing path for end subRun:"<<iName<<std::endl;
 }
 
 void
-Tracer::preModuleEndLumi(ModuleDescription const& iDescription) {
+Tracer::postPathEndSubRun(std::string const& iName, HLTPathStatus const&) {
+  std::cout <<indention_<<indention_<<indention_<<" finished path for end subRun:"<<std::endl;
+}
+
+void
+Tracer::preModuleEndSubRun(ModuleDescription const& iDescription) {
    ++depth_;
    std::cout <<indention_<<indention_<<indention_;
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
-   std::cout<<" module for end lumi:" <<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" module for end subRun:" <<iDescription.moduleLabel_<<std::endl;
 }
 
 void
-Tracer::postModuleEndLumi(ModuleDescription const& iDescription) {
+Tracer::postModuleEndSubRun(ModuleDescription const& iDescription) {
    --depth_;
    std::cout <<indention_<<indention_<<indention_<<indention_;
    for(unsigned int depth = 0; depth !=depth_; ++depth) {
       std::cout<<indention_;
    }
 
-   std::cout<<" finished for end lumi:"<<iDescription.moduleLabel_<<std::endl;
+   std::cout<<" finished for end subRun:"<<iDescription.moduleLabel_<<std::endl;
 }
 
 void

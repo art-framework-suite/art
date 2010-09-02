@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     ("printBranchDetails,b","Call Print()sc for all branches")
     ("tree,t", boost::program_options::value<std::string>(), "Select tree used with -P and -b options")
     ("allowRecovery","Allow root to auto-recover corrupted files")
-    ("events,e", "Print list of all Events, Runs, and SubRuns in the file sorted by run number, luminosity block number, and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.");
+    ("events,e", "Print list of all Events, Runs, and SubRuns in the file sorted by run number, subRun number, and event number.  Also prints the entry numbers and whether it is possible to use fast copy with the file.");
 
   // What trees do we require for this to be a valid collection?
   std::vector<std::string> expectedTrees;

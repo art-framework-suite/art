@@ -30,8 +30,8 @@ namespace edm
     r.watchPreModuleEndJob(this, & TFileService::setDirectoryName);
     r.watchPreModuleBeginRun(this, & TFileService::setDirectoryName);
     r.watchPreModuleEndRun(this, & TFileService::setDirectoryName);
-    r.watchPreModuleBeginLumi(this, & TFileService::setDirectoryName);
-    r.watchPreModuleEndLumi(this, & TFileService::setDirectoryName);
+    r.watchPreModuleBeginSubRun(this, & TFileService::setDirectoryName);
+    r.watchPreModuleEndSubRun(this, & TFileService::setDirectoryName);
   }
 
   TFileService::~TFileService() {

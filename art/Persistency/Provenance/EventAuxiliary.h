@@ -31,7 +31,7 @@ namespace edm
 	id_(),
         processGUID_(),
 	time_(),
-	luminosityBlock_(),
+	subRun_(),
 	isRealData_(false),
 	experimentType_(Any),
 	bunchCrossing_(invalidBunchXing),
@@ -45,7 +45,7 @@ namespace edm
 	id_(theId),
         processGUID_(theProcessGUID),
 	time_(theTime),
-	luminosityBlock_(lb),
+	subRun_(lb),
 	isRealData_(isReal),
         experimentType_(eType),
 	bunchCrossing_(bunchXing),
@@ -57,7 +57,7 @@ namespace edm
     EventID const& id() const {return id_;}
     std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
-    SubRunNumber_t const& luminosityBlock() const {return luminosityBlock_;}
+    SubRunNumber_t const& subRun() const {return subRun_;}
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}
     bool isRealData() const {return isRealData_;}
@@ -76,7 +76,7 @@ namespace edm
     // Time from DAQ
     Timestamp time_;
     // Associated SubRun identifier
-    SubRunNumber_t luminosityBlock_;
+    SubRunNumber_t subRun_;
     // Is this real data (i.e. not simulated)
     bool isRealData_;
     // Something descriptive of the source of the data

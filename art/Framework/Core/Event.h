@@ -80,7 +80,7 @@ namespace edm {
     EventID id() const {return aux_.id();}
     Timestamp time() const {return aux_.time();}
     SubRunNumber_t
-    luminosityBlock() const {return aux_.luminosityBlock();}
+    subRun() const {return aux_.subRun();}
     bool isRealData() const {return aux_.isRealData();}
     EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
     int bunchCrossing() const {return aux_.bunchCrossing();}
@@ -97,7 +97,7 @@ namespace edm {
 
     SubRun const&
     getSubRun() const {
-      return *luminosityBlock_;
+      return *subRun_;
     }
 
     Run const&
@@ -237,7 +237,7 @@ namespace edm {
     getByProductID_(ProductID const& oid) const;
 
     EventAuxiliary const& aux_;
-    boost::shared_ptr<SubRun const> const luminosityBlock_;
+    boost::shared_ptr<SubRun const> const subRun_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the DataViewImpl. gotBranchIDs_ is
