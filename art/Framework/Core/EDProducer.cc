@@ -6,7 +6,7 @@
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 
 #include "art/ParameterSet/ParameterSetDescription.h"
@@ -61,21 +61,21 @@ namespace edm {
   }
 
   bool
-  EDProducer::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp,
+  EDProducer::doBeginSubRun(SubRunPrincipal & lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(lbp, moduleDescription_);
-    this->beginLuminosityBlock(lb);
+    SubRun lb(lbp, moduleDescription_);
+    this->beginSubRun(lb);
     lb.commit_();
     return true;
   }
 
   bool
-  EDProducer::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp,
+  EDProducer::doEndSubRun(SubRunPrincipal & lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(lbp, moduleDescription_);
-    this->endLuminosityBlock(lb);
+    SubRun lb(lbp, moduleDescription_);
+    this->endSubRun(lb);
     lb.commit_();
     return true;
   }

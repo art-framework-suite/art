@@ -408,23 +408,23 @@ private:
   }
 
   // ----------------------------------------------------------------------
-  // LuminosityBlockID
+  // SubRunID
 
   template <>
   inline
-  LuminosityBlockID
-  ParameterSet::getParameter<LuminosityBlockID>(std::string const& name) const {
-    return retrieve(name).getLuminosityBlockID();
+  SubRunID
+  ParameterSet::getParameter<SubRunID>(std::string const& name) const {
+    return retrieve(name).getSubRunID();
   }
 
   // ----------------------------------------------------------------------
-  // VLuminosityBlockID
+  // VSubRunID
 
   template <>
   inline
-  std::vector<LuminosityBlockID>
-  ParameterSet::getParameter<std::vector<LuminosityBlockID> >(std::string const& name) const {
-    return retrieve(name).getVLuminosityBlockID();
+  std::vector<SubRunID>
+  ParameterSet::getParameter<std::vector<SubRunID> >(std::string const& name) const {
+    return retrieve(name).getVSubRunID();
   }
 
   // ----------------------------------------------------------------------
@@ -756,38 +756,38 @@ private:
   }
 
   // ----------------------------------------------------------------------
-  // LuminosityBlockID, VLuminosityBlockID
+  // SubRunID, VSubRunID
 
   template<>
   inline
-  LuminosityBlockID
-  ParameterSet::getUntrackedParameter<LuminosityBlockID>(std::string const& name, LuminosityBlockID const& defaultValue) const {
+  SubRunID
+  ParameterSet::getUntrackedParameter<SubRunID>(std::string const& name, SubRunID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockID();
+    return entryPtr == 0 ? defaultValue : entryPtr->getSubRunID();
   }
 
   template<>
   inline
-  LuminosityBlockID
-  ParameterSet::getUntrackedParameter<LuminosityBlockID>(std::string const& name) const {
-    return getEntryPointerOrThrow_(name)->getLuminosityBlockID();
+  SubRunID
+  ParameterSet::getUntrackedParameter<SubRunID>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getSubRunID();
   }
 
   template<>
   inline
-  std::vector<LuminosityBlockID>
-  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(std::string const& name,
-                                      std::vector<LuminosityBlockID> const& defaultValue) const
+  std::vector<SubRunID>
+  ParameterSet::getUntrackedParameter<std::vector<SubRunID> >(std::string const& name,
+                                      std::vector<SubRunID> const& defaultValue) const
   {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockID();
+    return entryPtr == 0 ? defaultValue : entryPtr->getVSubRunID();
   }
 
   template<>
   inline
-  std::vector<LuminosityBlockID>
-  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(std::string const& name) const {
-    return getEntryPointerOrThrow_(name)->getVLuminosityBlockID();
+  std::vector<SubRunID>
+  ParameterSet::getUntrackedParameter<std::vector<SubRunID> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVSubRunID();
   }
 
 
@@ -1000,23 +1000,23 @@ private:
   }
 
   // ----------------------------------------------------------------------
-  // LuminosityBlockID
+  // SubRunID
 
   template <>
   inline
-  LuminosityBlockID
-  ParameterSet::getParameter<LuminosityBlockID>(char const* name) const {
-    return retrieve(name).getLuminosityBlockID();
+  SubRunID
+  ParameterSet::getParameter<SubRunID>(char const* name) const {
+    return retrieve(name).getSubRunID();
   }
 
   // ----------------------------------------------------------------------
-  // VLuminosityBlockID
+  // VSubRunID
 
   template <>
   inline
-  std::vector<LuminosityBlockID>
-  ParameterSet::getParameter<std::vector<LuminosityBlockID> >(char const* name) const {
-    return retrieve(name).getVLuminosityBlockID();
+  std::vector<SubRunID>
+  ParameterSet::getParameter<std::vector<SubRunID> >(char const* name) const {
+    return retrieve(name).getVSubRunID();
   }
 
   // ----------------------------------------------------------------------
@@ -1348,38 +1348,38 @@ private:
   }
 
   // ----------------------------------------------------------------------
-  // LuminosityBlockID, VLuminosityBlockID
+  // SubRunID, VSubRunID
 
   template<>
   inline
-  LuminosityBlockID
-  ParameterSet::getUntrackedParameter<LuminosityBlockID>(char const* name, LuminosityBlockID const& defaultValue) const {
+  SubRunID
+  ParameterSet::getUntrackedParameter<SubRunID>(char const* name, SubRunID const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getLuminosityBlockID();
+    return entryPtr == 0 ? defaultValue : entryPtr->getSubRunID();
   }
 
   template<>
   inline
-  LuminosityBlockID
-  ParameterSet::getUntrackedParameter<LuminosityBlockID>(char const* name) const {
-    return getEntryPointerOrThrow_(name)->getLuminosityBlockID();
+  SubRunID
+  ParameterSet::getUntrackedParameter<SubRunID>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getSubRunID();
   }
 
   template<>
   inline
-  std::vector<LuminosityBlockID>
-  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(char const* name,
-                                      std::vector<LuminosityBlockID> const& defaultValue) const
+  std::vector<SubRunID>
+  ParameterSet::getUntrackedParameter<std::vector<SubRunID> >(char const* name,
+                                      std::vector<SubRunID> const& defaultValue) const
   {
     Entry const* entryPtr = retrieveUntracked(name);
-    return entryPtr == 0 ? defaultValue : entryPtr->getVLuminosityBlockID();
+    return entryPtr == 0 ? defaultValue : entryPtr->getVSubRunID();
   }
 
   template<>
   inline
-  std::vector<LuminosityBlockID>
-  ParameterSet::getUntrackedParameter<std::vector<LuminosityBlockID> >(char const* name) const {
-    return getEntryPointerOrThrow_(name)->getVLuminosityBlockID();
+  std::vector<SubRunID>
+  ParameterSet::getUntrackedParameter<std::vector<SubRunID> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVSubRunID();
   }
 
 

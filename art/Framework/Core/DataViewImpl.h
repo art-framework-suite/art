@@ -256,7 +256,7 @@ namespace edm {
     // "transaction" which the DataViewImpl represents.
     ModuleDescription const& md_;
 
-    // Is this an Event, a LuminosityBlock, or a Run.
+    // Is this an Event, a SubRun, or a Run.
     BranchType const branchType_;
   };
 

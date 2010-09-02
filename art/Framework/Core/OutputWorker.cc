@@ -44,7 +44,7 @@ namespace edm {
   }
 
   void
-  OutputWorker::writeLumi(LuminosityBlockPrincipal const& lbp) {
+  OutputWorker::writeLumi(SubRunPrincipal const& lbp) {
     module().doWriteLuminosityBlock(lbp);
   }
 

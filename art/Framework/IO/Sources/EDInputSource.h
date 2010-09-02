@@ -5,7 +5,7 @@
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
@@ -34,7 +34,7 @@ namespace edm {
 
   private:
     virtual void setRun(RunNumber_t);
-    virtual void setLumi(LuminosityBlockNumber_t lb);
+    virtual void setLumi(SubRunNumber_t lb);
 
     PoolCatalog poolCatalog_;
     InputFileCatalog catalog_;

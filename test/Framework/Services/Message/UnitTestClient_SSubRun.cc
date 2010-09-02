@@ -1,4 +1,4 @@
-#include "test/Framework/Services/Message/UnitTestClient_SLumi.h"
+#include "test/Framework/Services/Message/UnitTestClient_SSubRun.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Utilities/Exception.h"
 
@@ -61,12 +61,12 @@ void
 }
 
 void
-  UTC_SLUMMARY::endLuminosityBlock( edm::LuminosityBlock const & lb
+  UTC_SLUMMARY::endSubRun( edm::SubRun const & lb
                             , edm::EventSetup const & /*unused*/
                               )
 {
-  // throw cms::Exception("endLuminosityBlock called!");
-  edm::LogInfo ("endLuminosityBlock") << "endLuminosityBlock() called";
+  // throw cms::Exception("endSubRun called!");
+  edm::LogInfo ("endSubRun") << "endSubRun() called";
 }
 
 

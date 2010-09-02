@@ -13,7 +13,7 @@
 <EventsRead>10</EventsRead>
 <Runs>
 <Run ID="100">
-   <LumiSection ID="1"/>
+   <SubRun ID="1"/>
 </Run>
 
 </Runs>
@@ -32,7 +32,7 @@
 <EventsRead>15</EventsRead>
 <Runs>
 <Run ID="200">
-   <LumiSection ID="1"/>
+   <SubRun ID="1"/>
 </Run>
 
 </Runs>
@@ -56,11 +56,11 @@
 
 <Runs>
 <Run ID="100">
-   <LumiSection ID="1"/>
+   <SubRun ID="1"/>
 </Run>
 
 <Run ID="200">
-   <LumiSection ID="1"/>
+   <SubRun ID="1"/>
 </Run>
 
 </Runs>

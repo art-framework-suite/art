@@ -10,7 +10,7 @@
 
 #include "FWCore/Integration/test/ThingWithMergeProducer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "test/TestObjects/Thing.h"
@@ -27,20 +27,20 @@ namespace edmtest {
     noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
-    produces<Thing, edm::InLumi>("beginLumi");
-    produces<Thing, edm::InLumi>("endLumi");
+    produces<Thing, edm::InSubRun>("beginLumi");
+    produces<Thing, edm::InSubRun>("endLumi");
     produces<Thing, edm::InRun>("beginRun");
     produces<Thing, edm::InRun>("endRun");
 
     produces<ThingWithMerge>("event");
-    produces<ThingWithMerge, edm::InLumi>("beginLumi");
-    produces<ThingWithMerge, edm::InLumi>("endLumi");
+    produces<ThingWithMerge, edm::InSubRun>("beginLumi");
+    produces<ThingWithMerge, edm::InSubRun>("endLumi");
     produces<ThingWithMerge, edm::InRun>("beginRun");
     produces<ThingWithMerge, edm::InRun>("endRun");
 
     produces<ThingWithIsEqual>("event");
-    produces<ThingWithIsEqual, edm::InLumi>("beginLumi");
-    produces<ThingWithIsEqual, edm::InLumi>("endLumi");
+    produces<ThingWithIsEqual, edm::InSubRun>("beginLumi");
+    produces<ThingWithIsEqual, edm::InSubRun>("endLumi");
     produces<ThingWithIsEqual, edm::InRun>("beginRun");
     produces<ThingWithIsEqual, edm::InRun>("endRun");
   }
@@ -72,7 +72,7 @@ namespace edmtest {
     if (!noPut_) e.put(result3, std::string("event"));
   }
 
-  void ThingWithMergeProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingWithMergeProducer::beginSubRun(edm::SubRun& lb, edm::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;
@@ -94,7 +94,7 @@ namespace edmtest {
     if (!noPut_) lb.put(result3, "beginLumi");
   }
 
-  void ThingWithMergeProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingWithMergeProducer::endSubRun(edm::SubRun& lb, edm::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;

@@ -1,4 +1,4 @@
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Group.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -6,7 +6,7 @@
 
 namespace edm {
 
-  LuminosityBlockPrincipal::LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
+  SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	boost::shared_ptr<BranchMapper> mapper,
@@ -14,13 +14,13 @@ namespace edm {
 	  Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
 	  runPrincipal_(),
     aux_(aux) {
-      if (reg->productProduced(InLumi)) {
+      if (reg->productProduced(InSubRun)) {
         addToProcessHistory();
       }
   }
 
   void
-  LuminosityBlockPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
+  SubRunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
 
     Group* group = getExistingGroup(*g);
     if (group != 0) {
@@ -39,13 +39,13 @@ namespace edm {
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd) {
+  SubRunPrincipal::addGroup(ConstBranchDescription const& bd) {
     std::auto_ptr<Group> g(new Group(bd, ProductID()));
     addOrReplaceGroup(g);
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  SubRunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
 	ConstBranchDescription const& bd,
 	std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
@@ -53,14 +53,14 @@ namespace edm {
   }
 
   void
-  LuminosityBlockPrincipal::addGroup(ConstBranchDescription const& bd,
+  SubRunPrincipal::addGroup(ConstBranchDescription const& bd,
 	std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
-  LuminosityBlockPrincipal::put(std::auto_ptr<EDProduct> edp,
+  SubRunPrincipal::put(std::auto_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
 		std::auto_ptr<ProductProvenance> productProvenance) {
 
@@ -75,7 +75,7 @@ namespace edm {
   }
 
   void
-  LuminosityBlockPrincipal::mergeLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  SubRunPrincipal::mergeLuminosityBlock(boost::shared_ptr<SubRunPrincipal> lbp) {
 
     aux_.mergeAuxiliary(lbp->aux());
 

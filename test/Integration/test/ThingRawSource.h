@@ -30,9 +30,9 @@ namespace edmtest {
 
     virtual void endRun(edm::Run& r);
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb);
+    virtual void beginSubRun(edm::SubRun& lb);
 
-    virtual void endLuminosityBlock(edm::LuminosityBlock& lb);
+    virtual void endSubRun(edm::SubRun& lb);
 
   private:
     ThingAlgorithm alg_;

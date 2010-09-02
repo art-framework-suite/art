@@ -42,7 +42,7 @@ Some examples of InputSource subclasses may be:
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
@@ -69,15 +69,15 @@ namespace edm {
 	IsStop,
 	IsFile,
 	IsRun,
-	IsLumi,
+	IsSubRun,
 	IsEvent,
 	IsRepeat
     };
 
     enum ProcessingMode {
 	Runs,
-	RunsAndLumis,
-	RunsLumisAndEvents
+	RunsAndSubRuns,
+	RunsSubRunsAndEvents
     };
 
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
@@ -94,13 +94,13 @@ namespace edm {
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<SubRunPrincipal> lbp);
 
     /// Read a specific event
     std::auto_ptr<EventPrincipal> readEvent(EventID const&);
 
     /// Read next luminosity block
-    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
+    boost::shared_ptr<SubRunPrincipal> readLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
 
     /// Read next run
     boost::shared_ptr<RunPrincipal> readRun();
@@ -129,10 +129,10 @@ namespace edm {
     void setRunNumber(RunNumber_t r) {setRun(r);}
 
     /// Set the luminosity block ID
-    void setLuminosityBlockNumber_t(LuminosityBlockNumber_t lb) {setLumi(lb);}
+    void setSubRunNumber_t(SubRunNumber_t lb) {setLumi(lb);}
 
     /// issue an event report
-    void issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi);
+    void issueReports(EventID const& eventID, SubRunNumber_t const& lumi);
 
     /// Register any produced products
     void registerProducts();
@@ -182,7 +182,7 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doEndLumi(LuminosityBlockPrincipal& lbp);
+    void doEndLumi(SubRunPrincipal& lbp);
     void doEndRun(RunPrincipal& rp);
 
     /// Accessor for the current time, as seen by the input source
@@ -192,9 +192,9 @@ namespace edm {
     RunNumber_t run() const;
 
     /// Accessor for current luminosity block number
-    LuminosityBlockNumber_t luminosityBlock() const;
+    SubRunNumber_t luminosityBlock() const;
 
-    /// RunsLumisAndEvents (default), RunsAndLumis, or Runs.
+    /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}
 
     /// Accessor for Activity Registry
@@ -219,9 +219,9 @@ namespace edm {
       SourceSentry sentry_;
     };
 
-    class LumiSourceSentry {
+    class SubRunSourceSentry {
     public:
-      explicit LumiSourceSentry(InputSource const& source);
+      explicit SubRunSourceSentry(InputSource const& source);
     private:
       SourceSentry sentry_;
     };
@@ -254,11 +254,11 @@ namespace edm {
     ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
     ItemType state() const{return state_;}
     boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal() const {return lumiPrincipal_;}
+    boost::shared_ptr<SubRunPrincipal> luminosityBlockPrincipal() const {return lumiPrincipal_;}
     void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
-    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {lumiPrincipal_ = lbp;}
+    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> lbp) {lumiPrincipal_ = lbp;}
     void resetRunPrincipal() {runPrincipal_.reset();}
-    void resetLuminosityBlockPrincipal() {lumiPrincipal_.reset();}
+    void resetSubRunPrincipal() {lumiPrincipal_.reset();}
     void reset() const {
       doneReadAhead_ = false;
       state_ = IsInvalid;
@@ -271,19 +271,19 @@ namespace edm {
     virtual ItemType getNextItemType() = 0;
     ItemType nextItemType_();
     virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_() = 0;
+    virtual boost::shared_ptr<SubRunPrincipal> readLuminosityBlock_() = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void setRun(RunNumber_t r);
-    virtual void setLumi(LuminosityBlockNumber_t lb);
+    virtual void setLumi(SubRunNumber_t lb);
     virtual void rewind_();
     virtual void wakeUp_();
     void preRead();
     void postRead(Event& event);
-    virtual void endLuminosityBlock(LuminosityBlock &);
+    virtual void endSubRun(SubRun &);
     virtual void endRun(Run &);
     virtual void beginJob();
     virtual void endJob();
@@ -304,7 +304,7 @@ namespace edm {
     mutable bool doneReadAhead_;
     mutable ItemType state_;
     mutable boost::shared_ptr<RunPrincipal>  runPrincipal_;
-    mutable boost::shared_ptr<LuminosityBlockPrincipal>  lumiPrincipal_;
+    mutable boost::shared_ptr<SubRunPrincipal>  lumiPrincipal_;
   };  // InputSource
 
 }  // namespace edm

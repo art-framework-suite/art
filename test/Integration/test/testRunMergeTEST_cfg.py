@@ -230,7 +230,7 @@ process.test = cms.EDFilter("TestMergeResults",
    )
 )
 
-process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
+process.test2 = cms.EDAnalyzer('RunSubRunEventAnalyzer',
     verbose = cms.untracked.bool(True),
     expectedRunLumiEvents = cms.untracked.vuint32(
 1, 0, 0,

@@ -18,7 +18,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
@@ -1154,8 +1154,8 @@ namespace edm {
         else if (itemType == InputSource::IsRun) {
           machine_->process_event(statemachine::Run(input_->run()));
         }
-        else if (itemType == InputSource::IsLumi) {
-          machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
+        else if (itemType == InputSource::IsSubRun) {
+          machine_->process_event(statemachine::SubRun(input_->luminosityBlock()));
         }
         else if (itemType == InputSource::IsEvent) {
           machine_->process_event(statemachine::Event());
@@ -1185,7 +1185,7 @@ namespace edm {
     //
     // Some states used in the machine are special because they
     // perform actions while the machine is being terminated, actions
-    // such as close files, call endRun, call endLumi etc ...  Each of these
+    // such as close files, call endRun, call endSubRun etc ...  Each of these
     // states has two functions that perform these actions.  The functions
     // are almost identical.  The major difference is that one version
     // catches all exceptions and the other lets exceptions pass through.
@@ -1231,7 +1231,7 @@ namespace edm {
       terminateMachine();
       alreadyHandlingException_ = false;
       e << "cms::Exception caught in EventProcessor and rethrown\n";
-      e << exceptionMessageLumis_;
+      e << exceptionMessageSubRuns_;
       e << exceptionMessageRuns_;
       e << exceptionMessageFiles_;
       throw e;
@@ -1243,7 +1243,7 @@ namespace edm {
       throw cms::Exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
-        << exceptionMessageLumis_
+        << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
     }
@@ -1254,7 +1254,7 @@ namespace edm {
       throw cms::Exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
         << "Previous information:\n" << e.what() << "\n"
-        << exceptionMessageLumis_
+        << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
     }
@@ -1264,7 +1264,7 @@ namespace edm {
       alreadyHandlingException_ = false;
       throw cms::Exception("Unknown")
         << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
-        << exceptionMessageLumis_
+        << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
     }
@@ -1354,12 +1354,12 @@ namespace edm {
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
-  void EventProcessor::writeLumiCache() {
-    while (!principalCache_.noMoreLumis()) {
-      schedule_->writeLumi(principalCache_.lowestLumi());
-      principalCache_.deleteLowestLumi();
+  void EventProcessor::writeSubRunCache() {
+    while (!principalCache_.noMoreSubRuns()) {
+      schedule_->writeSubRun(principalCache_.lowestSubRun());
+      principalCache_.deleteLowestSubRun();
     }
-    FDEBUG(1) << "\twriteLumiCache\n";
+    FDEBUG(1) << "\twriteSubRunCache\n";
   }
 
   void EventProcessor::writeRunCache() {
@@ -1399,31 +1399,31 @@ namespace edm {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
-                    LuminosityBlockID::maxLuminosityBlockNumber(),
+                    SubRunID::maxSubRunnosityBlockNumber(),
                     runPrincipal.endTime());
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
 
-  void EventProcessor::beginLumi(int run, int lumi) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+  void EventProcessor::beginSubRun(int run, int lumi) {
+    SubRunPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal);
-    FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
+    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(lumiPrincipal);
+    FDEBUG(1) << "\tbeginSubRun " << run << "/" << lumi << "\n";
   }
 
-  void EventProcessor::endLumi(int run, int lumi) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
-    input_->doEndLumi(lumiPrincipal);
+  void EventProcessor::endSubRun(int run, int lumi) {
+    SubRunPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
+    input_->doEndSubRun(lumiPrincipal);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
                     lumiPrincipal.luminosityBlock(),
                     lumiPrincipal.endTime());
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal);
-    FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
+    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(lumiPrincipal);
+    FDEBUG(1) << "\tendSubRun " << run << "/" << lumi << "\n";
   }
 
   int EventProcessor::readAndCacheRun() {
@@ -1432,9 +1432,9 @@ namespace edm {
     return principalCache_.runPrincipal().run();
   }
 
-  int EventProcessor::readAndCacheLumi() {
-    principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
-    FDEBUG(1) << "\treadAndCacheLumi " << "\n";
+  int EventProcessor::readAndCacheSubRun() {
+    principalCache_.insert(input_->readSubRunnosityBlock(principalCache_.runPrincipalPtr()));
+    FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
     return principalCache_.lumiPrincipal().luminosityBlock();
   }
 
@@ -1448,14 +1448,14 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeLumi(int run, int lumi) {
-    schedule_->writeLumi(principalCache_.lumiPrincipal(run, lumi));
-    FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::writeSubRun(int run, int lumi) {
+    schedule_->writeSubRun(principalCache_.lumiPrincipal(run, lumi));
+    FDEBUG(1) << "\twriteSubRun " << run << "/" << lumi << "\n";
   }
 
-  void EventProcessor::deleteLumiFromCache(int run, int lumi) {
-    principalCache_.deleteLumi(run, lumi);
-    FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+  void EventProcessor::deleteSubRunFromCache(int run, int lumi) {
+    principalCache_.deleteSubRun(run, lumi);
+    FDEBUG(1) << "\tdeleteSubRunFromCache " << run << "/" << lumi << "\n";
   }
 
   void EventProcessor::readEvent() {
@@ -1489,8 +1489,8 @@ namespace edm {
     exceptionMessageRuns_ = message;
   }
 
-  void EventProcessor::setExceptionMessageLumis(std::string& message) {
-    exceptionMessageLumis_ = message;
+  void EventProcessor::setExceptionMessageSubRuns(std::string& message) {
+    exceptionMessageSubRuns_ = message;
   }
 
   bool EventProcessor::alreadyHandlingException() const {

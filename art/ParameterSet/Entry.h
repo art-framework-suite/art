@@ -19,7 +19,7 @@
 #include "art/Utilities/InputTag.h"
 //@@ not needed, but there might be trouble if we take it out
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include <boost/cstdint.hpp>
 
 // ----------------------------------------------------------------------
@@ -107,13 +107,13 @@ namespace edm {
     Entry(std::string const& name, std::vector<edm::EventID> const & vtag, bool is_tracked);
     std::vector<edm::EventID> getVEventID() const;
 
-    // LuminosityBlockID
-    Entry(std::string const& name, edm::LuminosityBlockID const & tag, bool is_tracked);
-    edm::LuminosityBlockID getLuminosityBlockID() const;
+    // SubRunID
+    Entry(std::string const& name, edm::SubRunID const & tag, bool is_tracked);
+    edm::SubRunID getSubRunID() const;
 
-    // VLuminosityBlockID
-    Entry(std::string const& name, std::vector<edm::LuminosityBlockID> const & vtag, bool is_tracked);
-    std::vector<edm::LuminosityBlockID> getVLuminosityBlockID() const;
+    // VSubRunID
+    Entry(std::string const& name, std::vector<edm::SubRunID> const & vtag, bool is_tracked);
+    std::vector<edm::SubRunID> getVSubRunID() const;
 
     // ParameterSet
     Entry(std::string const& name, ParameterSet const& val, bool is_tracked);

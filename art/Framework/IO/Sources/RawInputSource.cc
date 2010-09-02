@@ -6,9 +6,9 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Event.h"
 
@@ -36,13 +36,13 @@ namespace edm {
 			 processConfiguration()));
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
+  boost::shared_ptr<SubRunPrincipal>
   RawInputSource::readLuminosityBlock_() {
     newLumi_ = false;
-    LuminosityBlockAuxiliary lumiAux(runNumber_,
+    SubRunAuxiliary lumiAux(runNumber_,
 	luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
-    return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(lumiAux,
+    return boost::shared_ptr<SubRunPrincipal>(
+	new SubRunPrincipal(lumiAux,
 				     productRegistry(),
 				     processConfiguration()));
   }
@@ -54,7 +54,7 @@ namespace edm {
   }
 
   std::auto_ptr<Event>
-  RawInputSource::makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
+  RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
     EventSourceSentry sentry(*this);
     EventAuxiliary eventAux(EventID(run, event),
       processGUID(), tstamp, lumi, true, EventAuxiliary::Data);
@@ -74,7 +74,7 @@ namespace edm {
       return IsRun;
     }
     if (newLumi_) {
-      return IsLumi;
+      return IsSubRun;
     }
     if(ep_.get() != 0) {
       return IsEvent;
@@ -87,7 +87,7 @@ namespace edm {
     }
     if (e->run() != runNumber_) {
       newRun_ = newLumi_ = true;
-      resetLuminosityBlockPrincipal();
+      resetSubRunPrincipal();
       resetRunPrincipal();
       runNumber_ = e->run();
       luminosityBlockNumber_ = e->luminosityBlock();
@@ -95,8 +95,8 @@ namespace edm {
     } else if (e->luminosityBlock() != luminosityBlockNumber_) {
       luminosityBlockNumber_ = e->luminosityBlock();
       newLumi_ = true;
-      resetLuminosityBlockPrincipal();
-      return IsLumi;
+      resetSubRunPrincipal();
+      return IsSubRun;
     }
     return IsEvent;
   }

@@ -1,7 +1,7 @@
 #include "FWCore/Integration/test/ThingExtSource.h"
 #include "test/TestObjects/ThingCollection.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 
@@ -9,8 +9,8 @@ namespace edmtest {
   ThingExtSource::ThingExtSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
     ExternalInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InLumi>("beginLumi");
-    produces<ThingCollection, edm::InLumi>("endLumi");
+    produces<ThingCollection, edm::InSubRun>("beginLumi");
+    produces<ThingCollection, edm::InSubRun>("endLumi");
     produces<ThingCollection, edm::InRun>("beginRun");
     produces<ThingCollection, edm::InRun>("endRun");
   }
@@ -39,7 +39,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every luminosity block
-  void ThingExtSource::beginLuminosityBlock(edm::LuminosityBlock& lb) {
+  void ThingExtSource::beginSubRun(edm::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -52,7 +52,7 @@ namespace edmtest {
     lb.put(result, "beginLumi");
   }
 
-  void ThingExtSource::endLuminosityBlock(edm::LuminosityBlock& lb) {
+  void ThingExtSource::endSubRun(edm::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output

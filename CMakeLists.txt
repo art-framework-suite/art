@@ -6,13 +6,14 @@
 #   make
 #   make test
 #   make install
-# If you change any of the Cmake* files in $ART_CODE, 
+# If you change any of the Cmake* files in $ART_CODE,
 # you need to run the cmake step again
 
 # use cmake 2.6 or later
 cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
+set( version v0_0_0 )
 
 # because we want to move these libraries about,
 # do not embed full path in shared libraries or executables
@@ -64,7 +65,7 @@ find_program( GENREFLEX NAMES genreflex PATHS $ENV{ROOTSYS}/bin )
 find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
 
 # have to make sure cmake doesn't select the system libraries
-# define libsigc 
+# define libsigc
 find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_DIR}/lib NO_DEFAULT_PATH )
 # define cppunit
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_DIR}/lib   NO_DEFAULT_PATH )
@@ -75,9 +76,9 @@ set(BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set(BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 set(Boost_USE_MULTITHREADED ON)
 # search for Boost version 1.34 libraries
-find_package( Boost 1.34 COMPONENTS filesystem 
-                                    regex 
-				    thread 
+find_package( Boost 1.34 COMPONENTS filesystem
+                                    regex
+				    thread
                                     program_options )
 
 
@@ -135,6 +136,18 @@ macro (simple_plugin name)
   install( TARGETS ${name}  DESTINATION lib )
 endmacro (simple_plugin name)
 
+# create package configuration and version files
+configure_file ( ${art_SOURCE_DIR}/ups/art-config.cmake.in
+                 ${art_BINARY_DIR}/ups/art-config.cmake @ONLY )
+configure_file ( ${art_SOURCE_DIR}/ups/art-config-version.cmake.in
+                 ${art_BINARY_DIR}/ups/art-config-version.cmake @ONLY )
+configure_file ( ${art_SOURCE_DIR}/ups/art.table.in
+                 ${art_BINARY_DIR}/ups/art.table @ONLY )
+install (FILES ${art_BINARY_DIR}/ups/art-config.cmake
+               ${art_BINARY_DIR}/ups/art-config-version.cmake
+	 DESTINATION lib/art-${version} )
+install (FILES ${art_BINARY_DIR}/ups/art.table
+	 DESTINATION ups )
 # subdirectories
 # cmake will automatically order the library builds according to declared dependencies
 subdirs (art/Version)

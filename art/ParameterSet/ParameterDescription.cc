@@ -23,7 +23,7 @@
 namespace edm {
 
   class EventID;
-  class LuminosityBlockID;
+  class SubRunID;
   class InputTag;
   class FileInPath;
 
@@ -42,8 +42,8 @@ namespace edm {
   TYPE_TO_ENUM(std::vector<std::string>,k_vstring)
   TYPE_TO_ENUM(edm::EventID,k_EventID)
   TYPE_TO_ENUM(std::vector<edm::EventID>,k_VEventID)
-  TYPE_TO_ENUM(edm::LuminosityBlockID,k_LuminosityBlockID)
-  TYPE_TO_ENUM(std::vector<edm::LuminosityBlockID>,k_VLuminosityBlockID)
+  TYPE_TO_ENUM(edm::SubRunID,k_SubRunID)
+  TYPE_TO_ENUM(std::vector<edm::SubRunID>,k_VSubRunID)
   TYPE_TO_ENUM(edm::InputTag,k_InputTag)
   TYPE_TO_ENUM(std::vector<edm::InputTag>,k_VInputTag)
   TYPE_TO_ENUM(edm::FileInPath,k_FileInPath)
@@ -70,8 +70,8 @@ namespace edm {
       TYPE_TO_NAME(vstring);
       TYPE_TO_NAME(EventID);
       TYPE_TO_NAME(VEventID);
-      TYPE_TO_NAME(LuminosityBlockID);
-      TYPE_TO_NAME(VLuminosityBlockID);
+      TYPE_TO_NAME(SubRunID);
+      TYPE_TO_NAME(VSubRunID);
       TYPE_TO_NAME(InputTag);
       TYPE_TO_NAME(VInputTag);
       TYPE_TO_NAME(FileInPath);

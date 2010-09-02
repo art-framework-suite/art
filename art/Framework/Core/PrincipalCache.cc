@@ -3,7 +3,7 @@
 //
 
 #include "art/Framework/Core/PrincipalCache.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Utilities/EDMException.h"
 
@@ -76,9 +76,9 @@ namespace edm {
     return currentRunPrincipal_;
   }
 
-  LuminosityBlockPrincipal & PrincipalCache::lumiPrincipal(int run, int lumi) {
-    LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key);
+  SubRunPrincipal & PrincipalCache::lumiPrincipal(int run, int lumi) {
+    SubRunKey key(run, lumi);
+    SubRunIterator iter = lumiPrincipals_.find(key);
     if (iter == lumiPrincipals_.end()) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::lumiPrincipal\n"
@@ -88,9 +88,9 @@ namespace edm {
     return *iter->second.get();
   }
 
-  LuminosityBlockPrincipal const& PrincipalCache::lumiPrincipal(int run, int lumi) const {
-    LumiKey key(run, lumi);
-    ConstLumiIterator iter = lumiPrincipals_.find(key);
+  SubRunPrincipal const& PrincipalCache::lumiPrincipal(int run, int lumi) const {
+    SubRunKey key(run, lumi);
+    ConstSubRunIterator iter = lumiPrincipals_.find(key);
     if (iter == lumiPrincipals_.end()) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::lumiPrincipal\n"
@@ -100,9 +100,9 @@ namespace edm {
     return *iter->second.get();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal> PrincipalCache::lumiPrincipalPtr(int run, int lumi) {
-    LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key);
+  boost::shared_ptr<SubRunPrincipal> PrincipalCache::lumiPrincipalPtr(int run, int lumi) {
+    SubRunKey key(run, lumi);
+    SubRunIterator iter = lumiPrincipals_.find(key);
     if (iter == lumiPrincipals_.end()) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::lumiPrincipalPtr\n"
@@ -112,7 +112,7 @@ namespace edm {
     return iter->second;
   }
 
-  LuminosityBlockPrincipal & PrincipalCache::lumiPrincipal() {
+  SubRunPrincipal & PrincipalCache::lumiPrincipal() {
     if (currentLumiPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::lumiPrincipal\n"
@@ -122,7 +122,7 @@ namespace edm {
     return *currentLumiPrincipal_.get();
   }
 
-  LuminosityBlockPrincipal const& PrincipalCache::lumiPrincipal() const {
+  SubRunPrincipal const& PrincipalCache::lumiPrincipal() const {
     if (currentLumiPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::lumiPrincipal\n"
@@ -132,7 +132,7 @@ namespace edm {
     return *currentLumiPrincipal_.get();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal> PrincipalCache::lumiPrincipalPtr() {
+  boost::shared_ptr<SubRunPrincipal> PrincipalCache::lumiPrincipalPtr() {
     if (currentLumiPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::lumiPrincipalPtr\n"
@@ -157,11 +157,11 @@ namespace edm {
     return true;
   }
 
-  bool PrincipalCache::insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  bool PrincipalCache::insert(boost::shared_ptr<SubRunPrincipal> lbp) {
     int run = lbp->run();
     int lumi = lbp->luminosityBlock();
-    LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key);
+    SubRunKey key(run, lumi);
+    SubRunIterator iter = lumiPrincipals_.find(key);
     if (iter == lumiPrincipals_.end()) {
       lumiPrincipals_[key] = lbp;
       currentLumiPrincipal_ = lbp;
@@ -187,8 +187,8 @@ namespace edm {
     return *iter->second.get();
   }
 
-  LuminosityBlockPrincipal const& PrincipalCache::lowestLumi() const {
-    ConstLumiIterator iter = lumiPrincipals_.begin();
+  SubRunPrincipal const& PrincipalCache::lowestLumi() const {
+    ConstSubRunIterator iter = lumiPrincipals_.begin();
     return *iter->second.get();
   }
 
@@ -205,6 +205,6 @@ namespace edm {
   }
 
   void PrincipalCache::deleteLumi(int run, int lumi) {
-    lumiPrincipals_.erase(lumiPrincipals_.find(LumiKey(run, lumi)));
+    lumiPrincipals_.erase(lumiPrincipals_.find(SubRunKey(run, lumi)));
   }
 }

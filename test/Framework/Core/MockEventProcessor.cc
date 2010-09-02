@@ -61,9 +61,9 @@ namespace edm {
         myMachine.process_event( statemachine::Run(t.value) );
       }
       else if (ch == 'l') {
-        output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
+        output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
         lumi_ = t.value;
-        myMachine.process_event( statemachine::Lumi(t.value) );
+        myMachine.process_event( statemachine::SubRun(t.value) );
       }
       else if (ch == 'e') {
         output_ << "    *** nextItemType: Event ***\n";
@@ -159,8 +159,8 @@ namespace edm {
     output_ << "\tprepareForNextLoop\n";
   }
 
-  void MockEventProcessor::writeLumiCache() {
-    output_ << "\twriteLumiCache\n";
+  void MockEventProcessor::writeSubRunCache() {
+    output_ << "\twriteSubRunCache\n";
   }
 
   void MockEventProcessor::writeRunCache() {
@@ -184,12 +184,12 @@ namespace edm {
     output_ << "\tendRun " << run << "\n";
   }
 
-  void MockEventProcessor::beginLumi(int run, int lumi) {
-    output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
+  void MockEventProcessor::beginSubRun(int run, int lumi) {
+    output_ << "\tbeginSubRun " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::endLumi(int run, int lumi) {
-    output_ << "\tendLumi " << run << "/" << lumi << "\n";
+  void MockEventProcessor::endSubRun(int run, int lumi) {
+    output_ << "\tendSubRun " << run << "/" << lumi << "\n";
   }
 
   int MockEventProcessor::readAndCacheRun() {
@@ -197,8 +197,8 @@ namespace edm {
     return run_;
   }
 
-  int MockEventProcessor::readAndCacheLumi() {
-    output_ << "\treadAndCacheLumi " << lumi_ << "\n";
+  int MockEventProcessor::readAndCacheSubRun() {
+    output_ << "\treadAndCacheSubRun " << lumi_ << "\n";
     return lumi_;
   }
 
@@ -210,12 +210,12 @@ namespace edm {
     output_ << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void MockEventProcessor::writeLumi(int run, int lumi) {
-    output_ << "\twriteLumi " << run << "/" << lumi << "\n";
+  void MockEventProcessor::writeSubRun(int run, int lumi) {
+    output_ << "\twriteSubRun " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::deleteLumiFromCache(int run, int lumi) {
-    output_ << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+  void MockEventProcessor::deleteSubRunFromCache(int run, int lumi) {
+    output_ << "\tdeleteSubRunFromCache " << run << "/" << lumi << "\n";
   }
 
   void MockEventProcessor::readEvent() {
@@ -233,7 +233,7 @@ namespace edm {
 
   void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
   void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
-  void MockEventProcessor::setExceptionMessageLumis(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageSubRuns(std::string& message) { }
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
 }

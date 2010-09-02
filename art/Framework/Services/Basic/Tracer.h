@@ -28,14 +28,14 @@ public:
          void preBeginRun(RunID const& id, Timestamp const& ts);
          void postBeginRun(Run const& run);
 
-         void preBeginLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postBeginLumi(LuminosityBlock const& run);
+         void preBeginLumi(SubRunID const& id, Timestamp const& ts);
+         void postBeginLumi(SubRun const& run);
 
          void preEvent(EventID const& id, Timestamp const& ts);
          void postEvent(Event const& ev);
 
-         void preEndLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postEndLumi(LuminosityBlock const& run);
+         void preEndLumi(SubRunID const& id, Timestamp const& ts);
+         void postEndLumi(SubRun const& run);
 
          void preEndRun(RunID const& id, Timestamp const& ts);
          void postEndRun(Run const& run);

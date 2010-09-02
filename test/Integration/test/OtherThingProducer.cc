@@ -1,7 +1,7 @@
 #include "FWCore/Integration/test/OtherThingProducer.h"
 #include "test/TestObjects/OtherThingCollection.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 

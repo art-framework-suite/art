@@ -29,8 +29,8 @@ set( artFrameworkCore_sources Actions.cc
 			     InputSource.cc
 			     InputSourceFactory.cc
 			     IOVSyncValue.cc
-			     LuminosityBlock.cc
-			     LuminosityBlockPrincipal.cc
+			     SubRun.cc
+			     SubRunPrincipal.cc
 			     NoDelayedReader.cc
 			     OutputModule.cc
 			     OutputWorker.cc
@@ -125,8 +125,8 @@ install(FILES Actions.h
 	      InputSource.h
 	      InputSourceMacros.h
 	      IOVSyncValue.h
-	      LuminosityBlock.h
-	      LuminosityBlockPrincipal.h
+	      SubRun.h
+	      SubRunPrincipal.h
 	      MakerMacros.h
 	      NoDelayedReader.h
 	      OccurrenceTraits.h
