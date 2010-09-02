@@ -1,0 +1,97 @@
+===========================================
+Design Notes for Module and Service Plugins
+===========================================
+
+Modules are EDProducers, EDFilters, EDAnalyzers, OutputModules and
+Sources. 
+
+**NOTE**: we may be moving to a very different i/o system, that will
+make much of the current OutputModules and Sources irrelevant.
+
+When the framework executable starts up, the class names for the
+modules and services to be loaded are obtained from the configuration.
+
+Modules
+=======
+
+For a given module, the configuration will announce:
+
+1. what type of module it is (EDProducer, EDFilter, ...)
+2. what the name of the class is (IntProducer).
+
+The framework calls upon a factory to create an instance of the
+correct class::
+
+   auto_ptr<EDProducer> Factory::makeEDProducer(std::string const& classname,
+                                                fhicl::ParameterSet const& config);
+   auto_ptr<EDFilter> Factory::makeEDFilter(std::string const& classname,
+                                            fhicl::ParameterSet const& config);
+   ...
+
+
+The Factory contains two lookup tables for each type of thing it can make:
+
+1. one map<string, maker_function> where the string is the full "path name" for the
+   module in question, where the full means going from the top of the UPS product
+   down to and including the file name (without extension)
+2. one multimap<string, string> that maps the a short name to possibly more than one
+   full path name.
+
+Each module class is defined in its own dynamic library, which must be
+named *lib_<module>_plugin.<suffix>*, where *<suffix>* is whatever is
+appropriate for the platform; these are called *plugin* libraries.
+
+Plugin libraries are loaded by the plugin manager; see below.
+
+When a plugin library is loaded, the loading causes the creation of an
+object whose constructor has the side-effect of registering the
+appropriate maker_function with the Factory. The code for this is
+written by the DEFINE_EDM_PLUGIN macro. If the full pathname to the
+class is already used by something else, the registration attempt must
+throw an exception, reporting the names that collide. It is *not* an
+error for two modules to have the same "short name".
+
+When a call to *makeEDProducer* is executed, the Factory takes the following steps:
+
+1. use the multimap to find the unique "full name" that is associated
+   with the given name; if the result is not unique, throw an
+   exception reporting the name collisions;
+
+2. tell the *PluginManager* to make sure the library corresponding to
+   the unique "full name" is loaded;
+
+3. use the map to find the *maker_function* associated with the "full
+   name";
+
+4. Use the *maker_function* to create, and return, the requested
+   module instance..
+
+The *maker_function* is a function object that has a function call
+operator which takes a *fhicl::ParameterSet const&* and which returns
+an *auto_ptr<X>*, where *X* is one of EDFilter, EDProducer, etc.
+
+PluginManager
+=============
+
+The *PluginManager* is the class used to map from the name of a
+dynamic library (the "full name") to a *Reflex::SharedLibrary* object.
+
+**Note**: We should consider abandoning the *Reflex::SharedLibrary* in
+favor of the base system void pointer used by *dlopen*. The
+*Reflex::SharedLibrary* class provides no substantial functionality in
+which we are interested. We can encapsulate the calls to *dlopen* and
+*dlsym* ourselves.
+
+The *PluginManager*, when asked to assure a library is loaded,
+consults its cache to see if the library associated with the specified
+name is already loaded. If so, no action is taken. If not, the library
+is loaded (with *dlopen*) and the result is cached, so that a second
+*dlopen* for the same library is not done.
+
+The *PluginManager* should not provide any facility for unloading
+libraries, which is not safe in a C++ program.
+
+The *PluginManager* should provide an encapsulation of *dlsym*, which
+allows looking up a symbol (identified by a string name) within a
+library. This can be done without revealing to the user the means by
+which the loaded library is handled.
