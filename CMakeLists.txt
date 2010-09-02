@@ -160,3 +160,6 @@ subdirs (art/Framework/PluginManager)
 subdirs (art/Framework/Services)
 subdirs (art/MessageLogger)
 subdirs (art/Persistency)
+
+#testing
+subdirs(test)
