@@ -7,17 +7,19 @@ OccurrenceTraits:
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
+
 #include "art/Framework/Core/BranchActionType.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/EventSetup.h"
 #include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/LuminosityBlockPrincipal.h"
 #include "art/Framework/Core/Run.h"
-#include "art/Persistency/Common/HLTPathStatus.h"
+#include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Common/HLTPathStatus.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+
 
 namespace edm {
   template <typename T, BranchActionType B> class OccurrenceTraits;
@@ -157,4 +159,5 @@ namespace edm {
     }
   };
 }
-#endif
+
+#endif  // FWCore_Framework_OccurrenceTraits_h

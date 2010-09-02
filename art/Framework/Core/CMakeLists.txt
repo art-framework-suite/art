@@ -13,29 +13,16 @@ set( artFrameworkCore_sources Actions.cc
 			     DataProxyProvider.cc
 			     DataViewImpl.cc
 			     DelayedReader.cc
-			     DependentEventSetupRecordProvider.cc
 			     DependentRecordIntervalFinder.cc
 			     EDAnalyzer.cc
 			     EDFilter.cc
 			     EDLooper.cc
 			     EDProducer.cc
 			     EPStates.cc
-			     ESProducer.cc
-			     ESProducerLooper.cc
-			     ESProducts.cc
-			     ESProxyFactoryProducer.cc
 			     Event.cc
 			     EventPrincipal.cc
 			     EventProcessor.cc
 			     EventSelector.cc
-			     EventSetup.cc
-			     EventSetupProvider.cc
-			     EventSetupRecord.cc
-			     EventSetupRecordIntervalFinder.cc
-			     EventSetupRecordKey.cc
-			     EventSetupRecordProvider.cc
-			     EventSetupRecordProviderFactory.cc
-			     EventSetupRecordProviderFactoryManager.cc
 			     Factory.cc
 			     GeneratedInputSource.cc
 			     GenericHandle.cc
@@ -129,8 +116,6 @@ install(FILES Actions.h
 	      DataProxyTemplate.h
 	      DataViewImpl.h
 	      DelayedReader.h
-	      DependentEventSetupRecordProvider.h
-	      DependentEventSetupRecordProviderTemplate.h
 	      DependentRecordImplementation.h
 	      DependentRecordIntervalFinder.h
 	      EDAnalyzer.h
@@ -138,35 +123,10 @@ install(FILES Actions.h
 	      EDLooper.h
 	      EDProducer.h
 	      EngineCreator.h
-	      ESHandle.h
-	      es_Label.h
-	      ESOutlet.h
-	      ESPreFunctorDecorator.h
-	      ESProducer.h
-	      ESProducerLooper.h
-	      ESProducts.h
-	      ESProxyFactoryProducer.h
-	      ESWatcher.h
 	      Event.h
 	      EventPrincipal.h
 	      EventProcessor.h
 	      EventSelector.h
-	      eventsetupdata_registration_macro.h
-	      eventsetup_dependsOn.h
-	      eventSetupGetImplementation.h
-	      eventSetupGetImplementation.icc
-	      EventSetup.h
-	      EventSetupProvider.h
-	      EventSetupRecord.h
-	      EventSetupRecordImplementation.h
-	      EventSetupRecordIntervalFinder.h
-	      EventSetupRecordKey.h
-	      EventSetupRecordProviderFactory.h
-	      EventSetupRecordProviderFactoryManager.h
-	      EventSetupRecordProviderFactoryTemplate.h
-	      EventSetupRecordProvider.h
-	      EventSetupRecordProviderTemplate.h
-	      eventsetuprecord_registration_macro.h
 	      FileBlock.h
 	      Frameworkfwd.h
 	      GeneratedInputSource.h

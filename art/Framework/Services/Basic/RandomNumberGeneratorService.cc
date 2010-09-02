@@ -6,6 +6,11 @@
 // ======================================================================
 //
 // Notes
+// -----
+//
+// 0) These notes predate this version.
+//    TODO: review/apply/update these notes as/when time permits.
+//
 // 1) The CMS code on which is this modelled is available at
 //    http://cmslxr.fnal.gov/lxr/source/IOMC/RandomEngine/src/RandomNumberGeneratorService.cc
 //
@@ -35,10 +40,9 @@
 
 // Framework support:
 #include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+//ES #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/EventSetup.h"
-#include "art/MessageLogger/MessageLogger.h"
+//ES #include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
