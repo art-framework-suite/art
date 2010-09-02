@@ -4,12 +4,9 @@ project(artFrameworkCore)
 set( artFrameworkCore_sources Actions.cc
 			     Breakpoints.cc
 			     CachedProducts.cc
-			     ComponentMaker.cc
 			     ConfigurableInputSource.cc
 			     CurrentProcessingContext.cc
-			     DataKey.cc
 			     DataKeyTags.cc
-			     DataProxy.cc
 			     DataProxyProvider.cc
 			     DataViewImpl.cc
 			     DelayedReader.cc
@@ -101,16 +98,11 @@ install(FILES Actions.h
 	      Callback.h
 	      CallbackProxy.h
 	      CMakeLists.txt
-	      ComponentDescription.h
-	      ComponentFactory.h
-	      ComponentMaker.h
 	      ConfigurableInputSource.h
 	      ConstProductRegistry.h
 	      CurrentProcessingContext.h
 	      data_default_record_trait.h
-	      DataKey.h
 	      DataKeyTags.h
-	      DataProxy.h
 	      DataProxyProvider.h
 	      DataProxyTemplate.h
 	      DataViewImpl.h
