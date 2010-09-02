@@ -91,9 +91,9 @@ namespace edm {
 			    CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp,
+    virtual bool implDoBegin(SubRunPrincipal& lbp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp,
+    virtual bool implDoEnd(SubRunPrincipal& lbp,
 			    CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;

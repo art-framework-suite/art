@@ -4,14 +4,13 @@
 
 // Framework support:
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/LuminosityBlock.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/MessageLogger/MessageLogger.h"
@@ -65,7 +64,7 @@ namespace edm {
   , maxLumis_            ( desc.maxLumis_ )
   , remainingLumis_      ( maxLumis_ )
   , readCount_           ( 0 )
-  , processingMode_      ( RunsLumisAndEvents )
+  , processingMode_      ( RunsSubRunsAndEvents )
   , moduleDescription_   ( desc.moduleDescription_ )
   , productRegistry_     ( createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_) )
   , primary_             ( pset.getParameter<std::string>("@module_label") == std::string("@main_input") )
@@ -80,16 +79,16 @@ namespace edm {
     if (primary_) {
       assert(desc.productRegistry_ != 0);
     }
-    std::string const defaultMode("RunsLumisAndEvents");
+    std::string const defaultMode("RunsSubRunsAndEvents");
     std::string const runMode("Runs");
-    std::string const runLumiMode("RunsAndLumis");
+    std::string const runLumiMode("RunsAndSubRuns");
     std::string processingMode
        = pset.getUntrackedParameter<std::string>("processingMode", defaultMode);
     if (processingMode == runMode) {
       processingMode_ = Runs;
     }
     else if (processingMode == runLumiMode) {
-      processingMode_ = RunsAndLumis;
+      processingMode_ = RunsAndSubRuns;
     }
     else if (processingMode != defaultMode) {
       throw edm::Exception(edm::errors::Configuration)
@@ -122,12 +121,12 @@ namespace edm {
   InputSource::ItemType
   InputSource::nextItemType_() {
     ItemType itemType = getNextItemType();
-    if (itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
+    if (itemType == IsEvent && processingMode() != RunsSubRunsAndEvents) {
       readEvent_();
       return nextItemType_();
     }
-    if (itemType == IsLumi && processingMode() == Runs) {
-      readLuminosityBlock_();
+    if (itemType == IsSubRun && processingMode() == Runs) {
+      readSubRun_();
       return nextItemType_();
     }
     return itemType;
@@ -147,13 +146,13 @@ namespace edm {
     else if (lumiLimitReached()) {
       // If the maximum lumi limit has been reached, stop
       // when reaching a new file, run, or lumi.
-      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsLumisAndEvents) {
+      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsSubRunsAndEvents) {
         state_ = IsStop;
       }
       else {
         ItemType newState = nextItemType_();
 	if (newState == IsEvent) {
-	  assert(processingMode() == RunsLumisAndEvents);
+	  assert(processingMode() == RunsSubRunsAndEvents);
           state_ = IsEvent;
 	}
         else {
@@ -174,14 +173,14 @@ namespace edm {
         setRunPrincipal(readRun_());
         state_ = IsRun;
       }
-      else if (newState == IsLumi || oldState == IsRun) {
+      else if (newState == IsSubRun || oldState == IsRun) {
         assert(processingMode() != Runs);
-	LumiSourceSentry(*this);
-        setLuminosityBlockPrincipal(readLuminosityBlock_());
-        state_ = IsLumi;
+	SubRunSourceSentry(*this);
+        setSubRunPrincipal(readSubRun_());
+        state_ = IsSubRun;
       }
       else {
-	assert(processingMode() == RunsLumisAndEvents);
+	assert(processingMode() == RunsSubRunsAndEvents);
         state_ = IsEvent;
       }
     }
@@ -245,13 +244,13 @@ namespace edm {
     return runPrincipal_;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  InputSource::readLuminosityBlock(boost::shared_ptr<RunPrincipal> rp) {
+  boost::shared_ptr<SubRunPrincipal>
+  InputSource::readSubRun(boost::shared_ptr<RunPrincipal> rp) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of lumi blocks
-    // (e.g. beginLuminosityBlock(), endLuminosityBlock())
+    // (e.g. beginSubRun(), endSubRun())
     assert(doneReadAhead_);
-    assert(state_ == IsLumi);
+    assert(state_ == IsSubRun);
     assert(!limitReached());
     doneReadAhead_ = false;
     --remainingLumis_;
@@ -261,7 +260,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  InputSource::readEvent(boost::shared_ptr<SubRunPrincipal> lbp) {
     assert(doneReadAhead_);
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
@@ -271,7 +270,7 @@ namespace edm {
     std::auto_ptr<EventPrincipal> result = readEvent_();
     assert(lbp->run() == result->run());
     assert(lbp->luminosityBlock() == result->luminosityBlock());
-    result->setLuminosityBlockPrincipal(lbp);
+    result->setSubRunPrincipal(lbp);
     if (result.get() != 0) {
       Event event(*result, moduleDescription());
       postRead(event);
@@ -307,7 +306,7 @@ namespace edm {
   }
 
   void
-  InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
+  InputSource::issueReports(EventID const& eventID, SubRunNumber_t const& lumi) {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
     strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
@@ -315,7 +314,7 @@ namespace edm {
       << "Begin processing the " << readCount_
       << suffix(readCount_) << " record. Run " << eventID.run()
       << ", Event " << eventID.event()
-      << ", LumiSection " << lumi<< " at " << ts;
+      << ", SubRun " << lumi<< " at " << ts;
     // At some point we may want to initiate checkpointing here
   }
 
@@ -336,10 +335,10 @@ namespace edm {
   }
 
   void
-  InputSource::setLumi(LuminosityBlockNumber_t) {
+  InputSource::setLumi(SubRunNumber_t) {
     throw edm::Exception(edm::errors::LogicError)
       << "InputSource::setLumi()\n"
-      << "Luminosity Block ID  cannot be modified for this type of Input Source\n"
+      << "SubRun ID  cannot be modified for this type of Input Source\n"
       << "Contact a Framework Developer\n";
   }
 
@@ -392,10 +391,10 @@ namespace edm {
   }
 
   void
-  InputSource::doEndLumi(LuminosityBlockPrincipal & lbp) {
+  InputSource::doEndLumi(SubRunPrincipal & lbp) {
     lbp.setEndTime(time_);
-    LuminosityBlock lb(lbp, moduleDescription());
-    endLuminosityBlock(lb);
+    SubRun lb(lbp, moduleDescription());
+    endSubRun(lb);
     lb.commit_();
   }
 
@@ -403,7 +402,7 @@ namespace edm {
   InputSource::wakeUp_() { }
 
   void
-  InputSource::endLuminosityBlock(LuminosityBlock &) { }
+  InputSource::endSubRun(SubRun &) { }
 
   void
   InputSource::endRun(Run &) { }
@@ -420,7 +419,7 @@ namespace edm {
     return runPrincipal()->run();
   }
 
-  LuminosityBlockNumber_t
+  SubRunNumber_t
   InputSource::luminosityBlock() const {
     assert(luminosityBlockPrincipal());
     return luminosityBlockPrincipal()->luminosityBlock();
@@ -439,7 +438,7 @@ namespace edm {
      sentry_(source.actReg()->preSourceSignal_, source.actReg()->postSourceSignal_) {
   }
 
-  InputSource::LumiSourceSentry::LumiSourceSentry(InputSource const& source) :
+  InputSource::SubRunSourceSentry::SubRunSourceSentry(InputSource const& source) :
      sentry_(source.actReg()->preSourceLumiSignal_, source.actReg()->postSourceLumiSignal_) {
   }
 

@@ -293,7 +293,7 @@ namespace edm {
   }
 
   bool
-  OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+  OutputModule::doBeginLuminosityBlock(SubRunPrincipal const& lbp,
 					    CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginLuminosityBlock called\n";
@@ -302,7 +302,7 @@ namespace edm {
   }
 
   bool
-  OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+  OutputModule::doEndLuminosityBlock(SubRunPrincipal const& lbp,
 					  CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endLuminosityBlock called\n";
@@ -310,7 +310,7 @@ namespace edm {
     return true;
   }
 
-  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp) {
+  void OutputModule::doWriteLuminosityBlock(SubRunPrincipal const& lbp) {
     FDEBUG(2) << "writeLuminosityBlock called\n";
     writeLuminosityBlock(lbp);
   }

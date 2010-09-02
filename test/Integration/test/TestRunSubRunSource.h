@@ -1,5 +1,5 @@
-#ifndef Framework_TestRunLumiSource_h
-#define Framework_TestRunLumiSource_h
+#ifndef Framework_TestRunSubRunSource_h
+#define Framework_TestRunSubRunSource_h
 
 /*----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ input modules to verify they are behaving properly.
 
 The configuration looks as follows
 
-  source = TestRunLumiSource {
+  source = TestRunSubRunSource {
     untracked vint32 runLumiEvent = { 1, 1, 1,    # run
                                       1, 1, 1,    # lumi
                                       1, 1, 1,    # event
@@ -54,19 +54,19 @@ namespace edm {
   class ParameterSet;
   class InputSourceDescription;
   class EventPrincipal;
-  class LuminosityBlockPrincipal;
+  class SubRunPrincipal;
   class RunPrincipal;
 
-  class TestRunLumiSource : public InputSource {
+  class TestRunSubRunSource : public InputSource {
   public:
-    explicit TestRunLumiSource(ParameterSet const& pset, InputSourceDescription const& desc);
-    virtual ~TestRunLumiSource();
+    explicit TestRunSubRunSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    virtual ~TestRunSubRunSource();
 
   private:
 
     virtual ItemType getNextItemType();
     virtual std::auto_ptr<EventPrincipal> readEvent_();
-    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
+    boost::shared_ptr<SubRunPrincipal> readLuminosityBlock_();
     boost::shared_ptr<RunPrincipal> readRun_();
 
     // This vector holds 3 values representing (run, lumi, event)

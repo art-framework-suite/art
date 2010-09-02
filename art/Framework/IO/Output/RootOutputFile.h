@@ -46,7 +46,7 @@ namespace edm {
     ~RootOutputFile() {}
     void writeOne(EventPrincipal const& e);
     //void endFile();
-    void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
+    void writeLuminosityBlock(SubRunPrincipal const& lb);
     void writeRun(RunPrincipal const& r);
     void writeFileFormatVersion();
     void writeFileIdentifier();
@@ -101,7 +101,7 @@ namespace edm {
     TTree * parentageTree_;
     TTree * eventHistoryTree_;
     EventAuxiliary const*           pEventAux_;
-    LuminosityBlockAuxiliary const* pLumiAux_;
+    SubRunAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
     ProductProvenanceVector         eventEntryInfoVector_;
     ProductProvenanceVector	    lumiEntryInfoVector_;

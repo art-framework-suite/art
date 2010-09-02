@@ -52,9 +52,9 @@ namespace edm {
                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(RunPrincipal& rp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp,
+    virtual bool implDoBegin(SubRunPrincipal& lbp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp,
+    virtual bool implDoEnd(SubRunPrincipal& lbp,
                             CurrentProcessingContext const* cpc);
     virtual void implBeginJob() ;
     virtual void implEndJob() ;
@@ -113,14 +113,14 @@ namespace edm {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(LuminosityBlockPrincipal& lbp,
+  WorkerT<T>::implDoBegin(SubRunPrincipal& lbp,
 			   CurrentProcessingContext const* cpc) {
     return module_->doBeginLuminosityBlock(lbp, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(LuminosityBlockPrincipal& lbp,
+  WorkerT<T>::implDoEnd(SubRunPrincipal& lbp,
 			   CurrentProcessingContext const* cpc) {
     return module_->doEndLuminosityBlock(lbp, cpc);
   }

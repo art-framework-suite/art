@@ -45,9 +45,9 @@ namespace statemachine {
     int id_;
   };
 
-  class Lumi : public sc::event<Lumi> {
+  class SubRun : public sc::event<SubRun> {
   public:
-    Lumi(int id);
+    SubRun(int id);
     int id() const;
   private:
     int id_;
@@ -77,12 +77,12 @@ namespace statemachine {
     Machine(edm::IEventProcessor* ep,
             FileMode fileMode,
             bool handleEmptyRuns,
-            bool handleEmptyLumis);
+            bool handleEmptySubRuns);
 
     edm::IEventProcessor& ep() const;
     FileMode fileMode() const;
     bool handleEmptyRuns() const;
-    bool handleEmptyLumis() const;
+    bool handleEmptySubRuns() const;
 
     void startingNewLoop(File const& file);
     void startingNewLoop(Stop const& stop);
@@ -93,7 +93,7 @@ namespace statemachine {
     edm::IEventProcessor* ep_;
     FileMode fileMode_;
     bool handleEmptyRuns_;
-    bool handleEmptyLumis_;
+    bool handleEmptySubRuns_;
   };
 
   class Error;
@@ -108,7 +108,7 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Event, Error>,
-      sc::transition<Lumi, Error>,
+      sc::transition<SubRun, Error>,
       sc::transition<Run, Error>,
       sc::transition<File, HandleFiles, Machine, &Machine::startingNewLoop>,
       sc::transition<Stop, EndingLoop, Machine, &Machine::startingNewLoop>,
@@ -126,7 +126,7 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Event, Error>,
-      sc::transition<Lumi, Error>,
+      sc::transition<SubRun, Error>,
       sc::transition<Run, Error>,
       sc::transition<File, Error>,
       sc::transition<Stop, EndingLoop>,
@@ -243,7 +243,7 @@ namespace statemachine {
     bool runException_;
   };
 
-  class HandleLumis;
+  class HandleSubRuns;
 
   class NewRun : public sc::state<NewRun, HandleRuns>
   {
@@ -252,7 +252,7 @@ namespace statemachine {
     ~NewRun();
 
     typedef mpl::list<
-      sc::transition<Lumi, HandleLumis>,
+      sc::transition<SubRun, HandleSubRuns>,
       sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
       sc::custom_reaction<File> > reactions;
 
@@ -286,79 +286,79 @@ namespace statemachine {
     typedef mpl::list<
       sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
       sc::custom_reaction<File>,
-      sc::transition<Lumi, HandleLumis> > reactions;
+      sc::transition<SubRun, HandleSubRuns> > reactions;
 
     sc::result react(File const& file);
   private:
     edm::IEventProcessor & ep_;
   };
 
-  class FirstLumi;
+  class FirstSubRun;
 
-  class HandleLumis : public sc::state<HandleLumis, HandleRuns, FirstLumi>
+  class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, FirstSubRun>
   {
   public:
-    typedef std::pair<int, int> LumiID;
-    HandleLumis(my_context ctx);
+    typedef std::pair<int, int> SubRunID;
+    HandleSubRuns(my_context ctx);
     void exit();
-    ~HandleLumis();
+    ~HandleSubRuns();
     bool checkInvariant();
 
-    LumiID currentLumi() const;
-    bool currentLumiEmpty() const;
-    std::vector<LumiID> const& unhandledLumis() const;
-    void setupCurrentLumi();
-    void finalizeAllLumis();
-    void finalizeLumi();
-    void finalizeOutstandingLumis();
-    void markLumiNonEmpty();
+    SubRunID currentSubRun() const;
+    bool currentSubRunEmpty() const;
+    std::vector<SubRunID> const& unhandledSubRuns() const;
+    void setupCurrentSubRun();
+    void finalizeAllSubRuns();
+    void finalizeSubRun();
+    void finalizeOutstandingSubRuns();
+    void markSubRunNonEmpty();
 
     typedef sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun> reactions;
 
   private:
     edm::IEventProcessor & ep_;
     bool exitCalled_;
-    bool currentLumiEmpty_;
-    LumiID currentLumi_;
-    std::set<LumiID> previousLumis_;
-    std::vector<LumiID> unhandledLumis_;
+    bool currentSubRunEmpty_;
+    SubRunID currentSubRun_;
+    std::set<SubRunID> previousSubRuns_;
+    std::vector<SubRunID> unhandledSubRuns_;
     bool lumiException_;
   };
 
   class HandleEvent;
-  class AnotherLumi;
+  class AnotherSubRun;
 
-  class FirstLumi : public sc::state<FirstLumi, HandleLumis>
+  class FirstSubRun : public sc::state<FirstSubRun, HandleSubRuns>
   {
   public:
-    FirstLumi(my_context ctx);
-    ~FirstLumi();
+    FirstSubRun(my_context ctx);
+    ~FirstSubRun();
     bool checkInvariant();
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::transition<SubRun, AnotherSubRun>,
       sc::custom_reaction<File> > reactions;
 
     sc::result react(File const& file);
   };
 
-  class AnotherLumi : public sc::state<AnotherLumi, HandleLumis>
+  class AnotherSubRun : public sc::state<AnotherSubRun, HandleSubRuns>
   {
   public:
-    AnotherLumi(my_context ctx);
-    ~AnotherLumi();
+    AnotherSubRun(my_context ctx);
+    ~AnotherSubRun();
     bool checkInvariant();
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::transition<SubRun, AnotherSubRun>,
       sc::custom_reaction<File> > reactions;
 
     sc::result react(File const& file);
   };
 
-  class HandleEvent : public sc::state<HandleEvent, HandleLumis>
+  class HandleEvent : public sc::state<HandleEvent, HandleSubRuns>
   {
   public:
     HandleEvent(my_context ctx);
@@ -367,7 +367,7 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::transition<SubRun, AnotherSubRun>,
       sc::custom_reaction<File> > reactions;
 
     sc::result react(File const& file);
@@ -377,7 +377,7 @@ namespace statemachine {
     edm::IEventProcessor & ep_;
   };
 
-  class HandleNewInputFile3 : public sc::state<HandleNewInputFile3, HandleLumis>
+  class HandleNewInputFile3 : public sc::state<HandleNewInputFile3, HandleSubRuns>
   {
   public:
     HandleNewInputFile3(my_context ctx);
@@ -392,7 +392,7 @@ namespace statemachine {
     sc::result react(File const& file);
   };
 
-  class ContinueRun2 : public sc::state<ContinueRun2, HandleLumis>
+  class ContinueRun2 : public sc::state<ContinueRun2, HandleSubRuns>
   {
   public:
     ContinueRun2(my_context ctx);
@@ -400,25 +400,25 @@ namespace statemachine {
     bool checkInvariant();
 
     typedef mpl::list<
-      sc::custom_reaction<Lumi>,
+      sc::custom_reaction<SubRun>,
       sc::custom_reaction<File> > reactions;
 
-    sc::result react(Lumi const& lumi);
+    sc::result react(SubRun const& lumi);
     sc::result react(File const& file);
   private:
     edm::IEventProcessor & ep_;
   };
 
-  class ContinueLumi : public sc::state<ContinueLumi, HandleLumis>
+  class ContinueSubRun : public sc::state<ContinueSubRun, HandleSubRuns>
   {
   public:
-    ContinueLumi(my_context ctx);
-    ~ContinueLumi();
+    ContinueSubRun(my_context ctx);
+    ~ContinueSubRun();
     bool checkInvariant();
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::transition<SubRun, AnotherSubRun>,
       sc::custom_reaction<File> > reactions;
 
     sc::result react(File const& file);

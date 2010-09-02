@@ -23,7 +23,7 @@
 
 // user include files
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 
 // forward declarations
@@ -35,13 +35,13 @@ class IOVSyncValue
    public:
       IOVSyncValue();
       //virtual ~IOVSyncValue();
-      explicit IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi=0);
+      explicit IOVSyncValue(const EventID& iID, SubRunNumber_t iLumi=0);
       explicit IOVSyncValue(const Timestamp& iTime);
-      IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime);
+      IOVSyncValue(const EventID& iID, SubRunNumber_t iLumi, const Timestamp& iTime);
 
       // ---------- const member functions ---------------------
       const EventID& eventID() const { return eventID_;}
-      LuminosityBlockNumber_t luminosityBlockNumber() const { return lumiID_;}
+      SubRunNumber_t luminosityBlockNumber() const { return lumiID_;}
       const Timestamp& time() const {return time_; }
 
       bool operator==(const IOVSyncValue& iRHS) const {
@@ -84,7 +84,7 @@ class IOVSyncValue
                   returnValue = op(eventID_, iRHS.eventID_);
                } else {
                   if(iRHS.eventID_.run() == eventID_.run()) {
-                     Op<LuminosityBlockNumber_t> op;
+                     Op<SubRunNumber_t> op;
                      returnValue = op(lumiID_, iRHS.lumiID_);
                   } else {
                      Op<RunNumber_t> op;
@@ -103,7 +103,7 @@ class IOVSyncValue
 
       // ---------- member data --------------------------------
       EventID eventID_;
-      LuminosityBlockNumber_t lumiID_;
+      SubRunNumber_t lumiID_;
       Timestamp time_;
       bool haveID_;
       bool haveTime_;

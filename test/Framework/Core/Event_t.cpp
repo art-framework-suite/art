@@ -25,7 +25,7 @@ Test program for edm::Event.
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "test/TestObjects/Thing.h"
@@ -33,7 +33,7 @@ Test program for edm::Event.
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
@@ -352,8 +352,8 @@ void testEvent::setUp()
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
-  LuminosityBlockAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc));
+  SubRunAuxiliary lumiAux(rp->run(), 1, time, time);
+  boost::shared_ptr<SubRunPrincipal>lbp(new SubRunPrincipal(lumiAux, preg, pc));
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
   boost::shared_ptr<History> history(new History);
@@ -363,7 +363,7 @@ void testEvent::setUp()
                                    pc,
                                    history);
 
-  principal_->setLuminosityBlockPrincipal(lbp);
+  principal_->setSubRunPrincipal(lbp);
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
 
   delete processHistory;

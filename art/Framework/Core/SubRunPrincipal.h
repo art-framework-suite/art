@@ -1,13 +1,13 @@
-#ifndef FWCore_Framework_LuminosityBlockPrincipal_h
-#define FWCore_Framework_LuminosityBlockPrincipal_h
+#ifndef FWCore_Framework_SubRunPrincipal_h
+#define FWCore_Framework_SubRunPrincipal_h
 
 /*----------------------------------------------------------------------
 
-LuminosityBlockPrincipal: This is the class responsible for management of
+SubRunPrincipal: This is the class responsible for management of
 per luminosity block EDProducts. It is not seen by reconstruction code;
-such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPrincipal.
+such code sees the SubRun class, which is a proxy for SubRunPrincipal.
 
-The major internal component of the LuminosityBlockPrincipal
+The major internal component of the SubRunPrincipal
 is the DataBlock.
 
 
@@ -18,25 +18,25 @@ is the DataBlock.
 #include <vector>
 
 #include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Framework/Core/Principal.h"
 
 namespace edm {
   class RunPrincipal;
   class UnscheduledHandler;
-  class LuminosityBlockPrincipal : public Principal {
+  class SubRunPrincipal : public Principal {
   public:
-    typedef LuminosityBlockAuxiliary Auxiliary;
+    typedef SubRunAuxiliary Auxiliary;
     typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
-    LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
+    SubRunPrincipal(SubRunAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
-    ~LuminosityBlockPrincipal() {}
+    ~SubRunPrincipal() {}
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
@@ -55,7 +55,7 @@ namespace edm {
       runPrincipal_ = rp;
     }
 
-    LuminosityBlockID id() const {
+    SubRunID id() const {
       return aux().id();
     }
 
@@ -71,11 +71,11 @@ namespace edm {
       aux_.setEndTime(time);
     }
 
-    LuminosityBlockNumber_t luminosityBlock() const {
+    SubRunNumber_t luminosityBlock() const {
       return aux().luminosityBlock();
     }
 
-    LuminosityBlockAuxiliary const& aux() const {
+    SubRunAuxiliary const& aux() const {
       return aux_;
     }
 
@@ -85,7 +85,7 @@ namespace edm {
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeLuminosityBlock(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    void mergeSubRun(boost::shared_ptr<SubRunPrincipal> lbp);
 
     void put(std::auto_ptr<EDProduct> edp,
 	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
@@ -106,7 +106,7 @@ namespace edm {
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
-    LuminosityBlockAuxiliary aux_;
+    SubRunAuxiliary aux_;
   };
 }
 #endif

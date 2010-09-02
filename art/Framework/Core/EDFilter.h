@@ -47,9 +47,9 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal & rp,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp,
+    bool doBeginLuminosityBlock(SubRunPrincipal & lbp,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal & lbp,
+    bool doEndLuminosityBlock(SubRunPrincipal & lbp,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -66,8 +66,8 @@ namespace edm {
     virtual void endJob(){}
     virtual bool beginRun(Run &){return true;}
     virtual bool endRun(Run &){return true;}
-    virtual bool beginLuminosityBlock(LuminosityBlock &){return true;}
-    virtual bool endLuminosityBlock(LuminosityBlock &){return true;}
+    virtual bool beginSubRun(SubRun &){return true;}
+    virtual bool endSubRun(SubRun &){return true;}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}

@@ -46,7 +46,7 @@ namespace edm {
     startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-    whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockID> >("lumisToSkip", std::vector<LuminosityBlockID>())),
+    whichLumisToSkip_(pset.getUntrackedParameter<std::vector<SubRunID> >("lumisToSkip", std::vector<SubRunID>())),
     eventsToProcess_(pset.getUntrackedParameter<std::vector<EventID> >("eventsToProcess",std::vector<EventID>())),
     noEventSort_(pset.getUntrackedParameter<bool>("noEventSort", false)),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
@@ -249,7 +249,7 @@ namespace edm {
     return rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry());
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
+  boost::shared_ptr<SubRunPrincipal>
   RootInputFileSequence::readLuminosityBlock_() {
     return rootFile_->readLumi(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal());
   }
@@ -281,7 +281,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id, LuminosityBlockNumber_t lumi, bool exact) {
+  RootInputFileSequence::readIt(EventID const& id, SubRunNumber_t lumi, bool exact) {
     randomAccess_ = true;
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
@@ -326,8 +326,8 @@ namespace edm {
     return eptr;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RootInputFileSequence::readIt(LuminosityBlockID const& id) {
+  boost::shared_ptr<SubRunPrincipal>
+  RootInputFileSequence::readIt(SubRunID const& id) {
 
     // Attempt to find lumi in currently open input file.
     bool found = rootFile_->setEntryAtLumi(id);
@@ -361,7 +361,7 @@ namespace edm {
 	}
       }
     }
-    return boost::shared_ptr<LuminosityBlockPrincipal>();
+    return boost::shared_ptr<SubRunPrincipal>();
   }
 
   boost::shared_ptr<RunPrincipal>
@@ -420,7 +420,7 @@ namespace edm {
       if (entryType == FileIndex::kEvent) {
         return InputSource::IsEvent;
       } else if (entryType == FileIndex::kLumi) {
-        return InputSource::IsLumi;
+        return InputSource::IsSubRun;
       } else if (entryType == FileIndex::kRun) {
         return InputSource::IsRun;
       }

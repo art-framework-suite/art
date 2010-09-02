@@ -1,7 +1,7 @@
 #include "FWCore/Integration/test/ThingProducer.h"
 #include "test/TestObjects/ThingCollection.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 
@@ -11,8 +11,8 @@ namespace edmtest {
   noPut_(iConfig.getUntrackedParameter<bool>("noPut", false)) // used for testing with missing products
   {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InLumi>("beginLumi");
-    produces<ThingCollection, edm::InLumi>("endLumi");
+    produces<ThingCollection, edm::InSubRun>("beginLumi");
+    produces<ThingCollection, edm::InSubRun>("endLumi");
     produces<ThingCollection, edm::InRun>("beginRun");
     produces<ThingCollection, edm::InRun>("endRun");
   }
@@ -35,7 +35,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every luminosity block
-  void ThingProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::beginSubRun(edm::SubRun& lb, edm::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -48,7 +48,7 @@ namespace edmtest {
     if (!noPut_) lb.put(result, "beginLumi");
   }
 
-  void ThingProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
+  void ThingProducer::endSubRun(edm::SubRun& lb, edm::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output

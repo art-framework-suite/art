@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Framework/Core/MakerMacros.h"

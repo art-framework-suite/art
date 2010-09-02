@@ -58,12 +58,12 @@ TestBeginEndJobAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
 }
 
 void
-TestBeginEndJobAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+TestBeginEndJobAnalyzer::beginSubRun(edm::SubRun const&, edm::EventSetup const&) {
   beginLumiCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+TestBeginEndJobAnalyzer::endSubRun(edm::SubRun const&, edm::EventSetup const&) {
   endLumiCalled = true;
 }
 

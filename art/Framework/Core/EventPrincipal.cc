@@ -1,6 +1,6 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/UnscheduledHandler.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Group.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/Persistency/Common/BasicHandle.h"

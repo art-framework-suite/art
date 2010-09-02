@@ -1,5 +1,5 @@
-#ifndef Integration_RunLumiEventAnalyzer_h
-#define Integration_RunLumiEventAnalyzer_h
+#ifndef Integration_RunSubRunEventAnalyzer_h
+#define Integration_RunSubRunEventAnalyzer_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -8,18 +8,18 @@
 
 namespace edmtest {
 
-  class RunLumiEventAnalyzer : public edm::EDAnalyzer {
+  class RunSubRunEventAnalyzer : public edm::EDAnalyzer {
   public:
 
-    explicit RunLumiEventAnalyzer(edm::ParameterSet const& pset);
+    explicit RunSubRunEventAnalyzer(edm::ParameterSet const& pset);
 
-    virtual ~RunLumiEventAnalyzer() {}
+    virtual ~RunSubRunEventAnalyzer() {}
 
     virtual void analyze(edm::Event const& event, edm::EventSetup const& es);
     virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
     virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es);
+    virtual void beginSubRun(edm::SubRun const& lumi, edm::EventSetup const& es);
+    virtual void endSubRun(edm::SubRun const& lumi, edm::EventSetup const& es);
 
   private:
 

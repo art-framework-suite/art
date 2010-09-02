@@ -43,7 +43,7 @@ namespace edm {
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     virtual std::auto_ptr<EventPrincipal> readEvent_();
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
+    virtual boost::shared_ptr<SubRunPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_();

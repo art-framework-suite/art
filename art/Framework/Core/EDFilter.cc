@@ -6,7 +6,7 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 
 #include "art/ParameterSet/ParameterSetDescription.h"
@@ -59,23 +59,23 @@ namespace edm
   }
 
   bool
-  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal & lbp,
+  EDFilter::doBeginSubRun(SubRunPrincipal & lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
-    LuminosityBlock lb(lbp, moduleDescription_);
-    rc = this->beginLuminosityBlock(lb);
+    SubRun lb(lbp, moduleDescription_);
+    rc = this->beginSubRun(lb);
     lb.commit_();
     return rc;
   }
 
   bool
-  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal & lbp,
+  EDFilter::doEndSubRun(SubRunPrincipal & lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
-    LuminosityBlock lb(lbp, moduleDescription_);
-    rc = this->endLuminosityBlock(lb);
+    SubRun lb(lbp, moduleDescription_);
+    rc = this->endSubRun(lb);
     lb.commit_();
     return rc;
   }

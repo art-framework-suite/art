@@ -43,7 +43,7 @@ namespace edm {
 
     void writeRun(RunPrincipal const& rp);
 
-    void writeLumi(LuminosityBlockPrincipal const& lbp);
+    void writeLumi(SubRunPrincipal const& lbp);
 
     bool limitReached() const;
 

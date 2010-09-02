@@ -28,8 +28,8 @@ namespace edm {
   class Group;
   class InputSource;
   class InputSourceDescription;
-  class LuminosityBlock;
-  class LuminosityBlockPrincipal;
+  class SubRun;
+  class SubRunPrincipal;
   class NoDelayedReader;
   class OutputModule;
   class OutputModuleDescription;

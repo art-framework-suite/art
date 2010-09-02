@@ -26,7 +26,7 @@ namespace edm {
 
     // Prefixes
     std::string const run                      = "Run";
-    std::string const lumi                     = "LuminosityBlock";
+    std::string const lumi                     = "SubRun";
     std::string const event                    = "Event";
 
     // Trees, branches, indices
@@ -106,7 +106,7 @@ namespace edm {
       switch( bt ) {
         case InEvent:  return event_str;
         case InRun  :  return run_str;
-        case InLumi :  return lumi_str;
+        case InSubRun :  return lumi_str;
         default     :  return lumi_str;  // TODO: report "none of the above"?
       }
     }

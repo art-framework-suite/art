@@ -325,8 +325,8 @@ void testmakepset::typesTest()
   "    s = cms.string('this string'),\n"
   "    sb1 = cms.string(''),\n"
   "    vEventID = cms.VEventID('1:1', '2:2','3:3'),\n"
-  "    lumi = cms.LuminosityBlockID(55, 65),\n"
-  "    vlumis = cms.VLuminosityBlockID('75:85', '95:105')\n"
+  "    lumi = cms.SubRunID(55, 65),\n"
+  "    vlumis = cms.VSubRunID('75:85', '95:105')\n"
   ")\n"
 
      ;
@@ -439,10 +439,10 @@ void testmakepset::typesTest()
    CPPUNIT_ASSERT(3 == vEventID[2].run());
    CPPUNIT_ASSERT(3 == vEventID[2].event());
 
-   edm::LuminosityBlockID lumi = test.getParameter<edm::LuminosityBlockID >("lumi");
+   edm::SubRunID lumi = test.getParameter<edm::SubRunID >("lumi");
    CPPUNIT_ASSERT(55 == lumi.run());
    CPPUNIT_ASSERT(65 == lumi.luminosityBlock());
-   std::vector<edm::LuminosityBlockID> vlumis = test.getParameter<std::vector<edm::LuminosityBlockID> >("vlumis");
+   std::vector<edm::SubRunID> vlumis = test.getParameter<std::vector<edm::SubRunID> >("vlumis");
    CPPUNIT_ASSERT(vlumis.size() == 2);
    CPPUNIT_ASSERT(vlumis[0].run() == 75);
    CPPUNIT_ASSERT(vlumis[0].luminosityBlock() == 85);

@@ -62,7 +62,7 @@ namespace edm {
   }
 
   bool DuplicateChecker::isDuplicateAndCheckActive(EventID const& eventID,
-                                                   LuminosityBlockNumber_t const& lumi,
+                                                   SubRunNumber_t const& lumi,
                                                    std::string const& fileName)
   {
     if (duplicateCheckMode_ == noDuplicateCheck) return false;

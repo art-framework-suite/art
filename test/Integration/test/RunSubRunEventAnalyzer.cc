@@ -1,8 +1,8 @@
 
-#include "FWCore/Integration/test/RunLumiEventAnalyzer.h"
+#include "FWCore/Integration/test/RunSubRunEventAnalyzer.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/ParameterSet/ParameterSet.h"
 
@@ -11,16 +11,16 @@
 
 namespace edmtest {
 
-  RunLumiEventAnalyzer::RunLumiEventAnalyzer(edm::ParameterSet const& pset) :
+  RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(edm::ParameterSet const& pset) :
     expectedRunLumisEvents_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents", std::vector<unsigned int>())),
     index_(0),
     verbose_(pset.getUntrackedParameter<bool>("verbose", false)) {
   }
 
-  void RunLumiEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT "
+      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << event.run() << ", "
                                        << event.luminosityBlock() << ", "
                                        << event.id().event();
@@ -33,10 +33,10 @@ namespace edmtest {
     }
   }
 
-  void RunLumiEventAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT "
+      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << run.run() << ", "
                                        << 0 << ", "
                                        << 0;
@@ -49,10 +49,10 @@ namespace edmtest {
     }
   }
 
-  void RunLumiEventAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT "
+      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << run.run() << ", "
                                        << 0 << ", "
                                        << 0;
@@ -65,10 +65,10 @@ namespace edmtest {
     }
   }
 
-  void RunLumiEventAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::beginSubRun(edm::SubRun const& lumi, edm::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT "
+      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << lumi.run() << ", "
                                        << lumi.luminosityBlock() << ", "
                                        << 0;
@@ -81,10 +81,10 @@ namespace edmtest {
     }
   }
 
-  void RunLumiEventAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::endSubRun(edm::SubRun const& lumi, edm::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT "
+      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << lumi.run() << ", "
                                        << lumi.luminosityBlock() << ", "
                                        << 0;
@@ -98,5 +98,5 @@ namespace edmtest {
   }
 }
 
-using edmtest::RunLumiEventAnalyzer;
-DEFINE_FWK_MODULE(RunLumiEventAnalyzer);
+using edmtest::RunSubRunEventAnalyzer;
+DEFINE_FWK_MODULE(RunSubRunEventAnalyzer);

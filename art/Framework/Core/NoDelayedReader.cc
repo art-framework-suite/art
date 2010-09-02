@@ -5,7 +5,7 @@
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
 
 namespace edm {
@@ -23,10 +23,10 @@ namespace edm {
       throw edm::Exception(errors::LogicError,"NoDelayedReader")
         << "getProduct() called for branchkey: " << k << " RunID: " << epr->id() << "\n";
     }
-    LuminosityBlockPrincipal const* lpr = dynamic_cast<LuminosityBlockPrincipal const*>(ep);
+    SubRunPrincipal const* lpr = dynamic_cast<SubRunPrincipal const*>(ep);
     if (lpr) {
       throw edm::Exception(errors::LogicError,"NoDelayedReader")
-        << "getProduct() called for branchkey: " << k << " LuminosityBlockNumber_t: " << lpr->id() << "\n";
+        << "getProduct() called for branchkey: " << k << " SubRunNumber_t: " << lpr->id() << "\n";
     }
     throw edm::Exception(errors::LogicError,"NoDelayedReader")
       << "getProduct() called for branchkey: " << k << "\n";

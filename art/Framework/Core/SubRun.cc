@@ -1,50 +1,50 @@
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 
 namespace edm {
 
   namespace {
     Run *
-    newRun(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) {
+    newRun(SubRunPrincipal& lbp, ModuleDescription const& md) {
       return (lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0);
     }
   }
 
-  LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
-	DataViewImpl(lbp, md, InLumi),
+  SubRun::SubRun(SubRunPrincipal& lbp, ModuleDescription const& md) :
+	DataViewImpl(lbp, md, InSubRun),
 	aux_(lbp.aux()),
 	run_(newRun(lbp, md)) {
   }
 
-  LuminosityBlockPrincipal &
-  LuminosityBlock::luminosityBlockPrincipal() {
-    return dynamic_cast<LuminosityBlockPrincipal &>(principal());
+  SubRunPrincipal &
+  SubRun::luminosityBlockPrincipal() {
+    return dynamic_cast<SubRunPrincipal &>(principal());
   }
 
-  LuminosityBlockPrincipal const &
-  LuminosityBlock::luminosityBlockPrincipal() const {
-    return dynamic_cast<LuminosityBlockPrincipal const&>(principal());
+  SubRunPrincipal const &
+  SubRun::luminosityBlockPrincipal() const {
+    return dynamic_cast<SubRunPrincipal const&>(principal());
   }
 
   Provenance
-  LuminosityBlock::getProvenance(BranchID const& bid) const
+  SubRun::getProvenance(BranchID const& bid) const
   {
     return luminosityBlockPrincipal().getProvenance(bid);
   }
 
   void
-  LuminosityBlock::getAllProvenance(std::vector<Provenance const*> & provenances) const
+  SubRun::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
     luminosityBlockPrincipal().getAllProvenance(provenances);
   }
 
 
   void
-  LuminosityBlock::commit_() {
+  SubRun::commit_() {
     // fill in guts of provenance here
-    LuminosityBlockPrincipal & lbp = luminosityBlockPrincipal();
+    SubRunPrincipal & lbp = luminosityBlockPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 

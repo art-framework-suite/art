@@ -4,7 +4,7 @@
 #include "art/Utilities/GlobalIdentifier.h"
 
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Version/GetFileFormatVersion.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
@@ -13,7 +13,7 @@
 #include "art/Utilities/Digest.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -91,8 +91,8 @@ namespace edm {
       eventTree_(static_cast<EventPrincipal *>(0),
                  filePtr_, InEvent, pEventAux_, pEventEntryInfoVector_,
                  om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(static_cast<LuminosityBlockPrincipal *>(0),
-                filePtr_, InLumi, pLumiAux_, pLumiEntryInfoVector_,
+      lumiTree_(static_cast<SubRunPrincipal *>(0),
+                filePtr_, InSubRun, pLumiAux_, pLumiEntryInfoVector_,
                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       runTree_(static_cast<RunPrincipal *>(0),
                filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
@@ -100,7 +100,7 @@ namespace edm {
       treePointers_(),
       dataTypeReported_(false) {
     treePointers_[InEvent] = &eventTree_;
-    treePointers_[InLumi]  = &lumiTree_;
+    treePointers_[InSubRun]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
@@ -224,13 +224,13 @@ namespace edm {
     // Report event written
   }
 
-  void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+  void RootOutputFile::writeLuminosityBlock(SubRunPrincipal const& lb) {
     // Auxiliary branch
     pLumiAux_ = &lb.aux();
     // Add lumi to index.
     fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
     ++lumiEntryNumber_;
-    fillBranches(InLumi, lb, pLumiEntryInfoVector_);
+    fillBranches(InSubRun, lb, pLumiEntryInfoVector_);
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {

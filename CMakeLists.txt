@@ -6,7 +6,7 @@
 #   make
 #   make test
 #   make install
-# If you change any of the Cmake* files in $ART_CODE, 
+# If you change any of the Cmake* files in $ART_CODE,
 # you need to run the cmake step again
 
 # use cmake 2.6 or later
@@ -65,7 +65,7 @@ find_program( GENREFLEX NAMES genreflex PATHS $ENV{ROOTSYS}/bin )
 find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
 
 # have to make sure cmake doesn't select the system libraries
-# define libsigc 
+# define libsigc
 find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_DIR}/lib NO_DEFAULT_PATH )
 # define cppunit
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_DIR}/lib   NO_DEFAULT_PATH )
@@ -76,9 +76,9 @@ set(BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set(BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 set(Boost_USE_MULTITHREADED ON)
 # search for Boost version 1.34 libraries
-find_package( Boost 1.34 COMPONENTS filesystem 
-                                    regex 
-				    thread 
+find_package( Boost 1.34 COMPONENTS filesystem
+                                    regex
+				    thread
                                     program_options )
 
 

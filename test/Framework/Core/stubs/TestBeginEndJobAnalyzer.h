@@ -36,8 +36,8 @@ public:
    virtual void endJob();
    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
    virtual void endRun(edm::Run const&, edm::EventSetup const&);
-   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+   virtual void beginSubRun(edm::SubRun const&, edm::EventSetup const&);
+   virtual void endSubRun(edm::SubRun const&, edm::EventSetup const&);
 
    static bool beginJobCalled;
    static bool endJobCalled;

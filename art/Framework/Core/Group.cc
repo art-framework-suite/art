@@ -229,7 +229,7 @@ namespace edm {
       else if (product_->hasIsProductEqual()) {
 
         if (!product_->isProductEqual(newGroup->product_.get())) {
-          edm::LogWarning  ("RunLumiMerging")
+          edm::LogWarning  ("RunSubRunMerging")
             << "Group::mergeGroup\n"
             << "Two run/lumi products for the same run/lumi which should be equal are not\n"
             << "Using the first, ignoring the second\n"
@@ -240,7 +240,7 @@ namespace edm {
         }
       }
       else {
-        edm::LogWarning  ("RunLumiMerging")
+        edm::LogWarning  ("RunSubRunMerging")
           << "Group::mergeGroup\n"
           << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
           << "Using the first, ignoring the second in merge\n"
