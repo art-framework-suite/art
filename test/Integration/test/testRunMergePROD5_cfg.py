@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("EmptySource",
-    firstLuminosityBlock = cms.untracked.uint32(2),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(3),
+    firstSubRun = cms.untracked.uint32(2),
+    numberEventsInSubRun = cms.untracked.uint32(3),
     firstEvent = cms.untracked.uint32(1),
     firstRun = cms.untracked.uint32(11),
     numberEventsInRun = cms.untracked.uint32(9)

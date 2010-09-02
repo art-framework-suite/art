@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-BranchMapper: Manages the per event/lumi/run per product provenance.
+BranchMapper: Manages the per event/subRun/run per product provenance.
 
 ----------------------------------------------------------------------*/
 #include <iosfwd>

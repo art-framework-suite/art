@@ -11,8 +11,8 @@ namespace edmtest {
   noPut_(iConfig.getUntrackedParameter<bool>("noPut", false)) // used for testing with missing products
   {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InSubRun>("beginLumi");
-    produces<ThingCollection, edm::InSubRun>("endLumi");
+    produces<ThingCollection, edm::InSubRun>("beginSubRun");
+    produces<ThingCollection, edm::InSubRun>("endSubRun");
     produces<ThingCollection, edm::InRun>("beginRun");
     produces<ThingCollection, edm::InRun>("endRun");
   }
@@ -34,7 +34,7 @@ namespace edmtest {
     if (!noPut_) e.put(result);
   }
 
-  // Functions that gets called by framework every luminosity block
+  // Functions that gets called by framework every subRun
   void ThingProducer::beginSubRun(edm::SubRun& lb, edm::EventSetup const&) {
     // Step A: Get Inputs
 
@@ -44,8 +44,8 @@ namespace edmtest {
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
-    // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(result, "beginLumi");
+    // Step D: Put outputs into subRun
+    if (!noPut_) lb.put(result, "beginSubRun");
   }
 
   void ThingProducer::endSubRun(edm::SubRun& lb, edm::EventSetup const&) {
@@ -57,8 +57,8 @@ namespace edmtest {
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
-    // Step D: Put outputs into lumi block
-    if (!noPut_) lb.put(result, "endLumi");
+    // Step D: Put outputs into subRun
+    if (!noPut_) lb.put(result, "endSubRun");
   }
 
   // Functions that gets called by framework every run

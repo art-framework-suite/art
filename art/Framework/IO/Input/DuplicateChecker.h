@@ -38,7 +38,7 @@ namespace edm {
     void rewind();
 
     bool isDuplicateAndCheckActive(EventID const& eventID,
-                                   SubRunNumber_t const& lumi,
+                                   SubRunNumber_t const& subRun,
                                    std::string const& fileName);
 
   private:

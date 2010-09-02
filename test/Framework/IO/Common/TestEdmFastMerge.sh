@@ -42,7 +42,7 @@ fw -j ${LOCAL_TMP_DIR}/TestFastMergeRLFJR.xml --parameter-set ${FW_HOME}/IOPool/
 #need to filter items in job report which always change
 egrep -v "<GUID>|<PFN>" $FW_HOME/IOPool/Common/test/proper_RLfjr_output > $LOCAL_TMP_DIR/proper_RLfjr_output_filtered
 egrep -v "<GUID>|<PFN>" $LOCAL_TMP_DIR/TestFastMergeRLFJR.xml  > $LOCAL_TMP_DIR/TestFastMergeRLFJR_filtered.xml
-diff $LOCAL_TMP_DIR/proper_RLfjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeRLFJR_filtered.xml || die 'output run lumi framework job report is wrong' $?
+diff $LOCAL_TMP_DIR/proper_RLfjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeRLFJR_filtered.xml || die 'output run subRun framework job report is wrong' $?
 
 fw -j ${LOCAL_TMP_DIR}/TestFastMergeRFJR.xml --parameter-set ${FW_HOME}/IOPool/Common/test/FastMergeTestR_cfg.py || die 'Failure using FastMergeTestR_cfg.py' $?
 #need to filter items in job report which always change

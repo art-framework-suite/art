@@ -4,7 +4,7 @@
 /*----------------------------------------------------------------------
 
 SubRunPrincipal: This is the class responsible for management of
-per luminosity block EDProducts. It is not seen by reconstruction code;
+per subRun EDProducts. It is not seen by reconstruction code;
 such code sees the SubRun class, which is a proxy for SubRunPrincipal.
 
 The major internal component of the SubRunPrincipal
@@ -71,8 +71,8 @@ namespace edm {
       aux_.setEndTime(time);
     }
 
-    SubRunNumber_t luminosityBlock() const {
-      return aux().luminosityBlock();
+    SubRunNumber_t subRun() const {
+      return aux().subRun();
     }
 
     SubRunAuxiliary const& aux() const {

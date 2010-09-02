@@ -9,8 +9,8 @@ namespace edmtest {
   ThingExtSource::ThingExtSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
     ExternalInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InSubRun>("beginLumi");
-    produces<ThingCollection, edm::InSubRun>("endLumi");
+    produces<ThingCollection, edm::InSubRun>("beginSubRun");
+    produces<ThingCollection, edm::InSubRun>("endSubRun");
     produces<ThingCollection, edm::InRun>("beginRun");
     produces<ThingCollection, edm::InRun>("endRun");
   }
@@ -38,7 +38,7 @@ namespace edmtest {
     return true;
   }
 
-  // Functions that gets called by framework every luminosity block
+  // Functions that gets called by framework every subRun
   void ThingExtSource::beginSubRun(edm::SubRun& lb) {
     // Step A: Get Inputs
 
@@ -48,8 +48,8 @@ namespace edmtest {
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
-    // Step D: Put outputs into lumi block
-    lb.put(result, "beginLumi");
+    // Step D: Put outputs into subRun
+    lb.put(result, "beginSubRun");
   }
 
   void ThingExtSource::endSubRun(edm::SubRun& lb) {
@@ -61,8 +61,8 @@ namespace edmtest {
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
     alg_.run(*result);
 
-    // Step D: Put outputs into lumi block
-    lb.put(result, "endLumi");
+    // Step D: Put outputs into subRun
+    lb.put(result, "endSubRun");
   }
 
   // Functions that gets called by framework every run

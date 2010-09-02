@@ -3,7 +3,7 @@ Design Notes for Module and Service Plugins
 ===========================================
 
 Modules are EDProducers, EDFilters, EDAnalyzers, OutputModules and
-Sources. 
+Sources.
 
 **NOTE**: we may be moving to a very different i/o system, that will
 make much of the current OutputModules and Sources irrelevant.

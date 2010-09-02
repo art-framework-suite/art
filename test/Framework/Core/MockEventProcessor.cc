@@ -27,12 +27,12 @@ namespace edm {
                                          std::ostream& output,
                                          const statemachine::FileMode& fileMode,
                                          bool handleEmptyRuns,
-                                         bool handleEmptyLumis) :
+                                         bool handleEmptySubRuns) :
     mockData_(mockData),
     output_(output),
     fileMode_(fileMode),
     handleEmptyRuns_(handleEmptyRuns),
-    handleEmptyLumis_(handleEmptyLumis),
+    handleEmptySubRuns_(handleEmptySubRuns),
     shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
     shouldWeStop_(false)  {
@@ -43,7 +43,7 @@ namespace edm {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     handleEmptyRuns_,
-                                    handleEmptyLumis_);
+                                    handleEmptySubRuns_);
 
 
     myMachine.initiate();
@@ -62,7 +62,7 @@ namespace edm {
       }
       else if (ch == 'l') {
         output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
-        lumi_ = t.value;
+        subRun_ = t.value;
         myMachine.process_event( statemachine::SubRun(t.value) );
       }
       else if (ch == 'e') {
@@ -184,12 +184,12 @@ namespace edm {
     output_ << "\tendRun " << run << "\n";
   }
 
-  void MockEventProcessor::beginSubRun(int run, int lumi) {
-    output_ << "\tbeginSubRun " << run << "/" << lumi << "\n";
+  void MockEventProcessor::beginSubRun(int run, int subRun) {
+    output_ << "\tbeginSubRun " << run << "/" << subRun << "\n";
   }
 
-  void MockEventProcessor::endSubRun(int run, int lumi) {
-    output_ << "\tendSubRun " << run << "/" << lumi << "\n";
+  void MockEventProcessor::endSubRun(int run, int subRun) {
+    output_ << "\tendSubRun " << run << "/" << subRun << "\n";
   }
 
   int MockEventProcessor::readAndCacheRun() {
@@ -198,8 +198,8 @@ namespace edm {
   }
 
   int MockEventProcessor::readAndCacheSubRun() {
-    output_ << "\treadAndCacheSubRun " << lumi_ << "\n";
-    return lumi_;
+    output_ << "\treadAndCacheSubRun " << subRun_ << "\n";
+    return subRun_;
   }
 
   void MockEventProcessor::writeRun(int run) {
@@ -210,12 +210,12 @@ namespace edm {
     output_ << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void MockEventProcessor::writeSubRun(int run, int lumi) {
-    output_ << "\twriteSubRun " << run << "/" << lumi << "\n";
+  void MockEventProcessor::writeSubRun(int run, int subRun) {
+    output_ << "\twriteSubRun " << run << "/" << subRun << "\n";
   }
 
-  void MockEventProcessor::deleteSubRunFromCache(int run, int lumi) {
-    output_ << "\tdeleteSubRunFromCache " << run << "/" << lumi << "\n";
+  void MockEventProcessor::deleteSubRunFromCache(int run, int subRun) {
+    output_ << "\tdeleteSubRunFromCache " << run << "/" << subRun << "\n";
   }
 
   void MockEventProcessor::readEvent() {

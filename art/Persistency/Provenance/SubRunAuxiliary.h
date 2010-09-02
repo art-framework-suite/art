@@ -8,7 +8,7 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 
-// Auxiliary luminosity block data that is persistent
+// Auxiliary subRun data that is persistent
 
 namespace edm
 {
@@ -26,18 +26,18 @@ namespace edm
 	beginTime_(theTime),
 	endTime_(theEndTime) {}
     SubRunAuxiliary(RunNumber_t const& theRun,
-			     SubRunNumber_t const& theLumi,
+			     SubRunNumber_t const& theSubRun,
 			     Timestamp const& theTime,
 			     Timestamp const& theEndTime) :
 	processHistoryID_(),
-	id_(theRun, theLumi),
+	id_(theRun, theSubRun),
 	beginTime_(theTime),
 	endTime_(theEndTime) {}
     ~SubRunAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
     void setProcessHistoryID(ProcessHistoryID const& phid) const {processHistoryID_ = phid;}
-    SubRunNumber_t luminosityBlock() const {return id().luminosityBlock();}
+    SubRunNumber_t subRun() const {return id().subRun();}
     RunNumber_t run() const {return id().run();}
     SubRunID const& id() const {return id_;}
     Timestamp const& beginTime() const {return beginTime_;}
@@ -47,7 +47,7 @@ namespace edm
     }
     bool mergeAuxiliary(SubRunAuxiliary const& newAux);
 
-    // most recent process that processed this lumi block
+    // most recent process that processed this subRun
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
     // SubRun ID

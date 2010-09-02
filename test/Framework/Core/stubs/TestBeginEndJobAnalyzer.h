@@ -43,8 +43,8 @@ public:
    static bool endJobCalled;
    static bool beginRunCalled;
    static bool endRunCalled;
-   static bool beginLumiCalled;
-   static bool endLumiCalled;
+   static bool beginSubRunCalled;
+   static bool endSubRunCalled;
    static bool destructorCalled;
 private:
       // ----------member data ---------------------------

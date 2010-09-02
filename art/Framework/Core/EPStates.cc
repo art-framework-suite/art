@@ -470,7 +470,7 @@ namespace statemachine {
     currentSubRunEmpty_(true),
     currentSubRun_(InvalidSubRunID),
     previousSubRuns_(),
-    lumiException_(false)
+    subRunException_(false)
   {
     checkInvariant();
   }
@@ -491,8 +491,8 @@ namespace statemachine {
       catch (cms::Exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n"
-                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "Another exception was caught while trying to clean up subRuns after\n"
+                << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  The description of this additional exception follows:\n"
                 << "cms::Exception\n"
                 << e.explainSelf();
@@ -502,8 +502,8 @@ namespace statemachine {
       catch (std::bad_alloc& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis\n"
-                << "after the primary exception.  We give up trying to clean up lumis\n"
+                << "Another exception was caught while trying to clean up subRuns\n"
+                << "after the primary exception.  We give up trying to clean up subRuns\n"
                 << "at this point.  This additional exception was a\n"
                 << "std::bad_alloc exception thrown inside HandleSubRuns::finalizeAllSubRuns.\n"
                 << "The job has probably exhausted the virtual memory available\n"
@@ -514,8 +514,8 @@ namespace statemachine {
       catch (std::exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n"
-                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "Another exception was caught while trying to clean up subRuns after\n"
+                << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  This additional exception was a\n"
                 << "standard library exception thrown inside HandleSubRuns::finalizeAllSubRuns\n"
                 << e.what() << "\n";
@@ -525,8 +525,8 @@ namespace statemachine {
       catch (...) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n"
-                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "Another exception was caught while trying to clean up subRuns after\n"
+                << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  This additional exception was of unknown type and\n"
                 << "thrown inside HandleSubRuns::finalizeAllSubRuns\n";
         std::string msg(message.str());
@@ -553,34 +553,34 @@ namespace statemachine {
 
     int run = context<HandleRuns>().currentRun();
     assert (run != INVALID_RUN);
-    lumiException_ = true;
+    subRunException_ = true;
     currentSubRun_ = HandleSubRuns::SubRunID(run, ep_.readAndCacheSubRun());
     if (context<Machine>().fileMode() == MERGE) {
       if (previousSubRuns_.find(currentSubRun_) != previousSubRuns_.end()) {
         throw cms::Exception("Merge failure:") <<
             "SubRun " << currentSubRun_.first <<":" << currentSubRun_.second << " is discontinuous, and cannot be merged in this mode.\n"
-            "The lumi section is split across two or more input files,\n"
-            "and either the lumi section is not the last run in the previous input file,\n"
-            "or it is not the first lumi section in the current input file.\n"
+            "The subRun is split across two or more input files,\n"
+            "and either the subRun is not the last run in the previous input file,\n"
+            "or it is not the first subRun in the current input file.\n"
             "To handle this case, either sort the input files, if not sorted,\n"
             "or use 'fileMode = \"FULLMERGE\"' or 'fileMode = \"FULLLUMIMERGE\"'\n"
             "in the parameter set options block.\n";
       }
     }
-    lumiException_ = false;
+    subRunException_ = false;
 
     currentSubRunEmpty_ = true;
   }
 
   void HandleSubRuns::finalizeAllSubRuns() {
-    if (lumiException_ || context<HandleRuns>().runException()) return;
+    if (subRunException_ || context<HandleRuns>().runException()) return;
     finalizeSubRun();
     finalizeOutstandingSubRuns();
   }
 
   void HandleSubRuns::finalizeSubRun() {
 
-    lumiException_ = true;
+    subRunException_ = true;
 
     if (currentSubRunEmpty_) {
       if (context<Machine>().handleEmptySubRuns()) {
@@ -619,12 +619,12 @@ namespace statemachine {
     }
     currentSubRun_ = InvalidSubRunID;
 
-    lumiException_ = false;
+    subRunException_ = false;
   }
 
   void HandleSubRuns::finalizeOutstandingSubRuns() {
 
-    lumiException_ = true;
+    subRunException_ = true;
 
     for (std::vector<SubRunID>::const_iterator iter = unhandledSubRuns_.begin();
          iter != unhandledSubRuns_.end();
@@ -640,16 +640,16 @@ namespace statemachine {
     }
     unhandledSubRuns_.clear();
 
-    lumiException_ = false;
+    subRunException_ = false;
   }
 
   void HandleSubRuns::markSubRunNonEmpty() {
     if (currentSubRunEmpty_) {
       finalizeOutstandingSubRuns();
 
-      lumiException_ = true;
+      subRunException_ = true;
       ep_.beginSubRun(currentSubRun().first, currentSubRun().second);
-      lumiException_ = false;
+      subRunException_ = false;
 
       currentSubRunEmpty_ = false;
     }
@@ -813,11 +813,11 @@ namespace statemachine {
     return true;
   }
 
-  sc::result ContinueRun2::react(SubRun const& lumi)
+  sc::result ContinueRun2::react(SubRun const& subRun)
   {
     checkInvariant();
 
-    if (context<HandleSubRuns>().currentSubRun().second != lumi.id()) {
+    if (context<HandleSubRuns>().currentSubRun().second != subRun.id()) {
       return transit<AnotherSubRun>();
     }
     else {

@@ -75,7 +75,7 @@ namespace edm {
   }
 
   void
-  SubRunPrincipal::mergeLuminosityBlock(boost::shared_ptr<SubRunPrincipal> lbp) {
+  SubRunPrincipal::mergeSubRun(boost::shared_ptr<SubRunPrincipal> lbp) {
 
     aux_.mergeAuxiliary(lbp->aux());
 

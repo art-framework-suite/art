@@ -19,7 +19,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.source = cms.Source("TestRunSubRunSource",
-    runLumiEvent = cms.untracked.vint32(0, 0, 0)
+    runSubRunEvent = cms.untracked.vint32(0, 0, 0)
 )
 
 process.p = cms.Path(process.Thing)

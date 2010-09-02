@@ -43,10 +43,10 @@ namespace edm {
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
     startAtRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
-    startAtLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1U)),
+    startAtSubRun_(pset.getUntrackedParameter<unsigned int>("firstSubRun", 1U)),
     startAtEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
     eventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents", 0U)),
-    whichLumisToSkip_(pset.getUntrackedParameter<std::vector<SubRunID> >("lumisToSkip", std::vector<SubRunID>())),
+    whichSubRunsToSkip_(pset.getUntrackedParameter<std::vector<SubRunID> >("subRunsToSkip", std::vector<SubRunID>())),
     eventsToProcess_(pset.getUntrackedParameter<std::vector<EventID> >("eventsToProcess",std::vector<EventID>())),
     noEventSort_(pset.getUntrackedParameter<bool>("noEventSort", false)),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
@@ -170,8 +170,8 @@ namespace edm {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
-	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
-	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+	  startAtRun_, startAtSubRun_, startAtEvent_, eventsToSkip_, whichSubRunsToSkip_,
+	  remainingEvents(), remainingSubRuns(), treeCacheSize_, treeMaxVirtualSize_,
 	  input_.processingMode(),
 	  forcedRunOffset_, eventsToProcess_, noEventSort_,
 	  groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
@@ -250,8 +250,8 @@ namespace edm {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readLuminosityBlock_() {
-    return rootFile_->readLumi(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal());
+  RootInputFileSequence::readSubRun_() {
+    return rootFile_->readSubRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal());
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -281,10 +281,10 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id, SubRunNumber_t lumi, bool exact) {
+  RootInputFileSequence::readIt(EventID const& id, SubRunNumber_t subRun, bool exact) {
     randomAccess_ = true;
     // Attempt to find event in currently open input file.
-    bool found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+    bool found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
     if (!found) {
       // If only one input file, give up now, to save time.
       if (fileIndexes_.size() == 1) {
@@ -293,12 +293,12 @@ namespace edm {
       // Look for event in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (*it && (*it)->containsEvent(id.run(), lumi, id.event(), exact)) {
+	if (*it && (*it)->containsEvent(id.run(), subRun, id.event(), exact)) {
           // We found it. Close the currently open file, and open the correct one.
 	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
 	  // Now get the event from the correct file.
-          found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+          found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
 	  assert (found);
 	  std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1);
@@ -310,7 +310,7 @@ namespace edm {
 	if (!*it) {
 	  fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
-          found = rootFile_->setEntryAtEvent(id.run(), lumi, id.event(), exact);
+          found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
 	  if (found) {
 	    std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
             skip(1);
@@ -329,34 +329,34 @@ namespace edm {
   boost::shared_ptr<SubRunPrincipal>
   RootInputFileSequence::readIt(SubRunID const& id) {
 
-    // Attempt to find lumi in currently open input file.
-    bool found = rootFile_->setEntryAtLumi(id);
+    // Attempt to find subRun in currently open input file.
+    bool found = rootFile_->setEntryAtSubRun(id);
     if (found) {
-      return readLuminosityBlock_();
+      return readSubRun_();
     }
 
     if (fileIndexes_.size() > 1) {
-      // Look for lumi in files previously opened without reopening unnecessary files.
+      // Look for subRun in files previously opened without reopening unnecessary files.
       typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-	if (*it && (*it)->containsLumi(id.run(), id.luminosityBlock(), true)) {
+	if (*it && (*it)->containsSubRun(id.run(), id.subRun(), true)) {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
-	  // Now get the lumi from the correct file.
-          found = rootFile_->setEntryAtLumi(id);
+	  // Now get the subRun from the correct file.
+          found = rootFile_->setEntryAtSubRun(id);
 	  assert (found);
-          return readLuminosityBlock_();
+          return readSubRun_();
 	}
       }
-      // Look for lumi in files not yet opened.
+      // Look for subRun in files not yet opened.
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
 	if (!*it) {
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
 	  initFile(false);
-          found = rootFile_->setEntryAtLumi(id);
+          found = rootFile_->setEntryAtSubRun(id);
 	  if (found) {
-            return readLuminosityBlock_();
+            return readSubRun_();
 	  }
 	}
       }
@@ -419,7 +419,7 @@ namespace edm {
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return InputSource::IsEvent;
-      } else if (entryType == FileIndex::kLumi) {
+      } else if (entryType == FileIndex::kSubRun) {
         return InputSource::IsSubRun;
       } else if (entryType == FileIndex::kRun) {
         return InputSource::IsRun;
@@ -480,8 +480,8 @@ namespace edm {
   }
 
   int
-  RootInputFileSequence::remainingLuminosityBlocks() const {
-    return input_.remainingLuminosityBlocks();
+  RootInputFileSequence::remainingSubRuns() const {
+    return input_.remainingSubRuns();
   }
 
   ProductRegistry &

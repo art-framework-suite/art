@@ -46,7 +46,7 @@ namespace edm {
     ~RootOutputFile() {}
     void writeOne(EventPrincipal const& e);
     //void endFile();
-    void writeLuminosityBlock(SubRunPrincipal const& lb);
+    void writeSubRun(SubRunPrincipal const& lb);
     void writeRun(RunPrincipal const& r);
     void writeFileFormatVersion();
     void writeFileIdentifier();
@@ -95,23 +95,23 @@ namespace edm {
     FileID fid_;
     FileIndex fileIndex_;
     FileIndex::EntryNumber_t eventEntryNumber_;
-    FileIndex::EntryNumber_t lumiEntryNumber_;
+    FileIndex::EntryNumber_t subRunEntryNumber_;
     FileIndex::EntryNumber_t runEntryNumber_;
     TTree * metaDataTree_;
     TTree * parentageTree_;
     TTree * eventHistoryTree_;
     EventAuxiliary const*           pEventAux_;
-    SubRunAuxiliary const* pLumiAux_;
+    SubRunAuxiliary const* pSubRunAux_;
     RunAuxiliary const*             pRunAux_;
     ProductProvenanceVector         eventEntryInfoVector_;
-    ProductProvenanceVector	    lumiEntryInfoVector_;
+    ProductProvenanceVector	    subRunEntryInfoVector_;
     ProductProvenanceVector         runEntryInfoVector_;
     ProductProvenanceVector *       pEventEntryInfoVector_;
-    ProductProvenanceVector *       pLumiEntryInfoVector_;
+    ProductProvenanceVector *       pSubRunEntryInfoVector_;
     ProductProvenanceVector *       pRunEntryInfoVector_;
     History const*                  pHistory_;
     RootOutputTree eventTree_;
-    RootOutputTree lumiTree_;
+    RootOutputTree subRunTree_;
     RootOutputTree runTree_;
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;

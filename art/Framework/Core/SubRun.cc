@@ -19,32 +19,32 @@ namespace edm {
   }
 
   SubRunPrincipal &
-  SubRun::luminosityBlockPrincipal() {
+  SubRun::subRunPrincipal() {
     return dynamic_cast<SubRunPrincipal &>(principal());
   }
 
   SubRunPrincipal const &
-  SubRun::luminosityBlockPrincipal() const {
+  SubRun::subRunPrincipal() const {
     return dynamic_cast<SubRunPrincipal const&>(principal());
   }
 
   Provenance
   SubRun::getProvenance(BranchID const& bid) const
   {
-    return luminosityBlockPrincipal().getProvenance(bid);
+    return subRunPrincipal().getProvenance(bid);
   }
 
   void
   SubRun::getAllProvenance(std::vector<Provenance const*> & provenances) const
   {
-    luminosityBlockPrincipal().getAllProvenance(provenances);
+    subRunPrincipal().getAllProvenance(provenances);
   }
 
 
   void
   SubRun::commit_() {
     // fill in guts of provenance here
-    SubRunPrincipal & lbp = luminosityBlockPrincipal();
+    SubRunPrincipal & lbp = subRunPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
@@ -54,10 +54,10 @@ namespace edm {
 	pit->first = 0;
 
 	// set provenance
-	std::auto_ptr<ProductProvenance> lumiEntryInfoPtr(
+	std::auto_ptr<ProductProvenance> subRunEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	lbp.put(pr, *pit->second, lumiEntryInfoPtr);
+	lbp.put(pr, *pit->second, subRunEntryInfoPtr);
 	++pit;
     }
 

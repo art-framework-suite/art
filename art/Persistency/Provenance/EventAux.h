@@ -14,12 +14,12 @@
 namespace edm {
   struct EventAuxiliary;
   struct EventAux {
-    EventAux() : processHistoryID_(), id_(), time_(), luminosityBlockID_() {}
+    EventAux() : processHistoryID_(), id_(), time_(), subRunID_() {}
     ~EventAux() {}
     mutable ProcessHistoryID processHistoryID_;
     EventID id_;
     Timestamp time_;
-    SubRunNumber_t luminosityBlockID_;
+    SubRunNumber_t subRunID_;
   };
   void conversion(EventAux const& from, EventAuxiliary & to);
 }

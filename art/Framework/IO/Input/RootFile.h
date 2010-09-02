@@ -58,12 +58,12 @@ namespace edm {
 	     std::string const& logicalFileName,
 	     boost::shared_ptr<TFile> filePtr,
 	     RunNumber_t const& startAtRun,
-	     SubRunNumber_t const& startAtLumi,
+	     SubRunNumber_t const& startAtSubRun,
 	     EventNumber_t const& startAtEvent,
 	     unsigned int eventsToSkip,
-	     std::vector<SubRunID> const& whichLumisToSkip,
+	     std::vector<SubRunID> const& whichSubRunsToSkip,
 	     int remainingEvents,
-	     int remainingLumis,
+	     int remainingSubRuns,
 	     unsigned int treeCacheSize,
              int treeMaxVirtualSize,
 	     InputSource::ProcessingMode processingMode,
@@ -80,7 +80,7 @@ namespace edm {
 	boost::shared_ptr<ProductRegistry const> pReg);
     std::auto_ptr<EventPrincipal> readEvent(
 	boost::shared_ptr<ProductRegistry const> pReg);
-    boost::shared_ptr<SubRunPrincipal> readLumi(
+    boost::shared_ptr<SubRunPrincipal> readSubRun(
 	boost::shared_ptr<ProductRegistry const> pReg,
 	boost::shared_ptr<RunPrincipal> rp);
     std::string const& file() const {return file_;}
@@ -88,24 +88,24 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
-    SubRunAuxiliary const& luminosityBlockAux() {return lumiAux_;}
+    SubRunAuxiliary const& subRunAux() {return subRunAux_;}
     RunAuxiliary const& runAux() const {return runAux_;}
     EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
     RootTree const& eventTree() const {return eventTree_;}
-    RootTree const& lumiTree() const {return lumiTree_;}
+    RootTree const& subRunTree() const {return subRunTree_;}
     RootTree const & runTree() const {return runTree_;}
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
-    bool setEntryAtEvent(RunNumber_t run, SubRunNumber_t lumi, EventNumber_t event, bool exact);
-    bool setEntryAtLumi(SubRunID const& lumi);
+    bool setEntryAtEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, bool exact);
+    bool setEntryAtSubRun(SubRunID const& subRun);
     bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
       fileIndexIter_ = fileIndexBegin_;
       eventTree_.rewind();
-      lumiTree_.rewind();
+      subRunTree_.rewind();
       runTree_.rewind();
     }
     void setToLastEntry() {
@@ -124,12 +124,12 @@ namespace edm {
     }
 
   private:
-    bool setIfFastClonable(int remainingEvents, int remainingLumis) const;
+    bool setIfFastClonable(int remainingEvents, int remainingSubRuns) const;
     void validateFile();
     void fillFileIndex();
     void fillEventAuxiliary();
     void fillHistory();
-    void fillLumiAuxiliary();
+    void fillSubRunAuxiliary();
     void fillRunAuxiliary();
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(SubRunID & id);
@@ -162,19 +162,19 @@ namespace edm {
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
     RunNumber_t startAtRun_;
-    SubRunNumber_t startAtLumi_;
+    SubRunNumber_t startAtSubRun_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
-    std::vector<SubRunID> whichLumisToSkip_;
+    std::vector<SubRunID> whichSubRunsToSkip_;
     std::vector<EventID> whichEventsToProcess_;
     std::vector<EventID>::const_iterator eventListIter_;
     bool noEventSort_;
     bool fastClonable_;
     EventAuxiliary eventAux_;
-    SubRunAuxiliary lumiAux_;
+    SubRunAuxiliary subRunAux_;
     RunAuxiliary runAux_;
     RootTree eventTree_;
-    RootTree lumiTree_;
+    RootTree subRunTree_;
     RootTree runTree_;
     RootTreePtrArray treePointers_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;

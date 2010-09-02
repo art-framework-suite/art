@@ -78,10 +78,10 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
   edm::RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
-  edm::SubRunAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, preg, pc));
+  edm::SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, preg, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
+  edm::EventAuxiliary eventAux(id, uuid, time, lbp->subRun(), true);
   edm::EventPrincipal ep(eventAux, preg, pc);
   ep.setSubRunPrincipal(lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
@@ -158,10 +158,10 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::SubRunAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, pregc, pc));
+  edm::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, pregc, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
   edm::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(lbp);
   const edm::BranchDescription& branchFromRegistry = it->second;

@@ -17,17 +17,17 @@ namespace edm {
   class ActivityRegistry;
 
   struct InputSourceDescription {
-    InputSourceDescription() : moduleDescription_(), productRegistry_(0), actReg_(), maxEvents_(-1), maxLumis_(-1) {}
+    InputSourceDescription() : moduleDescription_(), productRegistry_(0), actReg_(), maxEvents_(-1), maxSubRuns_(-1) {}
     InputSourceDescription(ModuleDescription const& md,
 			   ProductRegistry& preg,
 			   boost::shared_ptr<ActivityRegistry> areg,
 			   int maxEvents,
-			   int maxLumis) :
+			   int maxSubRuns) :
       moduleDescription_(md),
       productRegistry_(&preg),
       actReg_(areg),
       maxEvents_(maxEvents),
-      maxLumis_(maxLumis)
+      maxSubRuns_(maxSubRuns)
 
     {}
 
@@ -35,7 +35,7 @@ namespace edm {
     ProductRegistry * productRegistry_;
     boost::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
-    int maxLumis_;
+    int maxSubRuns_;
   };
 }
 

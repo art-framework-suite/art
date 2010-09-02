@@ -30,8 +30,8 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
 )
 
 process.source = cms.Source("EmptySource",
-    firstLuminosityBlock = cms.untracked.uint32(6),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(3),
+    firstSubRun = cms.untracked.uint32(6),
+    numberEventsInSubRun = cms.untracked.uint32(3),
     firstRun = cms.untracked.uint32(561),
     numberEventsInRun = cms.untracked.uint32(7)
 )

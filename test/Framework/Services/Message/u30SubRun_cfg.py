@@ -1,4 +1,4 @@
-# Investigatory test for endLuminosityBlock module behavior
+# Investigatory test for endSubRun module behavior
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -33,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("EmptySource",
-    numberEventsInLuminosityBlock = cms.untracked.uint32(3)
+    numberEventsInSubRun = cms.untracked.uint32(3)
 )
 
 process.ssm_1a = cms.EDAnalyzer("UTC_SL1",

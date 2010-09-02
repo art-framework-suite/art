@@ -25,7 +25,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 
   class_<edm::SubRunID>("SubRunID", init<unsigned int, unsigned int>())
       .def("run",    &edm::SubRunID::run)
-      .def("luminosityBlock", &edm::SubRunID::luminosityBlock)
+      .def("subRun", &edm::SubRunID::subRun)
   ;
 
   class_<edm::FileInPath>("FileInPath", init<std::string>())

@@ -1,5 +1,5 @@
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: File 1 ***
 	startingNewLoop
  	readFile

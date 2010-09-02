@@ -32,7 +32,7 @@ namespace edm {
 
    private:
       virtual void write(EventPrincipal const& e);
-      virtual void writeLuminosityBlock(SubRunPrincipal const&){}
+      virtual void writeSubRun(SubRunPrincipal const&){}
       virtual void writeRun(RunPrincipal const&){}
    };
 

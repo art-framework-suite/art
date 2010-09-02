@@ -21,7 +21,7 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, history->processHistoryID(), mapper, rtrv),
 	  aux_(aux),
-	  luminosityBlockPrincipal_(),
+	  subRunPrincipal_(),
 	  unscheduledHandler_(),
 	  moduleLabelsRunning_(),
 	  history_(history),
@@ -43,12 +43,12 @@ namespace edm {
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
-    return luminosityBlockPrincipal().runPrincipal();
+    return subRunPrincipal().runPrincipal();
   }
 
   RunPrincipal &
   EventPrincipal::runPrincipal() {
-    return luminosityBlockPrincipal().runPrincipal();
+    return subRunPrincipal().runPrincipal();
   }
 
   void

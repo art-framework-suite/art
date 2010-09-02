@@ -2,7 +2,7 @@
 # This configuration is designed to be run as the last
 # in a series of fw processes.
 
-# Tests the maxLuminosityBlocks parameter
+# Tests the maxSubRuns parameter
 
 # checks to see that the process level fakeRaw overrides the file based one
 
@@ -10,7 +10,7 @@ import FWCore.ParameterSet.python.Config as cms
 
 process = cms.Process("PROD2TEST")
 
-process.maxLuminosityBlocks = cms.untracked.PSet(
+process.maxSubRuns = cms.untracked.PSet(
   input = cms.untracked.int32(3)
 )
 
@@ -43,11 +43,11 @@ process.a = cms.EDAnalyzer("TestFindProduct",
   inputTags = cms.untracked.VInputTag( cms.InputTag("fakeRaw"),
                                        cms.InputTag("fakeHLTDebug") ),
 
-  # Test the maxLuminosityBlock parameter
-  # 3 luminosity blocks contain 15 events
+  # Test the maxSubRun parameter
+  # 3 subRuns contain 15 events
   # Each event contains one product with a value of 20 and
   # one product with a value of 1000
-  # If the maxLuminosityBlock parameter is working correctly the
+  # If the maxSubRun parameter is working correctly the
   # following should be the sum of all the values.
   # The product values are hard coded into the fake
   # HLT configuration (the first one in this series).
