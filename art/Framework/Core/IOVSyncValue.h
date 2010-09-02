@@ -1,6 +1,6 @@
 #ifndef Framework_IOVSyncValue_h
 #define Framework_IOVSyncValue_h
-// -*- C++ -*-
+
 //
 // Package:     Framework
 // Class  :     IOVSyncValue
@@ -9,14 +9,8 @@
 
  Description: Provides the information needed to synchronize the EventSetup IOV with an Event
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Aug  3 18:35:24 EDT 2005
-//
+
 
 // system include files
 #include <functional>
@@ -26,12 +20,10 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 
-// forward declarations
 
 namespace edm {
 class IOVSyncValue
 {
-
    public:
       IOVSyncValue();
       //virtual ~IOVSyncValue();
@@ -111,4 +103,4 @@ class IOVSyncValue
 
 }
 
-#endif
+#endif  // Framework_IOVSyncValue_h

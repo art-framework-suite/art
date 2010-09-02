@@ -6,7 +6,6 @@ set( artFrameworkCore_sources Actions.cc
 			     CachedProducts.cc
 			     ConfigurableInputSource.cc
 			     CurrentProcessingContext.cc
-			     DataKeyTags.cc
 			     DataViewImpl.cc
 			     DelayedReader.cc
 			     EDAnalyzer.cc
@@ -87,12 +86,10 @@ install ( TARGETS art   DESTINATION bin )
 install(FILES Actions.h
 	      BranchActionType.h
 	      CachedProducts.h
-	      Callback.h
 	      CMakeLists.txt
 	      ConfigurableInputSource.h
 	      ConstProductRegistry.h
 	      CurrentProcessingContext.h
-	      DataKeyTags.h
 	      DataProxyProvider.h
 	      DataProxyTemplate.h
 	      DataViewImpl.h
@@ -114,12 +111,6 @@ install(FILES Actions.h
 	      Group.h
 	      GroupSelector.h
 	      GroupSelectorRules.h
-	      HCMethods.h
-	      HCMethods.icc
-	      HCTypeTag.h
-	      HCTypeTag.icc
-	      HCTypeTagTemplate.h
-	      HCTypeTagTemplate.icc
 	      IEventProcessor.h
 	      InputSourceDescription.h
 	      InputSource.h
@@ -133,7 +124,6 @@ install(FILES Actions.h
 	      OutputModuleDescription.h
 	      OutputModule.h
 	      Principal.h
-	      produce_helpers.h
 	      ProducerBase.h
 	      ProductRegistryHelper.h
 	      Run.h
