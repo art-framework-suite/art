@@ -19,6 +19,7 @@ function one_file() {
   perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # "lumi|luminosty|luminosityblock" -> subrun
   grep -Il subrun "${F}" && { echo "OK"; return; } # Already done
+  cp -p "${F}" "$TMP" # Make sure permissions are correct on temporary file
   err=$(perl -wp -f fix-lumi.pl "${F}" 2>&1 >"$TMP" ) # Yes, the redirections are in the right order.
   status=$?
   if (( $status )); then # Oops
