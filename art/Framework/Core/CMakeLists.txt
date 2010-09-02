@@ -31,7 +31,6 @@ set( artFrameworkCore_sources Actions.cc
 			     IOVSyncValue.cc
 			     LuminosityBlock.cc
 			     LuminosityBlockPrincipal.cc
-			     NoDataException.cc
 			     NoDelayedReader.cc
 			     OutputModule.cc
 			     OutputWorker.cc
@@ -89,7 +88,6 @@ install(FILES Actions.h
 	      BranchActionType.h
 	      CachedProducts.h
 	      Callback.h
-	      CallbackProxy.h
 	      CMakeLists.txt
 	      ConfigurableInputSource.h
 	      ConstProductRegistry.h
@@ -130,7 +128,6 @@ install(FILES Actions.h
 	      LuminosityBlock.h
 	      LuminosityBlockPrincipal.h
 	      MakerMacros.h
-	      NoDataException.h
 	      NoDelayedReader.h
 	      OccurrenceTraits.h
 	      OutputModuleDescription.h
@@ -139,9 +136,6 @@ install(FILES Actions.h
 	      produce_helpers.h
 	      ProducerBase.h
 	      ProductRegistryHelper.h
-	      ProxyArgumentFactoryTemplate.h
-	      ProxyFactoryBase.h
-	      ProxyFactoryTemplate.h
 	      Run.h
 	      RunPrincipal.h
 	      Schedule.h

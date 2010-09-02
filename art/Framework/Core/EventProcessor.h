@@ -427,4 +427,5 @@ namespace edm {
     return run(-1, false);
   }
 }
-#endif
+
+#endif  // FWCore_Framework_EventProcessor_h

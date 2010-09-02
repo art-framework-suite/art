@@ -18,13 +18,10 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/Core/LooperFactory.h"
 #include "art/Framework/Core/LuminosityBlockPrincipal.h"
-#include "art/Framework/Core/ModuleFactory.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
-#include "art/Framework/Core/SourceFactory.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/MessageLogger/MessageLogger.h"
@@ -268,11 +265,6 @@ namespace edm {
 	++itName)
       {
 	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
-	vLooper = LooperFactory::get()->addTo(
-				    providerPSet,
-				    common.processName_,
-				    common.releaseVersion_,
-				    common.passID_);
       }
       return vLooper;
 
