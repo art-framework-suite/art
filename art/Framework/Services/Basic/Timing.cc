@@ -1,29 +1,20 @@
-// -*- C++ -*-
 //
 // Package:     Services
 // Class  :     Timing
 //
-// Implementation:
-//
-// Original Author:  Jim Kowalkowski
-//
-//
-// Change Log
-//
-// 1 - mf 4/22/08   Facilitate summary output to job report and logs:
-//		    In Timing ctor, default for report_summary_ changed to true
-//                  In postEndJob, add output to logger
+
 
 #include "art/Framework/Services/Basic/Timing.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 
 #include <iostream>
 #include <sys/time.h>
+
 
 namespace edm {
   namespace service {
@@ -106,7 +97,7 @@ namespace edm {
 
 
     }
-    void Timing::postEventProcessing(const Event& e, const EventSetup&)
+    void Timing::postEventProcessing(const Event& e)
     {
       double t = getTime() - curr_event_time_;
       if (not summary_only_) {

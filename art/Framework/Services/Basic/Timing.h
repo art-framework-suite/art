@@ -1,6 +1,6 @@
 #ifndef Services_TIMING_h
 #define Services_TIMING_h
-// -*- C++ -*-
+
 //
 // Package:     Services
 // Class  :     Timing
@@ -17,7 +17,6 @@
 namespace edm {
   struct ActivityRegistry;
   class Event;
-  class EventSetup;
   class ParameterSet;
   namespace service {
     class Timing
@@ -32,7 +31,7 @@ namespace edm {
       void postEndJob();
 
       void preEventProcessing(const EventID&, const Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
+      void postEventProcessing(const Event&);
 
       void preModule(const ModuleDescription&);
       void postModule(const ModuleDescription&);
@@ -54,6 +53,4 @@ namespace edm {
   }
 }
 
-
-
-#endif
+#endif  // Services_TIMING_h

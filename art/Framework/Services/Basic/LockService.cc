@@ -1,11 +1,11 @@
 #include "art/Framework/Services/Basic/LockService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+//#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/GlobalMutex.h"
-//#include "art/Utilities/Algorithms.h"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 using namespace edm::rootfix;
 
@@ -69,7 +69,7 @@ void LockService::preEventProcessing(const edm::EventID& iID,
 {
 }
 
-void LockService::postEventProcessing(const Event& e, const EventSetup&)
+void LockService::postEventProcessing(const Event& e)
 {
 }
 void LockService::preSource()

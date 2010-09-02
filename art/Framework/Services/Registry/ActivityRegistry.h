@@ -1,6 +1,6 @@
 #ifndef FWCore_ServiceRegistry_ActivityRegistry_h
 #define FWCore_ServiceRegistry_ActivityRegistry_h
-// -*- C++ -*-
+
 //
 // Package:     ServiceRegistry
 // Class  :     ActivityRegistry
@@ -13,32 +13,26 @@
    Services can connect to the signals distributed by the ActivityRegistry in order to monitor the activity of the application.
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 19:53:09 EDT 2005
-//
-//
+
 
 // system include files
-#include "sigc++/signal.h"
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
 #include "boost/utility.hpp"
+#include "sigc++/signal.h"
 
-// user include files
 
 // forward declarations
 namespace edm {
+  class Event;
   class EventID;
+  class HLTPathStatus;
+  class LuminosityBlock;
   class LuminosityBlockID;
+  class ModuleDescription;
+  class Run;
   class RunID;
   class Timestamp;
-  class ModuleDescription;
-  class Event;
-  class LuminosityBlock;
-  class Run;
-  class EventSetup;
-  class HLTPathStatus;
 }  // namespace edm
 
 // helper macros
@@ -181,7 +175,7 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPreProcessEvent)
 
-    typedef sigc::signal<void, Event const&, EventSetup const&> PostProcessEvent;
+    typedef sigc::signal<void, Event const&> PostProcessEvent;
     /// signal is emitted after all modules have finished processing the Event
     PostProcessEvent postProcessEventSignal_;
     void watchPostProcessEvent(PostProcessEvent::slot_type const& iSlot) {
@@ -198,7 +192,7 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPreBeginRun)
 
-    typedef sigc::signal<void, Run const&, EventSetup const&> PostBeginRun;
+    typedef sigc::signal<void, Run const&> PostBeginRun;
     /// signal is emitted after all modules have finished processing the beginRun
     PostBeginRun postBeginRunSignal_;
     void watchPostBeginRun(PostBeginRun::slot_type const& iSlot) {
@@ -215,7 +209,7 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPreEndRun)
 
-    typedef sigc::signal<void, Run const&, EventSetup const&> PostEndRun;
+    typedef sigc::signal<void, Run const&> PostEndRun;
     /// signal is emitted after all modules have finished processing the Run
     PostEndRun postEndRunSignal_;
     void watchPostEndRun(PostEndRun::slot_type const& iSlot) {
@@ -232,7 +226,7 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPreBeginLumi)
 
-    typedef sigc::signal<void, LuminosityBlock const&, EventSetup const&> PostBeginLumi;
+    typedef sigc::signal<void, LuminosityBlock const&> PostBeginLumi;
     /// signal is emitted after all modules have finished processing the beginLumi
     PostBeginLumi postBeginLumiSignal_;
     void watchPostBeginLumi(PostBeginLumi::slot_type const& iSlot) {
@@ -249,7 +243,7 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPreEndLumi)
 
-    typedef sigc::signal<void, LuminosityBlock const&, EventSetup const&> PostEndLumi;
+    typedef sigc::signal<void, LuminosityBlock const&> PostEndLumi;
     /// signal is emitted after all modules have finished processing the Lumi
     PostEndLumi postEndLumiSignal_;
     void watchPostEndLumi(PostEndLumi::slot_type const& iSlot) {

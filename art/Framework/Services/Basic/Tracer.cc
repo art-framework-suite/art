@@ -1,14 +1,6 @@
-// -*- C++ -*-
 //
 // Package:     Services
 // Class  :     Tracer
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Sep  8 14:17:58 EDT 2005
-//
 //
 
 // system include files
@@ -16,21 +8,14 @@
 
 // user include files
 #include "art/Framework/Services/Basic/Tracer.h"
-
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/Timestamp.h"
 
 using namespace edm::service;
-//
-// constants, enums and typedefs
-//
 
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -200,7 +185,7 @@ Tracer::preEvent(EventID const& iID, Timestamp const& iTime) {
    std::cout <<indention_<<indention_<<" processing event:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postEvent(Event const&, EventSetup const&) {
+Tracer::postEvent(Event const&) {
    std::cout <<indention_<<indention_<<" finished event:"<<std::endl;
 }
 
@@ -239,7 +224,7 @@ Tracer::preBeginRun(RunID const& iID, Timestamp const& iTime) {
    std::cout <<indention_<<indention_<<" processing begin run:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postBeginRun(Run const&, EventSetup const&) {
+Tracer::postBeginRun(Run const&) {
    std::cout <<indention_<<indention_<<" finished begin run:"<<std::endl;
 }
 
@@ -278,7 +263,7 @@ Tracer::preEndRun(RunID const& iID, Timestamp const& iTime) {
    std::cout <<indention_<<indention_<<" processing end run:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postEndRun(Run const&, EventSetup const&) {
+Tracer::postEndRun(Run const&) {
    std::cout <<indention_<<indention_<<" finished end run:"<<std::endl;
 }
 
@@ -317,7 +302,7 @@ Tracer::preBeginLumi(LuminosityBlockID const& iID, Timestamp const& iTime) {
    std::cout <<indention_<<indention_<<" processing begin lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postBeginLumi(LuminosityBlock const&, EventSetup const&) {
+Tracer::postBeginLumi(LuminosityBlock const&) {
    std::cout <<indention_<<indention_<<" finished begin lumi:"<<std::endl;
 }
 
@@ -356,7 +341,7 @@ Tracer::preEndLumi(LuminosityBlockID const& iID, Timestamp const& iTime) {
    std::cout <<indention_<<indention_<<" processing end lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postEndLumi(LuminosityBlock const&, EventSetup const&) {
+Tracer::postEndLumi(LuminosityBlock const&) {
    std::cout <<indention_<<indention_<<" finished end lumi:"<<std::endl;
 }
 
@@ -438,12 +423,3 @@ Tracer::postModuleEndJob(ModuleDescription const& iDescription) {
   std::cout <<indention_;
   std::cout<<" endJob finished:"<<iDescription.moduleLabel_<<std::endl;
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
-

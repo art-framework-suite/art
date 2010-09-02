@@ -45,7 +45,7 @@ namespace edm {
       void postBeginJob() {;}
       void postEndJob() {;}
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&) {;}
-      void postEventProcessing(const edm::Event&, const edm::EventSetup&) {;}
+      void postEventProcessing(const edm::Event&) {;}
       void preModule(const ModuleDescription&) {;}
       void postModule(const ModuleDescription&) {;}
 

@@ -53,7 +53,7 @@ public:
   void  postEndJob();
 
   void  preEventProcessing ( edm::EventID const &, edm::Timestamp const & );
-  void  postEventProcessing( Event const &, EventSetup const & );
+  void  postEventProcessing( Event const & );
 
   void  preModuleConstruction ( ModuleDescription const & );
   void  postModuleConstruction( ModuleDescription const & );
@@ -99,7 +99,4 @@ private:
 
 }  // namespace edm
 
-
-
 #endif  // FWCore_MessageService_MessageLogger_h
-

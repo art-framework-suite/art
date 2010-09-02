@@ -16,12 +16,14 @@
   any two threads running event processors.
  */
 
-#include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/ParameterSet/ParameterSet.h"
+
+#include "boost/thread/mutex.hpp"
 
 #include <string>
 #include <vector>
-#include "boost/thread/mutex.hpp"
+
 namespace edm {
   namespace rootfix {
 
@@ -40,7 +42,7 @@ namespace edm {
       void postSourceConstruction(const edm::ModuleDescription&);
 
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const edm::Event&, const edm::EventSetup&);
+      void postEventProcessing(const edm::Event&);
 
       void preSource();
       void postSource();
@@ -59,4 +61,4 @@ namespace edm {
   }
 }
 
-#endif
+#endif  // FWCore_Services_LockService_h

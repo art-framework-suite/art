@@ -166,7 +166,6 @@ namespace edm {
   class ActivityRegistry;
   class Event;
   class EventID;
-  class EventSetup;
   class ParameterSet;
   class Timestamp;
 }
@@ -262,9 +261,7 @@ namespace edm {
     void  preProcessEvent( edm::EventID   const &
                          , edm::Timestamp const &
                          );
-    void  postProcessEvent( edm::Event      const &
-                          , edm::EventSetup const &
-                          );
+    void  postProcessEvent( edm::Event const &);
     void  postBeginJob( );
     void  postEndJob( );
 

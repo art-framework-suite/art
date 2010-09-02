@@ -14,20 +14,22 @@ namespace edm {
   class ParameterSet;
   class ActivityRegistry;
   class Event;
-  class EventSetup;
 
   namespace service {
 
-  class UnixSignalService
-  {
-  private:
-    bool enableSigInt_;
+    class UnixSignalService
+    {
+    private:
+      bool enableSigInt_;
 
-  public:
-    UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac);
-    ~UnixSignalService();
+    public:
+      UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac);
+      ~UnixSignalService();
 
-  }; // class UnixSignalService
-  }  // end of namespace service
-}    // end of namespace edm
-#endif
+    }; // class UnixSignalService
+
+  }  // namespace service
+
+}  // namespace edm
+
+#endif  // FWCore_Services_UnixSignalService_h

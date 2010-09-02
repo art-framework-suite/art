@@ -233,7 +233,7 @@ MessageLogger::preEventProcessing( const edm::EventID& iID
   edm::MessageDrop::instance()->runEvent = ost.str();
 }
 void
-MessageLogger::postEventProcessing(const Event&, const EventSetup&)
+MessageLogger::postEventProcessing(const Event&)
 {
   // MessageDrop::instance()->runEvent = "BetweenEvents";  	// change log 4
 }

@@ -1,32 +1,19 @@
 #ifndef FWCore_Services_Tracer_h
 #define FWCore_Services_Tracer_h
-// -*- C++ -*-
+
 //
 // Package:     Services
 // Class  :     Tracer
 //
 /**\class Tracer Tracer.h FWCore/Services/interface/Tracer.h
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Sep  8 14:35:45 EDT 2005
-//
-//
 
-// system include files
-
-// user include files
 
 // forward declarations
 
-#include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/ParameterSet/ParameterSet.h"
 
 
 namespace edm {
@@ -39,19 +26,19 @@ public:
          void postEndJob();
 
          void preBeginRun(RunID const& id, Timestamp const& ts);
-         void postBeginRun(Run const& run, EventSetup const& es);
+         void postBeginRun(Run const& run);
 
          void preBeginLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postBeginLumi(LuminosityBlock const& run, EventSetup const& es);
+         void postBeginLumi(LuminosityBlock const& run);
 
          void preEvent(EventID const& id, Timestamp const& ts);
-         void postEvent(Event const& ev, EventSetup const& es);
+         void postEvent(Event const& ev);
 
          void preEndLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postEndLumi(LuminosityBlock const& run, EventSetup const& es);
+         void postEndLumi(LuminosityBlock const& run);
 
          void preEndRun(RunID const& id, Timestamp const& ts);
-         void postEndRun(Run const& run, EventSetup const& es);
+         void postEndRun(Run const& run);
 
          void preSourceConstruction(ModuleDescription const& md);
          void postSourceConstruction(ModuleDescription const& md);
@@ -118,4 +105,4 @@ private:
    }
 }
 
-#endif
+#endif  // FWCore_Services_Tracer_h

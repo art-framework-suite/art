@@ -1,14 +1,6 @@
-// -*- C++ -*-
 //
 // Package:     ServiceRegistry
 // Class  :     ActivityRegistry
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Tue Sep  6 10:26:49 EDT 2005
-//
 //
 
 // system include files
@@ -17,42 +9,6 @@
 // user include files
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Utilities/Algorithms.h"
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-//edm::ActivityRegistry::ActivityRegistry()
-//{
-//}
-
-// ActivityRegistry::ActivityRegistry(ActivityRegistry const& rhs)
-// {
-//    // do actual copying here;
-// }
-
-//edm::ActivityRegistry::~ActivityRegistry()
-//{
-//}
-
-//
-// assignment operators
-//
-// ActivityRegistry const& ActivityRegistry::operator=(ActivityRegistry const& rhs)
-// {
-//   //An exception safe implementation is
-//   ActivityRegistry temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -261,11 +217,3 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFromReverse(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
 
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//

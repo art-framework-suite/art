@@ -1,30 +1,21 @@
 #ifndef FWCore_Services_Memory_h
 #define FWCore_Services_Memory_h
-// -*- C++ -*-
+
 //
 // Package:     Services
 // Class  :     SimpleMemoryCheck
 //
-//
-// Original Author:  Jim Kowalkowski
-//
-//
-// Change Log
-//
-// 1 - Apr 25, 2008 M. Fischler
-//	Data structures for Event summary statistics,
-//
 
 
-#include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Provenance/EventID.h"
+
 
 namespace edm {
   class EventID;
   class Timestamp;
   class Event;
-  class EventSetup;
   class ModuleDescription;
 
   namespace service {
@@ -58,7 +49,7 @@ namespace edm {
       void postBeginJob();
 
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
+      void postEventProcessing(const Event&);
 
       void postModuleBeginJob(const ModuleDescription&);
       void postModuleConstruction(const ModuleDescription&);
@@ -172,6 +163,4 @@ namespace edm {
   }
 }
 
-
-
-#endif
+#endif  // FWCore_Services_Memory_h

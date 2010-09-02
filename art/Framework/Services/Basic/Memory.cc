@@ -1,42 +1,27 @@
-// -*- C++ -*-
 //
 // Package:     Services
 // Class  :     Timing
 //
-// Implementation:
-//
-// Original Author:  Jim Kowalkowski
-//
-//
-// Change Log
-//
-// 1 - Apr 25, 2008 M. Fischler
-//	Collect event summary information and output to XML file and logger
-//	at the end of the job.  Involves split-up of updateAndPrint method.
-//
-// 2 - May 7, 2008 M. Fischler
-//      Collect module summary information and output to XML file and logger
-//	at the end of the job.
 
-#include "art/Framework/Services/Basic/Memory.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/Event.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "art/Framework/Services/Basic/Memory.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
+#include "art/MessageLogger/MessageLogger.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/MallocOpts.h"
 
+#include <iostream>
 #include <malloc.h>
 #include <sstream>
-#include <iostream>
 
 #ifdef __linux__
 #define LINUX 1
 #endif
 
-#include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 namespace edm {
   namespace service {
@@ -447,8 +432,7 @@ namespace edm {
       currentEventID_ = iID;					// changelog 2
     }
 
-    void SimpleMemoryCheck::postEventProcessing(const Event& e,
-          					const EventSetup&)
+    void SimpleMemoryCheck::postEventProcessing(const Event& e)
     {
       ++count_;
       update();
