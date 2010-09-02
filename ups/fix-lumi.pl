@@ -5,7 +5,7 @@ BEGIN { %used_translations = ();
 
 my ($from, $to) = ();
 
-while (m/\G.*?([\w_\d]*lumi[\w_\d]*(?:\s*block)?)/gi) {
+while (m/\G.*?([\w_\d]*lumi[\w_\d]*\s*(?:block|section)?)/gi) {
   my $from = $1;
   $from =~ m/lumin[^o]/i and next; # eg Illuminate
   # Can run in identifier-only mode.
@@ -13,7 +13,7 @@ while (m/\G.*?([\w_\d]*lumi[\w_\d]*(?:\s*block)?)/gi) {
   my $to = $from;
   $to =~ s/lumi/subRun/;
   $to =~ s/Lumi/SubRun/;
-  $to =~ s/(subrun)(?:nosity)?\s*(?:block)?/${1}/i;
+  $to =~ s/(subrun)(?:nosity)?\s*(?:block|section)?/${1}/i;
   if (exists $used_translations{$to}) {
     if ($used_translations{$to} ne $from) {
       # Oops
