@@ -18,12 +18,12 @@ namespace edmtest {
     virtual void analyze(edm::Event const& event, edm::EventSetup const& es);
     virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
     virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void beginSubRun(edm::SubRun const& lumi, edm::EventSetup const& es);
-    virtual void endSubRun(edm::SubRun const& lumi, edm::EventSetup const& es);
+    virtual void beginSubRun(edm::SubRun const& subRun, edm::EventSetup const& es);
+    virtual void endSubRun(edm::SubRun const& subRun, edm::EventSetup const& es);
 
   private:
 
-    std::vector<unsigned int> expectedRunLumisEvents_;
+    std::vector<unsigned int> expectedRunSubRunsEvents_;
     int index_;
     bool verbose_;
   };

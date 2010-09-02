@@ -129,8 +129,8 @@ namespace edm {
     void beginJob();
     void endJob();
 
-    // Write the luminosity block
-    void writeLumi(SubRunPrincipal const& lbp);
+    // Write the subRun
+    void writeSubRun(SubRunPrincipal const& lbp);
 
     // Write the run
     void writeRun(RunPrincipal const& rp);

@@ -193,7 +193,7 @@ class SubRunID(_ParameterTypeBase):
         self.__block = block
     def run(self):
         return self.__run
-    def luminosityBlock(self):
+    def subRun(self):
         return self.__block
     @staticmethod
     def _isValid(value):
@@ -206,7 +206,7 @@ class SubRunID(_ParameterTypeBase):
     def pythonValue(self, options=PrintOptions()):
           return str(self.__run)+ ', '+str(self.__block)
     def cppID(self, parameterSet):
-        return parameterSet.newSubRunID(self.run(), self.luminosityBlock())
+        return parameterSet.newSubRunID(self.run(), self.subRun())
     def insertInto(self, parameterSet, myname):
         parameterSet.addSubRunID(self.isTracked(), myname, self.cppID(parameterSet))
 

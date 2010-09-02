@@ -58,7 +58,7 @@ namespace edm {
     // An exception will be thrown if an attempt is made to persistify
     // any object containing this Ptr.  Also, in the future work will
     // be done to throw an exception if an attempt is made to put any object
-    // containing this Ptr into an event(or run or lumi).
+    // containing this Ptr into an event(or run or subRun).
     template <typename C>
     Ptr(C const* product, key_type itemKey, bool setNow=true):
     core_(ProductID(), product != 0 ? getItem_(product,itemKey) : 0, 0, true),

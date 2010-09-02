@@ -196,10 +196,10 @@ void test_ep::setUp()
     boost::shared_ptr<edm::ProductRegistry const> preg(pProductRegistry_);
     edm::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, *process));
-    edm::SubRunAuxiliary lumiAux(rp->run(), 1, now, now);
-    boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, preg, *process));
+    edm::SubRunAuxiliary subRunAux(rp->run(), 1, now, now);
+    boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, preg, *process));
     lbp->setRunPrincipal(rp);
-    edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->luminosityBlock(), true);
+    edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->subRun(), true);
     pEvent_ = new edm::EventPrincipal(eventAux, preg, *process);
     pEvent_->setSubRunPrincipal(lbp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);

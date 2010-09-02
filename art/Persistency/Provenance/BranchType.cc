@@ -26,49 +26,49 @@ namespace edm {
 
     // Prefixes
     std::string const run                      = "Run";
-    std::string const lumi                     = "SubRun";
+    std::string const subRun                     = "SubRun";
     std::string const event                    = "Event";
 
     // Trees, branches, indices
     std::string const runs                     = run   + 's';
-    std::string const lumis                    = lumi  + 's';
+    std::string const subRuns                    = subRun  + 's';
     std::string const events                   = event + 's';
 
     std::string const runMeta                  = run   + metaData;
-    std::string const lumiMeta                 = lumi  + metaData;
+    std::string const subRunMeta                 = subRun  + metaData;
     std::string const eventMeta                = event + metaData;
 
 #ifdef FW_BACKWARD_COMPATIBILITY
     std::string const runInfo                  = run   + statusInformation;
-    std::string const lumiInfo                 = lumi  + statusInformation;
+    std::string const subRunInfo                 = subRun  + statusInformation;
     std::string const eventInfo                = event + statusInformation;
 #endif  // FW_BACKWARD_COMPATIBILITY
 
     std::string const runAuxiliary             = run   + auxiliary;
-    std::string const lumiAuxiliary            = lumi  + auxiliary;
+    std::string const subRunAuxiliary            = subRun  + auxiliary;
     std::string const eventAuxiliary           = event + auxiliary;
 
 #ifdef FW_BACKWARD_COMPATIBILITY
     std::string const runProductStatus         = run   + productStatus;
-    std::string const lumiProductStatus        = lumi  + productStatus;
+    std::string const subRunProductStatus        = subRun  + productStatus;
     std::string const eventProductStatus       = event + productStatus;
 #endif  // FW_BACKWARD_COMPATIBILITY
 
     std::string const runEventEntryInfo        = run   + branchEntryInfo;
-    std::string const lumiEventEntryInfo       = lumi  + branchEntryInfo;
+    std::string const subRunEventEntryInfo       = subRun  + branchEntryInfo;
     std::string const eventEventEntryInfo      = event + branchEntryInfo;
 
     std::string const runMajorIndex            = runAuxiliary   + majorIndex;
-    std::string const lumiMajorIndex           = lumiAuxiliary  + majorIndex;
+    std::string const subRunMajorIndex           = subRunAuxiliary  + majorIndex;
     std::string const eventMajorIndex          = eventAuxiliary + majorIndex;
 
     std::string const runMinorIndex;           // empty
-    std::string const lumiMinorIndex           = lumiAuxiliary  + ".id_.luminosityBlock_";
+    std::string const subRunMinorIndex           = subRunAuxiliary  + ".id_.subRun_";
     std::string const eventMinorIndex          = eventAuxiliary + ".id_.event_";
 
 #ifdef FW_BACKWARD_COMPATIBILITY
     std::string const runAux                   = run   + aux;
-    std::string const lumiAux                  = lumi  + aux;
+    std::string const subRunAux                  = subRun  + aux;
     std::string const eventAux                 = event + aux;
 #endif  // FW_BACKWARD_COMPATIBILITY
 
@@ -100,14 +100,14 @@ namespace edm {
     std::string const & select( BranchType          bt
                               , std::string const & event_str
                               , std::string const & run_str
-                              , std::string const & lumi_str
+                              , std::string const & subRun_str
                               )
     {
       switch( bt ) {
         case InEvent:  return event_str;
         case InRun  :  return run_str;
-        case InSubRun :  return lumi_str;
-        default     :  return lumi_str;  // TODO: report "none of the above"?
+        case InSubRun :  return subRun_str;
+        default     :  return subRun_str;  // TODO: report "none of the above"?
       }
     }
 
@@ -115,49 +115,49 @@ namespace edm {
 
 
   std::string const & BranchTypeToString( BranchType bt ) {
-    select( bt, event, run, lumi );
+    select( bt, event, run, subRun );
   }
 
   std::string const & BranchTypeToProductTreeName( BranchType bt ) {
-    select( bt, events, runs, lumis );
+    select( bt, events, runs, subRuns );
   }
 
   std::string const & BranchTypeToMetaDataTreeName( BranchType bt ) {
-    select( bt, eventMeta, runMeta, lumiMeta );
+    select( bt, eventMeta, runMeta, subRunMeta );
   }
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToInfoTreeName( BranchType bt ) {
-    select( bt, eventInfo, runInfo, lumiInfo );
+    select( bt, eventInfo, runInfo, subRunInfo );
   }
 #endif  // FW_BACKWARD_COMPATIBILITY
 
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType bt ) {
-    select( bt, eventAuxiliary, runAuxiliary, lumiAuxiliary );
+    select( bt, eventAuxiliary, runAuxiliary, subRunAuxiliary );
   }
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToAuxBranchName( BranchType bt ) {
-    select( bt, eventAux, runAux, lumiAux );
+    select( bt, eventAux, runAux, subRunAux );
   }
 #endif  // FW_BACKWARD_COMPATIBILITY
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToProductStatusBranchName( BranchType bt ) {
-    select( bt, eventProductStatus, runProductStatus, lumiProductStatus );
+    select( bt, eventProductStatus, runProductStatus, subRunProductStatus );
   }
 #endif  // FW_BACKWARD_COMPATIBILITY
 
   std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType bt ) {
-    select( bt, eventEventEntryInfo, runEventEntryInfo, lumiEventEntryInfo );
+    select( bt, eventEventEntryInfo, runEventEntryInfo, subRunEventEntryInfo );
   }
 
   std::string const & BranchTypeToMajorIndexName( BranchType bt ) {
-    select( bt, eventMajorIndex, runMajorIndex, lumiMajorIndex );
+    select( bt, eventMajorIndex, runMajorIndex, subRunMajorIndex );
   }
 
   std::string const & BranchTypeToMinorIndexName( BranchType bt ) {
-    select( bt, eventMinorIndex, runMinorIndex, lumiMinorIndex );
+    select( bt, eventMinorIndex, runMinorIndex, subRunMinorIndex );
   }
 
   namespace poolNames {

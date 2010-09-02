@@ -33,8 +33,8 @@ bool TestBeginEndJobAnalyzer::beginJobCalled = false;
 bool TestBeginEndJobAnalyzer::endJobCalled = false;
 bool TestBeginEndJobAnalyzer::beginRunCalled = false;
 bool TestBeginEndJobAnalyzer::endRunCalled = false;
-bool TestBeginEndJobAnalyzer::beginLumiCalled = false;
-bool TestBeginEndJobAnalyzer::endLumiCalled = false;
+bool TestBeginEndJobAnalyzer::beginSubRunCalled = false;
+bool TestBeginEndJobAnalyzer::endSubRunCalled = false;
 bool TestBeginEndJobAnalyzer::destructorCalled = false;
 
 void
@@ -59,12 +59,12 @@ TestBeginEndJobAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
 
 void
 TestBeginEndJobAnalyzer::beginSubRun(edm::SubRun const&, edm::EventSetup const&) {
-  beginLumiCalled = true;
+  beginSubRunCalled = true;
 }
 
 void
 TestBeginEndJobAnalyzer::endSubRun(edm::SubRun const&, edm::EventSetup const&) {
-  endLumiCalled = true;
+  endSubRunCalled = true;
 }
 
 void

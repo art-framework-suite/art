@@ -46,13 +46,13 @@ namespace edm {
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     std::auto_ptr<EventPrincipal> readEvent_();
-    boost::shared_ptr<SubRunPrincipal> readLuminosityBlock_();
+    boost::shared_ptr<SubRunPrincipal> readSubRun_();
     boost::shared_ptr<RunPrincipal> readRun_();
     boost::shared_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, SubRunNumber_t lumi = 0U, bool exact = false);
+    std::auto_ptr<EventPrincipal> readIt(EventID const& id, SubRunNumber_t subRun = 0U, bool exact = false);
     boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
@@ -75,7 +75,7 @@ namespace edm {
     ProcessConfiguration const& processConfiguration() const;
     ProductRegistry & productRegistryUpdate() const;
     int remainingEvents() const;
-    int remainingLuminosityBlocks() const;
+    int remainingSubRuns() const;
     bool const primary() const;
     void logFileAction(const char* msg, std::string const& file);
 
@@ -92,10 +92,10 @@ namespace edm {
 
     int eventsRemainingInFile_;
     RunNumber_t startAtRun_;
-    SubRunNumber_t startAtLumi_;
+    SubRunNumber_t startAtSubRun_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
-    std::vector<SubRunID> whichLumisToSkip_;
+    std::vector<SubRunID> whichSubRunsToSkip_;
     std::vector<EventID> eventsToProcess_;
     bool noEventSort_;
     bool skipBadFiles_;

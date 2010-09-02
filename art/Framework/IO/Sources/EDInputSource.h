@@ -34,7 +34,7 @@ namespace edm {
 
   private:
     virtual void setRun(RunNumber_t);
-    virtual void setLumi(SubRunNumber_t lb);
+    virtual void setSubRun(SubRunNumber_t lb);
 
     PoolCatalog poolCatalog_;
     InputFileCatalog catalog_;

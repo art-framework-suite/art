@@ -24,8 +24,8 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    preSourceSignal_.connect(iOther.preSourceSignal_);
    postSourceSignal_.connect(iOther.postSourceSignal_);
 
-   preSourceLumiSignal_.connect(iOther.preSourceLumiSignal_);
-   postSourceLumiSignal_.connect(iOther.postSourceLumiSignal_);
+   preSourceSubRunSignal_.connect(iOther.preSourceSubRunSignal_);
+   postSourceSubRunSignal_.connect(iOther.postSourceSubRunSignal_);
 
    preSourceRunSignal_.connect(iOther.preSourceRunSignal_);
    postSourceRunSignal_.connect(iOther.postSourceRunSignal_);
@@ -45,11 +45,11 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    preEndRunSignal_.connect(iOther.preEndRunSignal_);
    postEndRunSignal_.connect(iOther.postEndRunSignal_);
 
-   preBeginLumiSignal_.connect(iOther.preBeginLumiSignal_);
-   postBeginLumiSignal_.connect(iOther.postBeginLumiSignal_);
+   preBeginSubRunSignal_.connect(iOther.preBeginSubRunSignal_);
+   postBeginSubRunSignal_.connect(iOther.postBeginSubRunSignal_);
 
-   preEndLumiSignal_.connect(iOther.preEndLumiSignal_);
-   postEndLumiSignal_.connect(iOther.postEndLumiSignal_);
+   preEndSubRunSignal_.connect(iOther.preEndSubRunSignal_);
+   postEndSubRunSignal_.connect(iOther.postEndSubRunSignal_);
 
    preProcessPathSignal_.connect(iOther.preProcessPathSignal_);
    postProcessPathSignal_.connect(iOther.postProcessPathSignal_);
@@ -60,11 +60,11 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    prePathEndRunSignal_.connect(iOther.prePathEndRunSignal_);
    postPathEndRunSignal_.connect(iOther.postPathEndRunSignal_);
 
-   prePathBeginLumiSignal_.connect(iOther.prePathBeginLumiSignal_);
-   postPathBeginLumiSignal_.connect(iOther.postPathBeginLumiSignal_);
+   prePathBeginSubRunSignal_.connect(iOther.prePathBeginSubRunSignal_);
+   postPathBeginSubRunSignal_.connect(iOther.postPathBeginSubRunSignal_);
 
-   prePathEndLumiSignal_.connect(iOther.prePathEndLumiSignal_);
-   postPathEndLumiSignal_.connect(iOther.postPathEndLumiSignal_);
+   prePathEndSubRunSignal_.connect(iOther.prePathEndSubRunSignal_);
+   postPathEndSubRunSignal_.connect(iOther.postPathEndSubRunSignal_);
 
    preModuleSignal_.connect(iOther.preModuleSignal_);
    postModuleSignal_.connect(iOther.postModuleSignal_);
@@ -75,11 +75,11 @@ edm::ActivityRegistry::connect(ActivityRegistry& iOther)
    preModuleEndRunSignal_.connect(iOther.preModuleEndRunSignal_);
    postModuleEndRunSignal_.connect(iOther.postModuleEndRunSignal_);
 
-   preModuleBeginLumiSignal_.connect(iOther.preModuleBeginLumiSignal_);
-   postModuleBeginLumiSignal_.connect(iOther.postModuleBeginLumiSignal_);
+   preModuleBeginSubRunSignal_.connect(iOther.preModuleBeginSubRunSignal_);
+   postModuleBeginSubRunSignal_.connect(iOther.postModuleBeginSubRunSignal_);
 
-   preModuleEndLumiSignal_.connect(iOther.preModuleEndLumiSignal_);
-   postModuleEndLumiSignal_.connect(iOther.postModuleEndLumiSignal_);
+   preModuleEndSubRunSignal_.connect(iOther.preModuleEndSubRunSignal_);
+   postModuleEndSubRunSignal_.connect(iOther.postModuleEndSubRunSignal_);
 
    preModuleConstructionSignal_.connect(iOther.preModuleConstructionSignal_);
    postModuleConstructionSignal_.connect(iOther.postModuleConstructionSignal_);
@@ -147,8 +147,8 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFrom(preSourceSignal_,iOther.preSourceSignal_);
   copySlotsToFromReverse(postSourceSignal_,iOther.postSourceSignal_);
 
-  copySlotsToFrom(preSourceLumiSignal_,iOther.preSourceLumiSignal_);
-  copySlotsToFromReverse(postSourceLumiSignal_,iOther.postSourceLumiSignal_);
+  copySlotsToFrom(preSourceSubRunSignal_,iOther.preSourceSubRunSignal_);
+  copySlotsToFromReverse(postSourceSubRunSignal_,iOther.postSourceSubRunSignal_);
 
   copySlotsToFrom(preSourceRunSignal_,iOther.preSourceRunSignal_);
   copySlotsToFromReverse(postSourceRunSignal_,iOther.postSourceRunSignal_);
@@ -168,11 +168,11 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFrom(preEndRunSignal_,iOther.preEndRunSignal_);
   copySlotsToFromReverse(postEndRunSignal_,iOther.postEndRunSignal_);
 
-  copySlotsToFrom(preBeginLumiSignal_,iOther.preBeginLumiSignal_);
-  copySlotsToFromReverse(postBeginLumiSignal_,iOther.postBeginLumiSignal_);
+  copySlotsToFrom(preBeginSubRunSignal_,iOther.preBeginSubRunSignal_);
+  copySlotsToFromReverse(postBeginSubRunSignal_,iOther.postBeginSubRunSignal_);
 
-  copySlotsToFrom(preEndLumiSignal_,iOther.preEndLumiSignal_);
-  copySlotsToFromReverse(postEndLumiSignal_,iOther.postEndLumiSignal_);
+  copySlotsToFrom(preEndSubRunSignal_,iOther.preEndSubRunSignal_);
+  copySlotsToFromReverse(postEndSubRunSignal_,iOther.postEndSubRunSignal_);
 
   copySlotsToFrom(preProcessPathSignal_,iOther.preProcessPathSignal_);
   copySlotsToFromReverse(postProcessPathSignal_,iOther.postProcessPathSignal_);
@@ -183,11 +183,11 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFrom(prePathEndRunSignal_,iOther.prePathEndRunSignal_);
   copySlotsToFromReverse(postPathEndRunSignal_,iOther.postPathEndRunSignal_);
 
-  copySlotsToFrom(prePathBeginLumiSignal_,iOther.prePathBeginLumiSignal_);
-  copySlotsToFromReverse(postPathBeginLumiSignal_,iOther.postPathBeginLumiSignal_);
+  copySlotsToFrom(prePathBeginSubRunSignal_,iOther.prePathBeginSubRunSignal_);
+  copySlotsToFromReverse(postPathBeginSubRunSignal_,iOther.postPathBeginSubRunSignal_);
 
-  copySlotsToFrom(prePathEndLumiSignal_,iOther.prePathEndLumiSignal_);
-  copySlotsToFromReverse(postPathEndLumiSignal_,iOther.postPathEndLumiSignal_);
+  copySlotsToFrom(prePathEndSubRunSignal_,iOther.prePathEndSubRunSignal_);
+  copySlotsToFromReverse(postPathEndSubRunSignal_,iOther.postPathEndSubRunSignal_);
 
   copySlotsToFrom(preModuleSignal_,iOther.preModuleSignal_);
   copySlotsToFromReverse(postModuleSignal_,iOther.postModuleSignal_);
@@ -198,11 +198,11 @@ edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFrom(preModuleEndRunSignal_,iOther.preModuleEndRunSignal_);
   copySlotsToFromReverse(postModuleEndRunSignal_,iOther.postModuleEndRunSignal_);
 
-  copySlotsToFrom(preModuleBeginLumiSignal_,iOther.preModuleBeginLumiSignal_);
-  copySlotsToFromReverse(postModuleBeginLumiSignal_,iOther.postModuleBeginLumiSignal_);
+  copySlotsToFrom(preModuleBeginSubRunSignal_,iOther.preModuleBeginSubRunSignal_);
+  copySlotsToFromReverse(postModuleBeginSubRunSignal_,iOther.postModuleBeginSubRunSignal_);
 
-  copySlotsToFrom(preModuleEndLumiSignal_,iOther.preModuleEndLumiSignal_);
-  copySlotsToFromReverse(postModuleEndLumiSignal_,iOther.postModuleEndLumiSignal_);
+  copySlotsToFrom(preModuleEndSubRunSignal_,iOther.preModuleEndSubRunSignal_);
+  copySlotsToFromReverse(postModuleEndSubRunSignal_,iOther.postModuleEndSubRunSignal_);
 
   copySlotsToFrom(preModuleConstructionSignal_,iOther.preModuleConstructionSignal_);
   copySlotsToFromReverse(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);

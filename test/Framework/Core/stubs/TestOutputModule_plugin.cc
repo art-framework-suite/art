@@ -67,7 +67,7 @@ namespace edmtest
 
   private:
     virtual void write(edm::EventPrincipal const& e);
-    virtual void writeLuminosityBlock(edm::SubRunPrincipal const&){}
+    virtual void writeSubRun(edm::SubRunPrincipal const&){}
     virtual void writeRun(edm::RunPrincipal const&){}
     virtual void endJob();
 

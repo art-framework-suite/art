@@ -61,7 +61,7 @@ void testIOVSyncValue::constructTest()
       IOVSyncValue temp(t,3);
 
       CPPUNIT_ASSERT(temp.eventID() == t);
-      CPPUNIT_ASSERT(temp.luminosityBlockNumber() == 3);
+      CPPUNIT_ASSERT(temp.subRunNumber() == 3);
 
       CPPUNIT_ASSERT(IOVSyncValue::invalidIOVSyncValue() != temp);
       CPPUNIT_ASSERT(!(IOVSyncValue::invalidIOVSyncValue() == temp));

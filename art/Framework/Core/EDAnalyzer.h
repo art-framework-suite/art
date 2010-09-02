@@ -41,9 +41,9 @@ namespace edm {
 		   CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal const& rp,
 		   CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(SubRunPrincipal const& lbp,
+    bool doBeginSubRun(SubRunPrincipal const& lbp,
 		   CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(SubRunPrincipal const& lbp,
+    bool doEndSubRun(SubRunPrincipal const& lbp,
 		   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);

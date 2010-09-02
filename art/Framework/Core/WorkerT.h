@@ -115,14 +115,14 @@ namespace edm {
   bool
   WorkerT<T>::implDoBegin(SubRunPrincipal& lbp,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doBeginLuminosityBlock(lbp, cpc);
+    return module_->doBeginSubRun(lbp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(SubRunPrincipal& lbp,
 			   CurrentProcessingContext const* cpc) {
-    return module_->doEndLuminosityBlock(lbp, cpc);
+    return module_->doEndSubRun(lbp, cpc);
   }
 
   template <typename T>

@@ -12,7 +12,7 @@
 namespace edmtest {
 
   RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(edm::ParameterSet const& pset) :
-    expectedRunLumisEvents_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunLumiEvents", std::vector<unsigned int>())),
+    expectedRunSubRunsEvents_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunSubRunEvents", std::vector<unsigned int>())),
     index_(0),
     verbose_(pset.getUntrackedParameter<bool>("verbose", false)) {
   }
@@ -22,14 +22,14 @@ namespace edmtest {
     if (verbose_) {
       edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << event.run() << ", "
-                                       << event.luminosityBlock() << ", "
+                                       << event.subRun() << ", "
                                        << event.id().event();
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_[index_++] == event.run());
-      assert(expectedRunLumisEvents_[index_++] == event.luminosityBlock());
-      assert(expectedRunLumisEvents_[index_++] == event.id().event());
+    if ((index_ + 2U) < expectedRunSubRunsEvents_.size()) {
+      assert(expectedRunSubRunsEvents_[index_++] == event.run());
+      assert(expectedRunSubRunsEvents_[index_++] == event.subRun());
+      assert(expectedRunSubRunsEvents_[index_++] == event.id().event());
     }
   }
 
@@ -42,10 +42,10 @@ namespace edmtest {
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_[index_++] == run.run());
-      assert(expectedRunLumisEvents_[index_++] == 0);
-      assert(expectedRunLumisEvents_[index_++] == 0);
+    if ((index_ + 2U) < expectedRunSubRunsEvents_.size()) {
+      assert(expectedRunSubRunsEvents_[index_++] == run.run());
+      assert(expectedRunSubRunsEvents_[index_++] == 0);
+      assert(expectedRunSubRunsEvents_[index_++] == 0);
     }
   }
 
@@ -58,42 +58,42 @@ namespace edmtest {
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_[index_++] == run.run());
-      assert(expectedRunLumisEvents_[index_++] == 0);
-      assert(expectedRunLumisEvents_[index_++] == 0);
+    if ((index_ + 2U) < expectedRunSubRunsEvents_.size()) {
+      assert(expectedRunSubRunsEvents_[index_++] == run.run());
+      assert(expectedRunSubRunsEvents_[index_++] == 0);
+      assert(expectedRunSubRunsEvents_[index_++] == 0);
     }
   }
 
-  void RunSubRunEventAnalyzer::beginSubRun(edm::SubRun const& lumi, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::beginSubRun(edm::SubRun const& subRun, edm::EventSetup const& es) {
 
     if (verbose_) {
       edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
-                                       << lumi.run() << ", "
-                                       << lumi.luminosityBlock() << ", "
+                                       << subRun.run() << ", "
+                                       << subRun.subRun() << ", "
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_[index_++] == lumi.run());
-      assert(expectedRunLumisEvents_[index_++] == lumi.luminosityBlock());
-      assert(expectedRunLumisEvents_[index_++] == 0);
+    if ((index_ + 2U) < expectedRunSubRunsEvents_.size()) {
+      assert(expectedRunSubRunsEvents_[index_++] == subRun.run());
+      assert(expectedRunSubRunsEvents_[index_++] == subRun.subRun());
+      assert(expectedRunSubRunsEvents_[index_++] == 0);
     }
   }
 
-  void RunSubRunEventAnalyzer::endSubRun(edm::SubRun const& lumi, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::endSubRun(edm::SubRun const& subRun, edm::EventSetup const& es) {
 
     if (verbose_) {
       edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
-                                       << lumi.run() << ", "
-                                       << lumi.luminosityBlock() << ", "
+                                       << subRun.run() << ", "
+                                       << subRun.subRun() << ", "
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_[index_++] == lumi.run());
-      assert(expectedRunLumisEvents_[index_++] == lumi.luminosityBlock());
-      assert(expectedRunLumisEvents_[index_++] == 0);
+    if ((index_ + 2U) < expectedRunSubRunsEvents_.size()) {
+      assert(expectedRunSubRunsEvents_[index_++] == subRun.run());
+      assert(expectedRunSubRunsEvents_[index_++] == subRun.subRun());
+      assert(expectedRunSubRunsEvents_[index_++] == 0);
     }
   }
 }

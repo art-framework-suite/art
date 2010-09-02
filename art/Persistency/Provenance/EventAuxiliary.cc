@@ -13,7 +13,7 @@ namespace edm {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;
     os << id_ << std::endl;
     //os << "TimeStamp = " << time_ << std::endl;
-    os << "SubRunNumber_t = " << luminosityBlock_ << std::endl;
+    os << "SubRunNumber_t = " << subRun_ << std::endl;
   }
 
   bool
@@ -21,7 +21,7 @@ namespace edm {
     return
       a.id_ == b.id_ &&
       a.processGUID_ == b.processGUID_ &&
-      a.luminosityBlock_ == b.luminosityBlock_ &&
+      a.subRun_ == b.subRun_ &&
       a.time_ == b.time_ &&
       a.isRealData_ == b.isRealData_ &&
       a.experimentType_ == b.experimentType_ &&

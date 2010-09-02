@@ -111,23 +111,23 @@ namespace edm {
     static bool const begin_ = true;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
-      a->preBeginLumiSignal_(ep->id(), ep->beginTime());
+      a->preBeginSubRunSignal_(ep->id(), ep->beginTime());
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
-      SubRun lumi(*ep, ModuleDescription());
-      a->postBeginLumiSignal_(lumi);
+      SubRun subRun(*ep, ModuleDescription());
+      a->postBeginSubRunSignal_(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathBeginLumiSignal_(s);
+      a->prePathBeginSubRunSignal_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathBeginLumiSignal_(s, status);
+      a->postPathBeginSubRunSignal_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleBeginLumiSignal_(*md);
+      a->preModuleBeginSubRunSignal_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleBeginLumiSignal_(*md);
+      a->postModuleBeginSubRunSignal_(*md);
     }
   };
 
@@ -138,23 +138,23 @@ namespace edm {
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
-      a->preEndLumiSignal_(ep->id(), ep->beginTime());
+      a->preEndSubRunSignal_(ep->id(), ep->beginTime());
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
-      SubRun lumi(*ep, ModuleDescription());
-      a->postEndLumiSignal_(lumi);
+      SubRun subRun(*ep, ModuleDescription());
+      a->postEndSubRunSignal_(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathEndLumiSignal_(s);
+      a->prePathEndSubRunSignal_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathEndLumiSignal_(s, status);
+      a->postPathEndSubRunSignal_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleEndLumiSignal_(*md);
+      a->preModuleEndSubRunSignal_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleEndLumiSignal_(*md);
+      a->postModuleEndSubRunSignal_(*md);
     }
   };
 }

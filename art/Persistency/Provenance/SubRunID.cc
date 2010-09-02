@@ -10,7 +10,7 @@ namespace edm {
 
   SubRunID::SubRunID(boost::uint64_t id) :
    run_(static_cast<RunNumber_t>(id >> shift)),
-   luminosityBlock_(static_cast<SubRunNumber_t>(std::numeric_limits<unsigned int>::max() & id))
+   subRun_(static_cast<SubRunNumber_t>(std::numeric_limits<unsigned int>::max() & id))
   {
   }
 
@@ -18,12 +18,12 @@ namespace edm {
   SubRunID::value() const {
    boost::uint64_t id = run_;
    id = id << shift;
-   id += luminosityBlock_;
+   id += subRun_;
    return id;
   }
 
   std::ostream& operator<<(std::ostream& oStream, SubRunID const& iID) {
-    oStream<< "run: " << iID.run() << " luminosityBlock: " << iID.luminosityBlock();
+    oStream<< "run: " << iID.run() << " subRun: " << iID.subRun();
     return oStream;
   }
 }

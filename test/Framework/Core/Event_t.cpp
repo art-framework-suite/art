@@ -352,10 +352,10 @@ void testEvent::setUp()
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
-  SubRunAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<SubRunPrincipal>lbp(new SubRunPrincipal(lumiAux, preg, pc));
+  SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
+  boost::shared_ptr<SubRunPrincipal>lbp(new SubRunPrincipal(subRunAux, preg, pc));
   lbp->setRunPrincipal(rp);
-  EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
+  EventAuxiliary eventAux(id, uuid, time, lbp->subRun(), true);
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_  = new EventPrincipal(eventAux,

@@ -64,10 +64,10 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::SubRunAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, pregc, pc));
+  edm::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, pregc, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
   edm::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(lbp);
   try {
@@ -125,10 +125,10 @@ void testEventGetRefBeforePut::getRefTest() {
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::SubRunAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, pregc, pc));
+  edm::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, pregc, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
   edm::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(lbp);
 

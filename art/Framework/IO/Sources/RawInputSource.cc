@@ -18,7 +18,7 @@ namespace edm {
     InputSource(pset, desc),
     runNumber_(RunNumber_t()),
     newRun_(false),
-    newLumi_(false),
+    newSubRun_(false),
     ep_(0) {
       setTimestamp(Timestamp::beginOfTime());
   }
@@ -37,12 +37,12 @@ namespace edm {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RawInputSource::readLuminosityBlock_() {
-    newLumi_ = false;
-    SubRunAuxiliary lumiAux(runNumber_,
-	luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
+  RawInputSource::readSubRun_() {
+    newSubRun_ = false;
+    SubRunAuxiliary subRunAux(runNumber_,
+	subRunNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<SubRunPrincipal>(
-	new SubRunPrincipal(lumiAux,
+	new SubRunPrincipal(subRunAux,
 				     productRegistry(),
 				     processConfiguration()));
   }
@@ -54,10 +54,10 @@ namespace edm {
   }
 
   std::auto_ptr<Event>
-  RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
+  RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp) {
     EventSourceSentry sentry(*this);
     EventAuxiliary eventAux(EventID(run, event),
-      processGUID(), tstamp, lumi, true, EventAuxiliary::Data);
+      processGUID(), tstamp, subRun, true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
@@ -73,7 +73,7 @@ namespace edm {
     if (newRun_) {
       return IsRun;
     }
-    if (newLumi_) {
+    if (newSubRun_) {
       return IsSubRun;
     }
     if(ep_.get() != 0) {
@@ -86,15 +86,15 @@ namespace edm {
       e->commit_();
     }
     if (e->run() != runNumber_) {
-      newRun_ = newLumi_ = true;
+      newRun_ = newSubRun_ = true;
       resetSubRunPrincipal();
       resetRunPrincipal();
       runNumber_ = e->run();
-      luminosityBlockNumber_ = e->luminosityBlock();
+      subRunNumber_ = e->subRun();
       return IsRun;
-    } else if (e->luminosityBlock() != luminosityBlockNumber_) {
-      luminosityBlockNumber_ = e->luminosityBlock();
-      newLumi_ = true;
+    } else if (e->subRun() != subRunNumber_) {
+      subRunNumber_ = e->subRun();
+      newSubRun_ = true;
       resetSubRunPrincipal();
       return IsSubRun;
     }

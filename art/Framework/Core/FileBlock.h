@@ -24,14 +24,14 @@ namespace edm {
     FileBlock() :
       fileFormatVersion_(),
       tree_(0), metaTree_(0),
-      lumiTree_(0), lumiMetaTree_(0),
+      subRunTree_(0), subRunMetaTree_(0),
       runTree_(0), runMetaTree_(0),
       fastCopyable_(false), fileName_(),
       branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
 	      TTree const* ev, TTree const* meta,
-	      TTree const* lumi, TTree const* lumiMeta,
+	      TTree const* subRun, TTree const* subRunMeta,
 	      TTree const* run, TTree const* runMeta,
 	      bool fastCopy,
 	      std::string const& fileName,
@@ -39,8 +39,8 @@ namespace edm {
       fileFormatVersion_(version),
       tree_(const_cast<TTree *>(ev)),
       metaTree_(const_cast<TTree *>(meta)),
-      lumiTree_(const_cast<TTree *>(lumi)),
-      lumiMetaTree_(const_cast<TTree *>(lumiMeta)),
+      subRunTree_(const_cast<TTree *>(subRun)),
+      subRunMetaTree_(const_cast<TTree *>(subRunMeta)),
       runTree_(const_cast<TTree *>(run)),
       runMetaTree_(const_cast<TTree *>(runMeta)),
       fastCopyable_(fastCopy),
@@ -52,8 +52,8 @@ namespace edm {
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
     TTree * const tree() const {return tree_;}
     TTree * const metaTree() const {return metaTree_;}
-    TTree * const lumiTree() const {return lumiTree_;}
-    TTree * const lumiMetaTree() const {return lumiMetaTree_;}
+    TTree * const subRunTree() const {return subRunTree_;}
+    TTree * const subRunMetaTree() const {return subRunMetaTree_;}
     TTree * const runTree() const {return runTree_;}
     TTree * const runMetaTree() const {return runMetaTree_;}
 
@@ -68,8 +68,8 @@ namespace edm {
     // We use bare pointers because ROOT owns these.
     TTree * tree_;
     TTree * metaTree_;
-    TTree * lumiTree_;
-    TTree * lumiMetaTree_;
+    TTree * subRunTree_;
+    TTree * subRunMetaTree_;
     TTree * runTree_;
     TTree * runMetaTree_;
     bool fastCopyable_;

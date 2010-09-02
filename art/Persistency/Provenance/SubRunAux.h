@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 #include "art/Persistency/Provenance/RunID.h"
 
-// Auxiliary luminosity block data that is persistent
+// Auxiliary subRun data that is persistent
 namespace edm
 {
   struct SubRunAuxiliary;
