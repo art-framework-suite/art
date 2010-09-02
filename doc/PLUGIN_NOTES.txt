@@ -1,0 +1,50 @@
+===========================================
+Design Notes for Module and Service Plugins
+===========================================
+
+Modules are EDProducers, EDFilters, EDAnalyzers, OutputModules and
+Sources. *NOTE*: we may be moving to a very different i/o system, that
+will make much of the current OutputModules and Sources irrelevant.
+
+When the framework executable starts up, the class names for the
+modules and services to be loaded are obtained from the configuration.
+
+Modules
+=======
+
+For a given module, the configuration will announce:
+
+1. what type of module it is (EDProducer, EDFilter, ...)
+2. what the name of the class is (IntProducer).
+
+The framework calls upon a factory to create an instance of the
+correct class::
+
+   auto_ptr<EDProducer> Factory::makeEDProducer(std::string const& classname,
+                                                fhicl::ParameterSet const& config);
+   auto_ptr<EDFilter> Factory::makeEDFilter(std::string const& classname,
+                                            fhicl::ParameterSet const& config);
+   ...
+
+
+The Factory contains two lookup tables for each type of thing it can make:
+
+1. one map<string, maker_function> where the string is the full "path name" for the
+   module in question, where the full means going from the top of the UPS product
+   down to and including the file name (without extension)
+2. one multimap<string, string> that maps the a short name to possibly more than one
+   full path name.
+
+Each module class is defined in its own dynamic library, which must be
+named *lib_<module>_plugin.<suffix>*, where *<suffix>* is whatever is
+appropriate for the platform; these are called *plugin* libraries.
+
+Plugin libraries are loaded by the plugin manager; see below.
+
+When a plugin library is loaded, the loading causes the creation of an
+object whose constructor has the side-effect of registering the
+appropriate make_function with the Factory. The code for this is
+written by the DEFINE_EDM_PLUGIN macro.
+
+
+                
