@@ -5,9 +5,11 @@ BEGIN { %used_translations = ();
 
 my ($from, $to) = ();
 
-while (m/\G.*?([\w_\d]*lumi[\w_\d]*)/gi) {
+while (m/\G.*?([\w_\d]*lumi[\w_\d]*(?:\s*block)?)/gi) {
   my $from = $1;
-  $from =~ m/lumin[^o]/ and next; # eg Illuminate
+  $from =~ m/lumin[^o]/i and next; # eg Illuminate
+  # Can run in identifier-only mode.
+  $ENV{FIX_LUMI_CLASSES_ONLY} and $from !~ m&^[A-Z]& and next;
   my $to = $from;
   $to =~ s/lumi/subRun/;
   $to =~ s/Lumi/SubRun/;

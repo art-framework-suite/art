@@ -1,14 +1,43 @@
 #!/bin/bash
-
+# Program name
+prog=${0##*/}
+# ======================================================================
+function usage() {
+    cat 1>&2 <<EOF
+usage: $prog [-a|--all-lumi-cases] <top-dir>
+EOF
+}
 
 # ======================================================================
 # Prepare:
+TEMP=`getopt -n "$prog" -o a --long all-lumi-cases -- "${@}"`
+echo "$TEMP" 1>&2
+eval set -- "$TEMP"
+while true; do
+  case $1 in
+    -a|--all-lumi-cases)
+      all_lumi=1
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Bad argument \"$OPT\"" 1>&2
+      usage
+      exit 1
+    esac
+done
 
+(( ${all_lumi:-0} )) || export FIX_LUMI_CLASSES_ONLY=1
 TOP=${1:-ART}
-
 
 # ======================================================================
 # Run scripts to update
+
+TMP=`mktemp -t update_sources.sh.XXXXXX`
+trap "rm $TMP* 2>/dev/null" EXIT
 
 for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups \) \
                        -prune \) -o -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) -print`; do
@@ -20,21 +49,25 @@ for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name
   # Fix includes in and of .icc files
   perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # "lumi|luminosty|luminosityblock" -> subrun
-  grep -Iil subrun "${F}" && { echo "OK"; continue; } # Already done
-  err=$(perl -wpi\~ -f fix-lumi.pl "${F}" 2>&1 >/dev/null)
+  grep -Il subrun "${F}" && { echo "OK"; continue; } # Already done
+  err=$(perl -wp -f fix-lumi.pl "${F}" 2>&1 >"$TMP" ) # Yes, the redirections are in the right order.
   if (( $? )); then # Oops
-    echo "PROBLEM: fix manually!" 1>&2
+    echo "PROBLEM: fix manually ($(echo \"$err\" | sed -e 's/.*FATAL: //' ))!" 1>&2
+    rm -f "$TMP"
     continue
+    # break
   else
-    # Remove backup
-    rm -f "${F}~"
+      # Success!
+      mv -f "$TMP" "$F"
   fi
   
-  # Lumifix for file name
+  # Lumi fix for file name
   Fnew=$(echo "$F" | perl -wp -f fix-lumi.pl 2>/dev/null) 
   if [[ -n "$Fnew" ]] && [[ "$Fnew" != "$F" ]]; then
       if [[ -e "$Fnew" ]]; then # Oops
           echo "Unable to rename \"$F\" to already-existing file \"$Fnew\"" 1>&2
+      else
+          mv "$F" "$Fnew"
       fi
   fi
   echo "OK"
