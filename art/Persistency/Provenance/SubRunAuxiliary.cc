@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include <ostream>
 
 /*----------------------------------------------------------------------
@@ -9,13 +9,13 @@
 
 namespace edm {
   void
-  LuminosityBlockAuxiliary::write(std::ostream& os) const {
+  SubRunAuxiliary::write(std::ostream& os) const {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;
     os << id_ << std::endl;
   }
 
   bool
-  LuminosityBlockAuxiliary::mergeAuxiliary(LuminosityBlockAuxiliary const& newAux) {
+  SubRunAuxiliary::mergeAuxiliary(SubRunAuxiliary const& newAux) {
     if (beginTime_ == Timestamp::invalidTimestamp() ||
         newAux.beginTime() == Timestamp::invalidTimestamp()) {
       beginTime_ = Timestamp::invalidTimestamp();

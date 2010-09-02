@@ -13,7 +13,7 @@
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Persistency/Common/Handle.h"
 #include "test/TestObjects/Thing.h"
@@ -51,8 +51,8 @@ namespace edmtest
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
     virtual void beginRun(Run const&, EventSetup const&);
     virtual void endRun(Run const&, EventSetup const&);
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&);
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&);
+    virtual void beginSubRun(SubRun const&, EventSetup const&);
+    virtual void endSubRun(SubRun const&, EventSetup const&);
     virtual void respondToOpenInputFile(FileBlock const& fb);
     virtual void respondToCloseInputFile(FileBlock const& fb);
     virtual void respondToOpenOutputFiles(FileBlock const& fb);
@@ -65,7 +65,7 @@ namespace edmtest
                                    std::vector<int> const& expectedValues,
                                    InputTag const& tag,
                                    const char* functionName,
-                                   LuminosityBlock const& lumi);
+                                   SubRun const& lumi);
 
     void checkExpectedRunProducts(unsigned int index,
                                   std::vector<int> const& expectedValues,
@@ -179,7 +179,7 @@ namespace edmtest
     if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
     Run const& run = e.getRun();
-    LuminosityBlock const& lumi = e.getLuminosityBlock();
+    SubRun const& lumi = e.getSubRun();
 
     edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "analyze", run);
@@ -291,14 +291,14 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
+  void TestMergeResults::beginSubRun(SubRun const& lumi, EventSetup const&) {
 
     index2_ += 3;
     index6_ += 3;
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
+    if (verbose_) edm::LogInfo("TestMergeResults") << "beginSubRun";
 
     edm::InputTag tag("thingWithMergeProducer", "beginLumi", "PROD");
     checkExpectedLumiProducts(index2_, expectedBeginLumiProd_, tag, "beginLumi", lumi);
@@ -316,14 +316,14 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::endLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
+  void TestMergeResults::endSubRun(SubRun const& lumi, EventSetup const&) {
 
     index2_ += 3;
     index6_ += 3;
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
+    if (verbose_) edm::LogInfo("TestMergeResults") << "endSubRun";
 
     edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
     checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag, "endLumi", lumi);
@@ -448,7 +448,7 @@ namespace edmtest
                                               std::vector<int> const& expectedValues,
                                               InputTag const& tag,
                                               const char* functionName,
-                                              LuminosityBlock const& lumi) {
+                                              SubRun const& lumi) {
 
     if ((index + 2) < expectedValues.size()) {
 

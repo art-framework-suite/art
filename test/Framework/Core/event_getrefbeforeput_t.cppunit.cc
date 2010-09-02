@@ -16,7 +16,7 @@ Test of the EventPrincipal class.
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -27,7 +27,7 @@ Test of the EventPrincipal class.
 #include "test/TestObjects/ToyProducts.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 
 //have to do this evil in order to access commit_ member function
@@ -64,12 +64,12 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  edm::SubRunAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, pregc, pc));
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
   edm::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setSubRunPrincipal(lbp);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -125,12 +125,12 @@ void testEventGetRefBeforePut::getRefTest() {
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  edm::SubRunAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(lumiAux, pregc, pc));
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
   edm::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setSubRunPrincipal(lbp);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

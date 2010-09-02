@@ -2,22 +2,22 @@
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Integration/test/TestRunLumiSource.h"
+#include "FWCore/Integration/test/TestRunSubRunSource.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 
 namespace edm {
 
-  TestRunLumiSource::TestRunLumiSource(ParameterSet const& pset,
+  TestRunSubRunSource::TestRunSubRunSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
     runLumiEvent_(pset.getUntrackedParameter<std::vector<int> >("runLumiEvent", std::vector<int>())),
@@ -25,11 +25,11 @@ namespace edm {
     firstTime_(true) {
   }
 
-  TestRunLumiSource::~TestRunLumiSource() {
+  TestRunSubRunSource::~TestRunSubRunSource() {
   }
 
   boost::shared_ptr<RunPrincipal>
-  TestRunLumiSource::readRun_() {
+  TestRunSubRunSource::readRun_() {
     unsigned int run = runLumiEvent_[currentIndex_];
     Timestamp ts = Timestamp(1);  // 1 is just a meaningless number to make it compile for the test
 
@@ -40,8 +40,8 @@ namespace edm {
     return runPrincipal;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  TestRunLumiSource::readLuminosityBlock_() {
+  boost::shared_ptr<SubRunPrincipal>
+  TestRunSubRunSource::readLuminosityBlock_() {
     unsigned int run = runLumiEvent_[currentIndex_];
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
     Timestamp ts = Timestamp(1);
@@ -50,9 +50,9 @@ namespace edm {
     boost::shared_ptr<RunPrincipal> rp2(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
-    LuminosityBlockAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal(
-        new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration()));
+    SubRunAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
+    boost::shared_ptr<SubRunPrincipal> luminosityBlockPrincipal(
+        new SubRunPrincipal(lumiAux, productRegistry(), processConfiguration()));
     luminosityBlockPrincipal->setRunPrincipal(rp2);
 
     currentIndex_ += 3;
@@ -60,7 +60,7 @@ namespace edm {
   }
 
   std::auto_ptr<EventPrincipal>
-  TestRunLumiSource::readEvent_() {
+  TestRunSubRunSource::readEvent_() {
     EventSourceSentry(*this);
     unsigned int run = runLumiEvent_[currentIndex_];
     unsigned int lumi = runLumiEvent_[currentIndex_ + 1];
@@ -71,9 +71,9 @@ namespace edm {
     boost::shared_ptr<RunPrincipal> rp2(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
-    LuminosityBlockAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp2(
-        new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration()));
+    SubRunAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
+    boost::shared_ptr<SubRunPrincipal> lbp2(
+        new SubRunPrincipal(lumiAux, productRegistry(), processConfiguration()));
     lbp2->setRunPrincipal(rp2);
 
     EventID id(run, event);
@@ -81,12 +81,12 @@ namespace edm {
     EventAuxiliary eventAux(id, processGUID(), ts, lbp2->luminosityBlock(), false);
     std::auto_ptr<EventPrincipal> result(
 	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
-    result->setLuminosityBlockPrincipal(lbp2);
+    result->setSubRunPrincipal(lbp2);
     return result;
   }
 
   InputSource::ItemType
-  TestRunLumiSource::getNextItemType() {
+  TestRunSubRunSource::getNextItemType() {
     if (firstTime_) {
       firstTime_ = false;
       return InputSource::IsFile;
@@ -103,12 +103,12 @@ namespace edm {
       return InputSource::IsRun;
     }
     if (runLumiEvent_[currentIndex_ + 2] == 0) {
-      return InputSource::IsLumi;
+      return InputSource::IsSubRun;
     }
     return InputSource::IsEvent;
   }
 }
 
-using edm::TestRunLumiSource;
-DEFINE_FWK_INPUT_SOURCE(TestRunLumiSource);
+using edm::TestRunSubRunSource;
+DEFINE_FWK_INPUT_SOURCE(TestRunSubRunSource);
 

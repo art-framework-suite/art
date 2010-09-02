@@ -9,7 +9,7 @@
 // user include files
 #include "art/Framework/Services/Basic/Tracer.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
@@ -297,12 +297,12 @@ Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
 }
 
 void
-Tracer::preBeginLumi(LuminosityBlockID const& iID, Timestamp const& iTime) {
+Tracer::preBeginLumi(SubRunID const& iID, Timestamp const& iTime) {
    depth_=0;
    std::cout <<indention_<<indention_<<" processing begin lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postBeginLumi(LuminosityBlock const&) {
+Tracer::postBeginLumi(SubRun const&) {
    std::cout <<indention_<<indention_<<" finished begin lumi:"<<std::endl;
 }
 
@@ -336,12 +336,12 @@ Tracer::postModuleBeginLumi(ModuleDescription const& iDescription) {
 }
 
 void
-Tracer::preEndLumi(LuminosityBlockID const& iID, Timestamp const& iTime) {
+Tracer::preEndLumi(SubRunID const& iID, Timestamp const& iTime) {
    depth_=0;
    std::cout <<indention_<<indention_<<" processing end lumi:"<< iID<<" time:"<<iTime.value()<< std::endl;
 }
 void
-Tracer::postEndLumi(LuminosityBlock const&) {
+Tracer::postEndLumi(SubRun const&) {
    std::cout <<indention_<<indention_<<" finished end lumi:"<<std::endl;
 }
 

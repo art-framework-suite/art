@@ -1,5 +1,5 @@
-#include "art/Persistency/Provenance/LuminosityBlockAux.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAux.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 
 /*----------------------------------------------------------------------
@@ -9,9 +9,9 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  void conversion(LuminosityBlockAux const& from, LuminosityBlockAuxiliary & to) {
+  void conversion(SubRunAux const& from, SubRunAuxiliary & to) {
     to.processHistoryID_ = from.processHistoryID_;
-    to.id_ = LuminosityBlockID(from.runID_, from.id_);
+    to.id_ = SubRunID(from.runID_, from.id_);
     to.beginTime_ = to.endTime_ = Timestamp::invalidTimestamp();
   }
 }

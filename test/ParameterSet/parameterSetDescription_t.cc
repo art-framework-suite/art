@@ -6,7 +6,7 @@
 #include "art/ParameterSet/ParameterDescription.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Utilities/InputTag.h"
 #include "art/ParameterSet/FileInPath.h"
 #include "art/Utilities/EDMException.h"
@@ -164,11 +164,11 @@ int main(int argc, char* argv[]) {
   assert(par->isOptional() == true);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("EventID"));
 
-  edm::LuminosityBlockID i;
-  par = psetDesc.add<edm::LuminosityBlockID>("lvalue", i);
-  pset.addParameter<edm::LuminosityBlockID>("lvalue", i);
-  assert(par->type() == edm::k_LuminosityBlockID);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("LuminosityBlockID"));
+  edm::SubRunID i;
+  par = psetDesc.add<edm::SubRunID>("lvalue", i);
+  pset.addParameter<edm::SubRunID>("lvalue", i);
+  assert(par->type() == edm::k_SubRunID);
+  assert(edm::parameterTypeEnumToString(par->type()) == std::string("SubRunID"));
 
   edm::InputTag j;
   par = psetDesc.add<edm::InputTag>("input", j);
@@ -218,11 +218,11 @@ int main(int argc, char* argv[]) {
   assert(par->type() == edm::k_VEventID);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("VEventID"));
 
-  std::vector<edm::LuminosityBlockID> v8;
-  par = psetDesc.add<std::vector<edm::LuminosityBlockID> >("v8", v8);
-  pset.addParameter<std::vector<edm::LuminosityBlockID> >("v8", v8);
-  assert(par->type() == edm::k_VLuminosityBlockID);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VLuminosityBlockID"));
+  std::vector<edm::SubRunID> v8;
+  par = psetDesc.add<std::vector<edm::SubRunID> >("v8", v8);
+  pset.addParameter<std::vector<edm::SubRunID> >("v8", v8);
+  assert(par->type() == edm::k_VSubRunID);
+  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VSubRunID"));
 
   std::vector<edm::InputTag> v9;
   par = psetDesc.add<std::vector<edm::InputTag> >("v9", v9);

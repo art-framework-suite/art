@@ -3,7 +3,7 @@
 #include "art/Framework/IO/Output/RootOutputFile.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/ParameterSet/ParameterSet.h"
@@ -118,7 +118,7 @@ namespace edm {
       BranchType branchType = static_cast<BranchType>(i);
       if (inputFileCount_ == 0) {
         TTree * theTree = (branchType == InEvent ? fb.tree() :
-		          (branchType == InLumi ? fb.lumiTree() :
+		          (branchType == InSubRun ? fb.lumiTree() :
                           fb.runTree()));
         fillSelectedItemList(branchType, theTree);
       }
@@ -143,8 +143,8 @@ namespace edm {
       rootOutputFile_->writeOne(e);
   }
 
-  void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
-      if (hasNewlyDroppedBranch()[InLumi]) lb.addToProcessHistory();
+  void PoolOutputModule::writeLuminosityBlock(SubRunPrincipal const& lb) {
+      if (hasNewlyDroppedBranch()[InSubRun]) lb.addToProcessHistory();
       rootOutputFile_->writeLuminosityBlock(lb);
   }
 

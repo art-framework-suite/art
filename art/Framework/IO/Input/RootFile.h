@@ -23,8 +23,8 @@ RootFile.h // used by ROOT input sources
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
@@ -58,10 +58,10 @@ namespace edm {
 	     std::string const& logicalFileName,
 	     boost::shared_ptr<TFile> filePtr,
 	     RunNumber_t const& startAtRun,
-	     LuminosityBlockNumber_t const& startAtLumi,
+	     SubRunNumber_t const& startAtLumi,
 	     EventNumber_t const& startAtEvent,
 	     unsigned int eventsToSkip,
-	     std::vector<LuminosityBlockID> const& whichLumisToSkip,
+	     std::vector<SubRunID> const& whichLumisToSkip,
 	     int remainingEvents,
 	     int remainingLumis,
 	     unsigned int treeCacheSize,
@@ -80,7 +80,7 @@ namespace edm {
 	boost::shared_ptr<ProductRegistry const> pReg);
     std::auto_ptr<EventPrincipal> readEvent(
 	boost::shared_ptr<ProductRegistry const> pReg);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(
+    boost::shared_ptr<SubRunPrincipal> readLumi(
 	boost::shared_ptr<ProductRegistry const> pReg,
 	boost::shared_ptr<RunPrincipal> rp);
     std::string const& file() const {return file_;}
@@ -88,7 +88,7 @@ namespace edm {
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
-    LuminosityBlockAuxiliary const& luminosityBlockAux() {return lumiAux_;}
+    SubRunAuxiliary const& luminosityBlockAux() {return lumiAux_;}
     RunAuxiliary const& runAux() const {return runAux_;}
     EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
@@ -98,8 +98,8 @@ namespace edm {
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
-    bool setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact);
-    bool setEntryAtLumi(LuminosityBlockID const& lumi);
+    bool setEntryAtEvent(RunNumber_t run, SubRunNumber_t lumi, EventNumber_t event, bool exact);
+    bool setEntryAtLumi(SubRunID const& lumi);
     bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
@@ -132,7 +132,7 @@ namespace edm {
     void fillLumiAuxiliary();
     void fillRunAuxiliary();
     void overrideRunNumber(RunID & id);
-    void overrideRunNumber(LuminosityBlockID & id);
+    void overrideRunNumber(SubRunID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
@@ -162,16 +162,16 @@ namespace edm {
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
     RunNumber_t startAtRun_;
-    LuminosityBlockNumber_t startAtLumi_;
+    SubRunNumber_t startAtLumi_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
-    std::vector<LuminosityBlockID> whichLumisToSkip_;
+    std::vector<SubRunID> whichLumisToSkip_;
     std::vector<EventID> whichEventsToProcess_;
     std::vector<EventID>::const_iterator eventListIter_;
     bool noEventSort_;
     bool fastClonable_;
     EventAuxiliary eventAux_;
-    LuminosityBlockAuxiliary lumiAux_;
+    SubRunAuxiliary lumiAux_;
     RunAuxiliary runAux_;
     RootTree eventTree_;
     RootTree lumiTree_;

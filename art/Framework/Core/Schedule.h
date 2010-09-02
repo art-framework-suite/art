@@ -130,7 +130,7 @@ namespace edm {
     void endJob();
 
     // Write the luminosity block
-    void writeLumi(LuminosityBlockPrincipal const& lbp);
+    void writeLumi(SubRunPrincipal const& lbp);
 
     // Write the run
     void writeRun(RunPrincipal const& rp);
@@ -232,7 +232,7 @@ namespace edm {
     void setupOnDemandSystem(EventPrincipal& principal);
 
     void reportSkipped(EventPrincipal const& ep) const;
-    void reportSkipped(LuminosityBlockPrincipal const&) const {}
+    void reportSkipped(SubRunPrincipal const&) const {}
     void reportSkipped(RunPrincipal const&) const {}
 
     void fillWorkers(std::string const& name, PathWorkers& out);

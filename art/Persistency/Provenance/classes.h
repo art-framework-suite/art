@@ -10,8 +10,8 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/Hash.h"
 #include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/Parentage.h"
@@ -41,11 +41,11 @@
 #include "art/Persistency/Provenance/EventEntryDescription.h"
 #include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/EventProcessHistoryID.h"
-#include "art/Persistency/Provenance/LuminosityBlockAux.h"
+#include "art/Persistency/Provenance/SubRunAux.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleDescriptionID.h"
 #include "art/Persistency/Provenance/RunAux.h"
-#include "art/Persistency/Provenance/RunLumiEntryInfo.h"
+#include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 
 
 namespace {
@@ -83,6 +83,6 @@ namespace {
   std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;
   edm::EntryDescriptionID dummyEntryDescriptionID;
   std::vector<edm::EventEntryInfo> dummyVectorEventEntryInfo;
-  std::vector<edm::RunLumiEntryInfo> dummyVectorRunLumiEntryInfo;
+  std::vector<edm::RunSubRunEntryInfo> dummyVectorRunSubRunEntryInfo;
 };
 }

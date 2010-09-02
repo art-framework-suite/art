@@ -11,8 +11,8 @@ OccurrenceTraits:
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlock.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -105,16 +105,16 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> {
+  class OccurrenceTraits<SubRunPrincipal, BranchActionBegin> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
+    typedef SubRunPrincipal MyPrincipal;
     static bool const begin_ = true;
     static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
       a->preBeginLumiSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep) {
-      LuminosityBlock lumi(*ep, ModuleDescription());
+    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
+      SubRun lumi(*ep, ModuleDescription());
       a->postBeginLumiSignal_(lumi);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
@@ -132,16 +132,16 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> {
+  class OccurrenceTraits<SubRunPrincipal, BranchActionEnd> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
+    typedef SubRunPrincipal MyPrincipal;
     static bool const begin_ = false;
     static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
       a->preEndLumiSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep) {
-      LuminosityBlock lumi(*ep, ModuleDescription());
+    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
+      SubRun lumi(*ep, ModuleDescription());
       a->postEndLumiSignal_(lumi);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {

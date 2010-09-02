@@ -1,8 +1,8 @@
 
 # This is the same as testRunMergeTEST except the noEventSort
 # option is set in the PoolSource, which changes the order
-# events are processed.  Within a LuminosityBlock, they are
-# in entry order instead of event number order.  The RunLumiEventAnalyzer
+# events are processed.  Within a SubRun, they are
+# in entry order instead of event number order.  The RunSubRunEventAnalyzer
 # module checks this.
 
 import FWCore.ParameterSet.python.Config as cms
@@ -239,7 +239,7 @@ process.test = cms.EDFilter("TestMergeResults",
    )
 )
 
-process.test2 = cms.EDAnalyzer('RunLumiEventAnalyzer',
+process.test2 = cms.EDAnalyzer('RunSubRunEventAnalyzer',
     verbose = cms.untracked.bool(True),
     expectedRunLumiEvents = cms.untracked.vuint32(
 1, 0, 0,

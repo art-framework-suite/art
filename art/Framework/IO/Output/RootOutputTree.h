@@ -15,7 +15,7 @@ RootOutputTree.h // used by ROOT output modules
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Provenance/BranchType.h"
 

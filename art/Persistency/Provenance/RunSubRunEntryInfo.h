@@ -1,9 +1,9 @@
-#ifndef DataFormats_Provenance_RunLumiEntryInfo_h
-#define DataFormats_Provenance_RunLumiEntryInfo_h
+#ifndef DataFormats_Provenance_RunSubRunEntryInfo_h
+#define DataFormats_Provenance_RunSubRunEntryInfo_h
 
 /*----------------------------------------------------------------------
 
-RunLumiEntryInfo: The event dependent portion of the description of a product
+RunSubRunEntryInfo: The event dependent portion of the description of a product
 and how it came into existence, plus the product identifier and the status.
 
 ----------------------------------------------------------------------*/
@@ -20,27 +20,27 @@ and how it came into existence, plus the product identifier and the status.
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 
 /*
-  RunLumiEntryInfo
+  RunSubRunEntryInfo
 */
 namespace edm {
-  class RunLumiEntryInfo {
+  class RunSubRunEntryInfo {
   public:
-    typedef std::vector<RunLumiEntryInfo> EntryInfoVector;
-    RunLumiEntryInfo();
-    explicit RunLumiEntryInfo(BranchID const& bid);
-    explicit RunLumiEntryInfo(ProductProvenance const& ei);
-    RunLumiEntryInfo(BranchID const& bid,
+    typedef std::vector<RunSubRunEntryInfo> EntryInfoVector;
+    RunSubRunEntryInfo();
+    explicit RunSubRunEntryInfo(BranchID const& bid);
+    explicit RunSubRunEntryInfo(ProductProvenance const& ei);
+    RunSubRunEntryInfo(BranchID const& bid,
 		    ProductStatus status);
-    RunLumiEntryInfo(BranchID const& bid,
+    RunSubRunEntryInfo(BranchID const& bid,
 		    ProductStatus status,
 		    ModuleDescriptionID const& mid,
 		    std::vector<BranchID> const& parents = std::vector<BranchID>());
 
-    RunLumiEntryInfo(BranchID const& bid,
+    RunSubRunEntryInfo(BranchID const& bid,
 		    ProductStatus status,
 		    EntryDescriptionID const& edid);
 
-    ~RunLumiEntryInfo() {}
+    ~RunSubRunEntryInfo() {}
 
     ProductProvenance makeProductProvenance() const;
 
@@ -63,22 +63,22 @@ namespace edm {
 
   inline
   bool
-  operator < (RunLumiEntryInfo const& a, RunLumiEntryInfo const& b) {
+  operator < (RunSubRunEntryInfo const& a, RunSubRunEntryInfo const& b) {
     return a.branchID() < b.branchID();
   }
 
   inline
   std::ostream&
-  operator<<(std::ostream& os, RunLumiEntryInfo const& p) {
+  operator<<(std::ostream& os, RunSubRunEntryInfo const& p) {
     p.write(os);
     return os;
   }
 
   // Only the 'salient attributes' are testing in equality comparison.
-  bool operator==(RunLumiEntryInfo const& a, RunLumiEntryInfo const& b);
-  inline bool operator!=(RunLumiEntryInfo const& a, RunLumiEntryInfo const& b) { return !(a==b); }
+  bool operator==(RunSubRunEntryInfo const& a, RunSubRunEntryInfo const& b);
+  inline bool operator!=(RunSubRunEntryInfo const& a, RunSubRunEntryInfo const& b) { return !(a==b); }
 
-  typedef RunLumiEntryInfo LumiEntryInfo;
-  typedef RunLumiEntryInfo RunEntryInfo;
+  typedef RunSubRunEntryInfo SubRunEntryInfo;
+  typedef RunSubRunEntryInfo RunEntryInfo;
 }
 #endif

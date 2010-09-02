@@ -759,7 +759,7 @@ namespace edm {
     for_all(all_output_workers_, boost::bind(&OutputWorker::writeRun, _1, boost::cref(rp)));
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp) {
+  void Schedule::writeLumi(SubRunPrincipal const& lbp) {
     for_all(all_output_workers_, boost::bind(&OutputWorker::writeLumi, _1, boost::cref(lbp)));
   }
 

@@ -24,7 +24,7 @@ is the DataBlock.
 
 namespace edm {
   class EventID;
-  class LuminosityBlockPrincipal;
+  class SubRunPrincipal;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -46,20 +46,20 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
-    LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
+    SubRunPrincipal const& luminosityBlockPrincipal() const {
       return *luminosityBlockPrincipal_;
     }
 
-    LuminosityBlockPrincipal & luminosityBlockPrincipal() {
+    SubRunPrincipal & luminosityBlockPrincipal() {
       return *luminosityBlockPrincipal_;
     }
 
-    boost::shared_ptr<LuminosityBlockPrincipal>
+    boost::shared_ptr<SubRunPrincipal>
     luminosityBlockPrincipalSharedPtr() {
       return luminosityBlockPrincipal_;
     }
 
-    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> lbp) {
       luminosityBlockPrincipal_ = lbp;
     }
 
@@ -91,7 +91,7 @@ namespace edm {
       return aux_;
     }
 
-    LuminosityBlockNumber_t const& luminosityBlock() const {
+    SubRunNumber_t const& luminosityBlock() const {
       return aux().luminosityBlock();
     }
 
@@ -155,7 +155,7 @@ namespace edm {
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
     EventAuxiliary aux_;
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+    boost::shared_ptr<SubRunPrincipal> luminosityBlockPrincipal_;
 
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;

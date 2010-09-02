@@ -35,7 +35,7 @@ haveID_(true), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi) : eventID_(iID), lumiID_(iLumi), time_(),
+IOVSyncValue::IOVSyncValue(const EventID& iID, SubRunNumber_t iLumi) : eventID_(iID), lumiID_(iLumi), time_(),
 haveID_(true), haveTime_(false)
 {
 }
@@ -45,7 +45,7 @@ haveID_(false), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime) :
+IOVSyncValue::IOVSyncValue(const EventID& iID, SubRunNumber_t iLumi, const Timestamp& iTime) :
 eventID_(iID), lumiID_(iLumi), time_(iTime),
 haveID_(true), haveTime_(true)
 {
@@ -91,7 +91,7 @@ IOVSyncValue::invalidIOVSyncValue() {
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
    static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, EventID::maxEventNumber()),
-                                   LuminosityBlockID::maxLuminosityBlockNumber(),
+                                   SubRunID::maxLuminosityBlockNumber(),
                                    Timestamp::endOfTime());
    return s_endOfTime;
 }

@@ -15,7 +15,7 @@ not at all.
 ----------------------------------------------------------------------*/
 
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 #include <set>
 #include <string>
@@ -38,7 +38,7 @@ namespace edm {
     void rewind();
 
     bool isDuplicateAndCheckActive(EventID const& eventID,
-                                   LuminosityBlockNumber_t const& lumi,
+                                   SubRunNumber_t const& lumi,
                                    std::string const& fileName);
 
   private:

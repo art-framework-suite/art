@@ -13,7 +13,7 @@ namespace edm {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;
     os << id_ << std::endl;
     //os << "TimeStamp = " << time_ << std::endl;
-    os << "LuminosityBlockNumber_t = " << luminosityBlock_ << std::endl;
+    os << "SubRunNumber_t = " << luminosityBlock_ << std::endl;
   }
 
   bool

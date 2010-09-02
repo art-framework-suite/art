@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
     , skipEvents = cms.untracked.uint32(3)
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
+process.test = cms.EDAnalyzer('RunSubRunEventAnalyzer',
     verbose = cms.untracked.bool(True),
     expectedRunLumiEvents = cms.untracked.vuint32(
 1, 0, 0,

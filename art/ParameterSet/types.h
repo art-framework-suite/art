@@ -103,13 +103,13 @@ namespace edm
   bool  decode(std::vector<edm::EventID>&, std::string const&);
   bool  encode(std::string &, std::vector<edm::EventID> const&);
 
-  // LuminosityBlockID
-  bool  decode(edm::LuminosityBlockID&, std::string const&);
-  bool  encode(std::string &, edm::LuminosityBlockID const&);
+  // SubRunID
+  bool  decode(edm::SubRunID&, std::string const&);
+  bool  encode(std::string &, edm::SubRunID const&);
 
-  // VLuminosityBlockID
-  bool  decode(std::vector<edm::LuminosityBlockID>&, std::string const&);
-  bool  encode(std::string &, std::vector<edm::LuminosityBlockID> const&);
+  // VSubRunID
+  bool  decode(std::vector<edm::SubRunID>&, std::string const&);
+  bool  encode(std::string &, std::vector<edm::SubRunID> const&);
 
   // ParameterSet
   bool  decode(ParameterSet &, std::string  const&);

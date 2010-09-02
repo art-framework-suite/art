@@ -12,7 +12,7 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/GroupSelector.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -35,9 +35,9 @@
 #include "art/Persistency/Provenance/BranchEntryDescription.h"
 #include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
 #include "art/Persistency/Provenance/EventAux.h"
-#include "art/Persistency/Provenance/LuminosityBlockAux.h"
+#include "art/Persistency/Provenance/SubRunAux.h"
 #include "art/Persistency/Provenance/RunAux.h"
-#include "art/Persistency/Provenance/RunLumiEntryInfo.h"
+#include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 
 #include "TROOT.h"
 #include "TClass.h"
@@ -54,10 +54,10 @@ namespace edm {
 		     std::string const& logicalFileName,
 		     boost::shared_ptr<TFile> filePtr,
 		     RunNumber_t const& startAtRun,
-		     LuminosityBlockNumber_t const& startAtLumi,
+		     SubRunNumber_t const& startAtLumi,
 		     EventNumber_t const& startAtEvent,
 		     unsigned int eventsToSkip,
-		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
+		     std::vector<SubRunID> const& whichLumisToSkip,
 		     int remainingEvents,
 		     int remainingLumis,
 		     unsigned int treeCacheSize,
@@ -97,7 +97,7 @@ namespace edm {
       lumiAux_(),
       runAux_(),
       eventTree_(filePtr_, InEvent),
-      lumiTree_(filePtr_, InLumi),
+      lumiTree_(filePtr_, InSubRun),
       runTree_(filePtr_, InRun),
       treePointers_(),
       productRegistry_(),
@@ -118,7 +118,7 @@ namespace edm {
     runTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
 
     treePointers_[InEvent] = &eventTree_;
-    treePointers_[InLumi]  = &lumiTree_;
+    treePointers_[InSubRun]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
 
     setRefCoreStreamer(0, true); // backward compatibility
@@ -362,7 +362,7 @@ namespace edm {
     if (eventsToSkip_ != 0) return false;
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
     if (remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) return false;
-    if (processingMode_ != InputSource::RunsLumisAndEvents) return false;
+    if (processingMode_ != InputSource::RunsSubRunsAndEvents) return false;
     if (forcedRunOffset_ != 0) return false;
     // Find entry for first event in file
     FileIndex::const_iterator it = fileIndexBegin_;
@@ -375,7 +375,7 @@ namespace edm {
       if (startAtLumi_ > it->lumi_) return false;
       if (startAtEvent_ > it->event_) return false;
     }
-    for (std::vector<LuminosityBlockID>::const_iterator it = whichLumisToSkip_.begin(),
+    for (std::vector<SubRunID>::const_iterator it = whichLumisToSkip_.begin(),
 	  itEnd = whichLumisToSkip_.end(); it != itEnd; ++it) {
         if (fileIndex_.findLumiPosition(it->run(), it->luminosityBlock(), true) != fileIndexEnd_) {
 	  // We must skip a luminosity block in this file.  We will simply assume that
@@ -483,7 +483,7 @@ namespace edm {
       fileIndexIter_ = fileIndex_.findRunPosition(currentRun + 1, false);
       return getNextEntryTypeWanted();
     }
-    LuminosityBlockNumber_t const& currentLumi = fileIndexIter_->lumi_;
+    SubRunNumber_t const& currentLumi = fileIndexIter_->lumi_;
     if (specifiedEvents) {
       // We are processing specified events.
       assert (correctedCurrentRun == eventListIter_->run());
@@ -508,12 +508,12 @@ namespace edm {
 	return getNextEntryTypeWanted();
       }
       // Skip the lumi if it is in whichLumisToSkip_.
-      if (binary_search_all(whichLumisToSkip_, LuminosityBlockID(correctedCurrentRun, currentLumi))) {
+      if (binary_search_all(whichLumisToSkip_, SubRunID(correctedCurrentRun, currentLumi))) {
         fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, currentLumi + 1);
 	return getNextEntryTypeWanted();
       }
       return FileIndex::kLumi;
-    } else if (processingMode_ == InputSource::RunsAndLumis) {
+    } else if (processingMode_ == InputSource::RunsAndSubRuns) {
       fileIndexIter_ = fileIndex_.findLumiOrRunPosition(currentRun, currentLumi + 1);
       return getNextEntryTypeWanted();
     }
@@ -596,7 +596,7 @@ namespace edm {
   RootFile::fillFileIndex() {
     // This function is for backward compatibility only.
     // Newer files store the file index.
-    LuminosityBlockNumber_t lastLumi = 0;
+    SubRunNumber_t lastLumi = 0;
     RunNumber_t lastRun = 0;
 
     // Loop over event entries and fill the index from the event auxiliary branch
@@ -687,9 +687,9 @@ namespace edm {
       conversion(eventAux, eventAux_);
     }
     if (eventAux_.luminosityBlock_ == 0 && fileFormatVersion_.value_ <= 3) {
-      eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
+      eventAux_.luminosityBlock_ = SubRunNumber_t(1);
     } else if (fileFormatVersion_.value_ <= 1) {
-      eventAux_.luminosityBlock_ = LuminosityBlockNumber_t(1);
+      eventAux_.luminosityBlock_ = SubRunNumber_t(1);
     }
   }
 
@@ -730,16 +730,16 @@ namespace edm {
   void
   RootFile::fillLumiAuxiliary() {
     if (fileFormatVersion_.value_ >= 3) {
-      LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
-      lumiTree_.fillAux<LuminosityBlockAuxiliary>(pLumiAux);
+      SubRunAuxiliary *pLumiAux = &lumiAux_;
+      lumiTree_.fillAux<SubRunAuxiliary>(pLumiAux);
     } else {
-      LuminosityBlockAux lumiAux;
-      LuminosityBlockAux *pLumiAux = &lumiAux;
-      lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
+      SubRunAux lumiAux;
+      SubRunAux *pLumiAux = &lumiAux;
+      lumiTree_.fillAux<SubRunAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
     }
     if (lumiAux_.luminosityBlock() == 0 && fileFormatVersion_.value_ <= 3) {
-      lumiAux_.id_ = LuminosityBlockID(lumiAux_.run(), LuminosityBlockNumber_t(1));
+      lumiAux_.id_ = SubRunID(lumiAux_.run(), SubRunNumber_t(1));
     }
   }
 
@@ -892,7 +892,7 @@ namespace edm {
 			 pReg,
 			 processConfiguration_,
 		         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-		         makeBranchMapper<RunLumiEntryInfo>(runTree_, InRun) :
+		         makeBranchMapper<RunSubRunEntryInfo>(runTree_, InRun) :
 		         makeBranchMapper<ProductProvenance>(runTree_, InRun),
 			 runTree_.makeDelayedReader()));
     // Create a group in the run for each product
@@ -903,7 +903,7 @@ namespace edm {
     return thisRun;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
+  boost::shared_ptr<SubRunPrincipal>
   RootFile::readLumi(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kLumi);
@@ -918,12 +918,12 @@ namespace edm {
         eventTree_.previous();
       }
 
-      LuminosityBlockID lumi = LuminosityBlockID(fileIndexIter_->run_, fileIndexIter_->lumi_);
+      SubRunID lumi = SubRunID(fileIndexIter_->run_, fileIndexIter_->lumi_);
       overrideRunNumber(lumi);
       ++fileIndexIter_;
-      LuminosityBlockAuxiliary lumiAux(rp->run(), lumi.luminosityBlock(), eventAux_.time_, Timestamp::invalidTimestamp());
-      return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(lumiAux,
+      SubRunAuxiliary lumiAux(rp->run(), lumi.luminosityBlock(), eventAux_.time_, Timestamp::invalidTimestamp());
+      return boost::shared_ptr<SubRunPrincipal>(
+	new SubRunPrincipal(lumiAux,
 				     pReg,
 				     processConfiguration_));
     }
@@ -936,7 +936,7 @@ namespace edm {
     assert(lumiAux_.run() == rp->run());
 
     if (lumiAux_.beginTime() == Timestamp::invalidTimestamp()) {
-      // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.
+      // SubRunAuxiliary did not contain a timestamp. Take it from the next event.
       if (eventTree_.next()) {
         fillEventAuxiliary();
         // back up, so event will not be skipped.
@@ -945,12 +945,12 @@ namespace edm {
       lumiAux_.beginTime_ = eventAux_.time();
       lumiAux_.endTime_ = Timestamp::invalidTimestamp();
     }
-    boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
-	new LuminosityBlockPrincipal(lumiAux_,
+    boost::shared_ptr<SubRunPrincipal> thisLumi(
+	new SubRunPrincipal(lumiAux_,
 				     pReg, processConfiguration_,
 				     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-				     makeBranchMapper<RunLumiEntryInfo>(lumiTree_, InLumi) :
-				     makeBranchMapper<ProductProvenance>(lumiTree_, InLumi),
+				     makeBranchMapper<RunSubRunEntryInfo>(lumiTree_, InSubRun) :
+				     makeBranchMapper<ProductProvenance>(lumiTree_, InSubRun),
 				     lumiTree_.makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(*thisLumi);
@@ -961,7 +961,7 @@ namespace edm {
   }
 
   bool
-  RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) {
+  RootFile::setEntryAtEvent(RunNumber_t run, SubRunNumber_t lumi, EventNumber_t event, bool exact) {
     fileIndexIter_ = fileIndex_.findEventPosition(run, lumi, event, exact);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -969,7 +969,7 @@ namespace edm {
   }
 
   bool
-  RootFile::setEntryAtLumi(LuminosityBlockID const& lumi) {
+  RootFile::setEntryAtLumi(SubRunID const& lumi) {
     fileIndexIter_ = fileIndex_.findLumiPosition(lumi.run(), lumi.luminosityBlock(), true);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     lumiTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -993,11 +993,11 @@ namespace edm {
   }
 
   void
-  RootFile::overrideRunNumber(LuminosityBlockID & id) {
+  RootFile::overrideRunNumber(SubRunID & id) {
     if (forcedRunOffset_ != 0) {
-      id = LuminosityBlockID(id.run() + forcedRunOffset_, id.luminosityBlock());
+      id = SubRunID(id.run() + forcedRunOffset_, id.luminosityBlock());
     }
-    if (RunID(id.run()) < RunID::firstValidRun()) id = LuminosityBlockID(RunID::firstValidRun().run(), id.luminosityBlock());
+    if (RunID(id.run()) < RunID::firstValidRun()) id = SubRunID(RunID::firstValidRun().run(), id.luminosityBlock());
   }
 
   void

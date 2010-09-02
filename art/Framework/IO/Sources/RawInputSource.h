@@ -21,19 +21,19 @@ namespace edm {
     virtual ~RawInputSource();
 
   protected:
-    std::auto_ptr<Event> makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp);
+    std::auto_ptr<Event> makeEvent(RunNumber_t run, SubRunNumber_t lumi, EventNumber_t event, Timestamp const& tstamp);
     virtual std::auto_ptr<Event> readOneEvent() = 0;
 
   private:
     virtual std::auto_ptr<EventPrincipal> readEvent_();
-    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
+    virtual boost::shared_ptr<SubRunPrincipal> readLuminosityBlock_();
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual ItemType getNextItemType();
 
     RunNumber_t runNumber_;
-    LuminosityBlockNumber_t luminosityBlockNumber_;
+    SubRunNumber_t luminosityBlockNumber_;
     bool newRun_;
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;

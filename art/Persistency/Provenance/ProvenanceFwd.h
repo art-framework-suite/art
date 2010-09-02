@@ -12,8 +12,8 @@ namespace edm {
   class BranchKey;
   class EventAuxiliary;
   class EventID;
-  class LuminosityBlockAuxiliary;
-  class LuminosityBlockID;
+  class SubRunAuxiliary;
+  class SubRunID;
   class ModuleDescription;
   class ProcessConfiguration;
   class ProcessHistory;

@@ -20,9 +20,9 @@ set( artPersistencyProvenance_sources BranchChildren.cc
 				   FileIndex.cc
 				   Hash.cc
 				   History.cc
-				   LuminosityBlockAux.cc
-				   LuminosityBlockAuxiliary.cc
-				   LuminosityBlockID.cc
+				   SubRunAux.cc
+				   SubRunAuxiliary.cc
+				   SubRunID.cc
 				   ModuleDescription.cc
 				   ParameterSetBlob.cc
 				   Parentage.cc
@@ -35,7 +35,7 @@ set( artPersistencyProvenance_sources BranchChildren.cc
 				   RunAux.cc
 				   RunAuxiliary.cc
 				   RunID.cc
-				   RunLumiEntryInfo.cc
+				   RunSubRunEntryInfo.cc
 				   Timestamp.cc
 				   TransientStreamer.cc )
 
@@ -78,9 +78,9 @@ install(FILES BranchChildren.h
 	      HashedTypes.h
 	      Hash.h
 	      History.h
-	      LuminosityBlockAux.h
-	      LuminosityBlockAuxiliary.h
-	      LuminosityBlockID.h
+	      SubRunAux.h
+	      SubRunAuxiliary.h
+	      SubRunID.h
 	      ModuleDescription.h
 	      ModuleDescriptionID.h
 	      ModuleDescriptionRegistry.h
@@ -106,7 +106,7 @@ install(FILES BranchChildren.h
 	      RunAux.h
 	      RunAuxiliary.h
 	      RunID.h
-	      RunLumiEntryInfo.h
+	      RunSubRunEntryInfo.h
 	      Selections.h
 	      Timestamp.h
 	      Transient.h

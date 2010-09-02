@@ -1,11 +1,11 @@
-#ifndef FWCore_MessageService_test_UnitTestClient_SLumi_h
-#define FWCore_MessageService_test_UnitTestClient_SLumi_h
+#ifndef FWCore_MessageService_test_UnitTestClient_SSubRun_h
+#define FWCore_MessageService_test_UnitTestClient_SSubRun_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/MessageLogger/MessageLogger.h"
 #include "art/MessageLogger/LoggedErrorsSummary.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 
 #include "art/ParameterSet/ParameterSet.h"
 
@@ -86,7 +86,7 @@ public:
                 );
 
   virtual
-    void endLuminosityBlock ( edm::LuminosityBlock const & lb
+    void endSubRun ( edm::SubRun const & lb
                 	    , edm::EventSetup 	   const & c
                 	    );
 
@@ -97,4 +97,4 @@ private:
 }  // namespace edmtest
 
 
-#endif  // FWCore_MessageService_test_UnitTestClient_SLumi_h
+#endif  // FWCore_MessageService_test_UnitTestClient_SSubRun_h

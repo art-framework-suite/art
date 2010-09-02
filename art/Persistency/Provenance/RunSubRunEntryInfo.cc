@@ -1,5 +1,5 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/RunLumiEntryInfo.h"
+#include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 #include "art/Persistency/Provenance/EntryDescriptionID.h"
 #include "art/Persistency/Provenance/EventEntryDescription.h"
 #include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
@@ -10,25 +10,25 @@
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  RunLumiEntryInfo::RunLumiEntryInfo() :
+  RunSubRunEntryInfo::RunSubRunEntryInfo() :
     branchID_(),
     productStatus_(productstatus::uninitialized()),
     moduleDescriptionID_()
   {}
 
-  RunLumiEntryInfo::RunLumiEntryInfo(ProductProvenance const& ei) :
+  RunSubRunEntryInfo::RunSubRunEntryInfo(ProductProvenance const& ei) :
     branchID_(ei.branchID()),
     productStatus_(ei.productStatus()),
     moduleDescriptionID_()
   {}
 
-  RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid) :
+  RunSubRunEntryInfo::RunSubRunEntryInfo(BranchID const& bid) :
     branchID_(bid),
     productStatus_(productstatus::uninitialized()),
     moduleDescriptionID_()
   {}
 
-   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
+   RunSubRunEntryInfo::RunSubRunEntryInfo(BranchID const& bid,
 				    ProductStatus status) :
     branchID_(bid),
     productStatus_(status),
@@ -37,7 +37,7 @@ namespace edm {
 
    // The last two arguments are ignored.
    // They are used for backward compatibility.
-   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
+   RunSubRunEntryInfo::RunSubRunEntryInfo(BranchID const& bid,
 				    ProductStatus status,
 				    ModuleDescriptionID const& mid,
 				    std::vector<BranchID> const&) :
@@ -46,7 +46,7 @@ namespace edm {
     moduleDescriptionID_(mid)
   {}
 
-   RunLumiEntryInfo::RunLumiEntryInfo(BranchID const& bid,
+   RunSubRunEntryInfo::RunSubRunEntryInfo(BranchID const& bid,
 				    ProductStatus status,
 				    EntryDescriptionID const& edid) :
     branchID_(bid),
@@ -58,33 +58,33 @@ namespace edm {
   }
 
   ProductProvenance
-  RunLumiEntryInfo::makeProductProvenance() const {
+  RunSubRunEntryInfo::makeProductProvenance() const {
     return ProductProvenance(branchID_, productStatus_);
   }
 
   void
-  RunLumiEntryInfo::setPresent() {
+  RunSubRunEntryInfo::setPresent() {
     if (productstatus::present(productStatus())) return;
     assert(productstatus::unknown(productStatus()));
     setStatus(productstatus::present());
   }
 
   void
-  RunLumiEntryInfo::setNotPresent() {
+  RunSubRunEntryInfo::setNotPresent() {
     if (productstatus::neverCreated(productStatus())) return;
     assert(productstatus::unknown(productStatus()));
     setStatus(productstatus::neverCreated());
   }
 
   void
-  RunLumiEntryInfo::write(std::ostream& os) const {
+  RunSubRunEntryInfo::write(std::ostream& os) const {
     os << "branch ID = " << branchID() << '\n';
     os << "product status = " << productStatus() << '\n';
     os << "module description ID = " << moduleDescriptionID() << '\n';
   }
 
   bool
-  operator==(RunLumiEntryInfo const& a, RunLumiEntryInfo const& b) {
+  operator==(RunSubRunEntryInfo const& a, RunSubRunEntryInfo const& b) {
     return
       a.branchID() == b.branchID()
       && a.productStatus() == b.productStatus()

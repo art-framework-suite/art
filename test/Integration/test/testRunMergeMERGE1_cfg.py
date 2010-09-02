@@ -28,7 +28,7 @@ process.source = cms.Source("PoolSource",
     , firstRun = cms.untracked.uint32(17)
     , firstLuminosityBlock = cms.untracked.uint32(3)
     , firstEvent = cms.untracked.uint32(6)
-    , lumisToSkip = cms.untracked.VLuminosityBlockID(
+    , lumisToSkip = cms.untracked.VSubRunID(
                                            '18:3',
                                            '19:2',
                                            '21:4',
@@ -42,7 +42,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMerge_a.root')
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
+process.test = cms.EDAnalyzer('RunSubRunEventAnalyzer',
     verbose = cms.untracked.bool(True),
     expectedRunLumiEvents = cms.untracked.vuint32(
 17, 0, 0,

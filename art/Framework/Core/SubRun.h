@@ -1,12 +1,12 @@
-#ifndef Framework_LuminosityBlock_h
-#define Framework_LuminosityBlock_h
+#ifndef Framework_SubRun_h
+#define Framework_SubRun_h
 
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     LuminosityBlock
+// Class  :     SubRun
 //
-/**\class LuminosityBlock LuminosityBlock.h FWCore/Framework/interface/LuminosityBlock.h
+/**\class SubRun SubRun.h FWCore/Framework/interface/SubRun.h
 
 Description: This is the primary interface for accessing per luminosity block EDProducts
 and inserting new derived per luminosity block EDProducts.
@@ -22,8 +22,8 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 #include "boost/shared_ptr.hpp"
 
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
 
 #include "art/Framework/Core/DataViewImpl.h"
@@ -31,21 +31,21 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 namespace edm {
 
-  class LuminosityBlock : private DataViewImpl
+  class SubRun : private DataViewImpl
   {
   public:
-    LuminosityBlock(LuminosityBlockPrincipal& lbp, const ModuleDescription& md);
-    ~LuminosityBlock() {}
+    SubRun(SubRunPrincipal& lbp, const ModuleDescription& md);
+    ~SubRun() {}
 
     typedef DataViewImpl Base;
     // AUX functions.
-    LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
+    SubRunNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
 
     RunNumber_t run() const {
       return aux_.run();
     }
 
-    LuminosityBlockID id() const {
+    SubRunID id() const {
       return aux_.id();
     }
 
@@ -82,10 +82,10 @@ namespace edm {
     getAllProvenance(std::vector<Provenance const*> &provenances) const;
 
   private:
-    LuminosityBlockPrincipal const&
+    SubRunPrincipal const&
     luminosityBlockPrincipal() const;
 
-    LuminosityBlockPrincipal &
+    SubRunPrincipal &
     luminosityBlockPrincipal();
 
     // commit_() is called to complete the transaction represented by
@@ -101,18 +101,18 @@ namespace edm {
 
     void commit_();
 
-    LuminosityBlockAuxiliary const& aux_;
+    SubRunAuxiliary const& aux_;
     boost::shared_ptr<Run const> const run_;
   };
 
   template <typename PROD>
   void
-  LuminosityBlock::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
+  SubRun::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
   {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       throw edm::Exception(edm::errors::NullPointerError)
-        << "LuminosityBlock::put: A null auto_ptr was passed to 'put'.\n"
+        << "SubRun::put: A null auto_ptr was passed to 'put'.\n"
 	<< "The pointer is of type " << typeID << ".\n"
 	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
