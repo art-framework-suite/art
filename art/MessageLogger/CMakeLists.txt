@@ -1,3 +1,29 @@
+# project name
+project(artMessageLogger)
+
+set( artMessageLogger_sources AbstractMLscribe.cc
+				 ELextendedID.cc
+				 ELmap.cc
+				 ELseverityLevel.cc
+				 ELstring.cc
+				 ErrorObj.cc
+				 ExceptionMessages.cc
+				 LoggedErrorsSummary.cc
+				 MessageDrop.cc
+				 MessageLogger.cc
+				 MessageLoggerQ.cc
+				 MessageSender.cc )
+
+add_library(artMessageLogger SHARED ${artMessageLogger_sources} )
+link_libraries( artUtilities
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_THREAD_LIBRARY}
+		${CORE}
+		${HIST}
+		${REFLEX}
+		${CINTEX} )
+
+install ( TARGETS artMessageLogger DESTINATION lib )
 install(FILES AbstractMLscribe.h
 	      ConfigurationHandshake.h
 	      ELextendedID.h
@@ -16,35 +42,4 @@ install(FILES AbstractMLscribe.h
 	      MessageLoggerQ.h
 	      MessageSender.h
 	      ThreadSafeErrorLog.icc
-	DESTINATION include/FWCore/MessageLogger/interface )
->>><<<
-# project name
-project(FWCoreMessageLogger)
-
-# version number
-set (FWCoreMessageLogger_VERSION_MAJOR 1)
-set (FWCoreMessageLogger_VERSION_MINOR 0)
-
-set( FWCoreMessageLogger_sources AbstractMLscribe.cc
-				 ELextendedID.cc
-				 ELmap.cc
-				 ELseverityLevel.cc
-				 ELstring.cc
-				 ErrorObj.cc
-				 ExceptionMessages.cc
-				 LoggedErrorsSummary.cc
-				 MessageDrop.cc
-				 MessageLogger.cc
-				 MessageLoggerQ.cc
-				 MessageSender.cc )
-
-add_library(FWCoreMessageLogger SHARED ${FWCoreMessageLogger_sources} )
-target_link_libraries(FWCoreMessageLogger FWCoreUtilities
-                			  ${Boost_FILESYSTEM_LIBRARY}
-                			  ${Boost_THREAD_LIBRARY}
-					  ${CORE}
-					  ${HIST}
-					  ${REFLEX}
-					  ${CINTEX} )
-
-install ( TARGETS FWCoreMessageLogger DESTINATION lib )
+	DESTINATION include/art/MessageLogger )

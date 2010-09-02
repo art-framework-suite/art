@@ -1,4 +1,55 @@
+# project name
+project(artPersistencyProvenance)
 
+set( artPersistencyProvenance_sources BranchChildren.cc
+				   BranchDescription.cc
+				   BranchEntryDescription.cc
+				   BranchID.cc
+				   BranchIDListHelper.cc
+				   BranchKey.cc
+				   BranchMapper.cc
+				   BranchType.cc
+				   EntryDescription.cc
+				   EventAux.cc
+				   EventAuxiliary.cc
+				   EventEntryDescription.cc
+				   EventEntryInfo.cc
+				   EventID.cc
+				   FileFormatVersion.cc
+				   FileID.cc
+				   FileIndex.cc
+				   Hash.cc
+				   History.cc
+				   LuminosityBlockAux.cc
+				   LuminosityBlockAuxiliary.cc
+				   LuminosityBlockID.cc
+				   ModuleDescription.cc
+				   ParameterSetBlob.cc
+				   Parentage.cc
+				   ProcessConfiguration.cc
+				   ProcessHistory.cc
+				   ProductID.cc
+				   ProductProvenance.cc
+				   ProductRegistry.cc
+				   Provenance.cc
+				   RunAux.cc
+				   RunAuxiliary.cc
+				   RunID.cc
+				   RunLumiEntryInfo.cc
+				   Timestamp.cc
+				   TransientStreamer.cc )
+
+
+link_libraries( artUtilities
+		${Boost_THREAD_LIBRARY}
+		${REFLEX}
+		${CORE} )
+
+add_library(artPersistencyProvenance SHARED ${artPersistencyProvenance_sources} )
+
+build_plugin( Persistency Provenance )
+
+install ( TARGETS artPersistencyProvenance DESTINATION lib )
 install(FILES BranchChildren.h
 	      BranchDescription.h
 	      BranchEntryDescription.h
@@ -60,62 +111,4 @@ install(FILES BranchChildren.h
 	      Timestamp.h
 	      Transient.h
 	      TransientStreamer.h
-	DESTINATION include/DataFormats/Provenance/interface )
->>><<<
-# project name
-project(DataFormatsProvenance)
-
-# version number
-set (DataFormatsProvenance_VERSION_MAJOR 1)
-set (DataFormatsProvenance_VERSION_MINOR 0)
-
-set( DataFormatsProvenance_sources BranchChildren.cc
-				   BranchDescription.cc
-				   BranchEntryDescription.cc
-				   BranchID.cc
-				   BranchIDListHelper.cc
-				   BranchKey.cc
-				   BranchMapper.cc
-				   BranchType.cc
-				   EntryDescription.cc
-				   EventAux.cc
-				   EventAuxiliary.cc
-				   EventEntryDescription.cc
-				   EventEntryInfo.cc
-				   EventID.cc
-				   FileFormatVersion.cc
-				   FileID.cc
-				   FileIndex.cc
-				   Hash.cc
-				   History.cc
-				   LuminosityBlockAux.cc
-				   LuminosityBlockAuxiliary.cc
-				   LuminosityBlockID.cc
-				   ModuleDescription.cc
-				   ParameterSetBlob.cc
-				   Parentage.cc
-				   ProcessConfiguration.cc
-				   ProcessHistory.cc
-				   ProductID.cc
-				   ProductProvenance.cc
-				   ProductRegistry.cc
-				   Provenance.cc
-				   RunAux.cc
-				   RunAuxiliary.cc
-				   RunID.cc
-				   RunLumiEntryInfo.cc
-				   SConscript
-				   Timestamp.cc
-				   TransientStreamer.cc )
-
-
-link_libraries( FWCoreUtilities
-		${Boost_THREAD_LIBRARY}
-		${REFLEX}
-		${CORE} )
-
-add_library(DataFormatsProvenance SHARED ${DataFormatsProvenance_sources} )
-
-build_plugin( DataFormats Provenance )
-
-install ( TARGETS DataFormatsProvenance DESTINATION lib )
+	DESTINATION include/art/Persistency/Provenance )

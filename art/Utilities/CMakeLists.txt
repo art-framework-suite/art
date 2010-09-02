@@ -82,4 +82,4 @@ install(FILES Algorithms.h
 	      vectorTransform.h
 	      Verbosity.h
 	      WrappedClassName.h
-	DESTINATION include/FWCore/Utilities/interface )
+	DESTINATION include/art/Utilities )

@@ -37,4 +37,4 @@ install(FILES CacheParser.h
 	      ProblemTracker.h
 	      SharedLibrary.h
 	      standard.h
-	DESTINATION include/FWCore/PluginManager/interface )
+	DESTINATION include/art/Framework/PluginManager )

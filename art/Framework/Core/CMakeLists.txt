@@ -67,10 +67,9 @@ set( artFrameworkCore_sources Actions.cc
 			     WorkerMaker.cc
 			     WorkerRegistry.cc )
 
-link_libraries( artFrameworkCoreArt
-                DataFormatsProvenance
-                DataFormatsCommon
-		FWCoreMessageLogger
+link_libraries( artPersistencyProvenance
+                artPersistencyCommon
+		artMessageLogger
 		artFrameworkServicesBasic
 		artFrameworkCore
 		artParameterSet
