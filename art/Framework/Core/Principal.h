@@ -23,18 +23,20 @@ pointer to a Group, when queried.
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
+
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Framework/Core/Group.h"
+#include "art/Framework/Core/NoDelayedReader.h"
+#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/OutputHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Framework/Core/Group.h"
-#include "art/Framework/Core/NoDelayedReader.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
 
