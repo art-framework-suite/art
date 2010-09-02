@@ -39,9 +39,7 @@ namespace edm {
 
     // --- Production:
     virtual void
-      produce( Event            &
-             , EventSetup const &
-             );
+      produce( Event & );
 
     // --- Specification:
     static void
@@ -69,9 +67,7 @@ namespace edm {
 
 
   void
-    RandomNumberSaver::produce( Event            & event
-                              , EventSetup const & // unused
-                              )
+    RandomNumberSaver::produce( Event & event )
   {
     using std::auto_ptr;
 

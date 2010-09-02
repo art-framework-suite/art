@@ -1,6 +1,6 @@
 #ifndef Modules_EventContentAnalyzer_h
 #define Modules_EventContentAnalyzer_h
-// -*- C++ -*-
+
 //
 // Package:     Modules
 // Class  :     EventContentAnalyzer
@@ -9,14 +9,7 @@
 
  Description: prints out what data is contained within an Event at that point in the path
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep 19 11:49:35 CEST 2005
-//
 
 // system include files
 #include <string>
@@ -36,7 +29,7 @@ public:
    explicit EventContentAnalyzer(const edm::ParameterSet&);
    ~EventContentAnalyzer();
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(const edm::Event&);
    virtual void endJob();
 
    static void fillDescription(edm::ParameterSetDescription& iDesc,
@@ -55,6 +48,4 @@ private:
    std::map<std::string, int>  cumulates_;
 };
 
-
-
-#endif
+#endif  // Modules_EventContentAnalyzer_h

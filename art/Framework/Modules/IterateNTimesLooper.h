@@ -1,30 +1,18 @@
 #ifndef Modules_IterateNTimesLooper_h
 #define Modules_IterateNTimesLooper_h
-// -*- C++ -*-
+
 //
 // Package:     Modules
 // Class  :     IterateNTimesLooper
 //
 /**\class IterateNTimesLooper IterateNTimesLooper.h FWCore/Modules/interface/IterateNTimesLooper.h
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Tue Jul 11 11:16:12 EDT 2006
-//
-//
 
-// system include files
 
 // user include files
 #include "art/Framework/Core/EDLooper.h"
 
-// forward declarations
 
 class IterateNTimesLooper : public edm::EDLooper
 {
@@ -39,8 +27,8 @@ class IterateNTimesLooper : public edm::EDLooper
 
       // ---------- member functions ---------------------------
       virtual void startingNewLoop(unsigned int ) ;
-      virtual Status duringLoop(const edm::Event&, const edm::EventSetup&) ;
-      virtual Status endOfLoop(const edm::EventSetup&, unsigned int) ;
+      virtual Status duringLoop(const edm::Event&) ;
+      virtual Status endOfLoop(unsigned int) ;
 
    private:
       IterateNTimesLooper(const IterateNTimesLooper&); // stop default
@@ -54,4 +42,4 @@ class IterateNTimesLooper : public edm::EDLooper
 };
 
 
-#endif
+#endif  // Modules_IterateNTimesLooper_h

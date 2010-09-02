@@ -1,4 +1,3 @@
-// -*- C++ -*-
 //
 // Package:    Modules
 // Class:      EventContentAnalyzer
@@ -17,39 +16,21 @@
 
 
 // system include files
-#include <iostream>
-#include <iomanip>
-#include <sstream>
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 // user include files
-#include "art/Framework/Core/Frameworkfwd.h"
-
 #include "art/Framework/Core/Event.h"
-#include "art/Persistency/Provenance/Provenance.h"
-
-#include "art/ParameterSet/ParameterSet.h"
-
-#include "art/Framework/Modules/EventContentAnalyzer.h"
-
+#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GenericHandle.h"
-
+#include "art/Framework/Modules/EventContentAnalyzer.h"
 #include "art/MessageLogger/MessageLogger.h"
-
-#include "art/Utilities/Algorithms.h"
+#include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
-
-//
-// class declarations
-//
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#include "art/Persistency/Provenance/Provenance.h"
+#include "art/Utilities/Algorithms.h"
 
 ///consistently format class names
 static
@@ -270,7 +251,7 @@ EventContentAnalyzer::~EventContentAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-EventContentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+EventContentAnalyzer::analyze(const edm::Event& iEvent)
 {
    using namespace edm;
 
@@ -364,11 +345,6 @@ EventContentAnalyzer::endJob()
                              ++it) {
       edm::LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
    }
-
-// Test boost::lexical_cast  We don't need this right now so comment it out.
-// int k = 137;
-// std::string ktext = boost::lexical_cast<std::string>(k);
-// std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
 }
 
 void

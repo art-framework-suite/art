@@ -11,7 +11,7 @@ namespace edm
     explicit Prescaler(edm::ParameterSet const&);
     virtual ~Prescaler();
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
+    virtual bool filter(edm::Event& e);
     void endJob();
 
   private:
@@ -21,5 +21,4 @@ namespace edm
   };
 }
 
-#endif
-
+#endif  // ModulesPrescaler_H

@@ -15,7 +15,7 @@ namespace edm
   {
   }
 
-  bool Prescaler::filter(edm::Event & e,edm::EventSetup const&)
+  bool Prescaler::filter(edm::Event & e)
   {
     ++count_;
     return count_ % n_ == offset_ ? true : false;
