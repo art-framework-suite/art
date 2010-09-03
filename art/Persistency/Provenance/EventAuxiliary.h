@@ -6,7 +6,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 // Auxiliary event data that is persistent
 
@@ -31,21 +31,21 @@ namespace edm
 	id_(),
         processGUID_(),
 	time_(),
-	luminosityBlock_(),
+	subRun_(),
 	isRealData_(false),
 	experimentType_(Any),
 	bunchCrossing_(invalidBunchXing),
 	orbitNumber_(invalidBunchXing),
         storeNumber_(invalidStoreNumber) {}
     EventAuxiliary(EventID const& theId, std::string const& theProcessGUID, Timestamp const& theTime,
-		   LuminosityBlockNumber_t lb, bool isReal, ExperimentType eType = Any,
+		   SubRunNumber_t lb, bool isReal, ExperimentType eType = Any,
 		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
                    int orbitNum = invalidBunchXing) :
 	processHistoryID_(),
 	id_(theId),
         processGUID_(theProcessGUID),
 	time_(theTime),
-	luminosityBlock_(lb),
+	subRun_(lb),
 	isRealData_(isReal),
         experimentType_(eType),
 	bunchCrossing_(bunchXing),
@@ -57,7 +57,7 @@ namespace edm
     EventID const& id() const {return id_;}
     std::string const& processGUID() const {return processGUID_;}
     Timestamp const& time() const {return time_;}
-    LuminosityBlockNumber_t const& luminosityBlock() const {return luminosityBlock_;}
+    SubRunNumber_t const& subRun() const {return subRun_;}
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}
     bool isRealData() const {return isRealData_;}
@@ -75,8 +75,8 @@ namespace edm
     std::string processGUID_;
     // Time from DAQ
     Timestamp time_;
-    // Associated Luminosity Block identifier
-    LuminosityBlockNumber_t luminosityBlock_;
+    // Associated SubRun identifier
+    SubRunNumber_t subRun_;
     // Is this real data (i.e. not simulated)
     bool isRealData_;
     // Something descriptive of the source of the data

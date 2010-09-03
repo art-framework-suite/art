@@ -26,9 +26,9 @@ namespace edmtest {
 
     virtual void endRun(edm::Run& r, edm::EventSetup const& c);
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
+    virtual void beginSubRun(edm::SubRun& lb, edm::EventSetup const& c);
 
-    virtual void endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const& c);
+    virtual void endSubRun(edm::SubRun& lb, edm::EventSetup const& c);
 
   private:
     ThingAlgorithm alg_;

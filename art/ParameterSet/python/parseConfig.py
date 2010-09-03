@@ -350,13 +350,13 @@ def _makeLabeledVEventID(s,loc,toks):
         cms.untracked(p)
     return (toks[0][1],p)
 
-def _makeLabeledLuminosityBlockID(s,loc,toks):
+def _makeLabeledSubRunID(s,loc,toks):
     """create an EventID parameter from the tokens"""
     tracked = True
     if len(toks[0])==4:
         tracked = False
         del toks[0][0]
-    p = cms.LuminosityBlockID(int(toks[0][2][0]), int(toks[0][2][1]))
+    p = cms.SubRunID(int(toks[0][2][0]), int(toks[0][2][1]))
     if not tracked:
         cms.untracked(p)
     return (toks[0][1],p)
@@ -645,9 +645,9 @@ eventIDParameter = pp.Group(untracked+pp.Keyword("EventID")+label+_equalTo
                    + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) )
                    ).setParseAction(_makeLabeledEventID)
 
-luminosityBlockIDParameter = pp.Group(untracked+pp.Keyword("LuminosityBlockID")+label+_equalTo
+subRunIDParameter = pp.Group(untracked+pp.Keyword("SubRunID")+label+_equalTo
                    + pp.Group( pp.Word(pp.nums) + pp.Suppress(':') + pp.Word(pp.nums) )
-                   ).setParseAction(_makeLabeledLuminosityBlockID)
+                   ).setParseAction(_makeLabeledSubRunID)
 
 #since PSet and VPSets can contain themselves, we must declare them as 'Forward'
 PSetParameter = pp.Forward()
@@ -666,7 +666,7 @@ using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
 include = pp.Group(pp.Keyword("include").suppress()+quotedString).setParseAction(_makeInclude)
 
 # blocks and includes need to be included in case they're in fragments
-parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|eventIDParameter|luminosityBlockIDParameter|PSetParameter|VPSetParameter|secsourceParameter|block|include
+parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|eventIDParameter|subRunIDParameter|PSetParameter|VPSetParameter|secsourceParameter|block|include
 
 scopedParameters = _scopeBegin+pp.Group(pp.ZeroOrMore(parameter|using|include))+_scopeEnd
 #now we can actually say what PSet and VPSet are
@@ -1810,11 +1810,11 @@ if __name__=="__main__":
             self.assertEqual(type(d['eid']),cms.EventID)
             self.assertEqual(d['eid'].run(), 1)
             self.assertEqual(d['eid'].event(), 2)
-            t=onlyParameters.parseString("LuminosityBlockID lbid= 1:2")
+            t=onlyParameters.parseString("SubRunID lbid= 1:2")
             d=dict(iter(t))
-            self.assertEqual(type(d['lbid']),cms.LuminosityBlockID)
+            self.assertEqual(type(d['lbid']),cms.SubRunID)
             self.assertEqual(d['lbid'].run(), 1)
-            self.assertEqual(d['lbid'].luminosityBlock(), 2)
+            self.assertEqual(d['lbid'].subRun(), 2)
 
 
 

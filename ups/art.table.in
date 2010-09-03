@@ -1,0 +1,22 @@
+File=Table
+Product=art
+
+#*************************************************
+# Starting Group definition
+Group:
+Flavor=ANY
+Qualifiers=
+
+Common:
+   Action=setup
+      proddir()
+      setupenv()
+      setupRequired(art_externals v0_1_0)
+      envSet(ART_VERSION, @version@)
+      envSet(ART_INC, ${UPS_PROD_DIR}/include)
+      envSet(ART_LIB, ${UPS_PROD_DIR}/lib)
+      pathPrepend(PATH, ${UPS_PROD_DIR}/bin)
+      pathPrepend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
+End:
+# End Group definition
+#*************************************************

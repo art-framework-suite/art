@@ -24,7 +24,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
@@ -79,8 +79,8 @@ namespace edm {
     // AUX functions.
     EventID id() const {return aux_.id();}
     Timestamp time() const {return aux_.time();}
-    LuminosityBlockNumber_t
-    luminosityBlock() const {return aux_.luminosityBlock();}
+    SubRunNumber_t
+    subRun() const {return aux_.subRun();}
     bool isRealData() const {return aux_.isRealData();}
     EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
     int bunchCrossing() const {return aux_.bunchCrossing();}
@@ -95,9 +95,9 @@ namespace edm {
     using Base::processHistory;
     using Base::size;
 
-    LuminosityBlock const&
-    getLuminosityBlock() const {
-      return *luminosityBlock_;
+    SubRun const&
+    getSubRun() const {
+      return *subRun_;
     }
 
     Run const&
@@ -237,7 +237,7 @@ namespace edm {
     getByProductID_(ProductID const& oid) const;
 
     EventAuxiliary const& aux_;
-    boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
+    boost::shared_ptr<SubRun const> const subRun_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the DataViewImpl. gotBranchIDs_ is

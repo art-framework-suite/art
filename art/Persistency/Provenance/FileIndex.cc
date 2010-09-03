@@ -10,31 +10,31 @@ namespace edm {
   FileIndex::FileIndex() : entries_(), transients_() {}
 
   // The default value for sortState_ reflects the fact that
-  // the index is always sorted using Run, Lumi, and Event
+  // the index is always sorted using Run, SubRun, and Event
   // number by the PoolOutputModule before being written out.
   // In the other case when we create a new FileIndex, the
   // vector is empty, which is consistent with it having been
   // sorted.
 
-  FileIndex::Transients::Transients() : allInEntryOrder_(false), resultCached_(false), sortState_(kSorted_Run_Lumi_Event) {}
+  FileIndex::Transients::Transients() : allInEntryOrder_(false), resultCached_(false), sortState_(kSorted_Run_SubRun_Event) {}
 
   void
-  FileIndex::addEntry(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry) {
-    entries_.push_back(FileIndex::Element(run, lumi, event, entry));
+  FileIndex::addEntry(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, EntryNumber_t entry) {
+    entries_.push_back(FileIndex::Element(run, subRun, event, entry));
     resultCached() = false;
     sortState() = kNotSorted;
   }
 
-  void FileIndex::sortBy_Run_Lumi_Event() {
+  void FileIndex::sortBy_Run_SubRun_Event() {
     stable_sort_all(entries_);
     resultCached() = false;
-    sortState() = kSorted_Run_Lumi_Event;
+    sortState() = kSorted_Run_SubRun_Event;
   }
 
-  void FileIndex::sortBy_Run_Lumi_EventEntry() {
-    stable_sort_all(entries_, Compare_Run_Lumi_EventEntry());
+  void FileIndex::sortBy_Run_SubRun_EventEntry() {
+    stable_sort_all(entries_, Compare_Run_SubRun_EventEntry());
     resultCached() = false;
-    sortState() = kSorted_Run_Lumi_EventEntry;
+    sortState() = kSorted_Run_SubRun_EventEntry;
   }
 
   bool FileIndex::allEventsInEntryOrder() const {
@@ -96,14 +96,14 @@ namespace edm {
   }
 
   FileIndex::const_iterator
-  FileIndex::findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
+  FileIndex::findPosition(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event) const {
 
-    assert(sortState() == kSorted_Run_Lumi_Event);
+    assert(sortState() == kSorted_Run_SubRun_Event);
 
-    Element el(run, lumi, event);
+    Element el(run, subRun, event);
     const_iterator it = lower_bound_all(entries_, el);
-    bool lumiMissing = (lumi == 0 && event != 0);
-    if (lumiMissing) {
+    bool subRunMissing = (subRun == 0 && event != 0);
+    if (subRunMissing) {
       const_iterator itEnd = entries_.end();
       while (it->event_ < event && it->run_ <= run && it != itEnd) ++it;
     }
@@ -111,38 +111,38 @@ namespace edm {
   }
 
   FileIndex::const_iterator
-  FileIndex::findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool exact) const {
+  FileIndex::findEventPosition(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, bool exact) const {
 
-    assert(sortState() == kSorted_Run_Lumi_Event);
+    assert(sortState() == kSorted_Run_SubRun_Event);
 
-    const_iterator it = findPosition(run, lumi, event);
+    const_iterator it = findPosition(run, subRun, event);
     const_iterator itEnd = entries_.end();
     while (it != itEnd && it->getEntryType() != FileIndex::kEvent) {
       ++it;
     }
     if (it == itEnd) return itEnd;
-    if (lumi == 0) lumi = it->lumi_;
-    if (exact && (it->run_ != run || it->lumi_ != lumi || it->event_ != event)) return itEnd;
+    if (subRun == 0) subRun = it->subRun_;
+    if (exact && (it->run_ != run || it->subRun_ != subRun || it->event_ != event)) return itEnd;
     return it;
   }
 
   FileIndex::const_iterator
-  FileIndex::findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, bool exact) const {
+  FileIndex::findSubRunPosition(RunNumber_t run, SubRunNumber_t subRun, bool exact) const {
     assert(sortState() != kNotSorted);
     const_iterator it;
-    if (sortState() == kSorted_Run_Lumi_EventEntry) {
-      Element el(run, lumi, 0U);
-      it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
+    if (sortState() == kSorted_Run_SubRun_EventEntry) {
+      Element el(run, subRun, 0U);
+      it = lower_bound_all(entries_, el, Compare_Run_SubRun_EventEntry());
     }
     else {
-      it = findPosition(run, lumi, 0U);
+      it = findPosition(run, subRun, 0U);
     }
     const_iterator itEnd = entries_.end();
-    while (it != itEnd && it->getEntryType() != FileIndex::kLumi) {
+    while (it != itEnd && it->getEntryType() != FileIndex::kSubRun) {
       ++it;
     }
     if (it == itEnd) return itEnd;
-    if (exact && (it->run_ != run || it->lumi_ != lumi)) return itEnd;
+    if (exact && (it->run_ != run || it->subRun_ != subRun)) return itEnd;
     return it;
   }
 
@@ -150,9 +150,9 @@ namespace edm {
   FileIndex::findRunPosition(RunNumber_t run, bool exact) const {
     assert(sortState() != kNotSorted);
     const_iterator it;
-    if (sortState() == kSorted_Run_Lumi_EventEntry) {
+    if (sortState() == kSorted_Run_SubRun_EventEntry) {
       Element el(run, 0U, 0U);
-      it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
+      it = lower_bound_all(entries_, el, Compare_Run_SubRun_EventEntry());
     }
     else {
       it = findPosition(run, 0U, 0U);
@@ -167,18 +167,18 @@ namespace edm {
   }
 
   FileIndex::const_iterator
-  FileIndex::findLumiOrRunPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const {
+  FileIndex::findSubRunOrRunPosition(RunNumber_t run, SubRunNumber_t subRun) const {
     assert(sortState() != kNotSorted);
     const_iterator it;
-    if (sortState() == kSorted_Run_Lumi_EventEntry) {
-      Element el(run, lumi, 0U);
-      it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
+    if (sortState() == kSorted_Run_SubRun_EventEntry) {
+      Element el(run, subRun, 0U);
+      it = lower_bound_all(entries_, el, Compare_Run_SubRun_EventEntry());
     }
     else {
-      it = findPosition(run, lumi, 0U);
+      it = findPosition(run, subRun, 0U);
     }
     const_iterator itEnd = entries_.end();
-    while (it != itEnd && it->getEntryType() != FileIndex::kLumi && it->getEntryType() != FileIndex::kRun) {
+    while (it != itEnd && it->getEntryType() != FileIndex::kSubRun && it->getEntryType() != FileIndex::kRun) {
       ++it;
     }
     return it;
@@ -186,24 +186,24 @@ namespace edm {
 
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh) {
     if(lh.run_ == rh.run_) {
-      if(lh.lumi_ == rh.lumi_) {
+      if(lh.subRun_ == rh.subRun_) {
 	return lh.event_ < rh.event_;
       }
-      return lh.lumi_ < rh.lumi_;
+      return lh.subRun_ < rh.subRun_;
     }
     return lh.run_ < rh.run_;
   }
 
-  bool Compare_Run_Lumi_EventEntry::operator()(FileIndex::Element const& lh, FileIndex::Element const& rh)
+  bool Compare_Run_SubRun_EventEntry::operator()(FileIndex::Element const& lh, FileIndex::Element const& rh)
   {
     if(lh.run_ == rh.run_) {
-      if(lh.lumi_ == rh.lumi_) {
+      if(lh.subRun_ == rh.subRun_) {
         if (lh.event_ == 0U && rh.event_ == 0U) return false;
         else if (lh.event_ == 0U) return true;
         else if (rh.event_ == 0U) return false;
 	else return lh.entry_ < rh.entry_;
       }
-      return lh.lumi_ < rh.lumi_;
+      return lh.subRun_ < rh.subRun_;
     }
     return lh.run_ < rh.run_;
   }
@@ -211,26 +211,26 @@ namespace edm {
   std::ostream&
   operator<< (std::ostream& os, FileIndex const& fileIndex) {
 
-    os << "\nPrinting FileIndex contents.  This includes a list of all Runs, LuminosityBlocks\n"
+    os << "\nPrinting FileIndex contents.  This includes a list of all Runs, SubRuns\n"
        << "and Events stored in the root file.\n\n";
     os << std::setw(15) << "Run"
-       << std::setw(15) << "Lumi"
+       << std::setw(15) << "SubRun"
        << std::setw(15) << "Event"
        << std::setw(15) << "TTree Entry"
        << "\n";
     for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
       if (it->getEntryType() == FileIndex::kEvent) {
         os << std::setw(15) << it->run_
-           << std::setw(15) << it ->lumi_
+           << std::setw(15) << it ->subRun_
            << std::setw(15) << it->event_
            << std::setw(15) << it->entry_
            << "\n";
       }
-      else if (it->getEntryType() == FileIndex::kLumi) {
+      else if (it->getEntryType() == FileIndex::kSubRun) {
         os << std::setw(15) << it->run_
-           << std::setw(15) << it ->lumi_
+           << std::setw(15) << it ->subRun_
            << std::setw(15) << " "
-           << std::setw(15) << it->entry_ << "  (LuminosityBlock)"
+           << std::setw(15) << it->entry_ << "  (SubRun)"
            << "\n";
       }
       else if (it->getEntryType() == FileIndex::kRun) {

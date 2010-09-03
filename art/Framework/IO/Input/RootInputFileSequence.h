@@ -18,7 +18,7 @@ RootInputFileSequence: This is an InputSource
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
 
 #include "boost/shared_ptr.hpp"
@@ -46,14 +46,14 @@ namespace edm {
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     std::auto_ptr<EventPrincipal> readEvent_();
-    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_();
+    boost::shared_ptr<SubRunPrincipal> readSubRun_();
     boost::shared_ptr<RunPrincipal> readRun_();
     boost::shared_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, LuminosityBlockNumber_t lumi = 0U, bool exact = false);
-    boost::shared_ptr<LuminosityBlockPrincipal> readIt(LuminosityBlockID const& id);
+    std::auto_ptr<EventPrincipal> readIt(EventID const& id, SubRunNumber_t subRun = 0U, bool exact = false);
+    boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
     void rewind_();
@@ -75,7 +75,7 @@ namespace edm {
     ProcessConfiguration const& processConfiguration() const;
     ProductRegistry & productRegistryUpdate() const;
     int remainingEvents() const;
-    int remainingLuminosityBlocks() const;
+    int remainingSubRuns() const;
     bool const primary() const;
     void logFileAction(const char* msg, std::string const& file);
 
@@ -92,10 +92,10 @@ namespace edm {
 
     int eventsRemainingInFile_;
     RunNumber_t startAtRun_;
-    LuminosityBlockNumber_t startAtLumi_;
+    SubRunNumber_t startAtSubRun_;
     EventNumber_t startAtEvent_;
     unsigned int eventsToSkip_;
-    std::vector<LuminosityBlockID> whichLumisToSkip_;
+    std::vector<SubRunID> whichSubRunsToSkip_;
     std::vector<EventID> eventsToProcess_;
     bool noEventSort_;
     bool skipBadFiles_;

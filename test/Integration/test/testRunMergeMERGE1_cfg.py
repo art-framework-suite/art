@@ -1,6 +1,6 @@
 
-# This configuration tests the lumisToSkip, firstRun,
-# firstLuminosityBlock, and firstEvent parameters of
+# This configuration tests the subRunsToSkip, firstRun,
+# firstSubRun, and firstEvent parameters of
 # the PoolSource.
 
 import FWCore.ParameterSet.python.Config as cms
@@ -26,9 +26,9 @@ process.source = cms.Source("PoolSource",
         'file:testRunMerge5.root'
     )
     , firstRun = cms.untracked.uint32(17)
-    , firstLuminosityBlock = cms.untracked.uint32(3)
+    , firstSubRun = cms.untracked.uint32(3)
     , firstEvent = cms.untracked.uint32(6)
-    , lumisToSkip = cms.untracked.VLuminosityBlockID(
+    , subRunsToSkip = cms.untracked.VSubRunID(
                                            '18:3',
                                            '19:2',
                                            '21:4',
@@ -42,9 +42,9 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMerge_a.root')
 )
 
-process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
+process.test = cms.EDAnalyzer('RunSubRunEventAnalyzer',
     verbose = cms.untracked.bool(True),
-    expectedRunLumiEvents = cms.untracked.vuint32(
+    expectedRunSubRunEvents = cms.untracked.vuint32(
 17, 0, 0,
 17, 3, 0,
 17, 3, 6,

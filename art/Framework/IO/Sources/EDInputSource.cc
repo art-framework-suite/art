@@ -25,9 +25,9 @@ namespace edm {
   }
 
   void
-  EDInputSource::setLumi(LuminosityBlockNumber_t) {
+  EDInputSource::setSubRun(SubRunNumber_t) {
       LogWarning("IllegalCall")
-        << "EDInputSource::setLumi()\n"
-        << "Luminosity Block ID cannot be modified for an EDInputSource\n";
+        << "EDInputSource::setSubRun()\n"
+        << "SubRun ID cannot be modified for an EDInputSource\n";
   }
 }

@@ -1,0 +1,9 @@
+// This is a comment
+#include "art/Version/GetReleaseVersion.h"
+
+namespace edm {
+  std::string getReleaseVersion() {
+    static std::string const releaseVersion("@version@");
+    return releaseVersion;
+  }
+}

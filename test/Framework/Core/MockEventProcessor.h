@@ -24,7 +24,7 @@ namespace edm
                        std::ostream& output,
                        const statemachine::FileMode& fileMode,
                        bool handleEmptyRuns,
-                       bool handleEmptyLumis);
+                       bool handleEmptySubRuns);
 
     virtual StatusCode runToCompletion(bool onlineStateTransitions);
     virtual StatusCode runEventCount(int numberOfEventsToProcess);
@@ -43,7 +43,7 @@ namespace edm
     virtual bool endOfLoop();
     virtual void rewindInput();
     virtual void prepareForNextLoop();
-    virtual void writeLumiCache();
+    virtual void writeSubRunCache();
     virtual void writeRunCache();
     virtual bool shouldWeCloseOutput() const;
 
@@ -52,15 +52,15 @@ namespace edm
     virtual void beginRun(int run);
     virtual void endRun(int run);
 
-    virtual void beginLumi(int run, int lumi);
-    virtual void endLumi(int run, int lumi);
+    virtual void beginSubRun(int run, int subRun);
+    virtual void endSubRun(int run, int subRun);
 
     virtual int readAndCacheRun();
-    virtual int readAndCacheLumi();
+    virtual int readAndCacheSubRun();
     virtual void writeRun(int run);
     virtual void deleteRunFromCache(int run);
-    virtual void writeLumi(int run, int lumi);
-    virtual void deleteLumiFromCache(int run, int lumi);
+    virtual void writeSubRun(int run, int subRun);
+    virtual void deleteSubRunFromCache(int run, int subRun);
 
     virtual void readEvent();
     virtual void processEvent();
@@ -68,7 +68,7 @@ namespace edm
 
     virtual void setExceptionMessageFiles(std::string& message);
     virtual void setExceptionMessageRuns(std::string& message);
-    virtual void setExceptionMessageLumis(std::string& message);
+    virtual void setExceptionMessageSubRuns(std::string& message);
 
     virtual bool alreadyHandlingException() const;
 
@@ -77,10 +77,10 @@ namespace edm
     mutable std::ostream & output_;
     statemachine::FileMode fileMode_;
     bool handleEmptyRuns_;
-    bool handleEmptyLumis_;
+    bool handleEmptySubRuns_;
 
     int run_;
-    int lumi_;
+    int subRun_;
 
     bool shouldWeCloseOutput_;
     bool shouldWeEndLoop_;

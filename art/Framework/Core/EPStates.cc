@@ -11,28 +11,28 @@
 
 namespace statemachine {
   namespace {
-    HandleLumis::LumiID const InvalidLumiID = HandleLumis::LumiID(INVALID_RUN, INVALID_LUMI);
+    HandleSubRuns::SubRunID const InvalidSubRunID = HandleSubRuns::SubRunID(INVALID_RUN, INVALID_LUMI);
   }
 
   Run::Run(int id) : id_(id) {}
   int Run::id() const { return id_; }
 
-  Lumi::Lumi(int id) : id_(id) {}
-  int Lumi::id() const { return id_; }
+  SubRun::SubRun(int id) : id_(id) {}
+  int SubRun::id() const { return id_; }
 
   Machine::Machine(edm::IEventProcessor* ep,
                    FileMode fileMode,
                    bool handleEmptyRuns,
-                   bool handleEmptyLumis) :
+                   bool handleEmptySubRuns) :
     ep_(ep),
     fileMode_(fileMode),
     handleEmptyRuns_(handleEmptyRuns),
-    handleEmptyLumis_(handleEmptyLumis) { }
+    handleEmptySubRuns_(handleEmptySubRuns) { }
 
   edm::IEventProcessor& Machine::ep() const { return *ep_; }
   FileMode Machine::fileMode() const { return fileMode_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
-  bool Machine::handleEmptyLumis() const { return handleEmptyLumis_; }
+  bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
   void Machine::startingNewLoop(File const& file) {
     ep_->startingNewLoop();
@@ -118,7 +118,7 @@ namespace statemachine {
   void HandleFiles::closeFiles() {
     ep_.respondToCloseInputFile();
     ep_.closeInputFile();
-    ep_.writeLumiCache();
+    ep_.writeSubRunCache();
     ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
@@ -233,7 +233,7 @@ namespace statemachine {
     ep_.respondToCloseInputFile();
     ep_.closeInputFile();
 
-    ep_.writeLumiCache();
+    ep_.writeSubRunCache();
     ep_.writeRunCache();
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
@@ -463,219 +463,219 @@ namespace statemachine {
     return forward_event();
   }
 
-  HandleLumis::HandleLumis(my_context ctx) :
+  HandleSubRuns::HandleSubRuns(my_context ctx) :
     my_base(ctx),
     ep_(context<Machine>().ep()),
     exitCalled_(false),
-    currentLumiEmpty_(true),
-    currentLumi_(InvalidLumiID),
-    previousLumis_(),
-    lumiException_(false)
+    currentSubRunEmpty_(true),
+    currentSubRun_(InvalidSubRunID),
+    previousSubRuns_(),
+    subRunException_(false)
   {
     checkInvariant();
   }
 
-  void HandleLumis::exit() {
+  void HandleSubRuns::exit() {
     if (ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
     checkInvariant();
-    finalizeAllLumis();
+    finalizeAllSubRuns();
   }
 
-  HandleLumis::~HandleLumis() {
+  HandleSubRuns::~HandleSubRuns() {
     if (!exitCalled_) {
       try {
         checkInvariant();
-        finalizeAllLumis();
+        finalizeAllSubRuns();
       }
       catch (cms::Exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n"
-                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "Another exception was caught while trying to clean up subRuns after\n"
+                << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  The description of this additional exception follows:\n"
                 << "cms::Exception\n"
                 << e.explainSelf();
         std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
+        ep_.setExceptionMessageSubRuns(msg);
       }
       catch (std::bad_alloc& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis\n"
-                << "after the primary exception.  We give up trying to clean up lumis\n"
+                << "Another exception was caught while trying to clean up subRuns\n"
+                << "after the primary exception.  We give up trying to clean up subRuns\n"
                 << "at this point.  This additional exception was a\n"
-                << "std::bad_alloc exception thrown inside HandleLumis::finalizeAllLumis.\n"
+                << "std::bad_alloc exception thrown inside HandleSubRuns::finalizeAllSubRuns.\n"
                 << "The job has probably exhausted the virtual memory available\n"
                 << "to the process.\n";
         std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
+        ep_.setExceptionMessageSubRuns(msg);
       }
       catch (std::exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n"
-                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "Another exception was caught while trying to clean up subRuns after\n"
+                << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  This additional exception was a\n"
-                << "standard library exception thrown inside HandleLumis::finalizeAllLumis\n"
+                << "standard library exception thrown inside HandleSubRuns::finalizeAllSubRuns\n"
                 << e.what() << "\n";
         std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
+        ep_.setExceptionMessageSubRuns(msg);
       }
       catch (...) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up lumis after\n"
-                << "the primary exception.  We give up trying to clean up lumis at\n"
+                << "Another exception was caught while trying to clean up subRuns after\n"
+                << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  This additional exception was of unknown type and\n"
-                << "thrown inside HandleLumis::finalizeAllLumis\n";
+                << "thrown inside HandleSubRuns::finalizeAllSubRuns\n";
         std::string msg(message.str());
-        ep_.setExceptionMessageLumis(msg);
+        ep_.setExceptionMessageSubRuns(msg);
       }
     }
   }
 
-  bool HandleLumis::checkInvariant() {
+  bool HandleSubRuns::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
     return true;
   }
 
-  HandleLumis::LumiID HandleLumis::currentLumi() const { return currentLumi_; }
+  HandleSubRuns::SubRunID HandleSubRuns::currentSubRun() const { return currentSubRun_; }
 
-  bool HandleLumis::currentLumiEmpty() const { return currentLumiEmpty_; }
+  bool HandleSubRuns::currentSubRunEmpty() const { return currentSubRunEmpty_; }
 
-  std::vector<HandleLumis::LumiID> const& HandleLumis::unhandledLumis() const
+  std::vector<HandleSubRuns::SubRunID> const& HandleSubRuns::unhandledSubRuns() const
   {
-    return unhandledLumis_;
+    return unhandledSubRuns_;
   }
 
-  void HandleLumis::setupCurrentLumi() {
+  void HandleSubRuns::setupCurrentSubRun() {
 
     int run = context<HandleRuns>().currentRun();
     assert (run != INVALID_RUN);
-    lumiException_ = true;
-    currentLumi_ = HandleLumis::LumiID(run, ep_.readAndCacheLumi());
+    subRunException_ = true;
+    currentSubRun_ = HandleSubRuns::SubRunID(run, ep_.readAndCacheSubRun());
     if (context<Machine>().fileMode() == MERGE) {
-      if (previousLumis_.find(currentLumi_) != previousLumis_.end()) {
+      if (previousSubRuns_.find(currentSubRun_) != previousSubRuns_.end()) {
         throw cms::Exception("Merge failure:") <<
-            "Luminosity Section " << currentLumi_.first <<":" << currentLumi_.second << " is discontinuous, and cannot be merged in this mode.\n"
-            "The lumi section is split across two or more input files,\n"
-            "and either the lumi section is not the last run in the previous input file,\n"
-            "or it is not the first lumi section in the current input file.\n"
+            "SubRun " << currentSubRun_.first <<":" << currentSubRun_.second << " is discontinuous, and cannot be merged in this mode.\n"
+            "The subRun is split across two or more input files,\n"
+            "and either the subRun is not the last run in the previous input file,\n"
+            "or it is not the first subRun in the current input file.\n"
             "To handle this case, either sort the input files, if not sorted,\n"
             "or use 'fileMode = \"FULLMERGE\"' or 'fileMode = \"FULLLUMIMERGE\"'\n"
             "in the parameter set options block.\n";
       }
     }
-    lumiException_ = false;
+    subRunException_ = false;
 
-    currentLumiEmpty_ = true;
+    currentSubRunEmpty_ = true;
   }
 
-  void HandleLumis::finalizeAllLumis() {
-    if (lumiException_ || context<HandleRuns>().runException()) return;
-    finalizeLumi();
-    finalizeOutstandingLumis();
+  void HandleSubRuns::finalizeAllSubRuns() {
+    if (subRunException_ || context<HandleRuns>().runException()) return;
+    finalizeSubRun();
+    finalizeOutstandingSubRuns();
   }
 
-  void HandleLumis::finalizeLumi() {
+  void HandleSubRuns::finalizeSubRun() {
 
-    lumiException_ = true;
+    subRunException_ = true;
 
-    if (currentLumiEmpty_) {
-      if (context<Machine>().handleEmptyLumis()) {
+    if (currentSubRunEmpty_) {
+      if (context<Machine>().handleEmptySubRuns()) {
         if (context<HandleRuns>().beginRunCalled()) {
-          ep_.beginLumi(currentLumi().first, currentLumi().second);
-          ep_.endLumi(currentLumi().first, currentLumi().second);
+          ep_.beginSubRun(currentSubRun().first, currentSubRun().second);
+          ep_.endSubRun(currentSubRun().first, currentSubRun().second);
           if (context<Machine>().fileMode() == NOMERGE ||
               context<Machine>().fileMode() == MERGE) {
-            ep_.writeLumi(currentLumi().first, currentLumi().second);
-            ep_.deleteLumiFromCache(currentLumi().first, currentLumi().second);
-	    previousLumis_.insert(currentLumi_);
+            ep_.writeSubRun(currentSubRun().first, currentSubRun().second);
+            ep_.deleteSubRunFromCache(currentSubRun().first, currentSubRun().second);
+	    previousSubRuns_.insert(currentSubRun_);
           }
         }
         else {
-          unhandledLumis_.push_back(currentLumi());
-	  previousLumis_.insert(currentLumi_);
+          unhandledSubRuns_.push_back(currentSubRun());
+	  previousSubRuns_.insert(currentSubRun_);
         }
       }
       else {
         if (context<Machine>().fileMode() == NOMERGE ||
             context<Machine>().fileMode() == MERGE) {
-          ep_.writeLumi(currentLumi().first, currentLumi().second);
-          ep_.deleteLumiFromCache(currentLumi().first, currentLumi().second);
-          previousLumis_.insert(currentLumi_);
+          ep_.writeSubRun(currentSubRun().first, currentSubRun().second);
+          ep_.deleteSubRunFromCache(currentSubRun().first, currentSubRun().second);
+          previousSubRuns_.insert(currentSubRun_);
         }
       }
     }
     else {
-      ep_.endLumi(currentLumi().first, currentLumi().second);
+      ep_.endSubRun(currentSubRun().first, currentSubRun().second);
       if (context<Machine>().fileMode() == NOMERGE ||
           context<Machine>().fileMode() == MERGE) {
-        ep_.writeLumi(currentLumi().first, currentLumi().second);
-        ep_.deleteLumiFromCache(currentLumi().first, currentLumi().second);
-        previousLumis_.insert(currentLumi_);
+        ep_.writeSubRun(currentSubRun().first, currentSubRun().second);
+        ep_.deleteSubRunFromCache(currentSubRun().first, currentSubRun().second);
+        previousSubRuns_.insert(currentSubRun_);
       }
     }
-    currentLumi_ = InvalidLumiID;
+    currentSubRun_ = InvalidSubRunID;
 
-    lumiException_ = false;
+    subRunException_ = false;
   }
 
-  void HandleLumis::finalizeOutstandingLumis() {
+  void HandleSubRuns::finalizeOutstandingSubRuns() {
 
-    lumiException_ = true;
+    subRunException_ = true;
 
-    for (std::vector<LumiID>::const_iterator iter = unhandledLumis_.begin();
-         iter != unhandledLumis_.end();
+    for (std::vector<SubRunID>::const_iterator iter = unhandledSubRuns_.begin();
+         iter != unhandledSubRuns_.end();
          ++iter) {
-      ep_.beginLumi(iter->first, iter->second);
-      ep_.endLumi(iter->first, iter->second);
+      ep_.beginSubRun(iter->first, iter->second);
+      ep_.endSubRun(iter->first, iter->second);
       if (context<Machine>().fileMode() == NOMERGE ||
           context<Machine>().fileMode() == MERGE) {
-        ep_.writeLumi(iter->first, iter->second);
-        ep_.deleteLumiFromCache(iter->first, iter->second);
-        previousLumis_.insert(*iter);
+        ep_.writeSubRun(iter->first, iter->second);
+        ep_.deleteSubRunFromCache(iter->first, iter->second);
+        previousSubRuns_.insert(*iter);
       }
     }
-    unhandledLumis_.clear();
+    unhandledSubRuns_.clear();
 
-    lumiException_ = false;
+    subRunException_ = false;
   }
 
-  void HandleLumis::markLumiNonEmpty() {
-    if (currentLumiEmpty_) {
-      finalizeOutstandingLumis();
+  void HandleSubRuns::markSubRunNonEmpty() {
+    if (currentSubRunEmpty_) {
+      finalizeOutstandingSubRuns();
 
-      lumiException_ = true;
-      ep_.beginLumi(currentLumi().first, currentLumi().second);
-      lumiException_ = false;
+      subRunException_ = true;
+      ep_.beginSubRun(currentSubRun().first, currentSubRun().second);
+      subRunException_ = false;
 
-      currentLumiEmpty_ = false;
+      currentSubRunEmpty_ = false;
     }
   }
 
-  FirstLumi::FirstLumi(my_context ctx) :
+  FirstSubRun::FirstSubRun(my_context ctx) :
     my_base(ctx)
   {
-    context<HandleLumis>().setupCurrentLumi();
+    context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
   }
 
-  FirstLumi::~FirstLumi() {
+  FirstSubRun::~FirstSubRun() {
     checkInvariant();
   }
 
-  bool FirstLumi::checkInvariant() {
+  bool FirstSubRun::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
-    assert(context<HandleLumis>().currentLumi().first == context<HandleRuns>().currentRun());
-    assert(context<HandleLumis>().currentLumi().second != INVALID_LUMI);
-    assert(context<HandleLumis>().unhandledLumis().empty());
-    assert(context<HandleLumis>().currentLumiEmpty() == true);
+    assert(context<HandleSubRuns>().currentSubRun().first == context<HandleRuns>().currentRun());
+    assert(context<HandleSubRuns>().currentSubRun().second != INVALID_LUMI);
+    assert(context<HandleSubRuns>().unhandledSubRuns().empty());
+    assert(context<HandleSubRuns>().currentSubRunEmpty() == true);
     return true;
   }
 
-  sc::result FirstLumi::react(File const& file)
+  sc::result FirstSubRun::react(File const& file)
   {
     checkInvariant();
     if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -684,27 +684,27 @@ namespace statemachine {
     return forward_event();
   }
 
-  AnotherLumi::AnotherLumi(my_context ctx) :
+  AnotherSubRun::AnotherSubRun(my_context ctx) :
     my_base(ctx)
   {
-    context<HandleLumis>().finalizeLumi();
-    context<HandleLumis>().setupCurrentLumi();
+    context<HandleSubRuns>().finalizeSubRun();
+    context<HandleSubRuns>().setupCurrentSubRun();
     checkInvariant();
   }
 
-  AnotherLumi::~AnotherLumi() {
+  AnotherSubRun::~AnotherSubRun() {
     checkInvariant();
   }
 
-  bool AnotherLumi::checkInvariant() {
+  bool AnotherSubRun::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
-    assert(context<HandleLumis>().currentLumi().first == context<HandleRuns>().currentRun());
-    assert(context<HandleLumis>().currentLumi().second != INVALID_LUMI);
-    assert(context<HandleLumis>().currentLumiEmpty() == true);
+    assert(context<HandleSubRuns>().currentSubRun().first == context<HandleRuns>().currentRun());
+    assert(context<HandleSubRuns>().currentSubRun().second != INVALID_LUMI);
+    assert(context<HandleSubRuns>().currentSubRunEmpty() == true);
     return true;
   }
 
-  sc::result AnotherLumi::react(File const& file)
+  sc::result AnotherSubRun::react(File const& file)
   {
     checkInvariant();
     if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -728,10 +728,10 @@ namespace statemachine {
   bool HandleEvent::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
     assert(context<HandleRuns>().beginRunCalled());
-    assert(context<HandleLumis>().currentLumi().first == context<HandleRuns>().currentRun());
-    assert(context<HandleLumis>().currentLumi().second != INVALID_LUMI);
-    assert(context<HandleLumis>().unhandledLumis().empty());
-    assert(context<HandleLumis>().currentLumiEmpty() == false);
+    assert(context<HandleSubRuns>().currentSubRun().first == context<HandleRuns>().currentRun());
+    assert(context<HandleSubRuns>().currentSubRun().second != INVALID_LUMI);
+    assert(context<HandleSubRuns>().unhandledSubRuns().empty());
+    assert(context<HandleSubRuns>().currentSubRunEmpty() == false);
     return true;
   }
 
@@ -753,7 +753,7 @@ namespace statemachine {
 
   void HandleEvent::markNonEmpty() {
     context<HandleRuns>().beginRunIfNotDoneAlready();
-    context<HandleLumis>().markLumiNonEmpty();
+    context<HandleSubRuns>().markSubRunNonEmpty();
   }
 
 
@@ -770,8 +770,8 @@ namespace statemachine {
 
   bool HandleNewInputFile3::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
-    assert(context<HandleLumis>().currentLumi().first == context<HandleRuns>().currentRun());
-    assert(context<HandleLumis>().currentLumi().second != INVALID_LUMI);
+    assert(context<HandleSubRuns>().currentSubRun().first == context<HandleRuns>().currentRun());
+    assert(context<HandleSubRuns>().currentSubRun().second != INVALID_LUMI);
     return true;
   }
 
@@ -808,20 +808,20 @@ namespace statemachine {
 
   bool ContinueRun2::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
-    assert(context<HandleLumis>().currentLumi().first == context<HandleRuns>().currentRun());
-    assert(context<HandleLumis>().currentLumi().second != INVALID_LUMI);
+    assert(context<HandleSubRuns>().currentSubRun().first == context<HandleRuns>().currentRun());
+    assert(context<HandleSubRuns>().currentSubRun().second != INVALID_LUMI);
     return true;
   }
 
-  sc::result ContinueRun2::react(Lumi const& lumi)
+  sc::result ContinueRun2::react(SubRun const& subRun)
   {
     checkInvariant();
 
-    if (context<HandleLumis>().currentLumi().second != lumi.id()) {
-      return transit<AnotherLumi>();
+    if (context<HandleSubRuns>().currentSubRun().second != subRun.id()) {
+      return transit<AnotherSubRun>();
     }
     else {
-      return transit<ContinueLumi>();
+      return transit<ContinueSubRun>();
     }
   }
 
@@ -834,26 +834,26 @@ namespace statemachine {
     return forward_event();
   }
 
-  ContinueLumi::ContinueLumi(my_context ctx) :
+  ContinueSubRun::ContinueSubRun(my_context ctx) :
     my_base(ctx),
     ep_(context<Machine>().ep())
   {
-    ep_.readAndCacheLumi();
+    ep_.readAndCacheSubRun();
     checkInvariant();
   }
 
-  ContinueLumi::~ContinueLumi() {
+  ContinueSubRun::~ContinueSubRun() {
     checkInvariant();
   }
 
-  bool ContinueLumi::checkInvariant() {
+  bool ContinueSubRun::checkInvariant() {
     assert(context<HandleRuns>().currentRun() != INVALID_RUN);
-    assert(context<HandleLumis>().currentLumi().first == context<HandleRuns>().currentRun());
-    assert(context<HandleLumis>().currentLumi().second != INVALID_LUMI);
+    assert(context<HandleSubRuns>().currentSubRun().first == context<HandleRuns>().currentRun());
+    assert(context<HandleSubRuns>().currentSubRun().second != INVALID_LUMI);
     return true;
   }
 
-  sc::result ContinueLumi::react(File const& file)
+  sc::result ContinueSubRun::react(File const& file)
   {
     checkInvariant();
     if (!context<HandleFiles>().shouldWeCloseOutput()) {

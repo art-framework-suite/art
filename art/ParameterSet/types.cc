@@ -793,38 +793,38 @@ bool
 
 
 // ----------------------------------------------------------------------
-// LuminosityBlockID
+// SubRunID
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(edm::LuminosityBlockID& to, std::string const& from)
+  edm::decode(edm::SubRunID& to, std::string const& from)
 {
   std::vector<std::string> tokens = edm::tokenize(from, ":");
   assert(tokens.size() == 2);
   unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
-  unsigned int lumi = strtoul(tokens[1].c_str(), 0, 0);
-  to = edm::LuminosityBlockID(run, lumi);
+  unsigned int subRun = strtoul(tokens[1].c_str(), 0, 0);
+  to = edm::SubRunID(run, subRun);
   return true;
-}  // decode to LuminosityBlockID
+}  // decode to SubRunID
 
 
 
 bool
-  edm::encode(std::string& to, const edm::LuminosityBlockID & from)
+  edm::encode(std::string& to, const edm::SubRunID & from)
 {
   std::ostringstream os;
-  os << from.run() << ":" << from.luminosityBlock();
+  os << from.run() << ":" << from.subRun();
   to = os.str();
   return true;
 }
 
 
 // ----------------------------------------------------------------------
-// VLuminosityBlockID
+// VSubRunID
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<edm::LuminosityBlockID>& to, std::string const& from)
+  edm::decode(std::vector<edm::SubRunID>& to, std::string const& from)
 {
   std::vector<std::string> strings;
   decode(strings, from);
@@ -832,9 +832,9 @@ bool
   for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
       stringItr != stringItrEnd; ++stringItr)
   {
-    edm::LuminosityBlockID lumiID;
-    decode(lumiID, *stringItr);
-    to.push_back(lumiID);
+    edm::SubRunID subRunID;
+    decode(subRunID, *stringItr);
+    to.push_back(subRunID);
   }
   return true;
 }  // decode to VInputTag
@@ -842,15 +842,15 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const std::vector<edm::LuminosityBlockID>& from)
+  edm::encode(std::string& to, const std::vector<edm::SubRunID>& from)
 {
   std::vector<std::string> strings;
-  for(std::vector<edm::LuminosityBlockID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+  for(std::vector<edm::SubRunID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
       idItr != idItrEnd; ++idItr)
   {
-    std::string encodedLuminosityBlockID;
-    encode(encodedLuminosityBlockID, *idItr);
-    strings.push_back(encodedLuminosityBlockID);
+    std::string encodedSubRunID;
+    encode(encodedSubRunID, *idItr);
+    strings.push_back(encodedSubRunID);
   }
   encode(to, strings);
   return true;

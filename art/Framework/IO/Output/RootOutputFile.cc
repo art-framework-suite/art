@@ -4,7 +4,7 @@
 #include "art/Utilities/GlobalIdentifier.h"
 
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Version/GetFileFormatVersion.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
@@ -13,7 +13,7 @@
 #include "art/Utilities/Digest.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -73,26 +73,26 @@ namespace edm {
       fid_(),
       fileIndex_(),
       eventEntryNumber_(0LL),
-      lumiEntryNumber_(0LL),
+      subRunEntryNumber_(0LL),
       runEntryNumber_(0LL),
       metaDataTree_(0),
       parentageTree_(0),
       eventHistoryTree_(0),
       pEventAux_(0),
-      pLumiAux_(0),
+      pSubRunAux_(0),
       pRunAux_(0),
       eventEntryInfoVector_(),
-      lumiEntryInfoVector_(),
+      subRunEntryInfoVector_(),
       runEntryInfoVector_(),
       pEventEntryInfoVector_(&eventEntryInfoVector_),
-      pLumiEntryInfoVector_(&lumiEntryInfoVector_),
+      pSubRunEntryInfoVector_(&subRunEntryInfoVector_),
       pRunEntryInfoVector_(&runEntryInfoVector_),
       pHistory_(0),
       eventTree_(static_cast<EventPrincipal *>(0),
                  filePtr_, InEvent, pEventAux_, pEventEntryInfoVector_,
                  om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(static_cast<LuminosityBlockPrincipal *>(0),
-                filePtr_, InLumi, pLumiAux_, pLumiEntryInfoVector_,
+      subRunTree_(static_cast<SubRunPrincipal *>(0),
+                filePtr_, InSubRun, pSubRunAux_, pSubRunEntryInfoVector_,
                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       runTree_(static_cast<RunPrincipal *>(0),
                filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
@@ -100,7 +100,7 @@ namespace edm {
       treePointers_(),
       dataTypeReported_(false) {
     treePointers_[InEvent] = &eventTree_;
-    treePointers_[InLumi]  = &lumiTree_;
+    treePointers_[InSubRun]  = &subRunTree_;
     treePointers_[InRun]   = &runTree_;
 
     for (int i = InEvent; i < NumBranchTypes; ++i) {
@@ -175,7 +175,7 @@ namespace edm {
 
   void RootOutputFile::respondToCloseInputFile(FileBlock const&) {
     eventTree_.setEntries();
-    lumiTree_.setEntries();
+    subRunTree_.setEntries();
     runTree_.setEntries();
   }
 
@@ -218,19 +218,19 @@ namespace edm {
     pHistory_ = & e.history();
 
     // Add event to index
-    fileIndex_.addEntry(pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
+    fileIndex_.addEntry(pEventAux_->run(), pEventAux_->subRun(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
 
     // Report event written
   }
 
-  void RootOutputFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
+  void RootOutputFile::writeSubRun(SubRunPrincipal const& lb) {
     // Auxiliary branch
-    pLumiAux_ = &lb.aux();
-    // Add lumi to index.
-    fileIndex_.addEntry(pLumiAux_->run(), pLumiAux_->luminosityBlock(), 0U, lumiEntryNumber_);
-    ++lumiEntryNumber_;
-    fillBranches(InLumi, lb, pLumiEntryInfoVector_);
+    pSubRunAux_ = &lb.aux();
+    // Add subRun to index.
+    fileIndex_.addEntry(pSubRunAux_->run(), pSubRunAux_->subRun(), 0U, subRunEntryNumber_);
+    ++subRunEntryNumber_;
+    fillBranches(InSubRun, lb, pSubRunEntryInfoVector_);
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {
@@ -284,7 +284,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeFileIndex() {
-    fileIndex_.sortBy_Run_Lumi_Event();
+    fileIndex_.sortBy_Run_SubRun_Event();
     FileIndex *findexPtr = &fileIndex_;
     TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
     assert(b);
@@ -362,7 +362,7 @@ namespace edm {
     RootOutputTree::writeTTree(parentageTree_);
 
     // Create branch aliases for all the branches in the
-    // events/lumis/runs trees. The loop is over all types of data
+    // events/subRuns/runs trees. The loop is over all types of data
     // products.
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);

@@ -30,23 +30,23 @@ namespace edm {
 //
 // constructors and destructor
 //
-IOVSyncValue::IOVSyncValue(): eventID_(), lumiID_(0), time_(),
+IOVSyncValue::IOVSyncValue(): eventID_(), subRunID_(0), time_(),
 haveID_(true), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi) : eventID_(iID), lumiID_(iLumi), time_(),
+IOVSyncValue::IOVSyncValue(const EventID& iID, SubRunNumber_t iSubRun) : eventID_(iID), subRunID_(iSubRun), time_(),
 haveID_(true), haveTime_(false)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), lumiID_(0),time_(iTime),
+IOVSyncValue::IOVSyncValue(const Timestamp& iTime) : eventID_(), subRunID_(0),time_(iTime),
 haveID_(false), haveTime_(true)
 {
 }
 
-IOVSyncValue::IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime) :
-eventID_(iID), lumiID_(iLumi), time_(iTime),
+IOVSyncValue::IOVSyncValue(const EventID& iID, SubRunNumber_t iSubRun, const Timestamp& iTime) :
+eventID_(iID), subRunID_(iSubRun), time_(iTime),
 haveID_(true), haveTime_(true)
 {
 }
@@ -91,7 +91,7 @@ IOVSyncValue::invalidIOVSyncValue() {
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
    static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, EventID::maxEventNumber()),
-                                   LuminosityBlockID::maxLuminosityBlockNumber(),
+                                   SubRunID::maxSubRunNumber(),
                                    Timestamp::endOfTime());
    return s_endOfTime;
 }

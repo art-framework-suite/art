@@ -293,26 +293,26 @@ namespace edm {
   }
 
   bool
-  OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+  OutputModule::doBeginSubRun(SubRunPrincipal const& lbp,
 					    CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    FDEBUG(2) << "beginLuminosityBlock called\n";
-    beginLuminosityBlock(lbp);
+    FDEBUG(2) << "beginSubRun called\n";
+    beginSubRun(lbp);
     return true;
   }
 
   bool
-  OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+  OutputModule::doEndSubRun(SubRunPrincipal const& lbp,
 					  CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    FDEBUG(2) << "endLuminosityBlock called\n";
-    endLuminosityBlock(lbp);
+    FDEBUG(2) << "endSubRun called\n";
+    endSubRun(lbp);
     return true;
   }
 
-  void OutputModule::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp) {
-    FDEBUG(2) << "writeLuminosityBlock called\n";
-    writeLuminosityBlock(lbp);
+  void OutputModule::doWriteSubRun(SubRunPrincipal const& lbp) {
+    FDEBUG(2) << "writeSubRun called\n";
+    writeSubRun(lbp);
   }
 
   void OutputModule::doOpenFile(FileBlock const& fb) {

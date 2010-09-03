@@ -6,7 +6,6 @@ set( artFrameworkCore_sources Actions.cc
 			     CachedProducts.cc
 			     ConfigurableInputSource.cc
 			     CurrentProcessingContext.cc
-			     DataKeyTags.cc
 			     DataViewImpl.cc
 			     DelayedReader.cc
 			     EDAnalyzer.cc
@@ -29,9 +28,8 @@ set( artFrameworkCore_sources Actions.cc
 			     InputSource.cc
 			     InputSourceFactory.cc
 			     IOVSyncValue.cc
-			     LuminosityBlock.cc
-			     LuminosityBlockPrincipal.cc
-			     NoDataException.cc
+			     SubRun.cc
+			     SubRunPrincipal.cc
 			     NoDelayedReader.cc
 			     OutputModule.cc
 			     OutputWorker.cc
@@ -88,13 +86,10 @@ install ( TARGETS art   DESTINATION bin )
 install(FILES Actions.h
 	      BranchActionType.h
 	      CachedProducts.h
-	      Callback.h
-	      CallbackProxy.h
 	      CMakeLists.txt
 	      ConfigurableInputSource.h
 	      ConstProductRegistry.h
 	      CurrentProcessingContext.h
-	      DataKeyTags.h
 	      DataProxyProvider.h
 	      DataProxyTemplate.h
 	      DataViewImpl.h
@@ -116,32 +111,21 @@ install(FILES Actions.h
 	      Group.h
 	      GroupSelector.h
 	      GroupSelectorRules.h
-	      HCMethods.h
-	      HCMethods.icc
-	      HCTypeTag.h
-	      HCTypeTag.icc
-	      HCTypeTagTemplate.h
-	      HCTypeTagTemplate.icc
 	      IEventProcessor.h
 	      InputSourceDescription.h
 	      InputSource.h
 	      InputSourceMacros.h
 	      IOVSyncValue.h
-	      LuminosityBlock.h
-	      LuminosityBlockPrincipal.h
+	      SubRun.h
+	      SubRunPrincipal.h
 	      MakerMacros.h
-	      NoDataException.h
 	      NoDelayedReader.h
 	      OccurrenceTraits.h
 	      OutputModuleDescription.h
 	      OutputModule.h
 	      Principal.h
-	      produce_helpers.h
 	      ProducerBase.h
 	      ProductRegistryHelper.h
-	      ProxyArgumentFactoryTemplate.h
-	      ProxyFactoryBase.h
-	      ProxyFactoryTemplate.h
 	      Run.h
 	      RunPrincipal.h
 	      Schedule.h

@@ -18,13 +18,10 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/Core/LooperFactory.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
-#include "art/Framework/Core/ModuleFactory.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
-#include "art/Framework/Core/SourceFactory.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/MessageLogger/MessageLogger.h"
@@ -227,7 +224,7 @@ namespace edm {
 				params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxLumisInput_);
+      InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
       areg->preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       areg->postSourceConstructionSignal_(md);
@@ -268,11 +265,6 @@ namespace edm {
 	++itName)
       {
 	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
-	vLooper = LooperFactory::get()->addTo(
-				    providerPSet,
-				    common.processName_,
-				    common.releaseVersion_,
-				    common.passID_);
       }
       return vLooper;
 
@@ -287,7 +279,7 @@ namespace edm {
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
-    maxLumisPset_(),
+    maxSubRunsPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -323,7 +315,7 @@ namespace edm {
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
-    maxLumisPset_(),
+    maxSubRunsPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -359,7 +351,7 @@ namespace edm {
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
-    maxLumisPset_(),
+    maxSubRunsPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -392,7 +384,7 @@ namespace edm {
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
-    maxLumisPset_(),
+    maxSubRunsPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -447,10 +439,10 @@ namespace edm {
     ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
     fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
     handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
-    handleEmptyLumis_ = optionsPset.getUntrackedParameter<bool>("handleEmptyLumis", true);
+    handleEmptySubRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptySubRuns", true);
 
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
-    maxLumisPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxLuminosityBlocks", ParameterSet());
+    maxSubRunsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxSubRuns", ParameterSet());
 
     shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
@@ -493,7 +485,7 @@ namespace edm {
 			   getReleaseVersion(),
 			   getPassID(),
     			   maxEventsPset_.getUntrackedParameter<int>("input", -1),
-    			   maxLumisPset_.getUntrackedParameter<int>("input", -1));
+    			   maxSubRunsPset_.getUntrackedParameter<int>("input", -1));
 
     looper_ = fillLooper(*parameterSet, common);
     if (looper_) looper_->setActionTable(&act_table_);
@@ -582,7 +574,7 @@ namespace edm {
   void
   EventProcessor::procOneEvent(EventPrincipal *pep) {
     if(0 != pep) {
-      IOVSyncValue ts(pep->id(), pep->luminosityBlock(), pep->time());
+      IOVSyncValue ts(pep->id(), pep->subRun(), pep->time());
       schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep);
     }
   }
@@ -818,7 +810,7 @@ namespace edm {
     beginJob();
     changeState(mSetRun);
 
-    // interface not correct yet - wait for Bill to be done with run/lumi loop stuff 21-Jun-2007
+    // interface not correct yet - wait for Bill to be done with run/subRun loop stuff 21-Jun-2007
     //input_->declareRunNumber(runNumber);
   }
 
@@ -1101,7 +1093,7 @@ namespace edm {
       machine_.reset(new statemachine::Machine(this,
                                                fileMode,
                                                handleEmptyRuns_,
-                                               handleEmptyLumis_));
+                                               handleEmptySubRuns_));
 
       machine_->initiate();
     }
@@ -1162,8 +1154,8 @@ namespace edm {
         else if (itemType == InputSource::IsRun) {
           machine_->process_event(statemachine::Run(input_->run()));
         }
-        else if (itemType == InputSource::IsLumi) {
-          machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
+        else if (itemType == InputSource::IsSubRun) {
+          machine_->process_event(statemachine::SubRun(input_->subRun()));
         }
         else if (itemType == InputSource::IsEvent) {
           machine_->process_event(statemachine::Event());
@@ -1193,7 +1185,7 @@ namespace edm {
     //
     // Some states used in the machine are special because they
     // perform actions while the machine is being terminated, actions
-    // such as close files, call endRun, call endLumi etc ...  Each of these
+    // such as close files, call endRun, call endSubRun etc ...  Each of these
     // states has two functions that perform these actions.  The functions
     // are almost identical.  The major difference is that one version
     // catches all exceptions and the other lets exceptions pass through.
@@ -1211,7 +1203,7 @@ namespace edm {
     // This already done before we hit the catch blocks below. In this case
     // the call to terminateMachine below only destroys an already
     // terminated state machine.  Because exit is not called, the state destructors
-    // handle cleaning up lumis, runs, and files.  The destructors swallow
+    // handle cleaning up subRuns, runs, and files.  The destructors swallow
     // all exceptions and only pass through the exceptions messages which
     // are tacked onto the original exception below.
     //
@@ -1239,7 +1231,7 @@ namespace edm {
       terminateMachine();
       alreadyHandlingException_ = false;
       e << "cms::Exception caught in EventProcessor and rethrown\n";
-      e << exceptionMessageLumis_;
+      e << exceptionMessageSubRuns_;
       e << exceptionMessageRuns_;
       e << exceptionMessageFiles_;
       throw e;
@@ -1251,7 +1243,7 @@ namespace edm {
       throw cms::Exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
-        << exceptionMessageLumis_
+        << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
     }
@@ -1262,7 +1254,7 @@ namespace edm {
       throw cms::Exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
         << "Previous information:\n" << e.what() << "\n"
-        << exceptionMessageLumis_
+        << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
     }
@@ -1272,7 +1264,7 @@ namespace edm {
       alreadyHandlingException_ = false;
       throw cms::Exception("Unknown")
         << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
-        << exceptionMessageLumis_
+        << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
     }
@@ -1362,12 +1354,12 @@ namespace edm {
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
-  void EventProcessor::writeLumiCache() {
-    while (!principalCache_.noMoreLumis()) {
-      schedule_->writeLumi(principalCache_.lowestLumi());
-      principalCache_.deleteLowestLumi();
+  void EventProcessor::writeSubRunCache() {
+    while (!principalCache_.noMoreSubRuns()) {
+      schedule_->writeSubRun(principalCache_.lowestSubRun());
+      principalCache_.deleteLowestSubRun();
     }
-    FDEBUG(1) << "\twriteLumiCache\n";
+    FDEBUG(1) << "\twriteSubRunCache\n";
   }
 
   void EventProcessor::writeRunCache() {
@@ -1407,31 +1399,31 @@ namespace edm {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
-                    LuminosityBlockID::maxLuminosityBlockNumber(),
+                    SubRunID::maxSubRunnosityBlockNumber(),
                     runPrincipal.endTime());
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
 
-  void EventProcessor::beginLumi(int run, int lumi) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
-    // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
-    // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(),0), lumiPrincipal.luminosityBlock(), lumiPrincipal.beginTime());
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> >(lumiPrincipal);
-    FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::beginSubRun(int run, int subRun) {
+    SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
+    // NOTE: Using 0 as the event number for the begin of a subRun block is a bad idea
+    // subRun blocks know their start and end times why not also start and end events?
+    IOVSyncValue ts(EventID(subRunPrincipal.run(),0), subRunPrincipal.subRun(), subRunPrincipal.beginTime());
+    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal);
+    FDEBUG(1) << "\tbeginSubRun " << run << "/" << subRun << "\n";
   }
 
-  void EventProcessor::endLumi(int run, int lumi) {
-    LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(run, lumi);
-    input_->doEndLumi(lumiPrincipal);
-    //NOTE: Using the max event number for the end of a lumi block is a bad idea
-    // lumi blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(lumiPrincipal.run(),EventID::maxEventNumber()),
-                    lumiPrincipal.luminosityBlock(),
-                    lumiPrincipal.endTime());
-    schedule_->processOneOccurrence<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> >(lumiPrincipal);
-    FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::endSubRun(int run, int subRun) {
+    SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
+    input_->doEndSubRun(subRunPrincipal);
+    //NOTE: Using the max event number for the end of a subRun block is a bad idea
+    // subRun blocks know their start and end times why not also start and end events?
+    IOVSyncValue ts(EventID(subRunPrincipal.run(),EventID::maxEventNumber()),
+                    subRunPrincipal.subRun(),
+                    subRunPrincipal.endTime());
+    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal);
+    FDEBUG(1) << "\tendSubRun " << run << "/" << subRun << "\n";
   }
 
   int EventProcessor::readAndCacheRun() {
@@ -1440,10 +1432,10 @@ namespace edm {
     return principalCache_.runPrincipal().run();
   }
 
-  int EventProcessor::readAndCacheLumi() {
-    principalCache_.insert(input_->readLuminosityBlock(principalCache_.runPrincipalPtr()));
-    FDEBUG(1) << "\treadAndCacheLumi " << "\n";
-    return principalCache_.lumiPrincipal().luminosityBlock();
+  int EventProcessor::readAndCacheSubRun() {
+    principalCache_.insert(input_->readSubRunnosityBlock(principalCache_.runPrincipalPtr()));
+    FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
+    return principalCache_.subRunPrincipal().subRun();
   }
 
   void EventProcessor::writeRun(int run) {
@@ -1456,23 +1448,23 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeLumi(int run, int lumi) {
-    schedule_->writeLumi(principalCache_.lumiPrincipal(run, lumi));
-    FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::writeSubRun(int run, int subRun) {
+    schedule_->writeSubRun(principalCache_.subRunPrincipal(run, subRun));
+    FDEBUG(1) << "\twriteSubRun " << run << "/" << subRun << "\n";
   }
 
-  void EventProcessor::deleteLumiFromCache(int run, int lumi) {
-    principalCache_.deleteLumi(run, lumi);
-    FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
+  void EventProcessor::deleteSubRunFromCache(int run, int subRun) {
+    principalCache_.deleteSubRun(run, subRun);
+    FDEBUG(1) << "\tdeleteSubRunFromCache " << run << "/" << subRun << "\n";
   }
 
   void EventProcessor::readEvent() {
-    sm_evp_ = input_->readEvent(principalCache_.lumiPrincipalPtr());
+    sm_evp_ = input_->readEvent(principalCache_.subRunPrincipalPtr());
     FDEBUG(1) << "\treadEvent\n";
   }
 
   void EventProcessor::processEvent() {
-    IOVSyncValue ts(sm_evp_->id(), sm_evp_->luminosityBlock(), sm_evp_->time());
+    IOVSyncValue ts(sm_evp_->id(), sm_evp_->subRun(), sm_evp_->time());
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
 
     if (looper_) {
@@ -1497,8 +1489,8 @@ namespace edm {
     exceptionMessageRuns_ = message;
   }
 
-  void EventProcessor::setExceptionMessageLumis(std::string& message) {
-    exceptionMessageLumis_ = message;
+  void EventProcessor::setExceptionMessageSubRuns(std::string& message) {
+    exceptionMessageSubRuns_ = message;
   }
 
   bool EventProcessor::alreadyHandlingException() const {

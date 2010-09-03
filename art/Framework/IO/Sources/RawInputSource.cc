@@ -6,9 +6,9 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Event.h"
 
@@ -18,7 +18,7 @@ namespace edm {
     InputSource(pset, desc),
     runNumber_(RunNumber_t()),
     newRun_(false),
-    newLumi_(false),
+    newSubRun_(false),
     ep_(0) {
       setTimestamp(Timestamp::beginOfTime());
   }
@@ -36,13 +36,13 @@ namespace edm {
 			 processConfiguration()));
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  RawInputSource::readLuminosityBlock_() {
-    newLumi_ = false;
-    LuminosityBlockAuxiliary lumiAux(runNumber_,
-	luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp());
-    return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(lumiAux,
+  boost::shared_ptr<SubRunPrincipal>
+  RawInputSource::readSubRun_() {
+    newSubRun_ = false;
+    SubRunAuxiliary subRunAux(runNumber_,
+	subRunNumber_, timestamp(), Timestamp::invalidTimestamp());
+    return boost::shared_ptr<SubRunPrincipal>(
+	new SubRunPrincipal(subRunAux,
 				     productRegistry(),
 				     processConfiguration()));
   }
@@ -54,10 +54,10 @@ namespace edm {
   }
 
   std::auto_ptr<Event>
-  RawInputSource::makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
+  RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp) {
     EventSourceSentry sentry(*this);
     EventAuxiliary eventAux(EventID(run, event),
-      processGUID(), tstamp, lumi, true, EventAuxiliary::Data);
+      processGUID(), tstamp, subRun, true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
@@ -73,8 +73,8 @@ namespace edm {
     if (newRun_) {
       return IsRun;
     }
-    if (newLumi_) {
-      return IsLumi;
+    if (newSubRun_) {
+      return IsSubRun;
     }
     if(ep_.get() != 0) {
       return IsEvent;
@@ -86,17 +86,17 @@ namespace edm {
       e->commit_();
     }
     if (e->run() != runNumber_) {
-      newRun_ = newLumi_ = true;
-      resetLuminosityBlockPrincipal();
+      newRun_ = newSubRun_ = true;
+      resetSubRunPrincipal();
       resetRunPrincipal();
       runNumber_ = e->run();
-      luminosityBlockNumber_ = e->luminosityBlock();
+      subRunNumber_ = e->subRun();
       return IsRun;
-    } else if (e->luminosityBlock() != luminosityBlockNumber_) {
-      luminosityBlockNumber_ = e->luminosityBlock();
-      newLumi_ = true;
-      resetLuminosityBlockPrincipal();
-      return IsLumi;
+    } else if (e->subRun() != subRunNumber_) {
+      subRunNumber_ = e->subRun();
+      newSubRun_ = true;
+      resetSubRunPrincipal();
+      return IsSubRun;
     }
     return IsEvent;
   }

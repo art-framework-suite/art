@@ -224,26 +224,26 @@ namespace edm {
 	releaseVersion_(),
 	passID_(),
 	maxEventsInput_(),
-	maxLumisInput_()
+	maxSubRunsInput_()
       { }
 
       CommonParams(std::string const& processName,
 		   ReleaseVersion const& releaseVersion,
 		   PassID const& passID,
 		   int maxEvents,
-		   int maxLumis):
+		   int maxSubRuns):
 	processName_(processName),
 	releaseVersion_(releaseVersion),
 	passID_(passID),
         maxEventsInput_(maxEvents),
-        maxLumisInput_(maxLumis)
+        maxSubRunsInput_(maxSubRuns)
       { }
 
       std::string processName_;
       ReleaseVersion releaseVersion_;
       PassID passID_;
       int maxEventsInput_;
-      int maxLumisInput_;
+      int maxSubRunsInput_;
     }; // struct CommonParams
 
 
@@ -252,7 +252,7 @@ namespace edm {
     //       1 - no more input data
     //       2 - input maxEvents parameter limit reached
     //       3 - output maxEvents parameter limit reached
-    //       4 - input maxLuminosityBlocks parameter limit reached
+    //       4 - input maxSubRuns parameter limit reached
     //       5 - looper directs processing to end
     // The function "runEventCount" will pause after processing the
     // number of input events specified by the argument.  One can
@@ -309,7 +309,7 @@ namespace edm {
     virtual bool endOfLoop();
     virtual void rewindInput();
     virtual void prepareForNextLoop();
-    virtual void writeLumiCache();
+    virtual void writeSubRunCache();
     virtual void writeRunCache();
     virtual bool shouldWeCloseOutput() const;
 
@@ -318,15 +318,15 @@ namespace edm {
     virtual void beginRun(int run);
     virtual void endRun(int run);
 
-    virtual void beginLumi(int run, int lumi);
-    virtual void endLumi(int run, int lumi);
+    virtual void beginSubRun(int run, int subRun);
+    virtual void endSubRun(int run, int subRun);
 
     virtual int readAndCacheRun();
-    virtual int readAndCacheLumi();
+    virtual int readAndCacheSubRun();
     virtual void writeRun(int run);
     virtual void deleteRunFromCache(int run);
-    virtual void writeLumi(int run, int lumi);
-    virtual void deleteLumiFromCache(int run, int lumi);
+    virtual void writeSubRun(int run, int subRun);
+    virtual void deleteSubRunFromCache(int run, int subRun);
 
     virtual void readEvent();
     virtual void processEvent();
@@ -334,7 +334,7 @@ namespace edm {
 
     virtual void setExceptionMessageFiles(std::string& message);
     virtual void setExceptionMessageRuns(std::string& message);
-    virtual void setExceptionMessageLumis(std::string& message);
+    virtual void setExceptionMessageSubRuns(std::string& message);
 
     virtual bool alreadyHandlingException() const;
 
@@ -377,7 +377,7 @@ namespace edm {
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     ParameterSet			          maxEventsPset_;
-    ParameterSet			          maxLumisPset_;
+    ParameterSet			          maxSubRunsPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
@@ -409,10 +409,10 @@ namespace edm {
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;
     bool                                          handleEmptyRuns_;
-    bool                                          handleEmptyLumis_;
+    bool                                          handleEmptySubRuns_;
     std::string                                   exceptionMessageFiles_;
     std::string                                   exceptionMessageRuns_;
-    std::string                                   exceptionMessageLumis_;
+    std::string                                   exceptionMessageSubRuns_;
     bool                                          alreadyHandlingException_;
     bool                                          forceLooperToEnd_;
 
@@ -427,4 +427,5 @@ namespace edm {
     return run(-1, false);
   }
 }
-#endif
+
+#endif  // FWCore_Framework_EventProcessor_h

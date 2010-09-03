@@ -3,7 +3,7 @@
 //
 
 #include "art/Framework/Core/PrincipalCache.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Utilities/EDMException.h"
 
@@ -76,70 +76,70 @@ namespace edm {
     return currentRunPrincipal_;
   }
 
-  LuminosityBlockPrincipal & PrincipalCache::lumiPrincipal(int run, int lumi) {
-    LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key);
-    if (iter == lumiPrincipals_.end()) {
+  SubRunPrincipal & PrincipalCache::subRunPrincipal(int run, int subRun) {
+    SubRunKey key(run, subRun);
+    SubRunIterator iter = subRunPrincipals_.find(key);
+    if (iter == subRunPrincipals_.end()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::lumiPrincipal\n"
-        << "Requested a lumi that is not in the cache (should never happen)\n"
+        << "PrincipalCache::subRunPrincipal\n"
+        << "Requested a subRun that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
     }
     return *iter->second.get();
   }
 
-  LuminosityBlockPrincipal const& PrincipalCache::lumiPrincipal(int run, int lumi) const {
-    LumiKey key(run, lumi);
-    ConstLumiIterator iter = lumiPrincipals_.find(key);
-    if (iter == lumiPrincipals_.end()) {
+  SubRunPrincipal const& PrincipalCache::subRunPrincipal(int run, int subRun) const {
+    SubRunKey key(run, subRun);
+    ConstSubRunIterator iter = subRunPrincipals_.find(key);
+    if (iter == subRunPrincipals_.end()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::lumiPrincipal\n"
-        << "Requested a lumi that is not in the cache (should never happen)\n"
+        << "PrincipalCache::subRunPrincipal\n"
+        << "Requested a subRun that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
     }
     return *iter->second.get();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal> PrincipalCache::lumiPrincipalPtr(int run, int lumi) {
-    LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key);
-    if (iter == lumiPrincipals_.end()) {
+  boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(int run, int subRun) {
+    SubRunKey key(run, subRun);
+    SubRunIterator iter = subRunPrincipals_.find(key);
+    if (iter == subRunPrincipals_.end()) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::lumiPrincipalPtr\n"
-        << "Requested a lumi that is not in the cache (should never happen)\n"
+        << "PrincipalCache::subRunPrincipalPtr\n"
+        << "Requested a subRun that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
     }
     return iter->second;
   }
 
-  LuminosityBlockPrincipal & PrincipalCache::lumiPrincipal() {
-    if (currentLumiPrincipal_.get() == 0) {
+  SubRunPrincipal & PrincipalCache::subRunPrincipal() {
+    if (currentSubRunPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::lumiPrincipal\n"
-        << "Requested current lumi and it is not initialized (should never happen)\n"
+        << "PrincipalCache::subRunPrincipal\n"
+        << "Requested current subRun and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
     }
-    return *currentLumiPrincipal_.get();
+    return *currentSubRunPrincipal_.get();
   }
 
-  LuminosityBlockPrincipal const& PrincipalCache::lumiPrincipal() const {
-    if (currentLumiPrincipal_.get() == 0) {
+  SubRunPrincipal const& PrincipalCache::subRunPrincipal() const {
+    if (currentSubRunPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::lumiPrincipal\n"
-        << "Requested current lumi and it is not initialized (should never happen)\n"
+        << "PrincipalCache::subRunPrincipal\n"
+        << "Requested current subRun and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
     }
-    return *currentLumiPrincipal_.get();
+    return *currentSubRunPrincipal_.get();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal> PrincipalCache::lumiPrincipalPtr() {
-    if (currentLumiPrincipal_.get() == 0) {
+  boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr() {
+    if (currentSubRunPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::lumiPrincipalPtr\n"
-        << "Requested current lumi and it is not initialized (should never happen)\n"
+        << "PrincipalCache::subRunPrincipalPtr\n"
+        << "Requested current subRun and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
     }
-    return currentLumiPrincipal_;
+    return currentSubRunPrincipal_;
   }
 
   bool PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
@@ -157,19 +157,19 @@ namespace edm {
     return true;
   }
 
-  bool PrincipalCache::insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  bool PrincipalCache::insert(boost::shared_ptr<SubRunPrincipal> lbp) {
     int run = lbp->run();
-    int lumi = lbp->luminosityBlock();
-    LumiKey key(run, lumi);
-    LumiIterator iter = lumiPrincipals_.find(key);
-    if (iter == lumiPrincipals_.end()) {
-      lumiPrincipals_[key] = lbp;
-      currentLumiPrincipal_ = lbp;
+    int subRun = lbp->subRun();
+    SubRunKey key(run, subRun);
+    SubRunIterator iter = subRunPrincipals_.find(key);
+    if (iter == subRunPrincipals_.end()) {
+      subRunPrincipals_[key] = lbp;
+      currentSubRunPrincipal_ = lbp;
       return true;
     }
 
-    iter->second->mergeLuminosityBlock(lbp);
-    currentLumiPrincipal_ = iter->second;
+    iter->second->mergeSubRun(lbp);
+    currentSubRunPrincipal_ = iter->second;
 
     return true;
   }
@@ -178,8 +178,8 @@ namespace edm {
     return runPrincipals_.empty();
   }
 
-  bool PrincipalCache::noMoreLumis() {
-    return lumiPrincipals_.empty();
+  bool PrincipalCache::noMoreSubRuns() {
+    return subRunPrincipals_.empty();
   }
 
   RunPrincipal const& PrincipalCache::lowestRun() const {
@@ -187,8 +187,8 @@ namespace edm {
     return *iter->second.get();
   }
 
-  LuminosityBlockPrincipal const& PrincipalCache::lowestLumi() const {
-    ConstLumiIterator iter = lumiPrincipals_.begin();
+  SubRunPrincipal const& PrincipalCache::lowestSubRun() const {
+    ConstSubRunIterator iter = subRunPrincipals_.begin();
     return *iter->second.get();
   }
 
@@ -196,15 +196,15 @@ namespace edm {
     runPrincipals_.erase(runPrincipals_.begin());
   }
 
-  void PrincipalCache::deleteLowestLumi() {
-    lumiPrincipals_.erase(lumiPrincipals_.begin());
+  void PrincipalCache::deleteLowestSubRun() {
+    subRunPrincipals_.erase(subRunPrincipals_.begin());
   }
 
   void PrincipalCache::deleteRun(int run) {
     runPrincipals_.erase(runPrincipals_.find(run));
   }
 
-  void PrincipalCache::deleteLumi(int run, int lumi) {
-    lumiPrincipals_.erase(lumiPrincipals_.find(LumiKey(run, lumi)));
+  void PrincipalCache::deleteSubRun(int run, int subRun) {
+    subRunPrincipals_.erase(subRunPrincipals_.find(SubRunKey(run, subRun)));
   }
 }

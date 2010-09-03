@@ -7,7 +7,7 @@ ProcessInfo:
 ProcessInfoVector:
 	table keyed by ProductID::processIndex_.
 	processIndex_ is monotonically increasing with time.
-        one table stored per Occurrence(Event. Lumi, Run)
+        one table stored per Occurrence(Event. SubRun, Run)
 
 ----------------------------------------------------------------------*/
 

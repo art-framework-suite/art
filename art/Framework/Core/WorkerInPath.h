@@ -69,7 +69,7 @@ namespace edm {
 	// identify
 	rc = worker_->doWork<T>(ep, es, cpc);
 
-        // Ignore return code for non-event (e.g. run, lumi) calls
+        // Ignore return code for non-event (e.g. run, subRun) calls
 	if (!T::isEvent_) rc = true;
 	else if (filterAction_ == Veto) rc = !rc;
         else if (filterAction_ == Ignore) rc = true;

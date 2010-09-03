@@ -14,7 +14,7 @@ Test of the EventPrincipal class.
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Persistency/Common/Wrapper.h"
@@ -22,7 +22,7 @@ Test of the EventPrincipal class.
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 
 #include "art/Framework/Core/GenericHandle.h"
@@ -78,12 +78,12 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
   edm::RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc));
+  edm::SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, preg, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
+  edm::EventAuxiliary eventAux(id, uuid, time, lbp->subRun(), true);
   edm::EventPrincipal ep(eventAux, preg, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setSubRunPrincipal(lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -158,12 +158,12 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  edm::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, pregc, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
+  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
   edm::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setLuminosityBlockPrincipal(lbp);
+  ep.setSubRunPrincipal(lbp);
   const edm::BranchDescription& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(

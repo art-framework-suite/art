@@ -5,7 +5,7 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/EDMException.h"
@@ -17,7 +17,7 @@
 
 namespace edm {
 
-  class LuminosityBlockID;
+  class SubRunID;
   class EventID;
 
   namespace {
@@ -36,10 +36,10 @@ namespace edm {
       }
       checkHistoryConsistency(primary, secondary);
     }
-    void checkConsistency(LuminosityBlockPrincipal const& primary, LuminosityBlockPrincipal const& secondary) {
+    void checkConsistency(SubRunPrincipal const& primary, SubRunPrincipal const& secondary) {
       if (primary.id() != secondary.id()) {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
-          primary.id() << " has inconsistent LuminosityBlockAuxiliary data in the primary and secondary file\n";
+          primary.id() << " has inconsistent SubRunAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
     }
@@ -69,7 +69,7 @@ namespace edm {
       for (const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
 	if (it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
       }
-      if (idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
+      if (idsToReplace[InEvent].empty() && idsToReplace[InSubRun].empty() && idsToReplace[InRun].empty()) {
         secondaryFileSequence_.reset();
       }
       else {
@@ -124,30 +124,30 @@ namespace edm {
     return primaryFileSequence_->readRun_();
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  PoolSource::readLuminosityBlock_() {
-    if (secondaryFileSequence_ && !branchIDsToReplace_[InLumi].empty()) {
-      boost::shared_ptr<LuminosityBlockPrincipal> primaryPrincipal = primaryFileSequence_->readLuminosityBlock_();
-      boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id());
+  boost::shared_ptr<SubRunPrincipal>
+  PoolSource::readSubRun_() {
+    if (secondaryFileSequence_ && !branchIDsToReplace_[InSubRun].empty()) {
+      boost::shared_ptr<SubRunPrincipal> primaryPrincipal = primaryFileSequence_->readSubRun_();
+      boost::shared_ptr<SubRunPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id());
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
-        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
+        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InSubRun]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
+        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readSubRun_")
           << " Run " << primaryPrincipal->run()
-          << " LuminosityBlock " << primaryPrincipal->luminosityBlock()
+          << " SubRun " << primaryPrincipal->subRun()
           << " is not found in the secondary input files\n";
       }
       return primaryPrincipal;
     }
-    return primaryFileSequence_->readLuminosityBlock_();
+    return primaryFileSequence_->readSubRun_();
   }
 
   std::auto_ptr<EventPrincipal>
   PoolSource::readEvent_() {
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
-      std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->luminosityBlock(), true);
+      std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->subRun(), true);
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
@@ -165,7 +165,7 @@ namespace edm {
   PoolSource::readIt(EventID const& id) {
     if (secondaryFileSequence_) {
       std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
-      std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(id, primaryPrincipal->luminosityBlock(), true);
+      std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(id, primaryPrincipal->subRun(), true);
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
@@ -226,12 +226,12 @@ namespace edm {
                               std::string const& moduleLabel) {
 
     iDesc.addOptionalUntracked<unsigned int>("firstRun", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("firstLuminosityBlock", 1U);
+    iDesc.addOptionalUntracked<unsigned int>("firstSubRun", 1U);
     iDesc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
     iDesc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
 
-    std::vector<LuminosityBlockID> defaultLumis;
-    iDesc.addOptionalUntracked<std::vector<LuminosityBlockID> >("lumisToSkip", defaultLumis);
+    std::vector<SubRunID> defaultSubRuns;
+    iDesc.addOptionalUntracked<std::vector<SubRunID> >("subRunsToSkip", defaultSubRuns);
 
     std::vector<EventID> defaultEvents;
     iDesc.addOptionalUntracked<std::vector<EventID> >("eventsToProcess", defaultEvents);
@@ -259,7 +259,7 @@ namespace edm {
     defaultString.clear();
     iDesc.addOptionalUntracked<std::string>("overrideCatalog", defaultString);
 
-    defaultString = "RunsLumisAndEvents";
+    defaultString = "RunsSubRunsAndEvents";
     iDesc.addOptionalUntracked<std::string>("processingMode", defaultString);
   }
 }

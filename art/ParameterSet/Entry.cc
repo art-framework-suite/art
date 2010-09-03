@@ -54,8 +54,8 @@ namespace edm {
       table_['v'] = "VInputTag";
       table_['e'] = "VEventID";
       table_['E'] = "EventID";
-      table_['m'] = "VLuminosityBlockID";
-      table_['M'] = "LuminosityBlockID";
+      table_['m'] = "VSubRunID";
+      table_['M'] = "SubRunID";
 
 
 
@@ -171,14 +171,14 @@ namespace edm {
         if(!decode(val, rep)) throwEntryError("VEventID", rep);
         break;
       }
-      case 'M':  {  // LuminosityBlockID
-        edm::LuminosityBlockID val;
-        if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
+      case 'M':  {  // SubRunID
+        edm::SubRunID val;
+        if(!decode(val, rep)) throwEntryError("SubRunID", rep);
         break;
       }
-      case 'm':  {  // VLuminosityBlockID
-        std::vector<edm::LuminosityBlockID> val;
-        if(!decode(val, rep)) throwEntryError("VLuminosityBlockID", rep);
+      case 'm':  {  // VSubRunID
+        std::vector<edm::SubRunID> val;
+        if(!decode(val, rep)) throwEntryError("VSubRunID", rep);
         break;
       }
       case 'D':  {  // Double
@@ -401,23 +401,23 @@ namespace edm {
 
 
 // ----------------------------------------------------------------------
-//  LuminosityBlockID
+//  SubRunID
 
-  Entry::Entry(std::string const& name, edm::LuminosityBlockID const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, edm::SubRunID const& val, bool is_tracked) :
     name_(name), rep(), type('M'), tracked(is_tracked ? '+' : '-')
   {
-    if (!encode(rep, val)) throwEncodeError("LuminosityBlockID");
+    if (!encode(rep, val)) throwEncodeError("SubRunID");
     validate();
   }
 
 
 // ----------------------------------------------------------------------
-// VLuminosityBlockID
+// VSubRunID
 
-  Entry::Entry(std::string const& name, std::vector<edm::LuminosityBlockID> const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, std::vector<edm::SubRunID> const& val, bool is_tracked) :
     name_(name), rep(), type('m'), tracked(is_tracked ? '+' : '-')
   {
-    if (!encode(rep, val)) throwEncodeError("VLuminosityBlockID");
+    if (!encode(rep, val)) throwEncodeError("VSubRunID");
     validate();
   }
 
@@ -853,26 +853,26 @@ namespace edm {
 
 
 // ----------------------------------------------------------------------
-// LuminosityBlockID
+// SubRunID
 
-  edm::LuminosityBlockID
-  Entry::getLuminosityBlockID() const
+  edm::SubRunID
+  Entry::getSubRunID() const
   {
-    if(type != 'M') throwValueError("LuminosityBlockID");
-    edm::LuminosityBlockID val;
-    if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
+    if(type != 'M') throwValueError("SubRunID");
+    edm::SubRunID val;
+    if(!decode(val, rep)) throwEntryError("SubRunID", rep);
     return val;
   }
 
 // ----------------------------------------------------------------------
-// VLuminosityBlockID
+// VSubRunID
 
-  std::vector<edm::LuminosityBlockID>
-  Entry::getVLuminosityBlockID() const
+  std::vector<edm::SubRunID>
+  Entry::getVSubRunID() const
   {
-    if(type != 'm') throwValueError("VLuminosityBlockID");
-    std::vector<edm::LuminosityBlockID> val;
-    if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
+    if(type != 'm') throwValueError("VSubRunID");
+    std::vector<edm::SubRunID> val;
+    if(!decode(val, rep)) throwEntryError("SubRunID", rep);
     return val;
   }
 

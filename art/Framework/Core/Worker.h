@@ -91,9 +91,9 @@ namespace edm {
 			    CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoBegin(LuminosityBlockPrincipal& lbp,
+    virtual bool implDoBegin(SubRunPrincipal& lbp,
 			    CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(LuminosityBlockPrincipal& lbp,
+    virtual bool implDoEnd(SubRunPrincipal& lbp,
 			    CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
@@ -204,7 +204,7 @@ namespace edm {
 	// pass of this module
 
 	// Get the action corresponding to this exception.  However, if processing
-	// something other than an event (e.g. run, lumi) always rethrow.
+	// something other than an event (e.g. run, subRun) always rethrow.
 	actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
 
 	// If we are processing an endpath, treat SkipEvent or FailPath

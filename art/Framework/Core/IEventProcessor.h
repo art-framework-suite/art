@@ -54,7 +54,7 @@ namespace edm
     virtual bool endOfLoop() = 0;
     virtual void rewindInput() = 0;
     virtual void prepareForNextLoop() = 0;
-    virtual void writeLumiCache() = 0;
+    virtual void writeSubRunCache() = 0;
     virtual void writeRunCache() = 0;
     virtual bool shouldWeCloseOutput() const = 0;
 
@@ -63,15 +63,15 @@ namespace edm
     virtual void beginRun(int run) = 0;
     virtual void endRun(int run) = 0;
 
-    virtual void beginLumi(int run, int lumi) = 0;
-    virtual void endLumi(int run, int lumi) = 0;
+    virtual void beginSubRun(int run, int subRun) = 0;
+    virtual void endSubRun(int run, int subRun) = 0;
 
     virtual int readAndCacheRun() = 0;
-    virtual int readAndCacheLumi() = 0;
+    virtual int readAndCacheSubRun() = 0;
     virtual void writeRun(int run) = 0;
     virtual void deleteRunFromCache(int run) = 0;
-    virtual void writeLumi(int run, int lumi) = 0;
-    virtual void deleteLumiFromCache(int run, int lumi) = 0;
+    virtual void writeSubRun(int run, int subRun) = 0;
+    virtual void deleteSubRunFromCache(int run, int subRun) = 0;
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;
@@ -79,7 +79,7 @@ namespace edm
 
     virtual void setExceptionMessageFiles(std::string& message) = 0;
     virtual void setExceptionMessageRuns(std::string& message) = 0;
-    virtual void setExceptionMessageLumis(std::string& message) = 0;
+    virtual void setExceptionMessageSubRuns(std::string& message) = 0;
 
     virtual bool alreadyHandlingException() const = 0;
   };

@@ -28,14 +28,14 @@ public:
          void preBeginRun(RunID const& id, Timestamp const& ts);
          void postBeginRun(Run const& run);
 
-         void preBeginLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postBeginLumi(LuminosityBlock const& run);
+         void preBeginSubRun(SubRunID const& id, Timestamp const& ts);
+         void postBeginSubRun(SubRun const& run);
 
          void preEvent(EventID const& id, Timestamp const& ts);
          void postEvent(Event const& ev);
 
-         void preEndLumi(LuminosityBlockID const& id, Timestamp const& ts);
-         void postEndLumi(LuminosityBlock const& run);
+         void preEndSubRun(SubRunID const& id, Timestamp const& ts);
+         void postEndSubRun(SubRun const& run);
 
          void preEndRun(RunID const& id, Timestamp const& ts);
          void postEndRun(Run const& run);
@@ -52,14 +52,14 @@ public:
          void preModuleBeginRun(ModuleDescription const& md);
          void postModuleBeginRun(ModuleDescription const& md);
 
-         void preModuleBeginLumi(ModuleDescription const& md);
-         void postModuleBeginLumi(ModuleDescription const& md);
+         void preModuleBeginSubRun(ModuleDescription const& md);
+         void postModuleBeginSubRun(ModuleDescription const& md);
 
          void preModuleEvent(ModuleDescription const& md);
          void postModuleEvent(ModuleDescription const& md);
 
-         void preModuleEndLumi(ModuleDescription const& md);
-         void postModuleEndLumi(ModuleDescription const& md);
+         void preModuleEndSubRun(ModuleDescription const& md);
+         void postModuleEndSubRun(ModuleDescription const& md);
 
          void preModuleEndRun(ModuleDescription const& md);
          void postModuleEndRun(ModuleDescription const& md);
@@ -70,8 +70,8 @@ public:
          void preSourceEvent();
          void postSourceEvent();
 
-         void preSourceLumi();
-         void postSourceLumi();
+         void preSourceSubRun();
+         void postSourceSubRun();
 
          void preSourceRun();
          void postSourceRun();
@@ -85,14 +85,14 @@ public:
          void prePathBeginRun(std::string const& s);
          void postPathBeginRun(std::string const& s, HLTPathStatus const& hlt);
 
-         void prePathBeginLumi(std::string const& s);
-         void postPathBeginLumi(std::string const& s, HLTPathStatus const& hlt);
+         void prePathBeginSubRun(std::string const& s);
+         void postPathBeginSubRun(std::string const& s, HLTPathStatus const& hlt);
 
          void prePathEvent(std::string const& s);
          void postPathEvent(std::string const& s, HLTPathStatus const& hlt);
 
-         void prePathEndLumi(std::string const& s);
-         void postPathEndLumi(std::string const& s, HLTPathStatus const& hlt);
+         void prePathEndSubRun(std::string const& s);
+         void postPathEndSubRun(std::string const& s, HLTPathStatus const& hlt);
 
          void prePathEndRun(std::string const& s);
          void postPathEndRun(std::string const& s, HLTPathStatus const& hlt);

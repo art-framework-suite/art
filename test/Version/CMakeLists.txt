@@ -1,13 +1,16 @@
 # project name
-project(FWCoreVersionTest)
+project(artVersionTest)
+
+configure_file ( ${art_SOURCE_DIR}/test/Version/test_GetReleaseVersion.cpp.in
+                 ${art_BINARY_DIR}/test/Version/test_GetReleaseVersion.cpp @ONLY )
 
 set( cpp_files test_GetFileFormatVersion.cpp
-	       test_GetReleaseVersion.cpp )
+	       ${art_BINARY_DIR}/test/Version/test_GetReleaseVersion.cpp )
 
-link_libraries(  FWCoreVersion  )
+link_libraries(  artVersion  )
 
 add_executable( test_GetFileFormatVersion test_GetFileFormatVersion.cpp )
-add_executable( test_GetReleaseVersion test_GetReleaseVersion.cpp )
+add_executable( test_GetReleaseVersion ${art_BINARY_DIR}/test/Version/test_GetReleaseVersion.cpp )
 
 # define the tests
 # use "make test" to run them

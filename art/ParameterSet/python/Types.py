@@ -186,14 +186,14 @@ class EventID(_ParameterTypeBase):
         parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
 
 
-class LuminosityBlockID(_ParameterTypeBase):
+class SubRunID(_ParameterTypeBase):
     def __init__(self, run, block):
-        super(LuminosityBlockID,self).__init__()
+        super(SubRunID,self).__init__()
         self.__run = run
         self.__block = block
     def run(self):
         return self.__run
-    def luminosityBlock(self):
+    def subRun(self):
         return self.__block
     @staticmethod
     def _isValid(value):
@@ -202,13 +202,13 @@ class LuminosityBlockID(_ParameterTypeBase):
     def _valueFromString(value):
         """only used for cfg-parsing"""
         parts = value.split(":")
-        return LuminosityBlockID(int(parts[0]), int(parts[1]))
+        return SubRunID(int(parts[0]), int(parts[1]))
     def pythonValue(self, options=PrintOptions()):
           return str(self.__run)+ ', '+str(self.__block)
     def cppID(self, parameterSet):
-        return parameterSet.newLuminosityBlockID(self.run(), self.luminosityBlock())
+        return parameterSet.newSubRunID(self.run(), self.subRun())
     def insertInto(self, parameterSet, myname):
-        parameterSet.addLuminosityBlockID(self.isTracked(), myname, self.cppID(parameterSet))
+        parameterSet.addSubRunID(self.isTracked(), myname, self.cppID(parameterSet))
 
 
 class CmsRange(_ParameterTypeBase):
@@ -530,27 +530,27 @@ class vstring(_ValidatingParameterListBase):
     def insertInto(self, parameterSet, myname):
         parameterSet.addVString(self.isTracked(), myname, self.value())
 
-class VLuminosityBlockID(_ValidatingParameterListBase):
+class VSubRunID(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
-        super(VLuminosityBlockID,self).__init__(*arg,**args)
+        super(VSubRunID,self).__init__(*arg,**args)
     @staticmethod
     def _itemIsValid(item):
-        return LuminosityBlockID._isValid(item)
+        return SubRunID._isValid(item)
     def configValueForItem(self,item,options):
-        return LuminosityBlockID.formatValueForConfig(item)
+        return SubRunID.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
         return item.dumpPython(options)
     @staticmethod
     def _valueFromString(value):
-        return VLuminosityBlockID(*_ValidatingParameterListBase._itemsFromStrings(value,LuminosityBlockID._valueFromString))
+        return VSubRunID(*_ValidatingParameterListBase._itemsFromStrings(value,SubRunID._valueFromString))
     def insertInto(self, parameterSet, myname):
         cppIDs = list()
         for i in self:
             item = i
             if isinstance(item, str):
-                item = LuminosityBlockID._valueFromString(item)
+                item = SubRunID._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
-        parameterSet.addVLuminosityBlockID(self.isTracked(), myname, cppIDs)
+        parameterSet.addVSubRunID(self.isTracked(), myname, cppIDs)
 
 
 class VInputTag(_ValidatingParameterListBase):
@@ -670,11 +670,11 @@ if __name__ == "__main__":
             pass
         def addVEventID(self,*pargs,**kargs):
             pass
-        def newLuminosityBlockID(self,*pargs,**kargs):
+        def newSubRunID(self,*pargs,**kargs):
             pass
-        def addLuminosityBlockID(self,*pargs,**kargs):
+        def addSubRunID(self,*pargs,**kargs):
             pass
-        def addVLuminosityBlockID(self,*pargs,**kargs):
+        def addVSubRunID(self,*pargs,**kargs):
             pass
         def addCmsRange(self,*pargs,**kargs):
             pass
@@ -816,18 +816,18 @@ if __name__ == "__main__":
             pset = PSetTester()
             veid.insertInto(pset,'foo')
 
-        def testLuminosityBlockID(self):
-            lid = LuminosityBlockID(2, 3)
-            self.assertEqual( repr(lid), "cms.LuminosityBlockID(2, 3)" )
+        def testSubRunID(self):
+            lid = SubRunID(2, 3)
+            self.assertEqual( repr(lid), "cms.SubRunID(2, 3)" )
             pset = PSetTester()
             lid.insertInto(pset,'foo')
-            lid2 = LuminosityBlockID._valueFromString('3:4')
+            lid2 = SubRunID._valueFromString('3:4')
             lid2.insertInto(pset,'foo2')
 
-        def testVLuminosityBlockID(self):
-            vlid = VLuminosityBlockID(LuminosityBlockID(2, 3))
-            vlid2 = VLuminosityBlockID("1:2", "3:4")
-            self.assertEqual( repr(vlid[0]), "cms.LuminosityBlockID(2, 3)" )
+        def testVSubRunID(self):
+            vlid = VSubRunID(SubRunID(2, 3))
+            vlid2 = VSubRunID("1:2", "3:4")
+            self.assertEqual( repr(vlid[0]), "cms.SubRunID(2, 3)" )
             self.assertEqual( repr(vlid2[0]), "'1:2'" )
             pset = PSetTester()
             vlid.insertInto(pset,'foo')

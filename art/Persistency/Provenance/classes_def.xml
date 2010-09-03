@@ -4,7 +4,7 @@
  </class>
  <class name="edm::BranchID"/>
  <class name="edm::EventID"/>
- <class name="edm::LuminosityBlockID"/>
+ <class name="edm::SubRunID"/>
  <class name="edm::RunID"/>
  <class name="edm::FileID"/>
  <class name="edm::Timestamp"/>
@@ -13,7 +13,7 @@
  <class name="std::set<std::basic_string<char> >"/>
  <class name="edm::EventAuxiliary"/>
  <class name="edm::History"/>
- <class name="edm::LuminosityBlockAuxiliary"/>
+ <class name="edm::SubRunAuxiliary"/>
  <class name="edm::RunAuxiliary"/>
  <class name="edm::ProductRegistry"/>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
@@ -59,14 +59,14 @@
  </class>
 
  <class name="edm::EventAux"/>
- <class name="edm::LuminosityBlockAux"/>
+ <class name="edm::SubRunAux"/>
  <class name="edm::RunAux"/>
  <class name="edm::ModuleDescription"/>
  <class name="edm::BranchEntryDescription"/>
  <class name="edm::EventEntryInfo"/>
- <class name="edm::RunLumiEntryInfo"/>
+ <class name="edm::RunSubRunEntryInfo"/>
  <class name="std::vector<edm::EventEntryInfo>"/>
- <class name="std::vector<edm::RunLumiEntryInfo>"/>
+ <class name="std::vector<edm::RunSubRunEntryInfo>"/>
  <class name="edm::EntryDescription"/>
  <class name="edm::EventEntryDescription"/>
  <class name="edm::EventProcessHistoryID"/>

@@ -11,8 +11,8 @@ OccurrenceTraits:
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlock.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
@@ -105,56 +105,56 @@ namespace edm {
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> {
+  class OccurrenceTraits<SubRunPrincipal, BranchActionBegin> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
+    typedef SubRunPrincipal MyPrincipal;
     static bool const begin_ = true;
     static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
-      a->preBeginLumiSignal_(ep->id(), ep->beginTime());
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
+      a->preBeginSubRunSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep) {
-      LuminosityBlock lumi(*ep, ModuleDescription());
-      a->postBeginLumiSignal_(lumi);
+    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
+      SubRun subRun(*ep, ModuleDescription());
+      a->postBeginSubRunSignal_(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathBeginLumiSignal_(s);
+      a->prePathBeginSubRunSignal_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathBeginLumiSignal_(s, status);
+      a->postPathBeginSubRunSignal_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleBeginLumiSignal_(*md);
+      a->preModuleBeginSubRunSignal_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleBeginLumiSignal_(*md);
+      a->postModuleBeginSubRunSignal_(*md);
     }
   };
 
   template <>
-  class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> {
+  class OccurrenceTraits<SubRunPrincipal, BranchActionEnd> {
   public:
-    typedef LuminosityBlockPrincipal MyPrincipal;
+    typedef SubRunPrincipal MyPrincipal;
     static bool const begin_ = false;
     static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal const* ep) {
-      a->preEndLumiSignal_(ep->id(), ep->beginTime());
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
+      a->preEndSubRunSignal_(ep->id(), ep->beginTime());
     }
-    static void postScheduleSignal(ActivityRegistry *a, LuminosityBlockPrincipal* ep) {
-      LuminosityBlock lumi(*ep, ModuleDescription());
-      a->postEndLumiSignal_(lumi);
+    static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
+      SubRun subRun(*ep, ModuleDescription());
+      a->postEndSubRunSignal_(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathEndLumiSignal_(s);
+      a->prePathEndSubRunSignal_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathEndLumiSignal_(s, status);
+      a->postPathEndSubRunSignal_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleEndLumiSignal_(*md);
+      a->preModuleEndSubRunSignal_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleEndLumiSignal_(*md);
+      a->postModuleEndSubRunSignal_(*md);
     }
   };
 }

@@ -4,10 +4,10 @@
 /*
 
 
-Designed to save RunPrincipal's and LuminosityBlockPrincipal's
+Designed to save RunPrincipal's and SubRunPrincipal's
 in memory.  Manages merging of products in those principals
 when there is more than one principal from the same run
-or luminosity block.
+or subRun.
 
 Original Author: W. David Dagenhart
 */
@@ -20,21 +20,21 @@ Original Author: W. David Dagenhart
 
 namespace edm {
 
-  class LumiKey {
+  class SubRunKey {
   public:
     int run() { return run_; }
-    int lumi() { return lumi_; }
+    int subRun() { return subRun_; }
 
-    LumiKey(int run, int lumi) : run_(run), lumi_(lumi) { }
+    SubRunKey(int run, int subRun) : run_(run), subRun_(subRun) { }
 
-    bool operator<(const LumiKey& right) const {
-      if (run_ == right.run_) return lumi_ < right.lumi_;
+    bool operator<(const SubRunKey& right) const {
+      if (run_ == right.run_) return subRun_ < right.subRun_;
       return run_ < right.run_;
     }
 
   private:
     int run_;
-    int lumi_;
+    int subRun_;
   };
 
   class PrincipalCache
@@ -53,42 +53,42 @@ namespace edm {
     RunPrincipal const& runPrincipal() const;
     boost::shared_ptr<RunPrincipal> runPrincipalPtr();
 
-    LuminosityBlockPrincipal & lumiPrincipal(int run, int lumi);
-    LuminosityBlockPrincipal const& lumiPrincipal(int run, int lumi) const;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr(int run, int lumi);
+    SubRunPrincipal & subRunPrincipal(int run, int subRun);
+    SubRunPrincipal const& subRunPrincipal(int run, int subRun) const;
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipalPtr(int run, int subRun);
 
-    // Current luminosity block (most recently read and inserted luminosity block)
-    LuminosityBlockPrincipal & lumiPrincipal();
-    LuminosityBlockPrincipal const& lumiPrincipal() const;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr();
+    // Current subRun (most recently read and inserted subRun)
+    SubRunPrincipal & subRunPrincipal();
+    SubRunPrincipal const& subRunPrincipal() const;
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipalPtr();
 
     bool insert(boost::shared_ptr<RunPrincipal> rp);
-    bool insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    bool insert(boost::shared_ptr<SubRunPrincipal> lbp);
 
     bool noMoreRuns();
-    bool noMoreLumis();
+    bool noMoreSubRuns();
 
     RunPrincipal const& lowestRun() const;
-    LuminosityBlockPrincipal const& lowestLumi() const;
+    SubRunPrincipal const& lowestSubRun() const;
 
     void deleteLowestRun();
-    void deleteLowestLumi();
+    void deleteLowestSubRun();
 
     void deleteRun(int run);
-    void deleteLumi(int run, int lumi);
+    void deleteSubRun(int run, int subRun);
 
   private:
 
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
     typedef std::map<int, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
-    typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::iterator LumiIterator;
-    typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::const_iterator ConstLumiIterator;
+    typedef std::map<SubRunKey, boost::shared_ptr<SubRunPrincipal> >::iterator SubRunIterator;
+    typedef std::map<SubRunKey, boost::shared_ptr<SubRunPrincipal> >::const_iterator ConstSubRunIterator;
 
     std::map<int, boost::shared_ptr<RunPrincipal> > runPrincipals_;
-    std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> > lumiPrincipals_;
+    std::map<SubRunKey, boost::shared_ptr<SubRunPrincipal> > subRunPrincipals_;
 
     boost::shared_ptr<RunPrincipal> currentRunPrincipal_;
-    boost::shared_ptr<LuminosityBlockPrincipal> currentLumiPrincipal_;
+    boost::shared_ptr<SubRunPrincipal> currentSubRunPrincipal_;
   };
 }
 

@@ -42,9 +42,9 @@ int main(int argc, char* argv[]) {
   // Get some fake data from an input file.
   // The fake data has the format of a series pairs of items.
   // The first is a letter to indicate the data type
-  // r for run, l for lumi, e for event, f for file, s for stop
-  // The second item is the run number or luminosity block number
-  // for the run and lumi cases.  For the other cases the number
+  // r for run, l for subRun, e for event, f for file, s for stop
+  // The second item is the run number or subRun number
+  // for the run and subRun cases.  For the other cases the number
   // is not not used.  This series of fake data items is terminated
   // by a period (blank space and newlines are ignored).
   // Use the trivial default in the next line if no input file
@@ -79,20 +79,20 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < 2; ++i) {
       bool handleEmptyRuns = i;
       for (int j = 0; j < 2; ++j) {
-        bool handleEmptyLumis = j;
+        bool handleEmptySubRuns = j;
         output << "\nMachine parameters:  ";
         if (fileMode == NOMERGE) output << "mode = NOMERGE";
         else if (fileMode == MERGE) output << "mode = MERGE";
         else if (fileMode == FULLLUMIMERGE) output << "mode = FULLLUMIMERGE";
         else output << "mode = FULLMERGE";
 	output << "  handleEmptyRuns = " << handleEmptyRuns;
-	output << "  handleEmptyLumis = " << handleEmptyLumis << "\n";
+	output << "  handleEmptySubRuns = " << handleEmptySubRuns << "\n";
 
         edm::MockEventProcessor mockEventProcessor(mockData,
                                                    output,
                                                    fileMode,
                                                    handleEmptyRuns,
-                                                   handleEmptyLumis);
+                                                   handleEmptySubRuns);
 
         bool onlineStateTransitions = false;
         mockEventProcessor.runToCompletion(onlineStateTransitions);

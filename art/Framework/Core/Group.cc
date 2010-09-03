@@ -201,7 +201,7 @@ namespace edm {
 
     if (status() != newGroup->status()) {
       throw edm::Exception(edm::errors::Unknown, "Merging")
-        << "Group::mergeGroup(), Trying to merge two run products or two lumi products.\n"
+        << "Group::mergeGroup(), Trying to merge two run products or two subRun products.\n"
         << "The products have different creation status's.\n"
         << "For example \"present\" and \"notCreated\"\n"
         << "The Framework does not currently support this and probably\n"
@@ -229,9 +229,9 @@ namespace edm {
       else if (product_->hasIsProductEqual()) {
 
         if (!product_->isProductEqual(newGroup->product_.get())) {
-          edm::LogWarning  ("RunLumiMerging")
+          edm::LogWarning  ("RunSubRunMerging")
             << "Group::mergeGroup\n"
-            << "Two run/lumi products for the same run/lumi which should be equal are not\n"
+            << "Two run/subRun products for the same run/subRun which should be equal are not\n"
             << "Using the first, ignoring the second\n"
             << "className = " << branchDescription_->className() << "\n"
             << "moduleLabel = " << moduleLabel() << "\n"
@@ -240,9 +240,9 @@ namespace edm {
         }
       }
       else {
-        edm::LogWarning  ("RunLumiMerging")
+        edm::LogWarning  ("RunSubRunMerging")
           << "Group::mergeGroup\n"
-          << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
+          << "Run/subRun product has neither a mergeProduct nor isProductEqual function\n"
           << "Using the first, ignoring the second in merge\n"
           << "className = " << branchDescription_->className() << "\n"
           << "moduleLabel = " << moduleLabel() << "\n"

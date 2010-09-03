@@ -62,7 +62,7 @@ namespace edm {
   }
 
   bool DuplicateChecker::isDuplicateAndCheckActive(EventID const& eventID,
-                                                   LuminosityBlockNumber_t const& lumi,
+                                                   SubRunNumber_t const& subRun,
                                                    std::string const& fileName)
   {
     if (duplicateCheckMode_ == noDuplicateCheck) return false;
@@ -82,7 +82,7 @@ namespace edm {
           << "Duplicate Events found in entire set of input files.\n"
           << "Both events were from run " << eventID.run()
           << " with event number " << eventID.event() << ".\n"
-          << "The duplicate had luminosity block number " << lumi
+          << "The duplicate had subRun number " << subRun
           << " and was from file " << fileName << ".\n"
           << "The duplicate will be skipped.\n";
       }
@@ -91,7 +91,7 @@ namespace edm {
           << "Duplicate Events found in file " << fileName << ".\n"
           << "Both events were from run " << eventID.run()
           << " with event number " << eventID.event() << ".\n"
-          << "The duplicate had luminosity block number " << lumi << ".\n"
+          << "The duplicate had subRun number " << subRun << ".\n"
           << "The duplicate will be skipped.\n";
       }
       return true;

@@ -6,7 +6,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 
 #include "art/ParameterSet/ParameterSetDescription.h"
@@ -54,20 +54,20 @@ namespace edm
   }
 
   bool
-  EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+  EDAnalyzer::doBeginSubRun(SubRunPrincipal const& lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal &>(lbp), moduleDescription_);
-    this->beginLuminosityBlock(lb);
+    SubRun lb(const_cast<SubRunPrincipal &>(lbp), moduleDescription_);
+    this->beginSubRun(lb);
     return true;
   }
 
   bool
-  EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+  EDAnalyzer::doEndSubRun(SubRunPrincipal const& lbp,
 			CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal &>(lbp), moduleDescription_);
-    this->endLuminosityBlock(lb);
+    SubRun lb(const_cast<SubRunPrincipal &>(lbp), moduleDescription_);
+    this->endSubRun(lb);
     return true;
   }
 

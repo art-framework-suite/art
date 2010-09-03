@@ -116,4 +116,4 @@ namespace edm {
   }
 }
 
-#endif
+#endif  // DataFormats_Common_BasicHandle_h

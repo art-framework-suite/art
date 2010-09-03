@@ -215,7 +215,7 @@ namespace edm {
     }
       // Same Run
     if (oldLumi != luminosityBlock_) {
-      // New Lumi
+      // New Subrun
       numberEventsInThisLumi_ = 0;
       newLumi_ = true;
       resetLuminosityBlockPrincipal();
@@ -240,7 +240,7 @@ namespace edm {
       // same run
       eventID_ = eventID_.next();
       if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
-        // new lumi
+        // new subrun
         ++luminosityBlock_;
       }
     } else {

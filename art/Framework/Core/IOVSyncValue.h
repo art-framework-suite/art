@@ -1,6 +1,6 @@
 #ifndef Framework_IOVSyncValue_h
 #define Framework_IOVSyncValue_h
-// -*- C++ -*-
+
 //
 // Package:     Framework
 // Class  :     IOVSyncValue
@@ -9,39 +9,31 @@
 
  Description: Provides the information needed to synchronize the EventSetup IOV with an Event
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Aug  3 18:35:24 EDT 2005
-//
+
 
 // system include files
 #include <functional>
 
 // user include files
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/LuminosityBlockID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 
-// forward declarations
 
 namespace edm {
 class IOVSyncValue
 {
-
    public:
       IOVSyncValue();
       //virtual ~IOVSyncValue();
-      explicit IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi=0);
+      explicit IOVSyncValue(const EventID& iID, SubRunNumber_t iSubRun=0);
       explicit IOVSyncValue(const Timestamp& iTime);
-      IOVSyncValue(const EventID& iID, LuminosityBlockNumber_t iLumi, const Timestamp& iTime);
+      IOVSyncValue(const EventID& iID, SubRunNumber_t iSubRun, const Timestamp& iTime);
 
       // ---------- const member functions ---------------------
       const EventID& eventID() const { return eventID_;}
-      LuminosityBlockNumber_t luminosityBlockNumber() const { return lumiID_;}
+      SubRunNumber_t subRunNumber() const { return subRunID_;}
       const Timestamp& time() const {return time_; }
 
       bool operator==(const IOVSyncValue& iRHS) const {
@@ -79,13 +71,13 @@ class IOVSyncValue
          bool doOp(const IOVSyncValue& iRHS) const {
             bool returnValue = false;
             if(haveID_ && iRHS.haveID_) {
-               if(lumiID_==0 || iRHS.lumiID_==0 || lumiID_==iRHS.lumiID_) {
+               if(subRunID_==0 || iRHS.subRunID_==0 || subRunID_==iRHS.subRunID_) {
                   Op<EventID> op;
                   returnValue = op(eventID_, iRHS.eventID_);
                } else {
                   if(iRHS.eventID_.run() == eventID_.run()) {
-                     Op<LuminosityBlockNumber_t> op;
-                     returnValue = op(lumiID_, iRHS.lumiID_);
+                     Op<SubRunNumber_t> op;
+                     returnValue = op(subRunID_, iRHS.subRunID_);
                   } else {
                      Op<RunNumber_t> op;
                      returnValue = op(eventID_.run(), iRHS.eventID_.run());
@@ -103,7 +95,7 @@ class IOVSyncValue
 
       // ---------- member data --------------------------------
       EventID eventID_;
-      LuminosityBlockNumber_t lumiID_;
+      SubRunNumber_t subRunID_;
       Timestamp time_;
       bool haveID_;
       bool haveTime_;
@@ -111,4 +103,4 @@ class IOVSyncValue
 
 }
 
-#endif
+#endif  // Framework_IOVSyncValue_h

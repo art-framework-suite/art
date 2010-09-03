@@ -143,12 +143,12 @@ namespace edm {
 		    CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal const& rp,
 		    CurrentProcessingContext const* cpc);
-    bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+    bool doBeginSubRun(SubRunPrincipal const& lbp,
 		    CurrentProcessingContext const* cpc);
-    bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
+    bool doEndSubRun(SubRunPrincipal const& lbp,
 		    CurrentProcessingContext const* cpc);
     void doWriteRun(RunPrincipal const& rp);
-    void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
+    void doWriteSubRun(SubRunPrincipal const& lbp);
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -180,9 +180,9 @@ namespace edm {
     virtual void beginRun(RunPrincipal const& r){}
     virtual void endRun(RunPrincipal const& r){}
     virtual void writeRun(RunPrincipal const& r) = 0;
-    virtual void beginLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
-    virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
+    virtual void beginSubRun(SubRunPrincipal const& lb){}
+    virtual void endSubRun(SubRunPrincipal const& lb){}
+    virtual void writeSubRun(SubRunPrincipal const& lb) = 0;
     virtual void openFile(FileBlock const& fb) {}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}

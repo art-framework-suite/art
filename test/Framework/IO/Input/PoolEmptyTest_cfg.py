@@ -18,8 +18,8 @@ process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('PoolEmptyTest.root')
 )
 
-process.source = cms.Source("TestRunLumiSource",
-    runLumiEvent = cms.untracked.vint32(0, 0, 0)
+process.source = cms.Source("TestRunSubRunSource",
+    runSubRunEvent = cms.untracked.vint32(0, 0, 0)
 )
 
 process.p = cms.Path(process.Thing)

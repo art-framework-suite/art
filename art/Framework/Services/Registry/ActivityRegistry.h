@@ -27,8 +27,8 @@ namespace edm {
   class Event;
   class EventID;
   class HLTPathStatus;
-  class LuminosityBlock;
-  class LuminosityBlockID;
+  class SubRun;
+  class SubRunID;
   class ModuleDescription;
   class Run;
   class RunID;
@@ -99,22 +99,22 @@ namespace edm {
     }
     AR_WATCH_VIA_0_ARG_METHOD(watchPostSource)
 
-    /// signal is emitted before the source starts creating a Lumi
-    typedef sigc::signal<void> PreSourceLumi;
-    PreSourceLumi preSourceLumiSignal_;
-    void watchPreSourceLumi(PreSourceLumi::slot_type const& iSlot) {
-      preSourceLumiSignal_.connect(iSlot);
+    /// signal is emitted before the source starts creating a SubRun
+    typedef sigc::signal<void> PreSourceSubRun;
+    PreSourceSubRun preSourceSubRunSignal_;
+    void watchPreSourceSubRun(PreSourceSubRun::slot_type const& iSlot) {
+      preSourceSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_0_ARG_METHOD(watchPreSourceLumi)
+    AR_WATCH_VIA_0_ARG_METHOD(watchPreSourceSubRun)
 
-    /// signal is emitted after the source starts creating a Lumi
-    typedef sigc::signal<void> PostSourceLumi;
-    PostSourceLumi postSourceLumiSignal_;
-    void watchPostSourceLumi(PostSourceLumi::slot_type const& iSlot) {
-      PostSourceLumi::slot_list_type sl = postSourceLumiSignal_.slots();
+    /// signal is emitted after the source starts creating a SubRun
+    typedef sigc::signal<void> PostSourceSubRun;
+    PostSourceSubRun postSourceSubRunSignal_;
+    void watchPostSourceSubRun(PostSourceSubRun::slot_type const& iSlot) {
+      PostSourceSubRun::slot_list_type sl = postSourceSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_0_ARG_METHOD(watchPostSourceLumi)
+    AR_WATCH_VIA_0_ARG_METHOD(watchPostSourceSubRun)
 
     /// signal is emitted before the source starts creating a Run
     typedef sigc::signal<void> PreSourceRun;
@@ -218,39 +218,39 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPostEndRun)
 
-    typedef sigc::signal<void, edm::LuminosityBlockID const&, edm::Timestamp const&> PreBeginLumi;
-    /// signal is emitted after the Lumi has been created by the InputSource but before any modules have seen the Lumi
-    PreBeginLumi preBeginLumiSignal_;
-    void watchPreBeginLumi(PreBeginLumi::slot_type const& iSlot) {
-      preBeginLumiSignal_.connect(iSlot);
+    typedef sigc::signal<void, edm::SubRunID const&, edm::Timestamp const&> PreBeginSubRun;
+    /// signal is emitted after the SubRun has been created by the InputSource but before any modules have seen the SubRun
+    PreBeginSubRun preBeginSubRunSignal_;
+    void watchPreBeginSubRun(PreBeginSubRun::slot_type const& iSlot) {
+      preBeginSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPreBeginLumi)
+    AR_WATCH_VIA_2_ARG_METHOD(watchPreBeginSubRun)
 
-    typedef sigc::signal<void, LuminosityBlock const&> PostBeginLumi;
-    /// signal is emitted after all modules have finished processing the beginLumi
-    PostBeginLumi postBeginLumiSignal_;
-    void watchPostBeginLumi(PostBeginLumi::slot_type const& iSlot) {
-      PostBeginLumi::slot_list_type sl = postBeginLumiSignal_.slots();
+    typedef sigc::signal<void, SubRun const&> PostBeginSubRun;
+    /// signal is emitted after all modules have finished processing the beginSubRun
+    PostBeginSubRun postBeginSubRunSignal_;
+    void watchPostBeginSubRun(PostBeginSubRun::slot_type const& iSlot) {
+      PostBeginSubRun::slot_list_type sl = postBeginSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostBeginLumi)
+    AR_WATCH_VIA_2_ARG_METHOD(watchPostBeginSubRun)
 
-    typedef sigc::signal<void, edm::LuminosityBlockID const&, edm::Timestamp const&> PreEndLumi;
-    /// signal is emitted before the endLumi is processed
-    PreEndLumi preEndLumiSignal_;
-    void watchPreEndLumi(PreEndLumi::slot_type const& iSlot) {
-      preEndLumiSignal_.connect(iSlot);
+    typedef sigc::signal<void, edm::SubRunID const&, edm::Timestamp const&> PreEndSubRun;
+    /// signal is emitted before the endSubRun is processed
+    PreEndSubRun preEndSubRunSignal_;
+    void watchPreEndSubRun(PreEndSubRun::slot_type const& iSlot) {
+      preEndSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPreEndLumi)
+    AR_WATCH_VIA_2_ARG_METHOD(watchPreEndSubRun)
 
-    typedef sigc::signal<void, LuminosityBlock const&> PostEndLumi;
-    /// signal is emitted after all modules have finished processing the Lumi
-    PostEndLumi postEndLumiSignal_;
-    void watchPostEndLumi(PostEndLumi::slot_type const& iSlot) {
-      PostEndLumi::slot_list_type sl = postEndLumiSignal_.slots();
+    typedef sigc::signal<void, SubRun const&> PostEndSubRun;
+    /// signal is emitted after all modules have finished processing the SubRun
+    PostEndSubRun postEndSubRunSignal_;
+    void watchPostEndSubRun(PostEndSubRun::slot_type const& iSlot) {
+      PostEndSubRun::slot_list_type sl = postEndSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostEndLumi)
+    AR_WATCH_VIA_2_ARG_METHOD(watchPostEndSubRun)
 
     /// signal is emitted before starting to process a Path for an event
     typedef sigc::signal<void, std::string const&> PreProcessPath;
@@ -303,39 +303,39 @@ namespace edm {
     }
     AR_WATCH_VIA_2_ARG_METHOD(watchPostPathEndRun)
 
-    /// signal is emitted before starting to process a Path for beginLumi
-    typedef sigc::signal<void, std::string const&> PrePathBeginLumi;
-    PrePathBeginLumi prePathBeginLumiSignal_;
-    void watchPrePathBeginLumi(PrePathBeginLumi::slot_type const& iSlot) {
-      prePathBeginLumiSignal_.connect(iSlot);
+    /// signal is emitted before starting to process a Path for beginSubRun
+    typedef sigc::signal<void, std::string const&> PrePathBeginSubRun;
+    PrePathBeginSubRun prePathBeginSubRunSignal_;
+    void watchPrePathBeginSubRun(PrePathBeginSubRun::slot_type const& iSlot) {
+      prePathBeginSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_1_ARG_METHOD(watchPrePathBeginLumi)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPrePathBeginSubRun)
 
-    /// signal is emitted after all modules have finished for the Path for beginLumi
-    typedef sigc::signal<void, std::string const&, HLTPathStatus const&> PostPathBeginLumi;
-    PostPathBeginLumi postPathBeginLumiSignal_;
-    void watchPostPathBeginLumi(PostPathBeginLumi::slot_type const& iSlot) {
-      PostPathBeginLumi::slot_list_type sl = postPathBeginLumiSignal_.slots();
+    /// signal is emitted after all modules have finished for the Path for beginSubRun
+    typedef sigc::signal<void, std::string const&, HLTPathStatus const&> PostPathBeginSubRun;
+    PostPathBeginSubRun postPathBeginSubRunSignal_;
+    void watchPostPathBeginSubRun(PostPathBeginSubRun::slot_type const& iSlot) {
+      PostPathBeginSubRun::slot_list_type sl = postPathBeginSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostPathBeginLumi)
+    AR_WATCH_VIA_2_ARG_METHOD(watchPostPathBeginSubRun)
 
     /// signal is emitted before starting to process a Path for endRun
-    typedef sigc::signal<void, std::string const&> PrePathEndLumi;
-    PrePathEndLumi prePathEndLumiSignal_;
-    void watchPrePathEndLumi(PrePathEndLumi::slot_type const& iSlot) {
-      prePathEndLumiSignal_.connect(iSlot);
+    typedef sigc::signal<void, std::string const&> PrePathEndSubRun;
+    PrePathEndSubRun prePathEndSubRunSignal_;
+    void watchPrePathEndSubRun(PrePathEndSubRun::slot_type const& iSlot) {
+      prePathEndSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_1_ARG_METHOD(watchPrePathEndLumi)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPrePathEndSubRun)
 
     /// signal is emitted after all modules have finished for the Path for endRun
-    typedef sigc::signal<void, std::string const&, HLTPathStatus const&> PostPathEndLumi;
-    PostPathEndLumi postPathEndLumiSignal_;
-    void watchPostPathEndLumi(PostPathEndLumi::slot_type const& iSlot) {
-      PostPathEndLumi::slot_list_type sl = postPathEndLumiSignal_.slots();
+    typedef sigc::signal<void, std::string const&, HLTPathStatus const&> PostPathEndSubRun;
+    PostPathEndSubRun postPathEndSubRunSignal_;
+    void watchPostPathEndSubRun(PostPathEndSubRun::slot_type const& iSlot) {
+      PostPathEndSubRun::slot_list_type sl = postPathEndSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostPathEndLumi)
+    AR_WATCH_VIA_2_ARG_METHOD(watchPostPathEndSubRun)
 
     /// signal is emitted before the module is constructed
     typedef sigc::signal<void, ModuleDescription const&> PreModuleConstruction;
@@ -439,39 +439,39 @@ namespace edm {
     }
     AR_WATCH_VIA_1_ARG_METHOD(watchPostModuleEndRun)
 
-    /// signal is emitted before the module starts processing beginLumi
-    typedef sigc::signal<void, ModuleDescription const&> PreModuleBeginLumi;
-    PreModuleBeginLumi preModuleBeginLumiSignal_;
-    void watchPreModuleBeginLumi(PreModuleBeginLumi::slot_type const& iSlot) {
-      preModuleBeginLumiSignal_.connect(iSlot);
+    /// signal is emitted before the module starts processing beginSubRun
+    typedef sigc::signal<void, ModuleDescription const&> PreModuleBeginSubRun;
+    PreModuleBeginSubRun preModuleBeginSubRunSignal_;
+    void watchPreModuleBeginSubRun(PreModuleBeginSubRun::slot_type const& iSlot) {
+      preModuleBeginSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_1_ARG_METHOD(watchPreModuleBeginLumi)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPreModuleBeginSubRun)
 
-    /// signal is emitted after the module finished processing beginLumi
-    typedef sigc::signal<void, ModuleDescription const&> PostModuleBeginLumi;
-    PostModuleBeginLumi postModuleBeginLumiSignal_;
-    void watchPostModuleBeginLumi(PostModuleBeginLumi::slot_type const& iSlot) {
-      PostModuleBeginLumi::slot_list_type sl = postModuleBeginLumiSignal_.slots();
+    /// signal is emitted after the module finished processing beginSubRun
+    typedef sigc::signal<void, ModuleDescription const&> PostModuleBeginSubRun;
+    PostModuleBeginSubRun postModuleBeginSubRunSignal_;
+    void watchPostModuleBeginSubRun(PostModuleBeginSubRun::slot_type const& iSlot) {
+      PostModuleBeginSubRun::slot_list_type sl = postModuleBeginSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_1_ARG_METHOD(watchPostModuleBeginLumi)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostModuleBeginSubRun)
 
-    /// signal is emitted before the module starts processing endLumi
-    typedef sigc::signal<void, ModuleDescription const&> PreModuleEndLumi;
-    PreModuleEndLumi preModuleEndLumiSignal_;
-    void watchPreModuleEndLumi(PreModuleEndLumi::slot_type const& iSlot) {
-      preModuleEndLumiSignal_.connect(iSlot);
+    /// signal is emitted before the module starts processing endSubRun
+    typedef sigc::signal<void, ModuleDescription const&> PreModuleEndSubRun;
+    PreModuleEndSubRun preModuleEndSubRunSignal_;
+    void watchPreModuleEndSubRun(PreModuleEndSubRun::slot_type const& iSlot) {
+      preModuleEndSubRunSignal_.connect(iSlot);
     }
-    AR_WATCH_VIA_1_ARG_METHOD(watchPreModuleEndLumi)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPreModuleEndSubRun)
 
-    /// signal is emitted after the module finished processing endLumi
-    typedef sigc::signal<void, ModuleDescription const&> PostModuleEndLumi;
-    PostModuleEndLumi postModuleEndLumiSignal_;
-    void watchPostModuleEndLumi(PostModuleEndLumi::slot_type const& iSlot) {
-      PostModuleEndLumi::slot_list_type sl = postModuleEndLumiSignal_.slots();
+    /// signal is emitted after the module finished processing endSubRun
+    typedef sigc::signal<void, ModuleDescription const&> PostModuleEndSubRun;
+    PostModuleEndSubRun postModuleEndSubRunSignal_;
+    void watchPostModuleEndSubRun(PostModuleEndSubRun::slot_type const& iSlot) {
+      PostModuleEndSubRun::slot_list_type sl = postModuleEndSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_1_ARG_METHOD(watchPostModuleEndLumi)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostModuleEndSubRun)
 
     /// signal is emitted before the source is constructed
     typedef sigc::signal<void, ModuleDescription const&> PreSourceConstruction;

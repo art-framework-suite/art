@@ -1,5 +1,5 @@
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -10,7 +10,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -25,7 +25,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -36,7 +36,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -51,7 +51,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -62,7 +62,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -77,7 +77,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -88,7 +88,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -103,7 +103,7 @@ Machine parameters:  mode = NOMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -114,7 +114,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -129,7 +129,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
+Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -140,7 +140,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -155,7 +155,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
+Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -166,7 +166,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -181,7 +181,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -192,7 +192,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -207,7 +207,7 @@ Machine parameters:  mode = MERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -218,7 +218,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -233,7 +233,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
+Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -244,7 +244,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -259,7 +259,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 0  handleEmptyLumis
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
+Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -270,7 +270,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -285,7 +285,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -296,7 +296,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -311,7 +311,7 @@ Machine parameters:  mode = FULLLUMIMERGE  handleEmptyRuns = 1  handleEmptyLumis
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -322,7 +322,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -337,7 +337,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -348,7 +348,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -363,7 +363,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 0
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -374,7 +374,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop
@@ -389,7 +389,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	endOfLoop
 The state machine reports it has been terminated
 
-Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
+Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptySubRuns = 1
     *** nextItemType: Restart 0 ***
 	doErrorStuff
 	endOfLoop
@@ -400,7 +400,7 @@ Machine parameters:  mode = FULLMERGE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	endOfLoop
 	prepareForNextLoop
 	rewind
-    *** nextItemType: Lumi 1 ***
+    *** nextItemType: SubRun 1 ***
 	doErrorStuff
 	endOfLoop
 	prepareForNextLoop

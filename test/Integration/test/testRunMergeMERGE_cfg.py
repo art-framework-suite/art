@@ -76,30 +76,30 @@ process.test = cms.EDFilter("TestMergeResults",
         100001, 300006, 100003    # * end run 1
     ),
 
-    expectedBeginLumiProd = cms.untracked.vint32(
+    expectedBeginSubRunProd = cms.untracked.vint32(
         0,           0,      0,   # start
         0,           0,      0,   # begin file 1
-        101,       102,    103,   # * begin run 1 lumi 1
+        101,       102,    103,   # * begin run 1 subRun 1
         101,       204,    103,   # * begin file 2
-        101,       204,    103,   # end run 1 lumi 1
-        101,       102,    103,   # * begin run 2 lumi 1
+        101,       204,    103,   # end run 1 subRun 1
+        101,       102,    103,   # * begin run 2 subRun 1
         101,       102,    103,   # begin file 3
-        101,       102,    103,   # end run 2 lumi 1
-        101,       306,    103,   # * begin run 1 lumi 1
-        101,       306,    103    # end run 1 lumi 1
+        101,       102,    103,   # end run 2 subRun 1
+        101,       306,    103,   # * begin run 1 subRun 1
+        101,       306,    103    # end run 1 subRun 1
     ),
 
-    expectedEndLumiProd = cms.untracked.vint32(
+    expectedEndSubRunProd = cms.untracked.vint32(
         0,           0,      0,   # start
         0,           0,      0,   # begin file 1
-        1001,     1002,   1003,   # * begin run 1 lumi 1
+        1001,     1002,   1003,   # * begin run 1 subRun 1
         1001,     2004,   1003,   # * begin file 2
-        1001,     2004,   1003,   # * end run 1 lumi 1
-        1001,     1002,   1003,   # * begin run 2 lumi 1
+        1001,     2004,   1003,   # * end run 1 subRun 1
+        1001,     1002,   1003,   # * begin run 2 subRun 1
         1001,     1002,   1003,   # begin file 3
-        1001,     1002,   1003,   # * end run 2 lumi 1
-        1001,     3006,   1003,   # * begin run 1 lumi 1
-        1001,     3006,   1003    # * end run 1 lumi 1
+        1001,     1002,   1003,   # * end run 2 subRun 1
+        1001,     3006,   1003,   # * begin run 1 subRun 1
+        1001,     3006,   1003    # * end run 1 subRun 1
     ),
 
     expectedBeginRunNew = cms.untracked.vint32(
@@ -131,27 +131,27 @@ process.test = cms.EDFilter("TestMergeResults",
     expectedBeginLumiNew = cms.untracked.vint32(
         0,           0,      0,   # start
         0,           0,      0,   # begin file 1
-        101,       102,    103,   # * begin run 1 lumi 1
+        101,       102,    103,   # * begin run 1 subRun 1
         101,       102,    103,   # * begin file 2
-        101,       102,    103,   # end run 1 lumi 1
-        101,       102,    103,   # * begin run 2 lumi 1
+        101,       102,    103,   # end run 1 subRun 1
+        101,       102,    103,   # * begin run 2 subRun 1
         101,       102,    103,   # begin file 3
-        101,       102,    103,   # end run 2 lumi 1
-        101,       204,    103,   # * begin run 1 lumi 1
-        101,       204,    103    # end run 1 lumi 1
+        101,       102,    103,   # end run 2 subRun 1
+        101,       204,    103,   # * begin run 1 subRun 1
+        101,       204,    103    # end run 1 subRun 1
     ),
 
     expectedEndLumiNew = cms.untracked.vint32(
         0,           0,      0,   # start
         0,           0,      0,   # begin file 1
-        0,           0,      0,   # * begin run 1 lumi 1
+        0,           0,      0,   # * begin run 1 subRun 1
         0,           0,      0,   # * begin file 2
-        1001,     1002,   1003,   # * end run 1 lumi 1
-        0,           0,      0,   # * begin run 2 lumi 1
+        1001,     1002,   1003,   # * end run 1 subRun 1
+        0,           0,      0,   # * begin run 2 subRun 1
         0,           0,      0,   # begin file 3
-        1001,     1002,   1003,   # * end run 2 lumi 1
-        1001,     1002,   1003,   # * begin run 1 lumi 1
-        1001,     2004,   1003    # * end run 1 lumi 1
+        1001,     1002,   1003,   # * end run 2 subRun 1
+        1001,     1002,   1003,   # * begin run 1 subRun 1
+        1001,     2004,   1003    # * end run 1 subRun 1
     ),
 
     expectedRespondToOpenInputFile = cms.untracked.int32(5),

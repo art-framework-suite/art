@@ -325,8 +325,8 @@ void testmakepset::typesTest()
   "    s = cms.string('this string'),\n"
   "    sb1 = cms.string(''),\n"
   "    vEventID = cms.VEventID('1:1', '2:2','3:3'),\n"
-  "    lumi = cms.LuminosityBlockID(55, 65),\n"
-  "    vlumis = cms.VLuminosityBlockID('75:85', '95:105')\n"
+  "    subRun = cms.SubRunID(55, 65),\n"
+  "    vsubRuns = cms.VSubRunID('75:85', '95:105')\n"
   ")\n"
 
      ;
@@ -439,15 +439,15 @@ void testmakepset::typesTest()
    CPPUNIT_ASSERT(3 == vEventID[2].run());
    CPPUNIT_ASSERT(3 == vEventID[2].event());
 
-   edm::LuminosityBlockID lumi = test.getParameter<edm::LuminosityBlockID >("lumi");
-   CPPUNIT_ASSERT(55 == lumi.run());
-   CPPUNIT_ASSERT(65 == lumi.luminosityBlock());
-   std::vector<edm::LuminosityBlockID> vlumis = test.getParameter<std::vector<edm::LuminosityBlockID> >("vlumis");
-   CPPUNIT_ASSERT(vlumis.size() == 2);
-   CPPUNIT_ASSERT(vlumis[0].run() == 75);
-   CPPUNIT_ASSERT(vlumis[0].luminosityBlock() == 85);
-   CPPUNIT_ASSERT(vlumis[1].run() == 95);
-   CPPUNIT_ASSERT(vlumis[1].luminosityBlock() == 105);
+   edm::SubRunID subRun = test.getParameter<edm::SubRunID >("subRun");
+   CPPUNIT_ASSERT(55 == subRun.run());
+   CPPUNIT_ASSERT(65 == subRun.subRun());
+   std::vector<edm::SubRunID> vsubRuns = test.getParameter<std::vector<edm::SubRunID> >("vsubRuns");
+   CPPUNIT_ASSERT(vsubRuns.size() == 2);
+   CPPUNIT_ASSERT(vsubRuns[0].run() == 75);
+   CPPUNIT_ASSERT(vsubRuns[0].subRun() == 85);
+   CPPUNIT_ASSERT(vsubRuns[1].run() == 95);
+   CPPUNIT_ASSERT(vsubRuns[1].subRun() == 105);
 
 
    //CPPUNIT_ASSERT("Label2" == outputProduct.label());

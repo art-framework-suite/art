@@ -24,7 +24,7 @@ is the DataBlock.
 
 namespace edm {
   class EventID;
-  class LuminosityBlockPrincipal;
+  class SubRunPrincipal;
   class RunPrincipal;
   class UnscheduledHandler;
 
@@ -46,21 +46,21 @@ namespace edm {
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
-    LuminosityBlockPrincipal const& luminosityBlockPrincipal() const {
-      return *luminosityBlockPrincipal_;
+    SubRunPrincipal const& subRunPrincipal() const {
+      return *subRunPrincipal_;
     }
 
-    LuminosityBlockPrincipal & luminosityBlockPrincipal() {
-      return *luminosityBlockPrincipal_;
+    SubRunPrincipal & subRunPrincipal() {
+      return *subRunPrincipal_;
     }
 
-    boost::shared_ptr<LuminosityBlockPrincipal>
-    luminosityBlockPrincipalSharedPtr() {
-      return luminosityBlockPrincipal_;
+    boost::shared_ptr<SubRunPrincipal>
+    subRunPrincipalSharedPtr() {
+      return subRunPrincipal_;
     }
 
-    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-      luminosityBlockPrincipal_ = lbp;
+    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> lbp) {
+      subRunPrincipal_ = lbp;
     }
 
     EventID const& id() const {
@@ -91,8 +91,8 @@ namespace edm {
       return aux_;
     }
 
-    LuminosityBlockNumber_t const& luminosityBlock() const {
-      return aux().luminosityBlock();
+    SubRunNumber_t const& subRun() const {
+      return aux().subRun();
     }
 
     RunNumber_t run() const {
@@ -155,7 +155,7 @@ namespace edm {
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
     EventAuxiliary aux_;
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipal_;
 
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;

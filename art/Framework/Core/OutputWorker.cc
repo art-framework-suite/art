@@ -44,8 +44,8 @@ namespace edm {
   }
 
   void
-  OutputWorker::writeLumi(LuminosityBlockPrincipal const& lbp) {
-    module().doWriteLuminosityBlock(lbp);
+  OutputWorker::writeSubRun(SubRunPrincipal const& lbp) {
+    module().doWriteSubRun(lbp);
   }
 
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}

@@ -25,13 +25,13 @@ Test of the EventPrincipal class.
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "test/TestObjects/ToyProducts.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Selector.h"
 #include "art/Utilities/TypeID.h"
@@ -196,12 +196,12 @@ void test_ep::setUp()
     boost::shared_ptr<edm::ProductRegistry const> preg(pProductRegistry_);
     edm::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, *process));
-    edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
-    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, *process));
+    edm::SubRunAuxiliary subRunAux(rp->run(), 1, now, now);
+    boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, preg, *process));
     lbp->setRunPrincipal(rp);
-    edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->luminosityBlock(), true);
+    edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->subRun(), true);
     pEvent_ = new edm::EventPrincipal(eventAux, preg, *process);
-    pEvent_->setLuminosityBlockPrincipal(lbp);
+    pEvent_->setSubRunPrincipal(lbp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);

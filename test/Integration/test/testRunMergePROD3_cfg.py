@@ -13,8 +13,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("EmptySource",
-    firstLuminosityBlock = cms.untracked.uint32(1),
-    numberEventsInLuminosityBlock = cms.untracked.uint32(100),
+    firstSubRun = cms.untracked.uint32(1),
+    numberEventsInSubRun = cms.untracked.uint32(100),
     firstEvent = cms.untracked.uint32(1),
     firstRun = cms.untracked.uint32(1),
     numberEventsInRun = cms.untracked.uint32(100)
@@ -64,18 +64,18 @@ process.test = cms.EDFilter("TestMergeResults",
         100001, 100002, 100004   # * end run
     ),
 
-    expectedBeginLumiProd = cms.untracked.vint32(
+    expectedBeginSubRunProd = cms.untracked.vint32(
         0,           0,      0,  # start
         0,           0,      0,  # begin file
-        101,       102,    104,  # * begin lumi
-        101,       102,    104   # end lumi
+        101,       102,    104,  # * begin subRun
+        101,       102,    104   # end subRun
     ),
 
-    expectedEndLumiProd = cms.untracked.vint32(
+    expectedEndSubRunProd = cms.untracked.vint32(
         0,           0,      0,  # start
         0,           0,      0,  # begin file
-        0,           0,      0,  # begin lumi
-        1001,     1002,   1004   # * end lumi
+        0,           0,      0,  # begin subRun
+        1001,     1002,   1004   # * end subRun
     ),
 
     verbose = cms.untracked.bool(False),

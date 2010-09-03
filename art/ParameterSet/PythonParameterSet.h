@@ -99,9 +99,9 @@ public:
     return edm::EventID(run, event);
   }
 
-  edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi)
+  edm::SubRunID newSubRunID(unsigned int run, unsigned int subRun)
   {
-    return edm::LuminosityBlockID(run, lumi);
+    return edm::SubRunID(run, subRun);
   }
 
   void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);

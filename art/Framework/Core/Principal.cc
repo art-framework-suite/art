@@ -300,7 +300,7 @@ namespace edm {
 			bool stopIfProcessHasMatch) const {
     assert(results.empty());
 
-    // A class without a dictionary cannot be in an Event/Lumi/Run.
+    // A class without a dictionary cannot be in an Event/SubRun/Run.
     // First, we check if the class has a dictionary.  If it does not,
     // we return immediately.  This is necessary to avoid an exception
     // being thrown inside TypeID::friendlyClassName().

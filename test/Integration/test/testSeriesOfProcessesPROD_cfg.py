@@ -64,10 +64,10 @@ process.a = cms.EDAnalyzer(
   dumpPSetRegistry = cms.untracked.bool(False)
 )
 
-# This puts products in the lumi's and run's.  One failure
-# mode of the maxLuminosityBlock parameter is tested by their
+# This puts products in the subRun's and run's.  One failure
+# mode of the maxSubRun parameter is tested by their
 # mere existence.
-process.makeRunLumiProducts = cms.EDProducer("ThingWithMergeProducer")
+process.makeRunSubRunProducts = cms.EDProducer("ThingWithMergeProducer")
 
 # In the next process we want to test input from a secondary input
 # file so we split the products over 2 output files.
@@ -90,7 +90,7 @@ process.out2 = cms.OutputModule("PoolOutputModule",
 
 process.pathanalysis = cms.EDAnalyzer("PathAnalyzer")
 
-process.p1 = cms.Path(process.a * process.f1 * process.makeRunLumiProducts)
+process.p1 = cms.Path(process.a * process.f1 * process.makeRunSubRunProducts)
 process.p2 = cms.Path(~process.f2a * process.f2b)
 
 process.e = cms.EndPath(process.pathanalysis * process.out1 * process.out2)

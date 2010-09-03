@@ -58,7 +58,7 @@ event.put("apple", pFruits);
 
 
 Getting a reference to a product before that product is put into the
-event/lumiBlock/run.
+event/subrun/run.
 NOTE: The edm::RefProd returned will not work until after the
 edm::DataViewImpl has been committed (which happens after the
 EDProducer::produce method has ended)
@@ -256,7 +256,7 @@ namespace edm {
     // "transaction" which the DataViewImpl represents.
     ModuleDescription const& md_;
 
-    // Is this an Event, a LuminosityBlock, or a Run.
+    // Is this an Event, a SubRun, or a Run.
     BranchType const branchType_;
   };
 

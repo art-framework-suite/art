@@ -3,20 +3,20 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/ParameterSet/Registry.h"
 
 namespace edm {
 
   namespace {
-    LuminosityBlock * newLumi(EventPrincipal& ep, ModuleDescription const& md) {
-      return (ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0);
+    SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
+      return (ep.subRunPrincipalSharedPtr() ? new SubRun(ep.subRunPrincipal(), md) : 0);
     }
   }
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
 	DataViewImpl(ep, md, InEvent),
 	aux_(ep.aux()),
-	luminosityBlock_(newLumi(ep, md)),
+	subRun_(newSubRun(ep, md)),
 	gotBranchIDs_(),
 	gotViews_() {
     }
@@ -38,7 +38,7 @@ namespace edm {
 
     Run const&
     Event::getRun() const {
-      return getLuminosityBlock().getRun();
+      return getSubRun().getRun();
     }
 
 //   History const&
