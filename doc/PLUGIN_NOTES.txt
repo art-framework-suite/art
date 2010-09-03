@@ -37,9 +37,18 @@ The Factory contains two lookup tables for each type of thing it can make:
 2. one multimap<string, string> that maps the a short name to possibly more than one
    full path name.
 
-Each module class is defined in its own dynamic library, which must be
-named *lib_<module>_plugin.<suffix>*, where *<suffix>* is whatever is
-appropriate for the platform; these are called *plugin* libraries.
+Each module class must be defined in its own dynamic library, which
+must be named *lib_<module>_plugin.<suffix>*, where *<suffix>* is
+whatever is appropriate for the platform; these are called *plugin*
+libraries. The "full name" for a plugin is the path from the top-level
+product down to the file in which the source code for the module is
+found, e.g::
+   art/test/Framework/Core/stubs/IntProducer
+is the full name for the module *IntProducer*, which is implemented in the file::
+   art/test/Framework/Core/stubs/IntProducer_plugin.cc
+The build system compiles this into a dynamic library named::
+   libart_test_Framework_Core_stubs_IntProducer_plugin.<suffix>
+where <suffix> is the suffix appropriate for your platform.
 
 Plugin libraries are loaded by the plugin manager; see below.
 
