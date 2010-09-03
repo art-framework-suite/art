@@ -1,0 +1,51 @@
+============================================================
+Notes on the use of FHiCL to configure framework executables
+============================================================
+
+The original version of the *art* framework executable was configured
+using the Python configuration system inherited from CMS. We have
+replaced that using FHiCL.
+
+Below is a sample of how we propose to use FHiCL to configure the
+framework executable. A real experiment would likely have some of
+these values supplied by files that are #include'd into the
+configuration file. Our example does not make any such use.
+
+::
+
+  # All of the "facility" configurations are optional;
+  # the framework provides default settings that are used
+  # if nothing is provided by the user.
+  #
+  message_facility: { ... } # lots of configurated, as required
+                            # by the MessageFacility
+  floating_point_control_facility: { ... }
+  root_facility: { ... }
+  trigger_names_facility: { ... }
+  unix_signal_facility: { ... } 
+
+  # Only one source is permitted
+  source: { ... }
+
+  analyzers: { 
+    ... 
+  }  
+  
+  filters: { ... }
+  outputs: { ... }
+  producers: { ... }
+
+Historical Notes
+================
+
+CMS has *forced services* where we have *facilities*. 
+
+The CMS *CurrentModuleService* has no configurable parameters, and
+must be present. Because it has no parameters to configure, and
+because it is always created, there is no reason for us to have a
+"current_module_facility" configuration element in the configuration
+file.
+
+
+  
+  
