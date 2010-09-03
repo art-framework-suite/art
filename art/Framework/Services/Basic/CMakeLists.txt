@@ -20,26 +20,26 @@ set( artFrameworkServicesBasic_sources CurrentModuleService.cc
 			    UpdaterService.cc
 			    VertexTracker.cc )
 
-link_libraries( artPersistencyProvenance
-                artPersistencyCommon
-		artFrameworkServicesRegistry
-		artFrameworkIOCatalog
-		artMessageLogger
-		artParameterSet
-		artFrameworkPluginManager
-		artFrameworkServicesRootAutoLibraryLoader
-		artUtilitiess
-		${Boost_FILESYSTEM_LIBRARY}
-		${Boost_THREAD_LIBRARY}
-		${CORE}
-		${HIST}
-		${TREE}
-		${GRAF}
-		${RIO}
-		${NET}
-		${CLHEP}
-		${REFLEX}
-		${CINTEX} )
+#link_libraries( artPersistencyProvenance
+#                artPersistencyCommon
+#		artFrameworkServicesRegistry
+#		artFrameworkIOCatalog
+#		artMessageLogger
+#		artParameterSet
+#		artFrameworkPluginManager
+#		artFrameworkServicesRootAutoLibraryLoader
+#		artUtilitiess
+#		${Boost_FILESYSTEM_LIBRARY}
+#		${Boost_THREAD_LIBRARY}
+#		${CORE}
+#		${HIST}
+#		${TREE}
+#		${GRAF}
+#		${RIO}
+#		${NET}
+#		${CLHEP}
+#		${REFLEX}
+#		${CINTEX} )
 
 add_library(artFrameworkServicesBasic SHARED ${artFrameworkServicesBasic_sources} )
 

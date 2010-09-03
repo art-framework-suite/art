@@ -12,21 +12,21 @@ set( artFrameworkIOInput_sources BranchMapperWithReader.cc
 			 RootTree.cc )
 
 
-link_libraries( artFrameworkIOCommon
-                artPersistencyCommon
-		artPersistencyProvenance
-		artFrameworkIOSources
-		artFrameworkIOCatalog
-		artFrameworkServicesRegistry
-		artParameterSet
-		artMessageLogger
-		artFrameworkCore
-		artUtilities
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_THREAD_LIBRARY}
-		${CLHEP}
-		${REFLEX}
-		${CORE} )
+#link_libraries( artFrameworkIOCommon
+#                artPersistencyCommon
+#		artPersistencyProvenance
+#		artFrameworkIOSources
+#		artFrameworkIOCatalog
+#		artFrameworkServicesRegistry
+#		artParameterSet
+#		artMessageLogger
+#		artFrameworkCore
+#		artUtilities
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${Boost_THREAD_LIBRARY}
+#		${CLHEP}
+#		${REFLEX}
+#		${CORE} )
 
 add_library(artFrameworkIOInput SHARED ${artFrameworkIOInput_sources} )
 

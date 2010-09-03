@@ -9,11 +9,11 @@ set( artFrameworkServicesRegistry_sources ActivityRegistry.cc
 				   ServiceToken.cc
 				   ServiceWrapperBase.cc )
 
-link_libraries( artUtilities
-                artParameterSet
-		artFrameworkPluginManager
-                ${Boost_FILESYSTEM_LIBRARY}
-		${SIGC} )
+#link_libraries( artUtilities
+#                artParameterSet
+#		artFrameworkPluginManager
+#                ${Boost_FILESYSTEM_LIBRARY}
+#		${SIGC} )
 
 add_library(artFrameworkServicesRegistry SHARED ${artFrameworkServicesRegistry_sources} )
 

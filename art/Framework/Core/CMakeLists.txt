@@ -55,22 +55,22 @@ set( artFrameworkCore_sources Actions.cc
 			     WorkerMaker.cc
 			     WorkerRegistry.cc )
 
-link_libraries( artPersistencyProvenance
-                artPersistencyCommon
-		artMessageLogger
-		artFrameworkServicesBasic
-		artFrameworkCore
-		artParameterSet
-		artFrameworkPluginManager
-		artFrameworkServicesRegistry
-		artUtilities
-		artVersion
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                ${SIGC}
-		${CORE}
-		${REFLEX}
-		${MATRIX} )
+#link_libraries( artPersistencyProvenance
+#                artPersistencyCommon
+#		artMessageLogger
+#		artFrameworkServicesBasic
+#		artFrameworkCore
+#		artParameterSet
+#		artFrameworkPluginManager
+#		artFrameworkServicesRegistry
+#		artUtilities
+#		artVersion
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#                ${SIGC}
+#		${CORE}
+#		${REFLEX}
+#		${MATRIX} )
 
 add_library(artFrameworkCore SHARED ${artFrameworkCore_sources} )
 

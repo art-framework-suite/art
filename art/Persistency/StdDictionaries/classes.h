@@ -1,9 +1,9 @@
-#include <map>
-#include <vector>
-#include <list>
 #include <deque>
+#include <list>
+#include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace {
   struct dictionary {

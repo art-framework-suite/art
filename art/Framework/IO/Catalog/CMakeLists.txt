@@ -3,10 +3,10 @@ project(artFrameworkIOCatalog)
 
 set( artFrameworkIOCatalog_sources FileCatalog.cc InputFileCatalog.cc )
 
-link_libraries( artFrameworkServicesRegistry
-                artParameterSet
-		artUtilities
-                ${Boost_FILESYSTEM_LIBRARY}  )
+#link_libraries( artFrameworkServicesRegistry
+#                artParameterSet
+#		artUtilities
+#                ${Boost_FILESYSTEM_LIBRARY}  )
 
 add_library(artFrameworkIOCatalog SHARED ${artFrameworkIOCatalog_sources} )
 

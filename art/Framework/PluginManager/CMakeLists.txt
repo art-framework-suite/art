@@ -16,9 +16,9 @@ set( artFrameworkPluginManager_sources CacheParser.cc
 				 SharedLibrary.cc
 				 standard.cc )
 
-link_libraries( artUtilities
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${SIGC} )
+#link_libraries( artUtilities
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${SIGC} )
 
 add_library(artFrameworkPluginManager SHARED ${artFrameworkPluginManager_sources} )
 

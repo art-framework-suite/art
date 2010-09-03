@@ -12,12 +12,12 @@ set( artPersistencyCommon_sources CacheStreamers.cc
 			       RefCoreStreamer.cc
 			       traits.cc)
 
-link_libraries( artUtilities
-                artFrameworkServicesRegistry
-		${Boost_THREAD_LIBRARY}
-		${REFLEX}
-		${MATRIX}
-		${CORE} )
+#link_libraries( artUtilities
+#                artFrameworkServicesRegistry
+#		${Boost_THREAD_LIBRARY}
+#		${REFLEX}
+#		${MATRIX}
+#		${CORE} )
 
 add_library(artPersistencyCommon SHARED ${artPersistencyCommon_sources} )
 
