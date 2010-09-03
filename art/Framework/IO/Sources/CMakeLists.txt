@@ -7,7 +7,7 @@ set( artFrameworkIOSources_sources EDInputSource.cc
 			   VectorInputSource.cc
 			   VectorInputSourceFactory.cc )
 
-link_libraries( ${Boost_FILESYSTEM_LIBRARY}  )
+#link_libraries( ${Boost_FILESYSTEM_LIBRARY}  )
 
 add_library(artFrameworkIOSources SHARED ${artFrameworkIOSources_sources} )
 

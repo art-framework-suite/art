@@ -40,10 +40,10 @@ set( artPersistencyProvenance_sources BranchChildren.cc
 				   TransientStreamer.cc )
 
 
-link_libraries( artUtilities
-		${Boost_THREAD_LIBRARY}
-		${REFLEX}
-		${CORE} )
+#link_libraries( artUtilities
+#		${Boost_THREAD_LIBRARY}
+#		${REFLEX}
+#		${CORE} )
 
 add_library(artPersistencyProvenance SHARED ${artPersistencyProvenance_sources} )
 

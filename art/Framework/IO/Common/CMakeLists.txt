@@ -3,8 +3,8 @@ project(artFrameworkIOCommon)
 
 set( artFrameworkIOCommon_sources RootServiceChecker.cc )
 
-link_libraries( artUtilities
-                artFrameworkServicesRegistry )
+#link_libraries( artUtilities
+#                artFrameworkServicesRegistry )
 
 add_library(artFrameworkIOCommon SHARED ${artFrameworkIOCommon_sources} )
 

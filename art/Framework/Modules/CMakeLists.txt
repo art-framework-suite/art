@@ -10,11 +10,11 @@ set( artFrameworkModules_sources AsciiOutputModule.cc
 			   XMLOutputModule.cc )
 
 
-link_libraries( DataFormatsProvenance
-                artFrameworkCore
-                artParameterSet
- 		${Boost_FILESYSTEM_LIBRARY}
-		${REFLEX} )
+#link_libraries( DataFormatsProvenance
+#                artFrameworkCore
+#                artParameterSet
+# 		${Boost_FILESYSTEM_LIBRARY}
+#		${REFLEX} )
 
 add_library(artFrameworkModules SHARED ${artFrameworkModules_sources} )
 

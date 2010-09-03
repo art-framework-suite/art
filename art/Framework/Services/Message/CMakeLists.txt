@@ -21,12 +21,12 @@ set( artFrameworkServicesMessage_sources ELadministrator.cc
 				   MsgContext.cc
 				   SingleThreadMSPresence.cc )
 
-link_libraries( artPersistencyProvenance
-		artFrameworkServicesRegistry
-		artMessageLogger
-		artParameterSet
-		artUtilities
-                ${Boost_THREAD_LIBRARY} )
+#link_libraries( artPersistencyProvenance
+#		artFrameworkServicesRegistry
+#		artMessageLogger
+#		artParameterSet
+#		artUtilities
+#                ${Boost_THREAD_LIBRARY} )
 
 add_library(artFrameworkServicesMessage SHARED ${artFrameworkServicesMessage_sources} )
 

@@ -152,13 +152,9 @@ install (FILES ${art_BINARY_DIR}/ups/art.table
 # cmake will automatically order the library builds according to declared dependencies
 subdirs (art/Version)
 subdirs (art/Utilities)
-subdirs (art/ParameterSet)
-subdirs (art/Framework/Core)
-subdirs (art/Framework/IO)
-subdirs (art/Framework/Modules)
-subdirs (art/Framework/PluginManager)
-subdirs (art/Framework/Services)
-subdirs (art/MessageLogger)
+#subdirs (art/ParameterSet)
+subdirs (art/Framework)
+#subdirs (art/MessageLogger)
 subdirs (art/Persistency)
 
 #testing

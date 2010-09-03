@@ -26,12 +26,12 @@ set( artUtilities_sources CPUTimer.cc
 		       UnixSignalHandlers.cc
 		       WrappedClassName.cc )
 
-link_libraries( ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_REGEX_LIBRARY}
-		${Boost_THREAD_LIBRARY}
-		${REFLEX}
-		${CINT}
-		dl )
+#link_libraries( ${Boost_FILESYSTEM_LIBRARY}
+#                ${Boost_REGEX_LIBRARY}
+#		${Boost_THREAD_LIBRARY}
+#		${REFLEX}
+#		${CINT}
+#		dl )
 
 add_library(artUtilities SHARED ${artUtilities_sources} )
 
