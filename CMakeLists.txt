@@ -136,26 +136,14 @@ macro (simple_plugin name)
   install( TARGETS ${name}  DESTINATION lib )
 endmacro (simple_plugin name)
 
-# create package configuration and version files
-configure_file ( ${art_SOURCE_DIR}/ups/art-config.cmake.in
-                 ${art_BINARY_DIR}/ups/art-config.cmake @ONLY )
-configure_file ( ${art_SOURCE_DIR}/ups/art-config-version.cmake.in
-                 ${art_BINARY_DIR}/ups/art-config-version.cmake @ONLY )
-configure_file ( ${art_SOURCE_DIR}/ups/art.table.in
-                 ${art_BINARY_DIR}/ups/art.table @ONLY )
-install (FILES ${art_BINARY_DIR}/ups/art-config.cmake
-               ${art_BINARY_DIR}/ups/art-config-version.cmake
-	 DESTINATION lib/art-${version} )
-install (FILES ${art_BINARY_DIR}/ups/art.table
-	 DESTINATION ups )
-# subdirectories
-# cmake will automatically order the library builds according to declared dependencies
-subdirs (art/Version)
-subdirs (art/Utilities)
-#subdirs (art/ParameterSet)
-subdirs (art/Framework)
-#subdirs (art/MessageLogger)
-subdirs (art/Persistency)
+# source
+subdirs (art)
 
-#testing
+# testing
 subdirs(test)
+
+# documentation
+subdirs(doc)
+
+# ups - table and config files
+subdirs(ups)
