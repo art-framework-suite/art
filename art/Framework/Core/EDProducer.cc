@@ -1,28 +1,32 @@
 /*----------------------------------------------------------------------
 
-
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/SubRun.h"
-#include "art/Framework/Core/Run.h"
 
+#include "art/Framework/Core/EDProducer.h"
+
+#include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/Run.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 
-namespace edm {
-  EDProducer::EDProducer() :
-      ProducerBase(),
-      EngineCreator(),
-      moduleDescription_(),
-      current_context_(0) {}
+
+namespace edm
+{
+
+  EDProducer::EDProducer()
+    : ProducerBase()
+    //, EngineCreator()
+    , moduleDescription_()
+    , current_context_(0)
+  { }
 
   EDProducer::~EDProducer() { }
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
-			     CurrentProcessingContext const* cpc) {
+                             CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_);
     this->produce(e);
@@ -42,7 +46,7 @@ namespace edm {
 
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->beginRun(r);
@@ -52,7 +56,7 @@ namespace edm {
 
   bool
   EDProducer::doEndRun(RunPrincipal & rp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->endRun(r);
@@ -62,7 +66,7 @@ namespace edm {
 
   bool
   EDProducer::doBeginSubRun(SubRunPrincipal & lbp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun lb(lbp, moduleDescription_);
     this->beginSubRun(lb);
@@ -72,7 +76,7 @@ namespace edm {
 
   bool
   EDProducer::doEndSubRun(SubRunPrincipal & lbp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun lb(lbp, moduleDescription_);
     this->endSubRun(lb);
@@ -110,4 +114,5 @@ namespace edm {
                               std::string const& moduleLabel) {
     iDesc.setUnknown();
   }
-}
+
+}  // namespace edm

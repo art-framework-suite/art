@@ -30,9 +30,9 @@ function one_file() {
       # Success!
       mv -f "$TMP" "$F"
   fi
-  
+
   # Lumi fix for file name
-  local Fnew=$(echo "$F" | perl -wp -f fix-lumi.pl 2>/dev/null) 
+  local Fnew=$(echo "$F" | perl -wp -f fix-lumi.pl 2>/dev/null)
   if [[ -n "$Fnew" ]] && [[ "$Fnew" != "$F" ]]; then
       if [[ -e "$Fnew" ]]; then # Oops
           echo "Unable to rename \"$F\" to already-existing file \"$Fnew\"" 1>&2

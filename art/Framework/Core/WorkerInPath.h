@@ -67,7 +67,7 @@ namespace edm {
 	// may want to change the return value from the worker to be
 	// the Worker::FilterAction so conditions in the path will be easier to
 	// identify
-	rc = worker_->doWork<T>(ep, es, cpc);
+	rc = worker_->doWork<T>(ep, cpc);
 
         // Ignore return code for non-event (e.g. run, subRun) calls
 	if (!T::isEvent_) rc = true;

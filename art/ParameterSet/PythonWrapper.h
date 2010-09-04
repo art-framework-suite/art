@@ -1,3 +1,4 @@
+#if 0
 #ifndef ParameterSet_PythonWrapper_h
 #define ParameterSet_PythonWrapper_h
 
@@ -46,4 +47,4 @@ pythonToCppException(const std::string& iType);
 }
 
 #endif
-
+#endif  // 0

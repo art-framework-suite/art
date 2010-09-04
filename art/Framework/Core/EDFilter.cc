@@ -1,24 +1,26 @@
 /*----------------------------------------------------------------------
 
-
 ----------------------------------------------------------------------*/
 
+
 #include "art/Framework/Core/EDFilter.h"
+
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
-
+#include "art/Framework/Core/SubRun.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
+
 
 namespace edm
 {
+
   EDFilter::~EDFilter()
   { }
 
   bool
   EDFilter::doEvent(EventPrincipal& ep,
-		     CurrentProcessingContext const* cpc) {
+                     CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Event e(ep, moduleDescription_);
@@ -38,7 +40,7 @@ namespace edm
 
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
@@ -49,7 +51,7 @@ namespace edm
 
   bool
   EDFilter::doEndRun(RunPrincipal & rp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
@@ -60,7 +62,7 @@ namespace edm
 
   bool
   EDFilter::doBeginSubRun(SubRunPrincipal & lbp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     SubRun lb(lbp, moduleDescription_);
@@ -71,7 +73,7 @@ namespace edm
 
   bool
   EDFilter::doEndSubRun(SubRunPrincipal & lbp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     SubRun lb(lbp, moduleDescription_);
@@ -111,4 +113,4 @@ namespace edm
     iDesc.setUnknown();
   }
 
-}
+}  // namespace edm

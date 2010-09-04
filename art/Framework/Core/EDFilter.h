@@ -8,27 +8,36 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/EngineCreator.h"
+
+//#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/ParameterSet/ParameterSetfwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include <string>
 
-namespace edm {
+namespace edm
+{
 
-  class EDFilter : public ProducerBase, public EngineCreator {
+  class EDFilter
+    : public ProducerBase
+    //, public EngineCreator
+  {
   public:
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
     typedef WorkerT<EDFilter> WorkerType;
 
-    EDFilter() : ProducerBase(), EngineCreator(), moduleDescription_(), current_context_(0) {}
+    EDFilter()
+      : ProducerBase()
+      //, EngineCreator()
+      , moduleDescription_()
+      , current_context_(0)
+    { }
     virtual ~EDFilter();
     static void fillDescription(edm::ParameterSetDescription& iDesc,
                                 std::string const& moduleLabel);
@@ -40,17 +49,17 @@ namespace edm {
 
   private:
     bool doEvent(EventPrincipal& ep,
-		  CurrentProcessingContext const* cpc);
+                  CurrentProcessingContext const* cpc);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal & rp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal & rp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doBeginSubRun(SubRunPrincipal & lbp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doEndSubRun(SubRunPrincipal & lbp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
@@ -79,6 +88,7 @@ namespace edm {
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_EDFilter_h

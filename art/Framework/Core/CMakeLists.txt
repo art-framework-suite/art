@@ -10,7 +10,6 @@ set( artFrameworkCore_sources Actions.cc
 			     DelayedReader.cc
 			     EDAnalyzer.cc
 			     EDFilter.cc
-			     EDLooper.cc
 			     EDProducer.cc
 			     EPStates.cc
 			     Event.cc
@@ -96,7 +95,6 @@ install(FILES Actions.h
 	      DelayedReader.h
 	      EDAnalyzer.h
 	      EDFilter.h
-	      EDLooper.h
 	      EDProducer.h
 	      EngineCreator.h
 	      Event.h

@@ -11,7 +11,6 @@
 
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
-#include "art/Framework/Core/EDLooper.h"
 #include "art/Framework/Core/EPStates.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/IOVSyncValue.h"
@@ -26,7 +25,6 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ProcessDesc.h"
-#include "art/ParameterSet/PythonProcessDesc.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -245,32 +243,6 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  boost::shared_ptr<edm::EDLooper>
-  fillLooper( ParameterSet const& params,
-              EventProcessor::CommonParams const& common)
-  {
-    boost::shared_ptr<edm::EDLooper> vLooper;
-
-    std::vector<std::string> loopers =
-      params.getParameter<std::vector<std::string> >("@all_loopers");
-
-    if(loopers.size() == 0) {
-       return vLooper;
-    }
-
-    assert(1 == loopers.size());
-
-    for(std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end();
-	itName != itNameEnd;
-	++itName)
-      {
-	ParameterSet providerPSet = params.getParameter<ParameterSet>(*itName);
-      }
-      return vLooper;
-
-  }
-
-  // ---------------------------------------------------------------
   EventProcessor::EventProcessor(std::string const& config,
 				ServiceToken const& iToken,
 				serviceregistry::ServiceLegacy iLegacy,
@@ -299,12 +271,10 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    looper_(),
     shouldWeStop_(false),
-    alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
+    alreadyHandlingException_(false)
   {
-    boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<edm::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
@@ -335,12 +305,10 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    looper_(),
     shouldWeStop_(false),
-    alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
+    alreadyHandlingException_(false)
   {
-    boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<edm::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
@@ -371,10 +339,8 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    looper_(),
     shouldWeStop_(false),
-    alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
+    alreadyHandlingException_(false)
   {
     init(processDesc, token, legacy);
   }
@@ -404,14 +370,12 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    looper_(),
     shouldWeStop_(false),
-    alreadyHandlingException_(false),
-    forceLooperToEnd_(false)
+    alreadyHandlingException_(false)
   {
     if(isPython)
     {
-      boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+      boost::shared_ptr<edm::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
     else
@@ -487,9 +451,6 @@ namespace edm {
     			   maxEventsPset_.getUntrackedParameter<int>("input", -1),
     			   maxSubRunsPset_.getUntrackedParameter<int>("input", -1));
 
-    looper_ = fillLooper(*parameterSet, common);
-    if (looper_) looper_->setActionTable(&act_table_);
-
     input_= makeInput(*parameterSet, common, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
@@ -534,7 +495,6 @@ namespace edm {
     // manually destroy all these thing that may need the services around
     schedule_.reset();
     input_.reset();
-    looper_.reset();
     wreg_.clear();
     actReg_.reset();
   }
@@ -648,9 +608,6 @@ namespace edm {
     // added and do 'run'
     // again.  In that case the newly added Module needs its 'beginJob'
     // to be called.
-    if(looper_) {
-       looper_->beginOfJob();
-    }
     try {
       input_->doBeginJob();
     } catch(cms::Exception& e) {
@@ -684,9 +641,6 @@ namespace edm {
     c.call(boost::bind(&EventProcessor::terminateMachine, this));
     c.call(boost::bind(&Schedule::endJob, schedule_.get()));
     c.call(boost::bind(&InputSource::doEndJob, input_));
-    if (looper_) {
-      c.call(boost::bind(&EDLooper::endOfJob, looper_));
-    }
     c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
     if (c.hasThrown()) {
       c.rethrow();
@@ -1119,16 +1073,12 @@ namespace edm {
         // threads becomes more complex this may cause problems.
         if (state_ == sStopping) {
           FDEBUG(1) << "In main processing loop, encountered sStopping state\n";
-          forceLooperToEnd_ = true;
           machine_->process_event(statemachine::Stop());
-          forceLooperToEnd_ = false;
           break;
         }
         else if (state_ == sShuttingDown) {
           FDEBUG(1) << "In main processing loop, encountered sShuttingDown state\n";
-          forceLooperToEnd_ = true;
           machine_->process_event(statemachine::Stop());
-          forceLooperToEnd_ = false;
           break;
         }
 
@@ -1138,9 +1088,7 @@ namespace edm {
           if (edm::shutdown_flag) {
             changeState(mShutdownSignal);
             returnCode = epSignal;
-            forceLooperToEnd_ = true;
             machine_->process_event(statemachine::Stop());
-            forceLooperToEnd_ = false;
             break;
 	  }
         }
@@ -1327,18 +1275,10 @@ namespace edm {
 
   void EventProcessor::startingNewLoop() {
     shouldWeStop_ = false;
-    if (looper_) {
-      looper_->doStartingNewLoop();
-    }
     FDEBUG(1) << "\tstartingNewLoop\n";
   }
 
   bool EventProcessor::endOfLoop() {
-    if (looper_) {
-      EDLooper::Status status = looper_->doEndOfLoop();
-      if (status != EDLooper::kContinue || forceLooperToEnd_) return true;
-      else return false;
-    }
     FDEBUG(1) << "\tendOfLoop\n";
     return true;
   }
@@ -1350,7 +1290,6 @@ namespace edm {
   }
 
   void EventProcessor::prepareForNextLoop() {
-    looper_->prepareForNextLoop();
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
@@ -1381,7 +1320,6 @@ namespace edm {
       << "The EventProcessor state machine encountered an unexpected event\n"
       << "and went to the error state\n"
       << "Will attempt to terminate processing normally\n"
-      << "(IF using the looper the next loop will be attempted)\n"
       << "This likely indicates a bug in an input module or corrupted input or both\n";
     stateMachineWasInErrorState_ = true;
   }
@@ -1399,7 +1337,7 @@ namespace edm {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
-                    SubRunID::maxSubRunnosityBlockNumber(),
+                    SubRunID::maxSubRunNumber(),
                     runPrincipal.endTime());
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
@@ -1433,7 +1371,7 @@ namespace edm {
   }
 
   int EventProcessor::readAndCacheSubRun() {
-    principalCache_.insert(input_->readSubRunnosityBlock(principalCache_.runPrincipalPtr()));
+    principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
     FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
     return principalCache_.subRunPrincipal().subRun();
   }
@@ -1467,11 +1405,6 @@ namespace edm {
     IOVSyncValue ts(sm_evp_->id(), sm_evp_->subRun(), sm_evp_->time());
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
 
-    if (looper_) {
-      EDLooper::Status status = looper_->doDuringLoop(*sm_evp_);
-      if (status != EDLooper::kContinue) shouldWeStop_ = true;
-    }
-
     FDEBUG(1) << "\tprocessEvent\n";
   }
 
@@ -1500,9 +1433,7 @@ namespace edm {
   void EventProcessor::terminateMachine() {
     if (machine_.get() != 0) {
       if (!machine_->terminated()) {
-        forceLooperToEnd_ = true;
         machine_->process_event(statemachine::Stop());
-        forceLooperToEnd_ = false;
       }
       else {
         FDEBUG(1) << "EventProcess::terminateMachine  The state machine was already terminated \n";

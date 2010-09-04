@@ -3,7 +3,6 @@
 
 #include "art/Framework/Core/Factory.h"
 #include "art/Framework/Core/WorkerMaker.h"
-#include "art/ParameterSet/ParameterSetDescriptionFillerPluginFactory.h"
 // The following includes are temporary until a better
 // solution can be found.  Placing these includes here
 // leads to more physical coupling than is probably necessary.
@@ -11,16 +10,17 @@
 // implementation file (one every for each XXXWorker) and
 // then include all the relevent worker headers in the
 // implementation file only.
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/OutputWorker.h"
+#include "art/Framework/Core/WorkerT.h"
 
 
 #define DEFINE_FWK_MODULE(type) \
-  DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+  //DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
 
 #define DEFINE_ANOTHER_FWK_MODULE(type) \
-  DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+  //DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
 
-// for backward comatibility
+// for backward compatibility
 #include "art/Framework/PluginManager/ModuleDef.h"
-#endif
+
+#endif  // Framework_MakerMacros_h

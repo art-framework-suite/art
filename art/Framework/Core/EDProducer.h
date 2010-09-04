@@ -6,10 +6,9 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Core/EngineCreator.h"
+//#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
@@ -18,8 +17,14 @@ EDProducts into an Event.
 
 #include <string>
 
-namespace edm {
-  class EDProducer : public ProducerBase, public EngineCreator {
+
+namespace edm
+{
+
+  class EDProducer
+    : public ProducerBase
+    //, public EngineCreator
+  {
   public:
     template <typename T> friend class WorkerT;
     typedef EDProducer ModuleType;
@@ -37,18 +42,18 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal& ep
-		   CurrentProcessingContext const* cpcp);
+    bool doEvent(EventPrincipal& ep,
+                   CurrentProcessingContext const* cpcp);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal & rp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal & rp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doBeginSubRun(SubRunPrincipal & lbp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doEndSubRun(SubRunPrincipal & lbp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
@@ -77,6 +82,7 @@ namespace edm {
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_EDProducer_h

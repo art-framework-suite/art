@@ -1,24 +1,26 @@
 /*----------------------------------------------------------------------
 
-
 ----------------------------------------------------------------------*/
 
+
 #include "art/Framework/Core/EDAnalyzer.h"
+
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
-
+#include "art/Framework/Core/SubRun.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
+
 
 namespace edm
 {
+
   EDAnalyzer::~EDAnalyzer()
   { }
 
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
     this->analyze(e);
@@ -37,7 +39,7 @@ namespace edm
 
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
     this->beginRun(r);
@@ -46,7 +48,7 @@ namespace edm
 
   bool
   EDAnalyzer::doEndRun(RunPrincipal const& rp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
     this->endRun(r);
@@ -55,7 +57,7 @@ namespace edm
 
   bool
   EDAnalyzer::doBeginSubRun(SubRunPrincipal const& lbp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun lb(const_cast<SubRunPrincipal &>(lbp), moduleDescription_);
     this->beginSubRun(lb);
@@ -64,7 +66,7 @@ namespace edm
 
   bool
   EDAnalyzer::doEndSubRun(SubRunPrincipal const& lbp,
-			CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun lb(const_cast<SubRunPrincipal &>(lbp), moduleDescription_);
     this->endSubRun(lb);
@@ -102,5 +104,4 @@ namespace edm
     iDesc.setUnknown();
   }
 
-}
-
+}  // namespace edm

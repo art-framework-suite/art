@@ -1,3 +1,5 @@
+#if 0
+
 #include "art/ParameterSet/PythonParameterSet.h"
 #include "art/ParameterSet/PythonProcessDesc.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -99,4 +101,4 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 
 }
 
-
+#endif  // 0

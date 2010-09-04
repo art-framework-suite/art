@@ -47,12 +47,12 @@ namespace edm {
       data coming from the input source.
     */
     enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
-		 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
+                 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
 
     enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
-	       mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
-	       mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
-	       mAny, mDtor, mException, mInputRewind };
+               mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
+               mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
+               mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
   }
@@ -67,13 +67,13 @@ namespace edm {
     // 'defaultServices' are overridden by 'config'.
     // 'forcedServices' cause an exception if the same service is specified in 'config'.
     explicit EventProcessor(std::string const& config,
-			    ServiceToken const& token = ServiceToken(),
-			    serviceregistry::ServiceLegacy =
-			      serviceregistry::kOverlapIsError,
-			    std::vector<std::string> const& defaultServices =
-			      std::vector<std::string>(),
-			    std::vector<std::string> const& forcedServices =
-			      std::vector<std::string>());
+                            ServiceToken const& token = ServiceToken(),
+                            serviceregistry::ServiceLegacy =
+                              serviceregistry::kOverlapIsError,
+                            std::vector<std::string> const& defaultServices =
+                              std::vector<std::string>(),
+                            std::vector<std::string> const& forcedServices =
+                              std::vector<std::string>());
 
     // Same as previous constructor, but without a 'token'.  Token will be defaulted.
 
@@ -220,21 +220,21 @@ namespace edm {
     struct CommonParams
     {
       CommonParams():
-	processName_(),
-	releaseVersion_(),
-	passID_(),
-	maxEventsInput_(),
-	maxSubRunsInput_()
+        processName_(),
+        releaseVersion_(),
+        passID_(),
+        maxEventsInput_(),
+        maxSubRunsInput_()
       { }
 
       CommonParams(std::string const& processName,
-		   ReleaseVersion const& releaseVersion,
-		   PassID const& passID,
-		   int maxEvents,
-		   int maxSubRuns):
-	processName_(processName),
-	releaseVersion_(releaseVersion),
-	passID_(passID),
+                   ReleaseVersion const& releaseVersion,
+                   PassID const& passID,
+                   int maxEvents,
+                   int maxSubRuns):
+        processName_(processName),
+        releaseVersion_(releaseVersion),
+        passID_(passID),
         maxEventsInput_(maxEvents),
         maxSubRunsInput_(maxSubRuns)
       { }
@@ -253,7 +253,6 @@ namespace edm {
     //       2 - input maxEvents parameter limit reached
     //       3 - output maxEvents parameter limit reached
     //       4 - input maxSubRuns parameter limit reached
-    //       5 - looper directs processing to end
     // The function "runEventCount" will pause after processing the
     // number of input events specified by the argument.  One can
     // call it again to resume processing at the same point.  This
@@ -376,8 +375,8 @@ namespace edm {
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    ParameterSet			          maxEventsPset_;
-    ParameterSet			          maxSubRunsPset_;
+    ParameterSet                                  maxEventsPset_;
+    ParameterSet                                  maxSubRunsPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
@@ -400,7 +399,6 @@ namespace edm {
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
     boost::shared_ptr<FileBlock>                  fb_;
-    boost::shared_ptr<EDLooper>                   looper_;
 
     std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;
@@ -414,7 +412,6 @@ namespace edm {
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageSubRuns_;
     bool                                          alreadyHandlingException_;
-    bool                                          forceLooperToEnd_;
 
     friend class event_processor::StateSentry;
   }; // class EventProcessor

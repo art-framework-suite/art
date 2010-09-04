@@ -5,9 +5,9 @@
 #include "art/Framework/Core/InputSource.h"
 
 #define DEFINE_FWK_INPUT_SOURCE(type) \
-  DEFINE_EDM_PLUGIN (edm::InputSourcePluginFactory,type,#type)
+  //DEFINE_EDM_PLUGIN (edm::InputSourcePluginFactory,type,#type)
 
 #define DEFINE_ANOTHER_FWK_INPUT_SOURCE(type) \
-  DEFINE_EDM_PLUGIN (edm::InputSourcePluginFactory,type,#type)
+  //DEFINE_EDM_PLUGIN (edm::InputSourcePluginFactory,type,#type)
 
 #endif

@@ -1,3 +1,4 @@
+#if 0
 #ifndef PythonProcessDesc_h
 #define PythonProcessDesc_h
 
@@ -43,4 +44,4 @@ private:
 };
 
 #endif
-
+#endif  // 0

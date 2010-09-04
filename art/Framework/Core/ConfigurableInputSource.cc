@@ -2,15 +2,15 @@
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/LuminosityBlockAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Core/ConfigurableInputSource.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/LuminosityBlockPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/LuminosityBlock.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 
 namespace edm {
@@ -19,24 +19,24 @@ namespace edm {
   static const unsigned int kAveEventPerSec = 200U;
 
   ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
-				       InputSourceDescription const& desc, bool realData) :
+                                       InputSourceDescription const& desc, bool realData) :
     InputSource(pset, desc),
     numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
-    numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
+    numberEventsInSubRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInSubRun", remainingEvents())),
     presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
     origTime_(presentTime_),
     timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
     eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
     numberEventsInThisRun_(0),
-    numberEventsInThisLumi_(0),
+    numberEventsInThisSubRun_(0),
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
     eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
     origEventID_(eventID_),
-    luminosityBlock_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
-    origLuminosityBlockNumber_t_(luminosityBlock_),
+    subRun_(pset.getUntrackedParameter<unsigned int>("firstSubRun", 1)),
+    origSubRunNumber_t_(subRun_),
     newRun_(true),
-    newLumi_(true),
-    lumiSet_(false),
+    newSubRun_(true),
+    subRunSet_(false),
     eventSet_(false),
     ep_(0),
     isRealData_(realData),
@@ -65,35 +65,35 @@ namespace edm {
     return runPrincipal;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  ConfigurableInputSource::readLuminosityBlock_() {
-    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockPrincipal>();
+  boost::shared_ptr<SubRunPrincipal>
+  ConfigurableInputSource::readSubRun_() {
+    if (processingMode() == Runs) return boost::shared_ptr<SubRunPrincipal>();
     Timestamp ts = Timestamp(presentTime_);
-    LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), luminosityBlock_, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
-        new LuminosityBlockPrincipal(
-	    lumiAux, productRegistry(), processConfiguration()));
-    LuminosityBlock lb(*lumiPrincipal, moduleDescription());
-    beginLuminosityBlock(lb);
+    SubRunAuxiliary subRunAux(runPrincipal()->run(), subRun_, ts, Timestamp::invalidTimestamp());
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipal(
+        new SubRunPrincipal(
+            subRunAux, productRegistry(), processConfiguration()));
+    SubRun lb(*subRunPrincipal, moduleDescription());
+    beginSubRun(lb);
     lb.commit_();
-    newLumi_ = false;
-    return lumiPrincipal;
+    newSubRun_ = false;
+    return subRunPrincipal;
   }
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::readEvent_() {
-    assert(ep_.get() != 0 || processingMode() != RunsLumisAndEvents);
+    assert(ep_.get() != 0 || processingMode() != RunsSubRunsAndEvents);
     return ep_;
   }
 
   void
-  ConfigurableInputSource::reallyReadEvent(LuminosityBlockNumber_t lumi) {
-    if (processingMode() != RunsLumisAndEvents) return;
+  ConfigurableInputSource::reallyReadEvent(SubRunNumber_t subRun) {
+    if (processingMode() != RunsSubRunsAndEvents) return;
     EventSourceSentry sentry(*this);
     EventAuxiliary eventAux(eventID_,
-      processGUID(), Timestamp(presentTime_), lumi, isRealData_, eType_);
+      processGUID(), Timestamp(presentTime_), subRun, isRealData_, eType_);
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
+        new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
       ep_.reset();
@@ -121,11 +121,11 @@ namespace edm {
     // Do nothing if the run is not changed.
     if (r != eventID_.run()) {
       eventID_ = EventID(r, zerothEvent_);
-      luminosityBlock_ = origLuminosityBlockNumber_t_;
+      subRun_ = origSubRunNumber_t_;
       numberEventsInThisRun_ = 0;
-      numberEventsInThisLumi_ = 0;
-      newRun_ = newLumi_ = true;
-      resetLuminosityBlockPrincipal();
+      numberEventsInThisSubRun_ = 0;
+      newRun_ = newSubRun_ = true;
+      resetSubRunPrincipal();
       resetRunPrincipal();
     }
   }
@@ -139,38 +139,38 @@ namespace edm {
   { }
 
   void
-  ConfigurableInputSource::beginLuminosityBlock(LuminosityBlock &)
+  ConfigurableInputSource::beginSubRun(SubRun &)
   { }
 
   void
-  ConfigurableInputSource::endLuminosityBlock(LuminosityBlock &)
+  ConfigurableInputSource::endSubRun(SubRun &)
   { }
 
   void
-  ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {
-    // Protect against invalid lumi.
-    if (lb == LuminosityBlockNumber_t()) {
-	lb = origLuminosityBlockNumber_t_;
+  ConfigurableInputSource::setSubRun(SubRunNumber_t lb) {
+    // Protect against invalid subRun.
+    if (lb == SubRunNumber_t()) {
+        lb = origSubRunNumber_t_;
     }
-    // Do nothing if the lumi block is not changed.
-    if (lb != luminosityBlock_) {
-      luminosityBlock_ = lb;
-      numberEventsInThisLumi_ = 0;
-      newLumi_ = true;
-      resetLuminosityBlockPrincipal();
+    // Do nothing if the subRun is not changed.
+    if (lb != subRun_) {
+      subRun_ = lb;
+      numberEventsInThisSubRun_ = 0;
+      newSubRun_ = true;
+      resetSubRunPrincipal();
     }
-    lumiSet_ = true;
+    subRunSet_ = true;
   }
 
   void
   ConfigurableInputSource::rewind_() {
-    luminosityBlock_ = origLuminosityBlockNumber_t_;
+    subRun_ = origSubRunNumber_t_;
     presentTime_ = origTime_;
     eventID_ = origEventID_;
     numberEventsInThisRun_ = 0;
-    numberEventsInThisLumi_ = 0;
-    newRun_ = newLumi_ = true;
-    resetLuminosityBlockPrincipal();
+    numberEventsInThisSubRun_ = 0;
+    newRun_ = newSubRun_ = true;
+    resetSubRunPrincipal();
     resetRunPrincipal();
   }
 
@@ -183,14 +183,14 @@ namespace edm {
       }
       return IsRun;
     }
-    if (newLumi_) {
-      return IsLumi;
+    if (newSubRun_) {
+      return IsSubRun;
     }
     if(ep_.get() != 0) return IsEvent;
     EventID oldEventID = eventID_;
-    LuminosityBlockNumber_t oldLumi = luminosityBlock_;
+    SubRunNumber_t oldSubRun = subRun_;
     if (!eventSet_) {
-      lumiSet_ = false;
+      subRunSet_ = false;
       setRunAndEventInfo();
       eventSet_ = true;
     }
@@ -202,30 +202,30 @@ namespace edm {
       //  New Run
       // reset these since this event is in the new run
       numberEventsInThisRun_ = 0;
-      numberEventsInThisLumi_ = 0;
-      // If the user did not explicitly set the luminosity block number,
+      numberEventsInThisSubRun_ = 0;
+      // If the user did not explicitly set the subRun number,
       // reset it back to the beginning.
-      if (!lumiSet_) {
-	luminosityBlock_ = origLuminosityBlockNumber_t_;
+      if (!subRunSet_) {
+        subRun_ = origSubRunNumber_t_;
       }
-      newRun_ = newLumi_ = true;
-      resetLuminosityBlockPrincipal();
+      newRun_ = newSubRun_ = true;
+      resetSubRunPrincipal();
       resetRunPrincipal();
       return IsRun;
     }
       // Same Run
-    if (oldLumi != luminosityBlock_) {
+    if (oldSubRun != subRun_) {
       // New Subrun
-      numberEventsInThisLumi_ = 0;
-      newLumi_ = true;
-      resetLuminosityBlockPrincipal();
+      numberEventsInThisSubRun_ = 0;
+      newSubRun_ = true;
+      resetSubRunPrincipal();
       if (processingMode() != Runs) {
-        return IsLumi;
+        return IsSubRun;
       }
     }
     ++numberEventsInThisRun_;
-    ++numberEventsInThisLumi_;
-    reallyReadEvent(luminosityBlock_);
+    ++numberEventsInThisSubRun_;
+    reallyReadEvent(subRun_);
     if (ep_.get() == 0) {
       return IsStop;
     }
@@ -239,9 +239,9 @@ namespace edm {
     if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       // same run
       eventID_ = eventID_.next();
-      if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
+      if (!(numberEventsInSubRun_ < 1 || numberEventsInThisSubRun_ < numberEventsInSubRun_)) {
         // new subrun
-        ++luminosityBlock_;
+        ++subRun_;
       }
     } else {
       // new run

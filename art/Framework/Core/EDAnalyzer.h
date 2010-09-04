@@ -1,25 +1,33 @@
 #ifndef FWCore_Framework_EDAnalyzer_h
 #define FWCore_Framework_EDAnalyzer_h
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/EngineCreator.h"
+
+//#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/ParameterSet/ParameterSetfwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include <string>
 
 // EDAnalyzer is the base class for all analyzer "modules".
 
-namespace edm {
+namespace edm
+{
 
-  class EDAnalyzer : public EngineCreator {
+  class EDAnalyzer
+    //: public EngineCreator
+  {
   public:
     template <typename T> friend class WorkerT;
     typedef EDAnalyzer ModuleType;
     typedef WorkerT<EDAnalyzer> WorkerType;
 
-    EDAnalyzer() : EngineCreator(), moduleDescription_(), current_context_(0) {}
+    EDAnalyzer()
+      //: EngineCreator()
+      : moduleDescription_()
+      , current_context_(0)
+    { }
     virtual ~EDAnalyzer();
 
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
@@ -34,17 +42,17 @@ namespace edm {
 
   private:
     bool doEvent(EventPrincipal const& ep,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal const& rp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal const& rp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doBeginSubRun(SubRunPrincipal const& lbp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     bool doEndSubRun(SubRunPrincipal const& lbp,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
@@ -66,10 +74,11 @@ namespace edm {
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
-    ModuleDescription moduleDescription_;
 
+    ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_EDAnalyzer_h
