@@ -19,7 +19,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #ifdef RNGS
-//#include "art/Framework/Services/Basic/RandomNumberGeneratorService.h"
+//#include "art/Framework/Core/RandomNumberGeneratorService.h"
 #endif  // RNGS
 #include "art/Utilities/GlobalIdentifier.h"
 

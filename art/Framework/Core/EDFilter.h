@@ -11,7 +11,7 @@ These products should be informational products about the filter decision.
 ----------------------------------------------------------------------*/
 
 
-//#include "art/Framework/Core/EngineCreator.h"
+#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
@@ -25,7 +25,7 @@ namespace edm
 
   class EDFilter
     : public ProducerBase
-    //, public EngineCreator
+    , public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;
@@ -34,7 +34,7 @@ namespace edm
 
     EDFilter()
       : ProducerBase()
-      //, EngineCreator()
+      , EngineCreator()
       , moduleDescription_()
       , current_context_(0)
     { }

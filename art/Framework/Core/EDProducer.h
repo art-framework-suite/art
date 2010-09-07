@@ -8,7 +8,7 @@ EDProducts into an Event.
 
 ----------------------------------------------------------------------*/
 
-//#include "art/Framework/Core/EngineCreator.h"
+#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
@@ -23,7 +23,7 @@ namespace edm
 
   class EDProducer
     : public ProducerBase
-    //, public EngineCreator
+    , public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;
