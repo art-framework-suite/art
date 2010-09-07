@@ -46,6 +46,8 @@ include_directories ( $ENV{ROOT_DIR}/cintex/inc )
 include_directories ( $ENV{BOOST_INC} )
 include_directories ( $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0 )
 include_directories ( $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
+include_directories ( $ENV{FHICLCPP_INC} )
+include_directories ( $ENV{MESSAGEFACILITY_INC} )
 
 # define ROOT libraries
 find_library( REFLEX NAMES Reflex PATHS $ENV{ROOTSYS}/lib )
@@ -63,6 +65,16 @@ find_program( GENREFLEX NAMES genreflex PATHS $ENV{ROOTSYS}/bin )
 
 # define CLHEP
 find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
+
+# define FHICLCPP
+find_library( FHICLCPP NAMES fhiclcpp PATHS $ENV{FHICLCPP_LIB} )
+
+# define MESSAGEFACILITY
+find_library( MESSAGEFACILITY NAMES MF_MessageLogger
+                                    MF_MessageService
+                                    MF_Utilities
+                                    MF_Extensions
+                              PATHS $ENV{MESSAGEFACILITY_LIB} )
 
 # have to make sure cmake doesn't select the system libraries
 # define libsigc
