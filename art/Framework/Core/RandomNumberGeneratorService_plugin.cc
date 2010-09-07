@@ -34,7 +34,7 @@
 
 
 // Header corresponding to this implementation file:
-#include "art/Framework/Services/Basic/RandomNumberGeneratorService.h"
+#include "art/Framework/Core/RandomNumberGeneratorService.h"
   using edm::RandomNumberGeneratorService;
   using edm::RNGsnapshot;
 
@@ -58,8 +58,8 @@
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/MTwistEngine.h"
 #include "CLHEP/Random/NonRandomEngine.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/Random.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RanecuEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 #include "CLHEP/Random/RanluxEngine.h"

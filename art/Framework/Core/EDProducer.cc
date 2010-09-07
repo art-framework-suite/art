@@ -17,7 +17,7 @@ namespace edm
 
   EDProducer::EDProducer()
     : ProducerBase()
-    //, EngineCreator()
+    , EngineCreator()
     , moduleDescription_()
     , current_context_(0)
   { }

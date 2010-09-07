@@ -18,7 +18,6 @@ simple_plugin(AsciiOutputModule_plugin)
 simple_plugin(EmptySource_plugin)
 simple_plugin(EventContentAnalyzer_plugin)
 simple_plugin(Prescaler_plugin)
-simple_plugin(RandomNumberSaver_plugin)
 simple_plugin(XMLOutputModule_plugin)
 
 install ( TARGETS artFrameworkModules

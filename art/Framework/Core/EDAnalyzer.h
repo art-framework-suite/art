@@ -2,7 +2,7 @@
 #define FWCore_Framework_EDAnalyzer_h
 
 
-//#include "art/Framework/Core/EngineCreator.h"
+#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/ParameterSet/ParameterSetfwd.h"
@@ -16,7 +16,7 @@ namespace edm
 {
 
   class EDAnalyzer
-    //: public EngineCreator
+    : public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;
@@ -24,8 +24,8 @@ namespace edm
     typedef WorkerT<EDAnalyzer> WorkerType;
 
     EDAnalyzer()
-      //: EngineCreator()
-      : moduleDescription_()
+      : EngineCreator()
+      , moduleDescription_()
       , current_context_(0)
     { }
     virtual ~EDAnalyzer();

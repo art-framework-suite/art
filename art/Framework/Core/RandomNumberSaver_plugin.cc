@@ -10,10 +10,10 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
+#include "art/Framework/Core/RandomNumberGeneratorService.h"
+#include "art/Framework/Services/Registry/Service.h"
 #include "art/ParameterSet/ParameterSet.h"
-//#include "art/Framework/Services/Registry/Service.h"
-#include "art/Framework/Services/Basic/RandomNumberGeneratorService.h"
+#include "art/ParameterSet/ParameterSetDescription.h"
 
 // --- C++ support:
 #include <memory>

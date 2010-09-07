@@ -71,6 +71,9 @@ set( artFrameworkCore_sources Actions.cc
 #                ${REFLEX}
 #                ${MATRIX} )
 
+simple_plugin(RandomNumberGeneratorService_plugin)
+simple_plugin(RandomNumberSaver_plugin)
+
 add_library(artFrameworkCore SHARED ${artFrameworkCore_sources} )
 
 set( artFrameworkCoreArt_sources artapp.cc )
@@ -124,6 +127,7 @@ install(FILES Actions.h
               Principal.h
               ProducerBase.h
               ProductRegistryHelper.h
+              RandomNumberGeneratorService.h
               Run.h
               RunPrincipal.h
               Schedule.h

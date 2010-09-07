@@ -47,7 +47,6 @@ simple_plugin(EnableFloatingPointExceptions_plugin)
 simple_plugin(InitRootHandlers_plugin)
 simple_plugin(LoadAllDictionaries_plugin)
 simple_plugin(LockService_plugin)
-simple_plugin(RandomNumberGeneratorService_plugin)
 simple_plugin(SimpleMemoryCheck_plugin)
 simple_plugin(SimpleProfiling_plugin)
 simple_plugin(TFileService_plugin)
@@ -58,7 +57,6 @@ simple_plugin(UnixSignalService_plugin)
 install ( TARGETS artFrameworkServicesBasic DESTINATION lib )
 install(FILES CurrentModuleService.h
               PrintLoadingPlugins.h
-              RandomNumberGeneratorService.h
               TFileService.h
               Timing.h
               UpdaterService.h

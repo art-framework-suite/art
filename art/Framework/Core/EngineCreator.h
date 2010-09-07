@@ -10,10 +10,9 @@
 
 
 // Framework support:
-#include "art/ParameterSet/ParameterSet.h"
+#include "art/Framework/Core/RandomNumberGeneratorService.h"
 #include "art/Framework/Services/Registry/Service.h"
-//FIXME: Need to do something else as this is a circular dependency.
-//#include "art/Framework/Services/Basic/RandomNumberGeneratorService.h"
+#include "art/ParameterSet/ParameterSet.h"
 
 
 // ======================================================================
