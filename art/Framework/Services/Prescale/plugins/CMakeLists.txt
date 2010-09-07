@@ -4,7 +4,7 @@ project(artFrameworkServicesPrescalePlugins)
 set( artFrameworkServicesPrescalePlugins_sources Module.cc )
 
 #link_libraries( artFrameworkServicesPrescale
-#		artFrameworkServicesRegistry )
+#                artFrameworkServicesRegistry )
 
 add_library(artFrameworkServicesPrescalePlugins SHARED ${artFrameworkServicesPrescalePlugins_sources} )
 

@@ -4,8 +4,8 @@ project(artFrameworkServicesMessagePlugins)
 set( artFrameworkServicesMessagePlugins_sources Module.cc )
 
 #link_libraries( artFrameworkServicesMessage
-#		artFrameworkServicesRegistry
-#		artFrameworkPluginManager )
+#                artFrameworkServicesRegistry
+#                artFrameworkPluginManager )
 
 add_library(artFrameworkServicesMessagePlugins SHARED ${artFrameworkServicesMessagePlugins_sources} )
 

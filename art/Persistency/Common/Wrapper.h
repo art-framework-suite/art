@@ -152,7 +152,7 @@ namespace edm {
     struct has_swap_function
     {
       static bool const value =
-	sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
+        sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
     };
 
 #ifndef __REFLEX__
@@ -164,7 +164,7 @@ namespace edm {
     struct has_mergeProduct_function
     {
       static bool const value =
-	sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
+        sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
     };
 
     template <typename T, bool (T::*)(T const &)>  struct isProductEqual_function;
@@ -175,7 +175,7 @@ namespace edm {
     struct has_isProductEqual_function
     {
       static bool const value =
-	sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
+        sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
     };
 #endif
   }
@@ -190,8 +190,8 @@ namespace edm {
       // The following will call swap if T has such a function,
       // and use assignment if T has no such function.
       typename boost::mpl::if_c<detail::has_swap_function<T>::value,
-	DoSwap<T>,
-	DoAssign<T> >::type swap_or_assign;
+        DoSwap<T>,
+        DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);
     }
   }
