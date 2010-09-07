@@ -12,6 +12,6 @@ install ( TARGETS artFrameworkIOCommon DESTINATION lib )
 
 install(FILES ClassFiller.h
               RefStreamer.h
-	      RootServiceChecker.h
-	      TransientStreamer.h
-	DESTINATION include/art/Framework/IO/Common )
+              RootServiceChecker.h
+              TransientStreamer.h
+        DESTINATION include/art/Framework/IO/Common )

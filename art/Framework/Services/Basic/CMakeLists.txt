@@ -2,44 +2,43 @@
 project(artFrameworkServicesBasic)
 
 set( artFrameworkServicesBasic_sources CurrentModuleService.cc
-			    EnableFloatingPointExceptions.cc
-			    InitRootHandlers.cc
-			    LoadAllDictionaries.cc
-			    LockService.cc
-			    Memory.cc
-			    PrintLoadingPlugins.cc
-			    Profiling.cc
-			    ProfParse.cc
-			    RandomNumberGeneratorService.cc
-			    SimpleProfiler.cc
-			    Sym.cc
-			    TFileService.cc
-			    Timing.cc
-			    Tracer.cc
-			    UnixSignalService.cc
-			    UpdaterService.cc
-			    VertexTracker.cc )
+                                       EnableFloatingPointExceptions.cc
+                                       InitRootHandlers.cc
+                                       LoadAllDictionaries.cc
+                                       LockService.cc
+                                       Memory.cc
+                                       PrintLoadingPlugins.cc
+                                       Profiling.cc
+                                       ProfParse.cc
+                                       SimpleProfiler.cc
+                                       Sym.cc
+                                       TFileService.cc
+                                       Timing.cc
+                                       Tracer.cc
+                                       UnixSignalService.cc
+                                       UpdaterService.cc
+                                       VertexTracker.cc )
 
 #link_libraries( artPersistencyProvenance
 #                artPersistencyCommon
-#		artFrameworkServicesRegistry
-#		artFrameworkIOCatalog
-#		artMessageLogger
-#		artParameterSet
-#		artFrameworkPluginManager
-#		artFrameworkServicesRootAutoLibraryLoader
-#		artUtilitiess
-#		${Boost_FILESYSTEM_LIBRARY}
-#		${Boost_THREAD_LIBRARY}
-#		${CORE}
-#		${HIST}
-#		${TREE}
-#		${GRAF}
-#		${RIO}
-#		${NET}
-#		${CLHEP}
-#		${REFLEX}
-#		${CINTEX} )
+#                artFrameworkServicesRegistry
+#                artFrameworkIOCatalog
+#                artMessageLogger
+#                artParameterSet
+#                artFrameworkPluginManager
+#                artFrameworkServicesRootAutoLibraryLoader
+#                artUtilitiess
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${Boost_THREAD_LIBRARY}
+#                ${CORE}
+#                ${HIST}
+#                ${TREE}
+#                ${GRAF}
+#                ${RIO}
+#                ${NET}
+#                ${CLHEP}
+#                ${REFLEX}
+#                ${CINTEX} )
 
 add_library(artFrameworkServicesBasic SHARED ${artFrameworkServicesBasic_sources} )
 
@@ -58,9 +57,9 @@ simple_plugin(UnixSignalService_plugin)
 
 install ( TARGETS artFrameworkServicesBasic DESTINATION lib )
 install(FILES CurrentModuleService.h
-	      PrintLoadingPlugins.h
-	      RandomNumberGeneratorService.h
-	      TFileService.h
-	      Timing.h
-	      UpdaterService.h
-	DESTINATION include/art/Framework/Services/Basic )
+              PrintLoadingPlugins.h
+              RandomNumberGeneratorService.h
+              TFileService.h
+              Timing.h
+              UpdaterService.h
+        DESTINATION include/art/Framework/Services/Basic )

@@ -105,10 +105,10 @@ namespace edm {
   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
     if (prodGetter != 0) return prodGetter;
         throw Exception(errors::InvalidReference, refType)
-  	<< "Attempt to construct a " << refType << " with ProductID " << productID << "\n"
-  	<< "but with a null pointer to a product getter.\n"
-  	<< "The product getter pointer passed to the constructor must refer\n"
-  	<< "to a real getter, such as an EventPrincipal.\n";
+        << "Attempt to construct a " << refType << " with ProductID " << productID << "\n"
+        << "but with a null pointer to a product getter.\n"
+        << "The product getter pointer passed to the constructor must refer\n"
+        << "to a real getter, such as an EventPrincipal.\n";
   }
 
 }

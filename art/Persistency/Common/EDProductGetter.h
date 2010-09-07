@@ -59,8 +59,8 @@ namespace edm {
       friend class Operate;
 
       ProductID oldToNewProductID(ProductID const& oldProductID) const {
-	if (oldProductID.oldID() == 0) return oldProductID;
-	return oldToNewProductID_(oldProductID);
+        if (oldProductID.oldID() == 0) return oldProductID;
+        return oldToNewProductID_(oldProductID);
       }
 private:
       virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;

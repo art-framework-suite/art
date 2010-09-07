@@ -85,29 +85,29 @@ namespace edm {
       bool oncePerEventMode;
       int count_;
 
-      // Event summary statistics 				changeLog 1
+      // Event summary statistics                               changeLog 1
       struct SignificantEvent {
         int count;
-	double vsize;
-	double deltaVsize;
-	double rss;
-	double deltaRss;
-	edm::EventID event;
-	SignificantEvent() : count(0), vsize(0), deltaVsize(0),
-			     rss(0), deltaRss(0), event() {}
-	void set (double deltaV, double deltaR,
-		  edm::EventID const & e, SimpleMemoryCheck *t)
-	{ count = t->count_;
-	  vsize = t->current_->vsize;
-	  deltaVsize = deltaV;
-	  rss = t->current_->rss;
-	  deltaRss = deltaR;
-	  event = e;
-	}
+        double vsize;
+        double deltaVsize;
+        double rss;
+        double deltaRss;
+        edm::EventID event;
+        SignificantEvent() : count(0), vsize(0), deltaVsize(0),
+                             rss(0), deltaRss(0), event() {}
+        void set (double deltaV, double deltaR,
+                  edm::EventID const & e, SimpleMemoryCheck *t)
+        { count = t->count_;
+          vsize = t->current_->vsize;
+          deltaVsize = deltaV;
+          rss = t->current_->rss;
+          deltaRss = deltaR;
+          event = e;
+        }
       }; // SignificantEvent
       friend class SignificantEvent;
       friend std::ostream & operator<< (std::ostream & os,
-    		SimpleMemoryCheck::SignificantEvent const & se);
+                SimpleMemoryCheck::SignificantEvent const & se);
       SignificantEvent eventM_;
       SignificantEvent eventL1_;
       SignificantEvent eventL2_;
@@ -118,31 +118,31 @@ namespace edm {
       SignificantEvent eventT3_;
       void updateEventStats(edm::EventID const & e);
       std::string eventStatOutput(std::string title,
-      				  SignificantEvent const& e) const;
+                                  SignificantEvent const& e) const;
       void eventStatOutput(std::string title,
-    			   SignificantEvent const& e,
-			   std::map<std::string, double> &m) const;
+                           SignificantEvent const& e,
+                           std::map<std::string, double> &m) const;
       std::string mallOutput(std::string title, size_t const& n) const;
 
       // Module summary statistices
       struct SignificantModule {
         int    postEarlyCount;
-	double totalDeltaVsize;
-	double maxDeltaVsize;
-	edm::EventID eventMaxDeltaV;
-	double totalEarlyVsize;
-	double maxEarlyVsize;
-	SignificantModule() : postEarlyCount  (0)
-			    , totalDeltaVsize (0)
-			    , maxDeltaVsize   (0)
-			    , eventMaxDeltaV  ()
-			    , totalEarlyVsize (0)
-			    , maxEarlyVsize   (0)     {}
-	void set (double deltaV, bool early);
+        double totalDeltaVsize;
+        double maxDeltaVsize;
+        edm::EventID eventMaxDeltaV;
+        double totalEarlyVsize;
+        double maxEarlyVsize;
+        SignificantModule() : postEarlyCount  (0)
+                            , totalDeltaVsize (0)
+                            , maxDeltaVsize   (0)
+                            , eventMaxDeltaV  ()
+                            , totalEarlyVsize (0)
+                            , maxEarlyVsize   (0)     {}
+        void set (double deltaV, bool early);
       }; // SignificantModule
       friend class SignificantModule;
       friend std::ostream & operator<< (std::ostream & os,
-    		SimpleMemoryCheck::SignificantModule const & se);
+                SimpleMemoryCheck::SignificantModule const & se);
       bool moduleSummaryRequested;
       typedef std::map<std::string,SignificantModule> SignificantModulesMap;
       SignificantModulesMap modules_;
@@ -154,11 +154,11 @@ namespace edm {
 
     std::ostream &
     operator<< (std::ostream & os,
-    		SimpleMemoryCheck::SignificantEvent const & se);
+                SimpleMemoryCheck::SignificantEvent const & se);
 
     std::ostream &
     operator<< (std::ostream & os,
-    		SimpleMemoryCheck::SignificantModule const & se);
+                SimpleMemoryCheck::SignificantModule const & se);
 
   }
 }

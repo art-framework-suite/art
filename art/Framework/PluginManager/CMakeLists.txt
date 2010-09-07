@@ -6,15 +6,15 @@ set (artFrameworkPluginManager_VERSION_MAJOR 1)
 set (artFrameworkPluginManager_VERSION_MINOR 0)
 
 set( artFrameworkPluginManager_sources CacheParser.cc
-				 FileOperations.cc
-				 PluginCapabilities.cc
-				 PluginFactoryBase.cc
-				 PluginFactoryManager.cc
-				 PluginManager.cc
-				 PresenceFactory.cc
-				 ProblemTracker.cc
-				 SharedLibrary.cc
-				 standard.cc )
+                                       FileOperations.cc
+                                       PluginCapabilities.cc
+                                       PluginFactoryBase.cc
+                                       PluginFactoryManager.cc
+                                       PluginManager.cc
+                                       PresenceFactory.cc
+                                       ProblemTracker.cc
+                                       SharedLibrary.cc
+                                       standard.cc )
 
 #link_libraries( artUtilities
 #                ${Boost_FILESYSTEM_LIBRARY}
@@ -24,17 +24,17 @@ add_library(artFrameworkPluginManager SHARED ${artFrameworkPluginManager_sources
 
 install ( TARGETS artFrameworkPluginManager DESTINATION lib )
 install(FILES CacheParser.h
-	      FileOperations.h
-	      ModuleDef.h
-	      PluginCapabilities.h
-	      PluginFactoryBase.h
-	      PluginFactory.h
-	      PluginFactoryManager.h
-	      PluginInfo.h
-	      PluginManager.h
-	      PresenceFactory.h
-	      PresenceMacros.h
-	      ProblemTracker.h
-	      SharedLibrary.h
-	      standard.h
-	DESTINATION include/art/Framework/PluginManager )
+              FileOperations.h
+              ModuleDef.h
+              PluginCapabilities.h
+              PluginFactoryBase.h
+              PluginFactory.h
+              PluginFactoryManager.h
+              PluginInfo.h
+              PluginManager.h
+              PresenceFactory.h
+              PresenceMacros.h
+              ProblemTracker.h
+              SharedLibrary.h
+              standard.h
+        DESTINATION include/art/Framework/PluginManager )

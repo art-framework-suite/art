@@ -9,8 +9,8 @@ set( artFrameworkModules_sources
 #link_libraries( DataFormatsProvenance
 #                artFrameworkCore
 #                artParameterSet
-# 		${Boost_FILESYSTEM_LIBRARY}
-#		${REFLEX} )
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${REFLEX} )
 
 add_library(artFrameworkModules SHARED ${artFrameworkModules_sources} )
 
@@ -21,4 +21,5 @@ simple_plugin(Prescaler_plugin)
 simple_plugin(RandomNumberSaver_plugin)
 simple_plugin(XMLOutputModule_plugin)
 
-install ( TARGETS artFrameworkModules DESTINATION lib )
+install ( TARGETS artFrameworkModules
+          DESTINATION lib )
