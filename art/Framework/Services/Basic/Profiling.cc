@@ -11,7 +11,7 @@
 
 #include "art/Framework/Services/Basic/Profiling.h"
 #include "art/Framework/Services/Basic/SimpleProfiler.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 
 namespace edm {
   namespace service {

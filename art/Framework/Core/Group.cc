@@ -1,13 +1,16 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include <string>
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Framework/Core/Group.h"
-#include "art/Utilities/ReflexTools.h"
-#include "art/MessageLogger/MessageLogger.h"
 
-using Reflex::Type;
-using Reflex::TypeTemplate;
+
+#include "art/Framework/Core/Group.h"
+#include "art/Persistency/Provenance/ProductStatus.h"
+#include "art/Utilities/ReflexTools.h"
+  using Reflex::Type;
+  using Reflex::TypeTemplate;
+
+#include "MessageFacility/MessageLogger.h"
+
+#include <string>
 
 namespace edm {
 
@@ -229,10 +232,10 @@ namespace edm {
       else if (product_->hasIsProductEqual()) {
 
         if (!product_->isProductEqual(newGroup->product_.get())) {
-          edm::LogWarning  ("RunSubRunMerging")
+          mf::LogWarning  ("RunSubRunMerging")
             << "Group::mergeGroup\n"
-            << "Two run/subRun products for the same run/subRun which should be equal are not\n"
-            << "Using the first, ignoring the second\n"
+               "Two run/subRun products for the same run/subRun which should be equal are not\n"
+               "Using the first, ignoring the second\n"
             << "className = " << branchDescription_->className() << "\n"
             << "moduleLabel = " << moduleLabel() << "\n"
             << "instance = " << productInstanceName() << "\n"
@@ -240,10 +243,10 @@ namespace edm {
         }
       }
       else {
-        edm::LogWarning  ("RunSubRunMerging")
+        mf::LogWarning  ("RunSubRunMerging")
           << "Group::mergeGroup\n"
-          << "Run/subRun product has neither a mergeProduct nor isProductEqual function\n"
-          << "Using the first, ignoring the second in merge\n"
+             "Run/subRun product has neither a mergeProduct nor isProductEqual function\n"
+             "Using the first, ignoring the second in merge\n"
           << "className = " << branchDescription_->className() << "\n"
           << "moduleLabel = " << moduleLabel() << "\n"
           << "instance = " << productInstanceName() << "\n"

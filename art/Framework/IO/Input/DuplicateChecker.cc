@@ -2,7 +2,7 @@
 #include "art/Framework/IO/Input/DuplicateChecker.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Utilities/Exception.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 
 #include <cassert>

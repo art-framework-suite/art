@@ -1,5 +1,5 @@
 #include "art/Framework/Services/Basic/UpdaterService.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 #include "art/Persistency/Provenance/EventID.h"
 
 #include <iostream>

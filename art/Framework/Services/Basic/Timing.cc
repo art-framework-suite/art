@@ -7,23 +7,26 @@
 #include "art/Framework/Services/Basic/Timing.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 
-#include <iostream>
+#include "MessageFacility/MessageLogger.h"
+
 #include <sys/time.h>
+
+#include <iostream>
 
 
 namespace edm {
+
   namespace service {
 
     static double getTime()
     {
       struct timeval t;
       if(gettimeofday(&t,0)<0)
-	throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
+        throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
 
       return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
     }
@@ -53,14 +56,13 @@ namespace edm {
 
     void Timing::postBeginJob()
     {
-      //edm::LogInfo("TimeReport")
       if (not summary_only_) {
-        edm::LogAbsolute("TimeReport")
-	<< "TimeReport> Report activated" << "\n"
-	<< "TimeReport> Report columns headings for events: "
-	<< "eventnum runnum timetaken\n"
-	<< "TimeReport> Report columns headings for modules: "
-	<< "eventnum runnum modulelabel modulename timetaken";
+        mf::LogAbsolute("TimeReport")
+          << "TimeReport> Report activated\n"
+             "TimeReport> Report columns headings for events: "
+             "eventnum runnum timetaken\n"
+             "TimeReport> Report columns headings for modules: "
+             "eventnum runnum modulelabel modulename timetaken";
       }
       curr_job_ = getTime();
     }
@@ -69,28 +71,26 @@ namespace edm {
     {
       double t = getTime() - curr_job_;
       double average_event_t = t / total_event_count_;
-      //edm::LogInfo("TimeReport")
-      edm::LogAbsolute("TimeReport")				// Changelog 1
-	<< "TimeReport> Time report complete in "
-	<< t << " seconds"
-	<< "\n"
+      mf::LogAbsolute("TimeReport")                            // Changelog 1
+        << "TimeReport> Time report complete in "
+        << t << " seconds\n"
         << " Time Summary: \n"
         << " Min: " << min_event_time_ << "\n"
         << " Max: " << max_event_time_ << "\n"
         << " Avg: " << average_event_t << "\n";
       if (report_summary_){
-	std::map<std::string, double> reportData;
+        std::map<std::string, double> reportData;
 
-	reportData.insert(std::make_pair("MinEventTime", min_event_time_));
-	reportData.insert(std::make_pair("MaxEventTime", max_event_time_));
-	reportData.insert(std::make_pair("AvgEventTime", average_event_t));
-	reportData.insert(std::make_pair("TotalTime", t));
+        reportData.insert(std::make_pair("MinEventTime", min_event_time_));
+        reportData.insert(std::make_pair("MaxEventTime", max_event_time_));
+        reportData.insert(std::make_pair("AvgEventTime", average_event_t));
+        reportData.insert(std::make_pair("TotalTime", t));
       }
 
     }
 
     void Timing::preEventProcessing(const edm::EventID& iID,
-				    const edm::Timestamp& iTime)
+                                    const edm::Timestamp& iTime)
     {
       curr_event_ = iID;
       curr_event_time_ = getTime();
@@ -101,14 +101,11 @@ namespace edm {
     {
       double t = getTime() - curr_event_time_;
       if (not summary_only_) {
-        edm::LogAbsolute("TimeEvent")
-	<< "TimeEvent> "
-	<< curr_event_.event() << " "
-	<< curr_event_.run() << " "
-	<< t;
+        mf::LogAbsolute("TimeEvent") << "TimeEvent> "
+          << curr_event_.event() << " " << curr_event_.run() << " " << t;
       }
       if (total_event_count_ == 0) {
-	max_event_time_ = t;
+        max_event_time_ = t;
         min_event_time_ = t;
       }
 
@@ -125,18 +122,18 @@ namespace edm {
     void Timing::postModule(const ModuleDescription& desc)
     {
       double t = getTime() - curr_module_time_;
-      //edm::LogInfo("TimeModule")
       if (not summary_only_) {
-        edm::LogAbsolute("TimeModule") << "TimeModule> "
-	   << curr_event_.event() << " "
-	   << curr_event_.run() << " "
-	   << desc.moduleLabel_ << " "
-	   << desc.moduleName_ << " "
-	   << t;
+        mf::LogAbsolute("TimeModule") << "TimeModule> "
+           << curr_event_.event() << " "
+           << curr_event_.run() << " "
+           << desc.moduleLabel_ << " "
+           << desc.moduleName_ << " "
+           << t;
       }
 
       newMeasurementSignal(desc,t);
     }
 
   }
-}
+
+}  // namespace edm

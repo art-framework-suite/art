@@ -1,7 +1,7 @@
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/Path.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 #include "art/Utilities/Algorithms.h"
 
 #include "boost/bind.hpp"

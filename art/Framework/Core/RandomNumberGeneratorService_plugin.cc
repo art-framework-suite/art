@@ -44,11 +44,13 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
-#include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
+
+// MessageFacility support:
+#include "MessageFacility/MessageLogger.h"
 
 // CLHEP support:
 #include "CLHEP/Random/DRand48Engine.h"
@@ -335,7 +337,7 @@ base_engine_t &
   tracker_[label] = VIA_SEED;
   kind_   [label] = requested_engine_kind;
 
-  edm::LogInfo  log("RANDOM");
+  mf::LogInfo  log("RANDOM");
   log << "Instantiated " << requested_engine_kind
       << " engine \"" << label
       << "\" with ";
@@ -357,7 +359,7 @@ void
   if( !debug_  ||  ++ncalls > nPrint_ )
     return;
 
-  edm::LogInfo  log("RANDOM");
+  mf::LogInfo  log("RANDOM");
 
   if( snapshot_.size() == 0 ) {
     log << "No snapshot has yet been made.\n";
@@ -377,7 +379,7 @@ void
 void
   RNGservice::takeSnapshot_( )
 {
-  edm::LogInfo  log("RANDOM");
+  mf::LogInfo  log("RANDOM");
   log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
 
   snapshot_.clear();
@@ -414,7 +416,7 @@ void
      ; it != e; ++it
      ) {
     label_t const &  label = it->label();
-    edm::LogInfo  log("RANDOM");
+    mf::LogInfo  log("RANDOM");
     log << "RNGservice::restoreSnapshot_(): label \"" << label << "\"";
 
     tracker_t::iterator  t = tracker_.find( label );
@@ -468,7 +470,7 @@ void
   // access the file:
   ofstream  outfile( saveToFilename_.c_str() );
   if( !outfile )
-    edm::LogWarning("RANDOM")
+    mf::LogWarning("RANDOM")
       << "Can't create/access file \"" << saveToFilename_ << "\"\n";
 
   // save each engine:
@@ -482,7 +484,7 @@ void
 
     eptr->put(outfile);
     if( !outfile )
-      edm::LogWarning("RANDOM")
+      mf::LogWarning("RANDOM")
         << "This module's engine has not been saved;\n"
            "file \"" << saveToFilename_ << "\" is likely now corrupted.\n";
   }

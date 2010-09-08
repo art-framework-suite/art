@@ -7,10 +7,11 @@
 #include "art/Framework/Services/Basic/Memory.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/MessageLogger/MessageLogger.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/MallocOpts.h"
+
+#include "MessageFacility/MessageLogger.h"
 
 #include <iostream>
 #include <sstream>
@@ -233,7 +234,7 @@ namespace edm {
 
       if(mopts.hasErrors())
         {
-          LogWarning("MemoryCheck")
+          mf::LogWarning("MemoryCheck")
             << "ERROR: Problem with setting malloc options\n"
             << mopts.error_message();
         }
@@ -241,8 +242,7 @@ namespace edm {
       if(iPS.getUntrackedParameter<bool>("dump",false)==true)
         {
           edm::MallocOpts mo = mopts.get();
-          LogWarning("MemoryCheck")
-            << "Malloc options: " << mo << "\n";
+          mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
         }
     }
 
@@ -285,43 +285,40 @@ namespace edm {
 
     void SimpleMemoryCheck::postEndJob()
     {
-      edm::LogAbsolute("MemoryReport")                          // changelog 1
-      << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes"
-      << "\n"
-      << " Key events increasing vsize: \n"
-      << eventL2_ << "\n"
-      << eventL1_ << "\n"
-      << eventM_  << "\n"
-      << eventR1_ << "\n"
-      << eventR2_ << "\n"
-      << eventT3_ << "\n"
-      << eventT2_ << "\n"
-      << eventT1_ ;
+      mf::LogAbsolute("MemoryReport")                          // changelog 1
+        << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes"
+        << "\nKey events increasing vsize:\n"
+        << eventL2_ << "\n"
+        << eventL1_ << "\n"
+        << eventM_  << "\n"
+        << eventR1_ << "\n"
+        << eventR2_ << "\n"
+        << eventT3_ << "\n"
+        << eventT2_ << "\n"
+        << eventT1_ ;
 
       if (moduleSummaryRequested) {                             // changelog 1
-        edm::LogAbsolute mmr("ModuleMemoryReport"); // at end of if block, mmr
-                                                    // is destructed, causing
-                                                    // message to be logged
-        mmr << "ModuleMemoryReport> Each line has module label and: \n";
-        mmr << "  (after early ignored events) \n";
-        mmr <<
-        "    count of times module executed; average increase in vsize \n";
-        mmr <<
-        "    maximum increase in vsize; event on which maximum occurred \n";
-        mmr << "  (during early ignored events) \n";
-        mmr << "    total and maximum vsize increases \n \n";
+        mf::LogAbsolute mmr("ModuleMemoryReport"); // at end of if block, mmr
+                                                   // is destroyed, causing
+                                                   // message to be logged
+        mmr
+          << "ModuleMemoryReport> Each line has module label and:\n"
+             "  (after early ignored events)\n"
+             "    count of times module executed; average increase in vsize\n"
+             "    maximum increase in vsize; event on which maximum occurred\n"
+             "  (during early ignored events)\n"
+             "    total and maximum vsize increases\n\n";
         for (SignificantModulesMap::iterator im=modules_.begin();
              im != modules_.end(); ++im) {
           SignificantModule const& m = im->second;
           if ( m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0 ) continue;
-          mmr << im->first << ": ";
-          mmr << "n = " << m.postEarlyCount;
-          if ( m.postEarlyCount > 0 ) mmr << " avg = "
-                                          << m.totalDeltaVsize/m.postEarlyCount;
+          mmr << im->first << ": n = " << m.postEarlyCount;
+          if ( m.postEarlyCount > 0 )
+            mmr << " avg = " << m.totalDeltaVsize/m.postEarlyCount;
           mmr <<  " max = " << m.maxDeltaVsize << " " << m.eventMaxDeltaV;
           if ( m.totalEarlyVsize > 0 ) {
-            mmr << " early total: " << m.totalEarlyVsize;
-            mmr << " max: " << m.maxEarlyVsize;
+            mmr << " early total: " << m.totalEarlyVsize
+                << " max: " << m.maxEarlyVsize;
           }
           mmr << "\n";
         }
@@ -528,27 +525,27 @@ namespace edm {
             double deltaVSIZE = current_->vsize - max_.vsize;
             double deltaRSS   = current_->rss - max_.rss;
             if (!showMallocInfo) {  // default
-              LogWarning("MemoryCheck")
-              << "MemoryCheck: " << type << " "
-              << mdname << ":" << mdlabel
-              << " VSIZE " << current_->vsize << " " << deltaVSIZE
-              << " RSS " << current_->rss << " " << deltaRSS
-              << "\n";
+              mf::LogWarning("MemoryCheck")
+                << "MemoryCheck: " << type << " "
+                << mdname << ":" << mdlabel
+                << " VSIZE " << current_->vsize << " " << deltaVSIZE
+                << " RSS " << current_->rss << " " << deltaRSS
+                << "\n";
             } else {
               struct mallinfo minfo = mallinfo();
-              LogWarning("MemoryCheck")
-              << "MemoryCheck: " << type << " "
-              << mdname << ":" << mdlabel
-              << " VSIZE " << current_->vsize << " " << deltaVSIZE
-              << " RSS " << current_->rss << " " << deltaRSS
-              << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena
-              << " N-UNUSED-CHUNKS " << minfo.ordblks
-              << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
-              << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd
-              << " N-CHUNKS " << minfo.hblks << " ]"
-              << " HEAP-USED-BYTES " << minfo.uordblks
-              << " HEAP-UNUSED-BYTES " << minfo.fordblks
-              << "\n";
+              mf::LogWarning("MemoryCheck")
+                << "MemoryCheck: " << type << " "
+                << mdname << ":" << mdlabel
+                << " VSIZE " << current_->vsize << " " << deltaVSIZE
+                << " RSS " << current_->rss << " " << deltaRSS
+                << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena
+                << " N-UNUSED-CHUNKS " << minfo.ordblks
+                << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
+                << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd
+                << " N-CHUNKS " << minfo.hblks << " ]"
+                << " HEAP-USED-BYTES " << minfo.uordblks
+                << " HEAP-UNUSED-BYTES " << minfo.fordblks
+                << "\n";
             }
           }
         }

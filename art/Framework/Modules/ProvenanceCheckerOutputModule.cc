@@ -1,26 +1,18 @@
-// -*- C++ -*-
 //
 // Package:     Modules
 // Class  :     ProvenanceCheckerOutputModule
-//
-// Implementation:
 //     Checks the consistency of provenance stored in the framework
 //
-// Original Author:  Chris Jones
-//         Created:  Thu Sep 11 19:24:13 EDT 2008
-//
-//
 
-// system include files
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/OutputModule.h"
-#include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Utilities/Exception.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Utilities/Exception.h"
 
-// user include files
+#include "MessageFacility/MessageLogger.h"
+
 
 namespace edm {
    class ParameterSet;
@@ -38,41 +30,16 @@ namespace edm {
 
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
    ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(ParameterSet const& pset) :
    OutputModule(pset)
-   {
-   }
+   { }
 
-// ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(const ProvenanceCheckerOutputModule& rhs)
-// {
-//    // do actual copying here;
-// }
 
    ProvenanceCheckerOutputModule::~ProvenanceCheckerOutputModule()
-   {
-   }
+   { }
 
-//
-// assignment operators
-//
-// const ProvenanceCheckerOutputModule& ProvenanceCheckerOutputModule::operator=(const ProvenanceCheckerOutputModule& rhs)
-// {
-//   //An exception safe implementation is
-//   ProvenanceCheckerOutputModule temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -154,50 +121,50 @@ namespace edm {
 
 
       if(missingFromMapper.size()) {
-         edm::LogError("ProvenanceChecker") <<"Missing the following BranchIDs from BranchMapper\n";
+         mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from BranchMapper\n";
          for(std::set<BranchID>::iterator it=missingFromMapper.begin(), itEnd = missingFromMapper.end();
              it!=itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            mf::LogProblem("ProvenanceChecker") << *it;
          }
       }
       if(missingFromPrincipal.size()) {
-         edm::LogError("ProvenanceChecker") <<"Missing the following BranchIDs from EventPrincipal\n";
+         mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from EventPrincipal\n";
          for(std::set<BranchID>::iterator it=missingFromPrincipal.begin(), itEnd = missingFromPrincipal.end();
              it!=itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            mf::LogProblem("ProvenanceChecker") << *it;
          }
       }
 
       if(missingProductProvenance.size()) {
-         edm::LogError("ProvenanceChecker") <<"The Groups for the following BranchIDs have no ProductProvenance\n";
+         mf::LogError("ProvenanceChecker") << "The Groups for the following BranchIDs have no ProductProvenance\n";
          for(std::set<BranchID>::iterator it=missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
              it!=itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            mf::LogProblem("ProvenanceChecker") << *it;
          }
       }
 
       if(missingFromReg.size()) {
-         edm::LogError("ProvenanceChecker") <<"Missing the following BranchIDs from ProductRegistry\n";
+         mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from ProductRegistry\n";
          for(std::set<BranchID>::iterator it=missingFromReg.begin(), itEnd = missingFromReg.end();
              it!=itEnd;
              ++it) {
-            edm::LogProblem("ProvenanceChecker")<<*it;
+            mf::LogProblem("ProvenanceChecker") << *it;
          }
       }
 
 
       if(missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
          throw cms::Exception("ProvenanceError")
-         <<(missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
-         <<(missingFromMapper.size()?" from BranchMapper":"")
-         <<(missingFromMapper.size() and missingFromPrincipal.size()?" and":"")
-         <<(missingFromPrincipal.size()?" from EventPrincipal":"")
-         <<(missingFromMapper.size() or missingFromPrincipal.size()?".\n":"")
-         <<(missingProductProvenance.size()?" Have missing ProductProvenance's from Group in EventPrincipal.\n":"")
-         <<(missingFromReg.size()?" Have missing info from ProductRegistry.\n":"");
+           << (missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
+           << (missingFromMapper.size()?" from BranchMapper":"")
+           << (missingFromMapper.size() and missingFromPrincipal.size()?" and":"")
+           << (missingFromPrincipal.size()?" from EventPrincipal":"")
+           << (missingFromMapper.size() or missingFromPrincipal.size()?".\n":"")
+           << (missingProductProvenance.size()?" Have missing ProductProvenance's from Group in EventPrincipal.\n":"")
+           << (missingFromReg.size()?" Have missing info from ProductRegistry.\n":"");
       }
    }
 

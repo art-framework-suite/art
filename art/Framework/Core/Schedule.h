@@ -75,7 +75,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/Provenance.h"

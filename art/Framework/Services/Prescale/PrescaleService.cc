@@ -10,7 +10,7 @@
 #include "art/Framework/Services/Prescale/PrescaleService.h"
 #include "art/ParameterSet/Registry.h"
 #include "art/Framework/Core/Event.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 
 #include <set>
 #include <algorithm>

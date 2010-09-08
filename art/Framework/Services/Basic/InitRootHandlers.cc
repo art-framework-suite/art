@@ -1,15 +1,13 @@
+
 #include "art/Framework/Services/Basic/InitRootHandlers.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/MessageLogger/ELseverityLevel.h"
-#include "art/Utilities/EDMException.h"
 #include "art/Framework/Services/RootAutoLibraryLoader/RootAutoLibraryLoader.h"
-#include "art/Persistency/Provenance/TransientStreamer.h"
+#include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/TransientStreamer.h"
+#include "art/Utilities/EDMException.h"
 
-#include <string.h>
-#include <sstream>
+#include "MessageFacility/MessageLogger.h"
 
 #include "TSystem.h"
 #include "TError.h"
@@ -17,6 +15,9 @@
 #include "Cintex/Cintex.h"
 #include "TH1.h"
 #include "G__ci.h"
+
+#include <sstream>
+#include <string.h>
 
 namespace {
 
@@ -125,19 +126,19 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
   // but we leave the other code in just in case we change
   // the criteria for throwing.
   if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
-    edm::LogError("Root_Fatal") << el_location << el_message;
+    mf::LogError("Root_Fatal") << el_location << el_message;
   }
   else if (el_severity == edm::ELseverityLevel::ELsev_severe) {
-    edm::LogError("Root_Severe") << el_location << el_message;
+    mf::LogError("Root_Severe") << el_location << el_message;
   }
   else if (el_severity == edm::ELseverityLevel::ELsev_error) {
-    edm::LogError("Root_Error") << el_location << el_message;
+    mf::LogError("Root_Error") << el_location << el_message;
   }
   else if (el_severity == edm::ELseverityLevel::ELsev_warning) {
-    edm::LogWarning("Root_Warning") << el_location << el_message ;
+    mf::LogWarning("Root_Warning") << el_location << el_message ;
   }
   else if (el_severity == edm::ELseverityLevel::ELsev_info) {
-    edm::LogInfo("Root_Information") << el_location << el_message ;
+    mf::LogInfo("Root_Information") << el_location << el_message ;
   }
 
 }

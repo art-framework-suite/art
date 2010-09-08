@@ -13,7 +13,7 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"

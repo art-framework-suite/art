@@ -6,19 +6,18 @@
 // ======================================================================
 
 
-// Framework support:
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GenericHandle.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Utilities/Algorithms.h"
 
-// C++ support:
+#include "MessageFacility/MessageLogger.h"
+
 #include <exception>
 #include <iomanip>  // hex, dec
 #include <map>
@@ -28,7 +27,7 @@
 #include <vector>
 
 
-// --- Contents:
+// Contents:
 namespace edm {
   class EventContentAnalyzer;
 }
@@ -86,7 +85,7 @@ static void
          , Reflex::Object const & iObject
          , std::string    const & iIndent )
 {
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << iIndent << iName << kNameValueSep
     << *reinterpret_cast<T*>( iObject.Address() );
 }
@@ -98,7 +97,7 @@ void
                , Reflex::Object const & iObject
                , std::string    const & iIndent )
 {
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << iIndent << iName << kNameValueSep
     << static_cast<int>( *reinterpret_cast<char*>( iObject.Address() ) );
 }
@@ -113,7 +112,7 @@ void
   typedef  unsigned char  uchar;
   typedef  unsigned int   uint;
 
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << iIndent << iName << kNameValueSep
     << static_cast<uint>( *reinterpret_cast<uchar*>( iObject.Address() ) );
 }
@@ -124,7 +123,7 @@ void
                , Reflex::Object const & iObject
                , std::string    const & iIndent )
 {
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << iIndent << iName << kNameValueSep
     << ( (*reinterpret_cast<bool*>( iObject.Address() )) ? "true"
                                                          : "false" );
@@ -196,7 +195,7 @@ static void
   std::string indent( iIndent );
 
   if( iObject.TypeOf().IsPointer() ) {
-    edm::LogAbsolute("EventContent")
+    mf::LogAbsolute("EventContent")
       << iIndent << iName << kNameValueSep
       << formatClassName(iObject.TypeOf().Name())
       << std::hex << iObject.Address() << std::dec;
@@ -228,7 +227,7 @@ static void
   if( printAsContainer(printName,objectToPrint,indent,iIndentDelta) )
     return;
 
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << indent << printName << " " << formatClassName(typeName);
   indent += iIndentDelta;
   //print all the data members
@@ -241,7 +240,7 @@ static void
                  , iIndentDelta );
     }
     catch( std::exception & iEx ) {
-      edm::LogAbsolute("EventContent")
+      mf::LogAbsolute("EventContent")
         << indent << itMember->Name()
         << " <exception caught(" << iEx.what() << ")>\n";
       }
@@ -267,7 +266,7 @@ static bool
     catch(const std::exception & x) {
       return false;
     }
-    edm::LogAbsolute("EventContent")
+    mf::LogAbsolute("EventContent")
       << iIndent << iName << kNameValueSep << "[size=" << size << "]";
     Reflex::Object contained;
     std::string indexIndent = iIndent + iIndentDelta;
@@ -281,7 +280,7 @@ static bool
         printObject(sizeS.str(),contained,indexIndent,iIndentDelta);
       }
       catch(std::exception & iEx) {
-        edm::LogAbsolute("EventContent")
+        mf::LogAbsolute("EventContent")
           << indexIndent << iName
           << " <exception caught(" << iEx.what() << ")>\n";
       }
@@ -309,7 +308,7 @@ static void
     GenericHandle handle(iClassName);
   }
   catch( edm::Exception const & ) {
-    edm::LogAbsolute("EventContent")
+    mf::LogAbsolute("EventContent")
       << iIndent << " \"" << iClassName << "\""
       << " is an unknown type" << std::endl;
     return;
@@ -368,7 +367,7 @@ void
 
   iEvent.getAllProvenance(provenances);
 
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << "\n" << indentation_ << "Event " << std::setw(5) << evno_
     << " contains "
     << provenances.size() << " product" << (provenances.size()==1 ?"":"s")
@@ -390,7 +389,7 @@ void
 
     processName = ( * itProv)->processName();
 
-    edm::LogAbsolute("EventContent")
+    mf::LogAbsolute("EventContent")
       << indentation_ << friendlyName
       << " \"" << modLabel
       << "\" \"" << instanceName << "\" \""
@@ -425,7 +424,7 @@ void
           GenericHandle handle(className);
         }
         catch( edm::Exception const & ) {
-          edm::LogAbsolute("EventContent")
+          mf::LogAbsolute("EventContent")
             << startIndent << " \"" << className << "\""
             << " is an unknown type" << std::endl;
           return;
@@ -448,13 +447,13 @@ void
 {
   typedef std::map<std::string,int> nameMap;
 
-  edm::LogAbsolute("EventContent")
+  mf::LogAbsolute("EventContent")
     << "\nSummary for key being the concatenation of friendlyClassName,"
        " moduleLabel, productInstanceName and processName" << std::endl;
   for( nameMap::const_iterator it = cumulates_.begin()
                              , itEnd = cumulates_.end()
      ; it != itEnd; ++it ) {
-    edm::LogAbsolute("EventContent")
+    mf::LogAbsolute("EventContent")
       << std::setw(6) << it->second << " occurrences of key "
       << it->first << std::endl;
   }

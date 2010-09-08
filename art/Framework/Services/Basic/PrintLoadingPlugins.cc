@@ -1,40 +1,24 @@
-// -*- C++ -*-
 //
 // Package:     Services
 // Class  :     PrintLoadingPlugins
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:
-//         Created:  Thu Dec 13 15:00:49 EST 2007
-//
-//
 
-// system include files
-
-// user include files
-#include "art/Framework/Services/Basic/PrintLoadingPlugins.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/PluginManager/PluginManager.h"
 #include "art/Framework/PluginManager/PluginInfo.h"
+#include "art/Framework/PluginManager/PluginManager.h"
+#include "art/Framework/Services/Basic/PrintLoadingPlugins.h"
+
+#include "MessageFacility/MessageLogger.h"
 
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
+
 #include "sigc++/signal.h"
 
 #include <algorithm>
 #include <iostream>
-#include <string>
 #include <map>
+#include <string>
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -48,31 +32,10 @@ PrintLoadingPlugins::PrintLoadingPlugins()
    pm->askedToLoadCategoryWithPlugin_.connect(boost::bind(boost::mem_fn(&PrintLoadingPlugins::askedToLoad),this, _1,_2));
 
    pm->goingToLoad_.connect(boost::bind(boost::mem_fn(&PrintLoadingPlugins::goingToLoad),this, _1));
-
-
-
 }
-
-// PrintLoadingPlugins::PrintLoadingPlugins(const PrintLoadingPlugins& rhs)
-// {
-//    // do actual copying here;
-// }
 
 PrintLoadingPlugins::~PrintLoadingPlugins()
-{
-}
-
-//
-// assignment operators
-//
-// const PrintLoadingPlugins& PrintLoadingPlugins::operator=(const PrintLoadingPlugins& rhs)
-// {
-//   //An exception safe implementation is
-//   PrintLoadingPlugins temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+{ }
 
 //
 // member functions
@@ -80,15 +43,15 @@ PrintLoadingPlugins::~PrintLoadingPlugins()
 
  namespace{
     struct PICompare {
-	  bool operator()(const PluginInfo& iLHS,
-			  const PluginInfo& iRHS) const {
-	     return iLHS.name_ < iRHS.name_;
-	  }
+          bool operator()(const PluginInfo& iLHS,
+                          const PluginInfo& iRHS) const {
+             return iLHS.name_ < iRHS.name_;
+          }
     };
  }
 
 void PrintLoadingPlugins::askedToLoad(const std::string& iCategory,
-				      const std::string& iPlugin)
+                                      const std::string& iPlugin)
 {
    PluginManager *pm = PluginManager::get();
 
@@ -110,14 +73,15 @@ void PrintLoadingPlugins::askedToLoad(const std::string& iCategory,
 
       if(range.second - range.first > 1){
 
-	 const boost::filesystem::path& loadable = range.first->loadable_;
+         const boost::filesystem::path& loadable = range.first->loadable_;
 
-	 libname = loadable.native_file_string();
+         libname = loadable.native_file_string();
 
       }
 
-      edm::LogAbsolute("GetPlugin")<<"Getting> '"<<iCategory<< "' "<<iPlugin
-				   <<"\n         from "<<libname <<std::endl;
+      mf::LogAbsolute("GetPlugin")
+        << "Getting> '" << iCategory << "' " << iPlugin
+        << "\n         from " << libname << std::endl;
    }
 
 }
@@ -125,14 +89,6 @@ void PrintLoadingPlugins::askedToLoad(const std::string& iCategory,
 void PrintLoadingPlugins::goingToLoad(const boost::filesystem::path& Loadable_)
 
 {
-  edm::LogAbsolute("LoadLib")<<"Loading> "<<Loadable_.native_file_string()<< std::endl;
+  mf::LogAbsolute("LoadLib")
+   << "Loading> " << Loadable_.native_file_string() << std::endl;
 }
-
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//

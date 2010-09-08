@@ -3,7 +3,7 @@
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/IO/Sources/EDInputSource.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 
 namespace edm {
 

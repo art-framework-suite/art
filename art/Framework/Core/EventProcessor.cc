@@ -1,14 +1,6 @@
 
 #include "art/Framework/Core/EventProcessor.h"
 
-#include <exception>
-#include <iomanip>
-#include <iostream>
-#include <utility>
-
-#include "boost/bind.hpp"
-#include "boost/thread/xtime.hpp"
-
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
@@ -17,13 +9,12 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ProcessDesc.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -35,9 +26,19 @@
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
 
-using boost::shared_ptr;
-using edm::serviceregistry::ServiceLegacy;
-using edm::serviceregistry::kOverlapIsError;
+  using edm::serviceregistry::ServiceLegacy;
+  using edm::serviceregistry::kOverlapIsError;
+
+#include "MessageFacility/MessageLogger.h"
+
+#include "boost/bind.hpp"
+#include "boost/thread/xtime.hpp"
+  using boost::shared_ptr;
+
+#include <exception>
+#include <iomanip>
+#include <iostream>
+#include <utility>
 
 namespace edm {
 
@@ -198,15 +199,15 @@ namespace edm {
   // ---------------------------------------------------------------
   shared_ptr<InputSource>
   makeInput(ParameterSet const& params,
-	    EventProcessor::CommonParams const& common,
-	    ProductRegistry& preg,
+            EventProcessor::CommonParams const& common,
+            ProductRegistry& preg,
             boost::shared_ptr<ActivityRegistry> areg)
   {
     // find single source
     bool sourceSpecified = false;
     try {
       ParameterSet main_input =
-	params.getParameter<ParameterSet>("@main_input");
+        params.getParameter<ParameterSet>("@main_input");
 
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
@@ -214,12 +215,12 @@ namespace edm {
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
       md.moduleName_ =
-	main_input.getParameter<std::string>("@module_type");
+        main_input.getParameter<std::string>("@module_type");
       // There is no module label for the unnamed input source, so
       // just use "source".
       md.moduleLabel_ = "source";
       md.processConfiguration_ = ProcessConfiguration(common.processName_,
-				params.id(), getReleaseVersion(), getPassID());
+                                params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
@@ -230,24 +231,24 @@ namespace edm {
       return input;
     }
     catch(edm::Exception const& iException) {
- 	if(sourceSpecified == false &&
-	   errors::Configuration == iException.categoryCode()) {
- 	    throw edm::Exception(errors::Configuration, "FailedInputSource")
-	      << "Configuration of main input source has failed\n"
-	      << iException;
- 	} else {
- 	    throw;
- 	}
+        if(sourceSpecified == false &&
+           errors::Configuration == iException.categoryCode()) {
+            throw edm::Exception(errors::Configuration, "FailedInputSource")
+              << "Configuration of main input source has failed\n"
+              << iException;
+        } else {
+            throw;
+        }
     }
     return shared_ptr<InputSource>();
   }
 
   // ---------------------------------------------------------------
   EventProcessor::EventProcessor(std::string const& config,
-				ServiceToken const& iToken,
-				serviceregistry::ServiceLegacy iLegacy,
-			        std::vector<std::string> const& defaultServices,
-				std::vector<std::string> const& forcedServices) :
+                                ServiceToken const& iToken,
+                                serviceregistry::ServiceLegacy iLegacy,
+                                std::vector<std::string> const& defaultServices,
+                                std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
@@ -280,8 +281,8 @@ namespace edm {
   }
 
   EventProcessor::EventProcessor(std::string const& config,
-			        std::vector<std::string> const& defaultServices,
-				std::vector<std::string> const& forcedServices) :
+                                std::vector<std::string> const& defaultServices,
+                                std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
@@ -387,8 +388,8 @@ namespace edm {
 
   void
   EventProcessor::init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
-			ServiceToken const& iToken,
-			serviceregistry::ServiceLegacy iLegacy) {
+                        ServiceToken const& iToken,
+                        serviceregistry::ServiceLegacy iLegacy) {
 
     // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
     //  They must be cleared here because some processes run multiple EventProcessors in succession.
@@ -423,8 +424,8 @@ namespace edm {
     shared_ptr<w_CPR>
       reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
     ServiceToken tempToken2(ServiceRegistry::createContaining(reg,
-							      tempToken,
-							      kOverlapIsError));
+                                                              tempToken,
+                                                              kOverlapIsError));
 
     // the next thing is ugly: pull out the trigger path pset and
     // create a service and extra token for it
@@ -437,8 +438,8 @@ namespace edm {
       (new w_TNS(std::auto_ptr<TNS>(new TNS(*parameterSet))));
 
     serviceToken_ = ServiceRegistry::createContaining(tnsptr,
-						    tempToken2,
-						    kOverlapIsError);
+                                                    tempToken2,
+                                                    kOverlapIsError);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -446,19 +447,19 @@ namespace edm {
     //parameterSet = builder.getProcessPSet();
     act_table_ = ActionTable(*parameterSet);
     CommonParams common = CommonParams(processName,
-			   getReleaseVersion(),
-			   getPassID(),
-    			   maxEventsPset_.getUntrackedParameter<int>("input", -1),
-    			   maxSubRunsPset_.getUntrackedParameter<int>("input", -1));
+                           getReleaseVersion(),
+                           getPassID(),
+                           maxEventsPset_.getUntrackedParameter<int>("input", -1),
+                           maxSubRunsPset_.getUntrackedParameter<int>("input", -1));
 
     input_= makeInput(*parameterSet, common, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(*parameterSet,
-		    ServiceRegistry::instance().get<TNS>(),
-		    wreg_,
-		    preg_,
-		    act_table_,
-		    actReg_));
+                    ServiceRegistry::instance().get<TNS>(),
+                    wreg_,
+                    preg_,
+                    act_table_,
+                    actReg_));
 
     //   initialize(iToken,iLegacy);
     FDEBUG(2) << parameterSet->toString() << std::endl;
@@ -488,8 +489,7 @@ namespace edm {
     }
     catch(cms::Exception& e)
       {
-	LogError("System")
-	  << e.explainSelf() << "\n";
+        mf::LogError("System") << e.explainSelf() << "\n";
       }
 
     // manually destroy all these thing that may need the services around
@@ -512,7 +512,7 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
 
       {
-	input_->repeat();
+        input_->repeat();
         input_->rewind();
       }
       changeState(mCountComplete);
@@ -611,14 +611,18 @@ namespace edm {
     try {
       input_->doBeginJob();
     } catch(cms::Exception& e) {
-      LogError("BeginJob") << "A cms::Exception happened while processing the beginJob of the 'source'\n";
-      e << "A cms::Exception happened while processing the beginJob of the 'source'\n";
+      mf::LogError("BeginJob") << "A cms::Exception happened while processing"
+                                  " the beginJob of the 'source'\n";
+      e << "A cms::Exception happened while processing"
+           " the beginJob of the 'source'\n";
       throw;
     } catch(std::exception& e) {
-      LogError("BeginJob") << "A std::exception happened while processing the beginJob of the 'source'\n";
+      mf::LogError("BeginJob") << "A std::exception happened while processing"
+                                  " the beginJob of the 'source'\n";
       throw;
     } catch(...) {
-      LogError("BeginJob") << "An unknown exception happened while processing the beginJob of the 'source'\n";
+      mf::LogError("BeginJob") << "An unknown exception happened while"
+                                  " processing the beginJob of the 'source'\n";
       throw;
     }
     schedule_->beginJob();
@@ -744,9 +748,10 @@ namespace edm {
   {
     if (runNumber == 0) {
       runNumber = 1;
-      LogWarning("Invalid Run")
-        << "EventProcessor::setRunNumber was called with an invalid run number (0)\n"
-	<< "Run number was set to 1 instead\n";
+      mf::LogWarning("Invalid Run")
+        << "EventProcessor::setRunNumber was called with an invalid run number"
+           " (0)\n"
+           "Run number was set to 1 instead\n";
     }
 
     // inside of beginJob there is a check to see if it has been called before
@@ -786,35 +791,34 @@ namespace edm {
       if(stop_count_ < 0) return last_rc_;
 
       if(timeout_seconds==0)
-	while(stop_count_==0) stopper_.wait(sl);
+        while(stop_count_==0) stopper_.wait(sl);
       else
-	while(stop_count_==0 &&
-	      (rc = stopper_.timed_wait(sl,timeout)) == true);
+        while(stop_count_==0 &&
+              (rc = stopper_.timed_wait(sl,timeout)) == true);
 
       if(rc == false)
-	{
-	  // timeout occurred
-	  // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
-	  // this is a temporary hack until we get the input source
-	  // upgraded to allow blocking input sources to be unblocked
+        {
+          // timeout occurred
+          // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
+          // this is a temporary hack until we get the input source
+          // upgraded to allow blocking input sources to be unblocked
 
-	  // the next line is dangerous and causes all sorts of trouble
-	  if(id_set_) pthread_cancel(event_loop_id_);
+          // the next line is dangerous and causes all sorts of trouble
+          if(id_set_) pthread_cancel(event_loop_id_);
 
-	  // we will not do anything yet
-	  LogWarning("timeout")
-	    << "An asynchronous request was made to shut down "
-	    << "the event loop "
-	    << "and the event loop did not shutdown after "
-	    << timeout_seconds << " seconds\n";
-	}
+          // we will not do anything yet
+          mf::LogWarning("timeout")
+            << "An asynchronous request was made to shut down the event loop"
+               " and the event loop did not shutdown after "
+            << timeout_seconds << " seconds\n";
+        }
       else
-	{
-	  event_loop_->join();
-	  event_loop_.reset();
-	  id_set_ = false;
-	  stop_count_ = -1;
-	}
+        {
+          event_loop_->join();
+          event_loop_.reset();
+          id_set_ = false;
+          stop_count_ = -1;
+        }
     }
     return rc==false?epTimedOut:last_rc_;
   }
@@ -872,23 +876,23 @@ namespace edm {
     // found if(not end of table) and
     // (state == table.state && (msg == table.message || msg == any))
     for(rc = 0;
-	table[rc].current != sInvalid &&
-	  (curr != table[rc].current ||
-	   (curr == table[rc].current &&
-	     msg != table[rc].message && table[rc].message != mAny));
-	++rc);
+        table[rc].current != sInvalid &&
+          (curr != table[rc].current ||
+           (curr == table[rc].current &&
+             msg != table[rc].message && table[rc].message != mAny));
+        ++rc);
 
     if(table[rc].current == sInvalid)
       throw cms::Exception("BadState")
-	<< "A member function of EventProcessor has been called in an"
-	<< " inappropriate order.\n"
-	<< "Bad transition from " << stateName(curr) << " "
-	<< "using message " << msgName(msg) << "\n"
-	<< "No where to go from here.\n";
+        << "A member function of EventProcessor has been called in an"
+        << " inappropriate order.\n"
+        << "Bad transition from " << stateName(curr) << " "
+        << "using message " << msgName(msg) << "\n"
+        << "No where to go from here.\n";
 
     FDEBUG(1) << "changeState: current=" << stateName(curr)
-	      << ", message=" << msgName(msg)
-	      << " -> new=" << stateName(table[rc].final) << "\n";
+              << ", message=" << msgName(msg)
+              << " -> new=" << stateName(table[rc].final) << "\n";
 
     state_ = table[rc].final;
   }
@@ -900,9 +904,9 @@ namespace edm {
     {
       boost::mutex::scoped_lock sl(stop_lock_);
       if(id_set_==true) {
-	  std::string err("runAsync called while async event loop already running\n");
-	  edm::LogError("FwkJob") << err;
-	  throw cms::Exception("BadState") << err;
+          std::string err("runAsync called while async event loop already running\n");
+          mf::LogError("FwkJob") << err;
+          throw cms::Exception("BadState") << err;
       }
 
       changeState(mRunAsync);
@@ -914,9 +918,9 @@ namespace edm {
       boost::xtime_get(&timeout, boost::TIME_UTC);
       timeout.sec += 60; // 60 seconds to start!!!!
       if(starter_.timed_wait(sl,timeout)==false) {
-	  // yikes - the thread did not start
-	  throw cms::Exception("BadState")
-	    << "Async run thread did not start in 60 seconds\n";
+          // yikes - the thread did not start
+          throw cms::Exception("BadState")
+            << "Async run thread did not start in 60 seconds\n";
       }
     }
   }
@@ -952,23 +956,20 @@ namespace edm {
       rc = me->runToCompletion(onlineStateTransitions);
     }
     catch (cms::Exception& e) {
-      edm::LogError("FwkJob") << "cms::Exception caught in "
-			      << "EventProcessor::asyncRun"
-			      << "\n"
-			      << e.explainSelf();
+      mf::LogError("FwkJob") << "cms::Exception caught in "
+                                "EventProcessor::asyncRun\n"
+                             << e.explainSelf();
       me->last_error_text_ = e.explainSelf();
     }
     catch (std::exception& e) {
-      edm::LogError("FwkJob") << "Standard library exception caught in "
-			      << "EventProcessor::asyncRun"
-			      << "\n"
-			      << e.what();
+      mf::LogError("FwkJob") << "Standard library exception caught in "
+                                "EventProcessor::asyncRun\n"
+                             << e.what();
       me->last_error_text_ = e.what();
     }
     catch (...) {
-      edm::LogError("FwkJob") << "Unknown exception caught in "
-			      << "EventProcessor::asyncRun"
-			      << "\n";
+      mf::LogError("FwkJob") << "Unknown exception caught in "
+                                "EventProcessor::asyncRun\n";
       me->last_error_text_ = "Unknown exception caught";
       rc = epOther;
     }
@@ -996,7 +997,7 @@ namespace edm {
     if (machine_.get() != 0) {
       throw edm::Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
-	<< "Please report this error to the Framework group\n";
+        << "Please report this error to the Framework group\n";
     }
 
     toerror.succeeded();
@@ -1039,9 +1040,9 @@ namespace edm {
       else if (fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
       else if (fileMode_ == std::string("FULLLUMIMERGE")) fileMode = statemachine::FULLLUMIMERGE;
       else {
- 	throw edm::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
-	    << fileMode_ << ".\n"
-	    << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
+        throw edm::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
+            << fileMode_ << ".\n"
+            << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
       }
 
       machine_.reset(new statemachine::Machine(this,
@@ -1090,7 +1091,7 @@ namespace edm {
             returnCode = epSignal;
             machine_->process_event(statemachine::Stop());
             break;
-	  }
+          }
         }
 
         if (itemType == InputSource::IsStop) {
@@ -1118,8 +1119,8 @@ namespace edm {
         // This should be impossible
         else {
           throw edm::Exception(errors::LogicError)
-	    << "Unknown next item type passed to EventProcessor\n"
-	    << "Please report this error to the Framework group\n";
+            << "Unknown next item type passed to EventProcessor\n"
+            << "Please report this error to the Framework group\n";
         }
 
         if (machine_->terminated()) {
@@ -1226,8 +1227,8 @@ namespace edm {
 
     if (stateMachineWasInErrorState_) {
       throw cms::Exception("BadState")
-	<< "The boost state machine in the EventProcessor exited after\n"
-	<< "entering the Error state.\n";
+        << "The boost state machine in the EventProcessor exited after\n"
+        << "entering the Error state.\n";
     }
 
     return returnCode;
@@ -1316,11 +1317,11 @@ namespace edm {
 
   void EventProcessor::doErrorStuff() {
     FDEBUG(1) << "\tdoErrorStuff\n";
-    edm::LogError("StateMachine")
+    mf::LogError("StateMachine")
       << "The EventProcessor state machine encountered an unexpected event\n"
-      << "and went to the error state\n"
-      << "Will attempt to terminate processing normally\n"
-      << "This likely indicates a bug in an input module or corrupted input or both\n";
+         "and went to the error state\n"
+         "Will attempt to terminate processing normally\n"
+         "This likely indicates a bug in an input module, corrupted input, or both\n";
     stateMachineWasInErrorState_ = true;
   }
 

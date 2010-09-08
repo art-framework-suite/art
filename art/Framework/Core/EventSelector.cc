@@ -37,7 +37,7 @@
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/Utilities/RegexMatch.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"

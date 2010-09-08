@@ -31,7 +31,7 @@ the worker is reset().
 #include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 

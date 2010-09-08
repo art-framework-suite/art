@@ -5,22 +5,20 @@
 // ======================================================================
 
 
-// --- Framework support:
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/MessageLogger/MessageLogger.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/Persistency/Provenance/Provenance.h"
 
+#include "MessageFacility/MessageLogger.h"
 
-// --- C++ support:
 #include <ostream>  // endl
 #include <vector>
 
 
-// --- Contents:
+// Contents:
 namespace edm {
   class AsciiOutputModule;
 }
@@ -64,7 +62,7 @@ AsciiOutputModule::AsciiOutputModule(ParameterSet const & pset)
 
 AsciiOutputModule::~AsciiOutputModule()
 {
-  edm::LogAbsolute("AsciiOut")
+  mf::LogAbsolute("AsciiOut")
     << ">>> processed " << counter_ << " events"
     << std::endl;
 }
@@ -77,7 +75,7 @@ void
     return;
 
   //  const Run & run = evt.getRun(); // this is still unused
-  edm::LogAbsolute("AsciiOut")
+  mf::LogAbsolute("AsciiOut")
     << ">>> processing event # " << e.id() <<" time " << e.time().value()
     << std::endl;
 
@@ -90,11 +88,11 @@ void
   for( ProcessHistory::const_iterator it = e.processHistory().begin()
                                     , itEnd = e.processHistory().end()
      ; it != itEnd; ++it ) {
-    edm::LogAbsolute("AsciiOut") << it->processName() << " ";
+    mf::LogAbsolute("AsciiOut") << it->processName() << " ";
   }
 
   // ... collision id
-  edm::LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
+  mf::LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
 
   // Loop over products, and write some output for each...
 
@@ -105,7 +103,7 @@ void
      ; i != iEnd; ++i ) {
     BranchDescription const & desc = (*i)->product();
     if( selected(desc) )
-      edm::LogAbsolute("AsciiOut") << **i << '\n';
+      mf::LogAbsolute("AsciiOut") << **i << '\n';
   }
 
 }  // AsciiOutputModule::write()

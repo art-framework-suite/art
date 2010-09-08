@@ -4,36 +4,36 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-
 ----------------------------------------------------------------------*/
 
-#include <exception>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <memory>
-#include <boost/shared_ptr.hpp>
-#include <boost/program_options.hpp>
-#include <cstring>
 
-#include "art/ParameterSet/MakeParameterSets.h"
 #include "art/Framework/Core/EventProcessor.h"
 #include "art/Framework/PluginManager/PluginManager.h"
-#include "art/Framework/PluginManager/standard.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/Presence.h"
-#include "art/Utilities/RootHandlers.h"
-#include "art/MessageLogger/ExceptionMessages.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/MessageLogger/MessageDrop.h"
 #include "art/Framework/PluginManager/PresenceFactory.h"
+#include "art/Framework/PluginManager/standard.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/ParameterSet/MakeParameterSets.h"
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/Presence.h"
+#include "art/Utilities/RootHandlers.h"
+
+#include "MessageFacility/MessageLogger.h"
 
 #include "TError.h"
+
+#include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include <cstring>
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kPythonOpt = "pythonOptions";
@@ -45,7 +45,7 @@ static char const* const kMultiThreadMessageLoggerOpt = "multithreadML,t";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
-static char const* const kProgramName = "mute";
+static char const* const kProgramName = "art";
 
 // -----------------------------------------------
 namespace {
@@ -57,20 +57,20 @@ namespace {
       callEndJob_(false) { }
     ~EventProcessorWithSentry() {
       if (callEndJob_ && ep_.get()) {
-	try {
-	  ep_->endJob();
-	}
-	catch (cms::Exception& e) {
-	  //edm::printCmsException(e, kProgramName);
-	}
-	catch (std::bad_alloc& e) {
-	  //edm::printBadAllocException(kProgramName);
-	}
-	catch (std::exception& e) {
-	  //edm::printStdException(e, kProgramName);
-	}
-	catch (...) {
-	  //edm::printUnknownException(kProgramName);
+        try {
+          ep_->endJob();
+        }
+        catch (cms::Exception& e) {
+          //edm::printCmsException(e, kProgramName);
+        }
+        catch (std::bad_alloc& e) {
+          //edm::printBadAllocException(kProgramName);
+        }
+        catch (std::exception& e) {
+          //edm::printStdException(e, kProgramName);
+        }
+        catch (...) {
+          //edm::printUnknownException(kProgramName);
         }
       }
     }
@@ -90,15 +90,16 @@ namespace {
   };
 }
 
-extern "C" { int mute_main(int argc, char* argv[]); }
+extern "C" { int art_main(int argc, char* argv[]); }
 
-int mute_main(int argc, char* argv[])
+int art_main(int argc, char* argv[])
 {
 
   // We must initialize the plug-in manager first
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  } catch(cms::Exception& e) {
+  }
+  catch(cms::Exception& e) {
     std::cerr << e.what() << std::endl;
     return 1;
   }
@@ -116,9 +117,6 @@ int mute_main(int argc, char* argv[])
     }
   }
 
-  // TEMPORARY -- REMOVE AT ONCE!!!!!
-  // if ( multiThreadML ) std::cerr << "\n\n multiThreadML \n\n";
-
   // Load the message service plug-in
   boost::shared_ptr<edm::Presence> theMessageServicePresence;
 
@@ -127,7 +125,8 @@ int mute_main(int argc, char* argv[])
     try {
       theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("MessageServicePresence").release());
-    } catch(cms::Exception& e) {
+    }
+    catch(cms::Exception& e) {
       std::cerr << e.what() << std::endl;
       return 1;
     }
@@ -135,7 +134,8 @@ int mute_main(int argc, char* argv[])
     try {
       theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("SingleThreadMSPresence").release());
-    } catch(cms::Exception& e) {
+    }
+    catch(cms::Exception& e) {
       std::cerr << e.what() << std::endl;
       return 1;
     }
@@ -171,13 +171,13 @@ int mute_main(int argc, char* argv[])
     (kHelpCommandOpt, "produce help message")
     (kParameterSetCommandOpt, boost::program_options::value<std::string>(), "configuration file")
     (kJobreportCommandOpt, boost::program_options::value<std::string>(),
-    	"file name to use for a job report file: default extension is .xml")
+        "file name to use for a job report file: default extension is .xml")
     (kEnableJobreportCommandOpt,
-    	"enable job report files (if any) specified in configuration file")
+        "enable job report files (if any) specified in configuration file")
     (kJobModeCommandOpt, boost::program_options::value<std::string>(),
-    	"Job Mode for MessageLogger defaults - default mode is grid")
+        "Job Mode for MessageLogger defaults - default mode is grid")
     (kMultiThreadMessageLoggerOpt,
-    	"MessageLogger handles multiple threads - default is single-thread")
+        "MessageLogger handles multiple threads - default is single-thread")
     (kStrictOpt, "strict parsing");
 
   // anything at the end will be ignored, and sent to python
@@ -200,48 +200,33 @@ int mute_main(int argc, char* argv[])
   try {
     store(boost::program_options::command_line_parser(argc,argv).options(all_options).positional(p).run(),vm);
     notify(vm);
-  } catch(boost::program_options::error const& iException) {
-    edm::LogError("FwkJob") << "Exception from command line processing: " << iException.what();
-    edm::LogSystem("CommandLineProcessing") << "Exception from command line processing: " << iException.what() << "\n";
+  }
+  catch(boost::program_options::error const& iException) {
+    mf::LogError("FwkJob")
+      << "Exception from command line processing: " << iException.what();
+    mf::LogSystem("CommandLineProcessing")
+      << "Exception from command line processing: " << iException.what() << "\n";
     return 7000;
   }
 
   if(vm.count(kHelpOpt)) {
     std::cout << desc <<std::endl;
-    if(!vm.count(kParameterSetOpt)) edm::HaltMessageLogging();
+    if(!vm.count(kParameterSetOpt)) mf::HaltMessageLogging();
     return 0;
   }
 
   if(!vm.count(kParameterSetOpt)) {
     std::string shortDesc("ConfigFileNotFound");
     std::ostringstream longDesc;
-    longDesc << "mute: No configuration file given.\n"
-	     << "For usage and an options list, please do '"
-	     << argv[0]
-	     <<  " --"
-	     << kHelpOpt
-	     << "'.";
+    longDesc << "art: No configuration file given.\n"
+                "For usage and an options list, please do '"
+             << argv[0] <<  " --" << kHelpOpt
+             << "'.";
     int exitCode = 7001;
-    edm::LogAbsolute(shortDesc) << longDesc.str() << "\n";
-    edm::HaltMessageLogging();
+    mf::LogAbsolute(shortDesc) << longDesc.str() << "\n";
+    mf::HaltMessageLogging();
     return exitCode;
   }
-
-#ifdef CHANGED_FROM
-  if(!vm.count(kParameterSetOpt)) {
-    std::string shortDesc("ConfigFileNotFound");
-    std::ostringstream longDesc;
-    longDesc << "No configuration file given \n"
-	     <<" please do '"
-	     << argv[0]
-	     <<  " --"
-	     << kHelpOpt
-	     << "'.";
-    int exitCode = 7001;
-    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
-    return exitCode;
-  }
-#endif
 
   //
   // Decide whether to enable creation of job report xml file
@@ -273,7 +258,7 @@ int mute_main(int argc, char* argv[])
     longDesc << "Problem with configuration file " << fileName
              <<  "\n" << iException.what();
     int exitCode = 7002;
-    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+    mf::LogSystem(shortDesc) << longDesc.str() << "\n";
     return exitCode;
   }
 
@@ -289,7 +274,8 @@ int mute_main(int argc, char* argv[])
   if(vm.count(kStrictOpt))
   {
     //edm::setStrictParsing(true);
-    edm::LogSystem("CommandLineProcessing") << "Strict configuration processing is now done from python";
+    mf::LogSystem("CommandLineProcessing")
+      << "Strict configuration processing is now done from python";
   }
 
   // Now create and configure the services
@@ -298,9 +284,9 @@ int mute_main(int argc, char* argv[])
   int rc = -1; // we should never return this value!
   try {
     std::auto_ptr<edm::EventProcessor>
-	procP(new
-	      edm::EventProcessor(processDesc, jobReportToken,
-			     edm::serviceregistry::kTokenOverrides));
+        procP(new
+              edm::EventProcessor(processDesc, jobReportToken,
+                             edm::serviceregistry::kTokenOverrides));
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();

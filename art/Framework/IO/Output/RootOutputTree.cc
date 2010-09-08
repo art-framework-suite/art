@@ -9,7 +9,7 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "MessageFacility/MessageLogger.h"
 
 #include "boost/bind.hpp"
 #include <limits>
