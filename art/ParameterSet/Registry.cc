@@ -45,12 +45,12 @@ namespace edm
     }
   } // namespace pset
 
-  edm::ParameterSet getProcessParameterSet()
+  fhicl::ParameterSet getProcessParameterSet()
   {
     edm::pset::Registry* reg = edm::pset::Registry::instance();
     edm::ParameterSetID id = edm::pset::getProcessParameterSetID(reg);
 
-    edm::ParameterSet result;
+    fhicl::ParameterSet result;
     if (!reg->getMapped(id, result))
       throw edm::Exception(errors::EventCorruption, "Uknown ParameterSetID")
 	<< "Unable to find the ParameterSet for id: "

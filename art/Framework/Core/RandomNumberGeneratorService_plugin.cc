@@ -44,7 +44,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
@@ -96,7 +96,7 @@ namespace {
 
   bool              const  DEFAULT_DEBUG_VALUE( false );
   int               const  DEFAULT_NPRINT_VALUE( 10 );
-  edm::ParameterSet const  DEFAULT_PSET;
+  fhicl::ParameterSet const  DEFAULT_PSET;
   string            const  EMPTY_STRING( "" );
   string            const  DEFAULT_ENGINE_KIND( "HepJamesRandom" );
   seed_t            const  MAXIMUM_CLHEP_SEED( 900000000 );
@@ -214,7 +214,7 @@ namespace {
 // ======================================================================
 
 
-RNGservice::RandomNumberGeneratorService( edm::ParameterSet const & pset
+RNGservice::RandomNumberGeneratorService( fhicl::ParameterSet const & pset
                                         , edm::ActivityRegistry   & reg
                                         )
 : engine_creation_is_okay_( true )

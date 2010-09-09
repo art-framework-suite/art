@@ -76,7 +76,7 @@
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "MessageFacility/MessageLogger.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"

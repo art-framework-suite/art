@@ -13,7 +13,7 @@
 // forward declarations
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {

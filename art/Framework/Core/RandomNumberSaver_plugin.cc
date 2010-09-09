@@ -12,7 +12,7 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/RandomNumberGeneratorService.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 
 // --- C++ support:

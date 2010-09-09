@@ -207,7 +207,7 @@ namespace edm {
     bool sourceSpecified = false;
     try {
       ParameterSet main_input =
-        params.getParameter<ParameterSet>("@main_input");
+        params.getParameterSet("@main_input");
 
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
@@ -215,7 +215,7 @@ namespace edm {
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
       md.moduleName_ =
-        main_input.getParameter<std::string>("@module_type");
+        main_input.getString("@module_type");
       // There is no module label for the unnamed input source, so
       // just use "source".
       md.moduleLabel_ = "source";
@@ -429,7 +429,7 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and
     // create a service and extra token for it
-    std::string processName = parameterSet->getParameter<std::string>("@process_name");
+    std::string processName = parameterSet->getString("@process_name");
 
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;

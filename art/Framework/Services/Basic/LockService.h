@@ -17,7 +17,7 @@
  */
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "boost/thread/mutex.hpp"
 
@@ -30,7 +30,7 @@ namespace edm {
     class LockService
     {
     public:
-      LockService(const edm::ParameterSet&,edm::ActivityRegistry&);
+      LockService(const fhicl::ParameterSet&,edm::ActivityRegistry&);
       ~LockService();
 
       boost::mutex& getLock() { return *lock_; }

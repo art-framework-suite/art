@@ -99,7 +99,7 @@ namespace edm
     Strings paths; // default is empty...
 
     if (!config.empty())
-      paths = config.getParameter<Strings>("SelectEvents");
+      paths = config.getVString("SelectEvents");
 
     init(paths, triggernames);
   }
@@ -951,7 +951,7 @@ namespace edm
       pset.getUntrackedParameter("SelectEvents", ParameterSet());
     if (!selectEventsParamSet.empty()) {
       Strings path_specs =
-        selectEventsParamSet.getParameter<Strings>("SelectEvents");
+        selectEventsParamSet.getVString("SelectEvents");
       if (!path_specs.empty()) {
         selection = path_specs;
       }

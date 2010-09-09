@@ -149,7 +149,7 @@ namespace edm {
     }
 
     vector<std::string> path_specs =
-      selectevents.getParameter<vector<std::string> >("SelectEvents");
+      selectevents.getVString("SelectEvents");
 
     if (path_specs.empty()) {
 	wantAllEvents_ = true;

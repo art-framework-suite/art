@@ -35,7 +35,7 @@ namespace edm {
                                             sigc::signal<void, const ModuleDescription&>& pre,
                                             sigc::signal<void, const ModuleDescription&>& post) const
   {
-    std::string modtype = p.pset_->getParameter<std::string>("@module_type");
+    std::string modtype = p.pset_->getString("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
     MakerMap::iterator it = makers_.find(modtype);
 

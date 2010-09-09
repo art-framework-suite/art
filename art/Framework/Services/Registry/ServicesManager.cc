@@ -20,7 +20,7 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 using namespace edm::serviceregistry;
 //
@@ -28,7 +28,7 @@ using namespace edm::serviceregistry;
 //
 
 ServicesManager::MakerHolder::MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
-                                          const edm::ParameterSet& iPSet,
+                                          const fhicl::ParameterSet& iPSet,
                                           edm::ActivityRegistry& iRegistry) :
 maker_(iMaker),
 pset_(&iPSet),
@@ -52,7 +52,7 @@ ServicesManager::MakerHolder::add(ServicesManager& oManager) const
 //
 // constructors and destructor
 //
-ServicesManager::ServicesManager(const std::vector<edm::ParameterSet>& iConfiguration) :
+ServicesManager::ServicesManager(const std::vector<fhicl::ParameterSet>& iConfiguration) :
 type2Maker_(new Type2Maker)
 {
    //First create the list of makers
@@ -62,7 +62,7 @@ type2Maker_(new Type2Maker)
 }
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
-                                 const std::vector<edm::ParameterSet>& iConfiguration):
+                                 const std::vector<fhicl::ParameterSet>& iConfiguration):
   associatedManager_(iToken.manager_),
   type2Maker_(new Type2Maker)
 {
@@ -96,7 +96,7 @@ ServicesManager::ServicesManager(ServiceToken iToken,
          case kOverlapIsError :
             if(!intersection.empty()) {
                throw edm::Exception(errors::Configuration, "Service")
-               <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->getParameter<std::string>("@service_type")
+               <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->getString("@service_type")
                <<" already has an instance of that type of Service";
             } else {
                //get all the services from Token
@@ -204,27 +204,27 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 
 
 void
-ServicesManager::fillListOfMakers(const std::vector<edm::ParameterSet>& iConfiguration)
+ServicesManager::fillListOfMakers(const std::vector<fhicl::ParameterSet>& iConfiguration)
 {
-   for(std::vector<edm::ParameterSet>::const_iterator itParam = iConfiguration.begin(),
+   for(std::vector<fhicl::ParameterSet>::const_iterator itParam = iConfiguration.begin(),
 	itParamEnd = iConfiguration.end();
         itParam != itParamEnd;
         ++itParam) {
       boost::shared_ptr<ServiceMakerBase> base(
-                                               ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
+                                               ServicePluginFactory::get()->create(itParam->getString("@service_type")));
 
       if(0 == base.get()) {
          throw edm::Exception(edm::errors::Configuration, "Service")
          <<"could not find a service named "
-         << itParam->getParameter<std::string>("@service_type")
+         << itParam->getString("@service_type")
          <<". Please check spelling.";
       }
       Type2Maker::iterator itFound = type2Maker_->find(TypeIDBase(base->serviceType()));
       if(itFound != type2Maker_->end()) {
          throw edm::Exception(edm::errors::Configuration,"Service")
-         <<" the service "<< itParam->getParameter<std::string>("@service_type")
+         <<" the service "<< itParam->getString("@service_type")
          <<" provides the same service as "
-         << itFound->second.pset_->getParameter<std::string>("@service_type")
+         << itFound->second.pset_->getString("@service_type")
          <<"\n Please reconfigure job to only use one of these services.";
       }
       type2Maker_->insert(Type2Maker::value_type(TypeIDBase(base->serviceType()),
@@ -274,7 +274,7 @@ ServicesManager::createServices()
        }
        catch(cms::Exception& iException) {
          edm::Exception toThrow(edm::errors::Configuration,"Error occurred while creating ");
-         toThrow<<itMaker->second.pset_->getParameter<std::string>("@service_type")<<"\n";
+         toThrow<<itMaker->second.pset_->getString("@service_type")<<"\n";
          toThrow.append(iException);
          throw toThrow;
        }

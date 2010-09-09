@@ -6,7 +6,7 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/EDMException.h"
@@ -34,7 +34,7 @@ namespace edm {
     fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
     dropMetaData_(DropNone),
     dropMetaDataForDroppedData_(pset.getUntrackedParameter<bool>("dropMetaDataForDroppedData", false)),
-    moduleLabel_(pset.getParameter<std::string>("@module_label")),
+    moduleLabel_(pset.getString("@module_label")),
     outputFileCount_(0),
     inputFileCount_(0),
     rootOutputFile_() {

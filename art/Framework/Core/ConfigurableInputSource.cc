@@ -4,7 +4,7 @@
 
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Core/ConfigurableInputSource.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"

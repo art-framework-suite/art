@@ -16,7 +16,7 @@
 
 // user include files
 #include "art/Framework/Services/Basic/LoadAllDictionaries.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/PluginManager/PluginManager.h"
 #include "art/Framework/PluginManager/PluginCapabilities.h"
 
@@ -31,7 +31,7 @@
 //
 // constructors and destructor
 //
-edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& iConfig)
+edm::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet& iConfig)
 {
    bool doLoad(iConfig.getUntrackedParameter("doLoad",true));
    if(doLoad) {

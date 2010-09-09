@@ -215,7 +215,7 @@ namespace edm {
     typedef  std::vector<RNGsnapshot>          snapshot_t;
 
     // --- C'tor/d'tor:
-    RandomNumberGeneratorService( edm::ParameterSet const &
+    RandomNumberGeneratorService( fhicl::ParameterSet const &
                                 , edm::ActivityRegistry   &
                                 );
 

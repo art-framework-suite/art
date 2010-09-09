@@ -1,5 +1,5 @@
 #include "art/ParameterSet/ParameterSetEntry.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 #include <sstream>
 #include <iostream>

@@ -158,7 +158,7 @@ namespace edm {
 	++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
     }
-    std::vector<std::string> modulesInConfig(proc_pset.getParameter<std::vector<std::string> >("@all_modules"));
+    std::vector<std::string> modulesInConfig(proc_pset.getVString("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     std::vector<std::string> unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
@@ -179,7 +179,7 @@ namespace edm {
 	  ++itLabel) {
 	if (allowUnscheduled) {
 	  //Need to hold onto the parameters long enough to make the call to getWorker
-	  ParameterSet workersParams(proc_pset.getParameter<ParameterSet>(*itLabel));
+	  ParameterSet workersParams(proc_pset.getParameterSet(*itLabel));
 	  WorkerParams params(proc_pset, workersParams,
 			      *prod_reg_, *act_table_,
 			      processName_, getReleaseVersion(), getPassID());
@@ -318,7 +318,7 @@ namespace edm {
   }
 
   void Schedule::fillWorkers(std::string const& name, PathWorkers& out) {
-    vstring modnames = pset_.getParameter<vstring>(name);
+    vstring modnames = pset_.getVString(name);
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
@@ -333,7 +333,7 @@ namespace edm {
 
       ParameterSet modpset;
       try {
-	modpset= pset_.getParameter<ParameterSet>(realname);
+	modpset= pset_.getParameterSet(realname);
       } catch(cms::Exception&) {
 	std::string pathType("endpath");
 	if(!search_all(end_path_name_list_, name)) {

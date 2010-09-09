@@ -64,20 +64,20 @@ namespace edm {
 
       // find all HLTPrescaler modules
       set<string> prescalerModules;
-      vector<string> allModules=prcPS.getParameter<vector<string> >("@all_modules");
+      vector<string> allModules=prcPS.getVString("@all_modules");
       for(unsigned int i=0;i<allModules.size();i++) {
-	ParameterSet pset  = prcPS.getParameter<ParameterSet>(allModules[i]);
-	string moduleLabel = pset.getParameter<std::string>("@module_label");
-	string moduleType  = pset.getParameter<std::string>("@module_type");
+	ParameterSet pset  = prcPS.getParameterSet(allModules[i]);
+	string moduleLabel = pset.getString("@module_label");
+	string moduleType  = pset.getString("@module_type");
 	if (moduleType=="HLTPrescaler") prescalerModules.insert(moduleLabel);
       }
 
       // find all paths with an HLTPrescaler and check for <=1
       std::set<string> prescaledPathSet;
-      vector<string> allPaths = prcPS.getParameter< vector<string> >("@paths");
+      vector<string> allPaths = prcPS.getVString("@paths");
       for (unsigned int iP=0;iP<allPaths.size();iP++) {
 	string pathName = allPaths[iP];
-	vector<string> modules = prcPS.getParameter< vector<string> >(pathName);
+	vector<string> modules = prcPS.getVString(pathName);
 	for (unsigned int iM=0;iM<modules.size();iM++) {
 	  string moduleLabel = modules[iM];
 	  if (prescalerModules.erase(moduleLabel)>0) {
@@ -91,7 +91,7 @@ namespace edm {
       }
 
       // get prescale table and check consistency with above information
-      lvl1Labels_ = iPS.getParameter< vector<string> >("lvl1Labels");
+      lvl1Labels_ = iPS.getVString("lvl1Labels");
       nLvl1Index_ = lvl1Labels_.size();
 
       string lvl1DefaultLabel=
@@ -100,15 +100,15 @@ namespace edm {
 	if (lvl1Labels_[i]==lvl1DefaultLabel) iLvl1IndexDefault_=i;
 
       vector<ParameterSet> vpsetPrescales=
-	iPS.getParameter< vector<ParameterSet> >("prescaleTable");
+	iPS.getVPSet("prescaleTable");
 
       vector<string> prescaledPaths;
       for (unsigned int iVPSet=0;iVPSet<vpsetPrescales.size();iVPSet++) {
 	ParameterSet psetPrescales = vpsetPrescales[iVPSet];
-	string pathName = psetPrescales.getParameter<string>("pathName");
+	string pathName = psetPrescales.getString("pathName");
 	if (prescaledPathSet.erase(pathName)>0) {
 	  vector<unsigned int> prescales =
-	    psetPrescales.getParameter<vector<unsigned int> >("prescales");
+	    psetPrescales.getVUint("prescales");
 	  if (prescales.size()!=nLvl1Index_) {
 	    throw cms::Exception("PrescaleTableMismatch")
 	      <<"path '"<<pathName<<"' has unexpected number of prescales";

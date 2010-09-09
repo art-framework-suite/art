@@ -12,7 +12,7 @@
 // Framework support:
 #include "art/Framework/Core/RandomNumberGeneratorService.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 // ======================================================================
@@ -43,7 +43,7 @@ namespace edm {
 
     // --- seed access
     seed_t
-      get_seed_value( edm::ParameterSet const &  pset
+      get_seed_value( fhicl::ParameterSet const &  pset
                     , char              const    key [ ]       = "seed"
                     , seed_t            const    implicit_seed = -1
                     );

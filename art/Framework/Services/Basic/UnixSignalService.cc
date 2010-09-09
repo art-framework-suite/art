@@ -2,14 +2,14 @@
 #include <iostream>
 
 #include "art/Framework/Services/Basic/UnixSignalService.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 
 
 namespace edm {
   namespace service {
 
-    UnixSignalService::UnixSignalService(edm::ParameterSet const& pset,
+    UnixSignalService::UnixSignalService(fhicl::ParameterSet const& pset,
                                          edm::ActivityRegistry& registry)
       : enableSigInt_(pset.getUntrackedParameter<bool>("EnableCtrlC",true))
     {

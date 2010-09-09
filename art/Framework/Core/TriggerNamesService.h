@@ -29,7 +29,7 @@
 
 */
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <map>
@@ -114,11 +114,11 @@ namespace edm {
       bool wantSummary() const { return wantSummary_; }
 
       // Parameter set containing the trigger paths
-      edm::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
+      fhicl::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
 
     private:
 
-      edm::ParameterSet trigger_pset_;
+      fhicl::ParameterSet trigger_pset_;
 
       Strings trignames_;
       PosMap  trigpos_;

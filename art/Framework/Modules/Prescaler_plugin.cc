@@ -9,7 +9,7 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 // --- Contents:
@@ -46,8 +46,8 @@ private:
 
 Prescaler::Prescaler( ParameterSet const & ps )
   : count_ ( 0 )
-  , n_     ( ps.getParameter<int>("prescaleFactor") )
-  , offset_( ps.getParameter<int>("prescaleOffset") )
+  , n_     ( ps.getInt("prescaleFactor") )
+  , offset_( ps.getInt("prescaleOffset") )
 { }
 
 

@@ -11,7 +11,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GenericHandle.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Utilities/Algorithms.h"
@@ -41,7 +41,7 @@ class edm::EventContentAnalyzer
   : public EDAnalyzer
 {
 public:
-  explicit EventContentAnalyzer(edm::ParameterSet const & );
+  explicit EventContentAnalyzer(fhicl::ParameterSet const & );
   ~EventContentAnalyzer();
 
   virtual void analyze( edm::Event const & );
@@ -326,7 +326,7 @@ static void
 
 // constructors and destructor
 
-EventContentAnalyzer::EventContentAnalyzer( edm::ParameterSet const & ps )
+EventContentAnalyzer::EventContentAnalyzer( fhicl::ParameterSet const & ps )
 : indentation_       ( ps.getUntrackedParameter( "indentation"
                                                , std::string("++")) )
 , verboseIndentation_( ps.getUntrackedParameter( "verboseIndentation"

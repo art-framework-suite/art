@@ -42,7 +42,7 @@ public:
          // ---------- const member functions ---------------------
          virtual const std::type_info& serviceType() const = 0;
 
-         virtual bool make(const edm::ParameterSet&,
+         virtual bool make(const fhicl::ParameterSet&,
                            edm::ActivityRegistry&,
                            ServicesManager&) const = 0;
 

@@ -31,7 +31,7 @@ namespace edm {
    {
 
    public:
-      LoadAllDictionaries(const edm::ParameterSet&);
+      LoadAllDictionaries(const fhicl::ParameterSet&);
       //virtual ~LoadAllDictionaries();
 
       // ---------- const member functions ---------------------

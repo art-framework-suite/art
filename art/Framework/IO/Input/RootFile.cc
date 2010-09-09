@@ -24,7 +24,7 @@
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "MessageFacility/MessageLogger.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/Persistency/Common/EDProduct.h"

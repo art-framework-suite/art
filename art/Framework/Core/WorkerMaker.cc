@@ -14,8 +14,8 @@ Maker::createModuleDescription(WorkerParams const &p) const
   ParameterSet const& conf = *p.pset_;
   ModuleDescription md;
   md.parameterSetID_ = conf.id();
-  md.moduleName_ = conf.getParameter<std::string>("@module_type");
-  md.moduleLabel_ = conf.getParameter<std::string>("@module_label");
+  md.moduleName_ = conf.getString("@module_type");
+  md.moduleLabel_ = conf.getString("@module_label");
   md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_);
   return md;
 }

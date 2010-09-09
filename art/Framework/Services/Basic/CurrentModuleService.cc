@@ -17,7 +17,7 @@
 #include "art/Framework/Services/Basic/CurrentModuleService.h"
   using edm::CurrentModuleService;
 namespace edm { class ParameterSet; }
-  using edm::ParameterSet;
+  using fhicl::ParameterSet;
 
 
 // ======================================================================

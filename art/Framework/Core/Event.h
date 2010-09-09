@@ -36,7 +36,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace edm {
 

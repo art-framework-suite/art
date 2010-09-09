@@ -14,7 +14,7 @@ class InitRootHandlers : public RootHandlers
 {
 
 public:
-  InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity);
+  InitRootHandlers (fhicl::ParameterSet const& pset, edm::ActivityRegistry & activity);
   virtual ~InitRootHandlers ();
 
 private:

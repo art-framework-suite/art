@@ -50,8 +50,8 @@ namespace edm {
   // These are intentionally not implemented to prevent one
   // from calling add<ParameterSet>.  One should call
   // add<ParameterSetDescription> instead.
-  // TYPE_TO_ENUM(edm::ParameterSet,k_PSet)
-  // TYPE_TO_ENUM(std::vector<edm::ParameterSet>,k_VPSet)
+  // TYPE_TO_ENUM(fhicl::ParameterSet,k_PSet)
+  // TYPE_TO_ENUM(std::vector<fhicl::ParameterSet>,k_VPSet)
 
   std::string parameterTypeEnumToString(ParameterTypes iType) {
     switch(iType) {

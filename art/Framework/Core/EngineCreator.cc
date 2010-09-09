@@ -45,7 +45,7 @@ EngineCreator::base_engine_t &
 }
 
 EngineCreator::seed_t
-  EngineCreator::get_seed_value( edm::ParameterSet const &  pset
+  EngineCreator::get_seed_value( fhicl::ParameterSet const &  pset
                                , char              const    key [ ]
                                , seed_t            const    implicit_seed
                                )

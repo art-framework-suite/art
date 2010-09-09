@@ -15,7 +15,7 @@ namespace edm {
 
 class UpdaterService {
  public:
-  UpdaterService(const edm::ParameterSet & cfg, edm::ActivityRegistry & r );
+  UpdaterService(const fhicl::ParameterSet & cfg, edm::ActivityRegistry & r );
   ~UpdaterService();
 
   void init(const edm::EventID&, const edm::Timestamp&); //preEvent

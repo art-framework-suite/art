@@ -45,7 +45,7 @@ namespace edm {
       template< class T, class TConcrete = T>
          struct AllArgsMaker : public MakerBase<T,TConcrete> {
 
-         std::auto_ptr<T> make(const edm::ParameterSet& iPS,
+         std::auto_ptr<T> make(const fhicl::ParameterSet& iPS,
                                edm::ActivityRegistry& iAR) const
          {
             return std::auto_ptr<T>(new TConcrete(iPS, iAR));
@@ -54,7 +54,7 @@ namespace edm {
 
       template< class T, class TConcrete = T>
       struct ParameterSetMaker : public MakerBase<T,TConcrete> {
-         std::auto_ptr<T> make(const edm::ParameterSet& iPS,
+         std::auto_ptr<T> make(const fhicl::ParameterSet& iPS,
                                edm::ActivityRegistry& /* iAR */) const
          {
             return std::auto_ptr<T>(new TConcrete(iPS));
@@ -63,7 +63,7 @@ namespace edm {
 
       template< class T, class TConcrete = T>
       struct NoArgsMaker : public MakerBase<T,TConcrete> {
-         std::auto_ptr<T> make(const edm::ParameterSet& /* iPS */,
+         std::auto_ptr<T> make(const fhicl::ParameterSet& /* iPS */,
                                edm::ActivityRegistry& /* iAR */) const
          {
             return std::auto_ptr<T>(new TConcrete());
@@ -82,7 +82,7 @@ public:
          // ---------- const member functions ---------------------
          virtual const std::type_info& serviceType() const { return typeid(T); }
 
-         virtual bool make(const edm::ParameterSet& iPS,
+         virtual bool make(const fhicl::ParameterSet& iPS,
                            edm::ActivityRegistry& iAR,
                            ServicesManager& oSM) const
          {

@@ -31,7 +31,7 @@
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 #include "art/Framework/Services/Registry/Service.h"
 

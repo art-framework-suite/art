@@ -10,7 +10,7 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/Algorithms.h"
 

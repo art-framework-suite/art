@@ -5,7 +5,7 @@
 #include <iostream>
 #include "art/Persistency/Common/Trie.h"
 
-UpdaterService::UpdaterService(const edm::ParameterSet & cfg, edm::ActivityRegistry & r ) :
+UpdaterService::UpdaterService(const fhicl::ParameterSet & cfg, edm::ActivityRegistry & r ) :
   theEventId(0) {
   r.watchPreProcessEvent( this, & UpdaterService::init );
   theInit();

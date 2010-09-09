@@ -2,7 +2,7 @@
 #ifndef PythonParameterSet_h
 #define PythonParameterSet_h
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include <boost/python.hpp>
 #include "art/ParameterSet/PythonWrapper.h"
 
@@ -11,7 +11,7 @@ class PythonParameterSet
 public:
   PythonParameterSet();
 
-  PythonParameterSet(const edm::ParameterSet & p)
+  PythonParameterSet(const fhicl::ParameterSet & p)
   : theParameterSet(p) {}
 
   template <class T>
@@ -78,7 +78,7 @@ public:
 
   PythonParameterSet getPSet(bool tracked, std::string const& name) const
   {
-    return PythonParameterSet(getParameter<edm::ParameterSet>(tracked, name));
+    return PythonParameterSet(getParameter<fhicl::ParameterSet>(tracked, name));
   }
 
 
@@ -109,12 +109,12 @@ public:
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 
-  const edm::ParameterSet & pset() const {return theParameterSet;}
+  const fhicl::ParameterSet & pset() const {return theParameterSet;}
 
   std::string dump() const {return theParameterSet.dump();}
 
 private:
-  edm::ParameterSet theParameterSet;
+  fhicl::ParameterSet theParameterSet;
 };
 
 #endif

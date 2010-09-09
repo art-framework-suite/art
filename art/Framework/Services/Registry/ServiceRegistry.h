@@ -25,7 +25,7 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // forward declarations
 namespace edm {
@@ -99,7 +99,7 @@ namespace edm {
       /// create a service token that holds the service defined by iService
       template<class T>
          static ServiceToken createContaining(std::auto_ptr<T> iService){
-            std::vector<edm::ParameterSet> config;
+            std::vector<fhicl::ParameterSet> config;
             boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(config) );
             boost::shared_ptr<serviceregistry::ServiceWrapper<T> >
                wrapper(new serviceregistry::ServiceWrapper<T>(iService));
@@ -110,7 +110,7 @@ namespace edm {
          static ServiceToken createContaining(std::auto_ptr<T> iService,
                                               ServiceToken iToken,
                                               serviceregistry::ServiceLegacy iLegacy){
-            std::vector<edm::ParameterSet> config;
+            std::vector<fhicl::ParameterSet> config;
             boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(iToken,
                                                                                                               iLegacy,
                                                                                                               config) );
@@ -122,7 +122,7 @@ namespace edm {
       /// create a service token that holds the service held by iWrapper
       template<class T>
          static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper) {
-            std::vector<edm::ParameterSet> config;
+            std::vector<fhicl::ParameterSet> config;
             boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(config) );
             manager->put(iWrapper);
             return manager;
@@ -131,7 +131,7 @@ namespace edm {
          static ServiceToken createContaining(boost::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
                                               ServiceToken iToken,
                                               serviceregistry::ServiceLegacy iLegacy){
-            std::vector<edm::ParameterSet> config;
+            std::vector<fhicl::ParameterSet> config;
             boost::shared_ptr<serviceregistry::ServicesManager> manager( new serviceregistry::ServicesManager(iToken,
                                                                                                               iLegacy,
                                                                                                               config) );

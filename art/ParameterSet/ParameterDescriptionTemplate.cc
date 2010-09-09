@@ -39,7 +39,7 @@ namespace edm {
     if (exists) {
       ParameterSet containedPSet;
       if (isTracked()) {
-        containedPSet = pset.getParameter<ParameterSet>(label());
+        containedPSet = pset.getParameterSet(label());
       }
       else {
         containedPSet = pset.getUntrackedParameter<ParameterSet>(label());
@@ -94,7 +94,7 @@ namespace edm {
     if (exists) {
       std::vector<ParameterSet> containedPSets;
       if (isTracked()) {
-        containedPSets = pset.getParameter<std::vector<ParameterSet> >(label());
+        containedPSets = pset.getVPSet(label());
       }
       else {
         containedPSets = pset.getUntrackedParameter<std::vector<ParameterSet> >(label());

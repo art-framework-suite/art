@@ -12,7 +12,7 @@
 //
 
 #include "art/ParameterSet/ParameterSetDescription.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Entry.h"
 #include "art/Utilities/Algorithms.h"
 

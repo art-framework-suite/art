@@ -15,7 +15,7 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "MessageFacility/MessageLogger.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #ifdef RNGS
@@ -67,7 +67,7 @@ namespace edm {
   , processingMode_      ( RunsSubRunsAndEvents )
   , moduleDescription_   ( desc.moduleDescription_ )
   , productRegistry_     ( createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_) )
-  , primary_             ( pset.getParameter<std::string>("@module_label") == std::string("@main_input") )
+  , primary_             ( pset.getString("@module_label") == std::string("@main_input") )
   , processGUID_         ( primary_ ? createGlobalIdentifier() : std::string() )
   , time_                ( )
   , doneReadAhead_       ( false )

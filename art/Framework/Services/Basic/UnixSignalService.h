@@ -23,7 +23,7 @@ namespace edm {
       bool enableSigInt_;
 
     public:
-      UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac);
+      UnixSignalService(fhicl::ParameterSet const& ps, edm::ActivityRegistry& ac);
       ~UnixSignalService();
 
     }; // class UnixSignalService

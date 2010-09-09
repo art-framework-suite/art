@@ -1,7 +1,7 @@
 #ifndef Framework_Actions_h
 #define Framework_Actions_h
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <map>

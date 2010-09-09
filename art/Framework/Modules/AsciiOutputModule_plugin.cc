@@ -9,7 +9,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/Provenance.h"
 
 #include "MessageFacility/MessageLogger.h"

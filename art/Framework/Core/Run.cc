@@ -4,7 +4,7 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 
 namespace edm {

@@ -27,7 +27,7 @@
 //
 
 #include "art/ParameterSet/ParameterDescription.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>

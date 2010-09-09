@@ -16,7 +16,7 @@
 
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
 
 
@@ -37,7 +37,7 @@ namespace edm
     };
 
     typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID,
-    					    edm::ParameterSet,
+    					    fhicl::ParameterSet,
 					    ProcessParameterSetIDCache>
                                             Registry;
 
@@ -51,10 +51,10 @@ namespace edm
     /// 'false' if the ParameterSet was already present.
 
     bool insertParameterSetIntoRegistry(Registry* reg,
-					edm::ParameterSet const& p);
+					fhicl::ParameterSet const& p);
 
     void loadAllNestedParameterSets(Registry* reg,
-				    edm::ParameterSet const& main);
+				    fhicl::ParameterSet const& main);
 
 
     /// Return the ParameterSetID of the top-level ParameterSet stored

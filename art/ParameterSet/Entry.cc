@@ -11,7 +11,7 @@
 
 #include "art/ParameterSet/Entry.h"
 #include "art/Utilities/EDMException.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/types.h"
 
 #include <map>

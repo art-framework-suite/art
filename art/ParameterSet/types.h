@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // ----------------------------------------------------------------------
 // contents

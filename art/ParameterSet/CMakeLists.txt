@@ -6,7 +6,6 @@ set( artParameterSet_sources Entry.cc
                              MakeParameterSets.cc
                              ParameterDescription.cc
                              ParameterDescriptionTemplate.cc
-                             ParameterSet.cc
                              ParameterSetDescription.cc
                              ParameterSetDescriptionFillerBase.cc
                              ParameterSetEntry.cc
@@ -40,7 +39,6 @@ install(FILES Entry.h
               ParameterSetDescription.h
               ParameterSetEntry.h
               ParameterSetfwd.h
-              ParameterSet.h
               ProcessDesc.h
               pythonFileToConfigure.h
               PythonParameterSet.h

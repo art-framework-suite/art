@@ -11,7 +11,7 @@ static const char CVSId[] = "";
 
 
 #include "art/ParameterSet/ProcessDesc.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Algorithms.h"
@@ -48,7 +48,7 @@ namespace edm
   }
 
 
-  boost::shared_ptr<edm::ParameterSet>
+  boost::shared_ptr<fhicl::ParameterSet>
   ProcessDesc::getProcessPSet() const{
     return pset_;
 
@@ -78,9 +78,9 @@ namespace edm
 
   void ProcessDesc::addDefaultService(const std::string & service)
   {
-    typedef std::vector<edm::ParameterSet>::iterator Iter;
+    typedef std::vector<fhicl::ParameterSet>::iterator Iter;
     for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
-        std::string name = it->getParameter<std::string>("@service_type");
+        std::string name = it->getString("@service_type");
 
         if (name == service) {
           // If the service is already there move it to the end so

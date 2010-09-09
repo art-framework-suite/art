@@ -22,8 +22,8 @@ namespace edm {
       trigger_pset_ =
 	pset.getUntrackedParameter<ParameterSet>("@trigger_paths");
 
-      trignames_ = trigger_pset_.getParameter<Strings>("@trigger_paths");
-      end_names_ = pset.getParameter<Strings>("@end_paths");
+      trignames_ = trigger_pset_.getVString("@trigger_paths");
+      end_names_ = pset.getVString("@end_paths");
 
       ParameterSet defopts;
       ParameterSet opts =
@@ -31,14 +31,14 @@ namespace edm {
       wantSummary_ =
 	opts.getUntrackedParameter("wantSummary",false);
 
-      process_name_ = pset.getParameter<std::string>("@process_name");
+      process_name_ = pset.getString("@process_name");
 
       loadPosMap(trigpos_,trignames_);
       loadPosMap(end_pos_,end_names_);
 
       const unsigned int n(trignames_.size());
       for(unsigned int i=0;i!=n;++i) {
-        modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
+        modulenames_.push_back(pset.getVString(trignames_[i]));
       }
     }
 
@@ -62,7 +62,7 @@ namespace edm {
         std::string name("@trigger_paths");
 	if (search_all(psetNames, name)) {
           // It is there, get it
-          trigPaths = pset.getParameter<Strings>("@trigger_paths");
+          trigPaths = pset.getVString("@trigger_paths");
 
           // This should never happen
           if (trigPaths.size() != triggerResults.size()) {

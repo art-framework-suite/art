@@ -30,10 +30,10 @@ namespace edm
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
-    explicit TriggerResultInserter(edm::ParameterSet const& ps);
+    explicit TriggerResultInserter(fhicl::ParameterSet const& ps);
 
     // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(edm::ParameterSet const& ps, const TrigResPtr& trptr);
+    TriggerResultInserter(fhicl::ParameterSet const& ps, const TrigResPtr& trptr);
     virtual ~TriggerResultInserter();
 
     virtual void produce(edm::Event& e);

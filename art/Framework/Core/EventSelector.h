@@ -15,7 +15,7 @@
 //	nonveto_bits_ is designed to also accomodate an AND of triggers
 //      selection criterion, if that is wanted at some future date.
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Persistency/Provenance/ParameterSetID.h"
@@ -49,7 +49,7 @@ namespace edm
     explicit
     EventSelector(Strings const& pathspecs);
 
-    EventSelector(edm::ParameterSet const& pset,
+    EventSelector(fhicl::ParameterSet const& pset,
 		  Strings const& triggernames);
 
     bool wantAll() const { return accept_all_; }
@@ -67,7 +67,7 @@ namespace edm
     boost::shared_ptr<TriggerResults>
       maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string>
-      getEventSelectionVString(edm::ParameterSet const& pset);
+      getEventSelectionVString(fhicl::ParameterSet const& pset);
 
   private:
 

@@ -4,7 +4,7 @@
 #include "art/Framework/Services/Basic/TFileService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/Service.h"
 
 using namespace std;
@@ -15,11 +15,11 @@ namespace edm
   TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
     TFileDirectory("",
 		   "",
-		   new TFile(cfg.getParameter<string>("fileName").c_str() ,
+		   new TFile(cfg.getString("fileName").c_str() ,
 			     "RECREATE"),
 		   ""),
     file_(TFileDirectory::file_),
-    fileName_(cfg.getParameter<string>("fileName")),
+    fileName_(cfg.getString("fileName")),
     fileNameRecorded_(false),
     closeFileFast_(cfg.getUntrackedParameter<bool>("closeFileFast", false))
   {

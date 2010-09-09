@@ -31,7 +31,7 @@ namespace edm {
   class CurrentModuleService
   {
   public:
-    CurrentModuleService( edm::ParameterSet const &
+    CurrentModuleService( fhicl::ParameterSet const &
                         , edm::ActivityRegistry &
                         );
     ~CurrentModuleService();

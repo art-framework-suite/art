@@ -1,7 +1,7 @@
 
 #include "art/Framework/Services/Basic/InitRootHandlers.h"
 #include "art/Framework/Services/RootAutoLibraryLoader/RootAutoLibraryLoader.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
@@ -146,7 +146,7 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
 
 namespace edm {
 namespace service {
-InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::ActivityRegistry & activity)
+InitRootHandlers::InitRootHandlers (fhicl::ParameterSet const& pset, edm::ActivityRegistry & activity)
   : RootHandlers(),
     unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
     resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler", true)),

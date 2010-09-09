@@ -11,7 +11,7 @@
 #include "art/Framework/Core/GenericHandle.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
 
@@ -42,7 +42,7 @@ class edm::XMLOutputModule
   : public OutputModule
 {
 public:
-  XMLOutputModule(edm::ParameterSet const & );
+  XMLOutputModule(fhicl::ParameterSet const & );
   virtual ~XMLOutputModule();
 
 private:

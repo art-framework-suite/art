@@ -15,7 +15,7 @@ namespace edm {
   class TFileService : public TFileDirectory {
   public:
     /// constructor
-    TFileService(const edm::ParameterSet &, edm::ActivityRegistry &);
+    TFileService(const fhicl::ParameterSet &, edm::ActivityRegistry &);
     /// destructor
     ~TFileService();
     /// return opened TFile

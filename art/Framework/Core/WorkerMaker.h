@@ -4,7 +4,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/Core/WorkerParams.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Utilities/EDMException.h"
 

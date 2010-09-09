@@ -10,7 +10,7 @@
 #include "art/Utilities/Exception.h"
 
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/IO/Catalog/SiteLocalConfig.h"
 

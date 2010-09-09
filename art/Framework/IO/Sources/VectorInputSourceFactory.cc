@@ -1,6 +1,6 @@
 
 #include "art/Framework/IO/Sources/VectorInputSourceFactory.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
 
@@ -34,7 +34,7 @@ namespace edm {
 					InputSourceDescription const& desc) const
 
   {
-    std::string modtype = conf.getParameter<std::string>("@module_type");
+    std::string modtype = conf.getString("@module_type");
     FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << std::endl;
     std::auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
 

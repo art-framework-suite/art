@@ -1,7 +1,7 @@
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/TriggerResults.h"
 
 #include <memory>
