@@ -6,25 +6,29 @@
 
 VectorInputSource: Abstract interface for vector input sources.
 
-
 ----------------------------------------------------------------------*/
+
+
+
+#include "art/Framework/IO/Sources/EDInputSource.h"
+
+#include "fhicl/ParameterSet.h"
+#include "boost/shared_ptr.hpp"
 
 #include <memory>
 #include <string>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
-#include "art/Framework/IO/Sources/EDInputSource.h"
 
 namespace edm {
   class EventPrincipal;
   class InputSourceDescription;
-  class ParameterSet;
+
   class VectorInputSource : public EDInputSource {
   public:
     typedef boost::shared_ptr<EventPrincipal> EventPrincipalVectorElement;
     typedef std::vector<EventPrincipalVectorElement> EventPrincipalVector;
-    explicit VectorInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit VectorInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~VectorInputSource();
 
     void readMany(int number, EventPrincipalVector& result);
@@ -38,6 +42,7 @@ namespace edm {
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) = 0;
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Sources_VectorInputSource_h

@@ -3,28 +3,27 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-//
-//
 // Class GroupSelectorRules. Class for rules to select specific groups in event.
 //
 // Author: Bill Tanenbaum, Marc Paterno
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #include <iosfwd>
 #include <string>
 #include <vector>
 
-#include <boost/regex.hpp>
+#include "boost/regex.hpp"
+#include "fhicl::ParameterSet.h"
 
 namespace edm {
   class BranchDescription;
   class GroupSelector;
-  class ParameterSet;
 
   class GroupSelectorRules {
   public:
-    GroupSelectorRules(ParameterSet const& pset, std::string const& parameterName, std::string const& parameterOwnerName);
+    GroupSelectorRules(fhicl::ParameterSet const& pset, std::string const& parameterName, std::string const& parameterOwnerName);
     //--------------------------------------------------
     // BranchSelectState is a struct which associates a BranchDescription
     // (*desc) with a bool indicating whether or not the branch with
@@ -83,8 +82,6 @@ namespace edm {
     bool keepAll_;
   };
 
-} // namespace edm
+}  // namespace edm
 
-
-
-#endif
+#endif  // FWCore_Framework_GroupSelectorRules_h

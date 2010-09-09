@@ -11,12 +11,12 @@ NOTE: This is *very* incomplete.
 
 #include "art/ParameterSet/Registry.h"
 
+#include "fhicl/ParameterSet.h"
+
 namespace edm
 {
-  class ParameterSet;
   class FileInPath;
   class ParameterSetDescription;
 }
 
-#endif
-
+#endif  // ParameterSet_ParameterSetfwd_h

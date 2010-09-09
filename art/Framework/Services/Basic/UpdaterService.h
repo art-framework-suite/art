@@ -1,20 +1,23 @@
 #ifndef UpdaterService_H
 #define UpdaterService_H
 
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include <art/Persistency/Provenance/ModuleDescription.h>
 
-namespace edm {
-  class ParameterSet;
-  class EventID;
-  class TimeStamp;
-}
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "fhicl/ParameterSet.h"
 
 #include <map>
 #include <string>
 
+
+namespace edm {
+  class EventID;
+  class TimeStamp;
+}
+
+
 class UpdaterService {
- public:
+public:
   UpdaterService(const fhicl::ParameterSet & cfg, edm::ActivityRegistry & r );
   ~UpdaterService();
 
@@ -24,10 +27,10 @@ class UpdaterService {
   bool checkOnce(std::string);
   bool check(std::string, std::string);
 
- private:
+private:
   void theInit();
   std::map< std::string, uint > theCounts;
   const edm::EventID * theEventId;
 };
 
-#endif
+#endif  // UpdaterService_H

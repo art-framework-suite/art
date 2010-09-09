@@ -1,6 +1,6 @@
 #ifndef ServiceRegistry_ServiceWrapper_h
 #define ServiceRegistry_ServiceWrapper_h
-// -*- C++ -*-
+
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceWrapper
@@ -13,51 +13,41 @@
     Implementation detail of the ServiceRegistry system
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:01 EDT 2005
-//
-//
 
-// system include files
-#include <memory>
 
-// user include files
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 
-// forward declarations
+#include "fhicl/ParameterSet.h"
+
+#include <memory>
+
+
 namespace edm {
-   class ParameterSet;
-   class ActivityRegistry;
+  class ActivityRegistry;
 
-   namespace serviceregistry {
+  namespace serviceregistry {
 
-      template< class T>
-      class ServiceWrapper : public ServiceWrapperBase
-      {
+    template< class T >
+    class ServiceWrapper : public ServiceWrapperBase
+    {
+    public:
+      ServiceWrapper(std::auto_ptr<T> iService) :
+      service_(iService) {}
 
-public:
-         ServiceWrapper(std::auto_ptr<T> iService) :
-         service_(iService) {}
-         //virtual ~ServiceWrapper();
+      // ---------- const member functions ---------------------
+      T& get() const { return *service_; }
 
-         // ---------- const member functions ---------------------
-         T& get() const { return *service_; }
+    private:
+      // no copying
+      ServiceWrapper(const ServiceWrapper&);
+      const ServiceWrapper& operator=(const ServiceWrapper&);
 
-         // ---------- static member functions --------------------
+      // ---------- member data --------------------------------
+      std::auto_ptr<T> service_;
 
-         // ---------- member functions ---------------------------
+    };
 
-private:
-         ServiceWrapper(const ServiceWrapper&); // stop default
+  }  // namespace serviceregistry
+}  // namespace edm
 
-         const ServiceWrapper& operator=(const ServiceWrapper&); // stop default
-
-         // ---------- member data --------------------------------
-         std::auto_ptr<T> service_;
-
-      };
-   }
-}
-
-#endif
+#endif  // ServiceRegistry_ServiceWrapper_h

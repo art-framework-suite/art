@@ -1,6 +1,6 @@
 #ifndef FWCore_ServiceRegistry_ServiceMakerBase_h
 #define FWCore_ServiceRegistry_ServiceMakerBase_h
-// -*- C++ -*-
+
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceMakerBase
@@ -13,52 +13,40 @@
     Internal detail of implementation of the ServiceRegistry system
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:00 EDT 2005
-//
-//
 
-// system include files
 
-// user include files
+#include "fhicl/ParameterSet.h"
 
-// forward declarations
+
 namespace edm {
-   class ParameterSet;
-   class ActivityRegistry;
+  class ActivityRegistry;
 
-   namespace serviceregistry {
+  namespace serviceregistry {
 
-      class ServiceWrapperBase;
-      class ServicesManager;
+    class ServiceWrapperBase;
+    class ServicesManager;
 
-      class ServiceMakerBase {
+    class ServiceMakerBase {
 
-public:
-         ServiceMakerBase();
-         virtual ~ServiceMakerBase();
+    public:
+      ServiceMakerBase();
+      virtual ~ServiceMakerBase();
 
-         // ---------- const member functions ---------------------
-         virtual const std::type_info& serviceType() const = 0;
+      // ---------- const member functions ---------------------
+      virtual const std::type_info& serviceType() const = 0;
 
-         virtual bool make(const fhicl::ParameterSet&,
-                           edm::ActivityRegistry&,
-                           ServicesManager&) const = 0;
+      virtual bool make(const fhicl::ParameterSet&,
+                        edm::ActivityRegistry&,
+                        ServicesManager&) const = 0;
 
-         // ---------- static member functions --------------------
+    private:
+      // no copying
+      ServiceMakerBase(const ServiceMakerBase&);
+      const ServiceMakerBase& operator=(const ServiceMakerBase&);
 
-         // ---------- member functions ---------------------------
+    };
 
-private:
-         ServiceMakerBase(const ServiceMakerBase&); // stop default
+  }  // namespace serviceregistry
+}  // namespace edm
 
-         const ServiceMakerBase& operator=(const ServiceMakerBase&); // stop default
-
-         // ---------- member data --------------------------------
-
-      };
-   }
-}
-
-#endif
+#endif  // FWCore_ServiceRegistry_ServiceMakerBase_h

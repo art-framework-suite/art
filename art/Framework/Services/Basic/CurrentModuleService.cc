@@ -2,21 +2,19 @@
 //
 // Track and make available information re the currently-running module
 //
-//
-//
-//
-//
 // ======================================================================
 
 
-// Framework support:
 #include "art/Persistency/Provenance/ModuleDescription.h"
   using edm::ModuleDescription;
+
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
   using edm::ActivityRegistry;
+
 #include "art/Framework/Services/Basic/CurrentModuleService.h"
   using edm::CurrentModuleService;
-namespace edm { class ParameterSet; }
+
+#include "fhicl/ParameterSet.h"
   using fhicl::ParameterSet;
 
 
@@ -35,8 +33,8 @@ CurrentModuleService::CurrentModuleService( ParameterSet const & //unused
   r.watchPreModuleEndJob      ( this, & CurrentModuleService::note_module );
   r.watchPreModuleBeginRun    ( this, & CurrentModuleService::note_module );
   r.watchPreModuleEndRun      ( this, & CurrentModuleService::note_module );
-  r.watchPreModuleBeginSubRun   ( this, & CurrentModuleService::note_module );
-  r.watchPreModuleEndSubRun     ( this, & CurrentModuleService::note_module );
+  r.watchPreModuleBeginSubRun ( this, & CurrentModuleService::note_module );
+  r.watchPreModuleEndSubRun   ( this, & CurrentModuleService::note_module );
 }  // CurrentModuleService()
 
 

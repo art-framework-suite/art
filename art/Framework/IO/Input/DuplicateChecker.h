@@ -14,21 +14,24 @@ not at all.
 
 ----------------------------------------------------------------------*/
 
+
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+
+#include "fhicl/ParameterSet.h"
 
 #include <set>
 #include <string>
 
+
 namespace edm {
 
-  class ParameterSet;
   class FileIndex;
 
   class DuplicateChecker {
   public:
 
-    DuplicateChecker(ParameterSet const& pset);
+    DuplicateChecker(fhicl::ParameterSet const& pset);
 
     void init(bool realData,
               FileIndex const& fileIndex);
@@ -55,5 +58,7 @@ namespace edm {
 
     bool itIsKnownTheFileHasNoDuplicates_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // DataFormats_Provenance_DuplicateChecker_h

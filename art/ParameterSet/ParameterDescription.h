@@ -1,6 +1,6 @@
 #ifndef FWCore_ParameterSet_ParameterDescription_h
 #define FWCore_ParameterSet_ParameterDescription_h
-// -*- C++ -*-
+
 //
 // Package:     ParameterSet
 // Class  :     ParameterDescription
@@ -9,24 +9,19 @@
 
  Description: Base class for a description of one parameter in a ParameterSet
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Aug  2 15:33:46 EDT 2007
-//
-//
+
 
 #include "art/Utilities/value_ptr.h"
+
+#include "fhicl/ParameterSet.h"
 
 #include <string>
 #include <vector>
 
+
 namespace edm {
 
-  class ParameterSet;
   class ParameterSetDescription;
 
   // The values of this enumeration match the values
@@ -69,7 +64,7 @@ namespace edm {
   public:
     virtual ~ParameterDescription();
 
-    virtual void validate(ParameterSet const& pset) const = 0;
+    virtual void validate(fhicl::ParameterSet const& pset) const = 0;
 
     std::string const& label() const { return label_; }
     ParameterTypes type() const { return type_; }
@@ -110,5 +105,7 @@ namespace edm {
   {
     static ParameterDescription * clone( ParameterDescription const * p ) { return p->clone(); }
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // FWCore_ParameterSet_ParameterDescription_h

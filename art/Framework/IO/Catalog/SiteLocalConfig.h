@@ -1,16 +1,16 @@
 #ifndef FWCore_Catalog_SiteLocalConfig_h
 #define FWCore_Catalog_SiteLocalConfig_h
 
-# include <string>
 
-namespace edm
-{
-    class ParameterSet;
-    class ActivityRegistry;
+#include <string>
+
+
+namespace edm {
+  class ActivityRegistry;
 }
 
-namespace edm
-{
+namespace edm {
+
   class SiteLocalConfig
   {
   public:
@@ -25,6 +25,7 @@ namespace edm
     // implicit assignment operator
   private:
   };
-}
 
-#endif //FWCore_Catalog_SiteLocalConfig_h
+}  // namespace edm
+
+#endif  // FWCore_Catalog_SiteLocalConfig_h

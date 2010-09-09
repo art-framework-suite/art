@@ -1,6 +1,7 @@
 #ifndef FWCore_Services_UnixSignalService_h
 #define FWCore_Services_UnixSignalService_h
 
+
 /*----------------------------------------------------------------------
 
 UnixSignalService: At present, this defines a SIGUSR2 handler and
@@ -10,8 +11,11 @@ This service is instantiated at job startup.
 
 ----------------------------------------------------------------------*/
 
+
+#include "fhicl/ParameterSet.h"
+
+
 namespace edm {
-  class ParameterSet;
   class ActivityRegistry;
   class Event;
 
@@ -23,13 +27,13 @@ namespace edm {
       bool enableSigInt_;
 
     public:
-      UnixSignalService(fhicl::ParameterSet const& ps, edm::ActivityRegistry& ac);
+      UnixSignalService( fhicl::ParameterSet const& ps
+                       , edm::ActivityRegistry& ac );
       ~UnixSignalService();
 
-    }; // class UnixSignalService
+    }; // UnixSignalService
 
   }  // namespace service
-
 }  // namespace edm
 
 #endif  // FWCore_Services_UnixSignalService_h

@@ -7,20 +7,21 @@
     when the value_ptr = 0;
   */
 
+
 #include "art/Utilities/value_ptr.h"
 #include "art/Persistency/Provenance/ParameterSetID.h"
 
-namespace edm {
+#include "fhicl/ParameterSet.h"
 
-  // forward declaration
-  class ParameterSet;
+
+namespace edm {
 
   class ParameterSetEntry
   {
   public:
     // default ctor for serialization
     ParameterSetEntry();
-    ParameterSetEntry(const ParameterSet & pset, bool isTracked);
+    ParameterSetEntry(const fhicl::ParameterSet & pset, bool isTracked);
     ParameterSetEntry(const std::string & rep);
 
     ~ParameterSetEntry();
@@ -34,8 +35,8 @@ namespace edm {
 
     /// returns the PSet, reconstituting it from the
     /// Registry, if necessary
-    const ParameterSet & pset() const;
-    ParameterSet & pset();
+    const fhicl::ParameterSet & pset() const;
+    fhicl::ParameterSet & pset();
 
     /// we expect this to only be called by ParameterSet, on tracked psets
     void updateID() const;
@@ -47,7 +48,7 @@ namespace edm {
     bool tracked;
     // can be internally reconstituted from the ID, in an
     // ostensibly const function
-    mutable value_ptr<ParameterSet> thePSet;
+    mutable value_ptr<fhicl::ParameterSet> thePSet;
 
     // mutable so save() can serialize it as late as possible
     mutable ParameterSetID theID;
@@ -55,7 +56,6 @@ namespace edm {
 
   };
 
-}
+}  // namespace edm
 
-#endif
-
+#endif  // ParameterSet_ParameterSetEntry_h

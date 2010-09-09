@@ -160,25 +160,20 @@
 // ======================================================================
 
 
-// Framework support:
 #include "art/Persistency/Common/RNGsnapshot.h"
 namespace edm {
   class ActivityRegistry;
   class Event;
   class EventID;
-  class ParameterSet;
   class Timestamp;
 }
 
-// CLHEP support:
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-// Boost support:
 #include "boost/shared_ptr.hpp"
+#include "fhicl/ParameterSet.h"
 
-// C++ support:
 #include <map>
 #include <string>
 #include <vector>

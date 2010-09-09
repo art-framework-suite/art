@@ -16,17 +16,16 @@
 #include "art/Persistency/Provenance/ParameterSetID.h"
 
 #include "boost/shared_ptr.hpp"
+#include "fhicl/ParameterSet.h"
 
-namespace edm
-{
+
+namespace edm {
   class Event;
   class HLTGlobalStatus;
-  class ParameterSet;
 
   class TriggerResultInserter : public edm::EDProducer
   {
   public:
-
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
@@ -40,8 +39,9 @@ namespace edm
 
   private:
     TrigResPtr trptr_;
-
     ParameterSetID pset_id_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // FWCore_Framework_TriggerResultsInserter_h

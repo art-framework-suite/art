@@ -1,17 +1,21 @@
 #ifndef FWCore_Sources_VectorInputSourceFactory_h
 #define FWCore_Sources_VectorInputSourceFactory_h
 
-#include "art/Framework/PluginManager/PluginFactory.h"
-#include "art/Framework/IO/Sources/VectorInputSource.h"
 
-#include <string>
+#include "art/Framework/IO/Sources/VectorInputSource.h"
+#include "art/Framework/PluginManager/PluginFactory.h"
+
+#include "fhicl/ParameterSet.h"
+
 #include <memory>
+#include <string>
+
 
 namespace edm {
-  class ParameterSet;
+
   class InputSourceDescription;
 
-  typedef VectorInputSource* (ISVecFunc)(ParameterSet const&, InputSourceDescription const&);
+  typedef VectorInputSource* (ISVecFunc)(fhicl::ParameterSet const&, InputSourceDescription const&);
   typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
   class VectorInputSourceFactory
@@ -22,8 +26,8 @@ namespace edm {
     static VectorInputSourceFactory* get();
 
     std::auto_ptr<VectorInputSource>
-      makeVectorInputSource(ParameterSet const&,
-		       InputSourceDescription const&) const;
+      makeVectorInputSource(fhicl::ParameterSet const&,
+                       InputSourceDescription const&) const;
 
 
   private:
@@ -31,5 +35,6 @@ namespace edm {
     static VectorInputSourceFactory singleInstance_;
   };
 
-}
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Sources_VectorInputSourceFactory_h

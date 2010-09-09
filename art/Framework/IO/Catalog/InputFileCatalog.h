@@ -3,8 +3,6 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-//
-//
 // Class InputFileCatalog. Services to manage InputFile catalog
 //
 // Author of original version: Luca Lista
@@ -12,19 +10,24 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <string>
-#include <vector>
+
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 
+#include "fhicl/ParameterSet.h"
+
+#include <string>
+#include <vector>
+
+
 namespace edm {
-  class ParameterSet;
+
   class InputFileCatalog : public FileCatalog {
   public:
-    explicit InputFileCatalog(ParameterSet const& pset,
-	 PoolCatalog & poolcat,
-	 std::string const& namesParameter = std::string("fileNames"),
-	 bool canBeEmpty = false,
-	 bool noThrow = false);
+    explicit InputFileCatalog(fhicl::ParameterSet const& pset,
+         PoolCatalog & poolcat,
+         std::string const& namesParameter = std::string("fileNames"),
+         bool canBeEmpty = false,
+         bool noThrow = false);
     virtual ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
@@ -36,6 +39,7 @@ namespace edm {
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Catalog_InputFileCatalog_h

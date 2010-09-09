@@ -1,6 +1,6 @@
 #ifndef FWCore_Services_LoadAllDictionaries_h
 #define FWCore_Services_LoadAllDictionaries_h
-// -*- C++ -*-
+
 //
 // Package:     Services
 // Class  :     LoadAllDictionaries
@@ -9,46 +9,29 @@
 
  Description: Loads all Capability dictionaries
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Sep 15 09:47:42 EDT 2005
-//
-//
 
-// system include files
 
-// user include files
+#include "fhicl/ParameterSet.h"
 
-// forward declarations
+
 namespace edm {
-   class ParameterSet;
-   namespace service {
-      class LoadAllDictionaries
-   {
+  namespace service {
 
-   public:
+    class LoadAllDictionaries
+    {
+    public:
       LoadAllDictionaries(const fhicl::ParameterSet&);
-      //virtual ~LoadAllDictionaries();
 
-      // ---------- const member functions ---------------------
+    private:
+      // no copying
+      LoadAllDictionaries(const LoadAllDictionaries&);
+      const LoadAllDictionaries& operator=(const LoadAllDictionaries&);
 
-      // ---------- static member functions --------------------
+    };
 
-      // ---------- member functions ---------------------------
 
-   private:
-      LoadAllDictionaries(const LoadAllDictionaries&); // stop default
+  }  // namespace service
+}  // namespace edm
 
-      const LoadAllDictionaries& operator=(const LoadAllDictionaries&); // stop default
-
-      // ---------- member data --------------------------------
-
-   };
-   }
-}
-
-#endif
+#endif  // FWCore_Services_LoadAllDictionaries_h

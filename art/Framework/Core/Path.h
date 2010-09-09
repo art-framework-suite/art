@@ -9,6 +9,7 @@
   can be kept for each worker.
 */
 
+
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunStopwatch.h"
@@ -18,12 +19,13 @@
 #include "art/Persistency/Common/TriggerResults.h"
 
 #include "boost/shared_ptr.hpp"
+#include "fhicl/ParameterSet.h"
 
 #include <string>
 #include <vector>
 
+
 namespace edm {
-  class ParameterSet;
 
   class Path {
   public:
@@ -34,12 +36,12 @@ namespace edm {
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
-	 WorkersInPath const& workers,
-	 TrigResPtr trptr,
-	 ParameterSet const& proc_pset,
-	 ActionTable& actions,
-	 boost::shared_ptr<ActivityRegistry> reg,
-	 bool isEndPath);
+         WorkersInPath const& workers,
+         TrigResPtr trptr,
+         fhicl::ParameterSet const& proc_pset,
+         ActionTable& actions,
+         boost::shared_ptr<ActivityRegistry> reg,
+         bool isEndPath);
 
     template <typename T>
     void processOneOccurrence(typename T::MyPrincipal&);
@@ -107,11 +109,11 @@ namespace edm {
                        int const& nwrwue,
                        hlt::HLTState const& state) :
       a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
-	if (a_) T::prePathSignal(a_, name_);
+        if (a_) T::prePathSignal(a_, name_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-	if(a_) T::postPathSignal(a_, name_, status);
+        if(a_) T::postPathSignal(a_, name_, status);
       }
     private:
       ActivityRegistry* a_;
@@ -166,6 +168,6 @@ namespace edm {
     recordStatus(nwrwue, T::isEvent_);
   }
 
-}
+}  // namespace edm
 
 #endif  // FWCore_Framework_Path_h

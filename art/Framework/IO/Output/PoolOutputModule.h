@@ -5,28 +5,33 @@
 //
 // Class PoolOutputModule. Output module to POOL file
 //
-// Oringinal Author: Luca Lista
+// Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <string>
-#include "boost/scoped_ptr.hpp"
 
-#include "art/Framework/IO/Common/RootServiceChecker.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/IO/Common/RootServiceChecker.h"
 
+#include "boost/scoped_ptr.hpp"
+#include "fhicl/ParameterSet.h"
 class TTree;
+
+#include <string>
+
+
+
 namespace edm {
-  class ParameterSet;
+
   class RootOutputFile;
 
   class PoolOutputModule : public OutputModule {
-  enum DropMetaData { DropNone, DropPrior, DropAll };
+    enum DropMetaData { DropNone, DropPrior, DropAll };
   public:
     friend class RootOutputFile;
-    explicit PoolOutputModule(ParameterSet const& ps);
+    explicit PoolOutputModule(fhicl::ParameterSet const& ps);
     virtual ~PoolOutputModule();
     std::string const& fileName() const {return fileName_;}
     std::string const& logicalFileName() const {return logicalFileName_;}
@@ -50,7 +55,7 @@ namespace edm {
       OutputItem() : branchDescription_(0), product_(0) {}
 
       explicit OutputItem(BranchDescription const* bd) :
-	branchDescription_(bd), product_(0) {}
+        branchDescription_(bd), product_(0) {}
 
       ~OutputItem() {}
 
@@ -118,6 +123,7 @@ namespace edm {
     int inputFileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // IOPool_Output_PoolOutputModule_h

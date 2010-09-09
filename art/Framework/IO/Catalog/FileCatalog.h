@@ -1,8 +1,8 @@
 #ifndef FWCore_Catalog_FileCatalog_h
 #define FWCore_Catalog_FileCatalog_h
+
+
 //////////////////////////////////////////////////////////////////////
-//
-//
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -11,7 +11,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #include <string>
+
 
 namespace pool
 {
@@ -44,7 +46,6 @@ namespace edm {
     pool::IFileCatalog catalog_;
   };
 
-  class ParameterSet;
   class FileCatalog {
   public:
     explicit FileCatalog(PoolCatalog & poolcat);
@@ -65,4 +66,4 @@ namespace edm {
   };
 }
 
-#endif
+#endif  // FWCore_Catalog_FileCatalog_h

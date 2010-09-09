@@ -11,6 +11,8 @@ Forward declarations of types in the EDM.
 #include "art/Persistency/Common/EDProductfwd.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 
+#include "fhicl/ParameterSet.h"
+
 
 namespace edm {
   class ConfigurableInputSource;
@@ -33,7 +35,6 @@ namespace edm {
   class NoDelayedReader;
   class OutputModule;
   class OutputModuleDescription;
-  class ParameterSet;
   class Principal;
   class ProcessNameSelector;
   class ProductRegistryHelper;

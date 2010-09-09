@@ -5,19 +5,25 @@
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
+
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/InputSource.h"
+#include "art/Persistency/Provenance/EventID.h"
+
+#include "fhicl/ParameterSet.h"
+
 #include "boost/shared_ptr.hpp"
 
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/Frameworkfwd.h"
+#include <memory>
+
 
 namespace edm {
-  class ParameterSet;
+
   class Timestamp;
+
   class RawInputSource : public InputSource {
   public:
-    explicit RawInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit RawInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~RawInputSource();
 
   protected:
@@ -38,5 +44,7 @@ namespace edm {
     bool newSubRun_;
     std::auto_ptr<EventPrincipal> ep_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // FWCore_Sources_RawInputSource_h

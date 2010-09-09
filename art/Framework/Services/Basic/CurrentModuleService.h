@@ -1,25 +1,21 @@
 #ifndef CurrentModuleService_CurrentModuleService_hh
 #define CurrentModuleService_CurrentModuleService_hh
 
+
 // ======================================================================
 //
 // Track and make available information re the currently-running module
 //
-//
-//
-//
-//
 // ======================================================================
 
 
-// Framework support:
 #include "art/Persistency/Provenance/ModuleDescription.h"
 namespace edm {
   class ActivityRegistry;
-  class ParameterSet;
 }
 
-// C++ support:
+#include "fhicl/ParameterSet.h"
+
 #include <string>
 
 
@@ -47,5 +43,3 @@ namespace edm {
 }  // namespace edm
 
 #endif  // CurrentModuleService_CurrentModuleService_hh
-//
-// ======================================================================

@@ -5,20 +5,26 @@
 
 ----------------------------------------------------------------------*/
 
+
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
+
+#include "fhicl/ParameterSet.h"
+
 #include <vector>
 #include <string>
 
+
 namespace edm {
+
   class InputSourceDescription;
-  class ParameterSet;
+
   class EDInputSource : public InputSource {
   public:
-    explicit EDInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit EDInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~EDInputSource();
 
     std::vector<std::string> const& logicalFileNames(int n = 0) const {
@@ -40,5 +46,7 @@ namespace edm {
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // FWCore_Sources_EDInputSource_h

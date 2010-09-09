@@ -12,14 +12,14 @@
 #include "art/Utilities/Exception.h"
 
 #include "MessageFacility/MessageLogger.h"
+#include "fhicl/ParameterSet.h"
 
 
 namespace edm {
-   class ParameterSet;
    class ProvenanceCheckerOutputModule : public OutputModule {
    public:
       // We do not take ownership of passed stream.
-      explicit ProvenanceCheckerOutputModule(ParameterSet const& pset);
+      explicit ProvenanceCheckerOutputModule(fhicl::ParameterSet const& pset);
       virtual ~ProvenanceCheckerOutputModule();
 
    private:
@@ -32,7 +32,7 @@ namespace edm {
 //
 // constructors and destructor
 //
-   ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(ParameterSet const& pset) :
+   ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(fhicl::ParameterSet const& pset) :
    OutputModule(pset)
    { }
 
@@ -168,13 +168,7 @@ namespace edm {
       }
    }
 
-//
-// const member functions
-//
+}  // namespace edm
 
-//
-// static member functions
-//
-}
 using edm::ProvenanceCheckerOutputModule;
 DEFINE_FWK_MODULE(ProvenanceCheckerOutputModule);

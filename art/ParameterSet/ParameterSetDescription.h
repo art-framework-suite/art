@@ -1,6 +1,6 @@
 #ifndef FWCore_ParameterSet_ParameterSetDescription_h
 #define FWCore_ParameterSet_ParameterSetDescription_h
-// -*- C++ -*-
+
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescription
@@ -9,27 +9,19 @@
 
  Description: Used to describe the allowed values in a ParameterSet
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Tue Jul 31 15:18:40 EDT 2007
-//
-//
+
 
 #include "art/ParameterSet/ParameterDescription.h"
 #include "art/Utilities/value_ptr.h"
+
+#include "fhicl/ParameterSet.h"
 
 #include <vector>
 #include <string>
 #include <memory>
 
 namespace edm {
-
-  class ParameterSet;
-  // template <typename T> class ParameterDescriptionTemplate;
 
   class ParameterSetDescription
   {
@@ -90,7 +82,7 @@ namespace edm {
     }
 
     //Throws a cms::Exception if invalid
-    void validate(ParameterSet const& pset) const;
+    void validate(fhicl::ParameterSet const& pset) const;
 
     bool anythingAllowed() const { return anythingAllowed_; }
     bool isUnknown() const { return unknown_; }
@@ -120,27 +112,27 @@ namespace edm {
 
     static void
     validateDescription(value_ptr<ParameterDescription> const& description,
-                        ParameterSet const& pset);
+                        fhicl::ParameterSet const& pset);
 
     void
     validateName(std::string const& parameterName,
-                 ParameterSet const& pset) const;
+                 fhicl::ParameterSet const& pset) const;
 
     static void
     match(value_ptr<ParameterDescription> const& description,
           std::string const& parameterName,
-          ParameterSet const& pset,
+          fhicl::ParameterSet const& pset,
           bool & foundMatch);
 
     static void
     throwIllegalParameter(std::string const& parameterName,
-                          ParameterSet const& pset);
+                          fhicl::ParameterSet const& pset);
 
     bool anythingAllowed_;
     bool unknown_;
     Parameters parameters_;
   };
-}
+}  // namespace edm
 
 #include "art/ParameterSet/ParameterDescriptionTemplate.h"
 
@@ -173,6 +165,7 @@ namespace edm {
 
     return parameters_.back().operator->();
   }
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_ParameterSet_ParameterSetDescription_h

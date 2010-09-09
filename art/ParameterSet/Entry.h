@@ -11,23 +11,24 @@
 // ----------------------------------------------------------------------
 
 
-#include <string>
-#include <vector>
-#include <iosfwd>
-
 #include "art/ParameterSet/FileInPath.h"
 #include "art/Utilities/InputTag.h"
 //@@ not needed, but there might be trouble if we take it out
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+
+#include "fhicl/ParameterSet.h"
 #include <boost/cstdint.hpp>
+
+#include <iosfwd>
+#include <string>
+#include <vector>
+
 
 // ----------------------------------------------------------------------
 // contents
 
 namespace edm {
-  // forward declarations:
-  class ParameterSet;
 
   // ----------------------------------------------------------------------
   // Entry
@@ -116,13 +117,13 @@ namespace edm {
     std::vector<edm::SubRunID> getVSubRunID() const;
 
     // ParameterSet
-    Entry(std::string const& name, ParameterSet const& val, bool is_tracked);
-    ParameterSet getPSet() const;
+    Entry(std::string const& name, fhicl::ParameterSet const& val, bool is_tracked);
+    fhicl::ParameterSet getPSet() const;
 
     // vPSet
-    Entry(std::string const& name, std::vector<ParameterSet> const& val, bool is_tracked);
+    Entry(std::string const& name, std::vector<fhicl::ParameterSet> const& val, bool is_tracked);
 
-    std::vector<ParameterSet>  getVPSet() const;
+    std::vector<fhicl::ParameterSet>  getVPSet() const;
 
     // coded string
     Entry(std::string const& name, std::string const&);
@@ -181,7 +182,8 @@ namespace edm {
   //   operator!=(Entry const& a, Entry const& b) {
   //     return !(a == b);
   //   }
-} // namespace edm
+
+}  // namespace edm
 
 
-#endif
+#endif  // FWCore_ParameterSet_Entry_h

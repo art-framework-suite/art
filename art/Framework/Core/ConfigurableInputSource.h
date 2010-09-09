@@ -5,21 +5,24 @@
 
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
 
-#include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/InputSource.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
-#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/Timestamp.h"
+
+#include "boost/shared_ptr.hpp"
+#include "fhicl/ParameterSet.h"
+
 
 namespace edm {
-  class ParameterSet;
+
   class ConfigurableInputSource : public InputSource {
   public:
-    explicit ConfigurableInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
+    explicit ConfigurableInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
     virtual ~ConfigurableInputSource();
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;}
@@ -34,7 +37,6 @@ namespace edm {
     SubRunNumber_t subRun() const {return subRun_;}
 
   protected:
-
     void setEventNumber(EventNumber_t e) {
       RunNumber_t r = run();
       eventID_ = EventID(r, e);
@@ -81,5 +83,7 @@ namespace edm {
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // Framework_ConfigurableInputSource_h

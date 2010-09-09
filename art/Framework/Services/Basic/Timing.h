@@ -5,24 +5,25 @@
 // Package:     Services
 // Class  :     Timing
 //
-//
-// Original Author:  Jim Kowalkowski
-//
-//
-#include "sigc++/signal.h"
+
 
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 
+#include "fhicl/ParameterSet.h"
+#include "sigc++/signal.h"
+
+
 namespace edm {
+
   struct ActivityRegistry;
   class Event;
-  class ParameterSet;
+
   namespace service {
     class Timing
     {
     public:
-      Timing(const ParameterSet&,ActivityRegistry&);
+      Timing(const fhicl::ParameterSet&,ActivityRegistry&);
       ~Timing();
 
       sigc::signal<void, const ModuleDescription&, double> newMeasurementSignal;
@@ -51,6 +52,7 @@ namespace edm {
       int total_event_count_;
     };
   }
-}
+
+}  // namespace edm
 
 #endif  // Services_TIMING_h

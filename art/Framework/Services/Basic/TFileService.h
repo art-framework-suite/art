@@ -1,15 +1,20 @@
 #ifndef UtilAlgos_TFileService_h
 #define UtilAlgos_TFileService_h
+
+
 /* \class TFileService
  *
  * \author Luca Lista, INFN
  *
  */
+
+
 #include "art/Framework/Core/TFileDirectory.h"
+#include "fhicl/ParameterSet.h"
+
 
 namespace edm {
   class ActivityRegistry;
-  class ParameterSet;
   class ModuleDescription;
 
   class TFileService : public TFileDirectory {
@@ -31,14 +36,6 @@ namespace edm {
     void setDirectoryName( const edm::ModuleDescription & desc );
   };
 
-}
+}  // namespace edm
 
-#endif
-
-/// emacs configuration
-/// Local Variables: -
-/// mode: c++ -
-/// c-basic-offset: 2 -
-/// indent-tabs-mode: nil -
-/// End: -
-
+#endif  // UtilAlgos_TFileService_h

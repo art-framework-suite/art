@@ -3,24 +3,24 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-//
-//
 // Class GroupSelector. Class for user to select specific groups in event.
 //
 // Author: Bill Tanenbaum, Marc Paterno
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #include <iosfwd>
 #include <string>
 #include <vector>
 
-#include <boost/regex.hpp>
+#include "boost/regex.hpp"
+#include "fhicl/ParameterSet.h"
+
 
 namespace edm {
   class BranchDescription;
   class GroupSelectorRules;
-  class ParameterSet;
 
   class GroupSelector {
   public:
@@ -55,8 +55,6 @@ namespace edm {
   std::ostream&
   operator<< (std::ostream& os, const GroupSelector& gs);
 
-} // namespace edm
+}  // namespace edm
 
-
-
-#endif
+#endif  // FWCore_Framework_GroupSelector_h
