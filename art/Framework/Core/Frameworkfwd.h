@@ -11,7 +11,7 @@ Forward declarations of types in the EDM.
 #include "art/Persistency/Common/EDProductfwd.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {

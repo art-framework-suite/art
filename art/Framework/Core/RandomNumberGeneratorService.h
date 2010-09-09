@@ -172,7 +172,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 #include "boost/shared_ptr.hpp"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <map>
 #include <string>

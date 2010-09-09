@@ -15,7 +15,7 @@
 */
 
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {

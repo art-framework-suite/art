@@ -14,7 +14,7 @@
 #include "art/Framework/Services/Basic/CurrentModuleService.h"
   using edm::CurrentModuleService;
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
 
 

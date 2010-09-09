@@ -50,7 +50,7 @@ Some examples of InputSource subclasses may be:
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "sigc++/signal.h"
 
 #include <memory>

@@ -17,7 +17,7 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include <boost/cstdint.hpp>
 
 #include <iosfwd>

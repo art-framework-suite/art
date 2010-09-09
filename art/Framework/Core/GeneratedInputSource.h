@@ -5,16 +5,24 @@
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
 
 #include "art/Framework/Core/ConfigurableInputSource.h"
 
+#include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
+
+
 namespace edm {
+
   class GeneratedInputSource : public ConfigurableInputSource {
   public:
-    explicit GeneratedInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit GeneratedInputSource( fhicl::ParameterSet const& pset
+                                 , InputSourceDescription const& desc );
     virtual ~GeneratedInputSource();
 
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // Framework_GeneratedInputSource_h

@@ -10,7 +10,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Persistency/Provenance/EventID.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "boost/shared_ptr.hpp"
 

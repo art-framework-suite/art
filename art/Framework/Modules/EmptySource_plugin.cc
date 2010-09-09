@@ -5,15 +5,15 @@
 // ======================================================================
 
 
-// --- Framework support:
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GeneratedInputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
+
 #include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
 
-
-// --- Contents:
+// Contents:
 namespace edm {
   class EmptySource;
 }

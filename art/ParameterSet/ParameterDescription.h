@@ -14,7 +14,7 @@
 
 #include "art/Utilities/value_ptr.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>

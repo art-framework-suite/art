@@ -1,7 +1,7 @@
 #ifndef ParameterSet_ProcessDesc_h
 #define ParameterSet_ProcessDesc_h
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "boost/shared_ptr.hpp"
 #include <vector>
 

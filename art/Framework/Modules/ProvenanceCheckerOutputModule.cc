@@ -12,7 +12,7 @@
 #include "art/Utilities/Exception.h"
 
 #include "MessageFacility/MessageLogger.h"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {

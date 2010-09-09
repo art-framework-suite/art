@@ -13,7 +13,7 @@
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>

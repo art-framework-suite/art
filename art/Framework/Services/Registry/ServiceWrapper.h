@@ -17,7 +17,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
 

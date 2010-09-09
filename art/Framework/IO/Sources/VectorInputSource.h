@@ -12,7 +12,7 @@ VectorInputSource: Abstract interface for vector input sources.
 
 #include "art/Framework/IO/Sources/EDInputSource.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "boost/shared_ptr.hpp"
 
 #include <memory>

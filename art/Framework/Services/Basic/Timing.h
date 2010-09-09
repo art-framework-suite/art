@@ -10,7 +10,7 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "sigc++/signal.h"
 
 

@@ -16,7 +16,7 @@
 #include "art/Persistency/Provenance/ParameterSetID.h"
 
 #include "boost/shared_ptr.hpp"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {

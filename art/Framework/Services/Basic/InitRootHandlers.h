@@ -3,7 +3,7 @@
 
 
 #include "art/Utilities/RootHandlers.h"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {

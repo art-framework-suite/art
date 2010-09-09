@@ -1,7 +1,7 @@
 #ifndef Framework_Event_h
 #define Framework_Event_h
 
-// -*- C++ -*-
+
 //
 // Package:     Framework
 // Class  :     Event
@@ -14,34 +14,32 @@ from a single collision and inserting new derived products.
 For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 */
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
 
-#include <set>
-#include <vector>
-#include "boost/shared_ptr.hpp"
-
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/Timestamp.h"
-
-#include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Common/BasicHandle.h"
-#include "art/Persistency/Common/OrphanHandle.h"
-#include "art/Persistency/Common/Wrapper.h"
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Persistency/Common/BasicHandle.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Common/OrphanHandle.h"
+#include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Persistency/Provenance/Timestamp.h"
+
+#include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <set>
+#include <vector>
+
 
 namespace edm {
 
   class ConstBranchDescription;
-
 
   // The following functions objects are used by Event::put, under the
   // control of a metafunction if, to put the given pair into the
@@ -207,7 +205,7 @@ namespace edm {
     // used to configure the identified process.
     bool
     getProcessParameterSet(std::string const& processName,
-			   ParameterSet& ps) const;
+			   fhicl::ParameterSet& ps) const;
 
   private:
     EventPrincipal const&
@@ -532,5 +530,6 @@ namespace edm {
     result.swap(h);
   }
 
-}
-#endif
+}  // namespace edm
+
+#endif  // Framework_Event_h

@@ -19,7 +19,7 @@
 #include "art/Persistency/Common/TriggerResults.h"
 
 #include "boost/shared_ptr.hpp"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>

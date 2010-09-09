@@ -1,15 +1,20 @@
 #ifndef FWCore_Framework_InputSourceFactory_h
 #define FWCOre_Framework_InputSourceFactory_h
 
-#include "art/Framework/PluginManager/PluginFactory.h"
-#include "art/Framework/Core/InputSource.h"
 
-#include <string>
+#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/PluginManager/PluginFactory.h"
+
+#include "fhiclcpp/ParameterSet.h"
+
 #include <memory>
+#include <string>
+
 
 namespace edm {
 
-  typedef InputSource* (ISFunc)(ParameterSet const&, InputSourceDescription const&);
+  typedef InputSource* (ISFunc)(fhicl::ParameterSet const&,
+                                InputSourceDescription const&);
 
   typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
 
@@ -20,7 +25,7 @@ namespace edm {
     static InputSourceFactory* get();
 
     std::auto_ptr<InputSource>
-      makeInputSource(ParameterSet const&,
+      makeInputSource(fhicl::ParameterSet const&,
 		       InputSourceDescription const&) const;
 
 
@@ -29,5 +34,6 @@ namespace edm {
     static InputSourceFactory singleInstance_;
   };
 
-}
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_InputSourceFactory_h

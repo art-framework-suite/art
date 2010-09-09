@@ -15,7 +15,8 @@
 #include <vector>
 
 #include "boost/regex.hpp"
-#include "fhicl::ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
+
 
 namespace edm {
   class BranchDescription;

@@ -11,7 +11,7 @@ NOTE: This is *very* incomplete.
 
 #include "art/ParameterSet/Registry.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace edm
 {

@@ -1,6 +1,6 @@
 #ifndef ServiceRegistry_ServiceRegistry_h
 #define ServiceRegistry_ServiceRegistry_h
-// -*- C++ -*-
+
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceRegistry
@@ -9,34 +9,25 @@
 
  Description: Manages the 'thread specific' instance of Services
 
- Usage:
-    <usage>
-
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:00 EDT 2005
-//
-//
 
-// system include files
 
-// user include files
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+
 #include "fhiclcpp/ParameterSet.h"
 
-// forward declarations
+
 namespace edm {
    class FwkImpl;
+
    namespace serviceregistry {
       template< typename T> class ServiceWrapper;
    }
 
    class ServiceRegistry
    {
-
    public:
 
       class Operate {
@@ -92,8 +83,8 @@ namespace edm {
       static ServiceToken createServicesFromConfig(const std::string& config);
 
    public: // Made public (temporarily) at the request of Emilio Meschi.
-      static ServiceToken createSet(const std::vector<ParameterSet>&);
-      static ServiceToken createSet(const std::vector<ParameterSet>&,
+      static ServiceToken createSet(const std::vector<fhicl::ParameterSet>&);
+      static ServiceToken createSet(const std::vector<fhicl::ParameterSet>&,
                                     ServiceToken,
                                     serviceregistry::ServiceLegacy);
       /// create a service token that holds the service defined by iService
@@ -153,6 +144,7 @@ private:
       // ---------- member data --------------------------------
       boost::shared_ptr<serviceregistry::ServicesManager> manager_;
    };
-}
+
+}  // namespace edm
 
 #endif

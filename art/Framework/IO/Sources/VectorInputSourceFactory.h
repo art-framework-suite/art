@@ -5,7 +5,7 @@
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Framework/PluginManager/PluginFactory.h"
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
 #include <string>

@@ -14,7 +14,7 @@ namespace edm {
   class ActivityRegistry;
 }
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 

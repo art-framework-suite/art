@@ -15,7 +15,7 @@
 #include "art/Utilities/TypeIDBase.h"
 
 #include "boost/shared_ptr.hpp"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
 #include <iostream>

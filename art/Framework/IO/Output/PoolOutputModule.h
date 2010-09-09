@@ -16,7 +16,7 @@
 #include "art/Framework/IO/Common/RootServiceChecker.h"
 
 #include "boost/scoped_ptr.hpp"
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 class TTree;
 
 #include <string>

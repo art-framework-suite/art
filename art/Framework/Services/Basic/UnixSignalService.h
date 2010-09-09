@@ -12,7 +12,7 @@ This service is instantiated at job startup.
 ----------------------------------------------------------------------*/
 
 
-#include "fhicl/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {
