@@ -1,12 +1,15 @@
 #ifndef Framework_Actions_h
 #define Framework_Actions_h
 
+
 #include "fhiclcpp/ParameterSet.h"
 
-#include <string>
 #include <map>
+#include <string>
+
 
 namespace edm {
+
   namespace actions {
     enum ActionCodes {
 	IgnoreCompletely=0,
@@ -18,14 +21,14 @@ namespace edm {
     };
 
     const char* actionName(ActionCodes code);
-  }
+  }  // namespace actions
 
   class ActionTable {
   public:
     typedef std::map<std::string, actions::ActionCodes> ActionMap;
 
     ActionTable();
-    explicit ActionTable(const ParameterSet&);
+    explicit ActionTable(const fhicl::ParameterSet&);
     ~ActionTable();
 
     void add(const std::string& category, actions::ActionCodes code);
@@ -35,5 +38,7 @@ namespace edm {
     void addDefaults();
     ActionMap map_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // Framework_Actions_h
