@@ -1,19 +1,23 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
+
+
 #include "PoolSource.h"
-#include "RootInputFileSequence.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
+#include "RootInputFileSequence.h"
 #include "TTreeCache.h"
 
 #include <set>
+
 
 namespace edm {
 
@@ -52,7 +56,7 @@ namespace edm {
     }
   }
 
-  PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
+  PoolSource::PoolSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
@@ -64,10 +68,10 @@ namespace edm {
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry().productList();
       typedef ProductRegistry::ProductList::const_iterator const_iterator;
       for (const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
-	if (it->second.present()) idsToReplace[it->second.branchType()].insert(it->second.branchID());
+        if (it->second.present()) idsToReplace[it->second.branchType()].insert(it->second.branchID());
       }
       for (const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
-	if (it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
+        if (it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
       }
       if (idsToReplace[InEvent].empty() && idsToReplace[InSubRun].empty() && idsToReplace[InRun].empty()) {
         secondaryFileSequence_.reset();
@@ -76,7 +80,7 @@ namespace edm {
         for (int i = InEvent; i < NumBranchTypes; ++i) {
           branchIDsToReplace_[i].reserve(idsToReplace[i].size());
           for (std::set<BranchID>::const_iterator it = idsToReplace[i].begin(), itEnd = idsToReplace[i].end();
-	       it != itEnd; ++it) {
+               it != itEnd; ++it) {
             branchIDsToReplace_[i].push_back(*it);
           }
         }
@@ -96,7 +100,7 @@ namespace edm {
   PoolSource::readFile_() {
     if (secondaryFileSequence_) {
         boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
-	fb->setNotFastCopyable();
+        fb->setNotFastCopyable();
         return fb;
     }
     return primaryFileSequence_->readFile_();
@@ -222,7 +226,7 @@ namespace edm {
   }
 
   void
-  PoolSource::fillDescription(ParameterSetDescription& iDesc,
+  PoolSource::fillDescription(fhicl::ParameterSetDescription& iDesc,
                               std::string const& moduleLabel) {
 
     iDesc.addOptionalUntracked<unsigned int>("firstRun", 1U);
@@ -262,4 +266,5 @@ namespace edm {
     defaultString = "RunsSubRunsAndEvents";
     iDesc.addOptionalUntracked<std::string>("processingMode", defaultString);
   }
-}
+
+}  // namespace edm

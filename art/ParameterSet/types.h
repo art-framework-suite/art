@@ -3,8 +3,8 @@
 
 // ----------------------------------------------------------------------
 //
-//
 // declaration of type encoding/decoding functions
+//
 // ----------------------------------------------------------------------
 
 
@@ -52,16 +52,16 @@ namespace edm
   bool  encode(std::string           &, std::vector<unsigned> const&);
 
   // Int64
-  bool  decode(boost::int64_t     &, std::string const&);
-  bool  encode(std::string &, boost::int64_t);
+  bool  decode(boost::int64_t &, std::string const&);
+  bool  encode(std::string    &, boost::int64_t);
 
   // vInt64
   bool  decode(std::vector<boost::int64_t> &, std::string      const&);
   bool  encode(std::string      &, std::vector<boost::int64_t> const&);
 
   // Uint64
-  bool  decode(boost::uint64_t    &, std::string const&);
-  bool  encode(std::string &, boost::uint64_t);
+  bool  decode(boost::uint64_t &, std::string const&);
+  bool  encode(std::string     &, boost::uint64_t);
 
   // vUint64
   bool  decode(std::vector<boost::uint64_t> &, std::string           const&);
@@ -85,11 +85,11 @@ namespace edm
 
   // FileInPath
   bool  decode(edm::FileInPath &, std::string const&);
-  bool  encode(std::string &, edm::FileInPath const&);
+  bool  encode(std::string     &, edm::FileInPath const&);
 
   // InputTag
-  bool  decode(edm::InputTag&, std::string const&);
-  bool  encode(std::string &, edm::InputTag const&);
+  bool  decode(edm::InputTag &, std::string const&);
+  bool  encode(std::string   &, edm::InputTag const&);
 
   // VInputTag
   bool  decode(std::vector<edm::InputTag>&, std::string const&);
@@ -112,12 +112,12 @@ namespace edm
   bool  encode(std::string &, std::vector<edm::SubRunID> const&);
 
   // ParameterSet
-  bool  decode(ParameterSet &, std::string  const&);
-  bool  encode(std::string  &, ParameterSet const&);
+  bool  decode(fhicl::ParameterSet &, std::string  const&);
+  bool  encode(std::string  &, fhicl::ParameterSet const&);
 
   // vPSet
-  bool  decode(std::vector<ParameterSet> &, std::string               const&);
-  bool  encode(std::string               &, std::vector<ParameterSet> const&);
+  bool  decode(std::vector<fhicl::ParameterSet> &, std::string const&);
+  bool  encode(std::string &, std::vector<fhicl::ParameterSet> const&);
 
 }  // namespace edm
 
@@ -125,4 +125,4 @@ namespace edm
 // ----------------------------------------------------------------------
 // epilog
 
-#endif
+#endif  // FWCore_ParameterSet_types_h

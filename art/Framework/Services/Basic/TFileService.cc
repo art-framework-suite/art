@@ -21,7 +21,7 @@ namespace edm
     file_(TFileDirectory::file_),
     fileName_(cfg.getString("fileName")),
     fileNameRecorded_(false),
-    closeFileFast_(cfg.getUntrackedParameter<bool>("closeFileFast", false))
+    closeFileFast_(cfg.getBool("closeFileFast", false))
   {
     // activities to monitor in order to set the proper directory
     r.watchPreModuleConstruction(this, & TFileService::setDirectoryName);

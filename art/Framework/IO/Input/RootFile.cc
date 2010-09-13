@@ -2,71 +2,74 @@
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
+
 #include "DuplicateChecker.h"
 #include "ProvenanceAdaptor.h"
 
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/GlobalIdentifier.h"
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/GroupSelector.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "art/ParameterSet/Registry.h"
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Common/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/GroupSelector.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Persistency/Provenance/BranchChildren.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
-#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Common/RefCoreStreamer.h"
-#include "art/Framework/Services/Registry/Service.h"
-#include "MessageFacility/MessageLogger.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Utilities/Algorithms.h"
-#include "art/Persistency/Common/EDProduct.h"
-//used for friendlyName translation
+#include "art/Utilities/EDMException.h"
 #include "art/Utilities/FriendlyName.h"
+#include "art/Utilities/GlobalIdentifier.h"
+#include "fhiclcpp/ParameterSet.h"
 
 //used for backward compatibility
 #include "art/Persistency/Provenance/BranchEntryDescription.h"
 #include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
 #include "art/Persistency/Provenance/EventAux.h"
-#include "art/Persistency/Provenance/SubRunAux.h"
 #include "art/Persistency/Provenance/RunAux.h"
 #include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
+#include "art/Persistency/Provenance/SubRunAux.h"
 
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
+
+#include "MessageFacility/MessageLogger.h"
+
 #include <algorithm>
 
+
 namespace edm {
-//---------------------------------------------------------------------
+
   RootFile::RootFile(std::string const& fileName,
-		     std::string const& catalogName,
-		     ProcessConfiguration const& processConfiguration,
-		     std::string const& logicalFileName,
-		     boost::shared_ptr<TFile> filePtr,
-		     RunNumber_t const& startAtRun,
-		     SubRunNumber_t const& startAtSubRun,
-		     EventNumber_t const& startAtEvent,
-		     unsigned int eventsToSkip,
-		     std::vector<SubRunID> const& whichSubRunsToSkip,
-		     int remainingEvents,
-		     int remainingSubRuns,
-		     unsigned int treeCacheSize,
+                     std::string const& catalogName,
+                     ProcessConfiguration const& processConfiguration,
+                     std::string const& logicalFileName,
+                     boost::shared_ptr<TFile> filePtr,
+                     RunNumber_t const& startAtRun,
+                     SubRunNumber_t const& startAtSubRun,
+                     EventNumber_t const& startAtEvent,
+                     unsigned int eventsToSkip,
+                     std::vector<SubRunID> const& whichSubRunsToSkip,
+                     int remainingEvents,
+                     int remainingSubRuns,
+                     unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
-		     InputSource::ProcessingMode processingMode,
-		     int forcedRunOffset,
-		     std::vector<EventID> const& whichEventsToProcess,
+                     InputSource::ProcessingMode processingMode,
+                     int forcedRunOffset,
+                     std::vector<EventID> const& whichEventsToProcess,
                      bool noEventSort,
-		     GroupSelectorRules const& groupSelectorRules,
+                     GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants) :
@@ -127,7 +130,7 @@ namespace edm {
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if (!metaDataTree)
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
-							 << " in the input file.\n";
+                                                         << " in the input file.\n";
 
     // To keep things simple, we just read in every possible branch that exists.
     // We don't pay attention to which branches exist in which file format versions
@@ -195,8 +198,8 @@ namespace edm {
     } else {
       // New format input file. The branchIDLists branch was read directly from the input file.
       if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
-	throw edm::Exception(errors::EventCorruption)
-	  << "Failed to find branchIDLists branch in metaData tree.\n";
+        throw edm::Exception(errors::EventCorruption)
+          << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
@@ -204,7 +207,7 @@ namespace edm {
     // Merge into the hashed registries.
     pset::Registry& psetRegistry = *pset::Registry::instance();
     for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-      ParameterSet pset(i->second.pset_);
+      fhicl::ParameterSet pset(i->second.pset_);
       pset.setID(i->first);
       psetRegistry.insertMapped(pset);
     }
@@ -244,21 +247,21 @@ namespace edm {
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
         std::string newFriendlyName = friendlyname::friendlyName(prod.className());
-	if (newFriendlyName == prod.friendlyClassName()) {
+        if (newFriendlyName == prod.friendlyClassName()) {
           newReg->copyProduct(prod);
-	} else {
+        } else {
           if (fileFormatVersion_.value_ >= 11) {
-	    throw edm::Exception(errors::UnimplementedFeature)
-	      << "Cannot change friendly class name algorithm without more development work\n"
-	      << "to update BranchIDLists.  Contact the framework group.\n";
-	  }
+            throw edm::Exception(errors::UnimplementedFeature)
+              << "Cannot change friendly class name algorithm without more development work\n"
+              << "to update BranchIDLists.  Contact the framework group.\n";
+          }
           BranchDescription newBD(prod);
           newBD.updateFriendlyClassName();
           newReg->copyProduct(newBD);
-	  // Need to call init to get old branch name.
-	  prod.init();
-	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
-	}
+          // Need to call init to get old branch name.
+          prod.init();
+          newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
+        }
       }
       // freeze the product registry
       newReg->setFrozen();
@@ -273,7 +276,7 @@ namespace edm {
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod,
-						  newBranchToOldBranch(prod.branchName()));
+                                                  newBranchToOldBranch(prod.branchName()));
     }
 
     // Sort the EventID list the user supplied so that we can assume it is time ordered
@@ -291,7 +294,7 @@ namespace edm {
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
     if (!entryDescriptionTree)
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
-							 << " in the input file.\n";
+                                                         << " in the input file.\n";
 
 
     EntryDescriptionID idBuffer;
@@ -310,7 +313,7 @@ namespace edm {
     for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(entryDescriptionTree, i);
       if (idBuffer != entryDescriptionBuffer.id())
-	throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
+        throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       oldregistry.insertMapped(entryDescriptionBuffer);
       Parentage parents;
       parents.parents() = entryDescriptionBuffer.parents();
@@ -332,7 +335,7 @@ namespace edm {
     TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
     if (!parentageTree)
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
-							 << " in the input file.\n";
+                                                         << " in the input file.\n";
 
     ParentageID idBuffer;
     ParentageID* pidBuffer = &idBuffer;
@@ -376,11 +379,11 @@ namespace edm {
       if (startAtEvent_ > it->event_) return false;
     }
     for (std::vector<SubRunID>::const_iterator it = whichSubRunsToSkip_.begin(),
-	  itEnd = whichSubRunsToSkip_.end(); it != itEnd; ++it) {
+          itEnd = whichSubRunsToSkip_.end(); it != itEnd; ++it) {
         if (fileIndex_.findSubRunPosition(it->run(), it->subRun(), true) != fileIndexEnd_) {
-	  // We must skip a subRun in this file.  We will simply assume that
-	  // it may contain an event, in which case we cannot fast copy.
-	  return false;
+          // We must skip a subRun in this file.  We will simply assume that
+          // it may contain an event, in which case we cannot fast copy.
+          return false;
         }
     }
     return true;
@@ -401,15 +404,15 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   RootFile::createFileBlock() const {
     return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion_,
-						     eventTree_.tree(),
-						     eventTree_.metaTree(),
-						     subRunTree_.tree(),
-						     subRunTree_.metaTree(),
-						     runTree_.tree(),
-						     runTree_.metaTree(),
-						     fastClonable(),
-						     file_,
-						     branchChildren_));
+                                                     eventTree_.tree(),
+                                                     eventTree_.metaTree(),
+                                                     subRunTree_.tree(),
+                                                     subRunTree_.metaTree(),
+                                                     runTree_.tree(),
+                                                     runTree_.metaTree(),
+                                                     fastClonable(),
+                                                     file_,
+                                                     branchChildren_));
   }
 
   std::string const&
@@ -438,8 +441,8 @@ namespace edm {
     }
     if (fileIndexIter_->event_ == 0 && fileIndexIter_ != fileIndexBegin_) {
       if ((fileIndexIter_-1)->run_ == fileIndexIter_->run_ && (fileIndexIter_-1)->subRun_ == fileIndexIter_->subRun_) {
-	++fileIndexIter_;
-	return getEntryTypeSkippingDups();
+        ++fileIndexIter_;
+        return getEntryTypeSkippingDups();
       }
     }
     return fileIndexIter_->getEntryType();
@@ -462,21 +465,21 @@ namespace edm {
     if (specifiedEvents) {
        // We are processing specified events.
       if (correctedCurrentRun > eventListIter_->run()) {
-	// The next specified event is in a run not in the file or already passed.  Skip the event
-	++eventListIter_;
-	return getNextEntryTypeWanted();
+        // The next specified event is in a run not in the file or already passed.  Skip the event
+        ++eventListIter_;
+        return getNextEntryTypeWanted();
       }
       // Skip any runs before the next specified event.
       if (correctedCurrentRun < eventListIter_->run()) {
-	fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->run(), false);
-	return getNextEntryTypeWanted();
+        fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->run(), false);
+        return getNextEntryTypeWanted();
       }
     }
     if (entryType == FileIndex::kRun) {
       // Skip any runs before the first run specified, startAtRun_.
       if (correctedCurrentRun < startAtRun_) {
         fileIndexIter_ = fileIndex_.findRunPosition(startAtRun_, false);
-	return getNextEntryTypeWanted();
+        return getNextEntryTypeWanted();
       }
       return FileIndex::kRun;
     } else if (processingMode_ == InputSource::Runs) {
@@ -490,9 +493,9 @@ namespace edm {
       // Get the subRun number of the next specified event.
       FileIndex::const_iterator iter = fileIndex_.findEventPosition(currentRun, 0U, eventListIter_->event(), true);
       if (iter == fileIndexEnd_ || currentSubRun > iter->subRun_) {
-	// Event Not Found or already passed. Skip the next specified event;
-	++eventListIter_;
-	return getNextEntryTypeWanted();
+        // Event Not Found or already passed. Skip the next specified event;
+        ++eventListIter_;
+        return getNextEntryTypeWanted();
       }
       // Skip any subRuns before the next specified event.
       if (currentSubRun < iter->subRun_) {
@@ -505,12 +508,12 @@ namespace edm {
       assert(correctedCurrentRun >= startAtRun_);
       if (correctedCurrentRun == startAtRun_ && currentSubRun < startAtSubRun_) {
         fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentRun, startAtSubRun_);
-	return getNextEntryTypeWanted();
+        return getNextEntryTypeWanted();
       }
       // Skip the subRun if it is in whichSubRunsToSkip_.
       if (binary_search_all(whichSubRunsToSkip_, SubRunID(correctedCurrentRun, currentSubRun))) {
         fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentRun, currentSubRun + 1);
-	return getNextEntryTypeWanted();
+        return getNextEntryTypeWanted();
       }
       return FileIndex::kSubRun;
     } else if (processingMode_ == InputSource::RunsAndSubRuns) {
@@ -522,7 +525,7 @@ namespace edm {
     assert(correctedCurrentRun >= startAtRun_);
     assert(correctedCurrentRun > startAtRun_ || currentSubRun >= startAtSubRun_);
     if (correctedCurrentRun == startAtRun_ &&
-	fileIndexIter_->event_ < startAtEvent_) {
+        fileIndexIter_->event_ < startAtEvent_) {
       fileIndexIter_ = fileIndex_.findPosition(currentRun, currentSubRun, startAtEvent_);
       return getNextEntryTypeWanted();
     }
@@ -532,12 +535,12 @@ namespace edm {
       // Just position to the right event.
       assert (correctedCurrentRun == eventListIter_->run());
       fileIndexIter_ = fileIndex_.findEventPosition(currentRun, currentSubRun,
-						  eventListIter_->event(),
-						  false);
+                                                  eventListIter_->event(),
+                                                  false);
       if (fileIndexIter_->event_ != eventListIter_->event()) {
-	// Event was not found.
-	++eventListIter_;
-	return getNextEntryTypeWanted();
+        // Event was not found.
+        ++eventListIter_;
+        return getNextEntryTypeWanted();
       }
       // Event was found.
       // For the next time around move to the next specified event
@@ -552,9 +555,9 @@ namespace edm {
       }
 
       if (eventsToSkip_ != 0) {
-	// We have specified a count of events to skip.  So decrement the count and skip this event.
+        // We have specified a count of events to skip.  So decrement the count and skip this event.
         --eventsToSkip_;
-	return getNextEntryTypeWanted();
+        return getNextEntryTypeWanted();
       }
 
       return FileIndex::kEvent;
@@ -572,7 +575,7 @@ namespace edm {
       // We have specified a count of events to skip, keep skipping events in this subRun block
       // until we reach the end of the subRun block or the full count of the number of events to skip.
       while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	getEntryTypeSkippingDups() == FileIndex::kEvent) {
+        getEntryTypeSkippingDups() == FileIndex::kEvent) {
         ++fileIndexIter_;
         --eventsToSkip_;
 
@@ -603,20 +606,20 @@ namespace edm {
     while(eventTree_.next()) {
       fillEventAuxiliary();
       fileIndex_.addEntry(eventAux_.run(),
-			  eventAux_.subRun(),
-			  eventAux_.event(),
-			  eventTree_.entryNumber());
+                          eventAux_.subRun(),
+                          eventAux_.event(),
+                          eventTree_.entryNumber());
       // If the subRun tree is invalid, use the event tree to add subRun index entries.
       if (!subRunTree_.isValid()) {
-	if (lastSubRun != eventAux_.subRun()) {
-	  lastSubRun = eventAux_.subRun();
+        if (lastSubRun != eventAux_.subRun()) {
+          lastSubRun = eventAux_.subRun();
           fileIndex_.addEntry(eventAux_.run(), eventAux_.subRun(), 0U, FileIndex::Element::invalidEntry);
-	}
+        }
       }
       // If the run tree is invalid, use the event tree to add run index entries.
       if (!runTree_.isValid()) {
-	if (lastRun != eventAux_.run()) {
-	  lastRun = eventAux_.run();
+        if (lastRun != eventAux_.run()) {
+          lastRun = eventAux_.run();
           fileIndex_.addEntry(eventAux_.run(), 0U, 0U, FileIndex::Element::invalidEntry);
         }
       }
@@ -653,7 +656,7 @@ namespace edm {
     }
     if(!eventTree_.isValid()) {
       throw edm::Exception(errors::EventCorruption) <<
-	 "'Events' tree is corrupted or not present\n" << "in the input file.\n";
+         "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
     if (fileIndex_.empty()) {
       fillFileIndex();
@@ -703,8 +706,8 @@ namespace edm {
       History* pHistory = history_.get();
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
-	throw edm::Exception(errors::EventCorruption)
-	  << "Failed to find history branch in event history tree.\n";
+        throw edm::Exception(errors::EventCorruption)
+          << "Failed to find history branch in event history tree.\n";
       eventHistoryBranch->SetAddress(&pHistory);
       input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
     } else {
@@ -717,7 +720,7 @@ namespace edm {
           eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
           assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
         }
-	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);
+        history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);
         ++eventProcessHistoryIter_;
       }
     }
@@ -797,7 +800,7 @@ namespace edm {
     assert(currentRun >= startAtRun_);
     assert(currentRun > startAtRun_ || fileIndexIter_->subRun_ >= startAtSubRun_);
     assert(currentRun > startAtRun_ || fileIndexIter_->subRun_ > startAtSubRun_ ||
-	 fileIndexIter_->event_ >= startAtEvent_);
+         fileIndexIter_->event_ >= startAtEvent_);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
     std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
@@ -828,12 +831,12 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
-		eventAux_,
-		pReg,
-		processConfiguration_,
-		history_,
-		mapper,
-		eventTree_.makeDelayedReader(fileFormatVersion_.value_ < 11)));
+                eventAux_,
+                pReg,
+                processConfiguration_,
+                history_,
+                mapper,
+                eventTree_.makeDelayedReader(fileFormatVersion_.value_ < 11)));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
@@ -869,8 +872,8 @@ namespace edm {
       RunAuxiliary runAux(run.run(), eventAux_.time(), Timestamp::invalidTimestamp());
       return boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(runAux,
-	  pReg,
-	  processConfiguration_));
+          pReg,
+          processConfiguration_));
     }
     // End code for backward compatibility before the exixtence of run trees.
     runTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -888,13 +891,13 @@ namespace edm {
       runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<RunPrincipal> thisRun(
-	new RunPrincipal(runAux_,
-			 pReg,
-			 processConfiguration_,
-		         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-		         makeBranchMapper<RunSubRunEntryInfo>(runTree_, InRun) :
-		         makeBranchMapper<ProductProvenance>(runTree_, InRun),
-			 runTree_.makeDelayedReader()));
+        new RunPrincipal(runAux_,
+                         pReg,
+                         processConfiguration_,
+                         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
+                         makeBranchMapper<RunSubRunEntryInfo>(runTree_, InRun) :
+                         makeBranchMapper<ProductProvenance>(runTree_, InRun),
+                         runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
     // Read in all the products now.
@@ -923,9 +926,9 @@ namespace edm {
       ++fileIndexIter_;
       SubRunAuxiliary subRunAux(rp->run(), subRun.subRun(), eventAux_.time_, Timestamp::invalidTimestamp());
       return boost::shared_ptr<SubRunPrincipal>(
-	new SubRunPrincipal(subRunAux,
-				     pReg,
-				     processConfiguration_));
+        new SubRunPrincipal(subRunAux,
+                                     pReg,
+                                     processConfiguration_));
     }
     // End code for backward compatibility before the exixtence of subRun trees.
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -946,12 +949,12 @@ namespace edm {
       subRunAux_.endTime_ = Timestamp::invalidTimestamp();
     }
     boost::shared_ptr<SubRunPrincipal> thisSubRun(
-	new SubRunPrincipal(subRunAux_,
-				     pReg, processConfiguration_,
-				     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-				     makeBranchMapper<RunSubRunEntryInfo>(subRunTree_, InSubRun) :
-				     makeBranchMapper<ProductProvenance>(subRunTree_, InSubRun),
-				     subRunTree_.makeDelayedReader()));
+        new SubRunPrincipal(subRunAux_,
+                                     pReg, processConfiguration_,
+                                     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
+                                     makeBranchMapper<RunSubRunEntryInfo>(subRunTree_, InSubRun) :
+                                     makeBranchMapper<ProductProvenance>(subRunTree_, InSubRun),
+                                     subRunTree_.makeDelayedReader()));
     // Create a group in the subRun for each product
     subRunTree_.fillGroups(*thisSubRun);
     // Read in all the products now.
@@ -1021,7 +1024,7 @@ namespace edm {
 
     if (!eventHistoryTree_)
       throw edm::Exception(errors::EventCorruption)
-	<< "Failed to find the event history tree.\n";
+        << "Failed to find the event history tree.\n";
   }
 
   void
@@ -1063,12 +1066,12 @@ namespace edm {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
-	if (groupSelector.selected(prod)) {
+        if (groupSelector.selected(prod)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"
             << "that was explicitly dropped.\n";
-	}
+        }
         treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
         ProductRegistry::ProductList::iterator icopy = it;
         ++it;
@@ -1108,7 +1111,7 @@ namespace edm {
     } else {
        LogWarning("RootFile")
          << "Backward compatibility not fully supported for reading files"
-	 << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
+         << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
     }
     if (type == InEvent) {
       boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0));
@@ -1116,29 +1119,29 @@ namespace edm {
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
         if (type == it->second.branchType() && !it->second.transient()) {
-	  if (fileFormatVersion_.value_ >= 7) {
-	    input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-	    input::BranchInfo const& ib = ix->second;
-	    TBranch *br = ib.provenanceBranch_;
+          if (fileFormatVersion_.value_ >= 7) {
+            input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+            input::BranchInfo const& ib = ix->second;
+            TBranch *br = ib.provenanceBranch_;
             std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
             EntryDescriptionID* ppb = pb.get();
             br->SetAddress(&ppb);
             input::getEntry(br, rootTree.entryNumber());
-	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
-	    EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
-	    mapper->insert(entry.makeProductProvenance());
+            std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+            EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
+            mapper->insert(entry.makeProductProvenance());
           } else {
-	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-	    BranchEntryDescription* ppb = pb.get();
-	    br->SetAddress(&ppb);
-	    input::getEntry(br, rootTree.entryNumber());
-	    std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
-	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	    EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
-	    mapper->insert(entry.makeProductProvenance());
-	  }
-	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+            TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+            std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+            BranchEntryDescription* ppb = pb.get();
+            br->SetAddress(&ppb);
+            input::getEntry(br, rootTree.entryNumber());
+            std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+            ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+            EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
+            mapper->insert(entry.makeProductProvenance());
+          }
+          mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
       }
       return mapper;
@@ -1147,31 +1150,32 @@ namespace edm {
       mapper->setDelayedRead(false);
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-	if (type == it->second.branchType() && !it->second.transient()) {
-	  if (fileFormatVersion_.value_ >= 7) {
-	    input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-	    input::BranchInfo const& ib = ix->second;
-	    TBranch *br = ib.provenanceBranch_;
+        if (type == it->second.branchType() && !it->second.transient()) {
+          if (fileFormatVersion_.value_ >= 7) {
+            input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+            input::BranchInfo const& ib = ix->second;
+            TBranch *br = ib.provenanceBranch_;
             input::getEntry(br, rootTree.entryNumber());
-	    std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
-	    ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
-	    mapper->insert(entry);
-	  } else {
-	    TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-	    std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-	    BranchEntryDescription* ppb = pb.get();
-	    br->SetAddress(&ppb);
-	    input::getEntry(br, rootTree.entryNumber());
-	    std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
-	    ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	    ProductProvenance entry(it->second.branchID(), status);
-	    mapper->insert(entry);
-	  }
-	}
+            std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+            ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
+            mapper->insert(entry);
+          } else {
+            TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+            std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+            BranchEntryDescription* ppb = pb.get();
+            br->SetAddress(&ppb);
+            input::getEntry(br, rootTree.entryNumber());
+            std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+            ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+            ProductProvenance entry(it->second.branchID(), status);
+            mapper->insert(entry);
+          }
+        }
       }
       return mapper;
     }
     return boost::shared_ptr<BranchMapper>();
   }
   // end backward compatibility
-}
+
+}  // namespace edm

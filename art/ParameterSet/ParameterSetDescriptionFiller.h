@@ -1,6 +1,6 @@
 #ifndef FWCore_ParameterSet_ParameterSetDescriptionFiller_h
 #define FWCore_ParameterSet_ParameterSetDescriptionFiller_h
-// -*- C++ -*-
+
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescriptionFiller
@@ -17,46 +17,36 @@ void fillDescription(edm::ParameterSetDescription&)
 method of the templated argument.  This allows the ParameterSetDescriptionFillerPluginFactory to communicate with existing plugins.
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Aug  1 16:46:56 EDT 2007
-//
-//
 
-// system include files
 
-// user include files
 #include "art/ParameterSet/ParameterSetDescriptionFillerBase.h"
 
 #include <string>
 
-// forward declarations
 
 namespace edm {
-template< typename T>
-  class ParameterSetDescriptionFiller : public ParameterSetDescriptionFillerBase
-{
 
-   public:
-      ParameterSetDescriptionFiller() {}
-      //virtual ~ParameterSetDescriptionFiller();
+  template< typename T>
+    class ParameterSetDescriptionFiller
+      : public ParameterSetDescriptionFillerBase
+  {
+  public:
+    ParameterSetDescriptionFiller() {}
 
-      // ---------- const member functions ---------------------
-      virtual void fill(ParameterSetDescription& iDesc, std::string const& moduleLabel) const {
-        T::fillDescription(iDesc, moduleLabel);
-      }
-      // ---------- static member functions --------------------
+    // ---------- const member functions ---------------------
+    virtual void fill( ParameterSetDescription& iDesc
+                     , std::string const& moduleLabel ) const
+    {
+      T::fillDescription(iDesc, moduleLabel);
+    }
 
-      // ---------- member functions ---------------------------
+  private:
+    // no copying
+    ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&);
+    ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&);
 
-   private:
-      ParameterSetDescriptionFiller(const ParameterSetDescriptionFiller&); // stop default
+  };
 
-      const ParameterSetDescriptionFiller& operator=(const ParameterSetDescriptionFiller&); // stop default
+}  // namespace edm
 
-      // ---------- member data --------------------------------
-
-};
-
-}
-#endif
+#endif  // FWCore_ParameterSet_ParameterSetDescriptionFiller_h

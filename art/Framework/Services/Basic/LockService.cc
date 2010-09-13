@@ -13,8 +13,8 @@ LockService::LockService(const ParameterSet& iPS,
 			 ActivityRegistry& reg):
   lock_(getGlobalMutex()),
   locker_(),
-  labels_(iPS.getUntrackedParameter<Labels>("labels",Labels())),
-  lockSources_(iPS.getUntrackedParameter<bool>("lockSources",true))
+  labels_(iPS.getVString("labels",Labels())),
+  lockSources_(iPS.getBool("lockSources",true))
 {
   reg.watchPreSourceConstruction(this,&LockService::preSourceConstruction);
   reg.watchPostSourceConstruction(this,&LockService::postSourceConstruction);

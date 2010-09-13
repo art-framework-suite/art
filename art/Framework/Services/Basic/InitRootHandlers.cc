@@ -148,9 +148,9 @@ namespace edm {
 namespace service {
 InitRootHandlers::InitRootHandlers (fhicl::ParameterSet const& pset, edm::ActivityRegistry & activity)
   : RootHandlers(),
-    unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler", false)),
-    resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler", true)),
-    autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader", true))
+    unloadSigHandler_(pset.getBool ("UnloadRootSigHandler", false)),
+    resetErrHandler_(pset.getBool ("ResetRootErrHandler", true)),
+    autoLibraryLoader_(pset.getBool ("AutoLibraryLoader", true))
 {
 
   if(unloadSigHandler_) {

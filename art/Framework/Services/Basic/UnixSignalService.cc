@@ -11,7 +11,7 @@ namespace edm {
 
     UnixSignalService::UnixSignalService(fhicl::ParameterSet const& pset,
                                          edm::ActivityRegistry& registry)
-      : enableSigInt_(pset.getUntrackedParameter<bool>("EnableCtrlC",true))
+      : enableSigInt_(pset.getBool("EnableCtrlC",true))
     {
       edm::installCustomHandler(SIGUSR2,edm::ep_sigusr2);
       if(enableSigInt_)  edm::installCustomHandler(SIGINT ,edm::ep_sigusr2);

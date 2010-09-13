@@ -6,20 +6,20 @@
 // ======================================================================
 
 
-// --- Framework support:
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/RandomNumberGeneratorService.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 
-// --- C++ support:
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
+
 #include <memory>
 
 
-// --- Contents:
+// Contents:
 namespace edm {
   class RandomNumberSaver;
 }
@@ -64,7 +64,7 @@ private:
 
 RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
   : EDProducer( )
-  , debug_    ( pset.getUntrackedParameter<bool>( "debug"
+  , debug_    ( pset.getBool( "debug"
                                                 , false
               )                                 )
 {

@@ -3,25 +3,25 @@
 // Class  :     Tracer
 //
 
-// system include files
-#include <iostream>
 
-// user include files
 #include "art/Framework/Services/Basic/Tracer.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 
+#include <iostream>
+
 using namespace edm::service;
+using fhicl::ParameterSet;
 
 
 //
 // constructors and destructor
 //
 Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
-  indention_(iPS.getUntrackedParameter<std::string>("indention","++")),
+  indention_(iPS.getString("indention","++")),
   depth_(0)
 {
    iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);

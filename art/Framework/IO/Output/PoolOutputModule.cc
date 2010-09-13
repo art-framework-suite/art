@@ -1,44 +1,45 @@
 #include "art/Framework/IO/Output/PoolOutputModule.h"
 
-#include "art/Framework/IO/Output/RootOutputFile.h"
-
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/IO/Output/RootOutputFile.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/EDMException.h"
+#include "fhiclcpp/ParameterSet.h"
 
-#include "TTree.h"
 #include "TBranchElement.h"
 #include "TObjArray.h"
+#include "TTree.h"
 
 #include <iomanip>
 #include <sstream>
 
+
 namespace edm {
-  PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
+
+  PoolOutputModule::PoolOutputModule(fhicl::ParameterSet const& pset) :
     OutputModule(pset),
     rootServiceChecker_(),
     selectedOutputItemList_(),
-    fileName_(pset.getUntrackedParameter<std::string>("fileName")),
-    logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
-    catalog_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
-    maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
-    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 7)),
-    basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
-    splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
-    treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
-    fastCloning_(pset.getUntrackedParameter<bool>("fastCloning", true) && wantAllEvents()),
+    fileName_(pset.getString("fileName")),
+    logicalFileName_(pset.getString("logicalFileName", std::string())),
+    catalog_(pset.getString("catalog", std::string())),
+    maxFileSize_(pset.getInt("maxSize", 0x7f000000)),
+    compressionLevel_(pset.getInt("compressionLevel", 7)),
+    basketSize_(pset.getInt("basketSize", 16384)),
+    splitLevel_(pset.getInt("splitLevel", 99)),
+    treeMaxVirtualSize_(pset.getInt("treeMaxVirtualSize", -1)),
+    fastCloning_(pset.getBool("fastCloning", true) && wantAllEvents()),
     dropMetaData_(DropNone),
-    dropMetaDataForDroppedData_(pset.getUntrackedParameter<bool>("dropMetaDataForDroppedData", false)),
+    dropMetaDataForDroppedData_(pset.getBool("dropMetaDataForDroppedData", false)),
     moduleLabel_(pset.getString("@module_label")),
     outputFileCount_(0),
     inputFileCount_(0),
     rootOutputFile_() {
-      std::string dropMetaData(pset.getUntrackedParameter<std::string>("dropMetaData", std::string()));
+      std::string dropMetaData(pset.getString("dropMetaData", std::string()));
       if (dropMetaData.empty()) dropMetaData_ = DropNone;
       else if (dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
       else if (dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
@@ -52,7 +53,7 @@ namespace edm {
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
-    pset.getUntrackedParameter<ParameterSet>("dataset", ParameterSet());
+    pset.getPSet("dataset", ParameterSet());
   }
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree * tree) {
@@ -197,4 +198,5 @@ namespace edm {
       rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));
       ++outputFileCount_;
   }
-}
+
+}  // namespace edm

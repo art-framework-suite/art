@@ -7,16 +7,14 @@
 #include <iostream>
 
 EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource");
+
 namespace edm {
 
-
   InputSourceFactory::~InputSourceFactory()
-  {
-  }
+  { }
 
   InputSourceFactory::InputSourceFactory()
-  {
-  }
+  { }
 
   InputSourceFactory InputSourceFactory::singleInstance_;
 
@@ -31,8 +29,7 @@ namespace edm {
 
   std::auto_ptr<InputSource>
   InputSourceFactory::makeInputSource(ParameterSet const& conf,
-					InputSourceDescription const& desc) const
-
+                                      InputSourceDescription const& desc) const
   {
     std::string modtype = conf.getString("@module_type");
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
@@ -50,21 +47,21 @@ namespace edm {
     }
 
     if(wm.get()==0) {
-	throw edm::Exception(errors::Configuration,"NoSourceModule")
-	  << "InputSource Factory:\n"
-	  << "Cannot find source type from ParameterSet: "
-	  << modtype << "\n"
-	  << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
-	  << "Try running EdmPluginDump to obtain a list of available Plugins.";
+        throw edm::Exception(errors::Configuration,"NoSourceModule")
+          << "InputSource Factory:\n"
+          << "Cannot find source type from ParameterSet: "
+          << modtype << "\n"
+          << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
+          << "Try running EdmPluginDump to obtain a list of available Plugins.";
     }
 
     wm->registerProducts();
 
     FDEBUG(1) << "InputSourceFactory: created input source "
-	      << modtype
-	      << std::endl;
+              << modtype
+              << std::endl;
 
     return wm;
   }
 
-}
+}  // namespace edm

@@ -1,12 +1,7 @@
 #ifndef FWCore_Framework_TriggerNamesService_h
 #define FWCore_Framework_TriggerNamesService_h
 
-// -*- C++ -*-
 /*
-
- Original Author:  Jim Kowalkowski 26-01-06
-
-
 
  This service makes the trigger names available.  They are provided
  in the same order that the pass/fail status of these triggers is
@@ -29,11 +24,13 @@
 
 */
 
+
 #include "fhiclcpp/ParameterSet.h"
 
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
+
 
 namespace edm {
 
@@ -48,7 +45,7 @@ namespace edm {
       typedef std::map<std::string, unsigned int> PosMap;
       typedef PosMap::size_type size_type;
 
-      explicit TriggerNamesService(ParameterSet const& proc_pset);
+      explicit TriggerNamesService(fhicl::ParameterSet const& proc_pset);
       // Default copy, copy assignment, d'tor all do the right thing.
 
       // trigger names for the current process
@@ -82,32 +79,32 @@ namespace edm {
       size_type  findEndPath(std::string const& name) const { return find(end_pos_,name);}
 
       Strings const& getTrigPathModules(std::string const& name) const {
-	return modulenames_.at(find(trigpos_,name));
+        return modulenames_.at(find(trigpos_,name));
       }
       Strings const& getTrigPathModules(size_type const i) const {
-	return modulenames_.at(i);
+        return modulenames_.at(i);
       }
       std::string const&  getTrigPathModule (std::string const& name, size_type const j) const {
-	return (modulenames_.at(find(trigpos_,name))).at(j);
+        return (modulenames_.at(find(trigpos_,name))).at(j);
       }
       std::string const&  getTrigPathModule (size_type const i, size_type const j) const {
-	return (modulenames_.at(i)).at(j);
+        return (modulenames_.at(i)).at(j);
       }
 
       size_type find (PosMap const& posmap, std::string const& name) const {
-	PosMap::const_iterator const pos(posmap.find(name));
+        PosMap::const_iterator const pos(posmap.find(name));
         if (pos == posmap.end()) {
-	  return posmap.size();
-	} else {
+          return posmap.size();
+        } else {
           return pos->second;
-	}
+        }
       }
 
       void loadPosMap(PosMap& posmap, Strings const& names) {
         size_type const n(names.size());
-	for (size_type i = 0; i != n; ++i) {
-	  posmap[names[i]] = i;
-	}
+        for (size_type i = 0; i != n; ++i) {
+          posmap[names[i]] = i;
+        }
       }
 
       std::string const& getProcessName() const { return process_name_; }
@@ -117,7 +114,6 @@ namespace edm {
       fhicl::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
 
     private:
-
       fhicl::ParameterSet trigger_pset_;
 
       Strings trignames_;
@@ -131,6 +127,7 @@ namespace edm {
       bool wantSummary_;
     };
   }
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_TriggerNamesService_h

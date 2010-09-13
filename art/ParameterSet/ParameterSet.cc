@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 //
-//
 // definition of ParameterSet's function members
+//
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
@@ -10,8 +10,8 @@
 
 #include "art/Utilities/Digest.h"
 
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 
 #include "art/ParameterSet/split.h"
@@ -84,9 +84,9 @@ namespace edm {
   {
     if(! fromString(code))
       throw edm::Exception(errors::Configuration,"InvalidInput")
-	<< "The encoded configuration string "
-	<< "passed to a ParameterSet during construction is invalid:\n"
-	<< code;
+        << "The encoded configuration string "
+        << "passed to a ParameterSet during construction is invalid:\n"
+        << code;
 
     validate();
   }
@@ -107,8 +107,8 @@ namespace edm {
     Entry const* result = retrieveUntracked(name);
     if (result == 0)
       throw edm::Exception(errors::Configuration, "MissingParameter:")
-	<< "The required parameter '" << name
-	<< "' was not specified.\n";
+        << "The required parameter '" << name
+        << "' was not specified.\n";
     return result;
   }
 
@@ -127,19 +127,19 @@ namespace edm {
   ParameterSet::retrieve(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
     if (it == tbl_.end()) {
-	throw edm::Exception(errors::Configuration,"MissingParameter:")
-	  << "Parameter '" << name
-	  << "' not found.";
+        throw edm::Exception(errors::Configuration,"MissingParameter:")
+          << "Parameter '" << name
+          << "' not found.";
     }
     if (it->second.isTracked() == false) {
       if (name[0] == '@') {
-	throw edm::Exception(errors::Configuration,"StatusMismatch:")
-	  << "Framework Error:  Parameter '" << name
-	  << "' is incorrectly designated as tracked in the framework.";
+        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+          << "Framework Error:  Parameter '" << name
+          << "' is incorrectly designated as tracked in the framework.";
       } else {
-	throw edm::Exception(errors::Configuration,"StatusMismatch:")
-	  << "Parameter '" << name
-	  << "' is designated as tracked in the code,\n"
+        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+          << "Parameter '" << name
+          << "' is designated as tracked in the code,\n"
           << "but is designated as untracked in the configuration file.\n"
           << "Please remove 'untracked' from the configuration file for parameter '"<< name << "'.";
       }
@@ -159,13 +159,13 @@ namespace edm {
     if (it == tbl_.end()) return 0;
     if (it->second.isTracked()) {
       if (name[0] == '@') {
-	throw edm::Exception(errors::Configuration,"StatusMismatch:")
-	  << "Framework Error:  Parameter '" << name
-	  << "' is incorrectly designated as untracked in the framework.";
+        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+          << "Framework Error:  Parameter '" << name
+          << "' is incorrectly designated as untracked in the framework.";
       } else {
-	throw edm::Exception(errors::Configuration,"StatusMismatch:")
-	  << "Parameter '" << name
-	  << "' is designated as untracked in the code,\n"
+        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+          << "Parameter '" << name
+          << "' is designated as untracked in the code,\n"
           << "but is not designated as untracked in the configuration file.\n"
           << "Please change the configuration file to 'untracked <type> " << name << "'.";
       }
@@ -204,8 +204,8 @@ namespace edm {
     if(it == tbl_.end())  {
       if(! tbl_.insert(std::make_pair(name, value)).second)
         throw edm::Exception(errors::Configuration,"InsertFailure")
-	  << "cannot insert " << name
-	  << " into a ParmeterSet\n";
+          << "cannot insert " << name
+          << " into a ParmeterSet\n";
     }
     else if(okay_to_replace)  {
       it->second = value;
@@ -265,11 +265,11 @@ namespace edm {
     bool need_sep = false;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if(b->second.isTracked())  {
-	if(need_sep) ++size;
-	++size;
-	size += b->first.size();
-	size += b->second.sizeOfStringOfTracked();
-	need_sep = true;
+        if(need_sep) ++size;
+        ++size;
+        size += b->first.size();
+        size += b->second.sizeOfStringOfTracked();
+        need_sep = true;
       }
     }
     if (size == 0) {
@@ -283,11 +283,11 @@ namespace edm {
     need_sep = false;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if(b->second.isTracked())  {
-	if(need_sep) rep += ';';
-	rep += b->first;
-	rep += '=';
-	rep += b->second.toStringOfTracked();
-	need_sep = true;
+        if(need_sep) rep += ';';
+        rep += b->first;
+        rep += '=';
+        rep += b->second.toStringOfTracked();
+        need_sep = true;
       }
     }
     rep += '>';
@@ -333,12 +333,12 @@ namespace edm {
     table::const_iterator it = tbl_.begin();
     table::const_iterator end = tbl_.end();
     while (it != end) {
-	Entry const& e = it->second;
-	if (e.typeCode() == 'F') {
-	    ++count;
-	    output.push_back(e.getFileInPath());
-	}
-	++it;
+        Entry const& e = it->second;
+        if (e.typeCode() == 'F') {
+            ++count;
+            output.push_back(e.getFileInPath());
+        }
+        ++it;
     }
     return count;
   }
@@ -347,7 +347,7 @@ namespace edm {
   ParameterSet::getParameterNames() const {
     std::vector<std::string> returnValue(tbl_.size());
     std::transform(tbl_.begin(), tbl_.end(),returnValue.begin(),
-		   boost::bind(&std::pair<std::string const, Entry>::first,_1));
+                   boost::bind(&std::pair<std::string const, Entry>::first,_1));
     return returnValue;
   }
 
@@ -366,22 +366,22 @@ namespace edm {
 
    size_t
    ParameterSet::getParameterSetNames(std::vector<std::string>& output,
-				      bool trackiness) const
+                                      bool trackiness) const
    {
      return getNamesByCode_('P', trackiness, output);
    }
 
    size_t
    ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output,
-					    bool trackiness) const
+                                            bool trackiness) const
    {
      return getNamesByCode_('p', trackiness, output);
    }
 
   size_t
   ParameterSet::getNamesByCode_(char code,
-				bool trackiness,
-				std::vector<std::string>& output) const
+                                bool trackiness,
+                                std::vector<std::string>& output) const
   {
     size_t count = 0;
     table::const_iterator it = tbl_.begin();
@@ -390,11 +390,11 @@ namespace edm {
     {
       Entry const& e = it->second;
       if (e.typeCode() == code &&
-	  e.isTracked() == trackiness) // if it is a vector of ParameterSet
-	{
-	  ++count;
-	  output.push_back(it->first); // save the name
-	}
+          e.isTracked() == trackiness) // if it is a vector of ParameterSet
+        {
+          ++count;
+          output.push_back(it->first); // save the name
+        }
       ++it;
     }
     return count;
@@ -427,8 +427,8 @@ namespace edm {
 
   namespace pset
   {
-    void explode(edm::ParameterSet const& top,
-	       std::vector<edm::ParameterSet>& results)
+    void explode(fhicl::ParameterSet const& top,
+               std::vector<fhicl::ParameterSet>& results)
     {
       using namespace edm;
       results.push_back(top);
@@ -443,9 +443,9 @@ namespace edm {
       std::vector<std::string>::const_iterator end = names.end();
       for( ; it != end; ++it )
       {
-	ParameterSet next_top =
-	  top.getParameter<ParameterSet>(*it);
-	explode(next_top, results);
+        ParameterSet next_top =
+          top.getPSet(*it);
+        explode(next_top, results);
       }
 
       names.clear();
@@ -454,9 +454,9 @@ namespace edm {
       end = names.end();
       for( ; it != end; ++it )
       {
-	ParameterSet next_top =
-	  top.getUntrackedParameter<ParameterSet>(*it);
-	explode(next_top, results);
+        ParameterSet next_top =
+          top.getPSet(*it);
+        explode(next_top, results);
       }
 
       // Get names of all ParameterSets vectors; iterate through them,
@@ -467,17 +467,17 @@ namespace edm {
       end = names.end();
       for( ; it != end; ++it )
       {
-	std::vector<ParameterSet> next_bunch =
-	  top.getParameter<std::vector<ParameterSet> >(*it);
+        std::vector<ParameterSet> next_bunch =
+          top.getVPSet(*it);
 
-	std::vector<ParameterSet>::const_iterator first =
-	  next_bunch.begin();
-	std::vector<ParameterSet>::const_iterator last
-	  = next_bunch.end();
+        std::vector<ParameterSet>::const_iterator first =
+          next_bunch.begin();
+        std::vector<ParameterSet>::const_iterator last
+          = next_bunch.end();
 
-	for( ; first != last; ++first )
-	{
-	    explode(*first, results);
+        for( ; first != last; ++first )
+        {
+            explode(*first, results);
         }
       }
 
@@ -487,18 +487,18 @@ namespace edm {
       end = names.end();
       for( ; it != end; ++it )
       {
-	std::vector<ParameterSet> next_bunch =
-	  top.getUntrackedParameter<std::vector<ParameterSet> >(*it);
+        std::vector<ParameterSet> next_bunch =
+          top.getVPSet(*it);
 
-	std::vector<ParameterSet>::const_iterator first =
-	  next_bunch.begin();
-	std::vector<ParameterSet>::const_iterator last
-	  = next_bunch.end();
+        std::vector<ParameterSet>::const_iterator first =
+          next_bunch.begin();
+        std::vector<ParameterSet>::const_iterator last
+          = next_bunch.end();
 
-	for( ; first != last; ++first )
-	{
-	    explode(*first, results);
-	}
+        for( ; first != last; ++first )
+        {
+            explode(*first, results);
+        }
       }
     }
   }
@@ -515,12 +515,13 @@ namespace edm {
     return result;
   }
   void ParameterSet::depricatedInputTagWarning(std::string const& name,
-					       std::string const& label) const
+                                               std::string const& label) const
   {
     edm::LogWarning("Configuration") << "Warning:\n\tstring " << name
-				     << " = \"" << label
-				     << "\"\nis deprecated, "
-				     << "please update your config file to use\n\tInputTag "
-				     << name << " = " << label;
+                                     << " = \"" << label
+                                     << "\"\nis deprecated, "
+                                     << "please update your config file to use\n\tInputTag "
+                                     << name << " = " << label;
   }
+
 } // namespace edm

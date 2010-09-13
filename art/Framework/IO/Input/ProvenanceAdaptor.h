@@ -28,10 +28,10 @@ namespace edm {
   class ProvenanceAdaptor : private boost::noncopyable {
   public:
   ProvenanceAdaptor(
-	     ProductRegistry const& productRegistry,
-	     ProcessHistoryMap const& pHistMap,
-	     ParameterSetMap const& psetMap,
-	     ModuleDescriptionMap const&  mdMap);
+             ProductRegistry const& productRegistry,
+             ProcessHistoryMap const& pHistMap,
+             ParameterSetMap const& psetMap,
+             ModuleDescriptionMap const&  mdMap);
 
 
   boost::shared_ptr<BranchIDLists const> branchIDLists() const;

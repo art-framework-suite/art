@@ -52,8 +52,7 @@ EngineCreator::seed_t
 {
   typedef  std::vector<int>  sv_t;
 
-  sv_t const &  explicit_seeds
-    = pset.getUntrackedParameter<sv_t>( key, sv_t() );
+  sv_t const &  explicit_seeds = pset.getVInt( key, sv_t() );
   return explicit_seeds.empty() ? implicit_seed
                                 : explicit_seeds.front();
 }

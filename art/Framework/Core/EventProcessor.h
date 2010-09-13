@@ -8,14 +8,6 @@ configured in the user's main() function, and is set running.
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "boost/shared_ptr.hpp"
-#include "boost/thread/condition.hpp"
-#include "boost/thread/thread.hpp"
-#include "boost/utility.hpp"
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -27,9 +19,19 @@ configured in the user's main() function, and is set running.
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
+
+#include "boost/shared_ptr.hpp"
+#include "boost/thread/condition.hpp"
+#include "boost/thread/thread.hpp"
+#include "boost/utility.hpp"
+#include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
+#include <string>
+#include <vector>
+
 
 namespace statemachine {
   class Machine;
@@ -375,8 +377,8 @@ namespace edm {
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    ParameterSet                                  maxEventsPset_;
-    ParameterSet                                  maxSubRunsPset_;
+    fhicl::ParameterSet                           maxEventsPset_;
+    fhicl::ParameterSet                           maxSubRunsPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
@@ -423,6 +425,7 @@ namespace edm {
   EventProcessor::run() {
     return run(-1, false);
   }
-}
+
+}  // namespace edm
 
 #endif  // FWCore_Framework_EventProcessor_h

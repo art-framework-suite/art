@@ -1,17 +1,17 @@
-
 #include "art/ParameterSet/ParameterDescriptionTemplate.h"
 
 #include "boost/bind.hpp"
 
-namespace edm {
+using fhicl::ParameterSet;
 
-  // =================================================================
+
+namespace edm {
 
   ParameterDescriptionTemplate<ParameterSetDescription>::
   ParameterDescriptionTemplate(std::string const& iLabel,
                                bool isTracked,
                                bool isOptional,
-			       ParameterSetDescription const& value) :
+                               ParameterSetDescription const& value) :
       ParameterDescription(iLabel, k_PSet, isTracked, isOptional),
       psetDesc_(value) {
   }
@@ -20,7 +20,7 @@ namespace edm {
   ParameterDescriptionTemplate(char const* iLabel,
                                bool isTracked,
                                bool isOptional,
-			       ParameterSetDescription const& value) :
+                               ParameterSetDescription const& value) :
       ParameterDescription(iLabel, k_PSet, isTracked, isOptional),
       psetDesc_(value) {
   }
@@ -42,7 +42,7 @@ namespace edm {
         containedPSet = pset.getParameterSet(label());
       }
       else {
-        containedPSet = pset.getUntrackedParameter<ParameterSet>(label());
+        containedPSet = pset.getPSet(label());
       }
       psetDesc_.validate(containedPSet);
     }
@@ -66,7 +66,7 @@ namespace edm {
   ParameterDescriptionTemplate(std::string const& iLabel,
                                bool isTracked,
                                bool isOptional,
-			       std::vector<ParameterSetDescription> const& value) :
+                               std::vector<ParameterSetDescription> const& value) :
       ParameterDescription(iLabel, k_VPSet, isTracked, isOptional),
       vPsetDesc_(value) {
   }
@@ -75,7 +75,7 @@ namespace edm {
   ParameterDescriptionTemplate(char const* iLabel,
                                bool isTracked,
                                bool isOptional,
-			       std::vector<ParameterSetDescription> const& value) :
+                               std::vector<ParameterSetDescription> const& value) :
       ParameterDescription(iLabel, k_VPSet, isTracked, isOptional),
       vPsetDesc_(value) {
   }
@@ -97,7 +97,7 @@ namespace edm {
         containedPSets = pset.getVPSet(label());
       }
       else {
-        containedPSets = pset.getUntrackedParameter<std::vector<ParameterSet> >(label());
+        containedPSets = pset.getVPSet(label());
       }
       if (containedPSets.size() != vPsetDesc_.size()) {
         throw edm::Exception(errors::Configuration)
@@ -134,5 +134,4 @@ namespace edm {
     return &vPsetDesc_;
   }
 
-  // =================================================================
-}
+}  // namespace edm

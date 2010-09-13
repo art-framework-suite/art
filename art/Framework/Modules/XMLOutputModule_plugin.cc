@@ -5,20 +5,17 @@
 // ======================================================================
 
 
-// --- Framework support:
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GenericHandle.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
 
-// --- Reflex support:
 #include "Reflex/Base.h"
+#include "fhiclcpp/ParameterSet.h"
 
-// --- C++ support:
 #include <exception>
 #include <fstream>   // ofstream
 #include <iostream>  // cerr, cout
@@ -509,15 +506,15 @@ static void
 //
 // constructors and destructor
 //
-XMLOutputModule::XMLOutputModule( ParameterSet const & iPSet )
+XMLOutputModule::XMLOutputModule( fhicl::ParameterSet const & iPSet )
   : OutputModule( iPSet )
-  , stream_     ( iPSet.getUntrackedParameter<std::string>("fileName").c_str() )
+  , stream_     ( iPSet.getString("fileName").c_str() )
   , indentation_( "  " )
 {
   if( !stream_ ) {
     throw edm::Exception(errors::Configuration)
       << "failed to open file "
-      << iPSet.getUntrackedParameter<std::string>("fileName");
+      << iPSet.getString("fileName");
   }
   stream_ << "<cmsdata>" << std::endl;
 }

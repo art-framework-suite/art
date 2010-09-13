@@ -5,14 +5,14 @@
 // ======================================================================
 
 
-// --- Framework support:
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/MakerMacros.h"
+
 #include "fhiclcpp/ParameterSet.h"
 
 
-// --- Contents:
+// Contents:
 namespace edm {
   class Prescaler;
 }
@@ -26,7 +26,7 @@ class edm::Prescaler
   : public EDFilter
 {
 public:
-  explicit Prescaler( ParameterSet const & );
+  explicit Prescaler( fhicl::ParameterSet const & );
   virtual ~Prescaler();
 
   virtual bool filter( Event & );
@@ -44,7 +44,7 @@ private:
 // ======================================================================
 
 
-Prescaler::Prescaler( ParameterSet const & ps )
+Prescaler::Prescaler( fhicl::ParameterSet const & ps )
   : count_ ( 0 )
   , n_     ( ps.getInt("prescaleFactor") )
   , offset_( ps.getInt("prescaleOffset") )

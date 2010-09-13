@@ -1,4 +1,3 @@
-
 #include "art/Framework/Core/EventProcessor.h"
 
 #include "art/Framework/Core/Breakpoints.h"
@@ -30,15 +29,17 @@
   using edm::serviceregistry::kOverlapIsError;
 
 #include "MessageFacility/MessageLogger.h"
-
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
+
   using boost::shared_ptr;
+  using fhicl::ParameterSet;
 
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <utility>
+
 
 namespace edm {
 
@@ -401,13 +402,13 @@ namespace edm {
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-    ParameterSet optionsPset(parameterSet->getUntrackedParameter<ParameterSet>("options", ParameterSet()));
-    fileMode_ = optionsPset.getUntrackedParameter<std::string>("fileMode", "");
-    handleEmptyRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptyRuns", true);
-    handleEmptySubRuns_ = optionsPset.getUntrackedParameter<bool>("handleEmptySubRuns", true);
+    ParameterSet optionsPset(parameterSet->getPSet("options", ParameterSet()));
+    fileMode_ = optionsPset.getString("fileMode", "");
+    handleEmptyRuns_ = optionsPset.getBool("handleEmptyRuns", true);
+    handleEmptySubRuns_ = optionsPset.getBool("handleEmptySubRuns", true);
 
-    maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
-    maxSubRunsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxSubRuns", ParameterSet());
+    maxEventsPset_ = parameterSet->getPSet("maxEvents", ParameterSet());
+    maxSubRunsPset_ = parameterSet->getPSet("maxSubRuns", ParameterSet());
 
     shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
@@ -449,8 +450,8 @@ namespace edm {
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
-                           maxEventsPset_.getUntrackedParameter<int>("input", -1),
-                           maxSubRunsPset_.getUntrackedParameter<int>("input", -1));
+                           maxEventsPset_.getInt("input", -1),
+                           maxSubRunsPset_.getInt("input", -1));
 
     input_= makeInput(*parameterSet, common, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>

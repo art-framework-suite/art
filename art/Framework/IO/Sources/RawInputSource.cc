@@ -3,18 +3,21 @@
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/IO/Sources/RawInputSource.h"
-#include "art/Persistency/Provenance/Timestamp.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
+
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/Timestamp.h"
+
 
 namespace edm {
-  RawInputSource::RawInputSource(ParameterSet const& pset,
-				       InputSourceDescription const& desc) :
+
+  RawInputSource::RawInputSource(fhicl::ParameterSet const& pset,
+                                 InputSourceDescription const& desc) :
     InputSource(pset, desc),
     runNumber_(RunNumber_t()),
     newRun_(false),
@@ -31,20 +34,20 @@ namespace edm {
     newRun_ = false;
     RunAuxiliary runAux(runNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(runAux,
-			 productRegistry(),
-			 processConfiguration()));
+        new RunPrincipal(runAux,
+                         productRegistry(),
+                         processConfiguration()));
   }
 
   boost::shared_ptr<SubRunPrincipal>
   RawInputSource::readSubRun_() {
     newSubRun_ = false;
     SubRunAuxiliary subRunAux(runNumber_,
-	subRunNumber_, timestamp(), Timestamp::invalidTimestamp());
+        subRunNumber_, timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<SubRunPrincipal>(
-	new SubRunPrincipal(subRunAux,
-				     productRegistry(),
-				     processConfiguration()));
+        new SubRunPrincipal(subRunAux,
+                                     productRegistry(),
+                                     processConfiguration()));
   }
 
   std::auto_ptr<EventPrincipal>
@@ -59,7 +62,7 @@ namespace edm {
     EventAuxiliary eventAux(EventID(run, event),
       processGUID(), tstamp, subRun, true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
+        new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }
@@ -116,4 +119,4 @@ namespace edm {
         << "Contact a Framework developer.\n";
   }
 
-}
+}  // namespace edm

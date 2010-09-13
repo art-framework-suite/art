@@ -3,8 +3,8 @@
 
 // ----------------------------------------------------------------------
 //
-//
 // Declaration for ParameterSet(parameter set) and related types
+//
 // ----------------------------------------------------------------------
 
 
@@ -127,7 +127,7 @@ namespace edm {
 
     template <typename T>
     std::vector<std::string> getParameterNamesForType(bool trackiness =
-						      true) const
+                                                      true) const
     {
       std::vector<std::string> result;
       // This is icky, but I don't know of another way in the current
@@ -169,7 +169,7 @@ namespace edm {
     // return tracked parameters; if 'trackiness' is false, w return
     // untracked parameters.
     size_t getParameterSetNames(std::vector<std::string>& output,
-				bool trackiness = true) const;
+                                bool trackiness = true) const;
 
     // Return the names of all parameters of type
     // vector<ParameterSet>, pushing the names into the argument
@@ -177,7 +177,7 @@ namespace edm {
     // 'trackiness' is true, we return tracked parameters; if
     // 'trackiness' is false, w return untracked parameters.
     size_t getParameterSetVectorNames(std::vector<std::string>& output,
-				      bool trackiness=true) const;
+                                      bool trackiness=true) const;
 
     // need a simple interface for python
     std::string dump() const;
@@ -213,8 +213,8 @@ private:
     // Return the names of all the entries with the given typecode and
     // given status (trackiness)
     size_t getNamesByCode_(char code,
-			   bool trackiness,
-			   std::vector<std::string>& output) const;
+                           bool trackiness,
+                           std::vector<std::string>& output) const;
 
 
   };  // ParameterSet
@@ -249,7 +249,7 @@ private:
   template<>
   inline
   int
-  ParameterSet::getParameter<int>(std::string const& name) const {
+  ParameterSet::getInt(std::string const& name) const {
     return retrieve(name).getInt32();
   }
 
@@ -334,14 +334,14 @@ private:
   template<>
   inline
   std::string
-  ParameterSet::getParameter<std::string>(std::string const& name) const {
+  ParameterSet::getString(std::string const& name) const {
     return retrieve(name).getString();
   }
 
   template<>
   inline
   std::vector<std::string>
-  ParameterSet::getParameter<std::vector<std::string> >(std::string const& name) const {
+  ParameterSet::getVString(std::string const& name) const {
     return retrieve(name).getVString();
   }
 
@@ -369,7 +369,7 @@ private:
         return e_input.getInputTag();
       case 'S':   // string
         std::string const& label = e_input.getString();
-	depricatedInputTagWarning(name, label);
+        depricatedInputTagWarning(name, label);
         return InputTag( label );
     }
     throw edm::Exception(errors::Configuration, "ValueError") << "type of "
@@ -433,14 +433,14 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getParameter<ParameterSet>(std::string const& name) const {
+  ParameterSet::getPSet(std::string const& name) const {
     return retrieve(name).getPSet();
   }
 
   template<>
   inline
   std::vector<ParameterSet>
-  ParameterSet::getParameter<std::vector<ParameterSet> >(std::string const& name) const {
+  ParameterSet::getVPSet(std::string const& name) const {
     return retrieve(name).getVPSet();
   }
 
@@ -452,7 +452,7 @@ private:
   template<>
   inline
   bool
-  ParameterSet::getUntrackedParameter<bool>(std::string const& name, bool const& defaultValue) const {
+  ParameterSet::getBool(std::string const& name, bool const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getBool();
   }
@@ -460,7 +460,7 @@ private:
   template<>
   inline
   bool
-  ParameterSet::getUntrackedParameter<bool>(std::string const& name) const {
+  ParameterSet::getBool(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getBool();
   }
 
@@ -471,7 +471,7 @@ private:
   template<>
   inline
   int
-  ParameterSet::getUntrackedParameter<int>(std::string const& name, int const& defaultValue) const {
+  ParameterSet::getInt(std::string const& name, int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getInt32();
   }
@@ -479,7 +479,7 @@ private:
   template<>
   inline
   int
-  ParameterSet::getUntrackedParameter<int>(std::string const& name) const {
+  ParameterSet::getInt(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getInt32();
   }
 
@@ -504,7 +504,7 @@ private:
   template<>
   inline
   unsigned int
-  ParameterSet::getUntrackedParameter<unsigned int>(std::string const& name, unsigned int const& defaultValue) const {
+  ParameterSet::getUint(std::string const& name, unsigned int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getUInt32();
   }
@@ -512,7 +512,7 @@ private:
   template<>
   inline
   unsigned int
-  ParameterSet::getUntrackedParameter<unsigned int>(std::string const& name) const {
+  ParameterSet::getUint(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getUInt32();
   }
 
@@ -639,7 +639,7 @@ private:
   template<>
   inline
   std::string
-  ParameterSet::getUntrackedParameter<std::string>(std::string const& name, std::string const& defaultValue) const {
+  ParameterSet::getString(std::string const& name, std::string const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getString();
   }
@@ -647,14 +647,14 @@ private:
   template<>
   inline
   std::string
-  ParameterSet::getUntrackedParameter<std::string>(std::string const& name) const {
+  ParameterSet::getString(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getString();
   }
 
   template<>
   inline
   std::vector<std::string>
-  ParameterSet::getUntrackedParameter<std::vector<std::string> >(std::string const& name, std::vector<std::string> const& defaultValue) const {
+  ParameterSet::getVString(std::string const& name, std::vector<std::string> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVString();
   }
@@ -663,7 +663,7 @@ private:
   template<>
   inline
   std::vector<std::string>
-  ParameterSet::getUntrackedParameter<std::vector<std::string> >(std::string const& name) const {
+  ParameterSet::getVString(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVString();
   }
 
@@ -797,7 +797,7 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet const& defaultValue) const {
+  ParameterSet::getPSet(std::string const& name, ParameterSet const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getPSet();
   }
@@ -805,14 +805,14 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getUntrackedParameter<ParameterSet>(std::string const& name) const {
+  ParameterSet::getPSet(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getPSet();
   }
 
   template<>
   inline
   std::vector<ParameterSet>
-  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(std::string const& name, std::vector<ParameterSet> const& defaultValue) const {
+  ParameterSet::getVPSet(std::string const& name, std::vector<ParameterSet> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVPSet();
   }
@@ -820,7 +820,7 @@ private:
   template<>
   inline
   std::vector<ParameterSet>
-  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(std::string const& name) const {
+  ParameterSet::getVPSet(std::string const& name) const {
     return getEntryPointerOrThrow_(name)->getVPSet();
   }
 
@@ -841,7 +841,7 @@ private:
   template<>
   inline
   int
-  ParameterSet::getParameter<int>(char const* name) const {
+  ParameterSet::getInt(char const* name) const {
     return retrieve(name).getInt32();
   }
 
@@ -926,14 +926,14 @@ private:
   template<>
   inline
   std::string
-  ParameterSet::getParameter<std::string>(char const* name) const {
+  ParameterSet::getString(char const* name) const {
     return retrieve(name).getString();
   }
 
   template<>
   inline
   std::vector<std::string>
-  ParameterSet::getParameter<std::vector<std::string> >(char const* name) const {
+  ParameterSet::getVString(char const* name) const {
     return retrieve(name).getVString();
   }
 
@@ -961,7 +961,7 @@ private:
         return e_input.getInputTag();
       case 'S':   // string
         std::string const& label = e_input.getString();
-	depricatedInputTagWarning(name, label);
+        depricatedInputTagWarning(name, label);
         return InputTag( label );
     }
     throw edm::Exception(errors::Configuration, "ValueError") << "type of "
@@ -1025,14 +1025,14 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getParameter<ParameterSet>(char const* name) const {
+  ParameterSet::getPSet(char const* name) const {
     return retrieve(name).getPSet();
   }
 
   template<>
   inline
   std::vector<ParameterSet>
-  ParameterSet::getParameter<std::vector<ParameterSet> >(char const* name) const {
+  ParameterSet::getVPSet(char const* name) const {
     return retrieve(name).getVPSet();
   }
 
@@ -1044,7 +1044,7 @@ private:
   template<>
   inline
   bool
-  ParameterSet::getUntrackedParameter<bool>(char const* name, bool const& defaultValue) const {
+  ParameterSet::getBool(char const* name, bool const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getBool();
   }
@@ -1052,7 +1052,7 @@ private:
   template<>
   inline
   bool
-  ParameterSet::getUntrackedParameter<bool>(char const* name) const {
+  ParameterSet::getBool(char const* name) const {
     return getEntryPointerOrThrow_(name)->getBool();
   }
 
@@ -1063,7 +1063,7 @@ private:
   template<>
   inline
   int
-  ParameterSet::getUntrackedParameter<int>(char const* name, int const& defaultValue) const {
+  ParameterSet::getInt(char const* name, int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getInt32();
   }
@@ -1071,7 +1071,7 @@ private:
   template<>
   inline
   int
-  ParameterSet::getUntrackedParameter<int>(char const* name) const {
+  ParameterSet::getInt(char const* name) const {
     return getEntryPointerOrThrow_(name)->getInt32();
   }
 
@@ -1096,7 +1096,7 @@ private:
   template<>
   inline
   unsigned int
-  ParameterSet::getUntrackedParameter<unsigned int>(char const* name, unsigned int const& defaultValue) const {
+  ParameterSet::getUint(char const* name, unsigned int const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getUInt32();
   }
@@ -1104,7 +1104,7 @@ private:
   template<>
   inline
   unsigned int
-  ParameterSet::getUntrackedParameter<unsigned int>(char const* name) const {
+  ParameterSet::getUint(char const* name) const {
     return getEntryPointerOrThrow_(name)->getUInt32();
   }
 
@@ -1231,7 +1231,7 @@ private:
   template<>
   inline
   std::string
-  ParameterSet::getUntrackedParameter<std::string>(char const* name, std::string const& defaultValue) const {
+  ParameterSet::getString(char const* name, std::string const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getString();
   }
@@ -1239,14 +1239,14 @@ private:
   template<>
   inline
   std::string
-  ParameterSet::getUntrackedParameter<std::string>(char const* name) const {
+  ParameterSet::getString(char const* name) const {
     return getEntryPointerOrThrow_(name)->getString();
   }
 
   template<>
   inline
   std::vector<std::string>
-  ParameterSet::getUntrackedParameter<std::vector<std::string> >(char const* name, std::vector<std::string> const& defaultValue) const {
+  ParameterSet::getVString(char const* name, std::vector<std::string> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVString();
   }
@@ -1255,7 +1255,7 @@ private:
   template<>
   inline
   std::vector<std::string>
-  ParameterSet::getUntrackedParameter<std::vector<std::string> >(char const* name) const {
+  ParameterSet::getVString(char const* name) const {
     return getEntryPointerOrThrow_(name)->getVString();
   }
 
@@ -1389,7 +1389,7 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getUntrackedParameter<ParameterSet>(char const* name, ParameterSet const& defaultValue) const {
+  ParameterSet::getPSet(char const* name, ParameterSet const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getPSet();
   }
@@ -1397,14 +1397,14 @@ private:
   template<>
   inline
   ParameterSet
-  ParameterSet::getUntrackedParameter<ParameterSet>(char const* name) const {
+  ParameterSet::getPSet(char const* name) const {
     return getEntryPointerOrThrow_(name)->getPSet();
   }
 
   template<>
   inline
   std::vector<ParameterSet>
-  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(char const* name, std::vector<ParameterSet> const& defaultValue) const {
+  ParameterSet::getVPSet(char const* name, std::vector<ParameterSet> const& defaultValue) const {
     Entry const* entryPtr = retrieveUntracked(name);
     return entryPtr == 0 ? defaultValue : entryPtr->getVPSet();
   }
@@ -1412,7 +1412,7 @@ private:
   template<>
   inline
   std::vector<ParameterSet>
-  ParameterSet::getUntrackedParameter<std::vector<ParameterSet> >(char const* name) const {
+  ParameterSet::getVPSet(char const* name) const {
     return getEntryPointerOrThrow_(name)->getVPSet();
   }
 
@@ -1422,7 +1422,7 @@ private:
     // Put into 'results' each parameter set in 'top', including 'top'
     // itself.
     void explode(ParameterSet const& top,
-	       std::vector<ParameterSet>& results);
+               std::vector<ParameterSet>& results);
   }
 
   // Free function to retrieve a parameter set, given the parameter set ID.
@@ -1430,4 +1430,5 @@ private:
   getParameterSet(ParameterSetID const& id);
 
 }  // namespace edm
-#endif
+
+#endif  // FWCore_ParameterSet_ParameterSet_h

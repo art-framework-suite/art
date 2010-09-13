@@ -8,11 +8,6 @@ output stream.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
-#include <vector>
-
-#include "boost/array.hpp"
-#include "boost/utility.hpp"
 
 #include "art/Framework/Core/CachedProducts.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -28,6 +23,13 @@ output stream.
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
 
+#include "boost/array.hpp"
+#include "boost/utility.hpp"
+
+#include <string>
+#include <vector>
+
+
 namespace edm {
 
   typedef edm::detail::CachedProducts::handle_t Trig;
@@ -42,7 +44,7 @@ namespace edm {
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 
-    explicit OutputModule(ParameterSet const& pset);
+    explicit OutputModule(fhicl::ParameterSet const& pset);
     virtual ~OutputModule();
     /// Accessor for maximum number of events to be written.
     /// -1 is used for unlimited.
@@ -138,15 +140,15 @@ namespace edm {
     void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep,
-		    CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc);
     bool doBeginRun(RunPrincipal const& rp,
-		    CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal const& rp,
-		    CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc);
     bool doBeginSubRun(SubRunPrincipal const& lbp,
-		    CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc);
     bool doEndSubRun(SubRunPrincipal const& lbp,
-		    CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const* cpc);
     void doWriteRun(RunPrincipal const& rp);
     void doWriteSubRun(SubRunPrincipal const& lbp);
     void doOpenFile(FileBlock const& fb);
@@ -220,6 +222,7 @@ namespace edm {
     virtual void writeBranchMapper() {}
     virtual void finishEndFile() {}
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_OutputModule_h

@@ -1,10 +1,11 @@
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/Provenance.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/SubRun.h"
 #include "art/ParameterSet/Registry.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/Provenance.h"
+
 
 namespace edm {
 
@@ -13,6 +14,7 @@ namespace edm {
       return (ep.subRunPrincipalSharedPtr() ? new SubRun(ep.subRunPrincipal(), md) : 0);
     }
   }
+
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
 	DataViewImpl(ep, md, InEvent),
 	aux_(ep.aux()),
@@ -80,7 +82,7 @@ namespace edm {
 
   bool
   Event::getProcessParameterSet(std::string const& processName,
-				ParameterSet& ps) const
+				fhicl::ParameterSet& ps) const
   {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
@@ -91,7 +93,7 @@ namespace edm {
 	  << "ProcessHistoryID " << processHistoryID()
 	  << " is claimed to describe " << id()
 	  << "\nbut is not found in the ProcessHistoryRegistry.\n"
-	  << "This file is malformed.\n";
+	     "This file is malformed.\n";
       }
 
     ProcessConfiguration config;
@@ -168,4 +170,4 @@ namespace edm {
     }
   }
 
-}
+}  // namespace edm

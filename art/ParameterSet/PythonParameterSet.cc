@@ -32,7 +32,7 @@ boost::python::list PythonParameterSet::getVPSet(bool tracked, std::string const
   }
   else
   {
-    v = theParameterSet.getUntrackedParameter<std::vector<fhicl::ParameterSet> >(name);
+    v = theParameterSet.getVPSet(name);
   }
 
   // convert to PythonParameterSets

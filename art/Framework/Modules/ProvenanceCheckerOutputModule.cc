@@ -19,7 +19,7 @@ namespace edm {
    class ProvenanceCheckerOutputModule : public OutputModule {
    public:
       // We do not take ownership of passed stream.
-      explicit ProvenanceCheckerOutputModule(fhicl::ParameterSet const& pset);
+      explicit ProvenanceCheckerOutputModule(fhicl::ParameterSet const&);
       virtual ~ProvenanceCheckerOutputModule();
 
    private:

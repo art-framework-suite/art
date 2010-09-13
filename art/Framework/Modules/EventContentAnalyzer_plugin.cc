@@ -327,17 +327,17 @@ static void
 // constructors and destructor
 
 EventContentAnalyzer::EventContentAnalyzer( fhicl::ParameterSet const & ps )
-: indentation_       ( ps.getUntrackedParameter( "indentation"
-                                               , std::string("++")) )
-, verboseIndentation_( ps.getUntrackedParameter( "verboseIndentation"
-                                               , std::string("  ")) )
-, moduleLabels_      ( ps.getUntrackedParameter( "verboseForModuleLabels"
-                                               , std::vector<std::string>()) )
-, verbose_           ( ps.getUntrackedParameter("verbose",false)
+: indentation_       ( ps.getString( "indentation"
+                                   , std::string("++")) )
+, verboseIndentation_( ps.getString( "verboseIndentation"
+                                   , std::string("  ")) )
+, moduleLabels_      ( ps.getVString( "verboseForModuleLabels"
+                                    , std::vector<std::string>()) )
+, verbose_           ( ps.getBool("verbose",false)
                      || moduleLabels_.size() > 0 )
-, getModuleLabels_   ( ps.getUntrackedParameter( "getDataForModuleLabels"
-                                               , std::vector<std::string>()) )
-, getData_           ( ps.getUntrackedParameter("getData",false)
+, getModuleLabels_   ( ps.getVString( "getDataForModuleLabels"
+                                    , std::vector<std::string>()) )
+, getData_           ( ps.getBool("getData",false)
                      || getModuleLabels_.size() > 0 )
 , evno_              ( 1 )
 {

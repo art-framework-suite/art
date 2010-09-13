@@ -1,7 +1,6 @@
 #ifndef Framework_Run_h
 #define Framework_Run_h
 
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     Run
@@ -13,17 +12,13 @@ Description: This is the primary interface for accessing per run EDProducts and 
 For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 */
-/*----------------------------------------------------------------------
 
-
-
-----------------------------------------------------------------------*/
-
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/RunID.h"
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/RunID.h"
+
 
 namespace edm {
 
@@ -72,7 +67,7 @@ namespace edm {
     // result.
     bool
     getProcessParameterSet(std::string const& processName,
-			   std::vector<ParameterSet>& ps) const;
+			   std::vector<fhicl::ParameterSet>& ps) const;
 
   private:
     RunPrincipal const&
@@ -127,5 +122,6 @@ namespace edm {
     // The old copy must be deleted, so we cannot release ownership.
   }
 
-}
-#endif
+}  // namespace edm
+
+#endif  // Framework_Run_h

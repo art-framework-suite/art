@@ -1,26 +1,26 @@
-//
-
-#include <algorithm>
-#include <iterator>
-#include <ostream>
-#include <cctype>
+#include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/Algorithms.h"
+#include "art/Utilities/EDMException.h"
 
 #include "boost/algorithm/string.hpp"
-
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Framework/Core/GroupSelectorRules.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
+
+#include <algorithm>
+#include <cctype>
+#include <iterator>
+#include <ostream>
+
+using fhicl::ParameterSet;
 
 
 namespace edm {
-// The following typedef is used only in this implementation file, in
-// order to shorten several lines of code.
-typedef std::vector<edm::BranchDescription const*> VCBDP;
 
-  namespace
-  {
+  // The following typedef is used only in this implementation file, in
+  // order to shorten several lines of code.
+  typedef std::vector<edm::BranchDescription const*> VCBDP;
+
+  namespace {
 
     //--------------------------------------------------
     // function partial_match is a helper for Rule. It encodes the
@@ -28,7 +28,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     inline
     bool
     partial_match(const boost::regex& regularExpression,
-  		  const std::string& branchstring)
+                  const std::string& branchstring)
     {
       if (regularExpression.empty()) {
         if (branchstring == "") return true;
@@ -36,7 +36,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
       }
       return boost::regex_match(branchstring, regularExpression);
     }
-  }
+
+  }  // namespace
 
   //--------------------------------------------------
   // Class Rule is used to determine whether or not a given branch
@@ -79,8 +80,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "Rule must have at least 6 characters because it must\n"
         << "specify 'keep ' or 'drop ' and also supply a pattern.\n"
-	<< "This is the invalid output configuration rule:\n"
-	<< "    " << s << "\n"
+        << "This is the invalid output configuration rule:\n"
+        << "    " << s << "\n"
         << "Exception thrown from GroupSelectorRules::Rule\n";
 
     if (s.substr(0,4) == "keep")
@@ -92,8 +93,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
-	<< "This is the invalid output configuration rule:\n"
-	<< "    " << s << "\n"
+        << "This is the invalid output configuration rule:\n"
+        << "    " << s << "\n"
         << "Exception thrown from GroupSelectorRules::Rule\n";
 
     if ( !std::isspace(s[4]) ) {
@@ -102,8 +103,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "In each rule, 'keep' or 'drop' must be followed by a space\n"
-	<< "This is the invalid output configuration rule:\n"
-	<< "    " << s << "\n"
+        << "This is the invalid output configuration rule:\n"
+        << "    " << s << "\n"
         << "Exception thrown from GroupSelectorRules::Rule\n";
     }
 
@@ -139,7 +140,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
       if (good)
       {
         for (int i = 0; i < 4; ++i) {
-	  std::string& field = parts[i];
+          std::string& field = parts[i];
           int size = field.size();
           for (int j = 0; j < size; ++j) {
             if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
@@ -166,8 +167,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "There must be 4 fields separated by underscores\n"
         << "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
         << "Alternately, a single * is also allowed for the branch specification\n"
-	<< "This is the invalid output configuration rule:\n"
-	<< "    " << s << "\n"
+        << "This is the invalid output configuration rule:\n"
+        << "    " << s << "\n"
         << "Exception thrown from GroupSelectorRules::Rule\n";
       }
 
@@ -210,7 +211,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 
   void
   GroupSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch,
-		   bool& result) const
+                   bool& result) const
   {
     if (this->appliesTo(branch)) result = selectflag_;
   }
@@ -226,8 +227,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   }
 
   GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,
-			       std::string const& parameterName,
-			       std::string const& parameterOwnerName) :
+                               std::string const& parameterName,
+                               std::string const& parameterOwnerName) :
   rules_(),
   parameterName_(parameterName),
   parameterOwnerName_(parameterOwnerName)
@@ -238,8 +239,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     std::vector<std::string> defaultCommands(1U, std::string("keep *"));
 
     std::vector<std::string> commands =
-      pset.getUntrackedParameter<std::vector<std::string> >(parameterName,
-						    defaultCommands);
+      pset.getVString(parameterName,
+                                                    defaultCommands);
     rules_.reserve(commands.size());
     for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();
         it != end; ++it) {
@@ -247,4 +248,5 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     }
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }
-}
+
+}  // namespace edm

@@ -8,8 +8,9 @@
 
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/EventID.h"
+
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {
@@ -39,7 +40,7 @@ namespace edm {
     {
     public:
 
-      SimpleMemoryCheck(const ParameterSet&,ActivityRegistry&);
+      SimpleMemoryCheck(const fhicl::ParameterSet&,ActivityRegistry&);
       ~SimpleMemoryCheck();
 
       void preSourceConstruction(const ModuleDescription&);
@@ -161,6 +162,7 @@ namespace edm {
                 SimpleMemoryCheck::SignificantModule const & se);
 
   }
-}
+
+}  // namespace edm
 
 #endif  // FWCore_Services_Memory_h

@@ -1,24 +1,22 @@
 #ifndef FWCore_Services_Profiling_h
 #define FWCore_Services_Profiling_h
-// -*- C++ -*-
+
 //
 // Package:     Services
 // Class  :     SimpleProfiling
 //
-//
-// Original Author:  Jim Kowalkowski
-//
-//
 
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "fhiclcpp/ParameterSet.h"
+
 
 namespace edm {
   namespace service {
+
     class SimpleProfiling
     {
     public:
-      SimpleProfiling(const ParameterSet&,ActivityRegistry&);
+      SimpleProfiling(const fhicl::ParameterSet&,ActivityRegistry&);
       ~SimpleProfiling();
 
       void postBeginJob();
@@ -26,9 +24,8 @@ namespace edm {
 
     private:
     };
-  }
-}
 
+  }  // namespace service
+}  //namespace edm
 
-
-#endif
+#endif  // FWCore_Services_Profiling_h

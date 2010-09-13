@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 //
-//
 // definition of type encoding/decoding functions
+//
 // ----------------------------------------------------------------------
 
 
@@ -9,19 +9,22 @@
 // prerequisite source files and headers
 // ----------------------------------------------------------------------
 
+#include "art/ParameterSet/split.h"
 #include "art/ParameterSet/types.h"
+#include "art/Utilities/Parse.h"
 
 #include "boost/lexical_cast.hpp"
-#include "art/ParameterSet/split.h"
-#include "art/Utilities/Parse.h"
+
+#include <cassert>
 #include <cctype>
 #include <cstdlib>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <cassert>
+
 
 using namespace edm;
+using fhicl::ParameterSet;
 
 
 // ----------------------------------------------------------------------
@@ -71,7 +74,7 @@ static std::string
 bool
   edm::decode(bool & to, std::string const& from)
 {
-  if     (from == "true")  { to = true ; return true; }
+  if     (from == "true" )  { to = true ; return true; }
   else if(from == "false")  { to = false; return true; }
   else                        return false;
 }  // decode to bool
@@ -629,11 +632,11 @@ bool
       //      if(std::isalnum(c))  {
         /*std::cerr << "Ans:  |" << c << "|\n"; //DEBUG*/
         to += c;
-	//}
-	//else  {  // keep all special chars encoded
+        //}
+        //else  {  // keep all special chars encoded
         //to += "\\x";
         //to += to_hex_rep(c);
-	//}
+        //}
     }
   }
   /*std::cerr << "Decoded: " << to << '\n'; //DEBUG*/
@@ -1087,6 +1090,3 @@ bool
   to += '}';
   return true;
 }  // encode from vector<ParameterSet>
-
-
-// ----------------------------------------------------------------------

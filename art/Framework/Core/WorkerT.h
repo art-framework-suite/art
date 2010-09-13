@@ -9,13 +9,15 @@ WorkerT: Code common to all workers.
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-
-#include "boost/shared_ptr.hpp"
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Core/WorkerParams.h"
+
+#include "boost/shared_ptr.hpp"
+
+#include <memory>
+
 
 namespace edm {
 
@@ -25,15 +27,15 @@ namespace edm {
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
     WorkerT(std::auto_ptr<T>,
-		   ModuleDescription const&,
-		   WorkerParams const&);
+                   ModuleDescription const&,
+                   WorkerParams const&);
 
     virtual ~WorkerT();
 
 
   template <typename ModType>
   static std::auto_ptr<T> makeModule(ModuleDescription const& md,
-					   ParameterSet const& pset) {
+                                     fhicl::ParameterSet const& pset) {
     std::auto_ptr<ModType> module = std::auto_ptr<ModType>(new ModType(pset));
     return std::auto_ptr<T>(module.release());
   }
@@ -70,8 +72,8 @@ namespace edm {
   template <typename T>
   inline
   WorkerT<T>::WorkerT(std::auto_ptr<T> ed,
-		 ModuleDescription const& md,
-		 WorkerParams const& wp) :
+                 ModuleDescription const& md,
+                 WorkerParams const& wp) :
     Worker(md, wp),
     module_(ed) {
     module_->setModuleDescription(md);
@@ -86,42 +88,42 @@ namespace edm {
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(EventPrincipal& ep,
-			   CurrentProcessingContext const* cpc) {
+                           CurrentProcessingContext const* cpc) {
     return module_->doEvent(ep, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(EventPrincipal& ,
-			   CurrentProcessingContext const*) {
+                           CurrentProcessingContext const*) {
     return false;
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp,
-			   CurrentProcessingContext const* cpc) {
+                           CurrentProcessingContext const* cpc) {
     return module_->doBeginRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp,
-			   CurrentProcessingContext const* cpc) {
+                           CurrentProcessingContext const* cpc) {
     return module_->doEndRun(rp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoBegin(SubRunPrincipal& lbp,
-			   CurrentProcessingContext const* cpc) {
+                           CurrentProcessingContext const* cpc) {
     return module_->doBeginSubRun(lbp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoEnd(SubRunPrincipal& lbp,
-			   CurrentProcessingContext const* cpc) {
+                           CurrentProcessingContext const* cpc) {
     return module_->doEndSubRun(lbp, cpc);
   }
 

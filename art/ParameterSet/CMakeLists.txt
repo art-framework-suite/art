@@ -11,9 +11,9 @@ set( artParameterSet_sources Entry.cc
                              ParameterSetEntry.cc
                              ProcessDesc.cc
                              pythonFileToConfigure.cc
-                             PythonParameterSet.cc
-                             PythonProcessDesc.cc
-                             PythonWrapper.cc
+#                             PythonParameterSet.cc
+#                             PythonProcessDesc.cc
+#                             PythonWrapper.cc
                              Registry.cc
                              types.cc )
 
@@ -41,8 +41,8 @@ install(FILES Entry.h
               ParameterSetfwd.h
               ProcessDesc.h
               pythonFileToConfigure.h
-              PythonParameterSet.h
-              PythonProcessDesc.h
+#              PythonParameterSet.h
+#              PythonProcessDesc.h
               Registry.h
               split.h
               types.h

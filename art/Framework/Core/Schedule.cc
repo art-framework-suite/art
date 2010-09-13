@@ -1,4 +1,3 @@
-
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
@@ -25,6 +24,9 @@
 #include <cstdlib>
 #include <iomanip>
 #include <list>
+
+using fhicl::ParameterSet;
+
 
 namespace edm {
   namespace {
@@ -83,7 +85,7 @@ namespace edm {
       return ptr;
     }
 
-  }
+  }  // namespace
 
   // -----------------------------
 
@@ -121,7 +123,7 @@ namespace edm {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
+    ParameterSet opts(pset_.getPSet("options", ParameterSet()));
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -165,7 +167,7 @@ namespace edm {
 		   usedWorkerLabels.begin(),usedWorkerLabels.end(),
 		   back_inserter(unusedLabels));
     //does the configuration say we should allow on demand?
-    bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
+    bool allowUnscheduled = opts.getBool("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
     if(!unusedLabels.empty()) {
       //Need to
@@ -256,19 +258,19 @@ namespace edm {
   Schedule::limitOutput() {
     std::string const output("output");
 
-    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
+    ParameterSet maxEventsPSet(pset_.getPSet("maxEvents", ParameterSet()));
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
-      maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
+      maxEventsOut = maxEventsPSet.getInt(output);
       ++maxEventSpecs;
     }
     std::vector<std::string> psetNamesE;
     maxEventsPSet.getParameterSetNames(psetNamesE, false);
     if (search_all(psetNamesE, output)) {
-      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
+      vMaxEventsOut = maxEventsPSet.getPSet(output);
       ++maxEventSpecs;
     }
 
@@ -288,7 +290,7 @@ namespace edm {
 	std::string moduleLabel = (*it)->description().moduleLabel_;
         if (!vMaxEventsOut.empty()) {
           try {
-            desc.maxEvents_ = vMaxEventsOut.getUntrackedParameter<int>(moduleLabel);
+            desc.maxEvents_ = vMaxEventsOut.getInt(moduleLabel);
 	  } catch (edm::Exception) {
             throw edm::Exception(edm::errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
@@ -908,4 +910,4 @@ namespace edm {
     }
   }
 
-}
+}  // namespace edm

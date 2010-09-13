@@ -3,18 +3,20 @@
 
 
 //----------------------------------------------------------------------
+//
 // Declare functions used to create ParameterSets.
 //
-//
-//
 //----------------------------------------------------------------------
+
+
+#include "art/ParameterSet/ProcessDesc.h"
+
+#include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-
-#include "art/ParameterSet/ProcessDesc.h"
 
 namespace edm
 {
@@ -30,15 +32,14 @@ namespace edm
   /// essentially the same as the previous method
   void
   makeParameterSets(std::string const& configtext,
-                  boost::shared_ptr<ParameterSet>& main,
-                  boost::shared_ptr<std::vector<ParameterSet> >& serviceparams);
+                  boost::shared_ptr<fhicl::ParameterSet>& main,
+                  boost::shared_ptr<std::vector<fhicl::ParameterSet> >& serviceparams);
 
 
   // deprecated
   boost::shared_ptr<edm::ProcessDesc>
   readConfigFile(const std::string & fileName) {return readConfig(fileName);}
 
-
 } // namespace edm
 
-#endif
+#endif  // FWCoreParameterSet_MakeParameterSets_h

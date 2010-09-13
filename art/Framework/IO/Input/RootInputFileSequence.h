@@ -7,22 +7,23 @@ RootInputFileSequence: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <vector>
-#include <string>
-
-#include "Inputfwd.h"
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
+#include "Inputfwd.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
+
+#include <memory>
+#include <string>
+#include <vector>
+
 
 namespace CLHEP {
   class RandFlat;
@@ -39,7 +40,7 @@ namespace edm {
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, bool primarySequence);
+    explicit RootInputFileSequence(fhicl::ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, bool primarySequence);
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;

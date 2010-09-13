@@ -95,7 +95,7 @@ namespace edm {
       nLvl1Index_ = lvl1Labels_.size();
 
       string lvl1DefaultLabel=
-	iPS.getUntrackedParameter<string>("lvl1DefaultLabel","");
+	iPS.getString("lvl1DefaultLabel","");
       for (unsigned int i=0;i<lvl1Labels_.size();i++)
 	if (lvl1Labels_[i]==lvl1DefaultLabel) iLvl1IndexDefault_=i;
 

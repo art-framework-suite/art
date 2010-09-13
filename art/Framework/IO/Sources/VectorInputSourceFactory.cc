@@ -1,22 +1,21 @@
-
 #include "art/Framework/IO/Sources/VectorInputSourceFactory.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
 
+#include "fhiclcpp/ParameterSet.h"
+
 #include <iostream>
+
 
 EDM_REGISTER_PLUGINFACTORY(edm::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource");
 
 namespace edm {
 
   VectorInputSourceFactory::~VectorInputSourceFactory()
-  {
-  }
+  { }
 
   VectorInputSourceFactory::VectorInputSourceFactory()
-  {
-  }
+  { }
 
   VectorInputSourceFactory VectorInputSourceFactory::singleInstance_;
 
@@ -30,7 +29,7 @@ namespace edm {
   }
 
   std::auto_ptr<VectorInputSource>
-  VectorInputSourceFactory::makeVectorInputSource(ParameterSet const& conf,
+  VectorInputSourceFactory::makeVectorInputSource(fhicl::ParameterSet const& conf,
 					InputSourceDescription const& desc) const
 
   {
@@ -42,10 +41,10 @@ namespace edm {
       {
 	throw edm::Exception(errors::Configuration,"NoSourceModule")
 	  << "VectorInputSource Factory:\n"
-	  << "Cannot find source type from ParameterSet: "
+	     "Cannot find source type from ParameterSet: "
 	  << modtype << "\n"
 	  << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
-	  << "Try running EdmPluginDump to obtain a list of available Plugins.";
+	     "Try running EdmPluginDump to obtain a list of available Plugins.";
       }
 
     FDEBUG(1) << "VectorInputSourceFactory: created input source "
@@ -55,4 +54,4 @@ namespace edm {
     return wm;
   }
 
-}
+}  // namespace edm

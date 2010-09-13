@@ -1,15 +1,17 @@
-
 #include "art/Framework/IO/Input/DuplicateChecker.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/Exception.h"
-#include "MessageFacility/MessageLogger.h"
+
 #include "art/Persistency/Provenance/FileIndex.h"
+#include "art/Utilities/Exception.h"
+
+#include "MessageFacility/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
 
+
 namespace edm {
 
-  DuplicateChecker::DuplicateChecker(ParameterSet const& pset) :
+  DuplicateChecker::DuplicateChecker(fhicl::ParameterSet const& pset) :
 
     duplicateCheckMode_(checkEachRealDataFile),
     dataType_(unknown),
@@ -17,7 +19,7 @@ namespace edm {
     itIsKnownTheFileHasNoDuplicates_(false)
   {
     std::string duplicateCheckMode =
-      pset.getUntrackedParameter<std::string>("duplicateCheckMode", std::string("checkEachRealDataFile"));
+      pset.getString("duplicateCheckMode", std::string("checkEachRealDataFile"));
 
     if (duplicateCheckMode == std::string("noDuplicateCheck")) duplicateCheckMode_ = noDuplicateCheck;
     else if (duplicateCheckMode == std::string("checkEachFile")) duplicateCheckMode_ = checkEachFile;
@@ -98,4 +100,5 @@ namespace edm {
     }
     return false;
   }
-}
+
+}  // namespace edm

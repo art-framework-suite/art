@@ -7,11 +7,6 @@ PoolSource: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <vector>
-#include <string>
-
-#include "Inputfwd.h"
 
 #include "art/Framework/IO/Common/RootServiceChecker.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -20,8 +15,15 @@ PoolSource: This is an InputSource
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 
+#include "Inputfwd.h"
+
 #include "boost/scoped_ptr.hpp"
 #include "boost/array.hpp"
+
+#include <memory>
+#include <vector>
+#include <string>
+
 
 namespace edm {
 
@@ -31,7 +33,7 @@ namespace edm {
 
   class PoolSource : public VectorInputSource {
   public:
-    explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit PoolSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();
     using InputSource::productRegistryUpdate;
     using InputSource::runPrincipal;
@@ -64,5 +66,7 @@ namespace edm {
 
   }; // class PoolSource
   typedef PoolSource PoolRASource;
-}
-#endif
+
+}  // namespace edm
+
+#endif  // IOPool_Input_PoolSource_h

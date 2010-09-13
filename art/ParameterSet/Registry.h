@@ -3,28 +3,28 @@
 
 // ----------------------------------------------------------------------
 //
-//
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
 //
 // A Registry is used to keep track of the persistent form of all
 // ParameterSets used a given program, so that they may be retrieved by
 // ParameterSetID, and so they may be written to persistent storage.
+//
 // ----------------------------------------------------------------------
+
+
+#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetID.h"
+#include "art/Utilities/ThreadSafeRegistry.h"
+
+#include "fhiclcpp/ParameterSet.h"
 
 #include <map>
 
-#include "art/Persistency/Provenance/ParameterSetID.h"
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 
+namespace edm {
 
-
-namespace edm
-{
-  namespace pset
-  {
+  namespace pset {
 
     class ProcessParameterSetIDCache
     {
@@ -37,8 +37,8 @@ namespace edm
     };
 
     typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID,
-    					    fhicl::ParameterSet,
-					    ProcessParameterSetIDCache>
+                                            fhicl::ParameterSet,
+                                            ProcessParameterSetIDCache>
                                             Registry;
 
     /// Associated free functions.
@@ -51,10 +51,10 @@ namespace edm
     /// 'false' if the ParameterSet was already present.
 
     bool insertParameterSetIntoRegistry(Registry* reg,
-					fhicl::ParameterSet const& p);
+                                        fhicl::ParameterSet const& p);
 
     void loadAllNestedParameterSets(Registry* reg,
-				    fhicl::ParameterSet const& main);
+                                    fhicl::ParameterSet const& main);
 
 
     /// Return the ParameterSetID of the top-level ParameterSet stored
@@ -70,9 +70,9 @@ namespace edm
 
   }  // namespace pset
 
-  ParameterSet getProcessParameterSet();
+  fhicl::ParameterSet getProcessParameterSet();
 
 }  // namespace edm
 
 
-#endif
+#endif  // FWCore_ParameterSet_Registry_h

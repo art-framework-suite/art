@@ -2,37 +2,40 @@
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "fhiclcpp/ParameterSet.h"
+
 #include "art/Framework/Core/ConfigurableInputSource.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Run.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+
+#include "fhiclcpp/ParameterSet.h"
+
 
 namespace edm {
   //used for defaults
   static const unsigned int kNanoSecPerSec = 1000000000U;
   static const unsigned int kAveEventPerSec = 200U;
 
-  ConfigurableInputSource::ConfigurableInputSource(ParameterSet const& pset,
+  ConfigurableInputSource::ConfigurableInputSource(fhicl::ParameterSet const& pset,
                                        InputSourceDescription const& desc, bool realData) :
     InputSource(pset, desc),
-    numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
-    numberEventsInSubRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInSubRun", remainingEvents())),
-    presentTime_(pset.getUntrackedParameter<unsigned int>("firstTime", 0)),  //time in ns
+    numberEventsInRun_(pset.getUInt("numberEventsInRun", remainingEvents())),
+    numberEventsInSubRun_(pset.getUInt("numberEventsInSubRun", remainingEvents())),
+    presentTime_(pset.getUInt("firstTime", 0)),  //time in ns
     origTime_(presentTime_),
-    timeBetweenEvents_(pset.getUntrackedParameter<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
-    eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
+    timeBetweenEvents_(pset.getUInt("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
+    eventCreationDelay_(pset.getUInt("eventCreationDelay", 0)),
     numberEventsInThisRun_(0),
     numberEventsInThisSubRun_(0),
-    zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
-    eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
+    zerothEvent_(pset.getUInt("firstEvent", 1) - 1),
+    eventID_(pset.getUInt("firstRun", 1), zerothEvent_),
     origEventID_(eventID_),
-    subRun_(pset.getUntrackedParameter<unsigned int>("firstSubRun", 1)),
+    subRun_(pset.getUInt("firstSubRun", 1)),
     origSubRunNumber_t_(subRun_),
     newRun_(true),
     newSubRun_(true),
@@ -44,7 +47,7 @@ namespace edm {
   {
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
-    // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
+    // std::string eType = pset.getString("experimentType", std::string("Any"))),
   }
 
   ConfigurableInputSource::~ConfigurableInputSource() {

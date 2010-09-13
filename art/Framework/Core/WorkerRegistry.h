@@ -10,14 +10,15 @@
    \date 18 May 2005
 */
 
-#include "art/Persistency/Provenance/PassID.h"
-#include "art/Persistency/Provenance/ReleaseVersion.h"
-#include "fhiclcpp/ParameterSet.h"
+
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/PassID.h"
+#include "art/Persistency/Provenance/ReleaseVersion.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <map>
 #include <string>
@@ -55,7 +56,7 @@ namespace edm {
   private:
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
-    std::string mangleWorkerParameters(ParameterSet const& parameterSet,
+    std::string mangleWorkerParameters(fhicl::ParameterSet const& parameterSet,
 				       std::string const& processName,
 				       ReleaseVersion const& releaseVersion,
 				       PassID const& passID);
@@ -70,7 +71,6 @@ namespace edm {
   }; // WorkerRegistry
 
 
-} // edm
+} // namespace edm
 
-
-#endif
+#endif  // Framework_WorkerRegistry_h

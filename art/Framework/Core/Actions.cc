@@ -1,8 +1,8 @@
-
 #include "art/Framework/Core/Actions.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/Algorithms.h"
+
 #include "boost/lambda/lambda.hpp"
 
 #include <vector>
@@ -13,17 +13,17 @@ namespace edm {
     namespace {
       struct ActionNames
       {
-	ActionNames():table_(LastCode + 1)
-	{
-	  table_[IgnoreCompletely]="IgnoreCompletely";
-	  table_[Rethrow]="Rethrow";
-	  table_[SkipEvent]="SkipEvent";
-	  table_[FailModule]="FailModule";
-	  table_[FailPath]="FailPath";
-	}
+        ActionNames():table_(LastCode + 1)
+        {
+          table_[IgnoreCompletely]="IgnoreCompletely";
+          table_[Rethrow]="Rethrow";
+          table_[SkipEvent]="SkipEvent";
+          table_[FailModule]="FailModule";
+          table_[FailPath]="FailPath";
+        }
 
-	typedef std::vector<const char*> Table;
-	Table table_;
+        typedef std::vector<const char*> Table;
+        Table table_;
       };
     }
 
@@ -31,7 +31,7 @@ namespace edm {
     {
       static ActionNames tab;
       return static_cast<unsigned int>(code) < tab.table_.size() ?
-	tab.table_[code] : "UnknownAction";
+        tab.table_[code] : "UnknownAction";
     }
   }
 
@@ -42,8 +42,8 @@ namespace edm {
 
   namespace {
     inline void install(actions::ActionCodes code,
-			ActionTable::ActionMap& out,
-			const ParameterSet& pset)
+                        ActionTable::ActionMap& out,
+                        const fhicl::ParameterSet& pset)
     {
       using namespace boost::lambda;
       typedef std::vector<std::string> vstring;
@@ -56,20 +56,20 @@ namespace edm {
       // exception type should be used so the catch can be more
       // specific.
 
-//	cerr << pset.toString() << std::endl;
+//      cerr << pset.toString() << std::endl;
 
-      ParameterSet defopts;
-      ParameterSet opts =
-	pset.getUntrackedParameter<ParameterSet>("options", defopts);
+      fhicl::ParameterSet defopts;
+      fhicl::ParameterSet opts =
+        pset.getPSet("options", defopts);
       //cerr << "looking for " << actionName(code) << std::endl;
       vstring v =
-	opts.getUntrackedParameter(actionName(code),vstring());
+        opts.getVString(actionName(code),vstring());
       for_all(v, var(out)[_1] = code);
 
     }
   }
 
-  ActionTable::ActionTable(const ParameterSet& pset) : map_()
+  ActionTable::ActionTable(const fhicl::ParameterSet& pset) : map_()
   {
     addDefaults();
 
@@ -100,20 +100,19 @@ namespace edm {
 
     if(2 <= debugit())
       {
-	ActionMap::const_iterator ib(map_.begin()),ie(map_.end());
-	for(;ib!=ie;++ib)
-	  std::cerr << ib->first << ',' << ib->second << '\n';
-	std::cerr << std::endl;
+        ActionMap::const_iterator ib(map_.begin()),ie(map_.end());
+        for(;ib!=ie;++ib)
+          std::cerr << ib->first << ',' << ib->second << '\n';
+        std::cerr << std::endl;
       }
 
   }
 
   ActionTable::~ActionTable()
-  {
-  }
+  { }
 
   void ActionTable::add(const std::string& category,
-			actions::ActionCodes code)
+                        actions::ActionCodes code)
   {
     map_[category] = code;
   }
@@ -124,4 +123,4 @@ namespace edm {
     return i!=map_.end() ? i->second : actions::Rethrow;
   }
 
-}
+}  // namespace edm

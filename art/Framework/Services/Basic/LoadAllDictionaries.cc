@@ -1,39 +1,23 @@
-// -*- C++ -*-
 //
 // Package:     Services
 // Class  :     LoadAllDictionaries
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Sep 15 09:47:48 EDT 2005
-//
-//
 
-// system include files
-#include "Cintex/Cintex.h"
 
-// user include files
 #include "art/Framework/Services/Basic/LoadAllDictionaries.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/PluginManager/PluginManager.h"
+
 #include "art/Framework/PluginManager/PluginCapabilities.h"
+#include "art/Framework/PluginManager/PluginManager.h"
 
-//
-// constants, enums and typedefs
-//
+#include "Cintex/Cintex.h"
+#include "fhiclcpp/ParameterSet.h"
 
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 edm::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet& iConfig)
 {
-   bool doLoad(iConfig.getUntrackedParameter("doLoad",true));
+   bool doLoad(iConfig.getBool("doLoad",true));
    if(doLoad) {
      ROOT::Cintex::Cintex::Enable();
 
@@ -66,4 +50,3 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet
      }
    }
 }
-

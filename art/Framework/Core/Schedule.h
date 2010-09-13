@@ -64,6 +64,7 @@
 
 */
 
+
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -75,14 +76,14 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "MessageFacility/MessageLogger.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/Algorithms.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <map>
 #include <memory>
@@ -90,10 +91,13 @@
 #include <string>
 #include <vector>
 
+
 namespace edm {
+
   namespace service {
     class TriggerNamesService;
   }
+
   class ActivityRegistry;
   class OutputWorker;
   class UnscheduledCallProducer;
@@ -114,7 +118,7 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    Schedule(ParameterSet const& processDesc,
+    Schedule(fhicl::ParameterSet const& processDesc,
 	     edm::service::TriggerNamesService& tns,
 	     WorkerRegistry& wregistry,
 	     ProductRegistry& pregistry,
@@ -243,7 +247,7 @@ namespace edm {
 
     void addToAllWorkers(Worker* w);
 
-    ParameterSet        pset_;
+    fhicl::ParameterSet pset_;
     WorkerRegistry*     worker_reg_;
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
@@ -443,6 +447,6 @@ namespace edm {
     //               constant_ref(es))); // pass by const-reference (not copy)
   }
 
-}
+}  // namespace edm
 
-#endif
+#endif  // FWCore_Framework_Schedule_h

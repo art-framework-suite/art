@@ -7,22 +7,23 @@
    \date 18 May 2005
 */
 
-static const char CVSId[] = "";
-
 
 #include "art/Framework/Core/WorkerRegistry.h"
-#include "art/Framework/Core/Worker.h"
+
 #include "art/Framework/Core/Factory.h"
+#include "art/Framework/Core/Worker.h"
 
 #include <sstream>
+
+using fhicl::ParameterSet;
+
 
 namespace edm {
 
 WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
   m_workerMap(),
   actReg_(areg)
-{
-}
+{ }
 
 WorkerRegistry:: ~WorkerRegistry() {
   m_workerMap.clear();
@@ -36,7 +37,7 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
   std::string workerid =
     mangleWorkerParameters(*p.pset_, p.processName_,
-			   p.releaseVersion_,p.passID_);
+                           p.releaseVersion_,p.passID_);
 
   WorkerMap::iterator workerIt = m_workerMap.find(workerid);
 
@@ -61,9 +62,9 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
 
 std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
-					      std::string const& processName,
-					      ReleaseVersion const& releaseVersion,
-					      PassID const& passID) {
+                                              std::string const& processName,
+                                              ReleaseVersion const& releaseVersion,
+                                              PassID const& passID) {
 
   std::stringstream mangled_parameters;
   mangled_parameters<< parameterSet.toString()
@@ -75,7 +76,4 @@ std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameter
 
 }
 
-}
-
-
-
+}  // namespace edm

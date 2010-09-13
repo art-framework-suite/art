@@ -1,22 +1,16 @@
-// -*- C++ -*-
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescription
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Tue Jul 31 15:30:35 EDT 2007
-//
-//
 
-#include "art/ParameterSet/ParameterSetDescription.h"
-#include "fhiclcpp/ParameterSet.h"
+
 #include "art/ParameterSet/Entry.h"
+#include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Utilities/Algorithms.h"
 
 #include "boost/bind.hpp"
+#include "fhiclcpp/ParameterSet.h"
+
+using fhicl::ParameterSet;
 
 namespace edm {
 
@@ -114,4 +108,5 @@ namespace edm {
       << "allowed for this module.  Or it could be mispelled, of\n"
       << "the wrong type, or incorrectly declared tracked or untracked.\n";
   }
-}
+
+}  // namespace edm

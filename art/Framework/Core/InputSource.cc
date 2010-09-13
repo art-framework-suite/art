@@ -83,7 +83,7 @@ namespace edm {
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
     std::string processingMode
-       = pset.getUntrackedParameter<std::string>("processingMode", defaultMode);
+       = pset.getString("processingMode", defaultMode);
     if (processingMode == runMode) {
       processingMode_ = Runs;
     }

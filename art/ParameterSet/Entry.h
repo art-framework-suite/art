@@ -4,10 +4,8 @@
 // ----------------------------------------------------------------------
 // interface to edm::Entry and related types
 //
-//
 // The functions here are expected to go away.  The exception
 // processing is not ideal and is not a good model to follow.
-//
 // ----------------------------------------------------------------------
 
 
@@ -18,7 +16,7 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 
 #include "fhiclcpp/ParameterSet.h"
-#include <boost/cstdint.hpp>
+#include "boost/cstdint.hpp"
 
 #include <iosfwd>
 #include <string>
@@ -184,6 +182,5 @@ namespace edm {
   //   }
 
 }  // namespace edm
-
 
 #endif  // FWCore_ParameterSet_Entry_h

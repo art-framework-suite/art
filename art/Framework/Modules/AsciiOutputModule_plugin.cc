@@ -9,9 +9,10 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/Provenance.h"
 
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
 #include "MessageFacility/MessageLogger.h"
 
 #include <ostream>  // endl
@@ -52,8 +53,8 @@ private:
 
 AsciiOutputModule::AsciiOutputModule(ParameterSet const & pset)
   : OutputModule( pset )
-  , prescale_   ( pset.getUntrackedParameter("prescale", 1U) )
-  , verbosity_  ( pset.getUntrackedParameter("verbosity", 1U) )
+  , prescale_   ( pset.getUInt("prescale", 1U) )
+  , verbosity_  ( pset.getUInt("verbosity", 1U) )
   , counter_    ( 0 )
 {
   if( prescale_ == 0 ) prescale_ = 1;

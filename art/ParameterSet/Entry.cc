@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 //
-//
 // definition of Entry's function members
+//
 // ----------------------------------------------------------------------
 
 
@@ -10,15 +10,19 @@
 // ----------------------------------------------------------------------
 
 #include "art/ParameterSet/Entry.h"
-#include "art/Utilities/EDMException.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/types.h"
 
-#include <map>
-#include <sstream>
-#include <ostream>
+#include "art/ParameterSet/types.h"
+#include "art/Utilities/EDMException.h"
+
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
+
 #include <assert.h>
 #include <iostream>
+#include <map>
+#include <ostream>
+#include <sstream>
+
 
 namespace edm {
   namespace pset {
@@ -66,7 +70,7 @@ namespace edm {
          type2Code_[*itCode] = (itCode - table_.begin());
       }
     }
-  }
+  }  // namespace pset
 
   static const edm::pset::TypeTrans sTypeTranslations;
   typedef std::map<std::string, char> Type2Code;
@@ -147,7 +151,7 @@ namespace edm {
         break;
       }
       case 'F':  {  // FileInPath
-	edm::FileInPath val;
+        edm::FileInPath val;
         if(!decode(val, rep)) throwEntryError("FileInPath", rep);
         break;
       }
@@ -202,8 +206,8 @@ namespace edm {
         break;
       }
       default:  {
-	// We should never get here.
-	assert ("Invalid type code" == 0);
+        // We should never get here.
+        assert ("Invalid type code" == 0);
         //throw EntryError(std::string("invalid type code ") + type);
         break;
       }
@@ -456,7 +460,7 @@ namespace edm {
 
 
   Entry::Entry(std::string const& name, std::string const& type, std::string const& value,
-	       bool is_tracked) :
+               bool is_tracked) :
     name_(name), rep(), type('?'), tracked('?')
   {
     std::string codedString(is_tracked ?"-":"+");
@@ -464,8 +468,8 @@ namespace edm {
     Type2Code::const_iterator itFound = sTypeTranslations.type2Code_.find(type);
     if(itFound == sTypeTranslations.type2Code_.end())
       {
-	throw edm::Exception(errors::Configuration)
-	  << "bad type name used for Entry : " << type;
+        throw edm::Exception(errors::Configuration)
+          << "bad type name used for Entry : " << type;
       }
 
     codedString += itFound->second;
@@ -475,15 +479,15 @@ namespace edm {
 
     if(!fromString(codedString.begin(), codedString.end()))
       {
-	throw edm::Exception(errors::Configuration)
-	  <<  "bad encoded Entry string " <<  codedString;
+        throw edm::Exception(errors::Configuration)
+          <<  "bad encoded Entry string " <<  codedString;
       }
     validate();
   }
 
   Entry::Entry(std::string const& name, std::string const& type,
-	       std::vector<std::string> const& value,
-	       bool is_tracked) :
+               std::vector<std::string> const& value,
+               bool is_tracked) :
     name_(name), rep() , type('?'), tracked('?')
   {
     std::string codedString(is_tracked ?"-":"+");
@@ -492,8 +496,8 @@ namespace edm {
       sTypeTranslations.type2Code_.find(type);
     if(itFound == sTypeTranslations.type2Code_.end())
       {
-	throw edm::Exception(errors::Configuration)
-	  << "bad type name used for Entry : " << type;
+        throw edm::Exception(errors::Configuration)
+          << "bad type name used for Entry : " << type;
       }
 
     codedString += itFound->second;
@@ -513,8 +517,8 @@ namespace edm {
 
     if(!fromString(codedString.begin(), codedString.end()))
       {
-	throw edm::Exception(errors::Configuration)
-	  << "bad encoded Entry string " << codedString;
+        throw edm::Exception(errors::Configuration)
+          << "bad encoded Entry string " << codedString;
       }
     validate();
   }
@@ -546,19 +550,19 @@ namespace edm {
     switch (type) {
       case 'P':
         {
-	  result += tracked_rep;
+          result += tracked_rep;
           break;
-	}
+        }
       case 'p':
         {
-	  result += tracked_rep;
-	  break;
+          result += tracked_rep;
+          break;
        }
       default: // everything else
         {
-	  result += rep;
-	  break;
-	}
+          result += rep;
+          break;
+        }
     }
     result += ')';
     return result;
@@ -570,40 +574,40 @@ namespace edm {
     switch (type) {
       case 'P':
         {
-	  if (tracked_rep.empty()) {
-	    // Make sure we get the representation of each contained
-	    // ParameterSet including *only* tracked parameters
-	    ParameterSet val = getPSet();
-	    tracked_rep = val.toStringOfTracked();
-	  }
-	  size = tracked_rep.size() + 4;
+          if (tracked_rep.empty()) {
+            // Make sure we get the representation of each contained
+            // ParameterSet including *only* tracked parameters
+            ParameterSet val = getPSet();
+            tracked_rep = val.toStringOfTracked();
+          }
+          size = tracked_rep.size() + 4;
           break;
-	}
+        }
       case 'p':
         {
-	  if (tracked_rep.empty()) {
-	    // Make sure we get the representation of each contained
-	    // ParameterSet including *only* tracked parameters
-	    std::vector<ParameterSet> whole = getVPSet();
-	    std::vector<ParameterSet> onlytracked;
-	    onlytracked.reserve(whole.size());
-	    std::vector<ParameterSet>::const_iterator i = whole.begin();
-	    std::vector<ParameterSet>::const_iterator e = whole.end();
-	    for ( ; i != e; ++i ) {
-	      ParameterSet tracked_part( i->toStringOfTracked() );
-	      onlytracked.push_back(tracked_part);
-	    }
-	    if(!encode(tracked_rep, onlytracked))
-	      throwEncodeError("vector<ParameterSet>");
-	  }
-	  size = tracked_rep.size() + 4;
-	  break;
+          if (tracked_rep.empty()) {
+            // Make sure we get the representation of each contained
+            // ParameterSet including *only* tracked parameters
+            std::vector<ParameterSet> whole = getVPSet();
+            std::vector<ParameterSet> onlytracked;
+            onlytracked.reserve(whole.size());
+            std::vector<ParameterSet>::const_iterator i = whole.begin();
+            std::vector<ParameterSet>::const_iterator e = whole.end();
+            for ( ; i != e; ++i ) {
+              ParameterSet tracked_part( i->toStringOfTracked() );
+              onlytracked.push_back(tracked_part);
+            }
+            if(!encode(tracked_rep, onlytracked))
+              throwEncodeError("vector<ParameterSet>");
+          }
+          size = tracked_rep.size() + 4;
+          break;
        }
       default: // everything else
         {
-	  size = sizeOfString();
-	  break;
-	}
+          size = sizeOfString();
+          break;
+        }
     }
     return size;
   }
@@ -1019,5 +1023,4 @@ namespace edm {
         << "can not encode " << name_ << " as type: " << type;
     }
 
-
-}
+}  // namespace edm

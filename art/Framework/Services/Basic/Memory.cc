@@ -151,13 +151,13 @@ namespace edm {
     , current_(&a_)
     , previous_(&b_)
     , pg_size_(sysconf(_SC_PAGESIZE)) // getpagesize()
-    , num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal",1))
-    , showMallocInfo(iPS.getUntrackedParameter<bool>("showMallocInfo",false))
+    , num_to_skip_(iPS.getInt("ignoreTotal",1))
+    , showMallocInfo(iPS.getBool("showMallocInfo",false))
     , oncePerEventMode
-        (iPS.getUntrackedParameter<bool>("oncePerEventMode",false))
+        (iPS.getBool("oncePerEventMode",false))
     , count_()
     , moduleSummaryRequested
-        (iPS.getUntrackedParameter<bool>("moduleMemorySummary",false))
+        (iPS.getBool("moduleMemorySummary",false))
                                                                 // changelog 2
     {
       // pg_size = (double)getpagesize();
@@ -220,10 +220,10 @@ namespace edm {
       edm::MallocOptionSetter& mopts = edm::getGlobalOptionSetter();
 
       opt_type
-        p_mmap_max=iPS.getUntrackedParameter<opt_type>("M_MMAP_MAX",-1),
-        p_trim_thr=iPS.getUntrackedParameter<opt_type>("M_TRIM_THRESHOLD",-1),
-        p_top_pad=iPS.getUntrackedParameter<opt_type>("M_TOP_PAD",-1),
-        p_mmap_thr=iPS.getUntrackedParameter<opt_type>("M_MMAP_THRESHOLD",-1);
+        p_mmap_max = iPS.getInt("M_MMAP_MAX",-1),
+        p_trim_thr = iPS.getInt("M_TRIM_THRESHOLD",-1),
+        p_top_pad  = iPS.getInt("M_TOP_PAD",-1),
+        p_mmap_thr = iPS.getInt("M_MMAP_THRESHOLD",-1);
 
       if(p_mmap_max>=0) mopts.set_mmap_max(p_mmap_max);
       if(p_trim_thr>=0) mopts.set_trim_thr(p_trim_thr);
@@ -239,7 +239,7 @@ namespace edm {
             << mopts.error_message();
         }
 
-      if(iPS.getUntrackedParameter<bool>("dump",false)==true)
+      if(iPS.getBool("dump",false)==true)
         {
           edm::MallocOpts mo = mopts.get();
           mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";

@@ -11,6 +11,7 @@ This struct is used to communication parameters into the worker factory.
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
+
 #include "fhiclcpp/ParameterSet.h"
 
 #include <string>
@@ -26,8 +27,8 @@ namespace edm
       procPset_(0), pset_(0),reg_(0),actions_(0),
       processName_(),releaseVersion_(),passID_() { }
 
-    WorkerParams(ParameterSet const& procPset,
-		 ParameterSet const& pset,
+    WorkerParams(fhicl::ParameterSet const& procPset,
+		 fhicl::ParameterSet const& pset,
 		 ProductRegistry& reg,
 		 ActionTable& actions,
 		 std::string const& processName,
@@ -36,8 +37,8 @@ namespace edm
       procPset_(&procPset),pset_(&pset),reg_(&reg),actions_(&actions),
       processName_(processName),releaseVersion_(releaseVersion),passID_(passID) { }
 
-    ParameterSet const* procPset_;
-    ParameterSet const* pset_;
+    fhicl::ParameterSet const* procPset_;
+    fhicl::ParameterSet const* pset_;
     ProductRegistry* reg_;
     ActionTable* actions_;
     std::string processName_;

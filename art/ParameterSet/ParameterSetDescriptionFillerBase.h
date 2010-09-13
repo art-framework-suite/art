@@ -1,6 +1,6 @@
 #ifndef FWCore_ParameterSet_ParameterSetDescriptionFillerBase_h
 #define FWCore_ParameterSet_ParameterSetDescriptionFillerBase_h
-// -*- C++ -*-
+
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescriptionFillerBase
@@ -15,44 +15,31 @@ ParameterSetDescriptionFillerPluginFactory to load a component of any type (e.g.
 and query the component for its allowed ParameterSetDescription.
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Aug  1 16:46:53 EDT 2007
-//
-//
 
-// system include files
 
-// user include files
-
-// forward declarations
 #include "art/ParameterSet/ParameterSetfwd.h"
 
 #include <string>
 
+
 namespace edm {
-class ParameterSetDescriptionFillerBase
-{
 
-   public:
-      ParameterSetDescriptionFillerBase() {}
-      virtual ~ParameterSetDescriptionFillerBase();
+  class ParameterSetDescriptionFillerBase
+  {
+  public:
+    ParameterSetDescriptionFillerBase() {}
+    virtual ~ParameterSetDescriptionFillerBase();
 
-      // ---------- const member functions ---------------------
-      virtual void fill(ParameterSetDescription& iDesc, std::string const& moduleLabel) const = 0;
+    // ---------- const member functions ---------------------
+    virtual void fill(ParameterSetDescription& iDesc, std::string const& moduleLabel) const = 0;
 
-      // ---------- static member functions --------------------
+  private:
+    // no copying
+    ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&);
+    ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&);
 
-      // ---------- member functions ---------------------------
+  };
 
-   private:
-      ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default
+}  // namespace edm
 
-      const ParameterSetDescriptionFillerBase& operator=(const ParameterSetDescriptionFillerBase&); // stop default
-
-      // ---------- member data --------------------------------
-
-};
-
-}
-#endif
+#endif  // FWCore_ParameterSet_ParameterSetDescriptionFillerBase_h

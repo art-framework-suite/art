@@ -222,19 +222,19 @@ RNGservice::RandomNumberGeneratorService( fhicl::ParameterSet const & pset
 , tracker_( )
 , kind_( )
 , snapshot_( )
-, restoreStateLabel_( pset.getUntrackedParameter<string>( "restoreStateLabel"
+, restoreStateLabel_( pset.getString( "restoreStateLabel"
                                                         , EMPTY_STRING
                     )                                   )
-, saveToFilename_( pset.getUntrackedParameter<string>( "saveTo"
+, saveToFilename_( pset.getString( "saveTo"
                                                      , EMPTY_STRING
                  )                                   )
-, restoreFromFilename_( pset.getUntrackedParameter<string>( "restoreFrom"
+, restoreFromFilename_( pset.getString( "restoreFrom"
                                                           , EMPTY_STRING
                       )                                   )
-, nPrint_( pset.getUntrackedParameter<int>( "nPrint"
+, nPrint_( pset.getInt( "nPrint"
                                           , DEFAULT_NPRINT_VALUE
          )                                )
-, debug_( pset.getUntrackedParameter<bool>( "debug"
+, debug_( pset.getBool( "debug"
                                           , DEFAULT_DEBUG_VALUE
         )                                 )
 {
