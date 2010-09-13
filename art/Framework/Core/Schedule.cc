@@ -1,9 +1,10 @@
+#include "art/Framework/Core/Schedule.h"
+
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
@@ -26,6 +27,8 @@
 #include <list>
 
 using fhicl::ParameterSet;
+using mf::LogInfo;
+using mf::LogVerbatim;
 
 
 namespace edm {
@@ -38,7 +41,7 @@ namespace edm {
     template <class InputIterator, class ForwardIterator, class Func>
     void
     transform_into(InputIterator begin, InputIterator end,
-		   ForwardIterator out, Func func) {
+                   ForwardIterator out, Func func) {
       for (; begin != end; ++begin, ++out) func(*begin, *out);
     }
 
@@ -62,12 +65,12 @@ namespace edm {
 
     Schedule::WorkerPtr
     makeInserter(ParameterSet const& proc_pset,
-		 ParameterSet const& trig_pset,
-		 std::string const& proc_name,
-		 ProductRegistry& preg,
-		 ActionTable& actions,
-		 boost::shared_ptr<ActivityRegistry> areg,
-		 Schedule::TrigResPtr trptr) {
+                 ParameterSet const& trig_pset,
+                 std::string const& proc_name,
+                 ProductRegistry& preg,
+                 ActionTable& actions,
+                 boost::shared_ptr<ActivityRegistry> areg,
+                 Schedule::TrigResPtr trptr) {
 
       WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
       ModuleDescription md;
@@ -94,11 +97,11 @@ namespace edm {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet const& proc_pset,
-		     edm::service::TriggerNamesService& tns,
-		     WorkerRegistry& wreg,
-		     ProductRegistry& preg,
-		     ActionTable& actions,
-		     boost::shared_ptr<ActivityRegistry> areg):
+                     edm::service::TriggerNamesService& tns,
+                     WorkerRegistry& wreg,
+                     ProductRegistry& preg,
+                     ActionTable& actions,
+                     boost::shared_ptr<ActivityRegistry> areg):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
@@ -128,9 +131,9 @@ namespace edm {
 
     int trig_bitpos = 0;
     for (vstring::const_iterator i = trig_name_list_.begin(),
-	   e = trig_name_list_.end();
-	 i != e;
-	 ++i) {
+           e = trig_name_list_.end();
+         i != e;
+         ++i) {
       fillTrigPath(trig_bitpos,*i, results_);
       ++trig_bitpos;
       hasPath = true;
@@ -139,8 +142,8 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(),
-				       processName_,
-				       preg, actions, actReg_, results_);
+                                       processName_,
+                                       preg, actions, actReg_, results_);
       addToAllWorkers(results_inserter_.get());
     }
 
@@ -156,16 +159,16 @@ namespace edm {
     //See if all modules were used
     std::set<std::string> usedWorkerLabels;
     for(AllWorkers::iterator itWorker=workersBegin();
-	itWorker != workersEnd();
-	++itWorker) {
+        itWorker != workersEnd();
+        ++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
     }
     std::vector<std::string> modulesInConfig(proc_pset.getVString("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     std::vector<std::string> unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
-		   usedWorkerLabels.begin(),usedWorkerLabels.end(),
-		   back_inserter(unusedLabels));
+                   usedWorkerLabels.begin(),usedWorkerLabels.end(),
+                   back_inserter(unusedLabels));
     //does the configuration say we should allow on demand?
     bool allowUnscheduled = opts.getBool("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
@@ -177,43 +180,43 @@ namespace edm {
       std::vector<std::string>  shouldBeUsedLabels;
 
       for(std::vector<std::string>::iterator itLabel = unusedLabels.begin(), itLabelEnd = unusedLabels.end();
-	  itLabel != itLabelEnd;
-	  ++itLabel) {
-	if (allowUnscheduled) {
-	  //Need to hold onto the parameters long enough to make the call to getWorker
-	  ParameterSet workersParams(proc_pset.getParameterSet(*itLabel));
-	  WorkerParams params(proc_pset, workersParams,
-			      *prod_reg_, *act_table_,
-			      processName_, getReleaseVersion(), getPassID());
-	  Worker* newWorker(wreg.getWorker(params));
-	  if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+          itLabel != itLabelEnd;
+          ++itLabel) {
+        if (allowUnscheduled) {
+          //Need to hold onto the parameters long enough to make the call to getWorker
+          ParameterSet workersParams(proc_pset.getParameterSet(*itLabel));
+          WorkerParams params(proc_pset, workersParams,
+                              *prod_reg_, *act_table_,
+                              processName_, getReleaseVersion(), getPassID());
+          Worker* newWorker(wreg.getWorker(params));
+          if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
               dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) {
             unscheduledLabels.insert(*itLabel);
-	    unscheduled_->addWorker(newWorker);
-	    //add to list so it gets reset each new event
+            unscheduled_->addWorker(newWorker);
+            //add to list so it gets reset each new event
             addToAllWorkers(newWorker);
-	  } else {
-	    //not a producer so should be marked as not used
-	    shouldBeUsedLabels.push_back(*itLabel);
-	  }
-	} else {
-	  //everthing is marked are unused so no 'on demand' allowed
-	  shouldBeUsedLabels.push_back(*itLabel);
-	}
+          } else {
+            //not a producer so should be marked as not used
+            shouldBeUsedLabels.push_back(*itLabel);
+          }
+        } else {
+          //everthing is marked are unused so no 'on demand' allowed
+          shouldBeUsedLabels.push_back(*itLabel);
+        }
       }
       if(!shouldBeUsedLabels.empty()) {
-	std::ostringstream unusedStream;
-	unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-	for(std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
-	      itLabelEnd = shouldBeUsedLabels.end();
-	    itLabel != itLabelEnd;
-	    ++itLabel) {
-	  unusedStream <<",'" << *itLabel<<"'";
-	}
-	LogInfo("path")
-	  << "The following module labels are not assigned to any path:\n"
-	  <<unusedStream.str()
-	  <<"\n";
+        std::ostringstream unusedStream;
+        unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
+        for(std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
+              itLabelEnd = shouldBeUsedLabels.end();
+            itLabel != itLabelEnd;
+            ++itLabel) {
+          unusedStream <<",'" << *itLabel<<"'";
+        }
+        LogInfo("path")
+          << "The following module labels are not assigned to any path:\n"
+          <<unusedStream.str()
+          <<"\n";
       }
     }
 
@@ -225,8 +228,8 @@ namespace edm {
     // private functions.
     size_t all_workers_count = all_workers_.size();
     for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
-	 i != e;
-	 ++i)	{
+         i != e;
+         ++i)   {
       OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
       if (ow) all_output_workers_.push_back(ow);
     }
@@ -239,13 +242,13 @@ namespace edm {
     //Now that these have been set, we can create the list of Branches we need for the 'on demand'
     ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-	  itProdInfoEnd = prodsList.end();
-	itProdInfo != itProdInfoEnd;
-	++itProdInfo) {
+          itProdInfoEnd = prodsList.end();
+        itProdInfo != itProdInfoEnd;
+        ++itProdInfo) {
       if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
          unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-	demandBranches_.push_back(bd);
+        boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+        demandBranches_.push_back(bd);
       }
     }
 
@@ -268,7 +271,7 @@ namespace edm {
       ++maxEventSpecs;
     }
     std::vector<std::string> psetNamesE;
-    maxEventsPSet.getParameterSetNames(psetNamesE, false);
+    maxEventsPSet.getPSetNameList(psetNamesE, false);
     if (search_all(psetNamesE, output)) {
       vMaxEventsOut = maxEventsPSet.getPSet(output);
       ++maxEventSpecs;
@@ -276,7 +279,7 @@ namespace edm {
 
     if (maxEventSpecs > 1) {
       throw edm::Exception(edm::errors::Configuration) <<
-	"\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
+        "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
     if (maxEventSpecs == 0) {
@@ -287,15 +290,15 @@ namespace edm {
         it != itEnd; ++it) {
       OutputModuleDescription desc(maxEventsOut);
       if (!vMaxEventsOut.empty()) {
-	std::string moduleLabel = (*it)->description().moduleLabel_;
+        std::string moduleLabel = (*it)->description().moduleLabel_;
         if (!vMaxEventsOut.empty()) {
           try {
             desc.maxEvents_ = vMaxEventsOut.getInt(moduleLabel);
-	  } catch (edm::Exception) {
+          } catch (edm::Exception) {
             throw edm::Exception(edm::errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
-	  }
-	}
+          }
+        }
       }
       (*it)->configure(desc);
     }
@@ -306,11 +309,11 @@ namespace edm {
       return false;
     }
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
-	 itEnd = all_output_workers_.end();
-	 it != itEnd; ++it) {
+         itEnd = all_output_workers_.end();
+         it != itEnd; ++it) {
       if (!(*it)->limitReached()) {
-	// Found an output module that has not reached output event count.
-	return false;
+        // Found an output module that has not reached output event count.
+        return false;
       }
     }
     LogInfo("SuccessfulTermination")
@@ -335,19 +338,19 @@ namespace edm {
 
       ParameterSet modpset;
       try {
-	modpset= pset_.getParameterSet(realname);
+        modpset= pset_.getParameterSet(realname);
       } catch(cms::Exception&) {
-	std::string pathType("endpath");
-	if(!search_all(end_path_name_list_, name)) {
-	  pathType = std::string("path");
-	}
-	throw edm::Exception(edm::errors::Configuration) <<
-	  "The unknown module label \"" << realname <<
-	  "\" appears in " << pathType << " \"" << name <<
-	  "\"\n please check spelling or remove that label from the path.";
+        std::string pathType("endpath");
+        if(!search_all(end_path_name_list_, name)) {
+          pathType = std::string("path");
+        }
+        throw edm::Exception(edm::errors::Configuration) <<
+          "The unknown module label \"" << realname <<
+          "\" appears in " << pathType << " \"" << name <<
+          "\"\n please check spelling or remove that label from the path.";
       }
       WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
-			  processName_, getReleaseVersion(), getPassID());
+                          processName_, getReleaseVersion(), getPassID());
       WorkerInPath w(worker_reg_->getWorker(params), filterAction);
       tmpworkers.push_back(w);
     }
@@ -361,7 +364,7 @@ namespace edm {
     fillWorkers(name,tmpworkers);
 
     for(PathWorkers::iterator wi(tmpworkers.begin()),
-	  we(tmpworkers.end()); wi != we; ++wi) {
+          we(tmpworkers.end()); wi != we; ++wi) {
       holder.push_back(wi->getWorker());
     }
 
@@ -379,7 +382,7 @@ namespace edm {
     Workers holder;
 
     for(PathWorkers::iterator wi(tmpworkers.begin()),
-	  we(tmpworkers.end()); wi != we; ++wi) {
+          we(tmpworkers.end()); wi != we; ++wi) {
       holder.push_back(wi->getWorker());
     }
 
@@ -396,21 +399,21 @@ namespace edm {
     AllWorkers::iterator ai(workersBegin()),ae(workersEnd());
     for(; ai != ae; ++ai) {
       try {
-	(*ai)->endJob();
+        (*ai)->endJob();
       }
       catch (cms::Exception& e) {
-	accumulated << "cms::Exception caught in Schedule::endJob\n"
-		    << e.explainSelf();
-	failure = true;
+        accumulated << "cms::Exception caught in Schedule::endJob\n"
+                    << e.explainSelf();
+        failure = true;
       }
       catch (std::exception& e) {
-	accumulated << "Standard library exception caught in Schedule::endJob\n"
-		    << e.what();
-	failure = true;
+        accumulated << "Standard library exception caught in Schedule::endJob\n"
+                    << e.what();
+        failure = true;
       }
       catch (...) {
-	accumulated << "Unknown exception caught in Schedule::endJob\n";
-	failure = true;
+        accumulated << "Unknown exception caught in Schedule::endJob\n";
+        failure = true;
       }
     }
     if (failure) {
@@ -427,53 +430,53 @@ namespace edm {
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
     LogVerbatim("FwkSummary") << "TrigReport"
-			      << " Events total = " << totalEvents()
-			      << " passed = " << totalEventsPassed()
-			      << " failed = " << (totalEventsFailed())
-			      << "";
+                              << " Events total = " << totalEvents()
+                              << " passed = " << totalEventsPassed()
+                              << " failed = " << (totalEventsFailed())
+                              << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TrigReport " << "---------- Path   Summary ------------";
     LogVerbatim("FwkSummary") << "TrigReport "
-			      << std::right << std::setw(10) << "Trig Bit#" << " "
-			      << std::right << std::setw(10) << "Run" << " "
-			      << std::right << std::setw(10) << "Passed" << " "
-			      << std::right << std::setw(10) << "Failed" << " "
-			      << std::right << std::setw(10) << "Error" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "Trig Bit#" << " "
+                              << std::right << std::setw(10) << "Run" << " "
+                              << std::right << std::setw(10) << "Passed" << " "
+                              << std::right << std::setw(10) << "Failed" << " "
+                              << std::right << std::setw(10) << "Error" << " "
+                              << "Name" << "";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
       LogVerbatim("FwkSummary") << "TrigReport "
-				<< std::right << std::setw( 5) << 1
-				<< std::right << std::setw( 5) << pi->bitPosition() << " "
-				<< std::right << std::setw(10) << pi->timesRun() << " "
-				<< std::right << std::setw(10) << pi->timesPassed() << " "
-				<< std::right << std::setw(10) << pi->timesFailed() << " "
-				<< std::right << std::setw(10) << pi->timesExcept() << " "
-				<< pi->name() << "";
+                                << std::right << std::setw( 5) << 1
+                                << std::right << std::setw( 5) << pi->bitPosition() << " "
+                                << std::right << std::setw(10) << pi->timesRun() << " "
+                                << std::right << std::setw(10) << pi->timesPassed() << " "
+                                << std::right << std::setw(10) << pi->timesFailed() << " "
+                                << std::right << std::setw(10) << pi->timesExcept() << " "
+                                << pi->name() << "";
     }
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TrigReport " << "-------End-Path   Summary ------------";
     LogVerbatim("FwkSummary") << "TrigReport "
-			      << std::right << std::setw(10) << "Trig Bit#" << " "
-			      << std::right << std::setw(10) << "Run" << " "
-			      << std::right << std::setw(10) << "Passed" << " "
-			      << std::right << std::setw(10) << "Failed" << " "
-			      << std::right << std::setw(10) << "Error" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "Trig Bit#" << " "
+                              << std::right << std::setw(10) << "Run" << " "
+                              << std::right << std::setw(10) << "Passed" << " "
+                              << std::right << std::setw(10) << "Failed" << " "
+                              << std::right << std::setw(10) << "Error" << " "
+                              << "Name" << "";
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
       LogVerbatim("FwkSummary") << "TrigReport "
-				<< std::right << std::setw( 5) << 0
-				<< std::right << std::setw( 5) << pi->bitPosition() << " "
-				<< std::right << std::setw(10) << pi->timesRun() << " "
-				<< std::right << std::setw(10) << pi->timesPassed() << " "
-				<< std::right << std::setw(10) << pi->timesFailed() << " "
-				<< std::right << std::setw(10) << pi->timesExcept() << " "
-				<< pi->name() << "";
+                                << std::right << std::setw( 5) << 0
+                                << std::right << std::setw( 5) << pi->bitPosition() << " "
+                                << std::right << std::setw(10) << pi->timesRun() << " "
+                                << std::right << std::setw(10) << pi->timesPassed() << " "
+                                << std::right << std::setw(10) << pi->timesFailed() << " "
+                                << std::right << std::setw(10) << pi->timesExcept() << " "
+                                << pi->name() << "";
     }
 
     pi=trig_paths_.begin();
@@ -482,22 +485,22 @@ namespace edm {
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
-				<< std::right << std::setw(10) << "Trig Bit#" << " "
-				<< std::right << std::setw(10) << "Visited" << " "
-				<< std::right << std::setw(10) << "Passed" << " "
-				<< std::right << std::setw(10) << "Failed" << " "
-				<< std::right << std::setw(10) << "Error" << " "
-				<< "Name" << "";
+                                << std::right << std::setw(10) << "Trig Bit#" << " "
+                                << std::right << std::setw(10) << "Visited" << " "
+                                << std::right << std::setw(10) << "Passed" << " "
+                                << std::right << std::setw(10) << "Failed" << " "
+                                << std::right << std::setw(10) << "Error" << " "
+                                << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("FwkSummary") << "TrigReport "
-				  << std::right << std::setw( 5) << 1
-				  << std::right << std::setw( 5) << pi->bitPosition() << " "
-				  << std::right << std::setw(10) << pi->timesVisited(i) << " "
-				  << std::right << std::setw(10) << pi->timesPassed(i) << " "
-				  << std::right << std::setw(10) << pi->timesFailed(i) << " "
-				  << std::right << std::setw(10) << pi->timesExcept(i) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+        LogVerbatim("FwkSummary") << "TrigReport "
+                                  << std::right << std::setw( 5) << 1
+                                  << std::right << std::setw( 5) << pi->bitPosition() << " "
+                                  << std::right << std::setw(10) << pi->timesVisited(i) << " "
+                                  << std::right << std::setw(10) << pi->timesPassed(i) << " "
+                                  << std::right << std::setw(10) << pi->timesFailed(i) << " "
+                                  << std::right << std::setw(10) << pi->timesExcept(i) << " "
+                                  << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
 
@@ -507,44 +510,44 @@ namespace edm {
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
-				<< std::right << std::setw(10) << "Trig Bit#" << " "
-				<< std::right << std::setw(10) << "Visited" << " "
-				<< std::right << std::setw(10) << "Passed" << " "
-				<< std::right << std::setw(10) << "Failed" << " "
-				<< std::right << std::setw(10) << "Error" << " "
-				<< "Name" << "";
+                                << std::right << std::setw(10) << "Trig Bit#" << " "
+                                << std::right << std::setw(10) << "Visited" << " "
+                                << std::right << std::setw(10) << "Passed" << " "
+                                << std::right << std::setw(10) << "Failed" << " "
+                                << std::right << std::setw(10) << "Error" << " "
+                                << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("FwkSummary") << "TrigReport "
-				  << std::right << std::setw( 5) << 0
-				  << std::right << std::setw( 5) << pi->bitPosition() << " "
-				  << std::right << std::setw(10) << pi->timesVisited(i) << " "
-				  << std::right << std::setw(10) << pi->timesPassed(i) << " "
-				  << std::right << std::setw(10) << pi->timesFailed(i) << " "
-				  << std::right << std::setw(10) << pi->timesExcept(i) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+        LogVerbatim("FwkSummary") << "TrigReport "
+                                  << std::right << std::setw( 5) << 0
+                                  << std::right << std::setw( 5) << pi->bitPosition() << " "
+                                  << std::right << std::setw(10) << pi->timesVisited(i) << " "
+                                  << std::right << std::setw(10) << pi->timesPassed(i) << " "
+                                  << std::right << std::setw(10) << pi->timesFailed(i) << " "
+                                  << std::right << std::setw(10) << pi->timesExcept(i) << " "
+                                  << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TrigReport " << "---------- Module Summary ------------";
     LogVerbatim("FwkSummary") << "TrigReport "
-			      << std::right << std::setw(10) << "Visited" << " "
-			      << std::right << std::setw(10) << "Run" << " "
-			      << std::right << std::setw(10) << "Passed" << " "
-			      << std::right << std::setw(10) << "Failed" << " "
-			      << std::right << std::setw(10) << "Error" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "Visited" << " "
+                              << std::right << std::setw(10) << "Run" << " "
+                              << std::right << std::setw(10) << "Passed" << " "
+                              << std::right << std::setw(10) << "Failed" << " "
+                              << std::right << std::setw(10) << "Error" << " "
+                              << "Name" << "";
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
       LogVerbatim("FwkSummary") << "TrigReport "
-				<< std::right << std::setw(10) << (*ai)->timesVisited() << " "
-				<< std::right << std::setw(10) << (*ai)->timesRun() << " "
-				<< std::right << std::setw(10) << (*ai)->timesPassed() << " "
-				<< std::right << std::setw(10) << (*ai)->timesFailed() << " "
-				<< std::right << std::setw(10) << (*ai)->timesExcept() << " "
-				<< (*ai)->description().moduleLabel_ << "";
+                                << std::right << std::setw(10) << (*ai)->timesVisited() << " "
+                                << std::right << std::setw(10) << (*ai)->timesRun() << " "
+                                << std::right << std::setw(10) << (*ai)->timesPassed() << " "
+                                << std::right << std::setw(10) << (*ai)->timesFailed() << " "
+                                << std::right << std::setw(10) << (*ai)->timesExcept() << " "
+                                << (*ai)->description().moduleLabel_ << "";
 
     }
     LogVerbatim("FwkSummary") << "";
@@ -553,78 +556,78 @@ namespace edm {
 
     LogVerbatim("FwkSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
     LogVerbatim("FwkSummary") << "TimeReport"
-			      << std::setprecision(6) << std::fixed
-			      << " CPU/event = " << timeCpuReal().first/std::max(1,totalEvents())
-			      << " Real/event = " << timeCpuReal().second/std::max(1,totalEvents())
-			      << "";
+                              << std::setprecision(6) << std::fixed
+                              << " CPU/event = " << timeCpuReal().first/std::max(1,totalEvents())
+                              << " Real/event = " << timeCpuReal().second/std::max(1,totalEvents())
+                              << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per path-run "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per path-run "
+                              << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::setprecision(6) << std::fixed
-				<< std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,totalEvents()) << " "
-				<< std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,totalEvents()) << " "
-				<< std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,pi->timesRun()) << " "
-				<< std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,pi->timesRun()) << " "
-				<< pi->name() << "";
+                                << std::setprecision(6) << std::fixed
+                                << std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,totalEvents()) << " "
+                                << std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,totalEvents()) << " "
+                                << std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,pi->timesRun()) << " "
+                                << std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,pi->timesRun()) << " "
+                                << pi->name() << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per path-run "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per path-run "
+                              << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per endpath-run "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per endpath-run "
+                              << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::setprecision(6) << std::fixed
-				<< std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,totalEvents()) << " "
-				<< std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,totalEvents()) << " "
-				<< std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,pi->timesRun()) << " "
-				<< std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,pi->timesRun()) << " "
-				<< pi->name() << "";
+                                << std::setprecision(6) << std::fixed
+                                << std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,totalEvents()) << " "
+                                << std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,totalEvents()) << " "
+                                << std::right << std::setw(10) << pi->timeCpuReal().first/std::max(1,pi->timesRun()) << " "
+                                << std::right << std::setw(10) << pi->timeCpuReal().second/std::max(1,pi->timesRun()) << " "
+                                << pi->name() << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per endpath-run "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per endpath-run "
+                              << "";
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
@@ -632,35 +635,35 @@ namespace edm {
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::right << std::setw(22) << "per event "
-				<< std::right << std::setw(22) << "per module-visit "
-				<< "";
+                                << std::right << std::setw(22) << "per event "
+                                << std::right << std::setw(22) << "per module-visit "
+                                << "";
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::right << std::setw(10) << "CPU" << " "
-				<< std::right << std::setw(10) << "Real" << " "
-				<< std::right << std::setw(10) << "CPU" << " "
-				<< std::right << std::setw(10) << "Real" << " "
-				<< "Name" << "";
+                                << std::right << std::setw(10) << "CPU" << " "
+                                << std::right << std::setw(10) << "Real" << " "
+                                << std::right << std::setw(10) << "CPU" << " "
+                                << std::right << std::setw(10) << "Real" << " "
+                                << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("FwkSummary") << "TimeReport "
-				  << std::setprecision(6) << std::fixed
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,totalEvents()) << " "
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,totalEvents()) << " "
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,pi->timesVisited(i)) << " "
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,pi->timesVisited(i)) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+        LogVerbatim("FwkSummary") << "TimeReport "
+                                  << std::setprecision(6) << std::fixed
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,totalEvents()) << " "
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,totalEvents()) << " "
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,pi->timesVisited(i)) << " "
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,pi->timesVisited(i)) << " "
+                                  << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per module-visit "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per module-visit "
+                              << "";
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
@@ -668,77 +671,77 @@ namespace edm {
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::right << std::setw(22) << "per event "
-				<< std::right << std::setw(22) << "per module-visit "
-				<< "";
+                                << std::right << std::setw(22) << "per event "
+                                << std::right << std::setw(22) << "per module-visit "
+                                << "";
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::right << std::setw(10) << "CPU" << " "
-				<< std::right << std::setw(10) << "Real" << " "
-				<< std::right << std::setw(10) << "CPU" << " "
-				<< std::right << std::setw(10) << "Real" << " "
-				<< "Name" << "";
+                                << std::right << std::setw(10) << "CPU" << " "
+                                << std::right << std::setw(10) << "Real" << " "
+                                << std::right << std::setw(10) << "CPU" << " "
+                                << std::right << std::setw(10) << "Real" << " "
+                                << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("FwkSummary") << "TimeReport "
-				  << std::setprecision(6) << std::fixed
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,totalEvents()) << " "
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,totalEvents()) << " "
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,pi->timesVisited(i)) << " "
-				  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,pi->timesVisited(i)) << " "
-				  << pi->getWorker(i)->description().moduleLabel_ << "";
+        LogVerbatim("FwkSummary") << "TimeReport "
+                                  << std::setprecision(6) << std::fixed
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,totalEvents()) << " "
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,totalEvents()) << " "
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).first/std::max(1,pi->timesVisited(i)) << " "
+                                  << std::right << std::setw(10) << pi->timeCpuReal(i).second/std::max(1,pi->timesVisited(i)) << " "
+                                  << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per module-visit "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per module-visit "
+                              << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per module-run "
-			      << std::right << std::setw(22) << "per module-visit "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per module-run "
+                              << std::right << std::setw(22) << "per module-visit "
+                              << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
       LogVerbatim("FwkSummary") << "TimeReport "
-				<< std::setprecision(6) << std::fixed
-				<< std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,totalEvents()) << " "
-				<< std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,totalEvents()) << " "
-				<< std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,(*ai)->timesRun()) << " "
-				<< std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,(*ai)->timesRun()) << " "
-				<< std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,(*ai)->timesVisited()) << " "
-				<< std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,(*ai)->timesVisited()) << " "
-				<< (*ai)->description().moduleLabel_ << "";
+                                << std::setprecision(6) << std::fixed
+                                << std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,totalEvents()) << " "
+                                << std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,totalEvents()) << " "
+                                << std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,(*ai)->timesRun()) << " "
+                                << std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,(*ai)->timesRun()) << " "
+                                << std::right << std::setw(10) << (*ai)->timeCpuReal().first/std::max(1,(*ai)->timesVisited()) << " "
+                                << std::right << std::setw(10) << (*ai)->timeCpuReal().second/std::max(1,(*ai)->timesVisited()) << " "
+                                << (*ai)->description().moduleLabel_ << "";
     }
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << std::right << std::setw(10) << "CPU" << " "
-			      << std::right << std::setw(10) << "Real" << " "
-			      << "Name" << "";
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << std::right << std::setw(10) << "CPU" << " "
+                              << std::right << std::setw(10) << "Real" << " "
+                              << "Name" << "";
     LogVerbatim("FwkSummary") << "TimeReport "
-			      << std::right << std::setw(22) << "per event "
-			      << std::right << std::setw(22) << "per module-run "
-			      << std::right << std::setw(22) << "per module-visit "
-			      << "";
+                              << std::right << std::setw(22) << "per event "
+                              << std::right << std::setw(22) << "per module-run "
+                              << std::right << std::setw(22) << "per module-visit "
+                              << "";
 
     LogVerbatim("FwkSummary") << "";
     LogVerbatim("FwkSummary") << "T---Report end!" << "";
@@ -768,8 +771,8 @@ namespace edm {
   bool Schedule::shouldWeCloseOutput() const {
     // Return true iff at least one output module returns true.
     return (std::find_if(all_output_workers_.begin(), all_output_workers_.end(),
-		     boost::bind(&OutputWorker::shouldWeCloseFile, _1))
-		     != all_output_workers_.end());
+                     boost::bind(&OutputWorker::shouldWeCloseFile, _1))
+                     != all_output_workers_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
@@ -819,14 +822,14 @@ namespace edm {
 
   void
   fillModuleInPathSummary(Path const&,
-			  ModuleInPathSummary&) {
+                          ModuleInPathSummary&) {
   }
 
 
   void
   fillModuleInPathSummary(Path const& path,
-			  size_t which,
-			  ModuleInPathSummary& sum) {
+                          size_t which,
+                          ModuleInPathSummary& sum) {
     sum.timesVisited = path.timesVisited(which);
     sum.timesPassed  = path.timesPassed(which);
     sum.timesFailed  = path.timesFailed(which);

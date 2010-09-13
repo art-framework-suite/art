@@ -1,13 +1,13 @@
-
 #include "art/Framework/Services/Basic/InitRootHandlers.h"
+
 #include "art/Framework/Services/RootAutoLibraryLoader/RootAutoLibraryLoader.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
 #include "art/Utilities/EDMException.h"
 
 #include "MessageFacility/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "TSystem.h"
 #include "TError.h"
@@ -26,19 +26,19 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
 
 // Translate ROOT severity level to MessageLogger severity level
 
-  edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info;
+  mf::ELseverityLevel el_severity = mf::ELseverityLevel::ELsev_info;
 
   if (level >= kFatal) {
-    el_severity = edm::ELseverityLevel::ELsev_fatal;
+    el_severity = mf::ELseverityLevel::ELsev_fatal;
   }
   else if (level >= kSysError) {
-    el_severity = edm::ELseverityLevel::ELsev_severe;
+    el_severity = mf::ELseverityLevel::ELsev_severe;
   }
   else if (level >= kError) {
-    el_severity = edm::ELseverityLevel::ELsev_error;
+    el_severity = mf::ELseverityLevel::ELsev_error;
   }
   else if (level >= kWarning) {
-    el_severity = edm::ELseverityLevel::ELsev_warning;
+    el_severity = mf::ELseverityLevel::ELsev_warning;
   }
 
 // Adapt C-strings to std::strings
@@ -82,12 +82,12 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
      && (el_message.find("fill branch") != std::string::npos)
      && (el_message.find("address") != std::string::npos)
      && (el_message.find("not set") != std::string::npos)) {
-      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      el_severity = mf::ELseverityLevel::ELsev_fatal;
     }
 
     if ((el_message.find("Tree branches") != std::string::npos)
      && (el_message.find("different numbers of entries") != std::string::npos)) {
-      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      el_severity = mf::ELseverityLevel::ELsev_fatal;
     }
 
 
@@ -99,11 +99,11 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
         (el_location.find("Fit") != std::string::npos) ||
         (el_location.find("TDecompChol::Solve") != std::string::npos) ||
         (el_location.find("THistPainter::PaintInit") != std::string::npos)) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
+      el_severity = mf::ELseverityLevel::ELsev_info;
     }
 
 
-  if (el_severity == edm::ELseverityLevel::ELsev_info) {
+  if (el_severity == mf::ELseverityLevel::ELsev_info) {
     // Don't throw if the message is just informational.
     die = false;
   } else {
@@ -125,19 +125,19 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
   // Currently we get here only for informational messages,
   // but we leave the other code in just in case we change
   // the criteria for throwing.
-  if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
+  if (el_severity == mf::ELseverityLevel::ELsev_fatal) {
     mf::LogError("Root_Fatal") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_severe) {
+  else if (el_severity == mf::ELseverityLevel::ELsev_severe) {
     mf::LogError("Root_Severe") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_error) {
+  else if (el_severity == mf::ELseverityLevel::ELsev_error) {
     mf::LogError("Root_Error") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_warning) {
+  else if (el_severity == mf::ELseverityLevel::ELsev_warning) {
     mf::LogWarning("Root_Warning") << el_location << el_message ;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_info) {
+  else if (el_severity == mf::ELseverityLevel::ELsev_info) {
     mf::LogInfo("Root_Information") << el_location << el_message ;
   }
 

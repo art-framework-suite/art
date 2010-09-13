@@ -1,17 +1,21 @@
-#include <vector>
-
 #include "art/Framework/Core/Run.h"
+
 #include "art/Framework/Core/RunPrincipal.h"
+#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+
 #include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/Registry.h"
+  using fhicl::ParameterSet;
+
+#include <vector>
+
 
 namespace edm {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
-	DataViewImpl(rp, md, InRun),
-	aux_(rp.aux()) {
+        DataViewImpl(rp, md, InRun),
+        aux_(rp.aux()) {
   }
 
   RunPrincipal &
@@ -38,7 +42,7 @@ namespace edm {
 
   bool
   Run::getProcessParameterSet(std::string const& processName,
-			      std::vector<ParameterSet>& psets) const
+                              std::vector<ParameterSet>& psets) const
   {
     // Get the relevant ProcessHistoryIDs
     ProcessHistoryRegistry* phreg = ProcessHistoryRegistry::instance();
@@ -48,26 +52,26 @@ namespace edm {
     // Get the relevant ParameterSetIDs.
     std::vector<ParameterSetID> psetIdsUsed;
     for (std::vector<ProcessHistoryID>::const_iterator
-	   i = historyIDs.begin(),
-	   e = historyIDs.end();
-	 i != e;
-	 ++i)
+           i = historyIDs.begin(),
+           e = historyIDs.end();
+         i != e;
+         ++i)
       {
-	ProcessHistory temp;
-	phreg->getMapped(*i, temp);
+        ProcessHistory temp;
+        phreg->getMapped(*i, temp);
       }
 
     // Look up the ParameterSets for these IDs.
     pset::Registry* psreg = pset::Registry::instance();
     for (std::vector<ParameterSetID>::const_iterator
-	   i = psetIdsUsed.begin(),
-	   e = psetIdsUsed.end();
-	 i != e;
-	 ++i)
+           i = psetIdsUsed.begin(),
+           e = psetIdsUsed.end();
+         i != e;
+         ++i)
       {
-	ParameterSet temp;
-	psreg->getMapped(*i, temp);
-	psets.push_back(temp);
+        ParameterSet temp;
+        psreg->getMapped(*i, temp);
+        psets.push_back(temp);
       }
 
     return false;
@@ -81,20 +85,20 @@ namespace edm {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit!=pie) {
-	std::auto_ptr<EDProduct> pr(pit->first);
-	// note: ownership has been passed - so clear the pointer!
-	pit->first = 0;
+        std::auto_ptr<EDProduct> pr(pit->first);
+        // note: ownership has been passed - so clear the pointer!
+        pit->first = 0;
 
-	// set provenance
-	std::auto_ptr<ProductProvenance> runEntryInfoPtr(
-		new ProductProvenance(pit->second->branchID(),
-				    productstatus::present()));
-	rp.put(pr, *pit->second, runEntryInfoPtr);
-	++pit;
+        // set provenance
+        std::auto_ptr<ProductProvenance> runEntryInfoPtr(
+                new ProductProvenance(pit->second->branchID(),
+                                    productstatus::present()));
+        rp.put(pr, *pit->second, runEntryInfoPtr);
+        ++pit;
     }
 
     // the cleanup is all or none
     putProducts().clear();
   }
 
-}
+}  // namespace edm

@@ -161,8 +161,7 @@ namespace edm {
     operator<< (std::ostream & os,
                 SimpleMemoryCheck::SignificantModule const & se);
 
-  }
-
+  }  // namespace service
 }  // namespace edm
 
 #endif  // FWCore_Services_Memory_h

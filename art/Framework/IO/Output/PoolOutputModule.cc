@@ -8,7 +8,9 @@
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/EDMException.h"
+
 #include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
 
 #include "TBranchElement.h"
 #include "TObjArray.h"
@@ -20,7 +22,7 @@
 
 namespace edm {
 
-  PoolOutputModule::PoolOutputModule(fhicl::ParameterSet const& pset) :
+  PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     rootServiceChecker_(),
     selectedOutputItemList_(),
@@ -107,7 +109,7 @@ namespace edm {
   void PoolOutputModule::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
       if (fb.tree() == 0) {
-	fastCloning_ = false;
+        fastCloning_ = false;
       }
       doOpenFile();
       respondToOpenInputFile(fb);
@@ -119,7 +121,7 @@ namespace edm {
       BranchType branchType = static_cast<BranchType>(i);
       if (inputFileCount_ == 0) {
         TTree * theTree = (branchType == InEvent ? fb.tree() :
-		          (branchType == InSubRun ? fb.subRunTree() :
+                          (branchType == InSubRun ? fb.subRunTree() :
                           fb.runTree()));
         fillSelectedItemList(branchType, theTree);
       }
@@ -190,9 +192,9 @@ namespace edm {
       lfilename << logicalFileName();
       if (outputFileCount_) {
         ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-	if (!logicalFileName().empty()) {
-	  lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-	}
+        if (!logicalFileName().empty()) {
+          lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
+        }
       }
       ofilename << suffix;
       rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));

@@ -1,11 +1,12 @@
-
 #include "art/Framework/Core/WorkerMaker.h"
+
+using fhicl::ParameterSet;
+
 
 namespace edm {
 
 Maker::~Maker()
-{
-}
+{ }
 
 ModuleDescription
 Maker::createModuleDescription(WorkerParams const &p) const
@@ -32,4 +33,4 @@ Maker::throwConfigurationException(ModuleDescription const &md,
   throw toThrow;
 }
 
-} // end of edm::
+} // namespace edm

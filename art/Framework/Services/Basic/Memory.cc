@@ -3,8 +3,10 @@
 // Class  :     Timing
 //
 
-#include "art/Framework/Core/Event.h"
+
 #include "art/Framework/Services/Basic/Memory.h"
+
+#include "art/Framework/Core/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -144,7 +146,7 @@ namespace edm {
       return ret;
     }
 
-    SimpleMemoryCheck::SimpleMemoryCheck(const ParameterSet& iPS,
+    SimpleMemoryCheck::SimpleMemoryCheck(const fhicl::ParameterSet& iPS,
                                          ActivityRegistry&iReg)
     : a_()
     , b_()
@@ -630,8 +632,6 @@ namespace edm {
       }
     } //updateModuleMemoryStats
 
-
-
     std::ostream &
     operator<< (std::ostream & os,
                 SimpleMemoryCheck::SignificantEvent const & se) {
@@ -659,9 +659,5 @@ namespace edm {
       return os;
     }
 
-
-
-
   } // end namespace service
 } // end namespace edm
-

@@ -6,16 +6,14 @@
 
 #include "art/Framework/Core/EventProcessor.h"
 #include "art/Framework/Core/TriggerReport.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/Exception.h"
 
-
 #include "boost/thread/mutex.hpp"
+#include "fhiclcpp/ParameterSet.h"
 
-
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 
 namespace edm {
@@ -27,7 +25,7 @@ namespace edm {
       //
       // construction/destruction
       //
-      PrescaleService(const ParameterSet&,ActivityRegistry&) throw (cms::Exception);
+      PrescaleService(const fhicl::ParameterSet&,ActivityRegistry&) throw (cms::Exception);
       ~PrescaleService();
 
 
@@ -35,10 +33,10 @@ namespace edm {
       // member functions
       //
 
-      void reconfigure(const ParameterSet &);
+      void reconfigure(const fhicl::ParameterSet &);
 
       unsigned int getPrescale(unsigned int lvl1Index,
-			       const std::string&prescaledPath)throw(cms::Exception);
+                               const std::string&prescaledPath)throw(cms::Exception);
       unsigned int getPrescale(const std::string&prescaledPath)throw(cms::Exception);
 
 

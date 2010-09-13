@@ -26,7 +26,7 @@ namespace edm {
 
     std::auto_ptr<InputSource>
       makeInputSource(fhicl::ParameterSet const&,
-		       InputSourceDescription const&) const;
+                      InputSourceDescription const&) const;
 
 
   private:

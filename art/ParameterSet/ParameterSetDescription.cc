@@ -1,16 +1,19 @@
 //
 // Package:     ParameterSet
 // Class  :     ParameterSetDescription
+//
 
+
+#include "art/ParameterSet/ParameterSetDescription.h"
 
 #include "art/ParameterSet/Entry.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Utilities/Algorithms.h"
 
 #include "boost/bind.hpp"
 #include "fhiclcpp/ParameterSet.h"
 
 using fhicl::ParameterSet;
+
 
 namespace edm {
 
@@ -42,7 +45,7 @@ namespace edm {
     for_all(parameters_,
             boost::bind(&ParameterSetDescription::validateDescription, _1, boost::cref(pset)));
 
-    std::vector<std::string> parameterNames = pset.getParameterNames();
+    std::vector<std::string> parameterNames = pset.getNameList();
     for_all(parameterNames,
             boost::bind(&ParameterSetDescription::validateName, boost::cref(this), _1, boost::cref(pset)));
   }

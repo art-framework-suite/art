@@ -1,10 +1,15 @@
 // ----------------------------------------------------------------------
 //
+// Registry
 //
 // ----------------------------------------------------------------------
 
+
 #include "art/ParameterSet/Registry.h"
+
 #include "art/Utilities/EDMException.h"
+
+using fhicl::ParameterSet;
 
 
 namespace edm
@@ -41,7 +46,7 @@ namespace edm
       typedef Registry::const_iterator iter;
       fillme.clear();
       for (iter i=reg->begin(), e=reg->end(); i!=e; ++i)
-	fillme[i->first].pset_ = i->second.toStringOfTracked();
+        fillme[i->first].pset_ = i->second.toStringOfTracked();
     }
   } // namespace pset
 
@@ -53,9 +58,9 @@ namespace edm
     fhicl::ParameterSet result;
     if (!reg->getMapped(id, result))
       throw edm::Exception(errors::EventCorruption, "Uknown ParameterSetID")
-	<< "Unable to find the ParameterSet for id: "
-	<< id
-	<< ";\nthis was supposed to be the process ParameterSet\n";
+        << "Unable to find the ParameterSet for id: "
+        << id
+        << ";\nthis was supposed to be the process ParameterSet\n";
 
     return result;
   }

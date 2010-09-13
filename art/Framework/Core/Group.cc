@@ -75,7 +75,7 @@ namespace edm {
     prov_(),
     dropped_(!branchDescription_->present()),
     onDemand_(true) {
-	assert(demand);
+        assert(demand);
   }
 
   Group::Group(ConstBranchDescription const& bd, ProductID const& pid) :
@@ -178,7 +178,7 @@ namespace edm {
     return
       is_sequence
       ? (elementType==wantedElementType ||
-	 elementType.HasBase(wantedElementType))
+         elementType.HasBase(wantedElementType))
       : false;
   }
 
@@ -232,7 +232,7 @@ namespace edm {
       else if (product_->hasIsProductEqual()) {
 
         if (!product_->isProductEqual(newGroup->product_.get())) {
-          mf::LogWarning  ("RunSubRunMerging")
+          mf::LogWarning("RunSubRunMerging")
             << "Group::mergeGroup\n"
                "Two run/subRun products for the same run/subRun which should be equal are not\n"
                "Using the first, ignoring the second\n"
@@ -243,7 +243,7 @@ namespace edm {
         }
       }
       else {
-        mf::LogWarning  ("RunSubRunMerging")
+        mf::LogWarning("RunSubRunMerging")
           << "Group::mergeGroup\n"
              "Run/subRun product has neither a mergeProduct nor isProductEqual function\n"
              "Using the first, ignoring the second in merge\n"

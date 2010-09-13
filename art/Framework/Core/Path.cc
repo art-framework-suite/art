@@ -1,20 +1,24 @@
+#include "art/Framework/Core/Path.h"
 
 #include "art/Framework/Core/Actions.h"
-#include "art/Framework/Core/Path.h"
-#include "MessageFacility/MessageLogger.h"
 #include "art/Utilities/Algorithms.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "boost/bind.hpp"
+
 #include <algorithm>
+
+using fhicl::ParameterSet;
+
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
-	     WorkersInPath const& workers,
-	     TrigResPtr trptr,
-	     ParameterSet const&,
-	     ActionTable& actions,
-	     boost::shared_ptr<ActivityRegistry> areg,
-	     bool isEndPath):
+             WorkersInPath const& workers,
+             TrigResPtr trptr,
+             ParameterSet const&,
+             ActionTable& actions,
+             boost::shared_ptr<ActivityRegistry> areg,
+             bool isEndPath):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
     timesPassed_(),
@@ -33,7 +37,7 @@ namespace edm {
 
   bool
   Path::handleWorkerFailure(cms::Exception const& e,
-			    int nwrwue, bool isEvent) {
+                            int nwrwue, bool isEvent) {
     bool should_continue = true;
 
     // there is no support as of yet for specific paths having
@@ -44,17 +48,17 @@ namespace edm {
     assert (action != actions::FailModule);
     switch(action) {
       case actions::FailPath: {
-	  should_continue = false;
-	  LogWarning(e.category())
-	    << "Failing path " << name_
-	    << ", due to exception, message:\n"
-	    << e.what() << "\n";
-	  break;
+          should_continue = false;
+          LogWarning(e.category())
+            << "Failing path " << name_
+            << ", due to exception, message:\n"
+            << e.what() << "\n";
+          break;
       }
       default: {
-	  if (isEvent) ++timesExcept_;
-	  state_ = edm::hlt::Exception;
-	  recordStatus(nwrwue, isEvent);
+          if (isEvent) ++timesExcept_;
+          state_ = edm::hlt::Exception;
+          recordStatus(nwrwue, isEvent);
           throw edm::Exception(errors::ScheduleExecutionFailure,
               "ProcessingStopped", e)
               << "Exception going through path " << name_ << "\n";

@@ -2,28 +2,29 @@
 ----------------------------------------------------------------------*/
 
 
-// Framework support:
-#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Framework/Core/InputSource.h"
+
+#include "MessageFacility/MessageLogger.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
-#include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/SubRun.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
-#include "MessageFacility/MessageLogger.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
+#include "art/ParameterSet/ParameterSetDescription.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #ifdef RNGS
 //#include "art/Framework/Core/RandomNumberGeneratorService.h"
 #endif  // RNGS
 #include "art/Utilities/GlobalIdentifier.h"
 
-// C++ support:
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
+
 #include <cassert>
 #include <ctime>
 
@@ -93,7 +94,7 @@ namespace edm {
     else if (processingMode != defaultMode) {
       throw edm::Exception(edm::errors::Configuration)
         << "InputSource::InputSource()\n"
-	<< "The 'processingMode' parameter for sources has an illegal value '"
+        << "The 'processingMode' parameter for sources has an illegal value '"
           << processingMode << "'\n"
         << "Legal values are '" << defaultMode
           << "', '" << runSubRunMode
@@ -151,13 +152,13 @@ namespace edm {
       }
       else {
         ItemType newState = nextItemType_();
-	if (newState == IsEvent) {
-	  assert(processingMode() == RunsSubRunsAndEvents);
+        if (newState == IsEvent) {
+          assert(processingMode() == RunsSubRunsAndEvents);
           state_ = IsEvent;
-	}
+        }
         else {
           state_ = IsStop;
-	}
+        }
       }
     }
     else {
@@ -169,18 +170,18 @@ namespace edm {
         state_ = IsFile;
       }
       else if (newState == IsRun || oldState == IsFile) {
-	RunSourceSentry(*this);
+        RunSourceSentry(*this);
         setRunPrincipal(readRun_());
         state_ = IsRun;
       }
       else if (newState == IsSubRun || oldState == IsRun) {
         assert(processingMode() != Runs);
-	SubRunSourceSentry(*this);
+        SubRunSourceSentry(*this);
         setSubRunPrincipal(readSubRun_());
         state_ = IsSubRun;
       }
       else {
-	assert(processingMode() == RunsSubRunsAndEvents);
+        assert(processingMode() == RunsSubRunsAndEvents);
         state_ = IsEvent;
       }
     }
@@ -293,8 +294,8 @@ namespace edm {
         Event event(*result, moduleDescription());
         postRead(event);
         if (remainingEvents_ > 0) --remainingEvents_;
-	++readCount_;
-	issueReports(result->id(), result->subRun());
+        ++readCount_;
+        issueReports(result->id(), result->subRun());
       }
     }
     return result;
@@ -453,4 +454,5 @@ namespace edm {
   InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source) :
      sentry_(source.actReg()->preCloseFileSignal_, source.actReg()->postCloseFileSignal_) {
   }
-}
+
+}  // namespace edm

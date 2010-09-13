@@ -1,23 +1,25 @@
+#include "art/Framework/Services/Basic/TFileService.h"
+
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/Service.h"
+
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
+
 #include "TFile.h"
 #include "TROOT.h"
 
-#include "art/Framework/Services/Basic/TFileService.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Services/Registry/Service.h"
-
 using namespace std;
 
-namespace edm
-{
+namespace edm {
 
   TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
     TFileDirectory("",
-		   "",
-		   new TFile(cfg.getString("fileName").c_str() ,
-			     "RECREATE"),
-		   ""),
+                   "",
+                   new TFile(cfg.getString("fileName").c_str() ,
+                             "RECREATE"),
+                   ""),
     file_(TFileDirectory::file_),
     fileName_(cfg.getString("fileName")),
     fileNameRecorded_(false),
@@ -46,4 +48,4 @@ namespace edm
     descr_ = (dir_ + " (" + desc.moduleName_ + ") folder").c_str();
   }
 
-}
+}  // namespace edm

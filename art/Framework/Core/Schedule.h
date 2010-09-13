@@ -119,11 +119,11 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     Schedule(fhicl::ParameterSet const& processDesc,
-	     edm::service::TriggerNamesService& tns,
-	     WorkerRegistry& wregistry,
-	     ProductRegistry& pregistry,
-	     ActionTable& actions,
-	     boost::shared_ptr<ActivityRegistry> areg);
+             edm::service::TriggerNamesService& tns,
+             WorkerRegistry& wregistry,
+             ProductRegistry& pregistry,
+             ActionTable& actions,
+             boost::shared_ptr<ActivityRegistry> areg);
 
     enum State { Ready=0, Running, Latched };
 
@@ -324,15 +324,15 @@ namespace edm {
     }
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
-			       EventPrincipal& event) {
+                               EventPrincipal& event) {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-	  // Unscheduled reconstruction has no accepted definition
-	  // (yet) of the "current path". We indicate this by passing
-	  // a null pointer as the CurrentProcessingContext.
-	  itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, 0);
-	  return true;
+          // Unscheduled reconstruction has no accepted definition
+          // (yet) of the "current path". We indicate this by passing
+          // a null pointer as the CurrentProcessingContext.
+          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, 0);
+          return true;
       }
       return false;
     }
@@ -364,9 +364,9 @@ namespace edm {
       // being processed
       std::auto_ptr<ScheduleSignalSentry<T> > sentry;
       try {
- 	sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep));
+        sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep));
         if (runTriggerPaths<T>(ep)) {
-	  if (T::isEvent_) ++total_passed_;
+          if (T::isEvent_) ++total_passed_;
         }
         state_ = Latched;
 
@@ -377,12 +377,12 @@ namespace edm {
         assert (action != actions::IgnoreCompletely);
         assert (action != actions::FailPath);
         assert (action != actions::FailModule);
-	if (action == actions::SkipEvent) {
-            LogWarning(e.category())
+        if (action == actions::SkipEvent) {
+            mf::LogWarning(e.category())
               << "an exception occurred and all paths for the event are being skipped: \n"
               << e.what();
         } else {
- 	  throw;
+          throw;
         }
       }
 
@@ -395,22 +395,22 @@ namespace edm {
       assert (action != actions::FailModule);
       switch(action) {
       case actions::IgnoreCompletely: {
-  	LogWarning(ex.category())
-  	  << "exception being ignored for current event:\n"
-  	  << ex.what();
-  	break;
+        mf::LogWarning(ex.category())
+          << "exception being ignored for current event:\n"
+          << ex.what();
+        break;
       }
       default: {
         state_ = Ready;
         throw edm::Exception(errors::EventProcessorFailure,
-			     "EventProcessingStopped",ex)
-	  << "an exception occurred during current event processing\n";
+                             "EventProcessingStopped",ex)
+          << "an exception occurred during current event processing\n";
       }
       }
     }
     catch(...) {
-      LogError("PassingThrough")
-	<< "an exception occurred during current event processing\n";
+      mf::LogError("PassingThrough")
+        << "an exception occurred during current event processing\n";
       state_ = Ready;
       throw;
     }

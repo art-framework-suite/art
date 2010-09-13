@@ -18,8 +18,8 @@
 #include <vector>
 
 
-namespace edm
-{
+namespace edm {
+
   // input can either be a python file name or a python config string
   boost::shared_ptr<edm::ProcessDesc>
   readConfig(const std::string & config);

@@ -1,4 +1,5 @@
 #include "art/Framework/Services/Basic/LockService.h"
+
 #include "art/Persistency/Provenance/ModuleDescription.h"
 //#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/DebugMacros.h"
@@ -8,6 +9,8 @@
 #include <iostream>
 
 using namespace edm::rootfix;
+using fhicl::ParameterSet;
+
 
 LockService::LockService(const ParameterSet& iPS,
 			 ActivityRegistry& reg):
@@ -105,5 +108,3 @@ void LockService::postModule(const ModuleDescription& desc)
   delete locker_;
   locker_=0;
 }
-
-

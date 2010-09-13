@@ -1,10 +1,13 @@
-
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "fhiclcpp/ParameterSet.h"
+
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
 
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
+
 #include <iostream>
+
 
 EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource");
 

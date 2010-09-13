@@ -17,12 +17,13 @@
  */
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include "boost/thread/mutex.hpp"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>
+
 
 namespace edm {
   namespace rootfix {
@@ -58,7 +59,8 @@ namespace edm {
       Labels labels_;
       bool lockSources_;
     };
-  }
-}
+
+  }  // namespace rootfix
+}  // namespace edm
 
 #endif  // FWCore_Services_LockService_h

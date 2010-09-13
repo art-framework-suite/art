@@ -1,58 +1,24 @@
-// -*- C++ -*-
 //
 // Package:     ServiceRegistry
 // Class  :     ServiceRegistry
-//
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:19 EDT 2005
-//
-//
 
-// system include files
+
 #include "boost/thread/tss.hpp"
 
-// user include files
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/ParameterSet/MakeParameterSets.h"
 
-//
-// constants, enums and typedefs
-//
+using fhicl::ParameterSet;
 
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
 //
 edm::ServiceRegistry::ServiceRegistry()
-{
-}
-
-// ServiceRegistry::ServiceRegistry(const ServiceRegistry& rhs)
-// {
-//    // do actual copying here;
-// }
+{ }
 
 edm::ServiceRegistry::~ServiceRegistry()
-{
-}
-
-//
-// assignment operators
-//
-// const ServiceRegistry& ServiceRegistry::operator=(const ServiceRegistry& rhs)
-// {
-//   //An exception safe implementation is
-//   ServiceRegistry temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
+{ }
 
 //
 // member functions

@@ -8,8 +8,10 @@
 
 
 #include "art/Framework/Services/Prescale/PrescaleService.h"
+
 #include "art/ParameterSet/Registry.h"
 #include "art/Framework/Core/Event.h"
+
 #include "MessageFacility/MessageLogger.h"
 
 #include <set>
@@ -17,6 +19,7 @@
 
 
 using namespace std;
+using fhicl::ParameterSet;
 
 
 namespace edm {
@@ -66,28 +69,28 @@ namespace edm {
       set<string> prescalerModules;
       vector<string> allModules=prcPS.getVString("@all_modules");
       for(unsigned int i=0;i<allModules.size();i++) {
-	ParameterSet pset  = prcPS.getParameterSet(allModules[i]);
-	string moduleLabel = pset.getString("@module_label");
-	string moduleType  = pset.getString("@module_type");
-	if (moduleType=="HLTPrescaler") prescalerModules.insert(moduleLabel);
+        ParameterSet pset  = prcPS.getParameterSet(allModules[i]);
+        string moduleLabel = pset.getString("@module_label");
+        string moduleType  = pset.getString("@module_type");
+        if (moduleType=="HLTPrescaler") prescalerModules.insert(moduleLabel);
       }
 
       // find all paths with an HLTPrescaler and check for <=1
       std::set<string> prescaledPathSet;
       vector<string> allPaths = prcPS.getVString("@paths");
       for (unsigned int iP=0;iP<allPaths.size();iP++) {
-	string pathName = allPaths[iP];
-	vector<string> modules = prcPS.getVString(pathName);
-	for (unsigned int iM=0;iM<modules.size();iM++) {
-	  string moduleLabel = modules[iM];
-	  if (prescalerModules.erase(moduleLabel)>0) {
-	    set<string>::const_iterator itPath=prescaledPathSet.find(pathName);
-	    if (itPath==prescaledPathSet.end())
-	      prescaledPathSet.insert(pathName);
-	    else throw cms::Exception("DuplicatePrescaler")
-	      <<"path '"<<pathName<<"' has more than one HLTPrescaler!";
-	  }
-	}
+        string pathName = allPaths[iP];
+        vector<string> modules = prcPS.getVString(pathName);
+        for (unsigned int iM=0;iM<modules.size();iM++) {
+          string moduleLabel = modules[iM];
+          if (prescalerModules.erase(moduleLabel)>0) {
+            set<string>::const_iterator itPath=prescaledPathSet.find(pathName);
+            if (itPath==prescaledPathSet.end())
+              prescaledPathSet.insert(pathName);
+            else throw cms::Exception("DuplicatePrescaler")
+              <<"path '"<<pathName<<"' has more than one HLTPrescaler!";
+          }
+        }
       }
 
       // get prescale table and check consistency with above information
@@ -95,31 +98,31 @@ namespace edm {
       nLvl1Index_ = lvl1Labels_.size();
 
       string lvl1DefaultLabel=
-	iPS.getString("lvl1DefaultLabel","");
+        iPS.getString("lvl1DefaultLabel","");
       for (unsigned int i=0;i<lvl1Labels_.size();i++)
-	if (lvl1Labels_[i]==lvl1DefaultLabel) iLvl1IndexDefault_=i;
+        if (lvl1Labels_[i]==lvl1DefaultLabel) iLvl1IndexDefault_=i;
 
       vector<ParameterSet> vpsetPrescales=
-	iPS.getVPSet("prescaleTable");
+        iPS.getVPSet("prescaleTable");
 
       vector<string> prescaledPaths;
       for (unsigned int iVPSet=0;iVPSet<vpsetPrescales.size();iVPSet++) {
-	ParameterSet psetPrescales = vpsetPrescales[iVPSet];
-	string pathName = psetPrescales.getString("pathName");
-	if (prescaledPathSet.erase(pathName)>0) {
-	  vector<unsigned int> prescales =
-	    psetPrescales.getVUint("prescales");
-	  if (prescales.size()!=nLvl1Index_) {
-	    throw cms::Exception("PrescaleTableMismatch")
-	      <<"path '"<<pathName<<"' has unexpected number of prescales";
-	  }
-	  prescaleTable_[pathName] = prescales;
-	}
-	else {
-	  throw cms::Exception("PrescaleTableUnknownPath")
-	    <<"path '"<<pathName<<"' is invalid or does not "
-	    <<"contain any HLTPrescaler";
-	}
+        ParameterSet psetPrescales = vpsetPrescales[iVPSet];
+        string pathName = psetPrescales.getString("pathName");
+        if (prescaledPathSet.erase(pathName)>0) {
+          vector<unsigned int> prescales =
+            psetPrescales.getVUint("prescales");
+          if (prescales.size()!=nLvl1Index_) {
+            throw cms::Exception("PrescaleTableMismatch")
+              <<"path '"<<pathName<<"' has unexpected number of prescales";
+          }
+          prescaleTable_[pathName] = prescales;
+        }
+        else {
+          throw cms::Exception("PrescaleTableUnknownPath")
+            <<"path '"<<pathName<<"' is invalid or does not "
+            <<"contain any HLTPrescaler";
+        }
       }
     }
 
@@ -132,12 +135,12 @@ namespace edm {
 
     //______________________________________________________________________________
     unsigned int PrescaleService::getPrescale(unsigned int lvl1Index,
-					      const std::string& prescaledPath)
+                                              const std::string& prescaledPath)
       throw (cms::Exception)
     {
       if (lvl1Index>=nLvl1Index_)
-	throw cms::Exception("InvalidLvl1Index")
-	  <<"lvl1Index '"<<lvl1Index<<"' exceeds number of prescale columns";
+        throw cms::Exception("InvalidLvl1Index")
+          <<"lvl1Index '"<<lvl1Index<<"' exceeds number of prescale columns";
 
       boost::mutex::scoped_lock scoped_lock(mutex_);
       PrescaleTable_t::const_iterator it = prescaleTable_.find(prescaledPath);

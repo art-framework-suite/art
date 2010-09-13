@@ -1,13 +1,16 @@
+#include "art/Framework/Core/TriggerResultInserter.h"
 
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/TriggerResultInserter.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/TriggerResults.h"
+
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
 
 #include <memory>
 
-namespace edm
-{
+
+namespace edm {
+
   TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
     trptr_(trptr),
     pset_id_(pset.id())
@@ -16,8 +19,7 @@ namespace edm
   }
 
   TriggerResultInserter::~TriggerResultInserter()
-  {
-  }
+  { }
 
   void TriggerResultInserter::produce(edm::Event& e)
   {
@@ -26,4 +28,5 @@ namespace edm
 
     e.put(results);
   }
-}
+
+}  // namespace edm

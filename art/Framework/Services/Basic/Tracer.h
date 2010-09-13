@@ -10,9 +10,8 @@
 */
 
 
-// forward declarations
-
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+
 #include "fhiclcpp/ParameterSet.h"
 
 
@@ -20,7 +19,7 @@ namespace edm {
    namespace service {
       class Tracer {
 public:
-         Tracer(const ParameterSet&,ActivityRegistry&);
+         Tracer(const fhicl::ParameterSet&,ActivityRegistry&);
 
          void postBeginJob();
          void postEndJob();

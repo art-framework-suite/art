@@ -22,7 +22,6 @@ class TTree;
 #include <string>
 
 
-
 namespace edm {
 
   class RootOutputFile;

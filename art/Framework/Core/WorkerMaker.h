@@ -66,6 +66,7 @@ namespace edm {
     }
     return worker;
   }
-}
 
-#endif
+}  // namespace edm
+
+#endif  // FWCore_Framework_WorkerMaker_h

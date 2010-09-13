@@ -44,8 +44,7 @@ namespace edm {
       bool summary_only_;
       bool report_summary_;
 
-        //
-       // Min Max and average event times for summary
+      // Min Max and average event times for summary
       //  at end of job
       double max_event_time_;    // seconds
       double min_event_time_;    // seconds

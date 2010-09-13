@@ -5,13 +5,15 @@
 
 
 #include "art/Framework/Services/Basic/Timing.h"
+
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 
 #include "MessageFacility/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
 
 #include <sys/time.h>
 

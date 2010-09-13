@@ -1,17 +1,12 @@
-// -*- C++ -*-
-//
-// Implementation:
-//
-// Original Author:  Jim Kowalkowski
-//
-//
-
 #include "art/Framework/Core/TriggerNamesService.h"
-#include "art/Persistency/Common/TriggerResults.h"
+
 #include "art/ParameterSet/Registry.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
-#include "art/Utilities/Exception.h"
+#include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Algorithms.h"
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/ThreadSafeRegistry.h"
+
+using fhicl::ParameterSet;
 
 
 namespace edm {
@@ -20,16 +15,16 @@ namespace edm {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
 
       trigger_pset_ =
-	pset.getPSet("@trigger_paths");
+        pset.getPSet("@trigger_paths");
 
       trignames_ = trigger_pset_.getVString("@trigger_paths");
       end_names_ = pset.getVString("@end_paths");
 
       ParameterSet defopts;
       ParameterSet opts =
-	pset.getPSet("options", defopts);
+        pset.getPSet("options", defopts);
       wantSummary_ =
-	opts.getUntrackedParameter("wantSummary",false);
+        opts.getUntrackedParameter("wantSummary",false);
 
       process_name_ = pset.getString("@process_name");
 
@@ -60,7 +55,7 @@ namespace edm {
         // for reasons of backward compatibility
         Strings psetNames = pset.getParameterNamesForType<Strings>();
         std::string name("@trigger_paths");
-	if (search_all(psetNames, name)) {
+        if (search_all(psetNames, name)) {
           // It is there, get it
           trigPaths = pset.getVString("@trigger_paths");
 
@@ -97,5 +92,6 @@ namespace edm {
       bool dummy;
       return getTrigPaths(triggerResults, trigPaths, dummy);
     }
-  }
-}
+
+  }  // namespace service
+}  // namespace edm

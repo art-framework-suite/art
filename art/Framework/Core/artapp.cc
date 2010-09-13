@@ -268,7 +268,7 @@ int art_main(int argc, char* argv[])
   //
   if (vm.count("mode")) {
     std::string jobMode = vm["mode"].as<std::string>();
-    edm::MessageDrop::instance()->jobMode = jobMode;
+    mf::MessageDrop::instance()->jobMode = jobMode;
   }
 
   if(vm.count(kStrictOpt))

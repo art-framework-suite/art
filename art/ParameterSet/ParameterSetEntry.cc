@@ -1,23 +1,27 @@
 #include "art/ParameterSet/ParameterSetEntry.h"
-#include "fhiclcpp/ParameterSet.h"
+
 #include "art/ParameterSet/Registry.h"
+
+#include "fhiclcpp/ParameterSet.h"
+  using fhicl::ParameterSet;
+
 #include <sstream>
 #include <iostream>
+
+
 namespace edm {
 
   ParameterSetEntry::ParameterSetEntry()
   : tracked(false),
     thePSet(0),
     theID()
-  {
-  }
+  { }
 
   ParameterSetEntry::ParameterSetEntry(const ParameterSet & pset, bool isTracked)
   : tracked(isTracked),
     thePSet(new ParameterSet(pset)),
     theID()
-  {
-  }
+  { }
 
   ParameterSetEntry::ParameterSetEntry(const std::string & rep)
   : tracked(false),
@@ -30,7 +34,8 @@ namespace edm {
     theID.swap(newID);
   }
 
-  ParameterSetEntry::~ParameterSetEntry() {}
+  ParameterSetEntry::~ParameterSetEntry()
+  { }
 
   std::string ParameterSetEntry::toString() const
   {
@@ -83,5 +88,3 @@ namespace edm {
     return os;
   }
 }
-
-

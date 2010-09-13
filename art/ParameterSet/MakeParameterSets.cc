@@ -1,7 +1,9 @@
 #include "art/ParameterSet/MakeParameterSets.h"
+
 #include "art/ParameterSet/PythonProcessDesc.h"
-namespace edm
-{
+
+
+namespace edm {
 
   boost::shared_ptr<ProcessDesc>
   readConfig(const std::string & config)
