@@ -1,19 +1,15 @@
 #ifndef Framework_EventSelector_h
 #define Framework_EventSelector_h
 
-/*
-  Author: Jim Kowalkowski 01-02-06
-
-
- */
 
 // Change Log
 //
 // 1 - Mark Fischler Feb 6, 2008
-//	Internals for implementation of glob-style wildcard selection
-//	In particular, !xyz* requires the vector nonveto_bits_
-//	nonveto_bits_ is designed to also accomodate an AND of triggers
+//      Internals for implementation of glob-style wildcard selection
+//      In particular, !xyz* requires the vector nonveto_bits_
+//      nonveto_bits_ is designed to also accomodate an AND of triggers
 //      selection criterion, if that is wanted at some future date.
+
 
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
@@ -25,8 +21,9 @@
 #include <vector>
 #include <string>
 
-namespace edm
-{
+
+namespace edm {
+
   // possible return codes for the testSelectionOverlap
   // method defined below.
   namespace evtSel
@@ -44,13 +41,13 @@ namespace edm
     typedef std::vector<std::string> Strings;
 
     EventSelector(Strings const& pathspecs,
-		  Strings const& names);
+                  Strings const& names);
 
     explicit
     EventSelector(Strings const& pathspecs);
 
     EventSelector(fhicl::ParameterSet const& pset,
-		  Strings const& triggernames);
+                  Strings const& triggernames);
 
     bool wantAll() const { return accept_all_; }
     bool acceptEvent(TriggerResults const&);
@@ -72,7 +69,7 @@ namespace edm
   private:
 
     void init(Strings const& paths,
-	      Strings const& triggernames);
+              Strings const& triggernames);
 
     struct BitInfo
     {
@@ -86,11 +83,11 @@ namespace edm
     typedef std::vector<BitInfo> Bits;
 
     bool accept_all_;
-    Bits absolute_acceptors_;					// change 3
-    Bits conditional_acceptors_;				// change 3
-    Bits exception_acceptors_;					// change 3
-    std::vector<Bits> all_must_fail_;				// change 1
-    std::vector<Bits> all_must_fail_noex_;			// change 3
+    Bits absolute_acceptors_;                                   // change 3
+    Bits conditional_acceptors_;                                // change 3
+    Bits exception_acceptors_;                                  // change 3
+    std::vector<Bits> all_must_fail_;                           // change 1
+    std::vector<Bits> all_must_fail_noex_;                      // change 3
 
     bool results_from_current_process_;
     bool psetID_initialized_;
@@ -104,10 +101,10 @@ namespace edm
     bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;
 
     bool acceptOneBit (Bits const & b,
-    		       HLTGlobalStatus const & tr,
-    		       hlt::HLTState const & s = hlt::Ready) const;
+                       HLTGlobalStatus const & tr,
+                       hlt::HLTState const & s = hlt::Ready) const;
     bool acceptAllBits (Bits const & b,
-    		        HLTGlobalStatus const & tr) const;
+                        HLTGlobalStatus const & tr) const;
 
     bool containsExceptions(HLTGlobalStatus const & tr) const;
 
@@ -118,21 +115,22 @@ namespace edm
       matching_triggers(Strings const& trigs, std::string const& s);
 
     static bool identical (std::vector<bool> const & a,
-    			   std::vector<bool> const & b);
+                           std::vector<bool> const & b);
     static bool identical (EventSelector const & a,
-    			   EventSelector const & b,
-			   unsigned int N);
+                           EventSelector const & b,
+                           unsigned int N);
     static std::vector<bool> expandDecisionList (
-    		Bits const & b,
-		bool PassOrFail,
-		unsigned int n);
+                Bits const & b,
+                bool PassOrFail,
+                unsigned int n);
     static bool overlapping ( std::vector<bool> const& a,
-    			      std::vector<bool> const& b );
+                              std::vector<bool> const& b );
     static bool subset  ( std::vector<bool> const& a,
-    			  std::vector<bool> const& b );
+                          std::vector<bool> const& b );
     static std::vector<bool> combine ( std::vector<bool> const& a,
-    			               std::vector<bool> const& b );
+                                       std::vector<bool> const& b );
   };
-}
 
-#endif
+}  // namespace edm
+
+#endif  // Framework_EventSelector_h

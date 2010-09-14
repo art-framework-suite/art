@@ -33,6 +33,7 @@
 
 
 #include "art/Framework/Core/EventSelector.h"
+
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Utilities/Algorithms.h"
@@ -202,7 +203,7 @@ namespace edm {
       }
       if (matches.empty() && is_glob(realname))
       {
-          LogWarning("Configuration")
+          mf::LogWarning("Configuration")
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a wildcarded trigger name that does not match any trigger \n"
             << "The wildcarded trigger name is: " << realname << "\n";

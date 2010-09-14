@@ -1,10 +1,11 @@
-#ifndef CurrentModuleService_CurrentModuleService_hh
-#define CurrentModuleService_CurrentModuleService_hh
+#ifndef CurrentModule_CurrentModule_hh
+#define CurrentModule_CurrentModule_hh
 
 
 // ======================================================================
 //
-// Track and make available information re the currently-running module
+// CurrentModule: A Service to track and make available information re
+//                the currently-running module
 //
 // ======================================================================
 
@@ -24,22 +25,22 @@ namespace edm {
 
 namespace edm {
 
-  class CurrentModuleService
+  class CurrentModule
   {
   public:
-    CurrentModuleService( fhicl::ParameterSet const &
-                        , edm::ActivityRegistry &
-                        );
-    ~CurrentModuleService();
+    CurrentModule( fhicl::ParameterSet const &
+                 , edm::ActivityRegistry &
+                 );
+    ~CurrentModule();
 
     std::string  label() const  { return desc_.moduleLabel(); }
 
   private:
     edm::ModuleDescription  desc_;
-    void note_module( edm::ModuleDescription const & desc );
+    void track_module( edm::ModuleDescription const & desc );
 
-  };  // CurrentModuleService
+  };  // CurrentModule
 
 }  // namespace edm
 
-#endif  // CurrentModuleService_CurrentModuleService_hh
+#endif  // CurrentModule_CurrentModule_hh

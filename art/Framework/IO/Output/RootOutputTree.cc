@@ -1,20 +1,22 @@
-
-#include "RootOutputTree.h"
-
-#include "TFile.h"
-#include "TBranch.h"
-#include "TTreeCloner.h"
-#include "Rtypes.h"
+#include "art/Framework/IO/Output/RootOutputTree.h"
 
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
-#include "MessageFacility/MessageLogger.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "boost/bind.hpp"
+
+#include "Rtypes.h"
+#include "TBranch.h"
+#include "TFile.h"
+#include "TTreeCloner.h"
+
 #include <limits>
 
+
 namespace edm {
+
   TTree *
   RootOutputTree::assignTTree(TFile * filePtr, TTree * tree) {
     tree->SetDirectory(filePtr);
@@ -31,7 +33,7 @@ namespace edm {
       << "Failed to create the tree: " << name << "\n";
     if (tree->IsZombie())
       throw edm::Exception(edm::errors::FatalRootError)
-	<< "Tree: " << name << " is a zombie." << "\n";
+        << "Tree: " << name << " is a zombie." << "\n";
 
     return assignTTree(filePtr, tree);
   }
@@ -51,7 +53,7 @@ namespace edm {
         if (inputBranch != 0) {
           if (inputBranch->GetSplitLevel() != outputBranch->GetSplitLevel() ||
               inputBranch->GetBasketSize() != outputBranch->GetBasketSize()) {
-            LogInfo("FastCloning")
+            mf::LogInfo("FastCloning")
               << "Fast Cloning disabled because split level or basket size do not match";
             return false;
           }
@@ -101,11 +103,11 @@ namespace edm {
     if (currentlyFastCloning_) {
       fastCloneTTree(tree, tree_);
       for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
-	  it != itEnd; ++it) {
-	if ((*it)->GetEntries() != tree_->GetEntries()) {
-	  unclonedReadBranches_.push_back(*it);
-	  unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
-	}
+          it != itEnd; ++it) {
+        if ((*it)->GetEntries() != tree_->GetEntries()) {
+          unclonedReadBranches_.push_back(*it);
+          unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
+        }
       }
     }
   }
@@ -123,17 +125,18 @@ namespace edm {
 
   void
   RootOutputTree::addBranch(BranchDescription const& prod,
-			    void const*& pProd, bool produced) {
+                            void const*& pProd, bool produced) {
       prod.init();
       TBranch *branch = tree_->Branch(prod.branchName().c_str(),
-		 prod.wrappedName().c_str(),
-		 &pProd,
-		 (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
-		 (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
+                 prod.wrappedName().c_str(),
+                 &pProd,
+                 (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
+                 (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
       if (produced) {
-	producedBranches_.push_back(branch);
+        producedBranches_.push_back(branch);
       } else {
         readBranches_.push_back(branch);
       }
   }
-}
+
+}  // namespace edm

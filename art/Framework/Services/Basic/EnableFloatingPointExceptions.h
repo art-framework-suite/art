@@ -91,7 +91,6 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include <fenv.h>
-
 #include <map>
 #include <stack>
 

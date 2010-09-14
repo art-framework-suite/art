@@ -23,6 +23,7 @@ the worker is reset().
 
 ----------------------------------------------------------------------*/
 
+
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
@@ -31,11 +32,12 @@ the worker is reset().
 #include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "MessageFacility/MessageLogger.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Exception.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "boost/shared_ptr.hpp"
+
 
 namespace edm {
 
@@ -48,7 +50,7 @@ namespace edm {
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&,
-		CurrentProcessingContext const* cpc);
+                CurrentProcessingContext const* cpc);
     void beginJob() ;
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb) {implRespondToOpenInputFile(fb);}
@@ -84,17 +86,17 @@ namespace edm {
   protected:
     virtual std::string workerType() const = 0;
     virtual bool implDoBegin(EventPrincipal&,
-			    CurrentProcessingContext const* cpc) = 0;
+                            CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(EventPrincipal&,
-			    CurrentProcessingContext const* cpc) = 0;
+                            CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoBegin(RunPrincipal& rp,
-			    CurrentProcessingContext const* cpc) = 0;
+                            CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp,
-			    CurrentProcessingContext const* cpc) = 0;
+                            CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoBegin(SubRunPrincipal& lbp,
-			    CurrentProcessingContext const* cpc) = 0;
+                            CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(SubRunPrincipal& lbp,
-			    CurrentProcessingContext const* cpc) = 0;
+                            CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
 
@@ -125,10 +127,10 @@ namespace edm {
     class ModuleSignalSentry {
     public:
       ModuleSignalSentry(ActivityRegistry *a, ModuleDescription& md) : a_(a), md_(&md) {
-	if(a_) T::preModuleSignal(a_, md_);
+        if(a_) T::preModuleSignal(a_, md_);
       }
       ~ModuleSignalSentry() {
-	if(a_) T::postModuleSignal(a_, md_);
+        if(a_) T::postModuleSignal(a_, md_);
       }
     private:
       ActivityRegistry* a_;
@@ -137,8 +139,8 @@ namespace edm {
 
     template <typename T>
     cms::Exception& exceptionContext(ModuleDescription const& iMD,
-				     T const& ip,
-				     cms::Exception& iEx) {
+                                     T const& ip,
+                                     cms::Exception& iEx) {
       iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_
         << " " << ip.id() << "\n";
       return iEx;
@@ -147,7 +149,7 @@ namespace edm {
 
    template <typename T>
    bool Worker::doWork(typename T::MyPrincipal& ep,
-		      CurrentProcessingContext const* cpc) {
+                      CurrentProcessingContext const* cpc) {
 
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
@@ -162,18 +164,15 @@ namespace edm {
       case Pass: return true;
       case Fail: return false;
       case Exception: {
-	  // rethrow the cached exception again
-	  // It seems impossible to
-	  // get here a second time until a cms::Exception has been
-	  // thrown prviously.
-	  LogWarning("repeat") << "A module has been invoked a second "
-			       << "time even though it caught an "
-			       << "exception during the previous "
-			       << "invocation.\n"
-			       << "This may be an indication of a "
-			       << "configuration problem.\n";
-
-	  throw *cached_exception_;
+          // rethrow the cached exception again
+          // It seems impossible to
+          // get here a second time until a cms::Exception has been
+          // thrown prviously.
+          mf::LogWarning("repeat")
+            << "A module has been invoked a second time even though"
+               " it caught an exception during the previous invocation."
+               "\nThis may be an indication of a configuration problem.\n";
+          throw *cached_exception_;
       }
     }
 
@@ -181,137 +180,138 @@ namespace edm {
 
     try {
 
-	ModuleSignalSentry<T> cpp(actReg_.get(), md_);
-	if (T::begin_) {
-	  rc = implDoBegin(ep, cpc);
-	} else {
-	  rc = implDoEnd(ep, cpc);
+        ModuleSignalSentry<T> cpp(actReg_.get(), md_);
+        if (T::begin_) {
+          rc = implDoBegin(ep, cpc);
+        } else {
+          rc = implDoEnd(ep, cpc);
         }
 
-	if (rc) {
-	  state_ = Pass;
-	  if (T::isEvent_) ++timesPassed_;
-	} else {
-	  state_ = Fail;
-	  if (T::isEvent_) ++timesFailed_;
-	}
+        if (rc) {
+          state_ = Pass;
+          if (T::isEvent_) ++timesPassed_;
+        } else {
+          state_ = Fail;
+          if (T::isEvent_) ++timesFailed_;
+        }
     }
 
     catch(cms::Exception& e) {
 
-	// NOTE: the warning printed as a result of ignoring or failing
-	// a module will only be printed during the full true processing
-	// pass of this module
+        // NOTE: the warning printed as a result of ignoring or failing
+        // a module will only be printed during the full true processing
+        // pass of this module
 
-	// Get the action corresponding to this exception.  However, if processing
-	// something other than an event (e.g. run, subRun) always rethrow.
-	actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
+        // Get the action corresponding to this exception.  However, if processing
+        // something other than an event (e.g. run, subRun) always rethrow.
+        actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
 
-	// If we are processing an endpath, treat SkipEvent or FailPath
-	// as FailModule, so any subsequent OutputModules are still run.
-	if (cpc && cpc->isEndPath()) {
-	  if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
-	}
-	switch(action) {
-	  case actions::IgnoreCompletely: {
-	      rc=true;
-	      ++timesPassed_;
-	      state_ = Pass;
-	      LogWarning("IgnoreCompletely")
-		<< "Module ignored an exception\n"
-                <<e.what()<<"\n";
-	      break;
-	  }
+        // If we are processing an endpath, treat SkipEvent or FailPath
+        // as FailModule, so any subsequent OutputModules are still run.
+        if (cpc && cpc->isEndPath()) {
+          if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
+        }
+        switch(action) {
+          case actions::IgnoreCompletely: {
+              rc=true;
+              ++timesPassed_;
+              state_ = Pass;
+              mf::LogWarning("IgnoreCompletely")
+                << "Module ignored an exception\n"
+                << e.what() << "\n";
+              break;
+          }
 
-	  case actions::FailModule: {
-	      rc=true;
-	      LogWarning("FailModule")
+          case actions::FailModule: {
+              rc=true;
+              mf::LogWarning("FailModule")
                 << "Module failed due to an exception\n"
                 << e.what() << "\n";
-	      ++timesFailed_;
-	      state_ = Fail;
-	      break;
-	  }
+              ++timesFailed_;
+              state_ = Fail;
+              break;
+          }
 
-	  default: {
+          default: {
 
-	      // we should not need to include the event/run/module names
-	      // the exception because the error logger will pick this
-	      // up automatically.  I'm leaving it in until this is
-	      // verified
+              // we should not need to include the event/run/module names
+              // the exception because the error logger will pick this
+              // up automatically.  I'm leaving it in until this is
+              // verified
 
-	      // here we simply add a small amount of data to the
-	      // exception to add some context, we could have rethrown
-	      // it as something else and embedded with this exception
-	      // as an argument to the constructor.
+              // here we simply add a small amount of data to the
+              // exception to add some context, we could have rethrown
+              // it as something else and embedded with this exception
+              // as an argument to the constructor.
 
-	      if (T::isEvent_) ++timesExcept_;
-	      state_ = Exception;
-	      e << "cms::Exception going through module ";
+              if (T::isEvent_) ++timesExcept_;
+              state_ = Exception;
+              e << "cms::Exception going through module ";
               exceptionContext(md_, ep, e);
-	      edm::Exception *edmEx = dynamic_cast<edm::Exception *>(&e);
-	      if (edmEx) {
-	        cached_exception_.reset(new edm::Exception(*edmEx));
-	      } else {
-	        cached_exception_.reset(new edm::Exception(errors::OtherCMS, std::string(), e));
-	      }
-	      throw;
-	  }
-	}
+              edm::Exception *edmEx = dynamic_cast<edm::Exception *>(&e);
+              if (edmEx) {
+                cached_exception_.reset(new edm::Exception(*edmEx));
+              } else {
+                cached_exception_.reset(new edm::Exception(errors::OtherCMS, std::string(), e));
+              }
+              throw;
+          }
+        }
       }
 
     catch(std::bad_alloc& bda) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::BadAlloc));
-	*cached_exception_
-	  << "A std::bad_alloc exception occurred during a call to the module ";
-	exceptionContext(md_, ep, *cached_exception_)
-	  << "The job has probably exhausted the virtual memory available to the process.\n";
-	throw *cached_exception_;
+        if (T::isEvent_) ++timesExcept_;
+        state_ = Exception;
+        cached_exception_.reset(new edm::Exception(errors::BadAlloc));
+        *cached_exception_
+          << "A std::bad_alloc exception occurred during a call to the module ";
+        exceptionContext(md_, ep, *cached_exception_)
+          << "The job has probably exhausted the virtual memory available to the process.\n";
+        throw *cached_exception_;
     }
     catch(std::exception& e) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::StdException));
-	*cached_exception_
-	  << "A std::exception occurred during a call to the module ";
+        if (T::isEvent_) ++timesExcept_;
+        state_ = Exception;
+        cached_exception_.reset(new edm::Exception(errors::StdException));
+        *cached_exception_
+          << "A std::exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
-	  << "Previous information:\n" << e.what();
-	throw *cached_exception_;
+          << "Previous information:\n" << e.what();
+        throw *cached_exception_;
     }
     catch(std::string& s) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
-	*cached_exception_
-	  << "A std::string thrown as an exception occurred during a call to the module ";
+        if (T::isEvent_) ++timesExcept_;
+        state_ = Exception;
+        cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
+        *cached_exception_
+          << "A std::string thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
-	  << "Previous information:\n string = " << s;
-	throw *cached_exception_;
+          << "Previous information:\n string = " << s;
+        throw *cached_exception_;
     }
     catch(char const* c) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
-	*cached_exception_
-	  << "A const char* thrown as an exception occurred during a call to the module ";
+        if (T::isEvent_) ++timesExcept_;
+        state_ = Exception;
+        cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
+        *cached_exception_
+          << "A const char* thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
-	  << "Previous information:\n const char* = " << c << "\n";
-	throw *cached_exception_;
+          << "Previous information:\n const char* = " << c << "\n";
+        throw *cached_exception_;
     }
     catch(...) {
-	if (T::isEvent_) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
-	*cached_exception_
-	  << "An unknown occurred during a previous call to the module ";
+        if (T::isEvent_) ++timesExcept_;
+        state_ = Exception;
+        cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
+        *cached_exception_
+          << "An unknown occurred during a previous call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n";
-	throw *cached_exception_;
+        throw *cached_exception_;
     }
 
     return rc;
   }
 
-}
+}  // namespace edm
+
 #endif  // FWCore_Framework_Worker_h

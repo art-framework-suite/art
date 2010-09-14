@@ -1,9 +1,7 @@
 # project name
 project(artFrameworkServicesBasic)
 
-set( artFrameworkServicesBasic_sources CurrentModuleService.cc
-                                       EnableFloatingPointExceptions.cc
-                                       InitRootHandlers.cc
+set( artFrameworkServicesBasic_sources InitRootHandlers.cc
                                        LoadAllDictionaries.cc
                                        LockService.cc
                                        Memory.cc
@@ -42,7 +40,7 @@ set( artFrameworkServicesBasic_sources CurrentModuleService.cc
 
 add_library(artFrameworkServicesBasic SHARED ${artFrameworkServicesBasic_sources} )
 
-simple_plugin(CurrentModuleService_plugin)
+simple_plugin(CurrentModule_plugin)
 simple_plugin(EnableFloatingPointExceptions_plugin)
 simple_plugin(InitRootHandlers_plugin)
 simple_plugin(LoadAllDictionaries_plugin)
@@ -55,7 +53,7 @@ simple_plugin(Tracer_plugin)
 simple_plugin(UnixSignalService_plugin)
 
 install ( TARGETS artFrameworkServicesBasic DESTINATION lib )
-install(FILES CurrentModuleService.h
+install(FILES CurrentModule.h
               PrintLoadingPlugins.h
               TFileService.h
               Timing.h

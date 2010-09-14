@@ -181,7 +181,9 @@ namespace edm {
         throw edm::Exception(edm::errors::FileOpenError) <<
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
-      LogWarning("") << "Input file: " << fileIter_->fileName() << " was not found or could not be opened, and will be skipped.\n";
+      mf::LogWarning("")
+        << "Input file: " << fileIter_->fileName()
+        << " was not found or could not be opened, and will be skipped.\n";
     }
   }
 
@@ -504,7 +506,7 @@ namespace edm {
       rules.push_back("keep " + *it + "_*");
     }
     fhicl::ParameterSet pset;
-    pset.addUntrackedParameter("inputCommands", rules);
+    pset.addVString("inputCommands", rules);
     groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
   }
 
@@ -554,8 +556,9 @@ namespace edm {
       }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       if (eventsRemainingInFile_ == 0) {
-        throw edm::Exception(edm::errors::NotFound) <<
-           "RootInputFileSequence::readManyRandom_(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
+        throw edm::Exception(edm::errors::NotFound)
+          << "RootInputFileSequence::readManyRandom_(): Secondary Input file "
+          << fileIter_->fileName() << " contains no events.\n";
       }
       rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_));
     }
@@ -579,7 +582,8 @@ namespace edm {
       time_t t = time(0);
       char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
       strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-      mf::LogAbsolute("fileAction") << ts << msg << file;
+      mf::LogAbsolute("fileAction")
+        << ts << msg << file;
       FlushMessageLog();
     }
   }

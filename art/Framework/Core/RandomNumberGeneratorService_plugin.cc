@@ -40,7 +40,7 @@
 
 // Framework support:
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Services/Basic/CurrentModuleService.h"
+#include "art/Framework/Services/Basic/CurrentModule.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
@@ -131,7 +131,7 @@ namespace {
   inline  label_t
     qualify_engine_label( label_t const & engine_label )
   {
-    return edm::Service<edm::CurrentModuleService>() -> label()
+    return edm::Service<edm::CurrentModule>() -> label()
            + ":" + engine_label;
   }  // qualify_engine_label()
 

@@ -55,36 +55,36 @@ namespace edm {
   public:
     typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
     RootFile(std::string const& fileName,
-	     std::string const& catalogName,
-	     ProcessConfiguration const& processConfiguration,
-	     std::string const& logicalFileName,
-	     boost::shared_ptr<TFile> filePtr,
-	     RunNumber_t const& startAtRun,
-	     SubRunNumber_t const& startAtSubRun,
-	     EventNumber_t const& startAtEvent,
-	     unsigned int eventsToSkip,
-	     std::vector<SubRunID> const& whichSubRunsToSkip,
-	     int remainingEvents,
-	     int remainingSubRuns,
-	     unsigned int treeCacheSize,
+             std::string const& catalogName,
+             ProcessConfiguration const& processConfiguration,
+             std::string const& logicalFileName,
+             boost::shared_ptr<TFile> filePtr,
+             RunNumber_t const& startAtRun,
+             SubRunNumber_t const& startAtSubRun,
+             EventNumber_t const& startAtEvent,
+             unsigned int eventsToSkip,
+             std::vector<SubRunID> const& whichSubRunsToSkip,
+             int remainingEvents,
+             int remainingSubRuns,
+             unsigned int treeCacheSize,
              int treeMaxVirtualSize,
-	     InputSource::ProcessingMode processingMode,
-	     int forcedRunOffset,
-	     std::vector<EventID> const& whichEventsToProcess,
+             InputSource::ProcessingMode processingMode,
+             int forcedRunOffset,
+             std::vector<EventID> const& whichEventsToProcess,
              bool noEventSort,
-	     GroupSelectorRules const& groupSelectorRules,
+             GroupSelectorRules const& groupSelectorRules,
              bool dropMergeable,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
-	boost::shared_ptr<ProductRegistry const> pReg);
+        boost::shared_ptr<ProductRegistry const> pReg);
     std::auto_ptr<EventPrincipal> readEvent(
-	boost::shared_ptr<ProductRegistry const> pReg);
+        boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<SubRunPrincipal> readSubRun(
-	boost::shared_ptr<ProductRegistry const> pReg,
-	boost::shared_ptr<RunPrincipal> rp);
+        boost::shared_ptr<ProductRegistry const> pReg,
+        boost::shared_ptr<RunPrincipal> rp);
     std::string const& file() const {return file_;}
     boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}

@@ -49,9 +49,8 @@ namespace edm {
     switch(action) {
       case actions::FailPath: {
           should_continue = false;
-          LogWarning(e.category())
-            << "Failing path " << name_
-            << ", due to exception, message:\n"
+          mf::LogWarning(e.category())
+            << "Failing path " << name_ << ", due to exception, message:\n"
             << e.what() << "\n";
           break;
       }
@@ -70,7 +69,7 @@ namespace edm {
 
   void
   Path::recordUnknownException(int nwrwue, bool isEvent) {
-    LogError("PassingThrough")
+    mf::LogError("PassingThrough")
       << "Exception passing through path " << name_ << "\n";
     if (isEvent) ++timesExcept_;
     state_ = edm::hlt::Exception;

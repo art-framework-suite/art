@@ -1,8 +1,3 @@
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
-
 #include "art/Framework/IO/Sources/EDInputSource.h"
 
 #include "MessageFacility/MessageLogger.h"
@@ -21,14 +16,14 @@ namespace edm {
 
   void
   EDInputSource::setRun(RunNumber_t) {
-      LogWarning("IllegalCall")
+      mf::LogWarning("IllegalCall")
         << "EDInputSource::setRun()\n"
            "Run number cannot be modified for an EDInputSource\n";
   }
 
   void
   EDInputSource::setSubRun(SubRunNumber_t) {
-      LogWarning("IllegalCall")
+      mf::LogWarning("IllegalCall")
         << "EDInputSource::setSubRun()\n"
            "SubRun ID cannot be modified for an EDInputSource\n";
   }

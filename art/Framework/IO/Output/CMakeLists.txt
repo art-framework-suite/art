@@ -1,8 +1,7 @@
 # project name
 project(artFrameworkIOOutput)
 
-set( artFrameworkIOOutput_sources PoolOutputModule.cc
-                                  RootOutputFile.cc
+set( artFrameworkIOOutput_sources RootOutputFile.cc
                                   RootOutputTree.cc )
 
 #link_libraries( artFrameworkIOCommon

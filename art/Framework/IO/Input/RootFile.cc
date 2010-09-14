@@ -1063,7 +1063,7 @@ namespace edm {
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
         if (groupSelector.selected(prod)) {
-          LogWarning("RootFile")
+          mf::LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"
             << "that was explicitly dropped.\n";
@@ -1105,9 +1105,9 @@ namespace edm {
     if (fileFormatVersion_.value_ >= 7) {
       rootTree.fillStatus();
     } else {
-       LogWarning("RootFile")
+       mf::LogWarning("RootFile")
          << "Backward compatibility not fully supported for reading files"
-         << " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
+            " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
     }
     if (type == InEvent) {
       boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0));

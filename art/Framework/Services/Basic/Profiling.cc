@@ -27,7 +27,7 @@ namespace edm {
 
     void SimpleProfiling::postBeginJob()
     {
-      LogInfo("SimpleProfiling")
+      mf::LogInfo("SimpleProfiling")
         << "Simple profiling activated.\n";
 
       SimpleProfiler::instance()->start();
@@ -37,7 +37,7 @@ namespace edm {
     {
       pid_t pid = getpid();
 
-      LogInfo("SimpleProfiling")
+      mf::LogInfo("SimpleProfiling")
         << "Simple profiling stopping.\n"
            "You should find three files containing profiling\n"
            "information gathered from program counter\n"

@@ -8,6 +8,8 @@
 
 #include <cassert>
 
+using mf::LogWarning;
+
 
 namespace edm {
 
