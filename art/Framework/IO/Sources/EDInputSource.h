@@ -1,10 +1,6 @@
 #ifndef FWCore_Sources_EDInputSource_h
 #define FWCore_Sources_EDInputSource_h
 
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
 
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -24,7 +20,8 @@ namespace edm {
 
   class EDInputSource : public InputSource {
   public:
-    explicit EDInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit EDInputSource(fhicl::ParameterSet const& pset,
+                           InputSourceDescription const& desc);
     virtual ~EDInputSource();
 
     std::vector<std::string> const& logicalFileNames(int n = 0) const {

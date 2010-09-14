@@ -11,7 +11,6 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/RandomNumberGeneratorService.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
@@ -46,15 +45,6 @@ public:
   // --- Production:
   virtual void
     produce( Event & );
-
-  // --- Specification:
-  static void
-    fillDescription( ParameterSetDescription & iDesc
-                   , label_t           const & moduleLabel
-                   )
-  {
-    iDesc.setAllowAnything();
-  }
 
 private:
   bool  debug_;

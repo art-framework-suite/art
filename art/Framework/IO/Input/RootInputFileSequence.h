@@ -10,13 +10,13 @@ RootInputFileSequence: This is an InputSource
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 
-#include "Inputfwd.h"
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
@@ -40,7 +40,10 @@ namespace edm {
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(fhicl::ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, bool primarySequence);
+    explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
+                                   PoolSource const& input,
+                                   InputFileCatalog const& catalog,
+                                   bool primarySequence);
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
@@ -109,6 +112,8 @@ namespace edm {
     bool randomAccess_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
-  }; // class RootInputFileSequence
-}
-#endif
+  };  // RootInputFileSequence
+
+}  // namespace edm
+
+#endif  // IOPool_Input_RootInputFileSequence_h

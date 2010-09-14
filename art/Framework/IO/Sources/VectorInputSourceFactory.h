@@ -15,7 +15,8 @@ namespace edm {
 
   class InputSourceDescription;
 
-  typedef VectorInputSource* (ISVecFunc)(fhicl::ParameterSet const&, InputSourceDescription const&);
+  typedef VectorInputSource* (ISVecFunc)(fhicl::ParameterSet const&,
+                                         InputSourceDescription const&);
   typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
   class VectorInputSourceFactory
@@ -27,7 +28,7 @@ namespace edm {
 
     std::auto_ptr<VectorInputSource>
       makeVectorInputSource(fhicl::ParameterSet const&,
-                       InputSourceDescription const&) const;
+                            InputSourceDescription const&) const;
 
 
   private:

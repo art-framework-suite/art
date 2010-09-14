@@ -1,16 +1,12 @@
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
-
-#include "RootFile.h"
-
-#include "DuplicateChecker.h"
-#include "ProvenanceAdaptor.h"
+#include "art/Framework/IO/Input/RootFile.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/IO/Input/DuplicateChecker.h"
+#include "art/Framework/IO/Input/ProvenanceAdaptor.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/EDProduct.h"
@@ -38,11 +34,11 @@
 #include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 #include "art/Persistency/Provenance/SubRunAux.h"
 
-#include "TROOT.h"
+#include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
+#include "TROOT.h"
 #include "TTree.h"
-#include "Rtypes.h"
 
 #include "MessageFacility/MessageLogger.h"
 

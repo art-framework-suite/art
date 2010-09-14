@@ -1,40 +1,36 @@
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
-
+#include "art/Framework/IO/Input/RootInputFileSequence.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
+#include "art/Framework/IO/Input/DuplicateChecker.h"
+#include "art/Framework/IO/Input/PoolSource.h"
+#include "art/Framework/IO/Input/RootFile.h"
+#include "art/Framework/IO/Input/RootTree.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-
+#include "fhiclcpp/ParameterSet.h"
 #ifdef USE_RANDOM
 // #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #endif  // USE_RANDOM
 #include "art/Utilities/Algorithms.h"
 // #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
+#include "CLHEP/Random/RandFlat.h"
 #include "MessageFacility/MessageLogger.h"
 
-#include "CLHEP/Random/RandFlat.h"
-
-#include "DuplicateChecker.h"
-#include "PoolSource.h"
-#include "RootFile.h"
-#include "RootInputFileSequence.h"
-#include "RootTree.h"
 #include "TFile.h"
 
 #include <ctime>
 
+
 namespace edm {
-  RootInputFileSequence::RootInputFileSequence(
-                ParameterSet const& pset,
-                PoolSource const& input,
-                InputFileCatalog const& catalog,
-                bool primarySequence) :
+
+  RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
+                                                PoolSource const& input,
+                                                InputFileCatalog const& catalog,
+                                                bool primarySequence) :
     input_(input),
     catalog_(catalog),
     firstFile_(true),
@@ -507,7 +503,7 @@ namespace edm {
         it != itEnd; ++it) {
       rules.push_back("keep " + *it + "_*");
     }
-    ParameterSet pset;
+    fhicl::ParameterSet pset;
     pset.addUntrackedParameter("inputCommands", rules);
     groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
   }
@@ -587,5 +583,5 @@ namespace edm {
       FlushMessageLog();
     }
   }
-}
 
+}  // namespace edm

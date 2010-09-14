@@ -20,6 +20,7 @@ These products should be informational products about the filter decision.
 
 #include <string>
 
+
 namespace edm
 {
 
@@ -39,8 +40,6 @@ namespace edm
       , current_context_(0)
     { }
     virtual ~EDFilter();
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
 
   protected:
     // The returned pointer will be null unless the this is currently

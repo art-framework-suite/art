@@ -7,22 +7,25 @@ RootTree.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <string>
-#include <vector>
+
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/IO/Input/BranchMapperWithReader.h"
+#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
 
-#include "Inputfwd.h"
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Framework/IO/Input/BranchMapperWithReader.h"
 #include "TBranch.h"
 #include "TTree.h"
 class TFile;
+
+#include <memory>
+#include <string>
+#include <vector>
+
 
 namespace edm {
 
@@ -35,8 +38,8 @@ namespace edm {
 
     bool isValid() const;
     void addBranch(BranchKey const& key,
-		   BranchDescription const& prod,
-		   std::string const& oldBranchName);
+                   BranchDescription const& prod,
+                   std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void setPresence(BranchDescription const& prod);
     bool next() {return ++entryNumber_ < entries_;}
@@ -113,5 +116,6 @@ namespace edm {
     return mapper;
   }
 
-}
-#endif
+}  // namespace edm
+
+#endif  // IOPool_Input_RootTree_h

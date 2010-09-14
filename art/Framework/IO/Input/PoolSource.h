@@ -8,38 +8,34 @@ PoolSource: This is an InputSource
 ----------------------------------------------------------------------*/
 
 
-#include "art/Framework/IO/Common/RootServiceChecker.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/IO/Common/RootServiceChecker.h"
+#include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 
-#include "Inputfwd.h"
-
-#include "boost/scoped_ptr.hpp"
 #include "boost/array.hpp"
+#include "boost/scoped_ptr.hpp"
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 
 namespace edm {
 
   class RootInputFileSequence;
   class FileCatalogItem;
-  class ParameterSetDescription;
 
   class PoolSource : public VectorInputSource {
   public:
-    explicit PoolSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit PoolSource(fhicl::ParameterSet const& pset,
+                        InputSourceDescription const& desc);
     virtual ~PoolSource();
     using InputSource::productRegistryUpdate;
     using InputSource::runPrincipal;
-
-    static void fillDescription(ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
 
   private:
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;

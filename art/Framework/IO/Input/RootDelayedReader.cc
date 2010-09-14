@@ -1,12 +1,12 @@
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
+#include "art/Framework/IO/Input/RootDelayedReader.h"
 
-#include "RootDelayedReader.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "TROOT.h"
-#include "TClass.h"
+
 #include "TBranch.h"
+#include "TClass.h"
+#include "TROOT.h"
+
 
 namespace edm {
 
@@ -44,4 +44,5 @@ namespace edm {
     setRefCoreStreamer(oldFormat_);
     return p;
   }
-}
+
+}  // namespace edm

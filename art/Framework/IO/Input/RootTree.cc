@@ -1,20 +1,24 @@
-#include "RootTree.h"
-#include "RootDelayedReader.h"
+#include "art/Framework/IO/Input/RootTree.h"
+
 #include "art/Framework/Core/Principal.h"
-#include "art/Utilities/WrappedClassName.h"
+#include "art/Framework/IO/Input/RootDelayedReader.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"
+#include "art/Utilities/WrappedClassName.h"
+
 #include "Rtypes.h"
 #include "TFile.h"
-#include "TVirtualIndex.h"
-#include "TTreeIndex.h"
 #include "TTreeCache.h"
+#include "TTreeIndex.h"
+#include "TVirtualIndex.h"
 
 #include <iostream>
 
+
 namespace edm {
   namespace {
+
     TBranch * getAuxiliaryBranch(TTree * tree, BranchType const& branchType) {
       TBranch *branch = tree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
       if (branch == 0) {
@@ -30,7 +34,8 @@ namespace edm {
       TBranch *branch = tree->GetBranch(BranchTypeToProductStatusBranchName(branchType).c_str()); // backward compatibility
       return branch; // backward compatibility
     } // backward compatibility
-  }
+
+  }  // namespace
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
@@ -147,6 +152,7 @@ namespace edm {
   }
 
   namespace input {
+
     Int_t
     getEntry(TBranch* branch, EntryNumber entryNumber) {
       Int_t n = 0;
@@ -170,5 +176,6 @@ namespace edm {
       }
       return n;
     }
-  }
-}
+
+  }  // namespace input
+}  // namespace edm

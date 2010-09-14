@@ -4,10 +4,6 @@ project(artParameterSet)
 set( artParameterSet_sources Entry.cc
                              FileInPath.cc
                              MakeParameterSets.cc
-                             ParameterDescription.cc
-                             ParameterDescriptionTemplate.cc
-                             ParameterSetDescription.cc
-                             ParameterSetDescriptionFillerBase.cc
                              ParameterSetEntry.cc
                              ProcessDesc.cc
                              pythonFileToConfigure.cc
@@ -31,12 +27,6 @@ install(FILES Entry.h
               FileInPath.h
               InputTag.h
               MakeParameterSets.h
-              ParameterDescription.h
-              ParameterDescriptionTemplate.h
-              ParameterSetDescriptionFillerBase.h
-              ParameterSetDescriptionFiller.h
-              ParameterSetDescriptionFillerPluginFactory.h
-              ParameterSetDescription.h
               ParameterSetEntry.h
               ParameterSetfwd.h
               ProcessDesc.h

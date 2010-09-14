@@ -1,36 +1,30 @@
-// -*- C++ -*-
 //
 // Package:     LibraryLoader
 // Class  :     RootAutoLibraryLoader
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:
-//         Created:  Wed Nov 30 14:55:01 EST 2005
-//
-//
 
-// system include files
-#include <string>
-#include <iostream>
-#include <map>
-#include "TROOT.h"
-#include "G__ci.h"
-#include "boost/regex.hpp"
 
-// user include files
 #include "art/Framework/Services/RootAutoLibraryLoader/RootAutoLibraryLoader.h"
-#include "art/Framework/Services/RootAutoLibraryLoader/stdNamespaceAdder.h"
 
+#include "art/Framework/PluginManager/PluginCapabilities.h"
 #include "art/Framework/PluginManager/PluginManager.h"
 #include "art/Framework/PluginManager/ProblemTracker.h"
-#include "art/Framework/PluginManager/PluginCapabilities.h"
+#include "art/Framework/Services/RootAutoLibraryLoader/stdNamespaceAdder.h"
 #include "art/Utilities/DebugMacros.h"
 
-#include "Reflex/Type.h"
+#include "boost/regex.hpp"
+
 #include "Cintex/Cintex.h"
+#include "G__ci.h"
+#include "Reflex/Type.h"
 #include "TClass.h"
+#include "TROOT.h"
+
+#include <iostream>
+#include <map>
+#include <string>
+
+
 //
 // constants, enums and typedefs
 //
@@ -121,47 +115,47 @@ bool loadLibraryForClass(const char* classname)
     RootLoadFileSentry sentry;
     if(edmplugin::PluginCapabilities::get()->tryToLoad(full_name))
       {
-	Reflex::Type t = Reflex::Type::ByName(classname);
-	if (Reflex::Type() == t)
-	  {
-	    //would be nice to issue a warning here
-	    FDEBUG(1) << "loadLibraryForClass: got a dud!\n";
-	    return false;
-	  }
-	if(!t.IsComplete())
-	  {
-	    // would be nice to issue a warning here.
-	    // Not sure the remainder of this comment is correct.
-	    // this message happens too often (too many false positives)
-	    // to be useful plus ROOT will complain about a missing dictionary
-	    // std::cerr <<"Warning: Reflex knows about type '"
-	    // <<classname<<"' but has no dictionary for it."<<std::endl;
-	    FDEBUG(1) << "loadLibraryForClass: for an incomplete type!\n";
-	    return false;
-	  }
+        Reflex::Type t = Reflex::Type::ByName(classname);
+        if (Reflex::Type() == t)
+          {
+            //would be nice to issue a warning here
+            FDEBUG(1) << "loadLibraryForClass: got a dud!\n";
+            return false;
+          }
+        if(!t.IsComplete())
+          {
+            // would be nice to issue a warning here.
+            // Not sure the remainder of this comment is correct.
+            // this message happens too often (too many false positives)
+            // to be useful plus ROOT will complain about a missing dictionary
+            // std::cerr <<"Warning: Reflex knows about type '"
+            // <<classname<<"' but has no dictionary for it."<<std::endl;
+            FDEBUG(1) << "loadLibraryForClass: for an incomplete type!\n";
+            return false;
+          }
       }
     else
       {
-	//see if adding a std namespace helps
-	std::string name = root::stdNamespaceAdder(classname);
-	FDEBUG(2) << " see if std helps:  " << name << "\n";
+        //see if adding a std namespace helps
+        std::string name = root::stdNamespaceAdder(classname);
+        FDEBUG(2) << " see if std helps:  " << name << "\n";
 
-	if (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name))
-	  {
-	    // Too many false positives on built-in types here.
-	    return false;
-	  }
+        if (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name))
+          {
+            // Too many false positives on built-in types here.
+            return false;
+          }
 
-	Reflex::Type t = Reflex::Type::ByName(name);
-	if (Reflex::Type() == t)
-	  {
-	    t = Reflex::Type::ByName(classname);
-	    if (Reflex::Type() == t)
-	      {
-		//would be nice to issue a warning here
-		return false;
-	      }
-	  }
+        Reflex::Type t = Reflex::Type::ByName(name);
+        if (Reflex::Type() == t)
+          {
+            t = Reflex::Type::ByName(classname);
+            if (Reflex::Type() == t)
+              {
+                //would be nice to issue a warning here
+                return false;
+              }
+          }
       }
   }
   catch(cms::Exception& e)
@@ -381,30 +375,30 @@ RootAutoLibraryLoader::GetClass(const char* classname, Bool_t load)
   if(classname == classNameAttemptingToLoad_)
     {
       std::cerr << "WARNING: Reflex failed to create CINT dictionary for "
-		<< classname << std::endl;
+                << classname << std::endl;
       return 0;
     }
 
   TClass* returnValue = 0;
 
   FDEBUG(2) << "looking for " << classname << " load " << (load? "T":"F")
-	    << std::endl;
+            << std::endl;
 
   if (load)
     {
       FDEBUG(2) << " going to call loadLibraryForClass" << std::endl;
 
       if (loadLibraryForClass(classname))
-	{
-	  //use this to check for infinite recursion attempt
-	  classNameAttemptingToLoad_ = classname;
-	  // This next call will create the TClass object for the class.
-	  // It will also attempt to load the dictionary for the class
-	  // if the second argument is kTRUE. This is the default, so it
-	  // need not be explicitly specified.
-	  returnValue = gROOT->GetClass(classname, kTRUE);
-	  classNameAttemptingToLoad_ = 0;
-	}
+        {
+          //use this to check for infinite recursion attempt
+          classNameAttemptingToLoad_ = classname;
+          // This next call will create the TClass object for the class.
+          // It will also attempt to load the dictionary for the class
+          // if the second argument is kTRUE. This is the default, so it
+          // need not be explicitly specified.
+          returnValue = gROOT->GetClass(classname, kTRUE);
+          classNameAttemptingToLoad_ = 0;
+        }
     }
   return returnValue;
 }
@@ -467,6 +461,7 @@ RootAutoLibraryLoader::loadAll()
     //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
   }
 }
-}
+
+}  // namespace edm
 
 //ClassImp(RootAutoLibraryLoader)

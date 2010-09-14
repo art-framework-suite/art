@@ -1,7 +1,6 @@
 #ifndef FWCore_Framework_InputSource_h
 #define FWCore_Framework_InputSource_h
 
-
 /*----------------------------------------------------------------------
 
 InputSource: Abstract interface for all input sources. Input
@@ -58,7 +57,6 @@ Some examples of InputSource subclasses may be:
 
 
 namespace edm {
-  class ParameterSetDescription;
   class ActivityRegistry;
 
   class InputSource
@@ -67,30 +65,28 @@ namespace edm {
   {
   public:
     enum ItemType {
-	IsInvalid,
-	IsStop,
-	IsFile,
-	IsRun,
-	IsSubRun,
-	IsEvent,
-	IsRepeat
+        IsInvalid,
+        IsStop,
+        IsFile,
+        IsRun,
+        IsSubRun,
+        IsEvent,
+        IsRepeat
     };
 
     enum ProcessingMode {
-	Runs,
-	RunsAndSubRuns,
-	RunsSubRunsAndEvents
+        Runs,
+        RunsAndSubRuns,
+        RunsSubRunsAndEvents
     };
 
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
-    explicit InputSource(fhicl::ParameterSet const&, InputSourceDescription const&);
+    explicit InputSource(fhicl::ParameterSet const&,
+                         InputSourceDescription const&);
 
     /// Destructor
     virtual ~InputSource();
-
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
 
     ItemType nextItemType();
 

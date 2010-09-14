@@ -7,38 +7,40 @@ RootFile.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/IO/Input/RootTree.h"
+#include "art/Persistency/Provenance/BranchChildren.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/BranchMapper.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/EventProcessHistoryID.h" // backward compatibility
+#include "art/Persistency/Provenance/FileFormatVersion.h"
+#include "art/Persistency/Provenance/FileID.h"
+#include "art/Persistency/Provenance/FileIndex.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/Parentage.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Persistency/Provenance/ProductStatus.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+
+#include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-#include "boost/array.hpp"
-
-#include "RootTree.h"
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/InputSource.h"
-#include "art/Persistency/Provenance/BranchChildren.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/FileID.h"
-#include "art/Persistency/Provenance/FileIndex.h"
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/EventProcessHistoryID.h" // backward compatibility
 class TFile;
+
 
 namespace edm {
 
@@ -200,5 +202,6 @@ namespace edm {
     return bm;
   }
 
-}
-#endif
+}  // namespace edm
+
+#endif  // IOPool_Input_RootFile_h

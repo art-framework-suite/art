@@ -1,10 +1,5 @@
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
-
-
 #include "art/Framework/Core/InputSource.h"
 
-#include "MessageFacility/MessageLogger.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -15,13 +10,13 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #ifdef RNGS
 //#include "art/Framework/Core/RandomNumberGeneratorService.h"
 #endif  // RNGS
 #include "art/Utilities/GlobalIdentifier.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
 
@@ -103,13 +98,6 @@ namespace edm {
   }
 
   InputSource::~InputSource() { }
-
-  void
-  InputSource::fillDescription( edm::ParameterSetDescription & iDesc
-                              , std::string const & moduleLabel )
-  {
-    iDesc.setUnknown();
-  }
 
   // This next function is to guarantee that "runs only" mode does not return events or subRuns,
   // and that "runs and subRuns only" mode does not return events.
@@ -311,7 +299,7 @@ namespace edm {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
     strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-    LogVerbatim("FwkReport")
+    mf::LogVerbatim("FwkReport")
       << "Begin processing the " << readCount_
       << suffix(readCount_) << " record. Run " << eventID.run()
       << ", Event " << eventID.event()

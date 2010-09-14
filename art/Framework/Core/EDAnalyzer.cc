@@ -1,15 +1,9 @@
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
-
 #include "art/Framework/Core/EDAnalyzer.h"
 
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/SubRun.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 
 
 namespace edm
@@ -96,12 +90,6 @@ namespace edm
   CurrentProcessingContext const*
   EDAnalyzer::currentContext() const {
     return current_context_;
-  }
-
-  void
-  EDAnalyzer::fillDescription(edm::ParameterSetDescription& iDesc,
-                              std::string const& moduleLabel) {
-    iDesc.setUnknown();
   }
 
 }  // namespace edm

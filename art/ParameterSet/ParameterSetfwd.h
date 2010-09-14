@@ -16,7 +16,6 @@ NOTE: This is *very* incomplete.
 namespace edm
 {
   class FileInPath;
-  class ParameterSetDescription;
 }
 
 #endif  // ParameterSet_ParameterSetfwd_h

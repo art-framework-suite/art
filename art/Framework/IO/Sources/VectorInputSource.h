@@ -28,7 +28,8 @@ namespace edm {
   public:
     typedef boost::shared_ptr<EventPrincipal> EventPrincipalVectorElement;
     typedef std::vector<EventPrincipalVectorElement> EventPrincipalVector;
-    explicit VectorInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit VectorInputSource(fhicl::ParameterSet const& pset,
+                               InputSourceDescription const& desc);
     virtual ~VectorInputSource();
 
     void readMany(int number, EventPrincipalVector& result);

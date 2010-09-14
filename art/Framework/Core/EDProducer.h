@@ -8,6 +8,7 @@ EDProducts into an Event.
 
 ----------------------------------------------------------------------*/
 
+
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
@@ -32,9 +33,6 @@ namespace edm
 
     EDProducer ();
     virtual ~EDProducer();
-
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
 
   protected:
     // The returned pointer will be null unless the this is currently

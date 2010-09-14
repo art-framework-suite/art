@@ -3,19 +3,23 @@
 
 /*----------------------------------------------------------------------
 
-EventEntryDescription: The event dependent portion of the description of a product
-and how it came into existence.
+EventEntryDescription: The event dependent portion of the description of
+                       a product and how it came into existence.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <vector>
-#include "boost/shared_ptr.hpp"
+
 
 #include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/EntryDescriptionID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleDescriptionID.h"
-#include "art/Persistency/Provenance/EntryDescriptionID.h"
 #include "art/Persistency/Provenance/Transient.h"
+
+#include "boost/shared_ptr.hpp"
+
+#include <iosfwd>
+#include <vector>
+
 
 /*
   EventEntryDescription
@@ -89,4 +93,5 @@ namespace edm {
   bool operator==(EventEntryDescription const& a, EventEntryDescription const& b);
   inline bool operator!=(EventEntryDescription const& a, EventEntryDescription const& b) { return !(a==b); }
 }
-#endif
+
+#endif  // DataFormats_Provenance_EventEntryDescription_h

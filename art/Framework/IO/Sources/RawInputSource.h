@@ -1,10 +1,6 @@
 #ifndef FWCore_Sources_RawInputSource_h
 #define FWCore_Sources_RawInputSource_h
 
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
@@ -23,7 +19,8 @@ namespace edm {
 
   class RawInputSource : public InputSource {
   public:
-    explicit RawInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit RawInputSource(fhicl::ParameterSet const& pset,
+                            InputSourceDescription const& desc);
     virtual ~RawInputSource();
 
   protected:

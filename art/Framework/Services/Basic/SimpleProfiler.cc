@@ -1,3 +1,4 @@
+#include "art/Framework/Services/Basic/SimpleProfiler.h"
 
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 199309
@@ -9,11 +10,17 @@
 # include <sys/syscall.h>
 #endif
 
+#include "ProfParse.h"
 
-
-#include <pthread.h>
-#include <unistd.h>
 #include <dlfcn.h>
+#include <execinfo.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <ucontext.h>
+#include <unistd.h>
 
 #include <cassert>
 #include <cstdio>
@@ -21,30 +28,17 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <sys/resource.h>
-#include <fcntl.h>
-#include <ucontext.h>
-#include <execinfo.h>
-
-#include "SimpleProfiler.h"
-#include "ProfParse.h"
-
 #ifndef __USE_POSIX199309
-#error "SimpleProfile requires the definition of __USE_POSIX199309"
+#error "SimpleProfiler requires the definition of __USE_POSIX199309"
 #endif
 
 
-namespace INSTR
-{
+namespace INSTR {
   typedef unsigned char byte;
   const byte RET = 0xc3;
 }
 
-namespace
-{
-
+namespace {
   std::string makeFileName()
   {
     pid_t p = getpid();
@@ -81,9 +75,7 @@ const int REG_ESP = 7;
 #include <fstream>
 
 
-namespace
-{
-
+namespace {
   // Record the dynamic library mapping information from /proc/ for
   // later use in discovering the names of functions recorded as
   // 'unknown_*'.
@@ -110,8 +102,8 @@ namespace
     frame_cond = fopen(filename.c_str(),"w");
     if(frame_cond==0)
       {
-	std::cerr << "bad open of profdata_condfile\n";
-	throw std::runtime_error("bad open");
+        std::cerr << "bad open of profdata_condfile\n";
+        throw std::runtime_error("bad open");
       }
   }
 
@@ -126,8 +118,8 @@ namespace
   }
 
   void dumpStack(const char* msg,
-		 unsigned int* esp, unsigned int* ebp, unsigned char* eip,
-		 ucontext_t* ucp)
+                 unsigned int* esp, unsigned int* ebp, unsigned char* eip,
+                 ucontext_t* ucp)
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     throw std::logic_error("Cannot dumpStack on 64 bit build");
@@ -136,7 +128,7 @@ namespace
     fflush(frame_cond);
     return;
     fprintf(frame_cond, "dumpStack:\n i= %x\n eip[0]= %2.2x\nb= %x\n s= %x\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
-	    (void*)eip, eip[0], (void*)ebp, (void*)esp, (void*)(ebp[0]), (void*)(ebp[1]), (void*)(ebp[2]));
+            (void*)eip, eip[0], (void*)ebp, (void*)esp, (void*)(ebp[0]), (void*)(ebp[1]), (void*)(ebp[2]));
     fflush(frame_cond);
 
 
@@ -144,22 +136,21 @@ namespace
     unsigned int* spp = esp;
     for(int i=15;i>-5;--i)
       {
-	fprintf(frame_cond, "    %x esp[%d]= %x\n", (void*)(spp+i), i, (void*)*(spp+i));
-	fflush(frame_cond);
+        fprintf(frame_cond, "    %x esp[%d]= %x\n", (void*)(spp+i), i, (void*)*(spp+i));
+        fflush(frame_cond);
       }
 #else
     while(ucp->uc_link)
       {
-	fprintf(frame_cond, "   %8.8x\n",ucp->uc_link);
-	ucp = ucp->uc_link;
+        fprintf(frame_cond, "   %8.8x\n",ucp->uc_link);
+        ucp = ucp->uc_link;
       }
 #endif
 #endif
   }
 }
 
-namespace
-{
+namespace {
   // counters
   int samples_total=0;
   int samples_missing_framepointer=0;
@@ -226,17 +217,17 @@ int stacktrace (void *addresses[], int nmax)
   struct frame
   {
     // Normal frame.
-    frame		*ebp;
-    void		*eip;
+    frame               *ebp;
+    void                *eip;
     // Signal frame stuff, put in here by kernel.
-    int		signo;
-    siginfo_t	*info;
-    ucontext_t	*ctx;
+    int         signo;
+    siginfo_t   *info;
+    ucontext_t  *ctx;
   };
   register frame      *ebp __asm__ ("ebp");
   register frame      *esp __asm__ ("esp");
   frame               *fp = ebp;
-  int			depth = 0;
+  int                   depth = 0;
 
   // Add fake entry to be compatible with other methods
   if (depth < nmax) addresses[depth++] = (void *) &stacktrace;
@@ -274,36 +265,36 @@ int stacktrace (void *addresses[], int nmax)
       // what it was just before the signal.
       unsigned char *insn = (unsigned char *) fp->eip;
       if (insn
-	  && insn[0] == 0xb8 && insn[1] == __NR_rt_sigreturn
-	  && insn[5] == 0xcd && insn[6] == 0x80
-	  && fp->ctx)
+          && insn[0] == 0xb8 && insn[1] == __NR_rt_sigreturn
+          && insn[5] == 0xcd && insn[6] == 0x80
+          && fp->ctx)
         {
-	  void *retip = (void *) fp->ctx->uc_mcontext.gregs [REG_EIP];
-	  if (depth < nmax) addresses[depth++] = retip;
+          void *retip = (void *) fp->ctx->uc_mcontext.gregs [REG_EIP];
+          if (depth < nmax) addresses[depth++] = retip;
 
-	  fp = (frame *) fp->ctx->uc_mcontext.gregs [REG_EBP];
-	  if (fp && (unsigned long) retip > PROBABLY_VSYSCALL_PAGE)
-	    {
-	      // __kernel_vsyscall stack on system call exit is
-	      // [0] %ebp, [1] %edx, [2] %ecx, [3] return address.
-	      if (depth < nmax) addresses[depth++] = ((void **) fp)[3];
-	      fp = fp->ebp;
+          fp = (frame *) fp->ctx->uc_mcontext.gregs [REG_EBP];
+          if (fp && (unsigned long) retip > PROBABLY_VSYSCALL_PAGE)
+            {
+              // __kernel_vsyscall stack on system call exit is
+              // [0] %ebp, [1] %edx, [2] %ecx, [3] return address.
+              if (depth < nmax) addresses[depth++] = ((void **) fp)[3];
+              fp = fp->ebp;
 
-	      // It seems the frame _above_ __kernel_syscall (the
-	      // syscall implementation in libc, such as __mmap())
-	      // is essentially frame-pointer-less, so we should
-	      // find also the call above, but I don't know how
-	      // to determine how many arguments the system call
-	      // pushed on stack to call __kernel_syscall short
-	      // of interpreting the DWARF unwind information :-(
-	      // So we may lose one level of call stack here.
-	      ++samples_missing_framepointer;
-	    }
+              // It seems the frame _above_ __kernel_syscall (the
+              // syscall implementation in libc, such as __mmap())
+              // is essentially frame-pointer-less, so we should
+              // find also the call above, but I don't know how
+              // to determine how many arguments the system call
+              // pushed on stack to call __kernel_syscall short
+              // of interpreting the DWARF unwind information :-(
+              // So we may lose one level of call stack here.
+              ++samples_missing_framepointer;
+            }
         }
 
       // Otherwise it's a normal frame, process through frame pointer.
       else
-	fp = fp->ebp;
+        fp = fp->ebp;
     }
 
   return depth;
@@ -316,7 +307,7 @@ int stacktrace (void *addresses[], int nmax)
       _Unwind_Backtrace (&GCCBackTrace, &args);
 
       if (args.count > 1 && args.array [args.count-1] == 0)
-	args.count--;
+        args.count--;
 
       return args.count;
     }
@@ -348,9 +339,7 @@ extern "C"
   }
 }
 
-namespace
-{
-
+namespace {
   stack_t ss_area;
 
   void setupTimer();
@@ -379,23 +368,23 @@ namespace
     Dl_info look;
     for (int i=0; i<cnt && !address_of_target; ++i)
       {
-	if(dladdr(sta[i],&look)!=0)
-	  {
-	    if (look.dli_saddr && target_name==look.dli_sname)
-	      {
-		address_of_target = sta[i];
-	      }
-	  }
-	else
-	  {
-	    // This isn't really an error; it just means the function
-	    // was not found by the dynamic loader. The function might
-	    // be one that is declared 'static', and is thus not
-	    // visible outside of its compilation unit.
-	    std::cerr << "setStacktop: no function information for "
-		      << sta[i]
-		      << "\n";
-	  }
+        if(dladdr(sta[i],&look)!=0)
+          {
+            if (look.dli_saddr && target_name==look.dli_sname)
+              {
+                address_of_target = sta[i];
+              }
+          }
+        else
+          {
+            // This isn't really an error; it just means the function
+            // was not found by the dynamic loader. The function might
+            // be one that is declared 'static', and is thus not
+            // visible outside of its compilation unit.
+            std::cerr << "setStacktop: no function information for "
+                      << sta[i]
+                      << "\n";
+          }
       }
 
     if (address_of_target == 0)
@@ -411,10 +400,10 @@ namespace
     // top+1 is the address to which the current frame will return.
     while (depth>0 && (void*)*(top+1) != address_of_target)
       {
-	//fprintf(stderr,"depth=%d top=%8.8x func=%8.8x\n",depth,top,*(top+1));
-	if (top<(unsigned int*)0x10) fprintf(stderr,"problem\n");
-	top=(unsigned int*)(*top);
-	--depth;
+        //fprintf(stderr,"depth=%d top=%8.8x func=%8.8x\n",depth,top,*(top+1));
+        if (top<(unsigned int*)0x10) fprintf(stderr,"problem\n");
+        top=(unsigned int*)(*top);
+        --depth;
       };
 
     if (depth==0)
@@ -456,16 +445,16 @@ namespace
 
     for(int num=SIGRTMIN;num<SIGRTMAX;++num)
       {
-	MUST_BE_ZERO(sigaddset(&oldset,num));
-	MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
+        MUST_BE_ZERO(sigaddset(&oldset,num));
+        MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
       }
 #endif
 
 #if USE_SIGALTSTACK
     if(sigaltstack(&ss_area,0)!=0)
       {
-	perror("sigaltstack failed for profile timer interrupt");
-	abort();
+        perror("sigaltstack failed for profile timer interrupt");
+        abort();
       }
 #endif
 
@@ -480,8 +469,8 @@ namespace
 
     if(sigaction(mysig,&act,NULL)!=0)
       {
-	perror("sigaction failed");
-	abort();
+        perror("sigaction failed");
+        abort();
       }
 
     // Turn off handling of SIGSEGV signal
@@ -490,15 +479,15 @@ namespace
 
     if (sigaction(SIGSEGV, &act, NULL) != 0)
       {
-	perror("sigaction failed");
-	abort();
+        perror("sigaction failed");
+        abort();
       }
 
     struct rlimit limits;
     if (getrlimit(RLIMIT_CORE, &limits) != 0)
       {
-	perror("getrlimit failed");
-	abort();
+        perror("getrlimit failed");
+        abort();
       }
     std::cerr << "core size limit (soft): " << limits.rlim_cur << '\n';
     std::cerr << "core size limit (hard): " << limits.rlim_max << '\n';
@@ -513,8 +502,8 @@ namespace
 
     if(setitimer(ITIMER_PROF,&newval,&oldval)!=0)
       {
-	perror("setitimer failed");
-	abort();
+        perror("setitimer failed");
+        abort();
       }
 
     // reenable the signals, including my interval timer
@@ -539,10 +528,10 @@ namespace
 
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
       for(int num=SIGRTMIN;num<SIGRTMAX;++num)
-	{
-	  MUST_BE_ZERO(sigaddset(&oldset,num));
-	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
-	}
+        {
+          MUST_BE_ZERO(sigaddset(&oldset,num));
+          MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
+        }
 #endif
 
       MUST_BE_ZERO(sigaddset(&oldset,SIGPROF));
@@ -565,10 +554,10 @@ SimpleProfiler* SimpleProfiler::instance()
     {
       boost::mutex::scoped_lock sl(lock_);
       if(SimpleProfiler::inst_ == 0)
-	{
-	  static SimpleProfiler p;
-	  SimpleProfiler::inst_ = &p;
-	}
+        {
+          static SimpleProfiler p;
+          SimpleProfiler::inst_ = &p;
+        }
     }
   return SimpleProfiler::inst_;
 }
@@ -580,8 +569,8 @@ SimpleProfiler::SimpleProfiler():
   curr_(&frame_data_[0]),
   filename_(makeFileName()),
   fd_(open(filename_.c_str(),
-	   O_RDWR|O_CREAT,
-	   S_IRWXU|S_IRGRP|S_IROTH|S_IWGRP|S_IWOTH)),
+           O_RDWR|O_CREAT,
+           S_IRWXU|S_IRGRP|S_IROTH|S_IWGRP|S_IWOTH)),
   installed_(false),
   running_(false),
   owner_(),
@@ -600,8 +589,8 @@ SimpleProfiler::~SimpleProfiler()
 {
   if (running_)
     std::cerr << "Warning: the profile timer was not stopped,\n"
-	      << "profiling data in " << filename_
-	      << " is probably incomplete and will not be processed\n";
+              << "profiling data in " << filename_
+              << " is probably incomplete and will not be processed\n";
 
   closeCondFile();
 }
@@ -642,10 +631,10 @@ void SimpleProfiler::start()
 
     if (installed_) {
       std::cerr << "Warning: second thread " << pthread_self()
-		<< " requested the profiler timer and another thread\n"
-		<< owner_ << "has already started it.\n"
-		<< "Only one thread can do profiling at a time.\n"
-		<< "This second thread will not be profiled.\n";
+                << " requested the profiler timer and another thread\n"
+                << owner_ << "has already started it.\n"
+                << "Only one thread can do profiling at a time.\n"
+                << "This second thread will not be profiled.\n";
       return;
     }
 
@@ -702,7 +691,7 @@ void SimpleProfiler::complete()
   if(lseek(fd_,0,SEEK_SET)<0)
     {
       std::cerr << "SimpleProfiler: could not seek to the start of the profile\n"
-		<< " data file during completion.  Data will be lost.\n";
+                << " data file during completion.  Data will be lost.\n";
       return;
     }
 

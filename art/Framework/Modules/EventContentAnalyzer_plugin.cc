@@ -11,12 +11,11 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GenericHandle.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Utilities/Algorithms.h"
 
 #include "MessageFacility/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <exception>
 #include <iomanip>  // hex, dec
@@ -46,9 +45,6 @@ public:
 
   virtual void analyze( edm::Event const & );
   virtual void endJob();
-
-  static void fillDescription( edm::ParameterSetDescription &
-                             , std::string const & moduleLabel );
 
 private:
   // ----------member data ---------------------------
@@ -457,27 +453,6 @@ void
       << std::setw(6) << it->second << " occurrences of key "
       << it->first << std::endl;
   }
-}
-
-
-void
-  EventContentAnalyzer::fillDescription( edm::ParameterSetDescription & iDesc
-                                       , std::string const & moduleLabel )
-{
-  std::string defaultString("++");
-  iDesc.addOptionalUntracked<std::string>( "indentation", defaultString);
-
-  defaultString = "  ";
-  iDesc.addOptionalUntracked<std::string>( "verboseIndentation", defaultString);
-
-  std::vector<std::string> defaultVString;
-  iDesc.addOptionalUntracked<std::vector<std::string> >("verboseForModuleLabels", defaultVString);
-
-  iDesc.addOptionalUntracked<bool>("verbose", false);
-
-  iDesc.addOptionalUntracked<std::vector<std::string> >("getDataForModuleLabels", defaultVString);
-
-  iDesc.addOptionalUntracked<bool>("getData", false);
 }
 
 

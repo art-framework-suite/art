@@ -1,16 +1,17 @@
 #ifndef FWCore_Framework_WorkerMaker_h
 #define FWCore_Framework_WorkerMaker_h
 
+
+#include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/WorkerParams.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Utilities/EDMException.h"
+
+#include "fhiclcpp/ParameterSet.h"
+#include "sigc++/signal.h"
 
 #include <memory>
 #include <string>
-#include "sigc++/signal.h"
 
 
 namespace edm {
@@ -53,10 +54,6 @@ namespace edm {
     std::auto_ptr<Worker> worker;
     try {
        pre(md);
-
-       ParameterSetDescription psetDescription;
-       UserType::fillDescription(psetDescription, md.moduleLabel());
-       psetDescription.validate(*p.pset_);
 
        std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));

@@ -2,15 +2,16 @@
 #define FWCore_Framework_EDAnalyzer_h
 
 
+// EDAnalyzer is the base class for all analyzer "modules".
+
+
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/ParameterSet/ParameterSetfwd.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include <string>
 
-// EDAnalyzer is the base class for all analyzer "modules".
 
 namespace edm
 {
@@ -31,9 +32,6 @@ namespace edm
     virtual ~EDAnalyzer();
 
     std::string workerType() const {return "WorkerT<EDAnalyzer>";}
-
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel);
 
   protected:
     // The returned pointer will be null unless the this is currently

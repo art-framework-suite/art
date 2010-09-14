@@ -7,17 +7,21 @@ RootDelayedReader.h // used by ROOT input sources
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-#include <map>
-#include <string>
-#include "boost/utility.hpp"
-#include "boost/shared_ptr.hpp"
 
-#include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Framework/Core/DelayedReader.h"
-#include "Inputfwd.h"
+#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+
+#include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
+
+#include <map>
+#include <memory>
+#include <string>
+
 
 class TFile;
+
 namespace edm {
 
   //------------------------------------------------------------
@@ -30,6 +34,7 @@ namespace edm {
     typedef input::EntryNumber EntryNumber;
     typedef input::BranchInfo BranchInfo;
     typedef input::BranchMap::const_iterator iterator;
+
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
       boost::shared_ptr<TFile const> filePtr,
@@ -54,5 +59,7 @@ namespace edm {
     bool oldFormat_;
   }; // class RootDelayedReader
   //------------------------------------------------------------
-}
-#endif
+
+}  // namespace edm
+
+#endif  // IOPool_Input_RootDelayedReader_h

@@ -1,19 +1,14 @@
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
-
-
-#include "PoolSource.h"
+#include "art/Framework/IO/Input/PoolSource.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
+#include "art/Framework/IO/Input/RootInputFileSequence.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
 
-#include "RootInputFileSequence.h"
 #include "TTreeCache.h"
 
 #include <set>
@@ -56,7 +51,8 @@ namespace edm {
     }
   }
 
-  PoolSource::PoolSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc) :
+  PoolSource::PoolSource(fhicl::ParameterSet const& pset,
+                         InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
@@ -223,48 +219,6 @@ namespace edm {
     assert (!secondaryFileSequence_);
     assert (!primary());
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
-  }
-
-  void
-  PoolSource::fillDescription(ParameterSetDescription& iDesc,
-                              std::string const& moduleLabel) {
-
-    iDesc.addOptionalUntracked<unsigned int>("firstRun", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("firstSubRun", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("firstEvent", 1U);
-    iDesc.addOptionalUntracked<unsigned int>("skipEvents", 0U);
-
-    std::vector<SubRunID> defaultSubRuns;
-    iDesc.addOptionalUntracked<std::vector<SubRunID> >("subRunsToSkip", defaultSubRuns);
-
-    std::vector<EventID> defaultEvents;
-    iDesc.addOptionalUntracked<std::vector<EventID> >("eventsToProcess", defaultEvents);
-
-    iDesc.addOptionalUntracked<bool>("noEventSort", false);
-    iDesc.addOptionalUntracked<bool>("skipBadFiles", false);
-    iDesc.addOptionalUntracked<bool>("dropDescendantsOfDroppedBranches", true);
-    iDesc.addOptionalUntracked<unsigned int>("cacheSize", 0U);
-    iDesc.addOptionalUntracked<int>("treeMaxVirtualSize", -1);
-    iDesc.addOptionalUntracked<unsigned int>("setRunNumber", 0U);
-
-    std::vector<std::string> defaultStrings(1U, std::string("keep *"));
-    iDesc.addOptionalUntracked<std::vector<std::string> >("inputCommands", defaultStrings);
-
-    std::string defaultString("permissive");
-    iDesc.addOptionalUntracked<std::string>("fileMatchMode", defaultString);
-
-    defaultString = "checkEachRealDataFile";
-    iDesc.addOptionalUntracked<std::string>("duplicateCheckMode", defaultString);
-
-    defaultStrings.clear();
-    iDesc.addUntracked<std::vector<std::string> >("fileNames", defaultStrings);
-    iDesc.addOptionalUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings);
-
-    defaultString.clear();
-    iDesc.addOptionalUntracked<std::string>("overrideCatalog", defaultString);
-
-    defaultString = "RunsSubRunsAndEvents";
-    iDesc.addOptionalUntracked<std::string>("processingMode", defaultString);
   }
 
 }  // namespace edm

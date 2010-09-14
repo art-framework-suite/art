@@ -7,7 +7,6 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
@@ -377,12 +376,6 @@ namespace edm {
 
   bool OutputModule::selected(BranchDescription const& desc) const {
     return groupSelector_.selected(desc);
-  }
-
-  void
-  OutputModule::fillDescription(edm::ParameterSetDescription& iDesc,
-                                std::string const& moduleLabel) {
-    iDesc.setUnknown();
   }
 
   void

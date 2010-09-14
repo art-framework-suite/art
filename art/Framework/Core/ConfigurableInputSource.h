@@ -1,10 +1,6 @@
 #ifndef Framework_ConfigurableInputSource_h
 #define Framework_ConfigurableInputSource_h
 
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
@@ -22,7 +18,9 @@ namespace edm {
 
   class ConfigurableInputSource : public InputSource {
   public:
-    explicit ConfigurableInputSource(fhicl::ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
+    explicit ConfigurableInputSource(fhicl::ParameterSet const& pset,
+                                     InputSourceDescription const& desc,
+                                     bool realData = true);
     virtual ~ConfigurableInputSource();
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;}

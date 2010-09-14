@@ -6,17 +6,22 @@
 BranchMapperWithReader:
 
 ----------------------------------------------------------------------*/
+
+
+#include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include "Inputfwd.h"
+
+#include "TBranch.h"
+  class TBranch;
 
 #include <vector>
-#include "TBranch.h"
 
-class TBranch;
+
 namespace edm {
+
   template <typename T>
   class BranchMapperWithReader : public BranchMapper {
   public:
@@ -35,9 +40,9 @@ namespace edm {
 
   template <typename T>
   BranchMapperWithReader<T>::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
-	 BranchMapper(true),
-	 branchPtr_(branch), entryNumber_(entryNumber),
-	 infoVector_(), pInfoVector_(&infoVector_)
+         BranchMapper(true),
+         branchPtr_(branch), entryNumber_(entryNumber),
+         infoVector_(), pInfoVector_(&infoVector_)
   { }
 
   template <typename T>
@@ -57,9 +62,9 @@ namespace edm {
   class BranchMapperWithReader<EventEntryInfo> : public BranchMapper {
   public:
     BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
-	 BranchMapper(true),
-	 branchPtr_(branch), entryNumber_(entryNumber),
-	 infoVector_(), pInfoVector_(&infoVector_), oldProductIDToBranchIDMap_()
+         BranchMapper(true),
+         branchPtr_(branch), entryNumber_(entryNumber),
+         infoVector_(), pInfoVector_(&infoVector_), oldProductIDToBranchIDMap_()
   { }
 
     virtual ~BranchMapperWithReader() {}
@@ -76,5 +81,7 @@ namespace edm {
     mutable std::vector<EventEntryInfo> * pInfoVector_;
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
   };
-}
-#endif
+
+}  // namespace edm
+
+#endif  // IOPool_Input_BranchMapperWithReader

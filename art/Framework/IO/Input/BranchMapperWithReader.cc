@@ -3,10 +3,15 @@
 BranchMapperWithReader:
 
 ----------------------------------------------------------------------*/
-#include "BranchMapperWithReader.h"
+
+
+#include "art/Framework/IO/Input/BranchMapperWithReader.h"
+
 #include "art/Persistency/Common/RefCoreStreamer.h"
 
+
 namespace edm {
+
   void
   BranchMapperWithReader<EventEntryInfo>::readProvenance_() const {
     setRefCoreStreamer(0, true);
@@ -35,4 +40,5 @@ namespace edm {
     }
     return it->second;
   }
-}
+
+}  // namespace edm

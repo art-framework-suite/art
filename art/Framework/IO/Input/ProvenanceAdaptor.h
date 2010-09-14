@@ -6,18 +6,23 @@
 ProvenanceAdaptor.h
 
 ----------------------------------------------------------------------*/
+
+
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
+#include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetID.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
+
+#include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
-#include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Framework/Core/Frameworkfwd.h"
+
 
 namespace edm {
 
@@ -44,5 +49,6 @@ namespace edm {
     std::vector<BranchListIndex> branchListIndexes_;
   }; // class ProvenanceAdaptor
 
-}
-#endif
+}  // namespace edm
+
+#endif  // IOPool_Input_ProvenanceAdaptor_h

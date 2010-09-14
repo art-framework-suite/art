@@ -1,15 +1,9 @@
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
-
 #include "art/Framework/Core/EDProducer.h"
 
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/SubRun.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 
 
 namespace edm
@@ -107,12 +101,6 @@ namespace edm
   CurrentProcessingContext const*
   EDProducer::currentContext() const {
     return current_context_;
-  }
-
-  void
-  EDProducer::fillDescription(edm::ParameterSetDescription& iDesc,
-                              std::string const& moduleLabel) {
-    iDesc.setUnknown();
   }
 
 }  // namespace edm
