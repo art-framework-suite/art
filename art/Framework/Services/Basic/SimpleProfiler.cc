@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 #include <cassert>
+#include <cstring>  // memset
 #include <cstdio>
 #include <iostream>
 #include <sstream>
@@ -440,7 +441,7 @@ namespace {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     // ignore all the RT signals
     struct sigaction tmpact;
-    memset(&tmpact,0,sizeof(tmpact));
+    std::memset(&tmpact,'\0',sizeof(tmpact));
     tmpact.sa_handler = SIG_IGN;
 
     for(int num=SIGRTMIN;num<SIGRTMAX;++num)
@@ -460,7 +461,7 @@ namespace {
 
     // set up my RT signal now
     struct sigaction act;
-    memset(&act,0,sizeof(act));
+    std::memset(&act,'\0',sizeof(act));
     act.sa_sigaction = sigFunc;
     act.sa_flags = SA_RESTART | SA_SIGINFO | SA_ONSTACK;
 
@@ -474,7 +475,7 @@ namespace {
       }
 
     // Turn off handling of SIGSEGV signal
-    memset(&act,0,sizeof(act));
+    std::memset(&act,'\0',sizeof(act));
     act.sa_handler = SIG_DFL;
 
     if (sigaction(SIGSEGV, &act, NULL) != 0)
@@ -523,7 +524,7 @@ namespace {
 
       // ignore all the RT signals
       struct sigaction tmpact;
-      memset(&tmpact,0,sizeof(tmpact));
+      std::memset(&tmpact,'\0',sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
 
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)

@@ -61,16 +61,16 @@ namespace {
           ep_->endJob();
         }
         catch (cms::Exception& e) {
-          //edm::printCmsException(e, kProgramName);
+          //mf::printCmsException(e, kProgramName);
         }
         catch (std::bad_alloc& e) {
-          //edm::printBadAllocException(kProgramName);
+          //mf::printBadAllocException(kProgramName);
         }
         catch (std::exception& e) {
-          //edm::printStdException(e, kProgramName);
+          //mf::printStdException(e, kProgramName);
         }
         catch (...) {
-          //edm::printUnknownException(kProgramName);
+          //mf::printUnknownException(kProgramName);
         }
       }
     }
@@ -304,23 +304,23 @@ int art_main(int argc, char* argv[])
   }
   catch (edm::Exception& e) {
     rc = e.returnCode();
-    edm::printCmsException(e, kProgramName); // , "Thing1", rc);
+    mf::printCmsException(e, kProgramName); // , "Thing1", rc);
   }
   catch (cms::Exception& e) {
     rc = 8001;
-    edm::printCmsException(e, kProgramName); // , "Thing2", rc);
+    mf::printCmsException(e, kProgramName); // , "Thing2", rc);
   }
   catch(std::bad_alloc& bda) {
     rc = 8004;
-    edm::printBadAllocException(kProgramName); // , "Thing3", rc);
+    mf::printBadAllocException(kProgramName); // , "Thing3", rc);
   }
   catch (std::exception& e) {
     rc = 8002;
-    edm::printStdException(e, kProgramName); // , "Thing4", rc);
+    mf::printStdException(e, kProgramName); // , "Thing4", rc);
   }
   catch (...) {
     rc = 8003;
-    edm::printUnknownException(kProgramName); // , "Thing5", rc);
+    mf::printUnknownException(kProgramName); // , "Thing5", rc);
   }
   // Disable Root Error Handler again, just in case an exception
   // caused the above disabling of the handler to be bypassed.

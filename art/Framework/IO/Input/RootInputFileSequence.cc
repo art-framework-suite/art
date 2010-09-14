@@ -584,7 +584,7 @@ namespace edm {
       strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
       mf::LogAbsolute("fileAction")
         << ts << msg << file;
-      FlushMessageLog();
+      mf::FlushMessageLog();
     }
   }
 
