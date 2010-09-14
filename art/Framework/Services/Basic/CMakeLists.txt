@@ -2,7 +2,6 @@
 project(artFrameworkServicesBasic)
 
 set( artFrameworkServicesBasic_sources InitRootHandlers.cc
-                                       LoadAllDictionaries.cc
                                        LockService.cc
                                        Memory.cc
                                        PrintLoadingPlugins.cc
@@ -10,10 +9,8 @@ set( artFrameworkServicesBasic_sources InitRootHandlers.cc
                                        ProfParse.cc
                                        SimpleProfiler.cc
                                        Sym.cc
-                                       TFileService.cc
                                        Timing.cc
                                        Tracer.cc
-                                       UnixSignalService.cc
                                        UpdaterService.cc
                                        VertexTracker.cc )
 
