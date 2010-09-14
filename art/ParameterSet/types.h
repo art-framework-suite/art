@@ -15,11 +15,14 @@
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
 
+#include "art/ParameterSet/FileInPath.h"
+
 #include "boost/cstdint.hpp"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 #include <vector>
+
 
 // ----------------------------------------------------------------------
 // contents

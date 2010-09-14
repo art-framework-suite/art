@@ -24,7 +24,7 @@ namespace edm {
       ParameterSet opts =
         pset.getPSet("options", defopts);
       wantSummary_ =
-        opts.getUntrackedParameter("wantSummary",false);
+        opts.getBool("wantSummary",false);
 
       process_name_ = pset.getString("@process_name");
 

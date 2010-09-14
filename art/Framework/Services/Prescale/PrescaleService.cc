@@ -111,7 +111,7 @@ namespace edm {
         string pathName = psetPrescales.getString("pathName");
         if (prescaledPathSet.erase(pathName)>0) {
           vector<unsigned int> prescales =
-            psetPrescales.getVUint("prescales");
+            psetPrescales.getVUInt("prescales");
           if (prescales.size()!=nLvl1Index_) {
             throw cms::Exception("PrescaleTableMismatch")
               <<"path '"<<pathName<<"' has unexpected number of prescales";

@@ -22,8 +22,8 @@ namespace edm {
 
   void
   makeParameterSets(std::string const& configtext,
-                  boost::shared_ptr<ParameterSet>& main,
-                  boost::shared_ptr<std::vector<ParameterSet> >& serviceparams)
+                  boost::shared_ptr<fhicl::ParameterSet>& main,
+                  boost::shared_ptr<std::vector<fhicl::ParameterSet> >& serviceparams)
   {
     PythonProcessDesc pythonProcessDesc(configtext);
     boost::shared_ptr<edm::ProcessDesc> processDesc = pythonProcessDesc.processDesc();

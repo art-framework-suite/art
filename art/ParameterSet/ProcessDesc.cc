@@ -7,35 +7,35 @@
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "";
-
 
 #include "art/ParameterSet/ProcessDesc.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/Algorithms.h"
+
 #include "art/ParameterSet/Registry.h"
+#include "art/Utilities/Algorithms.h"
+#include "art/Utilities/DebugMacros.h"
+#include "art/Utilities/EDMException.h"
+
+#include "fhiclcpp/ParameterSet.h"
+
 #include <iostream>
 
-namespace edm
-{
 
-  ProcessDesc::ProcessDesc(const ParameterSet & pset)
-  : pset_(new ParameterSet(pset)),
-    services_(new std::vector<ParameterSet>())
+namespace edm {
+
+  ProcessDesc::ProcessDesc(const fhicl::ParameterSet & pset)
+  : pset_(new fhicl::ParameterSet(pset)),
+    services_(new std::vector<fhicl::ParameterSet>())
   {
     setRegistry();
     // std::cout << pset << std::endl;
   }
 
   ProcessDesc::~ProcessDesc()
-  {
-  }
+  { }
 
   ProcessDesc::ProcessDesc(const std::string& config)
-  : pset_(new ParameterSet),
-    services_(new std::vector<ParameterSet>())
+  : pset_(new fhicl::ParameterSet),
+    services_(new std::vector<fhicl::ParameterSet>())
   {
     throw edm::Exception(errors::Configuration,"Old config strings no longer accepted");
   }
@@ -54,13 +54,13 @@ namespace edm
 
   }
 
-  boost::shared_ptr<std::vector<ParameterSet> >
+  boost::shared_ptr<std::vector<fhicl::ParameterSet> >
   ProcessDesc::getServicesPSets() const{
     return services_;
   }
 
 
-  void ProcessDesc::addService(const ParameterSet & pset)
+  void ProcessDesc::addService(const fhicl::ParameterSet & pset)
   {
     services_->push_back(pset);
    // Load into the Registry
@@ -71,8 +71,8 @@ namespace edm
 
   void ProcessDesc::addService(const std::string & service)
   {
-    ParameterSet newpset;
-    newpset.addParameter<std::string>("@service_type",service);
+    fhicl::ParameterSet newpset;
+    newpset.addString("@service_type",service);
     addService(newpset);
   }
 
@@ -120,6 +120,5 @@ namespace edm
     }
     std::reverse(services_->begin(), services_->end());
   }
-
 
 } // namespace edm
