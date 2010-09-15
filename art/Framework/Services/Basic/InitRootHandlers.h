@@ -3,14 +3,13 @@
 
 
 #include "art/Utilities/RootHandlers.h"
+
 #include "fhiclcpp/ParameterSet.h"
 
 
 namespace edm {
   class ActivityRegistry;
-}
 
-namespace edm {
   namespace service {
 
     class InitRootHandlers : public RootHandlers

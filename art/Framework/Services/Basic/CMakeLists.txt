@@ -1,8 +1,7 @@
 # project name
 project(artFrameworkServicesBasic)
 
-set( artFrameworkServicesBasic_sources InitRootHandlers.cc
-                                       LockService.cc
+set( artFrameworkServicesBasic_sources LockService.cc
                                        Memory.cc
                                        PrintLoadingPlugins.cc
                                        Profiling.cc
