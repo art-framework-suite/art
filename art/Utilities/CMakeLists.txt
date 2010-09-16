@@ -11,7 +11,6 @@ set( artUtilities_sources CPUTimer.cc
                           ExceptionCollector.cc
                           FriendlyName.cc
                           GlobalIdentifier.cc
-                          GlobalMutex.cc
                           Guid.cc
                           InputTag.cc
                           MallocOpts.cc
@@ -56,7 +55,6 @@ install(FILES Algorithms.h
               GetPassID.h
               GetReleaseVersion.h
               GlobalIdentifier.h
-              GlobalMutex.h
               HRRealTime.h
               InputTag.h
               JobMode.h

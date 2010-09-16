@@ -1,8 +1,7 @@
 # project name
 project(artFrameworkServicesBasic)
 
-set( artFrameworkServicesBasic_sources LockService.cc
-                                       Memory.cc
+set( artFrameworkServicesBasic_sources Memory.cc
                                        PrintLoadingPlugins.cc
                                        ProfParse.cc
                                        Sym.cc
@@ -38,7 +37,6 @@ simple_plugin(CurrentModule_plugin)
 simple_plugin(EnableFloatingPointExceptions_plugin)
 simple_plugin(InitRootHandlers_plugin)
 simple_plugin(LoadAllDictionaries_plugin)
-simple_plugin(LockService_plugin)
 simple_plugin(SimpleMemoryCheck_plugin)
 simple_plugin(TFileService_plugin)
 simple_plugin(Timing_plugin)
