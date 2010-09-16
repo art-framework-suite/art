@@ -2,12 +2,10 @@
 project(artFrameworkServicesBasic)
 
 set( artFrameworkServicesBasic_sources Memory.cc
-                                       PrintLoadingPlugins.cc
                                        ProfParse.cc
                                        Sym.cc
                                        Timing.cc
                                        Tracer.cc
-                                       UpdaterService.cc
                                        VertexTracker.cc )
 
 #link_libraries( artPersistencyProvenance
@@ -45,8 +43,6 @@ simple_plugin(UnixSignalService_plugin)
 
 install ( TARGETS artFrameworkServicesBasic DESTINATION lib )
 install(FILES CurrentModule.h
-              PrintLoadingPlugins.h
               TFileService.h
               Timing.h
-              UpdaterService.h
         DESTINATION include/art/Framework/Services/Basic )

@@ -7,8 +7,6 @@
 #include "art/Framework/Services/Basic/LoadAllDictionaries.h"
 #include "art/Framework/Services/Basic/EnableFloatingPointExceptions.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
-#include "art/Framework/Services/Basic/PrintLoadingPlugins.h"
-#include "art/Framework/Services/Basic/UpdaterService.h"
 
 using edm::service::Tracer;
 using edm::service::Timing;
@@ -20,11 +18,6 @@ using edm::service::UnixSignalService;
 
 DEFINE_FWK_SERVICE(Tracer);
 DEFINE_FWK_SERVICE(Timing);
-DEFINE_FWK_SERVICE(UpdaterService);
-
-
-typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
-DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
 
 #if defined(__linux__)
 DEFINE_FWK_SERVICE(SimpleMemoryCheck);
