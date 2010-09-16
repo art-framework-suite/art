@@ -3,7 +3,9 @@
 #include "art/ParameterSet/Registry.h"
 
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
   using fhicl::ParameterSet;
+  using fhicl::ParameterSetID;
 
 #include <sstream>
 #include <iostream>

@@ -7,20 +7,24 @@ BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.
 
 ----------------------------------------------------------------------*/
+
+
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ProcessConfigurationID.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Persistency/Provenance/Transient.h"
+#include "art/Utilities/UseReflex.h"
+
+#include "Reflex/Type.h"
+#include "fhiclcpp/ParameterSetID.h"
+
 #include <iosfwd>
 #include <string>
 #include <set>
 
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
-#include "art/Persistency/Provenance/Transient.h"
 
-#include "Reflex/Type.h"
-#include "art/Utilities/UseReflex.h"
 /*
   BranchDescription
 
@@ -30,22 +34,23 @@ This description also applies to every product instance on the branch.
 */
 
 namespace edm {
+
   struct BranchDescription {
     static int const invalidSplitLevel = -1;
     static int const invalidBasketSize = 0;
     enum MatchMode { Strict = 0,
-		     Permissive };
+                     Permissive };
 
     BranchDescription();
 
     BranchDescription(BranchType const& branchType,
-		      std::string const& mdLabel,
-		      std::string const& procName,
-		      std::string const& name,
-		      std::string const& fName,
-		      std::string const& pin,
-		      ModuleDescription const& modDesc,
-		      std::set<std::string> const& aliases = std::set<std::string>());
+                      std::string const& mdLabel,
+                      std::string const& procName,
+                      std::string const& name,
+                      std::string const& fName,
+                      std::string const& pin,
+                      ModuleDescription const& modDesc,
+                      std::set<std::string> const& aliases = std::set<std::string>());
 
     ~BranchDescription() {}
 
@@ -70,9 +75,9 @@ namespace edm {
     int & splitLevel() const {return transients_.get().splitLevel_;}
     int & basketSize() const {return transients_.get().basketSize_;}
 
-    ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
-    std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
-    ParameterSetID const& psetID() const;
+    fhicl::ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
+    std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
+    fhicl::ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return psetIDs().size() == 1;}
     std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
@@ -91,7 +96,7 @@ namespace edm {
       // This is only valid if produced_ is true.
       // This is just used as a cache, and is not logically
       // part of the branch description.
-      ParameterSetID parameterSetID_;
+      fhicl::ParameterSetID parameterSetID_;
 
       // The branch name, which is currently derivable fron the other attributes.
       std::string branchName_;
@@ -158,7 +163,7 @@ namespace edm {
   private:
     // ID's of parameter set of the creators of products
     // on this branch
-    std::set<ParameterSetID> psetIDs_;
+    std::set<fhicl::ParameterSetID> psetIDs_;
 
     // ID's of process configurations for products
     // on this branch
@@ -184,8 +189,10 @@ namespace edm {
   bool combinable(BranchDescription const& a, BranchDescription const& b);
 
   std::string match(BranchDescription const& a,
-	BranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m);
-}
-#endif
+        BranchDescription const& b,
+        std::string const& fileName,
+        BranchDescription::MatchMode m);
+
+}  // namespace edm
+
+#endif  // DataFormats_Provenance_BranchDescription_h

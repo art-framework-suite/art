@@ -5,15 +5,18 @@
 
 ModuleDescription: The description of a producer module.
 
-
 ----------------------------------------------------------------------*/
-#include <string>
-#include <iosfwd>
 
-#include "art/Persistency/Provenance/ParameterSetID.h"
+
+#include "art/Persistency/Provenance/ModuleDescriptionID.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
-#include "art/Persistency/Provenance/ModuleDescriptionID.h"
+
+#include "fhiclcpp/ParameterSetID.h"
+
+#include <iosfwd>
+#include <string>
+
 
 namespace edm {
 
@@ -26,7 +29,7 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    ParameterSetID const& parameterSetID() const {return parameterSetID_;}
+    fhicl::ParameterSetID const& parameterSetID() const {return parameterSetID_;}
     std::string const& moduleName() const {return moduleName_;}
     std::string const& moduleLabel() const {return moduleLabel_;}
     ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
@@ -34,7 +37,7 @@ namespace edm {
     std::string const& processName() const {return processConfiguration().processName();}
     std::string const& releaseVersion() const {return processConfiguration().releaseVersion();}
     std::string const& passID() const {return processConfiguration().passID();}
-    ParameterSetID const& mainParameterSetID() const {return processConfiguration().parameterSetID();}
+    fhicl::ParameterSetID const& mainParameterSetID() const {return processConfiguration().parameterSetID();}
 
     // compiler-written copy c'tor, assignment, and d'tor are correct.
 
@@ -47,7 +50,7 @@ namespace edm {
     ModuleDescriptionID id() const; // For backward compatibility
 
     // ID of parameter set of the creator
-    ParameterSetID parameterSetID_;
+    fhicl::ParameterSetID parameterSetID_;
 
     // The class name of the creator
     std::string moduleName_;
@@ -67,5 +70,6 @@ namespace edm {
     return os;
   }
 
-}
-#endif
+} // namespace edm
+
+#endif  // DataFormats_Provenance_ModuleDescription_h

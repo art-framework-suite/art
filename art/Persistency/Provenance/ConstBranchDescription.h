@@ -24,6 +24,7 @@ This class is not persistable.
 */
 
 namespace edm {
+
   class ConstBranchDescription {
   public:
     explicit ConstBranchDescription(BranchDescription const& bd) :
@@ -47,9 +48,9 @@ namespace edm {
     int const& splitLevel() const {return ptr_->splitLevel();}
     int const& basketSize() const {return ptr_->basketSize();}
 
-    ParameterSetID const& parameterSetID() const {return ptr_->parameterSetID();}
-    std::set<ParameterSetID> const& psetIDs() const {return ptr_->psetIDs();}
-    ParameterSetID const& psetID() const {return ptr_->psetID();}
+    fhicl::ParameterSetID const& parameterSetID() const {return ptr_->parameterSetID();}
+    std::set<fhicl::ParameterSetID> const& psetIDs() const {return ptr_->psetIDs();}
+    fhicl::ParameterSetID const& psetID() const {return ptr_->psetID();}
     bool isPsetIDUnique() const {return ptr_->psetIDs().size() == 1;}
     std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return ptr_->processConfigurationIDs();}
     std::set<std::string> const& branchAliases() const {return ptr_->branchAliases();}
@@ -82,10 +83,12 @@ namespace edm {
 
   inline
   std::string match(ConstBranchDescription const& a,
-	ConstBranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m) {
+        ConstBranchDescription const& b,
+        std::string const& fileName,
+        BranchDescription::MatchMode m) {
     return match(a.me(), b.me(), fileName, m);
   }
-}
-#endif
+
+}  // namespace edm
+
+#endif  // DataFormats_Provenance_ConstBranchDescription_h

@@ -19,6 +19,7 @@ using edm::EDProduct;
   EDProduct::~EDProduct()
 { }
 
+#if 0
 void
   EDProduct::setPtr( std::type_info const & iToType
                    , unsigned long          iIndex
@@ -34,5 +35,4 @@ void
 {
   do_fillPtrVector(iToType, iIndicies, oPtr);
 }
-
-// ======================================================================
+#endif  // 0

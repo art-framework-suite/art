@@ -81,7 +81,7 @@ namespace edm {
 
     bool wantAllEvents() const {return wantAllEvents_;}
 
-    ParameterSetID selectorConfig() const { return selector_config_id_; }
+    fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
 
   private:
 
@@ -123,7 +123,7 @@ namespace edm {
     mutable detail::CachedProducts selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
-    ParameterSetID selector_config_id_;
+    fhicl::ParameterSetID selector_config_id_;
 
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
     BranchParents branchParents_;

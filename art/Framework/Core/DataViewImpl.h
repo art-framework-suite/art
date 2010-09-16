@@ -1,7 +1,6 @@
 #ifndef Framework_DataViewImpl_h
 #define Framework_DataViewImpl_h
 
-// -*- C++ -*-
 //
 // Package:     Framework
 // Class  :     DataViewImpl
@@ -82,41 +81,40 @@ edm::Ref<AppleCollection> ref(refApples, index);
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
-#include <cassert>
-#include <memory>
-#include <typeinfo>
-#include <string>
-#include <vector>
+
+
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Persistency/Common/BasicHandle.h"
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Common/EDProductfwd.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Common/OrphanHandle.h"
+#include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Common/traits.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Utilities/InputTag.h"
+#include "art/Utilities/TypeID.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/type_traits.hpp"
 
-#include "art/Persistency/Common/EDProductfwd.h"
-#include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Framework/Core/Frameworkfwd.h"
+#include <cassert>
+#include <memory>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/Wrapper.h"
-
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Common/traits.h"
-
-#include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Common/BasicHandle.h"
-#include "art/Persistency/Common/OrphanHandle.h"
-
-#include "art/Utilities/TypeID.h"
-#include "art/Utilities/InputTag.h"
 
 namespace edm {
 
   class DataViewImpl {
   public:
     DataViewImpl(Principal & pcpl,
-		 ModuleDescription const& md,
-		 BranchType const& branchType);
+                 ModuleDescription const& md,
+                 BranchType const& branchType);
 
     ~DataViewImpl();
 
@@ -133,8 +131,8 @@ namespace edm {
     template <typename PROD>
     bool
     getByLabel(std::string const& label,
-	       std::string const& productInstanceName,
-	       Handle<PROD>& result) const;
+               std::string const& productInstanceName,
+               Handle<PROD>& result) const;
 
     /// same as above, but using the InputTag class
     template <typename PROD>
@@ -188,21 +186,21 @@ namespace edm {
 
     BasicHandle
     getByLabel_(TypeID const& tid,
-		std::string const& label,
-		std::string const& productInstanceName,
-		std::string const& processName) const;
+                std::string const& label,
+                std::string const& productInstanceName,
+                std::string const& processName) const;
 
     void
     getMany_(TypeID const& tid,
-	     SelectorBase const& sel,
-	     BasicHandleVec& results) const;
+             SelectorBase const& sel,
+             BasicHandleVec& results) const;
 
     BasicHandle
     getByType_(TypeID const& tid) const;
 
     void
     getManyByType_(TypeID const& tid,
-		   BasicHandleVec& results) const;
+                   BasicHandleVec& results) const;
 
     int
     getMatchingSequence_(TypeID const& typeID,
@@ -300,8 +298,8 @@ namespace edm {
     struct has_postinsert
     {
       static bool const value =
-	sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
-	!boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
+        sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
+        !boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
     };
 
 
@@ -312,7 +310,7 @@ namespace edm {
     struct has_donotrecordparents
     {
       static bool const value =
-	boost::is_base_of<edm::DoNotRecordParents,T>::value;
+        boost::is_base_of<edm::DoNotRecordParents,T>::value;
     };
 
   }
@@ -343,7 +341,7 @@ namespace edm {
   inline
   bool
   DataViewImpl::get(SelectorBase const& sel,
-		    Handle<PROD>& result) const
+                    Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
@@ -358,7 +356,7 @@ namespace edm {
   inline
   bool
   DataViewImpl::getByLabel(std::string const& label,
-			   Handle<PROD>& result) const
+                           Handle<PROD>& result) const
   {
     result.clear();
     return getByLabel(label, std::string(), result);
@@ -382,8 +380,8 @@ namespace edm {
   inline
   bool
   DataViewImpl::getByLabel(std::string const& label,
-			   std::string const& productInstanceName,
-			   Handle<PROD>& result) const
+                           std::string const& productInstanceName,
+                           Handle<PROD>& result) const
   {
     result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
@@ -398,7 +396,7 @@ namespace edm {
   inline
   void
   DataViewImpl::getMany(SelectorBase const& sel,
-			std::vector<Handle<PROD> >& results) const
+                        std::vector<Handle<PROD> >& results) const
   {
     BasicHandleVec bhv;
     this->getMany_(TypeID(typeid(PROD)), sel, bhv);
@@ -476,5 +474,7 @@ namespace edm {
     }
     results.swap(products);
   }
-}
-#endif
+
+}  // namespace edm
+
+#endif  // Framework_DataViewImpl_h

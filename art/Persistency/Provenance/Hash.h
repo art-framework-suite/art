@@ -12,8 +12,6 @@
 
 Hash:
 
-
-
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function
   because Root creates instances of the class *without* using the
@@ -21,6 +19,7 @@ Hash:
   all constructors make corrected instances.
 
 ----------------------------------------------------------------------*/
+
 namespace edm {
 
   namespace detail
@@ -207,9 +206,9 @@ namespace edm {
     // Fixup not needed here.
     if (hash_.size() % 2 == 1)
       {
-	throw edm::Exception(edm::errors::LogicError)
-	  << "Ill-formed Hash instance. "
-	  << "Please report this to the core framework developers";
+        throw edm::Exception(edm::errors::LogicError)
+          << "Ill-formed Hash instance. "
+          << "Please report this to the core framework developers";
       }
   }
 
@@ -222,25 +221,25 @@ namespace edm {
     switch (hash_.size()) {
       case 0:
       {
-	hash_ = edm::detail::InvalidHash();
+        hash_ = edm::detail::InvalidHash();
       }
       case 16:
       {
-	break;
+        break;
       }
       case 32:
       {
-	cms::MD5Result temp;
-	temp.fromHexifiedString(hash_);
-	hash_ = temp.compactForm();
-	break;
+        cms::MD5Result temp;
+        temp.fromHexifiedString(hash_);
+        hash_ = temp.compactForm();
+        break;
       }
       default:
       {
-	throw edm::Exception(edm::errors::LogicError)
-	  << "edm::Hash<> instance with data in illegal state:\n"
-	  << hash_
-	  << "\nPlease report this to the core framework developers";
+        throw edm::Exception(edm::errors::LogicError)
+          << "edm::Hash<> instance with data in illegal state:\n"
+          << hash_
+          << "\nPlease report this to the core framework developers";
       }
     }
   }
@@ -269,5 +268,6 @@ namespace edm {
     return h.print(os);
   }
 
-}
-#endif
+}  // namespace edm
+
+#endif  // DataFormats_Provenance_Hash_h

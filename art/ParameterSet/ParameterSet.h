@@ -8,23 +8,16 @@
 // ----------------------------------------------------------------------
 
 
-// ----------------------------------------------------------------------
-// prolog
-
-// ----------------------------------------------------------------------
-// prerequisite source files and headers
-
-#include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/ParameterSet/Entry.h"
 #include "art/ParameterSet/FileInPath.h"
-#include <string>
-#include <map>
-#include <vector>
+
+#include "fhiclcpp/ParameterSetID.h"
+
 #include <iosfwd>
+#include <map>
+#include <string>
+#include <vector>
 
-
-// ----------------------------------------------------------------------
-// contents
 
 namespace edm {
 
@@ -39,8 +32,8 @@ namespace edm {
     ~ParameterSet();
 
     // identification
-    ParameterSetID id() const;
-    void setID(const ParameterSetID & id);
+    fhicl::ParameterSetID id() const;
+    void setID(const fhicl::ParameterSetID & id);
 
     // Entry-handling
     Entry const& retrieve(std::string const&) const;
@@ -194,7 +187,7 @@ private:
     // If the id_ is invalid, that means a new value should be
     // calculated before the value is returned. Upon construction, the
     // id_ is made valid. Updating any parameter invalidates the id_.
-    mutable ParameterSetID id_;
+    mutable fhicl::ParameterSetID id_;
 
     // make the id valid, matching the current tracked contents of
     // this ParameterSet.  This function is logically const, because
@@ -1427,7 +1420,7 @@ private:
 
   // Free function to retrieve a parameter set, given the parameter set ID.
   ParameterSet
-  getParameterSet(ParameterSetID const& id);
+  getParameterSet(fhicl::ParameterSetID const& id);
 
 }  // namespace edm
 

@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_EDProductGetter_h
 #define DataFormats_Common_EDProductGetter_h
-// -*- C++ -*-
+
 //
 // Package:     EDProduct
 // Class  :     EDProductGetter
@@ -13,26 +13,19 @@
     This is used internally by the edm::Ref classes.
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Tue Nov  1 15:06:31 EST 2005
-//
-//
 
-// system include files
-#include "boost/utility.hpp"
 
-// user include files
 #include "art/Persistency/Provenance/ProductID.h"
 
-// forward declarations
+#include "boost/utility.hpp"
+
 
 namespace edm {
    class EDProduct;
-   class EDProductGetter : private boost::noncopyable {
 
+   class EDProductGetter
+     : private boost::noncopyable {
    public:
-
       EDProductGetter();
       virtual ~EDProductGetter();
 
@@ -41,8 +34,6 @@ namespace edm {
 
       // ---------- static member functions --------------------
       static EDProductGetter const* instance();
-
-      // ---------- member functions ---------------------------
 
       ///Helper class to make the EDProductGetter accessible on at the proper times
       class Operate {
@@ -67,12 +58,12 @@ private:
       /**This does not take ownership of the argument, so it is up to the caller to be
          sure that the object lifetime is greater than the time for which it is set*/
       static EDProductGetter const* set(EDProductGetter const*);
-      // ---------- member data --------------------------------
 
    };
 
    EDProductGetter const*
    mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID);
-}
 
-#endif
+}  // namespace edm
+
+#endif  // DataFormats_Common_EDProductGetter_h

@@ -65,14 +65,6 @@ static const char* kDummyLibName = "*dummy";
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
 extern CallbackPtr G__p_class_autoloading;
 
-namespace {
-   //just want access to the copy constructor
-   class MyClass : public TClass {
-   public:
-      MyClass(const TClass& iOther): TClass(iOther) {}
-   };
-}
-
 namespace edm {
 
 static
@@ -291,7 +283,7 @@ void registerTypes() {
       if (className[pos] == '<') {break;}
       if (className.size() <= pos+1 || className[pos+1] != ':') {break;}
       //should check to see if this is a class or not
-      G__set_class_autoloading_table(const_cast<char*>(className.substr(0,pos).c_str()),"");
+      G__set_class_autoloading_table((char*)(className.substr(0,pos).c_str()),"");
       //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
       pos += 2;
     }
@@ -323,7 +315,8 @@ void registerTypes() {
           std::cout <<" failed to get TClass by typeid"<<std::endl;
           continue;
         }
-        MyClass* myNewlyNamedClass = new MyClass(*reflexNamedClass);
+        // MyClass* myNewlyNamedClass = new MyClass(*reflexNamedClass);
+        TClass* myNewlyNamedClass = dynamic_cast<TClass*>(reflexNamedClass->Clone());
         myNewlyNamedClass->SetName(itSpecial->first.c_str());
         gROOT->AddClass(myNewlyNamedClass);
       }

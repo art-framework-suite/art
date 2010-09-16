@@ -12,10 +12,8 @@
 using fhicl::ParameterSet;
 
 
-namespace edm
-{
-  namespace pset
-  {
+namespace edm {
+  namespace pset {
 
     bool
     insertParameterSetIntoRegistry(Registry* reg, ParameterSet const& p)
@@ -35,7 +33,7 @@ namespace edm
       reg->extra().setID(main.id());
     }
 
-    edm::ParameterSetID
+    fhicl::ParameterSetID
     getProcessParameterSetID(Registry const* reg)
     {
       return reg->extra().id();
@@ -48,16 +46,17 @@ namespace edm
       for (iter i=reg->begin(), e=reg->end(); i!=e; ++i)
         fillme[i->first].pset_ = i->second.toStringOfTracked();
     }
+
   } // namespace pset
 
   fhicl::ParameterSet getProcessParameterSet()
   {
     edm::pset::Registry* reg = edm::pset::Registry::instance();
-    edm::ParameterSetID id = edm::pset::getProcessParameterSetID(reg);
+    fhicl::ParameterSetID id = edm::pset::getProcessParameterSetID(reg);
 
     fhicl::ParameterSet result;
     if (!reg->getMapped(id, result))
-      throw edm::Exception(errors::EventCorruption, "Uknown ParameterSetID")
+      throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
         << "Unable to find the ParameterSet for id: "
         << id
         << ";\nthis was supposed to be the process ParameterSet\n";
@@ -65,6 +64,4 @@ namespace edm
     return result;
   }
 
-
-} // namespace edm
-
+}  // namespace edm

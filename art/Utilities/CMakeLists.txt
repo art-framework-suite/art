@@ -7,6 +7,7 @@ set( artUtilities_sources CPUTimer.cc
                           Digest.cc
                           EDMException.cc
                           Exception.cc
+                          ExceptionMessages.cc
                           ExceptionCollector.cc
                           FriendlyName.cc
                           GlobalIdentifier.cc
@@ -47,6 +48,7 @@ install(FILES Algorithms.h
               EDMException.h
               ExceptionCollector.h
               Exception.h
+              ExceptionMessages.h
               ExtensionCord.h
               FriendlyName.h
               GCCPrerequisite.h

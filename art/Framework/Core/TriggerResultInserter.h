@@ -2,21 +2,19 @@
 #define FWCore_Framework_TriggerResultsInserter_h
 
 /*
-  Author: Jim Kowalkowski 15-1-06
-
   This is an unusual module in that it is always present in the
   schedule and it is not configurable.
   The ownership of the bitmask is shared with the scheduler
   Its purpose is to create a TriggerResults instance and insert it into
   the event.
-
 */
 
+
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 
 namespace edm {
@@ -39,7 +37,7 @@ namespace edm {
 
   private:
     TrigResPtr trptr_;
-    ParameterSetID pset_id_;
+    fhicl::ParameterSetID pset_id_;
   };
 
 }  // namespace edm

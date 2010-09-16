@@ -7,16 +7,20 @@ Provenance: The full description of a product and how it came into
 existence.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
+
 
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
+
 #include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSetID.h"
+
+#include <iosfwd>
+
 
 /*
   Provenance
@@ -60,7 +64,7 @@ namespace edm {
     ProductStatus const& productStatus() const {return productProvenance().productStatus();}
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
-    std::set<ParameterSetID> const& psetIDs() const {return product().psetIDs();}
+    std::set<fhicl::ParameterSetID> const& psetIDs() const {return product().psetIDs();}
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
     bool isPresent() const {return productstatus::present(productStatus());}
 
@@ -89,5 +93,7 @@ namespace edm {
   }
 
   bool operator==(Provenance const& a, Provenance const& b);
-}
-#endif
+
+}  // namespace edm
+
+#endif  // DataFormats_Provenance_Provenance_h

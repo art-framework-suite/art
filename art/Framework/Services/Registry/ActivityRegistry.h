@@ -182,7 +182,7 @@ namespace edm {
       PostProcessEvent::slot_list_type sl = postProcessEventSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostProcessEvent)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostProcessEvent)
 
     typedef sigc::signal<void, edm::RunID const&, edm::Timestamp const&> PreBeginRun;
     /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
@@ -199,7 +199,7 @@ namespace edm {
       PostBeginRun::slot_list_type sl = postBeginRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostBeginRun)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostBeginRun)
 
     typedef sigc::signal<void, edm::RunID const&, edm::Timestamp const&> PreEndRun;
     /// signal is emitted before the endRun is processed
@@ -216,7 +216,7 @@ namespace edm {
       PostEndRun::slot_list_type sl = postEndRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostEndRun)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostEndRun)
 
     typedef sigc::signal<void, edm::SubRunID const&, edm::Timestamp const&> PreBeginSubRun;
     /// signal is emitted after the SubRun has been created by the InputSource but before any modules have seen the SubRun
@@ -233,7 +233,7 @@ namespace edm {
       PostBeginSubRun::slot_list_type sl = postBeginSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostBeginSubRun)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostBeginSubRun)
 
     typedef sigc::signal<void, edm::SubRunID const&, edm::Timestamp const&> PreEndSubRun;
     /// signal is emitted before the endSubRun is processed
@@ -250,7 +250,7 @@ namespace edm {
       PostEndSubRun::slot_list_type sl = postEndSubRunSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_WATCH_VIA_2_ARG_METHOD(watchPostEndSubRun)
+    AR_WATCH_VIA_1_ARG_METHOD(watchPostEndSubRun)
 
     /// signal is emitted before starting to process a Path for an event
     typedef sigc::signal<void, std::string const&> PreProcessPath;

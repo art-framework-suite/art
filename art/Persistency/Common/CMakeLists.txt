@@ -3,7 +3,6 @@
 project(artPersistencyCommon)
 
 set( artPersistencyCommon_sources CacheStreamers.cc
-                                  DataFrameContainer.cc
                                   EDProduct.cc
                                   EDProductGetter.cc
                                   PtrVectorBase.cc
@@ -34,8 +33,6 @@ install(FILES AssociativeIterator.h
               CloningPtr.h
               ConstPtrCache.h
               CopyPolicy.h
-              DataFrameContainer.h
-              DataFrame.h
               debugging_allocator.h
               DetSet.h
               DetSetNew.h
@@ -64,7 +61,6 @@ install(FILES AssociativeIterator.h
               RefCoreStreamer.h
               TestHandle.h
               traits.h
-              TransientDataFrame.h
               Trie.h
               TriggerResults.h
               ValueMap.h

@@ -11,9 +11,10 @@ ProvenanceAdaptor.h
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+
+#include "fhiclcpp/ParameterSetID.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
@@ -29,7 +30,7 @@ namespace edm {
   //------------------------------------------------------------
   // Class ProvenanceAdaptor: supports file reading.
 
-  typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+  typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
   class ProvenanceAdaptor : private boost::noncopyable {
   public:
   ProvenanceAdaptor(

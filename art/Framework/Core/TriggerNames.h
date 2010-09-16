@@ -1,12 +1,7 @@
 #ifndef Framework_TRIGGERNAMES_h
 #define Framework_TRIGGERNAMES_h
 
-// -*- C++ -*-
 /*
-
- Original Author:  W. David Dagenhart 1 June 2007
-
-
 
  Used to access the names and indices of the triggers corresponding
  to a particular TriggerResults object.  Uses the TriggerNamesService
@@ -33,7 +28,7 @@
 
 */
 
-#include "art/Persistency/Provenance/ParameterSetID.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 #include <string>
 #include <map>
@@ -76,7 +71,7 @@ namespace edm {
   private:
 
     bool psetID_valid_;
-    ParameterSetID psetID_;
+    fhicl::ParameterSetID psetID_;
 
     Strings triggerNames_;
     IndexMap indexMap_;

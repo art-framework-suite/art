@@ -2,11 +2,12 @@
 
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/ParameterSet/Registry.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
+#include "fhiclcpp/ParameterSetID.h"
+  using fhicl::ParameterSetID;
 
 #include <vector>
 

@@ -1,31 +1,17 @@
-// -*- C++ -*-
 //
 // Package:     EDProduct
 // Class  :     EDProductGetter
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Tue Nov  1 15:06:41 EST 2005
-//
-//
 
-// system include files
-#include "boost/thread/tss.hpp"
 
-// user include files
 #include "art/Persistency/Common/EDProductGetter.h"
+
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
-  //
-  // constants, enums and typedefs
-  //
+#include "boost/thread/tss.hpp"
 
-  //
-  // static data member definitions
-  //
+
+namespace edm {
 
   //
   // constructors and destructor
@@ -34,34 +20,9 @@ namespace edm {
   {
   }
 
-  // EDProductGetter::EDProductGetter(EDProductGetter const& rhs)
-  // {
-  //    // do actual copying here;
-  // }
-
   EDProductGetter::~EDProductGetter()
   {
   }
-
-  //
-  // assignment operators
-  //
-  // EDProductGetter const& EDProductGetter::operator=(EDProductGetter const& rhs)
-  // {
-  //   //An exception safe implementation is
-  //   EDProductGetter temp(rhs);
-  //   swap(rhs);
-  //
-  //   return *this;
-  // }
-
-  //
-  // member functions
-  //
-
-  //
-  // const member functions
-  //
 
   //
   // static member functions
@@ -111,4 +72,4 @@ namespace edm {
         << "to a real getter, such as an EventPrincipal.\n";
   }
 
-}
+}  // namespace edm

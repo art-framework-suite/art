@@ -24,7 +24,9 @@
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
+
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 //used for backward compatibility
 #include "art/Persistency/Provenance/BranchEntryDescription.h"
@@ -150,7 +152,7 @@ namespace edm {
     ProductRegistry *ppReg = &tempReg;
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
 
-    typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
+    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     PsetMap *psetMapPtr = &psetMap;
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
@@ -202,11 +204,13 @@ namespace edm {
 
     // Merge into the hashed registries.
     pset::Registry& psetRegistry = *pset::Registry::instance();
+  #if 0
     for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
       fhicl::ParameterSet pset(i->second.pset_);
-      pset.setID(i->first);
+      pset.id();  //pset.setID(i->first);
       psetRegistry.insertMapped(pset);
     }
+  #endif  // 0
     ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
     ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
 

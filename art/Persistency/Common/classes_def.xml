@@ -18,17 +18,12 @@
  <class name="edm::PtrVectorBase" >
    <field name ="cachedItems_" transient = "true"/>
  </class>
-<class name="edmNew::dstvdetails::DetSetVectorTrans">
+ <class name="edmNew::dstvdetails::DetSetVectorTrans">
    <field name="filling" transient="true"/>
    <field name="getter" transient="true"/>
-</class>
-<class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
-<class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
-
-
-<class name="edm::DataFrame"/>
-<class name="edm::DataFrameContainer"/>
-<class name="edm::Wrapper<edm::DataFrameContainer>" splitLevel="0"/>
+ </class>
+ <class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
+ <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
  <class name="edm::HLTPathStatus"/>
  <class name="edm::Wrapper<edm::HLTPathStatus>" splitLevel="0"/>

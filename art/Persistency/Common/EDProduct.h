@@ -9,11 +9,10 @@
 // ======================================================================
 
 
-// Framework support:
 #include "art/Persistency/Common/EDProductfwd.h"
 
-// C++ support:
 #include <vector>
+
 
 // Contents:
 namespace edm {
@@ -79,7 +78,6 @@ private:
   { return true; }
 
 #ifndef __REFLEX__
-
   virtual bool
     isMergeable_() const
   { return true; }
@@ -95,10 +93,10 @@ private:
   virtual bool
     isProductEqual_( EDProduct const * newProduct ) const
   { return true; }
-
 #endif  // __REFLEX__
 
-  virtual void
+#if 0
+virtual void
     do_setPtr( std::type_info const & iToType
              , unsigned long          iIndex
              , void const * &         oPtr ) const = 0;
@@ -107,6 +105,7 @@ private:
     do_fillPtrVector( std::type_info const &             iToType
                     , std::vector<unsigned long> const & iIndicies
                     , std::vector<void const *> &        oPtr ) const = 0;
+#endif  // 0
 
 };  // EDProduct
 

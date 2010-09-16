@@ -117,6 +117,8 @@ set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 			-I $ENV{ROOT_DIR}/include
 			-I $ENV{ROOT_DIR}/cintex/inc
 			-I $ENV{BOOST_INC}
+			-I $ENV{FHICLCPP_INC}
+			-I $ENV{MESSAGEFACILITY_INC}
 			-I $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0
 			-I $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
 # this is how we do the genreflex step

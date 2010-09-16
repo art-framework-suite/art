@@ -259,6 +259,7 @@ namespace edm {
 
   void
   Schedule::limitOutput() {
+  #if 0
     std::string const output("output");
 
     ParameterSet maxEventsPSet(pset_.getPSet("maxEvents", ParameterSet()));
@@ -279,7 +280,7 @@ namespace edm {
 
     if (maxEventSpecs > 1) {
       throw edm::Exception(edm::errors::Configuration) <<
-        "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
+        "\nAt most one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
     if (maxEventSpecs == 0) {
@@ -302,6 +303,7 @@ namespace edm {
       }
       (*it)->configure(desc);
     }
+  #endif // 0
   }
 
   bool const Schedule::terminate() const {

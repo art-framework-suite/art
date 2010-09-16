@@ -16,9 +16,7 @@ add_library(artFrameworkModules SHARED ${artFrameworkModules_sources} )
 
 simple_plugin(AsciiOutputModule_plugin)
 simple_plugin(EmptySource_plugin)
-simple_plugin(EventContentAnalyzer_plugin)
 simple_plugin(Prescaler_plugin)
-simple_plugin(XMLOutputModule_plugin)
 
 install ( TARGETS artFrameworkModules
           DESTINATION lib )

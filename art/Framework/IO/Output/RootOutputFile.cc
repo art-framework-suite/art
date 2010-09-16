@@ -1,46 +1,44 @@
-
 #include "art/Framework/IO/Output/RootOutputFile.h"
 
-#include "art/Utilities/GlobalIdentifier.h"
-
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Version/GetFileFormatVersion.h"
-#include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-#include "art/Utilities/Digest.h"
-#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/ConstProductRegistry.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "art/ParameterSet/Registry.h"
+#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
-#include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/ParentageRegistry.h"
+#include "art/Persistency/Provenance/BranchIDListRegistry.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/History.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/Parentage.h"
+#include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Common/BasicHandle.h"
-#include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Utilities/Algorithms.h"
+#include "art/Utilities/Digest.h"
+#include "art/Utilities/EDMException.h"
+#include "art/Utilities/GlobalIdentifier.h"
+#include "art/Version/GetFileFormatVersion.h"
+
 #include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/Registry.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "fhiclcpp/ParameterSetID.h"
 
-#include "TROOT.h"
-
-#include "TTree.h"
-#include "TFile.h"
-#include "TClass.h"
 #include "Rtypes.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TROOT.h"
+#include "TTree.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -314,7 +312,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeParameterSetRegistry() {
-    typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
     pset::fill(pset::Registry::instance(), psetMap);
     ParameterSetMap *pPsetMap = &psetMap;
@@ -488,4 +486,4 @@ namespace edm {
     productProvenanceVecPtr->clear();
   }
 
-}
+}  // namespace edm

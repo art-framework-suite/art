@@ -14,10 +14,10 @@
 
 
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
 
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 #include <map>
 
@@ -30,13 +30,13 @@ namespace edm {
     {
     public:
       ProcessParameterSetIDCache() : id_() { }
-      edm::ParameterSetID id() const { return id_; }
-      void setID(ParameterSetID const& id) { id_ = id; }
+      fhicl::ParameterSetID id() const { return id_; }
+      void setID(fhicl::ParameterSetID const& id) { id_ = id; }
     private:
-      edm::ParameterSetID id_;
+      fhicl::ParameterSetID id_;
     };
 
-    typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID,
+    typedef edm::detail::ThreadSafeRegistry<fhicl::ParameterSetID,
                                             fhicl::ParameterSet,
                                             ProcessParameterSetIDCache>
                                             Registry;
@@ -61,11 +61,11 @@ namespace edm {
     /// in the given Registry. Note the the returned ParameterSetID may
     /// be invalid; this will happen if the Registry has not yet been
     /// filled.
-    edm::ParameterSetID getProcessParameterSetID(Registry const* reg);
+    fhicl::ParameterSetID getProcessParameterSetID(Registry const* reg);
 
     /// Fill the given map with the persistent form of each
     /// ParameterSet in the given registry.
-    typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> regmap_type;
+    typedef std::map<fhicl::ParameterSetID, edm::ParameterSetBlob> regmap_type;
     void fill(Registry* reg, regmap_type& fillme);
 
   }  // namespace pset

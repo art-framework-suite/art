@@ -1,8 +1,6 @@
 #include "art/Persistency/Common/BoolCache.h"
 #include "art/Persistency/Common/ConstPtrCache.h"
-#include "art/Persistency/Common/CopyPolicy.h"
-#include "art/Persistency/Common/DataFrame.h"
-#include "art/Persistency/Common/DataFrameContainer.h"
+//#include "art/Persistency/Common/CopyPolicy.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
@@ -15,9 +13,9 @@
 
 #include <vector>
 
+
 namespace {
   struct dictionary {
-    edm::Wrapper<edm::DataFrameContainer> dummywdfc;
     edm::Wrapper<edm::HLTPathStatus> dummyx16;
     edm::Wrapper<std::vector<edm::HLTPathStatus> > dummyx17;
     edm::Wrapper<edm::HLTGlobalStatus> dummyx18;
@@ -35,4 +33,4 @@ namespace {
     edm::Wrapper<std::vector<edm::RNGsnapshot> > dummyWrapperVectorRNGsnap;
 
   };
-}
+}  // namespace

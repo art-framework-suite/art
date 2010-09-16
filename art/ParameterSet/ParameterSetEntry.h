@@ -9,9 +9,9 @@
 
 
 #include "art/Utilities/value_ptr.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 
 namespace edm {
@@ -31,7 +31,7 @@ namespace edm {
 
     bool isTracked() const {return tracked;}
 
-    ParameterSetID id() const {return theID;}
+    fhicl::ParameterSetID id() const {return theID;}
 
     /// returns the PSet, reconstituting it from the
     /// Registry, if necessary
@@ -51,7 +51,7 @@ namespace edm {
     mutable value_ptr<fhicl::ParameterSet> thePSet;
 
     // mutable so save() can serialize it as late as possible
-    mutable ParameterSetID theID;
+    mutable fhicl::ParameterSetID theID;
 
 
   };

@@ -25,23 +25,25 @@
  *
  */
 
+
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/traits.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 
+#include "fhiclcpp/ParameterSetID.h"
 
 #include <string>
 #include <vector>
 
-namespace edm
-{
+
+namespace edm {
+
   class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents  {
 
     typedef std::vector<std::string> Strings;
 
   private:
     /// Parameter set id
-    edm::ParameterSetID psetid_;
+    fhicl::ParameterSetID psetid_;
 
     /// Not used anymore
     Strings             names_;
@@ -52,7 +54,7 @@ namespace edm
     TriggerResults() : HLTGlobalStatus(), psetid_(), names_() { }
 
     /// Standard contructor
-    TriggerResults(const HLTGlobalStatus& hlt, const edm::ParameterSetID& psetid)
+    TriggerResults(const HLTGlobalStatus& hlt, const fhicl::ParameterSetID& psetid)
       : HLTGlobalStatus(hlt), psetid_(psetid), names_() { }
 
     /// Not used anymore
@@ -60,7 +62,7 @@ namespace edm
       : HLTGlobalStatus(hlt), psetid_(), names_(names) { }
 
     /// Get stored parameter set id
-    const ParameterSetID& parameterSetID() const { return psetid_; }
+    const fhicl::ParameterSetID& parameterSetID() const { return psetid_; }
 
     /// swap function
     void swap(TriggerResults& other) {
@@ -100,6 +102,7 @@ namespace edm
   swap(TriggerResults& lhs, TriggerResults& rhs) {
     lhs.swap(rhs);
   }
-}
 
-#endif
+}  // namespace edm
+
+#endif  // DataFormats_Common_TriggerResults_h

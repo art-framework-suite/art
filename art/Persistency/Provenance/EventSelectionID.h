@@ -8,13 +8,16 @@ of the event selector subsystem of an OutputModule.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ParameterSetID.h"
+
+#include "fhiclcpp/ParameterSetID.h"
+
 #include <vector>
+
 
 namespace edm
 {
-  typedef ParameterSetID EventSelectionID;
+  typedef fhicl::ParameterSetID EventSelectionID;
   typedef std::vector<EventSelectionID> EventSelectionIDVector;
 }
 
-#endif
+#endif  // DataFormats_Provenance_EventSelectionID_h

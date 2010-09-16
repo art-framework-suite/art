@@ -17,6 +17,7 @@ it.
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/ParameterSet/MakeParameterSets.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/Presence.h"
 #include "art/Utilities/RootHandlers.h"
 
@@ -34,6 +35,7 @@ it.
 #include <memory>
 #include <string>
 #include <vector>
+
 
 static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kPythonOpt = "pythonOptions";
@@ -61,16 +63,16 @@ namespace {
           ep_->endJob();
         }
         catch (cms::Exception& e) {
-          //mf::printCmsException(e, kProgramName);
+          //edm::printCmsException(e, kProgramName);
         }
         catch (std::bad_alloc& e) {
-          //mf::printBadAllocException(kProgramName);
+          //edm::printBadAllocException(kProgramName);
         }
         catch (std::exception& e) {
-          //mf::printStdException(e, kProgramName);
+          //edm::printStdException(e, kProgramName);
         }
         catch (...) {
-          //mf::printUnknownException(kProgramName);
+          //edm::printUnknownException(kProgramName);
         }
       }
     }
@@ -304,23 +306,23 @@ int art_main(int argc, char* argv[])
   }
   catch (edm::Exception& e) {
     rc = e.returnCode();
-    mf::printCmsException(e, kProgramName); // , "Thing1", rc);
+    edm::printCmsException(e, kProgramName); // , "Thing1", rc);
   }
   catch (cms::Exception& e) {
     rc = 8001;
-    mf::printCmsException(e, kProgramName); // , "Thing2", rc);
+    edm::printCmsException(e, kProgramName); // , "Thing2", rc);
   }
   catch(std::bad_alloc& bda) {
     rc = 8004;
-    mf::printBadAllocException(kProgramName); // , "Thing3", rc);
+    edm::printBadAllocException(kProgramName); // , "Thing3", rc);
   }
   catch (std::exception& e) {
     rc = 8002;
-    mf::printStdException(e, kProgramName); // , "Thing4", rc);
+    edm::printStdException(e, kProgramName); // , "Thing4", rc);
   }
   catch (...) {
     rc = 8003;
-    mf::printUnknownException(kProgramName); // , "Thing5", rc);
+    edm::printUnknownException(kProgramName); // , "Thing5", rc);
   }
   // Disable Root Error Handler again, just in case an exception
   // caused the above disabling of the handler to be bypassed.

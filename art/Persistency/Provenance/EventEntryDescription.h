@@ -16,6 +16,7 @@ EventEntryDescription: The event dependent portion of the description of
 #include "art/Persistency/Provenance/Transient.h"
 
 #include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSetID.h"
 
 #include <iosfwd>
 #include <vector>
@@ -46,7 +47,7 @@ namespace edm {
 
     std::string const& moduleName() const {return getModuleDescriptionPtr()->moduleName_;}
     PassID const& passID() const {return getModuleDescriptionPtr()->passID();}
-    ParameterSetID const& psetID() const {return getModuleDescriptionPtr()->parameterSetID();}
+    fhicl::ParameterSetID const& psetID() const {return getModuleDescriptionPtr()->parameterSetID();}
     ReleaseVersion const& releaseVersion() const {return getModuleDescriptionPtr()->releaseVersion();}
     std::vector<BranchID> const& parents() const {return parents_;}
     std::vector<BranchID> & parents() {return parents_;}

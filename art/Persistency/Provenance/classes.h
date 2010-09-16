@@ -1,3 +1,4 @@
+//#include "art/Persistency/Common/RNGsnapshot.h"
 //#include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
@@ -10,10 +11,7 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/Hash.h"
 #include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -23,11 +21,15 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-//#include "art/Persistency/Common/RNGsnapshot.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Persistency/Provenance/Transient.h"
+
+#include "fhiclcpp/ParameterSetID.h"
+
 #include <map>
 #include <set>
 #include <vector>
@@ -51,13 +53,13 @@
 namespace {
   struct dictionary {
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
-  std::map<edm::ParameterSetID, edm::ParameterSetBlob> dummyMapParam;
+  std::map<fhicl::ParameterSetID, edm::ParameterSetBlob> dummyMapParam;
   std::map<edm::ProcessHistoryID, edm::ProcessHistory> dummyMapProcH;
   std::map<edm::ProcessConfigurationID, edm::ProcessConfiguration> dummyMapProcC;
-  std::set<edm::ParameterSetID > dummySetParam;
+  std::set<fhicl::ParameterSetID > dummySetParam;
   std::set<edm::ProcessHistoryID > dummySetProcH;
   std::set<edm::ProcessConfigurationID > dummySetProcessDesc;
-  std::pair<edm::ParameterSetID, edm::ParameterSetBlob> dummyPairParam;
+  std::pair<fhicl::ParameterSetID, edm::ParameterSetBlob> dummyPairParam;
   std::pair<edm::ProcessHistoryID, edm::ProcessHistory> dummyPairProcH;
   std::pair<edm::ProcessConfigurationID, edm::ProcessConfiguration> dummyPairProcC;
   edm::ParentageID dummyParentageID;
@@ -71,7 +73,7 @@ namespace {
   std::vector<edm::EventID> dummyVectorEventID;
   std::vector<std::vector<edm::EventID> > dummyVectorVectorEventID;
   std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
-  std::vector<std::vector<edm::ParameterSetID> > dummyVectorVectorParameterSetID;
+  std::vector<std::vector<fhicl::ParameterSetID> > dummyVectorVectorParameterSetID;
 
 //  edm::RNGsnapshot                             dummyRNGsnap;
 //  std::vector<edm::RNGsnapshot>                dummyVectorRNGsnap;

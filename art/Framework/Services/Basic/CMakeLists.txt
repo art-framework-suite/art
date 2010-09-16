@@ -4,9 +4,7 @@ project(artFrameworkServicesBasic)
 set( artFrameworkServicesBasic_sources LockService.cc
                                        Memory.cc
                                        PrintLoadingPlugins.cc
-                                       Profiling.cc
                                        ProfParse.cc
-                                       SimpleProfiler.cc
                                        Sym.cc
                                        Timing.cc
                                        Tracer.cc
@@ -42,7 +40,6 @@ simple_plugin(InitRootHandlers_plugin)
 simple_plugin(LoadAllDictionaries_plugin)
 simple_plugin(LockService_plugin)
 simple_plugin(SimpleMemoryCheck_plugin)
-simple_plugin(SimpleProfiling_plugin)
 simple_plugin(TFileService_plugin)
 simple_plugin(Timing_plugin)
 simple_plugin(Tracer_plugin)

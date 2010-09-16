@@ -6,7 +6,6 @@
 //#include "FWCore/Services/src/JobReportService.h"
 #include "art/Framework/Services/Basic/Timing.h"
 #include "art/Framework/Services/Basic/Memory.h"
-#include "art/Framework/Services/Basic/Profiling.h"
 #include "art/Framework/Services/Basic/LoadAllDictionaries.h"
 #include "art/Framework/Services/Basic/EnableFloatingPointExceptions.h"
 #include "art/Framework/Services/Basic/LockService.h"
@@ -18,7 +17,6 @@
 using edm::service::Tracer;
 using edm::service::Timing;
 using edm::service::SimpleMemoryCheck;
-using edm::service::SimpleProfiling;
 using edm::service::LoadAllDictionaries;
 //using edm::service::SiteLocalConfigService;
 using edm::service::EnableFloatingPointExceptions;
@@ -38,7 +36,6 @@ DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
 
 #if defined(__linux__)
 DEFINE_FWK_SERVICE(SimpleMemoryCheck);
-DEFINE_FWK_SERVICE(SimpleProfiling);
 typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
 DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);
 DEFINE_FWK_SERVICE(UnixSignalService);

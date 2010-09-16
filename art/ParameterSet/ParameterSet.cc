@@ -4,24 +4,25 @@
 //
 // ----------------------------------------------------------------------
 
+
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
 // ----------------------------------------------------------------------
 
 #include "art/Utilities/Digest.h"
 
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
-
 #include "art/ParameterSet/split.h"
 #include "art/MessageLogger/MessageLogger.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/Algorithms.h"
 
 #include "boost/bind.hpp"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 #include <algorithm>
+
 
 // ----------------------------------------------------------------------
 // class invariant checker

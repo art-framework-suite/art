@@ -85,7 +85,6 @@ install(FILES BranchChildren.h
               ModuleDescriptionID.h
               ModuleDescriptionRegistry.h
               ParameterSetBlob.h
-              ParameterSetID.h
               Parentage.h
               ParentageID.h
               ParentageRegistry.h

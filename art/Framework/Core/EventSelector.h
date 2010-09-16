@@ -14,9 +14,9 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
 
 #include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSetID.h"
 
 #include <vector>
 #include <string>
@@ -91,7 +91,7 @@ namespace edm {
 
     bool results_from_current_process_;
     bool psetID_initialized_;
-    ParameterSetID psetID_;
+    fhicl::ParameterSetID psetID_;
 
     Strings paths_;
 

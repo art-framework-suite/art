@@ -3,6 +3,7 @@
 #include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Algorithms.h"
+#include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
 
@@ -49,28 +50,18 @@ namespace edm {
       if (psetRegistry->getMapped(triggerResults.parameterSetID(),
                                   pset)) {
 
-        // Check to make sure the parameter set contains
-        // a Strings parameter named "trigger_paths".
-        // We do not want to throw an exception if it is not there
-        // for reasons of backward compatibility
-        Strings psetNames = pset.getParameterNamesForType<Strings>();
-        std::string name("@trigger_paths");
-        if (search_all(psetNames, name)) {
-          // It is there, get it
-          trigPaths = pset.getVString("@trigger_paths");
+        trigPaths = pset.getVString("@trigger_paths",Strings());
 
-          // This should never happen
-          if (trigPaths.size() != triggerResults.size()) {
-            throw edm::Exception(edm::errors::Unknown)
-              << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
-                 "TriggerResults are different sizes.  This should be impossible,\n"
-                 "please send information to reproduce this problem to\n"
-                 "the edm developers.\n";
-          }
-
-          fromPSetRegistry = true;
-          return true;
+        if (trigPaths.size() != triggerResults.size()) {
+          throw edm::Exception(edm::errors::Unknown)
+            << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
+               "TriggerResults are different sizes.  This should be impossible,\n"
+               "please send information to reproduce this problem to\n"
+               "the edm developers.\n";
         }
+
+        fromPSetRegistry = true;
+        return true;
       }
 
       fromPSetRegistry = false;
