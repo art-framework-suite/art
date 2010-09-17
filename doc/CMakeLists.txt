@@ -5,4 +5,4 @@ project(artDoc)
 install(FILES FrameworkDevelopment.txt
               GroundZero.txt
 	      BuildWithCmake
-        DESTINATION doc )
+        DESTINATION ${version}/doc )

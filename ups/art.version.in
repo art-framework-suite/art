@@ -1,0 +1,43 @@
+FILE = version
+PRODUCT = art
+VERSION = @version@
+
+FLAVOR = Linux64bit+2.6-2.5
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = art/@version@
+  UPS_DIR = ups
+  TABLE_FILE = art.table
+
+FLAVOR = Linux+2.6-2.5
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = art/@version@
+  UPS_DIR = ups
+  TABLE_FILE = art.table
+
+FLAVOR = Linux64bit+2.6-2.3.4
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = art/@version@
+  UPS_DIR = ups
+  TABLE_FILE = art.table
+
+FLAVOR = Linux+2.6-2.3.4
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = art/@version@
+  UPS_DIR = ups
+  TABLE_FILE = art.table

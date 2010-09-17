@@ -14,6 +14,9 @@ cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
 set( version v0_0_0 )
+SET (qualifier a1)
+SET (flavorqual sl5.x86_64.${qualifier})
+SET (flavorqual_dir ${version}/${flavorqual} )
 
 # because we want to move these libraries about,
 # do not embed full path in shared libraries or executables
@@ -23,17 +26,45 @@ set (CMAKE_SKIP_RPATH)
 
 ENABLE_TESTING()
 
-# require ART_EXTERNALS
-set( ART_EXTERNALS $ENV{ART_EXTERNALS} )
-if ( NOT ART_EXTERNALS )
-  message(FATAL_ERROR "Can't locate ART_EXTERNALS, required for building framework")
+# require ART_EXTERNALS_VERSION
+set( ART_EXTERNALS_VERSION $ENV{ART_EXTERNALS_VERSION} )
+if ( NOT ART_EXTERNALS_VERSION )
+  message(FATAL_ERROR "art_externals has not been setup")
 endif ()
+SET ( ART_EXTERNALS_STRING $ENV{SETUP_ART_EXTERNALS} )
+STRING( REGEX REPLACE ".*(-q.*)" "\\1" ART_EXTERNALS_QUAL "${ART_EXTERNALS_STRING}" )
+message(STATUS "ART_EXTERNALS version and qualifier are ${ART_EXTERNALS_VERSION} ${ART_EXTERNALS_QUAL}" )
 
 # require ART_HOME
 set( ART_HOME $ENV{ART_HOME} )
 if ( NOT ART_HOME )
   message(FATAL_ERROR "Can't locate ART_HOME, required for building framework")
 endif ()
+
+# Check if the boost library has been set
+SET ( BOOST_VERS $ENV{BOOST_VERSION} )
+IF (NOT BOOST_VERS)
+    MESSAGE (FATAL_ERROR "Boost library has not been setup")
+ENDIF()
+SET ( BOOST_STRING $ENV{SETUP_BOOST} )
+STRING( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
+message(STATUS "Boost version and qualifier are ${BOOST_VERS} ${BOOST_QUAL}" )
+
+# make sure gcc has been set
+SET ( GCC_VERSION $ENV{GCC_VERSION} )
+IF (NOT GCC_VERSION)
+    MESSAGE (FATAL_ERROR "GCC has not been setup")
+ENDIF()
+message(STATUS "GCC version is ${GCC_VERSION} " )
+
+# make sure MESSAGEFACILITY has been set
+SET ( MESSAGEFACILITY_VERSION $ENV{MESSAGEFACILITY_VERSION} )
+IF (NOT MESSAGEFACILITY_VERSION)
+    MESSAGE (FATAL_ERROR "messagefacility has not been setup")
+ENDIF()
+message(STATUS "messagefacility version is ${MESSAGEFACILITY_VERSION} " )
+
+
 
 # include search path
 include_directories ("${PROJECT_BINARY_DIR}")

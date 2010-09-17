@@ -1,22 +1,82 @@
-File=Table
-Product=art
-
+File    = table
+Product = art
 #*************************************************
 # Starting Group definition
 Group:
-Flavor=ANY
-Qualifiers=
+Flavor     = ANY
+Qualifiers = ""
+  Action = setup
+       prodDir()
+       exeActionRequired("setup__")
+
+Flavor     = Linux64bit+2.6-2.5
+Qualifiers = "@qualifier@"
+  Action = setup
+       prodDir()
+       fileTest( ${UPS_PROD_DIR}/sl5.x86_64.@qualifier@, -d, "${UPS_PROD_DIR}/sl5.x86_64.@qualifier@ directory not found: SETUP ABORTED")
+       envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.x86_64.@qualifier@ )
+       exeActionRequired("setup__")
+
+Flavor     = Linux+2.6-2.5
+Qualifiers = "@qualifier@"
+  Action = setup
+       prodDir()
+       fileTest( ${UPS_PROD_DIR}/sl5.i686.@qualifier@, -d, "${UPS_PROD_DIR}/sl5.i686.@qualifier@ directory not found: SETUP ABORTED")
+       envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.i686.@qualifier@ )
+       exeActionRequired("setup__")
+
+Flavor     = Linux64bit+2.6-2.3.4
+Qualifiers = "@qualifier@"
+  Action = setup
+       prodDir()
+       fileTest( ${UPS_PROD_DIR}/sl4.x86_64.@qualifier@, -d, "${UPS_PROD_DIR}/sl4.x86_64.@qualifier@ directory not found: SETUP ABORTED")
+       envSet( ${UPS_PROD_NAME_UC}_FQ, sl4.x86_64.@qualifier@ )
+       exeActionRequired("setup__")
+
+Flavor     = Linux+2.6-2.3.4
+Qualifiers = "@qualifier@"
+  Action = setup
+      prodDir()
+      fileTest( ${UPS_PROD_DIR}/sl4.i686.@qualifier@, -d, "${UPS_PROD_DIR}/sl4.i686.@qualifier@ directory not found: SETUP ABORTED")
+      envSet( ${UPS_PROD_NAME_UC}_FQ, sl4.i686.@qualifier@ )
+      exeActionRequired("setup__")
 
 Common:
-   Action=setup
-      proddir()
-      setupenv()
-      setupRequired(art_externals v0_1_0)
-      envSet(ART_VERSION, @version@)
-      envSet(ART_INC, ${UPS_PROD_DIR}/include)
-      envSet(ART_LIB, ${UPS_PROD_DIR}/lib)
-      pathPrepend(PATH, ${UPS_PROD_DIR}/bin)
-      pathPrepend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
+  Action = setup__
+    setupEnv()
+    envSet(${UPS_PROD_NAME_UC}_VERSION, @version@)
+    prodDir( _FQ_DIR, ${${UPS_PROD_NAME_UC}_FQ} )
+
+    # define PROD_DIR_INC if there is an appropriate include subdirectory
+    if    ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/include include;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
+        prodDir( _INC, ""`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/include include;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;echo .'`"" )
+    else ()
+	execute( true, NO_UPS_ENV )
+    endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/include include;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
+
+    # define PROD_DIR_LIB if there is an appropriate lib subdirectory
+    if    ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/lib lib;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
+        prodDir( _LIB, ""`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/lib lib;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;echo .'`"" )
+        pathAppend(LD_LIBRARY_PATH, ${${UPS_PROD_NAME_UC}_LIB})
+    else ()
+	execute( true, NO_UPS_ENV )
+    endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/lib lib;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
+
+    # add the bin directory to the path if it exists
+    if    ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
+        prodDir( _BIN, ""`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;echo .'`"" )
+        pathPrepend(PATH, ${${UPS_PROD_NAME_UC}_BIN} )
+	envunset( ${${UPS_PROD_NAME_UC}_BIN} )
+    else ()
+	execute( true, NO_UPS_ENV )
+    endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
+	    
+    # uncomment or add to this list as relevant
+    #setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
+    #setupRequired(gcc @GCC_VERSION@ @GCC_QUAL@)
+    setupRequired(art_externals @ART_EXTERNALS_VERSION@ @ART_EXTERNALS_QUAL@)
+    setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_QUAL@)
+
 End:
 # End Group definition
 #*************************************************

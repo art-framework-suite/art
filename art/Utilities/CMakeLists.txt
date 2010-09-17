@@ -35,7 +35,7 @@ set( artUtilities_sources CPUTimer.cc
 
 add_library(artUtilities SHARED ${artUtilities_sources} )
 
-install ( TARGETS artUtilities DESTINATION lib )
+install ( TARGETS artUtilities DESTINATION ${flavorqual_dir}/lib )
 install(FILES Algorithms.h
               CodedException.h
               CPUTimer.h
@@ -82,4 +82,4 @@ install(FILES Algorithms.h
               vectorTransform.h
               Verbosity.h
               WrappedClassName.h
-        DESTINATION include/art/Utilities )
+        DESTINATION ${version}/include/art/Utilities )
