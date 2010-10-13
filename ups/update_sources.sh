@@ -13,8 +13,9 @@ function one_file() {
   printf "$F ... "
   # Fix most includes
   ed "$F" < pop.ed > /dev/null 2>&1
-  # Account for one additional moved file
+  # Account for two additional moved files
   ed "$F" < movedfile_20100901_112607.ed > /dev/null 2>&1
+  ed "$F" < movedfile_20100907_150621.ed > /dev/null 2>&1
   # Fix includes in and of .icc files
   perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # "lumi|luminosty|luminosityblock" -> subrun
