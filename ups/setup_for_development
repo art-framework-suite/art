@@ -25,8 +25,27 @@ test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 
 test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
 test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
 
-set_ msg2='You MUST setup the appropriate fw_externals product'
-tnotnull ART_EXTERNALS_DIR || echo "$msg2"
+set_ msg2='You MUST setup ups'
+tnotnull UPS_DIR || echo "$msg2"
+
+# we setup dependent products here
+# note that we do not test for them first...
+# use setup -j to avoid pulling dependencies
+setup cmake
+setup -j cppunit v1_12_1 -q a1 
+setup -j gccxml v0_9 -q a1 
+setup -j libsigcpp v2_2_7 -q a1 
+setup -j clhep v2_1_0_0 -q a1 
+setup -j root v5_26_00d -q GCC_4_5_1
+setup -j messagefacility v1_4_0 -q a1
+setup -j fhiclcpp v2_0_0 -q a1
+setup -j boost v1_44_0 -q a1
+setup gcc v4_5_1
+
+test $?shell = 1 && set ss=csh || ss=sh
+test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@";}'
+test "$ss" =  sh && eval 'set_() { ss=$?;for xx in "$@";do var=`expr "$xx" : "\([^=]*\)"`;val=`expr "$xx" : "[^=]*=\(.*\)"`;eval "$var=\"$val\"";done;return $ss; }'
+test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 'source() { file=$1; shift; . $file "$@"; }' && eval 'unsetenv() { unset "$@"; }'
 
 # now is if we were passed a path or if not, if we can figure it out (maybe if we are interactive)
 #   bash, zsh, ksh and tcsh pass params to a source file, csh does not. but someone will be writing csh scripts
@@ -64,7 +83,6 @@ echo
 echo ART_CODE=$ART_CODE
 echo ART_HOME=$ART_HOME
 echo ART_WORKDIR=$ART_WORKDIR
-echo ART_EXTERNALS=$ART_EXTERNALS
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ 
