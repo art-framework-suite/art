@@ -38,7 +38,7 @@ if ( NOT CPPUNIT_VERSION )
   message(FATAL_ERROR "cppunit has not been setup")
 endif ()
 SET ( CPPUNIT_STRING $ENV{SETUP_CPPUNIT} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" CPPUNIT_QUAL "${CPPUNIT_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" CPPUNIT_QUAL "${CPPUNIT_STRING}" )
 message(STATUS "CPPUNIT version and qualifier are ${CPPUNIT_VERSION} ${CPPUNIT_QUAL}" )
 
 # require GCCXML_VERSION
@@ -47,8 +47,26 @@ if ( NOT GCCXML_VERSION )
   message(FATAL_ERROR "gccxml has not been setup")
 endif ()
 SET ( GCCXML_STRING $ENV{SETUP_GCCXML} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" GCCXML_QUAL "${GCCXML_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" GCCXML_QUAL "${GCCXML_STRING}" )
 message(STATUS "GCCXML version and qualifier are ${GCCXML_VERSION} ${GCCXML_QUAL}" )
+
+# require CPP0X_VERSION
+set( CPP0X_VERSION $ENV{CPP0X_VERSION} )
+if ( NOT CPP0X_VERSION )
+  message(FATAL_ERROR "CPP0X has not been setup")
+endif ()
+SET ( CPP0X_STRING $ENV{SETUP_CPP0X} )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" CPP0X_QUAL "${CPP0X_STRING}" )
+message(STATUS "CPP0X version and qualifier are ${CPP0X_VERSION} ${CPP0X_QUAL}" )
+
+# require CETLIB_VERSION
+set( CETLIB_VERSION $ENV{CETLIB_VERSION} )
+if ( NOT CETLIB_VERSION )
+  message(FATAL_ERROR "CETLIB has not been setup")
+endif ()
+SET ( CETLIB_STRING $ENV{SETUP_CETLIB} )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" CETLIB_QUAL "${CETLIB_STRING}" )
+message(STATUS "CETLIB version and qualifier are ${CETLIB_VERSION} ${CETLIB_QUAL}" )
 
 # require LIBSIGCPP_VERSION
 set( LIBSIGCPP_VERSION $ENV{LIBSIGCPP_VERSION} )
@@ -56,7 +74,7 @@ if ( NOT LIBSIGCPP_VERSION )
   message(FATAL_ERROR "libsigcpp has not been setup")
 endif ()
 SET ( LIBSIGCPP_STRING $ENV{SETUP_LIBSIGCPP} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" LIBSIGCPP_QUAL "${LIBSIGCPP_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" LIBSIGCPP_QUAL "${LIBSIGCPP_STRING}" )
 message(STATUS "LIBSIGCPP version and qualifier are ${LIBSIGCPP_VERSION} ${LIBSIGCPP_QUAL}" )
 
 # require CLHEP_VERSION
@@ -65,7 +83,7 @@ if ( NOT CLHEP_VERSION )
   message(FATAL_ERROR "clhep has not been setup")
 endif ()
 SET ( CLHEP_STRING $ENV{SETUP_CLHEP} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" CLHEP_QUAL "${CLHEP_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" CLHEP_QUAL "${CLHEP_STRING}" )
 message(STATUS "CLHEP version and qualifier are ${CLHEP_VERSION} ${CLHEP_QUAL}" )
 
 # require ROOTSYS
@@ -74,7 +92,8 @@ if ( NOT ROOTSYS )
   message(FATAL_ERROR "root has not been setup")
 endif ()
 SET ( ROOT_STRING $ENV{SETUP_ROOT} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" ROOT_QUAL "${ROOT_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([^-][^j]).*" "\\2" ROOT_QUAL "${ROOT_STRING}" )
+STRING( REGEX REPLACE "^[r][o][o][t][ ]+([^ ]+).*" "\\1" ROOT_VERSION "${ROOT_STRING}" )
 message(STATUS "ROOT version and qualifier are ${ROOT_VERSION} ${ROOT_QUAL}" )
 
 # require FHICLCPP_VERSION
@@ -83,7 +102,7 @@ if ( NOT FHICLCPP_VERSION )
   message(FATAL_ERROR "fhiclcpp has not been setup")
 endif ()
 SET ( FHICLCPP_STRING $ENV{SETUP_FHICLCPP} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" FHICLCPP_QUAL "${FHICLCPP_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" FHICLCPP_QUAL "${FHICLCPP_STRING}" )
 message(STATUS "FHICLCPP version and qualifier are ${FHICLCPP_VERSION} ${FHICLCPP_QUAL}" )
 
 # require MESSAGEFACILITY_VERSION
@@ -92,7 +111,7 @@ if ( NOT MESSAGEFACILITY_VERSION )
   message(FATAL_ERROR "messagefacility has not been setup")
 endif ()
 SET ( MESSAGEFACILITY_STRING $ENV{SETUP_MESSAGEFACILITY} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" MESSAGEFACILITY_QUAL "${MESSAGEFACILITY_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" MESSAGEFACILITY_QUAL "${MESSAGEFACILITY_STRING}" )
 message(STATUS "MESSAGEFACILITY version and qualifier are ${MESSAGEFACILITY_VERSION} ${MESSAGEFACILITY_QUAL}" )
 
 # Check if the boost library has been set
@@ -102,7 +121,7 @@ IF (NOT BOOST_VERS)
     MESSAGE (FATAL_ERROR "Boost library has not been setup")
 ENDIF()
 SET ( BOOST_STRING $ENV{SETUP_BOOST} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
+STRING( REGEX REPLACE ".*([-][q]+ )(.*)([-][-j])" "\\2" BOOST_QUAL "${BOOST_STRING}" )
 message(STATUS "Boost version and qualifier are ${BOOST_VERS} ${BOOST_QUAL}" )
 
 # make sure gcc has been set
