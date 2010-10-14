@@ -36,8 +36,8 @@ reportSettings_(false)
   iRegistry.watchPreModule(this, &EnableFloatingPointExceptions::preModule);
   iRegistry.watchPostModule(this, &EnableFloatingPointExceptions::postModule);
 
-  reportSettings_     = iPS.getBool("reportSettings",false);
-  setPrecisionDouble_ = iPS.getBool("setPrecisionDouble",true);
+  reportSettings_     = iPS.get<bool>("reportSettings",false);
+  setPrecisionDouble_ = iPS.get<bool>("setPrecisionDouble",true);
 
   // Get the state of the fpu and save it as the "OSdefault" state. The language here
   // is a bit odd.  We use "OSdefault" to label the fpu state we inherit from the OS on
@@ -58,7 +58,7 @@ reportSettings_(false)
   PSet    empty_PSet;
   VString empty_VString;
 
-  VString moduleNames = iPS.getVString("moduleNames",empty_VString);
+  VString moduleNames = iPS.get<std::vector<std::string> >("moduleNames",empty_VString);
 
   // If the module name list is missing or empty, set default values for all parameters
 
@@ -85,11 +85,11 @@ reportSettings_(false)
     //VString::iterator pos = find_in_all(moduleNames, "default");
     VString::iterator pos = find(moduleNames.begin(),moduleNames.end(), "default");
     if( pos != moduleNames.end() ) {
-      PSet secondary = iPS.getPSet(*pos, empty_PSet);
-      enableDivByZeroEx_  = secondary.getBool("enableDivByZeroEx", false);
-      enableInvalidEx_    = secondary.getBool("enableInvalidEx",   false);
-      enableOverFlowEx_   = secondary.getBool("enableOverFlowEx",  false);
-      enableUnderFlowEx_  = secondary.getBool("enableUnderFlowEx", false);
+      PSet secondary = iPS.get<fhicl::ParameterSet>(*pos, empty_PSet);
+      enableDivByZeroEx_  = secondary.get<bool>("enableDivByZeroEx", false);
+      enableInvalidEx_    = secondary.get<bool>("enableInvalidEx",   false);
+      enableOverFlowEx_   = secondary.get<bool>("enableOverFlowEx",  false);
+      enableUnderFlowEx_  = secondary.get<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
         mf::LogVerbatim("FPE_Enable") << "\nSettings for unnamed module";
@@ -103,11 +103,11 @@ reportSettings_(false)
   // Then handle the rest.
 
     for( VString::const_iterator it(moduleNames.begin()), itEnd=moduleNames.end(); it != itEnd; ++it) {
-      PSet secondary = iPS.getPSet(*it, empty_PSet);
-      enableDivByZeroEx_  = secondary.getBool("enableDivByZeroEx", false);
-      enableInvalidEx_    = secondary.getBool("enableInvalidEx",   false);
-      enableOverFlowEx_   = secondary.getBool("enableOverFlowEx",  false);
-      enableUnderFlowEx_  = secondary.getBool("enableUnderFlowEx", false);
+      PSet secondary = iPS.get<fhicl::ParameterSet>(*it, empty_PSet);
+      enableDivByZeroEx_  = secondary.get<bool>("enableDivByZeroEx", false);
+      enableInvalidEx_    = secondary.get<bool>("enableInvalidEx",   false);
+      enableOverFlowEx_   = secondary.get<bool>("enableOverFlowEx",  false);
+      enableUnderFlowEx_  = secondary.get<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
         mf::LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;

@@ -34,7 +34,7 @@ namespace edm {
   InputSourceFactory::makeInputSource(ParameterSet const& conf,
                                       InputSourceDescription const& desc) const
   {
-    std::string modtype = conf.getString("@module_type");
+    std::string modtype = conf.get<std::string>("@module_type");
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
     std::auto_ptr<InputSource> wm;
     try {

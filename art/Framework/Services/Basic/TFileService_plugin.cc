@@ -20,13 +20,13 @@ namespace edm {
   TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
     TFileDirectory("",
                    "",
-                   new TFile(cfg.getString("fileName").c_str() ,
+                   new TFile(cfg.get<std::string>("fileName").c_str() ,
                              "RECREATE"),
                    ""),
     file_(TFileDirectory::file_),
-    fileName_(cfg.getString("fileName")),
+    fileName_(cfg.get<std::string>("fileName")),
     fileNameRecorded_(false),
-    closeFileFast_(cfg.getBool("closeFileFast", false))
+    closeFileFast_(cfg.get<bool>("closeFileFast", false))
   {
     // activities to monitor in order to set the proper directory
     r.watchPreModuleConstruction(this, & TFileService::setDirectoryName);

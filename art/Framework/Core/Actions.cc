@@ -60,10 +60,10 @@ namespace edm {
 
       fhicl::ParameterSet defopts;
       fhicl::ParameterSet opts =
-        pset.getPSet("options", defopts);
+        pset.get<fhicl::ParameterSet>("options", defopts);
       //cerr << "looking for " << actionName(code) << std::endl;
       vstring v =
-        opts.getVString(actionName(code),vstring());
+        opts.get<std::vector<std::string> >(actionName(code),vstring());
       for_all(v, var(out)[_1] = code);
 
     }

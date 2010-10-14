@@ -67,20 +67,20 @@ namespace edm {
 
       // find all HLTPrescaler modules
       set<string> prescalerModules;
-      vector<string> allModules=prcPS.getVString("@all_modules");
+      vector<string> allModules=prcPS.get<std::vector<std::string> >("@all_modules");
       for(unsigned int i=0;i<allModules.size();i++) {
-        ParameterSet pset  = prcPS.getParameterSet(allModules[i]);
-        string moduleLabel = pset.getString("@module_label");
-        string moduleType  = pset.getString("@module_type");
+        ParameterSet pset  = prcPS.get<fhicl::ParameterSet>(allModules[i]);
+        string moduleLabel = pset.get<std::string>("@module_label");
+        string moduleType  = pset.get<std::string>("@module_type");
         if (moduleType=="HLTPrescaler") prescalerModules.insert(moduleLabel);
       }
 
       // find all paths with an HLTPrescaler and check for <=1
       std::set<string> prescaledPathSet;
-      vector<string> allPaths = prcPS.getVString("@paths");
+      vector<string> allPaths = prcPS.get<std::vector<std::string> >("@paths");
       for (unsigned int iP=0;iP<allPaths.size();iP++) {
         string pathName = allPaths[iP];
-        vector<string> modules = prcPS.getVString(pathName);
+        vector<string> modules = prcPS.get<std::vector<std::string> >(pathName);
         for (unsigned int iM=0;iM<modules.size();iM++) {
           string moduleLabel = modules[iM];
           if (prescalerModules.erase(moduleLabel)>0) {
@@ -94,24 +94,24 @@ namespace edm {
       }
 
       // get prescale table and check consistency with above information
-      lvl1Labels_ = iPS.getVString("lvl1Labels");
+      lvl1Labels_ = iPS.get<std::vector<std::string> >("lvl1Labels");
       nLvl1Index_ = lvl1Labels_.size();
 
       string lvl1DefaultLabel=
-        iPS.getString("lvl1DefaultLabel","");
+        iPS.get<std::string>("lvl1DefaultLabel","");
       for (unsigned int i=0;i<lvl1Labels_.size();i++)
         if (lvl1Labels_[i]==lvl1DefaultLabel) iLvl1IndexDefault_=i;
 
       vector<ParameterSet> vpsetPrescales=
-        iPS.getVPSet("prescaleTable");
+        iPS.get<std::vector<fhicl::ParameterSet> >("prescaleTable");
 
       vector<string> prescaledPaths;
       for (unsigned int iVPSet=0;iVPSet<vpsetPrescales.size();iVPSet++) {
         ParameterSet psetPrescales = vpsetPrescales[iVPSet];
-        string pathName = psetPrescales.getString("pathName");
+        string pathName = psetPrescales.get<std::string>("pathName");
         if (prescaledPathSet.erase(pathName)>0) {
           vector<unsigned int> prescales =
-            psetPrescales.getVUInt("prescales");
+            psetPrescales.get<std::vector<unsigned int> >("prescales");
           if (prescales.size()!=nLvl1Index_) {
             throw cms::Exception("PrescaleTableMismatch")
               <<"path '"<<pathName<<"' has unexpected number of prescales";

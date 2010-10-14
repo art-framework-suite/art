@@ -21,7 +21,7 @@ namespace edm {
     itIsKnownTheFileHasNoDuplicates_(false)
   {
     std::string duplicateCheckMode =
-      pset.getString("duplicateCheckMode", std::string("checkEachRealDataFile"));
+      pset.get<std::string>("duplicateCheckMode", std::string("checkEachRealDataFile"));
 
     if (duplicateCheckMode == std::string("noDuplicateCheck")) duplicateCheckMode_ = noDuplicateCheck;
     else if (duplicateCheckMode == std::string("checkEachFile")) duplicateCheckMode_ = checkEachFile;

@@ -34,8 +34,8 @@ namespace edm {
     }
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-      summary_only_(iPS.getBool("summaryOnly",false)),
-      report_summary_(iPS.getBool("useJobReport",true)),
+      summary_only_(iPS.get<bool>("summaryOnly",false)),
+      report_summary_(iPS.get<bool>("useJobReport",true)),
       max_event_time_(0.),
       min_event_time_(0.),
       total_event_count_(0)

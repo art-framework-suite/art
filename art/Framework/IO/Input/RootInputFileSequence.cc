@@ -42,23 +42,23 @@ namespace edm {
     flatDistribution_(0),
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
-    startAtRun_(pset.getUInt("firstRun", 1U)),
-    startAtSubRun_(pset.getUInt("firstSubRun", 1U)),
-    startAtEvent_(pset.getUInt("firstEvent", 1U)),
-    eventsToSkip_(pset.getUInt("skipEvents", 0U)),
+    startAtRun_(pset.get<unsigned int>("firstRun", 1U)),
+    startAtSubRun_(pset.get<unsigned int>("firstSubRun", 1U)),
+    startAtEvent_(pset.get<unsigned int>("firstEvent", 1U)),
+    eventsToSkip_(pset.get<unsigned int>("skipEvents", 0U)),
     whichSubRunsToSkip_(),
     eventsToProcess_(),
-    noEventSort_(pset.getBool("noEventSort", false)),
-    skipBadFiles_(pset.getBool("skipBadFiles", false)),
-    treeCacheSize_(pset.getUInt("cacheSize", 0U)),
-    treeMaxVirtualSize_(pset.getInt("treeMaxVirtualSize", -1)),
+    noEventSort_(pset.get<bool>("noEventSort", false)),
+    skipBadFiles_(pset.get<bool>("skipBadFiles", false)),
+    treeCacheSize_(pset.get<unsigned int>("cacheSize", 0U)),
+    treeMaxVirtualSize_(pset.get<int>("treeMaxVirtualSize", -1)),
     forcedRunOffset_(0),
-    setRun_(pset.getUInt("setRunNumber", 0U)),
+    setRun_(pset.get<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
     randomAccess_(false),
     duplicateChecker_(),
-    dropDescendants_(pset.getBool("dropDescendantsOfDroppedBranches", true)) {
+    dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)) {
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
@@ -72,7 +72,7 @@ namespace edm {
 
 
     sort_all(eventsToProcess_);
-    std::string matchMode = pset.getString("fileMatchMode", std::string("permissive"));
+    std::string matchMode = pset.get<std::string>("fileMatchMode", std::string("permissive"));
     if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
     if (primary()) {
       for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
@@ -506,7 +506,7 @@ namespace edm {
       rules.push_back("keep " + *it + "_*");
     }
     fhicl::ParameterSet pset;
-    pset.addVString("inputCommands", rules);
+    pset.put<std::vector<std::string> >("inputCommands", rules);
     groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
   }
 

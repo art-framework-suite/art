@@ -239,7 +239,7 @@ namespace edm {
     std::vector<std::string> defaultCommands(1U, std::string("keep *"));
 
     std::vector<std::string> commands =
-      pset.getVString(parameterName,
+      pset.get<std::vector<std::string> >(parameterName,
                                                     defaultCommands);
     rules_.reserve(commands.size());
     for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();

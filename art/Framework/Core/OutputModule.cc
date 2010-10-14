@@ -136,7 +136,7 @@ namespace edm {
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
-      pset.getPSet("SelectEvents", ParameterSet());
+      pset.get<fhicl::ParameterSet>("SelectEvents", ParameterSet());
 
     selector_config_id_ = selectevents.id();
     // If selectevents is an emtpy ParameterSet, then we are to write
@@ -150,7 +150,7 @@ namespace edm {
     }
 
     vector<std::string> path_specs =
-      selectevents.getVString("SelectEvents");
+      selectevents.get<std::vector<std::string> >("SelectEvents");
 
     if (path_specs.empty()) {
         wantAllEvents_ = true;

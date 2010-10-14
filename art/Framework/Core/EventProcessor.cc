@@ -208,7 +208,7 @@ namespace edm {
     bool sourceSpecified = false;
     try {
       ParameterSet main_input =
-        params.getParameterSet("@main_input");
+        params.get<fhicl::ParameterSet>("@main_input");
 
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
@@ -216,7 +216,7 @@ namespace edm {
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
       md.moduleName_ =
-        main_input.getString("@module_type");
+        main_input.get<std::string>("@module_type");
       // There is no module label for the unnamed input source, so
       // just use "source".
       md.moduleLabel_ = "source";
@@ -402,13 +402,13 @@ namespace edm {
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-    ParameterSet optionsPset(parameterSet->getPSet("options", ParameterSet()));
-    fileMode_ = optionsPset.getString("fileMode", "");
-    handleEmptyRuns_ = optionsPset.getBool("handleEmptyRuns", true);
-    handleEmptySubRuns_ = optionsPset.getBool("handleEmptySubRuns", true);
+    ParameterSet optionsPset(parameterSet->get<fhicl::ParameterSet>("options", ParameterSet()));
+    fileMode_ = optionsPset.get<std::string>("fileMode", "");
+    handleEmptyRuns_ = optionsPset.get<bool>("handleEmptyRuns", true);
+    handleEmptySubRuns_ = optionsPset.get<bool>("handleEmptySubRuns", true);
 
-    maxEventsPset_ = parameterSet->getPSet("maxEvents", ParameterSet());
-    maxSubRunsPset_ = parameterSet->getPSet("maxSubRuns", ParameterSet());
+    maxEventsPset_ = parameterSet->get<fhicl::ParameterSet>("maxEvents", ParameterSet());
+    maxSubRunsPset_ = parameterSet->get<fhicl::ParameterSet>("maxSubRuns", ParameterSet());
 
     shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
@@ -430,7 +430,7 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and
     // create a service and extra token for it
-    std::string processName = parameterSet->getString("@process_name");
+    std::string processName = parameterSet->get<std::string>("@process_name");
 
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
@@ -450,8 +450,8 @@ namespace edm {
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
-                           maxEventsPset_.getInt("input", -1),
-                           maxSubRunsPset_.getInt("input", -1));
+                           maxEventsPset_.get<int>("input", -1),
+                           maxSubRunsPset_.get<int>("input", -1));
 
     input_= makeInput(*parameterSet, common, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>

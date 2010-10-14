@@ -63,7 +63,7 @@ namespace edm {
   , processingMode_      ( RunsSubRunsAndEvents )
   , moduleDescription_   ( desc.moduleDescription_ )
   , productRegistry_     ( createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_) )
-  , primary_             ( pset.getString("@module_label") == std::string("@main_input") )
+  , primary_             ( pset.get<std::string>("@module_label") == std::string("@main_input") )
   , processGUID_         ( primary_ ? createGlobalIdentifier() : std::string() )
   , time_                ( )
   , doneReadAhead_       ( false )
@@ -79,7 +79,7 @@ namespace edm {
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
     std::string processingMode
-       = pset.getString("processingMode", defaultMode);
+       = pset.get<std::string>("processingMode", defaultMode);
     if (processingMode == runMode) {
       processingMode_ = Runs;
     }

@@ -33,7 +33,7 @@ namespace edm {
 					InputSourceDescription const& desc) const
 
   {
-    std::string modtype = conf.getString("@module_type");
+    std::string modtype = conf.get<std::string>("@module_type");
     FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << std::endl;
     std::auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
 

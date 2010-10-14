@@ -95,7 +95,7 @@
 //     with some fallback value in case the ParameterSet omits the
 //     specified parameter:
 //
-//       createEngine( pset.getInt("seed",13597) );
+//       createEngine( pset.get<int>("seed",13597) );
 //
 //   - Obtain a seed value from the module's ParameterSet via a helper
 //     function, get_seed_value(), provided by the framework.  Since this

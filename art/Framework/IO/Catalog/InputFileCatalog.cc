@@ -24,8 +24,8 @@ namespace edm {
                                      bool canBeEmpty, bool noThrow) :
     FileCatalog(poolcat),
     logicalFileNames_(canBeEmpty ?
-        pset.getVString(namesParameter, std::vector<std::string>()) :
-        pset.getVString(namesParameter)),
+        pset.get<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
+        pset.get<std::vector<std::string> >(namesParameter)),
     fileNames_(logicalFileNames_),
     fileCatalogItems_() {
 

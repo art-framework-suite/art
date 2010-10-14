@@ -53,8 +53,8 @@ private:
 
 AsciiOutputModule::AsciiOutputModule(ParameterSet const & pset)
   : OutputModule( pset )
-  , prescale_   ( pset.getUInt("prescale", 1U) )
-  , verbosity_  ( pset.getUInt("verbosity", 1U) )
+  , prescale_   ( pset.get<unsigned int>("prescale", 1U) )
+  , verbosity_  ( pset.get<unsigned int>("verbosity", 1U) )
   , counter_    ( 0 )
 {
   if( prescale_ == 0 ) prescale_ = 1;

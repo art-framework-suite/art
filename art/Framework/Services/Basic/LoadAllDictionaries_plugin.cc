@@ -21,7 +21,7 @@ using edm::service::LoadAllDictionaries;
 //
 edm::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet& iConfig)
 {
-   bool doLoad(iConfig.getBool("doLoad",true));
+   bool doLoad(iConfig.get<bool>("doLoad",true));
    if(doLoad) {
      ROOT::Cintex::Cintex::Enable();
 

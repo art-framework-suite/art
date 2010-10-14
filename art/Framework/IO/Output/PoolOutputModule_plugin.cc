@@ -28,22 +28,22 @@ namespace edm {
     OutputModule(pset),
     rootServiceChecker_(),
     selectedOutputItemList_(),
-    fileName_(pset.getString("fileName")),
-    logicalFileName_(pset.getString("logicalFileName", std::string())),
-    catalog_(pset.getString("catalog", std::string())),
-    maxFileSize_(pset.getInt("maxSize", 0x7f000000)),
-    compressionLevel_(pset.getInt("compressionLevel", 7)),
-    basketSize_(pset.getInt("basketSize", 16384)),
-    splitLevel_(pset.getInt("splitLevel", 99)),
-    treeMaxVirtualSize_(pset.getInt("treeMaxVirtualSize", -1)),
-    fastCloning_(pset.getBool("fastCloning", true) && wantAllEvents()),
+    fileName_(pset.get<std::string>("fileName")),
+    logicalFileName_(pset.get<std::string>("logicalFileName", std::string())),
+    catalog_(pset.get<std::string>("catalog", std::string())),
+    maxFileSize_(pset.get<int>("maxSize", 0x7f000000)),
+    compressionLevel_(pset.get<int>("compressionLevel", 7)),
+    basketSize_(pset.get<int>("basketSize", 16384)),
+    splitLevel_(pset.get<int>("splitLevel", 99)),
+    treeMaxVirtualSize_(pset.get<int>("treeMaxVirtualSize", -1)),
+    fastCloning_(pset.get<bool>("fastCloning", true) && wantAllEvents()),
     dropMetaData_(DropNone),
-    dropMetaDataForDroppedData_(pset.getBool("dropMetaDataForDroppedData", false)),
-    moduleLabel_(pset.getString("@module_label")),
+    dropMetaDataForDroppedData_(pset.get<bool>("dropMetaDataForDroppedData", false)),
+    moduleLabel_(pset.get<std::string>("@module_label")),
     outputFileCount_(0),
     inputFileCount_(0),
     rootOutputFile_() {
-      std::string dropMetaData(pset.getString("dropMetaData", std::string()));
+      std::string dropMetaData(pset.get<std::string>("dropMetaData", std::string()));
       if (dropMetaData.empty()) dropMetaData_ = DropNone;
       else if (dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
       else if (dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
@@ -57,7 +57,7 @@ namespace edm {
     // We don't use this next parameter, but we read it anyway because it is part
     // of the configuration of this module.  An external parser creates the
     // configuration by reading this source code.
-    pset.getPSet("dataset", ParameterSet());
+    pset.get<fhicl::ParameterSet>("dataset", ParameterSet());
   }
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree * tree) {

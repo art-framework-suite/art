@@ -22,7 +22,7 @@ using fhicl::ParameterSet;
 // constructors and destructor
 //
 Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
-  indention_(iPS.getString("indention","++")),
+  indention_(iPS.get<std::string>("indention","++")),
   depth_(0)
 {
    iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);

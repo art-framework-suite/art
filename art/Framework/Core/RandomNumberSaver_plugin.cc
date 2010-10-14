@@ -54,7 +54,7 @@ private:
 
 RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
   : EDProducer( )
-  , debug_    ( pset.getBool( "debug"
+  , debug_    ( pset.get<bool>( "debug"
                                                 , false
               )                                 )
 {

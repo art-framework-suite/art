@@ -101,7 +101,7 @@ namespace edm {
     Strings paths; // default is empty...
 
     if (!config.empty())
-      paths = config.getVString("SelectEvents");
+      paths = config.get<std::vector<std::string> >("SelectEvents");
 
     init(paths, triggernames);
   }
@@ -950,10 +950,10 @@ namespace edm {
     // the SelectEvents parameter is a ParameterSet within
     // a ParameterSet, so we have to pull it out twice
     fhicl::ParameterSet selectEventsParamSet =
-      pset.getPSet("SelectEvents", fhicl::ParameterSet());
+      pset.get<fhicl::ParameterSet>("SelectEvents", fhicl::ParameterSet());
     if (!selectEventsParamSet.empty()) {
       Strings path_specs =
-        selectEventsParamSet.getVString("SelectEvents");
+        selectEventsParamSet.get<std::vector<std::string> >("SelectEvents");
       if (!path_specs.empty()) {
         selection = path_specs;
       }
