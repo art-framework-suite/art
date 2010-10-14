@@ -15,7 +15,23 @@ cmake_minimum_required (VERSION 2.6)
 project(art)
 set( version v0_0_0 )
 SET (qualifier a1)
-SET (flavorqual sl5.x86_64.${qualifier})
+
+# sl5 is 2.6.18
+# sl4 is 2.6.9
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+   if( ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "^2.6.9.*" )
+       SET( SLTYPE sl4 )
+   endif ()
+   if( ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "^2.6.18.*" )
+       SET( SLTYPE sl5 )
+   endif ()
+   message(STATUS "Building on Linux ${SLTYPE} ${CMAKE_SYSTEM_PROCESSOR}" )
+endif ()
+# require SLTYPE
+if ( NOT SLTYPE )
+  message(FATAL_ERROR "Can't determine system type")
+endif ()
+SET (flavorqual ${SLTYPE}.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
 SET (flavorqual_dir ${version}/${flavorqual} )
 
 # because we want to move these libraries about,
