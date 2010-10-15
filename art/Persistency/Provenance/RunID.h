@@ -23,7 +23,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
 
    typedef unsigned int RunNumber_t;
 

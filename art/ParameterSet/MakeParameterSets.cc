@@ -3,7 +3,7 @@
 #include "art/ParameterSet/PythonProcessDesc.h"
 
 
-namespace edm {
+namespace art {
 
   boost::shared_ptr<ProcessDesc>
   readConfig(const std::string & config)
@@ -12,7 +12,7 @@ namespace edm {
     return pythonProcessDesc.processDesc();
   }
 
-  boost::shared_ptr<edm::ProcessDesc>
+  boost::shared_ptr<art::ProcessDesc>
   readConfig(const std::string & config, int argc, char * argv[])
   {
     PythonProcessDesc pythonProcessDesc(config, argc, argv);
@@ -26,9 +26,9 @@ namespace edm {
                   boost::shared_ptr<std::vector<fhicl::ParameterSet> >& serviceparams)
   {
     PythonProcessDesc pythonProcessDesc(configtext);
-    boost::shared_ptr<edm::ProcessDesc> processDesc = pythonProcessDesc.processDesc();
+    boost::shared_ptr<art::ProcessDesc> processDesc = pythonProcessDesc.processDesc();
     main = processDesc->getProcessPSet();
     serviceparams = processDesc->getServicesPSets();
   }
 
-} // namespace edm
+} // namespace art

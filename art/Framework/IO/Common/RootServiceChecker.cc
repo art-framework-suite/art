@@ -3,11 +3,11 @@
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/RootHandlers.h"
 
-namespace edm {
+namespace art {
   RootServiceChecker::RootServiceChecker() {
     Service<RootHandlers> rootSvc;
     if (!rootSvc.isAvailable()) {
-      throw edm::Exception(errors::Configuration) <<
+      throw art::Exception(errors::Configuration) <<
 	    "The 'InitRootHandlers' service was not specified.\n" <<
 	    "This service must be used if PoolSource or PoolOutputModule is used.\n";
     }

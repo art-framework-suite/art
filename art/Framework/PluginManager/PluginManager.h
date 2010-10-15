@@ -32,7 +32,7 @@
 #include "art/Framework/PluginManager/PluginInfo.h"
 
 // forward declarations
-namespace edmplugin {
+namespace artplugin {
   class DummyFriend;
   class PluginFactoryBase;
 class PluginManager

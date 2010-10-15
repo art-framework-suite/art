@@ -40,13 +40,13 @@ namespace testreftobase {
 using namespace testreftobase;
 
 void
-do_some_tests(edm::RefToBaseVector<Base> x)
+do_some_tests(art::RefToBaseVector<Base> x)
 {
-  edm::RefToBaseVector<Base> copy(x);
+  art::RefToBaseVector<Base> copy(x);
 
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
-  edm::RefToBaseVector<Base>::const_iterator
+  art::RefToBaseVector<Base>::const_iterator
     b = x.begin(), e = x.end(), cb = copy.begin(), ce = copy.end();
   CPPUNIT_ASSERT( e - b == ce - cb );
   CPPUNIT_ASSERT(std::distance(b, e) == std::distance(cb, ce) );
@@ -55,7 +55,7 @@ do_some_tests(edm::RefToBaseVector<Base> x)
 void
 testRefToBaseVector::check()
 {
-  using namespace edm;
+  using namespace art;
 
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());

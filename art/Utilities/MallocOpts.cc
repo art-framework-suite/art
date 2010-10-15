@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace edm
+namespace art
 {
 
   std::ostream& operator<<(std::ostream& ost,const MallocOpts& opts)

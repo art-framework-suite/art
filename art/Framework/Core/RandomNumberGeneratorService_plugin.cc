@@ -35,8 +35,8 @@
 
 // Header corresponding to this implementation file:
 #include "art/Framework/Core/RandomNumberGeneratorService.h"
-  using edm::RandomNumberGeneratorService;
-  using edm::RNGsnapshot;
+  using art::RandomNumberGeneratorService;
+  using art::RNGsnapshot;
 
 // Framework support:
 #include "art/Framework/Core/Event.h"
@@ -118,12 +118,12 @@ namespace {
     if( seed == USE_DEFAULT_SEED )
       return;
     if( seed > MAXIMUM_CLHEP_SEED )
-      throw cms::Exception("RANGE")
+      throw artZ::Exception("RANGE")
         << "RNGservice::throw_if_invalid_seed():\n"
            "Seed " << seed << " exceeds permitted maximum "
            << MAXIMUM_CLHEP_SEED << ".\n";
     if( seed < 0 )  // too small for CLHEP
-      throw cms::Exception("RANGE")
+      throw artZ::Exception("RANGE")
         << "RNGservice::throw_if_invalid_seed():\n"
            "Seed " << seed << " is not permitted to be negative.\n";
   }  // throw_if_invalid_seed()
@@ -131,7 +131,7 @@ namespace {
   inline  label_t
     qualify_engine_label( label_t const & engine_label )
   {
-    return edm::Service<edm::CurrentModule>() -> label()
+    return art::Service<art::CurrentModule>() -> label()
            + ":" + engine_label;
   }  // qualify_engine_label()
 
@@ -189,7 +189,7 @@ namespace {
 #undef MANUFACTURE_IMPLICIT
 #undef MANUFACTURE_EXPLICIT
 
-    throw cms::Exception("RANDOM")
+    throw artZ::Exception("RANDOM")
       << "engine_factory():\n"
          "Attempt to create engine of unknown kind \""
           << kind_of_engine_to_make << "\".\n";
@@ -215,7 +215,7 @@ namespace {
 
 
 RNGservice::RandomNumberGeneratorService( fhicl::ParameterSet const & pset
-                                        , edm::ActivityRegistry   & reg
+                                        , art::ActivityRegistry   & reg
                                         )
 : engine_creation_is_okay_( true )
 , dict_( )
@@ -265,7 +265,7 @@ base_engine_t &
   // DEBUG */ cerr << "RNGService::getEngine(): requested engine \"" << label << "\"\n";
 
   if( d == dict_.end() ) {
-    throw cms::Exception("RANDOM")
+    throw artZ::Exception("RANDOM")
       << "RNGservice::getEngine():\n"
          "The requested engine \"" << label << "\" has not been established.\n";
   }
@@ -318,13 +318,13 @@ base_engine_t &
   label_t const &  label  = qualify_engine_label( engine_label );
 
   if( ! engine_creation_is_okay_ ) {
-    throw cms::Exception("RANDOM")
+    throw artZ::Exception("RANDOM")
       << "RNGservice::createEngine():\n"
          "Attempt to create engine \"" << label << "\" is too late.\n";
   }
 
   if( tracker_.find(label) != tracker_.end() ) {
-    throw cms::Exception("RANDOM")
+    throw artZ::Exception("RANDOM")
       << "RNGservice::createEngine():\n"
          "Engine \"" << label << "\" has already been created.\n";
   }
@@ -400,14 +400,14 @@ void
 
 
 void
-  RNGservice::restoreSnapshot_( edm::Event const & event )
+  RNGservice::restoreSnapshot_( art::Event const & event )
 {
   if( restoreStateLabel_.empty() )
     return;
 
   // access the saved-states product:
   typedef  std::vector<RNGsnapshot>  saved_t;
-  edm::Handle< saved_t >  saved;
+  art::Handle< saved_t >  saved;
   event.getByLabel( restoreStateLabel_, saved );
 
   // restore engines from saved-states product:
@@ -435,7 +435,7 @@ void
     }
 
     if( t->second == VIA_FILE ) {
-      throw cms::Exception("RANDOM")
+      throw artZ::Exception("RANDOM")
         << "RNGservice::restoreSnapshot_():\n"
            "The state of engine \"" << label
              << "\" has been previously read from a file;\n"
@@ -451,7 +451,7 @@ void
       log << " successfully restored.\n";
     }
     else {
-      throw cms::Exception("RANDOM")
+      throw artZ::Exception("RANDOM")
         << "RNGservice::restoreSnapshot_():\n"
            "Failed during restore of state of engine for \"" << label << "\"\n";
     }
@@ -500,7 +500,7 @@ void
   // access the file:
   ifstream  infile( restoreFromFilename_.c_str() );
   if( !infile )
-      throw cms::Exception("RANDOM")
+      throw artZ::Exception("RANDOM")
         << "RNGservice::restoreFromFile_():\n"
            "Can't open file \"" << restoreFromFilename_
             << "\" to initialize engines\n";
@@ -513,7 +513,7 @@ void
       eptr_t &  eptr  = d->second;
       assert( eptr != 0 && "RNGservice::restoreFromFile_()" );
       if( ! eptr->get(infile) ) {
-        throw cms::Exception("RANDOM")
+        throw artZ::Exception("RANDOM")
           << "RNGservice::restoreFromFile_():\n"
              "Failed during restore of state of engine for: " << label
               << "from file \"" << restoreFromFilename_ << "\"\n";
@@ -521,7 +521,7 @@ void
       tracker_[label] = VIA_FILE;
     }
     else {
-      throw cms::Exception("RANDOM")
+      throw artZ::Exception("RANDOM")
         << "RNGservice::restoreFromFile_():\n"
            "Engine \"" << label << "\" has already been established.\n";
     }
@@ -541,8 +541,8 @@ void
 
 #ifdef NOTYET
 void
-  RNGservice::preProcessEvent( edm::EventID   const &  // unused
-                             , edm::Timestamp const &  // unused
+  RNGservice::preProcessEvent( art::EventID   const &  // unused
+                             , art::Timestamp const &  // unused
                              )
 {
   takeSnapshot_();

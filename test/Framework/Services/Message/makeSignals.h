@@ -5,33 +5,33 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class makeSignals
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    makeSignals( edm::ParameterSet const & ) { }
+    makeSignals( art::ParameterSet const & ) { }
 
   virtual
     ~makeSignals() { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
 };
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_makeSignals_h

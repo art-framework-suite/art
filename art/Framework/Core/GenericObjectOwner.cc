@@ -17,7 +17,7 @@
 #include "art/Framework/Core/GenericObjectOwner.h"
 #include "art/Framework/Core/EventPrincipal.h"
 
-namespace edm {
+namespace art {
 //
 // constants, enums and typedefs
 //
@@ -84,7 +84,7 @@ OrphanHandle<GenericObjectOwner>
 Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::string const& productInstanceName)
 {
    if (product.get() == 0) {                // null pointer is illegal
-      throw edm::Exception(edm::errors::NullPointerError)
+      throw art::Exception(art::errors::NullPointerError)
       << "Event::put: A null auto_ptr was passed to 'put'.\n"
       << "The pointer is of type " << "GenericObjectOwner" << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
@@ -103,7 +103,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
 
    Reflex::Type const wrapperType=Reflex::Type::ByName(wrappedClassName(desc.fullClassName()));
    if(wrapperType == Reflex::Type() ) {
-      throw edm::Exception(errors::DictionaryNotFound, "NoWrapperDictionary")
+      throw art::Exception(errors::DictionaryNotFound, "NoWrapperDictionary")
       << "Event::put: the class type '" << desc.fullClassName()
       << "' was passed to put but the Reflex dictionary for the required class '"
       << wrappedClassName(desc.fullClassName()) << "' could not be found./n"

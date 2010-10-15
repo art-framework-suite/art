@@ -7,7 +7,7 @@
 
 
 #include "art/Framework/Core/EngineCreator.h"
-  using edm::EngineCreator;
+  using art::EngineCreator;
 
 // C++ support:
 #include <vector>
@@ -57,9 +57,9 @@ EngineCreator::seed_t
                                 : explicit_seeds.front();
 }
 
-edm::Service<edm::RandomNumberGeneratorService> &
+art::Service<art::RandomNumberGeneratorService> &
   EngineCreator::rng( )
 {
-  static  edm::Service<edm::RandomNumberGeneratorService>  rng;
+  static  art::Service<art::RandomNumberGeneratorService>  rng;
   return rng;
 }

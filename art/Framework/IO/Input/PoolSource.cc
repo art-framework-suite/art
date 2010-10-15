@@ -14,7 +14,7 @@
 #include <set>
 
 
-namespace edm {
+namespace art {
 
   class SubRunID;
   class EventID;
@@ -24,27 +24,27 @@ namespace edm {
       ProcessHistory const& ph1 = primary.processHistory();
       ProcessHistory const& ph2 = secondary.processHistory();
       if (ph1 != ph2 && !isAncestor(ph2, ph1)) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           "The secondary file is not an ancestor of the primary file\n";
       }
     }
     void checkConsistency(EventPrincipal const& primary, EventPrincipal const& secondary) {
       if (!isSameEvent(primary, secondary)) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
     }
     void checkConsistency(SubRunPrincipal const& primary, SubRunPrincipal const& secondary) {
       if (primary.id() != secondary.id()) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent SubRunAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
     }
     void checkConsistency(RunPrincipal const& primary, RunPrincipal const& secondary) {
       if (primary.id() != secondary.id()) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
       }
       checkHistoryConsistency(primary, secondary);
@@ -115,7 +115,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
           << " Run " << primaryPrincipal->run()
           << " is not found in the secondary input files\n";
       }
@@ -133,7 +133,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InSubRun]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readSubRun_")
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::readSubRun_")
           << " Run " << primaryPrincipal->run()
           << " SubRun " << primaryPrincipal->subRun()
           << " is not found in the secondary input files\n";
@@ -152,7 +152,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
       return primaryPrincipal;
@@ -170,7 +170,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readIt") <<
+        throw art::Exception(errors::MismatchedInputFiles, "PoolSource::readIt") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
       return primaryPrincipal;
@@ -221,4 +221,4 @@ namespace edm {
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
   }
 
-}  // namespace edm
+}  // namespace art

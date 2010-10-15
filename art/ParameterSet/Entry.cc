@@ -24,7 +24,7 @@
 #include <sstream>
 
 
-namespace edm {
+namespace art {
   namespace pset {
 
     struct TypeTrans {
@@ -72,7 +72,7 @@ namespace edm {
     }
   }  // namespace pset
 
-  static const edm::pset::TypeTrans sTypeTranslations;
+  static const art::pset::TypeTrans sTypeTranslations;
   typedef std::map<std::string, char> Type2Code;
 
   Entry::~Entry() {}
@@ -151,37 +151,37 @@ namespace edm {
         break;
       }
       case 'F':  {  // FileInPath
-        edm::FileInPath val;
+        art::FileInPath val;
         if(!decode(val, rep)) throwEntryError("FileInPath", rep);
         break;
       }
       case 't':  {  // InputTag
-        edm::InputTag val;
+        art::InputTag val;
         if(!decode(val, rep)) throwEntryError("InputTag", rep);
         break;
       }
       case 'v':  {  // VInputTag
-        std::vector<edm::InputTag> val;
+        std::vector<art::InputTag> val;
         if(!decode(val, rep)) throwEntryError("VInputTag", rep);
         break;
       }
       case 'E':  {  // EventID
-        edm::EventID val;
+        art::EventID val;
         if(!decode(val, rep)) throwEntryError("EventID", rep);
         break;
       }
       case 'e':  {  // VEventID
-        std::vector<edm::EventID> val;
+        std::vector<art::EventID> val;
         if(!decode(val, rep)) throwEntryError("VEventID", rep);
         break;
       }
       case 'M':  {  // SubRunID
-        edm::SubRunID val;
+        art::SubRunID val;
         if(!decode(val, rep)) throwEntryError("SubRunID", rep);
         break;
       }
       case 'm':  {  // VSubRunID
-        std::vector<edm::SubRunID> val;
+        std::vector<art::SubRunID> val;
         if(!decode(val, rep)) throwEntryError("VSubRunID", rep);
         break;
       }
@@ -351,7 +351,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // FileInPath
 
-  Entry::Entry(std::string const& name, edm::FileInPath const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, art::FileInPath const& val, bool is_tracked) :
     name_(name), rep(), type('F'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("FileInPath");
@@ -362,7 +362,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // InputTag
 
-  Entry::Entry(std::string const& name, edm::InputTag const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, art::InputTag const& val, bool is_tracked) :
     name_(name), rep(), type('t'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("InputTag");
@@ -373,7 +373,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VInputTag
 
-  Entry::Entry(std::string const& name, std::vector<edm::InputTag> const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, std::vector<art::InputTag> const& val, bool is_tracked) :
     name_(name), rep(), type('v'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("VInputTag");
@@ -384,7 +384,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 //  EventID
 
-  Entry::Entry(std::string const& name, edm::EventID const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, art::EventID const& val, bool is_tracked) :
     name_(name), rep(), type('E'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("EventID");
@@ -395,7 +395,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventID
 
-  Entry::Entry(std::string const& name, std::vector<edm::EventID> const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, std::vector<art::EventID> const& val, bool is_tracked) :
     name_(name), rep(), type('e'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("VEventID");
@@ -407,7 +407,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 //  SubRunID
 
-  Entry::Entry(std::string const& name, edm::SubRunID const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, art::SubRunID const& val, bool is_tracked) :
     name_(name), rep(), type('M'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("SubRunID");
@@ -418,7 +418,7 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VSubRunID
 
-  Entry::Entry(std::string const& name, std::vector<edm::SubRunID> const& val, bool is_tracked) :
+  Entry::Entry(std::string const& name, std::vector<art::SubRunID> const& val, bool is_tracked) :
     name_(name), rep(), type('m'), tracked(is_tracked ? '+' : '-')
   {
     if (!encode(rep, val)) throwEncodeError("VSubRunID");
@@ -468,7 +468,7 @@ namespace edm {
     Type2Code::const_iterator itFound = sTypeTranslations.type2Code_.find(type);
     if(itFound == sTypeTranslations.type2Code_.end())
       {
-        throw edm::Exception(errors::Configuration)
+        throw art::Exception(errors::Configuration)
           << "bad type name used for Entry : " << type;
       }
 
@@ -479,7 +479,7 @@ namespace edm {
 
     if(!fromString(codedString.begin(), codedString.end()))
       {
-        throw edm::Exception(errors::Configuration)
+        throw art::Exception(errors::Configuration)
           <<  "bad encoded Entry string " <<  codedString;
       }
     validate();
@@ -496,7 +496,7 @@ namespace edm {
       sTypeTranslations.type2Code_.find(type);
     if(itFound == sTypeTranslations.type2Code_.end())
       {
-        throw edm::Exception(errors::Configuration)
+        throw art::Exception(errors::Configuration)
           << "bad type name used for Entry : " << type;
       }
 
@@ -517,7 +517,7 @@ namespace edm {
 
     if(!fromString(codedString.begin(), codedString.end()))
       {
-        throw edm::Exception(errors::Configuration)
+        throw art::Exception(errors::Configuration)
           << "bad encoded Entry string " << codedString;
       }
     validate();
@@ -796,11 +796,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // FileInPath
 
-  edm::FileInPath
+  art::FileInPath
   Entry::getFileInPath() const
   {
     if(type != 'F') throwValueError("FileInPath");
-    edm::FileInPath val;
+    art::FileInPath val;
     if(!decode(val, rep)) throwEntryError("FileInPath", rep);
     return val;
   }
@@ -808,11 +808,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // InputTag
 
-  edm::InputTag
+  art::InputTag
   Entry::getInputTag() const
   {
     if(type != 't') throwValueError("InputTag");
-    edm::InputTag val;
+    art::InputTag val;
     if(!decode(val, rep)) throwEntryError("InputTag", rep);
     return val;
   }
@@ -821,11 +821,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VInputTag
 
-  std::vector<edm::InputTag>
+  std::vector<art::InputTag>
   Entry::getVInputTag() const
   {
     if(type != 'v') throwValueError("VInputTag");
-    std::vector<edm::InputTag> val;
+    std::vector<art::InputTag> val;
     if(!decode(val, rep)) throwEntryError("InputTag", rep);
     return val;
   }
@@ -834,11 +834,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // EventID
 
-  edm::EventID
+  art::EventID
   Entry::getEventID() const
   {
     if(type != 'E') throwValueError("EventID");
-    edm::EventID val;
+    art::EventID val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
     return val;
   }
@@ -846,11 +846,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventID
 
-  std::vector<edm::EventID>
+  std::vector<art::EventID>
   Entry::getVEventID() const
   {
     if(type != 'e') throwValueError("VEventID");
-    std::vector<edm::EventID> val;
+    std::vector<art::EventID> val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
     return val;
   }
@@ -859,11 +859,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // SubRunID
 
-  edm::SubRunID
+  art::SubRunID
   Entry::getSubRunID() const
   {
     if(type != 'M') throwValueError("SubRunID");
-    edm::SubRunID val;
+    art::SubRunID val;
     if(!decode(val, rep)) throwEntryError("SubRunID", rep);
     return val;
   }
@@ -871,11 +871,11 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VSubRunID
 
-  std::vector<edm::SubRunID>
+  std::vector<art::SubRunID>
   Entry::getVSubRunID() const
   {
     if(type != 'm') throwValueError("VSubRunID");
-    std::vector<edm::SubRunID> val;
+    std::vector<art::SubRunID> val;
     if(!decode(val, rep)) throwEntryError("SubRunID", rep);
     return val;
   }
@@ -1003,7 +1003,7 @@ namespace edm {
 
     void Entry::throwValueError(const char* expectedType) const
     {
-      throw edm::Exception(errors::Configuration, "ValueError")
+      throw art::Exception(errors::Configuration, "ValueError")
         << "type of " << name_ << " is expected to be " << expectedType
         << " but declared as " << sTypeTranslations.table_[type];
     }
@@ -1011,7 +1011,7 @@ namespace edm {
     void Entry::throwEntryError(const char* expectedType,
                          std::string const& badRep) const
     {
-      throw edm::Exception(errors::Configuration, "EntryError")
+      throw art::Exception(errors::Configuration, "EntryError")
         << "can not convert representation of " << name_ << ": "
         << badRep
         << " to value of type " << expectedType << " ";
@@ -1019,8 +1019,8 @@ namespace edm {
 
     void Entry::throwEncodeError(const char* type) const
     {
-      throw edm::Exception(errors::Configuration, "EncodingError")
+      throw art::Exception(errors::Configuration, "EncodingError")
         << "can not encode " << name_ << " as type: " << type;
     }
 
-}  // namespace edm
+}  // namespace art

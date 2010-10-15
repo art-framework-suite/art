@@ -4,13 +4,13 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 
-namespace edmtest {
+namespace arttest {
 
-  class ProdigalAnalyzer : public edm::EDAnalyzer {
+  class ProdigalAnalyzer : public art::EDAnalyzer {
   public:
-    explicit ProdigalAnalyzer(edm::ParameterSet const& pset);
+    explicit ProdigalAnalyzer(art::ParameterSet const& pset);
     virtual ~ProdigalAnalyzer() {}
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    virtual void analyze(art::Event const& e, art::EventSetup const& c);
   };
 
 }

@@ -10,7 +10,7 @@
 
 // Auxiliary run data that is persistent
 
-namespace edm
+namespace art
 {
   struct RunAuxiliary {
     RunAuxiliary() :

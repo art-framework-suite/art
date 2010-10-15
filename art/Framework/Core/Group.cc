@@ -12,7 +12,7 @@
 
 #include <string>
 
-namespace edm {
+namespace art {
 
   Group::Group() :
     product_(),
@@ -203,7 +203,7 @@ namespace edm {
   Group::mergeGroup(Group * newGroup) {
 
     if (status() != newGroup->status()) {
-      throw edm::Exception(edm::errors::Unknown, "Merging")
+      throw art::Exception(art::errors::Unknown, "Merging")
         << "Group::mergeGroup(), Trying to merge two run products or two subRun products.\n"
         << "The products have different creation status's.\n"
         << "For example \"present\" and \"notCreated\"\n"

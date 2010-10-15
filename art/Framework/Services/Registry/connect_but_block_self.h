@@ -29,7 +29,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
    namespace serviceregistry {
       template<class Func, class T1=void*, class T2=void*, class T3=void*>
       class BlockingWrapper

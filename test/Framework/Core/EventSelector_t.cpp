@@ -17,7 +17,7 @@
 #include <iostream>
 #include <memory>
 
-using namespace edm;
+using namespace art;
 
 const size_t numBits = 5;
 const int numPatterns = 11;
@@ -68,10 +68,10 @@ void testone(const Strings& paths,
   std::vector<unsigned char> bitArray;
 
   HLTGlobalStatus bm(mask.size());
-  const HLTPathStatus pass  = HLTPathStatus(edm::hlt::Pass);
-  const HLTPathStatus fail  = HLTPathStatus(edm::hlt::Fail);
-  const HLTPathStatus ex    = HLTPathStatus(edm::hlt::Exception);
-  const HLTPathStatus ready = HLTPathStatus(edm::hlt::Ready);
+  const HLTPathStatus pass  = HLTPathStatus(art::hlt::Pass);
+  const HLTPathStatus fail  = HLTPathStatus(art::hlt::Fail);
+  const HLTPathStatus ex    = HLTPathStatus(art::hlt::Exception);
+  const HLTPathStatus ready = HLTPathStatus(art::hlt::Ready);
   for(unsigned int b=0;b<mask.size();++b) {
     bm[b] = (mask[b]? pass : fail);
 
@@ -82,15 +82,15 @@ void testone(const Strings& paths,
     if ( (number_of_trigger_paths % 4) == 0) bitArray.push_back(0);
     int byteIndex = number_of_trigger_paths / 4;
     int subIndex = number_of_trigger_paths % 4;
-    bitArray[byteIndex] |= (mask[b]? edm::hlt::Pass : edm::hlt::Fail) << (subIndex * 2);
+    bitArray[byteIndex] |= (mask[b]? art::hlt::Pass : art::hlt::Fail) << (subIndex * 2);
     ++number_of_trigger_paths;
   }
 
   if (jmask == 8 && mask.size() > 4) {
     bm[0] = ready;
     bm[4] = ex;
-    bitArray[0] = (bitArray[0] & 0xfc) | edm::hlt::Ready;
-    bitArray[1] = (bitArray[1] & 0xfc) | edm::hlt::Exception;
+    bitArray[0] = (bitArray[0] & 0xfc) | art::hlt::Ready;
+    bitArray[1] = (bitArray[1] & 0xfc) | art::hlt::Exception;
   }
 
   TriggerResults results(bm,paths);
@@ -265,7 +265,7 @@ int main()
   }
 
   // Now create and setup the service
-  typedef edm::service::TriggerNamesService TNS;
+  typedef art::service::TriggerNamesService TNS;
   typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
   boost::shared_ptr<w_TNS> tnsptr

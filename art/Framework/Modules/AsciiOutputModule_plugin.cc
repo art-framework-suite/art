@@ -20,16 +20,16 @@
 
 
 // Contents:
-namespace edm {
+namespace art {
   class AsciiOutputModule;
 }
-using edm::AsciiOutputModule;
+using art::AsciiOutputModule;
 
 
 // ======================================================================
 
 
-class edm::AsciiOutputModule
+class art::AsciiOutputModule
   : public OutputModule
 {
 public:

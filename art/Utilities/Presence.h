@@ -16,7 +16,7 @@
   dynamically (run-time) loaded.
 */
 
-namespace edm {
+namespace art {
 
   class Presence {
   public:

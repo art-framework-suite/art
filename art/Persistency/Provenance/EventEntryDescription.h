@@ -33,7 +33,7 @@ EventEntryDescription: The event dependent portion of the description of
   Parents: The EDProducts used as input by the creator.
 */
 
-namespace edm {
+namespace art {
   class EventEntryDescription {
   public:
     EventEntryDescription();

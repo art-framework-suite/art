@@ -11,15 +11,15 @@
 Commonly used persistent containers.
 
 \subsection interface Public interface
-- edm::AssociationMap <b>&lt;Tag&gt;</b>: one-to-many, one-to-one
-  or one-to-value association based on edm::Ref. Objects in a EDM collection 
+- art::AssociationMap <b>&lt;Tag&gt;</b>: one-to-many, one-to-one
+  or one-to-value association based on art::Ref. Objects in a EDM collection 
   are associated to one or many objects in another EDM collection or to
   values of a specified type.<br><br>
   The template <tt>Tag</tt> should be one of the following:
-  - edm::OneToValue <b><CKey, Val, index></b> for associations by value
-  - edm::OneToOne <b><CKey, CVal, index></b> for one-to-one maps by reference
-  - edm::OneToMany <b><CKey, CVal, index></b> for one-to-many maps by reference
-  - edm::OneToManyWithQuality <b><CKey, CVal, Q, index></b>
+  - art::OneToValue <b><CKey, Val, index></b> for associations by value
+  - art::OneToOne <b><CKey, CVal, index></b> for one-to-one maps by reference
+  - art::OneToMany <b><CKey, CVal, index></b> for one-to-many maps by reference
+  - art::OneToManyWithQuality <b><CKey, CVal, Q, index></b>
   <b>CKey</b> is the collection type of the object to be associated, <b>CVal</b> is the collection of 
   associated objects, <b>Val</b> is the associated value type and <b>Q</b> is the data type describing
   the match quality. References are stored as indices of type <tt>index</tt>, that is by default 
@@ -28,7 +28,7 @@ Commonly used persistent containers.
   One example of basic usage is presented below:
 \htmlonly
 <pre>
-  typedef edm::AssociationMap&lt;edm::OneToMany&lt;CaloJetCollection, TrackCollection&gt; &gt;
+  typedef art::AssociationMap&lt;art::OneToMany&lt;CaloJetCollection, TrackCollection&gt; &gt;
     JetTracksMap;
   JetTracksMap map;
 
@@ -49,15 +49,15 @@ Commonly used persistent containers.
 \htmlonly
 <pre>
 &lt;lcgdict&gt;
-  &lt;class name="edm::AssociationMap&lt; ... &gt;" &gt;
+  &lt;class name="art::AssociationMap&lt; ... &gt;" &gt;
     &lt;field name="transientMap_" transient="true" /&gt;
   &lt;/class &gt;
 &lt;/lcgdict&gt;
 </pre>
 \endhtmlonly
 
-- edm::AssociationVector <b>&lt;CKey, CVal&gt;</b>: container very similar to
-  <tt>std::vector&lt;CVal&gt;</tt>, with in addition an <tt>edm::RefProd&lt;CKey&gt;</tt>.
+- art::AssociationVector <b>&lt;CKey, CVal&gt;</b>: container very similar to
+  <tt>std::vector&lt;CVal&gt;</tt>, with in addition an <tt>art::RefProd&lt;CKey&gt;</tt>.
   Assuming the two collection of types <tt>CKey</tt> and <tt>CVal</tt> are of the same
   size and properly ordered, this container implements in a very simple way a one-to-one
   association. In order to get the reference to the <i>i<sup>th</sup></i> object in 
@@ -65,7 +65,7 @@ Commonly used persistent containers.
   a user example:
 \htmlonly
 <pre>
-  edm::AssiciationVector&lt;reco::MuonCollection, std::vector&lt;double&gt; &gt; isolations( muonRefProd );
+  art::AssiciationVector&lt;reco::MuonCollection, std::vector&lt;double&gt; &gt; isolations( muonRefProd );
   // fill the association ...
   for( size_t i = 0; i < isolations.size(); ++ i ) {
     double iso = isolations[ i ];
@@ -75,31 +75,31 @@ Commonly used persistent containers.
 </pre>
 \endhtmlonly
 
-- edm::DetSet <b>&lt;T&gt;</b>:
+- art::DetSet <b>&lt;T&gt;</b>:
 
-- edm::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
+- art::EDCollection <b>&lt;T&gt;</b>: Functionally equivalent to <tt>std::vector&lt;T&gt;</tt>. 
   Still present for hystorical reason; will be probably removed in one of the next releases.
 
-- edm::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
+- art::IDVectorMap <b>&lt;ID, C, P&gt;</b>:
 
-- edm::OwnVector <b>&lt;T, P = edm::ClonePolicy&lt;T&gt; &gt;</b>: container 
+- art::OwnVector <b>&lt;T, P = art::ClonePolicy&lt;T&gt; &gt;</b>: container 
   with interface very similar to <tt>std::vector&lt;T&gt;</tt>,  
   capable of storing polymorphic objects that are owned by the 
   container to avoid memory leak. 
-  edm::OwnVector has functionalities very similar to 
+  art::OwnVector has functionalities very similar to 
   <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector&lt;T&gt;</tt></a>, 
   providing also EDM persistent capabilities. 
   <br><br>The first template argument <tt><b>T</b></tt> is the common base class of
   polymorphic objects to be stored; the second parameter <tt><b>P</b></TT> specifies
   the  \ref DataFormats_Common_helpers "policy" required to allocate clones of 
   the stored object. By default, it
-  is equal to the type <b>edm::ClonePolicy&lt;T&gt;</b> assuming the 
+  is equal to the type <b>art::ClonePolicy&lt;T&gt;</b> assuming the 
   type <tt>T</tt> is equipped with a virtual method <tt><b>clone()</b></tt> that returning a cloned
   instance of the actual concrete object. Other user-provided policy implementations are possible.
   <br><br>
   As for <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector</tt></a>,
   due to the polymorphic nature of contained objects, the STL <tt><b>std::sort</b></tt>
-  function and other mutating algorithms do not work with edm::OwnVector. For this reason, functions to sort
+  function and other mutating algorithms do not work with art::OwnVector. For this reason, functions to sort
   the collection are provided as class methods, using the same approach
   taken by <a href="http://www.boost.org/libs/ptr_container/doc/ptr_vector.html"><tt>boost::ptr_vector</tt></a>.
   See also this <a href="http://www.boost.org/libs/ptr_container/doc/tutorial.html#algorithms">documentation</a>
@@ -112,11 +112,11 @@ Commonly used persistent containers.
 &lt;lcgdict&gt;
 &lt;selection&gt;
   &lt;class name="MyBaseClass" /&gt;
-  &lt;class name="edm::OwnVector&lt;MyBaseClass, edm::ClonePolicy&lt;MyBaseClass&gt; &gt;" /&gt;
+  &lt;class name="art::OwnVector&lt;MyBaseClass, art::ClonePolicy&lt;MyBaseClass&gt; &gt;" /&gt;
   . . .
 &lt;/selection&gt;
 &lt;exclusion&gt;
-  &lt;class name="edm::OwnVector&lt;MyBaseClass, edm::ClonePolicy&lt;MyBaseClass&gt; &gt;"&gt;
+  &lt;class name="art::OwnVector&lt;MyBaseClass, art::ClonePolicy&lt;MyBaseClass&gt; &gt;"&gt;
     &lt;method name="sort" /&gt;
   &lt;/class&gt;
 &lt;/exclusion&gt;
@@ -124,7 +124,7 @@ Commonly used persistent containers.
 </pre>
 \endhtmlonly
 
-- edm::RangeMap <b>&lt;ID, C, P&gt;</b>: generic container of objects
+- art::RangeMap <b>&lt;ID, C, P&gt;</b>: generic container of objects
   organized in a collection of type <tt><b>C</b></tt> and sorted 
   according to an identified of type <tt><b>ID</b></tt>. It is
   possible to iterate over contained object, iterate over identifiers,
@@ -134,7 +134,7 @@ Commonly used persistent containers.
   to produce copies/clones of the objects during insertion and final
   sorting phases can be specified as template parameter <tt><b>P</b></tt>.
 
-- edm::SortedCollection <b>&lt;T, SORT&gt;</b>:
+- art::SortedCollection <b>&lt;T, SORT&gt;</b>:
 
 </pre>
 \subsection modules Modules

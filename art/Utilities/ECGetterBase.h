@@ -7,7 +7,7 @@
 //
 /**\class ECGetterBase ECGetterBase.h FWCore/Utilities/interface/ECGetterBase.h
 
- Description: Helper class for the implementation of edm::ExtensionCord
+ Description: Helper class for the implementation of art::ExtensionCord
 
  Usage:
     <usage>
@@ -24,7 +24,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
   namespace extensioncord {
     template <class T>
     class ECGetterBase

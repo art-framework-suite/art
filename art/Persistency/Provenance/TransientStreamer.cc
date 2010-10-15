@@ -9,7 +9,7 @@
 #include "art/Persistency/Provenance/EventEntryDescription.h" // backward compatibility
 #include "art/Persistency/Provenance/EventEntryInfo.h" // backward compatibility
 
-namespace edm {
+namespace art {
   void setTransientStreamers() {
     SetTransientStreamer<Transient<BranchDescription::Transients> >();
     SetTransientStreamer<Transient<ProductProvenance::Transients> >();

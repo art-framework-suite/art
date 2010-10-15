@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_PostReadFixupTrait_h
 #define DataFormats_Common_PostReadFixupTrait_h
 
-namespace edm {
+namespace art {
   namespace helpers {
     struct DoNoPostReadFixup {
       void touch() { }

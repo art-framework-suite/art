@@ -23,7 +23,7 @@
 #include <stdexcept>
 
 
-using namespace edm;
+using namespace art;
 using fhicl::ParameterSet;
 
 
@@ -72,7 +72,7 @@ static std::string
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(bool & to, std::string const& from)
+  art::decode(bool & to, std::string const& from)
 {
   if     (from == "true" )  { to = true ; return true; }
   else if(from == "false")  { to = false; return true; }
@@ -82,7 +82,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, bool from)
+  art::encode(std::string & to, bool from)
 {
   to = from ? "true" : "false";
   return true;
@@ -94,7 +94,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<bool> & to, std::string const& from)
+  art::decode(std::vector<bool> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -117,7 +117,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<bool> const& from)
+  art::encode(std::string & to, std::vector<bool> const& from)
 {
   to = "{";
 
@@ -144,7 +144,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(int & to, std::string const& from)
+  art::decode(int & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -167,7 +167,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, int from)
+  art::encode(std::string & to, int from)
 {
   bool is_negative = (from < 0);
   if(is_negative)
@@ -188,7 +188,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(boost::int64_t & to, std::string const& from)
+  art::decode(boost::int64_t & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -211,7 +211,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, boost::int64_t from)
+  art::encode(std::string & to, boost::int64_t from)
 {
   bool is_negative = (from < 0);
   if(is_negative)
@@ -232,7 +232,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<int> & to, std::string const& from)
+  art::decode(std::vector<int> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -255,7 +255,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<int> const& from)
+  art::encode(std::string & to, std::vector<int> const& from)
 {
   to = "{";
 
@@ -281,7 +281,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<boost::int64_t> & to, std::string const& from)
+  art::decode(std::vector<boost::int64_t> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -304,7 +304,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<boost::int64_t> const& from)
+  art::encode(std::string & to, std::vector<boost::int64_t> const& from)
 {
   to = "{";
 
@@ -330,7 +330,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(unsigned & to, std::string const& from)
+  art::decode(unsigned & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -350,7 +350,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, unsigned from)
+  art::encode(std::string & to, unsigned from)
 {
   to.clear();
   do  {
@@ -366,7 +366,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(boost::uint64_t & to, std::string const& from)
+  art::decode(boost::uint64_t & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -386,7 +386,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, boost::uint64_t from)
+  art::encode(std::string & to, boost::uint64_t from)
 {
   to.clear();
   do  {
@@ -402,7 +402,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<unsigned> & to, std::string const& from)
+  art::decode(std::vector<unsigned> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -425,7 +425,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<unsigned> const& from)
+  art::encode(std::string & to, std::vector<unsigned> const& from)
 {
   to = "{";
 
@@ -451,7 +451,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<boost::uint64_t> & to, std::string const& from)
+  art::decode(std::vector<boost::uint64_t> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -474,7 +474,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<boost::uint64_t> const& from)
+  art::encode(std::string & to, std::vector<boost::uint64_t> const& from)
 {
   to = "{";
 
@@ -501,7 +501,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(double & to, std::string const& from)
+  art::decode(double & to, std::string const& from)
 {
   if(from == "NaN")
     to = std::numeric_limits<double>::quiet_NaN();
@@ -536,7 +536,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, double from)
+  art::encode(std::string & to, double from)
 {
   std::ostringstream ost;
   ost.precision(std::numeric_limits<double>::digits10+1);
@@ -552,7 +552,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<double> & to, std::string const& from)
+  art::decode(std::vector<double> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -575,7 +575,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<double> const& from)
+  art::encode(std::string & to, std::vector<double> const& from)
 {
   to = "{";
 
@@ -602,7 +602,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::string & to, std::string const& from)
+  art::decode(std::string & to, std::string const& from)
 {
   /*std::cerr << "Decoding: " << from << '\n'; //DEBUG*/
   std::string::const_iterator  b = from.begin()
@@ -649,7 +649,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(FileInPath& to, std::string const& from)
+  art::decode(FileInPath& to, std::string const& from)
 {
   std::istringstream is(from);
   FileInPath temp;
@@ -662,7 +662,7 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const FileInPath& from)
+  art::encode(std::string& to, const FileInPath& from)
 {
   std::ostringstream ost;
   ost << from;
@@ -677,7 +677,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(InputTag& to, std::string const& from)
+  art::decode(InputTag& to, std::string const& from)
 {
   to = InputTag(from);
   return true;
@@ -686,7 +686,7 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const InputTag& from)
+  art::encode(std::string& to, const InputTag& from)
 {
   to = from.encode();
   return true;
@@ -698,7 +698,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<InputTag>& to, std::string const& from)
+  art::decode(std::vector<InputTag>& to, std::string const& from)
 {
   std::vector<std::string> strings;
   decode(strings, from);
@@ -714,7 +714,7 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const std::vector<InputTag>& from)
+  art::encode(std::string& to, const std::vector<InputTag>& from)
 {
   std::vector<std::string> strings;
   for(std::vector<InputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end();
@@ -733,20 +733,20 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(edm::EventID& to, std::string const& from)
+  art::decode(art::EventID& to, std::string const& from)
 {
-  std::vector<std::string> tokens = edm::tokenize(from, ":");
+  std::vector<std::string> tokens = art::tokenize(from, ":");
   assert(tokens.size() == 2);
   unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
   unsigned int event = strtoul(tokens[1].c_str(), 0, 0);
-  to = edm::EventID(run, event);
+  to = art::EventID(run, event);
   return true;
 }  // decode to EventID
 
 
 
 bool
-  edm::encode(std::string& to, const edm::EventID & from)
+  art::encode(std::string& to, const art::EventID & from)
 {
   std::ostringstream os;
   os << from.run() << ":" << from.event();
@@ -760,7 +760,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<edm::EventID>& to, std::string const& from)
+  art::decode(std::vector<art::EventID>& to, std::string const& from)
 {
   std::vector<std::string> strings;
   decode(strings, from);
@@ -768,7 +768,7 @@ bool
   for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
       stringItr != stringItrEnd; ++stringItr)
   {
-    edm::EventID eventID;
+    art::EventID eventID;
     decode(eventID, *stringItr);
     to.push_back(eventID);
   }
@@ -778,10 +778,10 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const std::vector<edm::EventID>& from)
+  art::encode(std::string& to, const std::vector<art::EventID>& from)
 {
   std::vector<std::string> strings;
-  for(std::vector<edm::EventID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+  for(std::vector<art::EventID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
       idItr != idItrEnd; ++idItr)
   {
     std::string encodedEventID;
@@ -800,20 +800,20 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(edm::SubRunID& to, std::string const& from)
+  art::decode(art::SubRunID& to, std::string const& from)
 {
-  std::vector<std::string> tokens = edm::tokenize(from, ":");
+  std::vector<std::string> tokens = art::tokenize(from, ":");
   assert(tokens.size() == 2);
   unsigned int run = strtoul(tokens[0].c_str(), 0, 0);
   unsigned int subRun = strtoul(tokens[1].c_str(), 0, 0);
-  to = edm::SubRunID(run, subRun);
+  to = art::SubRunID(run, subRun);
   return true;
 }  // decode to SubRunID
 
 
 
 bool
-  edm::encode(std::string& to, const edm::SubRunID & from)
+  art::encode(std::string& to, const art::SubRunID & from)
 {
   std::ostringstream os;
   os << from.run() << ":" << from.subRun();
@@ -827,7 +827,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<edm::SubRunID>& to, std::string const& from)
+  art::decode(std::vector<art::SubRunID>& to, std::string const& from)
 {
   std::vector<std::string> strings;
   decode(strings, from);
@@ -835,7 +835,7 @@ bool
   for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
       stringItr != stringItrEnd; ++stringItr)
   {
-    edm::SubRunID subRunID;
+    art::SubRunID subRunID;
     decode(subRunID, *stringItr);
     to.push_back(subRunID);
   }
@@ -845,10 +845,10 @@ bool
 
 
 bool
-  edm::encode(std::string& to, const std::vector<edm::SubRunID>& from)
+  art::encode(std::string& to, const std::vector<art::SubRunID>& from)
 {
   std::vector<std::string> strings;
-  for(std::vector<edm::SubRunID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
+  for(std::vector<art::SubRunID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
       idItr != idItrEnd; ++idItr)
   {
     std::string encodedSubRunID;
@@ -865,7 +865,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::string const& from)
+  art::encode(std::string & to, std::string const& from)
 {
   std::string::const_iterator  b = from.begin()
                             ,  e = from.end();
@@ -976,7 +976,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<std::string> & to, std::string const& from)
+  art::decode(std::vector<std::string> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -999,7 +999,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<std::string> const& from)
+  art::encode(std::string & to, std::vector<std::string> const& from)
 {
   to = "{";
 
@@ -1026,7 +1026,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(ParameterSet & to, std::string const& from)
+  art::decode(ParameterSet & to, std::string const& from)
 {
   to = ParameterSet(from);
   return true;
@@ -1035,7 +1035,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, ParameterSet const& from)
+  art::encode(std::string & to, ParameterSet const& from)
 {
   to = from.toString();
   return true;
@@ -1047,7 +1047,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::decode(std::vector<ParameterSet> & to, std::string const& from)
+  art::decode(std::vector<ParameterSet> & to, std::string const& from)
 {
   std::vector<std::string> temp;
   if(! split(std::back_inserter(temp), from, '{', ',', '}'))
@@ -1070,7 +1070,7 @@ bool
 // ----------------------------------------------------------------------
 
 bool
-  edm::encode(std::string & to, std::vector<ParameterSet> const& from)
+  art::encode(std::string & to, std::vector<ParameterSet> const& from)
 {
   to = "{";
 

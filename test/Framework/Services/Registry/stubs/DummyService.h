@@ -31,7 +31,7 @@ namespace testserviceregistry {
    {
 
    public:
-      DummyService(const edm::ParameterSet&,edm::ActivityRegistry&);
+      DummyService(const art::ParameterSet&,art::ActivityRegistry&);
       virtual ~DummyService();
 
       // ---------- const member functions ---------------------

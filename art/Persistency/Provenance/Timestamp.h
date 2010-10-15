@@ -23,7 +23,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
    typedef unsigned long long TimeValue_t;
 
 class Timestamp

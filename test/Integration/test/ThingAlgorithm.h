@@ -6,7 +6,7 @@
  ************************************************************/
 #include "test/TestObjects/ThingCollectionfwd.h"
 
-namespace edmtest {
+namespace arttest {
   class ThingAlgorithm {
   public:
     ThingAlgorithm(long iOffsetDelta = 0) : theDebugLevel(0), offset(0), offsetDelta(iOffsetDelta) {}

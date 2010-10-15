@@ -22,8 +22,8 @@ namespace {
 
 // ------------------------------------------------------
 
-DummyServiceE0::DummyServiceE0(const edm::ParameterSet& iPSet,
-                             edm::ActivityRegistry&iAR)
+DummyServiceE0::DummyServiceE0(const art::ParameterSet& iPSet,
+                             art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceE0 Constructor " << testCounter << std::endl;
   if (testCounter != 0) abort();
@@ -54,8 +54,8 @@ DummyServiceE0::~DummyServiceE0()
 
 // ------------------------------------------------------
 
-DummyServiceA1::DummyServiceA1(const edm::ParameterSet& iPSet,
-                             edm::ActivityRegistry&iAR)
+DummyServiceA1::DummyServiceA1(const art::ParameterSet& iPSet,
+                             art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceA1 Constructor " << testCounter << std::endl;
   if (testCounter != 1) abort();
@@ -86,8 +86,8 @@ DummyServiceA1::~DummyServiceA1()
 
 // ------------------------------------------------------
 
-DummyServiceD2::DummyServiceD2(const edm::ParameterSet& iPSet,
-                             edm::ActivityRegistry&iAR)
+DummyServiceD2::DummyServiceD2(const art::ParameterSet& iPSet,
+                             art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceD2 Constructor " << testCounter << std::endl;
   if (testCounter != 2) abort();
@@ -118,11 +118,11 @@ DummyServiceD2::~DummyServiceD2()
 
 // ------------------------------------------------------
 
-DummyServiceB3::DummyServiceB3(const edm::ParameterSet& iPSet,
-                             edm::ActivityRegistry&iAR)
+DummyServiceB3::DummyServiceB3(const art::ParameterSet& iPSet,
+                             art::ActivityRegistry&iAR)
 {
   // Make this service dependent on service D2 in order to "On Demand Creation"
-  edm::Service<DummyServiceD2>().isAvailable();
+  art::Service<DummyServiceD2>().isAvailable();
 
   std::cout << "DummyServiceB3 Constructor " << testCounter << std::endl;
   if (testCounter != 3) abort();
@@ -153,8 +153,8 @@ DummyServiceB3::~DummyServiceB3()
 
 // ------------------------------------------------------
 
-DummyServiceC4::DummyServiceC4(const edm::ParameterSet& iPSet,
-                             edm::ActivityRegistry&iAR)
+DummyServiceC4::DummyServiceC4(const art::ParameterSet& iPSet,
+                             art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceC4 Constructor " << testCounter << std::endl;
   if (testCounter != 4) abort();

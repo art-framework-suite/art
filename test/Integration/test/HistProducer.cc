@@ -4,8 +4,8 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-namespace edmtest {
-  HistProducer::HistProducer(edm::ParameterSet const& iConfig)
+namespace arttest {
+  HistProducer::HistProducer(art::ParameterSet const& iConfig)
   {
     produces<TH1F>();
     //produces<ThingWithHist>();
@@ -15,7 +15,7 @@ namespace edmtest {
   HistProducer::~HistProducer() { }
 
   // Functions that gets called by framework every event
-  void HistProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void HistProducer::produce(art::Event& e, art::EventSetup const&) {
 
     std::auto_ptr<TH1F> result(new TH1F);  //Empty
     e.put(result);
@@ -24,5 +24,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::HistProducer;
+using arttest::HistProducer;
 DEFINE_FWK_MODULE(HistProducer);

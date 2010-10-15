@@ -11,17 +11,17 @@
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 
-namespace edmtest
+namespace arttest
 {
-  class PathAnalyzer : public edm::EDAnalyzer
+  class PathAnalyzer : public art::EDAnalyzer
   {
   public:
 
-    explicit PathAnalyzer(edm::ParameterSet const&);
+    explicit PathAnalyzer(art::ParameterSet const&);
     virtual ~PathAnalyzer();
 
-    virtual void analyze(edm::Event const&, edm::EventSetup const&);
-    virtual void beginJob(edm::EventSetup const&);
+    virtual void analyze(art::Event const&, art::EventSetup const&);
+    virtual void beginJob(art::EventSetup const&);
     virtual void endJob();
 
   private:
@@ -32,18 +32,18 @@ namespace edmtest
   //
   // Implementation details
 
-  PathAnalyzer::PathAnalyzer(edm::ParameterSet const&) { }
+  PathAnalyzer::PathAnalyzer(art::ParameterSet const&) { }
 
   PathAnalyzer::~PathAnalyzer() {}
 
   void
-  PathAnalyzer::analyze(edm::Event const&, edm::EventSetup const&)
+  PathAnalyzer::analyze(art::Event const&, art::EventSetup const&)
   {
     dumpTriggerNamesServiceInfo("analyze");
   }
 
   void
-  PathAnalyzer::beginJob(edm::EventSetup const&)
+  PathAnalyzer::beginJob(art::EventSetup const&)
   {
     dumpTriggerNamesServiceInfo("beginJob");
 
@@ -51,7 +51,7 @@ namespace edmtest
     // doesn't really belong here, but I had to stick it somewhere
     // quickly...
 
-    edm::ParameterSet ppset = edm::getProcessParameterSet();
+    art::ParameterSet ppset = art::getProcessParameterSet();
     assert (ppset.id().isValid());
   }
 
@@ -64,7 +64,7 @@ namespace edmtest
   void
   PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where)
   {
-    typedef edm::Service<edm::service::TriggerNamesService>  TNS;
+    typedef art::Service<art::service::TriggerNamesService>  TNS;
     typedef std::vector<std::string> stringvec;
 
     TNS tns;
@@ -75,7 +75,7 @@ namespace edmtest
 	    << where << '\n';
     message << "trigger paths are: ";
 
-    edm::copy_all(trigpaths, std::ostream_iterator<std::string>(message, " "));
+    art::copy_all(trigpaths, std::ostream_iterator<std::string>(message, " "));
     message << '\n';
 
     for (stringvec::const_iterator i = trigpaths.begin(), e = trigpaths.end();
@@ -83,7 +83,7 @@ namespace edmtest
 	 ++i)
       {
 	message << "path name: " << *i << " contains: ";
-	edm::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
+	art::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
 	message << '\n';
       }
 
@@ -91,13 +91,13 @@ namespace edmtest
 	    << tns->getTriggerPSet()
 	    << '\n';
 
-    edm::LogInfo("PathAnalyzer") << "TNS size: " << tns->size()
+    art::LogInfo("PathAnalyzer") << "TNS size: " << tns->size()
 				 << "\n"
 				 << message.str()
 				 << std::endl;
   }
 
-} // namespace edmtest
+} // namespace arttest
 
-using edmtest::PathAnalyzer;
+using arttest::PathAnalyzer;
 DEFINE_FWK_MODULE(PathAnalyzer);

@@ -6,7 +6,7 @@
 
 #include "art/ParameterSet/ParameterSet.h"
 
-using namespace edm;
+using namespace art;
 
 class TestMod : public EDProducer
 {

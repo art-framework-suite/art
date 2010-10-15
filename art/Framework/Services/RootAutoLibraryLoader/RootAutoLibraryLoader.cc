@@ -65,7 +65,7 @@ static const char* kDummyLibName = "*dummy";
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
 extern CallbackPtr G__p_class_autoloading;
 
-namespace edm {
+namespace art {
 
 static
 std::map<std::string,std::string>&
@@ -79,7 +79,7 @@ static
 void
 addWrapperOfVectorOfBuiltin(std::map<std::string,std::string>& iMap, const char* iBuiltin)
 {
-   static std::string sReflexPrefix("edm::Wrapper<std::vector<");
+   static std::string sReflexPrefix("art::Wrapper<std::vector<");
    static std::string sReflexPostfix("> >");
 
    //Wrapper<vector<float,allocator<float> > >
@@ -105,7 +105,7 @@ bool loadLibraryForClass(const char* classname)
   try {
     //give ROOT a name for the file we are loading
     RootLoadFileSentry sentry;
-    if(edmplugin::PluginCapabilities::get()->tryToLoad(full_name))
+    if(artplugin::PluginCapabilities::get()->tryToLoad(full_name))
       {
         Reflex::Type t = Reflex::Type::ByName(classname);
         if (Reflex::Type() == t)
@@ -132,7 +132,7 @@ bool loadLibraryForClass(const char* classname)
         std::string name = root::stdNamespaceAdder(classname);
         FDEBUG(2) << " see if std helps:  " << name << "\n";
 
-        if (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name))
+        if (not artplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name))
           {
             // Too many false positives on built-in types here.
             return false;
@@ -150,7 +150,7 @@ bool loadLibraryForClass(const char* classname)
           }
       }
   }
-  catch(cms::Exception& e)
+  catch(artZ::Exception& e)
     {
       //would be nice to issue a warning here
       return false;
@@ -219,10 +219,10 @@ namespace {
 static
 void registerTypes() {
   FDEBUG(2) << "autoloader: registerTypes\n";
-  edmplugin::PluginCapabilities::get();
-  edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+  artplugin::PluginCapabilities::get();
+  artplugin::PluginManager*db =  artplugin::PluginManager::get();
 
-  typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+  typedef artplugin::PluginManager::CategoryToInfos CatToInfos;
 
   CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
 
@@ -248,7 +248,7 @@ void registerTypes() {
     specialsToLib[classNameForRoot(itSpecial->second)];
   }
   static const std::string cPrefix("LCGReflex/");
-  for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+  for (artplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
        itInfoEnd = itFound->second.end();
        itInfo != itInfoEnd; ++itInfo)
   {
@@ -300,7 +300,7 @@ void registerTypes() {
     if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
       //std::cout <<"&&&&& found special case "<<itSpecial->first<<std::endl;
       std::string name=itSpecial->second;
-      if(not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name)) {
+      if(not artplugin::PluginCapabilities::get()->tryToLoad(cPrefix+name)) {
         std::cout <<"failed to load plugin"<<std::endl;
         continue;
       } else {
@@ -330,7 +330,7 @@ void registerTypes() {
 RootAutoLibraryLoader::RootAutoLibraryLoader() :
   classNameAttemptingToLoad_(0)
 {
-   edm::AssertHandler h();
+   art::AssertHandler h();
    gROOT->AddClassGenerator(this);
    ROOT::Cintex::Cintex::Enable();
 
@@ -413,7 +413,7 @@ void
 RootAutoLibraryLoader::enable()
 {
    //static BareRootProductGetter s_getter;
-   //static edm::EDProductGetter::Operate s_op(&s_getter);
+   //static art::EDProductGetter::Operate s_op(&s_getter);
    static RootAutoLibraryLoader s_loader;
 }
 
@@ -426,9 +426,9 @@ RootAutoLibraryLoader::loadAll()
   // std::cout <<"LoadAllDictionaries"<<std::endl;
   enable();
 
-  edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+  artplugin::PluginManager*db =  artplugin::PluginManager::get();
 
-  typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+  typedef artplugin::PluginManager::CategoryToInfos CatToInfos;
 
   CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
 
@@ -441,7 +441,7 @@ RootAutoLibraryLoader::loadAll()
   //give ROOT a name for the file we are loading
   RootLoadFileSentry sentry;
 
-  for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+  for (artplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
        itInfoEnd = itFound->second.end();
        itInfo != itInfoEnd; ++itInfo)
   {
@@ -450,11 +450,11 @@ RootAutoLibraryLoader::loadAll()
     }
 
     lastClass = itInfo->name_;
-    edmplugin::PluginCapabilities::get()->load(lastClass);
+    artplugin::PluginCapabilities::get()->load(lastClass);
     //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
   }
 }
 
-}  // namespace edm
+}  // namespace art
 
 //ClassImp(RootAutoLibraryLoader)

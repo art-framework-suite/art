@@ -58,8 +58,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testmakepset);
 void testmakepset::secsourceTest()
 {
   try { this->secsourceAux(); }
-  catch (cms::Exception& x) {
-    std::cerr << "testmakepset::secsourceTest() caught a cms::Exception\n";
+  catch (artZ::Exception& x) {
+    std::cerr << "testmakepset::secsourceTest() caught a artZ::Exception\n";
     std::cerr << x.what() << '\n';
     throw;
   }
@@ -104,13 +104,13 @@ void testmakepset::secsourceAux()
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc()->getProcessPSet();
+  boost::shared_ptr<art::ParameterSet> ps = builder.processDesc()->getProcessPSet();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
   // Make sure this ParameterSet object has the right contents
-  edm::ParameterSet mixingModuleParams = ps->getParameter<edm::ParameterSet>("mix");
-  edm::ParameterSet secondarySourceParams = mixingModuleParams.getParameter<edm::ParameterSet>("input");
+  art::ParameterSet mixingModuleParams = ps->getParameter<art::ParameterSet>("mix");
+  art::ParameterSet secondarySourceParams = mixingModuleParams.getParameter<art::ParameterSet>("input");
   CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_type") == "PoolSource");
   CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_label") == "input");
   CPPUNIT_ASSERT(secondarySourceParams.getUntrackedParameter<std::vector<std::string> >("fileNames")[0] == "file:pileup.root");
@@ -119,8 +119,8 @@ void testmakepset::secsourceAux()
 void testmakepset::usingBlockTest()
 {
   try { this->usingBlockAux(); }
-  catch (cms::Exception& x) {
-    std::cerr << "testmakepset::usingBlockTest() caught a cms::Exception\n";
+  catch (artZ::Exception& x) {
+    std::cerr << "testmakepset::usingBlockTest() caught a artZ::Exception\n";
     std::cerr << x.what() << '\n';
     throw;
   }
@@ -161,13 +161,13 @@ void testmakepset::usingBlockAux()
   std::string config(kTest);
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc()->getProcessPSet();
+  boost::shared_ptr<art::ParameterSet> ps = builder.processDesc()->getProcessPSet();
 
   CPPUNIT_ASSERT(0 != ps.get());
 
   // Make sure this ParameterSet object has the right contents
-  edm::ParameterSet m1Params = ps->getParameter<edm::ParameterSet>("m1");
-  edm::ParameterSet m2Params = ps->getParameter<edm::ParameterSet>("m2");
+  art::ParameterSet m1Params = ps->getParameter<art::ParameterSet>("m1");
+  art::ParameterSet m2Params = ps->getParameter<art::ParameterSet>("m2");
   CPPUNIT_ASSERT(m1Params.getParameter<int>("i") == 1);
   CPPUNIT_ASSERT(m2Params.getParameter<int>("i") == 2);
   CPPUNIT_ASSERT(m2Params.getParameter<int>("j") == 3);
@@ -184,8 +184,8 @@ void testmakepset::usingBlockAux()
 void testmakepset::fileinpathTest()
 {
   try { this->fileinpathAux(); }
-  catch (cms::Exception& x) {
-    std::cerr << "testmakepset::fileinpathTest() caught a cms::Exception\n";
+  catch (artZ::Exception& x) {
+    std::cerr << "testmakepset::fileinpathTest() caught a artZ::Exception\n";
     std::cerr << x.what() << '\n';
     throw;
   }
@@ -212,12 +212,12 @@ void testmakepset::fileinpathAux()
 
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder(config);
-  boost::shared_ptr<edm::ParameterSet> ps = builder.processDesc()->getProcessPSet();
+  boost::shared_ptr<art::ParameterSet> ps = builder.processDesc()->getProcessPSet();
   CPPUNIT_ASSERT(0 != ps.get());
 
-  edm::ParameterSet innerps = ps->getParameter<edm::ParameterSet>("main");
-  edm::FileInPath fip  = innerps.getParameter<edm::FileInPath>("fip");
-  edm::FileInPath ufip = innerps.getUntrackedParameter<edm::FileInPath>("ufip");
+  art::ParameterSet innerps = ps->getParameter<art::ParameterSet>("main");
+  art::FileInPath fip  = innerps.getParameter<art::FileInPath>("fip");
+  art::FileInPath ufip = innerps.getUntrackedParameter<art::FileInPath>("ufip");
   CPPUNIT_ASSERT( innerps.existsAs<int>("extraneous") );
   CPPUNIT_ASSERT( !innerps.existsAs<int>("absent") );
   CPPUNIT_ASSERT( fip.isLocal() == true );
@@ -231,20 +231,20 @@ void testmakepset::fileinpathAux()
 
   std::string tmpout = fullpath.substr(0, fullpath.find("FWCore/ParameterSet/python/Config.py")) + "tmp.py";
 
-  edm::FileInPath topo = innerps.getParameter<edm::FileInPath>("topo");
+  art::FileInPath topo = innerps.getParameter<art::FileInPath>("topo");
   CPPUNIT_ASSERT( topo.isLocal() == false );
   CPPUNIT_ASSERT( topo.relativePath() == "Geometry/TrackerSimData/data/trackersens.xml" );
   fullpath = topo.fullPath();
   CPPUNIT_ASSERT( !fullpath.empty() );
 
-  std::vector<edm::FileInPath> v(1);
+  std::vector<art::FileInPath> v(1);
   CPPUNIT_ASSERT ( innerps.getAllFileInPaths(v) == 3 );
 
   CPPUNIT_ASSERT( v.size() == 4 );
   CPPUNIT_ASSERT( std::count(v.begin(), v.end(), fip) == 1 );
   CPPUNIT_ASSERT( std::count(v.begin(), v.end(), topo) == 1 );
 
-  edm::ParameterSet empty;
+  art::ParameterSet empty;
   v.clear();
   CPPUNIT_ASSERT(  empty.getAllFileInPaths(v) == 0 );
   CPPUNIT_ASSERT( v.empty() );
@@ -266,12 +266,12 @@ void testmakepset::fileinpathAux()
   // Create the ParameterSet object from this configuration string.
   PythonProcessDesc builder2(config2);
   unlink(tmpout.c_str());
-  boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
+  boost::shared_ptr<art::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
 
   CPPUNIT_ASSERT(0 != ps2.get());
 
-  edm::ParameterSet innerps2 = ps2->getParameter<edm::ParameterSet>("main");
-  edm::FileInPath fip2 = innerps2.getParameter<edm::FileInPath>("fip2");
+  art::ParameterSet innerps2 = ps2->getParameter<art::ParameterSet>("main");
+  art::FileInPath fip2 = innerps2.getParameter<art::FileInPath>("fip2");
   CPPUNIT_ASSERT( fip2.isLocal() == true );
   CPPUNIT_ASSERT( fip2.relativePath() == "tmp.py" );
   std::string fullpath2 = fip2.fullPath();
@@ -334,8 +334,8 @@ void testmakepset::typesTest()
    std::string config2(kTest);
    // Create the ParameterSet object from this configuration string.
    PythonProcessDesc builder2(config2);
-   boost::shared_ptr<edm::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
-   edm::ParameterSet test = ps2->getParameter<edm::ParameterSet>("p");
+   boost::shared_ptr<art::ParameterSet> ps2 = builder2.processDesc()->getProcessPSet();
+   art::ParameterSet test = ps2->getParameter<art::ParameterSet>("p");
 
 
 
@@ -379,24 +379,24 @@ void testmakepset::typesTest()
    CPPUNIT_ASSERT(true == test.getUntrackedParameter<bool>("b", false));
    CPPUNIT_ASSERT(test.retrieve("vi").isTracked());
    //test.getParameter<std::vector<bool> >("vb");
-   edm::ParameterSet ps = test.getParameter<edm::ParameterSet>("ps");
+   art::ParameterSet ps = test.getParameter<art::ParameterSet>("ps");
    CPPUNIT_ASSERT(true == ps.getUntrackedParameter<bool>("b2", false));
-   std::vector<edm::ParameterSet> vps = test.getParameter<std::vector<edm::ParameterSet> >("vps");
+   std::vector<art::ParameterSet> vps = test.getParameter<std::vector<art::ParameterSet> >("vps");
    CPPUNIT_ASSERT(1 == vps.size());
    CPPUNIT_ASSERT(false == vps.front().getParameter<bool>("b3"));
 
    // InputTag
-   edm::InputTag inputProduct  = test.getParameter<edm::InputTag>("input");
-   edm::InputTag inputProduct1 = test.getParameter<edm::InputTag>("input1");
-   edm::InputTag inputProduct2 = test.getParameter<edm::InputTag>("input2");
-   edm::InputTag inputProduct3 = test.getUntrackedParameter<edm::InputTag>("input3");
-   edm::InputTag inputProduct4 = test.getParameter<edm::InputTag>("input4");
-   edm::InputTag inputProduct5 = test.getParameter<edm::InputTag>("input5");
-   edm::InputTag inputProduct6 = test.getParameter<edm::InputTag>("input6");
-   edm::InputTag inputProduct7 = test.getParameter<edm::InputTag>("input7");
-   edm::InputTag inputProduct8 = test.getParameter<edm::InputTag>("input8");
+   art::InputTag inputProduct  = test.getParameter<art::InputTag>("input");
+   art::InputTag inputProduct1 = test.getParameter<art::InputTag>("input1");
+   art::InputTag inputProduct2 = test.getParameter<art::InputTag>("input2");
+   art::InputTag inputProduct3 = test.getUntrackedParameter<art::InputTag>("input3");
+   art::InputTag inputProduct4 = test.getParameter<art::InputTag>("input4");
+   art::InputTag inputProduct5 = test.getParameter<art::InputTag>("input5");
+   art::InputTag inputProduct6 = test.getParameter<art::InputTag>("input6");
+   art::InputTag inputProduct7 = test.getParameter<art::InputTag>("input7");
+   art::InputTag inputProduct8 = test.getParameter<art::InputTag>("input8");
 
-   //edm::OutputTag outputProduct = test.getParameter<edm::OutputTag>("output");
+   //art::OutputTag outputProduct = test.getParameter<art::OutputTag>("output");
 
    CPPUNIT_ASSERT("Label"    == inputProduct.label());
    CPPUNIT_ASSERT("Label1"    == inputProduct1.label());
@@ -417,7 +417,7 @@ void testmakepset::typesTest()
 
    // vector of InputTags
 
-   std::vector<edm::InputTag> vtags = test.getParameter<std::vector<edm::InputTag> >("vinput");
+   std::vector<art::InputTag> vtags = test.getParameter<std::vector<art::InputTag> >("vinput");
    CPPUNIT_ASSERT("l1" == vtags[0].label());
    CPPUNIT_ASSERT("i1" == vtags[0].instance());
    CPPUNIT_ASSERT("l2" == vtags[1].label());
@@ -430,8 +430,8 @@ void testmakepset::typesTest()
    CPPUNIT_ASSERT("source" == vtags[4].label());
    CPPUNIT_ASSERT("source" == vtags[5].label());
 
-   edm::EventID eventID = test.getParameter<edm::EventID>("eventID");
-   std::vector<edm::EventID> vEventID = test.getParameter<std::vector<edm::EventID> >("vEventID");
+   art::EventID eventID = test.getParameter<art::EventID>("eventID");
+   std::vector<art::EventID> vEventID = test.getParameter<std::vector<art::EventID> >("vEventID");
    CPPUNIT_ASSERT(1 == eventID.run());
    CPPUNIT_ASSERT(1 == eventID.event());
    CPPUNIT_ASSERT(1 == vEventID[0].run());
@@ -439,10 +439,10 @@ void testmakepset::typesTest()
    CPPUNIT_ASSERT(3 == vEventID[2].run());
    CPPUNIT_ASSERT(3 == vEventID[2].event());
 
-   edm::SubRunID subRun = test.getParameter<edm::SubRunID >("subRun");
+   art::SubRunID subRun = test.getParameter<art::SubRunID >("subRun");
    CPPUNIT_ASSERT(55 == subRun.run());
    CPPUNIT_ASSERT(65 == subRun.subRun());
-   std::vector<edm::SubRunID> vsubRuns = test.getParameter<std::vector<edm::SubRunID> >("vsubRuns");
+   std::vector<art::SubRunID> vsubRuns = test.getParameter<std::vector<art::SubRunID> >("vsubRuns");
    CPPUNIT_ASSERT(vsubRuns.size() == 2);
    CPPUNIT_ASSERT(vsubRuns[0].run() == 75);
    CPPUNIT_ASSERT(vsubRuns[0].subRun() == 85);

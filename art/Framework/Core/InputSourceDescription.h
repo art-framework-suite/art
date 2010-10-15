@@ -12,7 +12,7 @@ input source that does not come in through the ParameterSet
 #include "boost/shared_ptr.hpp"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-namespace edm {
+namespace art {
   class ProductRegistry;
   class ActivityRegistry;
 

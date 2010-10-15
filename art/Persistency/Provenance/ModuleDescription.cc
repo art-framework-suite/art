@@ -11,7 +11,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
 
   ModuleDescription::ModuleDescription() :
     parameterSetID_(),
@@ -71,7 +71,7 @@ namespace edm {
 	<< processName() << ' '
 	<< passID();
     std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
     return ModuleDescriptionID(md5alg.digest().toString());
   }
 

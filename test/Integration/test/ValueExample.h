@@ -29,7 +29,7 @@ class ValueExample
 {
 
 public:
-   ValueExample(const edm::ParameterSet&);
+   ValueExample(const art::ParameterSet&);
    virtual ~ValueExample();
 
    // ---------- const member functions ---------------------

@@ -5,7 +5,7 @@
 #include "art/Framework/Core/CachedProducts.h"
 #include "art/Utilities/Algorithms.h"
 
-namespace edm
+namespace art
 {
   namespace detail
   {
@@ -114,7 +114,7 @@ namespace edm
       switch (numberFound_)
 	{
 	case 0:
-	  throw edm::Exception(edm::errors::ProductNotFound,
+	  throw art::Exception(art::errors::ProductNotFound,
 			       "TooFewProducts")
 	    << "CachedProducts::returnOneHandleOrThrow: "
 	    << " too few products found, "
@@ -123,7 +123,7 @@ namespace edm
 
 	  break;
 	default:
-	  throw edm::Exception(edm::errors::ProductNotFound,
+	  throw art::Exception(art::errors::ProductNotFound,
 			       "TooManyMatches")
 	    << "CachedProducts::returnOneHandleOrThrow: "
 	    << "too many products found, "
@@ -158,4 +158,4 @@ namespace edm
 
 
   } // namespace detail
-} // namespace edm
+} // namespace art

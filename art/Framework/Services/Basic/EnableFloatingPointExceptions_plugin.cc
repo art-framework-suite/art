@@ -17,7 +17,7 @@
 #endif
 #endif
 
-using namespace edm::service;
+using namespace art::service;
 using fhicl::ParameterSet;
 
 
@@ -239,6 +239,6 @@ EnableFloatingPointExceptions::echoState()
 // ======================================================================
 
 
-using edm::service::EnableFloatingPointExceptions;
+using art::service::EnableFloatingPointExceptions;
 
-DEFINE_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);
+DEFINE_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,art::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);

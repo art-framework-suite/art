@@ -36,11 +36,11 @@ Then the forcedServises are created; JobReport is the first of those.
 
 Then black magic happens leading to the CFG command to the logger.  It
 happens in the statement
-std::auto_ptr<edm::EventProcessor>
+std::auto_ptr<art::EventProcessor>
          procP(new
-               edm::EventProcessor(processDesc, jobReportToken,
-                              edm::serviceregistry::kTokenOverrides));
-which instantiates a new edm::EventProcessor:
+               art::EventProcessor(processDesc, jobReportToken,
+                              art::serviceregistry::kTokenOverrides));
+which instantiates a new art::EventProcessor:
 The ctor of EventProcessor calls init().
 EventPrecessor::init() calls ServiceRegistry::createSet to create the services.
 ServiceRegistry::createSet instantiates a new ServicesManager, passing in
@@ -49,12 +49,12 @@ ServicesManager has filled a list of "makers", done some complicated
 bookkeeping, and called CreateServices().
 In CreateServices, itmaker invokes add on its second part.  The loop this is in
 is controlled by requestedCreationOrder, which has typeinfo for
-edm::service::MessageLogger first (InitRootHandlers is second).
+art::service::MessageLogger first (InitRootHandlers is second).
 ServicesManager::MakerHolder::add calls maker_-> make
-  ServiceMaker<T> with T = edm::service::MessageLogger calls pService
+  ServiceMaker<T> with T = art::service::MessageLogger calls pService
   passsing in maker.make(iPS, iAR), which directly calls AllArgsMaker<T>::make
-  AllArgsMaker<T>::make(const edm::ParameterSet& iPS,edm::ActivityRegistry& iAR)
-  with T = edm::service::MessageLogger creates a new MessageLogger
+  AllArgsMaker<T>::make(const art::ParameterSet& iPS,art::ActivityRegistry& iAR)
+  with T = art::service::MessageLogger creates a new MessageLogger
     ctor of MessageLogger in main thread issues the following commands on the
     MessageLoggerQ:  MLqJOB, MLqMOD, MLqCFG
 

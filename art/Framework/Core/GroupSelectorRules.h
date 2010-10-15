@@ -18,7 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class BranchDescription;
   class GroupSelector;
 
@@ -30,11 +30,11 @@ namespace edm {
     // (*desc) with a bool indicating whether or not the branch with
     // that name is to be selected.  Note that desc may not be null.
     struct BranchSelectState {
-      edm::BranchDescription const* desc;
+      art::BranchDescription const* desc;
       bool                          selectMe;
 
       // N.B.: We assume bd is not null.
-      explicit BranchSelectState (edm::BranchDescription const* bd) :
+      explicit BranchSelectState (art::BranchDescription const* bd) :
         desc(bd),
         selectMe(false)
       { }
@@ -83,6 +83,6 @@ namespace edm {
     bool keepAll_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_GroupSelectorRules_h

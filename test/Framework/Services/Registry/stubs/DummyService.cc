@@ -28,7 +28,7 @@ using namespace testserviceregistry;
 //
 // constructors and destructor
 //
-DummyService::DummyService(const edm::ParameterSet& iPSet,edm::ActivityRegistry&iAR):
+DummyService::DummyService(const art::ParameterSet& iPSet,art::ActivityRegistry&iAR):
 value_(iPSet.getParameter<int>("value")),
 beginJobCalled_(false)
 {

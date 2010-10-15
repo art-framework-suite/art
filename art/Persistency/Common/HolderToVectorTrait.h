@@ -3,7 +3,7 @@
 #include "art/Utilities/EDMException.h"
 //#include <boost/static_assert.hpp>
 
-namespace edm {
+namespace art {
   namespace reftobase {
     class RefVectorHolderBase;
     template <typename T> class BaseVectorHolder;
@@ -11,17 +11,17 @@ namespace edm {
     template <typename T, typename REF>
     struct InvaidHolderToVector {
       static std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
-	throw edm::Exception(errors::InvalidReference)
+	throw art::Exception(errors::InvalidReference)
 	  << "InvaidHolderToVector: trying to use RefToBase built with "
 	  << "an internal type. RefToBase should be built passing an "
-	  << "object of type edm::Ref<C>. This exception should never "
+	  << "object of type art::Ref<C>. This exception should never "
 	  << "be thrown if a RefToBase was built from a RefProd<C>.";
       }
       static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	throw edm::Exception(errors::InvalidReference)
+	throw art::Exception(errors::InvalidReference)
 	  << "InvaidHolderToVector: trying to use RefToBase built with "
 	  << "an internal type. RefToBase should be built passing an "
-	  << "object of type edm::Ref<C>. This exception should never "
+	  << "object of type art::Ref<C>. This exception should never "
 	  << "be thrown if a RefToBase was built from a RefProd<C>.";
       }
     };
@@ -35,16 +35,16 @@ namespace edm {
     template <typename REF>
     struct InvalidRefHolderToRefVector {
       static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-	throw edm::Exception(errors::InvalidReference)
+	throw art::Exception(errors::InvalidReference)
 	  << "InvaidRefHolderToRefVector: trying to use RefToBaseVector built with "
 	  << "an internal type. RefToBase should be built passing an "
-	  << "object of type edm::RefVector<C>";
+	  << "object of type art::RefVector<C>";
       }
       static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	throw edm::Exception(errors::InvalidReference)
+	throw art::Exception(errors::InvalidReference)
 	  << "InvaidRefHolderToRefVector: trying to use RefToBaseVector built with "
 	  << "an internal type. RefToBase should be built passing an "
-	  << "object of type edm::RefVector<C>";
+	  << "object of type art::RefVector<C>";
       }
     };
 

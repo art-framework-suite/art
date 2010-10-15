@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <boost/python.hpp>
-namespace edm {
+namespace art {
 void
 pythonToCppException(const std::string& iType);
 

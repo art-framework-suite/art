@@ -18,20 +18,20 @@ using std::vector;
 using std::string;
 
 
-namespace edm {
+namespace art {
   // This grotesque little function exists just to allow calling of
   // ConstProductRegistry::allBranchDescriptions in the context of
   // OutputModule's initialization list, rather than in the body of
   // the constructor.
 
-  vector<edm::BranchDescription const*>
+  vector<art::BranchDescription const*>
   getAllBranchDescriptions() {
-    edm::Service<edm::ConstProductRegistry> reg;
+    art::Service<art::ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
   vector<std::string> const& getAllTriggerNames() {
-    edm::Service<edm::service::TriggerNamesService> tns;
+    art::Service<art::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
 }
@@ -100,7 +100,7 @@ namespace {
 }
 
 
-namespace edm {
+namespace art {
 
   namespace test {
 
@@ -132,7 +132,7 @@ namespace edm {
   {
     hasNewlyDroppedBranch_.assign(false);
 
-    edm::Service<edm::service::TriggerNamesService> tns;
+    art::Service<art::service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
@@ -412,4 +412,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

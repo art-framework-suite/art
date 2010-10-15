@@ -12,7 +12,7 @@
 
 #include <algorithm>
 
-namespace edm {
+namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
@@ -63,7 +63,7 @@ namespace edm {
     if (group != 0) {
       if(!group->onDemand()) {
         ConstBranchDescription const& bd = group->productDescription();
-	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
+	throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup_: Problem found while adding product provenance, "
 	  << "product already exists for ("
 	  << bd.friendlyClassName() << ","
@@ -120,14 +120,14 @@ namespace edm {
 		std::auto_ptr<ProductProvenance> productProvenance) {
 
     if (edp.get() == 0) {
-      throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
+      throw art::Exception(art::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
     ProductID pid = branchIDToProductID(bd.branchID());
     // Group assumes ownership
     if (!pid.isValid()) {
-      throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
+      throw art::Exception(art::errors::InsertFailure,"Null Product ID")
 	<< "put: Cannot put product with null Product ID."
 	<< "\n";
     }
@@ -138,7 +138,7 @@ namespace edm {
   BranchID
   EventPrincipal::productIDToBranchID(ProductID const& pid) const {
     if (!pid.isValid()) {
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+      throw art::Exception(art::errors::ProductNotFound,"InvalidID")
         << "get by product ID: invalid ProductID supplied\n";
     }
     BranchID::value_type bid = 0;
@@ -156,21 +156,21 @@ namespace edm {
   ProductID
   EventPrincipal::branchIDToProductID(BranchID const& bid) const {
     if (!bid.isValid()) {
-      throw edm::Exception(edm::errors::NotFound,"InvalidID")
+      throw art::Exception(art::errors::NotFound,"InvalidID")
         << "branchIDToProductID: invalid BranchID supplied\n";
     }
     BranchIDListHelper::BranchIDToIndexMap const& branchIDToIndexMap =
       BranchIDListRegistry::instance()->extra().branchIDToIndexMap();
     BranchIDListHelper::BranchIDToIndexMap::const_iterator it = branchIDToIndexMap.find(bid);
     if (it == branchIDToIndexMap.end()) {
-      throw edm::Exception(edm::errors::NotFound,"Bad BranchID")
+      throw art::Exception(art::errors::NotFound,"Bad BranchID")
         << "branchIDToProductID: productID cannot be determined from BranchID\n";
     }
     BranchListIndex blix = it->second.first;
     ProductIndex productIndex = it->second.second;
     std::map<BranchListIndex, ProcessIndex>:: const_iterator i = branchToProductIDHelper_.find(blix);
     if (i == branchToProductIDHelper_.end()) {
-      throw edm::Exception(edm::errors::NotFound,"Bad branch ID")
+      throw art::Exception(art::errors::NotFound,"Bad branch ID")
         << "branchIDToProductID: productID cannot be determined from BranchID\n";
     }
     ProcessIndex processIndex = i->second;
@@ -182,7 +182,7 @@ namespace edm {
     BranchID bid = productIDToBranchID(pid);
     SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
     if (g.get() == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
+      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
 	<< "get by product ID: no product with given id: "<< pid << "\n";
       return BasicHandle(whyFailed);
@@ -191,7 +191,7 @@ namespace edm {
     // Check for case where we tried on demand production and
     // it failed to produce the object
     if (g->onDemand()) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
+      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
 	<< "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";
@@ -234,7 +234,7 @@ namespace edm {
       find_in_all(moduleLabelsRunning_, moduleLabel);
 
     if (i != moduleLabelsRunning_.end()) {
-      throw edm::Exception(errors::LogicError)
+      throw art::Exception(errors::LogicError)
         << "Hit circular dependency while trying to run an unscheduled module.\n"
         << "Current implementation of unscheduled execution cannot always determine\n"
         << "the proper order for module execution.  It is also possible the modules\n"

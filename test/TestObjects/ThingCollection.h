@@ -5,8 +5,8 @@
 
 #include "test/TestObjects/Thing.h"
 
-namespace edmtest {
-   typedef std::vector<edmtest::Thing> ThingCollection;
+namespace arttest {
+   typedef std::vector<arttest::Thing> ThingCollection;
 }
 
 #endif

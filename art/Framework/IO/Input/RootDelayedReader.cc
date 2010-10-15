@@ -8,7 +8,7 @@
 #include "TROOT.h"
 
 
-namespace edm {
+namespace art {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
@@ -45,4 +45,4 @@ namespace edm {
     return p;
   }
 
-}  // namespace edm
+}  // namespace art

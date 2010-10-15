@@ -39,7 +39,7 @@ the worker is reset().
 #include "boost/shared_ptr.hpp"
 
 
-namespace edm {
+namespace art {
 
   class Worker {
   public:
@@ -117,7 +117,7 @@ namespace edm {
 
     ModuleDescription md_;
     ActionTable const* actions_; // memory assumed to be managed elsewhere
-    boost::shared_ptr<edm::Exception> cached_exception_; // if state is 'exception'
+    boost::shared_ptr<art::Exception> cached_exception_; // if state is 'exception'
 
     boost::shared_ptr<ActivityRegistry> actReg_;
   };
@@ -138,9 +138,9 @@ namespace edm {
     };
 
     template <typename T>
-    cms::Exception& exceptionContext(ModuleDescription const& iMD,
+    artZ::Exception& exceptionContext(ModuleDescription const& iMD,
                                      T const& ip,
-                                     cms::Exception& iEx) {
+                                     artZ::Exception& iEx) {
       iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_
         << " " << ip.id() << "\n";
       return iEx;
@@ -166,7 +166,7 @@ namespace edm {
       case Exception: {
           // rethrow the cached exception again
           // It seems impossible to
-          // get here a second time until a cms::Exception has been
+          // get here a second time until a artZ::Exception has been
           // thrown prviously.
           mf::LogWarning("repeat")
             << "A module has been invoked a second time even though"
@@ -196,7 +196,7 @@ namespace edm {
         }
     }
 
-    catch(cms::Exception& e) {
+    catch(artZ::Exception& e) {
 
         // NOTE: the warning printed as a result of ignoring or failing
         // a module will only be printed during the full true processing
@@ -246,13 +246,13 @@ namespace edm {
 
               if (T::isEvent_) ++timesExcept_;
               state_ = Exception;
-              e << "cms::Exception going through module ";
+              e << "artZ::Exception going through module ";
               exceptionContext(md_, ep, e);
-              edm::Exception *edmEx = dynamic_cast<edm::Exception *>(&e);
+              art::Exception *edmEx = dynamic_cast<art::Exception *>(&e);
               if (edmEx) {
-                cached_exception_.reset(new edm::Exception(*edmEx));
+                cached_exception_.reset(new art::Exception(*edmEx));
               } else {
-                cached_exception_.reset(new edm::Exception(errors::OtherCMS, std::string(), e));
+                cached_exception_.reset(new art::Exception(errors::OtherCMS, std::string(), e));
               }
               throw;
           }
@@ -262,7 +262,7 @@ namespace edm {
     catch(std::bad_alloc& bda) {
         if (T::isEvent_) ++timesExcept_;
         state_ = Exception;
-        cached_exception_.reset(new edm::Exception(errors::BadAlloc));
+        cached_exception_.reset(new art::Exception(errors::BadAlloc));
         *cached_exception_
           << "A std::bad_alloc exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_)
@@ -272,7 +272,7 @@ namespace edm {
     catch(std::exception& e) {
         if (T::isEvent_) ++timesExcept_;
         state_ = Exception;
-        cached_exception_.reset(new edm::Exception(errors::StdException));
+        cached_exception_.reset(new art::Exception(errors::StdException));
         *cached_exception_
           << "A std::exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
@@ -282,7 +282,7 @@ namespace edm {
     catch(std::string& s) {
         if (T::isEvent_) ++timesExcept_;
         state_ = Exception;
-        cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "std::string"));
+        cached_exception_.reset(new art::Exception(errors::BadExceptionType, "std::string"));
         *cached_exception_
           << "A std::string thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
@@ -292,7 +292,7 @@ namespace edm {
     catch(char const* c) {
         if (T::isEvent_) ++timesExcept_;
         state_ = Exception;
-        cached_exception_.reset(new edm::Exception(errors::BadExceptionType, "const char *"));
+        cached_exception_.reset(new art::Exception(errors::BadExceptionType, "const char *"));
         *cached_exception_
           << "A const char* thrown as an exception occurred during a call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
@@ -302,7 +302,7 @@ namespace edm {
     catch(...) {
         if (T::isEvent_) ++timesExcept_;
         state_ = Exception;
-        cached_exception_.reset(new edm::Exception(errors::Unknown, "repeated"));
+        cached_exception_.reset(new art::Exception(errors::Unknown, "repeated"));
         *cached_exception_
           << "An unknown occurred during a previous call to the module ";
         exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n";
@@ -312,6 +312,6 @@ namespace edm {
     return rc;
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_Worker_h

@@ -11,19 +11,19 @@
 #include "test/TestObjects/ThingCollectionfwd.h"
 #include "test/TestObjects/Thing.h"
 
-namespace edmtest {
+namespace arttest {
 
   struct OtherThing {
     int                             a;
-    edm::RefProd<ThingCollection>   refProd;
-    edm::Ref<ThingCollection>       ref;
-    edm::RefVector<ThingCollection> refVec;
-    edm::RefVector<ThingCollection> oneNullOneNot;
-    edm::RefToBase<Thing>           refToBase;
-    edm::RefToBaseProd<Thing>       refToBaseProd;
-    edm::Ptr<Thing>                 ptr;
-    edm::PtrVector<Thing>           ptrVec;
-    edm::PtrVector<Thing>           ptrOneNullOneNot;
+    art::RefProd<ThingCollection>   refProd;
+    art::Ref<ThingCollection>       ref;
+    art::RefVector<ThingCollection> refVec;
+    art::RefVector<ThingCollection> oneNullOneNot;
+    art::RefToBase<Thing>           refToBase;
+    art::RefToBaseProd<Thing>       refToBaseProd;
+    art::Ptr<Thing>                 ptr;
+    art::PtrVector<Thing>           ptrVec;
+    art::PtrVector<Thing>           ptrOneNullOneNot;
   };
 }
 

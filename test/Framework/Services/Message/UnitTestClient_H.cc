@@ -5,24 +5,24 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 
 void
-  UnitTestClient_H::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_H::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
        LogTrace    ("cat_A") << "LogTrace was used to send this mess" << "age";
        LogDebug    ("cat_B") << "LogDebug was used to send this other message";
-  edm::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
-  edm::LogInfo     ("cat_B") << "LogInfo was used to send this other message";
+  art::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
+  art::LogInfo     ("cat_B") << "LogInfo was used to send this other message";
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_H;
+using arttest::UnitTestClient_H;
 DEFINE_FWK_MODULE(UnitTestClient_H);

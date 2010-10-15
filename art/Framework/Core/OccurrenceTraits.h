@@ -20,7 +20,7 @@ OccurrenceTraits:
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
 
-namespace edm {
+namespace art {
   template <typename T, BranchActionType B> class OccurrenceTraits;
 
   template <>

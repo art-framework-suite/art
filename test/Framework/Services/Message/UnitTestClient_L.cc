@@ -10,33 +10,33 @@
 #include <string>
 
 
-namespace edmtest
+namespace arttest
 {
 
 
-void UnitTestClient_L::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+void UnitTestClient_L::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
   for (int i=0; i<10000000; ++i) {
   }
-  edm::LogInfo     ("cat") << "Event " << e.id() << "complete";
+  art::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
-void UnitTestClient_L1::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+void UnitTestClient_L1::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
   for (int i=0; i<10000000; ++i) {
        LogDebug    ("dog") << "I am perhaps creating a long string here";
   }
-  edm::LogInfo     ("cat") << "Event " << e.id() << "complete";
+  art::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_L;
-using edmtest::UnitTestClient_L1;
+using arttest::UnitTestClient_L;
+using arttest::UnitTestClient_L1;
 DEFINE_FWK_MODULE(UnitTestClient_L);
 DEFINE_FWK_MODULE(UnitTestClient_L1);

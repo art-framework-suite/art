@@ -25,7 +25,7 @@
 #include "art/Persistency/Provenance/RunID.h"
 
 // forward declarations
-namespace edm {
+namespace art {
 
    typedef unsigned int EventNumber_t;
 

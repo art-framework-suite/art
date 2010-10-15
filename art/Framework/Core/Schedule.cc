@@ -31,7 +31,7 @@ using mf::LogInfo;
 using mf::LogVerbatim;
 
 
-namespace edm {
+namespace art {
   namespace {
 
     // Function template to transform each element in the input range to
@@ -97,7 +97,7 @@ namespace edm {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet const& proc_pset,
-                     edm::service::TriggerNamesService& tns,
+                     art::service::TriggerNamesService& tns,
                      WorkerRegistry& wreg,
                      ProductRegistry& preg,
                      ActionTable& actions,
@@ -279,7 +279,7 @@ namespace edm {
     }
 
     if (maxEventSpecs > 1) {
-      throw edm::Exception(edm::errors::Configuration) <<
+      throw art::Exception(art::errors::Configuration) <<
         "\nAt most one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
@@ -295,8 +295,8 @@ namespace edm {
         if (!vMaxEventsOut.empty()) {
           try {
             desc.maxEvents_ = vMaxEventsOut.get<int>(moduleLabel);
-          } catch (edm::Exception) {
-            throw edm::Exception(edm::errors::Configuration) <<
+          } catch (art::Exception) {
+            throw art::Exception(art::errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
           }
         }
@@ -341,12 +341,12 @@ namespace edm {
       ParameterSet modpset;
       try {
         modpset= pset_.get<fhicl::ParameterSet>(realname);
-      } catch(cms::Exception&) {
+      } catch(artZ::Exception&) {
         std::string pathType("endpath");
         if(!search_all(end_path_name_list_, name)) {
           pathType = std::string("path");
         }
-        throw edm::Exception(edm::errors::Configuration) <<
+        throw art::Exception(art::errors::Configuration) <<
           "The unknown module label \"" << realname <<
           "\" appears in " << pathType << " \"" << name <<
           "\"\n please check spelling or remove that label from the path.";
@@ -375,7 +375,7 @@ namespace edm {
       Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,actReg_,false);
       trig_paths_.push_back(p);
     }
-    for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
+    for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::fillEndPath(int bitpos, std::string const& name) {
@@ -392,19 +392,19 @@ namespace edm {
       Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,actReg_,true);
       end_paths_.push_back(p);
     }
-    for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
+    for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::endJob() {
     bool failure = false;
-    cms::Exception accumulated("endJob");
+    artZ::Exception accumulated("endJob");
     AllWorkers::iterator ai(workersBegin()),ae(workersEnd());
     for(; ai != ae; ++ai) {
       try {
         (*ai)->endJob();
       }
-      catch (cms::Exception& e) {
-        accumulated << "cms::Exception caught in Schedule::endJob\n"
+      catch (artZ::Exception& e) {
+        accumulated << "artZ::Exception caught in Schedule::endJob\n"
                     << e.explainSelf();
         failure = true;
       }
@@ -915,4 +915,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

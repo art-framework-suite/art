@@ -22,7 +22,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   // possible return codes for the testSelectionOverlap
   // method defined below.
@@ -131,6 +131,6 @@ namespace edm {
                                        std::vector<bool> const& b );
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_EventSelector_h

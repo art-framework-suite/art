@@ -4,9 +4,9 @@
 
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(edm::PresencePluginFactory,"CMS EDM Framework Presence");
+EDM_REGISTER_PLUGINFACTORY(art::PresencePluginFactory,"CMS EDM Framework Presence");
 
-namespace edm {
+namespace art {
 
   PresenceFactory::~PresenceFactory() {
   }
@@ -26,7 +26,7 @@ namespace edm {
     std::auto_ptr<Presence> sp(PresencePluginFactory::get()->create(presence_type));
 
     if(sp.get()==0) {
-	throw edm::Exception(errors::Configuration, "NoPresenceModule")
+	throw art::Exception(errors::Configuration, "NoPresenceModule")
 	  << "Presence Factory:\n"
 	  << "Cannot find presence type: "
 	  << presence_type << "\n"

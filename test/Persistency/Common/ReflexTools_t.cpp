@@ -77,21 +77,21 @@ void TestReflex::find_nested()
 
   Type found_type;
 
-  CPPUNIT_ASSERT(edm::find_nested_type_named("const_iterator",
+  CPPUNIT_ASSERT(art::find_nested_type_named("const_iterator",
 					     intvec,
 					     found_type));
 
-  CPPUNIT_ASSERT(!edm::find_nested_type_named("WankelRotaryEngine",
+  CPPUNIT_ASSERT(!art::find_nested_type_named("WankelRotaryEngine",
 					      intvec,
 					      found_type));
 }
 
 void TestReflex::burrowing()
 {
-  Type wrapper_type(Type::ByTypeInfo(typeid(edm::Wrapper<int>)));
+  Type wrapper_type(Type::ByTypeInfo(typeid(art::Wrapper<int>)));
   CPPUNIT_ASSERT(wrapper_type);
   Type wrapped_type;
-  CPPUNIT_ASSERT(edm::find_nested_type_named("wrapped_type",
+  CPPUNIT_ASSERT(art::find_nested_type_named("wrapped_type",
 					     wrapper_type,
 					     wrapped_type));
   CPPUNIT_ASSERT(wrapped_type);
@@ -107,7 +107,7 @@ void TestReflex::burrowing_failure()
   CPPUNIT_ASSERT(not_a_wrapper);
   Type no_such_wrapped_type;
   CPPUNIT_ASSERT(!no_such_wrapped_type);
-  CPPUNIT_ASSERT(!edm::find_nested_type_named("wrapped_type",
+  CPPUNIT_ASSERT(!art::find_nested_type_named("wrapped_type",
 					      not_a_wrapper,
 					      no_such_wrapped_type));
   CPPUNIT_ASSERT(!no_such_wrapped_type);
@@ -115,9 +115,9 @@ void TestReflex::burrowing_failure()
 
 void TestReflex::wrapper_type()
 {
-  Type wrapper_type(Type::ByTypeInfo(typeid(edm::Wrapper<int>)));
+  Type wrapper_type(Type::ByTypeInfo(typeid(art::Wrapper<int>)));
   Type wrapped_type;
-  CPPUNIT_ASSERT(edm::wrapper_type_of(wrapper_type, wrapped_type));
+  CPPUNIT_ASSERT(art::wrapper_type_of(wrapper_type, wrapped_type));
   CPPUNIT_ASSERT(!wrapped_type.IsTypedef());
   CPPUNIT_ASSERT(wrapped_type == Type::ByName("int"));
 }
@@ -128,18 +128,18 @@ void TestReflex::wrapper_type_failure()
   CPPUNIT_ASSERT(not_a_wrapper);
   Type no_such_wrapped_type;
   CPPUNIT_ASSERT(!no_such_wrapped_type);
-  CPPUNIT_ASSERT(!edm::wrapper_type_of(not_a_wrapper,
+  CPPUNIT_ASSERT(!art::wrapper_type_of(not_a_wrapper,
 				       no_such_wrapped_type));
   CPPUNIT_ASSERT(!no_such_wrapped_type);
 }
 
 void TestReflex::sequence_wrapper()
 {
-  Type wrapper(Type::ByTypeInfo(typeid(edm::Wrapper<std::vector<int> >)));
+  Type wrapper(Type::ByTypeInfo(typeid(art::Wrapper<std::vector<int> >)));
   CPPUNIT_ASSERT(wrapper);
   Type value_type;
   CPPUNIT_ASSERT(!value_type);
-  CPPUNIT_ASSERT(edm::is_sequence_wrapper(wrapper, value_type));
+  CPPUNIT_ASSERT(art::is_sequence_wrapper(wrapper, value_type));
   CPPUNIT_ASSERT(value_type);
   CPPUNIT_ASSERT(value_type == Type::ByName("int"));
 }
@@ -150,13 +150,13 @@ void TestReflex::sequence_wrapper_failure()
   CPPUNIT_ASSERT(not_a_wrapper);
   Type no_such_value_type;
   CPPUNIT_ASSERT(!no_such_value_type);
-  CPPUNIT_ASSERT(!edm::is_sequence_wrapper(not_a_wrapper,
+  CPPUNIT_ASSERT(!art::is_sequence_wrapper(not_a_wrapper,
 					   no_such_value_type));
   CPPUNIT_ASSERT(!no_such_value_type);
 
-  Type wrapper_of_nonsequence(Type::ByName("edm::Wrapper<int>"));
+  Type wrapper_of_nonsequence(Type::ByName("art::Wrapper<int>"));
   CPPUNIT_ASSERT(wrapper_of_nonsequence);
-  CPPUNIT_ASSERT(!edm::is_sequence_wrapper(wrapper_of_nonsequence,
+  CPPUNIT_ASSERT(!art::is_sequence_wrapper(wrapper_of_nonsequence,
 					   no_such_value_type));
   CPPUNIT_ASSERT(!no_such_value_type);
 }
@@ -190,12 +190,12 @@ void TestReflex::not_a_template_instance()
 void TestReflex::special_refvector_support()
 {
   typedef std::vector<int> vector_t;
-  typedef edm::RefVector<vector_t> refvector_t;
-  typedef edm::Wrapper<refvector_t> wrapper_t;
+  typedef art::RefVector<vector_t> refvector_t;
+  typedef art::Wrapper<refvector_t> wrapper_t;
   Type wrapper(Type::ByTypeInfo(typeid(wrapper_t)));
   CPPUNIT_ASSERT(wrapper);
   Type wrapped_type;
-  CPPUNIT_ASSERT(edm::is_sequence_wrapper(wrapper, wrapped_type));
+  CPPUNIT_ASSERT(art::is_sequence_wrapper(wrapper, wrapped_type));
   if (wrapped_type != Type::ByName("int"))
     {
       std::cerr << "Failure in TestReflex::special_refvector_support\n"

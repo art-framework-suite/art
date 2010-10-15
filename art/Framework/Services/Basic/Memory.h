@@ -13,7 +13,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class EventID;
   class Timestamp;
   class Event;
@@ -49,7 +49,7 @@ namespace edm {
 
       void postBeginJob();
 
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
+      void preEventProcessing(const art::EventID&, const art::Timestamp&);
       void postEventProcessing(const Event&);
 
       void postModuleBeginJob(const ModuleDescription&);
@@ -93,11 +93,11 @@ namespace edm {
         double deltaVsize;
         double rss;
         double deltaRss;
-        edm::EventID event;
+        art::EventID event;
         SignificantEvent() : count(0), vsize(0), deltaVsize(0),
                              rss(0), deltaRss(0), event() {}
         void set (double deltaV, double deltaR,
-                  edm::EventID const & e, SimpleMemoryCheck *t)
+                  art::EventID const & e, SimpleMemoryCheck *t)
         { count = t->count_;
           vsize = t->current_->vsize;
           deltaVsize = deltaV;
@@ -117,7 +117,7 @@ namespace edm {
       SignificantEvent eventT1_;
       SignificantEvent eventT2_;
       SignificantEvent eventT3_;
-      void updateEventStats(edm::EventID const & e);
+      void updateEventStats(art::EventID const & e);
       std::string eventStatOutput(std::string title,
                                   SignificantEvent const& e) const;
       void eventStatOutput(std::string title,
@@ -130,7 +130,7 @@ namespace edm {
         int    postEarlyCount;
         double totalDeltaVsize;
         double maxDeltaVsize;
-        edm::EventID eventMaxDeltaV;
+        art::EventID eventMaxDeltaV;
         double totalEarlyVsize;
         double maxEarlyVsize;
         SignificantModule() : postEarlyCount  (0)
@@ -148,7 +148,7 @@ namespace edm {
       typedef std::map<std::string,SignificantModule> SignificantModulesMap;
       SignificantModulesMap modules_;
       double moduleEntryVsize_;
-      edm::EventID currentEventID_;
+      art::EventID currentEventID_;
       void updateModuleMemoryStats(SignificantModule & m, double dv);
 
     }; // SimpleMemoryCheck
@@ -162,6 +162,6 @@ namespace edm {
                 SimpleMemoryCheck::SignificantModule const & se);
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Services_Memory_h

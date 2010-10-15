@@ -7,7 +7,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   void conversion(EventAux const& from, EventAuxiliary & to) {
     to.processHistoryID_ = from.processHistoryID_;
     to.id_ = from.id_;

@@ -26,7 +26,7 @@
 
 #include "Reflex/Type.h"
 
-namespace edm {
+namespace art {
 
   /**
      \class ProductRegistry ProductRegistry.h "edm/ProductRegistry.h"

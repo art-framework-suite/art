@@ -11,7 +11,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   struct ProcessConfiguration {
     ProcessConfiguration() : processName_(), parameterSetID_(), releaseVersion_(), passID_() {}
@@ -57,6 +57,6 @@ namespace edm {
   std::ostream&
   operator<< (std::ostream& os, ProcessConfiguration const& pc);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_ProcessConfiguration_h

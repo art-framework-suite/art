@@ -4,7 +4,7 @@
 
 
 
-namespace edm {
+namespace art {
 
   static unsigned int const shift = 8 * sizeof(unsigned int);
 

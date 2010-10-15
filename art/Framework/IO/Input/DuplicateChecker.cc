@@ -11,7 +11,7 @@
 using mf::LogWarning;
 
 
-namespace edm {
+namespace art {
 
   DuplicateChecker::DuplicateChecker(fhicl::ParameterSet const& pset) :
 
@@ -28,7 +28,7 @@ namespace edm {
     else if (duplicateCheckMode == std::string("checkEachRealDataFile")) duplicateCheckMode_ = checkEachRealDataFile;
     else if (duplicateCheckMode == std::string("checkAllFilesOpened")) duplicateCheckMode_ = checkAllFilesOpened;
     else {
-      throw cms::Exception("Configuration")
+      throw artZ::Exception("Configuration")
         << "Illegal configuration parameter value passed to PoolSource for\n"
         << "the \"duplicateCheckMode\" parameter, legal values are:\n"
         << "\"noDuplicateCheck\", \"checkEachFile\", \"checkEachRealDataFile\", \"checkAllFilesOpened\"\n";
@@ -103,4 +103,4 @@ namespace edm {
     return false;
   }
 
-}  // namespace edm
+}  // namespace art

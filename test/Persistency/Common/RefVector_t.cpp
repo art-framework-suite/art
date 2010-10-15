@@ -29,8 +29,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestRefVector);
 void TestRefVector::map_string_to_double()
 {
   typedef std::map<std::string, double> product_t;
-  typedef edm::Ref<product_t>           ref_t;
-  typedef edm::RefVector<product_t>     refvec_t;
+  typedef art::Ref<product_t>           ref_t;
+  typedef art::RefVector<product_t>     refvec_t;
 
   product_t  product;
   product["one"]  = 1.0;

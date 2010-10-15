@@ -14,16 +14,16 @@
   using fhicl::ParameterSet;
 
 // Contents:
-namespace edm {
+namespace art {
   class EmptySource;
 }
-using edm::EmptySource;
+using art::EmptySource;
 
 
 // ======================================================================
 
 
-class edm::EmptySource
+class art::EmptySource
   : public GeneratedInputSource
 {
 public:

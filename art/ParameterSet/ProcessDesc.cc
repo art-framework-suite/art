@@ -20,7 +20,7 @@
 #include <iostream>
 
 
-namespace edm {
+namespace art {
 
   ProcessDesc::ProcessDesc(const fhicl::ParameterSet & pset)
   : pset_(new fhicl::ParameterSet(pset)),
@@ -37,7 +37,7 @@ namespace edm {
   : pset_(new fhicl::ParameterSet),
     services_(new std::vector<fhicl::ParameterSet>())
   {
-    throw edm::Exception(errors::Configuration,"Old config strings no longer accepted");
+    throw art::Exception(errors::Configuration,"Old config strings no longer accepted");
   }
 
   void ProcessDesc::setRegistry() const
@@ -121,4 +121,4 @@ namespace edm {
     std::reverse(services_->begin(), services_->end());
   }
 
-} // namespace edm
+} // namespace art

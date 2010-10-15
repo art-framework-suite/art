@@ -13,7 +13,7 @@
 #include <memory>
 
 
-namespace edm {
+namespace art {
 
   class GeneratedInputSource : public ConfigurableInputSource {
   public:
@@ -23,6 +23,6 @@ namespace edm {
 
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_GeneratedInputSource_h

@@ -14,7 +14,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
 
   class ConfigurableInputSource : public InputSource {
   public:
@@ -82,6 +82,6 @@ namespace edm {
     EventAuxiliary::ExperimentType eType_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_ConfigurableInputSource_h

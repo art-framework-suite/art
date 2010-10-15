@@ -1,7 +1,7 @@
 
 #include "art/Utilities/RootHandlers.h"
 
-namespace edm
+namespace art
 {
   RootHandlers::RootHandlers() { }
 

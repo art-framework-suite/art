@@ -20,7 +20,7 @@ VectorInputSource: Abstract interface for vector input sources.
 #include <vector>
 
 
-namespace edm {
+namespace art {
   class EventPrincipal;
   class InputSourceDescription;
 
@@ -44,6 +44,6 @@ namespace edm {
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Sources_VectorInputSource_h

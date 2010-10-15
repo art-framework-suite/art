@@ -20,7 +20,7 @@ BranchMapperWithReader:
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   template <typename T>
   class BranchMapperWithReader : public BranchMapper {
@@ -82,6 +82,6 @@ namespace edm {
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_BranchMapperWithReader

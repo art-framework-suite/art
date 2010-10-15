@@ -7,7 +7,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   void
   EventAuxiliary::write(std::ostream& os) const {
     os << "Process History ID = " <<  processHistoryID_ << std::endl;

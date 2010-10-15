@@ -5,10 +5,10 @@
 #include "TClassRef.h"
 class TBuffer;
 
-namespace edm {
+namespace art {
   class ConstPtrCacheStreamer : public TClassStreamer {
   public:
-    explicit ConstPtrCacheStreamer() : cl_("edm::ConstPtrCache"){}
+    explicit ConstPtrCacheStreamer() : cl_("art::ConstPtrCache"){}
 
     void operator() (TBuffer &R__b, void *objp);
 
@@ -18,7 +18,7 @@ namespace edm {
 
   class BoolCacheStreamer : public TClassStreamer {
 public:
-    explicit BoolCacheStreamer() : cl_("edm::BoolCache"){}
+    explicit BoolCacheStreamer() : cl_("art::BoolCache"){}
 
     void operator() (TBuffer &R__b, void *objp);
 

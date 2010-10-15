@@ -13,7 +13,7 @@
 #include <memory>
 
 
-namespace edm {
+namespace art {
 
   class Timestamp;
 
@@ -42,6 +42,6 @@ namespace edm {
     std::auto_ptr<EventPrincipal> ep_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Sources_RawInputSource_h

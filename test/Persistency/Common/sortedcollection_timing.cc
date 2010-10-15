@@ -40,7 +40,7 @@ struct BackwardsOrdering
 
 int main()
 {
-  edm::SortedCollection<V> sc;
+  art::SortedCollection<V> sc;
   std::map<Key,V>          m;
 
   // Fill with 2000 entries; includes sorting.

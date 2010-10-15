@@ -5,13 +5,13 @@
 #include <fstream>
 #include <iostream>
 
-namespace edm {
+namespace art {
 
     std::string  read_whole_file(std::string const& filename) {
       std::string result;
       std::ifstream input(filename.c_str());
       if (!input) {
-       throw edm::Exception(errors::Configuration,"MissingFile")
+       throw art::Exception(errors::Configuration,"MissingFile")
          << "Cannot read file " << filename;
       }
       std::string buffer;
@@ -65,5 +65,5 @@ namespace edm {
       return result;
     }
 
-} // namespace edm
+} // namespace art
 

@@ -1,5 +1,5 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/IO/Output/PoolOutputModule.h"
 
-using edm::PoolOutputModule;
+using art::PoolOutputModule;
 DEFINE_FWK_MODULE(PoolOutputModule);

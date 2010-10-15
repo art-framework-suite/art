@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// interface to edm::Entry and related types
+// interface to art::Entry and related types
 //
 // The functions here are expected to go away.  The exception
 // processing is not ideal and is not a good model to follow.
@@ -26,7 +26,7 @@
 // ----------------------------------------------------------------------
 // contents
 
-namespace edm {
+namespace art {
 
   // ----------------------------------------------------------------------
   // Entry
@@ -87,32 +87,32 @@ namespace edm {
     std::vector<std::string>  getVString() const;
 
     // FileInPath
-    Entry(std::string const& name, edm::FileInPath const& val, bool is_tracked);
-    edm::FileInPath getFileInPath() const;
+    Entry(std::string const& name, art::FileInPath const& val, bool is_tracked);
+    art::FileInPath getFileInPath() const;
 
     // InputTag
-    Entry(std::string const& name, edm::InputTag const & tag, bool is_tracked);
-    edm::InputTag getInputTag() const;
+    Entry(std::string const& name, art::InputTag const & tag, bool is_tracked);
+    art::InputTag getInputTag() const;
 
     // InputTag
-    Entry(std::string const& name, std::vector<edm::InputTag> const & vtag, bool is_tracked);
-    std::vector<edm::InputTag> getVInputTag() const;
+    Entry(std::string const& name, std::vector<art::InputTag> const & vtag, bool is_tracked);
+    std::vector<art::InputTag> getVInputTag() const;
 
     // EventID
-    Entry(std::string const& name, edm::EventID const & tag, bool is_tracked);
-    edm::EventID getEventID() const;
+    Entry(std::string const& name, art::EventID const & tag, bool is_tracked);
+    art::EventID getEventID() const;
 
     // VEventID
-    Entry(std::string const& name, std::vector<edm::EventID> const & vtag, bool is_tracked);
-    std::vector<edm::EventID> getVEventID() const;
+    Entry(std::string const& name, std::vector<art::EventID> const & vtag, bool is_tracked);
+    std::vector<art::EventID> getVEventID() const;
 
     // SubRunID
-    Entry(std::string const& name, edm::SubRunID const & tag, bool is_tracked);
-    edm::SubRunID getSubRunID() const;
+    Entry(std::string const& name, art::SubRunID const & tag, bool is_tracked);
+    art::SubRunID getSubRunID() const;
 
     // VSubRunID
-    Entry(std::string const& name, std::vector<edm::SubRunID> const & vtag, bool is_tracked);
-    std::vector<edm::SubRunID> getVSubRunID() const;
+    Entry(std::string const& name, std::vector<art::SubRunID> const & vtag, bool is_tracked);
+    std::vector<art::SubRunID> getVSubRunID() const;
 
     // ParameterSet
     Entry(std::string const& name, fhicl::ParameterSet const& val, bool is_tracked);
@@ -181,6 +181,6 @@ namespace edm {
   //     return !(a == b);
   //   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_ParameterSet_Entry_h

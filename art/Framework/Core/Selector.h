@@ -42,7 +42,7 @@ for every event.
 #include "art/Framework/Core/SelectorBase.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 
-namespace edm
+namespace art
 {
   //------------------------------------------------------------------
   /// struct template has_match.

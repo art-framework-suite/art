@@ -37,14 +37,14 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestPluginManager);
 
-class DummyTestPlugin : public edmplugin::PluginFactoryBase {
+class DummyTestPlugin : public artplugin::PluginFactoryBase {
 public:
   DummyTestPlugin(const std::string& iName): name_(iName) {
     finishedConstruction();
   }
   const std::string& category() const {return name_;}
-  std::vector<edmplugin::PluginInfo> available() const {
-    return std::vector<edmplugin::PluginInfo>();
+  std::vector<artplugin::PluginInfo> available() const {
+    return std::vector<artplugin::PluginInfo>();
   }
   const std::string name_;
 };
@@ -52,7 +52,7 @@ public:
 struct Catcher {
   std::string lastSeen_;
 
-  void catchIt(const edmplugin::PluginFactoryBase* iFactory) {
+  void catchIt(const artplugin::PluginFactoryBase* iFactory) {
     lastSeen_=iFactory->category();
   }
 };
@@ -66,18 +66,18 @@ namespace testedmplugin {
   };
 }
 
-DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory,testedmplugin::DummyThree,"DummyThree");
+DEFINE_EDM_PLUGIN(testartplugin::DummyFactory,testartplugin::DummyThree,"DummyThree");
 
 
 void
 TestPluginManager::test()
 {
-  using namespace edmplugin;
+  using namespace artplugin;
   using namespace testedmplugin;
-  CPPUNIT_ASSERT_THROW(PluginManager::get(), cms::Exception );
+  CPPUNIT_ASSERT_THROW(PluginManager::get(), artZ::Exception );
 
   PluginManager::Config config;
-  CPPUNIT_ASSERT_THROW(PluginManager::configure(config), cms::Exception );
+  CPPUNIT_ASSERT_THROW(PluginManager::configure(config), artZ::Exception );
 
   const char* path = getenv("LD_LIBRARY_PATH");
   CPPUNIT_ASSERT(0 != path);
@@ -94,7 +94,7 @@ TestPluginManager::test()
   paths.push_back(spath.substr(last,std::string::npos));
   config.searchPath(paths);
 
-  edmplugin::PluginManager& db = edmplugin::PluginManager::configure(config);
+  artplugin::PluginManager& db = artplugin::PluginManager::configure(config);
 
   std::auto_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
   CPPUNIT_ASSERT(1==ptr->value());
@@ -102,6 +102,6 @@ TestPluginManager::test()
   std::auto_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
   CPPUNIT_ASSERT(3==ptr2->value());
 
-  CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), cms::Exception);
+  CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), artZ::Exception);
 
 }

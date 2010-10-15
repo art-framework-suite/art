@@ -27,7 +27,7 @@
 // user include files
 
 // forward declarations
-namespace edmplugin {
+namespace artplugin {
   class PluginFactoryBase;
   class DummyFriend;
 class PluginFactoryManager

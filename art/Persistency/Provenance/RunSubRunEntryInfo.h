@@ -22,7 +22,7 @@ and how it came into existence, plus the product identifier and the status.
 /*
   RunSubRunEntryInfo
 */
-namespace edm {
+namespace art {
   class RunSubRunEntryInfo {
   public:
     typedef std::vector<RunSubRunEntryInfo> EntryInfoVector;

@@ -27,7 +27,7 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 #include <string>
 
 // forward declarations
-namespace edm {
+namespace art {
 
    class UnscheduledHandler {
 

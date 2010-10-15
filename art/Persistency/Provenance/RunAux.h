@@ -9,7 +9,7 @@
 // Auxiliary run information that is persistent.
 // Obsolete format, used for backward compatibility only.
 
-namespace edm
+namespace art
 {
   struct RunAuxiliary;
   struct RunAux {

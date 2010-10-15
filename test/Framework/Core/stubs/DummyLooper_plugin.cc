@@ -35,11 +35,11 @@
 //
 // class decleration
 //
-using namespace edm::eventsetup::test;
+using namespace art::eventsetup::test;
 
-class DummyLooper : public edm::ESProducerLooper {
+class DummyLooper : public art::ESProducerLooper {
    public:
-      DummyLooper(const edm::ParameterSet&);
+      DummyLooper(const art::ParameterSet&);
       ~DummyLooper();
 
       typedef boost::shared_ptr<DummyData> ReturnType;
@@ -49,10 +49,10 @@ class DummyLooper : public edm::ESProducerLooper {
       void startingNewLoop(unsigned int ) {
 
       }
-      Status duringLoop(const edm::Event&, const edm::EventSetup&) {
+      Status duringLoop(const art::Event&, const art::EventSetup&) {
         return issueStop_? kStop : kContinue;
       }
-      Status endOfLoop(const edm::EventSetup&, unsigned int) {
+      Status endOfLoop(const art::EventSetup&, unsigned int) {
          (data_->value_)++;
          ++counter_;
          return counter_==2 ? kStop : kContinue;
@@ -75,7 +75,7 @@ class DummyLooper : public edm::ESProducerLooper {
 //
 // constructors and destructor
 //
-DummyLooper::DummyLooper(const edm::ParameterSet& iConfig)
+DummyLooper::DummyLooper(const art::ParameterSet& iConfig)
             : data_(new DummyData(iConfig.getUntrackedParameter<int>("value"))), counter_(0),
 issueStop_(iConfig.getUntrackedParameter<bool>("issueStop",false))
 {

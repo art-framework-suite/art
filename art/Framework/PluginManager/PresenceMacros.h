@@ -5,9 +5,9 @@
 #include "art/Utilities/Presence.h"
 
 #define DEFINE_FWK_PRESENCE(type) \
-  DEFINE_EDM_PLUGIN (edm::PresencePluginFactory,type,#type)
+  DEFINE_EDM_PLUGIN (art::PresencePluginFactory,type,#type)
 
 #define DEFINE_ANOTHER_FWK_PRESENCE(type) \
-  DEFINE_EDM_PLUGIN (edm::PresencePluginFactory,type,#type)
+  DEFINE_EDM_PLUGIN (art::PresencePluginFactory,type,#type)
 
 #endif

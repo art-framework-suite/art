@@ -3,7 +3,7 @@
 
 // ======================================================================
 //
-// RefCore: The component of edm::Ref containing
+// RefCore: The component of art::Ref containing
 //            - the product ID and
 //            - the product getter.
 //
@@ -13,27 +13,27 @@
 // Framework support:
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Provenance/ProductID.h"
-namespace edm { class EDProduct; }
+namespace art { class EDProduct; }
 
 // C++ Support:
 #include <algorithm>
 
 // Contents:
-namespace edm {
+namespace art {
   class RefCore;
 
   bool  operator == ( RefCore const &, RefCore const & );
   bool  operator != ( RefCore const &, RefCore const & );
   bool  operator <  ( RefCore const &, RefCore const & );
 
-  void  swap( edm::RefCore &, edm::RefCore & );
+  void  swap( art::RefCore &, art::RefCore & );
 }
 
 
 // ======================================================================
 
 
-class edm::RefCore
+class art::RefCore
 {
 public:
   // --- Construction/destruction:
@@ -137,7 +137,7 @@ private:
 
 
 inline bool
-  edm::operator == ( RefCore const & lhs, RefCore const & rhs )
+  art::operator == ( RefCore const & lhs, RefCore const & rhs )
 { return lhs.isTransient() == rhs.isTransient()
       && (lhs.isTransient() ? lhs.productPtr() == rhs.productPtr()
                             : lhs.id() == rhs.id()
@@ -145,18 +145,18 @@ inline bool
 }
 
 inline bool
-  edm::operator != ( RefCore const & lhs, RefCore const & rhs )
+  art::operator != ( RefCore const & lhs, RefCore const & rhs )
 { return ! (lhs == rhs); }
 
 inline bool
-  edm::operator < ( RefCore const & lhs, RefCore const & rhs )
+  art::operator < ( RefCore const & lhs, RefCore const & rhs )
 { return lhs.isTransient()
        ? ( rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false )
        : ( rhs.isTransient() ? true : lhs.id() < rhs.id() );
 }
 
 inline void
-  edm::swap( edm::RefCore & lhs, edm::RefCore & rhs )
+  art::swap( art::RefCore & lhs, art::RefCore & rhs )
 { lhs.swap(rhs); }
 
 

@@ -11,7 +11,7 @@ namespace {
   };
 }
 
-namespace edmtestprod {
+namespace arttestprod {
 
  StreamTestThing::~StreamTestThing() { }
 

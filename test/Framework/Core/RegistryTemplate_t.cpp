@@ -4,11 +4,11 @@
 
 int main()
 {
-  edm::pset::Registry* psreg =
-    edm::pset::Registry::instance();
+  art::pset::Registry* psreg =
+    art::pset::Registry::instance();
 
-  edm::ProcessHistoryRegistry* pnlreg =
-    edm::ProcessHistoryRegistry::instance();
+  art::ProcessHistoryRegistry* pnlreg =
+    art::ProcessHistoryRegistry::instance();
 
   assert( psreg );
   assert( pnlreg );

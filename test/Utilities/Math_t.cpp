@@ -27,15 +27,15 @@ test_fp_type()
   CPPUNIT_ASSERT(std::numeric_limits<FP>::is_specialized);
   CPPUNIT_ASSERT(std::numeric_limits<FP>::has_quiet_NaN);
   FP nan = std::numeric_limits<FP>::quiet_NaN();
-  CPPUNIT_ASSERT(!edm::isnan(static_cast<FP>(1.0)));
-  CPPUNIT_ASSERT(!edm::isnan(static_cast<FP>(-1.0)));
-  CPPUNIT_ASSERT(!edm::isnan(static_cast<FP>(0.0)));
-  CPPUNIT_ASSERT(!edm::isnan(static_cast<FP>(-0.0)));
-  CPPUNIT_ASSERT(!edm::isnan(std::numeric_limits<FP>::infinity()));
-  CPPUNIT_ASSERT(!edm::isnan(-std::numeric_limits<FP>::infinity()));
+  CPPUNIT_ASSERT(!art::isnan(static_cast<FP>(1.0)));
+  CPPUNIT_ASSERT(!art::isnan(static_cast<FP>(-1.0)));
+  CPPUNIT_ASSERT(!art::isnan(static_cast<FP>(0.0)));
+  CPPUNIT_ASSERT(!art::isnan(static_cast<FP>(-0.0)));
+  CPPUNIT_ASSERT(!art::isnan(std::numeric_limits<FP>::infinity()));
+  CPPUNIT_ASSERT(!art::isnan(-std::numeric_limits<FP>::infinity()));
 
-  CPPUNIT_ASSERT(edm::isnan(nan));
-  CPPUNIT_ASSERT(edm::isnan(std::numeric_limits<FP>::signaling_NaN()));
+  CPPUNIT_ASSERT(art::isnan(nan));
+  CPPUNIT_ASSERT(art::isnan(std::numeric_limits<FP>::signaling_NaN()));
 }
 
 
@@ -48,9 +48,9 @@ void TestMath::test_isnan()
   test_fp_type<double>();
   test_fp_type<long double>();
 
-  CPPUNIT_ASSERT(edm::isnan(std::numeric_limits<float>::quiet_NaN()));
-  CPPUNIT_ASSERT(edm::isnan(std::numeric_limits<double>::quiet_NaN()));
-  CPPUNIT_ASSERT(edm::isnan(std::numeric_limits<long double>::quiet_NaN()));
+  CPPUNIT_ASSERT(art::isnan(std::numeric_limits<float>::quiet_NaN()));
+  CPPUNIT_ASSERT(art::isnan(std::numeric_limits<double>::quiet_NaN()));
+  CPPUNIT_ASSERT(art::isnan(std::numeric_limits<long double>::quiet_NaN()));
 }
 
 template <class FP>
@@ -60,37 +60,37 @@ time_fp_type()
   volatile FP values[] = { 1.0, 1.0/0.0, -2.5, 1.0/3.0, 0.0/0.0 };
   unsigned long sum = 0;
 
-  edm::HRTimeType start = edm::hrRealTime();
+  art::HRTimeType start = art::hrRealTime();
   for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
       sum += (std::isnan(values[j]) ? 0 : 1);
-  edm::HRTimeType stop = edm::hrRealTime();
+  art::HRTimeType stop = art::hrRealTime();
   std::cout << "std::isnan time:         " << (stop - start) << std::endl;
 
   sum = 0;
-  start = edm::hrRealTime();
+  start = art::hrRealTime();
   for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-      sum += (edm::detail::isnan(values[j]) ? 0 : 1);
-  stop = edm::hrRealTime();
-  stop = edm::hrRealTime();
-  std::cout << "edm::detail::isnan time: " << (stop - start) << std::endl;
+      sum += (art::detail::isnan(values[j]) ? 0 : 1);
+  stop = art::hrRealTime();
+  stop = art::hrRealTime();
+  std::cout << "art::detail::isnan time: " << (stop - start) << std::endl;
 
   sum = 0;
-  start = edm::hrRealTime();
+  start = art::hrRealTime();
   for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-      sum += (edm::isnan(values[j]) ? 0 : 1);
-  stop = edm::hrRealTime();
-  std::cout << "edm::isnan time:         " << (stop - start) << std::endl;
+      sum += (art::isnan(values[j]) ? 0 : 1);
+  stop = art::hrRealTime();
+  std::cout << "art::isnan time:         " << (stop - start) << std::endl;
 
   sum = 0;
-  start = edm::hrRealTime();
+  start = art::hrRealTime();
   for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-      sum += (edm::equal_isnan(values[j]) ? 0 : 1);
-  stop = edm::hrRealTime();
-  std::cout << "edm::equal_isnan time:   " << (stop - start) << std::endl;
+      sum += (art::equal_isnan(values[j]) ? 0 : 1);
+  stop = art::hrRealTime();
+  std::cout << "art::equal_isnan time:   " << (stop - start) << std::endl;
 }
 
 

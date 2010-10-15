@@ -11,13 +11,13 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class InputSourceDescription;
 
   typedef VectorInputSource* (ISVecFunc)(fhicl::ParameterSet const&,
                                          InputSourceDescription const&);
-  typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
+  typedef artplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
   class VectorInputSourceFactory
   {
@@ -36,6 +36,6 @@ namespace edm {
     static VectorInputSourceFactory singleInstance_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Sources_VectorInputSourceFactory_h

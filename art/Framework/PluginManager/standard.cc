@@ -16,7 +16,7 @@
 // user include files
 #include "art/Framework/PluginManager/standard.h"
 
-namespace edmplugin {
+namespace artplugin {
   namespace standard {
 
     PluginManager::Config config()

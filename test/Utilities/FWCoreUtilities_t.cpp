@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-Test program for edm::TypeIDBase class.
+Test program for art::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
 
@@ -37,7 +37,7 @@ using std::endl;
 void testCPUTimer::testTiming()
 
 {
-  edm::CPUTimer timer;
+  art::CPUTimer timer;
   CPPUNIT_ASSERT(timer.realTime() == 0.0);
   CPPUNIT_ASSERT(timer.cpuTime()==0.0);
 
@@ -98,7 +98,7 @@ void testCPUTimer::testTiming()
 
 /*----------------------------------------------------------------------
 
-Test program for edm::ExtensionCord class.
+Test program for art::ExtensionCord class.
 Created by Chris Jones on 22-09-2006
 
 
@@ -132,22 +132,22 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testExtensionCord);
 
 void testExtensionCord::unpluggedTest()
 {
-  edm::ExtensionCord<int> dangling;
+  art::ExtensionCord<int> dangling;
   CPPUNIT_ASSERT(!dangling.connected());
 
-  CPPUNIT_ASSERT_THROW(*dangling, cms::Exception);
-  CPPUNIT_ASSERT_THROW(dangling.operator->(), cms::Exception);
+  CPPUNIT_ASSERT_THROW(*dangling, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(dangling.operator->(), artZ::Exception);
 }
 
 void testExtensionCord::pluggedTest()
 {
-  edm::ExtensionCord<int> cord;
+  art::ExtensionCord<int> cord;
 
   {
     int value(1);
-    edm::ValueHolderECGetter<int> getter(value);
+    art::ValueHolderECGetter<int> getter(value);
 
-    edm::SimpleOutlet<int> outlet( getter, cord );
+    art::SimpleOutlet<int> outlet( getter, cord );
 
     CPPUNIT_ASSERT( 1 == *cord);
   }
@@ -156,14 +156,14 @@ void testExtensionCord::pluggedTest()
 
 void testExtensionCord::copyTest()
 {
-  edm::ExtensionCord<int> cord1;
-  edm::ExtensionCord<int> cord2(cord1);
+  art::ExtensionCord<int> cord1;
+  art::ExtensionCord<int> cord2(cord1);
 
   {
     int value(1);
-    edm::ValueHolderECGetter<int> getter(value);
+    art::ValueHolderECGetter<int> getter(value);
 
-    edm::SimpleOutlet<int> outlet(getter, cord1 );
+    art::SimpleOutlet<int> outlet(getter, cord1 );
 
     CPPUNIT_ASSERT( 1 == *cord2);
   }
@@ -182,7 +182,7 @@ void testExtensionCord::copyTest()
 #include <iostream>
 #include "art/Utilities/FriendlyName.h"
 
-using namespace edm;
+using namespace art;
 
 class testfriendlyName: public CppUnit::TestFixture
 {
@@ -211,26 +211,26 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("std::vector<Foo>","Foos") );
   classToFriendly.insert( Values("std::vector<bar::Foo>","barFoos") );
   classToFriendly.insert( Values("V<A,B>","ABV") );
-  classToFriendly.insert( Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>","recoSuperClustersrecoSuperClusterRefProdsedmExtCollection") );
-  classToFriendly.insert( Values("edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >","EcalUncalibratedRecHitsSorted") );
-  classToFriendly.insert( Values("edm::OwnVector<aod::Candidate,edm::ClonePolicy<aod::Candidate> >","aodCandidatesOwned") );
-  classToFriendly.insert( Values("edm::OwnVector<Foo,edm::ClonePolicy<Foo> >","FoosOwned") );
-  classToFriendly.insert( Values("edm::OwnVector<My<int>, edm::ClonePolicy<My<int> > >","intMysOwned") );
-  classToFriendly.insert( Values("std::vector<edm::OwnVector<My<int>, edm::ClonePolicy<My<int> > > >","intMysOwneds") );
-  classToFriendly.insert( Values("edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >","CSCDetIdCSCALCTDigiMuonDigiCollection") );
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToMany<std::vector<CaloJet>,std::vector<reco::Track>,unsigned int> >","CaloJetsToManyrecoTracksAssociation") );
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<reco::TrackInfo>,unsigned int> >","recoTracksToOnerecoTrackInfosAssociation") );
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToValue<std::vector<reco::Electron>,float,unsigned int> >",
+  classToFriendly.insert( Values("art::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>","recoSuperClustersrecoSuperClusterRefProdsedmExtCollection") );
+  classToFriendly.insert( Values("art::SortedCollection<EcalUncalibratedRecHit,art::StrictWeakOrdering<EcalUncalibratedRecHit> >","EcalUncalibratedRecHitsSorted") );
+  classToFriendly.insert( Values("art::OwnVector<aod::Candidate,art::ClonePolicy<aod::Candidate> >","aodCandidatesOwned") );
+  classToFriendly.insert( Values("art::OwnVector<Foo,art::ClonePolicy<Foo> >","FoosOwned") );
+  classToFriendly.insert( Values("art::OwnVector<My<int>, art::ClonePolicy<My<int> > >","intMysOwned") );
+  classToFriendly.insert( Values("std::vector<art::OwnVector<My<int>, art::ClonePolicy<My<int> > > >","intMysOwneds") );
+  classToFriendly.insert( Values("art::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >","CSCDetIdCSCALCTDigiMuonDigiCollection") );
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToMany<std::vector<CaloJet>,std::vector<reco::Track>,unsigned int> >","CaloJetsToManyrecoTracksAssociation") );
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToOne<std::vector<reco::Track>,std::vector<reco::TrackInfo>,unsigned int> >","recoTracksToOnerecoTrackInfosAssociation") );
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToValue<std::vector<reco::Electron>,float,unsigned int> >",
                                  "recoElectronsToValuefloatAssociation"));
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToManyWithQuality<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,double,unsigned int> >",
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToManyWithQuality<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,double,unsigned int> >",
                                  "recoCandidatesOwnedToManyrecoCandidatesOwnedWithQuantitydoubleAssociation"));
-  classToFriendly.insert( Values("edm::AssociationVector<edm::RefProd<std::vector<reco::CaloJet> >,std::vector<int>,edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>",
+  classToFriendly.insert( Values("art::AssociationVector<art::RefProd<std::vector<reco::CaloJet> >,std::vector<int>,art::Ref<std::vector<reco::CaloJet>,reco::CaloJet,art::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >,unsigned int,art::helper::AssociationIdenticalKeyReference>",
                                  "recoCaloJetsedmRefProdTointsAssociationVector") );
-  classToFriendly.insert( Values("edm::AssociationVector<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,std::vector<double>,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>",
+  classToFriendly.insert( Values("art::AssociationVector<art::RefProd<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> > >,std::vector<double>,art::Ref<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,reco::Candidate,art::refhelper::FindUsingAdvance<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,art::helper::AssociationIdenticalKeyReference>",
                                  "recoCandidatesOwnededmRefProdTodoublesAssociationVector") );
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<std::pair<double,double> >,unsigned int> >",
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToOne<std::vector<reco::Track>,std::vector<std::pair<double,double> >,unsigned int> >",
                                  "recoTracksToOnedoubledoublestdpairsAssociation"));
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<std::pair<Point3DBase<float,GlobalTag>,GlobalErrorBase<double,ErrorMatrixTag> > >,unsigned int> >",
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToOne<std::vector<reco::Track>,std::vector<std::pair<Point3DBase<float,GlobalTag>,GlobalErrorBase<double,ErrorMatrixTag> > >,unsigned int> >",
                                  "recoTracksToOnefloatGlobalTagPoint3DBasedoubleErrorMatrixTagGlobalErrorBasestdpairsAssociation"));
   classToFriendly.insert( Values("A<B<C>, D<E> >","CBEDA"));
   classToFriendly.insert( Values("A<B<C<D> > >","DCBA"));
@@ -239,16 +239,16 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("Aa<Bb<Cc<Dd> > >","DdCcBbAa"));
   classToFriendly.insert( Values("Aa<Bb<Cc,Dd>, Ee<Ff> >","CcDdBbFfEeAa"));
   classToFriendly.insert( Values("Aa<Bb<Cc,Dd>, Ee<Ff,Gg> >","CcDdBbFfGgEeAa"));
-  classToFriendly.insert( Values("edm::RangeMap<DetId,edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >,edm::ClonePolicy<SiPixelRecHit> >","DetIdSiPixelRecHitsOwnedRangeMap"));
-  classToFriendly.insert( Values("std::vector<edm::RangeMap<DetId,edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >,edm::ClonePolicy<SiPixelRecHit> > >","DetIdSiPixelRecHitsOwnedRangeMaps"));
-  classToFriendly.insert( Values("edm::RefVector< edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate, edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >, reco::Candidate> >","recoCandidatesOwnedRefs"));
-  classToFriendly.insert( Values("edm::RefVector< std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >","recoTracksRefs"));
-  classToFriendly.insert( Values("edm::RefVector<Col, Type, edm::refhelper::FindUsingAdvance<Col, Type> >","ColTypeRefs"));
-  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToMany<std::vector<reco::PixelMatchGsfElectron>,edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,unsigned int> >",
+  classToFriendly.insert( Values("art::RangeMap<DetId,art::OwnVector<SiPixelRecHit,art::ClonePolicy<SiPixelRecHit> >,art::ClonePolicy<SiPixelRecHit> >","DetIdSiPixelRecHitsOwnedRangeMap"));
+  classToFriendly.insert( Values("std::vector<art::RangeMap<DetId,art::OwnVector<SiPixelRecHit,art::ClonePolicy<SiPixelRecHit> >,art::ClonePolicy<SiPixelRecHit> > >","DetIdSiPixelRecHitsOwnedRangeMaps"));
+  classToFriendly.insert( Values("art::RefVector< art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,reco::Candidate, art::refhelper::FindUsingAdvance<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >, reco::Candidate> >","recoCandidatesOwnedRefs"));
+  classToFriendly.insert( Values("art::RefVector< std::vector<reco::Track>, reco::Track, art::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >","recoTracksRefs"));
+  classToFriendly.insert( Values("art::RefVector<Col, Type, art::refhelper::FindUsingAdvance<Col, Type> >","ColTypeRefs"));
+  classToFriendly.insert( Values("art::AssociationMap<art::OneToMany<std::vector<reco::PixelMatchGsfElectron>,art::SortedCollection<EcalRecHit,art::StrictWeakOrdering<EcalRecHit> >,unsigned int> >",
                                  "recoPixelMatchGsfElectronsToManyEcalRecHitsSortedAssociation"));
-  classToFriendly.insert( Values("edm::AssociationVector<edm::RefToBaseProd<reco::Candidate>,std::vector<double>,edm::RefToBase<reco::Candidate>,unsigned int,edm::helper::AssociationIdenticalKeyReference>",
+  classToFriendly.insert( Values("art::AssociationVector<art::RefToBaseProd<reco::Candidate>,std::vector<double>,art::RefToBase<reco::Candidate>,unsigned int,art::helper::AssociationIdenticalKeyReference>",
                                  "recoCandidateedmRefToBaseProdTodoublesAssociationVector"));
-  classToFriendly.insert( Values("edm::RefVector<edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >,edm::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >::Find>",
+  classToFriendly.insert( Values("art::RefVector<art::AssociationMap<art::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >,art::helpers::KeyVal<art::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,art::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >,art::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,art::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >,art::AssociationMap<art::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >::Find>",
                                  "recoBasicClustersToOnerecoClusterShapesAssociationRefs"));
 
   for(std::map<std::string, std::string>::iterator itInfo = classToFriendly.begin(),
@@ -256,16 +256,16 @@ void testfriendlyName::test()
       itInfo != itInfoEnd;
       ++itInfo) {
     //std::cout <<itInfo->first<<std::endl;
-    if( itInfo->second != edm::friendlyname::friendlyName(itInfo->first) ) {
+    if( itInfo->second != art::friendlyname::friendlyName(itInfo->first) ) {
       std::cout <<"class name: '"<<itInfo->first<<"' has wrong friendly name \n"
-      <<"expect: '"<<itInfo->second<<"' got: '"<<edm::friendlyname::friendlyName(itInfo->first)<<"'"<<std::endl;
+      <<"expect: '"<<itInfo->second<<"' got: '"<<art::friendlyname::friendlyName(itInfo->first)<<"'"<<std::endl;
       CPPUNIT_ASSERT(0 && "expected friendly name does not match actual friendly name");
     }
   }
 }
 /*----------------------------------------------------------------------
 
-Test program for edm::TypeIDBase class.
+Test program for art::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
 
@@ -296,16 +296,16 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testTypeIDBase);
 
-namespace edmtest {
+namespace arttest {
   struct empty { };
 }
 
 void testTypeIDBase::equalityTest()
 
 {
-  edmtest::empty e;
-  edm::TypeIDBase id1(typeid(e));
-  edm::TypeIDBase id2(typeid(e));
+  arttest::empty e;
+  art::TypeIDBase id1(typeid(e));
+  art::TypeIDBase id2(typeid(e));
 
   CPPUNIT_ASSERT(!(id1 < id2));
   CPPUNIT_ASSERT(!(id2 < id1));
@@ -318,10 +318,10 @@ void testTypeIDBase::equalityTest()
 
 void testTypeIDBase::copyTest()
 {
-  edmtest::empty e;
-  edm::TypeIDBase id1(typeid(e));
+  arttest::empty e;
+  art::TypeIDBase id1(typeid(e));
 
-  edm::TypeIDBase id3=id1;
+  art::TypeIDBase id3=id1;
   CPPUNIT_ASSERT(!(id1 < id3));
   CPPUNIT_ASSERT(!(id3 < id1));
 
@@ -332,7 +332,7 @@ void testTypeIDBase::copyTest()
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 /*----------------------------------------------------------------------
 
-Test program for edm::TypeID class.
+Test program for art::TypeID class.
 Changed by Viji on 29-06-2005
 
 
@@ -370,9 +370,9 @@ using std::endl;
 void testTypeid::equalityTest()
 
 {
-  edmtest::empty e;
-  edm::TypeID id1(e);
-  edm::TypeID id2(e);
+  arttest::empty e;
+  art::TypeID id1(e);
+  art::TypeID id2(e);
 
   CPPUNIT_ASSERT(!(id1 < id2));
   CPPUNIT_ASSERT(!(id2 < id1));
@@ -385,10 +385,10 @@ void testTypeid::equalityTest()
 
 void testTypeid::copyTest()
 {
-  edmtest::empty e;
-  edm::TypeID id1(e);
+  arttest::empty e;
+  art::TypeID id1(e);
 
-  edm::TypeID id3=id1;
+  art::TypeID id3=id1;
   CPPUNIT_ASSERT(!(id1 < id3));
   CPPUNIT_ASSERT(!(id3 < id1));
 

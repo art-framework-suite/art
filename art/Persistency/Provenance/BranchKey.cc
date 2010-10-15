@@ -10,7 +10,7 @@
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 
 
-namespace edm
+namespace art
 {
   BranchKey::BranchKey(BranchDescription const& desc) :
     friendlyClassName_(desc.friendlyClassName()),

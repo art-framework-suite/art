@@ -15,7 +15,7 @@
 #include <limits>
 
 
-namespace edm {
+namespace art {
 
   TTree *
   RootOutputTree::assignTTree(TFile * filePtr, TTree * tree) {
@@ -29,10 +29,10 @@ namespace edm {
   TTree *
   RootOutputTree::makeTTree(TFile * filePtr, std::string const& name, int splitLevel) {
     TTree *tree = new TTree(name.c_str(), "", splitLevel);
-    if (!tree) throw edm::Exception(edm::errors::FatalRootError)
+    if (!tree) throw art::Exception(art::errors::FatalRootError)
       << "Failed to create the tree: " << name << "\n";
     if (tree->IsZombie())
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw art::Exception(art::errors::FatalRootError)
         << "Tree: " << name << " is a zombie." << "\n";
 
     return assignTTree(filePtr, tree);
@@ -69,7 +69,7 @@ namespace edm {
     if (in->GetEntries() != 0) {
       TTreeCloner cloner(in, out, "");
       if (!cloner.IsValid()) {
-        throw edm::Exception(edm::errors::FatalRootError)
+        throw art::Exception(art::errors::FatalRootError)
           << "invalid TTreeCloner\n";
       }
       out->SetEntries(out->GetEntries() + in->GetEntries());
@@ -139,4 +139,4 @@ namespace edm {
       }
   }
 
-}  // namespace edm
+}  // namespace art

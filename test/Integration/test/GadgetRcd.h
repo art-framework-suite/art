@@ -21,7 +21,7 @@
 
 #include "art/Framework/Core/EventSetupRecordImplementation.h"
 
-class GadgetRcd : public edm::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
+class GadgetRcd : public art::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
 
 #endif
 

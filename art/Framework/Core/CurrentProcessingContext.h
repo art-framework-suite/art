@@ -19,7 +19,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 
-namespace edm
+namespace art
 {
   class CurrentProcessingContext
   {

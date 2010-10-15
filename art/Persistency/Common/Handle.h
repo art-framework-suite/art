@@ -31,7 +31,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Utilities/EDMException.h"
 
-namespace edm
+namespace art
 {
   class EDProduct;
   template <typename T> class Wrapper;
@@ -49,7 +49,7 @@ namespace edm
 
     Handle(T const* prod, Provenance const* prov);
 
-    Handle(boost::shared_ptr<cms::Exception> const&);
+    Handle(boost::shared_ptr<artZ::Exception> const&);
 
     ~Handle();
 
@@ -77,7 +77,7 @@ namespace edm
     T const* prod_;
     Provenance const* prov_;
     ProductID id_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    boost::shared_ptr<artZ::Exception> whyFailed_;
   };
 
   template <class T>
@@ -106,7 +106,7 @@ namespace edm
   }
 
   template <class T>
-    Handle<T>::Handle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
+    Handle<T>::Handle(boost::shared_ptr<artZ::Exception> const& iWhyFailed):
     prod_(0),
     prov_(0),
     id_(),
@@ -229,12 +229,12 @@ namespace edm
     }
     EDProduct const* originalWrap = orig.wrapper();
     if (originalWrap == 0)
-      throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << "edm::BasicHandle has null pointer to Wrapper";
+      throw art::Exception(art::errors::InvalidReference,"NullPointer")
+      << "art::BasicHandle has null pointer to Wrapper";
     Wrapper<T> const* wrap = dynamic_cast<Wrapper<T> const*>(originalWrap);
     if (wrap == 0)
-      throw edm::Exception(edm::errors::LogicError,"ConvertType")
-      << "edm::Wrapper converting from EDProduct to "
+      throw art::Exception(art::errors::LogicError,"ConvertType")
+      << "art::Wrapper converting from EDProduct to "
       << typeid(*originalWrap).name();
 
     Handle<T> h(wrap->product(), orig.provenance());

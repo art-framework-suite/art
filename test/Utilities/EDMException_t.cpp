@@ -6,11 +6,11 @@
 #include <iomanip>
 #include <typeinfo>
 
-//using namespace cms;
+//using namespace artZ;
 
 void func3()
 {
-  throw edm::Exception(edm::errors::NotFound)
+  throw art::Exception(art::errors::NotFound)
     << "This is just a test"
     << std::endl;
 }
@@ -25,14 +25,14 @@ void func1()
   try {
       func2();
   }
-  catch (edm::Exception& e) {
+  catch (art::Exception& e) {
     //std::cerr << "GOT HERE" << std::endl;
-    throw edm::Exception(edm::errors::Unknown,"In func2",e)
+    throw art::Exception(art::errors::Unknown,"In func2",e)
 	<< "Gave up";
   }
-  catch (cms::Exception& e) {
+  catch (artZ::Exception& e) {
     //std::cerr << "GOT HERE2 " << typeid(e).name() << std::endl;
-    throw cms::Exception("edm::errors::Unknown","In func2 bad place",e)
+    throw artZ::Exception("art::errors::Unknown","In func2 bad place",e)
 	<< "Gave up";
   }
 
@@ -55,7 +55,7 @@ int main()
   try {
     func1();
   }
-  catch (cms::Exception& e) {
+  catch (artZ::Exception& e) {
     std::cerr << "*** main caught Exception, output is ***\n"
 	 << "(" << e.explainSelf() << ")"
 	 << "*** After exception output ***"
@@ -71,7 +71,7 @@ int main()
     }
 #endif
 
-    cms::Exception::CategoryList::const_iterator i(e.history().begin()),
+    artZ::Exception::CategoryList::const_iterator i(e.history().begin()),
 	b(e.history().end());
 
     if(e.history().size() != 2) {

@@ -1,5 +1,5 @@
 %MSG-s CMSException:  pre-events
-cms::Exception caught in mute
+artZ::Exception caught in mute
 ---- Configuration BEGIN
 Error occured while creating MessageLogger
 ---- Configuration BEGIN

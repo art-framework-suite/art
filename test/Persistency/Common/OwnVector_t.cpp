@@ -61,7 +61,7 @@ Derived::clone() const
 
 void same_guy_twice()
 {
-  edm::OwnVector<Base> vec;
+  art::OwnVector<Base> vec;
   Base* p = new Derived(1);
 
   vec.push_back(p);
@@ -70,7 +70,7 @@ void same_guy_twice()
 
 void two_different_owners()
 {
-  edm::OwnVector<Base> v1,v2;
+  art::OwnVector<Base> v1,v2;
   Base* p = new Derived(1);
   v1.push_back(p);
   v2.push_back(p);
@@ -78,7 +78,7 @@ void two_different_owners()
 
 // void guy_on_stack()
 // {
-//   edm::OwnVector<Base> v;
+//   art::OwnVector<Base> v;
 //   Derived d(10);
 //   v.push_back(&d);
 // }
@@ -86,43 +86,43 @@ void two_different_owners()
 void copy_good_vec()
 {
   // v1 is perfectly fine...
-  edm::OwnVector<Base> v1;
+  art::OwnVector<Base> v1;
   Base* p = new Derived(100);
   v1.push_back(p);
   //v1.push_back(new Derived(100));
 
   // But what if we copy him?
-  edm::OwnVector<Base> v2(v1);
+  art::OwnVector<Base> v2(v1);
 }
 
 void assign_to_other()
 {
-  edm::OwnVector<Base> v1;
+  art::OwnVector<Base> v1;
   Base* p = new Derived(100);
   v1.push_back(p);
 
-  edm::OwnVector<Base> v2;
+  art::OwnVector<Base> v2;
   v2 = v1;
 }
 
 void assign_to_self()
 {
   // Self-assignment happens, often by accident...
-  edm::OwnVector<Base> v1;
+  art::OwnVector<Base> v1;
   v1.push_back(new Derived(100));
   v1 = v1;
 }
 
 void pop_one()
 {
-  edm::OwnVector<Base> v1;
+  art::OwnVector<Base> v1;
   v1.push_back(new Derived(100));
   v1.pop_back();
 }
 
 void back_with_null_pointer()
 {
-  edm::OwnVector<Base> v;
+  art::OwnVector<Base> v;
   Base* p = 0;
   v.push_back(p);
   try
@@ -130,7 +130,7 @@ void back_with_null_pointer()
       v.back();
       assert("Failed to throw a required exception in OwnVector_t"==0);
     }
-  catch (edm::Exception& x)
+  catch (art::Exception& x)
     {
       // this is expected.
     }
@@ -142,7 +142,7 @@ void back_with_null_pointer()
 
 void take_an_rvalue()
 {
-  edm::OwnVector<Base> v;
+  art::OwnVector<Base> v;
   v.push_back(new Derived(101));
   Derived d(102);
   v.push_back(d.clone());
@@ -150,7 +150,7 @@ void take_an_rvalue()
 
 void take_an_lvalue()
 {
-  edm::OwnVector<Base> v1;
+  art::OwnVector<Base> v1;
   Base* p = new Derived(100);
   v1.push_back(p);
 
@@ -159,7 +159,7 @@ void take_an_lvalue()
 
 void take_an_auto_ptr()
 {
-  edm::OwnVector<Base> v1;
+  art::OwnVector<Base> v1;
   std::auto_ptr<Base> p(new Derived(100));
   v1.push_back(p);
   assert(p.get() == 0);
@@ -167,9 +167,9 @@ void take_an_auto_ptr()
 
 int main()
 {
-  edm::OwnVector<Base> vec;
+  art::OwnVector<Base> vec;
   vec.push_back(new Derived(100));
-  edm::OwnVector<Base>* p = new edm::OwnVector<Base>;
+  art::OwnVector<Base>* p = new art::OwnVector<Base>;
   p->push_back(new Derived(2));
   delete p;
   //   same_guy_twice();

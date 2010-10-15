@@ -12,10 +12,10 @@
 #include "TROOT.h"
 
 using namespace std;
-using edm::TFileService;
+using art::TFileService;
 
 
-namespace edm {
+namespace art {
 
   TFileService::TFileService(const ParameterSet & cfg, ActivityRegistry & r) :
     TFileDirectory("",
@@ -51,7 +51,7 @@ namespace edm {
     descr_ = (dir_ + " (" + desc.moduleName_ + ") folder").c_str();
   }
 
-}  // namespace edm
+}  // namespace art
 
 
 // ======================================================================

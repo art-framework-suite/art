@@ -15,9 +15,9 @@
 #include "test/Framework/Core/DummyRecord.h"
 #include "art/ParameterSet/ParameterSet.h"
 
-using edm::eventsetup::test::DummyData;
-using namespace edm::eventsetup;
-using edm::ESProxyFactoryProducer;
+using art::eventsetup::test::DummyData;
+using namespace art::eventsetup;
+using art::ESProxyFactoryProducer;
 
 class DummyProxy : public DataProxyTemplate<DummyRecord, DummyData> {
 public:
@@ -100,7 +100,7 @@ void testProxyfactor::labelTest()
 
 void testProxyfactor::appendLabelTest()
 {
-  edm::ParameterSet pset;
+  art::ParameterSet pset;
   std::string kToAppend("Barney");
   pset.addParameter("appendToDataLabel",
                     kToAppend);

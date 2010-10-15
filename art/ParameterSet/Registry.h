@@ -22,7 +22,7 @@
 #include <map>
 
 
-namespace edm {
+namespace art {
 
   namespace pset {
 
@@ -36,7 +36,7 @@ namespace edm {
       fhicl::ParameterSetID id_;
     };
 
-    typedef edm::detail::ThreadSafeRegistry<fhicl::ParameterSetID,
+    typedef art::detail::ThreadSafeRegistry<fhicl::ParameterSetID,
                                             fhicl::ParameterSet,
                                             ProcessParameterSetIDCache>
                                             Registry;
@@ -65,14 +65,14 @@ namespace edm {
 
     /// Fill the given map with the persistent form of each
     /// ParameterSet in the given registry.
-    typedef std::map<fhicl::ParameterSetID, edm::ParameterSetBlob> regmap_type;
+    typedef std::map<fhicl::ParameterSetID, art::ParameterSetBlob> regmap_type;
     void fill(Registry* reg, regmap_type& fillme);
 
   }  // namespace pset
 
   fhicl::ParameterSet getProcessParameterSet();
 
-}  // namespace edm
+}  // namespace art
 
 
 #endif  // FWCore_ParameterSet_Registry_h

@@ -49,7 +49,7 @@ class testeventprocessor: public CppUnit::TestFixture
 
   void setUp()
   {
-    m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    m_handler = std::auto_ptr<art::AssertHandler>(new art::AssertHandler());
     sleep_secs_ = 0;
   }
 
@@ -63,13 +63,13 @@ class testeventprocessor: public CppUnit::TestFixture
   void endpathTest();
 
   void asyncTest();
-  bool asyncRunAsync(edm::EventProcessor& ep);
-  bool asyncRunTimeout(edm::EventProcessor& ep);
-  void driveAsyncTest( bool (testeventprocessor::*)(edm::EventProcessor&),
+  bool asyncRunAsync(art::EventProcessor& ep);
+  bool asyncRunTimeout(art::EventProcessor& ep);
+  void driveAsyncTest( bool (testeventprocessor::*)(art::EventProcessor&),
 		       const std::string& config_string);
 
  private:
-  std::auto_ptr<edm::AssertHandler> m_handler;
+  std::auto_ptr<art::AssertHandler> m_handler;
   void work()
   {
     std::string configuration(
@@ -83,7 +83,7 @@ class testeventprocessor: public CppUnit::TestFixture
       "process.m2 = cms.EDProducer('TestMod',\n"
       "    ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1*process.m2)\n");
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.beginJob();
     proc.run();
     proc.endJob();
@@ -136,10 +136,10 @@ void testeventprocessor::asyncTest()
   std::string test_config_80k = makeConfig(20000);
 
   // Load the message service plug-in
-  boost::shared_ptr<edm::Presence> theMessageServicePresence;
+  boost::shared_ptr<art::Presence> theMessageServicePresence;
   try {
     theMessageServicePresence =
-      boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+      boost::shared_ptr<art::Presence>(art::PresenceFactory::get()->makePresence("MessageServicePresence").release());
   } catch(std::exception& e) {
     std::cerr << e.what() << std::endl;
     return;
@@ -161,7 +161,7 @@ void testeventprocessor::asyncTest()
   // driveAsyncTest(&testeventprocessor::asyncRunTimeout,test_config_80k);
 }
 
-bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
+bool testeventprocessor::asyncRunAsync(art::EventProcessor& ep)
 {
   for(int i=0;i<7;++i)
     {
@@ -169,7 +169,7 @@ bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
       ep.runAsync();
       if(sleep_secs_>0) sleep(sleep_secs_);
 
-      edm::EventProcessor::StatusCode rc;
+      art::EventProcessor::StatusCode rc;
       if (i < 2) {
         rc = ep.waitTillDoneAsync(1000);
       }
@@ -196,10 +196,10 @@ bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
 
       switch(rc)
 	{
-	case edm::EventProcessor::epSuccess:
-	case edm::EventProcessor::epInputComplete:
+	case art::EventProcessor::epSuccess:
+	case art::EventProcessor::epInputComplete:
 	  break;
-	case edm::EventProcessor::epTimedOut:
+	case art::EventProcessor::epTimedOut:
 	default:
 	  {
 	    std::cerr << "rc from run "<< i <<", doneAsync = " << rc << "\n";
@@ -210,19 +210,19 @@ bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
   return true;
 }
 
-bool testeventprocessor::asyncRunTimeout(edm::EventProcessor& ep)
+bool testeventprocessor::asyncRunTimeout(art::EventProcessor& ep)
 {
   ep.setRunNumber(1);
   ep.runAsync();
-  edm::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1);
+  art::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1);
   std::cerr << " ep runAsync run " << 1 << " done\n";
 
   switch(rc)
     {
-    case edm::EventProcessor::epTimedOut:
+    case art::EventProcessor::epTimedOut:
       break;
-    case edm::EventProcessor::epSuccess:
-    case edm::EventProcessor::epInputComplete:
+    case art::EventProcessor::epSuccess:
+    case art::EventProcessor::epInputComplete:
       break;
     default:
       {
@@ -233,11 +233,11 @@ bool testeventprocessor::asyncRunTimeout(edm::EventProcessor& ep)
   return false;
 }
 
-void testeventprocessor::driveAsyncTest( bool(testeventprocessor::*func)(edm::EventProcessor& ep),const std::string& config_str )
+void testeventprocessor::driveAsyncTest( bool(testeventprocessor::*func)(art::EventProcessor& ep),const std::string& config_str )
 {
 
   try {
-    edm::EventProcessor proc(config_str, true);
+    art::EventProcessor proc(config_str, true);
     proc.beginJob();
     if ((this->*func)(proc))
       proc.endJob();
@@ -246,7 +246,7 @@ void testeventprocessor::driveAsyncTest( bool(testeventprocessor::*func)(edm::Ev
 	std::cerr << "event processor is in error state\n";
       }
   }
-  catch(cms::Exception& e)
+  catch(artZ::Exception& e)
     {
       std::cerr << "cms exception: " << e.explainSelf() << std::endl;
       CPPUNIT_ASSERT("cms exeption"==0);
@@ -268,10 +268,10 @@ void testeventprocessor::parseTest()
 {
   int rc = -1;                // we should never return this value!
   try { work(); rc = 0;}
-  catch (cms::Exception& e) {
+  catch (artZ::Exception& e) {
       std::cerr << "cms exception caught: "
 		<< e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT("Caught cms::Exception " == 0);
+      CPPUNIT_ASSERT("Caught artZ::Exception " == 0);
   }
   catch (std::exception& e) {
       std::cerr << "Standard library exception caught: "
@@ -287,13 +287,13 @@ static int g_pre = 0;
 static int g_post = 0;
 
 static
-void doPre(const edm::EventID&, const edm::Timestamp&)
+void doPre(const art::EventID&, const art::Timestamp&)
 {
   ++g_pre;
 }
 
 static
-void doPost(const edm::Event&, const edm::EventSetup&)
+void doPost(const art::Event&, const art::EventSetup&)
 {
   CPPUNIT_ASSERT(g_pre == ++g_post);
 }
@@ -310,7 +310,7 @@ void testeventprocessor::prepostTest()
       "   ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1)\n");
 
-  edm::EventProcessor proc(configuration, true);
+  art::EventProcessor proc(configuration, true);
 
   proc.preProcessEventSignal().connect(&doPre);
   proc.postProcessEventSignal().connect(&doPost);
@@ -320,8 +320,8 @@ void testeventprocessor::prepostTest()
   CPPUNIT_ASSERT(5 == g_pre);
   CPPUNIT_ASSERT(5 == g_post);
   {
-    edm::EventProcessor const& crProc(proc);
-    typedef std::vector<edm::ModuleDescription const*> ModuleDescs;
+    art::EventProcessor const& crProc(proc);
+    typedef std::vector<art::ModuleDescription const*> ModuleDescs;
     ModuleDescs  allModules = crProc.getAllModuleDescriptions();
     CPPUNIT_ASSERT(2 == allModules.size()); // TestMod and TriggerResultsInserter
     std::cout << "\nModuleDescriptions in testeventprocessor::prepostTest()---\n";
@@ -358,7 +358,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
@@ -396,7 +396,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.runToCompletion(false);
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
@@ -415,7 +415,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.beginJob();
 
     // Check that beginJob is not called again
@@ -445,7 +445,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.beginJob();
 
     // Check that beginJob is not called again
@@ -469,7 +469,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.runEventCount(2);
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
@@ -530,7 +530,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.runEventCount(5);
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
@@ -571,7 +571,7 @@ void testeventprocessor::beginEndTest()
     TestBeginEndJobAnalyzer::beginSubRunCalled = false;
     TestBeginEndJobAnalyzer::endSubRunCalled = false;
 
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
     proc.runEventCount(4);
 
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
@@ -599,7 +599,7 @@ void testeventprocessor::cleanupJobTest()
       "process.p1 = cms.Path(process.m1)\n");
   {
     TestBeginEndJobAnalyzer::destructorCalled = false;
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
     proc.beginJob();
@@ -610,7 +610,7 @@ void testeventprocessor::cleanupJobTest()
   CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::destructorCalled);
   {
     TestBeginEndJobAnalyzer::destructorCalled = false;
-    edm::EventProcessor proc(configuration, true);
+    art::EventProcessor proc(configuration, true);
 
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
     proc.run(1);
@@ -626,7 +626,7 @@ void testeventprocessor::cleanupJobTest()
 
 namespace {
   struct Listener{
-    Listener(edm::ActivityRegistry& iAR) :
+    Listener(art::ActivityRegistry& iAR) :
       postBeginJob_(false),
       postEndJob_(false),
       preEventProcessing_(false),
@@ -646,15 +646,15 @@ namespace {
     void postBeginJob() {postBeginJob_=true;}
     void postEndJob() {postEndJob_=true;}
 
-    void preEventProcessing(const edm::EventID&, const edm::Timestamp&){
+    void preEventProcessing(const art::EventID&, const art::Timestamp&){
       preEventProcessing_=true;}
-    void postEventProcessing(const edm::Event&, const edm::EventSetup&){
+    void postEventProcessing(const art::Event&, const art::EventSetup&){
       postEventProcessing_=true;}
 
-    void preModule(const edm::ModuleDescription&){
+    void preModule(const art::ModuleDescription&){
       preModule_=true;
     }
-    void postModule(const edm::ModuleDescription&){
+    void postModule(const art::ModuleDescription&){
       postModule_=true;
     }
 
@@ -686,19 +686,19 @@ testeventprocessor::activityRegistryTest()
       "   ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1)\n");
 
-  boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(configuration).processDesc();
+  boost::shared_ptr<art::ProcessDesc> processDesc = PythonProcessDesc(configuration).processDesc();
 
   //We don't want any services, we just want an ActivityRegistry to be created
   // We then use this ActivityRegistry to 'spy on' the signals being produced
   // inside the EventProcessor
-  std::vector<edm::ParameterSet> serviceConfigs;
-  edm::ServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
+  std::vector<art::ParameterSet> serviceConfigs;
+  art::ServiceToken token = art::ServiceRegistry::createSet(serviceConfigs);
 
-  edm::ActivityRegistry ar;
+  art::ActivityRegistry ar;
   token.connect(ar);
   Listener listener(ar);
 
-  edm::EventProcessor proc(processDesc, token, edm::serviceregistry::kOverlapIsError);
+  art::EventProcessor proc(processDesc, token, art::serviceregistry::kOverlapIsError);
 
   proc.beginJob();
   proc.run();
@@ -743,9 +743,9 @@ testeventprocessor::moduleFailureTest()
       const std::string configuration = preC +"0"+postC;
       bool threw = true;
       try {
-	edm::EventProcessor proc(configuration, true);
+	art::EventProcessor proc(configuration, true);
 	threw = false;
-      } catch(const cms::Exception& iException){
+      } catch(const artZ::Exception& iException){
 	if(!findModuleName(iException.explainSelf())) {
 	  std::cout <<iException.explainSelf()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
@@ -756,12 +756,12 @@ testeventprocessor::moduleFailureTest()
     {
       const std::string configuration = preC +"1"+postC;
       bool threw = true;
-      edm::EventProcessor proc(configuration, true);
+      art::EventProcessor proc(configuration, true);
 
       try {
 	proc.beginJob();
 	threw = false;
-      } catch(const cms::Exception& iException){
+      } catch(const artZ::Exception& iException){
 	if(!findModuleName(iException.explainSelf())) {
 	  std::cout <<iException.explainSelf()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
@@ -773,13 +773,13 @@ testeventprocessor::moduleFailureTest()
     {
       const std::string configuration = preC +"2"+postC;
       bool threw = true;
-      edm::EventProcessor proc(configuration, true);
+      art::EventProcessor proc(configuration, true);
 
       proc.beginJob();
       try {
 	proc.run(1);
 	threw = false;
-      } catch(const cms::Exception& iException){
+      } catch(const artZ::Exception& iException){
 	if(!findModuleName(iException.explainSelf())) {
 	  std::cout <<iException.explainSelf()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
@@ -791,13 +791,13 @@ testeventprocessor::moduleFailureTest()
     {
       const std::string configuration = preC +"3"+postC;
       bool threw = true;
-      edm::EventProcessor proc(configuration, true);
+      art::EventProcessor proc(configuration, true);
 
       proc.beginJob();
       try {
 	proc.endJob();
 	threw = false;
-      } catch(const cms::Exception& iException){
+      } catch(const artZ::Exception& iException){
 	if(!findModuleName(iException.explainSelf())) {
 	  std::cout <<iException.explainSelf()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
@@ -816,10 +816,10 @@ testeventprocessor::moduleFailureTest()
           "    input = cms.untracked.int32(2))\n"
           "process.source = cms.Source('EmptySource')\n"
           "process.p1 = cms.Path(process.m1)\n");
-        edm::EventProcessor proc(configuration, true);
+        art::EventProcessor proc(configuration, true);
 
 	threw = false;
-      } catch(const cms::Exception& iException){
+      } catch(const artZ::Exception& iException){
         static const boost::regex expr("m1");
 	if(!regex_search(iException.explainSelf(),expr)) {
 	  std::cout <<iException.explainSelf()<<std::endl;
@@ -829,7 +829,7 @@ testeventprocessor::moduleFailureTest()
       CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
     }
 
-  } catch(const cms::Exception& iException) {
+  } catch(const artZ::Exception& iException) {
     std::cout <<"Unexpected exception "<<iException.explainSelf()<<std::endl;
     throw;
   }

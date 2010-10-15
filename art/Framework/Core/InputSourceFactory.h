@@ -11,12 +11,12 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   typedef InputSource* (ISFunc)(fhicl::ParameterSet const&,
                                 InputSourceDescription const&);
 
-  typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
+  typedef artplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
 
   class InputSourceFactory {
   public:
@@ -34,6 +34,6 @@ namespace edm {
     static InputSourceFactory singleInstance_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_InputSourceFactory_h

@@ -33,7 +33,7 @@ This description also applies to every product instance on the branch.
 
 */
 
-namespace edm {
+namespace art {
 
   struct BranchDescription {
     static int const invalidSplitLevel = -1;
@@ -193,6 +193,6 @@ namespace edm {
         std::string const& fileName,
         BranchDescription::MatchMode m);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_BranchDescription_h

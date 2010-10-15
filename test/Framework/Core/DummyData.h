@@ -11,7 +11,7 @@
 //used to set the default record
 #include "test/Framework/Core/DummyRecord.h"
 
-namespace edm {
+namespace art {
    namespace eventsetup {
       namespace test {
          struct DummyData { int value_;
@@ -25,6 +25,6 @@ namespace edm {
 }
 
 #include "art/Framework/Core/data_default_record_trait.h"
-EVENTSETUP_DATA_DEFAULT_RECORD(edm::eventsetup::test::DummyData, DummyRecord)
+EVENTSETUP_DATA_DEFAULT_RECORD(art::eventsetup::test::DummyData, DummyRecord)
 
 #endif

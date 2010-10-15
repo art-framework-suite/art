@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	output << "  handleEmptyRuns = " << handleEmptyRuns;
 	output << "  handleEmptySubRuns = " << handleEmptySubRuns << "\n";
 
-        edm::MockEventProcessor mockEventProcessor(mockData,
+        art::MockEventProcessor mockEventProcessor(mockData,
                                                    output,
                                                    fileMode,
                                                    handleEmptyRuns,

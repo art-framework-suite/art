@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// RefCore: The component of edm::Ref containing
+// RefCore: The component of art::Ref containing
 //            - the product ID and
 //            - the product getter.
 //
@@ -9,11 +9,11 @@
 
 // Class definition:
 #include "art/Persistency/Common/RefCore.h"
-using edm::RefCore;
+using art::RefCore;
 
 // Framework support:
 #include "art/Utilities/EDMException.h"
-using edm::EDProduct;
+using art::EDProduct;
 
 // C++ support:
 #include <cassert>
@@ -82,7 +82,7 @@ void
 {
   if(    productToBeInserted.isNull()
       && ! productToBeInserted.isTransient() ) {
-    throw edm::Exception(errors::InvalidReference, "Inconsistency")
+    throw art::Exception(errors::InvalidReference, "Inconsistency")
       << "RefCore::pushBackItem: Ref or Ptr has invalid (zero) product ID,\n"
          "so it cannot be added to RefVector (PtrVector). id should be ("
       << id() << ")\n";
@@ -91,12 +91,12 @@ void
   if( isNonnull() ) {
     if( isTransient() != productToBeInserted.isTransient() ) {
       if( productToBeInserted.isTransient() ) {
-        throw edm::Exception(errors::InvalidReference, "Inconsistency")
+        throw art::Exception(errors::InvalidReference, "Inconsistency")
           << "RefCore::pushBackItem: Transient Ref or Ptr cannot be added\n"
              "to persistable RefVector (PtrVector). id should be ("
           << id() << ")\n";
       } else {
-        throw edm::Exception(errors::InvalidReference, "Inconsistency")
+        throw art::Exception(errors::InvalidReference, "Inconsistency")
           << "RefCore::pushBackItem: Persistable Ref or Ptr cannot be added\n"
              "to transient RefVector (PtrVector). id is ("
           << productToBeInserted.id() << ")\n";
@@ -104,7 +104,7 @@ void
     }
     if(    ! productToBeInserted.isTransient()
         && id() != productToBeInserted.id() ) {
-      throw edm::Exception(errors::InvalidReference, "Inconsistency")
+      throw art::Exception(errors::InvalidReference, "Inconsistency")
         << "RefCore::pushBackItem: Ref or Ptr is inconsistent with\n"
            "RefVector (PtrVector). id = ("
         << productToBeInserted.id() << "), should be (" << id() << ")\n";
@@ -113,7 +113,7 @@ void
         && checkPointer
         && productToBeInserted.isNonnull()
         && productToBeInserted != *this ) {
-      throw edm::Exception(errors::InvalidReference, "Inconsistency")
+      throw art::Exception(errors::InvalidReference, "Inconsistency")
          << "RefCore::pushBackItem: Ref points into different collection\n"
             "than the RefVector.\n";
     }

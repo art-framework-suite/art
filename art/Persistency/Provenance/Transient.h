@@ -25,7 +25,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
 
 template <typename T>
 class Transient {

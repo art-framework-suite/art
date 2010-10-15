@@ -13,7 +13,7 @@ occur, good state information can be printed.
 
 **/
 
-namespace edm
+namespace art
 {
   class ProblemTracker
   {

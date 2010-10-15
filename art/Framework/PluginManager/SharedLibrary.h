@@ -27,7 +27,7 @@
 
 // forward declarations
 
-namespace edmplugin {
+namespace artplugin {
 class SharedLibrary
 {
 

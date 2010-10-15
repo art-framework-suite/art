@@ -4,17 +4,17 @@
 #include <exception>
 
 
-namespace cms {
+namespace artZ {
   class Exception;
 }
 
-namespace edm {
+namespace art {
 
-  void printCmsException(cms::Exception& e, char const* prog = 0);
+  void printCmsException(artZ::Exception& e, char const* prog = 0);
   void printBadAllocException(char const *prog = 0);
   void printStdException(std::exception& e, char const *prog = 0);
   void printUnknownException(char const *prog = 0);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_MessageLogger_ExceptionMessages

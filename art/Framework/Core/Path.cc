@@ -11,7 +11,7 @@
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
   Path::Path(int bitpos, std::string const& path_name,
              WorkersInPath const& workers,
              TrigResPtr trptr,
@@ -24,7 +24,7 @@ namespace edm {
     timesPassed_(),
     timesFailed_(),
     timesExcept_(),
-    state_(edm::hlt::Ready),
+    state_(art::hlt::Ready),
     bitpos_(bitpos),
     name_(path_name),
     trptr_(trptr),
@@ -36,7 +36,7 @@ namespace edm {
   }
 
   bool
-  Path::handleWorkerFailure(cms::Exception const& e,
+  Path::handleWorkerFailure(artZ::Exception const& e,
                             int nwrwue, bool isEvent) {
     bool should_continue = true;
 
@@ -56,9 +56,9 @@ namespace edm {
       }
       default: {
           if (isEvent) ++timesExcept_;
-          state_ = edm::hlt::Exception;
+          state_ = art::hlt::Exception;
           recordStatus(nwrwue, isEvent);
-          throw edm::Exception(errors::ScheduleExecutionFailure,
+          throw art::Exception(errors::ScheduleExecutionFailure,
               "ProcessingStopped", e)
               << "Exception going through path " << name_ << "\n";
       }
@@ -72,7 +72,7 @@ namespace edm {
     mf::LogError("PassingThrough")
       << "Exception passing through path " << name_ << "\n";
     if (isEvent) ++timesExcept_;
-    state_ = edm::hlt::Exception;
+    state_ = art::hlt::Exception;
     recordStatus(nwrwue, isEvent);
   }
 
@@ -87,10 +87,10 @@ namespace edm {
   Path::updateCounters(bool success, bool isEvent) {
     if (success) {
       if (isEvent) ++timesPassed_;
-      state_ = edm::hlt::Pass;
+      state_ = art::hlt::Pass;
     } else {
       if(isEvent) ++timesFailed_;
-      state_ = edm::hlt::Fail;
+      state_ = art::hlt::Fail;
     }
   }
 

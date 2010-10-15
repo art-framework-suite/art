@@ -13,7 +13,7 @@
 #include <string>
 
 
-namespace edm
+namespace art
 {
 
   class EDAnalyzer
@@ -77,6 +77,6 @@ namespace edm
     CurrentProcessingContext const* current_context_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_EDAnalyzer_h

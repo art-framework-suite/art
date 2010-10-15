@@ -5,7 +5,7 @@
 #include "art/Persistency/Common/SortedCollection.h"
 #include "test/TestObjects/StreamTestSimple.h"
 
-namespace edmtestprod
+namespace arttestprod
 {
   template <class T>
     struct Ord

@@ -24,7 +24,7 @@ not at all.
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class FileIndex;
 
@@ -59,6 +59,6 @@ namespace edm {
     bool itIsKnownTheFileHasNoDuplicates_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_DuplicateChecker_h

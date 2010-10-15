@@ -14,7 +14,7 @@
 #include "fhiclcpp/ParameterSetID.h"
 
 
-namespace edm {
+namespace art {
 
   class ParameterSetEntry
   {
@@ -56,6 +56,6 @@ namespace edm {
 
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // ParameterSet_ParameterSetEntry_h

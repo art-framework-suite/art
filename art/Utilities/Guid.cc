@@ -15,7 +15,7 @@
 #include <cstring>
 #include "uuid/uuid.h"
 
-namespace edm {
+namespace art {
   static const char* fmt_Guid =
     "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";
 

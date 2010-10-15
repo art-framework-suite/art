@@ -14,7 +14,7 @@
 #include "sigc++/signal.h"
 
 
-namespace edm {
+namespace art {
 
   struct ActivityRegistry;
   class Event;
@@ -52,6 +52,6 @@ namespace edm {
     };
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Services_TIMING_h

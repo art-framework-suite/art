@@ -2,7 +2,7 @@
 #define FWCore_Utilities_GlobalIdentifier_h
 
 #include <string>
-namespace edm {
+namespace art {
   std::string createGlobalIdentifier();
 }
 

@@ -1,7 +1,7 @@
 #ifndef TestObjects_ThingWithIsEqual_h
 #define TestObjects_ThingWithIsEqual_h
 
-namespace edmtest {
+namespace arttest {
 
   struct ThingWithIsEqual {
     ~ThingWithIsEqual() { }

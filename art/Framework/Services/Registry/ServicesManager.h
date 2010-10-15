@@ -22,7 +22,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
   class ServiceToken;
 
   namespace serviceregistry {
@@ -33,12 +33,12 @@ namespace edm {
       struct MakerHolder {
          MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
                      const fhicl::ParameterSet& iPSet,
-                     edm::ActivityRegistry&);
+                     art::ActivityRegistry&);
          bool add(ServicesManager&) const;
 
          boost::shared_ptr<ServiceMakerBase> maker_;
          const fhicl::ParameterSet* pset_;
-         edm::ActivityRegistry* registry_;
+         art::ActivityRegistry* registry_;
          mutable bool wasAdded_;
       };
       typedef std::map< TypeIDBase, boost::shared_ptr<ServiceWrapperBase> > Type2Service;
@@ -121,7 +121,7 @@ namespace edm {
       // the correct order.
       boost::shared_ptr<ServicesManager> associatedManager_;
 
-      edm::ActivityRegistry registry_;
+      art::ActivityRegistry registry_;
       Type2Service type2Service_;
       std::auto_ptr<Type2Maker> type2Maker_;
 	 std::vector<TypeIDBase> requestedCreationOrder_;
@@ -137,7 +137,7 @@ namespace edm {
 	      //do on demand building of the service
 	      if(0 == type2Maker_.get() ||
 		 type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
-		  throw edm::Exception(edm::errors::NotFound,"Service Request")
+		  throw art::Exception(art::errors::NotFound,"Service Request")
                    <<" unable to find requested service with compiler type name '"<<typeid(T).name() <<"'.\n";
 	      } else {
                itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
@@ -156,6 +156,6 @@ namespace edm {
     }
 
   }  // namespace serviceregistry
-}  // namespace edm
+}  // namespace art
 
 #endif  // ServiceRegistry_ServicesManager_h

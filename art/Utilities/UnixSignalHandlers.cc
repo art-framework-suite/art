@@ -15,7 +15,7 @@
 #endif
 #endif
 
-namespace edm {
+namespace art {
 
     boost::mutex usr2_lock;
 
@@ -116,12 +116,12 @@ namespace edm {
     void installCustomHandler( const int signum, CFUNC func )
     {
       sigset_t oldset;
-      edm::disableAllSigs(&oldset);
+      art::disableAllSigs(&oldset);
 #if defined(__linux__)
-      edm::disableRTSigs();
+      art::disableRTSigs();
 #endif
-      edm::installSig(signum,edm::ep_sigusr2);
-      edm::reenableSigs(&oldset);
+      art::installSig(signum,art::ep_sigusr2);
+      art::reenableSigs(&oldset);
     }
 
 //--------------------------------------------------------------
@@ -180,4 +180,4 @@ namespace edm {
       MUST_BE_ZERO(pthread_sigmask( SIG_SETMASK, &oldset, &tmpset));
     }
 
-} // end of namespace edm
+} // end of namespace art

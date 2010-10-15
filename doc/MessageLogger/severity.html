@@ -70,8 +70,8 @@ process TEST = {
 Each destination can (in addition to limits by message ID) be configured to
 react to only some limited number of messages of a specified severity level.
 For example, detailedInfo.txt would react to only the first 100 messages
-issued via edm::LogWarning(...), and the first 100 issued via
-edm::LogError(...), with exponential backoff thereafter.  (Typically, one might
+issued via art::LogWarning(...), and the first 100 issued via
+art::LogError(...), with exponential backoff thereafter.  (Typically, one might
 limit the number of INFO or WARNING messages and let all the ERROR messages
 emerge.)
 <p>

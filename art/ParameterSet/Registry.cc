@@ -12,7 +12,7 @@
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
   namespace pset {
 
     bool
@@ -51,12 +51,12 @@ namespace edm {
 
   fhicl::ParameterSet getProcessParameterSet()
   {
-    edm::pset::Registry* reg = edm::pset::Registry::instance();
-    fhicl::ParameterSetID id = edm::pset::getProcessParameterSetID(reg);
+    art::pset::Registry* reg = art::pset::Registry::instance();
+    fhicl::ParameterSetID id = art::pset::getProcessParameterSetID(reg);
 
     fhicl::ParameterSet result;
     if (!reg->getMapped(id, result))
-      throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
+      throw art::Exception(errors::EventCorruption, "Unknown ParameterSetID")
         << "Unable to find the ParameterSet for id: "
         << id
         << ";\nthis was supposed to be the process ParameterSet\n";
@@ -64,4 +64,4 @@ namespace edm {
     return result;
   }
 
-}  // namespace edm
+}  // namespace art

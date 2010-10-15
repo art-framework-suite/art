@@ -54,33 +54,33 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventGetRefBeforePut);
 
 void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
-  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  art::ProductRegistry *preg = new art::ProductRegistry;
   preg->setFrozen();
-  edm::BranchIDListHelper::updateRegistries(*preg);
-  edm::EventID col(1L, 1L);
-  std::string uuid = edm::createGlobalIdentifier();
-  edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, pregc, pc));
+  art::BranchIDListHelper::updateRegistries(*preg);
+  art::EventID col(1L, 1L);
+  std::string uuid = art::createGlobalIdentifier();
+  art::Timestamp fakeTime;
+  art::ProcessConfiguration pc("PROD", art::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
+  boost::shared_ptr<art::ProductRegistry const> pregc(preg);
+  art::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, pregc, pc));
+  art::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<art::SubRunPrincipal>lbp(new art::SubRunPrincipal(subRunAux, pregc, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
-  edm::EventPrincipal ep(eventAux, pregc, pc);
+  art::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
+  art::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(lbp);
   try {
-     edm::ModuleDescription modDesc;
+     art::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
      modDesc.moduleLabel_ = "blahs";
-     edm::Event event(ep, modDesc);
+     art::Event event(ep, modDesc);
 
      std::string label("this does not exist");
-     edm::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
+     art::RefProd<arttest::DummyProduct> ref = event.getRefBeforePut<arttest::DummyProduct>(label);
      CPPUNIT_ASSERT("Failed to throw required exception" == 0);
   }
-  catch (edm::Exception& x) {
+  catch (art::Exception& x) {
     // nothing to do
   }
   catch (...) {
@@ -95,15 +95,15 @@ void testEventGetRefBeforePut::getRefTest() {
   std::string label("fred");
   std::string productInstanceName("Rick");
 
-  edmtest::IntProduct dp;
-  edm::TypeID dummytype(dp);
+  arttest::IntProduct dp;
+  art::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
-  edm::ModuleDescription modDesc;
+  art::ModuleDescription modDesc;
   modDesc.moduleName_ = "Blah";
-  modDesc.parameterSetID_ = edm::ParameterSet().id();
+  modDesc.parameterSetID_ = art::ParameterSet().id();
 
-  edm::BranchDescription product(edm::InEvent,
+  art::BranchDescription product(art::InEvent,
 				 label,
 				 processName,
 				 dummytype.userClassName(),
@@ -114,40 +114,40 @@ void testEventGetRefBeforePut::getRefTest() {
 
   product.init();
 
-  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  art::ProductRegistry *preg = new art::ProductRegistry;
   preg->addProduct(product);
   preg->setFrozen();
-  edm::BranchIDListHelper::updateRegistries(*preg);
-  edm::EventID col(1L, 1L);
-  std::string uuid = edm::createGlobalIdentifier();
-  edm::Timestamp fakeTime;
-  edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
-  edm::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, pregc, pc));
+  art::BranchIDListHelper::updateRegistries(*preg);
+  art::EventID col(1L, 1L);
+  std::string uuid = art::createGlobalIdentifier();
+  art::Timestamp fakeTime;
+  art::ProcessConfiguration pc(processName, art::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
+  boost::shared_ptr<art::ProductRegistry const> pregc(preg);
+  art::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
+  boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, pregc, pc));
+  art::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
+  boost::shared_ptr<art::SubRunPrincipal>lbp(new art::SubRunPrincipal(subRunAux, pregc, pc));
   lbp->setRunPrincipal(rp);
-  edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
-  edm::EventPrincipal ep(eventAux, pregc, pc);
+  art::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
+  art::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(lbp);
 
-  edm::RefProd<edmtest::IntProduct> refToProd;
+  art::RefProd<arttest::IntProduct> refToProd;
   try {
-    edm::ModuleDescription modDesc;
+    art::ModuleDescription modDesc;
     modDesc.moduleName_="Blah";
     modDesc.moduleLabel_=label;
     modDesc.processConfiguration_ = pc;
 
-    edm::Event event(ep, modDesc);
-    std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
+    art::Event event(ep, modDesc);
+    std::auto_ptr<arttest::IntProduct> pr(new arttest::IntProduct);
     pr->value = 10;
 
-    refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);
+    refToProd = event.getRefBeforePut<arttest::IntProduct>(productInstanceName);
     event.put(pr,productInstanceName);
     event.commit_();
   }
-  catch (cms::Exception& x) {
+  catch (artZ::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
     CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
   }

@@ -34,7 +34,7 @@
 #include <map>
 #include <vector>
 
-namespace edm {
+namespace art {
 
   class TriggerResults;
 

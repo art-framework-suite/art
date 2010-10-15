@@ -15,7 +15,7 @@
 // user include files
 #include "art/Framework/Core/GenericHandle.h"
 
-namespace edm {
+namespace art {
 void convert_handle(BasicHandle const& orig,
                     Handle<GenericObject>& result)
 {
@@ -25,8 +25,8 @@ void convert_handle(BasicHandle const& orig,
   }
   EDProduct const* originalWrap = orig.wrapper();
   if (originalWrap == 0)
-    throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
-      << "edm::BasicHandle has null pointer to Wrapper";
+    throw art::Exception(art::errors::InvalidReference,"NullPointer")
+      << "art::BasicHandle has null pointer to Wrapper";
 
   //Since a pointer to an EDProduct is not necessarily the same as a pointer to the actual type
   // (compilers are allowed to offset the two) we must get our object via a two step process
@@ -38,7 +38,7 @@ void convert_handle(BasicHandle const& orig,
 
   Reflex::Object product(wrap.Get("obj"));
   if(!product){
-    throw edm::Exception(edm::errors::LogicError)<<"GenericObject could not find 'obj' member";
+    throw art::Exception(art::errors::LogicError)<<"GenericObject could not find 'obj' member";
   }
   if(product.TypeOf().IsTypedef()){
     //For a 'Reflex::Typedef' the 'ToType' method returns the actual type
@@ -51,7 +51,7 @@ void convert_handle(BasicHandle const& orig,
   if(product.TypeOf()!=result.type() &&
      !product.TypeOf().IsEquivalentTo(result.type()) &&
      product.TypeOf().TypeInfo()!= result.type().TypeInfo()){
-    throw edm::Exception(edm::errors::LogicError)<<"GenericObject asked for "<<result.type().Name()
+    throw art::Exception(art::errors::LogicError)<<"GenericObject asked for "<<result.type().Name()
     <<" but was given a "<<product.TypeOf().Name();
   }
 
@@ -62,7 +62,7 @@ void convert_handle(BasicHandle const& orig,
 ///Specialize the getByLabel method to work with a Handle<GenericObject>
 template<>
 bool
-edm::Event::getByLabel<GenericObject>(std::string const& label,
+art::Event::getByLabel<GenericObject>(std::string const& label,
                                       const std::string& productInstanceName,
                                       Handle<GenericObject>& result) const
 {
@@ -77,7 +77,7 @@ edm::Event::getByLabel<GenericObject>(std::string const& label,
 
 template<>
 bool
-edm::Event::getByLabel<GenericObject>(edm::InputTag const& tag,
+art::Event::getByLabel<GenericObject>(art::InputTag const& tag,
                                              Handle<GenericObject>& result) const
 {
   if (tag.process().empty()) {

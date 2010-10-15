@@ -12,9 +12,9 @@
 #include "art/Framework/Core/ValidityInterval.h"
 #include <cppunit/extensions/HelperMacros.h>
 
-using edm::Timestamp;
-using edm::IOVSyncValue;
-using edm::ValidityInterval;
+using art::Timestamp;
+using art::IOVSyncValue;
+using art::ValidityInterval;
 
 class testinterval: public CppUnit::TestFixture
 {

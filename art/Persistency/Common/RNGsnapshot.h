@@ -40,7 +40,7 @@
 // ======================================================================
 
 
-namespace edm {
+namespace art {
 
   class RNGsnapshot
   {
@@ -82,6 +82,6 @@ namespace edm {
 
 // ======================================================================
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Services_RNGsnapshot_h

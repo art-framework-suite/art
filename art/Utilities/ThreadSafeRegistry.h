@@ -24,7 +24,7 @@
 ///  the value of 'm'.
 // ----------------------------------------------------------------------
 
-namespace edm {
+namespace art {
   namespace detail {
     struct empty { };
 
@@ -261,6 +261,6 @@ namespace edm {
     { }
 
   } // namespace detail
-} // namespace edm
+} // namespace art
 
 #endif //  FWCore_Utilities_ThreadSafeRegistry_h

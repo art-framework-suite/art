@@ -26,7 +26,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
    class TypeIDBase
    {
 

@@ -9,7 +9,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 #include "art/Persistency/Provenance/Transient.h"
 
-namespace edm {
+namespace art {
   class ProcessHistory {
   public:
     typedef ProcessConfiguration value_type;

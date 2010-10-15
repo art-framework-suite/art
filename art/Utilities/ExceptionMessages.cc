@@ -9,14 +9,14 @@
 #include <sstream>
 
 
-namespace edm {
+namespace art {
   void
-  printCmsException(cms::Exception& e, char const* prog)
+  printCmsException(artZ::Exception& e, char const* prog)
   try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("CMSException");
     std::ostringstream longDesc;
-    longDesc << "cms::Exception caught in " << programName << "\n"
+    longDesc << "artZ::Exception caught in " << programName << "\n"
              << e.explainSelf();
     LogSystem(shortDesc) << longDesc.str() << "\n";
   }
@@ -58,4 +58,4 @@ namespace edm {
   catch(...) {
   }
 
-}  // namespace edm
+}  // namespace art

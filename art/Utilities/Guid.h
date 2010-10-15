@@ -6,7 +6,7 @@
 /*
  *  copied from pool
  */
-namespace edm  {
+namespace art  {
 
   /** @class Guid Guid.h POOLCore/Guid.h
     *

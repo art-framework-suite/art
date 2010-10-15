@@ -36,7 +36,7 @@ using namespace testcloningptr;
 void
 testCloningPtr::check()
 {
-  using namespace edm;
+  using namespace art;
 
   Inherit one(1);
   CloningPtr<Base> cpOne(one);

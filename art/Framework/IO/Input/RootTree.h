@@ -27,7 +27,7 @@ class TFile;
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class RootTree : private boost::noncopyable {
   public:
@@ -116,6 +116,6 @@ namespace edm {
     return mapper;
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_RootTree_h

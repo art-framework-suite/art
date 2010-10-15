@@ -10,7 +10,7 @@
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
   namespace service {
 
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
@@ -53,7 +53,7 @@ namespace edm {
         trigPaths = pset.get<std::vector<std::string> >("@trigger_paths",Strings());
 
         if (trigPaths.size() != triggerResults.size()) {
-          throw edm::Exception(edm::errors::Unknown)
+          throw art::Exception(art::errors::Unknown)
             << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
                "TriggerResults are different sizes.  This should be impossible,\n"
                "please send information to reproduce this problem to\n"
@@ -85,4 +85,4 @@ namespace edm {
     }
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art

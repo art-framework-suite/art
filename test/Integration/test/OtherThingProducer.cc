@@ -5,8 +5,8 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-namespace edmtest {
-  OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
+namespace arttest {
+  OtherThingProducer::OtherThingProducer(art::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
     produces<OtherThingCollection>("testUserTag");
     thingLabel_ = pset.getUntrackedParameter<std::string>("thingLabel", std::string("Thing"));
     refsAreTransient_ = pset.getUntrackedParameter<bool>("transient", false);
@@ -16,7 +16,7 @@ namespace edmtest {
   OtherThingProducer::~OtherThingProducer() {}
 
   // Functions that gets called by framework every event
-  void OtherThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void OtherThingProducer::produce(art::Event& e, art::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -29,5 +29,5 @@ namespace edmtest {
     e.put(result, std::string("testUserTag"));
   }
 }
-using edmtest::OtherThingProducer;
+using arttest::OtherThingProducer;
 DEFINE_FWK_MODULE(OtherThingProducer);

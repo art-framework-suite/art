@@ -21,7 +21,7 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 
 
-namespace edm {
+namespace art {
 class IOVSyncValue
 {
    public:

@@ -32,23 +32,23 @@
 #include <vector>
 #include <iostream>
 
-namespace edm {
+namespace art {
   class EventSetup;
 }
 
-using namespace edm;
+using namespace art;
 
-namespace edmtest
+namespace arttest
 {
 
-  class TestMergeResults : public edm::EDAnalyzer
+  class TestMergeResults : public art::EDAnalyzer
   {
   public:
 
-    explicit TestMergeResults(edm::ParameterSet const&);
+    explicit TestMergeResults(art::ParameterSet const&);
     virtual ~TestMergeResults();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    virtual void analyze(art::Event const& e, art::EventSetup const& c);
     virtual void beginRun(Run const&, EventSetup const&);
     virtual void endRun(Run const&, EventSetup const&);
     virtual void beginSubRun(SubRun const&, EventSetup const&);
@@ -73,7 +73,7 @@ namespace edmtest
                                   const char* functionName,
                                   Run const& run);
 
-    void abortWithMessage(const char* whichFunction, const char* type, edm::InputTag const& tag,
+    void abortWithMessage(const char* whichFunction, const char* type, art::InputTag const& tag,
                           int expectedValue, int actualValue) const;
 
     std::vector<int> default_;
@@ -116,14 +116,14 @@ namespace edmtest
     unsigned int index7_;
     unsigned int parentIndex_;
 
-    edm::Handle<edmtest::Thing> h_thing;
-    edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
-    edm::Handle<edmtest::ThingWithIsEqual> h_thingWithIsEqual;
+    art::Handle<arttest::Thing> h_thing;
+    art::Handle<arttest::ThingWithMerge> h_thingWithMerge;
+    art::Handle<arttest::ThingWithIsEqual> h_thingWithIsEqual;
   };
 
   // -----------------------------------------------------------------
 
-  TestMergeResults::TestMergeResults(edm::ParameterSet const& ps):
+  TestMergeResults::TestMergeResults(art::ParameterSet const& ps):
     default_(),
     defaultvstring_(),
     expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginRunProd", default_)),
@@ -174,39 +174,39 @@ namespace edmtest
 
   // -----------------------------------------------------------------
 
-  void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&)
+  void TestMergeResults::analyze(art::Event const& e,art::EventSetup const&)
   {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
+    if (verbose_) art::LogInfo("TestMergeResults") << "analyze";
 
     Run const& run = e.getRun();
     SubRun const& subRun = e.getSubRun();
 
-    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
+    art::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "analyze", run);
 
-    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
+    art::InputTag tag1("thingWithMergeProducer", "beginRun");
     checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "analyze", run);
 
-    edm::InputTag tag2("thingWithMergeProducer", "endRun", "PROD");
+    art::InputTag tag2("thingWithMergeProducer", "endRun", "PROD");
     checkExpectedRunProducts(index1_, expectedEndRunProd_, tag2, "analyze", run);
 
-    edm::InputTag tag3("thingWithMergeProducer", "endRun");
+    art::InputTag tag3("thingWithMergeProducer", "endRun");
     checkExpectedRunProducts(index5_, expectedEndRunNew_, tag3, "analyze", run);
 
-    edm::InputTag tag4("thingWithMergeProducer", "beginSubRun", "PROD");
+    art::InputTag tag4("thingWithMergeProducer", "beginSubRun", "PROD");
     checkExpectedSubRunProducts(index2_, expectedBeginSubRunProd_, tag4, "analyze", subRun);
 
-    edm::InputTag tag5("thingWithMergeProducer", "beginSubRun");
+    art::InputTag tag5("thingWithMergeProducer", "beginSubRun");
     checkExpectedSubRunProducts(index6_, expectedBeginLumiNew_, tag5, "analyze", subRun);
 
-    edm::InputTag tag6("thingWithMergeProducer", "endSubRun", "PROD");
+    art::InputTag tag6("thingWithMergeProducer", "endSubRun", "PROD");
     checkExpectedSubRunProducts(index3_, expectedEndSubRunProd_, tag6, "analyze", subRun);
 
-    edm::InputTag tag7("thingWithMergeProducer", "endSubRun");
+    art::InputTag tag7("thingWithMergeProducer", "endSubRun");
     checkExpectedSubRunProducts(index7_, expectedEndLumiNew_, tag7, "analyze", subRun);
 
     if (expectedDroppedEvent_.size() > 0) {
-      edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
+      art::InputTag tag("makeThingToBeDropped", "event", "PROD");
       e.getByLabel(tag, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);
 
@@ -224,7 +224,7 @@ namespace edmtest
     // has nothing to do with this test.
     if (parentIndex_ < expectedParents_.size()) {
 
-      edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
+      art::InputTag tag("thingWithMergeProducer", "event", "PROD");
       e.getByLabel(tag, h_thing);
       std::string expectedParent = expectedParents_[parentIndex_];
       BranchID actualParentBranchID = h_thing.provenance()->parentage().parents()[0];
@@ -234,7 +234,7 @@ namespace edmtest
       // find the actual parent
       Provenance prov = e.getProvenance(actualParentBranchID);
       assert(expectedParent == prov.moduleLabel());
-      edm::InputTag tagparent(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
+      art::InputTag tagparent(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
       e.getByLabel(tagparent, h_thing);
       assert(h_thing->a == 11);
       ++parentIndex_;
@@ -248,16 +248,16 @@ namespace edmtest
     index1_ += 3;
     index5_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
+    if (verbose_) art::LogInfo("TestMergeResults") << "beginRun";
 
-    edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
+    art::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag, "beginRun", run);
 
-    edm::InputTag tagnew("thingWithMergeProducer", "beginRun");
+    art::InputTag tagnew("thingWithMergeProducer", "beginRun");
     checkExpectedRunProducts(index4_, expectedBeginRunNew_, tagnew, "beginRun", run);
 
     if (expectedDroppedEvent_.size() > 1) {
-      edm::InputTag tagd("makeThingToBeDropped", "beginRun", "PROD");
+      art::InputTag tagd("makeThingToBeDropped", "beginRun", "PROD");
       run.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[1]);
 
@@ -273,16 +273,16 @@ namespace edmtest
     index1_ += 3;
     index5_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endRun";
+    if (verbose_) art::LogInfo("TestMergeResults") << "endRun";
 
-    edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
+    art::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
     checkExpectedRunProducts(index1_, expectedEndRunProd_, tag, "endRun", run);
 
-    edm::InputTag tagnew("thingWithMergeProducer", "endRun");
+    art::InputTag tagnew("thingWithMergeProducer", "endRun");
     checkExpectedRunProducts(index5_, expectedEndRunNew_, tagnew, "endRun", run);
 
     if (expectedDroppedEvent_.size() > 2) {
-      edm::InputTag tagd("makeThingToBeDropped", "endRun", "PROD");
+      art::InputTag tagd("makeThingToBeDropped", "endRun", "PROD");
       run.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[2]);
 
@@ -298,16 +298,16 @@ namespace edmtest
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "beginSubRun";
+    if (verbose_) art::LogInfo("TestMergeResults") << "beginSubRun";
 
-    edm::InputTag tag("thingWithMergeProducer", "beginSubRun", "PROD");
+    art::InputTag tag("thingWithMergeProducer", "beginSubRun", "PROD");
     checkExpectedSubRunProducts(index2_, expectedBeginSubRunProd_, tag, "beginSubRun", subRun);
 
-    edm::InputTag tagnew("thingWithMergeProducer", "beginSubRun");
+    art::InputTag tagnew("thingWithMergeProducer", "beginSubRun");
     checkExpectedSubRunProducts(index6_, expectedBeginLumiNew_, tagnew, "beginSubRun", subRun);
 
     if (expectedDroppedEvent_.size() > 3) {
-      edm::InputTag tagd("makeThingToBeDropped", "beginSubRun", "PROD");
+      art::InputTag tagd("makeThingToBeDropped", "beginSubRun", "PROD");
       subRun.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[3]);
 
@@ -323,16 +323,16 @@ namespace edmtest
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endSubRun";
+    if (verbose_) art::LogInfo("TestMergeResults") << "endSubRun";
 
-    edm::InputTag tag("thingWithMergeProducer", "endSubRun", "PROD");
+    art::InputTag tag("thingWithMergeProducer", "endSubRun", "PROD");
     checkExpectedSubRunProducts(index3_, expectedEndSubRunProd_, tag, "endSubRun", subRun);
 
-    edm::InputTag tagnew("thingWithMergeProducer", "endSubRun");
+    art::InputTag tagnew("thingWithMergeProducer", "endSubRun");
     checkExpectedSubRunProducts(index7_, expectedEndLumiNew_, tagnew, "endSubRun", subRun);
 
     if (expectedDroppedEvent_.size() > 4) {
-      edm::InputTag tagd("makeThingToBeDropped", "endSubRun", "PROD");
+      art::InputTag tagd("makeThingToBeDropped", "endSubRun", "PROD");
       subRun.getByLabel(tagd, h_thingWithIsEqual);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[4]);
 
@@ -353,7 +353,7 @@ namespace edmtest
     index7_ += 3;
 
 
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenInputFile";
+    if (verbose_) art::LogInfo("TestMergeResults") << "respondToOpenInputFile";
 
     if (!expectedInputFileNames_.empty()) {
       if (expectedInputFileNames_.size() <= static_cast<unsigned>(nRespondToOpenInputFile_) ||
@@ -368,22 +368,22 @@ namespace edmtest
   }
 
   void TestMergeResults::respondToCloseInputFile(FileBlock const& fb) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseInputFile";
+    if (verbose_) art::LogInfo("TestMergeResults") << "respondToCloseInputFile";
     ++nRespondToCloseInputFile_;
   }
 
   void TestMergeResults::respondToOpenOutputFiles(FileBlock const& fb) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
+    if (verbose_) art::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
     ++nRespondToOpenOutputFiles_;
   }
 
   void TestMergeResults::respondToCloseOutputFiles(FileBlock const& fb) {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
+    if (verbose_) art::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
     ++nRespondToCloseOutputFiles_;
   }
 
   void TestMergeResults::endJob() {
-    if (verbose_) edm::LogInfo("TestMergeResults") << "endJob";
+    if (verbose_) art::LogInfo("TestMergeResults") << "endJob";
 
 
     if (expectedRespondToOpenInputFile_ > -1 && nRespondToOpenInputFile_ != expectedRespondToOpenInputFile_) {
@@ -475,7 +475,7 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::abortWithMessage(const char* whichFunction, const char* type, edm::InputTag const& tag,
+  void TestMergeResults::abortWithMessage(const char* whichFunction, const char* type, art::InputTag const& tag,
                                           int expectedValue, int actualValue) const {
     std::cerr << "Error while testing merging of run/subRun products in TestMergeResults.cc\n"
               << "In function " << whichFunction << " looking for product of type " << type << "\n"
@@ -485,6 +485,6 @@ namespace edmtest
   }
 }
 
-using edmtest::TestMergeResults;
+using arttest::TestMergeResults;
 
 DEFINE_FWK_MODULE(TestMergeResults);

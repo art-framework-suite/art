@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/Provenance.h"
 
 
-namespace edm {
+namespace art {
 
   namespace {
     SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
@@ -170,4 +170,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

@@ -8,7 +8,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   namespace actions {
     enum ActionCodes {
@@ -39,6 +39,6 @@ namespace edm {
     ActionMap map_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_Actions_h

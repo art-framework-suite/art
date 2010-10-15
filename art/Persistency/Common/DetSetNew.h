@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_DetSetNew_h
 #define DataFormats_Common_DetSetNew_h
 
-namespace edmNew {
+namespace artNew {
   //  FIXME move it elsewhere....
   typedef unsigned int det_id_type;
 

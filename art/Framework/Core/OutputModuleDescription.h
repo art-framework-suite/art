@@ -8,7 +8,7 @@ output module that does not come in through the ParameterSet
 
 
 ----------------------------------------------------------------------*/
-namespace edm {
+namespace art {
 
   struct OutputModuleDescription {
     OutputModuleDescription() : maxEvents_(-1) {}

@@ -27,33 +27,33 @@
 
 // forward declarations
 
-class DummyFinder : public edm::EventSetupRecordIntervalFinder {
+class DummyFinder : public art::EventSetupRecordIntervalFinder {
 public:
-   DummyFinder() :edm::EventSetupRecordIntervalFinder(), interval_() {
+   DummyFinder() :art::EventSetupRecordIntervalFinder(), interval_() {
       this->findingRecord<DummyRecord>();
    }
 
-   void setInterval(const edm::ValidityInterval& iInterval) {
+   void setInterval(const art::ValidityInterval& iInterval) {
       interval_ = iInterval;
    }
 protected:
-   virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::IOVSyncValue& iTime,
-                                edm::ValidityInterval& iInterval) {
+   virtual void setIntervalFor(const art::eventsetup::EventSetupRecordKey&,
+                                const art::IOVSyncValue& iTime,
+                                art::ValidityInterval& iInterval) {
       if(interval_.validFor(iTime)) {
          iInterval = interval_;
       } else {
-         if(interval_.last() == edm::IOVSyncValue::invalidIOVSyncValue() &&
-             interval_.first() != edm::IOVSyncValue::invalidIOVSyncValue() &&
+         if(interval_.last() == art::IOVSyncValue::invalidIOVSyncValue() &&
+             interval_.first() != art::IOVSyncValue::invalidIOVSyncValue() &&
              interval_.first() <= iTime) {
             iInterval = interval_;
          }else {
-            iInterval = edm::ValidityInterval();
+            iInterval = art::ValidityInterval();
          }
       }
    }
 private:
-   edm::ValidityInterval interval_;
+   art::ValidityInterval interval_;
 };
 
 

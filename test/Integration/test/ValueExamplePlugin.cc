@@ -16,5 +16,5 @@
 // user include files
 #include "FWCore/Integration/test/ValueExample.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
-using namespace edm::serviceregistry;
+using namespace art::serviceregistry;
 DEFINE_FWK_SERVICE_MAKER(ValueExample,ParameterSetMaker<ValueExample>);

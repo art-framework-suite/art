@@ -24,7 +24,7 @@ PoolSource: This is an InputSource
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class RootInputFileSequence;
   class FileCatalogItem;
@@ -63,6 +63,6 @@ namespace edm {
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_PoolSource_h

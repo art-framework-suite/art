@@ -7,7 +7,7 @@
 //
 /**\class ExtensionCord ExtensionCord.h FWCore/Utilities/interface/ExtensionCord.h
 
- Description: Allows passing data from an edm::OutletBase to the holder of the ExtensionCord
+ Description: Allows passing data from an art::OutletBase to the holder of the ExtensionCord
 
  Usage:
     <usage>
@@ -28,7 +28,7 @@
 
 // forward declarations
 
-namespace edm {
+namespace art {
   template <class T> class OutletBase;
 
   template <class T>
@@ -54,7 +54,7 @@ namespace edm {
 
       const T* get() const {
         if (!this->connected()) {
-          throw cms::Exception("InvalidExtensionCord")<<"an edm::ExtensionCord for type "<<typeid(T).name()
+          throw artZ::Exception("InvalidExtensionCord")<<"an art::ExtensionCord for type "<<typeid(T).name()
           <<" was not connected to an outlet. This is a programming error.";
         }
         return holder_->getter_->get();

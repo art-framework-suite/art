@@ -42,7 +42,7 @@ RootFile.h // used by ROOT input sources
 class TFile;
 
 
-namespace edm {
+namespace art {
 
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
@@ -202,6 +202,6 @@ namespace edm {
     return bm;
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_RootFile_h

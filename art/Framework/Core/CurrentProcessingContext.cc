@@ -2,7 +2,7 @@
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-namespace edm
+namespace art
 {
   CurrentProcessingContext::CurrentProcessingContext() :
     pathInSchedule_(0),

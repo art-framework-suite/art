@@ -9,14 +9,14 @@
 #include "art/ParameterSet/ParameterSetfwd.h"
 
 
-class TestTFileServiceAnalyzer : public edm::EDAnalyzer {
+class TestTFileServiceAnalyzer : public art::EDAnalyzer {
 public:
   /// constructor
-  TestTFileServiceAnalyzer( const edm::ParameterSet & );
+  TestTFileServiceAnalyzer( const art::ParameterSet & );
 
 private:
   /// process one event
-  void analyze( const edm::Event& , const edm::EventSetup& );
+  void analyze( const art::Event& , const art::EventSetup& );
   /// histograms
   TH1F * h_test1, * h_test2;
   /// sub-directory name

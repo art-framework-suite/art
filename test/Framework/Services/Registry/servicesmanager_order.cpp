@@ -20,10 +20,10 @@
 
 int main()
 {
-  using namespace edm::serviceregistry;
+  using namespace art::serviceregistry;
 
   // We must initialize the plug-in manager first
-  edm::AssertHandler ah;
+  art::AssertHandler ah;
 
   // These services check the order their constructor, postBeginJob,
   // postEndJob, and destructor are called and if they are not
@@ -40,21 +40,21 @@ int main()
   // includes an explicit dependence on ServiceD2 so build on
   // demand is also tested.
 
-  std::vector<edm::ParameterSet> vps;
+  std::vector<art::ParameterSet> vps;
   boost::shared_ptr<ServicesManager> legacy(new ServicesManager(vps));
 
-  edm::ActivityRegistry ar;
-  edm::ParameterSet pset;
+  art::ActivityRegistry ar;
+  art::ParameterSet pset;
   std::auto_ptr<Service0> s0(new Service0(pset, ar));
   boost::shared_ptr<ServiceWrapper<Service0> >
       wrapper (new ServiceWrapper<Service0>(s0));
   legacy->put(wrapper);
   legacy->copySlotsFrom(ar);
-  edm::ServiceToken legacyToken(legacy);
+  art::ServiceToken legacyToken(legacy);
 
-  std::vector<edm::ParameterSet> vps1;
+  std::vector<art::ParameterSet> vps1;
 
-  edm::ParameterSet ps1;
+  art::ParameterSet ps1;
   std::string typeName1("DummyServiceA1");
   ps1.addParameter("@service_type", typeName1);
   vps1.push_back(ps1);
@@ -64,12 +64,12 @@ int main()
   // so they should end up getting built in the reverse of the
   // order specified here.
 
-  edm::ParameterSet ps3;
+  art::ParameterSet ps3;
   std::string typeName3("DummyServiceB3");
   ps3.addParameter("@service_type", typeName3);
   vps1.push_back(ps3);
 
-  edm::ParameterSet ps2;
+  art::ParameterSet ps2;
   std::string typeName2("DummyServiceD2");
   ps2.addParameter("@service_type", typeName2);
   vps1.push_back(ps2);
@@ -77,13 +77,13 @@ int main()
   boost::shared_ptr<ServicesManager> legacy2(new ServicesManager(legacyToken,
                                                                  kTokenOverrides,
                                                                  vps1));
-  edm::ServiceToken legacyToken2(legacy2);
+  art::ServiceToken legacyToken2(legacy2);
 
 
   ServicesManager sm(legacyToken2, kOverlapIsError, vps);
 
-  edm::ActivityRegistry ar4;
-  edm::ParameterSet pset4;
+  art::ActivityRegistry ar4;
+  art::ParameterSet pset4;
   std::auto_ptr<Service4> s4(new Service4(pset4, ar4));
   boost::shared_ptr<ServiceWrapper<Service4> >
       wrapper4 (new ServiceWrapper<Service4>(s4));
@@ -91,7 +91,7 @@ int main()
   sm.copySlotsFrom(ar4);
 
 
-  edm::ActivityRegistry actReg;
+  art::ActivityRegistry actReg;
   sm.connectTo(actReg);
   actReg.postBeginJobSignal_();
   actReg.postEndJobSignal_();

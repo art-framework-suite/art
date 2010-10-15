@@ -5,7 +5,7 @@
 #include <ostream>
 #include <iomanip>
 
-namespace edm {
+namespace art {
 
   FileIndex::FileIndex() : entries_(), transients_() {}
 

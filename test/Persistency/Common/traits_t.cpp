@@ -32,15 +32,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestTraits);
 void TestTraits::vector_is_happy()
 {
   typedef std::vector<double>::size_type key_type;
-  CPPUNIT_ASSERT(edm::key_traits<key_type>::value ==
+  CPPUNIT_ASSERT(art::key_traits<key_type>::value ==
 		 std::numeric_limits<key_type>::max());
-  CPPUNIT_ASSERT(edm::key_traits<key_type>::value ==
+  CPPUNIT_ASSERT(art::key_traits<key_type>::value ==
 		 static_cast<key_type>(-1));
 }
 
 void TestTraits::string_is_happy()
 {
-  std::string  const& r = edm::key_traits<std::string>::value;
+  std::string  const& r = art::key_traits<std::string>::value;
   CPPUNIT_ASSERT(r.size() == 1);
   CPPUNIT_ASSERT(r[0] == '\a');
 }

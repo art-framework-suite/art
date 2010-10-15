@@ -33,8 +33,8 @@ class testEDProducerProductRegistryCallback: public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
 
-   CPPUNIT_TEST_EXCEPTION(testCircularRef,cms::Exception);
-   CPPUNIT_TEST_EXCEPTION(testCircularRef2,cms::Exception);
+   CPPUNIT_TEST_EXCEPTION(testCircularRef,artZ::Exception);
+   CPPUNIT_TEST_EXCEPTION(testCircularRef2,artZ::Exception);
    CPPUNIT_TEST(testTwoListeners);
 
 CPPUNIT_TEST_SUITE_END();
@@ -51,7 +51,7 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEDProducerProductRegistryCallback);
 
-using namespace edm;
+using namespace art;
 
 namespace {
    class TestMod : public EDProducer
@@ -89,7 +89,7 @@ namespace {
 
    void ListenMod::listen(BranchDescription const& iDesc)
    {
-      edm::TypeID intType(typeid(int));
+      art::TypeID intType(typeid(int));
       //std::cout << "see class " << iDesc.typeName() << std::endl;
       if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
          produces<int>(iDesc.moduleLabel() + "-" + iDesc.productInstanceName());
@@ -115,7 +115,7 @@ public:
 
    void ListenFloatMod::listen(BranchDescription const& iDesc)
    {
-      edm::TypeID intType(typeid(int));
+      art::TypeID intType(typeid(int));
       //std::cout <<"see class "<<iDesc.typeName()<<std::endl;
       if(iDesc.friendlyClassName() == intType.friendlyClassName()) {
          produces<float>(iDesc.moduleLabel()+"-"+iDesc.productInstanceName());
@@ -126,7 +126,7 @@ public:
 }
 
 void  testEDProducerProductRegistryCallback::testCircularRef(){
-   using namespace edm;
+   using namespace art;
 
    SignallingProductRegistry preg;
 
@@ -145,10 +145,10 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
 
-   edm::ActionTable table;
+   art::ActionTable table;
 
-   edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+   art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
@@ -160,8 +160,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
 
-   edm::WorkerParams paramsl1(l1, l1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams paramsl2(l2, l2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+   art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
    sigc::signal<void, const ModuleDescription&> aSignal;
 
@@ -186,7 +186,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
 }
 
 void  testEDProducerProductRegistryCallback::testCircularRef2(){
-   using namespace edm;
+   using namespace art;
 
    SignallingProductRegistry preg;
 
@@ -205,10 +205,10 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
 
-   edm::ActionTable table;
+   art::ActionTable table;
 
-   edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+   art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
@@ -220,8 +220,8 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
 
-   edm::WorkerParams paramsl1(l1, l1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams paramsl2(l2, l2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+   art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
 
    sigc::signal<void, const ModuleDescription&> aSignal;
@@ -246,7 +246,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
 }
 
 void  testEDProducerProductRegistryCallback::testTwoListeners(){
-   using namespace edm;
+   using namespace art;
 
    SignallingProductRegistry preg;
 
@@ -265,10 +265,10 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    p2.addParameter("@module_type",std::string("TestMod") );
    p2.addParameter("@module_label",std::string("t2") );
 
-   edm::ActionTable table;
+   art::ActionTable table;
 
-   edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+   art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
@@ -281,8 +281,8 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    l2.addParameter("@module_type",std::string("ListenMod") );
    l2.addParameter("@module_label",std::string("l2") );
 
-   edm::WorkerParams paramsl1(l1, l1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-   edm::WorkerParams paramsl2(l2, l2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+   art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+   art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
 
    sigc::signal<void, const ModuleDescription&> aSignal;

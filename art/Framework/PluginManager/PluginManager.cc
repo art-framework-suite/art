@@ -31,7 +31,7 @@
 
 #include "art/Framework/PluginManager/standard.h"
 
-namespace edmplugin {
+namespace artplugin {
 //
 // constants, enums and typedefs
 //
@@ -43,7 +43,7 @@ namespace edmplugin {
 //
 // constructors and destructor
 //
-  using namespace edm;
+  using namespace art;
 
   std::string pluginName(const std::string& name)
   {
@@ -85,14 +85,14 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
       boost::filesystem::path dir(*itPath,boost::filesystem::no_check);
       if( exists( dir) ) {
         if(not is_directory(dir) ) {
-          throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.native_file_string()<<"' for the PluginManager is not a directory";
+          throw artZ::Exception("PluginManagerBadPath") <<"The path '"<<dir.native_file_string()<<"' for the PluginManager is not a directory";
         }
         boost::filesystem::path cacheFile = dir/kCacheFile;
 
         if(exists(cacheFile) ) {
           std::ifstream file(cacheFile.native_file_string().c_str());
           if(not file) {
-            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.native_file_string()
+            throw artZ::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.native_file_string()
             <<"'. Please check permissions on file";
           }
           CacheParser::read(file, dir, categoryToInfos_);
@@ -180,7 +180,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
     {
       if(throwIfFail)
 	{
-	  throw cms::Exception("PluginNotFound")
+	  throw artZ::Exception("PluginNotFound")
 	    << "Unable to find plugin '"<<iPlugin
 	    << "' because the category '"<<iCategory<<"' has no known plugins";
 	}
@@ -205,7 +205,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
     {
       if(throwIfFail)
 	{
-	  throw cms::Exception("PluginNotFound")
+	  throw artZ::Exception("PluginNotFound")
 	    <<"Unable to find plugin '"<<iPlugin
 	    <<"'. Please check spelling of name.";
 	}
@@ -223,7 +223,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       if(range.first->loadable_.branch_path() == (range.first+1)->loadable_.branch_path())
 	{
 	  //std::cout<<range.first->name_ <<" " <<(range.first+1)->name_<<std::endl;
-	  throw cms::Exception("MultiplePlugins")
+	  throw artZ::Exception("MultiplePlugins")
 	    <<"The plugin '"<<iPlugin<<"' is found in multiple files \n"
 	    " '"<<range.first->loadable_.leaf()<<"'\n '"
 	    <<(range.first+1)->loadable_.leaf()<<"'\n"
@@ -352,7 +352,7 @@ PluginManager::get()
 {
   PluginManager* manager = singleton();
   if(0==manager) {
-    throw cms::Exception("PluginManagerNotConfigured")<<"PluginManager::get() was called before PluginManager::configure.";
+    throw artZ::Exception("PluginManagerNotConfigured")<<"PluginManager::get() was called before PluginManager::configure.";
   }
   return manager;
 }
@@ -362,12 +362,12 @@ PluginManager::configure(const Config& iConfig )
 {
   PluginManager*& s = singleton();
   if( 0 != s ){
-    throw cms::Exception("PluginManagerReconfigured");
+    throw artZ::Exception("PluginManagerReconfigured");
   }
 
   Config realConfig = iConfig;
   if (realConfig.searchPath().empty() ) {
-    throw cms::Exception("PluginManagerEmptySearchPath");
+    throw artZ::Exception("PluginManagerEmptySearchPath");
   }
   s = new PluginManager (realConfig);
   return *s;

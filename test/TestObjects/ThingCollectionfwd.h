@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace edmtest {
+namespace arttest {
 	class Thing;
 	typedef std::vector<Thing> ThingCollection;
 }

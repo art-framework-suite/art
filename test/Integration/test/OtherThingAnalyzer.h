@@ -4,18 +4,18 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 
-namespace edmtest {
+namespace arttest {
 
-  class OtherThingAnalyzer : public edm::EDAnalyzer {
+  class OtherThingAnalyzer : public art::EDAnalyzer {
   public:
 
-    explicit OtherThingAnalyzer(edm::ParameterSet const& pset);
+    explicit OtherThingAnalyzer(art::ParameterSet const& pset);
 
     virtual ~OtherThingAnalyzer() {}
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    virtual void analyze(art::Event const& e, art::EventSetup const& c);
 
-    void doit(edm::Event const& event, std::string const& label);
+    void doit(art::Event const& event, std::string const& label);
 
   private:
     bool thingWasDropped_;

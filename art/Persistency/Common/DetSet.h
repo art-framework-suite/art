@@ -14,7 +14,7 @@ own copy of the common DetId.
 
 #include <vector>
 
-namespace edm {
+namespace art {
   typedef uint32_t det_id_type;
 
   template <class T>
@@ -96,6 +96,6 @@ namespace edm {
     a.swap(b);
   }
 
-} // namespace edm;
+} // namespace art;
 
 #endif

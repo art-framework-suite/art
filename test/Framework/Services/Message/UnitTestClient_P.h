@@ -7,20 +7,20 @@
 #include "art/ParameterSet/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class UnitTestClient_P
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UnitTestClient_P( edm::ParameterSet const & p)
+    UnitTestClient_P( art::ParameterSet const & p)
     : useLogFlush(true)
     , queueFillers(1)
   {
@@ -33,8 +33,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
@@ -43,7 +43,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_UnitTestClient_P_h

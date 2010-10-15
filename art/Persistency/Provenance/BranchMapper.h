@@ -20,7 +20,7 @@ BranchMapper: Manages the per event/subRun/run per product provenance.
 
 */
 
-namespace edm {
+namespace art {
   class ProductID;
   class BranchMapper {
   public:

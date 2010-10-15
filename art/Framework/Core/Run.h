@@ -20,7 +20,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "art/Persistency/Provenance/RunID.h"
 
 
-namespace edm {
+namespace art {
 
   class Run : private DataViewImpl
   {
@@ -98,7 +98,7 @@ namespace edm {
   {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      throw edm::Exception(edm::errors::NullPointerError)
+      throw art::Exception(art::errors::NullPointerError)
         << "Run::put: A null auto_ptr was passed to 'put'.\n"
 	<< "The pointer is of type " << typeID << ".\n"
 	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
@@ -122,6 +122,6 @@ namespace edm {
     // The old copy must be deleted, so we cannot release ownership.
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_Run_h

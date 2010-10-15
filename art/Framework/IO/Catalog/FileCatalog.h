@@ -28,7 +28,7 @@ namespace pool
 }
 
 
-namespace edm {
+namespace art {
 
   class FileCatalogItem {
   public:

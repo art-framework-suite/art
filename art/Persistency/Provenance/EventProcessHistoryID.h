@@ -4,7 +4,7 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 
-namespace edm
+namespace art
 {
   struct EventProcessHistoryID {
     EventProcessHistoryID() : eventID_(), processHistoryID_() {}

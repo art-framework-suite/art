@@ -175,15 +175,15 @@ int ptomaine(int argc, char* argv[], char** env)
     {
       rc = do_work(argc, argv, env);
     }
-  catch ( edm::Exception& x )
+  catch ( art::Exception& x )
     {
-      std::cerr << "Caught an edm::Exception in "
+      std::cerr << "Caught an art::Exception in "
 		<< argv[0] << '\n'
 		<< x;
     }
-  catch ( cms::Exception& x )
+  catch ( artZ::Exception& x )
     {
-      std::cerr << "Caught a cms::Exception in "
+      std::cerr << "Caught a artZ::Exception in "
 		<< argv[0] << '\n'
 		<< x;
     }

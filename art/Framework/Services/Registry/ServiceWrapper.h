@@ -22,7 +22,7 @@
 #include <memory>
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
 
   namespace serviceregistry {
@@ -48,6 +48,6 @@ namespace edm {
     };
 
   }  // namespace serviceregistry
-}  // namespace edm
+}  // namespace art
 
 #endif  // ServiceRegistry_ServiceWrapper_h

@@ -11,12 +11,12 @@
 #define RAISE_SEGV
 //#define RAISE_USR2
 
-namespace edmtest
+namespace arttest
 {
 
 void
-  makeSignals::analyze( edm::Event      const & e
-                       ,edm::EventSetup const & /*unused*/
+  makeSignals::analyze( art::Event      const & e
+                       ,art::EventSetup const & /*unused*/
                       )
 {
 #ifdef RAISE_SEGV
@@ -28,18 +28,18 @@ void
   int signum = 12;
   std::string SigName("SIGUSR2");
 #endif
-  edm::MessageDrop::instance()->debugEnabled  = true;
+  art::MessageDrop::instance()->debugEnabled  = true;
 
        LogTrace    ("cat_A") << "LogTrace was used to send this mess" << "age";
        LogDebug    ("cat_B") << "LogDebug was used to send this other message";
-  edm::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
-  if( edm::isInfoEnabled() )
-     edm::LogInfo  ("cat_B") << "LogInfo was used to send this other message\n" ;
+  art::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
+  if( art::isInfoEnabled() )
+     art::LogInfo  ("cat_B") << "LogInfo was used to send this other message\n" ;
 
   if( e.id().event() == 5 )
    {
     std::cerr << "Raising Signal " << SigName << " = " << signum << std::endl;
-    edm::LogInfo("Signals") << "Raising Signal " << SigName << " = " << signum ;
+    art::LogInfo("Signals") << "Raising Signal " << SigName << " = " << signum ;
 #ifdef RAISE_SEGV
     raise(SIGSEGV);
 #endif
@@ -53,8 +53,8 @@ void
 //  int rint = *pint;
    }
 }  // makeSignals::analyze()
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::makeSignals;
+using arttest::makeSignals;
 DEFINE_FWK_MODULE(makeSignals);

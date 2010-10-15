@@ -24,7 +24,7 @@ RootOutputTree.h // used by ROOT output modules
 class TFile;
 class TBranch;
 
-namespace edm {
+namespace art {
 
   class RootOutputTree : private boost::noncopyable {
   public:

@@ -24,20 +24,20 @@
 // user include files
 
 // forward declarations
-class TestBeginEndJobAnalyzer : public edm::EDAnalyzer {
+class TestBeginEndJobAnalyzer : public art::EDAnalyzer {
 public:
-   explicit TestBeginEndJobAnalyzer(const edm::ParameterSet&);
+   explicit TestBeginEndJobAnalyzer(const art::ParameterSet&);
    ~TestBeginEndJobAnalyzer();
 
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(const art::Event&, const art::EventSetup&);
 
-   virtual void beginJob(edm::EventSetup const&);
+   virtual void beginJob(art::EventSetup const&);
    virtual void endJob();
-   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-   virtual void endRun(edm::Run const&, edm::EventSetup const&);
-   virtual void beginSubRun(edm::SubRun const&, edm::EventSetup const&);
-   virtual void endSubRun(edm::SubRun const&, edm::EventSetup const&);
+   virtual void beginRun(art::Run const&, art::EventSetup const&);
+   virtual void endRun(art::Run const&, art::EventSetup const&);
+   virtual void beginSubRun(art::SubRun const&, art::EventSetup const&);
+   virtual void endSubRun(art::SubRun const&, art::EventSetup const&);
 
    static bool beginJobCalled;
    static bool endJobCalled;

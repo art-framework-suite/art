@@ -26,7 +26,7 @@
 #include "art/Persistency/Common/ClonePolicy.h"
 
 // forward declarations
-namespace edm {
+namespace art {
   template< class T, class P = ClonePolicy<T> >
   class CloningPtr {
 public:

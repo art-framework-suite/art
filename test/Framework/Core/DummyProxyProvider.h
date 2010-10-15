@@ -29,10 +29,10 @@
 #include "art/Framework/Core/DataProxyProvider.h"
 
 // forward declarations
-namespace edm {
+namespace art {
    namespace eventsetup {
       namespace test {
-class WorkingDummyProxy : public edm::eventsetup::DataProxyTemplate<DummyRecord, DummyData> {
+class WorkingDummyProxy : public art::eventsetup::DataProxyTemplate<DummyRecord, DummyData> {
 public:
    WorkingDummyProxy(const DummyData* iDummy) : data_(iDummy) {}
 
@@ -48,7 +48,7 @@ private:
 };
 
 
-class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
+class DummyProxyProvider : public art::eventsetup::DataProxyProvider {
 public:
    DummyProxyProvider(const DummyData& iData=DummyData()): dummy_(iData) {
       //std::cout <<"constructed provider"<<std::endl;

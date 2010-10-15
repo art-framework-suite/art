@@ -32,7 +32,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestRefCore);
 
 void TestRefCore::default_ctor_without_active_getter()
 {
-  edm::RefCore  default_refcore;
+  art::RefCore  default_refcore;
   CPPUNIT_ASSERT(default_refcore.isNull());
   CPPUNIT_ASSERT(default_refcore.isNonnull()==false);
   CPPUNIT_ASSERT(!default_refcore);
@@ -43,8 +43,8 @@ void TestRefCore::default_ctor_without_active_getter()
 void TestRefCore::default_ctor_with_active_getter()
 {
   SimpleEDProductGetter getter;
-  edm::EDProductGetter::Operate op(&getter);
-  edm::RefCore  default_refcore;
+  art::EDProductGetter::Operate op(&getter);
+  art::RefCore  default_refcore;
   CPPUNIT_ASSERT(default_refcore.isNull());
   CPPUNIT_ASSERT(default_refcore.isNonnull()==false);
   CPPUNIT_ASSERT(!default_refcore);
@@ -55,11 +55,11 @@ void TestRefCore::default_ctor_with_active_getter()
 void TestRefCore::nondefault_ctor()
 {
   SimpleEDProductGetter getter;
-  edm::EDProductGetter::Operate op(&getter);
-  edm::ProductID id(1, 201U);
+  art::EDProductGetter::Operate op(&getter);
+  art::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
-  edm::RefCore  refcore(id, 0, &getter, false);
+  art::RefCore  refcore(id, 0, &getter, false);
   CPPUNIT_ASSERT(refcore.isNull()==false);
   CPPUNIT_ASSERT(refcore.isNonnull());
   CPPUNIT_ASSERT(!!refcore);

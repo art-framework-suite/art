@@ -20,9 +20,9 @@
 #include "test/Framework/Core/DummyProxyProvider.h"
 #include <cppunit/extensions/HelperMacros.h>
 
-using namespace edm;
-using namespace edm::eventsetup;
-using namespace edm::eventsetup::test;
+using namespace art;
+using namespace art::eventsetup;
+using namespace art::eventsetup::test;
 
 class testfullChain: public CppUnit::TestFixture
 {

@@ -10,7 +10,7 @@ BranchMapperWithReader:
 #include "art/Persistency/Common/RefCoreStreamer.h"
 
 
-namespace edm {
+namespace art {
 
   void
   BranchMapperWithReader<EventEntryInfo>::readProvenance_() const {
@@ -34,11 +34,11 @@ namespace edm {
   BranchMapperWithReader<EventEntryInfo>::oldProductIDToBranchID_(ProductID const& oldProductID) const {
     std::map<unsigned int, BranchID>::const_iterator it = oldProductIDToBranchIDMap_.find(oldProductID.oldID());
     if (it == oldProductIDToBranchIDMap_.end()) {
-      throw edm::Exception(errors::LogicError)
+      throw art::Exception(errors::LogicError)
         << "Internal error:  Old ProductID not found by oldProductIDToBranchID_.\n"
         << "Please report this error to the Framework group\n";
     }
     return it->second;
   }
 
-}  // namespace edm
+}  // namespace art

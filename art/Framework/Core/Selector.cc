@@ -4,7 +4,7 @@
 
 #include "art/Framework/Core/Selector.h"
 
-namespace edm
+namespace art
 {
   //------------------------------------------------------------------
   //

@@ -7,6 +7,6 @@
 ----------------------------------------------------------------------*/
 
 
-namespace edm {
+namespace art {
   DelayedReader::~DelayedReader() {}
 }

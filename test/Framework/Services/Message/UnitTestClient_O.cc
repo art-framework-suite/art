@@ -5,26 +5,26 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 
 void
-  UnitTestClient_O::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_O::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
-  edm::LogInfo   ("importantInfo")
+  art::LogInfo   ("importantInfo")
   		<< "This LogInfo message should appear in both destinations";
-  edm::LogInfo   ("routineInfo")
+  art::LogInfo   ("routineInfo")
 		<< "This LogInfo message should appear in the info destination";
 
 
  }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_O;
+using arttest::UnitTestClient_O;
 DEFINE_FWK_MODULE(UnitTestClient_O);

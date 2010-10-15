@@ -12,7 +12,7 @@
 
 class TFile;
 
-namespace edm
+namespace art
 {
   class TFileDirectory {
   public:

@@ -16,7 +16,7 @@
 
 using std::string;
 using std::vector;
-using edm::pset::IncludeFileFinder;
+using art::pset::IncludeFileFinder;
 using std::pair;
 
 class IncludeFileFinderTest: public CppUnit::TestFixture
@@ -29,8 +29,8 @@ class IncludeFileFinderTest: public CppUnit::TestFixture
 
 public:
   void setUp(){
-    if(not edmplugin::PluginManager::isAvailable()) {
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    if(not artplugin::PluginManager::isAvailable()) {
+      artplugin::PluginManager::configure(artplugin::standard::config());
     }
   }
   void tearDown(){}
@@ -84,7 +84,7 @@ void IncludeFileFinderTest::ultimateTest()
 //  CPPUNIT_ASSERT (library == "libSimMuonCSCDigitizer.so");
 
   string moduleLabel = "muoncscdigi";
-//  edm::FileInPath file = finder.find(moduleClass, moduleLabel);
+//  art::FileInPath file = finder.find(moduleClass, moduleLabel);
   // will throw if can't find
 }
 

@@ -6,7 +6,7 @@
 
 #include "art/Persistency/Provenance/BranchType.h"
 
-namespace edm {
+namespace art {
   class BranchDescription;
   typedef std::vector<BranchDescription const *> Selections;
   typedef boost::array<Selections, NumBranchTypes> SelectionsArray;

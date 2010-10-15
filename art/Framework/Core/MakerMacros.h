@@ -15,10 +15,10 @@
 
 
 #define DEFINE_FWK_MODULE(type) \
-  //DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+  //DEFINE_EDM_PLUGIN (art::MakerPluginFactory,art::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
 
 #define DEFINE_ANOTHER_FWK_MODULE(type) \
-  //DEFINE_EDM_PLUGIN (edm::MakerPluginFactory,edm::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+  //DEFINE_EDM_PLUGIN (art::MakerPluginFactory,art::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
 
 // for backward compatibility
 #include "art/Framework/PluginManager/ModuleDef.h"

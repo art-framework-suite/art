@@ -4,7 +4,7 @@
 #include "TROOT.h"
 class TBuffer;
 
-namespace edm {
+namespace art {
   void
   BoolCacheStreamer::operator()(TBuffer &R__b, void *objp) {
     if (R__b.IsReading()) {
@@ -28,18 +28,18 @@ namespace edm {
   }
 
   void setCacheStreamers() {
-    TClass *cl = gROOT->GetClass("edm::BoolCache");
+    TClass *cl = gROOT->GetClass("art::BoolCache");
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new BoolCacheStreamer());
     /*} else {
-      std::cout <<"ERROR: no edm::BoolCache found"<<std::endl;*/
+      std::cout <<"ERROR: no art::BoolCache found"<<std::endl;*/
     }
 
-    cl = gROOT->GetClass("edm::ConstPtrCache");
+    cl = gROOT->GetClass("art::ConstPtrCache");
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new ConstPtrCacheStreamer());
     /*} else {
-      std::cout <<"ERROR: no edm::ConstPtrCache found"<<std::endl;*/
+      std::cout <<"ERROR: no art::ConstPtrCache found"<<std::endl;*/
     }
 
   }

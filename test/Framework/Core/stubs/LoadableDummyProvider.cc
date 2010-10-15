@@ -18,13 +18,13 @@
 
 #include "art/Framework/Core/ModuleFactory.h"
 
-namespace edm {
+namespace art {
    class ParameterSet;
 }
-class LoadableDummyProvider : public edm::eventsetup::test::DummyProxyProvider {
+class LoadableDummyProvider : public art::eventsetup::test::DummyProxyProvider {
 public:
-   LoadableDummyProvider(const edm::ParameterSet& iPSet)
-   :DummyProxyProvider( edm::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",1))) {}
+   LoadableDummyProvider(const art::ParameterSet& iPSet)
+   :DummyProxyProvider( art::eventsetup::test::DummyData(iPSet.getUntrackedParameter<int>("value",1))) {}
 };
 
 DEFINE_FWK_EVENTSETUP_MODULE(LoadableDummyProvider);

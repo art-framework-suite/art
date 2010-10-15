@@ -28,7 +28,7 @@ and how it came into existence.
   Parents: The EDProducts used as input by the creator.
 */
 
-namespace edm {
+namespace art {
   struct BranchEntryDescription {
     enum CreatorStatus { Success = 0,
 			 ApplicationFailure,

@@ -13,7 +13,7 @@
 
 #include <sstream>
 
-namespace edm {
+namespace art {
   ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
   ProducerBase::~ProducerBase() { }
 

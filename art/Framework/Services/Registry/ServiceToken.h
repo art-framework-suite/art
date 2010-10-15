@@ -27,7 +27,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
    class ServiceRegistry;
    class ActivityRegistry;
 
@@ -37,8 +37,8 @@ namespace edm {
 
    class ServiceToken
    {
-      friend class edm::ServiceRegistry;
-      friend class edm::serviceregistry::ServicesManager;
+      friend class art::ServiceRegistry;
+      friend class art::serviceregistry::ServicesManager;
     public:
       ServiceToken() {}
       //virtual ~ServiceToken();
@@ -60,7 +60,7 @@ namespace edm {
       void copySlotsFrom(ActivityRegistry&);
 
     private:
-      ServiceToken(boost::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
+      ServiceToken(boost::shared_ptr<art::serviceregistry::ServicesManager>  iManager):
       manager_(iManager) {}
 
       //ServiceToken(const ServiceToken&); // stop default
@@ -68,7 +68,7 @@ namespace edm {
       //const ServiceToken& operator=(const ServiceToken&); // stop default
 
       // ---------- member data --------------------------------
-      boost::shared_ptr<edm::serviceregistry::ServicesManager> manager_;
+      boost::shared_ptr<art::serviceregistry::ServicesManager> manager_;
    };
 }
 

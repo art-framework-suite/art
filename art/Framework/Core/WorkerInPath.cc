@@ -1,7 +1,7 @@
 
 #include "art/Framework/Core/WorkerInPath.h"
 
-namespace edm {
+namespace art {
   WorkerInPath::WorkerInPath(Worker* w, FilterAction theFilterAction):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesVisited_(),

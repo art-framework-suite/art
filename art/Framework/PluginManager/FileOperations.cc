@@ -39,12 +39,12 @@ namespace plugin
 
     //if(!home_env)
     //  {
-	//throw cms::Exception("env missing")
+	//throw artZ::Exception("env missing")
 	//  << "cannot find environment variable FW_HOME\n";
     //  }
     if(!ldlib_env)
       {
-	throw cms::Exception("env missing")
+	throw artZ::Exception("env missing")
 	  << "cannot find environment variable LD_LIBRARY_PATH\n";
       }
 

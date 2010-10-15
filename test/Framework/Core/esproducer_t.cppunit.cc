@@ -17,10 +17,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "art/Utilities/Exception.h"
-using edm::eventsetup::test::DummyData;
-using namespace edm::eventsetup;
-using edm::ESProducer;
-using edm::EventSetupRecordIntervalFinder;
+using art::eventsetup::test::DummyData;
+using namespace art::eventsetup;
+using art::ESProducer;
+using art::EventSetupRecordIntervalFinder;
 
 class testEsproducer: public CppUnit::TestFixture
 {
@@ -32,7 +32,7 @@ CPPUNIT_TEST(getfromShareTest);
 CPPUNIT_TEST(decoratorTest);
 CPPUNIT_TEST(dependsOnTest);
 CPPUNIT_TEST(labelTest);
-CPPUNIT_TEST_EXCEPTION(failMultipleRegistration,cms::Exception);
+CPPUNIT_TEST_EXCEPTION(failMultipleRegistration,artZ::Exception);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -95,12 +95,12 @@ private:
 class LabelledProducer : public ESProducer {
 public:
    enum {kFi, kFum};
-   typedef edm::ESProducts< edm::es::L<DummyData,kFi>, edm::es::L<DummyData,kFum> > ReturnProducts;
+   typedef art::ESProducts< art::es::L<DummyData,kFi>, art::es::L<DummyData,kFum> > ReturnProducts;
    LabelledProducer(): ptr_(new DummyData), fi_(new DummyData){
       ptr_->value_ = 0;
       fi_->value_=0;
       setWhatProduced(this,"foo");
-      setWhatProduced(this, &LabelledProducer::produceMore, edm::es::label("fi",kFi)("fum",kFum));
+      setWhatProduced(this, &LabelledProducer::produceMore, art::es::label("fi",kFi)("fum",kFum));
    }
 
    boost::shared_ptr<DummyData> produce(const DummyRecord& /*iRecord*/) {
@@ -110,14 +110,14 @@ public:
    }
 
    ReturnProducts produceMore(const DummyRecord&){
-      using edm::es::L;
-      using namespace edm;
+      using art::es::L;
+      using namespace art;
       ++fi_->value_;
 
       L<DummyData,kFum> fum( new DummyData);
       fum->value_ = fi_->value_;
 
-      return edm::es::products(fum, es::l<kFi>(fi_) );
+      return art::es::products(fum, es::l<kFi>(fi_) );
    }
 private:
    boost::shared_ptr<DummyData> ptr_;
@@ -153,10 +153,10 @@ void testEsproducer::getFromTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    for(int iTime=1; iTime != 6; ++iTime) {
-      const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
-      edm::ESHandle<DummyData> pDummy;
+      const art::Timestamp time(iTime);
+      pFinder->setInterval(art::ValidityInterval(art::IOVSyncValue(time) , art::IOVSyncValue(time)));
+      const art::EventSetup& eventSetup = provider.eventSetupForInstance(art::IOVSyncValue(time));
+      art::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));
       std::cout <<pDummy->value_ << std::endl;
@@ -175,10 +175,10 @@ void testEsproducer::getfromShareTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    for(int iTime=1; iTime != 6; ++iTime) {
-      const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
-      edm::ESHandle<DummyData> pDummy;
+      const art::Timestamp time(iTime);
+      pFinder->setInterval(art::ValidityInterval(art::IOVSyncValue(time) , art::IOVSyncValue(time)));
+      const art::EventSetup& eventSetup = provider.eventSetupForInstance(art::IOVSyncValue(time));
+      art::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));
       std::cout <<pDummy->value_ << std::endl;
@@ -198,10 +198,10 @@ void testEsproducer::labelTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    for(int iTime=1; iTime != 6; ++iTime) {
-      const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time) , edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
-      edm::ESHandle<DummyData> pDummy;
+      const art::Timestamp time(iTime);
+      pFinder->setInterval(art::ValidityInterval(art::IOVSyncValue(time) , art::IOVSyncValue(time)));
+      const art::EventSetup& eventSetup = provider.eventSetupForInstance(art::IOVSyncValue(time));
+      art::ESHandle<DummyData> pDummy;
       eventSetup.get<DummyRecord>().get("foo",pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));
       std::cout <<pDummy->value_ << std::endl;
@@ -217,7 +217,7 @@ void testEsproducer::labelTest()
       std::cout <<pDummy->value_ << std::endl;
       CPPUNIT_ASSERT(iTime == pDummy->value_);
    }
-   } catch(const cms::Exception& iException) {
+   } catch(const artZ::Exception& iException) {
       std::cout <<"caught exception "<<iException.explainSelf()<<std::endl;
       throw;
    }
@@ -265,10 +265,10 @@ void testEsproducer::decoratorTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    for(int iTime=1; iTime != 6; ++iTime) {
-      const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
-      edm::ESHandle<DummyData> pDummy;
+      const art::Timestamp time(iTime);
+      pFinder->setInterval(art::ValidityInterval(art::IOVSyncValue(time), art::IOVSyncValue(time)));
+      const art::EventSetup& eventSetup = provider.eventSetupForInstance(art::IOVSyncValue(time));
+      art::ESHandle<DummyData> pDummy;
 
       CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_pre);
       CPPUNIT_ASSERT(iTime - 1 == TestDecorator::s_post);
@@ -320,10 +320,10 @@ void testEsproducer::dependsOnTest()
    provider.add(boost::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
    for(int iTime=1; iTime != 6; ++iTime) {
-      const edm::Timestamp time(iTime);
-      pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-      const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(time));
-      edm::ESHandle<DummyData> pDummy;
+      const art::Timestamp time(iTime);
+      pFinder->setInterval(art::ValidityInterval(art::IOVSyncValue(time), art::IOVSyncValue(time)));
+      const art::EventSetup& eventSetup = provider.eventSetupForInstance(art::IOVSyncValue(time));
+      art::ESHandle<DummyData> pDummy;
 
       eventSetup.get<DepRecord>().get(pDummy);
       CPPUNIT_ASSERT(0 != &(*pDummy));

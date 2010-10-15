@@ -3,7 +3,7 @@
 #include "MessageFacility/MessageLogger.h"
 
 
-namespace edm {
+namespace art {
 
   EDInputSource::EDInputSource(fhicl::ParameterSet const& pset,
                                InputSourceDescription const& desc) :
@@ -28,4 +28,4 @@ namespace edm {
            "SubRun ID cannot be modified for an EDInputSource\n";
   }
 
-}  // namespace edm
+}  // namespace art

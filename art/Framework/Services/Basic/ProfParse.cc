@@ -272,7 +272,7 @@ void writeProfileData(int fd, const std::string& prefix)
 
   // ------ calculate samples for parents and percentages in vertices ------
 
-  //edm::sort_all(vsyms,idSort);
+  //art::sort_all(vsyms,idSort);
   std::sort(vsyms.begin(), vsyms.end(), idSort);
   //Viter::iterator Vib(vsyms.begin()),Vie(vsyms.end());
   //std::cout << "sorted table --------------" << std::endl;
@@ -284,7 +284,7 @@ void writeProfileData(int fd, const std::string& prefix)
   while(pat_it_beg!=pat_it_end) {
       // get set of unique IDs from the path
       ULVec pathcopy(pat_it_beg->tree_);
-      //edm::sort_all(pathcopy);
+      //art::sort_all(pathcopy);
       std::sort(pathcopy.begin(), pathcopy.end());
       ULVec::iterator iter = unique(pathcopy.begin(),pathcopy.end());
       ULVec::iterator cop_beg(pathcopy.begin());
@@ -322,7 +322,7 @@ void writeProfileData(int fd, const std::string& prefix)
   // -------------- write out the vertices ----------------
 
 
-  //edm::sort_all(vsyms,symSort);
+  //art::sort_all(vsyms,symSort);
   std::sort(vsyms.begin(), vsyms.end(), symSort);
   Viter::reverse_iterator vvi(vsyms.rbegin()),vve(vsyms.rend());
   while(vvi != vve) {
@@ -343,7 +343,7 @@ void writeProfileData(int fd, const std::string& prefix)
       ++ipath;
   }
 
-  //edm::sort_all(vpaths,pathSort);
+  //art::sort_all(vpaths,pathSort);
   std::sort(vpaths.begin(),vpaths.end(),pathSort);
 
   Piter::reverse_iterator ppi(vpaths.rbegin()),ppe(vpaths.rend());

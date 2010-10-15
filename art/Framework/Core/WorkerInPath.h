@@ -10,7 +10,7 @@
 #include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/Worker.h"
 
-namespace edm {
+namespace art {
 
   class WorkerInPath {
   public:

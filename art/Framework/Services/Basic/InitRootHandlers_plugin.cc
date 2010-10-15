@@ -20,7 +20,7 @@
 #include <sstream>
 #include <string.h>
 
-using edm::service::InitRootHandlers;
+using art::service::InitRootHandlers;
 
 
 namespace {
@@ -112,7 +112,7 @@ namespace {
     if( die && (location != std::string("TUnixSystem::DispatchSignals")) ) {
        std::ostringstream sstr;
        sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
-       edm::Exception except(edm::errors::FatalRootError, sstr.str());
+       art::Exception except(art::errors::FatalRootError, sstr.str());
        throw except;
     }
 
@@ -138,11 +138,11 @@ namespace {
 
 }  // namespace
 
-namespace edm {
+namespace art {
   namespace service {
 
     InitRootHandlers::InitRootHandlers(fhicl::ParameterSet const& pset,
-                                       edm::ActivityRegistry & activity)
+                                       art::ActivityRegistry & activity)
       : RootHandlers(),
         unloadSigHandler_(pset.get<bool> ("UnloadRootSigHandler", false)),
         resetErrHandler_(pset.get<bool> ("ResetRootErrHandler", true)),
@@ -199,12 +199,12 @@ namespace edm {
     }
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art
 
 
 // ======================================================================
 
 
-typedef  edm::serviceregistry::AllArgsMaker<edm::RootHandlers,InitRootHandlers>
+typedef  art::serviceregistry::AllArgsMaker<art::RootHandlers,InitRootHandlers>
          RootHandlersMaker;
 DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);

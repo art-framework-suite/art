@@ -21,7 +21,7 @@ namespace {
   }
 }
 
-namespace edm {
+namespace art {
 
   MockEventProcessor::MockEventProcessor(const std::string& mockData,
                                          std::ostream& output,
@@ -38,7 +38,7 @@ namespace edm {
     shouldWeStop_(false)  {
   }
 
-  edm::MockEventProcessor::StatusCode
+  art::MockEventProcessor::StatusCode
   MockEventProcessor::runToCompletion(bool onlineStateTransitions) {
     statemachine::Machine myMachine(this,
                                     fileMode_,
@@ -105,7 +105,7 @@ namespace edm {
   }
 
   // Not used, this one does nothing
-  edm::MockEventProcessor::StatusCode
+  art::MockEventProcessor::StatusCode
   MockEventProcessor::runEventCount(int numberOfEventsToProcess) {
     return epSuccess;
   }

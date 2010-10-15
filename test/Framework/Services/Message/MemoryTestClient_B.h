@@ -9,28 +9,28 @@
 // MemoryTestClient_B is used for testing JObReprt outputs from
 // the MemoryService
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class MemoryTestClient_B
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    MemoryTestClient_B( edm::ParameterSet const & );
+    MemoryTestClient_B( art::ParameterSet const & );
 
   virtual
     ~MemoryTestClient_B()
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
@@ -42,7 +42,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_MemoryTestClient_B_h

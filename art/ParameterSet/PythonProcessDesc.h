@@ -28,7 +28,7 @@ public:
   std::string dump() const;
 
   // makes a new (copy) of the ProcessDesc
-  boost::shared_ptr<edm::ProcessDesc> processDesc() const;
+  boost::shared_ptr<art::ProcessDesc> processDesc() const;
 
 private:
   void prepareToRead();

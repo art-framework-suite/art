@@ -5,23 +5,23 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-namespace edmtest {
-  ThingProducer::ThingProducer(edm::ParameterSet const& iConfig):
+namespace arttest {
+  ThingProducer::ThingProducer(art::ParameterSet const& iConfig):
   alg_(iConfig.getUntrackedParameter<int>("offsetDelta",0)), //this really should be tracked, but I want backwards compatibility
   noPut_(iConfig.getUntrackedParameter<bool>("noPut", false)) // used for testing with missing products
   {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InSubRun>("beginSubRun");
-    produces<ThingCollection, edm::InSubRun>("endSubRun");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    produces<ThingCollection, art::InSubRun>("beginSubRun");
+    produces<ThingCollection, art::InSubRun>("endSubRun");
+    produces<ThingCollection, art::InRun>("beginRun");
+    produces<ThingCollection, art::InRun>("endRun");
   }
 
   // Virtual destructor needed.
   ThingProducer::~ThingProducer() { }
 
   // Functions that gets called by framework every event
-  void ThingProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void ThingProducer::produce(art::Event& e, art::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -35,7 +35,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every subRun
-  void ThingProducer::beginSubRun(edm::SubRun& lb, edm::EventSetup const&) {
+  void ThingProducer::beginSubRun(art::SubRun& lb, art::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -48,7 +48,7 @@ namespace edmtest {
     if (!noPut_) lb.put(result, "beginSubRun");
   }
 
-  void ThingProducer::endSubRun(edm::SubRun& lb, edm::EventSetup const&) {
+  void ThingProducer::endSubRun(art::SubRun& lb, art::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -62,7 +62,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingProducer::beginRun(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::beginRun(art::Run& r, art::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -75,7 +75,7 @@ namespace edmtest {
     if (!noPut_) r.put(result, "beginRun");
   }
 
-  void ThingProducer::endRun(edm::Run& r, edm::EventSetup const&) {
+  void ThingProducer::endRun(art::Run& r, art::EventSetup const&) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -89,5 +89,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::ThingProducer;
+using arttest::ThingProducer;
 DEFINE_FWK_MODULE(ThingProducer);

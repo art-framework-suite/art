@@ -11,8 +11,8 @@
 #include "art/Framework/Core/DataKey.h"
 #include "art/Framework/Core/HCTypeTagTemplate.icc"
 
-using namespace edm;
-using namespace edm::eventsetup;
+using namespace art;
+using namespace art::eventsetup;
 
 class testDataKey: public CppUnit::TestFixture {
 
@@ -87,18 +87,18 @@ namespace datakey_t {
 using datakey_t::Dummy;
 using datakey_t::Dummy2;
 
-namespace edm {
+namespace art {
   namespace eventsetup {
     namespace heterocontainer {
 	template<>
 	const char*
-	HCTypeTagTemplate<Dummy, edm::eventsetup::DataKey>::className() {
+	HCTypeTagTemplate<Dummy, art::eventsetup::DataKey>::className() {
 	   return "Dummy";
 	}
 
 	template<>
 	const char*
-	HCTypeTagTemplate<Dummy2, edm::eventsetup::DataKey>::className() {
+	HCTypeTagTemplate<Dummy2, art::eventsetup::DataKey>::className() {
 	   return "Dummy2";
 	}
     }

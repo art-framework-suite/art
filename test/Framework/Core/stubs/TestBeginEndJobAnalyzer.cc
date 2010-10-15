@@ -22,7 +22,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include <memory>
 
-TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */) {
+TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const art::ParameterSet& /* iConfig */) {
 }
 
 TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer() {
@@ -38,7 +38,7 @@ bool TestBeginEndJobAnalyzer::endSubRunCalled = false;
 bool TestBeginEndJobAnalyzer::destructorCalled = false;
 
 void
-TestBeginEndJobAnalyzer::beginJob(const edm::EventSetup&) {
+TestBeginEndJobAnalyzer::beginJob(const art::EventSetup&) {
   beginJobCalled = true;
 }
 
@@ -48,25 +48,25 @@ TestBeginEndJobAnalyzer::endJob() {
 }
 
 void
-TestBeginEndJobAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) {
+TestBeginEndJobAnalyzer::beginRun(art::Run const&, art::EventSetup const&) {
   beginRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
+TestBeginEndJobAnalyzer::endRun(art::Run const&, art::EventSetup const&) {
   endRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::beginSubRun(edm::SubRun const&, edm::EventSetup const&) {
+TestBeginEndJobAnalyzer::beginSubRun(art::SubRun const&, art::EventSetup const&) {
   beginSubRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endSubRun(edm::SubRun const&, edm::EventSetup const&) {
+TestBeginEndJobAnalyzer::endSubRun(art::SubRun const&, art::EventSetup const&) {
   endSubRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */) {
+TestBeginEndJobAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSetup& /* iSetup */) {
 }

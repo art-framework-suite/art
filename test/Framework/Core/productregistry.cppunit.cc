@@ -18,7 +18,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/PluginManager/ProblemTracker.h"
 
-// namespace edm {
+// namespace art {
 //   class EDProduct;
 // }
 
@@ -28,7 +28,7 @@ CPPUNIT_TEST_SUITE(testProductRegistry);
 
 CPPUNIT_TEST(testSignal);
 CPPUNIT_TEST(testWatch);
-CPPUNIT_TEST_EXCEPTION(testCircular,cms::Exception);
+CPPUNIT_TEST_EXCEPTION(testCircular,artZ::Exception);
 
 CPPUNIT_TEST(testProductRegistration);
 
@@ -44,10 +44,10 @@ public:
   void testProductRegistration();
 
  private:
-  edm::ModuleDescription* intModule_;
-  edm::ModuleDescription* floatModule_;
-  edm::BranchDescription* intBranch_;
-  edm::BranchDescription* floatBranch_;
+  art::ModuleDescription* intModule_;
+  art::ModuleDescription* floatModule_;
+  art::BranchDescription* intBranch_;
+  art::BranchDescription* floatBranch_;
 };
 
 ///registration of the test so that the runner can find it
@@ -57,24 +57,24 @@ namespace {
    struct Listener {
       int* heard_;
       Listener(int& hear) :heard_(&hear) {}
-      void operator()(const edm::BranchDescription&){
+      void operator()(const art::BranchDescription&){
          ++(*heard_);
       }
    };
 
    struct Responder {
       std::string name_;
-      edm::ProductRegistry* reg_;
+      art::ProductRegistry* reg_;
       Responder(const std::string& iName,
-                edm::ConstProductRegistry& iConstReg,
-                edm::ProductRegistry& iReg):name_(iName),reg_(&iReg)
+                art::ConstProductRegistry& iConstReg,
+                art::ProductRegistry& iReg):name_(iName),reg_(&iReg)
       {
         iConstReg.watchProductAdditions(this, &Responder::respond);
       }
-      void respond(const edm::BranchDescription& iDesc){
-         edm::ModuleDescription module;
+      void respond(const art::BranchDescription& iDesc){
+         art::ModuleDescription module;
 	 module.parameterSetID_ = iDesc.parameterSetID();
-         edm::BranchDescription prod(iDesc.branchType(),
+         art::BranchDescription prod(iDesc.branchType(),
 				     name_,
 				     iDesc.processName(),
 				     iDesc.fullClassName(),
@@ -97,15 +97,15 @@ testProductRegistry::testProductRegistry() :
 
 void testProductRegistry::setUp()
 {
-  intModule_ = new edm::ModuleDescription;
-  intModule_->parameterSetID_ = edm::ParameterSet().id();
-  intBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  intModule_ = new art::ModuleDescription;
+  intModule_->parameterSetID_ = art::ParameterSet().id();
+  intBranch_ = new art::BranchDescription(art::InEvent, "label", "PROD",
 					  "int", "int", "int",
 					  *intModule_);
 
-  floatModule_ = new edm::ModuleDescription;
+  floatModule_ = new art::ModuleDescription;
   floatModule_->parameterSetID_ = intModule_->parameterSetID_;
-  floatBranch_ = new edm::BranchDescription(edm::InEvent, "label", "PROD",
+  floatBranch_ = new art::BranchDescription(art::InEvent, "label", "PROD",
 					    "float", "float", "float",
 					    *floatModule_);
 
@@ -125,7 +125,7 @@ void testProductRegistry::tearDown()
 }
 
 void  testProductRegistry:: testSignal(){
-   using namespace edm;
+   using namespace art;
    SignallingProductRegistry reg;
 
    int hear=0;
@@ -140,7 +140,7 @@ void  testProductRegistry:: testSignal(){
 }
 
 void  testProductRegistry:: testWatch(){
-   using namespace edm;
+   using namespace art;
    SignallingProductRegistry reg;
    ConstProductRegistry constReg(reg);
 
@@ -168,7 +168,7 @@ void  testProductRegistry:: testWatch(){
    CPPUNIT_ASSERT(4 == reg.size());
 }
 void  testProductRegistry:: testCircular(){
-   using namespace edm;
+   using namespace art;
    SignallingProductRegistry reg;
    ConstProductRegistry constReg(reg);
 
@@ -195,7 +195,7 @@ void  testProductRegistry:: testCircular(){
 }
 
 void  testProductRegistry:: testProductRegistration(){
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
@@ -207,8 +207,8 @@ void  testProductRegistry:: testProductRegistration(){
       "process.m2 = cms.EDProducer('TestPRegisterModule2')\n"
       "process.p = cms.Path(process.m1*process.m2)\n");
   try {
-    edm::EventProcessor proc(configuration, true);
-  } catch(const cms::Exception& iException) {
+    art::EventProcessor proc(configuration, true);
+  } catch(const artZ::Exception& iException) {
     std::cout <<"caught "<<iException.explainSelf()<<std::endl;
     throw;
   }

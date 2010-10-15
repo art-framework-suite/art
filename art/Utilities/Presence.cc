@@ -4,6 +4,6 @@
 
 #include "art/Utilities/Presence.h"
 
-namespace edm {
+namespace art {
   Presence::~Presence() {}
 }

@@ -8,12 +8,12 @@
 #include <vector>
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edmtest {
+namespace arttest {
 
   class alg_2
   {
   public:
-    explicit alg_2(const edm::ParameterSet& ps) :
+    explicit alg_2(const art::ParameterSet& ps) :
       flavor_(ps.getParameter<std::string>("flavor")),
       debugLevel_(ps.getUntrackedParameter<int>("debug", 0))
     { }
@@ -28,9 +28,9 @@ namespace edmtest {
   class alg_1
   {
   public:
-    explicit alg_1(const edm::ParameterSet& ps) :
+    explicit alg_1(const art::ParameterSet& ps) :
       count_(ps.getParameter<int>("count")),
-      inner_alg_(ps.getParameter<edm::ParameterSet>("nest_2"))
+      inner_alg_(ps.getParameter<art::ParameterSet>("nest_2"))
     { }
 
   private:

@@ -10,7 +10,7 @@
  */
 #include <string>
 
-namespace edm {
+namespace art {
   std::string pythonFileToConfigure(const std::string& iPythonFileName);
 }
 #endif /* defined(FWCore_Framework_pythonToConfigure_h) */

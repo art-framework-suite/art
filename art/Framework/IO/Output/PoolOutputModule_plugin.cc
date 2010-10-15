@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Output/PoolOutputModule.h"
-  using edm::PoolOutputModule;
+  using art::PoolOutputModule;
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -22,7 +22,7 @@
 #include <sstream>
 
 
-namespace edm {
+namespace art {
 
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
@@ -49,7 +49,7 @@ namespace edm {
       else if (dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
       else if (dropMetaData == std::string("ALL")) dropMetaData_ = DropAll;
       else {
-        throw edm::Exception(errors::Configuration, "Illegal dropMetaData parameter value: ")
+        throw art::Exception(errors::Configuration, "Illegal dropMetaData parameter value: ")
             << dropMetaData << ".\n"
             << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
       }
@@ -179,7 +179,7 @@ namespace edm {
 
   void PoolOutputModule::doOpenFile() {
       if (inputFileCount_ == 0) {
-        throw edm::Exception(edm::errors::LogicError)
+        throw art::Exception(art::errors::LogicError)
           << "Attempt to open output file before input file. "
           << "Please report this to the core framework developers.\n";
       }
@@ -203,7 +203,7 @@ namespace edm {
       ++outputFileCount_;
   }
 
-}  // namespace edm
+}  // namespace art
 
 
 // ======================================================================

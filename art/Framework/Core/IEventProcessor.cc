@@ -5,7 +5,7 @@
 
 #include "art/Framework/Core/IEventProcessor.h"
 
-namespace edm {
+namespace art {
 
   IEventProcessor::~IEventProcessor() { }
 }

@@ -62,7 +62,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
     try
       {
 
-		edm::Trie<std::string> strTrie(std::string(""));
+		art::Trie<std::string> strTrie(std::string(""));
 		strTrie.insert("Premiere Chaine", 15, std::string("1er"));
 		strTrie.insert("Deuxieme Chaine", std::string("2eme"));
 		{
@@ -94,7 +94,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 		  CPPUNIT_ASSERT_EQUAL(std::string("2eme"), s);
 		}
 	  }
-    catch (const edm::Exception &e)
+    catch (const art::Exception &e)
       {
 	std::cerr << e.what() << std::endl;
 	CPPUNIT_ASSERT(false);
@@ -105,7 +105,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
   {
 	try
 	  {
-		edm::Trie<unsigned> nbTrie(0);
+		art::Trie<unsigned> nbTrie(0);
 		nbTrie.insert("un", 2, 1);
 		nbTrie.insert("deux", 4, 2);
 		nbTrie.insert("test", 4, 3);
@@ -134,7 +134,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 		res = nbTrie.find(" deux ", 6);
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, res);
 	  }
-    catch (const edm::Exception &e)
+    catch (const art::Exception &e)
       {
 	std::cerr << e.what() << std::endl;
 	CPPUNIT_ASSERT(false);
@@ -146,7 +146,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
     try
       {
 		//Test if trie is well sorted
-		edm::Trie<unsigned> test(0);
+		art::Trie<unsigned> test(0);
 		test.insert("acd", 3, 1);
 		test.insert("ade", 3, 2);
 		test.insert("abc", 3, 3);
@@ -156,7 +156,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 		test.insert("acc", 3, 7);
 		test.insert("add", 3, 8);
 		test.insert("abd", 3, 9);
-		const edm::TrieNode<unsigned> *first = test.initialNode(), *last = 0x0;
+		const art::TrieNode<unsigned> *first = test.initialNode(), *last = 0x0;
 		CPPUNIT_ASSERT_EQUAL((unsigned)0, first->value());
 		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->brother());
 		CPPUNIT_ASSERT_EQUAL((unsigned char)'a', first->subNodeLabel());
@@ -235,7 +235,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestedmTrie);
 		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)last->brother());
 		CPPUNIT_ASSERT_EQUAL((void*)0x0, (void*)first->brother());
       }
-    catch (const edm::Exception &e)
+    catch (const art::Exception &e)
       {
 	std::cerr << e.what() << std::endl;
 	CPPUNIT_ASSERT(false);

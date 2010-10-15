@@ -25,7 +25,7 @@
 // user include files
 
 // forward declarations
-namespace edmplugin {
+namespace artplugin {
 struct PluginInfo {
   std::string name_;
   boost::filesystem::path loadable_;

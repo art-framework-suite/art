@@ -12,26 +12,26 @@
 #include "art/Framework/Core/GeneratedInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmtest {
-  class ThingSource : public edm::GeneratedInputSource {
+namespace arttest {
+  class ThingSource : public art::GeneratedInputSource {
   public:
 
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    explicit ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
+    explicit ThingSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc);
 
     virtual ~ThingSource();
 
-    virtual bool produce(edm::Event& e);
+    virtual bool produce(art::Event& e);
 
-    virtual void beginRun(edm::Run& r);
+    virtual void beginRun(art::Run& r);
 
-    virtual void endRun(edm::Run& r);
+    virtual void endRun(art::Run& r);
 
-    virtual void beginSubRun(edm::SubRun& lb);
+    virtual void beginSubRun(art::SubRun& lb);
 
-    virtual void endSubRun(edm::SubRun& lb);
+    virtual void endSubRun(art::SubRun& lb);
 
   private:
     ThingAlgorithm alg_;

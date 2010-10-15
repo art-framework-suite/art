@@ -16,7 +16,7 @@ ProvenanceAdaptor.cc
 #include <set>
 
 
-namespace edm {
+namespace art {
 
   //------------------------------------------------------------
   // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value_ < 11) to new provenance.
@@ -121,4 +121,4 @@ namespace edm {
     indexes = branchListIndexes_;
   }
 
-}  // namespace edm
+}  // namespace art

@@ -3,7 +3,7 @@
 //
 #include <map>
 
-namespace edm {
+namespace art {
 
   template<typename ID, typename C, typename P>
   class IDVectorMap {

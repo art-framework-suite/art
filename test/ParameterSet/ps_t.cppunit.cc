@@ -17,7 +17,7 @@
 
 class testps: public CppUnit::TestFixture
 {
-  //CPPUNIT_TEST_EXCEPTION(emptyTest,edm::Exception);
+  //CPPUNIT_TEST_EXCEPTION(emptyTest,art::Exception);
   CPPUNIT_TEST_SUITE(testps);
   CPPUNIT_TEST(emptyTest);
   CPPUNIT_TEST(boolTest);
@@ -58,9 +58,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testps);
 
 void testps::emptyTest()
 {
-  edm::ParameterSet p1;
+  art::ParameterSet p1;
   std::string p1_encoded = p1.toString();
-  edm::ParameterSet p2(p1_encoded);
+  art::ParameterSet p2(p1_encoded);
   CPPUNIT_ASSERT (p1 == p2);
 }
 
@@ -68,15 +68,15 @@ template <class T>
 void trackedTestbody(T value)
 {
   try {
-    edm::ParameterSet p1;
+    art::ParameterSet p1;
     p1.template addParameter<T>("x", value);
     CPPUNIT_ASSERT(p1.template getParameter<T>("x") == value);
     std::string p1_encoded = p1.toString();
-    edm::ParameterSet p2(p1_encoded);
+    art::ParameterSet p2(p1_encoded);
     CPPUNIT_ASSERT(p1 == p2);
     CPPUNIT_ASSERT(p2.template getParameter<T>("x") == value);
   }
-  catch (cms::Exception& x)
+  catch (artZ::Exception& x)
     {
       std::cerr << "cms Exception caught, message follows\n"
 		<< x.what();
@@ -100,7 +100,7 @@ template <class T>
 void
 untrackedTestbody(T value)
 {
-  edm::ParameterSet p;
+  art::ParameterSet p;
   p.template addUntrackedParameter<T>("x", value);
   CPPUNIT_ASSERT(p.template getUntrackedParameter<T>("x") == value);
 
@@ -108,20 +108,20 @@ untrackedTestbody(T value)
 
   //-------------------------------------------------------------------------
   // CPPUNIT_ASSERT_THROW(p.template getUntrackedParameter<T>("does not exist"),
-  // 		       cms::Exception);
+  // 		       artZ::Exception);
   //-------------------------------------------------------------------------
 
   //-------------------------------------------------------------------------
   // TODO: When CPPUNIT 1.10.2 arrvies, remove this code block.
   try
     {
-      // The next line should throw edm::Exception
+      // The next line should throw art::Exception
       p.template getUntrackedParameter<T>("does not exist");
       // We can't use CPPUNIT_ASSERT, because it throws, and that
       // makes it impossible to check for the right exception below.
       assert (0 == "failed to throw a required exception");
      }
-   catch (cms::Exception& x)
+   catch (artZ::Exception& x)
      {
        // ok, this is expected
      }
@@ -195,7 +195,7 @@ void testps::stringTest()
   vs.push_back("1");
   vs.push_back("");
   vs.push_back("three");
-  edm::ParameterSet p1;
+  art::ParameterSet p1;
   p1.addParameter<std::vector<std::string> >("vs",vs);
   std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string> >("vs");
   //FIXME doesn't count spaces
@@ -204,7 +204,7 @@ void testps::stringTest()
 
 void testps::doubleEqualityTest()
 {
-  edm::ParameterSet p1, p2, p3;
+  art::ParameterSet p1, p2, p3;
   p1.addParameter<double>("x", 0.1);
   p2.addParameter<double>("x", 1.0e-1);
   p3.addParameter<double>("x", 0.100);
@@ -219,7 +219,7 @@ void testps::doubleEqualityTest()
 
 void testps::negativeZeroTest()
 {
-  edm::ParameterSet a1, a2;
+  art::ParameterSet a1, a2;
   a1.addParameter<double>("x", 0.0);
   a2.addParameter<double>("x", -0.0);
   // Negative and positive zero should be coded differently.
@@ -231,11 +231,11 @@ void testps::negativeZeroTest()
 
 void testps::idTest()
 {
-  edm::ParameterSet a;
-  edm::ParameterSetID a_id = a.id();
-  edm::ParameterSet b;
+  art::ParameterSet a;
+  art::ParameterSetID a_id = a.id();
+  art::ParameterSet b;
   b.addParameter<int>("x", -23);
-  edm::ParameterSetID b_id = b.id();
+  art::ParameterSetID b_id = b.id();
 
   CPPUNIT_ASSERT (a != b);
   CPPUNIT_ASSERT (a.id() != b.id());
@@ -244,29 +244,29 @@ void testps::idTest()
 void testps::mapByIdTest()
 {
   // makes parameter sets and ids
-  edm::ParameterSet a;
+  art::ParameterSet a;
   a.addParameter<double>("pi",3.14);
   a.addParameter<std::string>("name", "Bub");
   CPPUNIT_ASSERT( a.exists("pi") );
   CPPUNIT_ASSERT( !a.exists("pie") );
 
-  edm::ParameterSet b;
+  art::ParameterSet b;
   b.addParameter<bool>("b", false);
   b.addParameter<std::vector<int> >("three_zeros", std::vector<int>(3,0));
 
-  edm::ParameterSet c;
+  art::ParameterSet c;
 
-  edm::ParameterSet d;
+  art::ParameterSet d;
   d.addParameter<unsigned int>("hundred", 100);
   d.addParameter<std::vector<double> >("empty", std::vector<double>());
 
-  edm::ParameterSetID id_a = a.id();
-  edm::ParameterSetID id_b = b.id();
-  edm::ParameterSetID id_c = c.id();
-  edm::ParameterSetID id_d = d.id();
+  art::ParameterSetID id_a = a.id();
+  art::ParameterSetID id_b = b.id();
+  art::ParameterSetID id_c = c.id();
+  art::ParameterSetID id_d = d.id();
 
   // fill map
-  typedef std::map<edm::ParameterSetID,edm::ParameterSet> map_t;
+  typedef std::map<art::ParameterSetID,art::ParameterSet> map_t;
   map_t   psets;
 
   psets.insert(std::make_pair(id_a, a));
@@ -286,8 +286,8 @@ template <class T>
 void
 test_for_name()
 {
-  edm::ParameterSet preal;
-  edm::ParameterSet const& ps = preal;
+  art::ParameterSet preal;
+  art::ParameterSet const& ps = preal;
   // Use 'ps' to make sure we're only getting 'const' access;
   // use 'preal' when we need to modify the underlying ParameterSet.
 
@@ -310,20 +310,20 @@ test_for_name()
   names = ps.getParameterNames();
   CPPUNIT_ASSERT( names.size() == 2 );
 
-  edm::sort_all(names);
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
+  art::sort_all(names);
+  CPPUNIT_ASSERT( art::binary_search_all(names, "x") );
+  CPPUNIT_ASSERT( art::binary_search_all(names, "y") );
   names = ps.template getParameterNamesForType<T>();
   CPPUNIT_ASSERT( names.size() == 1 );
-  edm::sort_all(names);
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "x") );
+  art::sort_all(names);
+  CPPUNIT_ASSERT( art::binary_search_all(names, "x") );
   names = ps.template getParameterNamesForType<T>(false);
   CPPUNIT_ASSERT( names.size() == 1 );
-  edm::sort_all(names);
-  CPPUNIT_ASSERT( edm::binary_search_all(names, "y") );
+  art::sort_all(names);
+  CPPUNIT_ASSERT( art::binary_search_all(names, "y") );
 
   std::string firstString = ps.toString();
-  edm::ParameterSet p2(firstString);
+  art::ParameterSet p2(firstString);
   // equality tests toStringOfTracked internally
   CPPUNIT_ASSERT(ps == p2);
 }
@@ -343,15 +343,15 @@ void testps::nameAccessTest()
 
   test_for_name<std::string>();
   test_for_name<std::vector<std::string> >();
-  test_for_name<edm::ParameterSet>();
-  test_for_name<std::vector<edm::ParameterSet> >();
+  test_for_name<art::ParameterSet>();
+  test_for_name<std::vector<art::ParameterSet> >();
 
   // Can't make default FileInPath objects...
 
   // Now make sure that if we put in a parameter of type A, we don't
   // see it when we ask for names of type B != A.
   {
-    edm::ParameterSet p;
+    art::ParameterSet p;
     p.addParameter<double>("a", 2.5);
     const bool tracked = true;
     std::vector<std::string> names =
@@ -363,30 +363,30 @@ void testps::nameAccessTest()
 
 void testps::testEmbeddedPSet()
 {
-  edm::ParameterSet ps;
-  edm::ParameterSet psEmbedded, psDeeper;
+  art::ParameterSet ps;
+  art::ParameterSet psEmbedded, psDeeper;
   psEmbedded.addUntrackedParameter<std::string>("p1", "wham");
   psEmbedded.addParameter<std::string>("p2", "bam");
   psDeeper.addParameter<int>("deepest", 6);
-  edm::InputTag it("label", "instance");
-  std::vector<edm::InputTag> vit;
+  art::InputTag it("label", "instance");
+  std::vector<art::InputTag> vit;
   vit.push_back(it);
-  psEmbedded.addParameter<edm::InputTag>("it", it);
-  psEmbedded.addParameter<std::vector<edm::InputTag> >("vit", vit);
-  psEmbedded.addParameter<edm::ParameterSet>("psDeeper", psDeeper);
-  ps.addParameter<edm::ParameterSet>("psEmbedded", psEmbedded);
+  psEmbedded.addParameter<art::InputTag>("it", it);
+  psEmbedded.addParameter<std::vector<art::InputTag> >("vit", vit);
+  psEmbedded.addParameter<art::ParameterSet>("psDeeper", psDeeper);
+  ps.addParameter<art::ParameterSet>("psEmbedded", psEmbedded);
   ps.addParameter<double>("topLevel", 1.);
   ps.addUntrackedParameter<boost::uint64_t>("u64", 64);
 
   std::string rep = ps.toString();
-  edm::ParameterSet defrosted(rep);
-  edm::ParameterSet trackedPart(ps.toStringOfTracked());
+  art::ParameterSet defrosted(rep);
+  art::ParameterSet trackedPart(ps.toStringOfTracked());
 
   CPPUNIT_ASSERT(defrosted == ps);
   CPPUNIT_ASSERT(trackedPart.exists("psEmbedded"));
-  CPPUNIT_ASSERT(trackedPart.getParameter<edm::ParameterSet>("psEmbedded").exists("p2"));
-  CPPUNIT_ASSERT(!trackedPart.getParameter<edm::ParameterSet>("psEmbedded").exists("p1"));
-  CPPUNIT_ASSERT(trackedPart.getParameter<edm::ParameterSet>("psEmbedded").getParameter<edm::ParameterSet>("psDeeper").getParameter<int>("deepest") == 6);
+  CPPUNIT_ASSERT(trackedPart.getParameter<art::ParameterSet>("psEmbedded").exists("p2"));
+  CPPUNIT_ASSERT(!trackedPart.getParameter<art::ParameterSet>("psEmbedded").exists("p1"));
+  CPPUNIT_ASSERT(trackedPart.getParameter<art::ParameterSet>("psEmbedded").getParameter<art::ParameterSet>("psDeeper").getParameter<int>("deepest") == 6);
   CPPUNIT_ASSERT(defrosted.getUntrackedParameter<boost::uint64_t>("u64") == 64);
   CPPUNIT_ASSERT(!trackedPart.exists("u64"));
 }

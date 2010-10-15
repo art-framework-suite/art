@@ -5,7 +5,7 @@
 // CurrentProcessingContext pointer it is guarding is set to the right
 // value, and cleared at the right time.
 
-namespace edm
+namespace art
 {
   class CurrentProcessingContext;
   namespace detail
