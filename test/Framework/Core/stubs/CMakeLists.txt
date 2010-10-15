@@ -42,4 +42,4 @@ simple_plugin(TestOutputModule_plugin)
 simple_plugin(TestResultAnalyzer_plugin)
 simple_plugin(ToyDoubleProducer_plugin)
 
-install ( TARGETS FWCoreFrameworkStubs DESTINATION lib )
+install ( TARGETS FWCoreFrameworkStubs DESTINATION ${flavorqual_dir}/lib )

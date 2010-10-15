@@ -28,6 +28,6 @@ target_link_libraries(TestFWCoreServicesDriver FWCoreServices
                 			       ${REFLEX}
                 			       ${CINTEX} )
 
-install ( TARGETS FWCoreServicesTest DESTINATION lib )
+install ( TARGETS FWCoreServicesTest DESTINATION ${flavorqual_dir}/lib )
 
 add_test( FWCoreServicesDriver ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreServicesDriver)

@@ -8,4 +8,4 @@ set( artFrameworkServicesPrescalePlugins_sources Module.cc )
 
 add_library(artFrameworkServicesPrescalePlugins SHARED ${artFrameworkServicesPrescalePlugins_sources} )
 
-install ( TARGETS artFrameworkServicesPrescalePlugins DESTINATION lib )
+install ( TARGETS artFrameworkServicesPrescalePlugins DESTINATION ${flavorqual_dir}/lib )
