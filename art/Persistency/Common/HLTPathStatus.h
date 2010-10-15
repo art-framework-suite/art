@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_HLTPathStatus_h
 #define DataFormats_Common_HLTPathStatus_h
 
-/** \class edm::HLTPathStatus
+/** \class art::HLTPathStatus
  *
  *  The status of a single HLT trigger (single trigger path consisting
  *  of modules on the path).  Initially, the status is Ready (meaning
@@ -32,7 +32,7 @@
 #include <boost/cstdint.hpp>
 #include <cassert>
 
-namespace edm
+namespace art
 {
   class HLTPathStatus {
 

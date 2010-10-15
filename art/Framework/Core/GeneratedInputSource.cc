@@ -1,7 +1,7 @@
 #include "art/Framework/Core/GeneratedInputSource.h"
 
 
-namespace edm {
+namespace art {
 
   GeneratedInputSource::GeneratedInputSource( fhicl::ParameterSet const& pset
                                             , InputSourceDescription const& desc )
@@ -11,4 +11,4 @@ namespace edm {
   GeneratedInputSource::~GeneratedInputSource()
   { }
 
-}  // namespace edm
+}  // namespace art

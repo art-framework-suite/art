@@ -12,7 +12,7 @@
 
 #include "art/Utilities/Exception.h"
 
-namespace edm {
+namespace art {
 
   /**
      \class UnknownModuleException UnknownModuleException.h "edm/UnknownModuleException.h"
@@ -23,11 +23,11 @@ namespace edm {
      \author Stefano ARGIRO
      \date 02 Jun 2005
   */
-  class UnknownModuleException : public cms::Exception {
+  class UnknownModuleException : public artZ::Exception {
   public:
 
     UnknownModuleException(const std::string & moduletype):
-      cms::Exception("UnknownModule")
+      artZ::Exception("UnknownModule")
     {
       (*this) << "Module " << moduletype << " was not registered \n"
 	"Perhaps your module type is misspelled or is not a "

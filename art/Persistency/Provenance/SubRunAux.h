@@ -8,7 +8,7 @@
 #include "art/Persistency/Provenance/RunID.h"
 
 // Auxiliary subRun data that is persistent
-namespace edm
+namespace art
 {
   struct SubRunAuxiliary;
   struct SubRunAux {

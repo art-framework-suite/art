@@ -30,9 +30,9 @@ output stream.
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
-  typedef edm::detail::CachedProducts::handle_t Trig;
+  typedef art::detail::CachedProducts::handle_t Trig;
 
   std::vector<std::string> const& getAllTriggerNames();
 
@@ -220,6 +220,6 @@ namespace edm {
     virtual void finishEndFile() {}
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_OutputModule_h

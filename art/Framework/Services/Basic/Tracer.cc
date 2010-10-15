@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-using namespace edm::service;
+using namespace art::service;
 using fhicl::ParameterSet;
 
 

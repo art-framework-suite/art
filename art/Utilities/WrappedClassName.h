@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace edm {
+namespace art {
   std::string wrappedClassName(std::string const& iFullName);
 }
 #endif

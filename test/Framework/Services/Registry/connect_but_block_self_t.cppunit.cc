@@ -46,7 +46,7 @@ namespace {
 void
 testConnectButBlockSelf::test()
 {
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
    sigc::signal<void> theSignal;
 
    int iOne(0);

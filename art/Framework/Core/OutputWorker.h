@@ -19,7 +19,7 @@ appear in one worker.
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 
-namespace edm {
+namespace art {
 
   class OutputWorker : public WorkerT<OutputModule> {
   public:

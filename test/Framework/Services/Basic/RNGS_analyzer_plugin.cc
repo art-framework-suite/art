@@ -21,11 +21,11 @@
 namespace test {
 
   class RNGS_analyzer
-    : public edm::EDAnalyzer
+    : public art::EDAnalyzer
   {
   public:
     static int
-      get_seed( edm::ParameterSet const & pset
+      get_seed( art::ParameterSet const & pset
               , char const                key [ ] = "seed"
               )
     {
@@ -38,7 +38,7 @@ namespace test {
     }
 
     explicit
-      RNGS_analyzer( edm::ParameterSet const & pset )
+      RNGS_analyzer( art::ParameterSet const & pset )
       : this_event_number( 0u )
       , flat             ( createEngine(get_seed_value(pset)) )
     { }
@@ -48,7 +48,7 @@ namespace test {
     { }
 
     virtual void
-      analyze( edm::Event const &, edm::EventSetup const & )
+      analyze( art::Event const &, art::EventSetup const & )
     {
       ++this_event_number;
 

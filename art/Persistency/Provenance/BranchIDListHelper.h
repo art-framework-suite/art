@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include <map>
 
-namespace edm {
+namespace art {
 
   class BranchIDListHelper {
   public:

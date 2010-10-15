@@ -12,7 +12,7 @@ or as a base class for an EDProduct.
 
 #include <vector>
 
-namespace edm {
+namespace art {
   template <class T>
   class EDCollection {
   public:

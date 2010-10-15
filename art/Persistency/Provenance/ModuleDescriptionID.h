@@ -6,7 +6,7 @@
 
 // Obsolete
 
-namespace edm
+namespace art
 {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }

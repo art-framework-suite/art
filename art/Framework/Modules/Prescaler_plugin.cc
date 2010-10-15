@@ -13,16 +13,16 @@
 
 
 // Contents:
-namespace edm {
+namespace art {
   class Prescaler;
 }
-using edm::Prescaler;
+using art::Prescaler;
 
 
 // ======================================================================
 
 
-class edm::Prescaler
+class art::Prescaler
   : public EDFilter
 {
 public:

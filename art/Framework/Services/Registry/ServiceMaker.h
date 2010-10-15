@@ -22,7 +22,7 @@
 #include <memory>
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
 
   namespace serviceregistry {
@@ -37,7 +37,7 @@ namespace edm {
       struct AllArgsMaker : public MakerBase<T,TConcrete> {
 
       std::auto_ptr<T> make(const fhicl::ParameterSet& iPS,
-                            edm::ActivityRegistry& iAR) const
+                            art::ActivityRegistry& iAR) const
       {
          return std::auto_ptr<T>(new TConcrete(iPS, iAR));
       }
@@ -46,7 +46,7 @@ namespace edm {
     template< class T, class TConcrete = T>
     struct ParameterSetMaker : public MakerBase<T,TConcrete> {
       std::auto_ptr<T> make(const fhicl::ParameterSet& iPS,
-                            edm::ActivityRegistry& /* iAR */) const
+                            art::ActivityRegistry& /* iAR */) const
       {
          return std::auto_ptr<T>(new TConcrete(iPS));
       }
@@ -55,7 +55,7 @@ namespace edm {
     template< class T, class TConcrete = T>
     struct NoArgsMaker : public MakerBase<T,TConcrete> {
       std::auto_ptr<T> make(const fhicl::ParameterSet& /* iPS */,
-                            edm::ActivityRegistry& /* iAR */) const
+                            art::ActivityRegistry& /* iAR */) const
       {
          return std::auto_ptr<T>(new TConcrete());
       }
@@ -73,7 +73,7 @@ public:
       virtual const std::type_info& serviceType() const { return typeid(T); }
 
       virtual bool make(const fhicl::ParameterSet& iPS,
-                        edm::ActivityRegistry& iAR,
+                        art::ActivityRegistry& iAR,
                         ServicesManager& oSM) const
       {
          TMaker maker;
@@ -90,21 +90,21 @@ private:
     };
 
   }  // namespace serviceregistry
-}  // namespace edm
+}  // namespace art
 
 
 #define DEFINE_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type)
+DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory,art::serviceregistry::ServiceMaker<type>,#type)
 
 #define DEFINE_ANOTHER_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory,edm::serviceregistry::ServiceMaker<type>,#type)
+DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory,art::serviceregistry::ServiceMaker<type>,#type)
 
 #define DEFINE_FWK_SERVICE_MAKER(concrete,maker) \
-typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ## _t; \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t ,#concrete)
+typedef art::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ## _t; \
+DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t ,#concrete)
 
 #define DEFINE_ANOTHER_FWK_SERVICE_MAKER(concrete,maker) \
-typedef edm::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ##  _t; \
-DEFINE_EDM_PLUGIN (edm::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete)
+typedef art::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ##  _t; \
+DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete)
 
 #endif  // ServiceRegistry_ServiceMaker_h

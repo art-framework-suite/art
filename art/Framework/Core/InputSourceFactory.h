@@ -11,7 +11,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   typedef InputSource* (ISFunc)(fhicl::ParameterSet const&,
                                 InputSourceDescription const&);
@@ -34,6 +34,6 @@ namespace edm {
     static InputSourceFactory singleInstance_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_InputSourceFactory_h

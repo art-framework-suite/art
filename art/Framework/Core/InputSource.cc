@@ -24,7 +24,7 @@
 #include <ctime>
 
 
-namespace edm {
+namespace art {
 
   namespace {
     std::string const& suffix(int count) {
@@ -87,7 +87,7 @@ namespace edm {
       processingMode_ = RunsAndSubRuns;
     }
     else if (processingMode != defaultMode) {
-      throw edm::Exception(edm::errors::Configuration)
+      throw art::Exception(art::errors::Configuration)
         << "InputSource::InputSource()\n"
         << "The 'processingMode' parameter for sources has an illegal value '"
           << processingMode << "'\n"
@@ -309,7 +309,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   InputSource::readIt(EventID const&) {
-    throw edm::Exception(edm::errors::LogicError)
+    throw art::Exception(art::errors::LogicError)
       << "InputSource::readIt()\n"
       << "Random access is not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
@@ -317,7 +317,7 @@ namespace edm {
 
   void
   InputSource::setRun(RunNumber_t) {
-    throw edm::Exception(edm::errors::LogicError)
+    throw art::Exception(art::errors::LogicError)
       << "InputSource::setRun()\n"
       << "Run number cannot be modified for this type of Input Source\n"
       << "Contact a Framework Developer\n";
@@ -325,7 +325,7 @@ namespace edm {
 
   void
   InputSource::setSubRun(SubRunNumber_t) {
-    throw edm::Exception(edm::errors::LogicError)
+    throw art::Exception(art::errors::LogicError)
       << "InputSource::setSubRun()\n"
       << "SubRun ID  cannot be modified for this type of Input Source\n"
       << "Contact a Framework Developer\n";
@@ -333,7 +333,7 @@ namespace edm {
 
   void
   InputSource::skip(int) {
-    throw edm::Exception(edm::errors::LogicError)
+    throw art::Exception(art::errors::LogicError)
       << "InputSource::skip()\n"
       << "Random access is not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
@@ -341,7 +341,7 @@ namespace edm {
 
   void
   InputSource::rewind_() {
-    throw edm::Exception(edm::errors::LogicError)
+    throw art::Exception(art::errors::LogicError)
       << "InputSource::rewind()\n"
       << "Rewind is not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
@@ -443,4 +443,4 @@ namespace edm {
      sentry_(source.actReg()->preCloseFileSignal_, source.actReg()->postCloseFileSignal_) {
   }
 
-}  // namespace edm
+}  // namespace art

@@ -11,9 +11,9 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/EDMException.h"
 
-typedef std::vector<edm::BranchDescription const*> VCBDP;
+typedef std::vector<art::BranchDescription const*> VCBDP;
 
-void apply_gs(edm::GroupSelector const& gs,
+void apply_gs(art::GroupSelector const& gs,
 	      VCBDP const&  allbranches,
 	      std::vector<bool>& results)
 {
@@ -22,13 +22,13 @@ void apply_gs(edm::GroupSelector const& gs,
   for (; it != end; ++it) results.push_back(gs.selected(**it));
 }
 
-int doTest(edm::ParameterSet const& params,
+int doTest(art::ParameterSet const& params,
 	     char const* testname,
 	     VCBDP const&  allbranches,
 	     std::vector<bool>& expected)
 {
-  edm::GroupSelectorRules gsr(params, "outputCommands", testname);
-  edm::GroupSelector gs;
+  art::GroupSelectorRules gsr(params, "outputCommands", testname);
+  art::GroupSelector gs;
   gs.initialize(gsr, allbranches);
   std::cout << "GroupSelector from "
 	    << testname
@@ -48,45 +48,45 @@ int doTest(edm::ParameterSet const& params,
 
 int work()
 {
-  edm::ModuleDescription mod;
-  mod.parameterSetID_ = edm::ParameterSet().id();
+  art::ModuleDescription mod;
+  mod.parameterSetID_ = art::ParameterSet().id();
 
   int rc = 0;
   // We pretend to have one module, with two products. The products
   // are of the same and, type differ in instance name.
-  std::set<edm::ParameterSetID> psetsA;
-  edm::ParameterSet modAparams;
+  std::set<art::ParameterSetID> psetsA;
+  art::ParameterSet modAparams;
   modAparams.addParameter<int>("i", 2112);
   modAparams.addParameter<std::string>("s", "hi");
   psetsA.insert(modAparams.id());
 
-  //edm::BranchDescription b1(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1", md, psetsA);
-  //edm::BranchDescription b2(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2", md, psetsA);
-  edm::BranchDescription b1(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1",
+  //art::BranchDescription b1(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1", md, psetsA);
+  //art::BranchDescription b2(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2", md, psetsA);
+  art::BranchDescription b1(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1",
 			    mod);
-  edm::BranchDescription b2(edm::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2",
+  art::BranchDescription b2(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2",
 			    mod);
 
   // Our second pretend module has only one product, and gives it no
   // instance name.
-  std::set<edm::ParameterSetID> psetsB;
-  edm::ParameterSet modBparams;
+  std::set<art::ParameterSetID> psetsB;
+  art::ParameterSet modBparams;
   modBparams.addParameter<double>("d", 2.5);
   psetsB.insert(modBparams.id());
 
-  //edm::BranchDescription b3(edm::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "", md, psetsB);
-  edm::BranchDescription b3(edm::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "",
+  //art::BranchDescription b3(art::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "", md, psetsB);
+  art::BranchDescription b3(art::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "",
 			    mod);
 
   // Our third pretend is like modA, except it hass processName_ of
   // "USER"
 
-  //edm::BranchDescription b4(edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i1", md, psetsA);
-  //edm::BranchDescription b5(edm::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i2", md, psetsA);
+  //art::BranchDescription b4(art::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i1", md, psetsA);
+  //art::BranchDescription b5(art::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i2", md, psetsA);
 
-  edm::BranchDescription b4(edm::InEvent, "modA", "USER", "UglyProdTypeA",
+  art::BranchDescription b4(art::InEvent, "modA", "USER", "UglyProdTypeA",
 			    "ProdTypeA", "i1", mod);
-  edm::BranchDescription b5(edm::InEvent, "modA", "USER", "UglyProdTypeA",
+  art::BranchDescription b5(art::InEvent, "modA", "USER", "UglyProdTypeA",
 			    "ProdTypeA", "i2", mod);
 
   // These are pointers to all the branches that are available. In a
@@ -103,7 +103,7 @@ int work()
   {
     bool wanted[] = { true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
-    edm::ParameterSet noparams;
+    art::ParameterSet noparams;
 
     rc += doTest(noparams, "default parameters", allbranches, expected);
   }
@@ -113,7 +113,7 @@ int work()
     bool wanted[] = { false, true, false, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet keep_i2;
+    art::ParameterSet keep_i2;
     std::string const keep_i2_rule = "keep *_*_i2_*";
     std::vector<std::string> cmds;
     cmds.push_back(keep_i2_rule);
@@ -127,7 +127,7 @@ int work()
     bool wanted[] = { true, false, true, true, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet drop_i2;
+    art::ParameterSet drop_i2;
     std::string const drop_i2_rule1 = "keep *";
     std::string const drop_i2_rule2 = "drop *_*_i2_*";
     std::vector<std::string> cmds;
@@ -144,7 +144,7 @@ int work()
     bool wanted[] = { true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet drop_foo;
+    art::ParameterSet drop_foo;
     std::string const drop_foo_rule1 = "keep *_*_*_*"; // same as "keep *"
     std::string const drop_foo_rule2 = "drop foo_*_*_*";
     std::vector<std::string> cmds;
@@ -160,7 +160,7 @@ int work()
     bool wanted[] = { false, false, true, false, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet drop_ProdTypeA;
+    art::ParameterSet drop_ProdTypeA;
     std::string const drop_ProdTypeA_rule1 = "keep *";
     std::string const drop_ProdTypeA_rule2 = "drop ProdTypeA_*_*_*";
     std::vector<std::string> cmds;
@@ -178,7 +178,7 @@ int work()
     bool wanted[] = { true, false, false, false, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet keep_i1prod;
+    art::ParameterSet keep_i1prod;
     std::string const keep_i1prod_rule = "keep *_*_i1_PROD";
     std::vector<std::string> cmds;
     cmds.push_back(keep_i1prod_rule);
@@ -195,7 +195,7 @@ int work()
     bool wanted[] = { true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet indecisive;
+    art::ParameterSet indecisive;
     std::string const indecisive_rule1 = "keep *";
     std::string const indecisive_rule2 = "drop *";
     std::string const indecisive_rule3 = "keep *";
@@ -216,7 +216,7 @@ int work()
     bool wanted[] = { false, false, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet params;
+    art::ParameterSet params;
     std::string const rule1 = "keep *";
     std::string const rule2 = "drop *_modA_*_*";
     std::string const rule3 = "keep *_*_*_USER";
@@ -236,7 +236,7 @@ int work()
     bool wanted[] = { true, true, true, false, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
-    edm::ParameterSet params;
+    art::ParameterSet params;
     std::string const rule1 = "drop *";
     std::string const rule2 = "keep Pr*A_m?dA_??_P?O*";
     std::string const rule3 = "keep *?*?***??*????*?***_??***?__*?***T";
@@ -254,20 +254,20 @@ int work()
   {
     // Now try an illegal specification: not starting with 'keep' or 'drop'
     try {
-	edm::ParameterSet bad;
+	art::ParameterSet bad;
 	std::string const bad_rule = "beep *_*_i2_*";
 	std::vector<std::string> cmds;
 	cmds.push_back(bad_rule);
 	bad.addUntrackedParameter<std::vector<std::string> >("outputCommands", cmds);
-	edm::GroupSelectorRules gsr(bad, "outputCommands", "GroupSelectorTest");
-	edm::GroupSelector gs;
+	art::GroupSelectorRules gsr(bad, "outputCommands", "GroupSelectorTest");
+	art::GroupSelector gs;
         gs.initialize(gsr, allbranches);
 	std::cerr << "Failed to throw required exception\n";
 	rc += 1;
     }
-    catch (edm::Exception const& x) {
+    catch (art::Exception const& x) {
 	// OK, we should be here... now check exception type
-	assert (x.categoryCode() == edm::errors::Configuration);
+	assert (x.categoryCode() == art::errors::Configuration);
     }
     catch (...) {
 	std::cerr << "Wrong exception type\n";
@@ -285,9 +285,9 @@ int main()
     {
       rc = work();
     }
-  catch (edm::Exception& x)
+  catch (art::Exception& x)
     {
-      std::cerr << "edm::Exception caught:\n" << x << '\n';
+      std::cerr << "art::Exception caught:\n" << x << '\n';
       rc = 1;
     }
   catch (...)

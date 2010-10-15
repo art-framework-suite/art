@@ -11,7 +11,7 @@
 #include <memory>
 #include "sigc++/signal.h"
 
-namespace edm {
+namespace art {
   typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;
 
   class Factory

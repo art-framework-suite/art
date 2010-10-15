@@ -16,7 +16,7 @@
 // user include files
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 
-using namespace edm::serviceregistry;
+using namespace art::serviceregistry;
 //
 // constants, enums and typedefs
 //

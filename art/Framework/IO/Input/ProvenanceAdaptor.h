@@ -25,7 +25,7 @@ ProvenanceAdaptor.h
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   //------------------------------------------------------------
   // Class ProvenanceAdaptor: supports file reading.
@@ -50,6 +50,6 @@ namespace edm {
     std::vector<BranchListIndex> branchListIndexes_;
   }; // class ProvenanceAdaptor
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_ProvenanceAdaptor_h

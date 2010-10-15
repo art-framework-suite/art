@@ -19,7 +19,7 @@ static const char CVSId[] = "";
 #include <memory>
 #include <string>
 
-namespace edm{
+namespace art{
 
   class TestSchedulerModule2 : public EDProducer
   {
@@ -44,7 +44,7 @@ namespace edm{
 
   }
 }//namespace
-using edm::TestSchedulerModule2;
+using art::TestSchedulerModule2;
 DEFINE_FWK_MODULE(TestSchedulerModule2);
 
 // Configure (x)emacs for this file ...

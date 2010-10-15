@@ -7,7 +7,7 @@
 //
 /**\class OutletBase OutletBase.h FWCore/Utilities/interface/OutletBase.h
 
- Description: Base class for 'outlets' which can be used to send data through edm::ExtensionCords
+ Description: Base class for 'outlets' which can be used to send data through art::ExtensionCords
 
  Usage:
     <usage>
@@ -25,7 +25,7 @@
 #include "art/Utilities/ExtensionCord.h"
 
 // forward declarations
-namespace edm {
+namespace art {
 template <class T>
 class OutletBase
 {

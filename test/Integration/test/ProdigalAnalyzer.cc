@@ -11,12 +11,12 @@
 #include "test/TestObjects/ToyProducts.h"
 
 namespace edmtest {
-  ProdigalAnalyzer::ProdigalAnalyzer(edm::ParameterSet const& )
+  ProdigalAnalyzer::ProdigalAnalyzer(art::ParameterSet const& )
   {
   }
 
-  void ProdigalAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
-    edm::Handle<Prodigal> h;
+  void ProdigalAnalyzer::analyze(art::Event const& e, art::EventSetup const&) {
+    art::Handle<Prodigal> h;
     assert(e.getByLabel("maker", h));
     assert(h.provenance()->parents().empty());
   }

@@ -74,10 +74,10 @@ TestPluginManager::test()
 {
   using namespace edmplugin;
   using namespace testedmplugin;
-  CPPUNIT_ASSERT_THROW(PluginManager::get(), cms::Exception );
+  CPPUNIT_ASSERT_THROW(PluginManager::get(), artZ::Exception );
 
   PluginManager::Config config;
-  CPPUNIT_ASSERT_THROW(PluginManager::configure(config), cms::Exception );
+  CPPUNIT_ASSERT_THROW(PluginManager::configure(config), artZ::Exception );
 
   const char* path = getenv("LD_LIBRARY_PATH");
   CPPUNIT_ASSERT(0 != path);
@@ -102,6 +102,6 @@ TestPluginManager::test()
   std::auto_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
   CPPUNIT_ASSERT(3==ptr2->value());
 
-  CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), cms::Exception);
+  CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), artZ::Exception);
 
 }

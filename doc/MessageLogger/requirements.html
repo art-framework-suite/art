@@ -34,7 +34,7 @@ Open Issues Concerning Features Wanted by CMS</h1>
 <h3> The requirement </h3>
 A message can be issued  with multiple categoriess, as in
 <pre>
-  edm::LogWarning(tracking&amp;overflow) << "some more text";
+  art::LogWarning(tracking&amp;overflow) << "some more text";
 </pre>
 
 This is to be treated as both a category=tracking message,
@@ -60,7 +60,7 @@ but the first-two, last-one contexts might want to behave specially.)
 <h3> Proposed treatment </h3>
 When a message is issued
 <pre>
-  edm::LogWarning(tracking&amp;overflow) << "some more text";
+  art::LogWarning(tracking&amp;overflow) << "some more text";
 </pre>
 message counts for both "tracking" and "overflow" ID's are incremented.
 If a given destination would react to <em>either</em> a "tracking" message

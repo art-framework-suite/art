@@ -65,7 +65,7 @@ static const char* kDummyLibName = "*dummy";
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
 extern CallbackPtr G__p_class_autoloading;
 
-namespace edm {
+namespace art {
 
 static
 std::map<std::string,std::string>&
@@ -79,7 +79,7 @@ static
 void
 addWrapperOfVectorOfBuiltin(std::map<std::string,std::string>& iMap, const char* iBuiltin)
 {
-   static std::string sReflexPrefix("edm::Wrapper<std::vector<");
+   static std::string sReflexPrefix("art::Wrapper<std::vector<");
    static std::string sReflexPostfix("> >");
 
    //Wrapper<vector<float,allocator<float> > >
@@ -150,7 +150,7 @@ bool loadLibraryForClass(const char* classname)
           }
       }
   }
-  catch(cms::Exception& e)
+  catch(artZ::Exception& e)
     {
       //would be nice to issue a warning here
       return false;
@@ -330,7 +330,7 @@ void registerTypes() {
 RootAutoLibraryLoader::RootAutoLibraryLoader() :
   classNameAttemptingToLoad_(0)
 {
-   edm::AssertHandler h();
+   art::AssertHandler h();
    gROOT->AddClassGenerator(this);
    ROOT::Cintex::Cintex::Enable();
 
@@ -413,7 +413,7 @@ void
 RootAutoLibraryLoader::enable()
 {
    //static BareRootProductGetter s_getter;
-   //static edm::EDProductGetter::Operate s_op(&s_getter);
+   //static art::EDProductGetter::Operate s_op(&s_getter);
    static RootAutoLibraryLoader s_loader;
 }
 
@@ -455,6 +455,6 @@ RootAutoLibraryLoader::loadAll()
   }
 }
 
-}  // namespace edm
+}  // namespace art
 
 //ClassImp(RootAutoLibraryLoader)

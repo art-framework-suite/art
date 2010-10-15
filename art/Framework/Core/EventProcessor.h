@@ -37,7 +37,7 @@ namespace statemachine {
   class Machine;
 }
 
-namespace edm {
+namespace art {
 
   class ProcessDesc;
 
@@ -85,7 +85,7 @@ namespace edm {
                   std::vector<std::string>());
 
 
-    EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+    EventProcessor(boost::shared_ptr<art::ProcessDesc> & processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
 
@@ -344,7 +344,7 @@ namespace edm {
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+    void init(boost::shared_ptr<art::ProcessDesc> & processDesc,
               ServiceToken const& token,
               serviceregistry::ServiceLegacy);
 
@@ -426,6 +426,6 @@ namespace edm {
     return run(-1, false);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_EventProcessor_h

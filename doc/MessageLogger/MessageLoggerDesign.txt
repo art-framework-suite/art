@@ -111,7 +111,7 @@ struct MessageLoggerScribe {
     } break;
     case SETUP_USING_PARAMETERS:
     {
-      edm::ParameterSet * params (mx-> params);
+      art::ParameterSet * params (mx-> params);
       logger->detach(earlyOutput);
       setupErrorLogger ( logger, params );
     } break;
@@ -161,7 +161,7 @@ struct MessageSender {
   boost::shared_ptr<ErrorObj> ep;
 };
 
-MessageLogger::MessageLogger ( const edm::parameter_set & p, ... ) {
+MessageLogger::MessageLogger ( const art::parameter_set & p, ... ) {
   UnstructuredQslot * s = messageLoggerQ()->getSlot();
   MessageLoggerSetupSlot * ms = static_cast<MessageLoggerSetupSlot *> (s);
   ms.params = p;

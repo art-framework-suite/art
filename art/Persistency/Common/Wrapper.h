@@ -21,7 +21,7 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
+namespace art {
 
   template <class T>
   class Wrapper : public EDProduct {
@@ -61,9 +61,9 @@ namespace edm {
     T obj;
   };
 
-} //namespace edm
+} //namespace art
 
-namespace edm {
+namespace art {
 
   // This is an attempt to optimize for speed, by avoiding the copying
   // of large objects of type T. In this initial version, we assume

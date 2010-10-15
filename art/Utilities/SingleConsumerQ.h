@@ -38,7 +38,7 @@
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/condition.hpp"
 
-namespace edm {
+namespace art {
 
   class SingleConsumerQ
   {

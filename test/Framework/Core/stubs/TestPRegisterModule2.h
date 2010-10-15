@@ -26,18 +26,18 @@
 
 // forward declarations
 
-namespace edm {
+namespace art {
   class Event;
   class EventSetup;
   class ParameterSet;
 }
 
-class TestPRegisterModule2 : public edm::EDProducer
+class TestPRegisterModule2 : public art::EDProducer
 {
 public:
-   explicit TestPRegisterModule2(edm::ParameterSet const& p);
+   explicit TestPRegisterModule2(art::ParameterSet const& p);
 
-   void produce(edm::Event& e, edm::EventSetup const&);
+   void produce(art::Event& e, art::EventSetup const&);
 
 private:
 };

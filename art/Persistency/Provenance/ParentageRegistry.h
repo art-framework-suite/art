@@ -8,9 +8,9 @@
 
 // Note that this registry is *not* directly persistable. The contents
 // are persisted, but not the container.
-namespace edm
+namespace art
 {
-  typedef edm::detail::ThreadSafeRegistry<edm::ParentageID, edm::Parentage> ParentageRegistry;
+  typedef art::detail::ThreadSafeRegistry<art::ParentageID, art::Parentage> ParentageRegistry;
   typedef ParentageRegistry::collection_type ParentageMap;
 }
 

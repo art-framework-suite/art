@@ -17,12 +17,12 @@
 #include "test/Framework/Core/DummyFinder.h"
 #include "art/Framework/Core/SourceFactory.h"
 
-namespace edm {
+namespace art {
    class ParameterSet;
 }
 class LoadableDummyFinder : public DummyFinder {
 public:
-   LoadableDummyFinder(const edm::ParameterSet&) {}
+   LoadableDummyFinder(const art::ParameterSet&) {}
 };
 
 DEFINE_FWK_EVENTSETUP_SOURCE(LoadableDummyFinder);

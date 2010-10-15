@@ -17,7 +17,7 @@
 
 // ======================================================================
 
-namespace edm {
+namespace art {
 
   class EngineCreator
   {
@@ -49,11 +49,11 @@ namespace edm {
                     );
 
   private:
-    static  edm::Service<edm::RandomNumberGeneratorService> &
+    static  art::Service<art::RandomNumberGeneratorService> &
       rng( );
 
   };  // EngineCreator
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // EngineCreator_h

@@ -9,9 +9,9 @@
 #include <iostream>
 
 
-EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource");
+EDM_REGISTER_PLUGINFACTORY(art::InputSourcePluginFactory,"CMS EDM Framework InputSource");
 
-namespace edm {
+namespace art {
 
   InputSourceFactory::~InputSourceFactory()
   { }
@@ -40,17 +40,17 @@ namespace edm {
     try {
       wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
     }
-    catch(edm::Exception& ex) {
+    catch(art::Exception& ex) {
       ex << "Error occurred while creating source " << modtype << "\n";
       throw ex;
     }
-    catch(cms::Exception& e) {
+    catch(artZ::Exception& e) {
       e << "Error occurred while creating source " << modtype << "\n";
       throw e;
     }
 
     if(wm.get()==0) {
-        throw edm::Exception(errors::Configuration,"NoSourceModule")
+        throw art::Exception(errors::Configuration,"NoSourceModule")
           << "InputSource Factory:\n"
           << "Cannot find source type from ParameterSet: "
           << modtype << "\n"
@@ -67,4 +67,4 @@ namespace edm {
     return wm;
   }
 
-}  // namespace edm
+}  // namespace art

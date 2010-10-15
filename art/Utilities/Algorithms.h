@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-namespace edm {
+namespace art {
 
   /// Function templates that provide wrappers for standard algorithms,
   /// avoiding some duplication

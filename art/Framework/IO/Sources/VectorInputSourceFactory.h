@@ -11,7 +11,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class InputSourceDescription;
 
@@ -36,6 +36,6 @@ namespace edm {
     static VectorInputSourceFactory singleInstance_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Sources_VectorInputSourceFactory_h

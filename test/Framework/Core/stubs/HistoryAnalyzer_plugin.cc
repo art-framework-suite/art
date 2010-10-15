@@ -17,7 +17,7 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/ParameterSet/ParameterSet.h"
 
-using namespace edm;
+using namespace art;
 
 namespace edmtest {
 

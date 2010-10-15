@@ -25,9 +25,9 @@ The severity is embedded in the names of four basic functions, one for
 each level:
 <font color=blue>
 <pre>
-  edm::LogError   ("category") << a << b << ... << z;
-  edm::LogWarning ("category") << a << b << ... << z;
-  edm::LogInfo    ("category") << a << b << ... << z;
+  art::LogError   ("category") << a << b << ... << z;
+  art::LogWarning ("category") << a << b << ... << z;
+  art::LogInfo    ("category") << a << b << ... << z;
        LogDebug   ("category") << a << b << ... << z;
 </pre>
 </font>
@@ -56,37 +56,37 @@ running on a farm in production.
 </ul>
 
 <li>
-<font color=blue><code>edm::LogDebug</code></font>:
+<font color=blue><code>art::LogDebug</code></font>:
 <ul>
 <li> Use this for low frequency or course-grained status reporting, such as
 <pre>
-  edm::LogInfo("AlgoReport") << "Saw" << x << " Events";
+  art::LogInfo("AlgoReport") << "Saw" << x << " Events";
 </pre>
 <li>Use this for status messages that would naturally be included in
 reports while running on a farm in production.
 </ul>
 
 <li>
-<font color=blue><code>edm::LogWarning</code></font>:
+<font color=blue><code>art::LogWarning</code></font>:
 <ul>
 <li> Use this when an algorithm encounters a perverse
 situation that does not cause an exception
 to be thrown, but the person running the program should be well aware
 of.  A simple example is
 <pre>
-  edm::LogWarning("Convergence") << "Could not satisfy convergence criteria in"
+  art::LogWarning("Convergence") << "Could not satisfy convergence criteria in"
                                  << iters << "iterations, continuing";
-  edm::LogWarning("TooMuchData") << "Found" << x
+  art::LogWarning("TooMuchData") << "Found" << x
                                  << "candidates, using only the top 100;
 </pre>
 </ul>
 
-<li><font color=blue><code>edm::LogError</code></font>:
+<li><font color=blue><code>art::LogError</code></font>:
 This is only to be used to report errors that result from
 exceptions throws.
 <ul>
 <li>
-Do not use <font color=blue><code>edm::LogError</code></font>
+Do not use <font color=blue><code>art::LogError</code></font>
 if you throw an exception - the system will make this call for you when
 the exception is caught.  Put all
 the information that you want reported into the exception.
@@ -95,7 +95,7 @@ If you
 have a situation where you encounter
 an error, but cannot throw an exception (i.e. can only return a bad
 return code), then it may be appropriate to issue a message via
-<font color=blue><code>edm::LogError</code></font>
+<font color=blue><code>art::LogError</code></font>
 </ul>
 </ol>
 
@@ -124,7 +124,7 @@ By convention, category names should be 20 characters or shorter.
 <p>
 A log message can be a member of more than one category using the syntax:
 <pre>
-  edm::LogWarning("TooLittleData<font color=red>|</font>Tracking") << "...";
+  art::LogWarning("TooLittleData<font color=red>|</font>Tracking") << "...";
 </pre>
 Such "compound" categories can, of course, exceed 20 characters.
 

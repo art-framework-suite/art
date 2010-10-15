@@ -19,7 +19,7 @@ EDProducts into an Event.
 #include <string>
 
 
-namespace edm
+namespace art
 {
 
   class EDProducer
@@ -81,6 +81,6 @@ namespace edm
     CurrentProcessingContext const* current_context_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_EDProducer_h

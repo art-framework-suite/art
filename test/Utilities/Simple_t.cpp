@@ -7,7 +7,7 @@
 
 int main()
 {
-  cms::Exception e("BadJuju");
+  artZ::Exception e("BadJuju");
 
   char array[] = "blue";
   char* ptr = array;
@@ -28,11 +28,11 @@ int main()
   e << std::setprecision(3);
   e << std::scientific;
 
-  cms::Exception e2("RealBadStuff","A"); e2 << "B";
+  artZ::Exception e2("RealBadStuff","A"); e2 << "B";
   std::string res2("---- RealBadStuff BEGIN\nA B\n---- RealBadStuff END\n");
   assert(e2.explainSelf() == res2);
 
-  cms::Exception e3("RealBadStuff","A "); e3 << "B";
+  artZ::Exception e3("RealBadStuff","A "); e3 << "B";
   std::string res3("---- RealBadStuff BEGIN\nA B\n---- RealBadStuff END\n");
   assert(e3.explainSelf() == res3);
 

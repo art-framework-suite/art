@@ -2,7 +2,7 @@
 #include "art/Utilities/Parse.h"
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
+namespace art {
 
   InputTag::InputTag()
   : label_(""),
@@ -36,7 +36,7 @@ namespace edm {
     std::vector<std::string> tokens = tokenize(s, ":");
     int nwords = tokens.size();
     if(nwords > 3) {
-      throw edm::Exception(errors::Configuration,"InputTag")
+      throw art::Exception(errors::Configuration,"InputTag")
         << "Input tag " << s << " has " << nwords << " tokens";
     }
     if(nwords > 0) label_ = tokens[0];
@@ -68,7 +68,7 @@ namespace edm {
     return result;
   }
 
-  std::ostream& operator<<(std::ostream& ost, edm::InputTag const& tag) {
+  std::ostream& operator<<(std::ostream& ost, art::InputTag const& tag) {
     static std::string const process(", process = ");
     ost << "InputTag:  label = " << tag.label() << ", instance = " << tag.instance()
     <<(tag.process().empty()?std::string():(process+tag.process()));

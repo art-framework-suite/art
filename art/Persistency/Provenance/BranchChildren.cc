@@ -1,6 +1,6 @@
 #include "art/Persistency/Provenance/BranchChildren.h"
 
-namespace edm {
+namespace art {
   void
   BranchChildren::append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const {
     BranchIDSet const& items = const_cast<map_t &>(lookup)[item];

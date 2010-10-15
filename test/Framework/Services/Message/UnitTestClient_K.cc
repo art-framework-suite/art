@@ -10,14 +10,14 @@ namespace edmtest
 
 
 void
-  UnitTestClient_K::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_K::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
 
   for (int i=0; i<10; ++i) {
-    edm::LogPrint  ("cat_P") << "LogPrint: " << i;
-    edm::LogSystem ("cat_S") << "LogSystem: " << i;
+    art::LogPrint  ("cat_P") << "LogPrint: " << i;
+    art::LogSystem ("cat_S") << "LogSystem: " << i;
   }
 
 }  // MessageLoggerClient::analyze()

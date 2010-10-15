@@ -63,7 +63,7 @@ namespace test {
 }
 
 void testOwnVector::checkAll() {
-  edm::OwnVector<test::Dummy> v;
+  art::OwnVector<test::Dummy> v;
   CPPUNIT_ASSERT(v.size() == 0);
   CPPUNIT_ASSERT(v.empty());
   bool deleted[4] = { false, false, false, false };
@@ -72,9 +72,9 @@ void testOwnVector::checkAll() {
   v.push_back(new test::Dummy(2, deleted + 2));
   v.push_back(new test::Dummy(3, deleted + 3));
   CPPUNIT_ASSERT(v.size() == 4);
-  edm::OwnVector<test::Dummy>::iterator i;
+  art::OwnVector<test::Dummy>::iterator i;
   i = v.begin();
-  edm::OwnVector<test::Dummy>::const_iterator ci = i;
+  art::OwnVector<test::Dummy>::const_iterator ci = i;
   * ci;
   v.sort();
   v.sort(test::DummyComp());
@@ -93,7 +93,7 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT(v[0].value == 0);
   CPPUNIT_ASSERT(v[1].value == 2);
   CPPUNIT_ASSERT(v[2].value == 3);
-  edm::OwnVector<test::Dummy>::iterator b = v.begin(), e = b + 1;
+  art::OwnVector<test::Dummy>::iterator b = v.begin(), e = b + 1;
   v.erase(b, e);
   CPPUNIT_ASSERT(v.size() == 2);
   CPPUNIT_ASSERT(deleted[0]);
@@ -108,7 +108,7 @@ void testOwnVector::checkAll() {
   CPPUNIT_ASSERT(deleted[2]);
   CPPUNIT_ASSERT(deleted[3]);
   {
-    edm::OwnVector<test::a> v;
+    art::OwnVector<test::a> v;
     test::a * aa = new test::ClassB(2);
     v.push_back(aa);
     aa = new test::ClassB(1);

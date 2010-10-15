@@ -11,7 +11,7 @@
 
 #include "art/Framework/Core/IOVSyncValue.h"
 
-using namespace edm;
+using namespace art;
 
 class testIOVSyncValue: public CppUnit::TestFixture
 {

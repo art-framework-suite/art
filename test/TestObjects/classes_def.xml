@@ -9,46 +9,46 @@
  <class name="edmtest::SimpleDerived"/>
  <class name="edmtest::Sortable"/>
  <class name="edmtest::Unsortable"/>
- <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
- <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
- <class name="edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> >"/>
+ <class name="art::SortedCollection<edmtest::Simple, art::StrictWeakOrdering<edmtest::Simple> >"/>
+ <class name="art::OwnVector<edmtest::Simple, art::ClonePolicy<edmtest::Simple> >"/>
+ <class name="art::OwnVector<edmtest::SimpleDerived, art::ClonePolicy<edmtest::SimpleDerived> >"/>
  <class name="std::vector<edmtest::Simple>"/>
- <class name="edm::Wrapper<std::vector<edmtest::Simple> >"/>
+ <class name="art::Wrapper<std::vector<edmtest::Simple> >"/>
  <class name="std::vector<edmtest::Simple*>"/>
  <class name="std::vector<edmtest::SimpleDerived>"/>
  <class name="std::vector<edmtest::SimpleDerived*>"/>
- <class name="edm::RefProd<std::vector<edmtest::Simple> >"/>
- <class name="edm::DetSet<edmtest::Sortable>"/>
- <class name="std::vector<edm::DetSet<edmtest::Sortable> >"/>
- <class name="edm::DetSet<edmtest::Unsortable>"/>
- <class name="std::vector<edm::DetSet<edmtest::Unsortable> >"/>
+ <class name="art::RefProd<std::vector<edmtest::Simple> >"/>
+ <class name="art::DetSet<edmtest::Sortable>"/>
+ <class name="std::vector<art::DetSet<edmtest::Sortable> >"/>
+ <class name="art::DetSet<edmtest::Unsortable>"/>
+ <class name="std::vector<art::DetSet<edmtest::Unsortable> >"/>
  <class name="std::vector<edmtest::Sortable>"/>
  <class name="std::vector<edmtest::Unsortable>"/>
- <class name="edm::DetSetVector<edmtest::Sortable>"/>
- <class name="edm::DetSetVector<edmtest::Unsortable>"/>
- <class pattern="class edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int>">
+ <class name="art::DetSetVector<edmtest::Sortable>"/>
+ <class name="art::DetSetVector<edmtest::Unsortable>"/>
+ <class pattern="class art::AssociationVector<art::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,art::Ref<std::vector<edmtest::Simple>,edmtest::Simple,art::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int>">
    <field name="transientVector_" transient="true"/>
    <field name="fixed_" transient="true"/>
  </class>
- <class name="edm::Wrapper<edmtest::DummyProduct>"/>
- <class name="edm::Wrapper<edmtest::IntProduct>"/>
- <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>
- <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
- <class name="edm::Wrapper<edmtest::StringProduct>"/>
- <class name="edm::Wrapper<edmtest::Prodigal>"/>
- <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
- <class name="edm::Wrapper<edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> > >"/>
- <class name="edm::Wrapper<edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> > >"/>
+ <class name="art::Wrapper<edmtest::DummyProduct>"/>
+ <class name="art::Wrapper<edmtest::IntProduct>"/>
+ <class name="art::Wrapper<edmtest::Int16_tProduct>"/>
+ <class name="art::Wrapper<edmtest::DoubleProduct>"/>
+ <class name="art::Wrapper<edmtest::StringProduct>"/>
+ <class name="art::Wrapper<edmtest::Prodigal>"/>
+ <class name="art::Wrapper<art::SortedCollection<edmtest::Simple, art::StrictWeakOrdering<edmtest::Simple> > >"/>
+ <class name="art::Wrapper<art::OwnVector<edmtest::Simple, art::ClonePolicy<edmtest::Simple> > >"/>
+ <class name="art::Wrapper<art::OwnVector<edmtest::SimpleDerived, art::ClonePolicy<edmtest::SimpleDerived> > >"/>
 <!--
- <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >, std::vector<edmtest::Simple> > >"/>
+ <class name="art::Wrapper<art::AssociationVector<art::RefProd<std::vector<edmtest::Simple> >, std::vector<edmtest::Simple> > >"/>
 -->
- <class name="edm::Wrapper<edm::DetSetVector<edmtest::Sortable> >"/>
- <class name="edm::Wrapper<edm::DetSetVector<edmtest::Unsortable> >"/>
+ <class name="art::Wrapper<art::DetSetVector<edmtest::Sortable> >"/>
+ <class name="art::Wrapper<art::DetSetVector<edmtest::Unsortable> >"/>
 
  <class name="edmNew::DetSetVector<edmtest::Sortable>"/>
  <class name="edmNew::DetSetVector<edmtest::SimpleDerived>"/>
- <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::Sortable> >"/>
- <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::SimpleDerived> >"/>
+ <class name="art::Wrapper<edmNew::DetSetVector<edmtest::Sortable> >"/>
+ <class name="art::Wrapper<edmNew::DetSetVector<edmtest::SimpleDerived> >"/>
 
 
  <class name="edmtest::Thing"/>
@@ -57,30 +57,30 @@
  <class name="edmtest::OtherThing"/>
  <class name="std::vector<edmtest::Thing>"/>
  <class name="std::vector<edmtest::OtherThing>"/>
- <class name="edm::RefProd<std::vector<edmtest::Thing> >"/>
- <class name="edm::RefToBaseProd<edmtest::Thing>"/>
- <class name="edm::reftobase::BaseHolder<edmtest::Thing>"/>
- <class name="edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
- <class name="edm::RefToBase<edmtest::Thing>"/>
- <class name="edm::Ptr<edmtest::Thing>"/>
- <class name="edm::PtrVector<edmtest::Thing>"/>
- <class name="edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
- <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
- <class name="edm::Wrapper<edmtest::Thing>"/>
- <class name="edm::Wrapper<edmtest::ThingWithMerge>"/>
- <class name="edm::Wrapper<edmtest::ThingWithIsEqual>"/>
- <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
- <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
+ <class name="art::RefProd<std::vector<edmtest::Thing> >"/>
+ <class name="art::RefToBaseProd<edmtest::Thing>"/>
+ <class name="art::reftobase::BaseHolder<edmtest::Thing>"/>
+ <class name="art::reftobase::Holder<edmtest::Thing,art::Ref<std::vector<edmtest::Thing>,edmtest::Thing,art::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
+ <class name="art::RefToBase<edmtest::Thing>"/>
+ <class name="art::Ptr<edmtest::Thing>"/>
+ <class name="art::PtrVector<edmtest::Thing>"/>
+ <class name="art::Ref<std::vector<edmtest::Thing>,edmtest::Thing,art::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
+ <class name="art::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,art::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
+ <class name="art::Wrapper<edmtest::Thing>"/>
+ <class name="art::Wrapper<edmtest::ThingWithMerge>"/>
+ <class name="art::Wrapper<edmtest::ThingWithIsEqual>"/>
+ <class name="art::Wrapper<std::vector<edmtest::Thing> >"/>
+ <class name="art::Wrapper<std::vector<edmtest::OtherThing> >"/>
 
  <class name="edmtestprod::Simple"/>
  <class name="edmtestprod::Ord<edmtestprod::Simple>"/>
  <class name="edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> >"/>
- <class name="edm::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > >"/>
+ <class name="art::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > >"/>
  <class name="std::vector<edmtestprod::Simple>"/>
- <class name="edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> >"/>
- <class name="edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > >"/>
+ <class name="art::SortedCollection<edmtestprod::Simple,art::StrictWeakOrdering<edmtestprod::Simple> >"/>
+ <class name="art::Wrapper<art::SortedCollection<edmtestprod::Simple,art::StrictWeakOrdering<edmtestprod::Simple> > >"/>
  <class name="edmtestprod::StreamTestThing"/>
- <class name="edm::Wrapper<edmtestprod::StreamTestThing>"/>
+ <class name="art::Wrapper<edmtestprod::StreamTestThing>"/>
  <class name="edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901"/>
- <class name="edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
+ <class name="art::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
 </lcgdict>

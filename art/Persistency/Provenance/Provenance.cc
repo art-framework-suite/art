@@ -4,7 +4,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
 
   Provenance::Provenance(BranchDescription const& p, ProductID const& pid) :
     branchDescription_(p),

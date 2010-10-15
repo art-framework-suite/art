@@ -25,7 +25,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class Path {
   public:
@@ -94,7 +94,7 @@ namespace edm {
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(cms::Exception const& e, int nwrwue, bool isEvent);
+    bool handleWorkerFailure(artZ::Exception const& e, int nwrwue, bool isEvent);
     void recordUnknownException(int nwrwue, bool isEvent);
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
@@ -155,7 +155,7 @@ namespace edm {
         cpc.activate(idx, i->getWorker()->descPtr());
         should_continue = i->runWorker<T>(ep, &cpc);
       }
-      catch(cms::Exception& e) {
+      catch(artZ::Exception& e) {
         // handleWorkerFailure may throw a new exception.
         should_continue = handleWorkerFailure(e, nwrwue, T::isEvent_);
       }
@@ -168,6 +168,6 @@ namespace edm {
     recordStatus(nwrwue, T::isEvent_);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_Path_h

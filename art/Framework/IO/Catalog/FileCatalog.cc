@@ -9,7 +9,7 @@
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 
-namespace edm {
+namespace art {
 
   FileCatalog::FileCatalog(PoolCatalog & poolcat) :
       catalog_(poolcat.catalog_),

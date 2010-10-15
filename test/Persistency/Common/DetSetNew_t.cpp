@@ -141,8 +141,8 @@ void TestDetSet::inserting() {
     DST dfe = detsets.insert(22,6);
     CPPUNIT_ASSERT("insert did not threw"==0);
   }
-  catch (edm::Exception const & err) {
-    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  catch (art::Exception const & err) {
+    CPPUNIT_ASSERT(err.categoryCode()==art::errors::InvalidReference);
   }
 
 }
@@ -223,16 +223,16 @@ void TestDetSet::filling() {
     FF ff1(detsets, 22);
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
   }
-  catch (edm::Exception const & err) {
-    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  catch (art::Exception const & err) {
+    CPPUNIT_ASSERT(err.categoryCode()==art::errors::InvalidReference);
   }
 
   try {
     FF ff1(detsets, 44);
     FF ff2(detsets, 45);
     CPPUNIT_ASSERT(" fast filler did not threw"==0);
-  } catch (edm::Exception const &err) {
-    CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
+  } catch (art::Exception const &err) {
+    CPPUNIT_ASSERT(err.categoryCode()==art::errors::LogicError);
   }
 
 
@@ -327,7 +327,7 @@ void TestDetSet::iterator() {
       CPPUNIT_ASSERT(df.size()==2);
     }
   }
-  catch (edm::Exception const &) {
+  catch (art::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
 
@@ -337,7 +337,7 @@ void TestDetSet::iterator() {
     DSTV::const_iterator p = detsets.find(44);
     CPPUNIT_ASSERT(p==detsets.end());
   }
-  catch (edm::Exception const &) {
+  catch (art::Exception const &) {
     CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
 
   }
@@ -345,8 +345,8 @@ void TestDetSet::iterator() {
     DST df = detsets[44];
     CPPUNIT_ASSERT("[] did not threw"==0);
   }
-  catch (edm::Exception const & err) {
-       CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  catch (art::Exception const & err) {
+       CPPUNIT_ASSERT(err.categoryCode()==art::errors::InvalidReference);
   }
 }
 
@@ -444,7 +444,7 @@ void TestDetSet::onDemand() {
       CPPUNIT_ASSERT(g.ntot==1+5);
     }
   }
-  catch (edm::Exception const &) {
+  catch (art::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
 
@@ -456,7 +456,7 @@ void TestDetSet::onDemand() {
     DSTV::const_iterator p = detsets.find(22);
     CPPUNIT_ASSERT(p==detsets.end());
   }
-  catch (edm::Exception const &) {
+  catch (art::Exception const &) {
     CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
 
   }
@@ -464,8 +464,8 @@ void TestDetSet::onDemand() {
     DST df = detsets[22];
     CPPUNIT_ASSERT("[] did not threw"==0);
   }
-  catch (edm::Exception const & err) {
-       CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
+  catch (art::Exception const & err) {
+       CPPUNIT_ASSERT(err.categoryCode()==art::errors::InvalidReference);
   }
 }
 
@@ -494,8 +494,8 @@ void TestDetSet::toRangeMap() {
     std::copy(sv.begin(),sv.begin()+4,ff.begin());
   }
 
-  typedef edm::RangeMap<DetId, edm::OwnVector<B> > RM;
-  edm::RangeMap<DetId, edm::OwnVector<B> > rm;
+  typedef art::RangeMap<DetId, art::OwnVector<B> > RM;
+  art::RangeMap<DetId, art::OwnVector<B> > rm;
   try {
     edmNew::copy(detsets,rm);
     rm.post_insert();
@@ -509,7 +509,7 @@ void TestDetSet::toRangeMap() {
       CPPUNIT_ASSERT(std::equal(r.first,r.second,df.begin()));
     }
   }
-  catch (edm::Exception const & err) {
+  catch (art::Exception const & err) {
     std::cout << err.what() << std::endl;
     CPPUNIT_ASSERT(err.what()==0);
   }

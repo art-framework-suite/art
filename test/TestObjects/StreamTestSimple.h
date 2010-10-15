@@ -16,7 +16,7 @@ namespace edmtestprod
     bool operator<(const Simple&) const { return true; }
   };
 
-  typedef edm::SortedCollection<Simple> StreamTestSimple;
+  typedef art::SortedCollection<Simple> StreamTestSimple;
 
   struct X0123456789012345678901234567890123456789012345678901234567890123456789012345678901
   {

@@ -1,7 +1,7 @@
 #ifndef DataFormats_Provenance_ProvenanceFwd_h
 #define DataFormats_Provenance_ProvenanceFwd_h
 
-namespace edm {
+namespace art {
   class BranchDescription;
   class Parentage;
   class BranchID;

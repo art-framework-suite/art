@@ -9,7 +9,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   RunSubRunEntryInfo::RunSubRunEntryInfo() :
     branchID_(),
     productStatus_(productstatus::uninitialized()),

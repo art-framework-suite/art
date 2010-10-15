@@ -30,7 +30,7 @@
 #include <stdio.h>  // perror
 #endif
 
-namespace edm {
+namespace art {
   namespace service {
 
 
@@ -171,7 +171,7 @@ namespace edm {
 
       if((fd_=open(ost.str().c_str(),O_RDONLY))<0)
         {
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "Memory checker server: Failed to open " << ost.str() << std::endl;
         }
 #endif
@@ -218,8 +218,8 @@ namespace edm {
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
 
-      typedef edm::MallocOpts::opt_type opt_type;
-      edm::MallocOptionSetter& mopts = edm::getGlobalOptionSetter();
+      typedef art::MallocOpts::opt_type opt_type;
+      art::MallocOptionSetter& mopts = art::getGlobalOptionSetter();
 
       opt_type
         p_mmap_max = iPS.get<int>("M_MMAP_MAX",-1),
@@ -243,7 +243,7 @@ namespace edm {
 
       if(iPS.get<bool>("dump",false)==true)
         {
-          edm::MallocOpts mo = mopts.get();
+          art::MallocOpts mo = mopts.get();
           mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
         }
     }
@@ -429,8 +429,8 @@ namespace edm {
 #endif
     } // postEndJob
 
-    void SimpleMemoryCheck::preEventProcessing(const edm::EventID& iID,
-                                               const edm::Timestamp& iTime)
+    void SimpleMemoryCheck::preEventProcessing(const art::EventID& iID,
+                                               const art::Timestamp& iTime)
     {
       currentEventID_ = iID;                                    // changelog 2
     }
@@ -482,7 +482,7 @@ namespace edm {
         }
     }
 
-    void SimpleMemoryCheck::updateEventStats(edm::EventID const & e) {
+    void SimpleMemoryCheck::updateEventStats(art::EventID const & e) {
       if (count_ < num_to_skip_) return;
       if (count_ == num_to_skip_) {
         eventT1_.set(0, 0, e, this);
@@ -660,4 +660,4 @@ namespace edm {
     }
 
   } // end namespace service
-} // end namespace edm
+} // end namespace art

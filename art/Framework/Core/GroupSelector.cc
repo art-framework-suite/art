@@ -15,10 +15,10 @@
 #include "art/Utilities/Algorithms.h"
 
 
-namespace edm {
+namespace art {
 // The following typedef is used only in this implementation file, in
 // order to shorten several lines of code.
-  typedef std::vector<edm::BranchDescription const*> VCBDP;
+  typedef std::vector<art::BranchDescription const*> VCBDP;
 
   GroupSelector::GroupSelector() : groupsToSelect_(), initialized_(false) {}
 
@@ -58,7 +58,7 @@ namespace edm {
 
   bool GroupSelector::selected(BranchDescription const& desc) const {
     if (!initialized_) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "GroupSelector::selected() called prematurely\n"
         << "before the product registry has been frozen.\n";
     }

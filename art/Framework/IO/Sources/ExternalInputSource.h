@@ -16,7 +16,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class ExternalInputSource
     : public ConfigurableInputSource
@@ -39,6 +39,6 @@ namespace edm {
     InputFileCatalog catalog_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Sources_ExternalInputSource_h

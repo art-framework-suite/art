@@ -22,7 +22,7 @@ using namespace std;
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
   namespace service {
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace edm {
 
     //______________________________________________________________________________
     PrescaleService::PrescaleService(const ParameterSet& iPS,ActivityRegistry&iReg)
-      throw (cms::Exception)
+      throw (artZ::Exception)
       : nLvl1Index_(0)
       , iLvl1IndexDefault_(0)
     {
@@ -87,7 +87,7 @@ namespace edm {
             set<string>::const_iterator itPath=prescaledPathSet.find(pathName);
             if (itPath==prescaledPathSet.end())
               prescaledPathSet.insert(pathName);
-            else throw cms::Exception("DuplicatePrescaler")
+            else throw artZ::Exception("DuplicatePrescaler")
               <<"path '"<<pathName<<"' has more than one HLTPrescaler!";
           }
         }
@@ -113,13 +113,13 @@ namespace edm {
           vector<unsigned int> prescales =
             psetPrescales.get<std::vector<unsigned int> >("prescales");
           if (prescales.size()!=nLvl1Index_) {
-            throw cms::Exception("PrescaleTableMismatch")
+            throw artZ::Exception("PrescaleTableMismatch")
               <<"path '"<<pathName<<"' has unexpected number of prescales";
           }
           prescaleTable_[pathName] = prescales;
         }
         else {
-          throw cms::Exception("PrescaleTableUnknownPath")
+          throw artZ::Exception("PrescaleTableUnknownPath")
             <<"path '"<<pathName<<"' is invalid or does not "
             <<"contain any HLTPrescaler";
         }
@@ -128,7 +128,7 @@ namespace edm {
 
     //______________________________________________________________________________
     unsigned int PrescaleService::getPrescale(const std::string& prescaledPath)
-      throw (cms::Exception)
+      throw (artZ::Exception)
     {
       return getPrescale(iLvl1IndexDefault_, prescaledPath);
     }
@@ -136,10 +136,10 @@ namespace edm {
     //______________________________________________________________________________
     unsigned int PrescaleService::getPrescale(unsigned int lvl1Index,
                                               const std::string& prescaledPath)
-      throw (cms::Exception)
+      throw (artZ::Exception)
     {
       if (lvl1Index>=nLvl1Index_)
-        throw cms::Exception("InvalidLvl1Index")
+        throw artZ::Exception("InvalidLvl1Index")
           <<"lvl1Index '"<<lvl1Index<<"' exceeds number of prescale columns";
 
       boost::mutex::scoped_lock scoped_lock(mutex_);
@@ -149,4 +149,4 @@ namespace edm {
 
 
   } // namespace service
-} // namespace edm
+} // namespace art

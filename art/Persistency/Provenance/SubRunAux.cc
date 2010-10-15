@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   void conversion(SubRunAux const& from, SubRunAuxiliary & to) {
     to.processHistoryID_ = from.processHistoryID_;
     to.id_ = SubRunID(from.runID_, from.id_);

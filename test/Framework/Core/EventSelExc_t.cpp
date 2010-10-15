@@ -34,7 +34,7 @@
 #include <memory>
 #include <cassert>
 
-using namespace edm;
+using namespace art;
 
 typedef std::vector< std::vector<bool> > Answers;
 
@@ -81,10 +81,10 @@ struct PathSpecifiers {
   }
 };
 
-const HLTPathStatus pass = HLTPathStatus(edm::hlt::Pass);
-const HLTPathStatus fail = HLTPathStatus(edm::hlt::Fail);
-const HLTPathStatus excp = HLTPathStatus(edm::hlt::Exception);
-const HLTPathStatus redy = HLTPathStatus(edm::hlt::Ready);
+const HLTPathStatus pass = HLTPathStatus(art::hlt::Pass);
+const HLTPathStatus fail = HLTPathStatus(art::hlt::Fail);
+const HLTPathStatus excp = HLTPathStatus(art::hlt::Exception);
+const HLTPathStatus redy = HLTPathStatus(art::hlt::Ready);
 
 struct TrigResults {
   std::vector <HLTPathStatus> bit;
@@ -140,10 +140,10 @@ std::ostream& operator<<(std::ostream& ost, const TrigResults &tr)
   for(unsigned int i=0;i<tr.bit.size();++i)
     {
       HLTPathStatus b = tr.bit[i];
-      if (b.state() == edm::hlt::Ready) ost << "ready ";
-      if (b.state() == edm::hlt::Pass) ost << "pass  ";
-      if (b.state() == edm::hlt::Fail) ost << "fail  ";
-      if (b.state() == edm::hlt::Exception) ost << "excp  ";
+      if (b.state() == art::hlt::Ready) ost << "ready ";
+      if (b.state() == art::hlt::Pass) ost << "pass  ";
+      if (b.state() == art::hlt::Fail) ost << "fail  ";
+      if (b.state() == art::hlt::Exception) ost << "excp  ";
     }
   return ost;
 }
@@ -266,7 +266,7 @@ int main()
   }
 
   // Now create and setup the service
-  typedef edm::service::TriggerNamesService TNS;
+  typedef art::service::TriggerNamesService TNS;
   typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
   boost::shared_ptr<w_TNS> tnsptr

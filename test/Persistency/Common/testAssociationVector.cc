@@ -5,7 +5,7 @@
 #include <iostream>
 #include "art/Persistency/Common/AssociationVector.h"
 #include "art/Persistency/Common/TestHandle.h"
-using namespace edm;
+using namespace art;
 
 class testAssociationVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testAssociationVector);

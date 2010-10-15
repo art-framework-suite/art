@@ -1,6 +1,6 @@
 #include "art/Persistency/Provenance/History.h"
 
-namespace edm
+namespace art
 {
 
   History::size_type

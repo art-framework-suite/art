@@ -13,7 +13,7 @@ class TTree;
 #include <map>
 
 
-namespace edm {
+namespace art {
   class BranchKey;
   class FileFormatVersion;
   class RootFile;
@@ -38,6 +38,6 @@ namespace edm {
     Int_t getEntry(TTree * tree, EntryNumber entryNumber);
 
   }  // namespace input
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_Inputfwd_h

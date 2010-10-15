@@ -14,7 +14,7 @@ Usage:
 
 Getting Data
 
-The edm::DataViewImpl class provides many 'get*" methods for getting data
+The art::DataViewImpl class provides many 'get*" methods for getting data
 it contains.
 
 The primary method for getting data is to use getByLabel(). The labels are
@@ -27,12 +27,12 @@ We use an event in the examples, but a run or a luminosity block can also
 hold products.
 
 \code
-edm::Handle<AppleCollection> apples;
+art::Handle<AppleCollection> apples;
 event.getByLabel("tree",apples);
 \endcode
 
 \code
-edm::Handle<FruitCollection> fruits;
+art::Handle<FruitCollection> fruits;
 event.getByLabel("market", "apple", fruits);
 \endcode
 
@@ -58,21 +58,21 @@ event.put("apple", pFruits);
 
 Getting a reference to a product before that product is put into the
 event/subrun/run.
-NOTE: The edm::RefProd returned will not work until after the
-edm::DataViewImpl has been committed (which happens after the
+NOTE: The art::RefProd returned will not work until after the
+art::DataViewImpl has been committed (which happens after the
 EDProducer::produce method has ended)
 \code
 std::auto_ptr<AppleCollection> pApples( new AppleCollection);
 
-edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
+art::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
 //do loop and fill collection
 for(unsigned int index = 0; ..... ) {
 ....
 apples->push_back( Apple(...) );
 
-//create an edm::Ref to the new object
-edm::Ref<AppleCollection> ref(refApples, index);
+//create an art::Ref to the new object
+art::Ref<AppleCollection> ref(refApples, index);
 ....
 }
 \endcode
@@ -108,7 +108,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class DataViewImpl {
   public:
@@ -299,7 +299,7 @@ namespace edm {
     {
       static bool const value =
         sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
-        !boost::is_base_of<edm::DoNotSortUponInsertion, T>::value;
+        !boost::is_base_of<art::DoNotSortUponInsertion, T>::value;
     };
 
 
@@ -310,7 +310,7 @@ namespace edm {
     struct has_donotrecordparents
     {
       static bool const value =
-        boost::is_base_of<edm::DoNotRecordParents,T>::value;
+        boost::is_base_of<art::DoNotRecordParents,T>::value;
     };
 
   }
@@ -475,6 +475,6 @@ namespace edm {
     results.swap(products);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_DataViewImpl_h

@@ -5,9 +5,9 @@
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 
-namespace edm
+namespace art
 {
-  typedef edm::detail::ThreadSafeRegistry<edm::ProcessConfigurationID,edm::ProcessConfiguration> ProcessConfigurationRegistry;
+  typedef art::detail::ThreadSafeRegistry<art::ProcessConfigurationID,art::ProcessConfiguration> ProcessConfigurationRegistry;
   typedef ProcessConfigurationRegistry::collection_type ProcessConfigurationMap;
 }
 

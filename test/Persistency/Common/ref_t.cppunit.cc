@@ -15,7 +15,7 @@
 #include "art/Persistency/Common/RefProd.h"
 #include "art/Persistency/Common/RefToBaseProd.h"
 #include <iostream>
-using namespace edm;
+using namespace art;
 
 class testRef: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testRef);
@@ -159,7 +159,7 @@ void testRef::comparisonTest() {
 }
 
 namespace {
-   struct TestGetter : public edm::EDProductGetter {
+   struct TestGetter : public art::EDProductGetter {
       EDProduct const* hold_;
       EDProduct const* getIt(ProductID const&) const {
          return hold_;
@@ -181,7 +181,7 @@ void testRef::getTest() {
    ptr->push_back(0);
    ptr->push_back(1);
 
-   edm::Wrapper<IntCollection> wrapper(ptr);
+   art::Wrapper<IntCollection> wrapper(ptr);
    TestGetter tester;
    tester.hold_ = &wrapper;
 
@@ -223,7 +223,7 @@ void testRef::getTest() {
    CPPUNIT_ASSERT(1 == (*refProd2)[1].value_);
 
    //get it via the 'singleton'
-   edm::EDProductGetter::Operate operate(&tester);
+   art::EDProductGetter::Operate operate(&tester);
    Ref<IntCollection> ref0b(handle, 0);
    ref0b.ref().refCore().setProductPtr(0);
    ref0b.ref().item().setPtr(0);

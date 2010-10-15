@@ -13,22 +13,22 @@
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
 namespace edmtest {
-  class ThingProducer : public edm::EDProducer {
+  class ThingProducer : public art::EDProducer {
   public:
 
-    explicit ThingProducer(edm::ParameterSet const& ps);
+    explicit ThingProducer(art::ParameterSet const& ps);
 
     virtual ~ThingProducer();
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(art::Event& e, art::EventSetup const& c);
 
-    virtual void beginRun(edm::Run& r, edm::EventSetup const& c);
+    virtual void beginRun(art::Run& r, art::EventSetup const& c);
 
-    virtual void endRun(edm::Run& r, edm::EventSetup const& c);
+    virtual void endRun(art::Run& r, art::EventSetup const& c);
 
-    virtual void beginSubRun(edm::SubRun& lb, edm::EventSetup const& c);
+    virtual void beginSubRun(art::SubRun& lb, art::EventSetup const& c);
 
-    virtual void endSubRun(edm::SubRun& lb, edm::EventSetup const& c);
+    virtual void endSubRun(art::SubRun& lb, art::EventSetup const& c);
 
   private:
     ThingAlgorithm alg_;

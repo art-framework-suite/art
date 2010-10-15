@@ -7,7 +7,7 @@
 //
 /**\class SimpleOutlet SimpleOutlet.h FWCore/Utilities/interface/SimpleOutlet.h
 
- Description: A simple outlet that works with the edm::ExtensionCord
+ Description: A simple outlet that works with the art::ExtensionCord
 
  Usage:
     <usage>
@@ -26,7 +26,7 @@
 #include "art/Utilities/ECGetterBase.h"
 
 // forward declarations
-namespace edm {
+namespace art {
   template<class T>
   class SimpleOutlet : private OutletBase<T>
   {

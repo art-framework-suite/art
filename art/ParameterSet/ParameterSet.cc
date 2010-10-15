@@ -28,13 +28,13 @@
 // class invariant checker
 // ----------------------------------------------------------------------
 
-namespace edm {
+namespace art {
 
   void
   ParameterSet::validate() const
   {
     std::string stringrep = this->toStringOfTracked();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
     id_ = ParameterSetID(md5alg.digest().toString());
 
   }  // ParameterSet::validate()
@@ -84,7 +84,7 @@ namespace edm {
     id_()
   {
     if(! fromString(code))
-      throw edm::Exception(errors::Configuration,"InvalidInput")
+      throw art::Exception(errors::Configuration,"InvalidInput")
         << "The encoded configuration string "
         << "passed to a ParameterSet during construction is invalid:\n"
         << code;
@@ -107,7 +107,7 @@ namespace edm {
   ParameterSet::getEntryPointerOrThrow_(std::string const& name) const {
     Entry const* result = retrieveUntracked(name);
     if (result == 0)
-      throw edm::Exception(errors::Configuration, "MissingParameter:")
+      throw art::Exception(errors::Configuration, "MissingParameter:")
         << "The required parameter '" << name
         << "' was not specified.\n";
     return result;
@@ -128,17 +128,17 @@ namespace edm {
   ParameterSet::retrieve(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
     if (it == tbl_.end()) {
-        throw edm::Exception(errors::Configuration,"MissingParameter:")
+        throw art::Exception(errors::Configuration,"MissingParameter:")
           << "Parameter '" << name
           << "' not found.";
     }
     if (it->second.isTracked() == false) {
       if (name[0] == '@') {
-        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+        throw art::Exception(errors::Configuration,"StatusMismatch:")
           << "Framework Error:  Parameter '" << name
           << "' is incorrectly designated as tracked in the framework.";
       } else {
-        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+        throw art::Exception(errors::Configuration,"StatusMismatch:")
           << "Parameter '" << name
           << "' is designated as tracked in the code,\n"
           << "but is designated as untracked in the configuration file.\n"
@@ -160,11 +160,11 @@ namespace edm {
     if (it == tbl_.end()) return 0;
     if (it->second.isTracked()) {
       if (name[0] == '@') {
-        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+        throw art::Exception(errors::Configuration,"StatusMismatch:")
           << "Framework Error:  Parameter '" << name
           << "' is incorrectly designated as untracked in the framework.";
       } else {
-        throw edm::Exception(errors::Configuration,"StatusMismatch:")
+        throw art::Exception(errors::Configuration,"StatusMismatch:")
           << "Parameter '" << name
           << "' is designated as untracked in the code,\n"
           << "but is not designated as untracked in the configuration file.\n"
@@ -204,7 +204,7 @@ namespace edm {
 
     if(it == tbl_.end())  {
       if(! tbl_.insert(std::make_pair(name, value)).second)
-        throw edm::Exception(errors::Configuration,"InsertFailure")
+        throw art::Exception(errors::Configuration,"InsertFailure")
           << "cannot insert " << name
           << " into a ParmeterSet\n";
     }
@@ -328,9 +328,9 @@ namespace edm {
     return true;
   }  // from_string()
 
-  std::vector<edm::FileInPath>::size_type
-  ParameterSet::getAllFileInPaths(std::vector<edm::FileInPath>& output) const {
-    std::vector<edm::FileInPath>::size_type count = 0;
+  std::vector<art::FileInPath>::size_type
+  ParameterSet::getAllFileInPaths(std::vector<art::FileInPath>& output) const {
+    std::vector<art::FileInPath>::size_type count = 0;
     table::const_iterator it = tbl_.begin();
     table::const_iterator end = tbl_.end();
     while (it != end) {
@@ -431,7 +431,7 @@ namespace edm {
     void explode(fhicl::ParameterSet const& top,
                std::vector<fhicl::ParameterSet>& results)
     {
-      using namespace edm;
+      using namespace art;
       results.push_back(top);
 
       // Get names of all ParameterSets; iterate through them,
@@ -509,7 +509,7 @@ namespace edm {
   getParameterSet(ParameterSetID const& id) {
     ParameterSet result;
     if(!pset::Registry::instance()->getMapped(id, result)) {
-        throw edm::Exception(errors::Configuration,"MissingParameterSet:")
+        throw art::Exception(errors::Configuration,"MissingParameterSet:")
           << "Parameter Set ID '" << id
           << "' not found.";
     }
@@ -518,11 +518,11 @@ namespace edm {
   void ParameterSet::depricatedInputTagWarning(std::string const& name,
                                                std::string const& label) const
   {
-    edm::LogWarning("Configuration") << "Warning:\n\tstring " << name
+    art::LogWarning("Configuration") << "Warning:\n\tstring " << name
                                      << " = \"" << label
                                      << "\"\nis deprecated, "
                                      << "please update your config file to use\n\tInputTag "
                                      << name << " = " << label;
   }
 
-} // namespace edm
+} // namespace art

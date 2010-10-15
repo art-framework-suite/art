@@ -17,7 +17,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 
-namespace edm {
+namespace art {
   class History {
   public:
     typedef std::size_t size_type;

@@ -10,8 +10,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "art/Framework/Core/ESProducts.h"
-using edm::ESProducts;
-using edm::es::products;
+using art::ESProducts;
+using art::es::products;
 
 class testEsproducts: public CppUnit::TestFixture
 {
@@ -57,7 +57,7 @@ void testEsproducts::constPtrTest()
 ESProducts<const int*, const float*, const double*>
 returnManyPointers(const int* iInt, const float* iFloat, const double* iDouble)
 {
-   return edm::es::produced << iInt << iFloat << iDouble;
+   return art::es::produced << iInt << iFloat << iDouble;
 }
 
 void testEsproducts::manyTest()

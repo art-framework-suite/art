@@ -7,7 +7,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
 
   namespace service {
@@ -16,7 +16,7 @@ namespace edm {
     {
     public:
       InitRootHandlers( fhicl::ParameterSet const & pset
-                      , edm::ActivityRegistry & activity );
+                      , art::ActivityRegistry & activity );
       virtual ~InitRootHandlers ();
 
     private:
@@ -28,6 +28,6 @@ namespace edm {
     };
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art
 
 #endif  // InitRootHandlers_H

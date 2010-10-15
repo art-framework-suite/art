@@ -73,11 +73,11 @@ namespace edmplugin {
                             const std::string& iContext)
 {
     if(iIn.eof()) {
-      throw cms::Exception("PluginCacheParseFailed")<<"Unexpectedly reached end of file for line "
+      throw artZ::Exception("PluginCacheParseFailed")<<"Unexpectedly reached end of file for line "
       <<iRecordNumber<<" just after '"<<iContext<<"'";
     }
     if(iIn.bad()) {
-      throw cms::Exception("PluginCacheParseFailed")<<"Reading failed on line "<<iRecordNumber <<" just after '"<<iContext<<"'";
+      throw artZ::Exception("PluginCacheParseFailed")<<"Reading failed on line "<<iRecordNumber <<" just after '"<<iContext<<"'";
     }
 }
 
@@ -182,7 +182,7 @@ CacheParser::write(LoadableToPlugins& iIn, std::ostream& oOut)
        ++it) {
     std::string loadable(it->first.string());
     replaceSpaces(loadable);
-    edm::sort_all(it->second);
+    art::sort_all(it->second);
 
     for(std::vector<std::pair<std::string,std::string> >::iterator it2 = it->second.begin();
         it2 != it->second.end();

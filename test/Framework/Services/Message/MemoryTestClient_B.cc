@@ -11,29 +11,29 @@ namespace edmtest
 
 int  MemoryTestClient_B::nevent = 0;
 
-MemoryTestClient_B::MemoryTestClient_B( edm::ParameterSet const & ps)
+MemoryTestClient_B::MemoryTestClient_B( art::ParameterSet const & ps)
   : vsize(0)
 {
   int pattern = ps.getUntrackedParameter<int>("pattern",1);
-  edm::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
+  art::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
   initializeMemoryPattern(pattern);
 }
 
 void
-  MemoryTestClient_B::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  MemoryTestClient_B::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
   double scale = 10;
   nevent++;
   int mevent = nevent/4;
   double v = memoryPattern[mevent%memoryPattern.size()];
-  edm::LogVerbatim("memoryUsage") << "Event " << nevent
+  art::LogVerbatim("memoryUsage") << "Event " << nevent
   	<< " leaks "<< v/scale << " Mbytes";
   if ( v > vsize ) {
     int leaksize = static_cast<int>(((v-vsize)/scale)*1048576);
     char* leak = new  char[leaksize];
-    edm::LogPrint("memoryIncrease") << "Event " << mevent
+    art::LogPrint("memoryIncrease") << "Event " << mevent
   	<< " increases vsize by "<< ((v-vsize)/scale) << " Mbytes";
   }
   // DO NOT delete[] leak; the point is to increment vsize!

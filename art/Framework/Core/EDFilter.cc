@@ -6,7 +6,7 @@
 #include "art/Framework/Core/SubRun.h"
 
 
-namespace edm
+namespace art
 {
 
   EDFilter::~EDFilter()
@@ -101,4 +101,4 @@ namespace edm
     return current_context_;
   }
 
-}  // namespace edm
+}  // namespace art

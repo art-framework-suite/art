@@ -15,7 +15,7 @@ ProductRegistryHelper:
 #include <string>
 #include <list>
 
-namespace edm {
+namespace art {
   class EDProduct;
   class ModuleDescription;
   class ProductRegistry;

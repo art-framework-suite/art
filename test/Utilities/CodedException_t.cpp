@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <limits>
 
-//using namespace cms;
+//using namespace artZ;
 namespace edmtest
 {
 
@@ -24,8 +24,8 @@ namespace edmtest
 
   // This is the kind of exception we shall throw.
   // I was confused at first, and thought we were supposed to use
-  //     edm::CodedException<ToyErrorCodes>
-  typedef edm::CodedException<ToyErrorCodes> ToyException;
+  //     art::CodedException<ToyErrorCodes>
+  typedef art::CodedException<ToyErrorCodes> ToyException;
 
 }
 
@@ -47,7 +47,7 @@ namespace {
   };
 }
 
-namespace edm {
+namespace art {
 void getCodeTable(edmtest::ToyException::CodeMap*& setme)
 {
   static FilledMap fm;
@@ -114,9 +114,9 @@ void func1()
     {
       func2();
     }
-  catch (cms::Exception& e)
+  catch (artZ::Exception& e)
     {
-      throw cms::Exception("Worse","In func2",e) << "Gave up";
+      throw artZ::Exception("Worse","In func2",e) << "Gave up";
     }
 
 }
@@ -164,7 +164,7 @@ int main()
   try {
     func1();
   }
-  catch (cms::Exception& e) {
+  catch (artZ::Exception& e) {
     std::cerr << "*** main caught Exception, output is ***\n"
 	 << "(" << e.explainSelf() << ")"
 	 << "*** After exception output ***"
@@ -178,7 +178,7 @@ int main()
       abort();
     }
 
-    cms::Exception::CategoryList::const_iterator i(e.history().begin()),
+    artZ::Exception::CategoryList::const_iterator i(e.history().begin()),
 	b(e.history().end());
 
     if(e.history().size() !=2) abort();

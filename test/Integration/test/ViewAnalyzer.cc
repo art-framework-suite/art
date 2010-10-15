@@ -17,7 +17,7 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "FWCore/Integration/test/ViewAnalyzer.h"
 
-using namespace edm;
+using namespace art;
 using namespace std::rel_ops;
 
 namespace edmtest
@@ -68,14 +68,14 @@ namespace edmtest
 
     //See if InputTag works
     {
-      edm::InputTag tag("intvec","");
-      edm::Handle<edm::View<int> > hInt;
+      art::InputTag tag("intvec","");
+      art::Handle<art::View<int> > hInt;
       e.getByLabel(tag,hInt);
       assert(hInt.isValid());
     }
     {
-      edm::InputTag tag("intvec","","TEST");
-      edm::Handle<edm::View<int> > hInt;
+      art::InputTag tag("intvec","","TEST");
+      art::Handle<art::View<int> > hInt;
       e.getByLabel(tag,hInt);
       assert(hInt.isValid());
     }

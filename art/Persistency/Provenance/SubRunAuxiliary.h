@@ -10,7 +10,7 @@
 
 // Auxiliary subRun data that is persistent
 
-namespace edm
+namespace art
 {
   struct SubRunAuxiliary {
     SubRunAuxiliary() :

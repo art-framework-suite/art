@@ -11,7 +11,7 @@
 #include "boost/shared_ptr.hpp"
 
 
-namespace edm {
+namespace art {
 
   class BasicHandle;
   class EDProduct;
@@ -59,7 +59,7 @@ namespace edm {
   typedef  boost::shared_ptr<reftobase::RefVectorHolderBase>
            helper_vector_ptr;
 
-}  // namespace edm
+}  // namespace art
 
 
 // ======================================================================

@@ -11,7 +11,7 @@
 #include <iostream>
 
 
-namespace edm {
+namespace art {
 
   ParameterSetEntry::ParameterSetEntry()
   : tracked(false),
@@ -77,7 +77,7 @@ namespace edm {
 
   void ParameterSetEntry::updateID() const
   {
-//    edm::pset::Registry* reg = edm::pset::Registry::instance();
+//    art::pset::Registry* reg = art::pset::Registry::instance();
 //    insertParameterSetIntoRegistry(reg, pset());
     theID = pset().id();
   }

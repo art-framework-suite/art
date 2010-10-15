@@ -69,7 +69,7 @@ Also note that the "default mode" that you would get by just saying mute
 with no --mode= is mode="grid", which gives GridJobMode.  You can see this
 in HardwiredDefaults.cc:
 
-edm::JobMode
+art::JobMode
 MessageLoggerDefaults::
 mode(std::string const & jm)
 {
@@ -199,7 +199,7 @@ d) In MessageService/src/HardwiredDefaults.cc, make a copy of one of
 
 e) Place the name of the new mode (infos) into the decision logic in the
    mode() method right at the beginning of HardwiredDefaults.cc:
-	edm::JobMode
+	art::JobMode
 	MessageLoggerDefaults::
 	mode(std::string const & jm)
 	{

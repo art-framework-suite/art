@@ -22,7 +22,7 @@
 //
 // constants, enums and typedefs
 //
-using namespace edm;
+using namespace art;
 
 //
 // static data member definitions
@@ -73,7 +73,7 @@ CPUTimer::start() {
   if(kStopped == state_) {
     rusage theUsage;
     if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-      throw cms::Exception("CPUTimerFailed")<<errno;
+      throw artZ::Exception("CPUTimerFailed")<<errno;
     }
     startCPUTime_.tv_sec =theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec;
     startCPUTime_.tv_usec =theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec;
@@ -104,7 +104,7 @@ CPUTimer::calculateDeltaTime() const
 {
   rusage theUsage;
   if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-    throw cms::Exception("CPUTimerFailed")<<errno;
+    throw artZ::Exception("CPUTimerFailed")<<errno;
   }
   const double microsecToSec = 1E-6;
 

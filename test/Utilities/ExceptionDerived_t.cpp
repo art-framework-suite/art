@@ -5,7 +5,7 @@
 #include <string>
 #include <iomanip>
 
-using namespace cms;
+using namespace artZ;
 
 struct Thing : public Exception
 {

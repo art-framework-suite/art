@@ -29,7 +29,7 @@ class testView: public CppUnit::TestFixture
 
  private:
   typedef int  value_type;
-  typedef edm::View<value_type> View;
+  typedef art::View<value_type> View;
   typedef View::const_iterator const_iterator;
   typedef View::const_reverse_iterator const_reverse_iterator;
   typedef View::const_reference const_reference;
@@ -63,10 +63,10 @@ void testView::createFromArray()
   size_t sz = sizeof(vals)/sizeof(value_type);
 
   View v1;
-  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  art::View<int>::fill_from_range(vals, vals+sz, v1);
   CPPUNIT_ASSERT(v1.size() == 5);
   View v2;
-  edm::View<int>::fill_from_range(vals, vals+sz, v2);
+  art::View<int>::fill_from_range(vals, vals+sz, v2);
   CPPUNIT_ASSERT(v1==v2);
 }
 
@@ -76,7 +76,7 @@ void testView::directAccess()
   size_t sz = sizeof(vals)/sizeof(value_type);
 
   View v1;
-  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  art::View<int>::fill_from_range(vals, vals+sz, v1);
   for (size_type i = 0; i < v1.size(); ++i)
     {
       CPPUNIT_ASSERT(v1[i] == vals[i]);
@@ -89,7 +89,7 @@ void testView::iterateForward()
   size_t sz = sizeof(vals)/sizeof(value_type);
 
   View v1;
-  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  art::View<int>::fill_from_range(vals, vals+sz, v1);
 
   const_iterator i = v1.begin();
   CPPUNIT_ASSERT( *i == 1 );
@@ -103,7 +103,7 @@ void testView::iterateBackward()
   size_t sz = sizeof(vals)/sizeof(value_type);
 
   View v1;
-  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  art::View<int>::fill_from_range(vals, vals+sz, v1);
 
   const_reverse_iterator i = v1.rbegin();
   CPPUNIT_ASSERT( *i == 5 );
@@ -118,11 +118,11 @@ void testView::cloning()
   size_t sz = sizeof(vals)/sizeof(value_type);
 
   View v1;
-  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  art::View<int>::fill_from_range(vals, vals+sz, v1);
 
-  edm::ViewBase* base = v1.clone();
+  art::ViewBase* base = v1.clone();
   CPPUNIT_ASSERT(base);
-  edm::View<int>* view = dynamic_cast<edm::View<int>*>(base);
+  art::View<int>* view = dynamic_cast<art::View<int>*>(base);
   CPPUNIT_ASSERT(view);
   CPPUNIT_ASSERT(*view == v1);
 }

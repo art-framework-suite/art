@@ -1,6 +1,6 @@
 #include "art/Utilities/ExceptionCollector.h"
 
-namespace edm {
+namespace art {
   void
   ExceptionCollector::rethrow() const {
     throw exception_;
@@ -11,7 +11,7 @@ namespace edm {
     try {
       f();
     }
-    catch (cms::Exception e) {
+    catch (artZ::Exception e) {
       hasThrown_ = true;
       exception_ << e;
     }

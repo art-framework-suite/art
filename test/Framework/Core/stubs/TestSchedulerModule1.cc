@@ -17,7 +17,7 @@
 #include <memory>
 #include <string>
 
-using namespace edm;
+using namespace art;
 
 static const char CVSId[] = "";
 

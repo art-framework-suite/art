@@ -9,7 +9,7 @@
 #include <memory>
 
 
-namespace edm {
+namespace art {
 
   TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
     trptr_(trptr),
@@ -21,7 +21,7 @@ namespace edm {
   TriggerResultInserter::~TriggerResultInserter()
   { }
 
-  void TriggerResultInserter::produce(edm::Event& e)
+  void TriggerResultInserter::produce(art::Event& e)
   {
     std::auto_ptr<TriggerResults>
       results(new TriggerResults(*trptr_, pset_id_));
@@ -29,4 +29,4 @@ namespace edm {
     e.put(results);
   }
 
-}  // namespace edm
+}  // namespace art

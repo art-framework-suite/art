@@ -3,7 +3,7 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 
-namespace edm {
+namespace art {
 
   namespace {
     Run *

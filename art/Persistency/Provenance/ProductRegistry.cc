@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <sstream>
 
-namespace edm {
+namespace art {
   namespace {
     void checkDicts(BranchDescription const& productDesc) {
       if (productDesc.transient()) {
@@ -57,7 +57,7 @@ namespace edm {
     std::pair<ProductList::iterator, bool> ret =
 	 productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     if (!ret.second) {
-      throw edm::Exception(errors::Configuration, "Duplicate Process")
+      throw art::Exception(errors::Configuration, "Duplicate Process")
 	  << "The process name " << productDesc.processName() << " was previously used on these products.\n"
 	  << "Please modify the configuration file to use a distinct process name.\n";
     }
@@ -102,7 +102,7 @@ namespace edm {
   void
   ProductRegistry::throwIfFrozen() const {
     if (frozen()) {
-      throw cms::Exception("ProductRegistry", "throwIfFrozen")
+      throw artZ::Exception("ProductRegistry", "throwIfFrozen")
             << "cannot modify the ProductRegistry because it is frozen\n";
     }
   }
@@ -110,7 +110,7 @@ namespace edm {
   void
   ProductRegistry::throwIfNotFrozen() const {
     if (!frozen()) {
-      throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
+      throw artZ::Exception("ProductRegistry", "throwIfNotFrozen")
             << "cannot read the ProductRegistry because it is not yet frozen\n";
     }
   }

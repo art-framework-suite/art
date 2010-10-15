@@ -2,7 +2,7 @@
 #include "art/Utilities/CRC32Calculator.h"
 
 
-namespace cms {
+namespace artZ {
 
   namespace {
 
@@ -88,7 +88,7 @@ namespace cms {
     char const* p = message.data();
     for (int j = 0; j < length; j++) {
       unsigned char uc = *p++;
-      checksum_ = cms::crctable[(checksum_ ^ uc) & 0xFFL] ^ (checksum_ >> 8);
+      checksum_ = artZ::crctable[(checksum_ ^ uc) & 0xFFL] ^ (checksum_ >> 8);
     }
 
     /* return XOR out value */

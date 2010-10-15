@@ -6,20 +6,20 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 
 namespace edmtest {
-  ThingSource::ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
+  ThingSource::ThingSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc) :
     GeneratedInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InSubRun>("beginSubRun");
-    produces<ThingCollection, edm::InSubRun>("endSubRun");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    produces<ThingCollection, art::InSubRun>("beginSubRun");
+    produces<ThingCollection, art::InSubRun>("endSubRun");
+    produces<ThingCollection, art::InRun>("beginRun");
+    produces<ThingCollection, art::InRun>("endRun");
   }
 
   // Virtual destructor needed.
   ThingSource::~ThingSource() { }
 
   // Functions that gets called by framework every event
-  bool ThingSource::produce(edm::Event& e) {
+  bool ThingSource::produce(art::Event& e) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -35,7 +35,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every subRun
-  void ThingSource::beginSubRun(edm::SubRun& lb) {
+  void ThingSource::beginSubRun(art::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -48,7 +48,7 @@ namespace edmtest {
     lb.put(result, "beginSubRun");
   }
 
-  void ThingSource::endSubRun(edm::SubRun& lb) {
+  void ThingSource::endSubRun(art::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -62,7 +62,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingSource::beginRun(edm::Run& r) {
+  void ThingSource::beginRun(art::Run& r) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -75,7 +75,7 @@ namespace edmtest {
     r.put(result, "beginRun");
   }
 
-  void ThingSource::endRun(edm::Run& r) {
+  void ThingSource::endRun(art::Run& r) {
     // Step A: Get Inputs
 
     // Step B: Create empty output

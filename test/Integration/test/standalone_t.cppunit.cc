@@ -31,9 +31,9 @@ class testStandalone: public CppUnit::TestFixture
 
   void setUp()
   {
-    m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    m_handler = std::auto_ptr<art::AssertHandler>(new art::AssertHandler());
     // if (theMessageServicePresence.get() == 0) {
-    //   theMessageServicePresence = std::auto_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+    //   theMessageServicePresence = std::auto_ptr<art::Presence>(art::PresenceFactory::get()->makePresence("MessageServicePresence").release());
     // }
   }
 
@@ -46,14 +46,14 @@ class testStandalone: public CppUnit::TestFixture
 
  private:
 
-  std::auto_ptr<edm::AssertHandler> m_handler;
-  // static std::auto_ptr<edm::Presence> theMessageServicePresence;
+  std::auto_ptr<art::AssertHandler> m_handler;
+  // static std::auto_ptr<art::Presence> theMessageServicePresence;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testStandalone);
 
-// std::auto_ptr<edm::Presence> testStandalone::theMessageServicePresence;
+// std::auto_ptr<art::Presence> testStandalone::theMessageServicePresence;
 
 
 void testStandalone::writeFile()
@@ -76,7 +76,7 @@ void testStandalone::writeFile()
                             "process.p = cms.Path(process.m1)\n"
                             "process.e = cms.EndPath(process.out)\n");
 
-  edm::EventProcessor proc(configuration, true);
+  art::EventProcessor proc(configuration, true);
   proc.beginJob();
   proc.run();
   proc.endJob();
@@ -94,7 +94,7 @@ void testStandalone::readFile()
 			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
                            );
 
-  edm::EventProcessor proc(configuration, true);
+  art::EventProcessor proc(configuration, true);
   proc.beginJob();
   proc.run();
   proc.endJob();

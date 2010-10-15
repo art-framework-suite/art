@@ -11,6 +11,6 @@
 
 #include "art/Framework/Core/EventSetupRecordImplementation.h"
 
-class Dummy2Record : public edm::eventsetup::EventSetupRecordImplementation<Dummy2Record> {};
+class Dummy2Record : public art::eventsetup::EventSetupRecordImplementation<Dummy2Record> {};
 
 #endif

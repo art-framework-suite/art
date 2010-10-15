@@ -14,14 +14,14 @@
 
 
 namespace edmtest {
-  class HierarchicalEDProducer : public edm::EDProducer {
+  class HierarchicalEDProducer : public art::EDProducer {
   public:
 
-    explicit HierarchicalEDProducer(edm::ParameterSet const& ps);
+    explicit HierarchicalEDProducer(art::ParameterSet const& ps);
 
     virtual ~HierarchicalEDProducer();
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(art::Event& e, art::EventSetup const& c);
 
   private:
     double       radius_;

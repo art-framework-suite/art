@@ -20,7 +20,7 @@
 //
 // constants, enums and typedefs
 //
-namespace edm {
+namespace art {
 
 //
 // static data member definitions

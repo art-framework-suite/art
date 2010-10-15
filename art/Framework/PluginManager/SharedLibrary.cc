@@ -20,7 +20,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/DebugMacros.h"
 
-using namespace edm;
+using namespace art;
 
 namespace edmplugin {
 //
@@ -41,7 +41,7 @@ namespace edmplugin {
     std::auto_ptr<Reflex::SharedLibrary> lib(new Reflex::SharedLibrary(name));
     if( !lib->Load() )
       {
-	throw cms::Exception("PluginLibraryLoadError")
+	throw artZ::Exception("PluginLibraryLoadError")
 	  <<"unable to load "<< name <<" because " << lib->Error();
       }
     library_ = lib.release();
@@ -54,7 +54,7 @@ namespace edmplugin {
 {
     std::auto_ptr<Reflex::SharedLibrary> lib(new Reflex::SharedLibrary(iName.native_file_string()));
     if( !lib->Load() ) {
-      throw cms::Exception("PluginLibraryLoadError")<<"unable to load "<<iName.native_file_string()<<" because "<<lib->Error();
+      throw artZ::Exception("PluginLibraryLoadError")<<"unable to load "<<iName.native_file_string()<<" because "<<lib->Error();
     }
     library_ = lib.release();
 }

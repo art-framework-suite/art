@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <string>
 
-namespace edm {
+namespace art {
   inline
   std::string getEnvironmentVariable (std::string const& name, std::string const& defaultValue = std::string()) {
     char *p = ::getenv(name.c_str());

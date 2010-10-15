@@ -14,17 +14,17 @@
 
 namespace edmtest
 {
-  class TestHistoryKeeping : public edm::EDAnalyzer
+  class TestHistoryKeeping : public art::EDAnalyzer
   {
   public:
 
-    explicit TestHistoryKeeping(edm::ParameterSet const& pset);
+    explicit TestHistoryKeeping(art::ParameterSet const& pset);
     virtual ~TestHistoryKeeping();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const&);
+    virtual void analyze(art::Event const& e, art::EventSetup const&);
 
-    virtual void beginRun(edm::Run const& r, edm::EventSetup const&);
-    virtual void endRun(edm::Run const& r, edm::EventSetup const&);
+    virtual void beginRun(art::Run const& r, art::EventSetup const&);
+    virtual void endRun(art::Run const& r, art::EventSetup const&);
 
   private:
     std::vector<std::string> expectedProcesses_;
@@ -38,7 +38,7 @@ namespace edmtest
   // Implementation details
   //--------------------------------------------------------------------
 
-  TestHistoryKeeping::TestHistoryKeeping(edm::ParameterSet const& pset) :
+  TestHistoryKeeping::TestHistoryKeeping(art::ParameterSet const& pset) :
     expectedProcesses_(pset.getParameter<std::vector<std::string> >("expected_processes")),
     numberOfExpectedHLTProcessesInEachRun_(pset.getParameter<int>("number_of_expected_HLT_processes_for_each_run"))
   {
@@ -48,14 +48,14 @@ namespace edmtest
   TestHistoryKeeping::~TestHistoryKeeping() {}
 
   void
-  TestHistoryKeeping::beginRun(edm::Run const&, edm::EventSetup const&)
+  TestHistoryKeeping::beginRun(art::Run const&, art::EventSetup const&)
   {
     // At begin run, we're looking at, make sure we can get at the
     // parameter sets for any HLT processing.
   }
 
   void
-  TestHistoryKeeping::analyze(edm::Event const& ev, edm::EventSetup const&)
+  TestHistoryKeeping::analyze(art::Event const& ev, art::EventSetup const&)
   {
     for (std::vector<std::string>::const_iterator
 	   i = expectedProcesses_.begin(),
@@ -63,7 +63,7 @@ namespace edmtest
 	 i != e;
 	 ++i)
       {
-	edm::ParameterSet ps;
+	art::ParameterSet ps;
 	assert(ev.getProcessParameterSet(*i, ps));
 	assert(!ps.empty());
 	assert(ps.getParameter<std::string>("@process_name") == *i);
@@ -71,7 +71,7 @@ namespace edmtest
   }
 
   void
-  TestHistoryKeeping::endRun(edm::Run const&, edm::EventSetup const& )
+  TestHistoryKeeping::endRun(art::Run const&, art::EventSetup const& )
   {
     // Nothing to do.
   }

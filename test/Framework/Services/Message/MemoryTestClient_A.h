@@ -9,7 +9,7 @@
 // MemoryTestClient_A is used for testing JObReprt outputs from
 // the MemoryService
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
@@ -18,19 +18,19 @@ namespace edmtest
 {
 
 class MemoryTestClient_A
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    MemoryTestClient_A( edm::ParameterSet const & );
+    MemoryTestClient_A( art::ParameterSet const & );
 
   virtual
     ~MemoryTestClient_A()
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:

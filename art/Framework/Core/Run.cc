@@ -12,7 +12,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   Run::Run(RunPrincipal& rp, ModuleDescription const& md) :
         DataViewImpl(rp, md, InRun),
@@ -102,4 +102,4 @@ namespace edm {
     putProducts().clear();
   }
 
-}  // namespace edm
+}  // namespace art

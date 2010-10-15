@@ -24,7 +24,7 @@
 #include "art/Framework/Core/IOVSyncValue.h"
 
 // forward declarations
-namespace edm {
+namespace art {
 class ValidityInterval
 {
 

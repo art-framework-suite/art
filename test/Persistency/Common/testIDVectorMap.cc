@@ -22,7 +22,7 @@ struct MatchOddId {
 };
 
 void testIDVectorMap::checkAll() {
-  typedef edm::IDVectorMap<int, std::vector<int>, edm::CopyPolicy<int> > map;
+  typedef art::IDVectorMap<int, std::vector<int>, art::CopyPolicy<int> > map;
   map m;
   int v1[] = { 1, 2, 3, 4 };
   int v2[] = { 5, 6, 7 };

@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   EntryDescription::EntryDescription() :
     parents_(),
     moduleDescriptionID_()
@@ -30,7 +30,7 @@ namespace edm {
       }
 
     std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
     return EntryDescriptionID(md5alg.digest().toString());
   }
 

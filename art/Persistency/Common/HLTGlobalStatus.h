@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_HLTGlobalStatus_h
 #define DataFormats_Common_HLTGlobalStatus_h
 
-/** \class edm::HLTGlobalStatus
+/** \class art::HLTGlobalStatus
  *
  *
  *  The HLT global status, summarising the status of the individual
@@ -23,7 +23,7 @@
 #include <vector>
 #include <ostream>
 
-namespace edm
+namespace art
 {
   class HLTGlobalStatus {
 
@@ -127,7 +127,7 @@ namespace edm
 // This ensures that HLTGlobalStatus::swap() will be used in algorithms.
 
 namespace std {
-  template <> inline void swap(edm::HLTGlobalStatus& lhs, edm::HLTGlobalStatus& rhs) {
+  template <> inline void swap(art::HLTGlobalStatus& lhs, art::HLTGlobalStatus& rhs) {
     lhs.swap(rhs);
   }
 }

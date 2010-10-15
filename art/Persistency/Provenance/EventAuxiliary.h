@@ -10,7 +10,7 @@
 
 // Auxiliary event data that is persistent
 
-namespace edm
+namespace art
 {
   struct EventAuxiliary {
     // These types are very tentative for now

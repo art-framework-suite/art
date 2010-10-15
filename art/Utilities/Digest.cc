@@ -5,7 +5,7 @@
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/Digest.h"
 
-namespace cms
+namespace artZ
 {
   namespace
   {
@@ -27,7 +27,7 @@ namespace cms
 	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
 	  return hexed - 'A' + 10;
 	default:
-	  throw edm::Exception(edm::errors::LogicError)
+	  throw art::Exception(art::errors::LogicError)
 	    << "Non-hex character in Hash "
 	    << "Please report this to the core framework developers";
 	}
@@ -110,7 +110,7 @@ namespace cms
       default:
 	{
 	  // Not really sure of what sort of exception to throw...
-	  throw edm::Exception(edm::errors::LogicError)
+	  throw art::Exception(art::errors::LogicError)
 	    << "String of illegal length: "
 	    << hexy.size()
 	    << " given to MD5Result::fromHexifiedString";

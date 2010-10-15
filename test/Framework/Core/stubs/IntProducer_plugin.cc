@@ -31,9 +31,9 @@ namespace edmtest {
   //
   // Produces an IntProduct instance.
   //
-  class IntProducer : public edm::EDProducer {
+  class IntProducer : public art::EDProducer {
   public:
-    explicit IntProducer(edm::ParameterSet const& p) :
+    explicit IntProducer(art::ParameterSet const& p) :
       value_(p.getParameter<int>("ivalue")) {
       produces<IntProduct>();
     }
@@ -41,9 +41,9 @@ namespace edmtest {
       produces<IntProduct>();
     }
     virtual ~IntProducer() { }
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(art::Event& e, art::EventSetup const& c);
 
-    static void fillDescription(edm::ParameterSetDescription& iDesc,
+    static void fillDescription(art::ParameterSetDescription& iDesc,
                                 std::string const& moduleLabel) {
       iDesc.setAllowAnything();
 
@@ -53,7 +53,7 @@ namespace edmtest {
       iDesc.addOptionalUntracked<int>("ouvalue", 7);
 
       //add a ParameterSet
-      edm::ParameterSetDescription bar;
+      art::ParameterSetDescription bar;
       bar.add<unsigned int>("Drinks",5);
       bar.addUntracked<unsigned int>("uDrinks",5);
       bar.addOptional<unsigned int>("oDrinks",5);
@@ -61,18 +61,18 @@ namespace edmtest {
       iDesc.add("bar",bar);
 
       //add a ParameterSet
-      edm::ParameterSetDescription barx;
+      art::ParameterSetDescription barx;
       barx.add<unsigned int>("Drinks",5);
       barx.addUntracked<unsigned int>("uDrinks",5);
       barx.addOptional<unsigned int>("oDrinks",5);
       barx.addOptionalUntracked<unsigned int>("ouDrinks",5);
-      std::vector<edm::ParameterSetDescription> bars;
+      std::vector<art::ParameterSetDescription> bars;
       bars.push_back(barx);
       iDesc.add("bars",bars);
 
-      edm::ParameterDescription* parDescription;
-      parDescription = iDesc.addOptional<edm::ParameterSetDescription>("subpset", edm::ParameterSetDescription());
-      edm::ParameterSetDescription* subPsetDescription =
+      art::ParameterDescription* parDescription;
+      parDescription = iDesc.addOptional<art::ParameterSetDescription>("subpset", art::ParameterSetDescription());
+      art::ParameterSetDescription* subPsetDescription =
         parDescription->parameterSetDescription();
 
       subPsetDescription->add<int>("xvalue", 11);
@@ -82,7 +82,7 @@ namespace edmtest {
   };
 
   void
-  IntProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  IntProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
     std::cerr << "Holy cow, IntProducer::produce is running!\n";
     std::auto_ptr<IntProduct> p(new IntProduct(value_));

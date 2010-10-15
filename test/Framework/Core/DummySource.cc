@@ -7,7 +7,7 @@
 
 #include "test/Framework/Core/DummySource.h"
 
-namespace edm {
+namespace art {
   DummySource::DummySource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     GeneratedInputSource(pset, desc)
@@ -17,7 +17,7 @@ namespace edm {
   }
 
   bool
-  DummySource::produce(edm::Event &) {
+  DummySource::produce(art::Event &) {
     return true;
   }
 }

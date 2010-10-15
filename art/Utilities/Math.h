@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include "math_private.h"
 
-namespace edm
+namespace art
 {
 
   namespace detail
@@ -72,6 +72,6 @@ namespace edm
 
   inline bool isnan(long double q) { return detail::isnan(q); }
 
-} // namespace edm
+} // namespace art
 
 #endif

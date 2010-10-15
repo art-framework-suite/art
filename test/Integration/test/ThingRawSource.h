@@ -14,29 +14,29 @@
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
 namespace edmtest {
-  class ThingRawSource : public edm::RawInputSource {
+  class ThingRawSource : public art::RawInputSource {
   public:
 
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    explicit ThingRawSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
+    explicit ThingRawSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc);
 
     virtual ~ThingRawSource();
 
-    virtual std::auto_ptr<edm::Event> readOneEvent();
+    virtual std::auto_ptr<art::Event> readOneEvent();
 
-    virtual void beginRun(edm::Run& r);
+    virtual void beginRun(art::Run& r);
 
-    virtual void endRun(edm::Run& r);
+    virtual void endRun(art::Run& r);
 
-    virtual void beginSubRun(edm::SubRun& lb);
+    virtual void beginSubRun(art::SubRun& lb);
 
-    virtual void endSubRun(edm::SubRun& lb);
+    virtual void endSubRun(art::SubRun& lb);
 
   private:
     ThingAlgorithm alg_;
-    edm::EventID eventID_;
+    art::EventID eventID_;
   };
 }
 #endif

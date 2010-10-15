@@ -19,7 +19,7 @@ WorkerT: Code common to all workers.
 #include <memory>
 
 
-namespace edm {
+namespace art {
 
   template <typename T>
   class WorkerT : public Worker {

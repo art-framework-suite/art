@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Test program for edm::Event.
+Test program for art::Event.
 
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
@@ -48,10 +48,10 @@ Test program for edm::Event.
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 
-using namespace edm;
+using namespace art;
 
 // This is a gross hack, to allow us to test the event
-namespace edm
+namespace art
 {
   class EDProducer
   {
@@ -197,7 +197,7 @@ testEvent::addProduct(std::auto_ptr<T> product,
 {
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
-    throw edm::Exception(errors::LogicError)
+    throw art::Exception(errors::LogicError)
       << "Failed to find a module description for tag: "
       << tag << '\n';
 
@@ -394,7 +394,7 @@ void testEvent::getBySelectorFromEmpty()
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch,
-		       cms::Exception);
+		       artZ::Exception);
 }
 
 void testEvent::putAnIntProduct()
@@ -419,7 +419,7 @@ void testEvent::putAndGetAnIntProduct()
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(!currentEvent_->get(should_not_match, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 }
 
 void testEvent::getByProductID()
@@ -453,13 +453,13 @@ void testEvent::getByProductID()
   CPPUNIT_ASSERT(h->value == 1);
 
   ProductID invalid;
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), artZ::Exception);
   CPPUNIT_ASSERT(!h.isValid());
   ProductID notpresent(0, std::numeric_limits<unsigned short>::max());
   CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 }
 
 void testEvent::transaction()
@@ -565,26 +565,26 @@ void testEvent::getBySelector()
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel1, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   Selector sel2(ProductInstanceNameSelector("int2") &&
 	        ModuleLabelSelector("nomatch") &&
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel2, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   Selector sel3(ProductInstanceNameSelector("int2") &&
 	        ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("nomatch"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel3, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   Selector sel4(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
   //multiple selections throw
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), artZ::Exception);
 
   Selector sel5(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("LATE"));;
@@ -645,7 +645,7 @@ void testEvent::getByLabel()
 
   CPPUNIT_ASSERT(!currentEvent_->getByLabel("modMulti", "nomatch", h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   InputTag inputTag("modMulti", "int1");
   CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
@@ -702,10 +702,10 @@ void testEvent::getByType()
   CPPUNIT_ASSERT(!currentEvent_->getByType(h_nomatch));
   CPPUNIT_ASSERT(!h_nomatch.isValid());
   CPPUNIT_ASSERT(h_nomatch.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h_nomatch, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h_nomatch, artZ::Exception);
 
   Handle<std::vector<edmtest::Thing> > hthing;
-  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),artZ::Exception);
 
   handle_vec handles;
   currentEvent_->getManyByType(handles);

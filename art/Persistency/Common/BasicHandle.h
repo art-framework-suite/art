@@ -30,7 +30,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Utilities/Exception.h"
 #include <boost/shared_ptr.hpp>
 
-namespace edm {
+namespace art {
   class EDProduct;
   class BasicHandle {
   public:
@@ -51,7 +51,7 @@ namespace edm {
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
+    BasicHandle(boost::shared_ptr<artZ::Exception> const& iWhyFailed):
     product_(),
     prov_(0),
     id_(),
@@ -98,14 +98,14 @@ namespace edm {
       return id_;
     }
 
-    boost::shared_ptr<cms::Exception> whyFailed() const {
+    boost::shared_ptr<artZ::Exception> whyFailed() const {
       return whyFailed_;
     }
   private:
     boost::shared_ptr<EDProduct const> product_;
     Provenance const* prov_;
     ProductID id_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    boost::shared_ptr<artZ::Exception> whyFailed_;
   };
 
   // Free swap function

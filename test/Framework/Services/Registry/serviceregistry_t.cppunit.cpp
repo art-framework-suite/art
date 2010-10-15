@@ -45,21 +45,21 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testServiceRegistry);
 void
 testServiceRegistry::loadTest()
 {
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
-   std::vector<edm::ParameterSet> pss;
+   std::vector<art::ParameterSet> pss;
 
-   edm::ParameterSet ps;
+   art::ParameterSet ps;
    std::string typeName("DummyService");
    ps.addParameter("@service_type", typeName);
    int value = 2;
    ps.addParameter("value", value);
    pss.push_back(ps);
 
-   edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+   art::ServiceToken token(art::ServiceRegistry::createSet(pss));
 
-   edm::ServiceRegistry::Operate operate(token);
-   edm::Service<testserviceregistry::DummyService> dummy;
+   art::ServiceRegistry::Operate operate(token);
+   art::Service<testserviceregistry::DummyService> dummy;
    CPPUNIT_ASSERT(dummy);
    CPPUNIT_ASSERT(dummy.isAvailable());
    CPPUNIT_ASSERT(dummy->value() == 2);
@@ -72,36 +72,36 @@ namespace {
 void
 testServiceRegistry::externalServiceTest()
 {
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
    {
       std::auto_ptr<DummyService> dummyPtr(new DummyService);
       dummyPtr->value_ = 2;
-      edm::ServiceToken token(edm::ServiceRegistry::createContaining(dummyPtr));
+      art::ServiceToken token(art::ServiceRegistry::createContaining(dummyPtr));
       {
-         edm::ServiceRegistry::Operate operate(token);
-         edm::Service<DummyService> dummy;
+         art::ServiceRegistry::Operate operate(token);
+         art::Service<DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value_ == 2);
       }
       {
-         std::vector<edm::ParameterSet> pss;
+         std::vector<art::ParameterSet> pss;
 
-         edm::ParameterSet ps;
+         art::ParameterSet ps;
          std::string typeName("DummyService");
          ps.addParameter("@service_type", typeName);
          int value = 2;
          ps.addParameter("value", value);
          pss.push_back(ps);
 
-         edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(dummyPtr,
+         art::ServiceToken token(art::ServiceRegistry::createSet(pss));
+         art::ServiceToken token2(art::ServiceRegistry::createContaining(dummyPtr,
                                                                          token,
-                                                                         edm::serviceregistry::kOverlapIsError));
+                                                                         art::serviceregistry::kOverlapIsError));
 
-         edm::ServiceRegistry::Operate operate(token2);
-         edm::Service<testserviceregistry::DummyService> dummy;
+         art::ServiceRegistry::Operate operate(token2);
+         art::Service<testserviceregistry::DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value() == 2);
@@ -110,36 +110,36 @@ testServiceRegistry::externalServiceTest()
 
    {
       std::auto_ptr<DummyService> dummyPtr(new DummyService);
-      boost::shared_ptr<edm::serviceregistry::ServiceWrapper<DummyService> >
-	  wrapper(new edm::serviceregistry::ServiceWrapper<DummyService>(dummyPtr));
-      edm::ServiceToken token(edm::ServiceRegistry::createContaining(wrapper));
+      boost::shared_ptr<art::serviceregistry::ServiceWrapper<DummyService> >
+	  wrapper(new art::serviceregistry::ServiceWrapper<DummyService>(dummyPtr));
+      art::ServiceToken token(art::ServiceRegistry::createContaining(wrapper));
 
       wrapper->get().value_ = 2;
 
       {
-         edm::ServiceRegistry::Operate operate(token);
-         edm::Service<DummyService> dummy;
+         art::ServiceRegistry::Operate operate(token);
+         art::Service<DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value_ == 2);
       }
       {
-         std::vector<edm::ParameterSet> pss;
+         std::vector<art::ParameterSet> pss;
 
-         edm::ParameterSet ps;
+         art::ParameterSet ps;
          std::string typeName("DummyService");
          ps.addParameter("@service_type", typeName);
          int value = 2;
          ps.addParameter("value", value);
          pss.push_back(ps);
 
-         edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
-         edm::ServiceToken token2(edm::ServiceRegistry::createContaining(dummyPtr,
+         art::ServiceToken token(art::ServiceRegistry::createSet(pss));
+         art::ServiceToken token2(art::ServiceRegistry::createContaining(dummyPtr,
                                                                          token,
-                                                                         edm::serviceregistry::kOverlapIsError));
+                                                                         art::serviceregistry::kOverlapIsError));
 
-         edm::ServiceRegistry::Operate operate(token2);
-         edm::Service<testserviceregistry::DummyService> dummy;
+         art::ServiceRegistry::Operate operate(token2);
+         art::Service<testserviceregistry::DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value() == 2);
@@ -151,43 +151,43 @@ testServiceRegistry::externalServiceTest()
 void
 testServiceRegistry::hierarchyTest()
 {
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
-   std::vector<edm::ParameterSet> pss;
+   std::vector<art::ParameterSet> pss;
    {
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 1;
       ps.addParameter("value", value);
       pss.push_back(ps);
    }
-   edm::ServiceToken token1(edm::ServiceRegistry::createSet(pss));
+   art::ServiceToken token1(art::ServiceRegistry::createSet(pss));
 
    pss.clear();
    {
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 2;
       ps.addParameter("value", value);
       pss.push_back(ps);
    }
-   edm::ServiceToken token2(edm::ServiceRegistry::createSet(pss));
+   art::ServiceToken token2(art::ServiceRegistry::createSet(pss));
 
 
-   edm::ServiceRegistry::Operate operate1(token1);
+   art::ServiceRegistry::Operate operate1(token1);
    {
-      edm::Service<testserviceregistry::DummyService> dummy;
+      art::Service<testserviceregistry::DummyService> dummy;
       CPPUNIT_ASSERT(dummy->value() == 1);
    }
    {
-      edm::ServiceRegistry::Operate operate2(token2);
-      edm::Service<testserviceregistry::DummyService> dummy;
+      art::ServiceRegistry::Operate operate2(token2);
+      art::Service<testserviceregistry::DummyService> dummy;
       CPPUNIT_ASSERT(dummy->value() == 2);
    }
    {
-      edm::Service<testserviceregistry::DummyService> dummy;
+      art::Service<testserviceregistry::DummyService> dummy;
       CPPUNIT_ASSERT(dummy->value() == 1);
    }
 }
@@ -198,7 +198,7 @@ namespace {
       UniqueRegistry(void* iReg) : otherRegistry_(iReg) {}
 
       void operator()(){
-         isUnique_ = (otherRegistry_ != &(edm::ServiceRegistry::instance()));
+         isUnique_ = (otherRegistry_ != &(art::ServiceRegistry::instance()));
       }
       void* otherRegistry_;
       static bool isUnique_;
@@ -206,7 +206,7 @@ namespace {
    bool UniqueRegistry::isUnique_ = false;
 
    struct PassServices {
-      PassServices(edm::ServiceToken iToken,
+      PassServices(art::ServiceToken iToken,
                     bool& oSucceeded,
                     bool& oCaughtException) :
                     token_(iToken), success_(&oSucceeded), caught_(&oCaughtException)
@@ -214,15 +214,15 @@ namespace {
 
       void operator()() {
          try  {
-            edm::ServiceRegistry::Operate operate(token_);
-            edm::Service<testserviceregistry::DummyService> dummy;
+            art::ServiceRegistry::Operate operate(token_);
+            art::Service<testserviceregistry::DummyService> dummy;
             *success_ = dummy->value()==1;
          } catch(...){
             *caught_=true;
          }
       }
 
-      edm::ServiceToken token_;
+      art::ServiceToken token_;
       bool* success_;
       bool* caught_;
 
@@ -234,7 +234,7 @@ void
 testServiceRegistry::threadTest()
 {
    UniqueRegistry::isUnique_ = false;
-   void* value = &(edm::ServiceRegistry::instance());
+   void* value = &(art::ServiceRegistry::instance());
    UniqueRegistry unique(value);
    boost::thread testUniqueness(unique);
    testUniqueness.join();
@@ -242,18 +242,18 @@ testServiceRegistry::threadTest()
 
 
 
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
-   std::vector<edm::ParameterSet> pss;
+   std::vector<art::ParameterSet> pss;
    {
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 1;
       ps.addParameter("value", value);
       pss.push_back(ps);
    }
-   edm::ServiceToken token(edm::ServiceRegistry::createSet(pss));
+   art::ServiceToken token(art::ServiceRegistry::createSet(pss));
 
    bool succeededToPassServices = false;
    bool exceptionWasThrown = false;

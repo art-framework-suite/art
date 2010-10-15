@@ -18,7 +18,7 @@ FileIndex.h
 
 #include <iosfwd>
 
-namespace edm {
+namespace art {
 
   class FileIndex {
 

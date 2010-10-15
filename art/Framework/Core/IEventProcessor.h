@@ -15,7 +15,7 @@ namespace statemachine {
   class Restart;
 }
 
-namespace edm
+namespace art
 {
   class IEventProcessor {
   public:

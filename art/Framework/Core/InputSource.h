@@ -56,7 +56,7 @@ Some examples of InputSource subclasses may be:
 #include <string>
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
 
   class InputSource
@@ -305,6 +305,6 @@ namespace edm {
     mutable boost::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
   };  // InputSource
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_InputSource_h

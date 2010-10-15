@@ -13,7 +13,7 @@ ProcessInfoVector:
 
 #include <vector>
 
-namespace edm {
+namespace art {
   typedef unsigned short BranchListIndex;
   typedef std::vector<BranchListIndex> BranchListIndexes;
 }

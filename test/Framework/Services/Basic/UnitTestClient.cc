@@ -12,37 +12,37 @@
 namespace edmtest
 {
 void
-  UnitTestClient::analyze( edm::Event      const & e
-                           , edm::EventSetup const & es )
+  UnitTestClient::analyze( art::Event      const & e
+                           , art::EventSetup const & es )
 {
 
   double x = 1.0;
   double y = DBL_MAX;
 
   if(e.id().event() == 2) {
-    edm::LogVerbatim("FPExceptions") << "\n\t\tx = " << x;
-    edm::LogVerbatim("FPExceptions") << "\t\ty = " << y << " (DBL_MAX)";
+    art::LogVerbatim("FPExceptions") << "\n\t\tx = " << x;
+    art::LogVerbatim("FPExceptions") << "\t\ty = " << y << " (DBL_MAX)";
 
   // DivideByZero
-    edm::LogVerbatim("FPExceptions") << "\t\tForce DivideByZero: a = x/zero";
+    art::LogVerbatim("FPExceptions") << "\t\tForce DivideByZero: a = x/zero";
     double zero = 0.0;
     double a = x / zero;
-    edm::LogVerbatim("FPExceptions") << "\t\ta = " << a;
+    art::LogVerbatim("FPExceptions") << "\t\ta = " << a;
 
   // Invalid
-    edm::LogVerbatim("FPExceptions") << "\t\tForce Invalid: b = std::log(-1.0)";
+    art::LogVerbatim("FPExceptions") << "\t\tForce Invalid: b = std::log(-1.0)";
     double b = std::log(-1.0);
-    edm::LogVerbatim("FPExceptions") << "\t\tb = " << b;
+    art::LogVerbatim("FPExceptions") << "\t\tb = " << b;
 
   // Overflow (actually precision)
-    edm::LogVerbatim("FPExceptions") << "\t\tForce Overflow: c = y*y";
+    art::LogVerbatim("FPExceptions") << "\t\tForce Overflow: c = y*y";
     double c = y * y;
-    edm::LogVerbatim("FPExceptions") << "\t\tc = " << c;
+    art::LogVerbatim("FPExceptions") << "\t\tc = " << c;
 
   // Underflow (actually precision)
-    edm::LogVerbatim("FPExceptions") << "\t\tForce Underflow: d = x/y";
+    art::LogVerbatim("FPExceptions") << "\t\tForce Underflow: d = x/y";
     double d = x / y;
-    edm::LogVerbatim("FPExceptions") << "\t\td = " << d;
+    art::LogVerbatim("FPExceptions") << "\t\td = " << d;
   }
 }
 

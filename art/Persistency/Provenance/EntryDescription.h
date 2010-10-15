@@ -27,7 +27,7 @@ and how it came into existence.
   Parents: The EDProducts used as input by the creator.
 */
 
-namespace edm {
+namespace art {
   class EntryDescription {
   public:
     EntryDescription();

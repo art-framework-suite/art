@@ -17,7 +17,7 @@
 #include "art/Framework/Core/SignallingProductRegistry.h"
 #include "art/Utilities/Exception.h"
 
-using namespace edm;
+using namespace art;
 //
 // member functions
 //
@@ -44,7 +44,7 @@ void SignallingProductRegistry::addCalled(BranchDescription const& iProd, bool i
 {
    StackGuard guard(iProd.className(), typeAddedStack_, iFromListener);
    if(guard.numType_ > 2) {
-      throw cms::Exception("CircularReference")
+      throw artZ::Exception("CircularReference")
       <<"Attempted to register the production of "<<iProd.className()
       <<" from module "
       <<iProd.moduleLabel()

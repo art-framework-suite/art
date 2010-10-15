@@ -11,7 +11,7 @@
 #include "boost/thread/tss.hpp"
 
 
-namespace edm {
+namespace art {
 
   //
   // constructors and destructor
@@ -31,7 +31,7 @@ namespace edm {
   namespace {
      struct Holder {
         Holder(): held_(0) {}
-        edm::EDProductGetter const* held_;
+        art::EDProductGetter const* held_;
      };
   }
   EDProductGetter const*
@@ -57,7 +57,7 @@ namespace edm {
 
   ProductID
   EDProductGetter::oldToNewProductID_(ProductID const&) const {
-    throw edm::Exception(errors::LogicError)
+    throw art::Exception(errors::LogicError)
         << "Internal error:  Call of oldToNewProductID_ for non-EventPrincipal.\n"
         << "Please report this error to the Framework group\n";
   }
@@ -72,4 +72,4 @@ namespace edm {
         << "to a real getter, such as an EventPrincipal.\n";
   }
 
-}  // namespace edm
+}  // namespace art

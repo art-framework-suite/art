@@ -8,7 +8,7 @@ BranchActionType: BranchAction
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   enum BranchActionType {
     BranchActionBegin = 0,
     BranchActionEnd = 1

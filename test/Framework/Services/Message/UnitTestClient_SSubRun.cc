@@ -13,60 +13,60 @@ int UTC_SL1::n = 0;
 int UTC_SL2::n = 0;
 
 void
-  UTC_SL1::analyze( edm::Event      const & e
-                            , edm::EventSetup const & /*unused*/
+  UTC_SL1::analyze( art::Event      const & e
+                            , art::EventSetup const & /*unused*/
                               )
 {
   if (enableNotYetCalled) {
-    edm::EnableLoggedErrorsSummary();
+    art::EnableLoggedErrorsSummary();
     enableNotYetCalled = false;
   }
   n++;
   if (n <= 2) return;
-  edm::LogError   ("cat_A")   << "S1 with identifier " << identifier
+  art::LogError   ("cat_A")   << "S1 with identifier " << identifier
   			      << " n = " << n;
-  edm::LogError   ("grouped_cat")  << "S1 timer with identifier " << identifier;
+  art::LogError   ("grouped_cat")  << "S1 timer with identifier " << identifier;
 }
 
 void
-  UTC_SL2::analyze( edm::Event      const & e
-                            , edm::EventSetup const & /*unused*/
+  UTC_SL2::analyze( art::Event      const & e
+                            , art::EventSetup const & /*unused*/
                               )
 {
   n++;
   if (n <= 2) return;
-  edm::LogError   ("cat_A")   << "S2 with identifier " << identifier;
-  edm::LogError   ("grouped_cat") << "S2 timer with identifier " << identifier;
-  edm::LogError   ("cat_B")   << "S2B with identifier " << identifier;
+  art::LogError   ("cat_A")   << "S2 with identifier " << identifier;
+  art::LogError   ("grouped_cat") << "S2 timer with identifier " << identifier;
+  art::LogError   ("cat_B")   << "S2B with identifier " << identifier;
   for (int i = 0; i<n; ++i) {
-    edm::LogError   ("cat_B")   << "more S2B";
+    art::LogError   ("cat_B")   << "more S2B";
   }
 }
 
 void
-  UTC_SLUMMARY::analyze( edm::Event      const & e
-                            , edm::EventSetup const & /*unused*/
+  UTC_SLUMMARY::analyze( art::Event      const & e
+                            , art::EventSetup const & /*unused*/
                               )
 {
-  if (!edm::FreshErrorsExist()) {
-    edm::LogInfo   ("NoFreshErrors") << "Not in this event, anyway";
+  if (!art::FreshErrorsExist()) {
+    art::LogInfo   ("NoFreshErrors") << "Not in this event, anyway";
   }
-  std::vector<edm::ErrorSummaryEntry> es = edm::LoggedErrorsSummary();
+  std::vector<art::ErrorSummaryEntry> es = art::LoggedErrorsSummary();
   std::ostringstream os;
   for (unsigned int i = 0; i != es.size(); ++i) {
     os << es[i].category << "   " << es[i].module << "   "
        << es[i].count << "\n";
   }
-  edm::LogVerbatim ("ErrorsInEvent") << os.str();
+  art::LogVerbatim ("ErrorsInEvent") << os.str();
 }
 
 void
-  UTC_SLUMMARY::endSubRun( edm::SubRun const & lb
-                            , edm::EventSetup const & /*unused*/
+  UTC_SLUMMARY::endSubRun( art::SubRun const & lb
+                            , art::EventSetup const & /*unused*/
                               )
 {
-  // throw cms::Exception("endSubRun called!");
-  edm::LogInfo ("endSubRun") << "endSubRun() called";
+  // throw artZ::Exception("endSubRun called!");
+  art::LogInfo ("endSubRun") << "endSubRun() called";
 }
 
 

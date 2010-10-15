@@ -9,7 +9,7 @@
 #include "boost/thread/tss.hpp"
 #include "art/Utilities/UseReflex.h"
 
-namespace edm {
+namespace art {
   void
   TypeID::print(std::ostream& os) const {
     os << className();
@@ -19,7 +19,7 @@ namespace edm {
   std::string typeToClassName(const std::type_info& iType) {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
-      throw edm::Exception(errors::DictionaryNotFound,"NoMatch")
+      throw art::Exception(errors::DictionaryNotFound,"NoMatch")
       << "TypeID::className: No dictionary for class " << iType.name() << '\n';
     }
     return t.Name(Reflex::SCOPED);
@@ -27,7 +27,7 @@ namespace edm {
 
   std::string
   TypeID::className() const {
-    typedef std::map<edm::TypeIDBase, std::string> Map;
+    typedef std::map<art::TypeIDBase, std::string> Map;
     static boost::thread_specific_ptr<Map> s_typeToName;
     if(0 == s_typeToName.get()){
       s_typeToName.reset(new Map);
@@ -42,7 +42,7 @@ namespace edm {
   std::string
   TypeID::userClassName() const {
     std::string theName = className();
-    if (theName.find("edm::Wrapper") == 0) {
+    if (theName.find("art::Wrapper") == 0) {
       stripTemplate(theName);
     }
     return theName;

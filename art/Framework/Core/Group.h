@@ -20,7 +20,7 @@ is the storage unit of such information.
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Persistency/Provenance/ProductID.h"
 
-namespace edm {
+namespace art {
   class Group {
   public:
     Group();

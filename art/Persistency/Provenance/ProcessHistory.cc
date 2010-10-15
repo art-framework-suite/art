@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/ProcessHistory.h"
 
 
-namespace edm {
+namespace art {
   ProcessHistoryID
   ProcessHistory::id() const {
     if(phid().isValid()) {
@@ -23,7 +23,7 @@ namespace edm {
 	  << i->passID() << ' ';
     }
     std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
     ProcessHistoryID tmp(md5alg.digest().toString());
     phid().swap(tmp);
     return phid();

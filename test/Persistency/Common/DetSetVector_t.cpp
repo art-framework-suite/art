@@ -17,7 +17,7 @@
 #include "art/Persistency/Common/TestHandle.h"
 #include "art/Persistency/Provenance/ProductID.h"
 
-using namespace edm;
+using namespace art;
 
 //------------------------------------------------------
 // This is a sample VALUE class, almost the simplest possible.
@@ -56,7 +56,7 @@ class ValueT : public BASE
   double d_;
 };
 
-typedef edm::DoNotSortUponInsertion DNS;
+typedef art::DoNotSortUponInsertion DNS;
 
 template <>
 bool
@@ -90,7 +90,7 @@ operator<< (std::ostream& os, ValueT<BASE> const& v)
 }
 
 
-typedef edm::DetSetVector<Value> coll_type;
+typedef art::DetSetVector<Value> coll_type;
 typedef coll_type::detset        detset;
 
 void check_outer_collection_order(coll_type const& c)
@@ -173,7 +173,7 @@ void detsetTest()
   detset d;
   Value v1(1.1);
   Value v2(2.2);
-  d.id = edm::det_id_type(3);
+  d.id = art::det_id_type(3);
   d.data.push_back(v1);
   d.data.push_back(v2);
   std::sort(d.data.begin(), d.data.end());
@@ -184,12 +184,12 @@ void detsetTest()
 namespace
 {
   template<class T>
-  struct DSVGetter : edm::EDProductGetter
+  struct DSVGetter : art::EDProductGetter
   {
-    DSVGetter() : edm::EDProductGetter(), prod_(0) {}
+    DSVGetter() : art::EDProductGetter(), prod_(0) {}
     virtual EDProduct const*
     getIt(ProductID const&) const { return prod_; }
-    edm::Wrapper<T> const* prod_;
+    art::Wrapper<T> const* prod_;
   };
 }
 
@@ -199,37 +199,37 @@ void refTest()
   detset d3;
   Value v1(1.1);
   Value v2(2.2);
-  d3.id = edm::det_id_type(3);
+  d3.id = art::det_id_type(3);
   d3.data.push_back(v1);
   d3.data.push_back(v2);
   c.insert(d3);
   detset    d1;
   Value v1a(4.1);
   Value v2a(3.2);
-  d1.id = edm::det_id_type(1);
+  d1.id = art::det_id_type(1);
   d1.data.push_back(v1a);
   d1.data.push_back(v2a);
   c.insert(d1);
   c.post_insert();
 
   std::auto_ptr<coll_type> pC(new coll_type(c));
-  edm::Wrapper<coll_type> wrapper(pC);
+  art::Wrapper<coll_type> wrapper(pC);
   DSVGetter<coll_type> theGetter;
   theGetter.prod_ = &wrapper;
 
-  typedef edm::Ref<coll_type,detset> RefDetSet;
-  typedef edm::Ref<coll_type,Value> RefDet;
+  typedef art::Ref<coll_type,detset> RefDetSet;
+  typedef art::Ref<coll_type,Value> RefDet;
 
   {
-    RefDetSet refSet(edm::ProductID(1, 1),0,&theGetter);
+    RefDetSet refSet(art::ProductID(1, 1),0,&theGetter);
     assert(!(d1 <*refSet) && !(*refSet < d1));
   }
   {
-    RefDetSet refSet(edm::ProductID(1, 1),1,&theGetter);
+    RefDetSet refSet(art::ProductID(1, 1),1,&theGetter);
     assert(!(d3 <*refSet) && !(*refSet < d3));
   }
   {
-    RefDet refDet(edm::ProductID(1, 1),RefDet::key_type(3,0),&theGetter);
+    RefDet refDet(art::ProductID(1, 1),RefDet::key_type(3,0),&theGetter);
     assert(!(v1<*refDet)&&!(*refDet < v1));
   }
 
@@ -246,10 +246,10 @@ void refTest()
 
     assert("Failed to throw required exception" == 0);
   }
-  catch (edm::Exception const& x) {
+  catch (art::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
-    assert(x.categoryCode() == edm::errors::InvalidReference);
+    assert(x.categoryCode() == art::errors::InvalidReference);
   }
 
   try {
@@ -259,10 +259,10 @@ void refTest()
 
     assert("Failed to throw required exception" == 0);
   }
-  catch (edm::Exception const& x) {
+  catch (art::Exception const& x) {
     //std::cout <<x.what()<<std::endl;
     // Test we have the right exception category
-    assert(x.categoryCode() == edm::errors::InvalidReference);
+    assert(x.categoryCode() == art::errors::InvalidReference);
   }
 
 }
@@ -286,7 +286,7 @@ void work()
     detset d;
     Value v1(1.1);
     Value v2(2.2);
-    d.id = edm::det_id_type(3);
+    d.id = art::det_id_type(3);
     d.data.push_back(v1);
     d.data.push_back(v2);
     c.insert(d);
@@ -298,7 +298,7 @@ void work()
     detset d;
     Value v1(4.1);
     Value v2(3.2);
-    d.id = edm::det_id_type(1);
+    d.id = art::det_id_type(1);
     d.data.push_back(v1);
     d.data.push_back(v2);
     c.insert(d);
@@ -312,7 +312,7 @@ void work()
     Value v1(1.1);
     Value v2(1.2);
     Value v3(2.2);
-    d.id = edm::det_id_type(10);
+    d.id = art::det_id_type(10);
     d.data.push_back(v3);
     d.data.push_back(v2);
     d.data.push_back(v1);
@@ -334,16 +334,16 @@ void work()
 
   {
     // We should not find anything with ID=11
-    coll_type::iterator i = c.find(edm::det_id_type(11));
+    coll_type::iterator i = c.find(art::det_id_type(11));
     assert(i == c.end());
 
     coll_type::const_iterator ci =
-      static_cast<coll_type const&>(c).find(edm::det_id_type(11));
+      static_cast<coll_type const&>(c).find(art::det_id_type(11));
     assert(ci == c.end());
   }
   {
     // We should find  ID=10
-    coll_type::iterator i = c.find(edm::det_id_type(10));
+    coll_type::iterator i = c.find(art::det_id_type(10));
     assert(i != c.end());
     assert(i->id == 10);
     assert(i->data.size() == 3);
@@ -352,13 +352,13 @@ void work()
   {
     // We should not find ID=100; op[] should throw.
     try {
-      coll_type::reference r = c[edm::det_id_type(100)];
+      coll_type::reference r = c[art::det_id_type(100)];
       assert("Failed to throw required exception" == 0);
       assert(&r == 0); // to silence warning of unused r
     }
-    catch (edm::Exception const& x) {
+    catch (art::Exception const& x) {
       // Test we have the right exception category
-      assert(x.categoryCode() == edm::errors::InvalidReference);
+      assert(x.categoryCode() == art::errors::InvalidReference);
     }
     catch (...) {
       assert("Failed to throw correct exception type" == 0);
@@ -369,13 +369,13 @@ void work()
     // We should not find ID=100; op[] should throw.
     try {
       coll_type::const_reference r
-        = static_cast<coll_type const&>(c)[edm::det_id_type(100)];
+        = static_cast<coll_type const&>(c)[art::det_id_type(100)];
       assert("Failed to throw required exception" == 0);
       assert(&r == 0); // to silence warning of unused r
     }
-    catch (edm::Exception const& x) {
+    catch (art::Exception const& x) {
       // Test we have the right exception category
-      assert(x.categoryCode() == edm::errors::InvalidReference);
+      assert(x.categoryCode() == art::errors::InvalidReference);
     }
     catch (...) {
       assert("Failed to throw correct exception type" == 0);
@@ -385,11 +385,11 @@ void work()
     // We should find id = 3
     coll_type const& rc = c;
     coll_type::const_reference r = rc[3];
-    assert(r.id == edm::det_id_type(3));
+    assert(r.id == art::det_id_type(3));
     assert(r.data.size() == 2);
 
     coll_type::reference r2 = c[3];
-    assert(r2.id == edm::det_id_type(3));
+    assert(r2.id == art::det_id_type(3));
     assert(r2.data.size() == 2);
   }
 
@@ -397,11 +397,11 @@ void work()
     // We should not find id = 17, but a new empty DetSet should be
     // inserted, carrying the correct DetId.
     coll_type::size_type oldsize = c.size();
-    coll_type::reference r = c.find_or_insert(edm::det_id_type(17));
+    coll_type::reference r = c.find_or_insert(art::det_id_type(17));
     coll_type::size_type newsize = c.size();
     assert(newsize > oldsize);
     assert(newsize = (oldsize+1));
-    assert(r.id == edm::det_id_type(17));
+    assert(r.id == art::det_id_type(17));
     assert(r.data.size() == 0);
     r.data.push_back(Value(10.1));
     r.data.push_back(Value(9.1));
@@ -450,7 +450,7 @@ int main()
       work();
       rc = 0;
   }
-  catch (edm::Exception const& x) {
+  catch (art::Exception const& x) {
       //std::cerr << "Exception: " << x << '\n';
       rc = 1;
   }

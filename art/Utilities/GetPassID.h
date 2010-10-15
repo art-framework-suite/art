@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace edm {
+namespace art {
   inline
   std::string getPassID () {
     static std::string passID;

@@ -16,7 +16,7 @@ Version of Handle
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
+namespace art {
   template <class T>
   class TestHandle {
   public:

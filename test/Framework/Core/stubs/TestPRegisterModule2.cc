@@ -19,24 +19,24 @@ static const char CVSId[] = "";
 #include <memory>
 #include <string>
 
-using namespace edm;
+using namespace art;
 
-TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
+TestPRegisterModule2::TestPRegisterModule2(art::ParameterSet const&){
    produces<edmtest::DoubleProduct>();
 }
 
   void TestPRegisterModule2::produce(Event& e, EventSetup const&)
   {
-     std::vector<edm::Provenance const*> plist;
+     std::vector<art::Provenance const*> plist;
      e.getAllProvenance(plist);
 
-     std::vector<edm::Provenance const*>::const_iterator pd = plist.begin();
+     std::vector<art::Provenance const*>::const_iterator pd = plist.begin();
 
      CPPUNIT_ASSERT(0 !=plist.size());
      CPPUNIT_ASSERT(2 ==plist.size());
      CPPUNIT_ASSERT(pd != plist.end());
      edmtest::StringProduct stringprod;
-     edm::TypeID stringID(stringprod);
+     art::TypeID stringID(stringprod);
      CPPUNIT_ASSERT(stringID.friendlyClassName() ==
                     (*pd)->friendlyClassName());
      CPPUNIT_ASSERT((*pd)->moduleLabel()=="m1");
@@ -45,7 +45,7 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
      CPPUNIT_ASSERT(pd != plist.end());
 
      edmtest::DoubleProduct dprod;
-     edm::TypeID dID(dprod);
+     art::TypeID dID(dprod);
      CPPUNIT_ASSERT(dID.friendlyClassName() ==
                     (*pd)->friendlyClassName());
      CPPUNIT_ASSERT((*pd)->moduleLabel()=="m2");

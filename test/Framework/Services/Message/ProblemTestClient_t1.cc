@@ -10,8 +10,8 @@ namespace edmtest
 
 
 void
-  ProblemTestClient_t1::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  ProblemTestClient_t1::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
        LogDebug  ("cat_A")   << "This message should not appear";

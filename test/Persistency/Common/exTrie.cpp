@@ -10,7 +10,7 @@
 
 
 struct Print {
-  //  typedef edm::TrieNode<int> const node;
+  //  typedef art::TrieNode<int> const node;
   //void operator()(node & n, std::string const & label) const {
   //  std::cout << label << " " << n.value() << std::endl;
   // }
@@ -25,10 +25,10 @@ int main(int argc, char **argv)
   /// trie that associates a integer to strings
   /// 0 is the default value I want to receive when there is no match
   /// in trie
-  edm::Trie<int>	trie(0);
-  typedef edm::TrieNode<int> Node;
+  art::Trie<int>	trie(0);
+  typedef art::TrieNode<int> Node;
   typedef Node const * pointer; // sigh....
-  typedef edm::TrieNodeIter<int> node_iterator;
+  typedef art::TrieNodeIter<int> node_iterator;
 
   char tre[] = {'a','a','a'};
   char quattro[] = {'c','a','a','a'};
@@ -83,11 +83,11 @@ int main(int argc, char **argv)
 
   std::cout << "\nfull walk"<< std::endl;
   Print pr;
-  edm::walkTrie(pr,*trie.initialNode());
+  art::walkTrie(pr,*trie.initialNode());
   std::cout << std::endl;
 
   std::cout << "\nleaves iteration"<< std::endl;
-  edm::iterateTrieLeaves(pr,*trie.initialNode());
+  art::iterateTrieLeaves(pr,*trie.initialNode());
   std::cout << std::endl;
 
 

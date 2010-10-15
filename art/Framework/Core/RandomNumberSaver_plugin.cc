@@ -19,16 +19,16 @@
 
 
 // Contents:
-namespace edm {
+namespace art {
   class RandomNumberSaver;
 }
-using edm::RandomNumberSaver;
+using art::RandomNumberSaver;
 
 
 // ======================================================================
 
 
-class edm::RandomNumberSaver
+class art::RandomNumberSaver
   : public EDProducer
 {
   typedef  RandomNumberGeneratorService  RNGservice;

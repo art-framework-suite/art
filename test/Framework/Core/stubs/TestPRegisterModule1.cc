@@ -15,11 +15,11 @@
 #include <memory>
 #include <string>
 
-using namespace edm;
+using namespace art;
 
 static const char CVSId[] = "";
 
-TestPRegisterModule1::TestPRegisterModule1(edm::ParameterSet const& p):pset_(p){
+TestPRegisterModule1::TestPRegisterModule1(art::ParameterSet const& p):pset_(p){
    produces<edmtest::StringProduct>();
 }
 

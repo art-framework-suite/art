@@ -11,7 +11,7 @@ void PythonParameterSet::addVPSet(bool tracked, std::string const& name,
               boost::python::list  value)
 {
   std::vector<PythonParameterSet> v
-    = edm::toVector<PythonParameterSet>(value);
+    = art::toVector<PythonParameterSet>(value);
   std::vector<fhicl::ParameterSet> v2;
   v2.reserve(v.size());
   for(std::vector<PythonParameterSet>::iterator ppsetItr = v.begin(), ppsetItrEnd = v.end();
@@ -49,7 +49,7 @@ boost::python::list PythonParameterSet::getVPSet(bool tracked, std::string const
 
 void  PythonParameterSet::addNewFileInPath(bool tracked, std::string const & name, std::string const & value)
 {
-  addParameter(tracked, name, edm::FileInPath(value));
+  addParameter(tracked, name, art::FileInPath(value));
 }
 
 

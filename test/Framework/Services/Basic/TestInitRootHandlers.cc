@@ -221,16 +221,16 @@ static bool printAsContainer(const std::string& iName,
 }
 
 
-static void printObject(const edm::Event& iEvent,
+static void printObject(const art::Event& iEvent,
                         const std::string& iClassName,
                         const std::string& iModuleLabel,
                         const std::string& iInstanceLabel,
                         const std::string& iIndent,
                         const std::string& iIndentDelta) {
-   using namespace edm;
+   using namespace art;
    try {
       GenericHandle handle(iClassName);
-   }catch(const edm::Exception&) {
+   }catch(const art::Exception&) {
       std::cout <<iIndent<<" \""<<iClassName<<"\""<<" is an unknown type"<<std::endl;
       return;
    }
@@ -244,22 +244,22 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 {
 // Translate ROOT severity level to MessageLogger severity level
 
-  edm::ELseverityLevel el_severity = edm::ELseverityLevel::ELsev_info;
+  art::ELseverityLevel el_severity = art::ELseverityLevel::ELsev_info;
 
   if (level >= 5000) {
-    el_severity = edm::ELseverityLevel::ELsev_fatal;
+    el_severity = art::ELseverityLevel::ELsev_fatal;
     die = true;
   }
   else if (level >= 4000) {
-    el_severity = edm::ELseverityLevel::ELsev_severe;
+    el_severity = art::ELseverityLevel::ELsev_severe;
     die = true;
   }
   else if (level >= 2000) {
-    el_severity = edm::ELseverityLevel::ELsev_error;
+    el_severity = art::ELseverityLevel::ELsev_error;
     die = true;
   }
   else if (level >= 1000) {
-    el_severity = edm::ELseverityLevel::ELsev_error;
+    el_severity = art::ELseverityLevel::ELsev_error;
     die = true;
   }
 
@@ -301,17 +301,17 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 // Intercept some messages and downgrade the severity
 
     if (el_message.find("dictionary") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
+      el_severity = art::ELseverityLevel::ELsev_info;
       die = false;
     }
 
     if (el_message.find("already in TClassTable") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
+      el_severity = art::ELseverityLevel::ELsev_info;
       die = false;
     }
 
     if (el_message.find("matrix not positive definite") != std::string::npos) {
-      el_severity = edm::ELseverityLevel::ELsev_info;
+      el_severity = art::ELseverityLevel::ELsev_info;
       die = false;
     }
 
@@ -321,48 +321,48 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
      && (el_message.find("fill branch") != std::string::npos)
      && (el_message.find("address") != std::string::npos)
      && (el_message.find("not set") != std::string::npos)) {
-      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      el_severity = art::ELseverityLevel::ELsev_fatal;
       die = true;
     }
 
     if ((el_message.find("Tree branches") != std::string::npos)
      && (el_message.find("different numbers of entries") != std::string::npos)) {
-      el_severity = edm::ELseverityLevel::ELsev_fatal;
+      el_severity = art::ELseverityLevel::ELsev_fatal;
       die = true;
     }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
-  if (el_severity == edm::ELseverityLevel::ELsev_fatal && !die) {
-    edm::LogError("Root_Fatal") << el_location << el_message;
+  if (el_severity == art::ELseverityLevel::ELsev_fatal && !die) {
+    art::LogError("Root_Fatal") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_severe && !die) {
-    edm::LogError("Root_Severe") << el_location << el_message;
+  else if (el_severity == art::ELseverityLevel::ELsev_severe && !die) {
+    art::LogError("Root_Severe") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_error && !die) {
-    edm::LogError("Root_Error") << el_location << el_message;
+  else if (el_severity == art::ELseverityLevel::ELsev_error && !die) {
+    art::LogError("Root_Error") << el_location << el_message;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_warning && !die) {
-    edm::LogWarning("Root_Warning") << el_location << el_message ;
+  else if (el_severity == art::ELseverityLevel::ELsev_warning && !die) {
+    art::LogWarning("Root_Warning") << el_location << el_message ;
   }
-  else if (el_severity == edm::ELseverityLevel::ELsev_info && !die) {
-    edm::LogInfo("Root_Information") << el_location << el_message ;
+  else if (el_severity == art::ELseverityLevel::ELsev_info && !die) {
+    art::LogInfo("Root_Information") << el_location << el_message ;
   }
 
 // Root has declared a fatal error.  Throw an EDMException.
 
    if (die) {
-// Throw an edm::Exception instead of just aborting
+// Throw an art::Exception instead of just aborting
      std::ostringstream sstr;
      sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
-     edm::Exception except(edm::errors::FatalRootError, sstr.str());
+     art::Exception except(art::errors::FatalRootError, sstr.str());
      throw except;
    }
 }
 //
 // constructors and destructor
 //
-TestInitRootHandlers::TestInitRootHandlers(const edm::ParameterSet& iConfig) :
+TestInitRootHandlers::TestInitRootHandlers(const art::ParameterSet& iConfig) :
   indentation_(iConfig.getUntrackedParameter("indentation",std::string("++"))),
   verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
   moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels",std::vector<std::string>())),
@@ -370,7 +370,7 @@ TestInitRootHandlers::TestInitRootHandlers(const edm::ParameterSet& iConfig) :
   evno_(0)
 {
    //now do what ever initialization is needed
-  //edm::sort_all(moduleLabels_);
+  //art::sort_all(moduleLabels_);
   std::sort(moduleLabels_.begin(), moduleLabels_.end());
 }
 
@@ -388,9 +388,9 @@ TestInitRootHandlers::~TestInitRootHandlers()
 
 // ------------ method called to produce the data  ------------
 void
-TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+TestInitRootHandlers::analyze(const art::Event& iEvent, const art::EventSetup& iSetup)
 {
-   using namespace edm;
+   using namespace art;
 
    typedef std::vector< Provenance const*> Provenances;
    Provenances provenances;
@@ -423,7 +423,7 @@ TestInitRootHandlers::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                 << "\" \"" << instanceName <<"\"" << std::endl;
       if(verbose_){
          if( moduleLabels_.empty() ||
-	     //edm::binary_search_all(moduleLabels_, modLabel)) {
+	     //art::binary_search_all(moduleLabels_, modLabel)) {
 	     std::binary_search(moduleLabels_.begin(),moduleLabels_.end(), modLabel)) {
             //indent one level before starting to print
             std::string startIndent = indentation_+verboseIndentation_;

@@ -15,7 +15,7 @@
 // user include files
 #include "art/Framework/Core/ValidityInterval.h"
 
-namespace edm {
+namespace art {
 //
 // constants, enums and typedefs
 //

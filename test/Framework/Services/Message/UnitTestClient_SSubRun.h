@@ -9,7 +9,7 @@
 
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
@@ -18,14 +18,14 @@ namespace edmtest
 {
 
 class UTC_SL1
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UTC_SL1( edm::ParameterSet const & p)
+    UTC_SL1( art::ParameterSet const & p)
   {
     identifier = p.getUntrackedParameter<int> ("identifier", 99);
-    edm::GroupLogStatistics("grouped_cat");
+    art::GroupLogStatistics("grouped_cat");
   }
 
   virtual
@@ -33,8 +33,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
@@ -44,11 +44,11 @@ private:
 };
 
 class UTC_SL2
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UTC_SL2( edm::ParameterSet const & p)
+    UTC_SL2( art::ParameterSet const & p)
   {
     identifier = p.getUntrackedParameter<int> ("identifier", 98);
   }
@@ -58,8 +58,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
@@ -68,11 +68,11 @@ private:
 };
 
 class UTC_SLUMMARY
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UTC_SLUMMARY( edm::ParameterSet const & p)
+    UTC_SLUMMARY( art::ParameterSet const & p)
   {
   }
 
@@ -81,13 +81,13 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
   virtual
-    void endSubRun ( edm::SubRun const & lb
-                	    , edm::EventSetup 	   const & c
+    void endSubRun ( art::SubRun const & lb
+                	    , art::EventSetup 	   const & c
                 	    );
 
 private:

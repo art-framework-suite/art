@@ -5,11 +5,11 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
 }
 
-namespace edm {
+namespace art {
 
   class SiteLocalConfig
   {
@@ -26,6 +26,6 @@ namespace edm {
   private:
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Catalog_SiteLocalConfig_h

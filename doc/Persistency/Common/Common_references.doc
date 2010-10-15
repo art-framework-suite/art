@@ -11,16 +11,16 @@
 Commonly used persistent references.
 
 \subsection interface Public interface
-- edm::Ref: 
-- edm::RefVector:
-- edm::RefProd:
-- edm::RefVectorIterator:
-- edm::RefBase:
-- edm::RefVectorBase:
-- edm::RefCore:
-- edm::RefItem:
+- art::Ref: 
+- art::RefVector:
+- art::RefProd:
+- art::RefVectorIterator:
+- art::RefBase:
+- art::RefVectorBase:
+- art::RefCore:
+- art::RefItem:
 
-- edm::CloningPtr <b>&lt;T, P&gt;</b>: owning pointer to an object that gets cloned
+- art::CloningPtr <b>&lt;T, P&gt;</b>: owning pointer to an object that gets cloned
   with a specified \ref DataFormats_Common_helpers "policy".
 
 \subsection modules Modules

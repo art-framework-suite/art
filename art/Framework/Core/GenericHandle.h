@@ -10,11 +10,11 @@
  Description: Allows interaction with data in the Event without actually using the C++ class
 
  Usage:
-    The GenericHandle allows one to get data back from the edm::Event as a Reflex::Object instead
+    The GenericHandle allows one to get data back from the art::Event as a Reflex::Object instead
   of as the actual C++ class type.
 
   //make a handle to hold an instance of 'MyClass'
-  edm::GenericHandle myHandle("MyClass");
+  art::GenericHandle myHandle("MyClass");
 
   event.getByLabel("mine",myHandle);
 
@@ -37,8 +37,8 @@
 #include "art/Persistency/Common/Handle.h"
 
 // forward declarations
-namespace edm {
-   ///This class is just a 'tag' used to allow a specialization of edm::Handle
+namespace art {
+   ///This class is just a 'tag' used to allow a specialization of art::Handle
 struct GenericObject
 {
 };
@@ -50,7 +50,7 @@ public:
       Handle(std::string const& iName) :
         type_(Reflex::Type::ByName(iName)), prod_(), prov_(0), id_() {
            if(type_ == Reflex::Type()) {
-              throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> told to use uknown type '"<<iName<<"'.\n Please check spelling or that a module uses this type in the job.";
+              throw art::Exception(art::errors::NotFound)<<"Handle<GenericObject> told to use uknown type '"<<iName<<"'.\n Please check spelling or that a module uses this type in the job.";
            }
            if(type_.IsTypedef()){
               //For a 'Reflex::Typedef' the 'toType' method returns the actual type
@@ -64,7 +64,7 @@ public:
    Handle(Reflex::Type const& iType):
       type_(iType), prod_(), prov_(0), id_() {
          if(iType == Reflex::Type()) {
-            throw edm::Exception(edm::errors::NotFound)<<"Handle<GenericObject> given an invalid Reflex::Type";
+            throw art::Exception(art::errors::NotFound)<<"Handle<GenericObject> given an invalid Reflex::Type";
          }
          if(type_.IsTypedef()){
             //For a 'Reflex::Typedef' the 'toType' method returns the actual type
@@ -137,7 +137,7 @@ public:
    void clear() { prov_ = 0; id_ = ProductID();
    whyFailed_.reset();}
 
-   void setWhyFailed(boost::shared_ptr<cms::Exception> const& iWhyFailed) {
+   void setWhyFailed(boost::shared_ptr<artZ::Exception> const& iWhyFailed) {
     whyFailed_=iWhyFailed;
   }
 private:
@@ -145,7 +145,7 @@ private:
    Reflex::Object prod_;
    Provenance const* prov_;
    ProductID id_;
-   boost::shared_ptr<cms::Exception> whyFailed_;
+   boost::shared_ptr<artZ::Exception> whyFailed_;
 
 };
 
@@ -159,13 +159,13 @@ void convert_handle(BasicHandle const& orig,
 ///Specialize the Event's getByLabel method to work with a Handle<GenericObject>
 template<>
 bool
-edm::Event::getByLabel<GenericObject>(std::string const& label,
+art::Event::getByLabel<GenericObject>(std::string const& label,
                                       std::string const& productInstanceName,
                                       Handle<GenericObject>& result) const;
 
 template <>
 bool
-edm::Event::getByLabel(edm::InputTag const& tag, Handle<GenericObject>& result) const;
+art::Event::getByLabel(art::InputTag const& tag, Handle<GenericObject>& result) const;
 
 }
 #endif

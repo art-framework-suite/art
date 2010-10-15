@@ -16,7 +16,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
 
   InputFileCatalog::InputFileCatalog(fhicl::ParameterSet const& pset,
                                      PoolCatalog & poolcat,
@@ -31,7 +31,7 @@ namespace edm {
 
     if (logicalFileNames_.empty()) {
       if (canBeEmpty) return;
-      throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+      throw art::Exception(art::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
           << "Empty '" << namesParameter << "' parameter specified for input source.\n";
     }
     // Starting the catalog will write a catalog out if it does not exist.
@@ -43,7 +43,7 @@ namespace edm {
         it != itEnd; ++it, ++lt) {
       boost::trim(*it);
       if (it->empty()) {
-        throw edm::Exception(edm::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+        throw art::Exception(art::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
           << "An empty string specified in '" << namesParameter << "' parameter for input source.\n";
       }
       if (isPhysical(*it)) {
@@ -56,7 +56,7 @@ namespace edm {
   InputFileCatalog::~InputFileCatalog() {}
 
   void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
-    cms::Exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
+    artZ::Exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
   }
 
-}  // namespace edm
+}  // namespace art

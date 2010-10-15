@@ -3,7 +3,7 @@
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
 
 Maker::~Maker()
 { }
@@ -24,13 +24,13 @@ Maker::createModuleDescription(WorkerParams const &p) const
 void
 Maker::throwConfigurationException(ModuleDescription const &md,
                                    sigc::signal<void, ModuleDescription const&>& post,
-                                   cms::Exception const& iException) const
+                                   artZ::Exception const& iException) const
 {
-  edm::Exception toThrow(edm::errors::Configuration,"Error occurred while creating ");
+  art::Exception toThrow(art::errors::Configuration,"Error occurred while creating ");
   toThrow<<md.moduleName_<<" with label "<<md.moduleLabel_<<"\n";
   toThrow.append(iException);
   post(md);
   throw toThrow;
 }
 
-} // namespace edm
+} // namespace art

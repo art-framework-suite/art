@@ -16,18 +16,18 @@
 #include <numeric>
 #include <iterator>
 
-using namespace edm;
+using namespace art;
 
 namespace edmtest
 {
 
-  class TestResultAnalyzer : public edm::EDAnalyzer
+  class TestResultAnalyzer : public art::EDAnalyzer
   {
   public:
-    explicit TestResultAnalyzer(edm::ParameterSet const&);
+    explicit TestResultAnalyzer(art::ParameterSet const&);
     virtual ~TestResultAnalyzer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    virtual void analyze(art::Event const& e, art::EventSetup const& c);
     void endJob();
 
   private:
@@ -40,7 +40,7 @@ namespace edmtest
     std::string expected_modulelabel_; // if empty, we don't know
   };
 
-  TestResultAnalyzer::TestResultAnalyzer(edm::ParameterSet const& ps):
+  TestResultAnalyzer::TestResultAnalyzer(art::ParameterSet const& ps):
     passed_(),
     failed_(),
     dump_(ps.getUntrackedParameter<bool>("dump",false)),
@@ -55,13 +55,13 @@ namespace edmtest
   {
   }
 
-  void TestResultAnalyzer::analyze(edm::Event const& e,edm::EventSetup const&)
+  void TestResultAnalyzer::analyze(art::Event const& e,art::EventSetup const&)
   {
-    typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
+    typedef std::vector<art::Handle<art::TriggerResults> > Trig;
     Trig prod;
     e.getManyByType(prod);
 
-    edm::CurrentProcessingContext const* cpc = currentContext();
+    art::CurrentProcessingContext const* cpc = currentContext();
     assert( cpc != 0 );
     assert( cpc->moduleDescription() != 0 );
 

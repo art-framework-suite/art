@@ -8,7 +8,7 @@
 #include <boost/range/functions.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
-namespace edm {
+namespace art {
 
   /* a linearized read-only map-of vectors
 

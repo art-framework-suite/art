@@ -12,7 +12,7 @@
 #include "art/Framework/Core/Selector.h"
 #include "art/Utilities/Algorithms.h"
 
-namespace edm {
+namespace art {
 
   DataViewImpl::DataViewImpl(Principal & pcpl,
 	ModuleDescription const& md,
@@ -93,8 +93,8 @@ namespace edm {
                                             BasicHandleVec& results,
                                             bool stopIfProcessHasMatch) const
   {
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName));
+    art::Selector sel(art::ModuleLabelSelector(label) &&
+                      art::ProductInstanceNameSelector(productInstanceName));
 
     int n = principal_.getMatchingSequence(typeID,
                                      sel,
@@ -111,9 +111,9 @@ namespace edm {
                                             BasicHandleVec& results,
                                             bool stopIfProcessHasMatch) const
   {
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName) &&
-                      edm::ProcessNameSelector(processName) );
+    art::Selector sel(art::ModuleLabelSelector(label) &&
+                      art::ProductInstanceNameSelector(productInstanceName) &&
+                      art::ProcessNameSelector(processName) );
 
     int n = principal_.getMatchingSequence(typeID,
   				   sel,
@@ -136,7 +136,7 @@ namespace edm {
     ProductRegistry::ConstProductList const& pl = principal_.productRegistry().constProductList();
     ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {
-      throw edm::Exception(edm::errors::InsertFailure)
+      throw art::Exception(art::errors::InsertFailure)
 	<< "Illegal attempt to 'put' an unregistered product.\n"
 	<< "No product is registered for\n"
 	<< "  process name:                '" << bk.processName_ << "'\n"
@@ -149,7 +149,7 @@ namespace edm {
 	<< '\n';
     }
     if(it->second.branchType() != branchType_) {
-        throw edm::Exception(edm::errors::InsertFailure,"Not Registered")
+        throw art::Exception(art::errors::InsertFailure,"Not Registered")
           << "put: Problem found while adding product. "
           << "The product for ("
           << bk.friendlyClassName_ << ","

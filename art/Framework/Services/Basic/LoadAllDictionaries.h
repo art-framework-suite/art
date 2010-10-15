@@ -15,7 +15,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   namespace service {
 
     class LoadAllDictionaries
@@ -32,6 +32,6 @@ namespace edm {
 
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Services_LoadAllDictionaries_h

@@ -28,12 +28,12 @@
 
 // forward declarations
 
-class TestInitRootHandlers : public edm::EDAnalyzer {
+class TestInitRootHandlers : public art::EDAnalyzer {
 public:
-   explicit TestInitRootHandlers(const edm::ParameterSet&);
+   explicit TestInitRootHandlers(const art::ParameterSet&);
    ~TestInitRootHandlers();
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(const art::Event&, const art::EventSetup&);
    virtual void endJob();
 
 private:

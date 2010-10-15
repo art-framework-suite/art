@@ -7,10 +7,10 @@
 //
 /**\class GetProduct GetProduct.h DataFormats/Common/interface/GetProduct.h
 
- Description: Controls how edm::View and edm::Ptr interact with containers
+ Description: Controls how art::View and art::Ptr interact with containers
 
  Usage:
-    Override this class in order to specialize edm::View or edm::Ptr's interaction with a container
+    Override this class in order to specialize art::View or art::Ptr's interaction with a container
 
 */
 //
@@ -25,7 +25,7 @@
 
 // forward declarations
 
-namespace edm {
+namespace art {
   namespace detail {
     template<typename COLLECTION>
     struct GetProduct {

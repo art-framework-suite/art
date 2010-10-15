@@ -18,14 +18,14 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   // input can either be a python file name or a python config string
-  boost::shared_ptr<edm::ProcessDesc>
+  boost::shared_ptr<art::ProcessDesc>
   readConfig(const std::string & config);
 
   /// same, but with arguments
-  boost::shared_ptr<edm::ProcessDesc>
+  boost::shared_ptr<art::ProcessDesc>
   readConfig(const std::string & config, int argc, char * argv[]);
 
 
@@ -37,9 +37,9 @@ namespace edm {
 
 
   // deprecated
-  boost::shared_ptr<edm::ProcessDesc>
+  boost::shared_ptr<art::ProcessDesc>
   readConfigFile(const std::string & fileName) {return readConfig(fileName);}
 
-} // namespace edm
+} // namespace art
 
 #endif  // FWCoreParameterSet_MakeParameterSets_h

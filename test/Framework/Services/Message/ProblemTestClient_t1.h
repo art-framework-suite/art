@@ -5,7 +5,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
@@ -14,11 +14,11 @@ namespace edmtest
 {
 
 class ProblemTestClient_t1
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    ProblemTestClient_t1( edm::ParameterSet const & )
+    ProblemTestClient_t1( art::ParameterSet const & )
   { }
 
   virtual
@@ -26,8 +26,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:

@@ -3,7 +3,7 @@
 #include "art/Utilities/EDMException.h"
 #include "art/Persistency/Common/BaseHolder.h"
 
-namespace edm {
+namespace art {
   class ProductID;
   template <typename T> class RefToBase;
   namespace reftobase {
@@ -139,7 +139,7 @@ namespace edm {
 	{
   	  if (isInvalid)
   	  {
-    	  throw edm::Exception(edm::errors::InvalidReference)
+    	  throw art::Exception(art::errors::InvalidReference)
             << "Trying to " << why << " an invalid RefToBaseVector<T>::const_iterator";
   	  }
 	}

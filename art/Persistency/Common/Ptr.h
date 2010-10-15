@@ -5,9 +5,9 @@
 // Package:     Common
 // Class  :     Ptr
 //
-/**\class edm::Ptr Ptr.h DataFormats/Common/interface/Ptr.h
+/**\class art::Ptr Ptr.h DataFormats/Common/interface/Ptr.h
 
- Description: Persistent 'pointer' to an item in a collection where the collection is in the edm::Event
+ Description: Persistent 'pointer' to an item in a collection where the collection is in the art::Event
 
  Usage:
     <usage>
@@ -35,7 +35,7 @@
 #include "art/Utilities/EDMException.h"
 
 // forward declarations
-namespace edm {
+namespace art {
   template <typename T>
   class Ptr {
      friend class PtrVectorBase;
@@ -193,8 +193,8 @@ namespace edm {
         void const* ad = 0;
          const EDProduct* prod = productGetter()->getIt(core_.id());
          if(prod==0) {
-            throw edm::Exception(errors::ProductNotFound)
-            << "A request to resolve an edm::Ptr to a product containing items of type: "
+            throw art::Exception(errors::ProductNotFound)
+            << "A request to resolve an art::Ptr to a product containing items of type: "
             << typeid(T).name()
             << " with ProductID "<<core_.id()
             << "\ncan not be satisfied because the product cannot be found."

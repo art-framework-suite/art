@@ -18,7 +18,7 @@
 #include "art/Framework/Core/Selector.h"
 //using boost::lambda::_1;
 
-namespace edm {
+namespace art {
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
 		       ProcessConfiguration const& pc,
@@ -81,7 +81,7 @@ namespace edm {
     std::string const& processName = processConfiguration_.processName();
     for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
       if (processName == it->processName()) {
-	throw edm::Exception(errors::Configuration, "Duplicate Process")
+	throw art::Exception(errors::Configuration, "Duplicate Process")
 	  << "The process name " << processName << " was previously used on these products.\n"
 	  << "Please modify the configuration file to use a distinct process name.\n";
       }
@@ -146,14 +146,14 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getBySelector: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n";
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      throw art::Exception(art::errors::ProductNotFound)
         << "getBySelector: Found "<<nFound<<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n";
     }
@@ -169,9 +169,9 @@ namespace edm {
 
     BasicHandleVec results;
 
-    edm::Selector sel(edm::ModuleLabelSelector(label) &&
-                      edm::ProductInstanceNameSelector(productInstanceName) &&
-                      edm::ProcessNameSelector(processName));
+    art::Selector sel(art::ModuleLabelSelector(label) &&
+                      art::ProductInstanceNameSelector(productInstanceName) &&
+                      art::ProcessNameSelector(processName));
 
     int nFound = findGroups(productType,
                             preg_->productLookup(),
@@ -180,7 +180,7 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n"
@@ -190,7 +190,7 @@ namespace edm {
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found "<<nFound<<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n"
 	<< "Looking for module label: " << label << "\n"
@@ -220,7 +220,7 @@ namespace edm {
 
     BasicHandleVec results;
 
-    edm::MatchAllSelector sel;
+    art::MatchAllSelector sel;
 
     int nFound = findGroups(productType,
                             preg_->productLookup(),
@@ -229,14 +229,14 @@ namespace edm {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound) );
+      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getByType: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n";
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      throw art::Exception(art::errors::ProductNotFound)
         << "getByType: Found "<<nFound <<" products rather than one which match all criteria\n"
 	<< "Looking for type: " << productType << "\n";
     }
@@ -247,7 +247,7 @@ namespace edm {
   Principal::getManyByType(TypeID const& productType,
 			   BasicHandleVec& results) const {
 
-    edm::MatchAllSelector sel;
+    art::MatchAllSelector sel;
 
     findGroups(productType,
                preg_->productLookup(),
@@ -387,7 +387,7 @@ namespace edm {
   void
   Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
     if (g.productUnavailable()) {
-      throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
+      throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
 	<< g.provenance() << '\n';
     }
@@ -426,7 +426,7 @@ namespace edm {
 	    g->productDescription().present() &&
 	    g->productDescription().branchType() == InEvent &&
             productstatus::present(g->productProvenancePtr()->productStatus())) {
-        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
+        throw art::Exception(art::errors::LogicError, "Principal::getForOutput\n")
          << "A product with a status of 'present' is not actually present.\n"
          << "The branch name is " << g->productDescription().branchName() << "\n"
          << "Contact a framework developer.\n";
@@ -441,7 +441,7 @@ namespace edm {
   Principal::getProvenance(BranchID const& bid) const {
     SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
     if (g.get() == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+      throw art::Exception(art::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: no product with given branch id: "<< bid << "\n";
     }
 
@@ -451,7 +451,7 @@ namespace edm {
     // We already tried to produce the unscheduled products above
     // If they still are not there, then throw
     if (g->onDemand()) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      throw art::Exception(art::errors::ProductNotFound)
 	<< "getProvenance: no product with given BranchID: "<< bid <<"\n";
     }
 

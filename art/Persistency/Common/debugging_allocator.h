@@ -11,7 +11,7 @@
 //
 // The intended use is in the declarations of objects from STL templates,
 // e.g.
-//    typedef vector<int, edm::debugging_allocator<int> > vint;
+//    typedef vector<int, art::debugging_allocator<int> > vint;
 // etc.
 //
 //
@@ -20,7 +20,7 @@
 #include <limits>
 #include <cstddef>
 
-namespace edm
+namespace art
 {
   template <class T>
   class debugging_allocator
@@ -75,7 +75,7 @@ namespace edm
   template <class X, class Y>
   bool operator!=  (debugging_allocator<X> const&, debugging_allocator<Y> const&) throw() { return false; }
 
-} //namespace edm
+} //namespace art
 
 
 #endif

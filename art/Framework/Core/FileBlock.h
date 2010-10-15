@@ -17,7 +17,7 @@ class TTree;
 #include <string>
 #include <vector>
 
-namespace edm {
+namespace art {
   class BranchDescription;
   class FileBlock {
   public:

@@ -18,7 +18,7 @@
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
 
 WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
   m_workerMap(),
@@ -76,4 +76,4 @@ std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameter
 
 }
 
-}  // namespace edm
+}  // namespace art

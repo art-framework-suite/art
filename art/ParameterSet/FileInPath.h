@@ -63,7 +63,7 @@
 #include <string>
 
 
-namespace edm
+namespace art
 {
   class FileInPath
   {
@@ -141,7 +141,7 @@ namespace edm
   }
 
   inline  std::ostream&
-  operator<< (std::ostream& os, const edm::FileInPath& fip)
+  operator<< (std::ostream& os, const art::FileInPath& fip)
   {
     fip.write(os);
     return os;
@@ -155,8 +155,8 @@ namespace edm
   }
 
   inline bool
-  operator== (edm::FileInPath const& a,
-	      edm::FileInPath const& b)
+  operator== (art::FileInPath const& a,
+	      art::FileInPath const& b)
   {
     return a.location() == b.location() && a.relativePath() == b.relativePath();
   }

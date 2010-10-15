@@ -6,24 +6,24 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 
 namespace edmtest {
-  ThingRawSource::ThingRawSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
+  ThingRawSource::ThingRawSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc) :
     RawInputSource(pset, desc), alg_(), eventID_(1, 1) {
-    produces<ThingCollection, edm::InEvent>();
-    produces<ThingCollection, edm::InSubRun>("beginSubRun");
-    produces<ThingCollection, edm::InSubRun>("endSubRun");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    produces<ThingCollection, art::InEvent>();
+    produces<ThingCollection, art::InSubRun>("beginSubRun");
+    produces<ThingCollection, art::InSubRun>("endSubRun");
+    produces<ThingCollection, art::InRun>("beginRun");
+    produces<ThingCollection, art::InRun>("endRun");
   }
 
   // Virtual destructor needed.
   ThingRawSource::~ThingRawSource() { }
 
   // Functions that gets called by framework every event
-  std::auto_ptr<edm::Event> ThingRawSource::readOneEvent() {
-    edm::Timestamp tstamp;
+  std::auto_ptr<art::Event> ThingRawSource::readOneEvent() {
+    art::Timestamp tstamp;
 
     // Fake running out of data
-    if (eventID_.event() > 2) return std::auto_ptr<edm::Event>();
+    if (eventID_.event() > 2) return std::auto_ptr<art::Event>();
 
     // Step B: Create empty output
     std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
@@ -36,7 +36,7 @@ namespace edmtest {
     // You must call makeEvent,
     // providing the eventId (containing run# and event#)
     // and timestamp.
-    std::auto_ptr<edm::Event> e = makeEvent(eventID_.run(), 1U, eventID_.event(), tstamp);
+    std::auto_ptr<art::Event> e = makeEvent(eventID_.run(), 1U, eventID_.event(), tstamp);
     eventID_ = eventID_.next();
 
     // put your product(s) into the event.  One put call per product.
@@ -47,7 +47,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every subRun
-  void ThingRawSource::beginSubRun(edm::SubRun& lb) {
+  void ThingRawSource::beginSubRun(art::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -60,7 +60,7 @@ namespace edmtest {
     lb.put(result, "beginSubRun");
   }
 
-  void ThingRawSource::endSubRun(edm::SubRun& lb) {
+  void ThingRawSource::endSubRun(art::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -74,7 +74,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingRawSource::beginRun(edm::Run& r) {
+  void ThingRawSource::beginRun(art::Run& r) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -87,7 +87,7 @@ namespace edmtest {
     r.put(result, "beginRun");
   }
 
-  void ThingRawSource::endRun(edm::Run& r) {
+  void ThingRawSource::endRun(art::Run& r) {
     // Step A: Get Inputs
 
     // Step B: Create empty output

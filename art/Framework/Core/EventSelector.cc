@@ -47,7 +47,7 @@
 #include <cassert>
 
 
-namespace edm {
+namespace art {
 
   EventSelector::EventSelector(Strings const& pathspecs,
                                Strings const& names):
@@ -158,7 +158,7 @@ namespace edm {
       and_noex = basePathSpec.find("&noex");
       if (and_noexception != std::string::npos ||
            and_noex != std::string::npos)
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name, but specifying &noexceptions twice\n"
             << "The improper trigger name is: " << pathSpecifier << "\n";
@@ -176,13 +176,13 @@ namespace edm {
         // strip off 10 chars, which is length of "exception@"
       }
       if (negative_criterion &&  exception_spec)
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name starting with !exception@.\n"
                "This is not supported.\n"
             << "The improper trigger name is: " << pathSpecifier << "\n";
       if (noex_demanded &&  exception_spec)
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name starting with exception@ "
                "and also demanding no &exceptions.\n"
@@ -196,7 +196,7 @@ namespace edm {
 
       if (matches.empty() && !is_glob(realname))
       {
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name that does not exist\n"
             << "The unknown trigger name is: " << realname << "\n";
@@ -226,7 +226,7 @@ namespace edm {
         }
       } else if (negative_criterion && !noex_demanded) {
         if (matches.empty()) {
-            throw edm::Exception(errors::Configuration)
+            throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request all fails on a set of trigger names that do not exist\n"
             << "The problematic name is: " << pathSpecifier << "\n";
@@ -245,7 +245,7 @@ namespace edm {
         }
       } else if (negative_criterion && noex_demanded) {
         if (matches.empty()) {
-            throw edm::Exception(errors::Configuration)
+            throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request all fails on a set of trigger names that do not exist\n"
             << "The problematic name is: " << pathSpecifier << "\n";
@@ -305,7 +305,7 @@ namespace edm {
         }
         // This should never happen
         else {
-          throw edm::Exception(errors::Unknown)
+          throw art::Exception(errors::Unknown)
             << "EventSelector::acceptEvent cannot find the trigger names for\n"
                "a process for which the configuration has requested that the\n"
                "OutputModule use TriggerResults to select events from.  This should\n"
@@ -330,7 +330,7 @@ namespace edm {
     // This should never occur unless someone uses this function in
     // an incorrect way ...
     if (!results_from_current_process_) {
-      throw edm::Exception(errors::Configuration)
+      throw art::Exception(errors::Configuration)
         << "\nEventSelector.cc::acceptEvent, you are attempting to\n"
         << "use a bit array for trigger results instead of the\n"
         << "TriggerResults object for a previous process.  This\n"
@@ -533,7 +533,7 @@ namespace edm {
           return false;
         }
       }
-      catch (edm::Exception const& excpt)
+      catch (art::Exception const& excpt)
       {
         return false;
       }
@@ -667,7 +667,7 @@ namespace edm {
       }
 
     }
-    catch (edm::Exception const& excpt)
+    catch (art::Exception const& excpt)
     {
       return evtSel::InvalidSelection;
     }
@@ -744,7 +744,7 @@ namespace edm {
         }
       }
     }
-    catch (edm::Exception const& excpt)
+    catch (art::Exception const& excpt)
     {
       return evtSel::InvalidSelection;
     }
@@ -766,7 +766,7 @@ namespace edm {
    * @param inputResults The raw trigger results object that will be masked.
    * @return a copy of the input trigger results object with only the path
    *         status results that match the trigger selection.
-   * @throws edm::Exception if the number of paths in the TriggerResults
+   * @throws art::Exception if the number of paths in the TriggerResults
    *         object does not match the specified full trigger list, or
    *         if the trigger selection is invalid in the context of the
    *         full trigger list.
@@ -779,7 +779,7 @@ namespace edm {
     unsigned int N = fullTriggerCount;
     if (fullTriggerCount != inputResults.size())
     {
-      throw edm::Exception(errors::EventCorruption)
+      throw art::Exception(errors::EventCorruption)
         << "EventSelector::maskTriggerResults, the TriggerResults\n"
         << "size (" << inputResults.size()
         << ") does not match the number of paths in the\n"
@@ -879,7 +879,7 @@ namespace edm {
    * @param fullTriggerList The full list of trigger names (vector of string).
    * @return a copy of the input trigger results object with only the path
    *         status results that match the trigger selection.
-   * @throws edm::Exception if the number of paths in the TriggerResults
+   * @throws art::Exception if the number of paths in the TriggerResults
    *         object does not match the specified full trigger list, or
    *         if the trigger selection is invalid in the context of the
    *         full trigger list.
@@ -893,7 +893,7 @@ namespace edm {
     unsigned int fullTriggerCount = fullTriggerList.size();
     if (fullTriggerCount != inputResults.size())
     {
-      throw edm::Exception(errors::EventCorruption)
+      throw art::Exception(errors::EventCorruption)
         << "EventSelector::maskTriggerResults, the TriggerResults\n"
         << "size (" << inputResults.size()
         << ") does not match the number of paths in the\n"
@@ -1128,4 +1128,4 @@ namespace edm {
     return x;
   } // combine
 
-}  // namespace edm
+}  // namespace art

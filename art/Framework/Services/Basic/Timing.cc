@@ -20,7 +20,7 @@
 #include <iostream>
 
 
-namespace edm {
+namespace art {
 
   namespace service {
 
@@ -28,7 +28,7 @@ namespace edm {
     {
       struct timeval t;
       if(gettimeofday(&t,0)<0)
-        throw cms::Exception("SysCallFailed","Failed call to gettimeofday");
+        throw artZ::Exception("SysCallFailed","Failed call to gettimeofday");
 
       return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
     }
@@ -91,8 +91,8 @@ namespace edm {
 
     }
 
-    void Timing::preEventProcessing(const edm::EventID& iID,
-                                    const edm::Timestamp& iTime)
+    void Timing::preEventProcessing(const art::EventID& iID,
+                                    const art::Timestamp& iTime)
     {
       curr_event_ = iID;
       curr_event_time_ = getTime();
@@ -138,4 +138,4 @@ namespace edm {
 
   }
 
-}  // namespace edm
+}  // namespace art

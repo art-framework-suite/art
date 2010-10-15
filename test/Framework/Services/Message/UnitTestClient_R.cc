@@ -11,14 +11,14 @@ namespace edmtest
 
 
 void
-  UnitTestClient_R::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_R::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
 
   for( int i=0; i<10000; ++i) {
-    edm::LogError("cat_A")   << "A " << i;
-    edm::LogError("cat_B")   << "B " << i;
+    art::LogError("cat_A")   << "A " << i;
+    art::LogError("cat_B")   << "B " << i;
   }
 }  // MessageLoggerClient::analyze()
 

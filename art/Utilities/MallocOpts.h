@@ -29,7 +29,7 @@
 #include <string>
 #include <ostream>
 
-namespace edm
+namespace art
 {
   struct MallocOpts
   {

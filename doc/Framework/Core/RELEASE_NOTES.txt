@@ -41,7 +41,7 @@ action that is supposed to happen when an exception is encountered.
 See Actions.h for the currently supported list.  The roadmap will
 contain the instructions for use.
 
-Converted the EventSetup-related exception to use cms::Exception.
+Converted the EventSetup-related exception to use artZ::Exception.
 Since what is assumed virtual in these classes and the behavior
 has been changed so that the constructor generates the message,
 I suspect that we may see redundant information from derived
@@ -56,7 +56,7 @@ message is sent to cerr indicating the context.  The cerr will
 turn into a message logger call when that interface is defined.
 The caught exceptions will probably be changed into new types
 and the beginning of the history will be used for altering program
-control.  Weird exceptions are mapped into cms::Exceptions.
+control.  Weird exceptions are mapped into artZ::Exceptions.
 
 Converted the factory, worker registry, and maker classes to use
 a single struct WorkerParams instead of many individual arguments.

@@ -16,5 +16,5 @@
 // user include files
 #include "art/Framework/Services/Registry/ServicePluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(edm::serviceregistry::ServicePluginFactory,"CMS EDM Framework Service");
+EDM_REGISTER_PLUGINFACTORY(art::serviceregistry::ServicePluginFactory,"CMS EDM Framework Service");
 

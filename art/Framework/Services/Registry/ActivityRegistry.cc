@@ -14,7 +14,7 @@
 // member functions
 //
 void
-edm::ActivityRegistry::connect(ActivityRegistry& iOther)
+art::ActivityRegistry::connect(ActivityRegistry& iOther)
 {
    postBeginJobSignal_.connect(iOther.postBeginJobSignal_);
    postEndJobSignal_.connect(iOther.postEndJobSignal_);
@@ -103,7 +103,7 @@ copySlotsToFrom(T& iTo, T& iFrom)
 {
   typename T::slot_list_type slots = iFrom.slots();
 
-  edm::for_all(slots, boost::bind( &T::connect, iTo, _1) );
+  art::for_all(slots, boost::bind( &T::connect, iTo, _1) );
 }
 
 template<class T>
@@ -127,7 +127,7 @@ copySlotsToFromReverse(T& iTo, T& iFrom)
   std::reverse(slotsTo.begin(), slotsTo.end());
   std::reverse(slotsFrom.begin(), slotsFrom.end());
 
-  edm::for_all(slotsFrom, boost::bind( &T::connect, iTo, _1) );
+  art::for_all(slotsFrom, boost::bind( &T::connect, iTo, _1) );
 
   std::reverse(slotsTo.begin(), slotsTo.end());
 
@@ -137,7 +137,7 @@ copySlotsToFromReverse(T& iTo, T& iFrom)
 }
 
 void
-edm::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
+art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
 {
   copySlotsToFrom(postBeginJobSignal_,iOther.postBeginJobSignal_);
   copySlotsToFromReverse(postEndJobSignal_,iOther.postEndJobSignal_);

@@ -73,7 +73,7 @@ void PythonProcessDesc::read(const std::string & config)
     }
   }
   catch( error_already_set ) {
-     edm::pythonToCppException("Configuration");
+     art::pythonToCppException("Configuration");
      Py_Finalize();
   }
 }
@@ -109,9 +109,9 @@ void PythonProcessDesc::readString(const std::string & pyConfig)
 }
 
 
-boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() const
+boost::shared_ptr<art::ProcessDesc> PythonProcessDesc::processDesc() const
 {
-  boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(theProcessPSet.pset()));
+  boost::shared_ptr<art::ProcessDesc> result(new art::ProcessDesc(theProcessPSet.pset()));
   BOOST_FOREACH(PythonParameterSet service, theServices)
   {
     result->addService(service.pset());

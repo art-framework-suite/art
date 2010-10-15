@@ -22,7 +22,7 @@ RootDelayedReader.h // used by ROOT input sources
 
 class TFile;
 
-namespace edm {
+namespace art {
 
   //------------------------------------------------------------
   // Class RootDelayedReader: pretends to support file reading.
@@ -60,6 +60,6 @@ namespace edm {
   }; // class RootDelayedReader
   //------------------------------------------------------------
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_RootDelayedReader_h

@@ -11,27 +11,27 @@ namespace edmtest
 
 int  MemoryTestClient_A::nevent = 0;
 
-MemoryTestClient_A::MemoryTestClient_A( edm::ParameterSet const & ps)
+MemoryTestClient_A::MemoryTestClient_A( art::ParameterSet const & ps)
   : vsize(0)
 {
   int pattern = ps.getUntrackedParameter<int>("pattern",1);
-  edm::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
+  art::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
   initializeMemoryPattern(pattern);
 }
 
 void
-  MemoryTestClient_A::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  MemoryTestClient_A::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
   nevent++;
   double v = memoryPattern[nevent%memoryPattern.size()];
-  edm::LogVerbatim("memoryUsage") << "Event " << nevent
+  art::LogVerbatim("memoryUsage") << "Event " << nevent
   	<< " uses "<< v << " Mbytes";
   if ( v > vsize ) {
     int leaksize = static_cast<int>((v-vsize)*1048576);
     char* leak = new  char[leaksize];
-    edm::LogPrint("memoryIncrease") << "Event " << nevent
+    art::LogPrint("memoryIncrease") << "Event " << nevent
   	<< " increases vsize by "<< v-vsize << " Mbytes";
     vsize = v;
     last_allocation = leak;

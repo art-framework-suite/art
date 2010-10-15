@@ -17,11 +17,11 @@
 #include "fhiclcpp/ParameterSetID.h"
 
 
-namespace edm {
+namespace art {
   class Event;
   class HLTGlobalStatus;
 
-  class TriggerResultInserter : public edm::EDProducer
+  class TriggerResultInserter : public art::EDProducer
   {
   public:
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
@@ -33,13 +33,13 @@ namespace edm {
     TriggerResultInserter(fhicl::ParameterSet const& ps, const TrigResPtr& trptr);
     virtual ~TriggerResultInserter();
 
-    virtual void produce(edm::Event& e);
+    virtual void produce(art::Event& e);
 
   private:
     TrigResPtr trptr_;
     fhicl::ParameterSetID pset_id_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_TriggerResultsInserter_h

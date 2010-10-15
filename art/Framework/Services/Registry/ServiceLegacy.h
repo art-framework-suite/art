@@ -25,7 +25,7 @@
 
 // forward declarations
 
-namespace edm {
+namespace art {
    namespace serviceregistry {
       enum ServiceLegacy {
          kOverlapIsError,

@@ -11,25 +11,25 @@ namespace edmtest
 
 
 void
-  UnitTestClient_G::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_G::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
-  if (!edm::isMessageProcessingSetUp()) {
+  if (!art::isMessageProcessingSetUp()) {
     std::cerr << "??? It appears that Message Processing is not Set Up???\n\n";
   }
 
   double d = 3.14159265357989;
-  edm::LogWarning("cat_A")   << "Test of std::setprecision(p):"
+  art::LogWarning("cat_A")   << "Test of std::setprecision(p):"
   			     << " Pi with precision 12 is "
   			     << std::setprecision(12) << d;
 
   for( int i=0; i<10; ++i) {
-    edm::LogInfo("cat_B")      << "\t\tEmit Info level message " << i+1;
+    art::LogInfo("cat_B")      << "\t\tEmit Info level message " << i+1;
   }
 
   for( int i=0; i<15; ++i) {
-    edm::LogWarning("cat_C")      << "\t\tEmit Warning level message " << i+1;
+    art::LogWarning("cat_C")      << "\t\tEmit Warning level message " << i+1;
   }
 }  // MessageLoggerClient::analyze()
 

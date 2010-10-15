@@ -8,7 +8,7 @@
 
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
@@ -17,14 +17,14 @@ namespace edmtest
 {
 
 class UTC_S1
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UTC_S1( edm::ParameterSet const & p)
+    UTC_S1( art::ParameterSet const & p)
   {
     identifier = p.getUntrackedParameter<int> ("identifier", 99);
-    edm::GroupLogStatistics("grouped_cat");
+    art::GroupLogStatistics("grouped_cat");
   }
 
   virtual
@@ -32,8 +32,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
@@ -43,11 +43,11 @@ private:
 };
 
 class UTC_S2
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UTC_S2( edm::ParameterSet const & p)
+    UTC_S2( art::ParameterSet const & p)
   {
     identifier = p.getUntrackedParameter<int> ("identifier", 98);
   }
@@ -57,8 +57,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:
@@ -67,11 +67,11 @@ private:
 };
 
 class UTC_SUMMARY
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UTC_SUMMARY( edm::ParameterSet const & p)
+    UTC_SUMMARY( art::ParameterSet const & p)
   {
   }
 
@@ -80,8 +80,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:

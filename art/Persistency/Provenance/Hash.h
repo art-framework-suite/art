@@ -20,7 +20,7 @@ Hash:
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
 
   namespace detail
   {
@@ -129,7 +129,7 @@ namespace edm {
   bool
   Hash<I>::isValid() const
   {
-    return isCompactForm() ? (hash_ != edm::detail::InvalidHash()) : (hash_.size()!=0);
+    return isCompactForm() ? (hash_ != art::detail::InvalidHash()) : (hash_.size()!=0);
   }
 
   template <int I>
@@ -170,7 +170,7 @@ namespace edm {
   Hash<I>::print(std::ostream& os) const
   {
     Hash<I> tMe(*this);
-    cms::MD5Result temp;
+    artZ::MD5Result temp;
     copy_all(tMe.hash_, temp.bytes);
     os << temp.toString();
     return os;
@@ -206,7 +206,7 @@ namespace edm {
     // Fixup not needed here.
     if (hash_.size() % 2 == 1)
       {
-        throw edm::Exception(edm::errors::LogicError)
+        throw art::Exception(art::errors::LogicError)
           << "Ill-formed Hash instance. "
           << "Please report this to the core framework developers";
       }
@@ -221,7 +221,7 @@ namespace edm {
     switch (hash_.size()) {
       case 0:
       {
-        hash_ = edm::detail::InvalidHash();
+        hash_ = art::detail::InvalidHash();
       }
       case 16:
       {
@@ -229,15 +229,15 @@ namespace edm {
       }
       case 32:
       {
-        cms::MD5Result temp;
+        artZ::MD5Result temp;
         temp.fromHexifiedString(hash_);
         hash_ = temp.compactForm();
         break;
       }
       default:
       {
-        throw edm::Exception(edm::errors::LogicError)
-          << "edm::Hash<> instance with data in illegal state:\n"
+        throw art::Exception(art::errors::LogicError)
+          << "art::Hash<> instance with data in illegal state:\n"
           << hash_
           << "\nPlease report this to the core framework developers";
       }
@@ -268,6 +268,6 @@ namespace edm {
     return h.print(os);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_Hash_h

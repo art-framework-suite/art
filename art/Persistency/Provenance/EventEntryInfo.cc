@@ -6,7 +6,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   EventEntryInfo::Transients::Transients() :
     moduleDescriptionID_(),
     entryDescriptionPtr_(),

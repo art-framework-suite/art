@@ -6,7 +6,7 @@
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Persistency/Common/TriggerResults.h"
 
-namespace edm {
+namespace art {
 
   TriggerNames::TriggerNames() : psetID_valid_(false) { }
 
@@ -22,7 +22,7 @@ namespace edm {
     if ( psetID_valid_ && psetID_ == triggerResults.parameterSetID()) {
       return false;
     }
-    edm::Service<edm::service::TriggerNamesService> tns;
+    art::Service<art::service::TriggerNamesService> tns;
     bool fromPSetRegistry;
     if (tns->getTrigPaths(triggerResults, triggerNames_, fromPSetRegistry)) {
 
@@ -38,7 +38,7 @@ namespace edm {
     }
     // This should never happen
     else {
-      throw edm::Exception(edm::errors::Unknown)
+      throw art::Exception(art::errors::Unknown)
         << "TriggerNames::init cannot find the trigger names for\n"
            "a TriggerResults object.  This should be impossible,\n"
            "please send information to reproduce this problem to\n"

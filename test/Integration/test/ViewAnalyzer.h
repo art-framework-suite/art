@@ -9,28 +9,28 @@
 namespace edmtest
 {
 
-  class ViewAnalyzer : public edm::EDAnalyzer
+  class ViewAnalyzer : public art::EDAnalyzer
   {
   public:
-    explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
+    explicit ViewAnalyzer(art::ParameterSet const& /* no parameters*/);
     virtual ~ViewAnalyzer();
-    virtual void analyze(edm::Event const& e,
-			 edm::EventSetup const& /* unused */ );
+    virtual void analyze(art::Event const& e,
+			 art::EventSetup const& /* unused */ );
 
     template <class P, class V>
-    void testProduct(edm::Event const& e,
+    void testProduct(art::Event const& e,
 		     std::string const& moduleLabel) const;
 
-    void testDSVProduct(edm::Event const& e,
+    void testDSVProduct(art::Event const& e,
 			std::string const& moduleLabel) const;
 
-    void testProductWithBaseClass(edm::Event const& e,
+    void testProductWithBaseClass(art::Event const& e,
  			          std::string const& moduleLabel) const;
 
-    void testRefVector(edm::Event const& e,
+    void testRefVector(art::Event const& e,
 		       std::string const& moduleLabel) const;
 
-    void testRefToBaseVector(edm::Event const& e,
+    void testRefToBaseVector(art::Event const& e,
 			     std::string const& moduleLabel) const;
   };
 

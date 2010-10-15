@@ -22,7 +22,7 @@ is the DataBlock.
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Framework/Core/Principal.h"
 
-namespace edm {
+namespace art {
   class RunPrincipal;
   class UnscheduledHandler;
   class SubRunPrincipal : public Principal {

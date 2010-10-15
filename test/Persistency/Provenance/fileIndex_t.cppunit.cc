@@ -24,7 +24,7 @@ class testFileIndex: public CppUnit::TestFixture
   void eventEntrySortAndSearchTest();
   void eventsUniqueAndOrderedTest();
 
-  bool areEntryVectorsTheSame(edm::FileIndex &i1, edm::FileIndex &i2);
+  bool areEntryVectorsTheSame(art::FileIndex &i1, art::FileIndex &i2);
 };
 
 ///registration of the test so that the runner can find it
@@ -32,7 +32,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testFileIndex);
 
 void testFileIndex::constructAndInsertTest()
 {
-  edm::FileIndex fileIndex;
+  art::FileIndex fileIndex;
   CPPUNIT_ASSERT(fileIndex.empty());
   CPPUNIT_ASSERT(fileIndex.size() == 0);
   CPPUNIT_ASSERT(fileIndex.begin() == fileIndex.end());
@@ -45,22 +45,22 @@ void testFileIndex::constructAndInsertTest()
   CPPUNIT_ASSERT(!fileIndex.empty());
   CPPUNIT_ASSERT(fileIndex.size() == 4);
 
-  edm::FileIndex::const_iterator iter = fileIndex.begin();
+  art::FileIndex::const_iterator iter = fileIndex.begin();
   CPPUNIT_ASSERT(iter->run_ == 100);
   CPPUNIT_ASSERT(iter->subRun_ == 101);
   CPPUNIT_ASSERT(iter->event_ == 102);
   CPPUNIT_ASSERT(iter->entry_ == 1);
-  CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kEvent);
+  CPPUNIT_ASSERT(iter->getEntryType() == art::FileIndex::kEvent);
 
   ++iter;
-  CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kSubRun);
+  CPPUNIT_ASSERT(iter->getEntryType() == art::FileIndex::kSubRun);
 
   ++iter;
   CPPUNIT_ASSERT(iter->run_ == 300);
   CPPUNIT_ASSERT(iter->subRun_ == 0);
   CPPUNIT_ASSERT(iter->event_ == 0);
   CPPUNIT_ASSERT(iter->entry_ == 3);
-  CPPUNIT_ASSERT(iter->getEntryType() == edm::FileIndex::kRun);
+  CPPUNIT_ASSERT(iter->getEntryType() == art::FileIndex::kRun);
 
   ++iter;
   ++iter;
@@ -78,7 +78,7 @@ void testFileIndex::eventSortAndSearchTest()
   // a stable_sort for now ...  They will not bother
   // the FileIndex.
 
-  edm::FileIndex fileIndex;
+  art::FileIndex fileIndex;
   fileIndex.addEntry(3, 3, 2, 5);
   fileIndex.addEntry(3, 3, 1, 4);
   fileIndex.addEntry(3, 3, 3, 3);
@@ -96,7 +96,7 @@ void testFileIndex::eventSortAndSearchTest()
 
   fileIndex.sortBy_Run_SubRun_Event();
 
-  edm::FileIndex shouldBe;
+  art::FileIndex shouldBe;
   shouldBe.addEntry(1, 0, 0, 8);
   shouldBe.addEntry(1, 2, 0, 2);
   shouldBe.addEntry(1, 2, 1, 2);
@@ -117,7 +117,7 @@ void testFileIndex::eventSortAndSearchTest()
   CPPUNIT_ASSERT(fileIndex.allEventsInEntryOrder() == false);
   CPPUNIT_ASSERT(fileIndex.allEventsInEntryOrder() == false);
 
-  edm::FileIndex::const_iterator iter = fileIndex.findPosition( 3, 3, 2);
+  art::FileIndex::const_iterator iter = fileIndex.findPosition( 3, 3, 2);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 12);
   CPPUNIT_ASSERT(iter->run_ == 3);
   CPPUNIT_ASSERT(iter->subRun_ == 3);
@@ -219,7 +219,7 @@ void testFileIndex::eventEntrySortAndSearchTest()
   // a stable_sort for now ...  They will not bother
   // the FileIndex.
 
-  edm::FileIndex fileIndex;
+  art::FileIndex fileIndex;
   fileIndex.addEntry(3, 3, 2, 5);
   fileIndex.addEntry(3, 3, 1, 4);
   fileIndex.addEntry(3, 3, 3, 3);
@@ -237,7 +237,7 @@ void testFileIndex::eventEntrySortAndSearchTest()
 
   fileIndex.sortBy_Run_SubRun_EventEntry();
 
-  edm::FileIndex shouldBe;
+  art::FileIndex shouldBe;
   shouldBe.addEntry(1, 0, 0, 8);
   shouldBe.addEntry(1, 2, 0, 2);
   shouldBe.addEntry(1, 2, 4, 1);
@@ -255,7 +255,7 @@ void testFileIndex::eventEntrySortAndSearchTest()
 
   CPPUNIT_ASSERT(areEntryVectorsTheSame(fileIndex, shouldBe));
 
-  edm::FileIndex::const_iterator iter = fileIndex.findSubRunPosition( 3, 1, true);
+  art::FileIndex::const_iterator iter = fileIndex.findSubRunPosition( 3, 1, true);
   CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
   iter = fileIndex.findSubRunPosition( 3, 2, true);
@@ -297,24 +297,24 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
   // Test the different cases
 
   // Nothing in the FileIndex
-  edm::FileIndex fileIndex;
+  art::FileIndex fileIndex;
   CPPUNIT_ASSERT(fileIndex.eventsUniqueAndOrdered());
 
   // No events
-  edm::FileIndex fileIndex1;
+  art::FileIndex fileIndex1;
   fileIndex1.addEntry(1, 0, 0, 1);
   fileIndex1.addEntry(1, 1, 0, 1);
   CPPUNIT_ASSERT(fileIndex1.eventsUniqueAndOrdered());
 
   // One event and nothing after it
-  edm::FileIndex fileIndex2;
+  art::FileIndex fileIndex2;
   fileIndex2.addEntry(1, 0, 0, 1);
   fileIndex2.addEntry(1, 2, 0, 1);
   fileIndex2.addEntry(1, 2, 1, 1);
   CPPUNIT_ASSERT(fileIndex2.eventsUniqueAndOrdered());
 
   // One event with a run after it
-  edm::FileIndex fileIndex3;
+  art::FileIndex fileIndex3;
   fileIndex3.addEntry(1, 0, 0, 1);
   fileIndex3.addEntry(1, 2, 0, 1);
   fileIndex3.addEntry(1, 2, 1, 1);
@@ -322,7 +322,7 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
   CPPUNIT_ASSERT(fileIndex3.eventsUniqueAndOrdered());
 
   // Two events
-  edm::FileIndex fileIndex4;
+  art::FileIndex fileIndex4;
   fileIndex4.addEntry(1, 0, 0, 1);
   fileIndex4.addEntry(1, 1, 0, 1);
   fileIndex4.addEntry(1, 1, 1, 1);
@@ -332,7 +332,7 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
   CPPUNIT_ASSERT(fileIndex4.eventsUniqueAndOrdered());
 
   // Two events, same run and event number
-  edm::FileIndex fileIndex5;
+  art::FileIndex fileIndex5;
   fileIndex5.addEntry(1, 0, 0, 1);
   fileIndex5.addEntry(1, 1, 0, 1);
   fileIndex5.addEntry(1, 1, 1, 1);
@@ -342,7 +342,7 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
   CPPUNIT_ASSERT(!fileIndex5.eventsUniqueAndOrdered());
 
   // Not ordered by run
-  edm::FileIndex fileIndex6;
+  art::FileIndex fileIndex6;
   fileIndex6.addEntry(1, 0, 0, 1);
   fileIndex6.addEntry(1, 2, 0, 1);
   fileIndex6.addEntry(1, 2, 1, 1);
@@ -355,7 +355,7 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
   CPPUNIT_ASSERT(!fileIndex6.eventsUniqueAndOrdered());
 
   // Not ordered by event
-  edm::FileIndex fileIndex7;
+  art::FileIndex fileIndex7;
   fileIndex7.addEntry(1, 0, 0, 1);
   fileIndex7.addEntry(1, 2, 0, 1);
   fileIndex7.addEntry(1, 2, 1, 1);
@@ -367,7 +367,7 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
   CPPUNIT_ASSERT(!fileIndex7.eventsUniqueAndOrdered());
 
   // OK, ordered by event and unique
-  edm::FileIndex fileIndex8;
+  art::FileIndex fileIndex8;
   fileIndex8.addEntry(1, 0, 0, 1);
   fileIndex8.addEntry(1, 1, 0, 1);
   fileIndex8.addEntry(1, 1, 1, 1);
@@ -387,9 +387,9 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
 }
 
 
-bool testFileIndex::areEntryVectorsTheSame(edm::FileIndex &i1, edm::FileIndex &i2) {
+bool testFileIndex::areEntryVectorsTheSame(art::FileIndex &i1, art::FileIndex &i2) {
   if (i1.size() != i2.size()) return false;
-  for (edm::FileIndex::const_iterator iter1 = i1.begin(), iter2 = i2.begin();
+  for (art::FileIndex::const_iterator iter1 = i1.begin(), iter2 = i2.begin();
        iter1 != i1.end();
        ++iter1, ++iter2) {
     if (iter1->run_ != iter2->run_ ||

@@ -23,12 +23,12 @@ int main(int argc, char* argv[]) {
   std::cout << "Running TestFWCoreParameterSetDescription from parameterSetDescription_t.cc" << std::endl;
 
   {
-    edm::ParameterSetDescription psetDesc;
+    art::ParameterSetDescription psetDesc;
     assert(!psetDesc.anythingAllowed());
     assert(!psetDesc.isUnknown());
     assert(psetDesc.parameter_begin() == psetDesc.parameter_end());
 
-    edm::ParameterSet params;
+    art::ParameterSet params;
     psetDesc.validate(params);
 
     params.addParameter<std::string>("testname",
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
       psetDesc.validate(params);
       assert(0);
     }
-    catch(edm::Exception) {
+    catch(art::Exception) {
       // OK
     }
 
@@ -50,9 +50,9 @@ int main(int argc, char* argv[]) {
   }
 
   {
-    edm::ParameterSetDescription psetDesc;
+    art::ParameterSetDescription psetDesc;
 
-    edm::ParameterSet params;
+    art::ParameterSet params;
     params.addParameter<std::string>("testname",
                                    std::string("testvalue"));
     psetDesc.setUnknown();
@@ -65,28 +65,28 @@ int main(int argc, char* argv[]) {
     // Test this type separately because I do not know how to
     // add an entry into a ParameterSet without FileInPath pointing
     // at a real file.
-    edm::ParameterSetDescription psetDesc;
-    edm::ParameterDescription * par = psetDesc.add<edm::FileInPath>("fileInPath", edm::FileInPath());
-    assert(par->type() == edm::k_FileInPath);
-    assert(edm::parameterTypeEnumToString(par->type()) == std::string("FileInPath"));
+    art::ParameterSetDescription psetDesc;
+    art::ParameterDescription * par = psetDesc.add<art::FileInPath>("fileInPath", art::FileInPath());
+    assert(par->type() == art::k_FileInPath);
+    assert(art::parameterTypeEnumToString(par->type()) == std::string("FileInPath"));
   }
 
-  edm::ParameterSetDescription psetDesc;
-  edm::ParameterSet pset;
+  art::ParameterSetDescription psetDesc;
+  art::ParameterSet pset;
 
   psetDesc.reserve(2);
 
   int a = 1;
-  edm::ParameterDescription * par = psetDesc.add<int>(std::string("ivalue"), a);
+  art::ParameterDescription * par = psetDesc.add<int>(std::string("ivalue"), a);
   pset.addParameter<int>("ivalue", a);
   assert(par != 0);
   assert(par->label() == std::string("ivalue"));
-  assert(par->type() == edm::k_int32);
+  assert(par->type() == art::k_int32);
   assert(par->isTracked() == true);
   assert(par->isOptional() == false);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("int32"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("int32"));
 
-  edm::ParameterSetDescription::parameter_const_iterator parIter = psetDesc.parameter_begin();
+  art::ParameterSetDescription::parameter_const_iterator parIter = psetDesc.parameter_begin();
   assert(parIter->operator->() == par);
 
 
@@ -95,10 +95,10 @@ int main(int argc, char* argv[]) {
   pset.addParameter<unsigned>("uvalue", b);
   assert(par != 0);
   assert(par->label() == std::string("uvalue"));
-  assert(par->type() == edm::k_uint32);
+  assert(par->type() == art::k_uint32);
   assert(par->isTracked() == true);
   assert(par->isOptional() == false);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("uint32"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("uint32"));
 
   parIter = psetDesc.parameter_begin();
   ++parIter;
@@ -109,140 +109,140 @@ int main(int argc, char* argv[]) {
   pset.addUntrackedParameter<boost::int64_t>("i64value", c);
   assert(par != 0);
   assert(par->label() == std::string("i64value"));
-  assert(par->type() == edm::k_int64);
+  assert(par->type() == art::k_int64);
   assert(par->isTracked() == false);
   assert(par->isOptional() == false);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("int64"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("int64"));
 
   boost::uint64_t d = 4;
   par = psetDesc.addUntracked<boost::uint64_t>("u64value", d);
   pset.addUntrackedParameter<boost::uint64_t>("u64value", d);
   assert(par != 0);
   assert(par->label() == std::string("u64value"));
-  assert(par->type() == edm::k_uint64);
+  assert(par->type() == art::k_uint64);
   assert(par->isTracked() == false);
   assert(par->isOptional() == false);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("uint64"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("uint64"));
 
   double e = 5;
   par = psetDesc.addOptional<double>(std::string("dvalue"), e);
   pset.addParameter<double>("dvalue", e);
   assert(par != 0);
   assert(par->label() == std::string("dvalue"));
-  assert(par->type() == edm::k_double);
+  assert(par->type() == art::k_double);
   assert(par->isTracked() == true);
   assert(par->isOptional() == true);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("double"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("double"));
 
   bool f = true;
   par = psetDesc.addOptional<bool>("bvalue", f);
   pset.addParameter<bool>("bvalue", f);
   assert(par != 0);
   assert(par->label() == std::string("bvalue"));
-  assert(par->type() == edm::k_bool);
+  assert(par->type() == art::k_bool);
   assert(par->isTracked() == true);
   assert(par->isOptional() == true);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("bool"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("bool"));
 
   std::string g;
   par = psetDesc.addOptionalUntracked<std::string>(std::string("svalue"), g);
   pset.addUntrackedParameter<std::string>("svalue", g);
   assert(par != 0);
   assert(par->label() == std::string("svalue"));
-  assert(par->type() == edm::k_string);
+  assert(par->type() == art::k_string);
   assert(par->isTracked() == false);
   assert(par->isOptional() == true);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("string"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("string"));
 
-  edm::EventID h;
-  par = psetDesc.addOptionalUntracked<edm::EventID>("evalue", h);
-  pset.addUntrackedParameter<edm::EventID>("evalue", h);
+  art::EventID h;
+  par = psetDesc.addOptionalUntracked<art::EventID>("evalue", h);
+  pset.addUntrackedParameter<art::EventID>("evalue", h);
   assert(par != 0);
   assert(par->label() == std::string("evalue"));
-  assert(par->type() == edm::k_EventID);
+  assert(par->type() == art::k_EventID);
   assert(par->isTracked() == false);
   assert(par->isOptional() == true);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("EventID"));
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("EventID"));
 
-  edm::SubRunID i;
-  par = psetDesc.add<edm::SubRunID>("lvalue", i);
-  pset.addParameter<edm::SubRunID>("lvalue", i);
-  assert(par->type() == edm::k_SubRunID);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("SubRunID"));
+  art::SubRunID i;
+  par = psetDesc.add<art::SubRunID>("lvalue", i);
+  pset.addParameter<art::SubRunID>("lvalue", i);
+  assert(par->type() == art::k_SubRunID);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("SubRunID"));
 
-  edm::InputTag j;
-  par = psetDesc.add<edm::InputTag>("input", j);
-  pset.addParameter<edm::InputTag>("input", j);
-  assert(par->type() == edm::k_InputTag);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("InputTag"));
+  art::InputTag j;
+  par = psetDesc.add<art::InputTag>("input", j);
+  pset.addParameter<art::InputTag>("input", j);
+  assert(par->type() == art::k_InputTag);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("InputTag"));
 
   std::vector<int> v1;
   par = psetDesc.add<std::vector<int> >("v1", v1);
   pset.addParameter<std::vector<int> >("v1", v1);
-  assert(par->type() == edm::k_vint32);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("vint32"));
+  assert(par->type() == art::k_vint32);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("vint32"));
 
   std::vector<unsigned> v2;
   par = psetDesc.add<std::vector<unsigned> >("v2", v2);
   pset.addParameter<std::vector<unsigned> >("v2", v2);
-  assert(par->type() == edm::k_vuint32);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("vuint32"));
+  assert(par->type() == art::k_vuint32);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("vuint32"));
 
   std::vector<boost::int64_t> v3;
   par = psetDesc.add<std::vector<boost::int64_t> >("v3", v3);
   pset.addParameter<std::vector<boost::int64_t> >("v3", v3);
-  assert(par->type() == edm::k_vint64);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("vint64"));
+  assert(par->type() == art::k_vint64);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("vint64"));
 
   std::vector<boost::uint64_t> v4;
   par = psetDesc.add<std::vector<boost::uint64_t> >("v4", v4);
   pset.addParameter<std::vector<boost::uint64_t> >("v4", v4);
-  assert(par->type() == edm::k_vuint64);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("vuint64"));
+  assert(par->type() == art::k_vuint64);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("vuint64"));
 
   std::vector<double> v5;
   par = psetDesc.add<std::vector<double> >("v5", v5);
   pset.addParameter<std::vector<double> >("v5", v5);
-  assert(par->type() == edm::k_vdouble);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("vdouble"));
+  assert(par->type() == art::k_vdouble);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("vdouble"));
 
   std::vector<std::string> v6;
   par = psetDesc.add<std::vector<std::string> >("v6", v6);
   pset.addParameter<std::vector<std::string> >("v6", v6);
-  assert(par->type() == edm::k_vstring);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("vstring"));
+  assert(par->type() == art::k_vstring);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("vstring"));
 
-  std::vector<edm::EventID> v7;
-  par = psetDesc.add<std::vector<edm::EventID> >("v7", v7);
-  pset.addParameter<std::vector<edm::EventID> >("v7", v7);
-  assert(par->type() == edm::k_VEventID);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VEventID"));
+  std::vector<art::EventID> v7;
+  par = psetDesc.add<std::vector<art::EventID> >("v7", v7);
+  pset.addParameter<std::vector<art::EventID> >("v7", v7);
+  assert(par->type() == art::k_VEventID);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("VEventID"));
 
-  std::vector<edm::SubRunID> v8;
-  par = psetDesc.add<std::vector<edm::SubRunID> >("v8", v8);
-  pset.addParameter<std::vector<edm::SubRunID> >("v8", v8);
-  assert(par->type() == edm::k_VSubRunID);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VSubRunID"));
+  std::vector<art::SubRunID> v8;
+  par = psetDesc.add<std::vector<art::SubRunID> >("v8", v8);
+  pset.addParameter<std::vector<art::SubRunID> >("v8", v8);
+  assert(par->type() == art::k_VSubRunID);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("VSubRunID"));
 
-  std::vector<edm::InputTag> v9;
-  par = psetDesc.add<std::vector<edm::InputTag> >("v9", v9);
-  pset.addParameter<std::vector<edm::InputTag> >("v9", v9);
-  assert(par->type() == edm::k_VInputTag);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VInputTag"));
+  std::vector<art::InputTag> v9;
+  par = psetDesc.add<std::vector<art::InputTag> >("v9", v9);
+  pset.addParameter<std::vector<art::InputTag> >("v9", v9);
+  assert(par->type() == art::k_VInputTag);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("VInputTag"));
 
-  edm::ParameterSetDescription m;
-  par = psetDesc.add<edm::ParameterSetDescription>("psetDesc", m);
-  edm::ParameterSet p1;
-  pset.addParameter<edm::ParameterSet>("psetDesc", p1);
-  assert(par->type() == edm::k_PSet);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("PSet"));
+  art::ParameterSetDescription m;
+  par = psetDesc.add<art::ParameterSetDescription>("psetDesc", m);
+  art::ParameterSet p1;
+  pset.addParameter<art::ParameterSet>("psetDesc", p1);
+  assert(par->type() == art::k_PSet);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("PSet"));
 
-  std::vector<edm::ParameterSetDescription> v10;
-  par = psetDesc.add<std::vector<edm::ParameterSetDescription> >("psetDescVector", v10);
-  std::vector<edm::ParameterSet> vp1;
-  pset.addParameter<std::vector<edm::ParameterSet> >("psetDescVector", vp1);
-  assert(par->type() == edm::k_VPSet);
-  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VPSet"));
+  std::vector<art::ParameterSetDescription> v10;
+  par = psetDesc.add<std::vector<art::ParameterSetDescription> >("psetDescVector", v10);
+  std::vector<art::ParameterSet> vp1;
+  pset.addParameter<std::vector<art::ParameterSet> >("psetDescVector", vp1);
+  assert(par->type() == art::k_VPSet);
+  assert(art::parameterTypeEnumToString(par->type()) == std::string("VPSet"));
 
   psetDesc.validate(pset);
 
@@ -250,31 +250,31 @@ int main(int argc, char* argv[]) {
   // a vector in the top level ParameterSetDescription to see if the nesting is
   // working properly.
 
-  edm::ParameterSet nest2;
+  art::ParameterSet nest2;
   nest2.addParameter<int>("intLevel2a", 1);
   nest2.addUntrackedParameter<int>("intLevel2b", 1);
   nest2.addParameter<int>("intLevel2e", 1);
   nest2.addUntrackedParameter<int>("intLevel2f", 1);
 
-  edm::ParameterSet nest1;
+  art::ParameterSet nest1;
   nest1.addParameter<int>("intLevel1a", 1);
-  nest1.addParameter<edm::ParameterSet>("nestLevel1b", nest2);
+  nest1.addParameter<art::ParameterSet>("nestLevel1b", nest2);
 
-  std::vector<edm::ParameterSet> vPset;
-  vPset.push_back(edm::ParameterSet());
+  std::vector<art::ParameterSet> vPset;
+  vPset.push_back(art::ParameterSet());
   vPset.push_back(nest1);
 
-  pset.addUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0", vPset);
+  pset.addUntrackedParameter<std::vector<art::ParameterSet> >("nestLevel0", vPset);
 
 
-  std::vector<edm::ParameterSetDescription> testDescriptions;
+  std::vector<art::ParameterSetDescription> testDescriptions;
   testDescriptions.push_back(psetDesc);
   testDescriptions.push_back(psetDesc);
   testDescriptions.push_back(psetDesc);
 
   for (int i = 0; i < 3; ++i) {
 
-    edm::ParameterSetDescription nestLevel2;
+    art::ParameterSetDescription nestLevel2;
 
     // for the first test do not put a parameter in the description
     // so there will be an extra parameter in the ParameterSet and
@@ -293,15 +293,15 @@ int main(int argc, char* argv[]) {
     par = nestLevel2.addOptional<int>("intLevel2e", 1);
     par = nestLevel2.addOptionalUntracked<int>("intLevel2f", 1);
 
-    edm::ParameterSetDescription nestLevel1;
+    art::ParameterSetDescription nestLevel1;
     par = nestLevel1.add<int>("intLevel1a", 1);
-    par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
+    par = nestLevel1.add<art::ParameterSetDescription>("nestLevel1b", nestLevel2);
 
-    std::vector<edm::ParameterSetDescription> vDescs;
-    vDescs.push_back(edm::ParameterSetDescription());
+    std::vector<art::ParameterSetDescription> vDescs;
+    vDescs.push_back(art::ParameterSetDescription());
     vDescs.push_back(nestLevel1);
 
-    testDescriptions[i].addUntracked<std::vector<edm::ParameterSetDescription> >("nestLevel0", vDescs);
+    testDescriptions[i].addUntracked<std::vector<art::ParameterSetDescription> >("nestLevel0", vDescs);
   }
 
   // Now run the validation and make sure we get the expected results
@@ -309,7 +309,7 @@ int main(int argc, char* argv[]) {
     testDescriptions[0].validate(pset);
     assert(0);
   }
-  catch(edm::Exception) {
+  catch(art::Exception) {
     // There should be an exception
   }
 
@@ -320,18 +320,18 @@ int main(int argc, char* argv[]) {
     testDescriptions[2].validate(pset);
     assert(0);
   }
-  catch(edm::Exception) {
+  catch(art::Exception) {
     // There should be an exception
   }
 
 
   // One more iteration, this time the purpose is to
   // test the parameterSetDescription accessors.
-  edm::ParameterSetDescription nestLevel2;
+  art::ParameterSetDescription nestLevel2;
   par = nestLevel2.add<int>("intLevel2a", 1);
   assert(par->parameterSetDescription() == 0);
   assert(par->parameterSetDescriptions() == 0);
-  edm::ParameterDescription const& constParRef = *par;
+  art::ParameterDescription const& constParRef = *par;
   assert(constParRef.parameterSetDescription() == 0);
   assert(constParRef.parameterSetDescriptions() == 0);
 
@@ -342,33 +342,33 @@ int main(int argc, char* argv[]) {
   par = nestLevel2.addOptionalUntracked<int>("intLevel2f", 1);
   nestLevel2.setAllowAnything();
 
-  edm::ParameterSetDescription nestLevel1;
+  art::ParameterSetDescription nestLevel1;
   par = nestLevel1.add<int>("intLevel1a", 1);
-  par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
+  par = nestLevel1.add<art::ParameterSetDescription>("nestLevel1b", nestLevel2);
   assert(par->parameterSetDescription() != 0);
   assert(par->parameterSetDescriptions() == 0);
-  edm::ParameterDescription const& constParRef2 = *par;
+  art::ParameterDescription const& constParRef2 = *par;
   assert(constParRef2.parameterSetDescription() != 0);
   assert(constParRef2.parameterSetDescriptions() == 0);
 
   assert(par->parameterSetDescription()->anythingAllowed() == true);
   assert(constParRef2.parameterSetDescription()->anythingAllowed() == true);
 
-  std::vector<edm::ParameterSetDescription> vDescs;
-  vDescs.push_back(edm::ParameterSetDescription());
+  std::vector<art::ParameterSetDescription> vDescs;
+  vDescs.push_back(art::ParameterSetDescription());
   vDescs.push_back(nestLevel1);
 
-  par = psetDesc.addUntracked<std::vector<edm::ParameterSetDescription> >("nestLevel0", vDescs);
+  par = psetDesc.addUntracked<std::vector<art::ParameterSetDescription> >("nestLevel0", vDescs);
   assert(par->parameterSetDescription() == 0);
   assert(par->parameterSetDescriptions() != 0);
-  edm::ParameterDescription const& constParRef3 = *par;
+  art::ParameterDescription const& constParRef3 = *par;
   assert(constParRef3.parameterSetDescription() == 0);
   assert(constParRef3.parameterSetDescriptions() != 0);
 
-  std::vector<edm::ParameterSetDescription> * vec = par->parameterSetDescriptions();
+  std::vector<art::ParameterSetDescription> * vec = par->parameterSetDescriptions();
   assert(vec->size() == 2);
 
-  std::vector<edm::ParameterSetDescription> const* vec2 = constParRef3.parameterSetDescriptions();
+  std::vector<art::ParameterSetDescription> const* vec2 = constParRef3.parameterSetDescriptions();
   assert(vec2->size() == 2);
 
   psetDesc.validate(pset);

@@ -5,7 +5,7 @@
 
 #include "test/Framework/Services/Basic/TestTFileServiceAnalyzer.h"
 
-using namespace edm;
+using namespace art;
 using namespace std;
 
 

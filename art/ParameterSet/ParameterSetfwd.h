@@ -13,7 +13,7 @@ NOTE: This is *very* incomplete.
 
 #include "fhiclcpp/ParameterSet.h"
 
-namespace edm
+namespace art
 {
   class FileInPath;
 }

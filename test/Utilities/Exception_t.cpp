@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <assert.h>
 
-using namespace cms;
+using namespace artZ;
 
 struct Thing
 {
@@ -51,8 +51,8 @@ void func3()
   char c2[] = "a c-style array";
   Thing thing(4);
 
-  //  throw cms::Exception("DataCorrupt")
-  cms::Exception e("DataCorrupt");
+  //  throw artZ::Exception("DataCorrupt")
+  artZ::Exception e("DataCorrupt");
   e << "This is just a test: \n"
     << "double: " << d << "\n"
     << "float:  " << f << "\n"

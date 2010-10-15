@@ -7,7 +7,7 @@
 
 
 #include "art/Persistency/Common/EDProduct.h"
-using edm::EDProduct;
+using art::EDProduct;
 
 
 #include "art/Persistency/Provenance/ProductID.h"

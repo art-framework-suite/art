@@ -18,7 +18,7 @@ the CMS event model.
 
 #include "art/Utilities/UseReflex.h"
 
-namespace edm
+namespace art
 {
 
   typedef std::set<std::string> StringSet;
@@ -48,9 +48,9 @@ namespace edm
 
   // is_sequence_wrapper is used to determine whether the Type
   // 'possible_sequence_wrapper' represents
-  //   edm::Wrapper<Seq<X> >,
+  //   art::Wrapper<Seq<X> >,
   // where Seq<X> is anything that is a sequence of X.
-  // Note there is special support of edm::RefVector<Seq<X> >, which
+  // Note there is special support of art::RefVector<Seq<X> >, which
   // will be recognized as a sequence of X.
   bool
   is_sequence_wrapper(Reflex::Type const& possible_sequence_wrapper,

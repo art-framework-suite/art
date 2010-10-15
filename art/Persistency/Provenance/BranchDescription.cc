@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 
-namespace edm {
+namespace art {
 
   BranchDescription::Transients::Transients() :
     parameterSetID_(),
@@ -86,22 +86,22 @@ namespace edm {
     char const period('.');
 
     if (friendlyClassName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Class name '" << friendlyClassName()
+      throw artZ::Exception("IllegalCharacter") << "Class name '" << friendlyClassName()
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
     if (moduleLabel_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
+      throw artZ::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
       << "' contains an underscore ('_'), which is illegal in a module label.\n";
     }
 
     if (productInstanceName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
+      throw artZ::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
       << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
     }
 
     if (processName_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Process name '" << processName()
+      throw artZ::Exception("IllegalCharacter") << "Process name '" << processName()
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
@@ -132,7 +132,7 @@ namespace edm {
     if (wp.HasProperty("splitLevel")) {
 	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
 	if (splitLevel() < 0) {
-          throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
+          throw artZ::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
 	  splitLevel() << " is specified for class " << wrappedName() << ".'\n";
 	}
 	++splitLevel(); //Compensate for wrapper
@@ -142,7 +142,7 @@ namespace edm {
     if (wp.HasProperty("basketSize")) {
 	basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
 	if (basketSize() <= 0) {
-          throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
+          throw artZ::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
 	  basketSize() << " is specified for class " << wrappedName() << "'.\n";
 	}
     } else {
@@ -154,7 +154,7 @@ namespace edm {
     BranchDescription::psetID() const {
     assert(!psetIDs().empty());
     if (psetIDs().size() != 1) {
-      throw cms::Exception("Ambiguous")
+      throw artZ::Exception("Ambiguous")
 	<< "Your application requires all events on Branch '" << branchName()
 	<< "'\n to have the same provenance. This file has events with mixed provenance\n"
 	<< "on this branch.  Use a different input file.\n";
@@ -185,7 +185,7 @@ namespace edm {
 
   void throwExceptionWithText(const char* txt)
   {
-    edm::Exception e(edm::errors::LogicError);
+    art::Exception e(art::errors::LogicError);
     e << "Problem using an incomplete BranchDescription\n"
       << txt
       << "\nPlease report this error to the FWCore developers";
@@ -195,7 +195,7 @@ namespace edm {
   void
   BranchDescription::throwIfInvalid_() const
   {
-    if (branchType_ >= edm::NumBranchTypes)
+    if (branchType_ >= art::NumBranchTypes)
       throwExceptionWithText("Illegal BranchType detected");
 
     if (moduleLabel_.empty())

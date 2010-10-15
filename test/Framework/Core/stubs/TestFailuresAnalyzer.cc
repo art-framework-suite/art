@@ -53,12 +53,12 @@ enum {
 //
 // constructors and destructor
 //
-TestFailuresAnalyzer::TestFailuresAnalyzer(const edm::ParameterSet& iConfig)
+TestFailuresAnalyzer::TestFailuresAnalyzer(const art::ParameterSet& iConfig)
 : whichFailure_(iConfig.getParameter<int>("whichFailure"))
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){
-      throw cms::Exception("Test")<<" constructor";
+      throw artZ::Exception("Test")<<" constructor";
    }
 }
 
@@ -78,13 +78,13 @@ TestFailuresAnalyzer::~TestFailuresAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-TestFailuresAnalyzer::beginJob(const edm::EventSetup&)
+TestFailuresAnalyzer::beginJob(const art::EventSetup&)
 {
    if(whichFailure_ == kBeginOfJob){
-      throw cms::Exception("Test") <<" beginJob";
+      throw artZ::Exception("Test") <<" beginJob";
    }
    if(whichFailure_ == kBeginOfJobBadXML){
-      throw cms::Exception("Test") <<" beginJob with <BAD> >XML<";
+      throw artZ::Exception("Test") <<" beginJob with <BAD> >XML<";
    }
 }
 
@@ -92,16 +92,16 @@ void
 TestFailuresAnalyzer::endJob()
 {
    if(whichFailure_ == kEndOfJob){
-      throw cms::Exception("Test") <<" endJob";
+      throw artZ::Exception("Test") <<" endJob";
    }
 }
 
 
 void
-TestFailuresAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */)
+TestFailuresAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSetup& /* iSetup */)
 {
    if(whichFailure_ == kEvent){
-      throw cms::Exception("Test") <<" event";
+      throw artZ::Exception("Test") <<" event";
    }
 
 }

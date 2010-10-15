@@ -11,7 +11,7 @@ BranchChildren: Dependency information between branches.
 #include <set>
 #include "art/Persistency/Provenance/BranchID.h"
 
-namespace edm {
+namespace art {
 
   class BranchChildren {
   private:

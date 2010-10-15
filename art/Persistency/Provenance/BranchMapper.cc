@@ -5,7 +5,7 @@
 
 */
 
-namespace edm {
+namespace art {
   BranchMapper::BranchMapper() :
     entryInfoSet_(),
     nextMapper_(),
@@ -49,7 +49,7 @@ namespace edm {
 
   BranchID
   BranchMapper::oldProductIDToBranchID_(ProductID const& ) const {
-    throw edm::Exception(errors::LogicError)
+    throw art::Exception(errors::LogicError)
         << "Internal error:  Illegal call of oldProductIDToBranchID_.\n"
         << "Please report this error to the Framework group\n";
   }

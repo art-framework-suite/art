@@ -122,7 +122,7 @@ bool
     if(found==string::npos)
       {
         FDEBUG(1) << "Could not find _map_ file for " << map_name << "\n";
-        throw cms::Exception("NoMatch") << "could not find _dict_ library for "
+        throw artZ::Exception("NoMatch") << "could not find _dict_ library for "
                                       << libname << "\n";
       }
     string name(map_name.substr(0,found)+"_dict_plugin.so");
@@ -153,12 +153,12 @@ namespace plugin
 
     //if(!home_env)
     //  {
-        //throw cms::Exception("env missing")
+        //throw artZ::Exception("env missing")
         //  << "cannot find environment variable FW_HOME\n";
     //  }
     if(!ldlib_env)
       {
-        throw cms::Exception("env missing")
+        throw artZ::Exception("env missing")
           << "cannot find environment variable LD_LIBRARY_PATH\n";
       }
 

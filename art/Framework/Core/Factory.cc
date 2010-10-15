@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(edm::MakerPluginFactory,"CMS EDM Framework Module");
-namespace edm {
+EDM_REGISTER_PLUGINFACTORY(art::MakerPluginFactory,"CMS EDM Framework Module");
+namespace art {
 
   static void cleanup(const Factory::MakerMap::value_type& v)
   {
@@ -44,7 +44,7 @@ namespace edm {
         std::auto_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
 
 	if(wm.get()==0)
-	  throw edm::Exception(errors::Configuration,"UnknownModule")
+	  throw art::Exception(errors::Configuration,"UnknownModule")
 	    << "Module " << modtype
 	    << " with version " << p.releaseVersion_
 	    << " was not registered.\n"

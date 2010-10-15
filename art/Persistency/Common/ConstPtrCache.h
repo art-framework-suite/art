@@ -25,7 +25,7 @@ is always reset to 0 when ever a new instance of this class is read from a file
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
 class ConstPtrCache
 {
 

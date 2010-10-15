@@ -16,7 +16,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
   namespace service {
 
     class PrescaleService
@@ -25,7 +25,7 @@ namespace edm {
       //
       // construction/destruction
       //
-      PrescaleService(const fhicl::ParameterSet&,ActivityRegistry&) throw (cms::Exception);
+      PrescaleService(const fhicl::ParameterSet&,ActivityRegistry&) throw (artZ::Exception);
       ~PrescaleService();
 
 
@@ -36,14 +36,14 @@ namespace edm {
       void reconfigure(const fhicl::ParameterSet &);
 
       unsigned int getPrescale(unsigned int lvl1Index,
-                               const std::string&prescaledPath)throw(cms::Exception);
-      unsigned int getPrescale(const std::string&prescaledPath)throw(cms::Exception);
+                               const std::string&prescaledPath)throw(artZ::Exception);
+      unsigned int getPrescale(const std::string&prescaledPath)throw(artZ::Exception);
 
 
       void postBeginJob() {;}
       void postEndJob() {;}
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&) {;}
-      void postEventProcessing(const edm::Event&) {;}
+      void preEventProcessing(const art::EventID&, const art::Timestamp&) {;}
+      void postEventProcessing(const art::Event&) {;}
       void preModule(const ModuleDescription&) {;}
       void postModule(const ModuleDescription&) {;}
 

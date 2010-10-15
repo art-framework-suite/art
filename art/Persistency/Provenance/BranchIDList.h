@@ -14,7 +14,7 @@ BranchIDLists:
 #include <vector>
 #include "art/Persistency/Provenance/BranchID.h"
 
-namespace edm {
+namespace art {
   typedef std::vector<BranchID::value_type> BranchIDList;
   typedef std::vector<BranchIDList> BranchIDLists;
 }

@@ -12,7 +12,7 @@ uses input sources to retrieve EDProducts from external storage.
 #include "boost/shared_ptr.hpp"
 #include "art/Persistency/Common/EDProduct.h"
 
-namespace edm {
+namespace art {
   class BranchKey;
   class EDProductGetter;
   class DelayedReader {

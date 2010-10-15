@@ -11,16 +11,16 @@
 
 namespace edmtest {
 
-  RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(edm::ParameterSet const& pset) :
+  RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(art::ParameterSet const& pset) :
     expectedRunSubRunsEvents_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunSubRunEvents", std::vector<unsigned int>())),
     index_(0),
     verbose_(pset.getUntrackedParameter<bool>("verbose", false)) {
   }
 
-  void RunSubRunEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::analyze(art::Event const& event, art::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << event.run() << ", "
                                        << event.subRun() << ", "
                                        << event.id().event();
@@ -33,10 +33,10 @@ namespace edmtest {
     }
   }
 
-  void RunSubRunEventAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::beginRun(art::Run const& run, art::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << run.run() << ", "
                                        << 0 << ", "
                                        << 0;
@@ -49,10 +49,10 @@ namespace edmtest {
     }
   }
 
-  void RunSubRunEventAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::endRun(art::Run const& run, art::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << run.run() << ", "
                                        << 0 << ", "
                                        << 0;
@@ -65,10 +65,10 @@ namespace edmtest {
     }
   }
 
-  void RunSubRunEventAnalyzer::beginSubRun(edm::SubRun const& subRun, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::beginSubRun(art::SubRun const& subRun, art::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << subRun.run() << ", "
                                        << subRun.subRun() << ", "
                                        << 0;
@@ -81,10 +81,10 @@ namespace edmtest {
     }
   }
 
-  void RunSubRunEventAnalyzer::endSubRun(edm::SubRun const& subRun, edm::EventSetup const& es) {
+  void RunSubRunEventAnalyzer::endSubRun(art::SubRun const& subRun, art::EventSetup const& es) {
 
     if (verbose_) {
-      edm::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << subRun.run() << ", "
                                        << subRun.subRun() << ", "
                                        << 0;

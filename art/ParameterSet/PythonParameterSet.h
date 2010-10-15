@@ -52,7 +52,7 @@ public:
   getParameters(bool tracked, const std::string & name) const
   {
     std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
-    return edm::toPythonList(v);
+    return art::toPythonList(v);
   }
 
   /// unfortunate side effect: destroys the original list!
@@ -61,7 +61,7 @@ public:
   addParameters(bool tracked, std::string const& name,
                 boost::python::list  value)
   {
-    std::vector<T> v = edm::toVector<T>(value);
+    std::vector<T> v = art::toVector<T>(value);
     addParameter(tracked, name, v);
   }
 
@@ -88,21 +88,21 @@ public:
   boost::python::list getVPSet(bool tracked, std::string const& name);
 
   // no way to interface straight into the other python InputTag
-  edm::InputTag newInputTag(const std::string& label,
+  art::InputTag newInputTag(const std::string& label,
                             const std::string& instance,
                             const std::string& process)
   {
-    return edm::InputTag(label, instance, process);
+    return art::InputTag(label, instance, process);
   }
 
-  edm::EventID newEventID(unsigned int run, unsigned int event)
+  art::EventID newEventID(unsigned int run, unsigned int event)
   {
-    return edm::EventID(run, event);
+    return art::EventID(run, event);
   }
 
-  edm::SubRunID newSubRunID(unsigned int run, unsigned int subRun)
+  art::SubRunID newSubRunID(unsigned int run, unsigned int subRun)
   {
-    return edm::SubRunID(run, subRun);
+    return art::SubRunID(run, subRun);
   }
 
   void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);

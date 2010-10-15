@@ -7,7 +7,7 @@
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/OutputWorker.h"
 
-namespace edm {
+namespace art {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
 			     ModuleDescription const& md,
 			     WorkerParams const& wp):

@@ -39,13 +39,13 @@
 
 namespace edmtest {
 
-class WhatsItAnalyzer : public edm::EDAnalyzer {
+class WhatsItAnalyzer : public art::EDAnalyzer {
    public:
-      explicit WhatsItAnalyzer(const edm::ParameterSet&);
+      explicit WhatsItAnalyzer(const art::ParameterSet&);
       ~WhatsItAnalyzer();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const art::Event&, const art::EventSetup&);
    private:
       // ----------member data ---------------------------
 };
@@ -61,7 +61,7 @@ class WhatsItAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItAnalyzer::WhatsItAnalyzer(const edm::ParameterSet& /*iConfig*/)
+WhatsItAnalyzer::WhatsItAnalyzer(const art::ParameterSet& /*iConfig*/)
 {
    //now do what ever initialization is needed
 
@@ -83,9 +83,9 @@ WhatsItAnalyzer::~WhatsItAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-WhatsItAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
+WhatsItAnalyzer::analyze(const art::Event& /*iEvent*/, const art::EventSetup& iSetup)
 {
-   using namespace edm;
+   using namespace art;
    ESHandle<WhatsIt> pSetup;
    iSetup.get<GadgetRcd>().get(pSetup);
 

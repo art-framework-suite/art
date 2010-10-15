@@ -25,7 +25,7 @@
 #include <ctime>
 
 
-namespace edm {
+namespace art {
 
   RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
                                                 PoolSource const& input,
@@ -62,7 +62,7 @@ namespace edm {
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
-      throw edm::Exception(errors::Configuration)
+      throw art::Exception(errors::Configuration)
         << "Illegal configuration options passed to PoolSource\n"
         << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
         << "or \"eventsToProcess\".\n";
@@ -82,7 +82,7 @@ namespace edm {
       if (rootFile_) {
         forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
         if (forcedRunOffset_ < 0) {
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "The value of the 'setRunNumber' parameter must not be\n"
             << "less than the first run number in the first input file.\n"
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
@@ -95,7 +95,7 @@ namespace edm {
 #ifdef USE_RANDOM
       Service<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
-        throw edm::Exception(errors::Configuration)
+        throw art::Exception(errors::Configuration)
           << "A secondary input source requires the RandomNumberGeneratorService\n"
           << "which is not present in the configuration file.  You must add the service\n"
           << "in the configuration file or remove the modules that require it.";
@@ -160,9 +160,9 @@ namespace edm {
         sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     }
-    catch (cms::Exception e) {
+    catch (artZ::Exception e) {
       if (!skipBadFiles) {
-        throw edm::Exception(edm::errors::FileOpenError) << e.explainSelf() << "\n" <<
+        throw art::Exception(art::errors::FileOpenError) << e.explainSelf() << "\n" <<
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }
@@ -178,7 +178,7 @@ namespace edm {
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
-        throw edm::Exception(edm::errors::FileOpenError) <<
+        throw art::Exception(art::errors::FileOpenError) <<
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       mf::LogWarning("")
@@ -210,7 +210,7 @@ namespace edm {
                                                             fileIter_->fileName(),
                                                             matchMode_);
       if (!mergeInfo.empty()) {
-        throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
+        throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
       BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
@@ -235,7 +235,7 @@ namespace edm {
                                                             fileIter_->fileName(),
                                                             matchMode_);
       if (!mergeInfo.empty()) {
-        throw edm::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
+        throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
       BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
@@ -556,7 +556,7 @@ namespace edm {
       }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       if (eventsRemainingInFile_ == 0) {
-        throw edm::Exception(edm::errors::NotFound)
+        throw art::Exception(art::errors::NotFound)
           << "RootInputFileSequence::readManyRandom_(): Secondary Input file "
           << fileIter_->fileName() << " contains no events.\n";
       }
@@ -588,4 +588,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

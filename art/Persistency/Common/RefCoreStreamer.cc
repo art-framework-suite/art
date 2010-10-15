@@ -5,7 +5,7 @@
 #include <ostream>
 #include <cassert>
 
-namespace edm {
+namespace art {
   void
   ProductIDStreamer::operator()(TBuffer &R__b, void *objp) {
     if (R__b.IsReading()) {
@@ -54,7 +54,7 @@ namespace edm {
 
   void setRefCoreStreamer(bool oldFormat) {
     {
-      TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
+      TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
       RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
       if (st == 0) {
         cl->AdoptStreamer(new RefCoreTransientStreamer(0));
@@ -66,7 +66,7 @@ namespace edm {
 
   void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat) {
     if (ep != 0) {
-        TClass *cl = gROOT->GetClass("edm::RefCore::RefCoreTransients");
+        TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
         RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
         if (st == 0) {
           cl->AdoptStreamer(new RefCoreTransientStreamer(ep));

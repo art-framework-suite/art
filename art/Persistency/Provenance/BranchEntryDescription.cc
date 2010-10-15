@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   BranchEntryDescription::BranchEntryDescription() :
     productID_(),
     parents_(),

@@ -10,7 +10,7 @@
  */
 #include <string>
 
-namespace edm {
+namespace art {
   namespace friendlyname {
     std::string friendlyName(std::string const& iFullName);
   }

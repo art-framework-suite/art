@@ -10,7 +10,7 @@
  Description: Abstract base class used internally by the RefBase to obtain the EDProduct from the Event
 
  Usage:
-    This is used internally by the edm::Ref classes.
+    This is used internally by the art::Ref classes.
 
 */
 
@@ -20,7 +20,7 @@
 #include "boost/utility.hpp"
 
 
-namespace edm {
+namespace art {
    class EDProduct;
 
    class EDProductGetter
@@ -64,6 +64,6 @@ private:
    EDProductGetter const*
    mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Common_EDProductGetter_h

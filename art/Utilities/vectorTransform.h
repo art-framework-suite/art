@@ -21,7 +21,7 @@
 // ======================================================================
 
 
-namespace edm {
+namespace art {
 
   namespace {
     template< class From, class To >
@@ -46,7 +46,7 @@ namespace edm {
                   );
   }  // vectorTransform<,>()
 
-}  // namespace edm
+}  // namespace art
 
 
 // ======================================================================

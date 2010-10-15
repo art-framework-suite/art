@@ -20,7 +20,7 @@ namespace statemachine {
   SubRun::SubRun(int id) : id_(id) {}
   int SubRun::id() const { return id_; }
 
-  Machine::Machine(edm::IEventProcessor* ep,
+  Machine::Machine(art::IEventProcessor* ep,
                    FileMode fileMode,
                    bool handleEmptyRuns,
                    bool handleEmptySubRuns) :
@@ -29,7 +29,7 @@ namespace statemachine {
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptySubRuns_(handleEmptySubRuns) { }
 
-  edm::IEventProcessor& Machine::ep() const { return *ep_; }
+  art::IEventProcessor& Machine::ep() const { return *ep_; }
   FileMode Machine::fileMode() const { return fileMode_; }
   bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
   bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
@@ -68,13 +68,13 @@ namespace statemachine {
       try {
         closeFiles();
       }
-      catch (cms::Exception& e) {
+      catch (artZ::Exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
                 << "Another exception was caught while trying to clean up files after\n"
                 << "the primary exception.  We give up trying to clean up files at\n"
                 << "this point.  The description of this additional exception follows:\n"
-                << "cms::Exception\n"
+                << "artZ::Exception\n"
                 << e.explainSelf();
         std::string msg(message.str());
         ep_.setExceptionMessageFiles(msg);
@@ -264,13 +264,13 @@ namespace statemachine {
       try {
         finalizeRun();
       }
-      catch (cms::Exception& e) {
+      catch (artZ::Exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
                 << "Another exception was caught while trying to clean up runs after\n"
                 << "the primary exception.  We give up trying to clean up runs at\n"
                 << "this point.  The description of this additional exception follows:\n"
-                << "cms::Exception\n"
+                << "artZ::Exception\n"
                 << e.explainSelf();
         std::string msg(message.str());
         ep_.setExceptionMessageRuns(msg);
@@ -321,7 +321,7 @@ namespace statemachine {
     currentRun_ = ep_.readAndCacheRun();
     if (context<Machine>().fileMode() == FULLLUMIMERGE || context<Machine>().fileMode() == MERGE) {
       if (previousRuns_.find(currentRun_) != previousRuns_.end()) {
-        throw cms::Exception("Merge failure:") <<
+        throw artZ::Exception("Merge failure:") <<
             "Run " << currentRun_ << " is discontinuous, and cannot be merged in this mode.\n"
             "The run is split across two or more input files,\n"
             "and either the run is not the last run in the previous input file,\n"
@@ -488,13 +488,13 @@ namespace statemachine {
         checkInvariant();
         finalizeAllSubRuns();
       }
-      catch (cms::Exception& e) {
+      catch (artZ::Exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
                 << "Another exception was caught while trying to clean up subRuns after\n"
                 << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  The description of this additional exception follows:\n"
-                << "cms::Exception\n"
+                << "artZ::Exception\n"
                 << e.explainSelf();
         std::string msg(message.str());
         ep_.setExceptionMessageSubRuns(msg);
@@ -557,7 +557,7 @@ namespace statemachine {
     currentSubRun_ = HandleSubRuns::SubRunID(run, ep_.readAndCacheSubRun());
     if (context<Machine>().fileMode() == MERGE) {
       if (previousSubRuns_.find(currentSubRun_) != previousSubRuns_.end()) {
-        throw cms::Exception("Merge failure:") <<
+        throw artZ::Exception("Merge failure:") <<
             "SubRun " << currentSubRun_.first <<":" << currentSubRun_.second << " is discontinuous, and cannot be merged in this mode.\n"
             "The subRun is split across two or more input files,\n"
             "and either the subRun is not the last run in the previous input file,\n"

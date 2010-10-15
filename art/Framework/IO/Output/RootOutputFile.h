@@ -32,7 +32,7 @@ class TTree;
 class TFile;
 #include "TROOT.h"
 
-namespace edm {
+namespace art {
   class PoolOutputModule;
   class History;
 

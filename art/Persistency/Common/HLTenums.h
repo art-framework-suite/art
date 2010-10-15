@@ -12,7 +12,7 @@
  *
  */
 
-namespace edm
+namespace art
 {
   namespace hlt
     {

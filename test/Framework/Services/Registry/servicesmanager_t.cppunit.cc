@@ -45,12 +45,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testServicesManager);
 
 namespace {
    struct DummyService {
-      //DummyService(const edm::ParameterSet&,
-      //             edm::ActivityRegistry&) {}
+      //DummyService(const art::ParameterSet&,
+      //             art::ActivityRegistry&) {}
    };
 }
 
-//namespace edm {
+//namespace art {
 //   struct ActivityRegistry {};
 //}
 
@@ -58,9 +58,9 @@ void
 testServicesManager::putGetTest()
 {
 
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
 
-   std::vector<edm::ParameterSet> ps;
+   std::vector<art::ParameterSet> ps;
    ServicesManager sm(ps);
 
 
@@ -69,7 +69,7 @@ testServicesManager::putGetTest()
    try {
       sm.get<DummyService>();
       exceptionThrown = false;
-   } catch(const edm::Exception&) {
+   } catch(const art::Exception&) {
    }
    CPPUNIT_ASSERT(exceptionThrown);
 
@@ -92,14 +92,14 @@ testServicesManager::loadTest()
 {
    typedef testserviceregistry::DummyService TestService;
 
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
 
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
 
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 1;
@@ -111,9 +111,9 @@ testServicesManager::loadTest()
       CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
    }
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
 
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DoesntExistService");
       ps.addParameter("@service_type", typeName);
       pss.push_back(ps);
@@ -121,16 +121,16 @@ testServicesManager::loadTest()
       bool threwConfigurationException = false;
       try {
          ServicesManager sm(pss);
-      } catch(const cms::Exception&) {
+      } catch(const artZ::Exception&) {
          threwConfigurationException = true;
       }
 
       CPPUNIT_ASSERT(threwConfigurationException);
    }
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
 
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 1;
@@ -141,7 +141,7 @@ testServicesManager::loadTest()
       bool caughtMultipleServiceError = false;
       try {
          ServicesManager sm(pss);
-      } catch(const edm::Exception&) {
+      } catch(const art::Exception&) {
          caughtMultipleServiceError = true;
       }
 
@@ -156,13 +156,13 @@ testServicesManager::legacyTest()
 {
    typedef testserviceregistry::DummyService TestService;
 
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
 
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
-   std::vector<edm::ParameterSet> pss;
+   std::vector<art::ParameterSet> pss;
 
-   edm::ParameterSet ps;
+   art::ParameterSet ps;
    std::string typeName("DummyService");
    ps.addParameter("@service_type", typeName);
    int value = 1;
@@ -172,11 +172,11 @@ testServicesManager::legacyTest()
    boost::shared_ptr<ServicesManager>  legacy(new ServicesManager(pss));
    CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
 
-   edm::ServiceToken legacyToken(legacy);
+   art::ServiceToken legacyToken(legacy);
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
 
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 2;
@@ -186,16 +186,16 @@ testServicesManager::legacyTest()
       bool threwConfigurationException = false;
       try {
          ServicesManager sm(legacyToken, kOverlapIsError, pss);
-      } catch(const edm::Exception&) {
+      } catch(const art::Exception&) {
          threwConfigurationException = true;
       }
 
       CPPUNIT_ASSERT(threwConfigurationException);
    }
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
 
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 2;
@@ -207,9 +207,9 @@ testServicesManager::legacyTest()
       CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
    }
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
 
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("@service_type", typeName);
       int value = 2;
@@ -222,17 +222,17 @@ testServicesManager::legacyTest()
    }
    {
       try {
-         std::vector<edm::ParameterSet> pss;
+         std::vector<art::ParameterSet> pss;
 
          ServicesManager sm(legacyToken, kOverlapIsError, pss);
 
          CPPUNIT_ASSERT(!sm.get<TestService>().beginJobCalled());
-         edm::ActivityRegistry ar;
+         art::ActivityRegistry ar;
          sm.connectTo(ar);
          ar.postBeginJobSignal_();
 
          CPPUNIT_ASSERT(sm.get<TestService>().beginJobCalled());
-      }catch(const edm::Exception& iException) {
+      }catch(const art::Exception& iException) {
          std::cout<<iException.what()<<std::endl;
          throw;
       }catch(const std::exception& iException) {
@@ -248,14 +248,14 @@ testServicesManager::dependencyTest()
    //Try both order of creating services
    typedef testserviceregistry::DummyService TestService;
 
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
 
-   edm::AssertHandler ah;
+   art::AssertHandler ah;
 
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
       {
-         edm::ParameterSet ps;
+         art::ParameterSet ps;
          std::string typeName("DummyService");
          ps.addParameter("@service_type", typeName);
          int value = 1;
@@ -263,7 +263,7 @@ testServicesManager::dependencyTest()
          pss.push_back(ps);
       }
       {
-         edm::ParameterSet ps;
+         art::ParameterSet ps;
          std::string typeName("DependsOnDummyService");
          ps.addParameter("@service_type", typeName);
          pss.push_back(ps);
@@ -274,15 +274,15 @@ testServicesManager::dependencyTest()
       CPPUNIT_ASSERT(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
    }
    {
-      std::vector<edm::ParameterSet> pss;
+      std::vector<art::ParameterSet> pss;
       {
-         edm::ParameterSet ps;
+         art::ParameterSet ps;
          std::string typeName("DependsOnDummyService");
          ps.addParameter("@service_type", typeName);
          pss.push_back(ps);
       }
       {
-         edm::ParameterSet ps;
+         art::ParameterSet ps;
          std::string typeName("DummyService");
          ps.addParameter("@service_type", typeName);
          int value = 1;

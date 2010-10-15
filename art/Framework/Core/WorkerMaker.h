@@ -14,7 +14,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class Maker {
   public:
@@ -24,7 +24,7 @@ namespace edm {
                                              sigc::signal<void, ModuleDescription const&>& iPost) const = 0;
   protected:
     ModuleDescription createModuleDescription(WorkerParams const &p) const;
-    void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, cms::Exception const& iException) const;
+    void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, artZ::Exception const& iException) const;
   };
 
   template <class T>
@@ -58,12 +58,12 @@ namespace edm {
        std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));
        post(md);
-    } catch( cms::Exception& iException){
+    } catch( artZ::Exception& iException){
        throwConfigurationException(md, post, iException);
     }
     return worker;
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_WorkerMaker_h

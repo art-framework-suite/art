@@ -5,9 +5,9 @@
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 
-namespace edm
+namespace art
 {
-  typedef edm::detail::ThreadSafeRegistry<edm::ProcessHistoryID,edm::ProcessHistory> ProcessHistoryRegistry;
+  typedef art::detail::ThreadSafeRegistry<art::ProcessHistoryID,art::ProcessHistory> ProcessHistoryRegistry;
   typedef ProcessHistoryRegistry::collection_type ProcessHistoryMap;
 }
 

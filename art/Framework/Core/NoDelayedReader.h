@@ -8,7 +8,7 @@
 #include "art/Framework/Core/DelayedReader.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 
-namespace edm {
+namespace art {
   class NoDelayedReader : public DelayedReader {
   public:
     virtual ~NoDelayedReader();

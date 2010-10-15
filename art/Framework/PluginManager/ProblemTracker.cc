@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace edm
+namespace art
 {
 
   // -----------------------------------------------

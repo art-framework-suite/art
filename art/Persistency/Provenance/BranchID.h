@@ -10,7 +10,7 @@ BranchID: A unique identifier for each branch.
 #include <iosfwd>
 #include <string>
 
-namespace edm {
+namespace art {
   class BranchID {
   public:
     typedef unsigned int value_type;

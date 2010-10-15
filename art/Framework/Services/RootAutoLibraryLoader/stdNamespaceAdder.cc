@@ -21,7 +21,7 @@
 //
 // constants, enums and typedefs
 //
-namespace edm {
+namespace art {
   namespace root {
     std::string stdNamespaceAdder(const std::string& iClassName)
     {

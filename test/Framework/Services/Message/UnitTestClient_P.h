@@ -7,7 +7,7 @@
 #include "art/ParameterSet/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ParameterSet;
 }
 
@@ -16,11 +16,11 @@ namespace edmtest
 {
 
 class UnitTestClient_P
-  : public edm::EDAnalyzer
+  : public art::EDAnalyzer
 {
 public:
   explicit
-    UnitTestClient_P( edm::ParameterSet const & p)
+    UnitTestClient_P( art::ParameterSet const & p)
     : useLogFlush(true)
     , queueFillers(1)
   {
@@ -33,8 +33,8 @@ public:
   { }
 
   virtual
-    void analyze( edm::Event      const & e
-                , edm::EventSetup const & c
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
 private:

@@ -11,7 +11,7 @@
 // Auxiliary event data that is persistent
 // Obsolete format, used for backward compatibility only.
 
-namespace edm {
+namespace art {
   struct EventAuxiliary;
   struct EventAux {
     EventAux() : processHistoryID_(), id_(), time_(), subRunID_() {}

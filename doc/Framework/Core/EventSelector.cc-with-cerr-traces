@@ -19,7 +19,7 @@
 #include <iostream> // ###
 #include <iomanip> // ###
 
-namespace edm
+namespace art
 {
   EventSelector::EventSelector(Strings const& pathspecs,
 			       Strings const& names):
@@ -97,7 +97,7 @@ namespace edm
 
 	if (matches.empty() && (glob2reg(realname) == realname))
 	{
-            throw edm::Exception(edm::errors::Configuration)
+            throw art::Exception(art::errors::Configuration)
               << "EventSelector::init, An OutputModule is using SelectEvents\n"
                  "to request a trigger name that does not exist\n"
               << "The unknown trigger name is: " << realname << "\n";
@@ -106,7 +106,7 @@ namespace edm
 #ifdef REALNAME_MUST_MATCH_FEATURE_MIGHT_BE_WANTED
 	if (matches.empty() && (glob2reg(realname) != realname))
 	{
-            throw edm::Exception(edm::errors::Configuration)
+            throw art::Exception(art::errors::Configuration)
               << "EventSelector::init, An OutputModule is using SelectEvents\n"
                  "to request a wildcarded trigger name that does not match any trigger \n"
               << "The wildcarded trigger name is: " << realname << "\n";
@@ -120,7 +120,7 @@ namespace edm
 	  }
 	} else if (negative_criterion) {
 	  if (matches.empty()) {
-              throw edm::Exception(edm::errors::Configuration)
+              throw art::Exception(art::errors::Configuration)
               << "EventSelector::init, An OutputModule is using SelectEvents\n"
                  "to request a veto a set trigger names that do not exist\n"
               << "The problematic name is: " << current_path << "\n";
@@ -148,7 +148,7 @@ namespace edm
 
   } // EventSelector::init
 
-  EventSelector::EventSelector(edm::ParameterSet const& config,
+  EventSelector::EventSelector(art::ParameterSet const& config,
 			       Strings const& triggernames):
     accept_all_(false),
     decision_bits_(),
@@ -186,7 +186,7 @@ namespace edm
         Strings triggernames;
         bool fromPSetRegistry;
 
-        edm::Service<edm::service::TriggerNamesService> tns;
+        art::Service<art::service::TriggerNamesService> tns;
         if (tns->getTrigPaths(tr, triggernames, fromPSetRegistry)) {
 
           init(paths_, triggernames);
@@ -201,7 +201,7 @@ namespace edm
         }
         // This should never happen
         else {
-          throw edm::Exception(edm::errors::Unknown)
+          throw art::Exception(art::errors::Unknown)
             << "EventSelector::acceptEvent cannot find the trigger names for\n"
                "a process for which the configuration has requested that the\n"
                "OutputModule use TriggerResults to select events from.  This should\n"
@@ -258,7 +258,7 @@ namespace edm
     // This should never occur unless someone uses this function in
     // an incorrect way ...
     if (!results_from_current_process_) {
-      throw edm::Exception(edm::errors::Configuration)
+      throw art::Exception(art::errors::Configuration)
         << "\nEventSelector.cc::acceptEvent, you are attempting to\n"
         << "use a bit array for trigger results instead of the\n"
         << "TriggerResults object for a previous process.  This\n"

@@ -16,7 +16,7 @@
 #include <iostream>
 
 
-namespace edm {
+namespace art {
   namespace {
 
     TBranch * getAuxiliaryBranch(TTree * tree, BranchType const& branchType) {
@@ -159,8 +159,8 @@ namespace edm {
       try {
         n = branch->GetEntry(entryNumber);
       }
-      catch(cms::Exception e) {
-	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
+      catch(artZ::Exception e) {
+	throw art::Exception(art::errors::FileReadError) << e.explainSelf() << "\n";
       }
       return n;
     }
@@ -171,11 +171,11 @@ namespace edm {
       try {
         n = tree->GetEntry(entryNumber);
       }
-      catch(cms::Exception e) {
-	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
+      catch(artZ::Exception e) {
+	throw art::Exception(art::errors::FileReadError) << e.explainSelf() << "\n";
       }
       return n;
     }
 
   }  // namespace input
-}  // namespace edm
+}  // namespace art

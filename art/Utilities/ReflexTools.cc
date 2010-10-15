@@ -22,7 +22,7 @@ using Reflex::Type;
 using Reflex::TypeTemplate;
 using Reflex::Type_Iterator;
 
-namespace edm
+namespace art
 {
 
   Type get_final_type(Type t)
@@ -57,7 +57,7 @@ namespace edm
 			    Type & result)
   {
     TypeTemplate primary_template_id(possible_ref.TemplateFamily());
-    if (primary_template_id == TypeTemplate::ByName("edm::Ref", 3)) {
+    if (primary_template_id == TypeTemplate::ByName("art::Ref", 3)) {
       (void)value_type_of(possible_ref, result);
       return true;
     } else {
@@ -71,7 +71,7 @@ namespace edm
 				  Type & result)
   {
     TypeTemplate primary_template_id(possible_ref.TemplateFamily());
-    if (primary_template_id == TypeTemplate::ByName("edm::RefToBase", 1)) {
+    if (primary_template_id == TypeTemplate::ByName("art::RefToBase", 1)) {
       (void)value_type_of(possible_ref, result);
       return true;
     } else {
@@ -85,11 +85,11 @@ namespace edm
 		      Type& found_sequence_value_type)
   {
     Type possible_sequence;
-    if (!edm::wrapper_type_of(possible_sequence_wrapper, possible_sequence))
+    if (!art::wrapper_type_of(possible_sequence_wrapper, possible_sequence))
       return false;
 
     Type outer_value_type;
-    if (!edm::value_type_of(possible_sequence, outer_value_type))
+    if (!art::value_type_of(possible_sequence, outer_value_type))
       return false;
 
     if (!if_edm_ref_get_value_type(outer_value_type,
@@ -106,7 +106,7 @@ namespace edm
 	       Reflex::Type& value_type)
   {
 
-    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefVector", 3));
+    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("art::RefVector", 3));
     static std::string member_type("member_type");
     TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
     if ( primary_template_id == ref_vector_template_id )
@@ -119,7 +119,7 @@ namespace edm
 		     Reflex::Type& value_type)
   {
 
-    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefToBaseVector", 1));
+    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("art::RefToBaseVector", 1));
     static std::string member_type("member_type");
     TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
     if ( primary_template_id == ref_vector_template_id )
@@ -246,7 +246,7 @@ namespace edm
 	   it != itEnd; ++it) {
 	ostr << *it << "\n\n";
       }
-      throw edm::Exception(edm::errors::DictionaryNotFound)
+      throw art::Exception(art::errors::DictionaryNotFound)
 	<< "No REFLEX data dictionary found for the following classes:\n\n"
 	<< ostr.str()
 	<< "Most likely each dictionary was never generated,\n"
@@ -292,7 +292,7 @@ namespace edm
             // exception.
             /*
             else {
-              throw edm::Exception(edm::errors::UnimplementedFeature)
+              throw art::Exception(art::errors::UnimplementedFeature)
                 << "DataFormats/Common/src/ReflexTools.cc in function public_base_classes.\n"
 	        << "Encountered class that has a public base class that appears\n"
 	        << "multiple times in its inheritance heirarchy.\n"

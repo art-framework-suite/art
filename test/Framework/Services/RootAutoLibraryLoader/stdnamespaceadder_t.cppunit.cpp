@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-Test program for edm::TypeIDBase class.
+Test program for art::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
 
@@ -31,7 +31,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testSTDNamespaceAdder);
 
 void testSTDNamespaceAdder::tests()
 {
-  using namespace edm::root;
+  using namespace art::root;
 
    static const std::string kVectorBlahNoNS("vector<Blah>");
    static const std::string kVectorBlahNS("std::vector<Blah>");

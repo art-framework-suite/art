@@ -7,11 +7,11 @@
 
 class TBuffer;
 
-namespace edm {
+namespace art {
   class EDProductGetter;
   class RefCoreStreamer : public TClassStreamer {
   public:
-    explicit RefCoreStreamer(EDProductGetter const* ep) : cl_("edm::RefCore"), prodGetter_(ep) {}
+    explicit RefCoreStreamer(EDProductGetter const* ep) : cl_("art::RefCore"), prodGetter_(ep) {}
 
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;
@@ -25,7 +25,7 @@ namespace edm {
 
   class RefCoreTransientStreamer : public TClassStreamer {
   public:
-    explicit RefCoreTransientStreamer(EDProductGetter const* ep) : cl_("edm::RefCore::RefCoreTransients"), prodGetter_(ep) {}
+    explicit RefCoreTransientStreamer(EDProductGetter const* ep) : cl_("art::RefCore::RefCoreTransients"), prodGetter_(ep) {}
 
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;
@@ -39,7 +39,7 @@ namespace edm {
 
   class ProductIDStreamer : public TClassStreamer {
   public:
-    explicit ProductIDStreamer(EDProductGetter const* ep) : cl_("edm::ProductID"), prodGetter_(ep) {}
+    explicit ProductIDStreamer(EDProductGetter const* ep) : cl_("art::ProductID"), prodGetter_(ep) {}
 
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;

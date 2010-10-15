@@ -16,7 +16,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   //used for defaults
   static const unsigned int kNanoSecPerSec = 1000000000U;
   static const unsigned int kAveEventPerSec = 200U;

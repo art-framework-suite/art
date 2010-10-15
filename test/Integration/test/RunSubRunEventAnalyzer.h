@@ -8,18 +8,18 @@
 
 namespace edmtest {
 
-  class RunSubRunEventAnalyzer : public edm::EDAnalyzer {
+  class RunSubRunEventAnalyzer : public art::EDAnalyzer {
   public:
 
-    explicit RunSubRunEventAnalyzer(edm::ParameterSet const& pset);
+    explicit RunSubRunEventAnalyzer(art::ParameterSet const& pset);
 
     virtual ~RunSubRunEventAnalyzer() {}
 
-    virtual void analyze(edm::Event const& event, edm::EventSetup const& es);
-    virtual void beginRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void endRun(edm::Run const& run, edm::EventSetup const& es);
-    virtual void beginSubRun(edm::SubRun const& subRun, edm::EventSetup const& es);
-    virtual void endSubRun(edm::SubRun const& subRun, edm::EventSetup const& es);
+    virtual void analyze(art::Event const& event, art::EventSetup const& es);
+    virtual void beginRun(art::Run const& run, art::EventSetup const& es);
+    virtual void endRun(art::Run const& run, art::EventSetup const& es);
+    virtual void beginSubRun(art::SubRun const& subRun, art::EventSetup const& es);
+    virtual void endSubRun(art::SubRun const& subRun, art::EventSetup const& es);
 
   private:
 
