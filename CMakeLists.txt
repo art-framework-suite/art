@@ -255,8 +255,8 @@ macro (build_dictionary maindir subdir)
 		 ${GENREFLEX_INCLUDES}
         	 -o ${maindir}${subdir}_dict_plugin.cpp
 		 ${GENREFLEX_FLAGS} || { rm -f ${maindir}${subdir}_dict_plugin.cpp\; /bin/false\; }
-     DEPENDS ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/src/classes.h
-             ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/src/classes_def.xml
+     DEPENDS ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes.h
+             ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes_def.xml
   )
   add_custom_command(
      OUTPUT ${maindir}${subdir}_map_plugin.cpp
