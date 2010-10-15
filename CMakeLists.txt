@@ -13,6 +13,7 @@
 cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
+set( product art )
 set( version v0_0_0 )
 SET (qualifier a1)
 
@@ -32,7 +33,7 @@ if ( NOT SLTYPE )
   message(FATAL_ERROR "Can't determine system type")
 endif ()
 SET (flavorqual ${SLTYPE}.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
-SET (flavorqual_dir ${version}/${flavorqual} )
+SET (flavorqual_dir ${product}/${version}/${flavorqual} )
 
 # because we want to move these libraries about,
 # do not embed full path in shared libraries or executables
@@ -237,9 +238,14 @@ set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 			-I $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0
 			-I $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
 # this is how we do the genreflex step
-macro (build_plugin maindir subdir)
+macro (build_dictionary maindir subdir)
   add_library(${maindir}${subdir}_dict_plugin SHARED ${maindir}${subdir}_dict_plugin.cpp )
   add_library(${maindir}${subdir}_map_plugin SHARED ${maindir}${subdir}_map_plugin.cpp )
+  set(dictionary_liblist "${ARGN}")
+  if( dictionary_liblist )
+    target_link_libraries( ${maindir}${subdir}_dict_plugin ${dictionary_liblist} )
+    target_link_libraries( ${maindir}${subdir}_map_plugin ${dictionary_liblist} )
+  endif( dictionary_liblist )
   add_custom_command(
      OUTPUT ${maindir}${subdir}_dict_plugin.cpp
      COMMAND ${GENREFLEX} ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes.h
@@ -248,21 +254,27 @@ macro (build_plugin maindir subdir)
 		 -I ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}
 		 ${GENREFLEX_INCLUDES}
         	 -o ${maindir}${subdir}_dict_plugin.cpp
-		 ${GENREFLEX_FLAGS}
+		 ${GENREFLEX_FLAGS} || { rm -f ${maindir}${subdir}_dict_plugin.cpp\; /bin/false\; }
+     DEPENDS ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes.h
+             ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes_def.xml
   )
   add_custom_command(
      OUTPUT ${maindir}${subdir}_map_plugin.cpp
      DEPENDS ${maindir}${subdir}_dict_plugin.cpp
      COMMAND mv classes_ids.cc ${maindir}${subdir}_map_plugin.cpp
   )
-  install ( TARGETS ${maindir}${subdir}_dict_plugin DESTINATION lib )
-  install ( TARGETS ${maindir}${subdir}_map_plugin  DESTINATION lib )
-endmacro (build_plugin maindir subdir)
+  install ( TARGETS ${maindir}${subdir}_dict_plugin DESTINATION ${flavorqual_dir}/lib )
+  install ( TARGETS ${maindir}${subdir}_map_plugin  DESTINATION ${flavorqual_dir}/lib )
+endmacro (build_dictionary maindir subdir)
 
 # simple plugin libraries
 macro (simple_plugin name)
   add_library(${name} SHARED ${name}.cc )
-  install( TARGETS ${name}  DESTINATION lib )
+  set(simple_plugin_liblist "${ARGN}")
+  if( simple_plugin_liblist )
+    target_link_libraries( ${name} ${simple_plugin_liblist} )
+  endif( simple_plugin_liblist )
+  install( TARGETS ${name}  DESTINATION ${flavorqual_dir}/lib )
 endmacro (simple_plugin name)
 
 # source

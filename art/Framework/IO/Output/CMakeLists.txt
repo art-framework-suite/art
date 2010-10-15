@@ -21,4 +21,4 @@ add_library(artFrameworkIOOutput SHARED ${artFrameworkIOOutput_sources} )
 
 simple_plugin(PoolOutputModule_plugin)
 
-install ( TARGETS artFrameworkIOOutput DESTINATION lib )
+install ( TARGETS artFrameworkIOOutput DESTINATION ${flavorqual_dir}/lib )

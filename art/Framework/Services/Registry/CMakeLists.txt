@@ -17,7 +17,7 @@ set( artFrameworkServicesRegistry_sources ActivityRegistry.cc
 
 add_library(artFrameworkServicesRegistry SHARED ${artFrameworkServicesRegistry_sources} )
 
-install ( TARGETS artFrameworkServicesRegistry DESTINATION lib )
+install ( TARGETS artFrameworkServicesRegistry DESTINATION ${flavorqual_dir}/lib )
 install(FILES ActivityRegistry.h
               connect_but_block_self.h
               Service.h
@@ -31,4 +31,4 @@ install(FILES ActivityRegistry.h
               ServiceWrapperBase.h
               ServiceWrapper.h
               TypeInfoHolder.h
-        DESTINATION include/art/Framework/Services/Registry )
+         DESTINATION  ${product}/${version}/include/art/Framework/Services/Registry )

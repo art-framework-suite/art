@@ -20,4 +20,4 @@ project(DataFormatsTestObjects)
 set (DataFormatsTestObjects_VERSION_MAJOR 1)
 set (DataFormatsTestObjects_VERSION_MINOR 0)
 
-build_plugin( DataFormats TestObjects )
+build_dictionary( DataFormats TestObjects )

@@ -20,9 +20,9 @@ set( artPersistencyCommon_sources CacheStreamers.cc
 
 add_library(artPersistencyCommon SHARED ${artPersistencyCommon_sources} )
 
-build_plugin( Persistency Common )
+build_dictionary( Persistency Common )
 
-install ( TARGETS artPersistencyCommon DESTINATION lib )
+install ( TARGETS artPersistencyCommon DESTINATION ${flavorqual_dir}/lib )
 install(FILES AssociativeIterator.h
               BaseHolder.h
               BaseVectorHolder.h
@@ -65,4 +65,4 @@ install(FILES AssociativeIterator.h
               TriggerResults.h
               ValueMap.h
               Wrapper.h
-        DESTINATION include/art/Persistency/Common )
+         DESTINATION  ${product}/${version}/include/art/Persistency/Common )

@@ -22,7 +22,7 @@ set( artFrameworkPluginManager_sources CacheParser.cc
 
 add_library(artFrameworkPluginManager SHARED ${artFrameworkPluginManager_sources} )
 
-install ( TARGETS artFrameworkPluginManager DESTINATION lib )
+install ( TARGETS artFrameworkPluginManager DESTINATION ${flavorqual_dir}/lib )
 install(FILES CacheParser.h
               FileOperations.h
               ModuleDef.h
@@ -37,4 +37,4 @@ install(FILES CacheParser.h
               ProblemTracker.h
               SharedLibrary.h
               standard.h
-        DESTINATION include/art/Framework/PluginManager )
+         DESTINATION  ${product}/${version}/include/art/Framework/PluginManager )

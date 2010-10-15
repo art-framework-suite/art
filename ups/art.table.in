@@ -1,5 +1,5 @@
 File    = table
-Product = art
+Product = @product@
 #*************************************************
 # Starting Group definition
 Group:
@@ -72,10 +72,18 @@ Common:
     endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
 	    
     # uncomment or add to this list as relevant
-    #setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
-    #setupRequired(gcc @GCC_VERSION@ @GCC_QUAL@)
-    setupRequired(art_externals @ART_EXTERNALS_VERSION@ @ART_EXTERNALS_QUAL@)
+    setupRequired(cmake)
+    setupRequired(cppunit   @CPPUNIT_VERS@ @CPPUNIT_QUAL@)
+    setupRequired(gccxml   @GCCXML_VERS@ @GCCXML_QUAL@)
+    setupRequired(libsigcpp   @LIBSIGCPP_VERS@ @LIBSIGCPP_QUAL@)
+    setupRequired(clhep   @CLHEP_VERS@ @CLHEP_QUAL@)
+    setupRequired(root   @ROOT_VERS@ @ROOT_QUAL@)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_QUAL@)
+    setupRequired(fhiclcpp   @FHICLCPP_VERS@ @FHICLCPP_QUAL@)
+    setupRequired(cpp0x   @CPPOX_VERS@ @CPPOX_QUAL@)
+    setupRequired(cetlib   @CETLIB_VERS@ @CETLIB_QUAL@)
+    setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
+    setupRequired(gcc @GCC_VERSION@ @GCC_QUAL@)
 
 End:
 # End Group definition

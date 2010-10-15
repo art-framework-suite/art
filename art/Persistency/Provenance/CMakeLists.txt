@@ -47,9 +47,9 @@ set( artPersistencyProvenance_sources BranchChildren.cc
 
 add_library(artPersistencyProvenance SHARED ${artPersistencyProvenance_sources} )
 
-build_plugin( Persistency Provenance )
+build_dictionary( Persistency Provenance )
 
-install ( TARGETS artPersistencyProvenance DESTINATION lib )
+install ( TARGETS artPersistencyProvenance DESTINATION ${flavorqual_dir}/lib )
 install(FILES BranchChildren.h
               BranchDescription.h
               BranchEntryDescription.h
@@ -110,4 +110,4 @@ install(FILES BranchChildren.h
               Timestamp.h
               Transient.h
               TransientStreamer.h
-        DESTINATION include/art/Persistency/Provenance )
+         DESTINATION  ${product}/${version}/include/art/Persistency/Provenance )

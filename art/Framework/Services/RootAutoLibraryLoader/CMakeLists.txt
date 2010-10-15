@@ -17,4 +17,4 @@ add_library(artFrameworkServicesRootAutoLibraryLoader SHARED ${artFrameworkServi
 install ( TARGETS artFrameworkServicesRootAutoLibraryLoader DESTINATION lib )
 install(FILES CacheStreamers.h
               RootAutoLibraryLoader.h
-        DESTINATION include/art/Framework/Services/RootAutoLibraryLoader )
+         DESTINATION  ${product}/${version}/include/art/Framework/Services/RootAutoLibraryLoader )

@@ -22,7 +22,7 @@ set( artParameterSet_sources Entry.cc
 
 add_library(artParameterSet SHARED ${artParameterSet_sources} )
 
-install ( TARGETS artParameterSet DESTINATION lib )
+install ( TARGETS artParameterSet DESTINATION ${flavorqual_dir}/lib )
 install(FILES Entry.h
               FileInPath.h
               InputTag.h
@@ -36,4 +36,4 @@ install(FILES Entry.h
               Registry.h
               split.h
               types.h
-        DESTINATION include/art/ParameterSet )
+         DESTINATION  ${product}/${version}/include/art/ParameterSet )
