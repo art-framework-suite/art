@@ -25,9 +25,9 @@ art::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet
    if(doLoad) {
      ROOT::Cintex::Cintex::Enable();
 
-     edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+     artplugin::PluginManager*db =  artplugin::PluginManager::get();
 
-     typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+     typedef artplugin::PluginManager::CategoryToInfos CatToInfos;
 
      CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
 
@@ -38,7 +38,7 @@ art::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet
      const std::string cPrefix("LCGReflex/");
      const std::string mystring("art::Wrapper");
 
-     for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+     for (artplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
           itInfoEnd = itFound->second.end();
           itInfo != itInfoEnd; ++itInfo)
      {
@@ -48,7 +48,7 @@ art::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet
 
        lastClass = itInfo->name_;
        if (lastClass.find(mystring) != std::string::npos) {
-         edmplugin::PluginCapabilities::get()->load(lastClass);
+         artplugin::PluginCapabilities::get()->load(lastClass);
        }
        //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
      }

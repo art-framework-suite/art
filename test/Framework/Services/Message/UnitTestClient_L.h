@@ -9,7 +9,7 @@ namespace art {
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class UnitTestClient_L : public art::EDAnalyzer
@@ -51,7 +51,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 

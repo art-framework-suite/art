@@ -9,7 +9,7 @@
 #include <cmath>
 #include <float.h>
 
-namespace edmtest
+namespace arttest
 {
 void
   UnitTestClient::analyze( art::Event      const & e
@@ -46,8 +46,8 @@ void
   }
 }
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient;
+using arttest::UnitTestClient;
 DEFINE_FWK_MODULE(UnitTestClient);

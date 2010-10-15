@@ -10,7 +10,7 @@ namespace art {
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class MessageLoggerClient
@@ -34,7 +34,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // Integration_MessageLoggerClient_h

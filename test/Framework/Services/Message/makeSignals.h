@@ -10,7 +10,7 @@ namespace art {
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class makeSignals
@@ -31,7 +31,7 @@ public:
 private:
 };
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_makeSignals_h

@@ -37,7 +37,7 @@
 // class decleration
 //
 
-namespace edmtest {
+namespace arttest {
 
 class WhatsItAnalyzer : public art::EDAnalyzer {
    public:
@@ -93,6 +93,6 @@ WhatsItAnalyzer::analyze(const art::Event& /*iEvent*/, const art::EventSetup& iS
 }
 
 }
-using namespace edmtest;
+using namespace arttest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItAnalyzer);

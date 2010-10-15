@@ -38,7 +38,7 @@ namespace art {
 
 using namespace art;
 
-namespace edmtest
+namespace arttest
 {
 
   class TestMergeResults : public art::EDAnalyzer
@@ -116,9 +116,9 @@ namespace edmtest
     unsigned int index7_;
     unsigned int parentIndex_;
 
-    art::Handle<edmtest::Thing> h_thing;
-    art::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
-    art::Handle<edmtest::ThingWithIsEqual> h_thingWithIsEqual;
+    art::Handle<arttest::Thing> h_thing;
+    art::Handle<arttest::ThingWithMerge> h_thingWithMerge;
+    art::Handle<arttest::ThingWithIsEqual> h_thingWithIsEqual;
   };
 
   // -----------------------------------------------------------------
@@ -485,6 +485,6 @@ namespace edmtest
   }
 }
 
-using edmtest::TestMergeResults;
+using arttest::TestMergeResults;
 
 DEFINE_FWK_MODULE(TestMergeResults);

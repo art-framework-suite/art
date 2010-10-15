@@ -99,7 +99,7 @@ int art_main(int argc, char* argv[])
 
   // We must initialize the plug-in manager first
   try {
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    artplugin::PluginManager::configure(artplugin::standard::config());
   }
   catch(artZ::Exception& e) {
     std::cerr << e.what() << std::endl;

@@ -18,7 +18,7 @@
 
 using namespace art;
 
-namespace edmtest
+namespace arttest
 {
 
   class TestResultAnalyzer : public art::EDAnalyzer
@@ -100,6 +100,6 @@ namespace edmtest
 
 }
 
-using edmtest::TestResultAnalyzer;
+using arttest::TestResultAnalyzer;
 
 DEFINE_FWK_MODULE(TestResultAnalyzer);

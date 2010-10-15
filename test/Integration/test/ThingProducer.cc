@@ -5,7 +5,7 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-namespace edmtest {
+namespace arttest {
   ThingProducer::ThingProducer(art::ParameterSet const& iConfig):
   alg_(iConfig.getUntrackedParameter<int>("offsetDelta",0)), //this really should be tracked, but I want backwards compatibility
   noPut_(iConfig.getUntrackedParameter<bool>("noPut", false)) // used for testing with missing products
@@ -89,5 +89,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::ThingProducer;
+using arttest::ThingProducer;
 DEFINE_FWK_MODULE(ThingProducer);

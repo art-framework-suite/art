@@ -12,7 +12,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmtest {
+namespace arttest {
   class ThingProducer : public art::EDProducer {
   public:
 

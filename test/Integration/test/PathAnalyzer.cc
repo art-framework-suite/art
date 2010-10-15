@@ -11,7 +11,7 @@
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"
 
-namespace edmtest
+namespace arttest
 {
   class PathAnalyzer : public art::EDAnalyzer
   {
@@ -97,7 +97,7 @@ namespace edmtest
 				 << std::endl;
   }
 
-} // namespace edmtest
+} // namespace arttest
 
-using edmtest::PathAnalyzer;
+using arttest::PathAnalyzer;
 DEFINE_FWK_MODULE(PathAnalyzer);

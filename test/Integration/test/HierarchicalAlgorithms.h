@@ -8,7 +8,7 @@
 #include <vector>
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edmtest {
+namespace arttest {
 
   class alg_2
   {

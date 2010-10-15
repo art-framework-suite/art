@@ -29,8 +29,8 @@ class IncludeFileFinderTest: public CppUnit::TestFixture
 
 public:
   void setUp(){
-    if(not edmplugin::PluginManager::isAvailable()) {
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    if(not artplugin::PluginManager::isAvailable()) {
+      artplugin::PluginManager::configure(artplugin::standard::config());
     }
   }
   void tearDown(){}

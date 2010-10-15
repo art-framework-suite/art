@@ -28,7 +28,7 @@ using namespace std;
 using namespace art;
 namespace fs = boost::filesystem;
 
-namespace edmplugin {
+namespace artplugin {
 
   std::string map_to_dict(const string& libname)
   {

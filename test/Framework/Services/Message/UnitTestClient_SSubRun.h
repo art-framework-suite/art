@@ -14,7 +14,7 @@ namespace art {
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class UTC_SL1
@@ -94,7 +94,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_UnitTestClient_SSubRun_h

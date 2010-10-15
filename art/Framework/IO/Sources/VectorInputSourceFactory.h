@@ -17,7 +17,7 @@ namespace art {
 
   typedef VectorInputSource* (ISVecFunc)(fhicl::ParameterSet const&,
                                          InputSourceDescription const&);
-  typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
+  typedef artplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
   class VectorInputSourceFactory
   {

@@ -1,7 +1,7 @@
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 #include "test/TestObjects/Thing.h"
 
-namespace edmtest {
+namespace arttest {
   void ThingAlgorithm::run(ThingCollection & thingCollection) {
     thingCollection.reserve(20);
     for (int i = 0; i < 20; ++i) {

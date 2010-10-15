@@ -8,7 +8,7 @@
 #include <memory>
 
 namespace art {
-  typedef edmplugin::PluginFactory<Presence* ()> PresencePluginFactory;
+  typedef artplugin::PluginFactory<Presence* ()> PresencePluginFactory;
 
   typedef Presence* (PresenceFunc)();
 

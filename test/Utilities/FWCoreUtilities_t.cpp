@@ -296,14 +296,14 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testTypeIDBase);
 
-namespace edmtest {
+namespace arttest {
   struct empty { };
 }
 
 void testTypeIDBase::equalityTest()
 
 {
-  edmtest::empty e;
+  arttest::empty e;
   art::TypeIDBase id1(typeid(e));
   art::TypeIDBase id2(typeid(e));
 
@@ -318,7 +318,7 @@ void testTypeIDBase::equalityTest()
 
 void testTypeIDBase::copyTest()
 {
-  edmtest::empty e;
+  arttest::empty e;
   art::TypeIDBase id1(typeid(e));
 
   art::TypeIDBase id3=id1;
@@ -370,7 +370,7 @@ using std::endl;
 void testTypeid::equalityTest()
 
 {
-  edmtest::empty e;
+  arttest::empty e;
   art::TypeID id1(e);
   art::TypeID id2(e);
 
@@ -385,7 +385,7 @@ void testTypeid::equalityTest()
 
 void testTypeid::copyTest()
 {
-  edmtest::empty e;
+  arttest::empty e;
   art::TypeID id1(e);
 
   art::TypeID id3=id1;

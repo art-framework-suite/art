@@ -24,7 +24,7 @@ extern "C"
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
   class TestFilterModule : public art::EDFilter
@@ -124,8 +124,8 @@ namespace edmtest
   }
 }
 
-using edmtest::TestFilterModule;
-using edmtest::SewerModule;
+using arttest::TestFilterModule;
+using arttest::SewerModule;
 
 
 DEFINE_FWK_MODULE(TestFilterModule);

@@ -18,4 +18,4 @@
 
 #include "art/Framework/Core/eventsetupdata_registration_macro.h"
 
-EVENTSETUP_DATA_REG(edmtest::Doodad);
+EVENTSETUP_DATA_REG(arttest::Doodad);

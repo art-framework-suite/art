@@ -122,7 +122,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
   art::ModuleDescription mod;
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
-  art::TypeID dummyType(typeid(edmtest::DummyProduct));
+  art::TypeID dummyType(typeid(arttest::DummyProduct));
   std::string productClassName = dummyType.userClassName();
   std::string friendlyProductClassName = dummyType.friendlyClassName();
   art::ParameterSet modParams;
@@ -167,7 +167,7 @@ void test_ep::setUp()
 
   // Put products we'll look for into the EventPrincipal.
   {
-    typedef edmtest::DummyProduct PRODUCT_TYPE;
+    typedef arttest::DummyProduct PRODUCT_TYPE;
     typedef art::Wrapper<PRODUCT_TYPE> WDP;
     std::auto_ptr<art::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
 
@@ -305,7 +305,7 @@ void test_ep::failgetManybyTypeTest()
 void test_ep::failgetbyInvalidIdTest()
 {
   //put_a_dummy_product("HLT");
-  //put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
+  //put_a_product<arttest::DummyProduct>(pProdConfig_, label);
 
   art::ProductID id;
   CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(id), art::Exception);

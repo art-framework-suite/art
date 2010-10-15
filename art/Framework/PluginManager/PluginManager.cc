@@ -31,7 +31,7 @@
 
 #include "art/Framework/PluginManager/standard.h"
 
-namespace edmplugin {
+namespace artplugin {
 //
 // constants, enums and typedefs
 //

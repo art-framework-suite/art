@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 void
@@ -28,9 +28,9 @@ void
 }
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
-using edmtest::UTC_Q1;
-using edmtest::UTC_Q2;
+using arttest::UTC_Q1;
+using arttest::UTC_Q2;
 DEFINE_FWK_MODULE(UTC_Q1);
 DEFINE_FWK_MODULE(UTC_Q2);

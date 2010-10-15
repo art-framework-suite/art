@@ -4,7 +4,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDProducer.h"
 
-namespace edmtest {
+namespace arttest {
   //struct ThingWithHist {
 //	TH1F hist_;
  // };

@@ -13,7 +13,7 @@
 #include "FWCore/Integration/test/HierarchicalAlgorithms.h"
 
 
-namespace edmtest {
+namespace arttest {
   class HierarchicalEDProducer : public art::EDProducer {
   public:
 

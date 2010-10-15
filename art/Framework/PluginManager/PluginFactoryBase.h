@@ -30,7 +30,7 @@
 #include "art/Utilities/Exception.h"
 
 // forward declarations
-namespace edmplugin {
+namespace artplugin {
 class PluginFactoryBase
 {
 

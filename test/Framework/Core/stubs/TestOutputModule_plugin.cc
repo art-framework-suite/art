@@ -56,7 +56,7 @@ namespace {
  }
 
 }
-namespace edmtest
+namespace arttest
 {
 
   class TestOutputModule : public art::OutputModule
@@ -175,6 +175,6 @@ namespace edmtest
   }
 }
 
-using edmtest::TestOutputModule;
+using arttest::TestOutputModule;
 
 DEFINE_FWK_MODULE(TestOutputModule);

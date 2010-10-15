@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 int  MemoryTestClient_B::nevent = 0;
@@ -105,8 +105,8 @@ void  MemoryTestClient_B::initializeMemoryPattern(int pattern) {
   }
 }
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::MemoryTestClient_B;
+using arttest::MemoryTestClient_B;
 DEFINE_FWK_MODULE(MemoryTestClient_B);

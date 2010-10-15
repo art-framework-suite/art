@@ -32,7 +32,7 @@ namespace testedmplugin {
   };
 
 
-  typedef edmplugin::PluginFactory<DummyBase*(void)> DummyFactory;
+  typedef artplugin::PluginFactory<DummyBase*(void)> DummyFactory;
 }
 
 #endif

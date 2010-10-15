@@ -25,7 +25,7 @@
 
 // forward declarations
 
-namespace edmtest {
+namespace arttest {
 struct WhatsIt
 {
    WhatsIt() : a() {}

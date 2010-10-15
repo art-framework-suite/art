@@ -11,7 +11,7 @@
 #define RAISE_SEGV
 //#define RAISE_USR2
 
-namespace edmtest
+namespace arttest
 {
 
 void
@@ -53,8 +53,8 @@ void
 //  int rint = *pint;
    }
 }  // makeSignals::analyze()
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::makeSignals;
+using arttest::makeSignals;
 DEFINE_FWK_MODULE(makeSignals);

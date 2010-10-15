@@ -3,7 +3,7 @@
 
 #include "art/Persistency/Common/SortedCollection.h"
 
-namespace edmtestprod
+namespace arttestprod
 {
   struct Simple
   {

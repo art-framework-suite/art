@@ -77,7 +77,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
      art::Event event(ep, modDesc);
 
      std::string label("this does not exist");
-     art::RefProd<edmtest::DummyProduct> ref = event.getRefBeforePut<edmtest::DummyProduct>(label);
+     art::RefProd<arttest::DummyProduct> ref = event.getRefBeforePut<arttest::DummyProduct>(label);
      CPPUNIT_ASSERT("Failed to throw required exception" == 0);
   }
   catch (art::Exception& x) {
@@ -95,7 +95,7 @@ void testEventGetRefBeforePut::getRefTest() {
   std::string label("fred");
   std::string productInstanceName("Rick");
 
-  edmtest::IntProduct dp;
+  arttest::IntProduct dp;
   art::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
@@ -132,7 +132,7 @@ void testEventGetRefBeforePut::getRefTest() {
   art::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(lbp);
 
-  art::RefProd<edmtest::IntProduct> refToProd;
+  art::RefProd<arttest::IntProduct> refToProd;
   try {
     art::ModuleDescription modDesc;
     modDesc.moduleName_="Blah";
@@ -140,10 +140,10 @@ void testEventGetRefBeforePut::getRefTest() {
     modDesc.processConfiguration_ = pc;
 
     art::Event event(ep, modDesc);
-    std::auto_ptr<edmtest::IntProduct> pr(new edmtest::IntProduct);
+    std::auto_ptr<arttest::IntProduct> pr(new arttest::IntProduct);
     pr->value = 10;
 
-    refToProd = event.getRefBeforePut<edmtest::IntProduct>(productInstanceName);
+    refToProd = event.getRefBeforePut<arttest::IntProduct>(productInstanceName);
     event.put(pr,productInstanceName);
     event.commit_();
   }

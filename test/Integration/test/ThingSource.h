@@ -12,7 +12,7 @@
 #include "art/Framework/Core/GeneratedInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmtest {
+namespace arttest {
   class ThingSource : public art::GeneratedInputSource {
   public:
 

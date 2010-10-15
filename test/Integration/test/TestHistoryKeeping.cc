@@ -12,7 +12,7 @@
 #include "art/ParameterSet/InputTag.h"
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edmtest
+namespace arttest
 {
   class TestHistoryKeeping : public art::EDAnalyzer
   {
@@ -76,7 +76,7 @@ namespace edmtest
     // Nothing to do.
   }
 
-} // namespace edmtest
+} // namespace arttest
 
-using edmtest::TestHistoryKeeping;
+using arttest::TestHistoryKeeping;
 DEFINE_FWK_MODULE(TestHistoryKeeping);

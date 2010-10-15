@@ -4,7 +4,7 @@
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/RefToPtr.h"
 
-namespace edmtest {
+namespace arttest {
   void OtherThingAlgorithm::run(art::Event const& event,
 				OtherThingCollection& result,
 				std::string const& thingLabel,

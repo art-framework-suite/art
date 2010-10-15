@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 bool UTC_S1::enableNotYetCalled = true;
@@ -60,11 +60,11 @@ void
 }
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
-using edmtest::UTC_S1;
-using edmtest::UTC_S2;
-using edmtest::UTC_SUMMARY;
+using arttest::UTC_S1;
+using arttest::UTC_S2;
+using arttest::UTC_SUMMARY;
 DEFINE_FWK_MODULE(UTC_S1);
 DEFINE_FWK_MODULE(UTC_S2);
 DEFINE_FWK_MODULE(UTC_SUMMARY);

@@ -4,7 +4,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-namespace edmtest {
+namespace arttest {
   HistProducer::HistProducer(art::ParameterSet const& iConfig)
   {
     produces<TH1F>();
@@ -24,5 +24,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::HistProducer;
+using arttest::HistProducer;
 DEFINE_FWK_MODULE(HistProducer);

@@ -35,7 +35,7 @@ extern "C"
   int a_trick_for_toys = 0;
 }
 
-namespace edmtest {
+namespace arttest {
 
   //--------------------------------------------------------------------
   //
@@ -353,14 +353,14 @@ namespace edmtest {
   AVSimpleProducer::produce(art::Event& e,
                             art::EventSetup const& /* unused */)
   {
-    art::Handle<std::vector<edmtest::Simple> > vs;
+    art::Handle<std::vector<arttest::Simple> > vs;
     e.getByLabel( src_, vs );
     // Fill up a collection
-    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct(art::RefProd<std::vector<edmtest::Simple> >(vs)));
+    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct(art::RefProd<std::vector<arttest::Simple> >(vs)));
 
     for (unsigned int i = 0; i < vs->size(); ++i)
       {
-        edmtest::Simple simple;
+        arttest::Simple simple;
         simple.key = 100 + i;  // just some arbitrary number for testing
         p->setValue(i,simple);
       }
@@ -894,27 +894,27 @@ namespace edmtest {
   }
 }
 
-using edmtest::FailingProducer;
-using edmtest::NonProducer;
-using edmtest::Int16_tProducer;
-using edmtest::ToyDoubleProducer;
-using edmtest::SCSimpleProducer;
-using edmtest::OVSimpleProducer;
-using edmtest::VSimpleProducer;
-using edmtest::AVSimpleProducer;
-using edmtest::DSTVProducer;
-using edmtest::DSVProducer;
-using edmtest::IntTestAnalyzer;
-using edmtest::SCSimpleAnalyzer;
-using edmtest::DSVAnalyzer;
-using edmtest::AddIntsProducer;
-using edmtest::IntVectorProducer;
-using edmtest::IntListProducer;
-using edmtest::IntDequeProducer;
-using edmtest::IntSetProducer;
-using edmtest::IntVecRefVectorProducer;
-using edmtest::IntVecRefToBaseVectorProducer;
-using edmtest::ProdigalProducer;
+using arttest::FailingProducer;
+using arttest::NonProducer;
+using arttest::Int16_tProducer;
+using arttest::ToyDoubleProducer;
+using arttest::SCSimpleProducer;
+using arttest::OVSimpleProducer;
+using arttest::VSimpleProducer;
+using arttest::AVSimpleProducer;
+using arttest::DSTVProducer;
+using arttest::DSVProducer;
+using arttest::IntTestAnalyzer;
+using arttest::SCSimpleAnalyzer;
+using arttest::DSVAnalyzer;
+using arttest::AddIntsProducer;
+using arttest::IntVectorProducer;
+using arttest::IntListProducer;
+using arttest::IntDequeProducer;
+using arttest::IntSetProducer;
+using arttest::IntVecRefVectorProducer;
+using arttest::IntVecRefToBaseVectorProducer;
+using arttest::ProdigalProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(Int16_tProducer);

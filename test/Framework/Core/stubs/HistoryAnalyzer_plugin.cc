@@ -19,7 +19,7 @@
 
 using namespace art;
 
-namespace edmtest {
+namespace arttest {
 
   class HistoryAnalyzer : public EDAnalyzer {
   public:
@@ -71,5 +71,5 @@ namespace edmtest {
   }
 }
 
-using edmtest::HistoryAnalyzer;
+using arttest::HistoryAnalyzer;
 DEFINE_FWK_MODULE(HistoryAnalyzer);

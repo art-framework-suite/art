@@ -5,7 +5,7 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-namespace edmtest {
+namespace arttest {
   OtherThingProducer::OtherThingProducer(art::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
     produces<OtherThingCollection>("testUserTag");
     thingLabel_ = pset.getUntrackedParameter<std::string>("thingLabel", std::string("Thing"));
@@ -29,5 +29,5 @@ namespace edmtest {
     e.put(result, std::string("testUserTag"));
   }
 }
-using edmtest::OtherThingProducer;
+using arttest::OtherThingProducer;
 DEFINE_FWK_MODULE(OtherThingProducer);

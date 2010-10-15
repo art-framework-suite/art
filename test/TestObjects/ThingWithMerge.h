@@ -1,7 +1,7 @@
 #ifndef TestObjects_ThingWithMerge_h
 #define TestObjects_ThingWithMerge_h
 
-namespace edmtest {
+namespace arttest {
 
   struct ThingWithMerge {
     ~ThingWithMerge() { }

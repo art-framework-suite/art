@@ -12,7 +12,7 @@ namespace art {
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class UnitTestClient_B
@@ -37,7 +37,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_UnitTestClient_B_h

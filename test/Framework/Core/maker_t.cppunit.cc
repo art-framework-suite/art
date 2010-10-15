@@ -32,7 +32,7 @@ void testmaker::makerTest()
 
   /*try {
 
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    artplugin::PluginManager::configure(artplugin::standard::config());
     Factory* f = Factory::get();
 
     //Factory::Iterator ib(f->begin()),ie(f->end());

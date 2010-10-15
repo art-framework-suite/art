@@ -16,7 +16,7 @@ namespace art {
   typedef InputSource* (ISFunc)(fhicl::ParameterSet const&,
                                 InputSourceDescription const&);
 
-  typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
+  typedef artplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
 
   class InputSourceFactory {
   public:

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 
@@ -28,8 +28,8 @@ void
  }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_N;
+using arttest::UnitTestClient_N;
 DEFINE_FWK_MODULE(UnitTestClient_N);

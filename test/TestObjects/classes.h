@@ -19,50 +19,50 @@
 
 namespace {
 struct dictionary {
-  art::Wrapper<edmtest::DummyProduct> dummyw12;
-  art::Wrapper<edmtest::IntProduct> dummyw13;
-  art::Wrapper<edmtest::DoubleProduct> dummyw14;
-  art::Wrapper<edmtest::StringProduct> dummyw15;
-  art::Wrapper<edmtest::SCSimpleProduct> dummyw16;
-  art::Wrapper<edmtest::OVSimpleProduct> dummyw17;
-  art::Wrapper<edmtest::OVSimpleDerivedProduct> dummyw17Derived;
-  art::Wrapper<edmtest::AVSimpleProduct> dummyw18;
-  art::Wrapper<edmtest::DSVSimpleProduct> dummyw19;
-  art::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
-  art::Wrapper<edmtest::DSTVSimpleProduct> dummyw21;
-  art::Wrapper<edmtest::DSTVSimpleDerivedProduct> dummyw22;
-  art::Wrapper<edmtest::Int16_tProduct> dummyw23;
-  art::Wrapper<edmtest::Prodigal> dummyw24;
+  art::Wrapper<arttest::DummyProduct> dummyw12;
+  art::Wrapper<arttest::IntProduct> dummyw13;
+  art::Wrapper<arttest::DoubleProduct> dummyw14;
+  art::Wrapper<arttest::StringProduct> dummyw15;
+  art::Wrapper<arttest::SCSimpleProduct> dummyw16;
+  art::Wrapper<arttest::OVSimpleProduct> dummyw17;
+  art::Wrapper<arttest::OVSimpleDerivedProduct> dummyw17Derived;
+  art::Wrapper<arttest::AVSimpleProduct> dummyw18;
+  art::Wrapper<arttest::DSVSimpleProduct> dummyw19;
+  art::Wrapper<arttest::DSVWeirdProduct> dummyw20;
+  art::Wrapper<arttest::DSTVSimpleProduct> dummyw21;
+  art::Wrapper<arttest::DSTVSimpleDerivedProduct> dummyw22;
+  art::Wrapper<arttest::Int16_tProduct> dummyw23;
+  art::Wrapper<arttest::Prodigal> dummyw24;
 
-  art::Wrapper<edmtest::Thing> dummy105;
-  art::Wrapper<edmtest::ThingWithMerge> dummy104;
-  art::Wrapper<edmtest::ThingWithIsEqual> dummy103;
+  art::Wrapper<arttest::Thing> dummy105;
+  art::Wrapper<arttest::ThingWithMerge> dummy104;
+  art::Wrapper<arttest::ThingWithIsEqual> dummy103;
 
-  edmtest::ThingCollection dummy1;
-  edmtest::OtherThingCollection dummy2;
-  art::Wrapper<edmtest::ThingCollection> dummy3;
-  art::Wrapper<edmtest::OtherThingCollection> dummy4;
+  arttest::ThingCollection dummy1;
+  arttest::OtherThingCollection dummy2;
+  art::Wrapper<arttest::ThingCollection> dummy3;
+  art::Wrapper<arttest::OtherThingCollection> dummy4;
 
-  edmtestprod::Ord<edmtestprod::Simple> dummy20;
-  edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > dummy21;
-  art::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > > dummy22;
-  std::vector<edmtestprod::Simple> dummy23;
-  std::vector<edmtest::Simple> dummy231;
-  art::Wrapper<std::vector<edmtest::Simple> > dummy231w;
-  art::RefProd<std::vector<edmtest::Simple> > dummy232;
-  art::SortedCollection<edmtestprod::Simple,art::StrictWeakOrdering<edmtestprod::Simple> > dummy24;
-  art::Wrapper<art::SortedCollection<edmtestprod::Simple,art::StrictWeakOrdering<edmtestprod::Simple> > > dummy25;
-  art::Wrapper<edmtestprod::StreamTestThing> dummy26;
-  art::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27;
-  art::DetSet<edmtest::Sortable> x1;
-  art::DetSet<edmtest::Unsortable> x2;
-  std::vector<edmtest::Sortable> x3;
-  std::vector<edmtest::Unsortable> x4;
+  arttestprod::Ord<arttestprod::Simple> dummy20;
+  arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > dummy21;
+  art::Wrapper<arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > > dummy22;
+  std::vector<arttestprod::Simple> dummy23;
+  std::vector<arttest::Simple> dummy231;
+  art::Wrapper<std::vector<arttest::Simple> > dummy231w;
+  art::RefProd<std::vector<arttest::Simple> > dummy232;
+  art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > dummy24;
+  art::Wrapper<art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > > dummy25;
+  art::Wrapper<arttestprod::StreamTestThing> dummy26;
+  art::Wrapper<arttestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27;
+  art::DetSet<arttest::Sortable> x1;
+  art::DetSet<arttest::Unsortable> x2;
+  std::vector<arttest::Sortable> x3;
+  std::vector<arttest::Unsortable> x4;
 
-  art::reftobase::Holder<edmtest::Thing,art::Ref<std::vector<edmtest::Thing> > > bhThing;
-  art::RefToBaseProd<edmtest::Thing> rtbpThing;
+  art::reftobase::Holder<arttest::Thing,art::Ref<std::vector<arttest::Thing> > > bhThing;
+  art::RefToBaseProd<arttest::Thing> rtbpThing;
 
-  art::Ptr<edmtest::Thing> ptrThing;
-  art::PtrVector<edmtest::Thing> ptrVecThing;
+  art::Ptr<arttest::Thing> ptrThing;
+  art::PtrVector<arttest::Thing> ptrVecThing;
 };
 }

@@ -27,7 +27,7 @@ namespace art {
 
 using namespace art;
 
-namespace edmtest
+namespace arttest
 {
 
   class TestTriggerNames : public art::EDAnalyzer
@@ -252,6 +252,6 @@ namespace edmtest
   }
 }
 
-using edmtest::TestTriggerNames;
+using arttest::TestTriggerNames;
 
 DEFINE_FWK_MODULE(TestTriggerNames);

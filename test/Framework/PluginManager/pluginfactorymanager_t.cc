@@ -36,14 +36,14 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestPluginFactoryManager);
 
-class DummyTestPlugin : public edmplugin::PluginFactoryBase {
+class DummyTestPlugin : public artplugin::PluginFactoryBase {
 public:
   DummyTestPlugin(const std::string& iName): name_(iName) {
     finishedConstruction();
   }
   const std::string& category() const {return name_;}
-  std::vector<edmplugin::PluginInfo> available() const {
-    return std::vector<edmplugin::PluginInfo>();
+  std::vector<artplugin::PluginInfo> available() const {
+    return std::vector<artplugin::PluginInfo>();
   }
   const std::string name_;
 };
@@ -51,7 +51,7 @@ public:
 struct Catcher {
   std::string lastSeen_;
 
-  void catchIt(const edmplugin::PluginFactoryBase* iFactory) {
+  void catchIt(const artplugin::PluginFactoryBase* iFactory) {
     lastSeen_=iFactory->category();
   }
 };
@@ -59,7 +59,7 @@ struct Catcher {
 void
 TestPluginFactoryManager::test()
 {
-  using namespace edmplugin;
+  using namespace artplugin;
   PluginFactoryManager& pfm = *(PluginFactoryManager::get());
   CPPUNIT_ASSERT(pfm.begin()==pfm.end());
 

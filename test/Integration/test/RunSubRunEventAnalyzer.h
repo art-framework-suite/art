@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace edmtest {
+namespace arttest {
 
   class RunSubRunEventAnalyzer : public art::EDAnalyzer {
   public:

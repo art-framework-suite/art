@@ -19,7 +19,7 @@ Toy EDProducts for testing purposes only.
 #include "art/Persistency/Common/DetSetVector.h"
 #include "art/Persistency/Common/DetSetVectorNew.h"
 
-namespace edmtest
+namespace arttest
 {
 
   // Toy products

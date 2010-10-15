@@ -20,7 +20,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/Algorithms.h"
 
-namespace edmplugin {
+namespace artplugin {
 //
 // constants, enums and typedefs
 //

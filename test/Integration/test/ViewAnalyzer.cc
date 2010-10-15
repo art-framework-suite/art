@@ -20,7 +20,7 @@
 using namespace art;
 using namespace std::rel_ops;
 
-namespace edmtest
+namespace arttest
 {
 
   ViewAnalyzer::ViewAnalyzer(ParameterSet const&)
@@ -129,7 +129,7 @@ namespace edmtest
   ViewAnalyzer::testDSVProduct(Event const& e,
  			    std::string const& moduleLabel) const
   {
-    typedef edmtest::DSVSimpleProduct sequence_t;
+    typedef arttest::DSVSimpleProduct sequence_t;
     typedef sequence_t::value_type    value_t;
     typedef View<value_t>             view_t;
 
@@ -273,5 +273,5 @@ namespace edmtest
   }
 }
 
-using edmtest::ViewAnalyzer;
+using arttest::ViewAnalyzer;
 DEFINE_FWK_MODULE(ViewAnalyzer);

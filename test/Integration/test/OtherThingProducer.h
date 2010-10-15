@@ -6,7 +6,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "FWCore/Integration/test/OtherThingAlgorithm.h"
 
-namespace edmtest {
+namespace arttest {
   class OtherThingProducer : public art::EDProducer {
   public:
 

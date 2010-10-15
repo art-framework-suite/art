@@ -36,7 +36,7 @@ public:
     void setUp() {
       if (!alreadySetup_) {
         alreadySetup_=true;
-        edmplugin::PluginManager& db = edmplugin::PluginManager::configure(edmplugin::standard::config());
+        artplugin::PluginManager& db = artplugin::PluginManager::configure(artplugin::standard::config());
       }
     }
     void tearDown() {}
@@ -54,7 +54,7 @@ namespace edmplugintest {
   struct Dummy: public DummyBase {};
 }
 
-typedef edmplugin::PluginFactory<edmplugintest::DummyBase*(void)> FactoryType;
+typedef artplugin::PluginFactory<edmplugintest::DummyBase*(void)> FactoryType;
 EDM_REGISTER_PLUGINFACTORY(FactoryType,"Test Dummy");
 
 DEFINE_EDM_PLUGIN(FactoryType,edmplugintest::Dummy,"Dummy");
@@ -62,7 +62,7 @@ DEFINE_EDM_PLUGIN(FactoryType,edmplugintest::Dummy,"Dummy");
 void
 TestPluginFactory::test()
 {
-  using namespace edmplugin;
+  using namespace artplugin;
 
   std::auto_ptr<edmplugintest::DummyBase> p(FactoryType::get()->create("Dummy"));
   CPPUNIT_ASSERT(0 != p.get());
@@ -71,7 +71,7 @@ TestPluginFactory::test()
 void
 TestPluginFactory::testTry()
 {
-  using namespace edmplugin;
+  using namespace artplugin;
   CPPUNIT_ASSERT(0 == FactoryType::get()->tryToCreate("ThisDoesNotExist"));
 
   std::auto_ptr<edmplugintest::DummyBase> p(FactoryType::get()->tryToCreate("Dummy"));

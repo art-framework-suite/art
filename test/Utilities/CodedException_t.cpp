@@ -9,7 +9,7 @@
 #include <limits>
 
 //using namespace artZ;
-namespace edmtest
+namespace arttest
 {
 
   // This is the list of error codes we shall use.
@@ -43,12 +43,12 @@ namespace {
       EDM_MAP_ENTRY(trans_,edmtest,Amusing);
     }
 
-    edmtest::ToyException::CodeMap trans_;
+    arttest::ToyException::CodeMap trans_;
   };
 }
 
 namespace art {
-void getCodeTable(edmtest::ToyException::CodeMap*& setme)
+void getCodeTable(arttest::ToyException::CodeMap*& setme)
 {
   static FilledMap fm;
   setme = &fm.trans_;
@@ -70,7 +70,7 @@ std::ostream& operator<<(std::ostream& os, const Thing& t)
 
 void simple()
 {
-  edmtest::ToyException h(edmtest::Horrific);
+  arttest::ToyException h(arttest::Horrific);
 }
 
 void func3()
@@ -83,7 +83,7 @@ void func3()
   char c2[] = "a c-style array";
   Thing thing(4);
 
-  throw edmtest::ToyException(edmtest::Horrific)
+  throw arttest::ToyException(arttest::Horrific)
     << "This is just a test: \n"
     << "double: " << d << "\n"
     << "float:  " << f << "\n"
@@ -150,7 +150,7 @@ const char* correct[] = { "Worse","Horrific" };
 
 int main()
 {
-  edmtest::ToyException ex(edmtest::Amusing, "Rats! Foiled again!\n");
+  arttest::ToyException ex(arttest::Amusing, "Rats! Foiled again!\n");
   std::ostringstream oss;
   oss << ex;
   std::string s = oss.str();

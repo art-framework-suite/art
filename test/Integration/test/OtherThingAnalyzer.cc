@@ -10,7 +10,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/MessageLogger/MessageLogger.h"
 
-namespace edmtest {
+namespace arttest {
   OtherThingAnalyzer::OtherThingAnalyzer(art::ParameterSet const& pset) :
     thingWasDropped_(pset.getUntrackedParameter<bool>("thingWasDropped", false)) {
   }
@@ -275,5 +275,5 @@ namespace edmtest {
     }
   }
 }
-using edmtest::OtherThingAnalyzer;
+using arttest::OtherThingAnalyzer;
 DEFINE_FWK_MODULE(OtherThingAnalyzer);

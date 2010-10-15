@@ -10,7 +10,7 @@
 #include <string>
 
 
-namespace edmtest
+namespace arttest
 {
 
 
@@ -33,10 +33,10 @@ void UnitTestClient_L1::analyze( art::Event      const & e
   art::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_L;
-using edmtest::UnitTestClient_L1;
+using arttest::UnitTestClient_L;
+using arttest::UnitTestClient_L1;
 DEFINE_FWK_MODULE(UnitTestClient_L);
 DEFINE_FWK_MODULE(UnitTestClient_L1);

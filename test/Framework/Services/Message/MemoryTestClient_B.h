@@ -14,7 +14,7 @@ namespace art {
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
 class MemoryTestClient_B
@@ -42,7 +42,7 @@ private:
 };
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
 #endif  // FWCore_MessageService_test_MemoryTestClient_B_h

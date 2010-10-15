@@ -5,7 +5,7 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 
-namespace edmtest {
+namespace arttest {
   ThingExtSource::ThingExtSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc) :
     ExternalInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
@@ -93,5 +93,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::ThingExtSource;
+using arttest::ThingExtSource;
 DEFINE_FWK_INPUT_SOURCE(ThingExtSource);

@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-namespace edmtest {
+namespace arttest {
 
   //--------------------------------------------------------------------
   //
@@ -92,7 +92,7 @@ namespace edmtest {
 
 }
 
-using edmtest::IntProducer;
+using arttest::IntProducer;
 DEFINE_FWK_MODULE(IntProducer);
 
 

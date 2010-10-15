@@ -39,7 +39,7 @@
 // class decleration
 //
 
-namespace edmtest {
+namespace arttest {
 
 class WhatsItWatcherAnalyzer : public art::EDAnalyzer {
    public:
@@ -107,7 +107,7 @@ WhatsItWatcherAnalyzer::analyze(const art::Event& /*iEvent*/, const art::EventSe
 void
 WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd)
 {
-  art::ESHandle<edmtest::WhatsIt> pSetup;
+  art::ESHandle<arttest::WhatsIt> pSetup;
   iRcd.get(pSetup);
 
   std::cout <<"watch1: WhatsIt "<<pSetup->a<<" changed"<<std::endl;
@@ -123,6 +123,6 @@ WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd)
 }
 
 }
-using namespace edmtest;
+using namespace arttest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItWatcherAnalyzer);

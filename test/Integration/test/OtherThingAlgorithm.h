@@ -5,7 +5,7 @@
 #include "test/TestObjects/OtherThingCollectionfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 
-namespace edmtest {
+namespace arttest {
 
   class OtherThingAlgorithm {
   public:

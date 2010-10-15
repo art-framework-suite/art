@@ -1,7 +1,7 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "FWCore/Integration/test/HierarchicalEDProducer.h"
 
-namespace edmtest {
+namespace arttest {
 
   HierarchicalEDProducer::HierarchicalEDProducer(art::ParameterSet const& ps) :
     radius_ (ps.getParameter<double>("radius")),
@@ -16,5 +16,5 @@ namespace edmtest {
     // nothing to do ... is just a dummy!
   }
 }
-using edmtest::HierarchicalEDProducer;
+using arttest::HierarchicalEDProducer;
 DEFINE_FWK_MODULE(HierarchicalEDProducer);

@@ -22,7 +22,7 @@ static const char CVSId[] = "";
 using namespace art;
 
 TestPRegisterModule2::TestPRegisterModule2(art::ParameterSet const&){
-   produces<edmtest::DoubleProduct>();
+   produces<arttest::DoubleProduct>();
 }
 
   void TestPRegisterModule2::produce(Event& e, EventSetup const&)
@@ -35,7 +35,7 @@ TestPRegisterModule2::TestPRegisterModule2(art::ParameterSet const&){
      CPPUNIT_ASSERT(0 !=plist.size());
      CPPUNIT_ASSERT(2 ==plist.size());
      CPPUNIT_ASSERT(pd != plist.end());
-     edmtest::StringProduct stringprod;
+     arttest::StringProduct stringprod;
      art::TypeID stringID(stringprod);
      CPPUNIT_ASSERT(stringID.friendlyClassName() ==
                     (*pd)->friendlyClassName());
@@ -44,16 +44,16 @@ TestPRegisterModule2::TestPRegisterModule2(art::ParameterSet const&){
      ++pd;
      CPPUNIT_ASSERT(pd != plist.end());
 
-     edmtest::DoubleProduct dprod;
+     arttest::DoubleProduct dprod;
      art::TypeID dID(dprod);
      CPPUNIT_ASSERT(dID.friendlyClassName() ==
                     (*pd)->friendlyClassName());
      CPPUNIT_ASSERT((*pd)->moduleLabel()=="m2");
 
-    Handle<edmtest::StringProduct> stringp;
+    Handle<arttest::StringProduct> stringp;
     e.getByLabel("m2",stringp);
     CPPUNIT_ASSERT(stringp->name_=="m1");
 
-     std::auto_ptr<edmtest::DoubleProduct> product(new edmtest::DoubleProduct);
+     std::auto_ptr<arttest::DoubleProduct> product(new arttest::DoubleProduct);
      e.put(product);
   }

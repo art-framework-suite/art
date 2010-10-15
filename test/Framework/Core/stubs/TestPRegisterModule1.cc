@@ -20,13 +20,13 @@ using namespace art;
 static const char CVSId[] = "";
 
 TestPRegisterModule1::TestPRegisterModule1(art::ParameterSet const& p):pset_(p){
-   produces<edmtest::StringProduct>();
+   produces<arttest::StringProduct>();
 }
 
 void TestPRegisterModule1::produce(Event& e, EventSetup const&)
 {
 
   std::string myname = pset_.getParameter<std::string>("@module_label");
-  std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
+  std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
   e.put(product);
 }

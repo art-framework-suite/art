@@ -4,7 +4,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 
-namespace edmtest {
+namespace arttest {
 
   class OtherThingAnalyzer : public art::EDAnalyzer {
   public:

@@ -29,7 +29,7 @@ namespace art {
    namespace serviceregistry {
       class ServiceMakerBase;
 
-     typedef edmplugin::PluginFactory< ServiceMakerBase* ()> ServicePluginFactory;
+     typedef artplugin::PluginFactory< ServiceMakerBase* ()> ServicePluginFactory;
    }
 }
 

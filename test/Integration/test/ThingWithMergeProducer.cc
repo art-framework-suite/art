@@ -20,7 +20,7 @@
 #include "art/Utilities/InputTag.h"
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edmtest {
+namespace arttest {
   ThingWithMergeProducer::ThingWithMergeProducer(art::ParameterSet const& pset) :
     changeIsEqualValue_(pset.getUntrackedParameter<bool>("changeIsEqualValue", false)),
     labelsToGet_(pset.getUntrackedParameter<std::vector<std::string> >("labelsToGet", std::vector<std::string>())),
@@ -161,5 +161,5 @@ namespace edmtest {
     if (!noPut_) r.put(result3, "endRun");
   }
 }
-using edmtest::ThingWithMergeProducer;
+using arttest::ThingWithMergeProducer;
 DEFINE_FWK_MODULE(ThingWithMergeProducer);

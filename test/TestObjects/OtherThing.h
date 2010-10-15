@@ -11,7 +11,7 @@
 #include "test/TestObjects/ThingCollectionfwd.h"
 #include "test/TestObjects/Thing.h"
 
-namespace edmtest {
+namespace arttest {
 
   struct OtherThing {
     int                             a;

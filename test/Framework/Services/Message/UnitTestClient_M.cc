@@ -8,7 +8,7 @@
 
 // Test of LogSystem, LogAbsolute, LogProblem, LogPrint, LogVerbatim
 
-namespace edmtest
+namespace arttest
 {
 
 
@@ -30,8 +30,8 @@ void
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_M;
+using arttest::UnitTestClient_M;
 DEFINE_FWK_MODULE(UnitTestClient_M);

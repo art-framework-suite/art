@@ -12,7 +12,7 @@
 #include "art/Framework/IO/Sources/ExternalInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmtest {
+namespace arttest {
   class ThingExtSource : public art::ExternalInputSource {
   public:
 

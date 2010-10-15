@@ -25,7 +25,7 @@ class TestSchedulerModule1 : public EDProducer
 {
  public:
   explicit TestSchedulerModule1(ParameterSet const& p):pset_(p){
-    produces<edmtest::StringProduct>();
+    produces<arttest::StringProduct>();
   }
 
   void produce(Event& e, EventSetup const&);
@@ -38,7 +38,7 @@ private:
 void TestSchedulerModule1::produce(Event& e, EventSetup const&)
 {
   std::string myname = pset_.getParameter<std::string>("module_name");
-  std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
+  std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
   e.put(product);
 }
 

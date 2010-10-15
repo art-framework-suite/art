@@ -12,7 +12,7 @@
 #include "sigc++/signal.h"
 
 namespace art {
-  typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;
+  typedef artplugin::PluginFactory<Maker* ()> MakerPluginFactory;
 
   class Factory
   {

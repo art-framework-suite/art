@@ -59,7 +59,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testGenericHandle);
 void testGenericHandle::failWrongType() {
    try {
       //intentionally misspelled type
-      art::GenericHandle h("edmtest::DmmyProduct");
+      art::GenericHandle h("arttest::DmmyProduct");
       CPPUNIT_ASSERT("Failed to thow"==0);
    }
    catch (artZ::Exception& x) {
@@ -84,7 +84,7 @@ void testGenericHandle::failgetbyLabelTest() {
   art::EventAuxiliary eventAux(id, uuid, time, lbp->subRun(), true);
   art::EventPrincipal ep(eventAux, preg, pc);
   ep.setSubRunPrincipal(lbp);
-  art::GenericHandle h("edmtest::DummyProduct");
+  art::GenericHandle h("arttest::DummyProduct");
   bool didThrow=true;
   try {
      art::ModuleDescription modDesc;
@@ -116,14 +116,14 @@ void testGenericHandle::failgetbyLabelTest() {
 void testGenericHandle::getbyLabelTest() {
   std::string processName = "PROD";
 
-  typedef edmtest::DummyProduct DP;
+  typedef arttest::DummyProduct DP;
   typedef art::Wrapper<DP> WDP;
   std::auto_ptr<DP> pr(new DP);
   std::auto_ptr<art::EDProduct> pprod(new WDP(pr));
   std::string label("fred");
   std::string productInstanceName("Rick");
 
-  edmtest::DummyProduct dp;
+  arttest::DummyProduct dp;
   art::TypeID dummytype(dp);
   std::string className = dummytype.friendlyClassName();
 
@@ -173,7 +173,7 @@ void testGenericHandle::getbyLabelTest() {
   art::ConstBranchDescription const desc(branchFromRegistry);
   ep.put(pprod, desc, branchEntryInfoPtr);
 
-  art::GenericHandle h("edmtest::DummyProduct");
+  art::GenericHandle h("arttest::DummyProduct");
   try {
     art::ModuleDescription modDesc;
     modDesc.moduleName_="Blah";

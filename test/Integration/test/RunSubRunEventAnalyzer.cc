@@ -9,7 +9,7 @@
 #include <cassert>
 #include <iostream>
 
-namespace edmtest {
+namespace arttest {
 
   RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(art::ParameterSet const& pset) :
     expectedRunSubRunsEvents_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunSubRunEvents", std::vector<unsigned int>())),
@@ -98,5 +98,5 @@ namespace edmtest {
   }
 }
 
-using edmtest::RunSubRunEventAnalyzer;
+using arttest::RunSubRunEventAnalyzer;
 DEFINE_FWK_MODULE(RunSubRunEventAnalyzer);

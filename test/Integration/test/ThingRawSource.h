@@ -13,7 +13,7 @@
 #include "art/Framework/IO/Sources/RawInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
-namespace edmtest {
+namespace arttest {
   class ThingRawSource : public art::RawInputSource {
   public:
 

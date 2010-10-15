@@ -25,7 +25,7 @@ namespace art{
   {
   public:
     explicit TestSchedulerModule2(ParameterSet const& p):pset_(p){
-       produces<edmtest::StringProduct>();
+       produces<arttest::StringProduct>();
     }
 
     void produce(Event& e, EventSetup const&);
@@ -39,7 +39,7 @@ namespace art{
   {
 
     std::string myname = pset_.getParameter<std::string>("module_name");
-    std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
+    std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
     e.put(product);
 
   }

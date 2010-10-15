@@ -10,7 +10,7 @@
 #include "ProdigalAnalyzer.h"
 #include "test/TestObjects/ToyProducts.h"
 
-namespace edmtest {
+namespace arttest {
   ProdigalAnalyzer::ProdigalAnalyzer(art::ParameterSet const& )
   {
   }
@@ -22,5 +22,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::ProdigalAnalyzer;
+using arttest::ProdigalAnalyzer;
 DEFINE_FWK_MODULE(ProdigalAnalyzer);

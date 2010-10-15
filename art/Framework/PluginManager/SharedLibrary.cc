@@ -22,7 +22,7 @@
 
 using namespace art;
 
-namespace edmplugin {
+namespace artplugin {
 //
 // constants, enums and typedefs
 //

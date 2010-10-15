@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace edmtest {
+namespace arttest {
   class ThingWithMergeProducer : public art::EDProducer {
   public:
 

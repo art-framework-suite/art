@@ -40,7 +40,7 @@
 // class decleration
 //
 
-namespace edmtest {
+namespace arttest {
 
   class Last {
 public:
@@ -118,6 +118,6 @@ WhatsItExtensionCordAnalyzer::analyze(const art::Event& /*iEvent*/, const art::E
 }
 
 }
-using namespace edmtest;
+using namespace arttest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItExtensionCordAnalyzer);

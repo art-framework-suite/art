@@ -16,7 +16,7 @@
 // user include files
 #include "art/Framework/PluginManager/PluginFactoryManager.h"
 
-namespace edmplugin{
+namespace artplugin{
 //
 // constants, enums and typedefs
 //
