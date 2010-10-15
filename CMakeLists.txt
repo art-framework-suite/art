@@ -162,6 +162,8 @@ include_directories ( $ENV{ROOT_DIR}/cintex/inc )
 include_directories ( $ENV{BOOST_INC} )
 include_directories ( $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0 )
 include_directories ( $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
+include_directories ( $ENV{CPP0X_INC} )
+include_directories ( $ENV{CETLIB_INC} )
 include_directories ( $ENV{FHICLCPP_INC} )
 include_directories ( $ENV{MESSAGEFACILITY_INC} )
 
@@ -181,6 +183,9 @@ find_program( GENREFLEX NAMES genreflex PATHS $ENV{ROOTSYS}/bin )
 
 # define CLHEP
 find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
+
+# define CETLIB
+find_library( CETLIB NAMES cetlib PATHS $ENV{CETLIB_LIB} )
 
 # define FHICLCPP
 find_library( FHICLCPP NAMES fhiclcpp PATHS $ENV{FHICLCPP_LIB} )
@@ -233,6 +238,8 @@ set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 			-I $ENV{ROOT_DIR}/include
 			-I $ENV{ROOT_DIR}/cintex/inc
 			-I $ENV{BOOST_INC}
+			-I $ENV{CPP0X_INC}
+			-I $ENV{CETLIB_INC}
 			-I $ENV{FHICLCPP_INC}
 			-I $ENV{MESSAGEFACILITY_INC}
 			-I $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0
