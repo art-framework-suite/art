@@ -35,8 +35,8 @@ bool operator==(B const& b, T const& t) {
   return t==b;
 }
 
-typedef edmNew::DetSetVector<T> DSTV;
-typedef edmNew::DetSet<T> DST;
+typedef artNew::DetSetVector<T> DSTV;
+typedef artNew::DetSet<T> DST;
 typedef DSTV::FastFiller FF;
 
 
@@ -401,13 +401,13 @@ void TestDetSet::algorithm() {
 
   DSTV::Range r = detsetRangeFromPair(detsets,acc(3));
   CPPUNIT_ASSERT(r.second-r.first==2);
-  r =  edmNew::detsetRangeFromPair(detsets,acc(4));
+  r =  artNew::detsetRangeFromPair(detsets,acc(4));
   CPPUNIT_ASSERT(r.second-r.first==0);
 
   std::vector<DSTV::data_type const *> v;
-  edmNew::copyDetSetRange(detsets,v,acc(3));
+  artNew::copyDetSetRange(detsets,v,acc(3));
   VerifyAlgos va(v);
-  edmNew::foreachDetSetObject(detsets,acc(3), va);
+  artNew::foreachDetSetObject(detsets,acc(3), va);
 
 }
 
@@ -497,7 +497,7 @@ void TestDetSet::toRangeMap() {
   typedef art::RangeMap<DetId, art::OwnVector<B> > RM;
   art::RangeMap<DetId, art::OwnVector<B> > rm;
   try {
-    edmNew::copy(detsets,rm);
+    artNew::copy(detsets,rm);
     rm.post_insert();
     std::vector<DetId> ids = rm.ids();
     CPPUNIT_ASSERT(ids.size()==detsets.size());

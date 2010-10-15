@@ -18,12 +18,12 @@
  <class name="art::PtrVectorBase" >
    <field name ="cachedItems_" transient = "true"/>
  </class>
- <class name="edmNew::dstvdetails::DetSetVectorTrans">
+ <class name="artNew::dstvdetails::DetSetVectorTrans">
    <field name="filling" transient="true"/>
    <field name="getter" transient="true"/>
  </class>
- <class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
- <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
+ <class name="artNew::dstvdetails::DetSetVectorTrans::Item"/>
+ <class name="std::vector<artNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
  <class name="art::HLTPathStatus"/>
  <class name="art::Wrapper<art::HLTPathStatus>" splitLevel="0"/>

@@ -45,10 +45,10 @@
  <class name="art::Wrapper<art::DetSetVector<arttest::Sortable> >"/>
  <class name="art::Wrapper<art::DetSetVector<arttest::Unsortable> >"/>
 
- <class name="edmNew::DetSetVector<arttest::Sortable>"/>
- <class name="edmNew::DetSetVector<arttest::SimpleDerived>"/>
- <class name="art::Wrapper<edmNew::DetSetVector<arttest::Sortable> >"/>
- <class name="art::Wrapper<edmNew::DetSetVector<arttest::SimpleDerived> >"/>
+ <class name="artNew::DetSetVector<arttest::Sortable>"/>
+ <class name="artNew::DetSetVector<arttest::SimpleDerived>"/>
+ <class name="art::Wrapper<artNew::DetSetVector<arttest::Sortable> >"/>
+ <class name="art::Wrapper<artNew::DetSetVector<arttest::SimpleDerived> >"/>
 
 
  <class name="arttest::Thing"/>

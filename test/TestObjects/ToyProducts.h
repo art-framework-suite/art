@@ -138,7 +138,7 @@ namespace arttest
   typedef art::DetSetVector<Sortable>   DSVSimpleProduct;
   typedef art::DetSetVector<Unsortable> DSVWeirdProduct;
 
-  typedef edmNew::DetSetVector<Sortable>      DSTVSimpleProduct;
-  typedef edmNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
+  typedef artNew::DetSetVector<Sortable>      DSTVSimpleProduct;
+  typedef artNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
 }
 #endif

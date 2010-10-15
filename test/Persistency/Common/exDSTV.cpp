@@ -8,8 +8,8 @@ struct T {
 };
 
 
-typedef edmNew::DetSetVector<T> DSTV;
-typedef edmNew::DetSet<T> DST;
+typedef artNew::DetSetVector<T> DSTV;
+typedef artNew::DetSet<T> DST;
 typedef DSTV::FastFiller FF;
 
 void print0(DST const & d) {
