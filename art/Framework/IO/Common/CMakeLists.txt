@@ -8,10 +8,10 @@ set( artFrameworkIOCommon_sources RootServiceChecker.cc )
 
 add_library(artFrameworkIOCommon SHARED ${artFrameworkIOCommon_sources} )
 
-install ( TARGETS artFrameworkIOCommon DESTINATION lib )
+install ( TARGETS artFrameworkIOCommon DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES ClassFiller.h
               RefStreamer.h
               RootServiceChecker.h
               TransientStreamer.h
-        DESTINATION include/art/Framework/IO/Common )
+         DESTINATION  ${product}/${version}/include/art/Framework/IO/Common )

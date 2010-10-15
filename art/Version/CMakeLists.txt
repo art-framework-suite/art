@@ -12,4 +12,4 @@ add_library(artVersion SHARED ${artVersion_sources} )
 install ( TARGETS artVersion DESTINATION ${flavorqual_dir}/lib )
 install(FILES GetFileFormatVersion.h
               GetReleaseVersion.h
-        DESTINATION ${version}/include/art/Version )
+        DESTINATION ${product}/${version}/include/art/Version )

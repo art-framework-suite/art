@@ -9,6 +9,6 @@ set( artFrameworkServicesPrescale_sources PrescaleService.cc )
 
 add_library(artFrameworkServicesPrescale SHARED ${artFrameworkServicesPrescale_sources} )
 
-install ( TARGETS artFrameworkServicesPrescale DESTINATION lib )
+install ( TARGETS artFrameworkServicesPrescale DESTINATION ${flavorqual_dir}/lib )
 install(FILES PrescaleService.h
-        DESTINATION include/art/Framework/Services/Prescale )
+         DESTINATION  ${product}/${version}/include/art/Framework/Services/Prescale )

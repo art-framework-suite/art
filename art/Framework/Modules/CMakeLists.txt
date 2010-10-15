@@ -19,4 +19,4 @@ simple_plugin(EmptySource_plugin)
 simple_plugin(Prescaler_plugin)
 
 install ( TARGETS artFrameworkModules
-          DESTINATION lib )
+          DESTINATION ${flavorqual_dir}/lib )

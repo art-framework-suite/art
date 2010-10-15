@@ -41,8 +41,8 @@ simple_plugin(Timing_plugin)
 simple_plugin(Tracer_plugin)
 simple_plugin(UnixSignalService_plugin)
 
-install ( TARGETS artFrameworkServicesBasic DESTINATION lib )
+install ( TARGETS artFrameworkServicesBasic DESTINATION ${flavorqual_dir}/lib )
 install(FILES CurrentModule.h
               TFileService.h
               Timing.h
-        DESTINATION include/art/Framework/Services/Basic )
+         DESTINATION  ${product}/${version}/include/art/Framework/Services/Basic )

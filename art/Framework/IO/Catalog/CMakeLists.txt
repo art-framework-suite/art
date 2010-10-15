@@ -11,9 +11,9 @@ set( artFrameworkIOCatalog_sources FileCatalog.cc
 
 add_library(artFrameworkIOCatalog SHARED ${artFrameworkIOCatalog_sources} )
 
-install ( TARGETS artFrameworkIOCatalog DESTINATION lib )
+install ( TARGETS artFrameworkIOCatalog DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES FileCatalog.h
               InputFileCatalog.h
               SiteLocalConfig.h
-        DESTINATION include/art/Framework/IO/Catalog )
+         DESTINATION  ${product}/${version}/include/art/Framework/IO/Catalog )

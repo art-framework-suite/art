@@ -33,4 +33,4 @@ add_library(artFrameworkIOInput SHARED ${artFrameworkIOInput_sources} )
 simple_plugin(PoolRASource_plugin)
 simple_plugin(PoolSource_plugin)
 
-install ( TARGETS artFrameworkIOInput DESTINATION lib )
+install ( TARGETS artFrameworkIOInput DESTINATION ${flavorqual_dir}/lib )
