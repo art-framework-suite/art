@@ -8,18 +8,9 @@ usage: $prog [-a|--all-lumi-cases] [--one-file <file>] <top-dir>
 EOF
 }
 
-function one_file() {
+function one_file_lumi() {
   local F=$1
-  printf "$F ... "
-  # Fix most includes
-  ed "$F" < pop.ed > /dev/null 2>&1
-  # Account for two additional moved files
-  ed "$F" < movedfile_20100901_112607.ed > /dev/null 2>&1
-  ed "$F" < movedfile_20100907_150621.ed > /dev/null 2>&1
-  # Fix includes in and of .icc files
-  perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
-  # "lumi|luminosty|luminosityblock" -> subrun
-  grep -Il subrun "${F}" && { echo "OK"; return; } # Already done
+  grep -Il subrun "${F}" && return 0 # Already done
   cp -p "${F}" "$TMP" # Make sure permissions are correct on temporary file
   err=$(perl -wp -f fix-lumi.pl "${F}" 2>&1 >"$TMP" ) # Yes, the redirections are in the right order.
   status=$?
@@ -41,7 +32,27 @@ function one_file() {
           mv "$F" "$Fnew"
       fi
   fi
-  echo "OK"
+}
+
+function one_file() {
+  local F=$1
+  printf "$F ... "
+  # Fix most includes
+  ed "$F" < pop.ed > /dev/null 2>&1
+  # Account for two additional moved files
+  ed "$F" < movedfile_20100901_112607.ed > /dev/null 2>&1
+  ed "$F" < movedfile_20100907_150621.ed > /dev/null 2>&1
+  # Fix includes in and of .icc files
+  perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  # Fix ParameterSet calls
+  perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  # Fix edm and cms namespaces
+  perl -wapi\~ -f fix-namespaces.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+
+  # "lumi|luminosty|luminosityblock" -> subrun
+  if one_file_lumi "$F"; then
+    echo "OK"
+  fi
 }
 
 # ======================================================================
