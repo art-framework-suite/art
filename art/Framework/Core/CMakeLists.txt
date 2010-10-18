@@ -54,22 +54,22 @@ set( artFrameworkCore_sources Actions.cc
                               WorkerMaker.cc
                               WorkerRegistry.cc )
 
-#link_libraries( artPersistencyProvenance
-#                artPersistencyCommon
-#                artMessageLogger
-#                artFrameworkServicesBasic
-#                artFrameworkCore
-#                artParameterSet
-#                artFrameworkPluginManager
-#                artFrameworkServicesRegistry
-#                artUtilities
-#                artVersion
-#                ${Boost_FILESYSTEM_LIBRARY}
-#                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-#                ${SIGC}
-#                ${CORE}
-#                ${REFLEX}
-#                ${MATRIX} )
+link_libraries( artPersistencyProvenance
+                artPersistencyCommon
+                artFrameworkServicesBasic
+                artFrameworkCore
+                artFrameworkPluginManager
+                artFrameworkServicesRegistry
+                artUtilities
+                artVersion
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                ${Boost_THREAD_LIBRARY}
+                ${SIGC}
+                ${CORE}
+                ${REFLEX}
+		${CINT}
+                ${MATRIX} )
 
 simple_plugin(RandomNumberGeneratorService_plugin)
 simple_plugin(RandomNumberSaver_plugin)
@@ -82,20 +82,11 @@ add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
 
 add_executable( art   art.cpp   )
 target_link_libraries( art artFrameworkCoreArt
-                artPersistencyProvenance
-                artPersistencyCommon
-                artFrameworkServicesBasic
-                artFrameworkCore
-                artFrameworkPluginManager
-                artFrameworkServicesRegistry
-                artUtilities
-                artVersion
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                ${SIGC}
-                ${CORE}
-                ${REFLEX}
-                ${MATRIX} )
+                           ${MF_MESSAGELOGGER}  
+                           ${MF_MESSAGESERVICE}  
+                           ${MF_UTILITIES}  
+                           ${MF_EXTENSIONS}  
+			   )
 
 install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
 install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )

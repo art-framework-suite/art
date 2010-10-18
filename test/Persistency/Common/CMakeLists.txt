@@ -49,6 +49,6 @@ add_executable( testDataFormatsCommon testRunner.cpp ${cc_files} )
 add_test( testDataFormatsCommon ${EXECUTABLE_OUTPUT_PATH}/testDataFormatsCommon )
 
 add_executable( ReflexTools_t ReflexTools_t.cpp )
-target_link_libraries( ReflexTools_t DataFormatsWrappedStdDictionaries_dict_plugin
-                                     DataFormatsWrappedStdDictionaries_map_plugin  )
+target_link_libraries( ReflexTools_t DataFormatsWrappedStdDictionaries_dict
+                                     DataFormatsWrappedStdDictionaries_map  )
 add_test( ReflexTools_t ${EXECUTABLE_OUTPUT_PATH}/ReflexTools_t )

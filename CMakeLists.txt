@@ -191,10 +191,14 @@ find_library( CETLIB NAMES cetlib PATHS $ENV{CETLIB_LIB} )
 find_library( FHICLCPP NAMES fhiclcpp PATHS $ENV{FHICLCPP_LIB} )
 
 # define MESSAGEFACILITY
-find_library( MESSAGEFACILITY NAMES MF_MessageLogger
-                                    MF_MessageService
-                                    MF_Utilities
-                                    MF_Extensions
+
+find_library( MF_MESSAGELOGGER NAMES MF_MessageLogger
+                              PATHS $ENV{MESSAGEFACILITY_LIB} )
+find_library( MF_MESSAGESERVICE NAMES MF_MessageService
+                              PATHS $ENV{MESSAGEFACILITY_LIB} )
+find_library( MF_UTILITIES NAMES MF_Utilities
+                              PATHS $ENV{MESSAGEFACILITY_LIB} )
+find_library( MF_EXTENSIONS NAMES MF_ExtModules
                               PATHS $ENV{MESSAGEFACILITY_LIB} )
 
 # have to make sure cmake doesn't select the system libraries
@@ -246,32 +250,32 @@ set( GENREFLEX_INCLUDES -I $ENV{CPPUNIT_DIR}/include
 			-I $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
 # this is how we do the genreflex step
 macro (build_dictionary maindir subdir)
-  add_library(${maindir}${subdir}_dict_plugin SHARED ${maindir}${subdir}_dict_plugin.cpp )
-  add_library(${maindir}${subdir}_map_plugin SHARED ${maindir}${subdir}_map_plugin.cpp )
+  add_library(${maindir}${subdir}_dict SHARED ${maindir}${subdir}_dict.cpp )
+  add_library(${maindir}${subdir}_map SHARED ${maindir}${subdir}_map.cpp )
   set(dictionary_liblist "${ARGN}")
   if( dictionary_liblist )
-    target_link_libraries( ${maindir}${subdir}_dict_plugin ${dictionary_liblist} )
-    target_link_libraries( ${maindir}${subdir}_map_plugin ${dictionary_liblist} )
+    target_link_libraries( ${maindir}${subdir}_dict ${dictionary_liblist} )
+    target_link_libraries( ${maindir}${subdir}_map ${dictionary_liblist} )
   endif( dictionary_liblist )
   add_custom_command(
-     OUTPUT ${maindir}${subdir}_dict_plugin.cpp
+     OUTPUT ${maindir}${subdir}_dict.cpp
      COMMAND ${GENREFLEX} ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes.h
         	 -s ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes_def.xml
 		 -I ${CMAKE_SOURCE_DIR}
 		 -I ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}
 		 ${GENREFLEX_INCLUDES}
-        	 -o ${maindir}${subdir}_dict_plugin.cpp
-		 ${GENREFLEX_FLAGS} || { rm -f ${maindir}${subdir}_dict_plugin.cpp\; /bin/false\; }
+        	 -o ${maindir}${subdir}_dict.cpp
+		 ${GENREFLEX_FLAGS} || { rm -f ${maindir}${subdir}_dict.cpp\; /bin/false\; }
      DEPENDS ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes.h
              ${CMAKE_SOURCE_DIR}/art/${maindir}/${subdir}/classes_def.xml
   )
   add_custom_command(
-     OUTPUT ${maindir}${subdir}_map_plugin.cpp
-     DEPENDS ${maindir}${subdir}_dict_plugin.cpp
-     COMMAND mv classes_ids.cc ${maindir}${subdir}_map_plugin.cpp
+     OUTPUT ${maindir}${subdir}_map.cpp
+     DEPENDS ${maindir}${subdir}_dict.cpp
+     COMMAND mv classes_ids.cc ${maindir}${subdir}_map.cpp
   )
-  install ( TARGETS ${maindir}${subdir}_dict_plugin DESTINATION ${flavorqual_dir}/lib )
-  install ( TARGETS ${maindir}${subdir}_map_plugin  DESTINATION ${flavorqual_dir}/lib )
+  install ( TARGETS ${maindir}${subdir}_dict DESTINATION ${flavorqual_dir}/lib )
+  install ( TARGETS ${maindir}${subdir}_map  DESTINATION ${flavorqual_dir}/lib )
 endmacro (build_dictionary maindir subdir)
 
 # simple plugin libraries
