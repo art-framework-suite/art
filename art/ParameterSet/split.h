@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/split.h"
+
+
 #ifndef ParameterSet_split_h
 #define ParameterSet_split_h
 

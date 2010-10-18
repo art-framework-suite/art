@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/PythonParameterSet.h"
+
+
 #if 0
 #ifndef PythonParameterSet_h
 #define PythonParameterSet_h

@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/PythonModule.h"
+
+
 #if 0
 
 #include "art/ParameterSet/PythonParameterSet.h"

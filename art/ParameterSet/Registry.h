@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/Registry.h"
+
+
 #ifndef FWCore_ParameterSet_Registry_h
 #define FWCore_ParameterSet_Registry_h
 

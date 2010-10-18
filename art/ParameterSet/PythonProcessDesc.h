@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/PythonProcessDesc.h"
+
+
 #if 0
 #ifndef PythonProcessDesc_h
 #define PythonProcessDesc_h

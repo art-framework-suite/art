@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/MakeParameterSets.h"
+
+
 #ifndef FWCoreParameterSet_MakeParameterSets_h
 #define FWCoreParameterSet_MakeParameterSets_h
 

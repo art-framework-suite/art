@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ProcessDesc.h"
+
+
 #ifndef ParameterSet_ProcessDesc_h
 #define ParameterSet_ProcessDesc_h
 

@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/PythonWrapper.h"
+
+
 #if 0
 #ifndef ParameterSet_PythonWrapper_h
 #define ParameterSet_PythonWrapper_h

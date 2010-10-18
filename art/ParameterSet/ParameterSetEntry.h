@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ParameterSetEntry.h"
+
+
 #ifndef ParameterSet_ParameterSetEntry_h
 #define ParameterSet_ParameterSetEntry_h
 
