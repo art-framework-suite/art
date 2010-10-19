@@ -90,10 +90,10 @@ target_link_libraries( art artFrameworkCoreArt
                            ${MF_UTILITIES}  
                            ${MF_EXTENSIONS}  
 			   )
+install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 
 install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
 install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
-install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 install(FILES Actions.h
 	      BranchActionType.h
 	      Breakpoints.h

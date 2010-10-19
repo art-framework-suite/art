@@ -32,6 +32,7 @@ tnotnull UPS_DIR || echo "$msg2"
 # note that we do not test for them first...
 # use setup -j to avoid pulling dependencies
 setup cmake
+setup cetbuildtools v1_3_0
 setup -j cppunit v1_12_1 -q a1 
 setup -j gccxml v0_9 -q a1 
 setup -j libsigcpp v2_2_7 -q a1 
@@ -70,23 +71,16 @@ test -n "$fwdir" && setenv ART_WORKDIR $fwdir
 test -d "$fwdir/lib" || mkdir -p $fwdir/lib
 echo The workng build directory is $fwdir
 
-# if ART_HOME already exists, it will be changed
-# be sure to remove the old name from existing paths
-tnotnull ART_HOME && set_ oldhome=$ART_HOME && echo warning: ART_HOME changed from $ART_HOME to $ART_WORKDIR
-tnotnull oldhome && setenv PATH `echo :${PATH}: | sed -e "s|:${oldhome}/*bin:|:|" -e 's|^:||;s|:$||'`
-tnotnull oldhome && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${oldhome}/*lib:|:|" -e 's|^:||;s|:$||'`
-
-tnotnull ART_WORKDIR && setenv ART_HOME ${ART_WORKDIR}
 tnotnull ART_WORKDIR && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_WORKDIR}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${ART_WORKDIR}/lib:${LD_LIBRARY_PATH}
-echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
-echo $fwdir/lib has been added to LD_LIBRARY_PATH
 
 echo
 echo ART_CODE=$ART_CODE
-echo ART_HOME=$ART_HOME
 echo ART_WORKDIR=$ART_WORKDIR
+echo $fwdir/lib has been added to LD_LIBRARY_PATH
+echo
+echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ 
-unset ss msg db me fwdir oldhome py_ver
+unset ss msg db me fwdir py_ver
 unset set_ setenv unsetenv tnotnull source nullout vecho_
