@@ -65,11 +65,14 @@ link_libraries( artPersistencyProvenance
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_PROGRAM_OPTIONS_LIBRARY}
                 ${Boost_THREAD_LIBRARY}
+		${Boost_REGEX_LIBRARY}
                 ${SIGC}
-                ${CORE}
+                ${HIST}
                 ${REFLEX}
 		${CINT}
-                ${MATRIX} )
+                ${MATRIX}
+                ${MATHCORE}
+                ${CORE} )
 
 simple_plugin(RandomNumberGeneratorService_plugin)
 simple_plugin(RandomNumberSaver_plugin)
