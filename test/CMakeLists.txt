@@ -3,3 +3,5 @@ project(artTest)
 
 # build Persistency libraries
 subdirs (Version)
+#subdirs (Utilities)
+
