@@ -8,8 +8,6 @@
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/ParameterSet/ParameterSetfwd.h"
-
 #include <string>
 
 

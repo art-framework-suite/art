@@ -20,14 +20,10 @@ it.
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/Presence.h"
 #include "art/Utilities/RootHandlers.h"
-
-#include "MessageFacility/MessageLogger.h"
-
-#include "TError.h"
-
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
-
+#include "MessageFacility/MessageLogger.h"
+#include "TError.h"
 #include <cstring>
 #include <exception>
 #include <fstream>

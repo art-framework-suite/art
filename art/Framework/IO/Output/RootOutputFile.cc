@@ -6,7 +6,6 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -311,7 +310,8 @@ namespace art {
     b->Fill();
   }
 
-  void RootOutputFile::writeParameterSetRegistry() {
+  void RootOutputFile::writeParameterSetRegistry() {  // TODO: update
+    #if 0
     typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
     pset::fill(pset::Registry::instance(), psetMap);
@@ -319,6 +319,7 @@ namespace art {
     TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
     assert(b);
     b->Fill();
+    #endif  // 0
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {

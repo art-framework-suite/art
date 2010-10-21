@@ -80,26 +80,26 @@ set( artFrameworkCoreArt_sources artapp.cc )
 
 add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
 
-add_executable( art   art.cpp   )
-target_link_libraries( art artFrameworkCoreArt
-                artPersistencyProvenance
-                artPersistencyCommon
-                artFrameworkServicesBasic
-                artFrameworkCore
-                artFrameworkPluginManager
-                artFrameworkServicesRegistry
-                artUtilities
-                artVersion
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                ${SIGC}
-                ${CORE}
-                ${REFLEX}
-                ${MATRIX} )
+#add_executable( art   art.cpp   )
+#target_link_libraries( art artFrameworkCoreArt
+#                artPersistencyProvenance
+#                artPersistencyCommon
+#                artFrameworkServicesBasic
+#                artFrameworkCore
+#                artFrameworkPluginManager
+#                artFrameworkServicesRegistry
+#                artUtilities
+#                artVersion
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#                ${SIGC}
+#                ${CORE}
+#                ${REFLEX}
+#                ${MATRIX} )
 
 install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
 install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
-install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
+#install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 install(FILES Actions.h
 	      BranchActionType.h
 	      Breakpoints.h

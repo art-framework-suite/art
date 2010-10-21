@@ -1,6 +1,5 @@
 #include "art/Framework/Core/TriggerNamesService.h"
 
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
@@ -8,6 +7,7 @@
 #include "art/Utilities/ThreadSafeRegistry.h"
 
 using fhicl::ParameterSet;
+using fhicl::ParameterSetRegistry;
 
 
 namespace art {
@@ -46,9 +46,7 @@ namespace art {
       // Get the parameter set containing the trigger names from the parameter set registry
       // using the ID from TriggerResults as the key used to find it.
       ParameterSet pset;
-      pset::Registry* psetRegistry = pset::Registry::instance();
-      if (psetRegistry->getMapped(triggerResults.parameterSetID(),
-                                  pset)) {
+      if (ParameterSetRegistry::get(triggerResults.parameterSetID(), pset)) {
 
         trigPaths = pset.get<std::vector<std::string> >("@trigger_paths",Strings());
 

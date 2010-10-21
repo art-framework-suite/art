@@ -26,7 +26,6 @@
 
 
 #include "fhiclcpp/ParameterSet.h"
-
 #include <map>
 #include <string>
 #include <vector>

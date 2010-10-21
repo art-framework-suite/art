@@ -1,15 +1,15 @@
 #include "art/Framework/Core/Run.h"
 
 #include "art/Framework/Core/RunPrincipal.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-
 #include "fhiclcpp/ParameterSet.h"
-  using fhicl::ParameterSet;
 #include "fhiclcpp/ParameterSetID.h"
-  using fhicl::ParameterSetID;
-
 #include <vector>
+
+
+using fhicl::ParameterSet;
+using fhicl::ParameterSetID;
+using fhicl::ParameterSetRegistry;
 
 
 namespace art {
@@ -63,7 +63,6 @@ namespace art {
       }
 
     // Look up the ParameterSets for these IDs.
-    pset::Registry* psreg = pset::Registry::instance();
     for (std::vector<ParameterSetID>::const_iterator
            i = psetIdsUsed.begin(),
            e = psetIdsUsed.end();
@@ -71,7 +70,7 @@ namespace art {
          ++i)
       {
         ParameterSet temp;
-        psreg->getMapped(*i, temp);
+        ParameterSetRegistry::get(*i, temp);
         psets.push_back(temp);
       }
 

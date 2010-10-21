@@ -12,8 +12,8 @@
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Utilities/DebugMacros.h"
 
-using fhicl::ParameterSet;
 
+using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 

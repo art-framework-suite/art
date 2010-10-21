@@ -1,6 +1,3 @@
-#error "Using obsolete ParameterSet/MakeParameterSets.h"
-
-
 #ifndef FWCoreParameterSet_MakeParameterSets_h
 #define FWCoreParameterSet_MakeParameterSets_h
 
@@ -13,10 +10,8 @@
 
 
 #include "art/ParameterSet/ProcessDesc.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <string>
 #include <vector>
 
@@ -27,17 +22,15 @@ namespace art {
   boost::shared_ptr<art::ProcessDesc>
   readConfig(const std::string & config);
 
-  /// same, but with arguments
+  // same, but with arguments
   boost::shared_ptr<art::ProcessDesc>
   readConfig(const std::string & config, int argc, char * argv[]);
 
-
-  /// essentially the same as the previous method
+  // essentially the same as the previous method
   void
   makeParameterSets(std::string const& configtext,
                   boost::shared_ptr<fhicl::ParameterSet>& main,
                   boost::shared_ptr<std::vector<fhicl::ParameterSet> >& serviceparams);
-
 
   // deprecated
   boost::shared_ptr<art::ProcessDesc>

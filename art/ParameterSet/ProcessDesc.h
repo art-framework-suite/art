@@ -1,13 +1,9 @@
-#error "Using obsolete ParameterSet/ProcessDesc.h"
-
-
 #ifndef ParameterSet_ProcessDesc_h
 #define ParameterSet_ProcessDesc_h
 
 
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <vector>
 
 

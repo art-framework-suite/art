@@ -15,9 +15,7 @@ These products should be informational products about the filter decision.
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/ParameterSet/ParameterSetfwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-
 #include <string>
 
 
