@@ -4,7 +4,6 @@
 
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <vector>
 
 

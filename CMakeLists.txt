@@ -1,13 +1,13 @@
-# Declare the install path from the cmake command line
-# using either a relative or full path
-# Use setup_fw_development to define the build and code directories, then:
-#   cd $ART_WORKDIR
-#   cmake -DCMAKE_INSTALL_PREFIX=../install $ART_CODE (choose your install path)
-#   make
-#   make test
-#   make install
-# If you change any of the Cmake* files in $ART_CODE,
-# you need to run the cmake step again
+# ======================================================================
+#  art main build file
+#
+#  cd .../path/to/build/directory
+#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] .../path/to/art
+#  make
+#  make test
+#  make install
+# ======================================================================
+
 
 # use cmake 2.6 or later
 cmake_minimum_required (VERSION 2.6)
@@ -76,7 +76,7 @@ find_ups_product( cpp0x v0_0_0 )
 find_ups_product( libsigcpp v2_2_7 )
 find_ups_product( cetlib v0_0_0 )
 find_ups_product( clhep v2_1_0_0  )
-find_ups_product( fhiclcpp v2_0_0  )
+find_ups_product( fhiclcpp v2_1_0  )
 find_ups_product( messagefacility v1_5_0  )
 find_ups_root( v5_26_00 )
 find_ups_boost( v1_44_0 filesystem

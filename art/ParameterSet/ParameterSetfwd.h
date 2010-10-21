@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ParameterSetfwd.h"
+
+
 #ifndef ParameterSet_ParameterSetfwd_h
 #define ParameterSet_ParameterSetfwd_h
 

@@ -8,7 +8,6 @@
 #include "art/Framework/IO/Input/DuplicateChecker.h"
 #include "art/Framework/IO/Input/ProvenanceAdaptor.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -24,7 +23,6 @@
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
-
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
@@ -36,14 +34,12 @@
 #include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 #include "art/Persistency/Provenance/SubRunAux.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TROOT.h"
 #include "TTree.h"
-
-#include "MessageFacility/MessageLogger.h"
-
 #include <algorithm>
 
 
@@ -203,8 +199,8 @@ namespace art {
     }
 
     // Merge into the hashed registries.
-    pset::Registry& psetRegistry = *pset::Registry::instance();
   #if 0
+    pset::Registry& psetRegistry = *pset::Registry::instance();
     for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
       fhicl::ParameterSet pset(i->second.pset_);
       pset.id();  //pset.setID(i->first);

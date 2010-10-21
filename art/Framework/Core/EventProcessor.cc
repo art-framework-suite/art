@@ -1,5 +1,6 @@
 #include "art/Framework/Core/EventProcessor.h"
 
+
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
@@ -24,21 +25,19 @@
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
-
-  using art::serviceregistry::ServiceLegacy;
-  using art::serviceregistry::kOverlapIsError;
-
-#include "MessageFacility/MessageLogger.h"
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
-
-  using boost::shared_ptr;
-  using fhicl::ParameterSet;
-
+#include "MessageFacility/MessageLogger.h"
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <utility>
+
+
+using art::serviceregistry::ServiceLegacy;
+using art::serviceregistry::kOverlapIsError;
+using boost::shared_ptr;
+using fhicl::ParameterSet;
 
 
 namespace art {

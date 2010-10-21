@@ -39,7 +39,7 @@ setup -j libsigcpp v2_2_7 -q a1
 setup -j clhep v2_1_0_0 -q a1 
 setup -j root v5_26_00d -q GCC_4_5_1
 setup -j messagefacility v1_5_0 -q a1
-setup -j fhiclcpp v2_0_0 -q a1
+setup -j fhiclcpp v2_1_0 -q a1
 setup -j cpp0x v0_0_0 -q a1
 setup -j cetlib v0_0_0 -q a1
 setup -j boost v1_44_0 -q a1

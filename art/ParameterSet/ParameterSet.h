@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ParameterSet.h"
+
+
 #ifndef FWCore_ParameterSet_ParameterSet_h
 #define FWCore_ParameterSet_ParameterSet_h
 

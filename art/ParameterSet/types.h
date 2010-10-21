@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/types.h"
+
+
 #ifndef FWCore_ParameterSet_types_h
 #define FWCore_ParameterSet_types_h
 

@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/pythonFileToConfigure.h"
+
+
 #if !defined(FWCore_Framework_pythonToConfigure_h)
 #define FWCore_Framework_pythonToConfigure_h
 /*

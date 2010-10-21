@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/FileInPath.h"
+
+
 #ifndef FWCore_ParameterSet_FileInPath_h
 #define FWCore_ParameterSet_FileInPath_h
 

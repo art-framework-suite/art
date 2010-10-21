@@ -85,15 +85,16 @@ add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
 
 add_executable( art   art.cpp   )
 target_link_libraries( art artFrameworkCoreArt
-                           ${MF_MESSAGELOGGER}  
-                           ${MF_MESSAGESERVICE}  
-                           ${MF_UTILITIES}  
-                           ${MF_EXTENSIONS}  
+                           ${MF_MESSAGELOGGER}
+                           ${MF_MESSAGESERVICE}
+                           ${MF_UTILITIES}
+                           ${MF_EXTENSIONS}
 			   )
 install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 
 install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
 install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
+
 install(FILES Actions.h
 	      BranchActionType.h
 	      Breakpoints.h

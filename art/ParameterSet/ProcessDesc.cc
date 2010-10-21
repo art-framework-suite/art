@@ -1,6 +1,6 @@
 /**
    \file
-   Implementation of calss ProcessDesc
+   Implementation of class ProcessDesc
 
    \author Stefano ARGIRO
    \version
@@ -14,9 +14,7 @@
 #include "art/Utilities/Algorithms.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <iostream>
 
 
