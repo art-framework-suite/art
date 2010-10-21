@@ -6,8 +6,8 @@ file( GLOB cpp_files *.cpp )
 file( GLOB cc_files *.cc )
 
 link_libraries( DataFormatsProvenance
-                FWCoreUtilities
-                FWCoreVersion
+                artUtilities
+                artVersion
 		${Boost_THREAD_LIBRARY}
 		${REFLEX} ${CORE} )
 

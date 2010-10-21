@@ -73,17 +73,18 @@ Common:
 	    
     # uncomment or add to this list as relevant
     setupRequired(cmake)
-    setupRequired(cppunit   @CPPUNIT_VERS@ @CPPUNIT_QUAL@)
-    setupRequired(gccxml   @GCCXML_VERS@ @GCCXML_QUAL@)
-    setupRequired(libsigcpp   @LIBSIGCPP_VERS@ @LIBSIGCPP_QUAL@)
-    setupRequired(clhep   @CLHEP_VERS@ @CLHEP_QUAL@)
-    setupRequired(root   @ROOT_VERS@ @ROOT_QUAL@)
+    setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ @CPPUNIT_QUAL@)
+    setupRequired(gccxml    @GCCXML_VERSION@ @GCCXML_QUAL@)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ @LIBSIGCPP_QUAL@)
+    setupRequired(clhep     @CLHEP_VERSION@ @CLHEP_QUAL@)
+    setupRequired(root      @ROOT_VERSION@ @ROOT_QUAL@)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_QUAL@)
-    setupRequired(fhiclcpp   @FHICLCPP_VERS@ @FHICLCPP_QUAL@)
-    setupRequired(cpp0x   @CPPOX_VERS@ @CPPOX_QUAL@)
-    setupRequired(cetlib   @CETLIB_VERS@ @CETLIB_QUAL@)
-    setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
-    setupRequired(gcc @GCC_VERSION@ @GCC_QUAL@)
+    setupRequired(fhiclcpp  @FHICLCPP_VERSION@ @FHICLCPP_QUAL@)
+    setupRequired(cpp0x     @CPP0X_VERSION@ @CPP0X_QUAL@)
+    setupRequired(cetlib    @CETLIB_VERSION@ @CETLIB_QUAL@)
+    setupRequired(boost     @BOOST_VERS@ @BOOST_QUAL@)
+    setupRequired(gcc       @GCC_VERSION@ @GCC_QUAL@)
 
 End:
 # End Group definition

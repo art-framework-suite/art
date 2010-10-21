@@ -62,13 +62,13 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 						eventprocessor2_t.cppunit.cc
 						stubs/TestBeginEndJobAnalyzer.cc )
 
-#add_library(FWCoreFrameworkTestDummyService SHARED ${FWCoreServiceRegistryTestDummyService_sources} )
-#add_library(FWCoreFrameworkTestDummyServicePlugin SHARED ${FWCoreServiceRegistryTestDummyServicePlugin_sources} )
+#add_library(FWCoreFrameworkTestDummyService SHARED ${artFrameworkServicesRegistryTestDummyService_sources} )
+#add_library(FWCoreFrameworkTestDummyServicePlugin SHARED ${artFrameworkServicesRegistryTestDummyServicePlugin_sources} )
 
-link_libraries( FWCoreServiceRegistry
-                FWCoreParameterSet
-                FWCorePluginManager
-                FWCoreUtilities
+link_libraries( artFrameworkServicesRegistry
+                artParameterSet
+                artFrameworkPluginManager
+                artUtilities
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${SIGC}
 		${CORE}
