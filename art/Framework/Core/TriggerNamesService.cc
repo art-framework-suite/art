@@ -1,13 +1,16 @@
 #include "art/Framework/Core/TriggerNamesService.h"
 
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
+#include "cetlib/container_algorithms.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
-using fhicl::ParameterSet;
-using fhicl::ParameterSetRegistry;
+
+using namespace cet;
+using namespace fhicl;
+using namespace std;
 
 
 namespace art {
@@ -18,8 +21,8 @@ namespace art {
       trigger_pset_ =
         pset.get<fhicl::ParameterSet>("@trigger_paths");
 
-      trignames_ = trigger_pset_.get<std::vector<std::string> >("@trigger_paths");
-      end_names_ = pset.get<std::vector<std::string> >("@end_paths");
+      trignames_ = trigger_pset_.get<vector<string> >("@trigger_paths");
+      end_names_ = pset.get<vector<string> >("@end_paths");
 
       ParameterSet defopts;
       ParameterSet opts =
@@ -27,14 +30,14 @@ namespace art {
       wantSummary_ =
         opts.get<bool>("wantSummary",false);
 
-      process_name_ = pset.get<std::string>("@process_name");
+      process_name_ = pset.get<string>("@process_name");
 
       loadPosMap(trigpos_,trignames_);
       loadPosMap(end_pos_,end_names_);
 
       const unsigned int n(trignames_.size());
       for(unsigned int i=0;i!=n;++i) {
-        modulenames_.push_back(pset.get<std::vector<std::string> >(trignames_[i]));
+        modulenames_.push_back(pset.get<vector<string> >(trignames_[i]));
       }
     }
 
@@ -48,7 +51,7 @@ namespace art {
       ParameterSet pset;
       if (ParameterSetRegistry::get(triggerResults.parameterSetID(), pset)) {
 
-        trigPaths = pset.get<std::vector<std::string> >("@trigger_paths",Strings());
+        trigPaths = pset.get<vector<string> >("@trigger_paths",Strings());
 
         if (trigPaths.size() != triggerResults.size()) {
           throw art::Exception(art::errors::Unknown)

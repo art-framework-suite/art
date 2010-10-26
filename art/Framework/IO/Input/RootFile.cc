@@ -19,10 +19,10 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunID.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
@@ -43,25 +43,29 @@
 #include <algorithm>
 
 
+using namespace cet;
+using namespace std;
+
+
 namespace art {
 
-  RootFile::RootFile(std::string const& fileName,
-                     std::string const& catalogName,
+  RootFile::RootFile(string const& fileName,
+                     string const& catalogName,
                      ProcessConfiguration const& processConfiguration,
-                     std::string const& logicalFileName,
+                     string const& logicalFileName,
                      boost::shared_ptr<TFile> filePtr,
                      RunNumber_t const& startAtRun,
                      SubRunNumber_t const& startAtSubRun,
                      EventNumber_t const& startAtEvent,
                      unsigned int eventsToSkip,
-                     std::vector<SubRunID> const& whichSubRunsToSkip,
+                     vector<SubRunID> const& whichSubRunsToSkip,
                      int remainingEvents,
                      int remainingSubRuns,
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
                      int forcedRunOffset,
-                     std::vector<EventID> const& whichEventsToProcess,
+                     vector<EventID> const& whichEventsToProcess,
                      bool noEventSort,
                      GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
@@ -148,7 +152,7 @@ namespace art {
     ProductRegistry *ppReg = &tempReg;
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
 
-    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> PsetMap;
+    typedef map<fhicl::ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     PsetMap *psetMapPtr = &psetMap;
     metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
@@ -157,7 +161,7 @@ namespace art {
     ProcessHistoryRegistry::collection_type *pHistMapPtr = &pHistMap;
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
 
-    std::auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
+    auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
     BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
     if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
@@ -169,7 +173,7 @@ namespace art {
     }
 
     // backward compatibility
-    std::vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
+    vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
     if (metaDataTree->FindBranch(poolNames::eventHistoryBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
     }
@@ -234,7 +238,7 @@ namespace art {
     // freeze our temporary product registry
     tempReg.setFrozen();
 
-    std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
+    auto_ptr<ProductRegistry> newReg(new ProductRegistry);
 
     // Do the translation from the old registry to the new one
     {
@@ -242,7 +246,7 @@ namespace art {
       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
-        std::string newFriendlyName = friendlyname::friendlyName(prod.className());
+        string newFriendlyName = friendlyname::friendlyName(prod.className());
         if (newFriendlyName == prod.friendlyClassName()) {
           newReg->copyProduct(prod);
         } else {
@@ -256,7 +260,7 @@ namespace art {
           newReg->copyProduct(newBD);
           // Need to call init to get old branch name.
           prod.init();
-          newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
+          newBranchToOldBranch_.insert(make_pair(newBD.branchName(), prod.branchName()));
         }
       }
       // freeze the product registry
@@ -374,7 +378,7 @@ namespace art {
       if (startAtSubRun_ > it->subRun_) return false;
       if (startAtEvent_ > it->event_) return false;
     }
-    for (std::vector<SubRunID>::const_iterator it = whichSubRunsToSkip_.begin(),
+    for (vector<SubRunID>::const_iterator it = whichSubRunsToSkip_.begin(),
           itEnd = whichSubRunsToSkip_.end(); it != itEnd; ++it) {
         if (fileIndex_.findSubRunPosition(it->run(), it->subRun(), true) != fileIndexEnd_) {
           // We must skip a subRun in this file.  We will simply assume that
@@ -411,9 +415,9 @@ namespace art {
                                                      branchChildren_));
   }
 
-  std::string const&
-  RootFile::newBranchToOldBranch(std::string const& newBranch) const {
-    std::map<std::string, std::string>::const_iterator it = newBranchToOldBranch_.find(newBranch);
+  string const&
+  RootFile::newBranchToOldBranch(string const& newBranch) const {
+    map<string, string>::const_iterator it = newBranchToOldBranch_.find(newBranch);
     if (it != newBranchToOldBranch_.end()) {
       return it->second;
     }
@@ -662,8 +666,8 @@ namespace art {
   void
   RootFile::reportOpened() {
     // Report file opened.
-    std::string const label = "source";
-    std::string moduleName = "PoolSource";
+    string const label = "source";
+    string moduleName = "PoolSource";
   }
 
   void
@@ -788,7 +792,7 @@ namespace art {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  std::auto_ptr<EventPrincipal>
+  auto_ptr<EventPrincipal>
   RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
@@ -799,7 +803,7 @@ namespace art {
          fileIndexIter_->event_ >= startAtEvent_);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
-    std::auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
+    auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
 
     assert(ep.get() != 0);
     assert(eventAux_.run() == fileIndexIter_->run_ + forcedRunOffset_);
@@ -812,10 +816,10 @@ namespace art {
 
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
-  std::auto_ptr<EventPrincipal>
+  auto_ptr<EventPrincipal>
   RootFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     if (!eventTree_.current()) {
-      return std::auto_ptr<EventPrincipal>(0);
+      return auto_ptr<EventPrincipal>(0);
     }
     fillEventAuxiliary();
     fillHistory();
@@ -826,7 +830,7 @@ namespace art {
         makeBranchMapper<EventEntryInfo>(eventTree_, InEvent));
 
     // We're not done ... so prepare the EventPrincipal
-    std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
+    auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventAux_,
                 pReg,
                 processConfiguration_,
@@ -1043,7 +1047,7 @@ namespace art {
 
     ProductRegistry::ProductList& prodList = const_cast<ProductRegistry::ProductList&>(productRegistry()->productList());
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
-    std::set<BranchID> branchesToDrop;
+    set<BranchID> branchesToDrop;
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
@@ -1057,7 +1061,7 @@ namespace art {
     }
 
     // On this pass, actually drop the branches.
-    std::set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
+    set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
     for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
@@ -1119,20 +1123,20 @@ namespace art {
             input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
             input::BranchInfo const& ib = ix->second;
             TBranch *br = ib.provenanceBranch_;
-            std::auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
+            auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
             EntryDescriptionID* ppb = pb.get();
             br->SetAddress(&ppb);
             input::getEntry(br, rootTree.entryNumber());
-            std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+            vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
             EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
             mapper->insert(entry.makeProductProvenance());
           } else {
             TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-            std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+            auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
             BranchEntryDescription* ppb = pb.get();
             br->SetAddress(&ppb);
             input::getEntry(br, rootTree.entryNumber());
-            std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+            auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
             ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
             EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
             mapper->insert(entry.makeProductProvenance());
@@ -1152,16 +1156,16 @@ namespace art {
             input::BranchInfo const& ib = ix->second;
             TBranch *br = ib.provenanceBranch_;
             input::getEntry(br, rootTree.entryNumber());
-            std::vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+            vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
             ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
             mapper->insert(entry);
           } else {
             TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-            std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+            auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
             BranchEntryDescription* ppb = pb.get();
             br->SetAddress(&ppb);
             input::getEntry(br, rootTree.entryNumber());
-            std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
+            auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
             ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
             ProductProvenance entry(it->second.branchID(), status);
             mapper->insert(entry);

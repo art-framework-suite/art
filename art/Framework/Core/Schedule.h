@@ -79,12 +79,10 @@
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "art/Utilities/Algorithms.h"
-
-#include "MessageFacility/MessageLogger.h"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-
+#include "MessageFacility/MessageLogger.h"
 #include <map>
 #include <memory>
 #include <set>
@@ -423,7 +421,7 @@ namespace art {
   template <typename T>
   bool
   Schedule::runTriggerPaths(typename T::MyPrincipal& ep) {
-    for_all(trig_paths_, ProcessOneOccurrence<T>(ep));
+    cet::for_all(trig_paths_, ProcessOneOccurrence<T>(ep));
     return results_->accept();
   }
 
@@ -432,7 +430,7 @@ namespace art {
   Schedule::runEndPaths(typename T::MyPrincipal& ep) {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_all(end_paths_, ProcessOneOccurrence<T>(ep));
+    cet::for_all(end_paths_, ProcessOneOccurrence<T>(ep));
 
     // We could get rid of the functor ProcessOneOccurrence if we used
     // boost::lambda, but the use of lambda with member functions
@@ -440,7 +438,7 @@ namespace art {
     // reference, seems much more obscure...
     //
     // using namespace boost::lambda;
-    // for_all(end_paths_,
+    // cet::for_all(end_paths_,
     //          bind(&Path::processOneOccurrence,
     //               boost::lambda::_1, // qualification to avoid ambiguity
     //               var(ep),           //  pass by reference (not copy)

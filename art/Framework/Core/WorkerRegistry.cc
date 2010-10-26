@@ -67,7 +67,7 @@ std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameter
                                               PassID const& passID) {
 
   std::stringstream mangled_parameters;
-  mangled_parameters<< parameterSet.toString()
+  mangled_parameters<< parameterSet.to_string()
                     << processName
                     << releaseVersion
                     << passID;

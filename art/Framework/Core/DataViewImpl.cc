@@ -1,16 +1,18 @@
-/*----------------------------------------------------------------------
-----------------------------------------------------------------------*/
-
-#include <algorithm>
-
 #include "art/Framework/Core/DataViewImpl.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+
 #include "art/Framework/Core/Principal.h"
+#include "art/Framework/Core/Selector.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Framework/Core/Selector.h"
-#include "art/Utilities/Algorithms.h"
+#include "cetlib/container_algorithms.h"
+#include <algorithm>
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art {
 
@@ -24,7 +26,7 @@ namespace art {
   {  }
 
   struct deleter {
-    void operator()(std::pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
+    void operator()(pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
   };
 
   DataViewImpl::~DataViewImpl() {
@@ -54,9 +56,9 @@ namespace art {
 
   BasicHandle
   DataViewImpl::getByLabel_(TypeID const& tid,
-                     std::string const& label,
-  	             std::string const& productInstanceName,
-  	             std::string const& processName) const
+                     string const& label,
+  	             string const& productInstanceName,
+  	             string const& processName) const
   {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
@@ -88,8 +90,8 @@ namespace art {
 
   int
   DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
-                                            std::string const& label,
-                                            std::string const& productInstanceName,
+                                            string const& label,
+                                            string const& productInstanceName,
                                             BasicHandleVec& results,
                                             bool stopIfProcessHasMatch) const
   {
@@ -105,9 +107,9 @@ namespace art {
 
   int
   DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
-                                            std::string const& label,
-                                            std::string const& productInstanceName,
-                                            std::string const& processName,
+                                            string const& label,
+                                            string const& productInstanceName,
+                                            string const& processName,
                                             BasicHandleVec& results,
                                             bool stopIfProcessHasMatch) const
   {
@@ -130,8 +132,8 @@ namespace art {
 
   ConstBranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
-				     std::string const& productInstanceName) const {
-    std::string friendlyClassName = type.friendlyClassName();
+				     string const& productInstanceName) const {
+    string friendlyClassName = type.friendlyClassName();
         BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ConstProductList const& pl = principal_.productRegistry().constProductList();
     ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);

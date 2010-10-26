@@ -1,5 +1,10 @@
 #include "art/Framework/IO/Input/RootInputFileSequence.h"
 
+#ifdef USE_RANDOM
+// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#endif  // USE_RANDOM
+// #include "Utilities/StorageFactory/interface/StorageFactory.h"
+
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
@@ -10,19 +15,16 @@
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#ifdef USE_RANDOM
-// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#endif  // USE_RANDOM
-#include "art/Utilities/Algorithms.h"
-// #include "Utilities/StorageFactory/interface/StorageFactory.h"
-
 #include "CLHEP/Random/RandFlat.h"
 #include "MessageFacility/MessageLogger.h"
-
 #include "TFile.h"
-
 #include <ctime>
+
+
+using namespace cet;
+using namespace std;
 
 
 namespace art {
@@ -72,8 +74,8 @@ namespace art {
 
 
     sort_all(eventsToProcess_);
-    std::string matchMode = pset.get<std::string>("fileMatchMode", std::string("permissive"));
-    if (matchMode == std::string("strict")) matchMode_ = BranchDescription::Strict;
+    string matchMode = pset.get<string>("fileMatchMode", string("permissive"));
+    if (matchMode == string("strict")) matchMode_ = BranchDescription::Strict;
     if (primary()) {
       for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
@@ -106,7 +108,7 @@ namespace art {
     }
   }
 
-  std::vector<FileCatalogItem> const&
+  vector<FileCatalogItem> const&
   RootInputFileSequence::fileCatalogItems() const {
     return catalog_.fileCatalogItems();
   }
@@ -140,7 +142,7 @@ namespace art {
     // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
       {
-        std::auto_ptr<InputSource::FileCloseSentry>
+        auto_ptr<InputSource::FileCloseSentry>
           sentry((primarySequence_ && primary()) ? new InputSource::FileCloseSentry(input_) : 0);
         rootFile_->close(primary());
       }
@@ -156,7 +158,7 @@ namespace art {
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
-      std::auto_ptr<InputSource::FileOpenSentry>
+      auto_ptr<InputSource::FileOpenSentry>
         sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     }
@@ -206,7 +208,7 @@ namespace art {
 
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
-      std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
+      string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
                                                             matchMode_);
       if (!mergeInfo.empty()) {
@@ -231,7 +233,7 @@ namespace art {
 
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
-      std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
+      string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
                                                             matchMode_);
       if (!mergeInfo.empty()) {
@@ -270,19 +272,19 @@ namespace art {
   //  when it is asked to do so.
   //
 
-  std::auto_ptr<EventPrincipal>
+  auto_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_() {
     return rootFile_->readEvent(primarySequence_ ? productRegistry() : rootFile_->productRegistry());
   }
 
-  std::auto_ptr<EventPrincipal>
+  auto_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
     return rootFile_->readCurrentEvent(primarySequence_ ?
                                        productRegistry() :
                                        rootFile_->productRegistry());
   }
 
-  std::auto_ptr<EventPrincipal>
+  auto_ptr<EventPrincipal>
   RootInputFileSequence::readIt(EventID const& id, SubRunNumber_t subRun, bool exact) {
     randomAccess_ = true;
     // Attempt to find event in currently open input file.
@@ -290,10 +292,10 @@ namespace art {
     if (!found) {
       // If only one input file, give up now, to save time.
       if (fileIndexes_.size() == 1) {
-        return std::auto_ptr<EventPrincipal>(0);
+        return auto_ptr<EventPrincipal>(0);
       }
       // Look for event in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsEvent(id.run(), subRun, id.event(), exact)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -302,7 +304,7 @@ namespace art {
           // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
           assert (found);
-          std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
+          auto_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1);
           return ep;
         }
@@ -314,16 +316,16 @@ namespace art {
           initFile(false);
           found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
           if (found) {
-            std::auto_ptr<EventPrincipal> ep = readCurrentEvent();
+            auto_ptr<EventPrincipal> ep = readCurrentEvent();
             skip(1);
             return ep;
           }
         }
       }
       // Not found
-      return std::auto_ptr<EventPrincipal>(0);
+      return auto_ptr<EventPrincipal>(0);
     }
-    std::auto_ptr<EventPrincipal> eptr = readCurrentEvent();
+    auto_ptr<EventPrincipal> eptr = readCurrentEvent();
     skip(1);
     return eptr;
   }
@@ -339,7 +341,7 @@ namespace art {
 
     if (fileIndexes_.size() > 1) {
       // Look for subRun in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsSubRun(id.run(), id.subRun(), true)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -376,7 +378,7 @@ namespace art {
     }
     if (fileIndexes_.size() > 1) {
       // Look for run in files previously opened without reopening unnecessary files.
-      typedef std::vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsRun(id.run(), true)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -497,23 +499,23 @@ namespace art {
   }
 
   void
-  RootInputFileSequence::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
-    std::vector<std::string> rules;
+  RootInputFileSequence::dropUnwantedBranches_(vector<string> const& wantedBranches) {
+    vector<string> rules;
     rules.reserve(wantedBranches.size() + 1);
-    rules.push_back(std::string("drop *"));
-    for (std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
+    rules.push_back(string("drop *"));
+    for (vector<string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
         it != itEnd; ++it) {
       rules.push_back("keep " + *it + "_*");
     }
     fhicl::ParameterSet pset;
-    pset.put<std::vector<std::string> >("inputCommands", rules);
+    pset.put<vector<string> >("inputCommands", rules);
     groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
   }
 
   void
   RootInputFileSequence::readMany_(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
-      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
+      auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {
         return;
       }
@@ -532,7 +534,7 @@ namespace art {
     }
     rootFile_->setEntryAtEvent(id.run(), 0U, id.event(), false);
     for (int i = 0; i < number; ++i) {
-      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
+      auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {
         rewindFile();
         ev = readCurrentEvent();
@@ -564,20 +566,20 @@ namespace art {
     }
     fileSeqNumber = fileIter_ - fileIterBegin_;
     for (int i = 0; i < number; ++i) {
-      std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
+      auto_ptr<EventPrincipal> ev = readCurrentEvent();
       if (ev.get() == 0) {
         rewindFile();
         ev = readCurrentEvent();
         assert(ev.get() != 0);
       }
-       VectorInputSource::EventPrincipalVectorElement e(ev.release());
+      VectorInputSource::EventPrincipalVectorElement e(ev.release());
       result.push_back(e);
       --eventsRemainingInFile_;
       rootFile_->nextEventEntry();
     }
   }
 
-  void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
+  void RootInputFileSequence::logFileAction(const char* msg, string const& file) {
     if (primarySequence_) {
       time_t t = time(0);
       char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";

@@ -1,24 +1,26 @@
 #ifndef DataFormats_Provenance_Hash_h
 #define DataFormats_Provenance_Hash_h
 
-#include <string>
-#include <ostream>
+
+// ======================================================================
+//
+// Hash:
+//
+// Note: The call to 'fixup' in every member function is a temporary
+// measure for backwards compatibility. It is necessary in every function
+// because Root creates instances of the class *without* using the
+// interface of the class, thus making it insufficient to assure that all
+// constructors make corrected instances.
+//
+// ======================================================================
+
 
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
+#include "cetlib/container_algorithms.h"
+#include <ostream>
+#include <string>
 
-/*----------------------------------------------------------------------
-
-Hash:
-
-  Note: The call to 'fixup' in every member function is a temporary
-  measure for backwards compatibility. It is necessary in every function
-  because Root creates instances of the class *without* using the
-  interface of the class, thus making it insufficient to assure that
-  all constructors make corrected instances.
-
-----------------------------------------------------------------------*/
 
 namespace art {
 
@@ -60,8 +62,8 @@ namespace art {
 
   private:
 
-    /// Hexified version of data *must* contain a multiple of 2
-    /// bytes. If it does not, throw an exception.
+    // Hexified version of data *must* contain a multiple of 2
+    // bytes. If it does not, throw an exception.
     void throwIfIllFormed() const;
 
     // 'Fix' the string data member of this Hash, i.e., if it is in
@@ -171,7 +173,7 @@ namespace art {
   {
     Hash<I> tMe(*this);
     artZ::MD5Result temp;
-    copy_all(tMe.hash_, temp.bytes);
+    cet::copy_all(tMe.hash_, temp.bytes);
     os << temp.toString();
     return os;
   }

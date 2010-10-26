@@ -5,6 +5,7 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/Provenance.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 
 using namespace std;

@@ -1,10 +1,14 @@
-
 #include "art/Framework/Core/Factory.h"
+
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-
+#include "cetlib/container_algorithms.h"
 #include <iostream>
+
+
+using namespace cet;
+using namespace std;
+
 
 EDM_REGISTER_PLUGINFACTORY(art::MakerPluginFactory,"CMS EDM Framework Module");
 namespace art {
@@ -31,17 +35,17 @@ namespace art {
     return &singleInstance_;
   }
 
-  std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
+  auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
                                             sigc::signal<void, const ModuleDescription&>& pre,
                                             sigc::signal<void, const ModuleDescription&>& post) const
   {
-    std::string modtype = p.pset_->get<std::string>("@module_type");
-    FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
+    string modtype = p.pset_->get<string>("@module_type");
+    FDEBUG(1) << "Factory: module_type = " << modtype << endl;
     MakerMap::iterator it = makers_.find(modtype);
 
     if(it == makers_.end())
       {
-        std::auto_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
+        auto_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
 
 	if(wm.get()==0)
 	  throw art::Exception(errors::Configuration,"UnknownModule")
@@ -53,10 +57,10 @@ namespace art {
 	    << "Try running EdmPluginDump to obtain a list of "
 	    << "available Plugins.";
 
-	FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
+	FDEBUG(1) << "Factory:  created worker of type " << modtype << endl;
 
-	std::pair<MakerMap::iterator,bool> ret =
-	  makers_.insert(std::make_pair<std::string,Maker*>(modtype,wm.get()));
+	pair<MakerMap::iterator,bool> ret =
+	  makers_.insert(make_pair<string,Maker*>(modtype,wm.get()));
 
 	//	if(ret.second==false)
 	//	  throw runtime_error("Worker Factory map insert failed");
@@ -65,7 +69,7 @@ namespace art {
 	wm.release();
       }
 
-    std::auto_ptr<Worker> w(it->second->makeWorker(p,pre,post));
+    auto_ptr<Worker> w(it->second->makeWorker(p,pre,post));
     return w;
   }
 

@@ -1,24 +1,25 @@
-//
+#include "art/Framework/Core/GroupSelector.h"
 
+#include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/EDMException.h"
+#include "boost/algorithm/string.hpp"
+#include "cetlib/container_algorithms.h"
+#include "fhiclcpp/ParameterSet.h"
 #include <algorithm>
+#include <cctype>
 #include <iterator>
 #include <ostream>
-#include <cctype>
 
-#include "boost/algorithm/string.hpp"
 
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Framework/Core/GroupSelector.h"
-#include "art/Framework/Core/GroupSelectorRules.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
+using namespace cet;
+using namespace std;
 
 
 namespace art {
 // The following typedef is used only in this implementation file, in
 // order to shorten several lines of code.
-  typedef std::vector<art::BranchDescription const*> VCBDP;
+  typedef vector<art::BranchDescription const*> VCBDP;
 
   GroupSelector::GroupSelector() : groupsToSelect_(), initialized_(false) {}
 
@@ -28,7 +29,7 @@ namespace art {
 
     // Get a BranchSelectState for each branch, containing the branch
     // name, with its 'select bit' set to false.
-    std::vector<BranchSelectState> branchstates;
+    vector<BranchSelectState> branchstates;
     {
       branchstates.reserve(branchDescriptions.size());
 
@@ -46,8 +47,8 @@ namespace art {
     // names must be sorted, for the implementation of 'selected' to
     // work.
     {
-      std::vector<BranchSelectState>::const_iterator it = branchstates.begin();
-      std::vector<BranchSelectState>::const_iterator end = branchstates.end();
+      vector<BranchSelectState>::const_iterator it = branchstates.begin();
+      vector<BranchSelectState>::const_iterator end = branchstates.end();
       for (; it != end; ++it) {
 	  if (it->selectMe) groupsToSelect_.push_back(it->desc->branchName());
       }
@@ -68,13 +69,13 @@ namespace art {
   }
 
   void
-  GroupSelector::print(std::ostream& os) const {
+  GroupSelector::print(ostream& os) const {
     os << "GroupSelector at: "
        << static_cast<void const*>(this)
        << " has "
        << groupsToSelect_.size()
        << " groups to select:\n";
-    copy_all(groupsToSelect_, std::ostream_iterator<std::string>(os, "\n"));
+    copy_all(groupsToSelect_, ostream_iterator<string>(os, "\n"));
   }
 
 
@@ -82,8 +83,8 @@ namespace art {
   //
   // Associated free functions
   //
-  std::ostream&
-  operator<< (std::ostream& os, const GroupSelector& gs)
+  ostream&
+  operator<< (ostream& os, const GroupSelector& gs)
   {
     gs.print(os);
     return os;

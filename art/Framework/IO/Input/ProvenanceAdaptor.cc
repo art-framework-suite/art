@@ -1,8 +1,8 @@
-/*----------------------------------------------------------------------
-
-ProvenanceAdaptor.cc
-
-----------------------------------------------------------------------*/
+// ======================================================================
+//
+// ProvenanceAdaptor.cc
+//
+// ======================================================================
 
 
 #include "art/Framework/IO/Input/ProvenanceAdaptor.h"
@@ -10,10 +10,15 @@ ProvenanceAdaptor.cc
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Utilities/Algorithms.h"
-
+#include "cetlib/container_algorithms.h"
 #include <cassert>
+#include <memory>
 #include <set>
+#include <utility>
+
+
+using namespace cet;
+using namespace std;
 
 
 namespace art {
@@ -21,10 +26,10 @@ namespace art {
   //------------------------------------------------------------
   // Class ProvenanceAdaptor: adapts old provenance (fileFormatVersion_.value_ < 11) to new provenance.
   namespace {
-    typedef std::vector<std::string> OneHistory;
-    typedef std::set<OneHistory> Histories;
-    typedef std::pair<std::string, BranchID> Product;
-    typedef std::vector<Product> OrderedProducts;
+    typedef vector<string> OneHistory;
+    typedef set<OneHistory> Histories;
+    typedef pair<string, BranchID> Product;
+    typedef vector<Product> OrderedProducts;
 
     struct Sorter {
       explicit Sorter(Histories const& histories) : histories_(histories) {}
@@ -63,13 +68,13 @@ namespace art {
                 branchListIndexes_() {
 
     OrderedProducts orderedProducts;
-    std::set<std::string> processNamesThatProduced;
+    set<string> processNamesThatProduced;
     ProductRegistry::ProductList const& prodList = productRegistry.productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd; ++it) {
       if (it->second.branchType() == InEvent) {
         it->second.init();
         processNamesThatProduced.insert(it->second.processName());
-        orderedProducts.push_back(std::make_pair(it->second.processName(), it->second.branchID()));
+        orderedProducts.push_back(make_pair(it->second.processName(), it->second.branchID()));
       }
     }
     assert (!orderedProducts.empty());
@@ -91,9 +96,9 @@ namespace art {
     }
     stable_sort_all(orderedProducts, Sorter(processHistories));
 
-    std::auto_ptr<BranchIDLists> pv(new BranchIDLists);
-    std::auto_ptr<BranchIDList> p(new BranchIDList);
-    std::string processName;
+    auto_ptr<BranchIDLists> pv(new BranchIDLists);
+    auto_ptr<BranchIDList> p(new BranchIDList);
+    string processName;
     BranchListIndex blix = 0;
     for (OrderedProducts::const_iterator it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd; ++it) {
       bool newvector = it->first != processName && !processName.empty();

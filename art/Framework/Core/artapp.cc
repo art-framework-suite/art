@@ -15,7 +15,7 @@ it.
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/ParameterSet/MakeParameterSets.h"
+//#include "art/ParameterSet/MakeParameterSets.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/Presence.h"
@@ -246,6 +246,7 @@ int art_main(int argc, char* argv[])
   art::ServiceToken jobReportToken;
 
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
+#if 0
   boost::shared_ptr<art::ProcessDesc> processDesc;
   try {
     processDesc = art::readConfig(fileName, argc, argv);
@@ -261,6 +262,7 @@ int art_main(int argc, char* argv[])
   }
 
   processDesc->addServices(defaultServices, forcedServices);
+#endif  // 0
   //
   // Decide what mode of hardcoded MessageLogger defaults to use
   //
@@ -281,10 +283,12 @@ int art_main(int argc, char* argv[])
   EventProcessorWithSentry proc;
   int rc = -1; // we should never return this value!
   try {
-    std::auto_ptr<art::EventProcessor>
+    std::auto_ptr<art::EventProcessor> procP;
+#if 0
         procP(new
               art::EventProcessor(processDesc, jobReportToken,
                              art::serviceregistry::kTokenOverrides));
+#endif  // 0
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();

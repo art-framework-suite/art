@@ -8,15 +8,15 @@ the CMS event model.
 
 ----------------------------------------------------------------------*/
 
+
+#include "Reflex/Object.h"
+#include "Reflex/Type.h"
+#include "art/Utilities/UseReflex.h"
 #include <ostream>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
-
-#include "art/Utilities/UseReflex.h"
 
 namespace art
 {
