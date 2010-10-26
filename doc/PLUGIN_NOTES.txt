@@ -17,8 +17,8 @@ Factory
 
 For a given module, the configuration will announce:
 
-1. what type of module it is (EDProducer, EDFilter, ...)
-2. what the name of the class is (IntProducer); 
+#. what type of module it is (EDProducer, EDFilter, ...)
+#. what the name of the class is (IntProducer); 
    the class name lacks all namespace qualification
 
 The framework calls upon a *Factory* singleton instance to create an
@@ -35,20 +35,20 @@ The string *typespec* is the string provided in the user's
 configuration of the framework. It determines the concrete module class to be
 instantiated, and can appear in two forms:
 
-# Long form *typespec*, like "test/Framework/Core/stubs/IntProducer".
+#. Long form *typespec*, like "test/Framework/Core/stubs/IntProducer".
 
-# Short form *typespec*, like "IntProducer"
+#. Short form *typespec*, like "IntProducer"
 
 The *Factory* is responsible for
 
-0. Accepting registration of *factory functions*, given a short form
+#. Accepting registration of *factory functions*, given a short form
    and long form name associated with the *factory function*.
 
-1. Mapping the given *typespec* to the appropriate *factory function*,
+#. Mapping the given *typespec* to the appropriate *factory function*,
    or throwing an informative exception if the mapping is either ambiguous
    or no matching function can be found.
 
-2. Invoking the the *factory function* to create and return the requested
+#. Invoking the the *factory function* to create and return the requested
    module.
 
 It is possible for a short form *typespec* to map to more than one long form;
@@ -60,37 +60,35 @@ exception being thrown.
 
 Before it is used to create modules,
 the *Factory* must be loaded with the appropriate *factory* *functions*.
-This is done with the help of the *PluginManager*.
+This is done with the help of the *LibraryManager*.
 
-PluginManager
-=============
+LibraryManager
+==============
 
-The *PluginManager* is the class used to load dynamic libraries
-containing the implementation of modules.
+The *LibraryManager* is the class used to load dynamic libraries
+containing the implementation of modules
+and of services.
 
-The *PluginManager* is responsible for scanning parts of the file system
-to find all dynamic libraries with the appropriate form name, matching
-the file glob "\*_plugin.<suffix>", where <suffix> is the suffix used to
-identify dynamic libraries on the system in question.
+The *LibraryManager* is responsible for scanning ``LD_LIBRARY_PATH``
+to find all dynamic libraries with names matching the file glob
+"\*_plugin.<suffix>", where <suffix> is the suffix used to identify
+dynamic libraries on the system in question.  It is not an error if
+one of those directories does not exist.
 
-The *PluginManager* should be provided with the name of a directory to
-scan, and should pick up all the plugins in that directory. It is the
-responsibility of the user of the *PluginManager* (e.g. the *Factory*)
-to direct the *PluginManager* to scan more than one directory, if more
-than one directory needs to be scanned.
-
-The *PluginManager* loads all the plugins it finds (using *dlopen*),
+The *LibraryManager* delays loading each library until it is asked
+to resolve a symbol in that library.
+The *LibraryManager* loads libraries using *dlopen*,
 and provides access to plugins by "short name" and "long name" (see above).
 A plugin with filename ``a/b/c/lib_d_plugin.<suffix>`` is associated with the
 long form name ``a/b/c/d`` and with the short form name ``d``.
 
-The *PluginManager* is responsible for giving access to any symbol in
+The *LibraryManager* is responsible for giving access to any symbol in
 a loaded library, given the (long or short form) name of the library
 and the name of the symbol. The symbol is returned as a ``void*``, and
 it is up to the user of the symbol to understand what the underlying
 type really is.
 
-The *PluginManager* should not provide any facility for unloading
+The *LibraryManager* should not provide any facility for unloading
 libraries, which is not safe in a C++ program.
 
 Plugins
@@ -101,7 +99,7 @@ must be named ``lib_<module>_plugin.<suffix>``, where *<suffix>* is
 whatever is appropriate for the platform; these are called *plugin*
 libraries.
 
-Plugin libraries are loaded by the plugin manager; see above.
+Plugin libraries are loaded by the *LibraryManager*; see above.
 
 The source file in which a module is implemented must be named
 ``<module>_plugin.cc``. It must contain an invocation of the
@@ -121,5 +119,35 @@ returns a newly-created instance of the associated module type,
 initialized with the given *ParameterSet*, and wrapped in a smart
 pointer to the appropriate module base class (e.g. *EDProducer*,
 *EDFilter*, etc.).
+
+
+Interfaces
+==========
+
+*Factory*::
+
+  EDProducer* makeProducer(string spec, ParameterSet p);
+  EDFilter* makeFilter(string spec, ParameterSet p);
+  EDAnalyzer* makeAnalyzer(string spec, ParameterSet p);
+
+
+
+*LibraryManager*::
+
+  explicit LibraryManager(string pattern);
+  void* getSymbol(string spec, string symbol);
+  void getLoadableLibraries(string type, vector<string>& libnames);
+
+The c'tor must search through LD_LIBRARY_PATH and find all libraries
+with a name matching "pattern".
+
+EDProducer* Factory::makeProducer(string spec, ParameterSet p)
+{
+  MakerFcn mf* = (MakerFcn*)libman.getSymbol(spec, "makeEDProducer");
+  return mf==0 ? 0 : (*mf)(p);
+}
+
+
+
 
 

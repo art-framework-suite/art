@@ -1,9 +1,13 @@
-#include <algorithm>
-
-#include "boost/bind.hpp"
-
 #include "art/Framework/Core/CachedProducts.h"
-#include "art/Utilities/Algorithms.h"
+
+#include <algorithm>
+#include "boost/bind.hpp"
+#include "cetlib/container_algorithms.h"
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art
 {
@@ -19,11 +23,11 @@ namespace art
     { }
 
     void
-    CachedProducts::setupDefault(std::vector<std::string> const& triggernames)
+    CachedProducts::setupDefault(vector<string> const& triggernames)
     {
 
       // Set up one NamedEventSelector, with default configuration
-      std::vector<std::string> paths;
+      vector<string> paths;
       EventSelector es(paths, triggernames);
       NES nes("", es);
       selectors_.push_back(nes);
@@ -31,14 +35,14 @@ namespace art
     }
 
     void
-    CachedProducts::setup(std::vector<parsed_path_spec_t> const& path_specs,
-			  std::vector<std::string> const& triggernames,
-                          const std::string& process_name)
+    CachedProducts::setup(vector<parsed_path_spec_t> const& path_specs,
+			  vector<string> const& triggernames,
+                          const string& process_name)
     {
       // paths_for_process maps each PROCESS names to a sequence of
       // PATH names
-      std::map<std::string, std::vector<std::string> > paths_for_process;
-      for (std::vector<parsed_path_spec_t>::const_iterator
+      map<string, vector<string> > paths_for_process;
+      for (vector<parsed_path_spec_t>::const_iterator
 	     i = path_specs.begin(),
 	     e = path_specs.end();
  	   i != e;
@@ -54,7 +58,7 @@ namespace art
 	}
       // Now go through all the PROCESS names, and create a
       // NamedEventSelector for each.
-      for (std::map<std::string, std::vector<std::string> >::const_iterator
+      for (map<string, vector<string> >::const_iterator
 	     i = paths_for_process.begin(),
 	     e = paths_for_process.end();
 	   i != e;

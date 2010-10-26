@@ -10,33 +10,40 @@
 
 #include "art/ParameterSet/ProcessDesc.h"
 
-#include "art/ParameterSet/Registry.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include <iostream>
+
+
+using namespace cet;
+using namespace fhicl;
+using namespace std;
 
 
 namespace art {
 
-  ProcessDesc::ProcessDesc(const fhicl::ParameterSet & pset)
-  : pset_(new fhicl::ParameterSet(pset)),
-    services_(new std::vector<fhicl::ParameterSet>())
+  ProcessDesc::ProcessDesc(const ParameterSet & pset)
+  : pset_(new ParameterSet(pset)),
+    services_(new vector<ParameterSet>())
   {
     setRegistry();
-    // std::cout << pset << std::endl;
+    // cout << pset << endl;
   }
 
   ProcessDesc::~ProcessDesc()
   { }
 
-  ProcessDesc::ProcessDesc(const std::string& config)
-  : pset_(new fhicl::ParameterSet),
-    services_(new std::vector<fhicl::ParameterSet>())
+  #if 0
+  ProcessDesc::ProcessDesc(const string& config)
+  : pset_(new ParameterSet),
+    services_(new vector<ParameterSet>())
   {
     throw art::Exception(errors::Configuration,"Old config strings no longer accepted");
   }
+  #endif  // 0
 
   void ProcessDesc::setRegistry() const
   {
@@ -46,19 +53,19 @@ namespace art {
   }
 
 
-  boost::shared_ptr<fhicl::ParameterSet>
+  boost::shared_ptr<ParameterSet>
   ProcessDesc::getProcessPSet() const{
     return pset_;
 
   }
 
-  boost::shared_ptr<std::vector<fhicl::ParameterSet> >
+  boost::shared_ptr<vector<ParameterSet> >
   ProcessDesc::getServicesPSets() const{
     return services_;
   }
 
 
-  void ProcessDesc::addService(const fhicl::ParameterSet & pset)
+  void ProcessDesc::addService(const ParameterSet & pset)
   {
     services_->push_back(pset);
    // Load into the Registry
@@ -67,18 +74,18 @@ namespace art {
   }
 
 
-  void ProcessDesc::addService(const std::string & service)
+  void ProcessDesc::addService(const string & service)
   {
-    fhicl::ParameterSet newpset;
-    newpset.addString("@service_type",service);
+    ParameterSet newpset;
+    newpset.put("@service_type",service);
     addService(newpset);
   }
 
-  void ProcessDesc::addDefaultService(const std::string & service)
+  void ProcessDesc::addDefaultService(const string & service)
   {
-    typedef std::vector<fhicl::ParameterSet>::iterator Iter;
+    typedef vector<ParameterSet>::iterator Iter;
     for(Iter it = services_->begin(), itEnd = services_->end(); it != itEnd; ++it) {
-        std::string name = it->getString("@service_type");
+        string name = it->get<string>("@service_type");
 
         if (name == service) {
           // If the service is already there move it to the end so
@@ -97,26 +104,26 @@ namespace art {
   }
 
 
-  void ProcessDesc::addServices(std::vector<std::string> const& defaultServices,
-                                std::vector<std::string> const& forcedServices)
+  void ProcessDesc::addServices(vector<string> const& defaultServices,
+                                vector<string> const& forcedServices)
   {
     // Add the forced and default services to services_.
     // In services_, we want the default services first, then the forced
     // services, then the services from the configuration.  It is efficient
     // and convenient to add them in reverse order.  Then after we are done
-    // adding, we reverse the std::vector again to get the desired order.
-    std::reverse(services_->begin(), services_->end());
-    for(std::vector<std::string>::const_reverse_iterator j = forcedServices.rbegin(),
+    // adding, we reverse the vector again to get the desired order.
+    reverse(services_->begin(), services_->end());
+    for(vector<string>::const_reverse_iterator j = forcedServices.rbegin(),
                                             jEnd = forcedServices.rend();
          j != jEnd; ++j) {
       addService(*j);
     }
-    for(std::vector<std::string>::const_reverse_iterator i = defaultServices.rbegin(),
+    for(vector<string>::const_reverse_iterator i = defaultServices.rbegin(),
                                             iEnd = defaultServices.rend();
          i != iEnd; ++i) {
       addDefaultService(*i);
     }
-    std::reverse(services_->begin(), services_->end());
+    reverse(services_->begin(), services_->end());
   }
 
 } // namespace art

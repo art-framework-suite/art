@@ -1,9 +1,14 @@
 #include "art/Persistency/Provenance/FileIndex.h"
-#include "art/Utilities/Algorithms.h"
 
+#include "cetlib/container_algorithms.h"
 #include <algorithm>
-#include <ostream>
 #include <iomanip>
+#include <ostream>
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art {
 
@@ -41,13 +46,13 @@ namespace art {
     if (!resultCached()) {
       resultCached() = true;
       EntryNumber_t maxEntry = Element::invalidEntry;
-      for (std::vector<FileIndex::Element>::const_iterator it = entries_.begin(), itEnd = entries_.end(); it != itEnd; ++it) {
+      for (vector<FileIndex::Element>::const_iterator it = entries_.begin(), itEnd = entries_.end(); it != itEnd; ++it) {
         if (it->getEntryType() == kEvent) {
-	  if (it->entry_ < maxEntry) {
-	    allInEntryOrder() = false;
-	    return false;
+          if (it->entry_ < maxEntry) {
+            allInEntryOrder() = false;
+            return false;
           }
-	  maxEntry = it->entry_;
+          maxEntry = it->entry_;
         }
       }
       allInEntryOrder() = true;
@@ -187,7 +192,7 @@ namespace art {
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh) {
     if(lh.run_ == rh.run_) {
       if(lh.subRun_ == rh.subRun_) {
-	return lh.event_ < rh.event_;
+        return lh.event_ < rh.event_;
       }
       return lh.subRun_ < rh.subRun_;
     }
@@ -201,43 +206,43 @@ namespace art {
         if (lh.event_ == 0U && rh.event_ == 0U) return false;
         else if (lh.event_ == 0U) return true;
         else if (rh.event_ == 0U) return false;
-	else return lh.entry_ < rh.entry_;
+        else return lh.entry_ < rh.entry_;
       }
       return lh.subRun_ < rh.subRun_;
     }
     return lh.run_ < rh.run_;
   }
 
-  std::ostream&
-  operator<< (std::ostream& os, FileIndex const& fileIndex) {
+  ostream&
+  operator<< (ostream& os, FileIndex const& fileIndex) {
 
     os << "\nPrinting FileIndex contents.  This includes a list of all Runs, SubRuns\n"
        << "and Events stored in the root file.\n\n";
-    os << std::setw(15) << "Run"
-       << std::setw(15) << "SubRun"
-       << std::setw(15) << "Event"
-       << std::setw(15) << "TTree Entry"
+    os << setw(15) << "Run"
+       << setw(15) << "SubRun"
+       << setw(15) << "Event"
+       << setw(15) << "TTree Entry"
        << "\n";
-    for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
+    for (vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
       if (it->getEntryType() == FileIndex::kEvent) {
-        os << std::setw(15) << it->run_
-           << std::setw(15) << it ->subRun_
-           << std::setw(15) << it->event_
-           << std::setw(15) << it->entry_
+        os << setw(15) << it->run_
+           << setw(15) << it ->subRun_
+           << setw(15) << it->event_
+           << setw(15) << it->entry_
            << "\n";
       }
       else if (it->getEntryType() == FileIndex::kSubRun) {
-        os << std::setw(15) << it->run_
-           << std::setw(15) << it ->subRun_
-           << std::setw(15) << " "
-           << std::setw(15) << it->entry_ << "  (SubRun)"
+        os << setw(15) << it->run_
+           << setw(15) << it ->subRun_
+           << setw(15) << " "
+           << setw(15) << it->entry_ << "  (SubRun)"
            << "\n";
       }
       else if (it->getEntryType() == FileIndex::kRun) {
-        os << std::setw(15) << it->run_
-           << std::setw(15) << " "
-           << std::setw(15) << " "
-           << std::setw(15) << it->entry_ << "  (Run)"
+        os << setw(15) << it->run_
+           << setw(15) << " "
+           << setw(15) << " "
+           << setw(15) << it->entry_ << "  (Run)"
            << "\n";
       }
     }

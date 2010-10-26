@@ -1,10 +1,14 @@
+#include "art/Persistency/Provenance/ProcessHistory.h"
+
+#include "art/Utilities/Digest.h"
+#include "cetlib/container_algorithms.h"
 #include <iterator>
 #include <ostream>
 #include <sstream>
-#include "art/Utilities/Digest.h"
-#include "art/Utilities/Algorithms.h"
 
-#include "art/Persistency/Provenance/ProcessHistory.h"
+
+using namespace cet;
+using namespace std;
 
 
 namespace art {
@@ -15,14 +19,14 @@ namespace art {
     }
     // This implementation is ripe for optimization.
     // We do not use operator<< because it does not write out everything.
-    std::ostringstream oss;
+    ostringstream oss;
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       oss << i->processName() << ' '
 	  << i->parameterSetID() << ' '
 	  << i->releaseVersion() << ' '
 	  << i->passID() << ' ';
     }
-    std::string stringrep = oss.str();
+    string stringrep = oss.str();
     artZ::Digest md5alg(stringrep);
     ProcessHistoryID tmp(md5alg.digest().toString());
     phid().swap(tmp);
@@ -30,7 +34,7 @@ namespace art {
   }
 
   bool
-  ProcessHistory::getConfigurationForProcess(std::string const& name,
+  ProcessHistory::getConfigurationForProcess(string const& name,
 					     ProcessConfiguration& config) const {
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       if (i->processName() == name) {
@@ -53,10 +57,10 @@ namespace art {
     return true;
   }
 
-  std::ostream&
-  operator<<(std::ostream& ost, ProcessHistory const& ph) {
+  ostream&
+  operator<<(ostream& ost, ProcessHistory const& ph) {
     ost << "Process History = ";
-    copy_all(ph, std::ostream_iterator<ProcessHistory::value_type>(ost,";"));
+    copy_all(ph, ostream_iterator<ProcessHistory::value_type>(ost,";"));
     return ost;
   }
 }

@@ -4,14 +4,14 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/WrappedClassName.h"
-
 #include "fhiclcpp/ParameterSetID.h"
-  using fhicl::ParameterSetID;
-
 #include <cassert>
 #include <ostream>
 #include <sstream>
 #include <stdlib.h>
+
+
+using fhicl::ParameterSetID;
 
 
 namespace art {
@@ -210,7 +210,7 @@ namespace art {
     if (friendlyClassName_.empty())
       throwExceptionWithText("Friendly class name is not allowed to be empty");
 
-    if (produced() && !parameterSetID().isValid())
+    if (produced() && !parameterSetID().is_valid())
       throwExceptionWithText("Invalid ParameterSetID detected");
   }
 

@@ -1,18 +1,19 @@
 #include "art/Framework/IO/Output/RootOutputTree.h"
 
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
-
-#include "MessageFacility/MessageLogger.h"
 #include "boost/bind.hpp"
-
+#include "cetlib/container_algorithms.h"
+#include "MessageFacility/MessageLogger.h"
 #include "Rtypes.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTreeCloner.h"
-
 #include <limits>
+
+
+using namespace cet;
+using namespace std;
 
 
 namespace art {
@@ -22,12 +23,12 @@ namespace art {
     tree->SetDirectory(filePtr);
     // Turn off autosaving because it is such a memory hog and we are not using
     // this check-pointing feature anyway.
-    tree->SetAutoSave(std::numeric_limits<Long64_t>::max());
+    tree->SetAutoSave(numeric_limits<Long64_t>::max());
     return tree;
   }
 
   TTree *
-  RootOutputTree::makeTTree(TFile * filePtr, std::string const& name, int splitLevel) {
+  RootOutputTree::makeTTree(TFile * filePtr, string const& name, int splitLevel) {
     TTree *tree = new TTree(name.c_str(), "", splitLevel);
     if (!tree) throw art::Exception(art::errors::FatalRootError)
       << "Failed to create the tree: " << name << "\n";
@@ -43,7 +44,7 @@ namespace art {
     if (inputTree == 0) return false;
 
     // Do the split level and basket size match in the input and output?
-    for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
+    for (vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
       it != itEnd; ++it) {
 
       TBranch* outputBranch = *it;
@@ -86,7 +87,7 @@ namespace art {
   }
 
   void
-  RootOutputTree::fillTTree(TTree * tree, std::vector<TBranch *> const& branches) {
+  RootOutputTree::fillTTree(TTree * tree, vector<TBranch *> const& branches) {
     for_all(branches, boost::bind(&TBranch::Fill, _1));
   }
 
@@ -102,11 +103,11 @@ namespace art {
     unclonedReadBranchNames_.clear();
     if (currentlyFastCloning_) {
       fastCloneTTree(tree, tree_);
-      for (std::vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
+      for (vector<TBranch *>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
           it != itEnd; ++it) {
         if ((*it)->GetEntries() != tree_->GetEntries()) {
           unclonedReadBranches_.push_back(*it);
-          unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
+          unclonedReadBranchNames_.insert(string((*it)->GetName()));
         }
       }
     }

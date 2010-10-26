@@ -3,12 +3,15 @@
 // Class  :     ActivityRegistry
 //
 
-// system include files
+
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "cetlib/container_algorithms.h"
 #include <algorithm>
 
-// user include files
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Utilities/Algorithms.h"
+
+using namespace cet;
+using namespace std;
+
 
 //
 // member functions
@@ -103,7 +106,7 @@ copySlotsToFrom(T& iTo, T& iFrom)
 {
   typename T::slot_list_type slots = iFrom.slots();
 
-  art::for_all(slots, boost::bind( &T::connect, iTo, _1) );
+  for_all(slots, boost::bind( &T::connect, iTo, _1) );
 }
 
 template<class T>
@@ -124,16 +127,16 @@ copySlotsToFromReverse(T& iTo, T& iFrom)
   typename T::slot_list_type slotsFrom = iFrom.slots();
   typename T::slot_list_type slotsTo   = iTo.slots();
 
-  std::reverse(slotsTo.begin(), slotsTo.end());
-  std::reverse(slotsFrom.begin(), slotsFrom.end());
+  reverse(slotsTo.begin(), slotsTo.end());
+  reverse(slotsFrom.begin(), slotsFrom.end());
 
-  art::for_all(slotsFrom, boost::bind( &T::connect, iTo, _1) );
+  for_all(slotsFrom, boost::bind( &T::connect, iTo, _1) );
 
-  std::reverse(slotsTo.begin(), slotsTo.end());
+  reverse(slotsTo.begin(), slotsTo.end());
 
   // Be nice and put these back in the state they were
   // at the beginning
-  std::reverse(slotsFrom.begin(), slotsFrom.end());
+  reverse(slotsFrom.begin(), slotsFrom.end());
 }
 
 void

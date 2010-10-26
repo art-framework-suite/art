@@ -15,7 +15,7 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/ParameterSet/ProcessDesc.h"
+//#include "art/ParameterSet/ProcessDesc.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -275,9 +275,9 @@ namespace art {
     shouldWeStop_(false),
     alreadyHandlingException_(false)
   {
-    boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
-    processDesc->addServices(defaultServices, forcedServices);
-    init(processDesc, iToken, iLegacy);
+    //boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
+    //processDesc->addServices(defaultServices, forcedServices);
+    //init(processDesc, iToken, iLegacy);
   }
 
   EventProcessor::EventProcessor(std::string const& config,
@@ -309,8 +309,8 @@ namespace art {
     shouldWeStop_(false),
     alreadyHandlingException_(false)
   {
-    boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
-    processDesc->addServices(defaultServices, forcedServices);
+    //boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
+    //processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
 
@@ -462,7 +462,7 @@ namespace art {
                     actReg_));
 
     //   initialize(iToken,iLegacy);
-    FDEBUG(2) << parameterSet->toString() << std::endl;
+    FDEBUG(2) << parameterSet->to_string() << std::endl;
     connectSigs(this);
     BranchIDListHelper::updateRegistries(preg_);
   }

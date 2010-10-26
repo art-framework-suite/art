@@ -1,16 +1,21 @@
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/UnscheduledHandler.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+
 #include "art/Framework/Core/Group.h"
-#include "art/Utilities/Algorithms.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Core/UnscheduledHandler.h"
 #include "art/Persistency/Common/BasicHandle.h"
-#include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Persistency/Provenance/Provenance.h"
+#include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-
+#include "art/Persistency/Provenance/Provenance.h"
+#include "cetlib/container_algorithms.h"
 #include <algorithm>
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
@@ -37,7 +42,7 @@ namespace art {
 		 itEnd = history->branchListIndexes().end();
 		 it != itEnd; ++it) {
 	      ProcessIndex pix = it - history->branchListIndexes().begin();
-	      branchToProductIDHelper_.insert(std::make_pair(*it, pix));
+	      branchToProductIDHelper_.insert(make_pair(*it, pix));
 	    }
 	  }
 
@@ -53,12 +58,12 @@ namespace art {
 
   void
   EventPrincipal::addOnDemandGroup(ConstBranchDescription const& desc) {
-    std::auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
+    auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
     addOrReplaceGroup(g);
   }
 
   void
-  EventPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
+  EventPrincipal::addOrReplaceGroup(auto_ptr<Group> g) {
     Group const* group = getExistingGroup(*g);
     if (group != 0) {
       if(!group->onDemand()) {
@@ -80,44 +85,44 @@ namespace art {
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
+    auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
     addOrReplaceGroup(g);
   }
 
   void
-  EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
 	 ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
+	 auto_ptr<ProductProvenance> productProvenance) {
+    auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
+	 auto_ptr<ProductProvenance> productProvenance) {
+    auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
-  EventPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
 	 ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
+    auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
 	 boost::shared_ptr<ProductProvenance> productProvenance) {
-    std::auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
+    auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
-  EventPrincipal::put(std::auto_ptr<EDProduct> edp,
+  EventPrincipal::put(auto_ptr<EDProduct> edp,
 		ConstBranchDescription const& bd,
-		std::auto_ptr<ProductProvenance> productProvenance) {
+		auto_ptr<ProductProvenance> productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")
@@ -168,7 +173,7 @@ namespace art {
     }
     BranchListIndex blix = it->second.first;
     ProductIndex productIndex = it->second.second;
-    std::map<BranchListIndex, ProcessIndex>:: const_iterator i = branchToProductIDHelper_.find(blix);
+    map<BranchListIndex, ProcessIndex>:: const_iterator i = branchToProductIDHelper_.find(blix);
     if (i == branchToProductIDHelper_.end()) {
       throw art::Exception(art::errors::NotFound,"Bad branch ID")
         << "branchIDToProductID: productID cannot be determined from BranchID\n";
@@ -223,14 +228,14 @@ namespace art {
   }
 
   bool
-  EventPrincipal::unscheduledFill(std::string const& moduleLabel) const {
+  EventPrincipal::unscheduledFill(string const& moduleLabel) const {
 
     // If it is a module already currently running in unscheduled
     // mode, then there is a circular dependency related to which
     // EDProducts modules require and produce.  There is no safe way
     // to recover from this.  Here we check for this problem and throw
     // an exception.
-    std::vector<std::string>::const_iterator i =
+    vector<string>::const_iterator i =
       find_in_all(moduleLabelsRunning_, moduleLabel);
 
     if (i != moduleLabelsRunning_.end()) {

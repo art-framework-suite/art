@@ -1,76 +1,30 @@
-// -*- C++ -*-
+// ======================================================================
 //
 // Package:     PluginManager
 // Class  :     CacheParser
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Apr  4 14:30:46 EDT 2007
-//
-//
+// ======================================================================
 
-// system include files
+
+#include "art/Framework/PluginManager/CacheParser.h"
+#include "art/Utilities/Exception.h"
+#include "cetlib/container_algorithms.h"
 #include <algorithm>
 #include <limits>
 
-// user include files
-#include "art/Framework/PluginManager/CacheParser.h"
-#include "art/Utilities/Exception.h"
-#include "art/Utilities/Algorithms.h"
+
+using namespace cet;
+using namespace std;
+
 
 namespace artplugin {
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-//CacheParser::CacheParser(std::istream&)
-//{
-//}
-
-// CacheParser::CacheParser(const CacheParser& rhs)
-// {
-//    // do actual copying here;
-// }
-
-//CacheParser::~CacheParser()
-//{
-//}
-
-//
-// assignment operators
-//
-// const CacheParser& CacheParser::operator=(const CacheParser& rhs)
-// {
-//   //An exception safe implementation is
-//   CacheParser temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
 
 //
 // static member functions
 //
-  static void checkForError(const std::istream& iIn,
+  static void checkForError(const istream& iIn,
                             unsigned long iRecordNumber,
-                            const std::string& iContext)
+                            const string& iContext)
 {
     if(iIn.eof()) {
       throw artZ::Exception("PluginCacheParseFailed")<<"Unexpectedly reached end of file for line "
@@ -82,12 +36,12 @@ namespace artplugin {
 }
 
 bool
-CacheParser::readline(std::istream& iIn, const boost::filesystem::path& iDirectory,
-         unsigned long iRecordNumber, PluginInfo &oInfo, std::string& oPluginType)
+CacheParser::readline(istream& iIn, const boost::filesystem::path& iDirectory,
+         unsigned long iRecordNumber, PluginInfo &oInfo, string& oPluginType)
 {
-  static const std::string kNewLine("start of new line");
-  std::string fileName;
-  std::string pluginName;
+  static const string kNewLine("start of new line");
+  string fileName;
+  string pluginName;
   iIn >> fileName;
   if(iIn.eof()) { return false;}
   checkForError(iIn,iRecordNumber,kNewLine);
@@ -103,7 +57,7 @@ CacheParser::readline(std::istream& iIn, const boost::filesystem::path& iDirecto
   oInfo.name_ = pluginName;
 
   //ignore everything to the end of line
-  iIn.ignore(std::numeric_limits<int>::max(),
+  iIn.ignore(numeric_limits<int>::max(),
              '\n');
   while(iIn.peek() == '\n') {
     iIn.get();
@@ -122,14 +76,14 @@ namespace {
 }
 
 void
-CacheParser::read(std::istream& iIn,
+CacheParser::read(istream& iIn,
                   const boost::filesystem::path& iDirectory,
                   CacheParser::CategoryToInfos& iOut)
 {
 #if 0
   unsigned long recordNumber=0;
 
-  std::string pluginType;
+  string pluginType;
 
   PluginInfo info;
 
@@ -144,13 +98,13 @@ CacheParser::read(std::istream& iIn,
   for(CacheParser::CategoryToInfos::iterator it = iOut.begin(), itEnd=iOut.end();
       it != itEnd;
       ++it) {
-    std::stable_sort(it->second.begin(),it->second.end(), CompPluginInfos());
+    stable_sort(it->second.begin(),it->second.end(), CompPluginInfos());
   }
 #endif
 }
 
 void
-CacheParser::write(const CategoryToInfos& iInfos, std::ostream& oOut)
+CacheParser::write(const CategoryToInfos& iInfos, ostream& oOut)
 {
 #if 0
   //order the data more to our liking: library then object then type
@@ -159,13 +113,13 @@ CacheParser::write(const CategoryToInfos& iInfos, std::ostream& oOut)
   for(CategoryToInfos::const_iterator it = iInfos.begin();
       it != iInfos.end();
       ++it) {
-    std::string type(it->first);
-    for(std::vector<PluginInfo>::const_iterator it2=it->second.begin();
+    string type(it->first);
+    for(vector<PluginInfo>::const_iterator it2=it->second.begin();
         it2 != it->second.end();
         ++it2) {
       //remove any directory specification
-      std::string loadable(it2->loadable_.leaf());
-      std::string name(it2->name_);
+      string loadable(it2->loadable_.leaf());
+      string name(it2->name_);
       ordered[loadable].push_back(NameAndType(name,type));
     }
   }
@@ -174,17 +128,17 @@ CacheParser::write(const CategoryToInfos& iInfos, std::ostream& oOut)
 }
 
 void
-CacheParser::write(LoadableToPlugins& iIn, std::ostream& oOut)
+CacheParser::write(LoadableToPlugins& iIn, ostream& oOut)
 {
 #if 0
   for( LoadableToPlugins::iterator it = iIn.begin();
        it!=iIn.end();
        ++it) {
-    std::string loadable(it->first.string());
+    string loadable(it->first.string());
     replaceSpaces(loadable);
     art::sort_all(it->second);
 
-    for(std::vector<std::pair<std::string,std::string> >::iterator it2 = it->second.begin();
+    for(vector<pair<string,string> >::iterator it2 = it->second.begin();
         it2 != it->second.end();
         ++it2) {
       oOut << loadable <<" "<<replaceSpaces(it2->first)<<" "<<replaceSpaces(it2->second)<<"\n";
@@ -194,12 +148,12 @@ CacheParser::write(LoadableToPlugins& iIn, std::ostream& oOut)
 }
 
 void
-CacheParser::read(std::istream& iIn, LoadableToPlugins& oOut)
+CacheParser::read(istream& iIn, LoadableToPlugins& oOut)
 {
 #if 0
   unsigned long recordNumber=0;
 
-  std::string pluginType;
+  string pluginType;
 
   PluginInfo info;
   NameAndType pat;
@@ -216,22 +170,23 @@ CacheParser::read(std::istream& iIn, LoadableToPlugins& oOut)
 #endif
 }
 
-std::string&
-CacheParser::replaceSpaces(std::string& io)
+string&
+CacheParser::replaceSpaces(string& io)
 {
-  std::string::size_type index=0;
-  while(std::string::npos != (index = io.find_first_of(" \t\n",index))) {
+  string::size_type index=0;
+  while(string::npos != (index = io.find_first_of(" \t\n",index))) {
     io[index]='%';
   }
   return io;
 }
 
-std::string& CacheParser::restoreSpaces(std::string& io)
+string& CacheParser::restoreSpaces(string& io)
 {
-  std::string::size_type index=0;
-  while(std::string::npos != (index = io.find_first_of("%",index))) {
+  string::size_type index=0;
+  while(string::npos != (index = io.find_first_of("%",index))) {
     io[index]=' ';
   }
   return io;
 }
-}
+
+}  // namespace artplugin

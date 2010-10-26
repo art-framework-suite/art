@@ -1,10 +1,10 @@
 # project name
 project(artParameterSet)
 
-set( artParameterSet_sources
+#set( artParameterSet_sources
 #                             Entry.cc
 #                             FileInPath.cc
-                             MakeParameterSets.cc
+#                             MakeParameterSets.cc
 #                             ParameterSetEntry.cc
 #                             ProcessDesc.cc
 #                             pythonFileToConfigure.cc
@@ -13,7 +13,7 @@ set( artParameterSet_sources
 #                             PythonWrapper.cc
 #                             Registry.cc
 #                             types.cc
-)
+#)
 
 #link_libraries( artUtilities
 #                artMessageLogger
@@ -22,14 +22,14 @@ set( artParameterSet_sources
 #                ${SIGC}
 #                ${PYTHON} )
 
-add_library(artParameterSet SHARED ${artParameterSet_sources} )
+#add_library(artParameterSet SHARED ${artParameterSet_sources} )
 
-install ( TARGETS artParameterSet DESTINATION ${flavorqual_dir}/lib )
+#install ( TARGETS artParameterSet DESTINATION ${flavorqual_dir}/lib )
 install( FILES processParameterSetID.h
 #              Entry.h
 #              FileInPath.h
 #              InputTag.h
-              MakeParameterSets.h
+#              MakeParameterSets.h
 #              ParameterSetEntry.h
 #              ParameterSetfwd.h
 #              ProcessDesc.h

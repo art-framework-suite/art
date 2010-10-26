@@ -14,7 +14,6 @@
 
 #include "VertexTracker.h"
 
-//#include "art/Utilities/Algorithms.h"
 
 #if 0
 extern "C" {

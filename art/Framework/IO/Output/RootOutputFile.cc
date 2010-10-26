@@ -24,24 +24,25 @@
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Version/GetFileFormatVersion.h"
-
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TROOT.h"
 #include "TTree.h"
-
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+
+
+using namespace cet;
+using namespace std;
 
 
 namespace art {
@@ -61,7 +62,7 @@ namespace art {
     }
   }
 
-  RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
+  RootOutputFile::RootOutputFile(PoolOutputModule *om, string const& fileName, string const& logicalFileName) :
       file_(fileName),
       logicalFile_(logicalFileName),
       om_(om),
@@ -131,8 +132,8 @@ namespace art {
     // in a deterministic order, except use the full class name instead of the friendly class name.
     // To avoid extra string copies, we create a vector of pointers into the product registry,
     // and use a custom comparison operator for sorting.
-    std::vector<std::string> branchNames;
-    std::vector<BranchDescription const*> branches;
+    vector<string> branchNames;
+    vector<BranchDescription const*> branches;
     branchNames.reserve(om_->selectedOutputItemList()[InEvent].size());
     branches.reserve(om->selectedOutputItemList()[InEvent].size());
     for (OutputItemList::const_iterator it = om_->selectedOutputItemList()[InEvent].begin(),
@@ -144,21 +145,21 @@ namespace art {
     // Now sort the branches for the hash.
     sort_all(branches, sorterForJobReportHash);
     // Now, make a concatenated string.
-    std::ostringstream oss;
+    ostringstream oss;
     char const underscore = '_';
-    for (std::vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
+    for (vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
       BranchDescription const& bd = **it;
       oss <<  bd.fullClassName() << underscore
           << bd.moduleLabel() << underscore
           << bd.productInstanceName() << underscore
           << bd.processName() << underscore;
     }
-    std::string stringrep = oss.str();
+    string stringrep = oss.str();
     artZ::Digest md5alg(stringrep);
 
     // Register the output file with the JobReport service
     // and get back the token for it.
-    std::string moduleName = "PoolOutputModule";
+    string moduleName = "PoolOutputModule";
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
@@ -203,11 +204,11 @@ namespace art {
     if ( sz <= 0)
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to fill the History tree for event: " << e.id()
-        << "\nTTree::Fill() returned " << sz << " bytes written." << std::endl;
+        << "\nTTree::Fill() returned " << sz << " bytes written." << endl;
 
     // Add the dataType to the job report if it hasn't already been done
     if(!dataTypeReported_) {
-      std::string dataType("MC");
+      string dataType("MC");
       if(pEventAux_->isRealData())  dataType = "Data";
       dataTypeReported_ = true;
     }
@@ -312,7 +313,7 @@ namespace art {
 
   void RootOutputFile::writeParameterSetRegistry() {  // TODO: update
     #if 0
-    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
+    typedef map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
     pset::fill(pset::Registry::instance(), psetMap);
     ParameterSetMap *pPsetMap = &psetMap;
@@ -328,7 +329,7 @@ namespace art {
     art::Service<art::ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
     ProductList & pList  = const_cast<ProductList &>(pReg.productList());
-    std::set<BranchID>::iterator end = branchesWithStoredHistory_.end();
+    set<BranchID>::iterator end = branchesWithStoredHistory_.end();
     for (ProductList::iterator it = pList.begin(); it != pList.end(); ) {
       if (branchesWithStoredHistory_.find(it->second.branchID()) == end) {
         // avoid invalidating iterator on deletion
@@ -383,13 +384,13 @@ namespace art {
       for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
           i != iEnd; ++i) {
         BranchDescription const& pd = **i;
-        std::string const& full = pd.branchName() + "obj";
+        string const& full = pd.branchName() + "obj";
         if (pd.branchAliases().empty()) {
-          std::string const& alias =
+          string const& alias =
               (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
           tree->SetAlias(alias.c_str(), full.c_str());
         } else {
-          std::set<std::string>::const_iterator it = pd.branchAliases().begin(), itEnd = pd.branchAliases().end();
+          set<string>::const_iterator it = pd.branchAliases().begin(), itEnd = pd.branchAliases().end();
           for (; it != itEnd; ++it) {
             tree->SetAlias((*it).c_str(), full.c_str());
           }
@@ -401,12 +402,12 @@ namespace art {
   void
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   Principal const& principal,
-                                  std::set<ProductProvenance>& oToFill) {
+                                  set<ProductProvenance>& oToFill) {
     if(om_->dropMetaData() == PoolOutputModule::DropAll) return;
     if(om_->dropMetaDataForDroppedData()) return;
     BranchMapper const& iMapper = *principal.branchMapperPtr();
-    std::vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
-    for(std::vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
+    vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
+    for(vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
       boost::shared_ptr<ProductProvenance> info = iMapper.branchToEntryInfo(*it);
@@ -425,15 +426,15 @@ namespace art {
   void RootOutputFile::fillBranches(
                 BranchType const& branchType,
                 Principal const& principal,
-                std::vector<ProductProvenance>* productProvenanceVecPtr) {
+                vector<ProductProvenance>* productProvenanceVecPtr) {
 
-    std::vector<boost::shared_ptr<EDProduct> > dummies;
+    vector<boost::shared_ptr<EDProduct> > dummies;
 
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
 
     OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
-    std::set<ProductProvenance> provenanceToKeep;
+    set<ProductProvenance> provenanceToKeep;
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
