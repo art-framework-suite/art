@@ -262,6 +262,11 @@ namespace art {
       state_ = IsInvalid;
     }
 
+    // To call the private commit_() functions of classes with which we are friends
+    void commitEvent(Event &e);
+    void commitRun(Run &r);
+    void commitSubRun(SubRun &lb);
+
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
     bool subRunLimitReached() const {return remainingSubRuns_ == 0;}

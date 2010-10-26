@@ -216,13 +216,10 @@ namespace art {
     makeProductID(ConstBranchDescription const& desc) const;
 
     // commit_() is called to complete the transaction represented by
-    // this DataViewImpl. The friendships required seems gross, but any
+    // this DataViewImpl. The friendships required are gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
-    friend class ConfigurableInputSource;
-    friend class DaqSource;
     friend class InputSource;
-    friend class RawInputSource;
     friend class EDFilter;
     friend class EDProducer;
 

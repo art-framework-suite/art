@@ -97,6 +97,28 @@ namespace art {
     }
   }
 
+
+  void
+  InputSource::commitEvent(art::Event &e)
+  {
+    e.commit_();
+  }
+
+
+  void
+  InputSource::commitRun(art::Run &r)
+  {
+    r.commit_();
+  }
+
+
+  void
+  InputSource::commitSubRun(art::SubRun &lb)
+  {
+    lb.commit_();
+  }
+
+
   InputSource::~InputSource() { }
 
   // This next function is to guarantee that "runs only" mode does not return events or subRuns,
