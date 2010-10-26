@@ -13,6 +13,7 @@ while (m/\G.*?([\w_\d]*lumi[\w_\d]*(?:\s*(?:block|section))?)/gi) {
   my $to = $from;
   $to =~ s/lumi/subRun/;
   $to =~ s/Lumi/SubRun/;
+  $to =~ s/\blb\b/sr/;
   $to =~ s/(subrun)(?:nosity)?(?:\s*(?:block|section))?/${1}/i;
   if (exists $used_translations{$to}) {
     if ($used_translations{$to} ne $from) {
