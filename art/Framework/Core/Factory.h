@@ -1,37 +1,32 @@
 #ifndef FWCore_Framework_Factory_h
 #define FWCore_Framework_Factory_h
 
-#include "art/Framework/PluginManager/PluginFactory.h"
 #include "art/Framework/Core/Worker.h"
-#include "art/Framework/Core/WorkerMaker.h"
 #include "art/Framework/Core/WorkerParams.h"
+#include "art/Framework/Core/LibraryManager.h"
 
 #include <map>
 #include <string>
 #include <memory>
-#include "sigc++/signal.h"
 
 namespace art {
-  typedef artplugin::PluginFactory<Maker* ()> MakerPluginFactory;
+
 
   class Factory
   {
   public:
-    typedef std::map<std::string, Maker*> MakerMap;
+    // We are not caching the discovered symbols. If we did, we'd use
+    // a map of typespec (string) to maker-function-pointer
 
-    ~Factory();
-
-    static Factory* get();
-
-    std::auto_ptr<Worker> makeWorker(const WorkerParams&,
-                                     sigc::signal<void, const ModuleDescription&>& pre,
-                                     sigc::signal<void, const ModuleDescription&>& post) const;
-
+    static
+    std::auto_ptr<Worker> makeWorker(WorkerParams const wp&,
+				     ModuleDescription const& md);
 
   private:
+    static Factory& the_instance_();
     Factory();
-    static Factory singleInstance_;
-    mutable MakerMap makers_;
+    ~Factory();
+    LibraryManager libman;    
   };
 
 }

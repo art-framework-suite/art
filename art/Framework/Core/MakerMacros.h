@@ -1,26 +1,35 @@
 #ifndef Framework_MakerMacros_h
 #define Framework_MakerMacros_h
 
-#include "art/Framework/Core/Factory.h"
-#include "art/Framework/Core/WorkerMaker.h"
-// The following includes are temporary until a better
-// solution can be found.  Placing these includes here
-// leads to more physical coupling than is probably necessary.
-// Another solution is to build a typeid lookup table in the
-// implementation file (one every for each XXXWorker) and
-// then include all the relevent worker headers in the
-// implementation file only.
-#include "art/Framework/Core/OutputWorker.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Framework/Core/WorkerParams.h"
 
+/*
+  Note: Libraries that include these symbol definitions cannot be
+  linked into a main program as other libraries are.  This is because
+  the "one definition" rule will be violated.
+ */
 
-#define DEFINE_FWK_MODULE(type) \
-  //DEFINE_EDM_PLUGIN (art::MakerPluginFactory,art::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+/*
+  DEFINE_ART_MODULE_TEMP is a short-term expedient, to get an early
+  version of art working. It will be removed as soon as feasible.
+ */
+#define DEFINE_ART_MODULE_TEMP(klass) \
+extern "C" \
+Worker* make_temp(WorkerParams const& wp, ModuleDescription const& md) \
+{ return new WorkerT<klass::ModuleType>(new klass(*(wp.pset_)), md, wp)); }
 
-#define DEFINE_ANOTHER_FWK_MODULE(type) \
-  //DEFINE_EDM_PLUGIN (art::MakerPluginFactory,art::WorkerMaker<type>,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+/*
+  DEFINE_ART_MODULE produces the function that is used to create a
+  module instance.
+*/
 
-// for backward compatibility
-#include "art/Framework/PluginManager/ModuleDef.h"
+#define DEFINE_ART_MODULE(klass) \
+extern "C" \
+klass::ModuleType* make(fhicl::ParameterSet const& ps) \
+{ return new klass(ps); } \
+ DEFINE_ART_MODULE_TEMP(klass)
 
 #endif  // Framework_MakerMacros_h

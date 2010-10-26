@@ -6,67 +6,58 @@
 
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(art::MakerPluginFactory,"CMS EDM Framework Module");
-namespace art {
-
-  static void cleanup(const Factory::MakerMap::value_type& v)
+namespace
+{
+  std::string translate_typespec_to_libname(std::string const& str)
   {
-    delete v.second;
-  }
+    // TODO: consider using std::tranlate and a lambda function ...
+    std::string result(str);
 
-  Factory Factory::singleInstance_;
+    for (std::string::iterator i = result.begin(), e = result.end(); 
+	 i != e; ++i)
+      {
+	if (*i == '/') *i = '_';
+      }
+  }
+}
+
+namespace art 
+{
 
   Factory::~Factory()
   {
-    for_all(makers_, cleanup);
   }
 
-  Factory::Factory(): makers_()
-
+  Factory&
+  Factory::the_instance_()
   {
+    static Factory me;
+    return me;
   }
 
-  Factory* Factory::get()
+  Factory::Factory() :
+    libman_("plugin")
   {
-    return &singleInstance_;
   }
-
-  std::auto_ptr<Worker> Factory::makeWorker(const WorkerParams& p,
-                                            sigc::signal<void, const ModuleDescription&>& pre,
-                                            sigc::signal<void, const ModuleDescription&>& post) const
+  
+  std::auto_ptr<Worker> Factory::makeWorker(WorkerParams const& p,
+					    ModuleDescription const& md)					    
   {
-    std::string modtype = p.pset_->get<std::string>("@module_type");
-    FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
-    MakerMap::iterator it = makers_.find(modtype);
+    typedef Worker* (*factor_fcn_t)(WorkerParams const&, ModuleDescription const&);
+    Factory& me = the_instance_();
+    
+    std::string modtype(p.pset_->get<std::string>("_module_type"));
+    std::string libname = translate_typespec_to_libname(modtype);
+    factory_fcn_t* symbol = (factory_fcn_t*)libman_.getSymbol(libname, "make_temp");
+    if (symbol == 0)
+      throw art::Exception(errors::Configuration,"UnknownModule")
+	<< "Module " << modtype
+	<< " with version " << p.releaseVersion_
+	<< " was not registered.\n"
+	<< "Perhaps your module type is misspelled or is not a "
+	<< "framework plugin.";
 
-    if(it == makers_.end())
-      {
-        std::auto_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
-
-	if(wm.get()==0)
-	  throw art::Exception(errors::Configuration,"UnknownModule")
-	    << "Module " << modtype
-	    << " with version " << p.releaseVersion_
-	    << " was not registered.\n"
-	    << "Perhaps your module type is misspelled or is not a "
-	    << "framework plugin.\n"
-	    << "Try running EdmPluginDump to obtain a list of "
-	    << "available Plugins.";
-
-	FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
-
-	std::pair<MakerMap::iterator,bool> ret =
-	  makers_.insert(std::make_pair<std::string,Maker*>(modtype,wm.get()));
-
-	//	if(ret.second==false)
-	//	  throw runtime_error("Worker Factory map insert failed");
-
-	it = ret.first;
-	wm.release();
-      }
-
-    std::auto_ptr<Worker> w(it->second->makeWorker(p,pre,post));
-    return w;
+    return (*symbol)(p,md);
   }
 
 }
