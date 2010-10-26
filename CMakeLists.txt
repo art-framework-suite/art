@@ -2,10 +2,12 @@
 #  art main build file
 #
 #  cd .../path/to/build/directory
-#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] .../path/to/art
+#  source .../path/to/art/ups/setup_for_development
+#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] $ART_SOURCE
 #  make
 #  make test
 #  make install
+#  make package
 # ======================================================================
 
 
@@ -27,24 +29,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
 set(CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH})
 message(STATUS "module path is ${CMAKE_MODULE_PATH}" )
 
-# sl5 is 2.6.18
-# sl4 is 2.6.9
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-   if( ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "^2.6.9.*" )
-       SET( SLTYPE sl4 )
-   endif ()
-   if( ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "^2.6.18.*" )
-       SET( SLTYPE sl5 )
-   endif ()
-   message(STATUS "Building on Linux ${SLTYPE} ${CMAKE_SYSTEM_PROCESSOR}" )
-endif ()
-# require SLTYPE
-if ( NOT SLTYPE )
-  message(FATAL_ERROR "Can't determine system type")
-endif ()
-SET (flavorqual ${SLTYPE}.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
-SET (flavorqual_dir ${product}/${version}/${flavorqual} )
-
 # because we want to move these libraries about,
 # do not embed full path in shared libraries or executables
 set (CMAKE_SKIP_RPATH)
@@ -58,15 +42,18 @@ include(FindUpsPackage)
 include(FindUpsBoost)
 include(FindUpsRoot)
 include(ParseUpsVersion)
+include(SetFlavorQual)
 
 #set package version from ups version
 set_version_from_ups( ${version} )
+#define flavorqual and flavorqual_dir
+set_flavor_qual()
 
 
-# require ART_WORKDIR
-set( ART_WORKDIR $ENV{ART_WORKDIR} )
-if ( NOT ART_WORKDIR )
-  message(FATAL_ERROR "Can't locate ART_WORKDIR, required for building framework")
+# require ART_BUILD
+set( ART_BUILD $ENV{ART_BUILD} )
+if ( NOT ART_BUILD )
+  message(FATAL_ERROR "Can't locate ART_BUILD, required for building framework")
 endif ()
 
 # these are minimum required versions, not the actual product versions
