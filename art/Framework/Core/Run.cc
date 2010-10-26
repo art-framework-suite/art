@@ -4,6 +4,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include <vector>
 
 

@@ -1,21 +1,23 @@
 #ifndef DataFormats_Provenance_BranchEntryDescription_h
 #define DataFormats_Provenance_BranchEntryDescription_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// BranchEntryDescription: The event dependent portion of the description
+//                         of a product and how it came into existence.
+//
+// ======================================================================
 
-BranchEntryDescription: The event dependent portion of the description of a product
-and how it came into existence.
 
-----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <vector>
-#include "boost/shared_ptr.hpp"
-
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/EntryDescription.h"
+#include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleDescriptionID.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "boost/shared_ptr.hpp"
+#include <iosfwd>
+#include <memory>
+#include <vector>
 
 /*
   BranchEntryDescription

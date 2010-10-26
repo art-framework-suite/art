@@ -1,14 +1,15 @@
-
 #include "art/Framework/Core/Factory.h"
+
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-
+#include "cetlib/container_algorithms.h"
 #include <iostream>
+
 
 namespace
 {
   std::string translate_typespec_to_libname(std::string const& str)
+
   {
     // TODO: consider using std::tranlate and a lambda function ...
     std::string result(str);
@@ -58,6 +59,7 @@ namespace art
 	<< "framework plugin.";
 
     return (*symbol)(p,md);
+
   }
 
 }

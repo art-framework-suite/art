@@ -143,7 +143,7 @@ namespace art {
     // all events, or one which contains a vstrig 'SelectEvents' that
     // is empty, we are to write all events. We have no need for any
     // EventSelectors.
-    if (selectevents.empty()) {
+    if (selectevents.is_empty()) {
         wantAllEvents_ = true;
         selectors_.setupDefault(getAllTriggerNames());
         return;

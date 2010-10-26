@@ -1,22 +1,23 @@
-/**----------------------------------------------------------------------
-  ----------------------------------------------------------------------*/
-
-#include <algorithm>
-#include <sstream>
-#include <stdexcept>
-
 #include "art/Framework/Core/Principal.h"
+
+#include "art/Framework/Core/Selector.h"
+#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Persistency/Common/BasicHandle.h"
-#include "art/Utilities/TypeID.h"
 #include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-#include "art/Framework/Core/Selector.h"
-//using boost::lambda::_1;
+#include "art/Utilities/TypeID.h"
+#include "cetlib/container_algorithms.h"
+#include <algorithm>
+#include <sstream>
+#include <stdexcept>
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art {
 
@@ -53,18 +54,18 @@ namespace art {
   }
 
   void
-  Principal::addGroup_(std::auto_ptr<Group> group) {
+  Principal::addGroup_(auto_ptr<Group> group) {
     ConstBranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     SharedGroupPtr g(group);
-    groups_.insert(std::make_pair(bd.branchID(), g));
+    groups_.insert(make_pair(bd.branchID(), g));
   }
 
   void
-  Principal::replaceGroup(std::auto_ptr<Group> group) {
+  Principal::replaceGroup(auto_ptr<Group> group) {
     ConstBranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
@@ -78,7 +79,7 @@ namespace art {
   Principal::addToProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
-    std::string const& processName = processConfiguration_.processName();
+    string const& processName = processConfiguration_.processName();
     for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
       if (processName == it->processName()) {
 	throw art::Exception(errors::Configuration, "Duplicate Process")
@@ -162,9 +163,9 @@ namespace art {
 
   BasicHandle
   Principal::getByLabel(TypeID const& productType,
-			std::string const& label,
-			std::string const& productInstanceName,
-			std::string const& processName) const
+			string const& label,
+			string const& productInstanceName,
+			string const& processName) const
   {
 
     BasicHandleVec results;
@@ -343,7 +344,7 @@ namespace art {
   }
 
   void
-  Principal::findGroupsForProcess(std::string const& processName,
+  Principal::findGroupsForProcess(string const& processName,
 				  ProcessLookup const& processLookup,
 				  SelectorBase const& selector,
 				  BasicHandleVec& results) const {
@@ -355,9 +356,9 @@ namespace art {
     // This is a vector of indexes into the productID vector
     // These indexes point to groups with desired process name (and
     // also type when this function is called from findGroups)
-    std::vector<BranchID> const& vindex = j->second;
+    vector<BranchID> const& vindex = j->second;
 
-    for (std::vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
+    for (vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
 	 ib != ie;
 	 ++ib) {
       SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
@@ -402,7 +403,7 @@ namespace art {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
-    std::auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
+    auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
 
     // Now fix up the Group
     g.setProduct(edp);
@@ -462,7 +463,7 @@ namespace art {
   // No attempt to trigger on demand execution
   // Skips provenance when the EDProduct is not there
   void
-  Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
+  Principal::getAllProvenance(vector<Provenance const*> & provenances) const {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (i->second->provenanceAvailable()) {
@@ -476,8 +477,8 @@ namespace art {
   }
 
   void
-  Principal::recombine(Principal & other, std::vector<BranchID> const& bids) {
-    for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
+  Principal::recombine(Principal & other, vector<BranchID> const& bids) {
+    for (vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
       groups_[*it].swap(other.groups_[*it]);
     }
     store_->mergeReaders(other.store());

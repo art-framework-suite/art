@@ -34,17 +34,19 @@
 
 #include "art/Framework/Core/EventSelector.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/RegexMatch.h"
-
-#include "MessageFacility/MessageLogger.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
-
+#include "cetlib/container_algorithms.h"
 #include <algorithm>
 #include <cassert>
+
+
+using namespace cet;
+using namespace std;
 
 
 namespace art {
@@ -100,8 +102,8 @@ namespace art {
   {
     Strings paths; // default is empty...
 
-    if (!config.empty())
-      paths = config.get<std::vector<std::string> >("SelectEvents");
+    if (!config.is_empty())
+      paths = config.get<vector<string> >("SelectEvents");
 
     init(paths, triggernames);
   }
@@ -110,7 +112,7 @@ namespace art {
   EventSelector::init(Strings const& paths,
                       Strings const& triggernames)
   {
-    // std::cerr << "### init entered\n";
+    // cerr << "### init entered\n";
     accept_all_ = false;
     absolute_acceptors_.clear(),
     conditional_acceptors_.clear(),
@@ -135,44 +137,44 @@ namespace art {
     for (Strings::const_iterator i(paths.begin()), end(paths.end());
          i!=end; ++i)
     {
-      std::string pathSpecifier(*i);
+      string pathSpecifier(*i);
       boost::erase_all(pathSpecifier, " \t"); // whitespace eliminated
       if (pathSpecifier == "*")           unrestricted_star = true;
       if (pathSpecifier == "!*")          negated_star = true;
       if (pathSpecifier == "exception@*") exception_star = true;
 
-      std::string basePathSpec(pathSpecifier);
+      string basePathSpec(pathSpecifier);
       bool noex_demanded = false;
-      std::string::size_type
+      string::size_type
               and_noexception = pathSpecifier.find("&noexception");
-      if (and_noexception != std::string::npos) {
+      if (and_noexception != string::npos) {
         basePathSpec = pathSpecifier.substr(0,and_noexception);
         noex_demanded = true;
       }
-      std::string::size_type and_noex = pathSpecifier.find("&noex");
-      if (and_noex != std::string::npos) {
+      string::size_type and_noex = pathSpecifier.find("&noex");
+      if (and_noex != string::npos) {
         basePathSpec = pathSpecifier.substr(0,and_noexception);
         noex_demanded = true;
       }
       and_noexception = basePathSpec.find("&noexception");
       and_noex = basePathSpec.find("&noex");
-      if (and_noexception != std::string::npos ||
-           and_noex != std::string::npos)
+      if (and_noexception != string::npos ||
+           and_noex != string::npos)
           throw art::Exception(errors::Configuration)
             << "EventSelector::init, An OutputModule is using SelectEvents\n"
                "to request a trigger name, but specifying &noexceptions twice\n"
             << "The improper trigger name is: " << pathSpecifier << "\n";
 
-      std::string realname(basePathSpec);
+      string realname(basePathSpec);
       bool negative_criterion = false;
       if (basePathSpec[0] == '!') {
         negative_criterion = true;
-        realname = basePathSpec.substr(1,std::string::npos);
+        realname = basePathSpec.substr(1,string::npos);
       }
       bool exception_spec = false;
       if (realname.find("exception@") == 0) {
         exception_spec = true;
-        realname = realname.substr(10, std::string::npos);
+        realname = realname.substr(10, string::npos);
         // strip off 10 chars, which is length of "exception@"
       }
       if (negative_criterion &&  exception_spec)
@@ -191,7 +193,7 @@ namespace art {
 
       // instead of "see if the name can be found in the full list of paths"
       // we want to find all paths that match this name.
-      std::vector<Strings::const_iterator> matches =
+      vector<Strings::const_iterator> matches =
               regexMatch(triggernames, realname);
 
       if (matches.empty() && !is_glob(realname))
@@ -266,7 +268,7 @@ namespace art {
 
     if (unrestricted_star && negated_star && exception_star) accept_all_ = true;
 
-    // std::cerr << "### init exited\n";
+    // cerr << "### init exited\n";
 
   } // EventSelector::init
 
@@ -379,12 +381,12 @@ namespace art {
     }
     if (acceptOneBit(exception_acceptors_, tr, hlt::Exception)) return true;
 
-    for (std::vector<Bits>::const_iterator f =  all_must_fail_.begin();
+    for (vector<Bits>::const_iterator f =  all_must_fail_.begin();
                                            f != all_must_fail_.end(); ++f)
     {
       if (acceptAllBits(*f, tr)) return true;
     }
-    for (std::vector<Bits>::const_iterator fn =  all_must_fail_noex_.begin();
+    for (vector<Bits>::const_iterator fn =  all_must_fail_noex_.begin();
                                            fn != all_must_fail_noex_.end(); ++fn)
     {
       if (acceptAllBits(*fn, tr)) {
@@ -580,50 +582,50 @@ namespace art {
       unsigned int N = fullTriggerList.size();
 
       // create the expanded masks for the various decision lists in a and b
-      std::vector<bool>
+      vector<bool>
         aPassAbs = expandDecisionList(a.absolute_acceptors_,true,N);
-      std::vector<bool>
+      vector<bool>
         aPassCon = expandDecisionList(a.conditional_acceptors_,true,N);
-      std::vector<bool>
+      vector<bool>
         aFailAbs = expandDecisionList(a.absolute_acceptors_,false,N);
-      std::vector<bool>
+      vector<bool>
         aFailCon = expandDecisionList(a.conditional_acceptors_,false,N);
-      std::vector<bool>
+      vector<bool>
         aExc = expandDecisionList(a.exception_acceptors_,true,N);
-      std::vector< std::vector<bool> > aMustFail;
+      vector< vector<bool> > aMustFail;
       for (unsigned int m = 0; m != a.all_must_fail_.size(); ++m) {
         aMustFail.push_back(expandDecisionList(a.all_must_fail_[m],false,N));
       }
-      std::vector< std::vector<bool> > aMustFailNoex;
+      vector< vector<bool> > aMustFailNoex;
       for (unsigned int m = 0; m != a.all_must_fail_noex_.size(); ++m) {
         aMustFailNoex.push_back
                 (expandDecisionList(a.all_must_fail_noex_[m],false,N));
       }
 
-      std::vector<bool>
+      vector<bool>
         bPassAbs = expandDecisionList(b.absolute_acceptors_,true,N);
-      std::vector<bool>
+      vector<bool>
         bPassCon = expandDecisionList(b.conditional_acceptors_,true,N);
-      std::vector<bool>
+      vector<bool>
         bFailAbs = expandDecisionList(b.absolute_acceptors_,false,N);
-      std::vector<bool>
+      vector<bool>
         bFailCon = expandDecisionList(b.conditional_acceptors_,false,N);
-      std::vector<bool>
+      vector<bool>
         bExc = expandDecisionList(b.exception_acceptors_,true,N);
-      std::vector< std::vector<bool> > bMustFail;
+      vector< vector<bool> > bMustFail;
       for (unsigned int m = 0; m != b.all_must_fail_.size(); ++m) {
         bMustFail.push_back(expandDecisionList(b.all_must_fail_[m],false,N));
       }
-      std::vector< std::vector<bool> > bMustFailNoex;
+      vector< vector<bool> > bMustFailNoex;
       for (unsigned int m = 0; m != b.all_must_fail_noex_.size(); ++m) {
         bMustFailNoex.push_back
                 (expandDecisionList(b.all_must_fail_noex_[m],false,N));
       }
 
-      std::vector<bool> aPass = combine(aPassAbs, aPassCon);
-      std::vector<bool> bPass = combine(bPassAbs, bPassCon);
-      std::vector<bool> aFail = combine(aFailAbs, aFailCon);
-      std::vector<bool> bFail = combine(bFailAbs, bFailCon);
+      vector<bool> aPass = combine(aPassAbs, aPassCon);
+      vector<bool> bPass = combine(bPassAbs, bPassCon);
+      vector<bool> aFail = combine(aFailAbs, aFailCon);
+      vector<bool> bFail = combine(bFailAbs, bFailCon);
 
       // Check for overlap in the primary masks
       overlap = overlapping(aPass, bPass) ||
@@ -791,7 +793,7 @@ namespace art {
 
     // Deal with must_fail acceptors that would cause selection
     for (unsigned int m = 0; m < this->all_must_fail_.size(); ++m) {
-      std::vector<bool>
+      vector<bool>
         f = expandDecisionList(this->all_must_fail_[m],false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {
@@ -809,7 +811,7 @@ namespace art {
       }
     }
     for (unsigned int m = 0; m < this->all_must_fail_noex_.size(); ++m) {
-      std::vector<bool>
+      vector<bool>
         f = expandDecisionList(this->all_must_fail_noex_[m],false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {
@@ -828,15 +830,15 @@ namespace art {
     } // factoring opportunity - work done for fail_noex_ is same as for fail_
 
     // Deal with normal acceptors that would cause selection
-    std::vector<bool>
+    vector<bool>
       aPassAbs = expandDecisionList(this->absolute_acceptors_,true,N);
-    std::vector<bool>
+    vector<bool>
       aPassCon = expandDecisionList(this->conditional_acceptors_,true,N);
-    std::vector<bool>
+    vector<bool>
       aFailAbs = expandDecisionList(this->absolute_acceptors_,false,N);
-    std::vector<bool>
+    vector<bool>
       aFailCon = expandDecisionList(this->conditional_acceptors_,false,N);
-    std::vector<bool>
+    vector<bool>
       aExc = expandDecisionList(this->exception_acceptors_,true,N);
     for (unsigned int ipath = 0; ipath < N; ++ipath) {
       hlt::HLTState s = inputResults [ipath].state();
@@ -938,7 +940,7 @@ namespace art {
    * @param pset The ParameterSet that contains the trigger selection.
    * @return the trigger selection list (vector of string).
    */
-  std::vector<std::string>
+  vector<string>
   EventSelector::getEventSelectionVString(fhicl::ParameterSet const& pset)
   {
     // default the selection to everything (wildcard)
@@ -951,9 +953,9 @@ namespace art {
     // a ParameterSet, so we have to pull it out twice
     fhicl::ParameterSet selectEventsParamSet =
       pset.get<fhicl::ParameterSet>("SelectEvents", fhicl::ParameterSet());
-    if (!selectEventsParamSet.empty()) {
+    if (!selectEventsParamSet.is_empty()) {
       Strings path_specs =
-        selectEventsParamSet.get<std::vector<std::string> >("SelectEvents");
+        selectEventsParamSet.get<vector<string> >("SelectEvents");
       if (!path_specs.empty()) {
         selection = path_specs;
       }
@@ -975,8 +977,8 @@ namespace art {
   // The following routines are helpers for testSelectionOverlap
 
   bool
-  EventSelector::identical(std::vector<bool> const& a,
-                           std::vector<bool> const& b) {
+  EventSelector::identical(vector<bool> const& a,
+                           vector<bool> const& b) {
      unsigned int n = a.size();
      if (n != b.size()) return false;
      for (unsigned int i=0; i!=n; ++i) {
@@ -1008,20 +1010,20 @@ namespace art {
                    return false;
     if (a.all_must_fail_.size() != b.all_must_fail_.size()) return false;
 
-    std::vector< std::vector<bool> > aMustFail;
+    vector< vector<bool> > aMustFail;
     for (unsigned int m = 0; m != a.all_must_fail_.size(); ++m) {
       aMustFail.push_back(expandDecisionList(a.all_must_fail_[m],false,N));
     }
-    std::vector< std::vector<bool> > aMustFailNoex;
+    vector< vector<bool> > aMustFailNoex;
     for (unsigned int m = 0; m != a.all_must_fail_noex_.size(); ++m) {
       aMustFailNoex.push_back
               (expandDecisionList(a.all_must_fail_noex_[m],false,N));
     }
-    std::vector< std::vector<bool> > bMustFail;
+    vector< vector<bool> > bMustFail;
     for (unsigned int m = 0; m != b.all_must_fail_.size(); ++m) {
       bMustFail.push_back(expandDecisionList(b.all_must_fail_[m],false,N));
     }
-    std::vector< std::vector<bool> > bMustFailNoex;
+    vector< vector<bool> > bMustFailNoex;
     for (unsigned int m = 0; m != b.all_must_fail_noex_.size(); ++m) {
       bMustFailNoex.push_back
               (expandDecisionList(b.all_must_fail_noex_[m],false,N));
@@ -1052,12 +1054,12 @@ namespace art {
 
   } // identical (EventSelector, EventSelector, N);
 
-  std::vector<bool>
+  vector<bool>
   EventSelector::expandDecisionList(Bits const& b,
                                       bool PassOrFail,
                                       unsigned int n)
   {
-    std::vector<bool> x(n, false);
+    vector<bool> x(n, false);
     for (unsigned int i = 0; i != b.size(); ++i) {
       if (b[i].accept_state_ == PassOrFail) x[b[i].pos_] = true;
     }
@@ -1065,8 +1067,8 @@ namespace art {
   } // expandDecisionList
 
   // Determines whether a and b share a true bit at any position
-  bool EventSelector::overlapping(std::vector<bool> const& a,
-                                     std::vector<bool> const& b)
+  bool EventSelector::overlapping(vector<bool> const& a,
+                                     vector<bool> const& b)
   {
     if (a.size() != b.size()) return false;
     for (unsigned int i = 0; i != a.size(); ++i) {
@@ -1077,8 +1079,8 @@ namespace art {
 
   // determines whether the true bits of a are a non-empty subset of those of b,
   // or vice-versa.  The subset need not be proper.
-  bool EventSelector::subset(std::vector<bool> const& a,
-                               std::vector<bool> const& b)
+  bool EventSelector::subset(vector<bool> const& a,
+                               vector<bool> const& b)
   {
     if (a.size() != b.size()) return false;
     // First test whether a is a non-empty subset of b
@@ -1115,12 +1117,12 @@ namespace art {
   } // subset
 
   // Creates a vector of bits which is the OR of a and b
-  std::vector<bool>
-  EventSelector::combine(std::vector<bool> const& a,
-                          std::vector<bool> const& b)
+  vector<bool>
+  EventSelector::combine(vector<bool> const& a,
+                          vector<bool> const& b)
   {
     assert(a.size() == b.size());
-    std::vector<bool> x(a.size());
+    vector<bool> x(a.size());
     for (unsigned int i = 0; i != a.size(); ++i) {
       x[i] = a[i] || b[i];
     } // a really sharp compiler will optimize the hell out of this,

@@ -1,12 +1,16 @@
 #include "art/Framework/Core/Actions.h"
+
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-
 #include "boost/lambda/lambda.hpp"
-
-#include <vector>
+#include "cetlib/container_algorithms.h"
 #include <iostream>
+#include <vector>
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art {
   namespace actions {
@@ -22,7 +26,7 @@ namespace art {
           table_[FailPath]="FailPath";
         }
 
-        typedef std::vector<const char*> Table;
+        typedef vector<const char*> Table;
         Table table_;
       };
     }
@@ -46,7 +50,7 @@ namespace art {
                         const fhicl::ParameterSet& pset)
     {
       using namespace boost::lambda;
-      typedef std::vector<std::string> vstring;
+      typedef vector<string> vstring;
 
       // we cannot have parameters in the main process section so look
       // for an untrakced (optional) ParameterSet called "options" for
@@ -56,14 +60,14 @@ namespace art {
       // exception type should be used so the catch can be more
       // specific.
 
-//      cerr << pset.toString() << std::endl;
+//      cerr << pset.toString() << endl;
 
       fhicl::ParameterSet defopts;
       fhicl::ParameterSet opts =
         pset.get<fhicl::ParameterSet>("options", defopts);
-      //cerr << "looking for " << actionName(code) << std::endl;
+      //cerr << "looking for " << actionName(code) << endl;
       vstring v =
-        opts.get<std::vector<std::string> >(actionName(code),vstring());
+        opts.get<vector<string> >(actionName(code),vstring());
       for_all(v, var(out)[_1] = code);
 
     }
@@ -102,8 +106,8 @@ namespace art {
       {
         ActionMap::const_iterator ib(map_.begin()),ie(map_.end());
         for(;ib!=ie;++ib)
-          std::cerr << ib->first << ',' << ib->second << '\n';
-        std::cerr << std::endl;
+          cerr << ib->first << ',' << ib->second << '\n';
+        cerr << endl;
       }
 
   }
@@ -111,13 +115,13 @@ namespace art {
   ActionTable::~ActionTable()
   { }
 
-  void ActionTable::add(const std::string& category,
+  void ActionTable::add(const string& category,
                         actions::ActionCodes code)
   {
     map_[category] = code;
   }
 
-  actions::ActionCodes ActionTable::find(const std::string& category) const
+  actions::ActionCodes ActionTable::find(const string& category) const
   {
     ActionMap::const_iterator i(map_.find(category));
     return i!=map_.end() ? i->second : actions::Rethrow;

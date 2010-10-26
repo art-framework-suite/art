@@ -15,7 +15,7 @@ it.
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/ParameterSet/MakeParameterSets.h"
+//#include "art/ParameterSet/MakeParameterSets.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/Presence.h"
@@ -172,10 +172,12 @@ int art_main(int argc, char* argv[])
   EventProcessorWithSentry proc;
   int rc = -1; // we should never return this value!
   try {
-    std::auto_ptr<art::EventProcessor>
+    std::auto_ptr<art::EventProcessor> procP;
+#if 0
         procP(new
               art::EventProcessor(processDesc, jobReportToken,
                              art::serviceregistry::kTokenOverrides));
+#endif  // 0
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();

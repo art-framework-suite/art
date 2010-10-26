@@ -1,34 +1,36 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
+
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/Algorithms.h"
 #include "art/Utilities/EDMException.h"
-
 #include "boost/algorithm/string.hpp"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <algorithm>
 #include <cctype>
 #include <iterator>
 #include <ostream>
 
-using fhicl::ParameterSet;
+
+using namespace cet;
+using namespace fhicl;
+using namespace std;
 
 
 namespace art {
 
   // The following typedef is used only in this implementation file, in
   // order to shorten several lines of code.
-  typedef std::vector<art::BranchDescription const*> VCBDP;
+  typedef vector<art::BranchDescription const*> VCBDP;
 
   namespace {
 
     //--------------------------------------------------
     // function partial_match is a helper for Rule. It encodes the
-    // matching of std::strings, and knows about wildcarding rules.
+    // matching of strings, and knows about wildcarding rules.
     inline
     bool
     partial_match(const boost::regex& regularExpression,
-                  const std::string& branchstring)
+                  const string& branchstring)
     {
       if (regularExpression.empty()) {
         if (branchstring == "") return true;
@@ -43,10 +45,10 @@ namespace art {
   // Class Rule is used to determine whether or not a given branch
   // (really a Group, as described by the BranchDescription object
   // that specifies that Group) matches a 'rule' specified by the
-  // configuration. Each Rule is configured with a single std::string from
+  // configuration. Each Rule is configured with a single string from
   // the configuration file.
   //
-  // The configuration std::string is of the form:
+  // The configuration string is of the form:
   //
   //   'keep <spec>'            ** or **
   //   'drop <spec>'
@@ -67,7 +69,7 @@ namespace art {
   // This class has much room for optimization. This should be
   // revisited as soon as profiling data are available.
 
-  GroupSelectorRules::Rule::Rule(std::string const& s, std::string const& parameterName, std::string const& owner) :
+  GroupSelectorRules::Rule::Rule(string const& s, string const& parameterName, string const& owner) :
     selectflag_(),
     productType_(),
     moduleLabel_(),
@@ -97,7 +99,7 @@ namespace art {
         << "    " << s << "\n"
         << "Exception thrown from GroupSelectorRules::Rule\n";
 
-    if ( !std::isspace(s[4]) ) {
+    if ( !isspace(s[4]) ) {
 
       throw art::Exception(art::errors::Configuration)
         << "Invalid statement in configuration file\n"
@@ -108,12 +110,12 @@ namespace art {
         << "Exception thrown from GroupSelectorRules::Rule\n";
     }
 
-    // Now pull apart the std::string to get at the bits and pieces of the
+    // Now pull apart the string to get at the bits and pieces of the
     // specification...
 
     // Grab from after 'keep/drop ' (note the space!) to the end of
-    // the std::string...
-    std::string spec(s.begin()+5, s.end());
+    // the string...
+    string spec(s.begin()+5, s.end());
 
     // Trim any leading and trailing whitespace from spec
     boost::trim(spec);
@@ -128,19 +130,19 @@ namespace art {
     }
     else
     {
-      std::vector<std::string> parts;
+      vector<string> parts;
       boost::split(parts, spec, boost::is_any_of("_"));
 
-      // The std::vector must contain at least 4 parts
+      // The vector must contain at least 4 parts
       // and none may be empty.
       bool good = (parts.size() == 4);
 
-      // Require all the std::strings to contain only alphanumberic
+      // Require all the strings to contain only alphanumberic
       // characters or "*" or "?"
       if (good)
       {
         for (int i = 0; i < 4; ++i) {
-          std::string& field = parts[i];
+          string& field = parts[i];
           int size = field.size();
           for (int j = 0; j < size; ++j) {
             if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
@@ -172,8 +174,8 @@ namespace art {
         << "Exception thrown from GroupSelectorRules::Rule\n";
       }
 
-      // Assign the std::strings to the regex (regular expression) objects
-      // If the std::string is empty we skip the assignment and leave
+      // Assign the strings to the regex (regular expression) objects
+      // If the string is empty we skip the assignment and leave
       // the regular expression also empty.
 
       if (parts[0] != "") productType_  = parts[0];
@@ -184,16 +186,16 @@ namespace art {
   }
 
   void
-  GroupSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
-    std::vector<BranchSelectState>::iterator it = branchstates.begin();
-    std::vector<BranchSelectState>::iterator end = branchstates.end();
+  GroupSelectorRules::Rule::applyToAll(vector<BranchSelectState>& branchstates) const {
+    vector<BranchSelectState>::iterator it = branchstates.begin();
+    vector<BranchSelectState>::iterator end = branchstates.end();
     for (; it != end; ++it) applyToOne(it->desc, it->selectMe);
   }
 
   void
-  GroupSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
-    std::vector<Rule>::const_iterator it = rules_.begin();
-    std::vector<Rule>::const_iterator end = rules_.end();
+  GroupSelectorRules::applyToAll(vector<BranchSelectState>& branchstates) const {
+    vector<Rule>::const_iterator it = rules_.begin();
+    vector<Rule>::const_iterator end = rules_.end();
     for (; it != end; ++it) it->applyToAll(branchstates);
   }
 
@@ -227,8 +229,8 @@ namespace art {
   }
 
   GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,
-                               std::string const& parameterName,
-                               std::string const& parameterOwnerName) :
+                               string const& parameterName,
+                               string const& parameterOwnerName) :
   rules_(),
   parameterName_(parameterName),
   parameterOwnerName_(parameterOwnerName)
@@ -236,13 +238,13 @@ namespace art {
     // Fill the rules.
     // If there is no parameter whose name is parameterName_ in the
     // ParameterSet we are given, we use the following default.
-    std::vector<std::string> defaultCommands(1U, std::string("keep *"));
+    vector<string> defaultCommands(1U, string("keep *"));
 
-    std::vector<std::string> commands =
-      pset.get<std::vector<std::string> >(parameterName,
+    vector<string> commands =
+      pset.get<vector<string> >(parameterName,
                                                     defaultCommands);
     rules_.reserve(commands.size());
-    for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();
+    for(vector<string>::const_iterator it = commands.begin(), end = commands.end();
         it != end; ++it) {
       rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
     }

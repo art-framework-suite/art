@@ -6,7 +6,7 @@
 #include "boost/thread/tss.hpp"
 
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/ParameterSet/MakeParameterSets.h"
+//#include "art/ParameterSet/MakeParameterSets.h"
 
 using fhicl::ParameterSet;
 
@@ -54,7 +54,7 @@ art::ServiceToken
 art::ServiceRegistry::createServicesFromConfig(std::string const& config) {
    boost::shared_ptr<std::vector<ParameterSet> > pServiceSets;
    boost::shared_ptr<ParameterSet> params;
-   art::makeParameterSets(config, params, pServiceSets);
+   //art::makeParameterSets(config, params, pServiceSets);
 
    //create the services
    return ServiceToken(art::ServiceRegistry::createSet(*pServiceSets.get()));

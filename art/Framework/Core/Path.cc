@@ -1,18 +1,19 @@
 #include "art/Framework/Core/Path.h"
 
 #include "art/Framework/Core/Actions.h"
-#include "art/Utilities/Algorithms.h"
-
-#include "MessageFacility/MessageLogger.h"
 #include "boost/bind.hpp"
-
+#include "cetlib/container_algorithms.h"
+#include "MessageFacility/MessageLogger.h"
 #include <algorithm>
 
-using fhicl::ParameterSet;
+
+using namespace cet;
+using namespace fhicl;
+using namespace std;
 
 
 namespace art {
-  Path::Path(int bitpos, std::string const& path_name,
+  Path::Path(int bitpos, string const& path_name,
              WorkersInPath const& workers,
              TrigResPtr trptr,
              ParameterSet const&,

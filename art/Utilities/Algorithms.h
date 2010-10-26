@@ -1,3 +1,6 @@
+#error "obsolete Utilities/Algorithms.h"
+
+
 #ifndef FWCore_Utilities_Algorithms_h
 #define FWCore_Utilities_Algorithms_h
 

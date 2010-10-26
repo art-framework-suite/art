@@ -1,27 +1,26 @@
 #ifndef DataFormats_Provenance_BranchMapper_h
 #define DataFormats_Provenance_BranchMapper_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// BranchMapper: Manages the per event/subRun/run per product provenance.
+//
+// ======================================================================
 
-BranchMapper: Manages the per event/subRun/run per product provenance.
-
-----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <set>
-#include <map>
-#include "boost/shared_ptr.hpp"
 
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Utilities/Algorithms.h"
+#include "boost/shared_ptr.hpp"
+#include "cetlib/container_algorithms.h"
+#include <iosfwd>
+#include <map>
+#include <set>
 
-/*
-  BranchMapper
-
-*/
 
 namespace art {
+
   class ProductID;
+
   class BranchMapper {
   public:
     BranchMapper();
@@ -66,5 +65,7 @@ namespace art {
     p.write(os);
     return os;
   }
-}
-#endif
+
+}  // namespace art
+
+#endif  // DataFormats_Provenance_BranchMapper_h

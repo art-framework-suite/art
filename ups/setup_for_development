@@ -9,9 +9,9 @@
 #    set fw_db=/some/path; source /some/path/this_file
 # or  fw_db=/some/path; . /some/path/this_file
 #
-# If ART_WORKDIR is undefined, it is set to whatever directory 
+# If ART_BUILD is undefined, it is set to whatever directory 
 # you are in when this script is invoked.
-# $ART_WORKDIR/lib is added to LD_LIBRARY_PATH
+# $ART_BUILD/lib is added to LD_LIBRARY_PATH
 
 test $?shell = 1 && set ss=csh || ss=sh
 #echo Shell type is $ss.
@@ -32,17 +32,17 @@ tnotnull UPS_DIR || echo "$msg2"
 # note that we do not test for them first...
 # use setup -j to avoid pulling dependencies
 setup cmake
-setup cetbuildtools v1_3_0
 setup -j cppunit v1_12_1 -q a1 
 setup -j gccxml v0_9 -q a1 
 setup -j libsigcpp v2_2_7 -q a1 
 setup -j clhep v2_1_0_0 -q a1 
 setup -j root v5_26_00d -q GCC_4_5_1
 setup -j messagefacility v1_5_0 -q a1
-setup -j fhiclcpp v2_1_0 -q a1
+setup -j fhiclcpp v2_2_0 -q a1
 setup -j cpp0x v0_0_0 -q a1
 setup -j cetlib v0_1_1 -q a1
 setup -j boost v1_44_0 -q a1
+setup cetbuildtools v1_4_0
 setup gcc v4_5_1
 
 test $?shell = 1 && set ss=csh || ss=sh
@@ -63,19 +63,19 @@ test -z "$db" -a "$ss" = csh && set me=`history 1|sed 's/^[ 	0-9:]*//'` && test 
     && set db=`sh -c "cd $me >/dev/null 2>&1 && pwd"` && vecho_ 'setting db via interactive history'
 
 test -z "$db" && echo "$msg" || vecho_ "db=$db"
-test -n "$db" && setenv ART_CODE `dirname $db`
+test -n "$db" && setenv ART_SOURCE `dirname $db`
 #echo This script lives in $db
 
-tnotnull ART_WORKDIR && set_ fwdir=$ART_WORKDIR || set_ fwdir=`pwd`
-test -n "$fwdir" && setenv ART_WORKDIR $fwdir
+tnotnull ART_BUILD && set_ fwdir=$ART_BUILD || set_ fwdir=`pwd`
+test -n "$fwdir" && setenv ART_BUILD $fwdir
 test -d "$fwdir/lib" || mkdir -p $fwdir/lib
 echo The workng build directory is $fwdir
 
-tnotnull ART_WORKDIR && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_WORKDIR}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${ART_WORKDIR}/lib:${LD_LIBRARY_PATH}
+tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
 
 echo
-echo ART_CODE=$ART_CODE
-echo ART_WORKDIR=$ART_WORKDIR
+echo ART_SOURCE=$ART_SOURCE
+echo ART_BUILD=$ART_BUILD
 echo $fwdir/lib has been added to LD_LIBRARY_PATH
 echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}

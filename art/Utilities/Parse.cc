@@ -1,20 +1,27 @@
 #include "art/Utilities/Parse.h"
+
 #include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-#include <boost/tokenizer.hpp>
+#include "boost/tokenizer.hpp"
+#include "cetlib/container_algorithms.h"
 #include <fstream>
 #include <iostream>
+#include <iterator>
+
+
+using namespace cet;
+using namespace std;
+
 
 namespace art {
 
-    std::string  read_whole_file(std::string const& filename) {
-      std::string result;
-      std::ifstream input(filename.c_str());
+    string  read_whole_file(string const& filename) {
+      string result;
+      ifstream input(filename.c_str());
       if (!input) {
        throw art::Exception(errors::Configuration,"MissingFile")
          << "Cannot read file " << filename;
       }
-      std::string buffer;
+      string buffer;
       while (getline(input, buffer)) {
           // getline strips newlines; we have to put them back by hand.
           result += buffer;
@@ -24,17 +31,17 @@ namespace art {
     }
 
 
-    void read_from_cin(std::string & output) {
-      std::string line;
-      while (getline(std::cin, line)) {
+    void read_from_cin(string & output) {
+      string line;
+      while (getline(cin, line)) {
         output += line;
         output += '\n';
       }
     }
 
 
-    std::string withoutQuotes(const std::string& from) {
-      std::string result = from;
+    string withoutQuotes(const string& from) {
+      string result = from;
       if(!result.empty()) {
       // get rid of leading quotes
         if(result[0] == '"' || result[0] == '\'') {
@@ -53,17 +60,16 @@ namespace art {
     }
 
 
-    std::vector<std::string>
-    tokenize(const std::string & input, const std::string &separator) {
+    vector<string>
+    tokenize(const string & input, const string &separator) {
       typedef boost::char_separator<char>   separator_t;
       typedef boost::tokenizer<separator_t> tokenizer_t;
 
-      std::vector<std::string> result;
+      vector<string> result;
       separator_t  sep(separator.c_str(), "", boost::keep_empty_tokens); // separator for elements in path
       tokenizer_t  tokens(input, sep);
-      copy_all(tokens, std::back_inserter<std::vector<std::string> >(result));
+      copy_all(tokens, back_inserter<vector<string> >(result));
       return result;
     }
 
 } // namespace art
-

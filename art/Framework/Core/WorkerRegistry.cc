@@ -1,12 +1,3 @@
-/**
-   \file
-   Implementation of class WorkerRegistry
-
-   \author Stefano ARGIRO
-   \version
-   \date 18 May 2005
-*/
-
 
 #include "art/Framework/Core/WorkerRegistry.h"
 
@@ -85,11 +76,11 @@ namespace art {
 						     ReleaseVersion const& releaseVersion,
 						     PassID const& passID) {
 
-    std::stringstream mangled_parameters;
-    mangled_parameters<< parameterSet.toString()
-		      << processName
-		      << releaseVersion
-		      << passID;
+  std::stringstream mangled_parameters;
+  mangled_parameters<< parameterSet.to_string()
+                    << processName
+                    << releaseVersion
+                    << passID;
 
     return mangled_parameters.str();
 

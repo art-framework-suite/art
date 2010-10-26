@@ -1,3 +1,6 @@
+#error "Obsolete Utilities/value_ptr.h"
+
+
 #ifndef FWCoreUtilities_value_ptr_h
 #define FWCoreUtilities_value_ptr_h
 
