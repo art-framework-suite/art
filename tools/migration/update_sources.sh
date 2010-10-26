@@ -97,7 +97,7 @@ if [[ -n "${file}" ]]; then
     one_file "$file"
   fi
 else
-  for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups \) \
+  for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups -o -path '*/tools/migration' \) \
                        -prune \) -o -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) -print`; do
     one_file "$F"
   done
