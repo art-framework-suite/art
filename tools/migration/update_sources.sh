@@ -41,13 +41,13 @@ function one_file() {
   ed "$F" < pop.ed > /dev/null 2>&1
   # Account for two additional moved files
   ed "$F" < movedfile_20100901_112607.ed > /dev/null 2>&1
-  ed "$F" < movedfile_20100907_150621.ed > /dev/null 2>&1
+  ed "$F" < movedfile_20100907_152621.ed > /dev/null 2>&1
   # Fix includes in and of .icc files
   perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix ParameterSet calls
   perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix edm and cms namespaces
-  perl -wapi\~ -f fix-namespaces.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  perl -wapi\~ -f fix-namespaces.pl   "${F}" >/dev/null 2>&1 && rm -f "${F}~"
 
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then
@@ -97,7 +97,7 @@ if [[ -n "${file}" ]]; then
     one_file "$file"
   fi
 else
-  for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups \) \
+  for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups -o -path '*/tools/migration' -o -path '*/art/ParameterSet' \) \
                        -prune \) -o -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) -print`; do
     one_file "$F"
   done

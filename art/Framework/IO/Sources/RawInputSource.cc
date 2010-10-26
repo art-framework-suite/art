@@ -86,7 +86,7 @@ namespace art {
     if (e.get() == 0) {
       return IsStop;
     } else {
-      e->commit_();
+       commitEvent(*e);
     }
     if (e->run() != runNumber_) {
       newRun_ = newSubRun_ = true;

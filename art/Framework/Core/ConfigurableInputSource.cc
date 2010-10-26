@@ -63,7 +63,7 @@ namespace art {
        const_cast<RunPrincipal &>(*runPrincipal);
     Run run(rp, moduleDescription());
     beginRun(run);
-    run.commit_();
+    commitRun(run);
     newRun_ = false;
     return runPrincipal;
   }
@@ -78,7 +78,7 @@ namespace art {
             subRunAux, productRegistry(), processConfiguration()));
     SubRun lb(*subRunPrincipal, moduleDescription());
     beginSubRun(lb);
-    lb.commit_();
+    commitSubRun(lb);
     newSubRun_ = false;
     return subRunPrincipal;
   }
@@ -102,7 +102,7 @@ namespace art {
       ep_.reset();
       return;
     }
-    e.commit_();
+    commitEvent(e);
     ep_ = result;
   }
 
