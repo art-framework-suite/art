@@ -42,7 +42,7 @@ void work()
       "process.out = cms.OutputModule('AsciiOutputModule')\n"
       "process.p1 = cms.Path(process.m1*process.m2)\n"
       "process.ep1 = cms.EndPath(process.out)");
-  edm::EventProcessor proc(configuration, true);
+  art::EventProcessor proc(configuration, true);
   proc.beginJob();
   proc.run();
   proc.endJob();
@@ -51,7 +51,7 @@ void work()
 void testeventprocessor2::eventprocessor2Test()
 {
   try { work();}
-  catch (cms::Exception& e) {
+  catch (artZ::Exception& e) {
       std::cerr << "CMS exception caught: "
 		<< e.explainSelf() << std::endl;
       CPPUNIT_ASSERT("Exception caught in testeventprocessor2::eventprocessor2Test"==0);

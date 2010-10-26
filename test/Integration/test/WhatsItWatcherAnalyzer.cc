@@ -39,23 +39,23 @@
 // class decleration
 //
 
-namespace edmtest {
+namespace arttest {
 
-class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
+class WhatsItWatcherAnalyzer : public art::EDAnalyzer {
    public:
-      explicit WhatsItWatcherAnalyzer(const edm::ParameterSet&);
+      explicit WhatsItWatcherAnalyzer(const art::ParameterSet&);
       ~WhatsItWatcherAnalyzer();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const art::Event&, const art::EventSetup&);
    private:
       // ----------member data ---------------------------
         void watch1(const GadgetRcd& );
         void watch2(const GadgetRcd& );
 
-        edm::ESWatcher<GadgetRcd> watch1_;
-        edm::ESWatcher<GadgetRcd> watch2_;
-        edm::ESWatcher<GadgetRcd> watchBool_;
+        art::ESWatcher<GadgetRcd> watch1_;
+        art::ESWatcher<GadgetRcd> watch2_;
+        art::ESWatcher<GadgetRcd> watchBool_;
 
 };
 
@@ -70,7 +70,7 @@ class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const edm::ParameterSet& /*iConfig*/):
+WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const art::ParameterSet& /*iConfig*/):
   watch1_(this,&WhatsItWatcherAnalyzer::watch1),
   watch2_(boost::bind(&WhatsItWatcherAnalyzer::watch2,this,_1)),
   watchBool_()
@@ -95,7 +95,7 @@ WhatsItWatcherAnalyzer::~WhatsItWatcherAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-WhatsItWatcherAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
+WhatsItWatcherAnalyzer::analyze(const art::Event& /*iEvent*/, const art::EventSetup& iSetup)
 {
    bool w1 = watch1_.check(iSetup);
    bool w2 = watch2_.check(iSetup);
@@ -107,7 +107,7 @@ WhatsItWatcherAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSe
 void
 WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd)
 {
-  edm::ESHandle<edmtest::WhatsIt> pSetup;
+  art::ESHandle<arttest::WhatsIt> pSetup;
   iRcd.get(pSetup);
 
   std::cout <<"watch1: WhatsIt "<<pSetup->a<<" changed"<<std::endl;
@@ -116,13 +116,13 @@ WhatsItWatcherAnalyzer::watch1(const GadgetRcd& iRcd)
 void
 WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd)
 {
-  edm::ESHandle<WhatsIt> pSetup;
+  art::ESHandle<WhatsIt> pSetup;
   iRcd.get(pSetup);
 
   std::cout <<"watch2: WhatsIt "<<pSetup->a<<" changed"<<std::endl;
 }
 
 }
-using namespace edmtest;
+using namespace arttest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItWatcherAnalyzer);

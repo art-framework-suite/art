@@ -4,7 +4,7 @@
 #include "art/Persistency/Common/EDProductGetter.h"
 #include <string>
 
-namespace edm {
+namespace art {
   class ProductID;
   class RefHolderBase;
 
@@ -16,7 +16,7 @@ namespace edm {
     // Class template BaseHolder<T>
     //
     // BaseHolder<T> is an abstract base class that manages a single
-    // edm::Ref to an element of type T in a collection in the Event;
+    // art::Ref to an element of type T in a collection in the Event;
     // the purpose of this abstraction is to hide the type of the
     // collection from code that can not know about that type.
     //

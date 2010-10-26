@@ -8,12 +8,10 @@
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/ParameterSet/ParameterSetfwd.h"
-
 #include <string>
 
 
-namespace edm
+namespace art
 {
 
   class EDAnalyzer
@@ -77,6 +75,6 @@ namespace edm
     CurrentProcessingContext const* current_context_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_EDAnalyzer_h

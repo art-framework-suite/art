@@ -14,7 +14,7 @@ Forward declarations of types in the EDM.
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ConfigurableInputSource;
   class CurrentProcessingContext;
   class DataViewImpl;

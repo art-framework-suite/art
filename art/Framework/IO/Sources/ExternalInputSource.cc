@@ -2,7 +2,7 @@
 
 using fhicl::ParameterSet;
 
-namespace edm {
+namespace art {
 
   ExternalInputSource::ExternalInputSource( ParameterSet const& pset
                                           , InputSourceDescription const& desc
@@ -15,4 +15,4 @@ namespace edm {
   ExternalInputSource::~ExternalInputSource()
   { }
 
-}  // namespace edm
+}  // namespace art

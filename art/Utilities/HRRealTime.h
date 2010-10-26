@@ -12,7 +12,7 @@
  *  Performance comparison make sense only if the clock-rate has been fixed
  */
 
-namespace edm {
+namespace art {
   namespace details {
 
     //
@@ -65,7 +65,7 @@ namespace edm {
  }
 }
 
-namespace edm {
+namespace art {
 
   typedef long long int HRTimeDiffType;
   typedef unsigned long long int HRTimeType;

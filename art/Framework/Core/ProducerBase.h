@@ -16,7 +16,7 @@ EDProducts into an Event.
 #include "boost/function.hpp"
 #include "boost/shared_ptr.hpp"
 #include <string>
-namespace edm {
+namespace art {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;

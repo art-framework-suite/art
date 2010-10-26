@@ -11,13 +11,6 @@ install(FILES OtherThingCollectionfwd.h
 	      ThingWithIsEqual.h
 	      ThingWithMerge.h
 	      ToyProducts.h
-	DESTINATION include/DataFormats/TestObjects/interface )
->>><<<
-# project name
-project(DataFormatsTestObjects)
+	DESTINATION ${product}/${version}/include/DataFormats/TestObjects/interface )
 
-# version number
-set (DataFormatsTestObjects_VERSION_MAJOR 1)
-set (DataFormatsTestObjects_VERSION_MINOR 0)
-
-build_plugin( DataFormats TestObjects )
+build_dictionary( DataFormats TestObjects )

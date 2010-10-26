@@ -18,7 +18,7 @@ The MessageLogger service can provide statistics about the message issued
 during the course of a job.  The information is placed in tables either at the
 end of a log file or in an individual file.  The user code can also
 trigger statistics summaries of messages issued thus far --
-<br> see <a href="#LogStatistics"> The edm::LogStatistics() Function</a>
+<br> see <a href="#LogStatistics"> The art::LogStatistics() Function</a>
 <p>
 These statistics tables, written when the MessageLogger service encounters its
 postEndJob callback, include:
@@ -122,24 +122,24 @@ Error                   6                   6
 
 <p><hr><p>
 <a name="LogStatistics">
-<h2>The edm::LogStatistics() Function</h2>
+<h2>The art::LogStatistics() Function</h2>
 
 The user program can force each statistics destination to write its current
 message counts and summary to its file or stream, before the end of job
 automatically causes that writing.  To do this, invoke the function
 <font color=blue>
 <pre>
-edm::LogStatistics();
+art::LogStatistics();
 </pre>
 </font>
-(Just as for edm::LogError() and the other message commands, this function
+(Just as for art::LogError() and the other message commands, this function
 is defined by including <code>MessageLogger.h</code>).
 <p>
 While ordinary analysis code probably has no need to invoke this,
 one can use the framework's features to set up a sensible schedule of
 outputting statistics.
 For example, one can place a call to
-<font color=blue>edm::LogStatistics()</font>
+<font color=blue>art::LogStatistics()</font>
 in a postRun callback.
 <p>
 The default behavior is to output the statistics thus far accumulated,
@@ -164,10 +164,10 @@ process TEST =
 
 In this example, the statistics kept by
 <code>runstats.txt</code> will be reset after each statistics output
-triggered by <code>edm::LogStatistics()</code>.
+triggered by <code>art::LogStatistics()</code>.
 <p>
 Of course, the <code>bool reset</code> parameter is moot if the
-program never explicitly invokes <code>edm::LogStatistics()</code>, since
+program never explicitly invokes <code>art::LogStatistics()</code>, since
 it is immaterial whether the statistics are reset after the final automatic
 end-of-job summary is output.
 

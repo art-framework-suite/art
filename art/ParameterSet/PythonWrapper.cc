@@ -1,7 +1,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/ParameterSet/PythonWrapper.h"
 #include <iostream>
-namespace edm {
+namespace art {
 
 void pythonToCppException(const std::string& iType)
  {
@@ -30,11 +30,11 @@ void pythonToCppException(const std::string& iType)
     object stringExc( hStringExc);
 
     //PyErr_Print();
-    throw cms::Exception(iType) <<"python encountered the error: "
+    throw artZ::Exception(iType) <<"python encountered the error: "
                                 << PyString_AsString(stringExc.ptr())<<" "
                                 << PyString_AsString(stringVal.ptr())<<"\n";
   } else {
-    throw cms::Exception(iType)<<" unknown python problem occurred.\n";
+    throw artZ::Exception(iType)<<" unknown python problem occurred.\n";
   }
 }
 

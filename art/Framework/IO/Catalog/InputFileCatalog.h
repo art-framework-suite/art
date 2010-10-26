@@ -19,7 +19,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class InputFileCatalog : public FileCatalog {
   public:
@@ -40,6 +40,6 @@ namespace edm {
     std::vector<FileCatalogItem> fileCatalogItems_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Catalog_InputFileCatalog_h

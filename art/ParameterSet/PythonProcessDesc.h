@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/PythonProcessDesc.h"
+
+
 #if 0
 #ifndef PythonProcessDesc_h
 #define PythonProcessDesc_h
@@ -28,7 +31,7 @@ public:
   std::string dump() const;
 
   // makes a new (copy) of the ProcessDesc
-  boost::shared_ptr<edm::ProcessDesc> processDesc() const;
+  boost::shared_ptr<art::ProcessDesc> processDesc() const;
 
 private:
   void prepareToRead();

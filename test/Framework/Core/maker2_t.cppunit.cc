@@ -18,7 +18,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-using namespace edm;
+using namespace art;
 
 class TestMod : public EDProducer
 {
@@ -33,7 +33,7 @@ TestMod::TestMod(ParameterSet const&)
 
 void TestMod::produce(Event&, EventSetup const&)
 {
-  edm::CurrentProcessingContext const* p = currentContext();
+  art::CurrentProcessingContext const* p = currentContext();
   CPPUNIT_ASSERT( p != 0 );
   CPPUNIT_ASSERT( p->moduleDescription() != 0 );
   CPPUNIT_ASSERT( p->moduleLabel() != 0 );
@@ -67,11 +67,11 @@ void testmaker2::maker2Test()
   p2.addParameter("@module_type",std::string("TestMod") );
   p2.addParameter("@module_label",std::string("t2") );
 
-  edm::ActionTable table;
+  art::ActionTable table;
 
-  edm::ProductRegistry preg;
-  edm::WorkerParams params1(p1, p1, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
-  edm::WorkerParams params2(p2, p2, preg, table, "PROD", edm::getReleaseVersion(), edm::getPassID());
+  art::ProductRegistry preg;
+  art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
+  art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
   sigc::signal<void, const ModuleDescription&> aSignal;
   std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);

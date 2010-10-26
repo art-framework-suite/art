@@ -1,5 +1,6 @@
 #include "art/Framework/Core/EventProcessor.h"
 
+
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
@@ -24,24 +25,22 @@
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
-
-  using edm::serviceregistry::ServiceLegacy;
-  using edm::serviceregistry::kOverlapIsError;
-
-#include "MessageFacility/MessageLogger.h"
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
-
-  using boost::shared_ptr;
-  using fhicl::ParameterSet;
-
+#include "MessageFacility/MessageLogger.h"
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <utility>
 
 
-namespace edm {
+using art::serviceregistry::ServiceLegacy;
+using art::serviceregistry::kOverlapIsError;
+using boost::shared_ptr;
+using fhicl::ParameterSet;
+
+
+namespace art {
 
   namespace event_processor {
 
@@ -59,7 +58,7 @@ namespace edm {
   }
 
   using namespace event_processor;
-  using namespace edm::service;
+  using namespace art::service;
 
   namespace {
 
@@ -208,7 +207,7 @@ namespace edm {
     bool sourceSpecified = false;
     try {
       ParameterSet main_input =
-        params.getParameterSet("@main_input");
+        params.get<fhicl::ParameterSet>("@main_input");
 
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
@@ -216,7 +215,7 @@ namespace edm {
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
       md.moduleName_ =
-        main_input.getString("@module_type");
+        main_input.get<std::string>("@module_type");
       // There is no module label for the unnamed input source, so
       // just use "source".
       md.moduleLabel_ = "source";
@@ -231,10 +230,10 @@ namespace edm {
 
       return input;
     }
-    catch(edm::Exception const& iException) {
+    catch(art::Exception const& iException) {
         if(sourceSpecified == false &&
            errors::Configuration == iException.categoryCode()) {
-            throw edm::Exception(errors::Configuration, "FailedInputSource")
+            throw art::Exception(errors::Configuration, "FailedInputSource")
               << "Configuration of main input source has failed\n"
               << iException;
         } else {
@@ -276,7 +275,7 @@ namespace edm {
     shouldWeStop_(false),
     alreadyHandlingException_(false)
   {
-    boost::shared_ptr<edm::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
   }
@@ -310,12 +309,12 @@ namespace edm {
     shouldWeStop_(false),
     alreadyHandlingException_(false)
   {
-    boost::shared_ptr<edm::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
+    boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
   }
 
-  EventProcessor::EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+  EventProcessor::EventProcessor(boost::shared_ptr<art::ProcessDesc> & processDesc,
                  ServiceToken const& token,
                  serviceregistry::ServiceLegacy legacy) :
     preProcessEventSignal_(),
@@ -377,18 +376,18 @@ namespace edm {
   {
     if(isPython)
     {
-      boost::shared_ptr<edm::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
+      boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
     else
     {
-      boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+      boost::shared_ptr<art::ProcessDesc> processDesc(new art::ProcessDesc(config));
       init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
     }
   }
 
   void
-  EventProcessor::init(boost::shared_ptr<edm::ProcessDesc> & processDesc,
+  EventProcessor::init(boost::shared_ptr<art::ProcessDesc> & processDesc,
                         ServiceToken const& iToken,
                         serviceregistry::ServiceLegacy iLegacy) {
 
@@ -402,13 +401,13 @@ namespace edm {
 
     shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
 
-    ParameterSet optionsPset(parameterSet->getPSet("options", ParameterSet()));
-    fileMode_ = optionsPset.getString("fileMode", "");
-    handleEmptyRuns_ = optionsPset.getBool("handleEmptyRuns", true);
-    handleEmptySubRuns_ = optionsPset.getBool("handleEmptySubRuns", true);
+    ParameterSet optionsPset(parameterSet->get<fhicl::ParameterSet>("options", ParameterSet()));
+    fileMode_ = optionsPset.get<std::string>("fileMode", "");
+    handleEmptyRuns_ = optionsPset.get<bool>("handleEmptyRuns", true);
+    handleEmptySubRuns_ = optionsPset.get<bool>("handleEmptySubRuns", true);
 
-    maxEventsPset_ = parameterSet->getPSet("maxEvents", ParameterSet());
-    maxSubRunsPset_ = parameterSet->getPSet("maxSubRuns", ParameterSet());
+    maxEventsPset_ = parameterSet->get<fhicl::ParameterSet>("maxEvents", ParameterSet());
+    maxSubRunsPset_ = parameterSet->get<fhicl::ParameterSet>("maxSubRuns", ParameterSet());
 
     shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
     //makeParameterSets(config, parameterSet, pServiceSets);
@@ -430,9 +429,9 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and
     // create a service and extra token for it
-    std::string processName = parameterSet->getString("@process_name");
+    std::string processName = parameterSet->get<std::string>("@process_name");
 
-    typedef edm::service::TriggerNamesService TNS;
+    typedef art::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
     shared_ptr<w_TNS> tnsptr
@@ -450,8 +449,8 @@ namespace edm {
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
-                           maxEventsPset_.getInt("input", -1),
-                           maxSubRunsPset_.getInt("input", -1));
+                           maxEventsPset_.get<int>("input", -1),
+                           maxSubRunsPset_.get<int>("input", -1));
 
     input_= makeInput(*parameterSet, common, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>
@@ -488,7 +487,7 @@ namespace edm {
     try {
       changeState(mDtor);
     }
-    catch(cms::Exception& e)
+    catch(artZ::Exception& e)
       {
         mf::LogError("System") << e.explainSelf() << "\n";
       }
@@ -611,10 +610,10 @@ namespace edm {
     // to be called.
     try {
       input_->doBeginJob();
-    } catch(cms::Exception& e) {
-      mf::LogError("BeginJob") << "A cms::Exception happened while processing"
+    } catch(artZ::Exception& e) {
+      mf::LogError("BeginJob") << "A artZ::Exception happened while processing"
                                   " the beginJob of the 'source'\n";
-      e << "A cms::Exception happened while processing"
+      e << "A artZ::Exception happened while processing"
            " the beginJob of the 'source'\n";
       throw;
     } catch(std::exception& e) {
@@ -884,7 +883,7 @@ namespace edm {
         ++rc);
 
     if(table[rc].current == sInvalid)
-      throw cms::Exception("BadState")
+      throw artZ::Exception("BadState")
         << "A member function of EventProcessor has been called in an"
         << " inappropriate order.\n"
         << "Bad transition from " << stateName(curr) << " "
@@ -907,7 +906,7 @@ namespace edm {
       if(id_set_==true) {
           std::string err("runAsync called while async event loop already running\n");
           mf::LogError("FwkJob") << err;
-          throw cms::Exception("BadState") << err;
+          throw artZ::Exception("BadState") << err;
       }
 
       changeState(mRunAsync);
@@ -920,7 +919,7 @@ namespace edm {
       timeout.sec += 60; // 60 seconds to start!!!!
       if(starter_.timed_wait(sl,timeout)==false) {
           // yikes - the thread did not start
-          throw cms::Exception("BadState")
+          throw artZ::Exception("BadState")
             << "Async run thread did not start in 60 seconds\n";
       }
     }
@@ -956,8 +955,8 @@ namespace edm {
       bool onlineStateTransitions = true;
       rc = me->runToCompletion(onlineStateTransitions);
     }
-    catch (cms::Exception& e) {
-      mf::LogError("FwkJob") << "cms::Exception caught in "
+    catch (artZ::Exception& e) {
+      mf::LogError("FwkJob") << "artZ::Exception caught in "
                                 "EventProcessor::asyncRun\n"
                              << e.explainSelf();
       me->last_error_text_ = e.explainSelf();
@@ -987,7 +986,7 @@ namespace edm {
   }
 
 
-  edm::EventProcessor::StatusCode
+  art::EventProcessor::StatusCode
   EventProcessor::runToCompletion(bool onlineStateTransitions) {
 
     StateSentry toerror(this);
@@ -996,7 +995,7 @@ namespace edm {
     StatusCode returnCode = runCommon(onlineStateTransitions, numberOfEventsToProcess);
 
     if (machine_.get() != 0) {
-      throw edm::Exception(errors::LogicError)
+      throw art::Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
         << "Please report this error to the Framework group\n";
     }
@@ -1006,7 +1005,7 @@ namespace edm {
     return returnCode;
   }
 
-  edm::EventProcessor::StatusCode
+  art::EventProcessor::StatusCode
   EventProcessor::runEventCount(int numberOfEventsToProcess) {
 
     StateSentry toerror(this);
@@ -1019,7 +1018,7 @@ namespace edm {
     return returnCode;
   }
 
-  edm::EventProcessor::StatusCode
+  art::EventProcessor::StatusCode
   EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
 
     beginJob(); //make sure this was called
@@ -1041,7 +1040,7 @@ namespace edm {
       else if (fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
       else if (fileMode_ == std::string("FULLLUMIMERGE")) fileMode = statemachine::FULLLUMIMERGE;
       else {
-        throw edm::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
+        throw art::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
             << fileMode_ << ".\n"
             << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
       }
@@ -1087,7 +1086,7 @@ namespace edm {
         // Look for a shutdown signal
         {
           boost::mutex::scoped_lock sl(usr2_lock);
-          if (edm::shutdown_flag) {
+          if (art::shutdown_flag) {
             changeState(mShutdownSignal);
             returnCode = epSignal;
             machine_->process_event(statemachine::Stop());
@@ -1119,7 +1118,7 @@ namespace edm {
         }
         // This should be impossible
         else {
-          throw edm::Exception(errors::LogicError)
+          throw art::Exception(errors::LogicError)
             << "Unknown next item type passed to EventProcessor\n"
             << "Please report this error to the Framework group\n";
         }
@@ -1176,11 +1175,11 @@ namespace edm {
     // We've seen crashes which are not understood when that is not
     // done.  Maintainers of this code should be careful about this.
 
-    catch (cms::Exception& e) {
+    catch (artZ::Exception& e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      e << "cms::Exception caught in EventProcessor and rethrown\n";
+      e << "artZ::Exception caught in EventProcessor and rethrown\n";
       e << exceptionMessageSubRuns_;
       e << exceptionMessageRuns_;
       e << exceptionMessageFiles_;
@@ -1190,8 +1189,8 @@ namespace edm {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      throw cms::Exception("std::bad_alloc")
-        << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
+      throw artZ::Exception("std::bad_alloc")
+        << "The EventProcessor caught a std::bad_alloc exception and converted it to a artZ::Exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
@@ -1201,8 +1200,8 @@ namespace edm {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      throw cms::Exception("StdException")
-        << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
+      throw artZ::Exception("StdException")
+        << "The EventProcessor caught a std::exception and converted it to a artZ::Exception\n"
         << "Previous information:\n" << e.what() << "\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
@@ -1212,8 +1211,8 @@ namespace edm {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      throw cms::Exception("Unknown")
-        << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
+      throw artZ::Exception("Unknown")
+        << "The EventProcessor caught an unknown exception type and converted it to a artZ::Exception\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -1227,7 +1226,7 @@ namespace edm {
     if (!onlineStateTransitions) changeState(mFinished);
 
     if (stateMachineWasInErrorState_) {
-      throw cms::Exception("BadState")
+      throw artZ::Exception("BadState")
         << "The boost state machine in the EventProcessor exited after\n"
         << "entering the Error state.\n";
     }

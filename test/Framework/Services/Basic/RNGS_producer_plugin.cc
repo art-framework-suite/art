@@ -21,11 +21,11 @@
 namespace test {
 
   class RNGS_producer
-    : public edm::EDProducer
+    : public art::EDProducer
   {
   public:
     explicit
-      RNGS_producer( edm::ParameterSet const & pset )
+      RNGS_producer( art::ParameterSet const & pset )
       : this_event_number( 0u )
       , flat1            ( createEngine( get_seed_value(pset,"seed1")
                                        , "JamesRandom"
@@ -44,7 +44,7 @@ namespace test {
     { }
 
     virtual void
-      produce( edm::Event & ev, edm::EventSetup const & )
+      produce( art::Event & ev, art::EventSetup const & )
     {
       const int  N  =  6;
       ++this_event_number;
@@ -79,7 +79,7 @@ namespace test {
                   ,  flat2;
 
     static int
-      get_seed( edm::ParameterSet const & pset
+      get_seed( art::ParameterSet const & pset
               , char const                key [ ] = "seed"
               )
     {

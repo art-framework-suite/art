@@ -67,25 +67,25 @@ public:
 
 private:
 
-  edm::ProcessConfiguration*
+  art::ProcessConfiguration*
   fake_single_module_process(std::string const& tag,
 			     std::string const& processName,
-			     edm::ParameterSet const& moduleParams,
-			     std::string const& release = edm::getReleaseVersion(),
-			     std::string const& pass = edm::getPassID() );
-  edm::BranchDescription*
+			     art::ParameterSet const& moduleParams,
+			     std::string const& release = art::getReleaseVersion(),
+			     std::string const& pass = art::getPassID() );
+  art::BranchDescription*
   fake_single_process_branch(std::string const& tag,
 			     std::string const& processName,
 			     std::string const& productInstanceName = std::string() );
 
-  std::map<std::string, edm::BranchDescription*>    branchDescriptions_;
-  std::map<std::string, edm::ProcessConfiguration*> processConfigurations_;
+  std::map<std::string, art::BranchDescription*>    branchDescriptions_;
+  std::map<std::string, art::ProcessConfiguration*> processConfigurations_;
 
-  edm::ProductRegistry*      pProductRegistry_;
-  edm::EventPrincipal*       pEvent_;
-  std::vector<edm::ProductID> contained_products_;
+  art::ProductRegistry*      pProductRegistry_;
+  art::EventPrincipal*       pEvent_;
+  std::vector<art::ProductID> contained_products_;
 
-  edm::EventID               eventID_;
+  art::EventID               eventID_;
 };
 
 //----------------------------------------------------------------------
@@ -96,47 +96,47 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 
 //----------------------------------------------------------------------
 
-edm::ProcessConfiguration*
+art::ProcessConfiguration*
 test_ep::fake_single_module_process(std::string const& tag,
 				    std::string const& processName,
-				    edm::ParameterSet const& moduleParams,
+				    art::ParameterSet const& moduleParams,
 				    std::string const& release,
 				    std::string const& pass)
 {
-  edm::ParameterSet processParams;
+  art::ParameterSet processParams;
   processParams.addParameter(processName, moduleParams);
   processParams.addParameter<std::string>("@process_name",
 					  processName);
 
-  edm::ProcessConfiguration* result =
-    new edm::ProcessConfiguration(processName, processParams.id(), release, pass);
+  art::ProcessConfiguration* result =
+    new art::ProcessConfiguration(processName, processParams.id(), release, pass);
   processConfigurations_[tag] = result;
   return result;
 }
 
-edm::BranchDescription*
+art::BranchDescription*
 test_ep::fake_single_process_branch(std::string const& tag,
 				    std::string const& processName,
 				    std::string const& productInstanceName)
 {
-  edm::ModuleDescription mod;
+  art::ModuleDescription mod;
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
-  edm::TypeID dummyType(typeid(edmtest::DummyProduct));
+  art::TypeID dummyType(typeid(arttest::DummyProduct));
   std::string productClassName = dummyType.userClassName();
   std::string friendlyProductClassName = dummyType.friendlyClassName();
-  edm::ParameterSet modParams;
+  art::ParameterSet modParams;
   modParams.addParameter<std::string>("@module_type", moduleClass);
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   mod.parameterSetID_ = modParams.id();
   mod.moduleName_ = moduleClass;
   mod.moduleLabel_ = moduleLabel;
-  edm::ProcessConfiguration* process =
+  art::ProcessConfiguration* process =
     fake_single_module_process(tag, processName, modParams);
   mod.processConfiguration_ = *process;
 
-  edm::BranchDescription* result =
-    new edm::BranchDescription(edm::InEvent,
+  art::BranchDescription* result =
+    new art::BranchDescription(art::InEvent,
 			       moduleLabel,
 			       processName,
 			       productClassName,
@@ -149,58 +149,58 @@ test_ep::fake_single_process_branch(std::string const& tag,
 
 void test_ep::setUp()
 {
-  edm::BranchIDListHelper::clearRegistries();
+  art::BranchIDListHelper::clearRegistries();
 
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.
-  eventID_ = edm::EventID(101, 20);
+  eventID_ = art::EventID(101, 20);
 
   // We can only insert products registered in the ProductRegistry.
-  pProductRegistry_ = new edm::ProductRegistry;
+  pProductRegistry_ = new art::ProductRegistry;
   pProductRegistry_->addProduct(*fake_single_process_branch("hlt",  "HLT"));
   pProductRegistry_->addProduct(*fake_single_process_branch("prod", "PROD"));
   pProductRegistry_->addProduct(*fake_single_process_branch("test", "TEST"));
   pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
-  edm::BranchIDListHelper::updateRegistries(*pProductRegistry_);
+  art::BranchIDListHelper::updateRegistries(*pProductRegistry_);
 
   // Put products we'll look for into the EventPrincipal.
   {
-    typedef edmtest::DummyProduct PRODUCT_TYPE;
-    typedef edm::Wrapper<PRODUCT_TYPE> WDP;
-    std::auto_ptr<edm::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+    typedef arttest::DummyProduct PRODUCT_TYPE;
+    typedef art::Wrapper<PRODUCT_TYPE> WDP;
+    std::auto_ptr<art::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
-    edm::BranchDescription branch = *branchDescriptions_[tag];
+    art::BranchDescription branch = *branchDescriptions_[tag];
 
     branch.init();
 
-    edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
-    edm::BranchKey const bk(branch);
-    edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+    art::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
+    art::BranchKey const bk(branch);
+    art::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-    const edm::ConstBranchDescription branchFromRegistry(it->second);
+    const art::ConstBranchDescription branchFromRegistry(it->second);
 
-    boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
-    std::auto_ptr<edm::ProductProvenance> branchEntryInfoPtr(
-      new edm::ProductProvenance(branchFromRegistry.branchID(),
-                               edm::productstatus::present(),
+    boost::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
+    std::auto_ptr<art::ProductProvenance> branchEntryInfoPtr(
+      new art::ProductProvenance(branchFromRegistry.branchID(),
+                               art::productstatus::present(),
                                entryDescriptionPtr));
 
-    edm::ProcessConfiguration* process = processConfigurations_[tag];
+    art::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);
-    std::string uuid = edm::createGlobalIdentifier();
-    edm::Timestamp now(1234567UL);
-    boost::shared_ptr<edm::ProductRegistry const> preg(pProductRegistry_);
-    edm::RunAuxiliary runAux(eventID_.run(), now, now);
-    boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, *process));
-    edm::SubRunAuxiliary subRunAux(rp->run(), 1, now, now);
-    boost::shared_ptr<edm::SubRunPrincipal>lbp(new edm::SubRunPrincipal(subRunAux, preg, *process));
+    std::string uuid = art::createGlobalIdentifier();
+    art::Timestamp now(1234567UL);
+    boost::shared_ptr<art::ProductRegistry const> preg(pProductRegistry_);
+    art::RunAuxiliary runAux(eventID_.run(), now, now);
+    boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, *process));
+    art::SubRunAuxiliary subRunAux(rp->run(), 1, now, now);
+    boost::shared_ptr<art::SubRunPrincipal>lbp(new art::SubRunPrincipal(subRunAux, preg, *process));
     lbp->setRunPrincipal(rp);
-    edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->subRun(), true);
-    pEvent_ = new edm::EventPrincipal(eventAux, preg, *process);
+    art::EventAuxiliary eventAux(eventID_, uuid, now, lbp->subRun(), true);
+    pEvent_ = new art::EventPrincipal(eventAux, preg, *process);
     pEvent_->setSubRunPrincipal(lbp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
   }
@@ -235,11 +235,11 @@ void test_ep::tearDown()
 
 void test_ep::failgetbyIdTest()
 {
-  edm::ProductID invalid;
-  CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(invalid), edm::Exception);
+  art::ProductID invalid;
+  CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(invalid), art::Exception);
 
-  edm::ProductID notpresent(0, 10000);
-  edm::BasicHandle h(pEvent_->getByProductID(notpresent));
+  art::ProductID notpresent(0, 10000);
+  art::BasicHandle h(pEvent_->getByProductID(notpresent));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -247,11 +247,11 @@ void test_ep::failgetbySelectorTest()
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::ProductID dummy;
-  edm::TypeID tid(dummy);
+  art::ProductID dummy;
+  art::TypeID tid(dummy);
 
-  edm::ProcessNameSelector pnsel("PROD");
-  edm::BasicHandle h(pEvent_->getBySelector(tid, pnsel));
+  art::ProcessNameSelector pnsel("PROD");
+  art::BasicHandle h(pEvent_->getBySelector(tid, pnsel));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -259,12 +259,12 @@ void test_ep::failgetbyLabelTest()
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::ProductID dummy;
-  edm::TypeID tid(dummy);
+  art::ProductID dummy;
+  art::TypeID tid(dummy);
 
   std::string label("this does not exist");
 
-  edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string()));
+  art::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string()));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -272,20 +272,20 @@ void test_ep::failgetManyTest()
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::ProductID dummy;
-  edm::TypeID tid(dummy);
+  art::ProductID dummy;
+  art::TypeID tid(dummy);
 
-  edm::ProcessNameSelector sel("PROD");
-  std::vector<edm::BasicHandle > handles;
+  art::ProcessNameSelector sel("PROD");
+  std::vector<art::BasicHandle > handles;
   pEvent_->getMany(tid, sel, handles);
   CPPUNIT_ASSERT(handles.empty());
 }
 
 void test_ep::failgetbyTypeTest()
 {
-  edm::ProductID dummy;
-  edm::TypeID tid(dummy);
-  edm::BasicHandle h(pEvent_->getByType(tid));
+  art::ProductID dummy;
+  art::TypeID tid(dummy);
+  art::BasicHandle h(pEvent_->getByType(tid));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
@@ -293,9 +293,9 @@ void test_ep::failgetManybyTypeTest()
 {
   // We don't put ProductIDs into the EventPrincipal,
   // so that's a type sure not to match any product.
-  edm::ProductID dummy;
-  edm::TypeID tid(dummy);
-  std::vector<edm::BasicHandle > handles;
+  art::ProductID dummy;
+  art::TypeID tid(dummy);
+  std::vector<art::BasicHandle > handles;
 
 
   pEvent_->getManyByType(tid, handles);
@@ -305,15 +305,15 @@ void test_ep::failgetManybyTypeTest()
 void test_ep::failgetbyInvalidIdTest()
 {
   //put_a_dummy_product("HLT");
-  //put_a_product<edmtest::DummyProduct>(pProdConfig_, label);
+  //put_a_product<arttest::DummyProduct>(pProdConfig_, label);
 
-  edm::ProductID id;
-  CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(id), edm::Exception);
+  art::ProductID id;
+  CPPUNIT_ASSERT_THROW(pEvent_->getByProductID(id), art::Exception);
 }
 
 void test_ep::failgetProvenanceTest()
 {
-  edm::BranchID id;
-  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), edm::Exception);
+  art::BranchID id;
+  CPPUNIT_ASSERT_THROW(pEvent_->getProvenance(id), art::Exception);
 }
 

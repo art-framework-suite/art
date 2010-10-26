@@ -49,7 +49,7 @@ void checkTime(S source, bool hr) {
 
 //  typedef typename boost::function_traits<S>::result_type T;
   // typedef typename boost::function_types::result_type<S>::type T;
-  typedef edm::HRTimeDiffType T;
+  typedef art::HRTimeDiffType T;
 
   T i = source();
 
@@ -89,7 +89,7 @@ void TestTimers::check_stdclock() {
 }
 
 void TestTimers::check_RealTime() {
-  CHECKTIME(edm::hrRealTime,true);
+  CHECKTIME(art::hrRealTime,true);
 }
 
 

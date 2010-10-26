@@ -22,7 +22,7 @@ and how it came into existence, plus the status.
   ProductProvenance
 */
 
-namespace edm {
+namespace art {
   class ProductProvenance {
   public:
     typedef std::vector<ProductProvenance> EntryInfoVector;

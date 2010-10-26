@@ -13,14 +13,14 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
   class ModuleDescription;
 
   class TFileService : public TFileDirectory {
   public:
     /// constructor
-    TFileService(const fhicl::ParameterSet &, edm::ActivityRegistry &);
+    TFileService(const fhicl::ParameterSet &, art::ActivityRegistry &);
     /// destructor
     ~TFileService();
     /// return opened TFile
@@ -33,9 +33,9 @@ namespace edm {
     bool fileNameRecorded_;
     bool closeFileFast_;
     // set current directory according to module name and prepare to create directory
-    void setDirectoryName( const edm::ModuleDescription & desc );
+    void setDirectoryName( const art::ModuleDescription & desc );
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // UtilAlgos_TFileService_h

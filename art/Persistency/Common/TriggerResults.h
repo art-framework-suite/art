@@ -1,7 +1,7 @@
 #ifndef DataFormats_Common_TriggerResults_h
 #define DataFormats_Common_TriggerResults_h
 
-/** \class edm::TriggerResults
+/** \class art::TriggerResults
  *
  *  Original Authors: Jim Kowalkowski 13-01-06
  *                    Martin Grunewald
@@ -35,7 +35,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents  {
 
@@ -103,6 +103,6 @@ namespace edm {
     lhs.swap(rhs);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Common_TriggerResults_h

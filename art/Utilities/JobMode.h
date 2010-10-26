@@ -10,7 +10,7 @@
 
 */
 
-namespace edm {
+namespace art {
 
   enum JobMode {
          GridJobMode

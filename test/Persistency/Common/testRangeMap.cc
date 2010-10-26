@@ -37,7 +37,7 @@ public:
 };
 
 void testRangeMap::checkAll() {
-  typedef edm::RangeMap<int, std::vector<int>, edm::CopyPolicy<int> > map;
+  typedef art::RangeMap<int, std::vector<int>, art::CopyPolicy<int> > map;
 
   map m;
   int v3[] = { 1, 2, 3, 4 };

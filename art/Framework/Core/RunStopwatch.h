@@ -15,7 +15,7 @@ calls the destructor which stops the clock.
 #include "boost/shared_ptr.hpp"
 #include "art/Utilities/CPUTimer.h"
 
-namespace edm {
+namespace art {
 
   class RunStopwatch {
 

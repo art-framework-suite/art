@@ -14,10 +14,10 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-using edm::ActivityRegistry;
-using edm::CurrentModule;
-using edm::CurrentModule;
-using edm::ModuleDescription;
+using art::ActivityRegistry;
+using art::CurrentModule;
+using art::CurrentModule;
+using art::ModuleDescription;
 using fhicl::ParameterSet;
 
 

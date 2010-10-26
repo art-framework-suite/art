@@ -20,41 +20,41 @@
 #include "art/Utilities/InputTag.h"
 #include "art/ParameterSet/ParameterSet.h"
 
-namespace edmtest {
-  ThingWithMergeProducer::ThingWithMergeProducer(edm::ParameterSet const& pset) :
+namespace arttest {
+  ThingWithMergeProducer::ThingWithMergeProducer(art::ParameterSet const& pset) :
     changeIsEqualValue_(pset.getUntrackedParameter<bool>("changeIsEqualValue", false)),
     labelsToGet_(pset.getUntrackedParameter<std::vector<std::string> >("labelsToGet", std::vector<std::string>())),
     noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
-    produces<Thing, edm::InSubRun>("beginSubRun");
-    produces<Thing, edm::InSubRun>("endSubRun");
-    produces<Thing, edm::InRun>("beginRun");
-    produces<Thing, edm::InRun>("endRun");
+    produces<Thing, art::InSubRun>("beginSubRun");
+    produces<Thing, art::InSubRun>("endSubRun");
+    produces<Thing, art::InRun>("beginRun");
+    produces<Thing, art::InRun>("endRun");
 
     produces<ThingWithMerge>("event");
-    produces<ThingWithMerge, edm::InSubRun>("beginSubRun");
-    produces<ThingWithMerge, edm::InSubRun>("endSubRun");
-    produces<ThingWithMerge, edm::InRun>("beginRun");
-    produces<ThingWithMerge, edm::InRun>("endRun");
+    produces<ThingWithMerge, art::InSubRun>("beginSubRun");
+    produces<ThingWithMerge, art::InSubRun>("endSubRun");
+    produces<ThingWithMerge, art::InRun>("beginRun");
+    produces<ThingWithMerge, art::InRun>("endRun");
 
     produces<ThingWithIsEqual>("event");
-    produces<ThingWithIsEqual, edm::InSubRun>("beginSubRun");
-    produces<ThingWithIsEqual, edm::InSubRun>("endSubRun");
-    produces<ThingWithIsEqual, edm::InRun>("beginRun");
-    produces<ThingWithIsEqual, edm::InRun>("endRun");
+    produces<ThingWithIsEqual, art::InSubRun>("beginSubRun");
+    produces<ThingWithIsEqual, art::InSubRun>("endSubRun");
+    produces<ThingWithIsEqual, art::InRun>("beginRun");
+    produces<ThingWithIsEqual, art::InRun>("endRun");
   }
 
   ThingWithMergeProducer::~ThingWithMergeProducer() {}
 
-  void ThingWithMergeProducer::produce(edm::Event& e, edm::EventSetup const&) {
+  void ThingWithMergeProducer::produce(art::Event& e, art::EventSetup const&) {
 
     // The purpose of this first getByLabel call is to cause the products
     // that are "put" below to have a parent so we can do tests with the
     // parentage provenance.
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "event", "PROD");
+      art::Handle<Thing> h;
+      art::InputTag tag(*iter, "event", "PROD");
       e.getByLabel(tag, h);
     }
 
@@ -72,11 +72,11 @@ namespace edmtest {
     if (!noPut_) e.put(result3, std::string("event"));
   }
 
-  void ThingWithMergeProducer::beginSubRun(edm::SubRun& lb, edm::EventSetup const&) {
+  void ThingWithMergeProducer::beginSubRun(art::SubRun& lb, art::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "beginSubRun", "PROD");
+      art::Handle<Thing> h;
+      art::InputTag tag(*iter, "beginSubRun", "PROD");
       lb.getByLabel(tag, h);
     }
 
@@ -94,11 +94,11 @@ namespace edmtest {
     if (!noPut_) lb.put(result3, "beginSubRun");
   }
 
-  void ThingWithMergeProducer::endSubRun(edm::SubRun& lb, edm::EventSetup const&) {
+  void ThingWithMergeProducer::endSubRun(art::SubRun& lb, art::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "endSubRun", "PROD");
+      art::Handle<Thing> h;
+      art::InputTag tag(*iter, "endSubRun", "PROD");
       lb.getByLabel(tag, h);
     }
 
@@ -117,11 +117,11 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingWithMergeProducer::beginRun(edm::Run& r, edm::EventSetup const&) {
+  void ThingWithMergeProducer::beginRun(art::Run& r, art::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "beginRun", "PROD");
+      art::Handle<Thing> h;
+      art::InputTag tag(*iter, "beginRun", "PROD");
       r.getByLabel(tag, h);
     }
 
@@ -139,11 +139,11 @@ namespace edmtest {
     if (!noPut_) r.put(result3, "beginRun");
   }
 
-  void ThingWithMergeProducer::endRun(edm::Run& r, edm::EventSetup const&) {
+  void ThingWithMergeProducer::endRun(art::Run& r, art::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
-      edm::Handle<Thing> h;
-      edm::InputTag tag(*iter, "endRun", "PROD");
+      art::Handle<Thing> h;
+      art::InputTag tag(*iter, "endRun", "PROD");
       r.getByLabel(tag, h);
     }
 
@@ -161,5 +161,5 @@ namespace edmtest {
     if (!noPut_) r.put(result3, "endRun");
   }
 }
-using edmtest::ThingWithMergeProducer;
+using arttest::ThingWithMergeProducer;
 DEFINE_FWK_MODULE(ThingWithMergeProducer);

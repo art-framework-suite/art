@@ -22,7 +22,7 @@ is the DataBlock.
 #include "art/Framework/Core/Principal.h"
 
 
-namespace edm {
+namespace art {
   class EventID;
   class SubRunPrincipal;
   class RunPrincipal;

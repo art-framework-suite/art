@@ -7,9 +7,9 @@
 #include <iostream>
 
 
-EDM_REGISTER_PLUGINFACTORY(edm::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource");
+EDM_REGISTER_PLUGINFACTORY(art::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource");
 
-namespace edm {
+namespace art {
 
   VectorInputSourceFactory::~VectorInputSourceFactory()
   { }
@@ -33,13 +33,13 @@ namespace edm {
 					InputSourceDescription const& desc) const
 
   {
-    std::string modtype = conf.getString("@module_type");
+    std::string modtype = conf.get<std::string>("@module_type");
     FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << std::endl;
     std::auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
 
     if(wm.get()==0)
       {
-	throw edm::Exception(errors::Configuration,"NoSourceModule")
+	throw art::Exception(errors::Configuration,"NoSourceModule")
 	  << "VectorInputSource Factory:\n"
 	     "Cannot find source type from ParameterSet: "
 	  << modtype << "\n"
@@ -54,4 +54,4 @@ namespace edm {
     return wm;
   }
 
-}  // namespace edm
+}  // namespace art

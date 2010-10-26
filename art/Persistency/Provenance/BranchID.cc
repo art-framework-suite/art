@@ -2,11 +2,11 @@
 #include "art/Utilities/CRC32Calculator.h"
 #include <ostream>
 
-namespace edm {
+namespace art {
 
   BranchID::value_type
   BranchID::toID(std::string const& branchName) {
-    cms::CRC32Calculator crc32(branchName);
+    artZ::CRC32Calculator crc32(branchName);
     return crc32.checksum();
   }
 

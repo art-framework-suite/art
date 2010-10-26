@@ -24,7 +24,7 @@
 // user include files
 
 // forward declarations
-namespace edmtest {
+namespace arttest {
 struct Doodad
 {
    Doodad() : a() {}

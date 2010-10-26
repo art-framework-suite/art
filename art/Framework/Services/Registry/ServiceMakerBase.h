@@ -18,7 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
 
   namespace serviceregistry {
@@ -36,7 +36,7 @@ namespace edm {
       virtual const std::type_info& serviceType() const = 0;
 
       virtual bool make(const fhicl::ParameterSet&,
-                        edm::ActivityRegistry&,
+                        art::ActivityRegistry&,
                         ServicesManager&) const = 0;
 
     private:
@@ -47,6 +47,6 @@ namespace edm {
     };
 
   }  // namespace serviceregistry
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_ServiceRegistry_ServiceMakerBase_h

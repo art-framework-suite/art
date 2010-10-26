@@ -1,55 +1,55 @@
 <lcgdict>
- <class name="edm::EDProduct"/>
- <class name="edm::EDProductGetter"/>
- <class name="edm::RefCore"/>
- <class name="edm::RefCore::RefCoreTransients">
+ <class name="art::EDProduct"/>
+ <class name="art::EDProductGetter"/>
+ <class name="art::RefCore"/>
+ <class name="art::RefCore::RefCoreTransients">
    <field name="prodPtr_" transient="true"/>
    <field name="prodGetter_" transient="true"/>
    <field name="transient_" transient="true"/>
  </class>
- <class name="edm::ConstPtrCache">
+ <class name="art::ConstPtrCache">
    <field name="ptr_" transient="true"/>
  </class>
- <class name="edm::BoolCache">
+ <class name="art::BoolCache">
    <field name="isCached_" transient="true"/>
  </class>
- <class name="edm::reftobase::BaseVectorHolder<int>"/>
- <class name="edm::reftobase::IndirectVectorHolder<int>"/>
- <class name="edm::PtrVectorBase" >
+ <class name="art::reftobase::BaseVectorHolder<int>"/>
+ <class name="art::reftobase::IndirectVectorHolder<int>"/>
+ <class name="art::PtrVectorBase" >
    <field name ="cachedItems_" transient = "true"/>
  </class>
- <class name="edmNew::dstvdetails::DetSetVectorTrans">
+ <class name="artNew::dstvdetails::DetSetVectorTrans">
    <field name="filling" transient="true"/>
    <field name="getter" transient="true"/>
  </class>
- <class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
- <class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
+ <class name="artNew::dstvdetails::DetSetVectorTrans::Item"/>
+ <class name="std::vector<artNew::dstvdetails::DetSetVectorTrans::Item>"/>
 
- <class name="edm::HLTPathStatus"/>
- <class name="edm::Wrapper<edm::HLTPathStatus>" splitLevel="0"/>
- <class name="std::vector<edm::HLTPathStatus>"/>
- <class name="edm::Wrapper<std::vector<edm::HLTPathStatus> >" splitLevel="0"/>
- <class name="edm::HLTGlobalStatus"/>
- <class name="edm::Wrapper<edm::HLTGlobalStatus>" splitLevel="0"/>
- <class name="edm::TriggerResults"/>
- <class name="edm::Wrapper<edm::TriggerResults>" splitLevel="0"/>
- <class name="edm::Other"/>
- <class name="edm::DoNotSortUponInsertion"/>
- <class name="edm::DoNotRecordParents"/>
- <class name="edm::helpers::DoNoPostReadFixup"/>
- <class name="edm::helpers::PostReadFixup">
+ <class name="art::HLTPathStatus"/>
+ <class name="art::Wrapper<art::HLTPathStatus>" splitLevel="0"/>
+ <class name="std::vector<art::HLTPathStatus>"/>
+ <class name="art::Wrapper<std::vector<art::HLTPathStatus> >" splitLevel="0"/>
+ <class name="art::HLTGlobalStatus"/>
+ <class name="art::Wrapper<art::HLTGlobalStatus>" splitLevel="0"/>
+ <class name="art::TriggerResults"/>
+ <class name="art::Wrapper<art::TriggerResults>" splitLevel="0"/>
+ <class name="art::Other"/>
+ <class name="art::DoNotSortUponInsertion"/>
+ <class name="art::DoNotRecordParents"/>
+ <class name="art::helpers::DoNoPostReadFixup"/>
+ <class name="art::helpers::PostReadFixup">
    <field name="fixed_" transient="true"/>
  </class>
- <class name="std::pair<edm::ProductID, unsigned int>" />
- <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
- <class name="edm::ValueMap<int>" />
- <class name="edm::ValueMap<unsigned int>" />
- <class name="edm::ValueMap<bool>" />
- <class name="edm::ValueMap<float>" />
- <class name="edm::ValueMap<double>" />
- <class name="edm::Wrapper<edm::ValueMap<int> >" splitLevel="0"/>
- <class name="edm::Wrapper<edm::ValueMap<bool> >" splitLevel="0"/>
- <class name="edm::Wrapper<edm::ValueMap<unsigned int> >" splitLevel="0"/>
- <class name="edm::Wrapper<edm::ValueMap<float> >" splitLevel="0"/>
- <class name="edm::Wrapper<edm::ValueMap<double> >" splitLevel="0"/>
+ <class name="std::pair<art::ProductID, unsigned int>" />
+ <class name="std::vector<std::pair<art::ProductID, unsigned int> >" />
+ <class name="art::ValueMap<int>" />
+ <class name="art::ValueMap<unsigned int>" />
+ <class name="art::ValueMap<bool>" />
+ <class name="art::ValueMap<float>" />
+ <class name="art::ValueMap<double>" />
+ <class name="art::Wrapper<art::ValueMap<int> >" splitLevel="0"/>
+ <class name="art::Wrapper<art::ValueMap<bool> >" splitLevel="0"/>
+ <class name="art::Wrapper<art::ValueMap<unsigned int> >" splitLevel="0"/>
+ <class name="art::Wrapper<art::ValueMap<float> >" splitLevel="0"/>
+ <class name="art::Wrapper<art::ValueMap<double> >" splitLevel="0"/>
 </lcgdict>

@@ -26,8 +26,8 @@ class TestRef: public CppUnit::TestFixture
   typedef std::vector<int>           product1_t;
   typedef std::map<std::string, int> product2_t;
 
-  typedef edm::Ref<product1_t> ref1_t;
-  //typedef edm::Ref<product2_t, int> ref2_t;
+  typedef art::Ref<product1_t> ref1_t;
+  //typedef art::Ref<product2_t, int> ref2_t;
 
 
   TestRef() { }
@@ -72,7 +72,7 @@ void TestRef::default_ctor_without_active_getter()
 void TestRef::default_ctor_with_active_getter()
 {
   SimpleEDProductGetter getter;
-  edm::EDProductGetter::Operate op(&getter);
+  art::EDProductGetter::Operate op(&getter);
   ref1_t  default_ref;
   CPPUNIT_ASSERT(default_ref.isNull());
   CPPUNIT_ASSERT(default_ref.isNonnull()==false);
@@ -80,16 +80,16 @@ void TestRef::default_ctor_with_active_getter()
   CPPUNIT_ASSERT(default_ref.productGetter()==&getter);
   CPPUNIT_ASSERT(default_ref.id().isValid()==false);
   CPPUNIT_ASSERT(default_ref.isAvailable()==false);
-  CPPUNIT_ASSERT_THROW(default_ref.operator->(), edm::Exception);
-  CPPUNIT_ASSERT_THROW(*default_ref, edm::Exception);
+  CPPUNIT_ASSERT_THROW(default_ref.operator->(), art::Exception);
+  CPPUNIT_ASSERT_THROW(*default_ref, art::Exception);
 }
 
 void TestRef::nondefault_ctor()
 {
   SimpleEDProductGetter getter;
 
-  edm::EDProductGetter::Operate op(&getter);
-  edm::ProductID id(1, 201U);
+  art::EDProductGetter::Operate op(&getter);
+  art::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 
   std::auto_ptr<product1_t> prod(new product1_t);
@@ -112,7 +112,7 @@ void TestRef::nondefault_ctor()
   CPPUNIT_ASSERT(ref1.isAvailable()==true);
   CPPUNIT_ASSERT(*ref1 == 2);
 
-  // Note that nothing stops one from making an edm::Ref into a
+  // Note that nothing stops one from making an art::Ref into a
   // collection using an index that is invalid. So there is no testing
   // of such use to be done.
 }
@@ -121,8 +121,8 @@ void TestRef::nondefault_ctor()
 // {
 //   SimpleEDProductGetter getter;
 
-//   edm::EDProductGetter::Operate op(&getter);
-//   edm::ProductID id(1, 201U);
+//   art::EDProductGetter::Operate op(&getter);
+//   art::ProductID id(1, 201U);
 //   CPPUNIT_ASSERT(id.isValid());
 
 //   std::auto_ptr<product2_t> prod(new product2_t);
@@ -149,8 +149,8 @@ void TestRef::using_wrong_productid()
 {
   SimpleEDProductGetter getter;
 
-  edm::EDProductGetter::Operate op(&getter);
-  edm::ProductID id(1, 1U);
+  art::EDProductGetter::Operate op(&getter);
+  art::ProductID id(1, 1U);
   CPPUNIT_ASSERT(id.isValid());
 
   std::auto_ptr<product1_t> prod(new product1_t);
@@ -158,11 +158,11 @@ void TestRef::using_wrong_productid()
   prod->push_back(2);
   getter.addProduct(id, prod);
 
-  edm::ProductID wrong_id(1, 100U);
+  art::ProductID wrong_id(1, 100U);
   CPPUNIT_ASSERT(wrong_id.isValid()); // its valid, but not used.
 
   ref1_t  ref(wrong_id, 0, &getter);
-  CPPUNIT_ASSERT_THROW(*ref, edm::Exception);
-  CPPUNIT_ASSERT_THROW(ref.operator->(), edm::Exception);
+  CPPUNIT_ASSERT_THROW(*ref, art::Exception);
+  CPPUNIT_ASSERT_THROW(ref.operator->(), art::Exception);
 }
 

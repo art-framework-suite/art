@@ -24,7 +24,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class Worker;
 
@@ -71,6 +71,6 @@ namespace edm {
   }; // WorkerRegistry
 
 
-} // namespace edm
+} // namespace art
 
 #endif  // Framework_WorkerRegistry_h

@@ -6,7 +6,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   ProductProvenance::Transients::Transients() :
     parentagePtr_(),
     noParentage_(false)

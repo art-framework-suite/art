@@ -15,7 +15,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
    class ProvenanceCheckerOutputModule : public OutputModule {
    public:
       // We do not take ownership of passed stream.
@@ -157,7 +157,7 @@ namespace edm {
 
 
       if(missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
-         throw cms::Exception("ProvenanceError")
+         throw artZ::Exception("ProvenanceError")
            << (missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
            << (missingFromMapper.size()?" from BranchMapper":"")
            << (missingFromMapper.size() and missingFromPrincipal.size()?" and":"")
@@ -168,7 +168,7 @@ namespace edm {
       }
    }
 
-}  // namespace edm
+}  // namespace art
 
-using edm::ProvenanceCheckerOutputModule;
+using art::ProvenanceCheckerOutputModule;
 DEFINE_FWK_MODULE(ProvenanceCheckerOutputModule);

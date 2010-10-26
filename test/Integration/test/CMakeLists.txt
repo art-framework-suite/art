@@ -24,9 +24,9 @@ set( exe_list TestIntegrationEventHistory
 	      CatchStdExceptiontest
 	      CatchCmsExceptiontest )
 
-link_libraries( FWCoreFramework
-                FWCorePluginManager
-                FWCoreUtilities
+link_libraries( artFrameworkCore
+                artFrameworkPluginManager
+                artUtilities
                 ${Boost_FILESYSTEM_LIBRARY}  )
 
 # more libraries to be added

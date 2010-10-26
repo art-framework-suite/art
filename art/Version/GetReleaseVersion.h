@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace edm {
+namespace art {
   std::string getReleaseVersion();
 }
 #endif

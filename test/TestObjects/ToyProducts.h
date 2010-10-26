@@ -19,7 +19,7 @@ Toy EDProducts for testing purposes only.
 #include "art/Persistency/Common/DetSetVector.h"
 #include "art/Persistency/Common/DetSetVectorNew.h"
 
-namespace edmtest
+namespace arttest
 {
 
   // Toy products
@@ -110,7 +110,7 @@ namespace edmtest
     return a.data < b.data;
   }
 
-  struct Unsortable : public edm::DoNotSortUponInsertion
+  struct Unsortable : public art::DoNotSortUponInsertion
   {
     int data;
     Unsortable() : data(0) { }
@@ -123,22 +123,22 @@ namespace edmtest
     throw std::logic_error("operator< called for Unsortable");
   }
 
-  struct Prodigal : public edm::DoNotRecordParents
+  struct Prodigal : public art::DoNotRecordParents
   {
     int data;
     Prodigal() : data(0) { }
     explicit Prodigal(int i) : data(i) { }
   };
 
-  typedef edm::SortedCollection<Simple> SCSimpleProduct;
+  typedef art::SortedCollection<Simple> SCSimpleProduct;
   typedef std::vector<Simple>           VSimpleProduct;
-  typedef edm::OwnVector<Simple>        OVSimpleProduct;
-  typedef edm::OwnVector<SimpleDerived> OVSimpleDerivedProduct;
-  typedef edm::AssociationVector<edm::RefProd<std::vector<Simple> >, std::vector<Simple> > AVSimpleProduct;
-  typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
-  typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
+  typedef art::OwnVector<Simple>        OVSimpleProduct;
+  typedef art::OwnVector<SimpleDerived> OVSimpleDerivedProduct;
+  typedef art::AssociationVector<art::RefProd<std::vector<Simple> >, std::vector<Simple> > AVSimpleProduct;
+  typedef art::DetSetVector<Sortable>   DSVSimpleProduct;
+  typedef art::DetSetVector<Unsortable> DSVWeirdProduct;
 
-  typedef edmNew::DetSetVector<Sortable>      DSTVSimpleProduct;
-  typedef edmNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
+  typedef artNew::DetSetVector<Sortable>      DSTVSimpleProduct;
+  typedef artNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
 }
 #endif

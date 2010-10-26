@@ -13,7 +13,7 @@
 
 class DummyClassToStopCompilerWarning;
 
-namespace edm {
+namespace art {
 
   class RootAutoLibraryLoader
     : public TClassGenerator
@@ -39,6 +39,6 @@ namespace edm {
     const RootAutoLibraryLoader& operator=(const RootAutoLibraryLoader&); // stop default
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // LibraryLoader_RootAutoLibraryLoader_h

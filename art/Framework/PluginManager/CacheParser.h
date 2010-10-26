@@ -35,7 +35,7 @@ If a space exists in either of these three fields, it will be replaced with a %,
 #include "art/Framework/PluginManager/PluginInfo.h"
 
 // forward declarations
-namespace edmplugin {
+namespace artplugin {
 class CacheParser
 {
 

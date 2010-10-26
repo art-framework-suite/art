@@ -41,7 +41,7 @@ pointer to a Group, when queried.
 #include "art/Utilities/TypeID.h"
 
 
-namespace edm {
+namespace art {
   class Principal : public EDProductGetter {
   public:
     typedef std::map<BranchID, boost::shared_ptr<Group> > GroupCollection;

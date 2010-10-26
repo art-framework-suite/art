@@ -11,7 +11,7 @@
 
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
-namespace edm {
+namespace art {
   class ActivityRegistry;
 }
 
@@ -23,24 +23,24 @@ namespace edm {
 // ======================================================================
 
 
-namespace edm {
+namespace art {
 
   class CurrentModule
   {
   public:
     CurrentModule( fhicl::ParameterSet const &
-                 , edm::ActivityRegistry &
+                 , art::ActivityRegistry &
                  );
     ~CurrentModule();
 
     std::string  label() const  { return desc_.moduleLabel(); }
 
   private:
-    edm::ModuleDescription  desc_;
-    void track_module( edm::ModuleDescription const & desc );
+    art::ModuleDescription  desc_;
+    void track_module( art::ModuleDescription const & desc );
 
   };  // CurrentModule
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // CurrentModule_CurrentModule_hh

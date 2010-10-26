@@ -14,8 +14,8 @@
 
    Example:
    try { func(); }
-   catch (cms::Exception& e)
-   { throw cms::Exception("DataCorrupt","encountered while unpacking",e); }
+   catch (artZ::Exception& e)
+   { throw artZ::Exception("DataCorrupt","encountered while unpacking",e); }
 
    Information can be added to the Exception using the stream insertion
    operator (as one uses cout).  We recommend using it in the following
@@ -24,7 +24,7 @@
    Example:
    if ((rc=func()) < 0)
    {
-   throw cms::Exception("DataCorrupt") << "I died with rc = "
+   throw artZ::Exception("DataCorrupt") << "I died with rc = "
    << rc << std::endl;
    }
 
@@ -77,13 +77,13 @@
 
 #include "boost/type_traits/is_base_and_derived.hpp"
 
-namespace cms {
+namespace artZ {
 
   namespace detail {
     // The struct template Desired exists in order to allow us to use
     // SFINAE to control the instantiation of the stream insertion
     // member template needed to support streaming output to an object
-    // of type cms::Exception, or a subclass of cms::Exception.
+    // of type artZ::Exception, or a subclass of artZ::Exception.
 
     template <typename T, bool b> struct Desired;
     template <typename T> struct Desired<T, true> { typedef T type; };

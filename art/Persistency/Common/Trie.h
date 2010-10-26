@@ -27,7 +27,7 @@
 #include <list>
 #include <string>
 
-namespace edm
+namespace art
 {
   // fwd declaration
   template <typename T>
@@ -65,7 +65,7 @@ namespace edm
 }
 
 
-namespace edm
+namespace art
 {
   template<typename T>
   class TrieNodeIter;
@@ -163,7 +163,7 @@ namespace edm
 
 #include <ostream>
 
-namespace edm
+namespace art
 {
   //fwd declaration
   template <typename T>
@@ -237,7 +237,7 @@ namespace edm
 
 // iterators and visitors
 
-namespace edm{
+namespace art{
 
   template<typename T>
   class TrieNodeIter
@@ -318,14 +318,14 @@ namespace edm{
 
 
 template <typename T>
-edm::TrieFactory<T>::TrieFactory(unsigned paquetSize) :
+art::TrieFactory<T>::TrieFactory(unsigned paquetSize) :
   _paquetSize(paquetSize), _lastNodes(0x0), _nbUsedInLastNodes(0)
 {
   _lastNodes = new TrieNode<T>[paquetSize];
 }
 
 template <typename T>
-edm::TrieFactory<T>::~TrieFactory()
+art::TrieFactory<T>::~TrieFactory()
 {
   typename std::list<TrieNode<T>*>::const_iterator it;
 
@@ -336,7 +336,7 @@ edm::TrieFactory<T>::~TrieFactory()
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieFactory<T>::newNode(const T &value)
+art::TrieNode<T>* art::TrieFactory<T>::newNode(const T &value)
 {
   if (_nbUsedInLastNodes == _paquetSize)
     {
@@ -352,7 +352,7 @@ edm::TrieNode<T>* edm::TrieFactory<T>::newNode(const T &value)
 }
 
 template <typename T>
-void edm::TrieFactory<T>::clear()
+void art::TrieFactory<T>::clear()
 {
   typename std::list<TrieNode<T>*>::const_iterator it;
   for (it = _allocatedNodes.begin(); it != _allocatedNodes.end(); ++it)
@@ -363,7 +363,7 @@ void edm::TrieFactory<T>::clear()
 
 
 template <typename T>
-edm::TrieNode<T>::TrieNode() :
+art::TrieNode<T>::TrieNode() :
   _brother(0), _brotherLabel(0), _firstSubNode(0), _firstSubNodeLabel(0)
   /// we can not set _value here because type is unknown. assert that
   /// the value is set later with setValue()
@@ -371,7 +371,7 @@ edm::TrieNode<T>::TrieNode() :
 }
 
 template <typename T>
-edm::TrieNode<T>::~TrieNode()
+art::TrieNode<T>::~TrieNode()
 {
   // do not delete _brother and _firstSubNode because they are
   // allocated by factory (TrieFactory) and factory will delete them
@@ -379,55 +379,55 @@ edm::TrieNode<T>::~TrieNode()
 
 
 template <typename T>
-edm::TrieNodeIter<T>
-edm::TrieNode<T>::begin() const {
+art::TrieNodeIter<T>
+art::TrieNode<T>::begin() const {
   return const_iterator(this);
 }
 template <typename T>
-edm::TrieNodeIter<T>
-edm::TrieNode<T>::end() const {
+art::TrieNodeIter<T>
+art::TrieNode<T>::end() const {
   return const_iterator(0);
 }
 
 template <typename T>
-void edm::TrieNode<T>::setValue(const T &val)
+void art::TrieNode<T>::setValue(const T &val)
 {
   _value = val;
 }
 
 template <typename T>
-const T& edm::TrieNode<T>::value() const
+const T& art::TrieNode<T>::value() const
 {
   return _value;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::brother() const
+const art::TrieNode<T>* art::TrieNode<T>::brother() const
 {
   return _brother;
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::brother()
+art::TrieNode<T>* art::TrieNode<T>::brother()
 {
   return _brother;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::_getBrother(unsigned char chr) const
+const art::TrieNode<T>* art::TrieNode<T>::_getBrother(unsigned char chr) const
 {
   const TrieNode<T> *brother = _brother;
   return _sequentialSearch(brother, _brotherLabel, chr);
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::_getBrother(unsigned char chr)
+art::TrieNode<T>* art::TrieNode<T>::_getBrother(unsigned char chr)
 {
   return _sequentialSearch(_brother, _brotherLabel, chr);
 }
 
 template <typename T>
-void edm::TrieNode<T>::_addBrother(unsigned char chr, TrieNode<T> *brother)
+void art::TrieNode<T>::_addBrother(unsigned char chr, TrieNode<T> *brother)
 {
   if (!_brother || _brotherLabel > chr)
     {
@@ -440,44 +440,44 @@ void edm::TrieNode<T>::_addBrother(unsigned char chr, TrieNode<T> *brother)
 }
 
 template <typename T>
-unsigned char edm::TrieNode<T>::brotherLabel() const
+unsigned char art::TrieNode<T>::brotherLabel() const
 {
   return _brotherLabel;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::subNode() const
+const art::TrieNode<T>* art::TrieNode<T>::subNode() const
 {
   return _firstSubNode;
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::subNode()
+art::TrieNode<T>* art::TrieNode<T>::subNode()
 {
   return _firstSubNode;
 }
 
 template <typename T>
-unsigned char edm::TrieNode<T>::subNodeLabel() const
+unsigned char art::TrieNode<T>::subNodeLabel() const
 {
   return _firstSubNodeLabel;
 }
 
 template <typename T>
-const edm::TrieNode<T>* edm::TrieNode<T>::subNodeByLabel(unsigned char chr) const
+const art::TrieNode<T>* art::TrieNode<T>::subNodeByLabel(unsigned char chr) const
 {
   const TrieNode<T> *first = _firstSubNode;
   return _sequentialSearch(first, _firstSubNodeLabel, chr);
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::TrieNode<T>::subNodeByLabel(unsigned char chr)
+art::TrieNode<T>* art::TrieNode<T>::subNodeByLabel(unsigned char chr)
 {
   return _sequentialSearch(_firstSubNode, _firstSubNodeLabel, chr);
 }
 
 template <typename T>
-void edm::TrieNode<T>::addSubNode(unsigned char chr, TrieNode<T> *node)
+void art::TrieNode<T>::addSubNode(unsigned char chr, TrieNode<T> *node)
 {
   if (!_firstSubNode || _firstSubNodeLabel > chr)
     {
@@ -491,7 +491,7 @@ void edm::TrieNode<T>::addSubNode(unsigned char chr, TrieNode<T> *node)
 
 template <typename T>
 template <typename Node>
-inline Node edm::TrieNode<T>::_sequentialSearch(Node first, unsigned char label, unsigned char val) const
+inline Node art::TrieNode<T>::_sequentialSearch(Node first, unsigned char label, unsigned char val) const
 {
   if (first && label <= val)
     {
@@ -503,14 +503,14 @@ inline Node edm::TrieNode<T>::_sequentialSearch(Node first, unsigned char label,
 }
 
 template <typename T>
-void edm::TrieNode<T>::_setBrother(TrieNode<T> *brother, unsigned char brotherLabel)
+void art::TrieNode<T>::_setBrother(TrieNode<T> *brother, unsigned char brotherLabel)
 {
   _brother = brother;
   _brotherLabel = brotherLabel;
 }
 
 template <typename T>
-void edm::TrieNode<T>::display(std::ostream &os, unsigned offset, unsigned char label) const
+void art::TrieNode<T>::display(std::ostream &os, unsigned offset, unsigned char label) const
 {
   unsigned int i;
   for (i = 0; i < offset; ++i)
@@ -525,7 +525,7 @@ void edm::TrieNode<T>::display(std::ostream &os, unsigned offset, unsigned char 
 }
 
 template <typename T>
-void edm::TrieNode<T>::clear()
+void art::TrieNode<T>::clear()
 {
   _brother = 0x0;
   _brotherLabel = 0;
@@ -542,10 +542,10 @@ void edm::TrieNode<T>::clear()
 #include "art/Utilities/EDMException.h"
 
 
-namespace edm {
+namespace art {
   namespace detailsTrie  {
     inline void errorInsert(std::string const & key) {
-      throw edm::Exception(edm::errors::InvalidReference)
+      throw art::Exception(art::errors::InvalidReference)
 	<< "Trie::insert called with a key already in collection;\n"
 	<< "key value: " << key;
     }
@@ -553,7 +553,7 @@ namespace edm {
 }
 
 template <typename T>
-edm::Trie<T>::Trie(const T &empty) :
+art::Trie<T>::Trie(const T &empty) :
   _empty(empty), _factory(0x0), _initialNode(0x0)
 {
   // initialize nodes by paquets of 10000
@@ -562,25 +562,25 @@ edm::Trie<T>::Trie(const T &empty) :
 }
 
 template <typename T>
-edm::Trie<T>::~Trie()
+art::Trie<T>::~Trie()
 {
   delete _factory;
 }
 
 template <typename T>
-void edm::Trie<T>::setEntry(std::string const & str, const T &value)
+void art::Trie<T>::setEntry(std::string const & str, const T &value)
 {
   setEntry(str.c_str(),str.size(),value);
 }
 template <typename T>
-void edm::Trie<T>::setEntry(const char *str, unsigned strLen, const T &value)
+void art::Trie<T>::setEntry(const char *str, unsigned strLen, const T &value)
 {
   TrieNode<T>	*node = _addEntry(str, strLen);
   node->setValue(value);
 }
 
 template <typename T>
-edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
+art::TrieNode<T>* art::Trie<T>::_addEntry(const char *str, unsigned strLen)
 {
   unsigned	pos = 0;
   bool		found = true;
@@ -617,13 +617,13 @@ edm::TrieNode<T>* edm::Trie<T>::_addEntry(const char *str, unsigned strLen)
 
 
 template <typename T>
-void edm::Trie<T>::insert(std::string const & str, const T &value)
+void art::Trie<T>::insert(std::string const & str, const T &value)
 {
   insert(str.c_str(),str.size(),value);
 }
 
 template <typename T>
-void edm::Trie<T>::insert(const char *str, unsigned strLen, const T &value)
+void art::Trie<T>::insert(const char *str, unsigned strLen, const T &value)
 {
   TrieNode<T>	*node = _addEntry(str, strLen);
 
@@ -634,12 +634,12 @@ void edm::Trie<T>::insert(const char *str, unsigned strLen, const T &value)
 }
 
 template <typename T>
-const T& edm::Trie<T>::find(std::string const & str) const {
+const T& art::Trie<T>::find(std::string const & str) const {
   return find(str.c_str(),str.size());
 }
 
 template <typename T>
-const T& edm::Trie<T>::find(const char *str, unsigned strLen) const
+const T& art::Trie<T>::find(const char *str, unsigned strLen) const
 {
   unsigned		pos = 0;
   bool			found = true;
@@ -661,14 +661,14 @@ const T& edm::Trie<T>::find(const char *str, unsigned strLen) const
 }
 
 template <typename T>
-edm::TrieNode<T> const *
-edm::Trie<T>::node(std::string const & str) const {
+art::TrieNode<T> const *
+art::Trie<T>::node(std::string const & str) const {
     return node(str.c_str(),str.size());
   }
 
 template <typename T>
-edm::TrieNode<T> const *
-edm::Trie<T>::node(const char *str, unsigned strLen) const {
+art::TrieNode<T> const *
+art::Trie<T>::node(const char *str, unsigned strLen) const {
   unsigned		pos = 0;
   bool			found = true;
   const TrieNode<T>	*node = _initialNode;
@@ -688,20 +688,20 @@ edm::Trie<T>::node(const char *str, unsigned strLen) const {
 
 
 template <typename T>
-const edm::TrieNode<T>* edm::Trie<T>::initialNode() const
+const art::TrieNode<T>* art::Trie<T>::initialNode() const
 {
   return _initialNode;
 }
 
 template <typename T>
-void edm::Trie<T>::clear()
+void art::Trie<T>::clear()
 {
   _factory->clear();
   _initialNode = _factory->newNode(_empty);
 }
 
 template <typename T>
-void edm::Trie<T>::display(std::ostream &os)
+void art::Trie<T>::display(std::ostream &os)
 {
   if (_initialNode)
     _initialNode->display(os, 0, 0);

@@ -38,9 +38,9 @@ namespace testPtr {
     virtual int val() const {return 2;}
   };
 
-    struct TestGetter : public edm::EDProductGetter {
-      edm::EDProduct const* hold_;
-      edm::EDProduct const* getIt(edm::ProductID const&) const {
+    struct TestGetter : public art::EDProductGetter {
+      art::EDProduct const* hold_;
+      art::EDProduct const* getIt(art::ProductID const&) const {
         return hold_;
       }
 
@@ -51,13 +51,13 @@ namespace testPtr {
 using namespace testPtr;
 
 void
-do_some_tests(const edm::PtrVector<Base>& x)
+do_some_tests(const art::PtrVector<Base>& x)
 {
-  edm::PtrVector<Base> copy(x);
+  art::PtrVector<Base> copy(x);
 
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
-  edm::PtrVector<Base>::const_iterator
+  art::PtrVector<Base>::const_iterator
     b = x.begin(), e = x.end(), cb = copy.begin(), ce = copy.end();
   CPPUNIT_ASSERT( e - b == ce - cb );
   CPPUNIT_ASSERT(std::distance(b, e) == std::distance(cb, ce) );
@@ -66,7 +66,7 @@ do_some_tests(const edm::PtrVector<Base>& x)
 void
 testPtrVector::check()
 {
-  using namespace edm;
+  using namespace art;
 
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
@@ -150,18 +150,18 @@ testPtrVector::get()
   ptr->push_back(2);
   ptr->push_back(3);
 
-  edm::Wrapper<IntCollection> wrapper(ptr);
+  art::Wrapper<IntCollection> wrapper(ptr);
   TestGetter tester;
   tester.hold_ = &wrapper;
 
-  edm::ProductID const pid(1, 1);
+  art::ProductID const pid(1, 1);
 
   IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
 
-  edm::PtrVector<IntValue> iVec;
+  art::PtrVector<IntValue> iVec;
   std::cerr << "pre push_backs" <<std::endl;
-  iVec.push_back( edm::Ptr<IntValue>(pid,0,&tester));
-  iVec.push_back( edm::Ptr<IntValue>(pid,2,&tester));
+  iVec.push_back( art::Ptr<IntValue>(pid,0,&tester));
+  iVec.push_back( art::Ptr<IntValue>(pid,2,&tester));
   std::cerr << "post push_backs" <<std::endl;
 
   iVec.setProductGetter(&tester);
@@ -185,7 +185,7 @@ testPtrVector::get()
   ptr->push_back(0);
   ptr->push_back(1);
 
-  edm::Wrapper<I1Collection> wrapper(ptr);
+  art::Wrapper<I1Collection> wrapper(ptr);
   TestGetter tester;
   tester.hold_ = &wrapper;
   */

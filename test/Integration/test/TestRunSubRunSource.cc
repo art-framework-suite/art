@@ -15,7 +15,7 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 
-namespace edm {
+namespace art {
 
   TestRunSubRunSource::TestRunSubRunSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
@@ -109,6 +109,6 @@ namespace edm {
   }
 }
 
-using edm::TestRunSubRunSource;
+using art::TestRunSubRunSource;
 DEFINE_FWK_INPUT_SOURCE(TestRunSubRunSource);
 

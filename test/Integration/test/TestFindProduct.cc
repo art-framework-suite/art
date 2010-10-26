@@ -25,21 +25,21 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 
-namespace edmtest
+namespace arttest
 {
-  class TestFindProduct : public edm::EDAnalyzer
+  class TestFindProduct : public art::EDAnalyzer
   {
   public:
 
-    explicit TestFindProduct(edm::ParameterSet const& pset);
+    explicit TestFindProduct(art::ParameterSet const& pset);
     virtual ~TestFindProduct();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& es);
+    virtual void analyze(art::Event const& e, art::EventSetup const& es);
     virtual void endJob();
 
   private:
 
-    std::vector<edm::InputTag> inputTags_;
+    std::vector<art::InputTag> inputTags_;
     int expectedSum_;
     int sum_;
   }; // class TestFindProduct
@@ -48,8 +48,8 @@ namespace edmtest
   //
   // Implementation details
 
-  TestFindProduct::TestFindProduct(edm::ParameterSet const& pset) :
-    inputTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> >("inputTags")),
+  TestFindProduct::TestFindProduct(art::ParameterSet const& pset) :
+    inputTags_(pset.getUntrackedParameter<std::vector<art::InputTag> >("inputTags")),
     expectedSum_(pset.getUntrackedParameter<int>("expectedSum", 0)),
     sum_(0)
   {
@@ -58,11 +58,11 @@ namespace edmtest
   TestFindProduct::~TestFindProduct() {}
 
   void
-  TestFindProduct::analyze(edm::Event const& e, edm::EventSetup const& es)
+  TestFindProduct::analyze(art::Event const& e, art::EventSetup const& es)
   {
-    edm::Handle<IntProduct> h;
+    art::Handle<IntProduct> h;
 
-    for (std::vector<edm::InputTag>::const_iterator iter = inputTags_.begin(),
+    for (std::vector<art::InputTag>::const_iterator iter = inputTags_.begin(),
 	   iEnd = inputTags_.end();
          iter != iEnd;
          ++iter) {
@@ -80,7 +80,7 @@ namespace edmtest
       abort();
     }
   }
-} // namespace edmtest
+} // namespace arttest
 
-using edmtest::TestFindProduct;
+using arttest::TestFindProduct;
 DEFINE_FWK_MODULE(TestFindProduct);

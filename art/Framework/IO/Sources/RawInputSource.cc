@@ -14,7 +14,7 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 
 
-namespace edm {
+namespace art {
 
   RawInputSource::RawInputSource(fhicl::ParameterSet const& pset,
                                  InputSourceDescription const& desc) :
@@ -106,7 +106,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   RawInputSource::readIt(EventID const&) {
-      throw edm::Exception(errors::LogicError,"RawInputSource::readEvent_(EventID const& eventID)")
+      throw art::Exception(errors::LogicError,"RawInputSource::readEvent_(EventID const& eventID)")
         << "Random access read cannot be used for RawInputSource.\n"
         << "Contact a Framework developer.\n";
   }
@@ -114,9 +114,9 @@ namespace edm {
   // Not yet implemented
   void
   RawInputSource::skip(int) {
-      throw edm::Exception(errors::LogicError,"RawInputSource::skip(int offset)")
+      throw art::Exception(errors::LogicError,"RawInputSource::skip(int offset)")
         << "Random access skip cannot be used for RawInputSource\n"
         << "Contact a Framework developer.\n";
   }
 
-}  // namespace edm
+}  // namespace art

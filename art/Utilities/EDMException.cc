@@ -1,11 +1,11 @@
 
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
+namespace art {
   namespace errors {
     struct FilledMap {
       FilledMap();
-      edm::Exception::CodeMap trans_;
+      art::Exception::CodeMap trans_;
     };
     FilledMap::FilledMap() : trans_() {
       EDM_MAP_ENTRY_NONS(trans_, OtherCMS);
@@ -37,7 +37,7 @@ namespace edm {
     }
   }
 
-  void getCodeTable(edm::Exception::CodeMap*& setme) {
+  void getCodeTable(art::Exception::CodeMap*& setme) {
     static errors::FilledMap fm;
     setme = &fm.trans_;
   }

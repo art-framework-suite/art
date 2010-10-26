@@ -14,10 +14,10 @@
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/MakeParameterSets.h"
 
-using edm::ParameterSetID;
-using edm::ParameterSet;
-using edm::InputTag;
-typedef std::vector<edm::ParameterSet> VPSet;
+using art::ParameterSetID;
+using art::ParameterSet;
+using art::InputTag;
+typedef std::vector<art::ParameterSet> VPSet;
 
 
 void testUntrackedInternal()
@@ -124,10 +124,10 @@ void testUntrackedInternal()
       (void)  p.getUntrackedParameter<std::string>("i1", "");
       assert( "Failed to throw required exception" == 0 );
     }
-  catch ( edm::Exception& x)
+  catch ( art::Exception& x)
     {
       // This is the expected exception
-      assert( x.categoryCode() == edm::errors::Configuration);
+      assert( x.categoryCode() == art::errors::Configuration);
     }
   catch (...)
     {
@@ -140,10 +140,10 @@ void testUntrackedInternal()
       (void)p.getParameter<int>("i2");
       assert( "Failed to throw required exception when getting i2" == 0);
     }
-  catch ( edm::Exception& x)
+  catch ( art::Exception& x)
     {
       // This is the expected exception..
-      assert( x.categoryCode() == edm::errors::Configuration );
+      assert( x.categoryCode() == art::errors::Configuration );
     }
   catch ( ... )
     {
@@ -186,7 +186,7 @@ void testUntrackedFromScript()
   "    ))\n";
 
   boost::shared_ptr<ParameterSet> mainps = PythonProcessDesc(filetext).getProcessPSet();
-  //edm::makeParameterSets(filetext, mainps, services);
+  //art::makeParameterSets(filetext, mainps, services);
 
   ParameterSet p1 = mainps->getParameter<ParameterSet>("p1");
   assert( p1.getUntrackedParameter<int>("a")  == 6 );
@@ -219,10 +219,10 @@ void testTracked()
       (void)p.getUntrackedParameter<int>("a", 10);
       assert ("Failed to throw the required exception" == 0);
     }
-  catch ( edm::Exception& x )
+  catch ( art::Exception& x )
     {
       // This is the expected exception
-      assert (x.categoryCode() == edm::errors::Configuration);
+      assert (x.categoryCode() == art::errors::Configuration);
     }
   catch (...)
     {
@@ -242,9 +242,9 @@ int main()
       testTracked();
       rc = 0;
     }
-  catch ( edm::Exception& x)
+  catch ( art::Exception& x)
     {
-      std::cerr << "edm::Exception caught\n"
+      std::cerr << "art::Exception caught\n"
 		<< x
 		<< '\n';
       rc = -1;

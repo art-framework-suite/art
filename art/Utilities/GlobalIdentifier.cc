@@ -1,7 +1,7 @@
 #include "art/Utilities/GlobalIdentifier.h"
 #include "Guid.h"
 
-namespace edm {
+namespace art {
   std::string
   createGlobalIdentifier() {
     Guid guid;

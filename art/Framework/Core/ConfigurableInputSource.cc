@@ -16,7 +16,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   //used for defaults
   static const unsigned int kNanoSecPerSec = 1000000000U;
   static const unsigned int kAveEventPerSec = 200U;
@@ -24,18 +24,18 @@ namespace edm {
   ConfigurableInputSource::ConfigurableInputSource(fhicl::ParameterSet const& pset,
                                        InputSourceDescription const& desc, bool realData) :
     InputSource(pset, desc),
-    numberEventsInRun_(pset.getUInt("numberEventsInRun", remainingEvents())),
-    numberEventsInSubRun_(pset.getUInt("numberEventsInSubRun", remainingEvents())),
-    presentTime_(pset.getUInt("firstTime", 0)),  //time in ns
+    numberEventsInRun_(pset.get<unsigned int>("numberEventsInRun", remainingEvents())),
+    numberEventsInSubRun_(pset.get<unsigned int>("numberEventsInSubRun", remainingEvents())),
+    presentTime_(pset.get<unsigned int>("firstTime", 0)),  //time in ns
     origTime_(presentTime_),
-    timeBetweenEvents_(pset.getUInt("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
-    eventCreationDelay_(pset.getUInt("eventCreationDelay", 0)),
+    timeBetweenEvents_(pset.get<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
+    eventCreationDelay_(pset.get<unsigned int>("eventCreationDelay", 0)),
     numberEventsInThisRun_(0),
     numberEventsInThisSubRun_(0),
-    zerothEvent_(pset.getUInt("firstEvent", 1) - 1),
-    eventID_(pset.getUInt("firstRun", 1), zerothEvent_),
+    zerothEvent_(pset.get<unsigned int>("firstEvent", 1) - 1),
+    eventID_(pset.get<unsigned int>("firstRun", 1), zerothEvent_),
     origEventID_(eventID_),
-    subRun_(pset.getUInt("firstSubRun", 1)),
+    subRun_(pset.get<unsigned int>("firstSubRun", 1)),
     origSubRunNumber_t_(subRun_),
     newRun_(true),
     newSubRun_(true),
@@ -47,7 +47,7 @@ namespace edm {
   {
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
-    // std::string eType = pset.getString("experimentType", std::string("Any"))),
+    // std::string eType = pset.get<std::string>("experimentType", std::string("Any"))),
   }
 
   ConfigurableInputSource::~ConfigurableInputSource() {

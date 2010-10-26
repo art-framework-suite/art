@@ -7,7 +7,7 @@
 
 #include "art/Framework/Core/GeneratedInputSource.h"
 
-namespace edm {
+namespace art {
   class DummySource : public GeneratedInputSource {
   public:
     explicit DummySource(ParameterSet const&, InputSourceDescription const&);

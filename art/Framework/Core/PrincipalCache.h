@@ -18,7 +18,7 @@ Original Author: W. David Dagenhart
 
 #include <map>
 
-namespace edm {
+namespace art {
 
   class SubRunKey {
   public:

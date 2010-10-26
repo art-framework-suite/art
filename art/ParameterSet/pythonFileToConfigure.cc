@@ -12,7 +12,7 @@
 #include "art/ParameterSet/PythonWrapper.h"
 
 
-std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
+std::string art::pythonFileToConfigure(const std::string& iPythonFileName)
 {
   std::string returnValue;
   std::string initCommand("import FWCore.ParameterSet.python.Config as cms\n"
@@ -33,7 +33,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
                                                           main_namespace.ptr(),
                                                           main_namespace.ptr()))));
     } catch(error_already_set) {
-      edm::pythonToCppException("Configuration");
+      art::pythonToCppException("Configuration");
     }
     try {
       std::string command("cms.findProcess(fileDict).dumpConfig()");
@@ -44,7 +44,7 @@ std::string edm::pythonFileToConfigure(const std::string& iPythonFileName)
       returnValue= extract<std::string>(result);
 
     }catch( error_already_set ) {
-      edm::pythonToCppException("Configuration");
+      art::pythonToCppException("Configuration");
     }
   }catch(...) {
     Py_Finalize();

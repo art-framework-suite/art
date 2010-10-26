@@ -92,7 +92,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   namespace service {
     class TriggerNamesService;
@@ -119,7 +119,7 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     Schedule(fhicl::ParameterSet const& processDesc,
-             edm::service::TriggerNamesService& tns,
+             art::service::TriggerNamesService& tns,
              WorkerRegistry& wregistry,
              ProductRegistry& pregistry,
              ActionTable& actions,
@@ -372,7 +372,7 @@ namespace edm {
 
         if (results_inserter_.get()) results_inserter_->doWork<T>(ep, 0);
       }
-      catch(cms::Exception& e) {
+      catch(artZ::Exception& e) {
         actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
         assert (action != actions::IgnoreCompletely);
         assert (action != actions::FailPath);
@@ -388,7 +388,7 @@ namespace edm {
 
       if (endpathsAreActive_) runEndPaths<T>(ep);
     }
-    catch(cms::Exception& ex) {
+    catch(artZ::Exception& ex) {
       actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.rootCause()) : actions::Rethrow);
       assert (action != actions::SkipEvent);
       assert (action != actions::FailPath);
@@ -402,7 +402,7 @@ namespace edm {
       }
       default: {
         state_ = Ready;
-        throw edm::Exception(errors::EventProcessorFailure,
+        throw art::Exception(errors::EventProcessorFailure,
                              "EventProcessingStopped",ex)
           << "an exception occurred during current event processing\n";
       }
@@ -447,6 +447,6 @@ namespace edm {
     //               constant_ref(es))); // pass by const-reference (not copy)
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_Schedule_h

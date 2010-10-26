@@ -4,7 +4,7 @@
 #include <string>
 #include <iosfwd>
 
-namespace edm {
+namespace art {
 
   class InputTag {
   public:

@@ -3,7 +3,7 @@
 using mf::LogError;
 
 
-namespace edm {
+namespace art {
   namespace {
 
     class ModuleBeginJobSignalSentry {
@@ -63,14 +63,14 @@ private:
         ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
         implBeginJob();
     }
-    catch(cms::Exception& e) {
+    catch(artZ::Exception& e) {
         // should event id be included?
         LogError("BeginJob")
-          << "A cms::Exception is going through " << workerType() << ":\n";
+          << "A artZ::Exception is going through " << workerType() << ":\n";
 
-        e << "A cms::Exception is going through " << workerType() << ":\n"
+        e << "A artZ::Exception is going through " << workerType() << ":\n"
           << description();
-        throw edm::Exception(errors::OtherCMS, std::string(), e);
+        throw art::Exception(errors::OtherCMS, std::string(), e);
     }
     catch(std::bad_alloc& e) {
         LogError("BeginJob")
@@ -82,7 +82,7 @@ private:
         LogError("BeginJob")
           << "A std::exception is going through " << workerType() << ":\n"
           << description() << "\n";
-        throw edm::Exception(errors::StdException)
+        throw art::Exception(errors::StdException)
           << "A std::exception is going through " << workerType() << ":\n"
           << description() << "\n";
     }
@@ -90,7 +90,7 @@ private:
         LogError("BeginJob")
           << "module caught an std::string during beginJob\n";
 
-        throw edm::Exception(errors::BadExceptionType)
+        throw art::Exception(errors::BadExceptionType)
           << "std::string = " << s << "\n"
           << description() << "\n";
     }
@@ -98,14 +98,14 @@ private:
         LogError("BeginJob")
           << "module caught an const char* during beginJob\n";
 
-        throw edm::Exception(errors::BadExceptionType)
+        throw art::Exception(errors::BadExceptionType)
           << "cstring = " << c << "\n"
           << description();
     }
     catch(...) {
         LogError("BeginJob")
           << "An unknown Exception occurred in\n" << description() << "\n";
-        throw edm::Exception(errors::Unknown)
+        throw art::Exception(errors::Unknown)
           << "An unknown Exception occurred in\n" << description() << "\n";
     }
   }
@@ -115,14 +115,14 @@ private:
         ModuleEndJobSignalSentry cpp(actReg_.get(), md_);
         implEndJob();
     }
-    catch(cms::Exception& e) {
+    catch(artZ::Exception& e) {
         LogError("EndJob")
-          << "A cms::Exception is going through " << workerType() << ":\n";
+          << "A artZ::Exception is going through " << workerType() << ":\n";
 
         // should event id be included?
-        e << "A cms::Exception is going through " << workerType() << ":\n"
+        e << "A artZ::Exception is going through " << workerType() << ":\n"
           << description();
-        throw edm::Exception(errors::OtherCMS, std::string(), e);
+        throw art::Exception(errors::OtherCMS, std::string(), e);
     }
     catch(std::bad_alloc& e) {
         LogError("EndJob")
@@ -134,7 +134,7 @@ private:
         LogError("EndJob")
           << "An std::exception is going through " << workerType() << ":\n"
           << description() << "\n";
-        throw edm::Exception(errors::StdException)
+        throw art::Exception(errors::StdException)
           << "A std::exception is going through " << workerType() << ":\n"
           << description() << "\n";
     }
@@ -142,7 +142,7 @@ private:
         LogError("EndJob")
           << "module caught an std::string during endJob\n";
 
-        throw edm::Exception(errors::BadExceptionType)
+        throw art::Exception(errors::BadExceptionType)
           << "std::string = " << s << "\n"
           << description() << "\n";
     }
@@ -150,16 +150,16 @@ private:
         LogError("EndJob")
           << "module caught an const char* during endJob\n";
 
-        throw edm::Exception(errors::BadExceptionType)
+        throw art::Exception(errors::BadExceptionType)
           << "cstring = " << c << "\n"
           << description() << "\n";
     }
     catch(...) {
         LogError("EndJob")
           << "An unknown Exception occurred in\n" << description() << "\n";
-        throw edm::Exception(errors::Unknown)
+        throw art::Exception(errors::Unknown)
           << "An unknown Exception occurred in\n" << description() << "\n";
     }
   }
 
-}  // namespace edm
+}  // namespace art

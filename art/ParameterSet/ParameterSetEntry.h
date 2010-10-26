@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ParameterSetEntry.h"
+
+
 #ifndef ParameterSet_ParameterSetEntry_h
 #define ParameterSet_ParameterSetEntry_h
 
@@ -14,7 +17,7 @@
 #include "fhiclcpp/ParameterSetID.h"
 
 
-namespace edm {
+namespace art {
 
   class ParameterSetEntry
   {
@@ -56,6 +59,6 @@ namespace edm {
 
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // ParameterSet_ParameterSetEntry_h

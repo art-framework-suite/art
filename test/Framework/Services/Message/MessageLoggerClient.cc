@@ -5,33 +5,33 @@
 #include <iostream>
 
 
-namespace edmtest
+namespace arttest
 {
 
 
 void
-  MessageLoggerClient::analyze( edm::Event      const & e
-                              , edm::EventSetup const & /*unused*/
+  MessageLoggerClient::analyze( art::Event      const & e
+                              , art::EventSetup const & /*unused*/
                               )
 {
   //std::cout << "Module reached\n";
   LogDebug("aTestMessage") << "LogDebug was used to send this message";
-  edm::LogInfo("aTestMessage") << "LogInfo was used to send this message";
-  edm::LogWarning("aTestMessage") << "LogWarning was used to send this message";
-  edm::LogError("aTestMessage") << "LogError was used to send this message";
-  edm::LogInfo("cat1|cat2||cat3") << "Three-category message";
+  art::LogInfo("aTestMessage") << "LogInfo was used to send this message";
+  art::LogWarning("aTestMessage") << "LogWarning was used to send this message";
+  art::LogError("aTestMessage") << "LogError was used to send this message";
+  art::LogInfo("cat1|cat2||cat3") << "Three-category message";
 
-  edm::LogWarning("aboutToSend") << "about to send 100 warnings";
+  art::LogWarning("aboutToSend") << "about to send 100 warnings";
   for( unsigned i = 0;  i != 100;  ++i )  {
-    edm::LogWarning("unimportant") << "warning number " << i;
+    art::LogWarning("unimportant") << "warning number " << i;
   }
 
 
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::MessageLoggerClient;
+using arttest::MessageLoggerClient;
 DEFINE_FWK_MODULE(MessageLoggerClient);

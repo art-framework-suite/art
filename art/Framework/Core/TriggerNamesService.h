@@ -26,13 +26,12 @@
 
 
 #include "fhiclcpp/ParameterSet.h"
-
 #include <map>
 #include <string>
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class TriggerResults;
 
@@ -128,6 +127,6 @@ namespace edm {
     };
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_TriggerNamesService_h

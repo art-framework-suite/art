@@ -13,16 +13,16 @@
 
 
 // Contents:
-namespace edm {
+namespace art {
   class Prescaler;
 }
-using edm::Prescaler;
+using art::Prescaler;
 
 
 // ======================================================================
 
 
-class edm::Prescaler
+class art::Prescaler
   : public EDFilter
 {
 public:
@@ -46,8 +46,8 @@ private:
 
 Prescaler::Prescaler( fhicl::ParameterSet const & ps )
   : count_ ( 0 )
-  , n_     ( ps.getInt("prescaleFactor") )
-  , offset_( ps.getInt("prescaleOffset") )
+  , n_     ( ps.get<int>("prescaleFactor") )
+  , offset_( ps.get<int>("prescaleOffset") )
 { }
 
 

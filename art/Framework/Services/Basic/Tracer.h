@@ -15,7 +15,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
    namespace service {
       class Tracer {
 public:

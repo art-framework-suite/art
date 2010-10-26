@@ -29,7 +29,7 @@ namespace CLHEP {
   class RandFlat;
 }
 
-namespace edm {
+namespace art {
 
   class PoolSource;
   class RootFile;
@@ -114,6 +114,6 @@ namespace edm {
     bool dropDescendants_;
   };  // RootInputFileSequence
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Input_RootInputFileSequence_h

@@ -31,7 +31,7 @@ using mf::LogInfo;
 using mf::LogVerbatim;
 
 
-namespace edm {
+namespace art {
   namespace {
 
     // Function template to transform each element in the input range to
@@ -97,7 +97,7 @@ namespace edm {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet const& proc_pset,
-                     edm::service::TriggerNamesService& tns,
+                     art::service::TriggerNamesService& tns,
                      WorkerRegistry& wreg,
                      ProductRegistry& preg,
                      ActionTable& actions,
@@ -126,7 +126,7 @@ namespace edm {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet opts(pset_.getPSet("options", ParameterSet()));
+    ParameterSet opts(pset_.get<fhicl::ParameterSet>("options", ParameterSet()));
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -163,14 +163,14 @@ namespace edm {
         ++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
     }
-    std::vector<std::string> modulesInConfig(proc_pset.getVString("@all_modules"));
+    std::vector<std::string> modulesInConfig(proc_pset.get<std::vector<std::string> >("@all_modules"));
     std::set<std::string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     std::vector<std::string> unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
                    usedWorkerLabels.begin(),usedWorkerLabels.end(),
                    back_inserter(unusedLabels));
     //does the configuration say we should allow on demand?
-    bool allowUnscheduled = opts.getBool("allowUnscheduled", false);
+    bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
     if(!unusedLabels.empty()) {
       //Need to
@@ -184,7 +184,7 @@ namespace edm {
           ++itLabel) {
         if (allowUnscheduled) {
           //Need to hold onto the parameters long enough to make the call to getWorker
-          ParameterSet workersParams(proc_pset.getParameterSet(*itLabel));
+          ParameterSet workersParams(proc_pset.get<fhicl::ParameterSet>(*itLabel));
           WorkerParams params(proc_pset, workersParams,
                               *prod_reg_, *act_table_,
                               processName_, getReleaseVersion(), getPassID());
@@ -262,24 +262,24 @@ namespace edm {
   #if 0
     std::string const output("output");
 
-    ParameterSet maxEventsPSet(pset_.getPSet("maxEvents", ParameterSet()));
+    ParameterSet maxEventsPSet(pset_.get<fhicl::ParameterSet>("maxEvents", ParameterSet()));
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
-      maxEventsOut = maxEventsPSet.getInt(output);
+      maxEventsOut = maxEventsPSet.get<int>(output);
       ++maxEventSpecs;
     }
     std::vector<std::string> psetNamesE;
-    maxEventsPSet.getPSetNameList(psetNamesE, false);
+    maxEventsPSet.get<fhicl::ParameterSet>NameList(psetNamesE, false);
     if (search_all(psetNamesE, output)) {
-      vMaxEventsOut = maxEventsPSet.getPSet(output);
+      vMaxEventsOut = maxEventsPSet.get<fhicl::ParameterSet>(output);
       ++maxEventSpecs;
     }
 
     if (maxEventSpecs > 1) {
-      throw edm::Exception(edm::errors::Configuration) <<
+      throw art::Exception(art::errors::Configuration) <<
         "\nAt most one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
@@ -294,9 +294,9 @@ namespace edm {
         std::string moduleLabel = (*it)->description().moduleLabel_;
         if (!vMaxEventsOut.empty()) {
           try {
-            desc.maxEvents_ = vMaxEventsOut.getInt(moduleLabel);
-          } catch (edm::Exception) {
-            throw edm::Exception(edm::errors::Configuration) <<
+            desc.maxEvents_ = vMaxEventsOut.get<int>(moduleLabel);
+          } catch (art::Exception) {
+            throw art::Exception(art::errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
           }
         }
@@ -325,7 +325,7 @@ namespace edm {
   }
 
   void Schedule::fillWorkers(std::string const& name, PathWorkers& out) {
-    vstring modnames = pset_.getVString(name);
+    vstring modnames = pset_.get<std::vector<std::string> >(name);
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
@@ -340,13 +340,13 @@ namespace edm {
 
       ParameterSet modpset;
       try {
-        modpset= pset_.getParameterSet(realname);
-      } catch(cms::Exception&) {
+        modpset= pset_.get<fhicl::ParameterSet>(realname);
+      } catch(artZ::Exception&) {
         std::string pathType("endpath");
         if(!search_all(end_path_name_list_, name)) {
           pathType = std::string("path");
         }
-        throw edm::Exception(edm::errors::Configuration) <<
+        throw art::Exception(art::errors::Configuration) <<
           "The unknown module label \"" << realname <<
           "\" appears in " << pathType << " \"" << name <<
           "\"\n please check spelling or remove that label from the path.";
@@ -375,7 +375,7 @@ namespace edm {
       Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,actReg_,false);
       trig_paths_.push_back(p);
     }
-    for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
+    for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::fillEndPath(int bitpos, std::string const& name) {
@@ -392,19 +392,19 @@ namespace edm {
       Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,actReg_,true);
       end_paths_.push_back(p);
     }
-    for_all(holder, boost::bind(&edm::Schedule::addToAllWorkers, this, _1));
+    for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::endJob() {
     bool failure = false;
-    cms::Exception accumulated("endJob");
+    artZ::Exception accumulated("endJob");
     AllWorkers::iterator ai(workersBegin()),ae(workersEnd());
     for(; ai != ae; ++ai) {
       try {
         (*ai)->endJob();
       }
-      catch (cms::Exception& e) {
-        accumulated << "cms::Exception caught in Schedule::endJob\n"
+      catch (artZ::Exception& e) {
+        accumulated << "artZ::Exception caught in Schedule::endJob\n"
                     << e.explainSelf();
         failure = true;
       }
@@ -915,4 +915,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

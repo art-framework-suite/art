@@ -1,7 +1,7 @@
 
 #include "art/Utilities/Exception.h"
 
-namespace cms {
+namespace artZ {
 
   Exception::Exception(std::string const& aCategory) :
     std::exception(),

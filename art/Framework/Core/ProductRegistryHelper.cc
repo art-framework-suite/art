@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-namespace edm {
+namespace art {
   ProductRegistryHelper::~ProductRegistryHelper() { }
 
   ProductRegistryHelper::TypeLabelList & ProductRegistryHelper::typeLabelList() {

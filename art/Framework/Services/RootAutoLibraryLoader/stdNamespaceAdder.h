@@ -25,7 +25,7 @@
 // user include files
 
 // forward declarations
-namespace edm {
+namespace art {
   namespace root {
     std::string stdNamespaceAdder(const std::string&);
   }

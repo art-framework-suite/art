@@ -18,7 +18,7 @@ Definition of traits templates used in the EDM.
 #include <utility>
 #include <vector>
 
-namespace edm
+namespace art
 {
   //------------------------------------------------------------
   //
@@ -85,7 +85,7 @@ namespace edm
   // time to influence the behavior of Event::put.
   //
   // Usage:
-  //    class MyClass : public edm::DoNotSortUponInsertion { ... }
+  //    class MyClass : public art::DoNotSortUponInsertion { ... }
   //
   struct DoNotSortUponInsertion { };
 
@@ -100,7 +100,7 @@ namespace edm
   // influence the behavior of Event::put.
   //
   // Usage:
-  //    class MyClass : public edm::DoNotRecordParents { ... }
+  //    class MyClass : public art::DoNotRecordParents { ... }
   struct DoNotRecordParents { };
 
   // Other is a base class. NEVER USE IT. It is for the

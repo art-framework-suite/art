@@ -86,9 +86,9 @@ a message, one of these functions can be used:
 
 <font color=blue>
 <pre>
-  edm::LogError   ("category") << a << b << ... << z;
-  edm::LogWarning ("category") << a << b << ... << z;
-  edm::LogInfo    ("category") << a << b << ... << z;
+  art::LogError   ("category") << a << b << ... << z;
+  art::LogWarning ("category") << a << b << ... << z;
+  art::LogInfo    ("category") << a << b << ... << z;
 </pre>
 </font>
 When issuing messages:
@@ -167,7 +167,7 @@ issuing the message, <font color=blue>LogDebug</font>
 is implemented as a macro rather than a free function.
 <li>
 Because <font color=blue>LogDebug</font>  is a macro, it is not
-prepended with the <font color=blue>edm::</font>  namespace
+prepended with the <font color=blue>art::</font>  namespace
 designation.
 </ul>
 
@@ -306,12 +306,12 @@ Compile-time Elimination of LogDebug Messages </a>
 <li> User code can trigger the statistics destinations to write out
 the statistics accumulated thus far --
 <a href="statistics.html#LogStatistics">
-Obtaining Message Statistics: The edm::LogStatistics() Function </a>
+Obtaining Message Statistics: The art::LogStatistics() Function </a>
 <li> Each statistics destination can be configured to reset after each
 time the statistics are written out, or to continue accumulating further
 statistics --
 <a href="statistics.html#LogStatistics">
-Obtaining Message Statistics: The edm::LogStatistics() Function </a>
+Obtaining Message Statistics: The art::LogStatistics() Function </a>
 </ul>
 
 <h3>Framework Job Reports</h3>

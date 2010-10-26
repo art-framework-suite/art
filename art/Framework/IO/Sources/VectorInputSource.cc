@@ -1,7 +1,7 @@
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 
 
-namespace edm {
+namespace art {
 
   VectorInputSource::VectorInputSource( fhicl::ParameterSet const& pset
                                       , InputSourceDescription const& desc )
@@ -40,4 +40,4 @@ namespace edm {
     this->dropUnwantedBranches_(wantedBranches);
   }
 
-}  // namespace edm
+}  // namespace art

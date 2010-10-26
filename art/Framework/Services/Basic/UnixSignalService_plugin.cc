@@ -8,24 +8,24 @@
 #include <cstdlib>
 #include <iostream>
 
-using edm::service::UnixSignalService;
+using art::service::UnixSignalService;
 
 
-namespace edm {
+namespace art {
   namespace service {
 
     UnixSignalService::UnixSignalService(fhicl::ParameterSet const& pset,
-                                         edm::ActivityRegistry& registry)
-      : enableSigInt_(pset.getBool("EnableCtrlC",true))
+                                         art::ActivityRegistry& registry)
+      : enableSigInt_(pset.get<bool>("EnableCtrlC",true))
     {
-      edm::installCustomHandler(SIGUSR2,edm::ep_sigusr2);
-      if(enableSigInt_)  edm::installCustomHandler(SIGINT ,edm::ep_sigusr2);
+      art::installCustomHandler(SIGUSR2,art::ep_sigusr2);
+      if(enableSigInt_)  art::installCustomHandler(SIGINT ,art::ep_sigusr2);
     }
 
     UnixSignalService::~UnixSignalService() {}
 
   } // namespace service
-} // namespace edm
+} // namespace art
 
 
 // ======================================================================

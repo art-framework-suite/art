@@ -20,14 +20,10 @@ it.
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/Presence.h"
 #include "art/Utilities/RootHandlers.h"
-
-#include "MessageFacility/MessageLogger.h"
-
-#include "TError.h"
-
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
-
+#include "MessageFacility/MessageLogger.h"
+#include "TError.h"
 #include <cstring>
 #include <exception>
 #include <fstream>
@@ -48,7 +44,7 @@ namespace {
   class EventProcessorWithSentry {
   public:
     explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) { }
-    explicit EventProcessorWithSentry(std::auto_ptr<edm::EventProcessor> ep) :
+    explicit EventProcessorWithSentry(std::auto_ptr<art::EventProcessor> ep) :
       ep_(ep),
       callEndJob_(false) { }
     ~EventProcessorWithSentry() {
@@ -56,17 +52,17 @@ namespace {
         try {
           ep_->endJob();
         }
-        catch (cms::Exception& e) {
-          //edm::printCmsException(e, kProgramName);
+        catch (artZ::Exception& e) {
+          //art::printCmsException(e, kProgramName);
         }
         catch (std::bad_alloc& e) {
-          //edm::printBadAllocException(kProgramName);
+          //art::printBadAllocException(kProgramName);
         }
         catch (std::exception& e) {
-          //edm::printStdException(e, kProgramName);
+          //art::printStdException(e, kProgramName);
         }
         catch (...) {
-          //edm::printUnknownException(kProgramName);
+          //art::printUnknownException(kProgramName);
         }
       }
     }
@@ -77,11 +73,11 @@ namespace {
       callEndJob_ = false;
     }
 
-    edm::EventProcessor* operator->() {
+    art::EventProcessor* operator->() {
       return ep_.get();
     }
   private:
-    std::auto_ptr<edm::EventProcessor> ep_;
+    std::auto_ptr<art::EventProcessor> ep_;
     bool callEndJob_;
   };
 }
@@ -95,9 +91,9 @@ int art_main(int argc, char* argv[])
   // We must initialize the plug-in manager first
   // TODO: Replace initialization of the plugin manager.
   try {
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    artplugin::PluginManager::configure(artplugin::standard::config());
   }
-  catch(cms::Exception& e) {
+  catch(artZ::Exception& e) {
     std::cerr << e.what() << std::endl;
     return 1;
   }
@@ -163,7 +159,6 @@ int art_main(int argc, char* argv[])
   //   load all dictionaries facility
   //   current module facility
 
-
   edm::ServiceToken dummyToken;
 
   // TODO: Possibly remove addServices -- we have already made
@@ -177,10 +172,10 @@ int art_main(int argc, char* argv[])
   EventProcessorWithSentry proc;
   int rc = -1; // we should never return this value!
   try {
-    std::auto_ptr<edm::EventProcessor>
+    std::auto_ptr<art::EventProcessor>
         procP(new
-              edm::EventProcessor(processDesc, dummyToken,
-                             edm::serviceregistry::kTokenOverrides));
+              art::EventProcessor(processDesc, jobReportToken,
+                             art::serviceregistry::kTokenOverrides));
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
@@ -191,30 +186,30 @@ int art_main(int argc, char* argv[])
     proc->endJob();
     rc = 0;
     // Disable Root Error Handler so we do not throw because of ROOT errors.
-    edm::ServiceToken token = proc->getToken();
-    edm::ServiceRegistry::Operate operate(token);
-    edm::Service<edm::RootHandlers> rootHandler;
+    art::ServiceToken token = proc->getToken();
+    art::ServiceRegistry::Operate operate(token);
+    art::Service<art::RootHandlers> rootHandler;
     rootHandler->disableErrorHandler();
   }
-  catch (edm::Exception& e) {
+  catch (art::Exception& e) {
     rc = e.returnCode();
-    edm::printCmsException(e, kProgramName); // , "Thing1", rc);
+    art::printCmsException(e, kProgramName); // , "Thing1", rc);
   }
-  catch (cms::Exception& e) {
+  catch (artZ::Exception& e) {
     rc = 8001;
-    edm::printCmsException(e, kProgramName); // , "Thing2", rc);
+    art::printCmsException(e, kProgramName); // , "Thing2", rc);
   }
   catch(std::bad_alloc& bda) {
     rc = 8004;
-    edm::printBadAllocException(kProgramName); // , "Thing3", rc);
+    art::printBadAllocException(kProgramName); // , "Thing3", rc);
   }
   catch (std::exception& e) {
     rc = 8002;
-    edm::printStdException(e, kProgramName); // , "Thing4", rc);
+    art::printStdException(e, kProgramName); // , "Thing4", rc);
   }
   catch (...) {
     rc = 8003;
-    edm::printUnknownException(kProgramName); // , "Thing5", rc);
+    art::printUnknownException(kProgramName); // , "Thing5", rc);
   }
   // Disable Root Error Handler again, just in case an exception
   // caused the above disabling of the handler to be bypassed.

@@ -19,11 +19,11 @@
 #include "art/Persistency/Common/Handle.h"
 #include "art/Framework/Core/Selector.h"
 
-namespace edm
+namespace art
 {
   namespace detail
   {
-    typedef edm::Handle<edm::TriggerResults> handle_t;
+    typedef art::Handle<art::TriggerResults> handle_t;
 
     class NamedEventSelector
     {

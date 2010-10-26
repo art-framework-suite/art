@@ -16,7 +16,7 @@ typedef int DetId;
 #include "cppunit/extensions/HelperMacros.h"
 #include "art/Persistency/Common/SortedCollection.h"
 
-using namespace edm;
+using namespace art;
 
 
 //------------------------------------------------------
@@ -107,7 +107,7 @@ class testSortedCollection: public CppUnit::TestFixture
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testSortedCollection);
 
-typedef edm::SortedCollection<Value,StrictWeakOrdering<Value> > scoll_type;
+typedef art::SortedCollection<Value,StrictWeakOrdering<Value> > scoll_type;
 
 void testSortedCollection::constructTest()
 {
@@ -139,7 +139,7 @@ void testSortedCollection::insertTest()
 }
 
 template <class T, class SORT>
-void append_to_both(edm::SortedCollection<T,SORT>& sc,
+void append_to_both(art::SortedCollection<T,SORT>& sc,
 		    std::vector<T>& vec,
 		    const T& t)
 {

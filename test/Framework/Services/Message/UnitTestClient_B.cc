@@ -5,27 +5,27 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 int  UnitTestClient_B::nevent = 0;
 
 void
-  UnitTestClient_B::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_B::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
   nevent++;
   for (int i = 0; i < nevent; ++i) {
-    edm::LogError  ("cat_A")   << "LogError was used to send this message";
+    art::LogError  ("cat_A")   << "LogError was used to send this message";
   }
-  edm::LogError  ("cat_B")   << "LogError was used to send this other message";
-  edm::LogStatistics();
+  art::LogError  ("cat_B")   << "LogError was used to send this other message";
+  art::LogStatistics();
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_B;
+using arttest::UnitTestClient_B;
 DEFINE_FWK_MODULE(UnitTestClient_B);

@@ -9,7 +9,7 @@
 #include "art/Persistency/Provenance/BranchType.h"
 
 
-namespace edm {
+namespace art {
 
   namespace {
 

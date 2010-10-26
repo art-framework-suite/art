@@ -16,7 +16,7 @@ This struct is used to communication parameters into the worker factory.
 
 #include <string>
 
-namespace edm
+namespace art
 {
   class ProductRegistry;
   class ActionTable;

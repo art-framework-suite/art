@@ -2,7 +2,7 @@
 //   math/math_private.h
 //   sysdeps/ieee754/ldbl-96/math_ldbl.h
 
-// part of ths file:
+// part of this file:
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -19,7 +19,7 @@
 
 #include <sys/types.h>
 
-namespace edm {
+namespace art {
   namespace math_private {
 
     // A union which permits us to convert between a float and a 32 bit int.
@@ -57,7 +57,7 @@ namespace edm {
     /* Get a 32 bit int from a float.  */
     #define GET_FLOAT_WORD(i,d)                                     \
     do {                                                            \
-      edm::math_private::ieee_float_shape_type gf_u;                \
+      art::math_private::ieee_float_shape_type gf_u;                \
       gf_u.value = (d);                                             \
       (i) = gf_u.word;                                              \
     } while (0)
@@ -65,7 +65,7 @@ namespace edm {
     /* Get two 32 bit ints from a double.  */
     #define EXTRACT_WORDS(ix0,ix1,d)                                \
     do {                                                            \
-      edm::math_private::ieee_double_shape_type ew_u;               \
+      art::math_private::ieee_double_shape_type ew_u;               \
       ew_u.value = (d);                                             \
       (ix0) = ew_u.parts.msw;                                       \
       (ix1) = ew_u.parts.lsw;                                       \
@@ -74,7 +74,7 @@ namespace edm {
     /* Get three 32 bit ints from a long double.  */
     #define GET_LDOUBLE_WORDS(exp,ix0,ix1,d)                        \
     do {                                                            \
-        edm::math_private::ieee_long_double_shape_type ew_u;        \
+        art::math_private::ieee_long_double_shape_type ew_u;        \
         ew_u.value = (d);                                           \
         (exp) = ew_u.parts.sign_exponent;                           \
         (ix0) = ew_u.parts.msw;                                     \
@@ -82,6 +82,6 @@ namespace edm {
     } while (0)
 
   } // namespace math_private
-} // namespace edm
+} // namespace art
 
 #endif // math_private_h

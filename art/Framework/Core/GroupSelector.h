@@ -18,7 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class BranchDescription;
   class GroupSelectorRules;
 
@@ -55,6 +55,6 @@ namespace edm {
   std::ostream&
   operator<< (std::ostream& os, const GroupSelector& gs);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_GroupSelector_h

@@ -25,9 +25,9 @@ int main()
 {
   assert(simple::count == 0);
   {
-    edm::value_ptr<simple> a(new simple(10));
+    art::value_ptr<simple> a(new simple(10));
     assert(simple::count == 1);
-    edm::value_ptr<simple> b(a);
+    art::value_ptr<simple> b(a);
     assert(simple::count == 2);
 
     assert(*a==*b);
@@ -43,12 +43,12 @@ int main()
     simple* pc = c.get();
     simple* pd = d.get();
 
-    edm::value_ptr<simple> e(c);
+    art::value_ptr<simple> e(c);
     assert(c.get() == 0);
     assert(*d == *e);
     assert(e.operator->() == pc);
 
-    edm::value_ptr<simple> f;
+    art::value_ptr<simple> f;
     if (f) {
       assert(0);
     }

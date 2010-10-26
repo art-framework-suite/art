@@ -9,7 +9,7 @@ Holds a unique file identifier in string form.
 
 #include <string>
 
-namespace edm {
+namespace art {
 
   class FileID {
   public:

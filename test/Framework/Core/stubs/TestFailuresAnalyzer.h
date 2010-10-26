@@ -24,15 +24,15 @@
 // user include files
 
 // forward declarations
-class TestFailuresAnalyzer : public edm::EDAnalyzer {
+class TestFailuresAnalyzer : public art::EDAnalyzer {
 public:
-   explicit TestFailuresAnalyzer(const edm::ParameterSet&);
+   explicit TestFailuresAnalyzer(const art::ParameterSet&);
    ~TestFailuresAnalyzer();
 
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(const art::Event&, const art::EventSetup&);
 
-   virtual void beginJob(const edm::EventSetup&);
+   virtual void beginJob(const art::EventSetup&);
    virtual void endJob();
 
 private:

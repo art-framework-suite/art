@@ -1,6 +1,6 @@
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 
-namespace edm {
+namespace art {
 
   std::ostream&
   operator<<(std::ostream& os, ParameterSetBlob const& blob) {
@@ -8,4 +8,4 @@ namespace edm {
     return os;
   }
 
-}  // namespace edm
+}  // namespace art

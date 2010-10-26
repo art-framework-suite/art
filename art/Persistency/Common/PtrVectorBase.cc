@@ -6,7 +6,7 @@
 
 // Class definition:
 #include "art/Persistency/Common/PtrVectorBase.h"
-using edm::PtrVectorBase;
+using art::PtrVectorBase;
 
 // Framework support:
 #include "art/Persistency/Common/EDProduct.h"
@@ -66,13 +66,13 @@ void
   if( indicies_.size() == 0 )
     return;
   if( 0 == productGetter())
-    throw edm::Exception(edm::errors::LogicError)
+    throw art::Exception(art::errors::LogicError)
           << "Tried to get data for a PtrVector which has no EDProductGetter\n";
 
   EDProduct const * product = productGetter()->getIt(id());
 
   if( 0 == product )
-    throw edm::Exception(edm::errors::InvalidReference)
+    throw art::Exception(art::errors::InvalidReference)
           << "Asked for data from a PtrVector"
              " that refers to a non-existent product with id "
           << id()

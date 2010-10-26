@@ -54,22 +54,25 @@ set( artFrameworkCore_sources Actions.cc
                               WorkerMaker.cc
                               WorkerRegistry.cc )
 
-#link_libraries( artPersistencyProvenance
-#                artPersistencyCommon
-#                artMessageLogger
-#                artFrameworkServicesBasic
-#                artFrameworkCore
-#                artParameterSet
-#                artFrameworkPluginManager
-#                artFrameworkServicesRegistry
-#                artUtilities
-#                artVersion
-#                ${Boost_FILESYSTEM_LIBRARY}
-#                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-#                ${SIGC}
-#                ${CORE}
-#                ${REFLEX}
-#                ${MATRIX} )
+link_libraries( artPersistencyProvenance
+                artPersistencyCommon
+                artFrameworkServicesBasic
+                artFrameworkCore
+                artFrameworkPluginManager
+                artFrameworkServicesRegistry
+                artUtilities
+                artVersion
+                ${Boost_FILESYSTEM_LIBRARY}
+                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                ${Boost_THREAD_LIBRARY}
+		${Boost_REGEX_LIBRARY}
+                ${SIGC}
+                ${HIST}
+                ${REFLEX}
+		${CINT}
+                ${MATRIX}
+                ${MATHCORE}
+                ${CORE} )
 
 simple_plugin(RandomNumberGeneratorService_plugin)
 simple_plugin(RandomNumberSaver_plugin)
@@ -81,64 +84,86 @@ set( artFrameworkCoreArt_sources artapp.cc )
 add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
 
 add_executable( art   art.cpp   )
+target_link_libraries( art artFrameworkCoreArt
+                           ${MF_MESSAGELOGGER}
+                           ${MF_MESSAGESERVICE}
+                           ${MF_UTILITIES}
+                           ${MF_EXTENSIONS}
+			   )
+install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 
-install ( TARGETS artFrameworkCore DESTINATION lib )
-install ( TARGETS artFrameworkCoreArt DESTINATION lib )
-install ( TARGETS art   DESTINATION bin )
+install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
+
 install(FILES Actions.h
-              BranchActionType.h
-              CachedProducts.h
-              CMakeLists.txt
-              ConfigurableInputSource.h
-              ConstProductRegistry.h
-              CurrentProcessingContext.h
-              DataProxyProvider.h
-              DataProxyTemplate.h
-              DataViewImpl.h
-              DelayedReader.h
-              EDAnalyzer.h
-              EDFilter.h
-              EDProducer.h
-              EngineCreator.h
-              Event.h
-              EventPrincipal.h
-              EventProcessor.h
-              EventSelector.h
-              FileBlock.h
-              Frameworkfwd.h
-              GeneratedInputSource.h
-              GenericHandle.h
-              GenericObjectOwner.h
-              Group.h
-              GroupSelector.h
-              GroupSelectorRules.h
-              IEventProcessor.h
-              InputSourceDescription.h
-              InputSource.h
-              InputSourceMacros.h
-              IOVSyncValue.h
-              SubRun.h
-              SubRunPrincipal.h
-              MakerMacros.h
-              NoDelayedReader.h
-              OccurrenceTraits.h
-              OutputModuleDescription.h
-              OutputModule.h
-              Principal.h
-              ProducerBase.h
-              ProductRegistryHelper.h
-              RandomNumberGeneratorService.h
-              Run.h
-              RunPrincipal.h
-              Schedule.h
-              SelectorBase.h
-              Selector.h
-              TFileDirectory.h
-              TH1AddDirectorySentry.h
-              TriggerNames.h
-              TriggerNamesService.h
-              TriggerReport.h
-              UnknownModuleException.h
-              UnscheduledHandler.h
-              ValidityInterval.h
-        DESTINATION include/art/Framework/Core )
+	      BranchActionType.h
+	      Breakpoints.h
+	      CPCSentry.h
+	      CachedProducts.h
+	      ConfigurableInputSource.h
+	      ConstProductRegistry.h
+	      CurrentProcessingContext.h
+	      DataViewImpl.h
+	      DelayedReader.h
+	      EDAnalyzer.h
+	      EDFilter.h
+	      EDProducer.h
+	      EPStates.h
+	      EngineCreator.h
+	      Event.h
+	      EventPrincipal.h
+	      EventProcessor.h
+	      EventSelector.h
+	      Factory.h
+	      FileBlock.h
+	      Frameworkfwd.h
+	      GeneratedInputSource.h
+	      GenericHandle.h
+	      GenericObjectOwner.h
+	      Group.h
+	      GroupSelector.h
+	      GroupSelectorRules.h
+	      IEventProcessor.h
+	      IOVSyncValue.h
+	      InputSource.h
+	      InputSourceDescription.h
+	      InputSourceFactory.h
+	      InputSourceMacros.h
+	      MakerMacros.h
+	      NoDelayedReader.h
+	      OccurrenceTraits.h
+	      OutputModule.h
+	      OutputModuleDescription.h
+	      OutputWorker.h
+	      Path.h
+	      Principal.h
+	      PrincipalCache.h
+	      ProcessingTask.h
+	      ProducerBase.h
+	      ProductRegistryHelper.h
+	      RandomNumberGeneratorService.h
+	      Run.h
+	      RunPrincipal.h
+	      RunStopwatch.h
+	      Schedule.h
+	      Selector.h
+	      SelectorBase.h
+	      SignallingProductRegistry.h
+	      SubRun.h
+	      SubRunPrincipal.h
+	      TFileDirectory.h
+	      TH1AddDirectorySentry.h
+	      TriggerNames.h
+	      TriggerNamesService.h
+	      TriggerReport.h
+	      TriggerResultInserter.h
+	      UnknownModuleException.h
+	      UnscheduledHandler.h
+	      ValidityInterval.h
+	      Worker.h
+	      WorkerInPath.h
+	      WorkerMaker.h
+	      WorkerParams.h
+	      WorkerRegistry.h
+	      WorkerT.h
+        DESTINATION  ${product}/${version}/include/art/Framework/Core )

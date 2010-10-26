@@ -5,21 +5,21 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 
-namespace edmtest {
-  ThingExtSource::ThingExtSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
+namespace arttest {
+  ThingExtSource::ThingExtSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc) :
     ExternalInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
-    produces<ThingCollection, edm::InSubRun>("beginSubRun");
-    produces<ThingCollection, edm::InSubRun>("endSubRun");
-    produces<ThingCollection, edm::InRun>("beginRun");
-    produces<ThingCollection, edm::InRun>("endRun");
+    produces<ThingCollection, art::InSubRun>("beginSubRun");
+    produces<ThingCollection, art::InSubRun>("endSubRun");
+    produces<ThingCollection, art::InRun>("beginRun");
+    produces<ThingCollection, art::InRun>("endRun");
   }
 
   // Virtual destructor needed.
   ThingExtSource::~ThingExtSource() { }
 
   // Functions that gets called by framework every event
-  bool ThingExtSource::produce(edm::Event& e) {
+  bool ThingExtSource::produce(art::Event& e) {
 
     // Fake running out of data for an external input source.
     if (event() > 2) return false;
@@ -39,7 +39,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every subRun
-  void ThingExtSource::beginSubRun(edm::SubRun& lb) {
+  void ThingExtSource::beginSubRun(art::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -52,7 +52,7 @@ namespace edmtest {
     lb.put(result, "beginSubRun");
   }
 
-  void ThingExtSource::endSubRun(edm::SubRun& lb) {
+  void ThingExtSource::endSubRun(art::SubRun& lb) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -66,7 +66,7 @@ namespace edmtest {
   }
 
   // Functions that gets called by framework every run
-  void ThingExtSource::beginRun(edm::Run& r) {
+  void ThingExtSource::beginRun(art::Run& r) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -79,7 +79,7 @@ namespace edmtest {
     r.put(result, "beginRun");
   }
 
-  void ThingExtSource::endRun(edm::Run& r) {
+  void ThingExtSource::endRun(art::Run& r) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -93,5 +93,5 @@ namespace edmtest {
   }
 
 }
-using edmtest::ThingExtSource;
+using arttest::ThingExtSource;
 DEFINE_FWK_INPUT_SOURCE(ThingExtSource);

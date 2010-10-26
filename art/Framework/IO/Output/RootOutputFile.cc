@@ -6,7 +6,6 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -45,7 +44,7 @@
 #include <sstream>
 
 
-namespace edm {
+namespace art {
 
   namespace {
     bool
@@ -118,11 +117,11 @@ namespace edm {
     // Create the tree that will carry (event) History objects.
     eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::eventHistoryTreeName(), om_->splitLevel());
     if (!eventHistoryTree_)
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw art::Exception(art::errors::FatalRootError)
         << "Failed to create the tree for History objects\n";
 
     if (! eventHistoryTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Historys in the output file\n";
 
     fid_ = FileID(createGlobalIdentifier());
@@ -155,7 +154,7 @@ namespace edm {
           << bd.processName() << underscore;
     }
     std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
 
     // Register the output file with the JobReport service
     // and get back the token for it.
@@ -202,7 +201,7 @@ namespace edm {
     pHistory_ = &historyForOutput;
     int sz = eventHistoryTree_->Fill();
     if ( sz <= 0)
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw art::Exception(art::errors::FatalRootError)
         << "Failed to fill the History tree for event: " << e.id()
         << "\nTTree::Fill() returned " << sz << " bytes written." << std::endl;
 
@@ -246,12 +245,12 @@ namespace edm {
 
     if (!parentageTree_->Branch(poolNames::parentageIDBranchName().c_str(),
                                         &hash, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for ParentageIDs in the output file";
 
     if (!parentageTree_->Branch(poolNames::parentageBranchName().c_str(),
                                         &desc, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError)
+      throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Parentages in the output file";
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
@@ -311,7 +310,8 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::writeParameterSetRegistry() {
+  void RootOutputFile::writeParameterSetRegistry() {  // TODO: update
+    #if 0
     typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
     ParameterSetMap psetMap;
     pset::fill(pset::Registry::instance(), psetMap);
@@ -319,12 +319,13 @@ namespace edm {
     TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
     assert(b);
     b->Fill();
+    #endif  // 0
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     typedef ProductRegistry::ProductList ProductList;
-    edm::Service<edm::ConstProductRegistry> reg;
+    art::Service<art::ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
     ProductList & pList  = const_cast<ProductList &>(pReg.productList());
     std::set<BranchID>::iterator end = branchesWithStoredHistory_.end();
@@ -486,4 +487,4 @@ namespace edm {
     productProvenanceVecPtr->clear();
   }
 
-}  // namespace edm
+}  // namespace art

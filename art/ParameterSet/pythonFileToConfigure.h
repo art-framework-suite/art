@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/pythonFileToConfigure.h"
+
+
 #if !defined(FWCore_Framework_pythonToConfigure_h)
 #define FWCore_Framework_pythonToConfigure_h
 /*
@@ -10,7 +13,7 @@
  */
 #include <string>
 
-namespace edm {
+namespace art {
   std::string pythonFileToConfigure(const std::string& iPythonFileName);
 }
 #endif /* defined(FWCore_Framework_pythonToConfigure_h) */

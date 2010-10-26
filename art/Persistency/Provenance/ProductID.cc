@@ -1,7 +1,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include <ostream>
 
-namespace edm {
+namespace art {
   std::ostream&
   operator<<(std::ostream& os, ProductID const& id) {
     os << id.processIndex() << ":" << id.productIndex();

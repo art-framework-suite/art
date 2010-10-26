@@ -15,7 +15,7 @@
 ///
 // ----------------------------------------------------------------------
 
-namespace edm {
+namespace art {
   namespace detail {
     struct Empty { };
 
@@ -230,6 +230,6 @@ namespace edm {
     { }
 
   } // namespace detail
-} // namespace edm
+} // namespace art
 
 #endif //  FWCore_Utilities_ThreadSafeIndexedRegistry_h

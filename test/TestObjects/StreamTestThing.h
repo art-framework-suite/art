@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace edmtestprod {
+namespace arttestprod {
 
   struct StreamTestThing
   {

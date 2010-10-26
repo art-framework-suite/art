@@ -10,7 +10,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
 
 
 
@@ -21,7 +21,7 @@ namespace edm {
     std::ostringstream oss;
     oss << *this;
     std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
     return ProcessConfigurationID(md5alg.digest().toString());
   }
 

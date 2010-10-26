@@ -59,8 +59,8 @@ namespace callbacktest {
 
    struct PtrProductsProd {
       PtrProductsProd() : data_(), double_() {}
-      edm::ESProducts<const Data*, const Double*> method(const Record&) {
-         using namespace edm::es;
+      art::ESProducts<const Data*, const Double*> method(const Record&) {
+         using namespace art::es;
          const Data* dataT = &data_;
          const Double* doubleT = &double_;
          ++data_.value_;
@@ -73,7 +73,7 @@ namespace callbacktest {
 }
 
 using namespace callbacktest;
-using namespace edm::eventsetup;
+using namespace art::eventsetup;
 typedef Callback<ConstPtrProd, const Data*, Record> ConstPtrCallback;
 
 class testCallback: public CppUnit::TestFixture
@@ -197,7 +197,7 @@ void testCallback::sharedPtrTest()
 
 }
 
-typedef Callback<PtrProductsProd, edm::ESProducts<const Data*, const Double*>, Record> PtrProductsCallback;
+typedef Callback<PtrProductsProd, art::ESProducts<const Data*, const Double*>, Record> PtrProductsCallback;
 
 void testCallback::ptrProductsTest()
 {

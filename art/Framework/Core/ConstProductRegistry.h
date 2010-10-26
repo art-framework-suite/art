@@ -28,7 +28,7 @@ Usage:
 #include "art/Framework/Services/Registry/connect_but_block_self.h"
 
 // forward declarations
-namespace edm {
+namespace art {
   class ConstProductRegistry
   {
 

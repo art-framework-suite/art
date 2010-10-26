@@ -21,7 +21,7 @@ is the DataBlock.
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Framework/Core/Principal.h"
 
-namespace edm {
+namespace art {
   class UnscheduledHandler;
   class RunPrincipal : public Principal {
   public:

@@ -23,7 +23,7 @@
 
 
 // forward declarations
-namespace edm {
+namespace art {
   class Event;
   class EventID;
   class HLTPathStatus;
@@ -33,7 +33,7 @@ namespace edm {
   class Run;
   class RunID;
   class Timestamp;
-}  // namespace edm
+}  // namespace art
 
 // helper macros
 #if defined(AR_WATCH_VIA_0_ARG_METHOD) \
@@ -46,7 +46,7 @@ namespace edm {
   #define AR_WATCH_VIA_2_ARG_METHOD(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1,_2)); }
 #endif  // #if
 
-namespace edm {
+namespace art {
 
   struct ActivityRegistry : private boost::noncopyable
   {
@@ -167,7 +167,7 @@ namespace edm {
     }
     AR_WATCH_VIA_0_ARG_METHOD(watchPostCloseFile)
 
-    typedef sigc::signal<void, edm::EventID const&, edm::Timestamp const&> PreProcessEvent;
+    typedef sigc::signal<void, art::EventID const&, art::Timestamp const&> PreProcessEvent;
     /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
     PreProcessEvent preProcessEventSignal_;
     void watchPreProcessEvent(PreProcessEvent::slot_type const& iSlot) {
@@ -184,7 +184,7 @@ namespace edm {
     }
     AR_WATCH_VIA_1_ARG_METHOD(watchPostProcessEvent)
 
-    typedef sigc::signal<void, edm::RunID const&, edm::Timestamp const&> PreBeginRun;
+    typedef sigc::signal<void, art::RunID const&, art::Timestamp const&> PreBeginRun;
     /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
     PreBeginRun preBeginRunSignal_;
     void watchPreBeginRun(PreBeginRun::slot_type const& iSlot) {
@@ -201,7 +201,7 @@ namespace edm {
     }
     AR_WATCH_VIA_1_ARG_METHOD(watchPostBeginRun)
 
-    typedef sigc::signal<void, edm::RunID const&, edm::Timestamp const&> PreEndRun;
+    typedef sigc::signal<void, art::RunID const&, art::Timestamp const&> PreEndRun;
     /// signal is emitted before the endRun is processed
     PreEndRun preEndRunSignal_;
     void watchPreEndRun(PreEndRun::slot_type const& iSlot) {
@@ -218,7 +218,7 @@ namespace edm {
     }
     AR_WATCH_VIA_1_ARG_METHOD(watchPostEndRun)
 
-    typedef sigc::signal<void, edm::SubRunID const&, edm::Timestamp const&> PreBeginSubRun;
+    typedef sigc::signal<void, art::SubRunID const&, art::Timestamp const&> PreBeginSubRun;
     /// signal is emitted after the SubRun has been created by the InputSource but before any modules have seen the SubRun
     PreBeginSubRun preBeginSubRunSignal_;
     void watchPreBeginSubRun(PreBeginSubRun::slot_type const& iSlot) {
@@ -235,7 +235,7 @@ namespace edm {
     }
     AR_WATCH_VIA_1_ARG_METHOD(watchPostBeginSubRun)
 
-    typedef sigc::signal<void, edm::SubRunID const&, edm::Timestamp const&> PreEndSubRun;
+    typedef sigc::signal<void, art::SubRunID const&, art::Timestamp const&> PreEndSubRun;
     /// signal is emitted before the endSubRun is processed
     PreEndSubRun preEndSubRunSignal_;
     void watchPreEndSubRun(PreEndSubRun::slot_type const& iSlot) {
@@ -504,7 +504,7 @@ namespace edm {
   private:
   };  // ActivityRegistry
 
-}  // namespace edm
+}  // namespace art
 
 #undef AR_WATCH_VIA_0_ARG_METHOD
 #undef AR_WATCH_VIA_1_ARG_METHOD

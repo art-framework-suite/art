@@ -15,8 +15,8 @@
 
 void work()
 {
-  edm::ParameterSet p;
-  edm::ParameterSetID def_id = p.id();
+  art::ParameterSet p;
+  art::ParameterSetID def_id = p.id();
 
   // Adding an untracked parameter should not change the id.
   p.addUntrackedParameter<int>("i", 100);
@@ -38,7 +38,7 @@ void work()
 
   // A second parameter set, with only this tracked parameter, should
   // give the same ParameterSetID.
-  edm::ParameterSet p2;
+  art::ParameterSet p2;
   p2.addParameter<double>("d", 1.5);
   assert( p.id() == p2.id() );
 }
@@ -52,9 +52,9 @@ int main()
       work();
       rc = 0;
     }
-  catch ( edm::Exception& x)
+  catch ( art::Exception& x)
     {
-      std::cerr << "edm::Exception caught\n"
+      std::cerr << "art::Exception caught\n"
 		<< x
 		<< '\n';
       rc = -1;

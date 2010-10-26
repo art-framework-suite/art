@@ -16,7 +16,7 @@
 // templated class.  Up front we'd register a class name to a transformation function (which would probably take a std::vector<std::string> which holds
 // the results of the node transformations)
 
-namespace edm {
+namespace art {
   namespace friendlyname {
     static boost::regex const reBeginSpace("^ +");
     static boost::regex const reEndSpace(" +$");
@@ -40,30 +40,30 @@ namespace edm {
     std::string removeAllSpaces(std::string const& iIn) {
       return boost::regex_replace(iIn, reAllSpaces,emptyString);
     }
-    static boost::regex const reWrapper("edm::Wrapper<(.*)>");
+    static boost::regex const reWrapper("art::Wrapper<(.*)>");
     static boost::regex const reString("std::basic_string<char>");
-    static boost::regex const reSorted("edm::SortedCollection<(.*), *edm::StrictWeakOrdering<\\1 *> >");
+    static boost::regex const reSorted("art::SortedCollection<(.*), *art::StrictWeakOrdering<\\1 *> >");
     static boost::regex const reUnsigned("unsigned ");
     static boost::regex const reLong("long ");
     static boost::regex const reVector("std::vector");
-    static boost::regex const reAIKR(", *edm::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
-    //force first argument to also be the argument to edm::ClonePolicy so that if OwnVector is within
+    static boost::regex const reAIKR(", *art::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
+    //force first argument to also be the argument to art::ClonePolicy so that if OwnVector is within
     // a template it will not eat all the remaining '>'s
-    static boost::regex const reOwnVector("edm::OwnVector<(.*), *edm::ClonePolicy<\\1 *> >");
+    static boost::regex const reOwnVector("art::OwnVector<(.*), *art::ClonePolicy<\\1 *> >");
 
     //NOTE: the '?' means make the smallest match. This may lead to problems where the template arguments themselves have commas
-    // but we are using it in the cases where edm::AssociationMap appears multiple times in template arguments
-    static boost::regex const reOneToOne("edm::AssociationMap< *edm::OneToOne<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToMany("edm::AssociationMap< *edm::OneToMany<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToValue("edm::AssociationMap< *edm::OneToValue<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToManyWithQuality("edm::AssociationMap<edm::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
-    static boost::regex const reToVector("edm::AssociationVector<(.*), *(.*), *edm::Ref.*,.*>");
+    // but we are using it in the cases where art::AssociationMap appears multiple times in template arguments
+    static boost::regex const reOneToOne("art::AssociationMap< *art::OneToOne<(.*?),(.*?), *u[a-z]*> >");
+    static boost::regex const reOneToMany("art::AssociationMap< *art::OneToMany<(.*?),(.*?), *u[a-z]*> >");
+    static boost::regex const reOneToValue("art::AssociationMap< *art::OneToValue<(.*?),(.*?), *u[a-z]*> >");
+    static boost::regex const reOneToManyWithQuality("art::AssociationMap<art::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
+    static boost::regex const reToVector("art::AssociationVector<(.*), *(.*), *art::Ref.*,.*>");
     //NOTE: if the item within a clone policy is a template, this substitution will probably fail
-    static boost::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::ClonePolicy<([^>]*)> >");
+    static boost::regex const reToRangeMap("art::RangeMap< *(.*), *(.*), *art::ClonePolicy<([^>]*)> >");
     //NOTE: If container is a template with one argument which is its 'type' then can simplify name
-    static boost::regex const reToRefs1("edm::RefVector< *(.*)< *(.*) *>, *\\2 *, *edm::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
-    static boost::regex const reToRefs2("edm::RefVector< *(.*) *, *(.*) *, *edm::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
-    static boost::regex const reToRefsAssoc("edm::RefVector< *Association(.*) *, *edm::helper(.*), *Association(.*)::Find>");
+    static boost::regex const reToRefs1("art::RefVector< *(.*)< *(.*) *>, *\\2 *, *art::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
+    static boost::regex const reToRefs2("art::RefVector< *(.*) *, *(.*) *, *art::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
+    static boost::regex const reToRefsAssoc("art::RefVector< *Association(.*) *, *art::helper(.*), *Association(.*)::Find>");
 
     std::string standardRenames(std::string const& iIn) {
        using boost::regex_replace;
@@ -146,5 +146,5 @@ namespace edm {
        return itFound->second;
     }
   }
-} // namespace edm
+} // namespace art
 

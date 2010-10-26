@@ -26,7 +26,7 @@
 
 // forward declarations
 
-namespace edm {
+namespace art {
    template<class T>
    class Service
 {

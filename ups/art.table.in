@@ -1,5 +1,5 @@
 File    = table
-Product = art
+Product = @product@
 #*************************************************
 # Starting Group definition
 Group:
@@ -51,7 +51,7 @@ Common:
     if    ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/include include;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
         prodDir( _INC, ""`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/include include;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;echo .'`"" )
     else ()
-	execute( true, NO_UPS_ENV )
+        execute( true, NO_UPS_ENV )
     endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/include include;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
 
     # define PROD_DIR_LIB if there is an appropriate lib subdirectory
@@ -59,23 +59,32 @@ Common:
         prodDir( _LIB, ""`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/lib lib;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;echo .'`"" )
         pathAppend(LD_LIBRARY_PATH, ${${UPS_PROD_NAME_UC}_LIB})
     else ()
-	execute( true, NO_UPS_ENV )
+        execute( true, NO_UPS_ENV )
     endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/lib lib;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
 
     # add the bin directory to the path if it exists
     if    ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
         prodDir( _BIN, ""`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;echo .'`"" )
         pathPrepend(PATH, ${${UPS_PROD_NAME_UC}_BIN} )
-	envunset( ${${UPS_PROD_NAME_UC}_BIN} )
+        envunset( ${${UPS_PROD_NAME_UC}_BIN} )
     else ()
-	execute( true, NO_UPS_ENV )
+        execute( true, NO_UPS_ENV )
     endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
-	    
+
     # uncomment or add to this list as relevant
-    #setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
-    #setupRequired(gcc @GCC_VERSION@ @GCC_QUAL@)
-    setupRequired(art_externals @ART_EXTERNALS_VERSION@ @ART_EXTERNALS_QUAL@)
+    setupRequired(cmake)
+    setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ @CPPUNIT_QUAL@)
+    setupRequired(gccxml    @GCCXML_VERSION@ @GCCXML_QUAL@)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ @LIBSIGCPP_QUAL@)
+    setupRequired(clhep     @CLHEP_VERSION@ @CLHEP_QUAL@)
+    setupRequired(root      @ROOT_VERSION@ @ROOT_QUAL@)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_QUAL@)
+    setupRequired(fhiclcpp  @FHICLCPP_VERSION@ @FHICLCPP_QUAL@)
+    setupRequired(cpp0x     @CPP0X_VERSION@ @CPP0X_QUAL@)
+    setupRequired(cetlib    @CETLIB_VERSION@ @CETLIB_QUAL@)
+    setupRequired(boost     @BOOST_VERS@ @BOOST_QUAL@)
+    setupRequired(gcc       @GCC_VERSION@ @GCC_QUAL@)
 
 End:
 # End Group definition

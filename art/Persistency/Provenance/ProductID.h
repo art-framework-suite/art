@@ -20,7 +20,7 @@ The
 
 #include <iosfwd>
 
-namespace edm {
+namespace art {
 
   typedef unsigned short ProcessIndex;
   typedef unsigned short ProductIndex;

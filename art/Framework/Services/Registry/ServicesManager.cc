@@ -22,14 +22,14 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
-using namespace edm::serviceregistry;
+using namespace art::serviceregistry;
 //
 // constants, enums and typedefs
 //
 
 ServicesManager::MakerHolder::MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
                                           const fhicl::ParameterSet& iPSet,
-                                          edm::ActivityRegistry& iRegistry) :
+                                          art::ActivityRegistry& iRegistry) :
 maker_(iMaker),
 pset_(&iPSet),
 registry_(&iRegistry),
@@ -95,8 +95,8 @@ ServicesManager::ServicesManager(ServiceToken iToken,
       switch(iLegacy) {
          case kOverlapIsError :
             if(!intersection.empty()) {
-               throw edm::Exception(errors::Configuration, "Service")
-               <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->getString("@service_type")
+               throw art::Exception(errors::Configuration, "Service")
+               <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->get<std::string>("@service_type")
                <<" already has an instance of that type of Service";
             } else {
                //get all the services from Token
@@ -211,20 +211,20 @@ ServicesManager::fillListOfMakers(const std::vector<fhicl::ParameterSet>& iConfi
         itParam != itParamEnd;
         ++itParam) {
       boost::shared_ptr<ServiceMakerBase> base(
-                                               ServicePluginFactory::get()->create(itParam->getString("@service_type")));
+                                               ServicePluginFactory::get()->create(itParam->get<std::string>("@service_type")));
 
       if(0 == base.get()) {
-         throw edm::Exception(edm::errors::Configuration, "Service")
+         throw art::Exception(art::errors::Configuration, "Service")
          <<"could not find a service named "
-         << itParam->getString("@service_type")
+         << itParam->get<std::string>("@service_type")
          <<". Please check spelling.";
       }
       Type2Maker::iterator itFound = type2Maker_->find(TypeIDBase(base->serviceType()));
       if(itFound != type2Maker_->end()) {
-         throw edm::Exception(edm::errors::Configuration,"Service")
-         <<" the service "<< itParam->getString("@service_type")
+         throw art::Exception(art::errors::Configuration,"Service")
+         <<" the service "<< itParam->get<std::string>("@service_type")
          <<" provides the same service as "
-         << itFound->second.pset_->getString("@service_type")
+         << itFound->second.pset_->get<std::string>("@service_type")
          <<"\n Please reconfigure job to only use one of these services.";
       }
       type2Maker_->insert(Type2Maker::value_type(TypeIDBase(base->serviceType()),
@@ -272,9 +272,9 @@ ServicesManager::createServices()
          // This creates the service
          itMaker->second.add(*this);
        }
-       catch(cms::Exception& iException) {
-         edm::Exception toThrow(edm::errors::Configuration,"Error occurred while creating ");
-         toThrow<<itMaker->second.pset_->getString("@service_type")<<"\n";
+       catch(artZ::Exception& iException) {
+         art::Exception toThrow(art::errors::Configuration,"Error occurred while creating ");
+         toThrow<<itMaker->second.pset_->get<std::string>("@service_type")<<"\n";
          toThrow.append(iException);
          throw toThrow;
        }

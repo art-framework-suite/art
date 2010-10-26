@@ -52,39 +52,39 @@
 
 namespace {
   struct dictionary {
-  std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
-  std::map<fhicl::ParameterSetID, edm::ParameterSetBlob> dummyMapParam;
-  std::map<edm::ProcessHistoryID, edm::ProcessHistory> dummyMapProcH;
-  std::map<edm::ProcessConfigurationID, edm::ProcessConfiguration> dummyMapProcC;
+  std::pair<art::BranchKey, art::BranchDescription> dummyPairBranch;
+  std::map<fhicl::ParameterSetID, art::ParameterSetBlob> dummyMapParam;
+  std::map<art::ProcessHistoryID, art::ProcessHistory> dummyMapProcH;
+  std::map<art::ProcessConfigurationID, art::ProcessConfiguration> dummyMapProcC;
   std::set<fhicl::ParameterSetID > dummySetParam;
-  std::set<edm::ProcessHistoryID > dummySetProcH;
-  std::set<edm::ProcessConfigurationID > dummySetProcessDesc;
-  std::pair<fhicl::ParameterSetID, edm::ParameterSetBlob> dummyPairParam;
-  std::pair<edm::ProcessHistoryID, edm::ProcessHistory> dummyPairProcH;
-  std::pair<edm::ProcessConfigurationID, edm::ProcessConfiguration> dummyPairProcC;
-  edm::ParentageID dummyParentageID;
-  std::vector<edm::ProductID> dummyVectorProductID;
-  std::vector<edm::BranchID> dummyVectorBranchID;
-  std::set<edm::BranchID> dummySetBranchID;
-  std::map<edm::BranchID, std::set<edm::BranchID> > dummyMapSetBranchID;
-  std::pair<edm::BranchID, std::set<edm::BranchID> > dummyPairSetBranchID;
+  std::set<art::ProcessHistoryID > dummySetProcH;
+  std::set<art::ProcessConfigurationID > dummySetProcessDesc;
+  std::pair<fhicl::ParameterSetID, art::ParameterSetBlob> dummyPairParam;
+  std::pair<art::ProcessHistoryID, art::ProcessHistory> dummyPairProcH;
+  std::pair<art::ProcessConfigurationID, art::ProcessConfiguration> dummyPairProcC;
+  art::ParentageID dummyParentageID;
+  std::vector<art::ProductID> dummyVectorProductID;
+  std::vector<art::BranchID> dummyVectorBranchID;
+  std::set<art::BranchID> dummySetBranchID;
+  std::map<art::BranchID, std::set<art::BranchID> > dummyMapSetBranchID;
+  std::pair<art::BranchID, std::set<art::BranchID> > dummyPairSetBranchID;
   std::vector<std::basic_string<char> > dummyVectorString;
   std::set<std::basic_string<char> > dummySetString;
-  std::vector<edm::EventID> dummyVectorEventID;
-  std::vector<std::vector<edm::EventID> > dummyVectorVectorEventID;
-  std::vector<edm::ProductProvenance> dummyVectorProductProvenance;
+  std::vector<art::EventID> dummyVectorEventID;
+  std::vector<std::vector<art::EventID> > dummyVectorVectorEventID;
+  std::vector<art::ProductProvenance> dummyVectorProductProvenance;
   std::vector<std::vector<fhicl::ParameterSetID> > dummyVectorVectorParameterSetID;
 
-//  edm::RNGsnapshot                             dummyRNGsnap;
-//  std::vector<edm::RNGsnapshot>                dummyVectorRNGsnap;
-//  edm::Wrapper<std::vector<edm::RNGsnapshot> > dummyWrapperVectorRNGsnap;
+//  art::RNGsnapshot                             dummyRNGsnap;
+//  std::vector<art::RNGsnapshot>                dummyVectorRNGsnap;
+//  art::Wrapper<std::vector<art::RNGsnapshot> > dummyWrapperVectorRNGsnap;
 
   // The remaining ones are for backward compatibility only.
-  std::map<edm::ModuleDescriptionID, edm::ModuleDescription> dummyMapMod;
-  std::pair<edm::ModuleDescriptionID, edm::ModuleDescription> dummyPairMod;
-  std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;
-  edm::EntryDescriptionID dummyEntryDescriptionID;
-  std::vector<edm::EventEntryInfo> dummyVectorEventEntryInfo;
-  std::vector<edm::RunSubRunEntryInfo> dummyVectorRunSubRunEntryInfo;
+  std::map<art::ModuleDescriptionID, art::ModuleDescription> dummyMapMod;
+  std::pair<art::ModuleDescriptionID, art::ModuleDescription> dummyPairMod;
+  std::vector<art::EventProcessHistoryID> dummyEventProcessHistory;
+  art::EntryDescriptionID dummyEntryDescriptionID;
+  std::vector<art::EventEntryInfo> dummyVectorEventEntryInfo;
+  std::vector<art::RunSubRunEntryInfo> dummyVectorRunSubRunEntryInfo;
 };
 }

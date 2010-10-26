@@ -13,13 +13,11 @@ EDProducts into an Event.
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/ParameterSet/ParameterSetfwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-
 #include <string>
 
 
-namespace edm
+namespace art
 {
 
   class EDProducer
@@ -81,6 +79,6 @@ namespace edm
     CurrentProcessingContext const* current_context_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_EDProducer_h

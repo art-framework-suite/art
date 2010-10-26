@@ -6,7 +6,7 @@
 #include "art/Persistency/Common/ValueMap.h"
 #include "art/Persistency/Common/RefProd.h"
 #include "art/Persistency/Common/TestHandle.h"
-using namespace edm;
+using namespace art;
 
 class testValueMapNew : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testValueMapNew);
@@ -19,11 +19,11 @@ public:
   void setUp() {}
   void tearDown() {}
   void checkAll();
-  void test(const edm::ValueMap<int> &);
+  void test(const art::ValueMap<int> &);
   CKey1 v1;
   CKey2 v2;
-  edm::TestHandle<CKey1> handleK1;
-  edm::TestHandle<CKey2> handleK2;
+  art::TestHandle<CKey1> handleK1;
+  art::TestHandle<CKey2> handleK2;
   std::vector<int> w1, w2;
 };
 
@@ -35,7 +35,7 @@ testValueMapNew::testValueMapNew() {
   v1.push_back(3);
   v1.push_back(4);
   ProductID const pidK1(1, 2);
-  handleK1 = edm::TestHandle<CKey1>(&v1, pidK1);
+  handleK1 = art::TestHandle<CKey1>(&v1, pidK1);
 
   v2.push_back(10.);
   v2.push_back(20.);
@@ -43,7 +43,7 @@ testValueMapNew::testValueMapNew() {
   v2.push_back(40.);
   v2.push_back(50.);
   ProductID const pidK2(1, 3);
-  handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
+  handleK2 = art::TestHandle<CKey2>(&v2, pidK2);
 
   const int ww1[4] = { 2, 1, 0, 2 };
   w1.resize(4);
@@ -55,36 +55,36 @@ testValueMapNew::testValueMapNew() {
 
 void testValueMapNew::checkAll() {
   {
-    edm::ValueMap<int> values;
-    edm::ValueMap<int>::Filler filler(values);
+    art::ValueMap<int> values;
+    art::ValueMap<int>::Filler filler(values);
     filler.insert(handleK1, w1.begin(), w1.end());
     filler.insert(handleK2, w2.begin(), w2.end());
     filler.fill();
     test(values);
   } {
-    edm::ValueMap<int> values;
-    edm::ValueMap<int>::Filler filler1(values);
+    art::ValueMap<int> values;
+    art::ValueMap<int>::Filler filler1(values);
     filler1.insert(handleK1, w1.begin(), w1.end());
     filler1.fill();
-    edm::ValueMap<int>::Filler filler2(values);
+    art::ValueMap<int>::Filler filler2(values);
     filler2.insert(handleK2, w2.begin(), w2.end());
     filler2.fill();
     test(values);
   } {
-    edm::ValueMap<int> values1;
-    edm::ValueMap<int>::Filler filler1(values1);
+    art::ValueMap<int> values1;
+    art::ValueMap<int>::Filler filler1(values1);
     filler1.insert(handleK1, w1.begin(), w1.end());
     filler1.fill();
-    edm::ValueMap<int> values2;
-    edm::ValueMap<int>::Filler filler2(values2);
+    art::ValueMap<int> values2;
+    art::ValueMap<int>::Filler filler2(values2);
     filler2.insert(handleK2, w2.begin(), w2.end());
     filler2.fill();
-    edm::ValueMap<int> values = values1 + values2;
+    art::ValueMap<int> values = values1 + values2;
     test(values);
   }
 }
 
-void testValueMapNew::test(const edm::ValueMap<int> & values) {
+void testValueMapNew::test(const art::ValueMap<int> & values) {
   CPPUNIT_ASSERT(values.idSize()==2);
   CPPUNIT_ASSERT(!values.contains(ProductID(1, 0)));
   CPPUNIT_ASSERT(!values.contains(ProductID(1, 1)));
@@ -92,26 +92,26 @@ void testValueMapNew::test(const edm::ValueMap<int> & values) {
   CPPUNIT_ASSERT(values.contains(ProductID(1, 3)));
   CPPUNIT_ASSERT(!values.contains(ProductID(1, 4)));
   CPPUNIT_ASSERT(!values.contains(ProductID(1, 5)));
-  int r1 = values[edm::Ref<CKey1>(handleK1, 0)];
-  int r2 = values[edm::Ref<CKey1>(handleK1, 1)];
-  int r3 = values[edm::Ref<CKey1>(handleK1, 2)];
-  int r4 = values[edm::Ref<CKey1>(handleK1, 3)];
+  int r1 = values[art::Ref<CKey1>(handleK1, 0)];
+  int r2 = values[art::Ref<CKey1>(handleK1, 1)];
+  int r3 = values[art::Ref<CKey1>(handleK1, 2)];
+  int r4 = values[art::Ref<CKey1>(handleK1, 3)];
   CPPUNIT_ASSERT(r1 == w1[0]);
   CPPUNIT_ASSERT(r2 == w1[1]);
   CPPUNIT_ASSERT(r3 == w1[2]);
   CPPUNIT_ASSERT(r4 == w1[3]);
-  int s1 = values[edm::Ref<CKey2>(handleK2, 0)];
-  int s2 = values[edm::Ref<CKey2>(handleK2, 1)];
-  int s3 = values[edm::Ref<CKey2>(handleK2, 2)];
-  int s4 = values[edm::Ref<CKey2>(handleK2, 3)];
-  int s5 = values[edm::Ref<CKey2>(handleK2, 4)];
+  int s1 = values[art::Ref<CKey2>(handleK2, 0)];
+  int s2 = values[art::Ref<CKey2>(handleK2, 1)];
+  int s3 = values[art::Ref<CKey2>(handleK2, 2)];
+  int s4 = values[art::Ref<CKey2>(handleK2, 3)];
+  int s5 = values[art::Ref<CKey2>(handleK2, 4)];
   CPPUNIT_ASSERT(s1 == w2[0]);
   CPPUNIT_ASSERT(s2 == w2[1]);
   CPPUNIT_ASSERT(s3 == w2[2]);
   CPPUNIT_ASSERT(s4 == w2[3]);
   CPPUNIT_ASSERT(s5 == w2[4]);
   CPPUNIT_ASSERT(values.size() == w1.size()+w2.size());
-  edm::ValueMap<int>::const_iterator b = values.begin(), e = values.end(), i;
+  art::ValueMap<int>::const_iterator b = values.begin(), e = values.end(), i;
   CPPUNIT_ASSERT(e-b == 2);
   CPPUNIT_ASSERT(b.id()==ProductID(1, 2));
   CPPUNIT_ASSERT((b+1).id()==ProductID(1, 3));

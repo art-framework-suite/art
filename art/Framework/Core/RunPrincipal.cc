@@ -3,7 +3,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 
-namespace edm {
+namespace art {
   RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
     boost::shared_ptr<ProductRegistry const> reg,
     ProcessConfiguration const& pc,
@@ -63,7 +63,7 @@ namespace edm {
 		std::auto_ptr<ProductProvenance> productProvenance) {
 
     if (edp.get() == 0) {
-      throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
+      throw art::Exception(art::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }

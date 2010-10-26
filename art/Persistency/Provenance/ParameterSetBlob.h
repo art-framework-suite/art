@@ -15,7 +15,7 @@ tracked parameters within a ParameterSet,
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   struct ParameterSetBlob
   {
@@ -30,6 +30,6 @@ namespace edm {
   std::ostream&
   operator<<(std::ostream& os, ParameterSetBlob const& blob);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_ParameterSetBlob_h

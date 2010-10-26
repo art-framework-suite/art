@@ -12,7 +12,7 @@
 #include "art/Framework/Services/Registry/ServiceMaker.h"
 
 using namespace testserviceregistry;
-using namespace edm::serviceregistry;
+using namespace art::serviceregistry;
 DEFINE_FWK_SERVICE_MAKER(DependsOnDummyService,NoArgsMaker<DependsOnDummyService>);
 DEFINE_FWK_SERVICE(DummyService);
 DEFINE_FWK_SERVICE(DummyServiceE0);

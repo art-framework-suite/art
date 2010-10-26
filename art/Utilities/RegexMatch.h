@@ -1,4 +1,4 @@
-// functions shared between the edm::EventSelector and the HLTHighLevel filter
+// functions shared between the art::EventSelector and the HLTHighLevel filter
 
 #ifndef FWCore_Utilities_RegexMatch_h
 #define FWCore_Utilities_RegexMatch_h
@@ -8,7 +8,7 @@
 
 #include <boost/regex_fwd.hpp>
 
-namespace edm {
+namespace art {
 
   bool
   is_glob(std::string const& pattern);

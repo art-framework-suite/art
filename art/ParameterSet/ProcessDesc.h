@@ -4,11 +4,10 @@
 
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <vector>
 
 
-namespace edm
+namespace art
 {
 
   class ProcessDesc
@@ -53,6 +52,6 @@ namespace edm
     boost::shared_ptr<std::vector< fhicl::ParameterSet> > services_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // ParameterSet_ProcessDesc_h

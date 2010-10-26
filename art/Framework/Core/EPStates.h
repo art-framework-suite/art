@@ -24,7 +24,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 namespace sc = boost::statechart;
 namespace mpl = boost::mpl;
 
-namespace edm {
+namespace art {
   class IEventProcessor;
 }
 
@@ -74,12 +74,12 @@ namespace statemachine {
   class Machine : public sc::state_machine<Machine, Starting>
   {
   public:
-    Machine(edm::IEventProcessor* ep,
+    Machine(art::IEventProcessor* ep,
             FileMode fileMode,
             bool handleEmptyRuns,
             bool handleEmptySubRuns);
 
-    edm::IEventProcessor& ep() const;
+    art::IEventProcessor& ep() const;
     FileMode fileMode() const;
     bool handleEmptyRuns() const;
     bool handleEmptySubRuns() const;
@@ -90,7 +90,7 @@ namespace statemachine {
 
   private:
 
-    edm::IEventProcessor* ep_;
+    art::IEventProcessor* ep_;
     FileMode fileMode_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
@@ -136,7 +136,7 @@ namespace statemachine {
     void goToNewInputFile();
     bool shouldWeCloseOutput();
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
     bool exitCalled_;
   };
 
@@ -151,7 +151,7 @@ namespace statemachine {
 
     sc::result react(Stop const&);
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class Error : public sc::state<Error, Machine>
@@ -161,7 +161,7 @@ namespace statemachine {
     ~Error();
     typedef sc::transition<Stop, EndingLoop> reactions;
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class HandleRuns;
@@ -179,7 +179,7 @@ namespace statemachine {
     sc::result react(File const& file);
     void openFiles();
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class HandleNewInputFile1 : public sc::state<HandleNewInputFile1, HandleFiles>
@@ -211,7 +211,7 @@ namespace statemachine {
 
     void goToNewInputAndOutputFiles();
 
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class NewRun;
@@ -235,7 +235,7 @@ namespace statemachine {
     void finalizeRun();
     void beginRunIfNotDoneAlready();
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
     bool exitCalled_;
     bool beginRunCalled_;
     int currentRun_;
@@ -290,7 +290,7 @@ namespace statemachine {
 
     sc::result react(File const& file);
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class FirstSubRun;
@@ -316,7 +316,7 @@ namespace statemachine {
     typedef sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun> reactions;
 
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
     bool exitCalled_;
     bool currentSubRunEmpty_;
     SubRunID currentSubRun_;
@@ -374,7 +374,7 @@ namespace statemachine {
     void readAndProcessEvent();
     void markNonEmpty();
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class HandleNewInputFile3 : public sc::state<HandleNewInputFile3, HandleSubRuns>
@@ -406,7 +406,7 @@ namespace statemachine {
     sc::result react(SubRun const& subRun);
     sc::result react(File const& file);
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 
   class ContinueSubRun : public sc::state<ContinueSubRun, HandleSubRuns>
@@ -423,7 +423,7 @@ namespace statemachine {
 
     sc::result react(File const& file);
   private:
-    edm::IEventProcessor & ep_;
+    art::IEventProcessor & ep_;
   };
 }
 

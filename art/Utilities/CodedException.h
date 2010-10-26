@@ -18,9 +18,9 @@ interface other than constructors specific to this derived type.
 #define EDM_MAP_ENTRY(map, ns, name) map[ns::name]=#name
 #define EDM_MAP_ENTRY_NONS(map, name) map[name]=#name
 
-namespace edm {
+namespace art {
   template <class Code>
-  class CodedException : public cms::Exception
+  class CodedException : public artZ::Exception
   {
   public:
     explicit CodedException(Code category);
@@ -30,7 +30,7 @@ namespace edm {
 
     CodedException(Code category,
 		   const std::string& message,
-		   const cms::Exception& another);
+		   const artZ::Exception& another);
 
     CodedException(const CodedException& other);
 
@@ -69,7 +69,7 @@ namespace edm {
 
   template <class Code>
   CodedException<Code>::CodedException(Code aCategory):
-    cms::Exception(codeToString(aCategory)),
+    artZ::Exception(codeToString(aCategory)),
     category_(aCategory)
   {
   }
@@ -77,7 +77,7 @@ namespace edm {
   template <class Code>
   CodedException<Code>::CodedException(Code aCategory,
 				       const std::string& message):
-    cms::Exception(codeToString(aCategory),message),
+    artZ::Exception(codeToString(aCategory),message),
     category_(aCategory)
   {
   }
@@ -85,15 +85,15 @@ namespace edm {
   template <class Code>
   CodedException<Code>::CodedException(Code aCategory,
 				       const std::string& message,
-				       const cms::Exception& another):
-    cms::Exception(codeToString(aCategory),message,another),
+				       const artZ::Exception& another):
+    artZ::Exception(codeToString(aCategory),message,another),
     category_(aCategory)
   {
   }
 
   template <class Code>
   CodedException<Code>::CodedException(const CodedException& other):
-    cms::Exception(other),
+    artZ::Exception(other),
     category_(other.category_)
   {
   }

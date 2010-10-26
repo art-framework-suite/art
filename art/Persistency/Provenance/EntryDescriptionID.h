@@ -4,7 +4,7 @@
 #include "art/Persistency/Provenance/HashedTypes.h"
 #include "art/Persistency/Provenance/Hash.h"
 
-namespace edm
+namespace art
 {
   typedef Hash<EntryDescriptionType> EntryDescriptionID;
 }

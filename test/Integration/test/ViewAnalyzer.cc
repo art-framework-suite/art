@@ -17,10 +17,10 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "FWCore/Integration/test/ViewAnalyzer.h"
 
-using namespace edm;
+using namespace art;
 using namespace std::rel_ops;
 
-namespace edmtest
+namespace arttest
 {
 
   ViewAnalyzer::ViewAnalyzer(ParameterSet const&)
@@ -68,14 +68,14 @@ namespace edmtest
 
     //See if InputTag works
     {
-      edm::InputTag tag("intvec","");
-      edm::Handle<edm::View<int> > hInt;
+      art::InputTag tag("intvec","");
+      art::Handle<art::View<int> > hInt;
       e.getByLabel(tag,hInt);
       assert(hInt.isValid());
     }
     {
-      edm::InputTag tag("intvec","","TEST");
-      edm::Handle<edm::View<int> > hInt;
+      art::InputTag tag("intvec","","TEST");
+      art::Handle<art::View<int> > hInt;
       e.getByLabel(tag,hInt);
       assert(hInt.isValid());
     }
@@ -129,7 +129,7 @@ namespace edmtest
   ViewAnalyzer::testDSVProduct(Event const& e,
  			    std::string const& moduleLabel) const
   {
-    typedef edmtest::DSVSimpleProduct sequence_t;
+    typedef arttest::DSVSimpleProduct sequence_t;
     typedef sequence_t::value_type    value_t;
     typedef View<value_t>             view_t;
 
@@ -273,5 +273,5 @@ namespace edmtest
   }
 }
 
-using edmtest::ViewAnalyzer;
+using arttest::ViewAnalyzer;
 DEFINE_FWK_MODULE(ViewAnalyzer);

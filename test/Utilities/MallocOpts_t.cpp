@@ -6,8 +6,8 @@ using namespace std;
 
 int main()
 {
-  edm::MallocOptionSetter& mo = edm::getGlobalOptionSetter();
-  edm::MallocOpts mycopy = mo.get(), defaultt;
+  art::MallocOptionSetter& mo = art::getGlobalOptionSetter();
+  art::MallocOpts mycopy = mo.get(), defaultt;
 
   assert(mo.retrieveFromEnv()==false);
   assert(mo.hasErrors()==false);

@@ -25,7 +25,7 @@ and how it came into existence, plus the product identifier and the status.
   EventEntryInfo
 */
 
-namespace edm {
+namespace art {
   class EventEntryDescription;
   class EventEntryInfo {
   public:

@@ -11,25 +11,25 @@
 Commonly used EDM classes.
 
 \subsection interface Public interface
-- edm::BranchDescription:
-- edm::BranchEntryDescription
-- edm::BranchKey:
-- edm::ConditionsID:
-- edm::EDProduct:
-- edm::EDProductGetter:
-- edm::EventID:
-- edm::ModuleDescription:
-- edm::ModuleDescriptionID:
-- edm::ParameterSetID:
-- edm::PassID:
-- edm::Provenance:
-- edm::ProcessHistory:
-- edm::ProcessHistoryID:
-- edm::ProductRegistry:
-- edm::ReleaseVersion:
-- edm::Timestamp:
-- edm::TriggerResults:
-- edm::Wrapper:
+- art::BranchDescription:
+- art::BranchEntryDescription
+- art::BranchKey:
+- art::ConditionsID:
+- art::EDProduct:
+- art::EDProductGetter:
+- art::EventID:
+- art::ModuleDescription:
+- art::ModuleDescriptionID:
+- art::ParameterSetID:
+- art::PassID:
+- art::Provenance:
+- art::ProcessHistory:
+- art::ProcessHistoryID:
+- art::ProductRegistry:
+- art::ReleaseVersion:
+- art::Timestamp:
+- art::TriggerResults:
+- art::Wrapper:
 
 \subsection modules Modules
 None.

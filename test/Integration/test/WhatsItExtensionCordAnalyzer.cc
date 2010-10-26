@@ -40,21 +40,21 @@
 // class decleration
 //
 
-namespace edmtest {
+namespace arttest {
 
   class Last {
 public:
-    Last(const edm::ExtensionCord<WhatsIt>& iCord): cord_(iCord) {}
+    Last(const art::ExtensionCord<WhatsIt>& iCord): cord_(iCord) {}
     void doIt() {
       std::cout <<"WhatsIt "<<cord_->a<<std::endl;
     }
 private:
-    edm::ExtensionCord<WhatsIt> cord_;
+    art::ExtensionCord<WhatsIt> cord_;
   };
 
   class Middle {
 public:
-    Middle(const edm::ExtensionCord<WhatsIt>& iCord): last_(iCord) {}
+    Middle(const art::ExtensionCord<WhatsIt>& iCord): last_(iCord) {}
     void doIt() {
       last_.doIt();
     }
@@ -62,16 +62,16 @@ private:
     Last last_;
   };
 
-class WhatsItExtensionCordAnalyzer : public edm::EDAnalyzer {
+class WhatsItExtensionCordAnalyzer : public art::EDAnalyzer {
    public:
-      explicit WhatsItExtensionCordAnalyzer(const edm::ParameterSet&);
+      explicit WhatsItExtensionCordAnalyzer(const art::ParameterSet&);
       ~WhatsItExtensionCordAnalyzer();
 
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const art::Event&, const art::EventSetup&);
    private:
       // ----------member data ---------------------------
-        edm::ExtensionCord<WhatsIt> cord_;
+        art::ExtensionCord<WhatsIt> cord_;
         Middle middle_;
 };
 
@@ -86,7 +86,7 @@ class WhatsItExtensionCordAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItExtensionCordAnalyzer::WhatsItExtensionCordAnalyzer(const edm::ParameterSet& /*iConfig*/) :
+WhatsItExtensionCordAnalyzer::WhatsItExtensionCordAnalyzer(const art::ParameterSet& /*iConfig*/) :
 cord_(),
 middle_(cord_)
 {
@@ -110,14 +110,14 @@ WhatsItExtensionCordAnalyzer::~WhatsItExtensionCordAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-WhatsItExtensionCordAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
+WhatsItExtensionCordAnalyzer::analyze(const art::Event& /*iEvent*/, const art::EventSetup& iSetup)
 {
-  edm::ESOutlet<WhatsIt,GadgetRcd> outlet( iSetup, cord_ );
+  art::ESOutlet<WhatsIt,GadgetRcd> outlet( iSetup, cord_ );
 
   middle_.doIt();
 }
 
 }
-using namespace edmtest;
+using namespace arttest;
 //define this as a plug-in
 DEFINE_FWK_MODULE(WhatsItExtensionCordAnalyzer);

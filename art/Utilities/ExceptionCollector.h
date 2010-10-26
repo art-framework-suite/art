@@ -7,7 +7,7 @@ each function or functor in a sequence of calls is invoked even if
 a previous function throws.  Each function/functor must take no arguments
 and return a void.  boost::bind can be used to convert a function taking arguments
 into a function taking no arguments.
-The exception strings are saved in a cms::Exception for optional rethrow.
+The exception strings are saved in a artZ::Exception for optional rethrow.
 
 Here is an example:
 
@@ -25,7 +25,7 @@ This insures that all three functions will be called before any exceptionis thro
 #include <exception>
 #include "boost/function.hpp"
 
-namespace edm {
+namespace art {
   class ExceptionCollector {
   public:
     ExceptionCollector() : exception_(std::string()), hasThrown_(false) {}
@@ -35,7 +35,7 @@ namespace edm {
     void call(boost::function<void(void)>);
 
   private:
-    cms::Exception exception_;
+    artZ::Exception exception_;
     bool hasThrown_;
   };
 }

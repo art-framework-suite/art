@@ -14,7 +14,7 @@ set( artFrameworkServicesRootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
 
 add_library(artFrameworkServicesRootAutoLibraryLoader SHARED ${artFrameworkServicesRootAutoLibraryLoader_sources} )
 
-install ( TARGETS artFrameworkServicesRootAutoLibraryLoader DESTINATION lib )
+install ( TARGETS artFrameworkServicesRootAutoLibraryLoader DESTINATION ${flavorqual_dir}/lib )
 install(FILES CacheStreamers.h
               RootAutoLibraryLoader.h
-        DESTINATION include/art/Framework/Services/RootAutoLibraryLoader )
+         DESTINATION  ${product}/${version}/include/art/Framework/Services/RootAutoLibraryLoader )

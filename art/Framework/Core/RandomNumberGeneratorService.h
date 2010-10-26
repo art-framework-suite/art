@@ -95,7 +95,7 @@
 //     with some fallback value in case the ParameterSet omits the
 //     specified parameter:
 //
-//       createEngine( pset.getInt("seed",13597) );
+//       createEngine( pset.get<int>("seed",13597) );
 //
 //   - Obtain a seed value from the module's ParameterSet via a helper
 //     function, get_seed_value(), provided by the framework.  Since this
@@ -115,7 +115,7 @@
 // the RandomNumberGeneratorService header, a variable definition such as
 // the following will obtain a handle to this Service:
 //
-//   edm::Service<edm::RandomNumberGeneratorService>  rng;
+//   art::Service<art::RandomNumberGeneratorService>  rng;
 //
 // Thereafter, most functionality of this Service is available via this
 // variable.  All handles to this Service are equivalent; a client may
@@ -161,7 +161,7 @@
 
 
 #include "art/Persistency/Common/RNGsnapshot.h"
-namespace edm {
+namespace art {
   class ActivityRegistry;
   class Event;
   class EventID;
@@ -182,7 +182,7 @@ namespace CLHEP {
 // ======================================================================
 
 
-namespace edm {
+namespace art {
 
   class EngineCreator;      // to be granted friendship
   class RandomNumberSaver;  // to be granted friendship
@@ -211,7 +211,7 @@ namespace edm {
 
     // --- C'tor/d'tor:
     RandomNumberGeneratorService( fhicl::ParameterSet const &
-                                , edm::ActivityRegistry   &
+                                , art::ActivityRegistry   &
                                 );
 
     ~RandomNumberGeneratorService()
@@ -241,7 +241,7 @@ namespace edm {
 
     // --- Snapshot management helpers:
     void  takeSnapshot_( );
-    void  restoreSnapshot_( edm::Event const & event );
+    void  restoreSnapshot_( art::Event const & event );
     snapshot_t const &  accessSnapshot_( )  { return snapshot_; }
 
     // --- File management helpers:
@@ -253,10 +253,10 @@ namespace edm {
     bool  invariant_holds_( );
 
     // --- Callbacks:
-    void  preProcessEvent( edm::EventID   const &
-                         , edm::Timestamp const &
+    void  preProcessEvent( art::EventID   const &
+                         , art::Timestamp const &
                          );
-    void  postProcessEvent( edm::Event const &);
+    void  postProcessEvent( art::Event const &);
     void  postBeginJob( );
     void  postEndJob( );
 
@@ -284,7 +284,7 @@ namespace edm {
 
   };  // RandomNumberGeneratorService
 
-}  // namespace edm
+}  // namespace art
 
 
 // ======================================================================

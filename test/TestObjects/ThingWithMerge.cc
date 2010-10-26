@@ -3,7 +3,7 @@
 
 #include "test/TestObjects/ThingWithMerge.h"
 
-namespace edmtest {
+namespace arttest {
 
   bool ThingWithMerge::mergeProduct(ThingWithMerge const& newThing) {
     a += newThing.a;

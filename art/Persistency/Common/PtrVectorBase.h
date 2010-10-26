@@ -16,7 +16,7 @@
 #include <typeinfo>
 
 // Contents:
-namespace edm {
+namespace art {
   class PtrVectorBase;
 }
 
@@ -24,7 +24,7 @@ namespace edm {
 // ======================================================================
 
 
-class edm::PtrVectorBase
+class art::PtrVectorBase
 {
 public:
   typedef  unsigned long  key_type;

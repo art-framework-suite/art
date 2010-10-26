@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------------*/
 
-namespace edm {
+namespace art {
   Parentage::Parentage() :
     parents_()
   { }
@@ -28,7 +28,7 @@ namespace edm {
       }
 
     std::string stringrep = oss.str();
-    cms::Digest md5alg(stringrep);
+    artZ::Digest md5alg(stringrep);
     return ParentageID(md5alg.digest().toString());
   }
 

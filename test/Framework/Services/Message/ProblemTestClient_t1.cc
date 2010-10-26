@@ -5,13 +5,13 @@
 #include <iostream>
 #include <string>
 
-namespace edmtest
+namespace arttest
 {
 
 
 void
-  ProblemTestClient_t1::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  ProblemTestClient_t1::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
        LogDebug  ("cat_A")   << "This message should not appear";
@@ -20,8 +20,8 @@ void
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::ProblemTestClient_t1;
+using arttest::ProblemTestClient_t1;
 DEFINE_FWK_MODULE(ProblemTestClient_t1);

@@ -15,7 +15,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include <iostream>
 #include <string>
 
-namespace edm
+namespace art
 {
   class MockEventProcessor : public IEventProcessor {
   public:

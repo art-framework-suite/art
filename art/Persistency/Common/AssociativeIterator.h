@@ -21,7 +21,7 @@
  *   for ( ; itBTags != endBTags; ++itBTags ) {
  *      cout << " Jet PT = " << itBTags->first->pt() << ", disc = " << itBTags->second << endl;
  *   }
- * or, for edm::Association
+ * or, for art::Association
  *   Handle<Association<GenParticleCollection> > hMCMatch;
  *   iEvent.getByLabel(..., hMCMatch);
  *   AssociativeIterator<RefToBase<Candidate>, Association<GenParticleCollection> > itMC(*hMCMatch, EdmEventItemGetter(iEvent)), endMC = itMC.end();
@@ -42,7 +42,7 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include <art/Persistency/Common/EDProductGetter.h>
 
-namespace edm {
+namespace art {
     struct Event;
     template <class T> struct View;
     template <class T> struct Handle;
@@ -52,7 +52,7 @@ namespace edm {
     template <class C, class T, class F> struct Ref;
 }
 
-namespace edm {
+namespace art {
 
     // Helper classes to convert one ref type to another.
     // Now it's able to convert anything to itself, and RefToBase to anything else
@@ -72,17 +72,17 @@ namespace edm {
         };
     }
 
-    /// Helper class that fetches some type of Ref given ProductID and index, using the edm::Event
+    /// Helper class that fetches some type of Ref given ProductID and index, using the art::Event
     //  the implementation uses View, and works for RefType = Ref, RefToBase and Ptr
     template<typename RefType>
     class EdmEventItemGetter {
         public:
             typedef typename RefType::value_type element_type;
-            EdmEventItemGetter(const edm::Event &iEvent) : iEvent_(iEvent) { }
+            EdmEventItemGetter(const art::Event &iEvent) : iEvent_(iEvent) { }
             ~EdmEventItemGetter() { }
 
             RefType get(const ProductID &id, size_t idx) const {
-                typedef typename edm::RefToBase<element_type> BaseRefType; // could also use Ptr, but then I can't do Ptr->RefToBase
+                typedef typename art::RefToBase<element_type> BaseRefType; // could also use Ptr, but then I can't do Ptr->RefToBase
                 if (id_ != id) {
                     id_ = id;
                     iEvent_.get(id_, view_);
@@ -94,7 +94,7 @@ namespace edm {
         private:
             mutable Handle<View<element_type> > view_;
             mutable ProductID id_;
-            const edm::Event &iEvent_;
+            const art::Event &iEvent_;
     };
 
     // unfortunately it's not possible to define value_type of an Association<C> correctly
@@ -207,7 +207,7 @@ class AssociativeIterator {
     template<typename KeyRefType, typename AC, typename IG>
     AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::skipTo(const ProductID &id, size_t offs) {
         pairOk_ = false;
-        throw cms::Exception("NOT IMPLEMENTED");
+        throw artZ::Exception("NOT IMPLEMENTED");
     }
     */
 

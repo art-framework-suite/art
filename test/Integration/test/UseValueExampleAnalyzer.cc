@@ -35,13 +35,13 @@ Implementation:
 // class decleration
 //
 
-class UseValueExampleAnalyzer : public edm::EDAnalyzer {
+class UseValueExampleAnalyzer : public art::EDAnalyzer {
 public:
-   explicit UseValueExampleAnalyzer(const edm::ParameterSet&);
+   explicit UseValueExampleAnalyzer(const art::ParameterSet&);
    ~UseValueExampleAnalyzer();
 
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(const art::Event&, const art::EventSetup&);
 private:
       // ----------member data ---------------------------
 };
@@ -57,7 +57,7 @@ private:
 //
 // constructors and destructor
 //
-UseValueExampleAnalyzer::UseValueExampleAnalyzer(const edm::ParameterSet& /* iConfig */)
+UseValueExampleAnalyzer::UseValueExampleAnalyzer(const art::ParameterSet& /* iConfig */)
 {
    //now do what ever initialization is needed
 
@@ -79,9 +79,9 @@ UseValueExampleAnalyzer::~UseValueExampleAnalyzer()
 
 // ------------ method called to produce the data  ------------
 void
-UseValueExampleAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup*/)
+UseValueExampleAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSetup& /* iSetup*/)
 {
-   std::cout<<" value from service "<< edm::Service<ValueExample>()->value()<<std::endl;
+   std::cout<<" value from service "<< art::Service<ValueExample>()->value()<<std::endl;
 }
 
 //define this as a plug-in

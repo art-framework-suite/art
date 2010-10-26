@@ -30,7 +30,7 @@
 #include <stdio.h>  // perror
 #endif
 
-namespace edm {
+namespace art {
   namespace service {
 
 
@@ -153,13 +153,13 @@ namespace edm {
     , current_(&a_)
     , previous_(&b_)
     , pg_size_(sysconf(_SC_PAGESIZE)) // getpagesize()
-    , num_to_skip_(iPS.getInt("ignoreTotal",1))
-    , showMallocInfo(iPS.getBool("showMallocInfo",false))
+    , num_to_skip_(iPS.get<int>("ignoreTotal",1))
+    , showMallocInfo(iPS.get<bool>("showMallocInfo",false))
     , oncePerEventMode
-        (iPS.getBool("oncePerEventMode",false))
+        (iPS.get<bool>("oncePerEventMode",false))
     , count_()
     , moduleSummaryRequested
-        (iPS.getBool("moduleMemorySummary",false))
+        (iPS.get<bool>("moduleMemorySummary",false))
                                                                 // changelog 2
     {
       // pg_size = (double)getpagesize();
@@ -171,7 +171,7 @@ namespace edm {
 
       if((fd_=open(ost.str().c_str(),O_RDONLY))<0)
         {
-          throw edm::Exception(errors::Configuration)
+          throw art::Exception(errors::Configuration)
             << "Memory checker server: Failed to open " << ost.str() << std::endl;
         }
 #endif
@@ -218,14 +218,14 @@ namespace edm {
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
 
-      typedef edm::MallocOpts::opt_type opt_type;
-      edm::MallocOptionSetter& mopts = edm::getGlobalOptionSetter();
+      typedef art::MallocOpts::opt_type opt_type;
+      art::MallocOptionSetter& mopts = art::getGlobalOptionSetter();
 
       opt_type
-        p_mmap_max = iPS.getInt("M_MMAP_MAX",-1),
-        p_trim_thr = iPS.getInt("M_TRIM_THRESHOLD",-1),
-        p_top_pad  = iPS.getInt("M_TOP_PAD",-1),
-        p_mmap_thr = iPS.getInt("M_MMAP_THRESHOLD",-1);
+        p_mmap_max = iPS.get<int>("M_MMAP_MAX",-1),
+        p_trim_thr = iPS.get<int>("M_TRIM_THRESHOLD",-1),
+        p_top_pad  = iPS.get<int>("M_TOP_PAD",-1),
+        p_mmap_thr = iPS.get<int>("M_MMAP_THRESHOLD",-1);
 
       if(p_mmap_max>=0) mopts.set_mmap_max(p_mmap_max);
       if(p_trim_thr>=0) mopts.set_trim_thr(p_trim_thr);
@@ -241,9 +241,9 @@ namespace edm {
             << mopts.error_message();
         }
 
-      if(iPS.getBool("dump",false)==true)
+      if(iPS.get<bool>("dump",false)==true)
         {
-          edm::MallocOpts mo = mopts.get();
+          art::MallocOpts mo = mopts.get();
           mf::LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
         }
     }
@@ -429,8 +429,8 @@ namespace edm {
 #endif
     } // postEndJob
 
-    void SimpleMemoryCheck::preEventProcessing(const edm::EventID& iID,
-                                               const edm::Timestamp& iTime)
+    void SimpleMemoryCheck::preEventProcessing(const art::EventID& iID,
+                                               const art::Timestamp& iTime)
     {
       currentEventID_ = iID;                                    // changelog 2
     }
@@ -482,7 +482,7 @@ namespace edm {
         }
     }
 
-    void SimpleMemoryCheck::updateEventStats(edm::EventID const & e) {
+    void SimpleMemoryCheck::updateEventStats(art::EventID const & e) {
       if (count_ < num_to_skip_) return;
       if (count_ == num_to_skip_) {
         eventT1_.set(0, 0, e, this);
@@ -660,4 +660,4 @@ namespace edm {
     }
 
   } // end namespace service
-} // end namespace edm
+} // end namespace art

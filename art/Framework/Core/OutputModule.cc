@@ -12,26 +12,26 @@
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Utilities/DebugMacros.h"
 
-using fhicl::ParameterSet;
 
+using fhicl::ParameterSet;
 using std::vector;
 using std::string;
 
 
-namespace edm {
+namespace art {
   // This grotesque little function exists just to allow calling of
   // ConstProductRegistry::allBranchDescriptions in the context of
   // OutputModule's initialization list, rather than in the body of
   // the constructor.
 
-  vector<edm::BranchDescription const*>
+  vector<art::BranchDescription const*>
   getAllBranchDescriptions() {
-    edm::Service<edm::ConstProductRegistry> reg;
+    art::Service<art::ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
   vector<std::string> const& getAllTriggerNames() {
-    edm::Service<edm::service::TriggerNamesService> tns;
+    art::Service<art::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
 }
@@ -100,7 +100,7 @@ namespace {
 }
 
 
-namespace edm {
+namespace art {
 
   namespace test {
 
@@ -132,11 +132,11 @@ namespace edm {
   {
     hasNewlyDroppedBranch_.assign(false);
 
-    edm::Service<edm::service::TriggerNamesService> tns;
+    art::Service<art::service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
-      pset.getPSet("SelectEvents", ParameterSet());
+      pset.get<fhicl::ParameterSet>("SelectEvents", ParameterSet());
 
     selector_config_id_ = selectevents.id();
     // If selectevents is an emtpy ParameterSet, then we are to write
@@ -150,7 +150,7 @@ namespace edm {
     }
 
     vector<std::string> path_specs =
-      selectevents.getVString("SelectEvents");
+      selectevents.get<std::vector<std::string> >("SelectEvents");
 
     if (path_specs.empty()) {
         wantAllEvents_ = true;
@@ -412,4 +412,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

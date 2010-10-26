@@ -322,9 +322,9 @@ purge_mode
 What happends if the act of logging a message (on the server side) throws
 an exception?  This logic is implemented in MessageLoggerScribe.cc.
 
-If the exception is a cms::Exception, then for the first 5 times, output
+If the exception is a artZ::Exception, then for the first 5 times, output
 is sent to cerr containing the explanation e.what().  After five such
-exceptions, or for any exception not inherited from cms::Exception, the
+exceptions, or for any exception not inherited from artZ::Exception, the
 system is placed into purge_mode, after which no further message
 processing will occur.
 

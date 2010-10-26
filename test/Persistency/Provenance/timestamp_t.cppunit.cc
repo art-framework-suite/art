@@ -11,7 +11,7 @@
 
 #include "art/Persistency/Provenance/Timestamp.h"
 
-using namespace edm;
+using namespace art;
 
 class testTimestamp: public CppUnit::TestFixture
 {

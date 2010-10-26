@@ -14,11 +14,11 @@
 using fhicl::ParameterSet;
 
 
-namespace edm {
+namespace art {
 
   // The following typedef is used only in this implementation file, in
   // order to shorten several lines of code.
-  typedef std::vector<edm::BranchDescription const*> VCBDP;
+  typedef std::vector<art::BranchDescription const*> VCBDP;
 
   namespace {
 
@@ -75,7 +75,7 @@ namespace edm {
     processName_()
   {
     if (s.size() < 6)
-      throw edm::Exception(edm::errors::Configuration)
+      throw art::Exception(art::errors::Configuration)
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "Rule must have at least 6 characters because it must\n"
@@ -89,7 +89,7 @@ namespace edm {
     else if (s.substr(0,4) == "drop")
       selectflag_ = false;
     else
-      throw edm::Exception(edm::errors::Configuration)
+      throw art::Exception(art::errors::Configuration)
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
@@ -99,7 +99,7 @@ namespace edm {
 
     if ( !std::isspace(s[4]) ) {
 
-      throw edm::Exception(edm::errors::Configuration)
+      throw art::Exception(art::errors::Configuration)
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "In each rule, 'keep' or 'drop' must be followed by a space\n"
@@ -159,7 +159,7 @@ namespace edm {
 
       if (!good)
       {
-      throw edm::Exception(edm::errors::Configuration)
+      throw art::Exception(art::errors::Configuration)
         << "Invalid statement in configuration file\n"
         << "In " << owner << " parameter named '" << parameterName << "'\n"
         << "In each rule, after 'keep ' or 'drop ' there must\n"
@@ -198,7 +198,7 @@ namespace edm {
   }
 
 //   bool
-//   Rule::applyToOne(edm::BranchDescription const* branch) const
+//   Rule::applyToOne(art::BranchDescription const* branch) const
 //   {
 //     bool match =
 //       partial_match(productType_, branch->friendlyClassName()) &&
@@ -210,14 +210,14 @@ namespace edm {
 //   }
 
   void
-  GroupSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch,
+  GroupSelectorRules::Rule::applyToOne(art::BranchDescription const* branch,
                    bool& result) const
   {
     if (this->appliesTo(branch)) result = selectflag_;
   }
 
   bool
-  GroupSelectorRules::Rule::appliesTo(edm::BranchDescription const* branch) const
+  GroupSelectorRules::Rule::appliesTo(art::BranchDescription const* branch) const
   {
     return
       partial_match(productType_, branch->friendlyClassName()) &&
@@ -239,7 +239,7 @@ namespace edm {
     std::vector<std::string> defaultCommands(1U, std::string("keep *"));
 
     std::vector<std::string> commands =
-      pset.getVString(parameterName,
+      pset.get<std::vector<std::string> >(parameterName,
                                                     defaultCommands);
     rules_.reserve(commands.size());
     for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();
@@ -249,4 +249,4 @@ namespace edm {
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }
 
-}  // namespace edm
+}  // namespace art

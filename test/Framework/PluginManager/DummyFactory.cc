@@ -20,4 +20,4 @@ namespace testedmplugin {
   DummyBase::~DummyBase() {}
 }
 
-EDM_REGISTER_PLUGINFACTORY(testedmplugin::DummyFactory,"Test Dummy");
+EDM_REGISTER_PLUGINFACTORY(testartplugin::DummyFactory,"Test Dummy");

@@ -27,7 +27,7 @@
 //
 // constructors and destructor
 //
-ValueExample::ValueExample(const edm::ParameterSet& iPSet):
+ValueExample::ValueExample(const art::ParameterSet& iPSet):
 value_(iPSet.getParameter<int>("value"))
 {
 }

@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ParameterSet.h"
+
+
 #ifndef FWCore_ParameterSet_ParameterSet_h
 #define FWCore_ParameterSet_ParameterSet_h
 
@@ -19,7 +22,7 @@
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class ParameterSet {
   public:
@@ -365,7 +368,7 @@ private:
         depricatedInputTagWarning(name, label);
         return InputTag( label );
     }
-    throw edm::Exception(errors::Configuration, "ValueError") << "type of "
+    throw art::Exception(errors::Configuration, "ValueError") << "type of "
        << name << " is expected to be InputTag or string (deprecated)";
 
   }
@@ -957,7 +960,7 @@ private:
         depricatedInputTagWarning(name, label);
         return InputTag( label );
     }
-    throw edm::Exception(errors::Configuration, "ValueError") << "type of "
+    throw art::Exception(errors::Configuration, "ValueError") << "type of "
        << name << " is expected to be InputTag or string (deprecated)";
 
   }
@@ -1422,6 +1425,6 @@ private:
   ParameterSet
   getParameterSet(fhicl::ParameterSetID const& id);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_ParameterSet_ParameterSet_h

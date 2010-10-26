@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace edm {
+namespace art {
   namespace errors {
 
     // If you add a new entry to the set of values, make sure to
@@ -66,7 +66,7 @@ namespace edm {
 
   }
 
-  typedef edm::CodedException<edm::errors::ErrorCodes> Exception;
+  typedef art::CodedException<art::errors::ErrorCodes> Exception;
 }
 
 #endif

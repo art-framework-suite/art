@@ -8,8 +8,8 @@
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/ParameterSet/ParameterSet.h"
 
-using edm::ParameterSet;
-using edm::ParameterSetID;
+using art::ParameterSet;
+using art::ParameterSetID;
 using std::set;
 using std::string;
 using std::vector;
@@ -58,7 +58,7 @@ void work()
 
   }
   vector<ParameterSet> exploded;
-  edm::pset::explode(level1, exploded);
+  art::pset::explode(level1, exploded);
   assert( exploded.size() == all_ids.size() );
   set<ParameterSetID> exploded_ids;
   // This could be written with a call to transform (and using bind
@@ -72,10 +72,10 @@ void work()
 
 void work2()
 {
-  edm::ParameterSet empty;
+  art::ParameterSet empty;
   assert( empty.empty() );
-  std::vector<edm::ParameterSet> exploded;
-  edm::pset::explode(empty, exploded);
+  std::vector<art::ParameterSet> exploded;
+  art::pset::explode(empty, exploded);
   assert( exploded.size() == 1 );
   assert( exploded[0].empty() );
 }
@@ -89,9 +89,9 @@ int main()
       work2();
       rc = 0;
     }
-  catch ( edm::Exception& x)
+  catch ( art::Exception& x)
     {
-      std::cout << "Caught an edm::Exception:\n"
+      std::cout << "Caught an art::Exception:\n"
 		<< x
 		<< '\n';
     }

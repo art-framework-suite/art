@@ -10,30 +10,30 @@
 namespace
 {
   // Forward declare test helpers
-  edm::ModuleDescription makeModuleDescription(std::string const& label);
-  void setup_ctx(edm::CurrentProcessingContext& ctx);
+  art::ModuleDescription makeModuleDescription(std::string const& label);
+  void setup_ctx(art::CurrentProcessingContext& ctx);
 
   // Icky global junk, to mock lifetime of ModuleDescription.
-  static edm::ModuleDescription moduleA = makeModuleDescription("aaa");
+  static art::ModuleDescription moduleA = makeModuleDescription("aaa");
   static std::string pathName("path_a");
   static std::size_t pathNumber(21);
   static std::size_t slotInPath(13);
 
-  static edm::ModuleDescription const* p_moduleA = &moduleA;
+  static art::ModuleDescription const* p_moduleA = &moduleA;
   static std::string const*            p_pathName = &pathName;
 
   // Test helpers
-  edm::ModuleDescription makeModuleDescription(std::string const& label)
+  art::ModuleDescription makeModuleDescription(std::string const& label)
   {
-    edm::ModuleDescription temp;
+    art::ModuleDescription temp;
     temp.moduleLabel_ = label;
     return temp;
   }
 
-  void setup_ctx(edm::CurrentProcessingContext& ctx)
+  void setup_ctx(art::CurrentProcessingContext& ctx)
   {
     assert(p_moduleA);
-    edm::CurrentProcessingContext temp(p_pathName, pathNumber, false);
+    art::CurrentProcessingContext temp(p_pathName, pathNumber, false);
     temp.activate(slotInPath, p_moduleA);
     ctx = temp;
   }
@@ -43,7 +43,7 @@ namespace
 
 void test_default_ctor()
 {
-  edm::CurrentProcessingContext ctx;
+  art::CurrentProcessingContext ctx;
   assert(ctx.moduleLabel() == 0);
   assert(ctx.moduleDescription() == 0);
   assert(ctx.slotInPath() == -1);
@@ -52,10 +52,10 @@ void test_default_ctor()
 
 void test_activate()
 {
-  edm::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
+  art::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
   ctx.activate(slotInPath, p_moduleA);
   {
-    edm::CurrentProcessingContext const& r_ctx = ctx;
+    art::CurrentProcessingContext const& r_ctx = ctx;
     assert(r_ctx.moduleDescription() == p_moduleA);
     assert(r_ctx.moduleLabel());
     assert(*r_ctx.moduleLabel() == "aaa");
@@ -66,7 +66,7 @@ void test_activate()
 
 void test_deactivate()
 {
-  edm::CurrentProcessingContext ctx;
+  art::CurrentProcessingContext ctx;
   setup_ctx(ctx);
   ctx.deactivate();
   assert(ctx.moduleLabel() == 0);
@@ -85,8 +85,8 @@ int main()
 {
   int rc = -1;
   try { rc = work(); }
-  catch (cms::Exception& x) {
-      std::cerr << "cms::Exception caught\n";
+  catch (artZ::Exception& x) {
+      std::cerr << "artZ::Exception caught\n";
       std::cerr << x.what() << '\n';
       rc = -2;
   }

@@ -9,5 +9,5 @@
 
 #include "art/Framework/Core/eventsetupdata_registration_macro.h"
 
-using edm::eventsetup::test::DummyData;
+using art::eventsetup::test::DummyData;
 EVENTSETUP_DATA_REG(DummyData);

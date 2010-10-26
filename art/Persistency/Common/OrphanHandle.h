@@ -25,7 +25,7 @@ To check validity, one can use the isValid() function.
 #include "art/Utilities/EDMException.h"
 #include <cassert>
 
-namespace edm {
+namespace art {
   class EDProduct;
 
   template <typename T>

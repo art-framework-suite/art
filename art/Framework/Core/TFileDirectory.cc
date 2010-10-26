@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace edm
+namespace art
 {
 
   void TFileDirectory::cd() const {
@@ -18,7 +18,7 @@ namespace edm
 	dir = file_->GetDirectory( path_.c_str() );
 	if ( dir == 0 )
 	  throw
-	    cms::Exception( "InvalidDirectory" )
+	    artZ::Exception( "InvalidDirectory" )
 	    << "Can't change directory to path: " << path_;
       } else {
 	dir = file_;
@@ -26,13 +26,13 @@ namespace edm
       dir = dir->mkdir( dir_.c_str(), descr_.c_str() );
       if ( dir == 0 )
 	throw
-	  cms::Exception( "InvalidDirectory" )
+	  artZ::Exception( "InvalidDirectory" )
 	  << "Can't create directory " << dir_ << " in path: " << path_;
     }
     bool ok = file_->cd( fpath.c_str() );
     if ( ! ok )
       throw
-	cms::Exception( "InvalidDirectory" )
+	artZ::Exception( "InvalidDirectory" )
 	<< "Can't change directory to path: " << fpath;
   }
 

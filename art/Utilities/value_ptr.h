@@ -35,7 +35,7 @@
 #include <algorithm>  // for std::swap()
 #include <memory>
 
-namespace edm
+namespace art
 {
 
   // --------------------------------------------------------------------

@@ -15,7 +15,7 @@
 
 
 // Contents:
-namespace edm {
+namespace art {
   class EDProduct;
 }
 
@@ -23,7 +23,7 @@ namespace edm {
 // ======================================================================
 
 
-class edm::EDProduct
+class art::EDProduct
 {
 public:
   EDProduct();

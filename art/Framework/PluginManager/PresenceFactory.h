@@ -7,8 +7,8 @@
 #include <string>
 #include <memory>
 
-namespace edm {
-  typedef edmplugin::PluginFactory<Presence* ()> PresencePluginFactory;
+namespace art {
+  typedef artplugin::PluginFactory<Presence* ()> PresencePluginFactory;
 
   typedef Presence* (PresenceFunc)();
 

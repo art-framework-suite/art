@@ -28,7 +28,7 @@
 
 // forward declarations
 
-namespace edmplugin {
+namespace artplugin {
   namespace standard {
 
     PluginManager::Config config();

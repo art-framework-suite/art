@@ -5,7 +5,7 @@
 /// Declaration of the enum HashedTypes, used in defining several "id"
 /// classes.
 
-namespace edm
+namespace art
 {
   enum HashedTypes {
       ModuleDescriptionType, // Obsolete

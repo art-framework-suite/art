@@ -11,7 +11,7 @@ ProductStatus:
 */
 #include <vector>
 
-namespace edm {
+namespace art {
   typedef unsigned char byte_t;
   typedef byte_t ProductStatus;
   namespace productstatus {

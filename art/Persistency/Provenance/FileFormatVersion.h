@@ -3,7 +3,7 @@
 
 #include <iosfwd>
 
-namespace edm
+namespace art
 {
   struct FileFormatVersion
   {

@@ -14,7 +14,7 @@
 #include <map>
 #include <iterator>
 
-namespace edm {
+namespace art {
   namespace helper {
     template<typename Map>
     class Filler {

@@ -6,22 +6,22 @@
 
 #include <string>
 
-namespace edm
+namespace art
 {
 
   // -----------------------------------------------
 
   bool ProblemTracker::dead_ = true;
-  //edmplugin::DebugAids::AssertHook ProblemTracker::old_assert_hook_ = 0;
+  //artplugin::DebugAids::AssertHook ProblemTracker::old_assert_hook_ = 0;
 
   ProblemTracker::ProblemTracker()
   {
     dead_ = false;
-    //old_assert_hook_ = edmplugin::DebugAids::failHook(&failure);
-    if(not edmplugin::PluginManager::isAvailable()) {
-      edmplugin::PluginManager::Config config(edmplugin::standard::config());
+    //old_assert_hook_ = artplugin::DebugAids::failHook(&failure);
+    if(not artplugin::PluginManager::isAvailable()) {
+      artplugin::PluginManager::Config config(artplugin::standard::config());
 
-      edmplugin::PluginManager::configure(config);
+      artplugin::PluginManager::configure(config);
     }
   }
 

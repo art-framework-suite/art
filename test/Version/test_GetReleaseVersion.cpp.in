@@ -3,5 +3,5 @@
 
 int main()
 {
-  assert(edm::getReleaseVersion() == std::string("@version@"));
+  assert(art::getReleaseVersion() == std::string("@version@"));
 }

@@ -12,7 +12,7 @@ Developers who make their own Selectors should inherit from SelectorBase.
 
 ----------------------------------------------------------------------*/
 
-namespace edm
+namespace art
 {
   class ConstBranchDescription;
 

@@ -19,7 +19,7 @@
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
    class FwkImpl;
 
    namespace serviceregistry {
@@ -46,7 +46,7 @@ namespace edm {
          ServiceToken oldToken_;
       };
 
-      friend class edm::FwkImpl;
+      friend class art::FwkImpl;
       friend int main(int argc, char* argv[]);
       friend class Operate;
 
@@ -56,7 +56,7 @@ namespace edm {
       template<class T>
          T& get() const {
             if(0 == manager_.get()) {
-               throw edm::Exception(edm::errors::NotFound,"Service")
+               throw art::Exception(art::errors::NotFound,"Service")
                <<" no ServiceRegistry has been set for this thread";
             }
             return manager_-> template get<T>();
@@ -65,7 +65,7 @@ namespace edm {
       template<class T>
          bool isAvailable() const {
             if(0 == manager_.get()) {
-               throw edm::Exception(edm::errors::NotFound,"Service")
+               throw art::Exception(art::errors::NotFound,"Service")
                <<" no ServiceRegistry has been set for this thread";
             }
             return manager_-> template isAvailable<T>();
@@ -145,6 +145,6 @@ private:
       boost::shared_ptr<serviceregistry::ServicesManager> manager_;
    };
 
-}  // namespace edm
+}  // namespace art
 
 #endif

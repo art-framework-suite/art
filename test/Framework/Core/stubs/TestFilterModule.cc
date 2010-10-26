@@ -16,7 +16,7 @@
 #include <numeric>
 #include <iterator>
 
-using namespace edm;
+using namespace art;
 
 extern "C"
 {
@@ -24,16 +24,16 @@ extern "C"
 }
 
 
-namespace edmtest
+namespace arttest
 {
 
-  class TestFilterModule : public edm::EDFilter
+  class TestFilterModule : public art::EDFilter
   {
   public:
-    explicit TestFilterModule(edm::ParameterSet const&);
+    explicit TestFilterModule(art::ParameterSet const&);
     virtual ~TestFilterModule();
 
-    virtual bool filter(edm::Event& e, edm::EventSetup const& c);
+    virtual bool filter(art::Event& e, art::EventSetup const& c);
     void endJob();
 
   private:
@@ -44,16 +44,16 @@ namespace edmtest
 
   // -------
 
-  class SewerModule : public edm::OutputModule
+  class SewerModule : public art::OutputModule
   {
   public:
-    explicit SewerModule(edm::ParameterSet const&);
+    explicit SewerModule(art::ParameterSet const&);
     virtual ~SewerModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e);
-    virtual void writeSubRun(edm::SubRunPrincipal const&){}
-    virtual void writeRun(edm::RunPrincipal const&){}
+    virtual void write(art::EventPrincipal const& e);
+    virtual void writeSubRun(art::SubRunPrincipal const&){}
+    virtual void writeRun(art::RunPrincipal const&){}
     virtual void endJob();
 
     std::string name_;
@@ -63,7 +63,7 @@ namespace edmtest
 
   // -----------------------------------------------------------------
 
-  TestFilterModule::TestFilterModule(edm::ParameterSet const& ps):
+  TestFilterModule::TestFilterModule(art::ParameterSet const& ps):
     count_(),
     accept_rate_(ps.getUntrackedParameter<int>("acceptValue",1)),
     onlyOne_(ps.getUntrackedParameter<bool>("onlyOne",false))
@@ -74,7 +74,7 @@ namespace edmtest
   {
   }
 
-  bool TestFilterModule::filter(edm::Event&, edm::EventSetup const&)
+  bool TestFilterModule::filter(art::Event&, art::EventSetup const&)
   {
     ++count_;
     assert( currentContext() != 0 );
@@ -91,8 +91,8 @@ namespace edmtest
 
   // ---------
 
-  SewerModule::SewerModule(edm::ParameterSet const& ps):
-    edm::OutputModule(ps),
+  SewerModule::SewerModule(art::ParameterSet const& ps):
+    art::OutputModule(ps),
     name_(ps.getParameter<std::string>("name")),
     num_pass_(ps.getParameter<int>("shouldPass")),
     total_()
@@ -103,7 +103,7 @@ namespace edmtest
   {
   }
 
-  void SewerModule::write(edm::EventPrincipal const&)
+  void SewerModule::write(art::EventPrincipal const&)
   {
     ++total_;
     assert(currentContext() != 0);
@@ -124,8 +124,8 @@ namespace edmtest
   }
 }
 
-using edmtest::TestFilterModule;
-using edmtest::SewerModule;
+using arttest::TestFilterModule;
+using arttest::SewerModule;
 
 
 DEFINE_FWK_MODULE(TestFilterModule);

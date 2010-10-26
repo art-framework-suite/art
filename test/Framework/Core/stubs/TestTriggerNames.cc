@@ -21,25 +21,25 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace edm {
+namespace art {
   class EventSetup;
 }
 
-using namespace edm;
+using namespace art;
 
-namespace edmtest
+namespace arttest
 {
 
-  class TestTriggerNames : public edm::EDAnalyzer
+  class TestTriggerNames : public art::EDAnalyzer
   {
   public:
 
     typedef std::vector<std::string> Strings;
 
-    explicit TestTriggerNames(edm::ParameterSet const&);
+    explicit TestTriggerNames(art::ParameterSet const&);
     virtual ~TestTriggerNames();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    virtual void analyze(art::Event const& e, art::EventSetup const& c);
     void endJob();
 
   private:
@@ -52,12 +52,12 @@ namespace edmtest
     bool streamerSource_;
     bool dumpPSetRegistry_;
 
-    edm::TriggerNames triggerNamesI_;
+    art::TriggerNames triggerNamesI_;
   };
 
   // -----------------------------------------------------------------
 
-  TestTriggerNames::TestTriggerNames(edm::ParameterSet const& ps):
+  TestTriggerNames::TestTriggerNames(art::ParameterSet const& ps):
     status_(true),
     expected_trigger_paths_(ps.getUntrackedParameter<Strings>("trigPaths", Strings())),
     expected_trigger_previous_(ps.getUntrackedParameter<Strings>("trigPathsPrevious", Strings())),
@@ -75,7 +75,7 @@ namespace edmtest
 
   // -----------------------------------------------------------------
 
-  void TestTriggerNames::analyze(edm::Event const& e,edm::EventSetup const&)
+  void TestTriggerNames::analyze(art::Event const& e,art::EventSetup const&)
   {
     if (dumpPSetRegistry_) {
       pset::Registry* psetRegistry = pset::Registry::instance();
@@ -86,7 +86,7 @@ namespace edmtest
     if (expected_trigger_paths_.size() > 0) {
 
       Strings triggernames;
-      edm::Service<edm::service::TriggerNamesService> tns;
+      art::Service<art::service::TriggerNamesService> tns;
       triggernames = tns->getTrigPaths();
       if (triggernames.size() != expected_trigger_paths_.size()) {
         std::cerr << "TestTriggerNames: "
@@ -105,7 +105,7 @@ namespace edmtest
     if (expected_end_paths_.size() > 0) {
 
       Strings endnames;
-      edm::Service<edm::service::TriggerNamesService> tns;
+      art::Service<art::service::TriggerNamesService> tns;
       endnames = tns->getEndPaths();
       if (endnames.size() != expected_end_paths_.size()) {
         std::cerr << "TestTriggerNames: "
@@ -121,7 +121,7 @@ namespace edmtest
       }
     }
 
-    typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
+    typedef std::vector<art::Handle<art::TriggerResults> > Trig;
     Trig prod;
     e.getManyByType(prod);
 
@@ -139,7 +139,7 @@ namespace edmtest
       // previous process.  This assumes this is not run in an end path.
 
       Strings triggernames;
-      edm::Service<edm::service::TriggerNamesService> tns;
+      art::Service<art::service::TriggerNamesService> tns;
       if (tns->getTrigPaths(*prod[0], triggernames)) {
         if (triggernames.size() != expected_trigger_previous_.size()) {
           std::cerr << "TestTriggerNames: "
@@ -252,6 +252,6 @@ namespace edmtest
   }
 }
 
-using edmtest::TestTriggerNames;
+using arttest::TestTriggerNames;
 
 DEFINE_FWK_MODULE(TestTriggerNames);

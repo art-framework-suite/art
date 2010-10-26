@@ -8,30 +8,30 @@
 
 // Test of LogSystem, LogAbsolute, LogProblem, LogPrint, LogVerbatim
 
-namespace edmtest
+namespace arttest
 {
 
 
 void
-  UnitTestClient_M::analyze( edm::Event      const & e
-                           , edm::EventSetup const & /*unused*/
+  UnitTestClient_M::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
                               )
 {
-  edm::LogSystem("system")    <<
+  art::LogSystem("system")    <<
   	"Text sent to LogSystem";
-  edm::LogAbsolute("absolute")  <<
+  art::LogAbsolute("absolute")  <<
   	"Text sent to LogAbsolute - should be unformatted";
-  edm::LogProblem("problem")   <<
+  art::LogProblem("problem")   <<
   	"Text sent to LogProblem - should be unformatted";
-  edm::LogPrint("print")       <<
+  art::LogPrint("print")       <<
   	"Text sent to LogPrint- should be unformatted";
-  edm::LogVerbatim("verbatim") <<
+  art::LogVerbatim("verbatim") <<
   	"Text sent to LogVerbatim - should be unformatted";
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace edmtest
+}  // namespace arttest
 
 
-using edmtest::UnitTestClient_M;
+using arttest::UnitTestClient_M;
 DEFINE_FWK_MODULE(UnitTestClient_M);

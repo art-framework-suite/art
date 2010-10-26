@@ -8,7 +8,7 @@
 #include <vector>
 #include <iostream>
 
-namespace edm {
+namespace art {
   namespace actions {
     namespace {
       struct ActionNames
@@ -51,7 +51,7 @@ namespace edm {
       // we cannot have parameters in the main process section so look
       // for an untrakced (optional) ParameterSet called "options" for
       // now.  Notice that all exceptions (most actally) throw
-      // edm::Exception with the configuration category.  This
+      // art::Exception with the configuration category.  This
       // category should probably be more specific or a derived
       // exception type should be used so the catch can be more
       // specific.
@@ -60,10 +60,10 @@ namespace edm {
 
       fhicl::ParameterSet defopts;
       fhicl::ParameterSet opts =
-        pset.getPSet("options", defopts);
+        pset.get<fhicl::ParameterSet>("options", defopts);
       //cerr << "looking for " << actionName(code) << std::endl;
       vstring v =
-        opts.getVString(actionName(code),vstring());
+        opts.get<std::vector<std::string> >(actionName(code),vstring());
       for_all(v, var(out)[_1] = code);
 
     }
@@ -85,17 +85,17 @@ namespace edm {
     using namespace boost::lambda;
     // populate defaults that are not 'Rethrow'
     // 'Rethrow' is the default default.
-    map_[edm::Exception::codeToString(errors::ProductNotFound)]=
+    map_[art::Exception::codeToString(errors::ProductNotFound)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::InvalidReference)]=
+    map_[art::Exception::codeToString(errors::InvalidReference)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::NullPointerError)]=
+    map_[art::Exception::codeToString(errors::NullPointerError)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::EventTimeout)]=
+    map_[art::Exception::codeToString(errors::EventTimeout)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::EventCorruption)]=
+    map_[art::Exception::codeToString(errors::EventCorruption)]=
       actions::SkipEvent;
-    map_[edm::Exception::codeToString(errors::NotFound)]=
+    map_[art::Exception::codeToString(errors::NotFound)]=
       actions::SkipEvent;
 
     if(2 <= debugit())
@@ -123,4 +123,4 @@ namespace edm {
     return i!=map_.end() ? i->second : actions::Rethrow;
   }
 
-}  // namespace edm
+}  // namespace art

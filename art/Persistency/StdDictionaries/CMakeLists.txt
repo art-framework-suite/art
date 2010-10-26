@@ -1,4 +1,4 @@
 # project name
 project(artPersistencyStdDictionaries)
 
-build_plugin( Persistency StdDictionaries )
+build_dictionary( Persistency StdDictionaries )

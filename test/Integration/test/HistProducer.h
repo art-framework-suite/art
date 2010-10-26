@@ -4,19 +4,19 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDProducer.h"
 
-namespace edmtest {
+namespace arttest {
   //struct ThingWithHist {
 //	TH1F hist_;
  // };
 
-  class HistProducer : public edm::EDProducer {
+  class HistProducer : public art::EDProducer {
   public:
 
-    explicit HistProducer(edm::ParameterSet const& ps);
+    explicit HistProducer(art::ParameterSet const& ps);
 
     virtual ~HistProducer();
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(art::Event& e, art::EventSetup const& c);
 
   private:
   };

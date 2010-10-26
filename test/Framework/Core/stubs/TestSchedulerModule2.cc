@@ -19,13 +19,13 @@ static const char CVSId[] = "";
 #include <memory>
 #include <string>
 
-namespace edm{
+namespace art{
 
   class TestSchedulerModule2 : public EDProducer
   {
   public:
     explicit TestSchedulerModule2(ParameterSet const& p):pset_(p){
-       produces<edmtest::StringProduct>();
+       produces<arttest::StringProduct>();
     }
 
     void produce(Event& e, EventSetup const&);
@@ -39,12 +39,12 @@ namespace edm{
   {
 
     std::string myname = pset_.getParameter<std::string>("module_name");
-    std::auto_ptr<edmtest::StringProduct> product(new edmtest::StringProduct(myname));
+    std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
     e.put(product);
 
   }
 }//namespace
-using edm::TestSchedulerModule2;
+using art::TestSchedulerModule2;
 DEFINE_FWK_MODULE(TestSchedulerModule2);
 
 // Configure (x)emacs for this file ...

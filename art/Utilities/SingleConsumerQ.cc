@@ -1,6 +1,6 @@
 #include "art/Utilities/SingleConsumerQ.h"
 
-namespace edm
+namespace art
 {
 
   SingleConsumerQ::SingleConsumerQ(int max_event_size, int max_queue_depth):

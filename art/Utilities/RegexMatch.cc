@@ -8,7 +8,7 @@
 
 #include "art/Utilities/RegexMatch.h"
 
-namespace edm {
+namespace art {
 
   bool is_glob(std::string const& pattern) {
     return (pattern.find_first_of("*?") != pattern.npos);

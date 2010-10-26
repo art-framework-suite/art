@@ -17,13 +17,13 @@
 // It has been observed that a clearer expression of this intent is to
 // provide instead, for each such type T, a C++ template instantiation
 // of the form:
-//   template class edm::Wrapper<T>;
+//   template class art::Wrapper<T>;
 // If successful, this would obviate the need for any namespace scope
 // and otherwise-useless dictionary type.
 //
 // However (using gcc 3.4.6), not all these proposed template
 // instantiation statements compile.  There are two classes of failure,
-// both occurring in the metaprogramming (in edm::Wrapper<T>) that checks
+// both occurring in the metaprogramming (in art::Wrapper<T>) that checks
 // whether the wrapped type T has a T::swap(T&) member function.
 //
 // The first failure mode arises whenever T is an std::pair<,>.  The
@@ -33,7 +33,7 @@
 // int or double.  The diagnostic says that T is not an aggregate type.
 //
 // This should be revisited in the future to determine whether it is a
-// fault of gcc 3.4.6, or of the metaprogramming in edm::Wrapper<T>.
+// fault of gcc 3.4.6, or of the metaprogramming in art::Wrapper<T>.
 // The amount of overhead engendered by the two approaches should also
 // be understood in order to decide which approach should be the norm.
 //
@@ -43,78 +43,78 @@
 
 namespace {
   struct dictionary {
-    edm::Wrapper<std::vector<unsigned long> > dummy1;
-    edm::Wrapper<std::vector<unsigned int> > dummy2;
-    edm::Wrapper<std::vector<long> > dummy3;
-    edm::Wrapper<std::vector<int> > dummy4;
-    edm::Wrapper<std::vector<std::string> > dummy5;
-    edm::Wrapper<std::vector<char> > dummy6;
-    edm::Wrapper<std::vector<char*> > dummy6p;
-    edm::Wrapper<std::vector<unsigned char> > dummy7;
-    edm::Wrapper<std::vector<unsigned char*> > dummy7p;
-    edm::Wrapper<std::vector<short> > dummy8;
-    edm::Wrapper<std::vector<unsigned short> > dummy9;
-    edm::Wrapper<std::vector<std::vector<unsigned short> > > dummy9v;
-    edm::Wrapper<std::vector<double> > dummy10;
-    edm::Wrapper<std::vector<long double> > dummy11;
-    edm::Wrapper<std::vector<float> > dummy12;
-    edm::Wrapper<std::vector<bool> > dummy13;
-    edm::Wrapper<std::vector<unsigned long long> > dummy14;
-    edm::Wrapper<std::vector<long long> > dummy15;
-    edm::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
-    edm::Wrapper<std::vector<std::pair<unsigned int,double> > > dummy16_1;
-    edm::Wrapper<std::list<int> > dummy17;
+    art::Wrapper<std::vector<unsigned long> > dummy1;
+    art::Wrapper<std::vector<unsigned int> > dummy2;
+    art::Wrapper<std::vector<long> > dummy3;
+    art::Wrapper<std::vector<int> > dummy4;
+    art::Wrapper<std::vector<std::string> > dummy5;
+    art::Wrapper<std::vector<char> > dummy6;
+    art::Wrapper<std::vector<char*> > dummy6p;
+    art::Wrapper<std::vector<unsigned char> > dummy7;
+    art::Wrapper<std::vector<unsigned char*> > dummy7p;
+    art::Wrapper<std::vector<short> > dummy8;
+    art::Wrapper<std::vector<unsigned short> > dummy9;
+    art::Wrapper<std::vector<std::vector<unsigned short> > > dummy9v;
+    art::Wrapper<std::vector<double> > dummy10;
+    art::Wrapper<std::vector<long double> > dummy11;
+    art::Wrapper<std::vector<float> > dummy12;
+    art::Wrapper<std::vector<bool> > dummy13;
+    art::Wrapper<std::vector<unsigned long long> > dummy14;
+    art::Wrapper<std::vector<long long> > dummy15;
+    art::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
+    art::Wrapper<std::vector<std::pair<unsigned int,double> > > dummy16_1;
+    art::Wrapper<std::list<int> > dummy17;
 
-    edm::Wrapper<std::deque<int> > dummy18;
+    art::Wrapper<std::deque<int> > dummy18;
 
-    edm::Wrapper<std::set<int> > dummy19;
+    art::Wrapper<std::set<int> > dummy19;
 
-    edm::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
-    edm::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;
-    edm::Wrapper<std::pair<unsigned int, int> > dymmywp2_1;
-    edm::Wrapper<std::pair<unsigned short, unsigned short> > dymmywp3;
-    edm::Wrapper<std::pair<int, int> > dymmywp4;
-    edm::Wrapper<std::pair<unsigned int, bool> > dymmywp5;
-    edm::Wrapper<std::pair<unsigned int, float> > dymmywp6;
-    edm::Wrapper<std::pair<unsigned int, double> > dymmywp6d;
-    edm::Wrapper<std::pair<double, double> > dymmywp7;
-    edm::Wrapper<std::pair<unsigned long long, std::basic_string<char> > > dymmywp8;
-    edm::Wrapper<std::pair<std::basic_string<char>,int> > dummywp9;
-    edm::Wrapper<std::pair<std::basic_string<char>,double> > dummywp10;
-    edm::Wrapper<std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummywp11;
-    edm::Wrapper<std::map<unsigned long, unsigned long> > dymmywm1;
-    edm::Wrapper<std::map<unsigned int, unsigned int> > dymmywm2;
-    edm::Wrapper<std::map<unsigned int, int> > dymmywm2_1;
-    edm::Wrapper<std::map<unsigned short, unsigned short> > dymmywm3;
-    edm::Wrapper<std::map<int, int> > dymmywm4;
-    edm::Wrapper<std::map<unsigned int, bool> > dymmywm5;
-    edm::Wrapper<std::map<unsigned long, std::vector<unsigned long> > > dymmywmv1;
-    edm::Wrapper<std::map<unsigned int, std::vector<unsigned int> > > dymmywmv2;
-    edm::Wrapper<std::map<unsigned int,std::vector<std::pair<unsigned int,double> > > >dymmywmv2_1;
-    edm::Wrapper<std::map<unsigned short, std::vector<unsigned short> > > dymmypwmv3;
-    edm::Wrapper<std::map<unsigned int, float> > dummyypwmv4;
-    edm::Wrapper<std::map<unsigned long long, std::basic_string<char> > > dummyypwmv5;
-    edm::Wrapper<std::multimap<double, double> > dummyypwmv6;
-    edm::Wrapper<std::map<std::basic_string<char>,bool> > dummyypwmv6a;
-    edm::Wrapper<std::map<std::basic_string<char>,int> > dummyypwmv7;
-    edm::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummyypwmv8;
-    edm::Wrapper<std::map<int,std::pair<unsigned int,unsigned int> > > dummyypwmv9;
-    edm::Wrapper<std::map<int,std::pair<unsigned long,unsigned long> > > dummyypwmv10;
+    art::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
+    art::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;
+    art::Wrapper<std::pair<unsigned int, int> > dymmywp2_1;
+    art::Wrapper<std::pair<unsigned short, unsigned short> > dymmywp3;
+    art::Wrapper<std::pair<int, int> > dymmywp4;
+    art::Wrapper<std::pair<unsigned int, bool> > dymmywp5;
+    art::Wrapper<std::pair<unsigned int, float> > dymmywp6;
+    art::Wrapper<std::pair<unsigned int, double> > dymmywp6d;
+    art::Wrapper<std::pair<double, double> > dymmywp7;
+    art::Wrapper<std::pair<unsigned long long, std::basic_string<char> > > dymmywp8;
+    art::Wrapper<std::pair<std::basic_string<char>,int> > dummywp9;
+    art::Wrapper<std::pair<std::basic_string<char>,double> > dummywp10;
+    art::Wrapper<std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummywp11;
+    art::Wrapper<std::map<unsigned long, unsigned long> > dymmywm1;
+    art::Wrapper<std::map<unsigned int, unsigned int> > dymmywm2;
+    art::Wrapper<std::map<unsigned int, int> > dymmywm2_1;
+    art::Wrapper<std::map<unsigned short, unsigned short> > dymmywm3;
+    art::Wrapper<std::map<int, int> > dymmywm4;
+    art::Wrapper<std::map<unsigned int, bool> > dymmywm5;
+    art::Wrapper<std::map<unsigned long, std::vector<unsigned long> > > dymmywmv1;
+    art::Wrapper<std::map<unsigned int, std::vector<unsigned int> > > dymmywmv2;
+    art::Wrapper<std::map<unsigned int,std::vector<std::pair<unsigned int,double> > > >dymmywmv2_1;
+    art::Wrapper<std::map<unsigned short, std::vector<unsigned short> > > dymmypwmv3;
+    art::Wrapper<std::map<unsigned int, float> > dummyypwmv4;
+    art::Wrapper<std::map<unsigned long long, std::basic_string<char> > > dummyypwmv5;
+    art::Wrapper<std::multimap<double, double> > dummyypwmv6;
+    art::Wrapper<std::map<std::basic_string<char>,bool> > dummyypwmv6a;
+    art::Wrapper<std::map<std::basic_string<char>,int> > dummyypwmv7;
+    art::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummyypwmv8;
+    art::Wrapper<std::map<int,std::pair<unsigned int,unsigned int> > > dummyypwmv9;
+    art::Wrapper<std::map<int,std::pair<unsigned long,unsigned long> > > dummyypwmv10;
 
-    edm::Wrapper<unsigned long> dummyw1;
-    edm::Wrapper<unsigned int> dummyw2;
-    edm::Wrapper<long> dummyw3;
-    edm::Wrapper<int> dummyw4;
-    edm::Wrapper<std::string> dummyw5;
-    edm::Wrapper<char> dummyw6;
-    edm::Wrapper<unsigned char> dummyw7;
-    edm::Wrapper<short> dummyw8;
-    edm::Wrapper<unsigned short> dummyw9;
-    edm::Wrapper<double> dummyw10;
-    edm::Wrapper<long double> dummyw11;
-    edm::Wrapper<float> dummyw12;
-    edm::Wrapper<bool> dummyw13;
-    edm::Wrapper<unsigned long long> dummyw14;
-    edm::Wrapper<long long> dummyw15;
+    art::Wrapper<unsigned long> dummyw1;
+    art::Wrapper<unsigned int> dummyw2;
+    art::Wrapper<long> dummyw3;
+    art::Wrapper<int> dummyw4;
+    art::Wrapper<std::string> dummyw5;
+    art::Wrapper<char> dummyw6;
+    art::Wrapper<unsigned char> dummyw7;
+    art::Wrapper<short> dummyw8;
+    art::Wrapper<unsigned short> dummyw9;
+    art::Wrapper<double> dummyw10;
+    art::Wrapper<long double> dummyw11;
+    art::Wrapper<float> dummyw12;
+    art::Wrapper<bool> dummyw13;
+    art::Wrapper<unsigned long long> dummyw14;
+    art::Wrapper<long long> dummyw15;
   };  // dictionary
 }  // namespace

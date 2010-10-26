@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/types.h"
+
+
 #ifndef FWCore_ParameterSet_types_h
 #define FWCore_ParameterSet_types_h
 
@@ -27,7 +30,7 @@
 // ----------------------------------------------------------------------
 // contents
 
-namespace edm
+namespace art
 {
   //            destination    source
 
@@ -88,32 +91,32 @@ namespace edm
   bool  encode(std::string              &, std::vector<std::string> const&);
 
   // FileInPath
-  bool  decode(edm::FileInPath &, std::string const&);
-  bool  encode(std::string     &, edm::FileInPath const&);
+  bool  decode(art::FileInPath &, std::string const&);
+  bool  encode(std::string     &, art::FileInPath const&);
 
   // InputTag
-  bool  decode(edm::InputTag &, std::string const&);
-  bool  encode(std::string   &, edm::InputTag const&);
+  bool  decode(art::InputTag &, std::string const&);
+  bool  encode(std::string   &, art::InputTag const&);
 
   // VInputTag
-  bool  decode(std::vector<edm::InputTag>&, std::string const&);
-  bool  encode(std::string &, std::vector<edm::InputTag> const&);
+  bool  decode(std::vector<art::InputTag>&, std::string const&);
+  bool  encode(std::string &, std::vector<art::InputTag> const&);
 
   // EventID
-  bool  decode(edm::EventID&, std::string const&);
-  bool  encode(std::string &, edm::EventID const&);
+  bool  decode(art::EventID&, std::string const&);
+  bool  encode(std::string &, art::EventID const&);
 
   // VEventID
-  bool  decode(std::vector<edm::EventID>&, std::string const&);
-  bool  encode(std::string &, std::vector<edm::EventID> const&);
+  bool  decode(std::vector<art::EventID>&, std::string const&);
+  bool  encode(std::string &, std::vector<art::EventID> const&);
 
   // SubRunID
-  bool  decode(edm::SubRunID&, std::string const&);
-  bool  encode(std::string &, edm::SubRunID const&);
+  bool  decode(art::SubRunID&, std::string const&);
+  bool  encode(std::string &, art::SubRunID const&);
 
   // VSubRunID
-  bool  decode(std::vector<edm::SubRunID>&, std::string const&);
-  bool  encode(std::string &, std::vector<edm::SubRunID> const&);
+  bool  decode(std::vector<art::SubRunID>&, std::string const&);
+  bool  encode(std::string &, std::vector<art::SubRunID> const&);
 
   // ParameterSet
   bool  decode(fhicl::ParameterSet &, std::string  const&);
@@ -123,7 +126,7 @@ namespace edm
   bool  decode(std::vector<fhicl::ParameterSet> &, std::string const&);
   bool  encode(std::string &, std::vector<fhicl::ParameterSet> const&);
 
-}  // namespace edm
+}  // namespace art
 
 
 // ----------------------------------------------------------------------

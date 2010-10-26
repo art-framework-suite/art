@@ -5,9 +5,9 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleDescriptionID.h"
 
-namespace edm
+namespace art
 {
-  typedef edm::detail::ThreadSafeRegistry<edm::ModuleDescriptionID, edm::ModuleDescription> ModuleDescriptionRegistry;
+  typedef art::detail::ThreadSafeRegistry<art::ModuleDescriptionID, art::ModuleDescription> ModuleDescriptionRegistry;
   typedef ModuleDescriptionRegistry::collection_type ModuleDescriptionMap;
 }
 

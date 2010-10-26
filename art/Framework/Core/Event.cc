@@ -1,13 +1,17 @@
 #include "art/Framework/Core/Event.h"
+
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/SubRun.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/Provenance.h"
 
 
-namespace edm {
+using namespace std;
+using namespace fhicl;
+
+
+namespace art {
 
   namespace {
     SubRun * newSubRun(EventPrincipal& ep, ModuleDescription const& md) {
@@ -75,14 +79,14 @@ namespace edm {
   }
 
   void
-  Event::getAllProvenance(std::vector<Provenance const*> & provenances) const
+  Event::getAllProvenance(vector<Provenance const*> & provenances) const
   {
     principal().getAllProvenance(provenances);
   }
 
   bool
-  Event::getProcessParameterSet(std::string const& processName,
-				fhicl::ParameterSet& ps) const
+  Event::getProcessParameterSet(string const& processName,
+				ParameterSet& ps) const
   {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
@@ -99,7 +103,7 @@ namespace edm {
     ProcessConfiguration config;
     bool process_found = ph.getConfigurationForProcess(processName, config);
     if (process_found)
-      pset::Registry::instance()->getMapped(config.parameterSetID(), ps);
+      ParameterSetRegistry::get(config.parameterSetID(), ps);
     return process_found;
   }
 
@@ -124,7 +128,7 @@ namespace edm {
     ProductPtrVec::iterator pit(products.begin());
     ProductPtrVec::iterator pie(products.end());
 
-    std::vector<BranchID> gotBranchIDVector;
+    vector<BranchID> gotBranchIDVector;
 
     // Note that gotBranchIDVector will remain empty if
     // record_parents is false (and may be empty if record_parents is
@@ -139,12 +143,12 @@ namespace edm {
     }
 
     while(pit!=pie) {
-	std::auto_ptr<EDProduct> pr(pit->first);
+	auto_ptr<EDProduct> pr(pit->first);
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
 	// set provenance
-	std::auto_ptr<ProductProvenance> productProvenancePtr(
+	auto_ptr<ProductProvenance> productProvenancePtr(
 		new ProductProvenance(pit->second->branchID(),
 				   productstatus::present(),
 				   gotBranchIDVector));
@@ -161,8 +165,8 @@ namespace edm {
     if (prov.branchDescription().transient()) {
       // If the product retrieved is transient, don't use its branch ID.
       // use the branch ID's of its parents.
-      std::vector<BranchID> const& bids = prov.parents();
-      for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
+      vector<BranchID> const& bids = prov.parents();
+      for (vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
         gotBranchIDs_.insert(*it);
       }
     } else {
@@ -170,4 +174,4 @@ namespace edm {
     }
   }
 
-}  // namespace edm
+}  // namespace art

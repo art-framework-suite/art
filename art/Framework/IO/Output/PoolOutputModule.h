@@ -22,7 +22,7 @@ class TTree;
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class RootOutputFile;
 
@@ -123,6 +123,6 @@ namespace edm {
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // IOPool_Output_PoolOutputModule_h

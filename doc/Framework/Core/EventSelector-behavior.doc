@@ -64,7 +64,7 @@ an "exceptions only" stream.  This fiel will be modified when that happens.
 
 The pre-1.8 version of EventSelector makes it awkward or impossible to
 control selection based on some or all of the trigger bits being in the
-EXCEPTION state (edm::hlt::HLTState = Exception).  Since it is very
+EXCEPTION state (art::hlt::HLTState = Exception).  Since it is very
 practical to want to create exception-free streams of events, or streams
 of events that had exceptions in some or all trigger bits, people (2) have
 implied that some such control would be desirable.

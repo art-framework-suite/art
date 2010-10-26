@@ -23,7 +23,7 @@ This class is not persistable.
 
 */
 
-namespace edm {
+namespace art {
 
   class ConstBranchDescription {
   public:
@@ -89,6 +89,6 @@ namespace edm {
     return match(a.me(), b.me(), fileName, m);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_ConstBranchDescription_h

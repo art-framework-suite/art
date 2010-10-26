@@ -1,13 +1,13 @@
 #include "art/Persistency/Provenance/Hash.h"
 
-namespace edm
+namespace art
 {
   namespace detail
   {
     // This string is the 16-byte, non-printable version.
     std::string const& InvalidHash()
     {
-      static const std::string invalid = cms::MD5Result().compactForm();
+      static const std::string invalid = artZ::MD5Result().compactForm();
       return invalid;
     }
   }

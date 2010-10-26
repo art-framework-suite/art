@@ -30,7 +30,7 @@
 #include "test/Framework/Core/Dummy2Record.h"
 
 class DepOn2Record
-: public edm::eventsetup::DependentRecordImplementation<DepOn2Record, boost::mpl::vector<DummyRecord,Dummy2Record> >
+: public art::eventsetup::DependentRecordImplementation<DepOn2Record, boost::mpl::vector<DummyRecord,Dummy2Record> >
 {
 };
 

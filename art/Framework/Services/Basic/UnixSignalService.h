@@ -15,7 +15,7 @@ This service is instantiated at job startup.
 #include "fhiclcpp/ParameterSet.h"
 
 
-namespace edm {
+namespace art {
   class ActivityRegistry;
   class Event;
 
@@ -28,12 +28,12 @@ namespace edm {
 
     public:
       UnixSignalService( fhicl::ParameterSet const& ps
-                       , edm::ActivityRegistry& ac );
+                       , art::ActivityRegistry& ac );
       ~UnixSignalService();
 
     }; // UnixSignalService
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Services_UnixSignalService_h

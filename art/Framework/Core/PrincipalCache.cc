@@ -7,7 +7,7 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
+namespace art {
 
   PrincipalCache::PrincipalCache() { }
 
@@ -16,7 +16,7 @@ namespace edm {
   RunPrincipal & PrincipalCache::runPrincipal(int run) {
     RunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipal\n"
         << "Requested a run that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -27,7 +27,7 @@ namespace edm {
   RunPrincipal const& PrincipalCache::runPrincipal(int run) const {
     ConstRunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipal\n"
         << "Requested a run that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -38,7 +38,7 @@ namespace edm {
   boost::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(int run) {
     RunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipalPtr\n"
         << "Requested a run that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -48,7 +48,7 @@ namespace edm {
 
   RunPrincipal & PrincipalCache::runPrincipal() {
     if (currentRunPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipal\n"
         << "Requested current run and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -58,7 +58,7 @@ namespace edm {
 
   RunPrincipal const& PrincipalCache::runPrincipal() const {
     if (currentRunPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipal\n"
         << "Requested current run and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -68,7 +68,7 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr() {
     if (currentRunPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipalPtr\n"
         << "Requested current run and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -80,7 +80,7 @@ namespace edm {
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipal\n"
         << "Requested a subRun that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -92,7 +92,7 @@ namespace edm {
     SubRunKey key(run, subRun);
     ConstSubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipal\n"
         << "Requested a subRun that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -104,7 +104,7 @@ namespace edm {
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipalPtr\n"
         << "Requested a subRun that is not in the cache (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -114,7 +114,7 @@ namespace edm {
 
   SubRunPrincipal & PrincipalCache::subRunPrincipal() {
     if (currentSubRunPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipal\n"
         << "Requested current subRun and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -124,7 +124,7 @@ namespace edm {
 
   SubRunPrincipal const& PrincipalCache::subRunPrincipal() const {
     if (currentSubRunPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipal\n"
         << "Requested current subRun and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";
@@ -134,7 +134,7 @@ namespace edm {
 
   boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr() {
     if (currentSubRunPrincipal_.get() == 0) {
-      throw edm::Exception(edm::errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipalPtr\n"
         << "Requested current subRun and it is not initialized (should never happen)\n"
         << "Contact a Framework Developer\n";

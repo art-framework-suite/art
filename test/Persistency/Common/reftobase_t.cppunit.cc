@@ -36,7 +36,7 @@ using namespace testreftobase;
 void
 testRefToBase::check()
 {
-  using namespace edm;
+  using namespace art;
 
   std::vector<Inherit1> v1(2,Inherit1());
   std::vector<Inherit2> v2(2,Inherit2());
@@ -69,6 +69,6 @@ testRefToBase::check()
   CPPUNIT_ASSERT(b1.castTo<Ref<std::vector<Inherit1> > >() == r1);
   bool throwed = false;
   try { b1.castTo<Ref<std::vector<Inherit2> > >(); }
-  catch (edm::Exception e) { throwed = true; }
+  catch (art::Exception e) { throwed = true; }
   CPPUNIT_ASSERT(throwed);
 }

@@ -8,11 +8,11 @@
 
 int work()
 {
-  edm::CurrentProcessingContext ctx;
-  edm::CurrentProcessingContext const* ptr = 0;
+  art::CurrentProcessingContext ctx;
+  art::CurrentProcessingContext const* ptr = 0;
   assert(ptr == 0);
   {
-    edm::detail::CPCSentry sentry(ptr, &ctx);
+    art::detail::CPCSentry sentry(ptr, &ctx);
     assert(ptr == &ctx);
   }
   assert(ptr == 0);
@@ -24,8 +24,8 @@ int main()
 {
   int rc = -1;
   try { rc = work(); }
-  catch (cms::Exception& x) {
-      std::cerr << "cms::Exception caught\n";
+  catch (artZ::Exception& x) {
+      std::cerr << "artZ::Exception caught\n";
       std::cerr << x.what() << '\n';
       rc = -2;
   }

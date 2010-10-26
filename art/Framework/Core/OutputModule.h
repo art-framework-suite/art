@@ -15,24 +15,21 @@ output stream.
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/ParameterSet/ParameterSetfwd.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
-
 #include "boost/array.hpp"
 #include "boost/utility.hpp"
-
 #include <string>
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
-  typedef edm::detail::CachedProducts::handle_t Trig;
+  typedef art::detail::CachedProducts::handle_t Trig;
 
   std::vector<std::string> const& getAllTriggerNames();
 
@@ -220,6 +217,6 @@ namespace edm {
     virtual void finishEndFile() {}
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_OutputModule_h

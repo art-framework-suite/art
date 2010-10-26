@@ -3,8 +3,8 @@
 
 // ======================================================================
 //
-// PtrVector: a container which returns edm::Ptr<>'s referring to items
-//            in one container in the edm::Event
+// PtrVector: a container which returns art::Ptr<>'s referring to items
+//            in one container in the art::Event
 //
 // ======================================================================
 
@@ -23,7 +23,7 @@
 #include <vector>
 
 // Contents:
-namespace edm {
+namespace art {
   template< typename > class PtrProxy;
   template< typename > class PtrVector;
   template< typename > class PtrVectorItr;
@@ -37,7 +37,7 @@ namespace edm {
 
 
 template< typename T >
-  class edm::PtrProxy
+  class art::PtrProxy
 {
 private:
   Ptr<T> ptr_;
@@ -59,7 +59,7 @@ public:
 
 
 template< typename T >
-  class edm::PtrVectorItr
+  class art::PtrVectorItr
 : public std::iterator< std::random_access_iterator_tag, Ptr<T> >
 {
 private:
@@ -152,7 +152,7 @@ public:
 
 
 template< typename T >
-class edm::PtrVector
+class art::PtrVector
 : public PtrVectorBase
 {
   friend class PtrVectorItr<T>;
@@ -231,7 +231,7 @@ private:
 
 template< typename T >
   inline void
-  edm::swap( PtrVector<T> & lhs, PtrVector<T> & rhs )
+  art::swap( PtrVector<T> & lhs, PtrVector<T> & rhs )
 { lhs.swap(rhs); }
 
 

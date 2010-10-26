@@ -18,7 +18,7 @@ ModuleDescription: The description of a producer module.
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
@@ -70,6 +70,6 @@ namespace edm {
     return os;
   }
 
-} // namespace edm
+} // namespace art
 
 #endif  // DataFormats_Provenance_ModuleDescription_h

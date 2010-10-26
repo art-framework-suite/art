@@ -40,7 +40,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestCacheParser);
 void
 TestCacheParser::testSpace()
 {
-  using namespace edmplugin;
+  using namespace artplugin;
 
   const std::string kNoSpace("abcDefla");
   std::string unchanged(kNoSpace);
@@ -64,7 +64,7 @@ TestCacheParser::testSpace()
 void
 TestCacheParser::testReadWrite()
 {
-  using namespace edmplugin;
+  using namespace artplugin;
   std::map<std::string, std::vector<PluginInfo> > categoryToInfos;
   PluginInfo info;
   info.loadable_="pluginA.so";

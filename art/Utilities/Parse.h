@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-namespace edm {
+namespace art {
       /// only does the yacc interpretation
       std::string read_whole_file(std::string const& filename);
 

@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
-Test program for edm::Event.
+Test program for art::Event.
 
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
@@ -48,10 +48,10 @@ Test program for edm::Event.
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 
-using namespace edm;
+using namespace art;
 
 // This is a gross hack, to allow us to test the event
-namespace edm
+namespace art
 {
   class EDProducer
   {
@@ -197,7 +197,7 @@ testEvent::addProduct(std::auto_ptr<T> product,
 {
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
-    throw edm::Exception(errors::LogicError)
+    throw art::Exception(errors::LogicError)
       << "Failed to find a module description for tag: "
       << tag << '\n';
 
@@ -217,8 +217,8 @@ testEvent::testEvent() :
 {
   BranchIDListHelper::clearRegistries();
 
-  typedef edmtest::IntProduct prod_t;
-  typedef std::vector<edmtest::Thing> vec_t;
+  typedef arttest::IntProduct prod_t;
+  typedef std::vector<arttest::Thing> vec_t;
 
   registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
   registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
@@ -394,12 +394,12 @@ void testEvent::getBySelectorFromEmpty()
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch,
-		       cms::Exception);
+		       artZ::Exception);
 }
 
 void testEvent::putAnIntProduct()
 {
-  std::auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
+  std::auto_ptr<arttest::IntProduct> three(new arttest::IntProduct(3));
   currentEvent_->put(three, "int1");
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
   EDProducer::commitEvent(*currentEvent_);
@@ -408,24 +408,24 @@ void testEvent::putAnIntProduct()
 
 void testEvent::putAndGetAnIntProduct()
 {
-  std::auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
+  std::auto_ptr<arttest::IntProduct> four(new arttest::IntProduct(4));
   currentEvent_->put(four, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
   ProcessNameSelector should_match("CURRENT");
   ProcessNameSelector should_not_match("NONESUCH");
-  Handle<edmtest::IntProduct> h;
+  Handle<arttest::IntProduct> h;
   currentEvent_->get(should_match, h);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(!currentEvent_->get(should_not_match, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 }
 
 void testEvent::getByProductID()
 {
 
-  typedef edmtest::IntProduct product_t;
+  typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t>  handle_t;
 
@@ -453,13 +453,13 @@ void testEvent::getByProductID()
   CPPUNIT_ASSERT(h->value == 1);
 
   ProductID invalid;
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), artZ::Exception);
   CPPUNIT_ASSERT(!h.isValid());
   ProductID notpresent(0, std::numeric_limits<unsigned short>::max());
   CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 }
 
 void testEvent::transaction()
@@ -468,7 +468,7 @@ void testEvent::transaction()
   // commit, there is no product in the EventPrincipal afterwards.
   CPPUNIT_ASSERT(principal_->size() == 0);
   {
-    typedef edmtest::IntProduct product_t;
+    typedef arttest::IntProduct product_t;
     typedef std::auto_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
@@ -485,7 +485,7 @@ void testEvent::transaction()
 
 void testEvent::getByInstanceName()
 {
-  typedef edmtest::IntProduct product_t;
+  typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
@@ -527,7 +527,7 @@ void testEvent::getByInstanceName()
 
 void testEvent::getBySelector()
 {
-  typedef edmtest::IntProduct product_t;
+  typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
@@ -541,13 +541,13 @@ void testEvent::getBySelector()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
 
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  std::auto_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
@@ -565,26 +565,26 @@ void testEvent::getBySelector()
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel1, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   Selector sel2(ProductInstanceNameSelector("int2") &&
 	        ModuleLabelSelector("nomatch") &&
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel2, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   Selector sel3(ProductInstanceNameSelector("int2") &&
 	        ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("nomatch"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel3, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   Selector sel4(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
   //multiple selections throw
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), cms::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), artZ::Exception);
 
   Selector sel5(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("LATE"));;
@@ -610,7 +610,7 @@ void testEvent::getBySelector()
 
 void testEvent::getByLabel()
 {
-  typedef edmtest::IntProduct product_t;
+  typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
@@ -624,13 +624,13 @@ void testEvent::getByLabel()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
 
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  std::auto_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
@@ -645,27 +645,27 @@ void testEvent::getByLabel()
 
   CPPUNIT_ASSERT(!currentEvent_->getByLabel("modMulti", "nomatch", h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
 
   InputTag inputTag("modMulti", "int1");
   CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
   CPPUNIT_ASSERT(h->value == 200);
 
   BasicHandle bh =
-    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE");
+    principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "LATE");
   convert_handle(bh, h);
   CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"));
+  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "nomatch"));
   CPPUNIT_ASSERT(!bh2.isValid());
 
-  boost::shared_ptr<Wrapper<edmtest::IntProduct> const> ptr = getProductByTag<edmtest::IntProduct>(*principal_, inputTag);
+  boost::shared_ptr<Wrapper<arttest::IntProduct> const> ptr = getProductByTag<arttest::IntProduct>(*principal_, inputTag);
   CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
 
 
 void testEvent::getByType()
 {
-  typedef edmtest::IntProduct product_t;
+  typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
   typedef Handle<product_t> handle_t;
   typedef std::vector<handle_t> handle_vec;
@@ -679,16 +679,16 @@ void testEvent::getByType()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing(new std::vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   addProduct(ap_vthing, "thing", "");
 
-  std::auto_ptr<std::vector<edmtest::Thing> > ap_vthing2(new std::vector<edmtest::Thing>);
+  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing2(new std::vector<arttest::Thing>);
   addProduct(ap_vthing2, "thing2", "inst2");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
 
-  std::auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  std::auto_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
@@ -702,10 +702,10 @@ void testEvent::getByType()
   CPPUNIT_ASSERT(!currentEvent_->getByType(h_nomatch));
   CPPUNIT_ASSERT(!h_nomatch.isValid());
   CPPUNIT_ASSERT(h_nomatch.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h_nomatch, cms::Exception);
+  CPPUNIT_ASSERT_THROW(*h_nomatch, artZ::Exception);
 
-  Handle<std::vector<edmtest::Thing> > hthing;
-  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cms::Exception);
+  Handle<std::vector<arttest::Thing> > hthing;
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),artZ::Exception);
 
   handle_vec handles;
   currentEvent_->getManyByType(handles);

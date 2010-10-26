@@ -8,7 +8,6 @@
 #include "art/Framework/IO/Input/DuplicateChecker.h"
 #include "art/Framework/IO/Input/ProvenanceAdaptor.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/ParameterSet/Registry.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -24,7 +23,6 @@
 #include "art/Utilities/EDMException.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
-
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
@@ -36,18 +34,16 @@
 #include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 #include "art/Persistency/Provenance/SubRunAux.h"
 
+#include "MessageFacility/MessageLogger.h"
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TROOT.h"
 #include "TTree.h"
-
-#include "MessageFacility/MessageLogger.h"
-
 #include <algorithm>
 
 
-namespace edm {
+namespace art {
 
   RootFile::RootFile(std::string const& fileName,
                      std::string const& catalogName,
@@ -127,7 +123,7 @@ namespace edm {
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if (!metaDataTree)
-      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
+      throw art::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
                                                          << " in the input file.\n";
 
     // To keep things simple, we just read in every possible branch that exists.
@@ -196,15 +192,15 @@ namespace edm {
     } else {
       // New format input file. The branchIDLists branch was read directly from the input file.
       if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
-        throw edm::Exception(errors::EventCorruption)
+        throw art::Exception(errors::EventCorruption)
           << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
 
     // Merge into the hashed registries.
-    pset::Registry& psetRegistry = *pset::Registry::instance();
   #if 0
+    pset::Registry& psetRegistry = *pset::Registry::instance();
     for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
       fhicl::ParameterSet pset(i->second.pset_);
       pset.id();  //pset.setID(i->first);
@@ -251,7 +247,7 @@ namespace edm {
           newReg->copyProduct(prod);
         } else {
           if (fileFormatVersion_.value_ >= 11) {
-            throw edm::Exception(errors::UnimplementedFeature)
+            throw art::Exception(errors::UnimplementedFeature)
               << "Cannot change friendly class name algorithm without more development work\n"
               << "to update BranchIDLists.  Contact the framework group.\n";
           }
@@ -293,7 +289,7 @@ namespace edm {
     if (fileFormatVersion_.value_ < 8) return;
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
     if (!entryDescriptionTree)
-      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
+      throw art::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
                                                          << " in the input file.\n";
 
 
@@ -313,7 +309,7 @@ namespace edm {
     for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(entryDescriptionTree, i);
       if (idBuffer != entryDescriptionBuffer.id())
-        throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
+        throw art::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       oldregistry.insertMapped(entryDescriptionBuffer);
       Parentage parents;
       parents.parents() = entryDescriptionBuffer.parents();
@@ -334,7 +330,7 @@ namespace edm {
     // New format file
     TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
     if (!parentageTree)
-      throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
+      throw art::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
                                                          << " in the input file.\n";
 
     ParentageID idBuffer;
@@ -350,7 +346,7 @@ namespace edm {
     for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
       if (idBuffer != parentageBuffer.id())
-        throw edm::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
+        throw art::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
       registry.insertMapped(parentageBuffer);
     }
     parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), 0);
@@ -655,7 +651,7 @@ namespace edm {
       fid_ = FileID(createGlobalIdentifier());
     }
     if(!eventTree_.isValid()) {
-      throw edm::Exception(errors::EventCorruption) <<
+      throw art::Exception(errors::EventCorruption) <<
          "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
     if (fileIndex_.empty()) {
@@ -706,7 +702,7 @@ namespace edm {
       History* pHistory = history_.get();
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
-        throw edm::Exception(errors::EventCorruption)
+        throw art::Exception(errors::EventCorruption)
           << "Failed to find history branch in event history tree.\n";
       eventHistoryBranch->SetAddress(&pHistory);
       input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
@@ -1007,7 +1003,7 @@ namespace edm {
   RootFile::overrideRunNumber(EventID & id, bool isRealData) {
     if (forcedRunOffset_ != 0) {
       if (isRealData) {
-        throw edm::Exception(errors::Configuration,"RootFile::RootFile()")
+        throw art::Exception(errors::Configuration,"RootFile::RootFile()")
           << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
       }
       id = EventID(id.run() + forcedRunOffset_, id.event());
@@ -1023,7 +1019,7 @@ namespace edm {
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)
-      throw edm::Exception(errors::EventCorruption)
+      throw art::Exception(errors::EventCorruption)
         << "Failed to find the event history tree.\n";
   }
 
@@ -1178,4 +1174,4 @@ namespace edm {
   }
   // end backward compatibility
 
-}  // namespace edm
+}  // namespace art

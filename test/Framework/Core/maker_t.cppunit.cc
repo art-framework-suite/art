@@ -32,7 +32,7 @@ void testmaker::makerTest()
 
   /*try {
 
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    artplugin::PluginManager::configure(artplugin::standard::config());
     Factory* f = Factory::get();
 
     //Factory::Iterator ib(f->begin()),ie(f->end());
@@ -41,20 +41,20 @@ void testmaker::makerTest()
     //std::cout << (*ib)->name() << std::endl;
     // }
 
-    boost::shared_ptr<ParameterSet> p1 = makePSet(*edm::pset::parse(param1.c_str()));;
-    boost::shared_ptr<ParameterSet> p2 = makePSet(*edm::pset::parse(param2.c_str()));;
+    boost::shared_ptr<ParameterSet> p1 = makePSet(*art::pset::parse(param1.c_str()));;
+    boost::shared_ptr<ParameterSet> p2 = makePSet(*art::pset::parse(param2.c_str()));;
 
     std::cerr << p1->getParameter<std::string>("@module_type");
 
-    edm::ActionTable table;
+    art::ActionTable table;
 
-    edm::ProductRegistry preg;
+    art::ProductRegistry preg;
 
     std::auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
     std::auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
   }
-  catch(cms::Exception& e) {
-      std::cerr << "cms::Exception: " << e.explainSelf() << std::endl;
+  catch(artZ::Exception& e) {
+      std::cerr << "artZ::Exception: " << e.explainSelf() << std::endl;
       throw;
   }
   catch(std::exception& e) {

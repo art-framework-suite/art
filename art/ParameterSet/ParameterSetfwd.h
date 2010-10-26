@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/ParameterSetfwd.h"
+
+
 #ifndef ParameterSet_ParameterSetfwd_h
 #define ParameterSet_ParameterSetfwd_h
 
@@ -13,7 +16,7 @@ NOTE: This is *very* incomplete.
 
 #include "fhiclcpp/ParameterSet.h"
 
-namespace edm
+namespace art
 {
   class FileInPath;
 }

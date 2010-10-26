@@ -34,8 +34,8 @@ class testProcessDesc: public CppUnit::TestFixture {
   CPPUNIT_TEST(sequenceSubstitutionTest3);
   CPPUNIT_TEST(multiplePathsTest);
   // python throws some different exception
-  //CPPUNIT_TEST_EXCEPTION(inconsistentPathTest,edm::Exception);
-  //CPPUNIT_TEST_EXCEPTION(inconsistentMultiplePathTest,edm::Exception);
+  //CPPUNIT_TEST_EXCEPTION(inconsistentPathTest,art::Exception);
+  //CPPUNIT_TEST_EXCEPTION(inconsistentMultiplePathTest,art::Exception);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -75,8 +75,8 @@ void testProcessDesc::trivialPathTest(){
   "process.c = cms.EDProducer('C')\n"
   "process.p = cms.Path(process.a*process.b*process.c)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -101,8 +101,8 @@ void testProcessDesc::simplePathTest(){
   ")\n"
   "process.p = cms.Path(process.a*process.b*process.c)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -146,13 +146,13 @@ void testProcessDesc:: attriggertest (){
 
 
   try {
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
-  edm::ParameterSet trig_pset =
-   (*test).getUntrackedParameter<edm::ParameterSet>("@trigger_paths",edm::ParameterSet());
+  art::ParameterSet trig_pset =
+   (*test).getUntrackedParameter<art::ParameterSet>("@trigger_paths",art::ParameterSet());
   Strs tnames = trig_pset.getParameter<Strs>("@trigger_paths");
   Strs enames = (*test).getParameter<Strs>("@end_paths");
 
@@ -168,9 +168,9 @@ void testProcessDesc:: attriggertest (){
   CPPUNIT_ASSERT(schedule[1] == "epath");
 
   }
-  catch (cms::Exception& exc)
+  catch (artZ::Exception& exc)
   {
-  	std::cerr << "Got an cms::Exception: " << exc.what() << "\n";
+  	std::cerr << "Got an artZ::Exception: " << exc.what() << "\n";
 	throw;
   }
   catch (std::exception& exc)
@@ -208,8 +208,8 @@ void testProcessDesc:: sequenceSubstitutionTest (){
   "process.jets = cms.Sequence(process.somejet1*process.somejet2)\n"
   "process.path1 = cms.Path(process.cones*process.jets*process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -239,8 +239,8 @@ void testProcessDesc::nestedSequenceSubstitutionTest(){
    "process.s1 = cms.Sequence( process.a+ process.b)\n"
    "process.s2 = cms.Sequence(process.s1+ process.c)\n"
    "process.path1 = cms.Path(process.s2+process.d)\n";
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -275,8 +275,8 @@ void testProcessDesc::sequenceSubstitutionTest2(){
    "process.jets = cms.Sequence(process.somejet1+ process.somejet2)\n"
    "process.path1 = cms.Path(process.cones+process.jets+ process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -320,8 +320,8 @@ void testProcessDesc::sequenceSubstitutionTest3(){
    "process.s3 = cms.Sequence(process.aaa*process.bbb*~process.ccc*process.ddd*process.eee)\n"
    "process.path1 = cms.Path(process.s1+process.s3+process.s2+process.last)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -377,8 +377,8 @@ void testProcessDesc::multiplePathsTest(){
     "process.schedule = cms.Schedule(process.path2, process.path1)\n";
 
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -419,8 +419,8 @@ void testProcessDesc::inconsistentPathTest(){
    "process.b = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
    "process.c = cms.EDProducer('PhonyJet', i = cms.int32(7))\n"
    "process.path1 = cms.Path((process.a*process.b)+ (process.c*process.b))\n";
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
 }
 
@@ -439,8 +439,8 @@ void testProcessDesc::inconsistentMultiplePathTest(){
    "process.path1 = cms.Path(process.cones*process.jtanalyzer)\n"
    "process.path2 = cms.Path(process.jets*process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ProcessDesc> b = PythonProcessDesc(str).processDesc();
-  boost::shared_ptr<edm::ParameterSet> test = b->getProcessPSet();
+  boost::shared_ptr<art::ProcessDesc> b = PythonProcessDesc(str).processDesc();
+  boost::shared_ptr<art::ParameterSet> test = b->getProcessPSet();
 
 }
 

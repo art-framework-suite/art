@@ -1,7 +1,7 @@
 // change
 #include "art/Version/GetFileFormatVersion.h"
 
-namespace edm
+namespace art
 {
   int getFileFormatVersion() { return 11; }
 }

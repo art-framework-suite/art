@@ -95,7 +95,7 @@
 #include <stack>
 
 
-namespace edm {
+namespace art {
   namespace service {
 
     class EnableFloatingPointExceptions {
@@ -131,6 +131,6 @@ namespace edm {
     };
 
   }  // namespace service
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Services_FpeHandler_h

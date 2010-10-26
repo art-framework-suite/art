@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/PythonModule.h"
+
+
 #if 0
 
 #include "art/ParameterSet/PythonParameterSet.h"
@@ -12,28 +15,28 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
-  class_<edm::InputTag>("InputTag", init<std::string>())
+  class_<art::InputTag>("InputTag", init<std::string>())
       .def(init<std::string, std::string, std::string>())
      .def(init<std::string, std::string>())
-      .def("label",    &edm::InputTag::label, return_value_policy<copy_const_reference>())
-      .def("instance", &edm::InputTag::instance, return_value_policy<copy_const_reference>())
-      .def("process",  &edm::InputTag::process, return_value_policy<copy_const_reference>())
+      .def("label",    &art::InputTag::label, return_value_policy<copy_const_reference>())
+      .def("instance", &art::InputTag::instance, return_value_policy<copy_const_reference>())
+      .def("process",  &art::InputTag::process, return_value_policy<copy_const_reference>())
   ;
 
-  class_<edm::EventID>("EventID", init<unsigned int, unsigned int>())
-      .def("run",   &edm::EventID::run)
-      .def("event", &edm::EventID::event)
+  class_<art::EventID>("EventID", init<unsigned int, unsigned int>())
+      .def("run",   &art::EventID::run)
+      .def("event", &art::EventID::event)
   ;
 
-  class_<edm::SubRunID>("SubRunID", init<unsigned int, unsigned int>())
-      .def("run",    &edm::SubRunID::run)
-      .def("subRun", &edm::SubRunID::subRun)
+  class_<art::SubRunID>("SubRunID", init<unsigned int, unsigned int>())
+      .def("run",    &art::SubRunID::run)
+      .def("subRun", &art::SubRunID::subRun)
   ;
 
-  class_<edm::FileInPath>("FileInPath", init<std::string>())
-      .def("fullPath",     &edm::FileInPath::fullPath)
-      .def("relativePath", &edm::FileInPath::relativePath)
-      .def("isLocal",      &edm::FileInPath::isLocal)
+  class_<art::FileInPath>("FileInPath", init<std::string>())
+      .def("fullPath",     &art::FileInPath::fullPath)
+      .def("relativePath", &art::FileInPath::relativePath)
+      .def("isLocal",      &art::FileInPath::isLocal)
   ;
 
 
@@ -65,24 +68,24 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("getString", &PythonParameterSet::getString)
     .def("addVString", &PythonParameterSet::addParameters<std::string>)
     .def("getVString", &PythonParameterSet::getParameters<std::string>)
-    .def("addInputTag", &PythonParameterSet::addParameter<edm::InputTag>)
-    .def("getInputTag", &PythonParameterSet::getParameter<edm::InputTag>)
-    .def("addVInputTag", &PythonParameterSet::addParameters<edm::InputTag>)
-    .def("getVInputTag", &PythonParameterSet::getParameters<edm::InputTag>)
-    .def("addEventID", &PythonParameterSet::addParameter<edm::EventID>)
-    .def("getEventID", &PythonParameterSet::getParameter<edm::EventID>)
-    .def("addVEventID", &PythonParameterSet::addParameters<edm::EventID>)
-    .def("getVEventID", &PythonParameterSet::getParameters<edm::EventID>)
-    .def("addSubRunID", &PythonParameterSet::addParameter<edm::SubRunID>)
-    .def("getSubRunID", &PythonParameterSet::getParameter<edm::SubRunID>)
-    .def("addVSubRunID", &PythonParameterSet::addParameters<edm::SubRunID>)
-    .def("getVSubRunID", &PythonParameterSet::getParameters<edm::SubRunID>)
+    .def("addInputTag", &PythonParameterSet::addParameter<art::InputTag>)
+    .def("getInputTag", &PythonParameterSet::getParameter<art::InputTag>)
+    .def("addVInputTag", &PythonParameterSet::addParameters<art::InputTag>)
+    .def("getVInputTag", &PythonParameterSet::getParameters<art::InputTag>)
+    .def("addEventID", &PythonParameterSet::addParameter<art::EventID>)
+    .def("getEventID", &PythonParameterSet::getParameter<art::EventID>)
+    .def("addVEventID", &PythonParameterSet::addParameters<art::EventID>)
+    .def("getVEventID", &PythonParameterSet::getParameters<art::EventID>)
+    .def("addSubRunID", &PythonParameterSet::addParameter<art::SubRunID>)
+    .def("getSubRunID", &PythonParameterSet::getParameter<art::SubRunID>)
+    .def("addVSubRunID", &PythonParameterSet::addParameters<art::SubRunID>)
+    .def("getVSubRunID", &PythonParameterSet::getParameters<art::SubRunID>)
     .def("addPSet", &PythonParameterSet::addPSet)
     .def("getPSet", &PythonParameterSet::getPSet)
     .def("addVPSet", &PythonParameterSet::addVPSet)
     .def("getVPSet", &PythonParameterSet::getVPSet)
-    .def("addFileInPath", &PythonParameterSet::addParameter<edm::FileInPath>)
-    .def("getFileInPath", &PythonParameterSet::getParameter<edm::FileInPath>)
+    .def("addFileInPath", &PythonParameterSet::addParameter<art::FileInPath>)
+    .def("getFileInPath", &PythonParameterSet::getParameter<art::FileInPath>)
     .def("newInputTag", &PythonParameterSet::newInputTag)
     .def("newEventID", &PythonParameterSet::newEventID)
     .def("newSubRunID", &PythonParameterSet::newSubRunID)

@@ -14,7 +14,7 @@ of the event selector subsystem of an OutputModule.
 #include <vector>
 
 
-namespace edm
+namespace art
 {
   typedef fhicl::ParameterSetID EventSelectionID;
   typedef std::vector<EventSelectionID> EventSelectionIDVector;

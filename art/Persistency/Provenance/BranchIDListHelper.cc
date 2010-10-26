@@ -3,7 +3,7 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/EDMException.h"
 
-namespace edm {
+namespace art {
 
   void
   BranchIDListHelper:: updateFromInput(BranchIDLists const& bidlists, std::string const& fileName) {
@@ -13,7 +13,7 @@ namespace edm {
     iter j = bidlists.begin(), jEnd = bidlists.end();
     for(iter i = bdata.begin(), iEnd = bdata.end(); j != jEnd && i != iEnd; ++j, ++i) {
       if (*i != *j) {
-	throw edm::Exception(errors::UnimplementedFeature)
+	throw art::Exception(errors::UnimplementedFeature)
 	  << "Cannot merge file '" << fileName << "' due to a branch mismatch.\n"
 	  << "Contact the framework group.\n";
       }

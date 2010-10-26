@@ -19,16 +19,16 @@
 
 
 // Contents:
-namespace edm {
+namespace art {
   class RandomNumberSaver;
 }
-using edm::RandomNumberSaver;
+using art::RandomNumberSaver;
 
 
 // ======================================================================
 
 
-class edm::RandomNumberSaver
+class art::RandomNumberSaver
   : public EDProducer
 {
   typedef  RandomNumberGeneratorService  RNGservice;
@@ -54,7 +54,7 @@ private:
 
 RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
   : EDProducer( )
-  , debug_    ( pset.getBool( "debug"
+  , debug_    ( pset.get<bool>( "debug"
                                                 , false
               )                                 )
 {

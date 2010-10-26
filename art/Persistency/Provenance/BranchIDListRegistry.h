@@ -5,8 +5,8 @@
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 
-namespace edm {
-  typedef edm::detail::ThreadSafeIndexedRegistry<BranchIDList, BranchIDListHelper> BranchIDListRegistry;
+namespace art {
+  typedef art::detail::ThreadSafeIndexedRegistry<BranchIDList, BranchIDListHelper> BranchIDListRegistry;
   typedef BranchIDListRegistry::collection_type BranchIDLists;
 }
 

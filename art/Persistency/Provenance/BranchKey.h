@@ -13,7 +13,7 @@ is determined entirely from the BranchKey.
 #include <iosfwd>
 #include <string>
 
-namespace edm {
+namespace art {
   class BranchDescription;
   class ConstBranchDescription;
 

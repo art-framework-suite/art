@@ -1,5 +1,5 @@
 # project name
-project(FWCoreParameterSetTest)
+project(artParameterSetTest)
 
 set( cpp_files ParameterSetID_t.cpp
 	       ParameterSetRecursing_t.cpp
@@ -8,11 +8,14 @@ set( cpp_files ParameterSetID_t.cpp
 	       UntrackedParameters_t.cpp )
 
 # this list is not yet complete
-link_libraries( FWCoreParameterSet
-                FWCorePluginManager
-		DataFormatsProvenance
-		FWCoreMessageLogger
-		FWCoreUtilities
+link_libraries( artParameterSet
+                artFrameworkPluginManager
+		artPersistencyProvenance
+		artUtilities
+                ${MF_MESSAGELOGGER}  
+                ${MF_MESSAGESERVICE}  
+                ${MF_UTILITIES}  
+                ${MF_EXTENSIONS}  
 		${MATRIX}
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_PYTHON_LIBRARY}

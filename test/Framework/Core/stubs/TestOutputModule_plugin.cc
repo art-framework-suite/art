@@ -12,7 +12,7 @@
 #include <numeric>
 #include <iterator>
 
-using namespace edm;
+using namespace art;
 
 extern "C"
 {
@@ -56,19 +56,19 @@ namespace {
  }
 
 }
-namespace edmtest
+namespace arttest
 {
 
-  class TestOutputModule : public edm::OutputModule
+  class TestOutputModule : public art::OutputModule
   {
   public:
-    explicit TestOutputModule(edm::ParameterSet const&);
+    explicit TestOutputModule(art::ParameterSet const&);
     virtual ~TestOutputModule();
 
   private:
-    virtual void write(edm::EventPrincipal const& e);
-    virtual void writeSubRun(edm::SubRunPrincipal const&){}
-    virtual void writeRun(edm::RunPrincipal const&){}
+    virtual void write(art::EventPrincipal const& e);
+    virtual void writeSubRun(art::SubRunPrincipal const&){}
+    virtual void writeRun(art::RunPrincipal const&){}
     virtual void endJob();
 
     std::string name_;
@@ -79,8 +79,8 @@ namespace edmtest
 
   // -----------------------------------------------------------------
 
-  TestOutputModule::TestOutputModule(edm::ParameterSet const& ps):
-    edm::OutputModule(ps),
+  TestOutputModule::TestOutputModule(art::ParameterSet const& ps):
+    art::OutputModule(ps),
     name_(ps.getParameter<std::string>("name")),
     bitMask_(ps.getParameter<int>("bitMask")),
     hltbits_(0),
@@ -92,7 +92,7 @@ namespace edmtest
   {
   }
 
-  void TestOutputModule::write(edm::EventPrincipal const& e)
+  void TestOutputModule::write(art::EventPrincipal const& e)
   {
     assert(currentContext() != 0);
 
@@ -118,7 +118,7 @@ namespace edmtest
         //throw doesn't happen until we dereference
         *prod;
       }
-      catch (const cms::Exception&) {
+      catch (const artZ::Exception&) {
         // We did not find one as expected, nothing else to test.
         return;
       }
@@ -175,6 +175,6 @@ namespace edmtest
   }
 }
 
-using edmtest::TestOutputModule;
+using arttest::TestOutputModule;
 
 DEFINE_FWK_MODULE(TestOutputModule);

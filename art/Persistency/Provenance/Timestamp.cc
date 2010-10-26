@@ -17,7 +17,7 @@
 // user include files
 #include "art/Persistency/Provenance/Timestamp.h"
 
-namespace edm {
+namespace art {
 //
 // constants, enums and typedefs
 //

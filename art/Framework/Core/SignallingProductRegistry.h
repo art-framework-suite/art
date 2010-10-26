@@ -28,7 +28,7 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 
 // forward declarations
-namespace edm {
+namespace art {
    class SignallingProductRegistry : public ProductRegistry
    {
 

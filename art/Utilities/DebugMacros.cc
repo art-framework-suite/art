@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-namespace edm {
+namespace art {
 
   debugvalue::debugvalue():
     cvalue_(getenv("PROC_DEBUG")),

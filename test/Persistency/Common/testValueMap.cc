@@ -21,7 +21,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testValueMap);
 void testValueMap::checkAll() {
   typedef std::vector<int> CKey;
   typedef double Val;
-  typedef edm::AssociationMap<edm::OneToValue<CKey, Val, unsigned char> > Assoc;
+  typedef art::AssociationMap<art::OneToValue<CKey, Val, unsigned char> > Assoc;
   Assoc v;
   CPPUNIT_ASSERT(v.empty());
   CPPUNIT_ASSERT(v.size() == 0);
@@ -31,18 +31,18 @@ void testValueMap::checkAll() {
 void  testValueMap::dummy() {
   typedef std::vector<int> CKey;
   typedef double Val;
-  typedef edm::AssociationMap<edm::OneToValue<CKey, Val, unsigned char> > Assoc;
+  typedef art::AssociationMap<art::OneToValue<CKey, Val, unsigned char> > Assoc;
   Assoc v;
-  v.insert(edm::Ref<CKey>(), 3.145);
-  v.insert(Assoc::value_type(edm::Ref<CKey>(), 3.145));
+  v.insert(art::Ref<CKey>(), 3.145);
+  v.insert(Assoc::value_type(art::Ref<CKey>(), 3.145));
   Assoc::const_iterator b = v.begin(), e = v.end();
   ++b; ++e;
-  Assoc::const_iterator f = v.find(edm::Ref<CKey>());
-  v.numberOfAssociations(edm::Ref<CKey>());
-  const double & x = v[edm::Ref<CKey>()]; double y = x; ++y;
+  Assoc::const_iterator f = v.find(art::Ref<CKey>());
+  v.numberOfAssociations(art::Ref<CKey>());
+  const double & x = v[art::Ref<CKey>()]; double y = x; ++y;
   ++f;
-  edm::Ref<Assoc> r;
-  v.erase(edm::Ref<CKey>());
+  art::Ref<Assoc> r;
+  v.erase(art::Ref<CKey>());
   v.clear();
   CPPUNIT_ASSERT(v.size() == 0);
   v.post_insert();

@@ -10,7 +10,7 @@
 #include<vector>
 #include<algorithm>
 
-typedef edm::MapOfVectors<int,int>  MII;
+typedef art::MapOfVectors<int,int>  MII;
 typedef MII::TheMap TheMap;
 
 class TestMapOfVectors: public CppUnit::TestFixture

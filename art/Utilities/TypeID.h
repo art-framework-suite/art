@@ -16,7 +16,7 @@ persisted across invocations of the program.
 #include <string>
 #include "art/Utilities/TypeIDBase.h"
 
-namespace edm {
+namespace art {
 
   class TypeID : public TypeIDBase {
   public:

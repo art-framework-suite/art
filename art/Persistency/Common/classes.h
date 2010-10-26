@@ -16,21 +16,21 @@
 
 namespace {
   struct dictionary {
-    edm::Wrapper<edm::HLTPathStatus> dummyx16;
-    edm::Wrapper<std::vector<edm::HLTPathStatus> > dummyx17;
-    edm::Wrapper<edm::HLTGlobalStatus> dummyx18;
-    edm::Wrapper<edm::TriggerResults> dummyx19;
+    art::Wrapper<art::HLTPathStatus> dummyx16;
+    art::Wrapper<std::vector<art::HLTPathStatus> > dummyx17;
+    art::Wrapper<art::HLTGlobalStatus> dummyx18;
+    art::Wrapper<art::TriggerResults> dummyx19;
 
-    std::pair<edm::ProductID, unsigned int> ppui1;
-    edm::Wrapper<edm::ValueMap<int> > wvm1;
-    edm::Wrapper<edm::ValueMap<unsigned int> > wvm2;
-    edm::Wrapper<edm::ValueMap<bool> > wvm3;
-    edm::Wrapper<edm::ValueMap<float> > wvm4;
-    edm::Wrapper<edm::ValueMap<double> > wvm5;
+    std::pair<art::ProductID, unsigned int> ppui1;
+    art::Wrapper<art::ValueMap<int> > wvm1;
+    art::Wrapper<art::ValueMap<unsigned int> > wvm2;
+    art::Wrapper<art::ValueMap<bool> > wvm3;
+    art::Wrapper<art::ValueMap<float> > wvm4;
+    art::Wrapper<art::ValueMap<double> > wvm5;
 
-    edm::RNGsnapshot                             dummyRNGsnap;
-    std::vector<edm::RNGsnapshot>                dummyVectorRNGsnap;
-    edm::Wrapper<std::vector<edm::RNGsnapshot> > dummyWrapperVectorRNGsnap;
+    art::RNGsnapshot                             dummyRNGsnap;
+    std::vector<art::RNGsnapshot>                dummyVectorRNGsnap;
+    art::Wrapper<std::vector<art::RNGsnapshot> > dummyWrapperVectorRNGsnap;
 
   };
 }  // namespace

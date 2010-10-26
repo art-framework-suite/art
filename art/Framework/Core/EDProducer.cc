@@ -6,7 +6,7 @@
 #include "art/Framework/Core/SubRun.h"
 
 
-namespace edm
+namespace art
 {
 
   EDProducer::EDProducer()
@@ -103,4 +103,4 @@ namespace edm
     return current_context_;
   }
 
-}  // namespace edm
+}  // namespace art

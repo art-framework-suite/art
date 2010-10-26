@@ -14,25 +14,25 @@ using fhicl::ParameterSet;
 //
 // constructors and destructor
 //
-edm::ServiceRegistry::ServiceRegistry()
+art::ServiceRegistry::ServiceRegistry()
 { }
 
-edm::ServiceRegistry::~ServiceRegistry()
+art::ServiceRegistry::~ServiceRegistry()
 { }
 
 //
 // member functions
 //
-edm::ServiceToken
-edm::ServiceRegistry::setContext(const edm::ServiceToken& iNewToken)
+art::ServiceToken
+art::ServiceRegistry::setContext(const art::ServiceToken& iNewToken)
 {
-   edm::ServiceToken returnValue(manager_);
+   art::ServiceToken returnValue(manager_);
    manager_ = iNewToken.manager_;
    return returnValue;
 }
 
 void
-edm::ServiceRegistry::unsetContext(const ServiceToken& iOldToken)
+art::ServiceRegistry::unsetContext(const ServiceToken& iOldToken)
 {
    manager_ = iOldToken.manager_;
 }
@@ -40,8 +40,8 @@ edm::ServiceRegistry::unsetContext(const ServiceToken& iOldToken)
 //
 // const member functions
 //
-edm::ServiceToken
-edm::ServiceRegistry::presentToken() const
+art::ServiceToken
+art::ServiceRegistry::presentToken() const
 {
    return manager_;
 }
@@ -50,35 +50,35 @@ edm::ServiceRegistry::presentToken() const
 // static member functions
 //
 
-edm::ServiceToken
-edm::ServiceRegistry::createServicesFromConfig(std::string const& config) {
+art::ServiceToken
+art::ServiceRegistry::createServicesFromConfig(std::string const& config) {
    boost::shared_ptr<std::vector<ParameterSet> > pServiceSets;
    boost::shared_ptr<ParameterSet> params;
-   edm::makeParameterSets(config, params, pServiceSets);
+   art::makeParameterSets(config, params, pServiceSets);
 
    //create the services
-   return ServiceToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
+   return ServiceToken(art::ServiceRegistry::createSet(*pServiceSets.get()));
 }
 
-edm::ServiceToken
-edm::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
+art::ServiceToken
+art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
 {
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
    boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS));
-   return edm::ServiceToken(returnValue);
+   return art::ServiceToken(returnValue);
 }
-edm::ServiceToken
-edm::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
+art::ServiceToken
+art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
                                 ServiceToken iToken,
                                 serviceregistry::ServiceLegacy iLegacy)
 {
-   using namespace edm::serviceregistry;
+   using namespace art::serviceregistry;
    boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS));
-   return edm::ServiceToken(returnValue);
+   return art::ServiceToken(returnValue);
 }
 
-edm::ServiceRegistry&
-edm::ServiceRegistry::instance()
+art::ServiceRegistry&
+art::ServiceRegistry::instance()
 {
    static boost::thread_specific_ptr<ServiceRegistry> s_registry;
    if(0 == s_registry.get()){

@@ -14,7 +14,7 @@ creation.
 #include <string>
 #include <vector>
 
-namespace edm {
+namespace art {
 
   struct EventSummary
   {

@@ -34,35 +34,35 @@ struct ThreadWorker
 void
 ThreadWorker::operator()()
 {
-  edm::pset::Registry* reg = edm::pset::Registry::instance();
+  art::pset::Registry* reg = art::pset::Registry::instance();
   assert (reg);
 
   // Add a bunch of items
-  std::vector<edm::ParameterSetID> ids_issued;
-  std::vector<edm::ParameterSet> psets;
+  std::vector<art::ParameterSetID> ids_issued;
+  std::vector<art::ParameterSet> psets;
 
   for (int i = offset; i < number_to_add+offset; ++i)
   {
-      edm::ParameterSet ps;
+      art::ParameterSet ps;
       ps.addParameter<int>("i", i);
       ps.addUntrackedParameter<double>("d", 2.5);
       ids_issued.push_back(ps.id());
       psets.push_back(ps);
       //reg->insertMapped(ps);
   }
-  edm::ParameterSet toplevel;
+  art::ParameterSet toplevel;
   toplevel.addParameter("guts", psets);
-  edm::pset::loadAllNestedParameterSets(reg, toplevel);
+  art::pset::loadAllNestedParameterSets(reg, toplevel);
 
-  edm::ParameterSetID topid = edm::pset::getProcessParameterSetID(reg);
+  art::ParameterSetID topid = art::pset::getProcessParameterSetID(reg);
   assert( topid.isValid() );
   assert( topid == toplevel.id() );
 
   // Look up items we have just put in.
-  typedef std::vector<edm::ParameterSetID>::const_iterator iter;
+  typedef std::vector<art::ParameterSetID>::const_iterator iter;
   for (iter i=ids_issued.begin(), e=ids_issued.end(); i!=e; ++i)
   {
-      edm::ParameterSet ps = getParameterSet(*i);
+      art::ParameterSet ps = getParameterSet(*i);
       assert(ps.id() == *i);
       assert(ps.getParameter<int>("i") > 0);
       double mye = ps.getUntrackedParameter<double>("e", 1.0);
@@ -71,7 +71,7 @@ ThreadWorker::operator()()
 
   for (iter i=ids_issued.begin(), e=ids_issued.end(); i!=e; ++i)
   {
-    edm::ParameterSet ps;
+    art::ParameterSet ps;
     assert(reg->getMapped(*i, ps));
     assert(ps.id() == *i);
   }
@@ -80,7 +80,7 @@ ThreadWorker::operator()()
 
 void work()
 {
-  edm::pset::Registry* reg = edm::pset::Registry::instance();
+  art::pset::Registry* reg = art::pset::Registry::instance();
   assert (reg);
 
   // Launch a bunch of threads, which beat on the Registry...
@@ -101,10 +101,10 @@ void work2()
 {
   // This part is not multi-threaded; it checks only the return value
   // of the insertParameterSet member function.
-  edm::pset::Registry* reg = edm::pset::Registry::instance();
+  art::pset::Registry* reg = art::pset::Registry::instance();
 
   // Make a new ParameterSet, not like those already in the Registry.
-  edm::ParameterSet ps;
+  art::ParameterSet ps;
   std::string value("and now for something completely different...");
   ps.addParameter<std::string>("s", value);
 
@@ -126,13 +126,13 @@ int main()
 
       // Look at what we have saved.
       //std::cout << "Here comes the registry..." << std::endl;
-      //std::cout << *edm::pset::Registry::instance() << std::endl;
+      //std::cout << *art::pset::Registry::instance() << std::endl;
       //std::cout << "...done" << std::endl;
       rc = 0;
   }
-  catch (edm::Exception& x)
+  catch (art::Exception& x)
   {
-      std::cerr << "edm::Exception caught\n"
+      std::cerr << "art::Exception caught\n"
 		<< x
 		<< '\n';
       rc = -1;

@@ -14,7 +14,7 @@
 #include <string>
 
 
-namespace edm {
+namespace art {
 
   class InputSourceDescription;
 
@@ -44,6 +44,6 @@ namespace edm {
     InputFileCatalog secondaryCatalog_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Sources_EDInputSource_h

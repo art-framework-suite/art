@@ -27,14 +27,14 @@
 
 // forward declarations
 
-class TestPRegisterModule1 : public edm::EDProducer
+class TestPRegisterModule1 : public art::EDProducer
 {
 public:
-   explicit TestPRegisterModule1(edm::ParameterSet const& p);
-   void produce(edm::Event& e, edm::EventSetup const&);
+   explicit TestPRegisterModule1(art::ParameterSet const& p);
+   void produce(art::Event& e, art::EventSetup const&);
 
 private:
-   edm::ParameterSet pset_;
+   art::ParameterSet pset_;
 };
 
 

@@ -49,7 +49,7 @@ written to the output file anyway.
 #include <memory>
 #include <vector>
 
-namespace edm {
+namespace art {
 
   class ParameterSet;
   class InputSourceDescription;

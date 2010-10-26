@@ -24,4 +24,4 @@ namespace testedmplugin {
   };
 }
 
-DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory,testedmplugin::DummyTwo,"DummyTwo");
+DEFINE_EDM_PLUGIN(testartplugin::DummyFactory,testartplugin::DummyTwo,"DummyTwo");

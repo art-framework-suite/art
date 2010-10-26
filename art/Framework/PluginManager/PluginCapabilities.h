@@ -27,7 +27,7 @@
 #include "art/Framework/PluginManager/PluginFactoryBase.h"
 // forward declarations
 
-namespace edmplugin {
+namespace artplugin {
   class SharedLibrary;
   class DummyFriend;
   class PluginCapabilities : public PluginFactoryBase

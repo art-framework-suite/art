@@ -17,7 +17,7 @@ class testParameterSetID: public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE(testParameterSetID);
   CPPUNIT_TEST(constructTest);
-  CPPUNIT_TEST_EXCEPTION(badConstructTest, edm::Exception);
+  CPPUNIT_TEST_EXCEPTION(badConstructTest, art::Exception);
   CPPUNIT_TEST(comparisonTest);
   CPPUNIT_TEST(suitableForMapTest);
   CPPUNIT_TEST(unhexifyTest);
@@ -50,23 +50,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testParameterSetID);
 
 void testParameterSetID::constructTest()
 {
-  edm::ParameterSetID id1;
+  art::ParameterSetID id1;
   CPPUNIT_ASSERT(!id1.isValid());
 
-  edm::ParameterSetID id2(cow16);
+  art::ParameterSetID id2(cow16);
   CPPUNIT_ASSERT(id2.isValid());
   CPPUNIT_ASSERT(id2.compactForm() == cow16);
 }
 
 void testParameterSetID::badConstructTest()
 {
-  edm::ParameterSetID a("1");
+  art::ParameterSetID a("1");
 }
 
 void testParameterSetID::comparisonTest()
 {
-  edm::ParameterSetID a;
-  edm::ParameterSetID b;
+  art::ParameterSetID a;
+  art::ParameterSetID b;
   CPPUNIT_ASSERT(a == b);
   CPPUNIT_ASSERT(! (a != b));
   CPPUNIT_ASSERT(! (a < b));
@@ -75,16 +75,16 @@ void testParameterSetID::comparisonTest()
 
 void testParameterSetID::suitableForMapTest()
 {
-  typedef std::map<edm::ParameterSetID, int> map_t;
+  typedef std::map<art::ParameterSetID, int> map_t;
   map_t m;
   CPPUNIT_ASSERT (m.empty());
 
-  edm::ParameterSetID a;
+  art::ParameterSetID a;
   m[a] = 100;
   CPPUNIT_ASSERT (m.size() == 1);
   CPPUNIT_ASSERT (m[a] == 100);
 
-  edm::ParameterSetID b(cow16);
+  art::ParameterSetID b(cow16);
   m[b] = 200;
   CPPUNIT_ASSERT (m.size() == 2);
   CPPUNIT_ASSERT (m[a] == 100);
@@ -101,7 +101,7 @@ void testParameterSetID::suitableForMapTest()
 void testParameterSetID::unhexifyTest()
 {
   // 'a' has the MD5 checksum for an empty string.
-  edm::ParameterSetID a(default_id_string);
+  art::ParameterSetID a(default_id_string);
   std::string a_compact = a.compactForm();
   CPPUNIT_ASSERT(static_cast<unsigned char>(a_compact[0]) == 0xd4);
   CPPUNIT_ASSERT(static_cast<unsigned char>(a_compact[1]) == 0x1d);
@@ -120,7 +120,7 @@ void testParameterSetID::unhexifyTest()
   CPPUNIT_ASSERT(static_cast<unsigned char>(a_compact[14]) == 0x42);
   CPPUNIT_ASSERT(static_cast<unsigned char>(a_compact[15]) == 0x7e);
 
-  edm::ParameterSetID b;
+  art::ParameterSetID b;
   std::string b_compact = b.compactForm();
   CPPUNIT_ASSERT(b_compact.size() == 16);
 }
@@ -128,14 +128,14 @@ void testParameterSetID::unhexifyTest()
 void testParameterSetID::printTest()
 {
   std::ostringstream os;
-  edm::ParameterSetID id(default_id_string);
+  art::ParameterSetID id(default_id_string);
   os << id;
   std::string output = os.str();
   CPPUNIT_ASSERT(output == default_id_string);
 
   std::ostringstream os2;
   std::string s2("0123456789abcdef0123456789abcdef");
-  edm::ParameterSetID id2(s2);
+  art::ParameterSetID id2(s2);
   CPPUNIT_ASSERT(id2.isValid());
   os2 << id2;
   std::string output2 = os2.str();
@@ -145,7 +145,7 @@ void testParameterSetID::printTest()
 #include <iostream>
 void testParameterSetID::oldRootFileCompatibilityTest()
 {
-  using namespace edm;
+  using namespace art;
   //simulate what ROOT does when reading an old ParameterSetID which has 32 characters
   ParameterSetID dflt(default_id_string);
   std::string sValue(default_id_string);

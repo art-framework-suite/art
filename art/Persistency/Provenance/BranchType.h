@@ -17,7 +17,7 @@
 #define FW_OBSOLETE
 
 
-namespace edm {
+namespace art {
 
   // Note: These enum values are used as subscripts for a fixed size array,
   // so they must not change.

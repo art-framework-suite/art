@@ -23,7 +23,7 @@ Parentage: The products that were read in producing this product.
   Parents: The EDProducts used as input by the creator.
 */
 
-namespace edm {
+namespace art {
   class Parentage {
   public:
     Parentage();

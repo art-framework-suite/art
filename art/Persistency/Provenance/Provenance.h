@@ -33,7 +33,7 @@ existence.
   Parents: The EDProducts used as input by the creator.
 */
 
-namespace edm {
+namespace art {
   class Provenance {
   public:
     explicit Provenance(ConstBranchDescription const& p, ProductID const& pid);
@@ -94,6 +94,6 @@ namespace edm {
 
   bool operator==(Provenance const& a, Provenance const& b);
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // DataFormats_Provenance_Provenance_h

@@ -11,7 +11,7 @@
 
 #include "art/Persistency/Provenance/EventID.h"
 
-using namespace edm;
+using namespace art;
 
 class testEventID: public CppUnit::TestFixture
 {

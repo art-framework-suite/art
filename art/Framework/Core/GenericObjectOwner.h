@@ -7,7 +7,7 @@
 //
 /**\class GenericObjectOwner GenericObjectOwner.h FWCore/Framework/interface/GenericObjectOwner.h
 
- Description: Helper classed used for doing a 'generic' put into the edm::Event
+ Description: Helper classed used for doing a 'generic' put into the art::Event
 
  Usage:
 
@@ -29,7 +29,7 @@
 #include "art/Utilities/UseReflex.h"
 
 // forward declarations
-namespace edm {
+namespace art {
 class GenericObjectOwner
 {
 

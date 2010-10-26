@@ -29,15 +29,13 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <set>
 #include <vector>
 
 
-namespace edm {
+namespace art {
 
   class ConstBranchDescription;
 
@@ -271,7 +269,7 @@ namespace edm {
       BasicHandle bh = this->getByProductID_(oid);
 
       if(bh.failedToGet()) {
-          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+          boost::shared_ptr<artZ::Exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
           *whyFailed
               << "get View by ID failed: no product with ID = " << oid <<"\n";
           Handle<View<ELEMENT> > temp(whyFailed);
@@ -289,7 +287,7 @@ namespace edm {
   {
     if (product.get() == 0) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
-      throw edm::Exception(edm::errors::NullPointerError)
+      throw art::Exception(art::errors::NullPointerError)
         << "Event::put: A null auto_ptr was passed to 'put'.\n"
 	<< "The pointer is of type " << typeID << ".\n"
 	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
@@ -441,7 +439,7 @@ namespace edm {
                                              true);
 
     if (nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+      boost::shared_ptr<artZ::Exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for sequence of type: " << typeID << "\n"
@@ -452,7 +450,7 @@ namespace edm {
       return false;
     }
     if (nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
+      throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found more than one product matching all criteria\n"
 	<< "Looking for sequence of type: " << typeID << "\n"
 	<< "Looking for module label: " << moduleLabel << "\n"
@@ -482,7 +480,7 @@ namespace edm {
                                                true);
 
       if (nFound == 0) {
-        boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
+        boost::shared_ptr<artZ::Exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
         *whyFailed
           << "getByLabel: Found zero products matching all criteria\n"
           << "Looking for sequence of type: " << typeID << "\n"
@@ -494,7 +492,7 @@ namespace edm {
         return false;
       }
       if (nFound > 1) {
-        throw edm::Exception(edm::errors::ProductNotFound)
+        throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found more than one product matching all criteria\n"
 	<< "Looking for sequence of type: " << typeID << "\n"
         << "Looking for module label: " << tag.label() << "\n"
@@ -530,6 +528,6 @@ namespace edm {
     result.swap(h);
   }
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // Framework_Event_h

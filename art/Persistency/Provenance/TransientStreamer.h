@@ -8,7 +8,7 @@
 #include "art/Utilities/TypeID.h"
 class TBuffer;
 
-namespace edm {
+namespace art {
   template <typename T>
   class TransientStreamer : public TClassStreamer {
   public:

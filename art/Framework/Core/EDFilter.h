@@ -15,13 +15,11 @@ These products should be informational products about the filter decision.
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/ParameterSet/ParameterSetfwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-
 #include <string>
 
 
-namespace edm
+namespace art
 {
 
   class EDFilter
@@ -88,6 +86,6 @@ namespace edm
     CurrentProcessingContext const* current_context_;
   };
 
-}  // namespace edm
+}  // namespace art
 
 #endif  // FWCore_Framework_EDFilter_h

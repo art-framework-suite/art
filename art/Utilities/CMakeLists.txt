@@ -82,4 +82,4 @@ install(FILES Algorithms.h
               vectorTransform.h
               Verbosity.h
               WrappedClassName.h
-        DESTINATION ${version}/include/art/Utilities )
+        DESTINATION ${product}/${version}/include/art/Utilities )

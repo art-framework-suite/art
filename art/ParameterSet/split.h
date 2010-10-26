@@ -1,3 +1,6 @@
+#error "Using obsolete ParameterSet/split.h"
+
+
 #ifndef ParameterSet_split_h
 #define ParameterSet_split_h
 
@@ -21,7 +24,7 @@
 // ----------------------------------------------------------------------
 // contents
 
-namespace edm  {
+namespace art  {
 
   template< class FwdIter >
   FwdIter
@@ -39,7 +42,7 @@ namespace edm  {
          , std::string const& string_to_split
          , char first, char sep, char last);
 
-}  // namespace edm
+}  // namespace art
 
 
 // ----------------------------------------------------------------------
@@ -47,7 +50,7 @@ namespace edm  {
 
 template< class FwdIter >
 FwdIter
-  edm::contextual_find(FwdIter b, FwdIter e
+  art::contextual_find(FwdIter b, FwdIter e
                       , char first, char sep, char last)
 {
   for(int  nested = 0;  b != e;  ++b)  {
@@ -69,7 +72,7 @@ FwdIter
 
 template< class FwdIter >
 FwdIter
-  edm::contextual_find_not(FwdIter b, FwdIter e
+  art::contextual_find_not(FwdIter b, FwdIter e
                           , char /* first */ , char sep, char /* last */)
 {
   for(;  b != e;  ++b)  {
@@ -87,7 +90,7 @@ FwdIter
 
 template< class OutIter >
 bool
-  edm::split(OutIter dest, std::string const& s
+  art::split(OutIter dest, std::string const& s
             , char first, char sep, char last)
 {
   typedef  std::string::const_iterator  str_c_iter;
