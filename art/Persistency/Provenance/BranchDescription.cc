@@ -1,7 +1,7 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -86,22 +86,22 @@ namespace art {
     char const period('.');
 
     if (friendlyClassName_.find(underscore) != std::string::npos) {
-      throw artZ::Exception("IllegalCharacter") << "Class name '" << friendlyClassName()
+      throw cet::exception("IllegalCharacter") << "Class name '" << friendlyClassName()
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
     if (moduleLabel_.find(underscore) != std::string::npos) {
-      throw artZ::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
+      throw cet::exception("IllegalCharacter") << "Module label '" << moduleLabel()
       << "' contains an underscore ('_'), which is illegal in a module label.\n";
     }
 
     if (productInstanceName_.find(underscore) != std::string::npos) {
-      throw artZ::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
+      throw cet::exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
       << "' contains an underscore ('_'), which is illegal in a product instance name.\n";
     }
 
     if (processName_.find(underscore) != std::string::npos) {
-      throw artZ::Exception("IllegalCharacter") << "Process name '" << processName()
+      throw cet::exception("IllegalCharacter") << "Process name '" << processName()
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
@@ -132,7 +132,7 @@ namespace art {
     if (wp.HasProperty("splitLevel")) {
 	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
 	if (splitLevel() < 0) {
-          throw artZ::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
+          throw cet::exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
 	  splitLevel() << " is specified for class " << wrappedName() << ".'\n";
 	}
 	++splitLevel(); //Compensate for wrapper
@@ -142,7 +142,7 @@ namespace art {
     if (wp.HasProperty("basketSize")) {
 	basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
 	if (basketSize() <= 0) {
-          throw artZ::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
+          throw cet::exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
 	  basketSize() << " is specified for class " << wrappedName() << "'.\n";
 	}
     } else {
@@ -154,7 +154,7 @@ namespace art {
     BranchDescription::psetID() const {
     assert(!psetIDs().empty());
     if (psetIDs().size() != 1) {
-      throw artZ::Exception("Ambiguous")
+      throw cet::exception("Ambiguous")
 	<< "Your application requires all events on Branch '" << branchName()
 	<< "'\n to have the same provenance. This file has events with mixed provenance\n"
 	<< "on this branch.  Use a different input file.\n";

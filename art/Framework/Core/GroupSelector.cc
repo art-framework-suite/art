@@ -2,7 +2,7 @@
 
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"

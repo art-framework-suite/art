@@ -341,7 +341,7 @@ namespace art {
       ParameterSet modpset;
       try {
         modpset= pset_.get<fhicl::ParameterSet>(realname);
-      } catch(artZ::Exception&) {
+      } catch(cet::exception&) {
         string pathType("endpath");
         if(!search_all(end_path_name_list_, name)) {
           pathType = string("path");
@@ -397,15 +397,15 @@ namespace art {
 
   void Schedule::endJob() {
     bool failure = false;
-    artZ::Exception accumulated("endJob");
+    cet::exception accumulated("endJob");
     AllWorkers::iterator ai(workersBegin()),ae(workersEnd());
     for(; ai != ae; ++ai) {
       try {
         (*ai)->endJob();
       }
-      catch (artZ::Exception& e) {
-        accumulated << "artZ::Exception caught in Schedule::endJob\n"
-                    << e.explainSelf();
+      catch (cet::exception& e) {
+        accumulated << "cet::exception caught in Schedule::endJob\n"
+                    << e.explain_self();
         failure = true;
       }
       catch (std::exception& e) {

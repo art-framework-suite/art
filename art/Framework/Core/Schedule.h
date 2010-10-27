@@ -370,8 +370,8 @@ namespace art {
 
         if (results_inserter_.get()) results_inserter_->doWork<T>(ep, 0);
       }
-      catch(artZ::Exception& e) {
-        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.rootCause()) : actions::Rethrow);
+      catch(cet::exception& e) {
+        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
         assert (action != actions::IgnoreCompletely);
         assert (action != actions::FailPath);
         assert (action != actions::FailModule);
@@ -386,8 +386,8 @@ namespace art {
 
       if (endpathsAreActive_) runEndPaths<T>(ep);
     }
-    catch(artZ::Exception& ex) {
-      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.rootCause()) : actions::Rethrow);
+    catch(cet::exception& ex) {
+      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow);
       assert (action != actions::SkipEvent);
       assert (action != actions::FailPath);
       assert (action != actions::FailModule);

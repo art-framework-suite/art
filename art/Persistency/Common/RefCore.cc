@@ -12,7 +12,7 @@
 using art::RefCore;
 
 // Framework support:
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 using art::EDProduct;
 
 // C++ support:

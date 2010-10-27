@@ -19,7 +19,6 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "boost/mpl/if.hpp"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/traits.h"
-#include "art/Utilities/EDMException.h"
 
 namespace art {
 

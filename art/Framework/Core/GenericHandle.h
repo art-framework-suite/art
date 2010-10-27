@@ -137,7 +137,7 @@ public:
    void clear() { prov_ = 0; id_ = ProductID();
    whyFailed_.reset();}
 
-   void setWhyFailed(boost::shared_ptr<artZ::Exception> const& iWhyFailed) {
+   void setWhyFailed(boost::shared_ptr<cet::exception> const& iWhyFailed) {
     whyFailed_=iWhyFailed;
   }
 private:
@@ -145,7 +145,7 @@ private:
    Reflex::Object prod_;
    Provenance const* prov_;
    ProductID id_;
-   boost::shared_ptr<artZ::Exception> whyFailed_;
+   boost::shared_ptr<cet::exception> whyFailed_;
 
 };
 

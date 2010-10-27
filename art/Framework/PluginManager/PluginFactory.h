@@ -25,7 +25,7 @@
 
 // user include files
 #include "art/Framework/PluginManager/PluginFactoryBase.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Framework/PluginManager/PluginManager.h"
 // forward declarations
 

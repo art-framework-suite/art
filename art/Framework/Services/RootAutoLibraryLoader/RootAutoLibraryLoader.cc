@@ -150,7 +150,7 @@ bool loadLibraryForClass(const char* classname)
           }
       }
   }
-  catch(artZ::Exception& e)
+  catch(cet::exception& e)
     {
       //would be nice to issue a warning here
       return false;

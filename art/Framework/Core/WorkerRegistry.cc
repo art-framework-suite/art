@@ -8,7 +8,7 @@
 
 using fhicl::ParameterSet;
 
-namespace 
+namespace
 {
   ModuleDescription
   createModuleDescription(WorkerParams const &p)
@@ -22,7 +22,7 @@ namespace
     md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_);
     return md;
   }
-  
+
 } // anonymous namespace
 
 namespace art {

@@ -6,7 +6,7 @@
 #include "boost/regex.hpp"
 
 #include "art/Framework/PluginManager/FileOperations.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 using std::vector;
 using std::string;
@@ -39,12 +39,12 @@ namespace plugin
 
     //if(!home_env)
     //  {
-	//throw artZ::Exception("env missing")
+	//throw cet::exception("env missing")
 	//  << "cannot find environment variable FW_HOME\n";
     //  }
     if(!ldlib_env)
       {
-	throw artZ::Exception("env missing")
+	throw cet::exception("env missing")
 	  << "cannot find environment variable LD_LIBRARY_PATH\n";
       }
 

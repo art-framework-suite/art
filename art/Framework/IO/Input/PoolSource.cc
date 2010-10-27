@@ -6,8 +6,8 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Input/RootInputFileSequence.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "TTreeCache.h"
 

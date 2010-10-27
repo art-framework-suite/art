@@ -3,7 +3,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "art/Framework/Core/TFileDirectory.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 using namespace std;
 
@@ -18,7 +18,7 @@ namespace art
 	dir = file_->GetDirectory( path_.c_str() );
 	if ( dir == 0 )
 	  throw
-	    artZ::Exception( "InvalidDirectory" )
+	    cet::exception( "InvalidDirectory" )
 	    << "Can't change directory to path: " << path_;
       } else {
 	dir = file_;
@@ -26,13 +26,13 @@ namespace art
       dir = dir->mkdir( dir_.c_str(), descr_.c_str() );
       if ( dir == 0 )
 	throw
-	  artZ::Exception( "InvalidDirectory" )
+	  cet::exception( "InvalidDirectory" )
 	  << "Can't create directory " << dir_ << " in path: " << path_;
     }
     bool ok = file_->cd( fpath.c_str() );
     if ( ! ok )
       throw
-	artZ::Exception( "InvalidDirectory" )
+	cet::exception( "InvalidDirectory" )
 	<< "Can't change directory to path: " << fpath;
   }
 

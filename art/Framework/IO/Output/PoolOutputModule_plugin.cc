@@ -9,7 +9,7 @@
 #include "art/Framework/IO/Output/RootOutputFile.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;

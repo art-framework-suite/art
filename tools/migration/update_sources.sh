@@ -10,7 +10,7 @@ EOF
 
 function one_file_lumi() {
   local F=$1
-  grep -Il subrun "${F}" && return 0 # Already done
+  grep -Il subrun "${F}" >/dev/null 2>&1 && return 0 # Already done
   cp -p "${F}" "$TMP" # Make sure permissions are correct on temporary file
   err=$(perl -wp -f fix-lumi.pl "${F}" 2>&1 >"$TMP" ) # Yes, the redirections are in the right order.
   status=$?
@@ -47,8 +47,18 @@ function one_file() {
   # Fix ParameterSet calls
   perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix edm and cms namespaces
-  perl -wapi\~ -f fix-namespaces.pl   "${F}" >/dev/null 2>&1 && rm -f "${F}~"
-
+  perl -wapi\~ -f fix-namespaces-1.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  # Fix use of exceptions (must fix only once due to hysteresis).
+  [[ "${F}" == *"art/Utilities/Exception.cc" ]] || \
+    grep -e 'art/Utilites/EDMException' \
+         -e 'cetlib/exception' \
+         -e 'namespace[ \t]\{1,\}cet' \
+         -e '\(art::\)\{0,1\}Exception\([ \t]\{1,\}[A-Za-z0-9_]*\)\{0,1\}(\(art::\)\{0,1\}errors::' \
+         "${F}" >/dev/null 2>&1 || \
+    perl -wapi\~ -f fix-exceptions.pl   "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  # Final namespace fix (must be done after exception fix).
+  perl -wapi\~ -f fix-namespaces-2.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then
     echo "OK"

@@ -26,7 +26,7 @@ namespace art {
     static Factory& the_instance_();
     Factory();
     ~Factory();
-    LibraryManager libman;    
+    LibraryManager libman;
   };
 
 }

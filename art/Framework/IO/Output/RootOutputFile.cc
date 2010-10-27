@@ -25,7 +25,7 @@
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Utilities/Digest.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Version/GetFileFormatVersion.h"
 #include "cetlib/container_algorithms.h"
@@ -155,7 +155,7 @@ namespace art {
           << bd.processName() << underscore;
     }
     string stringrep = oss.str();
-    artZ::Digest md5alg(stringrep);
+    art::Digest md5alg(stringrep);
 
     // Register the output file with the JobReport service
     // and get back the token for it.

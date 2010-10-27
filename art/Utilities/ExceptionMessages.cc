@@ -1,6 +1,6 @@
 #include "art/Utilities/ExceptionMessages.h"
 
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "MessageFacility/MessageLogger.h"
   using mf::LogSystem;
@@ -11,13 +11,13 @@
 
 namespace art {
   void
-  printCmsException(artZ::Exception& e, char const* prog)
+  printCmsException(cet::exception& e, char const* prog)
   try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("CMSException");
     std::ostringstream longDesc;
-    longDesc << "artZ::Exception caught in " << programName << "\n"
-             << e.explainSelf();
+    longDesc << "cet::exception caught in " << programName << "\n"
+             << e.explain_self();
     LogSystem(shortDesc) << longDesc.str() << "\n";
   }
   catch(...) {

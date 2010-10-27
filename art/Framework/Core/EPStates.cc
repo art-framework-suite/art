@@ -3,7 +3,7 @@
 
 #include "art/Framework/Core/EPStates.h"
 #include "art/Framework/Core/IEventProcessor.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include <exception>
 #include <sstream>
@@ -68,14 +68,14 @@ namespace statemachine {
       try {
         closeFiles();
       }
-      catch (artZ::Exception& e) {
+      catch (cet::exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
                 << "Another exception was caught while trying to clean up files after\n"
                 << "the primary exception.  We give up trying to clean up files at\n"
                 << "this point.  The description of this additional exception follows:\n"
-                << "artZ::Exception\n"
-                << e.explainSelf();
+                << "cet::exception\n"
+                << e.explain_self();
         std::string msg(message.str());
         ep_.setExceptionMessageFiles(msg);
       }
@@ -264,14 +264,14 @@ namespace statemachine {
       try {
         finalizeRun();
       }
-      catch (artZ::Exception& e) {
+      catch (cet::exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
                 << "Another exception was caught while trying to clean up runs after\n"
                 << "the primary exception.  We give up trying to clean up runs at\n"
                 << "this point.  The description of this additional exception follows:\n"
-                << "artZ::Exception\n"
-                << e.explainSelf();
+                << "cet::exception\n"
+                << e.explain_self();
         std::string msg(message.str());
         ep_.setExceptionMessageRuns(msg);
       }
@@ -321,7 +321,7 @@ namespace statemachine {
     currentRun_ = ep_.readAndCacheRun();
     if (context<Machine>().fileMode() == FULLLUMIMERGE || context<Machine>().fileMode() == MERGE) {
       if (previousRuns_.find(currentRun_) != previousRuns_.end()) {
-        throw artZ::Exception("Merge failure:") <<
+        throw cet::exception("Merge failure:") <<
             "Run " << currentRun_ << " is discontinuous, and cannot be merged in this mode.\n"
             "The run is split across two or more input files,\n"
             "and either the run is not the last run in the previous input file,\n"
@@ -488,14 +488,14 @@ namespace statemachine {
         checkInvariant();
         finalizeAllSubRuns();
       }
-      catch (artZ::Exception& e) {
+      catch (cet::exception& e) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
                 << "Another exception was caught while trying to clean up subRuns after\n"
                 << "the primary exception.  We give up trying to clean up subRuns at\n"
                 << "this point.  The description of this additional exception follows:\n"
-                << "artZ::Exception\n"
-                << e.explainSelf();
+                << "cet::exception\n"
+                << e.explain_self();
         std::string msg(message.str());
         ep_.setExceptionMessageSubRuns(msg);
       }
@@ -557,7 +557,7 @@ namespace statemachine {
     currentSubRun_ = HandleSubRuns::SubRunID(run, ep_.readAndCacheSubRun());
     if (context<Machine>().fileMode() == MERGE) {
       if (previousSubRuns_.find(currentSubRun_) != previousSubRuns_.end()) {
-        throw artZ::Exception("Merge failure:") <<
+        throw cet::exception("Merge failure:") <<
             "SubRun " << currentSubRun_.first <<":" << currentSubRun_.second << " is discontinuous, and cannot be merged in this mode.\n"
             "The subRun is split across two or more input files,\n"
             "and either the subRun is not the last run in the previous input file,\n"

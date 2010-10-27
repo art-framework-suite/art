@@ -14,8 +14,8 @@
 #include "boost/filesystem/convenience.hpp"
 #include "boost/filesystem/path.hpp"
 
-#include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/TestHelper.h"
 
 namespace bf=boost::filesystem;
@@ -181,9 +181,9 @@ int ptomaine(int argc, char* argv[], char** env)
 		<< argv[0] << '\n'
 		<< x;
     }
-  catch ( artZ::Exception& x )
+  catch ( cet::exception& x )
     {
-      std::cerr << "Caught a artZ::Exception in "
+      std::cerr << "Caught a cet::exception in "
 		<< argv[0] << '\n'
 		<< x;
     }

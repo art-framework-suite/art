@@ -9,7 +9,7 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "MessageFacility/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -157,7 +157,7 @@ namespace art {
 
 
       if(missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
-         throw artZ::Exception("ProvenanceError")
+         throw cet::exception("ProvenanceError")
            << (missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
            << (missingFromMapper.size()?" from BranchMapper":"")
            << (missingFromMapper.size() and missingFromPrincipal.size()?" and":"")

@@ -11,7 +11,7 @@ namespace art {
     try {
       f();
     }
-    catch (artZ::Exception e) {
+    catch (cet::exception e) {
       hasThrown_ = true;
       exception_ << e;
     }

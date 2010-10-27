@@ -11,7 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/ParameterSet/processParameterSetID.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "boost/thread/mutex.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -131,7 +131,7 @@ void PrescaleService::reconfigure(ParameterSet const & iPS)
         if (itPath==prescaledPathSet.end())
           prescaledPathSet.insert(pathName);
         else
-          throw artZ::Exception("DuplicatePrescaler")
+          throw cet::exception("DuplicatePrescaler")
             << "path '" << pathName << "' has more than one HLTPrescaler!";
       }
     }
@@ -157,12 +157,12 @@ void PrescaleService::reconfigure(ParameterSet const & iPS)
       vector<unsigned int> prescales =
         psetPrescales.get<vector<unsigned int> >("prescales");
       if (prescales.size()!=nLvl1Index_)
-        throw artZ::Exception("PrescaleTableMismatch")
+        throw cet::exception("PrescaleTableMismatch")
           << "path '" << pathName << "' has unexpected number of prescales";
       prescaleTable_[pathName] = prescales;
     }
     else
-      throw artZ::Exception("PrescaleTableUnknownPath")
+      throw cet::exception("PrescaleTableUnknownPath")
         << "path '" << pathName
         << "' is invalid or does not contain any HLTPrescaler";
   }
@@ -179,7 +179,7 @@ unsigned int PrescaleService::getPrescale(unsigned int lvl1Index,
                                           string const & prescaledPath)
 {
   if (lvl1Index>=nLvl1Index_)
-    throw artZ::Exception("InvalidLvl1Index")
+    throw cet::exception("InvalidLvl1Index")
       << "lvl1Index '" << lvl1Index
       << "' exceeds number of prescale columns";
 

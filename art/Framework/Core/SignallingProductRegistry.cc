@@ -15,7 +15,7 @@
 
 // user include files
 #include "art/Framework/Core/SignallingProductRegistry.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 using namespace art;
 //
@@ -44,7 +44,7 @@ void SignallingProductRegistry::addCalled(BranchDescription const& iProd, bool i
 {
    StackGuard guard(iProd.className(), typeAddedStack_, iFromListener);
    if(guard.numType_ > 2) {
-      throw artZ::Exception("CircularReference")
+      throw cet::exception("CircularReference")
       <<"Attempted to register the production of "<<iProd.className()
       <<" from module "
       <<iProd.moduleLabel()

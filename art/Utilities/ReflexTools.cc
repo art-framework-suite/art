@@ -4,7 +4,7 @@
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
 #include "cetlib/container_algorithms.h"

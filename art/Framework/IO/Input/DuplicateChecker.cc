@@ -1,7 +1,7 @@
 #include "art/Framework/IO/Input/DuplicateChecker.h"
 
 #include "art/Persistency/Provenance/FileIndex.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "MessageFacility/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -28,7 +28,7 @@ namespace art {
     else if (duplicateCheckMode == std::string("checkEachRealDataFile")) duplicateCheckMode_ = checkEachRealDataFile;
     else if (duplicateCheckMode == std::string("checkAllFilesOpened")) duplicateCheckMode_ = checkAllFilesOpened;
     else {
-      throw artZ::Exception("Configuration")
+      throw cet::exception("Configuration")
         << "Illegal configuration parameter value passed to PoolSource for\n"
         << "the \"duplicateCheckMode\" parameter, legal values are:\n"
         << "\"noDuplicateCheck\", \"checkEachFile\", \"checkEachRealDataFile\", \"checkAllFilesOpened\"\n";

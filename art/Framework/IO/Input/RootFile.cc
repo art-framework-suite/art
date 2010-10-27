@@ -19,7 +19,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunID.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "cetlib/container_algorithms.h"

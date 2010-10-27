@@ -27,7 +27,7 @@ namespace art {
 	  << i->passID() << ' ';
     }
     string stringrep = oss.str();
-    artZ::Digest md5alg(stringrep);
+    art::Digest md5alg(stringrep);
     ProcessHistoryID tmp(md5alg.digest().toString());
     phid().swap(tmp);
     return phid();

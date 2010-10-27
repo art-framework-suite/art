@@ -47,7 +47,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 // MessageFacility support:
 #include "MessageFacility/MessageLogger.h"
@@ -118,12 +118,12 @@ namespace {
     if( seed == USE_DEFAULT_SEED )
       return;
     if( seed > MAXIMUM_CLHEP_SEED )
-      throw artZ::Exception("RANGE")
+      throw cet::exception("RANGE")
         << "RNGservice::throw_if_invalid_seed():\n"
            "Seed " << seed << " exceeds permitted maximum "
            << MAXIMUM_CLHEP_SEED << ".\n";
     if( seed < 0 )  // too small for CLHEP
-      throw artZ::Exception("RANGE")
+      throw cet::exception("RANGE")
         << "RNGservice::throw_if_invalid_seed():\n"
            "Seed " << seed << " is not permitted to be negative.\n";
   }  // throw_if_invalid_seed()
@@ -189,7 +189,7 @@ namespace {
 #undef MANUFACTURE_IMPLICIT
 #undef MANUFACTURE_EXPLICIT
 
-    throw artZ::Exception("RANDOM")
+    throw cet::exception("RANDOM")
       << "engine_factory():\n"
          "Attempt to create engine of unknown kind \""
           << kind_of_engine_to_make << "\".\n";
@@ -265,7 +265,7 @@ base_engine_t &
   // DEBUG */ cerr << "RNGService::getEngine(): requested engine \"" << label << "\"\n";
 
   if( d == dict_.end() ) {
-    throw artZ::Exception("RANDOM")
+    throw cet::exception("RANDOM")
       << "RNGservice::getEngine():\n"
          "The requested engine \"" << label << "\" has not been established.\n";
   }
@@ -318,13 +318,13 @@ base_engine_t &
   label_t const &  label  = qualify_engine_label( engine_label );
 
   if( ! engine_creation_is_okay_ ) {
-    throw artZ::Exception("RANDOM")
+    throw cet::exception("RANDOM")
       << "RNGservice::createEngine():\n"
          "Attempt to create engine \"" << label << "\" is too late.\n";
   }
 
   if( tracker_.find(label) != tracker_.end() ) {
-    throw artZ::Exception("RANDOM")
+    throw cet::exception("RANDOM")
       << "RNGservice::createEngine():\n"
          "Engine \"" << label << "\" has already been created.\n";
   }
@@ -435,7 +435,7 @@ void
     }
 
     if( t->second == VIA_FILE ) {
-      throw artZ::Exception("RANDOM")
+      throw cet::exception("RANDOM")
         << "RNGservice::restoreSnapshot_():\n"
            "The state of engine \"" << label
              << "\" has been previously read from a file;\n"
@@ -451,7 +451,7 @@ void
       log << " successfully restored.\n";
     }
     else {
-      throw artZ::Exception("RANDOM")
+      throw cet::exception("RANDOM")
         << "RNGservice::restoreSnapshot_():\n"
            "Failed during restore of state of engine for \"" << label << "\"\n";
     }
@@ -500,7 +500,7 @@ void
   // access the file:
   ifstream  infile( restoreFromFilename_.c_str() );
   if( !infile )
-      throw artZ::Exception("RANDOM")
+      throw cet::exception("RANDOM")
         << "RNGservice::restoreFromFile_():\n"
            "Can't open file \"" << restoreFromFilename_
             << "\" to initialize engines\n";
@@ -513,7 +513,7 @@ void
       eptr_t &  eptr  = d->second;
       assert( eptr != 0 && "RNGservice::restoreFromFile_()" );
       if( ! eptr->get(infile) ) {
-        throw artZ::Exception("RANDOM")
+        throw cet::exception("RANDOM")
           << "RNGservice::restoreFromFile_():\n"
              "Failed during restore of state of engine for: " << label
               << "from file \"" << restoreFromFilename_ << "\"\n";
@@ -521,7 +521,7 @@ void
       tracker_[label] = VIA_FILE;
     }
     else {
-      throw artZ::Exception("RANDOM")
+      throw cet::exception("RANDOM")
         << "RNGservice::restoreFromFile_():\n"
            "Engine \"" << label << "\" has already been established.\n";
     }

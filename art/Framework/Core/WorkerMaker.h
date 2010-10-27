@@ -5,7 +5,7 @@
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/EDMException.h"
+#include "cetlib/exception.h"
 
 #include "fhiclcpp/ParameterSet.h"
 #include "sigc++/signal.h"
@@ -24,7 +24,7 @@ namespace art {
                                              sigc::signal<void, ModuleDescription const&>& iPost) const = 0;
   protected:
     ModuleDescription createModuleDescription(WorkerParams const &p) const;
-    void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, artZ::Exception const& iException) const;
+    void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, cet::exception const& iException) const;
   };
 
   template <class T>
@@ -58,7 +58,7 @@ namespace art {
        std::auto_ptr<ModuleType> module(WorkerType::template makeModule<UserType>(md, *p.pset_));
        worker=std::auto_ptr<Worker>(new WorkerType(module, md, p));
        post(md);
-    } catch( artZ::Exception& iException){
+    } catch( cet::exception& iException){
        throwConfigurationException(md, post, iException);
     }
     return worker;

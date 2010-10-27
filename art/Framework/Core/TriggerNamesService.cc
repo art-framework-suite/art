@@ -1,8 +1,8 @@
 #include "art/Framework/Core/TriggerNamesService.h"
 
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSetRegistry.h"

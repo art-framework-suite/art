@@ -94,7 +94,7 @@ namespace art {
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(artZ::Exception const& e, int nwrwue, bool isEvent);
+    bool handleWorkerFailure(cet::exception const& e, int nwrwue, bool isEvent);
     void recordUnknownException(int nwrwue, bool isEvent);
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
@@ -155,7 +155,7 @@ namespace art {
         cpc.activate(idx, i->getWorker()->descPtr());
         should_continue = i->runWorker<T>(ep, &cpc);
       }
-      catch(artZ::Exception& e) {
+      catch(cet::exception& e) {
         // handleWorkerFailure may throw a new exception.
         should_continue = handleWorkerFailure(e, nwrwue, T::isEvent_);
       }

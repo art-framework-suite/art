@@ -1,4 +1,5 @@
 #include "art/Framework/Core/WorkerMaker.h"
+#include "art/Utilities/Exception.h"
 
 using fhicl::ParameterSet;
 
@@ -24,7 +25,7 @@ Maker::createModuleDescription(WorkerParams const &p) const
 void
 Maker::throwConfigurationException(ModuleDescription const &md,
                                    sigc::signal<void, ModuleDescription const&>& post,
-                                   artZ::Exception const& iException) const
+                                   cet::exception const& iException) const
 {
   art::Exception toThrow(art::errors::Configuration,"Error occurred while creating ");
   toThrow<<md.moduleName_<<" with label "<<md.moduleLabel_<<"\n";

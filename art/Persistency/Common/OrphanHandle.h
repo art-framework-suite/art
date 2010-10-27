@@ -22,7 +22,6 @@ To check validity, one can use the isValid() function.
 ----------------------------------------------------------------------*/
 
 #include "art/Persistency/Provenance/ProductID.h"
-#include "art/Utilities/EDMException.h"
 #include <cassert>
 
 namespace art {

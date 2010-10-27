@@ -11,7 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceMakerBase.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeIDBase.h"
 
 #include "boost/shared_ptr.hpp"

@@ -6,7 +6,7 @@ namespace art {
 
   BranchID::value_type
   BranchID::toID(std::string const& branchName) {
-    artZ::CRC32Calculator crc32(branchName);
+    art::CRC32Calculator crc32(branchName);
     return crc32.checksum();
   }
 

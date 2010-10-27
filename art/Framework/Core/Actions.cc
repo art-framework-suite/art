@@ -1,7 +1,7 @@
 #include "art/Framework/Core/Actions.h"
 
 #include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "boost/lambda/lambda.hpp"
 #include "cetlib/container_algorithms.h"
 #include <iostream>

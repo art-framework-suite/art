@@ -5,7 +5,7 @@
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 namespace art {
 

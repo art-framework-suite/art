@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_HolderToVectorTrait_h
 #define DataFormats_Common_HolderToVectorTrait_h
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 //#include <boost/static_assert.hpp>
 
 namespace art {

@@ -24,7 +24,7 @@
 
 // user include files
 #include "art/Utilities/ECGetterBase.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 // forward declarations
 
@@ -54,7 +54,7 @@ namespace art {
 
       const T* get() const {
         if (!this->connected()) {
-          throw artZ::Exception("InvalidExtensionCord")<<"an art::ExtensionCord for type "<<typeid(T).name()
+          throw cet::exception("InvalidExtensionCord")<<"an art::ExtensionCord for type "<<typeid(T).name()
           <<" was not connected to an outlet. This is a programming error.";
         }
         return holder_->getter_->get();

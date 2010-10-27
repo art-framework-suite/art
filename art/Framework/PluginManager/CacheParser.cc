@@ -7,7 +7,7 @@
 
 
 #include "art/Framework/PluginManager/CacheParser.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "cetlib/container_algorithms.h"
 #include <algorithm>
 #include <limits>
@@ -27,11 +27,11 @@ namespace artplugin {
                             const string& iContext)
 {
     if(iIn.eof()) {
-      throw artZ::Exception("PluginCacheParseFailed")<<"Unexpectedly reached end of file for line "
+      throw cet::exception("PluginCacheParseFailed")<<"Unexpectedly reached end of file for line "
       <<iRecordNumber<<" just after '"<<iContext<<"'";
     }
     if(iIn.bad()) {
-      throw artZ::Exception("PluginCacheParseFailed")<<"Reading failed on line "<<iRecordNumber <<" just after '"<<iContext<<"'";
+      throw cet::exception("PluginCacheParseFailed")<<"Reading failed on line "<<iRecordNumber <<" just after '"<<iContext<<"'";
     }
 }
 

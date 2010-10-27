@@ -32,7 +32,7 @@
 #include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/TestHandle.h"
 
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 // forward declarations
 namespace art {

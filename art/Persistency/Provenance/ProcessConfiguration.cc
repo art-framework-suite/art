@@ -21,7 +21,7 @@ namespace art {
     std::ostringstream oss;
     oss << *this;
     std::string stringrep = oss.str();
-    artZ::Digest md5alg(stringrep);
+    art::Digest md5alg(stringrep);
     return ProcessConfigurationID(md5alg.digest().toString());
   }
 

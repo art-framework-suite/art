@@ -162,9 +162,9 @@ namespace art {
         sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     }
-    catch (artZ::Exception e) {
+    catch (cet::exception e) {
       if (!skipBadFiles) {
-        throw art::Exception(art::errors::FileOpenError) << e.explainSelf() << "\n" <<
+        throw art::Exception(art::errors::FileOpenError) << e.explain_self() << "\n" <<
            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }

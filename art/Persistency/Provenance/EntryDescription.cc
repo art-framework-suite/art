@@ -30,7 +30,7 @@ namespace art {
       }
 
     std::string stringrep = oss.str();
-    artZ::Digest md5alg(stringrep);
+    art::Digest md5alg(stringrep);
     return EntryDescriptionID(md5alg.digest().toString());
   }
 

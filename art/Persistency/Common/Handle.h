@@ -29,7 +29,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Common/BasicHandle.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 namespace art
 {
@@ -49,7 +49,7 @@ namespace art
 
     Handle(T const* prod, Provenance const* prov);
 
-    Handle(boost::shared_ptr<artZ::Exception> const&);
+    Handle(boost::shared_ptr<cet::exception> const&);
 
     ~Handle();
 
@@ -77,7 +77,7 @@ namespace art
     T const* prod_;
     Provenance const* prov_;
     ProductID id_;
-    boost::shared_ptr<artZ::Exception> whyFailed_;
+    boost::shared_ptr<cet::exception> whyFailed_;
   };
 
   template <class T>
@@ -106,7 +106,7 @@ namespace art
   }
 
   template <class T>
-    Handle<T>::Handle(boost::shared_ptr<artZ::Exception> const& iWhyFailed):
+    Handle<T>::Handle(boost::shared_ptr<cet::exception> const& iWhyFailed):
     prod_(0),
     prov_(0),
     id_(),

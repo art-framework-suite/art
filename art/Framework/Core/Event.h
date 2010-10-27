@@ -266,7 +266,7 @@ namespace art {
       BasicHandle bh = this->getByProductID_(oid);
 
       if(bh.failedToGet()) {
-          boost::shared_ptr<artZ::Exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
+          boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
           *whyFailed
               << "get View by ID failed: no product with ID = " << oid <<"\n";
           Handle<View<ELEMENT> > temp(whyFailed);
@@ -436,7 +436,7 @@ namespace art {
                                              true);
 
     if (nFound == 0) {
-      boost::shared_ptr<artZ::Exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
+      boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for sequence of type: " << typeID << "\n"
@@ -477,7 +477,7 @@ namespace art {
                                                true);
 
       if (nFound == 0) {
-        boost::shared_ptr<artZ::Exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
+        boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
         *whyFailed
           << "getByLabel: Found zero products matching all criteria\n"
           << "Looking for sequence of type: " << typeID << "\n"

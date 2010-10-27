@@ -1,7 +1,7 @@
 #include "art/Framework/IO/Output/RootOutputTree.h"
 
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "boost/bind.hpp"
 #include "cetlib/container_algorithms.h"
 #include "MessageFacility/MessageLogger.h"

@@ -1,6 +1,6 @@
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/Parse.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 namespace art {
 
