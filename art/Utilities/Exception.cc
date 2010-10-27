@@ -1,112 +1,49 @@
+// ======================================================================
+//
+// Exception
+//
+// ======================================================================
+
 
 #include "art/Utilities/Exception.h"
 
-namespace artZ {
+using namespace art;
 
-  Exception::Exception(std::string const& aCategory) :
-    std::exception(),
-    ost_(),
-    category_(1, aCategory),
-    what_()
-  {
+// ----------------------------------------------------------------------
+
+std::string
+  detail::translate( errors::ErrorCodes code )
+{
+  using namespace errors;
+  switch( code ) {
+    case OtherCMS                  : return "OtherCMS";
+    case StdException              : return "StdException";
+    case Unknown                   : return "Unknown";
+    case BadAlloc                  : return "BadAlloc";
+    case BadExceptionType          : return "BadExceptionType";
+    case ProductNotFound           : return "ProductNotFound";
+    case DictionaryNotFound        : return "DictionaryNotFound";
+    case NoProductSpecified        : return "NoProductSpecified";
+    case InsertFailure             : return "InsertFailure";
+    case Configuration             : return "Configuration";
+    case LogicError                : return "LogicError";
+    case UnimplementedFeature      : return "UnimplementedFeature";
+    case InvalidReference          : return "InvalidReference";
+    case NullPointerError          : return "NullPointerError";
+    case EventTimeout              : return "EventTimeout";
+    case EventCorruption           : return "EventCorruption";
+    case ScheduleExecutionFailure  : return "ScheduleExecutionFailure";
+    case EventProcessorFailure     : return "EventProcessorFailure";
+    case FileInPathError           : return "FileInPathError";
+    case FileOpenError             : return "FileOpenError";
+    case FileReadError             : return "FileReadError";
+    case FatalRootError            : return "FatalRootError";
+    case MismatchedInputFiles      : return "MismatchedInputFiles";
+    case ProductDoesNotSupportViews: return "ProductDoesNotSupportViews";
+    case ProductDoesNotSupportPtr  : return "ProductDoesNotSupportPtr";
+    case NotFound                  : return "NotFound";
+    default                        : return "Unknown code";
   }
-
-  Exception::Exception(std::string const& aCategory,
-		       std::string const& message) :
-    std::exception(),
-    ost_(),
-    category_(1, aCategory),
-    what_()
-  {
-    ost_ << message;
-    if(!message.empty()) {
-	unsigned sz = message.size()-1;
-	if(message[sz]!='\n' && message[sz]!=' ') ost_ << " ";
-    }
-  }
-
-  Exception::Exception(std::string const& aCategory,
-		       std::string const& message,
-		       Exception const& another) :
-    std::exception(),
-    ost_(),
-    category_(1, aCategory),
-    what_()
-  {
-    ost_ << message;
-    // check for newline at end of message first
-    if(!message.empty() && message[message.size()-1]!='\n')
-      ost_ << "\n";
-    category_.push_back(another.category());
-    append(another);
-  }
-
-  Exception::Exception(Exception const& other):
-    std::exception(),
-    ost_(),
-    category_(other.category_),
-    what_(other.what_)
-  {
-    ost_ << other.ost_.str();
-  }
-
-  Exception::~Exception() throw() {
-  }
-
-  std::string Exception::explainSelf() const {
-    std::ostringstream ost;
-    std::string part(ost_.str());
-    // Remove any trailing newline
-
-    ost << "---- " << category() << " BEGIN\n"
-	<< part;
-
-    if(!part.empty() && part[part.size()-1]!='\n') ost << "\n";
-    ost << "---- " << category() << " END\n";
-
-    return ost.str();
-  }
-
-  Exception::CategoryList const& Exception::history() const {
-    return category_;
-  }
-
-  std::string Exception::category() const {
-    return category_.front();
-  }
-
-  std::string Exception::rootCause() const {
-    return category_.back();
-  }
-
-  void Exception::append(Exception const& another) {
-    ost_ << another.explainSelf();
-  }
-
-  void Exception::append(std::string const& more_information) {
-    ost_ << more_information;
-  }
-
-  void Exception::append(char const* more_information) {
-    ost_ << more_information;
-  }
-
-  // --------------------------------
-  // required for being a std::exception
-
-  char const* Exception::what() const throw() {
-    what_ = explainSelf();
-    return what_.c_str();
-  }
-
-  std::exception* Exception::clone() const {
-    return new Exception(*this);
-  }
-
-  void Exception::rethrow() {
-    throw *this;
-  }
-
-
-
 }
+
+// ======================================================================

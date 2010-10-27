@@ -5,7 +5,6 @@ set( artUtilities_sources CPUTimer.cc
                           CRC32Calculator.cc
                           DebugMacros.cc
                           Digest.cc
-                          EDMException.cc
                           Exception.cc
                           ExceptionMessages.cc
                           ExceptionCollector.cc
@@ -36,15 +35,13 @@ set( artUtilities_sources CPUTimer.cc
 add_library(artUtilities SHARED ${artUtilities_sources} )
 
 install ( TARGETS artUtilities DESTINATION ${flavorqual_dir}/lib )
-install(FILES 
-              CodedException.h
+install(FILES
               CPUTimer.h
               CRC16.h
               CRC32Calculator.h
               DebugMacros.h
               Digest.h
               ECGetterBase.h
-              EDMException.h
               ExceptionCollector.h
               Exception.h
               ExceptionMessages.h
