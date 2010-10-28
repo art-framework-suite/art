@@ -21,12 +21,12 @@
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/ExceptionCollector.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
+#include "cetlib/exception_collector.h"
 #include "MessageFacility/MessageLogger.h"
 #include <exception>
 #include <iomanip>
@@ -634,7 +634,7 @@ namespace art {
   EventProcessor::endJob()
   {
     // Collects exceptions, so we don't throw before all operations are performed.
-    ExceptionCollector c;
+    cet::exception_collector c;
 
     // only allowed to run if state is sIdle,sJobReady,sRunGiven
     c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
@@ -646,9 +646,6 @@ namespace art {
     c.call(boost::bind(&Schedule::endJob, schedule_.get()));
     c.call(boost::bind(&InputSource::doEndJob, input_));
     c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
-    if (c.hasThrown()) {
-      c.rethrow();
-    }
   }
 
   ServiceToken

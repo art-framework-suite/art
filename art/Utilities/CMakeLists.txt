@@ -7,7 +7,6 @@ set( artUtilities_sources CPUTimer.cc
                           Digest.cc
                           Exception.cc
                           ExceptionMessages.cc
-                          ExceptionCollector.cc
                           FriendlyName.cc
                           GlobalIdentifier.cc
                           Guid.cc
@@ -42,7 +41,6 @@ install(FILES
               DebugMacros.h
               Digest.h
               ECGetterBase.h
-              ExceptionCollector.h
               Exception.h
               ExceptionMessages.h
               ExtensionCord.h
