@@ -28,8 +28,8 @@ Worker* make_temp(WorkerParams const& wp, ModuleDescription const& md) \
 
 #define DEFINE_ART_MODULE(klass) \
 extern "C" \
-klass::ModuleType* make(fhicl::ParameterSet const& ps) \
-{ return new klass(ps); } \
+std::auto_ptr<klass::ModuleType> make(fhicl::ParameterSet const& ps) \
+{ return std::auto_ptr<klass::ModuleType>(new klass(ps)); } \
  DEFINE_ART_MODULE_TEMP(klass)
 
 #endif  // Framework_MakerMacros_h

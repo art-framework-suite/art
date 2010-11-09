@@ -79,7 +79,7 @@ The *LibraryManager* delays loading each library until it is asked
 to resolve a symbol in that library.
 The *LibraryManager* loads libraries using *dlopen*,
 and provides access to plugins by "short name" and "long name" (see above).
-A plugin with filename ``a/b/c/lib_d_plugin.<suffix>`` is associated with the
+A plugin with filename ``a/b/c/libd_plugin.<suffix>`` is associated with the
 long form name ``a/b/c/d`` and with the short form name ``d``.
 
 The *LibraryManager* is responsible for giving access to any symbol in
@@ -106,20 +106,22 @@ The source file in which a module is implemented must be named
 *DEFINE_EDM_PLUGIN* macro.
 
 The *DEFINE_EDM_PLUGIN* macro is responsible for writing the
-appropriate *factory* *function*. We may need to have more fine-grained
-macros, one for each type of module to be created:
-*DEFINE_EDPRODUCER*, etc.
+appropriate *factory* *function*.
 
 FactoryFunctions
 ================
 
-The *factory* *function* is an ``extern "C"`` function with a given
-name, and that takes a const reference to a *ParameterSet* and that
+The *factory* *function* is an ``extern "C"`` function named
+make, and that takes a const reference to a *ParameterSet* and that
 returns a newly-created instance of the associated module type,
 initialized with the given *ParameterSet*, and wrapped in a smart
 pointer to the appropriate module base class (e.g. *EDProducer*,
 *EDFilter*, etc.).
+{{{
+  extern "C" { std::auto_ptr<type> make(ParameterSet const&); }
+}}}
 
+*EVERYTHING BELOW THIS POINT IS SUBJECT TO CHANGE*
 
 Interfaces
 ==========
