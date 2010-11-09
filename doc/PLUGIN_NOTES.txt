@@ -139,13 +139,13 @@ Interfaces
   void getLoadableLibraries(string type, vector<string>& libnames);
 
 The c'tor must search through LD_LIBRARY_PATH and find all libraries
-with a name matching "pattern".
+with a name matching "pattern"::
 
-EDProducer* Factory::makeProducer(string spec, ParameterSet p)
-{
-  MakerFcn mf* = (MakerFcn*)libman.getSymbol(spec, "makeEDProducer");
-  return mf==0 ? 0 : (*mf)(p);
-}
+  EDProducer* Factory::makeProducer(string spec, ParameterSet p)
+  {
+    MakerFcn mf* = (MakerFcn*)libman.getSymbol(spec, "makeEDProducer");
+    return mf==0 ? 0 : (*mf)(p);
+  }
 
 
 
