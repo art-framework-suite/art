@@ -1,6 +1,6 @@
 #include "art/Framework/IO/Common/RootServiceChecker.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/RootHandlers.h"
 
 namespace art {

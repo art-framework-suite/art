@@ -1,6 +1,6 @@
 #include "art/Utilities/Parse.h"
 
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "boost/tokenizer.hpp"
 #include "cetlib/container_algorithms.h"
 #include <fstream>

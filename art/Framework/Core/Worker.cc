@@ -63,12 +63,12 @@ private:
         ModuleBeginJobSignalSentry cpp(actReg_.get(), md_);
         implBeginJob();
     }
-    catch(artZ::Exception& e) {
+    catch(cet::exception& e) {
         // should event id be included?
         LogError("BeginJob")
-          << "A artZ::Exception is going through " << workerType() << ":\n";
+          << "A cet::exception is going through " << workerType() << ":\n";
 
-        e << "A artZ::Exception is going through " << workerType() << ":\n"
+        e << "A cet::exception is going through " << workerType() << ":\n"
           << description();
         throw art::Exception(errors::OtherCMS, std::string(), e);
     }
@@ -115,12 +115,12 @@ private:
         ModuleEndJobSignalSentry cpp(actReg_.get(), md_);
         implEndJob();
     }
-    catch(artZ::Exception& e) {
+    catch(cet::exception& e) {
         LogError("EndJob")
-          << "A artZ::Exception is going through " << workerType() << ":\n";
+          << "A cet::exception is going through " << workerType() << ":\n";
 
         // should event id be included?
-        e << "A artZ::Exception is going through " << workerType() << ":\n"
+        e << "A cet::exception is going through " << workerType() << ":\n"
           << description();
         throw art::Exception(errors::OtherCMS, std::string(), e);
     }

@@ -28,7 +28,7 @@ namespace art {
       }
 
     std::string stringrep = oss.str();
-    artZ::Digest md5alg(stringrep);
+    art::Digest md5alg(stringrep);
     return ParentageID(md5alg.digest().toString());
   }
 

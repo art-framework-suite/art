@@ -5,7 +5,7 @@
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 #include "MessageFacility/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"

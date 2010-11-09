@@ -1,5 +1,5 @@
 #include "art/Framework/PluginManager/PresenceFactory.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/DebugMacros.h"
 
 #include <iostream>

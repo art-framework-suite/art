@@ -539,7 +539,7 @@ void art::TrieNode<T>::clear()
 #include <string>
 #include <cassert>
 
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 
 namespace art {

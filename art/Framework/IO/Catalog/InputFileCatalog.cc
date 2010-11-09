@@ -10,7 +10,7 @@
 
 #include "art/Framework/IO/Catalog/SiteLocalConfig.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "boost/algorithm/string.hpp"
 #include "fhiclcpp/ParameterSet.h"
@@ -56,7 +56,7 @@ namespace art {
   InputFileCatalog::~InputFileCatalog() {}
 
   void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
-    artZ::Exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
+    cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
   }
 
 }  // namespace art

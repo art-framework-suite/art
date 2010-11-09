@@ -17,7 +17,7 @@
 
 // user include files
 #include "art/Utilities/CPUTimer.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 //
 // constants, enums and typedefs
@@ -73,7 +73,7 @@ CPUTimer::start() {
   if(kStopped == state_) {
     rusage theUsage;
     if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-      throw artZ::Exception("CPUTimerFailed")<<errno;
+      throw cet::exception("CPUTimerFailed")<<errno;
     }
     startCPUTime_.tv_sec =theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec;
     startCPUTime_.tv_usec =theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec;
@@ -104,7 +104,7 @@ CPUTimer::calculateDeltaTime() const
 {
   rusage theUsage;
   if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-    throw artZ::Exception("CPUTimerFailed")<<errno;
+    throw cet::exception("CPUTimerFailed")<<errno;
   }
   const double microsecToSec = 1E-6;
 

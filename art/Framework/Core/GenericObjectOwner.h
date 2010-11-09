@@ -24,7 +24,6 @@
 
 // user include files
 #include "art/Framework/Core/Event.h"
-#include "art/Utilities/EDMException.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "art/Utilities/UseReflex.h"
 

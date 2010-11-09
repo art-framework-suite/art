@@ -4,7 +4,7 @@
 #include <ostream>
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "Reflex/Type.h"
 #include "boost/thread/tss.hpp"
 #include "art/Utilities/UseReflex.h"

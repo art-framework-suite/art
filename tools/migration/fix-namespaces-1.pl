@@ -8,13 +8,13 @@ BEGIN { %translations = (
                          edmplugin => "artplugin",
                          edmplugintest => "artplugintest",
                          edmtest => "arttest",
-                         edmtest => "arttestprod",
+                         edmtestprod => "arttestprod",
                         );
       }
 
-foreach my $inc (sort keys %translations) {
-  s&(namespace\s+)\Q$inc\E\b&${1}$translations{$inc}&g;
-  s&$inc::&$translations{$inc}::&g;
+foreach my $inc (reverse sort keys %translations) {
+  while (s&(namespace\s+)\Q${inc}\E\b&${1}$translations{$inc}&g) {};
+  while (s&${inc}::&$translations{$inc}::&g) {};
 }
 
 ### Local Variables:

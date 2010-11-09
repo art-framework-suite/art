@@ -159,8 +159,8 @@ namespace art {
       try {
         n = branch->GetEntry(entryNumber);
       }
-      catch(artZ::Exception e) {
-	throw art::Exception(art::errors::FileReadError) << e.explainSelf() << "\n";
+      catch(cet::exception e) {
+	throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
       }
       return n;
     }
@@ -171,8 +171,8 @@ namespace art {
       try {
         n = tree->GetEntry(entryNumber);
       }
-      catch(artZ::Exception e) {
-	throw art::Exception(art::errors::FileReadError) << e.explainSelf() << "\n";
+      catch(cet::exception e) {
+	throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
       }
       return n;
     }

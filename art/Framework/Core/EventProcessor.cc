@@ -20,13 +20,13 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/ExceptionCollector.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
+#include "cetlib/exception_collector.h"
 #include "MessageFacility/MessageLogger.h"
 #include <exception>
 #include <iomanip>
@@ -487,9 +487,9 @@ namespace art {
     try {
       changeState(mDtor);
     }
-    catch(artZ::Exception& e)
+    catch(cet::exception& e)
       {
-        mf::LogError("System") << e.explainSelf() << "\n";
+        mf::LogError("System") << e.explain_self() << "\n";
       }
 
     // manually destroy all these thing that may need the services around
@@ -610,10 +610,10 @@ namespace art {
     // to be called.
     try {
       input_->doBeginJob();
-    } catch(artZ::Exception& e) {
-      mf::LogError("BeginJob") << "A artZ::Exception happened while processing"
+    } catch(cet::exception& e) {
+      mf::LogError("BeginJob") << "A cet::exception happened while processing"
                                   " the beginJob of the 'source'\n";
-      e << "A artZ::Exception happened while processing"
+      e << "A cet::exception happened while processing"
            " the beginJob of the 'source'\n";
       throw;
     } catch(std::exception& e) {
@@ -634,7 +634,7 @@ namespace art {
   EventProcessor::endJob()
   {
     // Collects exceptions, so we don't throw before all operations are performed.
-    ExceptionCollector c;
+    cet::exception_collector c;
 
     // only allowed to run if state is sIdle,sJobReady,sRunGiven
     c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
@@ -646,9 +646,6 @@ namespace art {
     c.call(boost::bind(&Schedule::endJob, schedule_.get()));
     c.call(boost::bind(&InputSource::doEndJob, input_));
     c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
-    if (c.hasThrown()) {
-      c.rethrow();
-    }
   }
 
   ServiceToken
@@ -883,7 +880,7 @@ namespace art {
         ++rc);
 
     if(table[rc].current == sInvalid)
-      throw artZ::Exception("BadState")
+      throw cet::exception("BadState")
         << "A member function of EventProcessor has been called in an"
         << " inappropriate order.\n"
         << "Bad transition from " << stateName(curr) << " "
@@ -906,7 +903,7 @@ namespace art {
       if(id_set_==true) {
           std::string err("runAsync called while async event loop already running\n");
           mf::LogError("FwkJob") << err;
-          throw artZ::Exception("BadState") << err;
+          throw cet::exception("BadState") << err;
       }
 
       changeState(mRunAsync);
@@ -919,7 +916,7 @@ namespace art {
       timeout.sec += 60; // 60 seconds to start!!!!
       if(starter_.timed_wait(sl,timeout)==false) {
           // yikes - the thread did not start
-          throw artZ::Exception("BadState")
+          throw cet::exception("BadState")
             << "Async run thread did not start in 60 seconds\n";
       }
     }
@@ -955,11 +952,11 @@ namespace art {
       bool onlineStateTransitions = true;
       rc = me->runToCompletion(onlineStateTransitions);
     }
-    catch (artZ::Exception& e) {
-      mf::LogError("FwkJob") << "artZ::Exception caught in "
+    catch (cet::exception& e) {
+      mf::LogError("FwkJob") << "cet::exception caught in "
                                 "EventProcessor::asyncRun\n"
-                             << e.explainSelf();
-      me->last_error_text_ = e.explainSelf();
+                             << e.explain_self();
+      me->last_error_text_ = e.explain_self();
     }
     catch (std::exception& e) {
       mf::LogError("FwkJob") << "Standard library exception caught in "
@@ -1175,11 +1172,11 @@ namespace art {
     // We've seen crashes which are not understood when that is not
     // done.  Maintainers of this code should be careful about this.
 
-    catch (artZ::Exception& e) {
+    catch (cet::exception& e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      e << "artZ::Exception caught in EventProcessor and rethrown\n";
+      e << "cet::exception caught in EventProcessor and rethrown\n";
       e << exceptionMessageSubRuns_;
       e << exceptionMessageRuns_;
       e << exceptionMessageFiles_;
@@ -1189,8 +1186,8 @@ namespace art {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      throw artZ::Exception("std::bad_alloc")
-        << "The EventProcessor caught a std::bad_alloc exception and converted it to a artZ::Exception\n"
+      throw cet::exception("std::bad_alloc")
+        << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
@@ -1200,8 +1197,8 @@ namespace art {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      throw artZ::Exception("StdException")
-        << "The EventProcessor caught a std::exception and converted it to a artZ::Exception\n"
+      throw cet::exception("StdException")
+        << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
         << "Previous information:\n" << e.what() << "\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
@@ -1211,8 +1208,8 @@ namespace art {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
-      throw artZ::Exception("Unknown")
-        << "The EventProcessor caught an unknown exception type and converted it to a artZ::Exception\n"
+      throw cet::exception("Unknown")
+        << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
@@ -1226,7 +1223,7 @@ namespace art {
     if (!onlineStateTransitions) changeState(mFinished);
 
     if (stateMachineWasInErrorState_) {
-      throw artZ::Exception("BadState")
+      throw cet::exception("BadState")
         << "The boost state machine in the EventProcessor exited after\n"
         << "entering the Error state.\n";
     }

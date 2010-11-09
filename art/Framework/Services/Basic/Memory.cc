@@ -10,7 +10,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/MallocOpts.h"
 
 #include "MessageFacility/MessageLogger.h"

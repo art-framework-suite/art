@@ -6,7 +6,7 @@
 
 #include "art/Persistency/Common/EDProductGetter.h"
 
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 #include "boost/thread/tss.hpp"
 

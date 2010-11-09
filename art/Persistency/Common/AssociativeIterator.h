@@ -207,7 +207,7 @@ class AssociativeIterator {
     template<typename KeyRefType, typename AC, typename IG>
     AssociativeIterator<KeyRefType,AC,IG> & AssociativeIterator<KeyRefType,AC,IG>::skipTo(const ProductID &id, size_t offs) {
         pairOk_ = false;
-        throw artZ::Exception("NOT IMPLEMENTED");
+        throw cet::exception("NOT IMPLEMENTED");
     }
     */
 

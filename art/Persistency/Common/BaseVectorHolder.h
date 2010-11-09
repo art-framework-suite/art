@@ -1,6 +1,6 @@
 #ifndef DataFormats_Common_BaseVectorHolder_h
 #define DataFormats_Common_BaseVectorHolder_h
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Persistency/Common/BaseHolder.h"
 
 namespace art {

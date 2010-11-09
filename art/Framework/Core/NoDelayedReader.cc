@@ -6,7 +6,7 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 namespace art {
   NoDelayedReader::~NoDelayedReader() {}

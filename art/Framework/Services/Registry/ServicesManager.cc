@@ -272,7 +272,7 @@ ServicesManager::createServices()
          // This creates the service
          itMaker->second.add(*this);
        }
-       catch(artZ::Exception& iException) {
+       catch(cet::exception& iException) {
          art::Exception toThrow(art::errors::Configuration,"Error occurred while creating ");
          toThrow<<itMaker->second.pset_->get<std::string>("@service_type")<<"\n";
          toThrow.append(iException);

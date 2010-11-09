@@ -33,7 +33,7 @@ the worker is reset().
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "MessageFacility/MessageLogger.h"
 #include "boost/shared_ptr.hpp"
@@ -138,9 +138,9 @@ namespace art {
     };
 
     template <typename T>
-    artZ::Exception& exceptionContext(ModuleDescription const& iMD,
+    cet::exception& exceptionContext(ModuleDescription const& iMD,
                                      T const& ip,
-                                     artZ::Exception& iEx) {
+                                     cet::exception& iEx) {
       iEx << iMD.moduleName_ << "/" << iMD.moduleLabel_
         << " " << ip.id() << "\n";
       return iEx;
@@ -166,7 +166,7 @@ namespace art {
       case Exception: {
           // rethrow the cached exception again
           // It seems impossible to
-          // get here a second time until a artZ::Exception has been
+          // get here a second time until a cet::exception has been
           // thrown prviously.
           mf::LogWarning("repeat")
             << "A module has been invoked a second time even though"
@@ -196,7 +196,7 @@ namespace art {
         }
     }
 
-    catch(artZ::Exception& e) {
+    catch(cet::exception& e) {
 
         // NOTE: the warning printed as a result of ignoring or failing
         // a module will only be printed during the full true processing
@@ -204,7 +204,7 @@ namespace art {
 
         // Get the action corresponding to this exception.  However, if processing
         // something other than an event (e.g. run, subRun) always rethrow.
-        actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.rootCause()) : actions::Rethrow);
+        actions::ActionCodes action = (T::isEvent_ ? actions_->find(e.root_cause()) : actions::Rethrow);
 
         // If we are processing an endpath, treat SkipEvent or FailPath
         // as FailModule, so any subsequent OutputModules are still run.
@@ -246,7 +246,7 @@ namespace art {
 
               if (T::isEvent_) ++timesExcept_;
               state_ = Exception;
-              e << "artZ::Exception going through module ";
+              e << "cet::exception going through module ";
               exceptionContext(md_, ep, e);
               art::Exception *edmEx = dynamic_cast<art::Exception *>(&e);
               if (edmEx) {

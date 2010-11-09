@@ -5,10 +5,8 @@ set( artUtilities_sources CPUTimer.cc
                           CRC32Calculator.cc
                           DebugMacros.cc
                           Digest.cc
-                          EDMException.cc
                           Exception.cc
                           ExceptionMessages.cc
-                          ExceptionCollector.cc
                           FriendlyName.cc
                           GlobalIdentifier.cc
                           Guid.cc
@@ -36,21 +34,17 @@ set( artUtilities_sources CPUTimer.cc
 add_library(artUtilities SHARED ${artUtilities_sources} )
 
 install ( TARGETS artUtilities DESTINATION ${flavorqual_dir}/lib )
-install(FILES Algorithms.h
-              CodedException.h
+install(FILES
               CPUTimer.h
               CRC16.h
               CRC32Calculator.h
               DebugMacros.h
               Digest.h
               ECGetterBase.h
-              EDMException.h
-              ExceptionCollector.h
               Exception.h
               ExceptionMessages.h
               ExtensionCord.h
               FriendlyName.h
-              GCCPrerequisite.h
               GetEnvironmentVariable.h
               GetPassID.h
               GetReleaseVersion.h
@@ -78,7 +72,6 @@ install(FILES Algorithms.h
               TypeID.h
               UnixSignalHandlers.h
               UseReflex.h
-              value_ptr.h
               vectorTransform.h
               Verbosity.h
               WrappedClassName.h

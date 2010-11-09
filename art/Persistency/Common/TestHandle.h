@@ -14,7 +14,6 @@ Version of Handle
 #include <typeinfo>
 
 #include "art/Persistency/Provenance/ProductID.h"
-#include "art/Utilities/EDMException.h"
 
 namespace art {
   template <class T>

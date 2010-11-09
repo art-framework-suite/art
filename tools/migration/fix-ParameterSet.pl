@@ -18,8 +18,8 @@ BEGIN { %translations = (
       }
 
 foreach my $inc (sort keys %translations) {
-  s&get\Q$inc\E\b&get$translations{$inc}&g;
-  s&add\Q$inc\E\b&put$translations{$inc}&g;
+  while (s&get\Q$inc\E\b&get$translations{$inc}&g) {};
+  while (s&add\Q$inc\E\b&put$translations{$inc}&g) {};
 }
 
 ### Local Variables:

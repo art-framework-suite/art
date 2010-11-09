@@ -11,8 +11,8 @@ using art::PtrVectorBase;
 // Framework support:
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/traits.h"
-#include "art/Utilities/EDMException.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 // C++ support:
 #include <algorithm>

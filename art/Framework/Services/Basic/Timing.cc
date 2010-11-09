@@ -9,7 +9,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 #include "MessageFacility/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -28,7 +28,7 @@ namespace art {
     {
       struct timeval t;
       if(gettimeofday(&t,0)<0)
-        throw artZ::Exception("SysCallFailed","Failed call to gettimeofday");
+        throw cet::exception("SysCallFailed","Failed call to gettimeofday");
 
       return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
     }

@@ -57,7 +57,7 @@ from the original code follow below to attribute the source.
 
 #include <string>
 
-namespace artZ {
+namespace art {
 
   class CRC32Calculator {
 

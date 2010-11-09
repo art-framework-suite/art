@@ -1,6 +1,6 @@
 #include "art/Framework/IO/Sources/VectorInputSourceFactory.h"
 #include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 #include "fhiclcpp/ParameterSet.h"
 

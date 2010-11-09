@@ -17,7 +17,7 @@
 
 // user include files
 #include "art/Framework/PluginManager/SharedLibrary.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/DebugMacros.h"
 
 using namespace art;
@@ -41,7 +41,7 @@ namespace artplugin {
     std::auto_ptr<Reflex::SharedLibrary> lib(new Reflex::SharedLibrary(name));
     if( !lib->Load() )
       {
-	throw artZ::Exception("PluginLibraryLoadError")
+	throw cet::exception("PluginLibraryLoadError")
 	  <<"unable to load "<< name <<" because " << lib->Error();
       }
     library_ = lib.release();
@@ -54,7 +54,7 @@ namespace artplugin {
 {
     std::auto_ptr<Reflex::SharedLibrary> lib(new Reflex::SharedLibrary(iName.native_file_string()));
     if( !lib->Load() ) {
-      throw artZ::Exception("PluginLibraryLoadError")<<"unable to load "<<iName.native_file_string()<<" because "<<lib->Error();
+      throw cet::exception("PluginLibraryLoadError")<<"unable to load "<<iName.native_file_string()<<" because "<<lib->Error();
     }
     library_ = lib.release();
 }

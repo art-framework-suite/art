@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/container_algorithms.h"
 #include <algorithm>
@@ -147,7 +147,7 @@ namespace art {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
+      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getBySelector: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n";
@@ -181,7 +181,7 @@ namespace art {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
+      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getByLabel: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n"
@@ -230,7 +230,7 @@ namespace art {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
+      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
 	<< "getByType: Found zero products matching all criteria\n"
 	<< "Looking for type: " << productType << "\n";

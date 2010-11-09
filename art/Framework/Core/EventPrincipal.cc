@@ -187,7 +187,7 @@ namespace art {
     BranchID bid = productIDToBranchID(pid);
     SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
     if (g.get() == 0) {
-      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
+      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
 	<< "get by product ID: no product with given id: "<< pid << "\n";
       return BasicHandle(whyFailed);
@@ -196,7 +196,7 @@ namespace art {
     // Check for case where we tried on demand production and
     // it failed to produce the object
     if (g->onDemand()) {
-      boost::shared_ptr<artZ::Exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
+      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
 	<< "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";

@@ -2,10 +2,10 @@
 #include <iomanip>
 #include <sstream>
 
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/Digest.h"
 
-namespace artZ
+namespace art
 {
   namespace
   {

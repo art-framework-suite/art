@@ -10,7 +10,7 @@
 
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/ReflexTools.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include <algorithm>
@@ -102,7 +102,7 @@ namespace art {
   void
   ProductRegistry::throwIfFrozen() const {
     if (frozen()) {
-      throw artZ::Exception("ProductRegistry", "throwIfFrozen")
+      throw cet::exception("ProductRegistry", "throwIfFrozen")
             << "cannot modify the ProductRegistry because it is frozen\n";
     }
   }
@@ -110,7 +110,7 @@ namespace art {
   void
   ProductRegistry::throwIfNotFrozen() const {
     if (!frozen()) {
-      throw artZ::Exception("ProductRegistry", "throwIfNotFrozen")
+      throw cet::exception("ProductRegistry", "throwIfNotFrozen")
             << "cannot read the ProductRegistry because it is not yet frozen\n";
     }
   }

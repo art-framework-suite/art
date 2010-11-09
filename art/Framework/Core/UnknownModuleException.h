@@ -10,7 +10,7 @@
    \date 02 Jun 2005
 */
 
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 namespace art {
 
@@ -23,11 +23,11 @@ namespace art {
      \author Stefano ARGIRO
      \date 02 Jun 2005
   */
-  class UnknownModuleException : public artZ::Exception {
+  class UnknownModuleException : public cet::exception {
   public:
 
     UnknownModuleException(const std::string & moduletype):
-      artZ::Exception("UnknownModule")
+      cet::exception("UnknownModule")
     {
       (*this) << "Module " << moduletype << " was not registered \n"
 	"Perhaps your module type is misspelled or is not a "

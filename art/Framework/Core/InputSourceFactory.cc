@@ -1,7 +1,7 @@
 #include "art/Framework/Core/InputSourceFactory.h"
 
 #include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
@@ -44,7 +44,7 @@ namespace art {
       ex << "Error occurred while creating source " << modtype << "\n";
       throw ex;
     }
-    catch(artZ::Exception& e) {
+    catch(cet::exception& e) {
       e << "Error occurred while creating source " << modtype << "\n";
       throw e;
     }

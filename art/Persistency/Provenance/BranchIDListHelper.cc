@@ -1,7 +1,7 @@
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 namespace art {
 

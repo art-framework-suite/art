@@ -7,7 +7,7 @@
 #include <string>
 
 
-namespace artZ
+namespace art
 {
 
   struct MD5Result

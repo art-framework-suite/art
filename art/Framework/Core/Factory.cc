@@ -1,7 +1,7 @@
 #include "art/Framework/Core/Factory.h"
 
 #include "art/Utilities/DebugMacros.h"
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include <iostream>
 
@@ -14,7 +14,7 @@ namespace
     // TODO: consider using std::tranlate and a lambda function ...
     std::string result(str);
 
-    for (std::string::iterator i = result.begin(), e = result.end(); 
+    for (std::string::iterator i = result.begin(), e = result.end();
 	 i != e; ++i)
       {
 	if (*i == '/') *i = '_';
@@ -22,7 +22,7 @@ namespace
   }
 }
 
-namespace art 
+namespace art
 {
 
   Factory::~Factory()
@@ -40,13 +40,13 @@ namespace art
     libman_("plugin")
   {
   }
-  
+
   std::auto_ptr<Worker> Factory::makeWorker(WorkerParams const& p,
-					    ModuleDescription const& md)					    
+					    ModuleDescription const& md)
   {
     typedef Worker* (*factor_fcn_t)(WorkerParams const&, ModuleDescription const&);
     Factory& me = the_instance_();
-    
+
     std::string modtype(p.pset_->get<std::string>("_module_type"));
     std::string libname = translate_typespec_to_libname(modtype);
     factory_fcn_t* symbol = (factory_fcn_t*)libman_.getSymbol(libname, "make_temp");

@@ -16,7 +16,7 @@ it.
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 //#include "art/ParameterSet/MakeParameterSets.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/Presence.h"
 #include "art/Utilities/RootHandlers.h"
@@ -52,7 +52,7 @@ namespace {
         try {
           ep_->endJob();
         }
-        catch (artZ::Exception& e) {
+        catch (cet::exception& e) {
           //art::printCmsException(e, kProgramName);
         }
         catch (std::bad_alloc& e) {
@@ -93,7 +93,7 @@ int art_main(int argc, char* argv[])
   try {
     artplugin::PluginManager::configure(artplugin::standard::config());
   }
-  catch(artZ::Exception& e) {
+  catch(cet::exception& e) {
     std::cerr << e.what() << std::endl;
     return 1;
   }
@@ -142,12 +142,12 @@ int art_main(int argc, char* argv[])
   fhicl::ParameterSet main_pset, ancillary_pset;
   fhicl::Parser::Parse(vm["main-parameter-set"].as<std::string>(), main_pset);
   fhicl::Parser::Parse(vm["ancillary-parameter-set"].as<std::string>(), ancillary_pset);
-  
+
 
   //
   // Start the MessageFacility
   //
-  mf::start_me(multithread, ancillary_pset.getParameterSet("message_facility"));
+  mf::start_me(multithread, ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
 
   //
   // Initialize:
@@ -159,7 +159,7 @@ int art_main(int argc, char* argv[])
   //   load all dictionaries facility
   //   current module facility
 
-  edm::ServiceToken dummyToken;
+  art::ServiceToken dummyToken;
 
   // TODO: Possibly remove addServices -- we have already made
   // most of them. Have to see how the module factory interacts
@@ -197,7 +197,7 @@ int art_main(int argc, char* argv[])
     rc = e.returnCode();
     art::printCmsException(e, kProgramName); // , "Thing1", rc);
   }
-  catch (artZ::Exception& e) {
+  catch (cet::exception& e) {
     rc = 8001;
     art::printCmsException(e, kProgramName); // , "Thing2", rc);
   }

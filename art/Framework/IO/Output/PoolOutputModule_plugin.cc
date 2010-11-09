@@ -1,5 +1,4 @@
 #include "art/Framework/IO/Output/PoolOutputModule.h"
-  using art::PoolOutputModule;
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -9,18 +8,17 @@
 #include "art/Framework/IO/Output/RootOutputFile.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Utilities/EDMException.h"
-
+#include "art/Utilities/Exception.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-  using fhicl::ParameterSet;
-
 #include "TBranchElement.h"
 #include "TObjArray.h"
 #include "TTree.h"
-
 #include <iomanip>
 #include <sstream>
 
+using art::PoolOutputModule;
+using fhicl::ParameterSet;
 
 namespace art {
 
@@ -105,7 +103,7 @@ namespace art {
 
     // Sort outputItemList to allow fast copying.
     // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
-    sort_all(outputItemList, OutputItem::Sorter(theTree));
+    cet::sort_all(outputItemList, OutputItem::Sorter(theTree));
   }
 
   void PoolOutputModule::openFile(FileBlock const& fb) {

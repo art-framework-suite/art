@@ -27,7 +27,7 @@
 // user include files
 #include "art/Framework/PluginManager/PluginInfo.h"
 #include "art/Framework/PluginManager/PluginManager.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 // forward declarations
 namespace artplugin {
@@ -74,7 +74,7 @@ class PluginFactoryBase
           std::string lib = PluginManager::get()->load(this->category(),iName).path().native_file_string();
           itFound = iPlugins.find(iName);
           if(itFound == iPlugins.end()) {
-            throw artZ::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
+            throw cet::exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
             <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
           }
         } else {
@@ -96,7 +96,7 @@ class PluginFactoryBase
             std::string lib = slib->path().native_file_string();
             itFound = iPlugins.find(iName);
             if(itFound == iPlugins.end()) {
-              throw artZ::Exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
+              throw cet::exception("PluginCacheError")<<"The plugin '"<<iName<<"' should have been in loadable\n '"
               <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
             }
           }
@@ -145,7 +145,7 @@ class PluginFactoryBase
         if (iLoadedFrom != PluginManager::staticallyLinkedLoadingFileName() &&
             PluginManager::isAvailable()) {
           if( iLoadedFrom != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
-            throw artZ::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
+            throw cet::exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
             <<PluginManager::get()->loadableFor(category(),iName).native_file_string()
             <<"'\n but instead it was already loaded from\n '"
             <<iLoadedFrom<<"'\n because some other plugin was loaded from the latter loadables.\n"

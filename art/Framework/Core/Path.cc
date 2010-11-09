@@ -37,7 +37,7 @@ namespace art {
   }
 
   bool
-  Path::handleWorkerFailure(artZ::Exception const& e,
+  Path::handleWorkerFailure(cet::exception const& e,
                             int nwrwue, bool isEvent) {
     bool should_continue = true;
 
@@ -45,7 +45,7 @@ namespace art {
     // different exception behavior
 
     // If not processing an event, always rethrow.
-    actions::ActionCodes action = (isEvent ? act_table_->find(e.rootCause()) : actions::Rethrow);
+    actions::ActionCodes action = (isEvent ? act_table_->find(e.root_cause()) : actions::Rethrow);
     assert (action != actions::FailModule);
     switch(action) {
       case actions::FailPath: {

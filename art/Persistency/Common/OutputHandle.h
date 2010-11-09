@@ -28,7 +28,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include <boost/shared_ptr.hpp>
 
 namespace art {
@@ -52,7 +52,7 @@ namespace art {
       productProvenance_(productProvenance) {}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(boost::shared_ptr<artZ::Exception> const& iWhyFailed):
+    OutputHandle(boost::shared_ptr<cet::exception> const& iWhyFailed):
       wrap_(0),
       desc_(0),
       productProvenance_(),
@@ -87,7 +87,7 @@ namespace art {
       return wrap_;
     }
 
-    boost::shared_ptr<artZ::Exception> whyFailed() const {
+    boost::shared_ptr<cet::exception> whyFailed() const {
       return whyFailed_;
     }
 
@@ -107,7 +107,7 @@ namespace art {
     EDProduct const* wrap_;
     ConstBranchDescription const* desc_;
     boost::shared_ptr<ProductProvenance> productProvenance_;
-    boost::shared_ptr<artZ::Exception> whyFailed_;
+    boost::shared_ptr<cet::exception> whyFailed_;
   };
 
   // Free swap function

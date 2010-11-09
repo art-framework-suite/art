@@ -21,7 +21,7 @@
 #include "art/Framework/PluginManager/SharedLibrary.h"
 #include "art/Framework/PluginManager/PluginManager.h"
 #include "art/Framework/PluginManager/FileOperations.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/DebugMacros.h"
 
 using namespace std;
@@ -38,7 +38,7 @@ namespace artplugin {
     if(found==string::npos)
       {
 	FDEBUG(1) << "Could not find _map_ file for " << map_name << "\n";
-	throw artZ::Exception("NoMatch") << "could not find _dict_ library for "
+	throw cet::exception("NoMatch") << "could not find _dict_ library for "
 				      << libname << "\n";
       }
     string name(map_name.substr(0,found)+"_dict_plugin.so");
@@ -66,7 +66,7 @@ namespace artplugin {
 
 	if(tryToFind(lib)==false)
 	  {
-	    throw artZ::Exception("missing symbol")
+	    throw cet::exception("missing symbol")
 	      << "cannot find symbol " << "SEAL_CAPABILITIES"
 	      << " in library " << *curr << "\n";
 	  }
@@ -147,7 +147,7 @@ namespace artplugin {
     FDEBUG(2) << "PluginCap::load: " << iName << "\n";
     if(tryToLoad(iName)==false)
       {
-	throw artZ::Exception("missing symbol")
+	throw cet::exception("missing symbol")
 	  << "cannot find symbol " << "SEAL_CAPABILITIES"
 	  << " in library " << iName << "\n";
       }
@@ -160,7 +160,7 @@ namespace artplugin {
     ClassToLibMap::iterator i(classes_.find(class_name));
     if(i == classes_.end())
       {
-	throw artZ::Exception("PluginNotFound")
+	throw cet::exception("PluginNotFound")
 	  << "Cannot find plugin for " << class_name << "\n";
       }
     FDEBUG(3) << "tryToLoad: " << i->second << "\n";
