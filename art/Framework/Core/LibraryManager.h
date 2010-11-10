@@ -8,6 +8,7 @@ namespace art
   public:
     // Create a LibraryManager that searches through LD_LIBRARY_PATH
     // for dynamically loadable libraries having the given suffix.
+    // If LD_LIBRARY_PATH is not defined, then no libraries are found.
     // Library names are expected to be of the form:
     //      libaa_bb_cc_xyz_<suffix>.<ext>
     //  and where <ext> is provided automatically as appropriate for
@@ -33,6 +34,6 @@ namespace art
 
 #endif
 
-/// Local Variables:
-/// Mode: C++
-/// End
+// Local Variables:
+// mode: c++
+// End:
