@@ -171,4 +171,4 @@ namespace art {
 }  // namespace art
 
 using art::ProvenanceCheckerOutputModule;
-DEFINE_FWK_MODULE(ProvenanceCheckerOutputModule);
+// DEFINE_FWK_MODULE(ProvenanceCheckerOutputModule);

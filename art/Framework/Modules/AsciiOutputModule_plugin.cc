@@ -113,4 +113,4 @@ void
 // ======================================================================
 
 
-DEFINE_FWK_MODULE(AsciiOutputModule);
+// DEFINE_FWK_MODULE(AsciiOutputModule);
