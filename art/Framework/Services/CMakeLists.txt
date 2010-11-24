@@ -3,7 +3,7 @@ project(artFrameworkServices)
 
 # build artFrameworkServices libraries
 subdirs (Basic)
-subdirs (Basic/plugins)
+#subdirs (Basic/plugins)
 #subdirs (Message)
 #subdirs (Message/plugins)
 subdirs (Prescale)
