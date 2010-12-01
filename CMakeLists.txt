@@ -122,6 +122,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 # macros for build_dictionary and simple_plugin
+include(BuildDictionary)
 include(BuildPlugins)
 
 # source
