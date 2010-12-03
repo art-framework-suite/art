@@ -24,6 +24,8 @@
 #include "art/Utilities/GlobalIdentifier.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/Parser.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/ParameterSetID.h"
 
 //used for backward compatibility
@@ -152,6 +154,7 @@ namespace art {
     ProductRegistry *ppReg = &tempReg;
     metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
 
+    // TODO: update to separate tree per CMS code (2010/12/01).
     typedef map<fhicl::ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     PsetMap *psetMapPtr = &psetMap;
@@ -203,17 +206,19 @@ namespace art {
     }
 
     // Merge into the hashed registries.
-  #if 0
-    pset::Registry& psetRegistry = *pset::Registry::instance();
+
+    // Parameter Set
     for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-      fhicl::ParameterSet pset(i->second.pset_);
-      pset.id();  //pset.setID(i->first);
-      psetRegistry.insertMapped(pset);
+       fhicl::ParameterSet pset;
+       fhicl::Parser::ParseString(i->second.pset_, pset);
+      // Note ParameterSet::id() has the side effect of making sure the
+      // parameter set *has* an ID.
+      pset.id();
+      fhicl::ParameterSetRegistry::put(pset);
     }
-  #endif  // 0
     ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
     ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
-
+    
     validateFile();
 
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().

@@ -25,6 +25,7 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Framework/IO/Output/PoolOutputModule.h"
 #include "art/Framework/IO/Output/RootOutputTree.h"
 
@@ -70,6 +71,7 @@ namespace art {
     //-------------------------------
     // Local types
     //
+    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
 
     //-------------------------------
     // Private functions
@@ -83,6 +85,7 @@ namespace art {
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
                           std::set<ProductProvenance>& oToFill);
+     void fillPsetMap(ParameterSetMap &psetMap);
 
     //-------------------------------
     // Member data

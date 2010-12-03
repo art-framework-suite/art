@@ -30,6 +30,7 @@
 #include "art/Version/GetFileFormatVersion.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "Rtypes.h"
 #include "TClass.h"
@@ -311,17 +312,20 @@ namespace art {
     b->Fill();
   }
 
-  void RootOutputFile::writeParameterSetRegistry() {  // TODO: update
-    #if 0
-    typedef map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
+  void RootOutputFile::writeParameterSetRegistry() { 
+     // TODO: update to separate tree per CMS code (2010/12/01),
     ParameterSetMap psetMap;
-    pset::fill(pset::Registry::instance(), psetMap);
+    fillPsetMap(psetMap);
     ParameterSetMap *pPsetMap = &psetMap;
     TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
     assert(b);
     b->Fill();
-    #endif  // 0
   }
+
+   void RootOutputFile::fillPsetMap(ParameterSetMap &psetMap) {
+      // TODO: Implement (2010/12/01 CG).
+      // TODO: Update to write out only those parameter sets we actually want.
+   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
