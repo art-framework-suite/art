@@ -68,4 +68,4 @@ void Prescaler::endJob()
 // ======================================================================
 
 
-DEFINE_FWK_MODULE(Prescaler);
+// DEFINE_FWK_MODULE(Prescaler);

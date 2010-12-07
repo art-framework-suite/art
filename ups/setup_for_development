@@ -39,10 +39,10 @@ setup -j clhep v2_1_0_0 -q a1
 setup -j root v5_26_00d -q GCC_4_5_1
 setup -j messagefacility v1_5_0 -q a1
 setup -j fhiclcpp v2_2_0 -q a1
-setup -j cpp0x v0_0_0 -q a1
+setup -j cpp0x v0_0_2 -q a1
 setup -j cetlib v0_1_4 -q a1
 setup -j boost v1_44_0 -q a1
-setup cetbuildtools v1_4_0
+setup cetbuildtools v1_4_2
 setup gcc v4_5_1
 
 test $?shell = 1 && set ss=csh || ss=sh

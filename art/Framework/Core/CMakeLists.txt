@@ -14,9 +14,9 @@ set( artFrameworkCore_sources Actions.cc
                               EPStates.cc
                               Event.cc
                               EventPrincipal.cc
-                              EventProcessor.cc
+#                              EventProcessor.cc
                               EventSelector.cc
-                              Factory.cc
+#                              Factory.cc
                               GeneratedInputSource.cc
                               GenericHandle.cc
                               GenericObjectOwner.cc
@@ -52,7 +52,8 @@ set( artFrameworkCore_sources Actions.cc
                               Worker.cc
                               WorkerInPath.cc
                               WorkerMaker.cc
-                              WorkerRegistry.cc )
+#                              WorkerRegistry.cc
+)
 
 link_libraries( artPersistencyProvenance
                 artPersistencyCommon
@@ -82,19 +83,19 @@ add_library(artFrameworkCore SHARED ${artFrameworkCore_sources} )
 
 set( artFrameworkCoreArt_sources artapp.cc )
 
-add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
+#add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
 
-add_executable( art   art.cpp   )
-target_link_libraries( art artFrameworkCoreArt
-                           ${MF_MESSAGELOGGER}
-                           ${MF_MESSAGESERVICE}
-                           ${MF_UTILITIES}
-                           ${MF_EXTENSIONS}
-			   )
-install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
+#add_executable( art   art.cpp   )
+#target_link_libraries( art artFrameworkCoreArt
+#                           ${MF_MESSAGELOGGER}
+#                           ${MF_MESSAGESERVICE}
+#                           ${MF_UTILITIES}
+#                           ${MF_EXTENSIONS}
+#			   )
+#install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 
 install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
-install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
+#install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES Actions.h
 	      BranchActionType.h

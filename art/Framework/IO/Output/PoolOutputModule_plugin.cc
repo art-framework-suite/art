@@ -207,4 +207,4 @@ namespace art {
 // ======================================================================
 
 
-DEFINE_FWK_MODULE(PoolOutputModule);
+// DEFINE_FWK_MODULE(PoolOutputModule);

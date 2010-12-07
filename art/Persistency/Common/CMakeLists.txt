@@ -60,7 +60,6 @@ install(FILES AssociativeIterator.h
 	      TestHandle.h
 	      Trie.h
 	      TriggerResults.h
-	      ValueMap.h
 	      Wrapper.h
 	      classes.h
 	      debugging_allocator.h

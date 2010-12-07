@@ -24,7 +24,7 @@ namespace {
   std::vector<double> dummy10;
   std::vector<long double> dummy11;
   std::vector<float> dummy12;
-  std::vector<bool> dummy13;
+  // std::vector<bool> dummy13;
   std::vector<unsigned long long> dummy14;
   std::vector<long long> dummy15;
   std::vector<std::pair<std::basic_string<char>,double> > dummy16;

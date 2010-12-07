@@ -13,18 +13,9 @@
  <class name="art::BoolCache">
    <field name="isCached_" transient="true"/>
  </class>
- <class name="art::reftobase::BaseVectorHolder<int>"/>
- <class name="art::reftobase::IndirectVectorHolder<int>"/>
  <class name="art::PtrVectorBase" >
    <field name ="cachedItems_" transient = "true"/>
  </class>
- <class name="artNew::dstvdetails::DetSetVectorTrans">
-   <field name="filling" transient="true"/>
-   <field name="getter" transient="true"/>
- </class>
- <class name="artNew::dstvdetails::DetSetVectorTrans::Item"/>
- <class name="std::vector<artNew::dstvdetails::DetSetVectorTrans::Item>"/>
-
  <class name="art::HLTPathStatus"/>
  <class name="art::Wrapper<art::HLTPathStatus>" splitLevel="0"/>
  <class name="std::vector<art::HLTPathStatus>"/>
@@ -36,20 +27,4 @@
  <class name="art::Other"/>
  <class name="art::DoNotSortUponInsertion"/>
  <class name="art::DoNotRecordParents"/>
- <class name="art::helpers::DoNoPostReadFixup"/>
- <class name="art::helpers::PostReadFixup">
-   <field name="fixed_" transient="true"/>
- </class>
- <class name="std::pair<art::ProductID, unsigned int>" />
- <class name="std::vector<std::pair<art::ProductID, unsigned int> >" />
- <class name="art::ValueMap<int>" />
- <class name="art::ValueMap<unsigned int>" />
- <class name="art::ValueMap<bool>" />
- <class name="art::ValueMap<float>" />
- <class name="art::ValueMap<double>" />
- <class name="art::Wrapper<art::ValueMap<int> >" splitLevel="0"/>
- <class name="art::Wrapper<art::ValueMap<bool> >" splitLevel="0"/>
- <class name="art::Wrapper<art::ValueMap<unsigned int> >" splitLevel="0"/>
- <class name="art::Wrapper<art::ValueMap<float> >" splitLevel="0"/>
- <class name="art::Wrapper<art::ValueMap<double> >" splitLevel="0"/>
 </lcgdict>

@@ -82,4 +82,4 @@ void
 // ======================================================================
 
 
-DEFINE_FWK_MODULE(RandomNumberSaver);
+// DEFINE_FWK_MODULE(RandomNumberSaver);
