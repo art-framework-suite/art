@@ -1,3 +1,4 @@
+project ( art_TestObjects )
 
 install(FILES OtherThingCollectionfwd.h
 	      OtherThingCollection.h
@@ -11,6 +12,6 @@ install(FILES OtherThingCollectionfwd.h
 	      ThingWithIsEqual.h
 	      ThingWithMerge.h
 	      ToyProducts.h
-	DESTINATION ${product}/${version}/include/DataFormats/TestObjects/interface )
+	DESTINATION ${product}/${version}/include/art/TestObjects )
 
-build_dictionary( DataFormats TestObjects )
+build_dictionary( )

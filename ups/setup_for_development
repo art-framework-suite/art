@@ -39,7 +39,7 @@ setup -j root v5_27_06 -q gcc45
 setup -j messagefacility v1_5_0 -q a1
 setup -j fhiclcpp v2_2_3 -q a1
 setup -j cpp0x v0_0_2 -q a1
-setup -j cetlib v0_1_4 -q a1
+setup -j cetlib v0_1_7 -q a1
 setup -j boost v1_44_0 -q a1
 setup cetbuildtools v1_5_0
 setup gcc v4_5_1
