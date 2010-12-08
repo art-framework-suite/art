@@ -39,6 +39,8 @@ function one_file() {
   printf "$F ... "
   # Fix most includes
   ed "$F" < pop.ed > /dev/null 2>&1
+  # Optionally fix whitespace
+  (( ${fix_whitespace:-0} )) && ed "$F" < fix-whitespace.ed > /dev/null 2>&1
   # Account for two additional moved files
   ed "$F" < movedfile_20100901_112607.ed > /dev/null 2>&1
   ed "$F" < movedfile_20100907_152621.ed > /dev/null 2>&1
@@ -58,6 +60,7 @@ function one_file() {
     perl -wapi\~ -f fix-exceptions.pl   "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Final namespace fix (must be done after exception fix).
   perl -wapi\~ -f fix-namespaces-2.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  perl -wapi\~ -f fix-messagefacility.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then
@@ -73,6 +76,10 @@ while true; do
   case $1 in
     -a|--all-lumi-cases)
       all_lumi=1
+      shift
+      ;;
+    --fix-whitespace)
+      fix_whitespace=1
       shift
       ;;
     --one-file)
