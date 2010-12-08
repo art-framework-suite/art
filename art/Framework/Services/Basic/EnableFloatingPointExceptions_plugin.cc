@@ -9,7 +9,7 @@
 #include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #ifdef __linux__
 #ifdef __i386__

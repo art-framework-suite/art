@@ -13,7 +13,7 @@
 #include "cetlib/exception.h"
 #include "art/Utilities/MallocOpts.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>
 #include <sstream>

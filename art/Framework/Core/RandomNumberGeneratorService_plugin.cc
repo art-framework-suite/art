@@ -49,8 +49,8 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 
-// MessageFacility support:
-#include "MessageFacility/MessageLogger.h"
+// messagefacility support:
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 // CLHEP support:
 #include "CLHEP/Random/DRand48Engine.h"

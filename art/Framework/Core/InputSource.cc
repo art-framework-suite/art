@@ -16,7 +16,7 @@
 #endif  // RNGS
 #include "art/Utilities/GlobalIdentifier.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
 

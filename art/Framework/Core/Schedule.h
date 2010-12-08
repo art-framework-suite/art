@@ -82,7 +82,7 @@
 #include "boost/shared_ptr.hpp"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <map>
 #include <memory>
 #include <set>

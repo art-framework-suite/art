@@ -15,7 +15,7 @@
 #include "boost/thread/mutex.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <algorithm>
 #include <map>
 #include <set>

@@ -34,7 +34,7 @@
 
 #include "art/Framework/Core/EventSelector.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Utilities/RegexMatch.h"

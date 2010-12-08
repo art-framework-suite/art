@@ -35,7 +35,7 @@ the worker is reset().
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "boost/shared_ptr.hpp"
 
 

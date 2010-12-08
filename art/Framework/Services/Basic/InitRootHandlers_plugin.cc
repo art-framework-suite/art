@@ -7,7 +7,7 @@
 #include "art/Persistency/Provenance/TransientStreamer.h"
 #include "art/Utilities/Exception.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include "Cintex/Cintex.h"

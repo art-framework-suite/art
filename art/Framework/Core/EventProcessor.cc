@@ -27,7 +27,7 @@
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <exception>
 #include <iomanip>
 #include <iostream>

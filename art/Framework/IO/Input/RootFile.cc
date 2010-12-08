@@ -36,7 +36,7 @@
 #include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
 #include "art/Persistency/Provenance/SubRunAux.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"

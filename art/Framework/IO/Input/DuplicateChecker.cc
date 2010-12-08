@@ -3,7 +3,7 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "cetlib/exception.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>

@@ -2,7 +2,7 @@
 
 #include "cetlib/exception.h"
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
   using mf::LogSystem;
 
 #include <string>

@@ -22,7 +22,7 @@ it.
 #include "art/Utilities/RootHandlers.h"
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "TError.h"
 #include <cstring>
 #include <exception>
@@ -145,7 +145,7 @@ int art_main(int argc, char* argv[])
 
 
   //
-  // Start the MessageFacility
+  // Start the messagefacility
   //
   mf::start_me(multithread, ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
 

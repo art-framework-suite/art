@@ -8,7 +8,7 @@
   using Reflex::Type;
   using Reflex::TypeTemplate;
 
-#include "MessageFacility/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <string>
 
