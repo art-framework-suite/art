@@ -6,7 +6,7 @@ set( artFrameworkIOCatalog_sources FileCatalog.cc
 
 #link_libraries( artFrameworkServicesRegistry
 #                artParameterSet
-#                artUtilities
+#                art_Utilities
 #                ${Boost_FILESYSTEM_LIBRARY}  )
 
 add_library(artFrameworkIOCatalog SHARED ${artFrameworkIOCatalog_sources} )

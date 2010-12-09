@@ -11,7 +11,7 @@ set( artFrameworkIOOutput_sources RootOutputFile.cc
 #                artParameterSet
 #                artMessageLogger
 #                artFrameworkCore
-#                artUtilities
+#                art_Utilities
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_THREAD_LIBRARY}
 #                ${REFLEX}

@@ -9,7 +9,7 @@ set( artFrameworkServicesRegistry_sources ActivityRegistry.cc
                                           ServiceToken.cc
                                           ServiceWrapperBase.cc )
 
-#link_libraries( artUtilities
+#link_libraries( art_Utilities
 #                artParameterSet
 #                artFrameworkPluginManager
 #                ${Boost_FILESYSTEM_LIBRARY}

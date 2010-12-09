@@ -11,7 +11,7 @@ set( artPersistencyCommon_sources CacheStreamers.cc
                                   RefCoreStreamer.cc
                                   traits.cc)
 
-#link_libraries( artUtilities
+#link_libraries( art_Utilities
 #                artFrameworkServicesRegistry
 #               ${Boost_THREAD_LIBRARY}
 #               ${REFLEX}

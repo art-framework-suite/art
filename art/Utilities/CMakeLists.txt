@@ -1,7 +1,7 @@
 # project name
-project(artUtilities)
+project(art_Utilities)
 
-set( artUtilities_sources CPUTimer.cc
+set( art_Utilities_sources CPUTimer.cc
                           CRC32Calculator.cc
                           DebugMacros.cc
                           Digest.cc
@@ -31,9 +31,9 @@ set( artUtilities_sources CPUTimer.cc
 #                ${CINT}
 #                dl )
 
-add_library(artUtilities SHARED ${artUtilities_sources} )
+add_library(art_Utilities SHARED ${art_Utilities_sources} )
 
-install ( TARGETS artUtilities DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
 install(FILES
               CPUTimer.h
               CRC16.h

@@ -68,7 +68,7 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 link_libraries( artFrameworkServicesRegistry
                 artParameterSet
                 artFrameworkPluginManager
-                artUtilities
+                art_Utilities
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${SIGC}
 		${CORE}

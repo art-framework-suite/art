@@ -26,7 +26,7 @@ set( exe_list TestIntegrationEventHistory
 
 link_libraries( artFrameworkCore
                 artFrameworkPluginManager
-                artUtilities
+                art_Utilities
                 ${Boost_FILESYSTEM_LIBRARY}  )
 
 # more libraries to be added

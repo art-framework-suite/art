@@ -4,7 +4,7 @@ project(artFrameworkServicesPrescale)
 #set( artFrameworkServicesPrescale_sources PrescaleService_plugin.cc )
 
 #link_libraries( artFrameworkPluginManager
-#                artUtilities
+#                art_Utilities
 #                ${Boost_THREAD_LIBRARY} )
 
 #add_library(artFrameworkServicesPrescale SHARED ${artFrameworkServicesPrescale_sources} )

@@ -61,8 +61,8 @@ link_libraries( artPersistencyProvenance
                 artFrameworkCore
                 artFrameworkPluginManager
                 artFrameworkServicesRegistry
-                artUtilities
-                artVersion
+                art_Utilities
+                art_Version
                 #artParameterSet
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_PROGRAM_OPTIONS_LIBRARY}

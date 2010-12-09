@@ -21,7 +21,7 @@ set( artFrameworkIOInput_sources BranchMapperWithReader.cc
 #                artParameterSet
 #                artMessageLogger
 #                artFrameworkCore
-#                artUtilities
+#                art_Utilities
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_THREAD_LIBRARY}
 #                ${CLHEP}

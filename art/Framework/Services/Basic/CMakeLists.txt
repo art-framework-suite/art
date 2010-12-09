@@ -16,7 +16,7 @@ set( artFrameworkServicesBasic_sources Memory.cc
 #                artParameterSet
 #                artFrameworkPluginManager
 #                artFrameworkServicesRootAutoLibraryLoader
-#                artUtilitiess
+#                art_Utilitiess
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_THREAD_LIBRARY}
 #                ${CORE}

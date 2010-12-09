@@ -1,10 +1,10 @@
 # project name
-project(artUtilitiesTest)
+project(art_Utilities_Test)
 
 
 file( GLOB cpp_files *.cpp )
 
-link_libraries(  artUtilities
+link_libraries(  art_Utilities
                  ${MF_MESSAGELOGGER}
                  ${MF_MESSAGESERVICE}
                  ${MF_UTILITIES}
