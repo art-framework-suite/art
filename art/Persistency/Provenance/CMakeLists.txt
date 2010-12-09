@@ -47,7 +47,7 @@ set( artPersistencyProvenance_sources BranchChildren.cc
 
 add_library(artPersistencyProvenance SHARED ${artPersistencyProvenance_sources} )
 
-build_dictionary( Persistency Provenance )
+build_dictionary( DICTIONARY_LIBRARIES artPersistencyProvenance )
 
 install ( TARGETS artPersistencyProvenance DESTINATION ${flavorqual_dir}/lib )
 install(FILES BranchChildren.h

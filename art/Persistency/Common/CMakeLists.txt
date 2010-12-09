@@ -20,7 +20,7 @@ set( artPersistencyCommon_sources CacheStreamers.cc
 
 add_library(artPersistencyCommon SHARED ${artPersistencyCommon_sources} )
 
-build_dictionary( Persistency Common )
+build_dictionary( DICTIONARY_LIBRARIES artPersistencyCommon )
 
 install ( TARGETS artPersistencyCommon DESTINATION ${flavorqual_dir}/lib )
 install(FILES AssociativeIterator.h
