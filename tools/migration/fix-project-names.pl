@@ -32,6 +32,20 @@ BEGIN { %translations = (
 	  artFrameworkServicesRegistry => "art_Framework_Services_Registry",
 	  artFrameworkServicesRootAutoLibraryLoaderTest => "art_Framework_Services_RootAutoLibraryLoader_Test",
 	  artFrameworkServicesRootAutoLibraryLoader => "art_Framework_Services_RootAutoLibraryLoader",
+	  artPersistencyCommonTest => "art_Persistency_Common_Test",
+	  artPersistencyCommon => "art_Persistency_Common",
+	  artPersistencyCetlibDictionariesTest => "art_Persistency_CetlibDictionaries_Test",
+	  artPersistencyCetlibDictionaries => "art_Persistency_CetlibDictionaries",
+	  artPersistencyFhiclCppDictionariesTest => "art_Persistency_FhiclCppDictionaries_Test",
+	  artPersistencyFhiclCppDictionaries => "art_Persistency_FhiclCppDictionaries",
+	  artPersistencyProvenanceTest => "art_Persistency_Provenance_Test",
+	  artPersistencyProvenance => "art_Persistency_Provenance",
+	  artPersistencyStdDictionariesTest => "art_Persistency_StdDictionaries_Test",
+	  artPersistencyStdDictionaries => "art_Persistency_StdDictionaries",
+	  artPersistencyWrappedStdDictionariesTest => "art_Persistency_WrappedStdDictionaries_Test",
+	  artPersistencyWrappedStdDictionaries => "art_Persistency_WrappedStdDictionaries",
+	  artFrameworkIO => "art_Framework_IO",
+	  artFrameworkServices => "art_Framework_Services",
 	 );
       }
 

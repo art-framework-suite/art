@@ -1,7 +1,7 @@
 # project name
-project(artPersistencyProvenance)
+project(art_Persistency_Provenance)
 
-set( artPersistencyProvenance_sources BranchChildren.cc
+set( art_Persistency_Provenance_sources BranchChildren.cc
                                       BranchDescription.cc
                                       BranchEntryDescription.cc
                                       BranchID.cc
@@ -45,11 +45,11 @@ set( artPersistencyProvenance_sources BranchChildren.cc
 #               ${REFLEX}
 #               ${CORE} )
 
-add_library(artPersistencyProvenance SHARED ${artPersistencyProvenance_sources} )
+add_library(art_Persistency_Provenance SHARED ${art_Persistency_Provenance_sources} )
 
-build_dictionary( DICTIONARY_LIBRARIES artPersistencyProvenance )
+build_dictionary( DICTIONARY_LIBRARIES art_Persistency_Provenance )
 
-install ( TARGETS artPersistencyProvenance DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Persistency_Provenance DESTINATION ${flavorqual_dir}/lib )
 install(FILES BranchChildren.h
               BranchDescription.h
               BranchEntryDescription.h

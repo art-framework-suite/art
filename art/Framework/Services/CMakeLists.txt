@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkServices)
+project(art_Framework_Services)
 
-# build artFrameworkServices libraries
+# build art_Framework_Services libraries
 subdirs (Basic)
 #subdirs (Basic/plugins)
 #subdirs (Message)

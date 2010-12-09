@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkIO)
+project(art_Framework_IO)
 
-# build artFrameworkIO libraries
+# build art_Framework_IO libraries
 subdirs (Catalog)
 subdirs (Common)
 subdirs (Input)

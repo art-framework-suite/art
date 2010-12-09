@@ -8,8 +8,8 @@ set( art_Framework_Services_Basic_sources Memory.cc
                                        Tracer.cc
                                        VertexTracker.cc )
 
-#link_libraries( artPersistencyProvenance
-#                artPersistencyCommon
+#link_libraries( art_Persistency_Provenance
+#                art_Persistency_Common
 #                art_Framework_Services_Registry
 #                art_Framework_IO_Catalog
 #                artMessageLogger

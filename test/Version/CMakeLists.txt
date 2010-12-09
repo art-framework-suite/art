@@ -1,5 +1,5 @@
 # project name
-project(art_VersionTest)
+project(art_Version_Test)
 
 configure_file ( ${art_SOURCE_DIR}/test/Version/test_GetReleaseVersion.cpp.in
                  ${art_BINARY_DIR}/test/Version/test_GetReleaseVersion.cpp @ONLY )

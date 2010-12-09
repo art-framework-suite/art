@@ -22,8 +22,8 @@ set( cc_files testOwnVector.cc
               ptrvector_t.cppunit.cc
               IntValues_reflex.cc )
 
-link_libraries( artPersistencyCommon
-                artPersistencyProvenance
+link_libraries( art_Persistency_Common
+                art_Persistency_Provenance
                 art_Utilities
                 art_Framework_Services_Registry
 		${Boost_THREAD_LIBRARY}

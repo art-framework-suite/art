@@ -13,8 +13,8 @@ set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
 
 
 #link_libraries( art_Framework_IO_Common
-#                artPersistencyCommon
-#                artPersistencyProvenance
+#                art_Persistency_Common
+#                art_Persistency_Provenance
 #                art_Framework_IO_Sources
 #                art_Framework_IO_Catalog
 #                art_Framework_Services_Registry

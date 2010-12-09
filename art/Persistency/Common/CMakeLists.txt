@@ -1,8 +1,8 @@
 
 # project name
-project(artPersistencyCommon)
+project(art_Persistency_Common)
 
-set( artPersistencyCommon_sources CacheStreamers.cc
+set( art_Persistency_Common_sources CacheStreamers.cc
                                   EDProduct.cc
                                   EDProductGetter.cc
                                   PtrVectorBase.cc
@@ -18,11 +18,11 @@ set( artPersistencyCommon_sources CacheStreamers.cc
 #               ${MATRIX}
 #               ${CORE} )
 
-add_library(artPersistencyCommon SHARED ${artPersistencyCommon_sources} )
+add_library(art_Persistency_Common SHARED ${art_Persistency_Common_sources} )
 
-build_dictionary( DICTIONARY_LIBRARIES artPersistencyCommon )
+build_dictionary( DICTIONARY_LIBRARIES art_Persistency_Common )
 
-install ( TARGETS artPersistencyCommon DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Persistency_Common DESTINATION ${flavorqual_dir}/lib )
 install(FILES AssociativeIterator.h
 	      BaseHolder.h
 	      BaseVectorHolder.h

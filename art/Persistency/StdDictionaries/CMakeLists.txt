@@ -1,4 +1,4 @@
 # project name
-project(artPersistencyStdDictionaries)
+project(art_Persistency_StdDictionaries)
 
 build_dictionary( )

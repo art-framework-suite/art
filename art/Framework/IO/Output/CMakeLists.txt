@@ -5,8 +5,8 @@ set( art_Framework_IO_Output_sources RootOutputFile.cc
                                   RootOutputTree.cc )
 
 #link_libraries( art_Framework_IO_Common
-#                artPersistencyCommon
-#                artPersistencyProvenance
+#                art_Persistency_Common
+#                art_Persistency_Provenance
 #                art_Framework_Services_Registry
 #                art_ParameterSet
 #                artMessageLogger

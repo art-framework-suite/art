@@ -1,4 +1,4 @@
 # project name
-project(artPersistencyCetlibDictionaries)
+project(art_Persistency_CetlibDictionaries)
 
 build_dictionary( )

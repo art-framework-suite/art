@@ -55,8 +55,8 @@ set( art_Framework_Core_sources Actions.cc
 #                              WorkerRegistry.cc
 )
 
-link_libraries( artPersistencyProvenance
-                artPersistencyCommon
+link_libraries( art_Persistency_Provenance
+                art_Persistency_Common
                 art_Framework_Services_Basic
                 art_Framework_Core
                 art_Framework_PluginManager

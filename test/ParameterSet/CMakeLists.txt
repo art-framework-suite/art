@@ -10,7 +10,7 @@ set( cpp_files ParameterSetID_t.cpp
 # this list is not yet complete
 link_libraries( art_ParameterSet
                 art_Framework_PluginManager
-		artPersistencyProvenance
+		art_Persistency_Provenance
 		art_Utilities
                 ${MF_MESSAGELOGGER}  
                 ${MF_MESSAGESERVICE}  
