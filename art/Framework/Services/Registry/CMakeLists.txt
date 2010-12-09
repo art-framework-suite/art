@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkServicesRegistry)
+project(art_Framework_Services_Registry)
 
-set( artFrameworkServicesRegistry_sources ActivityRegistry.cc
+set( art_Framework_Services_Registry_sources ActivityRegistry.cc
                                           ServiceMakerBase.cc
                                           ServicePluginFactory.cc
                                           ServiceRegistry.cc
@@ -10,14 +10,14 @@ set( artFrameworkServicesRegistry_sources ActivityRegistry.cc
                                           ServiceWrapperBase.cc )
 
 #link_libraries( art_Utilities
-#                artParameterSet
-#                artFrameworkPluginManager
+#                art_ParameterSet
+#                art_Framework_PluginManager
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${SIGC} )
 
-add_library(artFrameworkServicesRegistry SHARED ${artFrameworkServicesRegistry_sources} )
+add_library(art_Framework_Services_Registry SHARED ${art_Framework_Services_Registry_sources} )
 
-install ( TARGETS artFrameworkServicesRegistry DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_Services_Registry DESTINATION ${flavorqual_dir}/lib )
 install(FILES ActivityRegistry.h
               connect_but_block_self.h
               Service.h

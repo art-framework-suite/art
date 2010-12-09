@@ -1,16 +1,16 @@
 # project name
-project(artFrameworkServicesPrescale)
+project(art_Framework_Services_Prescale)
 
-#set( artFrameworkServicesPrescale_sources PrescaleService_plugin.cc )
+#set( art_Framework_Services_Prescale_sources PrescaleService_plugin.cc )
 
-#link_libraries( artFrameworkPluginManager
+#link_libraries( art_Framework_PluginManager
 #                art_Utilities
 #                ${Boost_THREAD_LIBRARY} )
 
-#add_library(artFrameworkServicesPrescale SHARED ${artFrameworkServicesPrescale_sources} )
+#add_library(art_Framework_Services_Prescale SHARED ${art_Framework_Services_Prescale_sources} )
 
 simple_plugin(PrescaleService_plugin)
 
-#install ( TARGETS artFrameworkServicesPrescale DESTINATION ${flavorqual_dir}/lib )
+#install ( TARGETS art_Framework_Services_Prescale DESTINATION ${flavorqual_dir}/lib )
 #install(FILES PrescaleService.h
 #         DESTINATION  ${product}/${version}/include/art/Framework/Services/Prescale )

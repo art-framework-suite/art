@@ -1,24 +1,24 @@
 # project name
-project(artFrameworkIOOutput)
+project(art_Framework_IO_Output)
 
-set( artFrameworkIOOutput_sources RootOutputFile.cc
+set( art_Framework_IO_Output_sources RootOutputFile.cc
                                   RootOutputTree.cc )
 
-#link_libraries( artFrameworkIOCommon
+#link_libraries( art_Framework_IO_Common
 #                artPersistencyCommon
 #                artPersistencyProvenance
-#                artFrameworkServicesRegistry
-#                artParameterSet
+#                art_Framework_Services_Registry
+#                art_ParameterSet
 #                artMessageLogger
-#                artFrameworkCore
+#                art_Framework_Core
 #                art_Utilities
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_THREAD_LIBRARY}
 #                ${REFLEX}
 #                ${CORE} )
 
-add_library(artFrameworkIOOutput SHARED ${artFrameworkIOOutput_sources} )
+add_library(art_Framework_IO_Output SHARED ${art_Framework_IO_Output_sources} )
 
 simple_plugin(PoolOutputModule_plugin)
 
-install ( TARGETS artFrameworkIOOutput DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_IO_Output DESTINATION ${flavorqual_dir}/lib )

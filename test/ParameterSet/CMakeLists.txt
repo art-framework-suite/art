@@ -1,5 +1,5 @@
 # project name
-project(artParameterSetTest)
+project(art_ParameterSet_Test)
 
 set( cpp_files ParameterSetID_t.cpp
 	       ParameterSetRecursing_t.cpp
@@ -8,8 +8,8 @@ set( cpp_files ParameterSetID_t.cpp
 	       UntrackedParameters_t.cpp )
 
 # this list is not yet complete
-link_libraries( artParameterSet
-                artFrameworkPluginManager
+link_libraries( art_ParameterSet
+                art_Framework_PluginManager
 		artPersistencyProvenance
 		art_Utilities
                 ${MF_MESSAGELOGGER}  

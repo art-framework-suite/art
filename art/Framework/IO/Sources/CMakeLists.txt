@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkIOSources)
+project(art_Framework_IO_Sources)
 
-set( artFrameworkIOSources_sources EDInputSource.cc
+set( art_Framework_IO_Sources_sources EDInputSource.cc
                                    ExternalInputSource.cc
                                    RawInputSource.cc
                                    VectorInputSource.cc
@@ -9,9 +9,9 @@ set( artFrameworkIOSources_sources EDInputSource.cc
 
 #link_libraries( ${Boost_FILESYSTEM_LIBRARY}  )
 
-add_library(artFrameworkIOSources SHARED ${artFrameworkIOSources_sources} )
+add_library(art_Framework_IO_Sources SHARED ${art_Framework_IO_Sources_sources} )
 
-install ( TARGETS artFrameworkIOSources DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_IO_Sources DESTINATION ${flavorqual_dir}/lib )
 install(FILES EDInputSource.h
               ExternalInputSource.h
               RawInputSource.h

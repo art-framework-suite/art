@@ -1,14 +1,14 @@
 # project name
-project(artFrameworkIOCommon)
+project(art_Framework_IO_Common)
 
-set( artFrameworkIOCommon_sources RootServiceChecker.cc )
+set( art_Framework_IO_Common_sources RootServiceChecker.cc )
 
 #link_libraries( art_Utilities
-#                artFrameworkServicesRegistry )
+#                art_Framework_Services_Registry )
 
-add_library(artFrameworkIOCommon SHARED ${artFrameworkIOCommon_sources} )
+add_library(art_Framework_IO_Common SHARED ${art_Framework_IO_Common_sources} )
 
-install ( TARGETS artFrameworkIOCommon DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_IO_Common DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES ClassFiller.h
               RefStreamer.h

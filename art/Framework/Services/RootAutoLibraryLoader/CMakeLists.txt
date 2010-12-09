@@ -1,10 +1,10 @@
 # project name
-project(artFrameworkServicesRootAutoLibraryLoader)
+project(art_Framework_Services_RootAutoLibraryLoader)
 
-set( artFrameworkServicesRootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
+set( art_Framework_Services_RootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
                                                        stdNamespaceAdder.cc )
 
-#link_libraries( artFrameworkPluginManager
+#link_libraries( art_Framework_PluginManager
 #                DataFormatsProvenance
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_REGEX_LIBRARY}
@@ -12,9 +12,9 @@ set( artFrameworkServicesRootAutoLibraryLoader_sources RootAutoLibraryLoader.cc
 #                ${REFLEX}
 #                ${CINT} dl )
 
-add_library(artFrameworkServicesRootAutoLibraryLoader SHARED ${artFrameworkServicesRootAutoLibraryLoader_sources} )
+add_library(art_Framework_Services_RootAutoLibraryLoader SHARED ${art_Framework_Services_RootAutoLibraryLoader_sources} )
 
-install ( TARGETS artFrameworkServicesRootAutoLibraryLoader DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_Services_RootAutoLibraryLoader DESTINATION ${flavorqual_dir}/lib )
 install(FILES CacheStreamers.h
               RootAutoLibraryLoader.h
          DESTINATION  ${product}/${version}/include/art/Framework/Services/RootAutoLibraryLoader )

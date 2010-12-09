@@ -1,17 +1,17 @@
 # project name
-project(artFrameworkIOCatalog)
+project(art_Framework_IO_Catalog)
 
-set( artFrameworkIOCatalog_sources FileCatalog.cc
+set( art_Framework_IO_Catalog_sources FileCatalog.cc
                                    InputFileCatalog.cc )
 
-#link_libraries( artFrameworkServicesRegistry
-#                artParameterSet
+#link_libraries( art_Framework_Services_Registry
+#                art_ParameterSet
 #                art_Utilities
 #                ${Boost_FILESYSTEM_LIBRARY}  )
 
-add_library(artFrameworkIOCatalog SHARED ${artFrameworkIOCatalog_sources} )
+add_library(art_Framework_IO_Catalog SHARED ${art_Framework_IO_Catalog_sources} )
 
-install ( TARGETS artFrameworkIOCatalog DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_IO_Catalog DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES FileCatalog.h
               InputFileCatalog.h

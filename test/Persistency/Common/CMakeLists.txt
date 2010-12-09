@@ -25,7 +25,7 @@ set( cc_files testOwnVector.cc
 link_libraries( artPersistencyCommon
                 artPersistencyProvenance
                 art_Utilities
-                artFrameworkServicesRegistry
+                art_Framework_Services_Registry
 		${Boost_THREAD_LIBRARY}
 		${Boost_PYTHON_LIBRARY}
 		${MATRIX}

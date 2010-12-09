@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkIOInput)
+project(art_Framework_IO_Input)
 
-set( artFrameworkIOInput_sources BranchMapperWithReader.cc
+set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
                                  DuplicateChecker.cc
                                  Module.cc
                                  PoolSource.cc
@@ -12,15 +12,15 @@ set( artFrameworkIOInput_sources BranchMapperWithReader.cc
                                  RootTree.cc )
 
 
-#link_libraries( artFrameworkIOCommon
+#link_libraries( art_Framework_IO_Common
 #                artPersistencyCommon
 #                artPersistencyProvenance
-#                artFrameworkIOSources
-#                artFrameworkIOCatalog
-#                artFrameworkServicesRegistry
-#                artParameterSet
+#                art_Framework_IO_Sources
+#                art_Framework_IO_Catalog
+#                art_Framework_Services_Registry
+#                art_ParameterSet
 #                artMessageLogger
-#                artFrameworkCore
+#                art_Framework_Core
 #                art_Utilities
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_THREAD_LIBRARY}
@@ -28,9 +28,9 @@ set( artFrameworkIOInput_sources BranchMapperWithReader.cc
 #                ${REFLEX}
 #                ${CORE} )
 
-add_library(artFrameworkIOInput SHARED ${artFrameworkIOInput_sources} )
+add_library(art_Framework_IO_Input SHARED ${art_Framework_IO_Input_sources} )
 
 simple_plugin(PoolRASource_plugin)
 simple_plugin(PoolSource_plugin)
 
-install ( TARGETS artFrameworkIOInput DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_IO_Input DESTINATION ${flavorqual_dir}/lib )

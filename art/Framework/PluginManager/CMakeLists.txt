@@ -1,11 +1,11 @@
 # project name
-project(artFrameworkPluginManager)
+project(art_Framework_PluginManager)
 
 # version number
-set (artFrameworkPluginManager_VERSION_MAJOR 1)
-set (artFrameworkPluginManager_VERSION_MINOR 0)
+set (art_Framework_PluginManager_VERSION_MAJOR 1)
+set (art_Framework_PluginManager_VERSION_MINOR 0)
 
-set( artFrameworkPluginManager_sources CacheParser.cc
+set( art_Framework_PluginManager_sources CacheParser.cc
                                        FileOperations.cc
                                        PluginCapabilities.cc
                                        PluginFactoryBase.cc
@@ -20,9 +20,9 @@ set( artFrameworkPluginManager_sources CacheParser.cc
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${SIGC} )
 
-add_library(artFrameworkPluginManager SHARED ${artFrameworkPluginManager_sources} )
+add_library(art_Framework_PluginManager SHARED ${art_Framework_PluginManager_sources} )
 
-install ( TARGETS artFrameworkPluginManager DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_PluginManager DESTINATION ${flavorqual_dir}/lib )
 install(FILES CacheParser.h
               FileOperations.h
               ModuleDef.h

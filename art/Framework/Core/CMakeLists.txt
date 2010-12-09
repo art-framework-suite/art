@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkCore)
+project(art_Framework_Core)
 
-set( artFrameworkCore_sources Actions.cc
+set( art_Framework_Core_sources Actions.cc
                               Breakpoints.cc
                               CachedProducts.cc
                               ConfigurableInputSource.cc
@@ -57,13 +57,13 @@ set( artFrameworkCore_sources Actions.cc
 
 link_libraries( artPersistencyProvenance
                 artPersistencyCommon
-                artFrameworkServicesBasic
-                artFrameworkCore
-                artFrameworkPluginManager
-                artFrameworkServicesRegistry
+                art_Framework_Services_Basic
+                art_Framework_Core
+                art_Framework_PluginManager
+                art_Framework_Services_Registry
                 art_Utilities
                 art_Version
-                #artParameterSet
+                #art_ParameterSet
                 ${Boost_FILESYSTEM_LIBRARY}
                 ${Boost_PROGRAM_OPTIONS_LIBRARY}
                 ${Boost_THREAD_LIBRARY}
@@ -79,14 +79,14 @@ link_libraries( artPersistencyProvenance
 simple_plugin(RandomNumberGeneratorService_plugin)
 simple_plugin(RandomNumberSaver_plugin)
 
-add_library(artFrameworkCore SHARED ${artFrameworkCore_sources} )
+add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
 
-set( artFrameworkCoreArt_sources artapp.cc )
+set( art_Framework_CoreArt_sources artapp.cc )
 
-#add_library(artFrameworkCoreArt SHARED ${artFrameworkCoreArt_sources} )
+#add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
 #add_executable( art   art.cpp   )
-#target_link_libraries( art artFrameworkCoreArt
+#target_link_libraries( art art_Framework_CoreArt
 #                           ${MF_MESSAGELOGGER}
 #                           ${MF_MESSAGESERVICE}
 #                           ${MF_UTILITIES}
@@ -94,8 +94,8 @@ set( artFrameworkCoreArt_sources artapp.cc )
 #			   )
 #install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 
-install ( TARGETS artFrameworkCore DESTINATION ${flavorqual_dir}/lib )
-#install ( TARGETS artFrameworkCoreArt DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
+#install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES Actions.h
 	      BranchActionType.h

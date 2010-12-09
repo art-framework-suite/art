@@ -24,8 +24,8 @@ set( exe_list TestIntegrationEventHistory
 	      CatchStdExceptiontest
 	      CatchCmsExceptiontest )
 
-link_libraries( artFrameworkCore
-                artFrameworkPluginManager
+link_libraries( art_Framework_Core
+                art_Framework_PluginManager
                 art_Utilities
                 ${Boost_FILESYSTEM_LIBRARY}  )
 

@@ -1,7 +1,7 @@
 # project name
-project(artFrameworkServicesBasic)
+project(art_Framework_Services_Basic)
 
-set( artFrameworkServicesBasic_sources Memory.cc
+set( art_Framework_Services_Basic_sources Memory.cc
                                        ProfParse.cc
                                        Sym.cc
                                        Timing.cc
@@ -10,12 +10,12 @@ set( artFrameworkServicesBasic_sources Memory.cc
 
 #link_libraries( artPersistencyProvenance
 #                artPersistencyCommon
-#                artFrameworkServicesRegistry
-#                artFrameworkIOCatalog
+#                art_Framework_Services_Registry
+#                art_Framework_IO_Catalog
 #                artMessageLogger
-#                artParameterSet
-#                artFrameworkPluginManager
-#                artFrameworkServicesRootAutoLibraryLoader
+#                art_ParameterSet
+#                art_Framework_PluginManager
+#                art_Framework_Services_RootAutoLibraryLoader
 #                art_Utilitiess
 #                ${Boost_FILESYSTEM_LIBRARY}
 #                ${Boost_THREAD_LIBRARY}
@@ -29,7 +29,7 @@ set( artFrameworkServicesBasic_sources Memory.cc
 #                ${REFLEX}
 #                ${CINTEX} )
 
-add_library(artFrameworkServicesBasic SHARED ${artFrameworkServicesBasic_sources} )
+add_library(art_Framework_Services_Basic SHARED ${art_Framework_Services_Basic_sources} )
 
 simple_plugin(CurrentModule_plugin)
 simple_plugin(EnableFloatingPointExceptions_plugin)
@@ -41,7 +41,7 @@ simple_plugin(Timing_plugin)
 simple_plugin(Tracer_plugin)
 simple_plugin(UnixSignalService_plugin)
 
-install ( TARGETS artFrameworkServicesBasic DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_Services_Basic DESTINATION ${flavorqual_dir}/lib )
 install(FILES CurrentModule.h
               TFileService.h
               Timing.h

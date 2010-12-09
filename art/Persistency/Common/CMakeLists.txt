@@ -12,7 +12,7 @@ set( artPersistencyCommon_sources CacheStreamers.cc
                                   traits.cc)
 
 #link_libraries( art_Utilities
-#                artFrameworkServicesRegistry
+#                art_Framework_Services_Registry
 #               ${Boost_THREAD_LIBRARY}
 #               ${REFLEX}
 #               ${MATRIX}
