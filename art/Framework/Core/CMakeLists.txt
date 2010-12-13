@@ -27,6 +27,7 @@ set( art_Framework_Core_sources Actions.cc
                               InputSource.cc
                               InputSourceFactory.cc
                               IOVSyncValue.cc
+                              LibraryManager.cc
                               SubRun.cc
                               SubRunPrincipal.cc
                               NoDelayedReader.cc
