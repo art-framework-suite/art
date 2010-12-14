@@ -2,11 +2,8 @@
 project(art_Framework_Services_Basic)
 
 set( art_Framework_Services_Basic_sources Memory.cc
-                                       ProfParse.cc
-                                       Sym.cc
                                        Timing.cc
-                                       Tracer.cc
-                                       VertexTracker.cc )
+                                       Tracer.cc )
 
 #link_libraries( art_Persistency_Provenance
 #                art_Persistency_Common
