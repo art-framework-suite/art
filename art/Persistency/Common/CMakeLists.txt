@@ -23,8 +23,7 @@ add_library(art_Persistency_Common SHARED ${art_Persistency_Common_sources} )
 build_dictionary( DICTIONARY_LIBRARIES art_Persistency_Common )
 
 install ( TARGETS art_Persistency_Common DESTINATION ${flavorqual_dir}/lib )
-install(FILES AssociativeIterator.h
-	      BaseHolder.h
+install(FILES BaseHolder.h
 	      BaseVectorHolder.h
 	      BasicHandle.h
 	      BoolCache.h
@@ -61,7 +60,6 @@ install(FILES AssociativeIterator.h
 	      Trie.h
 	      TriggerResults.h
 	      Wrapper.h
-	      classes.h
 	      debugging_allocator.h
 	      traits.h
          DESTINATION  ${product}/${version}/include/art/Persistency/Common )
