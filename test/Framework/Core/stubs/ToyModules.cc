@@ -743,37 +743,6 @@ namespace arttest {
     e.put(p);
   }
 
-
-  //--------------------------------------------------------------------
-  //
-  // Toy analyzers
-  //
-  //--------------------------------------------------------------------
-
-  //--------------------------------------------------------------------
-  //
-  class IntTestAnalyzer : public art::EDAnalyzer {
-  public:
-    IntTestAnalyzer(const art::ParameterSet& iPSet) :
-      value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel")) {
-      }
-
-    void analyze(const art::Event& iEvent, art::EventSetup const&) {
-      art::Handle<IntProduct> handle;
-      iEvent.getByLabel(moduleLabel_,handle);
-      if(handle->value != value_) {
-	throw artZ::Exception("ValueMissMatch")
-	  <<"The value for \""<<moduleLabel_<<"\" is "
-	  <<handle->value <<" but it was supposed to be "<<value_;
-      }
-    }
-  private:
-    int value_;
-    std::string moduleLabel_;
-  };
-
-
   //--------------------------------------------------------------------
   //
   class SCSimpleAnalyzer : public art::EDAnalyzer
@@ -904,7 +873,6 @@ using arttest::VSimpleProducer;
 using arttest::AVSimpleProducer;
 using arttest::DSTVProducer;
 using arttest::DSVProducer;
-using arttest::IntTestAnalyzer;
 using arttest::SCSimpleAnalyzer;
 using arttest::DSVAnalyzer;
 using arttest::AddIntsProducer;
@@ -925,7 +893,6 @@ DEFINE_FWK_MODULE(VSimpleProducer);
 DEFINE_FWK_MODULE(AVSimpleProducer);
 DEFINE_FWK_MODULE(DSVProducer);
 DEFINE_FWK_MODULE(DSTVProducer);
-DEFINE_FWK_MODULE(IntTestAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);
 DEFINE_FWK_MODULE(AddIntsProducer);
