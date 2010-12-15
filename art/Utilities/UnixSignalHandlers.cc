@@ -182,7 +182,7 @@ namespace art {
 
   void setupSignals(bool want_sigint_enabled)
   {
-    art::installCustomhandler(SIGUSR2,art::ep_sigusr2);
+    art::installCustomHandler(SIGUSR2,art::ep_sigusr2);
     if(want_sigint_enabled)
       art::installCustomHandler(SIGINT,art::ep_sigusr2);
   }
