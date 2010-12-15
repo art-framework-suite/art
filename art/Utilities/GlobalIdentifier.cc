@@ -1,5 +1,5 @@
 #include "art/Utilities/GlobalIdentifier.h"
-#include "Guid.h"
+#include "art/Utilities/Guid.h"
 
 namespace art {
   std::string

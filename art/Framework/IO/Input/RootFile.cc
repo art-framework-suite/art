@@ -23,8 +23,8 @@
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/Parser.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/ParameterSetID.h"
 
@@ -210,7 +210,7 @@ namespace art {
     // Parameter Set
     for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
        fhicl::ParameterSet pset;
-       fhicl::Parser::ParseString(i->second.pset_, pset);
+       fhicl::make_ParameterSet(i->second.pset_, pset);
       // Note ParameterSet::id() has the side effect of making sure the
       // parameter set *has* an ID.
       pset.id();

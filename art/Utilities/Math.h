@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <sys/types.h>
-#include "math_private.h"
+#include "art/Utilities/detail/math_private.h"
 
 namespace art
 {

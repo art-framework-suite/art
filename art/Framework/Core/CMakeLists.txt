@@ -53,35 +53,54 @@ set( art_Framework_Core_sources Actions.cc
                               Worker.cc
                               WorkerInPath.cc
                               WorkerMaker.cc
-#                              WorkerRegistry.cc
+                              WorkerRegistry.cc
 )
 
-link_libraries( art_Persistency_Provenance
-                art_Persistency_Common
-                art_Framework_Services_Basic
-                art_Framework_Core
-                art_Framework_PluginManager
-                art_Framework_Services_Registry
-                art_Utilities
-                art_Version
-                #art_ParameterSet
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                ${Boost_THREAD_LIBRARY}
-		${Boost_REGEX_LIBRARY}
-                ${SIGC}
-                ${HIST}
-                ${REFLEX}
-		${CINT}
-                ${MATRIX}
-                ${MATHCORE}
-                ${CORE} )
+#link_libraries( art_Persistency_Provenance
+#                art_Persistency_Common
+#                art_Framework_Services_Basic
+#                art_Framework_Core
+#                art_Framework_PluginManager
+#                art_Framework_Services_Registry
+#                art_Utilities
+#                art_Version
+#                #art_ParameterSet
+#                ${Boost_FILESYSTEM_LIBRARY}
+#                ${Boost_PROGRAM_OPTIONS_LIBRARY}
+#                ${Boost_THREAD_LIBRARY}
+#                ${Boost_REGEX_LIBRARY}
+#                ${SIGC}
+#                ${HIST}
+#                ${MATRIX}
+#                ${MATHCORE}
+#                ${CORE}
+#                ${REFLEX}
+#                ${CINT}
+# )
 
 simple_plugin(RandomNumberGeneratorService_plugin)
 simple_plugin(RandomNumberSaver_plugin)
 
 add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
-
+target_link_libraries(art_Framework_Core 
+  art_Persistency_Provenance
+  art_Persistency_Common
+  art_Framework_Services_Basic
+  art_Framework_Services_Registry
+  art_Version
+  ${MF_MESSAGELOGGER}
+  ${FHICLCPP}
+  ${CETLIB}
+  ${CLHEP}
+  ${SIGC}
+  ${HIST}
+  ${MATRIX}
+  ${MATHCORE}
+  ${CORE}
+  ${REFLEX}
+  ${CINT}
+  dl
+)
 set( art_Framework_CoreArt_sources artapp.cc )
 
 #add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )

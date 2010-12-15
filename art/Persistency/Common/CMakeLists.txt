@@ -5,7 +5,7 @@ project(art_Persistency_Common)
 set( art_Persistency_Common_sources CacheStreamers.cc
                                   EDProduct.cc
                                   EDProductGetter.cc
-                                  PtrVectorBase.cc
+#                                  PtrVectorBase.cc
                                   RNGsnapshot.cc
                                   RefCore.cc
                                   RefCoreStreamer.cc

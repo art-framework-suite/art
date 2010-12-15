@@ -10,10 +10,13 @@
 //
 //      ====================================================================
 //
-#include "Guid.h"
+#include "art/Utilities/Guid.h"
 #include <cstdio>
 #include <cstring>
+
+extern "C" {
 #include "uuid/uuid.h"
+}
 
 namespace art {
   static const char* fmt_Guid =

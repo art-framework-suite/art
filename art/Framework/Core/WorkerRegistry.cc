@@ -1,13 +1,15 @@
 
 #include "art/Framework/Core/WorkerRegistry.h"
 
-#include "art/Framework/Core/Factory.h"
+// TODO: Temporary removal
+// #include "art/Framework/Core/Factory.h"
 #include "art/Framework/Core/Worker.h"
 
 #include <sstream>
 
 using fhicl::ParameterSet;
 
+#if 0 // TODO: Make this work.
 namespace
 {
   ModuleDescription
@@ -24,6 +26,7 @@ namespace
   }
 
 } // anonymous namespace
+#endif // 0
 
 namespace art {
 
@@ -41,13 +44,15 @@ namespace art {
   }
 
   Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
-
     std::string workerid =
       mangleWorkerParameters(*p.pset_, p.processName_,
 			     p.releaseVersion_,p.passID_);
 
     WorkerMap::iterator workerIt = m_workerMap.find(workerid);
 
+#if 1
+    abort();
+#else // TODO: Make this work.
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end())
       {
@@ -65,7 +70,7 @@ namespace art {
 	m_workerMap[workerid].reset(workerPtr.release());
 	return m_workerMap[workerid].get();
       }
-
+#endif // 1
     return (workerIt->second.get());
 
   }

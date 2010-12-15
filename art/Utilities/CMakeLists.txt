@@ -32,6 +32,15 @@ set( art_Utilities_sources CPUTimer.cc
 #                dl )
 
 add_library(art_Utilities SHARED ${art_Utilities_sources} )
+target_link_libraries(art_Utilities
+  ${MF_MESSAGELOGGER}
+  ${CETLIB}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_REGEX_LIBRARY}
+  ${Boost_THREAD_LIBRARY}
+  ${REFLEX}
+  ${CINT}
+)
 
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
 install(FILES
@@ -54,7 +63,7 @@ install(FILES
               JobMode.h
               MallocOpts.h
               Math.h
-              math_private.h
+              detail/math_private.h
               md5.h
               OutletBase.h
               Parse.h
