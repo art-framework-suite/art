@@ -78,8 +78,8 @@ set( art_Framework_Core_sources Actions.cc
 #                ${CINT}
 # )
 
-simple_plugin(RandomNumberGeneratorService_plugin)
-simple_plugin(RandomNumberSaver_plugin)
+simple_plugin(RandomNumberGeneratorService)
+simple_plugin(RandomNumberSaver)
 
 add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
 target_link_libraries(art_Framework_Core 

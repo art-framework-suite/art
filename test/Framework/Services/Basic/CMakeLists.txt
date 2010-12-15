@@ -11,9 +11,9 @@ link_libraries( FWCoreServices )
 
 add_library(FWCoreServicesTest SHARED ${FWCoreServicesTest_sources} )
 
-simple_plugin(RNGS_analyzer_plugin)
-simple_plugin(RNGS_producer_plugin)
-simple_plugin(TestTFileServiceAnalyzer_plugin)
+simple_plugin(RNGS_analyzer)
+simple_plugin(RNGS_producer)
+simple_plugin(TestTFileServiceAnalyzer)
 
 add_executable( TestFWCoreServicesDriver TestFWCoreServicesDriver.cpp )
 target_link_libraries(TestFWCoreServicesDriver FWCoreServices

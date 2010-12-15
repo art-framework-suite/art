@@ -28,15 +28,15 @@ set( art_Framework_Services_Basic_sources Memory.cc
 
 add_library(art_Framework_Services_Basic SHARED ${art_Framework_Services_Basic_sources} )
 
-simple_plugin(CurrentModule_plugin)
-simple_plugin(EnableFloatingPointExceptions_plugin)
-simple_plugin(InitRootHandlers_plugin)
-simple_plugin(LoadAllDictionaries_plugin)
-simple_plugin(SimpleMemoryCheck_plugin)
-simple_plugin(TFileService_plugin)
-simple_plugin(Timing_plugin)
-simple_plugin(Tracer_plugin)
-simple_plugin(UnixSignalService_plugin)
+simple_plugin(CurrentModule)
+simple_plugin(EnableFloatingPointExceptions)
+simple_plugin(InitRootHandlers)
+simple_plugin(LoadAllDictionaries)
+simple_plugin(SimpleMemoryCheck)
+simple_plugin(TFileService)
+simple_plugin(Timing)
+simple_plugin(Tracer)
+simple_plugin(UnixSignalService)
 
 install ( TARGETS art_Framework_Services_Basic DESTINATION ${flavorqual_dir}/lib )
 install(FILES CurrentModule.h
