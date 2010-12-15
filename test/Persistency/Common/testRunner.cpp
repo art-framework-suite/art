@@ -1,1 +1,1 @@
-#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
+#include "test/CppUnit_testdriver.icpp"
