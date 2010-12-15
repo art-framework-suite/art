@@ -329,7 +329,7 @@ void testTypeIDBase::copyTest()
   std::string n3(id3.name());
   CPPUNIT_ASSERT(n1== n3);
 }
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include "test/CppUnit_testdriver.icpp"
 /*----------------------------------------------------------------------
 
 Test program for art::TypeID class.

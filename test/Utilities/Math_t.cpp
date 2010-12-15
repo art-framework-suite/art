@@ -4,7 +4,7 @@
 #include "art/Utilities/Math.h"
 #include "art/Utilities/HRRealTime.h"
 
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include "test/CppUnit_testdriver.icpp"
 #include <cppunit/extensions/HelperMacros.h>
 
 

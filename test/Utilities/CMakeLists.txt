@@ -9,11 +9,6 @@ link_libraries(  art_Utilities
                  ${MF_MESSAGESERVICE}
                  ${MF_UTILITIES}
                  ${MF_EXTENSIONS}
-                 ${REFLEX}
-                 ${CINT}
-                 ${Boost_FILESYSTEM_LIBRARY}
-                 ${Boost_THREAD_LIBRARY}
-                 ${Boost_REGEX_LIBRARY}
                  )
 
 foreach(file ${cpp_files} )
