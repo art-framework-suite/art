@@ -1,9 +1,9 @@
 ////////////////////////////////////////////////////////////////////////
 // The code in this directory might look a bit strange.  I've taken what
 // was all the code in art.cpp (the application) and broke it into a
-// shared library with all the code.  I changed main to art_main.  Now
+// shared library with all the code.  I changed main to artapp.  Now
 // the application has only one line of code in main that executes
-// art_main.
+// artapp.
 //
 // The reason for this weird change is that the original art.cpp caused
 // a runtime type system problem.  In the explanation of the problem
@@ -54,9 +54,9 @@
 //
 // We do not have a good explanation of the root cause of this problem.
 ////////////////////////////////////////////////////////////////////////
-extern "C" { int art_main(int argc, char* argv[]); }
+extern "C" { int artapp(int argc, char* argv[]); }
 
 int main(int argc, char* argv[])
 {
-  return art_main(argc,argv);
+  return artapp(argc,argv);
 }

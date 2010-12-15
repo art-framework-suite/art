@@ -77,12 +77,12 @@ namespace {
   };
 }
 
-extern "C" { int art_main(int argc, char* argv[]); }
+extern "C" { int artapp(int argc, char* argv[]); }
 
 namespace  bpo=boost::program_options;
 using std::string;
 
-int art_main(int argc, char* argv[])
+int artapp(int argc, char* argv[])
 {
   // ------------------
   // use the boost command line option processing library to help out
