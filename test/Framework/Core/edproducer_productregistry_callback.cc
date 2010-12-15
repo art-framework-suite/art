@@ -23,7 +23,7 @@
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Utilities/TypeID.h"
@@ -33,8 +33,8 @@ class testEDProducerProductRegistryCallback: public CppUnit::TestFixture
 {
    CPPUNIT_TEST_SUITE(testEDProducerProductRegistryCallback);
 
-   CPPUNIT_TEST_EXCEPTION(testCircularRef,artZ::Exception);
-   CPPUNIT_TEST_EXCEPTION(testCircularRef2,artZ::Exception);
+   CPPUNIT_TEST_EXCEPTION(testCircularRef,cet::exception);
+   CPPUNIT_TEST_EXCEPTION(testCircularRef2,cet::exception);
    CPPUNIT_TEST(testTwoListeners);
 
 CPPUNIT_TEST_SUITE_END();
@@ -52,6 +52,7 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(testEDProducerProductRegistryCallback);
 
 using namespace art;
+using fhicl::ParameterSet;
 
 namespace {
    class TestMod : public EDProducer
@@ -59,7 +60,7 @@ namespace {
      public:
       explicit TestMod(ParameterSet const& p);
 
-      void produce(Event& e, EventSetup const&);
+      void produce(Event&);
 
       void listen(BranchDescription const&);
    };
@@ -67,7 +68,7 @@ namespace {
    TestMod::TestMod(ParameterSet const&)
    { produces<int>();}
 
-   void TestMod::produce(Event&, EventSetup const&)
+   void TestMod::produce(Event&)
    {
    }
 
@@ -75,7 +76,7 @@ namespace {
    {
      public:
       explicit ListenMod(ParameterSet const&);
-      void produce(Event& e, EventSetup const&);
+      void produce(Event&);
       void listen(BranchDescription const&);
    };
 
@@ -83,7 +84,7 @@ namespace {
    {
       callWhenNewProductsRegistered(this,&ListenMod::listen);
    }
-   void ListenMod::produce(Event&, EventSetup const&)
+   void ListenMod::produce(Event&)
    {
    }
 
@@ -101,7 +102,7 @@ namespace {
    {
 public:
       explicit ListenFloatMod(ParameterSet const&);
-      void produce(Event& e, EventSetup const&);
+      void produce(Event& e);
       void listen(BranchDescription const&);
    };
 
@@ -109,7 +110,7 @@ public:
    {
       callWhenNewProductsRegistered(this,&ListenFloatMod::listen);
    }
-   void ListenFloatMod::produce(Event&, EventSetup const&)
+   void ListenFloatMod::produce(Event&)
    {
    }
 
@@ -138,12 +139,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
    ParameterSet p1;
-   p1.addParameter("@module_type",std::string("TestMod") );
-   p1.addParameter("@module_label",std::string("t1") );
+   p1.put("@module_type",std::string("TestMod") );
+   p1.put("@module_label",std::string("t1") );
 
    ParameterSet p2;
-   p2.addParameter("@module_type",std::string("TestMod") );
-   p2.addParameter("@module_label",std::string("t2") );
+   p2.put("@module_type",std::string("TestMod") );
+   p2.put("@module_label",std::string("t2") );
 
    art::ActionTable table;
 
@@ -153,12 +154,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
-   l1.addParameter("@module_type",std::string("ListenMod") );
-   l1.addParameter("@module_label",std::string("l1") );
+   l1.put("@module_type",std::string("ListenMod") );
+   l1.put("@module_label",std::string("l1") );
 
    ParameterSet l2;
-   l2.addParameter("@module_type",std::string("ListenMod") );
-   l2.addParameter("@module_label",std::string("l2") );
+   l2.put("@module_type",std::string("ListenMod") );
+   l2.put("@module_label",std::string("l2") );
 
    art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
    art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
@@ -198,12 +199,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
    ParameterSet p1;
-   p1.addParameter("@module_type",std::string("TestMod") );
-   p1.addParameter("@module_label",std::string("t1") );
+   p1.put("@module_type",std::string("TestMod") );
+   p1.put("@module_label",std::string("t1") );
 
    ParameterSet p2;
-   p2.addParameter("@module_type",std::string("TestMod") );
-   p2.addParameter("@module_label",std::string("t2") );
+   p2.put("@module_type",std::string("TestMod") );
+   p2.put("@module_label",std::string("t2") );
 
    art::ActionTable table;
 
@@ -213,12 +214,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
-   l1.addParameter("@module_type",std::string("ListenMod") );
-   l1.addParameter("@module_label",std::string("l1") );
+   l1.put("@module_type",std::string("ListenMod") );
+   l1.put("@module_label",std::string("l1") );
 
    ParameterSet l2;
-   l2.addParameter("@module_type",std::string("ListenMod") );
-   l2.addParameter("@module_label",std::string("l2") );
+   l2.put("@module_type",std::string("ListenMod") );
+   l2.put("@module_label",std::string("l2") );
 
    art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
    art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
@@ -258,12 +259,12 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
    ParameterSet p1;
-   p1.addParameter("@module_type",std::string("TestMod") );
-   p1.addParameter("@module_label",std::string("t1") );
+   p1.put("@module_type",std::string("TestMod") );
+   p1.put("@module_label",std::string("t1") );
 
    ParameterSet p2;
-   p2.addParameter("@module_type",std::string("TestMod") );
-   p2.addParameter("@module_label",std::string("t2") );
+   p2.put("@module_type",std::string("TestMod") );
+   p2.put("@module_label",std::string("t2") );
 
    art::ActionTable table;
 
@@ -273,13 +274,13 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
-   l1.addParameter("@module_type",std::string("ListenMod") );
-   l1.addParameter("@module_label",std::string("l1") );
+   l1.put("@module_type",std::string("ListenMod") );
+   l1.put("@module_label",std::string("l1") );
 
    std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
    ParameterSet l2;
-   l2.addParameter("@module_type",std::string("ListenMod") );
-   l2.addParameter("@module_label",std::string("l2") );
+   l2.put("@module_type",std::string("ListenMod") );
+   l2.put("@module_label",std::string("l2") );
 
    art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
    art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());

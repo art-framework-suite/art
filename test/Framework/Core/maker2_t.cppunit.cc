@@ -13,25 +13,26 @@
 #include "art/Framework/Core/WorkerParams.h"
 
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 #include <cppunit/extensions/HelperMacros.h>
 
 using namespace art;
+using fhicl::ParameterSet;
 
 class TestMod : public EDProducer
 {
  public:
   explicit TestMod(ParameterSet const& p);
 
-  void produce(Event& e, EventSetup const&);
+   void produce(Event&);
 };
 
 TestMod::TestMod(ParameterSet const&)
 { produces<int>();}
 
-void TestMod::produce(Event&, EventSetup const&)
+void TestMod::produce(Event&)
 {
   art::CurrentProcessingContext const* p = currentContext();
   CPPUNIT_ASSERT( p != 0 );
@@ -60,12 +61,12 @@ void testmaker2::maker2Test()
   std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
   ParameterSet p1;
-  p1.addParameter("@module_type",std::string("TestMod") );
-  p1.addParameter("@module_label",std::string("t1") );
+  p1.put("@module_type",std::string("TestMod") );
+  p1.put("@module_label",std::string("t1") );
 
   ParameterSet p2;
-  p2.addParameter("@module_type",std::string("TestMod") );
-  p2.addParameter("@module_label",std::string("t2") );
+  p2.put("@module_type",std::string("TestMod") );
+  p2.put("@module_label",std::string("t2") );
 
   art::ActionTable table;
 

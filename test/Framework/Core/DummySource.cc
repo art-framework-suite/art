@@ -8,7 +8,7 @@
 #include "test/Framework/Core/DummySource.h"
 
 namespace art {
-  DummySource::DummySource(ParameterSet const& pset,
+   DummySource::DummySource(fhicl::ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     GeneratedInputSource(pset, desc)
   { }

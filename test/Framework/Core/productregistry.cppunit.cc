@@ -10,13 +10,14 @@
 #include <iostream>
 #include <cppunit/extensions/HelperMacros.h>
 #include "art/Framework/Core/EventProcessor.h"
-#include "art/Utilities/Exception.h"
-
+// #include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Framework/Core/SignallingProductRegistry.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/PluginManager/ProblemTracker.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // namespace art {
 //   class EDProduct;
@@ -28,7 +29,7 @@ CPPUNIT_TEST_SUITE(testProductRegistry);
 
 CPPUNIT_TEST(testSignal);
 CPPUNIT_TEST(testWatch);
-CPPUNIT_TEST_EXCEPTION(testCircular,artZ::Exception);
+   CPPUNIT_TEST_EXCEPTION(testCircular,cet::exception);
 
 CPPUNIT_TEST(testProductRegistration);
 
@@ -98,7 +99,7 @@ testProductRegistry::testProductRegistry() :
 void testProductRegistry::setUp()
 {
   intModule_ = new art::ModuleDescription;
-  intModule_->parameterSetID_ = art::ParameterSet().id();
+  intModule_->parameterSetID_ = fhicl::ParameterSet().id();
   intBranch_ = new art::BranchDescription(art::InEvent, "label", "PROD",
 					  "int", "int", "int",
 					  *intModule_);
@@ -208,8 +209,8 @@ void  testProductRegistry:: testProductRegistration(){
       "process.p = cms.Path(process.m1*process.m2)\n");
   try {
     art::EventProcessor proc(configuration, true);
-  } catch(const artZ::Exception& iException) {
-    std::cout <<"caught "<<iException.explainSelf()<<std::endl;
+  } catch(const cet::exception& iException) {
+    std::cout <<"caught "<<iException.explain_self()<<std::endl;
     throw;
   }
 }

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/CPCSentry.h"
 
@@ -24,8 +24,8 @@ int main()
 {
   int rc = -1;
   try { rc = work(); }
-  catch (artZ::Exception& x) {
-      std::cerr << "artZ::Exception caught\n";
+  catch (cet::exception& x) {
+      std::cerr << "cet::exception caught\n";
       std::cerr << x.what() << '\n';
       rc = -2;
   }

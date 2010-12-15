@@ -35,25 +35,14 @@ set( FWCoreFrameworkHistoryAnalyzer_sources stubs/HistoryAnalyzer.cc )
 
 set( TestFWCoreFramework_sources testRunner.cpp
                                  DummySource.cc
-				 callback_t.cppunit.cc
-				 datakey_t.cppunit.cc
-				 dependentrecord_t.cppunit.cc
-				 esproducer_t.cppunit.cc
-				 esproducts_t.cppunit.cc
-				 eventsetupplugin_t.cppunit.cc
-				 eventsetuprecord_t.cppunit.cc
-				 eventsetup_t.cppunit.cc
-				 fullchain_t.cppunit.cc
-				 interval_t.cppunit.cc
-				 proxyfactoryproducer_t.cppunit.cc
-				 maker2_t.cppunit.cc
-				 maker_t.cppunit.cc
-				 iovsyncvalue_t.cppunit.cc
-				 productregistry.cppunit.cc
 				 edproducer_productregistry_callback.cc
 				 generichandle_t.cppunit.cc
-				 event_getrefbeforeput_t.cppunit.cc
-				 intersectingiovrecordintervalfinder_t.cppunit.cc )
+				 interval_t.cppunit.cc
+				 iovsyncvalue_t.cppunit.cc
+				 maker2_t.cppunit.cc
+				 maker_t.cppunit.cc
+#				 productregistry.cppunit.cc
+)
 #set( FWCoreFrameworkTestDummyService_sources stubs/DependsOnDummyService.cc
 #                                             stubs/DummyService.cc
 #                                             stubs/DummyServiceE0.cc )
@@ -66,13 +55,16 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 #add_library(FWCoreFrameworkTestDummyServicePlugin SHARED ${art_Framework_Services_Registry_TestDummyServicePlugin_sources} )
 
 link_libraries( art_Framework_Services_Registry
-                art_ParameterSet
-                art_Framework_PluginManager
-                art_Utilities
-                ${Boost_FILESYSTEM_LIBRARY}
-                ${SIGC}
-		${CORE}
-		${REFLEX} )
+  art_Framework_PluginManager
+  art_Utilities
+  art_Framework_Core
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${SIGC}
+	${CORE}
+	${REFLEX}
+  ${CINTEX}
+  ${CINT}
+ )
 
 
 add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )

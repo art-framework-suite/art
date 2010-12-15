@@ -62,7 +62,7 @@ void testGenericHandle::failWrongType() {
       art::GenericHandle h("arttest::DmmyProduct");
       CPPUNIT_ASSERT("Failed to thow"==0);
    }
-   catch (artZ::Exception& x) {
+   catch (cet::exception& x) {
       // nothing to do
    }
    catch (...) {
@@ -74,7 +74,7 @@ void testGenericHandle::failgetbyLabelTest() {
   art::EventID id;
   art::Timestamp time;
   std::string uuid = art::createGlobalIdentifier();
-  art::ProcessConfiguration pc("PROD", art::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
+  art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
   boost::shared_ptr<art::ProductRegistry const> preg(new art::ProductRegistry);
   art::RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, pc));
@@ -97,7 +97,7 @@ void testGenericHandle::failgetbyLabelTest() {
      *h;
      didThrow=false;
   }
-  catch (artZ::Exception& x) {
+  catch (cet::exception& x) {
     // nothing to do
   }
   catch (std::exception& x) {
@@ -129,7 +129,7 @@ void testGenericHandle::getbyLabelTest() {
 
   art::ModuleDescription modDesc;
   modDesc.moduleName_ = "Blah";
-  modDesc.parameterSetID_ = art::ParameterSet().id();
+  modDesc.parameterSetID_ = fhicl::ParameterSet().id();
 
   art::BranchDescription product(art::InEvent,
 				 label,
@@ -154,7 +154,7 @@ void testGenericHandle::getbyLabelTest() {
   art::EventID col(1L, 1L);
   art::Timestamp fakeTime;
   std::string uuid = art::createGlobalIdentifier();
-  art::ProcessConfiguration pc("PROD", art::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
+  art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
   boost::shared_ptr<art::ProductRegistry const> pregc(preg);
   art::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, pregc, pc));
@@ -182,9 +182,9 @@ void testGenericHandle::getbyLabelTest() {
 
     event.getByLabel(label, productInstanceName,h);
   }
-  catch (artZ::Exception& x) {
-    std::cerr << x.explainSelf()<< std::endl;
-    CPPUNIT_ASSERT("Threw artZ::Exception unexpectedly" == 0);
+  catch (cet::exception& x) {
+    std::cerr << x.explain_self()<< std::endl;
+    CPPUNIT_ASSERT("Threw cet::exception unexpectedly" == 0);
   }
   catch(std::exception& x){
      std::cerr <<x.what()<<std::endl;

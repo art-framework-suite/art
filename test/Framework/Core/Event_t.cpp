@@ -4,7 +4,7 @@
 Test program for art::Event.
 
 ----------------------------------------------------------------------*/
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include "test/CppUnit_testdriver.icpp"
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <algorithm>
@@ -39,16 +39,17 @@ Test program for art::Event.
 #include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Framework/Core/Selector.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Utilities/InputTag.h"
-#include "art/Utilities/Algorithms.h"
-#include "art/Utilities/EDMException.h"
+#include "cetlib/container_algorithms.h"
+// #include "art/Utilities/EDMException.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 
 using namespace art;
+using fhicl::ParameterSet;
 
 // This is a gross hack, to allow us to test the event
 namespace art
@@ -153,12 +154,12 @@ testEvent::registerProduct(std::string const& tag,
     availableProducts_ = new ProductRegistry();
 
   ParameterSet moduleParams;
-  moduleParams.template addParameter<std::string>("@module_type", moduleClassName);
-  moduleParams.template addParameter<std::string>("@module_label", moduleLabel);
+  moduleParams.template put<std::string>("@module_type", moduleClassName);
+  moduleParams.template put<std::string>("@module_label", moduleLabel);
 
   ParameterSet processParams;
-  processParams.template addParameter<std::string>("@process_name", processName);
-  processParams.template addParameter<ParameterSet>(moduleLabel, moduleParams);
+  processParams.template put<std::string>("@process_name", processName);
+  processParams.template put<ParameterSet>(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
   process.processName_    = processName;
@@ -233,13 +234,13 @@ testEvent::testEvent() :
   ParameterSet moduleParams;
   std::string moduleLabel("modMulti");
   std::string moduleClassName("IntProducer");
-  moduleParams.addParameter<std::string>("@module_type", moduleClassName);
-  moduleParams.addParameter<std::string>("@module_label", moduleLabel);
+  moduleParams.put<std::string>("@module_type", moduleClassName);
+  moduleParams.put<std::string>("@module_label", moduleLabel);
 
   ParameterSet processParams;
   std::string processName("CURRENT");
-  processParams.addParameter<std::string>("@process_name", processName);
-  processParams.addParameter(moduleLabel, moduleParams);
+  processParams.put<std::string>("@process_name", processName);
+  processParams.put(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
   process.processName_    = processName;
@@ -290,13 +291,13 @@ void testEvent::setUp()
   ParameterSet moduleParamsEarly;
   std::string moduleLabelEarly("currentModule");
   std::string moduleClassNameEarly("IntProducer");
-  moduleParamsEarly.addParameter<std::string>("@module_type", moduleClassNameEarly);
-  moduleParamsEarly.addParameter<std::string>("@module_label", moduleLabelEarly);
+  moduleParamsEarly.put<std::string>("@module_type", moduleClassNameEarly);
+  moduleParamsEarly.put<std::string>("@module_label", moduleLabelEarly);
 
   ParameterSet processParamsEarly;
   std::string processNameEarly("EARLY");
-  processParamsEarly.addParameter<std::string>("@process_name", processNameEarly);
-  processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
+  processParamsEarly.put<std::string>("@process_name", processNameEarly);
+  processParamsEarly.put(moduleLabelEarly, moduleParamsEarly);
 
   ProcessConfiguration processEarly;
   processEarly.processName_    = "EARLY";
@@ -307,13 +308,13 @@ void testEvent::setUp()
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
   std::string moduleClassNameLate("IntProducer");
-  moduleParamsLate.addParameter<std::string>("@module_type", moduleClassNameLate);
-  moduleParamsLate.addParameter<std::string>("@module_label", moduleLabelLate);
+  moduleParamsLate.put<std::string>("@module_type", moduleClassNameLate);
+  moduleParamsLate.put<std::string>("@module_label", moduleLabelLate);
 
   ParameterSet processParamsLate;
   std::string processNameLate("LATE");
-  processParamsLate.addParameter<std::string>("@process_name", processNameLate);
-  processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
+  processParamsLate.put<std::string>("@process_name", processNameLate);
+  processParamsLate.put(moduleLabelLate, moduleParamsLate);
 
   ProcessConfiguration processLate;
   processLate.processName_    = "LATE";
@@ -394,7 +395,7 @@ void testEvent::getBySelectorFromEmpty()
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch,
-		       artZ::Exception);
+		       cet::exception);
 }
 
 void testEvent::putAnIntProduct()
@@ -419,7 +420,7 @@ void testEvent::putAndGetAnIntProduct()
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(!currentEvent_->get(should_not_match, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h, cet::exception);
 }
 
 void testEvent::getByProductID()
@@ -453,13 +454,13 @@ void testEvent::getByProductID()
   CPPUNIT_ASSERT(h->value == 1);
 
   ProductID invalid;
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), artZ::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cet::exception);
   CPPUNIT_ASSERT(!h.isValid());
   ProductID notpresent(0, std::numeric_limits<unsigned short>::max());
   CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT(h.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h, cet::exception);
 }
 
 void testEvent::transaction()
@@ -565,26 +566,26 @@ void testEvent::getBySelector()
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel1, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h, cet::exception);
 
   Selector sel2(ProductInstanceNameSelector("int2") &&
 	        ModuleLabelSelector("nomatch") &&
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel2, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h, cet::exception);
 
   Selector sel3(ProductInstanceNameSelector("int2") &&
 	        ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("nomatch"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel3, h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h, cet::exception);
 
   Selector sel4(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
   //multiple selections throw
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), artZ::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), cet::exception);
 
   Selector sel5(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("LATE"));;
@@ -645,7 +646,7 @@ void testEvent::getByLabel()
 
   CPPUNIT_ASSERT(!currentEvent_->getByLabel("modMulti", "nomatch", h));
   CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h, cet::exception);
 
   InputTag inputTag("modMulti", "int1");
   CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
@@ -702,10 +703,10 @@ void testEvent::getByType()
   CPPUNIT_ASSERT(!currentEvent_->getByType(h_nomatch));
   CPPUNIT_ASSERT(!h_nomatch.isValid());
   CPPUNIT_ASSERT(h_nomatch.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h_nomatch, artZ::Exception);
+  CPPUNIT_ASSERT_THROW(*h_nomatch, cet::exception);
 
   Handle<std::vector<arttest::Thing> > hthing;
-  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),artZ::Exception);
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cet::exception);
 
   handle_vec handles;
   currentEvent_->getManyByType(handles);
@@ -720,5 +721,5 @@ void testEvent::printHistory()
   ProcessHistory const& history = currentEvent_->processHistory();
   std::ofstream out("history.log");
 
-  copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
+  cet::copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }
