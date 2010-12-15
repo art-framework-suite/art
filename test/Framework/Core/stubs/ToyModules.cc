@@ -23,7 +23,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/ParameterSetDescription.h"
 
 #include <boost/shared_ptr.hpp>

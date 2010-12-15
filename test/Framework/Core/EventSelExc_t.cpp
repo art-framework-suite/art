@@ -17,8 +17,8 @@
 
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/ParameterSet/Registry.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
@@ -35,6 +35,7 @@
 #include <cassert>
 
 using namespace art;
+using namespace fhicl;
 
 typedef std::vector< std::vector<bool> > Answers;
 
@@ -47,7 +48,7 @@ typedef std::vector<Bools> VBools;
 // bits.
 
 const size_t num_trig_paths = 8;
-boost::array<char*,num_trig_paths> cpaths =
+boost::array<char const*,num_trig_paths> cpaths =
       {{
               "ap1", "ap2", "aq1", "aq2",
               "bp1", "bp2", "bq1", "bq2",
@@ -159,7 +160,7 @@ Bools toBools( boost::array<bool,nb> const & t )
 void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
 {
   ParameterSet pset;
-  pset.addParameter<Strings>("SelectEvents",ps.path);
+  pset.put<Strings>("SelectEvents",ps.path);
 
   // There are 3 different ways to build the EventSelector.  All
   // should give the same result.  We exercise all 3 here.
@@ -214,10 +215,8 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
   // registry
 
   ParameterSet trigger_pset;
-  trigger_pset.addParameter<Strings>("@trigger_paths", trigger_path_names);
-  pset::Registry* psetRegistry = pset::Registry::instance();
-  trigger_pset.fillID();
-  psetRegistry->insertMapped(trigger_pset);
+  trigger_pset.put<Strings>("@trigger_paths", trigger_path_names);
+  ParameterSetRegistry::put(trigger_pset);
 
   TriggerResults results_id(bm, trigger_pset.id());
 
@@ -249,20 +248,20 @@ int main()
   ParameterSet proc_pset;
 
   std::string processName("HLT");
-  proc_pset.addParameter<std::string>("@process_name", processName);
+  proc_pset.put<std::string>("@process_name", processName);
 
   ParameterSet trigPaths;
-  trigPaths.addParameter<Strings>("@trigger_paths", trigger_path_names);
-  proc_pset.addUntrackedParameter<ParameterSet>("@trigger_paths", trigPaths);
+  trigPaths.put<Strings>("@trigger_paths", trigger_path_names);
+  proc_pset.put<ParameterSet>("@trigger_paths", trigPaths);
 
   Strings endPaths;
-  proc_pset.addParameter<Strings>("@end_paths", endPaths);
+  proc_pset.put<Strings>("@end_paths", endPaths);
 
   // We do not care what is in these parameters for the test, they
   // just need to exist.
   Strings dummy;
   for (size_t i = 0; i < num_trig_paths; ++i) {
-    proc_pset.addParameter<Strings>(trigger_path_names[i], dummy);
+    proc_pset.put<Strings>(trigger_path_names[i], dummy);
   }
 
   // Now create and setup the service

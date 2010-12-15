@@ -1,8 +1,8 @@
 
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/ParameterSet/Registry.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "art/Utilities/ThreadSafeRegistry.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
@@ -18,6 +18,7 @@
 #include <memory>
 
 using namespace art;
+using namespace fhicl;
 
 size_t const numBits = 12;  // There must be a better way than this but I choose to
 		 	    // avoid modifying a whole slew of code using the array
@@ -63,8 +64,8 @@ void testone(const Strings& paths,
              int jmask)
 {
   ParameterSet pset; //, parent;
-  pset.addParameter<Strings>("SelectEvents",pattern);
-  //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
+  pset.put<Strings>("SelectEvents",pattern);
+  //parent.put<ParameterSet>("SelectEvents",pset);
 
   // There are 3 different ways to build the EventSelector.  All
   // should give the same result.  We exercise all 3 here.
@@ -131,10 +132,8 @@ void testone(const Strings& paths,
   // registry
 
   ParameterSet trigger_pset;
-  trigger_pset.addParameter<Strings>("@trigger_paths", paths);
-  pset::Registry* psetRegistry = pset::Registry::instance();
-  trigger_pset.fillID();
-  psetRegistry->insertMapped(trigger_pset);
+  trigger_pset.put<Strings>("@trigger_paths", paths);
+  ParameterSetRegistry::put(trigger_pset);
 
   TriggerResults results_id(bm, trigger_pset.id());
 
@@ -175,7 +174,7 @@ int main()
   // Name all our paths. We have as many paths as there are trigger
   // bits.
 
-  boost::array<char*,numBits> cpaths =
+  boost::array<char const*,numBits> cpaths =
   	{{
 		"HLTx1",   "HLTx2",   "HLTy1",   "HLTy2",
 		"CALIBx1", "CALIBx2", "CALIBy1", "CALIBy2",
@@ -430,20 +429,20 @@ int main()
   ParameterSet proc_pset;
 
   std::string processName("HLT");
-  proc_pset.addParameter<std::string>("@process_name", processName);
+  proc_pset.put<std::string>("@process_name", processName);
 
   ParameterSet trigPaths;
-  trigPaths.addParameter<Strings>("@trigger_paths", paths);
-  proc_pset.addUntrackedParameter<ParameterSet>("@trigger_paths", trigPaths);
+  trigPaths.put<Strings>("@trigger_paths", paths);
+  proc_pset.put<ParameterSet>("@trigger_paths", trigPaths);
 
   Strings endPaths;
-  proc_pset.addParameter<Strings>("@end_paths", endPaths);
+  proc_pset.put<Strings>("@end_paths", endPaths);
 
   // We do not care what is in these parameters for the test, they
   // just need to exist.
   Strings dummy;
   for (size_t i = 0; i < numBits; ++i) {
-    proc_pset.addParameter<Strings>(paths[i], dummy);
+    proc_pset.put<Strings>(paths[i], dummy);
   }
 
   // Now create and setup the service

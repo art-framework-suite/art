@@ -10,7 +10,7 @@
 // Original Author: David Dagenhart, Fermilab, February 2008
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/SubRun.h"

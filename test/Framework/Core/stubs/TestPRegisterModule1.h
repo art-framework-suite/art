@@ -23,7 +23,7 @@
 
 // user include files
 #include "art/Framework/Core/EDProducer.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 // forward declarations
 

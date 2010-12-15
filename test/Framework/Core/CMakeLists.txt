@@ -68,10 +68,10 @@ link_libraries( art_Framework_Services_Registry
 
 
 add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )
-add_executable( TestFWCoreFrameworkeventprocessor  ${TestFWCoreFrameworkeventprocessor_sources} )
+#add_executable( TestFWCoreFrameworkeventprocessor  ${TestFWCoreFrameworkeventprocessor_sources} )
 add_executable( TestFWCoreFrameworkeventprincipal  testRunner.cpp eventprincipal_t.cppunit.cc )
 add_executable( TestFWCoreFrameworkEvent Event_t.cpp )
-add_executable( TestFWCoreFrameworkView View_t.cpp )
+# add_executable( TestFWCoreFrameworkView View_t.cpp )
 add_executable( TestFWCoreFrameworkCmsRun TestDriver.cpp )
 add_executable( TestFWCoreFrameworkESRefer TestDriver.cpp )
 add_executable( TestFWCoreFrameworkUnscheduled TestDriver.cpp )
@@ -89,14 +89,17 @@ add_executable( TestFWCoreFrameworkCurrentProcessingContext CurrentProcessingCon
 add_executable( TestFWCoreFrameworkCPCSentry CPCSentry_t.cpp )
 add_executable( TestFWCoreFrameworkRegistryTemplate RegistryTemplate_t.cpp )
 add_executable( TestFWCoreOutputModuleUtilities OutputModuleUtilities_t.cpp )
-add_executable( TestFWCoreFrameworkStatemachine statemachine_t.cc )
+add_executable( TestFWCoreFrameworkStatemachine statemachine_t.cc MockEventProcessor.cc )
+target_link_libraries(TestFWCoreFrameworkStatemachine
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  )
 add_executable( TestFWCoreFrameworkStatemachineSH TestDriver.cpp )
 
 add_test( TestFWCoreFramework ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFramework )
-add_test( TestFWCoreFrameworkeventprocessor  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprocessor )
+#add_test( TestFWCoreFrameworkeventprocessor  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprocessor )
 add_test( TestFWCoreFrameworkeventprincipal  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprincipal )
 add_test( TestFWCoreFrameworkEvent ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEvent )
-add_test( TestFWCoreFrameworkView ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkView )
+#add_test( TestFWCoreFrameworkView ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkView )
 add_test( TestFWCoreFrameworkCmsRun ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkCmsRun )
 add_test( TestFWCoreFrameworkESRefer ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkESRefer )
 add_test( TestFWCoreFrameworkUnscheduled ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkUnscheduled )

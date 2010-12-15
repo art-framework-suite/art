@@ -25,11 +25,11 @@
 
 #include "art/Framework/Core/MakerMacros.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "FWCore/Framework/test/stubs/TestFailuresAnalyzer.h"
 
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 
 //
 // class decleration
@@ -58,7 +58,7 @@ TestFailuresAnalyzer::TestFailuresAnalyzer(const art::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){
-      throw artZ::Exception("Test")<<" constructor";
+      throw cet::exception("Test")<<" constructor";
    }
 }
 
@@ -81,10 +81,10 @@ void
 TestFailuresAnalyzer::beginJob(const art::EventSetup&)
 {
    if(whichFailure_ == kBeginOfJob){
-      throw artZ::Exception("Test") <<" beginJob";
+      throw cet::exception("Test") <<" beginJob";
    }
    if(whichFailure_ == kBeginOfJobBadXML){
-      throw artZ::Exception("Test") <<" beginJob with <BAD> >XML<";
+      throw cet::exception("Test") <<" beginJob with <BAD> >XML<";
    }
 }
 
@@ -92,7 +92,7 @@ void
 TestFailuresAnalyzer::endJob()
 {
    if(whichFailure_ == kEndOfJob){
-      throw artZ::Exception("Test") <<" endJob";
+      throw cet::exception("Test") <<" endJob";
    }
 }
 
@@ -101,7 +101,7 @@ void
 TestFailuresAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSetup& /* iSetup */)
 {
    if(whichFailure_ == kEvent){
-      throw artZ::Exception("Test") <<" event";
+      throw cet::exception("Test") <<" event";
    }
 
 }

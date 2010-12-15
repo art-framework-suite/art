@@ -18,7 +18,7 @@ Test of the EventProcessor class.
 #undef private
 
 #include "art/Framework/Core/EventProcessor.h"
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/Presence.h"
 #include "art/Framework/PluginManager/PresenceFactory.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
@@ -246,9 +246,9 @@ void testeventprocessor::driveAsyncTest( bool(testeventprocessor::*func)(art::Ev
 	std::cerr << "event processor is in error state\n";
       }
   }
-  catch(artZ::Exception& e)
+  catch(cet::exception& e)
     {
-      std::cerr << "cms exception: " << e.explainSelf() << std::endl;
+      std::cerr << "cms exception: " << e.explain_self() << std::endl;
       CPPUNIT_ASSERT("cms exeption"==0);
     }
   catch(std::exception& e)
@@ -268,10 +268,10 @@ void testeventprocessor::parseTest()
 {
   int rc = -1;                // we should never return this value!
   try { work(); rc = 0;}
-  catch (artZ::Exception& e) {
+  catch (cet::exception& e) {
       std::cerr << "cms exception caught: "
-		<< e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT("Caught artZ::Exception " == 0);
+		<< e.explain_self() << std::endl;
+      CPPUNIT_ASSERT("Caught cet::exception " == 0);
   }
   catch (std::exception& e) {
       std::cerr << "Standard library exception caught: "
@@ -745,9 +745,9 @@ testeventprocessor::moduleFailureTest()
       try {
 	art::EventProcessor proc(configuration, true);
 	threw = false;
-      } catch(const artZ::Exception& iException){
-	if(!findModuleName(iException.explainSelf())) {
-	  std::cout <<iException.explainSelf()<<std::endl;
+      } catch(const cet::exception& iException){
+	if(!findModuleName(iException.explain_self())) {
+	  std::cout <<iException.explain_self()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
 	}
       }
@@ -761,9 +761,9 @@ testeventprocessor::moduleFailureTest()
       try {
 	proc.beginJob();
 	threw = false;
-      } catch(const artZ::Exception& iException){
-	if(!findModuleName(iException.explainSelf())) {
-	  std::cout <<iException.explainSelf()<<std::endl;
+      } catch(const cet::exception& iException){
+	if(!findModuleName(iException.explain_self())) {
+	  std::cout <<iException.explain_self()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
 	}
       }
@@ -779,9 +779,9 @@ testeventprocessor::moduleFailureTest()
       try {
 	proc.run(1);
 	threw = false;
-      } catch(const artZ::Exception& iException){
-	if(!findModuleName(iException.explainSelf())) {
-	  std::cout <<iException.explainSelf()<<std::endl;
+      } catch(const cet::exception& iException){
+	if(!findModuleName(iException.explain_self())) {
+	  std::cout <<iException.explain_self()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
 	}
       }
@@ -797,9 +797,9 @@ testeventprocessor::moduleFailureTest()
       try {
 	proc.endJob();
 	threw = false;
-      } catch(const artZ::Exception& iException){
-	if(!findModuleName(iException.explainSelf())) {
-	  std::cout <<iException.explainSelf()<<std::endl;
+      } catch(const cet::exception& iException){
+	if(!findModuleName(iException.explain_self())) {
+	  std::cout <<iException.explain_self()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
 	}
       }
@@ -819,18 +819,18 @@ testeventprocessor::moduleFailureTest()
         art::EventProcessor proc(configuration, true);
 
 	threw = false;
-      } catch(const artZ::Exception& iException){
+      } catch(const cet::exception& iException){
         static const boost::regex expr("m1");
-	if(!regex_search(iException.explainSelf(),expr)) {
-	  std::cout <<iException.explainSelf()<<std::endl;
+	if(!regex_search(iException.explain_self(),expr)) {
+	  std::cout <<iException.explain_self()<<std::endl;
 	  CPPUNIT_ASSERT(0 == "module name not in exception message");
 	}
       }
       CPPUNIT_ASSERT(threw && 0 != "exception never thrown");
     }
 
-  } catch(const artZ::Exception& iException) {
-    std::cout <<"Unexpected exception "<<iException.explainSelf()<<std::endl;
+  } catch(const cet::exception& iException) {
+    std::cout <<"Unexpected exception "<<iException.explain_self()<<std::endl;
     throw;
   }
 }

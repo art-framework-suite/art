@@ -1,6 +1,6 @@
 
 #include "art/Framework/Core/OutputModule.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
@@ -118,7 +118,7 @@ namespace arttest
         //throw doesn't happen until we dereference
         *prod;
       }
-      catch (const artZ::Exception&) {
+      catch (const cet::exception&) {
         // We did not find one as expected, nothing else to test.
         return;
       }

@@ -2,7 +2,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"

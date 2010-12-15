@@ -51,9 +51,9 @@ void work()
 void testeventprocessor2::eventprocessor2Test()
 {
   try { work();}
-  catch (artZ::Exception& e) {
+  catch (cet::exception& e) {
       std::cerr << "CMS exception caught: "
-		<< e.explainSelf() << std::endl;
+		<< e.explain_self() << std::endl;
       CPPUNIT_ASSERT("Exception caught in testeventprocessor2::eventprocessor2Test"==0);
   }
   catch (std::runtime_error& e) {

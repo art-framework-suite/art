@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include <cppunit/extensions/HelperMacros.h>
-#include "art/Utilities/Exception.h"
+#include "cetlib/exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 

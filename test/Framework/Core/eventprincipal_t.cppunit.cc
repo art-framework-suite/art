@@ -16,7 +16,7 @@ Test of the EventPrincipal class.
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
+#include "fhiclcpp/ParameterSetID.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -35,11 +35,12 @@ Test of the EventPrincipal class.
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Selector.h"
 #include "art/Utilities/TypeID.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/Utilities/EDMException.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/Utilities/GlobalIdentifier.h"
+
 
 class test_ep: public CppUnit::TestFixture
 {
@@ -70,7 +71,7 @@ private:
   art::ProcessConfiguration*
   fake_single_module_process(std::string const& tag,
 			     std::string const& processName,
-			     art::ParameterSet const& moduleParams,
+			     fhicl::ParameterSet const& moduleParams,
 			     std::string const& release = art::getReleaseVersion(),
 			     std::string const& pass = art::getPassID() );
   art::BranchDescription*
@@ -99,13 +100,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(test_ep);
 art::ProcessConfiguration*
 test_ep::fake_single_module_process(std::string const& tag,
 				    std::string const& processName,
-				    art::ParameterSet const& moduleParams,
+				    fhicl::ParameterSet const& moduleParams,
 				    std::string const& release,
 				    std::string const& pass)
 {
-  art::ParameterSet processParams;
-  processParams.addParameter(processName, moduleParams);
-  processParams.addParameter<std::string>("@process_name",
+  fhicl::ParameterSet processParams;
+  processParams.put(processName, moduleParams);
+  processParams.put<std::string>("@process_name",
 					  processName);
 
   art::ProcessConfiguration* result =
@@ -125,9 +126,9 @@ test_ep::fake_single_process_branch(std::string const& tag,
   art::TypeID dummyType(typeid(arttest::DummyProduct));
   std::string productClassName = dummyType.userClassName();
   std::string friendlyProductClassName = dummyType.friendlyClassName();
-  art::ParameterSet modParams;
-  modParams.addParameter<std::string>("@module_type", moduleClass);
-  modParams.addParameter<std::string>("@module_label", moduleLabel);
+  fhicl::ParameterSet modParams;
+  modParams.put<std::string>("@module_type", moduleClass);
+  modParams.put<std::string>("@module_label", moduleLabel);
   mod.parameterSetID_ = modParams.id();
   mod.moduleName_ = moduleClass;
   mod.moduleLabel_ = moduleLabel;

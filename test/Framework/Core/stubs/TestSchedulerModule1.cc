@@ -12,7 +12,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
 #include <memory>
 #include <string>

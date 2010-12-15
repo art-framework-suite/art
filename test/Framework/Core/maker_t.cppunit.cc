@@ -53,8 +53,8 @@ void testmaker::makerTest()
     std::auto_ptr<Worker> w1 = f->makeWorker(*p1, preg, table, "PROD", 0, 0);
     std::auto_ptr<Worker> w2 = f->makeWorker(*p2, preg, table, "PROD", 0, 0);
   }
-  catch(artZ::Exception& e) {
-      std::cerr << "artZ::Exception: " << e.explainSelf() << std::endl;
+  catch(cet::exception& e) {
+      std::cerr << "cet::exception: " << e.explain_self() << std::endl;
       throw;
   }
   catch(std::exception& e) {
