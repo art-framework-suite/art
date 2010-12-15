@@ -65,8 +65,8 @@ find_ups_product( cetlib v0_1_4 )
 find_ups_product( clhep v2_1_0_0  )
 find_ups_product( fhiclcpp v2_1_0  )
 find_ups_product( messagefacility v1_5_0  )
-find_ups_root( v5_26_00 )
-find_ups_boost( v1_44_0 filesystem
+find_ups_root( v5_27_00 )
+find_ups_boost( v1_45_0 filesystem
                         regex
 			thread
                         program_options )
