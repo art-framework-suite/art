@@ -165,12 +165,10 @@ Type				C A P O D
 =============================== = = = = =
 CurrentModule			N Y Y N	N	
 EnableFloatingPointExceptions	Y Y N N N
-=============================== = = = = =
 SimpleMemoryCheck		Y Y N Y Y
 TFileService			Y Y Y Y Y
 Timing				Y Y N Y Y
 Tracer				N Y N Y Y
-=============================== = = = = =
 InitRootHandlers		Y N N Y N
 LoadAllDictionaries		N N N Y N
 UnixSignalService		Y N N N N
