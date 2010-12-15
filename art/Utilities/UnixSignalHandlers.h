@@ -31,5 +31,7 @@ namespace art {
     void installCustomHandler(int signum, CFUNC func);
     void sigInventory();
 
+    void setupSignals(bool want_sigint_enabled);
+
 }  // end of namespace art
 #endif

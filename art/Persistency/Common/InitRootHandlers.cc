@@ -1,14 +1,12 @@
-#include "art/Framework/Services/Basic/InitRootHandlers.h"
 
-#include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/Framework/Services/RootAutoLibraryLoader/RootAutoLibraryLoader.h"
+#include "art/Persistency/Common/InitRootHandlers.h"
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
 #include "art/Utilities/Exception.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include "Cintex/Cintex.h"
 #include "G__ci.h"
@@ -20,12 +18,10 @@
 #include <sstream>
 #include <string.h>
 
-using art::service::InitRootHandlers;
-
-
 namespace {
 
-  void RootErrorHandler(int level, bool die, char const* location, char const* message)
+  void RootErrorHandler(int level, bool die, 
+			char const* location, char const* message)
   {
     using mf::ELseverityLevel;
 
@@ -139,37 +135,35 @@ namespace {
 }  // namespace
 
 namespace art {
-  namespace service {
 
-    InitRootHandlers::InitRootHandlers(fhicl::ParameterSet const& pset,
-                                       art::ActivityRegistry &)
-      : RootHandlers(),
-        unloadSigHandler_(pset.get<bool> ("UnloadRootSigHandler", false)),
-        resetErrHandler_(pset.get<bool> ("ResetRootErrHandler", true)),
-        autoLibraryLoader_(pset.get<bool> ("AutoLibraryLoader", true))
-    {
-      if( unloadSigHandler_ ) {
-        // Deactivate all the Root signal handlers and restore the system defaults
-        gSystem->ResetSignal(kSigChild);
-        gSystem->ResetSignal(kSigBus);
-        gSystem->ResetSignal(kSigSegmentationViolation);
-        gSystem->ResetSignal(kSigIllegalInstruction);
-        gSystem->ResetSignal(kSigSystem);
-        gSystem->ResetSignal(kSigPipe);
-        gSystem->ResetSignal(kSigAlarm);
-        gSystem->ResetSignal(kSigUrgent);
-        gSystem->ResetSignal(kSigFloatingException);
-        gSystem->ResetSignal(kSigWindowChanged);
-      }
+  void unloadRootSigHandler()
+  {
+    // Deactivate all the Root signal handlers and restore the system defaults
+    gSystem->ResetSignal(kSigChild);
+    gSystem->ResetSignal(kSigBus);
+    gSystem->ResetSignal(kSigSegmentationViolation);
+    gSystem->ResetSignal(kSigIllegalInstruction);
+    gSystem->ResetSignal(kSigSystem);
+    gSystem->ResetSignal(kSigPipe);
+    gSystem->ResetSignal(kSigAlarm);
+    gSystem->ResetSignal(kSigUrgent);
+    gSystem->ResetSignal(kSigFloatingException);
+    gSystem->ResetSignal(kSigWindowChanged);
+  }
 
-      if( resetErrHandler_ ) {
-        // Replace the Root error handler with one that uses the MessageLogger
-        SetErrorHandler(RootErrorHandler);
-      }
+  void setRootErrorHandler(bool want_custom)
+  {
+    if(want_custom)
+      SetErrorHandler(RootErrorHandler);
+    else
+      SetErrorHandler(DefaultErrorHandler);
+  }
 
-      if( autoLibraryLoader_ ) {
-        // Enable automatic Root library loading.
-        RootAutoLibraryLoader::enable();
+  void completeRootHandlers(bool want_auto_lib_loader)
+  {
+    if(want_auto_lib_loader)
+      {
+	art::RootAutoLibraryLoader::enable();
       }
 
       // Enable Cintex.
@@ -184,27 +178,6 @@ namespace art {
       setCacheStreamers();
       setTransientStreamers();
       setRefCoreStreamer();
-    }
+  }
 
-    InitRootHandlers::~InitRootHandlers () {}
-
-    void
-    InitRootHandlers::disableErrorHandler_() {
-      SetErrorHandler(DefaultErrorHandler);
-    }
-
-    void
-    InitRootHandlers::enableErrorHandler_() {
-      SetErrorHandler(RootErrorHandler);
-    }
-
-  }  // namespace service
 }  // namespace art
-
-
-// ======================================================================
-
-
-typedef  art::serviceregistry::AllArgsMaker<art::RootHandlers,InitRootHandlers>
-         RootHandlersMaker;
-DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);

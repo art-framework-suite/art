@@ -11,27 +11,10 @@
 
 */
 
-
-#include "fhiclcpp/ParameterSet.h"
-
-
 namespace art {
-  namespace service {
 
-    class LoadAllDictionaries
-    {
-    public:
-      LoadAllDictionaries(const fhicl::ParameterSet&);
+  void loadAllDictionaries();
 
-    private:
-      // no copying
-      LoadAllDictionaries(const LoadAllDictionaries&);
-      const LoadAllDictionaries& operator=(const LoadAllDictionaries&);
-
-    };
-
-
-  }  // namespace service
 }  // namespace art
 
 #endif  // FWCore_Services_LoadAllDictionaries_h

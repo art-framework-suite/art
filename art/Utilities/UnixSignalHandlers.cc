@@ -180,4 +180,12 @@ namespace art {
       MUST_BE_ZERO(pthread_sigmask( SIG_SETMASK, &oldset, &tmpset));
     }
 
+  void setupSignals(bool want_sigint_enabled)
+  {
+    art::installCustomhandler(SIGUSR2,art::ep_sigusr2);
+    if(want_sigint_enabled)
+      art::installCustomHandler(SIGINT,art::ep_sigusr2);
+  }
+
+
 } // end of namespace art

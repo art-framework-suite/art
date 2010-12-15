@@ -1,33 +1,12 @@
 #ifndef FWCore_Services_InitRootHandlers_h
 #define FWCore_Services_InitRootHandlers_h
 
-
-#include "art/Utilities/RootHandlers.h"
-
-#include "fhiclcpp/ParameterSet.h"
-
-
 namespace art {
-  class ActivityRegistry;
 
-  namespace service {
+  void unloadRootSigHandler();
+  void setRootErrorHandler(bool want_custom);
+  void completeRootHandlers(bool want_auto_lib_loader);
 
-    class InitRootHandlers : public RootHandlers
-    {
-    public:
-      InitRootHandlers( fhicl::ParameterSet const & pset
-                      , art::ActivityRegistry & activity );
-      virtual ~InitRootHandlers ();
-
-    private:
-      virtual void disableErrorHandler_();
-      virtual void enableErrorHandler_();
-      bool unloadSigHandler_;
-      bool resetErrHandler_;
-      bool autoLibraryLoader_;
-    };
-
-  }  // namespace service
 }  // namespace art
 
 #endif  // InitRootHandlers_H
