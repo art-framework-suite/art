@@ -150,6 +150,30 @@ with a name matching "pattern"::
   }
 
 
+Current Services' Qualities
+===========================
 
+All qualities are boolean.  Here is the meaning of them:
+ * C = configuration can be given
+ * A = activity registry is needed for construction
+ * P = public interface is provided
+ * O = optional service
+ * D = output to console, files per event or module (not edm datafile)
+
+=============================== = = = = =
+Type				C A P O D
+=============================== = = = = =
+CurrentModule			N Y Y N	N	
+EnableFloatingPointExceptions	Y Y N N N
+=============================== = = = = =
+SimpleMemoryCheck		Y Y N Y Y
+TFileService			Y Y Y Y Y
+Timing				Y Y N Y Y
+Tracer				N Y N Y Y
+=============================== = = = = =
+InitRootHandlers		Y N N Y N
+LoadAllDictionaries		N N N Y N
+UnixSignalService		Y N N N N
+=============================== = = = = =
 
 

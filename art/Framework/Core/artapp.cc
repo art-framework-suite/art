@@ -27,17 +27,12 @@ it.
 #include <cstring>
 #include <exception>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-
-static char const* const kParameterSetCommandOpt = "parameter-set,p";
-static char const* const kHelpOpt = "help";
-static char const* const kHelpCommandOpt = "help,h";
-
-namespace  bpo=boost::program_options;
 
 // -----------------------------------------------
 namespace {
@@ -84,29 +79,25 @@ namespace {
 
 extern "C" { int art_main(int argc, char* argv[]); }
 
+namespace  bpo=boost::program_options;
+using std::string;
+
 int art_main(int argc, char* argv[])
 {
+  // ------------------
+  // use the boost command line option processing library to help out
+  // with command line options
 
-  //
-  // We must initialize the plug-in manager first
-  // TODO: Replace initialization of the plugin manager.
-  try {
-    artplugin::PluginManager::configure(artplugin::standard::config());
-  }
-  catch(cet::exception& e) {
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
+  ostringstream descstr;
 
-  std::string descString(argv[0]);
-  descString += " [options] [--";
-  descString += "parameter-set";
-  descString += "] config_file \nAllowed options";
-  bpo::options_description desc(descString);
+  descstr << argv[0]
+	  << "--config config_file";
+
+  bpo::options_description desc(descstr.str());
 
   desc.add_options()
-    (kHelpCommandOpt, "produce help message")
-    (kParameterSetCommandOpt, bpo::value<std::string>(), "configuration file");
+    ("help,h", "produce help message")
+    ("config,c", bpo::value<std::string>(), "configuration file");
 
   bpo::options_description all_options("All Options");
   all_options.add(desc);
@@ -116,13 +107,13 @@ int art_main(int argc, char* argv[])
     bpo::store(bpo::command_line_parser(argc,argv).options(all_options).run(),vm);
     bpo::notify(vm);
   }
-  catch(bpo::error const& iException) {
+  catch(bpo::error const& e) {
     std::cerr << "Exception from command line processing in " << argv[0]
-	      << ": " << iException.what();
+	      << ": " << e.what();
     return 7000;
   }
 
-  if (vm.count(kHelpOpt)) {
+  if (vm.count("Help")) {
     std::cout << desc <<std::endl;
     return 0;
   }
@@ -131,23 +122,23 @@ int art_main(int argc, char* argv[])
     std::cerr << "Exception from command line processing in " << argv[0]
 	      << ": no configuration file given.\n"
 	      << "For usage and an options list, please do '"
-	      << argv[0] <<  " --" << kHelpOpt
+	      << argv[0] <<  " --help";
 	      << "'.";
     return 7001;
   }
 
+  // ------------------
   //
   // Get the parameter set from parsing the configuration file.
   //
   fhicl::ParameterSet main_pset, ancillary_pset;
-  fhicl::Parser::Parse(vm["main-parameter-set"].as<std::string>(), main_pset);
-  fhicl::Parser::Parse(vm["ancillary-parameter-set"].as<std::string>(), ancillary_pset);
-
+  fhicl::Parser::Parse(vm["config"].as<std::string>(), main_pset);
 
   //
   // Start the messagefacility
   //
-  mf::start_me(multithread, ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
+  mf::start_me(multithread, 
+	       ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
 
   //
   // Initialize:

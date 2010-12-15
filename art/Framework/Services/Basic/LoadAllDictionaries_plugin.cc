@@ -21,38 +21,38 @@ using art::service::LoadAllDictionaries;
 //
 art::service::LoadAllDictionaries::LoadAllDictionaries(const fhicl::ParameterSet& iConfig)
 {
-   bool doLoad(iConfig.get<bool>("doLoad",true));
-   if(doLoad) {
-     ROOT::Cintex::Cintex::Enable();
+  bool doLoad(iConfig.get<bool>("doLoad",true));
+  if(doLoad) {
+    ROOT::Cintex::Cintex::Enable();
 
-     artplugin::PluginManager*db =  artplugin::PluginManager::get();
+    artplugin::PluginManager*db =  artplugin::PluginManager::get();
 
-     typedef artplugin::PluginManager::CategoryToInfos CatToInfos;
+    typedef artplugin::PluginManager::CategoryToInfos CatToInfos;
 
-     CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
+    CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
 
-     if(itFound == db->categoryToInfos().end()) {
-       return;
-     }
-     std::string lastClass;
-     const std::string cPrefix("LCGReflex/");
-     const std::string mystring("art::Wrapper");
+    if(itFound == db->categoryToInfos().end()) {
+      return;
+    }
+    std::string lastClass;
+    const std::string cPrefix("LCGReflex/");
+    const std::string mystring("art::Wrapper");
 
-     for (artplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
-          itInfoEnd = itFound->second.end();
-          itInfo != itInfoEnd; ++itInfo)
-     {
-       if (lastClass == itInfo->name_) {
-         continue;
-       }
+    for (artplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+	   itInfoEnd = itFound->second.end();
+	 itInfo != itInfoEnd; ++itInfo)
+      {
+	if (lastClass == itInfo->name_) {
+	  continue;
+	}
 
-       lastClass = itInfo->name_;
-       if (lastClass.find(mystring) != std::string::npos) {
-         artplugin::PluginCapabilities::get()->load(lastClass);
-       }
-       //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
-     }
-   }
+	lastClass = itInfo->name_;
+	if (lastClass.find(mystring) != std::string::npos) {
+	  artplugin::PluginCapabilities::get()->load(lastClass);
+	}
+	//NOTE: since we have the library already, we could be more efficient if we just load it ourselves
+      }
+  }
 }
 
 

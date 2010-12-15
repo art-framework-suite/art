@@ -35,7 +35,6 @@ namespace art {
 
     Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
       summary_only_(iPS.get<bool>("summaryOnly",false)),
-      report_summary_(iPS.get<bool>("useJobReport",true)),
       max_event_time_(0.),
       min_event_time_(0.),
       total_event_count_(0)
@@ -80,14 +79,6 @@ namespace art {
         << " Min: " << min_event_time_ << "\n"
         << " Max: " << max_event_time_ << "\n"
         << " Avg: " << average_event_t << "\n";
-      if (report_summary_){
-        std::map<std::string, double> reportData;
-
-        reportData.insert(std::make_pair("MinEventTime", min_event_time_));
-        reportData.insert(std::make_pair("MaxEventTime", max_event_time_));
-        reportData.insert(std::make_pair("AvgEventTime", average_event_t));
-        reportData.insert(std::make_pair("TotalTime", t));
-      }
 
     }
 
@@ -132,8 +123,6 @@ namespace art {
            << desc.moduleName_ << " "
            << t;
       }
-
-      newMeasurementSignal(desc,t);
     }
 
   }

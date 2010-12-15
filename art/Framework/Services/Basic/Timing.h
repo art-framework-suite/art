@@ -25,8 +25,6 @@ namespace art {
     public:
       Timing(const fhicl::ParameterSet&,ActivityRegistry&);
       ~Timing();
-
-      sigc::signal<void, const ModuleDescription&, double> newMeasurementSignal;
     private:
       void postBeginJob();
       void postEndJob();
@@ -42,7 +40,6 @@ namespace art {
       double curr_event_time_;  // seconds
       double curr_module_time_; // seconds
       bool summary_only_;
-      bool report_summary_;
 
       // Min Max and average event times for summary
       //  at end of job

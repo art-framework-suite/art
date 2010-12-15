@@ -142,7 +142,7 @@ namespace art {
   namespace service {
 
     InitRootHandlers::InitRootHandlers(fhicl::ParameterSet const& pset,
-                                       art::ActivityRegistry & activity)
+                                       art::ActivityRegistry &)
       : RootHandlers(),
         unloadSigHandler_(pset.get<bool> ("UnloadRootSigHandler", false)),
         resetErrHandler_(pset.get<bool> ("ResetRootErrHandler", true)),
