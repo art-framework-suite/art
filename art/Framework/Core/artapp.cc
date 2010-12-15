@@ -91,6 +91,8 @@ using std::ifstream;
 
 int artapp(int argc, char* argv[])
 {
+  int rc = -1; // we should never return this value!
+
   // ------------------
   // use the boost command line option processing library to help out
   // with command line options
@@ -153,12 +155,12 @@ int artapp(int argc, char* argv[])
   //
   // Start the messagefacility
   //
+#if 0
 
 #if 0
   mf::start_me(multithread, 
 	       ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
 #endif
-
   //
   // Initialize:
   //   unix signal facility
@@ -180,7 +182,6 @@ int artapp(int argc, char* argv[])
   // Now create the EventProcessor
   //
   EventProcessorWithSentry proc;
-  int rc = -1; // we should never return this value!
   try {
     std::auto_ptr<art::EventProcessor> procP;
 #if 0
@@ -223,8 +224,10 @@ int artapp(int argc, char* argv[])
     rc = 8003;
     art::printUnknownException("art"); // , "Thing5", rc);
   }
+
   // Disable Root Error Handler again, just in case an exception
   // caused the above disabling of the handler to be bypassed.
   SetErrorHandler(DefaultErrorHandler);
+#endif
   return rc;
 }
