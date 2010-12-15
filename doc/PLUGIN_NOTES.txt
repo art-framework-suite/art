@@ -116,10 +116,10 @@ make, and that takes a const reference to a *ParameterSet* and that
 returns a newly-created instance of the associated module type,
 initialized with the given *ParameterSet*, and wrapped in a smart
 pointer to the appropriate module base class (e.g. *EDProducer*,
-*EDFilter*, etc.).
-{{{
+*EDFilter*, etc.)::
+
   extern "C" { std::auto_ptr<type> make(ParameterSet const&); }
-}}}
+
 
 *EVERYTHING BELOW THIS POINT IS SUBJECT TO CHANGE*
 
