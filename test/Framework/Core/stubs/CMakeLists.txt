@@ -5,13 +5,8 @@ project(FWCoreFrameworkStubs)
 set (FWCoreFrameworkStubs_VERSION_MAJOR 1)
 set (FWCoreFrameworkStubs_VERSION_MINOR 0)
 
-set( FWCoreFrameworkStubs_sources LoadableDummyESSource.cc
-				  LoadableDummyEventSetupRecordRetriever.cc
-				  LoadableDummyFinder.cc
-				  LoadableDummyProvider.cc
-				  TestBeginEndJobAnalyzer.cc
+set( FWCoreFrameworkStubs_sources TestBeginEndJobAnalyzer.cc
 				  TestBeginEndJobAnalyzerModule.cc
-				  TestESDummyDataAnalyzer.cc
 				  TestFailuresAnalyzer.cc
 				  TestFilterModule.cc
 				  TestMergeResults.cc
@@ -29,7 +24,6 @@ link_libraries( FWCoreFramework )
 add_library(FWCoreFrameworkStubs SHARED ${FWCoreFrameworkStubs_sources} )
 
 simple_plugin(AddIntsProducer)
-simple_plugin(DummyLooper)
 simple_plugin(DummySourceModule)
 simple_plugin(HistoryAnalyzer)
 simple_plugin(IntProducer)

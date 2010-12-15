@@ -5,7 +5,6 @@
 #include "art/Framework/Core/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/IOVSyncValue.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"

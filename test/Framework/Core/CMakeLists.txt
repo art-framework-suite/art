@@ -2,14 +2,7 @@
 project(FWCoreFrameworkTest)
 
 
-set( FWCoreFrameworkTestDummyForEventSetup_sources DummyData.cc
-                                                   DummyRecord.cc
-						   DepRecord.cc
-						   Dummy2Record.cc
-						   DepOn2Record.cc )
 set( FWCoreFrameworkTest_sources MockEventProcessor.cc )
-set( FWCoreFrameworkTestDummySource_sources DummySource.cc
-                                            stubs/DummySourceModule.cc )
 set( TestOutputModule_sources stubs/TestOutputModule.cc )
 set( TestFilterModule_sources stubs/TestFilterModule.cc )
 set( TestTriggerNames_sources stubs/TestTriggerNames.cc )
@@ -18,11 +11,6 @@ set( TestMod_sources stubs/TestMod.cc )
 set( TestToyModules_sources stubs/ToyModules.cc )
 set( TestSchedulerModule1_sources stubs/TestSchedulerModule1.cc )
 set( TestSchedulerModule2_sources stubs/TestSchedulerModule2.cc )
-set( TestLoadableDummyFinder_sources stubs/LoadableDummyFinder.cc )
-set( TestLoadableDummyESSource_sources stubs/LoadableDummyESSource.cc )
-set( TestLoadableDummyEventSetupRecordRetriever_sources stubs/LoadableDummyEventSetupRecordRetriever.cc )
-set( TestLoadableDummyProvider_sources stubs/LoadableDummyProvider.cc )
-set( FWCoreFrameworkTestDummyLooper_sources stubs/DummyLooper.cc )
 set( FWCoreFrameworkTestESDummyDataAnalyzer_sources stubs/TestESDummyDataAnalyzer.cc )
 set( FWCoreFrameworkTestPRegisterModules_sources stubs/TestPRegisterModule2.cc
                                                  stubs/TestPRegisterModule1.cc
@@ -37,8 +25,6 @@ set( TestFWCoreFramework_sources testRunner.cpp
                                  DummySource.cc
 				 edproducer_productregistry_callback.cc
 				 generichandle_t.cppunit.cc
-				 interval_t.cppunit.cc
-				 iovsyncvalue_t.cppunit.cc
 				 maker2_t.cppunit.cc
 				 maker_t.cppunit.cc
 #				 productregistry.cppunit.cc
@@ -73,10 +59,8 @@ add_executable( TestFWCoreFrameworkeventprincipal  testRunner.cpp eventprincipal
 add_executable( TestFWCoreFrameworkEvent Event_t.cpp )
 # add_executable( TestFWCoreFrameworkView View_t.cpp )
 add_executable( TestFWCoreFrameworkCmsRun TestDriver.cpp )
-add_executable( TestFWCoreFrameworkESRefer TestDriver.cpp )
 add_executable( TestFWCoreFrameworkUnscheduled TestDriver.cpp )
 add_executable( TestFWCoreFrameworkReplace TestDriver.cpp )
-add_executable( TestFWCoreFrameworkESProducerLooper TestDriver.cpp )
 add_executable( TestFWCoreFrameworkTrigBit TestDriver.cpp )
 add_executable( TestFWCoreFrameworkTrigMask TestDriver.cpp )
 add_executable( TestXMLSafeException TestDriver.cpp )
@@ -101,10 +85,8 @@ add_test( TestFWCoreFrameworkeventprincipal  ${EXECUTABLE_OUTPUT_PATH}/TestFWCor
 add_test( TestFWCoreFrameworkEvent ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEvent )
 #add_test( TestFWCoreFrameworkView ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkView )
 add_test( TestFWCoreFrameworkCmsRun ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkCmsRun )
-add_test( TestFWCoreFrameworkESRefer ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkESRefer )
 add_test( TestFWCoreFrameworkUnscheduled ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkUnscheduled )
 add_test( TestFWCoreFrameworkReplace ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkReplace )
-add_test( TestFWCoreFrameworkESProducerLooper ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkESProducerLooper )
 add_test( TestFWCoreFrameworkTrigBit ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkTrigBit )
 add_test( TestFWCoreFrameworkTrigMask ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkTrigMask )
 add_test( TestXMLSafeException ${EXECUTABLE_OUTPUT_PATH}/TestXMLSafeException )

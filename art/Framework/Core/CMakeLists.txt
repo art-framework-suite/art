@@ -26,7 +26,6 @@ set( art_Framework_Core_sources Actions.cc
                               IEventProcessor.cc
                               InputSource.cc
                               InputSourceFactory.cc
-                              IOVSyncValue.cc
                               LibraryManager.cc
                               SubRun.cc
                               SubRunPrincipal.cc
@@ -49,7 +48,6 @@ set( art_Framework_Core_sources Actions.cc
                               TriggerNames.cc
                               TriggerNamesService.cc
                               TriggerResultInserter.cc
-                              ValidityInterval.cc
                               Worker.cc
                               WorkerInPath.cc
                               WorkerMaker.cc
@@ -146,7 +144,6 @@ install(FILES Actions.h
 	      GroupSelector.h
 	      GroupSelectorRules.h
 	      IEventProcessor.h
-	      IOVSyncValue.h
 	      InputSource.h
 	      InputSourceDescription.h
 	      InputSourceFactory.h
@@ -181,7 +178,6 @@ install(FILES Actions.h
 	      TriggerResultInserter.h
 	      UnknownModuleException.h
 	      UnscheduledHandler.h
-	      ValidityInterval.h
 	      Worker.h
 	      WorkerInPath.h
 	      WorkerMaker.h
