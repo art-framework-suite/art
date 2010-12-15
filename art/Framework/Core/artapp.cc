@@ -23,6 +23,9 @@ it.
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/parse.h"
+#include "fhiclcpp/intermediate_table.h"
 #include "TError.h"
 #include <cstring>
 #include <exception>
@@ -33,6 +36,7 @@ it.
 #include <string>
 #include <vector>
 
+extern "C" { int artapp(int argc, char* argv[]); }
 
 // -----------------------------------------------
 namespace {
@@ -74,13 +78,16 @@ namespace {
   private:
     std::auto_ptr<art::EventProcessor> ep_;
     bool callEndJob_;
-  };
-}
+  }; // EventProcessorWithSentry
+} // anonymous namespace
 
-extern "C" { int artapp(int argc, char* argv[]); }
+
+// -----------------------------------------------
 
 namespace  bpo=boost::program_options;
 using std::string;
+using std::ostringstream;
+using std::ifstream;
 
 int artapp(int argc, char* argv[])
 {
@@ -97,7 +104,7 @@ int artapp(int argc, char* argv[])
 
   desc.add_options()
     ("help,h", "produce help message")
-    ("config,c", bpo::value<std::string>(), "configuration file");
+    ("config,c", bpo::value<string>(), "configuration file");
 
   bpo::options_description all_options("All Options");
   all_options.add(desc);
@@ -122,7 +129,7 @@ int artapp(int argc, char* argv[])
     std::cerr << "Exception from command line processing in " << argv[0]
 	      << ": no configuration file given.\n"
 	      << "For usage and an options list, please do '"
-	      << argv[0] <<  " --help";
+	      << argv[0] <<  " --help"
 	      << "'.";
     return 7001;
   }
@@ -132,13 +139,25 @@ int artapp(int argc, char* argv[])
   // Get the parameter set from parsing the configuration file.
   //
   fhicl::ParameterSet main_pset, ancillary_pset;
-  fhicl::Parser::Parse(vm["config"].as<std::string>(), main_pset);
+  fhicl::intermediate_table raw_config;
+  string config_filename = vm["config"].as<string>();
+  ifstream config_stream(config_filename.c_str());
+  if (!fhicl::parse_document(config_stream, raw_config))
+    {
+      std::cerr << "Failed to parse the configuration file '"
+		<< config_filename
+		<< "'\n";
+      return 7001;
+    }
 
   //
   // Start the messagefacility
   //
+
+#if 0
   mf::start_me(multithread, 
 	       ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
+#endif
 
   //
   // Initialize:
@@ -186,23 +205,23 @@ int artapp(int argc, char* argv[])
   }
   catch (art::Exception& e) {
     rc = e.returnCode();
-    art::printCmsException(e, kProgramName); // , "Thing1", rc);
+    art::printCmsException(e, "art"); // , "Thing1", rc);
   }
   catch (cet::exception& e) {
     rc = 8001;
-    art::printCmsException(e, kProgramName); // , "Thing2", rc);
+    art::printCmsException(e, "art"); // , "Thing2", rc);
   }
   catch(std::bad_alloc& bda) {
     rc = 8004;
-    art::printBadAllocException(kProgramName); // , "Thing3", rc);
+    art::printBadAllocException("art"); // , "Thing3", rc);
   }
   catch (std::exception& e) {
     rc = 8002;
-    art::printStdException(e, kProgramName); // , "Thing4", rc);
+    art::printStdException(e, "art"); // , "Thing4", rc);
   }
   catch (...) {
     rc = 8003;
-    art::printUnknownException(kProgramName); // , "Thing5", rc);
+    art::printUnknownException("art"); // , "Thing5", rc);
   }
   // Disable Root Error Handler again, just in case an exception
   // caused the above disabling of the handler to be bypassed.

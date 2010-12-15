@@ -103,7 +103,7 @@ target_link_libraries(art_Framework_Core
 )
 set( art_Framework_CoreArt_sources artapp.cc )
 
-#add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
+add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
 #add_executable( art   art.cpp   )
 #target_link_libraries( art art_Framework_CoreArt
