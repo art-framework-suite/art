@@ -175,3 +175,27 @@ UnixSignalService		Y N N N N
 =============================== = = = = =
 
 
+The last three are really functions:
+
+UnixSignalService replacement -
+
+ #include "art/Utilities/UnixSignalhandlers.h"
+ art::installCustomhandler(SIGUSR2,art::ep_sigusr2);
+ if(pset.get<bool>("enableSigInt",false))
+   art::installCustomHandler(SIGINT,art::ep_sigusr2);
+
+LoadAllDictionaries replacement -
+
+ if(pset.get<bool>("doLoad",true))
+   loadAllDictionaries();
+
+InitRootHandlers replacement -
+
+ if(pset.get<bool>("unloadRootSigHandler",false))
+   unloadSigHandler();
+ if(pset.get<bool>("resetRootErrHandler",true))
+   SetErrorHandler(RootErrorHandler);
+ if(pset.get<bool>("autoLibraryLoader",true)
+   RootAutoLibraryLoader::enable();
+ completeInitRootHandlers();
+ SetErrorHandler(DefaultErrorHandler);
