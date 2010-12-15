@@ -3,6 +3,7 @@ use strict;
 use vars qw(%inc_translations);
 BEGIN { %inc_translations = (
                              "MessageFacility/MessageLogger.h" => "messagefacility/MessageLogger/MessageLogger.h",
+                             "messagefacility/Utilities/Algorithms.h" => "cetlib/container_algorithms.h",
 #                             "" => "",
                             );
 

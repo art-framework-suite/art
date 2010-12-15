@@ -1,5 +1,5 @@
 use strict;
-use vars qw(%translations);
+use vars qw(%translations %inc_translations);
 
 BEGIN { %translations = (
                          Bool => "<bool>",
@@ -15,11 +15,18 @@ BEGIN { %translations = (
                          VUInt => "<std::vector<unsigned int> >",
                          VUint => "<std::vector<unsigned int> >",
                         );
+        %inc_translations = (
+                             "art/ParameterSet/ParameterSet.h" => "fhiclcpp/ParameterSet.h",
+                            );
       }
 
-foreach my $inc (sort keys %translations) {
-  while (s&get\Q$inc\E\b&get$translations{$inc}&g) {};
-  while (s&add\Q$inc\E\b&put$translations{$inc}&g) {};
+foreach my $name (sort keys %translations) {
+  while (s&get\Q$name\E\b&get$translations{$name}&g) {};
+  while (s&add\Q$name\E\b&put$translations{$name}&g) {};
+}
+
+foreach my $inc (sort keys %inc_translations) {
+  s&^(\s*#include\s+["<])\Q$inc\E([">].*)$&${1}$inc_translations{$inc}${2}& and last;
 }
 
 ### Local Variables:
