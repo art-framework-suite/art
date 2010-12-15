@@ -11,13 +11,11 @@ Toy EDProducts for testing purposes only.
 #include <string>
 #include <vector>
 
-#include "boost/cstdint.hpp"
+#include "cpp0x/cstdint"
 
-#include "art/Persistency/Common/SortedCollection.h"
-#include "art/Persistency/Common/OwnVector.h"
-#include "art/Persistency/Common/AssociationVector.h"
-#include "art/Persistency/Common/DetSetVector.h"
-#include "art/Persistency/Common/DetSetVectorNew.h"
+#include "cetlib/container_algorithms.h"
+
+#include "art/Persistency/Common/traits.h"
 
 namespace arttest
 {
@@ -130,15 +128,6 @@ namespace arttest
     explicit Prodigal(int i) : data(i) { }
   };
 
-  typedef art::SortedCollection<Simple> SCSimpleProduct;
   typedef std::vector<Simple>           VSimpleProduct;
-  typedef art::OwnVector<Simple>        OVSimpleProduct;
-  typedef art::OwnVector<SimpleDerived> OVSimpleDerivedProduct;
-  typedef art::AssociationVector<art::RefProd<std::vector<Simple> >, std::vector<Simple> > AVSimpleProduct;
-  typedef art::DetSetVector<Sortable>   DSVSimpleProduct;
-  typedef art::DetSetVector<Unsortable> DSVWeirdProduct;
-
-  typedef artNew::DetSetVector<Sortable>      DSTVSimpleProduct;
-  typedef artNew::DetSetVector<SimpleDerived> DSTVSimpleDerivedProduct;
 }
 #endif
