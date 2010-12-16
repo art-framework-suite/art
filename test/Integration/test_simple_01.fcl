@@ -25,6 +25,10 @@ services:
 	# Ignore: []
 
 	wantSummary: true
+
+	# fileMode : ""
+	# handleEmptyRuns : true
+	# handleEmptySubRuns : true
  } 
  
  # there are built-in, but need to be configured to come to life
@@ -86,8 +90,10 @@ source :
 {
 	module_type: EmptySource
 	module_label: source # was "@main_input"
-	maxEvents: 10 # probably needs to move to global area
-	
+
+	# were in the global area before
+	# maxEvents : 10
+	# maxSubRuns : 2
 }
 
 # build these?
