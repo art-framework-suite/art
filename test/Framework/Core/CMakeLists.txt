@@ -27,13 +27,16 @@ link_libraries( art_Framework_Services_Registry
 # Identify, by category, all tests:
 
 set( BOOST_TEST_LIST
-  LibraryManager_t
 )
 
 set( TEST_LIST
 )
 
 set( ALSO_BUILD
+)
+
+set( BOOST_ALSO_BUILD
+  LibraryManager_t
 )
 
 set( MANUALLY_BUILT_TESTS
@@ -43,6 +46,7 @@ set ( ALSO_RUN
 )
 
 set( MANUALLY_RUN_TESTS
+  LibraryManager_t.sh
 )
 
 # ----------------------------------------------------------------------
@@ -55,8 +59,13 @@ endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
 # ----------------------------------------------------------------------
 # Build BOOST tests
 
-foreach( test ${BOOST_TEST_LIST} )
+foreach( test ${BOOST_TEST_LIST} ${BOOST_ALSO_BUILD} )
   add_executable( ${test} ${test}.cc )
+  # Save having to put these in all tests.
+  set_target_properties ( ${test} PROPERTIES
+    COMPILE_DEFINITIONS BOOST_TEST_MAIN
+    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+    )
   target_link_libraries( ${test} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 endforeach( test ${BOOST_TEST_LIST} )
 
@@ -81,22 +90,30 @@ endforeach( script ${TEST_SCRIPTS} )
 # ----------------------------------------------------------------------
 # Run the automated tests:
 
-foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${MANUALLY_BUILT_TESTS} )
+foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${MANUALLY_BUILT_TESTS} ${ALSO_RUN} )
   add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
 endforeach( test ${TEST_LIST} )
 
 # ----------------------------------------------------------------------
 # Run the MANUALLY_RUN_TESTS:
 
-#add_test( MyTest
-#          ${EXECUTABLE_OUTPUT_PATH}/MyTest.sh
-#          ${EXECUTABLE_OUTPUT_PATH}
-#        )
+add_test( LibraryManager_t.sh
+          ${EXECUTABLE_OUTPUT_PATH}/LibraryManager_t.sh
+          ${EXECUTABLE_OUTPUT_PATH}
+        )
 
 # ======================================================================
 
+# Cmake directives to prepare for Library_Manager_t test
+add_custom_target(Prep_LibraryManager_t
+  ${CMAKE_COMMAND} -E tar zxf ${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.tar.gz
+  DEPENDS LibraryManager_t.tar.gz
+)
+add_dependencies (LibraryManager_t.sh Prep_LibraryManager_t)
+# When this works the driver script can go away.
+#set_tests_properties (LibraryManager_t PROPERTIES ENVIRONMENT XXX_PATH=12345:45678)
+#set_tests_properties (LibraryManager_t.sh PROPERTIES ENVIRONMENT "BOOST_TEST_SHOW_PROGRESS=yes")
 #########################################################################
-
 
 # Old (pre-ART fork) tests.
 set( FWCoreFrameworkTest_sources MockEventProcessor.cc )
