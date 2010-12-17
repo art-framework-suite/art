@@ -61,7 +61,7 @@ namespace art {
     transients_() {
        moduleDescriptionID() = edPtr->moduleDescriptionID();
        entryDescriptionPtr() = edPtr;
-       EntryDescriptionRegistry::instance()->insertMapped(*edPtr);
+       EntryDescriptionRegistry::put(*edPtr);
   }
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -79,7 +79,7 @@ namespace art {
       entryDescriptionPtr()->parents() = parents;
       entryDescriptionPtr()->moduleDescriptionID() = mdid;
       entryDescriptionID_ = entryDescriptionPtr()->id();
-      EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr());
+      EntryDescriptionRegistry::put(*entryDescriptionPtr());
   }
 
   EventEntryInfo::EventEntryInfo(BranchID const& bid,
@@ -103,7 +103,7 @@ namespace art {
   EventEntryInfo::entryDescription() const {
     if (!entryDescriptionPtr()) {
       entryDescriptionPtr().reset(new EventEntryDescription);
-      EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr());
+      EntryDescriptionRegistry::get(entryDescriptionID_, *entryDescriptionPtr());
       moduleDescriptionID() = entryDescriptionPtr()->moduleDescriptionID();
     }
     return *entryDescriptionPtr();
