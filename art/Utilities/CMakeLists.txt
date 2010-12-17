@@ -38,8 +38,7 @@ target_link_libraries(art_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_THREAD_LIBRARY}
-  ${REFLEX}
-  ${CINT}
+  -luuid
 )
 
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )

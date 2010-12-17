@@ -91,13 +91,6 @@ target_link_libraries(art_Framework_Core
   ${CETLIB}
   ${CLHEP}
   ${SIGC}
-  ${HIST}
-  ${MATRIX}
-  ${MATHCORE}
-  ${CORE}
-  ${REFLEX}
-  ${CINT}
-  dl
 )
 set( art_Framework_CoreArt_sources artapp.cc )
 

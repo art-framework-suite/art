@@ -114,7 +114,7 @@ find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_DIR}/lib   NO_DEFAULT_P
 
 
 # define common flags
-set( CMAKE_CXX_LINK_FLAGS "${CPPUNIT} -luuid -ldl" )
+# set( CMAKE_CXX_LINK_FLAGS "${CPPUNIT} -luuid -ldl" )
 
 #build all libraries in a single directory to enable testing
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

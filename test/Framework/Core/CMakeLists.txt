@@ -1,6 +1,23 @@
 # project name
 project(FWCoreFrameworkTest)
 
+# Library link requirements for tests here
+link_libraries( art_Framework_Services_Registry
+  art_Framework_PluginManager
+  art_Utilities
+  art_Framework_Core
+  ${SIGC}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${CINTEX}
+  ${HIST}
+  ${MATRIX}
+  ${MATHCORE}
+	${CORE}
+  ${CINT}
+	${REFLEX}
+  ${CPPUNIT}
+  -ldl
+ )
 
 set( FWCoreFrameworkTest_sources MockEventProcessor.cc )
 set( TestOutputModule_sources stubs/TestOutputModule.cc )
@@ -39,19 +56,6 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 
 #add_library(FWCoreFrameworkTestDummyService SHARED ${art_Framework_Services_Registry_TestDummyService_sources} )
 #add_library(FWCoreFrameworkTestDummyServicePlugin SHARED ${art_Framework_Services_Registry_TestDummyServicePlugin_sources} )
-
-link_libraries( art_Framework_Services_Registry
-  art_Framework_PluginManager
-  art_Utilities
-  art_Framework_Core
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${SIGC}
-	${CORE}
-	${REFLEX}
-  ${CINTEX}
-  ${CINT}
- )
-
 
 add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )
 #add_executable( TestFWCoreFrameworkeventprocessor  ${TestFWCoreFrameworkeventprocessor_sources} )
