@@ -2,9 +2,8 @@
 
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Exception.h"
-#include "cetlib/exception.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 

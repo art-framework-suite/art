@@ -1,3 +1,9 @@
+// ======================================================================
+//
+// Class RootOutputFile
+//
+// ======================================================================
+
 #include "art/Framework/IO/Output/RootOutputFile.h"
 
 #include "art/Framework/Core/ConstProductRegistry.h"
@@ -40,6 +46,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <utility>  // pair
 
 
 using namespace cet;
@@ -255,10 +262,9 @@ namespace art {
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Parentages in the output file";
 
-    ParentageRegistry& ptReg = *ParentageRegistry::instance();
     for (ParentageRegistry::const_iterator
-           i = ptReg.begin(),
-           e = ptReg.end();
+           i = ParentageRegistry::begin(),
+           e = ParentageRegistry::end();
          i != e;
          ++i) {
         hash = const_cast<ParentageID*>(&(i->first)); // cast needed because keys are const
@@ -312,7 +318,7 @@ namespace art {
     b->Fill();
   }
 
-  void RootOutputFile::writeParameterSetRegistry() { 
+  void RootOutputFile::writeParameterSetRegistry() {
      // TODO: update to separate tree per CMS code (2010/12/01),
     ParameterSetMap psetMap;
     fillPsetMap(psetMap);
@@ -322,10 +328,22 @@ namespace art {
     b->Fill();
   }
 
-   void RootOutputFile::fillPsetMap(ParameterSetMap &psetMap) {
-      // TODO: Implement (2010/12/01 CG).
+  void RootOutputFile::fillPsetMap( ParameterSetMap & psetMap ) {
+    using fhicl::ParameterSetID;
+    using fhicl::ParameterSetRegistry;
+    typedef  ParameterSetRegistry::const_iterator  const_iterator;
+
+    typedef  std::pair<ParameterSetID const, ParameterSetBlob>  pair_t;
+
+    psetMap.clear();
+    for( const_iterator it = ParameterSetRegistry::begin()
+                      , e  = ParameterSetRegistry::end(); it != e; ++it )  {
       // TODO: Update to write out only those parameter sets we actually want.
-   }
+      psetMap.insert( pair_t( it->first
+                            , ParameterSetBlob(it->second.to_string())
+                    )       );
+    }
+  }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.

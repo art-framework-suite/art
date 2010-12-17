@@ -51,7 +51,7 @@ namespace art {
     parentageID_(pPtr->id()),
     transients_() {
        parentagePtr() = pPtr;
-       ParentageRegistry::instance()->insertMapped(*pPtr);
+       ParentageRegistry::put(*pPtr);
   }
 
   ProductProvenance::ProductProvenance(BranchID const& bid,
@@ -64,7 +64,7 @@ namespace art {
       parentagePtr() = boost::shared_ptr<Parentage>(new Parentage);
       parentagePtr()->parents() = parents;
       parentageID_ = parentagePtr()->id();
-      ParentageRegistry::instance()->insertMapped(*parentagePtr());
+      ParentageRegistry::put(*parentagePtr());
   }
 
   ProductProvenance
@@ -76,7 +76,7 @@ namespace art {
   ProductProvenance::parentage() const {
     if (!parentagePtr()) {
       parentagePtr().reset(new Parentage);
-      ParentageRegistry::instance()->getMapped(parentageID_, *parentagePtr());
+      ParentageRegistry::get(parentageID_, *parentagePtr());
     }
     return *parentagePtr();
   }

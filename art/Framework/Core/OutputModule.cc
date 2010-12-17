@@ -402,7 +402,7 @@ namespace art {
       for (std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
           it != itEnd; ++it) {
         Parentage entryDesc;
-        ParentageRegistry::instance()->getMapped(*it, entryDesc);
+        ParentageRegistry::get(*it, entryDesc);
         std::vector<BranchID> const& parents = entryDesc.parents();
         for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
           j != jEnd; ++j) {

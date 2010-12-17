@@ -1,14 +1,11 @@
-#ifndef IOPool_Output_RootOutputFile_h
-#define IOPool_Output_RootOutputFile_h
+#ifndef FRAMEWORK_IO_OUTPUT_ROOTOUTPUTFILE_H
+#define FRAMEWORK_IO_OUTPUT_ROOTOUTPUTFILE_H
 
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 //
-// Class RootOutputFile
+// RootOutputFile
 //
-// Oringinal Author: Luca Lista
-// Current Author: Bill Tanenbaum
-//
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 
 #include <map>
 #include <string>
@@ -119,8 +116,8 @@ namespace art {
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
     std::set<BranchID> branchesWithStoredHistory_;
-  };
+  };  // RootOutputFilIOPool_Output_RootOutputFile_he
 
-}
+}  // namespace art
 
-#endif
+#endif  // FRAMEWORK_IO_OUTPUT_ROOTOUTPUTFILE_H

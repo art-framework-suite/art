@@ -313,8 +313,6 @@ namespace art {
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
 
     // Fill in the parentage registry.
-    ParentageRegistry& registry = *ParentageRegistry::instance();
-
     for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(entryDescriptionTree, i);
       if (idBuffer != entryDescriptionBuffer.id())
@@ -322,7 +320,7 @@ namespace art {
       oldregistry.insertMapped(entryDescriptionBuffer);
       Parentage parents;
       parents.parents() = entryDescriptionBuffer.parents();
-      registry.insertMapped(parents);
+      ParentageRegistry::put(parents);
     }
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), 0);
@@ -350,13 +348,11 @@ namespace art {
     Parentage *pParentageBuffer = &parentageBuffer;
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), &pParentageBuffer);
 
-    ParentageRegistry& registry = *ParentageRegistry::instance();
-
     for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
       if (idBuffer != parentageBuffer.id())
         throw art::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
-      registry.insertMapped(parentageBuffer);
+      ParentageRegistry::put(parentageBuffer);
     }
     parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), 0);
     parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
