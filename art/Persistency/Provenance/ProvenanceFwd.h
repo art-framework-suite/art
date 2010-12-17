@@ -26,6 +26,7 @@ namespace art {
   class Timestamp;
   class BranchMapper;
 }
+
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ParentageID.h"
@@ -35,4 +36,5 @@ namespace art {
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 //#include "art/Persistency/Provenance/ProcessConfigurationRegistry.h"
-#endif
+
+#endif  // DataFormats_Provenance_ProvenanceFwd_h

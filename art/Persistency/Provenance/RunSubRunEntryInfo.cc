@@ -53,7 +53,7 @@ namespace art {
     productStatus_(status),
     moduleDescriptionID_() {
      EventEntryDescription ed;
-     EntryDescriptionRegistry::instance()->getMapped(edid, ed);
+     EntryDescriptionRegistry::get(edid, ed);
      moduleDescriptionID_ = ed.moduleDescriptionID();
   }
 

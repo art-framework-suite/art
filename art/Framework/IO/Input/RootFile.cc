@@ -306,8 +306,6 @@ namespace art {
     EntryDescriptionID* pidBuffer = &idBuffer;
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
 
-    EntryDescriptionRegistry& oldregistry = *EntryDescriptionRegistry::instance();
-
     EventEntryDescription entryDescriptionBuffer;
     EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
@@ -317,7 +315,7 @@ namespace art {
       input::getEntry(entryDescriptionTree, i);
       if (idBuffer != entryDescriptionBuffer.id())
         throw art::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
-      oldregistry.insertMapped(entryDescriptionBuffer);
+      EntryDescriptionRegistry::put(entryDescriptionBuffer);
       Parentage parents;
       parents.parents() = entryDescriptionBuffer.parents();
       ParentageRegistry::put(parents);
