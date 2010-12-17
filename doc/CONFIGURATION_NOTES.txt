@@ -13,27 +13,93 @@ configuration file. Our example does not make any such use.
 
 ::
 
-  # All of the "facility" configurations are optional;
-  # the framework provides default settings that are used
-  # if nothing is provided by the user.
-  #
-  message_facility: { ... } # lots of configurated, as required
-                            # by the MessageFacility
-  floating_point_control_facility: { ... }
-  root_facility: { ... }
-  trigger_names_facility: { ... }
-  unix_signal_facility: { ... } 
+  # The "process" parameter is optional. The default is "DEFAULT"
+  process_name: SAMPLE
 
-  # Only one source is permitted
+  # The "source" block is optional. If it is missing, an EmptySource
+  # that emits one event, labeled as run 1, subrun 1, event 1 is
+  # produced.
   source: { ... }
 
-  analyzers: { 
-    ... 
-  }  
-  
-  filters: { ... }
-  outputs: { ... }
-  producers: { ... }
+  # The "services" block is optional, as is each block inside it.  The
+  # framework provides default settings that are used if nothing is
+  # provided by the user.
+  services:
+  {
+    # The following services are always created;
+    # default configurations are provided if none is given.
+    floating_point_control: { ... }
+    message:                { ... }
+    trigger_names:          { ... }
+
+    # The following services are created only when
+    # the user requests their creation, by including a
+    # block here. If the corresponding services provides
+    # complete default configuration, the associated block
+    # can be empty.
+    memory:                 { ... }
+    tfile:                  { ... }
+    timing:                 { ... }
+
+    services: {
+      # Experiment- or user-defined service configurations
+      # go here
+    }
+
+    scheduler:
+    {
+      Rethrow: [OtherCMS, StdException, Unknown, BadAlloc,
+                BadExceptionType, ProductNotFound, DictionaryNotFound,
+                InsertFailure, Configuration, LogicError, UnimplementedFeature,
+                InvalidReference, NullPointerError, NoProductSpecified, EventTimeout,
+                EventCorruption, ScheduleExecutionFailure, EventProcessorFailure,
+                FileInPathError, FileOpenError, FileReadError, FatalRootError,
+                MismatchedInputFiles, ProductDoesNotSupportViews,
+                ProductDoesNotSupportPtr, NotFound]
+      Ignore: []
+      wantSummary: true
+      fileMode: FULLMERGE
+
+      handleEmptyRuns:    true
+      handleEmptySubRuns: true
+
+      maxEvents:  -1
+      maxSubRuns: -1
+
+      enableSigInt: true
+      doLoad:       true
+      unloadRootSigHandler: false
+      resetRootErrHandler: true
+      autoLibraryLoader: true
+      doTracking: true
+    }
+  }
+
+  # The "physics" block is optional.
+  # The default analyzers, filters and producers are empty parameter sets.
+  #  The default trigger_paths and end_paths are empty sequences.
+  physics:
+  {
+     analyzers: { ... }
+     filters:   { ... }
+     producers: { ... }
+
+     # The following are needed now, but this need may be temporary.
+     trigger_paths: [ ... ]
+     end_paths:     [ ... ]
+  }
+
+  # The "outputs" block is optional.
+  outputs: 
+  {
+    ....
+  }
+
+  # The following are currently required, but will probably be removed
+  # in a later version of art.
+  all_modules: [ ... ]
+  all_sources: [ source ]
+  paths: [ ... ]
 
 Historical Notes
 ================
