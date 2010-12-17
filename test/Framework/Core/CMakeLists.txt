@@ -19,6 +19,86 @@ link_libraries( art_Framework_Services_Registry
   -ldl
  )
 
+#########################################################################
+# New tests (post-ART fork).
+####################################
+
+# ----------------------------------------------------------------------
+# Identify, by category, all tests:
+
+set( BOOST_TEST_LIST
+  LibraryManager_t
+)
+
+set( TEST_LIST
+)
+
+set( ALSO_BUILD
+)
+
+set( MANUALLY_BUILT_TESTS
+)
+
+set ( ALSO_RUN
+)
+
+set( MANUALLY_RUN_TESTS
+)
+
+# ----------------------------------------------------------------------
+# Build most tests:
+
+foreach( test ${TEST_LIST} ${ALSO_BUILD} )
+  add_executable( ${test} ${test}.cc )
+endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
+
+# ----------------------------------------------------------------------
+# Build BOOST tests
+
+foreach( test ${BOOST_TEST_LIST} )
+  add_executable( ${test} ${test}.cc )
+  target_link_libraries( ${test} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
+endforeach( test ${BOOST_TEST_LIST} )
+
+# ----------------------------------------------------------------------
+# Build tests with special requirements:
+
+# add_executable(  )
+# target_link_libraries( )
+
+# ----------------------------------------------------------------------
+# Install non-built tests:
+
+foreach( script ${ALSO_RUN} ${MANUALLY_RUN_TESTS} )
+  add_custom_target( ${script} ALL
+                     COMMAND ${CMAKE_COMMAND} -E
+                       copy ${CMAKE_CURRENT_SOURCE_DIR}/${script}
+                            ${EXECUTABLE_OUTPUT_PATH}/
+                      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${script}
+                   )
+endforeach( script ${TEST_SCRIPTS} )
+
+# ----------------------------------------------------------------------
+# Run the automated tests:
+
+foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${MANUALLY_BUILT_TESTS} )
+  add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
+endforeach( test ${TEST_LIST} )
+
+# ----------------------------------------------------------------------
+# Run the MANUALLY_RUN_TESTS:
+
+#add_test( MyTest
+#          ${EXECUTABLE_OUTPUT_PATH}/MyTest.sh
+#          ${EXECUTABLE_OUTPUT_PATH}
+#        )
+
+# ======================================================================
+
+#########################################################################
+
+
+# Old (pre-ART fork) tests.
 set( FWCoreFrameworkTest_sources MockEventProcessor.cc )
 set( TestOutputModule_sources stubs/TestOutputModule.cc )
 set( TestFilterModule_sources stubs/TestFilterModule.cc )

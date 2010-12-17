@@ -1,8 +1,8 @@
 #include "art/Framework/Core/LibraryManager.h"
 
-#include "cetlib/find_matching_files.h"
-#include "cetlib/split.h"
-#include "cetlib/split_path.h"
+#include "boost/filesystem.hpp"
+#include "cetlib/exception.h"
+#include "cetlib/search_path.h"
 #include "cpp0x/functional"
 #include "boost/regex.hpp"
 
@@ -13,6 +13,7 @@ extern "C" {
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <iterator>
 #include <ostream>
 #include <sstream>
@@ -24,163 +25,170 @@ using std::placeholders::_1;
 std::string const art::LibraryManager::dll_ext_(".so");
 std::string const art::LibraryManager::dll_ext_pat_("\\.so");
 
+art::LibraryManager::LibraryManager(std::string const& lib_type)
+   :
+   lib_type_(lib_type),
+   lib_loc_map_(),
+   spec_trans_map_(),
+   good_spec_trans_map_(),
+   lib_ptr_map_()
+{
+   // TODO: We could also consider searching the ld.so.conf list, if
+   // anyone asks for it.
+
+   static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
+   static std::string const pattern("lib[A-Za-z0-9_]*_");
+   std::vector<std::string> matches;
+   size_t n_matches = ld_lib_path.find_files(pattern + lib_type + dll_ext_pat_, matches);
+   // Note the use of reverse iterators here: files found earlier in the
+   // vector will therefore overwrite those found later, which is what
+   // we want from "search path"-type behavior.
+   std::for_each(matches.rbegin(), matches.rend(),
+                 std::bind(&art::LibraryManager::lib_loc_map_inserter,
+                           this,
+                           _1));
+
+   // Build the spec to long library name translation table.
+   std::for_each(lib_loc_map_.begin(), lib_loc_map_.end(),
+                 std::bind(&art::LibraryManager::spec_trans_map_inserter,
+                           this,
+                           _1,
+                           std::ref(lib_type)));
+
+   // Build the fast good-translation table.
+   std::for_each(spec_trans_map_.begin(), spec_trans_map_.end(),
+                 std::bind(&art::LibraryManager::good_spec_trans_map_inserter,
+                           this,
+                           _1));
+}
+
+void *art::LibraryManager::getSymbol(std::string libspec,
+                                     std::string const& sym_name) const {
+   std::string lib_name_str;
+
+   good_spec_trans_map_t::const_iterator trans =
+      good_spec_trans_map_.find(libspec);
+   if (trans == good_spec_trans_map_.end()) {
+      // No good translation => zero or too many
+      std::ostringstream error_msg;
+      error_msg
+         << "Library specificaton \""
+         << libspec << "\":";
+      spec_trans_map_t::const_iterator bad_trans =
+         spec_trans_map_.find(libspec);
+      if (bad_trans != spec_trans_map_.end()) {
+         error_msg << " corresponds to multiple libraries:\n";
+         std::copy(bad_trans->second.begin(),
+                   bad_trans->second.end(),
+                   std::ostream_iterator<std::string>(error_msg, "\n"));
+      } else {
+         error_msg << " does not correspond to any library in LD_LIBRARY_PATH of type \""
+                   << lib_type_
+                   << "\"\n";
+      }
+      // TODO: Throw correct exception.
+      throw cet::exception(error_msg.str());
+   }
+   return getSymbol_(trans->second, sym_name);
+}
+
+size_t
+art::LibraryManager::getLoadableLibraries(std::vector<std::string> &list) const {
+   return this->getLoadableLibraries(std::back_inserter(list));
+}
+
+size_t
+art::LibraryManager::getValidLibspecs(std::vector<std::string> &list) const {
+   return this->getValidLibspecs(std::back_inserter(list));
+}
+
+void
+art::LibraryManager::loadAllLibraries() const {
+   lib_loc_map_t::const_iterator
+      i = lib_loc_map_.begin(),
+      end_iter = lib_loc_map_.end();
+   for (;
+        i != end_iter;
+        ++i) {
+      get_lib_ptr(i->second);
+   }
+}
+
 void
 art::LibraryManager::
-good_spec_trans_map_inserter(short_spec_trans_map_t::value_type const &entry) {
+lib_loc_map_inserter(std::string const &path) {
+   lib_loc_map_[boost::filesystem::path(path).filename()] = path;
+}
+
+void 
+art::LibraryManager::
+spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
+                        std::string const &lib_type) {
+   // First obtain short spec.
+   static boost::regex e("([^_]+)_" + lib_type + "\\..*$");
+   boost::match_results<std::string::const_iterator> match_results;
+
+   if (boost::regex_search(entry.first, match_results, e)) {
+      spec_trans_map_[match_results[1]].insert(entry.second);
+   } else {
+      // TODO: Throw correct exception.
+      throw cet::exception("Internal error in spec_trans_map_inserter");
+   }
+
+   // Next, convert library filename to full libspec.
+   std::ostringstream lib_name;
+   std::ostream_iterator<char, char> oi(lib_name);
+   boost::regex_replace(oi, entry.first.begin(),
+                        entry.first.end(),
+                        boost::regex("(_+)"),
+                        std::string("(?1/)"),
+                        boost::match_default | boost::format_all);
+   boost::regex stripper("^lib(.*)/" + lib_type + "\\..*$");
+   std::string lib_name_str = lib_name.str();
+   if (boost::regex_search(lib_name_str, match_results, stripper)) {
+      spec_trans_map_[match_results[1]].insert(entry.second);
+   } else {
+      // TODO: Throw correct exception.
+      throw cet::exception("Internal error in spec_trans_map_inserter stripping " + lib_name.str());
+   }
+}
+
+void
+art::LibraryManager::
+good_spec_trans_map_inserter(spec_trans_map_t::value_type const &entry) {
    if (entry.second.size() == 1) {
       good_spec_trans_map_[entry.first] = *(entry.second.begin());
    }
 }
 
-void
-art::LibraryManager::
-lib_loc_map_inserter(lib_loc_map_t::key_type const &key,
-                     lib_loc_map_t::mapped_type const &val) {
-   lib_loc_map_[key] = val;
-}
-
-void 
-art::LibraryManager::
-short_spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
-                              std::string const &lib_type) {
-   static boost::regex e("([^_]+)_" + lib_type + "\\..*$");
-   boost::match_results<std::string::const_iterator> match_results;
-
-   if (boost::regex_search(entry.first, match_results, e)) {
-      short_spec_trans_map_[match_results[0]].insert(entry.first);
-   } else {
-      // TODO: Throw!
+void *art::LibraryManager::get_lib_ptr(std::string const &lib_loc) const {
+   void *lib_ptr = lib_ptr_map_[lib_loc];
+   if (lib_ptr == nullptr) {
+      lib_ptr_map_[lib_loc] = // Update cached ptr.
+         lib_ptr = dlopen(lib_loc.c_str(), RTLD_LAZY | RTLD_LOCAL);
    }
-}
-
-art::LibraryManager::LibraryManager(std::string const& lib_type)
-   :
-   lib_type_(lib_type)
-{
-  // TODO: We could also consider searching the ld.so.conf list, if
-  // anyone asks for it.
-
-  // If LD_LIBRARY_PATH is undefined, we have no libraries to find.
-  const char* ld_library_path = getenv("LD_LIBRARY_PATH");
-  if (ld_library_path == 0) return;
-
-  const char* ld_library_path_end = ld_library_path + strlen(ld_library_path);
-  cet::split(std::string(ld_library_path), ':', ld_library_path_.begin());
-
-  // Go through the search path in reverse order so we overwrite with
-  // the best place to find each library.
-  std::vector<std::string>::const_reverse_iterator
-     d_end  = ld_library_path_.rend(),
-     i =  ld_library_path_.rbegin();
-  size_t d_index = 0;
-  for(;
-      i != d_end;
-      ++i, ++d_index) {
-   std::vector<std::string> matches;
-   std::string pattern("lib.*_");
-   pattern += lib_type + dll_ext_pat_;
-
-   // Get the list of wanted libraries in this directory
-   cet::find_matching_files(pattern, *i, matches);
-   std::for_each(matches.begin(),
-                 matches.end(),
-                 std::bind(&art::LibraryManager::lib_loc_map_inserter,
-                           this,
-                           _1,
-                           std::ref(d_index)));
-  }
-
-  // Build the short-spec to long library name translation table.
-  std::for_each(lib_loc_map_.begin(),
-                lib_loc_map_.end(),
-                std::bind(&art::LibraryManager::short_spec_trans_map_inserter,
-                          this,
-                          _1,
-                          std::ref(lib_type)));
- 
-  // Build the fast good-translation table.
-  std::for_each(short_spec_trans_map_.begin(),
-                short_spec_trans_map_.end(),
-                std::bind(&art::LibraryManager::good_spec_trans_map_inserter,
-                          this,
-                          _1));
-}
-
-void *art::LibraryManager::getSymbol(std::string  libspec,
-                                     std::string const& sym_name) {
-   std::string lib_name_str;
-   lib_loc_map_t::const_iterator loc;
-
-   if (libspec.find('/') == std::string::npos) {
-      // Short specification
-      good_spec_trans_map_t::const_iterator trans =
-         good_spec_trans_map_.find(libspec);
-      if (trans != good_spec_trans_map_.end()) {
-         libspec = trans->second; // Good translation
-         loc = lib_loc_map_.find(libspec);
-         if (loc == lib_loc_map_.end()) {
-            // Internal Error!
-            // TODO: Throw!
-         }
-      } else { // Bad translation or not found
-         std::ostringstream error_msg;
-         error_msg <<
-            "Short specificaton \""
-                   << libspec << "\":";
-         short_spec_trans_map_t::const_iterator bad_trans =
-            short_spec_trans_map_.find(libspec);
-         if (bad_trans != short_spec_trans_map_.end()) {
-            error_msg << " corresponds to multiple libraries:\n";
-            std::copy(bad_trans->second.begin(),
-                      bad_trans->second.end(),
-                      std::ostream_iterator<std::string>(error_msg, "\n"));
-         } else {
-            error_msg << " does not correspond to any library in LD_LIBRARY_PATH of type \""
-                      << lib_type_
-                      << "\"\n";
-         }
-         // TODO: Throw!
-      }
-   } else { // Have long-format specification
-      loc = lib_loc_map_.find(libspec);
-      if (loc != lib_loc_map_.end()) {
-         std::ostringstream lib_name;
-         lib_name << "lib";
-         std::ostream_iterator<char, char> oi(lib_name);
-         boost::regex_replace(oi, libspec.begin(),
-                              libspec.end(),
-                              boost::regex("(_+)"),
-                              std::string("(?1/)"),
-                              boost::match_default | boost::format_all);
-         lib_name << lib_type_ << dll_ext_;
-         lib_name_str = lib_name.str();
-      } else {
-         // TODO: Throw!
-      }
-   }
-   return getSymbol_(ld_library_path_[loc->second] + '/' +
-                     lib_name_str,
-                     sym_name);
-   
+   return lib_ptr;
 }
 
 void *art::LibraryManager::getSymbol_(std::string const &lib_loc,
-                                      std::string const &sym_name) {
+                                      std::string const &sym_name) const {
    void *result = nullptr;
-   void *&lib_ptr = lib_ptr_map_[lib_loc];
-   if (lib_ptr == nullptr) {
-      lib_ptr = dlopen(lib_loc.c_str(),
-                       RTLD_LAZY | RTLD_LOCAL);
-   }
+   void *lib_ptr = get_lib_ptr(lib_loc);
    if (lib_ptr == nullptr) {
       // TODO: Log message indicating library load error.
+      std::cerr << "Unable to load requested library " << lib_loc << std::endl;
    } else { // Found library
       dlerror();
       result = dlsym(lib_ptr, sym_name.c_str());
-      std::string sym_error(dlerror());
-      if (!sym_error.empty()) { // Error message
+      char const *error = dlerror();
+      if (error != nullptr) { // Error message
          result = nullptr;
          // TODO: Log message indicating symbol error.
+      std::cerr << "Unable to load requested symbol "
+                << sym_name
+                << " from library "
+                << lib_loc
+                << std::endl;
       }
    }
    return result;
