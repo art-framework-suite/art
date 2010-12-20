@@ -1,5 +1,4 @@
 #include "art/Persistency/Provenance/EntryDescription.h"
-#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
 #include <ostream>
 #include <sstream>
@@ -21,12 +20,12 @@ namespace art {
     std::ostringstream oss;
     oss << moduleDescriptionID_ << ' ';
     for (std::vector<ProductID>::const_iterator
-	   i = parents_.begin(),
-	   e = parents_.end();
-	 i != e;
-	 ++i)
+           i = parents_.begin(),
+           e = parents_.end();
+         i != e;
+         ++i)
       {
-	oss << *i << ' ';
+        oss << *i << ' ';
       }
 
     std::string stringrep = oss.str();

@@ -1,5 +1,4 @@
 #include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include <ostream>
 #include <sstream>
@@ -19,12 +18,12 @@ namespace art {
     // This implementation is ripe for optimization.
     std::ostringstream oss;
     for (std::vector<BranchID>::const_iterator
-	   i = parents_.begin(),
-	   e = parents_.end();
-	 i != e;
-	 ++i)
+           i = parents_.begin(),
+           e = parents_.end();
+         i != e;
+         ++i)
       {
-	oss << *i << ' ';
+        oss << *i << ' ';
       }
 
     std::string stringrep = oss.str();

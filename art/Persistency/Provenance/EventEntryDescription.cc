@@ -19,7 +19,7 @@ namespace art {
   EventEntryDescription::init() const {
     if (!moduleDescriptionPtr()) {
       moduleDescriptionPtr().reset(new ModuleDescription);
-      bool found = ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr());
+      bool found = ModuleDescriptionRegistry::get(moduleDescriptionID_, *moduleDescriptionPtr());
 
       assert(found);
     }
@@ -32,12 +32,11 @@ namespace art {
     std::ostringstream oss;
     oss << moduleDescriptionID_ << ' ';
     for (std::vector<BranchID>::const_iterator
-	   i = parents_.begin(),
-	   e = parents_.end();
-	 i != e;
-	 ++i)
+           i = parents_.begin(), e = parents_.end();
+         i != e;
+         ++i)
       {
-	oss << *i << ' ';
+        oss << *i << ' ';
       }
 
     std::string stringrep = oss.str();

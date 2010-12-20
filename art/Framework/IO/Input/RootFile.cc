@@ -23,10 +23,10 @@
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
+#include "fhiclcpp/make_ParameterSet.h"
 
 //used for backward compatibility
 #include "art/Persistency/Provenance/BranchEntryDescription.h"
@@ -217,8 +217,8 @@ namespace art {
       fhicl::ParameterSetRegistry::put(pset);
     }
     ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
-    ModuleDescriptionRegistry::instance()->insertCollection(mdMap);
-    
+    ModuleDescriptionRegistry::put(mdMap);
+
     validateFile();
 
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().

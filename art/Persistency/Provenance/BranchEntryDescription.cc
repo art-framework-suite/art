@@ -1,7 +1,6 @@
 #include "art/Persistency/Provenance/BranchEntryDescription.h"
 
 #include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
-#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include <ostream>
 
@@ -22,7 +21,7 @@ namespace art {
   { }
 
   BranchEntryDescription::BranchEntryDescription(ProductID const& pid,
-	 BranchEntryDescription::CreatorStatus const& status) :
+         BranchEntryDescription::CreatorStatus const& status) :
     productID_(pid),
     parents_(),
     cid_(),
