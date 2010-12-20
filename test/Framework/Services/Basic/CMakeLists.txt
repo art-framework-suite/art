@@ -4,7 +4,6 @@ project(FWCoreServicesTest)
 set( cpp_files TestFWCoreServicesDriver.cpp )
 
 set( FWCoreServicesTest_sources TestInitRootHandlers.cc
-                                TestTFileServiceAnalyzer.cc
 				UnitTestClient.cc )
 
 link_libraries( FWCoreServices )

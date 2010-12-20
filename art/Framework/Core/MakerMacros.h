@@ -1,10 +1,11 @@
 #ifndef Framework_MakerMacros_h
 #define Framework_MakerMacros_h
 
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/WorkerParams.h"
+#include "fhiclcpp/ParameterSet.h"
+#include <memory>
 
 /*
   Note: Libraries that include these symbol definitions cannot be
@@ -18,8 +19,8 @@
  */
 #define DEFINE_ART_MODULE_TEMP(klass) \
 extern "C" \
-Worker* make_temp(WorkerParams const& wp, ModuleDescription const& md) \
-{ return new WorkerT<klass::ModuleType>(new klass(*(wp.pset_)), md, wp)); }
+art::Worker* make_temp(art::WorkerParams const& wp, art::ModuleDescription const& md) \
+{ return new art::WorkerT<klass::ModuleType>(std::auto_ptr<klass::ModuleType>(new klass(*(wp.pset_))), md, wp); }
 
 /*
   DEFINE_ART_MODULE produces the function that is used to create a

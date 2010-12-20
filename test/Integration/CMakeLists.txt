@@ -1,8 +1,14 @@
 # project name
 project(art_Integration_Test)
 
-# define the tests
-# use "make test" to run them
-# add_test(GetFileFormatVersion ${EXECUTABLE_OUTPUT_PATH}/test_GetFileFormatVersion)
-# add_test(GetReleaseVersion    ${EXECUTABLE_OUTPUT_PATH}/test_GetReleaseVersion)
+#set( art_Integration_Test_sources
+#
+#   )
 
+#add_library(art_Integration_Test SHARED ${art_Integration_Test_sources} )
+
+simple_plugin(IntProducer)
+simple_plugin(IntTestAnalyzer)
+
+#install ( TARGETS art_Integration_Test
+#          DESTINATION ${flavorqual_dir}/lib )
