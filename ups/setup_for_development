@@ -9,7 +9,7 @@
 #    set fw_db=/some/path; source /some/path/this_file
 # or  fw_db=/some/path; . /some/path/this_file
 #
-# If ART_BUILD is undefined, it is set to whatever directory 
+# If ART_BUILD is undefined, it is set to whatever directory
 # you are in when this script is invoked.
 # $ART_BUILD/lib is added to LD_LIBRARY_PATH
 
@@ -31,16 +31,16 @@ tnotnull UPS_DIR || echo "$msg2"
 # we setup dependent products here
 # note that we do not test for them first...
 # use setup -j to avoid pulling dependencies
-setup -j cppunit v1_12_1 -q a1 
-setup -j gccxml v0_9 -q a1 
-setup -j libsigcpp v2_2_7 -q a1 
-setup -j clhep v2_1_0_0 -q a1 
+setup -j cppunit v1_12_1 -q a1
+setup -j gccxml v0_9 -q a1
+setup -j libsigcpp v2_2_7 -q a1
+setup -j clhep v2_1_0_0 -q a1
 setup -j root v5_27_06 -q gcc45
 setup -j messagefacility v1_6_4 -q a1
 setup -j cetlib v0_2_7 -q a1
 setup -j cpp0x v1_0_3 -q a1
 setup -j boost v1_45_0 -q gcc45
-setup -j fhiclcpp v2_3_7 -q a1
+setup -j fhiclcpp v2_3_8 -q a1
 setup cetbuildtools v1_6_2
 setup gcc v4_5_1
 setup cmake
@@ -81,6 +81,6 @@ echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
 
 # cleanup before exiting
-test "$ss" = csh && unalias tnotnull nullout set_ vecho_ 
+test "$ss" = csh && unalias tnotnull nullout set_ vecho_
 unset ss msg db me fwdir py_ver
 unset set_ setenv unsetenv tnotnull source nullout vecho_
