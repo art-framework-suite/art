@@ -13,12 +13,9 @@ ProvenanceAdaptor.h
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-
-#include "fhiclcpp/ParameterSetID.h"
-
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
-
+#include "fhiclcpp/ParameterSetID.h"
 #include <map>
 #include <memory>
 #include <string>

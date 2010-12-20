@@ -1,10 +1,7 @@
-#include <cassert>
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include <cassert>
 
 int main()
 {
-  art::ProcessHistoryRegistry* pnlreg =
-    art::ProcessHistoryRegistry::instance();
-
-  assert( pnlreg );
+  assert( art::ProcessHistoryRegistry::empty() );
 }

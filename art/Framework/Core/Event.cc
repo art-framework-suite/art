@@ -21,11 +21,11 @@ namespace art {
   }
 
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-	DataViewImpl(ep, md, InEvent),
-	aux_(ep.aux()),
-	subRun_(newSubRun(ep, md)),
-	gotBranchIDs_(),
-	gotViews_() {
+        DataViewImpl(ep, md, InEvent),
+        aux_(ep.aux()),
+        subRun_(newSubRun(ep, md)),
+        gotBranchIDs_(),
+        gotViews_() {
     }
 
     EventPrincipal &
@@ -87,18 +87,17 @@ namespace art {
 
   bool
   Event::getProcessParameterSet(string const& processName,
-				ParameterSet& ps) const
+                                ParameterSet& ps) const
   {
     // Get the ProcessHistory for this event.
-    ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
-    if (!phr->getMapped(processHistoryID(), ph))
+    if (!ProcessHistoryRegistry::get(processHistoryID(), ph))
       {
-	throw Exception(errors::NotFound)
-	  << "ProcessHistoryID " << processHistoryID()
-	  << " is claimed to describe " << id()
-	  << "\nbut is not found in the ProcessHistoryRegistry.\n"
-	     "This file is malformed.\n";
+        throw Exception(errors::NotFound)
+          << "ProcessHistoryID " << processHistoryID()
+          << " is claimed to describe " << id()
+          << "\nbut is not found in the ProcessHistoryRegistry.\n"
+             "This file is malformed.\n";
       }
 
     ProcessConfiguration config;
@@ -138,23 +137,23 @@ namespace art {
     if (record_parents && !gotBranchIDs_.empty()) {
       gotBranchIDVector.reserve(gotBranchIDs_.size());
       for (BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
-	  it != itEnd; ++it) {
+          it != itEnd; ++it) {
         gotBranchIDVector.push_back(*it);
       }
     }
 
     while(pit!=pie) {
-	auto_ptr<EDProduct> pr(pit->first);
-	// note: ownership has been passed - so clear the pointer!
-	pit->first = 0;
+        auto_ptr<EDProduct> pr(pit->first);
+        // note: ownership has been passed - so clear the pointer!
+        pit->first = 0;
 
-	// set provenance
-	auto_ptr<ProductProvenance> productProvenancePtr(
-		new ProductProvenance(pit->second->branchID(),
-				   productstatus::present(),
-				   gotBranchIDVector));
-	ep.put(pr, *pit->second, productProvenancePtr);
-	++pit;
+        // set provenance
+        auto_ptr<ProductProvenance> productProvenancePtr(
+                new ProductProvenance(pit->second->branchID(),
+                                   productstatus::present(),
+                                   gotBranchIDVector));
+        ep.put(pr, *pit->second, productProvenancePtr);
+        ++pit;
     }
 
     // the cleanup is all or none

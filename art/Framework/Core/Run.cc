@@ -47,26 +47,22 @@ namespace art {
                               std::vector<ParameterSet>& psets) const
   {
     // Get the relevant ProcessHistoryIDs
-    ProcessHistoryRegistry* phreg = ProcessHistoryRegistry::instance();
     std::vector<ProcessHistoryID> historyIDs;
-
 
     // Get the relevant ParameterSetIDs.
     std::vector<ParameterSetID> psetIdsUsed;
     for (std::vector<ProcessHistoryID>::const_iterator
-           i = historyIDs.begin(),
-           e = historyIDs.end();
+           i = historyIDs.begin(), e = historyIDs.end();
          i != e;
          ++i)
       {
         ProcessHistory temp;
-        phreg->getMapped(*i, temp);
+        ProcessHistoryRegistry::get(*i, temp);
       }
 
     // Look up the ParameterSets for these IDs.
     for (std::vector<ParameterSetID>::const_iterator
-           i = psetIdsUsed.begin(),
-           e = psetIdsUsed.end();
+           i = psetIdsUsed.begin(), e = psetIdsUsed.end();
          i != e;
          ++i)
       {

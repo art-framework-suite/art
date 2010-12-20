@@ -216,7 +216,7 @@ namespace art {
       pset.id();
       fhicl::ParameterSetRegistry::put(pset);
     }
-    ProcessHistoryRegistry::instance()->insertCollection(pHistMap);
+    ProcessHistoryRegistry::put(pHistMap);
     ModuleDescriptionRegistry::put(mdMap);
 
     validateFile();

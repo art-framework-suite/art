@@ -22,10 +22,10 @@ using namespace std;
 namespace art {
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
-		       ProcessConfiguration const& pc,
-		       ProcessHistoryID const& hist,
-		       boost::shared_ptr<BranchMapper> mapper,
-		       boost::shared_ptr<DelayedReader> rtrv) :
+                       ProcessConfiguration const& pc,
+                       ProcessHistoryID const& hist,
+                       boost::shared_ptr<BranchMapper> mapper,
+                       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
@@ -36,9 +36,8 @@ namespace art {
     store_(rtrv)
   {
     if (hist.isValid()) {
-      ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
-      assert(history.notEmpty());
-      bool found = history.getMapped(hist, *processHistoryPtr_);
+      assert(! ProcessHistoryRegistry::empty());
+      bool found = ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
       assert(found);
     }
   }
@@ -82,9 +81,9 @@ namespace art {
     string const& processName = processConfiguration_.processName();
     for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
       if (processName == it->processName()) {
-	throw art::Exception(errors::Configuration, "Duplicate Process")
-	  << "The process name " << processName << " was previously used on these products.\n"
-	  << "Please modify the configuration file to use a distinct process name.\n";
+        throw art::Exception(errors::Configuration, "Duplicate Process")
+          << "The process name " << processName << " was previously used on these products.\n"
+          << "Please modify the configuration file to use a distinct process name.\n";
       }
     }
     ph.push_back(processConfiguration_);
@@ -95,7 +94,7 @@ namespace art {
     // (The process ID is first computed in the call to 'insertMapped(..)' below.)
     // It would probably be better to move the ProcessHistory construction out to somewhere
     // which persists for longer than one Event
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
+    ProcessHistoryRegistry::put(ph);
     setProcessHistoryID(ph.id());
     processHistoryModified_ = true;
   }
@@ -136,7 +135,7 @@ namespace art {
 
   BasicHandle
   Principal::getBySelector(TypeID const& productType,
-			   SelectorBase const& sel) const {
+                           SelectorBase const& sel) const {
 
     BasicHandleVec results;
 
@@ -149,23 +148,23 @@ namespace art {
     if (nFound == 0) {
       boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
-	<< "getBySelector: Found zero products matching all criteria\n"
-	<< "Looking for type: " << productType << "\n";
+        << "getBySelector: Found zero products matching all criteria\n"
+        << "Looking for type: " << productType << "\n";
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw art::Exception(art::errors::ProductNotFound)
         << "getBySelector: Found "<<nFound<<" products rather than one which match all criteria\n"
-	<< "Looking for type: " << productType << "\n";
+        << "Looking for type: " << productType << "\n";
     }
     return results[0];
   }
 
   BasicHandle
   Principal::getByLabel(TypeID const& productType,
-			string const& label,
-			string const& productInstanceName,
-			string const& processName) const
+                        string const& label,
+                        string const& productInstanceName,
+                        string const& processName) const
   {
 
     BasicHandleVec results;
@@ -183,20 +182,20 @@ namespace art {
     if (nFound == 0) {
       boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
-	<< "getByLabel: Found zero products matching all criteria\n"
-	<< "Looking for type: " << productType << "\n"
-	<< "Looking for module label: " << label << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n"
-	<< (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
+        << "getByLabel: Found zero products matching all criteria\n"
+        << "Looking for type: " << productType << "\n"
+        << "Looking for module label: " << label << "\n"
+        << "Looking for productInstanceName: " << productInstanceName << "\n"
+        << (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found "<<nFound<<" products rather than one which match all criteria\n"
-	<< "Looking for type: " << productType << "\n"
-	<< "Looking for module label: " << label << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n"
-	<< (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
+        << "Looking for type: " << productType << "\n"
+        << "Looking for module label: " << label << "\n"
+        << "Looking for productInstanceName: " << productInstanceName << "\n"
+        << (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
     }
     return results[0];
   }
@@ -204,8 +203,8 @@ namespace art {
 
   void
   Principal::getMany(TypeID const& productType,
-		     SelectorBase const& sel,
-		     BasicHandleVec& results) const {
+                     SelectorBase const& sel,
+                     BasicHandleVec& results) const {
 
     findGroups(productType,
                preg_->productLookup(),
@@ -232,21 +231,21 @@ namespace art {
     if (nFound == 0) {
       boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
-	<< "getByType: Found zero products matching all criteria\n"
-	<< "Looking for type: " << productType << "\n";
+        << "getByType: Found zero products matching all criteria\n"
+        << "Looking for type: " << productType << "\n";
       return BasicHandle(whyFailed);
     }
     if (nFound > 1) {
       throw art::Exception(art::errors::ProductNotFound)
         << "getByType: Found "<<nFound <<" products rather than one which match all criteria\n"
-	<< "Looking for type: " << productType << "\n";
+        << "Looking for type: " << productType << "\n";
     }
     return results[0];
   }
 
   void
   Principal::getManyByType(TypeID const& productType,
-			   BasicHandleVec& results) const {
+                           BasicHandleVec& results) const {
 
     art::MatchAllSelector sel;
 
@@ -260,9 +259,9 @@ namespace art {
 
   size_t
   Principal::getMatchingSequence(TypeID const& typeID,
-				 SelectorBase const& selector,
-				 BasicHandleVec& results,
-				 bool stopIfProcessHasMatch) const {
+                                 SelectorBase const& selector,
+                                 BasicHandleVec& results,
+                                 bool stopIfProcessHasMatch) const {
 
     // One new argument is the element lookup container
     // Otherwise this just passes through the arguments to findGroups
@@ -287,7 +286,7 @@ namespace art {
   Principal::readProvenanceImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (i->second->provenanceAvailable()) {
-	resolveProvenance(*i->second);
+        resolveProvenance(*i->second);
       }
     }
     branchMapperPtr_->setDelayedRead(false);
@@ -295,10 +294,10 @@ namespace art {
 
   size_t
   Principal::findGroups(TypeID const& typeID,
-			TypeLookup const& typeLookup,
-			SelectorBase const& selector,
-			BasicHandleVec& results,
-			bool stopIfProcessHasMatch) const {
+                        TypeLookup const& typeLookup,
+                        SelectorBase const& selector,
+                        BasicHandleVec& results,
+                        bool stopIfProcessHasMatch) const {
     assert(results.empty());
 
     // A class without a dictionary cannot be in an Event/SubRun/Run.
@@ -328,7 +327,7 @@ namespace art {
     // Loop over processes in reverse time order.  Sometimes we want to stop
     // after we find a process with matches so check for that at each step.
     for (ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin(),
-	   eproc = processHistory().rend();
+           eproc = processHistory().rend();
          iproc != eproc && (results.empty() || !stopIfProcessHasMatch);
          ++iproc) {
 
@@ -345,9 +344,9 @@ namespace art {
 
   void
   Principal::findGroupsForProcess(string const& processName,
-				  ProcessLookup const& processLookup,
-				  SelectorBase const& selector,
-				  BasicHandleVec& results) const {
+                                  ProcessLookup const& processLookup,
+                                  SelectorBase const& selector,
+                                  BasicHandleVec& results) const {
 
     ProcessLookup::const_iterator j = processLookup.find(processName);
 
@@ -359,8 +358,8 @@ namespace art {
     vector<BranchID> const& vindex = j->second;
 
     for (vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
-	 ib != ie;
-	 ++ib) {
+         ib != ie;
+         ++ib) {
       SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
       if(group.get() == 0) {
         continue;
@@ -368,15 +367,15 @@ namespace art {
 
       if (selector.match(group->productDescription())) {
 
-	// Skip product if not available.
+        // Skip product if not available.
         if (!group->productUnavailable()) {
           this->resolveProduct(*group, true);
-	  // If the product is a dummy filler, group will now be marked unavailable.
+          // If the product is a dummy filler, group will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
-	    BasicHandle bh(group->product(), group->provenance());
-	    bh.provenance()->setStore(branchMapperPtr_);
+            BasicHandle bh(group->product(), group->provenance());
+            bh.provenance()->setStore(branchMapperPtr_);
             results.push_back(bh);
           }
         }
@@ -389,8 +388,8 @@ namespace art {
   Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
     if (g.productUnavailable()) {
       throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
-	<< "resolve_: product is not accessible\n"
-	<< g.provenance() << '\n';
+        << "resolve_: product is not accessible\n"
+        << g.provenance() << '\n';
     }
 
     if (g.product()) return; // nothing to do.
@@ -424,8 +423,8 @@ namespace art {
       return OutputHandle();
     }
     if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
-	    g->productDescription().present() &&
-	    g->productDescription().branchType() == InEvent &&
+            g->productDescription().present() &&
+            g->productDescription().branchType() == InEvent &&
             productstatus::present(g->productProvenancePtr()->productStatus())) {
         throw art::Exception(art::errors::LogicError, "Principal::getForOutput\n")
          << "A product with a status of 'present' is not actually present.\n"
@@ -443,7 +442,7 @@ namespace art {
     SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
     if (g.get() == 0) {
       throw art::Exception(art::errors::ProductNotFound,"InvalidID")
-	<< "getProvenance: no product with given branch id: "<< bid << "\n";
+        << "getProvenance: no product with given branch id: "<< bid << "\n";
     }
 
     if (g->onDemand()) {
@@ -453,7 +452,7 @@ namespace art {
     // If they still are not there, then throw
     if (g->onDemand()) {
       throw art::Exception(art::errors::ProductNotFound)
-	<< "getProvenance: no product with given BranchID: "<< bid <<"\n";
+        << "getProvenance: no product with given BranchID: "<< bid <<"\n";
     }
 
     return *g->provenance();

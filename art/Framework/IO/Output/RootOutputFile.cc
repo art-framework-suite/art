@@ -305,7 +305,9 @@ namespace art {
   }
 
   void RootOutputFile::writeProcessHistoryRegistry() {
-    ProcessHistoryRegistry::collection_type *p = &ProcessHistoryRegistry::instance()->data();
+    typedef  ProcessHistoryRegistry::collection_type  collection_t;
+    collection_t const & r = ProcessHistoryRegistry::get();
+    collection_t * p = & const_cast<collection_t &>(r);
     TBranch* b = metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();

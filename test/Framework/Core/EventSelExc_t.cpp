@@ -19,7 +19,6 @@
 #include "art/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -59,15 +58,15 @@ Strings trigger_path_names(cpaths.begin(),cpaths.end());
 struct PathSpecifiers {
   Strings path;
   PathSpecifiers (std::string const & s0,
-  		  std::string const & s1 = "",
-  		  std::string const & s2 = "",
-  		  std::string const & s3 = "",
-  		  std::string const & s4 = "",
-  		  std::string const & s5 = "",
-  		  std::string const & s6 = "",
-  		  std::string const & s7 = "",
-  		  std::string const & s8 = "",
-  		  std::string const & s9 = "" ) : path()
+                  std::string const & s1 = "",
+                  std::string const & s2 = "",
+                  std::string const & s3 = "",
+                  std::string const & s4 = "",
+                  std::string const & s5 = "",
+                  std::string const & s6 = "",
+                  std::string const & s7 = "",
+                  std::string const & s8 = "",
+                  std::string const & s9 = "" ) : path()
   {
     if (s0 != "") path.push_back(s0);
     if (s1 != "") path.push_back(s1);
@@ -90,26 +89,26 @@ const HLTPathStatus redy = HLTPathStatus(art::hlt::Ready);
 struct TrigResults {
   std::vector <HLTPathStatus> bit;
   TrigResults ( HLTPathStatus const & b0,
-  		HLTPathStatus const & b1,
-  		HLTPathStatus const & b2,
-  		HLTPathStatus const & b3,
-  		HLTPathStatus const & b4,
-  		HLTPathStatus const & b5,
-  		HLTPathStatus const & b6,
-  		HLTPathStatus const & b7 ) : bit (8)
+                HLTPathStatus const & b1,
+                HLTPathStatus const & b2,
+                HLTPathStatus const & b3,
+                HLTPathStatus const & b4,
+                HLTPathStatus const & b5,
+                HLTPathStatus const & b6,
+                HLTPathStatus const & b7 ) : bit (8)
   {
     bit[0] = b0;  bit[1] = b1;  bit[2] = b2;  bit[3] = b3;
     bit[4] = b4;  bit[5] = b5;  bit[6] = b6;  bit[7] = b7;
     assert ( bit.size() == num_trig_paths );
   }
   void set    ( HLTPathStatus const & b0,
-  		HLTPathStatus const & b1,
-  		HLTPathStatus const & b2,
-  		HLTPathStatus const & b3,
-  		HLTPathStatus const & b4,
-  		HLTPathStatus const & b5,
-  		HLTPathStatus const & b6,
-  		HLTPathStatus const & b7 )
+                HLTPathStatus const & b1,
+                HLTPathStatus const & b2,
+                HLTPathStatus const & b3,
+                HLTPathStatus const & b4,
+                HLTPathStatus const & b5,
+                HLTPathStatus const & b6,
+                HLTPathStatus const & b7 )
   {
     bit[0] = b0;  bit[1] = b1;  bit[2] = b2;  bit[3] = b3;
     bit[4] = b4;  bit[5] = b5;  bit[6] = b6;  bit[7] = b7;
@@ -166,7 +165,7 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
   // should give the same result.  We exercise all 3 here.
   EventSelector select_based_on_pset(pset, trigger_path_names);
   EventSelector select_based_on_path_specifiers_and_names
-  					(ps.path, trigger_path_names);
+                                        (ps.path, trigger_path_names);
   EventSelector select_based_on_path_specifiers_only(ps.path);
 
   int number_of_trigger_paths = 0;
@@ -192,9 +191,9 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
   bool b  = select_based_on_path_specifiers_and_names.acceptEvent(results);
   bool c  = select_based_on_path_specifiers_only.acceptEvent(results);
   bool ab = select_based_on_pset.acceptEvent(&(bitArray[0]),
-  		number_of_trigger_paths);
+                number_of_trigger_paths);
   bool bb = select_based_on_path_specifiers_and_names.acceptEvent
-  		(&(bitArray[0]), number_of_trigger_paths);
+                (&(bitArray[0]), number_of_trigger_paths);
   // select_based_on_path_specifiers_only.acceptEvent(&(bitArray[0]),
   //                                     number_of_trigger_paths);
   // is not a valid way to use acceptEvent.
@@ -203,11 +202,11 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
       ab != ans || bb != ans  )
     {
       std::cerr << "failed to compare path specifiers with trigger results: "
-	   << "correct=" << ans << " "
-	   << "results=" << a  << "  " << b  << "  " << c  << "  "
-	                 << ab << "  " << bb <<  "\n"
-	   << "pathspecs = " << ps.path << "\n"
-	   << "trigger results = " << tr << "\n";
+           << "correct=" << ans << " "
+           << "results=" << a  << "  " << b  << "  " << c  << "  "
+                         << ab << "  " << bb <<  "\n"
+           << "pathspecs = " << ps.path << "\n"
+           << "trigger results = " << tr << "\n";
       abort();
     }
 
@@ -227,10 +226,10 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
   if (x != ans || y != ans || z != ans)
     {
       std::cerr << "failed to compare pathspecs with trigger results using pset ID: "
-	   << "correct=" << ans << " "
-	   << "results=" << x << "  " << y << "  " << z << "\n"
-	   << "pathspecs =" << ps.path << "\n"
-	   << "trigger results = " << tr << "\n";
+           << "correct=" << ans << " "
+           << "results=" << x << "  " << y << "  " << z << "\n"
+           << "pathspecs =" << ps.path << "\n"
+           << "trigger results = " << tr << "\n";
       abort();
     }
 

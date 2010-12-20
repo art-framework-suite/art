@@ -9,7 +9,6 @@
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Core/TriggerNames.h"
 #include "art/ParameterSet/Registry.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/Provenance.h"
@@ -98,7 +97,7 @@ namespace arttest
           std::cerr << "TestTriggerNames: "
                << "Expected and actual trigger paths don't match" << std::endl;
           abort();
-	}
+        }
       }
     }
 
@@ -117,7 +116,7 @@ namespace arttest
           std::cerr << "TestTriggerNames: "
                << "Expected and actual end paths don't match" << std::endl;
           abort();
-	}
+        }
       }
     }
 
@@ -145,13 +144,13 @@ namespace arttest
           std::cerr << "TestTriggerNames: "
                << "Expected and actual previous trigger path lists not the same size" << std::endl;
           abort();
-	}
+        }
         for (Strings::size_type i = 0; i < expected_trigger_previous_.size(); ++i) {
           if (triggernames[i] != expected_trigger_previous_[i]) {
             std::cerr << "TestTriggerNames: "
                  << "Expected and actual previous trigger paths don't match" << std::endl;
             abort();
-	  }
+          }
         }
       }
       else {
@@ -189,7 +188,7 @@ namespace arttest
           std::cerr << "TestTriggerNames: "
                << "Could not find trigger_paths parameter set in registry" << std::endl;
           abort();
-	}
+        }
       }
 
       // Look again using the TriggerNames class instead
@@ -221,13 +220,13 @@ namespace arttest
         if (triggernames2[i] != expected_trigger_previous_[i]) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;
-	  abort();
+          abort();
         }
         if (triggerNames.triggerName(i) != expected_trigger_previous_[i]) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "name from index accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;
-	  abort();
+          abort();
         }
         // Exercise the object initialized with the init function and
         // at the same time the function that returns an index
@@ -235,7 +234,7 @@ namespace arttest
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"
                << "index from name accessor\n"
                << "Expected and actual previous trigger paths don't match" << std::endl;
-	  abort();
+          abort();
         }
         if (triggerNamesI_.size() != expected_trigger_previous_.size()) {
           std::cerr << "TestTriggerNames: While exercising TriggerNames class\n"

@@ -5,9 +5,6 @@
 //
 // Class PoolOutputModule. Output module to POOL file
 //
-// Original Author: Luca Lista
-// Current Author: Bill Tanenbaum
-//
 //////////////////////////////////////////////////////////////////////
 
 

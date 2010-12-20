@@ -7,7 +7,6 @@
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -47,15 +46,15 @@ Strings trigger_path_names(cpaths.begin(),cpaths.end());
 struct PathSpecifiers {
   Strings path;
   PathSpecifiers (std::string const & s0,
-  		  std::string const & s1 = "",
-  		  std::string const & s2 = "",
-  		  std::string const & s3 = "",
-  		  std::string const & s4 = "",
-  		  std::string const & s5 = "",
-  		  std::string const & s6 = "",
-  		  std::string const & s7 = "",
-  		  std::string const & s8 = "",
-  		  std::string const & s9 = "" ) : path()
+                  std::string const & s1 = "",
+                  std::string const & s2 = "",
+                  std::string const & s3 = "",
+                  std::string const & s4 = "",
+                  std::string const & s5 = "",
+                  std::string const & s6 = "",
+                  std::string const & s7 = "",
+                  std::string const & s8 = "",
+                  std::string const & s9 = "" ) : path()
   {
     if (s0 != "") path.push_back(s0);
     if (s1 != "") path.push_back(s1);
@@ -78,26 +77,26 @@ const HLTPathStatus redy = HLTPathStatus(art::hlt::Ready);
 struct TrigResults {
   std::vector <HLTPathStatus> bit;
   TrigResults ( HLTPathStatus const & b0,
-  		HLTPathStatus const & b1,
-  		HLTPathStatus const & b2,
-  		HLTPathStatus const & b3,
-  		HLTPathStatus const & b4,
-  		HLTPathStatus const & b5,
-  		HLTPathStatus const & b6,
-  		HLTPathStatus const & b7 ) : bit (8)
+                HLTPathStatus const & b1,
+                HLTPathStatus const & b2,
+                HLTPathStatus const & b3,
+                HLTPathStatus const & b4,
+                HLTPathStatus const & b5,
+                HLTPathStatus const & b6,
+                HLTPathStatus const & b7 ) : bit (8)
   {
     bit[0] = b0;  bit[1] = b1;  bit[2] = b2;  bit[3] = b3;
     bit[4] = b4;  bit[5] = b5;  bit[6] = b6;  bit[7] = b7;
     assert ( bit.size() == num_trig_paths );
   }
   void set    ( HLTPathStatus const & b0,
-  		HLTPathStatus const & b1,
-  		HLTPathStatus const & b2,
-  		HLTPathStatus const & b3,
-  		HLTPathStatus const & b4,
-  		HLTPathStatus const & b5,
-  		HLTPathStatus const & b6,
-  		HLTPathStatus const & b7 )
+                HLTPathStatus const & b1,
+                HLTPathStatus const & b2,
+                HLTPathStatus const & b3,
+                HLTPathStatus const & b4,
+                HLTPathStatus const & b5,
+                HLTPathStatus const & b6,
+                HLTPathStatus const & b7 )
   {
     bit[0] = b0;  bit[1] = b1;  bit[2] = b2;  bit[3] = b3;
     bit[4] = b4;  bit[5] = b5;  bit[6] = b6;  bit[7] = b7;
@@ -147,8 +146,8 @@ Bools toBools( boost::array<bool,nb> const & t )
 
 
 void maskTest ( PathSpecifiers const & ps,
-		TrigResults const & tr,
-		TrigResults const & ans )
+                TrigResults const & tr,
+                TrigResults const & ans )
 {
   // Prepare a TriggerResults from the simpler tr
 
@@ -170,7 +169,7 @@ void maskTest ( PathSpecifiers const & ps,
   // an HLTGlobalStatus, so this is straightforward:
 
   TrigResults mask(maskTR[0], maskTR[1], maskTR[2], maskTR[3],
-  		   maskTR[4], maskTR[5], maskTR[6], maskTR[7]);
+                   maskTR[4], maskTR[5], maskTR[6], maskTR[7]);
 
   // Check correctness
 
@@ -184,10 +183,10 @@ void maskTest ( PathSpecifiers const & ps,
   if (!ok)
   {
       std::cerr << "failed to compare mask trigger results with expected answer\n"
-	   << "correct=" << ans  << "\n"
-	   << "results=" << mask << "\n"
-	   << "pathspecs = " << ps.path << "\n"
-	   << "trigger results = " << tr << "\n";
+           << "correct=" << ans  << "\n"
+           << "results=" << mask << "\n"
+           << "pathspecs = " << ps.path << "\n"
+           << "trigger results = " << tr << "\n";
       abort();
   }
 
@@ -262,8 +261,8 @@ int main()
   PathSpecifiers ps_01b ( "aq1", "aq2", "bq1" );
   evtSel::OverlapResult ores =
     EventSelector::testSelectionOverlap(ps_01a.path ,
-    				        ps_01b.path ,
-					trigger_path_names);
+                                        ps_01b.path ,
+                                        trigger_path_names);
   if (ores !=  evtSel::NoOverlap)
   {
       std::cerr << "testSelectionOverlap 1\n";
@@ -274,8 +273,8 @@ int main()
   PathSpecifiers ps_02b ( "bp1", "aq2", "bq1" );
   ores =
     EventSelector::testSelectionOverlap(ps_02a.path ,
-    				        ps_02b.path ,
-					trigger_path_names);
+                                        ps_02b.path ,
+                                        trigger_path_names);
   if (ores !=  evtSel::PartialOverlap)
   {
       std::cerr << "testSelectionOverlap 2\n";

@@ -7,6 +7,37 @@ Test program for art::Event.
 #include "test/CppUnit_testdriver.icpp"
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/Selector.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Common/OrphanHandle.h"
+#include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ProcessHistory.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/Timestamp.h"
+#include "art/Utilities/GetPassID.h"
+#include "art/Utilities/GlobalIdentifier.h"
+#include "art/Utilities/InputTag.h"
+#include "art/Version/GetReleaseVersion.h"
+#include "cetlib/container_algorithms.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "test/TestObjects/Thing.h"
+#include "test/TestObjects/ToyProducts.h"
+// #include "art/Utilities/EDMException.h"
+
 #include <algorithm>
 #include <fstream>
 #include <iterator>
@@ -16,37 +47,6 @@ Test program for art::Event.
 #include <string>
 #include <typeinfo>
 #include <vector>
-
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Persistency/Provenance/Timestamp.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "test/TestObjects/Thing.h"
-#include "test/TestObjects/ToyProducts.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Common/OrphanHandle.h"
-#include "art/Persistency/Common/Wrapper.h"
-#include "art/Framework/Core/Selector.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Utilities/InputTag.h"
-#include "cetlib/container_algorithms.h"
-// #include "art/Utilities/EDMException.h"
-#include "art/Utilities/GetPassID.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/GlobalIdentifier.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 
 using namespace art;
 using fhicl::ParameterSet;
@@ -327,7 +327,7 @@ void testEvent::setUp()
   processHistory->push_back(processEarly);
   processHistory->push_back(processLate);
 
-  ProcessHistoryRegistry::instance()->insertMapped(ph);
+  ProcessHistoryRegistry::put(ph);
 
   ProcessHistoryID processHistoryID = ph.id();
 

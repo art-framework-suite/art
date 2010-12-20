@@ -3,7 +3,6 @@
 #include "art/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -50,9 +49,9 @@ std::ostream& operator<<(std::ostream& ost, const Bools& b)
 }
 
 void testone(const Strings& paths,
-	     const Strings& pattern,
-	     const Bools& mask,
-	     bool answer,
+             const Strings& pattern,
+             const Bools& mask,
+             bool answer,
              int jmask)
 {
   ParameterSet pset; //, parent;
@@ -97,27 +96,27 @@ void testone(const Strings& paths,
   TriggerResults results(bm,paths);
 
 //        std::cerr << "pattern=" << pattern
-//	 	  << "mask=" << mask << "\n";  // DBG
+//                << "mask=" << mask << "\n";  // DBG
 
-//  	std:: cerr << "a \n";
+//      std:: cerr << "a \n";
   bool a = select.acceptEvent(results);
-//  	std:: cerr << "a1 \n";
+//      std:: cerr << "a1 \n";
   bool a1 = select1.acceptEvent(results);
-//  	std:: cerr << "a2 \n";
+//      std:: cerr << "a2 \n";
   bool a2 = select2.acceptEvent(results);
-//  	std:: cerr << "b2 \n";
+//      std:: cerr << "b2 \n";
   bool b2 = select2.acceptEvent(results);
-//  	std:: cerr << "c1 \n";
+//      std:: cerr << "c1 \n";
   bool c1 = select1.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
 
   if (a!=answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer)
     {
       std::cerr << "failed to compare pattern with mask: "
-	   << "correct=" << answer << " "
-	   << "results=" << a << "  " << a1 << "  " << a2
-	   		      << "  " << b2 << "  " << c1 << "\n"
-	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n"
+           << "correct=" << answer << " "
+           << "results=" << a << "  " << a1 << "  " << a2
+                              << "  " << b2 << "  " << c1 << "\n"
+           << "pattern=" << pattern << "\n"
+           << "mask=" << mask << "\n"
            << "jmask = " << jmask << "\n";
       abort();
     }
@@ -131,38 +130,38 @@ void testone(const Strings& paths,
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-//  	std:: cerr << "a11 \n";
+//      std:: cerr << "a11 \n";
   bool a11 = select.acceptEvent(results_id);
-//  	std:: cerr << "a12 \n";
+//      std:: cerr << "a12 \n";
   bool a12 = select1.acceptEvent(results_id);
-//  	std:: cerr << "a13 \n";
+//      std:: cerr << "a13 \n";
   bool a13 = select2.acceptEvent(results_id);
-//  	std:: cerr << "a14 \n";
+//      std:: cerr << "a14 \n";
   bool a14 = select2.acceptEvent(results_id);
 
   if (a11 != answer || a12 != answer || a13 != answer || a14 != answer)
     {
       std::cerr << "failed to compare pattern with mask using pset ID: "
-	   << "correct=" << answer << " "
-	   << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14 << "\n"
-	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n"
+           << "correct=" << answer << " "
+           << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14 << "\n"
+           << "pattern=" << pattern << "\n"
+           << "mask=" << mask << "\n"
            << "jmask = " << jmask << "\n";
       abort();
     }
 }
 
 void testall(const Strings& paths,
-	     const VStrings& patterns,
-	     const VBools& masks,
-	     const Answers& answers)
+             const VStrings& patterns,
+             const VBools& masks,
+             const Answers& answers)
 {
   for(unsigned int i=0;i<patterns.size();++i)
     {
       for(unsigned int j=0;j<masks.size();++j)
-	{
-	  testone(paths,patterns[i],masks[j],answers[i][j],j);
-	}
+        {
+          testone(paths,patterns[i],masks[j],answers[i][j],j);
+        }
     }
 }
 
@@ -227,16 +226,16 @@ int main()
   testmasks[8].insert(testmasks[8].end(),t9.begin(),t9.end());
 
   Answers ans = { {true, true,  true,  false, false, true,  true,  false, false },
-		  {true, true,  false, true,  true,  false, false, true,  true  },
-		  {true, false, true,  true,  true,  true , true,  true,  true  },
-		  {true, true,  true,  true,  false, true,  true,  true,  false }, // last column changed due to treatment of excp
-		  {false,false, false, false, true,  false, false, false, false },
-		  {true, true,  true,  true,  true,  true,  true,  true,  false }, // last column changed due to treatment of excp
-		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
-		  {false,true,  true,  false, true,  true,  true,  false, false },
-		  {true, true,  true,  true,  false, true,  true,  true,  false }, // last column changed due to treatment of excp
-		  {true, true,  true,  true,  false, true,  true,  false, false },
-		  {false,false, false, false, true,  false, true,  false, false }  // last column changed due to treatment of excp
+                  {true, true,  false, true,  true,  false, false, true,  true  },
+                  {true, false, true,  true,  true,  true , true,  true,  true  },
+                  {true, true,  true,  true,  false, true,  true,  true,  false }, // last column changed due to treatment of excp
+                  {false,false, false, false, true,  false, false, false, false },
+                  {true, true,  true,  true,  true,  true,  true,  true,  false }, // last column changed due to treatment of excp
+                  {true, true,  true,  true,  true,  true,  true,  true,  true  },
+                  {false,true,  true,  false, true,  true,  true,  false, false },
+                  {true, true,  true,  true,  false, true,  true,  true,  false }, // last column changed due to treatment of excp
+                  {true, true,  true,  true,  false, true,  true,  false, false },
+                  {false,false, false, false, true,  false, true,  false, false }  // last column changed due to treatment of excp
   };
 
 

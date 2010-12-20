@@ -76,8 +76,8 @@ namespace art {
     void setBranchAliases(TTree *tree, Selections const& branches) const;
 
     void fillBranches(BranchType const& branchType,
-		      Principal const& principal,
-		      std::vector<ProductProvenance> * productProvenanceVecPtr);
+                      Principal const& principal,
+                      std::vector<ProductProvenance> * productProvenanceVecPtr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
@@ -104,7 +104,7 @@ namespace art {
     SubRunAuxiliary const* pSubRunAux_;
     RunAuxiliary const*             pRunAux_;
     ProductProvenanceVector         eventEntryInfoVector_;
-    ProductProvenanceVector	    subRunEntryInfoVector_;
+    ProductProvenanceVector         subRunEntryInfoVector_;
     ProductProvenanceVector         runEntryInfoVector_;
     ProductProvenanceVector *       pEventEntryInfoVector_;
     ProductProvenanceVector *       pSubRunEntryInfoVector_;

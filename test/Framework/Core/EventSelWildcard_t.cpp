@@ -3,7 +3,6 @@
 #include "art/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Utilities/ThreadSafeRegistry.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -21,8 +20,8 @@ using namespace art;
 using namespace fhicl;
 
 size_t const numBits = 12;  // There must be a better way than this but I choose to
-		 	    // avoid modifying a whole slew of code using the array
-			    // instead of push_back()s.
+                            // avoid modifying a whole slew of code using the array
+                            // instead of push_back()s.
 
 typedef std::vector< std::vector<bool> > Answers;
 
@@ -58,9 +57,9 @@ Bools toBools(boost::array<bool, nb> const & t )
 }
 
 void testone(const Strings& paths,
-	     const Strings& pattern,
-	     const Bools& mask,
-	     bool answer,
+             const Strings& pattern,
+             const Bools& mask,
+             bool answer,
              int jmask)
 {
   ParameterSet pset; //, parent;
@@ -108,9 +107,9 @@ void testone(const Strings& paths,
   bool b  = select_based_on_pattern_paths.acceptEvent(results);
   bool c  = select_based_on_pattern.acceptEvent(results);
   bool ab = select_based_on_pset.acceptEvent(&(bitArray[0]),
-  		number_of_trigger_paths);
+                number_of_trigger_paths);
   bool bb = select_based_on_pattern_paths.acceptEvent(&(bitArray[0]),
-  		number_of_trigger_paths);
+                number_of_trigger_paths);
   // select_based_on_pattern.acceptEvent(&(bitArray[0]),
   //                                     number_of_trigger_paths);
   // is not a valid way to use acceptEvent.
@@ -119,11 +118,11 @@ void testone(const Strings& paths,
       ab != answer || bb != answer  )
     {
       std::cerr << "failed to compare pattern with mask: "
-	   << "correct=" << answer << " "
-	   << "results=" << a  << "  " << b  << "  " << c  << "  "
-	                 << ab << "  " << bb <<  "\n"
-	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n"
+           << "correct=" << answer << " "
+           << "results=" << a  << "  " << b  << "  " << c  << "  "
+                         << ab << "  " << bb <<  "\n"
+           << "pattern=" << pattern << "\n"
+           << "mask=" << mask << "\n"
            << "jmask = " << jmask << "\n";
       abort();
     }
@@ -144,26 +143,26 @@ void testone(const Strings& paths,
   if (x != answer || y != answer || z != answer)
     {
       std::cerr << "failed to compare pattern with mask using pset ID: "
-	   << "correct=" << answer << " "
-	   << "results=" << x << "  " << y << "  " << z << "\n"
-	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n"
+           << "correct=" << answer << " "
+           << "results=" << x << "  " << y << "  " << z << "\n"
+           << "pattern=" << pattern << "\n"
+           << "mask=" << mask << "\n"
            << "jmask = " << jmask << "\n";
       abort();
     }
 }
 
 void testall(const Strings& paths,
-	     const VStrings& patterns,
-	     const VBools& masks,
-	     const Answers& answers)
+             const VStrings& patterns,
+             const VBools& masks,
+             const Answers& answers)
 {
   for(unsigned int i=0;i<patterns.size();++i)
     {
       for(unsigned int j=0;j<masks.size();++j)
-	{
-	  testone(paths,patterns[i],masks[j],answers[i][j],j);
-	}
+        {
+          testone(paths,patterns[i],masks[j],answers[i][j],j);
+        }
     }
 }
 
@@ -175,11 +174,11 @@ int main()
   // bits.
 
   boost::array<char const*,numBits> cpaths =
-  	{{
-		"HLTx1",   "HLTx2",   "HLTy1",   "HLTy2",
-		"CALIBx1", "CALIBx2", "CALIBy1", "CALIBy2",
-		"DEBUGx1", "DEBUGx2", "DEBUGy1", "DEBUGy2",
-	}};
+        {{
+                "HLTx1",   "HLTx2",   "HLTy1",   "HLTy2",
+                "CALIBx1", "CALIBx2", "CALIBy1", "CALIBy2",
+                "DEBUGx1", "DEBUGx2", "DEBUGy1", "DEBUGy2",
+        }};
   Strings paths(cpaths.begin(),cpaths.end());
 
   // Create our test patterns.  Each of these will be tested against each mask.
@@ -217,205 +216,205 @@ int main()
   VBools testmasks;
 
   boost::array<bool,numBits> t0 = {{ false, false, false, false,
-  				     false, false, false, false,
-				     false, false, false, false }};
+                                     false, false, false, false,
+                                     false, false, false, false }};
   testmasks.push_back(toBools(t0));
   boost::array<bool,numBits> t1 = {{ true,  true,  true,  true,
-  				     true,  true,  true,  true,
-				     true,  true,  true,  true }};
+                                     true,  true,  true,  true,
+                                     true,  true,  true,  true }};
   testmasks.push_back(toBools(t1));
   boost::array<bool,numBits> t2 = {{ true,  false, false, false,
-  				     false, false, false, false,
-				     false, false, false, false }};
+                                     false, false, false, false,
+                                     false, false, false, false }};
   testmasks.push_back(toBools(t2));
   boost::array<bool,numBits> t3 = {{ false, true,  false, false,
-  				     false, false, false, false,
-				     false, false, false, false }};
+                                     false, false, false, false,
+                                     false, false, false, false }};
   testmasks.push_back(toBools(t3));
 
   boost::array<bool,numBits> t4 = {{ false, false, false, false,
-  				     false, false, false, false,
-				     true,  false, false, false }};
+                                     false, false, false, false,
+                                     true,  false, false, false }};
   testmasks.push_back(toBools(t4));
   boost::array<bool,numBits> t5 = {{ true,  true,  true,  true,
-  				     false, false, true,  false,
-				     false,  false, false, false }};
+                                     false, false, true,  false,
+                                     false,  false, false, false }};
   testmasks.push_back(toBools(t5));
   boost::array<bool,numBits> t6 = {{ false, false, false, false,
-  				     false, true,  false, false,
-				     false, false, true,  false }};
+                                     false, true,  false, false,
+                                     false, false, true,  false }};
   testmasks.push_back(toBools(t6));
   boost::array<bool,numBits> t7 = {{ true,  false, true,  false,
-  				     false, true,  true,  false,
-				     false, true,  false, true  }};
+                                     false, true,  true,  false,
+                                     false, true,  false, true  }};
   testmasks.push_back(toBools(t7));
   boost::array<bool,numBits> t8 = {{ false, false, false, false,
-  				     false, true,  false, false,
-				     true,  true,  true,  true  }};
+                                     false, true,  false, false,
+                                     true,  true,  true,  true  }};
   testmasks.push_back(toBools(t8)); // For j=8 only, the first HLTx1 (false) is
-  				    // reset to ready and the fifth CALIBx2 (true)
-				    // is reset to exception.
+                                    // reset to ready and the fifth CALIBx2 (true)
+                                    // is reset to exception.
 
   // Create the answers
 
   Answers ans;
 
-  std::vector<bool> ansstar;  	// Answers for criteria star: {{ "*" }};
-  ansstar.push_back (false);	// f f f f f f f f f f f f
-  ansstar.push_back (true);	// t t t t t t t t t t t t
-  ansstar.push_back (true);	// t f f f f f f f f f f f
-  ansstar.push_back (true);	// f t f f f f f f f f f f
-  ansstar.push_back (true);	// f f f f f f f f t f f f
-  ansstar.push_back (true);	// t t t t f f t f f f f f
-  ansstar.push_back (true);	// f f f f f t f f f f t f
-  ansstar.push_back (true);	// t f f f f t t f f t f t
-  ansstar.push_back (true);	// r f f f e t f f t t t t
+  std::vector<bool> ansstar;    // Answers for criteria star: {{ "*" }};
+  ansstar.push_back (false);    // f f f f f f f f f f f f
+  ansstar.push_back (true);     // t t t t t t t t t t t t
+  ansstar.push_back (true);     // t f f f f f f f f f f f
+  ansstar.push_back (true);     // f t f f f f f f f f f f
+  ansstar.push_back (true);     // f f f f f f f f t f f f
+  ansstar.push_back (true);     // t t t t f f t f f f f f
+  ansstar.push_back (true);     // f f f f f t f f f f t f
+  ansstar.push_back (true);     // t f f f f t t f f t f t
+  ansstar.push_back (true);     // r f f f e t f f t t t t
 
   ans.push_back(ansstar);
 
-  std::vector<bool> ansnotstar;	// Answers for criteria notstar: {{ "!*" }};
-  ansnotstar.push_back (true);	// f f f f f f f f f f f f
-  ansnotstar.push_back (false);	// t t t t t t t t t t t t
-  ansnotstar.push_back (false);	// t f f f f f f f f f f f
-  ansnotstar.push_back (false);	// f t f f f f f f f f f f
-  ansnotstar.push_back (false);	// f f f f f f f f t f f f
-  ansnotstar.push_back (false);	// t t t t f f t f f f f f
-  ansnotstar.push_back (false);	// f f f f f t f f f f t f
-  ansnotstar.push_back (false);	// t f f f f t t f f t f t
-  ansnotstar.push_back (false);	// r f f f e t f f t t t t
+  std::vector<bool> ansnotstar; // Answers for criteria notstar: {{ "!*" }};
+  ansnotstar.push_back (true);  // f f f f f f f f f f f f
+  ansnotstar.push_back (false); // t t t t t t t t t t t t
+  ansnotstar.push_back (false); // t f f f f f f f f f f f
+  ansnotstar.push_back (false); // f t f f f f f f f f f f
+  ansnotstar.push_back (false); // f f f f f f f f t f f f
+  ansnotstar.push_back (false); // t t t t f f t f f f f f
+  ansnotstar.push_back (false); // f f f f f t f f f f t f
+  ansnotstar.push_back (false); // t f f f f t t f f t f t
+  ansnotstar.push_back (false); // r f f f e t f f t t t t
 
   ans.push_back(ansnotstar);
 
-  std::vector<bool> ans0;  	// Answers for criteria 0:{{ "HLTx1", "HLTy1" }};
-  ans0.push_back (false);	// f f f f f f f f f f f f
-  ans0.push_back (true);	// t t t t t t t t t t t t
-  ans0.push_back (true);	// t f f f f f f f f f f f
-  ans0.push_back (false);	// f t f f f f f f f f f f
-  ans0.push_back (false);	// f f f f f f f f t f f f
-  ans0.push_back (true);	// t t t t f f t f f f f f
-  ans0.push_back (false);	// f f f f f t f f f f t f
-  ans0.push_back (true);	// t f f f f t t f f t f t
-  ans0.push_back (false);	// r f f f e t f f t t t t
+  std::vector<bool> ans0;       // Answers for criteria 0:{{ "HLTx1", "HLTy1" }};
+  ans0.push_back (false);       // f f f f f f f f f f f f
+  ans0.push_back (true);        // t t t t t t t t t t t t
+  ans0.push_back (true);        // t f f f f f f f f f f f
+  ans0.push_back (false);       // f t f f f f f f f f f f
+  ans0.push_back (false);       // f f f f f f f f t f f f
+  ans0.push_back (true);        // t t t t f f t f f f f f
+  ans0.push_back (false);       // f f f f f t f f f f t f
+  ans0.push_back (true);        // t f f f f t t f f t f t
+  ans0.push_back (false);       // r f f f e t f f t t t t
 
   ans.push_back(ans0);
 
-  std::vector<bool> ans1;  	// Answers for criteria 1:{{"CALIBx2","!HLTx2"}};
-  ans1.push_back (true);	// f f f f f f f f f f f f
-  ans1.push_back (true);	// t t t t t t t t t t t t
-  ans1.push_back (true);	// t f f f f f f f f f f f
-  ans1.push_back (false);	// f t f f f f f f f f f f
-  ans1.push_back (true);	// f f f f f f f f t f f f
-  ans1.push_back (false);	// t t t t f f t f f f f f
-  ans1.push_back (true);	// f f f f f t f f f f t f
-  ans1.push_back (true);	// t f f f f t t f f t f t
-  ans1.push_back (true);	// r f f f e t f f t t t t
+  std::vector<bool> ans1;       // Answers for criteria 1:{{"CALIBx2","!HLTx2"}};
+  ans1.push_back (true);        // f f f f f f f f f f f f
+  ans1.push_back (true);        // t t t t t t t t t t t t
+  ans1.push_back (true);        // t f f f f f f f f f f f
+  ans1.push_back (false);       // f t f f f f f f f f f f
+  ans1.push_back (true);        // f f f f f f f f t f f f
+  ans1.push_back (false);       // t t t t f f t f f f f f
+  ans1.push_back (true);        // f f f f f t f f f f t f
+  ans1.push_back (true);        // t f f f f t t f f t f t
+  ans1.push_back (true);        // r f f f e t f f t t t t
 
   ans.push_back(ans1);
 
-  std::vector<bool> ans2;  	// Answers for criteria 2:{{ "HLT*" }};
-  ans2.push_back (false);	// f f f f f f f f f f f f
-  ans2.push_back (true);	// t t t t t t t t t t t t
-  ans2.push_back (true);	// t f f f f f f f f f f f
-  ans2.push_back (true);	// f t f f f f f f f f f f
-  ans2.push_back (false);	// f f f f f f f f t f f f
-  ans2.push_back (true);	// t t t t f f t f f f f f
-  ans2.push_back (false);	// f f f f f t f f f f t f
-  ans2.push_back (true);	// t f f f f t t f f t f t
-  ans2.push_back (false);	// r f f f e t f f t t t t
+  std::vector<bool> ans2;       // Answers for criteria 2:{{ "HLT*" }};
+  ans2.push_back (false);       // f f f f f f f f f f f f
+  ans2.push_back (true);        // t t t t t t t t t t t t
+  ans2.push_back (true);        // t f f f f f f f f f f f
+  ans2.push_back (true);        // f t f f f f f f f f f f
+  ans2.push_back (false);       // f f f f f f f f t f f f
+  ans2.push_back (true);        // t t t t f f t f f f f f
+  ans2.push_back (false);       // f f f f f t f f f f t f
+  ans2.push_back (true);        // t f f f f t t f f t f t
+  ans2.push_back (false);       // r f f f e t f f t t t t
 
   ans.push_back(ans2);
 
-  std::vector<bool> ans3;  	// Answers for criteria 3:{{ "!HLT*" }};
-  ans3.push_back (true);	// f f f f f f f f f f f f
-  ans3.push_back (false);	// t t t t t t t t t t t t
-  ans3.push_back (false);	// t f f f f f f f f f f f
-  ans3.push_back (false);	// f t f f f f f f f f f f
-  ans3.push_back (true);	// f f f f f f f f t f f f
-  ans3.push_back (false);	// t t t t f f t f f f f f
-  ans3.push_back (true);	// f f f f f t f f f f t f
-  ans3.push_back (false);	// t f f f f t t f f t f t
-  ans3.push_back (false);	// r f f f e t f f t t t t // ready is not fail
+  std::vector<bool> ans3;       // Answers for criteria 3:{{ "!HLT*" }};
+  ans3.push_back (true);        // f f f f f f f f f f f f
+  ans3.push_back (false);       // t t t t t t t t t t t t
+  ans3.push_back (false);       // t f f f f f f f f f f f
+  ans3.push_back (false);       // f t f f f f f f f f f f
+  ans3.push_back (true);        // f f f f f f f f t f f f
+  ans3.push_back (false);       // t t t t f f t f f f f f
+  ans3.push_back (true);        // f f f f f t f f f f t f
+  ans3.push_back (false);       // t f f f f t t f f t f t
+  ans3.push_back (false);       // r f f f e t f f t t t t // ready is not fail
 
   ans.push_back(ans3);
 
 
-  std::vector<bool> ans4;  	// Answers for criteria 4:{{"DEBUG*1","HLT?2"}};;
-  ans4.push_back (false);	// f f f f f f f f f f f f
-  ans4.push_back (true);	// t t t t t t t t t t t t
-  ans4.push_back (false);	// t f f f f f f f f f f f
-  ans4.push_back (true);	// f t f f f f f f f f f f
-  ans4.push_back (true);	// f f f f f f f f t f f f
-  ans4.push_back (true);	// t t t t f f t f f f f f
-  ans4.push_back (true);	// f f f f f t f f f f t f
-  ans4.push_back (false);	// t f f f f t t f f t f t
-  ans4.push_back (true);	// r f f f e t f f t t t t
+  std::vector<bool> ans4;       // Answers for criteria 4:{{"DEBUG*1","HLT?2"}};;
+  ans4.push_back (false);       // f f f f f f f f f f f f
+  ans4.push_back (true);        // t t t t t t t t t t t t
+  ans4.push_back (false);       // t f f f f f f f f f f f
+  ans4.push_back (true);        // f t f f f f f f f f f f
+  ans4.push_back (true);        // f f f f f f f f t f f f
+  ans4.push_back (true);        // t t t t f f t f f f f f
+  ans4.push_back (true);        // f f f f f t f f f f t f
+  ans4.push_back (false);       // t f f f f t t f f t f t
+  ans4.push_back (true);        // r f f f e t f f t t t t
 
   ans.push_back(ans4);
 
 
-  std::vector<bool> ans5;  	// Answers for criteria 5:{{ "D*x1", "CALIBx*" }};
-  ans5.push_back (false);	// f f f f f f f f f f f f
-  ans5.push_back (true);	// t t t t t t t t t t t t
-  ans5.push_back (false);	// t f f f f f f f f f f f
-  ans5.push_back (false);	// f t f f f f f f f f f f
-  ans5.push_back (true);	// f f f f f f f f t f f f
-  ans5.push_back (false);	// t t t t f f t f f f f f
-  ans5.push_back (true);	// f f f f f t f f f f t f
-  ans5.push_back (true);	// t f f f f t t f f t f t
-  ans5.push_back (true);	// r f f f e t f f t t t t
+  std::vector<bool> ans5;       // Answers for criteria 5:{{ "D*x1", "CALIBx*" }};
+  ans5.push_back (false);       // f f f f f f f f f f f f
+  ans5.push_back (true);        // t t t t t t t t t t t t
+  ans5.push_back (false);       // t f f f f f f f f f f f
+  ans5.push_back (false);       // f t f f f f f f f f f f
+  ans5.push_back (true);        // f f f f f f f f t f f f
+  ans5.push_back (false);       // t t t t f f t f f f f f
+  ans5.push_back (true);        // f f f f f t f f f f t f
+  ans5.push_back (true);        // t f f f f t t f f t f t
+  ans5.push_back (true);        // r f f f e t f f t t t t
 
   ans.push_back(ans5);
 
-  std::vector<bool> ans6;  	// Answers for criteria 6:{{ "HL*1", "C?LIB*2" }};
-  ans6.push_back (false);	// f f f f f f f f f f f f
-  ans6.push_back (true);	// t t t t t t t t t t t t
-  ans6.push_back (true);	// t f f f f f f f f f f f
-  ans6.push_back (false);	// f t f f f f f f f f f f
-  ans6.push_back (false);	// f f f f f f f f t f f f
-  ans6.push_back (true);	// t t t t f f t f f f f f
-  ans6.push_back (true);	// f f f f f t f f f f t f
-  ans6.push_back (true);	// t f f f f t t f f t f t
-  ans6.push_back (true);	// r f f f e t f f t t t t
+  std::vector<bool> ans6;       // Answers for criteria 6:{{ "HL*1", "C?LIB*2" }};
+  ans6.push_back (false);       // f f f f f f f f f f f f
+  ans6.push_back (true);        // t t t t t t t t t t t t
+  ans6.push_back (true);        // t f f f f f f f f f f f
+  ans6.push_back (false);       // f t f f f f f f f f f f
+  ans6.push_back (false);       // f f f f f f f f t f f f
+  ans6.push_back (true);        // t t t t f f t f f f f f
+  ans6.push_back (true);        // f f f f f t f f f f t f
+  ans6.push_back (true);        // t f f f f t t f f t f t
+  ans6.push_back (true);        // r f f f e t f f t t t t
 
   ans.push_back(ans6);
 
-  std::vector<bool> ans7;  	// Answers for criteria7:{{ "H*x1" }};
-  ans7.push_back (false);	// f f f f f f f f f f f f
-  ans7.push_back (true);	// t t t t t t t t t t t t
-  ans7.push_back (true);	// t f f f f f f f f f f f
-  ans7.push_back (false);	// f t f f f f f f f f f f
-  ans7.push_back (false);	// f f f f f f f f t f f f
-  ans7.push_back (true);	// t t t t f f t f f f f f
-  ans7.push_back (false);	// f f f f f t f f f f t f
-  ans7.push_back (true);	// t f f f f t t f f t f t
-  ans7.push_back (false);	// r f f f e t f f t t t t
+  std::vector<bool> ans7;       // Answers for criteria7:{{ "H*x1" }};
+  ans7.push_back (false);       // f f f f f f f f f f f f
+  ans7.push_back (true);        // t t t t t t t t t t t t
+  ans7.push_back (true);        // t f f f f f f f f f f f
+  ans7.push_back (false);       // f t f f f f f f f f f f
+  ans7.push_back (false);       // f f f f f f f f t f f f
+  ans7.push_back (true);        // t t t t f f t f f f f f
+  ans7.push_back (false);       // f f f f f t f f f f t f
+  ans7.push_back (true);        // t f f f f t t f f t f t
+  ans7.push_back (false);       // r f f f e t f f t t t t
 
   ans.push_back(ans7);
 
-  std::vector<bool> ans8;  	// Answers for criteria8:{{ "!H*x1" }};
-  ans8.push_back (true);	// f f f f f f f f f f f f
-  ans8.push_back (false);	// t t t t t t t t t t t t
-  ans8.push_back (false);	// t f f f f f f f f f f f
-  ans8.push_back (true);	// f t f f f f f f f f f f
-  ans8.push_back (true);	// f f f f f f f f t f f f
-  ans8.push_back (false);	// t t t t f f t f f f f f
-  ans8.push_back (true);	// f f f f f t f f f f t f
-  ans8.push_back (false);	// t f f f f t t f f t f t
-  ans8.push_back (false);	// r f f f e t f f t t t t -- false because ready does not
-  			 	//			      itself cause an accept
+  std::vector<bool> ans8;       // Answers for criteria8:{{ "!H*x1" }};
+  ans8.push_back (true);        // f f f f f f f f f f f f
+  ans8.push_back (false);       // t t t t t t t t t t t t
+  ans8.push_back (false);       // t f f f f f f f f f f f
+  ans8.push_back (true);        // f t f f f f f f f f f f
+  ans8.push_back (true);        // f f f f f f f f t f f f
+  ans8.push_back (false);       // t t t t f f t f f f f f
+  ans8.push_back (true);        // f f f f f t f f f f t f
+  ans8.push_back (false);       // t f f f f t t f f t f t
+  ans8.push_back (false);       // r f f f e t f f t t t t -- false because ready does not
+                                //                            itself cause an accept
 
   ans.push_back(ans8);
 
-  std::vector<bool> ans9;  	// Answers for criteria 9:{{ "C?LIB*2" }};
-  ans9.push_back (false);	// f f f f f f f f f f f f
-  ans9.push_back (true);	// t t t t t t t t t t t t
-  ans9.push_back (false);	// t f f f f f f f f f f f
-  ans9.push_back (false);	// f t f f f f f f f f f f
-  ans9.push_back (false);	// f f f f f f f f t f f f
-  ans9.push_back (false);	// t t t t f f t f f f f f
-  ans9.push_back (true);	// f f f f f t f f f f t f
-  ans9.push_back (true);	// t f f f f t t f f t f t
-  ans9.push_back (true);	// r f f f e t f f t t t t
+  std::vector<bool> ans9;       // Answers for criteria 9:{{ "C?LIB*2" }};
+  ans9.push_back (false);       // f f f f f f f f f f f f
+  ans9.push_back (true);        // t t t t t t t t t t t t
+  ans9.push_back (false);       // t f f f f f f f f f f f
+  ans9.push_back (false);       // f t f f f f f f f f f f
+  ans9.push_back (false);       // f f f f f f f f t f f f
+  ans9.push_back (false);       // t t t t f f t f f f f f
+  ans9.push_back (true);        // f f f f f t f f f f t f
+  ans9.push_back (true);        // t f f f f t t f f t f t
+  ans9.push_back (true);        // r f f f e t f f t t t t
 
   ans.push_back(ans9);
 

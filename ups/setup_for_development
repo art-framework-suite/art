@@ -37,7 +37,7 @@ setup -j libsigcpp v2_2_7 -q a1
 setup -j clhep v2_1_0_0 -q a1 
 setup -j root v5_27_06 -q gcc45
 setup -j messagefacility v1_6_4 -q a1
-setup -j cetlib v0_2_6 -q a1
+setup -j cetlib v0_2_7 -q a1
 setup -j cpp0x v1_0_3 -q a1
 setup -j boost v1_45_0 -q gcc45
 setup -j fhiclcpp v2_3_7 -q a1
