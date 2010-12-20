@@ -242,77 +242,6 @@ namespace art {
     return shared_ptr<InputSource>();
   }
 
-  // ---------------------------------------------------------------
-  EventProcessor::EventProcessor(std::string const& config,
-                                ServiceToken const& iToken,
-                                serviceregistry::ServiceLegacy iLegacy,
-                                std::vector<std::string> const& defaultServices,
-                                std::vector<std::string> const& forcedServices) :
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxSubRunsPset_(),
-    actReg_(new ActivityRegistry),
-    wreg_(actReg_),
-    preg_(),
-    serviceToken_(),
-    input_(),
-    schedule_(),
-    act_table_(),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
-    fb_(),
-    shouldWeStop_(false),
-    alreadyHandlingException_(false)
-  {
-    //boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
-    //processDesc->addServices(defaultServices, forcedServices);
-    //init(processDesc, iToken, iLegacy);
-  }
-
-  EventProcessor::EventProcessor(std::string const& config,
-                                std::vector<std::string> const& defaultServices,
-                                std::vector<std::string> const& forcedServices) :
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxSubRunsPset_(),
-    actReg_(new ActivityRegistry),
-    wreg_(actReg_),
-    preg_(),
-    serviceToken_(),
-    input_(),
-    schedule_(),
-    act_table_(),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
-    fb_(),
-    shouldWeStop_(false),
-    alreadyHandlingException_(false)
-  {
-    //boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
-    //processDesc->addServices(defaultServices, forcedServices);
-    init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-  }
-
   EventProcessor::EventProcessor(boost::shared_ptr<art::ProcessDesc> & processDesc,
                  ServiceToken const& token,
                  serviceregistry::ServiceLegacy legacy) :
@@ -342,54 +271,6 @@ namespace art {
     shouldWeStop_(false),
     alreadyHandlingException_(false)
   {
-    init(processDesc, token, legacy);
-  }
-
-
-  EventProcessor::EventProcessor(std::string const& config, bool isPython):
-    preProcessEventSignal_(),
-    postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxSubRunsPset_(),
-    actReg_(new ActivityRegistry),
-    wreg_(actReg_),
-    preg_(),
-    serviceToken_(),
-    input_(),
-    schedule_(),
-    act_table_(),
-    state_(sInit),
-    event_loop_(),
-    state_lock_(),
-    stop_lock_(),
-    stopper_(),
-    stop_count_(-1),
-    last_rc_(epSuccess),
-    last_error_text_(),
-    id_set_(false),
-    event_loop_id_(),
-    my_sig_num_(getSigNum()),
-    fb_(),
-    shouldWeStop_(false),
-    alreadyHandlingException_(false)
-  {
-    if(isPython)
-    {
-      boost::shared_ptr<art::ProcessDesc> processDesc ;//= PythonProcessDesc(config).processDesc();
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
-    else
-    {
-      boost::shared_ptr<art::ProcessDesc> processDesc(new art::ProcessDesc(config));
-      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
-    }
-  }
-
-  void
-  EventProcessor::init(boost::shared_ptr<art::ProcessDesc> & processDesc,
-                        ServiceToken const& iToken,
-                        serviceregistry::ServiceLegacy iLegacy) {
-
     // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
     //  They must be cleared here because some processes run multiple EventProcessors in succession.
     BranchIDListHelper::clearRegistries();
@@ -412,7 +293,7 @@ namespace art {
     //makeParameterSets(config, parameterSet, pServiceSets);
 
     //create the services
-    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, iToken, iLegacy));
+    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, token, legacy));
 
     // Copy slots that hold all the registered callback functions like
     // PostBeginJob into an ActivityRegistry that is owned by EventProcessor
@@ -428,7 +309,7 @@ namespace art {
 
     // the next thing is ugly: pull out the trigger path pset and
     // create a service and extra token for it
-    std::string processName = parameterSet->get<std::string>("@process_name");
+    std::string processName = parameterSet->get<std::string>("process_name");
 
     typedef art::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
@@ -460,7 +341,7 @@ namespace art {
                     act_table_,
                     actReg_));
 
-    //   initialize(iToken,iLegacy);
+    //   initialize(token,legacy);
     FDEBUG(2) << parameterSet->to_string() << std::endl;
     connectSigs(this);
     BranchIDListHelper::updateRegistries(preg_);
