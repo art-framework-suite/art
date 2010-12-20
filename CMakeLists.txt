@@ -63,7 +63,7 @@ find_ups_product( libsigcpp v2_2_7 )
 find_ups_product( clhep v2_1_0_0  )
 find_ups_product( fhiclcpp v2_3_6  )
 find_ups_product( messagefacility v1_6_0  )
-find_ups_product( cetlib v0_2_4 )
+find_ups_product( cetlib v0_2_5 )
 find_ups_product( cpp0x v1_0_2 )
 find_ups_root( v5_27_00 )
 find_ups_boost( v1_45_0 filesystem
