@@ -175,20 +175,19 @@ void *art::LibraryManager::getSymbol_(std::string const &lib_loc,
    void *result = nullptr;
    void *lib_ptr = get_lib_ptr(lib_loc);
    if (lib_ptr == nullptr) {
-      // TODO: Log message indicating library load error.
-      std::cerr << "Unable to load requested library " << lib_loc << std::endl;
+      // TODO: Throw correct exception.
+      throw cet::exception("Unable to load requested library " + lib_loc);
    } else { // Found library
       dlerror();
       result = dlsym(lib_ptr, sym_name.c_str());
       char const *error = dlerror();
       if (error != nullptr) { // Error message
          result = nullptr;
-         // TODO: Log message indicating symbol error.
-      std::cerr << "Unable to load requested symbol "
-                << sym_name
-                << " from library "
-                << lib_loc
-                << std::endl;
+         // TODO: Throw correct exception.
+         throw cet::exception("Unable to load requested symbol " +
+                              sym_name +
+                              " from library " + 
+                              lib_loc);
       }
    }
    return result;
