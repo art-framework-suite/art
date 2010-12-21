@@ -14,7 +14,6 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-//#include "art/ParameterSet/ProcessDesc.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -23,6 +22,7 @@
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
+
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
@@ -32,12 +32,8 @@
 #include <iostream>
 #include <utility>
 
-
-using art::serviceregistry::ServiceLegacy;
-using art::serviceregistry::kOverlapIsError;
 using boost::shared_ptr;
 using fhicl::ParameterSet;
-
 
 namespace art {
 
@@ -242,9 +238,33 @@ namespace art {
     return shared_ptr<InputSource>();
   }
 
-  EventProcessor::EventProcessor(boost::shared_ptr<art::ProcessDesc> & processDesc,
-                 ServiceToken const& token,
-                 serviceregistry::ServiceLegacy legacy) :
+  typedef vector<ParameterSet> ParameterSets;
+
+  void addService(string const& name, ParameterSets& service_set)
+  {
+    service_set.push_back(ParameterSet());
+    service_set.back().put("service_type",name);
+  }
+
+  void addOptionalService(string const& name, ParameterSet const& source, ParameterSets& service_set)
+  {
+    try {
+      service_set.push_back(services.get<ParameterSet>(name));
+      service_set.back().put("service_type",name);
+    }
+    catch(fhicl::exception&)
+      {
+	// ignore
+      }
+  }
+
+  void addService(string const& name, ParameterSet const& source, ParameterSets& service_set)
+  {
+    service_set.push_back(services.get<ParameterSet>(name,ParameterSet()));
+    service_set.back().put("service_type",name);
+  }
+
+  EventProcessor::EventProcessor(ParameterSet const& pset):
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     maxEventsPset_(),
@@ -279,18 +299,43 @@ namespace art {
     // returned here should be const, so that we can be sure they are
     // not modified.
 
-    shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
+    ParameterSet services = pset.get<ParameterSet>("services",ParameterSet());
+    ParameterSet user_services = services.get<ParameterSet>("user",ParameterSet());
+    ParameterSet options = services.get<ParameterSet>("scheduler", ParameterSet());
 
-    ParameterSet optionsPset(parameterSet->get<fhicl::ParameterSet>("options", ParameterSet()));
-    fileMode_ = optionsPset.get<std::string>("fileMode", "");
-    handleEmptyRuns_ = optionsPset.get<bool>("handleEmptyRuns", true);
-    handleEmptySubRuns_ = optionsPset.get<bool>("handleEmptySubRuns", true);
+    fileMode_ = options.get<std::string>("fileMode", "");
+    handleEmptyRuns_ = options.get<bool>("handleEmptyRuns", true);
+    handleEmptySubRuns_ = options.get<bool>("handleEmptySubRuns", true);
+    maxEventsPset_ = options.get<ParameterSet>("maxEvents", ParameterSet());
+    maxSubRunsPset_ = options.get<ParameterSet>("maxSubRuns", ParameterSet());
+    bool wantTracer = options.get<bool>("wantTracer",false);
 
-    maxEventsPset_ = parameterSet->get<fhicl::ParameterSet>("maxEvents", ParameterSet());
-    maxSubRunsPset_ = parameterSet->get<fhicl::ParameterSet>("maxSubRuns", ParameterSet());
+    // build a list of service parameter sets that will be used by the service registry
+    ParameterSets service_set;
 
-    shared_ptr<std::vector<ParameterSet> > pServiceSets = processDesc->getServicesPSets();
-    //makeParameterSets(config, parameterSet, pServiceSets);
+    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
+    // functions to take the parameter set vector and a list of service objects to be added to
+    // the service token.  Alternatively we could get the service token and be allowed to add
+    // service objects to it.  Since the servicetoken contains the servicemanager, we might
+    // be able to simply add a function to the serviceregistry or servicesmanager that given
+    // a service token, it injects a new service object using the "put" of the 
+    // servicesManager.
+
+    // order might be important here
+    // added and might have additional pset for configuration
+    addService("EnableFloatingPointExceptions",services,service_set); // should be made here
+    addService("CurrentModule",service_set); // should be made here
+    addService("TriggerNameService",service_set); // problem! - should be made here
+    addService("MessageLogger",service_set); // should be made here
+    addService("ConstProductRegistry",service_set); // problem! - should be made here
+    // configured based on optional parameters
+    if(wantTracer) addService("Tracer",service_set);
+    // only configured if pset present in services
+    addOptionalService("SimpleMemoryCheck",services, service_set);
+    addOptionalService("Timing",services,service_set);
+    addOptionalService("TFileService",services,service_set);
+
+    // below still needs modification
 
     //create the services
     ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, token, legacy));

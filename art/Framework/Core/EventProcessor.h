@@ -68,30 +68,8 @@ namespace art {
     // the specification of services by name only (defaultServices and forcedServices).
     // 'defaultServices' are overridden by 'config'.
     // 'forcedServices' cause an exception if the same service is specified in 'config'.
-    explicit EventProcessor(std::string const& config,
-                            ServiceToken const& token = ServiceToken(),
-                            serviceregistry::ServiceLegacy =
-                              serviceregistry::kOverlapIsError,
-                            std::vector<std::string> const& defaultServices =
-                              std::vector<std::string>(),
-                            std::vector<std::string> const& forcedServices =
-                              std::vector<std::string>());
 
-    // Same as previous constructor, but without a 'token'.  Token will be defaulted.
-
-   EventProcessor(std::string const& config,
-                  std::vector<std::string> const& defaultServices,
-                  std::vector<std::string> const& forcedServices =
-                  std::vector<std::string>());
-
-
-    EventProcessor(boost::shared_ptr<art::ProcessDesc> & processDesc,
-                   ServiceToken const& token,
-                   serviceregistry::ServiceLegacy legacy);
-
-    /// meant for unit tests
-    EventProcessor(std::string const& config, bool isPython);
-
+    EventProcessor(fhicl::ParameterSet const& pset);
     ~EventProcessor();
 
     /**This should be called before the first call to 'run'

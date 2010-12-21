@@ -80,8 +80,6 @@ namespace art {
       // ---------- member functions ---------------------------
 
 
-      static ServiceToken createServicesFromConfig(const std::string& config);
-
    public: // Made public (temporarily) at the request of Emilio Meschi.
       static ServiceToken createSet(const std::vector<fhicl::ParameterSet>&);
       static ServiceToken createSet(const std::vector<fhicl::ParameterSet>&,

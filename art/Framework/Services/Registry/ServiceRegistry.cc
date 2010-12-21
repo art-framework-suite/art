@@ -51,16 +51,6 @@ art::ServiceRegistry::presentToken() const
 //
 
 art::ServiceToken
-art::ServiceRegistry::createServicesFromConfig(std::string const& config) {
-   boost::shared_ptr<std::vector<ParameterSet> > pServiceSets;
-   boost::shared_ptr<ParameterSet> params;
-   //art::makeParameterSets(config, params, pServiceSets);
-
-   //create the services
-   return ServiceToken(art::ServiceRegistry::createSet(*pServiceSets.get()));
-}
-
-art::ServiceToken
 art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
 {
    using namespace art::serviceregistry;
