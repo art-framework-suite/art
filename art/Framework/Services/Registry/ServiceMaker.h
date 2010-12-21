@@ -9,6 +9,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
+#include "art/Utilities/TypeIDBase.h"
 #include <memory>
 
 namespace art {
@@ -29,7 +30,11 @@ std::auto_ptr<art::serviceregistry::ServiceWrapperBase> \
       std::auto_ptr<klass>( \
         new klass(cfg,reg) \
                           )                        )            ); \
-}
+} \
+extern "C" \
+art::TypeIDBase \
+  get_typeid() \
+{ return art::TypeIDBase(std::typeid(klass)); }
 
 // ======================================================================
 
