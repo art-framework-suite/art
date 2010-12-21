@@ -54,28 +54,6 @@ set( art_Framework_Core_sources Actions.cc
                               WorkerRegistry.cc
 )
 
-#link_libraries( art_Persistency_Provenance
-#                art_Persistency_Common
-#                art_Framework_Services_Basic
-#                art_Framework_Core
-#                art_Framework_PluginManager
-#                art_Framework_Services_Registry
-#                art_Utilities
-#                art_Version
-#                #art_ParameterSet
-#                ${Boost_FILESYSTEM_LIBRARY}
-#                ${Boost_PROGRAM_OPTIONS_LIBRARY}
-#                ${Boost_THREAD_LIBRARY}
-#                ${Boost_REGEX_LIBRARY}
-#                ${SIGC}
-#                ${HIST}
-#                ${MATRIX}
-#                ${MATHCORE}
-#                ${CORE}
-#                ${REFLEX}
-#                ${CINT}
-# )
-
 simple_plugin(RandomNumberGeneratorService)
 simple_plugin(RandomNumberSaver)
 
@@ -83,7 +61,6 @@ add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
 target_link_libraries(art_Framework_Core 
   art_Persistency_Provenance
   art_Persistency_Common
-  art_Framework_Services_Basic
   art_Framework_Services_Registry
   art_Version
   ${MF_MESSAGELOGGER}
