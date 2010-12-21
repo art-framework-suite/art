@@ -7,7 +7,7 @@
 //
 /**\class ServiceWrapper ServiceWrapper.h FWCore/ServiceRegistry/interface/ServiceWrapper.h
 
- Description: Wrapper around a Service
+ Description: Class template through which the framework manages the lifetime of a service.
 
  Usage:
     Implementation detail of the ServiceRegistry system

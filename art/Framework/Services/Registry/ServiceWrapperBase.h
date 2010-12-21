@@ -7,10 +7,8 @@
 //
 /**\class ServiceWrapperBase ServiceWrapperBase.h FWCore/ServiceRegistry/interface/ServiceWrapperBase.h
 
- Description: <one line class summary>
+ Description: Base class through which the framework manages the lifetime of ServiceWrapper<T> objects.
 
- Usage:
-    <usage>
 
 */
 //
