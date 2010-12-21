@@ -8,10 +8,8 @@ trap "[[ -d \"$TMP_DIR\" ]] && rm -rf \"$TMP_DIR\"" EXIT
 
 LD_LIBRARY_PATH="$LD_LIBRARY_PATH:lib2:lib1"
 
-printenv | grep BOOST | sort
-
-export BOOST_TEST_SHOW_PROGRESS=yes
-export BOOST_TEST_LOG_LEVEL=message
+export BOOST_TEST_SHOW_PROGRESS=${BOOST_TEST_SHOW_PROGRESS:-yes}
+export BOOST_TEST_LOG_LEVEL=${BOOST_TEST_LOG_LEVEL:-message}
 
 ${EXEC_DIR}/$(basename "${0}" .sh)
 
