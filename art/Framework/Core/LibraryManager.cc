@@ -182,14 +182,14 @@ art::LibraryManager::
 spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
                         std::string const &lib_type) {
    // First obtain short spec.
-   static boost::regex e("([^_]+)_" + lib_type + "\\..*$");
+   boost::regex e("([^_]+)_" + lib_type + dll_ext_pat_ + "$");
    boost::match_results<std::string::const_iterator> match_results;
 
    if (boost::regex_search(entry.first, match_results, e)) {
       spec_trans_map_[match_results[1]].insert(entry.second);
    } else {
       // TODO: Throw correct exception.
-      throw cet::exception("Internal error in spec_trans_map_inserter");
+      throw cet::exception("Internal error in spec_trans_map_inserter for entry " + entry.first + " with pattern " + e.str());
    }
 
    // Next, convert library filename to full libspec.

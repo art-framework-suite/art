@@ -1,6 +1,5 @@
 #include "art/Framework/Core/RootDictionaryManager.h"
 
-#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -23,8 +22,7 @@ art::RootDictionaryManager::RootDictionaryManager()
    ROOT::Cintex::Cintex::Enable();
 
    // Load all dictionaries.
-   dm_.loadAllLibraries();
-   
+   loadAllDictionaries();
 }
 
 std::ostream &art::RootDictionaryManager::
@@ -44,9 +42,9 @@ dumpReflexDictionaryInfo(std::ostream &os, std::string const &libpath) const {
    std::ostringstream map_lib;
    std::ostream_iterator<char, char> oi(map_lib);
    boost::regex_replace(oi, libpath.begin(), libpath.end(),
-                        boost::regex(std::string("_(") + dm_.libType() + ")" + dm_.dllExt() + "$"),
-                        std::string("(?1" + mm_.libType() + ")"),
-                        boost::match_default);
+                        boost::regex(std::string("_(") + dm_.libType() + ")(" + dm_.dllExt() + ")$"),
+                        std::string("(?1_" + mm_.libType() + "$2)"),
+                        boost::match_default | boost::format_all);
    CapFunc func = (CapFunc) mm_.getSymbolByPath(map_lib.str(), "SEAL_CAPABILITIES");
    if (func == nullptr) {
       // Throw correct exception.
@@ -56,9 +54,9 @@ dumpReflexDictionaryInfo(std::ostream &os, std::string const &libpath) const {
    char const ** names;
    func(names, size);
    for (int i=0; i<size; ++i) {
-      os << std::setw(45) << libpath
+      os << libpath
          << "   "
-         << std::setw(25) << names[i]
+         << names[i]
          << "\n";
    }
    return os;
