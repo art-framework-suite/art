@@ -159,132 +159,127 @@
 //
 // ======================================================================
 
-
 #include "art/Persistency/Common/RNGsnapshot.h"
+#include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSet.h"
+#include <map>
+#include <string>
+#include <vector>
+
 namespace art {
   class ActivityRegistry;
   class Event;
   class EventID;
   class Timestamp;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-#include "boost/shared_ptr.hpp"
-#include "fhiclcpp/ParameterSet.h"
-
-#include <map>
-#include <string>
-#include <vector>
-
-
-// ======================================================================
-
-
-namespace art {
 
   class EngineCreator;      // to be granted friendship
   class RandomNumberSaver;  // to be granted friendship
   class InputSource;        // to be granted friendship TODO: remove this
 
-  class RandomNumberGeneratorService
-  {
-    friend class EngineCreator;
-    friend class RandomNumberSaver;
-    friend class InputSource;  // TODO: remove this
+  class RandomNumberGeneratorService;
+}
 
-  public:
-    // --- CLHEP engine characteristics:
-    typedef  CLHEP::HepRandomEngine            base_engine_t;
-    typedef  long                              seed_t;
-    typedef  RNGsnapshot::engine_state_t       engine_state_t;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
-    // --- Internal state characteristics:
-    enum     init_t  { VIA_SEED=1, VIA_FILE, VIA_PRODUCT };
-    typedef  RNGsnapshot::label_t              label_t;
-    typedef  boost::shared_ptr<base_engine_t>  eptr_t;
-    typedef  std::map<label_t,eptr_t>          dict_t;
-    typedef  std::map<label_t,init_t>          tracker_t;
-    typedef  std::map<label_t,std::string>     kind_t;
-    typedef  std::vector<RNGsnapshot>          snapshot_t;
+// ======================================================================
 
-    // --- C'tor/d'tor:
-    RandomNumberGeneratorService( fhicl::ParameterSet const &
-                                , art::ActivityRegistry   &
-                                );
+class art::RandomNumberGeneratorService
+{
+  friend class EngineCreator;
+  friend class RandomNumberSaver;
+  friend class InputSource;  // TODO: remove this
 
-    ~RandomNumberGeneratorService()
-    { }
+public:
+  // --- CLHEP engine characteristics:
+  typedef  CLHEP::HepRandomEngine            base_engine_t;
+  typedef  long                              seed_t;
+  typedef  RNGsnapshot::engine_state_t       engine_state_t;
 
-    // --- Engine access:
-    base_engine_t &  getEngine( ) const;
-    base_engine_t &  getEngine( label_t const &  engine_label ) const;
+  // --- Internal state characteristics:
+  enum     init_t  { VIA_SEED=1, VIA_FILE, VIA_PRODUCT };
+  typedef  RNGsnapshot::label_t              label_t;
+  typedef  boost::shared_ptr<base_engine_t>  eptr_t;
+  typedef  std::map<label_t,eptr_t>          dict_t;
+  typedef  std::map<label_t,init_t>          tracker_t;
+  typedef  std::map<label_t,std::string>     kind_t;
+  typedef  std::vector<RNGsnapshot>          snapshot_t;
 
-  private:
-    // --- Prevent copying:
-    RandomNumberGeneratorService( RandomNumberGeneratorService const & );
-    void  operator = ( RandomNumberGeneratorService const & );
+  // --- C'tor/d'tor:
+  RandomNumberGeneratorService( fhicl::ParameterSet const &
+                              , art::ActivityRegistry   &
+                              );
 
-    // --- Engine establishment:
-    base_engine_t &
-      createEngine( seed_t  seed );
-    base_engine_t &
-      createEngine( seed_t               seed
-                  , std::string const &  kind_of_engine_to_make
-                  );
-    base_engine_t &
-      createEngine( seed_t               seed
-                  , std::string          kind_of_engine_to_make
-                  , label_t const &      engine_label
-                  );
+  ~RandomNumberGeneratorService()
+  { }
 
-    // --- Snapshot management helpers:
-    void  takeSnapshot_( );
-    void  restoreSnapshot_( art::Event const & event );
-    snapshot_t const &  accessSnapshot_( )  { return snapshot_; }
+  // --- Engine access:
+  base_engine_t &  getEngine( ) const;
+  base_engine_t &  getEngine( label_t const &  engine_label ) const;
 
-    // --- File management helpers:
-    void  saveToFile_     ( );
-    void  restoreFromFile_( );
+private:
+  // --- Prevent copying:
+  RandomNumberGeneratorService( RandomNumberGeneratorService const & );
+  void  operator = ( RandomNumberGeneratorService const & );
 
-    // --- Debugging helpers:
-    void  print_( );
-    bool  invariant_holds_( );
+  // --- Engine establishment:
+  base_engine_t &
+    createEngine( seed_t  seed );
+  base_engine_t &
+    createEngine( seed_t               seed
+                , std::string const &  kind_of_engine_to_make
+                );
+  base_engine_t &
+    createEngine( seed_t               seed
+                , std::string          kind_of_engine_to_make
+                , label_t const &      engine_label
+                );
 
-    // --- Callbacks:
-    void  preProcessEvent( art::EventID   const &
-                         , art::Timestamp const &
-                         );
-    void  postProcessEvent( art::Event const &);
-    void  postBeginJob( );
-    void  postEndJob( );
+  // --- Snapshot management helpers:
+  void  takeSnapshot_( );
+  void  restoreSnapshot_( art::Event const & event );
+  snapshot_t const &  accessSnapshot_( )  { return snapshot_; }
 
-    // --- Guard against tardy engine creation:
-    bool  engine_creation_is_okay_;
+  // --- File management helpers:
+  void  saveToFile_     ( );
+  void  restoreFromFile_( );
 
-    // --- Per-module-instance information:
-    dict_t     dict_;
-    tracker_t  tracker_;
-    kind_t     kind_;
+  // --- Debugging helpers:
+  void  print_( );
+  bool  invariant_holds_( );
 
-    // --- Snapshot information:
-    snapshot_t  snapshot_;
+  // --- Callbacks:
+  void  preProcessEvent( art::EventID   const &
+                       , art::Timestamp const &
+                       );
+  void  postProcessEvent( art::Event const &);
+  void  postBeginJob( );
+  void  postEndJob( );
 
-    // --- Product key for restoring from a snapshot:
-    label_t  restoreStateLabel_;
+  // --- Guard against tardy engine creation:
+  bool  engine_creation_is_okay_;
 
-    // --- File names for saving/restoring state:
-    std::string  saveToFilename_;
-    std::string  restoreFromFilename_;
+  // --- Per-module-instance information:
+  dict_t     dict_;
+  tracker_t  tracker_;
+  kind_t     kind_;
 
-    // --- Tracing and debug controls:
-    int  nPrint_;
-    bool debug_;
+  // --- Snapshot information:
+  snapshot_t  snapshot_;
 
-  };  // RandomNumberGeneratorService
+  // --- Product key for restoring from a snapshot:
+  label_t  restoreStateLabel_;
 
-}  // namespace art
+  // --- File names for saving/restoring state:
+  std::string  saveToFilename_;
+  std::string  restoreFromFilename_;
+
+  // --- Tracing and debug controls:
+  int  nPrint_;
+  bool debug_;
+
+};  // RandomNumberGeneratorService
 
 
 // ======================================================================

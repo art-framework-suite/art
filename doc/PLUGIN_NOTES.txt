@@ -18,7 +18,7 @@ Factory
 For a given module, the configuration will announce:
 
 #. what type of module it is (EDProducer, EDFilter, ...)
-#. what the name of the class is (IntProducer); 
+#. what the name of the class is (IntProducer);
    the class name lacks all namespace qualification
 
 The framework calls upon a *Factory* singleton instance to create an
@@ -160,19 +160,19 @@ All qualities are boolean.  Here is the meaning of them:
  * O = optional service
  * D = output to console, files per event or module (not edm datafile)
 
-=============================== = = = = =
-Type				C A P O D
-=============================== = = = = =
-CurrentModule			N Y Y N	N	
-EnableFloatingPointExceptions	Y Y N N N
-SimpleMemoryCheck		Y Y N Y Y
-TFileService			Y Y Y Y Y
-Timing				Y Y N Y Y
-Tracer				N Y N Y Y
-InitRootHandlers		Y N N Y N
-LoadAllDictionaries		N N N Y N
-UnixSignalService		Y N N N N
-=============================== = = = = =
+=========================== =  =  =  =  =
+Type                        C  A  P  O  D
+=========================== =  =  =  =  =
+CurrentModule . . . . . . . N  Y  Y  N  N
+FloatingPointControl  . . . Y  Y  N  N  N
+SimpleMemoryCheck . . . . . Y  Y  N  Y  Y
+TFileService  . . . . . . . Y  Y  Y  Y  Y
+Timing  . . . . . . . . . . Y  Y  N  Y  Y
+Tracer  . . . . . . . . . . N  Y  N  Y  Y
+InitRootHandlers  . . . . . Y  N  N  Y  N
+LoadAllDictionaries . . . . N  N  N  Y  N
+UnixSignalService . . . . . Y  N  N  N  N
+=========================== =  =  =  =  =
 
 
 The last three are really functions:

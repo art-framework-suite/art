@@ -28,7 +28,8 @@ set( art_Framework_Services_Basic_sources Memory.cc
 
 add_library(art_Framework_Services_Basic SHARED ${art_Framework_Services_Basic_sources} )
 
-simple_plugin(EnableFloatingPointExceptions)
+simple_plugin(CurrentModule)
+simple_plugin(FloatingPointControl)
 simple_plugin(SimpleMemoryCheck)
 simple_plugin(TFileService)
 simple_plugin(Timing)

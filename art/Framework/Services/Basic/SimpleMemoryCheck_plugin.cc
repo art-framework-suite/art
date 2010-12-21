@@ -4,4 +4,4 @@
 using art::service::SimpleMemoryCheck;
 
 
-DEFINE_FWK_SERVICE(SimpleMemoryCheck);
+DEFINE_ART_SERVICE(SimpleMemoryCheck);

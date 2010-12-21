@@ -32,27 +32,8 @@
 //
 // ======================================================================
 
-
-// Header corresponding to this implementation file:
 #include "art/Framework/Core/RandomNumberGeneratorService.h"
-  using art::RandomNumberGeneratorService;
-  using art::RNGsnapshot;
 
-// Framework support:
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Services/Basic/CurrentModule.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
-#include "art/Framework/Services/Registry/ServiceMaker.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "cetlib/exception.h"
-
-// messagefacility support:
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
-// CLHEP support:
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/DualRand.h"
 #include "CLHEP/Random/Hurd160Engine.h"
@@ -67,24 +48,31 @@
 #include "CLHEP/Random/RanluxEngine.h"
 #include "CLHEP/Random/RanshiEngine.h"
 #include "CLHEP/Random/TripleRand.h"
-
-
-// C++ support:
+#include "art/Framework/Core/Event.h"
+#include "art/Framework/Services/Basic/CurrentModule.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceMaker.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/exception.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <cassert>
 #include <fstream>
-  using std::ifstream;
-  using std::ofstream;
 #include <string>
-  using std::string;
 #include <vector>
-// DEBUG */ #include <iostream>
-  // DEBUG */ using std::cerr;
+//#include <iostream>  // DEBUG
 
+using art::RNGsnapshot;
+using art::RandomNumberGeneratorService;
+using fhicl::ParameterSet;
+using std::ifstream;
+using std::ofstream;
+using std::string;
+//using std::cerr;  // DEBUG
 
 // ======================================================================
-// implementation details
-// ======================================================================
-
 
 namespace {
 
@@ -94,14 +82,14 @@ namespace {
   typedef  RNGservice::seed_t            seed_t;
   typedef  RNGservice::base_engine_t     base_engine_t;
 
-  bool              const  DEFAULT_DEBUG_VALUE( false );
-  int               const  DEFAULT_NPRINT_VALUE( 10 );
-  fhicl::ParameterSet const  DEFAULT_PSET;
-  string            const  EMPTY_STRING( "" );
-  string            const  DEFAULT_ENGINE_KIND( "HepJamesRandom" );
-  seed_t            const  MAXIMUM_CLHEP_SEED( 900000000 );
-  seed_t            const  USE_DEFAULT_SEED( -1 );
-  RNGsnapshot       const  EMPTY_SNAPSHOT;
+  bool         const  DEFAULT_DEBUG_VALUE( false );
+  int          const  DEFAULT_NPRINT_VALUE( 10 );
+  ParameterSet const  DEFAULT_PSET;
+  string       const  EMPTY_STRING( "" );
+  string       const  DEFAULT_ENGINE_KIND( "HepJamesRandom" );
+  seed_t       const  MAXIMUM_CLHEP_SEED( 900000000 );
+  seed_t       const  USE_DEFAULT_SEED( -1 );
+  RNGsnapshot  const  EMPTY_SNAPSHOT;
 
   struct G4Engine { };
 
@@ -208,14 +196,10 @@ namespace {
 
 }  // namespace
 
-
-// ======================================================================
-// RNGservice public functionality
 // ======================================================================
 
-
-RNGservice::RandomNumberGeneratorService( fhicl::ParameterSet const & pset
-                                        , art::ActivityRegistry   & reg
+RNGservice::RandomNumberGeneratorService( ParameterSet const    & pset
+                                        , art::ActivityRegistry & reg
                                         )
 : engine_creation_is_okay_( true )
 , dict_( )
@@ -223,38 +207,38 @@ RNGservice::RandomNumberGeneratorService( fhicl::ParameterSet const & pset
 , kind_( )
 , snapshot_( )
 , restoreStateLabel_( pset.get<std::string>( "restoreStateLabel"
-                                                        , EMPTY_STRING
-                    )                                   )
+                                           , EMPTY_STRING
+                    )                      )
 , saveToFilename_( pset.get<std::string>( "saveTo"
-                                                     , EMPTY_STRING
-                 )                                   )
+                                        , EMPTY_STRING
+                 )                      )
 , restoreFromFilename_( pset.get<std::string>( "restoreFrom"
-                                                          , EMPTY_STRING
-                      )                                   )
+                                             , EMPTY_STRING
+                      )                      )
 , nPrint_( pset.get<int>( "nPrint"
-                                          , DEFAULT_NPRINT_VALUE
-         )                                )
+                        , DEFAULT_NPRINT_VALUE
+         )              )
 , debug_( pset.get<bool>( "debug"
-                                          , DEFAULT_DEBUG_VALUE
-        )                                 )
+                        , DEFAULT_DEBUG_VALUE
+        )               )
 {
   // Register for callbacks:
-  reg.watchPostBeginJob    ( this, & RNGservice::postBeginJob     );
-  reg.watchPostEndJob      ( this, & RNGservice::postEndJob       );
+  reg.watchPostBeginJob   ( this, & RNGservice::postBeginJob     );
+  reg.watchPostEndJob     ( this, & RNGservice::postEndJob       );
 #ifdef NOTYET
-  reg.watchPreProcessEvent ( this, & RNGservice::preProcessEvent  );
+  reg.watchPreProcessEvent( this, & RNGservice::preProcessEvent  );
 #endif  // NOTYET
 
   assert( invariant_holds_() && "RNGservice::RNGservice()" );
 }  // RNGservice()
 
+// ----------------------------------------------------------------------
 
 base_engine_t &
   RNGservice::getEngine( ) const
 {
   return getEngine( label_t() );
 }
-
 
 base_engine_t &
   RNGservice::getEngine( label_t const & engine_label ) const
@@ -274,11 +258,7 @@ base_engine_t &
   return *(d->second);
 }  // getEngine()
 
-
 // ======================================================================
-// RNGservice private functionality
-// ======================================================================
-
 
 bool
   RNGservice::invariant_holds_( )
@@ -287,6 +267,7 @@ bool
       &&  dict_.size() == kind_.size();
 }  // invariant_holds_()
 
+// ----------------------------------------------------------------------
 
 base_engine_t &
   RNGservice::createEngine( seed_t  seed )
@@ -350,6 +331,7 @@ base_engine_t &
 
 }  // createEngine<>()
 
+// ----------------------------------------------------------------------
 
 void
   RNGservice::print_()
@@ -375,6 +357,7 @@ void
   log << "\n";
 }  // print_()
 
+// ----------------------------------------------------------------------
 
 void
   RNGservice::takeSnapshot_( )
@@ -398,6 +381,7 @@ void
   log << " |\n";
 }  // takeSnapshot_()
 
+// ----------------------------------------------------------------------
 
 void
   RNGservice::restoreSnapshot_( art::Event const & event )
@@ -460,6 +444,7 @@ void
   assert( invariant_holds_() && "RNGsnapshot::restoreSnapshot_()" );
 }  // restoreSnapshot_()
 
+// ----------------------------------------------------------------------
 
 void
   RNGservice::saveToFile_( )
@@ -490,6 +475,7 @@ void
   }
 }  // saveToFile_()
 
+// ----------------------------------------------------------------------
 
 void
   RNGservice::restoreFromFile_( )
@@ -530,6 +516,7 @@ void
   assert( invariant_holds_() && "RNGservice::restoreFromFile_()" );
 }  // restoreFromFile_()
 
+// ----------------------------------------------------------------------
 
 void
   RNGservice::postBeginJob( )
@@ -537,7 +524,6 @@ void
   restoreFromFile_();
   engine_creation_is_okay_ = false;
 }  // postBeginJob()
-
 
 #ifdef NOTYET
 void
@@ -550,18 +536,14 @@ void
 }
 #endif  // NOTYET
 
-
 void
   RNGservice::postEndJob( )
 {
   saveToFile_();
 }  // postEndJob()
 
-
 // ======================================================================
 
-
-DEFINE_FWK_SERVICE(RandomNumberGeneratorService);
-
+DEFINE_ART_SERVICE(RandomNumberGeneratorService);
 
 // ======================================================================

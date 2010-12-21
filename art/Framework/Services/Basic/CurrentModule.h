@@ -1,6 +1,5 @@
-#ifndef CurrentModule_CurrentModule_hh
-#define CurrentModule_CurrentModule_hh
-
+#ifndef SERVICES__CURRENTMODULE_H
+#define SERVICES__CURRENTMODULE_H
 
 // ======================================================================
 //
@@ -9,38 +8,45 @@
 //
 // ======================================================================
 
-
 #include "art/Persistency/Provenance/ModuleDescription.h"
-namespace art {
-  class ActivityRegistry;
-}
-
-#include "fhiclcpp/ParameterSet.h"
-
 #include <string>
 
+namespace art {
+  class ActivityRegistry;  // declaration only
+  class CurrentModule;     // defined below
+}
+namespace fhicl {
+  class ParameterSet;      // declaration only
+}
+
+// ----------------------------------------------------------------------
+
+class art::CurrentModule
+{
+  // non-copyable:
+  CurrentModule( CurrentModule const & );
+  void  operator = ( CurrentModule const & );
+
+public:
+  // c'tor:
+  CurrentModule( fhicl::ParameterSet const &  // unused
+               , art::ActivityRegistry     &  r
+               );
+
+  // use compiler-generated d'tor
+
+  // accessor:
+  std::string
+    label() const { return desc_.moduleLabel(); }
+
+private:
+  art::ModuleDescription  desc_;
+
+  void
+    track_module( art::ModuleDescription const & desc );
+
+};  // CurrentModule
 
 // ======================================================================
 
-
-namespace art {
-
-  class CurrentModule
-  {
-  public:
-    CurrentModule( fhicl::ParameterSet const &
-                 , art::ActivityRegistry &
-                 );
-    ~CurrentModule();
-
-    std::string  label() const  { return desc_.moduleLabel(); }
-
-  private:
-    art::ModuleDescription  desc_;
-    void track_module( art::ModuleDescription const & desc );
-
-  };  // CurrentModule
-
-}  // namespace art
-
-#endif  // CurrentModule_CurrentModule_hh
+#endif  // SERVICES__CURRENTMODULE_H

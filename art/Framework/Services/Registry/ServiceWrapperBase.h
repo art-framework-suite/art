@@ -1,52 +1,32 @@
 #ifndef ServiceRegistry_ServiceWrapperBase_h
 #define ServiceRegistry_ServiceWrapperBase_h
-// -*- C++ -*-
+
+// ======================================================================
 //
-// Package:     ServiceRegistry
-// Class  :     ServiceWrapperBase
+// ServiceWrapperBase - Base class through which the framework manages
+//                      the lifetime of ServiceWrapper<T> objects.
 //
-/**\class ServiceWrapperBase ServiceWrapperBase.h FWCore/ServiceRegistry/interface/ServiceWrapperBase.h
+// ======================================================================
 
- Description: Base class through which the framework manages the lifetime of ServiceWrapper<T> objects.
+namespace art { namespace serviceregistry {
+  class ServiceWrapperBase;
+} }
 
+// ----------------------------------------------------------------------
 
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:01 EDT 2005
-//
-//
-
-// system include files
-
-// user include files
-
-// forward declarations
-namespace art {
-   namespace serviceregistry {
-
-      class ServiceWrapperBase
-      {
+class art::serviceregistry::ServiceWrapperBase
+{
+  // non-copyable:
+  ServiceWrapperBase( ServiceWrapperBase const & );
+  void operator = ( ServiceWrapperBase const & );
 
 public:
-         ServiceWrapperBase();
-         virtual ~ServiceWrapperBase();
+  ServiceWrapperBase( ) { }
 
-         // ---------- const member functions ---------------------
+  virtual ~ServiceWrapperBase( );
 
-         // ---------- static member functions --------------------
+};  // ServiceWrapperBase
 
-         // ---------- member functions ---------------------------
+// ======================================================================
 
-private:
-         ServiceWrapperBase(const ServiceWrapperBase&); // stop default
-
-         const ServiceWrapperBase& operator=(const ServiceWrapperBase&); // stop default
-
-         // ---------- member data --------------------------------
-
-      };
-   }
-}
-
-#endif
+#endif  // ServiceRegistry_ServiceWrapperBase_h

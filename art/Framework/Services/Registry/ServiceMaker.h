@@ -1,110 +1,36 @@
 #ifndef ServiceRegistry_ServiceMaker_h
 #define ServiceRegistry_ServiceMaker_h
 
+// ======================================================================
 //
-// Package:     ServiceRegistry
-// Class  :     ServiceMaker
+// ServiceMaker - Used to make an instance of a Service
 //
-/**\class ServiceMaker ServiceMaker.h FWCore/ServiceRegistry/interface/ServiceMaker.h
+// ======================================================================
 
- Description: Used to make an instance of a Service
-
-*/
-
-
-#include "art/Framework/Services/Registry/ServiceMakerBase.h"
-#include "art/Framework/Services/Registry/ServicePluginFactory.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Framework/Services/Registry/ServicesManager.h"
-
-#include "fhiclcpp/ParameterSet.h"
-
+#include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include <memory>
-
 
 namespace art {
   class ActivityRegistry;
+}
+namespace fhicl {
+  class ParameterSet;
+}
 
-  namespace serviceregistry {
+// ----------------------------------------------------------------------
 
-    template<class T, class TConcrete >
-    struct MakerBase {
-      typedef T interface_t;
-      typedef TConcrete concrete_t;
-    };
+#define DEFINE_ART_SERVICE(klass) \
+extern "C" \
+std::auto_ptr<art::serviceregistry::ServiceWrapperBase> \
+  make( fhicl::ParameterSet const & cfg, art::ActivityRegistry & reg ) \
+{ return std::auto_ptr<art::serviceregistry::ServiceWrapperBase>( \
+    new art::serviceregistry::ServiceWrapper<klass>( \
+      std::auto_ptr<klass>( \
+        new klass(cfg,reg) \
+                          )                        )            ); \
+}
 
-    template< class T, class TConcrete = T>
-      struct AllArgsMaker : public MakerBase<T,TConcrete> {
-
-      std::auto_ptr<T> make(const fhicl::ParameterSet& iPS,
-                            art::ActivityRegistry& iAR) const
-      {
-         return std::auto_ptr<T>(new TConcrete(iPS, iAR));
-      }
-    };
-
-    template< class T, class TConcrete = T>
-    struct ParameterSetMaker : public MakerBase<T,TConcrete> {
-      std::auto_ptr<T> make(const fhicl::ParameterSet& iPS,
-                            art::ActivityRegistry& /* iAR */) const
-      {
-         return std::auto_ptr<T>(new TConcrete(iPS));
-      }
-    };
-
-    template< class T, class TConcrete = T>
-    struct NoArgsMaker : public MakerBase<T,TConcrete> {
-      std::auto_ptr<T> make(const fhicl::ParameterSet& /* iPS */,
-                            art::ActivityRegistry& /* iAR */) const
-      {
-         return std::auto_ptr<T>(new TConcrete());
-      }
-    };
-
-
-    template< class T, class TMaker = AllArgsMaker<T> >
-    class ServiceMaker : public ServiceMakerBase
-    {
-
-public:
-      ServiceMaker() {}
-
-      // ---------- const member functions ---------------------
-      virtual const std::type_info& serviceType() const { return typeid(T); }
-
-      virtual bool make(const fhicl::ParameterSet& iPS,
-                        art::ActivityRegistry& iAR,
-                        ServicesManager& oSM) const
-      {
-         TMaker maker;
-         std::auto_ptr<T> pService(maker.make(iPS, iAR));
-         boost::shared_ptr<ServiceWrapper<T> > ptr(new ServiceWrapper<T>(pService));
-         return oSM.put(ptr);
-      }
-
-private:
-      ServiceMaker(const ServiceMaker&); // stop default
-
-      const ServiceMaker& operator=(const ServiceMaker&); // stop default
-
-    };
-
-  }  // namespace serviceregistry
-}  // namespace art
-
-
-#define DEFINE_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory,art::serviceregistry::ServiceMaker<type>,#type)
-
-#define DEFINE_ANOTHER_FWK_SERVICE(type) \
-DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory,art::serviceregistry::ServiceMaker<type>,#type)
-
-#define DEFINE_FWK_SERVICE_MAKER(concrete,maker) \
-typedef art::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ## _t; \
-DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory, concrete ## _ ##  _t ,#concrete)
-
-#define DEFINE_ANOTHER_FWK_SERVICE_MAKER(concrete,maker) \
-typedef art::serviceregistry::ServiceMaker<maker::interface_t,maker> concrete ## _ ##  _t; \
-DEFINE_EDM_PLUGIN (art::serviceregistry::ServicePluginFactory, concrete ## _ ## _t ,#concrete)
+// ======================================================================
 
 #endif  // ServiceRegistry_ServiceMaker_h

@@ -3,5 +3,4 @@
 
 using art::service::Timing;
 
-DEFINE_FWK_SERVICE(Timing);
-
+DEFINE_ART_SERVICE(Timing);

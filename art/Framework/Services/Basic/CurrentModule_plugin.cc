@@ -5,24 +5,18 @@
 //
 // ======================================================================
 
-
 #include "art/Framework/Services/Basic/CurrentModule.h"
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-#include "fhiclcpp/ParameterSet.h"
-
 using art::ActivityRegistry;
-using art::CurrentModule;
 using art::CurrentModule;
 using art::ModuleDescription;
 using fhicl::ParameterSet;
 
-
-// ======================================================================
-
+// ----------------------------------------------------------------------
 
 CurrentModule::CurrentModule( ParameterSet const & //unused
                             , ActivityRegistry   & r
@@ -40,9 +34,7 @@ CurrentModule::CurrentModule( ParameterSet const & //unused
   r.watchPreModuleEndSubRun   ( this, & CurrentModule::track_module );
 }  // CurrentModule()
 
-
-CurrentModule::~CurrentModule()
-{ }
+// ----------------------------------------------------------------------
 
 void
   CurrentModule::track_module( ModuleDescription const & desc )
@@ -50,8 +42,8 @@ void
   desc_ = desc;
 }
 
+// ----------------------------------------------------------------------
+
+DEFINE_ART_SERVICE(CurrentModule);
 
 // ======================================================================
-
-
-DEFINE_FWK_SERVICE(CurrentModule);

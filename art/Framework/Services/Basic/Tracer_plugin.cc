@@ -3,4 +3,4 @@
 
 using art::service::Tracer;
 
-DEFINE_FWK_SERVICE(Tracer);
+DEFINE_ART_SERVICE(Tracer);

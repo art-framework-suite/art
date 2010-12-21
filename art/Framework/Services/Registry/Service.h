@@ -9,22 +9,10 @@
 
  Description: Smart pointer used to give easy access to Service's
 
- Usage:
-
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Wed Sep  7 15:17:17 EDT 2005
-//
-//
 
-// system include files
-
-// user include files
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-
-// forward declarations
 
 namespace art {
    template<class T>
@@ -51,10 +39,6 @@ namespace art {
    operator bool() const {
       return isAvailable();
    }
-
-   // ---------- static member functions --------------------
-
-   // ---------- member functions ---------------------------
 
    private:
 };

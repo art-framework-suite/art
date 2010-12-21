@@ -1,41 +1,53 @@
-#ifndef UtilAlgos_TFileService_h
-#define UtilAlgos_TFileService_h
+#ifndef SERVICES__TFILESERVICE_H
+#define SERVICES__TFILESERVICE_H
 
-
-/* \class TFileService
- *
- * \author Luca Lista, INFN
- *
- */
-
+// ======================================================================
+//
+// TFileService
+//
+// ======================================================================
 
 #include "art/Framework/Core/TFileDirectory.h"
-#include "fhiclcpp/ParameterSet.h"
-
 
 namespace art {
-  class ActivityRegistry;
-  class ModuleDescription;
+  class ActivityRegistry;   // declaration only
+  class ModuleDescription;  // declaration only
+  class TFileService;       // defined below
+}
+namespace fhicl {
+  class ParameterSet;       // declaration only
+}
 
-  class TFileService : public TFileDirectory {
-  public:
-    /// constructor
-    TFileService(const fhicl::ParameterSet &, art::ActivityRegistry &);
-    /// destructor
-    ~TFileService();
-    /// return opened TFile
-    TFile & file() const { return * file_; }
+// ----------------------------------------------------------------------
 
-  private:
-    /// pointer to opened TFile
-    TFile * file_;
-    std::string fileName_;
-    bool fileNameRecorded_;
-    bool closeFileFast_;
-    // set current directory according to module name and prepare to create directory
-    void setDirectoryName( const art::ModuleDescription & desc );
-  };
+class art::TFileService
+  : public TFileDirectory
+{
+  // non-copyable:
+  TFileService( TFileService const & );
+  void  operator = ( TFileService const & );
 
-}  // namespace art
+public:
+  // c'tor:
+  TFileService( fhicl::ParameterSet const & cfg
+              , art::ActivityRegistry     & r
+              );
 
-#endif  // UtilAlgos_TFileService_h
+  // d'tor:
+  ~TFileService();
+
+  // accessor:
+  TFile &
+    file( ) const { return * file_; }
+
+private:
+  TFile * file_;           // pointer to opened TFile
+  bool closeFileFast_;
+
+  // set current directory according to module name and prepare to create directory
+  void setDirectoryName( art::ModuleDescription const & desc );
+};
+
+// ======================================================================
+
+#endif  // SERVICES__TFILESERVICE_H
