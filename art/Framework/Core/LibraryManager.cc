@@ -39,7 +39,8 @@ art::LibraryManager::LibraryManager(std::string const& lib_type)
    static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
    static std::string const pattern("lib[A-Za-z0-9_]*_");
    std::vector<std::string> matches;
-   size_t n_matches = ld_lib_path.find_files(pattern + lib_type + dll_ext_pat_, matches);
+   size_t n_matches = ld_lib_path.find_files(pattern + lib_type + dll_ext_pat_,
+                                             matches);
    // Note the use of reverse iterators here: files found earlier in the
    // vector will therefore overwrite those found later, which is what
    // we want from "search path"-type behavior.
@@ -62,8 +63,10 @@ art::LibraryManager::LibraryManager(std::string const& lib_type)
                            _1));
 }
 
-void *art::LibraryManager::getSymbol(std::string libspec,
-                                     std::string const& sym_name) const {
+void *art::LibraryManager::getSymbolByLibspec(std::string const &libspec,
+                                              std::string const &sym_name)
+   const
+{
    std::string lib_name_str;
 
    good_spec_trans_map_t::const_iterator trans =
@@ -89,16 +92,48 @@ void *art::LibraryManager::getSymbol(std::string libspec,
       // TODO: Throw correct exception.
       throw cet::exception(error_msg.str());
    }
-   return getSymbol_(trans->second, sym_name);
+   return getSymbolByPath(trans->second, sym_name);
+}
+
+void *art::LibraryManager::getSymbolByPath(std::string const &lib_loc,
+                                           std::string const &sym_name) const {
+   void *result = nullptr;
+   void *lib_ptr = get_lib_ptr(lib_loc);
+   if (lib_ptr == nullptr) {
+      // TODO: Throw correct exception.
+      throw cet::exception("Unable to load requested library " + lib_loc);
+   } else { // Found library
+      dlerror();
+      result = dlsym(lib_ptr, sym_name.c_str());
+      char const *error = dlerror();
+      if (error != nullptr) { // Error message
+         result = nullptr;
+         // TODO: Throw correct exception.
+         throw cet::exception("Unable to load requested symbol " +
+                              sym_name +
+                              " from library " + 
+                              lib_loc);
+      }
+   }
+   return result;
 }
 
 size_t
-art::LibraryManager::getLoadableLibraries(std::vector<std::string> &list) const {
+art::LibraryManager::getLoadableLibraries(std::vector<std::string> &list)
+   const
+{
    return this->getLoadableLibraries(std::back_inserter(list));
 }
 
 size_t
-art::LibraryManager::getValidLibspecs(std::vector<std::string> &list) const {
+art::LibraryManager::getLoadedLibraries(std::vector<std::string> &list) const
+{
+   return this->getLoadedLibraries(std::back_inserter(list));
+}
+
+size_t
+art::LibraryManager::getValidLibspecs(std::vector<std::string> &list) const
+{
    return this->getValidLibspecs(std::back_inserter(list));
 }
 
@@ -112,6 +147,28 @@ art::LibraryManager::loadAllLibraries() const {
         ++i) {
       get_lib_ptr(i->second);
    }
+}
+
+bool
+art::LibraryManager::libraryIsLoaded(std::string const & path) const
+{
+   return (lib_ptr_map_.find(path) != lib_ptr_map_.end());
+}
+
+bool
+art::LibraryManager::libraryIsLoadable(std::string const & path) const
+{
+   // TODO: If called with any frequency, this should be made more
+   // efficient.
+   lib_loc_map_t::const_iterator
+      i = lib_loc_map_.begin(),
+      end_iter = lib_loc_map_.end();
+   for (;
+        i != end_iter;
+        ++i) {
+      if (path == i->second) { return true; }
+   }
+   return false;
 }
 
 void
@@ -149,7 +206,8 @@ spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
       spec_trans_map_[match_results[1]].insert(entry.second);
    } else {
       // TODO: Throw correct exception.
-      throw cet::exception("Internal error in spec_trans_map_inserter stripping " + lib_name.str());
+      throw cet::exception("Internal error in spec_trans_map_inserter stripping " +
+                           lib_name.str());
    }
 }
 
@@ -161,34 +219,11 @@ good_spec_trans_map_inserter(spec_trans_map_t::value_type const &entry) {
    }
 }
 
-void *art::LibraryManager::get_lib_ptr(std::string const &lib_loc) const {
+void *art::LibraryManager::get_lib_ptr(std::string const&lib_loc) const {
    void *lib_ptr = lib_ptr_map_[lib_loc];
    if (lib_ptr == nullptr) {
       lib_ptr_map_[lib_loc] = // Update cached ptr.
          lib_ptr = dlopen(lib_loc.c_str(), RTLD_LAZY | RTLD_LOCAL);
    }
    return lib_ptr;
-}
-
-void *art::LibraryManager::getSymbol_(std::string const &lib_loc,
-                                      std::string const &sym_name) const {
-   void *result = nullptr;
-   void *lib_ptr = get_lib_ptr(lib_loc);
-   if (lib_ptr == nullptr) {
-      // TODO: Throw correct exception.
-      throw cet::exception("Unable to load requested library " + lib_loc);
-   } else { // Found library
-      dlerror();
-      result = dlsym(lib_ptr, sym_name.c_str());
-      char const *error = dlerror();
-      if (error != nullptr) { // Error message
-         result = nullptr;
-         // TODO: Throw correct exception.
-         throw cet::exception("Unable to load requested symbol " +
-                              sym_name +
-                              " from library " + 
-                              lib_loc);
-      }
-   }
-   return result;
 }

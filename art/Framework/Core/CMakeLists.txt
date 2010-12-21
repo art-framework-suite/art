@@ -27,6 +27,7 @@ set( art_Framework_Core_sources Actions.cc
                               InputSource.cc
                               InputSourceFactory.cc
                               LibraryManager.cc
+                              RootDictionaryManager.cc
                               SubRun.cc
                               SubRunPrincipal.cc
                               NoDelayedReader.cc
@@ -131,6 +132,7 @@ install(FILES Actions.h
 	      ProducerBase.h
 	      ProductRegistryHelper.h
 	      RandomNumberGeneratorService.h
+        RootDictionaryManager.h
 	      Run.h
 	      RunPrincipal.h
 	      RunStopwatch.h

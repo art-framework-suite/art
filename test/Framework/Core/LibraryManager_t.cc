@@ -67,29 +67,29 @@ BOOST_AUTO_TEST_CASE ( libListIter )
 
 BOOST_AUTO_TEST_CASE ( getSymbolLong )
 {
-   BOOST_REQUIRE( lm_ref.getSymbol("art/Framework/IO/Output/PoolOutputModule",
-                                   "_init") != nullptr );
+   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("art/Framework/IO/Output/PoolOutputModule",
+                                            "_init") != nullptr );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolShort )
 {
-   BOOST_REQUIRE( lm_ref.getSymbol("PoolOutputModule",
-                                   "_init") != nullptr );
+   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("PoolOutputModule",
+                                            "_init") != nullptr );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolPathPrecedence )
 {
-   BOOST_REQUIRE_NO_THROW( lm_ref.getSymbol ( "1/1/1", "_init") );
+   BOOST_REQUIRE_NO_THROW( lm_ref.getSymbolByLibspec ( "1/1/1", "_init") );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolAmbiguity )
 {
-   BOOST_REQUIRE_THROW( lm_ref.getSymbol ( "3", "_init") == nullptr, cet::exception );
+   BOOST_REQUIRE_THROW( lm_ref.getSymbolByLibspec ( "3", "_init") == nullptr, cet::exception );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolNoAmbiguity )
 {
-   BOOST_REQUIRE_NO_THROW( lm_ref.getSymbol ( "2/1/3", "_init") == nullptr );
+   BOOST_REQUIRE_NO_THROW( lm_ref.getSymbolByLibspec ( "2/1/3", "_init") == nullptr );
 }
 
 BOOST_AUTO_TEST_CASE ( loadAllLibraries )
