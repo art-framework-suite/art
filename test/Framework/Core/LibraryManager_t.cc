@@ -16,23 +16,20 @@ struct LibraryManagerTestFixture {
    LibraryManagerTestFixture();
    ~LibraryManagerTestFixture();
 
-   LibraryManager *lm;
+   LibraryManager lm;
    LibraryManager const &lm_ref;
 
 };
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()
    :
-   lm(new LibraryManager("plugin")),
-   lm_ref(*lm)
+   lm("plugin"),
+   lm_ref(lm)
 {
-//    BOOST_TEST_MESSAGE( "Create LibraryManager(\"plugin\")." );
 }
    
 LibraryManagerTestFixture::~LibraryManagerTestFixture()
 {
-//    BOOST_TEST_MESSAGE( "Clean up." );
-   delete lm;
 };
 
 BOOST_FIXTURE_TEST_SUITE ( LibraryManagerTests, LibraryManagerTestFixture )
@@ -55,8 +52,6 @@ BOOST_AUTO_TEST_CASE ( libListVector )
 {
    std::vector<std::string> lib_list;
    BOOST_REQUIRE(lm_ref.getLoadableLibraries(lib_list) > 0);
-//    BOOST_TEST_MESSAGE( "List of loadable libraries:" );
-//    cet::copy_all(lib_list, std::ostream_iterator<std::string>(std::cerr, "\n"));
 }
 
 BOOST_AUTO_TEST_CASE ( libListIter )
@@ -92,10 +87,39 @@ BOOST_AUTO_TEST_CASE ( getSymbolNoAmbiguity )
    BOOST_REQUIRE_NO_THROW( lm_ref.getSymbolByLibspec ( "2/1/3", "_init") == nullptr );
 }
 
+BOOST_AUTO_TEST_CASE ( dictLoadable )
+{
+   std::vector<std::string> lib_list;
+   lm_ref.getLoadableLibraries(lib_list);
+   BOOST_REQUIRE(lm_ref.libraryIsLoadable(*lib_list.begin()));
+}
+
+BOOST_AUTO_TEST_CASE ( dictLoadableButNotLoaded )
+{
+   std::vector<std::string> lib_list;
+   lm_ref.getLoadableLibraries(lib_list);
+   BOOST_REQUIRE(lm_ref.libraryIsLoadable(*lib_list.begin()));
+   BOOST_REQUIRE(!lm_ref.libraryIsLoaded(*lib_list.begin()));
+}
+
 BOOST_AUTO_TEST_CASE ( loadAllLibraries )
 {
    BOOST_REQUIRE_NO_THROW(lm_ref.loadAllLibraries());
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE ( dictLoaded )
+{
+   std::vector<std::string> lib_list;
+   lm_ref.getLoadableLibraries(lib_list);
+   lm_ref.loadAllLibraries();
+   BOOST_REQUIRE(lm_ref.libraryIsLoaded(*lib_list.begin()));
+}
 
+BOOST_AUTO_TEST_CASE ( dictNotLoadable )
+{
+   std::vector<std::string> lib_list;
+   lm_ref.getLoadableLibraries(lib_list);
+   BOOST_REQUIRE(!lm_ref.libraryIsLoadable("UnknownLibrary"));
+}
+
+BOOST_AUTO_TEST_SUITE_END()
