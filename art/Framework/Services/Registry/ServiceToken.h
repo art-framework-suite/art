@@ -59,6 +59,13 @@ namespace art {
       ///the copy the argument's slots to the token's signals
       void copySlotsFrom(ActivityRegistry&);
 
+      template<class T>
+	bool add(std::auto_ptr<T> serv) 
+	{
+	  return manager_.put(boost::shared_ptr<ServiceWrapper<T> >(serv));
+	}
+
+
     private:
       ServiceToken(boost::shared_ptr<art::serviceregistry::ServicesManager>  iManager):
       manager_(iManager) {}

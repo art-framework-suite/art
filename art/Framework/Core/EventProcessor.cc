@@ -201,26 +201,27 @@ namespace art {
     // find single source
     bool sourceSpecified = false;
     try {
-      ParameterSet main_input =
-        params.get<fhicl::ParameterSet>("@main_input");
+      ParameterSet main_input = params.get<fhicl::ParameterSet>("source");
 
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the ProductRegistry.
       // Also fill in the process history item for this process.
+
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
-      md.moduleName_ =
-        main_input.get<std::string>("@module_type");
-      // There is no module label for the unnamed input source, so
-      // just use "source".
-      md.moduleLabel_ = "source";
+      md.moduleName_ = main_input.get<std::string>("module_type");
+      md.moduleLabel_ = main_input.get<std::string>("module_label");
+
       md.processConfiguration_ = ProcessConfiguration(common.processName_,
-                                params.id(), getReleaseVersion(), getPassID());
+						      params.id(), 
+						      getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
       areg->preSourceConstructionSignal_(md);
-      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
+
+      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, 
+									       isdesc).release());
       areg->postSourceConstructionSignal_(md);
 
       return input;
@@ -238,6 +239,8 @@ namespace art {
     return shared_ptr<InputSource>();
   }
 
+  // -------- functions to help prepare the services for initialization --------
+
   typedef vector<ParameterSet> ParameterSets;
 
   void addService(string const& name, ParameterSets& service_set)
@@ -246,7 +249,9 @@ namespace art {
     service_set.back().put("service_type",name);
   }
 
-  void addOptionalService(string const& name, ParameterSet const& source, ParameterSets& service_set)
+  void addOptionalService(string const& name, 
+			  ParameterSet const& source, 
+			  ParameterSets& service_set)
   {
     try {
       service_set.push_back(services.get<ParameterSet>(name));
@@ -263,6 +268,32 @@ namespace art {
     service_set.push_back(services.get<ParameterSet>(name,ParameterSet()));
     service_set.back().put("service_type",name);
   }
+
+  void extractServices(ParameterSet const& services, ParameterSets& service_set)
+  {
+    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
+    // functions to take the parameter set vector and a list of service objects to be added to
+    // the service token.  Alternatively we could get the service token and be allowed to add
+    // service objects to it.  Since the servicetoken contains the servicemanager, we might
+    // be able to simply add a function to the serviceregistry or servicesmanager that given
+    // a service token, it injects a new service object using the "put" of the 
+    // servicesManager.
+    // order might be important here
+
+    // only configured if pset present in services
+    addOptionalService("SimpleMemoryCheck",services, service_set);
+    addOptionalService("Timing",services,service_set);
+    addOptionalService("TFileService",services,service_set);
+
+    ParameterSet user_services = services.get<ParameterSet>("user",ParameterSet());
+
+    std::vector<string> keys = user_services.get_pset_keys();
+
+    for(vector<string>::iterator i=keys.begin(),e=keys.end();i!=e;++i)
+      addService(i->first, user_services,service_set);
+  }
+
+  // ----------- event processor functions ------------------
 
   EventProcessor::EventProcessor(ParameterSet const& pset):
     preProcessEventSignal_(),
@@ -300,8 +331,10 @@ namespace art {
     // not modified.
 
     ParameterSet services = pset.get<ParameterSet>("services",ParameterSet());
-    ParameterSet user_services = services.get<ParameterSet>("user",ParameterSet());
-    ParameterSet options = services.get<ParameterSet>("scheduler", ParameterSet());
+    ParameterSet options = services.get<ParameterSet>("options", ParameterSet());
+
+    ParameterSet fpc_pset = services.get<ParameterSet>("FloatingPointControl",ParameterSet());
+    ParameterSet logger_pset = services.get<ParameterSet>("MessageLogger",ParameterSet());
 
     fileMode_ = options.get<std::string>("fileMode", "");
     handleEmptyRuns_ = options.get<bool>("handleEmptyRuns", true);
@@ -309,77 +342,46 @@ namespace art {
     maxEventsPset_ = options.get<ParameterSet>("maxEvents", ParameterSet());
     maxSubRunsPset_ = options.get<ParameterSet>("maxSubRuns", ParameterSet());
     bool wantTracer = options.get<bool>("wantTracer",false);
+    std::string processName = pset.get<std::string>("process_name");
 
     // build a list of service parameter sets that will be used by the service registry
     ParameterSets service_set;
+    extractServices(services,service_set);
 
-    // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
-    // functions to take the parameter set vector and a list of service objects to be added to
-    // the service token.  Alternatively we could get the service token and be allowed to add
-    // service objects to it.  Since the servicetoken contains the servicemanager, we might
-    // be able to simply add a function to the serviceregistry or servicesmanager that given
-    // a service token, it injects a new service object using the "put" of the 
-    // servicesManager.
-
-    // order might be important here
-    // added and might have additional pset for configuration
-    addService("EnableFloatingPointExceptions",services,service_set); // should be made here
-    addService("CurrentModule",service_set); // should be made here
-    addService("TriggerNameService",service_set); // problem! - should be made here
-    addService("MessageLogger",service_set); // should be made here
-    addService("ConstProductRegistry",service_set); // problem! - should be made here
     // configured based on optional parameters
     if(wantTracer) addService("Tracer",service_set);
-    // only configured if pset present in services
-    addOptionalService("SimpleMemoryCheck",services, service_set);
-    addOptionalService("Timing",services,service_set);
-    addOptionalService("TFileService",services,service_set);
 
-    // below still needs modification
+    serviceToken_ = ServiceRegistry::createSet(service_set);
 
-    //create the services
-    ServiceToken tempToken(ServiceRegistry::createSet(*pServiceSets, token, legacy));
-
-    // Copy slots that hold all the registered callback functions like
-    // PostBeginJob into an ActivityRegistry that is owned by EventProcessor
-    tempToken.copySlotsTo(*actReg_);
-
-    //add the ProductRegistry as a service ONLY for the construction phase
-    typedef serviceregistry::ServiceWrapper<ConstProductRegistry> w_CPR;
-    shared_ptr<w_CPR>
-      reg(new w_CPR(std::auto_ptr<ConstProductRegistry>(new ConstProductRegistry(preg_))));
-    ServiceToken tempToken2(ServiceRegistry::createContaining(reg,
-                                                              tempToken,
-                                                              kOverlapIsError));
-
-    // the next thing is ugly: pull out the trigger path pset and
-    // create a service and extra token for it
-    std::string processName = parameterSet->get<std::string>("process_name");
+    // NOTE: the order here might be backwards, due to the "push_front" registering
+    // that sigc++ does way in the guts of the add operation.
 
     typedef art::service::TriggerNamesService TNS;
-    typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
+    typedef ConstProductRegistry CPR;
+    // no configuration available
+    serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(ParameterSet(),actReg_)));
+    // special construction
+    serviceToken_.add(std::auto_ptr<CPR>(new CPR(preg_)));
+    serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
+    serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatPointControl(fpc_pset,actReg_)));
+    serviceToken_.add(std::auto_ptr<MessageLogger>(new MessageLogger(logger_pset,actReg_)));
 
-    shared_ptr<w_TNS> tnsptr
-      (new w_TNS(std::auto_ptr<TNS>(new TNS(*parameterSet))));
-
-    serviceToken_ = ServiceRegistry::createContaining(tnsptr,
-                                                    tempToken2,
-                                                    kOverlapIsError);
+    // below still needs modification
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    //parameterSet = builder.getProcessPSet();
-    act_table_ = ActionTable(*parameterSet);
+    act_table_ = ActionTable(pset);
     CommonParams common = CommonParams(processName,
                            getReleaseVersion(),
                            getPassID(),
                            maxEventsPset_.get<int>("input", -1),
                            maxSubRunsPset_.get<int>("input", -1));
 
-    input_= makeInput(*parameterSet, common, preg_, actReg_);
+    input_= makeInput(pset, common, preg_, actReg_);
+
     schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(*parameterSet,
+      (new Schedule(pset,
                     ServiceRegistry::instance().get<TNS>(),
                     wreg_,
                     preg_,
@@ -387,7 +389,8 @@ namespace art {
                     actReg_));
 
     //   initialize(token,legacy);
-    FDEBUG(2) << parameterSet->to_string() << std::endl;
+    FDEBUG(2) << pset->to_string() << std::endl;
+
     connectSigs(this);
     BranchIDListHelper::updateRegistries(preg_);
   }
