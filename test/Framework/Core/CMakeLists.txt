@@ -27,6 +27,7 @@ link_libraries( art_Framework_Services_Registry
 # Identify, by category, all tests:
 
 set( BOOST_TEST_LIST
+  RootDictionaryManager_t
 )
 
 set( TEST_LIST
