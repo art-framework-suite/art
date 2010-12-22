@@ -54,9 +54,9 @@ namespace art {
 
 	// Create the service if necessary, and return the WrapperBase_ptr
 	// that refers to it.
-        WrapperBase_ptr getService(ActivityRegistry& reg)
+        WrapperBase_ptr getService(ActivityRegistry& reg, ServiceStack& creationOrder)
         {
-          if (!service_) createService(reg);
+          if (!service_) createService(reg, creationOrder);
           return *service_;
         }
 
@@ -149,7 +149,6 @@ namespace art {
       art::ActivityRegistry registry_;
       Factory factory_;
 
-      // what the heck are these for?
       TypeIDBases requestedCreationOrder_;
       ServiceStack actualCreationOrder_;
 
