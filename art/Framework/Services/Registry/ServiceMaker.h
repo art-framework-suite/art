@@ -19,6 +19,13 @@ namespace fhicl {
   class ParameterSet;
 }
 
+
+extern "C"
+{
+  typedef art::TypeIDBase (*GET_TYPEID)();
+  typedef std::auto_ptr<art::serviceregistry::ServiceWrapperBase> (*MAKER)(fhicl::ParameterSet const&,art::ActivityRegistry&);
+}
+
 // ----------------------------------------------------------------------
 
 #define DEFINE_ART_SERVICE(klass) \

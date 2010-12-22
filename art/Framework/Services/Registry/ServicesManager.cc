@@ -17,100 +17,25 @@ using boost::shared_ptr;
 using fhicl::ParameterSet;
 using namespace art;
 
-ServicesManager::MakerHolder::MakerHolder(shared_ptr<ServiceMakerBase> iMaker,
-                                          const ParameterSet& iPSet,
-                                          ActivityRegistry& iRegistry) :
-  maker_(iMaker),
-  pset_(&iPSet),
-  registry_(&iRegistry),
-  wasAdded_(false)
-{}
-
-bool
-ServicesManager::MakerHolder::add(ServicesManager& oManager) const
-{
-  if(!wasAdded_) wasAdded_ = maker_->make(*pset_, *registry_, oManager);
-  return wasAdded_;
-}
-
-ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager const& lm) :
-  type2Maker_(new Type2Maker)
+ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager const& lm):
+  associatedManager_(),
+  registry_(),
+  factory_(),
+  requestedCreationOrder_(),
+  actualCreationOrder_()
 {
   //First create the list of makers
-  fillListOfMakers(psets,lm);
-  createServices();
+  fillFactory(psets,lm);
 }
+
+// this inheritance procedure needs to go away...
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
                                  ParameterSets const& psets,
 				 LibraryManager const& lm):
-  associatedManager_(iToken.manager_),
-  type2Maker_(new Type2Maker)
+  associatedManager_(iToken.manager_)
 {
-  fillListOfMakers(psets,lm);
-
-  //find overlaps between services in iToken and iConfiguration
-  typedef std::set< TypeIDBase> TypeSet;
-  TypeSet configTypes;
-  for(Type2Maker::iterator itType = type2Maker_->begin(), itTypeEnd = type2Maker_->end();
-      itType != itTypeEnd;
-      ++itType) {
-    configTypes.insert(itType->first);
-  }
-
-  TypeSet tokenTypes;
-  if(0 != associatedManager_.get()) {
-    for(Type2Service::iterator itType = associatedManager_->type2Service_.begin(),
-          itTypeEnd = associatedManager_->type2Service_.end();
-	itType != itTypeEnd;
-	++itType) {
-      tokenTypes.insert(itType->first);
-    }
-
-    typedef std::set<TypeIDBase> IntersectionType;
-    IntersectionType intersection;
-    std::set_intersection(configTypes.begin(), configTypes.end(),
-			  tokenTypes.begin(), tokenTypes.end(),
-			  inserter(intersection, intersection.end()));
-
-    switch(iLegacy) {
-    case kOverlapIsError :
-      if(!intersection.empty()) {
-	throw art::Exception(errors::Configuration, "Service")
-	  <<"the Service "<<(*type2Maker_).find(*(intersection.begin()))->second.pset_->get<std::string>("@service_type")
-	  <<" already has an instance of that type of Service";
-      } else {
-	//get all the services from Token
-	type2Service_ = associatedManager_->type2Service_;
-      }
-      break;
-    case kTokenOverrides :
-      //get all the services from Token
-      type2Service_ = associatedManager_->type2Service_;
-
-      //remove from type2Maker the overlapping services so we never try to make them
-      for(IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
-	  itType != itTypeEnd;
-	  ++itType) {
-	type2Maker_->erase(type2Maker_->find(*itType));
-      }
-      break;
-    case kConfigurationOverrides:
-      //get all the services from Token
-      type2Service_ = associatedManager_->type2Service_;
-
-      //now remove the ones we do not want
-      for(IntersectionType::iterator itType = intersection.begin(), itTypeEnd = intersection.end();
-	  itType != itTypeEnd;
-	  ++itType) {
-	type2Service_.erase(type2Service_.find(*itType));
-      }
-      break;
-    }
-    //make sure our signals are propagated to our 'inherited' Services
-    registry_.copySlotsFrom(associatedManager_->registry_);
-  }
-  createServices();
+  throw "You are calling the inheritance ctor of ServiceManager and should not be doing that!";
 }
 
 ServicesManager::~ServicesManager()
@@ -123,20 +48,9 @@ ServicesManager::~ServicesManager()
   // may or not be detroyed in the desired order because this class does not control
   // their creation (as I'm writing this comment everything in a standard fw
   // executable is destroyed in the desired order).
-  for (std::vector<TypeIDBase>::const_reverse_iterator idIter = actualCreationOrder_.rbegin(),
-	 idEnd = actualCreationOrder_.rend();
-       idIter != idEnd;
-       ++idIter) {
 
-    Type2Service::iterator itService = type2Service_.find(*idIter);
-
-    if (itService != type2Service_.end()) {
-
-      // This will cause the Service's destruction if
-      // there are no other shared pointers around
-      itService->second.reset();
-    }
-  }
+  factory_.clear();
+  while(!actualCreationOrder_.empty()) actualCreationOrder_.pop();
 }
 
 void
@@ -165,41 +79,32 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 
 
 void
-ServicesManager::fillListOfMakers(ParameterSets const& psets, LibraryManager const& lm)
+ServicesManager::fillFactory(ParameterSets const& psets, LibraryManager const& lm)
 {
-  for(ParameterSets::const_iterator itParam = psets.begin(),
-	itParamEnd = psets.end();
-      itParam != itParamEnd;
-      ++itParam) 
+  for(ParameterSets::const_iterator it=psets.begin(),iend=psets.end();it != iend;++itParam) 
     {
-      boost::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->get<std::string>("service_type")));
+      string service_name = it->get<string>("service_type");
 
-      if(0 == base.get())
-	{
-	  throw art::Exception(art::errors::Configuration, "Service")
-	    <<"could not find a service named "
-	    << itParam->get<std::string>("service_type")
-	    <<". Please check spelling.";
-	}
+      // go to lm and get the typeid and maker function for this service
+      GET_TYPEID typeid_func = lm.getSymbolByLibspec(service_name,"get_typeid");
+      MAKER make_func = lm.getSymbolByLibspec(service_name,"make");
 
-      Type2Maker::iterator itFound = type2Maker_->find(TypeIDBase(base->serviceType()));
+      if(typeid_func==0) 
+	throw art::Exception(art::errors::LogicError,"Service")
+	  << "Could not find the get_typeid function in the service library for " << service_name
+	  << "\n.  The library is probably built incorrectly.\n";
 
-      if(itFound != type2Maker_->end()) 
-	{
-	  throw art::Exception(art::errors::Configuration,"Service")
-	    <<" the service "<< itParam->get<std::string>("service_type")
-	    <<" provides the same service as "
-	    << itFound->second.pset_->get<std::string>("service_type")
-	    <<"\n Please reconfigure job to only use one of these services.";
-	}
+      if(make_func==0)
+	throw art::Exception(art::errors::LogicError,"Service")
+	  << "Could not find the maker function in the service library for " << service_name
+	  << "\n.  The library is probably built incorrectly.\n";
 
-      type2Maker_->insert(Type2Maker::value_type(TypeIDBase(base->serviceType()),
-						 MakerHolder(base,
-							     *itParam,
-							     registry_)));
-      requestedCreationOrder_.push_back(TypeIDBase(base->serviceType()));
-    }
-  
+      TypeIDBase id = typeid_func();
+
+      // insert cache object for it
+      factory_.[id] = Cache(*it, id, make_func);
+      requestedCreationOrder_.push_back(id);
+    }  
 }
 
 namespace {
@@ -208,44 +113,3 @@ namespace {
   };
 }
 
-void
-ServicesManager::createServices()
-{
-  //create a shared_ptr of 'this' that will not delete us
-  boost::shared_ptr<ServicesManager> shareThis(this, NoOp());
-
-  ServiceToken token(shareThis);
-
-  //Now make our services to ones obtained via ServiceRegistry
-  // when this goes out of scope, it will revert back to the previous Service set
-  ServiceRegistry::Operate operate(token);
-
-  //Now, make each Service.  If a service depends on a service that has yet to be
-  // created, that other service will automatically be made
-
-  for (std::vector<TypeIDBase>::const_iterator idIter = requestedCreationOrder_.begin(),
-	 idEnd = requestedCreationOrder_.end();
-       idIter != idEnd;
-       ++idIter) {
-    Type2Maker::iterator itMaker = type2Maker_->find(*idIter);
-
-    // Check to make sure this maker is still there.  They are deleted
-    // sometimes and that is OK.
-    if (itMaker != type2Maker_->end()) {
-      try {
-	// This creates the service
-	itMaker->second.add(*this);
-      }
-      catch(cet::exception& iException) {
-	art::Exception toThrow(art::errors::Configuration,"Error occurred while creating ");
-	toThrow<<itMaker->second.pset_->get<std::string>("@service_type")<<"\n";
-	toThrow.append(iException);
-	throw toThrow;
-      }
-    }
-  }
-
-  //No longer need the makers
-  type2Maker_.reset();
-
-}

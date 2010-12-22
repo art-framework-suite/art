@@ -20,44 +20,44 @@
 #include <iostream>
 #include <vector>
 
+/*
+  We need a function in this thing that causes all the services to come to life when called.
+ */
+
 
 namespace art {
   class ServiceToken;
-
+  
   namespace serviceregistry {
     
     class ServicesManager
     {
     public:
-
-      // no longer needed
-      struct MakerHolder
-      {
-	MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
-		    const fhicl::ParameterSet& iPSet,
-		    art::ActivityRegistry&);
-	bool add(ServicesManager&) const;
-	
-	boost::shared_ptr<ServiceMakerBase> maker_;
-	const fhicl::ParameterSet* pset_;
-	art::ActivityRegistry* registry_;
-	mutable bool wasAdded_;
-      };
-
+      
       using fhicl::ParameterSet;
-
+      
       typedef std::vector<ParameterSet> ParameterSets;
       typedef boost::shared_ptr<ServiceWrapperBase> WrapperBase_ptr;
-
+      
       struct Cache
       {
+      Cache(ParameterSet const& pset, TypeIDBase id, MAKER maker):
+	config_(pset), typeinfo_(id), make_(maker), service_() 
+	{ }
+	
+      Cache(WrapperBase_ptr premade_service):
+	config_(), typeinfo_(), make_(), service_(premade_service)
+	{ }
+	
 	ParameterSet config_;
 	TypeIDBase typeinfo_;
-	
-      }
-
-      typedef std::map< TypeIDBase, WrapperBase_ptr > Type2Service;
-      typedef std::map< TypeIDBase, MakerHolder > Type2Maker;
+	MAKER make_;
+	WrapperBase_ptr service_;
+      };
+      
+      typedef std::map< TypeIDBase, Cache > Factory;
+      typedef std::vector< TypeIDBase > TypeIDBases;
+      typedef std::stack< WrapperBase_ptr > ServiceStack;
 
       /** Takes the services described by iToken and places them into the manager.
           Conflicts over Services provided by both the iToken and iConfiguration
@@ -73,6 +73,8 @@ namespace art {
       template<class T> T& get() const;
 
       ///returns true of the particular service is accessible
+      // what should this function really do?
+      // NOTE: this function still needs to be rewritten.
       template<class T>
 	bool isAvailable() const 
 	{
@@ -100,18 +102,23 @@ namespace art {
 	}
       
       // ---------- member functions ---------------------------
-      ///returns false if put fails because a service of this type already exists
+      // NOTE: needs to be converted to returning a void.
       template<class T>
-	bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) 
+	bool put(boost::shared_ptr<ServiceWrapper<T> > premade_service) 
 	{
-	  Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-	  if(itFound != type2Service_.end()) return false;
+	  TypeIDBase id(typeid(T));
+	  Factory::const_iterator it = factory_.find(id);
+
+	  if(it != factory_.end())
+	    throw art::Exception(art::errors::LogicError,"Service")
+	      << "The system has manually added service of type " << id.name()
+	      << ", but the service system already has a configured service of that type\n";
         
-	  type2Service_[ TypeIDBase(typeid(T)) ] = iPtr;
-	  actualCreationOrder_.push_back(TypeIDBase(typeid(T)));
+	  factory_[ id ] = Cache(premade_service);
+	  actualCreationOrder_.push(premade_service);
 	  return true;
 	}
-
+      
       ///causes our ActivityRegistry's signals to be forwarded to iOther
       void connect(ActivityRegistry& iOther);
       
@@ -125,26 +132,30 @@ namespace art {
 
     private:
       ServicesManager(const ServicesManager&); // stop default
-
       const ServicesManager& operator=(const ServicesManager&); // stop default
-
-      void fillListOfMakers(const std::vector<fhicl::ParameterSet>&);
-      void createServices();
+      void fillFactory(ParameterSets const&);
 
       // ---------- member data --------------------------------
       //hold onto the Manager passed in from the ServiceToken so that
       // the ActivityRegistry of that Manager does not go out of scope
       // This must be first to get the Service destructors called in
       // the correct order.
+
+      // we will probably not be using this because we do not use the inheritance or sharing
+      // features (although we may not understand this properly).
       boost::shared_ptr<ServicesManager> associatedManager_;
       
+      // these are real things that we use.
       art::ActivityRegistry registry_;
-      Type2Service type2Service_;
-      std::auto_ptr<Type2Maker> type2Maker_;
-      std::vector<TypeIDBase> requestedCreationOrder_;
-      std::vector<TypeIDBase> actualCreationOrder_;
+      Factory factory_;
+
+      // what the heck are these for? 
+      TypeIDBases requestedCreationOrder_;
+      ServiceStack actualCreationOrder_;
       
     };  // ServicesManager
+
+    // NOTE: this function still needs to be rewritten.
 
     template<class T> T& ServicesManager::get() const
       {
