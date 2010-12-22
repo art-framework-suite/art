@@ -98,7 +98,7 @@ namespace art {
       Service<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
         throw art::Exception(errors::Configuration)
-          << "A secondary input source requires the RandomNumberGeneratorService\n"
+          << "A secondary input source requires the RandomNumberGenerator service\n"
           << "which is not present in the configuration file.  You must add the service\n"
           << "in the configuration file or remove the modules that require it.";
       }

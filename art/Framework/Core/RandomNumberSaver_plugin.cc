@@ -1,22 +1,19 @@
 // ======================================================================
 //
-// RandomNumberSaver_plugin:  Store state of RandomNumberGeneratorService
-//                            into the event.
+// RandomNumberSaver_plugin:  Store state of the RandomNumberGenerator
+//                            service into the event.
 //
 // ======================================================================
-
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
-#include "art/Framework/Core/RandomNumberGeneratorService.h"
+#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/Service.h"
-
 #include "fhiclcpp/ParameterSet.h"
-  using fhicl::ParameterSet;
-
 #include <memory>
 
+using fhicl::ParameterSet;
 
 // Contents:
 namespace art {
@@ -31,7 +28,7 @@ using art::RandomNumberSaver;
 class art::RandomNumberSaver
   : public EDProducer
 {
-  typedef  RandomNumberGeneratorService  RNGservice;
+  typedef  RandomNumberGenerator  RNGservice;
 
 public:
   // --- Characteristics:
@@ -51,6 +48,7 @@ private:
 
 };  // RandomNumberSaver
 
+// ======================================================================
 
 RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
   : EDProducer( )
@@ -61,6 +59,7 @@ RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
   produces<snapshot_t>();
 }
 
+// ----------------------------------------------------------------------
 
 void
   RandomNumberSaver::produce( Event & event )
@@ -78,8 +77,8 @@ void
   }
 }  // produce()
 
-
 // ======================================================================
 
+DEFINE_ART_MODULE(RandomNumberSaver);
 
-// DEFINE_FWK_MODULE(RandomNumberSaver);
+// ======================================================================

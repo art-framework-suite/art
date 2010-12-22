@@ -1,20 +1,16 @@
 // ======================================================================
 //
 // EngineCreator - enable a derived class to access the
-//                 RandomNumberGeneratorService::createEngine()
+//                 RandomNumberGenerator::createEngine()
 //
 // ======================================================================
 
-
 #include "art/Framework/Core/EngineCreator.h"
-  using art::EngineCreator;
-
-// C++ support:
 #include <vector>
 
+using art::EngineCreator;
 
 // ======================================================================
-
 
 EngineCreator::base_engine_t &
   EngineCreator::createEngine( seed_t  seed )
@@ -57,9 +53,11 @@ EngineCreator::seed_t
                                 : explicit_seeds.front();
 }
 
-art::Service<art::RandomNumberGeneratorService> &
+art::Service<art::RandomNumberGenerator> &
   EngineCreator::rng( )
 {
-  static  art::Service<art::RandomNumberGeneratorService>  rng;
+  static  art::Service<art::RandomNumberGenerator>  rng;
   return rng;
 }
+
+// ======================================================================

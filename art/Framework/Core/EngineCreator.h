@@ -4,13 +4,13 @@
 // ======================================================================
 //
 // EngineCreator - enable a derived class to access the
-//                 RandomNumberGeneratorService::createEngine()
+//                 RandomNumberGenerator::createEngine()
 //
 // ======================================================================
 
 
 // Framework support:
-#include "art/Framework/Core/RandomNumberGeneratorService.h"
+#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -22,10 +22,10 @@ namespace art {
   class EngineCreator
   {
   private:
-    typedef  RandomNumberGeneratorService  RNGservice;
-    typedef  RNGservice::label_t           label_t;
-    typedef  RNGservice::seed_t            seed_t;
-    typedef  RNGservice::base_engine_t     base_engine_t;
+    typedef  RandomNumberGenerator      RNGservice;
+    typedef  RNGservice::label_t        label_t;
+    typedef  RNGservice::seed_t         seed_t;
+    typedef  RNGservice::base_engine_t  base_engine_t;
 
   public:
     // --- Engine establishment:
@@ -49,7 +49,7 @@ namespace art {
                     );
 
   private:
-    static  art::Service<art::RandomNumberGeneratorService> &
+    static  art::Service<art::RandomNumberGenerator> &
       rng( );
 
   };  // EngineCreator

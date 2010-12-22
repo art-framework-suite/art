@@ -1,22 +1,15 @@
 // ======================================================================
 //
-// Test the RandomNumberGeneratorService from an EDAnalyzer's viewpoint
+// Test the RandomNumberGenerator from an EDAnalyzer's viewpoint
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
 #include "art/ParameterSet/ParameterSet.h"
-#include "art/Framework/Core/RandomNumberGeneratorService.h"
-
-// CLHEP support:
 #include "CLHEP/Random/RandFlat.h"
-
-// C++ support:
 #include <iostream>
-
 
 namespace test {
 

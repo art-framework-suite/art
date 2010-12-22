@@ -1,22 +1,15 @@
 // ======================================================================
 //
-// Test the RandomNumberGeneratorService from an EDProducer's viewpoint
+// Test the RandomNumberGenerator from an EDProducer's viewpoint
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
 #include "art/ParameterSet/ParameterSet.h"
-#include "art/Framework/Core/RandomNumberGeneratorService.h"
-
-// CLHEP support:
 #include "CLHEP/Random/RandFlat.h"
-
-// C++ support:
 #include <iostream>
-
 
 namespace test {
 
@@ -95,7 +88,6 @@ namespace test {
 
 }  // namespace test
 
-
 #include "art/Framework/Core/MakerMacros.h"
 using test::RNGS_producer;
-DEFINE_FWK_MODULE(RNGS_producer);
+DEFINE_ART_MODULE(RNGS_producer);

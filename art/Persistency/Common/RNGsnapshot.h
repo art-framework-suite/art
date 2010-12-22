@@ -4,7 +4,7 @@
 // ======================================================================
 //
 // RNGsnapshot - a data product holding saved state from/for the
-//               RandomNumberGeneratorService
+//               RandomNumberGenerator
 //
 // ======================================================================
 //
