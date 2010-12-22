@@ -1,20 +1,16 @@
 //////////////////////////////////////////////////////////////////////
 //
-// Original Author: Luca Lista
-// Current Author: Bill Tanenbaum
+// InputFileCatalog
 //
 //////////////////////////////////////////////////////////////////////
-
 
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 
 #include "art/Framework/IO/Catalog/SiteLocalConfig.h"
-#include "art/Framework/Services/Registry/Service.h"
-#include "cetlib/exception.h"
-
+#include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
+#include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-
 
 namespace art {
 

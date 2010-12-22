@@ -7,7 +7,6 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Input/DuplicateChecker.h"
 #include "art/Framework/IO/Input/ProvenanceAdaptor.h"
-#include "art/Framework/Services/Registry/Service.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchChildren.h"

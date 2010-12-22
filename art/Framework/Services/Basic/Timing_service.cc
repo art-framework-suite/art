@@ -6,7 +6,6 @@
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
