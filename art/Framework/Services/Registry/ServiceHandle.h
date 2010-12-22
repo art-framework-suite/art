@@ -1,47 +1,37 @@
 #ifndef ServiceRegistry_ServiceHandle_h
 #define ServiceRegistry_ServiceHandle_h
-// -*- C++ -*-
-//
-// Package:     ServiceRegistry
-// Class  :     Service
-//
-/*
 
- Description: Smart pointer used to give easy access to Services.
-
-*/
+// ======================================================================
+//
+// ServiceHandle - smart pointer used to give easy access to Services.
+//
+// ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 
 namespace art {
-   template<class T>
-   class Service
-{
-
-   public:
-   Service() {}
-   //virtual ~Service();
-
-   // ---------- const member functions ---------------------
-   T* operator->() const {
-      return &(ServiceRegistry::instance().template get<T>());
-   }
-
-   T& operator*() const {
-      return ServiceRegistry::instance().template get<T>();
-   }
-
-   bool isAvailable() const {
-      return ServiceRegistry::instance().template isAvailable<T>();
-   }
-
-   operator bool() const {
-      return isAvailable();
-   }
-
-   private:
-};
-
+  template< class T > class ServiceHandle;
 }
 
-#endif
+// ----------------------------------------------------------------------
+
+template< class T >
+  class art::ServiceHandle
+{
+public:
+  ServiceHandle( )
+  : instance( & ServiceRegistry::instance().template get<T>() )
+  { }
+
+  // accessors:
+  T *  operator -> ( ) const  { return instance; }
+  T &  operator *  ( ) const  { return *instance; }
+
+private:
+  T *  instance;
+
+};  // ServiceHandle
+
+// ======================================================================
+
+#endif  // ServiceRegistry_ServiceHandle_h
