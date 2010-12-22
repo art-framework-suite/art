@@ -24,7 +24,6 @@ ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager cons
   requestedCreationOrder_(),
   actualCreationOrder_()
 {
-  //First create the list of makers
   fillFactory(psets,lm);
 }
 
@@ -91,7 +90,7 @@ ServicesManager::fillFactory(ParameterSets const& psets, LibraryManager const& l
 
       if(typeid_func==0) 
 	throw art::Exception(art::errors::LogicError,"Service")
-	  << "Could not find the get_typeid function in the service library for " << service_name
+	  < "<Could not find the get_typeid function in the service library for " << service_name
 	  << "\n.  The library is probably built incorrectly.\n";
 
       if(make_func==0)
