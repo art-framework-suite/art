@@ -10,7 +10,7 @@
 #define private public
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #undef private
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -59,7 +59,7 @@ testServiceRegistry::loadTest()
    art::ServiceToken token(art::ServiceRegistry::createSet(pss));
 
    art::ServiceRegistry::Operate operate(token);
-   art::Service<testserviceregistry::DummyService> dummy;
+   art::ServiceHandle<testserviceregistry::DummyService> dummy;
    CPPUNIT_ASSERT(dummy);
    CPPUNIT_ASSERT(dummy.isAvailable());
    CPPUNIT_ASSERT(dummy->value() == 2);
@@ -80,7 +80,7 @@ testServiceRegistry::externalServiceTest()
       art::ServiceToken token(art::ServiceRegistry::createContaining(dummyPtr));
       {
          art::ServiceRegistry::Operate operate(token);
-         art::Service<DummyService> dummy;
+         art::ServiceHandle<DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value_ == 2);
@@ -101,7 +101,7 @@ testServiceRegistry::externalServiceTest()
                                                                          art::serviceregistry::kOverlapIsError));
 
          art::ServiceRegistry::Operate operate(token2);
-         art::Service<testserviceregistry::DummyService> dummy;
+         art::ServiceHandle<testserviceregistry::DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value() == 2);
@@ -118,7 +118,7 @@ testServiceRegistry::externalServiceTest()
 
       {
          art::ServiceRegistry::Operate operate(token);
-         art::Service<DummyService> dummy;
+         art::ServiceHandle<DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value_ == 2);
@@ -139,7 +139,7 @@ testServiceRegistry::externalServiceTest()
                                                                          art::serviceregistry::kOverlapIsError));
 
          art::ServiceRegistry::Operate operate(token2);
-         art::Service<testserviceregistry::DummyService> dummy;
+         art::ServiceHandle<testserviceregistry::DummyService> dummy;
          CPPUNIT_ASSERT(dummy);
          CPPUNIT_ASSERT(dummy.isAvailable());
          CPPUNIT_ASSERT(dummy->value() == 2);
@@ -178,16 +178,16 @@ testServiceRegistry::hierarchyTest()
 
    art::ServiceRegistry::Operate operate1(token1);
    {
-      art::Service<testserviceregistry::DummyService> dummy;
+      art::ServiceHandle<testserviceregistry::DummyService> dummy;
       CPPUNIT_ASSERT(dummy->value() == 1);
    }
    {
       art::ServiceRegistry::Operate operate2(token2);
-      art::Service<testserviceregistry::DummyService> dummy;
+      art::ServiceHandle<testserviceregistry::DummyService> dummy;
       CPPUNIT_ASSERT(dummy->value() == 2);
    }
    {
-      art::Service<testserviceregistry::DummyService> dummy;
+      art::ServiceHandle<testserviceregistry::DummyService> dummy;
       CPPUNIT_ASSERT(dummy->value() == 1);
    }
 }
@@ -215,7 +215,7 @@ namespace {
       void operator()() {
          try  {
             art::ServiceRegistry::Operate operate(token_);
-            art::Service<testserviceregistry::DummyService> dummy;
+            art::ServiceHandle<testserviceregistry::DummyService> dummy;
             *success_ = dummy->value()==1;
          } catch(...){
             *caught_=true;

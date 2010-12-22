@@ -8,7 +8,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Core/ConstProductRegistry.h"
 
 #include <sstream>
@@ -79,7 +79,7 @@ namespace art {
 
     ProductRegistryHelper::addToRegistry(plist.begin(), plist.end(), md, *(iReg), isListener);
     if(!(registrationCallback().empty())) {
-       Service<ConstProductRegistry> regService;
+       ServiceHandle<ConstProductRegistry> regService;
        regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }
   }

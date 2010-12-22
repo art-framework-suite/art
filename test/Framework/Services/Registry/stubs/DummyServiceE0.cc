@@ -10,7 +10,7 @@
 //
 
 #include "FWCore/ServiceRegistry/test/stubs/DummyServiceE0.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 #include <iostream>
 
@@ -122,7 +122,7 @@ DummyServiceB3::DummyServiceB3(const art::ParameterSet& iPSet,
                              art::ActivityRegistry&iAR)
 {
   // Make this service dependent on service D2 in order to "On Demand Creation"
-  art::Service<DummyServiceD2>().isAvailable();
+  art::ServiceHandle<DummyServiceD2>().isAvailable();
 
   std::cout << "DummyServiceB3 Constructor " << testCounter << std::endl;
   if (testCounter != 3) abort();

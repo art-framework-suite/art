@@ -51,7 +51,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Services/Basic/CurrentModule.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -119,7 +119,7 @@ namespace {
   inline  label_t
     qualify_engine_label( label_t const & engine_label )
   {
-    return art::Service<art::CurrentModule>() -> label()
+    return art::ServiceHandle<art::CurrentModule>() -> label()
            + ":" + engine_label;
   }  // qualify_engine_label()
 

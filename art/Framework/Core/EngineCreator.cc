@@ -53,10 +53,10 @@ EngineCreator::seed_t
                                 : explicit_seeds.front();
 }
 
-art::Service<art::RandomNumberGenerator> &
+art::ServiceHandle<art::RandomNumberGenerator> &
   EngineCreator::rng( )
 {
-  static  art::Service<art::RandomNumberGenerator>  rng;
+  static  art::ServiceHandle<art::RandomNumberGenerator>  rng;
   return rng;
 }
 

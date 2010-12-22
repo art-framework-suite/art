@@ -1,14 +1,13 @@
-#ifndef ServiceRegistry_Service_h
-#define ServiceRegistry_Service_h
+#ifndef ServiceRegistry_ServiceHandle_h
+#define ServiceRegistry_ServiceHandle_h
 // -*- C++ -*-
 //
 // Package:     ServiceRegistry
 // Class  :     Service
 //
-/**\class Service Service.h FWCore/ServiceRegistry/interface/Service.h
+/*
 
- Description: Smart pointer used to give easy access to Service's
-
+ Description: Smart pointer used to give easy access to Services.
 
 */
 

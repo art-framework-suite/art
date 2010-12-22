@@ -12,7 +12,7 @@
 #include "art/Framework/IO/Input/PoolSource.h"
 #include "art/Framework/IO/Input/RootFile.h"
 #include "art/Framework/IO/Input/RootTree.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "cetlib/container_algorithms.h"
@@ -95,7 +95,7 @@ namespace art {
       }
     } else {
 #ifdef USE_RANDOM
-      Service<RandomNumberGenerator> rng;
+      ServiceHandle<RandomNumberGenerator> rng;
       if (!rng.isAvailable()) {
         throw art::Exception(errors::Configuration)
           << "A secondary input source requires the RandomNumberGenerator service\n"

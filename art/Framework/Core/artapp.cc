@@ -10,7 +10,7 @@ it.
 #include "art/Framework/Core/EventProcessor.h"
 #include "art/Framework/PluginManager/PluginManager.h"
 #include "art/Framework/PluginManager/standard.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
@@ -197,7 +197,7 @@ int artapp(int argc, char* argv[])
     // Disable Root Error Handler so we do not throw because of ROOT errors.
     art::ServiceToken token = proc->getToken();
     art::ServiceRegistry::Operate operate(token);
-    art::Service<art::RootHandlers> rootHandler;
+    art::ServiceHandle<art::RootHandlers> rootHandler;
     rootHandler->disableErrorHandler();
   }
   catch (art::Exception& e) {
