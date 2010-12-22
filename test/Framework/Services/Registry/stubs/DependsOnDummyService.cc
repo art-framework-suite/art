@@ -17,7 +17,7 @@
 #include "FWCore/ServiceRegistry/test/stubs/DependsOnDummyService.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 //
 // constants, enums and typedefs
@@ -32,7 +32,7 @@ using namespace testserviceregistry;
 // constructors and destructor
 //
 DependsOnDummyService::DependsOnDummyService():
-value_(art::Service<DummyService>()->value())
+value_(art::ServiceHandle<DummyService>()->value())
 {
 }
 

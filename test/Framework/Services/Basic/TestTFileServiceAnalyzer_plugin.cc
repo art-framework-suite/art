@@ -2,7 +2,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Services/Basic/TFileService.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
@@ -31,7 +31,7 @@ TestTFileServiceAnalyzer::TestTFileServiceAnalyzer( const ParameterSet & cfg )
 : dir1_( cfg.getParameter<string>( "dir1" ) )
 , dir2_( cfg.getParameter<string>( "dir2" ) )
 {
-  Service<TFileService> fs;
+  ServiceHandle<TFileService> fs;
   if ( dir1_.empty() ) {
     h_test1 = fs->make<TH1F>( "test1" , "test histogram #1", 100,  0., 100. );
   } else {

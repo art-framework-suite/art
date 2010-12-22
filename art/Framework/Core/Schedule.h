@@ -74,7 +74,7 @@
 #include "art/Framework/Core/UnscheduledHandler.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/Provenance.h"
@@ -340,7 +340,7 @@ namespace art {
   void
   inline
   Schedule::reportSkipped(EventPrincipal const& ep) const {
-    // Service<JobReport> reportSvc;
+    // ServiceHandle<JobReport> reportSvc;
     // reportSvc->reportSkippedEvent(ep.id().run(), ep.id().event());
   }
 

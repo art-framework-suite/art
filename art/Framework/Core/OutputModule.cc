@@ -6,7 +6,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/TriggerNamesService.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
@@ -26,12 +26,12 @@ namespace art {
 
   vector<art::BranchDescription const*>
   getAllBranchDescriptions() {
-    art::Service<art::ConstProductRegistry> reg;
+    art::ServiceHandle<art::ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
   vector<std::string> const& getAllTriggerNames() {
-    art::Service<art::service::TriggerNamesService> tns;
+    art::ServiceHandle<art::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
 }
@@ -132,7 +132,7 @@ namespace art {
   {
     hasNewlyDroppedBranch_.assign(false);
 
-    art::Service<art::service::TriggerNamesService> tns;
+    art::ServiceHandle<art::service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
@@ -174,7 +174,7 @@ namespace art {
   void OutputModule::selectProducts() {
     if (groupSelector_.initialized()) return;
     groupSelector_.initialize(groupSelectorRules_, getAllBranchDescriptions());
-    Service<ConstProductRegistry> reg;
+    ServiceHandle<ConstProductRegistry> reg;
 
     // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
     // single object. See the notes in the header for GroupSelector

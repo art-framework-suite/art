@@ -36,7 +36,7 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/TriggerNamesService.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/RegexMatch.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/regex.hpp"
@@ -292,7 +292,7 @@ namespace art {
         Strings triggernames;
         bool fromPSetRegistry;
 
-        Service<service::TriggerNamesService> tns;
+        ServiceHandle<service::TriggerNamesService> tns;
         if (tns->getTrigPaths(tr, triggernames, fromPSetRegistry)) {
 
           init(paths_, triggernames);

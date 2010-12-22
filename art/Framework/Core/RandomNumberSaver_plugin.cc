@@ -9,7 +9,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Services/Basic/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <memory>
 
@@ -66,7 +66,7 @@ void
 {
   using std::auto_ptr;
 
-  Service<RNGservice>  rng;
+  ServiceHandle<RNGservice>  rng;
   auto_ptr<snapshot_t>  product_ptr( new snapshot_t( rng->accessSnapshot_()
                                    )               );
 

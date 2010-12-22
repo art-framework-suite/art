@@ -29,7 +29,7 @@ Implementation:
 
 
 #include "FWCore/Integration/test/ValueExample.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 //
 // class decleration
@@ -81,7 +81,7 @@ UseValueExampleAnalyzer::~UseValueExampleAnalyzer()
 void
 UseValueExampleAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSetup& /* iSetup*/)
 {
-   std::cout<<" value from service "<< art::Service<ValueExample>()->value()<<std::endl;
+   std::cout<<" value from service "<< art::ServiceHandle<ValueExample>()->value()<<std::endl;
 }
 
 //define this as a plug-in

@@ -11,7 +11,7 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -350,7 +350,7 @@ namespace art {
   void RootOutputFile::writeProductDescriptionRegistry() {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     typedef ProductRegistry::ProductList ProductList;
-    art::Service<art::ConstProductRegistry> reg;
+    art::ServiceHandle<art::ConstProductRegistry> reg;
     ProductRegistry pReg(reg->productList());
     ProductList & pList  = const_cast<ProductList &>(pReg.productList());
     set<BranchID>::iterator end = branchesWithStoredHistory_.end();

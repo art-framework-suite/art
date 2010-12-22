@@ -9,7 +9,7 @@
 #include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #ifdef RNGS
 //#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
@@ -373,7 +373,7 @@ namespace art {
   InputSource::preRead() {  // roughly corresponds to "end of the prev event"
 #ifdef RNGS
     if (primary()) {
-      Service<RandomNumberGenerator> rng;
+      ServiceHandle<RandomNumberGenerator> rng;
       if (rng.isAvailable()) {
         rng->takeSnapshot_();
       }
@@ -385,7 +385,7 @@ namespace art {
   InputSource::postRead(Event& event) {
 #ifdef RNGS
     if (primary()) {
-      Service<RandomNumberGenerator> rng;
+      ServiceHandle<RandomNumberGenerator> rng;
       if (rng.isAvailable()) {
         rng->restoreSnapshot_(event);
       }

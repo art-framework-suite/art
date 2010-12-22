@@ -6,7 +6,7 @@
 #include "art/Framework/Core/MakerMacros.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/Algorithms.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/Registry.h"

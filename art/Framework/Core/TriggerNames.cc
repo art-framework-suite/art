@@ -2,7 +2,7 @@
 //
 
 #include "art/Framework/Core/TriggerNames.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Persistency/Common/TriggerResults.h"
 
@@ -22,7 +22,7 @@ namespace art {
     if ( psetID_valid_ && psetID_ == triggerResults.parameterSetID()) {
       return false;
     }
-    art::Service<art::service::TriggerNamesService> tns;
+    art::ServiceHandle<art::service::TriggerNamesService> tns;
     bool fromPSetRegistry;
     if (tns->getTrigPaths(triggerResults, triggerNames_, fromPSetRegistry)) {
 

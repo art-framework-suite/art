@@ -11,7 +11,7 @@
 
 // Framework support:
 #include "art/Framework/Services/Basic/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 
 
@@ -49,7 +49,7 @@ namespace art {
                     );
 
   private:
-    static  art::Service<art::RandomNumberGenerator> &
+    static  art::ServiceHandle<art::RandomNumberGenerator> &
       rng( );
 
   };  // EngineCreator

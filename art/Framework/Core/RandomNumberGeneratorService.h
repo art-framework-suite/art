@@ -115,7 +115,7 @@
 // the RandomNumberGeneratorService header, a variable definition such as
 // the following will obtain a handle to this Service:
 //
-//   art::Service<art::RandomNumberGeneratorService>  rng;
+//   art::ServiceHandle<art::RandomNumberGeneratorService>  rng;
 //
 // Thereafter, most functionality of this Service is available via this
 // variable.  All handles to this Service are equivalent; a client may
