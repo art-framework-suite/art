@@ -127,31 +127,36 @@ namespace art {
 
     };  // ServicesManager
 
-    template<class T>
-      T& ServicesManager::get() const {
-	  Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-	  Type2Maker::const_iterator itFoundMaker;
-	  if(itFound == type2Service_.end()) {
-	      //do on demand building of the service
-	      if(0 == type2Maker_.get() ||
-		 type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
-		  throw art::Exception(art::errors::NotFound,"Service Request")
-                   <<" unable to find requested service with compiler type name '"<<typeid(T).name() <<"'.\n";
-	      } else {
-               itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
-               itFound = type2Service_.find(TypeIDBase(typeid(T)));
-               //the 'add()' should have put the service into the list
-               assert(itFound != type2Service_.end());
+    template<class T> T& ServicesManager::get() const
+      {
+	Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+	Type2Maker::const_iterator itFoundMaker;
+
+	if(itFound == type2Service_.end()) 
+	  {
+	    //do on demand building of the service
+	    if(0 == type2Maker_.get() ||
+	       type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) 
+	      {
+		throw art::Exception(art::errors::NotFound,"Service Request")
+		  <<" unable to find requested service with compiler type name '"<<typeid(T).name() <<"'.\n";
+	      } 
+	    else
+	      {
+		itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
+		itFound = type2Service_.find(TypeIDBase(typeid(T)));
+		//the 'add()' should have put the service into the list
+		assert(itFound != type2Service_.end());
 	      }
 	  }
-	  //convert it to its actual type
-	  Type2Service::mapped_type second = itFound->second;
-
-       boost::shared_ptr<ServiceWrapper<T> > tmpxx = boost::dynamic_pointer_cast<ServiceWrapper<T> >(second);
-	  boost::shared_ptr<ServiceWrapper<T> > ptr(tmpxx);
-	  assert(0 != ptr.get());
-	  return ptr->get();
-    }
+	//convert it to its actual type
+	Type2Service::mapped_type second = itFound->second;
+	
+	boost::shared_ptr<ServiceWrapper<T> > tmpxx = boost::dynamic_pointer_cast<ServiceWrapper<T> >(second);
+	boost::shared_ptr<ServiceWrapper<T> > ptr(tmpxx);
+	assert(0 != ptr.get());
+	return ptr->get();
+      }
 
   }  // namespace serviceregistry
 }  // namespace art

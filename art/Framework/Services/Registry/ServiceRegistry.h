@@ -53,14 +53,15 @@ namespace art {
       virtual ~ServiceRegistry();
 
       // ---------- const member functions ---------------------
-      template<class T>
-         T& get() const {
-            if(0 == manager_.get()) {
-               throw art::Exception(art::errors::NotFound,"Service")
-               <<" no ServiceRegistry has been set for this thread";
+      template<class T> T& get() const 
+	{
+	  if(0==manager_.get()) // shared_ptr has null pointer
+	    {
+	      throw art::Exception(art::errors::NotFound,"Service")
+		<<" no ServiceRegistry has been set for this thread";
             }
-            return manager_-> template get<T>();
-         }
+	  return manager_-> template get<T>();
+	}
 
       template<class T>
          bool isAvailable() const {
