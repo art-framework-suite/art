@@ -1,36 +1,21 @@
-// -*- C++ -*-
 //
 // Package:     ServiceRegistry
 // Class  :     ServicesManager
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 13:33:19 EDT 2005
-//
-//
 
-// system include files
-#include <set>
-
-// user include files
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "art/Framework/Services/Registry/ServicePluginFactory.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
 
+#include "art/Framework/Services/Registry/ServicePluginFactory.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Framework/Services/Registry/ServiceToken.h"
 #include "fhiclcpp/ParameterSet.h"
+#include <set>
 
 using namespace art::serviceregistry;
 using namespace std;
 using boost::shared_ptr;
 using fhicl::ParameterSet;
 using namespace art;
-
-//
-// constants, enums and typedefs
-//
 
 ServicesManager::MakerHolder::MakerHolder(shared_ptr<ServiceMakerBase> iMaker,
                                           const ParameterSet& iPSet,
@@ -48,13 +33,6 @@ ServicesManager::MakerHolder::add(ServicesManager& oManager) const
   return wasAdded_;
 }
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 ServicesManager::ServicesManager(const std::vector<fhicl::ParameterSet>& iConfiguration) :
   type2Maker_(new Type2Maker)
 {
@@ -135,11 +113,6 @@ ServicesManager::ServicesManager(ServiceToken iToken,
   createServices();
 }
 
-// ServicesManager::ServicesManager(const ServicesManager& rhs)
-// {
-//    // do actual copying here;
-// }
-
 ServicesManager::~ServicesManager()
 {
   // Force the Service destructors to execute in the reverse order of construction.
@@ -166,21 +139,6 @@ ServicesManager::~ServicesManager()
   }
 }
 
-//
-// assignment operators
-//
-// const ServicesManager& ServicesManager::operator=(const ServicesManager& rhs)
-// {
-//   //An exception safe implementation is
-//   ServicesManager temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void
 ServicesManager::connect(ActivityRegistry& iOther)
 {
@@ -248,8 +206,6 @@ namespace {
 void
 ServicesManager::createServices()
 {
-
-
   //create a shared_ptr of 'this' that will not delete us
   boost::shared_ptr<ServicesManager> shareThis(this, NoOp());
 
@@ -288,10 +244,3 @@ ServicesManager::createServices()
   type2Maker_.reset();
 
 }
-//
-// const member functions
-//
-
-//
-// static member functions
-//

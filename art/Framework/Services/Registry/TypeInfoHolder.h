@@ -2,45 +2,42 @@
 #define ServiceRegistry_TypeInfoHolder_h
 
 #include <typeinfo>
-// -*- C++ -*-
-//
-// Package:     ServiceRegistry
-// Class  :     TypeInfoHolder
-//
-/**\class TypeInfoHolder TypeInfoHolder.h FWCore/ServiceRegistry/interface/TypeInfoHolder.h
 
- Description: wrapper to allow std::type_info to be used as a key to a std::map
-
- Usage:
-    <usage>
-
-*/
 //
-// Original Author:  Chris Jones
-//         Created:  Mon Sep  5 14:38:42 EDT 2005
-//
+// TypeInfoHolder - wrapper to allow std::type_info to be used as a key
+//                  to a std::map
 //
 
-// system include files
-
-// user include files
-
-// forward declarations
 namespace art {
-   namespace serviceregistry {
+  namespace serviceregistry {
 
-      class TypeInfoHolder {
-        public:
-         TypeInfoHolder(const std::type_info& iInfo) : m_info(iInfo) {}
-         const std::type_info& info() const { return m_info;}
+    class TypeInfoHolder
+    {
+      // non-assignable:
+      void operator = ( TypeInfoHolder const & );
 
-         bool operator<(const TypeInfoHolder& iRHS) const {
-            return m_info.before(iRHS.m_info) ;
-         }
-        private:
-         const std::type_info& m_info;
-      };
-   }
-}
+    public:
+      // c'tor:
+      TypeInfoHolder( std::type_info const & info )
+      : info_(info)
+      { }
 
-#endif
+      // accessor:
+      std::type_info const &
+        info( ) const
+      { return info_; }
+
+      // comparator:
+      bool
+        operator < ( TypeInfoHolder const & other ) const
+      { return info_.before(other.info_); }
+
+    private:
+      std::type_info const &  info_;
+
+    };  // TypeInfoHolder
+
+  }  // serviceregistry
+}  // art
+
+#endif  // ServiceRegistry_TypeInfoHolder_h
