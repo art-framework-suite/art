@@ -14,7 +14,8 @@ using fhicl::ParameterSet;
 //
 // constructors and destructor
 //
-art::ServiceRegistry::ServiceRegistry()
+art::ServiceRegistry::ServiceRegistry():
+  lm_("service")
 { }
 
 art::ServiceRegistry::~ServiceRegistry()
@@ -54,7 +55,7 @@ art::ServiceToken
 art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
 {
    using namespace art::serviceregistry;
-   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS));
+   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS,lm_));
    return art::ServiceToken(returnValue);
 }
 art::ServiceToken
@@ -63,7 +64,7 @@ art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
                                 serviceregistry::ServiceLegacy iLegacy)
 {
    using namespace art::serviceregistry;
-   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS));
+   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS,lm_));
    return art::ServiceToken(returnValue);
 }
 

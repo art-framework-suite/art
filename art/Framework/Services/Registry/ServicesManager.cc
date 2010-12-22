@@ -33,21 +33,21 @@ ServicesManager::MakerHolder::add(ServicesManager& oManager) const
   return wasAdded_;
 }
 
-ServicesManager::ServicesManager(const std::vector<fhicl::ParameterSet>& iConfiguration) :
+ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager const& lm) :
   type2Maker_(new Type2Maker)
 {
   //First create the list of makers
-  fillListOfMakers(iConfiguration);
-
+  fillListOfMakers(psets,lm);
   createServices();
 }
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
-                                 const std::vector<fhicl::ParameterSet>& iConfiguration):
+                                 ParameterSets const& psets,
+				 LibraryManager const& lm):
   associatedManager_(iToken.manager_),
   type2Maker_(new Type2Maker)
 {
-  fillListOfMakers(iConfiguration);
+  fillListOfMakers(psets,lm);
 
   //find overlaps between services in iToken and iConfiguration
   typedef std::set< TypeIDBase> TypeSet;
@@ -165,36 +165,41 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 
 
 void
-ServicesManager::fillListOfMakers(const std::vector<fhicl::ParameterSet>& iConfiguration)
+ServicesManager::fillListOfMakers(ParameterSets const& psets, LibraryManager const& lm)
 {
-  for(std::vector<fhicl::ParameterSet>::const_iterator itParam = iConfiguration.begin(),
-	itParamEnd = iConfiguration.end();
+  for(ParameterSets::const_iterator itParam = psets.begin(),
+	itParamEnd = psets.end();
       itParam != itParamEnd;
       ++itParam) 
     {
       boost::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->get<std::string>("service_type")));
 
-      if(0 == base.get()) {
-	throw art::Exception(art::errors::Configuration, "Service")
-	  <<"could not find a service named "
-	  << itParam->get<std::string>("service_type")
-	  <<". Please check spelling.";
-      }
+      if(0 == base.get())
+	{
+	  throw art::Exception(art::errors::Configuration, "Service")
+	    <<"could not find a service named "
+	    << itParam->get<std::string>("service_type")
+	    <<". Please check spelling.";
+	}
+
       Type2Maker::iterator itFound = type2Maker_->find(TypeIDBase(base->serviceType()));
-      if(itFound != type2Maker_->end()) {
-	throw art::Exception(art::errors::Configuration,"Service")
-	  <<" the service "<< itParam->get<std::string>("service_type")
-	  <<" provides the same service as "
-	  << itFound->second.pset_->get<std::string>("service_type")
-	  <<"\n Please reconfigure job to only use one of these services.";
-      }
+
+      if(itFound != type2Maker_->end()) 
+	{
+	  throw art::Exception(art::errors::Configuration,"Service")
+	    <<" the service "<< itParam->get<std::string>("service_type")
+	    <<" provides the same service as "
+	    << itFound->second.pset_->get<std::string>("service_type")
+	    <<"\n Please reconfigure job to only use one of these services.";
+	}
+
       type2Maker_->insert(Type2Maker::value_type(TypeIDBase(base->serviceType()),
 						 MakerHolder(base,
 							     *itParam,
 							     registry_)));
       requestedCreationOrder_.push_back(TypeIDBase(base->serviceType()));
     }
-
+  
 }
 
 namespace {

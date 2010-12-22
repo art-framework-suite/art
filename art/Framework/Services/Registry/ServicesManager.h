@@ -11,6 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceMakerBase.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Framework/Core/LibraryManager.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeIDBase.h"
 #include "boost/shared_ptr.hpp"
@@ -24,78 +25,96 @@ namespace art {
   class ServiceToken;
 
   namespace serviceregistry {
-
+    
     class ServicesManager
     {
     public:
-      struct MakerHolder {
-         MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
-                     const fhicl::ParameterSet& iPSet,
-                     art::ActivityRegistry&);
-         bool add(ServicesManager&) const;
 
-         boost::shared_ptr<ServiceMakerBase> maker_;
-         const fhicl::ParameterSet* pset_;
-         art::ActivityRegistry* registry_;
-         mutable bool wasAdded_;
+      // no longer needed
+      struct MakerHolder
+      {
+	MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
+		    const fhicl::ParameterSet& iPSet,
+		    art::ActivityRegistry&);
+	bool add(ServicesManager&) const;
+	
+	boost::shared_ptr<ServiceMakerBase> maker_;
+	const fhicl::ParameterSet* pset_;
+	art::ActivityRegistry* registry_;
+	mutable bool wasAdded_;
       };
-      typedef std::map< TypeIDBase, boost::shared_ptr<ServiceWrapperBase> > Type2Service;
-      typedef std::map< TypeIDBase, MakerHolder > Type2Maker;
 
-      ServicesManager(const std::vector<fhicl::ParameterSet>& iConfiguration);
+      using fhicl::ParameterSet;
+
+      typedef std::vector<ParameterSet> ParameterSets;
+      typedef boost::shared_ptr<ServiceWrapperBase> WrapperBase_ptr;
+
+      struct Cache
+      {
+	ParameterSet config_;
+	TypeIDBase typeinfo_;
+	
+      }
+
+      typedef std::map< TypeIDBase, WrapperBase_ptr > Type2Service;
+      typedef std::map< TypeIDBase, MakerHolder > Type2Maker;
 
       /** Takes the services described by iToken and places them into the manager.
           Conflicts over Services provided by both the iToken and iConfiguration
           are resolved based on the value of iLegacy
       */
-      ServicesManager(ServiceToken iToken,
-                      ServiceLegacy iLegacy,
-                      const std::vector<fhicl::ParameterSet>& iConfiguration);
 
+      ServicesManager(ParameterSets const& psets, art::LibraryManager const&);
+      ServicesManager(ServiceToken iToken,ServiceLegacy iLegacy,
+		      ParameterSets const& psets, art::LibraryManager const&);
       ~ServicesManager();
 
       // ---------- const member functions ---------------------
-      template<class T>
-	     T& get() const;
+      template<class T> T& get() const;
 
       ///returns true of the particular service is accessible
       template<class T>
-         bool isAvailable() const {
-            Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-            Type2Maker::const_iterator itFoundMaker;
-            if(itFound == type2Service_.end()) {
-               //do on demand building of the service
-               if(0 == type2Maker_.get() ||
-                   type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) {
-                  return false;
-               } else {
+	bool isAvailable() const 
+	{
+	  Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+	  Type2Maker::const_iterator itFoundMaker;
+	  
+	  if(itFound == type2Service_.end()) 
+	    {
+	      //do on demand building of the service
+	      if(0 == type2Maker_.get() ||
+		 type2Maker_->end() == (itFoundMaker = type2Maker_->find(TypeIDBase(typeid(T))))) 
+		return false;
+		 
+	      else
+		{
                   //Actually create the service in order to 'flush out' any
                   // configuration errors for the service
                   itFoundMaker->second.add(const_cast<ServicesManager&>(*this));
                   itFound = type2Service_.find(TypeIDBase(typeid(T)));
                   //the 'add()' should have put the service into the list
                   assert(itFound != type2Service_.end());
-               }
+		}
             }
-            return true;
-         }
-
+	  return true;
+	}
+      
       // ---------- member functions ---------------------------
       ///returns false if put fails because a service of this type already exists
       template<class T>
-         bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) {
-            Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-            if(itFound != type2Service_.end()) {
-               return false;
-            }
-            type2Service_[ TypeIDBase(typeid(T)) ] = iPtr;
-            actualCreationOrder_.push_back(TypeIDBase(typeid(T)));
-            return true;
-         }
+	bool put(boost::shared_ptr<ServiceWrapper<T> > iPtr) 
+	{
+	  Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
+	  if(itFound != type2Service_.end()) return false;
+        
+	  type2Service_[ TypeIDBase(typeid(T)) ] = iPtr;
+	  actualCreationOrder_.push_back(TypeIDBase(typeid(T)));
+	  return true;
+	}
 
       ///causes our ActivityRegistry's signals to be forwarded to iOther
       void connect(ActivityRegistry& iOther);
-
+      
       ///causes iOther's signals to be forward to us
       void connectTo(ActivityRegistry& iOther);
 
@@ -118,19 +137,22 @@ namespace art {
       // This must be first to get the Service destructors called in
       // the correct order.
       boost::shared_ptr<ServicesManager> associatedManager_;
-
+      
       art::ActivityRegistry registry_;
       Type2Service type2Service_;
       std::auto_ptr<Type2Maker> type2Maker_;
-	 std::vector<TypeIDBase> requestedCreationOrder_;
-	 std::vector<TypeIDBase> actualCreationOrder_;
-
+      std::vector<TypeIDBase> requestedCreationOrder_;
+      std::vector<TypeIDBase> actualCreationOrder_;
+      
     };  // ServicesManager
 
     template<class T> T& ServicesManager::get() const
       {
 	Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
 	Type2Maker::const_iterator itFoundMaker;
+
+	typedef ServiceWrapper<T> Wrapper;
+	typedef boost::shared_ptr<Wrapper> Wrapper_ptr;
 
 	if(itFound == type2Service_.end()) 
 	  {
@@ -152,8 +174,9 @@ namespace art {
 	//convert it to its actual type
 	Type2Service::mapped_type second = itFound->second;
 	
-	boost::shared_ptr<ServiceWrapper<T> > tmpxx = boost::dynamic_pointer_cast<ServiceWrapper<T> >(second);
-	boost::shared_ptr<ServiceWrapper<T> > ptr(tmpxx);
+	Wrapper_ptr tmpxx = boost::dynamic_pointer_cast<Wrapper>(second);
+	Warpper_ptr ptr(tmpxx);
+
 	assert(0 != ptr.get());
 	return ptr->get();
       }
