@@ -19,8 +19,6 @@ Test of the EventProcessor class.
 
 #include "art/Framework/Core/EventProcessor.h"
 #include "cetlib/exception.h"
-#include "art/Utilities/Presence.h"
-#include "art/Framework/PluginManager/PresenceFactory.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
 #include "art/Framework/PluginManager/ProblemTracker.h"
@@ -136,14 +134,6 @@ void testeventprocessor::asyncTest()
   std::string test_config_80k = makeConfig(20000);
 
   // Load the message service plug-in
-  boost::shared_ptr<art::Presence> theMessageServicePresence;
-  try {
-    theMessageServicePresence =
-      boost::shared_ptr<art::Presence>(art::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-  } catch(std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    return;
-  }
 
   sleep_secs_=0;
   std::cerr << "asyncRunAsync 2 event\n";

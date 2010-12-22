@@ -11,8 +11,6 @@ if the MessageLogger is not runnning.
 
 #include "art/Framework/PluginManager/ProblemTracker.h"
 #include "art/Framework/Core/EventProcessor.h"
-// #include "art/Utilities/Presence.h"
-// #include "art/Framework/PluginManager/PresenceFactory.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -32,9 +30,6 @@ class testStandalone: public CppUnit::TestFixture
   void setUp()
   {
     m_handler = std::auto_ptr<art::AssertHandler>(new art::AssertHandler());
-    // if (theMessageServicePresence.get() == 0) {
-    //   theMessageServicePresence = std::auto_ptr<art::Presence>(art::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-    // }
   }
 
   void tearDown(){
@@ -47,13 +42,10 @@ class testStandalone: public CppUnit::TestFixture
  private:
 
   std::auto_ptr<art::AssertHandler> m_handler;
-  // static std::auto_ptr<art::Presence> theMessageServicePresence;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testStandalone);
-
-// std::auto_ptr<art::Presence> testStandalone::theMessageServicePresence;
 
 
 void testStandalone::writeFile()

@@ -14,7 +14,6 @@ set( art_Utilities_sources CPUTimer.cc
                           MallocOpts.cc
                           md5.c
                           Parse.cc
-                          Presence.cc
                           ReflexTools.cc
                           RegexMatch.cc
                           RootHandlers.cc
@@ -23,13 +22,6 @@ set( art_Utilities_sources CPUTimer.cc
                           TypeID.cc
                           UnixSignalHandlers.cc
                           WrappedClassName.cc )
-
-#link_libraries( ${Boost_FILESYSTEM_LIBRARY}
-#                ${Boost_REGEX_LIBRARY}
-#                ${Boost_THREAD_LIBRARY}
-#                ${REFLEX}
-#                ${CINT}
-#                dl )
 
 add_library(art_Utilities SHARED ${art_Utilities_sources} )
 target_link_libraries(art_Utilities
@@ -66,7 +58,6 @@ install(FILES
               md5.h
               OutletBase.h
               Parse.h
-              Presence.h
               PretendToUse.h
               ReflexTools.h
               RegexMatch.h

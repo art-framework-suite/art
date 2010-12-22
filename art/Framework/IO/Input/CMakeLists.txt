@@ -11,23 +11,6 @@ set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
                                  RootInputFileSequence.cc
                                  RootTree.cc )
 
-
-#link_libraries( art_Framework_IO_Common
-#                art_Persistency_Common
-#                art_Persistency_Provenance
-#                art_Framework_IO_Sources
-#                art_Framework_IO_Catalog
-#                art_Framework_Services_Registry
-#                art_ParameterSet
-#                artMessageLogger
-#                art_Framework_Core
-#                art_Utilities
-#                ${Boost_FILESYSTEM_LIBRARY}
-#                ${Boost_THREAD_LIBRARY}
-#                ${CLHEP}
-#                ${REFLEX}
-#                ${CORE} )
-
 add_library(art_Framework_IO_Input SHARED ${art_Framework_IO_Input_sources} )
 
 simple_plugin(PoolRASource)

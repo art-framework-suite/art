@@ -6,33 +6,29 @@ it.
 
 ----------------------------------------------------------------------*/
 
-
+#include "TError.h"
 #include "art/Framework/Core/EventProcessor.h"
 #include "art/Framework/PluginManager/PluginManager.h"
-#include "art/Framework/PluginManager/PresenceFactory.h"
 #include "art/Framework/PluginManager/standard.h"
 #include "art/Framework/Services/Registry/Service.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
-//#include "art/ParameterSet/MakeParameterSets.h"
-#include "cetlib/exception.h"
 #include "art/Utilities/ExceptionMessages.h"
-#include "art/Utilities/Presence.h"
 #include "art/Utilities/RootHandlers.h"
-#include <boost/program_options.hpp>
-#include <boost/shared_ptr.hpp>
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "boost/program_options.hpp"
+#include "boost/shared_ptr.hpp"
+#include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/parse.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "TError.h"
+#include "fhiclcpp/parse.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <cstring>
 #include <exception>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 

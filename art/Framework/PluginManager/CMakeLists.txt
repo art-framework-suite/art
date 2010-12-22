@@ -11,14 +11,9 @@ set( art_Framework_PluginManager_sources CacheParser.cc
                                        PluginFactoryBase.cc
                                        PluginFactoryManager.cc
                                        PluginManager.cc
-                                       PresenceFactory.cc
                                        ProblemTracker.cc
                                        SharedLibrary.cc
                                        standard.cc )
-
-#link_libraries( art_Utilities
-#                ${Boost_FILESYSTEM_LIBRARY}
-#                ${SIGC} )
 
 add_library(art_Framework_PluginManager SHARED ${art_Framework_PluginManager_sources} )
 
@@ -32,8 +27,6 @@ install(FILES CacheParser.h
               PluginFactoryManager.h
               PluginInfo.h
               PluginManager.h
-              PresenceFactory.h
-              PresenceMacros.h
               ProblemTracker.h
               SharedLibrary.h
               standard.h
