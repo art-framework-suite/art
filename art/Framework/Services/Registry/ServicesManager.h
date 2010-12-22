@@ -13,10 +13,8 @@
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeIDBase.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <cassert>
 #include <iostream>
 #include <vector>

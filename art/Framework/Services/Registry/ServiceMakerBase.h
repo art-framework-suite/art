@@ -2,21 +2,12 @@
 #define FWCore_ServiceRegistry_ServiceMakerBase_h
 
 //
-// Package:     ServiceRegistry
-// Class  :     ServiceMakerBase
+// ServiceMakerBase - Base class for Service Makers
 //
-/**\class ServiceMakerBase ServiceMakerBase.h FWCore/ServiceRegistry/interface/ServiceMakerBase.h
-
- Description: Base class for Service Makers
-
- Usage:
-    Internal detail of implementation of the ServiceRegistry system
-
-*/
-
+// Internal detail of implementation of the ServiceRegistry system
+//
 
 #include "fhiclcpp/ParameterSet.h"
-
 
 namespace art {
   class ActivityRegistry;
