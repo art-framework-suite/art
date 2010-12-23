@@ -9,7 +9,7 @@ PoolSource: This is an InputSource
 
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Common/RootServiceChecker.h"
+//#include "art/Framework/IO/Common/RootServiceChecker.h"
 #include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
@@ -55,7 +55,7 @@ namespace art {
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
 
-    RootServiceChecker rootServiceChecker_;
+    //RootServiceChecker rootServiceChecker_;
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
     boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;

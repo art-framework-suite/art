@@ -213,15 +213,15 @@ namespace art {
       md.moduleLabel_ = main_input.get<std::string>("module_label");
 
       md.processConfiguration_ = ProcessConfiguration(common.processName_,
-						      params.id(), 
-						      getReleaseVersion(), getPassID());
+                                                      params.id(),
+                                                      getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
       areg->preSourceConstructionSignal_(md);
 
-      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, 
-									       isdesc).release());
+      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input,
+                                                                               isdesc).release());
       areg->postSourceConstructionSignal_(md);
 
       return input;
@@ -249,9 +249,9 @@ namespace art {
     service_set.back().put("service_type",name);
   }
 
-  void addOptionalService(string const& name, 
-			  ParameterSet const& source, 
-			  ParameterSets& service_set)
+  void addOptionalService(string const& name,
+                          ParameterSet const& source,
+                          ParameterSets& service_set)
   {
     try {
       service_set.push_back(services.get<ParameterSet>(name));
@@ -259,7 +259,7 @@ namespace art {
     }
     catch(fhicl::exception&)
       {
-	// ignore
+        // ignore
       }
   }
 
@@ -276,7 +276,7 @@ namespace art {
     // the service token.  Alternatively we could get the service token and be allowed to add
     // service objects to it.  Since the servicetoken contains the servicemanager, we might
     // be able to simply add a function to the serviceregistry or servicesmanager that given
-    // a service token, it injects a new service object using the "put" of the 
+    // a service token, it injects a new service object using the "put" of the
     // servicesManager.
     // order might be important here
 

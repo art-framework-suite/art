@@ -23,7 +23,7 @@ namespace art {
 
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
-    rootServiceChecker_(),
+    //rootServiceChecker_(),
     selectedOutputItemList_(),
     fileName_(pset.get<std::string>("fileName")),
     logicalFileName_(pset.get<std::string>("logicalFileName", std::string())),

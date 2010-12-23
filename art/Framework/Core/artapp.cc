@@ -183,7 +183,7 @@ int artapp(int argc, char* argv[])
 #if 0
         procP(new
               art::EventProcessor(processDesc, jobReportToken,
-                             art::serviceregistry::kTokenOverrides));
+                             art::kTokenOverrides));
 #endif  // 0
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;

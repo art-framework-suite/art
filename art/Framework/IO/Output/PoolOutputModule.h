@@ -10,7 +10,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Framework/IO/Common/RootServiceChecker.h"
+//#include "art/Framework/IO/Common/RootServiceChecker.h"
 
 #include "boost/scoped_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
@@ -101,7 +101,7 @@ namespace art {
 
     void fillSelectedItemList(BranchType branchtype, TTree *theTree);
 
-    RootServiceChecker rootServiceChecker_;
+    //RootServiceChecker rootServiceChecker_;
     OutputItemListArray selectedOutputItemList_;
     std::string const fileName_;
     std::string const logicalFileName_;

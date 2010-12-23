@@ -1,21 +1,21 @@
+// ======================================================================
 //
-// Package:     ServiceRegistry
-// Class  :     ServicesManager
+// ServicesManager
 //
+// ======================================================================
 
 #include "art/Framework/Services/Registry/ServicesManager.h"
 
-#include "art/Framework/Services/Registry/ServicePluginFactory.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <set>
+#include <utility>  // make_pair
 
-using namespace art::serviceregistry;
-using namespace std;
 using boost::shared_ptr;
 using fhicl::ParameterSet;
 using namespace art;
+using namespace std;
 
 ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager const& lm):
   associatedManager_(),
@@ -31,7 +31,7 @@ ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager cons
 ServicesManager::ServicesManager(ServiceToken iToken,
                                  ServiceLegacy iLegacy,
                                  ParameterSets const& psets,
-				 LibraryManager const& lm):
+                                 LibraryManager const& lm):
   associatedManager_(iToken.manager_)
 {
   throw "You are calling the inheritance ctor of ServiceManager and should not be doing that!";
@@ -78,37 +78,41 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 
 
 void
-ServicesManager::fillFactory(ParameterSets const& psets, LibraryManager const& lm)
+  ServicesManager::fillFactory( ParameterSets  const & psets
+                              , LibraryManager const & lm
+                              )
 {
-  for(ParameterSets::const_iterator it=psets.begin(),iend=psets.end();it != iend;++itParam) 
+  for( ParameterSets::const_iterator it = psets.begin()
+                                   , e  = psets.end(); it != e; ++it )
     {
       string service_name = it->get<string>("service_type");
 
       // go to lm and get the typeid and maker function for this service
-      GET_TYPEID typeid_func = lm.getSymbolByLibspec(service_name,"get_typeid");
-      MAKER make_func = lm.getSymbolByLibspec(service_name,"make");
+      GET_TYPEID_t typeid_func
+        = (GET_TYPEID_t)lm.getSymbolByLibspec(service_name,"get_typeid");
+      MAKER_t make_func
+        = (MAKER_t)lm.getSymbolByLibspec(service_name,"make");
 
-      if(typeid_func==0) 
-	throw art::Exception(art::errors::LogicError,"Service")
-	  < "<Could not find the get_typeid function in the service library for " << service_name
-	  << "\n.  The library is probably built incorrectly.\n";
+      if(typeid_func==0)
+        throw art::Exception(art::errors::LogicError,"Service")
+          << "<Could not find the get_typeid function in the service library for " << service_name
+          << "\n.  The library is probably built incorrectly.\n";
 
       if(make_func==0)
-	throw art::Exception(art::errors::LogicError,"Service")
-	  << "Could not find the maker function in the service library for " << service_name
-	  << "\n.  The library is probably built incorrectly.\n";
+        throw art::Exception(art::errors::LogicError,"Service")
+          << "Could not find the maker function in the service library for " << service_name
+          << "\n.  The library is probably built incorrectly.\n";
 
       TypeIDBase id = typeid_func();
 
       // insert cache object for it
-      factory_.[id] = Cache(*it, id, make_func);
+      factory_.insert( std::make_pair(id, Cache(*it, id, make_func)) );
       requestedCreationOrder_.push_back(id);
-    }  
-}
+    }
+}  // fillFactory()
 
 namespace {
   struct NoOp {
     void operator()(ServicesManager*) {}
   };
 }
-

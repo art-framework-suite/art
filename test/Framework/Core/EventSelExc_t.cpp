@@ -265,7 +265,7 @@ int main()
 
   // Now create and setup the service
   typedef art::service::TriggerNamesService TNS;
-  typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
+  typedef ServiceWrapper<TNS> w_TNS;
 
   boost::shared_ptr<w_TNS> tnsptr
     (new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));

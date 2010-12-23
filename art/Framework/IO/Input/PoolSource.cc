@@ -54,7 +54,7 @@ namespace art {
   PoolSource::PoolSource(fhicl::ParameterSet const& pset,
                          InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
-    rootServiceChecker_(),
+    //rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 : new RootInputFileSequence(pset, *this, catalog(1), false)),
     branchIDsToReplace_() {

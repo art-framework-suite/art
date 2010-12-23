@@ -7,7 +7,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 
-art::serviceregistry::ServiceWrapperBase::~ServiceWrapperBase( )
+art::ServiceWrapperBase::~ServiceWrapperBase( )
 { }
 
 // ======================================================================

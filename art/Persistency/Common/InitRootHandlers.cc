@@ -20,8 +20,8 @@
 
 namespace {
 
-  void RootErrorHandler(int level, bool die, 
-			char const* location, char const* message)
+  void RootErrorHandler(int level, bool die,
+                        char const* location, char const* message)
   {
     using mf::ELseverityLevel;
 
@@ -163,7 +163,7 @@ namespace art {
   {
     if(want_auto_lib_loader)
       {
-	art::RootAutoLibraryLoader::enable();
+        art::RootAutoLibraryLoader::enable();
       }
 
       // Enable Cintex.

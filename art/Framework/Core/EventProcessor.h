@@ -324,7 +324,7 @@ namespace art {
     // init() is used by only by constructors
     void init(boost::shared_ptr<art::ProcessDesc> & processDesc,
               ServiceToken const& token,
-              serviceregistry::ServiceLegacy);
+              ServiceLegacy);
 
 
 

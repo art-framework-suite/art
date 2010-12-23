@@ -1,6 +1,6 @@
 #ifndef Framework_ConstProductRegistry_h
 #define Framework_ConstProductRegistry_h
-// -*- C++ -*-
+
 //
 // Package:     Framework
 // Class  :     ConstProductRegistry
@@ -56,13 +56,13 @@ namespace art {
     template< class T>
     void watchProductAdditions(const T& iFunc)
     {
-      serviceregistry::connect_but_block_self(reg_->productAddedSignal_,
+      connect_but_block_self(reg_->productAddedSignal_,
 					      iFunc);
     }
     template< class T, class TMethod>
     void watchProductAdditions(T& iObj, TMethod iMethod)
     {
-      serviceregistry::connect_but_block_self(reg_->productAddedSignal_,
+      connect_but_block_self(reg_->productAddedSignal_,
 					      boost::bind(iMethod, iObj,_1));
     }
 

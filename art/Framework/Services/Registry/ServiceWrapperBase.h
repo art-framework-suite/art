@@ -8,13 +8,13 @@
 //
 // ======================================================================
 
-namespace art { namespace serviceregistry {
+namespace art {
   class ServiceWrapperBase;
-} }
+}
 
 // ----------------------------------------------------------------------
 
-class art::serviceregistry::ServiceWrapperBase
+class art::ServiceWrapperBase
 {
   // non-copyable:
   ServiceWrapperBase( ServiceWrapperBase const & );

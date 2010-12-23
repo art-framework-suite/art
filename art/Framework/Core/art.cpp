@@ -1,6 +1,7 @@
-////////////////////////////////////////////////////////////////////////
+// ======================================================================
+//
 // The code in this directory might look a bit strange.  I've taken what
-// was all the code in art.cpp (the application) and broke it into a
+// was all the code in art.cpp (the application) and broken it into a
 // shared library with all the code.  I changed main to artapp.  Now
 // the application has only one line of code in main that executes
 // artapp.
@@ -10,7 +11,7 @@
 // below, I assume that art in the original version with all the code
 // in art.cpp.
 //
-// 1) art causes a "RootHandlers" service to come into existance by
+// 1) art causes a "RootHandlers" service to come into existence by
 // name. This service is loaded from the plugin manager and it does its
 // work.
 //
@@ -53,10 +54,13 @@
 // has problems.
 //
 // We do not have a good explanation of the root cause of this problem.
-////////////////////////////////////////////////////////////////////////
+//
+// ======================================================================
+
 extern "C" { int artapp(int argc, char* argv[]); }
 
-int main(int argc, char* argv[])
+int
+  main( int argc, char* argv[] )
 {
   return artapp(argc,argv);
 }

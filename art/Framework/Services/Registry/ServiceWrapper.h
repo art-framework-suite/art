@@ -11,15 +11,15 @@
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include <memory>  // auto_ptr
 
-namespace art { namespace serviceregistry {
+namespace art {
   template< class T >
     class ServiceWrapper;
-} }
+}
 
 // ----------------------------------------------------------------------
 
 template< class T >
-class art::serviceregistry::ServiceWrapper
+class art::ServiceWrapper
   : public ServiceWrapperBase
 {
   // non-copyable:
@@ -28,18 +28,19 @@ class art::serviceregistry::ServiceWrapper
 
 public:
   // c'tor:
-  explicit ServiceWrapper( std::auto_ptr<T> iService )
-  : service_(iService)
+  explicit ServiceWrapper( std::auto_ptr<T> service_ptr )
+  : ServiceWrapperBase( )
+  , service_ptr_      ( service_ptr )  // take ownership
   { }
 
-  // use compiler-generated (virtual!) d'tor
+  // use compiler-generated (virtual) d'tor
 
   // accessor:
   T &
-    get() const { return *service_; }
+    get() const { return *service_ptr_; }
 
 private:
-  std::auto_ptr<T> service_;
+  std::auto_ptr<T> service_ptr_;
 
 };  // ServiceWrapper<>
 

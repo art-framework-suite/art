@@ -12,6 +12,6 @@ namespace art {
     virtual void disableErrorHandler_() = 0;
     virtual void enableErrorHandler_() = 0;
   };
-}  // end of namespace art
+}  // art
 
-#endif // InitRootHandlers_H
+#endif  // FWCore_Utilities_RootHandlers_h

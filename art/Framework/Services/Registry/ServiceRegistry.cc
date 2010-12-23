@@ -1,79 +1,69 @@
+// ======================================================================
 //
-// Package:     ServiceRegistry
-// Class  :     ServiceRegistry
+// ServiceRegistry
+//
+// ======================================================================
 
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 
 #include "boost/thread/tss.hpp"
 
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-//#include "art/ParameterSet/MakeParameterSets.h"
-
 using fhicl::ParameterSet;
+using art::ServiceRegistry;
+using art::ServiceToken;
 
-
-//
-// constructors and destructor
-//
-art::ServiceRegistry::ServiceRegistry():
-  lm_("service")
+ServiceRegistry::ServiceRegistry()
+: lm_( "service" )
 { }
 
-art::ServiceRegistry::~ServiceRegistry()
+ServiceRegistry::~ServiceRegistry()
 { }
 
-//
-// member functions
-//
-art::ServiceToken
-art::ServiceRegistry::setContext(const art::ServiceToken& iNewToken)
+ServiceToken
+ServiceRegistry::setContext(const ServiceToken& iNewToken)
 {
-   art::ServiceToken returnValue(manager_);
-   manager_ = iNewToken.manager_;
-   return returnValue;
+  ServiceToken returnValue(manager_);
+  manager_ = iNewToken.manager_;
+  return returnValue;
 }
 
 void
-art::ServiceRegistry::unsetContext(const ServiceToken& iOldToken)
+ServiceRegistry::unsetContext(const ServiceToken& iOldToken)
 {
-   manager_ = iOldToken.manager_;
+  manager_ = iOldToken.manager_;
 }
 
-//
-// const member functions
-//
-art::ServiceToken
-art::ServiceRegistry::presentToken() const
+ServiceToken
+ServiceRegistry::presentToken() const
 {
-   return manager_;
+  return manager_;
 }
 
-//
-// static member functions
-//
+#if 0
+ServiceToken
+ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
+{
+  boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS,lm_));
+  return ServiceToken(returnValue);
+}
+ServiceToken
+ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
+                            ServiceToken iToken,
+                            ServiceLegacy iLegacy)
+{
+  boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS,lm_));
+  return ServiceToken(returnValue);
+}
+#endif  // 0
 
-art::ServiceToken
-art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
+ServiceRegistry&
+ServiceRegistry::instance()
 {
-   using namespace art::serviceregistry;
-   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS,lm_));
-   return art::ServiceToken(returnValue);
-}
-art::ServiceToken
-art::ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
-                                ServiceToken iToken,
-                                serviceregistry::ServiceLegacy iLegacy)
-{
-   using namespace art::serviceregistry;
-   boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS,lm_));
-   return art::ServiceToken(returnValue);
+  static boost::thread_specific_ptr<ServiceRegistry> s_registry;
+  if(0 == s_registry.get()){
+    s_registry.reset(new ServiceRegistry);
+  }
+  return *s_registry;
 }
 
-art::ServiceRegistry&
-art::ServiceRegistry::instance()
-{
-   static boost::thread_specific_ptr<ServiceRegistry> s_registry;
-   if(0 == s_registry.get()){
-      s_registry.reset(new ServiceRegistry);
-   }
-   return *s_registry;
-}
+// ======================================================================
