@@ -1,3 +1,9 @@
+// ======================================================================
+//
+// PoolOutputModule
+//
+// ======================================================================
+
 #include "art/Framework/IO/Output/PoolOutputModule.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
@@ -202,8 +208,8 @@ namespace art {
 
 }  // namespace art
 
-
 // ======================================================================
 
+DEFINE_ART_MODULE(PoolOutputModule);
 
-// DEFINE_FWK_MODULE(PoolOutputModule);
+// ======================================================================

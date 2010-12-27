@@ -21,9 +21,7 @@ namespace art {
 }
 using art::RandomNumberSaver;
 
-
 // ======================================================================
-
 
 class art::RandomNumberSaver
   : public EDProducer
@@ -53,8 +51,8 @@ private:
 RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
   : EDProducer( )
   , debug_    ( pset.get<bool>( "debug"
-                                                , false
-              )                                 )
+                              , false
+              )               )
 {
   produces<snapshot_t>();
 }

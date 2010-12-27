@@ -8,19 +8,14 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/MakerMacros.h"
-
 #include "fhiclcpp/ParameterSet.h"
 
-
-// Contents:
 namespace art {
   class Prescaler;
 }
 using art::Prescaler;
 
-
 // ======================================================================
-
 
 class art::Prescaler
   : public EDFilter
@@ -40,9 +35,7 @@ private:
 
 };  // Prescaler
 
-
 // ======================================================================
-
 
 Prescaler::Prescaler( fhicl::ParameterSet const & ps )
   : count_ ( 0 )
@@ -50,22 +43,19 @@ Prescaler::Prescaler( fhicl::ParameterSet const & ps )
   , offset_( ps.get<int>("prescaleOffset") )
 { }
 
-
 Prescaler::~Prescaler()
 { }
-
 
 bool Prescaler::filter( Event & )
 {
   return ++count_ % n_ == offset_;
 }
 
-
 void Prescaler::endJob()
 { }
 
-
 // ======================================================================
 
+DEFINE_ART_MODULE(Prescaler);
 
-// DEFINE_FWK_MODULE(Prescaler);
+// ======================================================================

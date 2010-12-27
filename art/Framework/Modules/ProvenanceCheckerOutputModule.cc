@@ -1,8 +1,9 @@
+// ======================================================================
 //
-// Package:     Modules
-// Class  :     ProvenanceCheckerOutputModule
-//     Checks the consistency of provenance stored in the framework
+// ProvenanceCheckerOutputModule - Checks the consistency of provenance
+//                                 stored in the framework
 //
+// ======================================================================
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -10,15 +11,16 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "cetlib/exception.h"
-
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
-
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
-   class ProvenanceCheckerOutputModule : public OutputModule {
+
+   class ProvenanceCheckerOutputModule
+     : public OutputModule
+   {
    public:
-      // We do not take ownership of passed stream.
+      // We do not take ownership of passed stream.  (Huh? -- WEB)
       explicit ProvenanceCheckerOutputModule(fhicl::ParameterSet const&);
       virtual ~ProvenanceCheckerOutputModule();
 
@@ -26,8 +28,7 @@ namespace art {
       virtual void write(EventPrincipal const& e);
       virtual void writeSubRun(SubRunPrincipal const&){}
       virtual void writeRun(RunPrincipal const&){}
-   };
-
+   };  // ProvenanceCheckerOutputModule
 
 //
 // constructors and destructor
@@ -36,10 +37,8 @@ namespace art {
    OutputModule(pset)
    { }
 
-
    ProvenanceCheckerOutputModule::~ProvenanceCheckerOutputModule()
    { }
-
 
 //
 // member functions
@@ -105,7 +104,6 @@ namespace art {
          branchesInReg.insert(it->second.branchID());
       }
 
-
       std::set<BranchID> missingFromPrincipal;
       std::set<BranchID> missingFromReg;
       for(std::map<BranchID,bool>::iterator it=seenParentInPrincipal.begin(), itEnd = seenParentInPrincipal.end();
@@ -118,7 +116,6 @@ namespace art {
             missingFromReg.insert(it->first);
          }
       }
-
 
       if(missingFromMapper.size()) {
          mf::LogError("ProvenanceChecker") << "Missing the following BranchIDs from BranchMapper\n";
@@ -155,7 +152,6 @@ namespace art {
          }
       }
 
-
       if(missingFromMapper.size() or missingFromPrincipal.size() or missingProductProvenance.size() or missingFromReg.size()) {
          throw cet::exception("ProvenanceError")
            << (missingFromMapper.size() or missingFromPrincipal.size()?"Having missing ancestors": "")
@@ -170,5 +166,9 @@ namespace art {
 
 }  // namespace art
 
+// ======================================================================
+
 using art::ProvenanceCheckerOutputModule;
-// DEFINE_FWK_MODULE(ProvenanceCheckerOutputModule);
+DEFINE_ART_MODULE(ProvenanceCheckerOutputModule);
+
+// ======================================================================
