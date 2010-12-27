@@ -20,47 +20,54 @@ ServiceRegistry::~ServiceRegistry()
 { }
 
 ServiceToken
-ServiceRegistry::setContext(const ServiceToken& iNewToken)
+  ServiceRegistry::setContext( ServiceToken const & iNewToken )
 {
-  ServiceToken returnValue(manager_);
+  ServiceToken result(manager_);
   manager_ = iNewToken.manager_;
-  return returnValue;
+  return result;
 }
 
 void
-ServiceRegistry::unsetContext(const ServiceToken& iOldToken)
+  ServiceRegistry::unsetContext( ServiceToken const & iOldToken )
 {
   manager_ = iOldToken.manager_;
 }
 
 ServiceToken
-ServiceRegistry::presentToken() const
+  ServiceRegistry::presentToken() const
 {
   return manager_;
 }
 
-#if 0
 ServiceToken
-ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS)
+  ServiceRegistry::createSet( std::vector<ParameterSet> const & iPS )
 {
-  boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iPS,lm_));
-  return ServiceToken(returnValue);
+  boost::shared_ptr<ServicesManager>
+    result( new ServicesManager( iPS
+                               , ServiceRegistry::instance().lm_
+          )                    );
+  return ServiceToken(result);
 }
 ServiceToken
-ServiceRegistry::createSet(const std::vector<ParameterSet>& iPS,
-                            ServiceToken iToken,
-                            ServiceLegacy iLegacy)
+  ServiceRegistry::createSet( std::vector<ParameterSet> const & iPS
+                            , ServiceToken iToken
+                            , ServiceLegacy iLegacy
+                            )
 {
-  boost::shared_ptr<ServicesManager> returnValue(new ServicesManager(iToken,iLegacy,iPS,lm_));
-  return ServiceToken(returnValue);
+  boost::shared_ptr<ServicesManager>
+    result( new ServicesManager( iToken
+                               , iLegacy
+                               , iPS
+                               , ServiceRegistry::instance().lm_
+          )                    );
+  return ServiceToken(result);
 }
-#endif  // 0
 
-ServiceRegistry&
-ServiceRegistry::instance()
+ServiceRegistry &
+  ServiceRegistry::instance()
 {
   static boost::thread_specific_ptr<ServiceRegistry> s_registry;
-  if(0 == s_registry.get()){
+  if( 0 == s_registry.get() ) {
     s_registry.reset(new ServiceRegistry);
   }
   return *s_registry;

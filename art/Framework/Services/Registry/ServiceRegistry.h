@@ -11,25 +11,35 @@
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include <memory>  // auto_ptr
+
 
 namespace art {
   class FwkImpl;
 
-  template< typename T> class ServiceWrapper;
+  template< typename T >
+    class ServiceWrapper;
 
   class ServiceRegistry
   {
+    // non-copyable:
+    ServiceRegistry( ServiceRegistry const & );
+    void  operator=( ServiceRegistry const & );
+
   public:
     class Operate
     {
       // non-copyable:
-      Operate( const Operate & );
-      void  operator = ( const Operate & );
+      Operate( Operate const & );
+      void  operator = ( Operate const & );
+
+      // override operator new to stop use on heap?
 
     public:
       // c'tor:
-      Operate(const ServiceToken& iToken)
+      Operate(const ServiceToken & iToken)
       : oldToken_( ServiceRegistry::instance().setContext(iToken) )
       { }
 
@@ -37,18 +47,16 @@ namespace art {
       ~Operate()
       { ServiceRegistry::instance().unsetContext(oldToken_); }
 
-      //override operator new to stop use on heap?
     private:
       ServiceToken oldToken_;
     };  // Operate
 
     friend class art::FwkImpl;
-    friend int main(int argc, char* argv[]);
+    friend int main( int argc, char* argv[] );
     friend class Operate;
 
     virtual ~ServiceRegistry();
 
-     // ---------- const member functions ---------------------
     template< class T >
       T & get() const
     {
@@ -71,10 +79,9 @@ namespace art {
 
     ServiceToken presentToken() const;
 
-    static ServiceRegistry& instance();
+    static ServiceRegistry & instance();
 
   public: // Made public (temporarily) at the request of Emilio Meschi.
-#if 0
     typedef ServicesManager SM;
     typedef std::vector<fhicl::ParameterSet> ParameterSets;
 
@@ -85,27 +92,36 @@ namespace art {
 
     // create a service token that holds the service defined by iService
     template<class T>
-      static ServiceToken createContaining(std::auto_ptr<T> iService)
+    static ServiceToken
+      createContaining( std::auto_ptr<T> iService )
     {
       ParameterSets config;
       typedef ServiceWrapper<T> SW;
 
-      boost::shared_ptr<SM> manager( new SM(config) );
+      boost::shared_ptr<SM> manager( new SM( config
+                                           , ServiceRegistry::instance().lm_
+                                   )       );
       boost::shared_ptr<SW> wrapper( new SW(iService) );
 
       manager->put(wrapper);
       return manager;
     }
 
-    template<class T>
-      static ServiceToken createContaining(std::auto_ptr<T> iService,
-                                           ServiceToken iToken,
-                                           ServiceLegacy iLegacy)
+    template< class T >
+    static ServiceToken
+      createContaining( std::auto_ptr<T> iService
+                      , ServiceToken iToken
+                      , ServiceLegacy iLegacy
+                      )
     {
       ParameterSets config;
       typedef ServiceWrapper<T> SW;
 
-      boost::shared_ptr<SM> manager( new SM(iToken,iLegacy,config) );
+      boost::shared_ptr<SM> manager( new SM( iToken
+                                           , iLegacy
+                                           , config
+                                           , ServiceRegistry::instance().lm_
+                                   )       );
       boost::shared_ptr<SW> wrapper( new SW(iService));
 
       manager->put(wrapper);
@@ -113,36 +129,42 @@ namespace art {
     }
 
     // create a service token that holds the service held by iWrapper
-    template<class T>
-      static ServiceToken createContaining(boost::shared_ptr<ServiceWrapper<T> > wrap)
+    template< class T >
+    static ServiceToken
+      createContaining( boost::shared_ptr<ServiceWrapper<T> > wrap )
     {
       ParameterSets config;
-      boost::shared_ptr<SM> manager( new SM(config) );
+      boost::shared_ptr<SM> manager( new SM( config
+                                           , ServiceRegistry::instance().lm_
+                                   )       );
       manager->put(wrap);
       return manager;
     }
 
     template<class T>
-      static ServiceToken createContaining(boost::shared_ptr<ServiceWrapper<T> > wrap,
-                                           ServiceToken iToken,
-                                           ServiceLegacy iLegacy)
+    static ServiceToken
+      createContaining( boost ::shared_ptr<ServiceWrapper<T> > wrap
+                      , ServiceToken iToken
+                      , ServiceLegacy iLegacy
+                      )
     {
       ParameterSets config;
-      boost::shared_ptr<SM> manager( new SM(iToken,iLegacy,config) );
+      boost::shared_ptr<SM> manager( new SM( iToken
+                                           , iLegacy
+                                           , config
+                                           , ServiceRegistry::instance().lm_
+                                   )       );
 
       manager->put(wrap);
       return manager;
     }
-#endif  // 0
 
   private:
-    //returns old token
-    ServiceToken setContext(const ServiceToken& iNewToken);
-    void unsetContext(const ServiceToken& iOldToken);
+    // returns old token
+    ServiceToken setContext( ServiceToken const & iNewToken );
+    void unsetContext( ServiceToken const & iOldToken );
 
     ServiceRegistry();
-    ServiceRegistry(const ServiceRegistry&); // stop default
-    const ServiceRegistry& operator=(const ServiceRegistry&); // stop default
 
     // ---------- member data --------------------------------
     LibraryManager lm_;
@@ -151,5 +173,7 @@ namespace art {
   };  // ServiceRegistry
 
 }  // namespace art
+
+// ======================================================================
 
 #endif  // ServiceRegistry_ServiceRegistry_h

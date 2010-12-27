@@ -16,10 +16,9 @@
 #include "art/Utilities/TypeIDBase.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-#include <cassert>
-#include <iostream>
 #include <map>
 #include <stack>
+#include <utility>  // make_pair
 #include <vector>
 
 /*
@@ -31,6 +30,10 @@ namespace art {
 
   class ServicesManager
   {
+    // non-copyable:
+    ServicesManager( ServicesManager const & );
+    void operator = ( ServicesManager const & );
+
   public:
     typedef  std::vector<fhicl::ParameterSet>       ParameterSets;
     typedef  boost::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
@@ -45,7 +48,7 @@ namespace art {
     class Cache
     {
     public:
-      Cache(fhicl::ParameterSet const& pset, TypeIDBase id, MAKER_t maker):
+      Cache(fhicl::ParameterSet const & pset, TypeIDBase id, MAKER_t maker):
         config_(pset), typeinfo_(id), make_(maker), service_()
       { }
 
@@ -56,7 +59,7 @@ namespace art {
       // Create the service if necessary, and return the WrapperBase_ptr
       // that refers to it.
       WrapperBase_ptr
-        getService(ActivityRegistry& reg, ServiceStack& creationOrder)
+        getService(ActivityRegistry & reg, ServiceStack & creationOrder)
       {
         if( ! service_ )
           createService(reg, creationOrder);
@@ -70,7 +73,7 @@ namespace art {
       WrapperBase_ptr service_;
 
       void
-        createService(ActivityRegistry& reg, ServiceStack& creationOrder)
+        createService( ActivityRegistry & reg, ServiceStack & creationOrder )
       {
         // When we actually create the Service object, we have to
         // remember the order of creation.
@@ -84,25 +87,34 @@ namespace art {
     // Conflicts over Services provided by both the iToken and iConfiguration
     // are resolved based on the value of iLegacy
 
-    ServicesManager(ParameterSets const& psets, art::LibraryManager const&);
-    ServicesManager(ServiceToken iToken,ServiceLegacy iLegacy,
-                    ParameterSets const& psets, art::LibraryManager const&);
+    ServicesManager( ParameterSets       const & psets
+                   , art::LibraryManager const &
+                   );
+    ServicesManager( ServiceToken                iToken
+                   , ServiceLegacy               iLegacy
+                   , ParameterSets       const & psets
+                   , art::LibraryManager const &
+                   );
 
     ~ServicesManager();
 
-    template<class T> T& get();  // not const because of possible lazy creation
+    template< class T >
+    T &
+      get();  // not const because of possible lazy creation
 
     //returns true of the particular service is accessible -- that is,
     // it either can be made (if requested) or has already been made.
-    template<class T>
-    bool isAvailable() const
+    template< class T >
+    bool
+      isAvailable() const
     {
       return factory_.find(TypeIDBase(typeid(T))) != factory_.end();
     }
 
     // TODO: needs to be converted to returning a void.
-    template<class T>
-    bool put(boost::shared_ptr<ServiceWrapper<T> > premade_service)
+    template< class T >
+    bool
+      put( boost::shared_ptr<ServiceWrapper<T> > premade_service )
     {
       TypeIDBase id(typeid(T));
       Factory::const_iterator it = factory_.find(id);
@@ -112,35 +124,34 @@ namespace art {
           << "The system has manually added service of type " << id.name()
           << ", but the service system already has a configured service of that type\n";
 
-      factory_[ id ] = Cache(premade_service);
+      factory_.insert( std::make_pair(id, Cache(premade_service)) );
       actualCreationOrder_.push(premade_service);
       return true;
     }
 
     //causes our ActivityRegistry's signals to be forwarded to iOther
-    void connect(ActivityRegistry& iOther);
+    void connect(ActivityRegistry & iOther);
 
-    //causes iOther's signals to be forward to us
-    void connectTo(ActivityRegistry& iOther);
+    //causes iOther's signals to be forwarded to us
+    void connectTo(ActivityRegistry & iOther);
 
     //copy our Service's slots to the argument's signals
-    void copySlotsTo(ActivityRegistry&);
+    void copySlotsTo(ActivityRegistry &);
     //the copy the argument's slots to the our signals
-    void copySlotsFrom(ActivityRegistry&);
+    void copySlotsFrom(ActivityRegistry &);
 
   private:
-    ServicesManager(const ServicesManager&); // stop default
-    const ServicesManager& operator=(const ServicesManager&); // stop default
-    void fillFactory(ParameterSets const& psets, LibraryManager const& lm);
+    void fillFactory( ParameterSets const & psets, LibraryManager const & lm );
 
     // ---------- member data --------------------------------
-    //hold onto the Manager passed in from the ServiceToken so that
+    // hold onto the Manager passed in from the ServiceToken so that
     // the ActivityRegistry of that Manager does not go out of scope
     // This must be first to get the Service destructors called in
     // the correct order.
 
-    // we will probably not be using this because we do not use the inheritance or sharing
-    // features (although we may not understand this properly).
+    // we will probably not be using this because we do not use the
+    // inheritance or sharing features
+    // (although we may not understand this properly).
     boost::shared_ptr<ServicesManager> associatedManager_;
 
     // these are real things that we use.
@@ -168,8 +179,8 @@ namespace art {
     WrapperBase_ptr swb = it->second.getService(registry_, actualCreationOrder_);
 
     // Cast it to the correct type.
-    // Not sure this is technique is correct ... is is mostly copied from the previous
-    // implementation.
+    // Not sure this is technique is correct ... is is mostly copied
+    // from the previous implementation.
     typedef ServiceWrapper<T> Wrapper;
     typedef boost::shared_ptr<Wrapper> Wrapper_ptr;
 
