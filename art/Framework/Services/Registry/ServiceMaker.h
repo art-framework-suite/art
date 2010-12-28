@@ -10,7 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include "art/Utilities/TypeIDBase.h"
-#include <memory>
+#include <memory>  // auto_ptr
 
 namespace art {
   class ActivityRegistry;

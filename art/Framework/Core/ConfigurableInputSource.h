@@ -1,6 +1,11 @@
 #ifndef Framework_ConfigurableInputSource_h
 #define Framework_ConfigurableInputSource_h
 
+// ======================================================================
+//
+// ConfigurableInputSource
+//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
@@ -9,14 +14,15 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
 
 
 namespace art {
 
-  class ConfigurableInputSource : public InputSource {
+  class ConfigurableInputSource
+    : public InputSource
+  {
   public:
     explicit ConfigurableInputSource(fhicl::ParameterSet const& pset,
                                      InputSourceDescription const& desc,
@@ -83,5 +89,7 @@ namespace art {
   };
 
 }  // namespace art
+
+// ======================================================================
 
 #endif  // Framework_ConfigurableInputSource_h

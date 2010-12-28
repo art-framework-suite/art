@@ -46,12 +46,14 @@ Prescaler::Prescaler( fhicl::ParameterSet const & ps )
 Prescaler::~Prescaler()
 { }
 
-bool Prescaler::filter( Event & )
+bool
+  Prescaler::filter( Event & /* unused */ )
 {
   return ++count_ % n_ == offset_;
 }
 
-void Prescaler::endJob()
+void
+  Prescaler::endJob()
 { }
 
 // ======================================================================
