@@ -33,5 +33,6 @@ namespace art {
 
     void setupSignals(bool want_sigint_enabled);
 
-}  // end of namespace art
+}  // art
+
 #endif

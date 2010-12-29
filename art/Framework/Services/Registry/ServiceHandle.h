@@ -35,4 +35,4 @@ private:
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceHandle_h
+#endif

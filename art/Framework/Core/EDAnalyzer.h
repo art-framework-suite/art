@@ -1,15 +1,18 @@
 #ifndef FWCore_Framework_EDAnalyzer_h
 #define FWCore_Framework_EDAnalyzer_h
 
-
-// EDAnalyzer is the base class for all analyzer "modules".
-
+// ======================================================================
+//
+// EDAnalyzer - the base class for all analyzer "modules".
+//
+// ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art
 {
@@ -73,8 +76,10 @@ namespace art
 
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
-  };
+  };  // EDAnalyzer
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_EDAnalyzer_h
+// ======================================================================
+
+#endif

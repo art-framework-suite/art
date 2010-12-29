@@ -41,4 +41,4 @@ namespace art {
     return it->second;
   }
 
-}  // namespace art
+}  // art

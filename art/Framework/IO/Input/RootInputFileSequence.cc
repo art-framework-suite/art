@@ -1,8 +1,14 @@
+// ======================================================================
+//
+// RootInputFileSequence
+//
+// ======================================================================
+
 #include "art/Framework/IO/Input/RootInputFileSequence.h"
 
 #ifdef USE_RANDOM
 // #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#endif  // USE_RANDOM
+#endif
 // #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
@@ -22,10 +28,8 @@
 #include "TFile.h"
 #include <ctime>
 
-
 using namespace cet;
 using namespace std;
-
 
 namespace art {
 
@@ -104,7 +108,7 @@ namespace art {
       }
       CLHEP::HepRandomEngine& engine = rng->getEngine();
       flatDistribution_ = new CLHEP::RandFlat(engine);
-#endif  // USE_RANDOM
+#endif
     }
   }
 
@@ -590,4 +594,6 @@ namespace art {
     }
   }
 
-}  // namespace art
+}  // art
+
+// ======================================================================

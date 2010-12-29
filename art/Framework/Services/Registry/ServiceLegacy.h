@@ -17,4 +17,4 @@ namespace art {
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceLegacy_h
+#endif

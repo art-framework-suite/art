@@ -35,14 +35,14 @@ namespace artplugin {
 // constructors and destructor
 //
   SharedLibrary::SharedLibrary(const std::string& name):
-	library_(0),
-	path_(name)
+        library_(0),
+        path_(name)
   {
     std::auto_ptr<Reflex::SharedLibrary> lib(new Reflex::SharedLibrary(name));
     if( !lib->Load() )
       {
-	throw cet::exception("PluginLibraryLoadError")
-	  <<"unable to load "<< name <<" because " << lib->Error();
+        throw cet::exception("PluginLibraryLoadError")
+          <<"unable to load "<< name <<" because " << lib->Error();
       }
     library_ = lib.release();
   }
@@ -97,4 +97,5 @@ SharedLibrary::symbol(const std::string& iSymbolName, void* & iSymbol) const
 //
 // static member functions
 //
-}
+
+}  // artplugin

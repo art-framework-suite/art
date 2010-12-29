@@ -8,19 +8,17 @@ EventEntryDescription: The event dependent portion of the description of
 
 ----------------------------------------------------------------------*/
 
-
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/EntryDescriptionID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleDescriptionID.h"
 #include "art/Persistency/Provenance/Transient.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSetID.h"
-
 #include <iosfwd>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 /*
   EventEntryDescription
@@ -95,4 +93,6 @@ namespace art {
   inline bool operator!=(EventEntryDescription const& a, EventEntryDescription const& b) { return !(a==b); }
 }
 
-#endif  // DataFormats_Provenance_EventEntryDescription_h
+// ======================================================================
+
+#endif

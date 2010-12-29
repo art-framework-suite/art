@@ -60,7 +60,7 @@ namespace art {
     T obj;
   };
 
-} //namespace art
+}  // art
 
 namespace art {
 

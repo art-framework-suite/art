@@ -1,15 +1,14 @@
 #ifndef FWCore_Framework_EDFilter_h
 #define FWCore_Framework_EDFilter_h
 
-/*----------------------------------------------------------------------
-
-EDFilter: The base class of all "modules" used to control the flow of
-processing in a processing path.
-Filters can also insert products into the event.
-These products should be informational products about the filter decision.
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// EDFilter - The base class of all "modules" used to control the flow of
+// processing in a processing path.  Filters can also insert products
+// into the event.  These products should be informational products about
+// the filter decision.
+//
+// ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -18,6 +17,7 @@ These products should be informational products about the filter decision.
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art
 {
@@ -84,8 +84,10 @@ namespace art
     }
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
-  };
+  };  // EDFilter
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_EDFilter_h
+// ======================================================================
+
+#endif

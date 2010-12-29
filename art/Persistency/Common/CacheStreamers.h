@@ -10,7 +10,7 @@ namespace art {
   public:
     explicit ConstPtrCacheStreamer() : cl_("art::ConstPtrCache"){}
 
-    void operator() (TBuffer &R__b, void *objp);
+    void operator() (TBuffer &R_b, void *objp);
 
   private:
     TClassRef cl_;
@@ -20,7 +20,7 @@ namespace art {
 public:
     explicit BoolCacheStreamer() : cl_("art::BoolCache"){}
 
-    void operator() (TBuffer &R__b, void *objp);
+    void operator() (TBuffer &R_b, void *objp);
 
 private:
     TClassRef cl_;

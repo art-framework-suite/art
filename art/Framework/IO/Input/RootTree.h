@@ -1,31 +1,29 @@
 #ifndef IOPool_Input_RootTree_h
 #define IOPool_Input_RootTree_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// RootTree - used by ROOT input sources
+//
+// ======================================================================
 
-RootTree.h // used by ROOT input sources
-
-----------------------------------------------------------------------*/
-
-
+#include "TBranch.h"
+#include "TTree.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Input/BranchMapperWithReader.h"
 #include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
-#include "TBranch.h"
-#include "TTree.h"
-class TFile;
-
 #include <memory>
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
+
+class TFile;
 
 namespace art {
 
@@ -96,7 +94,7 @@ namespace art {
     std::vector<ProductStatus>* pProductStatuses_; // backward compatibility
     TTree *const infoTree_; // backward compatibility
     TBranch *const statusBranch_; // backward compatibility
-  };
+  };  // RootTree
 
   template <typename T>
   void
@@ -116,6 +114,8 @@ namespace art {
     return mapper;
   }
 
-}  // namespace art
+}  // art
 
-#endif  // IOPool_Input_RootTree_h
+// ======================================================================
+
+#endif

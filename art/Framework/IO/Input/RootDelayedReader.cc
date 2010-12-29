@@ -45,4 +45,4 @@ namespace art {
     return p;
   }
 
-}  // namespace art
+}  // art

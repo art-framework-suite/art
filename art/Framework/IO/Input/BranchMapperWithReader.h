@@ -1,24 +1,23 @@
 #ifndef IOPool_Input_BranchMapperWithReader
 #define IOPool_Input_BranchMapperWithReader
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// BranchMapperWithReader
+//
+// ======================================================================
 
-BranchMapperWithReader:
-
-----------------------------------------------------------------------*/
-
-
+#include "TBranch.h"
 #include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/ProductID.h"
-
-#include "TBranch.h"
-  class TBranch;
-
 #include <vector>
 
+// ----------------------------------------------------------------------
+
+class TBranch;
 
 namespace art {
 
@@ -36,7 +35,7 @@ namespace art {
     input::EntryNumber entryNumber_;
     std::vector<T> infoVector_;
     mutable std::vector<T> * pInfoVector_;
-  };
+  };  // BranchMapperWithReader<>
 
   template <typename T>
   BranchMapperWithReader<T>::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
@@ -80,8 +79,10 @@ namespace art {
     std::vector<EventEntryInfo> infoVector_;
     mutable std::vector<EventEntryInfo> * pInfoVector_;
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
-  };
+  };  // BranchMapperWithReader<EventEntryInfo>
 
-}  // namespace art
+}  // art
 
-#endif  // IOPool_Input_BranchMapperWithReader
+// ======================================================================
+
+#endif

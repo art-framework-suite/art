@@ -31,7 +31,7 @@ public:
 private:
 };
 
-}  // namespace arttest
+}  // arttest
 
 
-#endif  // FWCore_MessageService_test_makeSignals_h
+#endif

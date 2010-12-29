@@ -97,7 +97,7 @@ namespace arttest
 				 << std::endl;
   }
 
-} // namespace arttest
+} // arttest
 
 using arttest::PathAnalyzer;
 DEFINE_FWK_MODULE(PathAnalyzer);

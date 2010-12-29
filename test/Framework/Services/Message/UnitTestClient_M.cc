@@ -30,7 +30,7 @@ void
 }  // MessageLoggerClient::analyze()
 
 
-}  // namespace arttest
+}  // arttest
 
 
 using arttest::UnitTestClient_M;

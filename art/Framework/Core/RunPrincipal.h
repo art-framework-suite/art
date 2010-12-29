@@ -10,16 +10,13 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-
-
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
-#include <vector>
-
+#include "art/Framework/Core/Principal.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Framework/Core/Principal.h"
+#include "boost/shared_ptr.hpp"
+#include <vector>
 
 namespace art {
   class UnscheduledHandler;
@@ -85,6 +82,8 @@ namespace art {
 
     RunAuxiliary aux_;
   };
-}
+
+}  // art
+
 #endif
 

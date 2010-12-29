@@ -180,4 +180,4 @@ namespace art {
       setRefCoreStreamer();
   }
 
-}  // namespace art
+}  // art

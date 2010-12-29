@@ -8,25 +8,20 @@
  *
  */
 
+#include "art/ParameterSet/ProcessDesc.h"
+#include "art/ParameterSet/PythonProcessDesc.h"
+#include "art/Utilities/Algorithms.h"
+#include "art/Utilities/EDMException.h"
+#include "boost/lambda/lambda.hpp"
+#include "cppunit/extensions/HelperMacros.h"
 #include <algorithm>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <stdlib.h>
 #include <string>
 #include <unistd.h>
 
-#include <iostream>
-
-#include <stdlib.h> // for setenv; <cstdlib> is likely to fail
-
-#include "cppunit/extensions/HelperMacros.h"
-#include "boost/lambda/lambda.hpp"
-
-#include "art/Utilities/EDMException.h"
-#include "art/Utilities/Algorithms.h"
-#include "art/ParameterSet/ProcessDesc.h"
-#include "art/ParameterSet/PythonProcessDesc.h"
-
-
+// ----------------------------------------------------------------------
 
 class testmakepset: public CppUnit::TestFixture
 {
@@ -455,4 +450,3 @@ void testmakepset::typesTest()
    //CPPUNIT_ASSERT("Alias2" == outputProduct.alias());
    //BOOST_CHECK_THROW(makePSet(*nodeList), std::runtime_error);
 }
-

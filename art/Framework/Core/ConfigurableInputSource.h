@@ -17,6 +17,7 @@
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -86,10 +87,10 @@ namespace art {
     std::auto_ptr<EventPrincipal> ep_;
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
-  };
+  };  // ConfigurableInputSource
 
-}  // namespace art
+}  // art
 
 // ======================================================================
 
-#endif  // Framework_ConfigurableInputSource_h
+#endif

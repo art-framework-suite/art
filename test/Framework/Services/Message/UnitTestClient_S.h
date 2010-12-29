@@ -13,8 +13,7 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
 class UTC_S1
   : public art::EDAnalyzer
@@ -87,8 +86,6 @@ public:
 private:
 };
 
+}  // arttest
 
-}  // namespace arttest
-
-
-#endif  // FWCore_MessageService_test_UnitTestClient_S_h
+#endif

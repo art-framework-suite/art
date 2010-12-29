@@ -1,28 +1,25 @@
 #ifndef FWCore_Framework_GroupSelectorRules_h
 #define FWCore_Framework_GroupSelectorRules_h
 
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 //
-// Class GroupSelectorRules. Class for rules to select specific groups in event.
+// GroupSelectorRules - rules to select specific groups in event.
 //
-// Author: Bill Tanenbaum, Marc Paterno
-//
-//////////////////////////////////////////////////////////////////////
-
-
-#include <iosfwd>
-#include <string>
-#include <vector>
+// ======================================================================
 
 #include "boost/regex.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include <string>
+#include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
   class BranchDescription;
   class GroupSelector;
 
-  class GroupSelectorRules {
+  class GroupSelectorRules
+  {
   public:
     GroupSelectorRules(fhicl::ParameterSet const& pset, std::string const& parameterName, std::string const& parameterOwnerName);
     //--------------------------------------------------
@@ -81,8 +78,10 @@ namespace art {
     std::string parameterName_;
     std::string parameterOwnerName_;
     bool keepAll_;
-  };
+  };  // GroupSelectorRules
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_GroupSelectorRules_h
+// ======================================================================
+
+#endif

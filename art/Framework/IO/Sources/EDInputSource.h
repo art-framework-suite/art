@@ -1,18 +1,22 @@
 #ifndef FWCore_Sources_EDInputSource_h
 #define FWCore_Sources_EDInputSource_h
 
+// ======================================================================
+//
+// EDInputSource
+//
+// ======================================================================
 
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/RunID.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "fhiclcpp/ParameterSet.h"
-
-#include <vector>
 #include <string>
+#include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -44,6 +48,8 @@ namespace art {
     InputFileCatalog secondaryCatalog_;
   };
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Sources_EDInputSource_h
+// ======================================================================
+
+#endif

@@ -140,4 +140,4 @@ namespace art {
       }
   }
 
-}  // namespace art
+}  // art

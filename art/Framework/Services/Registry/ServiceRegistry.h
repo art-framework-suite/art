@@ -13,8 +13,9 @@
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>  // auto_ptr
+#include <memory>
 
+// ----------------------------------------------------------------------
 
 namespace art {
   class FwkImpl;
@@ -172,8 +173,8 @@ namespace art {
 
   };  // ServiceRegistry
 
-}  // namespace art
+}  // art
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceRegistry_h
+#endif

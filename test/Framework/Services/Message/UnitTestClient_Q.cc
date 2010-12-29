@@ -28,7 +28,7 @@ void
 }
 
 
-}  // namespace arttest
+}  // arttest
 
 using arttest::UTC_Q1;
 using arttest::UTC_Q2;

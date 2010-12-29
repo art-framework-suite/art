@@ -2,7 +2,6 @@
 #define DataFormats_Common_Trie_h
 /*
 **
-**
 ** Copyright (C) 2006 Julien Lemoine
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
@@ -18,14 +17,14 @@
 ** along with this program; if not, write to the Free Software
 ** Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 **
-**
 **   modified by Vincenzo Innocente on 15/08/2007
 **
 */
 
-
 #include <list>
 #include <string>
+
+// ----------------------------------------------------------------------
 
 namespace art
 {
@@ -707,4 +706,6 @@ void art::Trie<T>::display(std::ostream &os)
     _initialNode->display(os, 0, 0);
 }
 
-#endif	 //  DataFormats_Common_Trie_h
+// ======================================================================
+
+#endif

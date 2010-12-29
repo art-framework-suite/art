@@ -14,13 +14,12 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/Principal.h"
+#include "art/Persistency/Provenance/BranchMapper.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "boost/shared_ptr.hpp"
 #include <vector>
-
-#include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Framework/Core/Principal.h"
 
 namespace art {
   class RunPrincipal;
@@ -31,10 +30,10 @@ namespace art {
     typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
     SubRunPrincipal(SubRunAuxiliary const& aux,
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<ProductRegistry const> reg,
+        ProcessConfiguration const& pc,
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     ~SubRunPrincipal() {}
 
@@ -88,7 +87,7 @@ namespace art {
     void mergeSubRun(boost::shared_ptr<SubRunPrincipal> lbp);
 
     void put(std::auto_ptr<EDProduct> edp,
-	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+             ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd);
 
@@ -108,6 +107,7 @@ namespace art {
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     SubRunAuxiliary aux_;
   };
-}
-#endif
 
+}  // art
+
+#endif

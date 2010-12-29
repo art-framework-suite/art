@@ -7,15 +7,13 @@
 //
 // ======================================================================
 
-
-// C++ support:
 #include <string>
-
 
 // identify outdated components for future removal:
 #define FW_BACKWARD_COMPATIBILITY
 #define FW_OBSOLETE
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -35,17 +33,17 @@ namespace art {
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToInfoTreeName( BranchType );
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType );
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToAuxBranchName( BranchType );
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToProductStatusBranchName( BranchType );
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
   std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType );
 
@@ -67,7 +65,7 @@ namespace art {
     // Branches on EntryDescription Tree
     std::string const & entryDescriptionIDBranchName( );
     std::string const & entryDescriptionBranchName( );
-#endif  // FW_OBSOLETE
+#endif
 
     //------------------------------------------------------------------
     // Parentage Tree
@@ -88,7 +86,7 @@ namespace art {
     std::string const & parameterSetMapBranchName( );
 #ifdef FW_OBSOLETE
     std::string const & moduleDescriptionMapBranchName( );
-#endif  // FW_OBSOLETE
+#endif
     std::string const & processHistoryMapBranchName( );
     std::string const & processConfigurationBranchName( );
     std::string const & branchIDListBranchName( );
@@ -106,6 +104,9 @@ namespace art {
     // Other tree names
     std::string const & eventTreeName( );
     std::string const & eventMetaDataTreeName( );
-  }
-}
-#endif  // DataFormats_Provenance_BranchType_h
+  }  // poolNames
+}  // art
+
+// ======================================================================
+
+#endif

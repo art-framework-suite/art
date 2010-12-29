@@ -1,23 +1,18 @@
 #ifndef FWCore_Catalog_InputFileCatalog_h
 #define FWCore_Catalog_InputFileCatalog_h
 
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 //
 // Class InputFileCatalog. Services to manage InputFile catalog
 //
-// Author of original version: Luca Lista
-// Author of current version: Bill Tanenbaum
-//
-//////////////////////////////////////////////////////////////////////
-
+// ======================================================================
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -38,8 +33,10 @@ namespace art {
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
-  };
+  };  // InputFileCatalog
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Catalog_InputFileCatalog_h
+// ======================================================================
+
+#endif

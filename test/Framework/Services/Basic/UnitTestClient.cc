@@ -46,7 +46,7 @@ void
   }
 }
 
-}  // namespace arttest
+}  // arttest
 
 
 using arttest::UnitTestClient;

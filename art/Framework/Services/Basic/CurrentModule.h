@@ -1,5 +1,5 @@
-#ifndef SERVICES__CURRENTMODULE_H
-#define SERVICES__CURRENTMODULE_H
+#ifndef SERVICES_CURRENTMODULE_H
+#define SERVICES_CURRENTMODULE_H
 
 // ======================================================================
 //
@@ -49,4 +49,4 @@ private:
 
 // ======================================================================
 
-#endif  // SERVICES__CURRENTMODULE_H
+#endif

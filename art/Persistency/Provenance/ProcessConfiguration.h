@@ -1,15 +1,20 @@
 #ifndef DataFormats_Provenance_ProcessConfiguration_h
 #define DataFormats_Provenance_ProcessConfiguration_h
 
+// ======================================================================
+//
+// ProcessConfiguration
+//
+// ======================================================================
+
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-
 #include "fhiclcpp/ParameterSetID.h"
-
 #include <iosfwd>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -57,6 +62,8 @@ namespace art {
   std::ostream&
   operator<< (std::ostream& os, ProcessConfiguration const& pc);
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_ProcessConfiguration_h
+// ======================================================================
+
+#endif

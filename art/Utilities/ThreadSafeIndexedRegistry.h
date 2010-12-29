@@ -1,22 +1,25 @@
 #ifndef FWCore_Utilities_ThreadSafeIndexedRegistry_h
 #define FWCore_Utilities_ThreadSafeIndexedRegistry_h
 
-#include <vector>
-#include "boost/thread.hpp"
-
+// ----------------------------------------------------------------------
+//
+// A ThreadSafeIndexedRegistry is used to keep track of the instances of
+// some type 'value_typed', stored in a vector.
+//
+// This class is sufficiently thread-safe to be usable in a
+// thread-safe manner. Don't let  the name mislead you  into thinking
+// it provides more guarantee than that!
+//
 // ----------------------------------------------------------------------
 
-/// A ThreadSafeIndexedRegistry is used to keep track of the instances of
-/// some type 'value_typed', stored in a vector.
-///
-/// This class is sufficiently thread-safe to be usable in a
-/// thread-safe manner. Don't let  the name mislead you  into thinking
-/// it provides more guarantee than that!
-///
+#include "boost/thread.hpp"
+#include <vector>
+
 // ----------------------------------------------------------------------
 
 namespace art {
   namespace detail {
+
     struct Empty { };
 
     template <typename T, typename E=Empty>
@@ -31,45 +34,45 @@ namespace art {
 
       static ThreadSafeIndexedRegistry* instance();
 
-      /// Retrieve the value_type object with the given index.
-      /// If we return 'true', then 'result' carries the
-      /// value_type object.
-      /// If we return 'false, no matching index was found, and
-      /// the value of 'result' is undefined.
+      // Retrieve the value_type object with the given index.
+      // If we return 'true', then 'result' carries the
+      // value_type object.
+      // If we return 'false, no matching index was found, and
+      // the value of 'result' is undefined.
       void getMapped(size_type index, value_type& result) const;
 
-      /// put the given value_type object into the
-      /// registry.
+      // put the given value_type object into the
+      // registry.
       bool insertMapped(value_type const& v);
 
-      /// put the value_type objects in the given collection
-      /// into the registry.
+      // put the value_type objects in the given collection
+      // into the registry.
       void insertCollection(collection_type const& c);
 
-      /// Return true if there are no contained value_type objects.
+      // Return true if there are no contained value_type objects.
       bool empty() const;
 
-      /// Return true if there are any contained value_type objects.
+      // Return true if there are any contained value_type objects.
       bool notEmpty() const;
 
-      /// Return the number of contained value_type objects.
+      // Return the number of contained value_type objects.
       size_type size() const;
 
-      /// Allow iteration through the contents of the registry. Only
-      /// const access is provided to the entries of the registry.
+      // Allow iteration through the contents of the registry. Only
+      // const access is provided to the entries of the registry.
       const_iterator begin() const;
       const_iterator end() const;
 
-      /// Print the contents of this registry to the given ostream.
+      // Print the contents of this registry to the given ostream.
       void print(std::ostream& os) const;
 
-      /// Provide access to the contained collection
+      // Provide access to the contained collection
       collection_type& data();
       collection_type const& data() const;
 
-      /// Provide access to the appendage "extra". The
-      /// ThreadSafeIndexedRegistry doesn't know what this is for, but
-      /// instantiations of the template can use it.
+      // Provide access to the appendage "extra". The
+      // ThreadSafeIndexedRegistry doesn't know what this is for, but
+      // instantiations of the template can use it.
       extra_type& extra();
       extra_type const& extra() const;
 
@@ -229,7 +232,9 @@ namespace art {
     ThreadSafeIndexedRegistry<T, E>::~ThreadSafeIndexedRegistry()
     { }
 
-  } // namespace detail
-} // namespace art
+  }  // detail
+}  // art
 
-#endif //  FWCore_Utilities_ThreadSafeIndexedRegistry_h
+// ======================================================================
+
+#endif

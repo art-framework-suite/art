@@ -5,11 +5,6 @@
  *
  *  Definition of common HLT enums
  *
- *
- *
- *
- *  \author Martin Grunewald
- *
  */
 
 namespace art
@@ -27,4 +22,6 @@ namespace art
     }
 }
 
-#endif // DataFormats_Common_HLTenums_h
+// ======================================================================
+
+#endif

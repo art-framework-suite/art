@@ -33,7 +33,7 @@ void UnitTestClient_L1::analyze( art::Event      const & e
   art::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
-}  // namespace arttest
+}  // arttest
 
 
 using arttest::UnitTestClient_L;

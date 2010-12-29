@@ -50,7 +50,7 @@ namespace art {
       vector<BranchSelectState>::const_iterator it = branchstates.begin();
       vector<BranchSelectState>::const_iterator end = branchstates.end();
       for (; it != end; ++it) {
-	  if (it->selectMe) groupsToSelect_.push_back(it->desc->branchName());
+          if (it->selectMe) groupsToSelect_.push_back(it->desc->branchName());
       }
       sort_all(groupsToSelect_);
     }
@@ -90,4 +90,4 @@ namespace art {
     return os;
   }
 
-}
+}  // art

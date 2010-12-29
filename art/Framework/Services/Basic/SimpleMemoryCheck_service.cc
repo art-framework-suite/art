@@ -24,7 +24,7 @@
 #endif
 
 #ifdef LINUX
-#include <stdio.h>  // perror
+#include <stdio.h>
 #endif
 
 namespace art {
@@ -214,7 +214,7 @@ namespace art {
     operator<< ( std::ostream & os
                , SimpleMemoryCheck::SignificantModule const & se );
 
-}  // namespace art
+}  // art
 
 // ======================================================================
 
@@ -848,7 +848,7 @@ namespace art {
     return os;
   }
 
-} // end namespace art
+} // art
 
 // ======================================================================
 

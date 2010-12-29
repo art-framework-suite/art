@@ -1,10 +1,9 @@
-/*----------------------------------------------------------------------
-
-This is a generic main that can be used with any plugin and a
-PSet script.   See notes in EventProcessor.cpp for details about
-it.
-
-----------------------------------------------------------------------*/
+// ======================================================================
+//
+// This is a generic main that can be used with any plugin and a PSet
+// script.   See notes in EventProcessor.cpp for details about it.
+//
+// ======================================================================
 
 #include "TError.h"
 #include "art/Framework/Core/EventProcessor.h"
@@ -26,7 +25,6 @@ it.
 #include <cstring>
 #include <exception>
 #include <fstream>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -75,7 +73,7 @@ namespace {
     std::auto_ptr<art::EventProcessor> ep_;
     bool callEndJob_;
   }; // EventProcessorWithSentry
-} // anonymous namespace
+} // namespace
 
 
 // -----------------------------------------------
@@ -96,7 +94,7 @@ int artapp(int argc, char* argv[])
   ostringstream descstr;
 
   descstr << argv[0]
-	  << "--config config_file";
+          << "--config config_file";
 
   bpo::options_description desc(descstr.str());
 
@@ -114,7 +112,7 @@ int artapp(int argc, char* argv[])
   }
   catch(bpo::error const& e) {
     std::cerr << "Exception from command line processing in " << argv[0]
-	      << ": " << e.what();
+              << ": " << e.what();
     return 7000;
   }
 
@@ -125,10 +123,10 @@ int artapp(int argc, char* argv[])
 
   if (!vm.count("parameter-set")) {
     std::cerr << "Exception from command line processing in " << argv[0]
-	      << ": no configuration file given.\n"
-	      << "For usage and an options list, please do '"
-	      << argv[0] <<  " --help"
-	      << "'.";
+              << ": no configuration file given.\n"
+              << "For usage and an options list, please do '"
+              << argv[0] <<  " --help"
+              << "'.";
     return 7001;
   }
 
@@ -143,8 +141,8 @@ int artapp(int argc, char* argv[])
   if (!fhicl::parse_document(config_stream, raw_config))
     {
       std::cerr << "Failed to parse the configuration file '"
-		<< config_filename
-		<< "'\n";
+                << config_filename
+                << "'\n";
       return 7001;
     }
 
@@ -154,8 +152,8 @@ int artapp(int argc, char* argv[])
 #if 0
 
 #if 0
-  mf::start_me(multithread, 
-	       ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
+  mf::start_me(multithread,
+               ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
 #endif
   //
   // Initialize:
@@ -184,7 +182,7 @@ int artapp(int argc, char* argv[])
         procP(new
               art::EventProcessor(processDesc, jobReportToken,
                              art::kTokenOverrides));
-#endif  // 0
+#endif
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
@@ -226,4 +224,4 @@ int artapp(int argc, char* argv[])
   SetErrorHandler(DefaultErrorHandler);
 #endif
   return rc;
-}
+}  // artapp

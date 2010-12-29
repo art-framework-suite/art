@@ -58,7 +58,7 @@ namespace test {
 
   };  // RNGS_analyzer
 
-}  // namespace test
+}  // test
 
 
 #include "art/Framework/Core/MakerMacros.h"

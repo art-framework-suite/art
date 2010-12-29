@@ -1,15 +1,19 @@
 #ifndef FWCore_Framework_InputSourceFactory_h
 #define FWCOre_Framework_InputSourceFactory_h
 
+// ======================================================================
+//
+// InputSourceFactory
+//
+// ======================================================================
 
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/PluginManager/PluginFactory.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <memory>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -32,8 +36,10 @@ namespace art {
   private:
     InputSourceFactory();
     static InputSourceFactory singleInstance_;
-  };
+  };  // InputSourceFactory
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_InputSourceFactory_h
+// ======================================================================
+
+#endif

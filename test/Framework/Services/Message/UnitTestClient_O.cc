@@ -20,10 +20,10 @@ void
 		<< "This LogInfo message should appear in the info destination";
 
 
- }  // MessageLoggerClient::analyze()
+}  // MessageLoggerClient::analyze()
 
 
-}  // namespace arttest
+}  // arttest
 
 
 using arttest::UnitTestClient_O;

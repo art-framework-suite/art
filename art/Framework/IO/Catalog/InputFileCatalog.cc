@@ -55,4 +55,4 @@ namespace art {
     cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
   }
 
-}  // namespace art
+}  // art

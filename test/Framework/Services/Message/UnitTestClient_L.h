@@ -51,9 +51,9 @@ private:
 };
 
 
-}  // namespace arttest
+}  // arttest
 
 
 
 
-#endif  // FWCore_MessageService_test_UnitTestClient_L_h
+#endif

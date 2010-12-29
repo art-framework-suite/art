@@ -3,9 +3,10 @@
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 
 namespace art {
   ProductRegistryHelper::~ProductRegistryHelper() { }
@@ -16,10 +17,10 @@ namespace art {
 
   void
   ProductRegistryHelper::addToRegistry(TypeLabelList::const_iterator const& iBegin,
-				       TypeLabelList::const_iterator const& iEnd,
-				       ModuleDescription const& iDesc,
-				       ProductRegistry& iReg,
-				       bool iIsListener) {
+                                       TypeLabelList::const_iterator const& iEnd,
+                                       ModuleDescription const& iDesc,
+                                       ProductRegistry& iReg,
+                                       bool iIsListener) {
     for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
       BranchDescription pdesc(p->branchType_,
                               iDesc.moduleLabel(),
@@ -27,9 +28,10 @@ namespace art {
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(),
                               p->productInstanceName_,
-			      iDesc);
+                              iDesc);
       if (!p->branchAlias_.empty()) pdesc.branchAliases().insert(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);
     }//for
   }
-}
+
+}  // art

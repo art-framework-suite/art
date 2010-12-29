@@ -86,7 +86,7 @@ namespace test {
 
   };  // RNGS_producer
 
-}  // namespace test
+}  // test
 
 #include "art/Framework/Core/MakerMacros.h"
 using test::RNGS_producer;

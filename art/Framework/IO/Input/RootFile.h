@@ -1,12 +1,11 @@
 #ifndef IOPool_Input_RootFile_h
 #define IOPool_Input_RootFile_h
 
-/*----------------------------------------------------------------------
-
-RootFile.h // used by ROOT input sources
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// RootFile - used by ROOT input sources
+//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
@@ -15,14 +14,12 @@ RootFile.h // used by ROOT input sources
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/EventProcessHistoryID.h" // backward compatibility
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/FileID.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
@@ -31,13 +28,17 @@ RootFile.h // used by ROOT input sources
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/array.hpp"
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
+// backward compatibility:
+#include "art/Persistency/Provenance/EventProcessHistoryID.h"
+
+// ----------------------------------------------------------------------
 
 class TFile;
 
@@ -189,7 +190,7 @@ namespace art {
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
-  }; // class RootFile
+  }; // RootFile
 
   template <typename T>
   inline
@@ -202,6 +203,8 @@ namespace art {
     return bm;
   }
 
-}  // namespace art
+}  // art
 
-#endif  // IOPool_Input_RootFile_h
+// ======================================================================
+
+#endif

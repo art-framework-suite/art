@@ -124,7 +124,7 @@ void  MemoryTestClient_A::initializeMemoryPattern(int pattern) {
   }
 }
 
-}  // namespace arttest
+}  // arttest
 
 
 using arttest::MemoryTestClient_A;

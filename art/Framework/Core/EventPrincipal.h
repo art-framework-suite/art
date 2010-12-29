@@ -39,11 +39,11 @@ namespace art {
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<ProductRegistry const> reg,
+        ProcessConfiguration const& pc,
+        boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
     SubRunPrincipal const& subRunPrincipal() const {
@@ -120,17 +120,17 @@ namespace art {
     getByProductID(ProductID const& oid) const;
 
     void put(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+         std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd);
 
     void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 std::auto_ptr<ProductProvenance> productProvenance);
+         std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-	 boost::shared_ptr<ProductProvenance> productProvenance);
+         boost::shared_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<ProductProvenance> productProvenance);
 
@@ -173,6 +173,7 @@ namespace art {
   isSameEvent(EventPrincipal const& a, EventPrincipal const& b) {
     return isSameEvent(a.aux(), b.aux());
   }
-}
-#endif
 
+}  // art
+
+#endif

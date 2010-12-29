@@ -14,13 +14,13 @@
 //
 // ======================================================================
 
-
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include <ostream>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -270,6 +270,8 @@ namespace art {
     return h.print(os);
   }
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_Hash_h
+// ======================================================================
+
+#endif

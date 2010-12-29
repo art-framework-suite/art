@@ -29,4 +29,4 @@ public:
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceWrapperBase_h
+#endif

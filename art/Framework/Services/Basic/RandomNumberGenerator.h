@@ -281,7 +281,6 @@ private:
 
 };  // RandomNumberGenerator
 
-
 // ======================================================================
 
-#endif  // FWCore_Services_RandomNumberGenerator_h
+#endif

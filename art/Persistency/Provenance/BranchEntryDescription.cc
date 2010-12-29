@@ -57,4 +57,4 @@ namespace art {
     return entryDescription;
   }
 
-}  // namespace art
+}  // art

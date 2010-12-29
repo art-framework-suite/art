@@ -62,7 +62,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-//#include <iostream>  // DEBUG
+//#include <iostream>
 
 using art::RNGsnapshot;
 using art::RandomNumberGenerator;
@@ -227,7 +227,7 @@ RNGservice::RandomNumberGenerator( ParameterSet const    & pset
   reg.watchPostEndJob     ( this, & RNGservice::postEndJob       );
 #ifdef NOTYET
   reg.watchPreProcessEvent( this, & RNGservice::preProcessEvent  );
-#endif  // NOTYET
+#endif
 
   assert( invariant_holds_() && "RNGservice::RNGservice()" );
 }  // RNGservice()
@@ -415,7 +415,7 @@ void
       tracker_[label] = VIA_PRODUCT;
       kind_   [label] = it->ekind();
       t = tracker_.find( label );
-#endif  // PREPARE_TO_RESTORE_ANYWAY
+#endif
     }
 
     if( t->second == VIA_FILE ) {
@@ -534,7 +534,7 @@ void
   takeSnapshot_();
   //restoreSnapshot_(e);  // TODO: needs Event argument!
 }
-#endif  // NOTYET
+#endif
 
 void
   RNGservice::postEndJob( )

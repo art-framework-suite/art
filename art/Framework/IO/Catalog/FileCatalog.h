@@ -1,22 +1,17 @@
 #ifndef FWCore_Catalog_FileCatalog_h
 #define FWCore_Catalog_FileCatalog_h
 
-
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 //
 // Class FileCatalog. Common services to manage File catalog
 //
-// Author of original version: Luca Lista
-// Author of current version: Bill Tanenbaum
-//
-//////////////////////////////////////////////////////////////////////
-
+// ======================================================================
 
 #include <string>
 
+// ----------------------------------------------------------------------
 
-namespace pool
-{
+namespace pool {
   class IFileCatalog
   {
   public:
@@ -24,9 +19,10 @@ namespace pool
     void start() { }
     void disconnect() { }
     int nReadCatalogs() { }
-  };
-}
+  };  // IFileCatalog
+}  // pool
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -39,12 +35,16 @@ namespace art {
   private:
     std::string pfn_;
     std::string lfn_;
-  };
+  };  // FileCatalogItem
+
+// ----------------------------------------------------------------------
 
   struct PoolCatalog {
     PoolCatalog() : catalog_() {}
     pool::IFileCatalog catalog_;
-  };
+  };  // PoolCatalog
+
+// ----------------------------------------------------------------------
 
   class FileCatalog {
   public:
@@ -63,7 +63,10 @@ namespace art {
     pool::IFileCatalog& catalog_;
     std::string url_;
     bool active_;
-  };
-}
+  };  // FileCatalog
 
-#endif  // FWCore_Catalog_FileCatalog_h
+}  // art
+
+// ======================================================================
+
+#endif

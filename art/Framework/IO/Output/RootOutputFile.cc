@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
-#include <utility>  // pair
+#include <utility>
 
 
 using namespace cet;
@@ -512,4 +512,4 @@ namespace art {
     productProvenanceVecPtr->clear();
   }
 
-}  // namespace art
+}  // art

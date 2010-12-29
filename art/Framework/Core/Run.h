@@ -1,24 +1,20 @@
 #ifndef Framework_Run_h
 #define Framework_Run_h
 
+// ======================================================================
 //
-// Package:     Framework
-// Class  :     Run
+// Run - This is the primary interface for accessing per run EDProducts
+//       and inserting new derived products.
 //
-/**\class Run Run.h FWCore/Framework/interface/Run.h
-
-Description: This is the primary interface for accessing per run EDProducts and inserting new derived products.
-
-For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
-
-*/
-
+// For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
+// ======================================================================
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -119,6 +115,8 @@ namespace art {
     // The old copy must be deleted, so we cannot release ownership.
   }
 
-}  // namespace art
+}  // art
 
-#endif  // Framework_Run_h
+// ======================================================================
+
+#endif

@@ -7,19 +7,16 @@ RootOutputTree.h // used by ROOT output modules
 
 ----------------------------------------------------------------------*/
 
+#include "TTree.h"
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "boost/shared_ptr.hpp"
+#include "boost/noncopyable.hpp"
 #include <string>
 #include <vector>
-
-#include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Persistency/Provenance/BranchType.h"
-
-#include "TTree.h"
 
 class TFile;
 class TBranch;
@@ -31,12 +28,12 @@ namespace art {
     // Constructor for trees with no fast cloning
     template <typename T>
     RootOutputTree(T* , // first argument is a dummy so that the compiiler can resolve the match.
-		   boost::shared_ptr<TFile> filePtr,
-		   BranchType const& branchType,
-		   typename T::Auxiliary const*& pAux,
-		   typename T::EntryInfoVector *& pEntryInfoVector,
-		   int bufSize,
-		   int splitLevel,
+                   boost::shared_ptr<TFile> filePtr,
+                   BranchType const& branchType,
+                   typename T::Auxiliary const*& pAux,
+                   typename T::EntryInfoVector *& pEntryInfoVector,
+                   int bufSize,
+                   int splitLevel,
                    int treeMaxVirtualSize) :
       filePtr_(filePtr),
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
@@ -73,7 +70,7 @@ namespace art {
     bool isValid() const;
 
     void addBranch(BranchDescription const& prod,
-		   void const*& pProd, bool produced);
+                   void const*& pProd, bool produced);
 
     bool checkSplitLevelAndBasketSize(TTree *inputTree) const;
 
@@ -102,7 +99,7 @@ namespace art {
 
     bool
     uncloned(std::string const& branchName) const {
-	return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
+        return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
     }
 
   private:
@@ -123,6 +120,8 @@ namespace art {
     bool currentlyFastCloning_;
     int basketSize_;
     int splitLevel_;
-  };
-}
+  };  // RootOutputTree
+
+}  // art
+
 #endif

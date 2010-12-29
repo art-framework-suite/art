@@ -1,24 +1,24 @@
 #ifndef FWCore_Framework_OccurrenceTraits_h
 #define FWCore_Framework_OccurrenceTraits_h
 
-/*----------------------------------------------------------------------
-
-OccurrenceTraits:
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// OccurrenceTraits
+//
+// ======================================================================
 
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/SubRun.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
+// ----------------------------------------------------------------------
 
 namespace art {
   template <typename T, BranchActionType B> class OccurrenceTraits;
@@ -159,4 +159,6 @@ namespace art {
   };
 }
 
-#endif  // FWCore_Framework_OccurrenceTraits_h
+// ======================================================================
+
+#endif

@@ -18,17 +18,15 @@
 //         Created:  Sun Feb  3 19:43:16 EST 2008
 //
 
-// system include files
-#include "Reflex/Object.h"
 #include "Reflex/Builder/TypeBuilder.h"
-
-// user include files
+#include "Reflex/Object.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Utilities/WrappedClassName.h"
 #include "art/Utilities/UseReflex.h"
+#include "art/Utilities/WrappedClassName.h"
 
 // forward declarations
 namespace art {
+
 class GenericObjectOwner
 {
 
@@ -56,7 +54,7 @@ class GenericObjectOwner
       // ---------- member data --------------------------------
       Reflex::Object m_object;
       bool m_ownData;
-};
+};  // GenericObjectOwner
 
    //Need to specialize OrphanHandle because we don't actually have a long lived GenericObjectOwner
    template <>
@@ -83,7 +81,7 @@ class GenericObjectOwner
       {
          OrphanHandle<GenericObjectOwner> temp(rhs);
          swap(temp);
-	 return *this;
+         return *this;
       }
 
       bool isValid() const {return 0 !=prod_.object().Address();}
@@ -104,5 +102,6 @@ class GenericObjectOwner
    OrphanHandle<GenericObjectOwner>
    Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::string const& productInstanceName);
 
-}
+}  // art
+
 #endif

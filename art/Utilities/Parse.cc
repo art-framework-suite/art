@@ -72,4 +72,4 @@ namespace art {
       return result;
     }
 
-} // namespace art
+}  // art

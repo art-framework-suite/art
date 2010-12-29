@@ -127,4 +127,4 @@ namespace art {
     return i!=map_.end() ? i->second : actions::Rethrow;
   }
 
-}  // namespace art
+}  // art

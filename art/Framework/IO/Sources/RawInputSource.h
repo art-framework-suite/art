@@ -1,17 +1,20 @@
 #ifndef FWCore_Sources_RawInputSource_h
 #define FWCore_Sources_RawInputSource_h
 
+// ======================================================================
+//
+// RawInputSource
+//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Persistency/Provenance/EventID.h"
-
-#include "fhiclcpp/ParameterSet.h"
-
 #include "boost/shared_ptr.hpp"
-
+#include "fhiclcpp/ParameterSet.h"
 #include <memory>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -42,6 +45,8 @@ namespace art {
     std::auto_ptr<EventPrincipal> ep_;
   };
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Sources_RawInputSource_h
+// ======================================================================
+
+#endif

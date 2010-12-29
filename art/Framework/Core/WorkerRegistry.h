@@ -1,28 +1,23 @@
 #ifndef Framework_WorkerRegistry_h
 #define Framework_WorkerRegistry_h
 
-/**
-   \file
-   Declaration of class ModuleRegistry
-
-   \author Stefano ARGIRO
-   \version
-   \date 18 May 2005
-*/
-
+// ======================================================================
+//
+// ModuleRegistry
+//
+// ======================================================================
 
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <map>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -57,9 +52,9 @@ namespace art {
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
     std::string mangleWorkerParameters(fhicl::ParameterSet const& parameterSet,
-				       std::string const& processName,
-				       ReleaseVersion const& releaseVersion,
-				       PassID const& passID);
+                                       std::string const& processName,
+                                       ReleaseVersion const& releaseVersion,
+                                       PassID const& passID);
 
     /// the container of workers
     typedef std::map<std::string, boost::shared_ptr<Worker> > WorkerMap;
@@ -68,9 +63,11 @@ namespace art {
     WorkerMap m_workerMap;
     boost::shared_ptr<ActivityRegistry> actReg_;
 
-  }; // WorkerRegistry
+  };  // WorkerRegistry
 
 
-} // namespace art
+} // art
 
-#endif  // Framework_WorkerRegistry_h
+// ======================================================================
+
+#endif

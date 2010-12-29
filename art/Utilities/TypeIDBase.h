@@ -78,4 +78,4 @@ inline bool
 
 // ======================================================================
 
-#endif  // FWCore_Utilities_TypeIDBase_h
+#endif

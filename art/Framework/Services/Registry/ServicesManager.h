@@ -18,7 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <stack>
-#include <utility>  // make_pair
+#include <utility>
 #include <vector>
 
 /*
@@ -163,6 +163,7 @@ namespace art {
 
   };  // ServicesManager
 
+// ----------------------------------------------------------------------
 
   template< class T >
   T &
@@ -186,10 +187,10 @@ namespace art {
 
     Wrapper_ptr concrete = boost::dynamic_pointer_cast<Wrapper>(swb);
     return concrete->get();
-  }
+  }  // get<>()
 
-}  // namespace art
+}  // art
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServicesManager_h
+#endif

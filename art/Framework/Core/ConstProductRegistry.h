@@ -57,13 +57,13 @@ namespace art {
     void watchProductAdditions(const T& iFunc)
     {
       connect_but_block_self(reg_->productAddedSignal_,
-					      iFunc);
+                                              iFunc);
     }
     template< class T, class TMethod>
     void watchProductAdditions(T& iObj, TMethod iMethod)
     {
       connect_but_block_self(reg_->productAddedSignal_,
-					      boost::bind(iMethod, iObj,_1));
+                                              boost::bind(iMethod, iObj,_1));
     }
 
   private:
@@ -76,6 +76,7 @@ namespace art {
     // ---------- member data --------------------------------
     SignallingProductRegistry* reg_;
   };
-}
+
+}  // art
 
 #endif

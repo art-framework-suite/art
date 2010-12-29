@@ -7,28 +7,28 @@
 //
 // ======================================================================
 
-#include <map>
-#include <string>
-#include <vector>
-
-#include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
-
+#include "TROOT.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/IO/Output/PoolOutputModule.h"
+#include "art/Framework/IO/Output/RootOutputTree.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/FileID.h"
 #include "art/Persistency/Provenance/FileIndex.h"
-#include "art/Persistency/Provenance/Selections.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
-#include "art/Framework/IO/Output/PoolOutputModule.h"
-#include "art/Framework/IO/Output/RootOutputTree.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/Selections.h"
+#include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
+#include <map>
+#include <string>
+#include <vector>
 
-class TTree;
+// ----------------------------------------------------------------------
+
 class TFile;
-#include "TROOT.h"
+class TTree;
 
 namespace art {
   class PoolOutputModule;
@@ -116,8 +116,10 @@ namespace art {
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
     std::set<BranchID> branchesWithStoredHistory_;
-  };  // RootOutputFilIOPool_Output_RootOutputFile_he
+  };  // RootOutputFile
 
-}  // namespace art
+}  // art
 
-#endif  // FRAMEWORK_IO_OUTPUT_ROOTOUTPUTFILE_H
+// ======================================================================
+
+#endif

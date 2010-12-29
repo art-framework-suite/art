@@ -1,32 +1,27 @@
 #ifndef IOPool_Input_RootDelayedReader_h
 #define IOPool_Input_RootDelayedReader_h
 
-/*----------------------------------------------------------------------
-
-RootDelayedReader.h // used by ROOT input sources
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// RootDelayedReader - used by ROOT input sources;
+//                     pretends to support file reading.
+//
+// ======================================================================
 
 #include "art/Framework/Core/DelayedReader.h"
 #include "art/Framework/IO/Input/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchKey.h"
-
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
 #include <map>
 #include <memory>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 class TFile;
 
 namespace art {
-
-  //------------------------------------------------------------
-  // Class RootDelayedReader: pretends to support file reading.
-  //
 
   class RootDelayedReader : public DelayedReader, private boost::noncopyable {
   public:
@@ -57,9 +52,10 @@ namespace art {
     boost::shared_ptr<DelayedReader> nextReader_;
     bool customStreamers_;
     bool oldFormat_;
-  }; // class RootDelayedReader
-  //------------------------------------------------------------
+  }; // RootDelayedReader
 
-}  // namespace art
+}  // art
 
-#endif  // IOPool_Input_RootDelayedReader_h
+// ======================================================================
+
+#endif

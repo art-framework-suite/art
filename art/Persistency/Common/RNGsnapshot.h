@@ -28,17 +28,12 @@
 //
 // ======================================================================
 
-// Boost support:
 #include "boost/static_assert.hpp"
-
-// C++ support:
 #include <limits>
 #include <string>
 #include <vector>
 
-
 // ======================================================================
-
 
 namespace art {
 
@@ -79,9 +74,8 @@ namespace art {
 
   };  // RNGsnapshot
 
+}  // art
 
 // ======================================================================
 
-}  // namespace art
-
-#endif  // FWCore_Services_RNGsnapshot_h
+#endif

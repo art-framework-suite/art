@@ -34,4 +34,4 @@ Maker::throwConfigurationException(ModuleDescription const &md,
   throw toThrow;
 }
 
-} // namespace art
+} // art

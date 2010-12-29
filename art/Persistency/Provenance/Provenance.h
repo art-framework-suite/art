@@ -8,19 +8,17 @@ existence.
 
 ----------------------------------------------------------------------*/
 
-
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSetID.h"
-
 #include <iosfwd>
 
+// ----------------------------------------------------------------------
 
 /*
   Provenance
@@ -94,6 +92,8 @@ namespace art {
 
   bool operator==(Provenance const& a, Provenance const& b);
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_Provenance_h
+// ======================================================================
+
+#endif

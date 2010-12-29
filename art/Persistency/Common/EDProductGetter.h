@@ -2,29 +2,28 @@
 #define DataFormats_Common_EDProductGetter_h
 
 //
-// Package:     EDProduct
-// Class  :     EDProductGetter
+// EDProductGetter
 //
-/**\class EDProductGetter EDProductGetter.h DataFormats/Common/interface/EDProductGetter.h
+/*
 
  Description: Abstract base class used internally by the RefBase to obtain the EDProduct from the Event
 
  Usage:
     This is used internally by the art::Ref classes.
-
 */
 
 
 #include "art/Persistency/Provenance/ProductID.h"
 
-#include "boost/utility.hpp"
+#include "boost/noncopyable.hpp"
 
 
 namespace art {
    class EDProduct;
 
    class EDProductGetter
-     : private boost::noncopyable {
+     : private boost::noncopyable
+     {
    public:
       EDProductGetter();
       virtual ~EDProductGetter();
@@ -35,7 +34,7 @@ namespace art {
       // ---------- static member functions --------------------
       static EDProductGetter const* instance();
 
-      ///Helper class to make the EDProductGetter accessible on at the proper times
+      //Helper class to make the EDProductGetter accessible on at the proper times
       class Operate {
        public:
          Operate(EDProductGetter const* iGet) : previous_(EDProductGetter::set(iGet)) {
@@ -59,11 +58,13 @@ private:
          sure that the object lifetime is greater than the time for which it is set*/
       static EDProductGetter const* set(EDProductGetter const*);
 
-   };
+   };  // EDProductGetter
 
    EDProductGetter const*
    mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID);
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Common_EDProductGetter_h
+// ======================================================================
+
+#endif

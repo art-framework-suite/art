@@ -1,34 +1,32 @@
 #ifndef FWCore_Framework_GroupSelector_h
 #define FWCore_Framework_GroupSelector_h
 
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 //
 // Class GroupSelector. Class for user to select specific groups in event.
 //
-// Author: Bill Tanenbaum, Marc Paterno
-//
-//////////////////////////////////////////////////////////////////////
+// ======================================================================
 
-
+#include "boost/regex.hpp"
+#include "fhiclcpp/ParameterSet.h"
 #include <iosfwd>
 #include <string>
 #include <vector>
 
-#include "boost/regex.hpp"
-#include "fhiclcpp/ParameterSet.h"
-
+// ----------------------------------------------------------------------
 
 namespace art {
   class BranchDescription;
   class GroupSelectorRules;
 
-  class GroupSelector {
+  class GroupSelector
+  {
   public:
     GroupSelector();
 
     // N.B.: we assume there are not null pointers in the vector allBranches.
     void initialize(GroupSelectorRules const& rules,
-		    std::vector<BranchDescription const*> const& branchDescriptions);
+                    std::vector<BranchDescription const*> const& branchDescriptions);
 
     bool selected(BranchDescription const& desc) const;
 
@@ -50,11 +48,13 @@ namespace art {
     // entity that contains this GroupSelector.
     std::vector<std::string> groupsToSelect_;
     bool initialized_;
-  };
+  };  // GroupSelector
 
   std::ostream&
   operator<< (std::ostream& os, const GroupSelector& gs);
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_GroupSelector_h
+// ======================================================================
+
+#endif

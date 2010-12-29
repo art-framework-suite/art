@@ -1,13 +1,12 @@
 #ifndef FWCore_Framework_EDProducer_h
 #define FWCore_Framework_EDProducer_h
 
-/*----------------------------------------------------------------------
-
-EDProducer: The base class of "modules" whose main purpose is to insert new
-EDProducts into an Event.
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// EDProducer - The base class of "modules" whose main purpose is to
+//              insert new EDProducts into an Event.
+//
+// ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -16,6 +15,7 @@ EDProducts into an Event.
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art
 {
@@ -77,8 +77,10 @@ namespace art
     }
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
-  };
+  };  // EDProducer
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_EDProducer_h
+// ======================================================================
+
+#endif

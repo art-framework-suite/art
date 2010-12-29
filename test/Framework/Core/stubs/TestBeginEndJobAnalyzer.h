@@ -1,6 +1,6 @@
 #ifndef Framework_TestBeginEndJobAnalyzer_h
 #define Framework_TestBeginEndJobAnalyzer_h
-// -*- C++ -*-
+
 //
 // Package:     test
 // Class  :     TestBeginEndJobAnalyzer
@@ -51,4 +51,4 @@ private:
 };
 
 
-#endif /* test_TestBeginEndJobAnalyzer_h */
+#endif

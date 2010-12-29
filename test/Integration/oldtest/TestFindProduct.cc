@@ -80,7 +80,7 @@ namespace arttest
       abort();
     }
   }
-} // namespace arttest
+} // arttest
 
 using arttest::TestFindProduct;
 DEFINE_FWK_MODULE(TestFindProduct);

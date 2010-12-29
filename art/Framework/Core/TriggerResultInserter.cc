@@ -29,4 +29,4 @@ namespace art {
     e.put(results);
   }
 
-}  // namespace art
+}  // art

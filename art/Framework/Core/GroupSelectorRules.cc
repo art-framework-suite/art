@@ -251,4 +251,4 @@ namespace art {
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }
 
-}  // namespace art
+}  // art

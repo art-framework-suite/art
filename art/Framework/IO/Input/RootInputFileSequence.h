@@ -1,12 +1,11 @@
 #ifndef IOPool_Input_RootInputFileSequence_h
 #define IOPool_Input_RootInputFileSequence_h
 
-/*----------------------------------------------------------------------
-
-RootInputFileSequence: This is an InputSource
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// RootInputFileSequence - This is an InputSource
+//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
@@ -16,14 +15,14 @@ RootInputFileSequence: This is an InputSource
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-
+#include "boost/noncopyable.hpp"
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
-
 #include <memory>
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace CLHEP {
   class RandFlat;
@@ -114,6 +113,8 @@ namespace art {
     bool dropDescendants_;
   };  // RootInputFileSequence
 
-}  // namespace art
+}  // art
 
-#endif  // IOPool_Input_RootInputFileSequence_h
+// ======================================================================
+
+#endif

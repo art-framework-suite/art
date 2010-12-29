@@ -67,7 +67,7 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
     // with the relevant information.
     for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i)
     {
-    	categoryToInfos_[(*i)->category()] = (*i)->available();
+        categoryToInfos_[(*i)->category()] = (*i)->available();
     }
 
     //read in the files
@@ -164,8 +164,8 @@ PluginManager::loadableFor(const std::string& iCategory,
 
 const boost::filesystem::path&
 PluginManager::loadableFor_(const std::string& iCategory,
-			    const std::string& iPlugin,
-			    bool& ioThrowIfFailElseSucceedStatus)
+                            const std::string& iPlugin,
+                            bool& ioThrowIfFailElseSucceedStatus)
 {
   // JBK changed
   FDEBUG(2) << "loadableFor_: Plugin name = " << iPlugin << "\n";
@@ -179,17 +179,17 @@ PluginManager::loadableFor_(const std::string& iCategory,
   if(itFound == categoryToInfos_.end())
     {
       if(throwIfFail)
-	{
-	  throw cet::exception("PluginNotFound")
-	    << "Unable to find plugin '"<<iPlugin
-	    << "' because the category '"<<iCategory<<"' has no known plugins";
-	}
+        {
+          throw cet::exception("PluginNotFound")
+            << "Unable to find plugin '"<<iPlugin
+            << "' because the category '"<<iCategory<<"' has no known plugins";
+        }
       else
-	{
-	  ioThrowIfFailElseSucceedStatus = false;
-	  static boost::filesystem::path s_path;
-	  return s_path;
-	}
+        {
+          ioThrowIfFailElseSucceedStatus = false;
+          static boost::filesystem::path s_path;
+          return s_path;
+        }
     }
 
   PluginInfo i;
@@ -204,42 +204,42 @@ PluginManager::loadableFor_(const std::string& iCategory,
   if(range.first == range.second)
     {
       if(throwIfFail)
-	{
-	  throw cet::exception("PluginNotFound")
-	    <<"Unable to find plugin '"<<iPlugin
-	    <<"'. Please check spelling of name.";
-	}
+        {
+          throw cet::exception("PluginNotFound")
+            <<"Unable to find plugin '"<<iPlugin
+            <<"'. Please check spelling of name.";
+        }
       else
-	{
-	  ioThrowIfFailElseSucceedStatus = false;
-	  static boost::filesystem::path s_path;
-	  return s_path;
-	}
+        {
+          ioThrowIfFailElseSucceedStatus = false;
+          static boost::filesystem::path s_path;
+          return s_path;
+        }
     }
 
   if(range.second - range.first > 1 )
     {
       //see if the come from the same directory
       if(range.first->loadable_.branch_path() == (range.first+1)->loadable_.branch_path())
-	{
-	  //std::cout<<range.first->name_ <<" " <<(range.first+1)->name_<<std::endl;
-	  throw cet::exception("MultiplePlugins")
-	    <<"The plugin '"<<iPlugin<<"' is found in multiple files \n"
-	    " '"<<range.first->loadable_.leaf()<<"'\n '"
-	    <<(range.first+1)->loadable_.leaf()<<"'\n"
-	    "in directory '"
-	    <<range.first->loadable_.branch_path().native_file_string()<<"'.\n"
-	    " The code must be changed so the plugin only "
-	    " appears in one plugin file. "
-	    " You will need to remove the macro which registers the plugin"
-	    " so it only appears in"
-	    " one of these files.\n"
-	    " If none of these files register such a plugin, "
-	    " then the problem originates in a library to which all these"
-	    " files link.\n"
-	    " The plugin registration must be removed from that library "
-	    " since plugins are not allowed in regular libraries.";
-	}
+        {
+          //std::cout<<range.first->name_ <<" " <<(range.first+1)->name_<<std::endl;
+          throw cet::exception("MultiplePlugins")
+            <<"The plugin '"<<iPlugin<<"' is found in multiple files \n"
+            " '"<<range.first->loadable_.leaf()<<"'\n '"
+            <<(range.first+1)->loadable_.leaf()<<"'\n"
+            "in directory '"
+            <<range.first->loadable_.branch_path().native_file_string()<<"'.\n"
+            " The code must be changed so the plugin only "
+            " appears in one plugin file. "
+            " You will need to remove the macro which registers the plugin"
+            " so it only appears in"
+            " one of these files.\n"
+            " If none of these files register such a plugin, "
+            " then the problem originates in a library to which all these"
+            " files link.\n"
+            " The plugin registration must be removed from that library "
+            " since plugins are not allowed in regular libraries.";
+        }
     }
 
   return range.first->loadable_;
@@ -267,7 +267,7 @@ private:
 
 
 const SharedLibrary& PluginManager::load(const std::string& iCategory,
-					 const std::string& iPlugin)
+                                         const std::string& iPlugin)
 {
   return *tryToLoad(iCategory, iPlugin);
 

@@ -11,4 +11,4 @@ namespace art {
   GeneratedInputSource::~GeneratedInputSource()
   { }
 
-}  // namespace art
+}  // art

@@ -13,13 +13,12 @@
 #include "fhiclcpp/ParameterSet.h"
 #include <memory>
 
-using fhicl::ParameterSet;
-
-// Contents:
 namespace art {
   class RandomNumberSaver;
 }
+
 using art::RandomNumberSaver;
+using fhicl::ParameterSet;
 
 // ======================================================================
 

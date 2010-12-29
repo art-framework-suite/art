@@ -16,9 +16,11 @@
 #include "boost/array.hpp"
 #include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
-#include <memory>  // auto_ptr
+#include <memory>
 #include <string>
 #include <vector>
+
+// ----------------------------------------------------------------------
 
 namespace art {
   class RootInputFileSequence;
@@ -89,4 +91,4 @@ private:
 
 // ======================================================================
 
-#endif  // IOPool_Input_PoolSource_h
+#endif

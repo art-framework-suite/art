@@ -34,13 +34,11 @@ for every event.
 
 ----------------------------------------------------------------------*/
 
-#include <string>
-
-#include "boost/type_traits.hpp"
-#include "boost/utility/enable_if.hpp"
-
 #include "art/Framework/Core/SelectorBase.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "boost/type_traits.hpp"
+#include "boost/utility/enable_if.hpp"
+#include <string>
 
 namespace art
 {

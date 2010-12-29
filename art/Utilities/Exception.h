@@ -1,5 +1,5 @@
-#ifndef ART__EXCEPTION_H
-#define ART__EXCEPTION_H
+#ifndef ART_EXCEPTION_H
+#define ART_EXCEPTION_H
 
 // ======================================================================
 //
@@ -9,6 +9,8 @@
 
 #include "cetlib/coded_exception.h"
 #include <string>
+
+// ----------------------------------------------------------------------
 
 namespace art {
   namespace errors {
@@ -64,4 +66,4 @@ namespace art {
 
 // ======================================================================
 
-#endif  // ART__EXCEPTION_H
+#endif

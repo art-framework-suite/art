@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "boost/shared_ptr.hpp"
@@ -16,6 +15,7 @@
 #include <map>
 #include <set>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -66,6 +66,8 @@ namespace art {
     return os;
   }
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_BranchMapper_h
+// ======================================================================
+
+#endif

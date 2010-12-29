@@ -76,7 +76,7 @@ namespace arttest
     // Nothing to do.
   }
 
-} // namespace arttest
+} // arttest
 
 using arttest::TestHistoryKeeping;
 DEFINE_FWK_MODULE(TestHistoryKeeping);

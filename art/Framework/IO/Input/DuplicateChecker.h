@@ -1,28 +1,25 @@
 #ifndef DataFormats_Provenance_DuplicateChecker_h
 #define DataFormats_Provenance_DuplicateChecker_h
 
-
-/*----------------------------------------------------------------------
-
-IOPool/Input/src/DuplicateChecker.h
-
-Used by PoolSource to detect events with
-the same run and event number.  It is configurable
-whether it checks for duplicates within the scope
-of each single input file or all input files or
-not at all.
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// DuplicateChecker - Used by PoolSource to detect events with the same
+//                    run and event number.
+//
+// The class can be configured to check for duplicates
+//   - within the scope of each single input file, or
+//   - all input files, or
+//   - not at all.
+//
+// ======================================================================
 
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <set>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -57,8 +54,10 @@ namespace art {
     std::set<EventID> eventIDs_;
 
     bool itIsKnownTheFileHasNoDuplicates_;
-  };
+  };  // DuplicateChecker
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_DuplicateChecker_h
+// ======================================================================
+
+#endif

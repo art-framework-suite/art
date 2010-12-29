@@ -7,12 +7,12 @@
 
 namespace art {
   void
-  ProductIDStreamer::operator()(TBuffer &R__b, void *objp) {
-    if (R__b.IsReading()) {
+  ProductIDStreamer::operator()(TBuffer &R_b, void *objp) {
+    if (R_b.IsReading()) {
       UInt_t i0, i1;
-      R__b.ReadVersion(&i0, &i1, cl_);
+      R_b.ReadVersion(&i0, &i1, cl_);
       unsigned int id;
-      R__b >> id;
+      R_b >> id;
       ProductID pid;
       pid.oldID() = id;
       ProductID* obj = static_cast<ProductID *>(objp);
@@ -23,9 +23,9 @@ namespace art {
   }
 
   void
-  RefCoreStreamer::operator()(TBuffer &R__b, void *objp) {
-    if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
+  RefCoreStreamer::operator()(TBuffer &R_b, void *objp) {
+    if (R_b.IsReading()) {
+      cl_->ReadBuffer(R_b, objp);
       RefCore* obj = static_cast<RefCore *>(objp);
       obj->setProductGetter(prodGetter_);
       obj->setProductPtr(0);
@@ -35,10 +35,10 @@ namespace art {
   }
 
   void
-  RefCoreTransientStreamer::operator()(TBuffer &R__b, void *objp) {
+  RefCoreTransientStreamer::operator()(TBuffer &R_b, void *objp) {
     typedef RefCore::RefCoreTransients RefCoreTransients;
-    if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
+    if (R_b.IsReading()) {
+      cl_->ReadBuffer(R_b, objp);
       RefCoreTransients* obj = static_cast<RefCoreTransients *>(objp);
       obj->setProductGetter(prodGetter_);
       obj->setProductPtr(0);
@@ -48,7 +48,7 @@ namespace art {
         throw Exception(errors::InvalidReference,"Inconsistency")
           << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
       }
-      cl_->WriteBuffer(R__b, objp);
+      cl_->WriteBuffer(R_b, objp);
     }
   }
 

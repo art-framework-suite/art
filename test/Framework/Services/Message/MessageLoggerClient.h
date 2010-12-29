@@ -34,7 +34,7 @@ private:
 };
 
 
-}  // namespace arttest
+}  // arttest
 
 
-#endif  // Integration_MessageLoggerClient_h
+#endif

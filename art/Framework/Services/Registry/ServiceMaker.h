@@ -10,7 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include "art/Utilities/TypeIDBase.h"
-#include <memory>  // auto_ptr
+#include <memory>
 
 namespace art {
   class ActivityRegistry;
@@ -45,4 +45,4 @@ art::TypeIDBase \
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceMaker_h
+#endif

@@ -1,9 +1,8 @@
 #include "art/Framework/IO/Sources/VectorInputSourceFactory.h"
+
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <iostream>
 
 
@@ -30,7 +29,7 @@ namespace art {
 
   std::auto_ptr<VectorInputSource>
   VectorInputSourceFactory::makeVectorInputSource(fhicl::ParameterSet const& conf,
-					InputSourceDescription const& desc) const
+                                        InputSourceDescription const& desc) const
 
   {
     std::string modtype = conf.get<std::string>("@module_type");
@@ -39,19 +38,19 @@ namespace art {
 
     if(wm.get()==0)
       {
-	throw art::Exception(errors::Configuration,"NoSourceModule")
-	  << "VectorInputSource Factory:\n"
-	     "Cannot find source type from ParameterSet: "
-	  << modtype << "\n"
-	  << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
-	     "Try running EdmPluginDump to obtain a list of available Plugins.";
+        throw art::Exception(errors::Configuration,"NoSourceModule")
+          << "VectorInputSource Factory:\n"
+             "Cannot find source type from ParameterSet: "
+          << modtype << "\n"
+          << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
+             "Try running EdmPluginDump to obtain a list of available Plugins.";
       }
 
     FDEBUG(1) << "VectorInputSourceFactory: created input source "
-	      << modtype
-	      << std::endl;
+              << modtype
+              << std::endl;
 
     return wm;
   }
 
-}  // namespace art
+}  // art

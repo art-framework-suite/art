@@ -1,18 +1,22 @@
 #ifndef FWCore_Framework_WorkerMaker_h
 #define FWCore_Framework_WorkerMaker_h
 
+// ======================================================================
+//
+// WorkerMaker
+//
+// ======================================================================
 
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
-
 #include "fhiclcpp/ParameterSet.h"
 #include "sigc++/signal.h"
-
 #include <memory>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -25,7 +29,7 @@ namespace art {
   protected:
     ModuleDescription createModuleDescription(WorkerParams const &p) const;
     void throwConfigurationException(ModuleDescription const &md, sigc::signal<void, ModuleDescription const&>& post, cet::exception const& iException) const;
-  };
+  };  // Maker
 
   template <class T>
   class WorkerMaker : public Maker {
@@ -35,7 +39,7 @@ namespace art {
     virtual std::auto_ptr<Worker> makeWorker(WorkerParams const&,
                                      sigc::signal<void, ModuleDescription const&>&,
                                      sigc::signal<void, ModuleDescription const&>&) const;
-  };
+  };  // WorkerMaker<>
 
   template <class T>
   WorkerMaker<T>::WorkerMaker() {
@@ -64,6 +68,8 @@ namespace art {
     return worker;
   }
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_WorkerMaker_h
+// ======================================================================
+
+#endif

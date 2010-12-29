@@ -96,6 +96,6 @@ namespace art {
     a.swap(b);
   }
 
-} // namespace art;
+} // art;
 
 #endif

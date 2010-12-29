@@ -9,7 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
-#include <memory>  // auto_ptr
+#include <memory>
 
 namespace art {
   template< class T >
@@ -46,4 +46,4 @@ private:
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceWrapper_h
+#endif

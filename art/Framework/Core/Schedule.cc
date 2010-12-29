@@ -1,3 +1,9 @@
+// ======================================================================
+//
+// Schedule
+//
+// ======================================================================
+
 #include "art/Framework/Core/Schedule.h"
 
 #include "art/Framework/Core/EDFilter.h"
@@ -303,7 +309,7 @@ namespace art {
       }
       (*it)->configure(desc);
     }
-  #endif // 0
+  #endif
   }
 
   bool const Schedule::terminate() const {
@@ -915,4 +921,6 @@ namespace art {
     }
   }
 
-}  // namespace art
+}  // art
+
+// ======================================================================

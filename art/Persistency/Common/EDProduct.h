@@ -8,20 +8,14 @@
 //
 // ======================================================================
 
-
 #include "art/Persistency/Common/EDProductfwd.h"
-
 #include <vector>
 
-
-// Contents:
 namespace art {
   class EDProduct;
 }
 
-
 // ======================================================================
-
 
 class art::EDProduct
 {
@@ -68,7 +62,7 @@ public:
     isProductEqual( EDProduct const * newProduct ) const
   { return isProductEqual_(newProduct); }
 
-#endif  // __REFLEX__
+#endif
 
 private:
   // These will never be called.
@@ -93,7 +87,7 @@ private:
   virtual bool
     isProductEqual_( EDProduct const * newProduct ) const
   { return true; }
-#endif  // __REFLEX__
+#endif
 
 #if 0
 virtual void
@@ -105,11 +99,10 @@ virtual void
     do_fillPtrVector( std::type_info const &             iToType
                     , std::vector<unsigned long> const & iIndicies
                     , std::vector<void const *> &        oPtr ) const = 0;
-#endif  // 0
+#endif
 
 };  // EDProduct
 
-
 // ======================================================================
 
-#endif  // DataFormats_Common_EDProduct_h
+#endif

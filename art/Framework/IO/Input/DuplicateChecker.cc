@@ -103,4 +103,4 @@ namespace art {
     return false;
   }
 
-}  // namespace art
+}  // art

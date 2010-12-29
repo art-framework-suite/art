@@ -141,7 +141,7 @@ class PluginFactoryBase
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const {
         //should check to see if this is from the proper loadable if it
         // was not statically linked
-	return;
+        return;
         if (iLoadedFrom != PluginManager::staticallyLinkedLoadingFileName() &&
             PluginManager::isAvailable()) {
           if( iLoadedFrom != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
@@ -157,5 +157,6 @@ class PluginFactoryBase
 
 };
 
-}
+}  // artplugin
+
 #endif

@@ -3,10 +3,11 @@
 #ifndef FWCore_Utilities_RegexMatch_h
 #define FWCore_Utilities_RegexMatch_h
 
-#include <vector>
+#include "boost/regex_fwd.hpp"
 #include <string>
+#include <vector>
 
-#include <boost/regex_fwd.hpp>
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -22,6 +23,8 @@ namespace art {
   std::vector<std::vector<std::string>::const_iterator>
   regexMatch(std::vector<std::string> const& strings, std::string const& pattern);
 
-}
+}  // art
 
-#endif // FWCore_Utilities_RegexMatch_h
+// ======================================================================
+
+#endif

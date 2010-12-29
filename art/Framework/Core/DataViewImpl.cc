@@ -9,16 +9,14 @@
 #include "cetlib/container_algorithms.h"
 #include <algorithm>
 
-
 using namespace cet;
 using namespace std;
-
 
 namespace art {
 
   DataViewImpl::DataViewImpl(Principal & pcpl,
-	ModuleDescription const& md,
-	BranchType const& branchType)  :
+        ModuleDescription const& md,
+        BranchType const& branchType)  :
     putProducts_(),
     principal_(pcpl),
     md_(md),
@@ -48,8 +46,8 @@ namespace art {
 
   void
   DataViewImpl::getMany_(TypeID const& tid,
-		  SelectorBase const& sel,
-		  BasicHandleVec& results) const
+                  SelectorBase const& sel,
+                  BasicHandleVec& results) const
   {
     principal_.getMany(tid, sel, results);
   }
@@ -57,8 +55,8 @@ namespace art {
   BasicHandle
   DataViewImpl::getByLabel_(TypeID const& tid,
                      string const& label,
-  	             string const& productInstanceName,
-  	             string const& processName) const
+                     string const& productInstanceName,
+                     string const& processName) const
   {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
@@ -71,7 +69,7 @@ namespace art {
 
   void
   DataViewImpl::getManyByType_(TypeID const& tid,
-		  BasicHandleVec& results) const
+                  BasicHandleVec& results) const
   {
     principal_.getManyByType(tid, results);
   }
@@ -118,9 +116,9 @@ namespace art {
                       art::ProcessNameSelector(processName) );
 
     int n = principal_.getMatchingSequence(typeID,
-  				   sel,
-  				   results,
-  				   stopIfProcessHasMatch);
+                                   sel,
+                                   results,
+                                   stopIfProcessHasMatch);
     return n;
   }
 
@@ -132,23 +130,23 @@ namespace art {
 
   ConstBranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
-				     string const& productInstanceName) const {
+                                     string const& productInstanceName) const {
     string friendlyClassName = type.friendlyClassName();
         BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
     ProductRegistry::ConstProductList const& pl = principal_.productRegistry().constProductList();
     ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {
       throw art::Exception(art::errors::InsertFailure)
-	<< "Illegal attempt to 'put' an unregistered product.\n"
-	<< "No product is registered for\n"
-	<< "  process name:                '" << bk.processName_ << "'\n"
-	<< "  module label:                '" << bk.moduleLabel_ << "'\n"
-	<< "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
-	<< "  product instance name:       '" << bk.productInstanceName_ << "'\n"
+        << "Illegal attempt to 'put' an unregistered product.\n"
+        << "No product is registered for\n"
+        << "  process name:                '" << bk.processName_ << "'\n"
+        << "  module label:                '" << bk.moduleLabel_ << "'\n"
+        << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
+        << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
 
-	<< "The ProductRegistry contains:\n"
-	<< principal_.productRegistry()
-	<< '\n';
+        << "The ProductRegistry contains:\n"
+        << principal_.productRegistry()
+        << '\n';
     }
     if(it->second.branchType() != branchType_) {
         throw art::Exception(art::errors::InsertFailure,"Not Registered")
@@ -170,4 +168,5 @@ namespace art {
   DataViewImpl::prodGetter() const{
     return principal_.prodGetter();
   }
-}
+
+}  // art

@@ -1176,4 +1176,4 @@ namespace art {
   }
   // end backward compatibility
 
-}  // namespace art
+}  // art

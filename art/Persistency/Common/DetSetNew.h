@@ -92,4 +92,6 @@ namespace artNew {
   };
 }
 
-#endif // DataFormats_Common_DetSet_h
+// ======================================================================
+
+#endif

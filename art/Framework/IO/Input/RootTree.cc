@@ -74,8 +74,8 @@ namespace art {
 
   void
   RootTree::addBranch(BranchKey const& key,
-		      BranchDescription const& prod,
-		      std::string const& oldBranchName) {
+                      BranchDescription const& prod,
+                      std::string const& oldBranchName) {
       assert(isValid());
       prod.init();
       //use the translated branch name
@@ -97,21 +97,21 @@ namespace art {
       //use the translated branch name
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
       if (branch != 0) {
-	TObjArray * leaves = tree_->GetListOfLeaves();
-	int entries = leaves->GetEntries();
-	for (int i = 0; i < entries; ++i) {
-	  TLeaf *leaf = (TLeaf *)(*leaves)[i];
-	  if (leaf == 0) continue;
-	  TBranch* br = leaf->GetBranch();
-	  if (br == 0) continue;
-	  if (br->GetMother() == branch) {
-	    leaves->Remove(leaf);
-	  }
-	}
-	leaves->Compress();
-	tree_->GetListOfBranches()->Remove(branch);
-	tree_->GetListOfBranches()->Compress();
-	delete branch;
+        TObjArray * leaves = tree_->GetListOfLeaves();
+        int entries = leaves->GetEntries();
+        for (int i = 0; i < entries; ++i) {
+          TLeaf *leaf = (TLeaf *)(*leaves)[i];
+          if (leaf == 0) continue;
+          TBranch* br = leaf->GetBranch();
+          if (br == 0) continue;
+          if (br->GetMother() == branch) {
+            leaves->Remove(leaf);
+          }
+        }
+        leaves->Compress();
+        tree_->GetListOfBranches()->Remove(branch);
+        tree_->GetListOfBranches()->Compress();
+        delete branch;
       }
   }
 
@@ -136,13 +136,13 @@ namespace art {
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
     if (TTreeCache *tc = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead())) {
       if (theEntryNumber >= 0 && tc->GetOwner() == tree_ && tc->IsLearning()) {
-	tc->SetLearnEntries(1);
-	tc->SetEntryRange(0, tree_->GetEntries());
+        tc->SetLearnEntries(1);
+        tc->SetEntryRange(0, tree_->GetEntries());
         for (BranchMap::const_iterator i = branches_->begin(), e = branches_->end(); i != e; ++i) {
-	  if (i->second.productBranch_) {
-	    tc->AddBranch(i->second.productBranch_, kTRUE);
-	  }
-	}
+          if (i->second.productBranch_) {
+            tc->AddBranch(i->second.productBranch_, kTRUE);
+          }
+        }
         tc->StopLearningPhase();
       }
     }
@@ -160,7 +160,7 @@ namespace art {
         n = branch->GetEntry(entryNumber);
       }
       catch(cet::exception e) {
-	throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
+        throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
       }
       return n;
     }
@@ -172,10 +172,10 @@ namespace art {
         n = tree->GetEntry(entryNumber);
       }
       catch(cet::exception e) {
-	throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
+        throw art::Exception(art::errors::FileReadError) << e.explain_self() << "\n";
       }
       return n;
     }
 
-  }  // namespace input
-}  // namespace art
+  }  // input
+}  // art

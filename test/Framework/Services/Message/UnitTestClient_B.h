@@ -37,7 +37,7 @@ private:
 };
 
 
-}  // namespace arttest
+}  // arttest
 
 
-#endif  // FWCore_MessageService_test_UnitTestClient_B_h
+#endif

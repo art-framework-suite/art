@@ -1,12 +1,11 @@
 #ifndef Framework_Actions_h
 #define Framework_Actions_h
 
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <map>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -21,7 +20,7 @@ namespace art {
     };
 
     const char* actionName(ActionCodes code);
-  }  // namespace actions
+  }  // actions
 
   class ActionTable {
   public:
@@ -37,8 +36,10 @@ namespace art {
   private:
     void addDefaults();
     ActionMap map_;
-  };
+  };  // ActionTable
 
-}  // namespace art
+}  // art
 
-#endif  // Framework_Actions_h
+// ======================================================================
+
+#endif

@@ -6,10 +6,12 @@
 #include "art/Persistency/Provenance/Transient.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
 
-#include "art/Persistency/Provenance/EventEntryDescription.h" // backward compatibility
-#include "art/Persistency/Provenance/EventEntryInfo.h" // backward compatibility
+// backward compatibility:
+#include "art/Persistency/Provenance/EventEntryDescription.h"
+#include "art/Persistency/Provenance/EventEntryInfo.h"
 
 namespace art {
+
   void setTransientStreamers() {
     SetTransientStreamer<Transient<BranchDescription::Transients> >();
     SetTransientStreamer<Transient<ProductProvenance::Transients> >();
@@ -19,4 +21,5 @@ namespace art {
     SetTransientStreamer<Transient<EventEntryDescription::Transients> >(); // backward compatibility
     SetTransientStreamer<Transient<EventEntryInfo::Transients> >(); // backward compatibility
   }
-}
+
+}  // art

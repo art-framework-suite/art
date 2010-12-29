@@ -1,9 +1,11 @@
 #ifndef DataFormats_Provenance_HashedTypes_h
 #define DataFormats_Provenance_HashedTypes_h
 
-
-/// Declaration of the enum HashedTypes, used in defining several "id"
-/// classes.
+// ======================================================================
+//
+// enum HashedTypes, used in defining several "id" classes.
+//
+// ======================================================================
 
 namespace art
 {
@@ -17,4 +19,6 @@ namespace art
   };
 }
 
-#endif // DataFormats_Provenance_HashedTypes_h
+// ======================================================================
+
+#endif

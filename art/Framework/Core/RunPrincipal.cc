@@ -1,4 +1,5 @@
 #include "art/Framework/Core/RunPrincipal.h"
+
 #include "art/Framework/Core/Group.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -85,4 +86,4 @@ namespace art {
       addOrReplaceGroup(g);
     }
   }
-}
+}  // art

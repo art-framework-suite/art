@@ -42,7 +42,7 @@ private:
 };
 
 
-}  // namespace arttest
+}  // arttest
 
 
-#endif  // FWCore_MessageService_test_MemoryTestClient_B_h
+#endif

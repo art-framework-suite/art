@@ -146,5 +146,5 @@ namespace art {
        return itFound->second;
     }
   }
-} // namespace art
+}  // art
 

@@ -16,7 +16,7 @@ namespace art {
     // Suffixes
 #ifdef FW_BACKWARD_COMPATIBILITY
     std::string const aux                      = "Aux";
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
     std::string const auxiliary                = "Auxiliary";
     std::string const branchEntryInfo          = "BranchEntryInfo";
     std::string const majorIndex               = ".id_.run_";
@@ -42,7 +42,7 @@ namespace art {
     std::string const runInfo                  = run   + statusInformation;
     std::string const subRunInfo                 = subRun  + statusInformation;
     std::string const eventInfo                = event + statusInformation;
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
     std::string const runAuxiliary             = run   + auxiliary;
     std::string const subRunAuxiliary            = subRun  + auxiliary;
@@ -52,7 +52,7 @@ namespace art {
     std::string const runProductStatus         = run   + productStatus;
     std::string const subRunProductStatus        = subRun  + productStatus;
     std::string const eventProductStatus       = event + productStatus;
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
     std::string const runEventEntryInfo        = run   + branchEntryInfo;
     std::string const subRunEventEntryInfo       = subRun  + branchEntryInfo;
@@ -70,13 +70,13 @@ namespace art {
     std::string const runAux                   = run   + aux;
     std::string const subRunAux                  = subRun  + aux;
     std::string const eventAux                 = event + aux;
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
 #ifdef FW_OBSOLETE
     std::string const entryDescriptionTree     = "EntryDescription";
     std::string const entryDescriptionIDBranch = "Hash";
     std::string const entryDescriptionBranch   = "Description";
-#endif  // FW_OBSOLETE
+#endif
 
     std::string const parentageTree            = "Parentage";
     std::string const parentageIDBranch        = "Hash";
@@ -130,7 +130,7 @@ namespace art {
   std::string const & BranchTypeToInfoTreeName( BranchType bt ) {
     select( bt, eventInfo, runInfo, subRunInfo );
   }
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType bt ) {
     select( bt, eventAuxiliary, runAuxiliary, subRunAuxiliary );
@@ -140,13 +140,13 @@ namespace art {
   std::string const & BranchTypeToAuxBranchName( BranchType bt ) {
     select( bt, eventAux, runAux, subRunAux );
   }
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToProductStatusBranchName( BranchType bt ) {
     select( bt, eventProductStatus, runProductStatus, subRunProductStatus );
   }
-#endif  // FW_BACKWARD_COMPATIBILITY
+#endif
 
   std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType bt ) {
     select( bt, eventEventEntryInfo, runEventEntryInfo, subRunEventEntryInfo );
@@ -175,7 +175,7 @@ namespace art {
     std::string const & entryDescriptionBranchName( ) {
       return entryDescriptionBranch;
     }
-#endif  // FW_OBSOLETE
+#endif
 
     // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)
     std::string const & parentageTreeName( ) {
@@ -215,7 +215,7 @@ namespace art {
     std::string const & moduleDescriptionMapBranchName( ) {
       return moduleDescriptionMap;
     }
-#endif  // FW_OBSOLETE
+#endif
 
     // Branch on MetaData Tree
     std::string const & processHistoryMapBranchName( ) {
@@ -264,4 +264,7 @@ namespace art {
       return eventHistory;
     }
   }
-}
+
+}  // art
+
+// ======================================================================

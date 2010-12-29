@@ -1,20 +1,20 @@
 #ifndef Framework_Frameworkfwd_h
 #define Framework_Frameworkfwd_h
 
-/*----------------------------------------------------------------------
-
-Forward declarations of types in the EDM.
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// Forward declarations of types in the EDM.
+//
+// ======================================================================
 
 #include "art/Persistency/Common/EDProductfwd.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-
 #include "fhiclcpp/ParameterSet.h"
 
+// ----------------------------------------------------------------------
 
 namespace art {
+
   class ConfigurableInputSource;
   class CurrentProcessingContext;
   class DataViewImpl;
@@ -51,10 +51,12 @@ namespace art {
   struct PathSummary;
   struct TriggerReport;
   template <typename T> class View;
-}
+
+}  // art
 
 // The following are trivial enough so that the real headers can be included.
 #include "art/Framework/Core/BranchActionType.h"
 
+// ======================================================================
 
-#endif  // Framework_Frameworkfwd_h
+#endif

@@ -119,4 +119,4 @@ namespace art {
         << "Contact a Framework developer.\n";
   }
 
-}  // namespace art
+}  // art

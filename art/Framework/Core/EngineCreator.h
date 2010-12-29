@@ -8,14 +8,11 @@
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Framework/Services/Basic/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 
-
-// ======================================================================
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -54,6 +51,8 @@ namespace art {
 
   };  // EngineCreator
 
-}  // namespace art
+}  // art
 
-#endif  // EngineCreator_h
+// ======================================================================
+
+#endif

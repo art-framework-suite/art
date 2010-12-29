@@ -8,9 +8,10 @@ input source that does not come in through the ParameterSet
 
 
 ----------------------------------------------------------------------*/
-#include <string>
-#include "boost/shared_ptr.hpp"
+
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "boost/shared_ptr.hpp"
+#include <string>
 
 namespace art {
   class ProductRegistry;
@@ -37,6 +38,7 @@ namespace art {
     int maxEvents_;
     int maxSubRuns_;
   };
-}
+
+}  // art
 
 #endif

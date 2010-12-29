@@ -67,4 +67,4 @@ namespace art {
     return wm;
   }
 
-}  // namespace art
+}  // art

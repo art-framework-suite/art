@@ -1,28 +1,31 @@
 #ifndef Framework_GeneratedInputSource_h
 #define Framework_GeneratedInputSource_h
 
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// GeneratedInputSource
+//
+// ======================================================================
 
 #include "art/Framework/Core/ConfigurableInputSource.h"
-
 #include "fhiclcpp/ParameterSet.h"
 
-#include <memory>
-
+// ----------------------------------------------------------------------
 
 namespace art {
 
-  class GeneratedInputSource : public ConfigurableInputSource {
+  class GeneratedInputSource
+    : public ConfigurableInputSource
+  {
   public:
-    explicit GeneratedInputSource( fhicl::ParameterSet const& pset
-                                 , InputSourceDescription const& desc );
+    GeneratedInputSource( fhicl::ParameterSet    const & pset
+                        , InputSourceDescription const & desc );
     virtual ~GeneratedInputSource();
 
-  };
+  };  // GeneratedInputSource
 
-}  // namespace art
+}  // art
 
-#endif  // Framework_GeneratedInputSource_h
+// ======================================================================
+
+#endif

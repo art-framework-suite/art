@@ -98,4 +98,4 @@ namespace art {
     putProducts().clear();
   }
 
-}  // namespace art
+}  // art

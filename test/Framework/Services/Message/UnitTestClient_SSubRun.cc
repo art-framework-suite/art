@@ -70,7 +70,7 @@ void
 }
 
 
-}  // namespace arttest
+}  // arttest
 
 using arttest::UTC_SL1;
 using arttest::UTC_SL2;

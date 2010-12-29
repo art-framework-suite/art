@@ -10,7 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <set>
-#include <utility>  // make_pair
+#include <utility>
 
 using boost::shared_ptr;
 using fhicl::ParameterSet;

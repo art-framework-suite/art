@@ -13,17 +13,9 @@
     <usage>
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Fri Sep  2 14:17:17 EDT 2005
-//
-//
 
-// system include files
 #include "art/Framework/Core/EDAnalyzer.h"
-// user include files
 
-// forward declarations
 class TestFailuresAnalyzer : public art::EDAnalyzer {
 public:
    explicit TestFailuresAnalyzer(const art::ParameterSet&);
@@ -36,9 +28,8 @@ public:
    virtual void endJob();
 
 private:
-      // ----------member data ---------------------------
       int whichFailure_;
 };
 
 
-#endif /* test_TestFailuresAnalyzer_h */
+#endif

@@ -60,4 +60,4 @@ private:
 
 // ======================================================================
 
-#endif  // ServiceRegistry_ServiceToken_h
+#endif

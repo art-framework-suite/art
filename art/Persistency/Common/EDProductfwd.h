@@ -7,9 +7,7 @@
 //
 // ======================================================================
 
-
 #include "boost/shared_ptr.hpp"
-
 
 namespace art {
 
@@ -59,9 +57,8 @@ namespace art {
   typedef  boost::shared_ptr<reftobase::RefVectorHolderBase>
            helper_vector_ptr;
 
-}  // namespace art
-
+}  // art
 
 // ======================================================================
 
-#endif  // DataFormats_Common_EDProductfwd_h
+#endif

@@ -39,22 +39,20 @@ Some examples of InputSource subclasses may be:
 
 ----------------------------------------------------------------------*/
 
-
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include "sigc++/signal.h"
-
 #include <memory>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
   class ActivityRegistry;
@@ -310,6 +308,8 @@ namespace art {
     mutable boost::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
   };  // InputSource
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_InputSource_h
+// ======================================================================
+
+#endif

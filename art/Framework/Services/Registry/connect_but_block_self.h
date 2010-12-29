@@ -94,4 +94,6 @@ namespace art {
 
 }  // art
 
-#endif  // ServiceRegistry_connect_but_block_self_h
+// ======================================================================
+
+#endif

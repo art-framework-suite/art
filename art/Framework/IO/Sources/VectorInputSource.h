@@ -1,24 +1,19 @@
 #ifndef FWCore_Sources_VectorInputSource_h
 #define FWCore_Sources_VectorInputSource_h
 
-
-/*----------------------------------------------------------------------
-
-VectorInputSource: Abstract interface for vector input sources.
-
-----------------------------------------------------------------------*/
-
-
+// ======================================================================
+//
+// VectorInputSource - Abstract interface for vector input sources.
+//
+// ======================================================================
 
 #include "art/Framework/IO/Sources/EDInputSource.h"
-
-#include "fhiclcpp/ParameterSet.h"
 #include "boost/shared_ptr.hpp"
-
-#include <memory>
+#include "fhiclcpp/ParameterSet.h"
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
   class EventPrincipal;
@@ -44,6 +39,8 @@ namespace art {
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) = 0;
   };
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Sources_VectorInputSource_h
+// ======================================================================
+
+#endif

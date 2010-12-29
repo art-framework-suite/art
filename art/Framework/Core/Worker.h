@@ -1,11 +1,11 @@
 #ifndef FWCore_Framework_Worker_h
 #define FWCore_Framework_Worker_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+/*
 
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
-
 
 
 A worker will not actually call through to the module unless it is
@@ -21,8 +21,8 @@ will be rethrown if the worker is entered again and the state is not Ready.
 In other words, execution results (status) are cached and reused until
 the worker is reset().
 
-----------------------------------------------------------------------*/
-
+*/
+// ======================================================================
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/BranchActionType.h"
@@ -33,11 +33,11 @@ the worker is reset().
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "cetlib/exception.h"
-
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/exception.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -312,6 +312,8 @@ namespace art {
     return rc;
   }
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_Worker_h
+// ======================================================================
+
+#endif

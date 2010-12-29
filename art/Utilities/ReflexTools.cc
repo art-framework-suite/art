@@ -1,6 +1,8 @@
 #include "art/Utilities/ReflexTools.h"
 
-#include "Api.h" // for G__ClassInfo
+// for G__ClassInfo:
+#include "Api.h"
+
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
@@ -11,7 +13,6 @@
 #include <algorithm>
 #include <sstream>
 
-
 using Reflex::Base;
 using Reflex::FINAL;
 using Reflex::Member;
@@ -20,7 +21,6 @@ using Reflex::SCOPED;
 using Reflex::Type;
 using Reflex::TypeTemplate;
 using Reflex::Type_Iterator;
-
 
 using namespace cet;
 using namespace std;
@@ -223,7 +223,7 @@ namespace art
 	}
       }
     }
-  } // end unnamed namespace
+  }  // namespace
 
   StringSet & missingTypes() {
     static boost::thread_specific_ptr<StringSet> missingTypes_;
@@ -326,4 +326,4 @@ namespace art
     return obj.CastObject(Type::ByTypeInfo(toType)).Address();
   }
 
-}  // namespace art
+}  // art

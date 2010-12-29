@@ -3,10 +3,6 @@
 
 /** \class art::TriggerResults
  *
- *  Original Authors: Jim Kowalkowski 13-01-06
- *                    Martin Grunewald
- *
- *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
  *  they appeared in the process-level pset.  (They are actually
@@ -25,15 +21,13 @@
  *
  */
 
-
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/traits.h"
-
 #include "fhiclcpp/ParameterSetID.h"
-
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -42,29 +36,29 @@ namespace art {
     typedef std::vector<std::string> Strings;
 
   private:
-    /// Parameter set id
+    // Parameter set id
     fhicl::ParameterSetID psetid_;
 
-    /// Not used anymore
+    // Not used anymore
     Strings             names_;
 
   public:
 
-    /// Trivial contructor
+    // Trivial contructor
     TriggerResults() : HLTGlobalStatus(), psetid_(), names_() { }
 
-    /// Standard contructor
+    // Standard contructor
     TriggerResults(const HLTGlobalStatus& hlt, const fhicl::ParameterSetID& psetid)
       : HLTGlobalStatus(hlt), psetid_(psetid), names_() { }
 
-    /// Not used anymore
+    // Not used anymore
     TriggerResults(const HLTGlobalStatus& hlt, const Strings& names)
       : HLTGlobalStatus(hlt), psetid_(), names_(names) { }
 
-    /// Get stored parameter set id
+    // Get stored parameter set id
     const fhicl::ParameterSetID& parameterSetID() const { return psetid_; }
 
-    /// swap function
+    // swap function
     void swap(TriggerResults& other) {
       this->HLTGlobalStatus::swap(other);
       psetid_.swap(other.psetid_);
@@ -72,7 +66,7 @@ namespace art {
       names_.swap(other.names_);
     }
 
-    /// Copy assignment using swap.
+    // Copy assignment using swap.
     TriggerResults& operator=(TriggerResults const& rhs) {
       TriggerResults temp(rhs);
       this->swap(temp);
@@ -82,19 +76,19 @@ namespace art {
     // The next three functions are OBSOLETE and should only be used for backward
     // compatibility to older data.  The names_ vector is always empty in new data.
 
-    /// Obsolete
+    // Obsolete
     const std::vector<std::string>& getTriggerNames() const { return names_; }
 
-    /// Obsolete
+    // Obsolete
     const std::string& name(unsigned int i) const {return names_.at(i);}
 
-    /// Obsolete
+    // Obsolete
     unsigned int find (const std::string& name) const {
       const unsigned int n(size());
       for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
       return n;
     }
-  };
+  };  // TriggerResults
 
   // Free swap function
   inline
@@ -103,6 +97,8 @@ namespace art {
     lhs.swap(rhs);
   }
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Common_TriggerResults_h
+// ======================================================================
+
+#endif

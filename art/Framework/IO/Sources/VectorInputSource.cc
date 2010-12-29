@@ -40,4 +40,4 @@ namespace art {
     this->dropUnwantedBranches_(wantedBranches);
   }
 
-}  // namespace art
+}  // art

@@ -11,13 +11,10 @@ This struct is used to communication parameters into the worker factory.
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <string>
 
-namespace art
-{
+namespace art {
   class ProductRegistry;
   class ActionTable;
 
@@ -28,12 +25,12 @@ namespace art
       processName_(),releaseVersion_(),passID_() { }
 
     WorkerParams(fhicl::ParameterSet const& procPset,
-		 fhicl::ParameterSet const& pset,
-		 ProductRegistry& reg,
-		 ActionTable& actions,
-		 std::string const& processName,
-		 std::string releaseVersion=getReleaseVersion(),
-		 std::string passID=getPassID()):
+                 fhicl::ParameterSet const& pset,
+                 ProductRegistry& reg,
+                 ActionTable& actions,
+                 std::string const& processName,
+                 std::string releaseVersion=getReleaseVersion(),
+                 std::string passID=getPassID()):
       procPset_(&procPset),pset_(&pset),reg_(&reg),actions_(&actions),
       processName_(processName),releaseVersion_(releaseVersion),passID_(passID) { }
 
@@ -45,6 +42,7 @@ namespace art
     ReleaseVersion releaseVersion_;
     PassID passID_;
   };
-}
+
+}  // art
 
 #endif

@@ -8,4 +8,4 @@ namespace art {
     return os;
   }
 
-}  // namespace art
+}  // art

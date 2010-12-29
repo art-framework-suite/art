@@ -1,7 +1,7 @@
 #ifndef Framework_EventSelector_h
 #define Framework_EventSelector_h
 
-
+// ======================================================================
 // Change Log
 //
 // 1 - Mark Fischler Feb 6, 2008
@@ -9,18 +9,17 @@
 //      In particular, !xyz* requires the vector nonveto_bits_
 //      nonveto_bits_ is designed to also accomodate an AND of triggers
 //      selection criterion, if that is wanted at some future date.
+// ======================================================================
 
-
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Common/TriggerResults.h"
-
 #include "boost/shared_ptr.hpp"
+#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-
-#include <vector>
 #include <string>
+#include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -32,7 +31,7 @@ namespace art {
                         NoOverlap = 1,
                         PartialOverlap = 2,
                         ExactMatch = 3};
-  }
+  }  // evtSel
 
   class EventSelector
   {
@@ -129,8 +128,10 @@ namespace art {
                           std::vector<bool> const& b );
     static std::vector<bool> combine ( std::vector<bool> const& a,
                                        std::vector<bool> const& b );
-  };
+  };  // EventSelector
 
-}  // namespace art
+}  // art
 
-#endif  // Framework_EventSelector_h
+// ======================================================================
+
+#endif

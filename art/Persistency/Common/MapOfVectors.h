@@ -1,18 +1,23 @@
 #ifndef DataFormats_Common_MapOfVectors_h
 #define DataFormats_Common_MapOfVectors_h
 
-#include <vector>
-#include <map>
+// ======================================================================
+//
+// MapOfVectors
+//
+// ======================================================================
 
-#include <boost/range/iterator_range.hpp>
-#include <boost/range/functions.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/range/functions.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <map>
+#include <vector>
+
+// ----------------------------------------------------------------------
 
 namespace art {
 
-  /* a linearized read-only map-of vectors
-
-   */
+  /* a linearized read-only map-of vectors */
   template<typename K, typename T>
   class MapOfVectors {
   public:
@@ -152,7 +157,7 @@ namespace art {
     std::vector<size_type> m_offsets;
     std::vector<T> m_data;
 
-  };
+  };  // MapOfVectors<>
 
   // Free swap function
   template <typename K, typename T>
@@ -162,6 +167,8 @@ namespace art {
     lhs.swap(rhs);
   }
 
-}
+}  // art
 
-#endif // DatFormats_Common_MapOfVectors_h
+// ======================================================================
+
+#endif

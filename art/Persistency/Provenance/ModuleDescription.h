@@ -7,16 +7,14 @@ ModuleDescription: The description of a producer module.
 
 ----------------------------------------------------------------------*/
 
-
 #include "art/Persistency/Provenance/ModuleDescriptionID.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
-
 #include "fhiclcpp/ParameterSetID.h"
-
 #include <iosfwd>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -70,6 +68,8 @@ namespace art {
     return os;
   }
 
-} // namespace art
+} // art
 
-#endif  // DataFormats_Provenance_ModuleDescription_h
+// ======================================================================
+
+#endif

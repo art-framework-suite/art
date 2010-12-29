@@ -72,4 +72,4 @@ namespace art {
         << "to a real getter, such as an EventPrincipal.\n";
   }
 
-}  // namespace art
+}  // art

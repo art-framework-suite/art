@@ -103,4 +103,4 @@ namespace art
     return current_context_;
   }
 
-}  // namespace art
+}  // art

@@ -1,15 +1,19 @@
 #ifndef FWCore_Sources_VectorInputSourceFactory_h
 #define FWCore_Sources_VectorInputSourceFactory_h
 
+// ======================================================================
+//
+// VectorInputSourceFactory
+//
+// ======================================================================
 
 #include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Framework/PluginManager/PluginFactory.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
 #include <memory>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -36,6 +40,8 @@ namespace art {
     static VectorInputSourceFactory singleInstance_;
   };
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Sources_VectorInputSourceFactory_h
+// ======================================================================
+
+#endif

@@ -1,12 +1,10 @@
-#include <cstdlib>
-#include <sstream>
-
+#include "art/Framework/PluginManager/FileOperations.h"
 
 #include "boost/filesystem.hpp"
 #include "boost/regex.hpp"
-
-#include "art/Framework/PluginManager/FileOperations.h"
 #include "cetlib/exception.h"
+#include <cstdlib>
+#include <sstream>
 
 using std::vector;
 using std::string;
@@ -15,8 +13,7 @@ using std::istringstream;
 using namespace boost;
 using namespace boost::filesystem;
 
-namespace plugin
-{
+namespace plugin {
   void get_map_list(vector<string>& result)
   {
     // load all the _map_ files now
@@ -39,13 +36,13 @@ namespace plugin
 
     //if(!home_env)
     //  {
-	//throw cet::exception("env missing")
-	//  << "cannot find environment variable FW_HOME\n";
+        //throw cet::exception("env missing")
+        //  << "cannot find environment variable FW_HOME\n";
     //  }
     if(!ldlib_env)
       {
-	throw cet::exception("env missing")
-	  << "cannot find environment variable LD_LIBRARY_PATH\n";
+        throw cet::exception("env missing")
+          << "cannot find environment variable LD_LIBRARY_PATH\n";
       }
 
     string ldlib_str = ldlib_env;
@@ -60,27 +57,26 @@ namespace plugin
       }
     while(!stop)
       {
-	ist.getline(&tmp_str[0],sizeof(tmp_str),':');
-	if(ist.eof()) stop=true;
-	paths.push_back(tmp_str);
+        ist.getline(&tmp_str[0],sizeof(tmp_str),':');
+        if(ist.eof()) stop=true;
+        paths.push_back(tmp_str);
       }
 
     regex libpattern(".*_map_plugin.so$");
     for(strings::iterator cur(paths.begin()),end(paths.end());cur!=end;++cur)
       {
-	//ostringstream ost;
-	//ost << *cur << "/tmp/lib";
-	path full_path( *cur );
-	for (directory_iterator
-	       i = directory_iterator(full_path),
-	       e = directory_iterator();
-	     i != e;
-	     ++i)
-	  {
-	    string filename(i->path().leaf());
-	    if (regex_match(filename, libpattern)) result.push_back(filename);
-	  }
+        //ostringstream ost;
+        //ost << *cur << "/tmp/lib";
+        path full_path( *cur );
+        for (directory_iterator
+               i = directory_iterator(full_path),
+               e = directory_iterator();
+             i != e;
+             ++i)
+          {
+            string filename(i->path().leaf());
+            if (regex_match(filename, libpattern)) result.push_back(filename);
+          }
       }
   }
-}
-
+}  // plugin

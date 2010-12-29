@@ -13,26 +13,18 @@
     <usage>
 
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Oct 18 14:41:33 CEST 2007
-//
 
-// system include files
-#include "boost/type_traits/is_base_of.hpp"
-#include "boost/utility/enable_if.hpp"
-
-// user include files
-#include "art/Persistency/Common/RefCore.h"
-#include "art/Persistency/Common/traits.h"
-#include "art/Persistency/Common/GetProduct.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
+#include "art/Persistency/Common/GetProduct.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
+#include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/TestHandle.h"
-
+#include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
+#include "boost/type_traits/is_base_of.hpp"
+#include "boost/utility/enable_if.hpp"
 
 // forward declarations
 namespace art {
@@ -263,6 +255,6 @@ namespace art {
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
 
-}
+}  // art
 
 #endif

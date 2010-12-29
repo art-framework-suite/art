@@ -161,5 +161,5 @@ namespace art
     }
 
 
-  } // namespace detail
-} // namespace art
+  } // detail
+} // art

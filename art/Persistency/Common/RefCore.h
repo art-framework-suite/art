@@ -9,17 +9,13 @@
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Provenance/ProductID.h"
-namespace art { class EDProduct; }
-
-// C++ Support:
 #include <algorithm>
 
-// Contents:
+
 namespace art {
+  class EDProduct;
   class RefCore;
 
   bool  operator == ( RefCore const &, RefCore const & );
@@ -29,9 +25,7 @@ namespace art {
   void  swap( art::RefCore &, art::RefCore & );
 }
 
-
 // ======================================================================
-
 
 class art::RefCore
 {
@@ -132,9 +126,7 @@ private:
 
 };  // RefCore
 
-
 // ======================================================================
-
 
 inline bool
   art::operator == ( RefCore const & lhs, RefCore const & rhs )
@@ -159,7 +151,6 @@ inline void
   art::swap( art::RefCore & lhs, art::RefCore & rhs )
 { lhs.swap(rhs); }
 
-
 // ======================================================================
 
-#endif  // DataFormats_Common_RefCore_h
+#endif

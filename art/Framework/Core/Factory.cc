@@ -15,15 +15,14 @@ namespace
     std::string result(str);
 
     for (std::string::iterator i = result.begin(), e = result.end();
-	 i != e; ++i)
+         i != e; ++i)
       {
-	if (*i == '/') *i = '_';
+        if (*i == '/') *i = '_';
       }
   }
 }
 
-namespace art
-{
+namespace art {
 
   Factory::~Factory()
   {
@@ -42,7 +41,7 @@ namespace art
   }
 
   std::auto_ptr<Worker> Factory::makeWorker(WorkerParams const& p,
-					    ModuleDescription const& md)
+                                            ModuleDescription const& md)
   {
     typedef Worker* (*factor_fcn_t)(WorkerParams const&, ModuleDescription const&);
     Factory& me = the_instance_();
@@ -52,14 +51,14 @@ namespace art
     factory_fcn_t* symbol = (factory_fcn_t*)libman_.getSymbol(libname, "make_temp");
     if (symbol == 0)
       throw art::Exception(errors::Configuration,"UnknownModule")
-	<< "Module " << modtype
-	<< " with version " << p.releaseVersion_
-	<< " was not registered.\n"
-	<< "Perhaps your module type is misspelled or is not a "
-	<< "framework plugin.";
+        << "Module " << modtype
+        << " with version " << p.releaseVersion_
+        << " was not registered.\n"
+        << "Perhaps your module type is misspelled or is not a "
+        << "framework plugin.";
 
     return (*symbol)(p,md);
 
   }
 
-}
+}  // art

@@ -189,4 +189,4 @@ string& CacheParser::restoreSpaces(string& io)
   return io;
 }
 
-}  // namespace artplugin
+}  // artplugin

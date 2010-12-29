@@ -8,21 +8,14 @@
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
-
-// Boost library support:
 #include "boost/iterator.hpp"
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_of.hpp"
-
-// C++ support:
 #include <iterator>
 #include <vector>
 
-// Contents:
 namespace art {
   template< typename > class PtrProxy;
   template< typename > class PtrVector;
@@ -30,11 +23,9 @@ namespace art {
 
   template< typename T >
     void  swap( PtrVector<T> &, PtrVector<T> & );
- }
-
+}
 
 // ======================================================================
-
 
 template< typename T >
   class art::PtrProxy
@@ -54,9 +45,7 @@ public:
 
 };  // PtrProxy<>
 
-
 // ======================================================================
-
 
 template< typename T >
   class art::PtrVectorItr
@@ -147,9 +136,7 @@ public:
 
 };  // PtrVectorItr<>
 
-
 // ======================================================================
-
 
 template< typename T >
 class art::PtrVector
@@ -228,13 +215,11 @@ private:
 
 };  // PtrVector<T>
 
-
 template< typename T >
   inline void
   art::swap( PtrVector<T> & lhs, PtrVector<T> & rhs )
 { lhs.swap(rhs); }
 
-
 // ======================================================================
 
-#endif  // DataFormats_Common_PtrVector_h
+#endif

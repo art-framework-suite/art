@@ -75,7 +75,7 @@ namespace art
   template <class X, class Y>
   bool operator!=  (debugging_allocator<X> const&, debugging_allocator<Y> const&) throw() { return false; }
 
-} //namespace art
+}  // art
 
 
 #endif

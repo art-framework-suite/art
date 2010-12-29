@@ -6,9 +6,6 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-
-
-
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
@@ -16,6 +13,7 @@ EDProducts into an Event.
 #include "boost/function.hpp"
 #include "boost/shared_ptr.hpp"
 #include <string>
+
 namespace art {
   class BranchDescription;
   class ModuleDescription;
@@ -46,7 +44,6 @@ namespace art {
     boost::function<void(const BranchDescription&)> callWhenNewProductsRegistered_;
   };
 
-
-}
+}  // art
 
 #endif

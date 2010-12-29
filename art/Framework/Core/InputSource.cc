@@ -1,3 +1,9 @@
+// ======================================================================
+//
+// InputSource
+//
+// ======================================================================
+
 #include "art/Framework/Core/InputSource.h"
 
 #include "art/Framework/Core/Event.h"
@@ -13,16 +19,16 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #ifdef RNGS
 //#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
-#endif  // RNGS
+#endif
 #include "art/Utilities/GlobalIdentifier.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
-  using fhicl::ParameterSet;
-
 #include <cassert>
 #include <ctime>
 
+using fhicl::ParameterSet;
+
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -49,6 +55,8 @@ namespace art {
       return  boost::shared_ptr<T>(ptr, do_nothing_deleter());
     }
   }  // namespace
+
+// ----------------------------------------------------------------------
 
   InputSource::InputSource( ParameterSet           const & pset
                           , InputSourceDescription const & desc )
@@ -378,7 +386,7 @@ namespace art {
         rng->takeSnapshot_();
       }
     }
-#endif  // RNGS
+#endif
   }
 
   void
@@ -390,7 +398,7 @@ namespace art {
         rng->restoreSnapshot_(event);
       }
     }
-#endif  // RNGS
+#endif
   }
 
   void
@@ -465,4 +473,6 @@ namespace art {
      sentry_(source.actReg()->preCloseFileSignal_, source.actReg()->postCloseFileSignal_) {
   }
 
-}  // namespace art
+}  // art
+
+// ======================================================================

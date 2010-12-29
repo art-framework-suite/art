@@ -72,6 +72,6 @@ namespace art
 
   inline bool isnan(long double q) { return detail::isnan(q); }
 
-} // namespace art
+}  // art
 
 #endif

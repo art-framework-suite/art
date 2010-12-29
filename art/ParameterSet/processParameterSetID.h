@@ -1,5 +1,5 @@
-#ifndef  PARAMETERSET__PROCESSPARAMETERSETID_H
-#define  PARAMETERSET__PROCESSPARAMETERSETID_H
+#ifndef  PARAMETERSET_PROCESSPARAMETERSETID_H
+#define  PARAMETERSET_PROCESSPARAMETERSETID_H
 
 // ======================================================================
 //
@@ -7,9 +7,9 @@
 //
 // ======================================================================
 
-
 #include "fhiclcpp/ParameterSetID.h"
 
+// ----------------------------------------------------------------------
 
 namespace art  {
 
@@ -20,10 +20,8 @@ namespace art  {
     return id;
   }
 
-}  // namespace art
-
+}  // art
 
 // ======================================================================
 
-
-#endif  // PARAMETERSET__PROCESSPARAMETERSETID_H
+#endif

@@ -1,16 +1,13 @@
 /*----------------------------------------------------------------------
 
-
-
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/ProducerBase.h"
+
+#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
-
 #include <sstream>
 
 namespace art {
@@ -60,8 +57,8 @@ namespace art {
 
 
   void ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> producer,
-				ProductRegistry* iReg,
-				ModuleDescription const& md)
+                                ProductRegistry* iReg,
+                                ModuleDescription const& md)
   {
     if (typeLabelList().empty() && registrationCallback().empty()) {
       return;
@@ -83,4 +80,5 @@ namespace art {
        regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), iReg, md));
     }
   }
-}
+
+}  // art

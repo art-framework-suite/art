@@ -37,9 +37,9 @@ namespace artplugin {
     size_t found = map_name.find(sub);
     if(found==string::npos)
       {
-	FDEBUG(1) << "Could not find _map_ file for " << map_name << "\n";
-	throw cet::exception("NoMatch") << "could not find _dict_ library for "
-				      << libname << "\n";
+        FDEBUG(1) << "Could not find _map_ file for " << map_name << "\n";
+        throw cet::exception("NoMatch") << "could not find _dict_ library for "
+                                      << libname << "\n";
       }
     string name(map_name.substr(0,found)+"_dict_plugin.so");
     return name;
@@ -59,21 +59,21 @@ namespace artplugin {
     vstring::iterator curr(map_list.begin()), end(map_list.end());
     for(;curr!=end;++curr)
       {
-	FDEBUG(3) << "cap lib: " << *curr << "\n";
-	const SharedLibrary& lib =
-	  PluginManager::get()->load(category(),*curr);
-	FDEBUG(3) << "cap file: " << lib.path().native_file_string() << "\n";
+        FDEBUG(3) << "cap lib: " << *curr << "\n";
+        const SharedLibrary& lib =
+          PluginManager::get()->load(category(),*curr);
+        FDEBUG(3) << "cap file: " << lib.path().native_file_string() << "\n";
 
-	if(tryToFind(lib)==false)
-	  {
-	    throw cet::exception("missing symbol")
-	      << "cannot find symbol " << "SEAL_CAPABILITIES"
-	      << " in library " << *curr << "\n";
-	  }
+        if(tryToFind(lib)==false)
+          {
+            throw cet::exception("missing symbol")
+              << "cannot find symbol " << "SEAL_CAPABILITIES"
+              << " in library " << *curr << "\n";
+          }
 
-	// JBK - temporary hack to just load all the libraries now for testing
-	// the real demand loaded system is not working properly
-	PluginManager::get()->load(category(),map_to_dict(lib.path().native_file_string()));
+        // JBK - temporary hack to just load all the libraries now for testing
+        // the real demand loaded system is not working properly
+        PluginManager::get()->load(category(),map_to_dict(lib.path().native_file_string()));
       }
 
     finishedConstruction();
@@ -128,15 +128,15 @@ namespace artplugin {
 
     for(int i=0;i<size;++i)
       {
-	FDEBUG(5) << "  class name: " << name
-		  << " : " << names[i] << "\n";
-	// make class_name -> library_name mapping
-	classes_[names[i]] = name;
+        FDEBUG(5) << "  class name: " << name
+                  << " : " << names[i] << "\n";
+        // make class_name -> library_name mapping
+        classes_[names[i]] = name;
 
-	// announce to world that it is here!
-	info.name_ = names[i];
-	info.loadable_ = lib.path();
-	this->newPluginAdded_(category(),info);
+        // announce to world that it is here!
+        info.name_ = names[i];
+        info.loadable_ = lib.path();
+        this->newPluginAdded_(category(),info);
       }
     return true;
   }
@@ -147,9 +147,9 @@ namespace artplugin {
     FDEBUG(2) << "PluginCap::load: " << iName << "\n";
     if(tryToLoad(iName)==false)
       {
-	throw cet::exception("missing symbol")
-	  << "cannot find symbol " << "SEAL_CAPABILITIES"
-	  << " in library " << iName << "\n";
+        throw cet::exception("missing symbol")
+          << "cannot find symbol " << "SEAL_CAPABILITIES"
+          << " in library " << iName << "\n";
       }
   }
 
@@ -160,8 +160,8 @@ namespace artplugin {
     ClassToLibMap::iterator i(classes_.find(class_name));
     if(i == classes_.end())
       {
-	throw cet::exception("PluginNotFound")
-	  << "Cannot find plugin for " << class_name << "\n";
+        throw cet::exception("PluginNotFound")
+          << "Cannot find plugin for " << class_name << "\n";
       }
     FDEBUG(3) << "tryToLoad: " << i->second << "\n";
     const SharedLibrary* lib =
@@ -185,11 +185,11 @@ namespace artplugin {
     typedef std::map<std::string, boost::filesystem::path> PathMap;
 
     for(ClassToLibMap::const_iterator it = classes_.begin();
-	it != classes_.end(); ++it)
+        it != classes_.end(); ++it)
       {
-	info.name_ = it->first;
-	info.loadable_ = it->second;
-	infos.push_back(info);
+        info.name_ = it->first;
+        info.loadable_ = it->second;
+        infos.push_back(info);
       }
     return infos;
   }
@@ -210,4 +210,4 @@ namespace artplugin {
     return &s_instance;
   }
 
-}
+}  // artplugin

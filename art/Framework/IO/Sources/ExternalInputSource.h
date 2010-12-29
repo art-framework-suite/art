@@ -1,17 +1,15 @@
 #ifndef FWCore_Sources_ExternalInputSource_h
 #define FWCore_Sources_ExternalInputSource_h
 
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// ExternalInputSource
+//
+// ======================================================================
 
 #include "art/Framework/Core/ConfigurableInputSource.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-
 #include "fhiclcpp/ParameterSet.h"
-
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -39,6 +37,8 @@ namespace art {
     InputFileCatalog catalog_;
   };
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Sources_ExternalInputSource_h
+// ======================================================================
+
+#endif

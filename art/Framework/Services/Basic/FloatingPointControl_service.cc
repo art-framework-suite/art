@@ -95,8 +95,8 @@
 #ifdef __linux__
 #ifdef __i386__
 #include <fpu_control.h>
-#endif  // __i386__
-#endif  // __linux__
+#endif
+#endif
 
 namespace art {
   class FloatingPointControl;
@@ -357,8 +357,8 @@ void
     cw = (cw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
     _FPU_SETCW(cw);
   }
-#endif  // __i386__
-#endif  // __linux__
+#endif
+#endif
 
 }
 
@@ -383,3 +383,5 @@ void
 // ======================================================================
 
 DEFINE_ART_SERVICE(FloatingPointControl);
+
+// ======================================================================

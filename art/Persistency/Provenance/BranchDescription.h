@@ -8,7 +8,7 @@ This description also applies to every product instance on the branch.
 
 ----------------------------------------------------------------------*/
 
-
+#include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
@@ -17,11 +17,11 @@ This description also applies to every product instance on the branch.
 #include "art/Persistency/Provenance/Transient.h"
 #include "art/Utilities/UseReflex.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "Reflex/Type.h"
 #include <iosfwd>
 #include <set>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 /*
   BranchDescription
@@ -191,6 +191,8 @@ namespace art {
         std::string const& fileName,
         BranchDescription::MatchMode m);
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_BranchDescription_h
+// ======================================================================
+
+#endif

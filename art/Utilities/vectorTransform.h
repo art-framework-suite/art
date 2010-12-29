@@ -11,15 +11,11 @@
 //
 // ======================================================================
 
-
-// C++ support:
-#include <algorithm>  // std::transform
-#include <iterator>   // std::back_inserter
-#include <vector>     // std::vector
-
+#include <algorithm>
+#include <iterator>
+#include <vector>
 
 // ======================================================================
-
 
 namespace art {
 
@@ -46,10 +42,8 @@ namespace art {
                   );
   }  // vectorTransform<,>()
 
-}  // namespace art
-
+}  // art
 
 // ======================================================================
 
-
-#endif  // FWCore_Utilities_vectorTransform_hh
+#endif

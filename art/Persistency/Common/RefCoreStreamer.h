@@ -16,7 +16,7 @@ namespace art {
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;
     }
-    void operator() (TBuffer &R__b, void *objp);
+    void operator() (TBuffer &R_b, void *objp);
 
   private:
     TClassRef cl_;
@@ -30,7 +30,7 @@ namespace art {
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;
     }
-    void operator() (TBuffer &R__b, void *objp);
+    void operator() (TBuffer &R_b, void *objp);
 
   private:
     TClassRef cl_;
@@ -44,7 +44,7 @@ namespace art {
     void setProductGetter(EDProductGetter const* ep) {
 	prodGetter_ = ep;
     }
-    void operator() (TBuffer &R__b, void *objp);
+    void operator() (TBuffer &R_b, void *objp);
 
   private:
     TClassRef cl_;

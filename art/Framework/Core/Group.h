@@ -8,17 +8,14 @@ is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 
-#include <memory>
-
-#include "boost/shared_ptr.hpp"
-
 #include "Reflex/Type.h"
-
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Provenance.h"
-#include "art/Persistency/Provenance/ProductID.h"
+#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace art {
   class Group {
@@ -30,22 +27,22 @@ namespace art {
     Group(ConstBranchDescription const& bd, ProductID const& pid);
 
     Group(std::auto_ptr<EDProduct> edp,
-	  ConstBranchDescription const& bd,
-	  ProductID const& pid,
-	  std::auto_ptr<ProductProvenance> productProvenance);
+          ConstBranchDescription const& bd,
+          ProductID const& pid,
+          std::auto_ptr<ProductProvenance> productProvenance);
 
     Group(ConstBranchDescription const& bd,
-	  ProductID const& pid,
-	  std::auto_ptr<ProductProvenance> productProvenance);
+          ProductID const& pid,
+          std::auto_ptr<ProductProvenance> productProvenance);
 
     Group(std::auto_ptr<EDProduct> edp,
-	  ConstBranchDescription const& bd,
-	  ProductID const& pid,
-	  boost::shared_ptr<ProductProvenance> productProvenance);
+          ConstBranchDescription const& bd,
+          ProductID const& pid,
+          boost::shared_ptr<ProductProvenance> productProvenance);
 
     Group(ConstBranchDescription const& bd,
-	  ProductID const& pid,
-	  boost::shared_ptr<ProductProvenance> productProvenance);
+          ProductID const& pid,
+          boost::shared_ptr<ProductProvenance> productProvenance);
 
     ~Group();
 
@@ -135,5 +132,6 @@ namespace art {
     return os;
   }
 
-}
+}  // art
+
 #endif

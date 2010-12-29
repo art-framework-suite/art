@@ -1,35 +1,33 @@
 #ifndef FWCore_Framework_TriggerNamesService_h
 #define FWCore_Framework_TriggerNamesService_h
 
-/*
-
- This service makes the trigger names available.  They are provided
- in the same order that the pass/fail status of these triggers is
- recorded in the TriggerResults object.  These trigger names are
- the names of the paths that appear in the configuration (excluding
- end paths).  The order is the same as in the configuration.
-
- There are also accessors for the end path names.
-
- There are other accessors for other trigger related information from the
- job configuration: the process name, whether a report on trigger results
- was requested and the parameter set containing the list of trigger paths.
-
- Almost all the functions return information related to the current
- process only.  The second and third getTrigPaths functions are exceptions.
- They will return the trigger path names from previous processes.
-
- Unit tests for parts of this class are in FWCore/Integration/run_SelectEvents.sh
- and the code it invokes.
-
-*/
-
+// ======================================================================
+//
+// This service makes the trigger names available.  They are provided in
+// the same order that the pass/fail status of these triggers is recorded
+// in the TriggerResults object.  These trigger names are the names of
+// the paths that appear in the configuration (excluding end paths).  The
+// order is the same as in the configuration.
+//
+// There are also accessors for the end path names.
+//
+// There are other accessors for other trigger related information from
+// the job configuration: the process name, whether a report on trigger
+// results was requested and the parameter set containing the list of
+// trigger paths.
+//
+// Almost all the functions return information related to the current
+// process only.  The second and third getTrigPaths functions are exceptions.
+// They will return the trigger path names from previous processes.
+//
+// ======================================================================
 
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -124,9 +122,11 @@ namespace art {
 
       std::string process_name_;
       bool wantSummary_;
-    };
-  }
+    };  // TriggerNamesService
 
-}  // namespace art
+  }  // service
+}  // art
 
-#endif  // FWCore_Framework_TriggerNamesService_h
+// ======================================================================
+
+#endif

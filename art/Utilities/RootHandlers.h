@@ -1,7 +1,10 @@
 #ifndef FWCore_Utilities_RootHandlers_h
 #define FWCore_Utilities_RootHandlers_h
 
+// ----------------------------------------------------------------------
+
 namespace art {
+
   class RootHandlers {
   public:
     RootHandlers ();
@@ -11,7 +14,10 @@ namespace art {
   private:
     virtual void disableErrorHandler_() = 0;
     virtual void enableErrorHandler_() = 0;
-  };
+  };  // RootHandlers
+
 }  // art
 
-#endif  // FWCore_Utilities_RootHandlers_h
+// ======================================================================
+
+#endif

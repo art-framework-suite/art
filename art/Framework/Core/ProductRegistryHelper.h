@@ -5,15 +5,12 @@
 
 ProductRegistryHelper:
 
-
-
-
 ----------------------------------------------------------------------*/
 
-#include "art/Utilities/TypeID.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include <string>
+#include "art/Utilities/TypeID.h"
 #include <list>
+#include <string>
 
 namespace art {
   class EDProduct;
@@ -27,7 +24,7 @@ namespace art {
 
     struct TypeLabelItem {
       TypeLabelItem (BranchType const& branchType, TypeID const& tid, std::string const& pin) :
-	branchType_(branchType),
+        branchType_(branchType),
         typeID_(tid),
         productInstanceName_(pin),
         branchAlias_() {}
@@ -94,7 +91,6 @@ namespace art {
     TypeLabelList typeLabelList_;
   };
 
-
-}
+}  // art
 
 #endif

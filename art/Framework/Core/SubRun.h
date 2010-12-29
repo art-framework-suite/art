@@ -14,20 +14,13 @@ and inserting new derived per subRun EDProducts.
 For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 */
-/*----------------------------------------------------------------------
-
-
-
-----------------------------------------------------------------------*/
-
-#include "boost/shared_ptr.hpp"
-
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/RunID.h"
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+#include "boost/shared_ptr.hpp"
 
 namespace art {
 
@@ -110,8 +103,8 @@ namespace art {
       TypeID typeID(typeid(PROD));
       throw art::Exception(art::errors::NullPointerError)
         << "SubRun::put: A null auto_ptr was passed to 'put'.\n"
-	<< "The pointer is of type " << typeID << ".\n"
-	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+        << "The pointer is of type " << typeID << ".\n"
+        << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
     // The following will call post_insert if T has such a function,
@@ -132,5 +125,6 @@ namespace art {
     // The old copy must be deleted, so we cannot release ownership.
   }
 
-}
+}  // art
+
 #endif

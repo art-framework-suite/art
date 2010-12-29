@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -21,6 +22,8 @@ namespace art {
   std::vector<std::string>
     tokenize(std::string const& input, std::string const& separator);
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Utilities_Parse_h
+// ======================================================================
+
+#endif

@@ -1130,4 +1130,4 @@ namespace art {
     return x;
   } // combine
 
-}  // namespace art
+}  // art

@@ -1,5 +1,6 @@
 #ifndef  FWCore_Utilities_HRRealTime_H
 #define  FWCore_Utilities_HRRealTime_H
+
 /*
  *  High Resolution Real Timer
  *  inline high-resolution real timer
@@ -26,8 +27,8 @@ namespace art {
       __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
       return x;
     }
-#elif defined(__x86_64__)
 
+#elif defined(__x86_64__)
 
     static __inline__ unsigned long long rdtsc(void)
     {
@@ -37,7 +38,6 @@ namespace art {
     }
 
 #elif defined(__powerpc__)
-
 
     static __inline__ unsigned long long rdtsc(void)
     {
@@ -58,6 +58,7 @@ namespace art {
 
       return(result);
     }
+
 #else
 #error The file FWCore/Utilities/interface/RealTime.h needs to be set up for your CPU type.
 
@@ -75,7 +76,8 @@ namespace art {
     return details::rdtsc();
   }
 
-}
+}  // art
 
+// ======================================================================
 
-#endif //   FWCore_Utilities__HRRealTime_H
+#endif

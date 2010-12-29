@@ -9,7 +9,6 @@
   can be kept for each worker.
 */
 
-
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunStopwatch.h"
@@ -17,13 +16,12 @@
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Persistency/Common/HLTenums.h"
 #include "art/Persistency/Common/TriggerResults.h"
-
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -168,6 +166,8 @@ namespace art {
     recordStatus(nwrwue, T::isEvent_);
   }
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_Path_h
+// ======================================================================
+
+#endif

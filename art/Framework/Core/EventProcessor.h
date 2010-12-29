@@ -1,13 +1,12 @@
 #ifndef FWCore_Framework_EventProcessor_h
 #define FWCore_Framework_EventProcessor_h
 
-/*----------------------------------------------------------------------
-
-EventProcessor: This defines the 'framework application' object. It is
-configured in the user's main() function, and is set running.
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// EventProcessor - This defines the 'framework application' object. It
+// is configured in the user's main() function, and is set running.
+//
+// ======================================================================
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -21,21 +20,20 @@ configured in the user's main() function, and is set running.
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-
+#include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/thread/thread.hpp"
-#include "boost/utility.hpp"
 #include "fhiclcpp/ParameterSet.h"
-
 #include <memory>
 #include <string>
 #include <vector>
 
-
 namespace statemachine {
   class Machine;
 }
+
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -57,7 +55,7 @@ namespace art {
                mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
-  }
+  }  // event_processor
 
   class EventProcessor : public IEventProcessor, private boost::noncopyable
   {
@@ -394,7 +392,7 @@ namespace art {
     bool                                          alreadyHandlingException_;
 
     friend class event_processor::StateSentry;
-  }; // class EventProcessor
+  };  // EventProcessor
 
   //--------------------------------------------------------------------
 
@@ -404,6 +402,8 @@ namespace art {
     return run(-1, false);
   }
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_EventProcessor_h
+// ======================================================================
+
+#endif

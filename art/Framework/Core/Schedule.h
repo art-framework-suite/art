@@ -1,6 +1,7 @@
 #ifndef FWCore_Framework_Schedule_h
 #define FWCore_Framework_Schedule_h
 
+// ======================================================================
 /*
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -63,7 +64,7 @@
   TriggerNamesService.
 
 */
-
+// ======================================================================
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/EventPrincipal.h"
@@ -89,6 +90,7 @@
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -445,6 +447,8 @@ namespace art {
     //               constant_ref(es))); // pass by const-reference (not copy)
   }
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_Schedule_h
+// ======================================================================
+
+#endif

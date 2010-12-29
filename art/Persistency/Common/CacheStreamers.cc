@@ -6,24 +6,24 @@ class TBuffer;
 
 namespace art {
   void
-  BoolCacheStreamer::operator()(TBuffer &R__b, void *objp) {
-    if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
+  BoolCacheStreamer::operator()(TBuffer &R_b, void *objp) {
+    if (R_b.IsReading()) {
+      cl_->ReadBuffer(R_b, objp);
       BoolCache* obj = static_cast<BoolCache *>(objp);
       *obj = false;
     } else {
-      cl_->WriteBuffer(R__b, objp);
+      cl_->WriteBuffer(R_b, objp);
     }
   }
 
   void
-  ConstPtrCacheStreamer::operator()(TBuffer &R__b, void *objp) {
-    if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
+  ConstPtrCacheStreamer::operator()(TBuffer &R_b, void *objp) {
+    if (R_b.IsReading()) {
+      cl_->ReadBuffer(R_b, objp);
       ConstPtrCache* obj = static_cast<ConstPtrCache *>(objp);
       obj->ptr_=0;
     } else {
-      cl_->WriteBuffer(R__b, objp);
+      cl_->WriteBuffer(R_b, objp);
     }
   }
 

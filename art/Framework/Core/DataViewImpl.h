@@ -1,87 +1,63 @@
 #ifndef Framework_DataViewImpl_h
 #define Framework_DataViewImpl_h
 
+// ======================================================================
 //
-// Package:     Framework
-// Class  :     DataViewImpl
+// DataViewImpl - This is the implementation for accessing EDProducts and
+// inserting new EDproducts.
 //
-/**\class DataViewImpl DataViewImpl.h FWCore/Framework/interface/DataViewImpl.h
-
-Description: This is the implementation for accessing EDProducts and
-inserting new EDproducts.
-
-Usage:
-
-Getting Data
-
-The art::DataViewImpl class provides many 'get*" methods for getting data
-it contains.
-
-The primary method for getting data is to use getByLabel(). The labels are
-the label of the module assigned in the configuration file and the 'product
-instance label' (which can be omitted in the case the 'product instance label'
-is the default value).  The C++ type of the product plus the two labels
-uniquely identify a product in the DataViewImpl.
-
-We use an event in the examples, but a run or a luminosity block can also
-hold products.
-
-\code
-art::Handle<AppleCollection> apples;
-event.getByLabel("tree",apples);
-\endcode
-
-\code
-art::Handle<FruitCollection> fruits;
-event.getByLabel("market", "apple", fruits);
-\endcode
-
-
-Putting Data
-
-\code
-std::auto_ptr<AppleCollection> pApples( new AppleCollection );
-
-//fill the collection
-...
-event.put(pApples);
-\endcode
-
-\code
-std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
-
-//fill the collection
-...
-event.put("apple", pFruits);
-\endcode
-
-
-Getting a reference to a product before that product is put into the
-event/subrun/run.
-NOTE: The art::RefProd returned will not work until after the
-art::DataViewImpl has been committed (which happens after the
-EDProducer::produce method has ended)
-\code
-std::auto_ptr<AppleCollection> pApples( new AppleCollection);
-
-art::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
-
-//do loop and fill collection
-for(unsigned int index = 0; ..... ) {
-....
-apples->push_back( Apple(...) );
-
-//create an art::Ref to the new object
-art::Ref<AppleCollection> ref(refApples, index);
-....
-}
-\endcode
-
-*/
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
+// Getting Data
+//
+// The art::DataViewImpl class provides many 'get*" methods for getting
+// data it contains.
+//
+// The primary method for getting data is to use getByLabel(). The labels
+// are the label of the module assigned in the configuration file and the
+// 'product instance label' (which can be omitted in the case the 'product
+// instance label' is the default value).  The C++ type of the product
+// plus the two labels uniquely identify a product in the DataViewImpl.
+//
+// We use an event in the examples, but a run or a subrun can also hold
+// products.
+//
+// art::Handle<AppleCollection> apples;
+// event.getByLabel("tree",apples);
+//
+// art::Handle<FruitCollection> fruits;
+// event.getByLabel("market", "apple", fruits);
+//
+// Putting Data
+//
+// std::auto_ptr<AppleCollection> pApples( new AppleCollection );
+// //fill the collection
+// ...
+// event.put(pApples);
+//
+// std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
+// //fill the collection
+// ...
+// event.put("apple", pFruits);
+//
+// Getting a reference to a product before that product is put into the
+// event/subrun/run.
+// NOTE: The art::RefProd returned will not work until after the
+// art::DataViewImpl has been committed (which happens after the
+// EDProducer::produce method has ended)
+//
+// std::auto_ptr<AppleCollection> pApples( new AppleCollection);
+// art::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
+//
+// //do loop and fill collection
+// for(unsigned int index = 0; ..... ) {
+// ....
+// apples->push_back( Apple(...) );
+//
+// //create an art::Ref to the new object
+// art::Ref<AppleCollection> ref(refApples, index);
+// ....
+// }
+//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Common/BasicHandle.h"
@@ -97,16 +73,15 @@ art::Ref<AppleCollection> ref(refApples, index);
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-
 #include "boost/shared_ptr.hpp"
 #include "boost/type_traits.hpp"
-
 #include <cassert>
 #include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -475,6 +450,8 @@ namespace art {
     results.swap(products);
   }
 
-}  // namespace art
+}  // art
 
-#endif  // Framework_DataViewImpl_h
+// ======================================================================
+
+#endif

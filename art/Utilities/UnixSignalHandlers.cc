@@ -1,8 +1,8 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-#include <stdio.h>	// for perror
-#include <string.h>	// for memset
+#include <stdio.h>
+#include <string.h>
 
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/DebugMacros.h"
@@ -38,7 +38,7 @@ namespace art {
 #if defined(__linux__)
       SIGRTMIN;
 #else
-    0;
+      0;
 #endif
 
 //--------------------------------------------------------------
@@ -187,5 +187,4 @@ namespace art {
       art::installCustomHandler(SIGINT,art::ep_sigusr2);
   }
 
-
-} // end of namespace art
+} // art

@@ -10,10 +10,10 @@ tracked parameters within a ParameterSet,
 
 ----------------------------------------------------------------------*/
 
-
 #include <iosfwd>
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -30,6 +30,8 @@ namespace art {
   std::ostream&
   operator<<(std::ostream& os, ParameterSetBlob const& blob);
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_ParameterSetBlob_h
+// ======================================================================
+
+#endif

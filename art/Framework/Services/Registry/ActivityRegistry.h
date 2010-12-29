@@ -1,28 +1,22 @@
 #ifndef FWCore_ServiceRegistry_ActivityRegistry_h
 #define FWCore_ServiceRegistry_ActivityRegistry_h
 
+// ======================================================================
 //
-// Package:     ServiceRegistry
-// Class  :     ActivityRegistry
+// ActivityRegistry - Registry holding the signals that Services can
+//                    subscribe to
 //
-/**\class ActivityRegistry ActivityRegistry.h FWCore/ServiceRegistry/interface/ActivityRegistry.h
+// Services can connect to the signals distributed by the
+// ActivityRegistry in order to monitor the activity of the application.
+//
+// ======================================================================
 
- Description: Registry holding the signals that Services can subscribe to
-
- Usage:
-   Services can connect to the signals distributed by the ActivityRegistry in order to monitor the activity of the application.
-
-*/
-
-
-// system include files
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
-#include "boost/utility.hpp"
+#include "boost/noncopyable.hpp"
 #include "sigc++/signal.h"
+#include <string>
 
-
-// forward declarations
 namespace art {
   class Event;
   class EventID;
@@ -33,7 +27,9 @@ namespace art {
   class Run;
   class RunID;
   class Timestamp;
-}  // namespace art
+}  // art
+
+// ----------------------------------------------------------------------
 
 // helper macros
 #if defined(AR_WATCH_VIA_0_ARG_METHOD) \
@@ -44,7 +40,9 @@ namespace art {
   #define AR_WATCH_VIA_0_ARG_METHOD(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject)); }
   #define AR_WATCH_VIA_1_ARG_METHOD(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1)); }
   #define AR_WATCH_VIA_2_ARG_METHOD(method) template<class TClass, class TMethod> void method (TClass* iObject, TMethod iMethod) { method (boost::bind(boost::mem_fn(iMethod), iObject, _1,_2)); }
-#endif  // #if
+#endif
+
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -504,7 +502,9 @@ namespace art {
   private:
   };  // ActivityRegistry
 
-}  // namespace art
+}  // art
+
+// ----------------------------------------------------------------------
 
 #undef AR_WATCH_VIA_0_ARG_METHOD
 #undef AR_WATCH_VIA_1_ARG_METHOD
@@ -514,6 +514,8 @@ namespace art {
  || defined(AR_WATCH_VIA_1_ARG_METHOD) \
  || defined(AR_WATCH_VIA_2_ARG_METHOD)
   #error "ActivityRegistry: AR_WATCH_VIA_x_ARG_METHOD is still #defined!"
-#endif  // #if
+#endif
 
-#endif  // FWCore_ServiceRegistry_ActivityRegistry_h
+// ======================================================================
+
+#endif

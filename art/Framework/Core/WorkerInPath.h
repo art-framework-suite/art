@@ -1,14 +1,18 @@
 #ifndef FWCore_Framework_WorkerInPath_h
 #define FWCore_Framework_WorkerInPath_h
 
-/*
-	A wrapper around a Worker, so that statistics can be managed
-	per path.  A Path holds Workers as these things.
-*/
+// ======================================================================
+//
+// WorkerInPath - A wrapper around a Worker, so that statistics can be
+//                managed per path.  A Path holds Workers as these things.
+//
+// ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/Worker.h"
+
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -21,7 +25,7 @@ namespace art {
 
     template <typename T>
     bool runWorker(typename T::MyPrincipal&,
-		   CurrentProcessingContext const* cpc);
+                   CurrentProcessingContext const* cpc);
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
@@ -49,11 +53,11 @@ namespace art {
 
     FilterAction filterAction_;
     Worker* worker_;
-  };
+  };  // WorkerInPath
 
   template <typename T>
   bool WorkerInPath::runWorker(typename T::MyPrincipal & ep,
-			       CurrentProcessingContext const* cpc) {
+                               CurrentProcessingContext const* cpc) {
 
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
@@ -64,28 +68,30 @@ namespace art {
     bool rc = true;
 
     try {
-	// may want to change the return value from the worker to be
-	// the Worker::FilterAction so conditions in the path will be easier to
-	// identify
-	rc = worker_->doWork<T>(ep, cpc);
+        // may want to change the return value from the worker to be
+        // the Worker::FilterAction so conditions in the path will be easier to
+        // identify
+        rc = worker_->doWork<T>(ep, cpc);
 
         // Ignore return code for non-event (e.g. run, subRun) calls
-	if (!T::isEvent_) rc = true;
-	else if (filterAction_ == Veto) rc = !rc;
+        if (!T::isEvent_) rc = true;
+        else if (filterAction_ == Veto) rc = !rc;
         else if (filterAction_ == Ignore) rc = true;
 
-	if (T::isEvent_) {
-	  if(rc) ++timesPassed_; else ++timesFailed_;
-	}
+        if (T::isEvent_) {
+          if(rc) ++timesPassed_; else ++timesFailed_;
+        }
     }
     catch(...) {
-	if (T::isEvent_) ++timesExcept_;
-	throw;
+        if (T::isEvent_) ++timesExcept_;
+        throw;
     }
 
     return rc;
-  }
+  }  // runWorker<>()
 
-}
+}  // art
 
-#endif  // FWCore_Framework_WorkerInPath_h
+// ======================================================================
+
+#endif

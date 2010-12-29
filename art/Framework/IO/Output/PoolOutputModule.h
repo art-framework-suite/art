@@ -13,6 +13,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
+// ----------------------------------------------------------------------
+
 class TTree;
 
 namespace art {
@@ -115,8 +117,8 @@ namespace art {
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;
   };
 
-}  // namespace art
+}  // art
 
 // ======================================================================
 
-#endif  // IOPool_Output_PoolOutputModule_h
+#endif

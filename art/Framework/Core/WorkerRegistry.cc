@@ -1,19 +1,24 @@
+// ======================================================================
+//
+// WorkerRegistry
+//
+// ======================================================================
 
 #include "art/Framework/Core/WorkerRegistry.h"
 
 // TODO: Temporary removal
 // #include "art/Framework/Core/Factory.h"
 #include "art/Framework/Core/Worker.h"
-
 #include <sstream>
 
 using fhicl::ParameterSet;
 
-#if 0 // TODO: Make this work.
+// TODO: Make this work.
+#if 0
 namespace
 {
   ModuleDescription
-  createModuleDescription(WorkerParams const &p)
+    createModuleDescription(WorkerParams const &p)
   {
     ParameterSet const& procParams = *p.procPset_;
     ParameterSet const& conf = *p.pset_;
@@ -24,9 +29,8 @@ namespace
     md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_);
     return md;
   }
-
-} // anonymous namespace
-#endif // 0
+} // namespace
+#endif
 
 namespace art {
 
@@ -52,7 +56,8 @@ namespace art {
 
 #if 1
     abort();
-#else // TODO: Make this work.
+#else
+    // TODO: Make this work.
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end())
       {
@@ -70,7 +75,7 @@ namespace art {
 	m_workerMap[workerid].reset(workerPtr.release());
 	return m_workerMap[workerid].get();
       }
-#endif // 1
+#endif
     return (workerIt->second.get());
 
   }
@@ -91,4 +96,6 @@ namespace art {
 
   }
 
-}  // namespace art
+}  // art
+
+// ======================================================================

@@ -30,9 +30,13 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "cetlib/exception.h"
 #include <boost/shared_ptr.hpp>
 
+// ----------------------------------------------------------------------
+
 namespace art {
   class EDProduct;
-  class BasicHandle {
+
+  class BasicHandle
+  {
   public:
     BasicHandle() :
       product_(),
@@ -50,7 +54,7 @@ namespace art {
 
     }
 
-    ///Used when the attempt to get the data failed
+    // Used when the attempt to get the data failed
     BasicHandle(boost::shared_ptr<cet::exception> const& iWhyFailed):
     product_(),
     prov_(0),
@@ -106,7 +110,7 @@ namespace art {
     Provenance const* prov_;
     ProductID id_;
     boost::shared_ptr<cet::exception> whyFailed_;
-  };
+  };  // BasicHandle
 
   // Free swap function
   inline
@@ -116,4 +120,6 @@ namespace art {
   }
 }
 
-#endif  // DataFormats_Common_BasicHandle_h
+// ======================================================================
+
+#endif

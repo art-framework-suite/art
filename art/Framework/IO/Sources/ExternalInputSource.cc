@@ -15,4 +15,4 @@ namespace art {
   ExternalInputSource::~ExternalInputSource()
   { }
 
-}  // namespace art
+}  // art

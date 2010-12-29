@@ -1,5 +1,5 @@
-#ifndef SERVICES__TFILESERVICE_H
-#define SERVICES__TFILESERVICE_H
+#ifndef SERVICES_TFILESERVICE_H
+#define SERVICES_TFILESERVICE_H
 
 // ======================================================================
 //
@@ -46,8 +46,8 @@ private:
 
   // set current directory according to module name and prepare to create directory
   void setDirectoryName( art::ModuleDescription const & desc );
-};
+};  // TFileService
 
 // ======================================================================
 
-#endif  // SERVICES__TFILESERVICE_H
+#endif

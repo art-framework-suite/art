@@ -2,8 +2,7 @@
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
-namespace art
-{
+namespace art {
   CurrentProcessingContext::CurrentProcessingContext() :
     pathInSchedule_(0),
     slotInPath_(0),
@@ -13,8 +12,8 @@ namespace art
   { }
 
   CurrentProcessingContext::CurrentProcessingContext(std::string const* name,
-						     int bitpos,
-						     bool isEndPth) :
+                                                     int bitpos,
+                                                     bool isEndPth) :
     pathInSchedule_(bitpos),
     slotInPath_(0),
     moduleDescription_(0),
@@ -67,7 +66,7 @@ namespace art
 
   void
   CurrentProcessingContext::activate(size_t theSlotInPath,
-				     ModuleDescription const* mod)
+                                     ModuleDescription const* mod)
   {
     assert( mod );
     slotInPath_     = theSlotInPath;
@@ -82,4 +81,5 @@ namespace art
     moduleDescription_ = 0;
     pathName_          = 0;
   }
-}
+
+}  // art

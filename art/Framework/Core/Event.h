@@ -1,20 +1,14 @@
 #ifndef Framework_Event_h
 #define Framework_Event_h
 
-
+// ======================================================================
 //
-// Package:     Framework
-// Class  :     Event
+// Event - This is the primary interface for accessing EDProducts from a
+//         single collision and inserting new derived products.
 //
-/**\class Event Event.h FWCore/Framework/interface/Event.h
-
-Description: This is the primary interface for accessing EDProducts
-from a single collision and inserting new derived products.
-
-For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
-
-*/
-
+// For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
+//
+// ======================================================================
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -34,6 +28,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include <set>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -46,25 +41,28 @@ namespace art {
   struct RecordInParentless {
     typedef DataViewImpl::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& ignored,
-	       ptrvec_t& used,
-	       Wrapper<PROD>* wp,
-	       ConstBranchDescription const* desc) const {
+               ptrvec_t& used,
+               Wrapper<PROD>* wp,
+               ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(wp, desc));
     }
-  };
+  };  // RecordInParentless<>
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   struct RecordInParentfull {
     typedef DataViewImpl::ProductPtrVec ptrvec_t;
 
     void do_it(ptrvec_t& used,
-	       ptrvec_t& ignored,
-	       Wrapper<PROD>* wp,
-	       ConstBranchDescription const* desc) const {
+               ptrvec_t& ignored,
+               Wrapper<PROD>* wp,
+               ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(wp, desc));
     }
-  };
+  };  // RecordInParentfull<>
 
+// ----------------------------------------------------------------------
 
   class Event : private DataViewImpl {
   public:
@@ -138,7 +136,7 @@ namespace art {
     template <typename PROD>
     bool
     get(SelectorBase const& sel,
-  		    Handle<PROD>& result) const;
+                    Handle<PROD>& result) const;
 
     template <typename PROD>
     bool
@@ -151,13 +149,13 @@ namespace art {
     template <typename PROD>
     bool
     getByLabel(std::string const& label,
-  			   std::string const& productInstanceName,
-  			   Handle<PROD>& result) const;
+                           std::string const& productInstanceName,
+                           Handle<PROD>& result) const;
 
     template <typename PROD>
     void
     getMany(SelectorBase const& sel,
-  			std::vector<Handle<PROD> >& results) const;
+                        std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
     bool
@@ -171,13 +169,13 @@ namespace art {
     template <typename ELEMENT>
     bool
     getByLabel(std::string const& label,
-	       Handle<View<ELEMENT> >& result) const;
+               Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     bool
     getByLabel(std::string const& label,
-	       std::string const& productInstanceName,
-	       Handle<View<ELEMENT> >& result) const;
+               std::string const& productInstanceName,
+               Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     bool
@@ -186,7 +184,7 @@ namespace art {
     template <typename ELEMENT>
     void
     fillView_(BasicHandle & bh,
-	      Handle<View<ELEMENT> >& result) const;
+              Handle<View<ELEMENT> >& result) const;
 
     Provenance
     getProvenance(BranchID const& theID) const;
@@ -203,7 +201,7 @@ namespace art {
     // used to configure the identified process.
     bool
     getProcessParameterSet(std::string const& processName,
-			   fhicl::ParameterSet& ps) const;
+                           fhicl::ParameterSet& ps) const;
 
   private:
     EventPrincipal const&
@@ -242,7 +240,9 @@ namespace art {
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
-  };
+  };  // Event
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   bool
@@ -256,7 +256,7 @@ namespace art {
     }
     addToGotBranchIDs(*bh.provenance());
     return true;
-  }
+  }  // get<>()
 
   template <typename ELEMENT>
   bool
@@ -276,7 +276,9 @@ namespace art {
 
       fillView_(bh, result);
       return true;
-  }
+  }  // get<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   OrphanHandle<PROD>
@@ -286,8 +288,8 @@ namespace art {
       TypeID typeID(typeid(PROD));
       throw art::Exception(art::errors::NullPointerError)
         << "Event::put: A null auto_ptr was passed to 'put'.\n"
-	<< "The pointer is of type " << typeID << ".\n"
-	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+        << "The pointer is of type " << typeID << ".\n"
+        << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
     // The following will call post_insert if T has such a function,
@@ -306,9 +308,9 @@ namespace art {
       RecordInParentless<PROD>,
       RecordInParentfull<PROD> >::type parentage_recorder;
     parentage_recorder.do_it(putProducts(),
-			     putProductsWithoutParents(),
-			     wp,
-			     &desc);
+                             putProductsWithoutParents(),
+                             wp,
+                             &desc);
 
     //    putProducts().push_back(std::make_pair(wp, &desc));
 
@@ -316,30 +318,37 @@ namespace art {
     // The old copy must be deleted, so we cannot release ownership.
 
     return(OrphanHandle<PROD>(wp->product(), makeProductID(desc)));
-  }
+  }  // put<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   RefProd<PROD>
-  Event::getRefBeforePut(std::string const& productInstanceName) {
+  Event::getRefBeforePut(std::string const& productInstanceName)
+  {
     PROD* p = 0;
     ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
     return RefProd<PROD>(makeProductID(desc), prodGetter());
-  }
+  }  // getRefBeforePut<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   bool
   Event::get(SelectorBase const& sel,
-		    Handle<PROD>& result) const
+                    Handle<PROD>& result) const
   {
     bool ok = this->Base::get(sel, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
-  }
+  }  // get<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   bool
@@ -350,7 +359,7 @@ namespace art {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
-  }
+  }  // getByLabel<>()
 
   template <typename PROD>
   bool
@@ -361,32 +370,36 @@ namespace art {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
-  }
+  }  // getByLabel<>()
 
   template <typename PROD>
   bool
   Event::getByLabel(std::string const& label,
-			   std::string const& productInstanceName,
-			   Handle<PROD>& result) const
+                           std::string const& productInstanceName,
+                           Handle<PROD>& result) const
   {
     bool ok = this->Base::getByLabel(label, productInstanceName, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
-  }
+  }  // getByLabel<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   void
   Event::getMany(SelectorBase const& sel,
-			std::vector<Handle<PROD> >& results) const
+                        std::vector<Handle<PROD> >& results) const
   {
     this->Base::getMany(sel, results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
     }
-  }
+  }  // getMany<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   bool
@@ -397,7 +410,9 @@ namespace art {
       addToGotBranchIDs(*result.provenance());
     }
     return ok;
-  }
+  }  // getByType<>()
+
+// ----------------------------------------------------------------------
 
   template <typename PROD>
   void
@@ -408,21 +423,23 @@ namespace art {
         it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
     }
-  }
+  }  // getManyByType<>()
+
+// ----------------------------------------------------------------------
 
   template <typename ELEMENT>
   bool
   Event::getByLabel(std::string const& moduleLabel,
-			   Handle<View<ELEMENT> >& result) const
+                           Handle<View<ELEMENT> >& result) const
   {
     return getByLabel(moduleLabel, std::string(), result);
-  }
+  }  // getByLabel<>()
 
   template <typename ELEMENT>
   bool
   Event::getByLabel(std::string const& moduleLabel,
-			   std::string const& productInstanceName,
-			   Handle<View<ELEMENT> >& result) const
+                           std::string const& productInstanceName,
+                           Handle<View<ELEMENT> >& result) const
   {
    result.clear();
 
@@ -438,10 +455,10 @@ namespace art {
     if (nFound == 0) {
       boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
-	<< "getByLabel: Found zero products matching all criteria\n"
-	<< "Looking for sequence of type: " << typeID << "\n"
-	<< "Looking for module label: " << moduleLabel << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+        << "getByLabel: Found zero products matching all criteria\n"
+        << "Looking for sequence of type: " << typeID << "\n"
+        << "Looking for module label: " << moduleLabel << "\n"
+        << "Looking for productInstanceName: " << productInstanceName << "\n";
       Handle<View<ELEMENT> > temp(whyFailed);
       result.swap(temp);
       return false;
@@ -449,14 +466,14 @@ namespace art {
     if (nFound > 1) {
       throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found more than one product matching all criteria\n"
-	<< "Looking for sequence of type: " << typeID << "\n"
-	<< "Looking for module label: " << moduleLabel << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+        << "Looking for sequence of type: " << typeID << "\n"
+        << "Looking for module label: " << moduleLabel << "\n"
+        << "Looking for productInstanceName: " << productInstanceName << "\n";
     }
 
     fillView_(bhv[0], result);
     return true;
-  }
+  }  // getByLabel<>()
 
   template <typename ELEMENT>
     bool
@@ -491,7 +508,7 @@ namespace art {
       if (nFound > 1) {
         throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found more than one product matching all criteria\n"
-	<< "Looking for sequence of type: " << typeID << "\n"
+        << "Looking for sequence of type: " << typeID << "\n"
         << "Looking for module label: " << tag.label() << "\n"
         << "Looking for productInstanceName: " << tag.instance() << "\n"
         << "Looking for processName: "<<tag.process() <<"\n";
@@ -501,12 +518,14 @@ namespace art {
       return true;
     }
     return false;
-  }
+  }  // getByLabel<>()
+
+// ----------------------------------------------------------------------
 
   template <typename ELEMENT>
   void
   Event::fillView_(BasicHandle & bh,
-			  Handle<View<ELEMENT> >& result) const
+                   Handle<View<ELEMENT> >& result) const
   {
     std::vector<void const*> pointersToElements;
     // the following is a shared pointer.
@@ -523,8 +542,10 @@ namespace art {
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);
-  }
+  }  // fillView_<>()
 
-}  // namespace art
+}  // art
 
-#endif  // Framework_Event_h
+// ======================================================================
+
+#endif

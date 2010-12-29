@@ -1,11 +1,12 @@
 #ifndef DataFormats_Provenance_TransientStreamer_h
 #define DataFormats_Provenance_TransientStreamer_h
 
-#include <string>
-#include "TROOT.h"
-#include "TClassStreamer.h"
 #include "TClassRef.h"
+#include "TClassStreamer.h"
+#include "TROOT.h"
 #include "art/Utilities/TypeID.h"
+#include <string>
+
 class TBuffer;
 
 namespace art {
@@ -14,7 +15,7 @@ namespace art {
   public:
     typedef T element_type;
     TransientStreamer();
-    void operator() (TBuffer &R__b, void *objp);
+    void operator() (TBuffer &R_b, void *objp);
   private:
     std::string className_;
     TClassRef cl_;
@@ -28,14 +29,14 @@ namespace art {
 
   template <typename T>
   void
-  TransientStreamer<T>::operator()(TBuffer &R__b, void *objp) {
-    if (R__b.IsReading()) {
-      cl_->ReadBuffer(R__b, objp);
+  TransientStreamer<T>::operator()(TBuffer &R_b, void *objp) {
+    if (R_b.IsReading()) {
+      cl_->ReadBuffer(R_b, objp);
       // Fill with default constructed object;
       T* obj = static_cast<T *>(objp);
       *obj = T();
     } else {
-      cl_->WriteBuffer(R__b, objp);
+      cl_->WriteBuffer(R_b, objp);
     }
   }
 

@@ -3,6 +3,8 @@
 
 #include "cetlib/exception.h"
 
+// ----------------------------------------------------------------------
+
 namespace art {
 
   void printCmsException(cet::exception& e, char const* prog = 0);
@@ -10,6 +12,8 @@ namespace art {
   void printStdException(std::exception& e, char const *prog = 0);
   void printUnknownException(char const *prog = 0);
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_MessageLogger_ExceptionMessages
+// ======================================================================
+
+#endif

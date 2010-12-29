@@ -60,7 +60,7 @@ void
 }
 
 
-}  // namespace arttest
+}  // arttest
 
 using arttest::UTC_S1;
 using arttest::UTC_S2;

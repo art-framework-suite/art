@@ -53,7 +53,7 @@ void
 //  int rint = *pint;
    }
 }  // makeSignals::analyze()
-}  // namespace arttest
+}  // arttest
 
 
 using arttest::makeSignals;

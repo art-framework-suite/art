@@ -84,5 +84,5 @@ namespace art {
       return getTrigPaths(triggerResults, trigPaths, dummy);
     }
 
-  }  // namespace service
-}  // namespace art
+  }  // service
+}  // art

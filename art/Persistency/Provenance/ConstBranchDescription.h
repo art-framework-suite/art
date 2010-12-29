@@ -3,29 +3,26 @@
 
 /*----------------------------------------------------------------------
 
-ConstBranchDescription: A class containing a constant shareable branch description
-that is inexpensive to copy.
+ConstBranchDescription - A class containing a constant shareable branch
+                         description that is inexpensive to copy.
+
 This class is not persistable.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <string>
-#include <set>
-
-#include "boost/shared_ptr.hpp"
-
-#include "art/Persistency/Provenance/BranchDescription.h"
 
 #include "Reflex/Type.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "boost/shared_ptr.hpp"
+#include <iosfwd>
+#include <set>
+#include <string>
 
-/*
-  ConstBranchDescription
-
-*/
+// ----------------------------------------------------------------------
 
 namespace art {
 
-  class ConstBranchDescription {
+  class ConstBranchDescription
+  {
   public:
     explicit ConstBranchDescription(BranchDescription const& bd) :
       ptr_(new BranchDescription(bd)) {}
@@ -62,7 +59,7 @@ namespace art {
 
   private:
     boost::shared_ptr<BranchDescription> ptr_;
-  };
+  };  // ConstBranchDescription
 
   inline
   std::ostream&
@@ -89,6 +86,8 @@ namespace art {
     return match(a.me(), b.me(), fileName, m);
   }
 
-}  // namespace art
+}  // art
 
-#endif  // DataFormats_Provenance_ConstBranchDescription_h
+// ======================================================================
+
+#endif

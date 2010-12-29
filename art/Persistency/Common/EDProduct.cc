@@ -5,18 +5,16 @@
 //
 // ======================================================================
 
-
 #include "art/Persistency/Common/EDProduct.h"
-using art::EDProduct;
-
 
 #include "art/Persistency/Provenance/ProductID.h"
 
+using art::EDProduct;
 
-  EDProduct::EDProduct()
+EDProduct::EDProduct()
 { }
 
-  EDProduct::~EDProduct()
+EDProduct::~EDProduct()
 { }
 
 #if 0
@@ -35,4 +33,6 @@ void
 {
   do_fillPtrVector(iToType, iIndicies, oPtr);
 }
-#endif  // 0
+#endif
+
+// ======================================================================

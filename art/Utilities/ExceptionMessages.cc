@@ -58,4 +58,4 @@ namespace art {
   catch(...) {
   }
 
-}  // namespace art
+}  // art

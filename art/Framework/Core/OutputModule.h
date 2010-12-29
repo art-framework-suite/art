@@ -1,13 +1,12 @@
 #ifndef FWCore_Framework_OutputModule_h
 #define FWCore_Framework_OutputModule_h
 
-/*----------------------------------------------------------------------
-
-OutputModule: The base class of all "modules" that write Events to an
-output stream.
-
-----------------------------------------------------------------------*/
-
+// ======================================================================
+//
+// OutputModule - The base class of all "modules" that write Events to an
+//                output stream.
+//
+// ======================================================================
 
 #include "art/Framework/Core/CachedProducts.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -22,10 +21,11 @@ output stream.
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "boost/array.hpp"
-#include "boost/utility.hpp"
+#include "boost/noncopyable.hpp"
 #include <string>
 #include <vector>
 
+// ----------------------------------------------------------------------
 
 namespace art {
 
@@ -43,12 +43,12 @@ namespace art {
 
     explicit OutputModule(fhicl::ParameterSet const& pset);
     virtual ~OutputModule();
-    /// Accessor for maximum number of events to be written.
-    /// -1 is used for unlimited.
+    // Accessor for maximum number of events to be written.
+    // -1 is used for unlimited.
     int maxEvents() const {return maxEvents_;}
 
-    /// Accessor for remaining number of events to be written.
-    /// -1 is used for unlimited.
+    // Accessor for remaining number of events to be written.
+    // -1 is used for unlimited.
     int remainingEvents() const {return remainingEvents_;}
 
     bool selected(BranchDescription const& desc) const;
@@ -153,11 +153,11 @@ namespace art {
 
     std::string workerType() const {return "OutputWorker";}
 
-    /// Tell the OutputModule that is must end the current file.
+    // Tell the OutputModule that is must end the current file.
     void doCloseFile();
 
-    /// Tell the OutputModule to open an output file, if one is not
-    /// already open.
+    // Tell the OutputModule to open an output file, if one is not
+    // already open.
     void maybeOpenFile();
 
 
@@ -167,7 +167,7 @@ namespace art {
 
     void registerAnyProducts(boost::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
 
-    /// Ask the OutputModule if we should end the current file.
+    // Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}
 
     virtual void write(EventPrincipal const& e) = 0;
@@ -215,8 +215,10 @@ namespace art {
     virtual void writeProductDependencies() {}
     virtual void writeBranchMapper() {}
     virtual void finishEndFile() {}
-  };
+  };  // OutputModule
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Framework_OutputModule_h
+// ======================================================================
+
+#endif

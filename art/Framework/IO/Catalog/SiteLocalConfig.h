@@ -1,9 +1,15 @@
 #ifndef FWCore_Catalog_SiteLocalConfig_h
 #define FWCore_Catalog_SiteLocalConfig_h
 
+// ======================================================================
+//
+// SiteLocalConfig
+//
+// ======================================================================
 
 #include <string>
 
+// ----------------------------------------------------------------------
 
 namespace art {
   class ActivityRegistry;
@@ -24,8 +30,10 @@ namespace art {
     // implicit copy constructor
     // implicit assignment operator
   private:
-  };
+  };  // SiteLocalConfig
 
-}  // namespace art
+}  // art
 
-#endif  // FWCore_Catalog_SiteLocalConfig_h
+// ======================================================================
+
+#endif

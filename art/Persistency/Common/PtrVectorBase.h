@@ -7,22 +7,15 @@
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Persistency/Common/RefCore.h"
-
-// C++ support:
 #include <vector>
 #include <typeinfo>
 
-// Contents:
 namespace art {
   class PtrVectorBase;
 }
 
-
 // ======================================================================
-
 
 class art::PtrVectorBase
 {
@@ -135,7 +128,6 @@ private:
 
 };  // PtrVectorBase
 
-
 // ======================================================================
 
-#endif  // DataFormats_Common_PtrVectorBase_h
+#endif

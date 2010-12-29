@@ -28,4 +28,4 @@ namespace art {
            "SubRun ID cannot be modified for an EDInputSource\n";
   }
 
-}  // namespace art
+}  // art

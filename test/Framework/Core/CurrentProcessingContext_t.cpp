@@ -38,7 +38,7 @@ namespace
     ctx = temp;
   }
 
-} // unnamed namespace
+} // namespace
 
 
 void test_default_ctor()

@@ -1,3 +1,6 @@
+#ifndef math_private_h
+#define math_private_h
+
 // abridged from GNU libc 2.6.1 - in detail from
 //   math/math_private.h
 //   sysdeps/ieee754/ldbl-96/math_ldbl.h
@@ -13,9 +16,6 @@
  * is preserved.
  * ====================================================
  */
-
-#ifndef math_private_h
-#define math_private_h
 
 #include <sys/types.h>
 
@@ -81,7 +81,9 @@ namespace art {
         (ix1) = ew_u.parts.lsw;                                     \
     } while (0)
 
-  } // namespace math_private
-} // namespace art
+  }  // math_private
+}  // art
 
-#endif // math_private_h
+// ======================================================================
+
+#endif

@@ -1,7 +1,14 @@
 #ifndef DataFormats_Provenance_ProvenanceFwd_h
 #define DataFormats_Provenance_ProvenanceFwd_h
 
+// ======================================================================
+//
+// ProvenanceFwd
+//
+// ======================================================================
+
 namespace art {
+
   class BranchDescription;
   class Parentage;
   class BranchID;
@@ -25,7 +32,10 @@ namespace art {
   class RunID;
   class Timestamp;
   class BranchMapper;
-}
+
+}  // art
+
+// ----------------------------------------------------------------------
 
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchListIndex.h"
@@ -37,4 +47,6 @@ namespace art {
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 //#include "art/Persistency/Provenance/ProcessConfigurationRegistry.h"
 
-#endif  // DataFormats_Provenance_ProvenanceFwd_h
+// ======================================================================
+
+#endif

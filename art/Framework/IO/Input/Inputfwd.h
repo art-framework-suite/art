@@ -1,17 +1,21 @@
 #ifndef IOPool_Input_Inputfwd_h
 #define IOPool_Input_Inputfwd_h
 
+// ======================================================================
+//
+// BranchInfo
+//
+// ======================================================================
 
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
-
-#include "Rtypes.h"
 #include "Reflex/Type.h"
+#include "Rtypes.h"
+#include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include <map>
+
+// ----------------------------------------------------------------------
 
 class TBranch;
 class TTree;
-
-#include <map>
-
 
 namespace art {
   class BranchKey;
@@ -31,13 +35,16 @@ namespace art {
       TBranch * productBranch_;
       // The rest are for backward compatibility
       TBranch * provenanceBranch_;
-    };
+    };  // BranchInfo
+
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     typedef Long64_t EntryNumber;
     Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
     Int_t getEntry(TTree * tree, EntryNumber entryNumber);
 
-  }  // namespace input
-}  // namespace art
+  }  // input
+}  // art
 
-#endif  // IOPool_Input_Inputfwd_h
+// ======================================================================
+
+#endif
