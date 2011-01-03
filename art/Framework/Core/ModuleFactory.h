@@ -1,9 +1,9 @@
-#ifndef FWCore_Framework_Factory_h
-#define FWCore_Framework_Factory_h
+#ifndef FWCore_Framework_ModuleFactory_h
+#define FWCore_Framework_ModuleFactory_h
 
 // ======================================================================
 //
-// Factory
+// ModuleFactory
 //
 // ======================================================================
 
@@ -16,16 +16,16 @@
 #include <string>
 
 namespace art {
-  class Factory;
+  class ModuleFactory;
 }
 
 // ----------------------------------------------------------------------
 
-class art::Factory
+class art::ModuleFactory
 {
   // non-copyable:
-  Factory( Factory const & );
-  void  operator = ( Factory const & );
+  ModuleFactory( ModuleFactory const & );
+  void  operator = ( ModuleFactory const & );
 
 public:
   static std::auto_ptr<Worker>
@@ -41,13 +41,13 @@ private:
            mgr_map_t;
   mgr_map_t  mgr_map_;
 
-  Factory();
-  ~Factory();
+  ModuleFactory();
+  ~ModuleFactory();
 
-  static Factory &
+  static ModuleFactory &
     the_factory_();
 
-};  // Factory
+};  // ModuleFactory
 
 // ======================================================================
 

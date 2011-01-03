@@ -1,10 +1,10 @@
 // ======================================================================
 //
-// Factory
+// ModuleFactory
 //
 // ======================================================================
 
-#include "art/Framework/Core/Factory.h"
+#include "art/Framework/Core/ModuleFactory.h"
 
 #include "art/Utilities/Exception.h"
 #include <utility>
@@ -13,32 +13,32 @@ using namespace art;
 
 // ----------------------------------------------------------------------
 
-Factory::Factory()
+ModuleFactory::ModuleFactory()
 : mgr_map_( )
 { }
 
-Factory::~Factory()
+ModuleFactory::~ModuleFactory()
 { }
 
 // ----------------------------------------------------------------------
 
-Factory &
-  Factory::the_factory_()
+ModuleFactory &
+  ModuleFactory::the_factory_()
 {
-  static  Factory  the_factory;
+  static ModuleFactory the_factory;
   return the_factory;
 }
 
 // ----------------------------------------------------------------------
 
 std::auto_ptr<Worker>
-  Factory::makeWorker( std::string       const & kind
-                     , WorkerParams      const & p
-                     , ModuleDescription const & md
-                     )
+ModuleFactory::makeWorker( std::string       const & kind
+                           , WorkerParams      const & p
+                           , ModuleDescription const & md
+                           )
 {
   std::shared_ptr<LibraryManager> libmgr_p;
-  mgr_map_t & mm = Factory::the_factory_().mgr_map_;
+  mgr_map_t & mm = ModuleFactory::the_factory_().mgr_map_;
   mgr_map_t::iterator it = mm.find(kind);
   if( it == mm.end() ) {
     libmgr_p.reset( new LibraryManager(kind) );

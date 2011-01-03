@@ -17,7 +17,6 @@ set( art_Framework_Core_sources
   EventPrincipal.cc
 # EventProcessor.cc
   EventSelector.cc
-  Factory.cc
   GeneratedInputSource.cc
   GenericHandle.cc
   GenericObjectOwner.cc
@@ -28,6 +27,7 @@ set( art_Framework_Core_sources
   InputSource.cc
   InputSourceFactory.cc
   LibraryManager.cc
+  ModuleFactory.cc
   RootDictionaryManager.cc
   SubRun.cc
   SubRunPrincipal.cc
@@ -105,7 +105,6 @@ install(FILES Actions.h
               EventPrincipal.h
               EventProcessor.h
               EventSelector.h
-              Factory.h
               FileBlock.h
               Frameworkfwd.h
               GeneratedInputSource.h
@@ -120,6 +119,7 @@ install(FILES Actions.h
               InputSourceFactory.h
               InputSourceMacros.h
               MakerMacros.h
+              ModuleFactory.h
               NoDelayedReader.h
               OccurrenceTraits.h
               OutputModule.h
