@@ -12,8 +12,8 @@
 
 ./IOPool/Input/src/PoolInput.cc
 ./IOPool/Input/src/PoolInput.h
-./IOPool/Input/src/RootFile.h
-./IOPool/Input/src/RootFile.cc
+./IOPool/Input/src/RootInputFile.h
+./IOPool/Input/src/RootInputFile.cc
 ./IOPool/Input/src/RootInputFileSequence.h
 ./IOPool/Input/src/RootInputFileSequence.cc
 ./IOPool/Output/src/RootOutputFile.cc

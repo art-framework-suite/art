@@ -31,7 +31,7 @@ namespace CLHEP {
 namespace art {
 
   class PoolInput;
-  class RootFile;
+  class RootInputFile;
   class FileCatalogItem;
   class InputFileCatalog;
   class FileIndex;
@@ -46,7 +46,7 @@ namespace art {
     virtual ~RootInputFileSequence();
 
     typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
-    typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
+    typedef boost::shared_ptr<RootInputFile> RootInputFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     std::auto_ptr<EventPrincipal> readEvent_();
     boost::shared_ptr<SubRunPrincipal> readSubRun_();
@@ -88,7 +88,7 @@ namespace art {
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
-    RootFileSharedPtr rootFile_;
+    RootInputFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
     CLHEP::RandFlat * flatDistribution_;
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;

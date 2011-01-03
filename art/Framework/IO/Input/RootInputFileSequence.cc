@@ -16,7 +16,7 @@
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Input/DuplicateChecker.h"
 #include "art/Framework/IO/Input/PoolInput.h"
-#include "art/Framework/IO/Input/RootFile.h"
+#include "art/Framework/IO/Input/RootInputFile.h"
 #include "art/Framework/IO/Input/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -157,7 +157,7 @@ namespace art {
   }
 
   void RootInputFileSequence::initFile(bool skipBadFiles) {
-    // close the currently open file, any, and delete the RootFile object.
+    // close the currently open file, any, and delete the RootInputFile object.
     closeFile_();
     boost::shared_ptr<TFile> filePtr;
     try {
@@ -174,7 +174,7 @@ namespace art {
     }
     if (filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
-      rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
+      rootFile_ = RootInputFileSharedPtr(new RootInputFile(fileIter_->fileName(), catalog_.url(),
           processConfiguration(), fileIter_->logicalFileName(), filePtr,
           startAtRun_, startAtSubRun_, startAtEvent_, eventsToSkip_, whichSubRunsToSkip_,
           remainingEvents(), remainingSubRuns(), treeCacheSize_, treeMaxVirtualSize_,

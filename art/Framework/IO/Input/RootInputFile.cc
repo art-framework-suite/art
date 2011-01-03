@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Input/RootFile.h"
+#include "art/Framework/IO/Input/RootInputFile.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -50,7 +50,7 @@ using namespace std;
 
 namespace art {
 
-  RootFile::RootFile(string const& fileName,
+  RootInputFile::RootInputFile(string const& fileName,
                      string const& catalogName,
                      ProcessConfiguration const& processConfiguration,
                      string const& logicalFileName,
@@ -292,7 +292,7 @@ namespace art {
   }
 
   void
-  RootFile::readEntryDescriptionTree() {
+  RootInputFile::readEntryDescriptionTree() {
     // Called only for old format files.
     if (fileFormatVersion_.value_ < 8) return;
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
@@ -324,7 +324,7 @@ namespace art {
   }
 
   void
-  RootFile::readParentageTree()
+  RootInputFile::readParentageTree()
   {
     if (fileFormatVersion_.value_ < 11) {
       // Old format file.
@@ -356,7 +356,7 @@ namespace art {
   }
 
   bool
-  RootFile::setIfFastClonable(int remainingEvents, int remainingSubRuns) const {
+  RootInputFile::setIfFastClonable(int remainingEvents, int remainingSubRuns) const {
     if (!fileFormatVersion_.fastCopyPossible()) return false;
     if (!fileIndex_.allEventsInEntryOrder()) return false;
     if (!whichEventsToProcess_.empty()) return false;
@@ -389,7 +389,7 @@ namespace art {
 
 
   int
-  RootFile::setForcedRunOffset(RunNumber_t const& forcedRunNumber) {
+  RootInputFile::setForcedRunOffset(RunNumber_t const& forcedRunNumber) {
     if (fileIndexBegin_ == fileIndexEnd_) return 0;
     int defaultOffset = (fileIndexBegin_->run_ != 0 ? 0 : 1);
     forcedRunOffset_ = (forcedRunNumber != 0U ? forcedRunNumber - fileIndexBegin_->run_ : defaultOffset);
@@ -400,7 +400,7 @@ namespace art {
   }
 
   boost::shared_ptr<FileBlock>
-  RootFile::createFileBlock() const {
+  RootInputFile::createFileBlock() const {
     return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion_,
                                                      eventTree_.tree(),
                                                      eventTree_.metaTree(),
@@ -414,7 +414,7 @@ namespace art {
   }
 
   string const&
-  RootFile::newBranchToOldBranch(string const& newBranch) const {
+  RootInputFile::newBranchToOldBranch(string const& newBranch) const {
     map<string, string>::const_iterator it = newBranchToOldBranch_.find(newBranch);
     if (it != newBranchToOldBranch_.end()) {
       return it->second;
@@ -423,7 +423,7 @@ namespace art {
   }
 
   FileIndex::EntryType
-  RootFile::getEntryType() const {
+  RootInputFile::getEntryType() const {
     if (fileIndexIter_ == fileIndexEnd_) {
       return FileIndex::kEnd;
     }
@@ -433,7 +433,7 @@ namespace art {
   // Temporary KLUDGE until we can properly merge runs and subRuns across files
   // This KLUDGE skips duplicate run or subRun entries.
   FileIndex::EntryType
-  RootFile::getEntryTypeSkippingDups() {
+  RootInputFile::getEntryTypeSkippingDups() {
     if (fileIndexIter_ == fileIndexEnd_) {
       return FileIndex::kEnd;
     }
@@ -447,7 +447,7 @@ namespace art {
   }
 
   FileIndex::EntryType
-  RootFile::getNextEntryTypeWanted() {
+  RootInputFile::getNextEntryTypeWanted() {
     bool specifiedEvents = !whichEventsToProcess_.empty();
     if (specifiedEvents && eventListIter_ == whichEventsToProcess_.end()) {
       // We are processing specified events, and we are done with them.
@@ -594,7 +594,7 @@ namespace art {
   }
 
   void
-  RootFile::fillFileIndex() {
+  RootInputFile::fillFileIndex() {
     // This function is for backward compatibility only.
     // Newer files store the file index.
     SubRunNumber_t lastSubRun = 0;
@@ -645,7 +645,7 @@ namespace art {
   }
 
   void
-  RootFile::validateFile() {
+  RootInputFile::validateFile() {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
     }
@@ -662,21 +662,21 @@ namespace art {
   }
 
   void
-  RootFile::reportOpened() {
+  RootInputFile::reportOpened() {
     // Report file opened.
     string const label = "source";
     string moduleName = "PoolInput";
   }
 
   void
-  RootFile::close(bool reallyClose) {
+  RootInputFile::close(bool reallyClose) {
     if (reallyClose) {
       filePtr_->Close();
     }
   }
 
   void
-  RootFile::fillEventAuxiliary() {
+  RootInputFile::fillEventAuxiliary() {
     if (fileFormatVersion_.value_ >= 3) {
       EventAuxiliary *pEvAux = &eventAux_;
       eventTree_.fillAux<EventAuxiliary>(pEvAux);
@@ -695,7 +695,7 @@ namespace art {
   }
 
   void
-  RootFile::fillHistory() {
+  RootInputFile::fillHistory() {
     // We could consider doing delayed reading, but because we have to
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
@@ -729,7 +729,7 @@ namespace art {
   }
 
   void
-  RootFile::fillSubRunAuxiliary() {
+  RootInputFile::fillSubRunAuxiliary() {
     if (fileFormatVersion_.value_ >= 3) {
       SubRunAuxiliary *pSubRunAux = &subRunAux_;
       subRunTree_.fillAux<SubRunAuxiliary>(pSubRunAux);
@@ -745,7 +745,7 @@ namespace art {
   }
 
   void
-  RootFile::fillRunAuxiliary() {
+  RootInputFile::fillRunAuxiliary() {
     if (fileFormatVersion_.value_ >= 3) {
       RunAuxiliary *pRunAux = &runAux_;
       runTree_.fillAux<RunAuxiliary>(pRunAux);
@@ -758,7 +758,7 @@ namespace art {
   }
 
   int
-  RootFile::skipEvents(int offset) {
+  RootInputFile::skipEvents(int offset) {
     while (offset > 0 && fileIndexIter_ != fileIndexEnd_) {
       if (fileIndexIter_->getEntryType() == FileIndex::kEvent) {
         --offset;
@@ -791,7 +791,7 @@ namespace art {
   //  when it is asked to do so.
   //
   auto_ptr<EventPrincipal>
-  RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
@@ -815,7 +815,7 @@ namespace art {
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
   auto_ptr<EventPrincipal>
-  RootFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     if (!eventTree_.current()) {
       return auto_ptr<EventPrincipal>(0);
     }
@@ -845,12 +845,12 @@ namespace art {
   }
 
   void
-  RootFile::setAtEventEntry(FileIndex::EntryNumber_t entry) {
+  RootInputFile::setAtEventEntry(FileIndex::EntryNumber_t entry) {
     eventTree_.setEntryNumber(entry);
   }
 
   boost::shared_ptr<RunPrincipal>
-  RootFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
@@ -905,7 +905,7 @@ namespace art {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RootFile::readSubRun(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
+  RootInputFile::readSubRun(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
     RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
@@ -962,7 +962,7 @@ namespace art {
   }
 
   bool
-  RootFile::setEntryAtEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, bool exact) {
+  RootInputFile::setEntryAtEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, bool exact) {
     fileIndexIter_ = fileIndex_.findEventPosition(run, subRun, event, exact);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -970,7 +970,7 @@ namespace art {
   }
 
   bool
-  RootFile::setEntryAtSubRun(SubRunID const& subRun) {
+  RootInputFile::setEntryAtSubRun(SubRunID const& subRun) {
     fileIndexIter_ = fileIndex_.findSubRunPosition(subRun.run(), subRun.subRun(), true);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -978,7 +978,7 @@ namespace art {
   }
 
   bool
-  RootFile::setEntryAtRun(RunID const& run) {
+  RootInputFile::setEntryAtRun(RunID const& run) {
     fileIndexIter_ = fileIndex_.findRunPosition(run.run(), true);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     runTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -986,7 +986,7 @@ namespace art {
   }
 
   void
-  RootFile::overrideRunNumber(RunID & id) {
+  RootInputFile::overrideRunNumber(RunID & id) {
     if (forcedRunOffset_ != 0) {
       id = RunID(id.run() + forcedRunOffset_);
     }
@@ -994,7 +994,7 @@ namespace art {
   }
 
   void
-  RootFile::overrideRunNumber(SubRunID & id) {
+  RootInputFile::overrideRunNumber(SubRunID & id) {
     if (forcedRunOffset_ != 0) {
       id = SubRunID(id.run() + forcedRunOffset_, id.subRun());
     }
@@ -1002,10 +1002,10 @@ namespace art {
   }
 
   void
-  RootFile::overrideRunNumber(EventID & id, bool isRealData) {
+  RootInputFile::overrideRunNumber(EventID & id, bool isRealData) {
     if (forcedRunOffset_ != 0) {
       if (isRealData) {
-        throw art::Exception(errors::Configuration,"RootFile::RootFile()")
+        throw art::Exception(errors::Configuration,"RootInputFile::RootInputFile()")
           << "The 'setRunNumber' parameter of PoolInput cannot be used with real data.\n";
       }
       id = EventID(id.run() + forcedRunOffset_, id.event());
@@ -1015,7 +1015,7 @@ namespace art {
 
 
   void
-  RootFile::readEventHistoryTree() {
+  RootInputFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
     if (fileFormatVersion_.value_ < 7) return;
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
@@ -1026,7 +1026,7 @@ namespace art {
   }
 
   void
-  RootFile::initializeDuplicateChecker() {
+  RootInputFile::initializeDuplicateChecker() {
     if (duplicateChecker_.get() != 0) {
       if (eventTree_.next()) {
         fillEventAuxiliary();
@@ -1038,7 +1038,7 @@ namespace art {
   }
 
   void
-  RootFile::dropOnInput (GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
+  RootInputFile::dropOnInput (GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;
     groupSelector.initialize(rules, productRegistry()->allBranchDescriptions());
@@ -1065,7 +1065,7 @@ namespace art {
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
         if (groupSelector.selected(prod)) {
-          mf::LogWarning("RootFile")
+          mf::LogWarning("RootInputFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"
             << "that was explicitly dropped.\n";
@@ -1103,11 +1103,11 @@ namespace art {
 
   // backward compatibility
   boost::shared_ptr<BranchMapper>
-  RootFile:: makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const {
+  RootInputFile:: makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const {
     if (fileFormatVersion_.value_ >= 7) {
       rootTree.fillStatus();
     } else {
-       mf::LogWarning("RootFile")
+       mf::LogWarning("RootInputFile")
          << "Backward compatibility not fully supported for reading files"
             " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
     }

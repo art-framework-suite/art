@@ -20,7 +20,7 @@ class TTree;
 namespace art {
   class BranchKey;
   class FileFormatVersion;
-  class RootFile;
+  class RootInputFile;
   class RootDelayedReader;
   class RootTree;
 

@@ -46,7 +46,7 @@ private:
   boost::scoped_ptr< RootInputFileSequence >             secondaryFileSequence_;
   boost::array< std::vector<BranchID>, NumBranchTypes >  branchIDsToReplace_;
 
-  typedef  boost::shared_ptr<RootFile>  RootFileSharedPtr;
+  typedef  boost::shared_ptr<RootInputFile>  RootInputFileSharedPtr;
   typedef  input::EntryNumber           EntryNumber;
 
   virtual std::auto_ptr<EventPrincipal>

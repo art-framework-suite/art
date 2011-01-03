@@ -5,7 +5,7 @@ set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
                                  DuplicateChecker.cc
                                  ProvenanceAdaptor.cc
                                  RootDelayedReader.cc
-                                 RootFile.cc
+                                 RootInputFile.cc
                                  RootInputFileSequence.cc
                                  RootTree.cc )
 

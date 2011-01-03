@@ -1,9 +1,9 @@
-#ifndef IOPool_Input_RootFile_h
-#define IOPool_Input_RootFile_h
+#ifndef IOPool_Input_RootInputFile_h
+#define IOPool_Input_RootInputFile_h
 
 // ======================================================================
 //
-// RootFile - used by ROOT input sources
+// RootInputFile - used by ROOT input sources
 //
 // ======================================================================
 
@@ -46,16 +46,16 @@ class TFile;
 namespace art {
 
   //------------------------------------------------------------
-  // Class RootFile: supports file reading.
+  // Class RootInputFile: supports file reading.
 
   class DuplicateChecker;
   class ProvenanceAdaptor;
   class GroupSelectorRules;
 
-  class RootFile : private boost::noncopyable {
+  class RootInputFile : private boost::noncopyable {
   public:
     typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
-    RootFile(std::string const& fileName,
+    RootInputFile(std::string const& fileName,
              std::string const& catalogName,
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
@@ -190,12 +190,12 @@ namespace art {
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
-  }; // RootFile
+  }; // RootInputFile
 
   template <typename T>
   inline
   boost::shared_ptr<BranchMapper>
-  RootFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
+  RootInputFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
     if (fileFormatVersion_.value_ < 8) {
       return makeBranchMapperInOldRelease(rootTree, type);
     }
