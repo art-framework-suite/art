@@ -56,7 +56,7 @@ set( art_Framework_Core_sources
   WorkerRegistry.cc
 )
 
-simple_plugin(RandomNumberSaver)
+simple_plugin(RandomNumberSaver "plugin")
 
 add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
 target_link_libraries(art_Framework_Core

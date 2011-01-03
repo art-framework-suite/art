@@ -7,8 +7,8 @@ set( art_Framework_Modules_sources
 
 add_library(art_Framework_Modules SHARED ${art_Framework_Modules_sources} )
 
-simple_plugin(EmptySource)
-simple_plugin(Prescaler)
+simple_plugin(EmptySource "plugin")
+simple_plugin(Prescaler "plugin")
 
 install ( TARGETS art_Framework_Modules
           DESTINATION ${flavorqual_dir}/lib )
