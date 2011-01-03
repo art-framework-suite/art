@@ -81,7 +81,7 @@ outputs :
 	out1:
 	{
 		module_label: out1
-		module_type: PoolOutputModule
+		module_type: PoolOutput
 		fileName: "out.root"
 	}
 }

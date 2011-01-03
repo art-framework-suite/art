@@ -29,7 +29,7 @@ namespace art {
     else if (duplicateCheckMode == std::string("checkAllFilesOpened")) duplicateCheckMode_ = checkAllFilesOpened;
     else {
       throw cet::exception("Configuration")
-        << "Illegal configuration parameter value passed to PoolSource for\n"
+        << "Illegal configuration parameter value passed to PoolInput for\n"
         << "the \"duplicateCheckMode\" parameter, legal values are:\n"
         << "\"noDuplicateCheck\", \"checkEachFile\", \"checkEachRealDataFile\", \"checkAllFilesOpened\"\n";
     }

@@ -70,7 +70,7 @@ namespace art {
     }
   }
 
-  RootOutputFile::RootOutputFile(PoolOutputModule *om, string const& fileName, string const& logicalFileName) :
+  RootOutputFile::RootOutputFile(PoolOutput *om, string const& fileName, string const& logicalFileName) :
       file_(fileName),
       logicalFile_(logicalFileName),
       om_(om),
@@ -167,7 +167,7 @@ namespace art {
 
     // Register the output file with the JobReport service
     // and get back the token for it.
-    string moduleName = "PoolOutputModule";
+    string moduleName = "PoolOutput";
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
@@ -427,7 +427,7 @@ namespace art {
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   Principal const& principal,
                                   set<ProductProvenance>& oToFill) {
-    if(om_->dropMetaData() == PoolOutputModule::DropAll) return;
+    if(om_->dropMetaData() == PoolOutput::DropAll) return;
     if(om_->dropMetaDataForDroppedData()) return;
     BranchMapper const& iMapper = *principal.branchMapperPtr();
     vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
@@ -436,7 +436,7 @@ namespace art {
       branchesWithStoredHistory_.insert(*it);
       boost::shared_ptr<ProductProvenance> info = iMapper.branchToEntryInfo(*it);
       if(info) {
-        if(om_->dropMetaData() == PoolOutputModule::DropNone ||
+        if(om_->dropMetaData() == PoolOutput::DropNone ||
                  principal.getProvenance(info->branchID()).product().produced()) {
           if(oToFill.insert(*info).second) {
             //haven't seen this one yet
@@ -467,8 +467,8 @@ namespace art {
       branchesWithStoredHistory_.insert(id);
 
       bool produced = i->branchDescription_->produced();
-      bool keepProvenance = om_->dropMetaData() == PoolOutputModule::DropNone ||
-                           (om_->dropMetaData() == PoolOutputModule::DropPrior && produced);
+      bool keepProvenance = om_->dropMetaData() == PoolOutput::DropNone ||
+                           (om_->dropMetaData() == PoolOutput::DropPrior && produced);
       bool getProd = (produced || !fastCloning ||
          treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 

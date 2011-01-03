@@ -1,9 +1,9 @@
-#ifndef IOPool_Input_PoolSource_h
-#define IOPool_Input_PoolSource_h
+#ifndef IOPool_Input_PoolInput_h
+#define IOPool_Input_PoolInput_h
 
 // ======================================================================
 //
-// PoolSource: This is an InputSource
+// PoolInput: This is an InputSource
 //
 // ======================================================================
 
@@ -26,17 +26,17 @@ namespace art {
   class RootInputFileSequence;
   class FileCatalogItem;
 
-  class PoolSource;
+  class PoolInput;
 }
 
-class art::PoolSource
+class art::PoolInput
   : public VectorInputSource
 {
 public:
-  explicit PoolSource( fhicl::ParameterSet    const & pset
+  explicit PoolInput( fhicl::ParameterSet    const & pset
                      , InputSourceDescription const & desc
                      );
-  virtual ~PoolSource( );
+  virtual ~PoolInput( );
 
   using InputSource::productRegistryUpdate;
   using InputSource::runPrincipal;
@@ -87,7 +87,7 @@ private:
   virtual void
     dropUnwantedBranches_( std::vector<std::string> const & wantedBranches );
 
-}; // PoolSource
+}; // PoolInput
 
 // ======================================================================
 

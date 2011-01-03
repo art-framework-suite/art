@@ -3,7 +3,7 @@
 
 // ======================================================================
 //
-// DuplicateChecker - Used by PoolSource to detect events with the same
+// DuplicateChecker - Used by PoolInput to detect events with the same
 //                    run and event number.
 //
 // The class can be configured to check for duplicates

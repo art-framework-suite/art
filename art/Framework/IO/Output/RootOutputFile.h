@@ -9,7 +9,7 @@
 
 #include "TROOT.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Output/PoolOutputModule.h"
+#include "art/Framework/IO/Output/PoolOutput.h"
 #include "art/Framework/IO/Output/RootOutputTree.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -31,15 +31,15 @@ class TFile;
 class TTree;
 
 namespace art {
-  class PoolOutputModule;
+  class PoolOutput;
   class History;
 
   class RootOutputFile {
   public:
-    typedef PoolOutputModule::OutputItem OutputItem;
-    typedef PoolOutputModule::OutputItemList OutputItemList;
+    typedef PoolOutput::OutputItem OutputItem;
+    typedef PoolOutput::OutputItemList OutputItemList;
     typedef boost::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
-    explicit RootOutputFile(PoolOutputModule * om, std::string const& fileName,
+    explicit RootOutputFile(PoolOutput * om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
     void writeOne(EventPrincipal const& e);
@@ -89,7 +89,7 @@ namespace art {
 
     std::string file_;
     std::string logicalFile_;
-    PoolOutputModule const* om_;
+    PoolOutput const* om_;
     bool currentlyFastCloning_;
     boost::shared_ptr<TFile> filePtr_;
     FileID fid_;

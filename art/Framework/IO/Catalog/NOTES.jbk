@@ -10,15 +10,15 @@
 ./FWCore/Sources/interface/ExternalInputSource.h
 ./FWCore/Sources/interface/EDInputSource.h
 
-./IOPool/Input/src/PoolSource.cc
-./IOPool/Input/src/PoolSource.h
+./IOPool/Input/src/PoolInput.cc
+./IOPool/Input/src/PoolInput.h
 ./IOPool/Input/src/RootFile.h
 ./IOPool/Input/src/RootFile.cc
 ./IOPool/Input/src/RootInputFileSequence.h
 ./IOPool/Input/src/RootInputFileSequence.cc
 ./IOPool/Output/src/RootOutputFile.cc
-./IOPool/Output/src/PoolOutputModule.h
-./IOPool/Output/src/PoolOutputModule.cc
+./IOPool/Output/src/PoolOutput.h
+./IOPool/Output/src/PoolOutput.cc
 
 scrap ./FWCore/MessageLogger/test/makeJobReport.cpp
 scrap ./FWCore/MessageLogger/interface/JobReport.h

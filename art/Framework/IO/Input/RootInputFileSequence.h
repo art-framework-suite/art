@@ -30,7 +30,7 @@ namespace CLHEP {
 
 namespace art {
 
-  class PoolSource;
+  class PoolInput;
   class RootFile;
   class FileCatalogItem;
   class InputFileCatalog;
@@ -40,7 +40,7 @@ namespace art {
   class RootInputFileSequence : private boost::noncopyable {
   public:
     explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
-                                   PoolSource const& input,
+                                   PoolInput const& input,
                                    InputFileCatalog const& catalog,
                                    bool primarySequence);
     virtual ~RootInputFileSequence();
@@ -82,7 +82,7 @@ namespace art {
     bool const primary() const;
     void logFileAction(const char* msg, std::string const& file);
 
-    PoolSource const& input_;
+    PoolInput const& input_;
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;

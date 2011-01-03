@@ -665,7 +665,7 @@ namespace art {
   RootFile::reportOpened() {
     // Report file opened.
     string const label = "source";
-    string moduleName = "PoolSource";
+    string moduleName = "PoolInput";
   }
 
   void
@@ -1006,7 +1006,7 @@ namespace art {
     if (forcedRunOffset_ != 0) {
       if (isRealData) {
         throw art::Exception(errors::Configuration,"RootFile::RootFile()")
-          << "The 'setRunNumber' parameter of PoolSource cannot be used with real data.\n";
+          << "The 'setRunNumber' parameter of PoolInput cannot be used with real data.\n";
       }
       id = EventID(id.run() + forcedRunOffset_, id.event());
     }
