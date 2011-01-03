@@ -17,7 +17,7 @@ set( art_Framework_Core_sources
   EventPrincipal.cc
 # EventProcessor.cc
   EventSelector.cc
-# Factory.cc
+  Factory.cc
   GeneratedInputSource.cc
   GenericHandle.cc
   GenericObjectOwner.cc
