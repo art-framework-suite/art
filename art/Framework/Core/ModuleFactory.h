@@ -35,11 +35,7 @@ public:
               );
 
 private:
-  typedef  std::map< std::string
-                   , std::shared_ptr<LibraryManager>
-                   >
-           mgr_map_t;
-  mgr_map_t  mgr_map_;
+  LibraryManager lm_;
 
   ModuleFactory();
   ~ModuleFactory();

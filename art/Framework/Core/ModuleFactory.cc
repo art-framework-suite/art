@@ -14,7 +14,7 @@ using namespace art;
 // ----------------------------------------------------------------------
 
 ModuleFactory::ModuleFactory()
-: mgr_map_( )
+: lm_( "module" )
 { }
 
 ModuleFactory::~ModuleFactory()
@@ -37,30 +37,29 @@ ModuleFactory::makeWorker( std::string       const & kind
                            , ModuleDescription const & md
                            )
 {
-  std::shared_ptr<LibraryManager> libmgr_p;
-  mgr_map_t & mm = ModuleFactory::the_factory_().mgr_map_;
-  mgr_map_t::iterator it = mm.find(kind);
-  if( it == mm.end() ) {
-    libmgr_p.reset( new LibraryManager(kind) );
-    mm.insert( std::make_pair(kind, libmgr_p) );
-  }
-  else
-    libmgr_p = it->second;
-
-  std::string libspec( p.pset_->get<std::string>("_module_type") );
-  typedef Worker*  (*make_t)( WorkerParams      const &
-                            , ModuleDescription const &
-                            );
-  make_t * symbol
-    = static_cast<make_t*>( libmgr_p->getSymbolByLibspec(libspec, "make_temp") );
-  if( symbol == 0 )
-    throw art::Exception(errors::Configuration,"UnknownModule")
-      << "Module " << libspec
-      << " with version " << p.releaseVersion_
-      << " was not registered.\n"
-      << "Perhaps your module type is misspelled or is not a framework plugin.";
-
-  return std::auto_ptr<Worker>( (*symbol)(p,md) );
+   std::string libspec( p.pset_->get<std::string>("_module_type") );
+   typedef Worker*  (*make_t)( WorkerParams      const &
+                               , ModuleDescription const &
+                               );
+   make_t * symbol = nullptr;
+   try {
+      make_t * symbol
+         = static_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
+   }
+   catch (cet::exception e) {
+      throw art::Exception(errors::Configuration,"UnknownModule", e)
+         << "Module " << libspec
+         << " with version " << p.releaseVersion_
+         << " was not registered.\n"
+         << "Perhaps your module type is misspelled or is not a framework plugin.";
+   }
+   if (symbol == nullptr) {
+      throw art::Exception(errors::Configuration, "BadPluginLibrary")
+         << "Module " << libspec
+         << " with version " << p.releaseVersion_
+         << " has internal symbol definition problems: consult an expert.";
+   }
+   return std::auto_ptr<Worker>( (*symbol)(p,md) );
 
 }  // makeWorker()
 
