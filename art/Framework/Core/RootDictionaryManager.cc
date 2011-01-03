@@ -7,10 +7,7 @@
 #include "boost/regex.hpp"
 
 #include "cetlib/exception.h"
-#include "cpp0x/functional"
 #include "Cintex/Cintex.h"
-
-using std::placeholders::_1;
 
 art::RootDictionaryManager::RootDictionaryManager()
    :
@@ -47,7 +44,7 @@ dumpReflexDictionaryInfo(std::ostream &os, std::string const &libpath) const {
                         boost::match_default | boost::format_all);
    CapFunc func = (CapFunc) mm_.getSymbolByPath(map_lib.str(), "SEAL_CAPABILITIES");
    if (func == nullptr) {
-      // Throw correct exception.
+      // TODO: Throw correct exception.
       throw cet::exception("Unable to find properly constructed map library corresponding to dictionary" + libpath);
    }
    int size;
