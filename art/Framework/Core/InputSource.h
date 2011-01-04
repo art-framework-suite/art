@@ -30,7 +30,7 @@ InputSource. This should be improved.
 
 Some examples of InputSource subclasses may be:
 
- 1) EmptySource: creates EventPrincipals which contain no EDProducts.
+ 1) EmptyEvent: creates EventPrincipals which contain no EDProducts.
  2) PoolInput: creates EventPrincipals which "contain" the data
     read from a POOL file. This source should provide for delayed loading
     of data, thus the quotation marks around contain.

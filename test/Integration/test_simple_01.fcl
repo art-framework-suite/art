@@ -88,7 +88,7 @@ outputs :
 
 source :
 {
-	module_type: EmptySource
+	module_type: EmptyEvent
 	module_label: source # was "@main_input"
 
 	# were in the global area before

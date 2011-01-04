@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// EmptySource_plugin
+// EmptyEvent_plugin
 //
 // ======================================================================
 
@@ -11,45 +11,45 @@
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
-  class EmptySource;
+  class EmptyEvent;
 }
-using art::EmptySource;
+using art::EmptyEvent;
 using fhicl::ParameterSet;
 
 // ======================================================================
 
-class art::EmptySource
+class art::EmptyEvent
   : public GeneratedInputSource
 {
 public:
-  explicit EmptySource( ParameterSet           const &
+  explicit EmptyEvent( ParameterSet           const &
                       , InputSourceDescription const & );
-  ~EmptySource();
+  ~EmptyEvent();
 
 private:
   virtual bool produce( Event & );
 
-};  // EmptySource
+};  // EmptyEvent
 
 // ======================================================================
 
-EmptySource::EmptySource( ParameterSet           const & pset
+EmptyEvent::EmptyEvent( ParameterSet           const & pset
                         , InputSourceDescription const & desc
                         )
   : GeneratedInputSource( pset, desc )
 { }
 
-EmptySource::~EmptySource()
+EmptyEvent::~EmptyEvent()
 { }
 
 bool
-  EmptySource::produce( Event & )
+  EmptyEvent::produce( Event & )
 {
   return true;
 }
 
 // ======================================================================
 
-DEFINE_FWK_INPUT_SOURCE(EmptySource);
+DEFINE_FWK_INPUT_SOURCE(EmptyEvent);
 
 // ======================================================================
