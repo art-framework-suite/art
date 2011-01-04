@@ -36,12 +36,13 @@ ModuleFactory::makeWorker( WorkerParams      const & p
                          )
 {
    std::string libspec( p.pset_->get<std::string>("_module_type") );
-   typedef Worker*  (*make_t)( WorkerParams      const &
-                             , ModuleDescription const &
-                             );
-   make_t * symbol = nullptr;
+   typedef Worker* (make_t)( WorkerParams      const &
+                           , ModuleDescription const &
+                           );
+   make_t *symbol = nullptr;
    try {
-      symbol = static_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
+      // reinterpret_cast is required because void* can't be converted to a whole lot.
+      symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
    }
    catch (cet::exception e) {
       throw art::Exception(errors::Configuration,"UnknownModule", e)
@@ -56,7 +57,7 @@ ModuleFactory::makeWorker( WorkerParams      const & p
          << " with version " << p.releaseVersion_
          << " has internal symbol definition problems: consult an expert.";
    }
-   return std::auto_ptr<Worker>( (*symbol)(p,md) );
+   return std::auto_ptr<Worker>( symbol(p,md) );
 
 }  // makeWorker()
 
