@@ -140,8 +140,8 @@ set( TestFWCoreFramework_sources testRunner.cpp
                                  DummySource.cc
 				 edproducer_productregistry_callback.cc
 				 generichandle_t.cppunit.cc
-				 maker2_t.cppunit.cc
-				 maker_t.cppunit.cc
+#				 maker2_t.cppunit.cc
+#				 maker_t.cppunit.cc
 #				 productregistry.cppunit.cc
 )
 #set( FWCoreFrameworkTestDummyService_sources stubs/DependsOnDummyService.cc
@@ -155,7 +155,7 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 #add_library(FWCoreFrameworkTestDummyService SHARED ${art_Framework_Services_Registry_TestDummyService_sources} )
 #add_library(FWCoreFrameworkTestDummyServicePlugin SHARED ${art_Framework_Services_Registry_TestDummyServicePlugin_sources} )
 
-add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )
+#add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )
 #add_executable( TestFWCoreFrameworkeventprocessor  ${TestFWCoreFrameworkeventprocessor_sources} )
 add_executable( TestFrameworkCoreartapp artapp_t.cpp)
 target_link_libraries(TestFrameworkCoreartapp art_Framework_CoreArt ${Boost_PROGRAM_OPTIONS_LIBRARY} )
@@ -184,7 +184,7 @@ target_link_libraries(TestFWCoreFrameworkStatemachine
 add_executable( TestFWCoreFrameworkStatemachineSH TestDriver.cpp )
 
 add_test( TestFrameworkCoreartapp ${EXECUTABLE_OUTPUT_PATH}/TestFrameworkCoreartapp )
-add_test( TestFWCoreFramework ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFramework )
+#add_test( TestFWCoreFramework ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFramework )
 #add_test( TestFWCoreFrameworkeventprocessor  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprocessor )
 add_test( TestFWCoreFrameworkeventprincipal  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprincipal )
 add_test( TestFWCoreFrameworkEvent ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEvent )

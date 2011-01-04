@@ -52,7 +52,6 @@ set( art_Framework_Core_sources
   TriggerResultInserter.cc
   Worker.cc
   WorkerInPath.cc
-  WorkerMaker.cc
   WorkerRegistry.cc
 )
 
@@ -151,7 +150,6 @@ install(FILES Actions.h
               UnscheduledHandler.h
               Worker.h
               WorkerInPath.h
-              WorkerMaker.h
               WorkerParams.h
               WorkerRegistry.h
               WorkerT.h
