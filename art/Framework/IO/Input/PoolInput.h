@@ -9,7 +9,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Input/Inputfwd.h"
-#include "art/Framework/IO/Sources/VectorInputSource.h"
+#include "art/Framework/IO/Sources/EDInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -30,7 +30,7 @@ namespace art {
 }
 
 class art::PoolInput
-  : public VectorInputSource
+  : public EDInputSource
 {
 public:
   explicit PoolInput( fhicl::ParameterSet    const & pset
@@ -69,24 +69,6 @@ private:
     skip( int offset );
   virtual void
     rewind_( );
-  virtual void
-    readMany_( int number
-             , EventPrincipalVector & result
-             );
-  virtual void
-    readMany_( int number
-             , EventPrincipalVector & result
-             , EventID const & id
-             , unsigned int fileSeqNumber
-             );
-  virtual void
-    readManyRandom_( int number
-                   , EventPrincipalVector & result
-                   , unsigned int & fileSeqNumber
-                   );
-  virtual void
-    dropUnwantedBranches_( std::vector<std::string> const & wantedBranches );
-
 }; // PoolInput
 
 // ======================================================================

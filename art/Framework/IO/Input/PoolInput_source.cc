@@ -89,7 +89,7 @@ static void
 PoolInput::PoolInput( fhicl::ParameterSet const & pset
                       , InputSourceDescription const & desc
                       )
-: VectorInputSource     ( pset, desc )
+: EDInputSource     ( pset, desc )
 , primaryFileSequence_  ( new RootInputFileSequence( pset
                                                    , *this
                                                    , catalog()
@@ -253,42 +253,6 @@ void
 PoolInput::skip(int offset)
 {
   primaryFileSequence_->skip(offset);
-}
-
-void
-  PoolInput::readMany_( int number, EventPrincipalVector & result )
-{
-  assert (!secondaryFileSequence_);
-  primaryFileSequence_->readMany_(number, result);
-}
-
-void
-  PoolInput::readMany_( int number
-                       , EventPrincipalVector & result
-                       , EventID const & id
-                       , unsigned int fileSeqNumber
-                       )
-{
-  assert (!secondaryFileSequence_);
-  primaryFileSequence_->readMany_(number, result, id, fileSeqNumber);
-}
-
-void
-  PoolInput::readManyRandom_( int number
-                             , EventPrincipalVector & result
-                             , unsigned int & fileSeqNumber
-                             )
-{
-  assert (!secondaryFileSequence_);
-  primaryFileSequence_->readManyRandom_(number, result, fileSeqNumber);
-}
-
-void
-  PoolInput::dropUnwantedBranches_( std::vector<std::string> const & wantedBranches )
-{
-  assert (!secondaryFileSequence_);
-  assert (!primary());
-  primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
 }
 
 // ======================================================================

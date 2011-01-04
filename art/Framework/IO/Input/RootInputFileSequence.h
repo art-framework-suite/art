@@ -9,8 +9,8 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Input/Inputfwd.h"
-#include "art/Framework/IO/Sources/VectorInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -45,7 +45,6 @@ namespace art {
                                    bool primarySequence);
     virtual ~RootInputFileSequence();
 
-    typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
     typedef boost::shared_ptr<RootInputFile> RootInputFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     std::auto_ptr<EventPrincipal> readEvent_();
@@ -60,10 +59,6 @@ namespace art {
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
     void rewind_();
-    void readMany_(int number, EventPrincipalVector& result);
-    void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
-    void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     ProductRegistry const& fileProductRegistry() const;
   private:
     void initFile(bool skipBadFiles);
