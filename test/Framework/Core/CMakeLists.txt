@@ -3,7 +3,6 @@ project(FWCoreFrameworkTest)
 
 # Library link requirements for tests here
 link_libraries( art_Framework_Services_Registry
-  art_Framework_PluginManager
   art_Utilities
   art_Framework_Core
   ${SIGC}

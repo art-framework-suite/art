@@ -7,8 +7,6 @@
 
 #include "TError.h"
 #include "art/Framework/Core/EventProcessor.h"
-#include "art/Framework/PluginManager/PluginManager.h"
-#include "art/Framework/PluginManager/standard.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
