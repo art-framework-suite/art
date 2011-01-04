@@ -7,7 +7,6 @@
 #include "art/Framework/Core/ModuleFactory.h"
 
 #include "art/Utilities/Exception.h"
-#include <utility>
 
 using namespace art;
 
@@ -32,19 +31,17 @@ ModuleFactory &
 // ----------------------------------------------------------------------
 
 std::auto_ptr<Worker>
-ModuleFactory::makeWorker( std::string       const & kind
-                           , WorkerParams      const & p
-                           , ModuleDescription const & md
-                           )
+ModuleFactory::makeWorker( WorkerParams      const & p
+                         , ModuleDescription const & md
+                         )
 {
    std::string libspec( p.pset_->get<std::string>("_module_type") );
    typedef Worker*  (*make_t)( WorkerParams      const &
-                               , ModuleDescription const &
-                               );
+                             , ModuleDescription const &
+                             );
    make_t * symbol = nullptr;
    try {
-      make_t * symbol
-         = static_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
+      symbol = static_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
    }
    catch (cet::exception e) {
       throw art::Exception(errors::Configuration,"UnknownModule", e)

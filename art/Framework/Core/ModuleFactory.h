@@ -11,8 +11,7 @@
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "cpp0x/memory"
-#include <map>
+#include <memory>
 #include <string>
 
 namespace art {
@@ -29,8 +28,7 @@ class art::ModuleFactory
 
 public:
   static std::auto_ptr<Worker>
-    makeWorker( std::string       const & kind
-              , WorkerParams      const & wp
+    makeWorker( WorkerParams      const & wp
               , ModuleDescription const & md
               );
 
