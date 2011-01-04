@@ -46,7 +46,7 @@ public:
   template< class T >
     bool add( std::auto_ptr<T> serv )
   {
-    return manager_->put(boost::shared_ptr<ServiceWrapper<T> >(serv));
+     return manager_->put(boost::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
   }
 
 private:

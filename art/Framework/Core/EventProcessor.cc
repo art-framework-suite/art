@@ -14,6 +14,7 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Framework/Services/Basic/CurrentModule.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -30,7 +31,9 @@
 #include <exception>
 #include <iomanip>
 #include <iostream>
+#include <string>
 #include <utility>
+#include <vector>
 
 using boost::shared_ptr;
 using fhicl::ParameterSet;
@@ -220,8 +223,8 @@ namespace art {
       InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
       areg->preSourceConstructionSignal_(md);
 
-      shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input,
-                                                                               isdesc).release());
+      shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
+                                                                        isdesc).release());
       areg->postSourceConstructionSignal_(md);
 
       return input;
@@ -241,20 +244,20 @@ namespace art {
 
   // -------- functions to help prepare the services for initialization --------
 
-  typedef vector<ParameterSet> ParameterSets;
+   typedef std::vector<ParameterSet> ParameterSets;
 
-  void addService(string const& name, ParameterSets& service_set)
+   void addService(std::string const& name, ParameterSets& service_set)
   {
     service_set.push_back(ParameterSet());
     service_set.back().put("service_type",name);
   }
 
-  void addOptionalService(string const& name,
+   void addOptionalService(std::string const& name,
                           ParameterSet const& source,
                           ParameterSets& service_set)
   {
     try {
-      service_set.push_back(services.get<ParameterSet>(name));
+      service_set.push_back(source.get<ParameterSet>(name));
       service_set.back().put("service_type",name);
     }
     catch(fhicl::exception&)
@@ -263,9 +266,9 @@ namespace art {
       }
   }
 
-  void addService(string const& name, ParameterSet const& source, ParameterSets& service_set)
+   void addService(std::string const& name, ParameterSet const& source, ParameterSets& service_set)
   {
-    service_set.push_back(services.get<ParameterSet>(name,ParameterSet()));
+    service_set.push_back(source.get<ParameterSet>(name,ParameterSet()));
     service_set.back().put("service_type",name);
   }
 
@@ -287,10 +290,10 @@ namespace art {
 
     ParameterSet user_services = services.get<ParameterSet>("user",ParameterSet());
 
-    std::vector<string> keys = user_services.get_pset_keys();
+    std::vector<std::string> keys = user_services.get_pset_keys();
 
-    for(vector<string>::iterator i=keys.begin(),e=keys.end();i!=e;++i)
-      addService(i->first, user_services,service_set);
+    for(std::vector<std::string>::iterator i=keys.begin(),e=keys.end();i!=e;++i)
+      addService(*i, user_services,service_set);
   }
 
   // ----------- event processor functions ------------------
@@ -359,12 +362,16 @@ namespace art {
     typedef art::service::TriggerNamesService TNS;
     typedef ConstProductRegistry CPR;
     // no configuration available
-    serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(ParameterSet(),actReg_)));
+    serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(ParameterSet(),*actReg_)));
     // special construction
     serviceToken_.add(std::auto_ptr<CPR>(new CPR(preg_)));
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
-    serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatPointControl(fpc_pset,actReg_)));
-    serviceToken_.add(std::auto_ptr<MessageLogger>(new MessageLogger(logger_pset,actReg_)));
+    serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset,*actReg_)));
+    // May be able to do this with CurrentModule serive, else might need
+    // small service to configure the ContextProvider of the
+    // MessageFacility.
+    // serviceToken_.add(std::auto_ptr<MessageLogger>(new
+    // MessageLogger(logger_pset,*actReg_)));
 
     // below still needs modification
 
@@ -389,7 +396,7 @@ namespace art {
                     actReg_));
 
     //   initialize(token,legacy);
-    FDEBUG(2) << pset->to_string() << std::endl;
+    FDEBUG(2) << pset.to_string() << std::endl;
 
     connectSigs(this);
     BranchIDListHelper::updateRegistries(preg_);
@@ -462,7 +469,6 @@ namespace art {
   void
   EventProcessor::procOneEvent(EventPrincipal *pep) {
     if(0 != pep) {
-      IOVSyncValue ts(pep->id(), pep->subRun(), pep->time());
       schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep);
     }
   }
@@ -1252,9 +1258,6 @@ namespace art {
 
   void EventProcessor::beginRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-    IOVSyncValue ts(EventID(runPrincipal.run(),0),
-                    0,
-                    runPrincipal.beginTime());
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal);
     FDEBUG(1) << "\tbeginRun " << run << "\n";
   }
@@ -1262,9 +1265,6 @@ namespace art {
   void EventProcessor::endRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
-    IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
-                    SubRunID::maxSubRunNumber(),
-                    runPrincipal.endTime());
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
@@ -1273,7 +1273,6 @@ namespace art {
     SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
     // NOTE: Using 0 as the event number for the begin of a subRun block is a bad idea
     // subRun blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(subRunPrincipal.run(),0), subRunPrincipal.subRun(), subRunPrincipal.beginTime());
     schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal);
     FDEBUG(1) << "\tbeginSubRun " << run << "/" << subRun << "\n";
   }
@@ -1283,9 +1282,6 @@ namespace art {
     input_->doEndSubRun(subRunPrincipal);
     //NOTE: Using the max event number for the end of a subRun block is a bad idea
     // subRun blocks know their start and end times why not also start and end events?
-    IOVSyncValue ts(EventID(subRunPrincipal.run(),EventID::maxEventNumber()),
-                    subRunPrincipal.subRun(),
-                    subRunPrincipal.endTime());
     schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal);
     FDEBUG(1) << "\tendSubRun " << run << "/" << subRun << "\n";
   }
@@ -1328,7 +1324,6 @@ namespace art {
   }
 
   void EventProcessor::processEvent() {
-    IOVSyncValue ts(sm_evp_->id(), sm_evp_->subRun(), sm_evp_->time());
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
 
     FDEBUG(1) << "\tprocessEvent\n";

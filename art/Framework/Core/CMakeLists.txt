@@ -15,7 +15,7 @@ set( art_Framework_Core_sources
   EPStates.cc
   Event.cc
   EventPrincipal.cc
-# EventProcessor.cc
+  EventProcessor.cc
   EventSelector.cc
   GeneratedInputSource.cc
   GenericHandle.cc
