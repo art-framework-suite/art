@@ -23,7 +23,7 @@ struct LibraryManagerTestFixture {
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()
    :
-   lm("plugin"),
+   lm("module"),
    lm_ref(lm)
 {
 }
@@ -74,17 +74,17 @@ BOOST_AUTO_TEST_CASE ( getSymbolShort )
 
 BOOST_AUTO_TEST_CASE ( getSymbolPathPrecedence )
 {
-   BOOST_REQUIRE_NO_THROW( lm_ref.getSymbolByLibspec ( "1/1/1", "_init") );
+   BOOST_CHECK_NO_THROW( lm_ref.getSymbolByLibspec ( "1/1/1", "_init") );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolAmbiguity )
 {
-   BOOST_REQUIRE_THROW( lm_ref.getSymbolByLibspec ( "3", "_init") == nullptr, cet::exception );
+   BOOST_CHECK_THROW( lm_ref.getSymbolByLibspec ( "3", "_init") == nullptr, cet::exception );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolNoAmbiguity )
 {
-   BOOST_REQUIRE_NO_THROW( lm_ref.getSymbolByLibspec ( "2/1/3", "_init") == nullptr );
+   BOOST_CHECK_NO_THROW( lm_ref.getSymbolByLibspec ( "2/1/3", "_init") );
 }
 
 BOOST_AUTO_TEST_CASE ( dictLoadable )
