@@ -89,4 +89,4 @@ namespace arttest {
   }
 }
 using arttest::ThingSource;
-DEFINE_FWK_INPUT_SOURCE(ThingSource);
+DEFINE_ART_INPUT_SOURCE(ThingSource);

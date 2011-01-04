@@ -8,7 +8,8 @@
 // ======================================================================
 
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/PluginManager/PluginFactory.h"
+#include "art/Framework/Core/LibraryManager.h"
+
 #include "fhiclcpp/ParameterSet.h"
 #include <memory>
 #include <string>
@@ -16,29 +17,31 @@
 // ----------------------------------------------------------------------
 
 namespace art {
+  class InputSourceFactory;
+}
 
-  typedef InputSource* (ISFunc)(fhicl::ParameterSet const&,
-                                InputSourceDescription const&);
+class art::InputSourceFactory
+{
+  // non-copyable:
+  InputSourceFactory( InputSourceFactory const & );
+  void  operator = ( InputSourceFactory const & );
 
-  typedef artplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
+ public:
+  static std::auto_ptr<InputSource>
+     makeInputSource(fhicl::ParameterSet const&,
+                     InputSourceDescription const&);
 
-  class InputSourceFactory {
-  public:
-    ~InputSourceFactory();
+private:
+  LibraryManager lm_;
 
-    static InputSourceFactory* get();
+  InputSourceFactory();
+  ~InputSourceFactory();
 
-    std::auto_ptr<InputSource>
-      makeInputSource(fhicl::ParameterSet const&,
-                      InputSourceDescription const&) const;
+  static InputSourceFactory &
+     the_factory_();
 
+};  // InputSourceFactory
 
-  private:
-    InputSourceFactory();
-    static InputSourceFactory singleInstance_;
-  };  // InputSourceFactory
-
-}  // art
 
 // ======================================================================
 

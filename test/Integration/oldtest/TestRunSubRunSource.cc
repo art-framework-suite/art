@@ -110,5 +110,5 @@ namespace art {
 }
 
 using art::TestRunSubRunSource;
-DEFINE_FWK_INPUT_SOURCE(TestRunSubRunSource);
+DEFINE_ART_INPUT_SOURCE(TestRunSubRunSource);
 

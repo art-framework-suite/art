@@ -102,4 +102,4 @@ namespace arttest {
 
 }
 using arttest::ThingRawSource;
-DEFINE_FWK_INPUT_SOURCE(ThingRawSource);
+DEFINE_ART_INPUT_SOURCE(ThingRawSource);

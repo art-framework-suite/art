@@ -8,63 +8,58 @@
 
 #include <iostream>
 
+using namespace art;
 
-EDM_REGISTER_PLUGINFACTORY(art::InputSourcePluginFactory,"CMS EDM Framework InputSource");
+InputSourceFactory::InputSourceFactory()
+   : lm_( "source" )
+{ }
 
-namespace art {
+InputSourceFactory::~InputSourceFactory()
+{ }
 
-  InputSourceFactory::~InputSourceFactory()
-  { }
+InputSourceFactory &
+  InputSourceFactory::the_factory_()
+{
+  static InputSourceFactory the_factory;
+  return the_factory;
+}
 
-  InputSourceFactory::InputSourceFactory()
-  { }
+std::auto_ptr<InputSource>
+InputSourceFactory::makeInputSource(ParameterSet const& conf,
+                                    InputSourceDescription const& desc)
+{
+   std::string libspec = conf.get<std::string>("_module_type");
 
-  InputSourceFactory InputSourceFactory::singleInstance_;
+   FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << std::endl;
 
-  InputSourceFactory* InputSourceFactory::get()
-  {
-    // will not work with plugin factories
-    //static InputSourceFactory f;
-    //return &f;
+   typedef std::auto_ptr<InputSource>
+      (make_t)(fhicl::ParameterSet const&,
+               InputSourceDescription const&);
 
-    return &singleInstance_;
-  }
+   make_t *symbol = nullptr;
 
-  std::auto_ptr<InputSource>
-  InputSourceFactory::makeInputSource(ParameterSet const& conf,
-                                      InputSourceDescription const& desc) const
-  {
-    std::string modtype = conf.get<std::string>("@module_type");
-    FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << std::endl;
-    std::auto_ptr<InputSource> wm;
-    try {
-      wm = std::auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
-    }
-    catch(art::Exception& ex) {
-      ex << "Error occurred while creating source " << modtype << "\n";
-      throw ex;
-    }
-    catch(cet::exception& e) {
-      e << "Error occurred while creating source " << modtype << "\n";
-      throw e;
-    }
+   try {
+      // reinterpret_cast is required because void* can't be converted to a whole lot.
+      symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make") );
+   }
+   catch (cet::exception e) {
+      throw art::Exception(errors::Configuration,"NoSourceModule", e)
+         << "InputSource " << libspec
+         << " was not registered.\n"
+         << "Perhaps your module type is misspelled or is not a framework plugin.";
+   }
+   if (symbol == nullptr) {
+      throw art::Exception(errors::Configuration, "BadPluginLibrary")
+         << "InputSource " << libspec
+         << " has internal symbol definition problems: consult an expert.";
+   }
+   std::auto_ptr<InputSource> wm = symbol(conf, desc);
 
-    if(wm.get()==0) {
-        throw art::Exception(errors::Configuration,"NoSourceModule")
-          << "InputSource Factory:\n"
-          << "Cannot find source type from ParameterSet: "
-          << modtype << "\n"
-          << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
-          << "Try running EdmPluginDump to obtain a list of available Plugins.";
-    }
+   wm->registerProducts();
 
-    wm->registerProducts();
+   FDEBUG(1) << "InputSourceFactory: created input source "
+             << libspec
+             << std::endl;
 
-    FDEBUG(1) << "InputSourceFactory: created input source "
-              << modtype
-              << std::endl;
-
-    return wm;
-  }
-
-}  // art
+   return wm;
+}

@@ -257,6 +257,6 @@ PoolInput::skip(int offset)
 
 // ======================================================================
 
-DEFINE_FWK_INPUT_SOURCE(PoolInput);
+DEFINE_ART_INPUT_SOURCE(PoolInput);
 
 // ======================================================================
