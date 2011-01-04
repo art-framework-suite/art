@@ -6,15 +6,15 @@
 
 #include "art/Framework/Core/WorkerRegistry.h"
 
-// TODO: Temporary removal
-// #include "art/Framework/Core/Factory.h"
+#include "art/Framework/Core/ModuleFactory.h"
 #include "art/Framework/Core/Worker.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+
 #include <sstream>
 
 using fhicl::ParameterSet;
+using namespace art;
 
-// TODO: Make this work.
-#if 0
 namespace
 {
   ModuleDescription
@@ -30,7 +30,6 @@ namespace
     return md;
   }
 } // namespace
-#endif
 
 namespace art {
 
@@ -54,9 +53,6 @@ namespace art {
 
     WorkerMap::iterator workerIt = m_workerMap.find(workerid);
 
-#if 1
-    abort();
-#else
     // TODO: Make this work.
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end())
@@ -65,8 +61,7 @@ namespace art {
 	actReg_->preModuleConstructionSignal_(moduleDesc);
 
 	// This is what is getting refactored.
-	//std::auto_ptr<Worker> workerPtr = Factory::get()->makeWorker(p, moduleDesc);
-	std::auto_ptr<Worker> workerPtr = Factory::makeWorker(p, moduleDesc);
+	std::auto_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
 
 	actReg_->postModuleConstructionSignal_(moduleDesc);
 	workerPtr->setActivityRegistry(actReg_);
@@ -75,7 +70,6 @@ namespace art {
 	m_workerMap[workerid].reset(workerPtr.release());
 	return m_workerMap[workerid].get();
       }
-#endif
     return (workerIt->second.get());
 
   }
