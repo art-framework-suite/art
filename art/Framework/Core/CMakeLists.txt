@@ -48,7 +48,6 @@ set( art_Framework_Core_sources
   TFileDirectory.cc
   TH1AddDirectorySentry.cc
   TriggerNames.cc
-  TriggerNamesService.cc
   TriggerResultInserter.cc
   Worker.cc
   WorkerInPath.cc
@@ -143,7 +142,6 @@ install(FILES Actions.h
               TFileDirectory.h
               TH1AddDirectorySentry.h
               TriggerNames.h
-              TriggerNamesService.h
               TriggerReport.h
               TriggerResultInserter.h
               UnknownModuleException.h

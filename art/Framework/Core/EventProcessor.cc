@@ -12,7 +12,7 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/TriggerNamesService.h"
+#include "art/Framework/Services/Basic/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Basic/CurrentModule.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"

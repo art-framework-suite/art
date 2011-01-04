@@ -505,7 +505,7 @@ g/#include/s:FWCore/Framework/interface/SourceFactory.h:art/Framework/Core/Sourc
 g/#include/s:FWCore/Framework/interface/TFileDirectory.h:art/Framework/Core/TFileDirectory.h:
 g/#include/s:FWCore/Framework/interface/TH1AddDirectorySentry.h:art/Framework/Core/TH1AddDirectorySentry.h:
 g/#include/s:FWCore/Framework/interface/TriggerNames.h:art/Framework/Core/TriggerNames.h:
-g/#include/s:FWCore/Framework/interface/TriggerNamesService.h:art/Framework/Core/TriggerNamesService.h:
+g/#include/s:FWCore/Framework/interface/TriggerNamesService.h:art/Framework/Services/Basic/TriggerNamesService.h:
 g/#include/s:FWCore/Framework/interface/TriggerReport.h:art/Framework/Core/TriggerReport.h:
 g/#include/s:FWCore/Framework/interface/UnknownModuleException.h:art/Framework/Core/UnknownModuleException.h:
 g/#include/s:FWCore/Framework/interface/UnscheduledHandler.h:art/Framework/Core/UnscheduledHandler.h:

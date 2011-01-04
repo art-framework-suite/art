@@ -1,6 +1,7 @@
 # project name
 project(art_Framework_Services_Basic)
 
+simple_plugin(TriggerNamesService "service")
 simple_plugin(CurrentModule "service")
 simple_plugin(FloatingPointControl "service")
 simple_plugin(RandomNumberGenerator "service")

@@ -35,7 +35,7 @@
 #include "art/Framework/Core/EventSelector.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/TriggerNamesService.h"
+#include "art/Framework/Services/Basic/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/RegexMatch.h"
 #include "boost/algorithm/string.hpp"
