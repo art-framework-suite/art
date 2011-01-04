@@ -28,7 +28,7 @@ std::auto_ptr<InputSource>
 InputSourceFactory::makeInputSource(ParameterSet const& conf,
                                     InputSourceDescription const& desc)
 {
-   std::string libspec = conf.get<std::string>("_module_type");
+   std::string libspec = conf.get<std::string>("module_type");
 
    FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << std::endl;
 

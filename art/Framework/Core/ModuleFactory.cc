@@ -35,7 +35,7 @@ ModuleFactory::makeWorker( WorkerParams      const & p
                          , ModuleDescription const & md
                          )
 {
-   std::string libspec( p.pset_->get<std::string>("_module_type") );
+   std::string libspec( p.pset_->get<std::string>("module_type") );
    typedef Worker* (make_t)( WorkerParams      const &
                            , ModuleDescription const &
                            );
