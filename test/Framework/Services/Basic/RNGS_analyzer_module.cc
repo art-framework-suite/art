@@ -61,6 +61,6 @@ namespace test {
 }  // test
 
 
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 using test::RNGS_analyzer;
 DEFINE_FWK_MODULE(RNGS_analyzer);

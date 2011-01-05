@@ -8,7 +8,7 @@
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Output/RootOutputFile.h"

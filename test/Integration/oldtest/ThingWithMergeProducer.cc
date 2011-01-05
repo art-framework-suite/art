@@ -12,7 +12,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "test/TestObjects/Thing.h"
 #include "test/TestObjects/ThingWithMerge.h"
 #include "test/TestObjects/ThingWithIsEqual.h"

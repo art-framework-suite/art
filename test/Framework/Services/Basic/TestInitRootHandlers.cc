@@ -23,7 +23,7 @@
 // #include "art/Utilities/Algorithms.h"
 
 // user include files
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Provenance/Provenance.h"

@@ -7,7 +7,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Basic/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"

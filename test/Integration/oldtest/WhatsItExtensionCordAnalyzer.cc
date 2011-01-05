@@ -25,7 +25,7 @@
 // user include files
 #include "art/Framework/Core/EDAnalyzer.h"
 
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 
 #include "FWCore/Integration/test/WhatsIt.h"

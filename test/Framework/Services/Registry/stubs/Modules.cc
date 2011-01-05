@@ -9,7 +9,7 @@
 #include "FWCore/ServiceRegistry/test/stubs/DependsOnDummyService.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyService.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyServiceE0.h"
-#include "art/Framework/Services/Registry/ServiceMaker.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 using namespace testserviceregistry;
 using namespace art::serviceregistry;

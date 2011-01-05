@@ -23,8 +23,8 @@ ActivityRegistry
 connect_but_block_self
 Service
 ServiceLegacy
-ServiceMakerBase
-ServiceMaker
+ServiceMacrosBase
+ServiceMacros
 ServicePluginFactory
 ServiceRegistry
 ServicesManager

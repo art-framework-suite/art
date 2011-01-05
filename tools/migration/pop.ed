@@ -367,8 +367,8 @@ g/#include/s:FWCore/RootAutoLibraryLoader/src/stdNamespaceAdder.h:art/Framework/
 g/#include/s:FWCore/ServiceRegistry/interface/ActivityRegistry.h:art/Framework/Services/Registry/ActivityRegistry.h:
 g/#include/s:FWCore/ServiceRegistry/interface/Service.h:art/Framework/Services/Registry/Service.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceLegacy.h:art/Framework/Services/Registry/ServiceLegacy.h:
-g/#include/s:FWCore/ServiceRegistry/interface/ServiceMaker.h:art/Framework/Services/Registry/ServiceMaker.h:
-g/#include/s:FWCore/ServiceRegistry/interface/ServiceMakerBase.h:art/Framework/Services/Registry/ServiceMakerBase.h:
+g/#include/s:FWCore/ServiceRegistry/interface/ServiceMacros.h:art/Framework/Services/Registry/ServiceMacros.h:
+g/#include/s:FWCore/ServiceRegistry/interface/ServiceMacrosBase.h:art/Framework/Services/Registry/ServiceMacrosBase.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServicePluginFactory.h:art/Framework/Services/Registry/ServicePluginFactory.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceRegistry.h:art/Framework/Services/Registry/ServiceRegistry.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceToken.h:art/Framework/Services/Registry/ServiceToken.h:
@@ -420,7 +420,7 @@ g/#include/s:FWCore/Framework/interface/ComponentDescription.h:art/Framework/Cor
 g/#include/s:FWCore/Framework/interface/ComponentFactory.h:art/Framework/Core/ComponentFactory.h:
 g/#include/s:FWCore/Framework/interface/ComponentMaker.h:art/Framework/Core/ComponentMaker.h:
 g/#include/s:FWCore/Framework/interface/ConfigurableInputSource.h:art/Framework/Core/ConfigurableInputSource.h:
-g/#include/s:FWCore/Framework/interface/ConstProductRegistry.h:art/Framework/Core/ConstProductRegistry.h:
+g/#include/s:FWCore/Framework/interface/ConstProductRegistry.h:art/Framework/Services/Basic/ConstProductRegistry.h:
 g/#include/s:FWCore/Framework/interface/CurrentProcessingContext.h:art/Framework/Core/CurrentProcessingContext.h:
 g/#include/s:FWCore/Framework/interface/DataKey.h:art/Framework/Core/DataKey.h:
 g/#include/s:FWCore/Framework/interface/DataKeyTags.h:art/Framework/Core/DataKeyTags.h:
@@ -481,7 +481,7 @@ g/#include/s:FWCore/Framework/interface/LooperFactory.h:art/Framework/Core/Loope
 g/#include/s:FWCore/Framework/interface/LuminosityBlock.h:art/Framework/Core/LuminosityBlock.h:
 g/#include/s:FWCore/Framework/interface/LuminosityBlockPrincipal.h:art/Framework/Core/LuminosityBlockPrincipal.h:
 g/#include/s:FWCore/Framework/interface/MakeDataException.h:art/Framework/Core/MakeDataException.h:
-g/#include/s:FWCore/Framework/interface/MakerMacros.h:art/Framework/Core/MakerMacros.h:
+g/#include/s:FWCore/Framework/interface/ModuleMacros.h:art/Framework/Core/ModuleMacros.h:
 g/#include/s:FWCore/Framework/interface/ModuleFactory.h:art/Framework/Core/ModuleFactory.h:
 g/#include/s:FWCore/Framework/interface/NoDataException.h:art/Framework/Core/NoDataException.h:
 g/#include/s:FWCore/Framework/interface/NoDelayedReader.h:art/Framework/Core/NoDelayedReader.h:

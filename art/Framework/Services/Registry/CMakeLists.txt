@@ -14,7 +14,7 @@ install(FILES ActivityRegistry.h
               connect_but_block_self.h
               ServiceHandle.h
               ServiceLegacy.h
-              ServiceMaker.h
+              ServiceMacros.h
               ServiceRegistry.h
               ServicesManager.h
               ServiceToken.h

@@ -1,7 +1,7 @@
 #include "art/Framework/Core/OutputModule.h"
 
 #include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Framework/Services/Basic/ConstProductRegistry.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"

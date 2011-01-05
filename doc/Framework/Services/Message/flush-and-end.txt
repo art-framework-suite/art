@@ -51,7 +51,7 @@ In CreateServices, itmaker invokes add on its second part.  The loop this is in
 is controlled by requestedCreationOrder, which has typeinfo for
 art::service::MessageLogger first (InitRootHandlers is second).
 ServicesManager::MakerHolder::add calls maker_-> make
-  ServiceMaker<T> with T = art::service::MessageLogger calls pService
+  ServiceMacros<T> with T = art::service::MessageLogger calls pService
   passsing in maker.make(iPS, iAR), which directly calls AllArgsMaker<T>::make
   AllArgsMaker<T>::make(const art::ParameterSet& iPS,art::ActivityRegistry& iAR)
   with T = art::service::MessageLogger creates a new MessageLogger

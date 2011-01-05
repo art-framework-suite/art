@@ -14,7 +14,7 @@
 // system include files
 
 // user include files
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "FWCore/Framework/test/stubs/TestPRegisterModule1.h"
 #include "FWCore/Framework/test/stubs/TestPRegisterModule2.h"
 

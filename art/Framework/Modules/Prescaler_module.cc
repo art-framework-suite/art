@@ -7,7 +7,7 @@
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {

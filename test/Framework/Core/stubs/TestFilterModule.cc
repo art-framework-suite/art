@@ -7,7 +7,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 
 #include <string>

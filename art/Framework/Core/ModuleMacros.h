@@ -1,9 +1,9 @@
-#ifndef Framework_MakerMacros_h
-#define Framework_MakerMacros_h
+#ifndef Framework_ModuleMacros_h
+#define Framework_ModuleMacros_h
 
 // ======================================================================
 //
-// MakerMacros
+// ModuleMacros
 //
 // Note: Libraries that include these symbol definitions cannot be linked
 // into a main program as other libraries are.  This is because the "one

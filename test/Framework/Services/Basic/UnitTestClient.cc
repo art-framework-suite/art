@@ -1,7 +1,7 @@
 #include "test/Framework/Services/Basic/UnitTestClient.h"
 #include "art/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
 #include <string>

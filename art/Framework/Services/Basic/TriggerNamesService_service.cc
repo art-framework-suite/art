@@ -1,5 +1,5 @@
 #include "art/Framework/Services/Basic/TriggerNamesService.h"
-
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -84,5 +84,8 @@ namespace art {
       return getTrigPaths(triggerResults, trigPaths, dummy);
     }
 
+DEFINE_ART_SYSTEM_SERVICE(TriggerNamesService)
+
   }  // service
 }  // art
+

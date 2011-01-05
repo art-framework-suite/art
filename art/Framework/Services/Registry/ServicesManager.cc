@@ -82,6 +82,7 @@ void
                               , LibraryManager const & lm
                               )
 {
+  typedef art::TypeIDBase (*GET_TYPEID_t)();
   for( ParameterSets::const_iterator it = psets.begin()
                                    , e  = psets.end(); it != e; ++it )
     {
@@ -89,9 +90,9 @@ void
 
       // go to lm and get the typeid and maker function for this service
       GET_TYPEID_t typeid_func
-        = (GET_TYPEID_t)lm.getSymbolByLibspec(service_name,"get_typeid");
+         = reinterpret_cast<GET_TYPEID_t>(lm.getSymbolByLibspec(service_name,"get_typeid"));
       MAKER_t make_func
-        = (MAKER_t)lm.getSymbolByLibspec(service_name,"make");
+         = reinterpret_cast<MAKER_t>(lm.getSymbolByLibspec(service_name,"make"));
 
       if(typeid_func==0)
         throw art::Exception(art::errors::LogicError,"Service")

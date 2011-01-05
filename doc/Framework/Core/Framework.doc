@@ -84,7 +84,7 @@ InputSource
 InputSourceMacros
 IOVSyncValue
 MakeDataException
-MakerMacros
+ModuleMacros
 ModuleFactory
 NoDataException
 NoDelayedReader

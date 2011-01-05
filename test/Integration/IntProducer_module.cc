@@ -6,7 +6,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Persistency/Common/Handle.h"
 #include "test/TestObjects/ToyProducts.h"

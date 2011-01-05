@@ -1,6 +1,6 @@
 #include "TH1.h"
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Basic/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"

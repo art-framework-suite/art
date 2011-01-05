@@ -3,7 +3,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 namespace arttest {
   ThingProducer::ThingProducer(art::ParameterSet const& iConfig):

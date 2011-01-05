@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_Q.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
 #include <string>

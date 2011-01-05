@@ -93,7 +93,6 @@ install(FILES Actions.h
               CPCSentry.h
               CachedProducts.h
               ConfigurableInputSource.h
-              ConstProductRegistry.h
               CurrentProcessingContext.h
               DataViewImpl.h
               DelayedReader.h
@@ -119,7 +118,7 @@ install(FILES Actions.h
               InputSourceDescription.h
               InputSourceFactory.h
               InputSourceMacros.h
-              MakerMacros.h
+              ModuleMacros.h
               ModuleFactory.h
               NoDelayedReader.h
               OccurrenceTraits.h

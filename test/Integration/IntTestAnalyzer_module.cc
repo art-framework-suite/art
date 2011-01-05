@@ -6,7 +6,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/Handle.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"

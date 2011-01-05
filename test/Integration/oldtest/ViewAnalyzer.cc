@@ -14,7 +14,7 @@
 #include "art/Persistency/Common/View.h"
 #include "test/TestObjects/ToyProducts.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "FWCore/Integration/test/ViewAnalyzer.h"
 
 using namespace art;

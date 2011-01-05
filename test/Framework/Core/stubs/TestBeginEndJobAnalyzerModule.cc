@@ -1,4 +1,4 @@
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
 //define this as a plug-in

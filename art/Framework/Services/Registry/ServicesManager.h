@@ -11,7 +11,6 @@
 #include "art/Framework/Services/Basic/FloatingPointControl.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
-#include "art/Framework/Services/Registry/ServiceMaker.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeIDBase.h"
@@ -27,6 +26,9 @@
 */
 
 namespace art {
+
+   typedef std::auto_ptr<art::ServiceWrapperBase> (*MAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
+
   class ServiceToken;
 
   class ServicesManager

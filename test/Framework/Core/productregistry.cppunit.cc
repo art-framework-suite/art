@@ -13,7 +13,7 @@
 // #include "art/Utilities/Exception.h"
 #include "cetlib/exception.h"
 #include "art/Framework/Core/SignallingProductRegistry.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Framework/Services/Basic/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Framework/PluginManager/ProblemTracker.h"

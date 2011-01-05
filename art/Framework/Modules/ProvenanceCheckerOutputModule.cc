@@ -7,7 +7,7 @@
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "cetlib/exception.h"

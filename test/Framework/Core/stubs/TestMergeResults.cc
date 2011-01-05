@@ -21,12 +21,12 @@
 #include "test/TestObjects/ThingWithMerge.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Framework/Services/Basic/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 
 #include "art/MessageLogger/MessageLogger.h"
 
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include <string>
 #include <vector>

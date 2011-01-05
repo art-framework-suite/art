@@ -2,7 +2,7 @@
 
 
 #include "art/Framework/Core/Breakpoints.h"
-#include "art/Framework/Core/ConstProductRegistry.h"
+#include "art/Framework/Services/Basic/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/InputSource.h"

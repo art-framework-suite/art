@@ -1,6 +1,6 @@
 #include "test/Framework/Services/Message/MemoryTestClient_B.h"
 #include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
 #include <iomanip>

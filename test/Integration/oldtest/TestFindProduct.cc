@@ -13,7 +13,7 @@
 // an abort.
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/ParameterSet/ParameterSet.h"
 #include "art/ParameterSet/InputTag.h"
 #include "test/TestObjects/ToyProducts.h"

@@ -6,7 +6,7 @@
 #include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Persistency/Common/Handle.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Utilities/Exception.h"
 #include "art/MessageLogger/MessageLogger.h"
 

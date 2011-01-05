@@ -1,6 +1,6 @@
 #include "test/Framework/Services/Message/UnitTestClient_O.h"
 #include "art/MessageLogger/MessageLogger.h"
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
 #include <string>

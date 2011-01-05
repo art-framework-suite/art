@@ -13,7 +13,7 @@
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/Provenance.h"
 
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 
 #include <vector>
 #include <string>

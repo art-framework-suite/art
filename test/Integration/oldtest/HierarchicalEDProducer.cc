@@ -1,4 +1,4 @@
-#include "art/Framework/Core/MakerMacros.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "FWCore/Integration/test/HierarchicalEDProducer.h"
 
 namespace arttest {

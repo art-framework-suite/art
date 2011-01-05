@@ -63,7 +63,7 @@ Core/InputSourceFactory :
 	PluginFactory<ISFunc>
 	
 ServicePluginFactory : 
-	PluginFactory< ServiceMakerBase* ()>
+	PluginFactory< ServiceMacrosBase* ()>
 	
 Code/Factory :
 	PluginFactory<Maker*>

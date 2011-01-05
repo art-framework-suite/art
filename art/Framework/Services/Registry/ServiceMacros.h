@@ -1,9 +1,9 @@
-#ifndef ServiceRegistry_ServiceMaker_h
-#define ServiceRegistry_ServiceMaker_h
+#ifndef ServiceRegistry_ServiceMacros_h
+#define ServiceRegistry_ServiceMacros_h
 
 // ======================================================================
 //
-// ServiceMaker - Used to make an instance of a Service
+// ServiceMacros - Used to make an instance of a Service
 //
 // ======================================================================
 
@@ -21,13 +21,16 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-extern "C"
-{
-  typedef art::TypeIDBase (*GET_TYPEID_t)();
-  typedef std::auto_ptr<art::ServiceWrapperBase> (*MAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
-}
-
 // ----------------------------------------------------------------------
+
+#define DEFINE_ART_SERVICE_HOOK(klass) \
+extern "C" \
+art::TypeIDBase \
+  get_typeid() \
+{ return art::TypeIDBase(typeid(klass)); }
+
+#define DEFINE_ART_SYSTEM_SERVICE(klass) \
+ DEFINE_ART_SERVICE_HOOK(klass)
 
 #define DEFINE_ART_SERVICE(klass) \
 extern "C" \
@@ -36,12 +39,9 @@ std::auto_ptr<art::ServiceWrapperBase> \
 { return std::auto_ptr<art::ServiceWrapperBase>( \
     new art::ServiceWrapper<klass>( \
       std::auto_ptr<klass>( \
-        new klass(cfg,reg))       )            ); \
+        new klass(cfg,reg)) ) ); \
 } \
-extern "C" \
-art::TypeIDBase \
-  get_typeid() \
-{ return art::TypeIDBase(typeid(klass)); }
+DEFINE_ART_SERVICE_HOOK(klass)
 
 // ======================================================================
 
