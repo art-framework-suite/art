@@ -53,14 +53,12 @@ namespace art {
 
     WorkerMap::iterator workerIt = m_workerMap.find(workerid);
 
-    // TODO: Make this work.
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end())
       {
 	ModuleDescription moduleDesc(createModuleDescription(p));
 	actReg_->preModuleConstructionSignal_(moduleDesc);
 
-	// This is what is getting refactored.
 	std::auto_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
 
 	actReg_->postModuleConstructionSignal_(moduleDesc);
