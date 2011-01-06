@@ -1,99 +1,95 @@
-
-
-
 services:
 {
- # these are not optional, but you can futher configure them
- # root_loader is present not configured
-  
+  # these are not optional, but you can futher configure them
+  # root_loader is present not configured
+
   message: { }
   floating_point_control: { }
   trigger_names: { }
   # unix_signal: { } no longer a service
   current_module: { } # might not need configuration
 
- scheduler:  # options block in the old system
- {
-	Rethrow: ['OtherCMS','StdException','Unknown','BadAlloc',
-		 'BadExceptionType','ProductNotFound','DictionaryNotFound',
-		'InsertFailure','Configuration','LogicError','UnimplementedFeature',
-		'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
-		'EventCorruption','ScheduleExecutionFailure','EventProcessorFailure',
-		'FileInPathError','FileOpenError','FileReadError','FatalRootError',
-		'MismatchedInputFiles','ProductDoesNotSupportViews',
-		'ProductDoesNotSupportPtr','NotFound']
-	# Ignore: []
-
-	wantSummary: true
-
-	# fileMode : ""
-	# handleEmptyRuns : true
-	# handleEmptySubRuns : true
- } 
- 
- # there are built-in, but need to be configured to come to life
- timing: { }
- memory: { } 
- tfile: { }
- tracer: { }
-
- user:
+  scheduler:  # options block in the old system
   {
-    # user-defined, plugin services
-  }
+    Rethrow: ['OtherCMS','StdException','Unknown','BadAlloc',
+              'BadExceptionType','ProductNotFound','DictionaryNotFound',
+              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'EventCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    # Ignore: []
+    wantSummary: true
+    # fileMode : ""
+    # handleEmptyRuns : true
+    # handleEmptySubRuns : true
+  } 
+
+   # These are provided by Art, but are not system services and therefore
+   # need to be configured to come to life.
+   timing: { }
+   memory: { } 
+   tfile: { }
+   tracer: { }
+
+   user:
+   {
+     # user-defined, plugin services
+   }
 }
 
 physics:
 {
- producers :
+  producers :
   {
-	m1a:
-	{
-		module_label: m1a
-		module_type: IntProducer
-		ivalue: 1
-	}
+    m1a:
+    {
+      module_label: m1a
+      module_type: IntProducer
+      ivalue: 1
+    }
   }
 
- filters : 
+  filters : 
   {
   }
-  
- analyzers :
-  {
-	a1:
-	{
-		module_label: a1
-		module_type: IntAnalyzer
-		label: m1a # look up the real name for this parameter in the code
-	}
-  }
-  
- p1: [ m1a ]
- e1: [ a1, out1 ]
 
-  trigger_paths : [ p1 ]
-  end_paths : [ e1 ]
+  analyzers :
+  {
+    a1:
+    {
+      module_label: a1
+      module_type: IntAnalyzer
+      label: m1a # look up the real name for this parameter in the code
+    }
+  }
+
+   p1: [ m1a ]
+   e1: [ a1, out1 ]
+
+   trigger_paths : [ p1 ]
+   end_paths : [ e1 ]
 }
 
 outputs : 
 {
-	out1:
-	{
-		module_label: out1
-		module_type: RootOutput
-		fileName: "out.root"
-	}
+  out1:
+  {
+    module_label: out1
+    module_type: RootOutput
+    fileName: "out.root"
+  }
 }
 
 source :
 {
-	module_type: EmptyEvent
-	module_label: source # was "@main_input"
+  module_type: EmptyEvent
+  module_label: source # was "@main_input"
 
-	# were in the global area before
-	# maxEvents : 10
-	# maxSubRuns : 2
+  # were in the global area before
+  # maxEvents : 10
+  # maxSubRuns : 2
 }
 
 # build these?
