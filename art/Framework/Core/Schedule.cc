@@ -952,14 +952,14 @@ namespace art {
          message << "Found a total of "
                  << numFailures
                  << " illegal entries in paths.";
-         throw cet::exception(message.str());
+         throw cet::exception("IllegalPathEntries") << message;
       }
    }
 
    size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
                                                   art::Path const &path,
                                                   bool isEndPath) const {
-      return current_num_failures +=
+      return current_num_failures +
          checkOnePath(path, isEndPath);
     }
 
