@@ -948,11 +948,10 @@ namespace art {
                                               true));
       if (numFailures > 0) {
          // TODO: Throw correct exception.
-         std::ostringstream message;
-         message << "Found a total of "
-                 << numFailures
-                 << " illegal entries in paths.";
-         throw cet::exception("IllegalPathEntries") << message;
+         throw cet::exception("IllegalPathEntries")
+            << "Found a total of "
+            << numFailures
+            << " illegal entries in paths; see error log for full list.";
       }
    }
 
@@ -983,7 +982,7 @@ namespace art {
       if (nFailures > 0) {
          message << "\n";
          cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
-         LogError("IllegalPathElements")
+         LogError("IllegalPathEntries")
             << message;
       }
       return results.size();
