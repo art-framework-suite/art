@@ -43,6 +43,9 @@ namespace art {
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
 
+    std::string const &label() const { return worker_->label(); }
+    bool modifiesEvent() const { return worker_->modifiesEvent(); }
+
   private:
     RunStopwatch::StopwatchPointer stopwatch_;
 

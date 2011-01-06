@@ -32,6 +32,7 @@ namespace art {
 
     virtual ~WorkerT();
 
+    virtual bool modifiesEvent() const { return module_->modifiesEvent(); }
 
   template <typename ModType>
   static std::auto_ptr<T> makeModule(ModuleDescription const& md,

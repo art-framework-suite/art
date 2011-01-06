@@ -83,6 +83,10 @@ namespace art {
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
+    virtual bool modifiesEvent() const = 0;
+
+    std::string const &label() const { return md_.moduleLabel(); }
+
   protected:
     virtual std::string workerType() const = 0;
     virtual bool implDoBegin(EventPrincipal&,
