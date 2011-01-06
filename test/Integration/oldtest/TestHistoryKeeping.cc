@@ -66,7 +66,7 @@ namespace arttest
 	art::ParameterSet ps;
 	assert(ev.getProcessParameterSet(*i, ps));
 	assert(!ps.empty());
-	assert(ps.getParameter<std::string>("@process_name") == *i);
+	assert(ps.getParameter<std::string>("process_name") == *i);
       }
   }
 

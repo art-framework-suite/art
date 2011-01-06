@@ -56,7 +56,7 @@ int main()
 
   art::ParameterSet ps1;
   std::string typeName1("DummyServiceA1");
-  ps1.addParameter("@service_type", typeName1);
+  ps1.addParameter("service_type", typeName1);
   vps1.push_back(ps1);
 
   // The next two are intentionally swapped to test build
@@ -66,12 +66,12 @@ int main()
 
   art::ParameterSet ps3;
   std::string typeName3("DummyServiceB3");
-  ps3.addParameter("@service_type", typeName3);
+  ps3.addParameter("service_type", typeName3);
   vps1.push_back(ps3);
 
   art::ParameterSet ps2;
   std::string typeName2("DummyServiceD2");
-  ps2.addParameter("@service_type", typeName2);
+  ps2.addParameter("service_type", typeName2);
   vps1.push_back(ps2);
 
   boost::shared_ptr<ServicesManager> legacy2(new ServicesManager(legacyToken,

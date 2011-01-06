@@ -154,11 +154,11 @@ testEvent::registerProduct(std::string const& tag,
     availableProducts_ = new ProductRegistry();
 
   ParameterSet moduleParams;
-  moduleParams.template put<std::string>("@module_type", moduleClassName);
-  moduleParams.template put<std::string>("@module_label", moduleLabel);
+  moduleParams.template put<std::string>("module_type", moduleClassName);
+  moduleParams.template put<std::string>("module_label", moduleLabel);
 
   ParameterSet processParams;
-  processParams.template put<std::string>("@process_name", processName);
+  processParams.template put<std::string>("process_name", processName);
   processParams.template put<ParameterSet>(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
@@ -234,12 +234,12 @@ testEvent::testEvent() :
   ParameterSet moduleParams;
   std::string moduleLabel("modMulti");
   std::string moduleClassName("IntProducer");
-  moduleParams.put<std::string>("@module_type", moduleClassName);
-  moduleParams.put<std::string>("@module_label", moduleLabel);
+  moduleParams.put<std::string>("module_type", moduleClassName);
+  moduleParams.put<std::string>("module_label", moduleLabel);
 
   ParameterSet processParams;
   std::string processName("CURRENT");
-  processParams.put<std::string>("@process_name", processName);
+  processParams.put<std::string>("process_name", processName);
   processParams.put(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
@@ -291,12 +291,12 @@ void testEvent::setUp()
   ParameterSet moduleParamsEarly;
   std::string moduleLabelEarly("currentModule");
   std::string moduleClassNameEarly("IntProducer");
-  moduleParamsEarly.put<std::string>("@module_type", moduleClassNameEarly);
-  moduleParamsEarly.put<std::string>("@module_label", moduleLabelEarly);
+  moduleParamsEarly.put<std::string>("module_type", moduleClassNameEarly);
+  moduleParamsEarly.put<std::string>("module_label", moduleLabelEarly);
 
   ParameterSet processParamsEarly;
   std::string processNameEarly("EARLY");
-  processParamsEarly.put<std::string>("@process_name", processNameEarly);
+  processParamsEarly.put<std::string>("process_name", processNameEarly);
   processParamsEarly.put(moduleLabelEarly, moduleParamsEarly);
 
   ProcessConfiguration processEarly;
@@ -308,12 +308,12 @@ void testEvent::setUp()
   ParameterSet moduleParamsLate;
   std::string moduleLabelLate("currentModule");
   std::string moduleClassNameLate("IntProducer");
-  moduleParamsLate.put<std::string>("@module_type", moduleClassNameLate);
-  moduleParamsLate.put<std::string>("@module_label", moduleLabelLate);
+  moduleParamsLate.put<std::string>("module_type", moduleClassNameLate);
+  moduleParamsLate.put<std::string>("module_label", moduleLabelLate);
 
   ParameterSet processParamsLate;
   std::string processNameLate("LATE");
-  processParamsLate.put<std::string>("@process_name", processNameLate);
+  processParamsLate.put<std::string>("process_name", processNameLate);
   processParamsLate.put(moduleLabelLate, moduleParamsLate);
 
   ProcessConfiguration processLate;

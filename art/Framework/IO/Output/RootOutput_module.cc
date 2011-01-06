@@ -42,7 +42,7 @@ namespace art {
     fastCloning_(pset.get<bool>("fastCloning", true) && wantAllEvents()),
     dropMetaData_(DropNone),
     dropMetaDataForDroppedData_(pset.get<bool>("dropMetaDataForDroppedData", false)),
-    moduleLabel_(pset.get<std::string>("@module_label")),
+    moduleLabel_(pset.get<std::string>("module_label")),
     outputFileCount_(0),
     inputFileCount_(0),
     rootOutputFile_() {

@@ -106,7 +106,7 @@ test_ep::fake_single_module_process(std::string const& tag,
 {
   fhicl::ParameterSet processParams;
   processParams.put(processName, moduleParams);
-  processParams.put<std::string>("@process_name",
+  processParams.put<std::string>("process_name",
 					  processName);
 
   art::ProcessConfiguration* result =
@@ -127,8 +127,8 @@ test_ep::fake_single_process_branch(std::string const& tag,
   std::string productClassName = dummyType.userClassName();
   std::string friendlyProductClassName = dummyType.friendlyClassName();
   fhicl::ParameterSet modParams;
-  modParams.put<std::string>("@module_type", moduleClass);
-  modParams.put<std::string>("@module_label", moduleLabel);
+  modParams.put<std::string>("module_type", moduleClass);
+  modParams.put<std::string>("module_label", moduleLabel);
   mod.parameterSetID_ = modParams.id();
   mod.moduleName_ = moduleClass;
   mod.moduleLabel_ = moduleLabel;

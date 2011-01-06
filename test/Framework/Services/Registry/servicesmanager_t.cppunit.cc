@@ -101,7 +101,7 @@ testServicesManager::loadTest()
 
       art::ParameterSet ps;
       std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
+      ps.addParameter("service_type", typeName);
       int value = 1;
       ps.addParameter("value", value);
       pss.push_back(ps);
@@ -115,7 +115,7 @@ testServicesManager::loadTest()
 
       art::ParameterSet ps;
       std::string typeName("DoesntExistService");
-      ps.addParameter("@service_type", typeName);
+      ps.addParameter("service_type", typeName);
       pss.push_back(ps);
 
       bool threwConfigurationException = false;
@@ -132,7 +132,7 @@ testServicesManager::loadTest()
 
       art::ParameterSet ps;
       std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
+      ps.addParameter("service_type", typeName);
       int value = 1;
       ps.addParameter("value", value);
       pss.push_back(ps);
@@ -164,7 +164,7 @@ testServicesManager::legacyTest()
 
    art::ParameterSet ps;
    std::string typeName("DummyService");
-   ps.addParameter("@service_type", typeName);
+   ps.addParameter("service_type", typeName);
    int value = 1;
    ps.addParameter("value", value);
    pss.push_back(ps);
@@ -178,7 +178,7 @@ testServicesManager::legacyTest()
 
       art::ParameterSet ps;
       std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
+      ps.addParameter("service_type", typeName);
       int value = 2;
       ps.addParameter("value", value);
       pss.push_back(ps);
@@ -197,7 +197,7 @@ testServicesManager::legacyTest()
 
       art::ParameterSet ps;
       std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
+      ps.addParameter("service_type", typeName);
       int value = 2;
       ps.addParameter("value", value);
       pss.push_back(ps);
@@ -211,7 +211,7 @@ testServicesManager::legacyTest()
 
       art::ParameterSet ps;
       std::string typeName("DummyService");
-      ps.addParameter("@service_type", typeName);
+      ps.addParameter("service_type", typeName);
       int value = 2;
       ps.addParameter("value", value);
       pss.push_back(ps);
@@ -257,7 +257,7 @@ testServicesManager::dependencyTest()
       {
          art::ParameterSet ps;
          std::string typeName("DummyService");
-         ps.addParameter("@service_type", typeName);
+         ps.addParameter("service_type", typeName);
          int value = 1;
          ps.addParameter("value", value);
          pss.push_back(ps);
@@ -265,7 +265,7 @@ testServicesManager::dependencyTest()
       {
          art::ParameterSet ps;
          std::string typeName("DependsOnDummyService");
-         ps.addParameter("@service_type", typeName);
+         ps.addParameter("service_type", typeName);
          pss.push_back(ps);
       }
 
@@ -278,13 +278,13 @@ testServicesManager::dependencyTest()
       {
          art::ParameterSet ps;
          std::string typeName("DependsOnDummyService");
-         ps.addParameter("@service_type", typeName);
+         ps.addParameter("service_type", typeName);
          pss.push_back(ps);
       }
       {
          art::ParameterSet ps;
          std::string typeName("DummyService");
-         ps.addParameter("@service_type", typeName);
+         ps.addParameter("service_type", typeName);
          int value = 1;
          ps.addParameter("value", value);
          pss.push_back(ps);

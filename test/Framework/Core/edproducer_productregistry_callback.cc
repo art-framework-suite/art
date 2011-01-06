@@ -139,12 +139,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
    std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
    ParameterSet p1;
-   p1.put("@module_type",std::string("TestMod") );
-   p1.put("@module_label",std::string("t1") );
+   p1.put("module_type",std::string("TestMod") );
+   p1.put("module_label",std::string("t1") );
 
    ParameterSet p2;
-   p2.put("@module_type",std::string("TestMod") );
-   p2.put("@module_label",std::string("t2") );
+   p2.put("module_type",std::string("TestMod") );
+   p2.put("module_label",std::string("t2") );
 
    art::ActionTable table;
 
@@ -154,12 +154,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef(){
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
-   l1.put("@module_type",std::string("ListenMod") );
-   l1.put("@module_label",std::string("l1") );
+   l1.put("module_type",std::string("ListenMod") );
+   l1.put("module_label",std::string("l1") );
 
    ParameterSet l2;
-   l2.put("@module_type",std::string("ListenMod") );
-   l2.put("@module_label",std::string("l2") );
+   l2.put("module_type",std::string("ListenMod") );
+   l2.put("module_label",std::string("l2") );
 
    art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
    art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
@@ -199,12 +199,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
    std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
    ParameterSet p1;
-   p1.put("@module_type",std::string("TestMod") );
-   p1.put("@module_label",std::string("t1") );
+   p1.put("module_type",std::string("TestMod") );
+   p1.put("module_label",std::string("t1") );
 
    ParameterSet p2;
-   p2.put("@module_type",std::string("TestMod") );
-   p2.put("@module_label",std::string("t2") );
+   p2.put("module_type",std::string("TestMod") );
+   p2.put("module_label",std::string("t2") );
 
    art::ActionTable table;
 
@@ -214,12 +214,12 @@ void  testEDProducerProductRegistryCallback::testCircularRef2(){
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
-   l1.put("@module_type",std::string("ListenMod") );
-   l1.put("@module_label",std::string("l1") );
+   l1.put("module_type",std::string("ListenMod") );
+   l1.put("module_label",std::string("l1") );
 
    ParameterSet l2;
-   l2.put("@module_type",std::string("ListenMod") );
-   l2.put("@module_label",std::string("l2") );
+   l2.put("module_type",std::string("ListenMod") );
+   l2.put("module_label",std::string("l2") );
 
    art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
    art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
@@ -259,12 +259,12 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    std::auto_ptr<Maker> f(new WorkerMaker<TestMod>);
 
    ParameterSet p1;
-   p1.put("@module_type",std::string("TestMod") );
-   p1.put("@module_label",std::string("t1") );
+   p1.put("module_type",std::string("TestMod") );
+   p1.put("module_label",std::string("t1") );
 
    ParameterSet p2;
-   p2.put("@module_type",std::string("TestMod") );
-   p2.put("@module_label",std::string("t2") );
+   p2.put("module_type",std::string("TestMod") );
+   p2.put("module_label",std::string("t2") );
 
    art::ActionTable table;
 
@@ -274,13 +274,13 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
 
    std::auto_ptr<Maker> lM(new WorkerMaker<ListenMod>);
    ParameterSet l1;
-   l1.put("@module_type",std::string("ListenMod") );
-   l1.put("@module_label",std::string("l1") );
+   l1.put("module_type",std::string("ListenMod") );
+   l1.put("module_label",std::string("l1") );
 
    std::auto_ptr<Maker> lFM(new WorkerMaker<ListenFloatMod>);
    ParameterSet l2;
-   l2.put("@module_type",std::string("ListenMod") );
-   l2.put("@module_label",std::string("l2") );
+   l2.put("module_type",std::string("ListenMod") );
+   l2.put("module_label",std::string("l2") );
 
    art::WorkerParams paramsl1(l1, l1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
    art::WorkerParams paramsl2(l2, l2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());

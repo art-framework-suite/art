@@ -177,7 +177,7 @@ namespace arttest
         ParameterSet trigpset;
         bool status = psetRegistry->getMapped(trigpathsID, trigpset);
         if (status) {
-          Strings trigpaths = trigpset.getParameter<Strings>("@trigger_paths");
+          Strings trigpaths = trigpset.getParameter<Strings>("trigger_paths");
           if (trigpaths.size() != expected_trigger_previous_.size()) {
             std::cerr << "TestTriggerNames: Using provenance\n"
                  << "Expected and actual previous trigger path not the same size" << std::endl;

@@ -125,7 +125,7 @@ void testone(const Strings& paths,
   // registry
 
   ParameterSet trigger_pset;
-  trigger_pset.put<Strings>("@trigger_paths", paths);
+  trigger_pset.put<Strings>("trigger_paths", paths);
   ParameterSetRegistry::put(trigger_pset);
 
   TriggerResults results_id(bm, trigger_pset.id());
@@ -246,14 +246,14 @@ int main()
   ParameterSet proc_pset;
 
   std::string processName("HLT");
-  proc_pset.put<std::string>("@process_name", processName);
+  proc_pset.put<std::string>("process_name", processName);
 
   ParameterSet trigPaths;
-  trigPaths.put<Strings>("@trigger_paths", paths);
-  proc_pset.put<ParameterSet>("@trigger_paths", trigPaths);
+  trigPaths.put<Strings>("trigger_paths", paths);
+  proc_pset.put<ParameterSet>("trigger_paths", trigPaths);
 
   Strings endPaths;
-  proc_pset.put<Strings>("@end_paths", endPaths);
+  proc_pset.put<Strings>("end_paths", endPaths);
 
   // We do not care what is in these parameters for the test, they
   // just need to exist.

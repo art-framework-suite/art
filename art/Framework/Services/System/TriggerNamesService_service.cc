@@ -18,10 +18,10 @@ namespace art {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
 
       trigger_pset_ =
-        pset.get<fhicl::ParameterSet>("@trigger_paths");
+        pset.get<fhicl::ParameterSet>("trigger_paths");
 
-      trignames_ = trigger_pset_.get<vector<string> >("@trigger_paths");
-      end_names_ = pset.get<vector<string> >("@end_paths");
+      trignames_ = trigger_pset_.get<vector<string> >("trigger_paths");
+      end_names_ = pset.get<vector<string> >("end_paths");
 
       ParameterSet defopts;
       ParameterSet opts =
@@ -29,7 +29,7 @@ namespace art {
       wantSummary_ =
         opts.get<bool>("wantSummary",false);
 
-      process_name_ = pset.get<string>("@process_name");
+      process_name_ = pset.get<string>("process_name");
 
       loadPosMap(trigpos_,trignames_);
       loadPosMap(end_pos_,end_names_);
@@ -50,7 +50,7 @@ namespace art {
       ParameterSet pset;
       if (ParameterSetRegistry::get(triggerResults.parameterSetID(), pset)) {
 
-        trigPaths = pset.get<vector<string> >("@trigger_paths",Strings());
+        trigPaths = pset.get<vector<string> >("trigger_paths",Strings());
 
         if (trigPaths.size() != triggerResults.size()) {
           throw art::Exception(art::errors::Unknown)

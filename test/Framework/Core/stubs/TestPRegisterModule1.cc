@@ -26,7 +26,7 @@ TestPRegisterModule1::TestPRegisterModule1(art::ParameterSet const& p):pset_(p){
 void TestPRegisterModule1::produce(Event& e, EventSetup const&)
 {
 
-  std::string myname = pset_.getParameter<std::string>("@module_label");
+  std::string myname = pset_.getParameter<std::string>("module_label");
   std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
   e.put(product);
 }
