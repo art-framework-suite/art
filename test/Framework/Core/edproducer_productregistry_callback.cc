@@ -14,7 +14,7 @@
 #include "art/Version/GetReleaseVersion.h"
 
 #include "art/Framework/Core/SignallingProductRegistry.h"
-#include "art/Framework/Services/Basic/ConstProductRegistry.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Actions.h"

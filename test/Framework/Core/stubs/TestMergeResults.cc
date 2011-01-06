@@ -21,7 +21,7 @@
 #include "test/TestObjects/ThingWithMerge.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Framework/Services/Registry/Service.h"
-#include "art/Framework/Services/Basic/ConstProductRegistry.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 
 #include "art/MessageLogger/MessageLogger.h"

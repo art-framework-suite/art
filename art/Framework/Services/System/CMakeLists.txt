@@ -1,0 +1,15 @@
+# project name
+project(art_Framework_Services_System)
+
+simple_plugin(ConstProductRegistry "service")
+simple_plugin(CurrentModule "service")
+simple_plugin(FloatingPointControl "service")
+simple_plugin(TriggerNamesService "service")
+
+install(FILES
+  ConstProductRegistry.h
+  CurrentModule.h
+  FloatingPointControl.h
+  TriggerNamesService.h
+  DESTINATION ${product}/${version}/include/art/Framework/Services/System
+)

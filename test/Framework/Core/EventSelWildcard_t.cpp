@@ -3,7 +3,7 @@
 #include "art/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Framework/Services/Basic/TriggerNamesService.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"

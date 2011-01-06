@@ -5,7 +5,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Basic/CurrentModule.h"
+#include "art/Framework/Services/System/CurrentModule.h"
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"

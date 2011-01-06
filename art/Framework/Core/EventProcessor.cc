@@ -2,7 +2,7 @@
 
 
 #include "art/Framework/Core/Breakpoints.h"
-#include "art/Framework/Services/Basic/ConstProductRegistry.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/InputSource.h"
@@ -12,9 +12,9 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Services/Basic/TriggerNamesService.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Basic/CurrentModule.h"
+#include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"

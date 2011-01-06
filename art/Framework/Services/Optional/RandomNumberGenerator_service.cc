@@ -32,7 +32,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/DualRand.h"
@@ -49,7 +49,7 @@
 #include "CLHEP/Random/RanshiEngine.h"
 #include "CLHEP/Random/TripleRand.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Services/Basic/CurrentModule.h"
+#include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"

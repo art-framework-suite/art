@@ -1,4 +1,4 @@
-#include "art/Framework/Services/Basic/TriggerNamesService.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Exception.h"

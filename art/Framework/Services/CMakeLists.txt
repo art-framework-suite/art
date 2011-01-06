@@ -2,5 +2,6 @@
 project(art_Framework_Services)
 
 # build art_Framework_Services libraries
-subdirs (Basic)
+subdirs (Optional)
+subdirs (System)
 subdirs (Registry)

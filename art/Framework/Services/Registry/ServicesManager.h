@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/LibraryManager.h"
-#include "art/Framework/Services/Basic/FloatingPointControl.h"
+#include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"

@@ -18,7 +18,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #ifdef RNGS
-//#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
+//#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #endif
 #include "art/Utilities/GlobalIdentifier.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"

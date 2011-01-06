@@ -6,7 +6,7 @@
 
 #include "art/Framework/IO/Output/RootOutputFile.h"
 
-#include "art/Framework/Services/Basic/ConstProductRegistry.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/RunPrincipal.h"

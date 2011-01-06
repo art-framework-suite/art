@@ -3,7 +3,7 @@
 
 #include "art/Framework/Core/TriggerNames.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Basic/TriggerNamesService.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Common/TriggerResults.h"
 
 namespace art {

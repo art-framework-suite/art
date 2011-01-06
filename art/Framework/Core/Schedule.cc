@@ -11,7 +11,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Services/Basic/TriggerNamesService.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"

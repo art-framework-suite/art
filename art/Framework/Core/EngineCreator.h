@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 

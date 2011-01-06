@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Basic/TFileService.h"
+#include "art/Framework/Services/Optional/TFileService.h"
 
 #include "TFile.h"
 #include "TROOT.h"
