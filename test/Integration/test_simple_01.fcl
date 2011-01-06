@@ -97,9 +97,9 @@ source :
 }
 
 # build these?
-# all_modules: [ m1a, a1, out1 ]
-# all_sources: [ source ]
-# paths: [ p1 e1 ]
-# trigger_paths: [ p1 ]
-# end_paths: [ e1 ]
+all_modules: [ m1a, a1, out1 ]
+all_sources: [ source ]
+paths: [ p1 e1 ]
+trigger_paths: [ p1 ]
+end_paths: [ e1 ]
 process_name: DEVEL
