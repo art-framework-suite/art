@@ -25,80 +25,57 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
+#include "cpp0x/functional"
+
 #include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <iomanip>
 #include <list>
-
+#include <numeric>
 
 using namespace cet;
 using namespace fhicl;
 using namespace mf;
 using namespace std;
+using namespace art;
 
+using std::placeholders::_1;
+using std::placeholders::_2;
 
-namespace art {
-  namespace {
+namespace {
 
-    // Function template to transform each element in the input range to
-    // a value placed into the output range. The supplied function
-    // should take a const_reference to the 'input', and write to a
-    // reference to the 'output'.
-    template <class InputIterator, class ForwardIterator, class Func>
-    void
-    transform_into(InputIterator begin, InputIterator end,
-                   ForwardIterator out, Func func) {
+   // Function template to transform each element in the input range to
+   // a value placed into the output range. The supplied function
+   // should take a const_reference to the 'input', and write to a
+   // reference to the 'output'.
+   template <class InputIterator, class ForwardIterator, class Func>
+   void
+   transform_into(InputIterator begin, InputIterator end,
+                  ForwardIterator out, Func func) {
       for (; begin != end; ++begin, ++out) func(*begin, *out);
-    }
+   }
 
-    // Function template that takes a sequence 'from', a sequence
-    // 'to', and a callable object 'func'. It and applies
-    // transform_into to fill the 'to' sequence with the values
-    // calcuated by the callable object, taking care to fill the
-    // outupt only if all calls succeed.
-    template <class FROM, class TO, class FUNC>
-    void
-    fill_summary(FROM const& from, TO& to, FUNC func) {
+   // Function template that takes a sequence 'from', a sequence
+   // 'to', and a callable object 'func'. It and applies
+   // transform_into to fill the 'to' sequence with the values
+   // calcuated by the callable object, taking care to fill the
+   // outupt only if all calls succeed.
+   template <class FROM, class TO, class FUNC>
+   void
+   fill_summary(FROM const& from, TO& to, FUNC func) {
       TO temp(from.size());
       transform_into(from.begin(), from.end(), temp.begin(), func);
       to.swap(temp);
-    }
+   }
 
-    // -----------------------------
+   // -----------------------------
 
-    // Here we make the trigger results inserter directly.  This should
-    // probably be a utility in the WorkerRegistry or elsewhere.
-
-    Schedule::WorkerPtr
-    makeInserter(ParameterSet const& proc_pset,
-                 ParameterSet const& trig_pset,
-                 string const& proc_name,
-                 ProductRegistry& preg,
-                 ActionTable& actions,
-                 boost::shared_ptr<ActivityRegistry> areg,
-                 Schedule::TrigResPtr trptr) {
-
-      WorkerParams work_args(proc_pset,trig_pset,preg,actions,proc_name);
-      ModuleDescription md;
-      md.parameterSetID_ = trig_pset.id();
-      md.moduleName_ = "TriggerResultInserter";
-      md.moduleLabel_ = "TriggerResults";
-      md.processConfiguration_ = ProcessConfiguration(proc_name, proc_pset.id(), getReleaseVersion(), getPassID());
-
-      areg->preModuleConstructionSignal_(md);
-      auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,trptr));
-      areg->postModuleConstructionSignal_(md);
-
-      Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
-      ptr->setActivityRegistry(areg);
-      return ptr;
-    }
-
-  }  // namespace
+}  // namespace
 
   // -----------------------------
 
-  typedef vector<string> vstring;
+namespace art {
 
   // -----------------------------
 
@@ -147,9 +124,7 @@ namespace art {
 
     if (hasPath) {
       // the results inserter stands alone
-      results_inserter_ = makeInserter(pset_, tns.getTriggerPSet(),
-                                       processName_,
-                                       preg, actions, actReg_, results_);
+      results_inserter_ = makeInserter(tns.getTriggerPSet());
       addToAllWorkers(results_inserter_.get());
     }
 
@@ -169,7 +144,7 @@ namespace art {
         ++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
     }
-    vector<string> modulesInConfig(proc_pset.get<vector<string> >("@all_modules"));
+    vector<string> modulesInConfig(proc_pset.get<vector<string> >("all_modules"));
     set<string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     vector<string> unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
@@ -245,22 +220,15 @@ namespace art {
 
     prod_reg_->setFrozen();
 
-    //Now that these have been set, we can create the list of Branches we need for the 'on demand'
-    ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
-    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-          itProdInfoEnd = prodsList.end();
-        itProdInfo != itProdInfoEnd;
-        ++itProdInfo) {
-      if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
-         unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-        boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-        demandBranches_.push_back(bd);
-      }
+    if (allowUnscheduled) {
+       // Now that these have been set, we can create the list of
+       // Branches we need for the 'on demand.'
+       catalogOnDemandBranches(unscheduledLabels);
     }
 
-    // Sanity check: make sure nobody has added a worker after we've
-    // already relied on all_workers_ being full.
-    assert (all_workers_count == all_workers_.size());
+    // Test path invariants.
+    pathConsistencyCheck(all_workers_count);
+
   } // Schedule::Schedule
 
   void
@@ -431,21 +399,21 @@ namespace art {
 
     if(wantSummary_ == false) return;
 
-    TrigPaths::const_iterator pi,pe;
+    Paths::const_iterator pi,pe;
 
     // The trigger report (pass/fail etc.):
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
-    LogVerbatim("FwkSummary") << "TrigReport"
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
+    LogVerbatim("ArtSummary") << "TrigReport"
                               << " Events total = " << totalEvents()
                               << " passed = " << totalEventsPassed()
                               << " failed = " << (totalEventsFailed())
                               << "";
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TrigReport " << "---------- Path   Summary ------------";
-    LogVerbatim("FwkSummary") << "TrigReport "
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
+    LogVerbatim("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Passed" << " "
@@ -455,7 +423,7 @@ namespace art {
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "TrigReport "
+      LogVerbatim("ArtSummary") << "TrigReport "
                                 << right << setw( 5) << 1
                                 << right << setw( 5) << pi->bitPosition() << " "
                                 << right << setw(10) << pi->timesRun() << " "
@@ -465,9 +433,9 @@ namespace art {
                                 << pi->name() << "";
     }
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TrigReport " << "-------End-Path   Summary ------------";
-    LogVerbatim("FwkSummary") << "TrigReport "
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
+    LogVerbatim("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Trig Bit#" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Passed" << " "
@@ -477,7 +445,7 @@ namespace art {
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "TrigReport "
+      LogVerbatim("ArtSummary") << "TrigReport "
                                 << right << setw( 5) << 0
                                 << right << setw( 5) << pi->bitPosition() << " "
                                 << right << setw(10) << pi->timesRun() << " "
@@ -490,9 +458,9 @@ namespace art {
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "";
-      LogVerbatim("FwkSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
-      LogVerbatim("FwkSummary") << "TrigReport "
+      LogVerbatim("ArtSummary") << "";
+      LogVerbatim("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
+      LogVerbatim("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Visited" << " "
                                 << right << setw(10) << "Passed" << " "
@@ -501,7 +469,7 @@ namespace art {
                                 << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("FwkSummary") << "TrigReport "
+        LogVerbatim("ArtSummary") << "TrigReport "
                                   << right << setw( 5) << 1
                                   << right << setw( 5) << pi->bitPosition() << " "
                                   << right << setw(10) << pi->timesVisited(i) << " "
@@ -515,9 +483,9 @@ namespace art {
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "";
-      LogVerbatim("FwkSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
-      LogVerbatim("FwkSummary") << "TrigReport "
+      LogVerbatim("ArtSummary") << "";
+      LogVerbatim("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
+      LogVerbatim("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Visited" << " "
                                 << right << setw(10) << "Passed" << " "
@@ -526,7 +494,7 @@ namespace art {
                                 << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("FwkSummary") << "TrigReport "
+        LogVerbatim("ArtSummary") << "TrigReport "
                                   << right << setw( 5) << 0
                                   << right << setw( 5) << pi->bitPosition() << " "
                                   << right << setw(10) << pi->timesVisited(i) << " "
@@ -537,9 +505,9 @@ namespace art {
       }
     }
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TrigReport " << "---------- Module Summary ------------";
-    LogVerbatim("FwkSummary") << "TrigReport "
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
+    LogVerbatim("ArtSummary") << "TrigReport "
                               << right << setw(10) << "Visited" << " "
                               << right << setw(10) << "Run" << " "
                               << right << setw(10) << "Passed" << " "
@@ -549,7 +517,7 @@ namespace art {
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
-      LogVerbatim("FwkSummary") << "TrigReport "
+      LogVerbatim("ArtSummary") << "TrigReport "
                                 << right << setw(10) << (*ai)->timesVisited() << " "
                                 << right << setw(10) << (*ai)->timesRun() << " "
                                 << right << setw(10) << (*ai)->timesPassed() << " "
@@ -558,24 +526,24 @@ namespace art {
                                 << (*ai)->description().moduleLabel_ << "";
 
     }
-    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("ArtSummary") << "";
 
     // The timing report (CPU and Real Time):
 
-    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
-    LogVerbatim("FwkSummary") << "TimeReport"
+    LogVerbatim("ArtSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
+    LogVerbatim("ArtSummary") << "TimeReport"
                               << setprecision(6) << fixed
                               << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
                               << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
                               << "";
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per path-run "
                               << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
@@ -584,7 +552,7 @@ namespace art {
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
                                 << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
                                 << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
@@ -592,24 +560,24 @@ namespace art {
                                 << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
                                 << pi->name() << "";
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per path-run "
                               << "";
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per endpath-run "
                               << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
@@ -618,7 +586,7 @@ namespace art {
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
                                 << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
                                 << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
@@ -626,13 +594,13 @@ namespace art {
                                 << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
                                 << pi->name() << "";
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per endpath-run "
                               << "";
@@ -640,20 +608,20 @@ namespace art {
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "";
-      LogVerbatim("FwkSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "";
+      LogVerbatim("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per module-visit "
                                 << "";
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("FwkSummary") << "TimeReport "
+        LogVerbatim("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
                                   << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
                                   << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
@@ -662,13 +630,13 @@ namespace art {
                                   << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per module-visit "
                               << "";
@@ -676,20 +644,20 @@ namespace art {
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("FwkSummary") << "";
-      LogVerbatim("FwkSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "";
+      LogVerbatim("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per module-visit "
                                 << "";
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("FwkSummary") << "TimeReport "
+        LogVerbatim("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
                                   << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
                                   << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
@@ -698,25 +666,25 @@ namespace art {
                                   << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per module-visit "
                               << "";
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per module-run "
                               << right << setw(22) << "per module-visit "
                               << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
@@ -727,7 +695,7 @@ namespace art {
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
-      LogVerbatim("FwkSummary") << "TimeReport "
+      LogVerbatim("ArtSummary") << "TimeReport "
                                 << setprecision(6) << fixed
                                 << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
                                 << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
@@ -737,7 +705,7 @@ namespace art {
                                 << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
                                 << (*ai)->description().moduleLabel_ << "";
     }
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << right << setw(10) << "CPU" << " "
@@ -745,15 +713,15 @@ namespace art {
                               << right << setw(10) << "CPU" << " "
                               << right << setw(10) << "Real" << " "
                               << "Name" << "";
-    LogVerbatim("FwkSummary") << "TimeReport "
+    LogVerbatim("ArtSummary") << "TimeReport "
                               << right << setw(22) << "per event "
                               << right << setw(22) << "per module-run "
                               << right << setw(22) << "per module-visit "
                               << "";
 
-    LogVerbatim("FwkSummary") << "";
-    LogVerbatim("FwkSummary") << "T---Report end!" << "";
-    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("ArtSummary") << "";
+    LogVerbatim("ArtSummary") << "T---Report end!" << "";
+    LogVerbatim("ArtSummary") << "";
   }
 
   void Schedule::closeOutputFiles() {
@@ -920,6 +888,106 @@ namespace art {
       ep.addOnDemandGroup(**itBranch);
     }
   }
+
+   Schedule::WorkerPtr
+   Schedule::makeInserter(ParameterSet const& trig_pset) const {
+
+      WorkerParams work_args(pset_,trig_pset,*prod_reg_,*act_table_,processName_);
+      ModuleDescription md;
+      md.parameterSetID_ = trig_pset.id();
+      md.moduleName_ = "TriggerResultInserter";
+      md.moduleLabel_ = "TriggerResults";
+      md.processConfiguration_ = ProcessConfiguration(processName_, pset_.id(), getReleaseVersion(), getPassID());
+
+      actReg_->preModuleConstructionSignal_(md);
+      auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
+      actReg_->postModuleConstructionSignal_(md);
+
+      Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
+      ptr->setActivityRegistry(actReg_);
+      return ptr;
+   }
+
+   void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels) {
+      ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
+      for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+             itProdInfoEnd = prodsList.end();
+          itProdInfo != itProdInfoEnd;
+          ++itProdInfo) {
+         if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
+            unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
+            boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+            demandBranches_.push_back(bd);
+         }
+      }
+   }
+
+   void Schedule::pathConsistencyCheck(size_t expected_num_workers) const {
+      // Major sanity check: make sure nobody has added a worker after
+      // we've already relied on all_workers_ being full. Failure here
+      // indicates a logic error in Schedule().
+      assert(expected_num_workers == all_workers_.size() &&
+             "INTERNAL ASSERTION ERROR: all_workers_ changed after being used.");
+
+      size_t numFailures = 0;
+      numFailures = std::accumulate(trig_paths_.begin(),
+                                    trig_paths_.end(),
+                                    numFailures,
+                                    std::bind(&art::Schedule::accumulateConsistencyFailures,
+                                              this,
+                                              _1,
+                                              _2,
+                                              false));
+      numFailures = std::accumulate(end_paths_.begin(),
+                                    end_paths_.end(),
+                                    numFailures,
+                                    std::bind(&art::Schedule::accumulateConsistencyFailures,
+                                              this,
+                                              _1,
+                                              _2,
+                                              true));
+      if (numFailures > 0) {
+         // TODO: Throw correct exception.
+         std::ostringstream message;
+         message << "Found a total of "
+                 << numFailures
+                 << " illegal entries in paths.";
+         throw cet::exception(message.str());
+      }
+   }
+
+   size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
+                                                  art::Path const &path,
+                                                  bool isEndPath) const {
+      return current_num_failures +=
+         checkOnePath(path, isEndPath);
+    }
+
+   size_t Schedule::checkOnePath(Path const &path, bool isEndPath) const {
+       std::vector<std::string> results;
+      std::ostringstream message;
+      if (isEndPath) {
+         message << "The following modules are illegal in an end path  (\""
+                 << path.name()
+                 << "\"): they modify the event "
+                 << "and should be in a standard (trigger) path.";
+         path.findEventModifiers(results);
+      } else {
+         message << "The following modules are illegal in a standard (trigger) path (\""
+                 << path.name()
+                 << "\"): they are observers "
+                 << "and should be in an end path.";
+         path.findEventObservers(results);
+      }
+      size_t nFailures = results.size();
+      if (nFailures > 0) {
+         message << "\n";
+         cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
+         LogError("IllegalPathElements")
+            << message;
+      }
+      return results.size();
+   }
 
 }  // art
 

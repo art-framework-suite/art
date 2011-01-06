@@ -16,7 +16,7 @@
   do processing of the event and do not participate in trigger path
   activities.
 
-  This class requires the high-level process pset.  It uses @process_name.
+  This class requires the high-level process pset.  It uses process_name.
   If the high-level pset contains an "options" pset, then the
   following optional parameter can be present:
   bool wantSummary = true/false   # default false
@@ -29,14 +29,11 @@
   is always the first module in the endpath.  The TriggerResultInserter
   is given a fixed label of "TriggerResults".
 
-  The Schedule throws an exception if an output modules is present
-  in a path.  It belongs in an endpath.
+  The Schedule throws an exception if any EventObservers are present
+  in a path: they belong in an end path
 
-  The Schedule throws an exception if a filter is present
-  in an endpath.  It belongs in a path.
-
-  The Schedule issues a warning if a producer is present
-  in an endpath.  It belongs in a path.
+  The Schedule issues a warning if a ProducerBase is present in an
+  end path: it belongs in a path.
 
   Processing of an event happens by pushing the event through the Paths.
   The scheduler performs the reset() on each of the workers independent
@@ -105,10 +102,8 @@ namespace art {
   class WorkerInPath;
   class WorkerRegistry;
   class Schedule {
-  public:
     typedef std::vector<std::string> vstring;
-    typedef std::vector<Path> TrigPaths;
-    typedef std::vector<Path> NonTrigPaths;
+    typedef std::vector<Path> Paths;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
@@ -118,6 +113,7 @@ namespace art {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
+  public:
     Schedule(fhicl::ParameterSet const& processDesc,
              art::service::TriggerNamesService& tns,
              WorkerRegistry& wregistry,
@@ -247,6 +243,18 @@ namespace art {
 
     void addToAllWorkers(Worker* w);
 
+    WorkerPtr makeInserter(ParameterSet const& trig_pset) const;
+
+    void catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels);
+
+    void pathConsistencyCheck(size_t expected_num_workers) const;
+
+    size_t checkOnePath(Path const &path, bool isEndPath) const;
+
+    size_t accumulateConsistencyFailures(size_t current_num_failures,
+                                         art::Path const &path,
+                                         bool isEndPath) const;
+
     fhicl::ParameterSet pset_;
     WorkerRegistry*     worker_reg_;
     ProductRegistry*    prod_reg_;
@@ -264,8 +272,8 @@ namespace art {
     WorkerPtr                results_inserter_;
     AllWorkers               all_workers_;
     AllOutputWorkers         all_output_workers_;
-    TrigPaths                trig_paths_;
-    TrigPaths                end_paths_;
+    Paths                trig_paths_;
+    Paths                end_paths_;
 
     bool                             wantSummary_;
     int                              total_events_;
@@ -446,6 +454,7 @@ namespace art {
     //               var(ep),           //  pass by reference (not copy)
     //               constant_ref(es))); // pass by const-reference (not copy)
   }
+
 
 }  // art
 
