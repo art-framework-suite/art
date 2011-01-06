@@ -8,6 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
+#include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include <string>
@@ -18,7 +19,8 @@ namespace art
 {
 
   class EDAnalyzer
-    : public EngineCreator
+    : public EventObserver,
+      public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;

@@ -14,6 +14,7 @@ set( art_Framework_Core_sources
   EDProducer.cc
   EPStates.cc
   Event.cc
+  EventObserver.cc
   EventPrincipal.cc
   EventProcessor.cc
   EventSelector.cc
@@ -102,6 +103,7 @@ install(FILES Actions.h
               EPStates.h
               EngineCreator.h
               Event.h
+              EventObserver.h
               EventPrincipal.h
               EventProcessor.h
               EventSelector.h

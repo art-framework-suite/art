@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/CachedProducts.h"
+#include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
@@ -33,8 +34,8 @@ namespace art {
 
   std::vector<std::string> const& getAllTriggerNames();
 
-
-  class OutputModule : private boost::noncopyable {
+  class OutputModule : public EventObserver,
+     private boost::noncopyable {
   public:
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
