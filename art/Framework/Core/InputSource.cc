@@ -71,7 +71,7 @@ namespace art {
   , processingMode_      ( RunsSubRunsAndEvents )
   , moduleDescription_   ( desc.moduleDescription_ )
   , productRegistry_     ( createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_) )
-  , primary_             ( pset.get<std::string>("@module_label") == std::string("@main_input") )
+  , primary_             ( pset.get<std::string>("@module_label") == std::string("source") )
   , processGUID_         ( primary_ ? createGlobalIdentifier() : std::string() )
   , time_                ( )
   , doneReadAhead_       ( false )
