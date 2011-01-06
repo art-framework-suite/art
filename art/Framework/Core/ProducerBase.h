@@ -34,6 +34,8 @@ namespace art {
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
+    bool modifiesEvent() const { return true; }
+
   protected:
     template<class TProducer, class TMethod>
     void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod) {
