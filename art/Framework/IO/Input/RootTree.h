@@ -1,5 +1,5 @@
-#ifndef IOPool_Input_RootTree_h
-#define IOPool_Input_RootTree_h
+#ifndef IORoot_Input_RootTree_h
+#define IORoot_Input_RootTree_h
 
 // ======================================================================
 //

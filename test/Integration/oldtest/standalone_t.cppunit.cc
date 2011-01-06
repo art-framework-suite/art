@@ -62,7 +62,7 @@ void testStandalone::writeFile()
                             "process.m1 = cms.EDProducer('IntProducer',\n"
                             "    ivalue = cms.int32(11)\n"
                             ")\n"
-                            "process.out = cms.OutputModule('PoolOutputModule',\n"
+                            "process.out = cms.OutputModule('RootOutputModule',\n"
                             "    fileName = cms.untracked.string('testStandalone.root')\n"
                             ")\n"
                             "process.p = cms.Path(process.m1)\n"
@@ -78,7 +78,7 @@ void testStandalone::readFile()
 {
   std::string configuration("import FWCore.ParameterSet.Config as cms\n"
                             "process = cms.Process('TEST1')\n"
-                            "process.source = cms.Source('PoolSource',\n"
+                            "process.source = cms.Source('RootSource',\n"
                             "    fileNames = cms.untracked.vstring('file:testStandalone.root')\n"
                             ")\n"
                             "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"

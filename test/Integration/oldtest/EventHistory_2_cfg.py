@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring('file:testEventHistory_1.root')
 )
 
@@ -40,7 +40,7 @@ process.filt75 = cms.EDFilter("TestFilterModule",
     acceptValue = cms.untracked.int32(75)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('f55')
     ),

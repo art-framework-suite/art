@@ -1,10 +1,10 @@
 // ======================================================================
 //
-// PoolInput: This is an InputSource
+// RootInput: This is an InputSource
 //
 // ======================================================================
 
-#include "art/Framework/IO/Input/PoolInput.h"
+#include "art/Framework/IO/Input/RootInput.h"
 
 #include "TTreeCache.h"
 #include "art/Framework/Core/EventPrincipal.h"
@@ -33,7 +33,7 @@ static void
   ProcessHistory const & ph2 = secondary.processHistory();
   if (ph1 != ph2 && !isAncestor(ph2, ph1)) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "PoolInput::checkConsistency"
+                        , "RootInput::checkConsistency"
                         )
       << "The secondary file is not an ancestor of the primary file\n";
   }
@@ -46,7 +46,7 @@ static void
 {
   if (!isSameEvent(primary, secondary)) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "PoolInput::checkConsistency"
+                        , "RootInput::checkConsistency"
                         )
       << primary.id()
       << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
@@ -61,7 +61,7 @@ static void
 {
   if (primary.id() != secondary.id()) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "PoolInput::checkConsistency"
+                        , "RootInput::checkConsistency"
                         )
       << primary.id()
       << " has inconsistent SubRunAuxiliary data in the primary and secondary file\n";
@@ -76,7 +76,7 @@ static void
 {
   if (primary.id() != secondary.id()) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "PoolInput::checkConsistency"
+                        , "RootInput::checkConsistency"
                         )
       << primary.id()
       << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
@@ -86,7 +86,7 @@ static void
 
 // ----------------------------------------------------------------------
 
-PoolInput::PoolInput( fhicl::ParameterSet const & pset
+RootInput::RootInput( fhicl::ParameterSet const & pset
                       , InputSourceDescription const & desc
                       )
 : EDInputSource     ( pset, desc )
@@ -130,11 +130,11 @@ PoolInput::PoolInput( fhicl::ParameterSet const & pset
   }
 }
 
-PoolInput::~PoolInput()
+RootInput::~RootInput()
 { }
 
 void
-  PoolInput::endJob()
+  RootInput::endJob()
 {
   if (secondaryFileSequence_)
     secondaryFileSequence_->endJob();
@@ -142,7 +142,7 @@ void
 }
 
 boost::shared_ptr<FileBlock>
-  PoolInput::readFile_( )
+  RootInput::readFile_( )
 {
   if (secondaryFileSequence_) {
       boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
@@ -153,13 +153,13 @@ boost::shared_ptr<FileBlock>
 }
 
 void
-  PoolInput::closeFile_( )
+  RootInput::closeFile_( )
 {
   primaryFileSequence_->closeFile_();
 }
 
 boost::shared_ptr<RunPrincipal>
-  PoolInput::readRun_( )
+  RootInput::readRun_( )
 {
   if (secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
     boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_();
@@ -168,7 +168,7 @@ boost::shared_ptr<RunPrincipal>
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
     } else {
-      throw art::Exception(errors::MismatchedInputFiles, "PoolInput::readRun_")
+      throw art::Exception(errors::MismatchedInputFiles, "RootInput::readRun_")
         << " Run " << primaryPrincipal->run()
         << " is not found in the secondary input files\n";
     }
@@ -178,7 +178,7 @@ boost::shared_ptr<RunPrincipal>
 }  // readRun_()
 
 boost::shared_ptr<SubRunPrincipal>
-  PoolInput::readSubRun_( )
+  RootInput::readSubRun_( )
 {
   if (secondaryFileSequence_ && !branchIDsToReplace_[InSubRun].empty()) {
     boost::shared_ptr<SubRunPrincipal> primaryPrincipal = primaryFileSequence_->readSubRun_();
@@ -187,7 +187,7 @@ boost::shared_ptr<SubRunPrincipal>
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InSubRun]);
     } else {
-      throw art::Exception(errors::MismatchedInputFiles, "PoolInput::readSubRun_")
+      throw art::Exception(errors::MismatchedInputFiles, "RootInput::readSubRun_")
         << " Run " << primaryPrincipal->run()
         << " SubRun " << primaryPrincipal->subRun()
         << " is not found in the secondary input files\n";
@@ -198,7 +198,7 @@ boost::shared_ptr<SubRunPrincipal>
 }  // readSubRun_()
 
 std::auto_ptr<EventPrincipal>
-  PoolInput::readEvent_( )
+  RootInput::readEvent_( )
 {
   if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
@@ -207,7 +207,7 @@ std::auto_ptr<EventPrincipal>
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
     } else {
-      throw art::Exception(errors::MismatchedInputFiles, "PoolInput::readEvent_") <<
+      throw art::Exception(errors::MismatchedInputFiles, "RootInput::readEvent_") <<
         primaryPrincipal->id() << " is not found in the secondary input files\n";
     }
     return primaryPrincipal;
@@ -217,7 +217,7 @@ std::auto_ptr<EventPrincipal>
 }  // readEvent_()
 
 std::auto_ptr<EventPrincipal>
-  PoolInput::readIt( EventID const & id )
+  RootInput::readIt( EventID const & id )
 {
   if (secondaryFileSequence_) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
@@ -226,7 +226,7 @@ std::auto_ptr<EventPrincipal>
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
     } else {
-      throw art::Exception(errors::MismatchedInputFiles, "PoolInput::readIt") <<
+      throw art::Exception(errors::MismatchedInputFiles, "RootInput::readIt") <<
         primaryPrincipal->id() << " is not found in the secondary input files\n";
     }
     return primaryPrincipal;
@@ -236,27 +236,27 @@ std::auto_ptr<EventPrincipal>
 }  // readIt()
 
 InputSource::ItemType
-  PoolInput::getNextItemType()
+  RootInput::getNextItemType()
 {
   return primaryFileSequence_->getNextItemType();
 }
 
 // Rewind to before the first event that was read.
 void
-  PoolInput::rewind_()
+  RootInput::rewind_()
 {
   primaryFileSequence_->rewind_();
 }
 
 // Advance "offset" events.  Offset can be positive or negative (or zero).
 void
-PoolInput::skip(int offset)
+RootInput::skip(int offset)
 {
   primaryFileSequence_->skip(offset);
 }
 
 // ======================================================================
 
-DEFINE_ART_INPUT_SOURCE(PoolInput);
+DEFINE_ART_INPUT_SOURCE(RootInput);
 
 // ======================================================================

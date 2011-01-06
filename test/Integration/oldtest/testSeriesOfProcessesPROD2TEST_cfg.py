@@ -23,7 +23,7 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
   fileNames = cms.untracked.vstring('file:testSeriesOfProcessesTEST.root'),
 )
 
@@ -55,7 +55,7 @@ process.a = cms.EDAnalyzer("TestFindProduct",
 
 process.test1 = cms.Path(process.fakeRaw*process.a)
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
   fileName = cms.untracked.string('testSeriesOfProcessesPROD2TEST.root'),
   outputCommands = cms.untracked.vstring(
     "keep *"

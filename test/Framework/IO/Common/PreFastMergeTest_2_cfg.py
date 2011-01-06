@@ -14,7 +14,7 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
     debugLevel = cms.untracked.int32(0)
 )
 
-process.output = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("RootOutputModule",
     outputCommands = cms.untracked.vstring('keep *',
         'drop *_OtherThing_*_*'),
     fileName = cms.untracked.string('file:FastMergeTest_2.root')

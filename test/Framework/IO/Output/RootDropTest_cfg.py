@@ -14,10 +14,10 @@ process.OtherThing = cms.EDProducer("OtherThingProducer",
     debugLevel = cms.untracked.int32(1)
 )
 
-process.output = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("RootOutputModule",
     outputCommands = cms.untracked.vstring('drop *',
         'keep *_dummy_*_*'),
-    fileName = cms.untracked.string('file:PoolDropTest.root')
+    fileName = cms.untracked.string('file:RootDropTest.root')
 )
 
 process.source = cms.Source("EmptySource")

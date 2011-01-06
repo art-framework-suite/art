@@ -70,7 +70,7 @@ namespace art {
     }
   }
 
-  RootOutputFile::RootOutputFile(PoolOutput *om, string const& fileName, string const& logicalFileName) :
+  RootOutputFile::RootOutputFile(RootOutput *om, string const& fileName, string const& logicalFileName) :
       file_(fileName),
       logicalFile_(logicalFileName),
       om_(om),
@@ -120,16 +120,16 @@ namespace art {
       }
     }
     // Don't split metadata tree or event description tree
-    metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
-    parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::parentageTreeName(), 0);
+    metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), rootNames::metaDataTreeName(), 0);
+    parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(), rootNames::parentageTreeName(), 0);
 
     // Create the tree that will carry (event) History objects.
-    eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::eventHistoryTreeName(), om_->splitLevel());
+    eventHistoryTree_     = RootOutputTree::makeTTree(filePtr_.get(), rootNames::eventHistoryTreeName(), om_->splitLevel());
     if (!eventHistoryTree_)
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create the tree for History objects\n";
 
-    if (! eventHistoryTree_->Branch(poolNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
+    if (! eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Historys in the output file\n";
 
@@ -167,7 +167,7 @@ namespace art {
 
     // Register the output file with the JobReport service
     // and get back the token for it.
-    string moduleName = "PoolOutput";
+    string moduleName = "RootOutput";
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
@@ -252,12 +252,12 @@ namespace art {
     ParentageID const* hash(0);
     Parentage const*   desc(0);
 
-    if (!parentageTree_->Branch(poolNames::parentageIDBranchName().c_str(),
+    if (!parentageTree_->Branch(rootNames::parentageIDBranchName().c_str(),
                                         &hash, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for ParentageIDs in the output file";
 
-    if (!parentageTree_->Branch(poolNames::parentageBranchName().c_str(),
+    if (!parentageTree_->Branch(rootNames::parentageBranchName().c_str(),
                                         &desc, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Parentages in the output file";
@@ -276,14 +276,14 @@ namespace art {
   void RootOutputFile::writeFileFormatVersion() {
     FileFormatVersion fileFormatVersion(getFileFormatVersion());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
-    TBranch* b = metaDataTree_->Branch(poolNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
   void RootOutputFile::writeFileIdentifier() {
     FileID *fidPtr = &fid_;
-    TBranch* b = metaDataTree_->Branch(poolNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -291,7 +291,7 @@ namespace art {
   void RootOutputFile::writeFileIndex() {
     fileIndex_.sortBy_Run_SubRun_Event();
     FileIndex *findexPtr = &fileIndex_;
-    TBranch* b = metaDataTree_->Branch(poolNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -308,14 +308,14 @@ namespace art {
     typedef  ProcessHistoryRegistry::collection_type  collection_t;
     collection_t const & r = ProcessHistoryRegistry::get();
     collection_t * p = & const_cast<collection_t &>(r);
-    TBranch* b = metaDataTree_->Branch(poolNames::processHistoryMapBranchName().c_str(), &p, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::processHistoryMapBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
   void RootOutputFile::writeBranchIDListRegistry() {
     BranchIDListRegistry::collection_type *p = &BranchIDListRegistry::instance()->data();
-    TBranch* b = metaDataTree_->Branch(poolNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -325,7 +325,7 @@ namespace art {
     ParameterSetMap psetMap;
     fillPsetMap(psetMap);
     ParameterSetMap *pPsetMap = &psetMap;
-    TBranch* b = metaDataTree_->Branch(poolNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -367,14 +367,14 @@ namespace art {
     }
 
     ProductRegistry * ppReg = &pReg;
-    TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
   void RootOutputFile::writeProductDependencies() {
     BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
     BranchChildren * ppDeps = &pDeps;
-    TBranch* b = metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(rootNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -427,7 +427,7 @@ namespace art {
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   Principal const& principal,
                                   set<ProductProvenance>& oToFill) {
-    if(om_->dropMetaData() == PoolOutput::DropAll) return;
+    if(om_->dropMetaData() == RootOutput::DropAll) return;
     if(om_->dropMetaDataForDroppedData()) return;
     BranchMapper const& iMapper = *principal.branchMapperPtr();
     vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
@@ -436,7 +436,7 @@ namespace art {
       branchesWithStoredHistory_.insert(*it);
       boost::shared_ptr<ProductProvenance> info = iMapper.branchToEntryInfo(*it);
       if(info) {
-        if(om_->dropMetaData() == PoolOutput::DropNone ||
+        if(om_->dropMetaData() == RootOutput::DropNone ||
                  principal.getProvenance(info->branchID()).product().produced()) {
           if(oToFill.insert(*info).second) {
             //haven't seen this one yet
@@ -467,8 +467,8 @@ namespace art {
       branchesWithStoredHistory_.insert(id);
 
       bool produced = i->branchDescription_->produced();
-      bool keepProvenance = om_->dropMetaData() == PoolOutput::DropNone ||
-                           (om_->dropMetaData() == PoolOutput::DropPrior && produced);
+      bool keepProvenance = om_->dropMetaData() == RootOutput::DropNone ||
+                           (om_->dropMetaData() == RootOutput::DropPrior && produced);
       bool getProd = (produced || !fastCloning ||
          treePointers_[branchType]->uncloned(i->branchDescription_->branchName()));
 

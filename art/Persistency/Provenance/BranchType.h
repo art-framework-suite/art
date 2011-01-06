@@ -56,7 +56,7 @@ namespace art {
     return os << BranchTypeToString(branchType);
   }
 
-  namespace poolNames {
+  namespace rootNames {
 #ifdef FW_OBSOLETE
     //------------------------------------------------------------------
     // EntryDescription Tree
@@ -104,7 +104,7 @@ namespace art {
     // Other tree names
     std::string const & eventTreeName( );
     std::string const & eventMetaDataTreeName( );
-  }  // poolNames
+  }  // rootNames
 }  // art
 
 // ======================================================================

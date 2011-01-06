@@ -14,11 +14,11 @@ process.AdaptorConfig = cms.Service("AdaptorConfig",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.output = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('file:FastMergeR_out.root')
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     dropMetaData = cms.untracked.bool(True),
     processingMode = cms.untracked.string("Runs"),
     fileNames = cms.untracked.vstring('file:FastMergeTest_1.root',

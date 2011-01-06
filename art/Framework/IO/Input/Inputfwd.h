@@ -1,5 +1,5 @@
-#ifndef IOPool_Input_Inputfwd_h
-#define IOPool_Input_Inputfwd_h
+#ifndef IORoot_Input_Inputfwd_h
+#define IORoot_Input_Inputfwd_h
 
 // ======================================================================
 //

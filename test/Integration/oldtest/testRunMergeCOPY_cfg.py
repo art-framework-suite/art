@@ -3,7 +3,7 @@
 # all the merge and secondary file input testing
 
 # Also test the event duplicate checking code and the
-# skip event code in PoolSource
+# skip event code in RootSource
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -20,7 +20,7 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMergeRecombined.root',
         'file:testRunMergeRecombined.root'
@@ -93,7 +93,7 @@ process.test = cms.EDAnalyzer('RunSubRunEventAnalyzer',
 
 process.path1 = cms.Path(process.test)
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('file:testRunMergeRecombinedCopied.root')
 )
 

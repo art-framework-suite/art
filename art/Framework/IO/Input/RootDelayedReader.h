@@ -1,5 +1,5 @@
-#ifndef IOPool_Input_RootDelayedReader_h
-#define IOPool_Input_RootDelayedReader_h
+#ifndef IORoot_Input_RootDelayedReader_h
+#define IORoot_Input_RootDelayedReader_h
 
 // ======================================================================
 //

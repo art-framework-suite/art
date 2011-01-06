@@ -7,7 +7,7 @@ process.load("FWCore.Framework.python.test.cmsExceptionsFatal_cff")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring('file:testEventHistory_2.root')
 )
 
@@ -31,7 +31,7 @@ process.intvec = cms.EDProducer("IntVectorProducer",
     ivalue = cms.int32(11)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('testEventHistory_3.root')
 )
 

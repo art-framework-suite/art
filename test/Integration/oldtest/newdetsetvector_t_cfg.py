@@ -19,7 +19,7 @@ process.dsv2 = cms.EDProducer("DSTVProducer",
 
 process.a2 = cms.EDAnalyzer("DSVAnalyzer")
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('testDSTV.root')
 )
 

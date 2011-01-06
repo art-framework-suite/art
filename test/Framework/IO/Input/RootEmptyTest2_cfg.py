@@ -1,6 +1,6 @@
 # The following comments couldn't be translated into the new config version:
 
-# Configuration file for PoolInputTest
+# Configuration file for RootInputTest
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -14,12 +14,12 @@ process.Thing = cms.EDProducer("ThingProducer",
     debugLevel = cms.untracked.int32(1)
 )
 
-process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('PoolEmptyTestOut.root')
+process.output = cms.OutputModule("RootOutputModule",
+    fileName = cms.untracked.string('RootEmptyTestOut.root')
 )
 
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:PoolEmptyTest.root')
+process.source = cms.Source("RootSource",
+    fileNames = cms.untracked.vstring('file:RootEmptyTest.root')
 )
 
 process.p = cms.Path(process.Thing)

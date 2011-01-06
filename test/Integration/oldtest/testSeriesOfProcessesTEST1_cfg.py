@@ -24,7 +24,7 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
   fileNames = cms.untracked.vstring('file:testSeriesOfProcessesTEST.root'),
 )
 

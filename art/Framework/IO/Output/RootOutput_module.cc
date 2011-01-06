@@ -1,10 +1,10 @@
 // ======================================================================
 //
-// PoolOutput
+// RootOutput
 //
 // ======================================================================
 
-#include "art/Framework/IO/Output/PoolOutput.h"
+#include "art/Framework/IO/Output/RootOutput.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -22,12 +22,12 @@
 #include <iomanip>
 #include <sstream>
 
-using art::PoolOutput;
+using art::RootOutput;
 using fhicl::ParameterSet;
 
 namespace art {
 
-  PoolOutput::PoolOutput(ParameterSet const& pset) :
+  RootOutput::RootOutput(ParameterSet const& pset) :
     OutputModule(pset),
     //rootServiceChecker_(),
     selectedOutputItemList_(),
@@ -63,7 +63,7 @@ namespace art {
     pset.get<fhicl::ParameterSet>("dataset", ParameterSet());
   }
 
-  PoolOutput::OutputItem::Sorter::Sorter(TTree * tree) {
+  RootOutput::OutputItem::Sorter::Sorter(TTree * tree) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
     if (tree != 0) {
       TObjArray * branches = tree->GetListOfBranches();
@@ -75,7 +75,7 @@ namespace art {
   }
 
   bool
-  PoolOutput::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
+  RootOutput::OutputItem::Sorter::operator()(OutputItem const& lh, OutputItem const& rh) const {
     // Provides a comparison for sorting branches according to the index values in treeMap_.
     // Branches not found are always put at the end (i.e. not found > found).
     if (treeMap_.empty()) return lh < rh;
@@ -95,7 +95,7 @@ namespace art {
     return lh < rh;
   }
 
-  void PoolOutput::fillSelectedItemList(BranchType branchType, TTree * theTree) {
+  void RootOutput::fillSelectedItemList(BranchType branchType, TTree * theTree) {
 
     Selections const& keptVector =    keptProducts()[branchType];
     OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
@@ -111,7 +111,7 @@ namespace art {
     cet::sort_all(outputItemList, OutputItem::Sorter(theTree));
   }
 
-  void PoolOutput::openFile(FileBlock const& fb) {
+  void RootOutput::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
       if (fb.tree() == 0) {
         fastCloning_ = false;
@@ -121,7 +121,7 @@ namespace art {
     }
   }
 
-  void PoolOutput::respondToOpenInputFile(FileBlock const& fb) {
+  void RootOutput::respondToOpenInputFile(FileBlock const& fb) {
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
       if (inputFileCount_ == 0) {
@@ -139,48 +139,48 @@ namespace art {
     }
   }
 
-  void PoolOutput::respondToCloseInputFile(FileBlock const& fb) {
+  void RootOutput::respondToCloseInputFile(FileBlock const& fb) {
     if (rootOutputFile_) rootOutputFile_->respondToCloseInputFile(fb);
   }
 
-  PoolOutput::~PoolOutput() {
+  RootOutput::~RootOutput() {
   }
 
-  void PoolOutput::write(EventPrincipal const& e) {
+  void RootOutput::write(EventPrincipal const& e) {
       if (hasNewlyDroppedBranch()[InEvent]) e.addToProcessHistory();
       rootOutputFile_->writeOne(e);
   }
 
-  void PoolOutput::writeSubRun(SubRunPrincipal const& lb) {
+  void RootOutput::writeSubRun(SubRunPrincipal const& lb) {
       if (hasNewlyDroppedBranch()[InSubRun]) lb.addToProcessHistory();
       rootOutputFile_->writeSubRun(lb);
   }
 
-  void PoolOutput::writeRun(RunPrincipal const& r) {
+  void RootOutput::writeRun(RunPrincipal const& r) {
       if (hasNewlyDroppedBranch()[InRun]) r.addToProcessHistory();
       rootOutputFile_->writeRun(r);
   }
 
   // At some later date, we may move functionality from finishEndFile() to here.
-  void PoolOutput::startEndFile() { }
+  void RootOutput::startEndFile() { }
 
 
-  void PoolOutput::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
-  void PoolOutput::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
-  void PoolOutput::writeFileIndex() { rootOutputFile_->writeFileIndex(); }
-  void PoolOutput::writeEventHistory() { rootOutputFile_->writeEventHistory(); }
-  void PoolOutput::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }
-  void PoolOutput::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
-  void PoolOutput::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
-  void PoolOutput::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
-  void PoolOutput::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
-  void PoolOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void PoolOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
-  void PoolOutput::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
-  bool PoolOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }
-  bool PoolOutput::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
+  void RootOutput::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
+  void RootOutput::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
+  void RootOutput::writeFileIndex() { rootOutputFile_->writeFileIndex(); }
+  void RootOutput::writeEventHistory() { rootOutputFile_->writeEventHistory(); }
+  void RootOutput::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }
+  void RootOutput::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
+  void RootOutput::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
+  void RootOutput::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
+  void RootOutput::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
+  void RootOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
+  void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void RootOutput::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
+  bool RootOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }
+  bool RootOutput::shouldWeCloseFile() const { return rootOutputFile_->shouldWeCloseFile(); }
 
-  void PoolOutput::doOpenFile() {
+  void RootOutput::doOpenFile() {
       if (inputFileCount_ == 0) {
         throw art::Exception(art::errors::LogicError)
           << "Attempt to open output file before input file. "
@@ -210,6 +210,6 @@ namespace art {
 
 // ======================================================================
 
-DEFINE_ART_MODULE(PoolOutput);
+DEFINE_ART_MODULE(RootOutput);
 
 // ======================================================================

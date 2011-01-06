@@ -9,6 +9,6 @@ process.p = cms.Path(process.read)
 process.options = cms.untracked.PSet(Rethrow=cms.untracked.vstring("ProductNotFound"))
 
 process.source = cms.Source(
-    "PoolSource",
+    "RootSource",
     fileNames = cms.untracked.vstring("file:unscheduled_fail_on_output.root")
 )

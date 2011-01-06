@@ -1,5 +1,5 @@
-#ifndef IOPool_Output_RootOutputTree_h
-#define IOPool_Output_RootOutputTree_h
+#ifndef IORoot_Output_RootOutputTree_h
+#define IORoot_Output_RootOutputTree_h
 
 /*----------------------------------------------------------------------
 

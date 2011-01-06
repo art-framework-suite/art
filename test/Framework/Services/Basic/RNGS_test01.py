@@ -22,7 +22,7 @@ process.rngstest = mu2e.EDAnalyzer( "RNGS_analyzer",
 ##process.randomsaver = mu2e.EDAnalyzer("RandomNumberSaver",
 ##                                      debug = mu2e.untracked.bool(True)
 ##                                      )
-##process.outfile = mu2e.OutputModule("PoolOutputModule",
+##process.outfile = mu2e.OutputModule("RootOutputModule",
 ##                      fileName = mu2e.untracked.string('file:randomtest_01.root'),
 ##)
 

@@ -11,6 +11,6 @@ set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
 
 add_library(art_Framework_IO_Input SHARED ${art_Framework_IO_Input_sources} )
 
-simple_plugin(PoolInput  "source")
+simple_plugin(RootInput  "source")
 
 install ( TARGETS art_Framework_IO_Input DESTINATION ${flavorqual_dir}/lib )

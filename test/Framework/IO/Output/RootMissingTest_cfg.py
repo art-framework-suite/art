@@ -10,8 +10,8 @@ process.Thing = cms.EDProducer("ThingProducer",
     noPut = cms.untracked.bool(True)
 )
 
-process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('file:PoolMissingTest.root')
+process.output = cms.OutputModule("RootOutputModule",
+    fileName = cms.untracked.string('file:RootMissingTest.root')
 )
 
 process.source = cms.Source("EmptySource")

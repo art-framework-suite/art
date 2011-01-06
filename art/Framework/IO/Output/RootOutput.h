@@ -1,9 +1,9 @@
-#ifndef IOPool_Output_PoolOutput_h
-#define IOPool_Output_PoolOutput_h
+#ifndef IORoot_Output_RootOutput_h
+#define IORoot_Output_RootOutput_h
 
 // ======================================================================
 //
-// PoolOutput
+// RootOutput
 //
 // ======================================================================
 
@@ -21,12 +21,12 @@ namespace art {
 
   class RootOutputFile;
 
-  class PoolOutput : public OutputModule {
+  class RootOutput : public OutputModule {
     enum DropMetaData { DropNone, DropPrior, DropAll };
   public:
     friend class RootOutputFile;
-    explicit PoolOutput(fhicl::ParameterSet const& ps);
-    virtual ~PoolOutput();
+    explicit RootOutput(fhicl::ParameterSet const& ps);
+    virtual ~RootOutput();
     std::string const& fileName() const {return fileName_;}
     std::string const& logicalFileName() const {return logicalFileName_;}
     int const& compressionLevel() const {return compressionLevel_;}

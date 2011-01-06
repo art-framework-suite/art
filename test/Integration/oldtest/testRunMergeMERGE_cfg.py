@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(32)
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root',
         'file:testRunMerge2.root',
@@ -170,7 +170,7 @@ process.test = cms.EDFilter("TestMergeResults",
     verbose = cms.untracked.bool(False)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('testRunMerge.root'),
     outputCommands = cms.untracked.vstring(
         'keep *',

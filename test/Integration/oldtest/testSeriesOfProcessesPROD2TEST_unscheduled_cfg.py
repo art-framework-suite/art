@@ -24,7 +24,7 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
   fileNames = cms.untracked.vstring('file:testSeriesOfProcessesTEST.root'),
 )
 
@@ -56,7 +56,7 @@ process.a = cms.EDAnalyzer("TestFindProduct",
 
 process.test1 = cms.Path(process.a)
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
   fileName = cms.untracked.string('testSeriesOfProcessesPROD2TEST_u.root'),
   outputCommands = cms.untracked.vstring(
     "keep *_fakeRaw_*_*"

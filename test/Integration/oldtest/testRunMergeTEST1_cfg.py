@@ -1,6 +1,6 @@
 
 # This is the same as testRunMergeTEST except the noEventSort
-# option is set in the PoolSource, which changes the order
+# option is set in the RootSource, which changes the order
 # events are processed.  Within a SubRun, they are
 # in entry order instead of event number order.  The RunSubRunEventAnalyzer
 # module checks this.
@@ -20,7 +20,7 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge.root',
         'file:testRunMerge.root'
@@ -36,7 +36,7 @@ process.source = cms.Source("PoolSource",
     noEventSort = cms.untracked.bool(True)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('file:testRunMergeRecombined1.root')
 )
 

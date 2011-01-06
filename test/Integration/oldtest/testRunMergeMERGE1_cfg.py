@@ -1,7 +1,7 @@
 
 # This configuration tests the subRunsToSkip, firstRun,
 # firstSubRun, and firstEvent parameters of
-# the PoolSource.
+# the RootSource.
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -17,7 +17,7 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root',
         'file:testRunMerge2.root',
@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",
 
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('testRunMerge_a.root')
 )
 

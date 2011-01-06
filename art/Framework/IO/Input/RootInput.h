@@ -1,9 +1,9 @@
-#ifndef IOPool_Input_PoolInput_h
-#define IOPool_Input_PoolInput_h
+#ifndef IORoot_Input_RootInput_h
+#define IORoot_Input_RootInput_h
 
 // ======================================================================
 //
-// PoolInput: This is an InputSource
+// RootInput: This is an InputSource
 //
 // ======================================================================
 
@@ -26,17 +26,17 @@ namespace art {
   class RootInputFileSequence;
   class FileCatalogItem;
 
-  class PoolInput;
+  class RootInput;
 }
 
-class art::PoolInput
+class art::RootInput
   : public EDInputSource
 {
 public:
-  explicit PoolInput( fhicl::ParameterSet    const & pset
+  explicit RootInput( fhicl::ParameterSet    const & pset
                      , InputSourceDescription const & desc
                      );
-  virtual ~PoolInput( );
+  virtual ~RootInput( );
 
   using InputSource::productRegistryUpdate;
   using InputSource::runPrincipal;
@@ -69,7 +69,7 @@ private:
     skip( int offset );
   virtual void
     rewind_( );
-}; // PoolInput
+}; // RootInput
 
 // ======================================================================
 

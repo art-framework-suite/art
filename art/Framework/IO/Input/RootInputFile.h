@@ -1,5 +1,5 @@
-#ifndef IOPool_Input_RootInputFile_h
-#define IOPool_Input_RootInputFile_h
+#ifndef IORoot_Input_RootInputFile_h
+#define IORoot_Input_RootInputFile_h
 
 // ======================================================================
 //

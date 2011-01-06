@@ -1,9 +1,9 @@
-project(IOPoolInputTest)
+project(IORootInputTest)
 
-set( cpp_files TestPoolInput.cpp )
+set( cpp_files TestRootInput.cpp )
 
-link_libraries( IOPoolInput
-                IOPoolCommon
+link_libraries( IORootInput
+                IORootCommon
                 DataFormatsCommon
 		DataFormatsProvenance
 		FWCoreSources
@@ -27,5 +27,5 @@ link_libraries( IOPoolInput
 		${CPPUNIT}
 		-luuid -ldl )
 
-add_executable( TestPoolInput TestPoolInput.cpp )
-add_test( TestPoolInput ${EXECUTABLE_OUTPUT_PATH}/TestPoolInput )
+add_executable( TestRootInput TestRootInput.cpp )
+add_test( TestRootInput ${EXECUTABLE_OUTPUT_PATH}/TestRootInput )

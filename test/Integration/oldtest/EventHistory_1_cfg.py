@@ -29,7 +29,7 @@ process.intvec = cms.EDProducer("IntVectorProducer",
     ivalue = cms.int32(11)
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('testEventHistory_1.root')
 )
 

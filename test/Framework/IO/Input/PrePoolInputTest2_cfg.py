@@ -1,7 +1,7 @@
 # The following comments couldn't be translated into the new config version:
 
 # Test storing OtherThing as well
-# Configuration file for PrePoolInputTest
+# Configuration file for PreRootInputTest
 
 import FWCore.ParameterSet.python.Config as cms
 
@@ -15,14 +15,14 @@ process.Thing = cms.EDProducer("ThingProducer",
     debugLevel = cms.untracked.int32(1)
 )
 
-process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('PoolInputTest.root')
+process.output = cms.OutputModule("RootOutputModule",
+    fileName = cms.untracked.string('RootInputTest.root')
 )
 
-process.output2 = cms.OutputModule("PoolOutputModule",
+process.output2 = cms.OutputModule("RootOutputModule",
     outputCommands = cms.untracked.vstring('keep *',
         'drop *_Thing_*_*'),
-    fileName = cms.untracked.string('PoolInputDropTest.root')
+    fileName = cms.untracked.string('RootInputDropTest.root')
 )
 
 process.OtherThing = cms.EDProducer("OtherThingProducer",

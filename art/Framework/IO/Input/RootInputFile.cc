@@ -126,64 +126,64 @@ namespace art {
     setRefCoreStreamer(0, true); // backward compatibility
 
     // Read the metadata tree.
-    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
+    TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(rootNames::metaDataTreeName().c_str()));
     if (!metaDataTree)
-      throw art::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
+      throw art::Exception(errors::FileReadError) << "Could not find tree " << rootNames::metaDataTreeName()
                                                          << " in the input file.\n";
 
     // To keep things simple, we just read in every possible branch that exists.
     // We don't pay attention to which branches exist in which file format versions
 
     FileFormatVersion *fftPtr = &fileFormatVersion_;
-    metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    metaDataTree->SetBranchAddress(rootNames::fileFormatVersionBranchName().c_str(), &fftPtr);
 
     FileID *fidPtr = &fid_;
-    if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
+    if (metaDataTree->FindBranch(rootNames::fileIdentifierBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(rootNames::fileIdentifierBranchName().c_str(), &fidPtr);
     }
 
     FileIndex *findexPtr = &fileIndex_;
-    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::fileIndexBranchName().c_str(), &findexPtr);
+    if (metaDataTree->FindBranch(rootNames::fileIndexBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(rootNames::fileIndexBranchName().c_str(), &findexPtr);
     }
 
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
-    metaDataTree->SetBranchAddress(poolNames::productDescriptionBranchName().c_str(),(&ppReg));
+    metaDataTree->SetBranchAddress(rootNames::productDescriptionBranchName().c_str(),(&ppReg));
 
     // TODO: update to separate tree per CMS code (2010/12/01).
     typedef map<fhicl::ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     PsetMap *psetMapPtr = &psetMap;
-    metaDataTree->SetBranchAddress(poolNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+    metaDataTree->SetBranchAddress(rootNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
 
     ProcessHistoryRegistry::collection_type pHistMap;
     ProcessHistoryRegistry::collection_type *pHistMapPtr = &pHistMap;
-    metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
+    metaDataTree->SetBranchAddress(rootNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
 
     auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
     BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
-    if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
+    if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(rootNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
 
     BranchChildren* branchChildrenBuffer = branchChildren_.get();
-    if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
+    if (metaDataTree->FindBranch(rootNames::productDependenciesBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(rootNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
     }
 
     // backward compatibility
     vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
-    if (metaDataTree->FindBranch(poolNames::eventHistoryBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
+    if (metaDataTree->FindBranch(rootNames::eventHistoryBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(rootNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
     }
 
     ModuleDescriptionRegistry::collection_type mdMap;
     ModuleDescriptionRegistry::collection_type *mdMapPtr = &mdMap;
-    if (metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
+    if (metaDataTree->FindBranch(rootNames::moduleDescriptionMapBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(rootNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     }
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
@@ -197,7 +197,7 @@ namespace art {
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
       // New format input file. The branchIDLists branch was read directly from the input file.
-      if (metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
+      if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) == 0) {
         throw art::Exception(errors::EventCorruption)
           << "Failed to find branchIDLists branch in metaData tree.\n";
       }
@@ -295,19 +295,19 @@ namespace art {
   RootInputFile::readEntryDescriptionTree() {
     // Called only for old format files.
     if (fileFormatVersion_.value_ < 8) return;
-    TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
+    TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(rootNames::entryDescriptionTreeName().c_str()));
     if (!entryDescriptionTree)
-      throw art::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
+      throw art::Exception(errors::FileReadError) << "Could not find tree " << rootNames::entryDescriptionTreeName()
                                                          << " in the input file.\n";
 
 
     EntryDescriptionID idBuffer;
     EntryDescriptionID* pidBuffer = &idBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
+    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
 
     EventEntryDescription entryDescriptionBuffer;
     EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
+    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
 
     // Fill in the parentage registry.
     for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
@@ -319,8 +319,8 @@ namespace art {
       parents.parents() = entryDescriptionBuffer.parents();
       ParentageRegistry::put(parents);
     }
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), 0);
+    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionIDBranchName().c_str(), 0);
+    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionBranchName().c_str(), 0);
   }
 
   void
@@ -332,18 +332,18 @@ namespace art {
       return;
     }
     // New format file
-    TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
+    TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(rootNames::parentageTreeName().c_str()));
     if (!parentageTree)
-      throw art::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
+      throw art::Exception(errors::FileReadError) << "Could not find tree " << rootNames::parentageTreeName()
                                                          << " in the input file.\n";
 
     ParentageID idBuffer;
     ParentageID* pidBuffer = &idBuffer;
-    parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), &pidBuffer);
+    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), &pidBuffer);
 
     Parentage parentageBuffer;
     Parentage *pParentageBuffer = &parentageBuffer;
-    parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), &pParentageBuffer);
+    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), &pParentageBuffer);
 
     for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
@@ -351,8 +351,8 @@ namespace art {
         throw art::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
       ParentageRegistry::put(parentageBuffer);
     }
-    parentageTree->SetBranchAddress(poolNames::parentageIDBranchName().c_str(), 0);
-    parentageTree->SetBranchAddress(poolNames::parentageBranchName().c_str(), 0);
+    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), 0);
+    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), 0);
   }
 
   bool
@@ -665,7 +665,7 @@ namespace art {
   RootInputFile::reportOpened() {
     // Report file opened.
     string const label = "source";
-    string moduleName = "PoolInput";
+    string moduleName = "RootInput";
   }
 
   void
@@ -702,7 +702,7 @@ namespace art {
 
     if (fileFormatVersion_.value_ >= 7) {
       History* pHistory = history_.get();
-      TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
+      TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
       if (!eventHistoryBranch)
         throw art::Exception(errors::EventCorruption)
           << "Failed to find history branch in event history tree.\n";
@@ -1006,7 +1006,7 @@ namespace art {
     if (forcedRunOffset_ != 0) {
       if (isRealData) {
         throw art::Exception(errors::Configuration,"RootInputFile::RootInputFile()")
-          << "The 'setRunNumber' parameter of PoolInput cannot be used with real data.\n";
+          << "The 'setRunNumber' parameter of RootInput cannot be used with real data.\n";
       }
       id = EventID(id.run() + forcedRunOffset_, id.event());
     }
@@ -1018,7 +1018,7 @@ namespace art {
   RootInputFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
     if (fileFormatVersion_.value_ < 7) return;
-    eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
+    eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)
       throw art::Exception(errors::EventCorruption)

@@ -1,8 +1,8 @@
-project(IOPoolCommonTest)
+project(IORootCommonTest)
 
 set( cpp_files TestEdmFastMerge.cpp )
 
-link_libraries( IOPoolCommon
+link_libraries( IORootCommon
                 DataFormatsProvenance
                 FWCoreUtilities
 		FWCoreServiceRegistry

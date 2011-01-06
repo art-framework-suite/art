@@ -16,7 +16,7 @@ namespace art {
 
   // The default value for sortState_ reflects the fact that
   // the index is always sorted using Run, SubRun, and Event
-  // number by the PoolOutput before being written out.
+  // number by the RootOutput before being written out.
   // In the other case when we create a new FileIndex, the
   // vector is empty, which is consistent with it having been
   // sorted.

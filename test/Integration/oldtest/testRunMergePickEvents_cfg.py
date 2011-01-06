@@ -1,5 +1,5 @@
 
-# Test the PoolSource parameter that one can use
+# Test the RootSource parameter that one can use
 # to request specific events.  This interacts with
 # the duplicate checking and skip event feature so
 # I set those parameters also and test that.
@@ -19,7 +19,7 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMergeRecombined.root',
         'file:testRunMergeRecombined.root'
@@ -50,7 +50,7 @@ process.test = cms.EDAnalyzer('RunSubRunEventAnalyzer',
 
 process.path1 = cms.Path(process.test)
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('file:testRunMergePickEvent.root')
 )
 

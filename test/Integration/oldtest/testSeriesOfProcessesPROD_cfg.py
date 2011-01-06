@@ -72,7 +72,7 @@ process.makeRunSubRunProducts = cms.EDProducer("ThingWithMergeProducer")
 # In the next process we want to test input from a secondary input
 # file so we split the products over 2 output files.
 
-process.out1 = cms.OutputModule("PoolOutputModule",
+process.out1 = cms.OutputModule("RootOutputModule",
   fileName = cms.untracked.string('testSeriesOfProcessesPROD1.root'),
   outputCommands = cms.untracked.vstring(
     "drop *",
@@ -80,7 +80,7 @@ process.out1 = cms.OutputModule("PoolOutputModule",
   )
 )
 
-process.out2 = cms.OutputModule("PoolOutputModule",
+process.out2 = cms.OutputModule("RootOutputModule",
   fileName = cms.untracked.string('testSeriesOfProcessesPROD2.root'),
   outputCommands = cms.untracked.vstring(
     "keep *",

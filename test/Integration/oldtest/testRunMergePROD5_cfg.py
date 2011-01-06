@@ -81,7 +81,7 @@ process.L = cms.EDProducer("ThingWithMergeProducer",
     labelsToGet = cms.untracked.vstring('F')
 )
 
-process.out = cms.OutputModule("PoolOutputModule",
+process.out = cms.OutputModule("RootOutputModule",
     fileName = cms.untracked.string('testRunMerge5.root')
 )
 

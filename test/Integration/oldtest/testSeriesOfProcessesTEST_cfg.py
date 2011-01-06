@@ -11,7 +11,7 @@
 # service.
 
 # We read both files previously written and test that
-# the secondary input file feature of the PoolSource
+# the secondary input file feature of the RootSource
 # works even in the case when the products went through
 # a streamer file.
 
@@ -35,7 +35,7 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("RootSource",
   fileNames = cms.untracked.vstring('file:testSeriesOfProcessesPROD2.root'),
   secondaryFileNames = cms.untracked.vstring('file:testSeriesOfProcessesPROD1.root')
 )
@@ -91,7 +91,7 @@ process.out3 = cms.OutputModule("SewerModule",
   )
 )
 
-process.out4 = cms.OutputModule("PoolOutputModule",
+process.out4 = cms.OutputModule("RootOutputModule",
   fileName = cms.untracked.string('testSeriesOfProcessesTEST.root'),
 )
 

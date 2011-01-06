@@ -160,7 +160,7 @@ namespace art {
     select( bt, eventMinorIndex, runMinorIndex, subRunMinorIndex );
   }
 
-  namespace poolNames {
+  namespace rootNames {
 
 #ifdef FW_OBSOLETE
     // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)

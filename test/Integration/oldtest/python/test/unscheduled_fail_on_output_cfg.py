@@ -6,7 +6,7 @@ process.source = cms.Source('EmptySource')
 process.failing = cms.EDProducer('FailingProducer')
 process.i = cms.EDProducer('IntProducer',
                            ivalue = cms.int32(10) )
-process.out = cms.OutputModule('PoolOutputModule',
+process.out = cms.OutputModule('RootOutputModule',
                                 fileName = cms.untracked.string('unscheduled_fail_on_output.root'))
 
 process.o = cms.EndPath(process.out)

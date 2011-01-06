@@ -15,7 +15,7 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Input/DuplicateChecker.h"
-#include "art/Framework/IO/Input/PoolInput.h"
+#include "art/Framework/IO/Input/RootInput.h"
 #include "art/Framework/IO/Input/RootInputFile.h"
 #include "art/Framework/IO/Input/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -34,7 +34,7 @@ using namespace std;
 namespace art {
 
   RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
-                                                PoolInput const& input,
+                                                RootInput const& input,
                                                 InputFileCatalog const& catalog,
                                                 bool primarySequence) :
     input_(input),
@@ -69,7 +69,7 @@ namespace art {
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
       throw art::Exception(errors::Configuration)
-        << "Illegal configuration options passed to PoolInput\n"
+        << "Illegal configuration options passed to RootInput\n"
         << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
         << "or \"eventsToProcess\".\n";
     }

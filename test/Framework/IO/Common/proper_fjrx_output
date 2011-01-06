@@ -10,7 +10,7 @@
   <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
+<InputSourceClass>RootSource</InputSourceClass>
 <EventsRead>10</EventsRead>
 <Runs>
 <Run ID="100">
@@ -29,7 +29,7 @@
   <Branch>edmTriggerResults_TriggerResults__TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
-<InputSourceClass>PoolSource</InputSourceClass>
+<InputSourceClass>RootSource</InputSourceClass>
 <EventsRead>15</EventsRead>
 <Runs>
 <Run ID="200">
@@ -49,7 +49,7 @@
   <Branch>edmtestOtherThings_OtherThing_testUserTag_TESTPROD.</Branch>
   <Branch>edmtestThings_Thing__TESTPROD.</Branch>
 </Branches>
-<OutputModuleClass>PoolOutputModule</OutputModuleClass>
+<OutputModuleClass>RootOutputModule</OutputModuleClass>
 <TotalEvents>25</TotalEvents>
 
 <DataType>MC</DataType>
