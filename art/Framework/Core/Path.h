@@ -71,7 +71,13 @@ namespace art {
     int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
 
+    void findEventModifiers(std::vector<std::string> &foundLabels) const;
+    void findEventObservers(std::vector<std::string> &foundLabels) const;
+
   private:
+
+    void findByModifiesEvent(bool modifies, std::vector<std::string> &foundLabels) const;
+
     RunStopwatch::StopwatchPointer stopwatch_;
     int timesRun_;
     int timesPassed_;

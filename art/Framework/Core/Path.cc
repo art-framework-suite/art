@@ -101,4 +101,24 @@ namespace art {
     for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
   }
 
+   void Path::findEventModifiers(std::vector<std::string> &foundLabels) const {
+      findByModifiesEvent(true, foundLabels);
+   }
+
+   void Path::findEventObservers(std::vector<std::string> &foundLabels) const {
+      findByModifiesEvent(false, foundLabels);
+   }
+
+   void Path::findByModifiesEvent(bool modifies,
+                                  std::vector<std::string> &foundLabels) const {
+      for (WorkersInPath::const_iterator
+              i = workers_.begin(), 
+              endIter = workers_.end();
+           i != endIter; ++i) {
+         if (i->modifiesEvent() == modifies) {
+            foundLabels.push_back(i->label());
+         }
+      }
+   }
+
 }
