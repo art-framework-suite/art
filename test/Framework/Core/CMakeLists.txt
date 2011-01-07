@@ -27,6 +27,7 @@ link_libraries( art_Framework_Services_Registry
 
 set( BOOST_TEST_LIST
   RootDictionaryManager_t
+  artapp_t
 )
 
 set( TEST_LIST
@@ -47,6 +48,10 @@ set ( ALSO_RUN
 
 set( MANUALLY_RUN_TESTS
   LibraryManager_t.sh
+)
+
+set( INPUT_FILES
+  empty_config.fcl
 )
 
 # ----------------------------------------------------------------------
@@ -74,6 +79,7 @@ endforeach( test ${BOOST_TEST_LIST} )
 
 # add_executable(  )
 # target_link_libraries( )
+target_link_libraries(artapp_t art_Framework_CoreArt ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 # ----------------------------------------------------------------------
 # Install non-built tests:
@@ -101,6 +107,12 @@ add_test( LibraryManager_t.sh
           ${EXECUTABLE_OUTPUT_PATH}/LibraryManager_t.sh
           ${EXECUTABLE_OUTPUT_PATH}
         )
+
+# ----------------------------------------------------------------------
+# Copy Configuration and other input files to the correct location
+foreach (input ${INPUT_FILES} )
+  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY )
+endforeach (input ${INPUT_FILES} )
 
 # ======================================================================
 
@@ -156,8 +168,8 @@ set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
 
 #add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )
 #add_executable( TestFWCoreFrameworkeventprocessor  ${TestFWCoreFrameworkeventprocessor_sources} )
-add_executable( TestFrameworkCoreartapp artapp_t.cpp)
-target_link_libraries(TestFrameworkCoreartapp art_Framework_CoreArt ${Boost_PROGRAM_OPTIONS_LIBRARY} )
+#add_executable( TestFrameworkCoreartapp artapp_t.cpp)
+#target_link_libraries(TestFrameworkCoreartapp art_Framework_CoreArt ${Boost_PROGRAM_OPTIONS_LIBRARY} )
 add_executable( TestFWCoreFrameworkeventprincipal  testRunner.cpp eventprincipal_t.cppunit.cc )
 add_executable( TestFWCoreFrameworkEvent Event_t.cpp )
 # add_executable( TestFWCoreFrameworkView View_t.cpp )
@@ -182,7 +194,7 @@ target_link_libraries(TestFWCoreFrameworkStatemachine
   )
 add_executable( TestFWCoreFrameworkStatemachineSH TestDriver.cpp )
 
-add_test( TestFrameworkCoreartapp ${EXECUTABLE_OUTPUT_PATH}/TestFrameworkCoreartapp )
+#add_test( TestFrameworkCoreartapp ${EXECUTABLE_OUTPUT_PATH}/TestFrameworkCoreartapp )
 #add_test( TestFWCoreFramework ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFramework )
 #add_test( TestFWCoreFrameworkeventprocessor  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprocessor )
 add_test( TestFWCoreFrameworkeventprincipal  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprincipal )
