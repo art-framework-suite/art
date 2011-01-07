@@ -30,6 +30,8 @@
 
 extern "C" { int artapp(int argc, char* argv[]); }
 
+using fhicl::ParameterSet;
+
 // -----------------------------------------------
 namespace {
   class EventProcessorWithSentry {
@@ -92,7 +94,7 @@ int artapp(int argc, char* argv[])
   ostringstream descstr;
 
   descstr << argv[0]
-          << "--config config_file";
+          << " <options>";
 
   bpo::options_description desc(descstr.str());
 
@@ -110,21 +112,21 @@ int artapp(int argc, char* argv[])
   }
   catch(bpo::error const& e) {
     std::cerr << "Exception from command line processing in " << argv[0]
-              << ": " << e.what();
+              << ": " << e.what() << "\n";
     return 7000;
   }
 
-  if (vm.count("Help")) {
+  if (vm.count("help")) {
     std::cout << desc <<std::endl;
     return 0;
   }
 
-  if (!vm.count("parameter-set")) {
+  if (!vm.count("config")) {
     std::cerr << "Exception from command line processing in " << argv[0]
               << ": no configuration file given.\n"
               << "For usage and an options list, please do '"
               << argv[0] <<  " --help"
-              << "'.";
+              << "'.\n";
     return 7001;
   }
 
@@ -132,7 +134,7 @@ int artapp(int argc, char* argv[])
   //
   // Get the parameter set from parsing the configuration file.
   //
-  fhicl::ParameterSet main_pset, ancillary_pset;
+  ParameterSet main_pset, ancillary_pset;
   fhicl::intermediate_table raw_config;
   string config_filename = vm["config"].as<string>();
   ifstream config_stream(config_filename.c_str());
@@ -147,12 +149,17 @@ int artapp(int argc, char* argv[])
   //
   // Start the messagefacility
   //
-#if 0
 
-#if 0
-  mf::start_me(multithread,
-               ancillary_pset.get<fhicl::ParameterSet>("message_facility"));
-#endif
+  mf::MessageDrop::instance()->jobMode = std::string("analysis");
+
+  mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
+                           ancillary_pset.get<ParameterSet>("message_facility", ParameterSet()));
+
+  mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
+
+#if 1
+  return 0;
+#else
   //
   // Initialize:
   //   unix signal facility
