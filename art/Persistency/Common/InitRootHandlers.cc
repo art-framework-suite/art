@@ -1,5 +1,4 @@
 
-#include "art/Framework/Services/RootAutoLibraryLoader/RootAutoLibraryLoader.h"
 #include "art/Persistency/Common/InitRootHandlers.h"
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
@@ -136,36 +135,32 @@ namespace {
 
 namespace art {
 
-  void unloadRootSigHandler()
-  {
-    // Deactivate all the Root signal handlers and restore the system defaults
-    gSystem->ResetSignal(kSigChild);
-    gSystem->ResetSignal(kSigBus);
-    gSystem->ResetSignal(kSigSegmentationViolation);
-    gSystem->ResetSignal(kSigIllegalInstruction);
-    gSystem->ResetSignal(kSigSystem);
-    gSystem->ResetSignal(kSigPipe);
-    gSystem->ResetSignal(kSigAlarm);
-    gSystem->ResetSignal(kSigUrgent);
-    gSystem->ResetSignal(kSigFloatingException);
-    gSystem->ResetSignal(kSigWindowChanged);
-  }
+   void unloadRootSigHandler()
+   {
+      // Deactivate all the Root signal handlers and restore the system defaults
+      gSystem->ResetSignal(kSigChild);
+      gSystem->ResetSignal(kSigBus);
+      gSystem->ResetSignal(kSigSegmentationViolation);
+      gSystem->ResetSignal(kSigIllegalInstruction);
+      gSystem->ResetSignal(kSigSystem);
+      gSystem->ResetSignal(kSigPipe);
+      gSystem->ResetSignal(kSigAlarm);
+      gSystem->ResetSignal(kSigUrgent);
+      gSystem->ResetSignal(kSigFloatingException);
+      gSystem->ResetSignal(kSigWindowChanged);
+   }
 
-  void setRootErrorHandler(bool want_custom)
-  {
-    if(want_custom)
-      SetErrorHandler(RootErrorHandler);
-    else
-      SetErrorHandler(DefaultErrorHandler);
-  }
-
-  void completeRootHandlers(bool want_auto_lib_loader)
-  {
-    if(want_auto_lib_loader)
-      {
-        art::RootAutoLibraryLoader::enable();
+   void setRootErrorHandler(bool want_custom)
+   {
+      if (want_custom) {
+         SetErrorHandler(RootErrorHandler);
+      } else {
+         SetErrorHandler(DefaultErrorHandler);
       }
+   }
 
+   void completeRootHandlers()
+   {
       // Enable Cintex.
       ROOT::Cintex::Cintex::Enable();
 
@@ -178,6 +173,6 @@ namespace art {
       setCacheStreamers();
       setTransientStreamers();
       setRefCoreStreamer();
-  }
+   }
 
 }  // art
