@@ -2,15 +2,21 @@
 project(FWCoreFrameworkTest)
 
 # Library link requirements for tests here
-link_libraries( art_Framework_Services_Registry
+link_libraries( 
+  art_Persistency_Provenance_dict
+  art_Framework_Services_Registry
   art_Utilities
   art_Framework_Core
   ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${CINTEX}
+  ${TREE}
   ${HIST}
   ${MATRIX}
+  ${NET}
   ${MATHCORE}
+  ${THREAD}
+  ${RIO}
 	${CORE}
   ${CINT}
 	${REFLEX}
