@@ -46,4 +46,6 @@
    <class name="art::SubRunID"/>
  <class name="art::RunAuxiliary"/>
    <class name="art::RunID"/>
+ <class name="art::EventEntryDescription"/>
+ <class name="art::EventEntryInfo"/>
 </lcgdict>

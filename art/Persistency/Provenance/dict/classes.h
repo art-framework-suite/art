@@ -13,6 +13,8 @@
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/EventEntryInfo.h"
+#include "art/Persistency/Provenance/EventEntryDescription.h"
 
 namespace {
    struct dictionary {
