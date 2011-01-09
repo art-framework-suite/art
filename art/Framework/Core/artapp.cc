@@ -7,17 +7,21 @@
 
 #include "TError.h"
 #include "art/Framework/Core/EventProcessor.h"
+#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Persistency/Common/InitRootHandlers.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
+#include "art/Utilities/UnixSignalHandlers.h"
 #include "boost/program_options.hpp"
 #include "boost/shared_ptr.hpp"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
+#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <cstring>
@@ -34,45 +38,54 @@ using fhicl::ParameterSet;
 
 // -----------------------------------------------
 namespace {
-  class EventProcessorWithSentry {
-  public:
-    explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) { }
-    explicit EventProcessorWithSentry(std::auto_ptr<art::EventProcessor> ep) :
-      ep_(ep),
-      callEndJob_(false) { }
-    ~EventProcessorWithSentry() {
-      if (callEndJob_ && ep_.get()) {
-        try {
-          ep_->endJob();
-        }
-        catch (cet::exception& e) {
-          //art::printCmsException(e, kProgramName);
-        }
-        catch (std::bad_alloc& e) {
-          //art::printBadAllocException(kProgramName);
-        }
-        catch (std::exception& e) {
-          //art::printStdException(e, kProgramName);
-        }
-        catch (...) {
-          //art::printUnknownException(kProgramName);
-        }
+   struct RootErrorHandlerSentry {
+      RootErrorHandlerSentry(bool reset) {
+         art::setRootErrorHandler(reset);
       }
-    }
-    void on() {
-      callEndJob_ = true;
-    }
-    void off() {
-      callEndJob_ = false;
-    }
+      ~RootErrorHandlerSentry() {
+         SetErrorHandler(DefaultErrorHandler);
+      }
+   };
 
-    art::EventProcessor* operator->() {
-      return ep_.get();
-    }
-  private:
-    std::auto_ptr<art::EventProcessor> ep_;
-    bool callEndJob_;
-  }; // EventProcessorWithSentry
+   class EventProcessorWithSentry {
+   public:
+      explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) { }
+      explicit EventProcessorWithSentry(std::auto_ptr<art::EventProcessor> ep) :
+         ep_(ep),
+         callEndJob_(false) { }
+      ~EventProcessorWithSentry() {
+         if (callEndJob_ && ep_.get()) {
+            try {
+               ep_->endJob();
+            }
+            catch (cet::exception& e) {
+               //art::printCmsException(e, kProgramName);
+            }
+            catch (std::bad_alloc& e) {
+               //art::printBadAllocException(kProgramName);
+            }
+            catch (std::exception& e) {
+               //art::printStdException(e, kProgramName);
+            }
+            catch (...) {
+               //art::printUnknownException(kProgramName);
+            }
+         }
+      }
+      void on() {
+         callEndJob_ = true;
+      }
+      void off() {
+         callEndJob_ = false;
+      }
+
+      art::EventProcessor* operator->() {
+         return ep_.get();
+      }
+   private:
+      std::auto_ptr<art::EventProcessor> ep_;
+      bool callEndJob_;
+   }; // EventProcessorWithSentry
 } // namespace
 
 
@@ -130,21 +143,41 @@ int artapp(int argc, char* argv[])
     return 7001;
   }
 
-  // ------------------
   //
-  // Get the parameter set from parsing the configuration file.
+  // Get the parameter set by parsing the configuration file.
   //
-  ParameterSet main_pset, ancillary_pset;
+  ParameterSet main_pset;
   fhicl::intermediate_table raw_config;
   string config_filename = vm["config"].as<string>();
   ifstream config_stream(config_filename.c_str());
-  if (!fhicl::parse_document(config_stream, raw_config))
-    {
-      std::cerr << "Failed to parse the configuration file '"
+  if (!fhicl::parse_document(config_stream, raw_config)) {
+     std::cerr << "Failed to parse the configuration file '"
+               << config_filename
+               << "'\n";
+     return 7002;
+  } else if ( raw_config.empty() ) {
+     std::cerr << "INFO: provided configuration file '"
+               << config_filename.c_str()
+               << "' is empty: using minimal defaults.\n";
+  }
+
+  //
+  // Any name injections / changed items here:
+  //
+
+  //
+  // Make the parameter set from the intermediate table.
+  //
+  if (!fhicl::make_ParameterSet(raw_config, main_pset)) {
+     std::cerr << "Failed to create a parameter set from parsed "
+               << "intermediate representation of configuration file '"
                 << config_filename
                 << "'\n";
-      return 7001;
-    }
+      return 7003;
+  }
+
+  ParameterSet services_pset = main_pset.get<ParameterSet>("services", ParameterSet());
+  ParameterSet scheduler_pset = services_pset.get<ParameterSet>("scheduler", ParameterSet());
 
   //
   // Start the messagefacility
@@ -153,22 +186,24 @@ int artapp(int argc, char* argv[])
   mf::MessageDrop::instance()->jobMode = std::string("analysis");
 
   mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
-                           ancillary_pset.get<ParameterSet>("message_facility", ParameterSet()));
+                           services_pset.get<ParameterSet>("message", ParameterSet()));
 
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
 
-#if 1
-  return 0;
-#else
   //
   // Initialize:
   //   unix signal facility
-  //   enable fpe facility
-  //   init root handlers facility
+  art::setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
 
-  // Initialize:
-  //   load all dictionaries facility
-  //   current module facility
+  //   init root handlers facility
+  if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
+     art::unloadRootSigHandler();
+  }
+  RootErrorHandlerSentry re_sentry(scheduler_pset.get<bool>("resetRootErrHandler", true));
+  // Load all dictionaries.
+  art::RootDictionaryManager rdm;
+  art::completeRootHandlers();
+
 
   art::ServiceToken dummyToken;
 
@@ -182,12 +217,9 @@ int artapp(int argc, char* argv[])
   //
   EventProcessorWithSentry proc;
   try {
-    std::auto_ptr<art::EventProcessor> procP;
-#if 0
-        procP(new
-              art::EventProcessor(processDesc, jobReportToken,
-                             art::kTokenOverrides));
-#endif
+    std::auto_ptr<art::EventProcessor> 
+       procP(new
+             art::EventProcessor(main_pset));
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
@@ -197,11 +229,6 @@ int artapp(int argc, char* argv[])
     proc.off();
     proc->endJob();
     rc = 0;
-    // Disable Root Error Handler so we do not throw because of ROOT errors.
-    art::ServiceToken token = proc->getToken();
-    art::ServiceRegistry::Operate operate(token);
-    art::ServiceHandle<art::RootHandlers> rootHandler;
-    rootHandler->disableErrorHandler();
   }
   catch (art::Exception& e) {
     rc = e.returnCode();
@@ -224,9 +251,5 @@ int artapp(int argc, char* argv[])
     art::printUnknownException("art"); // , "Thing5", rc);
   }
 
-  // Disable Root Error Handler again, just in case an exception
-  // caused the above disabling of the handler to be bypassed.
-  SetErrorHandler(DefaultErrorHandler);
-#endif
   return rc;
 }  // artapp

@@ -199,47 +199,59 @@ namespace art {
   makeInput(ParameterSet const& params,
             EventProcessor::CommonParams const& common,
             ProductRegistry& preg,
-            boost::shared_ptr<ActivityRegistry> areg)
-  {
-    // find single source
-    bool sourceSpecified = false;
-    try {
-      ParameterSet main_input = params.get<fhicl::ParameterSet>("source");
+            boost::shared_ptr<ActivityRegistry> areg) {
 
-      // Fill in "ModuleDescription", in case the input source produces
-      // any EDproducts,which would be registered in the ProductRegistry.
-      // Also fill in the process history item for this process.
+     ParameterSet defaultEmptySource;
+     // TODO: finish configuring default empty source.
+     defaultEmptySource.put("module_type", "EmptyEvent");
+     defaultEmptySource.put("module_label", "source");
+     // defaultEmptySource.put("", "");
 
-      ModuleDescription md;
-      md.parameterSetID_ = main_input.id();
-      md.moduleName_ = main_input.get<std::string>("module_type");
-      md.moduleLabel_ = main_input.get<std::string>("module_label");
+     // find single source
+     bool sourceSpecified = false;
+     ParameterSet main_input = defaultEmptySource;
+     try {
+        try {
+           main_input = params.get<fhicl::ParameterSet>("source");
+        }
+        // TODO: catch correct exception.
+        catch (...) {
+           // TODO: inform that we're using the default source configuration.
+        }
+        // Fill in "ModuleDescription", in case the input source produces
+        // any EDproducts,which would be registered in the ProductRegistry.
+        // Also fill in the process history item for this process.
 
-      md.processConfiguration_ = ProcessConfiguration(common.processName_,
-                                                      params.id(),
-                                                      getReleaseVersion(), getPassID());
+        ModuleDescription md;
+        md.parameterSetID_ = main_input.id();
+        md.moduleName_ = main_input.get<std::string>("module_type");
+        md.moduleLabel_ = main_input.get<std::string>("module_label");
 
-      sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
-      areg->preSourceConstructionSignal_(md);
+        md.processConfiguration_ = ProcessConfiguration(common.processName_,
+                                                        params.id(),
+                                                        getReleaseVersion(), getPassID());
 
-      shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
-                                                                        isdesc).release());
-      areg->postSourceConstructionSignal_(md);
+        sourceSpecified = true;
+        InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
+        areg->preSourceConstructionSignal_(md);
 
-      return input;
-    }
-    catch(art::Exception const& iException) {
+        shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
+                                                                          isdesc).release());
+        areg->postSourceConstructionSignal_(md);
+
+        return input;
+     }
+     catch(art::Exception const& iException) {
         if(sourceSpecified == false &&
            errors::Configuration == iException.categoryCode()) {
-            throw art::Exception(errors::Configuration, "FailedInputSource")
+           throw art::Exception(errors::Configuration, "FailedInputSource")
               << "Configuration of main input source has failed\n"
               << iException;
         } else {
-            throw;
+           throw;
         }
-    }
-    return shared_ptr<InputSource>();
+     }
+     return shared_ptr<InputSource>();
   }
 
   // -------- functions to help prepare the services for initialization --------
@@ -334,18 +346,17 @@ namespace art {
     // not modified.
 
     ParameterSet services = pset.get<ParameterSet>("services",ParameterSet());
-    ParameterSet options = services.get<ParameterSet>("options", ParameterSet());
+    ParameterSet scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
 
-    ParameterSet fpc_pset = services.get<ParameterSet>("FloatingPointControl",ParameterSet());
-    ParameterSet logger_pset = services.get<ParameterSet>("MessageLogger",ParameterSet());
+    ParameterSet fpc_pset = services.get<ParameterSet>("floating_point_control",ParameterSet());
 
-    fileMode_ = options.get<std::string>("fileMode", "");
-    handleEmptyRuns_ = options.get<bool>("handleEmptyRuns", true);
-    handleEmptySubRuns_ = options.get<bool>("handleEmptySubRuns", true);
-    maxEventsPset_ = options.get<ParameterSet>("maxEvents", ParameterSet());
-    maxSubRunsPset_ = options.get<ParameterSet>("maxSubRuns", ParameterSet());
-    bool wantTracer = options.get<bool>("wantTracer",false);
-    std::string processName = pset.get<std::string>("process_name");
+    fileMode_ = scheduler.get<std::string>("fileMode", "");
+    handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
+    handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
+    maxEventsPset_ = scheduler.get<ParameterSet>("maxEvents", ParameterSet());
+    maxSubRunsPset_ = scheduler.get<ParameterSet>("maxSubRuns", ParameterSet());
+    bool wantTracer = scheduler.get<bool>("wantTracer",false);
+    std::string processName = pset.get<std::string>("process_name", "DUMMY");
 
     // build a list of service parameter sets that will be used by the service registry
     ParameterSets service_set;
@@ -413,7 +424,7 @@ namespace art {
     // earlier when it completed processing events, but if it
     // has not been we'll take care of it here at the last moment.
     // This could cause problems if we are already handling an
-    // exception and another one is thrown here ...  For a critical
+    // exception and another one is thrown here ..  For a critical
     // executable the solution to this problem is for the code using
     // the EventProcessor to explicitly call EndJob or use runToCompletion,
     // then the next line of code is never executed.
@@ -880,7 +891,7 @@ namespace art {
     }
 
     Status rc = epException;
-    FDEBUG(2) << "asyncRun starting ......................\n";
+    FDEBUG(2) << "asyncRun starting ...........\n";
 
     try {
       bool onlineStateTransitions = true;
@@ -913,7 +924,7 @@ namespace art {
       ++me->stop_count_;
       me->stopper_.notify_all();
     }
-    FDEBUG(2) << "asyncRun ending ......................\n";
+    FDEBUG(2) << "asyncRun ending ...........\n";
   }
 
 
@@ -1065,7 +1076,7 @@ namespace art {
     //
     // Some states used in the machine are special because they
     // perform actions while the machine is being terminated, actions
-    // such as close files, call endRun, call endSubRun etc ...  Each of these
+    // such as close files, call endRun, call endSubRun etc ..  Each of these
     // states has two functions that perform these actions.  The functions
     // are almost identical.  The major difference is that one version
     // catches all exceptions and the other lets exceptions pass through.
