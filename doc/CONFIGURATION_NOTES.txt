@@ -67,11 +67,9 @@ configuration file. Our example does not make any such use.
       maxSubRuns: -1
 
       enableSigInt: true
-      doLoad:       true
       unloadRootSigHandler: false
       resetRootErrHandler: true
-      autoLibraryLoader: true
-      doTracking: true
+      wantTracer: false
     }
   }
 
@@ -111,6 +109,10 @@ must be present. Because it has no parameters to configure, and
 because it is always created, there is no reason for us to have a
 "current_module_facility" configuration element in the configuration
 file.
+
+The automatic loading of Root class information on demand
+and the initial loading of *all* dictionary libraries used to be
+optional and configurable: this is no longer the case.
 
 
   

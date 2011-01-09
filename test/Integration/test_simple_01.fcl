@@ -21,9 +21,13 @@ services:
               'ProductDoesNotSupportPtr','NotFound']
     # Ignore: []
     wantSummary: true
-    # fileMode : ""
-    # handleEmptyRuns : true
-    # handleEmptySubRuns : true
+    # wantTracer: false
+    # fileMode: ""
+    # handleEmptyRuns: true
+    # handleEmptySubRuns: true
+    # enableSigInt: true
+    # unloadRootSigHandler: false
+    # resetRootErrHandler: true
   } 
 
    # These are provided by Art, but are not system services and therefore
@@ -31,7 +35,6 @@ services:
    timing: { }
    memory: { } 
    tfile: { }
-   tracer: { }
 
    user:
    {
@@ -41,7 +44,7 @@ services:
 
 physics:
 {
-  producers :
+  producers:
   {
     m1a:
     {
@@ -51,11 +54,11 @@ physics:
     }
   }
 
-  filters : 
+  filters: 
   {
   }
 
-  analyzers :
+  analyzers:
   {
     a1:
     {
@@ -68,11 +71,11 @@ physics:
    p1: [ m1a ]
    e1: [ a1, out1 ]
 
-   trigger_paths : [ p1 ]
-   end_paths : [ e1 ]
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
 }
 
-outputs : 
+outputs: 
 {
   out1:
   {
@@ -82,14 +85,14 @@ outputs :
   }
 }
 
-source :
+source:
 {
   module_type: EmptyEvent
   module_label: source # was "@main_input"
 
   # were in the global area before
-  # maxEvents : 10
-  # maxSubRuns : 2
+  # maxEvents: 10
+  # maxSubRuns: 2
 }
 
 # build these?
