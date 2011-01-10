@@ -58,6 +58,7 @@ set( MANUALLY_RUN_TESTS
 
 set( INPUT_FILES
   empty_config.fcl
+  summary_only_config.fcl
 )
 
 # ----------------------------------------------------------------------
