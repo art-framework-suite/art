@@ -164,6 +164,17 @@ int artapp(int argc, char* argv[])
   //
   // Any name injections / changed items here:
   //
+  try {
+     raw_config.find("process_name");
+  }
+  catch (fhicl::exception e) {
+     if (e.categoryCode() == fhicl::cant_find) {
+        std::cerr << "INFO: using default process_name, \"DUMMY.\"\n";
+        raw_config.insert("process_name", false, fhicl::STRING, std::string("DUMMY"));
+     } else {
+        throw;
+     }
+  }
 
   //
   // Make the parameter set from the intermediate table.

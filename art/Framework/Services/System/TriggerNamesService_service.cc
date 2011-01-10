@@ -18,14 +18,15 @@ namespace art {
     TriggerNamesService::TriggerNamesService(const ParameterSet& pset) {
 
       trigger_pset_ =
-        pset.get<fhicl::ParameterSet>("trigger_paths");
+         pset.get<ParameterSet>("trigger_paths", ParameterSet());
 
-      trignames_ = trigger_pset_.get<vector<string> >("trigger_paths");
-      end_names_ = pset.get<vector<string> >("end_paths");
+      trignames_ = trigger_pset_.get<vector<string> >("trigger_paths", vector<string>());
+      end_names_ = pset.get<vector<string> >("end_paths", vector<string>());
 
       ParameterSet defopts;
+      ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
       ParameterSet opts =
-        pset.get<fhicl::ParameterSet>("options", defopts);
+        services.get<ParameterSet>("scheduler", defopts);
       wantSummary_ =
         opts.get<bool>("wantSummary",false);
 

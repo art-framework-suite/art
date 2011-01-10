@@ -195,35 +195,6 @@ namespace art {
     //
     // Nested classes and structs below.
 
-    struct CommonParams
-    {
-      CommonParams():
-        processName_(),
-        releaseVersion_(),
-        passID_(),
-        maxEventsInput_(),
-        maxSubRunsInput_()
-      { }
-
-      CommonParams(std::string const& processName,
-                   ReleaseVersion const& releaseVersion,
-                   PassID const& passID,
-                   int maxEvents,
-                   int maxSubRuns):
-        processName_(processName),
-        releaseVersion_(releaseVersion),
-        passID_(passID),
-        maxEventsInput_(maxEvents),
-        maxSubRunsInput_(maxSubRuns)
-      { }
-
-      std::string processName_;
-      ReleaseVersion releaseVersion_;
-      PassID passID_;
-      int maxEventsInput_;
-      int maxSubRunsInput_;
-    }; // struct CommonParams
-
 
     // The function "runToCompletion" will run until the job is "complete",
     // which means:
@@ -353,8 +324,6 @@ namespace art {
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    fhicl::ParameterSet                           maxEventsPset_;
-    fhicl::ParameterSet                           maxSubRunsPset_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;

@@ -197,15 +197,14 @@ namespace art {
   // ---------------------------------------------------------------
   shared_ptr<InputSource>
   makeInput(ParameterSet const& params,
-            EventProcessor::CommonParams const& common,
+            std::string const &processName,
             ProductRegistry& preg,
             boost::shared_ptr<ActivityRegistry> areg) {
 
      ParameterSet defaultEmptySource;
-     // TODO: finish configuring default empty source.
      defaultEmptySource.put("module_type", "EmptyEvent");
      defaultEmptySource.put("module_label", "source");
-     // defaultEmptySource.put("", "");
+     defaultEmptySource.put("maxEvents", 1);
 
      // find single source
      bool sourceSpecified = false;
@@ -227,12 +226,14 @@ namespace art {
         md.moduleName_ = main_input.get<std::string>("module_type");
         md.moduleLabel_ = main_input.get<std::string>("module_label");
 
-        md.processConfiguration_ = ProcessConfiguration(common.processName_,
+        md.processConfiguration_ = ProcessConfiguration(processName,
                                                         params.id(),
                                                         getReleaseVersion(), getPassID());
 
         sourceSpecified = true;
-        InputSourceDescription isdesc(md, preg, areg, common.maxEventsInput_, common.maxSubRunsInput_);
+        InputSourceDescription isdesc(md, preg, areg,
+                                      main_input.get<int>("maxEvents", -1),
+                                      main_input.get<int>("maxSubRuns", -1));
         areg->preSourceConstructionSignal_(md);
 
         shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
@@ -313,8 +314,6 @@ namespace art {
   EventProcessor::EventProcessor(ParameterSet const& pset):
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    maxEventsPset_(),
-    maxSubRunsPset_(),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -353,10 +352,8 @@ namespace art {
     fileMode_ = scheduler.get<std::string>("fileMode", "");
     handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
     handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
-    maxEventsPset_ = scheduler.get<ParameterSet>("maxEvents", ParameterSet());
-    maxSubRunsPset_ = scheduler.get<ParameterSet>("maxSubRuns", ParameterSet());
     bool wantTracer = scheduler.get<bool>("wantTracer",false);
-    std::string processName = pset.get<std::string>("process_name", "DUMMY");
+    std::string processName = pset.get<std::string>("process_name");
 
     // build a list of service parameter sets that will be used by the service registry
     ParameterSets service_set;
@@ -390,13 +387,7 @@ namespace art {
     ServiceRegistry::Operate operate(serviceToken_);
 
     act_table_ = ActionTable(pset);
-    CommonParams common = CommonParams(processName,
-                           getReleaseVersion(),
-                           getPassID(),
-                           maxEventsPset_.get<int>("input", -1),
-                           maxSubRunsPset_.get<int>("input", -1));
-
-    input_= makeInput(pset, common, preg_, actReg_);
+    input_= makeInput(pset, processName,preg_, actReg_);
 
     schedule_ = std::auto_ptr<Schedule>
       (new Schedule(pset,

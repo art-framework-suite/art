@@ -10,7 +10,7 @@
 
 using namespace cet;
 using namespace std;
-
+using fhicl::ParameterSet;
 
 namespace art {
   namespace actions {
@@ -47,24 +47,25 @@ namespace art {
   namespace {
     inline void install(actions::ActionCodes code,
                         ActionTable::ActionMap& out,
-                        const fhicl::ParameterSet& pset)
+                        const ParameterSet& pset)
     {
       using namespace boost::lambda;
       typedef vector<string> vstring;
 
       // we cannot have parameters in the main process section so look
-      // for an untrakced (optional) ParameterSet called "options" for
-      // now.  Notice that all exceptions (most actally) throw
-      // art::Exception with the configuration category.  This
-      // category should probably be more specific or a derived
+      // for an untracked (optional) ParameterSet called
+      // "services.options" for now.  Notice that all exceptions (most
+      // actally) throw art::Exception with the configuration category.
+      // This category should probably be more specific or a derived
       // exception type should be used so the catch can be more
       // specific.
 
 //      cerr << pset.toString() << endl;
 
-      fhicl::ParameterSet defopts;
-      fhicl::ParameterSet opts =
-        pset.get<fhicl::ParameterSet>("options", defopts);
+      ParameterSet defopts;
+      ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
+      ParameterSet opts =
+        services.get<ParameterSet>("scheduler", defopts);
       //cerr << "looking for " << actionName(code) << endl;
       vstring v =
         opts.get<vector<string> >(actionName(code),vstring());
@@ -73,7 +74,7 @@ namespace art {
     }
   }
 
-  ActionTable::ActionTable(const fhicl::ParameterSet& pset) : map_()
+  ActionTable::ActionTable(const ParameterSet& pset) : map_()
   {
     addDefaults();
 

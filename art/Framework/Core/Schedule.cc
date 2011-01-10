@@ -109,7 +109,8 @@ namespace art {
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet opts(pset_.get<fhicl::ParameterSet>("options", ParameterSet()));
+    ParameterSet services(pset_.get<ParameterSet>("services", ParameterSet()));
+    ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
     bool hasPath = false;
 
     int trig_bitpos = 0;
@@ -144,7 +145,7 @@ namespace art {
         ++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
     }
-    vector<string> modulesInConfig(proc_pset.get<vector<string> >("all_modules"));
+    vector<string> modulesInConfig(proc_pset.get<vector<string> >("all_modules", vector<string>()));
     set<string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
     vector<string> unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
@@ -165,7 +166,7 @@ namespace art {
           ++itLabel) {
         if (allowUnscheduled) {
           //Need to hold onto the parameters long enough to make the call to getWorker
-          ParameterSet workersParams(proc_pset.get<fhicl::ParameterSet>(*itLabel));
+          ParameterSet workersParams(proc_pset.get<ParameterSet>(*itLabel));
           WorkerParams params(proc_pset, workersParams,
                               *prod_reg_, *act_table_,
                               processName_, getReleaseVersion(), getPassID());
@@ -236,7 +237,7 @@ namespace art {
   #if 0
     string const output("output");
 
-    ParameterSet maxEventsPSet(pset_.get<fhicl::ParameterSet>("maxEvents", ParameterSet()));
+    ParameterSet maxEventsPSet(pset_.get<ParameterSet>("maxEvents", ParameterSet()));
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
     ParameterSet vMaxEventsOut;
@@ -246,9 +247,9 @@ namespace art {
       ++maxEventSpecs;
     }
     vector<string> psetNamesE;
-    maxEventsPSet.get<fhicl::ParameterSet>NameList(psetNamesE, false);
+    maxEventsPSet.get<ParameterSet>NameList(psetNamesE, false);
     if (search_all(psetNamesE, output)) {
-      vMaxEventsOut = maxEventsPSet.get<fhicl::ParameterSet>(output);
+      vMaxEventsOut = maxEventsPSet.get<ParameterSet>(output);
       ++maxEventSpecs;
     }
 
@@ -314,7 +315,7 @@ namespace art {
 
       ParameterSet modpset;
       try {
-        modpset= pset_.get<fhicl::ParameterSet>(realname);
+        modpset= pset_.get<ParameterSet>(realname);
       } catch(cet::exception&) {
         string pathType("endpath");
         if(!search_all(end_path_name_list_, name)) {

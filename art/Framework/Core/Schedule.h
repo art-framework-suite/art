@@ -17,7 +17,7 @@
   activities.
 
   This class requires the high-level process pset.  It uses process_name.
-  If the high-level pset contains an "options" pset, then the
+  If the "services" pset contains an "scheduler" pset, then the
   following optional parameter can be present:
   bool wantSummary = true/false   # default false
 
