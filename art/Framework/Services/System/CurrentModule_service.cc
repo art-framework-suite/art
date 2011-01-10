@@ -18,9 +18,7 @@ using fhicl::ParameterSet;
 
 // ----------------------------------------------------------------------
 
-CurrentModule::CurrentModule( ParameterSet const & //unused
-                            , ActivityRegistry   & r
-                            )
+CurrentModule::CurrentModule( ActivityRegistry & r )
 : desc_( )
 {
   // activities to monitor in order to note the current module

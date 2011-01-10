@@ -370,7 +370,7 @@ namespace art {
     typedef art::service::TriggerNamesService TNS;
     typedef ConstProductRegistry CPR;
     // no configuration available
-    serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(ParameterSet(),*actReg_)));
+    serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(*actReg_)));
     // special construction
     serviceToken_.add(std::auto_ptr<CPR>(new CPR(preg_)));
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));

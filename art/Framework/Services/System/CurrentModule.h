@@ -29,9 +29,7 @@ class art::CurrentModule
 
 public:
   // c'tor:
-  CurrentModule( fhicl::ParameterSet const &  // unused
-               , art::ActivityRegistry     &  r
-               );
+  CurrentModule( art::ActivityRegistry & r );
 
   // use compiler-generated d'tor
 
