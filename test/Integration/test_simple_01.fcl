@@ -6,8 +6,6 @@ services:
   message: { }
   floating_point_control: { }
   trigger_names: { }
-  # unix_signal: { } no longer a service
-  current_module: { } # might not need configuration
 
   scheduler:  # options block in the old system
   {
