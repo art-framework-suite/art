@@ -32,6 +32,7 @@ link_libraries(
 # Identify, by category, all tests:
 
 set( BOOST_TEST_LIST
+  IntermediateTablePostProcessor_t
   RootDictionaryManager_t
   artapp_t
 )
@@ -59,6 +60,7 @@ set( MANUALLY_RUN_TESTS
 set( INPUT_FILES
   empty_config.fcl
   summary_only_config.fcl
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/test_simple_01.fcl # Avoid duplication
 )
 
 # ----------------------------------------------------------------------
