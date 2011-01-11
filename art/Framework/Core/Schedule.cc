@@ -299,8 +299,14 @@ namespace art {
     return true;
   }
 
-  void Schedule::fillWorkers(string const& name, PathWorkers& out) {
+   void Schedule::fillWorkers(string const& name, PathWorkers& out, bool isTrigPath) {
     vstring modnames = pset_.get<vector<string> >(name);
+    ParameterSet physics = pset_.get<ParameterSet>("physics");
+    ParameterSet producers = physics.get<ParameterSet>("producers", ParameterSet());
+    ParameterSet filters = physics.get<ParameterSet>("filters", ParameterSet());
+    ParameterSet analyzers = physics.get<ParameterSet>("analyzers", ParameterSet());
+    ParameterSet outputs = pset_.get<ParameterSet>("outputs", ParameterSet());
+
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
@@ -315,16 +321,31 @@ namespace art {
 
       ParameterSet modpset;
       try {
-        modpset= pset_.get<ParameterSet>(realname);
+         modpset = (isTrigPath?producers:analyzers).get<ParameterSet>(realname);
       } catch(cet::exception&) {
-        string pathType("endpath");
-        if(!search_all(end_path_name_list_, name)) {
-          pathType = string("path");
-        }
-        throw art::Exception(art::errors::Configuration) <<
-          "The unknown module label \"" << realname <<
-          "\" appears in " << pathType << " \"" << name <<
-          "\"\n please check spelling or remove that label from the path.";
+         try {
+            modpset = (isTrigPath?filters:outputs).get<ParameterSet>(realname);
+         }
+         catch(cet::exception&) {
+            try {
+               modpset = (isTrigPath?analyzers:producers).get<ParameterSet>(realname);
+            }
+            catch(cet::exception&) {
+               try {
+                  modpset = (isTrigPath?outputs:filters).get<ParameterSet>(realname);
+               }
+               catch(cet::exception&) {
+                  string pathType("endpath");
+                  if(!search_all(end_path_name_list_, name)) {
+                     pathType = string("path");
+                  }
+                  throw art::Exception(art::errors::Configuration) <<
+                     "The unknown module label \"" << realname <<
+                     "\" appears in " << pathType << " \"" << name <<
+                     "\"\n please check spelling or remove that label from the path.";
+               }
+            }
+         }
       }
       WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
                           processName_, getReleaseVersion(), getPassID());
@@ -338,7 +359,7 @@ namespace art {
   void Schedule::fillTrigPath(int bitpos, string const& name, TrigResPtr trptr) {
     PathWorkers tmpworkers;
     Workers holder;
-    fillWorkers(name,tmpworkers);
+    fillWorkers(name,tmpworkers, true);
 
     for(PathWorkers::iterator wi(tmpworkers.begin()),
           we(tmpworkers.end()); wi != we; ++wi) {
@@ -355,7 +376,7 @@ namespace art {
 
   void Schedule::fillEndPath(int bitpos, string const& name) {
     PathWorkers tmpworkers;
-    fillWorkers(name,tmpworkers);
+    fillWorkers(name,tmpworkers, false);
     Workers holder;
 
     for(PathWorkers::iterator wi(tmpworkers.begin()),

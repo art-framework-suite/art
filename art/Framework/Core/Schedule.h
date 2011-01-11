@@ -235,7 +235,7 @@ namespace art {
     void reportSkipped(SubRunPrincipal const&) const {}
     void reportSkipped(RunPrincipal const&) const {}
 
-    void fillWorkers(std::string const& name, PathWorkers& out);
+    void fillWorkers(std::string const& name, PathWorkers& out, bool IsTrigPath);
     void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
     void fillEndPath(int bitpos, std::string const& name);
 

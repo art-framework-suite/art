@@ -21,7 +21,8 @@ namespace art {
          pset.get<ParameterSet>("trigger_paths", ParameterSet());
 
       trignames_ = trigger_pset_.get<vector<string> >("trigger_paths", vector<string>());
-      end_names_ = pset.get<vector<string> >("end_paths", vector<string>());
+      ParameterSet physics = pset.get<ParameterSet>("physics", ParameterSet());
+      end_names_ = physics.get<vector<string> >("end_paths", vector<string>());
 
       ParameterSet defopts;
       ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
