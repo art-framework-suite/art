@@ -300,8 +300,8 @@ namespace art {
   }
 
    void Schedule::fillWorkers(string const& name, PathWorkers& out, bool isTrigPath) {
-    vstring modnames = pset_.get<vector<string> >(name);
     ParameterSet physics = pset_.get<ParameterSet>("physics");
+    vstring modnames = physics.get<vector<string> >(name);
     ParameterSet producers = physics.get<ParameterSet>("producers", ParameterSet());
     ParameterSet filters = physics.get<ParameterSet>("filters", ParameterSet());
     ParameterSet analyzers = physics.get<ParameterSet>("analyzers", ParameterSet());
