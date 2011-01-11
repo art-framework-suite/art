@@ -27,6 +27,7 @@ set( art_Framework_Core_sources
   IEventProcessor.cc
   InputSource.cc
   InputSourceFactory.cc
+  IntermediateTablePostProcessor.cc
   LibraryManager.cc
   ModuleFactory.cc
   RootDictionaryManager.cc

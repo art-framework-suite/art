@@ -7,6 +7,7 @@
 
 #include "TError.h"
 #include "art/Framework/Core/EventProcessor.h"
+#include "art/Framework/Core/IntermediateTablePostProcessor.h"
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -20,8 +21,6 @@
 #include "boost/shared_ptr.hpp"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <cstring>
@@ -86,6 +85,7 @@ namespace {
       std::auto_ptr<art::EventProcessor> ep_;
       bool callEndJob_;
    }; // EventProcessorWithSentry
+
 } // namespace
 
 
@@ -162,24 +162,12 @@ int artapp(int argc, char* argv[])
   }
 
   //
-  // Any name injections / changed items here:
+  // Make the parameter set from the intermediate table with any
+  // appropriate post-processing:
   //
-  try {
-     raw_config.find("process_name");
-  }
-  catch (fhicl::exception e) {
-     if (e.categoryCode() == fhicl::cant_find) {
-        std::cerr << "INFO: using default process_name, \"DUMMY.\"\n";
-        raw_config.insert("process_name", false, fhicl::STRING, std::string("DUMMY"));
-     } else {
-        throw;
-     }
-  }
+  art::IntermediateTablePostProcessor itpp;
 
-  //
-  // Make the parameter set from the intermediate table.
-  //
-  if (!fhicl::make_ParameterSet(raw_config, main_pset)) {
+  if (!itpp(raw_config, main_pset)) {
      std::cerr << "Failed to create a parameter set from parsed "
                << "intermediate representation of configuration file '"
                 << config_filename
