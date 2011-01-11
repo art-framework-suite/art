@@ -5,7 +5,6 @@ services:
 
   message: { }
   floating_point_control: { }
-  trigger_names: { }
 
   scheduler:  # options block in the old system
   {
@@ -46,7 +45,6 @@ physics:
   {
     m1a:
     {
-      module_label: m1a
       module_type: IntProducer
       ivalue: 1
     }
@@ -60,9 +58,8 @@ physics:
   {
     a1:
     {
-      module_label: a1
       module_type: IntAnalyzer
-      label: m1a # look up the real name for this parameter in the code
+      moduleLabel: m1a
     }
   }
 
@@ -77,7 +74,6 @@ outputs:
 {
   out1:
   {
-    module_label: out1
     module_type: RootOutput
     fileName: "out.root"
   }
@@ -86,7 +82,6 @@ outputs:
 source:
 {
   module_type: EmptyEvent
-  module_label: source # was "@main_input"
 
   # were in the global area before
   # maxEvents: 10
@@ -94,10 +89,3 @@ source:
 }
 
 process_name: DEVEL
-
-# build these?
-all_modules: [ m1a, a1, out1 ]
-all_sources: [ source ]
-paths: [ p1 e1 ]
-trigger_paths: { trigger_paths: [ p1 ] }
-end_paths: [ e1 ]
