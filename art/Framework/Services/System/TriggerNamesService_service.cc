@@ -38,7 +38,7 @@ namespace art {
 
       const unsigned int n(trignames_.size());
       for(unsigned int i=0;i!=n;++i) {
-        modulenames_.push_back(pset.get<vector<string> >(trignames_[i]));
+        modulenames_.push_back(physics.get<vector<string> >(trignames_[i]));
       }
     }
 
