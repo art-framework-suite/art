@@ -58,6 +58,7 @@
  <class name="std::vector<long double>"/>
  <class name="std::vector<long long>"/>
  <class name="std::vector<short>"/>
+ <class name="std::vector<std::basic_string<char>>"/>
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
  <class name="std::vector<std::pair<unsigned int,double> >" />
  <class name="std::vector<std::vector<int> >"/>

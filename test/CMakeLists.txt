@@ -3,7 +3,8 @@ project(artTest)
 
 # build Persistency libraries
 subdirs (Framework/Core)
-subdirs (Version)
 subdirs (Integration)
+subdirs (TestObjects)
+subdirs (Version)
 #subdirs (Utilities)
 

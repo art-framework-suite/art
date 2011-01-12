@@ -4,83 +4,15 @@
  <class name="arttest::Int16_tProduct"/>
  <class name="arttest::DoubleProduct"/>
  <class name="arttest::StringProduct"/>
- <class name="arttest::Prodigal"/>
  <class name="arttest::Simple"/>
  <class name="arttest::SimpleDerived"/>
  <class name="arttest::Sortable"/>
  <class name="arttest::Unsortable"/>
- <class name="art::SortedCollection<arttest::Simple, art::StrictWeakOrdering<arttest::Simple> >"/>
- <class name="art::OwnVector<arttest::Simple, art::ClonePolicy<arttest::Simple> >"/>
- <class name="art::OwnVector<arttest::SimpleDerived, art::ClonePolicy<arttest::SimpleDerived> >"/>
- <class name="std::vector<arttest::Simple>"/>
- <class name="art::Wrapper<std::vector<arttest::Simple> >"/>
- <class name="std::vector<arttest::Simple*>"/>
- <class name="std::vector<arttest::SimpleDerived>"/>
- <class name="std::vector<arttest::SimpleDerived*>"/>
- <class name="art::RefProd<std::vector<arttest::Simple> >"/>
- <class name="art::DetSet<arttest::Sortable>"/>
- <class name="std::vector<art::DetSet<arttest::Sortable> >"/>
- <class name="art::DetSet<arttest::Unsortable>"/>
- <class name="std::vector<art::DetSet<arttest::Unsortable> >"/>
- <class name="std::vector<arttest::Sortable>"/>
- <class name="std::vector<arttest::Unsortable>"/>
- <class name="art::DetSetVector<arttest::Sortable>"/>
- <class name="art::DetSetVector<arttest::Unsortable>"/>
- <class pattern="class art::AssociationVector<art::RefProd<std::vector<arttest::Simple> >,std::vector<arttest::Simple>,art::Ref<std::vector<arttest::Simple>,arttest::Simple,art::refhelper::FindUsingAdvance<std::vector<arttest::Simple>,arttest::Simple> >,unsigned int>">
-   <field name="transientVector_" transient="true"/>
-   <field name="fixed_" transient="true"/>
- </class>
+ <class name="arttest::Prodigal"/>
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
  <class name="art::Wrapper<arttest::Int16_tProduct>"/>
  <class name="art::Wrapper<arttest::DoubleProduct>"/>
  <class name="art::Wrapper<arttest::StringProduct>"/>
  <class name="art::Wrapper<arttest::Prodigal>"/>
- <class name="art::Wrapper<art::SortedCollection<arttest::Simple, art::StrictWeakOrdering<arttest::Simple> > >"/>
- <class name="art::Wrapper<art::OwnVector<arttest::Simple, art::ClonePolicy<arttest::Simple> > >"/>
- <class name="art::Wrapper<art::OwnVector<arttest::SimpleDerived, art::ClonePolicy<arttest::SimpleDerived> > >"/>
-<!--
- <class name="art::Wrapper<art::AssociationVector<art::RefProd<std::vector<arttest::Simple> >, std::vector<arttest::Simple> > >"/>
--->
- <class name="art::Wrapper<art::DetSetVector<arttest::Sortable> >"/>
- <class name="art::Wrapper<art::DetSetVector<arttest::Unsortable> >"/>
-
- <class name="artNew::DetSetVector<arttest::Sortable>"/>
- <class name="artNew::DetSetVector<arttest::SimpleDerived>"/>
- <class name="art::Wrapper<artNew::DetSetVector<arttest::Sortable> >"/>
- <class name="art::Wrapper<artNew::DetSetVector<arttest::SimpleDerived> >"/>
-
-
- <class name="arttest::Thing"/>
- <class name="arttest::ThingWithMerge"/>
- <class name="arttest::ThingWithIsEqual"/>
- <class name="arttest::OtherThing"/>
- <class name="std::vector<arttest::Thing>"/>
- <class name="std::vector<arttest::OtherThing>"/>
- <class name="art::RefProd<std::vector<arttest::Thing> >"/>
- <class name="art::RefToBaseProd<arttest::Thing>"/>
- <class name="art::reftobase::BaseHolder<arttest::Thing>"/>
- <class name="art::reftobase::Holder<arttest::Thing,art::Ref<std::vector<arttest::Thing>,arttest::Thing,art::refhelper::FindUsingAdvance<std::vector<arttest::Thing>,arttest::Thing> > >"/>
- <class name="art::RefToBase<arttest::Thing>"/>
- <class name="art::Ptr<arttest::Thing>"/>
- <class name="art::PtrVector<arttest::Thing>"/>
- <class name="art::Ref<std::vector<arttest::Thing>,arttest::Thing,art::refhelper::FindUsingAdvance<std::vector<arttest::Thing>,arttest::Thing> >"/>
- <class name="art::RefVector<std::vector<arttest::Thing>,arttest::Thing,art::refhelper::FindUsingAdvance<std::vector<arttest::Thing>,arttest::Thing> >"/>
- <class name="art::Wrapper<arttest::Thing>"/>
- <class name="art::Wrapper<arttest::ThingWithMerge>"/>
- <class name="art::Wrapper<arttest::ThingWithIsEqual>"/>
- <class name="art::Wrapper<std::vector<arttest::Thing> >"/>
- <class name="art::Wrapper<std::vector<arttest::OtherThing> >"/>
-
- <class name="arttestprod::Simple"/>
- <class name="arttestprod::Ord<arttestprod::Simple>"/>
- <class name="arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> >"/>
- <class name="art::Wrapper<arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > >"/>
- <class name="std::vector<arttestprod::Simple>"/>
- <class name="art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> >"/>
- <class name="art::Wrapper<art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > >"/>
- <class name="arttestprod::StreamTestThing"/>
- <class name="art::Wrapper<arttestprod::StreamTestThing>"/>
- <class name="arttestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901"/>
- <class name="art::Wrapper<arttestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
 </lcgdict>
