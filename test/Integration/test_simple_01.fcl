@@ -84,7 +84,7 @@ source:
   module_type: EmptyEvent
 
   # were in the global area before
-  # maxEvents: 10
+  maxEvents: 10
   # maxSubRuns: 2
 }
 
