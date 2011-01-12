@@ -58,8 +58,9 @@ physics:
   {
     a1:
     {
-      module_type: IntAnalyzer
+      module_type: IntTestAnalyzer
       moduleLabel: m1a
+      valueMustMatch: 1
     }
   }
 
