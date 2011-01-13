@@ -25,13 +25,12 @@ namespace art {
     }
   }
 
-  Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-      DataViewImpl(ep, md, InEvent),
-      aux_(ep.aux()),
-      subRun_(newSubRun(ep, md)),
-      gotBranchIDs_(),
-      gotViews_() {
-  }
+  Event::Event(EventPrincipal& ep, ModuleDescription const& md)
+  : DataViewImpl ( ep, md, InEvent )
+  , aux_         ( ep.aux() )
+  , subRun_      ( newSubRun(ep, md) )
+  , gotBranchIDs_( )
+  { }
 
   EventPrincipal &
   Event::eventPrincipal() {
@@ -178,6 +177,33 @@ namespace art {
       gotBranchIDs_.insert(prov.branchID());
     }
   }
+
+// ----------------------------------------------------------------------
+
+  void
+    Event::ensure_unique_product( std::size_t         nFound
+                                , TypeID      const & typeID
+                                , std::string const & moduleLabel
+                                , std::string const & productInstanceName
+                                , std::string const & processName
+                                )
+  {
+    if( nFound == 1 )
+      return;
+
+    art::Exception e(art::errors::ProductNotFound);
+    e << "getView: Found "
+      << (nFound == 0 ? "no products"
+                      : "more than one product"
+         )
+      << " matching all criteria\n"
+      << "Looking for sequence of type: " << typeID << "\n"
+      << "Looking for module label: " << moduleLabel << "\n"
+      << "Looking for productInstanceName: " << productInstanceName << "\n";
+    if( ! processName.empty() )
+      e << "Looking for processName: "<< processName <<"\n";
+    throw e;
+  }  // ensure_unique_product()
 
 }  // art
 

@@ -45,12 +45,10 @@ namespace art {
   class SelectorBase;
   class TypeID;
   class UnscheduledHandler;
-  class ViewBase;
 
   struct EventSummary;
   struct PathSummary;
   struct TriggerReport;
-  template <typename T> class View;
 
 }  // art
 

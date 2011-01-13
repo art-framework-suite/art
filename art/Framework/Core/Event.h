@@ -111,11 +111,6 @@ namespace art {
     bool
       get(ProductID const& oid, Handle<PROD>& result) const;
 
-    // Template member overload to deal with Views.
-    template <typename ELEMENT>
-    bool
-      get(ProductID const& oid, Handle<View<ELEMENT> >& result) const;
-
     History const&
       history() const;
     ProcessHistoryID const&
@@ -174,22 +169,6 @@ namespace art {
     void
       getManyByType(std::vector<Handle<PROD> >& results) const;
 
-    // Template member overload to deal with Views.
-    template <typename ELEMENT>
-    bool
-      getByLabel(std::string const& label,
-                 Handle<View<ELEMENT> >& result) const;
-
-    template <typename ELEMENT>
-    bool
-      getByLabel(std::string const& label,
-                 std::string const& productInstanceName,
-                 Handle<View<ELEMENT> >& result) const;
-
-    template <typename ELEMENT>
-    bool
-      getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
-
     template< class ELEMENT >
     std::size_t
       getView( std::string const &            moduleLabel
@@ -208,11 +187,6 @@ namespace art {
       getView( InputTag const &               tag
              , std::vector<ELEMENT const *> & result
              ) const;
-
-    template <typename ELEMENT>
-    void
-      fillView_(BasicHandle & bh,
-                Handle<View<ELEMENT> >& result) const;
 
     template< typename ELEMENT >
     void
@@ -279,9 +253,6 @@ namespace art {
     mutable BranchIDSet gotBranchIDs_;
     void
       addToGotBranchIDs(Provenance const& prov) const;
-
-    // We own the retrieved Views, and have to destroy them.
-    mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
   };  // Event
 
 // ----------------------------------------------------------------------
@@ -298,26 +269,6 @@ namespace art {
     }
     addToGotBranchIDs(*bh.provenance());
     return true;
-  }  // get<>()
-
-  template <typename ELEMENT>
-  bool
-  Event::get(ProductID const& oid, Handle<View<ELEMENT> >& result) const
-  {
-      result.clear();
-      BasicHandle bh = this->getByProductID_(oid);
-
-      if(bh.failedToGet()) {
-          boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
-          *whyFailed
-              << "get View by ID failed: no product with ID = " << oid <<"\n";
-          Handle<View<ELEMENT> > temp(whyFailed);
-          result.swap(temp);
-          return false;
-      }
-
-      fillView_(bh, result);
-      return true;
   }  // get<>()
 
 // ----------------------------------------------------------------------
@@ -469,128 +420,6 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-  template <typename ELEMENT>
-  bool
-  Event::getByLabel(std::string const& moduleLabel,
-                           Handle<View<ELEMENT> >& result) const
-  {
-    return getByLabel(moduleLabel, std::string(), result);
-  }  // getByLabel<>()
-
-  template <typename ELEMENT>
-  bool
-  Event::getByLabel(std::string const& moduleLabel,
-                           std::string const& productInstanceName,
-                           Handle<View<ELEMENT> >& result) const
-  {
-   result.clear();
-
-    TypeID typeID(typeid(ELEMENT));
-
-    BasicHandleVec bhv;
-    int nFound = getMatchingSequenceByLabel_(typeID,
-                                             moduleLabel,
-                                             productInstanceName,
-                                             bhv,
-                                             true);
-
-    if (nFound == 0) {
-      boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
-      *whyFailed
-        << "getByLabel: Found zero products matching all criteria\n"
-        << "Looking for sequence of type: " << typeID << "\n"
-        << "Looking for module label: " << moduleLabel << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n";
-      Handle<View<ELEMENT> > temp(whyFailed);
-      result.swap(temp);
-      return false;
-    }
-    if (nFound > 1) {
-      throw art::Exception(art::errors::ProductNotFound)
-        << "getByLabel: Found more than one product matching all criteria\n"
-        << "Looking for sequence of type: " << typeID << "\n"
-        << "Looking for module label: " << moduleLabel << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n";
-    }
-
-    fillView_(bhv[0], result);
-    return true;
-  }  // getByLabel<>()
-
-  template <typename ELEMENT>
-    bool
-    Event::getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const
-  {
-    result.clear();
-    if (tag.process().empty()) {
-      return getByLabel(tag.label(), tag.instance(), result);
-    } else {
-      TypeID typeID(typeid(ELEMENT));
-
-      BasicHandleVec bhv;
-      int nFound = getMatchingSequenceByLabel_(typeID,
-                                               tag.label(),
-                                               tag.instance(),
-                                               tag.process(),
-                                               bhv,
-                                               true);
-
-      if (nFound == 0) {
-        boost::shared_ptr<cet::exception> whyFailed(new art::Exception(art::errors::ProductNotFound) );
-        *whyFailed
-          << "getByLabel: Found zero products matching all criteria\n"
-          << "Looking for sequence of type: " << typeID << "\n"
-          << "Looking for module label: " << tag.label() << "\n"
-          << "Looking for productInstanceName: " << tag.instance() << "\n"
-          << "Looking for processName: "<<tag.process() <<"\n";
-        Handle<View<ELEMENT> > temp(whyFailed);
-        result.swap(temp);
-        return false;
-      }
-      if (nFound > 1) {
-        throw art::Exception(art::errors::ProductNotFound)
-        << "getByLabel: Found more than one product matching all criteria\n"
-        << "Looking for sequence of type: " << typeID << "\n"
-        << "Looking for module label: " << tag.label() << "\n"
-        << "Looking for productInstanceName: " << tag.instance() << "\n"
-        << "Looking for processName: "<<tag.process() <<"\n";
-      }
-
-      fillView_(bhv[0], result);
-      return true;
-    }
-    return false;
-  }  // getByLabel<>()
-
-// ----------------------------------------------------------------------
-
-  inline void
-    Event::ensure_unique_product( std::size_t         nFound
-                                , TypeID      const & typeID
-                                , std::string const & moduleLabel
-                                , std::string const & productInstanceName
-                                , std::string const & processName
-                                )
-  {
-    if( nFound == 1 )
-      return;
-
-    art::Exception e(art::errors::ProductNotFound);
-    e << "getView: Found "
-      << (nFound == 0 ? "no products"
-                      : "more than one product"
-         )
-      << " matching all criteria\n"
-      << "Looking for sequence of type: " << typeID << "\n"
-      << "Looking for module label: " << moduleLabel << "\n"
-      << "Looking for productInstanceName: " << productInstanceName << "\n";
-    if( ! processName.empty() )
-      e << "Looking for processName: "<< processName <<"\n";
-    throw e;
-  }  // ensure_unique_product()
-
-// ----------------------------------------------------------------------
-
   template< class ELEMENT >
   std::size_t
     Event::getView( std::string const &            moduleLabel
@@ -674,32 +503,6 @@ namespace art {
       result.push_back( static_cast<ELEMENT const *>(*b) );
     }
 
-  }  // fillView_<>()
-
-// ----------------------------------------------------------------------
-
-  template <typename ELEMENT>
-  void
-  Event::fillView_(BasicHandle & bh,
-                   Handle<View<ELEMENT> >& result) const
-  {
-    std::vector<void const*> pointersToElements;
-    // the following is a shared pointer.
-    // It is not initialized here
-    helper_vector_ptr helpers;
-    // the following must initialize the
-    //  shared pointer and fill the helper vector
-    bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
-
-    // DISCARD after inspecting the c'tor
-    boost::shared_ptr<View<ELEMENT> >
-      newview(new View<ELEMENT>(pointersToElements, helpers));
-
-    addToGotBranchIDs(*bh.provenance());
-    // DISCARD remainder after inspecting
-    gotViews_.push_back(newview);
-    Handle<View<ELEMENT> > h(&*newview, bh.provenance());
-    result.swap(h);
   }  // fillView_<>()
 
 }  // art
