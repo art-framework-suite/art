@@ -74,14 +74,21 @@ test -n "$fwdir" && setenv ART_BUILD $fwdir
 test -d "$fwdir/lib" || mkdir -p $fwdir/lib
 echo The workng build directory is $fwdir
 
-tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
+tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
+tnotnull ART_BUILD && setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
+
+tnotnull ART_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${ART_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
+tnotnull ART_BUILD && setenv PATH ${ART_BUILD}/bin:${PATH}
 
 echo
 echo ART_SOURCE=$ART_SOURCE
 echo ART_BUILD=$ART_BUILD
 echo $fwdir/lib has been added to LD_LIBRARY_PATH
+echo $fwdir/bin has been added to PATH
 echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
+echo
+echo PATH is now ${PATH}
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_
