@@ -11,4 +11,10 @@ BOOST_AUTO_TEST_CASE ( test_simple_01 ) {
    BOOST_CHECK( system("grep -e 'Event  Summary' warnings.log >/dev/null 2>&1") == 0 );
 }
 
+BOOST_AUTO_TEST_CASE ( test_simple_01r ) {
+   char const* strings[] = { "artapp_t", "--config", "test_simple_01r.fcl" };
+   BOOST_CHECK( artapp(3, const_cast<char**>(strings) ) == 0 );
+   BOOST_CHECK( system("grep -e 'Event  Summary' warnings.log >/dev/null 2>&1") == 0 );
+}
+
 BOOST_AUTO_TEST_SUITE_END()

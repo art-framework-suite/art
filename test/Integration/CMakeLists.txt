@@ -59,6 +59,7 @@ set( MANUALLY_RUN_TESTS
 
 set( INPUT_FILES
   test_simple_01.fcl
+  test_simple_01r.fcl
 )
 
 # ----------------------------------------------------------------------
