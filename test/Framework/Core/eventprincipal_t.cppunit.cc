@@ -40,7 +40,7 @@ Test of the EventPrincipal class.
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/Utilities/GlobalIdentifier.h"
-
+#include "art/Framework/Core/RootDictionaryManager.h"
 
 class test_ep: public CppUnit::TestFixture
 {
@@ -67,7 +67,6 @@ public:
   void failgetProvenanceTest();
 
 private:
-
   art::ProcessConfiguration*
   fake_single_module_process(std::string const& tag,
 			     std::string const& processName,
@@ -87,6 +86,7 @@ private:
   std::vector<art::ProductID> contained_products_;
 
   art::EventID               eventID_;
+  art::RootDictionaryManager rdm_;
 };
 
 //----------------------------------------------------------------------

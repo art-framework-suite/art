@@ -203,6 +203,7 @@ int main()
   // parameter set to pass to its constructor.  Then we build the
   // service and setup the service system.
   ParameterSet proc_pset;
+  ParameterSet physics_pset;
 
   std::string processName("HLT");
   proc_pset.put<std::string>("process_name", processName);
@@ -218,8 +219,9 @@ int main()
   // just need to exist.
   Strings dummy;
   for (unsigned int i = 0; i < num_trig_paths; ++i) {
-    proc_pset.put<Strings>(trigger_path_names[i], dummy);
+    physics_pset.put<Strings>(trigger_path_names[i], dummy);
   }
+  proc_pset.put("physics", physics_pset);
 
   // Now create and setup the service
   typedef art::service::TriggerNamesService TNS;

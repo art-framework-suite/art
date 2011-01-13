@@ -9,6 +9,7 @@ Test program for art::Event.
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Selector.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
@@ -34,7 +35,7 @@ Test program for art::Event.
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "test/TestObjects/Thing.h"
+// #include "test/TestObjects/Thing.h"
 #include "test/TestObjects/ToyProducts.h"
 // #include "art/Utilities/EDMException.h"
 
@@ -129,6 +130,7 @@ class testEvent: public CppUnit::TestFixture
   typedef modCache_t::iterator iterator_t;
 
   modCache_t moduleDescriptions_;
+  art::RootDictionaryManager rdm_;
 };
 
 ///registration of the test so that the runner can find it
@@ -219,15 +221,15 @@ testEvent::testEvent() :
   BranchIDListHelper::clearRegistries();
 
   typedef arttest::IntProduct prod_t;
-  typedef std::vector<arttest::Thing> vec_t;
+  //  typedef std::vector<arttest::Thing> vec_t;
 
   registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
   registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
   registerProduct<prod_t>("int1_tag_late", "modMulti", "IntProducer",   "LATE",  "int1");
   registerProduct<prod_t>("int2_tag",      "modMulti", "IntProducer",   "EARLY", "int2");
   registerProduct<prod_t>("int3_tag",      "modMulti", "IntProducer",   "EARLY");
-  registerProduct<vec_t>("thing",          "modthing", "ThingProducer", "LATE");
-  registerProduct<vec_t>("thing2",         "modthing", "ThingProducer", "LATE",  "inst2");
+  //  registerProduct<vec_t>("thing",          "modthing", "ThingProducer", "LATE");
+  //  registerProduct<vec_t>("thing2",         "modthing", "ThingProducer", "LATE",  "inst2");
 
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
@@ -542,8 +544,8 @@ void testEvent::getBySelector()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
-  addProduct(ap_vthing, "thing", "");
+  //  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
+  //  addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
@@ -552,7 +554,7 @@ void testEvent::getBySelector()
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+  CPPUNIT_ASSERT(currentEvent_->size() == 6);
 
   Selector sel(ProductInstanceNameSelector("int2") &&
 	       ModuleLabelSelector("modMulti") &&
@@ -625,8 +627,8 @@ void testEvent::getByLabel()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
-  addProduct(ap_vthing, "thing", "");
+  //  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
+  //  addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
@@ -635,7 +637,7 @@ void testEvent::getByLabel()
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+  CPPUNIT_ASSERT(currentEvent_->size() == 6);
 
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->getByLabel("modMulti", h));
@@ -680,11 +682,11 @@ void testEvent::getByType()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
-  addProduct(ap_vthing, "thing", "");
+  //  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
+  //  addProduct(ap_vthing, "thing", "");
 
-  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing2(new std::vector<arttest::Thing>);
-  addProduct(ap_vthing2, "thing2", "inst2");
+  //  std::auto_ptr<std::vector<arttest::Thing> > ap_vthing2(new std::vector<arttest::Thing>);
+  //  addProduct(ap_vthing2, "thing2", "inst2");
 
   ap_t oneHundred(new product_t(100));
   addProduct(oneHundred, "int1_tag_late", "int1");
@@ -693,7 +695,7 @@ void testEvent::getByType()
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 8);
+  CPPUNIT_ASSERT(currentEvent_->size() == 6);
 
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->getByType(h));
@@ -705,8 +707,8 @@ void testEvent::getByType()
   CPPUNIT_ASSERT(h_nomatch.failedToGet());
   CPPUNIT_ASSERT_THROW(*h_nomatch, cet::exception);
 
-  Handle<std::vector<arttest::Thing> > hthing;
-  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cet::exception);
+  //  Handle<std::vector<arttest::Thing> > hthing;
+  //  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cet::exception);
 
   handle_vec handles;
   currentEvent_->getManyByType(handles);
