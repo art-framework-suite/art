@@ -1,3 +1,10 @@
+// ======================================================================
+//
+// Event - This is the primary interface for accessing EDProducts from a
+//         single collision and inserting new derived products.
+//
+// ======================================================================
+
 #include "art/Framework/Core/Event.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
@@ -7,10 +14,8 @@
 #include "art/Persistency/Provenance/Provenance.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-
 using namespace std;
 using namespace fhicl;
-
 
 namespace art {
 
@@ -20,33 +25,33 @@ namespace art {
     }
   }
 
-    Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-        DataViewImpl(ep, md, InEvent),
-        aux_(ep.aux()),
-        subRun_(newSubRun(ep, md)),
-        gotBranchIDs_(),
-        gotViews_() {
-    }
+  Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
+      DataViewImpl(ep, md, InEvent),
+      aux_(ep.aux()),
+      subRun_(newSubRun(ep, md)),
+      gotBranchIDs_(),
+      gotViews_() {
+  }
 
-    EventPrincipal &
-    Event::eventPrincipal() {
-      return dynamic_cast<EventPrincipal &>(principal());
-    }
+  EventPrincipal &
+  Event::eventPrincipal() {
+    return dynamic_cast<EventPrincipal &>(principal());
+  }
 
-    EventPrincipal const &
-    Event::eventPrincipal() const {
-      return dynamic_cast<EventPrincipal const&>(principal());
-    }
+  EventPrincipal const &
+  Event::eventPrincipal() const {
+    return dynamic_cast<EventPrincipal const&>(principal());
+  }
 
-    ProductID
-    Event::makeProductID(ConstBranchDescription const& desc) const {
-      return eventPrincipal().branchIDToProductID(desc.branchID());
-    }
+  ProductID
+  Event::makeProductID(ConstBranchDescription const& desc) const {
+    return eventPrincipal().branchIDToProductID(desc.branchID());
+  }
 
-    Run const&
-    Event::getRun() const {
-      return getSubRun().getRun();
-    }
+  Run const&
+  Event::getRun() const {
+    return getSubRun().getRun();
+  }
 
 //   History const&
 //   Event::history() const {
@@ -175,3 +180,5 @@ namespace art {
   }
 
 }  // art
+
+// ======================================================================
