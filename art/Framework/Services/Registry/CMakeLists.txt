@@ -20,5 +20,4 @@ install(FILES ActivityRegistry.h
               ServiceToken.h
               ServiceWrapperBase.h
               ServiceWrapper.h
-              TypeInfoHolder.h
          DESTINATION  ${product}/${version}/include/art/Framework/Services/Registry )

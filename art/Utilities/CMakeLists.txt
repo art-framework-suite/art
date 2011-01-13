@@ -66,7 +66,6 @@ install(FILES
               SingleConsumerQ.h
               TestHelper.h
               ThreadSafeIndexedRegistry.h
-              ThreadSafeRegistry.h
               TypeIDBase.h
               TypeID.h
               UnixSignalHandlers.h
