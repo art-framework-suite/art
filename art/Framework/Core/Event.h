@@ -214,6 +214,12 @@ namespace art {
       fillView_(BasicHandle & bh,
                 Handle<View<ELEMENT> >& result) const;
 
+    template< typename ELEMENT >
+    void
+      fillView_( BasicHandle & bh
+               , std::vector<ELEMENT const *> & result
+               ) const;
+
     Provenance
       getProvenance(BranchID const& theID) const;
 
@@ -587,19 +593,19 @@ namespace art {
 
   template< class ELEMENT >
   std::size_t
-  Event::getView( std::string const &            moduleLabel
-                , std::vector<ELEMENT const *> & result
-                ) const
+    Event::getView( std::string const &            moduleLabel
+                  , std::vector<ELEMENT const *> & result
+                  ) const
   {
     return getView(moduleLabel, std::string(), result);
   }
 
   template< class ELEMENT >
   std::size_t
-  Event::getView( std::string const &            moduleLabel
-                , std::string const &            productInstanceName
-                , std::vector<ELEMENT const *> & result
-                ) const
+    Event::getView( std::string const &            moduleLabel
+                  , std::string const &            productInstanceName
+                  , std::vector<ELEMENT const *> & result
+                  ) const
   {
     TypeID typeID( typeid(ELEMENT) );
     BasicHandleVec bhv;
@@ -613,20 +619,22 @@ namespace art {
                          , moduleLabel, productInstanceName, std::string()
                          );
 
-    return 0u;
+    std::size_t orig_size = result.size();
+    fillView_(bhv[0], result);
+    return result.size() - orig_size;
   }  // getView<>()
 
   template< class ELEMENT >
   std::size_t
-  Event::getView( InputTag const &               tag
-                , std::vector<ELEMENT const *> & result
-                ) const
+    Event::getView( InputTag const &               tag
+                  , std::vector<ELEMENT const *> & result
+                  ) const
   {
     if (tag.process().empty()) {
       return getView(tag.label(), tag.instance(), result);
     }
 
-    TypeID typeID(typeid(ELEMENT));
+    TypeID typeID( typeid(ELEMENT) );
     BasicHandleVec bhv;
     int nFound = getMatchingSequenceByLabel_( typeID
                                             , tag.label()
@@ -640,8 +648,33 @@ namespace art {
                          );
 
 
-    return 0u;
+    std::size_t orig_size = result.size();
+    fillView_(bhv[0], result);
+    return result.size() - orig_size;
   }  // getView<>()
+
+// ----------------------------------------------------------------------
+
+  template< typename ELEMENT >
+  void
+    Event::fillView_( BasicHandle & bh
+                    , std::vector<ELEMENT const *> & result
+                    ) const
+  {
+    typedef  std::vector<void const *>::const_iterator
+             iter_t;
+
+    std::vector<void const *> erased_ptrs;
+    helper_vector_ptr dontcare;
+    bh.wrapper()->fillView(bh.id(), erased_ptrs, dontcare);
+    addToGotBranchIDs(*bh.provenance());
+
+    for( iter_t b = erased_ptrs.begin()
+              , e = erased_ptrs.end();  b != e;  ++b ) {
+      result.push_back( static_cast<ELEMENT const *>(*b) );
+    }
+
+  }  // fillView_<>()
 
 // ----------------------------------------------------------------------
 
