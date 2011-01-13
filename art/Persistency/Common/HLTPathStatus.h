@@ -54,8 +54,9 @@ namespace art
 
     // was this path run?
     bool wasrun() const {return (state() != hlt::Ready);}
-    // has this path accepted the event?
-    bool accept() const {return (state() == hlt::Pass);}
+    // has this path accepted the event? If the path was not run, the
+    // answer is, "yes."
+    bool accept() const {return ((state() == hlt::Pass) || !wasrun());}
     // has this path encountered an error (exception)?
     bool error()  const {return (state() == hlt::Exception);}
 
