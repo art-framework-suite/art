@@ -31,17 +31,20 @@ tnotnull UPS_DIR || echo "$msg2"
 # we setup dependent products here
 # note that we do not test for them first...
 # use setup -j to avoid pulling dependencies
-setup -j cppunit v1_12_1 -q a1
-setup -j gccxml v0_9 -q a1
-setup -j libsigcpp v2_2_7 -q a1
-setup -j clhep v2_1_0_0 -q a1
-setup -j root v5_28_00 -q gcc45
+
+# CET products
 setup -j messagefacility v1_7_3 -q a1
 setup -j cetlib v0_2_10 -q a1
 setup -j cpp0x v1_0_5 -q a1
-setup -j boost v1_45_0 -q gcc45
 setup -j fhiclcpp v2_6_0 -q a1
-setup cetbuildtools v1_6_5
+setup -j cetbuildtools v1_6_5
+# other external products
+setup -j clhep v2_1_0_1 -q gcc45
+setup -j root v5_28_00 -q gcc45
+setup -j boost v1_45_0 -q gcc45
+setup -j cppunit v1_12_1 -q gcc45
+setup -j gccxml v0_9_20101128 -q gcc45
+setup -j libsigcpp v2_2_7 -q gcc45
 setup gcc v4_5_1
 setup cmake
 
