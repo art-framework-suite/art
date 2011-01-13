@@ -13,6 +13,8 @@
    <class name="art::ParentageID"/>
  <class name="art::FileFormatVersion"/>
  <class name="art::FileIndex"/>
+   <class name="art::FileIndex::Element"/>
+   <class name="std::vector<art::FileIndex::Element>"/>
  <class name="art::FileID"/>
  <class name="std::vector<art::ProcessConfiguration>"/>
  <class name="art::ProcessConfiguration"/>
@@ -46,6 +48,12 @@
    <class name="art::SubRunID"/>
  <class name="art::RunAuxiliary"/>
    <class name="art::RunID"/>
+   <class name="std::set<art::ProcessHistoryID>"/>
  <class name="art::EventEntryDescription"/>
  <class name="art::EventEntryInfo"/>
+ <class name="art::ProcessHistoryMap"/>
+ <class name="std::pair<const art::ProcessHistoryID, art::ProcessHistory>"/>
+ <class name="art::ParameterSetBlob"/>
+ <class name="art::ParameterSetMap"/>
+ <class name="std::pair<fhicl::ParameterSetID, art::ParameterSetBlob>"/>
 </lcgdict>

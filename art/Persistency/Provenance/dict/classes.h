@@ -1,20 +1,22 @@
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/BranchChildren.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/EventEntryDescription.h"
+#include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/FileID.h"
+#include "art/Persistency/Provenance/FileIndex.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
+#include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/BranchChildren.h"
-#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/EventAuxiliary.h"
-#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/Persistency/Provenance/EventEntryInfo.h"
-#include "art/Persistency/Provenance/EventEntryDescription.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
 
 namespace {
    struct dictionary {
@@ -32,5 +34,11 @@ namespace {
       std::set<fhicl::ParameterSetID> d12;
       std::set<art::ProcessConfigurationID> d13;
       std::vector<art::BranchID> d14;
+      std::set<art::ProcessHistoryID> d15;
+      std::vector<art::FileIndex::Element> d16;
+      art::ProcessHistoryMap d17;
+      std::pair<const art::ProcessHistoryID, art::ProcessHistory> d18;
+      art::ParameterSetMap d19;
+      std::pair<fhicl::ParameterSetID, art::ParameterSetBlob> d20;
    };
 }

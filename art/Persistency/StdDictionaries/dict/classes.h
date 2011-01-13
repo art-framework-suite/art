@@ -32,6 +32,7 @@ namespace {
   std::list<int> dummy17;
   std::deque<int> dummy18;
   std::set<int> dummy19;
+  std::set<std::basic_string<char> > dummy20;
   std::pair<unsigned long, unsigned long> dymmywp1;
   std::pair<unsigned int, unsigned int> dymmywp2;
   std::pair<unsigned int, int> dymmywp2_1;
