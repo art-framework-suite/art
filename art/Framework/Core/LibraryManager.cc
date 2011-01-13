@@ -101,7 +101,8 @@ void *art::LibraryManager::getSymbolByPath(std::string const &lib_loc,
    void *lib_ptr = get_lib_ptr(lib_loc);
    if (lib_ptr == nullptr) {
       // TODO: Throw correct exception.
-      throw cet::exception("Unable to load requested library " + lib_loc);
+      throw cet::exception("Unable to load requested library " + lib_loc)
+         << dlerror() << "\n";
    } else { // Found library
       dlerror();
       result = dlsym(lib_ptr, sym_name.c_str());
@@ -222,6 +223,7 @@ good_spec_trans_map_inserter(spec_trans_map_t::value_type const &entry) {
 void *art::LibraryManager::get_lib_ptr(std::string const&lib_loc) const {
    void *lib_ptr = lib_ptr_map_[lib_loc];
    if (lib_ptr == nullptr) {
+      dlerror();
       lib_ptr_map_[lib_loc] = // Update cached ptr.
          lib_ptr = dlopen(lib_loc.c_str(), RTLD_LAZY | RTLD_LOCAL);
    }
