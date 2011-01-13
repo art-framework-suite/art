@@ -25,6 +25,7 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include <cstdlib>
 #include <set>
 #include <vector>
 
@@ -64,21 +65,29 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-  class Event : private DataViewImpl {
+  class Event
+    : private DataViewImpl
+  {
   public:
     typedef DataViewImpl Base;
     Event(EventPrincipal& ep, const ModuleDescription& md);
     ~Event(){}
 
     // AUX functions.
-    EventID id() const {return aux_.id();}
-    Timestamp time() const {return aux_.time();}
+    EventID
+      id() const {return aux_.id();}
+    Timestamp
+      time() const {return aux_.time();}
     SubRunNumber_t
-    subRun() const {return aux_.subRun();}
-    bool isRealData() const {return aux_.isRealData();}
-    EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
-    int bunchCrossing() const {return aux_.bunchCrossing();}
-    int orbitNumber() const {return aux_.orbitNumber();}
+      subRun() const {return aux_.subRun();}
+    bool
+      isRealData() const {return aux_.isRealData();}
+    EventAuxiliary::ExperimentType
+      experimentType() const {return aux_.experimentType();}
+    int
+      bunchCrossing() const {return aux_.bunchCrossing();}
+    int
+      orbitNumber() const {return aux_.orbitNumber();}
 
     using Base::get;
     using Base::getByLabel;
@@ -90,128 +99,152 @@ namespace art {
     using Base::size;
 
     SubRun const&
-    getSubRun() const {
-      return *subRun_;
-    }
+      getSubRun() const { return *subRun_; }
 
     Run const&
-    getRun() const;
+      getRun() const;
 
     RunNumber_t
-    run() const {return id().run();}
+      run() const {return id().run();}
 
     template <typename PROD>
     bool
-    get(ProductID const& oid, Handle<PROD>& result) const;
+      get(ProductID const& oid, Handle<PROD>& result) const;
 
     // Template member overload to deal with Views.
     template <typename ELEMENT>
     bool
-    get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
+      get(ProductID const& oid, Handle<View<ELEMENT> >& result) const;
 
-    History const& history() const;
-    ProcessHistoryID const& processHistoryID() const;
+    History const&
+      history() const;
+    ProcessHistoryID const&
+      processHistoryID() const;
 
     ///Put a new product.
     template <typename PROD>
     OrphanHandle<PROD>
-    put(std::auto_ptr<PROD> product) {return put<PROD>(product, std::string());}
+      put(std::auto_ptr<PROD> product) {return put<PROD>(product, std::string());}
 
     ///Put a new product with a 'product instance name'
     template <typename PROD>
     OrphanHandle<PROD>
-    put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+      put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
     ///Returns a RefProd to a product before that product has been placed into the Event.
     /// The RefProd (and any Ref's made from it) will no work properly until after the
     /// Event has been committed (which happens after leaving the EDProducer::produce method)
     template <typename PROD>
     RefProd<PROD>
-    getRefBeforePut() {return getRefBeforePut<PROD>(std::string());}
+      getRefBeforePut() {return getRefBeforePut<PROD>(std::string());}
 
     template <typename PROD>
     RefProd<PROD>
-    getRefBeforePut(std::string const& productInstanceName);
+      getRefBeforePut(std::string const& productInstanceName);
 
     template <typename PROD>
     bool
-    get(SelectorBase const& sel,
-                    Handle<PROD>& result) const;
+      get(SelectorBase const& sel,
+          Handle<PROD>& result) const;
 
     template <typename PROD>
     bool
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+      getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
     template <typename PROD>
     bool
-    getByLabel(std::string const& label, Handle<PROD>& result) const;
+      getByLabel(std::string const& label, Handle<PROD>& result) const;
 
     template <typename PROD>
     bool
-    getByLabel(std::string const& label,
-                           std::string const& productInstanceName,
-                           Handle<PROD>& result) const;
+      getByLabel(std::string const& label,
+                 std::string const& productInstanceName,
+                 Handle<PROD>& result) const;
 
     template <typename PROD>
     void
-    getMany(SelectorBase const& sel,
-                        std::vector<Handle<PROD> >& results) const;
+      getMany(SelectorBase const& sel,
+              std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
     bool
-    getByType(Handle<PROD>& result) const;
+      getByType(Handle<PROD>& result) const;
 
     template <typename PROD>
     void
-    getManyByType(std::vector<Handle<PROD> >& results) const;
+      getManyByType(std::vector<Handle<PROD> >& results) const;
 
     // Template member overload to deal with Views.
     template <typename ELEMENT>
     bool
-    getByLabel(std::string const& label,
-               Handle<View<ELEMENT> >& result) const;
+      getByLabel(std::string const& label,
+                 Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     bool
-    getByLabel(std::string const& label,
-               std::string const& productInstanceName,
-               Handle<View<ELEMENT> >& result) const;
+      getByLabel(std::string const& label,
+                 std::string const& productInstanceName,
+                 Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     bool
-    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
+      getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
+
+    template< class ELEMENT >
+    std::size_t
+      getView( std::string const &            moduleLabel
+             , std::vector<ELEMENT const *> & result
+             ) const;
+
+    template< class ELEMENT >
+    std::size_t
+      getView( std::string const &            moduleLabel
+             , std::string const &            productInstanceName
+             , std::vector<ELEMENT const *> & result
+             ) const;
+
+    template< class ELEMENT >
+    std::size_t
+      getView( InputTag const &               tag
+             , std::vector<ELEMENT const *> & result
+             ) const;
 
     template <typename ELEMENT>
     void
-    fillView_(BasicHandle & bh,
-              Handle<View<ELEMENT> >& result) const;
+      fillView_(BasicHandle & bh,
+                Handle<View<ELEMENT> >& result) const;
 
     Provenance
-    getProvenance(BranchID const& theID) const;
+      getProvenance(BranchID const& theID) const;
 
     Provenance
-    getProvenance(ProductID const& theID) const;
+      getProvenance(ProductID const& theID) const;
 
     void
-    getAllProvenance(std::vector<Provenance const*> &provenances) const;
+      getAllProvenance(std::vector<Provenance const*> &provenances) const;
 
     // Return true if this Event has been subjected to a process with
     // the given processName, and false otherwise.
     // If true is returned, then ps is filled with the ParameterSet
     // used to configure the identified process.
     bool
-    getProcessParameterSet(std::string const& processName,
-                           fhicl::ParameterSet& ps) const;
+      getProcessParameterSet(std::string const& processName,
+                             fhicl::ParameterSet& ps) const;
 
   private:
-    EventPrincipal const&
-    eventPrincipal() const;
-
-    EventPrincipal &
-    eventPrincipal();
+    EventPrincipal const& eventPrincipal() const;
+    EventPrincipal      & eventPrincipal();
 
     ProductID
-    makeProductID(ConstBranchDescription const& desc) const;
+      makeProductID(ConstBranchDescription const& desc) const;
+
+    void
+      ensure_unique_product( std::size_t         nFound
+                           , TypeID      const & typeID
+                           , std::string const & moduleLabel
+                           , std::string const & productInstanceName
+                           , std::string const & processName
+                           );
 
     // commit_() is called to complete the transaction represented by
     // this DataViewImpl. The friendships required are gross, but any
@@ -221,11 +254,13 @@ namespace art {
     friend class EDFilter;
     friend class EDProducer;
 
-    void commit_();
-    void commit_aux(Base::ProductPtrVec& products, bool record_parents);
+    void
+      commit_();
+    void
+      commit_aux(Base::ProductPtrVec& products, bool record_parents);
 
     BasicHandle
-    getByProductID_(ProductID const& oid) const;
+      getByProductID_(ProductID const& oid) const;
 
     EventAuxiliary const& aux_;
     boost::shared_ptr<SubRun const> const subRun_;
@@ -236,7 +271,8 @@ namespace art {
     // Principal class.
     typedef std::set<BranchID> BranchIDSet;
     mutable BranchIDSet gotBranchIDs_;
-    void addToGotBranchIDs(Provenance const& prov) const;
+    void
+      addToGotBranchIDs(Provenance const& prov) const;
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
@@ -522,6 +558,93 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
+  inline void
+    Event::ensure_unique_product( std::size_t         nFound
+                                , TypeID      const & typeID
+                                , std::string const & moduleLabel
+                                , std::string const & productInstanceName
+                                , std::string const & processName
+                                )
+  {
+    if( nFound == 1 )
+      return;
+
+    art::Exception e(art::errors::ProductNotFound);
+    e << "getView: Found "
+      << (nFound == 0 ? "no products"
+                      : "more than one product"
+         )
+      << " matching all criteria\n"
+      << "Looking for sequence of type: " << typeID << "\n"
+      << "Looking for module label: " << moduleLabel << "\n"
+      << "Looking for productInstanceName: " << productInstanceName << "\n";
+    if( ! processName.empty() )
+      e << "Looking for processName: "<< processName <<"\n";
+    throw e;
+  }  // ensure_unique_product()
+
+// ----------------------------------------------------------------------
+
+  template< class ELEMENT >
+  std::size_t
+  Event::getView( std::string const &            moduleLabel
+                , std::vector<ELEMENT const *> & result
+                ) const
+  {
+    return getView(moduleLabel, std::string(), result);
+  }
+
+  template< class ELEMENT >
+  std::size_t
+  Event::getView( std::string const &            moduleLabel
+                , std::string const &            productInstanceName
+                , std::vector<ELEMENT const *> & result
+                ) const
+  {
+    TypeID typeID( typeid(ELEMENT) );
+    BasicHandleVec bhv;
+    int nFound = getMatchingSequenceByLabel_( typeID
+                                            , moduleLabel
+                                            , productInstanceName
+                                            , bhv
+                                            , true
+                                            );
+    ensure_unique_product( nFound, typeID
+                         , moduleLabel, productInstanceName, std::string()
+                         );
+
+    return 0u;
+  }  // getView<>()
+
+  template< class ELEMENT >
+  std::size_t
+  Event::getView( InputTag const &               tag
+                , std::vector<ELEMENT const *> & result
+                ) const
+  {
+    if (tag.process().empty()) {
+      return getView(tag.label(), tag.instance(), result);
+    }
+
+    TypeID typeID(typeid(ELEMENT));
+    BasicHandleVec bhv;
+    int nFound = getMatchingSequenceByLabel_( typeID
+                                            , tag.label()
+                                            , tag.instance()
+                                            , tag.process()
+                                            , bhv
+                                            , true
+                                            );
+    ensure_unique_product( nFound, typeID
+                         , tag.label(), tag.instance(), tag.process()
+                         );
+
+
+    return 0u;
+  }  // getView<>()
+
+// ----------------------------------------------------------------------
+
   template <typename ELEMENT>
   void
   Event::fillView_(BasicHandle & bh,
@@ -535,10 +658,12 @@ namespace art {
     //  shared pointer and fill the helper vector
     bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
 
+    // DISCARD after inspecting the c'tor
     boost::shared_ptr<View<ELEMENT> >
       newview(new View<ELEMENT>(pointersToElements, helpers));
 
     addToGotBranchIDs(*bh.provenance());
+    // DISCARD remainder after inspecting
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);
