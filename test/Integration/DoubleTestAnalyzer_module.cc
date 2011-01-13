@@ -16,21 +16,21 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 
 namespace arttest {
-  class IntTestAnalyzer;
+  class DoubleTestAnalyzer;
 }
 
-class arttest::IntTestAnalyzer
+class arttest::DoubleTestAnalyzer
   : public art::EDAnalyzer
 {
 public:
-  IntTestAnalyzer(const fhicl::ParameterSet& conf) :
-    value_(conf.get<int>("valueMustMatch")),
+  DoubleTestAnalyzer(const fhicl::ParameterSet& conf) :
+    value_(conf.get<double>("valueMustMatch")),
     moduleLabel_(conf.get<std::string>("moduleLabel"))
   { }
 
   void analyze(const art::Event& e)
   {
-    art::Handle<IntProduct> handle;
+    art::Handle<DoubleProduct> handle;
     e.getByLabel(moduleLabel_,handle);
     if(handle->value != value_) {
       throw cet::exception("ValueMismatch")
@@ -42,8 +42,8 @@ public:
   }
 
 private:
-  int value_;
+  double value_;
   std::string moduleLabel_;
-};  // IntTestAnalyzer
+};  // DoubleTestAnalyzer
 
-DEFINE_ART_MODULE(arttest::IntTestAnalyzer);
+DEFINE_ART_MODULE(arttest::DoubleTestAnalyzer);

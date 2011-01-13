@@ -150,6 +150,13 @@ int artapp(int argc, char* argv[])
   fhicl::intermediate_table raw_config;
   string config_filename = vm["config"].as<string>();
   ifstream config_stream(config_filename.c_str());
+  if (!config_stream) {
+     std::cerr
+        << "Specified configuration file "
+        << config_filename
+        << " cannot be opened for reading.\n";
+     return 7004;
+  }
   if (!fhicl::parse_document(config_stream, raw_config)) {
      std::cerr << "Failed to parse the configuration file '"
                << config_filename

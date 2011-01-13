@@ -3,6 +3,8 @@ project(art_Integration_Test)
 
 simple_plugin(IntProducer  "module")
 simple_plugin(IntTestAnalyzer  "module")
+simple_plugin(DoubleProducer  "module")
+simple_plugin(DoubleTestAnalyzer  "module")
 
 # Library link requirements for tests here
 link_libraries( 
@@ -45,7 +47,7 @@ set( TEST_LIST
 set( ALSO_BUILD
 )
 
-set( BOOST_ALSO_BUILD
+set( BOOST_TEST_ALSO_BUILD
 )
 
 set( MANUALLY_BUILT_TESTS
@@ -55,11 +57,15 @@ set ( ALSO_RUN
 )
 
 set( MANUALLY_RUN_TESTS
+  EventSelectorFromFile_t.sh
 )
 
 set( INPUT_FILES
   test_simple_01.fcl
   test_simple_01r.fcl
+  EventSelectorFromFile_w.fcl
+#  EventSelectorFromFile_r1.fcl
+#  EventSelectorFromFile_r2.fcl
 )
 
 # ----------------------------------------------------------------------
@@ -72,7 +78,7 @@ endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
 # ----------------------------------------------------------------------
 # Build BOOST tests
 
-foreach( test ${BOOST_TEST_LIST} ${BOOST_ALSO_BUILD} )
+foreach( test ${BOOST_TEST_LIST} ${BOOST_TEST_ALSO_BUILD} )
   add_executable( ${test} ${test}.cc )
   # Save having to put these in all tests.
   set_target_properties ( ${test} PROPERTIES
@@ -109,7 +115,7 @@ endforeach( test ${TEST_LIST} )
 
 # ----------------------------------------------------------------------
 # Run the MANUALLY_RUN_TESTS:
-
+add_test( EventSelectorFromFile_t.sh ${EXECUTABLE_OUTPUT_PATH}/EventSelectorFromFile_t.sh )
 
 # ----------------------------------------------------------------------
 # Copy Configuration and other input files to the correct location

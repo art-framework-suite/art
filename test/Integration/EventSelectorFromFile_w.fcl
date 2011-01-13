@@ -44,7 +44,17 @@ physics:
     m1a:
     {
       module_type: IntProducer
-      ivalue: 1
+      ivalue: 2
+    }
+    m1b:
+    {
+      module_type: IntProducer
+      ivalue: 7
+    }
+    m2a:
+    {
+      module_type: DoubleProducer
+      dvalue: -1.25E-1
     }
   }
 
@@ -54,19 +64,15 @@ physics:
 
   analyzers:
   {
-    a1:
-    {
-      module_type: IntTestAnalyzer
-      moduleLabel: m1a
-      valueMustMatch: 1
-    }
   }
 
    p1: [ m1a ]
-   e1: [ a1, out1 ]
+   p2: [ m1b, m2a ]
+   e1: [ out1 ]
+   e2: [ out2 ]
 
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
+   trigger_paths: [ p1, p2 ]
+   end_paths: [ e1, e2 ]
 }
 
 outputs: 
@@ -74,7 +80,16 @@ outputs:
   out1:
   {
     module_type: RootOutput
-    fileName: "out.root"
+    fileName: "out1.root"
+    SelectEvents: { SelectEvents: [ p1 ] }
+    outputCommands: [ "drop *", "keep *_IntProuct_*_*" ]
+  }
+  out2:
+  {
+    module_type: RootOutput
+    fileName: "out2.root"
+    SelectEvents: { SelectEvents: [ p2 ] }
+    outputCommands: [ "keep *", "drop *_IntProduct_*_*" ]
   }
 }
 
@@ -83,7 +98,7 @@ source:
   module_type: EmptyEvent
 
   # were in the global area before
-  maxEvents: 10
+  maxEvents: 20
   # maxSubRuns: 2
 }
 

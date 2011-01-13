@@ -41,11 +41,6 @@ physics:
 {
   producers:
   {
-    m1a:
-    {
-      module_type: IntProducer
-      ivalue: 1
-    }
   }
 
   filters: 
@@ -54,37 +49,29 @@ physics:
 
   analyzers:
   {
-    a1:
+    r1a:
     {
       module_type: IntTestAnalyzer
-      moduleLabel: m1a
-      valueMustMatch: 1
+      input_label: m1a
+      ivalue: 2
     }
   }
 
-   p1: [ m1a ]
-   e1: [ a1, out1 ]
+   e1: [ r1a ]
 
-   trigger_paths: [ p1 ]
+   trigger_paths: [ ]
    end_paths: [ e1 ]
 }
 
 outputs: 
 {
-  out1:
-  {
-    module_type: RootOutput
-    fileName: "out.root"
-  }
 }
 
 source:
 {
-  module_type: EmptyEvent
+  module_type: RootInput
 
-  # were in the global area before
-  maxEvents: 10
-  # maxSubRuns: 2
+  fileNames: [ "out1.root" ]
 }
 
 process_name: DEVEL

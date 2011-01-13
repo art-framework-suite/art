@@ -78,14 +78,31 @@ set( art_Framework_CoreArt_sources artapp.cc )
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
-#add_executable( art   art.cpp   )
-#target_link_libraries( art art_Framework_CoreArt
-#                           ${MF_MESSAGELOGGER}
-#                           ${MF_MESSAGESERVICE}
-#                           ${MF_UTILITIES}
-#                           ${MF_EXTENSIONS}
-#                          )
-#install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
+add_executable( art   art.cpp   )
+target_link_libraries( art
+  art_Framework_CoreArt
+  art_Framework_Services_Registry
+  art_Utilities
+  art_Framework_Core
+  ${SIGC}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  ${CINTEX}
+  ${TREE}
+  ${HIST}
+  ${MATRIX}
+  ${NET}
+  ${MATHCORE}
+  ${THREAD}
+  ${RIO}
+	${CORE}
+  ${CINT}
+	${REFLEX}
+  ${CPPUNIT}
+  -ldl
+  )
+
+install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
 
 install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
 #install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )

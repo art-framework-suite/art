@@ -1,8 +1,6 @@
 services:
 {
-  # these are not optional, but you can futher configure them
-  # root_loader is present not configured
-
+  # Always-present services; configuration optional.
   message: { }
   floating_point_control: { }
 
