@@ -52,14 +52,16 @@ physics:
     a1:
     {
       module_type: IntTestAnalyzer
-      moduleLabel: m1a
+      input_label: m1a
       valueMustMatch: 1
     }
   }
 
    e1: [ a1 ]
 
-   trigger_paths: [ ]
+   p1: [ ]
+
+   trigger_paths: [ p1 ]
    end_paths: [ e1 ]
 }
 
@@ -77,4 +79,4 @@ source:
   # maxSubRuns: 2
 }
 
-process_name: DEVEL
+process_name: DEVELr

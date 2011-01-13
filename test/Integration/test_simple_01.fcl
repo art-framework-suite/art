@@ -57,7 +57,7 @@ physics:
     a1:
     {
       module_type: IntTestAnalyzer
-      moduleLabel: m1a
+      input_label: m1a
       valueMustMatch: 1
     }
   }

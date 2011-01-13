@@ -25,7 +25,7 @@ class arttest::DoubleTestAnalyzer
 public:
   DoubleTestAnalyzer(const fhicl::ParameterSet& conf) :
     value_(conf.get<double>("valueMustMatch")),
-    moduleLabel_(conf.get<std::string>("moduleLabel"))
+    moduleLabel_(conf.get<std::string>("input_label"))
   { }
 
   void analyze(const art::Event& e)

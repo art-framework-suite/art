@@ -58,14 +58,15 @@ set ( ALSO_RUN
 
 set( MANUALLY_RUN_TESTS
   EventSelectorFromFile_t.sh
+  test_simple_01_t.sh
 )
 
 set( INPUT_FILES
   test_simple_01.fcl
   test_simple_01r.fcl
   EventSelectorFromFile_w.fcl
-#  EventSelectorFromFile_r1.fcl
-#  EventSelectorFromFile_r2.fcl
+  EventSelectorFromFile_r1.fcl
+  EventSelectorFromFile_r2.fcl
 )
 
 # ----------------------------------------------------------------------
@@ -116,6 +117,7 @@ endforeach( test ${TEST_LIST} )
 # ----------------------------------------------------------------------
 # Run the MANUALLY_RUN_TESTS:
 add_test( EventSelectorFromFile_t.sh ${EXECUTABLE_OUTPUT_PATH}/EventSelectorFromFile_t.sh )
+add_test( test_simple_01_t.sh ${EXECUTABLE_OUTPUT_PATH}/test_simple_01_t.sh )
 
 # ----------------------------------------------------------------------
 # Copy Configuration and other input files to the correct location
