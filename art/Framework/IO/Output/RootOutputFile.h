@@ -17,6 +17,7 @@
 #include "art/Persistency/Provenance/FileID.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "boost/array.hpp"
@@ -64,11 +65,6 @@ namespace art {
     bool shouldWeCloseFile() const;
 
   private:
-
-    //-------------------------------
-    // Local types
-    //
-    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
 
     //-------------------------------
     // Private functions

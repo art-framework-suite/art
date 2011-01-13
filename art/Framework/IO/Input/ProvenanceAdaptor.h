@@ -11,6 +11,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "boost/noncopyable.hpp"
@@ -25,7 +26,6 @@
 
 namespace art {
 
-  typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
   class ProvenanceAdaptor : private boost::noncopyable {
   public:
   ProvenanceAdaptor(
