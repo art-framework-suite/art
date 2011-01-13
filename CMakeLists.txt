@@ -86,11 +86,11 @@ message(STATUS "GCC version is ${GCC_VERSION} " )
 include_directories ("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_SOURCE_DIR}")
 # notice use of ENV to invoke an external variable
-include_directories ( $ENV{LIBSIGCPP_DIR}/include/sigc++-2.0 )
-include_directories ( $ENV{LIBSIGCPP_DIR}/lib/sigc++-2.0/include )
+include_directories ( $ENV{LIBSIGCPP_INC}/sigc++-2.0 )
+include_directories ( $ENV{LIBSIGCPP_LIB}/sigc++-2.0/include )
 
 # define CLHEP
-find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_DIR}/lib )
+find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_BASE}/lib )
 
 # define CETLIB
 find_library( CETLIB NAMES cetlib PATHS $ENV{CETLIB_LIB} )
@@ -111,9 +111,9 @@ find_library( MF_EXTENSIONS NAMES MF_ExtModules
 
 # have to make sure cmake doesn't select the system libraries
 # define libsigc
-find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_DIR}/lib NO_DEFAULT_PATH )
+find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_LIB} NO_DEFAULT_PATH )
 # define cppunit
-find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_DIR}/lib   NO_DEFAULT_PATH )
+find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_LIB}   NO_DEFAULT_PATH )
 
 
 # define common flags
