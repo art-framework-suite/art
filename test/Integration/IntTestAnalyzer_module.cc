@@ -38,7 +38,8 @@ public:
       throw cet::exception("ValueMismatch")
         << "The value for \"" << moduleLabel_
         << "\" is " << handle->value
-        << " but was supposed to be " << value_;
+        << " but was supposed to be " << value_
+        << '\n';
     }
   }
 
