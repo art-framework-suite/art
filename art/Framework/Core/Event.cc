@@ -186,7 +186,7 @@ namespace art {
                                 , std::string const & moduleLabel
                                 , std::string const & productInstanceName
                                 , std::string const & processName
-                                )
+                                ) const
   {
     if( nFound == 1 )
       return;

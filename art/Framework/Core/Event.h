@@ -224,7 +224,7 @@ namespace art {
                            , std::string const & moduleLabel
                            , std::string const & productInstanceName
                            , std::string const & processName
-                           );
+                           ) const;
 
     // commit_() is called to complete the transaction represented by
     // this DataViewImpl. The friendships required are gross, but any
