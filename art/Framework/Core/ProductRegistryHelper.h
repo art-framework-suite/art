@@ -72,6 +72,12 @@ namespace art {
 
     template <typename ProductType, BranchType B>
     TypeLabelItem const& produces(std::string const& instanceName) {
+       // ---------------------------------------------------------
+       // TODO:
+       // test here to make sure that neither the instanceName nor the
+       // "friendly class name" contain an underscore. If either does,
+       // throw an exception.
+       // ---------------------------------------------------------
       TypeID tid(typeid(ProductType));
       return produces<B>(tid,instanceName);
     }
