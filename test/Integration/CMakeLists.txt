@@ -40,7 +40,6 @@ link_libraries(
 # Identify, by category, all tests:
 
 set( BOOST_TEST_LIST
-  test_simple_01_t
 )
 
 set( TEST_LIST
