@@ -23,12 +23,12 @@ services:
     # enableSigInt: true
     # unloadRootSigHandler: false
     # resetRootErrHandler: true
-  } 
+  }
 
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
    timing: { }
-   memory: { } 
+   memory: { }
    tfile: { }
 
    user:
@@ -43,7 +43,7 @@ physics:
   {
   }
 
-  filters: 
+  filters:
   {
   }
 
@@ -63,7 +63,7 @@ physics:
    end_paths: [ e1 ]
 }
 
-outputs: 
+outputs:
 {
 }
 

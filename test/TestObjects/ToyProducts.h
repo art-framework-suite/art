@@ -1,26 +1,21 @@
 #ifndef TestObjects_ToyProducts_h
 #define TestObjects_ToyProducts_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// EDProducts for testing purposes
+//
+// ======================================================================
 
-Toy EDProducts for testing purposes only.
-
-----------------------------------------------------------------------*/
-
+#include "art/Persistency/Common/traits.h"
+#include "cetlib/container_algorithms.h"
+#include "cpp0x/cstdint"
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "cpp0x/cstdint"
-
-#include "cetlib/container_algorithms.h"
-
-#include "art/Persistency/Common/traits.h"
-
 namespace arttest
 {
-
-  // Toy products
 
   struct DummyProduct
   { };
@@ -130,4 +125,7 @@ namespace arttest
 
   typedef std::vector<Simple>           VSimpleProduct;
 }
+
+// ======================================================================
+
 #endif
