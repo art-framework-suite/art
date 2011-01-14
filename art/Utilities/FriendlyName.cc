@@ -27,11 +27,6 @@ namespace art {
     static boost::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
     static std::string const emptyString("");
 
-    std::string handleNamespaces(std::string const& iIn) {
-       return boost::regex_replace(iIn,reColons,emptyString,boost::format_perl);
-
-    }
-
     std::string removeExtraSpaces(std::string const& iIn) {
        return boost::regex_replace(boost::regex_replace(iIn,reBeginSpace,emptyString),
                                     reEndSpace, emptyString);
@@ -141,7 +136,7 @@ namespace art {
        }
        Map::const_iterator itFound = s_fillToFriendlyName->find(iFullName);
        if(s_fillToFriendlyName->end()==itFound) {
-          itFound = s_fillToFriendlyName->insert(Map::value_type(iFullName, handleNamespaces(subFriendlyName(standardRenames(iFullName))))).first;
+          itFound = s_fillToFriendlyName->insert(Map::value_type(iFullName, subFriendlyName(standardRenames(iFullName)))).first;
        }
        return itFound->second;
     }

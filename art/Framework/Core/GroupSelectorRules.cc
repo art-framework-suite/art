@@ -142,20 +142,25 @@ namespace art {
       if (good)
       {
         for (int i = 0; i < 4; ++i) {
-          string& field = parts[i];
-          int size = field.size();
-          for (int j = 0; j < size; ++j) {
-            if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
-              good = false;
-            }
-          }
+           string& field = parts[i];
+           int size = field.size();
+           for (int j = 0; j < size; ++j) {
+              if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
+                 if (i == 0 && (j-1) < size && field[j] == ':' && field[j+1] == ':') {
+                    // Colons allowed as namespace delimiters in type field only
+                    ++j;
+                    continue;
+                 }
+                 good = false;
+              }
+           }
 
-          // We are using the boost regex library to deal with the wildcards.
-          // The configuration file uses a syntax that accepts "*" and "?"
-          // as wildcards so we need to convert these to the syntax used in
-          // regular expressions.
-          boost::replace_all(parts[i], "*", ".*");
-          boost::replace_all(parts[i], "?", ".");
+           // We are using the boost regex library to deal with the wildcards.
+           // The configuration file uses a syntax that accepts "*" and "?"
+           // as wildcards so we need to convert these to the syntax used in
+           // regular expressions.
+           boost::replace_all(parts[i], "*", ".*");
+           boost::replace_all(parts[i], "?", ".");
         }
       }
 
@@ -168,6 +173,8 @@ namespace art {
         << "be a branch specification of the form 'type_label_instance_process'\n"
         << "There must be 4 fields separated by underscores\n"
         << "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
+        << "The first field *only* can contain additionally \"::\" as part of\n"
+        << "namespace specification.\n"
         << "Alternately, a single * is also allowed for the branch specification\n"
         << "This is the invalid output configuration rule:\n"
         << "    " << s << "\n"
