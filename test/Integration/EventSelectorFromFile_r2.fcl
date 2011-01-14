@@ -49,21 +49,27 @@ physics:
 
   analyzers:
   {
+    r1a:
+    {
+      module_type: IntTestAnalyzer
+      input_label: m1a
+      require_presence: false
+    }
     r1b:
     {
       module_type: IntTestAnalyzer
       input_label: m1b
-      valueMustMatch: 7
+      expected_value: 7
     }
     r2a:
     {
       module_type: DoubleTestAnalyzer
       input_label: m2a
-      valueMustMatch: -0.125
+      expected_value: -0.125
     }
   }
 
-  e1: [ r1b, r2a ]
+  e1: [ r1a, r1b, r2a ]
 
   trigger_paths: [ ]
   end_paths: [ e1 ]
