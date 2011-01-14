@@ -17,4 +17,4 @@ run_art outputCommand_w.fcl
   { echo "Failed to find expected root files out.root" 1>&2; \
     exit 1; }
 
-# run_art test_simple_01r.fcl
+run_art outputCommand_r.fcl

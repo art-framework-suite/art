@@ -75,6 +75,7 @@ set( INPUT_FILES
   EventSelectorFromFile_r1.fcl
   EventSelectorFromFile_r2.fcl
   outputCommand_w.fcl
+  outputCommand_r.fcl
 )
 
 # ----------------------------------------------------------------------
