@@ -17,6 +17,6 @@ run_art EventSelectorFromFile_w.fcl
   { echo "Failed to find expected root files out1.root and out2.root." 1>&2; \
     exit 1; }
 
-# run_art EventSelectorFromFile_r1.fcl
+run_art EventSelectorFromFile_r1.fcl
 
 run_art EventSelectorFromFile_r2.fcl

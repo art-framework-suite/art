@@ -55,12 +55,18 @@ physics:
       input_label: m1b
       valueMustMatch: 7
     }
+    r2a:
+    {
+      module_type: DoubleTestAnalyzer
+      input_label: m2a
+      valueMustMatch: -0.125
+    }
   }
 
-   e1: [ r1b ]
+  e1: [ r1b, r2a ]
 
-   trigger_paths: [ ]
-   end_paths: [ e1 ]
+  trigger_paths: [ ]
+  end_paths: [ e1 ]
 }
 
 outputs:
@@ -70,9 +76,8 @@ outputs:
 source:
 {
   module_type: RootInput
-
   fileNames: [ "out2.root" ]
-  maxEvents: 10
+
 }
 
 process_name: DEVEL_R
