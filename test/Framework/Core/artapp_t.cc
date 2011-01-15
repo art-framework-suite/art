@@ -1,4 +1,4 @@
-extern "C" { int artapp(int argc, char* argv[]); }
+#include "art/Framework/Core/artapp.h"
 
 #define BOOST_TEST_MODULE ( artapp test )
 #include "boost/test/auto_unit_test.hpp"

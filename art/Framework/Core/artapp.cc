@@ -1,3 +1,5 @@
+#include "art/Framework/Core/artapp.h"
+
 #include "boost/program_options.hpp"
 #include "fhiclcpp/parse.h"
 
@@ -9,8 +11,6 @@
 #include <string>
 
 namespace  bpo=boost::program_options;
-
-extern "C" { int artapp(int argc, char *argv[]); }
 
 int artapp(int argc, char* argv[]) {
 
