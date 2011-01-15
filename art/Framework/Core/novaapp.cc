@@ -1,3 +1,5 @@
+#include "novaapp.h"
+
 #include "boost/program_options.hpp"
 #include "fhiclcpp/parse.h"
 
@@ -12,7 +14,7 @@
 
 namespace  bpo=boost::program_options;
 
-int main(int argc, char* argv[]) {
+int novaapp(int argc, char* argv[]) {
 
    // ------------------
    // use the boost command line option processing library to help out

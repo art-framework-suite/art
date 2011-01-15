@@ -74,7 +74,7 @@ target_link_libraries(art_Framework_Core
   ${CLHEP}
   ${SIGC}
 )
-set( art_Framework_CoreArt_sources artapp.cc run_art.cc NovaConfigPostProcessor.cc)
+set( art_Framework_CoreArt_sources artapp.cc run_art.cc novaapp.cc NovaConfigPostProcessor.cc)
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
