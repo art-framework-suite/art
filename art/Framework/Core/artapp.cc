@@ -1,35 +1,14 @@
-#include "TError.h"
-#include "art/Framework/Core/EventProcessor.h"
-#include "art/Framework/Core/IntermediateTablePostProcessor.h"
-#include "art/Framework/Core/RootDictionaryManager.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Persistency/Common/InitRootHandlers.h"
-#include "art/Utilities/ExceptionMessages.h"
-#include "art/Utilities/RootHandlers.h"
-#include "art/Utilities/UnixSignalHandlers.h"
 #include "boost/program_options.hpp"
-#include "boost/shared_ptr.hpp"
-#include "cetlib/exception.h"
 #include "fhiclcpp/parse.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "art/Framework/Core/run_art.h"
 
-#include <cstring>
-#include <exception>
 #include <fstream>
-#include <memory>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
 
 namespace  bpo=boost::program_options;
-using std::string;
-using std::ostringstream;
-using std::ifstream;
 
 extern "C" { int artapp(int argc, char *argv[]); }
 
@@ -39,7 +18,7 @@ int artapp(int argc, char* argv[]) {
    // use the boost command line option processing library to help out
    // with command line options
 
-   ostringstream descstr;
+   std::ostringstream descstr;
 
    descstr << argv[0]
            << " <options>";
@@ -48,7 +27,7 @@ int artapp(int argc, char* argv[]) {
 
    desc.add_options()
       ("help,h", "produce help message")
-      ("config,c", bpo::value<string>(), "configuration file");
+      ("config,c", bpo::value<std::string>(), "configuration file");
 
    bpo::options_description all_options("All Options");
    all_options.add(desc);
@@ -82,8 +61,8 @@ int artapp(int argc, char* argv[]) {
    // Get the parameter set by parsing the configuration file.
    //
    fhicl::intermediate_table raw_config;
-   string config_filename = vm["config"].as<string>();
-   ifstream config_stream(config_filename.c_str());
+   std::string config_filename = vm["config"].as<std::string>();
+   std::ifstream config_stream(config_filename.c_str());
    if (!config_stream) {
       std::cerr
          << "Specified configuration file "
