@@ -11,7 +11,6 @@ namespace fhicl {
 }
 
 struct art::IntermediateTablePostProcessor {
-   bool operator() (fhicl::intermediate_table &raw_config,
-                    fhicl::ParameterSet & main_pset);
+   void operator() (fhicl::intermediate_table &raw_config);
 };
 #endif

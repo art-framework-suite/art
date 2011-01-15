@@ -5,7 +5,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/extended_value.h"
-#include "fhiclcpp/make_ParameterSet.h"
 
 #include <iostream>
 #include <string>
@@ -76,9 +75,9 @@ namespace {
 
 }
 
-bool
+void
 art::IntermediateTablePostProcessor::
-operator() (intermediate_table &raw_config, ParameterSet &main_pset) {
+operator() (intermediate_table &raw_config) {
 
   // process_name
   try {
@@ -205,6 +204,4 @@ operator() (intermediate_table &raw_config, ParameterSet &main_pset) {
          throw;
       }
    }
-
-   return make_ParameterSet(raw_config, main_pset);
 }

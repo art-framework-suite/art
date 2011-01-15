@@ -74,11 +74,11 @@ target_link_libraries(art_Framework_Core
   ${CLHEP}
   ${SIGC}
 )
-set( art_Framework_CoreArt_sources artapp.cc )
+set( art_Framework_CoreArt_sources artapp.cc run_art.cc)
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
-add_executable( art   art.cpp   )
+add_executable( art art.cc )
 target_link_libraries( art
   art_Framework_CoreArt
   art_Framework_Services_Registry

@@ -20,7 +20,8 @@ BOOST_AUTO_TEST_CASE ( emptyConfig ) {
    intermediate_table raw_config;
    BOOST_CHECK ( fhicl::parse_document("", raw_config) );
    art::IntermediateTablePostProcessor itpp;
-   BOOST_CHECK ( itpp(raw_config, main_pset) );
+   BOOST_CHECK_NO_THROW ( itpp(raw_config) );
+   BOOST_REQUIRE(make_ParameterSet(raw_config, main_pset));
    std::cerr << main_pset.to_string() << "\n";
 }
 
@@ -33,7 +34,8 @@ BOOST_AUTO_TEST_CASE ( test_simple_01 ) {
    ParameterSet check_pset;
    BOOST_CHECK ( make_ParameterSet(raw_config, check_pset) );
    std::cerr << check_pset.to_string() << "\n";
-   BOOST_CHECK ( itpp(raw_config, main_pset) );
+   BOOST_CHECK_NO_THROW ( itpp(raw_config) );
+   BOOST_REQUIRE(make_ParameterSet(raw_config, main_pset));
    std::cerr << main_pset.to_string() << "\n";
 }
 

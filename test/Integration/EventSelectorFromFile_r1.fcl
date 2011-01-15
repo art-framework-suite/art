@@ -86,4 +86,4 @@ source:
   fileNames: [ "out1.root" ]
 }
 
-process_name: DEVEL_R
+process_name: DEVELr
