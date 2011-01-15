@@ -6,7 +6,7 @@ services:
 
   scheduler:  # options block in the old system
   {
-    Rethrow: ['OtherCMS','StdException','Unknown','BadAlloc',
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
               'BadExceptionType','ProductNotFound','DictionaryNotFound',
               'InsertFailure','Configuration','LogicError','UnimplementedFeature',
               'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',

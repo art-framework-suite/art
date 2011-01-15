@@ -256,7 +256,7 @@ namespace art {
               if (edmEx) {
                 cached_exception_.reset(new art::Exception(*edmEx));
               } else {
-                cached_exception_.reset(new art::Exception(errors::OtherCMS, std::string(), e));
+                cached_exception_.reset(new art::Exception(errors::OtherArt, std::string(), e));
               }
               throw;
           }

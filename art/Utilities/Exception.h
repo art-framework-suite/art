@@ -21,7 +21,7 @@ namespace art {
     // fragment FWCore/Framework/test/cmsExceptionsFatalOption.cff.
 
     enum ErrorCodes {
-       OtherCMS = 1
+       OtherArt = 1
     ,  StdException
     ,  Unknown
     ,  BadAlloc

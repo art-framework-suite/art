@@ -11,10 +11,10 @@
 
 namespace art {
   void
-  printCmsException(cet::exception& e, char const* prog)
+  printArtException(cet::exception& e, char const* prog)
   try {
     std::string programName(prog ? prog : "program");
-    std::string shortDesc("CMSException");
+    std::string shortDesc("ArtException");
     std::ostringstream longDesc;
     longDesc << "cet::exception caught in " << programName << "\n"
              << e.explain_self();

@@ -16,7 +16,7 @@ std::string
 {
   using namespace errors;
   switch( code ) {
-    case OtherCMS                  : return "OtherCMS";
+    case OtherArt                  : return "OtherArt";
     case StdException              : return "StdException";
     case Unknown                   : return "Unknown";
     case BadAlloc                  : return "BadAlloc";

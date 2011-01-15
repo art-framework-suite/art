@@ -48,7 +48,7 @@ configuration file. Our example does not make any such use.
 
     scheduler:
     {
-      Rethrow: [OtherCMS, StdException, Unknown, BadAlloc,
+      Rethrow: [OtherArt, StdException, Unknown, BadAlloc,
                 BadExceptionType, ProductNotFound, DictionaryNotFound,
                 InsertFailure, Configuration, LogicError, UnimplementedFeature,
                 InvalidReference, NullPointerError, NoProductSpecified, EventTimeout,

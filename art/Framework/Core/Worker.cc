@@ -70,7 +70,7 @@ private:
 
         e << "A cet::exception is going through " << workerType() << ":\n"
           << description();
-        throw art::Exception(errors::OtherCMS, std::string(), e);
+        throw art::Exception(errors::OtherArt, std::string(), e);
     }
     catch(std::bad_alloc& e) {
         LogError("BeginJob")
@@ -122,7 +122,7 @@ private:
         // should event id be included?
         e << "A cet::exception is going through " << workerType() << ":\n"
           << description();
-        throw art::Exception(errors::OtherCMS, std::string(), e);
+        throw art::Exception(errors::OtherArt, std::string(), e);
     }
     catch(std::bad_alloc& e) {
         LogError("EndJob")

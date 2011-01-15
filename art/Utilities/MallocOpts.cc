@@ -181,12 +181,12 @@ namespace art
 
   bool MallocOptionSetter::retrieveFromEnv()
   {
-    const char* par = getenv("CMSRUN_MALLOC_RESET");
+    const char* par = getenv("ART_MALLOC_RESET");
     if(par==0) return false; // leave quickly here
     std::string spar(par);
     bool rc = false;
 
-    // CMSRUN_MALLOC_RESET = "mmap_max trim_thres top_pad mmap_thres"
+    // ART_MALLOC_RESET = "mmap_max trim_thres top_pad mmap_thres"
 
     if(spar.size()>1)
       {
@@ -196,15 +196,15 @@ namespace art
 
 	if(ist.bad())
 	  {
-	    std::cerr << "bad malloc options in CMSRUN_MALLOC_RESET: "
+	    std::cerr << "bad malloc options in ART_MALLOC_RESET: "
 		      << spar << "\n"
 		      << "format is: "
-		      << "CMSRUN_MALLOC_RESET=\"mmap_max trim_thres top_pad mmap_thres\"\n";
+		      << "ART_MALLOC_RESET=\"mmap_max trim_thres top_pad mmap_thres\"\n";
 	  }
 	else
 	  {
 	    std::cout << "MALLOC_OPTIONS> Reset options: "
-		      << "CMSRUN_MALLOC_RESET=" << par << "\n";
+		      << "ART_MALLOC_RESET=" << par << "\n";
 	  }
 	rc=true;
 	changed_=true;

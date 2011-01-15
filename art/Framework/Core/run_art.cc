@@ -51,7 +51,7 @@ namespace {
                ep_->endJob();
             }
             catch (cet::exception& e) {
-               //art::printCmsException(e, kProgramName);
+               //art::printArtException(e, kProgramName);
             }
             catch (std::bad_alloc& e) {
                //art::printBadAllocException(kProgramName);
@@ -152,11 +152,11 @@ int art::run_art(intermediate_table raw_config) {
    }
    catch (art::Exception& e) {
       rc = e.returnCode();
-      art::printCmsException(e, "art"); // , "Thing1", rc);
+      art::printArtException(e, "art"); // , "Thing1", rc);
    }
    catch (cet::exception& e) {
       rc = 8001;
-      art::printCmsException(e, "art"); // , "Thing2", rc);
+      art::printArtException(e, "art"); // , "Thing2", rc);
    }
    catch(std::bad_alloc& bda) {
       rc = 8004;
