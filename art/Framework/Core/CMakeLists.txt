@@ -74,12 +74,11 @@ target_link_libraries(art_Framework_Core
   ${CLHEP}
   ${SIGC}
 )
-set( art_Framework_CoreArt_sources artapp.cc run_art.cc)
+set( art_Framework_CoreArt_sources artapp.cc run_art.cc NovaConfigPostProcessor.cc)
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
-add_executable( art art.cc )
-target_link_libraries( art
+set ( art_exec_link_libraries
   art_Framework_CoreArt
   art_Framework_Services_Registry
   art_Utilities
@@ -100,9 +99,18 @@ target_link_libraries( art
 	${REFLEX}
   ${CPPUNIT}
   -ldl
-  )
+)
 
-install ( TARGETS art   DESTINATION ${flavorqual_dir}/bin )
+set (ART_EXECS
+  art
+  nova
+)
+
+foreach (art_exec ${ART_EXECS})
+  add_executable( ${art_exec} ${art_exec}.cc )
+  target_link_libraries( ${art_exec} ${art_exec_link_libraries} )
+  install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
+endforeach (art_exec ${ART_EXECS})
 
 install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
 #install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
