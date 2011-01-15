@@ -1,5 +1,6 @@
 #include "art/Framework/Core/IntermediateTablePostProcessor.h"
 
+#include "boost/any.hpp"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -13,6 +14,16 @@
 using namespace fhicl;
 
 namespace {
+   std::string itString(extended_value const &val) {
+      std::string result = boost::any_cast<std::string>(val.value);
+      if( result.size() >= 2 && result[0] == '\"' && result.end()[-1] == '\"' ) {
+         return cet::unescape( result.substr(1, result.size()-2) );
+      } else {
+         return result;
+      }
+   }
+
+
    std::string canonicalize(std::string const &in) {
       if (in.empty()) {
          return in;
@@ -35,6 +46,12 @@ namespace {
               end_iter = table.end();
            i != end_iter;
            ++i) {
+         if (i->first.find('_') != std::string::npos) {
+            throw cet::exception("BAD_MODULE_LABEL")
+               << "Module parameter set label \""
+               << i->first
+               << "\" is illegal: underscores are not permitted in module names.";
+         }
          // Insert module_label into module config.
          extended_value::table_t mod_table = 
             (extended_value::table_t) i->second;
@@ -65,7 +82,16 @@ operator() (intermediate_table &raw_config, ParameterSet &main_pset) {
 
   // process_name
   try {
-     raw_config.find("process_name");
+     std::string process_name = itString(raw_config.find("process_name"));
+     if (process_name.empty()) {
+        throw cet::exception("BAD_PROCESS_NAME")
+           << "Empty process_name not permitted.";
+     } else if (process_name.find('_') != std::string::npos) {
+        throw cet::exception("BAD_PROCESS_NAME")
+           << "Underscores not permitted in process_name: illegal value \""
+           << process_name
+           << "\"";
+    }
   }
   catch (exception &e) {
      if (e.categoryCode() == cant_find) {
