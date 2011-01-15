@@ -6,11 +6,10 @@ namespace art {
 }
 
 namespace fhicl {
-   class ParameterSet;
    class intermediate_table;
 }
 
 struct art::IntermediateTablePostProcessor {
-   void operator() (fhicl::intermediate_table &raw_config);
+   void apply(fhicl::intermediate_table &raw_config) const;
 };
 #endif

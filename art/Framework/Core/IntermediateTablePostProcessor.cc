@@ -2,7 +2,8 @@
 
 #include "boost/any.hpp"
 #include "cetlib/canonical_string.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "cetlib/exception.h"
+#include "fhiclcpp/exception.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/extended_value.h"
 
@@ -21,7 +22,6 @@ namespace {
          return result;
       }
    }
-
 
    std::string canonicalize(std::string const &in) {
       if (in.empty()) {
@@ -77,7 +77,7 @@ namespace {
 
 void
 art::IntermediateTablePostProcessor::
-operator() (intermediate_table &raw_config) {
+apply(intermediate_table &raw_config) const {
 
   // process_name
   try {
