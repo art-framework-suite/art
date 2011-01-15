@@ -9,6 +9,8 @@ ProductRegistryHelper:
 
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Utilities/TypeID.h"
+#include "cetlib/exception.h"
+
 #include <list>
 #include <string>
 
@@ -79,6 +81,20 @@ namespace art {
        // throw an exception.
        // ---------------------------------------------------------
       TypeID tid(typeid(ProductType));
+      if (instanceName.find('_') != std::string::npos) {
+         throw cet::exception("BAD_INSTANCE_NAME")
+            << "Instance name \""
+            << instanceName
+            << "\" is illegal: underscores are not permitted in instance names.";
+      }
+      if (tid.friendlyClassName().find('_') != std::string::npos) {
+         throw cet::exception("BAD_CLASS_NAME")
+            << "Class \""
+            << tid.friendlyClassName()
+            << "\" is not suitable for use as a product due to the presence of "
+            << "underscores which are not allowed anywhere in the class name "
+            << "(including namespace and enclosing classes).";
+      }
       return produces<B>(tid,instanceName);
     }
 
