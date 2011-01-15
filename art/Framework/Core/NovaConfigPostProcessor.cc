@@ -51,8 +51,181 @@ NovaConfigPostProcessor::NovaConfigPostProcessor()
 {
 }
 
-void NovaConfigPostProcessor::apply(intermediate_table  &raw_config) const {
+void NovaConfigPostProcessor::apply(intermediate_table &raw_config) const {
    applySource(raw_config);
    applyOutput(raw_config);
    applyTFileName(raw_config);
+}
+
+void NovaConfigPostProcessor::source(std::string const &source) {
+   source_ = canonicalize(source);
+}
+
+void NovaConfigPostProcessor::tFileName(std::string const &tFileName) {
+   tFileName_ = canonicalize(tFileName);
+}
+
+void NovaConfigPostProcessor::output(std::string const &output) {
+   output_ = canonicalize(output);
+}
+
+void NovaConfigPostProcessor::
+applySource(intermediate_table &raw_config) const {
+   if (source_.empty() &&
+       !(wantNevts_ || wantStartEvt_ || wantSkipEvts_)) return;
+   extended_value::table_t source_table;
+   try {
+      source_table = raw_config.find("source");
+   }
+   catch (exception &e) {
+      if (e.categoryCode() == cant_find) {
+         // Ignore
+      } else {
+         throw;
+      }
+   }
+   if (source_table.find("module_type") == source_table.end()) {
+      source_table["module_type"] = extended_value(false, STRING, std::string("RootInput"));
+   }
+   if (!source_.empty()) {
+      extended_value::sequence_t fileNames;
+      fileNames.push_back(extended_value(false, STRING, source_));
+      source_table["fileNames"] = extended_value(false, SEQUENCE, fileNames);
+   }
+   if (wantNevts_) {
+      source_table["maxEvents"] = extended_value(false, NUMBER, nevts_);
+   }
+   if (wantStartEvt_) {
+      source_table["firstEvent"] = extended_value(false, NUMBER, startEvt_);
+   }
+   if (wantSkipEvts_) {
+      source_table["skipEvents"] = extended_value(false, NUMBER, skipEvts_);
+   }
+   raw_config.insert("source", extended_value(false, TABLE, source_table));
+}
+
+void NovaConfigPostProcessor::
+applyOutput(intermediate_table &raw_config) const {
+   if (output_.empty()) return;
+   bool need_end_paths_entry = false;
+   extended_value::table_t outputs_table;
+   try {
+      outputs_table = raw_config.find("outputs");
+   }
+   catch (exception &e) {
+      if (e.categoryCode() == cant_find) {
+         // Ignore
+      } else {
+         throw;
+      }
+   }
+   extended_value::table_t out_table;
+   std::string out_table_name;
+   if (outputs_table.empty()) {
+      out_table_name = "out";
+   } else if (outputs_table.size() > 1) {
+      throw cet::exception("BAD_OUTPUT_CONFIG")
+         << "Output configuration is ambiguous: configuration has "
+         << "multiple output modules. Cannot decide where to add "
+         << "specified output filename \""
+         << output_
+         << "\".";
+   } else {
+      out_table_name = outputs_table.begin()->first;
+      out_table = outputs_table.begin()->second;
+   }
+   if (out_table.empty()) {
+      // Fill a basic output module config
+      out_table["module_type"] = extended_value(false, STRING, canonicalize("RootOutput"));
+      need_end_paths_entry = true;
+   }
+   // Fill in the file name.
+   out_table["fileName"] = extended_value(false, STRING, output_);
+   // Put back into the outputs table.
+   outputs_table[out_table_name] = extended_value(false, TABLE, out_table);
+   // Put outputs table back into config.
+   raw_config.insert("outputs", false, TABLE, outputs_table);
+   if (need_end_paths_entry) {
+      // If we created a new output module config, we need to make a
+      // path for it and add it to end paths. We will *not* detect the
+      // case where an *existing* output module config is not referenced
+      // in a path.
+      extended_value::table_t physics_table;
+      try {
+         physics_table = raw_config.find("physics");
+      }
+      catch (exception &e) {
+         if (e.categoryCode() == cant_find) {
+            // Ignore
+         } else {
+            throw;
+         }
+      }
+      // Find a suitable name for the path: iterate through the table
+      // and use something based on the first thing we don't recognize.
+      std::string found_path;
+      std::string new_path;
+      for (extended_value::table_t::const_iterator
+              i = physics_table.begin(),
+              end_iter = physics_table.end();
+           i != end_iter;
+           ++i) {
+         if (i->first == "producers") continue;
+         if (i->first == "filters") continue;
+         if (i->first == "analyzers") continue;
+         if (i->first == "trigger_paths") continue;
+         if (i->first == "end_paths") continue;
+         found_path = i->first;
+         break;
+      }
+      if (found_path.empty()) {
+         new_path = "e"; 
+      } else {
+         new_path = "e" +
+            found_path.substr(0, found_path.find_last_not_of("0123456789") + 1);
+      }
+      for (size_t
+              i = 1,
+              n = physics_table.size() + 2;
+           i < n;
+           ++i) {
+         std::ostringstream os(new_path);
+         os << i;
+         if (physics_table.find(os.str()) == physics_table.end()) {
+            new_path = os.str();
+            break;
+         }
+      }
+      // Not possible to get to here without having a good path name.
+      extended_value::sequence_t end_path;
+      end_path.push_back(extended_value(false, STRING, out_table_name));
+      physics_table[new_path] = extended_value(false, SEQUENCE, end_path);
+      extended_value::sequence_t end_paths;
+      if (physics_table.find("end_paths") != physics_table.end()) {
+         end_paths = physics_table["end_paths"];
+      }
+      end_paths.push_back(extended_value(false, STRING, new_path));
+      physics_table["end_paths"] = extended_value(false, SEQUENCE, end_paths);
+      raw_config.insert("physics", false, TABLE, physics_table);
+   }
+}
+
+void NovaConfigPostProcessor::
+applyTFileName(intermediate_table &raw_config) const {
+   if (tFileName_.empty()) return;
+   extended_value::table_t services_table;
+   try {
+      services_table = raw_config.find("services");
+   }
+   catch (exception &e) {
+      if (e.categoryCode() == cant_find) {
+         // Ignore
+      } else {
+         throw;
+      }
+   }
+   extended_value::table_t tFileService_table = services_table["TFileService"];
+   tFileService_table["fileName"] = extended_value(false, STRING, tFileName_);
+   services_table["TFileService"] = extended_value(false, TABLE, tFileService_table);
+   raw_config.insert("services", extended_value(false, TABLE, tFileService_table));
 }

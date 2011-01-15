@@ -12,13 +12,12 @@ class NovaConfigPostProcessor {
    NovaConfigPostProcessor();
    void apply(fhicl::intermediate_table &raw_config) const;
 
-   void source(std::string const &source) { source_ = source; }
-   void tFileName(std::string const &tFileName)
-   { tFileName_ = tFileName; }
-   void output(std::string const &output) { output_ = output; }
+   void source(std::string const &source);
+   void tFileName(std::string const &tFileName);
+   void output(std::string const &output);
    void nevts(int nevts) {nevts_ = nevts; wantNevts_ = true; }
-   void startEvt(int startEvt) {startEvt_ = startEvt; wantStartEvt_ = true; }
-   void skipEvts(int skipEvts) {skipEvts_ = skipEvts; wantSkipEvts_ = true; }
+   void startEvt(unsigned long startEvt) {startEvt_ = startEvt; wantStartEvt_ = true; }
+   void skipEvts(unsigned long skipEvts) {skipEvts_ = skipEvts; wantSkipEvts_ = true; }
  private:
 
    void applySource(fhicl::intermediate_table &raw_config) const;
@@ -29,8 +28,8 @@ class NovaConfigPostProcessor {
    std::string tFileName_;
    std::string output_;
    int nevts_;
-   int startEvt_;
-   int skipEvts_;
+   unsigned long startEvt_;
+   unsigned long skipEvts_;
    bool wantNevts_;
    bool wantStartEvt_;
    bool wantSkipEvts_;

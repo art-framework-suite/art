@@ -3,6 +3,8 @@
 
 #include "art/Framework/Core/run_art.h"
 
+#include "NovaConfigPostProcessor.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -30,11 +32,12 @@ int main(int argc, char* argv[]) {
       ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
       ("output,o", bpo::value<std::string>(), "Event output stream file.")
       ("nevts,n", bpo::value<int>(), "Number of events to process.")
-      ("estart,e", bpo::value<int>(), "Event # of first event to process.")
-      ("nskip", bpo::value<int>(), "Number of events to skip.")
+      ("estart,e", bpo::value<unsigned long>(), "Event # of first event to process.")
+      ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
       ;
 
    bpo::positional_options_description pd;
+   // A single non-option argument will be taken to be the config file.
    pd.add("config", 1);
 
    bpo::variables_map vm;
@@ -85,6 +88,19 @@ int main(int argc, char* argv[]) {
                 << config_filename.c_str()
                 << "' is empty: using minimal defaults.\n";
    }
+
+   // Apply our command-line options to the configuration.
+   NovaConfigPostProcessor ncpp;
+   ncpp.source(vm["source"].as<std::string>());
+   ncpp.tFileName(vm["TFileName"].as<std::string>());
+   ncpp.output(vm["output"].as<std::string>());
+   if (vm.count("nevts"))
+      ncpp.nevts(vm["nevts"].as<int>());
+   if (vm.count("estart"))
+      ncpp.startEvt(vm["estart"].as<unsigned long>());
+   if (vm.count("nskip"))
+      ncpp.skipEvts(vm["nskip"].as<unsigned long>());
+   ncpp.apply(raw_config);
 
    return art::run_art(raw_config);
 }
