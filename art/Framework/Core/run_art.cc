@@ -89,7 +89,7 @@ int art::run_art(intermediate_table raw_config) {
    //
    ParameterSet main_pset;
    art::IntermediateTablePostProcessor itpp;
-   itpp(raw_config);
+   itpp.apply(raw_config);
    if (!make_ParameterSet(raw_config, main_pset)) {
       std::cerr << "Failed to create a parameter set from parsed configuration.\n";
       return 7003;
