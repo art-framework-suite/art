@@ -61,6 +61,7 @@ namespace art
 			    Type & result)
   {
     TypeTemplate primary_template_id(possible_ref.TemplateFamily());
+    if (primary_template_id == TypeTemplate()) return false;
     if (primary_template_id == TypeTemplate::ByName("art::Ref", 3)) {
       (void)value_type_of(possible_ref, result);
       return true;
@@ -75,6 +76,7 @@ namespace art
 				  Type & result)
   {
     TypeTemplate primary_template_id(possible_ref.TemplateFamily());
+    if (primary_template_id == TypeTemplate()) return false;
     if (primary_template_id == TypeTemplate::ByName("art::RefToBase", 1)) {
       (void)value_type_of(possible_ref, result);
       return true;
@@ -95,6 +97,8 @@ namespace art
     Type outer_value_type;
     if (!art::value_type_of(possible_sequence, outer_value_type))
       return false;
+
+    found_sequence_value_type = outer_value_type;
 
     if (!if_edm_ref_get_value_type(outer_value_type,
 				   found_sequence_value_type)) {
