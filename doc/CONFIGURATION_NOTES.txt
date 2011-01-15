@@ -37,9 +37,9 @@ configuration file. Our example does not make any such use.
     # block here. If the corresponding services provides
     # complete default configuration, the associated block
     # can be empty.
-    memory:                 { ... }
-    tfile:                  { ... }
-    timing:                 { ... }
+    SimpleMemoryCheck:                 { ... }
+    TFileService:                  { ... }
+    Timing:                 { ... }
 
     services: {
       # Experiment- or user-defined service configurations

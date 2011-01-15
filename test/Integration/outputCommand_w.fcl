@@ -27,9 +27,9 @@ services:
 
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
-   timing: { }
-   memory: { } 
-   tfile: { }
+   Timing: { }
+   SimpleMemoryCheck: { } 
+   TFileService: { }
 
    user:
    {
