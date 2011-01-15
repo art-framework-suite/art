@@ -9,7 +9,7 @@
 
 #include "Reflex/Type.h"
 
-#include "art/Persistency/Common/RefVector.h"
+#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Utilities/ReflexTools.h"
 #include "art/Persistency/Common/Wrapper.h"
 
@@ -30,7 +30,6 @@ class TestReflex: public CppUnit::TestFixture
   CPPUNIT_TEST(sequence_wrapper_failure);
   CPPUNIT_TEST(primary_template_id);
   CPPUNIT_TEST(not_a_template_instance);
-  CPPUNIT_TEST(special_refvector_support);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -50,9 +49,9 @@ class TestReflex: public CppUnit::TestFixture
   void sequence_wrapper_failure();
   void primary_template_id();
   void not_a_template_instance();
-  void special_refvector_support();
 
  private:
+   art::RootDictionaryManager rdm_;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestReflex);
@@ -186,23 +185,3 @@ void TestReflex::not_a_template_instance()
   TypeTemplate nonesuch(not_a_template.TemplateFamily());
   CPPUNIT_ASSERT(!nonesuch);
 }
-
-void TestReflex::special_refvector_support()
-{
-  typedef std::vector<int> vector_t;
-  typedef art::RefVector<vector_t> refvector_t;
-  typedef art::Wrapper<refvector_t> wrapper_t;
-  Type wrapper(Type::ByTypeInfo(typeid(wrapper_t)));
-  CPPUNIT_ASSERT(wrapper);
-  Type wrapped_type;
-  CPPUNIT_ASSERT(art::is_sequence_wrapper(wrapper, wrapped_type));
-  if (wrapped_type != Type::ByName("int"))
-    {
-      std::cerr << "Failure in TestReflex::special_refvector_support\n"
-		<< "... wrapped_type is:  " << wrapped_type << '\n'
-		<< "... and it should be: " << Type::ByName("int")
-		<< std::endl;
-    }
-  CPPUNIT_ASSERT(wrapped_type == Type::ByName("int"));
-}
-

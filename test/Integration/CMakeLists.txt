@@ -43,6 +43,7 @@ set( BOOST_TEST_LIST
 )
 
 set( TEST_LIST
+ ReflexTools_t
 )
 
 set( ALSO_BUILD
