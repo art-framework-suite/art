@@ -48,10 +48,6 @@ physics:
     }
   }
 
-  filters:
-  {
-  }
-
   analyzers:
   {
     a1:
