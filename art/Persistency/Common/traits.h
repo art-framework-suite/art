@@ -5,8 +5,6 @@
 
 Definition of traits templates used in the EDM.
 
-
-
 ----------------------------------------------------------------------*/
 
 #include <deque>

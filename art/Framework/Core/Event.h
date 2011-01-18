@@ -494,8 +494,7 @@ namespace art {
              iter_t;
 
     std::vector<void const *> erased_ptrs;
-    helper_vector_ptr dontcare;
-    bh.wrapper()->fillView(bh.id(), erased_ptrs, dontcare);
+    bh.wrapper()->fillView(erased_ptrs);
     addToGotBranchIDs(*bh.provenance());
 
     for( iter_t b = erased_ptrs.begin()

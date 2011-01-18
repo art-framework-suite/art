@@ -71,7 +71,8 @@ set( TEST_SCRIPTS
 set( INPUT_FILES
   test_simple_01.fcl
   test_simple_01r.fcl
-  test_view_01.fcl
+  test_view_01a.fcl
+  test_view_01b.fcl
   EventSelectorFromFile_w.fcl
   EventSelectorFromFile_r1.fcl
   EventSelectorFromFile_r2.fcl
@@ -129,15 +130,17 @@ endforeach( test ${TEST_LIST} )
 
 # ----------------------------------------------------------------------
 # Deal with TEST_SCRIPTS
+
 foreach (script ${TEST_SCRIPTS} )
-  CONFIGURE_FILE ( ${script} ${EXECUTABLE_OUTPUT_PATH} COPYONLY )
+  CONFIGURE_FILE ( ${script} ${EXECUTABLE_OUTPUT_PATH}/${script} COPYONLY )
   add_test( ${script} ${EXECUTABLE_OUTPUT_PATH}/${script} )
 endforeach (script ${TEST_SCRIPTS} )
 
 # ----------------------------------------------------------------------
 # Copy Configuration and other input files to the correct location
+
 foreach (input ${INPUT_FILES} )
-  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY )
+  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR}/${input} COPYONLY )
 endforeach (input ${INPUT_FILES} )
 
 # ======================================================================

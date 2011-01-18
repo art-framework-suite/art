@@ -4,14 +4,11 @@
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
-// #include "art/Persistency/Common/PtrVectorBase.h"
-#include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/RNGsnapshot.h"
+#include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Persistency/Common/Wrapper.h"
-
 #include <vector>
-
 
 namespace {
   struct dictionary {

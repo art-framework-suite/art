@@ -7,11 +7,8 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Persistency/Common/Handle.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-//#include "test/TestObjects/ToyProducts.h"
-#include <boost/shared_ptr.hpp>
 #include <string>
 #include <vector>
 
@@ -36,19 +33,23 @@ public:
   void analyze( art::Event const & e )
   {
     std::vector<int const *> ptrs;
-    e.getView(moduleLabel_, ptrs);
-    #if 0
-    art::Handle<intvector_t> handle;
-    e.getByLabel(moduleLabel_,handle);
-    if( handle->value != value_ ) {
-      throw cet::exception("ValueMismatch")
-        << "The value for \"" << moduleLabel_
-        << "\" is " << handle->value
-        << " but was supposed to be " << value_
+    unsigned sz = e.getView(moduleLabel_, ptrs);
+
+    if( sz != nvalues_ ) {
+      throw cet::exception("SizeMismatch")
+        << "Expected a view of size " << nvalues_
+        << " but the obtained size is " << sz
         << '\n';
+
+    for( unsigned k = 0; k != sz; ++k )
+      if( *ptrs[k] != value_ )
+        throw cet::exception("ValueMismatch")
+          << "At position " << k
+          << " expected value " << value_
+          << " but obtained " << *ptrs[k]
+          << '\n';
     }
-    #endif
-  }
+  }  // analyze()
 
 private:
   std::string moduleLabel_;

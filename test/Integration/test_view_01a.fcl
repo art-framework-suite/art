@@ -1,0 +1,92 @@
+services:
+{
+  # Always-present services; configuration optional.
+  message: { }
+  floating_point_control: { }
+
+  scheduler:  # options block in the old system
+  {
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
+              'BadExceptionType','ProductNotFound','DictionaryNotFound',
+              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'EventCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    # Ignore: []
+    wantSummary: true
+    # wantTracer: false
+    # fileMode: ""
+    # handleEmptyRuns: true
+    # handleEmptySubRuns: true
+    # enableSigInt: true
+    # unloadRootSigHandler: false
+    # resetRootErrHandler: true
+  }
+
+   # These are provided by Art, but are not system services and therefore
+   # need to be configured to come to life.
+   Timing: { }
+   SimpleMemoryCheck: { }
+   TFileService: { }
+
+   user:
+   {
+     # user-defined, plugin services
+   }
+}
+
+physics:
+{
+  producers:
+  {
+    m1a:
+    {
+      module_type: IntVectorProducer
+      ivalue: 11
+      nvalues: 16
+    }
+  }
+
+  filters:
+  {
+  }
+
+  analyzers:
+  {
+    a1:
+    {
+      module_type: IntVectorAnalyzer
+      input_label: m1a
+      value: 11
+      nvalues: 16
+    }
+  }
+
+   p1: [ m1a ]
+   e1: [ a1, out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}
+
+source:
+{
+  module_type: EmptyEvent
+
+  # were in the global area before
+  maxEvents: 1
+  # maxSubRuns: 2
+}
+
+process_name: DEVEL

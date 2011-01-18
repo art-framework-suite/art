@@ -11,8 +11,10 @@ function run_art() {
 
 rm -f out.root cerr.log warnings.log
 
-run_art test_view_01.fcl
+run_art test_view_01a.fcl
 
 [[ -r "out.root" ]] || \
   { echo "Failed to find expected root files out.root" 1>&2; \
     exit 1; }
+
+run_art test_view_01b.fcl

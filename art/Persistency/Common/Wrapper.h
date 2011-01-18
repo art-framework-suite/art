@@ -1,29 +1,44 @@
 #ifndef DataFormats_Common_Wrapper_h
 #define DataFormats_Common_Wrapper_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// Wrapper: A template wrapper around EDProducts to hold the product ID.
+//
+// ======================================================================
 
-Wrapper: A template wrapper around EDProducts to hold the product ID.
-
-----------------------------------------------------------------------*/
-
-#include <algorithm>
-#include <memory>
-#include <string>
-#include <typeinfo>
-#include <vector>
-#include <list>
-#include <deque>
-#include <set>
-
-#include "boost/mpl/if.hpp"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/traits.h"
+#include "art/Utilities/Exception.h"
+#include "boost/mpl/if.hpp"
+#include "cpp0x/type_traits"
+#include <deque>
+#include <list>
+#include <memory>
+#include <set>
+#include <typeinfo>
+#include <vector>
+
+namespace art { namespace detail {
+  template< typename T >
+    struct has_fillView_member;
+} }
+
+// ----------------------------------------------------------------------
 
 namespace art {
 
+  template< class T, bool = detail::has_fillView_member<T>::value >
+    struct fillView;
+
   template <class T>
-  class Wrapper : public EDProduct {
+  class Wrapper
+    : public EDProduct
+  {
+    // non-copyable:
+    Wrapper( Wrapper<T> const& );
+    void operator = ( Wrapper<T> const& );
+
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with Reflex to identify Wrappers
@@ -36,6 +51,10 @@ namespace art {
     //these are used by FWLite
     static const std::type_info& productTypeInfo() { return typeid(T);}
     static const std::type_info& typeInfo() { return typeid(Wrapper<T>);}
+
+    virtual void
+      fillView( std::vector<void const *> & view ) const
+    { art::fillView<T>()(obj, view); }
 
     /**REFLEX must call the following constructor
         the constructor takes ownership of T* */
@@ -50,15 +69,11 @@ namespace art {
     virtual bool isProductEqual_(EDProduct const* newProduct) const;
 #endif
 
-    // We wish to disallow copy construction and assignment.
-    // We make the copy constructor and assignment operator private.
-    Wrapper(Wrapper<T> const& rh); // disallow copy construction
-    Wrapper<T> & operator=(Wrapper<T> const&); // disallow assignment
-
     bool present;
     //   T const obj;
     T obj;
-  };
+
+  };  // Wrapper<>
 
 }  // art
 
@@ -141,8 +156,6 @@ namespace art {
     typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
-    // Definitions for the following struct and function templates are
-    // not needed; we only require the declarations.
     template <typename T, void (T::*)(T&)>  struct swap_function;
     template <typename T> no_tag  has_swap_helper(...);
     template <typename T> yes_tag has_swap_helper(swap_function<T, &T::swap> * dummy);
@@ -152,6 +165,18 @@ namespace art {
     {
       static bool const value =
         sizeof(has_swap_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    typedef  std::vector<void const *>  vv_t;
+    template <typename T, void (T::*)(vv_t&)>  struct fillView_function;
+    template <typename T> no_tag  has_fillView_helper(...);
+    template <typename T> yes_tag has_fillView_helper(fillView_function<T, &T::fillView> * dummy);
+
+    template< typename T >
+    struct has_fillView_member
+    {
+      static bool const value =
+        sizeof(has_fillView_helper<T>(0)) == sizeof(yes_tag);
     };
 
 #ifndef __REFLEX__
@@ -254,6 +279,99 @@ namespace art {
     return is_equal(obj, wrappedNewProduct->obj);
   }
 #endif
+
+  template< class T >
+    struct fillView<T, true>
+  {
+    void operator () ( T const                   & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      product.fillView(view);
+    }
+  };  // fillView<T>
+
+  template< class T >
+    struct fillView<T, false>
+  {
+    void operator () ( T const                   & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      throw Exception(errors::ProductDoesNotSupportViews)
+        << "Product type " << typeid(T).name()
+        << " has no fillView() capability\n";
+    }
+  };  // fillView<T>
+
+  template< >
+    struct fillView< std::vector<bool>, false >
+  {
+    void operator () ( std::vector<bool> const   & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      throw Exception(errors::ProductDoesNotSupportViews)
+        << "Product type std::vector<bool> has no fillView() capability\n";
+    }
+  };  // fillView<vector<bool>>
+
+  template< class E >
+    struct fillView< std::vector<E>, false >
+  {
+    void operator () ( std::vector<E> const      & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      for( typename std::vector<E>::const_iterator b = product.begin()
+                                                 , e = product.end()
+         ; b != e; ++b )
+        view.push_back( &*b );
+    }
+  };  // fillView<vector<E>>
+
+  template< class E >
+    struct fillView< std::list<E>, false >
+  {
+    void operator () ( std::list<E> const        & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      for( typename std::list<E>::const_iterator b = product.begin()
+                                               , e = product.end()
+         ; b != e; ++b )
+        view.push_back( &*b );
+    }
+  };  // fillView<list<E>>
+
+  template< class E >
+    struct fillView< std::deque<E>, false >
+  {
+    void operator () ( std::deque<E> const       & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      for( typename std::deque<E>::const_iterator b = product.begin()
+                                                , e = product.end()
+         ; b != e; ++b )
+        view.push_back( &*b );
+    }
+  };  // fillView<deque<E>>
+
+  template< class E >
+    struct fillView< std::set<E>, false >
+  {
+    void operator () ( std::set<E> const         & product
+                     , std::vector<void const *> & view
+                     )
+    {
+      for( typename std::set<E>::const_iterator b = product.begin()
+                                              , e = product.end()
+         ; b != e; ++b )
+        view.push_back( &*b );
+    }
+  };  // fillView<set<E>>
+
 }
 
 #endif

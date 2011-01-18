@@ -39,54 +39,32 @@ services:
 
 physics:
 {
-  producers:
+  analyzers:
   {
-    m1a:
+    a1:
     {
-      module_type: IntVectorProducer
-      ivalue: 11
+      module_type: IntVectorAnalyzer
+      input_label: m1a
+      value: 11
       nvalues: 16
     }
   }
+  e1: [ a1 ]
+  end_paths: [ e1 ]
 
   filters:
   {
   }
 
-  analyzers:
+  producers:
   {
-  #  a1:
-  #  {
-  #    module_type: IntTestAnalyzer
-  #    input_label: m1a
-  #    expected_value: 1
-  #  }
-  }
-
-   p1: [ m1a ]
-   #e1: [ a1, out1 ]
-   e1: [ out1 ]
-
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
-}
-
-outputs:
-{
-  out1:
-  {
-    module_type: RootOutput
-    fileName: "out.root"
   }
 }
 
 source:
 {
-  module_type: EmptyEvent
-
-  # were in the global area before
-  maxEvents: 1
-  # maxSubRuns: 2
+  module_type: RootInput
+  fileNames: [ "out.root" ]
 }
 
-process_name: DEVEL
+process_name: DEVEL2

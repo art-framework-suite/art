@@ -7,9 +7,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Persistency/Common/Handle.h"
 #include "fhiclcpp/ParameterSet.h"
-//#include "test/TestObjects/ToyProducts.h"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -44,7 +42,7 @@ public:
 
   virtual ~IntVectorProducer() { }
 
-  virtual void produce( art::Event& e );
+  virtual void produce( art::Event & e );
 
 private:
   int      value_;
