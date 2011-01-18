@@ -49,6 +49,11 @@ public:
      return manager_->put(boost::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
   }
 
+  void forceCreation(ActivityRegistry& reg)
+  {
+    manager_->forceCreation(reg);
+  }
+
 private:
   ServiceToken( boost::shared_ptr<ServicesManager> iManager )
   : manager_( iManager )

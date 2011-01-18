@@ -381,7 +381,7 @@ namespace art {
     // serviceToken_.add(std::auto_ptr<MessageLogger>(new
     // MessageLogger(logger_pset,*actReg_)));
 
-    // below still needs modification
+    serviceToken_.forceCreation(*actReg_);
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);

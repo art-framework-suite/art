@@ -69,6 +69,11 @@ namespace art {
         return service_;
       }
 
+      void forceCreation(ActivityRegistry& reg)
+      {
+	if(!service_) service_ = make_(config_,reg);
+      }
+
     private:
       fhicl::ParameterSet config_;
       TypeIDBase typeinfo_;
@@ -142,6 +147,10 @@ namespace art {
     void copySlotsTo(ActivityRegistry &);
     //the copy the argument's slots to the our signals
     void copySlotsFrom(ActivityRegistry &);
+
+    // force all the services that are not alrady made into existance
+    // using 'reg'.  The order of creation will be the registration order.
+    void forceCreation(ActivityRegistry& reg);
 
   private:
     void fillFactory( ParameterSets const & psets, LibraryManager const & lm );

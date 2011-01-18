@@ -16,7 +16,7 @@ services:
               'ProductDoesNotSupportPtr','NotFound']
     # Ignore: []
     wantSummary: true
-    # wantTracer: false
+    # wantTracer: true
     # fileMode: ""
     # handleEmptyRuns: true
     # handleEmptySubRuns: true
@@ -29,7 +29,7 @@ services:
    # need to be configured to come to life.
    Timing: { }
    SimpleMemoryCheck: { }
-   TFileService: { }
+   TFileService: { fileName: "tfile_output" }
 
    user:
    {

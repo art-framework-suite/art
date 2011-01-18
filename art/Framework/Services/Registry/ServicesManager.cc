@@ -76,6 +76,18 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
   iOther.copySlotsFrom(registry_);
 }
 
+void ServicesManager::forceCreation(ActivityRegistry& reg)
+{
+  TypeIDBases::iterator it(requestedCreationOrder_.begin()),
+    end(requestedCreationOrder_.end());
+
+  for(;it!=end;++it)
+    {
+      Factory::iterator c = factory_.find(*it);
+      if(c!=factory_.end()) c->second.forceCreation(reg);
+      // JBK - should an exception be thrown if name not found in map?
+    }
+}
 
 void
   ServicesManager::fillFactory( ParameterSets  const & psets
