@@ -95,6 +95,13 @@ int art::run_art(intermediate_table raw_config) {
       return 7003;
    }
 
+   char const *debug_config = getenv("ART_DEBUG_CONFIG");
+   if (debug_config != nullptr) {
+      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
+      std::cerr << main_pset.to_string() << "\n";
+      return 1;
+   }
+
    ParameterSet services_pset = main_pset.get<ParameterSet>("services", ParameterSet());
    ParameterSet scheduler_pset = services_pset.get<ParameterSet>("scheduler", ParameterSet());
 
