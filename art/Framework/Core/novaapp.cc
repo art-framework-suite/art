@@ -93,9 +93,12 @@ int novaapp(int argc, char* argv[]) {
 
    // Apply our command-line options to the configuration.
    NovaConfigPostProcessor ncpp;
-   ncpp.source(vm["source"].as<std::string>());
-   ncpp.tFileName(vm["TFileName"].as<std::string>());
-   ncpp.output(vm["output"].as<std::string>());
+   if (vm.count("source"))
+      ncpp.source(vm["source"].as<std::string>());
+   if (vm.count("TFileName"))
+      ncpp.tFileName(vm["TFileName"].as<std::string>());
+   if (vm.count("output"))
+      ncpp.output(vm["output"].as<std::string>());
    if (vm.count("nevts"))
       ncpp.nevts(vm["nevts"].as<int>());
    if (vm.count("estart"))
