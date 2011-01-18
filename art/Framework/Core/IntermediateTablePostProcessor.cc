@@ -155,9 +155,12 @@ apply(intermediate_table &raw_config) const {
              i != end_iter;
              ++i) {
            try {
-              physics_table[*i] =
-                 inject_module_labels(physics_table[*i],
-                                      all_modules);
+              extended_value::table_t::iterator t_val_i = physics_table.find(*i);
+              if (t_val_i != physics_table.end()) {
+                 t_val_i->second =
+                    inject_module_labels(t_val_i->second,
+                                         all_modules);
+              }
            }
            catch (exception &e) {
               if (e.categoryCode() == cant_find) {
