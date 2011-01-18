@@ -39,14 +39,6 @@ services:
 
 physics:
 {
-  producers:
-  {
-  }
-
-  filters:
-  {
-  }
-
   analyzers:
   {
     a1:
@@ -59,14 +51,7 @@ physics:
 
    e1: [ a1 ]
 
-   p1: [ ]
-
-   trigger_paths: [ p1 ]
    end_paths: [ e1 ]
-}
-
-outputs:
-{
 }
 
 source:
