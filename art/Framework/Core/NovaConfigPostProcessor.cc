@@ -1,6 +1,7 @@
 #include "NovaConfigPostProcessor.h"
 
 #include "boost/any.hpp"
+#include "boost/lexical_cast.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/exception.h"
@@ -89,17 +90,17 @@ applySource(intermediate_table &raw_config) const {
    }
    if (!source_.empty()) {
       extended_value::sequence_t fileNames;
-      fileNames.push_back(extended_value(false, STRING, source_));
+      fileNames.push_back(extended_value(false, STRING, canonicalize(source_)));
       source_table["fileNames"] = extended_value(false, SEQUENCE, fileNames);
    }
    if (wantNevts_) {
-      source_table["maxEvents"] = extended_value(false, NUMBER, nevts_);
+      source_table["maxEvents"] = extended_value(false, NUMBER, boost::lexical_cast<std::string>(nevts_));
    }
    if (wantStartEvt_) {
-      source_table["firstEvent"] = extended_value(false, NUMBER, startEvt_);
+      source_table["firstEvent"] = extended_value(false, NUMBER, boost::lexical_cast<std::string>(startEvt_));
    }
    if (wantSkipEvts_) {
-      source_table["skipEvents"] = extended_value(false, NUMBER, skipEvts_);
+      source_table["skipEvents"] = extended_value(false, NUMBER, boost::lexical_cast<std::string>(skipEvts_));
    }
    raw_config.insert("source", extended_value(false, TABLE, source_table));
 }
@@ -127,9 +128,9 @@ applyOutput(intermediate_table &raw_config) const {
       throw cet::exception("BAD_OUTPUT_CONFIG")
          << "Output configuration is ambiguous: configuration has "
          << "multiple output modules. Cannot decide where to add "
-         << "specified output filename \""
+         << "specified output filename "
          << output_
-         << "\".";
+         << ".";
    } else {
       out_table_name = outputs_table.begin()->first;
       out_table = outputs_table.begin()->second;
@@ -140,7 +141,7 @@ applyOutput(intermediate_table &raw_config) const {
       need_end_paths_entry = true;
    }
    // Fill in the file name.
-   out_table["fileName"] = extended_value(false, STRING, output_);
+   out_table["fileName"] = extended_value(false, STRING, canonicalize(output_));
    // Put back into the outputs table.
    outputs_table[out_table_name] = extended_value(false, TABLE, out_table);
    // Put outputs table back into config.
@@ -161,35 +162,14 @@ applyOutput(intermediate_table &raw_config) const {
             throw;
          }
       }
-      // Find a suitable name for the path: iterate through the table
-      // and use something based on the first thing we don't recognize.
-      std::string found_path;
-      std::string new_path;
-      for (extended_value::table_t::const_iterator
-              i = physics_table.begin(),
-              end_iter = physics_table.end();
-           i != end_iter;
-           ++i) {
-         if (i->first == "producers") continue;
-         if (i->first == "filters") continue;
-         if (i->first == "analyzers") continue;
-         if (i->first == "trigger_paths") continue;
-         if (i->first == "end_paths") continue;
-         found_path = i->first;
-         break;
-      }
-      if (found_path.empty()) {
-         new_path = "e"; 
-      } else {
-         new_path = "e" +
-            found_path.substr(0, found_path.find_last_not_of("0123456789") + 1);
-      }
+      std::string new_path = "injected_end_path_";
       for (size_t
               i = 1,
               n = physics_table.size() + 2;
            i < n;
            ++i) {
-         std::ostringstream os(new_path);
+         std::ostringstream os;
+         os << new_path;
          os << i;
          if (physics_table.find(os.str()) == physics_table.end()) {
             new_path = os.str();
@@ -198,13 +178,13 @@ applyOutput(intermediate_table &raw_config) const {
       }
       // Not possible to get to here without having a good path name.
       extended_value::sequence_t end_path;
-      end_path.push_back(extended_value(false, STRING, out_table_name));
+      end_path.push_back(extended_value(false, STRING, canonicalize(out_table_name)));
       physics_table[new_path] = extended_value(false, SEQUENCE, end_path);
       extended_value::sequence_t end_paths;
       if (physics_table.find("end_paths") != physics_table.end()) {
          end_paths = physics_table["end_paths"];
       }
-      end_paths.push_back(extended_value(false, STRING, new_path));
+      end_paths.push_back(extended_value(false, STRING, canonicalize(new_path)));
       physics_table["end_paths"] = extended_value(false, SEQUENCE, end_paths);
       raw_config.insert("physics", false, TABLE, physics_table);
    }
@@ -224,8 +204,13 @@ applyTFileName(intermediate_table &raw_config) const {
          throw;
       }
    }
-   extended_value::table_t tFileService_table = services_table["TFileService"];
-   tFileService_table["fileName"] = extended_value(false, STRING, tFileName_);
+
+   extended_value::table_t::iterator t_iter = services_table.find("TFileService");
+   extended_value::table_t tFileService_table;
+   if (t_iter != services_table.end()) {
+      tFileService_table = t_iter->second;
+   }
+   tFileService_table["fileName"] = extended_value(false, STRING, canonicalize(tFileName_));
    services_table["TFileService"] = extended_value(false, TABLE, tFileService_table);
-   raw_config.insert("services", extended_value(false, TABLE, tFileService_table));
+   raw_config.insert("services", extended_value(false, TABLE, services_table));
 }
