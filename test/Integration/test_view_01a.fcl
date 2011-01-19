@@ -29,7 +29,6 @@ services:
    # need to be configured to come to life.
    Timing: { }
    SimpleMemoryCheck: { }
-   TFileService: { }
 
    user:
    {
