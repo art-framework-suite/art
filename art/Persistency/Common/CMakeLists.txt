@@ -32,7 +32,6 @@ install(FILES BaseHolder.h
 	      ClonePolicy.h
 	      CloningPtr.h
 	      ConstPtrCache.h
-	      CopyPolicy.h
 	      DetSet.h
 	      DetSetNew.h
 	      EDCollection.h
