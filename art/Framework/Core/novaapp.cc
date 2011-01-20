@@ -39,8 +39,8 @@ int novaapp(int argc, char* argv[]) {
       ;
 
    bpo::positional_options_description pd;
-   // A single non-option argument will be taken to be the config file.
-   pd.add("config", 1);
+   // A single non-option argument will be taken to be the source data file.
+   pd.add("source", 1);
 
    bpo::variables_map vm;
    try {
