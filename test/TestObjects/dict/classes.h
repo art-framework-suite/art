@@ -24,14 +24,6 @@ struct dictionary {
   art::Wrapper<arttest::Int16_tProduct> dummyw23;
   art::Wrapper<arttest::DoubleProduct> dummyw14;
   art::Wrapper<arttest::StringProduct> dummyw15;
-/*   art::Wrapper<arttest::SCSimpleProduct> dummyw16; */
-/*   art::Wrapper<arttest::OVSimpleProduct> dummyw17; */
-/*   art::Wrapper<arttest::OVSimpleDerivedProduct> dummyw17Derived; */
-/*   art::Wrapper<arttest::AVSimpleProduct> dummyw18; */
-/*   art::Wrapper<arttest::DSVSimpleProduct> dummyw19; */
-/*   art::Wrapper<arttest::DSVWeirdProduct> dummyw20; */
-/*   art::Wrapper<arttest::DSTVSimpleProduct> dummyw21; */
-/*   art::Wrapper<arttest::DSTVSimpleDerivedProduct> dummyw22; */
   art::Wrapper<arttest::Prodigal> dummyw24;
 
 /*   art::Wrapper<arttest::Thing> dummy105; */
@@ -47,8 +39,8 @@ struct dictionary {
 /*   arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > dummy21; */
 /*   art::Wrapper<arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > > dummy22; */
 /*   std::vector<arttestprod::Simple> dummy23; */
-/*   std::vector<arttest::Simple> dummy231; */
-/*   art::Wrapper<std::vector<arttest::Simple> > dummy231w; */
+   std::vector<arttest::SimpleDerived> dummy231;
+   art::Wrapper<std::vector<arttest::SimpleDerived> > dummy231w;
 /*   art::RefProd<std::vector<arttest::Simple> > dummy232; */
 /*   art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > dummy24; */
 /*   art::Wrapper<art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > > dummy25; */
