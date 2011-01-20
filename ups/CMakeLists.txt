@@ -11,13 +11,13 @@ configure_file ( ${art_SOURCE_DIR}/ups/art-config-version.cmake.in
 configure_file ( ${art_SOURCE_DIR}/ups/art.table.in
                  ${art_BINARY_DIR}/ups/art.table @ONLY )
 configure_file ( ${art_SOURCE_DIR}/ups/art.version.in
-                 ${art_BINARY_DIR}/ups/${version}.version @ONLY )
+                 ${art_BINARY_DIR}/ups/${UPSFLAVOR}_${qualifier} @ONLY )
 
 install (FILES ${art_BINARY_DIR}/ups/art-config.cmake
                ${art_BINARY_DIR}/ups/art-config-version.cmake
 	 DESTINATION ${flavorqual_dir}/lib/art-${version} )
 install (FILES ${art_BINARY_DIR}/ups/art.table
 	 DESTINATION ${product}/${version}/ups )
-INSTALL (FILES ${art_BINARY_DIR}/ups/${version}.version
-         DESTINATION ${product} )
+INSTALL (FILES ${art_BINARY_DIR}/ups/${UPSFLAVOR}_${qualifier}
+         DESTINATION ${product}/${version}.version )
 

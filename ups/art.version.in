@@ -2,37 +2,7 @@ FILE = version
 PRODUCT = @product@
 VERSION = @version@
 
-FLAVOR = Linux64bit+2.6-2.5
-QUALIFIERS = @qualifier@
-  DECLARER = CET
-  DECLARED = @datime@
-  MODIFIER = CET
-  MODIFIED = @datime@
-  PROD_DIR = @product@/@version@
-  UPS_DIR = ups
-  TABLE_FILE = @product@.table
-
-FLAVOR = Linux+2.6-2.5
-QUALIFIERS = @qualifier@
-  DECLARER = CET
-  DECLARED = @datime@
-  MODIFIER = CET
-  MODIFIED = @datime@
-  PROD_DIR = @product@/@version@
-  UPS_DIR = ups
-  TABLE_FILE = @product@.table
-
-FLAVOR = Linux64bit+2.6-2.3.4
-QUALIFIERS = @qualifier@
-  DECLARER = CET
-  DECLARED = @datime@
-  MODIFIER = CET
-  MODIFIED = @datime@
-  PROD_DIR = @product@/@version@
-  UPS_DIR = ups
-  TABLE_FILE = @product@.table
-
-FLAVOR = Linux+2.6-2.3.4
+FLAVOR = @UPSFLAVOR@
 QUALIFIERS = @qualifier@
   DECLARER = CET
   DECLARED = @datime@
