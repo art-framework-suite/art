@@ -83,6 +83,7 @@ set ( art_exec_link_libraries
   art_Framework_Services_Registry
   art_Utilities
   art_Framework_Core
+  art_Persistency_Common_dict
   ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
