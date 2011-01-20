@@ -9,6 +9,7 @@ simple_plugin(IntVectorAnalyzer  "module")
 simple_plugin(IntVectorProducer  "module")
 simple_plugin(PtrVectorAnalyzer  "module")
 simple_plugin(PtrVectorProducer  "module")
+simple_plugin( SimpleDerivedProducer "module")
 
 # Library link requirements for tests here
 link_libraries(
@@ -34,7 +35,7 @@ link_libraries(
   -ldl
  )
 
-#########################################################################
+########################################################################
 # New tests (post-ART fork).
 ####################################
 
@@ -150,4 +151,4 @@ endforeach (input ${INPUT_FILES} )
 
 # ======================================================================
 
-#########################################################################
+########################################################################

@@ -9,10 +9,14 @@
  <class name="arttest::Sortable"/>
  <class name="arttest::Unsortable"/>
  <class name="arttest::Prodigal"/>
+
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
  <class name="art::Wrapper<arttest::Int16_tProduct>"/>
  <class name="art::Wrapper<arttest::DoubleProduct>"/>
  <class name="art::Wrapper<arttest::StringProduct>"/>
  <class name="art::Wrapper<arttest::Prodigal>"/>
+
+ <class name="std::vector<arttest::SimpleDerived>"/>
+ <class name="art::Wrapper<std::vector<arttest::SimpleDerived> >"/>
 </lcgdict>
