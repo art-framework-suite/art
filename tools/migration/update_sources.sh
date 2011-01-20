@@ -46,10 +46,10 @@ function one_file() {
   ed "$F" < movedfile_20100907_152621.ed > /dev/null 2>&1
   # Fix includes in and of .icc files
   perl -wapi\~ -f fix-icc-includes.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
-  # Fix ParameterSet calls
-  perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix edm and cms namespaces
   perl -wapi\~ -f fix-namespaces-1.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  # Fix ParameterSet calls
+  perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix Service -> ServiceHandle
   perl -wapi\~ -f fix-ServiceHandle.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"  
   # Fix for relocated services

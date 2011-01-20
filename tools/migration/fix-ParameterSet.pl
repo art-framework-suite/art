@@ -28,6 +28,7 @@ foreach my $name (sort keys %translations) {
 
 while (s/art::ParameterSet/fhicl::ParameterSet/g) {}
 while (s/getParameter</get</g) {}
+while (s/getUntrackedParameter</get</g) {}
 
 foreach my $inc (sort keys %inc_translations) {
   s&^(\s*#include\s+["<])\Q$inc\E([">].*)$&${1}$inc_translations{$inc}${2}& and last;
