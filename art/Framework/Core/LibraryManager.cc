@@ -140,13 +140,15 @@ art::LibraryManager::getValidLibspecs(std::vector<std::string> &list) const
 
 void
 art::LibraryManager::loadAllLibraries() const {
-   lib_loc_map_t::const_iterator
-      i = lib_loc_map_.begin(),
-      end_iter = lib_loc_map_.end();
-   for (;
+   for (lib_loc_map_t::const_iterator
+           i = lib_loc_map_.begin(),
+           end_iter = lib_loc_map_.end();
         i != end_iter;
         ++i) {
-      get_lib_ptr(i->second);
+      if (get_lib_ptr(i->second) == nullptr) {
+         throw cet::exception("Unable to load requested library " + i->second)
+            << dlerror() << "\n";
+      }
    }
 }
 
