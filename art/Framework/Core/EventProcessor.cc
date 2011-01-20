@@ -563,6 +563,11 @@ namespace art {
     }
     schedule_->beginJob();
     actReg_->postBeginJobSignal_();
+
+    Schedule::Workers aw_vec;
+    schedule_->getAllWorkers(aw_vec);
+    actReg_->postBeginJobWorkersSignal_(input_.get(), aw_vec);
+
     // toerror.succeeded(); // should we add this?
   }
 

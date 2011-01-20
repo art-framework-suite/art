@@ -16,17 +16,20 @@
 #include "boost/noncopyable.hpp"
 #include "sigc++/signal.h"
 #include <string>
+#include <vector>
 
 namespace art {
   class Event;
   class EventID;
   class HLTPathStatus;
+  class InputSource;
   class SubRun;
   class SubRunID;
   class ModuleDescription;
   class Run;
   class RunID;
   class Timestamp;
+  class Worker;
 }  // art
 
 // ----------------------------------------------------------------------
@@ -351,6 +354,17 @@ namespace art {
       sl.push_front(iSlot);
     }
     AR_WATCH_VIA_1_ARG_METHOD(watchPostModuleConstruction)
+
+    /// JBK added
+    /// signal is emitted after beginJob
+    typedef sigc::signal<void, InputSource*,std::vector<Worker*> const&> PostBeginJobWorkers;
+    PostBeginJobWorkers postBeginJobWorkersSignal_;
+    void watchPostBeginJobWorkers(PostBeginJobWorkers::slot_type const& iSlot) {
+      PostBeginJobWorkers::slot_list_type sl = postBeginJobWorkersSignal_.slots();
+      sl.push_front(iSlot);
+    }
+    AR_WATCH_VIA_2_ARG_METHOD(watchPostBeginJobWorkers)
+    // end JBK added
 
     /// signal is emitted before the module does beginJob
     typedef sigc::signal<void, ModuleDescription const&> PreModuleBeginJob;

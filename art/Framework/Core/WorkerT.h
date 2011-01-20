@@ -13,9 +13,11 @@ WorkerT: Code common to all workers.
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Core/WorkerParams.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "boost/shared_ptr.hpp"
 
+#include <iosfwd>
 #include <memory>
 
 
@@ -31,6 +33,10 @@ namespace art {
                    WorkerParams const&);
 
     virtual ~WorkerT();
+
+    virtual void reconfigure(std::istream& input, std::ostream& output,
+			     fhicl::ParameterSet const &pset) {
+      module_->reconfigure(input, output, pset); }
 
     virtual bool modifiesEvent() const { return module_->modifiesEvent(); }
 

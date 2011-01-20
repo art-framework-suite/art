@@ -87,6 +87,8 @@ art::ActivityRegistry::connect(ActivityRegistry& iOther)
    preModuleConstructionSignal_.connect(iOther.preModuleConstructionSignal_);
    postModuleConstructionSignal_.connect(iOther.postModuleConstructionSignal_);
 
+   postBeginJobWorkersSignal_.connect(iOther.postBeginJobWorkersSignal_);
+
    preModuleBeginJobSignal_.connect(iOther.preModuleBeginJobSignal_);
    postModuleBeginJobSignal_.connect(iOther.postModuleBeginJobSignal_);
 
@@ -219,4 +221,5 @@ art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFrom(preSourceConstructionSignal_,iOther.preSourceConstructionSignal_);
   copySlotsToFromReverse(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
 
+  copySlotsToFromReverse(postBeginJobWorkersSignal_,iOther.postBeginJobWorkersSignal_);
 }

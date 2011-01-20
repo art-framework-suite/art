@@ -13,6 +13,8 @@
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+
+#include <ostream>
 #include <string>
 
 // ----------------------------------------------------------------------
@@ -63,6 +65,11 @@ namespace art
     virtual void produce(Event &) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
+    virtual void reconfigure(std::istream&,
+			     std::ostream& output,
+			     ParameterSet const&)
+    { output << "This module is not reconfigurable." << std::endl;}
+
     virtual void beginRun(Run &){}
     virtual void endRun(Run &){}
     virtual void beginSubRun(SubRun &){}

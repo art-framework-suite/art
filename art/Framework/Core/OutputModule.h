@@ -44,6 +44,10 @@ namespace art {
 
     explicit OutputModule(fhicl::ParameterSet const& pset);
     virtual ~OutputModule();
+    void reconfigure(std::istream&,
+		     std::ostream& output,
+		     fhicl::ParameterSet const&)
+    { output << "Output modules are not reconfigurable." << std::endl;}
     // Accessor for maximum number of events to be written.
     // -1 is used for unlimited.
     int maxEvents() const {return maxEvents_;}

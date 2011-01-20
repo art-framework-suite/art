@@ -140,7 +140,7 @@ namespace art {
 
     //See if all modules were used
     set<string> usedWorkerLabels;
-    for(AllWorkers::iterator itWorker=workersBegin();
+    for(Workers::iterator itWorker=workersBegin();
         itWorker != workersEnd();
         ++itWorker) {
       usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
@@ -209,7 +209,7 @@ namespace art {
     // refactor this huge constructor into a series of well-named
     // private functions.
     size_t all_workers_count = all_workers_.size();
-    for (AllWorkers::iterator i = all_workers_.begin(), e = all_workers_.end();
+    for (Workers::iterator i = all_workers_.begin(), e = all_workers_.end();
          i != e;
          ++i)   {
       OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
@@ -262,7 +262,7 @@ namespace art {
       return;
     }
 
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
+    for (OutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
         it != itEnd; ++it) {
       OutputModuleDescription desc(maxEventsOut);
       if (!vMaxEventsOut.empty()) {
@@ -285,7 +285,7 @@ namespace art {
     if (all_output_workers_.empty()) {
       return false;
     }
-    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
+    for (OutputWorkers::const_iterator it = all_output_workers_.begin(),
          itEnd = all_output_workers_.end();
          it != itEnd; ++it) {
       if (!(*it)->limitReached()) {
@@ -394,7 +394,7 @@ namespace art {
   void Schedule::endJob() {
     bool failure = false;
     cet::exception accumulated("endJob");
-    AllWorkers::iterator ai(workersBegin()),ae(workersEnd());
+    Workers::iterator ai(workersBegin()),ae(workersEnd());
     for(; ai != ae; ++ai) {
       try {
         (*ai)->endJob();
@@ -795,8 +795,8 @@ namespace art {
 
   vector<ModuleDescription const*>
   Schedule::getAllModuleDescriptions() const {
-    AllWorkers::const_iterator i(workersBegin());
-    AllWorkers::const_iterator e(workersEnd());
+    Workers::const_iterator i(workersBegin());
+    Workers::const_iterator e(workersEnd());
 
     vector<ModuleDescription const*> result;
     result.reserve(all_workers_.size());
@@ -885,6 +885,12 @@ namespace art {
     for_all(trig_paths_, boost::bind(&Path::clearCounters, _1));
     for_all(end_paths_, boost::bind(&Path::clearCounters, _1));
     for_all(all_workers_, boost::bind(&Worker::clearCounters, _1));
+  }
+
+  void
+  Schedule::getAllWorkers(std::vector<Worker*> &out)
+  {
+    copy_all(all_workers_, std::back_inserter(out));
   }
 
   void

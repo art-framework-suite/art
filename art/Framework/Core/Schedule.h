@@ -106,14 +106,12 @@ namespace art {
     typedef std::vector<Path> Paths;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<Worker> WorkerPtr;
-    typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<OutputWorker*> AllOutputWorkers;
-
-    typedef std::vector<Worker*> Workers;
-
+    typedef std::vector<OutputWorker*> OutputWorkers;
     typedef std::vector<WorkerInPath> PathWorkers;
 
   public:
+    typedef std::vector<Worker*> Workers;
+
     Schedule(fhicl::ParameterSet const& processDesc,
              art::service::TriggerNamesService& tns,
              WorkerRegistry& wregistry,
@@ -208,17 +206,20 @@ namespace art {
     ///  Clear all the counters in the trigger report.
     void clearCounters();
 
+    // Retrieve all workers.
+    void getAllWorkers(Workers &out);
+
   private:
-    AllWorkers::const_iterator workersBegin() const
+    Workers::const_iterator workersBegin() const
     { return all_workers_.begin(); }
 
-    AllWorkers::const_iterator workersEnd() const
+    Workers::const_iterator workersEnd() const
     { return all_workers_.end(); }
 
-    AllWorkers::iterator workersBegin()
+    Workers::iterator workersBegin()
     { return  all_workers_.begin(); }
 
-    AllWorkers::iterator workersEnd()
+    Workers::iterator workersEnd()
     { return all_workers_.end(); }
 
     void resetAll();
@@ -269,9 +270,9 @@ namespace art {
     TrigResPtr   results_;
     TrigResPtr   endpath_results_;
 
-    WorkerPtr                results_inserter_;
-    AllWorkers               all_workers_;
-    AllOutputWorkers         all_output_workers_;
+    WorkerPtr            results_inserter_;
+    Workers              all_workers_;
+    OutputWorkers        all_output_workers_;
     Paths                trig_paths_;
     Paths                end_paths_;
 

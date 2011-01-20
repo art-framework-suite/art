@@ -70,6 +70,10 @@ namespace art
     virtual bool filter(Event&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
+    virtual void reconfigure(std::istream&,
+			     std::ostream& output,
+			     ParameterSet const&)
+    { output << "This module is not reconfigurable." << std::endl;}
     virtual bool beginRun(Run &){return true;}
     virtual bool endRun(Run &){return true;}
     virtual bool beginSubRun(SubRun &){return true;}
