@@ -27,39 +27,27 @@ public:
   typedef  std::vector<int>  intvector_t;
 
   explicit IntVectorProducer( fhicl::ParameterSet const & p )
-  : value_  ( p.get<int     >("ivalue") )
-  , nvalues_( p.get<unsigned>("nvalues") )
-  {
-    produces<intvector_t>();
-  }
-
-  explicit IntVectorProducer( int i, unsigned n )
-  : value_  ( i )
-  , nvalues_( n )
+  : nvalues_( p.get<unsigned>("nvalues") )
   {
     produces<intvector_t>();
   }
 
   virtual ~IntVectorProducer() { }
 
-  virtual void produce( art::Event & e );
+  virtual void produce( art::Event & e )
+  {
+    std::cerr << "IntVectorProducer::produce is running!\n";
+    int value_ = e.id().event();
+    std::auto_ptr<intvector_t> p(new intvector_t);
+    for( int k = 0; k != nvalues_; ++k )
+      p->push_back(value_ + k);
+    e.put(p);
+  }
 
 private:
-  int      value_;
   unsigned nvalues_;
 
 };  // IntVectorProducer
-
-// ----------------------------------------------------------------------
-
-void
-IntVectorProducer::produce( art::Event& e )
-{
-  std::cerr << "IntVectorProducer::produce is running!\n";
-
-  std::auto_ptr<intvector_t> p( new intvector_t(nvalues_, value_) );
-  e.put(p);
-}
 
 // ----------------------------------------------------------------------
 

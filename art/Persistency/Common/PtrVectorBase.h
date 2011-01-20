@@ -10,6 +10,7 @@
 #include "art/Persistency/Common/RefCore.h"
 #include <vector>
 #include <typeinfo>
+#include <utility>
 
 namespace art {
   class PtrVectorBase;
@@ -79,7 +80,7 @@ protected:
     TPtr
     makePtr( unsigned long idx ) const
   {
-    typedef  typename TPtr::value_type const *  v_ptr;;
+    typedef  typename TPtr::value_type const *  v_ptr;
 
     if( isTransient() )   return TPtr( reinterpret_cast<v_ptr>(cachedItems_[idx])
                                      , indicies_[idx] );
@@ -95,7 +96,7 @@ protected:
     TPtr
     makePtr( std::vector<void const *>::const_iterator const it ) const
   {
-    typedef  typename TPtr::value_type const *  v_ptr;;
+    typedef  typename TPtr::value_type const *  v_ptr;
 
     if( isTransient() )   return TPtr( reinterpret_cast<v_ptr>(*it)
                                      , indicies_[it - cachedItems_.begin()] );
@@ -125,6 +126,13 @@ private:
     getProduct_() const;
   virtual std::type_info const &
     typeInfo() const = 0;
+
+  void
+    swap( key_type k1, key_type k2 )
+  {
+    std::swap( indicies_[k1], indicies_[k2] );
+    std::swap( cachedItems_[k1], cachedItems_[k2] );
+  }
 
 };  // PtrVectorBase
 

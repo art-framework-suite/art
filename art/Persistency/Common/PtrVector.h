@@ -23,6 +23,9 @@ namespace art {
 
   template< typename T >
     void  swap( PtrVector<T> &, PtrVector<T> & );
+
+  template< class T >
+  bool  default_lt( T const &, T const & );
 }
 
 // ======================================================================
@@ -140,7 +143,7 @@ public:
 
 template< typename T >
 class art::PtrVector
-: public PtrVectorBase
+  : public PtrVectorBase
 {
   friend class PtrVectorItr<T>;
 
@@ -202,6 +205,10 @@ public:
     swap( PtrVector & other )
   { PtrVectorBase::swap(other); }
 
+  template< class LT >
+  void
+    sort( LT lt );
+
 private:
   // --- Helpers:
 
@@ -216,9 +223,41 @@ private:
 };  // PtrVector<T>
 
 template< typename T >
-  inline void
+inline void
   art::swap( PtrVector<T> & lhs, PtrVector<T> & rhs )
-{ lhs.swap(rhs); }
+{
+  lhs.swap(rhs);
+}
+
+template< typename T >
+template< class LT >
+void
+  art::PtrVector<T>::sort( LT lt = &default_lt<T> )
+{
+  if( indicies_.size() <= 1 )
+    return;
+
+  // just use O(n^2) sort for now
+  // TODO: consider a more sophisticated algorithm
+  for( unsigned long k1 = 0; k1 < indicies_.size(); ++k1 ) {
+    unsigned long min = k1;
+    Ptr<T> p_min = makePtr< Ptr<T> >(min);
+    for( unsigned long k2 = k1+1; k2 != indicies_.size(); ++k2 ) {
+      Ptr<T> p2 = makePtr< Ptr<T> >(k2);
+      if( lt(*p2,*p_min) )
+        min = k2, p_min = p2;
+    }
+    swap(k1, min);
+  }
+
+}  // sort()
+
+template< class T >
+inline bool
+  art::default_lt( T const & t1, T const & t2 )
+{
+  return t1 < t2;
+}
 
 // ======================================================================
 

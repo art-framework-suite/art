@@ -27,8 +27,8 @@ services:
 
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
-   Timing: { }
-   SimpleMemoryCheck: { }
+   #Timing: { }
+   #SimpleMemoryCheck: { }
 
    user:
    {
@@ -38,53 +38,23 @@ services:
 
 physics:
 {
-  producers:
-  {
-    m1a:
-    {
-      module_type: IntVectorProducer
-      ivalue: 11
-      nvalues: 16
-    }
-  }
-
-  filters:
-  {
-  }
-
   analyzers:
   {
     a1:
     {
-      module_type: IntVectorAnalyzer
-      input_label: m1a
-      nvalues: 16
+      module_type: PtrVectorAnalyzer
+      input_label: m1b
+      nvalues: 8
     }
   }
-
-   p1: [ m1a ]
-   e1: [ a1, out1 ]
-
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
-}
-
-outputs:
-{
-  out1:
-  {
-    module_type: RootOutput
-    fileName: "out.root"
-  }
+  e1: [ a1 ]
+  end_paths: [ e1 ]
 }
 
 source:
 {
-  module_type: EmptyEvent
-
-  # were in the global area before
-  maxEvents: 1
-  # maxSubRuns: 2
+  module_type: RootInput
+  fileNames: [ "out.root" ]
 }
 
-process_name: DEVEL
+process_name: DEVEL2
