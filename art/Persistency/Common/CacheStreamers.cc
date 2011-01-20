@@ -1,7 +1,12 @@
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/ConstPtrCache.h"
 #include "art/Persistency/Common/BoolCache.h"
+#include "cetlib/exception.h"
+
 #include "TROOT.h"
+// For nullptr:
+#include "cpp0x/memory"
+
 class TBuffer;
 
 namespace art {
@@ -29,6 +34,10 @@ namespace art {
 
   void setCacheStreamers() {
     TClass *cl = gROOT->GetClass("art::BoolCache");
+    if (cl == nullptr) {
+       throw cet::exception("INTERNAL_ERROR")
+          << "Could not find Reflex Dictionary for art::BoolCache.";
+    }
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new BoolCacheStreamer());
     /*} else {
@@ -36,6 +45,10 @@ namespace art {
     }
 
     cl = gROOT->GetClass("art::ConstPtrCache");
+    if (cl == nullptr) {
+       throw cet::exception("INTERNAL_ERROR")
+          << "Could not find Reflex Dictionary for art::ConstPtrCache.";
+    }
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new ConstPtrCacheStreamer());
     /*} else {
