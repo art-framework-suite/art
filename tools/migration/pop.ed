@@ -281,10 +281,6 @@ g/#include/s:FWCore/ParameterSet/interface/MakeParameterSets.h:art/ParameterSet/
 g/#include/s:FWCore/ParameterSet/interface/ParameterDescription.h:art/ParameterSet/ParameterDescription.h:
 g/#include/s:FWCore/ParameterSet/interface/ParameterDescriptionTemplate.h:art/ParameterSet/ParameterDescriptionTemplate.h:
 g/#include/s:FWCore/ParameterSet/interface/ParameterSet.h:art/ParameterSet/ParameterSet.h:
-g/#include/s:FWCore/ParameterSet/interface/ParameterSetDescription.h:art/ParameterSet/ParameterSetDescription.h:
-g/#include/s:FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h:art/ParameterSet/ParameterSetDescriptionFiller.h:
-g/#include/s:FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h:art/ParameterSet/ParameterSetDescriptionFillerBase.h:
-g/#include/s:FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h:art/ParameterSet/ParameterSetDescriptionFillerPluginFactory.h:
 g/#include/s:FWCore/ParameterSet/interface/ParameterSetEntry.h:art/ParameterSet/ParameterSetEntry.h:
 g/#include/s:FWCore/ParameterSet/interface/ParameterSetfwd.h:art/ParameterSet/ParameterSetfwd.h:
 g/#include/s:FWCore/ParameterSet/interface/ProcessDesc.h:art/ParameterSet/ProcessDesc.h:
@@ -536,4 +532,6 @@ g/#include/s:FWCore/Framework/src/WorkerMaker.h:art/Framework/Core/WorkerMaker.h
 g/#include/s:FWCore/Framework/src/WorkerParams.h:art/Framework/Core/WorkerParams.h:
 g/#include/s:FWCore/Framework/src/WorkerRegistry.h:art/Framework/Core/WorkerRegistry.h:
 g/#include/s:FWCore/Framework/src/WorkerT.h:art/Framework/Core/WorkerT.h:
+g/#include/s:FWCore/Framework/interface/MakerMacros.h:art/Framework/Core/ModuleMacros.h:
+g/ParameterSetDescription\.h/d
 wq

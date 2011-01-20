@@ -50,6 +50,12 @@ function one_file() {
   perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix edm and cms namespaces
   perl -wapi\~ -f fix-namespaces-1.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  # Fix Service -> ServiceHandle
+  perl -wapi\~ -f fix-ServiceHandle.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"  
+  # Fix for relocated services
+  perl -wapi\~ -f fix-services.pl "${F}"
+  # Fix for relocated services
+  perl -wapi\~ -f fix-macros.pl "${F}"
   # Fix use of exceptions (must fix only once due to hysteresis).
   [[ "${F}" == *"art/Utilities/Exception.cc" ]] || \
     grep -e 'art/Utilites/EDMException' \

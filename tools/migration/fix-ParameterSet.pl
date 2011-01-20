@@ -17,13 +17,17 @@ BEGIN { %translations = (
                         );
         %inc_translations = (
                              "art/ParameterSet/ParameterSet.h" => "fhiclcpp/ParameterSet.h",
+                             "art/ParameterSet/Registry.h" => "fhiclcpp/ParameterSetRegistry.h",
                             );
       }
 
 foreach my $name (sort keys %translations) {
   while (s&get\Q$name\E\b&get$translations{$name}&g) {};
-  while (s&add\Q$name\E\b&put$translations{$name}&g) {};
+  while (s&add\Q$name\E\b&put&g) {};
 }
+
+while (s/art::ParameterSet/fhicl::ParameterSet/g) {}
+while (s/getParameter</get</g) {}
 
 foreach my $inc (sort keys %inc_translations) {
   s&^(\s*#include\s+["<])\Q$inc\E([">].*)$&${1}$inc_translations{$inc}${2}& and last;
