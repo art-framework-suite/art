@@ -1,77 +1,70 @@
 // ======================================================================
 //
-// IntVectorAnalyzer
+// PtrVectorAnalyzer
 //
 // ======================================================================
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Common/PtrVector.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-#include <iostream>
 #include <string>
 #include <vector>
 
 namespace arttest {
-  class IntTestAnalyzer;
+  class PtrVectorAnalyzer;
 }
 
 // ----------------------------------------------------------------------
 
-class arttest::IntTestAnalyzer
+class arttest::PtrVectorAnalyzer
   : public art::EDAnalyzer
 {
 public:
-  typedef  std::vector<int>  intvector_t;
+  typedef  art::PtrVector<int>  product_t;
 
-  IntTestAnalyzer( fhicl::ParameterSet const & p )
-  : moduleLabel_( p.get<std::string>("input_label") )
+  PtrVectorAnalyzer( fhicl::ParameterSet const & p )
+  : input_label_( p.get<std::string>("input_label") )
   , nvalues_    ( p.get<unsigned   >("nvalues") )
   { }
 
   void analyze( art::Event const & e )
   {
-    std::vector<int const *> ptrs;
-    unsigned sz = e.getView(moduleLabel_, ptrs);
+    art::Handle<product_t> h;
+    e.getByLabel(input_label_, h);
 
+    size_t sz = h->size();
     if( sz != nvalues_ ) {
-      std::cerr
-        << "SizeMismatch expected a view of size " << nvalues_
-        << " but the obtained size is " << sz
-        << '\n';
       throw cet::exception("SizeMismatch")
-        << "Expected a view of size " << nvalues_
+        << "Expected a PtrVector of size " << nvalues_
         << " but the obtained size is " << sz
         << '\n';
     }
 
-    int value_ = e.id().event();
-    for( unsigned k = 0; k != sz; ++k ) {
-      if( *ptrs[k] != value_+k ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected value " << value_+k
-          << " but obtained " << *ptrs[k]
-          << '\n';
+    int value = e.id().event();
+    for( product_t::const_iterator b = h->begin()
+                                 , e = h->end(); b!= e; ++b, ++value ) {
+      if( **b != value ) {
         throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected value " << value_+k
-          << " but obtained " << *ptrs[k]
+          << "At position " << (b - h->begin())
+          << " expected value " << value
+          << " but obtained " << **b
           << '\n';
       }
     }
   }  // analyze()
 
 private:
-  std::string moduleLabel_;
-  int         value_;
+  std::string input_label_;
   unsigned    nvalues_;
 
-};  // IntTestAnalyzer
+};  // PtrVectorAnalyzer
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(arttest::IntTestAnalyzer);
+DEFINE_ART_MODULE(arttest::PtrVectorAnalyzer);
 
 // ======================================================================

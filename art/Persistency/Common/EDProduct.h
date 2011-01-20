@@ -33,6 +33,20 @@ public:
     fillView( std::vector<void const *> & view ) const
   { /* should be called only polymorphically */ }
 
+ virtual void
+   setPtr( std::type_info const & iToType
+         , unsigned long          iIndex
+         , void const * &         oPtr
+         ) const
+  { /* should be called only polymorphically */ }
+
+ virtual void
+   fillPtrVector( std::type_info const &             iToType
+                , std::vector<unsigned long> const & iIndicies
+                , std::vector<void const *> &        oPtr
+                ) const
+  { /* should be called only polymorphically */ }
+
 #ifndef __REFLEX__
 
   bool

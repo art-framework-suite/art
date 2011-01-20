@@ -44,7 +44,6 @@ physics:
     {
       module_type: IntVectorAnalyzer
       input_label: m1a
-      value: 11
       nvalues: 16
     }
   }

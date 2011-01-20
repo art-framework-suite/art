@@ -128,6 +128,7 @@ namespace art {
        result = regex_replace(result,reComma,"");
        return result;
     }
+
     std::string friendlyName(std::string const& iFullName) {
        typedef std::map<std::string, std::string> Map;
        static boost::thread_specific_ptr<Map> s_fillToFriendlyName;

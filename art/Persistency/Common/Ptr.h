@@ -1,18 +1,12 @@
 #ifndef DataFormats_Common_Ptr_h
 #define DataFormats_Common_Ptr_h
-// -*- C++ -*-
+
+// ======================================================================
 //
-// Package:     Common
-// Class  :     Ptr
+// Ptr: Persistent 'pointer' to an item in a collection where the
+//      collection is in the art::Event
 //
-/**\class art::Ptr Ptr.h DataFormats/Common/interface/Ptr.h
-
- Description: Persistent 'pointer' to an item in a collection where the collection is in the art::Event
-
- Usage:
-    <usage>
-
-*/
+// ======================================================================
 
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
@@ -26,10 +20,11 @@
 #include "boost/type_traits/is_base_of.hpp"
 #include "boost/utility/enable_if.hpp"
 
-// forward declarations
 namespace art {
+
   template <typename T>
-  class Ptr {
+  class Ptr
+  {
      friend class PtrVectorBase;
   public:
 
@@ -39,12 +34,14 @@ namespace art {
     // General purpose constructor from handle.
     template <typename C>
     Ptr(Handle<C> const& handle, key_type itemKey, bool setNow=true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey)
+    { }
 
     // General purpose constructor from orphan handle.
     template <typename C>
     Ptr(OrphanHandle<C> const& handle, key_type itemKey, bool setNow=true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), 0, false), key_(itemKey)
+    { }
 
     // Constructor for ref to object that is not in an event.
     // An exception will be thrown if an attempt is made to persistify
@@ -61,31 +58,30 @@ namespace art {
     // any object containing this Ptr.
     template <typename C>
     Ptr(TestHandle<C> const& handle, key_type itemKey, bool setNow=true):
-    core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey) {}
+    core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey)
+    { }
 
-    /** Constructor for those users who do not have a product handle,
-     but have a pointer to a product getter (such as the EventPrincipal).
-     prodGetter will ususally be a pointer to the event principal. */
+    // Constructor for those users who do not have a product handle,
+    // but have a pointer to a product getter (such as the EventPrincipal).
+    // prodGetter will ususally be a pointer to the event principal.
     Ptr(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-    core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID), false), key_(itemKey) {
-    }
+    core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID), false), key_(itemKey)
+    { }
 
-    /** Constructor for use in the various X::fillView(...) functions
-     or for extracting a persistent Ptr from a PtrVector.
-     It is an error (not diagnosable at compile- or run-time) to call
-     this constructor with a pointer to a T unless the pointed-to T
-     object is already in a collection of type C stored in the
-     Event. The given ProductID must be the id of the collection
-     in the Event. */
+    // Constructor for use in the various X::fillView(...) functions
+    // or for extracting a persistent Ptr from a PtrVector.
+    // It is an error (not diagnosable at compile- or run-time) to call
+    // this constructor with a pointer to a T unless the pointed-to T
+    // object is already in a collection of type C stored in the
+    // Event. The given ProductID must be the id of the collection
+    // in the Event.
     Ptr(ProductID const& productID, T const* item, key_type item_key) :
     core_(productID, item, 0, false),
-    key_(item_key) {
-    }
+    key_(item_key)
+    { }
 
-    /** Constructor that creates an invalid ("null") Ptr that is
-     associated with a given product (denoted by that product's
-     ProductID). */
-
+    // Constructor that creates an invalid ("null") Ptr that is
+    // associated with a given product (denoted by that product's ProductID).
     explicit Ptr(ProductID const& id) :
     core_(id, 0, 0, false),
     key_(key_traits<key_type>::value)
@@ -94,12 +90,12 @@ namespace art {
     Ptr():
     core_(),
     key_(key_traits<key_type>::value)
-    {}
+    { }
 
     Ptr(Ptr<T> const& iOther):
     core_(iOther.core_),
     key_(iOther.key_)
-    {}
+    { }
 
     template<typename U>
     Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
@@ -108,8 +104,7 @@ namespace art {
           iOther.productGetter(),
 	  iOther.isTransient()),
     key_(iOther.key())
-    {
-    }
+    { }
 
     template<typename U>
     explicit
@@ -119,64 +114,60 @@ namespace art {
           0,
 	  iOther.isTransient()),
     key_(iOther.key())
-    {
-    }
+    { }
 
-    /// Destructor
-    ~Ptr() {}
+    // Destructor
+    ~Ptr() { }
 
-    /// Dereference operator
+    // Dereference operator
     T const&
     operator*() const;
 
-    /// Member dereference operator
+    // Member dereference operator
     T const*
     operator->() const;
 
-    /// Returns C++ pointer to the item
-    T const* get() const {
+    // Returns C++ pointer to the item
+    T const* get() const
+    {
       return isNull() ? 0 : this->operator->();
     }
 
-    /// Checks for null
-    bool isNull() const {return !isNonnull(); }
+    // Checks for null
+    bool isNull() const { return !isNonnull(); }
 
-    /// Checks for non-null
-    //bool isNonnull() const {return id().isValid(); }
-    bool isNonnull() const {return key_traits<key_type>::value != key_;}
-    /// Checks for null
-    bool operator!() const {return isNull();}
+    // Checks for non-null
+    bool isNonnull() const { return key_traits<key_type>::value != key_; }
+    // Checks for null
+    bool operator!() const { return isNull(); }
 
-    /// Checks if collection is in memory or available
-    /// in the event. No type checking is done.
-    bool isAvailable() const {return core_.isAvailable();}
+    // Checks if collection is in memory or available
+    // in the event. No type checking is done.
+    bool isAvailable() const { return core_.isAvailable(); }
 
-    /// Checks if this Ptr is transient (i.e. not persistable).
-    bool isTransient() const {return core_.isTransient();}
+    // Checks if this Ptr is transient (i.e. not persistable).
+    bool isTransient() const { return core_.isTransient(); }
 
-    /// Accessor for product ID.
-    ProductID id() const {return core_.id();}
+    // Accessor for product ID.
+    ProductID id() const { return core_.id(); }
 
-    /// Accessor for product getter.
-    EDProductGetter const* productGetter() const {return core_.productGetter();}
+    // Accessor for product getter.
+    EDProductGetter const* productGetter() const { return core_.productGetter(); }
 
-    key_type key() const {return key_;}
+    key_type key() const { return key_; }
 
     bool hasCache() const { return 0!=core_.productPtr(); }
 
-    RefCore const& refCore() const {return core_;}
+    RefCore const& refCore() const { return core_; }
     // ---------- member functions ---------------------------
 
   private:
-    //Ptr(Ptr const&); // stop default
-
-    /** Constructor for extracting a transient Ptr from a PtrVector. */
+    // Constructor for extracting a transient Ptr from a PtrVector.
     Ptr(T const* item, key_type item_key) :
     core_(ProductID(), item, 0, true),
     key_(item_key) {
     }
 
-    //Ptr const& operator=(Ptr const&); // stop default
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
 
@@ -201,7 +192,7 @@ namespace art {
     // ---------- member data --------------------------------
     RefCore core_;
     key_type key_;
-  };
+  };  // Ptr<>
 
   template<typename T>
   template<typename C>
@@ -214,7 +205,7 @@ namespace art {
     return address;
   }
 
-  /// Dereference operator
+  // Dereference operator
   template <typename T>
   inline
   T const&
@@ -223,7 +214,7 @@ namespace art {
     return *reinterpret_cast<T const*>(core_.productPtr());
   }
 
-  /// Member dereference operator
+  // Member dereference operator
   template <typename T>
   inline
   T const*
@@ -250,8 +241,8 @@ namespace art {
   inline
   bool
   operator<(Ptr<T> const& lhs, Ptr<T> const& rhs) {
-    /// The ordering of integer keys guarantees that the ordering of Ptrs within
-    /// a collection will be identical to the ordering of the referenced objects in the collection.
+    // The ordering of integer keys guarantees that the ordering of Ptrs within
+    // a collection will be identical to the ordering of the referenced objects in the collection.
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
 

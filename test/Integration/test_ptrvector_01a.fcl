@@ -27,8 +27,8 @@ services:
 
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
-   Timing: { }
-   SimpleMemoryCheck: { }
+   #Timing: { }
+   #SimpleMemoryCheck: { }
 
    user:
    {
@@ -46,23 +46,24 @@ physics:
       ivalue: 11
       nvalues: 16
     }
-  }
-
-  filters:
-  {
+    m1b:
+    {
+      module_type: PtrVectorProducer
+      input_label: m1a
+    }
   }
 
   analyzers:
   {
     a1:
     {
-      module_type: IntVectorAnalyzer
-      input_label: m1a
-      nvalues: 16
+      module_type: PtrVectorAnalyzer
+      input_label: m1b
+      nvalues: 8
     }
   }
 
-   p1: [ m1a ]
+   p1: [ m1a, m1b ]
    e1: [ a1, out1 ]
 
    trigger_paths: [ p1 ]
@@ -83,7 +84,7 @@ source:
   module_type: EmptyEvent
 
   # were in the global area before
-  maxEvents: 1
+  maxEvents: 5
   # maxSubRuns: 2
 }
 

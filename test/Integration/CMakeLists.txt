@@ -7,6 +7,8 @@ simple_plugin(IntProducer        "module")
 simple_plugin(IntTestAnalyzer    "module")
 simple_plugin(IntVectorAnalyzer  "module")
 simple_plugin(IntVectorProducer  "module")
+simple_plugin(PtrVectorAnalyzer  "module")
+simple_plugin(PtrVectorProducer  "module")
 
 # Library link requirements for tests here
 link_libraries(
@@ -65,6 +67,7 @@ set( TEST_SCRIPTS
   EventSelectorFromFile_t.sh
   test_simple_01_t.sh
   test_view_01_t.sh
+  test_ptrvector_01_t.sh
   outputCommand_t.sh
 )
 
@@ -73,6 +76,8 @@ set( INPUT_FILES
   test_simple_01r.fcl
   test_view_01a.fcl
   test_view_01b.fcl
+  test_ptrvector_01a.fcl
+  test_ptrvector_01b.fcl
   EventSelectorFromFile_w.fcl
   EventSelectorFromFile_r1.fcl
   EventSelectorFromFile_r2.fcl
