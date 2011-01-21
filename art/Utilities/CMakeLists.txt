@@ -33,44 +33,56 @@ target_link_libraries(art_Utilities
   -luuid
 )
 
+set (HEADERS
+  CPUTimer.h
+  CRC16.h
+  CRC32Calculator.h
+  DebugMacros.h
+  Digest.h
+  ECGetterBase.h
+  Exception.h
+  ExceptionMessages.h
+  ExtensionCord.h
+  FriendlyName.h
+  GetEnvironmentVariable.h
+  GetPassID.h
+  GetReleaseVersion.h
+  HRRealTime.h
+  InputTag.h
+  JobMode.h
+  MallocOpts.h
+  Math.h
+  OutletBase.h
+  Parse.h
+  PretendToUse.h
+  ReflexTools.h
+  RegexMatch.h
+  RootHandlers.h
+  SimpleOutlet.h
+  SingleConsumerQ.h
+  TestHelper.h
+  ThreadSafeIndexedRegistry.h
+  TypeID.h
+  TypeIDBase.h
+  UnixSignalHandlers.h
+  UseReflex.h
+  Verbosity.h
+  WrappedClassName.h
+  md5.h
+  vectorTransform.h
+)
+
+set (DETAIL_HEADERS
+  math_private.h
+)
+
+foreach (header ${DETAIL_HEADERS})
+  set (PATH_DETAIL_HEADERS ${PATH_DETAIL_HEADERS} "detail/${header}")
+endforeach (header ${DETAIL_HEADERS})
+
+install (FILES ${PATH_DETAIL_HEADERS}
+        DESTINATION ${product}/${version}/include/art/Utilities/detail )
+
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
-install(FILES
-              CPUTimer.h
-              CRC16.h
-              CRC32Calculator.h
-              DebugMacros.h
-              Digest.h
-              ECGetterBase.h
-              Exception.h
-              ExceptionMessages.h
-              ExtensionCord.h
-              FriendlyName.h
-              GetEnvironmentVariable.h
-              GetPassID.h
-              GetReleaseVersion.h
-              GlobalIdentifier.h
-              HRRealTime.h
-              InputTag.h
-              JobMode.h
-              MallocOpts.h
-              Math.h
-              detail/math_private.h
-              md5.h
-              OutletBase.h
-              Parse.h
-              PretendToUse.h
-              ReflexTools.h
-              RegexMatch.h
-              RootHandlers.h
-              SimpleOutlet.h
-              SingleConsumerQ.h
-              TestHelper.h
-              ThreadSafeIndexedRegistry.h
-              TypeIDBase.h
-              TypeID.h
-              UnixSignalHandlers.h
-              UseReflex.h
-              vectorTransform.h
-              Verbosity.h
-              WrappedClassName.h
-        DESTINATION ${product}/${version}/include/art/Utilities )
+install (FILES ${HEADERS}
+         DESTINATION ${product}/${version}/include/art/Utilities )

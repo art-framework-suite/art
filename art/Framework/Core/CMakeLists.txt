@@ -148,9 +148,12 @@ install(FILES Actions.h
               InputSourceDescription.h
               InputSourceFactory.h
               InputSourceMacros.h
-              ModuleMacros.h
+              IntermediateTablePostProcessor.h
+              LibraryManager.h
               ModuleFactory.h
+              ModuleMacros.h
               NoDelayedReader.h
+              NovaConfigPostProcessor.h
               OccurrenceTraits.h
               OutputModule.h
               OutputModuleDescription.h
@@ -183,4 +186,5 @@ install(FILES Actions.h
               WorkerParams.h
               WorkerRegistry.h
               WorkerT.h
+              run_art.h
         DESTINATION  ${product}/${version}/include/art/Framework/Core )

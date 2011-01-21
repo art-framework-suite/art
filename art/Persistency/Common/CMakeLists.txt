@@ -35,6 +35,7 @@ install(FILES BasicHandle.h
 	      HLTPathStatus.h
 	      HLTenums.h
 	      Handle.h
+        InitRootHandlers.h
 	      OrphanHandle.h
 	      OutputHandle.h
 	      PostReadFixupTrait.h
