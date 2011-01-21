@@ -1,6 +1,8 @@
 # project name
 project(art_Integration_Test)
 
+simple_plugin( SimpleDerivedAnalyzer "module")
+simple_plugin( SimpleDerivedProducer "module")
 simple_plugin(DoubleProducer     "module")
 simple_plugin(DoubleTestAnalyzer "module")
 simple_plugin(IntProducer        "module")
@@ -9,7 +11,6 @@ simple_plugin(IntVectorAnalyzer  "module")
 simple_plugin(IntVectorProducer  "module")
 simple_plugin(PtrVectorAnalyzer  "module")
 simple_plugin(PtrVectorProducer  "module")
-simple_plugin( SimpleDerivedProducer "module")
 
 # Library link requirements for tests here
 link_libraries(
@@ -69,6 +70,7 @@ set( TEST_SCRIPTS
   test_simple_01_t.sh
   test_view_01_t.sh
   test_ptrvector_01_t.sh
+  test_simplederived_01_t.sh
   outputCommand_t.sh
 )
 
@@ -79,6 +81,8 @@ set( INPUT_FILES
   test_view_01b.fcl
   test_ptrvector_01a.fcl
   test_ptrvector_01b.fcl
+  test_simplederived_01a.fcl
+  test_simplederived_01b.fcl
   EventSelectorFromFile_w.fcl
   EventSelectorFromFile_r1.fcl
   EventSelectorFromFile_r2.fcl

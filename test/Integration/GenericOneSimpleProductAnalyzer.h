@@ -40,7 +40,7 @@ template <typename V, typename P> class arttest::GenericOneSimpleProductAnalyzer
                   << '\n';
             }
       }
-      
+
  private:
    V value_;
    std::string input_label_;

@@ -54,12 +54,15 @@ namespace arttest
   struct Simple
   {
     Simple() : key(0), value(0.0) { }
-    Simple(const Simple& in) : key(in.key), value(in.value) { }
+    virtual ~Simple() { }
     typedef int key_type;
+
     key_type    key;
     double      value;
+
     key_type id() const { return key; }
-    Simple* clone() const { return new Simple(*this); }
+    virtual double dummy() const { return -3.14; }
+    virtual Simple* clone() const { return new Simple(*this); }
   };
 
   inline
@@ -77,9 +80,14 @@ namespace arttest
 
   struct SimpleDerived : public Simple
   {
-    SimpleDerived() : Simple(), dummy(0.0) { }
-    SimpleDerived(const SimpleDerived& in) : Simple(in), dummy(in.dummy) { }
-    double      dummy;
+    SimpleDerived() : Simple(), dummy_(16.25) { }
+
+    SimpleDerived( SimpleDerived const & other)
+      : Simple(other), dummy_(other.dummy_)
+    { }
+
+    double dummy_;
+    double dummy() const { return dummy_; }
     SimpleDerived* clone() const { return new SimpleDerived(*this); }
   };
 

@@ -1,3 +1,8 @@
+// ======================================================================
+//
+// SimpleDerivedProducer
+//
+// ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
@@ -20,11 +25,11 @@ using arttest::SimpleDerivedProducer;
 class arttest::SimpleDerivedProducer
   : public art::EDProducer
 {
+public:
   typedef  std::vector<arttest::SimpleDerived>  SimpleDerivedProduct;
 
-public:
   explicit SimpleDerivedProducer( fhicl::ParameterSet const & p )
-  : size_( p.get<int>("size") )
+  : size_( p.get<int>("nvalues") )
   {
     produces<SimpleDerivedProduct>("derived");
   }
@@ -41,11 +46,12 @@ void
 {
   // Fill up a collection of SimpleDerived objects
   std::auto_ptr<SimpleDerivedProduct> prod(new SimpleDerivedProduct);
+  int event_num = e.id().event();
   for (int i = 0; i != size_; ++i) {
     SimpleDerived sd;
-    sd.key = size_ - i;
+    sd.key = size_ - i + event_num;
     sd.value = 1.5 * i + 100.0;
-    sd.dummy = 0.0;
+    // sd.dummy_ = default-constructed value
     prod->push_back(sd);
   }
 
