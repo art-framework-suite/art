@@ -114,7 +114,7 @@ foreach (art_exec ${ART_EXECS})
 endforeach (art_exec ${ART_EXECS})
 
 install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
-#install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES Actions.h
               BranchActionType.h

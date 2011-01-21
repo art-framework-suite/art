@@ -26,7 +26,6 @@ install(FILES BasicHandle.h
 	      BoolCache.h
 	      CacheStreamers.h
 	      ConstPtrCache.h
-	      EDCollection.h
 	      EDProduct.h
 	      EDProductGetter.h
 	      EDProductfwd.h

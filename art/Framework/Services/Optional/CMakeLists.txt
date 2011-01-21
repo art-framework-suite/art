@@ -10,6 +10,9 @@ add_library(art_Framework_Services_Optional
   ${art_Framework_Services_Optional_sources}
 )
 
+install ( TARGETS art_Framework_Services_Optional
+  DESTINATION ${flavorqual_dir}/lib )
+
 target_link_libraries(art_Framework_Services_Optional
   art_Persistency_Provenance
   art_Framework_Core
