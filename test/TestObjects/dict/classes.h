@@ -1,6 +1,8 @@
 /* #include "art/Persistency/Common/SortedCollection.h" */
 /* #include "art/Persistency/Common/OwnVector.h" */
 /* #include "art/Persistency/Common/AssociationVector.h" */
+#include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/Wrapper.h"
 
 /* #include "test/TestObjects/OtherThingCollection.h" */
@@ -39,8 +41,14 @@ struct dictionary {
 /*   arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > dummy21; */
 /*   art::Wrapper<arttestprod::StreamTestTmpl<arttestprod::Ord<arttestprod::Simple> > > dummy22; */
 /*   std::vector<arttestprod::Simple> dummy23; */
+
    std::vector<arttest::SimpleDerived> dummy231;
    art::Wrapper<std::vector<arttest::SimpleDerived> > dummy231w;
+
+   art::Ptr<arttest::SimpleDerived> dummy234;
+   art::PtrVector<arttest::SimpleDerived> dummy235;
+   art::Wrapper<art::PtrVector<arttest::SimpleDerived> > dummy235w;
+
 /*   art::RefProd<std::vector<arttest::Simple> > dummy232; */
 /*   art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > dummy24; */
 /*   art::Wrapper<art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > > dummy25; */

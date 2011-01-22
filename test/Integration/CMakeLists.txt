@@ -1,16 +1,17 @@
 # project name
 project(art_Integration_Test)
 
-simple_plugin( SimpleDerivedAnalyzer "module")
-simple_plugin( SimpleDerivedProducer "module")
-simple_plugin(DoubleProducer     "module")
-simple_plugin(DoubleTestAnalyzer "module")
-simple_plugin(IntProducer        "module")
-simple_plugin(IntTestAnalyzer    "module")
-simple_plugin(IntVectorAnalyzer  "module")
-simple_plugin(IntVectorProducer  "module")
-simple_plugin(PtrVectorAnalyzer  "module")
-simple_plugin(PtrVectorProducer  "module")
+simple_plugin(IntProducer              "module")
+simple_plugin(IntTestAnalyzer          "module")
+simple_plugin(DoubleProducer           "module")
+simple_plugin(DoubleTestAnalyzer       "module")
+simple_plugin(IntVectorAnalyzer        "module")
+simple_plugin(IntVectorProducer        "module")
+simple_plugin(PtrVectorAnalyzer        "module")
+simple_plugin(PtrVectorProducer        "module")
+simple_plugin(SimpleDerivedAnalyzer    "module")
+simple_plugin(SimpleDerivedProducer    "module")
+simple_plugin(DerivedPtrVectorProducer "module")
 
 # Library link requirements for tests here
 link_libraries(

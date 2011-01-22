@@ -44,6 +44,7 @@ physics:
     {
       module_type: SimpleDerivedAnalyzer
       input_label: m1a
+      input_label2: m1b
       nvalues: 16
     }
   }
