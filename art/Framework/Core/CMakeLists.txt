@@ -89,6 +89,7 @@ set ( art_exec_link_libraries
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${CINTEX}
   ${PHYSICS}
+  ${ROOTSYS}/lib/libGraf.so
   ${TREE}
   ${HIST}
   ${MATRIX}
@@ -106,6 +107,7 @@ set ( art_exec_link_libraries
 set (ART_EXECS
   art
   nova
+  check_libs
 )
 
 foreach (art_exec ${ART_EXECS})
