@@ -192,7 +192,8 @@ applyOutput(intermediate_table &raw_config) const {
 
 void NovaConfigPostProcessor::
 applyTFileName(intermediate_table &raw_config) const {
-   if (tFileName_.empty()) return;
+   std::string tFileName(tFileName_);
+
    extended_value::table_t services_table;
    try {
       services_table = raw_config.find("services");
@@ -209,8 +210,14 @@ applyTFileName(intermediate_table &raw_config) const {
    extended_value::table_t tFileService_table;
    if (t_iter != services_table.end()) {
       tFileService_table = t_iter->second;
+      if (tFileService_table.empty() && tFileName.empty()) {
+         // Only if TFileService clause is specified but empty
+         // *and* we haven't specified a file name.
+         tFileName = "histo.root";
+      }
    }
-   tFileService_table["fileName"] = extended_value(false, STRING, canonicalize(tFileName_));
+   if (tFileName.empty()) return;
+   tFileService_table["fileName"] = extended_value(false, STRING, canonicalize(tFileName));
    services_table["TFileService"] = extended_value(false, TABLE, tFileService_table);
    raw_config.insert("services", extended_value(false, TABLE, services_table));
 }
