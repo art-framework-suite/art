@@ -1011,7 +1011,7 @@ namespace art {
          message << "\n";
          cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
          LogError("IllegalPathEntries")
-            << message;
+            << message.str();
       }
       return results.size();
    }
