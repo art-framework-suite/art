@@ -5,6 +5,7 @@
 #include "art/Framework/Core/run_art.h"
 #include "boost/program_options.hpp"
 #include "cetlib/exception.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/parse.h"
 
 #include <fstream>
@@ -72,7 +73,9 @@ int novaapp(int argc, char* argv[]) {
    //
    // Get the parameter set by parsing the configuration file.
    //
-   std::string const search_path_spec = "FHICL_FILE_PATH";
+   std::string search_path_spec = std::string("./:");
+   char const * fhicl_env = getenv("FHICL_FILE_PATH");
+   if (fhicl_env != nullptr) search_path_spec += fhicl_env;
    std::string config_filename;
    if (!art::find_config(vm["config"].as<std::string>(),
                          search_path_spec,
@@ -80,11 +83,9 @@ int novaapp(int argc, char* argv[]) {
       std::cerr
          << "Specified configuration file "
          << vm["config"].as<std::string>()
-         << " cannot be found using "
+         << " cannot be found (search path \""
          << search_path_spec 
-         << " ("
-         << getenv(search_path_spec.c_str())
-         << ").\n";
+         << "\").\n";
       return 7003;
    }
    std::ifstream config_stream(config_filename.c_str());
