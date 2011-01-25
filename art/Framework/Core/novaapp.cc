@@ -1,11 +1,13 @@
 #include "novaapp.h"
 
-#include "boost/program_options.hpp"
+#include "art/Framework/Core/run_art.h"
+#include "cetlib/search_path.h"
+#include "cetlib/exception.h"
 #include "fhiclcpp/parse.h"
 
-#include "art/Framework/Core/run_art.h"
-
 #include "NovaConfigPostProcessor.h"
+
+#include "boost/program_options.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -28,14 +30,16 @@ int novaapp(int argc, char* argv[]) {
    bpo::options_description desc(descstr.str());
 
    desc.add_options()
-      ("help,h", "produce help message")
-      ("config,c", bpo::value<std::string>(), "Configuration file.")
-      ("source,s", bpo::value<std::string>(), "Source data file (one only).")
       ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
-      ("output,o", bpo::value<std::string>(), "Event output stream file.")
-      ("nevts,n", bpo::value<int>(), "Number of events to process.")
+      ("config,c", bpo::value<std::string>(), "Configuration file.")
       ("estart,e", bpo::value<unsigned long>(), "Event # of first event to process.")
+      ("help,h", "produce help message")
+      ("nevts,n", bpo::value<int>(), "Number of events to process.")
       ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
+      ("output,o", bpo::value<std::string>(), "Event output stream file.")
+      ("source,s", bpo::value<std::string>(), "Source data file (one only).")
+      ("trace", "Activate tracing.") 
+      ("notrace", "Dectivate tracing.") 
       ;
 
    bpo::positional_options_description pd;
@@ -71,7 +75,27 @@ int novaapp(int argc, char* argv[]) {
    // Get the parameter set by parsing the configuration file.
    //
    fhicl::intermediate_table raw_config;
-   std::string config_filename = vm["config"].as<std::string>();
+   std::string config_filename;
+   try {
+   cet::search_path sp("FHICL_FILE_PATH");
+   if (!sp.find_file(vm["config"].as<std::string>(), config_filename)) {
+      std::cerr
+         << "Specified configuration file "
+         << vm["config"].as<std::string>()
+         << " cannot be found using FHICL_SEARCH_PATH ("
+         << getenv("FHICL_SEARCH_PATH")
+         << ").\n";
+      return 7004;
+   }
+   }
+   catch (cet::exception const &e) {
+      if (e.root_cause() == "getenv") {
+         // Assume file is findable as specified.
+         config_filename = vm["config"].as<std::string>();
+      } else {
+         throw;
+      }
+   }
    std::ifstream config_stream(config_filename.c_str());
    if (!config_stream) {
       std::cerr
@@ -93,6 +117,8 @@ int novaapp(int argc, char* argv[]) {
 
    // Apply our command-line options to the configuration.
    NovaConfigPostProcessor ncpp;
+   if (vm.count("trace")) ncpp.trace(true);
+   if (vm.count("notrace")) ncpp.trace(false);
    if (vm.count("source"))
       ncpp.source(vm["source"].as<std::string>());
    if (vm.count("TFileName"))
