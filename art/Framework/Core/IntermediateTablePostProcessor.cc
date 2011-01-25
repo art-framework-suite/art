@@ -3,6 +3,7 @@
 #include "boost/any.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/exception.h"
+#include "fhiclcpp/coding.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/extended_value.h"
@@ -14,28 +15,6 @@
 using namespace fhicl;
 
 namespace {
-   std::string itString(extended_value const &val) {
-      std::string result = boost::any_cast<std::string>(val.value);
-      if( result.size() >= 2 && result[0] == '\"' && result.end()[-1] == '\"' ) {
-         return cet::unescape( result.substr(1, result.size()-2) );
-      } else {
-         return result;
-      }
-   }
-
-   std::string canonicalize(std::string const &in) {
-      if (in.empty()) {
-         return in;
-      }
-      std::string result;
-      if (!cet::canonical_string(in, result)) {
-         throw cet::exception("CONFIG_POSTPROCESSING")
-            << "INTERNAL ERROR: unable to canonicalize non-zero string "
-            << in;
-      }
-      return result;
-   }
-
    extended_value
    inject_module_labels(extended_value const &ev_in,
                         extended_value::sequence_t &all_modules) {
@@ -57,7 +36,7 @@ namespace {
          mod_table["module_label"] =
             extended_value(false,
                            STRING,
-                           canonicalize(i->first));
+                           fhicl::detail::encode(i->first));
          // Insert revised module config back into module config list.
          table[i->first] =
             extended_value(i->second.in_prolog,
@@ -66,7 +45,7 @@ namespace {
          // Insert module_label into module list.
          all_modules.push_back(extended_value(false,
                                               STRING,
-                                              canonicalize(i->first)));
+                                              fhicl::detail::encode(i->first)));
       }
       return extended_value(ev_in.in_prolog,
                             ev_in.tag,
@@ -81,7 +60,8 @@ apply(intermediate_table &raw_config) const {
 
   // process_name
   try {
-     std::string process_name = itString(raw_config.find("process_name"));
+     std::string process_name;
+     fhicl::detail::decode(raw_config.find("process_name").value, process_name);
      if (process_name.empty()) {
         throw cet::exception("BAD_PROCESS_NAME")
            << "Empty process_name not permitted.";
@@ -95,7 +75,7 @@ apply(intermediate_table &raw_config) const {
   catch (exception &e) {
      if (e.categoryCode() == cant_find) {
         std::cerr << "INFO: using default process_name, \"DUMMY.\"\n";
-        raw_config.insert("process_name", false, STRING, canonicalize("DUMMY"));
+        raw_config.insert("process_name", false, STRING, fhicl::detail::encode("DUMMY"));
      } else {
         throw;
      }
@@ -194,7 +174,7 @@ apply(intermediate_table &raw_config) const {
       source_table["module_label"] =
          extended_value(false,
                         STRING,
-                        canonicalize("source"));
+                        fhicl::detail::encode("source"));
       raw_config.insert("source",
                         sources_old.in_prolog,
                         sources_old.tag,
