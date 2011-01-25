@@ -5,6 +5,7 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/exception.h"
+#include "fhiclcpp/coding.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/extended_value.h"
 
@@ -14,30 +15,6 @@
 
 using namespace fhicl;
 
-namespace {
-   std::string itString(extended_value const &val) {
-      std::string result = boost::any_cast<std::string>(val.value);
-      if( result.size() >= 2 && result[0] == '\"' && result.end()[-1] == '\"' ) {
-         return cet::unescape( result.substr(1, result.size()-2) );
-      } else {
-         return result;
-      }
-   }
-
-   std::string canonicalize(std::string const &in) {
-      if (in.empty()) {
-         return in;
-      }
-      std::string result;
-      if (!cet::canonical_string(in, result)) {
-         throw cet::exception("CONFIG_POSTPROCESSING")
-            << "INTERNAL ERROR: unable to canonicalize non-zero string "
-            << in;
-      }
-      return result;
-   }
-}
-
 NovaConfigPostProcessor::NovaConfigPostProcessor()
    :
    source_(),
@@ -46,9 +23,11 @@ NovaConfigPostProcessor::NovaConfigPostProcessor()
    nevts_(),
    startEvt_(),
    skipEvts_(),
+   trace_(),
    wantNevts_(false),
    wantStartEvt_(false),
-   wantSkipEvts_(false)
+   wantSkipEvts_(false),
+   wantTrace_(false)
 {
 }
 
@@ -56,18 +35,19 @@ void NovaConfigPostProcessor::apply(intermediate_table &raw_config) const {
    applySource(raw_config);
    applyOutput(raw_config);
    applyTFileName(raw_config);
+   applyTrace(raw_config);
 }
 
 void NovaConfigPostProcessor::source(std::string const &source) {
-   source_ = canonicalize(source);
+   source_ = fhicl::detail::encode(source);
 }
 
 void NovaConfigPostProcessor::tFileName(std::string const &tFileName) {
-   tFileName_ = canonicalize(tFileName);
+   tFileName_ = fhicl::detail::encode(tFileName);
 }
 
 void NovaConfigPostProcessor::output(std::string const &output) {
-   output_ = canonicalize(output);
+   output_ = fhicl::detail::encode(output);
 }
 
 void NovaConfigPostProcessor::
@@ -90,7 +70,7 @@ applySource(intermediate_table &raw_config) const {
    }
    if (!source_.empty()) {
       extended_value::sequence_t fileNames;
-      fileNames.push_back(extended_value(false, STRING, canonicalize(source_)));
+      fileNames.push_back(extended_value(false, STRING, fhicl::detail::encode(source_)));
       source_table["fileNames"] = extended_value(false, SEQUENCE, fileNames);
    }
    if (wantNevts_) {
@@ -137,11 +117,11 @@ applyOutput(intermediate_table &raw_config) const {
    }
    if (out_table.empty()) {
       // Fill a basic output module config
-      out_table["module_type"] = extended_value(false, STRING, canonicalize("RootOutput"));
+      out_table["module_type"] = extended_value(false, STRING, fhicl::detail::encode("RootOutput"));
       need_end_paths_entry = true;
    }
    // Fill in the file name.
-   out_table["fileName"] = extended_value(false, STRING, canonicalize(output_));
+   out_table["fileName"] = extended_value(false, STRING, fhicl::detail::encode(output_));
    // Put back into the outputs table.
    outputs_table[out_table_name] = extended_value(false, TABLE, out_table);
    // Put outputs table back into config.
@@ -178,13 +158,13 @@ applyOutput(intermediate_table &raw_config) const {
       }
       // Not possible to get to here without having a good path name.
       extended_value::sequence_t end_path;
-      end_path.push_back(extended_value(false, STRING, canonicalize(out_table_name)));
+      end_path.push_back(extended_value(false, STRING, fhicl::detail::encode(out_table_name)));
       physics_table[new_path] = extended_value(false, SEQUENCE, end_path);
       extended_value::sequence_t end_paths;
       if (physics_table.find("end_paths") != physics_table.end()) {
          end_paths = physics_table["end_paths"];
       }
-      end_paths.push_back(extended_value(false, STRING, canonicalize(new_path)));
+      end_paths.push_back(extended_value(false, STRING, fhicl::detail::encode(new_path)));
       physics_table["end_paths"] = extended_value(false, SEQUENCE, end_paths);
       raw_config.insert("physics", false, TABLE, physics_table);
    }
@@ -217,7 +197,29 @@ applyTFileName(intermediate_table &raw_config) const {
       }
    }
    if (tFileName.empty()) return;
-   tFileService_table["fileName"] = extended_value(false, STRING, canonicalize(tFileName));
+   tFileService_table["fileName"] = extended_value(false, STRING, fhicl::detail::encode(tFileName));
    services_table["TFileService"] = extended_value(false, TABLE, tFileService_table);
+   raw_config.insert("services", extended_value(false, TABLE, services_table));
+}
+
+void NovaConfigPostProcessor::
+applyTrace(intermediate_table &raw_config) const {
+   if (!wantTrace_) return;
+   extended_value::table_t services_table;
+   try {
+      services_table = raw_config.find("services");
+   }
+   catch (exception &e) {
+      if (e.categoryCode() == cant_find) {
+         // Ignore
+      } else {
+         throw;
+      }
+   }
+   extended_value::table_t::iterator t_iter = services_table.find("scheduler");
+   extended_value::table_t  scheduler_table;
+   if (t_iter != services_table.end()) scheduler_table = t_iter->second;
+   scheduler_table["wantTracer"] = extended_value(false, BOOL, fhicl::detail::encode(trace_));
+   services_table["scheduler"] = extended_value(false, TABLE, scheduler_table);
    raw_config.insert("services", extended_value(false, TABLE, services_table));
 }
