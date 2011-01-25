@@ -74,7 +74,13 @@ target_link_libraries(art_Framework_Core
   ${CLHEP}
   ${SIGC}
 )
-set( art_Framework_CoreArt_sources artapp.cc run_art.cc novaapp.cc NovaConfigPostProcessor.cc)
+set( art_Framework_CoreArt_sources
+  NovaConfigPostProcessor.cc
+  artapp.cc
+  find_config.cc
+  novaapp.cc
+  run_art.cc
+  )
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
@@ -189,5 +195,6 @@ install(FILES Actions.h
               WorkerParams.h
               WorkerRegistry.h
               WorkerT.h
+              find_config.h
               run_art.h
         DESTINATION  ${product}/${version}/include/art/Framework/Core )
