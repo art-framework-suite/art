@@ -96,7 +96,7 @@ set( INPUT_FILES
 
 foreach( test ${TEST_LIST} ${ALSO_BUILD} )
   add_executable( ${test} ${test}.cc )
-endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
+endforeach()
 
 # ----------------------------------------------------------------------
 # Build BOOST tests
@@ -109,7 +109,7 @@ foreach( test ${BOOST_TEST_LIST} ${BOOST_TEST_ALSO_BUILD} )
     COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
     )
   target_link_libraries( ${test} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-endforeach( test ${BOOST_TEST_LIST} )
+endforeach()
 
 # ----------------------------------------------------------------------
 # Build tests with special requirements:
@@ -127,14 +127,14 @@ foreach( script ${ALSO_RUN} ${MANUALLY_RUN_TESTS} )
                             ${EXECUTABLE_OUTPUT_PATH}/
                       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${script}
                    )
-endforeach( script ${TEST_SCRIPTS} )
+endforeach()
 
 # ----------------------------------------------------------------------
 # Run the automated tests:
 
 foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${MANUALLY_BUILT_TESTS} ${ALSO_RUN} )
   add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
-endforeach( test ${TEST_LIST} )
+endforeach()
 
 # ----------------------------------------------------------------------
 # Run the MANUALLY_RUN_TESTS:
@@ -145,14 +145,14 @@ endforeach( test ${TEST_LIST} )
 foreach (script ${TEST_SCRIPTS} )
   CONFIGURE_FILE ( ${script} ${EXECUTABLE_OUTPUT_PATH}/${script} COPYONLY )
   add_test( ${script} ${EXECUTABLE_OUTPUT_PATH}/${script} )
-endforeach (script ${TEST_SCRIPTS} )
+endforeach()
 
 # ----------------------------------------------------------------------
 # Copy Configuration and other input files to the correct location
 
 foreach (input ${INPUT_FILES} )
   CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR}/${input} COPYONLY )
-endforeach (input ${INPUT_FILES} )
+endforeach()
 
 # ======================================================================
 
