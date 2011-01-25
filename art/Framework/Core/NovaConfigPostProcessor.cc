@@ -3,11 +3,13 @@
 #include "boost/any.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/exception.h"
+#include "cpp0x/algorithm"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/extended_value.h"
 
+#include <iterator>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,7 +18,7 @@ using namespace fhicl;
 
 NovaConfigPostProcessor::NovaConfigPostProcessor()
    :
-   source_(),
+   sources_(),
    tFileName_(),
    output_(),
    nevts_(),
@@ -37,8 +39,10 @@ void NovaConfigPostProcessor::apply(intermediate_table &raw_config) const {
    applyTrace(raw_config);
 }
 
-void NovaConfigPostProcessor::source(std::string const &source) {
-   source_ = fhicl::detail::encode(source);
+void NovaConfigPostProcessor::sources(std::vector<std::string> const &sources) {
+   std::copy(sources.begin(),
+             sources.end(),
+             std::back_inserter(sources_));
 }
 
 void NovaConfigPostProcessor::tFileName(std::string const &tFileName) {
@@ -51,7 +55,7 @@ void NovaConfigPostProcessor::output(std::string const &output) {
 
 void NovaConfigPostProcessor::
 applySource(intermediate_table &raw_config) const {
-   if (source_.empty() &&
+   if ((sources_.size() == 0) &&
        !(wantNevts_ || wantStartEvt_ || wantSkipEvts_)) return;
    extended_value::table_t source_table;
    try {
@@ -67,9 +71,15 @@ applySource(intermediate_table &raw_config) const {
    if (source_table.find("module_type") == source_table.end()) {
       source_table["module_type"] = extended_value(false, STRING, fhicl::detail::encode("RootInput"));
    }
-   if (!source_.empty()) {
+   if (sources_.size() > 0) {
       extended_value::sequence_t fileNames;
-      fileNames.push_back(extended_value(false, STRING, fhicl::detail::encode(source_)));
+      for (std::vector<std::string>::const_iterator
+              i = sources_.begin(),
+              end_iter =  sources_.end();
+           i != end_iter;
+           ++i) {
+         fileNames.push_back(extended_value(false, STRING, fhicl::detail::encode(*i)));
+      }
       source_table["fileNames"] = extended_value(false, SEQUENCE, fileNames);
    }
    if (wantNevts_) {

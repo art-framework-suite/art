@@ -36,14 +36,14 @@ int novaapp(int argc, char* argv[]) {
       ("nevts,n", bpo::value<int>(), "Number of events to process.")
       ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
       ("output,o", bpo::value<std::string>(), "Event output stream file.")
-      ("source,s", bpo::value<std::string>(), "Source data file (one only).")
+      ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK).")
       ("trace", "Activate tracing.") 
       ("notrace", "Dectivate tracing.") 
       ;
 
    bpo::positional_options_description pd;
    // A single non-option argument will be taken to be the source data file.
-   pd.add("source", 1);
+   pd.add("source", -1);
 
    bpo::variables_map vm;
    try {
@@ -113,7 +113,7 @@ int novaapp(int argc, char* argv[]) {
    if (vm.count("trace")) ncpp.trace(true);
    if (vm.count("notrace")) ncpp.trace(false);
    if (vm.count("source"))
-      ncpp.source(vm["source"].as<std::string>());
+      ncpp.sources(vm["source"].as<std::vector<std::string> >());
    if (vm.count("TFileName"))
       ncpp.tFileName(vm["TFileName"].as<std::string>());
    if (vm.count("output"))

@@ -2,6 +2,7 @@
 #define NovaConfigPostProcessor_h
 
 #include <string>
+#include <vector>
 
 namespace fhicl {
    class intermediate_table;
@@ -12,7 +13,7 @@ class NovaConfigPostProcessor {
    NovaConfigPostProcessor();
    void apply(fhicl::intermediate_table &raw_config) const;
 
-   void source(std::string const &source);
+   void sources(std::vector<std::string> const &sources);
    void tFileName(std::string const &tFileName);
    void output(std::string const &output);
    void nevts(int nevts) {nevts_ = nevts; wantNevts_ = true; }
@@ -26,7 +27,7 @@ class NovaConfigPostProcessor {
    void applyTFileName(fhicl::intermediate_table &raw_config) const;
    void applyTrace(fhicl::intermediate_table &raw_config) const;
 
-   std::string source_;
+   std::vector<std::string> sources_;
    std::string tFileName_;
    std::string output_;
    int nevts_;
