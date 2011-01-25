@@ -91,7 +91,22 @@ int art::run_art(intermediate_table raw_config) {
    art::IntermediateTablePostProcessor itpp;
    itpp.apply(raw_config);
    if (!make_ParameterSet(raw_config, main_pset)) {
-      std::cerr << "Failed to create a parameter set from parsed configuration.\n";
+      std::cerr << "ERROR: Failed to create a parameter set from parsed configuration.\n";
+      std::cerr << "       Intermediate configuration state follows:\n"
+                << "------------------------------------"
+                << "------------------------------------"
+                << "\n";         
+      for (extended_value::table_t::const_iterator
+              i = raw_config.begin(),
+              end_iter = raw_config.end();
+           i != end_iter;
+           ++i) {
+         std::cerr << i->first << ": " << i->second.to_string() << "\n";
+      }
+      std::cerr
+         << "------------------------------------"
+         << "------------------------------------"
+         << "\n";         
       return 7003;
    }
 
