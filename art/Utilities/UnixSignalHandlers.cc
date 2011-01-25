@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <string.h>
+#include <exception>
 
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/DebugMacros.h"
@@ -24,9 +25,14 @@ namespace art {
     volatile bool shutdown_flag = false;
 
     extern "C" {
-      void ep_sigusr2(int,siginfo_t*,void*)
+      void ep_sigusr2(int which,siginfo_t*,void*)
       {
 	FDEBUG(1) << "in sigusr2 handler\n";
+	if(which==SIGINT && shutdown_flag==true) 
+	  {
+	    std::cerr << "User signal SIGINT terminating the process\n";
+	    std::terminate();
+	  }
 	shutdown_flag = true;
       }
     }
