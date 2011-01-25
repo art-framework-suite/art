@@ -3,43 +3,24 @@ Product = @product@
 #*************************************************
 # Starting Group definition
 Group:
+
 Flavor     = ANY
 Qualifiers = ""
   Action = setup
        prodDir()
+       setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+       execute( "get-directory-name subdir", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
 
-Flavor     = Linux64bit+2.6-2.5
+Flavor     = ANY
 Qualifiers = "@qualifier@"
   Action = setup
        prodDir()
-       fileTest( ${UPS_PROD_DIR}/slf5.x86_64.@qualifier@, -d, "${UPS_PROD_DIR}/slf5.x86_64.@qualifier@ directory not found: SETUP ABORTED")
-       envSet( ${UPS_PROD_NAME_UC}_FQ, slf5.x86_64.@qualifier@ )
+       setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+       execute( "get-directory-name subdir @qualifier@", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
-
-Flavor     = Linux+2.6-2.5
-Qualifiers = "@qualifier@"
-  Action = setup
-       prodDir()
-       fileTest( ${UPS_PROD_DIR}/slf5.i686.@qualifier@, -d, "${UPS_PROD_DIR}/slf5.i686.@qualifier@ directory not found: SETUP ABORTED")
-       envSet( ${UPS_PROD_NAME_UC}_FQ, slf5.i686.@qualifier@ )
-       exeActionRequired("setup__")
-
-Flavor     = Linux64bit+2.6-2.3.4
-Qualifiers = "@qualifier@"
-  Action = setup
-       prodDir()
-       fileTest( ${UPS_PROD_DIR}/slf4.x86_64.@qualifier@, -d, "${UPS_PROD_DIR}/slf4.x86_64.@qualifier@ directory not found: SETUP ABORTED")
-       envSet( ${UPS_PROD_NAME_UC}_FQ, slf4.x86_64.@qualifier@ )
-       exeActionRequired("setup__")
-
-Flavor     = Linux+2.6-2.3.4
-Qualifiers = "@qualifier@"
-  Action = setup
-      prodDir()
-      fileTest( ${UPS_PROD_DIR}/slf4.i686.@qualifier@, -d, "${UPS_PROD_DIR}/slf4.i686.@qualifier@ directory not found: SETUP ABORTED")
-      envSet( ${UPS_PROD_NAME_UC}_FQ, slf4.i686.@qualifier@ )
-      exeActionRequired("setup__")
 
 Common:
   Action = setup__
@@ -67,7 +48,7 @@ Common:
         pathPrepend(PATH, ${UPS_PROD_DIR}/"`sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && echo $dd && exit;done;exit 1'`" )
     else ()
         execute( true, NO_UPS_ENV )
-	execute( echo "ERROR: art is not available for flavor qualifier ${UPS_PROD_FLAVOR}} ${UPS_PROD_QUALIFIERS}", UPS_ENV )
+	execute( echo "ERROR: art is not available for flavor qualifier ${UPS_PROD_FLAVOR} ${UPS_PROD_QUALIFIERS}", UPS_ENV )
     endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
 
 
