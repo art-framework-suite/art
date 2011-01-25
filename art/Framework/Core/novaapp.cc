@@ -74,9 +74,9 @@ int novaapp(int argc, char* argv[]) {
    //
    std::string const search_path_spec = "FHICL_FILE_PATH";
    std::string config_filename;
-   if (art::find_config(vm["config"].as<std::string>(),
-                        search_path_spec,
-                        config_filename)) {
+   if (!art::find_config(vm["config"].as<std::string>(),
+                         search_path_spec,
+                         config_filename)) {
       std::cerr
          << "Specified configuration file "
          << vm["config"].as<std::string>()
