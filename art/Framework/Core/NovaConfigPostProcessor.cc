@@ -1,7 +1,6 @@
 #include "NovaConfigPostProcessor.h"
 
 #include "boost/any.hpp"
-#include "boost/lexical_cast.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/exception.h"
@@ -66,7 +65,7 @@ applySource(intermediate_table &raw_config) const {
       }
    }
    if (source_table.find("module_type") == source_table.end()) {
-      source_table["module_type"] = extended_value(false, STRING, std::string("RootInput"));
+      source_table["module_type"] = extended_value(false, STRING, fhicl::detail::encode("RootInput"));
    }
    if (!source_.empty()) {
       extended_value::sequence_t fileNames;
@@ -74,13 +73,13 @@ applySource(intermediate_table &raw_config) const {
       source_table["fileNames"] = extended_value(false, SEQUENCE, fileNames);
    }
    if (wantNevts_) {
-      source_table["maxEvents"] = extended_value(false, NUMBER, boost::lexical_cast<std::string>(nevts_));
+      source_table["maxEvents"] = extended_value(false, NUMBER, fhicl::detail::encode(nevts_));
    }
    if (wantStartEvt_) {
-      source_table["firstEvent"] = extended_value(false, NUMBER, boost::lexical_cast<std::string>(startEvt_));
+      source_table["firstEvent"] = extended_value(false, NUMBER, fhicl::detail::encode(startEvt_));
    }
    if (wantSkipEvts_) {
-      source_table["skipEvents"] = extended_value(false, NUMBER, boost::lexical_cast<std::string>(skipEvts_));
+      source_table["skipEvents"] = extended_value(false, NUMBER, fhicl::detail::encode(skipEvts_));
    }
    raw_config.insert("source", extended_value(false, TABLE, source_table));
 }
