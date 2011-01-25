@@ -1,9 +1,10 @@
 #include "art/Framework/Core/artapp.h"
 
+#include "art/Framework/Core/find_config.h"
+#include "art/Framework/Core/run_art.h"
 #include "boost/program_options.hpp"
 #include "fhiclcpp/parse.h"
 
-#include "art/Framework/Core/run_art.h"
 
 #include <fstream>
 #include <iostream>
@@ -60,8 +61,21 @@ int artapp(int argc, char* argv[]) {
    //
    // Get the parameter set by parsing the configuration file.
    //
-   fhicl::intermediate_table raw_config;
-   std::string config_filename = vm["config"].as<std::string>();
+   std::string const search_path_spec = "FHICL_FILE_PATH";
+   std::string config_filename;
+   if (art::find_config(vm["config"].as<std::string>(),
+                        search_path_spec,
+                        config_filename)) {
+      std::cerr
+         << "Specified configuration file "
+         << vm["config"].as<std::string>()
+         << " cannot be found using "
+         << search_path_spec 
+         << " ("
+         << getenv(search_path_spec.c_str())
+         << ").\n";
+      return 7003;
+   }
    std::ifstream config_stream(config_filename.c_str());
    if (!config_stream) {
       std::cerr
@@ -70,6 +84,7 @@ int artapp(int argc, char* argv[]) {
          << " cannot be opened for reading.\n";
       return 7004;
    }
+   fhicl::intermediate_table raw_config;
    if (!fhicl::parse_document(config_stream, raw_config)) {
       std::cerr << "Failed to parse the configuration file '"
                 << config_filename
