@@ -37,7 +37,7 @@ setup -j messagefacility v1_7_6 -q a1
 setup -j cetlib v0_2_14 -q a1
 setup -j cpp0x v1_0_7 -q a1
 setup -j fhiclcpp v2_8_1 -q a1
-setup -j cetbuildtools v1_7_0
+setup -j cetbuildtools v1_7_1
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
 setup -j root v5_28_00a -q gcc45
