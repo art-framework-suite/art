@@ -29,7 +29,7 @@ services:
    # need to be configured to come to life.
    Timing: { }
    SimpleMemoryCheck: { }
-   TFileService: { fileName: "tfile_output" }
+   TFileService: { fileName: "tfile_output.root" }
 
    user:
    {
