@@ -18,10 +18,10 @@ BOOST_AUTO_TEST_SUITE ( IntermediateTablePostProcessorTests )
 BOOST_AUTO_TEST_CASE ( emptyConfig ) {
    ParameterSet main_pset;
    intermediate_table raw_config;
-   BOOST_CHECK ( fhicl::parse_document("", raw_config) );
+   BOOST_CHECK_NO_THROW ( fhicl::parse_document("", raw_config) );
    art::IntermediateTablePostProcessor itpp;
    BOOST_CHECK_NO_THROW ( itpp.apply(raw_config) );
-   BOOST_REQUIRE(make_ParameterSet(raw_config, main_pset));
+   BOOST_REQUIRE_NO_THROW ( make_ParameterSet(raw_config, main_pset) );
    std::cerr << main_pset.to_string() << "\n";
 }
 
@@ -29,13 +29,13 @@ BOOST_AUTO_TEST_CASE ( test_simple_01 ) {
    ParameterSet main_pset;
    intermediate_table raw_config;
    std::ifstream config_stream("test_simple_01.fcl");
-   BOOST_CHECK ( fhicl::parse_document(config_stream, raw_config) );
+   BOOST_CHECK_NO_THROW ( fhicl::parse_document(config_stream, raw_config) );
    art::IntermediateTablePostProcessor itpp;
    ParameterSet check_pset;
-   BOOST_CHECK ( make_ParameterSet(raw_config, check_pset) );
+   BOOST_CHECK_NO_THROW ( make_ParameterSet(raw_config, check_pset) );
    std::cerr << check_pset.to_string() << "\n";
    BOOST_CHECK_NO_THROW ( itpp.apply(raw_config) );
-   BOOST_REQUIRE(make_ParameterSet(raw_config, main_pset));
+   BOOST_REQUIRE_NO_THROW ( make_ParameterSet(raw_config, main_pset) );
    std::cerr << main_pset.to_string() << "\n";
 }
 

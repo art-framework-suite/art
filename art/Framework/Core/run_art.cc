@@ -90,8 +90,13 @@ int art::run_art(intermediate_table raw_config) {
    ParameterSet main_pset;
    art::IntermediateTablePostProcessor itpp;
    itpp.apply(raw_config);
-   if (!make_ParameterSet(raw_config, main_pset)) {
-      std::cerr << "ERROR: Failed to create a parameter set from parsed configuration.\n";
+   try {
+      make_ParameterSet(raw_config, main_pset);
+   }
+   catch (cet::exception &e) {
+      std::cerr << "ERROR: Failed to create a parameter set from parsed configuration with exception "
+                << e.what()
+                << ".\n";
       std::cerr << "       Intermediate configuration state follows:\n"
                 << "------------------------------------"
                 << "------------------------------------"

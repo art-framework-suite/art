@@ -3,6 +3,7 @@
 #include "art/Framework/Core/find_config.h"
 #include "art/Framework/Core/run_art.h"
 #include "boost/program_options.hpp"
+#include "cetlib/exception.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/parse.h"
 
@@ -86,12 +87,17 @@ int artapp(int argc, char* argv[]) {
       return 7004;
    }
    fhicl::intermediate_table raw_config;
-   if (!fhicl::parse_document(config_stream, raw_config)) {
+   try {
+      fhicl::parse_document(config_stream, raw_config);
+   }
+   catch (cet::exception &e) {
       std::cerr << "Failed to parse the configuration file '"
                 << config_filename
-                << "'\n";
+                << "' with exception " << e.what()
+                << "\n";
       return 7002;
-   } else if ( raw_config.empty() ) {
+   }
+   if ( raw_config.empty() ) {
       std::cerr << "INFO: provided configuration file '"
                 << config_filename.c_str()
                 << "' is empty: using minimal defaults.\n";
