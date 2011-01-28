@@ -12,6 +12,7 @@ simple_plugin(PtrVectorProducer        "module")
 simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
 simple_plugin(DerivedPtrVectorProducer "module")
+simple_plugin(PtrListAnalyzer          "module")
 
 # Library link requirements for tests here
 link_libraries(
@@ -73,6 +74,7 @@ set( TEST_SCRIPTS
   test_ptrvector_01_t.sh
   test_simplederived_01_t.sh
   outputCommand_t.sh
+  ptr_list_t.sh
 )
 
 set( INPUT_FILES
@@ -89,6 +91,7 @@ set( INPUT_FILES
   EventSelectorFromFile_r2.fcl
   outputCommand_w.fcl
   outputCommand_r.fcl
+  ptr_list_01.fcl
 )
 
 # ----------------------------------------------------------------------

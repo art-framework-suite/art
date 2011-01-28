@@ -7,7 +7,7 @@
 //      collection is in the art::Event
 //
 // ======================================================================
-
+#include <list>
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/GetProduct.h"
@@ -246,6 +246,14 @@ namespace art {
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
 
+  template <class T, class C>
+  inline
+  void 
+  fill_ptr_list(std::list<Ptr<T> >& ptrs, Handle<C> const& h)
+  {
+    for (size_t i = 0, sz = h->size(); i != sz; ++i)
+      ptrs.push_back(Ptr<T>(h, i));
+  }
 }  // art
 
 #endif
