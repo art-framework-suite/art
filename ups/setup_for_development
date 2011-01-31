@@ -33,11 +33,11 @@ tnotnull UPS_DIR || echo "$msg2"
 # use setup -j to avoid pulling dependencies
 
 # CET products
+setup -j cetbuildtools v1_7_1
 setup -j messagefacility v1_8_0 -q a1
 setup -j cetlib v0_3_1 -q a1
 setup -j cpp0x v1_0_8 -q a1
 setup -j fhiclcpp v2_10_0 -q a1
-setup -j cetbuildtools v1_7_1
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
 setup -j root v5_28_00a -q gcc45
@@ -76,11 +76,11 @@ echo The workng build directory is $fwdir
 
 tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
 tnotnull ART_BUILD && setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
-setenv LD_LIBRARY_PATH `dropit -D "$LD_LIBRARY_PATH"`
+# setenv LD_LIBRARY_PATH `dropit -D "$LD_LIBRARY_PATH"`
 
 tnotnull ART_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${ART_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
 tnotnull ART_BUILD && setenv PATH ${ART_BUILD}/bin:${PATH}
-setenv PATH `dropit -D`
+# setenv PATH `dropit -D`
 
 echo
 echo ART_SOURCE=$ART_SOURCE
