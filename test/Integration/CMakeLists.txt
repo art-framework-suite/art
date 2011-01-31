@@ -2,6 +2,7 @@
 project(art_Integration_Test)
 
 simple_plugin(IntProducer              "module")
+simple_plugin(FailingProducer          "module")
 simple_plugin(IntTestAnalyzer          "module")
 simple_plugin(DoubleProducer           "module")
 simple_plugin(DoubleTestAnalyzer       "module")
