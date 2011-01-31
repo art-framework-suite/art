@@ -82,6 +82,8 @@ tnotnull ART_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${ART_BUILD}/bin:
 tnotnull ART_BUILD && setenv PATH ${ART_BUILD}/bin:${PATH}
 setenv PATH `dropit -D`
 
+tnotnull FHICL_FILE_PATH || setenv FHICL_FILE_PATH '.'
+
 echo
 echo ART_SOURCE=$ART_SOURCE
 echo ART_BUILD=$ART_BUILD
@@ -91,6 +93,8 @@ echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
 echo
 echo PATH is now ${PATH}
+echo
+echo FHICL_FILE_PATH is now ${FHICL_FILE_PATH}
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_
