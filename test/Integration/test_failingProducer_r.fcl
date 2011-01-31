@@ -1,0 +1,81 @@
+services:
+{
+  # Always-present services; configuration optional.
+  message: { }
+  floating_point_control: { }
+
+  scheduler:  # options block in the old system
+  {
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
+              'BadExceptionType','DictionaryNotFound',
+              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'EventCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    #FailModule: [ 'ProductNotFound' ]
+    FailPath: [ 'ProductNotFound' ]
+    wantSummary: true
+    # wantTracer: false
+    # fileMode: ""
+    # handleEmptyRuns: true
+    # handleEmptySubRuns: true
+    # enableSigInt: true
+    # unloadRootSigHandler: false
+    # resetRootErrHandler: true
+  }
+
+   # These are provided by Art, but are not system services and therefore
+   # need to be configured to come to life.
+   Timing: { }
+   SimpleMemoryCheck: { }
+
+   user:
+   {
+     # user-defined, plugin services
+   }
+}
+
+physics:
+{
+
+  producers:
+  {
+    f1:
+    {
+      module_type: FailingProducer
+    }
+  }
+
+
+  analyzers:
+  {
+    a1:
+    {
+      module_type: IntTestAnalyzer
+      input_label: m1a
+      expected_value: 1
+    }
+  }
+
+   e1: [ a1 ]
+   p1: [ f1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+output:
+{
+  module_type: RootOutput
+  fileName: "outCloned.root"
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "out.root" ]
+}
+
+process_name: DEVELr

@@ -76,6 +76,7 @@ set( TEST_SCRIPTS
   test_simplederived_01_t.sh
   outputCommand_t.sh
   ptr_list_t.sh
+  test_failingProducer_t.sh
 )
 
 set( INPUT_FILES
@@ -93,6 +94,8 @@ set( INPUT_FILES
   outputCommand_w.fcl
   outputCommand_r.fcl
   ptr_list_01.fcl
+  test_failingProducer_w.fcl
+  test_failingProducer_r.fcl
 )
 
 # ----------------------------------------------------------------------
