@@ -115,8 +115,7 @@ namespace art {
           itEnd = om_->selectedOutputItemList()[branchType].end();
           it != itEnd; ++it) {
         treePointers_[branchType]->addBranch(*it->branchDescription_,
-                                              it->product_,
-                                              it->branchDescription_->produced());
+					     it->product_);
       }
     }
     // Don't split metadata tree or event description tree

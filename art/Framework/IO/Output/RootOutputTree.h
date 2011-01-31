@@ -70,7 +70,7 @@ namespace art {
     bool isValid() const;
 
     void addBranch(BranchDescription const& prod,
-                   void const*& pProd, bool produced);
+                   void const*& pProd);
 
     bool checkSplitLevelAndBasketSize(TTree *inputTree) const;
 
