@@ -76,11 +76,11 @@ echo The workng build directory is $fwdir
 
 tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
 tnotnull ART_BUILD && setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
-# setenv LD_LIBRARY_PATH `dropit -D "$LD_LIBRARY_PATH"`
+setenv LD_LIBRARY_PATH `dropit -D -p "$LD_LIBRARY_PATH"`
 
 tnotnull ART_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${ART_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
 tnotnull ART_BUILD && setenv PATH ${ART_BUILD}/bin:${PATH}
-# setenv PATH `dropit -D`
+setenv PATH `dropit -D`
 
 echo
 echo ART_SOURCE=$ART_SOURCE
