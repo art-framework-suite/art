@@ -44,9 +44,7 @@ physics:
   {
     f1:
     {
-      #module_type: FailingProducer
-      module_type: IntProducer
-      ivalue: 17
+      module_type: FailingProducer
     }
   }
 
@@ -63,7 +61,6 @@ physics:
 
    e1: [ a1, out1 ]
    p1: [ f1 ]
-   #p1: [ ]
 
    trigger_paths: [ p1 ]
    end_paths: [ e1 ]
