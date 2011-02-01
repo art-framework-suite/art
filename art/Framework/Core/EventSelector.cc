@@ -292,7 +292,7 @@ namespace art {
         Strings triggernames;
         bool fromPSetRegistry;
 
-        ServiceHandle<service::TriggerNamesService> tns;
+        ServiceHandle<TriggerNamesService> tns;
         if (tns->getTrigPaths(tr, triggernames, fromPSetRegistry)) {
 
           init(paths_, triggernames);

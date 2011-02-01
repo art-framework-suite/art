@@ -1,6 +1,5 @@
 #include "art/Framework/Core/EventProcessor.h"
 
-
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
@@ -56,7 +55,7 @@ namespace art {
   }
 
   using namespace event_processor;
-  using namespace art::service;
+  using namespace art;
 
   namespace {
 
@@ -367,7 +366,7 @@ namespace art {
     // NOTE: the order here might be backwards, due to the "push_front" registering
     // that sigc++ does way in the guts of the add operation.
 
-    typedef art::service::TriggerNamesService TNS;
+    typedef art::TriggerNamesService TNS;
     typedef ConstProductRegistry CPR;
     // no configuration available
     serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(*actReg_)));

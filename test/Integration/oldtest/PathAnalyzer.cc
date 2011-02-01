@@ -64,7 +64,7 @@ namespace arttest
   void
   PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where)
   {
-    typedef art::Service<art::service::TriggerNamesService>  TNS;
+    typedef art::Service<art::TriggerNamesService>  TNS;
     typedef std::vector<std::string> stringvec;
 
     TNS tns;

@@ -22,7 +22,7 @@ namespace art {
     if ( psetID_valid_ && psetID_ == triggerResults.parameterSetID()) {
       return false;
     }
-    art::ServiceHandle<art::service::TriggerNamesService> tns;
+    art::ServiceHandle<art::TriggerNamesService> tns;
     bool fromPSetRegistry;
     if (tns->getTrigPaths(triggerResults, triggerNames_, fromPSetRegistry)) {
 

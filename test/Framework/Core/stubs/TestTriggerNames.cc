@@ -85,7 +85,7 @@ namespace arttest
     if (expected_trigger_paths_.size() > 0) {
 
       Strings triggernames;
-      art::ServiceHandle<art::service::TriggerNamesService> tns;
+      art::ServiceHandle<art::TriggerNamesService> tns;
       triggernames = tns->getTrigPaths();
       if (triggernames.size() != expected_trigger_paths_.size()) {
         std::cerr << "TestTriggerNames: "
@@ -104,7 +104,7 @@ namespace arttest
     if (expected_end_paths_.size() > 0) {
 
       Strings endnames;
-      art::ServiceHandle<art::service::TriggerNamesService> tns;
+      art::ServiceHandle<art::TriggerNamesService> tns;
       endnames = tns->getEndPaths();
       if (endnames.size() != expected_end_paths_.size()) {
         std::cerr << "TestTriggerNames: "
@@ -138,7 +138,7 @@ namespace arttest
       // previous process.  This assumes this is not run in an end path.
 
       Strings triggernames;
-      art::ServiceHandle<art::service::TriggerNamesService> tns;
+      art::ServiceHandle<art::TriggerNamesService> tns;
       if (tns->getTrigPaths(*prod[0], triggernames)) {
         if (triggernames.size() != expected_trigger_previous_.size()) {
           std::cerr << "TestTriggerNames: "

@@ -17,157 +17,146 @@
 #include <iostream>
 #include <sys/time.h>
 
+namespace art {
+  class Timing;
+}
+
+using art::Timing;
 using fhicl::ParameterSet;
 
 // ======================================================================
 
-namespace art {
+class art::Timing
+{
+public:
+  Timing(ParameterSet const&, ActivityRegistry&);
 
-  class Event;
+private:
+  void postBeginJob();
+  void postEndJob();
 
-  namespace service {
-    class Timing
-    {
-    public:
-      Timing(const fhicl::ParameterSet&,ActivityRegistry&);
-      ~Timing();
-    private:
-      void postBeginJob();
-      void postEndJob();
+  void preEventProcessing(EventID const&, Timestamp const&);
+  void postEventProcessing(Event const&);
 
-      void preEventProcessing(const EventID&, const Timestamp&);
-      void postEventProcessing(const Event&);
+  void preModule(ModuleDescription const&);
+  void postModule(ModuleDescription const&);
 
-      void preModule(const ModuleDescription&);
-      void postModule(const ModuleDescription&);
+  EventID curr_event_;
+  double curr_job_;         // seconds
+  double curr_event_time_;  // seconds
+  double curr_module_time_; // seconds
+  bool summary_only_;
 
-      EventID curr_event_;
-      double curr_job_; // seconds
-      double curr_event_time_;  // seconds
-      double curr_module_time_; // seconds
-      bool summary_only_;
+  // Min Max and average event times for summary at end of job
+  double max_event_time_;    // seconds
+  double min_event_time_;    // seconds
+  int total_event_count_;
 
-      // Min Max and average event times for summary
-      //  at end of job
-      double max_event_time_;    // seconds
-      double min_event_time_;    // seconds
-      int total_event_count_;
-    };
-  }
-
-}  // art
+};  // Timing
 
 // ======================================================================
 
-using art::service::Timing;
+static double getTime()
+{
+  struct timeval t;
+  if(gettimeofday(&t, 0) < 0)
+    throw cet::exception("SysCallFailed", "Failed call to gettimeofday");
 
-namespace art {
+  return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
+}
 
-  namespace service {
+// ----------------------------------------------------------------------
 
-    static double getTime()
-    {
-      struct timeval t;
-      if(gettimeofday(&t,0)<0)
-        throw cet::exception("SysCallFailed","Failed call to gettimeofday");
+Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
+  summary_only_(iPS.get<bool>("summaryOnly", false)),
+  max_event_time_(0.),
+  min_event_time_(0.),
+  total_event_count_(0)
+{
+  iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
+  iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
-      return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
-    }
+  iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);
+  iRegistry.watchPostProcessEvent(this, &Timing::postEventProcessing);
 
-    Timing::Timing(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-      summary_only_(iPS.get<bool>("summaryOnly",false)),
-      max_event_time_(0.),
-      min_event_time_(0.),
-      total_event_count_(0)
+  iRegistry.watchPreModule(this, &Timing::preModule);
+  iRegistry.watchPostModule(this, &Timing::postModule);
+}
 
-    {
-      iRegistry.watchPostBeginJob(this,&Timing::postBeginJob);
-      iRegistry.watchPostEndJob(this,&Timing::postEndJob);
+// ----------------------------------------------------------------------
 
-      iRegistry.watchPreProcessEvent(this,&Timing::preEventProcessing);
-      iRegistry.watchPostProcessEvent(this,&Timing::postEventProcessing);
+void Timing::postBeginJob()
+{
+  if (not summary_only_) {
+    mf::LogAbsolute("TimeReport")
+      << "TimeReport> Report activated\n"
+         "TimeReport> Report columns headings for events: "
+         "eventnum runnum timetaken\n"
+         "TimeReport> Report columns headings for modules: "
+         "eventnum runnum modulelabel modulename timetaken";
+  }
+  curr_job_ = getTime();
+}
 
-      iRegistry.watchPreModule(this,&Timing::preModule);
-      iRegistry.watchPostModule(this,&Timing::postModule);
-    }
+void Timing::postEndJob()
+{
+  double t = getTime() - curr_job_;
+  double average_event_t = t / total_event_count_;
+  mf::LogAbsolute("TimeReport")                            // Changelog 1
+    << "TimeReport> Time report complete in "
+    << t << " seconds\n"
+    << " Time Summary: \n"
+    << " Min: " << min_event_time_ << "\n"
+    << " Max: " << max_event_time_ << "\n"
+    << " Avg: " << average_event_t << "\n";
 
+}
 
-    Timing::~Timing()
-    { }
+// ----------------------------------------------------------------------
 
-    void Timing::postBeginJob()
-    {
-      if (not summary_only_) {
-        mf::LogAbsolute("TimeReport")
-          << "TimeReport> Report activated\n"
-             "TimeReport> Report columns headings for events: "
-             "eventnum runnum timetaken\n"
-             "TimeReport> Report columns headings for modules: "
-             "eventnum runnum modulelabel modulename timetaken";
-      }
-      curr_job_ = getTime();
-    }
+void Timing::preEventProcessing(art::EventID const& iID,
+                                art::Timestamp const& iTime)
+{
+  curr_event_ = iID;
+  curr_event_time_ = getTime();
+}
 
-    void Timing::postEndJob()
-    {
-      double t = getTime() - curr_job_;
-      double average_event_t = t / total_event_count_;
-      mf::LogAbsolute("TimeReport")                            // Changelog 1
-        << "TimeReport> Time report complete in "
-        << t << " seconds\n"
-        << " Time Summary: \n"
-        << " Min: " << min_event_time_ << "\n"
-        << " Max: " << max_event_time_ << "\n"
-        << " Avg: " << average_event_t << "\n";
+void Timing::postEventProcessing(Event const& e)
+{
+  double t = getTime() - curr_event_time_;
+  if (not summary_only_) {
+    mf::LogAbsolute("TimeEvent") << "TimeEvent> "
+      << curr_event_.event() << " " << curr_event_.run() << " " << t;
+  }
+  if (total_event_count_ == 0) {
+    max_event_time_ = t;
+    min_event_time_ = t;
+  }
 
-    }
+  if (t > max_event_time_) max_event_time_ = t;
+  if (t < min_event_time_) min_event_time_ = t;
+  total_event_count_ = total_event_count_ + 1;
+}
 
-    void Timing::preEventProcessing(const art::EventID& iID,
-                                    const art::Timestamp& iTime)
-    {
-      curr_event_ = iID;
-      curr_event_time_ = getTime();
+// ----------------------------------------------------------------------
 
+void Timing::preModule(ModuleDescription const&)
+{
+  curr_module_time_ = getTime();
+}
 
-    }
-    void Timing::postEventProcessing(const Event& e)
-    {
-      double t = getTime() - curr_event_time_;
-      if (not summary_only_) {
-        mf::LogAbsolute("TimeEvent") << "TimeEvent> "
-          << curr_event_.event() << " " << curr_event_.run() << " " << t;
-      }
-      if (total_event_count_ == 0) {
-        max_event_time_ = t;
-        min_event_time_ = t;
-      }
-
-      if (t > max_event_time_) max_event_time_ = t;
-      if (t < min_event_time_) min_event_time_ = t;
-      total_event_count_ = total_event_count_ + 1;
-    }
-
-    void Timing::preModule(const ModuleDescription&)
-    {
-      curr_module_time_ = getTime();
-    }
-
-    void Timing::postModule(const ModuleDescription& desc)
-    {
-      double t = getTime() - curr_module_time_;
-      if (not summary_only_) {
-        mf::LogAbsolute("TimeModule") << "TimeModule> "
-           << curr_event_.event() << " "
-           << curr_event_.run() << " "
-           << desc.moduleLabel_ << " "
-           << desc.moduleName_ << " "
-           << t;
-      }
-    }
-
-  }  // service
-
-}  // art
+void Timing::postModule(ModuleDescription const& desc)
+{
+  double t = getTime() - curr_module_time_;
+  if (not summary_only_) {
+    mf::LogAbsolute("TimeModule") << "TimeModule> "
+       << curr_event_.event() << " "
+       << curr_event_.run() << " "
+       << desc.moduleLabel_ << " "
+       << desc.moduleName_ << " "
+       << t;
+  }
+}
 
 // ======================================================================
 

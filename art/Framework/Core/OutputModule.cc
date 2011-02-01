@@ -31,7 +31,7 @@ namespace art {
   }
 
   vector<std::string> const& getAllTriggerNames() {
-    art::ServiceHandle<art::service::TriggerNamesService> tns;
+    art::ServiceHandle<art::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
 }
@@ -132,7 +132,7 @@ namespace art {
   {
     hasNewlyDroppedBranch_.assign(false);
 
-    art::ServiceHandle<art::service::TriggerNamesService> tns;
+    art::ServiceHandle<art::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =

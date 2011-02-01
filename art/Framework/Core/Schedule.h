@@ -91,9 +91,7 @@
 
 namespace art {
 
-  namespace service {
-    class TriggerNamesService;
-  }
+  class TriggerNamesService;
 
   class ActivityRegistry;
   class OutputWorker;
@@ -113,7 +111,7 @@ namespace art {
     typedef std::vector<Worker*> Workers;
 
     Schedule(fhicl::ParameterSet const& processDesc,
-             art::service::TriggerNamesService& tns,
+             art::TriggerNamesService& tns,
              WorkerRegistry& wregistry,
              ProductRegistry& pregistry,
              ActionTable& actions,

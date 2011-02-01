@@ -80,7 +80,7 @@ namespace art {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet const& proc_pset,
-                     art::service::TriggerNamesService& tns,
+                     art::TriggerNamesService& tns,
                      WorkerRegistry& wreg,
                      ProductRegistry& preg,
                      ActionTable& actions,

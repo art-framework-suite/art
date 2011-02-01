@@ -265,7 +265,7 @@ int main()
   proc_pset.put("physics", physics_pset);
 
   // Now create and setup the service
-  typedef art::service::TriggerNamesService TNS;
+  typedef art::TriggerNamesService TNS;
   typedef ServiceWrapper<TNS> w_TNS;
 
   boost::shared_ptr<w_TNS> tnsptr
