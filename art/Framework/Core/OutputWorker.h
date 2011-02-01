@@ -43,7 +43,7 @@ namespace art {
 
     void writeRun(RunPrincipal const& rp);
 
-    void writeSubRun(SubRunPrincipal const& lbp);
+    void writeSubRun(SubRunPrincipal const& srp);
 
     bool limitReached() const;
 

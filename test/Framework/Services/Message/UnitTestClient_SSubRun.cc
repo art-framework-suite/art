@@ -61,7 +61,7 @@ void
 }
 
 void
-  UTC_SLUMMARY::endSubRun( art::SubRun const & lb
+  UTC_SLUMMARY::endSubRun( art::SubRun const & sr
                             , art::EventSetup const & /*unused*/
                               )
 {

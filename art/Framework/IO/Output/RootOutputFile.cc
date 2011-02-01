@@ -229,13 +229,13 @@ namespace art {
     // Report event written
   }
 
-  void RootOutputFile::writeSubRun(SubRunPrincipal const& lb) {
+  void RootOutputFile::writeSubRun(SubRunPrincipal const& sr) {
     // Auxiliary branch
-    pSubRunAux_ = &lb.aux();
+    pSubRunAux_ = &sr.aux();
     // Add subRun to index.
     fileIndex_.addEntry(pSubRunAux_->run(), pSubRunAux_->subRun(), 0U, subRunEntryNumber_);
     ++subRunEntryNumber_;
-    fillBranches(InSubRun, lb, pSubRunEntryInfoVector_);
+    fillBranches(InSubRun, sr, pSubRunEntryInfoVector_);
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {

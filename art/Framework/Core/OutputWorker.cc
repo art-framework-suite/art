@@ -44,8 +44,8 @@ namespace art {
   }
 
   void
-  OutputWorker::writeSubRun(SubRunPrincipal const& lbp) {
-    module().doWriteSubRun(lbp);
+  OutputWorker::writeSubRun(SubRunPrincipal const& srp) {
+    module().doWriteSubRun(srp);
   }
 
   bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}

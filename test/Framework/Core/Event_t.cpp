@@ -356,9 +356,9 @@ void testEvent::setUp()
   RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
   SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
-  boost::shared_ptr<SubRunPrincipal>lbp(new SubRunPrincipal(subRunAux, preg, pc));
-  lbp->setRunPrincipal(rp);
-  EventAuxiliary eventAux(id, uuid, time, lbp->subRun(), true);
+  boost::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, preg, pc));
+  srp->setRunPrincipal(rp);
+  EventAuxiliary eventAux(id, uuid, time, srp->subRun(), true);
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_  = new EventPrincipal(eventAux,
@@ -366,7 +366,7 @@ void testEvent::setUp()
                                    pc,
                                    history);
 
-  principal_->setSubRunPrincipal(lbp);
+  principal_->setSubRunPrincipal(srp);
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
 
   delete processHistory;

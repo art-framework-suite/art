@@ -50,20 +50,20 @@ namespace art
   }
 
   bool
-  EDAnalyzer::doBeginSubRun(SubRunPrincipal const& lbp,
+  EDAnalyzer::doBeginSubRun(SubRunPrincipal const& srp,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    SubRun lb(const_cast<SubRunPrincipal &>(lbp), moduleDescription_);
-    this->beginSubRun(lb);
+    SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
+    this->beginSubRun(sr);
     return true;
   }
 
   bool
-  EDAnalyzer::doEndSubRun(SubRunPrincipal const& lbp,
+  EDAnalyzer::doEndSubRun(SubRunPrincipal const& srp,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    SubRun lb(const_cast<SubRunPrincipal &>(lbp), moduleDescription_);
-    this->endSubRun(lb);
+    SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
+    this->endSubRun(sr);
     return true;
   }
 

@@ -121,9 +121,9 @@ namespace art {
 
 
   void
-  InputSource::commitSubRun(art::SubRun &lb)
+  InputSource::commitSubRun(art::SubRun &sr)
   {
-    lb.commit_();
+    sr.commit_();
   }
 
 
@@ -279,7 +279,7 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  InputSource::readEvent(boost::shared_ptr<SubRunPrincipal> lbp) {
+  InputSource::readEvent(boost::shared_ptr<SubRunPrincipal> srp) {
     assert(doneReadAhead_);
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
@@ -287,9 +287,9 @@ namespace art {
 
     preRead();
     std::auto_ptr<EventPrincipal> result = readEvent_();
-    assert(lbp->run() == result->run());
-    assert(lbp->subRun() == result->subRun());
-    result->setSubRunPrincipal(lbp);
+    assert(srp->run() == result->run());
+    assert(srp->subRun() == result->subRun());
+    result->setSubRunPrincipal(srp);
     if (result.get() != 0) {
       Event event(*result, moduleDescription());
       postRead(event);
@@ -410,11 +410,11 @@ namespace art {
   }
 
   void
-  InputSource::doEndSubRun(SubRunPrincipal & lbp) {
-    lbp.setEndTime(time_);
-    SubRun lb(lbp, moduleDescription());
-    endSubRun(lb);
-    lb.commit_();
+  InputSource::doEndSubRun(SubRunPrincipal & srp) {
+    srp.setEndTime(time_);
+    SubRun sr(srp, moduleDescription());
+    endSubRun(sr);
+    sr.commit_();
   }
 
   void

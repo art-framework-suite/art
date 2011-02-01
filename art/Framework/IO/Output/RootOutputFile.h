@@ -45,7 +45,7 @@ namespace art {
     ~RootOutputFile() {}
     void writeOne(EventPrincipal const& e);
     //void endFile();
-    void writeSubRun(SubRunPrincipal const& lb);
+    void writeSubRun(SubRunPrincipal const& sr);
     void writeRun(RunPrincipal const& r);
     void writeFileFormatVersion();
     void writeFileIdentifier();

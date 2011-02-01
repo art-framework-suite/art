@@ -79,11 +79,11 @@ void testGenericHandle::failgetbyLabelTest() {
   art::RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, pc));
   art::SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
-  boost::shared_ptr<art::SubRunPrincipal>lbp(new art::SubRunPrincipal(subRunAux, preg, pc));
-  lbp->setRunPrincipal(rp);
-  art::EventAuxiliary eventAux(id, uuid, time, lbp->subRun(), true);
+  boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, pc));
+  srp->setRunPrincipal(rp);
+  art::EventAuxiliary eventAux(id, uuid, time, srp->subRun(), true);
   art::EventPrincipal ep(eventAux, preg, pc);
-  ep.setSubRunPrincipal(lbp);
+  ep.setSubRunPrincipal(srp);
   art::GenericHandle h("arttest::DummyProduct");
   bool didThrow=true;
   try {
@@ -159,11 +159,11 @@ void testGenericHandle::getbyLabelTest() {
   art::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, pregc, pc));
   art::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<art::SubRunPrincipal>lbp(new art::SubRunPrincipal(subRunAux, pregc, pc));
-  lbp->setRunPrincipal(rp);
-  art::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->subRun(), true);
+  boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, pregc, pc));
+  srp->setRunPrincipal(rp);
+  art::EventAuxiliary eventAux(col, uuid, fakeTime, srp->subRun(), true);
   art::EventPrincipal ep(eventAux, pregc, pc);
-  ep.setSubRunPrincipal(lbp);
+  ep.setSubRunPrincipal(srp);
   const art::BranchDescription& branchFromRegistry = it->second;
   boost::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
   std::auto_ptr<art::ProductProvenance> branchEntryInfoPtr(

@@ -102,9 +102,9 @@ namespace art {
                             CurrentProcessingContext const* cpc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp,
                             CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoBegin(SubRunPrincipal& lbp,
+    virtual bool implDoBegin(SubRunPrincipal& srp,
                             CurrentProcessingContext const* cpc) = 0;
-    virtual bool implDoEnd(SubRunPrincipal& lbp,
+    virtual bool implDoEnd(SubRunPrincipal& srp,
                             CurrentProcessingContext const* cpc) = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;

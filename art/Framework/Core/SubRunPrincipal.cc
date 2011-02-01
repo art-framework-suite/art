@@ -75,11 +75,11 @@ namespace art {
   }
 
   void
-  SubRunPrincipal::mergeSubRun(boost::shared_ptr<SubRunPrincipal> lbp) {
+  SubRunPrincipal::mergeSubRun(boost::shared_ptr<SubRunPrincipal> srp) {
 
-    aux_.mergeAuxiliary(lbp->aux());
+    aux_.mergeAuxiliary(srp->aux());
 
-    for (Base::const_iterator i = lbp->begin(), iEnd = lbp->end(); i != iEnd; ++i) {
+    for (Base::const_iterator i = srp->begin(), iEnd = srp->end(); i != iEnd; ++i) {
 
       std::auto_ptr<Group> g(new Group());
       g->swap(*i->second);

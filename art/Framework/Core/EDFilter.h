@@ -53,9 +53,9 @@ namespace art
                    CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal & rp,
                    CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal & lbp,
+    bool doBeginSubRun(SubRunPrincipal & srp,
                    CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal & lbp,
+    bool doEndSubRun(SubRunPrincipal & srp,
                    CurrentProcessingContext const* cpc);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);

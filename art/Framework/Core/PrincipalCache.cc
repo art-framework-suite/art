@@ -157,18 +157,18 @@ namespace art {
     return true;
   }
 
-  bool PrincipalCache::insert(boost::shared_ptr<SubRunPrincipal> lbp) {
-    int run = lbp->run();
-    int subRun = lbp->subRun();
+  bool PrincipalCache::insert(boost::shared_ptr<SubRunPrincipal> srp) {
+    int run = srp->run();
+    int subRun = srp->subRun();
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
-      subRunPrincipals_[key] = lbp;
-      currentSubRunPrincipal_ = lbp;
+      subRunPrincipals_[key] = srp;
+      currentSubRunPrincipal_ = srp;
       return true;
     }
 
-    iter->second->mergeSubRun(lbp);
+    iter->second->mergeSubRun(srp);
     currentSubRunPrincipal_ = iter->second;
 
     return true;

@@ -144,12 +144,12 @@ namespace art {
                     CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal const& rp,
                     CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& lbp,
+    bool doBeginSubRun(SubRunPrincipal const& srp,
                     CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& lbp,
+    bool doEndSubRun(SubRunPrincipal const& srp,
                     CurrentProcessingContext const* cpc);
     void doWriteRun(RunPrincipal const& rp);
-    void doWriteSubRun(SubRunPrincipal const& lbp);
+    void doWriteSubRun(SubRunPrincipal const& srp);
     void doOpenFile(FileBlock const& fb);
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -181,9 +181,9 @@ namespace art {
     virtual void beginRun(RunPrincipal const& r){}
     virtual void endRun(RunPrincipal const& r){}
     virtual void writeRun(RunPrincipal const& r) = 0;
-    virtual void beginSubRun(SubRunPrincipal const& lb){}
-    virtual void endSubRun(SubRunPrincipal const& lb){}
-    virtual void writeSubRun(SubRunPrincipal const& lb) = 0;
+    virtual void beginSubRun(SubRunPrincipal const& sr){}
+    virtual void endSubRun(SubRunPrincipal const& sr){}
+    virtual void writeSubRun(SubRunPrincipal const& sr) = 0;
     virtual void openFile(FileBlock const& fb) {}
     virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}

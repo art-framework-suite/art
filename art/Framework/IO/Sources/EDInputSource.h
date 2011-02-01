@@ -41,7 +41,7 @@ namespace art {
 
   private:
     virtual void setRun(RunNumber_t);
-    virtual void setSubRun(SubRunNumber_t lb);
+    virtual void setSubRun(SubRunNumber_t sr);
 
     PoolCatalog poolCatalog_;
     InputFileCatalog catalog_;

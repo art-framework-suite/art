@@ -63,7 +63,7 @@ namespace art {
     boost::shared_ptr<SubRunPrincipal> subRunPrincipalPtr();
 
     bool insert(boost::shared_ptr<RunPrincipal> rp);
-    bool insert(boost::shared_ptr<SubRunPrincipal> lbp);
+    bool insert(boost::shared_ptr<SubRunPrincipal> srp);
 
     bool noMoreRuns();
     bool noMoreSubRuns();

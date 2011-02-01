@@ -38,14 +38,14 @@ namespace art
 	orbitNumber_(invalidBunchXing),
         storeNumber_(invalidStoreNumber) {}
     EventAuxiliary(EventID const& theId, std::string const& theProcessGUID, Timestamp const& theTime,
-		   SubRunNumber_t lb, bool isReal, ExperimentType eType = Any,
+		   SubRunNumber_t sr, bool isReal, ExperimentType eType = Any,
 		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
                    int orbitNum = invalidBunchXing) :
 	processHistoryID_(),
 	id_(theId),
         processGUID_(theProcessGUID),
 	time_(theTime),
-	subRun_(lb),
+	subRun_(sr),
 	isRealData_(isReal),
         experimentType_(eType),
 	bunchCrossing_(bunchXing),

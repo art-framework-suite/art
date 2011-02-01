@@ -59,22 +59,22 @@ namespace art
   }
 
   bool
-  EDProducer::doBeginSubRun(SubRunPrincipal & lbp,
+  EDProducer::doBeginSubRun(SubRunPrincipal & srp,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    SubRun lb(lbp, moduleDescription_);
-    this->beginSubRun(lb);
-    lb.commit_();
+    SubRun sr(srp, moduleDescription_);
+    this->beginSubRun(sr);
+    sr.commit_();
     return true;
   }
 
   bool
-  EDProducer::doEndSubRun(SubRunPrincipal & lbp,
+  EDProducer::doEndSubRun(SubRunPrincipal & srp,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
-    SubRun lb(lbp, moduleDescription_);
-    this->endSubRun(lb);
-    lb.commit_();
+    SubRun sr(srp, moduleDescription_);
+    this->endSubRun(sr);
+    sr.commit_();
     return true;
   }
 

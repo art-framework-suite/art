@@ -21,9 +21,9 @@ namespace arttest {
 
     virtual void endRun(art::Run& r, art::EventSetup const& c);
 
-    virtual void beginSubRun(art::SubRun& lb, art::EventSetup const& c);
+    virtual void beginSubRun(art::SubRun& sr, art::EventSetup const& c);
 
-    virtual void endSubRun(art::SubRun& lb, art::EventSetup const& c);
+    virtual void endSubRun(art::SubRun& sr, art::EventSetup const& c);
 
   private:
 

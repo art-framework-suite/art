@@ -151,9 +151,9 @@ namespace art {
       rootOutputFile_->writeOne(e);
   }
 
-  void RootOutput::writeSubRun(SubRunPrincipal const& lb) {
-      if (hasNewlyDroppedBranch()[InSubRun]) lb.addToProcessHistory();
-      rootOutputFile_->writeSubRun(lb);
+  void RootOutput::writeSubRun(SubRunPrincipal const& sr) {
+      if (hasNewlyDroppedBranch()[InSubRun]) sr.addToProcessHistory();
+      rootOutputFile_->writeSubRun(sr);
   }
 
   void RootOutput::writeRun(RunPrincipal const& r) {

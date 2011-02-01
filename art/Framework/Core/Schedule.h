@@ -126,7 +126,7 @@ namespace art {
     void endJob();
 
     // Write the subRun
-    void writeSubRun(SubRunPrincipal const& lbp);
+    void writeSubRun(SubRunPrincipal const& srp);
 
     // Write the run
     void writeRun(RunPrincipal const& rp);

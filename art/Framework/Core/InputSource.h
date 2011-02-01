@@ -90,7 +90,7 @@ namespace art {
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<SubRunPrincipal> lbp);
+    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<SubRunPrincipal> srp);
 
     /// Read a specific event
     std::auto_ptr<EventPrincipal> readEvent(EventID const&);
@@ -125,7 +125,7 @@ namespace art {
     void setRunNumber(RunNumber_t r) {setRun(r);}
 
     /// Set the subRun ID
-    void setSubRunNumber_t(SubRunNumber_t lb) {setSubRun(lb);}
+    void setSubRunNumber_t(SubRunNumber_t sr) {setSubRun(sr);}
 
     /// issue an event report
     void issueReports(EventID const& eventID, SubRunNumber_t const& subRun);
@@ -178,7 +178,7 @@ namespace art {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doEndSubRun(SubRunPrincipal& lbp);
+    void doEndSubRun(SubRunPrincipal& srp);
     void doEndRun(RunPrincipal& rp);
 
     /// Accessor for the current time, as seen by the input source
@@ -252,7 +252,7 @@ namespace art {
     boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
     boost::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
     void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
-    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> lbp) {subRunPrincipal_ = lbp;}
+    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> srp) {subRunPrincipal_ = srp;}
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
     void reset() const {
@@ -263,7 +263,7 @@ namespace art {
     // To call the private commit_() functions of classes with which we are friends
     void commitEvent(Event &e);
     void commitRun(Run &r);
-    void commitSubRun(SubRun &lb);
+    void commitSubRun(SubRun &sr);
 
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
@@ -279,7 +279,7 @@ namespace art {
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void setRun(RunNumber_t r);
-    virtual void setSubRun(SubRunNumber_t lb);
+    virtual void setSubRun(SubRunNumber_t sr);
     virtual void rewind_();
     virtual void wakeUp_();
     void preRead();

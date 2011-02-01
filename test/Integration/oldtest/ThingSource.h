@@ -29,9 +29,9 @@ namespace arttest {
 
     virtual void endRun(art::Run& r);
 
-    virtual void beginSubRun(art::SubRun& lb);
+    virtual void beginSubRun(art::SubRun& sr);
 
-    virtual void endSubRun(art::SubRun& lb);
+    virtual void endSubRun(art::SubRun& sr);
 
   private:
     ThingAlgorithm alg_;

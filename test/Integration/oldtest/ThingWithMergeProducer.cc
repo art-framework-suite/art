@@ -72,48 +72,48 @@ namespace arttest {
     if (!noPut_) e.put(result3, std::string("event"));
   }
 
-  void ThingWithMergeProducer::beginSubRun(art::SubRun& lb, art::EventSetup const&) {
+  void ThingWithMergeProducer::beginSubRun(art::SubRun& sr, art::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       art::Handle<Thing> h;
       art::InputTag tag(*iter, "beginSubRun", "PROD");
-      lb.getByLabel(tag, h);
+      sr.getByLabel(tag, h);
     }
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 101;
-    if (!noPut_) lb.put(result, "beginSubRun");
+    if (!noPut_) sr.put(result, "beginSubRun");
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 102;
-    if (!noPut_) lb.put(result2, "beginSubRun");
+    if (!noPut_) sr.put(result2, "beginSubRun");
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 103;
     if (changeIsEqualValue_) result3->a = 104;
-    if (!noPut_) lb.put(result3, "beginSubRun");
+    if (!noPut_) sr.put(result3, "beginSubRun");
   }
 
-  void ThingWithMergeProducer::endSubRun(art::SubRun& lb, art::EventSetup const&) {
+  void ThingWithMergeProducer::endSubRun(art::SubRun& sr, art::EventSetup const&) {
 
     for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       art::Handle<Thing> h;
       art::InputTag tag(*iter, "endSubRun", "PROD");
-      lb.getByLabel(tag, h);
+      sr.getByLabel(tag, h);
     }
 
     std::auto_ptr<Thing> result(new Thing);
     result->a = 1001;
-    if (!noPut_) lb.put(result, "endSubRun");
+    if (!noPut_) sr.put(result, "endSubRun");
 
     std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
     result2->a = 1002;
-    if (!noPut_) lb.put(result2, "endSubRun");
+    if (!noPut_) sr.put(result2, "endSubRun");
 
     std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
     result3->a = 1003;
     if (changeIsEqualValue_) result3->a = 1004;
-    if (!noPut_) lb.put(result3, "endSubRun");
+    if (!noPut_) sr.put(result3, "endSubRun");
   }
 
   // Functions that gets called by framework every run

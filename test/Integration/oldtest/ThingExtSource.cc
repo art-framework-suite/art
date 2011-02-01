@@ -39,7 +39,7 @@ namespace arttest {
   }
 
   // Functions that gets called by framework every subRun
-  void ThingExtSource::beginSubRun(art::SubRun& lb) {
+  void ThingExtSource::beginSubRun(art::SubRun& sr) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -49,10 +49,10 @@ namespace arttest {
     alg_.run(*result);
 
     // Step D: Put outputs into subRun
-    lb.put(result, "beginSubRun");
+    sr.put(result, "beginSubRun");
   }
 
-  void ThingExtSource::endSubRun(art::SubRun& lb) {
+  void ThingExtSource::endSubRun(art::SubRun& sr) {
     // Step A: Get Inputs
 
     // Step B: Create empty output
@@ -62,7 +62,7 @@ namespace arttest {
     alg_.run(*result);
 
     // Step D: Put outputs into subRun
-    lb.put(result, "endSubRun");
+    sr.put(result, "endSubRun");
   }
 
   // Functions that gets called by framework every run

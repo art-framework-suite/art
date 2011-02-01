@@ -27,7 +27,7 @@ namespace art {
   class SubRun : private DataViewImpl
   {
   public:
-    SubRun(SubRunPrincipal& lbp, const ModuleDescription& md);
+    SubRun(SubRunPrincipal& srp, const ModuleDescription& md);
     ~SubRun() {}
 
     typedef DataViewImpl Base;

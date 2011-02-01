@@ -75,7 +75,7 @@ namespace art {
     virtual void respondToOpenInputFile(FileBlock const& fb);
     virtual void respondToCloseInputFile(FileBlock const& fb);
     virtual void write(EventPrincipal const& e);
-    virtual void writeSubRun(SubRunPrincipal const& lb);
+    virtual void writeSubRun(SubRunPrincipal const& sr);
     virtual void writeRun(RunPrincipal const& r);
 
     virtual bool isFileOpen() const;

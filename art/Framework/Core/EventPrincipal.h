@@ -59,8 +59,8 @@ namespace art {
       return subRunPrincipal_;
     }
 
-    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> lbp) {
-      subRunPrincipal_ = lbp;
+    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> srp) {
+      subRunPrincipal_ = srp;
     }
 
     EventID const& id() const {

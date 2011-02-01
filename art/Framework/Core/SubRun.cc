@@ -7,15 +7,15 @@ namespace art {
 
   namespace {
     Run *
-    newRun(SubRunPrincipal& lbp, ModuleDescription const& md) {
-      return (lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0);
+    newRun(SubRunPrincipal& srp, ModuleDescription const& md) {
+      return (srp.runPrincipalSharedPtr() ? new Run(srp.runPrincipal(), md) : 0);
     }
   }
 
-  SubRun::SubRun(SubRunPrincipal& lbp, ModuleDescription const& md) :
-	DataViewImpl(lbp, md, InSubRun),
-	aux_(lbp.aux()),
-	run_(newRun(lbp, md)) {
+  SubRun::SubRun(SubRunPrincipal& srp, ModuleDescription const& md) :
+	DataViewImpl(srp, md, InSubRun),
+	aux_(srp.aux()),
+	run_(newRun(srp, md)) {
   }
 
   SubRunPrincipal &
@@ -44,7 +44,7 @@ namespace art {
   void
   SubRun::commit_() {
     // fill in guts of provenance here
-    SubRunPrincipal & lbp = subRunPrincipal();
+    SubRunPrincipal & srp = subRunPrincipal();
     ProductPtrVec::iterator pit(putProducts().begin());
     ProductPtrVec::iterator pie(putProducts().end());
 
@@ -57,7 +57,7 @@ namespace art {
 	std::auto_ptr<ProductProvenance> subRunEntryInfoPtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	lbp.put(pr, *pit->second, subRunEntryInfoPtr);
+	srp.put(pr, *pit->second, subRunEntryInfoPtr);
 	++pit;
     }
 

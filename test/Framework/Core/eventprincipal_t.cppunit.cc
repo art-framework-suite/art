@@ -198,11 +198,11 @@ void test_ep::setUp()
     art::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, *process));
     art::SubRunAuxiliary subRunAux(rp->run(), 1, now, now);
-    boost::shared_ptr<art::SubRunPrincipal>lbp(new art::SubRunPrincipal(subRunAux, preg, *process));
-    lbp->setRunPrincipal(rp);
-    art::EventAuxiliary eventAux(eventID_, uuid, now, lbp->subRun(), true);
+    boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, *process));
+    srp->setRunPrincipal(rp);
+    art::EventAuxiliary eventAux(eventID_, uuid, now, srp->subRun(), true);
     pEvent_ = new art::EventPrincipal(eventAux, preg, *process);
-    pEvent_->setSubRunPrincipal(lbp);
+    pEvent_->setSubRunPrincipal(srp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);

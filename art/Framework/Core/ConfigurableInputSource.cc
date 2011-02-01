@@ -85,9 +85,9 @@ boost::shared_ptr<SubRunPrincipal>
   boost::shared_ptr<SubRunPrincipal> subRunPrincipal(
       new SubRunPrincipal(
           subRunAux, productRegistry(), processConfiguration()));
-  SubRun lb(*subRunPrincipal, moduleDescription());
-  beginSubRun(lb);
-  commitSubRun(lb);
+  SubRun sr(*subRunPrincipal, moduleDescription());
+  beginSubRun(sr);
+  commitSubRun(sr);
   newSubRun_ = false;
   return subRunPrincipal;
 }
@@ -163,15 +163,15 @@ void
 { }
 
 void
-  ConfigurableInputSource::setSubRun(SubRunNumber_t lb)
+  ConfigurableInputSource::setSubRun(SubRunNumber_t sr)
 {
   // Protect against invalid subRun.
-  if (lb == SubRunNumber_t()) {
-      lb = origSubRunNumber_t_;
+  if (sr == SubRunNumber_t()) {
+      sr = origSubRunNumber_t_;
   }
   // Do nothing if the subRun is not changed.
-  if (lb != subRun_) {
-    subRun_ = lb;
+  if (sr != subRun_) {
+    subRun_ = sr;
     numberEventsInThisSubRun_ = 0;
     newSubRun_ = true;
     resetSubRunPrincipal();

@@ -84,7 +84,7 @@ namespace art {
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeSubRun(boost::shared_ptr<SubRunPrincipal> lbp);
+    void mergeSubRun(boost::shared_ptr<SubRunPrincipal> srp);
 
     void put(std::auto_ptr<EDProduct> edp,
              ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);

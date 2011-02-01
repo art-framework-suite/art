@@ -63,7 +63,7 @@ namespace art {
     virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
-    virtual void setSubRun(SubRunNumber_t lb);
+    virtual void setSubRun(SubRunNumber_t sr);
     virtual void rewind_();
 
     unsigned int numberEventsInRun_;

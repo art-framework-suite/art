@@ -61,9 +61,9 @@ namespace art {
                             CurrentProcessingContext const* cpc);
     virtual bool implDoEnd(RunPrincipal& rp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoBegin(SubRunPrincipal& lbp,
+    virtual bool implDoBegin(SubRunPrincipal& srp,
                             CurrentProcessingContext const* cpc);
-    virtual bool implDoEnd(SubRunPrincipal& lbp,
+    virtual bool implDoEnd(SubRunPrincipal& srp,
                             CurrentProcessingContext const* cpc);
     virtual void implBeginJob() ;
     virtual void implEndJob() ;
@@ -122,16 +122,16 @@ namespace art {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(SubRunPrincipal& lbp,
+  WorkerT<T>::implDoBegin(SubRunPrincipal& srp,
                            CurrentProcessingContext const* cpc) {
-    return module_->doBeginSubRun(lbp, cpc);
+    return module_->doBeginSubRun(srp, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(SubRunPrincipal& lbp,
+  WorkerT<T>::implDoEnd(SubRunPrincipal& srp,
                            CurrentProcessingContext const* cpc) {
-    return module_->doEndSubRun(lbp, cpc);
+    return module_->doEndSubRun(srp, cpc);
   }
 
   template <typename T>

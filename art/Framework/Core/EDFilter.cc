@@ -55,24 +55,24 @@ namespace art
   }
 
   bool
-  EDFilter::doBeginSubRun(SubRunPrincipal & lbp,
+  EDFilter::doBeginSubRun(SubRunPrincipal & srp,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
-    SubRun lb(lbp, moduleDescription_);
-    rc = this->beginSubRun(lb);
-    lb.commit_();
+    SubRun sr(srp, moduleDescription_);
+    rc = this->beginSubRun(sr);
+    sr.commit_();
     return rc;
   }
 
   bool
-  EDFilter::doEndSubRun(SubRunPrincipal & lbp,
+  EDFilter::doEndSubRun(SubRunPrincipal & srp,
                         CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
-    SubRun lb(lbp, moduleDescription_);
-    rc = this->endSubRun(lb);
-    lb.commit_();
+    SubRun sr(srp, moduleDescription_);
+    rc = this->endSubRun(sr);
+    sr.commit_();
     return rc;
   }
 

@@ -294,26 +294,26 @@ namespace art {
   }
 
   bool
-  OutputModule::doBeginSubRun(SubRunPrincipal const& lbp,
+  OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
                                             CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginSubRun called\n";
-    beginSubRun(lbp);
+    beginSubRun(srp);
     return true;
   }
 
   bool
-  OutputModule::doEndSubRun(SubRunPrincipal const& lbp,
+  OutputModule::doEndSubRun(SubRunPrincipal const& srp,
                                           CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endSubRun called\n";
-    endSubRun(lbp);
+    endSubRun(srp);
     return true;
   }
 
-  void OutputModule::doWriteSubRun(SubRunPrincipal const& lbp) {
+  void OutputModule::doWriteSubRun(SubRunPrincipal const& srp) {
     FDEBUG(2) << "writeSubRun called\n";
-    writeSubRun(lbp);
+    writeSubRun(srp);
   }
 
   void OutputModule::doOpenFile(FileBlock const& fb) {
