@@ -40,7 +40,7 @@ setup -j cpp0x v1_0_8 -q a1
 setup -j fhiclcpp v2_10_2 -q a1
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
-setup -j root v5_28_00a -q gcc45
+setup -j root v5_28_00p02 -q gcc45
 setup -j boost v1_45_0 -q gcc45
 setup -j cppunit v1_12_1 -q gcc45
 setup -j gccxml v0_9_20101128 -q gcc45
