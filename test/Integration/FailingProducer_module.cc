@@ -10,7 +10,7 @@ namespace arttest {
 //
 // throws an exception.
 // Announces an IntProduct but does not produce one;
-// every call to FailingProducer::produce throws a cms exception
+// every call to FailingProducer::produce throws an art::Exception
 //
 class arttest::FailingProducer : public art::EDProducer {
 public:

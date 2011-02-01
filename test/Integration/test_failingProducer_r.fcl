@@ -14,8 +14,8 @@ services:
               'FileInPathError','FileOpenError','FileReadError','FatalRootError',
               'MismatchedInputFiles','ProductDoesNotSupportViews',
               'ProductDoesNotSupportPtr','NotFound']
-    #FailModule: [ 'ProductNotFound' ]
-    FailPath: [ 'ProductNotFound' ]
+    FailModule: [ 'ProductNotFound' ]
+    #FailPath: [ 'ProductNotFound' ]
     wantSummary: true
     # wantTracer: false
     # fileMode: ""
@@ -28,8 +28,8 @@ services:
 
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
-   Timing: { }
-   SimpleMemoryCheck: { }
+   #Timing: { }
+   #SimpleMemoryCheck: { }
 
    user:
    {
@@ -44,7 +44,9 @@ physics:
   {
     f1:
     {
-      module_type: FailingProducer
+      #module_type: FailingProducer
+      module_type: IntProducer
+      ivalue: 17
     }
   }
 
@@ -59,17 +61,21 @@ physics:
     }
   }
 
-   e1: [ a1 ]
+   e1: [ a1, out1 ]
    p1: [ f1 ]
+   #p1: [ ]
 
    trigger_paths: [ p1 ]
    end_paths: [ e1 ]
 }
 
-output:
+outputs:
 {
-  module_type: RootOutput
-  fileName: "outCloned.root"
+  out1:
+  {
+    module_type: RootOutput
+    fileName: "outCloned.root"
+  }
 }
 
 source:
