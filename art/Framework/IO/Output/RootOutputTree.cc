@@ -68,7 +68,7 @@ namespace art {
   void
   RootOutputTree::fastCloneTTree(TTree *in, TTree *out) {
     if (in->GetEntries() != 0) {
-      TTreeCloner cloner(in, out, "");
+      TTreeCloner cloner(in, out, "", TTreeCloner::kIgnoreMissingTopLevel);
       if (!cloner.IsValid()) {
         throw art::Exception(art::errors::FatalRootError)
           << "invalid TTreeCloner\n";
