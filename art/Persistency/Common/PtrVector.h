@@ -205,6 +205,9 @@ public:
     swap( PtrVector & other )
   { PtrVectorBase::swap(other); }
 
+  void
+    sort( )
+  { sort( &default_lt<T> ); }
   template< class LT >
   void
     sort( LT lt );
@@ -232,22 +235,22 @@ inline void
 template< typename T >
 template< class LT >
 void
-  art::PtrVector<T>::sort( LT lt = &default_lt<T> )
+  art::PtrVector<T>::sort( LT lt )
 {
-  if( indicies_.size() <= 1 )
+  if( size() <= 1 )
     return;
 
   // just use O(n^2) sort for now
   // TODO: consider a more sophisticated algorithm
-  for( unsigned long k1 = 0; k1 < indicies_.size(); ++k1 ) {
-    unsigned long min = k1;
+  for( key_type k1 = 0; k1 < size(); ++k1 ) {
+    key_type min = k1;
     Ptr<T> p_min = makePtr< Ptr<T> >(min);
-    for( unsigned long k2 = k1+1; k2 != indicies_.size(); ++k2 ) {
+    for( key_type k2 = k1+1; k2 != size(); ++k2 ) {
       Ptr<T> p2 = makePtr< Ptr<T> >(k2);
       if( lt(*p2,*p_min) )
         min = k2, p_min = p2;
     }
-    swap(k1, min);
+    PtrVectorBase::swap(k1, min);
   }
 
 }  // sort()

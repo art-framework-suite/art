@@ -57,9 +57,10 @@ PtrVectorProducer::produce( art::Event& e )
 
   std::auto_ptr<product_t> prod( new product_t );
   for( int k = 0; k != 8; ++k ) {
-    art::Ptr<int> p(h, k, true);
+    art::Ptr<int> p(h, 7-k, true);
     prod->push_back(p);
   }
+  prod->sort();
 
   e.put(prod);
 }

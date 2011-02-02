@@ -60,7 +60,7 @@ public:
   { indicies_.reserve(n), cachedItems_.reserve(n); }
 
   void
-    setProductGetter( EDProductGetter * g ) const  // const? really?
+    setProductGetter( EDProductGetter * g ) const
   { core_.setProductGetter(g); }
 
 protected:
@@ -115,6 +115,13 @@ protected:
                      , void const * );
   void swap( PtrVectorBase & );
 
+  void
+    swap( key_type k1, key_type k2 )
+  {
+    std::swap( indicies_[k1], indicies_[k2] );
+    std::swap( cachedItems_[k1], cachedItems_[k2] );
+  }
+
 private:
   RefCore                            core_;
   std::vector<key_type>              indicies_;
@@ -126,13 +133,6 @@ private:
     getProduct_() const;
   virtual std::type_info const &
     typeInfo() const = 0;
-
-  void
-    swap( key_type k1, key_type k2 )
-  {
-    std::swap( indicies_[k1], indicies_[k2] );
-    std::swap( cachedItems_[k1], cachedItems_[k2] );
-  }
 
 };  // PtrVectorBase
 
