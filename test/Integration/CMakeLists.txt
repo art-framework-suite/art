@@ -77,6 +77,7 @@ set( TEST_SCRIPTS
   outputCommand_t.sh
   ptr_list_t.sh
   test_failingProducer_t.sh
+  issue_0923_t.sh
 )
 
 set( INPUT_FILES
@@ -96,6 +97,9 @@ set( INPUT_FILES
   ptr_list_01.fcl
   test_failingProducer_w.fcl
   test_failingProducer_r.fcl
+  issue_0923a.fcl
+  issue_0923b.fcl
+  issue_0923_ref.txt
 )
 
 # ----------------------------------------------------------------------
