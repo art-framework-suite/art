@@ -1,0 +1,6 @@
+#include "issue_0923a.fcl"
+
+my_configuration: @local::my_new_configuration
+
+my_flux_file_check1: @local::my_new_configuration.FluxFile
+my_flux_file_check2: @local::my_configuration.FluxFile
