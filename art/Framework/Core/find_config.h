@@ -1,5 +1,11 @@
-#ifndef Art_Framework_Core_open_config_h
-#define Art_Framework_Core_open_config_h
+// ======================================================================
+//
+// find_config
+//
+// ======================================================================
+
+#ifndef Art_Framework_Core_find_config_h
+#define Art_Framework_Core_find_config_h
 
 #include <string>
 
