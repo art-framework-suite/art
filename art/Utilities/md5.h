@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_md5_h
-#define FWCore_Utilities_md5_h
+#ifndef art_Utilities_md5_h
+#define art_Utilities_md5_h
 
 /*
   Copyright (C) 1999, 2002 Aladdin Enterprises.  All rights reserved.
@@ -88,5 +88,8 @@ void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 }  /* end extern "C" */
 #endif
 
-#endif
+#endif /* art_Utilities_md5_h */
 
+// Local Variables:
+// mode: c++
+// End:

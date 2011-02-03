@@ -1,5 +1,5 @@
-#ifndef Framework_Actions_h
-#define Framework_Actions_h
+#ifndef art_Framework_Core_Actions_h
+#define art_Framework_Core_Actions_h
 
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
@@ -42,4 +42,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_Actions_h */
+
+// Local Variables:
+// mode: c++
+// End:

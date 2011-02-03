@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_RefCore_h
-#define DataFormats_Common_RefCore_h
+#ifndef art_Persistency_Common_RefCore_h
+#define art_Persistency_Common_RefCore_h
 
 // ======================================================================
 //
@@ -153,4 +153,8 @@ inline void
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_RefCore_h */
+
+// Local Variables:
+// mode: c++
+// End:

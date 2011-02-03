@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_Wrapper_h
-#define DataFormats_Common_Wrapper_h
+#ifndef art_Persistency_Common_Wrapper_h
+#define art_Persistency_Common_Wrapper_h
 
 // ======================================================================
 //
@@ -374,4 +374,8 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Persistency_Common_Wrapper_h */
+
+// Local Variables:
+// mode: c++
+// End:

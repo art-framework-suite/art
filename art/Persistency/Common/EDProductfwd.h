@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_EDProductfwd_h
-#define DataFormats_Common_EDProductfwd_h
+#ifndef art_Persistency_Common_EDProductfwd_h
+#define art_Persistency_Common_EDProductfwd_h
 
 // ======================================================================
 //
@@ -61,4 +61,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_EDProductfwd_h */
+
+// Local Variables:
+// mode: c++
+// End:

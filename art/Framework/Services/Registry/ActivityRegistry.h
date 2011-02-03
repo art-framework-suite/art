@@ -1,5 +1,5 @@
-#ifndef FWCore_ServiceRegistry_ActivityRegistry_h
-#define FWCore_ServiceRegistry_ActivityRegistry_h
+#ifndef art_Framework_Services_Registry_ActivityRegistry_h
+#define art_Framework_Services_Registry_ActivityRegistry_h
 
 // ======================================================================
 //
@@ -584,4 +584,8 @@ namespace art {
 // ======================================================================
 
 
-#endif
+#endif /* art_Framework_Services_Registry_ActivityRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Framework_BranchActionType_h
-#define Framework_BranchActionType_h
+#ifndef art_Framework_Core_BranchActionType_h
+#define art_Framework_Core_BranchActionType_h
 
 /*----------------------------------------------------------------------
 
@@ -14,4 +14,8 @@ namespace art {
     BranchActionEnd = 1
   };
 }
-#endif
+#endif /* art_Framework_Core_BranchActionType_h */
+
+// Local Variables:
+// mode: c++
+// End:

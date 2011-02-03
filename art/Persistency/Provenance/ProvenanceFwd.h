@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProvenanceFwd_h
-#define DataFormats_Provenance_ProvenanceFwd_h
+#ifndef art_Persistency_Provenance_ProvenanceFwd_h
+#define art_Persistency_Provenance_ProvenanceFwd_h
 
 // ======================================================================
 //
@@ -49,4 +49,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_ProvenanceFwd_h */
+
+// Local Variables:
+// mode: c++
+// End:

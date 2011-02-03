@@ -1,5 +1,5 @@
-#ifndef Framework_Selector_h
-#define Framework_Selector_h
+#ifndef art_Framework_Core_Selector_h
+#define art_Framework_Core_Selector_h
 
 /*----------------------------------------------------------------------
 
@@ -319,4 +319,8 @@ namespace art
 
 }
 
-#endif
+#endif /* art_Framework_Core_Selector_h */
+
+// Local Variables:
+// mode: c++
+// End:

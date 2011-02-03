@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_connect_but_block_self_h
-#define ServiceRegistry_connect_but_block_self_h
+#ifndef art_Framework_Services_Registry_connect_but_block_self_h
+#define art_Framework_Services_Registry_connect_but_block_self_h
 
 // ======================================================================
 //
@@ -96,4 +96,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_connect_but_block_self_h */
+
+// Local Variables:
+// mode: c++
+// End:

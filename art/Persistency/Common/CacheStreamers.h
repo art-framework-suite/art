@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_CacheStreamers_h
-#define DataFormats_Common_CacheStreamers_h
+#ifndef art_Persistency_Common_CacheStreamers_h
+#define art_Persistency_Common_CacheStreamers_h
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
@@ -30,4 +30,8 @@ private:
   void setCacheStreamers();
 }
 
-#endif
+#endif /* art_Persistency_Common_CacheStreamers_h */
+
+// Local Variables:
+// mode: c++
+// End:

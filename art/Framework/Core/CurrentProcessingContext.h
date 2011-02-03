@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_CurrentProcessingContext
-#define FWCore_Framework_CurrentProcessingContext
+#ifndef art_Framework_Core_CurrentProcessingContext_h
+#define art_Framework_Core_CurrentProcessingContext_h
 
 // CurrentProcessingContext is a class that carries information about
 // the current event processing context. Each module in a framework
@@ -86,4 +86,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_CurrentProcessingContext_h */
+
+// Local Variables:
+// mode: c++
+// End:

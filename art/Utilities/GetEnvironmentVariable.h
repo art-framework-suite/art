@@ -1,5 +1,5 @@
-#ifndef Utilities_GetEnvironmentVariable_h
-#define Utilities_GetEnvironmentVariable_h
+#ifndef art_Utilities_GetEnvironmentVariable_h
+#define art_Utilities_GetEnvironmentVariable_h
 
 #include <cstdlib>
 #include <string>
@@ -11,4 +11,8 @@ namespace art {
     return (p ? std::string(p) : defaultValue);
   }
 }
-#endif
+#endif /* art_Utilities_GetEnvironmentVariable_h */
+
+// Local Variables:
+// mode: c++
+// End:

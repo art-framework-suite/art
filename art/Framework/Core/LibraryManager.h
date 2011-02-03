@@ -1,5 +1,5 @@
-#ifndef ART_FRAMEWORK_CORE_LIBRARY_MANAGER_H
-#define ART_FRAMEWORK_CORE_LIBRARY_MANAGER_H
+#ifndef art_Framework_Core_LibraryManager_h
+#define art_Framework_Core_LibraryManager_h
 
 #include <string>
 #include <map>
@@ -143,7 +143,7 @@ size_t art::LibraryManager::getValidLibspecs(OutIter dest) const {
 
 
 
-#endif
+#endif /* art_Framework_Core_LibraryManager_h */
 
 // Local Variables:
 // mode: c++

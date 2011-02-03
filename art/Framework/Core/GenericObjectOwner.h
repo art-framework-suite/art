@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_GenericObjectOwner_h
-#define FWCore_Framework_GenericObjectOwner_h
+#ifndef art_Framework_Core_GenericObjectOwner_h
+#define art_Framework_Core_GenericObjectOwner_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -104,4 +104,8 @@ class GenericObjectOwner
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_GenericObjectOwner_h */
+
+// Local Variables:
+// mode: c++
+// End:

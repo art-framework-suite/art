@@ -1,5 +1,5 @@
-#ifndef FWCore_Services_UserInteraction_h
-#define FWCore_Services_UserInteraction_h
+#ifndef art_Framework_Services_Optional_UserInteraction_h
+#define art_Framework_Services_Optional_UserInteraction_h
 
 // -*- C++ -*-
 //
@@ -85,4 +85,8 @@ namespace ui {
   };
 }
    
-#endif
+#endif /* art_Framework_Services_Optional_UserInteraction_h */
+
+// Local Variables:
+// mode: c++
+// End:

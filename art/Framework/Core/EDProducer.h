@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_EDProducer_h
-#define FWCore_Framework_EDProducer_h
+#ifndef art_Framework_Core_EDProducer_h
+#define art_Framework_Core_EDProducer_h
 
 // ======================================================================
 //
@@ -90,4 +90,8 @@ namespace art
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_EDProducer_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_EDProductGetter_h
-#define DataFormats_Common_EDProductGetter_h
+#ifndef art_Persistency_Common_EDProductGetter_h
+#define art_Persistency_Common_EDProductGetter_h
 
 //
 // EDProductGetter
@@ -67,4 +67,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_EDProductGetter_h */
+
+// Local Variables:
+// mode: c++
+// End:

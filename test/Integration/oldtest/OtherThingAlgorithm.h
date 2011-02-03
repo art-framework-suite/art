@@ -1,5 +1,5 @@
-#ifndef Integration_OtherThingAlgorithm_h
-#define Integration_OtherThingAlgorithm_h
+#ifndef test_Integration_oldtest_OtherThingAlgorithm_h
+#define test_Integration_oldtest_OtherThingAlgorithm_h
 
 #include <string>
 #include "test/TestObjects/OtherThingCollectionfwd.h"
@@ -24,4 +24,8 @@ namespace arttest {
 
 }
 
-#endif
+#endif /* test_Integration_oldtest_OtherThingAlgorithm_h */
+
+// Local Variables:
+// mode: c++
+// End:

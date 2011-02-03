@@ -1,7 +1,7 @@
 // functions shared between the art::EventSelector and the HLTHighLevel filter
 
-#ifndef FWCore_Utilities_RegexMatch_h
-#define FWCore_Utilities_RegexMatch_h
+#ifndef art_Utilities_RegexMatch_h
+#define art_Utilities_RegexMatch_h
 
 #include "boost/regex_fwd.hpp"
 #include <string>
@@ -27,4 +27,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_RegexMatch_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_ProductRegistryHelper_h
-#define FWCore_Framework_ProductRegistryHelper_h
+#ifndef art_Framework_Core_ProductRegistryHelper_h
+#define art_Framework_Core_ProductRegistryHelper_h
 
 /*----------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_ProductRegistryHelper_h */
 
 // Local Variables:
 // mode: c++

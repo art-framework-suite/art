@@ -6,4 +6,8 @@
 namespace art {
    int run_art(fhicl::intermediate_table raw_config);
 }
-#endif
+#endif /* art_Framework_Core_run_art_h */
+
+// Local Variables:
+// mode: c++
+// End:

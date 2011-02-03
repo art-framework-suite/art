@@ -1,5 +1,5 @@
-#ifndef Framework_ConfigurableInputSource_h
-#define Framework_ConfigurableInputSource_h
+#ifndef art_Framework_Core_ConfigurableInputSource_h
+#define art_Framework_Core_ConfigurableInputSource_h
 
 // ======================================================================
 //
@@ -93,4 +93,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_ConfigurableInputSource_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_HLTPathStatus_h
-#define DataFormats_Common_HLTPathStatus_h
+#ifndef art_Persistency_Common_HLTPathStatus_h
+#define art_Persistency_Common_HLTPathStatus_h
 
 /** \class art::HLTPathStatus
  *
@@ -66,4 +66,8 @@ namespace art
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_HLTPathStatus_h */
+
+// Local Variables:
+// mode: c++
+// End:

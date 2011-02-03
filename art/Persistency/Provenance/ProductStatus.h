@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProductStatus_h
-#define DataFormats_Provenance_ProductStatus_h
+#ifndef art_Persistency_Provenance_ProductStatus_h
+#define art_Persistency_Provenance_ProductStatus_h
 
 /*----------------------------------------------------------------------
 
@@ -27,4 +27,8 @@ namespace art {
     inline bool uninitialized(ProductStatus status) {return status == uninitialized();}
   }
 }
-#endif
+#endif /* art_Persistency_Provenance_ProductStatus_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_NoDelayedReader_h
-#define FWCore_Framework_NoDelayedReader_h
+#ifndef art_Framework_Core_NoDelayedReader_h
+#define art_Framework_Core_NoDelayedReader_h
 
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
@@ -16,4 +16,8 @@ namespace art {
     virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const;
   };
 }
-#endif
+#endif /* art_Framework_Core_NoDelayedReader_h */
+
+// Local Variables:
+// mode: c++
+// End:

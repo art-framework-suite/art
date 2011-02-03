@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_ThreadSafeIndexedRegistry_h
-#define FWCore_Utilities_ThreadSafeIndexedRegistry_h
+#ifndef art_Utilities_ThreadSafeIndexedRegistry_h
+#define art_Utilities_ThreadSafeIndexedRegistry_h
 
 // ----------------------------------------------------------------------
 //
@@ -237,4 +237,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_ThreadSafeIndexedRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

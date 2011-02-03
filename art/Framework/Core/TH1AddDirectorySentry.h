@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_TH1AddDirectorySentry_h
-#define FWCore_Framework_TH1AddDirectorySentry_h
+#ifndef art_Framework_Core_TH1AddDirectorySentry_h
+#define art_Framework_Core_TH1AddDirectorySentry_h
 
 // -*- C++ -*-
 //
@@ -38,9 +38,10 @@ private:
 };
 
 
-#endif
+#endif /* art_Framework_Core_TH1AddDirectorySentry_h */
 
 /// emacs configuration
+
 /// Local Variables: -
 /// mode: c++ -
 /// c-basic-offset: 2 -

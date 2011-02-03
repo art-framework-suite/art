@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EventID_h
-#define DataFormats_Provenance_EventID_h
+#ifndef art_Persistency_Provenance_EventID_h
+#define art_Persistency_Provenance_EventID_h
 // -*- C++ -*-
 //
 // Package:     DataFormats/Provenance
@@ -121,4 +121,8 @@ class EventID {
 std::ostream& operator<<(std::ostream& oStream, EventID const& iID);
 
 }
-#endif
+#endif /* art_Persistency_Provenance_EventID_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,0 +1,173 @@
+#!/bin/bash
+########################################################################
+# reset-headers
+#
+# This script will find all headers under the specified top directory
+# and replace their guards with ones matching the following format:
+#
+# full_path_to_file_h
+#
+# matching the case of each path component. Any non-legal characters
+# will be replaced by underscores.
+#
+########################################################################
+
+function usage() {
+    echo "usage: ${0##*/} [-e] [--] <top-dir>"
+    exit ${1:-1}
+}
+
+function one_file() {
+  [[ -n "$emacs_block" ]] && EXTRA_ARGS=--emacs-block
+  "${TMP}" "--top-dir=$TOP" $EXTRA_ARGS "${1}"
+}
+
+while getopts :e OPT; do
+    case $OPT in
+        e)
+          emacs_block=1
+        ;;
+        *)
+          usage 1
+    esac
+done
+shift $[ OPTIND - 1 ]
+TOP=${1}
+
+[[ -n "$TOP" ]] || { echo "ERROR: unspecified top directory." 1>&2; usage 1; }
+
+[[ -d "$TOP" ]] || { echo "ERROR: specified top directory \"$TOP\" does not exist or is not a directory." 1>&2; usage 1; }
+
+TMP=`mktemp "${TMPDIR:-/tmp}/reset-headers.XXXXXXXXXX"`
+[[ -z "$DEBUG" ]] && trap "[[ -f \"$TMP\" ]] && rm \"$TMP\" 2>/dev/null" EXIT
+cat >"${TMP}" <<\EOF
+#!/usr/bin/perl -w
+use strict;
+
+use Cwd qw(:DEFAULT chdir);
+use File::Basename;
+use Getopt::Long;
+
+my $options = {};
+
+GetOptions($options,
+           "emacs-block|e",
+           "top-dir|d=s") or usage(1);
+
+my $tmp_file = `mktemp "\${TMPDIR:-/tmp}/reset-headers-newfile.XXXXXXXXXX"`;
+chomp $tmp_file;
+
+( $tmp_file and -f $tmp_file ) or
+  do { print STDERR "ERROR: Unable to create temporary file for header conversion\n"; exit(2); };
+
+chdir($options->{"top-dir"} || ".") or
+  do { print STDERR "ERROR: Unable to change current directory to \"$options->{\"top-dir\"}\"\n"; exit(2); };
+
+FILE: foreach my $file (@ARGV) {
+  next if basename($file) eq "classes.h";
+  print STDERR "INFO: converting \"${file}\" ... ";
+  open (FILEIN, "<${file}") or do { print STDERR "Unable to open \"${file}\" for read\n"; exit(2); };
+  open (FILEOUT, ">${tmp_file}") or do { print STDERR "Unable to open \"${tmp_file}\" for write\n"; exit(2); };
+  my $new_guard = $file;
+  while ($new_guard =~ s&[^\w\d_]&_&g) {}
+  my $seen_guard_check;
+  my $seen_guard_def;
+  my $seen_guard_close;
+  my $seen_emacs_block = 0;
+  my $first_line = 1;
+  while (<FILEIN>) {
+    if ($first_line) {
+      undef $first_line;
+      if (m&^\s*#\s*error&) {
+        print "SKIPPED due to #error in first line.\n";
+          close(FILEIN);
+          close(FILEOUT);
+          next FILE;
+      }
+    }
+    if ((!$seen_guard_check) and m&^\s*#\s*if(?:ndef\s+([\w\d_]+)|.*?defined.*?\(\s*(.*?)\))&i) {
+      $seen_guard_check = $1?$1:$2;
+      if (not $seen_guard_check eq $new_guard) {
+        print "replacing header guard \"$seen_guard_check\" with \"$new_guard\" ... ";
+        s&\Q$seen_guard_check\E&$new_guard&;
+      }
+    }
+    if ($seen_guard_check and m&^\s*#\s*define\s+\Q$seen_guard_check\E&) {
+      $seen_guard_def = 1;
+      print FILEOUT "#define $new_guard\n";
+      last;
+    }
+    print FILEOUT;
+  }
+  my @remainder = <FILEIN>;
+  my $type;
+  grep m&(?:^\s*#include\s+[<"](?:algorithm|bitset|boost/|cassert|cmath|complex|cstdlib|cstdio|deque|exception|fstream|functional|iomanip|ios|iosfwd|iostream|istream|iterator|limits|list|locale|map|memory|new|numeric|ostream|queue|set|sstream|stack|stdexcept|streambuf|string|typeinfo|utility|valarray|vector)|namespace\b|::|\Q// -*- C++\E)&, @remainder and $type = "c++";
+  if (not scalar @remainder) {
+    print STDERR "WARNING: Not processing header \"$file\": no existing guard found.\n";
+    close(FILEIN);
+    close(FILEOUT);
+    next FILE;
+  }
+  foreach my $line (reverse @remainder) {
+    if ($seen_emacs_block == 1) {
+      ++$seen_emacs_block;
+      if ($line =~ m&^\s*\n&) {
+        # NOP
+      } else {
+        $line = "$line\n"; # Blank line spacer
+      }
+    }
+    if ((!$seen_guard_close) and $line =~ m&^\s*#\s*endif&) {
+      chomp $line;
+      $line =~ s&^.*$&#endif /* $new_guard */\n&;
+      $seen_guard_close = 1;
+    }
+    if ($line =~ m&^(.*?)\s+Local Variables\s*:&i) {
+      $seen_emacs_block = 1;
+    }
+  }
+  if (not $seen_guard_close) {
+    print STDERR "WARNING: Missing close guard for $file: nothing changed.\n";
+    close(FILEIN);
+    close(FILEOUT);
+    next;
+  }
+  print FILEOUT @remainder;
+  if ($options->{"emacs-block"} and not $seen_emacs_block) {
+    if ($type) {
+      print FILEOUT << "EOX";
+
+// Local Variables:
+// mode: $type
+// End:
+EOX
+    } else {
+     print STDERR "WARNING: could not define type of header $file: not adding emacs definition block\n";
+    }
+  }
+  close(FILEIN);
+  close(FILEOUT);
+  if (system("cmp \"${file}\" \"${tmp_file}\" 2>&1 >/dev/null || cp -b \"${tmp_file}\" \"${file}\"") == 0) {
+    print "OK\n";
+  } else {
+    print STDERR "ERROR: failed to copy in new version of $file; Nothing changed.\n";
+  }
+}
+
+END { (!$ENV{"DEBUG"}) && $tmp_file && unlink $tmp_file; }
+
+EOF
+
+chmod +x "${TMP}"
+
+for F in \
+  `find "$TOP" \( -type d \( -name .git -o -name .svn -o -name CVS -o -name doc -o \
+                             -name ups -o -path '*/tools/migration' -o \
+                             -path '*/art/ParameterSet' \) \
+                  -prune \) -o \
+               -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) \
+               \( -name '*.[Hh]' -o -name '*.hpp' -o -name '*.hxx' -o \
+                  -name '*.hh' \) \
+               -printf "%P\n"`; do
+  one_file "${F}"
+done

@@ -1,5 +1,5 @@
-#ifndef Framework_SelectorBase_h
-#define Framework_SelectorBase_h
+#ifndef art_Framework_Core_SelectorBase_h
+#define art_Framework_Core_SelectorBase_h
 
 /*----------------------------------------------------------------------
 
@@ -33,4 +33,8 @@ namespace art
   };
 }
 
-#endif
+#endif /* art_Framework_Core_SelectorBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

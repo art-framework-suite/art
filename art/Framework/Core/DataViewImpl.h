@@ -1,5 +1,5 @@
-#ifndef Framework_DataViewImpl_h
-#define Framework_DataViewImpl_h
+#ifndef art_Framework_Core_DataViewImpl_h
+#define art_Framework_Core_DataViewImpl_h
 
 // ======================================================================
 //
@@ -454,4 +454,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_DataViewImpl_h */
+
+// Local Variables:
+// mode: c++
+// End:

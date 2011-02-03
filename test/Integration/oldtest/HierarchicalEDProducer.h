@@ -1,5 +1,5 @@
-#ifndef Integration_HierarchicalEDProducer_h
-#define Integration_HierarchicalEDProducer_h
+#ifndef test_Integration_oldtest_HierarchicalEDProducer_h
+#define test_Integration_oldtest_HierarchicalEDProducer_h
 
 /** \class HierarchicalEDProducer
  *
@@ -28,4 +28,8 @@ namespace arttest {
     alg_1        outer_alg_;
   };
 }
-#endif
+#endif /* test_Integration_oldtest_HierarchicalEDProducer_h */
+
+// Local Variables:
+// mode: c++
+// End:

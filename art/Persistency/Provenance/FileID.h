@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_FileID_h
-#define DataFormats_Provenance_FileID_h
+#ifndef art_Persistency_Provenance_FileID_h
+#define art_Persistency_Provenance_FileID_h
 
 /*----------------------------------------------------------------------
 
@@ -30,5 +30,8 @@ namespace art {
   std::ostream&
   operator<<(std::ostream& os, FileID const& id);
 }
-#endif
+#endif /* art_Persistency_Provenance_FileID_h */
 
+// Local Variables:
+// mode: c++
+// End:

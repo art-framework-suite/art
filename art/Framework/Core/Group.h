@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_Group_h
-#define FWCore_Framework_Group_h
+#ifndef art_Framework_Core_Group_h
+#define art_Framework_Core_Group_h
 
 /*----------------------------------------------------------------------
 
@@ -134,4 +134,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_Group_h */
+
+// Local Variables:
+// mode: c++
+// End:

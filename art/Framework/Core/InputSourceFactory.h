@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_InputSourceFactory_h
-#define FWCOre_Framework_InputSourceFactory_h
+#ifndef art_Framework_Core_InputSourceFactory_h
+#define art_Framework_Core_InputSourceFactory_h
 
 // ======================================================================
 //
@@ -45,4 +45,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_InputSourceFactory_h */
+
+// Local Variables:
+// mode: c++
+// End:

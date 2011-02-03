@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProcessHistory_h
-#define DataFormats_Provenance_ProcessHistory_h
+#ifndef art_Persistency_Provenance_ProcessHistory_h
+#define art_Persistency_Provenance_ProcessHistory_h
 
 #include <iosfwd>
 #include <string>
@@ -107,4 +107,8 @@ namespace art {
   std::ostream& operator<<(std::ostream& ost, ProcessHistory const& ph);
 }
 
-#endif
+#endif /* art_Persistency_Provenance_ProcessHistory_h */
+
+// Local Variables:
+// mode: c++
+// End:

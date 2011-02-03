@@ -1,5 +1,5 @@
-#ifndef IORoot_Input_ProvenanceAdaptor_h
-#define IORoot_Input_ProvenanceAdaptor_h
+#ifndef art_Framework_IO_Input_ProvenanceAdaptor_h
+#define art_Framework_IO_Input_ProvenanceAdaptor_h
 
 // ======================================================================
 //
@@ -49,4 +49,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Input_ProvenanceAdaptor_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Framework_ModuleMacros_h
-#define Framework_ModuleMacros_h
+#ifndef art_Framework_Core_ModuleMacros_h
+#define art_Framework_Core_ModuleMacros_h
 
 // ======================================================================
 //
@@ -33,4 +33,8 @@ std::auto_ptr<klass::ModuleType> make(fhicl::ParameterSet const& ps) \
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_ModuleMacros_h */
+
+// Local Variables:
+// mode: c++
+// End:

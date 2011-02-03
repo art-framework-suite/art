@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_EventPrincipal_h
-#define FWCore_Framework_EventPrincipal_h
+#ifndef art_Framework_Core_EventPrincipal_h
+#define art_Framework_Core_EventPrincipal_h
 
 /*----------------------------------------------------------------------
 
@@ -176,4 +176,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_EventPrincipal_h */
+
+// Local Variables:
+// mode: c++
+// End:

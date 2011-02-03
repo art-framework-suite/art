@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchEntryDescription_h
-#define DataFormats_Provenance_BranchEntryDescription_h
+#ifndef art_Persistency_Provenance_BranchEntryDescription_h
+#define art_Persistency_Provenance_BranchEntryDescription_h
 
 // ======================================================================
 //
@@ -90,4 +90,8 @@ namespace art {
 
   bool operator==(BranchEntryDescription const& a, BranchEntryDescription const& b);
 }
-#endif
+#endif /* art_Persistency_Provenance_BranchEntryDescription_h */
+
+// Local Variables:
+// mode: c++
+// End:

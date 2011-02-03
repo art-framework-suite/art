@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_FileIndex_h
-#define DataFormats_Provenance_FileIndex_h
+#ifndef art_Persistency_Provenance_FileIndex_h
+#define art_Persistency_Provenance_FileIndex_h
 
 /*----------------------------------------------------------------------
 
@@ -145,4 +145,8 @@ namespace art {
   operator<< (std::ostream& os, FileIndex const& fileIndex);
 }
 
-#endif
+#endif /* art_Persistency_Provenance_FileIndex_h */
+
+// Local Variables:
+// mode: c++
+// End:

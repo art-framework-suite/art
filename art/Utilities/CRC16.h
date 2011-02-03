@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_CRC16_h
-#define FWCore_Utilities_CRC16_h 1
+#ifndef art_Utilities_CRC16_h
+#define art_Utilities_CRC16_h
 
 //
 // Calculates the 16bit CRC (applied to 64-bit words) used in the daq hardware
@@ -55,7 +55,7 @@ namespace evf
 }
 
 
-#endif
+#endif /* art_Utilities_CRC16_h */
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,3 +90,7 @@ unsigned short evf::compute_crc_64bit(unsigned short crc,unsigned char *p64)
   for (int i=7;i>=0;i--) result=evf::compute_crc_8bit(result,p64[i]);
   return result;
 }
+
+// Local Variables:
+// mode: c++
+// End:

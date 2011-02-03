@@ -1,5 +1,5 @@
-#ifndef TestObjects_StreamTestSimple_h
-#define TestObjects_StreamTestSimple_h
+#ifndef test_TestObjects_StreamTestSimple_h
+#define test_TestObjects_StreamTestSimple_h
 
 #include "art/Persistency/Common/SortedCollection.h"
 
@@ -26,4 +26,8 @@ namespace arttestprod
   typedef X0123456789012345678901234567890123456789012345678901234567890123456789012345678901 Pig;
 }
 
-#endif
+#endif /* test_TestObjects_StreamTestSimple_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef IORoot_Input_Inputfwd_h
-#define IORoot_Input_Inputfwd_h
+#ifndef art_Framework_IO_Input_Inputfwd_h
+#define art_Framework_IO_Input_Inputfwd_h
 
 // ======================================================================
 //
@@ -47,4 +47,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Input_Inputfwd_h */
+
+// Local Variables:
+// mode: c++
+// End:

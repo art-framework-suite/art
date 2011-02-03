@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServicesManager_h
-#define ServiceRegistry_ServicesManager_h
+#ifndef art_Framework_Services_Registry_ServicesManager_h
+#define art_Framework_Services_Registry_ServicesManager_h
 
 // ======================================================================
 //
@@ -205,4 +205,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_ServicesManager_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Utilities_ECGetterBase_h
-#define Utilities_ECGetterBase_h
+#ifndef art_Utilities_ECGetterBase_h
+#define art_Utilities_ECGetterBase_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -68,4 +68,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Utilities_ECGetterBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

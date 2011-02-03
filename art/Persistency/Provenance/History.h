@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_History_h
-#define DataFormats_Provenance_History_h
+#ifndef art_Persistency_Provenance_History_h
+#define art_Persistency_Provenance_History_h
 
 //----------------------------------------------------------------------
 //
@@ -64,4 +64,8 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Persistency_Provenance_History_h */
+
+// Local Variables:
+// mode: c++
+// End:

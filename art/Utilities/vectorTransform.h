@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_vectorTransform_hh
-#define FWCore_Utilities_vectorTransform_hh
+#ifndef art_Utilities_vectorTransform_h
+#define art_Utilities_vectorTransform_h
 
 // ======================================================================
 //
@@ -46,4 +46,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_vectorTransform_h */
+
+// Local Variables:
+// mode: c++
+// End:

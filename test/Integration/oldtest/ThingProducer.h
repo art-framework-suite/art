@@ -1,5 +1,5 @@
-#ifndef Integration_ThingProducer_h
-#define Integration_ThingProducer_h
+#ifndef test_Integration_oldtest_ThingProducer_h
+#define test_Integration_oldtest_ThingProducer_h
 
 /** \class ThingProducer
  *
@@ -35,4 +35,8 @@ namespace arttest {
     bool noPut_;
   };
 }
-#endif
+#endif /* test_Integration_oldtest_ThingProducer_h */
+
+// Local Variables:
+// mode: c++
+// End:

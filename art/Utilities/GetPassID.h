@@ -1,5 +1,5 @@
-#ifndef Utilities_GetPassID_h
-#define Utilities_GetPassID_h
+#ifndef art_Utilities_GetPassID_h
+#define art_Utilities_GetPassID_h
 
 #include <string>
 
@@ -11,4 +11,8 @@ namespace art {
     return passID;
   }
 }
-#endif
+#endif /* art_Utilities_GetPassID_h */
+
+// Local Variables:
+// mode: c++
+// End:

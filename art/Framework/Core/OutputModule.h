@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_OutputModule_h
-#define FWCore_Framework_OutputModule_h
+#ifndef art_Framework_Core_OutputModule_h
+#define art_Framework_Core_OutputModule_h
 
 // ======================================================================
 //
@@ -226,4 +226,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_OutputModule_h */
+
+// Local Variables:
+// mode: c++
+// End:

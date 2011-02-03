@@ -1,5 +1,5 @@
-#ifndef FWCore_MessageService_test_MemoryTestClient_A_h
-#define FWCore_MessageService_test_MemoryTestClient_A_h
+#ifndef test_Framework_Services_Message_MemoryTestClient_A_h
+#define test_Framework_Services_Message_MemoryTestClient_A_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -45,4 +45,8 @@ private:
 }  // arttest
 
 
-#endif
+#endif /* test_Framework_Services_Message_MemoryTestClient_A_h */
+
+// Local Variables:
+// mode: c++
+// End:

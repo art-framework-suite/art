@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EntryDescription_h
-#define DataFormats_Provenance_EntryDescription_h
+#ifndef art_Persistency_Provenance_EntryDescription_h
+#define art_Persistency_Provenance_EntryDescription_h
 
 /*----------------------------------------------------------------------
 
@@ -67,4 +67,8 @@ namespace art {
   bool operator==(EntryDescription const& a, EntryDescription const& b);
   inline bool operator!=(EntryDescription const& a, EntryDescription const& b) { return !(a==b); }
 }
-#endif
+#endif /* art_Persistency_Provenance_EntryDescription_h */
+
+// Local Variables:
+// mode: c++
+// End:

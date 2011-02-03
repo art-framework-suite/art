@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_HLTenums_h
-#define DataFormats_Common_HLTenums_h
+#ifndef art_Persistency_Common_HLTenums_h
+#define art_Persistency_Common_HLTenums_h
 
 /** \brief HLT enums
  *
@@ -24,4 +24,8 @@ namespace art
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_HLTenums_h */
+
+// Local Variables:
+// mode: c++
+// End:

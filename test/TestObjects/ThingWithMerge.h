@@ -1,5 +1,5 @@
-#ifndef TestObjects_ThingWithMerge_h
-#define TestObjects_ThingWithMerge_h
+#ifndef test_TestObjects_ThingWithMerge_h
+#define test_TestObjects_ThingWithMerge_h
 
 namespace arttest {
 
@@ -12,4 +12,8 @@ namespace arttest {
 
 }
 
-#endif
+#endif /* test_TestObjects_ThingWithMerge_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_CRC32Calculator_h
-#define FWCore_Utilities_CRC32Calculator_h
+#ifndef art_Utilities_CRC32Calculator_h
+#define art_Utilities_CRC32Calculator_h
 
 /*
 Code to calculate a CRC32 checksum on a string.  This code is based
@@ -72,4 +72,8 @@ namespace art {
     boost::uint32_t checksum_;
   };
 }
-#endif
+#endif /* art_Utilities_CRC32Calculator_h */
+
+// Local Variables:
+// mode: c++
+// End:

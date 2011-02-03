@@ -1,5 +1,5 @@
-#ifndef Framework_InputSourceMacros_h
-#define Framework_InputSourceMacros_h
+#ifndef art_Framework_Core_InputSourceMacros_h
+#define art_Framework_Core_InputSourceMacros_h
 
 #include "art/Framework/Core/InputSource.h"
 
@@ -11,4 +11,8 @@
          { return std::auto_ptr<art::InputSource>(new klass(ps, desc)); } \
    }
 
-#endif
+#endif /* art_Framework_Core_InputSourceMacros_h */
+
+// Local Variables:
+// mode: c++
+// End:

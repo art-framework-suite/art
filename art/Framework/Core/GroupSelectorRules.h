@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_GroupSelectorRules_h
-#define FWCore_Framework_GroupSelectorRules_h
+#ifndef art_Framework_Core_GroupSelectorRules_h
+#define art_Framework_Core_GroupSelectorRules_h
 
 // ======================================================================
 //
@@ -84,4 +84,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_GroupSelectorRules_h */
+
+// Local Variables:
+// mode: c++
+// End:

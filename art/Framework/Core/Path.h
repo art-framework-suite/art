@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_Path_h
-#define FWCore_Framework_Path_h
+#ifndef art_Framework_Core_Path_h
+#define art_Framework_Core_Path_h
 
 /*
   An object of this type represents one path in a job configuration.
@@ -176,4 +176,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_Path_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_PostReadFixupTrait_h
-#define DataFormats_Common_PostReadFixupTrait_h
+#ifndef art_Persistency_Common_PostReadFixupTrait_h
+#define art_Persistency_Common_PostReadFixupTrait_h
 
 namespace art {
   namespace helpers {
@@ -31,4 +31,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Persistency_Common_PostReadFixupTrait_h */
+
+// Local Variables:
+// mode: c++
+// End:

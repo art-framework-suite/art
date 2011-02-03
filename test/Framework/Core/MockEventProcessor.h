@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_MockEventProcessor_h
-#define FWCore_Framework_MockEventProcessor_h
+#ifndef test_Framework_Core_MockEventProcessor_h
+#define test_Framework_Core_MockEventProcessor_h
 
 /*
 
@@ -88,4 +88,8 @@ namespace art
   };
 }
 
-#endif
+#endif /* test_Framework_Core_MockEventProcessor_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_SubRunAux_h
-#define DataFormats_Provenance_SubRunAux_h
+#ifndef art_Persistency_Provenance_SubRunAux_h
+#define art_Persistency_Provenance_SubRunAux_h
 
 #include <iosfwd>
 
@@ -20,4 +20,8 @@ namespace art
   };
   void conversion(SubRunAux const& from, SubRunAuxiliary & to);
 }
-#endif
+#endif /* art_Persistency_Provenance_SubRunAux_h */
+
+// Local Variables:
+// mode: c++
+// End:

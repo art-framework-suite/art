@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ParameterSetBlob_h
-#define DataFormats_Provenance_ParameterSetBlob_h
+#ifndef art_Persistency_Provenance_ParameterSetBlob_h
+#define art_Persistency_Provenance_ParameterSetBlob_h
 
 /*----------------------------------------------------------------------
 
@@ -34,4 +34,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_ParameterSetBlob_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef ART_FRAMEWORK_SERVICES_BASIC_FLOATINGPOINTCONTROL_H
-#define ART_FRAMEWORK_SERVICES_BASIC_FLOATINGPOINTCONTROL_H
+#ifndef art_Framework_Services_System_FloatingPointControl_h
+#define art_Framework_Services_System_FloatingPointControl_h
 // ======================================================================
 //
 // FloatingPointControl - give users the ability to specify, on a
@@ -152,4 +152,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_System_FloatingPointControl_h */
+
+// Local Variables:
+// mode: c++
+// End:

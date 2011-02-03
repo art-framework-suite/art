@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_InputTag_h
-#define FWCore_Utilities_InputTag_h
+#ifndef art_Utilities_InputTag_h
+#define art_Utilities_InputTag_h
 
 #include <string>
 #include <iosfwd>
@@ -37,5 +37,8 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Utilities_InputTag_h */
 
+// Local Variables:
+// mode: c++
+// End:

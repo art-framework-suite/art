@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchDescription_h
-#define DataFormats_Provenance_BranchDescription_h
+#ifndef art_Persistency_Provenance_BranchDescription_h
+#define art_Persistency_Provenance_BranchDescription_h
 
 /*----------------------------------------------------------------------
 
@@ -199,4 +199,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_BranchDescription_h */
+
+// Local Variables:
+// mode: c++
+// End:

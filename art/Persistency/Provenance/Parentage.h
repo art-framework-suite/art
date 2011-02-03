@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_Parentage_h
-#define DataFormats_Provenance_Parentage_h
+#ifndef art_Persistency_Provenance_Parentage_h
+#define art_Persistency_Provenance_Parentage_h
 
 /*----------------------------------------------------------------------
 
@@ -55,4 +55,8 @@ namespace art {
   bool operator==(Parentage const& a, Parentage const& b);
   inline bool operator!=(Parentage const& a, Parentage const& b) { return !(a==b); }
 }
-#endif
+#endif /* art_Persistency_Provenance_Parentage_h */
+
+// Local Variables:
+// mode: c++
+// End:

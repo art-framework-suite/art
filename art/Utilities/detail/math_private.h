@@ -1,5 +1,5 @@
-#ifndef math_private_h
-#define math_private_h
+#ifndef art_Utilities_detail_math_private_h
+#define art_Utilities_detail_math_private_h
 
 // abridged from GNU libc 2.6.1 - in detail from
 //   math/math_private.h
@@ -86,4 +86,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_detail_math_private_h */
+
+// Local Variables:
+// mode: c++
+// End:

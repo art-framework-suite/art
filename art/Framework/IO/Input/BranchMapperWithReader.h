@@ -1,5 +1,5 @@
-#ifndef IORoot_Input_BranchMapperWithReader
-#define IORoot_Input_BranchMapperWithReader
+#ifndef art_Framework_IO_Input_BranchMapperWithReader_h
+#define art_Framework_IO_Input_BranchMapperWithReader_h
 
 // ======================================================================
 //
@@ -85,4 +85,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Input_BranchMapperWithReader_h */
+
+// Local Variables:
+// mode: c++
+// End:

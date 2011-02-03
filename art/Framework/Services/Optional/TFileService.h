@@ -1,5 +1,5 @@
-#ifndef SERVICES_TFILESERVICE_H
-#define SERVICES_TFILESERVICE_H
+#ifndef art_Framework_Services_Optional_TFileService_h
+#define art_Framework_Services_Optional_TFileService_h
 
 // ======================================================================
 //
@@ -50,4 +50,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Optional_TFileService_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Framework_SubRun_h
-#define Framework_SubRun_h
+#ifndef art_Framework_Core_SubRun_h
+#define art_Framework_Core_SubRun_h
 
 // -*- C++ -*-
 //
@@ -127,4 +127,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_SubRun_h */
+
+// Local Variables:
+// mode: c++
+// End:

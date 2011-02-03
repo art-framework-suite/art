@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EventProcessHistoryID_h
-#define DataFormats_Provenance_EventProcessHistoryID_h
+#ifndef art_Persistency_Provenance_EventProcessHistoryID_h
+#define art_Persistency_Provenance_EventProcessHistoryID_h
 
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
@@ -19,4 +19,8 @@ namespace art
 }
 
 
-#endif
+#endif /* art_Persistency_Provenance_EventProcessHistoryID_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Services_RandomNumberGenerator_h
-#define FWCore_Services_RandomNumberGenerator_h
+#ifndef art_Framework_Services_Optional_RandomNumberGenerator_h
+#define art_Framework_Services_Optional_RandomNumberGenerator_h
 
 // ======================================================================
 //
@@ -283,4 +283,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Optional_RandomNumberGenerator_h */
+
+// Local Variables:
+// mode: c++
+// End:

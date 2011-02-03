@@ -1,5 +1,5 @@
-#ifndef FWCore_MessageService_test_UnitTestClient_J_h
-#define FWCore_MessageService_test_UnitTestClient_J_h
+#ifndef test_Framework_Services_Message_UnitTestClient_J_h
+#define test_Framework_Services_Message_UnitTestClient_J_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -37,4 +37,8 @@ private:
 }  // arttest
 
 
-#endif
+#endif /* test_Framework_Services_Message_UnitTestClient_J_h */
+
+// Local Variables:
+// mode: c++
+// End:

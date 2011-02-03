@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_Principal_h
-#define FWCore_Framework_Principal_h
+#ifndef art_Framework_Core_Principal_h
+#define art_Framework_Core_Principal_h
 
 /*----------------------------------------------------------------------
 
@@ -206,4 +206,8 @@ namespace art {
     return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process()).product());
   }
 }
-#endif
+#endif /* art_Framework_Core_Principal_h */
+
+// Local Variables:
+// mode: c++
+// End:

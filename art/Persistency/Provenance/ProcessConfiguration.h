@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProcessConfiguration_h
-#define DataFormats_Provenance_ProcessConfiguration_h
+#ifndef art_Persistency_Provenance_ProcessConfiguration_h
+#define art_Persistency_Provenance_ProcessConfiguration_h
 
 // ======================================================================
 //
@@ -66,4 +66,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_ProcessConfiguration_h */
+
+// Local Variables:
+// mode: c++
+// End:

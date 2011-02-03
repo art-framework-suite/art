@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EventAuxiliary_h
-#define DataFormats_Provenance_EventAuxiliary_h
+#ifndef art_Persistency_Provenance_EventAuxiliary_h
+#define art_Persistency_Provenance_EventAuxiliary_h
 
 #include <iosfwd>
 
@@ -101,4 +101,8 @@ namespace art
 
 }
 
-#endif
+#endif /* art_Persistency_Provenance_EventAuxiliary_h */
+
+// Local Variables:
+// mode: c++
+// End:

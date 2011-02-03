@@ -4,8 +4,8 @@
 //
 // ======================================================================
 
-#ifndef Art_Framework_Core_find_config_h
-#define Art_Framework_Core_find_config_h
+#ifndef art_Framework_Core_find_config_h
+#define art_Framework_Core_find_config_h
 
 #include <string>
 
@@ -15,4 +15,8 @@ namespace art {
                     std::string &full_path);
 }
 
-#endif
+#endif /* art_Framework_Core_find_config_h */
+
+// Local Variables:
+// mode: c++
+// End:

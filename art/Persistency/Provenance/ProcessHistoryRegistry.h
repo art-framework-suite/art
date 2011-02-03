@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProcessHistoryRegistry_h
-#define DataFormats_Provenance_ProcessHistoryRegistry_h
+#ifndef art_Persistency_Provenance_ProcessHistoryRegistry_h
+#define art_Persistency_Provenance_ProcessHistoryRegistry_h
 
 // ======================================================================
 //
@@ -24,4 +24,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_ProcessHistoryRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_TypeIDBase_h
-#define FWCore_Utilities_TypeIDBase_h
+#ifndef art_Utilities_TypeIDBase_h
+#define art_Utilities_TypeIDBase_h
 
 // ======================================================================
 //
@@ -78,4 +78,8 @@ inline bool
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_TypeIDBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

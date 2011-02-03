@@ -1,5 +1,5 @@
-#ifndef IORoot_Input_RootTree_h
-#define IORoot_Input_RootTree_h
+#ifndef art_Framework_IO_Input_RootTree_h
+#define art_Framework_IO_Input_RootTree_h
 
 // ======================================================================
 //
@@ -118,4 +118,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Input_RootTree_h */
+
+// Local Variables:
+// mode: c++
+// End:

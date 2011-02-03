@@ -1,5 +1,5 @@
-#ifndef Framework_GeneratedInputSource_h
-#define Framework_GeneratedInputSource_h
+#ifndef art_Framework_Core_GeneratedInputSource_h
+#define art_Framework_Core_GeneratedInputSource_h
 
 // ======================================================================
 //
@@ -28,4 +28,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_GeneratedInputSource_h */
+
+// Local Variables:
+// mode: c++
+// End:

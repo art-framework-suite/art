@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_PretendToUse_h
-#define FWCore_Utilities_PretendToUse_h
+#ifndef art_Utilities_PretendToUse_h
+#define art_Utilities_PretendToUse_h
 
 //
 //
@@ -10,4 +10,8 @@
 
 template <typename T> inline void pretendToUse(T const&) { }
 
-#endif
+#endif /* art_Utilities_PretendToUse_h */
+
+// Local Variables:
+// mode: c++
+// End:

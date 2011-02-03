@@ -1,5 +1,5 @@
-#ifndef Utilities_DebugMacros_h
-#define Utilities_DebugMacros_h
+#ifndef art_Utilities_DebugMacros_h
+#define art_Utilities_DebugMacros_h
 
 namespace art {
   struct debugvalue {
@@ -17,4 +17,8 @@ extern debugvalue debugit;
 
 #define FDEBUG(lev) if(lev <= debugit()) std::cerr
 
-#endif
+#endif /* art_Utilities_DebugMacros_h */
+
+// Local Variables:
+// mode: c++
+// End:

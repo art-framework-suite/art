@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_RefCoreStreamer_h
-#define DataFormats_Common_RefCoreStreamer_h
+#ifndef art_Persistency_Common_RefCoreStreamer_h
+#define art_Persistency_Common_RefCoreStreamer_h
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
@@ -54,4 +54,8 @@ namespace art {
   void setRefCoreStreamer(bool oldFormat = false);
   void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat = false);
 }
-#endif
+#endif /* art_Persistency_Common_RefCoreStreamer_h */
+
+// Local Variables:
+// mode: c++
+// End:

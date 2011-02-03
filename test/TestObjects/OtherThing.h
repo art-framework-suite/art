@@ -1,5 +1,5 @@
-#ifndef TestObjects_OtherThing_h
-#define TestObjects_OtherThing_h
+#ifndef test_TestObjects_OtherThing_h
+#define test_TestObjects_OtherThing_h
 
 #include "art/Persistency/Common/Ref.h"
 #include "art/Persistency/Common/RefVector.h"
@@ -27,4 +27,8 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* test_TestObjects_OtherThing_h */
+
+// Local Variables:
+// mode: c++
+// End:

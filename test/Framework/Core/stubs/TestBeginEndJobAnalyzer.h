@@ -1,5 +1,5 @@
-#ifndef Framework_TestBeginEndJobAnalyzer_h
-#define Framework_TestBeginEndJobAnalyzer_h
+#ifndef test_Framework_Core_stubs_TestBeginEndJobAnalyzer_h
+#define test_Framework_Core_stubs_TestBeginEndJobAnalyzer_h
 
 //
 // Package:     test
@@ -51,4 +51,8 @@ private:
 };
 
 
-#endif
+#endif /* test_Framework_Core_stubs_TestBeginEndJobAnalyzer_h */
+
+// Local Variables:
+// mode: c++
+// End:

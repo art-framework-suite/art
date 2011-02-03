@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_Transient_h
-#define DataFormats_Provenance_Transient_h
+#ifndef art_Persistency_Provenance_Transient_h
+#define art_Persistency_Provenance_Transient_h
 // -*- C++ -*-
 //
 // Package:     Provenance
@@ -40,4 +40,8 @@ private:
   T value_;
 };
 }
-#endif
+#endif /* art_Persistency_Provenance_Transient_h */
+
+// Local Variables:
+// mode: c++
+// End:

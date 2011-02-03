@@ -1,5 +1,5 @@
-#ifndef FRAMEWORK_IO_OUTPUT_ROOTOUTPUTFILE_H
-#define FRAMEWORK_IO_OUTPUT_ROOTOUTPUTFILE_H
+#ifndef art_Framework_IO_Output_RootOutputFile_h
+#define art_Framework_IO_Output_RootOutputFile_h
 
 // ======================================================================
 //
@@ -118,4 +118,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Output_RootOutputFile_h */
+
+// Local Variables:
+// mode: c++
+// End:

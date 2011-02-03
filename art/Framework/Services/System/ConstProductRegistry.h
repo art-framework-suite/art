@@ -1,5 +1,5 @@
-#ifndef Framework_ConstProductRegistry_h
-#define Framework_ConstProductRegistry_h
+#ifndef art_Framework_Services_System_ConstProductRegistry_h
+#define art_Framework_Services_System_ConstProductRegistry_h
 
 //
 // Package:     Framework
@@ -79,4 +79,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Services_System_ConstProductRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

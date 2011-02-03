@@ -1,5 +1,5 @@
-#ifndef Framework_WorkerRegistry_h
-#define Framework_WorkerRegistry_h
+#ifndef art_Framework_Core_WorkerRegistry_h
+#define art_Framework_Core_WorkerRegistry_h
 
 // ======================================================================
 //
@@ -70,4 +70,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_WorkerRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

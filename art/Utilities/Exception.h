@@ -1,5 +1,5 @@
-#ifndef ART_EXCEPTION_H
-#define ART_EXCEPTION_H
+#ifndef art_Utilities_Exception_h
+#define art_Utilities_Exception_h
 
 // ======================================================================
 //
@@ -66,4 +66,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_Exception_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Catalog_FileCatalog_h
-#define FWCore_Catalog_FileCatalog_h
+#ifndef art_Framework_IO_Catalog_FileCatalog_h
+#define art_Framework_IO_Catalog_FileCatalog_h
 
 // ======================================================================
 //
@@ -69,4 +69,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Catalog_FileCatalog_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef ART_PERSISTENCY_PROVENANCE_PARAMETERSETMAP_H
-#define ART_PERSISTENCY_PROVENANCE_PARAMETERSETMAP_H
+#ifndef art_Persistency_Provenance_ParameterSetMap_h
+#define art_Persistency_Provenance_ParameterSetMap_h
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include <map>
@@ -8,4 +8,8 @@ namespace art {
    typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
 }
 
-#endif
+#endif /* art_Persistency_Provenance_ParameterSetMap_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProductRegistry_h
-#define DataFormats_Provenance_ProductRegistry_h
+#ifndef art_Persistency_Provenance_ProductRegistry_h
+#define art_Persistency_Provenance_ProductRegistry_h
 
 /**
    \file
@@ -172,4 +172,8 @@ namespace art {
 } // edm
 
 
-#endif
+#endif /* art_Persistency_Provenance_ProductRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

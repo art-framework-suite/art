@@ -1,5 +1,5 @@
-#ifndef Integration_ThingRawSource_h
-#define Integration_ThingRawSource_h
+#ifndef test_Integration_oldtest_ThingRawSource_h
+#define test_Integration_oldtest_ThingRawSource_h
 
 /** \class ThingRawSource
  *
@@ -39,4 +39,8 @@ namespace arttest {
     art::EventID eventID_;
   };
 }
-#endif
+#endif /* test_Integration_oldtest_ThingRawSource_h */
+
+// Local Variables:
+// mode: c++
+// End:

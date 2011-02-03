@@ -1,5 +1,5 @@
-#ifndef SERVICES_CURRENTMODULE_H
-#define SERVICES_CURRENTMODULE_H
+#ifndef art_Framework_Services_System_CurrentModule_h
+#define art_Framework_Services_System_CurrentModule_h
 
 // ======================================================================
 //
@@ -47,4 +47,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_System_CurrentModule_h */
+
+// Local Variables:
+// mode: c++
+// End:

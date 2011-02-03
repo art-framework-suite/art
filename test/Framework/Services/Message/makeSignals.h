@@ -1,5 +1,5 @@
-#ifndef FWCore_MessageService_test_makeSignals_h
-#define FWCore_MessageService_test_makeSignals_h
+#ifndef test_Framework_Services_Message_makeSignals_h
+#define test_Framework_Services_Message_makeSignals_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -34,4 +34,8 @@ private:
 }  // arttest
 
 
-#endif
+#endif /* test_Framework_Services_Message_makeSignals_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_TriggerNamesService_h
-#define FWCore_Framework_TriggerNamesService_h
+#ifndef art_Framework_Services_System_TriggerNamesService_h
+#define art_Framework_Services_System_TriggerNamesService_h
 
 // ======================================================================
 //
@@ -129,4 +129,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_System_TriggerNamesService_h */
+
+// Local Variables:
+// mode: c++
+// End:

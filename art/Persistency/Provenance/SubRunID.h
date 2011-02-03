@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_SubRunID_h
-#define DataFormats_Provenance_SubRunID_h
+#ifndef art_Persistency_Provenance_SubRunID_h
+#define art_Persistency_Provenance_SubRunID_h
 // -*- C++ -*-
 //
 // Package:     DataFormats/Provenance
@@ -133,4 +133,8 @@ class SubRunID
 std::ostream& operator<<(std::ostream& oStream, SubRunID const& iID);
 
 }
-#endif
+#endif /* art_Persistency_Provenance_SubRunID_h */
+
+// Local Variables:
+// mode: c++
+// End:

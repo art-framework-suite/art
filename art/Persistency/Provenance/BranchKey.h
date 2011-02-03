@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchKey_h
-#define DataFormats_Provenance_BranchKey_h
+#ifndef art_Persistency_Provenance_BranchKey_h
+#define art_Persistency_Provenance_BranchKey_h
 
 /*----------------------------------------------------------------------
 
@@ -67,4 +67,8 @@ namespace art {
   std::ostream&
   operator<<(std::ostream& os, BranchKey const& bk);
 }
-#endif
+#endif /* art_Persistency_Provenance_BranchKey_h */
+
+// Local Variables:
+// mode: c++
+// End:

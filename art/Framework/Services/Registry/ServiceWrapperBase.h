@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServiceWrapperBase_h
-#define ServiceRegistry_ServiceWrapperBase_h
+#ifndef art_Framework_Services_Registry_ServiceWrapperBase_h
+#define art_Framework_Services_Registry_ServiceWrapperBase_h
 
 // ======================================================================
 //
@@ -29,4 +29,8 @@ public:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_ServiceWrapperBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

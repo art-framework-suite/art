@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_PtrVectorBase_h
-#define DataFormats_Common_PtrVectorBase_h
+#ifndef art_Persistency_Common_PtrVectorBase_h
+#define art_Persistency_Common_PtrVectorBase_h
 
 // ======================================================================
 //
@@ -138,4 +138,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_PtrVectorBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

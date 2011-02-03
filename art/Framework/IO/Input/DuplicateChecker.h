@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_DuplicateChecker_h
-#define DataFormats_Provenance_DuplicateChecker_h
+#ifndef art_Framework_IO_Input_DuplicateChecker_h
+#define art_Framework_IO_Input_DuplicateChecker_h
 
 // ======================================================================
 //
@@ -60,4 +60,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Input_DuplicateChecker_h */
+
+// Local Variables:
+// mode: c++
+// End:

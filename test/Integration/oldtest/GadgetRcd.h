@@ -1,5 +1,5 @@
-#ifndef Integration_GadgetRcd_h
-#define Integration_GadgetRcd_h
+#ifndef test_Integration_oldtest_GadgetRcd_h
+#define test_Integration_oldtest_GadgetRcd_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -23,5 +23,9 @@
 
 class GadgetRcd : public art::eventsetup::EventSetupRecordImplementation<GadgetRcd> {};
 
-#endif
+#endif /* test_Integration_oldtest_GadgetRcd_h */
 
+
+// Local Variables:
+// mode: c++
+// End:

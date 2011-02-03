@@ -1,5 +1,5 @@
-#ifndef Integration_OtherThingProducer_h
-#define Integration_OtherThingProducer_h
+#ifndef test_Integration_oldtest_OtherThingProducer_h
+#define test_Integration_oldtest_OtherThingProducer_h
 
 #include <string>
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -26,4 +26,8 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* test_Integration_oldtest_OtherThingProducer_h */
+
+// Local Variables:
+// mode: c++
+// End:

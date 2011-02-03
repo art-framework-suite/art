@@ -1,9 +1,13 @@
-#ifndef FWCore_Version_GetReleaseVersion_h
-#define FWCore_Version_GetReleaseVersion_h
+#ifndef art_Version_GetReleaseVersion_h
+#define art_Version_GetReleaseVersion_h
 
 #include <string>
 
 namespace art {
   std::string getReleaseVersion();
 }
-#endif
+#endif /* art_Version_GetReleaseVersion_h */
+
+// Local Variables:
+// mode: c++
+// End:

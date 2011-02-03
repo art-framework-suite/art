@@ -1,5 +1,5 @@
-#ifndef FWCore_Services_RNGsnapshot_h
-#define FWCore_Services_RNGsnapshot_h
+#ifndef art_Persistency_Common_RNGsnapshot_h
+#define art_Persistency_Common_RNGsnapshot_h
 
 // ======================================================================
 //
@@ -78,4 +78,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_RNGsnapshot_h */
+
+// Local Variables:
+// mode: c++
+// End:

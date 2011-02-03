@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_IntValues_h
-#define DataFormats_Common_IntValues_h
+#ifndef test_Persistency_Common_IntValues_h
+#define test_Persistency_Common_IntValues_h
 // -*- C++ -*-
 //
 // Package:     Common
@@ -35,4 +35,8 @@ namespace test_with_reflex {
   };
 }
 
-#endif
+#endif /* test_Persistency_Common_IntValues_h */
+
+// Local Variables:
+// mode: c++
+// End:

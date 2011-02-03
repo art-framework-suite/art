@@ -1,5 +1,5 @@
-#ifndef Framework_EventSelector_h
-#define Framework_EventSelector_h
+#ifndef art_Framework_Core_EventSelector_h
+#define art_Framework_Core_EventSelector_h
 
 // ======================================================================
 // Change Log
@@ -134,4 +134,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_EventSelector_h */
+
+// Local Variables:
+// mode: c++
+// End:

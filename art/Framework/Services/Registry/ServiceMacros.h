@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServiceMacros_h
-#define ServiceRegistry_ServiceMacros_h
+#ifndef art_Framework_Services_Registry_ServiceMacros_h
+#define art_Framework_Services_Registry_ServiceMacros_h
 
 // ======================================================================
 //
@@ -45,4 +45,8 @@ DEFINE_ART_SERVICE_HOOK(klass)
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_ServiceMacros_h */
+
+// Local Variables:
+// mode: c++
+// End:

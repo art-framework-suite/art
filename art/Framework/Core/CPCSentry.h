@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_CPCSentry_h
-#define FWCore_Framework_CPCSentry_h
+#ifndef art_Framework_Core_CPCSentry_h
+#define art_Framework_Core_CPCSentry_h
 
 // ======================================================================
 //
@@ -36,4 +36,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_CPCSentry_h */
+
+// Local Variables:
+// mode: c++
+// End:

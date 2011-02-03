@@ -1,5 +1,5 @@
-#ifndef Integration_Doodad_h
-#define Integration_Doodad_h
+#ifndef test_Integration_oldtest_Doodad_h
+#define test_Integration_oldtest_Doodad_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -32,4 +32,8 @@ struct Doodad
 };
 }
 
-#endif
+#endif /* test_Integration_oldtest_Doodad_h */
+
+// Local Variables:
+// mode: c++
+// End:

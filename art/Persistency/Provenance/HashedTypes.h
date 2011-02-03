@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_HashedTypes_h
-#define DataFormats_Provenance_HashedTypes_h
+#ifndef art_Persistency_Provenance_HashedTypes_h
+#define art_Persistency_Provenance_HashedTypes_h
 
 // ======================================================================
 //
@@ -21,4 +21,8 @@ namespace art
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_HashedTypes_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Framework_TestFailuresAnalyzer_h
-#define Framework_TestFailuresAnalyzer_h
+#ifndef test_Framework_Core_stubs_TestFailuresAnalyzer_h
+#define test_Framework_Core_stubs_TestFailuresAnalyzer_h
 // -*- C++ -*-
 //
 // Package:     test
@@ -32,4 +32,8 @@ private:
 };
 
 
-#endif
+#endif /* test_Framework_Core_stubs_TestFailuresAnalyzer_h */
+
+// Local Variables:
+// mode: c++
+// End:

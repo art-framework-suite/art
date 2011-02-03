@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchListIndex_h
-#define DataFormats_Provenance_BranchListIndex_h
+#ifndef art_Persistency_Provenance_BranchListIndex_h
+#define art_Persistency_Provenance_BranchListIndex_h
 
 /*----------------------------------------------------------------------
 
@@ -17,4 +17,8 @@ namespace art {
   typedef unsigned short BranchListIndex;
   typedef std::vector<BranchListIndex> BranchListIndexes;
 }
-#endif
+#endif /* art_Persistency_Provenance_BranchListIndex_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Framework_Frameworkfwd_h
-#define Framework_Frameworkfwd_h
+#ifndef art_Framework_Core_Frameworkfwd_h
+#define art_Framework_Core_Frameworkfwd_h
 
 // ======================================================================
 //
@@ -57,4 +57,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_Frameworkfwd_h */
+
+// Local Variables:
+// mode: c++
+// End:

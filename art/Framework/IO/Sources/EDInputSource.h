@@ -1,5 +1,5 @@
-#ifndef FWCore_Sources_EDInputSource_h
-#define FWCore_Sources_EDInputSource_h
+#ifndef art_Framework_IO_Sources_EDInputSource_h
+#define art_Framework_IO_Sources_EDInputSource_h
 
 // ======================================================================
 //
@@ -52,4 +52,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Sources_EDInputSource_h */
+
+// Local Variables:
+// mode: c++
+// End:

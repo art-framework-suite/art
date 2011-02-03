@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_WorkerInPath_h
-#define FWCore_Framework_WorkerInPath_h
+#ifndef art_Framework_Core_WorkerInPath_h
+#define art_Framework_Core_WorkerInPath_h
 
 // ======================================================================
 //
@@ -97,4 +97,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_WorkerInPath_h */
+
+// Local Variables:
+// mode: c++
+// End:

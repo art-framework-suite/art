@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_HLTGlobalStatus_h
-#define DataFormats_Common_HLTGlobalStatus_h
+#ifndef art_Persistency_Common_HLTGlobalStatus_h
+#define art_Persistency_Common_HLTGlobalStatus_h
 
 /** \class art::HLTGlobalStatus
  *
@@ -145,4 +145,8 @@ namespace std {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_HLTGlobalStatus_h */
+
+// Local Variables:
+// mode: c++
+// End:

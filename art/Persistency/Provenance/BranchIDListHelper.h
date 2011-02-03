@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_BranchIDListHelper_h
-#define FWCore_Framework_BranchIDListHelper_h
+#ifndef art_Persistency_Provenance_BranchIDListHelper_h
+#define art_Persistency_Provenance_BranchIDListHelper_h
 
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
@@ -25,4 +25,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Persistency_Provenance_BranchIDListHelper_h */
+
+// Local Variables:
+// mode: c++
+// End:

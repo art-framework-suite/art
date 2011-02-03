@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProductID_h
-#define DataFormats_Provenance_ProductID_h
+#ifndef art_Persistency_Provenance_ProductID_h
+#define art_Persistency_Provenance_ProductID_h
 
 /*----------------------------------------------------------------------
 
@@ -58,4 +58,8 @@ namespace art {
   std::ostream&
   operator<<(std::ostream& os, ProductID const& id);
 }
-#endif
+#endif /* art_Persistency_Provenance_ProductID_h */
+
+// Local Variables:
+// mode: c++
+// End:

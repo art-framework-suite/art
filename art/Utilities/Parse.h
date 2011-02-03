@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_Parse_h
-#define FWCore_Utilities_Parse_h
+#ifndef art_Utilities_Parse_h
+#define art_Utilities_Parse_h
 
 #include <string>
 #include <vector>
@@ -26,4 +26,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_Parse_h */
+
+// Local Variables:
+// mode: c++
+// End:

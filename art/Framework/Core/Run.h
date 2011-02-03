@@ -1,5 +1,5 @@
-#ifndef Framework_Run_h
-#define Framework_Run_h
+#ifndef art_Framework_Core_Run_h
+#define art_Framework_Core_Run_h
 
 // ======================================================================
 //
@@ -119,4 +119,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_Run_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_PtrVector_h
-#define DataFormats_Common_PtrVector_h
+#ifndef art_Persistency_Common_PtrVector_h
+#define art_Persistency_Common_PtrVector_h
 
 // ======================================================================
 //
@@ -264,4 +264,8 @@ inline bool
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_PtrVector_h */
+
+// Local Variables:
+// mode: c++
+// End:

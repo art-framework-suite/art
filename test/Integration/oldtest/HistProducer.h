@@ -1,5 +1,5 @@
-#ifndef FWCore_Integration_HistProducer_h
-#define FWCore_Integration_HistProducer_h
+#ifndef test_Integration_oldtest_HistProducer_h
+#define test_Integration_oldtest_HistProducer_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDProducer.h"
@@ -21,4 +21,8 @@ namespace arttest {
   private:
   };
 }
-#endif
+#endif /* test_Integration_oldtest_HistProducer_h */
+
+// Local Variables:
+// mode: c++
+// End:

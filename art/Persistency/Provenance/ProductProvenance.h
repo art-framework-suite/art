@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProductProvenance_h
-#define DataFormats_Provenance_ProductProvenance_h
+#ifndef art_Persistency_Provenance_ProductProvenance_h
+#define art_Persistency_Provenance_ProductProvenance_h
 
 /*----------------------------------------------------------------------
 
@@ -91,4 +91,8 @@ namespace art {
   inline bool operator!=(ProductProvenance const& a, ProductProvenance const& b) { return !(a==b); }
   typedef std::vector<ProductProvenance> ProductProvenanceVector;
 }
-#endif
+#endif /* art_Persistency_Provenance_ProductProvenance_h */
+
+// Local Variables:
+// mode: c++
+// End:

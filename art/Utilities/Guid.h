@@ -1,5 +1,5 @@
-#ifndef FWCOre_Utilities_Guid_h
-#define FWCOre_Utilities_Guid_h
+#ifndef art_Utilities_Guid_h
+#define art_Utilities_Guid_h
 
 #include <string>
 
@@ -78,4 +78,8 @@ namespace art  {
     static void create(Guid& guid);
   };
 }
-#endif
+#endif /* art_Utilities_Guid_h */
+
+// Local Variables:
+// mode: c++
+// End:

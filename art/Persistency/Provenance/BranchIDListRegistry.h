@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_BranchIDListRegistry_h
-#define FWCore_Framework_BranchIDListRegistry_h
+#ifndef art_Persistency_Provenance_BranchIDListRegistry_h
+#define art_Persistency_Provenance_BranchIDListRegistry_h
 
 #include "art/Utilities/ThreadSafeIndexedRegistry.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -10,4 +10,8 @@ namespace art {
   typedef BranchIDListRegistry::collection_type BranchIDLists;
 }
 
-#endif
+#endif /* art_Persistency_Provenance_BranchIDListRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

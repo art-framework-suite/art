@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_UnixSignalHandlers_h
-#define FWCore_Utilities_UnixSignalHandlers_h
+#ifndef art_Utilities_UnixSignalHandlers_h
+#define art_Utilities_UnixSignalHandlers_h
 
 /*----------------------------------------------------------------------
 
@@ -35,4 +35,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Utilities_UnixSignalHandlers_h */
+
+// Local Variables:
+// mode: c++
+// End:

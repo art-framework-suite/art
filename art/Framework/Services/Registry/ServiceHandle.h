@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServiceHandle_h
-#define ServiceRegistry_ServiceHandle_h
+#ifndef art_Framework_Services_Registry_ServiceHandle_h
+#define art_Framework_Services_Registry_ServiceHandle_h
 
 // ======================================================================
 //
@@ -35,4 +35,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_ServiceHandle_h */
+
+// Local Variables:
+// mode: c++
+// End:

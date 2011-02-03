@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_ProducerBase_h
-#define FWCore_Framework_ProducerBase_h
+#ifndef art_Framework_Core_ProducerBase_h
+#define art_Framework_Core_ProducerBase_h
 
 /*----------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_ProducerBase_h */
 
 // Local Variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef MallocOpts_h
-#define MallocOpts_h
+#ifndef art_Utilities_MallocOpts_h
+#define art_Utilities_MallocOpts_h
 
 // -*- C++ -*-
 //
@@ -97,4 +97,8 @@ namespace art
 
 
 
-#endif
+#endif /* art_Utilities_MallocOpts_h */
+
+// Local Variables:
+// mode: c++
+// End:

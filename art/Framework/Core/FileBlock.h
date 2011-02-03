@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_FileBlock_h
-#define FWCore_Framework_FileBlock_h
+#ifndef art_Framework_Core_FileBlock_h
+#define art_Framework_Core_FileBlock_h
 
 /*----------------------------------------------------------------------
 
@@ -77,4 +77,8 @@ namespace art {
     boost::shared_ptr<BranchChildren> branchChildren_;
   };
 }
-#endif
+#endif /* art_Framework_Core_FileBlock_h */
+
+// Local Variables:
+// mode: c++
+// End:

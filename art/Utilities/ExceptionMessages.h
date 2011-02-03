@@ -1,5 +1,5 @@
-#ifndef FWCore_MessageLogger_ExceptionMessages
-#define FWCore_MessageLogger_ExceptionMessages
+#ifndef art_Utilities_ExceptionMessages_h
+#define art_Utilities_ExceptionMessages_h
 
 #include "cetlib/exception.h"
 
@@ -16,4 +16,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_ExceptionMessages_h */
+
+// Local Variables:
+// mode: c++
+// End:

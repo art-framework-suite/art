@@ -1,5 +1,5 @@
-#ifndef FWCore_Services_InitRootHandlers_h
-#define FWCore_Services_InitRootHandlers_h
+#ifndef art_Persistency_Common_InitRootHandlers_h
+#define art_Persistency_Common_InitRootHandlers_h
 
 namespace art {
 
@@ -11,4 +11,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_InitRootHandlers_h */
+
+// Local Variables:
+// mode: c++
+// End:

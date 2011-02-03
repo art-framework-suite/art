@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_OrphanHandle_h
-#define DataFormats_Common_OrphanHandle_h
+#ifndef art_Persistency_Common_OrphanHandle_h
+#define art_Persistency_Common_OrphanHandle_h
 
 /*----------------------------------------------------------------------
 
@@ -152,4 +152,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Persistency_Common_OrphanHandle_h */
+
+// Local Variables:
+// mode: c++
+// End:

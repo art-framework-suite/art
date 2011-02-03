@@ -1,5 +1,5 @@
-#ifndef Integration_WhatsIt_h
-#define Integration_WhatsIt_h
+#ifndef test_Integration_oldtest_WhatsIt_h
+#define test_Integration_oldtest_WhatsIt_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -33,4 +33,8 @@ struct WhatsIt
 };
 }
 
-#endif
+#endif /* test_Integration_oldtest_WhatsIt_h */
+
+// Local Variables:
+// mode: c++
+// End:

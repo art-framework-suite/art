@@ -1,5 +1,5 @@
-#ifndef Framework_CachedProducts_h
-#define Framework_CachedProducts_h
+#ifndef art_Framework_Core_CachedProducts_h
+#define art_Framework_Core_CachedProducts_h
 
 // -------------------------------------------------------------------
 //
@@ -104,4 +104,8 @@ namespace art
   }
 }
 
-#endif
+#endif /* art_Framework_Core_CachedProducts_h */
+
+// Local Variables:
+// mode: c++
+// End:

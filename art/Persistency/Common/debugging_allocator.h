@@ -1,5 +1,5 @@
-#ifndef DataFormatsCommonDebuggingAllocator
-#define DataFormatsCommonDebuggingAllocator
+#ifndef art_Persistency_Common_debugging_allocator_h
+#define art_Persistency_Common_debugging_allocator_h
 
 //---------------------------------------------------------------------
 //
@@ -78,4 +78,8 @@ namespace art
 }  // art
 
 
-#endif
+#endif /* art_Persistency_Common_debugging_allocator_h */
+
+// Local Variables:
+// mode: c++
+// End:

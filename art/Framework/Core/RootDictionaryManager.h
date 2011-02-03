@@ -1,5 +1,5 @@
-#ifndef art_Framework_CoreRootDictionaryManager_h
-#define art_Framework_CoreRootDictionaryManager_h
+#ifndef art_Framework_Core_RootDictionaryManager_h
+#define art_Framework_Core_RootDictionaryManager_h
 
 // ======================================================================
 //
@@ -41,4 +41,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_RootDictionaryManager_h */
+
+// Local Variables:
+// mode: c++
+// End:

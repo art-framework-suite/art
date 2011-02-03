@@ -1,5 +1,5 @@
-#ifndef Integration_ThingSource_h
-#define Integration_ThingSource_h
+#ifndef test_Integration_oldtest_ThingSource_h
+#define test_Integration_oldtest_ThingSource_h
 
 /** \class ThingSource
  *
@@ -37,4 +37,8 @@ namespace arttest {
     ThingAlgorithm alg_;
   };
 }
-#endif
+#endif /* test_Integration_oldtest_ThingSource_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Common_TestHandle_h
-#define Common_TestHandle_h
+#ifndef art_Persistency_Common_TestHandle_h
+#define art_Persistency_Common_TestHandle_h
 
 /*----------------------------------------------------------------------
 
@@ -124,4 +124,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Persistency_Common_TestHandle_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchIDList_h
-#define DataFormats_Provenance_BranchIDList_h
+#ifndef art_Persistency_Provenance_BranchIDList_h
+#define art_Persistency_Provenance_BranchIDList_h
 
 /*----------------------------------------------------------------------
 
@@ -18,4 +18,8 @@ namespace art {
   typedef std::vector<BranchID::value_type> BranchIDList;
   typedef std::vector<BranchIDList> BranchIDLists;
 }
-#endif
+#endif /* art_Persistency_Provenance_BranchIDList_h */
+
+// Local Variables:
+// mode: c++
+// End:

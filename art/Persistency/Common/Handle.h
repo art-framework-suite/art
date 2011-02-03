@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_Handle_h
-#define DataFormats_Common_Handle_h
+#ifndef art_Persistency_Common_Handle_h
+#define art_Persistency_Common_Handle_h
 
 /*----------------------------------------------------------------------
 
@@ -243,4 +243,8 @@ namespace art
 
 }
 
-#endif
+#endif /* art_Persistency_Common_Handle_h */
+
+// Local Variables:
+// mode: c++
+// End:

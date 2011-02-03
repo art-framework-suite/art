@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_Ptr_h
-#define DataFormats_Common_Ptr_h
+#ifndef art_Persistency_Common_Ptr_h
+#define art_Persistency_Common_Ptr_h
 
 // ======================================================================
 //
@@ -256,4 +256,8 @@ namespace art {
   }
 }  // art
 
-#endif
+#endif /* art_Persistency_Common_Ptr_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_UnknownModuleException_h
-#define FWCore_Framework_UnknownModuleException_h
+#ifndef art_Framework_Core_UnknownModuleException_h
+#define art_Framework_Core_UnknownModuleException_h
 
 /**
    \file
@@ -41,4 +41,8 @@ namespace art {
 
 } // edm
 
-#endif
+#endif /* art_Framework_Core_UnknownModuleException_h */
+
+// Local Variables:
+// mode: c++
+// End:

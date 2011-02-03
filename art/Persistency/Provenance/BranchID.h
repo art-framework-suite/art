@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchID_h
-#define DataFormats_Provenance_BranchID_h
+#ifndef art_Persistency_Provenance_BranchID_h
+#define art_Persistency_Provenance_BranchID_h
 
 /*----------------------------------------------------------------------
 
@@ -37,4 +37,8 @@ namespace art {
   std::ostream&
   operator<<(std::ostream& os, BranchID const& id);
 }
-#endif
+#endif /* art_Persistency_Provenance_BranchID_h */
+
+// Local Variables:
+// mode: c++
+// End:

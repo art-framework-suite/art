@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_RunSubRunEntryInfo_h
-#define DataFormats_Provenance_RunSubRunEntryInfo_h
+#ifndef art_Persistency_Provenance_RunSubRunEntryInfo_h
+#define art_Persistency_Provenance_RunSubRunEntryInfo_h
 
 /*----------------------------------------------------------------------
 
@@ -81,4 +81,8 @@ namespace art {
   typedef RunSubRunEntryInfo SubRunEntryInfo;
   typedef RunSubRunEntryInfo RunEntryInfo;
 }
-#endif
+#endif /* art_Persistency_Provenance_RunSubRunEntryInfo_h */
+
+// Local Variables:
+// mode: c++
+// End:

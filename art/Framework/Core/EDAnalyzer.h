@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_EDAnalyzer_h
-#define FWCore_Framework_EDAnalyzer_h
+#ifndef art_Framework_Core_EDAnalyzer_h
+#define art_Framework_Core_EDAnalyzer_h
 
 // ======================================================================
 //
@@ -90,4 +90,8 @@ namespace art
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_EDAnalyzer_h */
+
+// Local Variables:
+// mode: c++
+// End:

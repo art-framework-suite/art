@@ -1,5 +1,5 @@
-#ifndef Integration_ThingWithMergeProducer_h
-#define Integration_ThingWithMergeProducer_h
+#ifndef test_Integration_oldtest_ThingWithMergeProducer_h
+#define test_Integration_oldtest_ThingWithMergeProducer_h
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDProducer.h"
@@ -35,4 +35,8 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* test_Integration_oldtest_ThingWithMergeProducer_h */
+
+// Local Variables:
+// mode: c++
+// End:

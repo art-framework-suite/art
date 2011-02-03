@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_GetProduct_h
-#define DataFormats_Common_GetProduct_h
+#ifndef art_Persistency_Common_GetProduct_h
+#define art_Persistency_Common_GetProduct_h
 // -*- C++ -*-
 //
 // Package:     Common
@@ -41,4 +41,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Persistency_Common_GetProduct_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_TFileDirectory_h
-#define FWCore_Framework_TFileDirectory_h
+#ifndef art_Framework_Core_TFileDirectory_h
+#define art_Framework_Core_TFileDirectory_h
 
 /* \class TFileDirectory
  *
@@ -138,9 +138,10 @@ namespace art
   };
 }
 
-#endif
+#endif /* art_Framework_Core_TFileDirectory_h */
 
 /// emacs configuration
+
 /// Local Variables: -
 /// mode: c++ -
 /// c-basic-offset: 2 -

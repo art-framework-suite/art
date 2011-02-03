@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_TransientStreamer_h
-#define DataFormats_Provenance_TransientStreamer_h
+#ifndef art_Persistency_Provenance_TransientStreamer_h
+#define art_Persistency_Provenance_TransientStreamer_h
 
 #include "TClassRef.h"
 #include "TClassStreamer.h"
@@ -61,4 +61,8 @@ namespace art {
   void setTransientStreamers();
 }
 
-#endif
+#endif /* art_Persistency_Provenance_TransientStreamer_h */
+
+// Local Variables:
+// mode: c++
+// End:

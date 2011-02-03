@@ -1,5 +1,5 @@
-#ifndef Integration_test_ValueExample_h
-#define Integration_test_ValueExample_h
+#ifndef test_Integration_oldtest_ValueExample_h
+#define test_Integration_oldtest_ValueExample_h
 // -*- C++ -*-
 //
 // Package:     Integration
@@ -48,4 +48,8 @@ private:
    int value_;
 };
 
-#endif
+#endif /* test_Integration_oldtest_ValueExample_h */
+
+// Local Variables:
+// mode: c++
+// End:

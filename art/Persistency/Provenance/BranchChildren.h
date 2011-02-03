@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_BranchChildren_h
-#define DataFormats_Provenance_BranchChildren_h
+#ifndef art_Persistency_Provenance_BranchChildren_h
+#define art_Persistency_Provenance_BranchChildren_h
 
 /*----------------------------------------------------------------------
 
@@ -40,4 +40,8 @@ namespace art {
   };
 
 }
-#endif
+#endif /* art_Persistency_Provenance_BranchChildren_h */
+
+// Local Variables:
+// mode: c++
+// End:

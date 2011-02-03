@@ -1,5 +1,5 @@
-#ifndef TestObjects_StreamTestTmpl_h
-#define TestObjects_StreamTestTmpl_h
+#ifndef test_TestObjects_StreamTestTmpl_h
+#define test_TestObjects_StreamTestTmpl_h
 
 #include <vector>
 #include "art/Persistency/Common/SortedCollection.h"
@@ -24,4 +24,8 @@ namespace arttestprod
   //typedef Simple OSimple;
 }
 
-#endif
+#endif /* test_TestObjects_StreamTestTmpl_h */
+
+// Local Variables:
+// mode: c++
+// End:

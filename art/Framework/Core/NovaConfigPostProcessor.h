@@ -1,5 +1,5 @@
-#ifndef NovaConfigPostProcessor_h
-#define NovaConfigPostProcessor_h
+#ifndef art_Framework_Core_NovaConfigPostProcessor_h
+#define art_Framework_Core_NovaConfigPostProcessor_h
 
 #include <string>
 #include <vector>
@@ -39,4 +39,8 @@ class NovaConfigPostProcessor {
    bool wantSkipEvts_;
    bool wantTrace_;
 };
-#endif
+#endif /* art_Framework_Core_NovaConfigPostProcessor_h */
+
+// Local Variables:
+// mode: c++
+// End:

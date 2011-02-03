@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EventEntryInfo_h
-#define DataFormats_Provenance_EventEntryInfo_h
+#ifndef art_Persistency_Provenance_EventEntryInfo_h
+#define art_Persistency_Provenance_EventEntryInfo_h
 
 /*----------------------------------------------------------------------
 
@@ -110,4 +110,8 @@ namespace art {
   inline bool operator!=(EventEntryInfo const& a, EventEntryInfo const& b) { return !(a==b); }
   typedef std::vector<EventEntryInfo> EventEntryInfoVector;
 }
-#endif
+#endif /* art_Persistency_Provenance_EventEntryInfo_h */
+
+// Local Variables:
+// mode: c++
+// End:

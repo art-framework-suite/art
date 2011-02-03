@@ -1,5 +1,5 @@
-#ifndef Utilities_TestHelper
-#define Utilities_TestHelper
+#ifndef art_Utilities_TestHelper_h
+#define art_Utilities_TestHelper_h
 // -*- C++ -*-
 
 //------------------------------------------------------------
@@ -29,4 +29,8 @@ int ptomaine(int argc, char* argv[], char** env);
 
 #define RUNTEST() extern "C" char** environ; int main(int argc, char* argv[]) { return ptomaine(argc, argv, environ); }
 
-#endif
+#endif /* art_Utilities_TestHelper_h */
+
+// Local Variables:
+// mode: c++
+// End:

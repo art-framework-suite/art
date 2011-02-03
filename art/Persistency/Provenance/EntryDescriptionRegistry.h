@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EntryDescriptionRegistry_h
-#define DataFormats_Provenance_EntryDescriptionRegistry_h
+#ifndef art_Persistency_Provenance_EntryDescriptionRegistry_h
+#define art_Persistency_Provenance_EntryDescriptionRegistry_h
 
 // ======================================================================
 //
@@ -25,4 +25,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Provenance_EntryDescriptionRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

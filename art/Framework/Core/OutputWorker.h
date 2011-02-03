@@ -1,5 +1,5 @@
-#ifndef Framework_OutputWorker_h
-#define Framework_OutputWorker_h
+#ifndef art_Framework_Core_OutputWorker_h
+#define art_Framework_Core_OutputWorker_h
 
 /*----------------------------------------------------------------------
 
@@ -52,4 +52,8 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Core_OutputWorker_h */
+
+// Local Variables:
+// mode: c++
+// End:

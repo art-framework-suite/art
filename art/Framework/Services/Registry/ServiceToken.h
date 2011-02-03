@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServiceToken_h
-#define ServiceRegistry_ServiceToken_h
+#ifndef art_Framework_Services_Registry_ServiceToken_h
+#define art_Framework_Services_Registry_ServiceToken_h
 
 // ======================================================================
 //
@@ -65,4 +65,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_ServiceToken_h */
+
+// Local Variables:
+// mode: c++
+// End:

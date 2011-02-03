@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServiceLegacy_h
-#define ServiceRegistry_ServiceLegacy_h
+#ifndef art_Framework_Services_Registry_ServiceLegacy_h
+#define art_Framework_Services_Registry_ServiceLegacy_h
 
 // ======================================================================
 //
@@ -17,4 +17,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Services_Registry_ServiceLegacy_h */
+
+// Local Variables:
+// mode: c++
+// End:

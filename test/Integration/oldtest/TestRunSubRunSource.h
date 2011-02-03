@@ -1,5 +1,5 @@
-#ifndef Framework_TestRunSubRunSource_h
-#define Framework_TestRunSubRunSource_h
+#ifndef test_Integration_oldtest_TestRunSubRunSource_h
+#define test_Integration_oldtest_TestRunSubRunSource_h
 
 /*----------------------------------------------------------------------
 
@@ -83,4 +83,8 @@ namespace art {
     bool firstTime_;
   };
 }
-#endif
+#endif /* test_Integration_oldtest_TestRunSubRunSource_h */
+
+// Local Variables:
+// mode: c++
+// End:

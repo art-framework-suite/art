@@ -1,5 +1,5 @@
-#ifndef Framework_SignallingProductRegistry_h
-#define Framework_SignallingProductRegistry_h
+#ifndef art_Framework_Core_SignallingProductRegistry_h
+#define art_Framework_Core_SignallingProductRegistry_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -47,4 +47,8 @@ namespace art {
    };
 }
 
-#endif
+#endif /* art_Framework_Core_SignallingProductRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

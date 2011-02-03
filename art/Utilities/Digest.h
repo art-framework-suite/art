@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_Digest_h
-#define FWCore_Utilities_Digest_h
+#ifndef art_Utilities_Digest_h
+#define art_Utilities_Digest_h
 
 #include "art/Utilities/md5.h"
 
@@ -66,4 +66,8 @@ namespace art
   };
 }
 
-#endif
+#endif /* art_Utilities_Digest_h */
+
+// Local Variables:
+// mode: c++
+// End:

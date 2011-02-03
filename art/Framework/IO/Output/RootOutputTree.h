@@ -1,5 +1,5 @@
-#ifndef IORoot_Output_RootOutputTree_h
-#define IORoot_Output_RootOutputTree_h
+#ifndef art_Framework_IO_Output_RootOutputTree_h
+#define art_Framework_IO_Output_RootOutputTree_h
 
 /*----------------------------------------------------------------------
 
@@ -124,4 +124,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_IO_Output_RootOutputTree_h */
+
+// Local Variables:
+// mode: c++
+// End:

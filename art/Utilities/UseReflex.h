@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_UseReflex_h
-#define FWCore_Utilities_UseReflex_h
+#ifndef art_Utilities_UseReflex_h
+#define art_Utilities_UseReflex_h
 
 // The purpose of this header is to isolate the changes that need to be made
 // when migrating from ROOT 5.18 to ROOT 5.21 due to the fact that the
@@ -51,4 +51,8 @@ namespace Reflex {
 using namespace ROOT; // Remove this line for ROOT 5.21.
 #endif
 
-#endif
+#endif /* art_Utilities_UseReflex_h */
+
+// Local Variables:
+// mode: c++
+// End:

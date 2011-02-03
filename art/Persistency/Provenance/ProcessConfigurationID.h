@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_ProcessConfigurationID_h
-#define DataFormats_Provenance_ProcessConfigurationID_h
+#ifndef art_Persistency_Provenance_ProcessConfigurationID_h
+#define art_Persistency_Provenance_ProcessConfigurationID_h
 
 #include "art/Persistency/Provenance/HashedTypes.h"
 #include "art/Persistency/Provenance/Hash.h"
@@ -10,4 +10,8 @@ namespace art
 }
 
 
-#endif
+#endif /* art_Persistency_Provenance_ProcessConfigurationID_h */
+
+// Local Variables:
+// mode: c++
+// End:

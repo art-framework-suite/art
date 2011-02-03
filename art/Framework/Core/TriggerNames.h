@@ -1,5 +1,5 @@
-#ifndef Framework_TRIGGERNAMES_h
-#define Framework_TRIGGERNAMES_h
+#ifndef art_Framework_Core_TriggerNames_h
+#define art_Framework_Core_TriggerNames_h
 
 /*
 
@@ -79,4 +79,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Framework_Core_TriggerNames_h */
+
+// Local Variables:
+// mode: c++
+// End:

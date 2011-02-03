@@ -1,5 +1,5 @@
-#ifndef Utilities_OutletBase_h
-#define Utilities_OutletBase_h
+#ifndef art_Utilities_OutletBase_h
+#define art_Utilities_OutletBase_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -50,4 +50,8 @@ class OutletBase
 };
 }
 
-#endif
+#endif /* art_Utilities_OutletBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

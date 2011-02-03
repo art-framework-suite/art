@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_FileFormatVersion_h
-#define DataFormats_Provenance_FileFormatVersion_h
+#ifndef art_Persistency_Provenance_FileFormatVersion_h
+#define art_Persistency_Provenance_FileFormatVersion_h
 
 #include <iosfwd>
 
@@ -39,4 +39,8 @@ namespace art
   }
 */
 }
-#endif
+#endif /* art_Persistency_Provenance_FileFormatVersion_h */
+
+// Local Variables:
+// mode: c++
+// End:

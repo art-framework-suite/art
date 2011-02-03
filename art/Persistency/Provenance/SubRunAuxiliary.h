@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_SubRunAuxiliary_h
-#define DataFormats_Provenance_SubRunAuxiliary_h
+#ifndef art_Persistency_Provenance_SubRunAuxiliary_h
+#define art_Persistency_Provenance_SubRunAuxiliary_h
 
 #include <iosfwd>
 
@@ -65,4 +65,8 @@ namespace art
   }
 
 }
-#endif
+#endif /* art_Persistency_Provenance_SubRunAuxiliary_h */
+
+// Local Variables:
+// mode: c++
+// End:

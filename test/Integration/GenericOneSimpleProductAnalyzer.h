@@ -1,5 +1,5 @@
-#ifndef test_Integration_GenericOneSimpleProducAnalyzer_h
-#define test_Integration_GenericOneSimpleProducAnalyzer_h
+#ifndef test_Integration_GenericOneSimpleProductAnalyzer_h
+#define test_Integration_GenericOneSimpleProductAnalyzer_h
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
@@ -47,4 +47,8 @@ template <typename V, typename P> class arttest::GenericOneSimpleProductAnalyzer
    bool require_presence_;
 };
 
-#endif
+#endif /* test_Integration_GenericOneSimpleProductAnalyzer_h */
+
+// Local Variables:
+// mode: c++
+// End:

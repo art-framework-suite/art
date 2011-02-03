@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_UnscheduledHandler_h
-#define FWCore_Framework_UnscheduledHandler_h
+#ifndef art_Framework_Core_UnscheduledHandler_h
+#define art_Framework_Core_UnscheduledHandler_h
 
 // ======================================================================
 //
@@ -42,4 +42,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_UnscheduledHandler_h */
+
+// Local Variables:
+// mode: c++
+// End:

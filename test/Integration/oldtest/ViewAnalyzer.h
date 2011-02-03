@@ -1,5 +1,5 @@
-#ifndef Integration_ViewAnalyzer_h
-#define Integration_ViewAnalyzer_h
+#ifndef test_Integration_oldtest_ViewAnalyzer_h
+#define test_Integration_oldtest_ViewAnalyzer_h
 
 #include <string>
 
@@ -36,4 +36,8 @@ namespace arttest
 
 }
 
-#endif
+#endif /* test_Integration_oldtest_ViewAnalyzer_h */
+
+// Local Variables:
+// mode: c++
+// End:

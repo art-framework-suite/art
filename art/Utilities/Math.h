@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_math_h
-#define FWCore_Utilities_math_h
+#ifndef art_Utilities_Math_h
+#define art_Utilities_Math_h
 
 #include <cmath>
 #include <sys/types.h>
@@ -74,4 +74,8 @@ namespace art
 
 }  // art
 
-#endif
+#endif /* art_Utilities_Math_h */
+
+// Local Variables:
+// mode: c++
+// End:

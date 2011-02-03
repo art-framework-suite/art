@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_Timestamp_h
-#define DataFormats_Provenance_Timestamp_h
+#ifndef art_Persistency_Provenance_Timestamp_h
+#define art_Persistency_Provenance_Timestamp_h
 // -*- C++ -*-
 //
 // Package:     DataFormats/Provenance
@@ -91,4 +91,8 @@ class Timestamp
 };
 
 }
-#endif
+#endif /* art_Persistency_Provenance_Timestamp_h */
+
+// Local Variables:
+// mode: c++
+// End:

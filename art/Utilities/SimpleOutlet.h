@@ -1,5 +1,5 @@
-#ifndef Utilities_SimpleOutlet_h
-#define Utilities_SimpleOutlet_h
+#ifndef art_Utilities_SimpleOutlet_h
+#define art_Utilities_SimpleOutlet_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -46,4 +46,8 @@ namespace art {
 };
 
 }
-#endif
+#endif /* art_Utilities_SimpleOutlet_h */
+
+// Local Variables:
+// mode: c++
+// End:

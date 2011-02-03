@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_RunPrincipal_h
-#define FWCore_Framework_RunPrincipal_h
+#ifndef art_Framework_Core_RunPrincipal_h
+#define art_Framework_Core_RunPrincipal_h
 
 /*----------------------------------------------------------------------
 
@@ -85,5 +85,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_RunPrincipal_h */
 
+// Local Variables:
+// mode: c++
+// End:

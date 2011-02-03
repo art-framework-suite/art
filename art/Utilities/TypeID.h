@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_TypeID_h
-#define FWCore_Utilities_TypeID_h
+#ifndef art_Utilities_TypeID_h
+#define art_Utilities_TypeID_h
 
 /*----------------------------------------------------------------------
 
@@ -60,4 +60,8 @@ namespace art {
 
   std::ostream& operator<<(std::ostream& os, const TypeID& id);
 }
-#endif
+#endif /* art_Utilities_TypeID_h */
+
+// Local Variables:
+// mode: c++
+// End:

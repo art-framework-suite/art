@@ -1,5 +1,5 @@
-#ifndef Modules_DummySource_h
-#define Modules_DummySource_h
+#ifndef test_Framework_Core_DummySource_h
+#define test_Framework_Core_DummySource_h
 
 /*----------------------------------------------------------------------
 
@@ -16,4 +16,8 @@ namespace art {
     virtual bool produce(Event &);
   };
 }
-#endif
+#endif /* test_Framework_Core_DummySource_h */
+
+// Local Variables:
+// mode: c++
+// End:

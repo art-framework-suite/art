@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_Schedule_h
-#define FWCore_Framework_Schedule_h
+#ifndef art_Framework_Core_Schedule_h
+#define art_Framework_Core_Schedule_h
 
 // ======================================================================
 /*
@@ -459,4 +459,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_Schedule_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_ReflexTools_h
-#define FWCore_Utilities_ReflexTools_h
+#ifndef art_Utilities_ReflexTools_h
+#define art_Utilities_ReflexTools_h
 
 /*----------------------------------------------------------------------
 
@@ -134,4 +134,8 @@ namespace art
 
 }
 
-#endif
+#endif /* art_Utilities_ReflexTools_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Integration_HierarchicalAlgorithms_h
-#define Integration_HierarchicalAlgorithms_h
+#ifndef test_Integration_oldtest_HierarchicalAlgorithms_h
+#define test_Integration_oldtest_HierarchicalAlgorithms_h
 
 /** \class alg_1 and alg_2
  *
@@ -40,4 +40,8 @@ namespace arttest {
 
 }
 
-#endif
+#endif /* test_Integration_oldtest_HierarchicalAlgorithms_h */
+
+// Local Variables:
+// mode: c++
+// End:

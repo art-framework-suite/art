@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_CPUTimer_h
-#define FWCore_Utilities_CPUTimer_h
+#ifndef art_Utilities_CPUTimer_h
+#define art_Utilities_CPUTimer_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -67,4 +67,8 @@ class CPUTimer
 };
 }
 
-#endif
+#endif /* art_Utilities_CPUTimer_h */
+
+// Local Variables:
+// mode: c++
+// End:

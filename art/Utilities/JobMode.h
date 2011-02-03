@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_JobMode_h
-#define FWCore_Utilities_JobMode_h
+#ifndef art_Utilities_JobMode_h
+#define art_Utilities_JobMode_h
 
 /*
  An enum indicating the nature of the job, for use (at least initially)
@@ -21,4 +21,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_JobMode_h */
+
+// Local Variables:
+// mode: c++
+// End:

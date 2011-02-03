@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_EventAux_h
-#define DataFormats_Provenance_EventAux_h
+#ifndef art_Persistency_Provenance_EventAux_h
+#define art_Persistency_Provenance_EventAux_h
 
 #include <iosfwd>
 
@@ -23,4 +23,8 @@ namespace art {
   };
   void conversion(EventAux const& from, EventAuxiliary & to);
 }
-#endif
+#endif /* art_Persistency_Provenance_EventAux_h */
+
+// Local Variables:
+// mode: c++
+// End:

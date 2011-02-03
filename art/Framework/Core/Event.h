@@ -1,5 +1,5 @@
-#ifndef Framework_Event_h
-#define Framework_Event_h
+#ifndef art_Framework_Core_Event_h
+#define art_Framework_Core_Event_h
 
 // ======================================================================
 //
@@ -508,4 +508,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_Event_h */
+
+// Local Variables:
+// mode: c++
+// End:

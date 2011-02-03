@@ -1,5 +1,5 @@
-#ifndef ART_FRAMEWORK_CORE_INTERMEDIATETABLEPOSTPROCESSOR_H
-#define ART_FRAMEWORK_CORE_INTERMEDIATETABLEPOSTPROCESSOR_H
+#ifndef art_Framework_Core_IntermediateTablePostProcessor_h
+#define art_Framework_Core_IntermediateTablePostProcessor_h
 
 namespace art {
    class IntermediateTablePostProcessor;
@@ -12,4 +12,8 @@ namespace fhicl {
 struct art::IntermediateTablePostProcessor {
    void apply(fhicl::intermediate_table &raw_config) const;
 };
-#endif
+#endif /* art_Framework_Core_IntermediateTablePostProcessor_h */
+
+// Local Variables:
+// mode: c++
+// End:

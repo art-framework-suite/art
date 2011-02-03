@@ -1,5 +1,5 @@
-#ifndef EngineCreator_h
-#define EngineCreator_h
+#ifndef art_Framework_Core_EngineCreator_h
+#define art_Framework_Core_EngineCreator_h
 
 // ======================================================================
 //
@@ -55,4 +55,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_EngineCreator_h */
+
+// Local Variables:
+// mode: c++
+// End:

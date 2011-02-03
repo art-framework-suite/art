@@ -35,7 +35,7 @@ namespace art
 
 
 
-#endif
+#endif /* art_Framework_Core_TypeLabelList_h */
 
 // Local Variables:
 // mode: c++

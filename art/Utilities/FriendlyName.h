@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_FriendlyName_h
-#define FWCore_Utilities_FriendlyName_h
+#ifndef art_Utilities_FriendlyName_h
+#define art_Utilities_FriendlyName_h
 /*
  *  friendlyName.h
  *  CMSSW
@@ -15,4 +15,8 @@ namespace art {
     std::string friendlyName(std::string const& iFullName);
   }
 }
-#endif
+#endif /* art_Utilities_FriendlyName_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_ConstPtrCache_h
-#define DataFormats_Common_ConstPtrCache_h
+#ifndef art_Persistency_Common_ConstPtrCache_h
+#define art_Persistency_Common_ConstPtrCache_h
 // -*- C++ -*-
 //
 // Package:     Common
@@ -37,4 +37,8 @@ class ConstPtrCache
 };
 
 }
-#endif
+#endif /* art_Persistency_Common_ConstPtrCache_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DATAFORMAT_COMMON_TEST_SIMPLEEDPRODUCTGETTER_H
-#define DATAFORMAT_COMMON_TEST_SIMPLEEDPRODUCTGETTER_H
+#ifndef test_Persistency_Common_SimpleEDProductGetter_h
+#define test_Persistency_Common_SimpleEDProductGetter_h
 
 #include <map>
 #include <memory>
@@ -44,4 +44,8 @@ class SimpleEDProductGetter : public art::EDProductGetter
   map_t database;
 };
 
-#endif
+#endif /* test_Persistency_Common_SimpleEDProductGetter_h */
+
+// Local Variables:
+// mode: c++
+// End:

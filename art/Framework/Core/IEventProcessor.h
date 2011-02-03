@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_IEventProcessor_h
-#define FWCore_Framework_IEventProcessor_h
+#ifndef art_Framework_Core_IEventProcessor_h
+#define art_Framework_Core_IEventProcessor_h
 
 /*
 
@@ -85,4 +85,8 @@ namespace art
   };
 }
 
-#endif
+#endif /* art_Framework_Core_IEventProcessor_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef DataFormats_Provenance_Selections_h
-#define DataFormats_Provenance_Selections_h
+#ifndef art_Persistency_Provenance_Selections_h
+#define art_Persistency_Provenance_Selections_h
 
 #include "boost/array.hpp"
 #include <vector>
@@ -12,4 +12,8 @@ namespace art {
   typedef boost::array<Selections, NumBranchTypes> SelectionsArray;
 }
 
-#endif
+#endif /* art_Persistency_Provenance_Selections_h */
+
+// Local Variables:
+// mode: c++
+// End:

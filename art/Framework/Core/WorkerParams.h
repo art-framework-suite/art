@@ -1,5 +1,5 @@
-#ifndef Framework_WorkerParams_h
-#define Framework_WorkerParams_h
+#ifndef art_Framework_Core_WorkerParams_h
+#define art_Framework_Core_WorkerParams_h
 
 /** ----------------------
 
@@ -45,4 +45,8 @@ namespace art {
 
 }  // art
 
-#endif
+#endif /* art_Framework_Core_WorkerParams_h */
+
+// Local Variables:
+// mode: c++
+// End:

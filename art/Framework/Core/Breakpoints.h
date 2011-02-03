@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_Breakpoints_h
-#define FWCore_Framework_Breakpoints_h
+#ifndef art_Framework_Core_Breakpoints_h
+#define art_Framework_Core_Breakpoints_h
 /*
   Functions used only as breakpoints only to aid debugging.
 
@@ -19,4 +19,8 @@ namespace bk {
   beginRuns();
 }
 
-#endif
+#endif /* art_Framework_Core_Breakpoints_h */
+
+// Local Variables:
+// mode: c++
+// End:

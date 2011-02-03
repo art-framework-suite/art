@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_OutputHandle_h
-#define DataFormats_Common_OutputHandle_h
+#ifndef art_Persistency_Common_OutputHandle_h
+#define art_Persistency_Common_OutputHandle_h
 
 /*----------------------------------------------------------------------
 
@@ -118,4 +118,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Persistency_Common_OutputHandle_h */
+
+// Local Variables:
+// mode: c++
+// End:

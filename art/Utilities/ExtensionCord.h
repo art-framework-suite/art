@@ -1,5 +1,5 @@
-#ifndef Utilities_ExtensionCord_h
-#define Utilities_ExtensionCord_h
+#ifndef art_Utilities_ExtensionCord_h
+#define art_Utilities_ExtensionCord_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -86,4 +86,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Utilities_ExtensionCord_h */
+
+// Local Variables:
+// mode: c++
+// End:

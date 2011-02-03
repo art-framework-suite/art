@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_test_DependsOnDummyService_h
-#define ServiceRegistry_test_DependsOnDummyService_h
+#ifndef test_Framework_Services_Registry_stubs_DependsOnDummyService_h
+#define test_Framework_Services_Registry_stubs_DependsOnDummyService_h
 // -*- C++ -*-
 //
 // Package:     ServiceRegistry
@@ -49,4 +49,8 @@ namespace testserviceregistry {
    };
 }
 
-#endif
+#endif /* test_Framework_Services_Registry_stubs_DependsOnDummyService_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef  FWCore_Utilities_HRRealTime_H
-#define  FWCore_Utilities_HRRealTime_H
+#ifndef  art_Utilities_HRRealTime_h
+#define art_Utilities_HRRealTime_h
 
 /*
  *  High Resolution Real Timer
@@ -80,4 +80,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_HRRealTime_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_ModuleFactory_h
-#define FWCore_Framework_ModuleFactory_h
+#ifndef art_Framework_Core_ModuleFactory_h
+#define art_Framework_Core_ModuleFactory_h
 
 // ======================================================================
 //
@@ -45,4 +45,8 @@ private:
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_ModuleFactory_h */
+
+// Local Variables:
+// mode: c++
+// End:

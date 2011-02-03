@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_PrincipalCache_h
-#define FWCore_Framework_PrincipalCache_h
+#ifndef art_Framework_Core_PrincipalCache_h
+#define art_Framework_Core_PrincipalCache_h
 
 /*
 
@@ -92,4 +92,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Framework_Core_PrincipalCache_h */
+
+// Local Variables:
+// mode: c++
+// End:

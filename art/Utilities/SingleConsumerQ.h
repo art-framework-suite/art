@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_SingleConsumerQ_h
-#define FWCore_Utilities_SingleConsumerQ_h
+#ifndef art_Utilities_SingleConsumerQ_h
+#define art_Utilities_SingleConsumerQ_h
 
 // -*- C++ -*-
 
@@ -136,4 +136,8 @@ namespace art {
 
 
 }
-#endif
+#endif /* art_Utilities_SingleConsumerQ_h */
+
+// Local Variables:
+// mode: c++
+// End:

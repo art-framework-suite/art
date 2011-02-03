@@ -1,5 +1,5 @@
-#ifndef FWCore_Catalog_SiteLocalConfig_h
-#define FWCore_Catalog_SiteLocalConfig_h
+#ifndef art_Framework_IO_Catalog_SiteLocalConfig_h
+#define art_Framework_IO_Catalog_SiteLocalConfig_h
 
 // ======================================================================
 //
@@ -36,4 +36,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_IO_Catalog_SiteLocalConfig_h */
+
+// Local Variables:
+// mode: c++
+// End:

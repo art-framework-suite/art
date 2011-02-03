@@ -1,5 +1,5 @@
-#ifndef FWCore_Framework_TriggerResultsInserter_h
-#define FWCore_Framework_TriggerResultsInserter_h
+#ifndef art_Framework_Core_TriggerResultInserter_h
+#define art_Framework_Core_TriggerResultInserter_h
 
 // ======================================================================
 //
@@ -45,4 +45,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Framework_Core_TriggerResultInserter_h */
+
+// Local Variables:
+// mode: c++
+// End:

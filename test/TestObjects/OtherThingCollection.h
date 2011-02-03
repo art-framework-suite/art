@@ -1,5 +1,5 @@
-#ifndef TestObjects_OtherThingCollection_h
-#define TestObjects_OtherThingCollection_h
+#ifndef test_TestObjects_OtherThingCollection_h
+#define test_TestObjects_OtherThingCollection_h
 
 #include <vector>
 
@@ -9,5 +9,8 @@ namespace arttest {
    typedef std::vector<arttest::OtherThing> OtherThingCollection;
 }
 
-#endif
+#endif /* test_TestObjects_OtherThingCollection_h */
 
+// Local Variables:
+// mode: c++
+// End:

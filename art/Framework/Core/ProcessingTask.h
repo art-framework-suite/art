@@ -1,5 +1,5 @@
-#ifndef Framework_ProcessingTask_h
-#define Framework_ProcessingTask_h
+#ifndef art_Framework_Core_ProcessingTask_h
+#define art_Framework_Core_ProcessingTask_h
 
 #include <string>
 
@@ -8,4 +8,8 @@ namespace art
   typedef std::string ProcessingTask;
 }
 
-#endif
+#endif /* art_Framework_Core_ProcessingTask_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,5 +1,5 @@
-#ifndef Framework_GenericHandle_h
-#define Framework_GenericHandle_h
+#ifndef art_Framework_Core_GenericHandle_h
+#define art_Framework_Core_GenericHandle_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -168,4 +168,8 @@ bool
 art::Event::getByLabel(art::InputTag const& tag, Handle<GenericObject>& result) const;
 
 }
-#endif
+#endif /* art_Framework_Core_GenericHandle_h */
+
+// Local Variables:
+// mode: c++
+// End:

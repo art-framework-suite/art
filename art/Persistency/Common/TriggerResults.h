@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_TriggerResults_h
-#define DataFormats_Common_TriggerResults_h
+#ifndef art_Persistency_Common_TriggerResults_h
+#define art_Persistency_Common_TriggerResults_h
 
 /** \class art::TriggerResults
  *
@@ -101,4 +101,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Persistency_Common_TriggerResults_h */
+
+// Local Variables:
+// mode: c++
+// End:

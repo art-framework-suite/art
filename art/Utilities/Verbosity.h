@@ -1,5 +1,5 @@
-#ifndef Utilities_Verbosity_h
-#define Utilities_Verbosity_h
+#ifndef art_Utilities_Verbosity_h
+#define art_Utilities_Verbosity_h
 // A first attempt to define a descriptive enumenration for verbosity.
 namespace art {
   enum Verbosity {
@@ -9,4 +9,8 @@ namespace art {
     Detailed=10
   };
 }
-#endif
+#endif /* art_Utilities_Verbosity_h */
+
+// Local Variables:
+// mode: c++
+// End:

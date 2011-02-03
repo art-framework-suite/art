@@ -1,5 +1,5 @@
-#ifndef DataFormats_Common_BoolCache_h
-#define DataFormats_Common_BoolCache_h
+#ifndef art_Persistency_Common_BoolCache_h
+#define art_Persistency_Common_BoolCache_h
 // -*- C++ -*-
 //
 // Package:     Common
@@ -37,4 +37,8 @@ private:
 };
 
 }
-#endif
+#endif /* art_Persistency_Common_BoolCache_h */
+
+// Local Variables:
+// mode: c++
+// End:

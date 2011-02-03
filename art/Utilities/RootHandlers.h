@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_RootHandlers_h
-#define FWCore_Utilities_RootHandlers_h
+#ifndef art_Utilities_RootHandlers_h
+#define art_Utilities_RootHandlers_h
 
 // ----------------------------------------------------------------------
 
@@ -20,4 +20,8 @@ namespace art {
 
 // ======================================================================
 
-#endif
+#endif /* art_Utilities_RootHandlers_h */
+
+// Local Variables:
+// mode: c++
+// End:
