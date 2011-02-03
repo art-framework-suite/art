@@ -41,6 +41,7 @@ Some examples of InputSource subclasses may be:
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
@@ -78,7 +79,6 @@ namespace art {
         RunsSubRunsAndEvents
     };
 
-    typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
     explicit InputSource(fhicl::ParameterSet const&,
                          InputSourceDescription const&);
@@ -313,3 +313,7 @@ namespace art {
 // ======================================================================
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

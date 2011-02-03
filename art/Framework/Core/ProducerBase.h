@@ -18,14 +18,16 @@ namespace art {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;
-  class ProducerBase : private ProductRegistryHelper {
+  class ProducerBase : private ProductRegistryHelper 
+  {
   public:
-    typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     ProducerBase ();
     virtual ~ProducerBase();
 
     /// used by the fwk to register list of products
-    boost::function<void(const BranchDescription&)> registrationCallback() const;
+    typedef boost::function<void(const BranchDescription&)> callback_t;
+
+    callback_t registrationCallback() const;
 
     void registerProducts(boost::shared_ptr<ProducerBase>,
 			ProductRegistry *,
@@ -38,14 +40,19 @@ namespace art {
 
   protected:
     template<class TProducer, class TMethod>
-    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod) {
+    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod) 
+    {
        callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
     }
 
   private:
-    boost::function<void(const BranchDescription&)> callWhenNewProductsRegistered_;
+    callback_t callWhenNewProductsRegistered_;
   };
 
 }  // art
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

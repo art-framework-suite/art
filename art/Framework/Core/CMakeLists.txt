@@ -188,6 +188,7 @@ install(FILES Actions.h
               TriggerNames.h
               TriggerReport.h
               TriggerResultInserter.h
+	      TypeLabelList.h
               UnknownModuleException.h
               UnscheduledHandler.h
               Worker.h

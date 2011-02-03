@@ -80,6 +80,10 @@ namespace art {
     std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
     std::set<std::string> & branchAliases() {return branchAliases_;}
+    void addBranchAlias(std::string const& newalias) 
+    { 
+      branchAliases_.insert(newalias); 
+    }
     std::string & branchName() const {return transients_.get().branchName_;}
     BranchType const& branchType() const {return branchType_;}
     std::string & wrappedName() const {return transients_.get().wrappedName_;}
