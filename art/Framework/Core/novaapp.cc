@@ -37,8 +37,8 @@ int novaapp(int argc, char* argv[]) {
       ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
       ("output,o", bpo::value<std::string>(), "Event output stream file.")
       ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK).")
-      ("trace", "Activate tracing.") 
-      ("notrace", "Dectivate tracing.") 
+      ("trace", "Activate tracing.")
+      ("notrace", "Dectivate tracing.")
       ;
 
    bpo::positional_options_description pd;
@@ -81,17 +81,17 @@ int novaapp(int argc, char* argv[]) {
                          search_path_spec,
                          config_filename)) {
       std::cerr
-         << "Specified configuration file "
+         << "ERROR: Specified configuration file "
          << vm["config"].as<std::string>()
          << " cannot be found (search path \""
-         << search_path_spec 
+         << search_path_spec
          << "\").\n";
       return 7003;
    }
    std::ifstream config_stream(config_filename.c_str());
    if (!config_stream) {
       std::cerr
-         << "Specified configuration file "
+         << "ERROR: Specified configuration file "
          << config_filename
          << " cannot be opened for reading.\n";
       return 7004;

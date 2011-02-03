@@ -1,9 +1,13 @@
+// ======================================================================
+//
+// find_config
+//
+// ======================================================================
+
 #include "art/Framework/Core/find_config.h"
+
 #include "cetlib/exception.h"
 #include "cetlib/search_path.h"
-
-#include <cstdlib>
-#include <iostream>
 
 bool art::find_config(std::string const &filename,
                       std::string const &search_path_spec,
