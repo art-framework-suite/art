@@ -1,0 +1,26 @@
+process_name: issue0926c
+
+services: { scheduler: { wantSummary: true } }
+
+physics:
+{
+  analyzers:
+  {
+    ana1:
+    {
+      module_type: MockClusterListAnalyzer
+      input_label: prod2
+      nvalues: 16
+    }
+  }
+
+  e1: [ ana1 ]
+
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "issue_0926b.root" ]
+}

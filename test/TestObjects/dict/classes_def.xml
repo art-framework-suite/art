@@ -9,6 +9,8 @@
  <class name="arttest::Sortable"/>
  <class name="arttest::Unsortable"/>
  <class name="arttest::Prodigal"/>
+ <class name="arttest::MockCluster"/>
+ <class name="arttest::MockClusterList"/>
 
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
@@ -16,6 +18,7 @@
  <class name="art::Wrapper<arttest::DoubleProduct>"/>
  <class name="art::Wrapper<arttest::StringProduct>"/>
  <class name="art::Wrapper<arttest::Prodigal>"/>
+ <class name="art::Wrapper<arttest::MockClusterList>"/>
 
  <class name="std::vector<arttest::SimpleDerived>"/>
  <class name="art::Wrapper<std::vector<arttest::SimpleDerived> >"/>

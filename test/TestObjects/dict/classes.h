@@ -7,6 +7,7 @@
 
 /* #include "test/TestObjects/OtherThingCollection.h" */
 /* #include "test/TestObjects/ThingCollection.h" */
+#include "test/TestObjects/MockCluster.h"
 #include "test/TestObjects/ToyProducts.h"
 /* #include "test/TestObjects/Thing.h" */
 /* #include "test/TestObjects/ThingWithMerge.h" */
@@ -48,6 +49,9 @@ struct dictionary {
    art::Ptr<arttest::SimpleDerived> dummy234;
    art::PtrVector<arttest::SimpleDerived> dummy235;
    art::Wrapper<art::PtrVector<arttest::SimpleDerived> > dummy235w;
+
+   arttest::MockClusterList dummyMCL;
+   art::Wrapper<arttest::MockClusterList> dummyMCLw;
 
 /*   art::RefProd<std::vector<arttest::Simple> > dummy232; */
 /*   art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > dummy24; */

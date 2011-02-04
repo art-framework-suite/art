@@ -14,6 +14,8 @@ simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
 simple_plugin(DerivedPtrVectorProducer "module")
 simple_plugin(PtrListAnalyzer          "module")
+simple_plugin(MockClusterListProducer  "module")
+simple_plugin(MockClusterListAnalyzer  "module")
 
 # Library link requirements for tests here
 link_libraries(
@@ -78,6 +80,7 @@ set( TEST_SCRIPTS
   ptr_list_t.sh
   test_failingProducer_t.sh
   issue_0923_t.sh
+  issue_0926_t.sh
 )
 
 set( INPUT_FILES
@@ -100,6 +103,9 @@ set( INPUT_FILES
   issue_0923a.fcl
   issue_0923b.fcl
   issue_0923_ref.txt
+  issue_0926a.fcl
+  issue_0926b.fcl
+  issue_0926c.fcl
 )
 
 # ----------------------------------------------------------------------

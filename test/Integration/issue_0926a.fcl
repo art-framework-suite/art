@@ -1,0 +1,36 @@
+process_name: issue0926a
+
+services: { scheduler: { wantSummary: true } }
+
+physics:
+{
+  producers:
+  {
+    prod1:
+    {
+      module_type: SimpleDerivedProducer
+      nvalues: 16
+    }
+  }
+
+  p1: [ prod1 ]
+  e1: [ out1 ]
+
+  trigger_paths: [ p1 ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName: "issue_0926a.root"
+  }
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 5
+}
