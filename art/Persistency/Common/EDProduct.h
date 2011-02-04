@@ -33,19 +33,15 @@ public:
     fillView( std::vector<void const *> & view ) const
   { /* should be called only polymorphically */ }
 
- virtual void
-   setPtr( std::type_info const & iToType
-         , unsigned long          iIndex
-         , void const * &         oPtr
-         ) const
-  { /* should be called only polymorphically */ }
+ void
+ setPtr(std::type_info const &toType,
+        unsigned long index,
+        void const * &ptr) const;
 
- virtual void
-   fillPtrVector( std::type_info const &             iToType
-                , std::vector<unsigned long> const & iIndicies
-                , std::vector<void const *> &        oPtr
-                ) const
-  { /* should be called only polymorphically */ }
+ void
+ fillPtrVector(std::type_info const &toType,
+               std::vector<unsigned long> const &indices,
+               std::vector<void const *> &ptr) const;
 
 #ifndef __REFLEX__
 
@@ -66,6 +62,16 @@ public:
   { return isProductEqual_(newProduct); }
 
 #endif
+
+protected:
+
+   virtual void do_setPtr(std::type_info const &toType,
+                          unsigned long index,
+                          void const * &ptr) const = 0;
+
+   virtual void do_fillPtrVector(std::type_info const &toType,
+                                 std::vector<unsigned long> const &indices,
+                                 std::vector<void const *> &ptr) const = 0;
 
 private:
   // These will never be called.

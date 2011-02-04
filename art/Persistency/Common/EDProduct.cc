@@ -17,22 +17,20 @@ EDProduct::EDProduct()
 EDProduct::~EDProduct()
 { }
 
-#if 0
 void
-  EDProduct::setPtr( std::type_info const & iToType
-                   , unsigned long          iIndex
-                   , void const * &         oPtr ) const
+EDProduct::setPtr(std::type_info const &toType,
+                  unsigned long index,
+                  void const * &ptr) const
 {
-  do_setPtr(iToType, iIndex, oPtr);
+   do_setPtr(toType, index, ptr);
 }
 
 void
-  EDProduct::fillPtrVector( std::type_info const &             iToType
-                          , std::vector<unsigned long> const & iIndicies
-                          , std::vector<void const *> &        oPtr) const
+EDProduct::fillPtrVector(std::type_info const &toType,
+                         std::vector<unsigned long> const &indices,
+                         std::vector<void const *> &ptr) const
 {
-  do_fillPtrVector(iToType, iIndicies, oPtr);
+   do_fillPtrVector(toType, indices, ptr);
 }
-#endif
 
 // ======================================================================
