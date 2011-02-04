@@ -45,8 +45,9 @@ public:
     }
 
     int value = e.id().event();
+    size_t count = 0;
     for( product_t::const_iterator b = h->begin()
-                                 , e = h->end(); b!= e; ++b, ++value ) {
+            , e = h->end(); b!= e; ++b, ++value, ++count ) {
       if( **b != value ) {
         throw cet::exception("ValueMismatch")
           << "At position " << (b - h->begin())
@@ -54,6 +55,13 @@ public:
           << " but obtained " << **b
           << '\n';
       }
+    }
+    if (count != sz) {
+       throw cet::exception("CountMismatch")
+          << "Expected to iterate over "
+          << sz << " values, but found "
+          << count
+          << '\n';
     }
   }  // analyze()
 

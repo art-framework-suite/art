@@ -71,6 +71,11 @@ void
          assert(csz == nvalues_ - (nvalues_ / 2)); // Remainder
       }
       assert(pi->skew == pk + 1);
+      // Try to access the first one directly.
+      art::Ptr<SimpleDerived> sd0 = pi->cells[0];
+      assert(sd0.get() != nullptr);
+
+      // Now use the iterator to loop over the PtrVector.
       size_t cell_count = 0;
       for (product_t::value_type::CellList::const_iterator
               cb = pi->cells.begin(),
