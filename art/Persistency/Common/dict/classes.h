@@ -1,7 +1,7 @@
 #include "art/Persistency/Common/BoolCache.h"
 #include "art/Persistency/Common/ConstPtrCache.h"
 #include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/EDProductGetter.h"
+// #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
