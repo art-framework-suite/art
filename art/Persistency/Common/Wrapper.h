@@ -127,6 +127,30 @@ namespace art {
     }
   };
 
+  template <typename T>
+  inline
+  void Wrapper<T>::do_setPtr(std::type_info const& toType,
+			     unsigned long index,
+			     void const*& ptr) const
+  {
+    typename boost::mpl::if_c<has_setPtr<T>::value,
+      DoSetPtr<T>,
+      DoNotSetPtr<T> >::type maybe_filler;
+    maybe_filler(this->obj, toType, index, ptr);
+  }
+
+  template <typename T>
+  inline
+  void Wrapper<T>::do_fillPtrVector(std::type_info const& toType,
+				    std::vector<unsigned long> const& indices,
+				    std::vector<void const*>& ptrs) const
+  {
+    typename boost::mpl::if_c<has_setPtr<T>::value,
+      DoSetPtr<T>,
+      DoNotSetPtr<T> >::type maybe_filler;
+    maybe_filler(this->obj, toType, indices, ptrs);
+  }
+
   // This is an attempt to optimize for speed, by avoiding the copying
   // of large objects of type T. In this initial version, we assume
   // that for any class having a 'swap' member function should call
