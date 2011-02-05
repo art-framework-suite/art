@@ -16,7 +16,7 @@ cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
 set( product art )
-set( version v0_4_1 )
+set( version v0_4_2 )
 SET (qualifier a1)
 
 
