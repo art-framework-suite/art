@@ -34,7 +34,6 @@ std::string
     case EventCorruption           : return "EventCorruption";
     case ScheduleExecutionFailure  : return "ScheduleExecutionFailure";
     case EventProcessorFailure     : return "EventProcessorFailure";
-    case FileInPathError           : return "FileInPathError";
     case FileOpenError             : return "FileOpenError";
     case FileReadError             : return "FileReadError";
     case FatalRootError            : return "FatalRootError";

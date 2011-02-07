@@ -42,7 +42,6 @@ namespace art {
     ,  ScheduleExecutionFailure
     ,  EventProcessorFailure
 
-    ,  FileInPathError
     ,  FileOpenError
     ,  FileReadError
     ,  FatalRootError
