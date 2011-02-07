@@ -11,9 +11,6 @@
 
 namespace art 
 {
-  ProductRegistryHelper::~ProductRegistryHelper() 
-  { }
-
   TypeLabelList& 
   ProductRegistryHelper::typeLabelList() 
   {
