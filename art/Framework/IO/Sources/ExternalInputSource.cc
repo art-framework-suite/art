@@ -8,8 +8,7 @@ namespace art {
                                           , InputSourceDescription const& desc
                                           , bool realData )
   : ConfigurableInputSource( pset, desc, realData )
-  , poolCatalog_           ( )
-  , catalog_               ( pset, poolCatalog_ )
+  , catalog_               ( pset )
   { }
 
   ExternalInputSource::~ExternalInputSource()

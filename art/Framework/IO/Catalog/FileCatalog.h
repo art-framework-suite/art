@@ -9,21 +9,6 @@
 
 #include <string>
 
-// ----------------------------------------------------------------------
-
-namespace pool {
-  class IFileCatalog
-  {
-  public:
-    void commit() { }
-    void start() { }
-    void disconnect() { }
-    int nReadCatalogs() { }
-  };  // IFileCatalog
-}  // pool
-
-// ----------------------------------------------------------------------
-
 namespace art {
 
   class FileCatalogItem {
@@ -39,28 +24,19 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-  struct PoolCatalog {
-    PoolCatalog() : catalog_() {}
-    pool::IFileCatalog catalog_;
-  };  // PoolCatalog
-
-// ----------------------------------------------------------------------
-
   class FileCatalog {
   public:
-    explicit FileCatalog(PoolCatalog & poolcat);
+    FileCatalog();
     virtual ~FileCatalog() = 0;
     void commitCatalog();
     static bool const isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
-    pool::IFileCatalog& catalog() {return catalog_;}
     std::string & url() {return url_;}
     std::string const& url() const {return url_;}
     void setActive() {active_ = true;}
     bool active() const {return active_;}
   private:
-    pool::IFileCatalog& catalog_;
     std::string url_;
     bool active_;
   };  // FileCatalog

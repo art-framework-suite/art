@@ -33,7 +33,6 @@ namespace art {
     catalog() {return catalog_;}
 
   private:
-    PoolCatalog poolCatalog_;
     InputFileCatalog catalog_;
   };
 

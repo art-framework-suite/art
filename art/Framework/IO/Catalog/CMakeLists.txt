@@ -15,5 +15,4 @@ install ( TARGETS art_Framework_IO_Catalog DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES FileCatalog.h
               InputFileCatalog.h
-              SiteLocalConfig.h
          DESTINATION  ${product}/${version}/include/art/Framework/IO/Catalog )

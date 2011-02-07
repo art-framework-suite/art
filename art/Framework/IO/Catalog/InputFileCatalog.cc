@@ -5,8 +5,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-
-#include "art/Framework/IO/Catalog/SiteLocalConfig.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/exception.h"
@@ -15,10 +13,9 @@
 namespace art {
 
   InputFileCatalog::InputFileCatalog(fhicl::ParameterSet const& pset,
-                                     PoolCatalog & poolcat,
                                      std::string const& namesParameter,
                                      bool canBeEmpty, bool noThrow) :
-    FileCatalog(poolcat),
+    FileCatalog(),
     logicalFileNames_(canBeEmpty ?
         pset.get<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
         pset.get<std::vector<std::string> >(namesParameter)),

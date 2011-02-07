@@ -19,10 +19,9 @@ namespace art {
   class InputFileCatalog : public FileCatalog {
   public:
     explicit InputFileCatalog(fhicl::ParameterSet const& pset,
-         PoolCatalog & poolcat,
-         std::string const& namesParameter = std::string("fileNames"),
-         bool canBeEmpty = false,
-         bool noThrow = false);
+			      std::string const& namesParameter = std::string("fileNames"),
+			      bool canBeEmpty = false,
+			      bool noThrow = false);
     virtual ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}

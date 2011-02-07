@@ -8,9 +8,8 @@ namespace art {
   EDInputSource::EDInputSource(fhicl::ParameterSet const& pset,
                                InputSourceDescription const& desc) :
       InputSource(pset, desc),
-      poolCatalog_(),
-      catalog_(pset, poolCatalog_),
-      secondaryCatalog_(pset, poolCatalog_, std::string("secondaryFileNames"), true) {}
+      catalog_(pset),
+      secondaryCatalog_(pset, std::string("secondaryFileNames"), true) {}
 
   EDInputSource::~EDInputSource() { }
 
