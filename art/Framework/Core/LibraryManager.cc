@@ -226,8 +226,9 @@ void *art::LibraryManager::get_lib_ptr(std::string const&lib_loc) const {
    lib_ptr_map_t::iterator it = lib_ptr_map_.find(lib_loc);
    if (it == lib_ptr_map_.end() || it->second == nullptr) {
       dlerror();
-      return lib_ptr_map_[lib_loc] = // Update cached ptr.
-         dlopen(lib_loc.c_str(), RTLD_LAZY | RTLD_LOCAL);
+      void *ptr = dlopen(lib_loc.c_str(), RTLD_LAZY | RTLD_LOCAL);
+      lib_ptr_map_[lib_loc] = ptr;
+      return ptr;
    }
    return it->second;
 }
