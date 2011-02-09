@@ -84,14 +84,8 @@ set( art_Framework_CoreArt_sources
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
-set ( art_exec_link_libraries
-  art_Framework_CoreArt
-  art_Framework_Services_Registry
-  art_Utilities
+set ( common_exec_link_libraries 
   art_Framework_Core
-  art_Persistency_Common_dict
-  ${SIGC}
-  ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${CINTEX}
   ${PHYSICS}
@@ -110,17 +104,31 @@ set ( art_exec_link_libraries
   -ldl
 )
 
+set ( art_exec_link_libraries
+  art_Persistency_Common_dict
+  art_Framework_CoreArt
+  art_Framework_Services_Registry
+  art_Utilities
+  ${SIGC}
+  ${Boost_FILESYSTEM_LIBRARY}
+)
+
 set (ART_EXECS
   art
   nova
-  check_libs
 )
 
 foreach (art_exec ${ART_EXECS})
   add_executable( ${art_exec} ${art_exec}.cc )
-  target_link_libraries( ${art_exec} ${art_exec_link_libraries} )
+  target_link_libraries( ${art_exec}
+                         ${art_exec_link_libraries}
+                         ${common_exec_link_libraries} )
   install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
 endforeach (art_exec ${ART_EXECS})
+
+add_executable( check_libs check_libs.cc )
+target_link_libraries( check_libs ${common_exec_link_libraries} )
+install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )
 
 install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
 install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
