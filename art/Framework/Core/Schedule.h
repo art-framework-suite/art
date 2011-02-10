@@ -99,7 +99,8 @@ namespace art {
   class RunStopwatch;
   class WorkerInPath;
   class WorkerRegistry;
-  class Schedule {
+  class Schedule 
+  {
     typedef std::vector<std::string> vstring;
     typedef std::vector<Path> Paths;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
@@ -155,7 +156,8 @@ namespace art {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-    std::pair<double,double> timeCpuReal() const {
+    std::pair<double,double> timeCpuReal() const 
+    {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }
 
@@ -170,19 +172,22 @@ namespace art {
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
-    int totalEvents() const {
+    int totalEvents() const 
+    {
       return total_events_;
     }
 
     /// Return the number of events which have been passed by one or
     /// more trigger paths.
-    int totalEventsPassed() const {
+    int totalEventsPassed() const 
+    {
       return total_passed_;
     }
 
     /// Return the number of events that have not passed any trigger.
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
-    int totalEventsFailed() const {
+    int totalEventsFailed() const 
+    {
       return totalEvents() - totalEventsPassed();
     }
 
@@ -208,17 +213,15 @@ namespace art {
     void getAllWorkers(Workers &out);
 
   private:
-    Workers::const_iterator workersBegin() const
-    { return all_workers_.begin(); }
+    void writeSummary();
 
-    Workers::const_iterator workersEnd() const
-    { return all_workers_.end(); }
+    Workers::const_iterator workersBegin() const { return all_workers_.begin(); }
 
-    Workers::iterator workersBegin()
-    { return  all_workers_.begin(); }
+    Workers::const_iterator workersEnd() const { return all_workers_.end(); }
 
-    Workers::iterator workersEnd()
-    { return all_workers_.end(); }
+    Workers::iterator workersBegin() { return  all_workers_.begin(); }
+
+    Workers::iterator workersEnd() { return all_workers_.end(); }
 
     void resetAll();
 
@@ -261,23 +264,23 @@ namespace art {
     std::string         processName_;
     boost::shared_ptr<ActivityRegistry> actReg_;
 
-    State state_;
+    State   state_;
     vstring trig_name_list_;
-    vstring               end_path_name_list_;
+    vstring end_path_name_list_;
 
     TrigResPtr   results_;
     TrigResPtr   endpath_results_;
 
-    WorkerPtr            results_inserter_;
-    Workers              all_workers_;
-    OutputWorkers        all_output_workers_;
-    Paths                trig_paths_;
-    Paths                end_paths_;
+    WorkerPtr      results_inserter_;
+    Workers        all_workers_;
+    OutputWorkers  all_output_workers_;
+    Paths          trig_paths_;
+    Paths          end_paths_;
 
-    bool                             wantSummary_;
-    int                              total_events_;
-    int                              total_passed_;
-    RunStopwatch::StopwatchPointer   stopwatch_;
+    bool                           wantSummary_;
+    int                            total_events_;
+    int                            total_passed_;
+    RunStopwatch::StopwatchPointer stopwatch_;
 
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
     std::vector<boost::shared_ptr<ConstBranchDescription const> >  demandBranches_;
@@ -285,61 +288,71 @@ namespace art {
     volatile bool       endpathsAreActive_;
   };
 
-  namespace {
+  namespace 
+  {
     template <typename T>
-    class ScheduleSignalSentry {
+    class ScheduleSignalSentry 
+    {
     public:
       ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep) :
-           a_(a),ep_(ep) {
+	a_(a),ep_(ep) 
+      {
         if (a_) T::preScheduleSignal(a_, ep_);
       }
-      ~ScheduleSignalSentry() {
-        if (a_) if (ep_) T::postScheduleSignal(a_, ep_);
+      
+      ~ScheduleSignalSentry() 
+      {
+        if (a_ && ep_) T::postScheduleSignal(a_, ep_);
       }
 
     private:
       // We own none of these resources.
-      ActivityRegistry* a_;
+      ActivityRegistry*         a_;
       typename T::MyPrincipal*  ep_;
     };
   }
 
   // -----------------------------
   // ProcessOneOccurrence is a functor that has bound a specific
-  // Principal and Event Setup, and can be called with a Path, to
-  // execute Path::processOneOccurrence for that event
+  // Principal and can be called with a Path, to execute
+  // Path::processOneOccurrence for that event
 
   template <typename T>
-  class ProcessOneOccurrence {
+  class ProcessOneOccurrence 
+  {
   public:
     typedef void result_type;
     ProcessOneOccurrence(typename T::MyPrincipal& principal) :
-      ep(principal) {};
+      ep(principal) 
+    {};
 
-      void operator()(Path& p) {p.processOneOccurrence<T>(ep);}
+    void operator()(Path& p) {p.processOneOccurrence<T>(ep);}
 
   private:
     typename T::MyPrincipal&   ep;
   };
 
-  class UnscheduledCallProducer : public UnscheduledHandler {
+  class UnscheduledCallProducer : public UnscheduledHandler 
+  {
   public:
     UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
-    void addWorker(Worker* aWorker) {
+    void addWorker(Worker* aWorker) 
+    {
       assert(0 != aWorker);
       labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
     }
   private:
     virtual bool tryToFillImpl(std::string const& moduleLabel,
-                               EventPrincipal& event) {
+                               EventPrincipal& event)
+    {
       std::map<std::string, Worker*>::const_iterator itFound =
         labelToWorkers_.find(moduleLabel);
       if(itFound != labelToWorkers_.end()) {
-          // Unscheduled reconstruction has no accepted definition
-          // (yet) of the "current path". We indicate this by passing
-          // a null pointer as the CurrentProcessingContext.
-          itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, 0);
-          return true;
+	// Unscheduled reconstruction has no accepted definition
+	// (yet) of the "current path". We indicate this by passing
+	// a null pointer as the CurrentProcessingContext.
+	itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, 0);
+	return true;
       }
       return false;
     }
@@ -348,79 +361,80 @@ namespace art {
 
   void
   inline
-  Schedule::reportSkipped(EventPrincipal const& ep) const {
-    // ServiceHandle<JobReport> reportSvc;
-    // reportSvc->reportSkippedEvent(ep.id().run(), ep.id().event());
+  Schedule::reportSkipped(EventPrincipal const& ep) const 
+  {
   }
 
   template <typename T>
   void
-  Schedule::processOneOccurrence(typename T::MyPrincipal& ep) {
+  Schedule::processOneOccurrence(typename T::MyPrincipal& ep) 
+  {
     this->resetAll();
     state_ = Running;
-
+    
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    
+    if (T::isEvent_) 
+      {
+	++total_events_;
+	setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep));
+      }
+    try
+      {
+	ScheduleSignalSentry<T> sentry(actReg_.get(), &ep);
+	try 
+	  {
+	    if (runTriggerPaths<T>(ep) && T::isEvent_ )  ++total_passed_;
+	    state_ = Latched;
+	    if (results_inserter_.get()) results_inserter_->doWork<T>(ep, 0);
+	  }
+	catch(cet::exception& e) 
+	  {
+	    actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
+	    assert (action != actions::IgnoreCompletely);
+	    assert (action != actions::FailPath);
+	    assert (action != actions::FailModule);
+	    if (action == actions::SkipEvent)
+	      {
+		mf::LogWarning(e.category())
+		  << "an exception occurred and all paths for the event are being skipped: \n"
+		  << e.what();
+	      }
+	    else 
+	      throw;
+	  }
 
-    if (T::isEvent_) {
-      ++total_events_;
-      setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep));
-    }
-    try {
-      //If the ScheduleSignalSentry object is used, it must live for the entire time the event is
-      // being processed
-      std::auto_ptr<ScheduleSignalSentry<T> > sentry;
-      try {
-        sentry = std::auto_ptr<ScheduleSignalSentry<T> >(new ScheduleSignalSentry<T>(actReg_.get(), &ep));
-        if (runTriggerPaths<T>(ep)) {
-          if (T::isEvent_) ++total_passed_;
-        }
-        state_ = Latched;
-
-        if (results_inserter_.get()) results_inserter_->doWork<T>(ep, 0);
+	if (endpathsAreActive_) runEndPaths<T>(ep);
       }
-      catch(cet::exception& e) {
-        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
-        assert (action != actions::IgnoreCompletely);
-        assert (action != actions::FailPath);
-        assert (action != actions::FailModule);
-        if (action == actions::SkipEvent) {
-            mf::LogWarning(e.category())
-              << "an exception occurred and all paths for the event are being skipped: \n"
-              << e.what();
-        } else {
-          throw;
-        }
+    catch(cet::exception& ex) 
+      {
+	actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow);
+	switch(action) 
+	  {
+	  case actions::IgnoreCompletely: 
+	    {
+	      mf::LogWarning(ex.category())
+		<< "exception being ignored for current event:\n"
+		<< ex.what();
+	      break;
+	    }
+	  default: 
+	    {
+	      state_ = Ready;
+	      throw art::Exception(errors::EventProcessorFailure)
+		<< "An exception occurred during current event processing\n"
+		<< ex;
+	    }
+	  }
       }
-
-      if (endpathsAreActive_) runEndPaths<T>(ep);
-    }
-    catch(cet::exception& ex) {
-      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow);
-      assert (action != actions::SkipEvent);
-      assert (action != actions::FailPath);
-      assert (action != actions::FailModule);
-      switch(action) {
-      case actions::IgnoreCompletely: {
-        mf::LogWarning(ex.category())
-          << "exception being ignored for current event:\n"
-          << ex.what();
-        break;
+    catch (...) 
+      {
+	mf::LogError("PassingThrough")
+	  << "an exception occurred during current event processing\n";
+	state_ = Ready;
+	throw;
       }
-      default: {
-        state_ = Ready;
-        throw art::Exception(errors::EventProcessorFailure,
-                             "EventProcessingStopped",ex)
-          << "an exception occurred during current event processing\n";
-      }
-      }
-    }
-    catch(...) {
-      mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-      state_ = Ready;
-      throw;
-    }
 
     // next thing probably is not needed, the product insertion code clears it
     state_ = Ready;
@@ -429,14 +443,16 @@ namespace art {
 
   template <typename T>
   bool
-  Schedule::runTriggerPaths(typename T::MyPrincipal& ep) {
+  Schedule::runTriggerPaths(typename T::MyPrincipal& ep) 
+  {
     cet::for_all(trig_paths_, ProcessOneOccurrence<T>(ep));
     return results_->accept();
   }
 
   template <typename T>
   void
-  Schedule::runEndPaths(typename T::MyPrincipal& ep) {
+  Schedule::runEndPaths(typename T::MyPrincipal& ep) 
+  {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
     cet::for_all(end_paths_, ProcessOneOccurrence<T>(ep));

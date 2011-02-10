@@ -1,21 +1,23 @@
 # project name
 project(art_Integration_Test)
 
-simple_plugin(IntProducer              "module")
-simple_plugin(FailingProducer          "module")
-simple_plugin(IntTestAnalyzer          "module")
+simple_plugin(DerivedPtrVectorProducer "module")
 simple_plugin(DoubleProducer           "module")
 simple_plugin(DoubleTestAnalyzer       "module")
+simple_plugin(FailingAnalyzer          "module")
+simple_plugin(FailingProducer          "module")
+simple_plugin(IntProducer              "module")
+simple_plugin(IntTestAnalyzer          "module")
 simple_plugin(IntVectorAnalyzer        "module")
 simple_plugin(IntVectorProducer        "module")
+simple_plugin(MockClusterListAnalyzer  "module")
+simple_plugin(MockClusterListProducer  "module")
+simple_plugin(PtrListAnalyzer          "module")
 simple_plugin(PtrVectorAnalyzer        "module")
 simple_plugin(PtrVectorProducer        "module")
 simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
-simple_plugin(DerivedPtrVectorProducer "module")
-simple_plugin(PtrListAnalyzer          "module")
-simple_plugin(MockClusterListProducer  "module")
-simple_plugin(MockClusterListAnalyzer  "module")
+simple_plugin(Throwing                 "service")
 
 # Library link requirements for tests here
 link_libraries(
@@ -81,6 +83,7 @@ set( TEST_SCRIPTS
   test_failingProducer_t.sh
   issue_0923_t.sh
   issue_0926_t.sh
+  issue_0940_t.sh
 )
 
 set( INPUT_FILES
@@ -106,6 +109,7 @@ set( INPUT_FILES
   issue_0926a.fcl
   issue_0926b.fcl
   issue_0926c.fcl
+  issue_0940.fcl
 )
 
 # ----------------------------------------------------------------------

@@ -43,41 +43,40 @@ using namespace art;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-namespace {
+namespace 
+{
 
-   // Function template to transform each element in the input range to
-   // a value placed into the output range. The supplied function
-   // should take a const_reference to the 'input', and write to a
-   // reference to the 'output'.
-   template <class InputIterator, class ForwardIterator, class Func>
-   void
-   transform_into(InputIterator begin, InputIterator end,
-                  ForwardIterator out, Func func) {
-      for (; begin != end; ++begin, ++out) func(*begin, *out);
-   }
-
-   // Function template that takes a sequence 'from', a sequence
-   // 'to', and a callable object 'func'. It and applies
-   // transform_into to fill the 'to' sequence with the values
-   // calcuated by the callable object, taking care to fill the
-   // outupt only if all calls succeed.
-   template <class FROM, class TO, class FUNC>
-   void
-   fill_summary(FROM const& from, TO& to, FUNC func) {
-      TO temp(from.size());
-      transform_into(from.begin(), from.end(), temp.begin(), func);
-      to.swap(temp);
-   }
-
-   // -----------------------------
-
+  // Function template to transform each element in the input range to
+  // a value placed into the output range. The supplied function
+  // should take a const_reference to the 'input', and write to a
+  // reference to the 'output'.
+  template <class InputIterator, class ForwardIterator, class Func>
+  void
+  transform_into(InputIterator begin, InputIterator end,
+		 ForwardIterator out, Func func) 
+  {
+    for (; begin != end; ++begin, ++out) func(*begin, *out);
+  }
+  
+  // Function template that takes a sequence 'from', a sequence
+  // 'to', and a callable object 'func'. It and applies
+  // transform_into to fill the 'to' sequence with the values
+  // calcuated by the callable object, taking care to fill the
+  // outupt only if all calls succeed.
+  template <class FROM, class TO, class FUNC>
+  void
+  fill_summary(FROM const& from, TO& to, FUNC func) 
+  {
+    TO temp(from.size());
+    transform_into(from.begin(), from.end(), temp.begin(), func);
+    to.swap(temp);
+  }
+  
 }  // namespace
 
-  // -----------------------------
-
-namespace art {
-
-  // -----------------------------
+ 
+namespace art 
+{
 
   Schedule::Schedule(ParameterSet const& proc_pset,
                      art::TriggerNamesService& tns,
@@ -114,93 +113,111 @@ namespace art {
     bool hasPath = false;
 
     int trig_bitpos = 0;
-    for (vstring::const_iterator i = trig_name_list_.begin(),
+    for (vstring::const_iterator 
+	   i = trig_name_list_.begin(),
            e = trig_name_list_.end();
          i != e;
-         ++i) {
-      fillTrigPath(trig_bitpos,*i, results_);
-      ++trig_bitpos;
-      hasPath = true;
-    }
+         ++i) 
+      {
+	fillTrigPath(trig_bitpos, *i, results_);
+	++trig_bitpos;
+	hasPath = true;
+      }
 
-    if (hasPath) {
-      // the results inserter stands alone
-      results_inserter_ = makeInserter(tns.getTriggerPSet());
-      addToAllWorkers(results_inserter_.get());
-    }
+    if (hasPath) 
+      {
+	// the results inserter stands alone
+	results_inserter_ = makeInserter(tns.getTriggerPSet());
+	addToAllWorkers(results_inserter_.get());
+      }
 
     TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
     endpath_results_ = epptr;
 
     // fill normal endpaths
-    vstring::iterator eib(end_path_name_list_.begin()),eie(end_path_name_list_.end());
-    for(int bitpos = 0; eib != eie; ++eib, ++bitpos) {
+    vstring::iterator eib(end_path_name_list_.begin());
+    vstring::iterator eie(end_path_name_list_.end());
+    for(int bitpos = 0; eib != eie; ++eib, ++bitpos) 
       fillEndPath(bitpos, *eib);
-    }
 
     //See if all modules were used
     set<string> usedWorkerLabels;
-    for(Workers::iterator itWorker=workersBegin();
-        itWorker != workersEnd();
-        ++itWorker) {
-      usedWorkerLabels.insert((*itWorker)->description().moduleLabel_);
-    }
-    vector<string> modulesInConfig(proc_pset.get<vector<string> >("all_modules", vector<string>()));
-    set<string> modulesInConfigSet(modulesInConfig.begin(),modulesInConfig.end());
-    vector<string> unusedLabels;
+    for(Workers::iterator i=workersBegin(), e = workersEnd(); i != e; ++i)
+      usedWorkerLabels.insert((*i)->description().moduleLabel_);
+
+    vstring modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
+    set<string> modulesInConfigSet(modulesInConfig.begin(),
+				   modulesInConfig.end());
+    vstring unusedLabels;
     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
                    usedWorkerLabels.begin(),usedWorkerLabels.end(),
                    back_inserter(unusedLabels));
     //does the configuration say we should allow on demand?
     bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
     set<string> unscheduledLabels;
-    if(!unusedLabels.empty()) {
-      //Need to
-      // 1) create worker
-      // 2) if it is a WorkerT<EDProducer>, add it to our list
-      // 3) hand list to our delayed reader
-      vector<string>  shouldBeUsedLabels;
+    if(!unusedLabels.empty()) 
+      {
+	//Need to
+	// 1) create worker
+	// 2) if it is a WorkerT<EDProducer>, add it to our list
+	// 3) hand list to our delayed reader
+	vstring  shouldBeUsedLabels;
 
-      for(vector<string>::iterator itLabel = unusedLabels.begin(), itLabelEnd = unusedLabels.end();
-          itLabel != itLabelEnd;
-          ++itLabel) {
-        if (allowUnscheduled) {
-          //Need to hold onto the parameters long enough to make the call to getWorker
-          ParameterSet workersParams(proc_pset.get<ParameterSet>(*itLabel));
-          WorkerParams params(proc_pset, workersParams,
-                              *prod_reg_, *act_table_,
-                              processName_, getReleaseVersion(), getPassID());
-          Worker* newWorker(wreg.getWorker(params));
-          if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
-              dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) {
-            unscheduledLabels.insert(*itLabel);
-            unscheduled_->addWorker(newWorker);
-            //add to list so it gets reset each new event
-            addToAllWorkers(newWorker);
-          } else {
-            //not a producer so should be marked as not used
-            shouldBeUsedLabels.push_back(*itLabel);
-          }
-        } else {
-          //everthing is marked are unused so no 'on demand' allowed
-          shouldBeUsedLabels.push_back(*itLabel);
-        }
+	for(vstring::iterator 
+	      itLabel = unusedLabels.begin(), 
+	      itLabelEnd = unusedLabels.end();
+	    itLabel != itLabelEnd;
+	    ++itLabel) 
+	  {
+	    if (allowUnscheduled) 
+	      {
+		// Need to hold onto the parameters long enough to
+		// make the call to getWorker
+		ParameterSet workersParams(proc_pset.get<ParameterSet>(*itLabel));
+		WorkerParams params(proc_pset, workersParams,
+				    *prod_reg_, *act_table_,
+				    processName_, getReleaseVersion(),
+				    getPassID());
+		Worker* newWorker(wreg.getWorker(params));
+		if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+		    dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) 
+		  {
+		    unscheduledLabels.insert(*itLabel);
+		    unscheduled_->addWorker(newWorker);
+		    // add to list so it gets reset each new event
+		    addToAllWorkers(newWorker);
+		  } 
+		else
+		  {
+		    //not a producer so should be marked as not used
+		    shouldBeUsedLabels.push_back(*itLabel);
+		  }
+	      }
+	    else
+	      {
+		// everything is marked are unused so no 'on demand'
+		// allowed
+		shouldBeUsedLabels.push_back(*itLabel);
+	      }
+	  }
+	if (!shouldBeUsedLabels.empty()) 
+	  {
+	    ostringstream unusedStream;
+	    unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
+	    for (vstring::iterator 
+		   i = shouldBeUsedLabels.begin() + 1,
+		   e = shouldBeUsedLabels.end();
+		 i != e;
+		 ++i) 
+	      {
+		unusedStream << ",'" << *i << "'";
+	      }
+	    LogInfo("path")
+	      << "The following module labels are not assigned to any path:\n"
+	      << unusedStream.str()
+	      << "\n";
+	  }
       }
-      if(!shouldBeUsedLabels.empty()) {
-        ostringstream unusedStream;
-        unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-        for(vector<string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
-              itLabelEnd = shouldBeUsedLabels.end();
-            itLabel != itLabelEnd;
-            ++itLabel) {
-          unusedStream <<",'" << *itLabel<<"'";
-        }
-        LogInfo("path")
-          << "The following module labels are not assigned to any path:\n"
-          <<unusedStream.str()
-          <<"\n";
-      }
-    }
 
     // All the workers should be in all_workers_ by this point. Thus
     // we can now fill all_output_workers_.  We provide a little
@@ -209,23 +226,27 @@ namespace art {
     // refactor this huge constructor into a series of well-named
     // private functions.
     size_t all_workers_count = all_workers_.size();
-    for (Workers::iterator i = all_workers_.begin(), e = all_workers_.end();
+    for (Workers::iterator 
+	   i = all_workers_.begin(), 
+	   e = all_workers_.end();
          i != e;
-         ++i)   {
-      OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
-      if (ow) all_output_workers_.push_back(ow);
-    }
+         ++i)
+      {
+	OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
+	if (ow) all_output_workers_.push_back(ow);
+      }
 
     // Now that the output workers are filled in, set any output limits.
     limitOutput();
 
     prod_reg_->setFrozen();
 
-    if (allowUnscheduled) {
-       // Now that these have been set, we can create the list of
-       // Branches we need for the 'on demand.'
-       catalogOnDemandBranches(unscheduledLabels);
-    }
+    if (allowUnscheduled) 
+      {
+	// Now that these have been set, we can create the list of
+	// Branches we need for the 'on demand.'
+	catalogOnDemandBranches(unscheduledLabels);
+      }
 
     // Test path invariants.
     pathConsistencyCheck(all_workers_count);
@@ -233,194 +254,190 @@ namespace art {
   } // Schedule::Schedule
 
   void
-  Schedule::limitOutput() {
-  #if 0
-    string const output("output");
-
-    ParameterSet maxEventsPSet(pset_.get<ParameterSet>("maxEvents", ParameterSet()));
-    int maxEventSpecs = 0;
-    int maxEventsOut = -1;
-    ParameterSet vMaxEventsOut;
-    vector<string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
-    if (search_all(intNamesE, output)) {
-      maxEventsOut = maxEventsPSet.get<int>(output);
-      ++maxEventSpecs;
-    }
-    vector<string> psetNamesE;
-    maxEventsPSet.get<ParameterSet>NameList(psetNamesE, false);
-    if (search_all(psetNamesE, output)) {
-      vMaxEventsOut = maxEventsPSet.get<ParameterSet>(output);
-      ++maxEventSpecs;
-    }
-
-    if (maxEventSpecs > 1) {
-      throw art::Exception(art::errors::Configuration) <<
-        "\nAt most one form of 'output' may appear in the 'maxEvents' parameter set";
-    }
-
-    if (maxEventSpecs == 0) {
-      return;
-    }
-
-    for (OutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
-        it != itEnd; ++it) {
-      OutputModuleDescription desc(maxEventsOut);
-      if (!vMaxEventsOut.empty()) {
-        string moduleLabel = (*it)->description().moduleLabel_;
-        if (!vMaxEventsOut.empty()) {
-          try {
-            desc.maxEvents_ = vMaxEventsOut.get<int>(moduleLabel);
-          } catch (art::Exception) {
-            throw art::Exception(art::errors::Configuration) <<
-              "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
-          }
-        }
-      }
-      (*it)->configure(desc);
-    }
-  #endif
+  Schedule::limitOutput() 
+  {
   }
 
-  bool const Schedule::terminate() const {
-    if (all_output_workers_.empty()) {
-      return false;
-    }
-    for (OutputWorkers::const_iterator it = all_output_workers_.begin(),
-         itEnd = all_output_workers_.end();
-         it != itEnd; ++it) {
-      if (!(*it)->limitReached()) {
-        // Found an output module that has not reached output event count.
-        return false;
+  bool const Schedule::terminate() const 
+  {
+    if (all_output_workers_.empty()) return false;
+
+    for (OutputWorkers::const_iterator 
+	   i = all_output_workers_.begin(),
+	   e = all_output_workers_.end();
+         i != e; ++i) 
+      {
+	if (!(*i)->limitReached()) return false;
       }
-    }
+
     LogInfo("SuccessfulTermination")
       << "The job is terminating successfully because each output module\n"
       << "has reached its configured limit.\n";
     return true;
   }
 
-   void Schedule::fillWorkers(string const& name, PathWorkers& out, bool isTrigPath) {
-    ParameterSet physics = pset_.get<ParameterSet>("physics");
-    vstring modnames = physics.get<vector<string> >(name);
-    ParameterSet producers = physics.get<ParameterSet>("producers", ParameterSet());
-    ParameterSet filters = physics.get<ParameterSet>("filters", ParameterSet());
-    ParameterSet analyzers = physics.get<ParameterSet>("analyzers", ParameterSet());
-    ParameterSet outputs = pset_.get<ParameterSet>("outputs", ParameterSet());
+  void Schedule::fillWorkers(string const& name, 
+			     PathWorkers& out, 
+			     bool isTrigPath) 
+  {
+    ParameterSet empty;
+    ParameterSet physics =   pset_.get<ParameterSet>("physics");
+    vstring modnames =       physics.get<vstring >(name);
+    ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+    ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+    ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+    ParameterSet outputs   = pset_.get<ParameterSet>("outputs", empty);
 
     vstring::iterator it(modnames.begin()),ie(modnames.end());
     PathWorkers tmpworkers;
 
-    for(; it != ie; ++it) {
+    for(; it != ie; ++it) 
+      {
+	WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
+	if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
+	else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
 
-      WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-      if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
-      else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
-
-      string realname = *it;
-      if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
-
-      ParameterSet modpset;
-      try {
-         modpset = (isTrigPath?producers:analyzers).get<ParameterSet>(realname);
-      } catch(cet::exception&) {
-         try {
-            modpset = (isTrigPath?filters:outputs).get<ParameterSet>(realname);
-         }
-         catch(cet::exception&) {
-            try {
-               modpset = (isTrigPath?analyzers:producers).get<ParameterSet>(realname);
-            }
-            catch(cet::exception&) {
-               try {
-                  modpset = (isTrigPath?outputs:filters).get<ParameterSet>(realname);
-               }
-               catch(cet::exception&) {
-                  string pathType("endpath");
-                  if(!search_all(end_path_name_list_, name)) {
-                     pathType = string("path");
-                  }
-                  throw art::Exception(art::errors::Configuration) <<
-                     "The unknown module label \"" << realname <<
-                     "\" appears in " << pathType << " \"" << name <<
-                     "\"\n please check spelling or remove that label from the path.";
-               }
-            }
-         }
+	string realname = *it;
+	if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
+	
+	ParameterSet modpset;
+	try 
+	  {
+	    modpset = (isTrigPath?producers:analyzers).get<ParameterSet>(realname);
+	  } 
+	catch(cet::exception&) 
+	  {
+	    try 
+	      {
+		modpset = (isTrigPath?filters:outputs).get<ParameterSet>(realname);
+	      }
+	    catch(cet::exception&) 
+	      {
+		try
+		  {
+		    modpset = (isTrigPath?analyzers:producers).get<ParameterSet>(realname);
+		  }
+		catch(cet::exception&) 
+		  {
+		    try 
+		      {
+			modpset = (isTrigPath?outputs:filters).get<ParameterSet>(realname);
+		      }
+		    catch(cet::exception&) 
+		      {
+			string pathType("endpath");
+			if(!search_all(end_path_name_list_, name)) 
+			  {
+			    pathType = string("path");
+			  }
+			throw art::Exception(art::errors::Configuration) 
+			  << "The unknown module label '"
+			  << realname 
+			  << "' appears in " 
+			  << pathType 
+			  << " '" 
+			  << name 
+			  << "'\nplease check spelling or remove that label from the path.";
+		      }
+		  }
+	      }
+	  }
+	WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
+			    processName_, getReleaseVersion(), getPassID());
+	WorkerInPath w(worker_reg_->getWorker(params), filterAction);
+	tmpworkers.push_back(w);
       }
-      WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
-                          processName_, getReleaseVersion(), getPassID());
-      WorkerInPath w(worker_reg_->getWorker(params), filterAction);
-      tmpworkers.push_back(w);
-    }
-
+    
     out.swap(tmpworkers);
   }
-
-  void Schedule::fillTrigPath(int bitpos, string const& name, TrigResPtr trptr) {
+  
+  void Schedule::fillTrigPath(int bitpos, 
+			      string const& name,
+			      TrigResPtr trptr)
+  {
     PathWorkers tmpworkers;
     Workers holder;
     fillWorkers(name,tmpworkers, true);
-
-    for(PathWorkers::iterator wi(tmpworkers.begin()),
-          we(tmpworkers.end()); wi != we; ++wi) {
-      holder.push_back(wi->getWorker());
-    }
+    
+    for(PathWorkers::iterator 
+	  i = tmpworkers.begin(),
+          e = tmpworkers.end();
+	i != e; ++i) 
+      {
+	holder.push_back(i->getWorker());
+      }
 
     // an empty path will cause an extra bit that is not used
-    if(!tmpworkers.empty()) {
-      Path p(bitpos,name,tmpworkers,trptr,pset_,*act_table_,actReg_,false);
-      trig_paths_.push_back(p);
-    }
+    if(!tmpworkers.empty()) 
+      {
+	Path p(bitpos,name,tmpworkers,trptr,
+	       pset_,*act_table_,actReg_,false);
+	trig_paths_.push_back(p);
+      }
     for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
-  void Schedule::fillEndPath(int bitpos, string const& name) {
+  void Schedule::fillEndPath(int bitpos, string const& name)
+  {
     PathWorkers tmpworkers;
     fillWorkers(name,tmpworkers, false);
     Workers holder;
 
-    for(PathWorkers::iterator wi(tmpworkers.begin()),
-          we(tmpworkers.end()); wi != we; ++wi) {
-      holder.push_back(wi->getWorker());
-    }
+    for(PathWorkers::iterator 
+	  i = tmpworkers.begin(),
+          e = tmpworkers.end();
+	i != e; ++i) 
+      {
+	holder.push_back(i->getWorker());
+      }
 
-    if (!tmpworkers.empty()) {
-      Path p(bitpos,name,tmpworkers,endpath_results_,pset_,*act_table_,actReg_,true);
-      end_paths_.push_back(p);
-    }
+    if (!tmpworkers.empty()) 
+      {
+	Path p(bitpos,name,tmpworkers,endpath_results_,
+	       pset_,*act_table_,actReg_,true);
+	end_paths_.push_back(p);
+      }
     for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
-  void Schedule::endJob() {
+  void Schedule::endJob()
+  {
     bool failure = false;
-    cet::exception accumulated("endJob");
-    Workers::iterator ai(workersBegin()),ae(workersEnd());
-    for(; ai != ae; ++ai) {
-      try {
-        (*ai)->endJob();
-      }
-      catch (cet::exception& e) {
-        accumulated << "cet::exception caught in Schedule::endJob\n"
-                    << e.explain_self();
-        failure = true;
-      }
-      catch (std::exception& e) {
-        accumulated << "Standard library exception caught in Schedule::endJob\n"
-                    << e.what();
-        failure = true;
-      }
-      catch (...) {
-        accumulated << "Unknown exception caught in Schedule::endJob\n";
-        failure = true;
-      }
-    }
-    if (failure) {
-      throw accumulated;
-    }
+    Exception error(errors::EndJobFailure);
 
+    for (Workers::iterator 
+	   i = workersBegin(),
+	   e = workersEnd();
+	 i != e; ++i)
+      {
+	try 
+	  {
+	    (*i)->endJob();
+	  }
+	catch (cet::exception& e)
+	  {
+	    error << "cet::exception caught in Schedule::endJob\n"
+		  << e.explain_self();
+	    failure = true;
+	  }
+	catch (std::exception& e)
+	  {
+	    error << "Standard library exception caught in Schedule::endJob\n"
+		  << e.what();
+	    failure = true;
+	  }
+	catch (...) 
+	  {
+	    error << "Unknown exception caught in Schedule::endJob\n";
+	    failure = true;
+	  }
+      }
+    if (failure) throw error;
+    if (wantSummary_) writeSummary();
+  }
 
-    if(wantSummary_ == false) return;
-
+  void Schedule::writeSummary()
+  {
     Paths::const_iterator pi,pe;
 
     // The trigger report (pass/fail etc.):
@@ -536,9 +553,10 @@ namespace art {
                               << right << setw(10) << "Failed" << " "
                               << right << setw(10) << "Error" << " "
                               << "Name" << "";
-    ai=workersBegin();
-    ae=workersEnd();
-    for(; ai != ae; ++ai) {
+
+    Workers::iterator ai, ae;
+
+    for( ai = workersBegin(), ae = workersEnd(); ai != ae; ++ai) {
       LogVerbatim("ArtSummary") << "TrigReport "
                                 << right << setw(10) << (*ai)->timesVisited() << " "
                                 << right << setw(10) << (*ai)->timesRun() << " "
@@ -746,6 +764,9 @@ namespace art {
     LogVerbatim("ArtSummary") << "";
   }
 
+
+
+
   void Schedule::closeOutputFiles() {
     for_all(all_output_workers_, boost::bind(&OutputWorker::closeFile, _1));
   }
@@ -769,8 +790,8 @@ namespace art {
   bool Schedule::shouldWeCloseOutput() const {
     // Return true iff at least one output module returns true.
     return (find_if(all_output_workers_.begin(), all_output_workers_.end(),
-                     boost::bind(&OutputWorker::shouldWeCloseFile, _1))
-                     != all_output_workers_.end());
+		    boost::bind(&OutputWorker::shouldWeCloseFile, _1))
+	    != all_output_workers_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
@@ -917,105 +938,105 @@ namespace art {
     }
   }
 
-   Schedule::WorkerPtr
-   Schedule::makeInserter(ParameterSet const& trig_pset) const {
+  Schedule::WorkerPtr
+  Schedule::makeInserter(ParameterSet const& trig_pset) const {
 
-      WorkerParams work_args(pset_,trig_pset,*prod_reg_,*act_table_,processName_);
-      ModuleDescription md;
-      md.parameterSetID_ = trig_pset.id();
-      md.moduleName_ = "TriggerResultInserter";
-      md.moduleLabel_ = "TriggerResults";
-      md.processConfiguration_ = ProcessConfiguration(processName_, pset_.id(), getReleaseVersion(), getPassID());
+    WorkerParams work_args(pset_,trig_pset,*prod_reg_,*act_table_,processName_);
+    ModuleDescription md;
+    md.parameterSetID_ = trig_pset.id();
+    md.moduleName_ = "TriggerResultInserter";
+    md.moduleLabel_ = "TriggerResults";
+    md.processConfiguration_ = ProcessConfiguration(processName_, pset_.id(), getReleaseVersion(), getPassID());
 
-      actReg_->preModuleConstructionSignal_(md);
-      auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
-      actReg_->postModuleConstructionSignal_(md);
+    actReg_->preModuleConstructionSignal_(md);
+    auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
+    actReg_->postModuleConstructionSignal_(md);
 
-      Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
-      ptr->setActivityRegistry(actReg_);
-      return ptr;
-   }
+    Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
+    ptr->setActivityRegistry(actReg_);
+    return ptr;
+  }
 
-   void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels) {
-      ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
-      for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-             itProdInfoEnd = prodsList.end();
-          itProdInfo != itProdInfoEnd;
-          ++itProdInfo) {
-         if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
-            unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-            boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-            demandBranches_.push_back(bd);
-         }
+  void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels) {
+    ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
+    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
+	  itProdInfoEnd = prodsList.end();
+	itProdInfo != itProdInfoEnd;
+	++itProdInfo) {
+      if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
+	 unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
+	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+	demandBranches_.push_back(bd);
       }
-   }
-
-   void Schedule::pathConsistencyCheck(size_t expected_num_workers) const {
-      // Major sanity check: make sure nobody has added a worker after
-      // we've already relied on all_workers_ being full. Failure here
-      // indicates a logic error in Schedule().
-      assert(expected_num_workers == all_workers_.size() &&
-             "INTERNAL ASSERTION ERROR: all_workers_ changed after being used.");
-
-      size_t numFailures = 0;
-      numFailures = std::accumulate(trig_paths_.begin(),
-                                    trig_paths_.end(),
-                                    numFailures,
-                                    std::bind(&art::Schedule::accumulateConsistencyFailures,
-                                              this,
-                                              _1,
-                                              _2,
-                                              false));
-      numFailures = std::accumulate(end_paths_.begin(),
-                                    end_paths_.end(),
-                                    numFailures,
-                                    std::bind(&art::Schedule::accumulateConsistencyFailures,
-                                              this,
-                                              _1,
-                                              _2,
-                                              true));
-      if (numFailures > 0) {
-         // TODO: Throw correct exception.
-         throw cet::exception("IllegalPathEntries")
-            << "Found a total of "
-            << numFailures
-            << " illegal entries in paths; see error log for full list.";
-      }
-   }
-
-   size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
-                                                  art::Path const &path,
-                                                  bool isEndPath) const {
-      return current_num_failures +
-         checkOnePath(path, isEndPath);
     }
+  }
 
-   size_t Schedule::checkOnePath(Path const &path, bool isEndPath) const {
-       std::vector<std::string> results;
-      std::ostringstream message;
-      if (isEndPath) {
-         message << "The following modules are illegal in an end path  (\""
-                 << path.name()
-                 << "\"): they modify the event "
-                 << "and should be in a standard (trigger) path.";
-         path.findEventModifiers(results);
-      } else {
-         message << "The following modules are illegal in a standard (trigger) path (\""
-                 << path.name()
-                 << "\"): they are observers "
-                 << "and should be in an end path.";
-         path.findEventObservers(results);
-      }
-      size_t nFailures = results.size();
-      if (nFailures > 0) {
-         message << "\n";
-         cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
-         LogError("IllegalPathEntries")
-            << message.str();
-      }
-      return results.size();
-   }
+  void Schedule::pathConsistencyCheck(size_t expected_num_workers) const {
+    // Major sanity check: make sure nobody has added a worker after
+    // we've already relied on all_workers_ being full. Failure here
+    // indicates a logic error in Schedule().
+    assert(expected_num_workers == all_workers_.size() &&
+	   "INTERNAL ASSERTION ERROR: all_workers_ changed after being used.");
+
+    size_t numFailures = 0;
+    numFailures = std::accumulate(trig_paths_.begin(),
+				  trig_paths_.end(),
+				  numFailures,
+				  std::bind(&art::Schedule::accumulateConsistencyFailures,
+					    this,
+					    _1,
+					    _2,
+					    false));
+    numFailures = std::accumulate(end_paths_.begin(),
+				  end_paths_.end(),
+				  numFailures,
+				  std::bind(&art::Schedule::accumulateConsistencyFailures,
+					    this,
+					    _1,
+					    _2,
+					    true));
+    if (numFailures > 0) {
+      // TODO: Throw correct exception.
+      throw cet::exception("IllegalPathEntries")
+	<< "Found a total of "
+	<< numFailures
+	<< " illegal entries in paths; see error log for full list.";
+    }
+  }
+
+  size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
+						 art::Path const &path,
+						 bool isEndPath) const {
+    return current_num_failures +
+      checkOnePath(path, isEndPath);
+  }
+
+  size_t Schedule::checkOnePath(Path const &path, bool isEndPath) const {
+    std::vector<std::string> results;
+    std::ostringstream message;
+    if (isEndPath) {
+      message << "The following modules are illegal in an end path  (\""
+	      << path.name()
+	      << "\"): they modify the event "
+	      << "and should be in a standard (trigger) path.";
+      path.findEventModifiers(results);
+    } else {
+      message << "The following modules are illegal in a standard (trigger) path (\""
+	      << path.name()
+	      << "\"): they are observers "
+	      << "and should be in an end path.";
+      path.findEventObservers(results);
+    }
+    size_t nFailures = results.size();
+    if (nFailures > 0) {
+      message << "\n";
+      cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
+      LogError("IllegalPathEntries")
+	<< message.str();
+    }
+    return results.size();
+  }
 
 }  // art
 
-// ======================================================================
+

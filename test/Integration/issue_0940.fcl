@@ -1,0 +1,52 @@
+process_name: issue0940
+
+services:
+{
+  user:
+  {
+    Throwing: { }
+  }
+
+  scheduler:  # options block in the old system
+  {
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
+              'BadExceptionType','DictionaryNotFound',
+              'InsertFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'EventCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    SkipEvent: [ 'ProductNotFound' ]
+    wantSummary: true
+    # wantTracer: false
+    # fileMode: ""
+    # handleEmptyRuns: true
+    # handleEmptySubRuns: true
+    # enableSigInt: true
+    # unloadRootSigHandler: false
+    # resetRootErrHandler: true
+  }
+}
+
+
+
+physics:
+{  
+  analyzers:
+  {
+    a1: 
+    {
+      module_type: FailingAnalyzer
+    }
+  }
+
+  e1: [ a1 ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 5
+}

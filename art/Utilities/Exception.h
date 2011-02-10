@@ -41,6 +41,7 @@ namespace art {
 
     ,  ScheduleExecutionFailure
     ,  EventProcessorFailure
+    ,  EndJobFailure
 
     ,  FileOpenError
     ,  FileReadError
