@@ -55,23 +55,30 @@ Some examples of InputSource subclasses may be:
 
 // ----------------------------------------------------------------------
 
-namespace art {
+namespace art
+{
+
+  namespace input
+  {
+    enum ItemType 
+      {
+	IsInvalid,
+	IsStop,
+	IsFile,
+	IsRun,
+	IsSubRun,
+	IsEvent,
+	IsRepeat
+      };
+  }
+
   class ActivityRegistry;
 
-  class InputSource
-    : private ProductRegistryHelper
-    , private boost::noncopyable
+  class InputSource :
+    private ProductRegistryHelper,
+    private boost::noncopyable
   {
   public:
-    enum ItemType {
-        IsInvalid,
-        IsStop,
-        IsFile,
-        IsRun,
-        IsSubRun,
-        IsEvent,
-        IsRepeat
-    };
 
     enum ProcessingMode {
         Runs,
@@ -79,14 +86,12 @@ namespace art {
         RunsSubRunsAndEvents
     };
 
-    /// Constructor
-    explicit InputSource(fhicl::ParameterSet const&,
-                         InputSourceDescription const&);
 
-    /// Destructor
-    virtual ~InputSource();
+    InputSource(fhicl::ParameterSet const&,
+		InputSourceDescription const&);
 
-    ItemType nextItemType();
+    virtual ~InputSource() = 0;
+    input::ItemType nextItemType();
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null auto_ptr.
@@ -114,12 +119,12 @@ namespace art {
     /// Begin again at the first event
     void rewind() {
       doneReadAhead_ = false;
-      state_ = IsInvalid;
+      state_ = input::IsInvalid;
       rewind_();
     }
 
     /// Wake up the input source
-    void wakeUp() {wakeUp_();}
+    //void wakeUp() {wakeUp_();}
 
     /// issue an event report
     void issueReports(EventID const& eventID, SubRunNumber_t const& subRun);
@@ -190,7 +195,7 @@ namespace art {
     /// Accessor for Activity Registry
     boost::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
-    using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::reconstitutes;
     using ProductRegistryHelper::typeLabelList;
 
     class SourceSentry : private boost::noncopyable {
@@ -242,7 +247,7 @@ namespace art {
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
     ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
-    ItemType state() const{return state_;}
+    input::ItemType state() const{return state_;}
     boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
     boost::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
     void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
@@ -251,7 +256,7 @@ namespace art {
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
     void reset() const {
       doneReadAhead_ = false;
-      state_ = IsInvalid;
+      state_ = input::IsInvalid;
     }
 
     // To call the private commit_() functions of classes with which we are friends
@@ -263,8 +268,8 @@ namespace art {
     bool eventLimitReached() const {return remainingEvents_ == 0;}
     bool subRunLimitReached() const {return remainingSubRuns_ == 0;}
     bool limitReached() const {return eventLimitReached() || subRunLimitReached();}
-    virtual ItemType getNextItemType() = 0;
-    ItemType nextItemType_();
+    virtual input::ItemType getNextItemType() = 0;
+    input::ItemType nextItemType_();
     virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
     virtual boost::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
@@ -273,7 +278,7 @@ namespace art {
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
-    virtual void wakeUp_();
+    //virtual void wakeUp_();
     void preRead();
     void postRead(Event& event);
     virtual void endSubRun(SubRun &);
@@ -295,7 +300,7 @@ namespace art {
     std::string processGUID_;
     Timestamp time_;
     mutable bool doneReadAhead_;
-    mutable ItemType state_;
+    mutable input::ItemType state_;
     mutable boost::shared_ptr<RunPrincipal>  runPrincipal_;
     mutable boost::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
   };  // InputSource

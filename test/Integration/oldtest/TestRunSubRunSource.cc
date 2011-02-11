@@ -85,27 +85,27 @@ namespace art {
     return result;
   }
 
-  InputSource::ItemType
+  input::ItemType
   TestRunSubRunSource::getNextItemType() {
     if (firstTime_) {
       firstTime_ = false;
-      return InputSource::IsFile;
+      return input::IsFile;
     }
     if (currentIndex_ + 2 >= runSubRunEvent_.size()) {
-      return InputSource::IsStop;
+      return input::IsStop;
     }
     if (runSubRunEvent_[currentIndex_] == 0) {
-      return InputSource::IsStop;
+      return input::IsStop;
     }
     ItemType oldState = state();
-    if (oldState == IsInvalid) return InputSource::IsFile;
+    if (oldState == IsInvalid) return input::IsFile;
     if (runSubRunEvent_[currentIndex_ + 1] == 0) {
-      return InputSource::IsRun;
+      return input::IsRun;
     }
     if (runSubRunEvent_[currentIndex_ + 2] == 0) {
-      return InputSource::IsSubRun;
+      return input::IsSubRun;
     }
-    return InputSource::IsEvent;
+    return input::IsEvent;
   }
 }
 

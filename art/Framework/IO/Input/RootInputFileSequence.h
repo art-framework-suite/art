@@ -53,7 +53,7 @@ namespace art {
     boost::shared_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
-    InputSource::ItemType getNextItemType();
+    input::ItemType getNextItemType();
     std::auto_ptr<EventPrincipal> readIt(EventID const& id, bool exact = false);
     boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);

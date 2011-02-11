@@ -61,7 +61,7 @@ private:
     closeFile_( );
   virtual void
     endJob( );
-  virtual ItemType
+  virtual input::ItemType
     getNextItemType( );
   virtual std::auto_ptr<EventPrincipal>
     readIt( EventID const & id );

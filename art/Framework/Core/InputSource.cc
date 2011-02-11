@@ -75,7 +75,7 @@ namespace art {
   , processGUID_         ( primary_ ? createGlobalIdentifier() : std::string() )
   , time_                ( )
   , doneReadAhead_       ( false )
-  , state_               ( IsInvalid )
+  , state_               ( input::IsInvalid )
   , runPrincipal_        ( )
   , subRunPrincipal_       ( )
   {
@@ -129,81 +129,86 @@ namespace art {
 
   InputSource::~InputSource() { }
 
-  // This next function is to guarantee that "runs only" mode does not return events or subRuns,
-  // and that "runs and subRuns only" mode does not return events.
-  // For input sources that are not random access (e.g. you need to read through the events
-  // to get to the subRuns and runs), this is all that is involved to implement these modes.
-  // For input sources where events or subRuns can be skipped, getNextItemType() should
-  // implement the skipping internally, so that the performance gain is realized.
-  // If this is done for a source, the 'if' blocks in this function will never be entered
-  // for that source.
-  InputSource::ItemType
+  // This next function is to guarantee that "runs only" mode does not
+  // return events or subRuns, and that "runs and subRuns only" mode
+  // does not return events.  For input sources that are not random
+  // access (e.g. you need to read through the events to get to the
+  // subRuns and runs), this is all that is involved to implement
+  // these modes.  For input sources where events or subRuns can be
+  // skipped, getNextItemType() should implement the skipping
+  // internally, so that the performance gain is realized.  If this is
+  // done for a source, the 'if' blocks in this function will never be
+  // entered for that source.
+  input::ItemType
   InputSource::nextItemType_() {
-    ItemType itemType = getNextItemType();
-    if (itemType == IsEvent && processingMode() != RunsSubRunsAndEvents) {
+    input::ItemType itemType = getNextItemType();
+    if (itemType == input::IsEvent && processingMode() != RunsSubRunsAndEvents) {
       readEvent_();
       return nextItemType_();
     }
-    if (itemType == IsSubRun && processingMode() == Runs) {
+    if (itemType == input::IsSubRun && processingMode() == Runs) {
       readSubRun_();
       return nextItemType_();
     }
     return itemType;
   }
 
-  InputSource::ItemType
+  input::ItemType
   InputSource::nextItemType() {
     if (doneReadAhead_) {
       return state_;
     }
     doneReadAhead_ = true;
-    ItemType oldState = state_;
+    input::ItemType oldState = state_;
     if (eventLimitReached()) {
       // If the maximum event limit has been reached, stop.
-      state_ = IsStop;
+      state_ = input::IsStop;
     }
     else if (subRunLimitReached()) {
       // If the maximum subRun limit has been reached, stop
       // when reaching a new file, run, or subRun.
-      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun || processingMode() != RunsSubRunsAndEvents) {
-        state_ = IsStop;
+      if (oldState == input::IsInvalid ||
+	  oldState == input::IsFile ||
+	  oldState == input::IsRun ||
+	  processingMode() != RunsSubRunsAndEvents) {
+        state_ = input::IsStop;
       }
       else {
-        ItemType newState = nextItemType_();
-        if (newState == IsEvent) {
+	input::ItemType newState = nextItemType_();
+        if (newState == input::IsEvent) {
           assert(processingMode() == RunsSubRunsAndEvents);
-          state_ = IsEvent;
+          state_ = input::IsEvent;
         }
         else {
-          state_ = IsStop;
+          state_ = input::IsStop;
         }
       }
     }
     else {
-      ItemType newState = nextItemType_();
-      if (newState == IsStop) {
-        state_ = IsStop;
+      input::ItemType newState = nextItemType_();
+      if (newState == input::IsStop) {
+        state_ = input::IsStop;
       }
-      else if (newState == IsFile || oldState == IsInvalid) {
-        state_ = IsFile;
+      else if (newState == input::IsFile || oldState == input::IsInvalid) {
+        state_ = input::IsFile;
       }
-      else if (newState == IsRun || oldState == IsFile) {
+      else if (newState == input::IsRun || oldState == input::IsFile) {
         RunSourceSentry(*this);
         setRunPrincipal(readRun_());
-        state_ = IsRun;
+        state_ = input::IsRun;
       }
-      else if (newState == IsSubRun || oldState == IsRun) {
+      else if (newState == input::IsSubRun || oldState == input::IsRun) {
         assert(processingMode() != Runs);
         SubRunSourceSentry(*this);
         setSubRunPrincipal(readSubRun_());
-        state_ = IsSubRun;
+        state_ = input::IsSubRun;
       }
       else {
         assert(processingMode() == RunsSubRunsAndEvents);
-        state_ = IsEvent;
+        state_ = input::IsEvent;
       }
     }
-    if (state_ == IsStop) {
+    if (state_ == input::IsStop) {
       subRunPrincipal_.reset();
       runPrincipal_.reset();
     }
@@ -231,7 +236,7 @@ namespace art {
   boost::shared_ptr<FileBlock>
   InputSource::readFile() {
     assert(doneReadAhead_);
-    assert(state_ == IsFile);
+    assert(state_ == input::IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
     boost::shared_ptr<FileBlock> fb = readFile_();
@@ -257,7 +262,7 @@ namespace art {
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
     assert(doneReadAhead_);
-    assert(state_ == IsRun);
+    assert(state_ == input::IsRun);
     assert(!limitReached());
     doneReadAhead_ = false;
     return runPrincipal_;
@@ -269,7 +274,7 @@ namespace art {
     // random number generator if random numbers are generated during processing of subRuns
     // (e.g. beginSubRun(), endSubRun())
     assert(doneReadAhead_);
-    assert(state_ == IsSubRun);
+    assert(state_ == input::IsSubRun);
     assert(!limitReached());
     doneReadAhead_ = false;
     --remainingSubRuns_;
@@ -281,7 +286,7 @@ namespace art {
   std::auto_ptr<EventPrincipal>
   InputSource::readEvent(boost::shared_ptr<SubRunPrincipal> srp) {
     assert(doneReadAhead_);
-    assert(state_ == IsEvent);
+    assert(state_ == input::IsEvent);
     assert(!eventLimitReached());
     doneReadAhead_ = false;
 
@@ -401,8 +406,8 @@ namespace art {
     sr.commit_();
   }
 
-  void
-  InputSource::wakeUp_() { }
+//   void
+//   InputSource::wakeUp_() { }
 
   void
   InputSource::endSubRun(SubRun &) { }

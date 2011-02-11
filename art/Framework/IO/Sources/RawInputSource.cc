@@ -26,8 +26,8 @@ namespace art {
       setTimestamp(Timestamp::beginOfTime());
   }
 
-  RawInputSource::~RawInputSource() {
-  }
+  RawInputSource::~RawInputSource() 
+  { }
 
   boost::shared_ptr<RunPrincipal>
   RawInputSource::readRun_() {
@@ -57,53 +57,56 @@ namespace art {
     return ep_;
   }
 
-  std::auto_ptr<Event>
-  RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp) {
-    EventSourceSentry sentry(*this);
-    EventAuxiliary eventAux(EventID(run, subRun, event),
-      processGUID(), tstamp, true, EventAuxiliary::Data);
-    ep_ = std::auto_ptr<EventPrincipal>(
-        new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
-    std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
-    return e;
-  }
+//   std::auto_ptr<Event>
+//   RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp) {
+//     EventSourceSentry sentry(*this);
+//     EventAuxiliary eventAux(EventID(run, subRun, event),
+//       processGUID(), tstamp, true, EventAuxiliary::Data);
+//     ep_ = std::auto_ptr<EventPrincipal>(
+//         new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
+//     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
+//     return e;
+//   }
 
 
-  InputSource::ItemType
+  input::ItemType
   RawInputSource::getNextItemType() {
-    if (state() == IsInvalid) {
-      return IsFile;
-    }
-    if (newRun_) {
-      return IsRun;
-    }
-    if (newSubRun_) {
-      return IsSubRun;
-    }
-    if(ep_.get() != 0) {
-      return IsEvent;
-    }
-    std::auto_ptr<Event> e(readOneEvent());
-    if (e.get() == 0) {
-      return IsStop;
-    } else {
-       commitEvent(*e);
-    }
-    if (e->run() != runNumber_) {
-      newRun_ = newSubRun_ = true;
-      resetSubRunPrincipal();
-      resetRunPrincipal();
-      runNumber_ = e->run();
-      subRunNumber_ = e->subRun();
-      return IsRun;
-    } else if (e->subRun() != subRunNumber_) {
-      subRunNumber_ = e->subRun();
-      newSubRun_ = true;
-      resetSubRunPrincipal();
-      return IsSubRun;
-    }
-    return IsEvent;
+    return input::IsStop;
   }
+
+//     if (state() == input::IsInvalid) {
+//       return input::IsFile;
+//     }
+//     if (newRun_) {
+//       return input::IsRun;
+//     }
+//     if (newSubRun_) {
+//       return input::IsSubRun;
+//     }
+//     if(ep_.get() != 0) {
+//       return input::IsEvent;
+//     }
+//     std::auto_ptr<Event> e(readOneEvent());
+//     if (e.get() == 0) {
+//       return input::IsStop;
+//     } else {
+//        commitEvent(*e);
+//     }
+//     if (e->run() != runNumber_) {
+//       newRun_ = newSubRun_ = true;
+//       resetSubRunPrincipal();
+//       resetRunPrincipal();
+//       runNumber_ = e->run();
+//       subRunNumber_ = e->subRun();
+//       return input::IsRun;
+//     } else if (e->subRun() != subRunNumber_) {
+//       subRunNumber_ = e->subRun();
+//       newSubRun_ = true;
+//       resetSubRunPrincipal();
+//       return input::IsSubRun;
+//     }
+//     return input::IsEvent;
+//   }
 
   std::auto_ptr<EventPrincipal>
   RawInputSource::readIt(EventID const&) {

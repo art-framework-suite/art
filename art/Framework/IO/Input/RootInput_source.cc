@@ -237,7 +237,7 @@ std::auto_ptr<EventPrincipal>
   return primaryFileSequence_->readIt(id);
 }  // readIt()
 
-InputSource::ItemType
+input::ItemType
   RootInput::getNextItemType()
 {
   return primaryFileSequence_->getNextItemType();

@@ -956,7 +956,7 @@ namespace art {
 
     try {
 
-      InputSource::ItemType itemType;
+      input::ItemType itemType;
 
       int iEvents = 0;
 
@@ -995,19 +995,19 @@ namespace art {
           }
         }
 
-        if (itemType == InputSource::IsStop) {
+        if (itemType == input::IsStop) {
           machine_->process_event(statemachine::Stop());
         }
-        else if (itemType == InputSource::IsFile) {
+        else if (itemType == input::IsFile) {
           machine_->process_event(statemachine::File());
         }
-        else if (itemType == InputSource::IsRun) {
+        else if (itemType == input::IsRun) {
           machine_->process_event(statemachine::Run(input_->run()));
         }
-        else if (itemType == InputSource::IsSubRun) {
+        else if (itemType == input::IsSubRun) {
           machine_->process_event(statemachine::SubRun(input_->subRun()));
         }
-        else if (itemType == InputSource::IsEvent) {
+        else if (itemType == input::IsEvent) {
           machine_->process_event(statemachine::Event());
           ++iEvents;
           if (numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {

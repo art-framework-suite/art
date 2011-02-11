@@ -3,7 +3,11 @@
 
 // ======================================================================
 //
-// RawInputSource
+// RawInputSource is an abstract base class, intended to make it
+// easier to write InputSources that read non-art-format data files.
+//
+// A concrete InputSource that inherits from RawInputSource must
+// implement the pure virtual function readOneEvent().
 //
 // ======================================================================
 
@@ -16,32 +20,37 @@
 
 // ----------------------------------------------------------------------
 
-namespace art {
-
+namespace art 
+{
   class Timestamp;
 
-  class RawInputSource : public InputSource {
+  class RawInputSource : public InputSource 
+  {
   public:
     explicit RawInputSource(fhicl::ParameterSet const& pset,
                             InputSourceDescription const& desc);
     virtual ~RawInputSource();
 
   protected:
-    std::auto_ptr<Event> makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp);
-    virtual std::auto_ptr<Event> readOneEvent() = 0;
+
+//     std::auto_ptr<Event> makeEvent(RunNumber_t run,
+// 				   SubRunNumber_t subRun,
+// 				   EventNumber_t event,
+// 				   Timestamp const& tstamp);
+//     virtual std::auto_ptr<Event> readOneEvent() = 0;
 
   private:
-    virtual std::auto_ptr<EventPrincipal> readEvent_();
+    virtual std::auto_ptr<EventPrincipal>      readEvent_();
     virtual boost::shared_ptr<SubRunPrincipal> readSubRun_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_();
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
-    virtual void skip(int offset);
-    virtual ItemType getNextItemType();
+    virtual boost::shared_ptr<RunPrincipal>    readRun_();
+    virtual std::auto_ptr<EventPrincipal>      readIt(EventID const& eventID);
+    virtual void                               skip(int offset);
+    virtual input::ItemType                    getNextItemType();
 
-    RunNumber_t runNumber_;
-    SubRunNumber_t subRunNumber_;
-    bool newRun_;
-    bool newSubRun_;
+    RunNumber_t                   runNumber_;
+    SubRunNumber_t                subRunNumber_;
+    bool                          newRun_;
+    bool                          newSubRun_;
     std::auto_ptr<EventPrincipal> ep_;
   };
 

@@ -425,35 +425,35 @@ namespace art {
     return boost::shared_ptr<RunPrincipal>();
   }
 
-  InputSource::ItemType
+  input::ItemType
   RootInputFileSequence::getNextItemType() {
     if (fileIter_ == fileIterEnd_) {
-      return InputSource::IsStop;
+      return input::IsStop;
     }
     if (firstFile_) {
-      return InputSource::IsFile;
+      return input::IsFile;
     }
     if (rootFile_) {
       if (randomAccess_) {
         skip(0);
         if (fileIter_== fileIterEnd_) {
-          return InputSource::IsStop;
+          return input::IsStop;
         }
       }
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
-        return InputSource::IsEvent;
+        return input::IsEvent;
       } else if (entryType == FileIndex::kSubRun) {
-        return InputSource::IsSubRun;
+        return input::IsSubRun;
       } else if (entryType == FileIndex::kRun) {
-        return InputSource::IsRun;
+        return input::IsRun;
       }
       assert(entryType == FileIndex::kEnd);
     }
     if (fileIter_ + 1 == fileIterEnd_) {
-      return InputSource::IsStop;
+      return input::IsStop;
     }
-    return InputSource::IsFile;
+    return input::IsFile;
   }
 
   // Rewind to before the first event that was read.

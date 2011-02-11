@@ -170,20 +170,20 @@ void
   resetRunPrincipal();
 }
 
-InputSource::ItemType
+input::ItemType
   ConfigurableInputSource::getNextItemType()
 {
   if (newRun_) {
      if (!eventID_.runID().isValid() ) {
       ep_.reset();
-      return IsStop;
+      return input::IsStop;
     }
-    return IsRun;
+    return input::IsRun;
   }
   if (newSubRun_) {
-    return IsSubRun;
+    return input::IsSubRun;
   }
-  if(ep_.get() != 0) return IsEvent;
+  if(ep_.get() != 0) return input::IsEvent;
   EventID oldEventID = eventID_;
   if (!eventSet_) {
     subRunSet_ = false;
@@ -192,7 +192,7 @@ InputSource::ItemType
   }
   if (!eventID_.runID().isValid()) {
     ep_.reset();
-    return IsStop;
+    return input::IsStop;
   }
   if (oldEventID.runID() != eventID_.runID()) {
     //  New Run
@@ -202,7 +202,7 @@ InputSource::ItemType
     newRun_ = newSubRun_ = true;
     resetSubRunPrincipal();
     resetRunPrincipal();
-    return IsRun;
+    return input::IsRun;
   }
     // Same Run
   if (oldEventID.subRunID() != eventID_.subRunID()) {
@@ -211,17 +211,17 @@ InputSource::ItemType
     newSubRun_ = true;
     resetSubRunPrincipal();
     if (processingMode() != Runs) {
-      return IsSubRun;
+      return input::IsSubRun;
     }
   }
   ++numberEventsInThisRun_;
   ++numberEventsInThisSubRun_;
   reallyReadEvent();
   if (ep_.get() == 0) {
-    return IsStop;
+    return input::IsStop;
   }
   eventSet_ = false;
-  return IsEvent;
+  return input::IsEvent;
 }
 
 void

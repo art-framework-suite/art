@@ -18,6 +18,7 @@ simple_plugin(PtrVectorProducer        "module")
 simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
 simple_plugin(Throwing                 "service")
+simple_plugin(ToyRawInput              "source")
 
 # Common library link requirements for tests here.
 link_libraries(
