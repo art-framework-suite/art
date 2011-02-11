@@ -115,6 +115,7 @@ set ( art_exec_link_libraries
 
 set (ART_EXECS
   art
+  lar
   nova
 )
 
