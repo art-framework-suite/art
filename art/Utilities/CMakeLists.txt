@@ -21,7 +21,9 @@ set( art_Utilities_sources CPUTimer.cc
                           TestHelper.cc
                           TypeID.cc
                           UnixSignalHandlers.cc
-                          WrappedClassName.cc )
+                          WrappedClassName.cc
+                          ensure_table.cc
+                          )
 
 add_library(art_Utilities SHARED ${art_Utilities_sources} )
 target_link_libraries(art_Utilities
@@ -68,6 +70,7 @@ set (HEADERS
   UseReflex.h
   Verbosity.h
   WrappedClassName.h
+  ensure_table.h
   md5.h
   vectorTransform.h
 )
