@@ -1,4 +1,4 @@
-#include "art/Utilities/ensure_table.h"
+#include "art/Utilities/ensureTable.h"
 
 #include "cetlib/exception.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -6,8 +6,8 @@
 using namespace fhicl;
 
 void
-art::ensure_table(intermediate_table & table,
-                  std::string const  & name) {
+art::ensureTable(intermediate_table & table,
+                 std::string const  & name) {
    extended_value & val = table[name];
    if( val.is_a(NIL) )
       val = extended_value(false, TABLE, extended_value::table_t());

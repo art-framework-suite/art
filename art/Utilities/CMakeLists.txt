@@ -22,7 +22,7 @@ set( art_Utilities_sources CPUTimer.cc
                           TypeID.cc
                           UnixSignalHandlers.cc
                           WrappedClassName.cc
-                          ensure_table.cc
+                          ensureTable.cc
                           )
 
 add_library(art_Utilities SHARED ${art_Utilities_sources} )
@@ -70,7 +70,7 @@ set (HEADERS
   UseReflex.h
   Verbosity.h
   WrappedClassName.h
-  ensure_table.h
+  ensureTable.h
   md5.h
   vectorTransform.h
 )

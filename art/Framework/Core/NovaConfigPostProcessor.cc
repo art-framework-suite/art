@@ -1,5 +1,6 @@
 #include "NovaConfigPostProcessor.h"
 
+#include "art/Utilities/ensureTable.h"
 #include "boost/any.hpp"
 #include "cetlib/canonical_string.h"
 #include "cetlib/exception.h"
@@ -15,6 +16,9 @@
 #include <vector>
 
 using namespace fhicl;
+
+typedef extended_value::table_t table_t;
+typedef extended_value::sequence_t sequence_t;
 
 NovaConfigPostProcessor::NovaConfigPostProcessor()
    :
@@ -57,125 +61,113 @@ void NovaConfigPostProcessor::
 applySource(intermediate_table &raw_config) const {
    if ((sources_.size() == 0) &&
        !(wantNevts_ || wantStartEvt_ || wantSkipEvts_)) return;
-   extended_value::table_t source_table;
-   try {
-      source_table = raw_config.find("source");
-   }
-   catch (exception &e) {
-      if (e.categoryCode() == cant_find) {
-         // Ignore
-      } else {
-         throw;
-      }
-   }
-   if (source_table.find("module_type") == source_table.end()) {
-      source_table["module_type"] = extended_value(false, STRING, fhicl::detail::encode("RootInput"));
+
+   if (!raw_config.exists("source.module_type")) {
+      raw_config["source.module_type"] =
+         extended_value(false, STRING, fhicl::detail::encode("RootInput"));
    }
    if (sources_.size() > 0) {
-      extended_value::sequence_t fileNames;
+      size_t count = 0;
       for (std::vector<std::string>::const_iterator
-              i = sources_.begin(),
+              it = sources_.begin(),
               end_iter =  sources_.end();
-           i != end_iter;
-           ++i) {
-         fileNames.push_back(extended_value(false, STRING, fhicl::detail::encode(*i)));
+           it != end_iter;
+           ++it, ++count) {
+         std::ostringstream loc;
+         loc << "source.fileNames[" << count << "]";
+         raw_config[loc.str()] =
+            extended_value(false, STRING, fhicl::detail::encode(*it));
       }
-      source_table["fileNames"] = extended_value(false, SEQUENCE, fileNames);
    }
-   if (wantNevts_) {
-      source_table["maxEvents"] = extended_value(false, NUMBER, fhicl::detail::encode(nevts_));
-   }
-   if (wantStartEvt_) {
-      source_table["firstEvent"] = extended_value(false, NUMBER, fhicl::detail::encode(startEvt_));
-   }
-   if (wantSkipEvts_) {
-      source_table["skipEvents"] = extended_value(false, NUMBER, fhicl::detail::encode(skipEvts_));
-   }
-   raw_config.insert("source", extended_value(false, TABLE, source_table));
+   if (wantNevts_) raw_config["source.maxEvents"] =
+      extended_value(false, NUMBER, fhicl::detail::encode(nevts_));
+   if (wantStartEvt_) raw_config["source.firstEvent"] =
+      extended_value(false, NUMBER, fhicl::detail::encode(startEvt_));
+   if (wantSkipEvts_) raw_config["source.skipEvents"] =
+      extended_value(false, NUMBER, fhicl::detail::encode(skipEvts_));
 }
 
 void NovaConfigPostProcessor::
 applyOutput(intermediate_table &raw_config) const {
    if (output_.empty()) return;
    bool need_end_paths_entry = false;
-   extended_value::table_t outputs_table;
-   try {
-      outputs_table = raw_config.find("outputs");
-   }
-   catch (exception &e) {
-      if (e.categoryCode() == cant_find) {
-         // Ignore
-      } else {
-         throw;
-      }
-   }
-   extended_value::table_t out_table;
-   std::string out_table_name;
-   if (outputs_table.empty()) {
-      out_table_name = "out";
-   } else if (outputs_table.size() > 1) {
+
+   art::ensureTable(raw_config, "outputs");
+
+   std::string out_table_name;   
+   table_t &outputs_table =
+      boost::any_cast<table_t&>(raw_config["outputs"].value);
+   if (outputs_table.size() > 1) {
       throw cet::exception("BAD_OUTPUT_CONFIG")
          << "Output configuration is ambiguous: configuration has "
          << "multiple output modules. Cannot decide where to add "
          << "specified output filename "
          << output_
          << ".";
+   }
+   if (outputs_table.empty()) {
+      // Creating a table named, "out."
+      out_table_name = "out";
+      need_end_paths_entry = true;
    } else {
       out_table_name = outputs_table.begin()->first;
-      out_table = outputs_table.begin()->second;
    }
-   if (out_table.empty()) {
-      // Fill a basic output module config
-      out_table["module_type"] = extended_value(false, STRING, fhicl::detail::encode("RootOutput"));
-      need_end_paths_entry = true;
+   std::string out_table_path = "outputs.";
+   out_table_path += out_table_name;
+
+   // Insert / overwrite fileName spec.
+   raw_config[out_table_path + ".fileName"] = 
+       extended_value(false, STRING, fhicl::detail::encode(output_));
+
+   // Make sure we have a defined module_type.
+   if (!raw_config.exists(out_table_path + ".module_type")) {
+      raw_config[out_table_path + ".module_type"] =
+         extended_value(false, STRING, fhicl::detail::encode("RootOutput"));
    }
-   // Fill in the file name.
-   out_table["fileName"] = extended_value(false, STRING, fhicl::detail::encode(output_));
-   // Put back into the outputs table.
-   outputs_table[out_table_name] = extended_value(false, TABLE, out_table);
-   // Put outputs table back into config.
-   raw_config.insert("outputs", false, TABLE, outputs_table);
+
    if (need_end_paths_entry) {
       // If we created a new output module config, we need to make a
       // path for it and add it to end paths. We will *not* detect the
       // case where an *existing* output module config is not referenced
       // in a path.
-      extended_value::table_t physics_table;
-      try {
-         physics_table = raw_config.find("physics");
-      }
-      catch (exception &e) {
-         if (e.categoryCode() == cant_find) {
-            // Ignore
-         } else {
-            throw;
-         }
-      }
-      std::string new_path = "injected_end_path_";
-      for (size_t
-              i = 1,
-              n = physics_table.size() + 2;
-           i < n;
-           ++i) {
+      art::ensureTable(raw_config, "physics");
+      table_t &physics_table =
+         boost::any_cast<table_t&>(raw_config["physics"].value);
+
+      // Find an unique name for the end_path into which we'll insert
+      // our new module.
+      std::string end_path = "injected_end_path_";
+      size_t n = physics_table.size() + 2;
+      for (size_t i = 1; i < n; ++i) {
          std::ostringstream os;
-         os << new_path;
-         os << i;
+         os << end_path << i;
          if (physics_table.find(os.str()) == physics_table.end()) {
-            new_path = os.str();
+            end_path = os.str();
             break;
          }
       }
-      // Not possible to get to here without having a good path name.
-      extended_value::sequence_t end_path;
-      end_path.push_back(extended_value(false, STRING, fhicl::detail::encode(out_table_name)));
-      physics_table[new_path] = extended_value(false, SEQUENCE, end_path);
-      extended_value::sequence_t end_paths;
-      if (physics_table.find("end_paths") != physics_table.end()) {
-         end_paths = physics_table["end_paths"];
+
+      // Make our end_path with the output module label in it.
+      raw_config[std::string("physics.") + end_path + "[0]"] =
+         extended_value(false, STRING, fhicl::detail::encode(out_table_name));
+
+      // Add it to the end_paths list.
+      if (!raw_config.exists("physics.end_paths")) {
+         // end_paths doesn't already exist
+         raw_config["physics.end_paths[0]"] =
+            extended_value(false, STRING, fhicl::detail::encode(end_path));
+      } else {
+         try {
+            boost::any_cast<sequence_t&>(raw_config["physics.end_paths"].value).
+               push_back(extended_value(false,
+                                        STRING,
+                                        fhicl::detail::encode(end_path)));
+         }
+         catch (boost::bad_any_cast const &e) {
+            throw cet::exception(std::string("BAD_OUTPUT_CONFIG"))
+               << "Configuration item \"physics.end_paths\" exists but is not a sequence.\n";            
+         }
       }
-      end_paths.push_back(extended_value(false, STRING, fhicl::detail::encode(new_path)));
-      physics_table["end_paths"] = extended_value(false, SEQUENCE, end_paths);
-      raw_config.insert("physics", false, TABLE, physics_table);
    }
 }
 
@@ -183,52 +175,26 @@ void NovaConfigPostProcessor::
 applyTFileName(intermediate_table &raw_config) const {
    std::string tFileName(tFileName_);
 
-   extended_value::table_t services_table;
    try {
-      services_table = raw_config.find("services");
-   }
-   catch (exception &e) {
-      if (e.categoryCode() == cant_find) {
-         // Ignore
-      } else {
-         throw;
-      }
-   }
-
-   extended_value::table_t::iterator t_iter = services_table.find("TFileService");
-   extended_value::table_t tFileService_table;
-   if (t_iter != services_table.end()) {
-      tFileService_table = t_iter->second;
-      if (tFileService_table.empty() && tFileName.empty()) {
-         // Only if TFileService clause is specified but empty
-         // *and* we haven't specified a file name.
+      if (tFileName.empty() &&
+          raw_config.exists("services.TFileService") &&
+          raw_config["services.TFileService"].is_a(TABLE) &&
+          boost::any_cast<table_t&>(raw_config["services.TFileService"].value).empty()) {
          tFileName = "histo.root";
       }
    }
-   if (tFileName.empty()) return;
-   tFileService_table["fileName"] = extended_value(false, STRING, fhicl::detail::encode(tFileName));
-   services_table["TFileService"] = extended_value(false, TABLE, tFileService_table);
-   raw_config.insert("services", extended_value(false, TABLE, services_table));
+   catch (exception const &e) {
+      // Ignore
+   }
+
+   if (!tFileName.empty()) {
+      raw_config["services.TFileService.fileName"] =
+         extended_value(false, STRING, fhicl::detail::encode(tFileName));
+   }
 }
 
 void NovaConfigPostProcessor::
 applyTrace(intermediate_table &raw_config) const {
-   if (!wantTrace_) return;
-   extended_value::table_t services_table;
-   try {
-      services_table = raw_config.find("services");
-   }
-   catch (exception &e) {
-      if (e.categoryCode() == cant_find) {
-         // Ignore
-      } else {
-         throw;
-      }
-   }
-   extended_value::table_t::iterator t_iter = services_table.find("scheduler");
-   extended_value::table_t  scheduler_table;
-   if (t_iter != services_table.end()) scheduler_table = t_iter->second;
-   scheduler_table["wantTracer"] = extended_value(false, BOOL, fhicl::detail::encode(trace_));
-   services_table["scheduler"] = extended_value(false, TABLE, scheduler_table);
-   raw_config.insert("services", extended_value(false, TABLE, services_table));
+   if (wantTrace_) raw_config["services.scheduler.wantTracer"] =
+      extended_value(false, BOOL, fhicl::detail::encode(trace_));
 }
