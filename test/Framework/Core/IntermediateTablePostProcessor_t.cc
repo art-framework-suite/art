@@ -2,6 +2,7 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "art/Framework/Core/IntermediateTablePostProcessor.h"
+#include "cetlib/filepath_maker.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
@@ -28,8 +29,8 @@ BOOST_AUTO_TEST_CASE ( emptyConfig ) {
 BOOST_AUTO_TEST_CASE ( test_simple_01 ) {
    ParameterSet main_pset;
    intermediate_table raw_config;
-   std::ifstream config_stream("test_simple_01.fcl");
-   BOOST_CHECK_NO_THROW ( fhicl::parse_document(config_stream, raw_config) );
+   cet::filepath_maker lookupPolicy;
+   BOOST_CHECK_NO_THROW ( fhicl::parse_document("test_simple_01.fcl", lookupPolicy, raw_config) );
    art::IntermediateTablePostProcessor itpp;
    ParameterSet check_pset;
    BOOST_CHECK_NO_THROW ( make_ParameterSet(raw_config, check_pset) );

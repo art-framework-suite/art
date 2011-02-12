@@ -63,43 +63,21 @@ int artapp(int argc, char* argv[]) {
    //
    // Get the parameter set by parsing the configuration file.
    //
-   std::string search_path_spec = std::string("./:");
-   char const * fhicl_env = getenv("FHICL_FILE_PATH");
-   if (fhicl_env != nullptr) search_path_spec += fhicl_env;
-   std::string config_filename;
-   if (!art::find_config(vm["config"].as<std::string>(),
-                         search_path_spec,
-                         config_filename)) {
-      std::cerr
-         << "ERROR: Specified configuration file "
-         << vm["config"].as<std::string>()
-         << " cannot be found (search path \""
-         << search_path_spec
-         << "\").\n";
-      return 7003;
-   }
-   std::ifstream config_stream(config_filename.c_str());
-   if (!config_stream) {
-      std::cerr
-         << "ERROR: Specified configuration file "
-         << config_filename
-         << " cannot be opened for reading.\n";
-      return 7004;
-   }
    fhicl::intermediate_table raw_config;
+   cet::filepath_lookup_after1 lookupPolicy("FHICL_FILE_PATH");
    try {
-      fhicl::parse_document(config_stream, raw_config);
+      fhicl::parse_document(vm["config"].as<std::string>(), lookupPolicy, raw_config);
    }
    catch (cet::exception &e) {
       std::cerr << "Failed to parse the configuration file '"
-                << config_filename
+                << vm["config"].as<std::string>()
                 << "' with exception " << e.what()
                 << "\n";
       return 7002;
    }
    if ( raw_config.empty() ) {
       std::cerr << "INFO: provided configuration file '"
-                << config_filename.c_str()
+                << vm["config"].as<std::string>()
                 << "' is empty: using minimal defaults.\n";
    }
 
