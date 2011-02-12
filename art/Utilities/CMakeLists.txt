@@ -7,6 +7,7 @@ set( art_Utilities_sources CPUTimer.cc
                           Digest.cc
                           Exception.cc
                           ExceptionMessages.cc
+                          FirstAbsoluteOrLookupWithDotPolicy.cc
                           FriendlyName.cc
                           GlobalIdentifier.cc
                           Guid.cc
@@ -45,6 +46,7 @@ set (HEADERS
   Exception.h
   ExceptionMessages.h
   ExtensionCord.h
+  FirstAbsoluteOrLookupWithDotPolicy.h
   FriendlyName.h
   GetEnvironmentVariable.h
   GetPassID.h
