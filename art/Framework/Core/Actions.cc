@@ -69,7 +69,7 @@ namespace art {
       //cerr << "looking for " << actionName(code) << endl;
       vstring v =
         opts.get<vector<string> >(actionName(code),vstring());
-      for_all(v, var(out)[_1] = code);
+      for_all(v, var(out)[boost::lambda::_1] = code);
 
     }
   }
