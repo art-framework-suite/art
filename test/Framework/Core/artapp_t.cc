@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE ( testEmptyConfig ) {
 
 BOOST_AUTO_TEST_CASE ( testNonesuchConfig ) {
    char const* strings[] = { "artapp_t", "--config", "no_such_config.fcl" };
-   BOOST_CHECK( artapp(3, const_cast<char**>(strings) ) == 7003 );
+   BOOST_CHECK( artapp(3, const_cast<char**>(strings) ) == 7002 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
