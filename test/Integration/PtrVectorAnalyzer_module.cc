@@ -63,6 +63,24 @@ public:
           << count
           << '\n';
     }
+
+    // Make a copy of the PtrVector, so we can call sort on it.
+    product_t local(*h);
+    // Make sure we're not sorted yet...
+    sz = local.size();
+    assert (sz > 1);
+
+    local.sort();
+    assert(sz == local.size());
+    for (size_t i = 1; i != sz; ++i)
+      assert(*local[i-1] < *local[i]);
+
+    std::greater<int> gt;
+    local.sort(gt);
+    assert(sz == local.size());
+    for (size_t i = 1; i != sz; ++i)
+      assert(*local[i-1] > *local[i]);
+
   }  // analyze()
 
 private:
