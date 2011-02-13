@@ -1,5 +1,5 @@
 # project name
-project(FWCoreFrameworkTest)
+project(FrameworkCoreTest)
 
 # Library link requirements for tests here
 link_libraries( 
@@ -136,7 +136,7 @@ add_dependencies (LibraryManager_t.sh Prep_LibraryManager_t)
 #########################################################################
 
 # Old (pre-ART fork) tests.
-set( FWCoreFrameworkTest_sources MockEventProcessor.cc )
+set( FrameworkCoreTest_sources MockEventProcessor.cc )
 set( TestOutputModule_sources stubs/TestOutputModule.cc )
 set( TestFilterModule_sources stubs/TestFilterModule.cc )
 set( TestTriggerNames_sources stubs/TestTriggerNames.cc )
@@ -145,83 +145,65 @@ set( TestMod_sources stubs/TestMod.cc )
 set( TestToyModules_sources stubs/ToyModules.cc )
 set( TestSchedulerModule1_sources stubs/TestSchedulerModule1.cc )
 set( TestSchedulerModule2_sources stubs/TestSchedulerModule2.cc )
-set( FWCoreFrameworkTestESDummyDataAnalyzer_sources stubs/TestESDummyDataAnalyzer.cc )
-set( FWCoreFrameworkTestPRegisterModules_sources stubs/TestPRegisterModule2.cc
+set( FrameworkCoreTestESDummyDataAnalyzer_sources stubs/TestESDummyDataAnalyzer.cc )
+set( FrameworkCoreTestPRegisterModules_sources stubs/TestPRegisterModule2.cc
                                                  stubs/TestPRegisterModule1.cc
 						 stubs/TestPRegisterModules.cc )
-set( FWCoreFrameworkTestBeginEndJobAnalyzer_sources stubs/TestBeginEndJobAnalyzer.cc
+set( FrameworkCoreTestBeginEndJobAnalyzer_sources stubs/TestBeginEndJobAnalyzer.cc
                                                     stubs/TestBeginEndJobAnalyzerModule.cc )
-set( FWCoreFrameworkTestFailuresAnalyzer_sources stubs/TestFailuresAnalyzer.cc )
-set( FWCoreFrameworkHistoryAnalyzer_sources stubs/HistoryAnalyzer.cc )
+set( FrameworkCoreTestFailuresAnalyzer_sources stubs/TestFailuresAnalyzer.cc )
+set( FrameworkCoreHistoryAnalyzer_sources stubs/HistoryAnalyzer.cc )
 
 
-set( TestFWCoreFramework_sources testRunner.cpp
+set( TestFrameworkCore_sources testRunner.cpp
                                  DummySource.cc
 				 edproducer_productregistry_callback.cc
 				 generichandle_t.cppunit.cc
-#				 maker2_t.cppunit.cc
-#				 maker_t.cppunit.cc
-#				 productregistry.cppunit.cc
 )
-#set( FWCoreFrameworkTestDummyService_sources stubs/DependsOnDummyService.cc
-#                                             stubs/DummyService.cc
-#                                             stubs/DummyServiceE0.cc )
-#set( FWCoreFrameworkTestDummyServicePlugin_sources stubs/Modules.cc )
-set( TestFWCoreFrameworkeventprocessor_sources  eventprocessor_t.cppunit.cc
+
+set( eventprocessor_sources  eventprocessor_t.cppunit.cc
 						eventprocessor2_t.cppunit.cc
 						stubs/TestBeginEndJobAnalyzer.cc )
 
-#add_library(FWCoreFrameworkTestDummyService SHARED ${art_Framework_Services_Registry_TestDummyService_sources} )
-#add_library(FWCoreFrameworkTestDummyServicePlugin SHARED ${art_Framework_Services_Registry_TestDummyServicePlugin_sources} )
-
-#add_executable( TestFWCoreFramework ${TestFWCoreFramework_sources} )
-#add_executable( TestFWCoreFrameworkeventprocessor  ${TestFWCoreFrameworkeventprocessor_sources} )
-#add_executable( TestFrameworkCoreartapp artapp_t.cpp)
-#target_link_libraries(TestFrameworkCoreartapp art_Framework_CoreArt ${Boost_PROGRAM_OPTIONS_LIBRARY} )
-add_executable( TestFWCoreFrameworkeventprincipal  testRunner.cpp eventprincipal_t.cppunit.cc )
-add_executable( TestFWCoreFrameworkEvent Event_t.cpp )
-# add_executable( TestFWCoreFrameworkView View_t.cpp )
-add_executable( TestFWCoreFrameworkArt TestDriver.cpp )
-add_executable( TestFWCoreFrameworkUnscheduled TestDriver.cpp )
-add_executable( TestFWCoreFrameworkReplace TestDriver.cpp )
-add_executable( TestFWCoreFrameworkTrigBit TestDriver.cpp )
-add_executable( TestFWCoreFrameworkTrigMask TestDriver.cpp )
+add_executable( eventprincipal  testRunner.cpp eventprincipal_t.cppunit.cc )
+add_executable( Event Event_t.cpp )
+add_executable( Art TestDriver.cpp )
+add_executable( Unscheduled TestDriver.cpp )
+add_executable( Replace TestDriver.cpp )
+add_executable( TrigBit TestDriver.cpp )
+add_executable( TrigMask TestDriver.cpp )
 add_executable( TestXMLSafeException TestDriver.cpp )
-add_executable( TestFWCoreFrameworkGroupSelector GroupSelector_t.cpp )
-add_executable( TestFWCoreFrameworkEventSelector EventSelector_t.cpp )
-add_executable( TestFWCoreFrameworkEventSelWildcard EventSelWildcard_t.cpp )
-add_executable( TestFWCoreFrameworkEventSelExc EventSelExc_t.cpp )
-add_executable( TestFWCoreFrameworkEventSelOverlap EventSelOverlap_t.cpp )
-add_executable( TestFWCoreFrameworkCurrentProcessingContext CurrentProcessingContext_t.cpp )
-add_executable( TestFWCoreFrameworkCPCSentry CPCSentry_t.cpp )
-add_executable( TestFWCoreFrameworkRegistryTemplate RegistryTemplate_t.cpp )
-add_executable( TestFWCoreOutputModuleUtilities OutputModuleUtilities_t.cpp )
-add_executable( TestFWCoreFrameworkStatemachine statemachine_t.cc MockEventProcessor.cc )
-target_link_libraries(TestFWCoreFrameworkStatemachine
+add_executable( GroupSelector GroupSelector_t.cpp )
+add_executable( EventSelector EventSelector_t.cpp )
+add_executable( EventSelWildcard EventSelWildcard_t.cpp )
+add_executable( EventSelExc EventSelExc_t.cpp )
+add_executable( EventSelOverlap EventSelOverlap_t.cpp )
+add_executable( CurrentProcessingContext CurrentProcessingContext_t.cpp )
+add_executable( CPCSentry CPCSentry_t.cpp )
+add_executable( RegistryTemplate RegistryTemplate_t.cpp )
+add_executable( TestFrameworkOutputModuleUtilities OutputModuleUtilities_t.cpp )
+add_executable( Statemachine statemachine_t.cc MockEventProcessor.cc )
+target_link_libraries(Statemachine
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
-add_executable( TestFWCoreFrameworkStatemachineSH TestDriver.cpp )
+add_executable( StatemachineSH TestDriver.cpp )
 
-#add_test( TestFrameworkCoreartapp ${EXECUTABLE_OUTPUT_PATH}/TestFrameworkCoreartapp )
-#add_test( TestFWCoreFramework ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFramework )
-#add_test( TestFWCoreFrameworkeventprocessor  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprocessor )
-add_test( TestFWCoreFrameworkeventprincipal  ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkeventprincipal )
-add_test( TestFWCoreFrameworkEvent ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEvent )
-#add_test( TestFWCoreFrameworkView ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkView )
-add_test( TestFWCoreFrameworkArt ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkArt )
-add_test( TestFWCoreFrameworkUnscheduled ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkUnscheduled )
-add_test( TestFWCoreFrameworkReplace ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkReplace )
-add_test( TestFWCoreFrameworkTrigBit ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkTrigBit )
-add_test( TestFWCoreFrameworkTrigMask ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkTrigMask )
+add_test( eventprincipal  ${EXECUTABLE_OUTPUT_PATH}/eventprincipal )
+add_test( Event ${EXECUTABLE_OUTPUT_PATH}/Event )
+add_test( TestFrameworkCoreArt ${EXECUTABLE_OUTPUT_PATH}/TestFrameworkCoreArt )
+add_test( Unscheduled ${EXECUTABLE_OUTPUT_PATH}/Unscheduled )
+add_test( Replace ${EXECUTABLE_OUTPUT_PATH}/Replace )
+add_test( TrigBit ${EXECUTABLE_OUTPUT_PATH}/TrigBit )
+add_test( TrigMask ${EXECUTABLE_OUTPUT_PATH}/TrigMask )
 add_test( TestXMLSafeException ${EXECUTABLE_OUTPUT_PATH}/TestXMLSafeException )
-add_test( TestFWCoreFrameworkGroupSelector ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkGroupSelector )
-add_test( TestFWCoreFrameworkEventSelector ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEventSelector )
-add_test( TestFWCoreFrameworkEventSelWildcard ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEventSelWildcard )
-add_test( TestFWCoreFrameworkEventSelExc ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEventSelExc )
-add_test( TestFWCoreFrameworkEventSelOverlap ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkEventSelOverlap )
-add_test( TestFWCoreFrameworkCurrentProcessingContext ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkCurrentProcessingContext )
-add_test( TestFWCoreFrameworkCPCSentry ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkCPCSentry )
-add_test( TestFWCoreFrameworkRegistryTemplate ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkRegistryTemplate )
-add_test( TestFWCoreOutputModuleUtilities ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreOutputModuleUtilities )
-add_test( TestFWCoreFrameworkStatemachine ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkStatemachine )
-add_test( TestFWCoreFrameworkStatemachineSH ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreFrameworkStatemachineSH )
+add_test( GroupSelector ${EXECUTABLE_OUTPUT_PATH}/GroupSelector )
+add_test( EventSelector ${EXECUTABLE_OUTPUT_PATH}/EventSelector )
+add_test( EventSelWildcard ${EXECUTABLE_OUTPUT_PATH}/EventSelWildcard )
+add_test( EventSelExc ${EXECUTABLE_OUTPUT_PATH}/EventSelExc )
+add_test( EventSelOverlap ${EXECUTABLE_OUTPUT_PATH}/EventSelOverlap )
+add_test( CurrentProcessingContext ${EXECUTABLE_OUTPUT_PATH}/CurrentProcessingContext )
+add_test( CPCSentry ${EXECUTABLE_OUTPUT_PATH}/CPCSentry )
+add_test( RegistryTemplate ${EXECUTABLE_OUTPUT_PATH}/RegistryTemplate )
+add_test( OutputModuleUtilities ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreOutputModuleUtilities )
+add_test( Statemachine ${EXECUTABLE_OUTPUT_PATH}/Statemachine )
+add_test( StatemachineSH ${EXECUTABLE_OUTPUT_PATH}/StatemachineSH )

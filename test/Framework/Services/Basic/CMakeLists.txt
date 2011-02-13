@@ -16,7 +16,7 @@ simple_plugin(TestTFileServiceAnalyzer  "module")
 
 add_executable( TestFWCoreServicesDriver TestFWCoreServicesDriver.cpp )
 target_link_libraries(TestFWCoreServicesDriver FWCoreServices
-                			       FWCoreFramework
+                			       FrameworkCore
                 			       FWCoreParameterSet
                 			       FWCorePluginManager
                 			       FWCoreUtilities

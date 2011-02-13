@@ -1,11 +1,11 @@
 # project name
-project(FWCoreFrameworkStubs)
+project(FrameworkCoreStubs)
 
 # version number
-set (FWCoreFrameworkStubs_VERSION_MAJOR 1)
-set (FWCoreFrameworkStubs_VERSION_MINOR 0)
+set (FrameworkCoreStubs_VERSION_MAJOR 1)
+set (FrameworkCoreStubs_VERSION_MINOR 0)
 
-set( FWCoreFrameworkStubs_sources TestBeginEndJobAnalyzer.cc
+set( FrameworkCoreStubs_sources TestBeginEndJobAnalyzer.cc
 				  TestBeginEndJobAnalyzerModule.cc
 				  TestFailuresAnalyzer.cc
 				  TestFilterModule.cc
@@ -19,9 +19,9 @@ set( FWCoreFrameworkStubs_sources TestBeginEndJobAnalyzer.cc
 				  TestTriggerNames.cc
 				  ToyModules.cc )
 
-link_libraries( FWCoreFramework )
+link_libraries( FrameworkCore )
 
-add_library(FWCoreFrameworkStubs SHARED ${FWCoreFrameworkStubs_sources} )
+add_library(FrameworkCoreStubs SHARED ${FrameworkCoreStubs_sources} )
 
 simple_plugin(AddIntsProducer  "module")
 simple_plugin(DummySourceModule  "source")
@@ -36,4 +36,4 @@ simple_plugin(TestOutputModule  "module")
 simple_plugin(TestResultAnalyzer  "module")
 simple_plugin(ToyDoubleProducer  "module")
 
-install ( TARGETS FWCoreFrameworkStubs DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS FrameworkCoreStubs DESTINATION ${flavorqual_dir}/lib )

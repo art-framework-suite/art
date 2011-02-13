@@ -11,7 +11,7 @@ link_libraries( IORootInput
 		FWCoreServiceRegistry
 		FWCoreParameterSet
 		FWCoreMessageLogger
-		FWCoreFramework
+		FrameworkCore
                 FWCoreServices
                 FWCoreUtilities
                 ${Boost_FILESYSTEM_LIBRARY}

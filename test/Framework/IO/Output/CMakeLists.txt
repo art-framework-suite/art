@@ -9,7 +9,7 @@ link_libraries( IORootOutput
 		FWCoreServiceRegistry
 		FWCoreParameterSet
 		FWCoreMessageLogger
-		FWCoreFramework
+		FrameworkCore
                 FWCoreServices
 		FWCoreUtilities
                 ${Boost_FILESYSTEM_LIBRARY}
