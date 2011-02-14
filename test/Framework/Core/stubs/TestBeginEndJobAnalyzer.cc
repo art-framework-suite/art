@@ -18,11 +18,11 @@
 //
 
 
-#include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
+#include "test/Framework/Core/stubs/TestBeginEndJobAnalyzer.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include <memory>
 
-TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const art::ParameterSet& /* iConfig */) {
+TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const fhicl::ParameterSet& /* iConfig */) {
 }
 
 TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer() {
@@ -48,22 +48,22 @@ TestBeginEndJobAnalyzer::endJob() {
 }
 
 void
-TestBeginEndJobAnalyzer::beginRun(art::Run const&, art::EventSetup const&) {
+TestBeginEndJobAnalyzer::beginRun(art::Run const&) {
   beginRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endRun(art::Run const&, art::EventSetup const&) {
+TestBeginEndJobAnalyzer::endRun(art::Run const&) {
   endRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::beginSubRun(art::SubRun const&, art::EventSetup const&) {
+TestBeginEndJobAnalyzer::beginSubRun(art::SubRun const&) {
   beginSubRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endSubRun(art::SubRun const&, art::EventSetup const&) {
+TestBeginEndJobAnalyzer::endSubRun(art::SubRun const&) {
   endSubRunCalled = true;
 }
 
