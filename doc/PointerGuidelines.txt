@@ -1,0 +1,343 @@
+==================================
+Guidelines for the Use of Pointers
+==================================
+
+:date:   2007/02/07
+:author: Marc Paterno <paterno@fnal.gov>
+
+.. contents::
+
+Those interested in only the most brief summary
+are encouraged to skip to the `Summary`_.
+
+
+Overview and Purpose
+====================
+
+This document provides guidelines for the use of pointers 
+and "smart pointer" templates
+in art-based software.
+It is intended to help you choose the best type of "pointer"
+for whatever problem you are solving.
+For the rest of this document,
+the word *pointer* should be understood to include *bare pointers*
+and all sorts of *smart pointers*.
+
+The most important guideline is:
+
+.. topic:: Guideline #1
+
+  Say what you mean, and mean what you say.
+
+This means that you should use the pointer type that most directly conveys
+the purpose of the code.
+Writing your code so that it 
+*clearly expresses your intent*
+takes little extra effort,
+and pays large dividends in the future.
+The lifetime of an experiment is quite long.
+The code you write today
+is likely to be read --- and modified ---
+by you or by someone else
+many months or years from now.
+If you use a pointer type that does not express the right intent,
+that later reader is likely to mistake the purpose,
+and modify your code incorrectly.
+The resulting coding errors are often very difficult to debug.
+A small amount of effort used to select the right type
+can prevent such troubles.
+
+This is explained in more detail below.
+
+Pointer Types
+=============
+
+Smart pointer types are usually written as *class templates*,
+so that instances can be created to point to objects of various types.
+Smart pointer types differ in their behavior.
+All support *dereferencing* and *member selection*.
+The code below shows the common (but not universal) interface::
+
+  // pointer_type is not a real class template; it stands in for
+  // any of the real class templates named below...
+  pointer_type<X> p(...);         // construction methods vary
+  X& xref = *p;                   // dereference
+  X* xptr = p.operator->();       // member selection, abnormal use
+  p->someMemberFunctionOfTypeX(); // member selection, normal use
+
+The Standard Library provides only one pointer class template: ``std::auto_ptr<T>``. 
+To use it, one must include the header ``<memory>``.
+
+The Boost_ library, which may be used freely by any software project based on art,
+contains several other pointer class templates:
+
+* ``boost::shared_ptr<T>`` from ``"boost/shared_ptr.hpp"``
+* ``boost::scoped_ptr<T>`` from ``"boost/scoped_ptr.hpp"``
+* ``boost::intrusive_ptr<T>`` from ``"boost/intrusive_ptr.hpp"``
+* ``boost::weak_ptr<T>``   from   ``"boost/weak_ptr.hpp"``
+* ``edm::value_ptr<T>``       from  ``"FWCore/Utilities/interface/value_ptr.h"``
+
+For ``scoped_ptr`` and ``shared_ptr``, there are also *array* forms.
+Since C++ code should rarely use arrays
+(``std::vector`` is usually preferred)
+we make no further mention of these array forms.
+
+The key issue regarding choice of pointer type
+is the issue of *resource ownership*.
+The answer to the question 
+"Who is responsible for managing the memory for the pointed-to object?"
+most often dictates the choice of pointer type to be used.
+
+Each pointer type mentioned above has a different policy regarding ownership.
+Please note below the difference between a *pointer object*
+(an instance of the pointer class)
+and a *pointed-to object*
+(the object *to which* a pointer object points).
+
+Bare pointer:
+  Bare pointers convey *no* sense of ownership. Their use should be rare.
+
+boost::scoped_ptr<T>:
+   ``scoped_ptr`` implements *sole ownership*, with the restriction that
+   the ``scoped_ptr`` object itself *can not be copied*.
+   If you want a pointer that is to be the only owner for some other object,
+   and makes sure that the pointer is not copied,
+   so that no other pointer refers to the same object *and*
+   your pointer never gives up its object to control by another object,
+   then ``scoped_ptr`` is the correct choice.
+
+std::auto_ptr<T>:
+  ``auto_ptr`` also conveys *sole ownership*, but with a difference from
+  ``scoped_ptr``. ``auto_ptr`` objects may be copied. Copying an ``auto_ptr``
+  object *transfers* ownership from one ``auto_ptr`` to another.
+  A function that takes an ``auto_ptr`` argument (by value, not by reference)
+  *takes ownership* of the object controlled by the ``auto_ptr``.
+  From the point of view of the *caller* of the function,
+  the function acts as a "sink":
+  it consumes the object it was given,
+  which is no longer available to the caller.
+
+  This is used, for example, in the ``edm::Event::put`` function,
+  which inserts an ``EDProduct`` into an ``Event``. Code that puts
+  an object into the ``Event`` gives up control of that object;
+  control of the object is passed to the ``Event``.
+
+  ``auto_ptr`` is also useful in implementing functions which return an object
+  allocated on the heap (that is, allocated with ``new``).
+  If the function in question returns the newly-created object via
+  an ``auto_ptr``,
+  this makes sure that code that *calls* this function takes ownership of
+  the newly-created object.
+  With such an implementation, even code that fails to accept the newly-created
+  object does not cause a memory leak;
+  the unnamed ``auto_ptr`` object is immediately deleted,
+  which then deletes the pointed-to object.
+
+boost::shared_ptr<T>:
+  ``shared_ptr<T>`` implements *shared ownership*. Copies of a ``shared_ptr``
+  object share control of the pointed-to object.
+  ``shared_ptr`` should be used whenever shared ownership is desired.
+  It should *not* be used when shared ownership is *not* desired;
+  in some code it could be surprising --- or even disastrous --- for an
+  object to be shared between many owners. Try ``value_ptr`` (below)
+  in such a case.
+
+boost::intrusive_ptr<T>:
+   ``intrusive_ptr`` is very similar to ``shared_ptr``. They differ in
+   that ``intrusive_ptr`` can only be used to point to an object with
+   an embedded reference count. Its use will be rare.
+   Quoting from the ``intrusive_ptr`` documentation: "As a general rule,
+   if it isn't obvious whether ``intrusive_ptr`` better fits your needs
+   than ``shared_ptr``, try a ``shared_ptr``-based design first."
+
+boost::weak_ptr<T>:
+   ``weak_ptr`` is provided to give *shared access* with *no ownership*
+   to an object which is managed through a ``shared_ptr``.
+   Its correct use is fairly subtle,
+   and it should rarely be needed.
+
+edm::value_ptr<T>:
+   ``value_ptr`` implements *sole ownership*. Copying a ``value_ptr``
+   causes a copy of the pointed-to object to be created. This makes
+   ``value_ptr`` useful for managing class data members when the
+   shared ownership of ``shared_ptr`` is inappropriate.
+
+Usage Guidelines
+================
+
+For local use in functions
+--------------------------
+
+Most often, objects which are local to functions
+should not be ``new``'d.
+Thus, no pointer is needed::
+
+  void f() {
+    SomeType  s; // create it on the stack
+    ...   use the object s ...
+  } // s destroyed on function exit
+
+The stack-based allocation of the object ``s`` 
+assures that it will not be "leaked".
+The following code is never appropriate::
+
+   void bad_f() {
+     SomeType* s = new SomeType(...); // create it on the heap
+     ...  use the object pointed to by s ...
+     delete s; 
+   }
+
+Even though this code calls ``delete`` on ``s``,
+it is still poorly-written.
+If the code represented by the ellipsis returns prematurely
+(either by calling ``return``, or throwing an exception,
+or by calling something that throws an exception)
+then the ``SomeType`` object pointed to by ``s`` will be leaked.
+Even if the code written today does not have any chance of doing so,
+it is still poorly-written, because it is fragile.
+Changes made at a later date may invalidate the statement
+that the code can not return prematurely,
+and every modification to this code
+must be checked carefully to make sure that the object
+pointed to by ``s`` can not be leaked.
+
+.. topic:: Guideline #2
+
+   Prefer to put local objects on the stack.
+
+Less often, heap-based allocation is needed.
+Some of these cases include:
+
+1. Creation of an *optional* object, that is,
+   an object that might be made,
+   but also might *not* be made.
+
+2. Creation of a pointer-to-base that will be initialized to point to some
+   derived type
+
+3. Creation of a very large object, one that would require an unreasonable
+   amount of stack space.
+
+In such cases, a pointer of some type is appropriate.
+**In none of the cases listed above is a bare pointer appropriate!**
+
+To choose the correct pointer type,
+consider the issues of *ownership* and the intended semantics of *copying*.
+Ask the following questions:
+
+1. Does it make sense to copy the pointer object?
+
+   If it does not, then use ``scoped_ptr``. This will prevent your
+   pointer from being copied accidentally.
+
+2. If it makes sense to copy the pointer, should the copied pointer
+   *share control of the pointed-to object*?
+
+   If so, then use ``shared_ptr``. (If your object already has an embedded
+   reference count, then use ``intrusive_ptr``.)
+
+3. If it makes sense to copy the pointer, should the act of copying *transfer
+   ownership* to the new pointer?
+
+   If so, then use ``auto_ptr``. This is useful in functions that are
+   "sources" (that is, *factory functions*), to indicate that ownership of
+   the created object that is returned by the call is given to the caller.
+   It is useful in functions that are "sinks" (such as ``edm::Event::put``),
+   to indicate that the called function is taking control of the passed
+   object.
+
+4. If it makes sense to copy the pointer, should the copy manage its own
+   copy of the pointed-to object?
+
+   If so, then use ``value_ptr``. Copying a ``value_ptr`` creates a
+   *deep copy* of the pointed-to object.
+
+.. topic:: Guideline #3
+
+   Use a pointer type only when necessary.
+   Choose the type of pointer after considering *object ownership* and
+   *copying semantics*.
+
+For class data members
+----------------------
+
+Please refer to EDM documentation 
+for special issues regarding design of classes used as ``EDProducts``.
+Such classes are subject to restrictions
+imposed by the art Event Data Model
+and the persistency system.
+
+It is very rarely correct to have a class contain a bare pointer as a
+data member. [#]_ This is because a bare pointer does not convey any
+sense of *ownership*.
+
+Most data members of a class should be held by *value*,
+rather than by *pointer*.
+But the same conditions as above apply to data members;
+one may need a pointer because the data members is *optional*,
+or because only the type of a *base class* is known,
+or because the member object is *very large*,
+or when using the *pimpl technique*. [#]_
+In such a case, a pointer data member is appropriate.
+
+To choose the correct pointer type for a data member,
+consider the behavior of the *copy constructor* of the class you are writing.
+The goal is to make the compiler-generated copy constructor be correct.
+Ask the same questions regarding *ownership* and *copying semantics* as given above,
+and choose the pointer type to use following those criteria.
+The benefits of having the compiler-generated copy constructor be correct
+are several and important:
+
+1. The compiler-generated copy constructor is often optimally efficient.
+
+2. The resulting class is easier to maintain. If and when data members are
+   added at some later date, there is no chance of forgetting to update
+   the copy constructor. Erroneous copy constructors often lead to
+   extremely subtle bugs.
+
+3. If the compiler-generated copy constructor is correct,
+   the compiler-generated assignment operator and destructor are
+   often correct. Thus there are two additional functions that do
+   not need maintenance under changes in the class, and which can
+   not get "out of sync" with the design of the class.
+
+4. Using the compiler-generated copy constructor is self-documenting.
+
+
+Summary
+=======
+
+The following table summarizes the guidelines in this document. In all the below,
+``T`` represents the type *pointed to* by the given pointer type.
+
+=================    =========   ==============   ========================================
+Pointer type         Ownership   Copy semantics   Example uses
+=================    =========   ==============   ========================================
+``T*``               none        shallow          should be rare, especially as class data
+``shared_ptr<T>``    shared      shallow          wherever shared ownership is needed,
+                                                  but not where shared ownership is
+                                                  inappropriate
+``auto_ptr<T>``      sole        transfer         return newly created object;
+                                                  pass ownership into called function 
+``scoped_ptr<T>``    sole        not allowed      object created locally in function;
+                                                  data member for class that should not
+                                                  be copyable
+``value_ptr<T>``     sole        deep             "polymorphic" data member; keep pointer
+                                                  to base class, but do not share the
+                                                  instance you point to with others
+=================    =========   ==============   ========================================
+
+
+
+----
+
+
+.. _boost: http://www.boost.org
+
+.. [#] An obvious exception is in smart pointer class templates themselves.
+
+.. [#] The *pimpl* technique, sometimes called the *compiler firewall*
+       or *letter-envelope* technique,
+       can be used to make private members of a class truly invisible.
+       See **C++ Coding Standards**, by Sutter and Alexandrescu, Item 43.
+
