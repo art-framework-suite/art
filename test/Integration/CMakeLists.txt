@@ -112,7 +112,7 @@ cet_test(test_failingProducer_t.sh PREBUILT
 cet_test(issue_0923_t.sh PREBUILT
   DATAFILES
   fcl/issue_0923a.fcl
-  fcl/issue_0923b.fcl 
+  fcl/issue_0923b.fcl
   fcl/messageDefaults.fcl
   issue_0923_ref.txt
   )
@@ -143,6 +143,11 @@ cet_test(issue_0930_t HANDBUILT
   fcl/messageDefaults.fcl
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "LogicError BEGIN"
+)
+cet_test( test_FileDumperOutput.sh PREBUILT
+  DATAFILES
+  fcl/FileDumperOutputTest.fcl
+  fcl/messageDefaults.fcl
 )
 
 ########################################################################

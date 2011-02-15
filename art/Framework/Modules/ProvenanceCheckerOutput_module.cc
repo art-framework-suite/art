@@ -1,7 +1,7 @@
 // ======================================================================
 //
-// ProvenanceCheckerOutputModule - Checks the consistency of provenance
-//                                 stored in the framework
+// ProvenanceCheckerOutput: Check the consistency of provenance stored
+//                          in the framework
 //
 // ======================================================================
 
@@ -16,28 +16,28 @@
 
 namespace art {
 
-   class ProvenanceCheckerOutputModule
+   class ProvenanceCheckerOutput
      : public OutputModule
    {
    public:
       // We do not take ownership of passed stream.  (Huh? -- WEB)
-      explicit ProvenanceCheckerOutputModule(fhicl::ParameterSet const&);
-      virtual ~ProvenanceCheckerOutputModule();
+      explicit ProvenanceCheckerOutput(fhicl::ParameterSet const&);
+      virtual ~ProvenanceCheckerOutput();
 
    private:
       virtual void write(EventPrincipal const& e);
       virtual void writeSubRun(SubRunPrincipal const&){}
       virtual void writeRun(RunPrincipal const&){}
-   };  // ProvenanceCheckerOutputModule
+   };  // ProvenanceCheckerOutput
 
 //
 // constructors and destructor
 //
-   ProvenanceCheckerOutputModule::ProvenanceCheckerOutputModule(fhicl::ParameterSet const& pset) :
+   ProvenanceCheckerOutput::ProvenanceCheckerOutput(fhicl::ParameterSet const& pset) :
    OutputModule(pset)
    { }
 
-   ProvenanceCheckerOutputModule::~ProvenanceCheckerOutputModule()
+   ProvenanceCheckerOutput::~ProvenanceCheckerOutput()
    { }
 
 //
@@ -66,7 +66,7 @@ namespace art {
    }
 
     void
-   ProvenanceCheckerOutputModule::write(EventPrincipal const& e) {
+   ProvenanceCheckerOutput::write(EventPrincipal const& e) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
       boost::shared_ptr<BranchMapper> mapperPtr= e.branchMapperPtr();
 
@@ -168,7 +168,6 @@ namespace art {
 
 // ======================================================================
 
-using art::ProvenanceCheckerOutputModule;
-DEFINE_ART_MODULE(ProvenanceCheckerOutputModule);
+DEFINE_ART_MODULE(art::ProvenanceCheckerOutput);
 
 // ======================================================================

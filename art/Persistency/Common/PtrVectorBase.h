@@ -21,8 +21,8 @@ namespace art {
 class art::PtrVectorBase
 {
 public:
-  typedef  unsigned long  key_type;
-  typedef  key_type       size_type;
+  typedef  unsigned long                     key_type;
+  typedef  std::vector<key_type>::size_type  size_type;
 
   // --- Construction/destruction:
 

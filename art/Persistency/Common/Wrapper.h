@@ -7,26 +7,29 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/GetProduct.h"
-#include "art/Persistency/Common/traits.h"
-#include "art/Utilities/Exception.h"
-#include "boost/mpl/if.hpp"
-#include "cpp0x/type_traits"
-
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
-
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Common/GetProduct.h"
+#include "art/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Common/traits.h"
+#include "art/Utilities/Exception.h"
+#include "boost/lexical_cast.hpp"
+#include "boost/mpl/if.hpp"
+#include "cpp0x/type_traits"
 #include <deque>
 #include <list>
 #include <memory>
 #include <set>
+#include <string>
 #include <typeinfo>
 #include <vector>
 
 namespace art { namespace detail {
   template< typename T >
   struct has_fillView_member;
+  template< typename T >
+  struct has_size_member;
 } }
 
 // ----------------------------------------------------------------------
@@ -35,6 +38,9 @@ namespace art {
 
   template< class T, bool = detail::has_fillView_member<T>::value >
   struct fillView;
+
+  template< class T, bool = detail::has_size_member<T>::value >
+  struct productSize;
 
   template <class T>
   class Wrapper
@@ -60,6 +66,10 @@ namespace art {
     virtual void
     fillView( std::vector<void const *> & view ) const
     { art::fillView<T>()(obj, view); }
+
+    virtual std::string
+      productSize() const
+    { return art::productSize<T>()(obj); }
 
     /**REFLEX must call the following constructor
        the constructor takes ownership of T* */
@@ -239,7 +249,7 @@ namespace art {
 
   namespace detail
   {
-    typedef char (& no_tag)[1]; // type indicating FALSE
+    typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
     template <typename T, void (T::*)(T&)>  struct swap_function;
@@ -263,6 +273,17 @@ namespace art {
     {
       static bool const value =
         sizeof(has_fillView_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T, size_t (T::*)() const>  struct size_function;
+    template <typename T> no_tag  has_size_helper(...);
+    template <typename T> yes_tag has_size_helper(size_function<T, &T::size> * dummy);
+
+    template< typename T >
+    struct has_size_member
+    {
+      static bool const value =
+        sizeof(has_size_helper<T>(0)) == sizeof(yes_tag);
     };
 
 #ifndef __REFLEX__
@@ -370,8 +391,8 @@ template< class T >
 struct fillView<T, true>
 {
   void operator () ( T const                   & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     product.fillView(view);
   }
@@ -381,8 +402,8 @@ template< class T >
 struct fillView<T, false>
 {
   void operator () ( T const                   & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     throw Exception(errors::ProductDoesNotSupportViews)
       << "Product type " << typeid(T).name()
@@ -394,8 +415,8 @@ template< >
 struct fillView< std::vector<bool>, false >
 {
   void operator () ( std::vector<bool> const   & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     throw Exception(errors::ProductDoesNotSupportViews)
       << "Product type std::vector<bool> has no fillView() capability\n";
@@ -406,8 +427,8 @@ template< class E >
 struct fillView< std::vector<E>, false >
 {
   void operator () ( std::vector<E> const      & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     for( typename std::vector<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -420,8 +441,8 @@ template< class E >
 struct fillView< std::list<E>, false >
 {
   void operator () ( std::list<E> const        & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     for( typename std::list<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -434,8 +455,8 @@ template< class E >
 struct fillView< std::deque<E>, false >
 {
   void operator () ( std::deque<E> const       & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     for( typename std::deque<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -448,8 +469,8 @@ template< class E >
 struct fillView< std::set<E>, false >
 {
   void operator () ( std::set<E> const         & product
-                     , std::vector<void const *> & view
-                     )
+                   , std::vector<void const *> & view
+                   )
   {
     for( typename std::set<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -458,7 +479,48 @@ struct fillView< std::set<E>, false >
   }
 };  // fillView<set<E>>
 
-}
+template< class T >
+struct productSize<T, true>
+{
+  std::string
+    operator () ( T const & obj ) const
+  { return boost::lexical_cast<std::string>(obj.size()); }
+};
+
+template< class T >
+struct productSize<T, false>
+{
+  std::string
+    operator () ( T const & ) const
+  { return "-"; }
+};
+
+template< class E >
+struct productSize<std::vector<E>, false>
+: public productSize<std::vector<E>, true>
+{ };
+
+template< class E >
+struct productSize<std::list<E>, false>
+: public productSize<std::list<E>, true>
+{ };
+
+template< class E >
+struct productSize<std::deque<E>, false>
+: public productSize<std::deque<E>, true>
+{ };
+
+template< class E >
+struct productSize<std::set<E>, false>
+: public productSize<std::set<E>, true>
+{ };
+
+template< class E >
+struct productSize<art::PtrVector<E>, false>
+: public productSize<art::PtrVector<E>, true>
+{ };
+
+}  // art
 
 ////////////////////////////////////////////////////////////////////////
 // Import from setPtr.h

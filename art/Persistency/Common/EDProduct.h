@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "art/Persistency/Common/fwd.h"
+#include <string>
 #include <vector>
 
 namespace art {
@@ -33,15 +34,19 @@ public:
     fillView( std::vector<void const *> & view ) const
   { /* should be called only polymorphically */ }
 
- void
- setPtr(std::type_info const &toType,
-        unsigned long index,
-        void const * &ptr) const;
+  void
+    setPtr(std::type_info const &toType,
+          unsigned long index,
+          void const * &ptr) const;
 
- void
- getElementAddresses(std::type_info const &toType,
-		     std::vector<unsigned long> const &indices,
-		     std::vector<void const *> &ptr) const;
+  void
+    getElementAddresses(std::type_info const &toType,
+                       std::vector<unsigned long> const &indices,
+                       std::vector<void const *> &ptr) const;
+
+  virtual std::string
+    productSize() const
+  { return "-"; }
 
 #ifndef __REFLEX__
 
