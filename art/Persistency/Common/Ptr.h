@@ -248,12 +248,22 @@ namespace art {
 
   template <class T, class C>
   inline
+  void
+  fill_ptr_vector(std::vector<Ptr<T> >& ptrs, Handle<C> const& h)
+  {
+    for (size_t i = 0, sz = h->size(); i != sz; ++i)
+      ptrs.push_back(Ptr<T>(h, i));
+  }
+
+  template <class T, class C>
+  inline
   void 
   fill_ptr_list(std::list<Ptr<T> >& ptrs, Handle<C> const& h)
   {
     for (size_t i = 0, sz = h->size(); i != sz; ++i)
       ptrs.push_back(Ptr<T>(h, i));
   }
+
 }  // art
 
 #endif /* art_Persistency_Common_Ptr_h */

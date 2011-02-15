@@ -10,18 +10,6 @@
 #include <vector>
 
 
-// namespace art
-// {  
-//   template <class ELEMENT, class COLLECTION>
-//   void
-//   fill_ptr_list(std::list<art::Ptr<ELEMENT> >& ptrs, 
-// 		art::Handle<COLLECTION> const& h)
-//   {
-//     for (size_t i = 0; i != h->size(); ++i)
-//       ptrs.push_back(art::Ptr<ELEMENT>(h, i));
-//   }
-// }
-
 namespace arttest
 {
   class PtrListAnalyzer : public art::EDAnalyzer
@@ -31,6 +19,13 @@ namespace arttest
     virtual ~PtrListAnalyzer();
     virtual void analyze(art::Event const& ev);
   private:
+    // input_t is the type of the product we expect to obtain from the
+    // Event
+    typedef std::vector<int>  input_t;
+
+    void test_fill_list(art::Event const&);
+    void test_fill_vector(art::Event const&);
+
     std::string input_label_;
     int num_expected_;
   };
@@ -46,19 +41,26 @@ namespace arttest
 
   void PtrListAnalyzer::analyze(art::Event const& ev)
   {
-    typedef std::vector<int>  input_t;
     art::Handle<input_t>      h;
     ev.getByLabel(input_label_, h);
     assert(h.isValid());
     assert(h->size() == num_expected_);
 
+    this->test_fill_list(ev);
+    this->test_fill_vector(ev);
+  }
 
+  void PtrListAnalyzer::test_fill_list(art::Event const& ev)
+  {
     // This is how to fill a list of Ptr<T> from a Handle<T>.
+    art::Handle<input_t>      h;
+    ev.getByLabel(input_label_, h);
+    assert(h.isValid());
+
     std::list<art::Ptr<int> > ptrs;
     art::fill_ptr_list(ptrs, h);
-
-
     assert(ptrs.size() == num_expected_);
+
     int expected_value = ev.id().event();
     for (std::list<art::Ptr<int> >::const_iterator 
 	   i = ptrs.begin(),
@@ -67,8 +69,32 @@ namespace arttest
       {
 	assert( **i == expected_value);
 	++expected_value;
-      }        
+      }
   }
+ 
+  void PtrListAnalyzer::test_fill_vector(art::Event const& ev)
+  {
+    // This is how to fill a vector of Ptr<T> from a Handle<T>.
+    art::Handle<input_t>      h;
+    ev.getByLabel(input_label_, h);
+    assert(h.isValid());
+
+    std::vector<art::Ptr<int> > ptrs;
+    art::fill_ptr_vector(ptrs, h);
+    assert(ptrs.size() == num_expected_);
+
+    int expected_value = ev.id().event();
+    for (std::vector<art::Ptr<int> >::const_iterator 
+	   i = ptrs.begin(),
+	   e = ptrs.end();
+	 i != e; ++i)
+      {
+	assert( **i == expected_value);
+	++expected_value;
+      }
+  }
+
+
 }
 
 DEFINE_ART_MODULE(arttest::PtrListAnalyzer);
