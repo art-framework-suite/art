@@ -26,180 +26,66 @@ link_libraries(
 #########################################################################
 # New tests (post-ART fork).
 ####################################
+# cet_test macro
+include(CetTest)
 
-# ----------------------------------------------------------------------
-# Identify, by category, all tests:
-
-set( BOOST_TEST_LIST
-  IntermediateTablePostProcessor_t
-  RootDictionaryManager_t
-  artapp_t
-)
-
-set( TEST_LIST
-)
-
-set( ALSO_BUILD
-)
-
-set( BOOST_ALSO_BUILD
-  LibraryManager_t
-)
-
-set( MANUALLY_BUILT_TESTS
-)
-
-set ( ALSO_RUN
-)
-
-set( MANUALLY_RUN_TESTS
-  LibraryManager_t.sh
-)
-
-set( INPUT_FILES
-  empty_config.fcl
-  summary_only_config.fcl
+# Tests
+cet_test(IntermediateTablePostProcessor_t USE_BOOST_UNIT
+  DATAFILES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/test_simple_01.fcl # Avoid duplication
 )
-
-# ----------------------------------------------------------------------
-# Build most tests:
-
-foreach( test ${TEST_LIST} ${ALSO_BUILD} )
-  add_executable( ${test} ${test}.cc )
-endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
-
-# ----------------------------------------------------------------------
-# Build BOOST tests
-
-foreach( test ${BOOST_TEST_LIST} ${BOOST_ALSO_BUILD} )
-  add_executable( ${test} ${test}.cc )
-  # Save having to put these in all tests.
-  set_target_properties ( ${test} PROPERTIES
-    COMPILE_DEFINITIONS BOOST_TEST_MAIN
-    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-    )
-  target_link_libraries( ${test} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-endforeach( test ${BOOST_TEST_LIST} )
-
-# ----------------------------------------------------------------------
-# Build tests with special requirements:
-
-# add_executable(  )
-# target_link_libraries( )
-target_link_libraries(artapp_t art_Framework_CoreArt ${Boost_PROGRAM_OPTIONS_LIBRARY})
-
-# ----------------------------------------------------------------------
-# Install non-built tests:
-
-foreach( script ${ALSO_RUN} ${MANUALLY_RUN_TESTS} )
-  add_custom_target( ${script} ALL
-                     COMMAND ${CMAKE_COMMAND} -E
-                       copy ${CMAKE_CURRENT_SOURCE_DIR}/${script}
-                            ${EXECUTABLE_OUTPUT_PATH}/
-                      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${script}
-                   )
-endforeach( script ${TEST_SCRIPTS} )
-
-# ----------------------------------------------------------------------
-# Run the automated tests:
-
-foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${MANUALLY_BUILT_TESTS} ${ALSO_RUN} )
-  add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
-endforeach( test ${TEST_LIST} )
-
-# ----------------------------------------------------------------------
-# Run the MANUALLY_RUN_TESTS:
-
-add_test( LibraryManager_t.sh
-          ${EXECUTABLE_OUTPUT_PATH}/LibraryManager_t.sh
-          ${EXECUTABLE_OUTPUT_PATH}
-        )
-
-# ----------------------------------------------------------------------
-# Copy Configuration and other input files to the correct location
-foreach (input ${INPUT_FILES} )
-  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY )
-endforeach (input ${INPUT_FILES} )
-
-# ======================================================================
-
+cet_test(RootDictionaryManager_t USE_BOOST_UNIT)
+cet_test(artapp_t USE_BOOST_UNIT
+  LIBRARIES
+  art_Framework_CoreArt
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  DATAFILES
+  empty_config.fcl
+)
+cet_test(LibraryManager_t USE_BOOST_UNIT NO_AUTO)
 # Cmake directives to prepare for Library_Manager_t test
+# The driver script could do this if we could let it know where the tar file is.
 add_custom_target(Prep_LibraryManager_t
   ${CMAKE_COMMAND} -E tar zxf ${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.tar.gz
   DEPENDS LibraryManager_t.tar.gz
-)
-add_dependencies (LibraryManager_t.sh Prep_LibraryManager_t)
-# When this works the driver script can go away.
-#set_tests_properties (LibraryManager_t PROPERTIES ENVIRONMENT XXX_PATH=12345:45678)
-#set_tests_properties (LibraryManager_t.sh PROPERTIES ENVIRONMENT "BOOST_TEST_SHOW_PROGRESS=yes")
-#########################################################################
-
-# Old (pre-ART fork) tests.
-set( FrameworkCoreTest_sources MockEventProcessor.cc )
-set( TestOutputModule_sources stubs/TestOutputModule.cc )
-set( TestFilterModule_sources stubs/TestFilterModule.cc )
-set( TestTriggerNames_sources stubs/TestTriggerNames.cc )
-set( TestMergeResults_sources stubs/TestMergeResults.cc )
-set( TestMod_sources stubs/TestMod.cc )
-set( TestToyModules_sources stubs/ToyModules.cc )
-set( TestSchedulerModule1_sources stubs/TestSchedulerModule1.cc )
-set( TestSchedulerModule2_sources stubs/TestSchedulerModule2.cc )
-set( FrameworkCoreTestESDummyDataAnalyzer_sources stubs/TestESDummyDataAnalyzer.cc )
-set( FrameworkCoreTestPRegisterModules_sources stubs/TestPRegisterModule2.cc
-                                                 stubs/TestPRegisterModule1.cc
-						 stubs/TestPRegisterModules.cc )
-set( FrameworkCoreTestBeginEndJobAnalyzer_sources stubs/TestBeginEndJobAnalyzer.cc
-                                                    stubs/TestBeginEndJobAnalyzerModule.cc )
-set( FrameworkCoreTestFailuresAnalyzer_sources stubs/TestFailuresAnalyzer.cc )
-set( FrameworkCoreHistoryAnalyzer_sources stubs/HistoryAnalyzer.cc )
-
-
-set( TestFrameworkCore_sources testRunner.cpp
-                                 DummySource.cc
-				 edproducer_productregistry_callback.cc
-				 generichandle_t.cppunit.cc
-)
-
-add_executable( eventprincipal_t  testRunner.cpp eventprincipal_t.cppunit.cc )
-add_executable( Event_t Event_t.cpp )
-add_executable( Art_t TestDriver.cpp )
-add_executable( Unscheduled_t TestDriver.cpp )
-add_executable( Replace_t TestDriver.cpp )
-add_executable( TrigBit_t TestDriver.cpp )
-add_executable( TrigMask_t TestDriver.cpp )
-add_executable( TestXMLSafeException_t TestDriver.cpp )
-add_executable( GroupSelector_t GroupSelector_t.cpp )
-add_executable( EventSelector_t EventSelector_t.cpp )
-add_executable( EventSelWildcard_t EventSelWildcard_t.cpp )
-add_executable( EventSelExc_t EventSelExc_t.cpp )
-add_executable( EventSelOverlap_t EventSelOverlap_t.cpp )
-add_executable( CurrentProcessingContext_t CurrentProcessingContext_t.cpp )
-add_executable( CPCSentry_t CPCSentry_t.cpp )
-add_executable( RegistryTemplate_t RegistryTemplate_t.cpp )
-add_executable( OutputModuleUtilities_t OutputModuleUtilities_t.cpp )
-add_executable( Statemachine_t statemachine_t.cc MockEventProcessor.cc )
-target_link_libraries(Statemachine_t
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
-add_executable( StatemachineSH_t TestDriver.cpp )
+cet_test(LibraryManager_t.sh PREBUILT
+  TEST_ARGS ${EXECUTABLE_OUTPUT_PATH}
+  DEPENDENCIES Prep_LibraryManager_t
+  )
 
-add_test( eventprincipal_t  ${EXECUTABLE_OUTPUT_PATH}/eventprincipal_t )
-add_test( Event_t ${EXECUTABLE_OUTPUT_PATH}/Event_t )
-add_test( Art_t ${EXECUTABLE_OUTPUT_PATH}/Art_t )
-add_test( Unscheduled_t ${EXECUTABLE_OUTPUT_PATH}/Unscheduled_t )
-add_test( Replace_t ${EXECUTABLE_OUTPUT_PATH}/Replace_t )
-add_test( TrigBit_t ${EXECUTABLE_OUTPUT_PATH}/TrigBit_t )
-add_test( TrigMask_t ${EXECUTABLE_OUTPUT_PATH}/TrigMask_t )
-add_test( TestXMLSafeException_t ${EXECUTABLE_OUTPUT_PATH}/TestXMLSafeException_t )
-add_test( GroupSelector_t ${EXECUTABLE_OUTPUT_PATH}/GroupSelector_t )
-add_test( EventSelector_t ${EXECUTABLE_OUTPUT_PATH}/EventSelector_t )
-add_test( EventSelWildcard_t ${EXECUTABLE_OUTPUT_PATH}/EventSelWildcard_t )
-add_test( EventSelExc_t ${EXECUTABLE_OUTPUT_PATH}/EventSelExc_t )
-add_test( EventSelOverlap_t ${EXECUTABLE_OUTPUT_PATH}/EventSelOverlap_t )
-add_test( CurrentProcessingContext_t ${EXECUTABLE_OUTPUT_PATH}/CurrentProcessingContext_t )
-add_test( CPCSentry_t ${EXECUTABLE_OUTPUT_PATH}/CPCSentry_t )
-add_test( RegistryTemplate_t ${EXECUTABLE_OUTPUT_PATH}/RegistryTemplate_t )
-add_test( OutputModuleUtilities_t ${EXECUTABLE_OUTPUT_PATH}/OutputModuleUtilities_t )
-add_test( Statemachine_t ${EXECUTABLE_OUTPUT_PATH}/Statemachine_t )
-add_test( StatemachineSH_t ${EXECUTABLE_OUTPUT_PATH}/StatemachineSH_t )
+#########################################################################
+# Old (pre-ART fork) tests.
+cet_test(eventprincipal_t
+  SOURCES testRunner.cpp eventprincipal_t.cppunit.cc
+)
+foreach(cpp_test
+    Event_t
+    GroupSelector_t
+    EventSelector_t
+    EventSelWildcard_t
+    EventSelExc_t
+    EventSelOverlap_t
+    CurrentProcessingContext_t
+    CPCSentry_t
+    RegistryTemplate_t
+    OutputModuleUtilities_t)
+  cet_test(${cpp_test} SOURCES ${cpp_test}.cpp)
+endforeach()
+
+foreach(driver_test
+    Art_t
+    Unscheduled_t
+    Replace_t
+    TrigBit_t
+    TrigMask_t
+    TestXMLSafeException_t)
+  cet_test(${driver_test} SOURCES TestDriver.cpp)
+endforeach()
+
+cet_test(Statemachine_t
+  SOURCES statemachine_t.cc MockEventProcessor.cc
+  LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  )
+cet_test(StatemachineSH_t SOURCES TestDriver.cpp
+)
