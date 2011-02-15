@@ -14,6 +14,15 @@ Qualifiers = ""
        exeActionRequired("setup__")
 
 Flavor     = ANY
+Qualifiers = "a1"
+  Action = setup
+       prodDir()
+       setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+       execute( "get-directory-name subdir a1", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
+       exeActionRequired("setup__")
+
+Flavor     = ANY
 Qualifiers = "@qualifier@"
   Action = setup
        prodDir()
