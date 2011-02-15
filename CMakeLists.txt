@@ -16,7 +16,7 @@ cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
 set( product art )
-set( version v0_4_3 )
+set( version v0_4_4 )
 SET (qualifier a1)
 
 
@@ -65,7 +65,7 @@ find_ups_product( fhiclcpp v2_11_0  )
 find_ups_product( messagefacility v1_8_3  )
 find_ups_product( cetlib v0_4_5 )
 find_ups_product( cpp0x v1_0_2 )
-find_ups_product( cetbuildtools v1_7_3 )
+find_ups_product( cetbuildtools v1_7_4 )
 find_ups_root( v5_28_00_p02 )
 find_ups_boost( v1_45_0 filesystem
                         program_options
