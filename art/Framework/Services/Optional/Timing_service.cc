@@ -125,8 +125,9 @@ void Timing::postEventProcessing(Event const& e)
 {
   double t = getTime() - curr_event_time_;
   if (not summary_only_) {
-    mf::LogAbsolute("TimeEvent") << "TimeEvent> "
-      << curr_event_.event() << " " << curr_event_.run() << " " << t;
+    mf::LogAbsolute("TimeEvent")
+       << "TimeEvent> "
+       << curr_event_ << " " << t;
   }
   if (total_event_count_ == 0) {
     max_event_time_ = t;
@@ -150,8 +151,7 @@ void Timing::postModule(ModuleDescription const& desc)
   double t = getTime() - curr_module_time_;
   if (not summary_only_) {
     mf::LogAbsolute("TimeModule") << "TimeModule> "
-       << curr_event_.event() << " "
-       << curr_event_.run() << " "
+       << curr_event_ << " "
        << desc.moduleLabel_ << " "
        << desc.moduleName_ << " "
        << t;

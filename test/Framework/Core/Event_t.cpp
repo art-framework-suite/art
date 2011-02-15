@@ -141,7 +141,7 @@ namespace
   template <class T> void kill_and_clear(T*& p) { delete p; p = 0; }
 }
 
-EventID   make_id() { return EventID(2112, 25); }
+EventID   make_id() { return EventID(2112, 47, 25); }
 Timestamp make_timestamp() { return Timestamp(1); }
 
 template <class T>
@@ -358,7 +358,7 @@ void testEvent::setUp()
   SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
   boost::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, preg, pc));
   srp->setRunPrincipal(rp);
-  EventAuxiliary eventAux(id, uuid, time, srp->subRun(), true);
+  EventAuxiliary eventAux(id, uuid, time, true);
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_  = new EventPrincipal(eventAux,

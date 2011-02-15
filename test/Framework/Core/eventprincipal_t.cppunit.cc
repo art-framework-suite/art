@@ -154,7 +154,7 @@ void test_ep::setUp()
 
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.
-  eventID_ = art::EventID(101, 20);
+  eventID_ = art::EventID(101, 87, 20);
 
   // We can only insert products registered in the ProductRegistry.
   pProductRegistry_ = new art::ProductRegistry;
@@ -197,10 +197,10 @@ void test_ep::setUp()
     boost::shared_ptr<art::ProductRegistry const> preg(pProductRegistry_);
     art::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, *process));
-    art::SubRunAuxiliary subRunAux(rp->run(), 1, now, now);
+    art::SubRunAuxiliary subRunAux(rp->run(), eventID_.subRun(), now, now);
     boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, *process));
     srp->setRunPrincipal(rp);
-    art::EventAuxiliary eventAux(eventID_, uuid, now, srp->subRun(), true);
+    art::EventAuxiliary eventAux(eventID_, uuid, now, true);
     pEvent_ = new art::EventPrincipal(eventAux, preg, *process);
     pEvent_->setSubRunPrincipal(srp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);

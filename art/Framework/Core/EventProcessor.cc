@@ -475,12 +475,6 @@ namespace art {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(int numberEventsToProcess, bool repeatable)
-  {
-    return runEventCount(numberEventsToProcess);
-  }
-
-  EventProcessor::StatusCode
   EventProcessor::run(EventID const& id)
   {
     beginJob(); //make sure this was called
@@ -678,36 +672,6 @@ namespace art {
     // the thread will record exception/error status in the event processor
     // for us to look at and report here
     return last_rc_;
-  }
-
-  void
-  EventProcessor::setRunNumber(RunNumber_t runNumber)
-  {
-    if (runNumber == 0) {
-      runNumber = 1;
-      mf::LogWarning("Invalid Run")
-        << "EventProcessor::setRunNumber was called with an invalid run number"
-           " (0)\n"
-           "Run number was set to 1 instead\n";
-    }
-
-    // inside of beginJob there is a check to see if it has been called before
-    beginJob();
-    changeState(mSetRun);
-
-    // interface not correct yet
-    input_->setRunNumber(runNumber);
-  }
-
-  void
-  EventProcessor::declareRunNumber(RunNumber_t runNumber)
-  {
-    // inside of beginJob there is a check to see if it has been called before
-    beginJob();
-    changeState(mSetRun);
-
-    // interface not correct yet - wait for Bill to be done with run/subRun loop stuff 21-Jun-2007
-    //input_->declareRunNumber(runNumber);
   }
 
   EventProcessor::StatusCode

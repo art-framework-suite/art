@@ -10,7 +10,6 @@
 
 using mf::LogWarning;
 
-
 namespace art {
 
   DuplicateChecker::DuplicateChecker(fhicl::ParameterSet const& pset) :
@@ -66,7 +65,6 @@ namespace art {
   }
 
   bool DuplicateChecker::isDuplicateAndCheckActive(EventID const& eventID,
-                                                   SubRunNumber_t const& subRun,
                                                    std::string const& fileName)
   {
     if (duplicateCheckMode_ == noDuplicateCheck) return false;
@@ -84,18 +82,14 @@ namespace art {
       if (duplicateCheckMode_ == checkAllFilesOpened) {
         LogWarning("DuplicateEvent")
           << "Duplicate Events found in entire set of input files.\n"
-          << "Both events were from run " << eventID.run()
-          << " with event number " << eventID.event() << ".\n"
-          << "The duplicate had subRun number " << subRun
-          << " and was from file " << fileName << ".\n"
+          << "Both events were from " << eventID << ".\n"
+          << "The duplicate was from file " << fileName << ".\n"
           << "The duplicate will be skipped.\n";
       }
       else {
         LogWarning("DuplicateEvent")
           << "Duplicate Events found in file " << fileName << ".\n"
-          << "Both events were from run " << eventID.run()
-          << " with event number " << eventID.event() << ".\n"
-          << "The duplicate had subRun number " << subRun << ".\n"
+          << "Both events were " << eventID << ".\n"
           << "The duplicate will be skipped.\n";
       }
       return true;

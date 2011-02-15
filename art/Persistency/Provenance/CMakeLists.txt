@@ -10,7 +10,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       BranchMapper.cc
                                       BranchType.cc
                                       EntryDescription.cc
-                                      EventAux.cc
                                       EventAuxiliary.cc
                                       EventEntryDescription.cc
                                       EventEntryInfo.cc
@@ -20,7 +19,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       FileIndex.cc
                                       Hash.cc
                                       History.cc
-                                      SubRunAux.cc
                                       SubRunAuxiliary.cc
                                       SubRunID.cc
                                       ModuleDescription.cc
@@ -32,7 +30,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       ProductProvenance.cc
                                       ProductRegistry.cc
                                       Provenance.cc
-                                      RunAux.cc
                                       RunAuxiliary.cc
                                       RunID.cc
                                       RunSubRunEntryInfo.cc
@@ -64,7 +61,6 @@ install(FILES BranchChildren.h
               EntryDescription.h
               EntryDescriptionID.h
               EntryDescriptionRegistry.h
-              EventAux.h
               EventAuxiliary.h
               EventEntryDescription.h
               EventEntryInfo.h
@@ -77,7 +73,6 @@ install(FILES BranchChildren.h
               HashedTypes.h
               Hash.h
               History.h
-              SubRunAux.h
               SubRunAuxiliary.h
               SubRunID.h
               ModuleDescription.h
@@ -101,7 +96,6 @@ install(FILES BranchChildren.h
               ProvenanceFwd.h
               Provenance.h
               ReleaseVersion.h
-              RunAux.h
               RunAuxiliary.h
               RunID.h
               RunSubRunEntryInfo.h

@@ -43,7 +43,6 @@
  <class name="art::EventAuxiliary"/>
    <class name="art::EventID"/>
    <class name="art::Timestamp"/>
-   <class name="art::SubRunNumber_t"/>
  <class name="art::SubRunAuxiliary"/>
    <class name="art::SubRunID"/>
  <class name="art::RunAuxiliary"/>

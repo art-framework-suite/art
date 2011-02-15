@@ -12,6 +12,9 @@ used by the EventProcessor.
 Original Authors: W. David Dagenhart, Marc Paterno
 */
 
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
+
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
 #include <boost/statechart/state.hpp>
@@ -31,26 +34,24 @@ namespace art {
 namespace statemachine {
 
   enum FileMode { NOMERGE, MERGE, FULLLUMIMERGE, FULLMERGE };
-  int const INVALID_RUN = 0;
-  int const INVALID_LUMI = 0;
 
   // Define the classes representing the "boost statechart events".
   // There are six of them.
 
   class Run : public sc::event<Run> {
   public:
-    Run(int id);
-    int id() const;
+    Run(art::RunNumber_t id);
+    art::RunNumber_t id() const;
   private:
-    int id_;
+    art::RunNumber_t id_;
   };
 
   class SubRun : public sc::event<SubRun> {
   public:
-    SubRun(int id);
-    int id() const;
+    SubRun(art::SubRunNumber_t id);
+    art::SubRunNumber_t id() const;
   private:
-    int id_;
+    art::SubRunNumber_t id_;
   };
 
   // It is slightly confusing that this one refers to
@@ -226,11 +227,11 @@ namespace statemachine {
     typedef sc::transition<File, NewInputAndOutputFiles> reactions;
 
     bool beginRunCalled() const;
-    int currentRun() const;
+    art::RunNumber_t currentRun() const;
     bool runException() const;
     void setupCurrentRun();
-    void beginRun(int run);
-    void endRun(int run);
+    void beginRun(art::RunNumber_t run);
+    void endRun(art::RunNumber_t run);
     void finalizeRun(Run const&);
     void finalizeRun();
     void beginRunIfNotDoneAlready();
@@ -238,8 +239,8 @@ namespace statemachine {
     art::IEventProcessor & ep_;
     bool exitCalled_;
     bool beginRunCalled_;
-    int currentRun_;
-    std::set<int> previousRuns_;
+    art::RunNumber_t currentRun_;
+    std::set<art::RunNumber_t> previousRuns_;
     bool runException_;
   };
 
@@ -298,7 +299,7 @@ namespace statemachine {
   class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, FirstSubRun>
   {
   public:
-    typedef std::pair<int, int> SubRunID;
+     typedef std::pair<art::RunNumber_t, art::SubRunNumber_t> SubRunID;
     HandleSubRuns(my_context ctx);
     void exit();
     ~HandleSubRuns();

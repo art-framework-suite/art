@@ -38,7 +38,6 @@ namespace art {
     void rewind();
 
     bool isDuplicateAndCheckActive(EventID const& eventID,
-                                   SubRunNumber_t const& subRun,
                                    std::string const& fileName);
 
   private:

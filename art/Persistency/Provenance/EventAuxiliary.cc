@@ -1,31 +1,20 @@
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include <ostream>
 
-/*----------------------------------------------------------------------
+void
+art::EventAuxiliary::write(std::ostream& os) const {
+   os << "Process History ID = " <<  processHistoryID_ << std::endl;
+   os << id_ << std::endl;
+}
 
-
-
-----------------------------------------------------------------------*/
-
-namespace art {
-  void
-  EventAuxiliary::write(std::ostream& os) const {
-    os << "Process History ID = " <<  processHistoryID_ << std::endl;
-    os << id_ << std::endl;
-    //os << "TimeStamp = " << time_ << std::endl;
-    os << "SubRunNumber_t = " << subRun_ << std::endl;
-  }
-
-  bool
-  isSameEvent(EventAuxiliary const& a, EventAuxiliary const& b) {
-    return
-      a.id_ == b.id_ &&
-      a.processGUID_ == b.processGUID_ &&
-      a.subRun_ == b.subRun_ &&
-      a.time_ == b.time_ &&
-      a.isRealData_ == b.isRealData_ &&
-      a.experimentType_ == b.experimentType_ &&
-      a.bunchCrossing_ == b.bunchCrossing_ &&
-      a.storeNumber_ == b.storeNumber_;
-  }
+bool
+art::isSameEvent(EventAuxiliary const &left, EventAuxiliary const &right) {
+   return
+      left.id_ == right.id_ &&
+      left.processGUID_ == right.processGUID_ &&
+      left.time_ == right.time_ &&
+      left.isRealData_ == right.isRealData_ &&
+      left.experimentType_ == right.experimentType_ &&
+      left.bunchCrossing_ == right.bunchCrossing_ &&
+      left.storeNumber_ == right.storeNumber_;
 }

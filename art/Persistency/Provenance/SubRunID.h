@@ -1,138 +1,143 @@
 #ifndef art_Persistency_Provenance_SubRunID_h
 #define art_Persistency_Provenance_SubRunID_h
-// -*- C++ -*-
-//
-// Package:     DataFormats/Provenance
-// Class  :     SubRunID
-//
-/**\class SubRunID SubRunID.h DataFormats/Provenance/interface/SubRunID.h
 
- Description: Holds run and subRun number.
+// A SubRunID represents a unique period within a run.
 
- Usage:
-    <usage>
-
-*/
-//
-//
-
-// system include files
-#include <functional>
-#include <iosfwd>
-#include "boost/cstdint.hpp"
-
-// user include files
+#include "art/Utilities/Exception.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SortInvalidFirst.h"
 
-// forward declarations
+#include "cpp0x/cstdint"
+#include <functional>
+#include <ostream>
+
 namespace art {
+   typedef uint32_t SubRunNumber_t;
+   class SubRunID;
+}
 
-   typedef unsigned int SubRunNumber_t;
+class art::SubRunID {
+public:
+   SubRunID() : run_(), subRun_(INVALID_SUBRUN_NUMBER) {}
+   SubRunID(RunNumber_t iRun, SubRunNumber_t iSubRun) :
+      run_(iRun), subRun_(inRangeOrInvalid(iSubRun)) {
+      checkSane();
+   }
 
+   bool isValid() const {
+      return (subRun_ != INVALID_SUBRUN_NUMBER);
+   }
 
-class SubRunID
-{
+   RunID const &runID() const { return run_; }
+   RunNumber_t run() const { return run_.run(); }
+   SubRunNumber_t subRun() const { return subRun_; }
 
-   public:
-
-
-      SubRunID() : run_(0), subRun_(0) {}
-      explicit SubRunID(boost::uint64_t id);
-      SubRunID(RunNumber_t iRun, SubRunNumber_t iSubRun) :
-	run_(iRun), subRun_(iSubRun) {}
-
-      //virtual ~SubRunID();
-
-      // ---------- const member functions ---------------------
-      RunNumber_t run() const { return run_; }
-      SubRunNumber_t subRun() const { return subRun_; }
-
-      boost::uint64_t value() const;
-
-      //moving from one SubRunID to another one
-      SubRunID next() const {
-         if(subRun_ != maxSubRunNumber()) {
-            return SubRunID(run_, subRun_+1);
-         }
-         return SubRunID(run_+1, 1);
+   SubRunID next() const {
+      if (!isValid()) {
+         throw art::Exception(art::errors::InvalidNumber)
+            << "cannot increment invalid subrun number.";
+      } else if (subRun_ == MAX_VALID_SUBRUN_NUMBER) {
+         return nextRun();
       }
-      SubRunID nextRun() const {
-         return SubRunID(run_+1, 0);
-      }
-      SubRunID nextRunFirstSubRun() const {
-         return SubRunID(run_+1, 1);
-      }
-      SubRunID previousRunLastSubRun() const {
-         if(run_ > 1) {
-            return SubRunID(run_-1, maxSubRunNumber());
-         }
-         return SubRunID(0,0);
-      }
+      return SubRunID(run_, subRun_ + 1);
+   }
 
-      SubRunID previous() const {
-         if(subRun_ > 1) {
-            return SubRunID(run_, subRun_-1);
-         }
-         if(run_ != 0) {
-            return SubRunID(run_ -1, maxSubRunNumber());
-         }
-         return SubRunID(0,0);
-      }
+   SubRunID nextRun() const {
+      return SubRunID(run_.next(), FIRST_SUBRUN_NUMBER);
+   }
 
-      bool operator==(SubRunID const& iRHS) const {
-         return iRHS.run_ == run_ && iRHS.subRun_ == subRun_;
+   SubRunID previous() const {
+      if (!isValid()) {
+         throw art::Exception(art::errors::InvalidNumber)
+            << "cannot decrement invalid subrun number.";
+      } else if (subRun_ == FIRST_SUBRUN_NUMBER) {
+         return previousRun();
       }
-      bool operator!=(SubRunID const& iRHS) const {
-         return ! (*this == iRHS);
-      }
+      return SubRunID(run_, subRun_ - 1);
+   }
 
-      bool operator<(SubRunID const& iRHS) const {
-         return doOp<std::less>(iRHS);
-      }
-      bool operator<=(SubRunID const& iRHS) const {
-         return doOp<std::less_equal>(iRHS);
-      }
-      bool operator>(SubRunID const& iRHS) const {
-         return doOp<std::greater>(iRHS);
-      }
-      bool operator>=(SubRunID const& iRHS) const {
-         return doOp<std::greater_equal>(iRHS);
-      }
+   SubRunID previousRun() const {
+      return SubRunID(run_.previous(), MAX_VALID_SUBRUN_NUMBER);
+   }
 
-      // ---------- static functions ---------------------------
+   static SubRunID maxValidSubRunID() {
+      return SubRunID(RunID::maxValidRunID(), MAX_VALID_SUBRUN_NUMBER);
+   }
 
-      static SubRunNumber_t maxSubRunNumber() {
-         return 0xFFFFFFFFU;
+   static SubRunID firstValidSubRunID() {
+      return SubRunID(RunID::firstValidRunID(), FIRST_SUBRUN_NUMBER);
+   }
+
+   static SubRunID firstSubRunForRunID(RunID const &rID) {
+      return SubRunID(rID, FIRST_SUBRUN_NUMBER);
+   }
+
+   static SubRunID invalidSubRun(RunID const &rID) {
+      return SubRunID(rID, INVALID_SUBRUN_NUMBER);
+   }
+
+   // Valid comparison operators
+   bool operator==(SubRunID const& other) const {
+      return other.run_ == run_ && other.subRun_ == subRun_;
+   }
+
+   bool operator!=(SubRunID const& other) const {
+      return !(*this == other);
+   }
+
+   bool operator<(SubRunID const& other) const {
+      static SortInvalidFirst<SubRunNumber_t> op_e(INVALID_SUBRUN_NUMBER);
+      if (run_ == other.run_) {
+         return op_e(subRun_, other.subRun_);
+      } else {
+         return run_ < other.run_;
       }
+   }
 
-      static SubRunID firstValidSubRun() {
-         return SubRunID(1, 1);
+   bool operator<=(SubRunID const& other) const {
+      return (*this < other) || (*this == other);
+   }
+
+   bool operator>(SubRunID const& other) const {
+      return (other < *this);
+   }
+
+   bool operator>=(SubRunID const& other) const {
+      return ! (*this < other);
+   }
+
+   friend inline std::ostream&
+   operator<<(std::ostream& oStream, SubRunID const& iID) {
+      oStream << iID.run_ << " subRun: " << iID.subRun_;
+      return oStream;
+   }
+
+private:
+   static SubRunNumber_t const INVALID_SUBRUN_NUMBER;
+   static SubRunNumber_t const MAX_VALID_SUBRUN_NUMBER;
+   static SubRunNumber_t const FIRST_SUBRUN_NUMBER;
+
+   SubRunID(RunID iRun, SubRunNumber_t iSubRun) :
+      run_(iRun), subRun_(inRangeOrInvalid(iSubRun)) {
+      checkSane();
+   }
+
+   SubRunNumber_t inRangeOrInvalid(SubRunNumber_t sr) {
+      return (sr < FIRST_SUBRUN_NUMBER ||
+              sr > MAX_VALID_SUBRUN_NUMBER)?INVALID_SUBRUN_NUMBER:sr;
+   }
+
+   void checkSane() {
+      if (isValid() && ! run_.isValid()) {
+         throw art::Exception(art::errors::InvalidNumber)
+            << "SubRunID is not meaningful with valid subRun and invalid Run.";
       }
-      // ---------- member functions ---------------------------
+   }
 
-   private:
-      template<template <typename> class Op>
-      bool doOp(SubRunID const& iRHS) const {
-         //Run takes presidence for comparisions
-         if(run_ == iRHS.run_) {
-            Op<SubRunNumber_t> op_e;
-            return op_e(subRun_, iRHS.subRun_);
-         }
-         Op<RunNumber_t> op;
-         return op(run_, iRHS.run_) ;
-      }
-      //SubRunID(SubRunID const&); // stop default
-
-      //SubRunID const& operator=(SubRunID const&); // stop default
-
-      // ---------- member data --------------------------------
-      RunNumber_t run_;
-      SubRunNumber_t subRun_;
+   RunID run_;
+   SubRunNumber_t subRun_;
 };
 
-std::ostream& operator<<(std::ostream& oStream, SubRunID const& iID);
-
-}
 #endif /* art_Persistency_Provenance_SubRunID_h */
 
 // Local Variables:

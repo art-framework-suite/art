@@ -13,6 +13,7 @@ Original Author: W. David Dagenhart
 */
 
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -20,22 +21,7 @@ Original Author: W. David Dagenhart
 
 namespace art {
 
-  class SubRunKey {
-  public:
-    int run() { return run_; }
-    int subRun() { return subRun_; }
-
-    SubRunKey(int run, int subRun) : run_(run), subRun_(subRun) { }
-
-    bool operator<(const SubRunKey& right) const {
-      if (run_ == right.run_) return subRun_ < right.subRun_;
-      return run_ < right.run_;
-    }
-
-  private:
-    int run_;
-    int subRun_;
-  };
+   typedef SubRunID SubRunKey;
 
   class PrincipalCache
   {
@@ -44,18 +30,18 @@ namespace art {
     PrincipalCache();
     ~PrincipalCache();
 
-    RunPrincipal & runPrincipal(int run);
-    RunPrincipal const& runPrincipal(int run) const;
-    boost::shared_ptr<RunPrincipal> runPrincipalPtr(int run);
+    RunPrincipal & runPrincipal(RunNumber_t run);
+    RunPrincipal const& runPrincipal(RunNumber_t run) const;
+    boost::shared_ptr<RunPrincipal> runPrincipalPtr(RunNumber_t run);
 
     // Current run (most recently read and inserted run)
     RunPrincipal & runPrincipal();
     RunPrincipal const& runPrincipal() const;
     boost::shared_ptr<RunPrincipal> runPrincipalPtr();
 
-    SubRunPrincipal & subRunPrincipal(int run, int subRun);
-    SubRunPrincipal const& subRunPrincipal(int run, int subRun) const;
-    boost::shared_ptr<SubRunPrincipal> subRunPrincipalPtr(int run, int subRun);
+    SubRunPrincipal & subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun);
+    SubRunPrincipal const& subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) const;
+    boost::shared_ptr<SubRunPrincipal> subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun);
 
     // Current subRun (most recently read and inserted subRun)
     SubRunPrincipal & subRunPrincipal();
@@ -74,17 +60,17 @@ namespace art {
     void deleteLowestRun();
     void deleteLowestSubRun();
 
-    void deleteRun(int run);
-    void deleteSubRun(int run, int subRun);
+    void deleteRun(RunNumber_t run);
+    void deleteSubRun(RunNumber_t run, SubRunNumber_t subRun);
 
   private:
 
-    typedef std::map<int, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
-    typedef std::map<int, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
+    typedef std::map<RunNumber_t, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
+    typedef std::map<RunNumber_t, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
     typedef std::map<SubRunKey, boost::shared_ptr<SubRunPrincipal> >::iterator SubRunIterator;
     typedef std::map<SubRunKey, boost::shared_ptr<SubRunPrincipal> >::const_iterator ConstSubRunIterator;
 
-    std::map<int, boost::shared_ptr<RunPrincipal> > runPrincipals_;
+    std::map<RunNumber_t, boost::shared_ptr<RunPrincipal> > runPrincipals_;
     std::map<SubRunKey, boost::shared_ptr<SubRunPrincipal> > subRunPrincipals_;
 
     boost::shared_ptr<RunPrincipal> currentRunPrincipal_;

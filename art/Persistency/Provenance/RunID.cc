@@ -1,9 +1,8 @@
 #include "art/Persistency/Provenance/RunID.h"
-#include <ostream>
 
-namespace art {
-  std::ostream& operator<<(std::ostream& oStream, RunID const& iID) {
-    oStream << "run: " << iID.run();
-    return oStream;
-  }
-}
+art::RunNumber_t const art::RunID::INVALID_RUN_NUMBER = -1;
+art::RunNumber_t const art::RunID::MAX_VALID_RUN_NUMBER = -2;
+art::RunNumber_t const art::RunID::FIRST_RUN_NUMBER = 1;
+// art::RunNumber_t const art::RunID::INVALID_RUN_NUMBER = 0;
+// art::RunNumber_t const art::RunID::MAX_VALID_RUN_NUMBER = -1;
+// art::RunNumber_t const art::RunID::FIRST_RUN_NUMBER = 1;

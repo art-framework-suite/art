@@ -13,7 +13,7 @@ namespace art {
 
   PrincipalCache::~PrincipalCache() { }
 
-  RunPrincipal & PrincipalCache::runPrincipal(int run) {
+  RunPrincipal & PrincipalCache::runPrincipal(RunNumber_t run) {
     RunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
@@ -24,7 +24,7 @@ namespace art {
     return *iter->second.get();
   }
 
-  RunPrincipal const& PrincipalCache::runPrincipal(int run) const {
+  RunPrincipal const& PrincipalCache::runPrincipal(RunNumber_t run) const {
     ConstRunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
@@ -35,7 +35,7 @@ namespace art {
     return *iter->second.get();
   }
 
-  boost::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(int run) {
+  boost::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(RunNumber_t run) {
     RunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
@@ -76,7 +76,7 @@ namespace art {
     return currentRunPrincipal_;
   }
 
-  SubRunPrincipal & PrincipalCache::subRunPrincipal(int run, int subRun) {
+  SubRunPrincipal & PrincipalCache::subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) {
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
@@ -88,7 +88,7 @@ namespace art {
     return *iter->second.get();
   }
 
-  SubRunPrincipal const& PrincipalCache::subRunPrincipal(int run, int subRun) const {
+  SubRunPrincipal const& PrincipalCache::subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) const {
     SubRunKey key(run, subRun);
     ConstSubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
@@ -100,7 +100,7 @@ namespace art {
     return *iter->second.get();
   }
 
-  boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(int run, int subRun) {
+  boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun) {
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
@@ -143,7 +143,7 @@ namespace art {
   }
 
   bool PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
-    int run = rp->run();
+    RunNumber_t run = rp->run();
     RunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       runPrincipals_[run] = rp;
@@ -158,8 +158,8 @@ namespace art {
   }
 
   bool PrincipalCache::insert(boost::shared_ptr<SubRunPrincipal> srp) {
-    int run = srp->run();
-    int subRun = srp->subRun();
+    RunNumber_t run = srp->run();
+    SubRunNumber_t subRun = srp->subRun();
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
@@ -200,11 +200,11 @@ namespace art {
     subRunPrincipals_.erase(subRunPrincipals_.begin());
   }
 
-  void PrincipalCache::deleteRun(int run) {
+  void PrincipalCache::deleteRun(RunNumber_t run) {
     runPrincipals_.erase(runPrincipals_.find(run));
   }
 
-  void PrincipalCache::deleteSubRun(int run, int subRun) {
+  void PrincipalCache::deleteSubRun(RunNumber_t run, SubRunNumber_t subRun) {
     subRunPrincipals_.erase(subRunPrincipals_.find(SubRunKey(run, subRun)));
   }
 }

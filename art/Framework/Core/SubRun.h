@@ -34,9 +34,7 @@ namespace art {
     // AUX functions.
     SubRunNumber_t subRun() const {return aux_.subRun();}
 
-    RunNumber_t run() const {
-      return aux_.run();
-    }
+    RunNumber_t run() const {return aux_.run();}
 
     SubRunID id() const {
       return aux_.id();

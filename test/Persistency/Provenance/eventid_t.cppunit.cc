@@ -39,20 +39,21 @@ void testEventID::constructTest()
 {
    const EventNumber_t et = 1;
    const RunNumber_t rt = 2;
-
-   EventID temp(rt, et);
+   const SubRunNumber_t srt = 5;
+   EventID temp(rt, srt, et);
 
    CPPUNIT_ASSERT(temp.run() == rt);
+   CPPUNIT_ASSERT(temp.subRun() == srt);
    CPPUNIT_ASSERT(temp.event() == et);
 }
 
 void testEventID::comparisonTest()
 {
-   const EventID small(1,1);
-   const EventID med(2, 2);
-   const EventID med2(2,2);
-   const EventID large(3, 2);
-   const EventID largest(3,3);
+   const EventID small(1,1, 1);
+   const EventID med(2, 2, 2);
+   const EventID med2(2, 2, 2);
+   const EventID large(3, 3, 2);
+   const EventID largest(3,3, 3);
 
    CPPUNIT_ASSERT(small < med);
    CPPUNIT_ASSERT(small <= med);
@@ -87,18 +88,13 @@ void testEventID::comparisonTest()
 
 void testEventID::iterationTest()
 {
-   EventID first = EventID::firstValidEvent();
+   EventID first = EventID::firstValidEventID();
 
    EventID second = first.next();
    CPPUNIT_ASSERT(first < second);
    CPPUNIT_ASSERT(first == (second.previous()));
 
-   EventID run2(2, 0);
+   EventID run2(2, 1, 1);
    CPPUNIT_ASSERT(run2 < run2.nextRun());
-   CPPUNIT_ASSERT(run2 > run2.previousRunLastEvent());
-   CPPUNIT_ASSERT(first < run2.previousRunLastEvent());
-   CPPUNIT_ASSERT(run2 < first.nextRunFirstEvent());
-
-   EventID run2Last(2, EventID::maxEventNumber());
-   CPPUNIT_ASSERT(run2Last.next() == run2Last.nextRunFirstEvent());
+   CPPUNIT_ASSERT(run2 < run2.nextSubRun());
 }

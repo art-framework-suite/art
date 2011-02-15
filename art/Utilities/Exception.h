@@ -16,9 +16,8 @@ namespace art {
   namespace errors {
 
     // If you add a new entry to the set of values, make sure to
-    // update the translation map in Utility/Exception.cc, the actions
-    // table in FWCore/Framework/src/Actions.cc, and the configuration
-    // fragment FWCore/Framework/test/cmsExceptionsFatalOption.cff.
+    // update the translation map in Utility/Exception.cc and the actions
+    // table in Framework/Core/Actions.cc (if appropriate).
 
     enum ErrorCodes {
        OtherArt = 1
@@ -50,6 +49,8 @@ namespace art {
 
     ,  ProductDoesNotSupportViews
     ,  ProductDoesNotSupportPtr
+
+    ,  InvalidNumber
 
     ,  NotFound
     };

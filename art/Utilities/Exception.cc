@@ -35,6 +35,7 @@ detail::translate( errors::ErrorCodes code )
   case MismatchedInputFiles      : return "MismatchedInputFiles";
   case ProductDoesNotSupportViews: return "ProductDoesNotSupportViews";
   case ProductDoesNotSupportPtr  : return "ProductDoesNotSupportPtr";
+  case InvalidNumber             : return "InvalidNumber";
   case NotFound                  : return "NotFound";
   default                        : return "Unknown code";
   }

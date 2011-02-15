@@ -91,7 +91,7 @@ namespace art {
       return aux_;
     }
 
-    SubRunNumber_t const& subRun() const {
+    SubRunNumber_t subRun() const {
       return aux().subRun();
     }
 

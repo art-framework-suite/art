@@ -113,21 +113,8 @@ namespace art {
     // or timeout occurs (See StatusCode for return values)
     StatusCode waitTillDoneAsync(unsigned int timeout_seconds=0);
 
-    // Both of these calls move the EP to the ready to run state but only
-    // the first actually sets the run number, the other one just stores
-    // the run number set externally in order to later compare to the one
-    // read from the input source for verification
-    void setRunNumber(RunNumber_t runNumber);
-    void declareRunNumber(RunNumber_t runNumber);
-
-    // -------------
-
-    // These next two functions are deprecated.  Please use
-    // RunToCompletion or RunEventCount instead.  These will
-    // be deleted as soon as we have time to clean up the code
-    // in packages outside the Framework that uses them already.
-    StatusCode run(int numberEventsToProcess, bool repeatable = true);
-    StatusCode run();
+    // Run to completion (non-online)
+    StatusCode run() { return runToCompletion(false); }
 
     // Process one event with the given EventID
     StatusCode run(EventID const& id);
@@ -229,7 +216,6 @@ namespace art {
     // The online is an exceptional case.  Online uses the DaqSource
     // and the StreamerOutputModule, which are specially written to
     // handle multiple calls of "runToCompletion" in the same job.
-    // The call to setRunNumber resets the DaqSource between those calls.
     // With most sources and output modules, this does not work.
     // If and only if called by the online, the argument to runToCompletion
     // is set to true and this affects the state initial and final state
@@ -364,12 +350,6 @@ namespace art {
   };  // EventProcessor
 
   //--------------------------------------------------------------------
-
-  inline
-  EventProcessor::StatusCode
-  EventProcessor::run() {
-    return run(-1, false);
-  }
 
 }  // art
 

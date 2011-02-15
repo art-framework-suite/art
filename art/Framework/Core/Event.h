@@ -79,8 +79,13 @@ namespace art {
       id() const {return aux_.id();}
     Timestamp
       time() const {return aux_.time();}
+    EventNumber_t
+      event() const {return aux_.event();}
     SubRunNumber_t
       subRun() const {return aux_.subRun();}
+    RunNumber_t
+      run() const {return id().run();}
+
     bool
       isRealData() const {return aux_.isRealData();}
     EventAuxiliary::ExperimentType
@@ -104,9 +109,6 @@ namespace art {
 
     Run const&
       getRun() const;
-
-    RunNumber_t
-      run() const {return id().run();}
 
     template <typename PROD>
     bool
