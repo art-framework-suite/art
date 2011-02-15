@@ -19,7 +19,7 @@ simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
 simple_plugin(Throwing                 "service")
 
-# Library link requirements for tests here
+# Common library link requirements for tests here.
 link_libraries(
   art_Framework_CoreArt
   art_Framework_Services_Registry
@@ -43,138 +43,44 @@ link_libraries(
   -ldl
  )
 
-########################################################################
-# New tests (post-ART fork).
-####################################
+# cet_test macro
+include(CetTest)
 
-# ----------------------------------------------------------------------
-# Identify, by category, all tests:
-
-set( BOOST_TEST_LIST
-)
-
-set( TEST_LIST
- ReflexTools_t
-)
-
-set( ALSO_BUILD
-)
-
-set( BOOST_TEST_ALSO_BUILD
-)
-
-set( MANUALLY_BUILT_TESTS
-)
-
-set ( ALSO_RUN
-)
-
-set( MANUALLY_RUN_TESTS
-)
-
-set( TEST_SCRIPTS
-  EventSelectorFromFile_t.sh
-  test_simple_01_t.sh
-  test_view_01_t.sh
-  test_ptrvector_01_t.sh
-  test_simplederived_01_t.sh
-  outputCommand_t.sh
-  ptr_list_t.sh
-  test_failingProducer_t.sh
-  issue_0923_t.sh
-  issue_0926_t.sh
-  issue_0940_t.sh
-)
-
-set( INPUT_FILES
-  test_simple_01.fcl
-  test_simple_01r.fcl
-  test_view_01a.fcl
-  test_view_01b.fcl
-  test_ptrvector_01a.fcl
-  test_ptrvector_01b.fcl
-  test_simplederived_01a.fcl
-  test_simplederived_01b.fcl
-  EventSelectorFromFile_w.fcl
+# Tests
+cet_test(ReflexTools_t)
+cet_test(PREBUILT EventSelectorFromFile_t.sh
+  DATAFILES EventSelectorFromFile_w.fcl
   EventSelectorFromFile_r1.fcl
   EventSelectorFromFile_r2.fcl
-  outputCommand_w.fcl
-  outputCommand_r.fcl
-  ptr_list_01.fcl
-  test_failingProducer_w.fcl
-  test_failingProducer_r.fcl
-  issue_0923a.fcl
-  issue_0923b.fcl
-  issue_0923_ref.txt
-  issue_0926a.fcl
-  issue_0926b.fcl
-  issue_0926c.fcl
-  issue_0940.fcl
+  )
+cet_test(test_simple_01_t.sh PREBUILT
+  DATAFILES test_simple_01.fcl test_simple_01r.fcl
+  )
+cet_test(test_view_01_t.sh PREBUILT
+  DATAFILES test_view_01a.fcl test_view_01b.fcl test_simple_01r.fcl
+  )
+cet_test(test_ptrvector_01_t.sh PREBUILT
+  DATAFILES test_ptrvector_01a.fcl test_ptrvector_01b.fcl
+  )
+cet_test(test_simplederived_01_t.sh PREBUILT
+  DATAFILES test_simplederived_01a.fcl test_simplederived_01b.fcl
+  )
+cet_test(outputCommand_t.sh PREBUILT
+  DATAFILES outputCommand_w.fcl outputCommand_r.fcl
+  )
+cet_test(ptr_list_t.sh PREBUILT
+  DATAFILES ptr_list_01.fcl
+  )
+cet_test(test_failingProducer_t.sh PREBUILT
+  DATAFILES test_failingProducer_w.fcl test_failingProducer_r.fcl
+  )
+cet_test(issue_0923_t.sh PREBUILT
+  DATAFILES issue_0923a.fcl issue_0923b.fcl issue_0923_ref.txt
+  )
+cet_test(issue_0926_t.sh PREBUILT
+  DATAFILES issue_0926a.fcl issue_0926b.fcl issue_0926c.fcl
+  )
+cet_test(issue_0940_t.sh PREBUILT
+  DATAFILES issue_0940.fcl
 )
-
-# ----------------------------------------------------------------------
-# Build most tests:
-
-foreach( test ${TEST_LIST} ${ALSO_BUILD} )
-  add_executable( ${test} ${test}.cc )
-endforeach()
-
-# ----------------------------------------------------------------------
-# Build BOOST tests
-
-foreach( test ${BOOST_TEST_LIST} ${BOOST_TEST_ALSO_BUILD} )
-  add_executable( ${test} ${test}.cc )
-  # Save having to put these in all tests.
-  set_target_properties ( ${test} PROPERTIES
-    COMPILE_DEFINITIONS BOOST_TEST_MAIN
-    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-    )
-  target_link_libraries( ${test} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-endforeach()
-
-# ----------------------------------------------------------------------
-# Build tests with special requirements:
-
-# add_executable(  )
-# target_link_libraries( )
-
-# ----------------------------------------------------------------------
-# Install non-built tests:
-
-foreach( script ${ALSO_RUN} ${MANUALLY_RUN_TESTS} )
-  add_custom_target( ${script} ALL
-                     COMMAND ${CMAKE_COMMAND} -E
-                       copy ${CMAKE_CURRENT_SOURCE_DIR}/${script}
-                            ${EXECUTABLE_OUTPUT_PATH}/
-                      DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${script}
-                   )
-endforeach()
-
-# ----------------------------------------------------------------------
-# Run the automated tests:
-
-foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${MANUALLY_BUILT_TESTS} ${ALSO_RUN} )
-  add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
-endforeach()
-
-# ----------------------------------------------------------------------
-# Run the MANUALLY_RUN_TESTS:
-
-# ----------------------------------------------------------------------
-# Deal with TEST_SCRIPTS
-
-foreach (script ${TEST_SCRIPTS} )
-  CONFIGURE_FILE ( ${script} ${EXECUTABLE_OUTPUT_PATH}/${script} COPYONLY )
-  add_test( ${script} ${EXECUTABLE_OUTPUT_PATH}/${script} )
-endforeach()
-
-# ----------------------------------------------------------------------
-# Copy Configuration and other input files to the correct location
-
-foreach (input ${INPUT_FILES} )
-  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR}/${input} COPYONLY )
-endforeach()
-
-# ======================================================================
-
 ########################################################################
