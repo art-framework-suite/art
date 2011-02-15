@@ -3,7 +3,7 @@
 #
 #  cd .../path/to/build/directory
 #  source .../path/to/art/ups/setup_for_development
-#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] $ART_SOURCE
+#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] [-Dqualifier:STRING=nova] $ART_SOURCE
 #  make
 #  make test
 #  make install
@@ -17,8 +17,9 @@ cmake_minimum_required (VERSION 2.6)
 project(art)
 set( product art )
 set( version v0_4_4 )
-SET (qualifier a1)
-
+if ( NOT qualifier )
+  SET (qualifier a1)
+endif ( NOT qualifier )
 
 # cetbuildtools contains our cmake modules
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
