@@ -8,8 +8,9 @@ Flavor     = ANY
 Qualifiers = ""
   Action = setup
        prodDir()
+       setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
-       execute( "get-directory-name subdir", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir '' ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
        setupRequired(root      @ROOT_VERSION@ )
@@ -18,8 +19,9 @@ Flavor     = ANY
 Qualifiers = "a1"
   Action = setup
        prodDir()
+       setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
-       execute( "get-directory-name subdir a1", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a1 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
        setupRequired(root      @ROOT_VERSION@ -q gcc45)
@@ -28,15 +30,15 @@ Flavor     = ANY
 Qualifiers = "@qualifier@"
   Action = setup
        prodDir()
+       setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
-       execute( "get-directory-name subdir @qualifier@", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir @qualifier@ ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
        setupRequired(root      @ROOT_VERSION@ @ROOT_QUAL@)
 
 Common:
   Action = setup__
-    setupEnv()
     envSet(${UPS_PROD_NAME_UC}_VERSION, @version@)
     prodDir( _FQ_DIR, ${${UPS_PROD_NAME_UC}_FQ} )
 
