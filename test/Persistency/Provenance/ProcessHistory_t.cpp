@@ -1,7 +1,7 @@
 #include <cassert>
 #include <string>
 #include "art/Persistency/Provenance/ProcessHistory.h"
-#include "art/Persistency/Provenance/ParameterSetID.h"
+#include "fhiclcpp/ParameterSetID.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 
@@ -11,8 +11,8 @@ int main()
   assert(pnl1 == pnl1);
   art::ProcessHistory pnl2;
   assert(pnl1 == pnl2);
-  art::ProcessConfiguration iHLT(std::string("HLT"), art::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
-  art::ProcessConfiguration iRECO(std::string("RECO"), art::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
+  art::ProcessConfiguration iHLT(std::string("HLT"), fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
+  art::ProcessConfiguration iRECO(std::string("RECO"), fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
   pnl2.push_back(iHLT);
   assert(pnl1 != pnl2);
   art::ProcessHistory pnl3;
