@@ -1,9 +1,10 @@
-How EventSelector::AcceptEvent() decides whether to accept an event for output:
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+==============================================================================
+How *EventSelector::acceptEvent* decides whether to accept an event for output
+==============================================================================
 
-Some Terminology:
+Some Terminology
 ----------------
+
 Trigger names (in code, often triggernames or fullTriggerList) -
 
   A collection of strings
@@ -12,8 +13,6 @@ Trigger path specifications (in code, often pathspecs) -
 
 
 Pasted Path(s)
-
-
 
 
 
@@ -48,7 +47,7 @@ the partial wildcard feature was incorporated).
 
 The per-event "cost" of each negative criterion with multiple relevant
 triggers is about the same as !* was in the past, which in turn is
-about the same as the decision_bits_ based set of positive criteria.
+about the same as the ``decision_bits_`` based set of positive criteria.
 
 ------
 
@@ -56,11 +55,8 @@ The behavior for EXCEPTION is expected to change (any day now, as of February
 8, 2008) because the above behavior makes it impossible or difficult to create
 an "exceptions only" stream.  This fiel will be modified when that happens.
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-
-  A Proposal For EventSelector Regarding EXCEPTION and READY trigger states
-  ---------------------------------------------------------------------------
+A Proposal For EventSelector Regarding EXCEPTION and READY trigger states
+-------------------------------------------------------------------------
 
 The pre-1.8 version of EventSelector makes it awkward or impossible to
 control selection based on some or all of the trigger bits being in the
@@ -110,7 +106,6 @@ The syntax I choose for each proposal is perhaps not the most concise, but has
 the virture of reducing or eliminating the potential for conflicts with
 currently valid criteria.
 
------------
 Proposal 1:
 -----------
 
@@ -142,7 +137,6 @@ The Exception state behaves the same as Ready, except, or course, for
 criteria that mention "exception:".  This devaites from the current
 behavior (but that is the main intention of this proposal!).
 
------------
 Proposal 2:
 -----------
 
