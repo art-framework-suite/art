@@ -62,7 +62,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/EDProductfwd.h"
+#include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Wrapper.h"

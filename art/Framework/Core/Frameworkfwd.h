@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/EDProductfwd.h"
+#include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "fhiclcpp/ParameterSet.h"
 

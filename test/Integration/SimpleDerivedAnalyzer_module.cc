@@ -8,6 +8,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Provenance/EventID.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
@@ -33,20 +34,27 @@ public:
   typedef  std::vector<arttest::SimpleDerived>  SimpleDerivedProduct;
 
   explicit SimpleDerivedAnalyzer( fhicl::ParameterSet const & p )
-  : inputLabel_( p.get<std::string>("input_label") )
-  , inputLabel2_( p.get<std::string>("input_label2") )
-  , nvalues_   ( p.get<int>("nvalues") )
+    : inputLabel_( p.get<std::string>("input_label") )
+    , inputLabel2_( p.get<std::string>("input_label2") )
+    , nvalues_   ( p.get<int>("nvalues") )
   { }
 
   virtual ~SimpleDerivedAnalyzer() { }
   virtual void analyze( art::Event const & e )
   {
     test_getView(e);
+    // TODO: uncomment this when getView is modified to return false
+    // upon not finding the right label.
+    //  test_getViewReturnFalse(e);
+    test_getViewThrowing(e);
     test_PtrVector(e);
   }
 
   void test_getView( art::Event const & e ) const;
+  void test_getViewReturnFalse( art::Event const& e) const;
+  void test_getViewThrowing( art::Event const& e) const;
   void test_PtrVector( art::Event const & e ) const;
+
 
 private:
   std::string inputLabel_;
@@ -55,127 +63,107 @@ private:
 
 };  // SimpleDerivedAnalyzer
 
+template <class T>
+void verify_elements(std::vector<T> const& ptrs,
+		     size_t sz,
+		     art::EventNumber_t event_num,
+		     size_t nvalues)
+{
+  for (size_t k = 0; k != sz; ++k)
+    {
+      assert(ptrs[k]->key == sz-k+event_num);
+      double expect = 1.5 * k + 100.0;
+      assert(ptrs[k]->value == expect);
+      assert(ptrs[k]->dummy() == 16.25);
+    }
+}
+
+template <class T>
 void
-  SimpleDerivedAnalyzer::test_getView( art::Event const & e ) const
+test_view(art::Event const& e, 
+	  std::string const& inputLabel,
+	  unsigned nvalues)
 {
   int event_num = e.id().event();
-  {  // test using base class
-    std::vector<Simple const *> ptrs;
-    unsigned sz = e.getView(inputLabel_, "derived", ptrs);
+  art::InputTag tag(inputLabel, "derived", "DEVEL");
 
-    if( sz != nvalues_ ) {
-      std::cerr
-        << "SizeMismatch expected a view of size " << nvalues_
-        << " but the obtained size is " << sz
-        << '\n';
-      throw cet::exception("SizeMismatch")
-        << "Expected a view of size " << nvalues_
-        << " but the obtained size is " << sz
-        << '\n';
-    }
+  std::vector<T const *> ptrs;
+  unsigned sz = e.getView(inputLabel, "derived", ptrs);
+  assert (sz == nvalues);
+  verify_elements(ptrs, sz, event_num, nvalues);
 
-    for( unsigned k = 0; k != sz; ++k ) {
-      if( ptrs[k]->key != sz-k+event_num ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected key " << sz-k+event_num
-          << " but obtained " << ptrs[k]->key
-          << '\n';
-        throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected key " << sz-k+event_num
-          << " but obtained " << ptrs[k]->key
-          << '\n';
-      }
-      double expect = 1.5 * k + 100.0;
-      if( ptrs[k]->value != expect ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected value " << expect
-          << " but obtained " << ptrs[k]->value
-          << '\n';
-        throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected value " << expect
-          << " but obtained " << ptrs[k]->value
-          << '\n';
-      }
-      if( ptrs[k]->dummy() != 16.25 ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected dummy value " << 16.25
-          << " but obtained " << ptrs[k]->dummy()
-          << '\n';
-        throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected dummy value " << 16.25
-          << " but obtained " << ptrs[k]->dummy()
-          << '\n';
-      }
-    }
-  }
+  ptrs.clear();
+  sz = e.getView(tag, ptrs);
+  assert(sz == nvalues);
+  verify_elements(ptrs, sz, event_num, nvalues);
 
-  {  // test using derived class
-    std::vector<SimpleDerived const *> ptrs;
-    unsigned sz = e.getView(inputLabel_, "derived", ptrs);
+  art::View<T> v;
+  assert(e.getView(inputLabel, "derived", v));
+  assert(v.vals().size() == nvalues);
+  verify_elements(v.vals(), v.vals().size(), event_num, nvalues);
 
-    if( sz != nvalues_ ) {
-      std::cerr
-        << "SizeMismatch expected a view of size " << nvalues_
-        << " but the obtained size is " << sz
-        << '\n';
-      throw cet::exception("SizeMismatch")
-        << "Expected a view of size " << nvalues_
-        << " but the obtained size is " << sz
-        << '\n';
-    }
+  art::View<T> v2;
 
-    int value_ = e.id().event();
-    for( unsigned k = 0; k != sz; ++k ) {
-      if( ptrs[k]->key != sz-k+event_num ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected key " << sz-k+event_num
-          << " but obtained " << ptrs[k]->key
-          << '\n';
-        throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected key " << sz-k+event_num
-          << " but obtained " << ptrs[k]->key
-          << '\n';
-      }
-      double expect = 1.5 * k + 100.0;
-      if( ptrs[k]->value != expect ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected value " << expect
-          << " but obtained " << ptrs[k]->value
-          << '\n';
-        throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected value " << expect
-          << " but obtained " << ptrs[k]->value
-          << '\n';
-      }
-      if( ptrs[k]->dummy() != 16.25 ) {
-        std::cerr
-          << "ValueMismatch at position " << k
-          << " expected dummy value " << 16.25
-          << " but obtained " << ptrs[k]->dummy()
-          << '\n';
-        throw cet::exception("ValueMismatch")
-          << "At position " << k
-          << " expected dummy value " << 16.25
-          << " but obtained " << ptrs[k]->dummy()
-          << '\n';
-      }
-    }
-  }
+  assert(e.getView(tag, v2));
+  assert(v2.vals().size() == nvalues);
+  verify_elements(v2.vals(), v2.vals().size(), event_num, nvalues);    
+}
 
-}  // test_getView()
+// dummy is a type we can be sure is not used in any collections in
+// the Event; no dictionary exists for it.
+struct dummy {};
 
 void
-  SimpleDerivedAnalyzer::test_PtrVector( art::Event const & e ) const
+SimpleDerivedAnalyzer::test_getView( art::Event const & e ) const
+{
+  // Make sure we can get views into products that are present.
+  test_view<Simple>(e, inputLabel_, nvalues_);
+  test_view<SimpleDerived>(e, inputLabel_, nvalues_);
+} // test_getView()
+
+void
+SimpleDerivedAnalyzer::test_getViewReturnFalse( art::Event const& e) const
+{
+  std::vector<int const*> ints;
+  try
+    {
+      assert(e.getView("nothing with this illegal label", ints)==false);
+    }
+  catch (std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+      assert("Unexpected exception thrown" == 0);
+    }
+  catch (...)
+    {
+      assert("Unexpected exception thrown" == 0);
+    }
+ }
+
+void
+SimpleDerivedAnalyzer::test_getViewThrowing( art::Event const& e) const
+{
+  //  Make sure attempts to get views into products that are not there
+  //  fail correctly.
+  std::vector<dummy const*> dummies;
+  try
+    {
+      e.getView(inputLabel_, dummies);
+      assert("Failed to throw required exception" == 0);
+    }
+  catch (art::Exception& e)
+    {
+      assert(e.categoryCode() == art::errors::DictionaryNotFound);
+    }
+  catch (...)
+    {
+      assert("Wrong exception thrown" == 0);
+    }
+}
+
+
+void
+SimpleDerivedAnalyzer::test_PtrVector( art::Event const & e ) const
 {
   int event_num = e.id().event();
   {  // test using derived class
@@ -196,7 +184,7 @@ void
     }
 
     for( product_t::const_iterator b = h->begin()
-                                 , e = h->end(); b!= e; ++b ) {
+	   , e = h->end(); b!= e; ++b ) {
       int k = b - h->begin();
       if( (*b)->key != sz-k+event_num ) {
         std::cerr
