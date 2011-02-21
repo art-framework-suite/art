@@ -12,6 +12,7 @@
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/View.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
@@ -187,6 +188,19 @@ namespace art {
       getView( InputTag const &               tag
              , std::vector<ELEMENT const *> & result
              ) const;
+
+    template <class ELEMENT>
+    bool
+    getView(std::string const& moduleLabel, View<ELEMENT>& result) const;
+    
+    template <class ELEMENT>
+    bool
+    getView(std::string const& moduleLabel, std::string const& instanceName,
+	    View<ELEMENT>& result) const;
+
+    template <class ELEMENT>
+    bool
+    getView(InputTag const& tag, View<ELEMENT>& result) const;
 
     template< typename ELEMENT >
     void
@@ -481,6 +495,61 @@ namespace art {
     fillView_(bhv[0], result);
     return result.size() - orig_size;
   }  // getView<>()
+
+  template <class ELEMENT>
+  bool
+  Event::getView(std::string const& moduleLabel,
+		 View<ELEMENT>&     result) const
+  {
+    return getView(moduleLabel, std::string(), result);
+  }
+
+  template <class ELEMENT>
+  bool
+  Event::getView(std::string const& moduleLabel,
+		 std::string const& productInstanceName,
+		 View<ELEMENT>&     result) const
+  {
+    TypeID typeID( typeid(ELEMENT) );
+    BasicHandleVec bhv;
+    int nFound = getMatchingSequenceByLabel_( typeID
+                                            , moduleLabel
+                                            , productInstanceName
+                                            , bhv
+                                            , true
+                                            );
+    ensure_unique_product( nFound, typeID
+                         , moduleLabel, productInstanceName, std::string()
+                         );
+
+
+    fillView_(bhv[0], result.vals());
+    result.set_innards(bhv[0].id(), bhv[0].wrapper());
+    return true;    
+  }
+
+  template <class ELEMENT>
+  bool
+  Event::getView(InputTag const& tag, View<ELEMENT>& result) const
+  {
+    if (tag.process().empty()) 
+      return getView(tag.label(), tag.instance(), result);
+
+    TypeID typeID( typeid(ELEMENT) );
+    BasicHandleVec bhv;
+    int nFound = getMatchingSequenceByLabel_(typeID,
+					     tag.label(),
+					     tag.instance(),
+					     tag.process(),
+					     bhv,
+					     true);
+    ensure_unique_product( nFound, typeID,
+			   tag.label(), tag.instance(), tag.process());    
+    
+    fillView_(bhv[0], result.vals());
+    result.set_innards(bhv[0].id(), bhv[0].wrapper());
+    return true;
+  }
 
 // ----------------------------------------------------------------------
 

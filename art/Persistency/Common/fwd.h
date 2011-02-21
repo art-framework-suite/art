@@ -1,9 +1,9 @@
-#ifndef art_Persistency_Common_EDProductfwd_h
-#define art_Persistency_Common_EDProductfwd_h
+#ifndef art_Persistency_Common_fwd_h
+#define art_Persistency_Common_fwd_h
 
 // ======================================================================
 //
-// EDProductfwd: Forward declarations of types in the EDM
+// Forward declarations of types in Persistency/Common
 //
 // ======================================================================
 
@@ -32,9 +32,10 @@ namespace art {
           , typename T
           , typename F > class RefVector;
   template< typename T > class RefVectorBase;
-  template< typename C
-          , typename T
-          , typename F > class RefVectorIterator;
+ //  template< typename C
+//           , typename T
+//           , typename F > class RefVectorIterator;
+  class RefVectorIterator;
   template< typename T > class Wrapper;
 
   namespace reftobase
@@ -61,7 +62,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Persistency_Common_EDProductfwd_h */
+#endif /* art_Persistency_Common_fwd_h */
 
 // Local Variables:
 // mode: c++

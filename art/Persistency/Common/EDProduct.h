@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/EDProductfwd.h"
+#include "art/Persistency/Common/fwd.h"
 #include <vector>
 
 namespace art {
