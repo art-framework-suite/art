@@ -49,20 +49,20 @@ namespace trk{
     //   https://cdcvs.fnal.gov/redmine/documents/184
   }
 
-  void CirceFit::produce(art::Event& evt) 
+  bool CirceFit::filter(art::Event& evt) 
   {
     // Pull the calibrated hits out of the event
     typedef std::vector<rb::CellHit> input_t;
-
     art::Handle<input_t> hitcol;
     evt.getByLabel(fInputCalHits, hitcol);
 
-    //make art::PtrVector of the hits
+    // make art::PtrVector of the hits
     art::PtrVector<rb::CellHit> hits;
-    for(unsigned int i = 0; i < hitcol->size(); ++i){
-      art::Ptr<rb::CellHit> hit(hitcol,i);
-      hits.push_back(hit);
-    }
+    for(unsigned int i = 0; i < hitcol->size(); ++i)
+      {
+	art::Ptr<rb::CellHit> hit(hitcol,i);
+	hits.push_back(hit);
+      }
     
     art::ServiceHandle<geo::Geometry> geom;
     trk::Measurement m;
@@ -70,33 +70,31 @@ namespace trk{
     // Select hits to try to reconstruct and assign them weights
     unsigned int nxview = 0;
     unsigned int nyview = 0;
+    double xyz[3];
 
-    for (unsigned int i=0; i<hits.size(); ++i) 
+    for(input_t::const_iterator hit=hitcol.begin(),end=hitcol.end();
+	hit!=end;++it)
       {
 	// Assign weight to hit.
-	double w = fWeightMethod==1 ? hits[i]->PE() : 1.0;
-	
+	double w = fWeightMethod==1 ? hit->PE() : 1.0;
+
+	const geo::CellGeo* cell = geom->Plane(hit->Plane())->Cell(hit->Cell());
 	// Get the location of the center of the cell
-
-	const geo::CellGeo* cell = geom->Plane(hits[i]->Plane())->Cell(hits[i]->Cell());
-
-	double xyz[3];
 	cell->GetCenter(xyz, 0.0);
-
 	// measurement needs to grow a member function to simplify these actions...
-	m.addHitInformation(hits[i], xyz);
+	m.addHitInformation(*hit, xyz,w);
 
-	//m.fHits.push_back(hits[i]);
-	//m.fX.push_back(xyz[0]);
-	//m.fY.push_back(xyz[1]);
-	//m.fZ.push_back(xyz[2]);
-	//m.fW.push_back(w);
-	
 	// view is an enum
-	if (hits[i]->View()==geo::kX) ++nxview;
-	if (hits[i]->View()==geo::kY) ++nyview;
+	if (hit->View()==geo::kX) ++nxview;
+	if (hit->View()==geo::kY) ++nyview;
       }
 
+    //m.fHits.push_back(hits[i]);
+    //m.fX.push_back(xyz[0]);
+    //m.fY.push_back(xyz[1]);
+    //m.fZ.push_back(xyz[2]);
+    //m.fW.push_back(w);
+	
     // Only bother if we have some minimum number of hits in each view
     // JBK - is this an error, or just stopping further processing?
     // this looks like a filter condition and looks like an example of a producing filter.
@@ -105,8 +103,8 @@ namespace trk{
 
     if (nxview<fMinXhits || nyview<fMinYhits)
       {
-	throw cet::exception("NotEnoughHits")
-	  << "too few hits, x: " << nxview << " y: " << nyview;
+	  LogInfo("NotEnoughHits") << "too few hits, x: " << nxview << " y: " << nyview;
+	  return false;
       }
 
     // Build the fitter and pass it the data to fit
@@ -121,7 +119,7 @@ namespace trk{
     std::auto_ptr<ProngList> prongcol( new ProngList );
     fitter.MakeProngs(*prongcol);
     evt.put(prongcol);
-    return;
+    return true;
   }
 
 }
