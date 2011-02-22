@@ -32,7 +32,8 @@ namespace art {
   boost::shared_ptr<RunPrincipal>
   RawInputSource::readRun_() {
     newRun_ = false;
-    RunAuxiliary runAux(runNumber_, timestamp(), Timestamp::invalidTimestamp());
+    RunAuxiliary runAux(RunID(runNumber_),
+                        timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<RunPrincipal>(
         new RunPrincipal(runAux,
                          productRegistry(),
@@ -42,8 +43,8 @@ namespace art {
   boost::shared_ptr<SubRunPrincipal>
   RawInputSource::readSubRun_() {
     newSubRun_ = false;
-    SubRunAuxiliary subRunAux(runNumber_,
-        subRunNumber_, timestamp(), Timestamp::invalidTimestamp());
+    SubRunAuxiliary subRunAux(SubRunID(runNumber_, subRunNumber_),
+                              timestamp(), Timestamp::invalidTimestamp());
     return boost::shared_ptr<SubRunPrincipal>(
         new SubRunPrincipal(subRunAux,
                                      productRegistry(),
@@ -59,8 +60,8 @@ namespace art {
   std::auto_ptr<Event>
   RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp) {
     EventSourceSentry sentry(*this);
-    EventAuxiliary eventAux(EventID(run, event),
-      processGUID(), tstamp, subRun, true, EventAuxiliary::Data);
+    EventAuxiliary eventAux(EventID(run, subRun, event),
+      processGUID(), tstamp, true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
         new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
