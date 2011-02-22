@@ -121,12 +121,6 @@ namespace art {
     /// Wake up the input source
     void wakeUp() {wakeUp_();}
 
-    /// Set the run number
-    void setRunNumber(RunNumber_t r) {setRun(r);}
-
-    /// Set the subRun ID
-    void setSubRunNumber_t(SubRunNumber_t sr) {setSubRun(sr);}
-
     /// issue an event report
     void issueReports(EventID const& eventID, SubRunNumber_t const& subRun);
 
@@ -278,8 +272,6 @@ namespace art {
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
-    virtual void setRun(RunNumber_t r);
-    virtual void setSubRun(SubRunNumber_t sr);
     virtual void rewind_();
     virtual void wakeUp_();
     void preRead();

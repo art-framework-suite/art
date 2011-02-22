@@ -346,22 +346,6 @@ namespace art {
   }
 
   void
-  InputSource::setRun(RunNumber_t) {
-    throw art::Exception(art::errors::LogicError)
-      << "InputSource::setRun()\n"
-      << "Run number cannot be modified for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
-  }
-
-  void
-  InputSource::setSubRun(SubRunNumber_t) {
-    throw art::Exception(art::errors::LogicError)
-      << "InputSource::setSubRun()\n"
-      << "SubRun ID  cannot be modified for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
-  }
-
-  void
   InputSource::skip(int) {
     throw art::Exception(art::errors::LogicError)
       << "InputSource::skip()\n"
