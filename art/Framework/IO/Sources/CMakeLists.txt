@@ -2,7 +2,6 @@
 project(art_Framework_IO_Sources)
 
 set( art_Framework_IO_Sources_sources EDInputSource.cc
-  ExternalInputSource.cc
   RawInputSource.cc
   )
 
@@ -13,6 +12,5 @@ target_link_libraries (art_Framework_IO_Sources art_Framework_IO_Catalog )
 
 install ( TARGETS art_Framework_IO_Sources DESTINATION ${flavorqual_dir}/lib )
 install(FILES EDInputSource.h
-              ExternalInputSource.h
               RawInputSource.h
          DESTINATION  ${product}/${version}/include/art/Framework/IO/Sources )
