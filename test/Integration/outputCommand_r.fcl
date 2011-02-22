@@ -14,7 +14,7 @@ services:
               'FileInPathError','FileOpenError','FileReadError','FatalRootError',
               'MismatchedInputFiles','ProductDoesNotSupportViews',
               'ProductDoesNotSupportPtr','NotFound']
-    # Ignore: []
+    # IgnoreCompletely: []
     wantSummary: true
     # wantTracer: false
     # fileMode: ""

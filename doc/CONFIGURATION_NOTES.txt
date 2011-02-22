@@ -56,7 +56,7 @@ configuration file. Our example does not make any such use.
                 FileInPathError, FileOpenError, FileReadError, FatalRootError,
                 MismatchedInputFiles, ProductDoesNotSupportViews,
                 ProductDoesNotSupportPtr, NotFound]
-      Ignore: []
+      IgnoreCompletely: []
       wantSummary: true
       fileMode: FULLMERGE
 
