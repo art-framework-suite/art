@@ -40,10 +40,6 @@ namespace art {
     InputFileCatalog& catalog(int n = 0) {return n ? secondaryCatalog_ : catalog_;}
 
   private:
-    virtual void setRun(RunNumber_t);
-    virtual void setSubRun(SubRunNumber_t sr);
-
-
     InputFileCatalog catalog_;
     InputFileCatalog secondaryCatalog_;
   };
