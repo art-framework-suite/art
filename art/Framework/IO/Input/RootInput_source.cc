@@ -202,7 +202,8 @@ std::auto_ptr<EventPrincipal>
 {
   if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
-    std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id(), primaryPrincipal->subRun(), true);
+    std::auto_ptr<EventPrincipal> secondaryPrincipal =
+       secondaryFileSequence_->readIt(primaryPrincipal->id(), true);
     if (secondaryPrincipal.get() != 0) {
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
@@ -221,7 +222,8 @@ std::auto_ptr<EventPrincipal>
 {
   if (secondaryFileSequence_) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
-    std::auto_ptr<EventPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(id, primaryPrincipal->subRun(), true);
+    std::auto_ptr<EventPrincipal> secondaryPrincipal =
+       secondaryFileSequence_->readIt(id, true);
     if (secondaryPrincipal.get() != 0) {
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
