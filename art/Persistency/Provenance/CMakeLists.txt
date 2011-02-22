@@ -36,7 +36,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       RunAuxiliary.cc
                                       RunID.cc
                                       RunSubRunEntryInfo.cc
-                                      Timestamp.cc
                                       TransientStreamer.cc )
 
 

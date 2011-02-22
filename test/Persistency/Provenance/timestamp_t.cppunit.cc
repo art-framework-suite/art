@@ -43,6 +43,13 @@ void testTimestamp::constructTest()
 
    CPPUNIT_ASSERT(Timestamp::invalidTimestamp() < Timestamp::beginOfTime());
    CPPUNIT_ASSERT(Timestamp::beginOfTime() < Timestamp::endOfTime());
+   CPPUNIT_ASSERT(Timestamp::endOfTime().value() + 1 == 0);
+
+   Timestamp db(0xdeadbeefbeefdead);
+
+   CPPUNIT_ASSERT(db.timeLow() == 0xbeefdead);
+   CPPUNIT_ASSERT(db.timeHigh() == 0xdeadbeef);
+   CPPUNIT_ASSERT(db.value() == 0xdeadbeefbeefdead);
 }
 
 void testTimestamp::comparisonTest()
