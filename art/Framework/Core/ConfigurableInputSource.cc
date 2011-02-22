@@ -39,11 +39,8 @@ ConfigurableInputSource::ConfigurableInputSource
 , eventCreationDelay_      ( pset.get<uint>("eventCreationDelay", 0u) )
 , numberEventsInThisRun_   ( 0 )
 , numberEventsInThisSubRun_( 0 )
-, zerothEvent_             ( pset.get<uint>("firstEvent", 1u) - 1 )
-, eventID_                 ( pset.get<uint>("firstRun", 1u), zerothEvent_ )
-, origEventID_             ( eventID_ )
-, subRun_                  ( pset.get<uint>("firstSubRun", 1u) )
-, origSubRunNumber_t_      ( subRun_ )
+, eventID_                 ( )
+, origEventID_             ( ) // In body.
 , newRun_                  ( true )
 , newSubRun_               ( true )
 , subRunSet_               ( false )
@@ -55,6 +52,21 @@ ConfigurableInputSource::ConfigurableInputSource
   setTimestamp(Timestamp(presentTime_));
   // We need to map this string to the EventAuxiliary::ExperimentType enumeration
   // std::string eType = pset.get<std::string>("experimentType", std::string("Any"))),
+
+  RunNumber_t firstRun;
+  bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
+  SubRunNumber_t firstSubRun;
+  bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstRun);
+  EventNumber_t firstEvent;
+  bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
+  RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstValidRunID();
+  SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
+     SubRunID::firstSubRunForRunID(firstRunID);
+  origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
+                                        firstSubRunID.subRun(),
+                                        firstEvent):
+     EventID::firstEventForSubRunID(firstSubRunID);
+  eventID_ = origEventID_;
 }
 
 ConfigurableInputSource::~ConfigurableInputSource()
@@ -64,7 +76,7 @@ boost::shared_ptr<RunPrincipal>
   ConfigurableInputSource::readRun_()
 {
   Timestamp ts = Timestamp(presentTime_);
-  RunAuxiliary runAux(eventID_.run(), ts, Timestamp::invalidTimestamp());
+  RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
   boost::shared_ptr<RunPrincipal> runPrincipal(
       new RunPrincipal(runAux, productRegistry(), processConfiguration()));
   RunPrincipal & rp =
@@ -81,7 +93,7 @@ boost::shared_ptr<SubRunPrincipal>
 {
   if (processingMode() == Runs) return boost::shared_ptr<SubRunPrincipal>();
   Timestamp ts = Timestamp(presentTime_);
-  SubRunAuxiliary subRunAux(runPrincipal()->run(), subRun_, ts, Timestamp::invalidTimestamp());
+  SubRunAuxiliary subRunAux(eventID_.subRunID(), ts, Timestamp::invalidTimestamp());
   boost::shared_ptr<SubRunPrincipal> subRunPrincipal(
       new SubRunPrincipal(
           subRunAux, productRegistry(), processConfiguration()));
@@ -100,12 +112,14 @@ std::auto_ptr<EventPrincipal>
 }
 
 void
-  ConfigurableInputSource::reallyReadEvent(SubRunNumber_t subRun)
-{
+ConfigurableInputSource::reallyReadEvent() {
   if (processingMode() != RunsSubRunsAndEvents) return;
   EventSourceSentry sentry(*this);
   EventAuxiliary eventAux(eventID_,
-    processGUID(), Timestamp(presentTime_), subRun, isRealData_, eType_);
+                          processGUID(),
+                          Timestamp(presentTime_),
+                          isRealData_,
+                          eType_);
   std::auto_ptr<EventPrincipal> result(
       new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
   Event e(*result, moduleDescription());
@@ -128,24 +142,6 @@ void
   }
 }
 
-
-void
-  ConfigurableInputSource::setRun(RunNumber_t r)
-{
-  // No need to check for invalid (zero) run number,
-  // as this is a legitimate way of stopping the job.
-  // Do nothing if the run is not changed.
-  if (r != eventID_.run()) {
-    eventID_ = EventID(r, zerothEvent_);
-    subRun_ = origSubRunNumber_t_;
-    numberEventsInThisRun_ = 0;
-    numberEventsInThisSubRun_ = 0;
-    newRun_ = newSubRun_ = true;
-    resetSubRunPrincipal();
-    resetRunPrincipal();
-  }
-}
-
 void
   ConfigurableInputSource::beginRun(Run&)
 { }
@@ -163,26 +159,8 @@ void
 { }
 
 void
-  ConfigurableInputSource::setSubRun(SubRunNumber_t sr)
-{
-  // Protect against invalid subRun.
-  if (sr == SubRunNumber_t()) {
-      sr = origSubRunNumber_t_;
-  }
-  // Do nothing if the subRun is not changed.
-  if (sr != subRun_) {
-    subRun_ = sr;
-    numberEventsInThisSubRun_ = 0;
-    newSubRun_ = true;
-    resetSubRunPrincipal();
-  }
-  subRunSet_ = true;
-}
-
-void
   ConfigurableInputSource::rewind_()
 {
-  subRun_ = origSubRunNumber_t_;
   presentTime_ = origTime_;
   eventID_ = origEventID_;
   numberEventsInThisRun_ = 0;
@@ -196,7 +174,7 @@ InputSource::ItemType
   ConfigurableInputSource::getNextItemType()
 {
   if (newRun_) {
-    if (eventID_.run() == RunNumber_t()) {
+     if (!eventID_.runID().isValid() ) {
       ep_.reset();
       return IsStop;
     }
@@ -207,33 +185,27 @@ InputSource::ItemType
   }
   if(ep_.get() != 0) return IsEvent;
   EventID oldEventID = eventID_;
-  SubRunNumber_t oldSubRun = subRun_;
   if (!eventSet_) {
     subRunSet_ = false;
     setRunAndEventInfo();
     eventSet_ = true;
   }
-  if (eventID_.run() == RunNumber_t()) {
+  if (!eventID_.runID().isValid()) {
     ep_.reset();
     return IsStop;
   }
-  if (oldEventID.run() != eventID_.run()) {
+  if (oldEventID.runID() != eventID_.runID()) {
     //  New Run
     // reset these since this event is in the new run
     numberEventsInThisRun_ = 0;
     numberEventsInThisSubRun_ = 0;
-    // If the user did not explicitly set the subRun number,
-    // reset it back to the beginning.
-    if (!subRunSet_) {
-      subRun_ = origSubRunNumber_t_;
-    }
     newRun_ = newSubRun_ = true;
     resetSubRunPrincipal();
     resetRunPrincipal();
     return IsRun;
   }
     // Same Run
-  if (oldSubRun != subRun_) {
+  if (oldEventID.subRunID() != eventID_.subRunID()) {
     // New Subrun
     numberEventsInThisSubRun_ = 0;
     newSubRun_ = true;
@@ -244,7 +216,7 @@ InputSource::ItemType
   }
   ++numberEventsInThisRun_;
   ++numberEventsInThisSubRun_;
-  reallyReadEvent(subRun_);
+  reallyReadEvent();
   if (ep_.get() == 0) {
     return IsStop;
   }
@@ -253,22 +225,21 @@ InputSource::ItemType
 }
 
 void
-  ConfigurableInputSource::setRunAndEventInfo()
-{
-  //NOTE: numberEventsInRun < 0 means go forever in this run
-  if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
-    // same run
-    eventID_ = eventID_.next();
-    if (!(numberEventsInSubRun_ < 1 || numberEventsInThisSubRun_ < numberEventsInSubRun_)) {
-      // new subrun
-      ++subRun_;
-    }
-  } else {
-    // new run
-    eventID_ = eventID_.nextRunFirstEvent();
-  }
-  presentTime_ += timeBetweenEvents_;
-  if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
+ConfigurableInputSource::setRunAndEventInfo() {
+   // NOTE: numberEventsInRun < 0 means go forever in this run
+   if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
+      // same run
+      eventID_ = eventID_.next();
+      if (!(numberEventsInSubRun_ < 1 || numberEventsInThisSubRun_ < numberEventsInSubRun_)) {
+         // new subrun
+         eventID_ = eventID_.nextSubRun();
+      }
+   } else {
+      // new run
+      eventID_ = eventID_.nextRun();
+   }
+   presentTime_ += timeBetweenEvents_;
+   if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
 }
 
 // ======================================================================
