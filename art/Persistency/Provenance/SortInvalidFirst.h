@@ -16,7 +16,13 @@ template <typename T> class art::SortInvalidFirst :
       invalidValue_(invalidValue)
    {}
    bool operator()(T const &left, T const &right) const {
-      return ((left == invalidValue_) || (left < right));
+      if (left == invalidValue_ && right != invalidValue_) {
+         return true;
+      } else if (right == invalidValue_ && left != invalidValue_) {
+         return false;
+      } else {
+         return left < right;
+      }
    }
 private:
    T invalidValue_;
