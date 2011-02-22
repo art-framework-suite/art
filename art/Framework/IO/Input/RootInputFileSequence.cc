@@ -48,10 +48,8 @@ namespace art {
     flatDistribution_(0),
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
-    startAtRun_(pset.get<unsigned int>("firstRun", 1U)),
-    startAtSubRun_(pset.get<unsigned int>("firstSubRun", 1U)),
-    startAtEvent_(pset.get<unsigned int>("firstEvent", 1U)),
-    eventsToSkip_(pset.get<unsigned int>("skipEvents", 0U)),
+    origEventID_(),
+    eventsToSkip_(pset.get<EventNumber_t>("skipEvents", (EventNumber_t)0)),
     whichSubRunsToSkip_(),
     eventsToProcess_(),
     noEventSort_(pset.get<bool>("noEventSort", false)),
@@ -66,8 +64,26 @@ namespace art {
     duplicateChecker_(),
     dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)) {
 
+//     startAtRun_(pset.get<unsigned int>("firstRun", 1U)),
+//     startAtSubRun_(pset.get<unsigned int>("firstSubRun", 1U)),
+//     startAtEvent_(pset.get<unsigned int>("firstEvent", 1U)),
+
+    RunNumber_t firstRun;
+    bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
+    SubRunNumber_t firstSubRun;
+    bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstRun);
+    EventNumber_t firstEvent;
+    bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
+    RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstValidRunID();
+    SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
+       SubRunID::firstSubRunForRunID(firstRunID);
+    origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
+                                          firstSubRunID.subRun(),
+                                          firstEvent):
+       EventID::firstEventForSubRunID(firstSubRunID);
+
     if (!primarySequence_) noEventSort_ = false;
-    if (noEventSort_ && ((startAtEvent_ > 1) || !eventsToProcess_.empty())) {
+    if (noEventSort_ && (haveFirstEvent || !eventsToProcess_.empty())) {
       throw art::Exception(errors::Configuration)
         << "Illegal configuration options passed to RootInput\n"
         << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
@@ -176,7 +192,7 @@ namespace art {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootInputFileSharedPtr(new RootInputFile(fileIter_->fileName(), catalog_.url(),
           processConfiguration(), fileIter_->logicalFileName(), filePtr,
-          startAtRun_, startAtSubRun_, startAtEvent_, eventsToSkip_, whichSubRunsToSkip_,
+          origEventID_, eventsToSkip_, whichSubRunsToSkip_,
           remainingEvents(), remainingSubRuns(), treeCacheSize_, treeMaxVirtualSize_,
           input_.processingMode(),
           forcedRunOffset_, eventsToProcess_, noEventSort_,
@@ -289,10 +305,10 @@ namespace art {
   }
 
   auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id, SubRunNumber_t subRun, bool exact) {
+  RootInputFileSequence::readIt(EventID const& id, bool exact) {
     randomAccess_ = true;
     // Attempt to find event in currently open input file.
-    bool found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
+    bool found = rootFile_->setEntryAtEvent(id, exact);
     if (!found) {
       // If only one input file, give up now, to save time.
       if (fileIndexes_.size() == 1) {
@@ -301,12 +317,12 @@ namespace art {
       // Look for event in files previously opened without reopening unnecessary files.
       typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsEvent(id.run(), subRun, id.event(), exact)) {
+        if (*it && (*it)->containsEvent(id, exact)) {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
           initFile(false);
           // Now get the event from the correct file.
-          found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
+          found = rootFile_->setEntryAtEvent(id, exact);
           assert (found);
           auto_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1);
@@ -318,7 +334,7 @@ namespace art {
         if (!*it) {
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
           initFile(false);
-          found = rootFile_->setEntryAtEvent(id.run(), subRun, id.event(), exact);
+          found = rootFile_->setEntryAtEvent(id, exact);
           if (found) {
             auto_ptr<EventPrincipal> ep = readCurrentEvent();
             skip(1);
@@ -347,7 +363,7 @@ namespace art {
       // Look for subRun in files previously opened without reopening unnecessary files.
       typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsSubRun(id.run(), id.subRun(), true)) {
+        if (*it && (*it)->containsSubRun(id, true)) {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
           initFile(false);
@@ -384,7 +400,7 @@ namespace art {
       // Look for run in files previously opened without reopening unnecessary files.
       typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsRun(id.run(), true)) {
+        if (*it && (*it)->containsRun(id, true)) {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
           initFile(false);

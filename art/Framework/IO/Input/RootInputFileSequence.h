@@ -54,7 +54,7 @@ namespace art {
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, SubRunNumber_t subRun = 0U, bool exact = false);
+    std::auto_ptr<EventPrincipal> readIt(EventID const& id, bool exact = false);
     boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
@@ -89,10 +89,8 @@ namespace art {
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 
     int eventsRemainingInFile_;
-    RunNumber_t startAtRun_;
-    SubRunNumber_t startAtSubRun_;
-    EventNumber_t startAtEvent_;
-    unsigned int eventsToSkip_;
+    EventID origEventID_;
+    EventNumber_t eventsToSkip_;
     std::vector<SubRunID> whichSubRunsToSkip_;
     std::vector<EventID> eventsToProcess_;
     bool noEventSort_;
