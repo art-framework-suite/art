@@ -18,7 +18,7 @@ namespace art {
 
 class art::EventID {
 public:
-   EventID() : subRun_(), event_(0) {}
+   EventID() : subRun_(), event_() {}
    EventID(RunNumber_t r, SubRunNumber_t sr, EventNumber_t e) :
       subRun_(r, sr), event_(inRangeOrInvalid(e)) {
       checkSane();
@@ -107,9 +107,9 @@ public:
    }
 
    bool operator<(EventID const& other) const {
-      static SortInvalidFirst<EventNumber_t> op_e(INVALID_EVENT_NUMBER);
+      static SortInvalidFirst<EventNumber_t> op(INVALID_EVENT_NUMBER);
       if (subRun_ == other.subRun_) {
-         return op_e(event_, other.event_);
+         return op(event_, other.event_);
       } else {
          return subRun_ < other.subRun_;
       }
@@ -130,7 +130,12 @@ public:
 
    friend inline std::ostream&
    operator<<(std::ostream& oStream, EventID const& iID) {
-      oStream << iID.subRun_ << " event: " << iID.event_;
+      oStream << iID.subRun_ << " event: ";
+      if (iID.isValid()) {
+         oStream << iID.event_;
+      } else {
+         oStream << "INVALID";
+      }
       return oStream;
    }
 

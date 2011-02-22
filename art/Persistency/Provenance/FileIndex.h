@@ -37,7 +37,7 @@ public:
 
    class Element {
    public:
-      static EntryNumber_t const invalidEntry = -1LL;
+      static EntryNumber_t const invalidEntry;
       Element() : eventID_(), entry_(invalidEntry) {
       }
       Element(EventID const &eID, EntryNumber_t entry = invalidEntry) :
@@ -138,6 +138,9 @@ namespace art {
   public:
     bool operator()(FileIndex::Element const& lh, FileIndex::Element const& rh);
   };
+
+  std::ostream&
+  operator<< (std::ostream& os, FileIndex::Element const& el);
 
   std::ostream&
   operator<< (std::ostream& os, FileIndex const& fileIndex);

@@ -9,11 +9,9 @@
 class testFileIndex: public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(testFileIndex);
    CPPUNIT_TEST(constructAndInsertTest);
-#if 0
    CPPUNIT_TEST(eventSortAndSearchTest);
    CPPUNIT_TEST(eventEntrySortAndSearchTest);
    CPPUNIT_TEST(eventsUniqueAndOrderedTest);
-#endif
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -21,11 +19,9 @@ public:
    void tearDown() { }
 
    void constructAndInsertTest();
-#if 0
    void eventSortAndSearchTest();
    void eventEntrySortAndSearchTest();
    void eventsUniqueAndOrderedTest();
-#endif
 
    bool areEntryVectorsTheSame(art::FileIndex &i1, art::FileIndex &i2);
 };
@@ -41,9 +37,9 @@ void testFileIndex::constructAndInsertTest() {
 
    fileIndex.addEntry(art::EventID(100, 101, 102), 1);
    fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(200, 201)), 2);
-   fileIndex.addEntry(art::EventID(300, 0, 0), 3);
+   fileIndex.addEntry(art::EventID(300, 0, 1), 3);
    fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(300)), 3);
-   fileIndex.addEntry(art::EventID(100, 101, 103), 2);
+   fileIndex.addEntry(art::EventID(100, 101, 103), 3);
 
    CPPUNIT_ASSERT(!fileIndex.empty());
    CPPUNIT_ASSERT(fileIndex.size() == 5);
@@ -72,7 +68,6 @@ void testFileIndex::constructAndInsertTest() {
    CPPUNIT_ASSERT(fileIndex.allEventsInEntryOrder() == true);
 }
 
-#if 0
 void testFileIndex::eventSortAndSearchTest()
 {
  // Note this contains some illegal duplicates
@@ -82,137 +77,134 @@ void testFileIndex::eventSortAndSearchTest()
  // the FileIndex.
 
  art::FileIndex fileIndex;
- fileIndex.addEntry(3, 3, 2, 5);
- fileIndex.addEntry(3, 3, 1, 4);
- fileIndex.addEntry(3, 3, 3, 3);
- fileIndex.addEntry(3, 3, 0, 6);
- fileIndex.addEntry(3, 0, 0, 7);
- fileIndex.addEntry(1, 0, 0, 8);
- fileIndex.addEntry(3, 1, 0, 9);
- fileIndex.addEntry(3, 0, 0, 1);
- fileIndex.addEntry(3, 3, 0, 1);
- fileIndex.addEntry(3, 3, 1, 1);
- fileIndex.addEntry(1, 2, 2, 2);
- fileIndex.addEntry(1, 2, 4, 1);
- fileIndex.addEntry(1, 2, 0, 2);
- fileIndex.addEntry(1, 2, 1, 2);
+ fileIndex.addEntry(art::EventID(3, 3, 2), 5);
+ fileIndex.addEntry(art::EventID(3, 3, 1), 4);
+ fileIndex.addEntry(art::EventID(3, 3, 3), 3);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 6);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(3)), 7);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(1)), 8);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 1)), 9);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(3)), 1);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 1);
+ fileIndex.addEntry(art::EventID(3, 3, 1), 1);
+ fileIndex.addEntry(art::EventID(1, 2, 2), 2);
+ fileIndex.addEntry(art::EventID(1, 2, 4), 1);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 2);
+ fileIndex.addEntry(art::EventID(1, 2, 1), 2);
 
  fileIndex.sortBy_Run_SubRun_Event();
 
  art::FileIndex shouldBe;
- shouldBe.addEntry(1, 0, 0, 8);
- shouldBe.addEntry(1, 2, 0, 2);
- shouldBe.addEntry(1, 2, 1, 2);
- shouldBe.addEntry(1, 2, 2, 2);
- shouldBe.addEntry(1, 2, 4, 1);
- shouldBe.addEntry(3, 0, 0, 7);
- shouldBe.addEntry(3, 0, 0, 1);
- shouldBe.addEntry(3, 1, 0, 9);
- shouldBe.addEntry(3, 3, 0, 6);
- shouldBe.addEntry(3, 3, 0, 1);
- shouldBe.addEntry(3, 3, 1, 4);
- shouldBe.addEntry(3, 3, 1, 1);
- shouldBe.addEntry(3, 3, 2, 5);
- shouldBe.addEntry(3, 3, 3, 3);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(1)), 8);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 2);
+ shouldBe.addEntry(art::EventID(1, 2, 1), 2);
+ shouldBe.addEntry(art::EventID(1, 2, 2), 2);
+ shouldBe.addEntry(art::EventID(1, 2, 4), 1);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(3)), 7);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(3)), 1);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 1)), 9);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 6);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 1);
+ shouldBe.addEntry(art::EventID(3, 3, 1), 4);
+ shouldBe.addEntry(art::EventID(3, 3, 1), 1);
+ shouldBe.addEntry(art::EventID(3, 3, 2), 5);
+ shouldBe.addEntry(art::EventID(3, 3, 3), 3);
 
  CPPUNIT_ASSERT(areEntryVectorsTheSame(fileIndex, shouldBe));
 
  CPPUNIT_ASSERT(fileIndex.allEventsInEntryOrder() == false);
  CPPUNIT_ASSERT(fileIndex.allEventsInEntryOrder() == false);
 
- art::FileIndex::const_iterator iter = fileIndex.findPosition( 3, 3, 2);
+ art::FileIndex::const_iterator iter = fileIndex.findPosition(art::EventID(3, 3, 2));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 12);
- CPPUNIT_ASSERT(iter->run_ == 3);
- CPPUNIT_ASSERT(iter->subRun_ == 3);
- CPPUNIT_ASSERT(iter->event_ == 2);
+ CPPUNIT_ASSERT(iter->eventID_ == art::EventID(3, 3, 2));
  CPPUNIT_ASSERT(iter->entry_ == 5);
 
- iter = fileIndex.findPosition( 3, 3, 7);
+ iter = fileIndex.findPosition(art::EventID(3, 3, 7));
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findPosition( 1, 2, 3);
+ iter = fileIndex.findPosition(art::EventID(1, 2, 3));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 4);
 
- iter = fileIndex.findPosition( 3, 3, 0);
+ iter = fileIndex.findPosition(art::EventID::invalidEvent(art::SubRunID(3, 3)));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
- iter = fileIndex.findPosition( 1, 1, 0);
+ iter = fileIndex.findPosition(art::EventID::invalidEvent(art::SubRunID(1, 1)));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 1);
 
- iter = fileIndex.findPosition( 1, 0, 0);
+ iter = fileIndex.findPosition(art::EventID::invalidEvent(art::RunID(1)));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 0);
 
- iter = fileIndex.findPosition( 2, 0, 0);
+ iter = fileIndex.findPosition(art::EventID::invalidEvent(art::RunID(2)));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findPosition( 2, 0, 1);
+ iter = fileIndex.findPosition(art::EventID(2, 0, 1));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findPosition( 1, 2, 3);
+ iter = fileIndex.findPosition(art::EventID(1, 2, 3));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 4);
 
- iter = fileIndex.findPosition( 3, 0, 3);
+ iter = fileIndex.findPosition(art::EventID(3, 0, 3));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 13);
 
- iter = fileIndex.findEventPosition( 3, 3, 2, true);
+ iter = fileIndex.findEventPosition(art::EventID(3, 3, 2), true);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 12);
- CPPUNIT_ASSERT(fileIndex.containsEvent(3, 3, 2, true));
+ CPPUNIT_ASSERT(fileIndex.containsEvent(art::EventID(3, 3, 2), true));
 
- iter = fileIndex.findEventPosition( 1, 2, 3, true);
+ iter = fileIndex.findEventPosition(art::EventID(1, 2, 3), true);
  CPPUNIT_ASSERT(iter == fileIndex.end());
- CPPUNIT_ASSERT(!fileIndex.containsEvent(1, 2, 3, true));
+ CPPUNIT_ASSERT(!fileIndex.containsEvent(art::EventID(1, 2, 3), true));
 
- iter = fileIndex.findEventPosition( 1, 2, 3, false);
+ iter = fileIndex.findEventPosition(art::EventID(1, 2, 3), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 4);
- CPPUNIT_ASSERT(fileIndex.containsEvent(1, 2, 3, false));
+ CPPUNIT_ASSERT(fileIndex.containsEvent(art::EventID(1, 2, 3), false));
 
- iter = fileIndex.findEventPosition( 3, 0, 1, true);
+ iter = fileIndex.findEventPosition(art::EventID(3, 0, 1), true);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 10);
 
- iter = fileIndex.findSubRunPosition( 3, 1, true);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 1), true);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
- iter = fileIndex.findSubRunPosition( 3, 2, true);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 2), true);
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findSubRunPosition( 3, 1, false);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 1), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
- iter = fileIndex.findSubRunPosition( 3, 2, false);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 2), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
- CPPUNIT_ASSERT(fileIndex.containsSubRun(3, 3, true));
- CPPUNIT_ASSERT(!fileIndex.containsSubRun(2, 3, true));
+ CPPUNIT_ASSERT(fileIndex.containsSubRun(art::SubRunID(3, 3), true));
+ CPPUNIT_ASSERT(!fileIndex.containsSubRun(art::SubRunID(2, 3), true));
 
- iter = fileIndex.findRunPosition( 3, true);
+ iter = fileIndex.findRunPosition(art::RunID(3), true);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findRunPosition( 2, true);
+ iter = fileIndex.findRunPosition(art::RunID(2), true);
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findRunPosition( 2, false);
+ iter = fileIndex.findRunPosition(art::RunID(2), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- CPPUNIT_ASSERT(fileIndex.containsRun(3, true));
- CPPUNIT_ASSERT(!fileIndex.containsRun(2, true));
+ CPPUNIT_ASSERT(fileIndex.containsRun(art::RunID(3), true));
+ CPPUNIT_ASSERT(!fileIndex.containsRun(art::RunID(2), true));
 
- iter = fileIndex.findSubRunOrRunPosition( 1, 2);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(1, 2));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 1);
 
- iter = fileIndex.findSubRunOrRunPosition( 3, 0);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID::invalidSubRun(art::RunID(3)));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findSubRunOrRunPosition( 3, 4);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(3, 4));
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findSubRunOrRunPosition( 3, 2);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(3, 2));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
- iter = fileIndex.findSubRunOrRunPosition( 2, 1);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(2, 1));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
 }
-
 void testFileIndex::eventEntrySortAndSearchTest()
 {
 
@@ -223,75 +215,75 @@ void testFileIndex::eventEntrySortAndSearchTest()
  // the FileIndex.
 
  art::FileIndex fileIndex;
- fileIndex.addEntry(3, 3, 2, 5);
- fileIndex.addEntry(3, 3, 1, 4);
- fileIndex.addEntry(3, 3, 3, 3);
- fileIndex.addEntry(3, 3, 0, 6);
- fileIndex.addEntry(3, 0, 0, 7);
- fileIndex.addEntry(1, 0, 0, 8);
- fileIndex.addEntry(3, 1, 0, 9);
- fileIndex.addEntry(3, 0, 0, 1);
- fileIndex.addEntry(3, 3, 0, 1);
- fileIndex.addEntry(3, 3, 1, 1);
- fileIndex.addEntry(1, 2, 2, 2);
- fileIndex.addEntry(1, 2, 4, 1);
- fileIndex.addEntry(1, 2, 0, 2);
- fileIndex.addEntry(1, 2, 1, 2);
+ fileIndex.addEntry(art::EventID(3, 3, 2), 5);
+ fileIndex.addEntry(art::EventID(3, 3, 1), 4);
+ fileIndex.addEntry(art::EventID(3, 3, 3), 3);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 6);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(3)), 7);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(1)), 8);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 1)), 9);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(3)), 1);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 1);
+ fileIndex.addEntry(art::EventID(3, 3, 1), 1);
+ fileIndex.addEntry(art::EventID(1, 2, 2), 2);
+ fileIndex.addEntry(art::EventID(1, 2, 4), 1);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 2);
+ fileIndex.addEntry(art::EventID(1, 2, 1), 2);
 
  fileIndex.sortBy_Run_SubRun_EventEntry();
 
  art::FileIndex shouldBe;
- shouldBe.addEntry(1, 0, 0, 8);
- shouldBe.addEntry(1, 2, 0, 2);
- shouldBe.addEntry(1, 2, 4, 1);
- shouldBe.addEntry(1, 2, 2, 2);
- shouldBe.addEntry(1, 2, 1, 2);
- shouldBe.addEntry(3, 0, 0, 7);
- shouldBe.addEntry(3, 0, 0, 1);
- shouldBe.addEntry(3, 1, 0, 9);
- shouldBe.addEntry(3, 3, 0, 6);
- shouldBe.addEntry(3, 3, 0, 1);
- shouldBe.addEntry(3, 3, 1, 1);
- shouldBe.addEntry(3, 3, 3, 3);
- shouldBe.addEntry(3, 3, 1, 4);
- shouldBe.addEntry(3, 3, 2, 5);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(1)), 8);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 2);
+ shouldBe.addEntry(art::EventID(1, 2, 4), 1);
+ shouldBe.addEntry(art::EventID(1, 2, 2), 2);
+ shouldBe.addEntry(art::EventID(1, 2, 1), 2);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(3)), 7);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(3)), 1);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 1)), 9);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 6);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(3, 3)), 1);
+ shouldBe.addEntry(art::EventID(3, 3, 1), 1);
+ shouldBe.addEntry(art::EventID(3, 3, 3), 3);
+ shouldBe.addEntry(art::EventID(3, 3, 1), 4);
+ shouldBe.addEntry(art::EventID(3, 3, 2), 5);
 
  CPPUNIT_ASSERT(areEntryVectorsTheSame(fileIndex, shouldBe));
 
- art::FileIndex::const_iterator iter = fileIndex.findSubRunPosition( 3, 1, true);
+ art::FileIndex::const_iterator iter = fileIndex.findSubRunPosition(art::SubRunID(3, 1), true);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
- iter = fileIndex.findSubRunPosition( 3, 2, true);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 2), true);
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findSubRunPosition( 3, 1, false);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 1), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 7);
 
- iter = fileIndex.findSubRunPosition( 3, 2, false);
+ iter = fileIndex.findSubRunPosition(art::SubRunID(3, 2), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
- iter = fileIndex.findRunPosition( 3, true);
+ iter = fileIndex.findRunPosition(art::RunID(3), true);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findRunPosition( 2, true);
+ iter = fileIndex.findRunPosition(art::RunID(2), true);
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findRunPosition( 2, false);
+ iter = fileIndex.findRunPosition(art::RunID(2), false);
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findSubRunOrRunPosition( 1, 2);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(1, 2));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 1);
 
- iter = fileIndex.findSubRunOrRunPosition( 3, 0);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID::invalidSubRun(art::RunID(3)));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
- iter = fileIndex.findSubRunOrRunPosition( 3, 4);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(3, 4));
  CPPUNIT_ASSERT(iter == fileIndex.end());
 
- iter = fileIndex.findSubRunOrRunPosition( 3, 2);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(3, 2));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
- iter = fileIndex.findSubRunOrRunPosition( 2, 1);
+ iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(2, 1));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 }
 
@@ -305,90 +297,89 @@ void testFileIndex::eventsUniqueAndOrderedTest() {
 
  // No events
  art::FileIndex fileIndex1;
- fileIndex1.addEntry(1, 0, 0, 1);
- fileIndex1.addEntry(1, 1, 0, 1);
+ fileIndex1.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex1.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 1)), 1);
  CPPUNIT_ASSERT(fileIndex1.eventsUniqueAndOrdered());
 
  // One event and nothing after it
  art::FileIndex fileIndex2;
- fileIndex2.addEntry(1, 0, 0, 1);
- fileIndex2.addEntry(1, 2, 0, 1);
- fileIndex2.addEntry(1, 2, 1, 1);
+ fileIndex2.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex2.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 1);
+ fileIndex2.addEntry(art::EventID(1, 2, 1), 1);
  CPPUNIT_ASSERT(fileIndex2.eventsUniqueAndOrdered());
 
  // One event with a run after it
  art::FileIndex fileIndex3;
- fileIndex3.addEntry(1, 0, 0, 1);
- fileIndex3.addEntry(1, 2, 0, 1);
- fileIndex3.addEntry(1, 2, 1, 1);
- fileIndex3.addEntry(2, 0, 0, 2);
+ fileIndex3.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex3.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 1);
+ fileIndex3.addEntry(art::EventID(1, 2, 1), 1);
+ fileIndex3.addEntry(art::EventID::invalidEvent(art::RunID(2)), 2);
  CPPUNIT_ASSERT(fileIndex3.eventsUniqueAndOrdered());
 
  // Two events
  art::FileIndex fileIndex4;
- fileIndex4.addEntry(1, 0, 0, 1);
- fileIndex4.addEntry(1, 1, 0, 1);
- fileIndex4.addEntry(1, 1, 1, 1);
- fileIndex4.addEntry(2, 0, 0, 2);
- fileIndex4.addEntry(2, 1, 0, 2);
- fileIndex4.addEntry(2, 1, 1, 2);
+ fileIndex4.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex4.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 1)), 1);
+ fileIndex4.addEntry(art::EventID(1, 1, 1), 1);
+ fileIndex4.addEntry(art::EventID::invalidEvent(art::RunID(2)), 2);
+ fileIndex4.addEntry(art::EventID::invalidEvent(art::SubRunID(2, 1)), 2);
+ fileIndex4.addEntry(art::EventID(2, 1, 1), 2);
  CPPUNIT_ASSERT(fileIndex4.eventsUniqueAndOrdered());
 
  // Two events, same run and event number
  art::FileIndex fileIndex5;
- fileIndex5.addEntry(1, 0, 0, 1);
- fileIndex5.addEntry(1, 1, 0, 1);
- fileIndex5.addEntry(1, 1, 1, 1);
- fileIndex5.addEntry(1, 0, 0, 2);
- fileIndex5.addEntry(1, 2, 0, 2);
- fileIndex5.addEntry(1, 2, 1, 2);
+ fileIndex5.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex5.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 1)), 1);
+ fileIndex5.addEntry(art::EventID(1, 1, 1), 1);
+ fileIndex5.addEntry(art::EventID::invalidEvent(art::RunID(1)), 2);
+ fileIndex5.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 2);
+ fileIndex5.addEntry(art::EventID(1, 2, 1), 2);
  CPPUNIT_ASSERT(!fileIndex5.eventsUniqueAndOrdered());
 
  // Not ordered by run
  art::FileIndex fileIndex6;
- fileIndex6.addEntry(1, 0, 0, 1);
- fileIndex6.addEntry(1, 2, 0, 1);
- fileIndex6.addEntry(1, 2, 1, 1);
- fileIndex6.addEntry(2, 0, 0, 2);
- fileIndex6.addEntry(2, 1, 0, 2);
- fileIndex6.addEntry(2, 1, 1, 2);
- fileIndex6.addEntry(1, 0, 0, 3);
- fileIndex6.addEntry(1, 3, 0, 3);
- fileIndex6.addEntry(1, 3, 1, 3);
+ fileIndex6.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex6.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 1);
+ fileIndex6.addEntry(art::EventID(1, 2, 1), 1);
+ fileIndex6.addEntry(art::EventID::invalidEvent(art::RunID(2)), 2);
+ fileIndex6.addEntry(art::EventID::invalidEvent(art::SubRunID(2, 1)), 2);
+ fileIndex6.addEntry(art::EventID(2, 1, 1), 2);
+ fileIndex6.addEntry(art::EventID::invalidEvent(art::RunID(1)), 3);
+ fileIndex6.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 3)), 3);
+ fileIndex6.addEntry(art::EventID(1, 3, 1), 3);
  CPPUNIT_ASSERT(!fileIndex6.eventsUniqueAndOrdered());
 
  // Not ordered by event
  art::FileIndex fileIndex7;
- fileIndex7.addEntry(1, 0, 0, 1);
- fileIndex7.addEntry(1, 2, 0, 1);
- fileIndex7.addEntry(1, 2, 1, 1);
- fileIndex7.addEntry(2, 0, 0, 2);
- fileIndex7.addEntry(2, 1, 0, 2);
- fileIndex7.addEntry(2, 1, 2, 2);
- fileIndex7.addEntry(2, 3, 0, 3);
- fileIndex7.addEntry(2, 3, 1, 3);
+ fileIndex7.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex7.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 1);
+ fileIndex7.addEntry(art::EventID(1, 2, 1), 1);
+ fileIndex7.addEntry(art::EventID::invalidEvent(art::RunID(2)), 2);
+ fileIndex7.addEntry(art::EventID::invalidEvent(art::SubRunID(2, 1)), 2);
+ fileIndex7.addEntry(art::EventID(2, 1, 2), 2);
+ fileIndex7.addEntry(art::EventID::invalidEvent(art::SubRunID(2, 3)), 3);
+ fileIndex7.addEntry(art::EventID(2, 3, 1), 3);
  CPPUNIT_ASSERT(!fileIndex7.eventsUniqueAndOrdered());
 
  // OK, ordered by event and unique
  art::FileIndex fileIndex8;
- fileIndex8.addEntry(1, 0, 0, 1);
- fileIndex8.addEntry(1, 1, 0, 1);
- fileIndex8.addEntry(1, 1, 1, 1);
- fileIndex8.addEntry(1, 1, 2, 1);
- fileIndex8.addEntry(1, 1, 3, 1);
- fileIndex8.addEntry(1, 1, 4, 1);
- fileIndex8.addEntry(2, 0, 0, 2);
- fileIndex8.addEntry(2, 1, 0, 2);
- fileIndex8.addEntry(2, 1, 1, 2);
- fileIndex8.addEntry(2, 3, 0, 3);
- fileIndex8.addEntry(2, 3, 2, 3);
- fileIndex8.addEntry(2, 3, 3, 3);
- fileIndex8.addEntry(2, 3, 4, 3);
- fileIndex8.addEntry(2, 3, 5, 3);
- fileIndex8.addEntry(2, 3, 6, 3);
+ fileIndex8.addEntry(art::EventID::invalidEvent(art::RunID(1)), 1);
+ fileIndex8.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 1)), 1);
+ fileIndex8.addEntry(art::EventID(1, 1, 1), 1);
+ fileIndex8.addEntry(art::EventID(1, 1, 2), 1);
+ fileIndex8.addEntry(art::EventID(1, 1, 3), 1);
+ fileIndex8.addEntry(art::EventID(1, 1, 4), 1);
+ fileIndex8.addEntry(art::EventID::invalidEvent(art::RunID(2)), 2);
+ fileIndex8.addEntry(art::EventID::invalidEvent(art::SubRunID(2, 1)), 2);
+ fileIndex8.addEntry(art::EventID(2, 1, 1), 2);
+ fileIndex8.addEntry(art::EventID::invalidEvent(art::SubRunID(2, 3)), 3);
+ fileIndex8.addEntry(art::EventID(2, 3, 2), 3);
+ fileIndex8.addEntry(art::EventID(2, 3, 3), 3);
+ fileIndex8.addEntry(art::EventID(2, 3, 4), 3);
+ fileIndex8.addEntry(art::EventID(2, 3, 5), 3);
+ fileIndex8.addEntry(art::EventID(2, 3, 6), 3);
  CPPUNIT_ASSERT(fileIndex8.eventsUniqueAndOrdered());
 }
-#endif
 
 bool testFileIndex::areEntryVectorsTheSame(art::FileIndex &i1, art::FileIndex &i2) {
    if (i1.size() != i2.size()) return false;

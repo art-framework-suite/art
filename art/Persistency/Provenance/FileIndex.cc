@@ -5,12 +5,14 @@
 #include <iomanip>
 #include <ostream>
 
-
+// #include <iostream>
 using namespace cet;
 using namespace std;
 
 
 namespace art {
+
+   art::FileIndex::EntryNumber_t const art::FileIndex::Element::invalidEntry = -1;
 
    FileIndex::FileIndex() : entries_(), transients_() {}
 
@@ -179,7 +181,11 @@ namespace art {
    }
 
    bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh) {
-      return lh.eventID_ < rh.eventID_;
+      bool result = lh.eventID_ < rh.eventID_;
+//       std::cerr << "lh: (" << lh
+//                 << ") < rh: (" << rh << "): "
+//                 << (result?"true":"false") << "\n";
+      return result;
    }
 
    bool Compare_Run_SubRun_EventEntry::operator()(FileIndex::Element const& lh, FileIndex::Element const& rh)
@@ -197,6 +203,11 @@ namespace art {
       } else {
          return lh.eventID_.subRunID() < rh.eventID_.subRunID();
       }
+   }
+
+   ostream &operator<<(ostream &os, FileIndex::Element const &el) {
+      os << el.eventID_ << ": entry# " << el.entry_;
+      return os;
    }
 
    ostream&

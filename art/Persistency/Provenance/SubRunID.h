@@ -86,9 +86,9 @@ public:
    }
 
    bool operator<(SubRunID const& other) const {
-      static SortInvalidFirst<SubRunNumber_t> op_e(INVALID_SUBRUN_NUMBER);
+      static SortInvalidFirst<SubRunNumber_t> op(INVALID_SUBRUN_NUMBER);
       if (run_ == other.run_) {
-         return op_e(subRun_, other.subRun_);
+         return op(subRun_, other.subRun_);
       } else {
          return run_ < other.run_;
       }
@@ -108,7 +108,12 @@ public:
 
    friend inline std::ostream&
    operator<<(std::ostream& oStream, SubRunID const& iID) {
-      oStream << iID.run_ << " subRun: " << iID.subRun_;
+      oStream << iID.run_ << " subRun: ";
+      if (iID.isValid()) {
+         oStream << iID.subRun_;
+      } else {
+         oStream << "INVALID";
+      }
       return oStream;
    }
 

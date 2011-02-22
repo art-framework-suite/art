@@ -70,8 +70,8 @@ public:
    }
 
    bool operator<(RunID const& other) const {
-      static SortInvalidFirst<RunNumber_t> op_e(INVALID_RUN_NUMBER);
-      return op_e(run_, other.run_);
+      static SortInvalidFirst<RunNumber_t> op(INVALID_RUN_NUMBER);
+      return op(run_, other.run_);
    }
 
    bool operator<=(RunID const& other) const {
@@ -88,7 +88,12 @@ public:
 
    friend inline std::ostream& 
    operator<<(std::ostream& oStream, RunID const& iID) {
-      oStream << "run: " << iID.run_;
+      oStream << "run: ";
+      if (iID.isValid()) {
+         oStream << iID.run_;
+      } else {
+         oStream << "INVALID";
+      }
       return oStream;
    }
 
