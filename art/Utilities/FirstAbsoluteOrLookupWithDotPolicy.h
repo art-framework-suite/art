@@ -1,5 +1,5 @@
-#ifndef XX_h
-#define XX_h
+#ifndef art_Utilities_FirstAbsoluteOrLookupWithDotPolicy_h
+#define art_Utilities_FirstAbsoluteOrLookupWithDotPolicy_h
 
 #include "cetlib/filepath_maker.h"
 
@@ -22,4 +22,8 @@ public cet::filepath_maker {
 
 };
 
-#endif
+#endif /* art_Utilities_FirstAbsoluteOrLookupWithDotPolicy_h */
+
+// Local Variables:
+// mode: c++
+// End:
