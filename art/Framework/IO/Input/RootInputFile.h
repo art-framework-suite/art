@@ -60,9 +60,7 @@ namespace art {
              ProcessConfiguration const& processConfiguration,
              std::string const& logicalFileName,
              boost::shared_ptr<TFile> filePtr,
-             RunNumber_t const& startAtRun,
-             SubRunNumber_t const& startAtSubRun,
-             EventNumber_t const& startAtEvent,
+             EventID const &origEventID,
              unsigned int eventsToSkip,
              std::vector<SubRunID> const& whichSubRunsToSkip,
              int remainingEvents,
@@ -101,7 +99,7 @@ namespace art {
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     bool fastClonable() const {return fastClonable_;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
-    bool setEntryAtEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, bool exact);
+    bool setEntryAtEvent(EventID const &eID, bool exact);
     bool setEntryAtSubRun(SubRunID const& subRun);
     bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
@@ -164,10 +162,8 @@ namespace art {
     FileIndex::const_iterator fileIndexIter_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
-    RunNumber_t startAtRun_;
-    SubRunNumber_t startAtSubRun_;
-    EventNumber_t startAtEvent_;
-    unsigned int eventsToSkip_;
+    EventID origEventID_;
+    EventNumber_t eventsToSkip_;
     std::vector<SubRunID> whichSubRunsToSkip_;
     std::vector<EventID> whichEventsToProcess_;
     std::vector<EventID>::const_iterator eventListIter_;

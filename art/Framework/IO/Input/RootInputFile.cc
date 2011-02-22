@@ -30,10 +30,7 @@
 //used for backward compatibility
 #include "art/Persistency/Provenance/BranchEntryDescription.h"
 #include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
-#include "art/Persistency/Provenance/EventAux.h"
-#include "art/Persistency/Provenance/RunAux.h"
 #include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
-#include "art/Persistency/Provenance/SubRunAux.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Rtypes.h"
@@ -55,9 +52,7 @@ namespace art {
                      ProcessConfiguration const& processConfiguration,
                      string const& logicalFileName,
                      boost::shared_ptr<TFile> filePtr,
-                     RunNumber_t const& startAtRun,
-                     SubRunNumber_t const& startAtSubRun,
-                     EventNumber_t const& startAtEvent,
+                     EventID const &origEventID,
                      unsigned int eventsToSkip,
                      vector<SubRunID> const& whichSubRunsToSkip,
                      int remainingEvents,
@@ -86,10 +81,7 @@ namespace art {
       fileIndexIter_(fileIndexBegin_),
       eventProcessHistoryIDs_(),
       eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
-      startAtRun_(startAtRun),
-      startAtSubRun_(startAtSubRun),
-      startAtEvent_(startAtEvent),
-      eventsToSkip_(eventsToSkip),
+      origEventID_(origEventID),
       whichSubRunsToSkip_(whichSubRunsToSkip),
       whichEventsToProcess_(whichEventsToProcess),
       eventListIter_(whichEventsToProcess_.begin()),
@@ -371,14 +363,10 @@ namespace art {
       ++it;
     }
     if (it == fileIndexEnd_) return false;
-    if (startAtRun_ > it->run_) return false;
-    if (startAtRun_ == it->run_) {
-      if (startAtSubRun_ > it->subRun_) return false;
-      if (startAtEvent_ > it->event_) return false;
-    }
+    if (it->eventID_ < origEventID_) return false;
     for (vector<SubRunID>::const_iterator it = whichSubRunsToSkip_.begin(),
           itEnd = whichSubRunsToSkip_.end(); it != itEnd; ++it) {
-        if (fileIndex_.findSubRunPosition(it->run(), it->subRun(), true) != fileIndexEnd_) {
+        if (fileIndex_.findSubRunPosition(*it, true) != fileIndexEnd_) {
           // We must skip a subRun in this file.  We will simply assume that
           // it may contain an event, in which case we cannot fast copy.
           return false;
@@ -390,13 +378,12 @@ namespace art {
 
   int
   RootInputFile::setForcedRunOffset(RunNumber_t const& forcedRunNumber) {
-    if (fileIndexBegin_ == fileIndexEnd_) return 0;
-    int defaultOffset = (fileIndexBegin_->run_ != 0 ? 0 : 1);
-    forcedRunOffset_ = (forcedRunNumber != 0U ? forcedRunNumber - fileIndexBegin_->run_ : defaultOffset);
-    if (forcedRunOffset_ != 0) {
-      fastClonable_ = false;
-    }
-    return forcedRunOffset_;
+     if (fileIndexBegin_ == fileIndexEnd_) return 0;
+     forcedRunOffset_ = (RunID(forcedRunNumber).isValid())?(forcedRunNumber - fileIndexBegin_->eventID_.run()):0;
+     if (forcedRunOffset_ != 0) {
+        fastClonable_ = false;
+     }
+     return forcedRunOffset_;
   }
 
   boost::shared_ptr<FileBlock>
@@ -437,8 +424,8 @@ namespace art {
     if (fileIndexIter_ == fileIndexEnd_) {
       return FileIndex::kEnd;
     }
-    if (fileIndexIter_->event_ == 0 && fileIndexIter_ != fileIndexBegin_) {
-      if ((fileIndexIter_-1)->run_ == fileIndexIter_->run_ && (fileIndexIter_-1)->subRun_ == fileIndexIter_->subRun_) {
+    if ((!fileIndexIter_->eventID_.isValid()) && fileIndexIter_ != fileIndexBegin_) {
+       if ((fileIndexIter_-1)->eventID_.subRun() == fileIndexIter_->eventID_.subRun()) {
         ++fileIndexIter_;
         return getEntryTypeSkippingDups();
       }
@@ -448,149 +435,141 @@ namespace art {
 
   FileIndex::EntryType
   RootInputFile::getNextEntryTypeWanted() {
-    bool specifiedEvents = !whichEventsToProcess_.empty();
-    if (specifiedEvents && eventListIter_ == whichEventsToProcess_.end()) {
-      // We are processing specified events, and we are done with them.
-      fileIndexIter_ = fileIndexEnd_;
-      return FileIndex::kEnd;
-    }
-    FileIndex::EntryType entryType = getEntryTypeSkippingDups();
-    if (entryType == FileIndex::kEnd) {
-      return FileIndex::kEnd;
-    }
-    RunNumber_t const& currentRun = fileIndexIter_->run_;
-    RunNumber_t correctedCurrentRun = (currentRun ? currentRun : 1U);
-    if (specifiedEvents) {
-       // We are processing specified events.
-      if (correctedCurrentRun > eventListIter_->run()) {
-        // The next specified event is in a run not in the file or already passed.  Skip the event
-        ++eventListIter_;
-        return getNextEntryTypeWanted();
-      }
-      // Skip any runs before the next specified event.
-      if (correctedCurrentRun < eventListIter_->run()) {
-        fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->run(), false);
-        return getNextEntryTypeWanted();
-      }
-    }
-    if (entryType == FileIndex::kRun) {
-      // Skip any runs before the first run specified, startAtRun_.
-      if (correctedCurrentRun < startAtRun_) {
-        fileIndexIter_ = fileIndex_.findRunPosition(startAtRun_, false);
-        return getNextEntryTypeWanted();
-      }
-      return FileIndex::kRun;
-    } else if (processingMode_ == InputSource::Runs) {
-      fileIndexIter_ = fileIndex_.findRunPosition(currentRun + 1, false);
-      return getNextEntryTypeWanted();
-    }
-    SubRunNumber_t const& currentSubRun = fileIndexIter_->subRun_;
-    if (specifiedEvents) {
-      // We are processing specified events.
-      assert (correctedCurrentRun == eventListIter_->run());
-      // Get the subRun number of the next specified event.
-      FileIndex::const_iterator iter = fileIndex_.findEventPosition(currentRun, 0U, eventListIter_->event(), true);
-      if (iter == fileIndexEnd_ || currentSubRun > iter->subRun_) {
-        // Event Not Found or already passed. Skip the next specified event;
-        ++eventListIter_;
-        return getNextEntryTypeWanted();
-      }
-      // Skip any subRuns before the next specified event.
-      if (currentSubRun < iter->subRun_) {
-        fileIndexIter_ = fileIndex_.findPosition(eventListIter_->run(), iter->subRun_, 0U);
-        return getNextEntryTypeWanted();
-      }
-    }
-    if (entryType == FileIndex::kSubRun) {
-      // Skip any subRuns before the first subRun specified, startAtSubRun_.
-      assert(correctedCurrentRun >= startAtRun_);
-      if (correctedCurrentRun == startAtRun_ && currentSubRun < startAtSubRun_) {
-        fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentRun, startAtSubRun_);
-        return getNextEntryTypeWanted();
-      }
-      // Skip the subRun if it is in whichSubRunsToSkip_.
-      if (binary_search_all(whichSubRunsToSkip_, SubRunID(correctedCurrentRun, currentSubRun))) {
-        fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentRun, currentSubRun + 1);
-        return getNextEntryTypeWanted();
-      }
-      return FileIndex::kSubRun;
-    } else if (processingMode_ == InputSource::RunsAndSubRuns) {
-      fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentRun, currentSubRun + 1);
-      return getNextEntryTypeWanted();
-    }
-    assert (entryType == FileIndex::kEvent);
-    // Skip any events before the first event specified, startAtEvent_.
-    assert(correctedCurrentRun >= startAtRun_);
-    assert(correctedCurrentRun > startAtRun_ || currentSubRun >= startAtSubRun_);
-    if (correctedCurrentRun == startAtRun_ &&
-        fileIndexIter_->event_ < startAtEvent_) {
-      fileIndexIter_ = fileIndex_.findPosition(currentRun, currentSubRun, startAtEvent_);
-      return getNextEntryTypeWanted();
-    }
-    if (specifiedEvents) {
-      // We have specified events to process and we've already positioned the file
-      // to execute the run and subRun entry for the current event in the list.
-      // Just position to the right event.
-      assert (correctedCurrentRun == eventListIter_->run());
-      fileIndexIter_ = fileIndex_.findEventPosition(currentRun, currentSubRun,
-                                                  eventListIter_->event(),
-                                                  false);
-      if (fileIndexIter_->event_ != eventListIter_->event()) {
-        // Event was not found.
-        ++eventListIter_;
-        return getNextEntryTypeWanted();
-      }
-      // Event was found.
-      // For the next time around move to the next specified event
-      ++eventListIter_;
-
-      if (duplicateChecker_.get() != 0 &&
-          duplicateChecker_->isDuplicateAndCheckActive(EventID(fileIndexIter_->run_, fileIndexIter_->event_),
-                                                       fileIndexIter_->subRun_,
-                                                       file_)) {
-        ++fileIndexIter_;
-        return getNextEntryTypeWanted();
-      }
-
-      if (eventsToSkip_ != 0) {
-        // We have specified a count of events to skip.  So decrement the count and skip this event.
-        --eventsToSkip_;
-        return getNextEntryTypeWanted();
-      }
-
-      return FileIndex::kEvent;
-    }
-
-    if (duplicateChecker_.get() != 0 &&
-        duplicateChecker_->isDuplicateAndCheckActive(EventID(fileIndexIter_->run_, fileIndexIter_->event_),
-                                                     fileIndexIter_->subRun_,
-                                                     file_)) {
-      ++fileIndexIter_;
-      return getNextEntryTypeWanted();
-    }
-
-    if (eventsToSkip_ != 0) {
-      // We have specified a count of events to skip, keep skipping events in this subRun block
-      // until we reach the end of the subRun block or the full count of the number of events to skip.
-      while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-        getEntryTypeSkippingDups() == FileIndex::kEvent) {
-        ++fileIndexIter_;
-        --eventsToSkip_;
-
-        while (
-          eventsToSkip_ != 0 &&
-          fileIndexIter_ != fileIndexEnd_ &&
-          fileIndexIter_->getEntryType() == FileIndex::kEvent &&
-          duplicateChecker_.get() != 0 &&
-          duplicateChecker_->isDuplicateAndCheckActive(EventID(fileIndexIter_->run_, fileIndexIter_->event_),
-                                                       fileIndexIter_->subRun_,
-                                                       file_)) {
-          ++fileIndexIter_;
+     bool specifiedEvents = !whichEventsToProcess_.empty();
+     if (specifiedEvents && eventListIter_ == whichEventsToProcess_.end()) {
+        // We are processing specified events, and we are done with them.
+        fileIndexIter_ = fileIndexEnd_;
+        return FileIndex::kEnd;
+     }
+     FileIndex::EntryType entryType = getEntryTypeSkippingDups();
+     if (entryType == FileIndex::kEnd) {
+        return FileIndex::kEnd;
+     }
+     RunID currentRun(fileIndexIter_->eventID_.runID());
+     if (!currentRun.isValid()) return FileIndex::kEnd;
+     if (specifiedEvents) {
+        // We are processing specified events.
+        if (currentRun > eventListIter_->runID()) {
+           // The next specified event is in a run not in the file or already passed.  Skip the event
+           ++eventListIter_;
+           return getNextEntryTypeWanted();
         }
-      }
-      return getNextEntryTypeWanted();
-    }
-    return FileIndex::kEvent;
+        // Skip any runs before the next specified event.
+        if (currentRun < eventListIter_->runID()) {
+           fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->runID(), false);
+           return getNextEntryTypeWanted();
+        }
+     }
+     if (entryType == FileIndex::kRun) {
+        // Skip any runs before the first run specified
+        if (currentRun < origEventID_.runID()) {
+           fileIndexIter_ = fileIndex_.findRunPosition(origEventID_.runID(), false);
+           return getNextEntryTypeWanted();
+        }
+        return FileIndex::kRun;
+     } else if (processingMode_ == InputSource::Runs) {
+        fileIndexIter_ = fileIndex_.findRunPosition(currentRun.isValid()?currentRun.next():currentRun, false);
+        return getNextEntryTypeWanted();
+     }
+     SubRunID const& currentSubRun = fileIndexIter_->eventID_.subRunID();
+     if (specifiedEvents) {
+        // We are processing specified events.
+        assert (currentRun == eventListIter_->runID());
+        // Get the subRun number of the next specified event.
+        FileIndex::const_iterator iter = fileIndex_.findEventPosition(*eventListIter_, true);
+        if (iter == fileIndexEnd_ || currentSubRun > iter->eventID_.subRunID()) {
+           // Event Not Found or already passed. Skip the next specified event;
+           ++eventListIter_;
+           return getNextEntryTypeWanted();
+        }
+        // Skip any subRuns before the next specified event.
+        if (currentSubRun < iter->eventID_.subRunID()) {
+           fileIndexIter_ = fileIndex_.findPosition(EventID::invalidEvent(iter->eventID_.subRunID()));
+           return getNextEntryTypeWanted();
+        }
+     }
+     if (entryType == FileIndex::kSubRun) {
+        // Skip any subRuns before the first subRun specified
+        if (currentRun == origEventID_.runID() &&
+            currentSubRun < origEventID_.subRunID()) {
+           fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(origEventID_.subRunID());
+           return getNextEntryTypeWanted();
+        }
+        // Skip the subRun if it is in whichSubRunsToSkip_.
+        if (binary_search_all(whichSubRunsToSkip_, currentSubRun)) {
+           fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentSubRun.next());
+           return getNextEntryTypeWanted();
+        }
+        return FileIndex::kSubRun;
+     } else if (processingMode_ == InputSource::RunsAndSubRuns) {
+        fileIndexIter_ = fileIndex_.findSubRunOrRunPosition(currentSubRun.next());
+        return getNextEntryTypeWanted();
+     }
+     assert (entryType == FileIndex::kEvent);
+     // Skip any events before the first event specified
+     if (fileIndexIter_->eventID_ < origEventID_) {
+        fileIndexIter_ = fileIndex_.findPosition(origEventID_);
+        return getNextEntryTypeWanted();
+     }
+     if (specifiedEvents) {
+        // We have specified events to process and we've already positioned the file
+        // to execute the run and subRun entry for the current event in the list.
+        // Just position to the right event.
+        fileIndexIter_ = fileIndex_.findEventPosition(*eventListIter_,
+                                                      false);
+        if (fileIndexIter_->eventID_ != *eventListIter_) {
+           // Event was not found.
+           ++eventListIter_;
+           return getNextEntryTypeWanted();
+        }
+        // Event was found.
+        // For the next time around move to the next specified event
+        ++eventListIter_;
+
+        if (duplicateChecker_.get() != 0 &&
+            duplicateChecker_->isDuplicateAndCheckActive(fileIndexIter_->eventID_,
+                                                         file_)) {
+           ++fileIndexIter_;
+           return getNextEntryTypeWanted();
+        }
+
+        if (eventsToSkip_ != 0) {
+           // We have specified a count of events to skip.  So decrement the count and skip this event.
+           --eventsToSkip_;
+           return getNextEntryTypeWanted();
+        }
+
+        return FileIndex::kEvent;
+     }
+
+     if (duplicateChecker_.get() != 0 &&
+         duplicateChecker_->isDuplicateAndCheckActive(fileIndexIter_->eventID_,
+                                                      file_)) {
+        ++fileIndexIter_;
+        return getNextEntryTypeWanted();
+     }
+
+     if (eventsToSkip_ != 0) {
+        // We have specified a count of events to skip, keep skipping events in this subRun block
+        // until we reach the end of the subRun block or the full count of the number of events to skip.
+        while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
+               getEntryTypeSkippingDups() == FileIndex::kEvent) {
+           ++fileIndexIter_;
+           --eventsToSkip_;
+
+           while (
+                  eventsToSkip_ != 0 &&
+                  fileIndexIter_ != fileIndexEnd_ &&
+                  fileIndexIter_->getEntryType() == FileIndex::kEvent &&
+                  duplicateChecker_.get() != 0 &&
+                  duplicateChecker_->isDuplicateAndCheckActive(fileIndexIter_->eventID_,
+                                                               file_)) {
+              ++fileIndexIter_;
+           }
+        }
+        return getNextEntryTypeWanted();
+     }
+     return FileIndex::kEvent;
   }
 
   void
@@ -603,22 +582,20 @@ namespace art {
     // Loop over event entries and fill the index from the event auxiliary branch
     while(eventTree_.next()) {
       fillEventAuxiliary();
-      fileIndex_.addEntry(eventAux_.run(),
-                          eventAux_.subRun(),
-                          eventAux_.event(),
+      fileIndex_.addEntry(eventAux_.id(),
                           eventTree_.entryNumber());
       // If the subRun tree is invalid, use the event tree to add subRun index entries.
       if (!subRunTree_.isValid()) {
         if (lastSubRun != eventAux_.subRun()) {
           lastSubRun = eventAux_.subRun();
-          fileIndex_.addEntry(eventAux_.run(), eventAux_.subRun(), 0U, FileIndex::Element::invalidEntry);
+          fileIndex_.addEntry(EventID::invalidEvent(eventAux_.subRunID()), FileIndex::Element::invalidEntry);
         }
       }
       // If the run tree is invalid, use the event tree to add run index entries.
       if (!runTree_.isValid()) {
         if (lastRun != eventAux_.run()) {
           lastRun = eventAux_.run();
-          fileIndex_.addEntry(eventAux_.run(), 0U, 0U, FileIndex::Element::invalidEntry);
+          fileIndex_.addEntry(EventID::invalidEvent(eventAux_.runID()), FileIndex::Element::invalidEntry);
         }
       }
     }
@@ -628,7 +605,7 @@ namespace art {
     if (subRunTree_.isValid()) {
       while (subRunTree_.next()) {
         fillSubRunAuxiliary();
-        fileIndex_.addEntry(subRunAux_.run(), subRunAux_.subRun(), 0U, subRunTree_.entryNumber());
+        fileIndex_.addEntry(EventID::invalidEvent(subRunAux_.runID()), subRunTree_.entryNumber());
       }
       subRunTree_.setEntryNumber(-1);
     }
@@ -637,7 +614,7 @@ namespace art {
     if (runTree_.isValid()) {
       while (runTree_.next()) {
         fillRunAuxiliary();
-        fileIndex_.addEntry(runAux_.run(), 0U, 0U, runTree_.entryNumber());
+        fileIndex_.addEntry(EventID::invalidEvent(runAux_.runID()), runTree_.entryNumber());
       }
       runTree_.setEntryNumber(-1);
     }
@@ -677,21 +654,8 @@ namespace art {
 
   void
   RootInputFile::fillEventAuxiliary() {
-    if (fileFormatVersion_.value_ >= 3) {
-      EventAuxiliary *pEvAux = &eventAux_;
-      eventTree_.fillAux<EventAuxiliary>(pEvAux);
-    } else {
-      // for backward compatibility.
-      EventAux eventAux;
-      EventAux *pEvAux = &eventAux;
-      eventTree_.fillAux<EventAux>(pEvAux);
-      conversion(eventAux, eventAux_);
-    }
-    if (eventAux_.subRun_ == 0 && fileFormatVersion_.value_ <= 3) {
-      eventAux_.subRun_ = SubRunNumber_t(1);
-    } else if (fileFormatVersion_.value_ <= 1) {
-      eventAux_.subRun_ = SubRunNumber_t(1);
-    }
+     EventAuxiliary *pEvAux = &eventAux_;
+     eventTree_.fillAux<EventAuxiliary>(pEvAux);
   }
 
   void
@@ -730,31 +694,14 @@ namespace art {
 
   void
   RootInputFile::fillSubRunAuxiliary() {
-    if (fileFormatVersion_.value_ >= 3) {
-      SubRunAuxiliary *pSubRunAux = &subRunAux_;
-      subRunTree_.fillAux<SubRunAuxiliary>(pSubRunAux);
-    } else {
-      SubRunAux subRunAux;
-      SubRunAux *pSubRunAux = &subRunAux;
-      subRunTree_.fillAux<SubRunAux>(pSubRunAux);
-      conversion(subRunAux, subRunAux_);
-    }
-    if (subRunAux_.subRun() == 0 && fileFormatVersion_.value_ <= 3) {
-      subRunAux_.id_ = SubRunID(subRunAux_.run(), SubRunNumber_t(1));
-    }
+     SubRunAuxiliary *pSubRunAux = &subRunAux_;
+     subRunTree_.fillAux<SubRunAuxiliary>(pSubRunAux);
   }
 
   void
   RootInputFile::fillRunAuxiliary() {
-    if (fileFormatVersion_.value_ >= 3) {
-      RunAuxiliary *pRunAux = &runAux_;
-      runTree_.fillAux<RunAuxiliary>(pRunAux);
-    } else {
-      RunAux runAux;
-      RunAux *pRunAux = &runAux;
-      runTree_.fillAux<RunAux>(pRunAux);
-      conversion(runAux, runAux_);
-    }
+     RunAuxiliary *pRunAux = &runAux_;
+     runTree_.fillAux<RunAuxiliary>(pRunAux);
   }
 
   int
@@ -794,18 +741,14 @@ namespace art {
   RootInputFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
-    RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-    assert(currentRun >= startAtRun_);
-    assert(currentRun > startAtRun_ || fileIndexIter_->subRun_ >= startAtSubRun_);
-    assert(currentRun > startAtRun_ || fileIndexIter_->subRun_ > startAtSubRun_ ||
-         fileIndexIter_->event_ >= startAtEvent_);
+    assert(fileIndexIter_->eventID_.runID().isValid());
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
     auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
 
     assert(ep.get() != 0);
-    assert(eventAux_.run() == fileIndexIter_->run_ + forcedRunOffset_);
-    assert(eventAux_.subRun() == fileIndexIter_->subRun_);
+    assert(eventAux_.run() == fileIndexIter_->eventID_.run() + forcedRunOffset_);
+    assert(eventAux_.subRunID() == fileIndexIter_->eventID_.subRunID());
 
     // report event read from file
     ++fileIndexIter_;
@@ -853,8 +796,6 @@ namespace art {
   RootInputFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
-    RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-    assert(currentRun >= startAtRun_);
     // Begin code for backward compatibility before the exixtence of run trees.
     if (!runTree_.isValid()) {
       // prior to the support of run trees.
@@ -864,10 +805,10 @@ namespace art {
         // back up, so event will not be skipped.
         eventTree_.previous();
       }
-      RunID run = RunID(fileIndexIter_->run_);
+      RunID run = fileIndexIter_->eventID_.runID();
       overrideRunNumber(run);
       ++fileIndexIter_;
-      RunAuxiliary runAux(run.run(), eventAux_.time(), Timestamp::invalidTimestamp());
+      RunAuxiliary runAux(run, eventAux_.time(), Timestamp::invalidTimestamp());
       return boost::shared_ptr<RunPrincipal>(
           new RunPrincipal(runAux,
           pReg,
@@ -876,7 +817,7 @@ namespace art {
     // End code for backward compatibility before the exixtence of run trees.
     runTree_.setEntryNumber(fileIndexIter_->entry_);
     fillRunAuxiliary();
-    assert(runAux_.run() == fileIndexIter_->run_);
+    assert(runAux_.id() == fileIndexIter_->eventID_.runID());
     overrideRunNumber(runAux_.id_);
     if (runAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
@@ -908,9 +849,6 @@ namespace art {
   RootInputFile::readSubRun(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
-    RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-    assert(currentRun >= startAtRun_);
-    assert(currentRun > startAtRun_ || fileIndexIter_->subRun_ >= startAtSubRun_);
     // Begin code for backward compatibility before the existence of subRun trees.
     if (!subRunTree_.isValid()) {
       if (eventTree_.next()) {
@@ -919,7 +857,7 @@ namespace art {
         eventTree_.previous();
       }
 
-      SubRunID subRun = SubRunID(fileIndexIter_->run_, fileIndexIter_->subRun_);
+      SubRunID subRun = fileIndexIter_->eventID_.subRunID();
       overrideRunNumber(subRun);
       ++fileIndexIter_;
       SubRunAuxiliary subRunAux(rp->run(), subRun.subRun(), eventAux_.time_, Timestamp::invalidTimestamp());
@@ -931,10 +869,9 @@ namespace art {
     // End code for backward compatibility before the exixtence of subRun trees.
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
     fillSubRunAuxiliary();
-    assert(subRunAux_.run() == fileIndexIter_->run_);
-    assert(subRunAux_.subRun() == fileIndexIter_->subRun_);
+    assert(subRunAux_.id() == fileIndexIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux_.id_);
-    assert(subRunAux_.run() == rp->run());
+    assert(subRunAux_.runID() == rp->id());
 
     if (subRunAux_.beginTime() == Timestamp::invalidTimestamp()) {
       // SubRunAuxiliary did not contain a timestamp. Take it from the next event.
@@ -962,8 +899,8 @@ namespace art {
   }
 
   bool
-  RootInputFile::setEntryAtEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, bool exact) {
-    fileIndexIter_ = fileIndex_.findEventPosition(run, subRun, event, exact);
+  RootInputFile::setEntryAtEvent(EventID const &eID, bool exact) {
+    fileIndexIter_ = fileIndex_.findEventPosition(eID, exact);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;
@@ -971,7 +908,7 @@ namespace art {
 
   bool
   RootInputFile::setEntryAtSubRun(SubRunID const& subRun) {
-    fileIndexIter_ = fileIndex_.findSubRunPosition(subRun.run(), subRun.subRun(), true);
+    fileIndexIter_ = fileIndex_.findSubRunPosition(subRun, true);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;
@@ -979,7 +916,7 @@ namespace art {
 
   bool
   RootInputFile::setEntryAtRun(RunID const& run) {
-    fileIndexIter_ = fileIndex_.findRunPosition(run.run(), true);
+    fileIndexIter_ = fileIndex_.findRunPosition(run, true);
     if (fileIndexIter_ == fileIndexEnd_) return false;
     runTree_.setEntryNumber(fileIndexIter_->entry_);
     return true;
@@ -990,7 +927,7 @@ namespace art {
     if (forcedRunOffset_ != 0) {
       id = RunID(id.run() + forcedRunOffset_);
     }
-    if (id < RunID::firstValidRun()) id = RunID::firstValidRun();
+    if (id < RunID::firstValidRunID()) id = RunID::firstValidRunID();
   }
 
   void
@@ -998,7 +935,6 @@ namespace art {
     if (forcedRunOffset_ != 0) {
       id = SubRunID(id.run() + forcedRunOffset_, id.subRun());
     }
-    if (RunID(id.run()) < RunID::firstValidRun()) id = SubRunID(RunID::firstValidRun().run(), id.subRun());
   }
 
   void
@@ -1008,11 +944,9 @@ namespace art {
         throw art::Exception(errors::Configuration,"RootInputFile::RootInputFile()")
           << "The 'setRunNumber' parameter of RootInput cannot be used with real data.\n";
       }
-      id = EventID(id.run() + forcedRunOffset_, id.event());
+      id = EventID(id.run() + forcedRunOffset_, id.subRun(), id.event());
     }
-    if (RunID(id.run()) < RunID::firstValidRun()) id = EventID(RunID::firstValidRun().run(), id.event());
   }
-
 
   void
   RootInputFile::readEventHistoryTree() {
