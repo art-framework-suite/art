@@ -5,7 +5,6 @@
 #include <iomanip>
 #include <ostream>
 
-// #include <iostream>
 using namespace cet;
 using namespace std;
 
@@ -182,9 +181,6 @@ namespace art {
 
    bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh) {
       bool result = lh.eventID_ < rh.eventID_;
-//       std::cerr << "lh: (" << lh
-//                 << ") < rh: (" << rh << "): "
-//                 << (result?"true":"false") << "\n";
       return result;
    }
 
@@ -213,36 +209,40 @@ namespace art {
    ostream&
    operator<< (ostream& os, FileIndex const& fileIndex) {
 
-//       os << "\nPrinting FileIndex contents.  This includes a list of all Runs, SubRuns\n"
-//          << "and Events stored in the root file.\n\n";
-//       os << setw(15) << "Run"
-//          << setw(15) << "SubRun"
-//          << setw(15) << "Event"
-//          << setw(15) << "TTree Entry"
-//          << "\n";
-//       for (vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
-//          if (it->getEntryType() == FileIndex::kEvent) {
-//             os << setw(15) << it->run_
-//                << setw(15) << it ->subRun_
-//                << setw(15) << it->event_
-//                << setw(15) << it->entry_
-//                << "\n";
-//          }
-//          else if (it->getEntryType() == FileIndex::kSubRun) {
-//             os << setw(15) << it->run_
-//                << setw(15) << it ->subRun_
-//                << setw(15) << " "
-//                << setw(15) << it->entry_ << "  (SubRun)"
-//                << "\n";
-//          }
-//          else if (it->getEntryType() == FileIndex::kRun) {
-//             os << setw(15) << it->run_
-//                << setw(15) << " "
-//                << setw(15) << " "
-//                << setw(15) << it->entry_ << "  (Run)"
-//                << "\n";
-//          }
-//       }
+      os << "\nPrinting FileIndex contents.  This includes a list of all Runs, SubRuns\n"
+         << "and Events stored in the root file.\n\n";
+      os << setw(15) << "Run"
+         << setw(15) << "SubRun"
+         << setw(15) << "Event"
+         << setw(15) << "TTree Entry"
+         << "\n";
+      for (vector<FileIndex::Element>::const_iterator
+              it = fileIndex.begin(),
+              itEnd = fileIndex.end();
+           it != itEnd;
+           ++it) {
+         if (it->getEntryType() == FileIndex::kEvent) {
+            os << setw(15) << it->eventID_.run()
+               << setw(15) << it ->eventID_.subRun()
+               << setw(15) << it->eventID_.event()
+               << setw(15) << it->entry_
+               << "\n";
+         }
+         else if (it->getEntryType() == FileIndex::kSubRun) {
+            os << setw(15) << it->eventID_.run()
+               << setw(15) << it ->eventID_.subRun()
+               << setw(15) << " "
+               << setw(15) << it->entry_ << "  (SubRun)"
+               << "\n";
+         }
+         else if (it->getEntryType() == FileIndex::kRun) {
+            os << setw(15) << it->eventID_.run()
+               << setw(15) << " "
+               << setw(15) << " "
+               << setw(15) << it->entry_ << "  (Run)"
+               << "\n";
+         }
+      }
       return os;
    }
 }
