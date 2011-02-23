@@ -135,9 +135,6 @@ subdirs (art)
 # testing
 subdirs(test)
 
-# documentation
-subdirs(doc)
-
 # ups - table and config files
 subdirs(ups)
 
