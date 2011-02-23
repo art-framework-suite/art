@@ -49,7 +49,6 @@ namespace art {
   // Class RootInputFile: supports file reading.
 
   class DuplicateChecker;
-  class ProvenanceAdaptor;
   class GroupSelectorRules;
 
   class RootInputFile : private boost::noncopyable {
@@ -127,7 +126,6 @@ namespace art {
   private:
     bool setIfFastClonable(int remainingEvents, int remainingSubRuns) const;
     void validateFile();
-    void fillFileIndex();
     void fillEventAuxiliary();
     void fillHistory();
     void fillSubRunAuxiliary();
@@ -138,7 +136,6 @@ namespace art {
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
     void readParentageTree();
-    void readEntryDescriptionTree();
     void readEventHistoryTree();
 
     void initializeDuplicateChecker();
@@ -185,16 +182,12 @@ namespace art {
     boost::shared_ptr<History> history_;
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
-    boost::shared_ptr<ProvenanceAdaptor> provenanceAdaptor_;
   }; // RootInputFile
 
   template <typename T>
   inline
   boost::shared_ptr<BranchMapper>
   RootInputFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
-    if (fileFormatVersion_.value_ < 8) {
-      return makeBranchMapperInOldRelease(rootTree, type);
-    }
     boost::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
     return bm;
   }

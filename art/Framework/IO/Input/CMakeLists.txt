@@ -3,7 +3,6 @@ project(art_Framework_IO_Input)
 
 set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
                                  DuplicateChecker.cc
-                                 ProvenanceAdaptor.cc
                                  RootDelayedReader.cc
                                  RootInputFile.cc
                                  RootInputFileSequence.cc

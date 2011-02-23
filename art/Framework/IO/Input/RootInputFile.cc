@@ -6,7 +6,6 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Input/DuplicateChecker.h"
-#include "art/Framework/IO/Input/ProvenanceAdaptor.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -103,8 +102,8 @@ namespace art {
       eventHistoryTree_(0),
       history_(new History),
       branchChildren_(new BranchChildren),
-      duplicateChecker_(duplicateChecker),
-      provenanceAdaptor_() {
+      duplicateChecker_(duplicateChecker)
+  {
 
     eventTree_.setCacheSize(treeCacheSize);
 
@@ -182,30 +181,32 @@ namespace art {
     input::getEntry(metaDataTree, 0);
 
     setRefCoreStreamer(true);  // backward compatibility
-    std::string const expected_era = art::getFileFormatEra();
 
-    if (fileFormatVersion_.value_ < 11) {
-      // Old format input file.  Create a provenance adaptor.
-      provenanceAdaptor_.reset(new ProvenanceAdaptor(tempReg, pHistMap, psetMap, mdMap));
-      // Fill in the branchIDLists branch from the provenance adaptor
-      branchIDLists_ = provenanceAdaptor_->branchIDLists();
-    } else {
-      // New format input file. The branchIDLists branch was read directly from the input file.
-      if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) == 0) {
-        throw art::Exception(errors::EventCorruption)
+    // The branchIDLists branch was read directly from the input file.
+    if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) == 0) {
+       throw art::Exception(errors::EventCorruption)
           << "Failed to find branchIDLists branch in metaData tree.\n";
-      }
-      branchIDLists_.reset(branchIDListsAPtr.release());
     }
+    branchIDLists_.reset(branchIDListsAPtr.release());
+
+    // Check the, "Era" of the input file (new since art v0.5.0). If it
+    // does not match what we expect we cannot read the file. Required
+    // since we reset the file versioning since forking off from
+    // CMS. Files written by art prior to v0.5.0 will *also* not be
+    // readable because they do not have this datum and because the run,
+    // subrun and event-number handling has changed significantly.
+    std::string const expected_era = art::getFileFormatEra();
     if (fileFormatVersion_.era_ != expected_era) {
-       std::cerr << "Version = " << fileFormatVersion_.value_ << "\n";
        throw art::Exception(art::errors::FileReadError)
           << "Can only read files written during the \""
           << expected_era << "\" era: "
+          << "Era of "
+          << "\"" << file_
+          << "\" was "
           << (fileFormatVersion_.era_.empty()?
-              "not set ":
+              "not set":
               ("set to \"" + fileFormatVersion_.era_ + "\" "))
-          << "in the input file.\n";
+          << ".\n";
     }
 
     // Merge into the hashed registries.
@@ -250,30 +251,28 @@ namespace art {
 
     // Do the translation from the old registry to the new one
     {
-      ProductRegistry::ProductList const& prodList = tempReg.productList();
-      for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-           it != itEnd; ++it) {
-        BranchDescription const& prod = it->second;
-        string newFriendlyName = friendlyname::friendlyName(prod.className());
-        if (newFriendlyName == prod.friendlyClassName()) {
-          newReg->copyProduct(prod);
-        } else {
-          if (fileFormatVersion_.value_ >= 11) {
-            throw art::Exception(errors::UnimplementedFeature)
-              << "Cannot change friendly class name algorithm without more development work\n"
-              << "to update BranchIDLists.  Contact the framework group.\n";
+       ProductRegistry::ProductList const& prodList = tempReg.productList();
+       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+            it != itEnd; ++it) {
+          BranchDescription const& prod = it->second;
+          string newFriendlyName = friendlyname::friendlyName(prod.className());
+          if (newFriendlyName == prod.friendlyClassName()) {
+             newReg->copyProduct(prod);
+          } else {
+             throw art::Exception(errors::UnimplementedFeature)
+                << "Cannot change friendly class name algorithm without more development work\n"
+                << "to update BranchIDLists.  Contact the framework group.\n";
+             BranchDescription newBD(prod);
+             newBD.updateFriendlyClassName();
+             newReg->copyProduct(newBD);
+             // Need to call init to get old branch name.
+             prod.init();
+             newBranchToOldBranch_.insert(make_pair(newBD.branchName(), prod.branchName()));
           }
-          BranchDescription newBD(prod);
-          newBD.updateFriendlyClassName();
-          newReg->copyProduct(newBD);
-          // Need to call init to get old branch name.
-          prod.init();
-          newBranchToOldBranch_.insert(make_pair(newBD.branchName(), prod.branchName()));
-        }
-      }
-      // freeze the product registry
-      newReg->setFrozen();
-      productRegistry_.reset(newReg.release());
+       }
+       // freeze the product registry
+       newReg->setFrozen();
+       productRegistry_.reset(newReg.release());
     }
 
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
@@ -296,45 +295,8 @@ namespace art {
   }
 
   void
-  RootInputFile::readEntryDescriptionTree() {
-    // Called only for old format files.
-    if (fileFormatVersion_.value_ < 8) return;
-    TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(rootNames::entryDescriptionTreeName().c_str()));
-    if (!entryDescriptionTree)
-      throw art::Exception(errors::FileReadError) << "Could not find tree " << rootNames::entryDescriptionTreeName()
-                                                         << " in the input file.\n";
-
-
-    EntryDescriptionID idBuffer;
-    EntryDescriptionID* pidBuffer = &idBuffer;
-    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
-
-    EventEntryDescription entryDescriptionBuffer;
-    EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
-    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
-
-    // Fill in the parentage registry.
-    for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-      input::getEntry(entryDescriptionTree, i);
-      if (idBuffer != entryDescriptionBuffer.id())
-        throw art::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
-      EntryDescriptionRegistry::put(entryDescriptionBuffer);
-      Parentage parents;
-      parents.parents() = entryDescriptionBuffer.parents();
-      ParentageRegistry::put(parents);
-    }
-    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionIDBranchName().c_str(), 0);
-    entryDescriptionTree->SetBranchAddress(rootNames::entryDescriptionBranchName().c_str(), 0);
-  }
-
-  void
   RootInputFile::readParentageTree()
   {
-    if (fileFormatVersion_.value_ < 11) {
-      // Old format file.
-      readEntryDescriptionTree();
-      return;
-    }
     // New format file
     TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(rootNames::parentageTreeName().c_str()));
     if (!parentageTree)
@@ -585,55 +547,6 @@ namespace art {
   }
 
   void
-  RootInputFile::fillFileIndex() {
-    // This function is for backward compatibility only.
-    // Newer files store the file index.
-    SubRunNumber_t lastSubRun = 0;
-    RunNumber_t lastRun = 0;
-
-    // Loop over event entries and fill the index from the event auxiliary branch
-    while(eventTree_.next()) {
-      fillEventAuxiliary();
-      fileIndex_.addEntry(eventAux_.id(),
-                          eventTree_.entryNumber());
-      // If the subRun tree is invalid, use the event tree to add subRun index entries.
-      if (!subRunTree_.isValid()) {
-        if (lastSubRun != eventAux_.subRun()) {
-          lastSubRun = eventAux_.subRun();
-          fileIndex_.addEntry(EventID::invalidEvent(eventAux_.subRunID()), FileIndex::Element::invalidEntry);
-        }
-      }
-      // If the run tree is invalid, use the event tree to add run index entries.
-      if (!runTree_.isValid()) {
-        if (lastRun != eventAux_.run()) {
-          lastRun = eventAux_.run();
-          fileIndex_.addEntry(EventID::invalidEvent(eventAux_.runID()), FileIndex::Element::invalidEntry);
-        }
-      }
-    }
-    eventTree_.setEntryNumber(-1);
-
-    // Loop over subRun entries and fill the index from the subRun auxiliary branch
-    if (subRunTree_.isValid()) {
-      while (subRunTree_.next()) {
-        fillSubRunAuxiliary();
-        fileIndex_.addEntry(EventID::invalidEvent(subRunAux_.runID()), subRunTree_.entryNumber());
-      }
-      subRunTree_.setEntryNumber(-1);
-    }
-
-    // Loop over run entries and fill the index from the run auxiliary branch
-    if (runTree_.isValid()) {
-      while (runTree_.next()) {
-        fillRunAuxiliary();
-        fileIndex_.addEntry(EventID::invalidEvent(runAux_.runID()), runTree_.entryNumber());
-      }
-      runTree_.setEntryNumber(-1);
-    }
-    fileIndex_.sortBy_Run_SubRun_Event();
-  }
-
-  void
   RootInputFile::validateFile() {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
@@ -646,7 +559,8 @@ namespace art {
          "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
     if (fileIndex_.empty()) {
-      fillFileIndex();
+       throw art::Exception(art::errors::FileReadError)
+          << "FileIndex information is missing for the input file.\n";
     }
   }
 
@@ -672,36 +586,17 @@ namespace art {
 
   void
   RootInputFile::fillHistory() {
-    // We could consider doing delayed reading, but because we have to
-    // store this History object in a different tree than the event
-    // data tree, this is too hard to do in this first version.
+     // We could consider doing delayed reading, but because we have to
+     // store this History object in a different tree than the event
+     // data tree, this is too hard to do in this first version.
 
-    if (fileFormatVersion_.value_ >= 7) {
-      History* pHistory = history_.get();
-      TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
-      if (!eventHistoryBranch)
+     History* pHistory = history_.get();
+     TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
+     if (!eventHistoryBranch)
         throw art::Exception(errors::EventCorruption)
-          << "Failed to find history branch in event history tree.\n";
-      eventHistoryBranch->SetAddress(&pHistory);
-      input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
-    } else {
-      // for backward compatibility.  If we could figure out how many
-      // processes this event has been through, we should fill in
-      // history_ with that many default-constructed IDs.
-      if (!eventProcessHistoryIDs_.empty()) {
-        if (eventProcessHistoryIter_->eventID_ != eventAux_.id()) {
-          EventProcessHistoryID target(eventAux_.id(), ProcessHistoryID());
-          eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
-          assert(eventProcessHistoryIter_->eventID_ == eventAux_.id());
-        }
-        history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID_);
-        ++eventProcessHistoryIter_;
-      }
-    }
-    if (fileFormatVersion_.value_ < 11) {
-      // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
-      provenanceAdaptor_->branchListIndexes(history_->branchListIndexes());
-    }
+           << "Failed to find history branch in event history tree.\n";
+     eventHistoryBranch->SetAddress(&pHistory);
+     input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
   }
 
   void
@@ -778,9 +673,8 @@ namespace art {
     fillHistory();
     overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
 
-    boost::shared_ptr<BranchMapper> mapper = (fileFormatVersion().value_ >= 11 ?
-        makeBranchMapper<ProductProvenance>(eventTree_, InEvent) :
-        makeBranchMapper<EventEntryInfo>(eventTree_, InEvent));
+    boost::shared_ptr<BranchMapper> mapper =
+        makeBranchMapper<ProductProvenance>(eventTree_, InEvent);
 
     // We're not done ... so prepare the EventPrincipal
     auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
@@ -789,13 +683,10 @@ namespace art {
                 processConfiguration_,
                 history_,
                 mapper,
-                eventTree_.makeDelayedReader(fileFormatVersion_.value_ < 11)));
+                eventTree_.makeDelayedReader(false)));
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
-    if (fileFormatVersion().value_ < 11 && fileFormatVersion().value_ >= 8) {
-      thisEvent->readProvenanceImmediate();
-    }
     return thisEvent;
   }
 
@@ -845,8 +736,6 @@ namespace art {
         new RunPrincipal(runAux_,
                          pReg,
                          processConfiguration_,
-                         fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-                         makeBranchMapper<RunSubRunEntryInfo>(runTree_, InRun) :
                          makeBranchMapper<ProductProvenance>(runTree_, InRun),
                          runTree_.makeDelayedReader()));
     // Create a group in the run for each product
@@ -898,8 +787,6 @@ namespace art {
     boost::shared_ptr<SubRunPrincipal> thisSubRun(
         new SubRunPrincipal(subRunAux_,
                                      pReg, processConfiguration_,
-                                     fileFormatVersion().value_ <= 10 && fileFormatVersion().value_ >= 8 ?
-                                     makeBranchMapper<RunSubRunEntryInfo>(subRunTree_, InSubRun) :
                                      makeBranchMapper<ProductProvenance>(subRunTree_, InSubRun),
                                      subRunTree_.makeDelayedReader()));
     // Create a group in the subRun for each product
@@ -963,7 +850,6 @@ namespace art {
   void
   RootInputFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
-    if (fileFormatVersion_.value_ < 7) return;
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)
@@ -1050,75 +936,45 @@ namespace art {
   // backward compatibility
   boost::shared_ptr<BranchMapper>
   RootInputFile:: makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const {
-    if (fileFormatVersion_.value_ >= 7) {
-      rootTree.fillStatus();
-    } else {
-       mf::LogWarning("RootInputFile")
-         << "Backward compatibility not fully supported for reading files"
-            " written in CMSSW_1_8_4 or prior releases in releaseCMSSW_3_0_0.\n";
-    }
-    if (type == InEvent) {
-      boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0));
-      mapper->setDelayedRead(false);
-      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
-          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-        if (type == it->second.branchType() && !it->second.transient()) {
-          if (fileFormatVersion_.value_ >= 7) {
-            input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-            input::BranchInfo const& ib = ix->second;
-            TBranch *br = ib.provenanceBranch_;
-            auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
-            EntryDescriptionID* ppb = pb.get();
-            br->SetAddress(&ppb);
-            input::getEntry(br, rootTree.entryNumber());
-            vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
-            EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
-            mapper->insert(entry.makeProductProvenance());
-          } else {
-            TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-            auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-            BranchEntryDescription* ppb = pb.get();
-            br->SetAddress(&ppb);
-            input::getEntry(br, rootTree.entryNumber());
-            auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
-            ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-            EventEntryInfo entry(it->second.branchID(), status, it->second.oldProductID());
-            mapper->insert(entry.makeProductProvenance());
-          }
-          mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+     rootTree.fillStatus();
+     if (type == InEvent) {
+        boost::shared_ptr<BranchMapperWithReader<EventEntryInfo> > mapper(new BranchMapperWithReader<EventEntryInfo>(0, 0));
+        mapper->setDelayedRead(false);
+        for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
+               itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+           if (type == it->second.branchType() && !it->second.transient()) {
+                 input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+                 input::BranchInfo const& ib = ix->second;
+                 TBranch *br = ib.provenanceBranch_;
+                 auto_ptr<EntryDescriptionID> pb(new EntryDescriptionID);
+                 EntryDescriptionID* ppb = pb.get();
+                 br->SetAddress(&ppb);
+                 input::getEntry(br, rootTree.entryNumber());
+                 vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+                 EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
+                 mapper->insert(entry.makeProductProvenance());
+              mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+           }
         }
-      }
-      return mapper;
-    } else {
-      boost::shared_ptr<BranchMapperWithReader<ProductProvenance> > mapper(new BranchMapperWithReader<ProductProvenance>(0, 0));
-      mapper->setDelayedRead(false);
-      for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
-          itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
-        if (type == it->second.branchType() && !it->second.transient()) {
-          if (fileFormatVersion_.value_ >= 7) {
-            input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
-            input::BranchInfo const& ib = ix->second;
-            TBranch *br = ib.provenanceBranch_;
-            input::getEntry(br, rootTree.entryNumber());
-            vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
-            ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
-            mapper->insert(entry);
-          } else {
-            TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-            auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-            BranchEntryDescription* ppb = pb.get();
-            br->SetAddress(&ppb);
-            input::getEntry(br, rootTree.entryNumber());
-            auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
-            ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-            ProductProvenance entry(it->second.branchID(), status);
-            mapper->insert(entry);
-          }
+        return mapper;
+     } else {
+        boost::shared_ptr<BranchMapperWithReader<ProductProvenance> > mapper(new BranchMapperWithReader<ProductProvenance>(0, 0));
+        mapper->setDelayedRead(false);
+        for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
+               itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
+           if (type == it->second.branchType() && !it->second.transient()) {
+                 input::BranchMap::const_iterator ix = rootTree.branches().find(it->first);
+                 input::BranchInfo const& ib = ix->second;
+                 TBranch *br = ib.provenanceBranch_;
+                 input::getEntry(br, rootTree.entryNumber());
+                 vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
+                 ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index]);
+                 mapper->insert(entry);
+           }
         }
-      }
-      return mapper;
-    }
-    return boost::shared_ptr<BranchMapper>();
+        return mapper;
+     }
+     return boost::shared_ptr<BranchMapper>();
   }
   // end backward compatibility
 
