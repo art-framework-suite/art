@@ -1,11 +1,8 @@
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include <ostream>
 
-namespace art {
-  std::ostream&
-  operator<< (std::ostream& os, FileFormatVersion const& ff) {
-    os << ff.value_;
-    return os;
-  }
+std::ostream&
+operator<< (std::ostream& os, art::FileFormatVersion const& ff) {
+   os << (ff.era_.empty()?"":(ff.era_ + ": ")) << ff.value_;
+   return os;
 }
-

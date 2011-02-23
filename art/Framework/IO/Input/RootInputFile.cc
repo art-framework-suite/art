@@ -21,6 +21,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/GlobalIdentifier.h"
+#include "art/Version/GetFileFormatEra.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -181,6 +182,7 @@ namespace art {
     input::getEntry(metaDataTree, 0);
 
     setRefCoreStreamer(true);  // backward compatibility
+    std::string const expected_era = art::getFileFormatEra();
 
     if (fileFormatVersion_.value_ < 11) {
       // Old format input file.  Create a provenance adaptor.
@@ -194,6 +196,16 @@ namespace art {
           << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
+    }
+    if (fileFormatVersion_.era_ != expected_era) {
+       std::cerr << "Version = " << fileFormatVersion_.value_ << "\n";
+       throw art::Exception(art::errors::FileReadError)
+          << "Can only read files written during the \""
+          << expected_era << "\" era: "
+          << (fileFormatVersion_.era_.empty()?
+              "not set ":
+              ("set to \"" + fileFormatVersion_.era_ + "\" "))
+          << "in the input file.\n";
     }
 
     // Merge into the hashed registries.

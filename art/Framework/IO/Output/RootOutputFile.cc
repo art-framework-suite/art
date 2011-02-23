@@ -34,6 +34,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GlobalIdentifier.h"
 #include "art/Version/GetFileFormatVersion.h"
+#include "art/Version/GetFileFormatEra.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -273,7 +274,7 @@ namespace art {
   }
 
   void RootOutputFile::writeFileFormatVersion() {
-    FileFormatVersion fileFormatVersion(getFileFormatVersion());
+    FileFormatVersion fileFormatVersion(getFileFormatVersion(), getFileFormatEra());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
     TBranch* b = metaDataTree_->Branch(rootNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
     assert(b);

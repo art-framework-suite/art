@@ -7,6 +7,7 @@
 
 namespace {
   struct dictionary {
+     std::basic_string<char> bsc1;
   std::vector<unsigned long> dummy1;
   std::vector<unsigned int> dummy2;
   std::vector<std::vector<unsigned int> > dummy2v;

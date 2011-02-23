@@ -3,6 +3,7 @@
  <class name="std::allocator<double>"/>
  <class name="std::allocator<int>"/>
  <class name="std::allocator<short>"/>
+ <class name="std::basic_string<char>"/>
  <class name="std::bidirectional_iterator_tag"/>
  <class name="std::deque<int>"/>
  <class name="std::forward_iterator_tag"/>
@@ -49,15 +50,14 @@
  <class name="std::random_access_iterator_tag"/>
  <class name="std::set<int>"/>
  <class name="std::set<std::basic_string<char> >"/>
- <!-- <class name="std::vector<bool>"/> -->
- <class name="std::vector<char>"/>
  <class name="std::vector<char*>"/>
+ <class name="std::vector<char>"/>
  <class name="std::vector<double>"/>
  <class name="std::vector<float>"/>
  <class name="std::vector<int>"/>
- <class name="std::vector<long>"/>
  <class name="std::vector<long double>"/>
  <class name="std::vector<long long>"/>
+ <class name="std::vector<long>"/>
  <class name="std::vector<short>"/>
  <class name="std::vector<std::basic_string<char> >"/>
  <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
@@ -65,10 +65,10 @@
  <class name="std::vector<std::vector<int> >"/>
  <class name="std::vector<std::vector<unsigned int> >"/>
  <class name="std::vector<std::vector<unsigned short> >"/>
- <class name="std::vector<unsigned char>"/>
  <class name="std::vector<unsigned char*>"/>
+ <class name="std::vector<unsigned char>"/>
  <class name="std::vector<unsigned int>"/>
- <class name="std::vector<unsigned long>"/>
  <class name="std::vector<unsigned long long>"/>
+ <class name="std::vector<unsigned long>"/>
  <class name="std::vector<unsigned short>"/>
 </lcgdict>
