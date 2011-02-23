@@ -39,9 +39,9 @@ public:
         void const * &ptr) const;
 
  void
- fillPtrVector(std::type_info const &toType,
-               std::vector<unsigned long> const &indices,
-               std::vector<void const *> &ptr) const;
+ getElementAddresses(std::type_info const &toType,
+		     std::vector<unsigned long> const &indices,
+		     std::vector<void const *> &ptr) const;
 
 #ifndef __REFLEX__
 
@@ -69,9 +69,10 @@ protected:
                           unsigned long index,
                           void const * &ptr) const = 0;
 
-   virtual void do_fillPtrVector(std::type_info const &toType,
-                                 std::vector<unsigned long> const &indices,
-                                 std::vector<void const *> &ptr) const = 0;
+   virtual void
+   do_getElementAddresses(std::type_info const &toType,
+			  std::vector<unsigned long> const &indices,
+			  std::vector<void const *> &ptr) const = 0;
 
 private:
   // These will never be called.

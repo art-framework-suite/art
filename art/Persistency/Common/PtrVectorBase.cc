@@ -78,7 +78,7 @@ void
           << id()
           << '\n';
 
-  product->fillPtrVector(typeInfo(), indicies_, cachedItems_);
+  product->getElementAddresses(typeInfo(), indicies_, cachedItems_);
 }
 
 bool

@@ -26,7 +26,7 @@
 
 namespace art { namespace detail {
   template< typename T >
-    struct has_fillView_member;
+  struct has_fillView_member;
 } }
 
 // ----------------------------------------------------------------------
@@ -34,7 +34,7 @@ namespace art { namespace detail {
 namespace art {
 
   template< class T, bool = detail::has_fillView_member<T>::value >
-    struct fillView;
+  struct fillView;
 
   template <class T>
   class Wrapper
@@ -58,11 +58,11 @@ namespace art {
     static const std::type_info& typeInfo() { return typeid(Wrapper<T>);}
 
     virtual void
-      fillView( std::vector<void const *> & view ) const
+    fillView( std::vector<void const *> & view ) const
     { art::fillView<T>()(obj, view); }
 
     /**REFLEX must call the following constructor
-        the constructor takes ownership of T* */
+       the constructor takes ownership of T* */
     Wrapper(T*);
 
   private:
@@ -75,13 +75,13 @@ namespace art {
     virtual bool isProductEqual_(EDProduct const* newProduct) const;
 #endif
 
-   virtual void do_setPtr(std::type_info const &toType,
-                          unsigned long index,
-                          void const * &ptr) const;
+    virtual void do_setPtr(std::type_info const &toType,
+			   unsigned long index,
+			   void const * &ptr) const;
 
-   virtual void do_fillPtrVector(std::type_info const &toType,
-                                 std::vector<unsigned long> const &indices,
-                                 std::vector<void const *> &ptr) const;
+    virtual void do_getElementAddresses(std::type_info const &toType,
+					std::vector<unsigned long> const &indices,
+					std::vector<void const *> &ptr) const;
 
     bool present;
     //   T const obj;
@@ -111,9 +111,9 @@ namespace art {
                     void const*& oPtr) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
-      << "The product type "
-      << typeid(T).name()
-      << "\ndoes not support edm::Ptr\n";
+	<< "The product type "
+	<< typeid(T).name()
+	<< "\ndoes not support edm::Ptr\n";
     }
     void operator()(T const& obj,
                     const std::type_info& iToType,
@@ -121,9 +121,9 @@ namespace art {
                     std::vector<void const*>& oPtr) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
-      << "The product type "
-      << typeid(T).name()
-      << "\ndoes not support edm::PtrVector\n";
+	<< "The product type "
+	<< typeid(T).name()
+	<< "\ndoes not support edm::PtrVector\n";
     }
   };
 
@@ -141,9 +141,9 @@ namespace art {
 
   template <typename T>
   inline
-  void Wrapper<T>::do_fillPtrVector(std::type_info const& toType,
-				    std::vector<unsigned long> const& indices,
-				    std::vector<void const*>& ptrs) const
+  void Wrapper<T>::do_getElementAddresses(std::type_info const& toType,
+					  std::vector<unsigned long> const& indices,
+					  std::vector<void const*>& ptrs) const
   {
     typename boost::mpl::if_c<has_setPtr<T>::value,
       DoSetPtr<T>,
@@ -294,19 +294,19 @@ namespace art {
 
   template <class T>
   Wrapper<T>::Wrapper(T* ptr) :
-  EDProduct(),
-  present(ptr != 0),
-  obj()
+    EDProduct(),
+    present(ptr != 0),
+    obj()
   {
-     std::auto_ptr<T> temp(ptr);
-     if (present) {
-        // The following will call swap if T has such a function,
-        // and use assignment if T has no such function.
-        typename boost::mpl::if_c<detail::has_swap_function<T>::value,
-         DoSwap<T>,
+    std::auto_ptr<T> temp(ptr);
+    if (present) {
+      // The following will call swap if T has such a function,
+      // and use assignment if T has no such function.
+      typename boost::mpl::if_c<detail::has_swap_function<T>::value,
+	DoSwap<T>,
         DoAssign<T> >::type swap_or_assign;
-        swap_or_assign(obj, *ptr);
-     }
+      swap_or_assign(obj, *ptr);
+    }
 
   }
 
@@ -317,132 +317,132 @@ namespace art {
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
       IsMergeable<T>,
       IsNotMergeable<T> >::type is_mergeable;
-    return is_mergeable(obj);
-  }
+  return is_mergeable(obj);
+}
 
-  template <class T>
-  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
-  {
-    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
-    if (wrappedNewProduct == 0) return false;
-    typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
-      DoMergeProduct<T>,
-      DoNotMergeProduct<T> >::type merge_product;
-    return merge_product(obj, wrappedNewProduct->obj);
-  }
+template <class T>
+bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
+{
+  Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
+  if (wrappedNewProduct == 0) return false;
+  typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
+    DoMergeProduct<T>,
+    DoNotMergeProduct<T> >::type merge_product;
+  return merge_product(obj, wrappedNewProduct->obj);
+}
 
-  template <class T>
-  bool Wrapper<T>::hasIsProductEqual_() const
-  {
-    typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
-      DoHasIsProductEqual<T>,
-      DoNotHasIsProductEqual<T> >::type has_is_equal;
-    return has_is_equal(obj);
-  }
+template <class T>
+bool Wrapper<T>::hasIsProductEqual_() const
+{
+  typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
+    DoHasIsProductEqual<T>,
+    DoNotHasIsProductEqual<T> >::type has_is_equal;
+  return has_is_equal(obj);
+}
 
-  template <class T>
-  bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
-  {
-    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
-    if (wrappedNewProduct == 0) return false;
-    typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
-      DoIsProductEqual<T>,
-      DoNotIsProductEqual<T> >::type is_equal;
-    return is_equal(obj, wrappedNewProduct->obj);
-  }
+template <class T>
+bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
+{
+  Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
+  if (wrappedNewProduct == 0) return false;
+  typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
+    DoIsProductEqual<T>,
+    DoNotIsProductEqual<T> >::type is_equal;
+return is_equal(obj, wrappedNewProduct->obj);
+}
 #endif
 
-  template< class T >
-    struct fillView<T, true>
-  {
-    void operator () ( T const                   & product
+template< class T >
+struct fillView<T, true>
+{
+  void operator () ( T const                   & product
                      , std::vector<void const *> & view
                      )
-    {
-      product.fillView(view);
-    }
-  };  // fillView<T>
+  {
+    product.fillView(view);
+  }
+};  // fillView<T>
 
-  template< class T >
-    struct fillView<T, false>
-  {
-    void operator () ( T const                   & product
+template< class T >
+struct fillView<T, false>
+{
+  void operator () ( T const                   & product
                      , std::vector<void const *> & view
                      )
-    {
-      throw Exception(errors::ProductDoesNotSupportViews)
-        << "Product type " << typeid(T).name()
-        << " has no fillView() capability\n";
-    }
-  };  // fillView<T>
+  {
+    throw Exception(errors::ProductDoesNotSupportViews)
+      << "Product type " << typeid(T).name()
+      << " has no fillView() capability\n";
+  }
+};  // fillView<T>
 
-  template< >
-    struct fillView< std::vector<bool>, false >
-  {
-    void operator () ( std::vector<bool> const   & product
+template< >
+struct fillView< std::vector<bool>, false >
+{
+  void operator () ( std::vector<bool> const   & product
                      , std::vector<void const *> & view
                      )
-    {
-      throw Exception(errors::ProductDoesNotSupportViews)
-        << "Product type std::vector<bool> has no fillView() capability\n";
-    }
-  };  // fillView<vector<bool>>
+  {
+    throw Exception(errors::ProductDoesNotSupportViews)
+      << "Product type std::vector<bool> has no fillView() capability\n";
+  }
+};  // fillView<vector<bool>>
 
-  template< class E >
-    struct fillView< std::vector<E>, false >
-  {
-    void operator () ( std::vector<E> const      & product
+template< class E >
+struct fillView< std::vector<E>, false >
+{
+  void operator () ( std::vector<E> const      & product
                      , std::vector<void const *> & view
                      )
-    {
-      for( typename std::vector<E>::const_iterator b = product.begin()
-                                                 , e = product.end()
-         ; b != e; ++b )
-        view.push_back( &*b );
-    }
-  };  // fillView<vector<E>>
+  {
+    for( typename std::vector<E>::const_iterator b = product.begin()
+	   , e = product.end()
+	   ; b != e; ++b )
+      view.push_back( &*b );
+  }
+};  // fillView<vector<E>>
 
-  template< class E >
-    struct fillView< std::list<E>, false >
-  {
-    void operator () ( std::list<E> const        & product
+template< class E >
+struct fillView< std::list<E>, false >
+{
+  void operator () ( std::list<E> const        & product
                      , std::vector<void const *> & view
                      )
-    {
-      for( typename std::list<E>::const_iterator b = product.begin()
-                                               , e = product.end()
-         ; b != e; ++b )
-        view.push_back( &*b );
-    }
-  };  // fillView<list<E>>
+  {
+    for( typename std::list<E>::const_iterator b = product.begin()
+	   , e = product.end()
+	   ; b != e; ++b )
+      view.push_back( &*b );
+  }
+};  // fillView<list<E>>
 
-  template< class E >
-    struct fillView< std::deque<E>, false >
-  {
-    void operator () ( std::deque<E> const       & product
+template< class E >
+struct fillView< std::deque<E>, false >
+{
+  void operator () ( std::deque<E> const       & product
                      , std::vector<void const *> & view
                      )
-    {
-      for( typename std::deque<E>::const_iterator b = product.begin()
-                                                , e = product.end()
-         ; b != e; ++b )
-        view.push_back( &*b );
-    }
-  };  // fillView<deque<E>>
+  {
+    for( typename std::deque<E>::const_iterator b = product.begin()
+	   , e = product.end()
+	   ; b != e; ++b )
+      view.push_back( &*b );
+  }
+};  // fillView<deque<E>>
 
-  template< class E >
-    struct fillView< std::set<E>, false >
-  {
-    void operator () ( std::set<E> const         & product
+template< class E >
+struct fillView< std::set<E>, false >
+{
+  void operator () ( std::set<E> const         & product
                      , std::vector<void const *> & view
                      )
-    {
-      for( typename std::set<E>::const_iterator b = product.begin()
-                                              , e = product.end()
-         ; b != e; ++b )
-        view.push_back( &*b );
-    }
-  };  // fillView<set<E>>
+  {
+    for( typename std::set<E>::const_iterator b = product.begin()
+	   , e = product.end()
+	   ; b != e; ++b )
+      view.push_back( &*b );
+  }
+};  // fillView<set<E>>
 
 }
 
@@ -496,8 +496,8 @@ namespace art {
           oPtr = cast.Address(); // returns void*, after pointer adjustment
         } else {
           throw cet::exception("TypeConversionError")
-          << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
-          << " to " << iToType.name() << "\n";
+	    << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
+	    << " to " << iToType.name() << "\n";
         }
       }
     }
@@ -544,55 +544,55 @@ namespace art {
 
 namespace art {
 
-   template<typename T>
-   struct PtrSetter {
-      static void set(T const& obj,
-                      const std::type_info& iToType,
-                      unsigned long iIndex,
-                      void const*& oPtr) {
-         // setPtr is the name of an overload set; each concrete
-         // collection T should supply a fillView function, in the same
-         // namespace at that in which T is defined, or in the 'edm'
-         // namespace.
-         setPtr(obj, iToType, iIndex, oPtr);
-      }
+  template<typename T>
+  struct PtrSetter {
+    static void set(T const& obj,
+		    const std::type_info& iToType,
+		    unsigned long iIndex,
+		    void const*& oPtr) {
+      // setPtr is the name of an overload set; each concrete
+      // collection T should supply a fillView function, in the same
+      // namespace at that in which T is defined, or in the 'edm'
+      // namespace.
+      setPtr(obj, iToType, iIndex, oPtr);
+    }
 
-      static void fill(T const& obj,
-                       const std::type_info& iToType,
-                       const std::vector<unsigned long>& iIndex,
-                       std::vector<void const*>& oPtr) {
-         // fillPtrVector is the name of an overload set; each concrete
-         // collection T should supply a fillPtrVector function, in the same
-         // namespace at that in which T is defined, or in the 'edm'
-         // namespace.
-         fillPtrVector(obj, iToType, iIndex, oPtr);
-      }
-   };
+    static void fill(T const& obj,
+		     const std::type_info& iToType,
+		     const std::vector<unsigned long>& iIndex,
+		     std::vector<void const*>& oPtr) {
+      // getElementAddresses is the name of an overload set; each concrete
+      // collection T should supply a getElementAddresses function, in the same
+      // namespace at that in which T is defined, or in the 'edm'
+      // namespace.
+      getElementAddresses(obj, iToType, iIndex, oPtr);
+    }
+  };
 
-   template <class T>
-   void DoSetPtr<T>::operator()(T const& obj,
-                                const std::type_info &toType,
-                                unsigned long index,
-                                void const* &ptr) const  {
-      PtrSetter<T>::set(obj, toType, index, ptr);
-   }
+  template <class T>
+  void DoSetPtr<T>::operator()(T const& obj,
+			       const std::type_info &toType,
+			       unsigned long index,
+			       void const* &ptr) const  {
+    PtrSetter<T>::set(obj, toType, index, ptr);
+  }
 
-   template <class T>
-   void DoSetPtr<T>::operator()(T const& obj,
-                                const std::type_info &toType,
-                                const std::vector<unsigned long> &indices,
-                                std::vector<void const*> &ptr) const  {
-      PtrSetter<T>::fill(obj, toType, indices, ptr);
-   }
+  template <class T>
+  void DoSetPtr<T>::operator()(T const& obj,
+			       const std::type_info &toType,
+			       const std::vector<unsigned long> &indices,
+			       std::vector<void const*> &ptr) const  {
+    PtrSetter<T>::fill(obj, toType, indices, ptr);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Import from fillPtrVector.h
+// Import from getElementAddresses.h
 ////////////////////////////////////
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: fillPtrVector.h,v 1.3.4.1 2008/11/29 05:22:59 wmtan Exp $
+// $Id: getElementAddresses.h,v 1.3.4.1 2008/11/29 05:22:59 wmtan Exp $
 //
 
 namespace art {
@@ -601,10 +601,10 @@ namespace art {
     
     template <class COLLECTION>
     void
-    reallyfillPtrVector(COLLECTION const& coll,
-                        const std::type_info& iToType,
-                        const std::vector<unsigned long>& iIndicies,
-                        std::vector<void const*>& oPtr)
+    reallygetElementAddresses(COLLECTION const& coll,
+			      const std::type_info& iToType,
+			      const std::vector<unsigned long>& iIndicies,
+			      std::vector<void const*>& oPtr)
     {
       typedef COLLECTION                            product_type;
       typedef typename GetProduct<product_type>::element_type     element_type;
@@ -614,7 +614,7 @@ namespace art {
       oPtr.reserve(iIndicies.size());
       if(iToType == typeid(element_type)) {
         for(std::vector<unsigned long>::const_iterator itIndex=iIndicies.begin(),
-            itEnd = iIndicies.end();
+	      itEnd = iIndicies.end();
             itIndex != itEnd;
             ++itIndex) {
           iter it = coll.begin();
@@ -629,7 +629,7 @@ namespace art {
         Type toType=Type::ByTypeInfo(iToType);
         
         for(std::vector<unsigned long>::const_iterator itIndex=iIndicies.begin(),
-            itEnd = iIndicies.end();
+	      itEnd = iIndicies.end();
             itIndex != itEnd;
             ++itIndex) {
           iter it = coll.begin();
@@ -645,8 +645,8 @@ namespace art {
             oPtr.push_back(cast.Address());// returns void*, after pointer adjustment
           } else {
             throw cet::exception("TypeConversionError")
-            << "art::PtrVector<> : unable to convert type " << typeid(element_type).name()
-            << " to " << iToType.name() << "\n";
+	      << "art::PtrVector<> : unable to convert type " << typeid(element_type).name()
+	      << " to " << iToType.name() << "\n";
           }
           
         }
@@ -656,38 +656,38 @@ namespace art {
   
   template <class T, class A>
   void
-  fillPtrVector(std::vector<T,A> const& obj,
-                const std::type_info& iToType,
-                const std::vector<unsigned long>& iIndicies,
-                std::vector<void const*>& oPtr) {
-    detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
+  getElementAddresses(std::vector<T,A> const& obj,
+		      const std::type_info& iToType,
+		      const std::vector<unsigned long>& iIndicies,
+		      std::vector<void const*>& oPtr) {
+    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
   
   template <class T, class A>
   void
-  fillPtrVector(std::list<T,A> const& obj,
-                const std::type_info& iToType,
-                const std::vector<unsigned long>& iIndicies,
-                std::vector<void const*>& oPtr) {
-    detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
+  getElementAddresses(std::list<T,A> const& obj,
+		      const std::type_info& iToType,
+		      const std::vector<unsigned long>& iIndicies,
+		      std::vector<void const*>& oPtr) {
+    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
   
   template <class T, class A>
   void
-  fillPtrVector(std::deque<T,A> const& obj,
-                const std::type_info& iToType,
-                const std::vector<unsigned long>& iIndicies,
-                std::vector<void const*>& oPtr) {
-    detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
+  getElementAddresses(std::deque<T,A> const& obj,
+		      const std::type_info& iToType,
+		      const std::vector<unsigned long>& iIndicies,
+		      std::vector<void const*>& oPtr) {
+    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
   
   template <class T, class A, class Comp>
   void
-  fillPtrVector(std::set<T,A,Comp> const& obj,
-                const std::type_info& iToType,
-                const std::vector<unsigned long>& iIndicies,
-                std::vector<void const*>& oPtr) {
-    detail::reallyfillPtrVector(obj, iToType, iIndicies, oPtr);
+  getElementAddresses(std::set<T,A,Comp> const& obj,
+		      const std::type_info& iToType,
+		      const std::vector<unsigned long>& iIndicies,
+		      std::vector<void const*>& oPtr) {
+    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
 
 }

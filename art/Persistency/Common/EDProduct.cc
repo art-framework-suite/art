@@ -26,11 +26,11 @@ EDProduct::setPtr(std::type_info const &toType,
 }
 
 void
-EDProduct::fillPtrVector(std::type_info const &toType,
+EDProduct::getElementAddresses(std::type_info const &toType,
                          std::vector<unsigned long> const &indices,
                          std::vector<void const *> &ptr) const
 {
-   do_fillPtrVector(toType, indices, ptr);
+   do_getElementAddresses(toType, indices, ptr);
 }
 
 // ======================================================================
