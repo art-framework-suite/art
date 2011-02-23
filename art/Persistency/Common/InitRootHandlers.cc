@@ -93,6 +93,11 @@ namespace {
       el_severity = ELseverityLevel::ELsev_info;
     }
 
+    if ( (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) &&
+         (el_message.find("DISPLAY not set") != std::string::npos) ) {
+      el_severity = ELseverityLevel::ELsev_info;       
+    }
+
     if( el_severity == ELseverityLevel::ELsev_info ) {
       // Don't throw if the message is just informational.
       die = false;
