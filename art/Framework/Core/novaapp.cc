@@ -39,7 +39,7 @@ int novaapp(int argc, char* argv[]) {
       ("output,o", bpo::value<std::string>(), "Event output stream file.")
       ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK).")
       ("trace", "Activate tracing.")
-      ("notrace", "Dectivate tracing.")
+      ("notrace", "Deactivate tracing.")
       ;
 
    bpo::positional_options_description pd;
