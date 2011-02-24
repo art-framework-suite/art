@@ -10,7 +10,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include <string>
 #include <vector>
 
-#include "art/Persistency/Common/DetSetVector.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/Ref.h"
@@ -781,86 +780,6 @@ namespace arttest {
       }
   }
 
-  //--------------------------------------------------------------------
-  //
-  class DSVAnalyzer : public art::EDAnalyzer
-  {
-  public:
-    DSVAnalyzer(const art::ParameterSet& iPSet) { }
-
-    virtual void
-    analyze(art::Event const& e, art::EventSetup const&);
-  private:
-    void do_sorted_stuff(art::Event const& e);
-    void do_unsorted_stuff(art::Event const& e);
-  };
-
-
-
-  void
-  DSVAnalyzer::analyze(art::Event const& e, art::EventSetup const&)
-  {
-    do_sorted_stuff(e);
-    do_unsorted_stuff(e);
-  }
-
-  void
-  DSVAnalyzer::do_sorted_stuff(art::Event const& e)
-  {
-    typedef DSVSimpleProduct         product_type;
-    typedef product_type::value_type detset;
-    typedef detset::value_type       value_type;
-    // Get the product back out; it should be sorted.
-    art::Handle<product_type> h;
-    e.getByType(h);
-    assert( h.isValid() );
-
-    // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are
-    // copying all the values out of the DetSetVector's first DetSet so we can
-    // manipulate them via an interface different from
-    // DetSet, just so that we can make sure the collection
-    // is sorted.
-    std::vector<value_type> after( (h->end()-1)->data.begin(),
-				   (h->end()-1)->data.end() );
-    typedef std::vector<value_type>::size_type size_type;
-
-
-    // Verify that the vector *is* sorted.
-
-    for (size_type i = 1, end = after.size(); i < end; ++i)
-      {
-	assert( after[i-1].data < after[i].data);
-      }
-  }
-
-  void
-  DSVAnalyzer::do_unsorted_stuff(art::Event const& e)
-  {
-    typedef DSVWeirdProduct         product_type;
-    typedef product_type::value_type detset;
-    typedef detset::value_type       value_type;
-    // Get the product back out; it should be unsorted.
-    art::Handle<product_type> h;
-    e.getByType(h);
-    assert( h.isValid() );
-
-    // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are
-    // copying all the values out of the DetSetVector's first DetSet so we can
-    // manipulate them via an interface different from
-    // DetSet, just so that we can make sure the collection
-    // is not sorted.
-    std::vector<value_type> after(  (h->end()-1)->data.begin(),
-				    (h->end()-1)->data.end() );
-    typedef std::vector<value_type>::size_type size_type;
-
-
-    // Verify that the vector is reverse-sorted.
-
-    for (size_type i = 1, end = after.size(); i < end; ++i)
-      {
-	assert( after[i-1].data > after[i].data);
-      }
-  }
 }
 
 using arttest::FailingProducer;

@@ -13,8 +13,6 @@ set( cc_files testOwnVector.cc
               testRangeMap.cc
               testIDVectorMap.cc
               ref_t.cppunit.cc
-              DetSetRefVector_t.cppunit.cc
-              DetSetLazyVector_t.cppunit.cc
               reftobase_t.cppunit.cc
               reftobasevector_t.cppunit.cc
               cloningptr_t.cppunit.cc
@@ -37,7 +35,6 @@ link_libraries( art_Persistency_Common
 foreach(file ${cpp_files} )
   if( ${file} MATCHES testRunner.cpp )
   elseif( ${file} MATCHES ReflexTools_t.cpp )
-  elseif( ${file} MATCHES DetSetNew_t.cpp )
   else()
     get_filename_component(ename ${file} NAME_WE )
     add_executable( ${ename}  ${file} )

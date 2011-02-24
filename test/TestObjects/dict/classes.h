@@ -58,8 +58,6 @@ struct dictionary {
 /*   art::Wrapper<art::SortedCollection<arttestprod::Simple,art::StrictWeakOrdering<arttestprod::Simple> > > dummy25; */
 /*   art::Wrapper<arttestprod::StreamTestThing> dummy26; */
 /*   art::Wrapper<arttestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27; */
-/*   art::DetSet<arttest::Sortable> x1; */
-/*   art::DetSet<arttest::Unsortable> x2; */
 /*   std::vector<arttest::Sortable> x3; */
 /*   std::vector<arttest::Unsortable> x4; */
 
