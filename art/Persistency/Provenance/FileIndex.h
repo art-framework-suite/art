@@ -1,13 +1,30 @@
 #ifndef art_Persistency_Provenance_FileIndex_h
 #define art_Persistency_Provenance_FileIndex_h
 
-/*----------------------------------------------------------------------
-
-FileIndex.h
-
-
-
-----------------------------------------------------------------------*/
+////////////////////////////////////////////////////////////////////////
+//
+// This intra-file indexing system has known issues and will be going
+// away at the earliest possible opportunity. In the meantime however,
+// there are some things of which the user of this class should be
+// aware:
+//
+// 1. This class is *not* intended for use outside ART. It should 
+//    probably be put into the detail namespace.
+//
+// 2. This class depends implicitly on an invalid value of the run,
+//    subrun or event in an EventID sorting *before* a valid one. This
+//    should be enforced in the comparison operations of the EventID and
+//    related classes.
+//
+// 3. Due to user requirements, it *is* possible to findEventPosition()
+//    using an EventID which is invalid in one particular way: the run
+//    and event numbers are valid, but the subrun number is not. HOWEVER,
+//    this only makes sense in an environment where the run number and
+//    event number specify the event uniquely. No check is made that an
+//    answer returned by findEventPosition() in these circumstances is
+//    in any way unique.
+//
+////////////////////////////////////////////////////////////////////////
 
 #include <vector>
 #include <cassert>
