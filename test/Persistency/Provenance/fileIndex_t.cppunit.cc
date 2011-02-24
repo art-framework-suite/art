@@ -91,7 +91,30 @@ void testFileIndex::eventSortAndSearchTest()
  fileIndex.addEntry(art::EventID(1, 2, 4), 1);
  fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(1, 2)), 2);
  fileIndex.addEntry(art::EventID(1, 2, 1), 2);
-
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(6)),9);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::RunID(9)),10);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 1)), 10);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 3)), 11);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 4)), 12);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 5)), 13);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 8)), 14);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 9)), 15);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(9, 1)), 16);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(9, 2)), 17);
+ fileIndex.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 0)), 9);
+ fileIndex.addEntry(art::EventID(6, 0, 4), 12);
+ fileIndex.addEntry(art::EventID(6, 1, 5), 13);
+ fileIndex.addEntry(art::EventID(6, 1, 6), 14);
+ fileIndex.addEntry(art::EventID(6, 1, 7), 15);
+ fileIndex.addEntry(art::EventID(6, 3, 9), 16);
+ fileIndex.addEntry(art::EventID(6, 5, 13), 17);
+ fileIndex.addEntry(art::EventID(6, 5, 14), 18);
+ fileIndex.addEntry(art::EventID(6, 8, 15), 19);
+ fileIndex.addEntry(art::EventID(6, 9, 5), 20);
+ fileIndex.addEntry(art::EventID(6, 9, 25), 21);
+ fileIndex.addEntry(art::EventID(6, 9, 25), 27);
+ fileIndex.addEntry(art::EventID(9, 1, 5), 22);
+ fileIndex.addEntry(art::EventID(9, 2, 5), 23);
  fileIndex.sortBy_Run_SubRun_Event();
 
  art::FileIndex shouldBe;
@@ -109,6 +132,30 @@ void testFileIndex::eventSortAndSearchTest()
  shouldBe.addEntry(art::EventID(3, 3, 1), 1);
  shouldBe.addEntry(art::EventID(3, 3, 2), 5);
  shouldBe.addEntry(art::EventID(3, 3, 3), 3);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(6)),9);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 0)), 9);
+ shouldBe.addEntry(art::EventID(6, 0, 4), 12);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 1)), 10);
+ shouldBe.addEntry(art::EventID(6, 1, 5), 13);
+ shouldBe.addEntry(art::EventID(6, 1, 6), 14);
+ shouldBe.addEntry(art::EventID(6, 1, 7), 15);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 3)), 11);
+ shouldBe.addEntry(art::EventID(6, 3, 9), 16);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 4)), 12);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 5)), 13);
+ shouldBe.addEntry(art::EventID(6, 5, 13), 17);
+ shouldBe.addEntry(art::EventID(6, 5, 14), 18);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 8)), 14);
+ shouldBe.addEntry(art::EventID(6, 8, 15), 19);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(6, 9)), 15);
+ shouldBe.addEntry(art::EventID(6, 9, 5), 20);
+ shouldBe.addEntry(art::EventID(6, 9, 25), 21);
+ shouldBe.addEntry(art::EventID(6, 9, 25), 27);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::RunID(9)),10);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(9, 1)), 16);
+ shouldBe.addEntry(art::EventID(9, 1, 5), 22);
+ shouldBe.addEntry(art::EventID::invalidEvent(art::SubRunID(9, 2)), 17);
+ shouldBe.addEntry(art::EventID(9, 2, 5), 23);
 
  CPPUNIT_ASSERT(areEntryVectorsTheSame(fileIndex, shouldBe));
 
@@ -121,7 +168,7 @@ void testFileIndex::eventSortAndSearchTest()
  CPPUNIT_ASSERT(iter->entry_ == 5);
 
  iter = fileIndex.findPosition(art::EventID(3, 3, 7));
- CPPUNIT_ASSERT(iter == fileIndex.end());
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 14);
 
  iter = fileIndex.findPosition(art::EventID(1, 2, 3));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 4);
@@ -196,13 +243,32 @@ void testFileIndex::eventSortAndSearchTest()
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
 
  iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(3, 4));
- CPPUNIT_ASSERT(iter == fileIndex.end());
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 14);
 
  iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(3, 2));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 8);
 
  iter = fileIndex.findSubRunOrRunPosition(art::SubRunID(2, 1));
  CPPUNIT_ASSERT((iter - fileIndex.begin()) == 5);
+
+ // Search for event without using subrun number.
+ iter = fileIndex.findEventPosition(art::EventID(art::SubRunID::invalidSubRun(art::RunID(1)), 4), true);
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 4);
+
+ iter = fileIndex.findEventPosition(art::EventID(art::SubRunID::invalidSubRun(art::RunID(1)), 5), true);
+ CPPUNIT_ASSERT(iter == fileIndex.end());
+
+ iter = fileIndex.findEventPosition(art::EventID(art::SubRunID::invalidSubRun(art::RunID(1)), 5), false);
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 10);
+
+ iter = fileIndex.findEventPosition(art::EventID(art::SubRunID::invalidSubRun(art::RunID(6)), 4), false);
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 16);
+
+ iter = fileIndex.findEventPosition(art::EventID(art::SubRunID::invalidSubRun(art::RunID(6)), 8), false);
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 22);
+
+ iter = fileIndex.findEventPosition(art::EventID(art::SubRunID::invalidSubRun(art::RunID(6)), 25), false);
+ CPPUNIT_ASSERT((iter - fileIndex.begin()) == 31);
 }
 
 void testFileIndex::eventEntrySortAndSearchTest()

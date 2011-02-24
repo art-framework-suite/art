@@ -9,6 +9,19 @@ using namespace cet;
 using namespace std;
 
 
+namespace {
+   bool subRunUnspecified(art::EventID const &eID) {
+      // This is nasty, principally because we don't want to be
+      // encouraging too many people to do this. Basically, we're
+      // checking whether the only reason an EventID is invalid is
+      // because its subRun number is invalid.
+      return (!eID.isValid()) &&
+         eID.runID().isValid() &&
+         art::EventID(art::SubRunID::firstSubRun(),
+                      eID.event()).isValid();
+   }
+}
+
 namespace art {
 
    art::FileIndex::EntryNumber_t const art::FileIndex::Element::invalidEntry = -1;
@@ -110,6 +123,10 @@ namespace art {
    FileIndex::findEventPosition(EventID const &eID, bool exact) const {
 
       assert(sortState() == kSorted_Run_SubRun_Event);
+
+      if (subRunUnspecified(eID)) {
+         return findEventForUnspecifiedSubRun(eID, exact);
+      }
 
       const_iterator it = findPosition(eID);
       const_iterator itEnd = entries_.end();
@@ -244,5 +261,48 @@ namespace art {
          }
       }
       return os;
+   }
+
+   FileIndex::const_iterator
+   FileIndex::findEventForUnspecifiedSubRun(EventID const &eID,
+                                            bool exact) const {
+
+      RunID const &runID = eID.runID();
+      EventNumber_t event = eID.event();
+      SubRunID last_subRunID;
+
+      // Try to find the event.
+      const_iterator it = findEventPosition
+         (EventID::firstEvent
+          (SubRunID::firstSubRun(runID)),
+          false);
+      const_iterator itEnd = entries_.end();
+      if (it == itEnd) return it;
+
+      // Starting with start_it, jump to the first event of each subrun
+      // until we find either:
+      //
+      // 1. The next run.
+      // 2. An event number higher than we want.
+      // 3. The end of the file index.
+      while ((it != itEnd) &&
+             (it->eventID_.runID() == runID) &&
+             (it->eventID_.event() < event)) {
+         last_subRunID = it->eventID_.subRunID();
+         it = findEventPosition(EventID::invalidEvent(it->eventID_.subRunID().next()), false);
+      }
+
+      if ((it != itEnd) &&
+          (it->eventID_.runID() == runID) &&
+          (it->eventID_.event() == event)) {
+         // We started on the correct event.
+         return it;
+      } else if (last_subRunID.isValid()) {
+         // Find the event.
+         return findEventPosition(EventID(last_subRunID, event), exact);
+      } else {
+         // Did not find anything.
+         return itEnd;
+      }   
    }
 }

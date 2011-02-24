@@ -112,6 +112,9 @@ private:
    bool& resultCached() const {return transients_.get().resultCached_;}
    SortState& sortState() const {return transients_.get().sortState_;}
 
+   const_iterator
+   findEventForUnspecifiedSubRun(EventID const &eID, bool exact) const;
+
    std::vector<Element> entries_;
    mutable Transient<Transients> transients_;
 };

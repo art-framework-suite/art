@@ -20,14 +20,17 @@ class art::EventID {
 public:
    EventID() : subRun_(), event_() {}
    EventID(RunNumber_t r, SubRunNumber_t sr, EventNumber_t e) :
-      subRun_(r, sr), event_(inRangeOrInvalid(e)) {
-      checkSane();
-   }
+      subRun_(r, sr), event_(inRangeOrInvalid(e))
+   {}
+   // This needs to be done in enough places in the framework that this
+   // constructor should be public.
+   EventID(SubRunID const &sID, EventNumber_t e) :
+      subRun_(sID), event_(inRangeOrInvalid(e))
+   {}
+
 
    bool isValid() const {
-      // Don't need to chack for the invalid value because it's outside
-      // the range by construction.
-      return (event_ != INVALID_EVENT_NUMBER);
+      return (event_ != INVALID_EVENT_NUMBER) && subRun_.isValid();
    }
 
    SubRunID const &subRunID() const { return subRun_; }
@@ -144,21 +147,9 @@ private:
    static EventNumber_t const MAX_VALID_EVENT_NUMBER;
    static EventNumber_t const FIRST_EVENT_NUMBER;
 
-   EventID(SubRunID const &sID, EventNumber_t e) :
-      subRun_(sID), event_(inRangeOrInvalid(e)) {
-      checkSane();
-   }
-
    EventNumber_t inRangeOrInvalid(EventNumber_t e) {
       return (e < FIRST_EVENT_NUMBER ||
               e > MAX_VALID_EVENT_NUMBER)?INVALID_EVENT_NUMBER:e;
-   }
-
-   void checkSane() {
-      if (isValid() && !subRun_.isValid()) {
-         throw art::Exception(art::errors::InvalidNumber)
-            << "EventID is not meaningful with valid event and invalid subRun.";
-      }
    }
 
    SubRunID subRun_;
