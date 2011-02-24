@@ -1,31 +1,48 @@
 <!DOCTYPE HTML>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title><%= @item[:title] %></title>
-    <link rel="stylesheet" type="text/css" href="/style.css" media="screen">
-    <meta name="generator" content="nanoc 3.1.6">
-  </head>
-  <body>
-    <div id="main">
-      <%= yield %>
-    </div>
-    <div id="sidebar">
-      <h2>art tutorial</h2>
-      <ul>
-	<li><a href="/">tutorial home</a></li>
-	<li><a href="/about/">about this tutorial</a></li>
-      </ul>
-      <h2>art project</h2>
-      <ul>
-        <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/">art Redmine</a></li>
-      </ul>
-      <h2>Community</h2>
-      <ul>
-        <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/issues/">art Issues List</a></li>
-        <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/wiki/">art Wiki</a></li>
-        <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/repository/">art code repository</a></li>
-      </ul>
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <title><%= @item[:title] %></title>
+  <link rel="stylesheet" type="text/css" href="/style.css" media="screen">
+  <meta name="generator" content="nanoc 3.1.6">
+</head>
+<body>
+  
+  <div id="main">
+    <% unless @item.reps[0].path == "/" %>
+    <span class="breadcrumbs"><% breadcrumbs_trail.each do |b| %>
+    	<%= link_to(  b[:title] , b.reps[0].path ) if b %> 
+    	<%= b != @item ? '»' : '' %> 
+    	<%end%>
+    </span>
+    <% end %>
+    
+    <%= yield %>
+  </div>
+  
+  <div id="footer">
+    <%= link_to('Previous page', @item[:prev]) if @item[:prev]%>
+    <br/>
+    <%= link_to('Next page',     @item[:next]) if @item[:next]%>
+  </div>
+      
+  <div id="sidebar">
+    <h2>art tutorial</h2>
+    <ul>
+      <li><a href="/">tutorial home</a></li>
+      <li><a href="/about/">about this tutorial</a></li>
+    </ul>
+    <h2>art project</h2>
+    <ul>
+      <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/">art Redmine</a></li>
+    </ul>
+    <h2>Community</h2>
+    <ul>
+      <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/issues/">art Issues List</a></li>
+      <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/wiki/">art Wiki</a></li>
+      <li><a href="https://cdcvs.fnal.gov/redmine/projects/art/repository/">art code repository</a></li>
+    </ul>
+  </div>
+
+</body>
 </html>

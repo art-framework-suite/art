@@ -1,8 +1,7 @@
 * {
   margin: 0;
   padding: 0;
-
-  font-family: Georgia, Palatino, Times, 'Times New Roman', sans-serif;
+  font-family: Georgia, Palatino, sans-serif;
 }
 
 body {
@@ -13,8 +12,7 @@ a {
   text-decoration: none;
 }
 
-a:link,
-a:visited {
+a:link, a:visited {
   color: #f30;
 }
 
@@ -23,80 +21,66 @@ a:hover {
 }
 
 #main {
-  position: absolute;
-
-  top: 40px;
-  left: 280px;
-
-
+  padding-top: 10px;
+  padding-left: 250px;
 }
 
 #main h1 {
-  font-size: 40px;
-  font-weight: normal;
-  padding-bottom: 1em;
-
-  line-height: 40px;
-
-  letter-spacing: -1px;
+  font-weight: bold;
+  padding-top: 1em;
+  padding-bottom: 0.5em;
 }
 
 #main p {
-  margin: 20px 0;
-  
-  font-size: 15px;
-  
-  line-height: 20px;
+  margin: 0.5em;
 }
 
-#main em { color: red; }
+#main em {
+   color: red;
+}
+
+#main strong {
+  color: purple;
+}
 
 #main ul {
-  margin: 20px;
 }
 
 #main li {
   list-style-type: square;
+}
 
-  font-size: 15px;
-  
-  line-height: 20px;
+#footer {
+  margin-left: 250px;
+  padding-top: 1em;
+  margin-top: 1em;
+  border-top: 1px solid #ccc;
 }
 
 #sidebar {
-  position: absolute;
-
+  position: fixed;
   top: 20px;
   left: 10px;
   width: 150px;
-
   padding: 20px 20px 0 0;
-
   border-right: 1px solid #ccc;
-
   text-align: right;
 }
 
 #sidebar h2 {
   text-transform: uppercase;
-
   font-size: 13px;
-
   color: #333;
-
   letter-spacing: 1px;
-
   line-height: 20px;
 }
 
 #sidebar ul {
   list-style-type: none;
-
   margin: 20px 0;
 }
 
 #sidebar li {
   font-size: 14px;
-
   line-height: 20px;
 }

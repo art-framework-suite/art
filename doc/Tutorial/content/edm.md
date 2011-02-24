@@ -1,5 +1,7 @@
 ---
 title: The Event Data Model
+next: /dataproducts
+prev: /concepts
 ---
 
 EDM: the Event Data Model
@@ -7,7 +9,7 @@ EDM: the Event Data Model
 
 * Library for organizing, navigating, and persisting data processed by the experiment
 
-* Organization is hierarchical - Run / Subrun / Event
+* Organization is hierarchical: *Run* / *SubRun* / *Event*
 
 * Processing happens one Event at a time
 
@@ -17,9 +19,3 @@ EDM: the Event Data Model
 
 * Modules perform queries to find existing data objects and do inserts
   to store new data products associated with this Event
-
-previous: [Key concepts][prev]
-next: [Data model][next]
-
-[prev]: /concepts
-[next]: /datamodel
