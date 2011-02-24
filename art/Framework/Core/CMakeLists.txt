@@ -5,7 +5,6 @@ set( art_Framework_Core_sources
   Actions.cc
   Breakpoints.cc
   CachedProducts.cc
-  ConfigurableInputSource.cc
   CurrentProcessingContext.cc
   DataViewImpl.cc
   DelayedReader.cc
@@ -18,7 +17,6 @@ set( art_Framework_Core_sources
   EventPrincipal.cc
   EventProcessor.cc
   EventSelector.cc
-  GeneratedInputSource.cc
   GenericHandle.cc
   GenericObjectOwner.cc
   Group.cc
@@ -141,7 +139,6 @@ install(FILES
   Breakpoints.h
   CPCSentry.h
   CachedProducts.h
-  ConfigurableInputSource.h
   CurrentProcessingContext.h
   DataViewImpl.h
   DelayedReader.h
@@ -157,7 +154,6 @@ install(FILES
   EventSelector.h
   FileBlock.h
   Frameworkfwd.h
-  GeneratedInputSource.h
   GenericHandle.h
   GenericObjectOwner.h
   Group.h
