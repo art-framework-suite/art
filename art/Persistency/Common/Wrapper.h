@@ -93,13 +93,16 @@ namespace art {
   struct DoSetPtr
   {
     void operator()(T const& obj,
-                    const std::type_info& iToType,
-                    unsigned long iIndex,
-                    void const*& oPtr) const;
+                    const std::type_info& toType,
+                    unsigned long index,
+                    void const*& ptr) const;
     void operator()(T const& obj,
-                    const std::type_info& iToType,
-                    const std::vector<unsigned long>& iIndex,
-                    std::vector<void const*>& oPtr) const;
+                    const std::type_info& toType,
+                    const std::vector<unsigned long>& index,
+                    std::vector<void const*>& ptrs) const;
+    void operator()(T const& obj,
+		    std::type_info const& toType,
+		    std::vector<void const*>& ptrs) const;
   };
 
   template <class T>
@@ -108,22 +111,33 @@ namespace art {
     void operator()(T const&,
                     const std::type_info&,
                     unsigned long,
-                    void const*& oPtr) const
+                    void const*&) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
 	<< "The product type "
 	<< typeid(T).name()
-	<< "\ndoes not support edm::Ptr\n";
+	<< "\ndoes not support art::Ptr\n";
     }
-    void operator()(T const& obj,
-                    const std::type_info& iToType,
-                    const std::vector<unsigned long>& iIndex,
-                    std::vector<void const*>& oPtr) const
+
+    void operator()(T const&,
+                    const std::type_info&,
+                    const std::vector<unsigned long>&,
+                    std::vector<void const*>&) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
 	<< "The product type "
 	<< typeid(T).name()
-	<< "\ndoes not support edm::PtrVector\n";
+	<< "\ndoes not support art::PtrVector\n";
+    }
+
+    void operator()(T const&,
+		    std::type_info const&,
+		    std::vector<void const*>&) const
+    {
+      throw Exception(errors::ProductDoesNotSupportPtr)
+	<< "The product type "
+	<< typeid(T).name()
+	<< "\ndoes not support art::PtrVector\n";
     }
   };
 
@@ -549,7 +563,8 @@ namespace art {
     static void set(T const& obj,
 		    const std::type_info& iToType,
 		    unsigned long iIndex,
-		    void const*& oPtr) {
+		    void const*& oPtr)
+    {
       // setPtr is the name of an overload set; each concrete
       // collection T should supply a fillView function, in the same
       // namespace at that in which T is defined, or in the 'edm'
@@ -560,11 +575,12 @@ namespace art {
     static void fill(T const& obj,
 		     const std::type_info& iToType,
 		     const std::vector<unsigned long>& iIndex,
-		     std::vector<void const*>& oPtr) {
-      // getElementAddresses is the name of an overload set; each concrete
-      // collection T should supply a getElementAddresses function, in the same
-      // namespace at that in which T is defined, or in the 'edm'
-      // namespace.
+		     std::vector<void const*>& oPtr)
+    {
+      // getElementAddresses is the name of an overload set; each
+      // concrete collection T should supply a getElementAddresses
+      // function, in the same namespace at that in which T is
+      // defined, or in the 'edm' namespace.
       getElementAddresses(obj, iToType, iIndex, oPtr);
     }
   };
@@ -573,7 +589,8 @@ namespace art {
   void DoSetPtr<T>::operator()(T const& obj,
 			       const std::type_info &toType,
 			       unsigned long index,
-			       void const* &ptr) const  {
+			       void const* &ptr) const
+  {
     PtrSetter<T>::set(obj, toType, index, ptr);
   }
 
@@ -581,8 +598,17 @@ namespace art {
   void DoSetPtr<T>::operator()(T const& obj,
 			       const std::type_info &toType,
 			       const std::vector<unsigned long> &indices,
-			       std::vector<void const*> &ptr) const  {
+			       std::vector<void const*> &ptr) const
+  {
     PtrSetter<T>::fill(obj, toType, indices, ptr);
+  }
+  
+  template <class T>
+  void DoSetPtr<T>::operator()(T const& obj,
+			       std::type_info const& toType,
+			       std::vector<void const*>& ptrs) const
+  {
+    PtrSetter<T>::fill(obj, toType, ptrs);
   }
 }
 
@@ -597,8 +623,6 @@ namespace art {
 
 namespace art {
   namespace detail {
-    
-    
     template <class COLLECTION>
     void
     reallygetElementAddresses(COLLECTION const& coll,
@@ -612,45 +636,59 @@ namespace art {
       typedef typename product_type::size_type      size_type;
       
       oPtr.reserve(iIndicies.size());
-      if(iToType == typeid(element_type)) {
-        for(std::vector<unsigned long>::const_iterator itIndex=iIndicies.begin(),
+      if (iToType == typeid(element_type))
+	{
+	  for(std::vector<unsigned long>::const_iterator 
+		itIndex=iIndicies.begin(),
 	      itEnd = iIndicies.end();
             itIndex != itEnd;
-            ++itIndex) {
-          iter it = coll.begin();
-          advance(it,*itIndex);          
-          element_type const* address = GetProduct<product_type>::address( it );
-          oPtr.push_back(address);
-        }
-      } else {
-        using Reflex::Type;
-        using Reflex::Object;
-        static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-        Type toType=Type::ByTypeInfo(iToType);
-        
-        for(std::vector<unsigned long>::const_iterator itIndex=iIndicies.begin(),
-	      itEnd = iIndicies.end();
-            itIndex != itEnd;
-            ++itIndex) {
-          iter it = coll.begin();
-          advance(it,*itIndex);          
-          element_type const* address = GetProduct<product_type>::address( it );
-          // The const_cast below is needed because
-          // Object's constructor requires a pointer to
-          // non-const void, although the implementation does not, of
-          // course, modify the object to which the pointer points.
-          Object obj(s_type, const_cast<void*>(static_cast<const void*>(address)));
-          Object cast = obj.CastObject(toType);
-          if(0 != cast.Address()) {
-            oPtr.push_back(cast.Address());// returns void*, after pointer adjustment
-          } else {
-            throw cet::exception("TypeConversionError")
-	      << "art::PtrVector<> : unable to convert type " << typeid(element_type).name()
-	      << " to " << iToType.name() << "\n";
-          }
-          
-        }
-      }
+            ++itIndex) 
+	    {
+	      iter it = coll.begin();
+	      advance(it,*itIndex);          
+	      element_type const* address = 
+		GetProduct<product_type>::address( it );
+	      oPtr.push_back(address);
+	    }
+	}
+      else
+	{
+	  using Reflex::Type;
+	  using Reflex::Object;
+	  static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
+	  Type toType=Type::ByTypeInfo(iToType);
+	  
+	  for(std::vector<unsigned long>::const_iterator 
+		itIndex=iIndicies.begin(),
+		itEnd = iIndicies.end();
+	      itIndex != itEnd;
+	      ++itIndex)
+	    {
+	      iter it = coll.begin();
+	      advance(it,*itIndex);          
+	      element_type const* address = 
+		GetProduct<product_type>::address( it );
+	      // The const_cast below is needed because
+	      // Object's constructor requires a pointer to
+	      // non-const void, although the implementation does not, of
+	      // course, modify the object to which the pointer points.
+	      Object obj(s_type, 
+			 const_cast<void*>(static_cast<const void*>(address)));
+	      Object cast = obj.CastObject(toType);
+	      if (0 != cast.Address())
+		{
+		  // returns void*, after pointer adjustment
+		  oPtr.push_back(cast.Address());
+		}
+	      else
+		{
+		  throw cet::exception("TypeConversionError")
+		    << "art::PtrVector<> : unable to convert type "
+		    << typeid(element_type).name()
+		    << " to " << iToType.name() << "\n";
+		}
+	    }
+	}
     }
   }
   

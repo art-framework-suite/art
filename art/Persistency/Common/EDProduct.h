@@ -73,7 +73,6 @@ protected:
    do_getElementAddresses(std::type_info const &toType,
 			  std::vector<unsigned long> const &indices,
 			  std::vector<void const *> &ptr) const = 0;
-
 private:
   // These will never be called.
   // For technical ROOT related reasons, we cannot declare it = 0.

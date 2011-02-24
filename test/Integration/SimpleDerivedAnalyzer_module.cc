@@ -6,6 +6,7 @@
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/View.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -103,10 +104,17 @@ test_view(art::Event const& e,
   verify_elements(v.vals(), v.vals().size(), event_num, nvalues);
 
   art::View<T> v2;
-
   assert(e.getView(tag, v2));
   assert(v2.vals().size() == nvalues);
-  verify_elements(v2.vals(), v2.vals().size(), event_num, nvalues);    
+  verify_elements(v2.vals(), v2.vals().size(), event_num, nvalues);
+
+  // Fill a PtrVector from the view... after zeroing the first
+  // element.
+  v.vals().front() = 0; // zero out the first pointer...
+  art::PtrVector<T> pvec;
+  v.fill(pvec);
+  for (size_t i = 0, sz = pvec.size(); i!=sz; ++i)
+    assert(*pvec[i] == *v.vals()[i+1]);
 }
 
 // dummy is a type we can be sure is not used in any collections in

@@ -189,6 +189,8 @@ namespace art {
              , std::vector<ELEMENT const *> & result
              ) const;
 
+    // If getView returns true, then result.isValid() is certain to be
+    // true -- but the View may still be empty.
     template <class ELEMENT>
     bool
     getView(std::string const& moduleLabel, View<ELEMENT>& result) const;
