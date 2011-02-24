@@ -52,11 +52,11 @@ public:
       return RunID(run_ - 1);
    }
 
-   static RunID maxValidRunID() {
+   static RunID maxRun() {
       return RunID(MAX_VALID_RUN_NUMBER);
    }
 
-   static RunID firstValidRunID() {
+   static RunID firstRun() {
       return RunID(FIRST_RUN_NUMBER);
    }
 

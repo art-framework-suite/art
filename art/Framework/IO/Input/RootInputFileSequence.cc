@@ -74,13 +74,13 @@ namespace art {
     bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstRun);
     EventNumber_t firstEvent;
     bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
-    RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstValidRunID();
+    RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstRun();
     SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
-       SubRunID::firstSubRunForRunID(firstRunID);
+       SubRunID::firstSubRun(firstRunID);
     origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
                                           firstSubRunID.subRun(),
                                           firstEvent):
-       EventID::firstEventForSubRunID(firstSubRunID);
+       EventID::firstEvent(firstSubRunID);
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && (haveFirstEvent || !eventsToProcess_.empty())) {

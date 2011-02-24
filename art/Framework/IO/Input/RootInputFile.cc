@@ -927,7 +927,7 @@ namespace art {
     if (forcedRunOffset_ != 0) {
       id = RunID(id.run() + forcedRunOffset_);
     }
-    if (id < RunID::firstValidRunID()) id = RunID::firstValidRunID();
+    if (id < RunID::firstRun()) id = RunID::firstRun();
   }
 
   void

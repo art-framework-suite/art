@@ -88,7 +88,7 @@ void testEventID::comparisonTest()
 
 void testEventID::iterationTest()
 {
-   EventID first = EventID::firstValidEventID();
+   EventID first = EventID::firstEvent();
 
    EventID second = first.next();
    CPPUNIT_ASSERT(first < second);

@@ -60,15 +60,15 @@ public:
       return SubRunID(run_.previous(), MAX_VALID_SUBRUN_NUMBER);
    }
 
-   static SubRunID maxValidSubRunID() {
-      return SubRunID(RunID::maxValidRunID(), MAX_VALID_SUBRUN_NUMBER);
+   static SubRunID maxSubRun() {
+      return SubRunID(RunID::maxRun(), MAX_VALID_SUBRUN_NUMBER);
    }
 
-   static SubRunID firstValidSubRunID() {
-      return SubRunID(RunID::firstValidRunID(), FIRST_SUBRUN_NUMBER);
+   static SubRunID firstSubRun() {
+      return SubRunID(RunID::firstRun(), FIRST_SUBRUN_NUMBER);
    }
 
-   static SubRunID firstSubRunForRunID(RunID const &rID) {
+   static SubRunID firstSubRun(RunID const &rID) {
       return SubRunID(rID, FIRST_SUBRUN_NUMBER);
    }
 

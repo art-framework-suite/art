@@ -75,15 +75,15 @@ public:
       return EventID(subRun_.previousRun(), MAX_VALID_EVENT_NUMBER);
    }
 
-   static EventID maxValidEventID() {
-      return EventID(SubRunID::maxValidSubRunID(), MAX_VALID_EVENT_NUMBER);
+   static EventID maxEvent() {
+      return EventID(SubRunID::maxSubRun(), MAX_VALID_EVENT_NUMBER);
    }
 
-   static EventID firstValidEventID() {
-      return EventID(SubRunID::firstValidSubRunID(), FIRST_EVENT_NUMBER);
+   static EventID firstEvent() {
+      return EventID(SubRunID::firstSubRun(), FIRST_EVENT_NUMBER);
    }
 
-   static EventID firstEventForSubRunID(SubRunID const & srID) {
+   static EventID firstEvent(SubRunID const & srID) {
       return EventID(srID, FIRST_EVENT_NUMBER);
    }
 
