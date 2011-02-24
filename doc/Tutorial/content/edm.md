@@ -19,5 +19,7 @@ EDM: the Event Data Model
   to store new data products associated with this Event
 
 previous: [Key concepts][prev]
+next: [Data model][next]
 
 [prev]: /concepts
+[next]: /datamodel
