@@ -541,6 +541,7 @@ AR_2_ARG_UPDATER_DEFN(PostPathEndSubRun) {
 
 AR_1_ARG_UPDATER_DEFN(PreModuleConstruction) {
    setContext(arg1, "Construction");
+   setWorkFlowStatus("ModuleConstruction");   
 }
 
 AR_1_ARG_UPDATER_DEFN(PostModuleConstruction) {
@@ -610,6 +611,7 @@ AR_1_ARG_UPDATER_DEFN(PostModuleEndSubRun) {
 
 AR_1_ARG_UPDATER_DEFN(PreSourceConstruction) {
    setContext(arg1, "SourceConstruction");
+   setWorkFlowStatus("SourceConstruction");   
 }
 
 AR_1_ARG_UPDATER_DEFN(PostSourceConstruction) {
