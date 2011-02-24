@@ -1,0 +1,723 @@
+#!/usr/bin/perl -w
+########################################################################
+# artmod
+#
+# Script to generate clean module source for ART.
+#
+# Usage: artmod [<options>] <module-type> <qualified-name>
+#
+# <module-type> can be, "filter", "analyzer" or "producer."
+#
+# <qualified-name> is the namespace-qualified name of the module class.
+#   For instance, "nova::trk::TrackAnalyzer."
+#
+# For detailed documentation, see the pod at the end of this file; or
+# use the --help option.
+#
+# 2011/03/08 Chris Green for the ART team.
+########################################################################
+
+####################################
+# Preamble,
+use strict;
+
+use Cwd qw(chdir :DEFAULT);
+use File::Basename;
+use FileHandle;
+use Getopt::Long;
+use Pod::Usage;
+
+Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
+
+sub class_defn($\@\@);
+sub class_impl($\@\@);
+sub vprint;
+
+####################################
+# Variables and defaults.
+my $art_version = '@version@';
+my $currtime = localtime;
+my $current_filename;
+
+my $default_boilerplate = << 'EOF';
+////////////////////////////////////////////////////////////////////////
+// Class:       %c
+// Module Type: %t
+// File:        %f
+//
+// Generated at %d by %U using artmod
+// from art %v.
+////////////////////////////////////////////////////////////////////////
+EOF
+
+my $module_types = { analyzer => 1, filter => 1, producer => 1 };
+
+my $optional_endpoints =
+  {
+   analyzer =>
+   {
+    beginJob => "void beginJob()",
+    beginRun => "void beginRun(art::Run const &r)",
+    beginSubRun => "void beginSubRun(art::SubRun const &sr)",
+    endJob => "void endJob()",
+    endRun => "void endRun(art::Run const &r)",
+    endSubRun => "void endSubRun(art::SubRun const &sr)",
+    reconfigure => "void reconfigure(fhicl::ParameterSet const & p)",
+    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const &fb)",
+    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const &fb)",
+    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const &fb)",
+    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const &fb)"
+   },
+   filter =>
+   {
+    beginJob => "void beginJob()",
+    beginRun => "bool beginRun(art::Run &r)",
+    beginSubRun => "bool beginSubRun(art::SubRun &sr)",
+    endJob => "void endJob()",
+    endRun => "bool endRun(art::Run &r)",
+    endSubRun => "bool endSubRun(art::SubRun &sr)",
+    reconfigure => "void reconfigure(fhicl::ParameterSet const & p)",
+    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const &fb)",
+    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const &fb)",
+    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const &fb)",
+    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const &fb)"
+   },
+   producer =>
+   {
+    beginJob => "void beginJob()",
+    beginRun => "void beginRun(art::Run &r)",
+    beginSubRun => "void beginSubRun(art::SubRun &sr)",
+    endJob => "void endJob()",
+    endRun => "void endRun(art::Run &r)",
+    endSubRun => "void endSubRun(art::SubRun &sr)",
+    reconfigure => "void reconfigure(fhicl::ParameterSet const & p)",
+    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const &fb)",
+    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const &fb)",
+    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const &fb)",
+    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const &fb)"
+   }
+  };
+
+my $required_endpoints =
+  {
+   analyzer =>
+   {
+    analyze => "void analyze(art::Event const &e)"
+   },
+   filter =>
+   {
+    filter => "bool filter(art::Event &e)"
+   },
+   producer =>
+   {
+    produce => "void produce(art::Event &e)"
+   }
+  };
+
+my $base_header =
+  {
+   analyzer => "art/Framework/Core/EDAnalyzer.h",
+   filter => "art/Framework/Core/EDFilter.h",
+   producer => "art/Framework/Core/EDProducer.h"
+  };
+
+my $indent = ' ' x 3;
+
+my $options = {};
+
+####################################
+# Main code.
+
+GetOptions($options,
+           "boilerplate|b=s",
+           "entry-list|E=s",
+           "entry-points|entry-point|entry|entries|e=s@",
+           "header-loc=s",
+           "help|h|?",
+           "impl-boilerplate=s",
+           "split",
+           "split-ext=s",
+           "verbose|v",
+          ) or pod2usage(-exitval => 2);
+
+# One option implies the other.
+${options}->{split} = 1
+  if (exists ${options}->{"split-ext"});
+
+pod2usage(-exitval => 1, -verbose => 3) if $options->{help};
+
+# Check non-option arguments.
+if ((scalar @ARGV) != 2) {
+  print STDERR "ERROR: Expected exactly two non-option arguments.\n";
+  pod2usage(-exitval => 2);
+}
+
+my ($module_type, $qual_name) = @ARGV;
+
+# Process module type
+if (not exists $module_types->{lc $module_type}) {
+  print STDERR "ERROR: $module_type is not a recognized module type (",
+    join(",", sort keys %{$module_types}), ")\n";
+  exit(1);
+}
+
+# Process name;
+my @namespaces = split '::', $qual_name;
+my $class_name = pop @namespaces;
+
+# Process header location for multi
+my $header_path = (exists ${options}->{"header-loc"})?
+  "$options->{\"header-loc\"}/":
+  "";
+$header_path = "${header_path}${class_name}.h";
+
+# Generate code.
+if (exists ${options}->{split}) {
+  generate_multi();
+} else {
+  generate_combined();
+}
+
+1;
+
+# Do the substitution of "%" directives in the boilerplate source.
+sub ins_vals {
+  my $bp = shift;
+ WL:  while ($$bp =~ m&(.?%.)&mg) {
+    my $found_exp = ${1};
+    my $s = (pos $$bp) - length($found_exp);
+    if (${found_exp} =~ m&^\\\%(.)$&) { # Want literal %
+      my $replacement_exp = "%${1}";
+      $$bp =~ s&\Q${found_exp}\E\G&${replacement_exp}&;
+      pos $$bp = $s + length($replacement_exp);
+    } else { # Have a %X string to substitute.
+      my $wanted_data;
+      my $lc = substr $found_exp, -1, 1;
+    SW1: {
+        $lc eq "c" and do
+          { $wanted_data = $class_name; last SW1; };
+        $lc eq "C" and do
+          { $wanted_data = $qual_name; last SW1; };
+        $lc eq "d" and do
+          { $wanted_data = $currtime; last SW1; };
+        $lc eq "f" and do
+          { $wanted_data = basename($current_filename); last SW1; };
+        $lc eq "F" and do
+          { $wanted_data = $current_filename; last SW1; };
+        $lc eq "t" and do
+          { $wanted_data = $module_type; last SW1; };
+        $lc eq "u" and do
+          { $wanted_data = (getpwuid($<))[0]; last SW1; };
+        $lc eq "U" and do
+          { $wanted_data = (getpwuid($<))[6] ||
+              (getpwuid($<))[0]; last SW1; };
+        $lc eq "v" and do
+          { $wanted_data = $art_version; last SW1; };
+        print STDERR "Unrecognized substitution expression, ",
+          "\"%$lc\" in boilerplate: ignored.";
+        next WL;
+      }
+      my $replacement_exp = $found_exp;
+      $replacement_exp =~ s&(.?)%${lc}&${1}${wanted_data}&;
+      $$bp =~ s&\Q${found_exp}\E\G&${replacement_exp}&;
+      pos $$bp = $s + length($replacement_exp);
+    }
+  }
+}
+
+sub decl_boilerplate(\$) {
+  my $h_b = shift;
+  if (${options}->{boilerplate}) {
+    my $f = ${options}->{boilerplate};
+    $$h_b = `cat \"$f\"`;
+  } elsif ($ENV{ARTMOD_BOILERPLATE}) {
+    $$h_b = `cat \"$ENV{ARTMOD_BOILERPLATE}\"`;
+  } else {
+    $$h_b = $default_boilerplate;
+  }
+  ins_vals($h_b);
+}
+
+sub impl_boilerplate(\$) {
+  my $i_b = shift;
+  if (${options}->{"impl-boilerplate"}) {
+    my $f = ${options}->{"impl-boilerplate"};
+    $$i_b = `cat \"$f\"`;
+  } elsif ($ENV{ARTMOD_IMPL_BOILERPLATE}) {
+    $$i_b = `cat \"$ENV{ARTMOD_IMPL_BOILERPLATE}\"`;
+  } else {
+    $$i_b = "";
+  }
+  ins_vals($i_b);
+}
+
+sub generate_multi {
+  my ($h_b, $i_b);
+
+  ####################################
+  # Header
+  $current_filename = sprintf("%s/${class_name}.h", getcwd());
+  my $fh = new FileHandle(">${current_filename}");
+  unless (defined $fh) {
+    print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
+    exit(1);
+  }
+
+  my $header_guard = $header_path;
+
+  while ($header_guard =~ s&[/\.]&_&g) {}
+
+  print $fh "#ifndef $header_guard\n";
+  print $fh "#define $header_guard\n";
+
+  # Boilerplate.
+  decl_boilerplate($h_b);
+  print $fh $h_b, "\n";
+
+  # Header includes.
+  header_includes($fh, "class_defn");
+
+  print $fh "\n";
+
+  # Class declaration.
+  class_decl($fh);
+
+  print $fh "\n";
+
+  my @optional_endpoints = ();
+  my @unrecognized_endpoints = ();
+
+  # Class definition.
+  class_defn($fh, @optional_endpoints, @unrecognized_endpoints);
+
+  print $fh "#endif /* $header_guard */\n";
+
+  close($fh);
+  print "INFO: Wrote ${current_filename}\n";
+
+  ####################################
+  # Implementation
+  $current_filename = sprintf("%s/${class_name}%s",
+                              getcwd(),
+                              $options->{"split-ext"} || '.cxx');
+  $fh = new FileHandle(">${current_filename}");
+  unless (defined $fh) {
+    print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
+    exit(1);
+  }
+
+  # Implementation includes.
+  header_includes($fh, "class_impl");
+
+  print $fh "\n\n";
+
+  # Implementation boilerplate.
+  impl_boilerplate($i_b);
+  print $fh $i_b, "\n" if $i_b;
+
+  # Class implementation.
+  class_impl($fh, @optional_endpoints, @unrecognized_endpoints);
+
+  close($fh);
+  print "INFO: Wrote ${current_filename}\n";
+
+  ####################################
+  # Module registration.
+  $current_filename = sprintf("%s/${class_name}_module.cc", getcwd());
+  $fh = new FileHandle(">${current_filename}");
+  unless (defined $fh) {
+    print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
+    exit(1);
+  }
+
+  # Implementation includes.
+  header_includes($fh, "module_reg");
+
+  print $fh "\n\n";
+
+  # Registration boiler plate:
+  my $reg_bp = $default_boilerplate;
+  ins_vals(\$reg_bp);
+  print $fh $reg_bp, "\n\n";
+
+  module_reg($fh);
+
+  close($fh);
+  print "INFO: Wrote ${current_filename}\n";
+}
+
+sub generate_combined {
+  my ($h_b, $i_b);
+  $current_filename = sprintf("%s/${class_name}_module.cc", getcwd());
+  my $fh = new FileHandle(">${current_filename}");
+  unless (defined $fh) {
+    print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
+    exit(1);
+  }
+
+  # Boilerplate.
+  decl_boilerplate($h_b);
+  print $fh $h_b, "\n";
+
+  # Header includes.
+  header_includes($fh, "combined");
+
+  print $fh "\n";
+
+  # Class declaration.
+  class_decl($fh);
+
+  print $fh "\n";
+
+  my @optional_endpoints = ();
+  my @unrecognized_endpoints = ();
+
+  # Class definition.
+  class_defn($fh, @optional_endpoints, @unrecognized_endpoints);
+
+  print $fh "\n\n";
+
+  # Implementation boilerplate.
+  impl_boilerplate($i_b);
+  print $fh $i_b, "\n" if $i_b;
+
+  # Class implementation.
+  class_impl($fh, @optional_endpoints, @unrecognized_endpoints);
+
+  # Module registration.
+  module_reg($fh);
+
+  # Close file.
+  $fh->close();
+
+  print "INFO: Wrote ${current_filename}\n";
+}
+
+sub header_includes {
+  my $modes = { combined => 0, class_defn => 1, class_impl => 2, module_reg => 3 };
+  my ($fh, $mode) = @_;
+  if (not exists $modes->{$mode}) {
+    print STDERR "LOGIC ERROR: unknown header_includes mode $mode.\n";
+    exit 9;
+  }
+  my @header_lines = ();
+  if ($mode eq "class_defn" or $mode eq "combined") {
+    push @header_lines, sprintf("#include \"%s\"", $base_header->{$module_type}),
+  }
+  if ($mode eq "class_impl" or $mode eq "combined") {
+    if ($mode ne "combined") {
+      push @header_lines,
+        "#include \"${header_path}\"";
+    }
+  }
+  if ($mode eq "module_reg" or $mode eq "combined") {
+    if ($mode ne "combined") {
+      push @header_lines,
+        "#include \"${header_path}\"";
+    }
+    push @header_lines, '#include "art/Framework/Core/ModuleMacros.h"';
+  }
+  print $fh join("\n", @header_lines), "\n";
+}
+
+sub class_decl {
+  my $fh = shift;
+  my $indent_level = 0;
+  foreach my $ns (@namespaces) {
+    print $fh $indent x $indent_level++, "namespace ${ns} {\n";
+  }
+  print $fh $indent x $indent_level, "class $class_name;\n";
+  foreach my $ns (@namespaces) {
+    print $fh $indent x --$indent_level, "}\n";
+  }
+}
+
+sub class_defn($\@\@) {
+  my ($fh, $optional_ep_list, $unrecognized_endpoints) = @_;
+  my ($base_class) = ( ${base_header}->{${module_type}} =~ m&([^/]+)\.h$& );
+  print $fh <<EOF;
+class ${qual_name} : public art::${base_class} {
+public:
+${indent}explicit ${class_name}(fhicl::ParameterSet const &p);
+${indent}~${class_name}();
+
+EOF
+  foreach my $req (sort keys %{${required_endpoints}->{${module_type}}}) {
+    print $fh "${indent}",
+      $required_endpoints->{${module_type}}->{${req}}, ";\n";
+  }
+
+  print $fh "\n";
+
+  my %entry_points_hash = ();
+  my @entry_points = ();
+  my @file_entry_points = ();
+  if (${options}->{"entry-list"}) {
+    if (-r ${options}->{"entry-list"}) {
+      my $f = ${options}->{"entry-list"};
+      @file_entry_points = `cat \"$f\"`;
+      chomp @file_entry_points;
+    } else {
+      print STDERR "ERROR: specified entry-points list file \"",
+        ${options}->{"entry-list"}, "\" does not exist\n",
+          "or is not readable.\n";
+      exit(1);
+    }
+  }
+  foreach my $entry (@{${options}-> {"entry-points"}},
+                     @file_entry_points) {
+    if (not exists $entry_points_hash{$entry}) {
+      push @entry_points, $entry;
+      $entry_points_hash{$entry} = 1;
+    } else {
+      print STDERR "WARNING: Ignoring duplicate entry point $entry\n";
+    }
+  }
+  foreach my $entry (@entry_points) {
+    if (exists ${optional_endpoints}->{${module_type}}->{${entry}}) {
+      push @{$optional_ep_list},
+        ${optional_endpoints}->{${module_type}}->{${entry}};
+      printf $fh "${indent}%s;\n",
+        ${optional_endpoints}->{${module_type}}->{${entry}};
+      vprint "Adding entry point ",
+        ${optional_endpoints}->{${module_type}}->{${entry}},
+          "\n";
+    } elsif ($entry =~ m&\<&) {
+      print STDERR "Listed entry point \"$entry\" is too complex to handle.\n",
+        "Please add this to ${class_name} yourself after generation.\n";
+      next;
+    } else {
+      if (not $entry =~ m&\)\s*$&) {
+        $entry = "$entry()";
+      }
+      vprint "Adding private member $entry\n";
+      push @{$unrecognized_endpoints}, "${entry}";
+    }
+  }
+  print $fh "\nprivate:\n",
+    map( { "${indent}${_};\n"; } @{$unrecognized_endpoints}),
+      "\n${indent}// Other private member functions and data here.\n};\n";
+}
+
+sub qualify_func {
+  my $func = shift;
+  $func =~ s&([A-Za-z_0-9]+)(\s*(?:\(|$))&${qual_name}::${1}${2}&;
+  return $func;
+}
+
+sub class_impl($\@\@) {
+  my ($fh, $optional_ep_list, $unrecognized_endpoints) = @_;
+
+  # Constructor and destructor.
+  print $fh <<EOF;
+${qual_name}::${class_name}(fhicl::ParameterSet const &p)
+${indent}// :
+${indent}// Initialize memeber data here.
+{
+${indent}// Call appropriate Produces<>() functions here.
+}
+
+${qual_name}::~${class_name}() {
+${indent}// Clean up dynamic memory and other resources here.
+}
+
+EOF
+
+  foreach my $req (sort keys %{${required_endpoints}->{${module_type}}}) {
+    print $fh
+      qualify_func($required_endpoints->{${module_type}}->{${req}}),
+        " {\n${indent}// Implementation of entry point here.\n}\n\n";
+  }
+
+  foreach my $entry (@{$optional_ep_list}) {
+    print $fh
+      qualify_func($entry),
+        " {\n${indent}// Implementation of entry point here.\n}\n\n";
+  }
+
+  foreach my $entry (@{$unrecognized_endpoints}) {
+    print $fh
+      qualify_func($entry),
+        " {\n${indent}// Implementation of private member function here.\n}\n\n";
+  }
+
+}
+
+sub module_reg {
+  my $fh = shift;
+  print $fh "DEFINE_ART_MODULE($qual_name);\n";
+}
+
+sub vprint {
+  print "INFO: ", @_ if ${options}->{verbose};
+}
+
+__END__
+
+=pod
+
+=head1 NAME
+
+artmod: Generate clean module source for ART.
+
+=head1 SYNOPSIS
+
+B<artmod> B<-h> | B<--help> | B<-?>
+
+B<artmod> [I<optons>] [--] I<module-type> I<qualified-name>
+
+I<Options>: B<--boilerplate|-b> I<file> |
+         B<--entry[-point[s]]|--entries|-e> I<entry-point>+ |
+         B<header-loc> I<path> |
+         B<--split> |
+         B<--split-ext> [I<lib-source-extension>] |
+         B<--verbose|-v>
+
+Options marked with B<+> are repeatable and cumulative.
+
+=head1 DESCRIPTION
+
+I<artmod> is a tool to produce an ART module source skeleton for an
+analyzer, a filter or a producer. The user can specify which entry
+points are to be configured and whether to split the source into three
+files or combine it into one. In addition, the name of a file wherein
+boilerplate comments or code may be found for insertion into the
+source may be specified.
+
+=head2 OPTIONS
+
+=over
+
+=item B<--boilerplate> I<file>
+
+=item B<-b> I<file>
+
+
+Include the specified file as preamble in all generated files.
+
+Certain format strings will be honored, such as:
+
+  %c  The class name
+  %C  The qualified class name
+  %d  The date and time of generation of the module.
+  %f  The basename of the file in which the boilerplate is
+        included.
+  %F  The fully-qualified path of the file in which the
+        boilerplate is included.
+  %t  The type of module geerated (analyzer, filter or producer).
+  %u  The login name of the invoker of artmod.
+  %U  The full name (if available) if the invoker of artmod, or
+        the login name if not.
+  %v  The version of ART from which the generation script came.
+
+Literal % characters should be escaped (\%).
+
+If the boilerplate file is not specified artmod will interrogate an
+environment variable, "ARTMOD_BOILERPLATE" and attempt to include the
+file specified.
+
+See also B<--impl-boilerplate>, below.
+
+
+=item B<--entry-list> I<file>
+
+=item B<-E> I<file>
+
+
+Specify a file containing a list, one per line, of desired entry points
+for the function to be generated. This list will be OR-ed with any
+specified on the command line (see -e, below)
+
+
+=item B<--entry> I<entry-point>+
+
+=item B<--entry-point> I<entry-point>+
+
+=item B<--entry-points> I<entry-point>+
+
+=item B<--entries> I<entry-point>+
+
+=item B<-e> I<entry-point>+
+
+
+Specify optional entry points. A recognized entry point will be put in
+with the correct siganture; a non-recognized entry point (member
+function, for example) will be put in the private section with either no
+arguments or the arguments specified if the prototype if specified in
+full. For example,
+
+--entries=beginJob,endJob,reconfigure,\
+"bool doPrivateStuff(T1 const &t1, T2 const &t2)"
+
+
+=item B<--header-loc> I<path>
+
+
+The path part of the header include directive for the class definition
+(eg art/Framework/Core). Ignored unless the --split option is used.
+
+
+=item B<--impl-boilerplate> I<file>
+
+
+Boilerplate specifically for placement prior to the implementation of
+the module. In the separate-file mode of operation, the standard
+boilerplate will be omitted from the implementation code.  The
+environment variable ARTMOD_IMPL_BOILERPLATE will be interrogated in the
+absence of this option. See the documentation for B<--boilerplate> above
+for information about substitutions.
+
+
+=item B<--split>
+
+Produce three files: I<class-name>.h, <class-name>I<ext> and
+I<class-name>_module.cc (note you must supply the period yourself). The
+default behavior is to produce one file only:
+I<class-name>_module.cc.
+
+One complication of using this option is that, in order to properly
+specify the header location (I<package>/[I<dir>]+) as required by the
+implementation and module registration files, you will need to use the
+B<--header-loc> option described above.
+
+Before you use this item, note that there are several advantages to the
+one-file philosophy in this case:
+
+=over
+
+=item 1.
+
+The only communication with a module should be via the run, the subrun
+and/or the event. Having the class definition in the same file as its
+implmenetation helps enforce this.
+
+=item 2.
+
+When both the module implementation and the module macro invocation are
+in the <name>_module.cc file, then the module library contains all the
+module implementation code and its dependencies are separate from the
+dependencies of code in the package's general code library. This makes
+for easier maintenance of package dependencies.
+
+The default value of I<ext> is ".cxx" unless changed with
+B<--split-ext>, below.
+
+=back
+
+
+=item B<--split-ext> I<ext>
+
+
+Change the extension of the class implemenation file from .cxx to
+I<ext>. Specifying this option automatically implies --split.
+
+
+=item B<--verbose>
+
+=item B<-v>
+
+
+Print some extra messages about functions generated, etc.
+=back
+
+=cut

@@ -129,6 +129,9 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 include(BuildDictionary)
 include(BuildPlugins)
 
+# tools (first)
+subdirs(tools)
+
 # source
 subdirs (art)
 
