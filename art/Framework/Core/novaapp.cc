@@ -5,6 +5,7 @@
 #include "art/Framework/Core/run_art.h"
 #include "art/Utilities/FirstAbsoluteOrLookupWithDotPolicy.h"
 #include "boost/program_options.hpp"
+#include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/parse.h"
@@ -38,6 +39,7 @@ int novaapp(int argc, char* argv[]) {
       ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
       ("output,o", bpo::value<std::string>(), "Event output stream file.")
       ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK).")
+      ("source-list,S", bpo::value<std::string>(), "file containing a list of source files to read, one per line.")
       ("trace", "Activate tracing.")
       ("notrace", "Deactivate tracing.")
       ;
@@ -71,6 +73,27 @@ int novaapp(int argc, char* argv[]) {
       return 7001;
    }
 
+   std::vector<std::string> source_list;
+   if (vm.count("source")) {
+      cet::copy_all(vm["source"].as<std::vector<std::string> >(),
+                    std::back_inserter(source_list));
+   }
+   if (vm.count("source-list")) {
+      std::ifstream flist(vm["source-list"].as<std::string>().c_str());
+      if (!flist) {
+         std::cerr << "Exception in command line processing in " << argv[0]
+                   << ": specified source-list file \""
+                   << vm["source-list"].as<std::string>()
+                   << "\" cannot be read.\n";
+         return 7001;
+      }
+      while (flist) {
+         std::string tmp;
+         std::getline(flist,tmp);
+         if (!tmp.empty()) source_list.push_back(tmp);
+      }
+   }
+
    //
    // Get the parameter set by parsing the configuration file.
    //
@@ -100,8 +123,7 @@ int novaapp(int argc, char* argv[]) {
    NovaConfigPostProcessor ncpp;
    if (vm.count("trace")) ncpp.trace(true);
    if (vm.count("notrace")) ncpp.trace(false);
-   if (vm.count("source"))
-      ncpp.sources(vm["source"].as<std::vector<std::string> >());
+   if (!source_list.empty()) ncpp.sources(source_list);
    if (vm.count("TFileName"))
       ncpp.tFileName(vm["TFileName"].as<std::string>());
    if (vm.count("output"))
