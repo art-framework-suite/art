@@ -21,6 +21,7 @@ ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager cons
   associatedManager_(),
   registry_(),
   factory_(),
+  index_(),
   requestedCreationOrder_(),
   actualCreationOrder_()
 {
@@ -48,6 +49,7 @@ ServicesManager::~ServicesManager()
   // their creation (as I'm writing this comment everything in a standard fw
   // executable is destroyed in the desired order).
 
+  index_.clear();
   factory_.clear();
   while(!actualCreationOrder_.empty()) actualCreationOrder_.pop();
 }
@@ -89,6 +91,29 @@ void ServicesManager::forceCreation(ActivityRegistry& reg)
     }
 }
 
+void ServicesManager::getParameterSets(ParameterSets& out) const
+{
+  ParameterSets tmp;
+  Factory::const_iterator cur=factory_.begin(), end=factory_.end();
+
+  for(;cur!=end;++cur)
+    tmp.push_back(cur->second.getParameterSet());
+
+  tmp.swap(out);
+}
+
+void ServicesManager::putParameterSets(ParameterSets const& n)
+{
+  ParameterSets::const_iterator cur=n.begin(), end=n.end();
+  for(;cur!=end;++cur)
+    {
+      string service_name = cur->get<string>("service_type","junk");
+      NameIndex::iterator ii = index_.find(service_name);
+      if(ii!=index_.end())
+	(ii->second)->second.putParameterSet(*cur);
+    }
+}
+
 void
   ServicesManager::fillFactory( ParameterSets  const & psets
                               , LibraryManager const & lm
@@ -98,7 +123,7 @@ void
   for( ParameterSets::const_iterator it = psets.begin()
                                    , e  = psets.end(); it != e; ++it )
     {
-      string service_name = it->get<string>("service_type");
+      string service_name = it->get<string>("service_type","junk");
 
       // go to lm and get the typeid and maker function for this service
       GET_TYPEID_t typeid_func
@@ -119,7 +144,10 @@ void
       TypeIDBase id = typeid_func();
 
       // insert cache object for it
-      factory_.insert( std::make_pair(id, Cache(*it, id, make_func)) );
+      std::pair<Factory::iterator,bool> ib=factory_.insert( std::make_pair(id, Cache(*it, id, make_func)) );
+
+      if(service_name!="junk")
+	index_[service_name]=ib.first;
       requestedCreationOrder_.push_back(id);
     }
 }  // fillFactory()

@@ -43,6 +43,7 @@ namespace art {
     class Cache;
 
     typedef  std::map< TypeIDBase, Cache >  Factory;
+    typedef  std::map< std::string, Factory::iterator > NameIndex;
     typedef  std::vector< TypeIDBase >      TypeIDBases;
     typedef  std::stack< WrapperBase_ptr >  ServiceStack;
 
@@ -72,6 +73,17 @@ namespace art {
       void forceCreation(ActivityRegistry& reg)
       {
 	if(!service_) service_ = make_(config_,reg);
+      }
+
+      fhicl::ParameterSet const& getParameterSet() const { return config_; }
+
+      void putParameterSet(fhicl::ParameterSet const& n) 
+      {
+	if(config_ != n) 
+	  {
+	    config_ = n; 
+	    if(service_) service_->reconfigure(config_);
+	  }
       }
 
     private:
@@ -152,6 +164,9 @@ namespace art {
     // using 'reg'.  The order of creation will be the registration order.
     void forceCreation(ActivityRegistry& reg);
 
+    void getParameterSets(ParameterSets& out) const;
+    void putParameterSets(ParameterSets const&);
+
   private:
     void fillFactory( ParameterSets const & psets, LibraryManager const & lm );
 
@@ -169,6 +184,7 @@ namespace art {
     // these are real things that we use.
     art::ActivityRegistry registry_;
     Factory factory_;
+    NameIndex index_;
 
     TypeIDBases requestedCreationOrder_;
     ServiceStack actualCreationOrder_;

@@ -54,6 +54,11 @@ public:
     manager_->forceCreation(reg);
   }
 
+  void getParameterSets(ServicesManager::ParameterSets& out) const
+  { manager_->getParameterSets(out); }
+  void putParameterSets(ServicesManager::ParameterSets const& in)
+  { manager_->putParameterSets(in); }
+
 private:
   ServiceToken( boost::shared_ptr<ServicesManager> iManager )
   : manager_( iManager )

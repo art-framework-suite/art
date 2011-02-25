@@ -204,3 +204,24 @@ InitRootHandlers replacement -
  // run the event processor here..
 
  art::setRootErrorHandler(false);
+
+
+API for accessing service parameters sets
+=========================================
+
+typedef std::vector<fhicl::ParameterSet> ParameterSets;
+ServiceRegistry* inst = ServiceRegistry::instance();
+ParameterSets psets;
+
+inst->presentToken()->getParameterSets(psets);
+
+for(ParameterSets::iterator cur=psets.begin(),end=fillme.end();
+			    cur!=end;++cur)
+{
+ cout << "service name = " << cur->get<std::string>("service_type") <<
+			    "\n";
+ cur->put<int>("DebugLevel",10);
+}
+
+inst->presentToken()->putParameterSets(psets);
+			    

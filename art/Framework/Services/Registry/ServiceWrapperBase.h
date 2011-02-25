@@ -8,6 +8,8 @@
 //
 // ======================================================================
 
+#include "fhiclcpp/ParameterSet.h"
+
 namespace art {
   class ServiceWrapperBase;
 }
@@ -24,6 +26,7 @@ public:
   ServiceWrapperBase( ) { }
 
   virtual ~ServiceWrapperBase( );
+  virtual void reconfigure(fhicl::ParameterSet const&);
 
 };  // ServiceWrapperBase
 

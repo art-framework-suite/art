@@ -17,6 +17,7 @@ simple_plugin(PtrVectorAnalyzer        "module")
 simple_plugin(PtrVectorProducer        "module")
 simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
+simple_plugin(Reconfiguring            "module")
 simple_plugin(Throwing                 "service")
 simple_plugin(ToyRawInput              "source")
 
