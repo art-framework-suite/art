@@ -1,0 +1,67 @@
+services:
+{
+  # Always-present services; configuration optional.
+  floating_point_control: { }
+
+  scheduler:  # options block in the old system
+  {
+    wantSummary: true
+    wantTracer: true
+  }
+
+   # These are provided by Art, but are not system services and therefore
+   # need to be configured to come to life.
+   Timing: { }
+   SimpleMemoryCheck: { }
+   TFileService: { fileName: "tfile_output.root" }
+
+   user:
+   {
+     Reconfigurable: { other_value:5 }
+   }
+}
+
+physics:
+{
+  producers:
+  {
+  }
+
+  analyzers:
+  {
+    a1:
+    {
+      module_type: Reconfiguring
+      input_label: m1a
+    }
+  }
+
+  filters:
+  {
+  }
+
+  e1: [ a1 ]
+
+  trigger_paths: [ ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  #out1:
+  #{
+  #  module_type: RootOutput
+  #  fileName: "out.root"
+  #}
+}
+
+source:
+{
+  module_type: EmptyEvent
+
+  # were in the global area before
+  maxEvents: 1
+  # maxSubRuns: 2
+}
+
+process_name: DEVEL
