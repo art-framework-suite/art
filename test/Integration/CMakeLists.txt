@@ -19,6 +19,7 @@ simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
 simple_plugin(Reconfiguring            "module")
 simple_plugin(Throwing                 "service")
+simple_plugin(Reconfigurable           "service")
 simple_plugin(ToyRawInput              "source")
 
 # Common library link requirements for tests here.
