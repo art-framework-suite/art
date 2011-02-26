@@ -15,4 +15,4 @@ install(FILES
 	      ToyProducts.h
 	DESTINATION ${product}/${version}/include/art/TestObjects )
 
-build_dictionary( )
+build_dictionary( DICTIONARY_LIBRARIES art_Persistency_Common_dict)
