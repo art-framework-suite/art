@@ -1,0 +1,113 @@
+process_name: PROD
+
+services.scheduler.wantSummary: true
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 99
+}
+
+physics:
+{
+  producers:
+  {
+    m1a:
+    {
+      module_type: IntProducer
+      ivalue: 1
+    }
+    m2a:
+    {
+      module_type: IntProducer
+      ivalue: 2
+    }
+    m3a:
+    {
+      module_type: IntProducer
+      ivalue: 3
+    }
+    m4a:
+    {
+      module_type: IntProducer
+      ivalue: 4
+    }
+  }
+
+  filters:
+  { 
+    f1:
+    {
+      module_type: TestFilter
+      acceptValue: 40
+      onlyOne: false
+    }
+    f2:
+    {
+      module_type: TestFilter
+      acceptValue: 30
+      onlyOne: false
+    }
+    f3:
+    {
+      module_type: TestFilter
+      acceptValue: 20
+      onlyOne: false
+    }
+    f4:
+    {
+      module_type: TestFilter
+      acceptValue: 2
+      onlyOne: true
+    }
+  }
+
+  p1a: [ f1, m1a ]
+  p2a: [ "-f1", m1a ]
+  p3a: [ f2, m2a, "!f3", m3a, "-f4" ]
+  p4a: [ f2, m2a, "!f3", "-m3a", f4 ]
+  p5a: [ m4a, f2, m2a, "!f3", m3a, "-f4", m4a ]
+
+  e: [ outp1, outp2, outp3, outp4, outp5 ]
+
+  trigger_paths: [ p1a, p2a, p3a, p4a, p5a ]
+  end_paths: [ e ]
+}
+
+outputs:
+{
+  outp1:
+  {
+    module_type: TestOutput
+    shouldPass: 40
+    SelectEvents: { SelectEvents: [ p1a ] }
+  }
+
+  outp2:
+  {
+    module_type: TestOutput
+    shouldPass: 99
+    SelectEvents: { SelectEvents: [ p2a ] }
+  }
+
+  outp3:
+  {
+    module_type: TestOutput
+    shouldPass: 10
+    SelectEvents: { SelectEvents: [ p3a ] }
+  }
+
+  outp4:
+  {
+    module_type: TestOutput
+    shouldPass: 5
+    SelectEvents: { SelectEvents: [ p4a ] }
+  }
+
+  outp5:
+  {
+    module_type: TestOutput
+    shouldPass: 10
+    SelectEvents: { SelectEvents: [ p5a ] }
+  }
+}

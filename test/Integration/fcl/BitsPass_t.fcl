@@ -1,0 +1,169 @@
+process_name: PROD
+
+services.scheduler.wantSummary: true
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 99
+}
+
+physics:
+{
+  producers:
+  {
+    m1a:
+    {
+      module_type: IntProducer
+      ivalue: 1
+    }
+    m2a:
+    {
+      module_type: IntProducer
+      ivalue: 2
+    }
+    m3a:
+    {
+      module_type: IntProducer
+      ivalue: 3
+    }
+    m4a:
+    {
+      module_type: IntProducer
+      ivalue: 4
+    }
+    m5a:
+    {
+      module_type: IntProducer
+      ivalue: 5
+    }
+    m6a:
+    {
+      module_type: IntProducer
+      ivalue: 6
+    }
+  }
+
+  analyzers:
+  {
+    a1:
+    {
+      module_type: TestResultAnalyzer
+      dump: true
+    }
+  }
+
+  filters:
+  { 
+    f1:
+    {
+      module_type: TestFilter
+      acceptValue: 30
+      onlyOne: true
+    }
+    f2:
+    {
+      module_type: TestFilter
+      acceptValue: 70
+      onlyOne: true
+    }
+    f3:
+    {
+      module_type: TestFilter
+      acceptValue: 12
+      onlyOne: true
+    }
+    f4:
+    {
+      module_type: TestFilter
+      acceptValue: 30
+      onlyOne: false
+    }
+    f5:
+    {
+      module_type: TestFilter
+      acceptValue: 70
+      onlyOne: false
+    }
+    f6:
+    {
+      module_type: TestFilter
+      acceptValue: 12
+      onlyOne: false
+    }
+  }
+
+  p1a: [ "f1", m1a ]
+  p2a: [ "f2", m2a ]
+  p3a: [ "f3", m3a ]
+  p4a: [ "f4", m4a ]
+  p5a: [ "f5", m5a ]
+  p6a: [ "f6", m6a ]
+
+  e1: [ a1 ]
+  e2: [ outp1a, outp2a, outp3a, outp8a ]
+  e4: [ outp4, outp5 ]
+  e5: [ outp6 ]
+  e6: [ outp7 ]
+
+  trigger_paths: [ p1a, p2a, p3a, p4a, p5a, p6a ]
+  end_paths: [ e1, e2, e4, e5, e6 ]
+}
+
+outputs:
+{
+  outp1a:
+  {
+    module_type: TestOutput
+    shouldPass: 3
+    SelectEvents: { SelectEvents: [ p1a ] }
+  }
+
+  outp2a:
+  {
+    module_type: TestOutput
+    shouldPass: 1
+    SelectEvents: { SelectEvents: [ p2a ] }
+  }
+
+  outp3a:
+  {
+    module_type: TestOutput
+    shouldPass: 70
+    SelectEvents: { SelectEvents: [ p4a, p5a ] }
+  }
+
+  outp8a:
+  {
+    module_type: TestOutput
+    shouldPass: 29
+    SelectEvents: { SelectEvents: [ "!p5a" ] }
+  }
+
+  outp4:
+  {
+    module_type: TestOutput
+    shouldPass: 74
+    SelectEvents: { SelectEvents: [ "*" ] }
+  }
+
+  outp5:
+  {
+    module_type: TestOutput
+    shouldPass: 25
+    SelectEvents: { SelectEvents: [ "!*" ] }
+  }
+
+  outp6:
+  {
+    module_type: TestOutput
+    shouldPass: 99
+    SelectEvents: { SelectEvents: [ "*", "!*" ] }
+  }
+
+  outp7:
+  {
+    module_type: TestOutput
+    shouldPass: 99
+  }
+}

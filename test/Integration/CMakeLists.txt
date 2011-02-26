@@ -15,11 +15,17 @@ simple_plugin(MockClusterListProducer  "module")
 simple_plugin(PtrListAnalyzer          "module")
 simple_plugin(PtrVectorAnalyzer        "module")
 simple_plugin(PtrVectorProducer        "module")
+simple_plugin(Reconfiguring            "module")
 simple_plugin(SimpleDerivedAnalyzer    "module")
 simple_plugin(SimpleDerivedProducer    "module")
-simple_plugin(Reconfiguring            "module")
-simple_plugin(Throwing                 "service")
+simple_plugin(TestFilter               "module")
+simple_plugin(TestBitsOutput           "module")
+simple_plugin(TestOutput               "module")
+simple_plugin(TestResultAnalyzer       "module")
+
 simple_plugin(Reconfigurable           "service")
+simple_plugin(Throwing                 "service")
+
 simple_plugin(ToyRawInput              "source")
 
 # Common library link requirements for tests here.
@@ -118,12 +124,46 @@ cet_test(issue_0940_t.sh PREBUILT
   fcl/issue_0940.fcl
   fcl/messageDefaults.fcl
   )
-
 cet_test(reconfig_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c test_reconfig_01.fcl
   DATAFILES
   fcl/test_reconfig_01.fcl
-  TEST_EXEC art
-  TEST_ARGS -c fcl/test_reconfig_01.fcl
 )
 
 ########################################################################
+# Old tests converted from CMS FWCore/Framework/test
+
+# Tests expected to pass
+set(pass_list
+  BitsPass_t
+  BitsFail_t
+  BitsCount_t
+  FilterIgnore_t
+  TrigBits0_t
+  TrigBits1_t
+  TrigBits2_t
+  TrigBits3_t
+  TrigBits4_t
+)
+foreach(test ${pass_list})
+  cet_test(${test} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c ${test}.fcl
+    DATAFILES
+    fcl/${test}.fcl
+    )
+endforeach()
+
+# Tests expected to fail
+set(fail_list
+)
+foreach(test ${fail_list})
+  cet_test(${test} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c ${test}.fcl
+    TEST_PROPERTIES WILL_FAIL true
+    DATAFILES
+    fcl/${test}.fcl
+    )
+endforeach()
