@@ -591,9 +591,9 @@ namespace art {
   void
   EventProcessor::connectSigs(EventProcessor* ep)
   {
-    // When the FwkImpl signals are given, pass them to the
-    // appropriate EventProcessor signals so that the outside world
-    // can see the signal.
+    // When these signals are given, pass them to the appropriate
+    // EventProcessor signals so that the outside world can see the
+    // signal.
     actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal_);
     actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal_);
   }
@@ -806,7 +806,7 @@ namespace art {
       boost::mutex::scoped_lock sl(stop_lock_);
       if(id_set_==true) {
           std::string err("runAsync called while async event loop already running\n");
-          mf::LogError("FwkJob") << err;
+          mf::LogError("ArtJob") << err;
           throw cet::exception("BadState") << err;
       }
 
@@ -857,19 +857,19 @@ namespace art {
       rc = me->runToCompletion(onlineStateTransitions);
     }
     catch (cet::exception& e) {
-      mf::LogError("FwkJob") << "cet::exception caught in "
+      mf::LogError("ArtJob") << "cet::exception caught in "
                                 "EventProcessor::asyncRun\n"
                              << e.explain_self();
       me->last_error_text_ = e.explain_self();
     }
     catch (std::exception& e) {
-      mf::LogError("FwkJob") << "Standard library exception caught in "
+      mf::LogError("ArtJob") << "Standard library exception caught in "
                                 "EventProcessor::asyncRun\n"
                              << e.what();
       me->last_error_text_ = e.what();
     }
     catch (...) {
-      mf::LogError("FwkJob") << "Unknown exception caught in "
+      mf::LogError("ArtJob") << "Unknown exception caught in "
                                 "EventProcessor::asyncRun\n";
       me->last_error_text_ = "Unknown exception caught";
       rc = epOther;

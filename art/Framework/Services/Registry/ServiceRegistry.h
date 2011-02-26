@@ -18,8 +18,6 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-  class FwkImpl;
-
   template< typename T >
     class ServiceWrapper;
 
@@ -52,7 +50,6 @@ namespace art {
       ServiceToken oldToken_;
     };  // Operate
 
-    friend class art::FwkImpl;
     friend int main( int argc, char* argv[] );
     friend class Operate;
 

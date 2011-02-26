@@ -334,7 +334,7 @@ namespace art {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
     strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-    mf::LogVerbatim("FwkReport")
+    mf::LogVerbatim("ArtReport")
       << "Begin processing the " << readCount_
       << suffix(readCount_) << " record. Run " << eventID.run()
       << ", Event " << eventID.event()
