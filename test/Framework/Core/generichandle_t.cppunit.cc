@@ -76,12 +76,12 @@ void testGenericHandle::failgetbyLabelTest() {
   std::string uuid = art::createGlobalIdentifier();
   art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
   boost::shared_ptr<art::ProductRegistry const> preg(new art::ProductRegistry);
-  art::RunAuxiliary runAux(id.run(), time, time);
+  art::RunAuxiliary runAux(id.runID(), time, time);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, pc));
-  art::SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
+  art::SubRunAuxiliary subRunAux(id.subRunID(), time, time);
   boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, pc));
   srp->setRunPrincipal(rp);
-  art::EventAuxiliary eventAux(id, uuid, time, srp->subRun(), true);
+  art::EventAuxiliary eventAux(id, uuid, time, true);
   art::EventPrincipal ep(eventAux, preg, pc);
   ep.setSubRunPrincipal(srp);
   art::GenericHandle h("arttest::DummyProduct");
@@ -151,7 +151,7 @@ void testGenericHandle::getbyLabelTest() {
   art::BranchKey const bk(product);
   art::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
 
-  art::EventID col(1L, 1L);
+  art::EventID col(1, 1, 1);
   art::Timestamp fakeTime;
   std::string uuid = art::createGlobalIdentifier();
   art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
@@ -161,7 +161,7 @@ void testGenericHandle::getbyLabelTest() {
   art::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
   boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, pregc, pc));
   srp->setRunPrincipal(rp);
-  art::EventAuxiliary eventAux(col, uuid, fakeTime, srp->subRun(), true);
+  art::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   art::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(srp);
   const art::BranchDescription& branchFromRegistry = it->second;

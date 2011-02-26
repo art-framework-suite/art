@@ -16,7 +16,6 @@
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/PluginManager/ProblemTracker.h"
 #include "fhiclcpp/ParameterSet.h"
 
 // namespace art {
@@ -31,8 +30,6 @@ CPPUNIT_TEST(testSignal);
 CPPUNIT_TEST(testWatch);
    CPPUNIT_TEST_EXCEPTION(testCircular,cet::exception);
 
-CPPUNIT_TEST(testProductRegistration);
-
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -42,7 +39,6 @@ public:
   void testSignal();
   void testWatch();
   void testCircular();
-  void testProductRegistration();
 
  private:
   art::ModuleDescription* intModule_;
@@ -193,24 +189,4 @@ void  testProductRegistry:: testCircular(){
    // 1 from 'one' responding to 'two'
    CPPUNIT_ASSERT(5*2==hear);
    CPPUNIT_ASSERT(5 == reg.size());
-}
-
-void  testProductRegistry:: testProductRegistration(){
-   art::AssertHandler ah;
-
-  std::string configuration(
-      "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('TEST')\n"
-      "process.maxEvents = cms.untracked.PSet(\n"
-      "  input = cms.untracked.int32(-1))\n"
-      "process.source = cms.Source('DummySource')\n"
-      "process.m1 = cms.EDProducer('TestPRegisterModule1')\n"
-      "process.m2 = cms.EDProducer('TestPRegisterModule2')\n"
-      "process.p = cms.Path(process.m1*process.m2)\n");
-  try {
-    art::EventProcessor proc(configuration, true);
-  } catch(const cet::exception& iException) {
-    std::cout <<"caught "<<iException.explain_self()<<std::endl;
-    throw;
-  }
 }
