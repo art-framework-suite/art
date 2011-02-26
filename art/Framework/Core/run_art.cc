@@ -130,6 +130,7 @@ int art::run_art(intermediate_table raw_config) {
    //
 
    mf::MessageDrop::instance()->jobMode = std::string("analysis");
+   mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
 
    mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
                             services_pset.get<ParameterSet>("message", ParameterSet()));
