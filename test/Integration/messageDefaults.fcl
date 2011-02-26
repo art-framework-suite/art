@@ -1,0 +1,17 @@
+BEGIN_PROLOG
+messageDefaults:
+{
+  destinations:
+  {
+    STDERR:
+    {
+      type: cerr
+      threashold: INFO
+      categories:
+      {
+        default: { limit: -1 }
+      }
+    }
+  }
+}
+END_PROLOG

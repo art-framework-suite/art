@@ -1,9 +1,13 @@
+#include "messageDefaults.fcl"
+
 process_name: TESTING
 
 services:
 {
   wantTracer: true
 }
+
+services.messageDefaults: @local::messageDefaults
 
 source: { module_type: EmptyEvent maxEvents: 5 }
 physics: 

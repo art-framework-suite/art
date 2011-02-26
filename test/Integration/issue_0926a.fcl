@@ -1,6 +1,8 @@
+#include "messageDefaults.fcl"
 process_name: issue0926a
 
 services: { scheduler: { wantSummary: true } }
+services.message: @local::messageDefaults
 
 physics:
 {

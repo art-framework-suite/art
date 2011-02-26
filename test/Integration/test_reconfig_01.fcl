@@ -1,3 +1,5 @@
+#include "messageDefaults.fcl"
+
 services:
 {
   # Always-present services; configuration optional.
@@ -20,6 +22,8 @@ services:
      Reconfigurable: { other_value:5 }
    }
 }
+
+services.message: @local::messageDefaults
 
 physics:
 {

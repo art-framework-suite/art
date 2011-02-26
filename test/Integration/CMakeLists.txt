@@ -51,39 +51,46 @@ include(CetTest)
 
 # Tests
 cet_test(ReflexTools_t)
-cet_test(PREBUILT EventSelectorFromFile_t.sh
+cet_test(EventSelectorFromFile_t.sh PREBUILT
   DATAFILES EventSelectorFromFile_w.fcl
   EventSelectorFromFile_r1.fcl
   EventSelectorFromFile_r2.fcl
   )
 cet_test(test_simple_01_t.sh PREBUILT
-  DATAFILES test_simple_01.fcl test_simple_01r.fcl
+  DATAFILES test_simple_01.fcl test_simple_01r.fcl messageDefaults.fcl
   )
 cet_test(test_view_01_t.sh PREBUILT
-  DATAFILES test_view_01a.fcl test_view_01b.fcl test_simple_01r.fcl
+  DATAFILES test_view_01a.fcl test_view_01b.fcl test_simple_01r.fcl messageDefaults.fcl
   )
 cet_test(test_ptrvector_01_t.sh PREBUILT
-  DATAFILES test_ptrvector_01a.fcl test_ptrvector_01b.fcl
+  DATAFILES test_ptrvector_01a.fcl test_ptrvector_01b.fcl messageDefaults.fcl
   )
 cet_test(test_simplederived_01_t.sh PREBUILT
-  DATAFILES test_simplederived_01a.fcl test_simplederived_01b.fcl
+  DATAFILES test_simplederived_01a.fcl test_simplederived_01b.fcl messageDefaults.fcl
   )
 cet_test(outputCommand_t.sh PREBUILT
-  DATAFILES outputCommand_w.fcl outputCommand_r.fcl
+  DATAFILES outputCommand_w.fcl outputCommand_r.fcl messageDefaults.fcl
   )
 cet_test(ptr_list_t.sh PREBUILT
-  DATAFILES ptr_list_01.fcl
+  DATAFILES ptr_list_01.fcl messageDefaults.fcl
   )
 cet_test(test_failingProducer_t.sh PREBUILT
-  DATAFILES test_failingProducer_w.fcl test_failingProducer_r.fcl
+  DATAFILES test_failingProducer_w.fcl test_failingProducer_r.fcl messageDefaults.fcl
   )
 cet_test(issue_0923_t.sh PREBUILT
-  DATAFILES issue_0923a.fcl issue_0923b.fcl issue_0923_ref.txt
+  DATAFILES issue_0923a.fcl issue_0923b.fcl  messageDefaults.fcl issue_0923_ref.txt
   )
 cet_test(issue_0926_t.sh PREBUILT
-  DATAFILES issue_0926a.fcl issue_0926b.fcl issue_0926c.fcl
+  DATAFILES issue_0926a.fcl issue_0926b.fcl issue_0926c.fcl messageDefaults.fcl
   )
 cet_test(issue_0940_t.sh PREBUILT
-  DATAFILES issue_0940.fcl
+  DATAFILES issue_0940.fcl messageDefaults.fcl
 )
+
+cet_test(reconfig_t HANDBUILT
+  DATAFILES test_reconfig_01.fcl
+  TEST_EXEC art
+  TEST_ARGS -c test_reconfig_01.fcl
+)
+
 ########################################################################

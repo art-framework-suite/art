@@ -33,6 +33,7 @@ include(CetTest)
 cet_test(IntermediateTablePostProcessor_t USE_BOOST_UNIT
   DATAFILES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/test_simple_01.fcl # Avoid duplication
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/messageDefaults.fcl # Avoid duplication
 )
 cet_test(RootDictionaryManager_t USE_BOOST_UNIT)
 cet_test(artapp_t USE_BOOST_UNIT

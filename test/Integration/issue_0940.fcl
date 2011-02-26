@@ -1,3 +1,5 @@
+#include "messageDefaults.fcl"
+
 process_name: issue0940
 
 services:
@@ -29,7 +31,7 @@ services:
   }
 }
 
-
+services.message: @local::messageDefaults
 
 physics:
 {  

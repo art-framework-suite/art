@@ -1,7 +1,8 @@
+#include "messageDefaults.fcl"
+
 services:
 {
   # Always-present services; configuration optional.
-  message: { }
   floating_point_control: { }
 
   scheduler:  # options block in the old system
@@ -36,6 +37,7 @@ services:
    }
 }
 
+services.message: @local::messageDefaults
 physics:
 {
   producers:
