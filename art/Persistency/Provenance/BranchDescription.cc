@@ -188,7 +188,7 @@ namespace art {
     art::Exception e(art::errors::LogicError);
     e << "Problem using an incomplete BranchDescription\n"
       << txt
-      << "\nPlease report this error to the FWCore developers";
+      << "\nPlease report this error to the ART developers";
     throw e;
   }
 
