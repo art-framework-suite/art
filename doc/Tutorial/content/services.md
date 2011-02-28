@@ -1,6 +1,7 @@
 ---
 title: Services
 prev: /analyzer_interface
+next: /fhicl_job_configuration
 ---
 
 Services
@@ -20,8 +21,8 @@ Access interface
         ...
         art::ServiceHandle<art::TFileService> tfs;
         fFinalVtxX = tfs->make<TH1F>("fFinalVtxX",
-          "Circe Vertex X; Xfit-Xmc (cm); Events",
-          200, -50.0,50.0);
+                                     "Circe Vertex X; Xfit-Xmc (cm); Events",
+                                     200, -50.0, 50.0);
 
 FHiCL configuration of services
 -------------------------------
@@ -35,7 +36,7 @@ FHiCL configuration of services
 
           user:
           {
-            # user-defined, plugin service
+            # experiment- or user-defined plugin service
           }
           ...
         }

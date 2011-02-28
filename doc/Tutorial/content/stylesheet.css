@@ -54,6 +54,7 @@ a:hover {
 }
 
 #footer {
+  position: relative;
   margin-left: 250px;
   padding-top: 1em;
   margin-top: 1em;
@@ -89,7 +90,7 @@ a:hover {
 }
 
 pre {
-  background-color: #ddf;
+  background-color: #eef;
   width: 80%;
 }
 
