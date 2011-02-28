@@ -51,8 +51,8 @@ public:
       }
    }
 
-   EventID nextSubRun() const {
-      return EventID(subRun_.next(), FIRST_EVENT_NUMBER);
+   EventID nextSubRun(EventNumber_t first_event = FIRST_EVENT_NUMBER) const {
+      return EventID(subRun_.next(), first_event);
    }
 
    EventID nextRun() const {
