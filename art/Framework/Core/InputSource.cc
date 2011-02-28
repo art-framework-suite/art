@@ -337,8 +337,9 @@ namespace art {
     mf::LogVerbatim("ArtReport")
       << "Begin processing the " << readCount_
       << suffix(readCount_) << " record. Run " << eventID.run()
+      << ", SubRun " << subRun
       << ", Event " << eventID.event()
-      << ", SubRun " << subRun<< " at " << ts;
+      << " at " << ts;
     // At some point we may want to initiate checkpointing here
   }
 
