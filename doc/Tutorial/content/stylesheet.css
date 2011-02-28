@@ -27,8 +27,11 @@ a:hover {
 
 #main h1 {
   font-weight: bold;
-  padding-top: 1em;
-  padding-bottom: 0.5em;
+}
+
+#main h1,h2,h3,h4 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
 }
 
 #main p {
@@ -46,7 +49,7 @@ a:hover {
 #main ul {
 }
 
-#main li {
+#main ul.li {
   list-style-type: square;
 }
 
@@ -83,4 +86,14 @@ a:hover {
 #sidebar li {
   font-size: 14px;
   line-height: 20px;
+}
+
+pre {
+  background-color: #ddf;
+  width: 80%;
+}
+
+code {
+  font-family: monospace;
+  font-size: 110%;
 }

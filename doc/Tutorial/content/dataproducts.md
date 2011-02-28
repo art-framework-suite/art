@@ -1,6 +1,7 @@
 ---
 title: Data Products
 prev: /edm
+next: /modules
 ---
 
 Data Products
