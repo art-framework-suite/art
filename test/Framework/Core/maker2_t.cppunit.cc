@@ -17,6 +17,22 @@
 using namespace art;
 using fhicl::ParameterSet;
 
+namespace
+{
+  ModuleDescription
+    createModuleDescription(WorkerParams const &p)
+  {
+    ParameterSet const& procParams = *p.procPset_;
+    ParameterSet const& conf = *p.pset_;
+    ModuleDescription md;
+    md.parameterSetID_ = conf.id();
+    md.moduleName_ = conf.get<std::string>("module_type");
+    md.moduleLabel_ = conf.get<std::string>("module_label");
+    md.processConfiguration_ = ProcessConfiguration(p.processName_, procParams.id(), p.releaseVersion_, p.passID_);
+    return md;
+  }
+} // namespace
+
 
 // ----------------------------------------------
 class testmaker2: public CppUnit::TestFixture
@@ -50,9 +66,8 @@ void testmaker2::maker2Test()
   art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
   art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
-  ModuleDescription m;
-  std::auto_ptr<Worker> w1 = ModuleFactory::makeWorker(params1,m);
-  std::auto_ptr<Worker> w2 = ModuleFactory::makeWorker(params2,m);
+  std::auto_ptr<Worker> w1 = ModuleFactory::makeWorker(params1, createModuleDescription(params1));
+  std::auto_ptr<Worker> w2 = ModuleFactory::makeWorker(params2, createModuleDescription(params2));
 
 //  return 0;
 }
