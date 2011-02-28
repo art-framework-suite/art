@@ -64,6 +64,7 @@ private:
    bool newSubRun_;
    bool subRunSet_;
    bool eventSet_;
+   bool skipEventIncrement_;
    std::auto_ptr<EventPrincipal> ep_;
    EventAuxiliary::ExperimentType eType_;
 };  // EmptyEvent
@@ -97,6 +98,7 @@ art::EmptyEvent::EmptyEvent
    newSubRun_               ( true ),
    subRunSet_               ( false ),
    eventSet_                ( false ),
+   skipEventIncrement_      ( true ),
    ep_                      ( 0 ),
    eType_                   ( EventAuxiliary::Any)
 {
@@ -181,6 +183,7 @@ void art::EmptyEvent::skip(int offset)
 void art::EmptyEvent::rewind_() {
   presentTime_ = origTime_;
   eventID_ = origEventID_;
+  skipEventIncrement_ = true;
   numberEventsInThisRun_ = 0;
   numberEventsInThisSubRun_ = 0;
   newRun_ = newSubRun_ = true;
@@ -246,10 +249,13 @@ art::EmptyEvent::setRunAndEventInfo() {
    // NOTE: numberEventsInRun < 0 means go forever in this run
    if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
       // same run
-      eventID_ = eventID_.next();
       if (!(numberEventsInSubRun_ < 1 || numberEventsInThisSubRun_ < numberEventsInSubRun_)) {
          // new subrun
          eventID_ = eventID_.nextSubRun();
+      } else if (skipEventIncrement_) { // For first event, rewind etc.
+         skipEventIncrement_ = false;
+      } else {
+         eventID_ = eventID_.next();
       }
    } else {
       // new run
