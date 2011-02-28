@@ -65,6 +65,7 @@ private:
    bool subRunSet_;
    bool eventSet_;
    bool skipEventIncrement_;
+   bool resetEventOnSubRun_;
    std::auto_ptr<EventPrincipal> ep_;
    EventAuxiliary::ExperimentType eType_;
 };  // EmptyEvent
@@ -99,6 +100,7 @@ art::EmptyEvent::EmptyEvent
    subRunSet_               ( false ),
    eventSet_                ( false ),
    skipEventIncrement_      ( true ),
+   resetEventOnSubRun_      ( pset.get<bool>("resetEventOnSubRun", true) ),
    ep_                      ( 0 ),
    eType_                   ( EventAuxiliary::Any)
 {
@@ -251,7 +253,11 @@ art::EmptyEvent::setRunAndEventInfo() {
       // same run
       if (!(numberEventsInSubRun_ < 1 || numberEventsInThisSubRun_ < numberEventsInSubRun_)) {
          // new subrun
-         eventID_ = eventID_.nextSubRun();
+         if (resetEventOnSubRun_) {
+            eventID_ = eventID_.nextSubRun(origEventID_.event());
+         } else {
+            eventID_ = eventID_.nextSubRun(eventID_.next().event());
+         }
       } else if (skipEventIncrement_) { // For first event, rewind etc.
          skipEventIncrement_ = false;
       } else {
@@ -259,7 +265,7 @@ art::EmptyEvent::setRunAndEventInfo() {
       }
    } else {
       // new run
-      eventID_ = eventID_.nextRun();
+      eventID_ = EventID(eventID_.nextRun().run(), origEventID_.subRun(), origEventID_.event());
    }
    presentTime_ += timeBetweenEvents_;
    if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
