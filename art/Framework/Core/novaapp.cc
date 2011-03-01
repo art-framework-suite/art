@@ -42,6 +42,8 @@ int novaapp(int argc, char* argv[]) {
       ("source-list,S", bpo::value<std::string>(), "file containing a list of source files to read, one per line.")
       ("trace", "Activate tracing.")
       ("notrace", "Deactivate tracing.")
+      ("memcheck", "Activate monitoring of memory use.")
+      ("nomemcheck", "Deactivate monitoring of memory use.")
       ;
 
    bpo::positional_options_description pd;
@@ -121,8 +123,16 @@ int novaapp(int argc, char* argv[]) {
 
    // Apply our command-line options to the configuration.
    NovaConfigPostProcessor ncpp;
-   if (vm.count("trace")) ncpp.trace(true);
-   if (vm.count("notrace")) ncpp.trace(false);
+   if (vm.count("trace")) {
+      ncpp.trace(true);
+   } else if (vm.count("notrace")) {
+      ncpp.trace(false);
+   }
+   if (vm.count("memcheck")) {
+      ncpp.memcheck(true);
+   } else if (vm.count("nomemcheck")) {
+      ncpp.memcheck(false);
+   }
    if (!source_list.empty()) ncpp.sources(source_list);
    if (vm.count("TFileName"))
       ncpp.tFileName(vm["TFileName"].as<std::string>());

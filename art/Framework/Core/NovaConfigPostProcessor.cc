@@ -29,10 +29,12 @@ NovaConfigPostProcessor::NovaConfigPostProcessor()
    startEvt_(),
    skipEvts_(),
    trace_(),
+   memcheck_(),
    wantNevts_(false),
    wantStartEvt_(false),
    wantSkipEvts_(false),
-   wantTrace_(false)
+   wantTrace_(false),
+   wantMemcheck_(false)
 {
 }
 
@@ -41,6 +43,7 @@ void NovaConfigPostProcessor::apply(intermediate_table &raw_config) const {
    applyOutput(raw_config);
    applyTFileName(raw_config);
    applyTrace(raw_config);
+   applyMemcheck(raw_config);
 }
 
 void NovaConfigPostProcessor::sources(std::vector<std::string> const &sources) {
@@ -197,4 +200,21 @@ void NovaConfigPostProcessor::
 applyTrace(intermediate_table &raw_config) const {
    if (wantTrace_) raw_config["services.scheduler.wantTracer"] =
       extended_value(false, BOOL, fhicl::detail::encode(trace_));
+}
+
+void NovaConfigPostProcessor::
+applyMemcheck(intermediate_table &raw_config) const {
+   if (wantMemcheck_)  {
+      if (memcheck_) {
+         if (!raw_config.exists("services.SimpleMemoryCheck")) {
+            // If it doesn't exist, make one.
+            raw_config["services.SimpleMemoryCheck"] =
+               extended_value(false, TABLE, table_t());
+         }
+      } else if (raw_config.exists("services.SimpleMemoryCheck")) {
+         // It exists: remove it.
+         table_t & s = boost::any_cast<table_t &>(raw_config["services"].value);
+         s.erase(s.find("SimpleMemoryCheck"));
+      }
+   }
 }
