@@ -50,7 +50,7 @@ void try_loading(LibraryManager& libs,
 void checkLoadability(string const& type,
 		      string const& expected_symbol)
 {
-  static const regex system_service("libart_Framework_Services_System_[A-Za-z]+_service\\.so");
+  static const regex system_service("@CMAKE_SHARED_LIBRARY_PREFIX@art_Framework_Services_System_[A-Za-z]+_service\\@CMAKE_SHARED_LIBRARY_SUFFIX@");
 
   vector<string> libraries;
   LibraryManager libs(type);

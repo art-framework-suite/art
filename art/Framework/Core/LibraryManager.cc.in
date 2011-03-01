@@ -21,10 +21,6 @@ extern "C" {
 
 using std::placeholders::_1;
 
-// TODO: Should give "dylib" for Mac OS X.
-std::string const art::LibraryManager::dll_ext_(".so");
-std::string const art::LibraryManager::dll_ext_pat_("\\.so");
-
 art::LibraryManager::LibraryManager(std::string const& lib_type)
    :
    lib_type_(lib_type),
@@ -37,9 +33,10 @@ art::LibraryManager::LibraryManager(std::string const& lib_type)
    // anyone asks for it.
 
    static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
-   static std::string const pattern("lib[A-Za-z0-9_]*_");
+   static std::string const pattern("@CMAKE_SHARED_LIBRARY_PREFIX@[A-Za-z0-9_]*_");
    std::vector<std::string> matches;
-   size_t n_matches = ld_lib_path.find_files(pattern + lib_type + dll_ext_pat_,
+   size_t n_matches = ld_lib_path.find_files(pattern + lib_type +
+                                             "\\@CMAKE_SHARED_LIBRARY_SUFFIX@",
                                              matches);
    // Note the use of reverse iterators here: files found earlier in the
    // vector will therefore overwrite those found later, which is what
@@ -185,7 +182,8 @@ art::LibraryManager::
 spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
                         std::string const &lib_type) {
    // First obtain short spec.
-   boost::regex e("([^_]+)_" + lib_type + dll_ext_pat_ + "$");
+   boost::regex e("([^_]+)_" + lib_type +
+                  "\\@CMAKE_SHARED_LIBRARY_SUFFIX@" + "$");
    boost::match_results<std::string::const_iterator> match_results;
 
    if (boost::regex_search(entry.first, match_results, e)) {
@@ -232,3 +230,7 @@ void *art::LibraryManager::get_lib_ptr(std::string const&lib_loc) const {
    }
    return it->second;
 }
+
+// Local Variables:
+// mode: c++
+// End:

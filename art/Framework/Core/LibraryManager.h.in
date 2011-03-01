@@ -66,8 +66,11 @@ namespace art
       std::string libType() const { return lib_type_; }
 
       // String and pattern representing the system's library extension.
-      std::string dllExt() const { return dll_ext_; }
-      std::string dllExtPattern() const { return dll_ext_pat_; }
+      std::string dllExt() const { return "@CMAKE_SHARED_LIBRARY_SUFFIX@"; }
+      std::string dllExtPattern() const {
+         static std::string const dllExtPatt = "\\@CMAKE_SHARED_LIBRARY_SUFFIX@";
+         return dllExtPatt;
+      }
 
    private:
       // Internally-useful typedefs.
@@ -82,10 +85,6 @@ namespace art
                                    std::string const &lib_type);
       void good_spec_trans_map_inserter(spec_trans_map_t::value_type const &entry);
       void *get_lib_ptr(std::string const &lib_loc) const;
-
-      // DLL library name info.
-      static std::string const dll_ext_; // .so or .dylib
-      static std::string const dll_ext_pat_; // \\.so or \\.dylib
 
       std::string lib_type_; // eg _plugin.
       // Map of library filename -> full path.
@@ -140,8 +139,6 @@ size_t art::LibraryManager::getValidLibspecs(OutIter dest) const {
    }
    return count;
 }
-
-
 
 #endif /* art_Framework_Core_LibraryManager_h */
 

@@ -1,6 +1,16 @@
 # project name
 project(art_Framework_Core)
 
+foreach(cfg_source
+    LibraryManager.h
+    LibraryManager.cc
+    check_libs.cc
+    )
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${cfg_source}.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${cfg_source} @ONLY
+    )
+endforeach()
+
 set( art_Framework_Core_sources
   Actions.cc
   Breakpoints.cc
@@ -26,7 +36,7 @@ set( art_Framework_Core_sources
   InputSource.cc
   InputSourceFactory.cc
   IntermediateTablePostProcessor.cc
-  LibraryManager.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   ModuleFactory.cc
   RootDictionaryManager.cc
   SubRun.cc
@@ -125,7 +135,7 @@ foreach (art_exec ${ART_EXECS})
   install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
 endforeach (art_exec ${ART_EXECS})
 
-add_executable( check_libs check_libs.cc )
+add_executable( check_libs ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc )
 target_link_libraries( check_libs ${common_exec_link_libraries} )
 install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )
 
@@ -165,7 +175,7 @@ install(FILES
   InputSourceFactory.h
   InputSourceMacros.h
   IntermediateTablePostProcessor.h
-  LibraryManager.h
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.h
   ModuleFactory.h
   ModuleMacros.h
   NoDelayedReader.h
