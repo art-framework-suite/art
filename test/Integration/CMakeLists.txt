@@ -62,6 +62,7 @@ cet_test(EventSelectorFromFile_t.sh PREBUILT
   fcl/EventSelectorFromFile_w.fcl
   fcl/EventSelectorFromFile_r1.fcl
   fcl/EventSelectorFromFile_r2.fcl
+  fcl/messageDefaults.fcl
   )
 cet_test(test_simple_01_t.sh PREBUILT
   DATAFILES
@@ -129,6 +130,7 @@ cet_test(reconfig_t HANDBUILT
   TEST_ARGS -c test_reconfig_01.fcl
   DATAFILES
   fcl/test_reconfig_01.fcl
+  fcl/messageDefaults.fcl
 )
 
 ########################################################################
