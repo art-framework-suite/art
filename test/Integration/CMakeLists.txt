@@ -22,6 +22,7 @@ simple_plugin(TestFilter               "module")
 simple_plugin(TestBitsOutput           "module")
 simple_plugin(TestOutput               "module")
 simple_plugin(TestResultAnalyzer       "module")
+simple_plugin(U_S                      "module" ALLOW_UNDERSCORES)
 
 simple_plugin(Reconfigurable           "service")
 simple_plugin(Throwing                 "service")
@@ -131,6 +132,15 @@ cet_test(reconfig_t HANDBUILT
   DATAFILES
   fcl/test_reconfig_01.fcl
   fcl/messageDefaults.fcl
+)
+cet_test(issue_0930_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c issue_0930.fcl
+  DATAFILES
+  fcl/issue_0930.fcl
+  fcl/messageDefaults.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "LogicError BEGIN"
 )
 
 ########################################################################

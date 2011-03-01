@@ -6,6 +6,7 @@
 
 #include "art/Framework/Core/ModuleFactory.h"
 
+#include "art/Framework/Core/wrapLibraryManagerException.h"
 #include "art/Utilities/Exception.h"
 
 using namespace art;
@@ -44,12 +45,8 @@ ModuleFactory::makeWorker( WorkerParams      const & p
       // reinterpret_cast is required because void* can't be converted to a whole lot.
       symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
    }
-   catch (cet::exception e) {
-      throw art::Exception(errors::Configuration,"UnknownModule", e)
-         << "Module " << libspec
-         << " with version " << p.releaseVersion_
-         << " was not registered.\n"
-         << "Perhaps your module type is misspelled or is not a framework plugin.";
+   catch (art::Exception &e) {
+      wrapLibraryManagerException(e, "Module", libspec, p.releaseVersion_);
    }
    if (symbol == nullptr) {
       throw art::Exception(errors::Configuration, "BadPluginLibrary")

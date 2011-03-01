@@ -1,7 +1,9 @@
 #include "art/Framework/Core/InputSourceFactory.h"
 
+#include "art/Framework/Core/wrapLibraryManagerException.h"
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
+#include "art/Version/GetReleaseVersion.h"
 
 #include "fhiclcpp/ParameterSet.h"
   using fhicl::ParameterSet;
@@ -42,11 +44,8 @@ InputSourceFactory::makeInputSource(ParameterSet const& conf,
       // reinterpret_cast is required because void* can't be converted to a whole lot.
       symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make") );
    }
-   catch (cet::exception e) {
-      throw art::Exception(errors::Configuration,"NoSourceModule", e)
-         << "InputSource " << libspec
-         << " was not registered.\n"
-         << "Perhaps your module type is misspelled or is not a framework plugin.";
+   catch (art::Exception const &e) {
+      wrapLibraryManagerException(e, "InputSource", libspec, getReleaseVersion());
    }
    if (symbol == nullptr) {
       throw art::Exception(errors::Configuration, "BadPluginLibrary")

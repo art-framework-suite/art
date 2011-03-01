@@ -1,0 +1,26 @@
+#include "messageDefaults.fcl"
+process_name: TEST
+
+services.message: @local::messageDefaults
+
+physics:
+{
+  producers:
+  {
+    usTest:
+    {
+      module_type: "U_S"
+    }
+  }
+  p1: [ usTest ]
+  e1: [ o1 ]
+
+  trigger_paths: [ p1 ]
+  end_paths: [ e1 ]
+}
+
+outputs.o1:
+{
+  module_type: RootOutput
+  fileName: "issue_0930.root"
+}

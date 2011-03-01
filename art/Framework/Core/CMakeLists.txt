@@ -62,6 +62,7 @@ set( art_Framework_Core_sources
   Worker.cc
   WorkerInPath.cc
   WorkerRegistry.cc
+  wrapLibraryManagerException.cc
 )
 
 simple_plugin(RandomNumberSaver  "module")

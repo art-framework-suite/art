@@ -1,5 +1,6 @@
 #include "art/Framework/Core/LibraryManager.h"
 
+#include "art/Utilities/Exception.h"
 #include "boost/filesystem.hpp"
 #include "cetlib/exception.h"
 #include "cetlib/search_path.h"
@@ -66,6 +67,17 @@ void *art::LibraryManager::getSymbolByLibspec(std::string const &libspec,
 {
    std::string lib_name_str;
 
+   if (libspec.find("_") != std::string::npos) {
+      // Plugin names (and hence the class name) cannot contain an underscore.
+      throw art::Exception(art::errors::LogicError, "IllegalUnderscore.")
+         << "Library specification \""
+         << libspec << "\" contains an illegal underscore.\n"
+         << "The class name and path to it may not contain an underscore. "
+         << "If this is a configuration error, plase correct it; "
+         << "if the module's class name or its location within its "
+         << "enclosing package really do have an underscore this situation "
+         << "must be rectified.\n";
+   }
    good_spec_trans_map_t::const_iterator trans =
       good_spec_trans_map_.find(libspec);
    if (trans == good_spec_trans_map_.end()) {
