@@ -44,15 +44,12 @@ cet_test(artapp_t USE_BOOST_UNIT
   empty_config.fcl
 )
 cet_test(LibraryManager_t USE_BOOST_UNIT NO_AUTO)
-# Cmake directives to prepare for Library_Manager_t test
-# The driver script could do this if we could let it know where the tar file is.
-add_custom_target(Prep_LibraryManager_t
-  ${CMAKE_COMMAND} -E tar zxf ${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.tar.gz
-  DEPENDS LibraryManager_t.tar.gz
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.sh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
+  @ONLY
   )
-cet_test(LibraryManager_t.sh PREBUILT
-  TEST_ARGS ${EXECUTABLE_OUTPUT_PATH}
-  DEPENDENCIES Prep_LibraryManager_t
+cet_test(LibraryManager_t.sh HANDBUILT
+  TEST_EXEC ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
   )
 
 #########################################################################

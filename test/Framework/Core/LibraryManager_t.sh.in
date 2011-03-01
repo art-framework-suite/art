@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function libname() {
+    echo "@CMAKE_SHARED_LIBRARY_PREFIX@${1}@CMAKE_SHARED_LIBRARY_SUFFIX@"
+}
+
+expected_lib="@LIBRARY_OUTPUT_PATH@/$(libname art_Framework_Core_RandomNumberSaver_module)"
+
+if [[ ! -r "$expected_lib" ]]; then
+  echo "Expected library \"$expected_lib\" does not exist!" 1>&2
+  exit 1
+fi
+
+export TMP_DIR=`mktemp -d /tmp/${0##*/}.XXXXXXXXXX`
+
+trap "[[ -z \"$DEBUG\" ]] && [[ -d \"$TMP_DIR\" ]] && rm -rf \"$TMP_DIR\"" EXIT
+
+[[ -n "$TMP_DIR" ]] && cd "$TMP_DIR" || \
+  { echo "ERROR: could not cd to \"$TMP_DIR\"" 1>&2; exit 1; }
+
+mkdir lib1
+cd lib1
+for i in 1_1_{1,2,3}_module; do
+  ln -sfv "$expected_lib" "$(libname $i)"
+done
+cd - >/dev/null
+mkdir lib2
+cd lib2
+for i in {1_1_1,2_1_3,2_1_5}_module; do
+  ln -sfv "$expected_lib" "$(libname $i)"
+done
+cd - >/dev/null
+
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${TMP_DIR}/lib2:${TMP_DIR}/lib1"
+
+export BOOST_TEST_SHOW_PROGRESS=${BOOST_TEST_SHOW_PROGRESS:-yes}
+export BOOST_TEST_LOG_LEVEL=${BOOST_TEST_LOG_LEVEL:-message}
+
+# This should be available in PATH.
+$(basename "${0}" .sh)
+
+exit $?
