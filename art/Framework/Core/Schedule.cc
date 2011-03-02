@@ -108,148 +108,158 @@ namespace art
     demandBranches_(),
     endpathsAreActive_(true)
   {
-    ParameterSet services(pset_.get<ParameterSet>("services", ParameterSet()));
-    ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-    bool hasPath = false;
+     ParameterSet services(pset_.get<ParameterSet>("services", ParameterSet()));
+     ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
+     bool hasPath = false;
 
-    int trig_bitpos = 0;
-    for (vstring::const_iterator 
-	   i = trig_name_list_.begin(),
-           e = trig_name_list_.end();
-         i != e;
-         ++i) 
-      {
-	fillTrigPath(trig_bitpos, *i, results_);
-	++trig_bitpos;
-	hasPath = true;
-      }
+     int trig_bitpos = 0;
+     for (vstring::const_iterator 
+             i = trig_name_list_.begin(),
+             e = trig_name_list_.end();
+          i != e;
+          ++i) 
+        {
+           fillTrigPath(trig_bitpos, *i, results_);
+           ++trig_bitpos;
+           hasPath = true;
+        }
 
-    if (hasPath) 
-      {
-	// the results inserter stands alone
-	results_inserter_ = makeInserter(tns.getTriggerPSet());
-	addToAllWorkers(results_inserter_.get());
-      }
+     if (hasPath) 
+        {
+           // the results inserter stands alone
+           results_inserter_ = makeInserter(tns.getTriggerPSet());
+           addToAllWorkers(results_inserter_.get());
+        }
 
-    TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
-    endpath_results_ = epptr;
+     TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
+     endpath_results_ = epptr;
 
-    // fill normal endpaths
-    vstring::iterator eib(end_path_name_list_.begin());
-    vstring::iterator eie(end_path_name_list_.end());
-    for(int bitpos = 0; eib != eie; ++eib, ++bitpos) 
-      fillEndPath(bitpos, *eib);
+     // fill normal endpaths
+     vstring::iterator eib(end_path_name_list_.begin());
+     vstring::iterator eie(end_path_name_list_.end());
+     for(int bitpos = 0; eib != eie; ++eib, ++bitpos) 
+        fillEndPath(bitpos, *eib);
 
-    //See if all modules were used
-    set<string> usedWorkerLabels;
-    for(Workers::iterator i=workersBegin(), e = workersEnd(); i != e; ++i)
-      usedWorkerLabels.insert((*i)->description().moduleLabel_);
+     //See if all modules were used
+     set<string> usedWorkerLabels;
+     for(Workers::iterator i=workersBegin(), e = workersEnd(); i != e; ++i)
+        usedWorkerLabels.insert((*i)->description().moduleLabel_);
 
-    vstring modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
-    set<string> modulesInConfigSet(modulesInConfig.begin(),
-				   modulesInConfig.end());
-    vstring unusedLabels;
-    set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
-                   usedWorkerLabels.begin(),usedWorkerLabels.end(),
-                   back_inserter(unusedLabels));
-    //does the configuration say we should allow on demand?
-    bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
-    set<string> unscheduledLabels;
-    if(!unusedLabels.empty()) 
-      {
-	//Need to
-	// 1) create worker
-	// 2) if it is a WorkerT<EDProducer>, add it to our list
-	// 3) hand list to our delayed reader
-	vstring  shouldBeUsedLabels;
+     vstring modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
+     set<string> modulesInConfigSet(modulesInConfig.begin(),
+                                    modulesInConfig.end());
+     vstring unusedLabels;
+     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
+                    usedWorkerLabels.begin(),usedWorkerLabels.end(),
+                    back_inserter(unusedLabels));
+     //does the configuration say we should allow on demand?
+     bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
+     set<string> unscheduledLabels;
+     if(!unusedLabels.empty()) 
+        {
+           ParameterSet empty;
+           ParameterSet physics =   pset_.get<ParameterSet>("physics");
+           ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+           ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+           ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+           ParameterSet outputs   = pset_.get<ParameterSet>("outputs", empty);
+           //Need to
+           // 1) create worker
+           // 2) if it is a WorkerT<EDProducer>, add it to our list
+           // 3) hand list to our delayed reader
+           vstring  shouldBeUsedLabels;
 
-	for(vstring::iterator 
-	      itLabel = unusedLabels.begin(), 
-	      itLabelEnd = unusedLabels.end();
-	    itLabel != itLabelEnd;
-	    ++itLabel) 
-	  {
-	    if (allowUnscheduled) 
-	      {
-		// Need to hold onto the parameters long enough to
-		// make the call to getWorker
-		ParameterSet workersParams(proc_pset.get<ParameterSet>(*itLabel));
-		WorkerParams params(proc_pset, workersParams,
-				    *prod_reg_, *act_table_,
-				    processName_, getReleaseVersion(),
-				    getPassID());
-		Worker* newWorker(wreg.getWorker(params));
-		if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
-		    dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) 
-		  {
-		    unscheduledLabels.insert(*itLabel);
-		    unscheduled_->addWorker(newWorker);
-		    // add to list so it gets reset each new event
-		    addToAllWorkers(newWorker);
-		  } 
-		else
-		  {
-		    //not a producer so should be marked as not used
-		    shouldBeUsedLabels.push_back(*itLabel);
-		  }
-	      }
-	    else
-	      {
-		// everything is marked are unused so no 'on demand'
-		// allowed
-		shouldBeUsedLabels.push_back(*itLabel);
-	      }
-	  }
-	if (!shouldBeUsedLabels.empty()) 
-	  {
-	    ostringstream unusedStream;
-	    unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-	    for (vstring::iterator 
-		   i = shouldBeUsedLabels.begin() + 1,
-		   e = shouldBeUsedLabels.end();
-		 i != e;
-		 ++i) 
-	      {
-		unusedStream << ",'" << *i << "'";
-	      }
-	    LogInfo("path")
-	      << "The following module labels are not assigned to any path:\n"
-	      << unusedStream.str()
-	      << "\n";
-	  }
-      }
+           for(vstring::iterator 
+                  itLabel = unusedLabels.begin(), 
+                  itLabelEnd = unusedLabels.end();
+               itLabel != itLabelEnd;
+               ++itLabel) 
+              {
+                 if (allowUnscheduled) 
+                    {
+                       // Need to hold onto the parameters long enough to
+                       // make the call to getWorker
+                       ParameterSet workersParams;
+                       producers.get_if_present(*itLabel, workersParams) ||
+                          filters.get_if_present(*itLabel, workersParams) ||
+                          analyzers.get_if_present(*itLabel, workersParams) ||
+                          outputs.get_if_present(*itLabel, workersParams);
+                       WorkerParams params(proc_pset, workersParams,
+                                           *prod_reg_, *act_table_,
+                                           processName_, getReleaseVersion(),
+                                           getPassID());
+                       Worker* newWorker(wreg.getWorker(params));
+                       if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+                           dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) 
+                          {
+                             unscheduledLabels.insert(*itLabel);
+                             unscheduled_->addWorker(newWorker);
+                             // add to list so it gets reset each new event
+                             addToAllWorkers(newWorker);
+                          } 
+                       else
+                          {
+                             //not a producer so should be marked as not used
+                             shouldBeUsedLabels.push_back(*itLabel);
+                          }
+                    }
+                 else
+                    {
+                       // everything is marked are unused so no 'on demand'
+                       // allowed
+                       shouldBeUsedLabels.push_back(*itLabel);
+                    }
+              }
+           if (!shouldBeUsedLabels.empty()) 
+              {
+                 ostringstream unusedStream;
+                 unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
+                 for (vstring::iterator 
+                         i = shouldBeUsedLabels.begin() + 1,
+                         e = shouldBeUsedLabels.end();
+                      i != e;
+                      ++i) 
+                    {
+                       unusedStream << ",'" << *i << "'";
+                    }
+                 LogInfo("path")
+                    << "The following module labels are not assigned to any path:\n"
+                    << unusedStream.str()
+                    << "\n";
+              }
+        }
 
-    // All the workers should be in all_workers_ by this point. Thus
-    // we can now fill all_output_workers_.  We provide a little
-    // sanity-check to make sure no code modifications alter the
-    // number of workers at a later date... Much better would be to
-    // refactor this huge constructor into a series of well-named
-    // private functions.
-    size_t all_workers_count = all_workers_.size();
-    for (Workers::iterator 
-	   i = all_workers_.begin(), 
-	   e = all_workers_.end();
-         i != e;
-         ++i)
-      {
-	OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
-	if (ow) all_output_workers_.push_back(ow);
-      }
+     // All the workers should be in all_workers_ by this point. Thus
+     // we can now fill all_output_workers_.  We provide a little
+     // sanity-check to make sure no code modifications alter the
+     // number of workers at a later date... Much better would be to
+     // refactor this huge constructor into a series of well-named
+     // private functions.
+     size_t all_workers_count = all_workers_.size();
+     for (Workers::iterator 
+             i = all_workers_.begin(), 
+             e = all_workers_.end();
+          i != e;
+          ++i)
+        {
+           OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
+           if (ow) all_output_workers_.push_back(ow);
+        }
 
-    // Now that the output workers are filled in, set any output limits.
-    limitOutput();
+     // Now that the output workers are filled in, set any output limits.
+     limitOutput();
 
-    prod_reg_->setFrozen();
+     prod_reg_->setFrozen();
 
-    if (allowUnscheduled) 
-      {
-	// Now that these have been set, we can create the list of
-	// Branches we need for the 'on demand.'
-	catalogOnDemandBranches(unscheduledLabels);
-      }
+     if (allowUnscheduled) 
+        {
+           // Now that these have been set, we can create the list of
+           // Branches we need for the 'on demand.'
+           catalogOnDemandBranches(unscheduledLabels);
+        }
 
-    // Test path invariants.
-    pathConsistencyCheck(all_workers_count);
+     // Test path invariants.
+     pathConsistencyCheck(all_workers_count);
 
   } // Schedule::Schedule
 

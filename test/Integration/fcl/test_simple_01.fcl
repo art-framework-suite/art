@@ -16,7 +16,7 @@ services:
               'MismatchedInputFiles','ProductDoesNotSupportViews',
               'ProductDoesNotSupportPtr','NotFound']
     # IgnoreCompletely: []
-    wantSummary: true
+#    wantSummary: true
     # wantTracer: true
     # fileMode: ""
     # handleEmptyRuns: true
@@ -28,9 +28,9 @@ services:
 
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
-   Timing: { }
-   SimpleMemoryCheck: { }
-   TFileService: { fileName: "tfile_output.root" }
+#   Timing: { }
+#   SimpleMemoryCheck: { }
+#   TFileService: { fileName: "tfile_output.root" }
 
    user:
    {

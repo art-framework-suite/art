@@ -1,6 +1,7 @@
 # project name
 project(art_Integration_Test)
 
+simple_plugin(AddIntsProducer          "module")
 simple_plugin(DerivedPtrVectorProducer "module")
 simple_plugin(DoubleProducer           "module")
 simple_plugin(DoubleTestAnalyzer       "module")
@@ -157,6 +158,10 @@ set(pass_list
   TrigBits2_t
   TrigBits3_t
   TrigBits4_t
+  Unscheduled_01_t
+#  Unscheduled_04_t
+#  Unscheduled_05_t
+#  Unscheduled_06_t
 )
 foreach(test ${pass_list})
   cet_test(${test} HANDBUILT
@@ -164,11 +169,16 @@ foreach(test ${pass_list})
     TEST_ARGS -c ${test}.fcl
     DATAFILES
     fcl/${test}.fcl
+    fcl/messageDefaults.fcl
     )
 endforeach()
 
 # Tests expected to fail
 set(fail_list
+#  Unscheduled_02_t
+#  Unscheduled_03_t
+#  Unscheduled_07_t
+#  Unscheduled_08_t
 )
 foreach(test ${fail_list})
   cet_test(${test} HANDBUILT
@@ -177,5 +187,6 @@ foreach(test ${fail_list})
     TEST_PROPERTIES WILL_FAIL true
     DATAFILES
     fcl/${test}.fcl
+    fcl/messageDefaults.fcl
     )
 endforeach()
