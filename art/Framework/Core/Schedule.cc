@@ -290,75 +290,53 @@ namespace art
 			     PathWorkers& out, 
 			     bool isTrigPath) 
   {
-    ParameterSet empty;
-    ParameterSet physics =   pset_.get<ParameterSet>("physics");
-    vstring modnames =       physics.get<vstring >(name);
-    ParameterSet producers = physics.get<ParameterSet>("producers", empty);
-    ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
-    ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-    ParameterSet outputs   = pset_.get<ParameterSet>("outputs", empty);
+     ParameterSet empty;
+     ParameterSet physics =   pset_.get<ParameterSet>("physics");
+     vstring modnames =       physics.get<vstring >(name);
+     ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+     ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+     ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+     ParameterSet outputs   = pset_.get<ParameterSet>("outputs", empty);
 
-    vstring::iterator it(modnames.begin()),ie(modnames.end());
-    PathWorkers tmpworkers;
+     vstring::iterator it(modnames.begin()),ie(modnames.end());
+     PathWorkers tmpworkers;
 
-    for(; it != ie; ++it) 
-      {
-	WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-	if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
-	else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
+     for(; it != ie; ++it) 
+        {
+           WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
+           if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
+           else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
 
-	string realname = *it;
-	if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
+           string realname = *it;
+           if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
 	
-	ParameterSet modpset;
-	try 
-	  {
-	    modpset = (isTrigPath?producers:analyzers).get<ParameterSet>(realname);
-	  } 
-	catch(cet::exception&) 
-	  {
-	    try 
-	      {
-		modpset = (isTrigPath?filters:outputs).get<ParameterSet>(realname);
-	      }
-	    catch(cet::exception&) 
-	      {
-		try
-		  {
-		    modpset = (isTrigPath?analyzers:producers).get<ParameterSet>(realname);
-		  }
-		catch(cet::exception&) 
-		  {
-		    try 
-		      {
-			modpset = (isTrigPath?outputs:filters).get<ParameterSet>(realname);
-		      }
-		    catch(cet::exception&) 
-		      {
-			string pathType("endpath");
-			if(!search_all(end_path_name_list_, name)) 
-			  {
-			    pathType = string("path");
-			  }
-			throw art::Exception(art::errors::Configuration) 
-			  << "The unknown module label '"
-			  << realname 
-			  << "' appears in " 
-			  << pathType 
-			  << " '" 
-			  << name 
-			  << "'\nplease check spelling or remove that label from the path.";
-		      }
-		  }
-	      }
-	  }
-	WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
-			    processName_, getReleaseVersion(), getPassID());
-	WorkerInPath w(worker_reg_->getWorker(params), filterAction);
-	tmpworkers.push_back(w);
-      }
-    
-    out.swap(tmpworkers);
+           ParameterSet modpset;
+           if ((isTrigPath?producers:analyzers).get_if_present(realname, modpset) ||
+               (isTrigPath?filters:outputs).get_if_present(realname, modpset) ||
+               (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
+               (isTrigPath?outputs:filters).get_if_present(realname, modpset))
+              {
+                 WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
+                                     processName_, getReleaseVersion(), getPassID());
+                 WorkerInPath w(worker_reg_->getWorker(params), filterAction);
+                 tmpworkers.push_back(w);
+              } else {
+              string pathType("endpath");
+              if(!search_all(end_path_name_list_, name)) 
+                 {
+                    pathType = string("path");
+                 }
+              throw art::Exception(art::errors::Configuration) 
+                 << "The unknown module label '"
+                 << realname 
+                 << "' appears in " 
+                 << pathType 
+                 << " '" 
+                 << name 
+                 << "'\nplease check spelling or remove that label from the path.";
+           }
+        }
+     out.swap(tmpworkers);
   }
   
   void Schedule::fillTrigPath(int bitpos, 
