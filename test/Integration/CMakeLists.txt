@@ -147,8 +147,11 @@ cet_test(issue_0930_t HANDBUILT
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 
-# Tests expected to pass
-set(pass_list
+# Utility script to turn an expected abort into a pass (see test
+# Unscheduled_03_t below).
+cet_test(test_must_abort PREBUILT NO_AUTO)
+
+set(test_list
   BitsPass_t
   BitsFail_t
   BitsCount_t
@@ -159,37 +162,46 @@ set(pass_list
   TrigBits3_t
   TrigBits4_t
   Unscheduled_01_t
-#  Unscheduled_04_t
-#  Unscheduled_05_t
-#  Unscheduled_06_t
-)
-foreach(test ${pass_list})
-  cet_test(${test} HANDBUILT
-    TEST_EXEC art
-    TEST_ARGS -c ${test}.fcl
-    DATAFILES
-    fcl/${test}.fcl
-    fcl/messageDefaults.fcl
-    )
-endforeach()
-
-# Make sure Unscheduled_01 test actually runs modules.
-set_tests_properties(Unscheduled_01_t PROPERTIES PASS_REGULAR_EXPRESSION "module for event:get")
-
-# Tests expected to fail
-set(fail_list
   Unscheduled_02_t
-#  Unscheduled_03_t
-#  Unscheduled_07_t
-#  Unscheduled_08_t
+  Unscheduled_04_t
+  Unscheduled_05_t
+  Unscheduled_06_t
 )
-foreach(test ${fail_list})
+
+# There were two more Unscheduled tests in FW that tested out-of-order
+# module specification, but that is moot if we require analyzers to be
+# in end paths.
+
+foreach(test ${test_list})
   cet_test(${test} HANDBUILT
     TEST_EXEC art
     TEST_ARGS -c ${test}.fcl
-    TEST_PROPERTIES WILL_FAIL true
     DATAFILES
     fcl/${test}.fcl
     fcl/messageDefaults.fcl
     )
 endforeach()
+
+# Extra test properties
+foreach(n 1;4;5;6)
+  SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
+    PASS_REGULAR_EXPRESSION
+    "module for event:"
+    )
+endforeach()
+
+SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
+  WILL_FAIL true
+  )
+
+# This test is a little more complicated because we expect it to abort,
+# which is not covered by the WILL_FAIL test property.
+cet_test(Unscheduled_03_t HANDBUILT
+  TEST_EXEC test_must_abort
+  TEST_ARGS art -c "Unscheduled_03_t.fcl"
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION
+  "Assertion `handle.isValid\\\\\\\\(\\\\\\\\) == require_presence_' failed."
+  DATAFILES
+  fcl/Unscheduled_03_t.fcl
+  fcl/messageDefaults.fcl
+)

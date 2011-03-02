@@ -1,0 +1,14 @@
+#!/bin/bash
+########################################################################
+# test_must_abort
+#
+# Execute a command and return 0 iff it aborts.
+#
+# Useful for running CTest on things you expect to abort (eg by failing
+# an assertion).
+#
+########################################################################
+
+"$@"
+
+if (( $? == 134 )); then exit 0; else exit 1; fi
