@@ -182,8 +182,8 @@ namespace art
                        ParameterSet workersParams;
                        producers.get_if_present(*itLabel, workersParams) ||
                           filters.get_if_present(*itLabel, workersParams) ||
-                          analyzers.get_if_present(*itLabel, workersParams) ||
-                          outputs.get_if_present(*itLabel, workersParams);
+                          outputs.get_if_present(*itLabel, workersParams) ||
+                          analyzers.get_if_present(*itLabel, workersParams);
                        WorkerParams params(proc_pset, workersParams,
                                            *prod_reg_, *act_table_,
                                            processName_, getReleaseVersion(),
@@ -311,6 +311,10 @@ namespace art
            if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
 
            ParameterSet modpset;
+           // Look for the module's parameter set in the module
+           // groups. If we're a trigger path, the search order is:
+           // producers, filters, outputs, analyzers; otherwise it is:
+           // analyzers, outputs, producers, filters.
            if ((isTrigPath?producers:analyzers).get_if_present(realname, modpset) ||
                (isTrigPath?filters:outputs).get_if_present(realname, modpset) ||
                (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
@@ -1026,5 +1030,3 @@ namespace art
   }
 
 }  // art
-
-
