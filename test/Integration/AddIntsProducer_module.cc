@@ -20,7 +20,6 @@ private:
 
 void
 arttest::AddIntsProducer::produce(art::Event& e) {
-   // EventSetup is not used.
    int value = 0;
    for(std::vector<std::string>::iterator
           itLabel = labels_.begin(),
