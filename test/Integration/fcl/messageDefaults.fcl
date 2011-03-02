@@ -3,9 +3,9 @@ messageDefaults:
 {
   destinations:
   {
-    STDERR:
+    STDOUT:
     {
-      type: cerr
+      type: cout
       threashold: INFO
       categories:
       {
