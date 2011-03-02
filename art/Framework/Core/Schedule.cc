@@ -43,7 +43,7 @@ using namespace art;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-namespace 
+namespace
 {
 
   // Function template to transform each element in the input range to
@@ -53,11 +53,11 @@ namespace
   template <class InputIterator, class ForwardIterator, class Func>
   void
   transform_into(InputIterator begin, InputIterator end,
-		 ForwardIterator out, Func func) 
+		 ForwardIterator out, Func func)
   {
     for (; begin != end; ++begin, ++out) func(*begin, *out);
   }
-  
+
   // Function template that takes a sequence 'from', a sequence
   // 'to', and a callable object 'func'. It and applies
   // transform_into to fill the 'to' sequence with the values
@@ -65,17 +65,17 @@ namespace
   // outupt only if all calls succeed.
   template <class FROM, class TO, class FUNC>
   void
-  fill_summary(FROM const& from, TO& to, FUNC func) 
+  fill_summary(FROM const& from, TO& to, FUNC func)
   {
     TO temp(from.size());
     transform_into(from.begin(), from.end(), temp.begin(), func);
     to.swap(temp);
   }
-  
+
 }  // namespace
 
- 
-namespace art 
+
+namespace art
 {
 
   Schedule::Schedule(ParameterSet const& proc_pset,
@@ -113,18 +113,18 @@ namespace art
      bool hasPath = false;
 
      int trig_bitpos = 0;
-     for (vstring::const_iterator 
+     for (vstring::const_iterator
              i = trig_name_list_.begin(),
              e = trig_name_list_.end();
           i != e;
-          ++i) 
+          ++i)
         {
            fillTrigPath(trig_bitpos, *i, results_);
            ++trig_bitpos;
            hasPath = true;
         }
 
-     if (hasPath) 
+     if (hasPath)
         {
            // the results inserter stands alone
            results_inserter_ = makeInserter(tns.getTriggerPSet());
@@ -137,7 +137,7 @@ namespace art
      // fill normal endpaths
      vstring::iterator eib(end_path_name_list_.begin());
      vstring::iterator eie(end_path_name_list_.end());
-     for(int bitpos = 0; eib != eie; ++eib, ++bitpos) 
+     for(int bitpos = 0; eib != eie; ++eib, ++bitpos)
         fillEndPath(bitpos, *eib);
 
      //See if all modules were used
@@ -155,7 +155,7 @@ namespace art
      //does the configuration say we should allow on demand?
      bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
      set<string> unscheduledLabels;
-     if(!unusedLabels.empty()) 
+     if(!unusedLabels.empty())
         {
            ParameterSet empty;
            ParameterSet physics =   pset_.get<ParameterSet>("physics");
@@ -169,13 +169,13 @@ namespace art
            // 3) hand list to our delayed reader
            vstring  shouldBeUsedLabels;
 
-           for(vstring::iterator 
-                  itLabel = unusedLabels.begin(), 
+           for(vstring::iterator
+                  itLabel = unusedLabels.begin(),
                   itLabelEnd = unusedLabels.end();
                itLabel != itLabelEnd;
-               ++itLabel) 
+               ++itLabel)
               {
-                 if (allowUnscheduled) 
+                 if (allowUnscheduled)
                     {
                        // Need to hold onto the parameters long enough to
                        // make the call to getWorker
@@ -190,13 +190,13 @@ namespace art
                                            getPassID());
                        Worker* newWorker(wreg.getWorker(params));
                        if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
-                           dynamic_cast<WorkerT<EDFilter>*>(newWorker) ) 
+                           dynamic_cast<WorkerT<EDFilter>*>(newWorker) )
                           {
                              unscheduledLabels.insert(*itLabel);
                              unscheduled_->addWorker(newWorker);
                              // add to list so it gets reset each new event
                              addToAllWorkers(newWorker);
-                          } 
+                          }
                        else
                           {
                              //not a producer so should be marked as not used
@@ -210,15 +210,15 @@ namespace art
                        shouldBeUsedLabels.push_back(*itLabel);
                     }
               }
-           if (!shouldBeUsedLabels.empty()) 
+           if (!shouldBeUsedLabels.empty())
               {
                  ostringstream unusedStream;
                  unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-                 for (vstring::iterator 
+                 for (vstring::iterator
                          i = shouldBeUsedLabels.begin() + 1,
                          e = shouldBeUsedLabels.end();
                       i != e;
-                      ++i) 
+                      ++i)
                     {
                        unusedStream << ",'" << *i << "'";
                     }
@@ -236,8 +236,8 @@ namespace art
      // refactor this huge constructor into a series of well-named
      // private functions.
      size_t all_workers_count = all_workers_.size();
-     for (Workers::iterator 
-             i = all_workers_.begin(), 
+     for (Workers::iterator
+             i = all_workers_.begin(),
              e = all_workers_.end();
           i != e;
           ++i)
@@ -251,7 +251,7 @@ namespace art
 
      prod_reg_->setFrozen();
 
-     if (allowUnscheduled) 
+     if (allowUnscheduled)
         {
            // Now that these have been set, we can create the list of
            // Branches we need for the 'on demand.'
@@ -264,18 +264,18 @@ namespace art
   } // Schedule::Schedule
 
   void
-  Schedule::limitOutput() 
+  Schedule::limitOutput()
   {
   }
 
-  bool const Schedule::terminate() const 
+  bool const Schedule::terminate() const
   {
     if (all_output_workers_.empty()) return false;
 
-    for (OutputWorkers::const_iterator 
+    for (OutputWorkers::const_iterator
 	   i = all_output_workers_.begin(),
 	   e = all_output_workers_.end();
-         i != e; ++i) 
+         i != e; ++i)
       {
 	if (!(*i)->limitReached()) return false;
       }
@@ -286,9 +286,9 @@ namespace art
     return true;
   }
 
-  void Schedule::fillWorkers(string const& name, 
-			     PathWorkers& out, 
-			     bool isTrigPath) 
+  void Schedule::fillWorkers(string const& name,
+			     PathWorkers& out,
+			     bool isTrigPath)
   {
      ParameterSet empty;
      ParameterSet physics =   pset_.get<ParameterSet>("physics");
@@ -301,7 +301,7 @@ namespace art
      vstring::iterator it(modnames.begin()),ie(modnames.end());
      PathWorkers tmpworkers;
 
-     for(; it != ie; ++it) 
+     for(; it != ie; ++it)
         {
            WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
            if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
@@ -309,7 +309,7 @@ namespace art
 
            string realname = *it;
            if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
-	
+
            ParameterSet modpset;
            if ((isTrigPath?producers:analyzers).get_if_present(realname, modpset) ||
                (isTrigPath?filters:outputs).get_if_present(realname, modpset) ||
@@ -322,41 +322,41 @@ namespace art
                  tmpworkers.push_back(w);
               } else {
               string pathType("endpath");
-              if(!search_all(end_path_name_list_, name)) 
+              if(!search_all(end_path_name_list_, name))
                  {
                     pathType = string("path");
                  }
-              throw art::Exception(art::errors::Configuration) 
+              throw art::Exception(art::errors::Configuration)
                  << "The unknown module label '"
-                 << realname 
-                 << "' appears in " 
-                 << pathType 
-                 << " '" 
-                 << name 
+                 << realname
+                 << "' appears in "
+                 << pathType
+                 << " '"
+                 << name
                  << "'\nplease check spelling or remove that label from the path.";
            }
         }
      out.swap(tmpworkers);
   }
-  
-  void Schedule::fillTrigPath(int bitpos, 
+
+  void Schedule::fillTrigPath(int bitpos,
 			      string const& name,
 			      TrigResPtr trptr)
   {
     PathWorkers tmpworkers;
     Workers holder;
     fillWorkers(name,tmpworkers, true);
-    
-    for(PathWorkers::iterator 
+
+    for(PathWorkers::iterator
 	  i = tmpworkers.begin(),
           e = tmpworkers.end();
-	i != e; ++i) 
+	i != e; ++i)
       {
 	holder.push_back(i->getWorker());
       }
 
     // an empty path will cause an extra bit that is not used
-    if(!tmpworkers.empty()) 
+    if(!tmpworkers.empty())
       {
 	Path p(bitpos,name,tmpworkers,trptr,
 	       pset_,*act_table_,actReg_,false);
@@ -371,15 +371,15 @@ namespace art
     fillWorkers(name,tmpworkers, false);
     Workers holder;
 
-    for(PathWorkers::iterator 
+    for(PathWorkers::iterator
 	  i = tmpworkers.begin(),
           e = tmpworkers.end();
-	i != e; ++i) 
+	i != e; ++i)
       {
 	holder.push_back(i->getWorker());
       }
 
-    if (!tmpworkers.empty()) 
+    if (!tmpworkers.empty())
       {
 	Path p(bitpos,name,tmpworkers,endpath_results_,
 	       pset_,*act_table_,actReg_,true);
@@ -393,12 +393,12 @@ namespace art
     bool failure = false;
     Exception error(errors::EndJobFailure);
 
-    for (Workers::iterator 
+    for (Workers::iterator
 	   i = workersBegin(),
 	   e = workersEnd();
 	 i != e; ++i)
       {
-	try 
+	try
 	  {
 	    (*i)->endJob();
 	  }
@@ -414,7 +414,7 @@ namespace art
 		  << e.what();
 	    failure = true;
 	  }
-	catch (...) 
+	catch (...)
 	  {
 	    error << "Unknown exception caught in Schedule::endJob\n";
 	    failure = true;
