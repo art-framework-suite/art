@@ -18,11 +18,6 @@ physics:
 {
   producers:
   {
-    one:
-    {
-      module_type: IntProducer
-      ivalue: 1
-    }
     result1:
     {
       module_type: AddIntsProducer
