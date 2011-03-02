@@ -173,9 +173,12 @@ foreach(test ${pass_list})
     )
 endforeach()
 
+# Make sure Unscheduled_01 test actually runs modules.
+set_tests_properties(Unscheduled_01_t PROPERTIES PASS_REGULAR_EXPRESSION "module for event:get")
+
 # Tests expected to fail
 set(fail_list
-#  Unscheduled_02_t
+  Unscheduled_02_t
 #  Unscheduled_03_t
 #  Unscheduled_07_t
 #  Unscheduled_08_t

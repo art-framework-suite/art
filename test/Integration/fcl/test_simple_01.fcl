@@ -17,7 +17,7 @@ services:
               'ProductDoesNotSupportPtr','NotFound']
     # IgnoreCompletely: []
 #    wantSummary: true
-    # wantTracer: true
+     wantTracer: true
     # fileMode: ""
     # handleEmptyRuns: true
     # handleEmptySubRuns: true
