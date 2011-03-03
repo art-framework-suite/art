@@ -33,11 +33,11 @@ namespace art
 
   protected:
 
-//     std::auto_ptr<Event> makeEvent(RunNumber_t run,
-// 				   SubRunNumber_t subRun,
-// 				   EventNumber_t event,
-// 				   Timestamp const& tstamp);
-//     virtual std::auto_ptr<Event> readOneEvent() = 0;
+    std::auto_ptr<Event> makeEvent(RunNumber_t run,
+				   SubRunNumber_t subRun,
+				   EventNumber_t event,
+				   Timestamp const& tstamp);
+    virtual std::auto_ptr<Event> readOneEvent() = 0;
 
   private:
     virtual std::auto_ptr<EventPrincipal>      readEvent_();

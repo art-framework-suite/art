@@ -28,7 +28,8 @@ simple_plugin(U_S                      "module" ALLOW_UNDERSCORES)
 simple_plugin(Reconfigurable           "service")
 simple_plugin(Throwing                 "service")
 
-simple_plugin(ToyRawInput              "source")
+# Temporarily deactivated in 0.5.2 pending full implementation of issue #883.
+#simple_plugin(ToyRawInput              "source")
 
 # Common library link requirements for tests here.
 link_libraries(

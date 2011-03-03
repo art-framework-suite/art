@@ -195,6 +195,7 @@ namespace art
     /// Accessor for Activity Registry
     boost::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
+    using ProductRegistryHelper::produces; // Temporary until issue #883 is done
     using ProductRegistryHelper::reconstitutes;
     using ProductRegistryHelper::typeLabelList;
 
