@@ -16,12 +16,12 @@ Qualifiers = ""
        setupRequired(root      @ROOT_VERSION@ )
 
 Flavor     = ANY
-Qualifiers = "a1"
+Qualifiers = "a2"
   Action = setup
        prodDir()
        setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
-       execute( "get-directory-name subdir a1 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a2 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
        setupRequired(root      @ROOT_VERSION@ -q gcc45)

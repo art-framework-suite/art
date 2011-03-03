@@ -18,7 +18,7 @@ project(art)
 set( product art )
 set( version v0_5_0 )
 if ( NOT qualifier )
-  SET (qualifier a1)
+  SET (qualifier a2)
 endif ( NOT qualifier )
 
 # cetbuildtools contains our cmake modules
