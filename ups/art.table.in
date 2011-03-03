@@ -27,7 +27,7 @@ Qualifiers = "a1"
        setupRequired(root      @ROOT_VERSION@ -q gcc45)
 
 Flavor     = ANY
-Qualifiers = "@qualifier@"
+Qualifiers = "nova"
   Action = setup
        prodDir()
        setupEnv()
@@ -35,7 +35,7 @@ Qualifiers = "@qualifier@"
        execute( "get-directory-name subdir @qualifier@ ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
-       setupRequired(root      @ROOT_VERSION@ @ROOT_QUAL@)
+       setupRequired(root      @ROOT_VERSION@ -q nova)
 
 Common:
   Action = setup__
