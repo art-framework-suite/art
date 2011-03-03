@@ -4,7 +4,7 @@
 namespace art
 {
    std::string const &getFileFormatEra() {
-      static std::string const era = "ART_2011";
+      static std::string const era = "ART_2011a";
       return era;
    }
 }
