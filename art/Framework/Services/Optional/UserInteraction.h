@@ -67,8 +67,6 @@ namespace ui {
     // executed in the module.  The argument is the index into the
     // worker (module) array.
     void callReconfigure(int module_index, 
-			 std::istream& ist,
-			 std::ostream& ost,
 			 fhicl::ParameterSet const& pset);
     
   private:

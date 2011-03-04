@@ -65,10 +65,7 @@ namespace art
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void reconfigure(std::istream&,
-			     std::ostream& output,
-			     ParameterSet const&)
-    { output << "This module is not reconfigurable." << std::endl; }
+    virtual void reconfigure(ParameterSet const&);
     virtual void beginRun(Run const&){}
     virtual void endRun(Run const&){}
     virtual void beginSubRun(SubRun const&){}

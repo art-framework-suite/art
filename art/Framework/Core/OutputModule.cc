@@ -205,6 +205,13 @@ namespace art {
 
   OutputModule::~OutputModule() { }
 
+  void 
+  OutputModule::reconfigure(ParameterSet const&) {
+     mf::LogError("FeatureNotImplemented")
+        << "This module is not reconfigurable."
+        << "\n";
+   }
+
   void OutputModule::doBeginJob() {
     selectProducts();
     beginJob();

@@ -5,6 +5,7 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/SubRun.h"
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art
 {
@@ -31,6 +32,13 @@ namespace art
   void EDFilter::doEndJob() {
     this->endJob();
   }
+
+  void 
+  EDFilter::reconfigure(ParameterSet const&) {
+    mf::LogError("FeatureNotImplemented")
+       << "This module is not reconfigurable."
+       << "\n";
+   }
 
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,

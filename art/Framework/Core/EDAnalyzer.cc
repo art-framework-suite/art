@@ -31,6 +31,13 @@ namespace art
     this->endJob();
   }
 
+  void 
+  EDAnalyzer::reconfigure(ParameterSet const&) {
+     mf::LogError("FeatureNotImplemented")
+        << "This module is not reconfigurable."
+        << "\n";
+   }
+
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp,
                         CurrentProcessingContext const* cpc) {

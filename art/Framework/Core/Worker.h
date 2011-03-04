@@ -50,8 +50,7 @@ namespace art {
     Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
     virtual ~Worker();
 
-    virtual void reconfigure(std::istream &, std::ostream &,
-			     fhicl::ParameterSet const &) = 0;
+    virtual void reconfigure(fhicl::ParameterSet const &) = 0;
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&,
