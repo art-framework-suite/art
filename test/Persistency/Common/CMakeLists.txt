@@ -2,22 +2,7 @@
 project(DataFormatsCommonTest)
 
 file( GLOB cpp_files *.cpp )
-set( cc_files testOwnVector.cc
-              testOneToOneAssociation.cc
-              testValueMap.cc
-              testOneToManyAssociation.cc
-              testAssociationVector.cc
-              testAssociationNew.cc
-              testValueMapNew.cc
-              testSortedCollection.cc
-              testRangeMap.cc
-              testIDVectorMap.cc
-              ref_t.cppunit.cc
-              reftobase_t.cppunit.cc
-              reftobasevector_t.cppunit.cc
-              cloningptr_t.cppunit.cc
-              ptr_t.cppunit.cc
-              ptrvector_t.cppunit.cc
+set( cc_files ptr_t.cppunit.cc
               IntValues_reflex.cc )
 
 link_libraries( art_Persistency_Common

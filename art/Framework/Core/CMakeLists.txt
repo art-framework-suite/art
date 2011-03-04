@@ -28,7 +28,6 @@ set( art_Framework_Core_sources
   EventProcessor.cc
   EventSelector.cc
   GenericHandle.cc
-  GenericObjectOwner.cc
   Group.cc
   GroupSelector.cc
   GroupSelectorRules.cc
@@ -166,7 +165,6 @@ install(FILES
   FileBlock.h
   Frameworkfwd.h
   GenericHandle.h
-  GenericObjectOwner.h
   Group.h
   GroupSelector.h
   GroupSelectorRules.h

@@ -42,7 +42,6 @@ install(FILES
 	RNGsnapshot.h
 	RefCore.h
 	RefCoreStreamer.h
-	TestHandle.h
 	TriggerResults.h
 	Wrapper.h
 	debugging_allocator.h
