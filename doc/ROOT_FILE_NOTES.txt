@@ -34,7 +34,7 @@ Specifics of each tree
 EventHistory
 ------------
 
-This tree contains a single row.
+This tree contains one row per event.
 The branches are:
 
 ============= =================
@@ -46,6 +46,7 @@ MetaData
 --------
 
 This tree contains a single row.
+This tree is what is sometimes refered to as the "file meta data" tree.
 The branches are:
 
 =================== =====================================================
@@ -60,10 +61,22 @@ BranchIDLists       ``vector<vector<unsigned int> >``
 ProductDependencies ``art::BranchChildren``
 =================== =====================================================
 
+The ``FileBlock`` class contains:
+
+#. the ``art::FileFormatVersion``
+#. the file name (``std::string``)
+#. the "branch children" ``boost::shared_ptr<art::BranchChildren>``
+
+The ``art::BranchChildren`` class contains a
+``std::map<art::BranchID,std::set<art::BranchID> >``. This maps parent
+branches to descendants of that parent. It is not clear where this is
+really *used*, as opposed to merely propagated from Root file to Root file.
+
 Parentage
 ---------
 
-This tree contains a single row.
+This tree contains one row per value of ``ParentageID``,
+which means one row per distinct set of parents saved.
 The branches are:
 
 =============  ====================
@@ -147,11 +160,3 @@ This tree contains one row per distinct vector of
 *branch name*      *entry type*
 RunBranchEntryInfo ``vector<art::ProductProvenance>``
 ================== ==================================
-
-
-
-
-
-
-
-
