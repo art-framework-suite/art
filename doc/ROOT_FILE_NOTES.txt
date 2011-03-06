@@ -1,0 +1,157 @@
+==================================
+The art format for Root data files
+==================================
+
+This document describes the format of art's Root data files.
+It should be updated whenever art's use of Root data files changes.
+
+The current data format is *2011a-v1*.
+
+Note that ``RootOutputFile`` and ``RootInputFile`` each list a number
+of items being written only for "backward compatibility". These need
+to be reviewed, and eliminated if possible.
+
+List of trees
+=============
+
+art's Root files contain 9 trees
+
+* EventHistory
+* MetaData
+* Parentage
+* Events
+* EventMetaData
+* SubRuns
+* SubRunMetaData
+* Runs
+* RunMetaData
+
+All data in the file are stored in trees.
+
+Specifics of each tree
+======================
+
+EventHistory
+------------
+
+This tree contains a single row.
+The branches are:
+
+============= =================
+*branch name* *entry type*
+EventHistory   ``art::History``
+============= =================
+
+MetaData
+--------
+
+This tree contains a single row.
+The branches are:
+
+=================== =====================================================
+*branch name*       *entry type*
+FileFormatVersion   ``art::FileFormatVersion``
+FileIdentifier      ``art::FileID``
+FileIndex           ``art::FileIndex``
+ProcessHistoryMap   ``map<art::ProcessHistoryID,art::ProcessHistory>``
+ParameterSetMap     ``map<fhicl::ParameterSetID,art::ParameterSetBlob>``
+ProductRegistry     ``art::ProductRegistry``
+BranchIDLists       ``vector<vector<unsigned int> >``
+ProductDependencies ``art::BranchChildren``
+=================== =====================================================
+
+Parentage
+---------
+
+This tree contains a single row.
+The branches are:
+
+=============  ====================
+*branch name*  *entry type*
+Hash           ``art::ParentageID``
+Description    ``art::Parentage``
+=============  ====================
+
+Events
+------
+
+This tree contains one row per event.
+It contains one branch per product stored in the Event,
+and one additional branch:
+
+=============== ========================
+*branch name*   *entry type*
+EventAuxilliary ``art::EventAuxilliary``
+=============== ========================
+
+According to ``RootOutputFile::writeOne(EventPrincipal const&)``, we
+are writing an invalid ``ProcessHistoryID`` for each event, for
+"backward compatibility".
+
+EventMetaData
+-------------
+
+**This needs to be verified.**
+This tree contains one row per distinct vector of
+``ProductProvenance`` encountered during ``Event`` processing.
+
+==================== ==================================
+*branch name*        *entry type*
+EventBranchEntryInfo ``vector<art::ProductProvenance>``
+==================== ==================================
+
+SubRuns
+-------
+
+This tree contains one row per subrun.
+It contains one branch per product stored in the SubRun,
+and one additional branch:
+
+================ =========================
+*branch name*    *entry type*
+SubRunAuxilliary ``art::SubRunAuxilliary``
+================ =========================
+
+SubRunMetaData
+--------------
+
+**This needs to be verified.**
+This tree contains one row per distinct vector of
+``ProductProvenance`` encountered during ``SubRun`` processing.
+
+===================== ==================================
+*branch name*         *entry type*
+SubRunBranchEntryInfo ``vector<art::ProductProvenance>``
+===================== ==================================
+
+Runs
+----
+
+This tree contains one row per run.
+It contains one branch per product stored in the Run,
+and one additional branch:
+
+============= ======================
+*branch name* *entry type*
+RunAuxilliary ``art::RunAuxilliary``
+============= ======================
+
+RunMetaData
+-----------
+
+**This needs to be verified.**
+This tree contains one row per distinct vector of
+``ProductProvenance`` encountered during ``Run`` processing.
+
+================== ==================================
+*branch name*      *entry type*
+RunBranchEntryInfo ``vector<art::ProductProvenance>``
+================== ==================================
+
+
+
+
+
+
+
+
