@@ -60,7 +60,7 @@ namespace ui {
 	if(which==0 && errno==EINVAL) { done=true; continue; }
 
 	if (which >= 0 && which < infos_.size())
-	  callReconfigure(which,cin,cout,infos_[which].pset);
+	  callReconfigure(which,infos_[which].pset);
 	else
 	  cerr << "bad, bad, bad.  Not valid module number. Try again.\n";
       }

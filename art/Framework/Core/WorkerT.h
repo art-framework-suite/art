@@ -34,9 +34,8 @@ namespace art {
 
     virtual ~WorkerT();
 
-    virtual void reconfigure(std::istream& input, std::ostream& output,
-			     fhicl::ParameterSet const &pset) {
-      module_->reconfigure(input, output, pset); }
+    virtual void reconfigure(fhicl::ParameterSet const &pset) {
+      module_->reconfigure(pset); }
 
     virtual bool modifiesEvent() const { return module_->modifiesEvent(); }
 

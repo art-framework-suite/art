@@ -38,6 +38,13 @@ namespace art
     this->endJob();
   }
 
+  void 
+  EDProducer::reconfigure(ParameterSet const&) {
+    mf::LogError("FeatureNotImplemented")
+       << "This module is not reconfigurable."
+       << "\n";
+   }
+
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
                         CurrentProcessingContext const* cpc) {

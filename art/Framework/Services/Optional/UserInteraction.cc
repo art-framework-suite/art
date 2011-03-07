@@ -85,11 +85,9 @@ namespace ui {
   }
 
   void UserInteraction::callReconfigure(int mod_index,
-					std::istream& ist,
-					std::ostream& ost,
 					fhicl::ParameterSet const& pset)
   {
-    workers_[mod_index]->reconfigure(ist,ost,pset);
+    workers_[mod_index]->reconfigure(pset);
   }
   
   

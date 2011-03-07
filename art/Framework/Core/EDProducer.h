@@ -65,10 +65,7 @@ namespace art
     virtual void produce(Event &) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void reconfigure(std::istream&,
-			     std::ostream& output,
-			     ParameterSet const&)
-    { output << "This module is not reconfigurable." << std::endl;}
+    virtual void reconfigure(ParameterSet const&);
 
     virtual void beginRun(Run &){}
     virtual void endRun(Run &){}
