@@ -24,7 +24,6 @@ link_libraries( FrameworkCore )
 add_library(FrameworkCoreStubs SHARED ${FrameworkCoreStubs_sources} )
 
 simple_plugin(AddIntsProducer  "module")
-simple_plugin(DummySourceModule  "source")
 simple_plugin(HistoryAnalyzer  "module")
 simple_plugin(IntProducer  "module")
 simple_plugin(IntTestAnalzer  "module")
