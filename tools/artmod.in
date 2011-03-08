@@ -568,7 +568,7 @@ B<artmod> [I<optons>] [--] I<module-type> I<qualified-name>
 
 I<Options>: B<--boilerplate|-b> I<file> |
          B<--entry[-point[s]]|--entries|-e> I<entry-point>+ |
-         B<header-loc> I<path> |
+         B<--header-loc> I<path> |
          B<--split> |
          B<--split-ext> [I<lib-source-extension>] |
          B<--verbose|-v>
