@@ -718,6 +718,7 @@ I<ext>. Specifying this option automatically implies --split.
 
 
 Print some extra messages about functions generated, etc.
+
 =back
 
 =cut
