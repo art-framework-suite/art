@@ -8,6 +8,7 @@
 
 #ifdef USE_RANDOM
 // #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandFlat.h"
 #endif
 // #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
@@ -23,7 +24,6 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "TFile.h"
 #include <ctime>
