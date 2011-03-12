@@ -11,9 +11,6 @@
 
 namespace art {
    class EventAuxiliary;
-
-   bool
-   isSameEvent(EventAuxiliary const &left, EventAuxiliary const &right);
 }
 
 class art::EventAuxiliary {
@@ -36,9 +33,7 @@ public:
 
    EventAuxiliary()
       :
-      processHistoryID_(),
       id_(),
-      processGUID_(),
       time_(),
       isRealData_(false),
       experimentType_(Any),
@@ -47,14 +42,12 @@ public:
       storeNumber_(invalidStoreNumber)
    {}
 
-   EventAuxiliary(EventID const &theId, std::string const &theProcessGUID, Timestamp const &theTime,
+   EventAuxiliary(EventID const &theId, Timestamp const &theTime,
                   bool isReal, ExperimentType eType = Any,
                   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
                   int orbitNum = invalidBunchXing)
       :
-      processHistoryID_(),
       id_(theId),
-      processGUID_(theProcessGUID),
       time_(theTime),
       isRealData_(isReal),
       experimentType_(eType),
@@ -64,10 +57,6 @@ public:
    {}
 
    void write(std::ostream& os) const;
-
-   ProcessHistoryID& processHistoryID() const { return processHistoryID_; }
-
-   std::string const &processGUID() const { return processGUID_; }
 
    Timestamp const &time() const { return time_; }
 
@@ -88,14 +77,20 @@ public:
 
    int storeNumber() const { return storeNumber_; }
 
-   // most recently process that processed this event
-   // is the last on the list, this defines what "latest" is
-   mutable ProcessHistoryID processHistoryID_;
+   bool operator==(EventAuxiliary const &other) const {
+      return
+         id_ == other.id_ &&
+         time_ == other.time_ &&
+         isRealData_ == other.isRealData_ &&
+         experimentType_ == other.experimentType_ &&
+         bunchCrossing_ == other.bunchCrossing_ &&
+         orbitNumber_ == other.orbitNumber_ &&
+         storeNumber_ == other.storeNumber_;
+   }
 
+private:
    // Event ID
    EventID id_;
-   // Globally unique process ID of process that created event.
-   std::string processGUID_;
    // Time from DAQ
    Timestamp time_;
    // Is this real data (i.e. not simulated)

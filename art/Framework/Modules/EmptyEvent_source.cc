@@ -165,7 +165,6 @@ std::auto_ptr<EventPrincipal>
 void art::EmptyEvent::reallyReadEvent() {
   if (processingMode() != RunsSubRunsAndEvents) return;
   EventAuxiliary eventAux(eventID_,
-                          processGUID(),
                           Timestamp(presentTime_),
                           eType_);
   std::auto_ptr<EventPrincipal> result(

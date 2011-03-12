@@ -166,7 +166,6 @@ namespace art {
 
 
   void RootOutput::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
-  void RootOutput::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
   void RootOutput::writeFileIndex() { rootOutputFile_->writeFileIndex(); }
   void RootOutput::writeEventHistory() { rootOutputFile_->writeEventHistory(); }
   void RootOutput::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }

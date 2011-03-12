@@ -30,7 +30,6 @@ Test program for art::Event.
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Utilities/GetPassID.h"
-#include "art/Utilities/GlobalIdentifier.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
@@ -349,7 +348,6 @@ void testEvent::setUp()
   // look up the object.
 
   cet::exempt_ptr<ProductRegistry const> preg(availableProducts_);
-  std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
@@ -358,7 +356,7 @@ void testEvent::setUp()
   SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
   boost::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, preg, pc));
   srp->setRunPrincipal(rp);
-  EventAuxiliary eventAux(id, uuid, time, true);
+  EventAuxiliary eventAux(id, time, true);
   boost::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_  = new EventPrincipal(eventAux,

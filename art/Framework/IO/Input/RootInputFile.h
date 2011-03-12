@@ -15,7 +15,6 @@
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/FileID.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
 #include "art/Persistency/Provenance/Parentage.h"
@@ -152,7 +151,6 @@ namespace art {
     ProcessConfiguration const& processConfiguration_;
     boost::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
-    FileID fid_;
     boost::shared_ptr<FileIndex> fileIndexSharedPtr_;
     FileIndex & fileIndex_;
     FileIndex::const_iterator fileIndexBegin_;

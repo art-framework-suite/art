@@ -9,8 +9,6 @@ set( art_Utilities_sources CPUTimer.cc
                           ExceptionMessages.cc
                           FirstAbsoluteOrLookupWithDotPolicy.cc
                           FriendlyName.cc
-                          GlobalIdentifier.cc
-                          Guid.cc
                           InputTag.cc
                           MallocOpts.cc
                           md5.c

@@ -20,7 +20,6 @@
 #ifdef RNGS
 //#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #endif
-#include "art/Utilities/GlobalIdentifier.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <cassert>
@@ -72,7 +71,6 @@ namespace art {
   , moduleDescription_   ( desc.moduleDescription_ )
   , productRegistry_     ( desc.productRegistry_ )
   , primary_             ( pset.get<std::string>("module_label") == std::string("source") )
-  , processGUID_         ( primary_ ? createGlobalIdentifier() : std::string() )
   , time_                ( )
   , doneReadAhead_       ( false )
   , state_               ( input::IsInvalid )

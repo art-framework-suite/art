@@ -5,7 +5,6 @@
 #include "art/Persistency/Provenance/EventEntryDescription.h"
 #include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/FileID.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"

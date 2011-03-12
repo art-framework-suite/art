@@ -8,7 +8,6 @@ Test of the EventPrincipal class.
 
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/GlobalIdentifier.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -73,7 +72,6 @@ void testGenericHandle::failgetbyLabelTest() {
 
   art::EventID id;
   art::Timestamp time;
-  std::string uuid = art::createGlobalIdentifier();
   art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
   cet::exempt_ptr<art::ProductRegistry const> preg(new art::ProductRegistry);
   art::RunAuxiliary runAux(id.runID(), time, time);
@@ -81,7 +79,7 @@ void testGenericHandle::failgetbyLabelTest() {
   art::SubRunAuxiliary subRunAux(id.subRunID(), time, time);
   boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, pc));
   srp->setRunPrincipal(rp);
-  art::EventAuxiliary eventAux(id, uuid, time, true);
+  art::EventAuxiliary eventAux(id, time, true);
   art::EventPrincipal ep(eventAux, preg, pc);
   ep.setSubRunPrincipal(srp);
   art::GenericHandle h("arttest::DummyProduct");
@@ -153,7 +151,6 @@ void testGenericHandle::getbyLabelTest() {
 
   art::EventID col(1, 1, 1);
   art::Timestamp fakeTime;
-  std::string uuid = art::createGlobalIdentifier();
   art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
   cet::exempt_ptr<art::ProductRegistry const> pregc(preg);
   art::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
@@ -161,7 +158,7 @@ void testGenericHandle::getbyLabelTest() {
   art::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);
   boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, pregc, pc));
   srp->setRunPrincipal(rp);
-  art::EventAuxiliary eventAux(col, uuid, fakeTime, true);
+  art::EventAuxiliary eventAux(col, fakeTime, true);
   art::EventPrincipal ep(eventAux, pregc, pc);
   ep.setSubRunPrincipal(srp);
   const art::BranchDescription& branchFromRegistry = it->second;

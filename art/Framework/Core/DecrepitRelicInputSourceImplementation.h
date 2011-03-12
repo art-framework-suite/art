@@ -150,9 +150,6 @@ namespace art
     /// Accessor for primary input source flag
     bool const primary() const {return primary_;}
 
-    /// Accessor for global process identifier
-    std::string const& processGUID() const {return processGUID_;}
-
     /// Called by framework at beginning of job
     void doBeginJob();
 
@@ -239,7 +236,6 @@ namespace art
     ModuleDescription const moduleDescription_;
     cet::exempt_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
-    std::string processGUID_;
     Timestamp time_;
     mutable bool doneReadAhead_;
     mutable input::ItemType state_;

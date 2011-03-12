@@ -32,7 +32,6 @@
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/GlobalIdentifier.h"
 #include "art/Version/GetFileFormatVersion.h"
 #include "art/Version/GetFileFormatEra.h"
 #include "cetlib/container_algorithms.h"
@@ -77,7 +76,6 @@ namespace art {
       om_(om),
       currentlyFastCloning_(),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
-      fid_(),
       fileIndex_(),
       eventEntryNumber_(0LL),
       subRunEntryNumber_(0LL),
@@ -132,8 +130,6 @@ namespace art {
     if (! eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Historys in the output file\n";
-
-    fid_ = FileID(createGlobalIdentifier());
 
     // For the Job Report, get a vector of branch names in the "Events" tree.
     // Also create a hash of all the branch names in the "Events" tree
@@ -194,9 +190,6 @@ namespace art {
   void RootOutputFile::writeOne(EventPrincipal const& e) {
     // Auxiliary branch
     pEventAux_ = &e.aux();
-
-    // Store an invailid process history ID in EventAuxiliary for obsolete field.
-    pEventAux_->processHistoryID_ = ProcessHistoryID(); // backward compatibility
 
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event
@@ -277,13 +270,6 @@ namespace art {
     FileFormatVersion fileFormatVersion(getFileFormatVersion(), getFileFormatEra());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
     TBranch* b = metaDataTree_->Branch(rootNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
-  }
-
-  void RootOutputFile::writeFileIdentifier() {
-    FileID *fidPtr = &fid_;
-    TBranch* b = metaDataTree_->Branch(rootNames::fileIdentifierBranchName().c_str(), &fidPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

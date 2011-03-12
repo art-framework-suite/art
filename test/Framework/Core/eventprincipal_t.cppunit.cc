@@ -39,7 +39,6 @@ Test of the EventPrincipal class.
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "art/Utilities/GlobalIdentifier.h"
 #include "art/Framework/Core/RootDictionaryManager.h"
 
 class test_ep: public CppUnit::TestFixture
@@ -192,7 +191,6 @@ void test_ep::setUp()
 
     art::ProcessConfiguration* process = processConfigurations_[tag];
     assert(process);
-    std::string uuid = art::createGlobalIdentifier();
     art::Timestamp now(1234567UL);
     cet::exempt_ptr<art::ProductRegistry const> preg(pProductRegistry_);
     art::RunAuxiliary runAux(eventID_.run(), now, now);
@@ -200,7 +198,7 @@ void test_ep::setUp()
     art::SubRunAuxiliary subRunAux(rp->run(), eventID_.subRun(), now, now);
     boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, *process));
     srp->setRunPrincipal(rp);
-    art::EventAuxiliary eventAux(eventID_, uuid, now, true);
+    art::EventAuxiliary eventAux(eventID_, now, true);
     pEvent_ = new art::EventPrincipal(eventAux, preg, *process);
     pEvent_->setSubRunPrincipal(srp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);

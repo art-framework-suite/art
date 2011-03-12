@@ -174,7 +174,7 @@ namespace art {
   inline
   bool
   isSameEvent(EventPrincipal const& a, EventPrincipal const& b) {
-    return isSameEvent(a.aux(), b.aux());
+    return a.aux() == b.aux();
   }
 
 }  // art

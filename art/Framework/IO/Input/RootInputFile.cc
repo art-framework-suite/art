@@ -19,7 +19,6 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
-#include "art/Utilities/GlobalIdentifier.h"
 #include "art/Version/GetFileFormatEra.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -73,7 +72,6 @@ namespace art {
       processConfiguration_(processConfiguration),
       filePtr_(filePtr),
       fileFormatVersion_(),
-      fid_(),
       fileIndexSharedPtr_(new FileIndex),
       fileIndex_(*fileIndexSharedPtr_),
       fileIndexBegin_(fileIndex_.begin()),
@@ -128,11 +126,6 @@ namespace art {
 
     FileFormatVersion *fftPtr = &fileFormatVersion_;
     metaDataTree->SetBranchAddress(rootNames::fileFormatVersionBranchName().c_str(), &fftPtr);
-
-    FileID *fidPtr = &fid_;
-    if (metaDataTree->FindBranch(rootNames::fileIdentifierBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(rootNames::fileIdentifierBranchName().c_str(), &fidPtr);
-    }
 
     FileIndex *findexPtr = &fileIndex_;
     if (metaDataTree->FindBranch(rootNames::fileIndexBranchName().c_str()) != 0) {
@@ -551,9 +544,6 @@ namespace art {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
     }
-    if (!fid_.isValid()) {
-      fid_ = FileID(createGlobalIdentifier());
-    }
     if(!eventTree_.isValid()) {
       throw art::Exception(errors::DataCorruption) <<
          "'Events' tree is corrupted or not present\n" << "in the input file.\n";
@@ -671,7 +661,9 @@ namespace art {
     }
     fillEventAuxiliary();
     fillHistory();
-    overrideRunNumber(eventAux_.id_, eventAux_.isRealData());
+    // FIXME: move this functionality into fillEventAuxiliary to avoid
+    // the const_cast.
+    overrideRunNumber(const_cast<EventID&>(eventAux_.id()), eventAux_.isRealData());
 
     boost::shared_ptr<BranchMapper> mapper =
         makeBranchMapper<ProductProvenance>(eventTree_, InEvent);
@@ -761,7 +753,7 @@ namespace art {
       SubRunID subRun = fileIndexIter_->eventID_.subRunID();
       overrideRunNumber(subRun);
       ++fileIndexIter_;
-      SubRunAuxiliary subRunAux(rp->run(), subRun.subRun(), eventAux_.time_, Timestamp::invalidTimestamp());
+      SubRunAuxiliary subRunAux(rp->run(), subRun.subRun(), eventAux_.time(), Timestamp::invalidTimestamp());
       return boost::shared_ptr<SubRunPrincipal>(
         new SubRunPrincipal(subRunAux,
                                      pReg,

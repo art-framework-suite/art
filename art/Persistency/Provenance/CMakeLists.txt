@@ -15,7 +15,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       EventEntryInfo.cc
                                       EventID.cc
                                       FileFormatVersion.cc
-                                      FileID.cc
                                       FileIndex.cc
                                       Hash.cc
                                       History.cc
@@ -69,7 +68,6 @@ install(FILES
   EventProcessHistoryID.h
   EventSelectionID.h
   FileFormatVersion.h
-  FileID.h
   FileIndex.h
   Hash.h
   HashedTypes.h

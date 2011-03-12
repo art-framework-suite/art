@@ -14,7 +14,6 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/FileID.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"
@@ -48,7 +47,6 @@ namespace art {
     void writeSubRun(SubRunPrincipal const& sr);
     void writeRun(RunPrincipal const& r);
     void writeFileFormatVersion();
-    void writeFileIdentifier();
     void writeFileIndex();
     void writeEventHistory();
     void writeProcessConfigurationRegistry();
@@ -88,7 +86,6 @@ namespace art {
     RootOutput const* om_;
     bool currentlyFastCloning_;
     boost::shared_ptr<TFile> filePtr_;
-    FileID fid_;
     FileIndex fileIndex_;
     FileIndex::EntryNumber_t eventEntryNumber_;
     FileIndex::EntryNumber_t subRunEntryNumber_;

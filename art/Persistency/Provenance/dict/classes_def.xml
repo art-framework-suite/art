@@ -15,7 +15,6 @@
  <class name="art::FileIndex"/>
    <class name="art::FileIndex::Element"/>
    <class name="std::vector<art::FileIndex::Element>"/>
- <class name="art::FileID"/>
  <class name="std::vector<art::ProcessConfiguration>"/>
  <class name="art::ProcessConfiguration"/>
  <class name="std::vector<art::ProcessHistory>"/>
