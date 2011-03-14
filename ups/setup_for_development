@@ -34,10 +34,10 @@ tnotnull UPS_DIR || echo "$msg2"
 
 # CET products
 setup -j cetbuildtools v1_7_10
-setup -j messagefacility v1_8_10 -q a2
-setup -j fhiclcpp v2_11_7 -q a2
-setup -j cetlib v0_4_11 -q a2
-setup -j cpp0x v1_0_13 -q a2
+setup -j messagefacility v1_8_11 -q a2
+setup -j fhiclcpp v2_11_8 -q a2
+setup -j cetlib v0_4_12 -q a2
+setup -j cpp0x v1_0_15 -q a2
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
 setup -j root v5_28_00_p02 -q gcc45
