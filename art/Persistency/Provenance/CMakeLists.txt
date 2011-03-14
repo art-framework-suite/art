@@ -107,3 +107,5 @@ install(FILES
   Transient.h
   TransientStreamer.h
   DESTINATION  ${product}/${version}/include/art/Persistency/Provenance )
+
+install_source()

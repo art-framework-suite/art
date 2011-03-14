@@ -33,3 +33,5 @@ install(FILES
   SimpleInteraction.h
   DESTINATION ${product}/${version}/include/art/Framework/Services/Optional
 )
+
+install_source()

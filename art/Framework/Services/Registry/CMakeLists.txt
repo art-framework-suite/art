@@ -21,3 +21,5 @@ install(FILES ActivityRegistry.h
               ServiceWrapperBase.h
               ServiceWrapper.h
          DESTINATION  ${product}/${version}/include/art/Framework/Services/Registry )
+
+install_source()

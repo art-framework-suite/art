@@ -215,3 +215,5 @@ install(FILES
   find_config.h
   run_art.h
   DESTINATION  ${product}/${version}/include/art/Framework/Core )
+
+install_source()

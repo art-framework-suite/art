@@ -13,3 +13,5 @@ install(FILES
   TriggerNamesService.h
   DESTINATION ${product}/${version}/include/art/Framework/Services/System
 )
+
+install_source()

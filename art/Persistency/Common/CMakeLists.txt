@@ -50,3 +50,5 @@ install(FILES
   BasicHandle.h
   InitRootHandlers.h
   DESTINATION  ${product}/${version}/include/art/Persistency/Common )
+
+install_source()

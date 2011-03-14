@@ -13,3 +13,5 @@ install( FILES ClassFiller.h
                TransientStreamer.h
          DESTINATION  ${product}/${version}/include/art/Framework/IO/Common
        )
+
+install_source()

@@ -17,3 +17,5 @@ install(FILES
   GetFileFormatVersion.h
   GetReleaseVersion.h
   DESTINATION ${product}/${version}/include/art/Version )
+
+install_source()

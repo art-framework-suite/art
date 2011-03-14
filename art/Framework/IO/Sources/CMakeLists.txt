@@ -14,3 +14,5 @@ install ( TARGETS art_Framework_IO_Sources DESTINATION ${flavorqual_dir}/lib )
 install(FILES EDInputSource.h
               RawInputSource.h
          DESTINATION  ${product}/${version}/include/art/Framework/IO/Sources )
+
+install_source()

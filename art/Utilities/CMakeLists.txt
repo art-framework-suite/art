@@ -91,3 +91,5 @@ install (FILES ${PATH_DETAIL_HEADERS}
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
 install (FILES ${HEADERS}
          DESTINATION ${product}/${version}/include/art/Utilities )
+
+install_source()
