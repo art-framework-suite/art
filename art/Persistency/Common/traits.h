@@ -71,7 +71,7 @@ namespace art
 
   //------------------------------------------------------------
   //
-  // DoNotSortUponInsertion is a base class. 
+  // DoNotSortUponInsertion is a base class.
   // Do not use it; it is a broken left-over from CMS,
   // and will be removed at the first possible release.
   struct DoNotSortUponInsertion { };

@@ -196,11 +196,11 @@ namespace art {
     template <class ELEMENT>
     bool
     getView(std::string const& moduleLabel, View<ELEMENT>& result) const;
-    
+
     template <class ELEMENT>
     bool
     getView(std::string const& moduleLabel, std::string const& instanceName,
-	    View<ELEMENT>& result) const;
+            View<ELEMENT>& result) const;
 
     template <class ELEMENT>
     bool
@@ -503,7 +503,7 @@ namespace art {
   template <class ELEMENT>
   bool
   Event::getView(std::string const& moduleLabel,
-		 View<ELEMENT>&     result) const
+                 View<ELEMENT>&     result) const
   {
     return getView(moduleLabel, std::string(), result);
   }
@@ -511,8 +511,8 @@ namespace art {
   template <class ELEMENT>
   bool
   Event::getView(std::string const& moduleLabel,
-		 std::string const& productInstanceName,
-		 View<ELEMENT>&     result) const
+                 std::string const& productInstanceName,
+                 View<ELEMENT>&     result) const
   {
     TypeID typeID( typeid(ELEMENT) );
     BasicHandleVec bhv;
@@ -529,27 +529,27 @@ namespace art {
 
     fillView_(bhv[0], result.vals());
     result.set_innards(bhv[0].id(), bhv[0].wrapper());
-    return true;    
+    return true;
   }
 
   template <class ELEMENT>
   bool
   Event::getView(InputTag const& tag, View<ELEMENT>& result) const
   {
-    if (tag.process().empty()) 
+    if (tag.process().empty())
       return getView(tag.label(), tag.instance(), result);
 
     TypeID typeID( typeid(ELEMENT) );
     BasicHandleVec bhv;
     int nFound = getMatchingSequenceByLabel_(typeID,
-					     tag.label(),
-					     tag.instance(),
-					     tag.process(),
-					     bhv,
-					     true);
+                                             tag.label(),
+                                             tag.instance(),
+                                             tag.process(),
+                                             bhv,
+                                             true);
     ensure_unique_product( nFound, typeID,
-			   tag.label(), tag.instance(), tag.process());    
-    
+                           tag.label(), tag.instance(), tag.process());
+
     fillView_(bhv[0], result.vals());
     result.set_innards(bhv[0].id(), bhv[0].wrapper());
     return true;

@@ -26,7 +26,7 @@ namespace art {
       setTimestamp(Timestamp::beginOfTime());
   }
 
-  RawInputSource::~RawInputSource() 
+  RawInputSource::~RawInputSource()
   { }
 
   boost::shared_ptr<RunPrincipal>

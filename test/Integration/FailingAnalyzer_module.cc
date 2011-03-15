@@ -11,7 +11,7 @@ namespace arttest {
 // throws an exception.
 // Every call to FailingAnalyzer::produce throws an art::Exception
 //
-class arttest::FailingAnalyzer : public art::EDAnalyzer 
+class arttest::FailingAnalyzer : public art::EDAnalyzer
 {
 public:
   explicit FailingAnalyzer(fhicl::ParameterSet const&);
@@ -23,7 +23,7 @@ public:
 
 arttest::FailingAnalyzer::FailingAnalyzer(fhicl::ParameterSet const&)
 {
-  
+
 }
 
 arttest::FailingAnalyzer::~FailingAnalyzer()
@@ -32,7 +32,7 @@ arttest::FailingAnalyzer::~FailingAnalyzer()
 
 
 void
-arttest::FailingAnalyzer::analyze(art::Event const&) 
+arttest::FailingAnalyzer::analyze(art::Event const&)
 {
   // Nothing to do.
 }
@@ -40,7 +40,7 @@ arttest::FailingAnalyzer::analyze(art::Event const&)
 void
 arttest::FailingAnalyzer::makeTrouble(art::Event const& e)
 {
-  throw art::Exception(art::errors::ProductNotFound) 
+  throw art::Exception(art::errors::ProductNotFound)
     << "Intentional exception for testing purposes\n";
 }
 

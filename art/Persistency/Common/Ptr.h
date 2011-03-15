@@ -22,7 +22,7 @@
 #include "boost/type_traits/is_base_of.hpp"
 #include "boost/utility/enable_if.hpp"
 
-namespace art 
+namespace art
 {
   template <typename T>
   class Ptr
@@ -305,7 +305,7 @@ namespace art
 
   template <class T, class C>
   inline
-  void 
+  void
   fill_ptr_list(std::list<Ptr<T> >& ptrs, Handle<C> const& h)
   {
     for (size_t i = 0, sz = h->size(); i != sz; ++i)

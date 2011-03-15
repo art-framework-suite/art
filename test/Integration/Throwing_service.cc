@@ -27,8 +27,8 @@ namespace arttest
 }
 
 arttest::Throwing::Throwing(fhicl::ParameterSet const &,
-			    art::ActivityRegistry & r)
-{ 
+                            art::ActivityRegistry & r)
+{
   r.watchPostProcessEvent(this, &Throwing::throwError);
   mf::LogInfo("testing") << "Throwing service created";
 }
@@ -38,7 +38,7 @@ void
 arttest::Throwing::throwError(art::Event const&)
 {
   mf::LogInfo("testing") << "Throwing service about to throw";
-  throw art::Exception(art::errors::ProductNotFound) 
+  throw art::Exception(art::errors::ProductNotFound)
     << "Intentional exception from Throwing service";
 }
 

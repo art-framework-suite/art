@@ -27,7 +27,7 @@ LibraryManagerTestFixture::LibraryManagerTestFixture()
    lm_ref(lm)
 {
 }
-   
+
 LibraryManagerTestFixture::~LibraryManagerTestFixture()
 {
 };

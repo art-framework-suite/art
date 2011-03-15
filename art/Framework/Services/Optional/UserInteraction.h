@@ -5,10 +5,10 @@
 //
 // Package:     Services
 // Class  :     UserInteraction
-// 
+//
 /*
 
- Description: Allows for reconfiguration of modules at 
+ Description: Allows for reconfiguration of modules at
    start of event loop, and reprocessing, rewind, or continuation at the end.
 
 */
@@ -36,11 +36,11 @@ namespace ui {
 
     enum NextStep { NextEvent=0, ReprocessEvent=1, RewindFile=2, Invalid=3};
 
-    struct ModuleInfo 
+    struct ModuleInfo
     {
       ModuleInfo(std::string const& lab,std::string const& n,
-		 fhicl::ParameterSet const& p):
-	label(lab),class_name(n),pset(p) { }
+                 fhicl::ParameterSet const& p):
+        label(lab),class_name(n),pset(p) { }
       std::string label;
       std::string class_name;
       fhicl::ParameterSet pset;
@@ -66,15 +66,15 @@ namespace ui {
     // the user code must call this to cause the reconfigure to be
     // executed in the module.  The argument is the index into the
     // worker (module) array.
-    void callReconfigure(int module_index, 
-			 fhicl::ParameterSet const& pset);
-    
+    void callReconfigure(int module_index,
+                         fhicl::ParameterSet const& pset);
+
   private:
     void preEvent(art::EventID const& id, art::Timestamp const& ts);
     void postEvent(art::Event const& ev);
     void postBeginJobWorkers(art::InputSource* is, std::vector<art::Worker*> const&);
 
-			    
+
     // void preModuleEvent(art::ModuleDescription const& md);
     // void postModuleEvent(art::ModuleDescription const& md);
 
@@ -82,7 +82,7 @@ namespace ui {
     art::InputSource* input_;
   };
 }
-   
+
 #endif /* art_Framework_Services_Optional_UserInteraction_h */
 
 // Local Variables:

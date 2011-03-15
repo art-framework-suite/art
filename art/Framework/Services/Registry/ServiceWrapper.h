@@ -20,24 +20,24 @@ namespace art {
   namespace detail {
     typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
-    
+
     template <typename T, void (T::*)(fhicl::ParameterSet const&)>  struct reconfig_function;
     template <typename T> no_tag  has_reconfig_helper(...);
     template <typename T> yes_tag has_reconfig_helper(reconfig_function<T, &T::reconfigure> * dummy);
-    
+
     template<typename T>
     struct has_reconfig_function
     {
       static bool const value =
         sizeof(has_reconfig_helper<T>(0)) == sizeof(yes_tag);
     };
-    
+
     template <typename T>
     struct DoReconfig
     {
       void operator()(T& a, fhicl::ParameterSet const& b) { a.reconfigure(b); }
     };
-    
+
     template <typename T>
     struct DoNothing
     {

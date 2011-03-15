@@ -27,7 +27,7 @@ public:
   typedef  std::vector<int>  intvector_t;
 
   explicit IntVectorProducer( fhicl::ParameterSet const & p )
-  : nvalues_( p.get<unsigned>("nvalues") )
+  : nvalues_( p.get<int>("nvalues") )
   {
     produces<intvector_t>();
   }
@@ -45,7 +45,7 @@ public:
   }
 
 private:
-  unsigned nvalues_;
+  int nvalues_;
 
 };  // IntVectorProducer
 

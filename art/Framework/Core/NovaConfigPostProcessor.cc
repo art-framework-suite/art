@@ -97,7 +97,7 @@ applyOutput(intermediate_table &raw_config) const {
 
    art::ensureTable(raw_config, "outputs");
 
-   std::string out_table_name;   
+   std::string out_table_name;
    table_t &outputs_table =
       boost::any_cast<table_t&>(raw_config["outputs"].value);
    if (outputs_table.size() > 1) {
@@ -119,7 +119,7 @@ applyOutput(intermediate_table &raw_config) const {
    out_table_path += out_table_name;
 
    // Insert / overwrite fileName spec.
-   raw_config[out_table_path + ".fileName"] = 
+   raw_config[out_table_path + ".fileName"] =
        extended_value(false, STRING, fhicl::detail::encode(output_));
 
    // Make sure we have a defined module_type.
@@ -168,7 +168,7 @@ applyOutput(intermediate_table &raw_config) const {
          }
          catch (boost::bad_any_cast const &e) {
             throw cet::exception(std::string("BAD_OUTPUT_CONFIG"))
-               << "Configuration item \"physics.end_paths\" exists but is not a sequence.\n";            
+               << "Configuration item \"physics.end_paths\" exists but is not a sequence.\n";
          }
       }
    }

@@ -31,7 +31,7 @@ namespace art
     this->endJob();
   }
 
-  void 
+  void
   EDAnalyzer::reconfigure(ParameterSet const&) {
      mf::LogError("FeatureNotImplemented")
         << "This module is not reconfigurable."

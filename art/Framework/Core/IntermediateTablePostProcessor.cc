@@ -90,7 +90,7 @@ apply(intermediate_table &raw_config) const {
    }
 
    sequence_t all_modules;
-   
+
    inject_module_labels(raw_config, "outputs", all_modules);
    inject_module_labels(raw_config, "physics.producers", all_modules);
    inject_module_labels(raw_config, "physics.filters", all_modules);

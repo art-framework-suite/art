@@ -18,7 +18,7 @@ namespace art {
   class BranchDescription;
   class ModuleDescription;
   class ProductRegistry;
-  class ProducerBase : private ProductRegistryHelper 
+  class ProducerBase : private ProductRegistryHelper
   {
   public:
     ProducerBase ();
@@ -30,8 +30,8 @@ namespace art {
     callback_t registrationCallback() const;
 
     void registerProducts(boost::shared_ptr<ProducerBase>,
-			ProductRegistry *,
-			ModuleDescription const&);
+                        ProductRegistry *,
+                        ModuleDescription const&);
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
@@ -40,7 +40,7 @@ namespace art {
 
   protected:
     template<class TProducer, class TMethod>
-    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod) 
+    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod)
     {
        callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
     }

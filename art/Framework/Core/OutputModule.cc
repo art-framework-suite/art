@@ -205,7 +205,7 @@ namespace art {
 
   OutputModule::~OutputModule() { }
 
-  void 
+  void
   OutputModule::reconfigure(ParameterSet const&) {
      mf::LogError("FeatureNotImplemented")
         << "This module is not reconfigurable."

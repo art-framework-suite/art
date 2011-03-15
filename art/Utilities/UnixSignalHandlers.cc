@@ -27,13 +27,13 @@ namespace art {
     extern "C" {
       void ep_sigusr2(int which,siginfo_t*,void*)
       {
-	FDEBUG(1) << "in sigusr2 handler\n";
-	if(which==SIGINT && shutdown_flag==true) 
-	  {
-	    std::cerr << "User signal SIGINT terminating the process\n";
-	    std::terminate();
-	  }
-	shutdown_flag = true;
+        FDEBUG(1) << "in sigusr2 handler\n";
+        if(which==SIGINT && shutdown_flag==true)
+          {
+            std::cerr << "User signal SIGINT terminating the process\n";
+            std::terminate();
+          }
+        shutdown_flag = true;
       }
     }
 
@@ -57,7 +57,7 @@ namespace art {
       return rc;
     }
 
-#define MUST_BE_ZERO(fun) if((fun) != 0)					\
+#define MUST_BE_ZERO(fun) if((fun) != 0)                                        \
       { perror("UnixSignalHandlers::setupSignal: sig function failed"); abort(); }
 
 //--------------------------------------------------------------
@@ -84,8 +84,8 @@ namespace art {
       tmpact.sa_handler = SIG_IGN;
 
       for(int num = SIGRTMIN; num < SIGRTMAX; ++num) {
-	  MUST_BE_ZERO(sigaddset(&myset,num));
-	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
+          MUST_BE_ZERO(sigaddset(&myset,num));
+          MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
       }
 
       MUST_BE_ZERO(pthread_sigmask(SIG_BLOCK,&myset,0));
@@ -143,16 +143,16 @@ namespace art {
       // get my signal number
       int mysig = signum;
       if( mysig == SIGKILL ) {
-	perror("Cannot install handler for KILL signal");
-	return;
+        perror("Cannot install handler for KILL signal");
+        return;
       } else if( mysig == SIGSTOP ) {
-	 perror("Cannot install handler for STOP signal");
-	return;
+         perror("Cannot install handler for STOP signal");
+        return;
       }
 
       if(sigaction(mysig,&act,NULL) != 0) {
-	  perror("sigaction failed");
-	  abort();
+          perror("sigaction failed");
+          abort();
       }
 
       sigset_t newset;

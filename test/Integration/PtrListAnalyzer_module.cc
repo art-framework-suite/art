@@ -27,16 +27,16 @@ namespace arttest
     void test_fill_vector(art::Event const&);
 
     std::string input_label_;
-    int num_expected_;
+    unsigned num_expected_;
   };
 
-  
+
   PtrListAnalyzer:: ~PtrListAnalyzer()
   { }
 
   PtrListAnalyzer::PtrListAnalyzer(fhicl::ParameterSet const& pset) :
     input_label_(pset.get<std::string>("input_label")),
-    num_expected_(pset.get<int>("nvalues"))
+    num_expected_(pset.get<unsigned>("nvalues"))
   { }
 
   void PtrListAnalyzer::analyze(art::Event const& ev)
@@ -62,16 +62,16 @@ namespace arttest
     assert(ptrs.size() == num_expected_);
 
     int expected_value = ev.id().event();
-    for (std::list<art::Ptr<int> >::const_iterator 
-	   i = ptrs.begin(),
-	   e = ptrs.end();
-	 i != e; ++i)
+    for (std::list<art::Ptr<int> >::const_iterator
+           i = ptrs.begin(),
+           e = ptrs.end();
+         i != e; ++i)
       {
-	assert( **i == expected_value);
-	++expected_value;
+        assert( **i == expected_value);
+        ++expected_value;
       }
   }
- 
+
   void PtrListAnalyzer::test_fill_vector(art::Event const& ev)
   {
     // This is how to fill a vector of Ptr<T> from a Handle<T>.
@@ -84,13 +84,13 @@ namespace arttest
     assert(ptrs.size() == num_expected_);
 
     int expected_value = ev.id().event();
-    for (std::vector<art::Ptr<int> >::const_iterator 
-	   i = ptrs.begin(),
-	   e = ptrs.end();
-	 i != e; ++i)
+    for (std::vector<art::Ptr<int> >::const_iterator
+           i = ptrs.begin(),
+           e = ptrs.end();
+         i != e; ++i)
       {
-	assert( **i == expected_value);
-	++expected_value;
+        assert( **i == expected_value);
+        ++expected_value;
       }
   }
 

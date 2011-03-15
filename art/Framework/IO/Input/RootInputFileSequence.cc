@@ -71,7 +71,7 @@ namespace art {
     RunNumber_t firstRun;
     bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
     SubRunNumber_t firstSubRun;
-    bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstRun);
+    bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstSubRun);
     EventNumber_t firstEvent;
     bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
     RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstRun();

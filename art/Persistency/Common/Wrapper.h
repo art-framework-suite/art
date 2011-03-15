@@ -76,12 +76,12 @@ namespace art {
 #endif
 
     virtual void do_setPtr(std::type_info const &toType,
-			   unsigned long index,
-			   void const * &ptr) const;
+                           unsigned long index,
+                           void const * &ptr) const;
 
     virtual void do_getElementAddresses(std::type_info const &toType,
-					std::vector<unsigned long> const &indices,
-					std::vector<void const *> &ptr) const;
+                                        std::vector<unsigned long> const &indices,
+                                        std::vector<void const *> &ptr) const;
 
     bool present;
     //   T const obj;
@@ -101,8 +101,8 @@ namespace art {
                     const std::vector<unsigned long>& index,
                     std::vector<void const*>& ptrs) const;
     void operator()(T const& obj,
-		    std::type_info const& toType,
-		    std::vector<void const*>& ptrs) const;
+                    std::type_info const& toType,
+                    std::vector<void const*>& ptrs) const;
   };
 
   template <class T>
@@ -114,9 +114,9 @@ namespace art {
                     void const*&) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
-	<< "The product type "
-	<< typeid(T).name()
-	<< "\ndoes not support art::Ptr\n";
+        << "The product type "
+        << typeid(T).name()
+        << "\ndoes not support art::Ptr\n";
     }
 
     void operator()(T const&,
@@ -125,27 +125,27 @@ namespace art {
                     std::vector<void const*>&) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
-	<< "The product type "
-	<< typeid(T).name()
-	<< "\ndoes not support art::PtrVector\n";
+        << "The product type "
+        << typeid(T).name()
+        << "\ndoes not support art::PtrVector\n";
     }
 
     void operator()(T const&,
-		    std::type_info const&,
-		    std::vector<void const*>&) const
+                    std::type_info const&,
+                    std::vector<void const*>&) const
     {
       throw Exception(errors::ProductDoesNotSupportPtr)
-	<< "The product type "
-	<< typeid(T).name()
-	<< "\ndoes not support art::PtrVector\n";
+        << "The product type "
+        << typeid(T).name()
+        << "\ndoes not support art::PtrVector\n";
     }
   };
 
   template <typename T>
   inline
   void Wrapper<T>::do_setPtr(std::type_info const& toType,
-			     unsigned long index,
-			     void const*& ptr) const
+                             unsigned long index,
+                             void const*& ptr) const
   {
     typename boost::mpl::if_c<has_setPtr<T>::value,
       DoSetPtr<T>,
@@ -156,8 +156,8 @@ namespace art {
   template <typename T>
   inline
   void Wrapper<T>::do_getElementAddresses(std::type_info const& toType,
-					  std::vector<unsigned long> const& indices,
-					  std::vector<void const*>& ptrs) const
+                                          std::vector<unsigned long> const& indices,
+                                          std::vector<void const*>& ptrs) const
   {
     typename boost::mpl::if_c<has_setPtr<T>::value,
       DoSetPtr<T>,
@@ -317,7 +317,7 @@ namespace art {
       // The following will call swap if T has such a function,
       // and use assignment if T has no such function.
       typename boost::mpl::if_c<detail::has_swap_function<T>::value,
-	DoSwap<T>,
+        DoSwap<T>,
         DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);
     }
@@ -410,8 +410,8 @@ struct fillView< std::vector<E>, false >
                      )
   {
     for( typename std::vector<E>::const_iterator b = product.begin()
-	   , e = product.end()
-	   ; b != e; ++b )
+           , e = product.end()
+           ; b != e; ++b )
       view.push_back( &*b );
   }
 };  // fillView<vector<E>>
@@ -424,8 +424,8 @@ struct fillView< std::list<E>, false >
                      )
   {
     for( typename std::list<E>::const_iterator b = product.begin()
-	   , e = product.end()
-	   ; b != e; ++b )
+           , e = product.end()
+           ; b != e; ++b )
       view.push_back( &*b );
   }
 };  // fillView<list<E>>
@@ -438,8 +438,8 @@ struct fillView< std::deque<E>, false >
                      )
   {
     for( typename std::deque<E>::const_iterator b = product.begin()
-	   , e = product.end()
-	   ; b != e; ++b )
+           , e = product.end()
+           ; b != e; ++b )
       view.push_back( &*b );
   }
 };  // fillView<deque<E>>
@@ -452,8 +452,8 @@ struct fillView< std::set<E>, false >
                      )
   {
     for( typename std::set<E>::const_iterator b = product.begin()
-	   , e = product.end()
-	   ; b != e; ++b )
+           , e = product.end()
+           ; b != e; ++b )
       view.push_back( &*b );
   }
 };  // fillView<set<E>>
@@ -473,7 +473,7 @@ struct fillView< std::set<E>, false >
 // forward declarations
 namespace art {
   namespace detail {
-    
+
     template <class COLLECTION>
     void
     reallySetPtr(COLLECTION const& coll,
@@ -485,7 +485,7 @@ namespace art {
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      
+
       if(iToType == typeid(element_type)) {
         iter it = coll.begin();
         advance(it,iIndex);
@@ -510,13 +510,13 @@ namespace art {
           oPtr = cast.Address(); // returns void*, after pointer adjustment
         } else {
           throw cet::exception("TypeConversionError")
-	    << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
-	    << " to " << iToType.name() << "\n";
+            << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
+            << " to " << iToType.name() << "\n";
         }
       }
     }
   }
-  
+
   template <class T, class A>
   void
   setPtr(std::vector<T,A> const& obj,
@@ -525,7 +525,7 @@ namespace art {
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
-  
+
   template <class T, class A>
   void
   setPtr(std::list<T,A> const& obj,
@@ -534,7 +534,7 @@ namespace art {
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
-  
+
   template <class T, class A>
   void
   setPtr(std::deque<T,A> const& obj,
@@ -543,7 +543,7 @@ namespace art {
          void const*& oPtr) {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
-  
+
   template <class T, class A, class Comp>
   void
   setPtr(std::set<T,A,Comp> const& obj,
@@ -561,9 +561,9 @@ namespace art {
   template<typename T>
   struct PtrSetter {
     static void set(T const& obj,
-		    const std::type_info& iToType,
-		    unsigned long iIndex,
-		    void const*& oPtr)
+                    const std::type_info& iToType,
+                    unsigned long iIndex,
+                    void const*& oPtr)
     {
       // setPtr is the name of an overload set; each concrete
       // collection T should supply a fillView function, in the same
@@ -573,9 +573,9 @@ namespace art {
     }
 
     static void fill(T const& obj,
-		     const std::type_info& iToType,
-		     const std::vector<unsigned long>& iIndex,
-		     std::vector<void const*>& oPtr)
+                     const std::type_info& iToType,
+                     const std::vector<unsigned long>& iIndex,
+                     std::vector<void const*>& oPtr)
     {
       // getElementAddresses is the name of an overload set; each
       // concrete collection T should supply a getElementAddresses
@@ -587,26 +587,26 @@ namespace art {
 
   template <class T>
   void DoSetPtr<T>::operator()(T const& obj,
-			       const std::type_info &toType,
-			       unsigned long index,
-			       void const* &ptr) const
+                               const std::type_info &toType,
+                               unsigned long index,
+                               void const* &ptr) const
   {
     PtrSetter<T>::set(obj, toType, index, ptr);
   }
 
   template <class T>
   void DoSetPtr<T>::operator()(T const& obj,
-			       const std::type_info &toType,
-			       const std::vector<unsigned long> &indices,
-			       std::vector<void const*> &ptr) const
+                               const std::type_info &toType,
+                               const std::vector<unsigned long> &indices,
+                               std::vector<void const*> &ptr) const
   {
     PtrSetter<T>::fill(obj, toType, indices, ptr);
   }
-  
+
   template <class T>
   void DoSetPtr<T>::operator()(T const& obj,
-			       std::type_info const& toType,
-			       std::vector<void const*>& ptrs) const
+                               std::type_info const& toType,
+                               std::vector<void const*>& ptrs) const
   {
     PtrSetter<T>::fill(obj, toType, ptrs);
   }
@@ -626,105 +626,105 @@ namespace art {
     template <class COLLECTION>
     void
     reallygetElementAddresses(COLLECTION const& coll,
-			      const std::type_info& iToType,
-			      const std::vector<unsigned long>& iIndicies,
-			      std::vector<void const*>& oPtr)
+                              const std::type_info& iToType,
+                              const std::vector<unsigned long>& iIndicies,
+                              std::vector<void const*>& oPtr)
     {
       typedef COLLECTION                            product_type;
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
       typedef typename product_type::size_type      size_type;
-      
+
       oPtr.reserve(iIndicies.size());
       if (iToType == typeid(element_type))
-	{
-	  for(std::vector<unsigned long>::const_iterator 
-		itIndex=iIndicies.begin(),
-	      itEnd = iIndicies.end();
+        {
+          for(std::vector<unsigned long>::const_iterator
+                itIndex=iIndicies.begin(),
+              itEnd = iIndicies.end();
             itIndex != itEnd;
-            ++itIndex) 
-	    {
-	      iter it = coll.begin();
-	      advance(it,*itIndex);          
-	      element_type const* address = 
-		GetProduct<product_type>::address( it );
-	      oPtr.push_back(address);
-	    }
-	}
+            ++itIndex)
+            {
+              iter it = coll.begin();
+              advance(it,*itIndex);
+              element_type const* address =
+                GetProduct<product_type>::address( it );
+              oPtr.push_back(address);
+            }
+        }
       else
-	{
-	  using Reflex::Type;
-	  using Reflex::Object;
-	  static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-	  Type toType=Type::ByTypeInfo(iToType);
-	  
-	  for(std::vector<unsigned long>::const_iterator 
-		itIndex=iIndicies.begin(),
-		itEnd = iIndicies.end();
-	      itIndex != itEnd;
-	      ++itIndex)
-	    {
-	      iter it = coll.begin();
-	      advance(it,*itIndex);          
-	      element_type const* address = 
-		GetProduct<product_type>::address( it );
-	      // The const_cast below is needed because
-	      // Object's constructor requires a pointer to
-	      // non-const void, although the implementation does not, of
-	      // course, modify the object to which the pointer points.
-	      Object obj(s_type, 
-			 const_cast<void*>(static_cast<const void*>(address)));
-	      Object cast = obj.CastObject(toType);
-	      if (0 != cast.Address())
-		{
-		  // returns void*, after pointer adjustment
-		  oPtr.push_back(cast.Address());
-		}
-	      else
-		{
-		  throw cet::exception("TypeConversionError")
-		    << "art::PtrVector<> : unable to convert type "
-		    << typeid(element_type).name()
-		    << " to " << iToType.name() << "\n";
-		}
-	    }
-	}
+        {
+          using Reflex::Type;
+          using Reflex::Object;
+          static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
+          Type toType=Type::ByTypeInfo(iToType);
+
+          for(std::vector<unsigned long>::const_iterator
+                itIndex=iIndicies.begin(),
+                itEnd = iIndicies.end();
+              itIndex != itEnd;
+              ++itIndex)
+            {
+              iter it = coll.begin();
+              advance(it,*itIndex);
+              element_type const* address =
+                GetProduct<product_type>::address( it );
+              // The const_cast below is needed because
+              // Object's constructor requires a pointer to
+              // non-const void, although the implementation does not, of
+              // course, modify the object to which the pointer points.
+              Object obj(s_type,
+                         const_cast<void*>(static_cast<const void*>(address)));
+              Object cast = obj.CastObject(toType);
+              if (0 != cast.Address())
+                {
+                  // returns void*, after pointer adjustment
+                  oPtr.push_back(cast.Address());
+                }
+              else
+                {
+                  throw cet::exception("TypeConversionError")
+                    << "art::PtrVector<> : unable to convert type "
+                    << typeid(element_type).name()
+                    << " to " << iToType.name() << "\n";
+                }
+            }
+        }
     }
   }
-  
+
   template <class T, class A>
   void
   getElementAddresses(std::vector<T,A> const& obj,
-		      const std::type_info& iToType,
-		      const std::vector<unsigned long>& iIndicies,
-		      std::vector<void const*>& oPtr) {
+                      const std::type_info& iToType,
+                      const std::vector<unsigned long>& iIndicies,
+                      std::vector<void const*>& oPtr) {
     detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
-  
+
   template <class T, class A>
   void
   getElementAddresses(std::list<T,A> const& obj,
-		      const std::type_info& iToType,
-		      const std::vector<unsigned long>& iIndicies,
-		      std::vector<void const*>& oPtr) {
+                      const std::type_info& iToType,
+                      const std::vector<unsigned long>& iIndicies,
+                      std::vector<void const*>& oPtr) {
     detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
-  
+
   template <class T, class A>
   void
   getElementAddresses(std::deque<T,A> const& obj,
-		      const std::type_info& iToType,
-		      const std::vector<unsigned long>& iIndicies,
-		      std::vector<void const*>& oPtr) {
+                      const std::type_info& iToType,
+                      const std::vector<unsigned long>& iIndicies,
+                      std::vector<void const*>& oPtr) {
     detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
-  
+
   template <class T, class A, class Comp>
   void
   getElementAddresses(std::set<T,A,Comp> const& obj,
-		      const std::type_info& iToType,
-		      const std::vector<unsigned long>& iIndicies,
-		      std::vector<void const*>& oPtr) {
+                      const std::type_info& iToType,
+                      const std::vector<unsigned long>& iIndicies,
+                      std::vector<void const*>& oPtr) {
     detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
 

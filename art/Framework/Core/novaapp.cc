@@ -104,7 +104,7 @@ int novaapp(int argc, char* argv[]) {
    std::string search_path = (fhicl_env == nullptr)?"":(std::string(fhicl_env) + ':');
 
    art::FirstAbsoluteOrLookupWithDotPolicy lookupPolicy(search_path);
- 
+
    try {
       fhicl::parse_document(vm["config"].as<std::string>(), lookupPolicy, raw_config);
    }

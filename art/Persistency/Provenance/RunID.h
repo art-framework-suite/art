@@ -14,7 +14,7 @@
 #include <ostream>
 
 namespace art {
-   typedef std::uint32_t RunNumber_t; 
+   typedef std::uint32_t RunNumber_t;
    class RunID;
 }
 
@@ -26,7 +26,7 @@ public:
 
    RunNumber_t run() const { return run_; }
 
-   bool isValid() const { 
+   bool isValid() const {
       return (run_ != INVALID_RUN_NUMBER);
    }
 
@@ -86,7 +86,7 @@ public:
       return ! (*this < other);
    }
 
-   friend inline std::ostream& 
+   friend inline std::ostream&
    operator<<(std::ostream& oStream, RunID const& iID) {
       oStream << "run: ";
       if (iID.isValid()) {

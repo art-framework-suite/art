@@ -60,15 +60,15 @@ namespace art
 
   namespace input
   {
-    enum ItemType 
+    enum ItemType
       {
-	IsInvalid,
-	IsStop,
-	IsFile,
-	IsRun,
-	IsSubRun,
-	IsEvent,
-	IsRepeat
+        IsInvalid,
+        IsStop,
+        IsFile,
+        IsRun,
+        IsSubRun,
+        IsEvent,
+        IsRepeat
       };
   }
 
@@ -88,7 +88,7 @@ namespace art
 
 
     InputSource(fhicl::ParameterSet const&,
-		InputSourceDescription const&);
+                InputSourceDescription const&);
 
     virtual ~InputSource() = 0;
     input::ItemType nextItemType();

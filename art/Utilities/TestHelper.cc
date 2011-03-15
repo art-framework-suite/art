@@ -33,7 +33,7 @@ int run_script(const std::string& shell, const std::string& script)
 
   if (pid==0) // child
     {
-      execlp(shell.c_str(), "sh", "-c", script.c_str(), 0);
+      execlp(shell.c_str(), "sh", "-c", script.c_str(), (char*)0);
       std::cerr <<"child failed becuase '"<<strerror(errno)<<"'\n";
       _exit(127); // signal parent and children processes
     }

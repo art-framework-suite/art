@@ -115,49 +115,49 @@ namespace art {
 
 
   std::string const & BranchTypeToString( BranchType bt ) {
-    select( bt, event, run, subRun );
+    return select( bt, event, run, subRun );
   }
 
   std::string const & BranchTypeToProductTreeName( BranchType bt ) {
-    select( bt, events, runs, subRuns );
+    return select( bt, events, runs, subRuns );
   }
 
   std::string const & BranchTypeToMetaDataTreeName( BranchType bt ) {
-    select( bt, eventMeta, runMeta, subRunMeta );
+    return select( bt, eventMeta, runMeta, subRunMeta );
   }
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToInfoTreeName( BranchType bt ) {
-    select( bt, eventInfo, runInfo, subRunInfo );
+    return select( bt, eventInfo, runInfo, subRunInfo );
   }
 #endif
 
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType bt ) {
-    select( bt, eventAuxiliary, runAuxiliary, subRunAuxiliary );
+    return select( bt, eventAuxiliary, runAuxiliary, subRunAuxiliary );
   }
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToAuxBranchName( BranchType bt ) {
-    select( bt, eventAux, runAux, subRunAux );
+    return select( bt, eventAux, runAux, subRunAux );
   }
 #endif
 
 #ifdef FW_BACKWARD_COMPATIBILITY
   std::string const & BranchTypeToProductStatusBranchName( BranchType bt ) {
-    select( bt, eventProductStatus, runProductStatus, subRunProductStatus );
+    return select( bt, eventProductStatus, runProductStatus, subRunProductStatus );
   }
 #endif
 
   std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType bt ) {
-    select( bt, eventEventEntryInfo, runEventEntryInfo, subRunEventEntryInfo );
+    return select( bt, eventEventEntryInfo, runEventEntryInfo, subRunEventEntryInfo );
   }
 
   std::string const & BranchTypeToMajorIndexName( BranchType bt ) {
-    select( bt, eventMajorIndex, runMajorIndex, subRunMajorIndex );
+    return select( bt, eventMajorIndex, runMajorIndex, subRunMajorIndex );
   }
 
   std::string const & BranchTypeToMinorIndexName( BranchType bt ) {
-    select( bt, eventMinorIndex, runMinorIndex, subRunMinorIndex );
+    return select( bt, eventMinorIndex, runMinorIndex, subRunMinorIndex );
   }
 
   namespace rootNames {

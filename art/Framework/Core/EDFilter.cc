@@ -33,7 +33,7 @@ namespace art
     this->endJob();
   }
 
-  void 
+  void
   EDFilter::reconfigure(ParameterSet const&) {
     mf::LogError("FeatureNotImplemented")
        << "This module is not reconfigurable."

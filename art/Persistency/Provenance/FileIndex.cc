@@ -303,6 +303,6 @@ namespace art {
       } else {
          // Did not find anything.
          return itEnd;
-      }   
+      }
    }
 }

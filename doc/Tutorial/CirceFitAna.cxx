@@ -27,7 +27,7 @@
 namespace trk{
 
   //......................................................................
-  CirceFitAna::CirceFitAna(fhicl::ParameterSet const& pset) : 
+  CirceFitAna::CirceFitAna(fhicl::ParameterSet const& pset) :
      fGenModuleLabel  (pset.get< std::string  >("GenModuleLabel")  )
     ,fProngModuleLabel(pset.get< std::string  >("ProngModuleLabel"))
     ,fFinalVtxX(0)
@@ -35,7 +35,7 @@ namespace trk{
     ,fFinalVtxZ(0)
   {
   }
-  
+
   //......................................................................
   CirceFitAna::~CirceFitAna()
   {
@@ -47,20 +47,20 @@ namespace trk{
     art::ServiceHandle<art::TFileService> tfs;
 
     fFinalVtxX = tfs->make<TH1F>("fFinalVtxX",
-				 "Circe Vertex X; Xfit-Xmc (cm); Events",
-				 200, -50.0,50.0);
+                                 "Circe Vertex X; Xfit-Xmc (cm); Events",
+                                 200, -50.0,50.0);
     fFinalVtxY = tfs->make<TH1F>("fFinalVtxY",
-				 "Circe Vertex Y; Yfit-Ymc (cm); Events",
-				 200, -50.0,50.0);
+                                 "Circe Vertex Y; Yfit-Ymc (cm); Events",
+                                 200, -50.0,50.0);
     fFinalVtxZ = tfs->make<TH1F>("fFinalVtxZ",
-				 "Circe Vertex Z; Zfit-Zmc (cm); Events",
-				 200, -50.0,50.0);
+                                 "Circe Vertex Z; Zfit-Zmc (cm); Events",
+                                 200, -50.0,50.0);
 
     return;
   }
 
   //......................................................................
-  void CirceFitAna::analyze(art::Event const& evt) 
+  void CirceFitAna::analyze(art::Event const& evt)
   {
 
     // The Monte Carlo true 4-vectors for the event
@@ -73,8 +73,8 @@ namespace trk{
       return;
     }
     else if (mctruths->size()>1) {
-      mf::LogWarning("CirceFitAna:TooMuchTruth") << __FILE__ << ":" << __LINE__ 
-		<< " Not ready for overlap events yet..." << std::endl;
+      mf::LogWarning("CirceFitAna:TooMuchTruth") << __FILE__ << ":" << __LINE__
+                << " Not ready for overlap events yet..." << std::endl;
       return;
     }
 
@@ -84,28 +84,28 @@ namespace trk{
     if (!mctruth->NeutrinoSet() ) {
       throw art::Exception(art::errors::ProductNotFound) << "CirceFitAna::analyze No neutrino??";
     }
-    
+
     // Plot where the true vertex is compared to where we are seeding
     double x0mc = nu.Lepton().Vx();
     double y0mc = nu.Lepton().Vy();
     double z0mc = nu.Lepton().Vz();
-    
+
     // Pull the prongs we fit out of the event
     art::Handle< std::vector<rb::Prong> > prongs;
     evt.getByLabel(fGenModuleLabel, prongs);
 
     if (prongs->size()>1 && nu.CCNC()==simb::kCC) {
-      
+
       art::Ptr<rb::Prong> prong(prongs,0);
 
       fFinalVtxX->Fill(prong->StartPos()[0]-x0mc);
       fFinalVtxY->Fill(prong->StartPos()[1]-y0mc);
       fFinalVtxZ->Fill(prong->StartPos()[2]-z0mc);
     }
-    
+
     return;
   }
-}//namespace 
+}//namespace
 
 ////////////////////////////////////////////////////////////////////////
 

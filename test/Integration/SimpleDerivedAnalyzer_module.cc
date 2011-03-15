@@ -66,9 +66,9 @@ private:
 
 template <class T>
 void verify_elements(std::vector<T> const& ptrs,
-		     size_t sz,
-		     art::EventNumber_t event_num,
-		     size_t nvalues)
+                     size_t sz,
+                     art::EventNumber_t event_num,
+                     size_t nvalues)
 {
   for (size_t k = 0; k != sz; ++k)
     {
@@ -81,9 +81,9 @@ void verify_elements(std::vector<T> const& ptrs,
 
 template <class T>
 void
-test_view(art::Event const& e, 
-	  std::string const& inputLabel,
-	  unsigned nvalues)
+test_view(art::Event const& e,
+          std::string const& inputLabel,
+          unsigned nvalues)
 {
   int event_num = e.id().event();
   art::InputTag tag(inputLabel, "derived", "DEVEL");
@@ -192,7 +192,7 @@ SimpleDerivedAnalyzer::test_PtrVector( art::Event const & e ) const
     }
 
     for( product_t::const_iterator b = h->begin()
-	   , e = h->end(); b!= e; ++b ) {
+           , e = h->end(); b!= e; ++b ) {
       int k = b - h->begin();
       if( (*b)->key != sz-k+event_num ) {
         std::cerr

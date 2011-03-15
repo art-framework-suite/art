@@ -100,7 +100,7 @@ int art::run_art(intermediate_table raw_config) {
       std::cerr << "       Intermediate configuration state follows:\n"
                 << "------------------------------------"
                 << "------------------------------------"
-                << "\n";         
+                << "\n";
       for (extended_value::table_t::const_iterator
               i = raw_config.begin(),
               end_iter = raw_config.end();
@@ -111,7 +111,7 @@ int art::run_art(intermediate_table raw_config) {
       std::cerr
          << "------------------------------------"
          << "------------------------------------"
-         << "\n";         
+         << "\n";
       return 7003;
    }
 
@@ -165,7 +165,7 @@ int art::run_art(intermediate_table raw_config) {
    EventProcessorWithSentry proc;
    int rc = -1;
    try {
-      std::auto_ptr<art::EventProcessor> 
+      std::auto_ptr<art::EventProcessor>
          procP(new
                art::EventProcessor(main_pset));
       EventProcessorWithSentry procTmp(procP);

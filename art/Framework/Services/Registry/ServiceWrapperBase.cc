@@ -10,7 +10,7 @@
 art::ServiceWrapperBase::~ServiceWrapperBase( )
 { }
 
-void art::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const&) 
+void art::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const&)
 { }
 
 // ======================================================================

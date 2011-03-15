@@ -51,7 +51,7 @@ function one_file() {
   # Fix ParameterSet calls
   perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix Service -> ServiceHandle
-  perl -wapi\~ -f fix-ServiceHandle.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"  
+  perl -wapi\~ -f fix-ServiceHandle.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix for relocated services
   perl -wapi\~ -f fix-services.pl "${F}"
   # Fix for relocated services
@@ -67,7 +67,7 @@ function one_file() {
   # Final namespace fix (must be done after exception fix).
   perl -wapi\~ -f fix-namespaces-2.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   perl -wapi\~ -f fix-messagefacility.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
-  
+
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then
     echo "OK"

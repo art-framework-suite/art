@@ -132,8 +132,10 @@ art::EmptyEvent::readRun_() {
   RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
   boost::shared_ptr<RunPrincipal> runPrincipal(
       new RunPrincipal(runAux, productRegistry(), processConfiguration()));
+  #if 0
   RunPrincipal & rp =
      const_cast<RunPrincipal &>(*runPrincipal);
+  #endif
   newRun_ = false;
   return runPrincipal;
 }

@@ -43,7 +43,7 @@ public:
       return timeHigh_ == iRHS.timeHigh_ &&
          timeLow_ == iRHS.timeLow_;
    }
- 
+
    bool operator!=(const Timestamp& iRHS) const {
       return !(*this == iRHS);
    }

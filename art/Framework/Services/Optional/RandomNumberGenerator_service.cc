@@ -463,7 +463,7 @@ void
                             , e  = dict_.end()
      ; it != e; ++it
      ) {
-    label_t const &  label = it->first;
+    //label_t const &  label = it->first;
     eptr_t  const &  eptr  = it->second;
     assert( eptr != 0 && "RNGservice::saveToFile_()" );
 

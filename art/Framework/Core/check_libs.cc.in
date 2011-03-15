@@ -22,23 +22,23 @@ using std::regex;
 using std::regex_match;
 
 
-void try_loading(LibraryManager& libs, 
-		 string const& path,
-		 string const& expected_symbol)
+void try_loading(LibraryManager& libs,
+                 string const& path,
+                 string const& expected_symbol)
 {
   void* sym = 0;
-  try 
+  try
     {
       sym = libs.getSymbolByPath(path, expected_symbol);
-      if (sym) 
-	cout << "... ok\n";
+      if (sym)
+        cout << "... ok\n";
       else
-	cout << "... symbol value was zero: report this to ART core team\n";
+        cout << "... symbol value was zero: report this to ART core team\n";
     }
   catch (cet::exception& e)
     {
       cout << "... FAILED:\n"
-	   << e.what() << '\n';
+           << e.what() << '\n';
     }
   catch (...)
     {
@@ -48,7 +48,7 @@ void try_loading(LibraryManager& libs,
 }
 
 void checkLoadability(string const& type,
-		      string const& expected_symbol)
+                      string const& expected_symbol)
 {
   static const regex system_service("@CMAKE_SHARED_LIBRARY_PREFIX@art_Framework_Services_System_[A-Za-z]+_service\\@CMAKE_SHARED_LIBRARY_SUFFIX@");
 
@@ -56,23 +56,22 @@ void checkLoadability(string const& type,
   LibraryManager libs(type);
 
   size_t numLibs = libs.getLoadableLibraries(libraries);
-  cout << "    found " 
-       << numLibs 
+  cout << "    found "
+       << numLibs
        << " libraries of type "
        << type
        << ", list follows...\n";
 
   for (vector<string>::const_iterator
-	 it = libraries.begin(),
-	 end = libraries.end();
+         it = libraries.begin(),
+         end = libraries.end();
        it != end; ++it)
     {
       cout << "        " << *it;
-      void* sym = 0;
       if (regex_search(*it, system_service))
-	cout << "... ok\n";
+        cout << "... ok\n";
       else
-	try_loading(libs, *it, expected_symbol);
+        try_loading(libs, *it, expected_symbol);
     }
 
 }

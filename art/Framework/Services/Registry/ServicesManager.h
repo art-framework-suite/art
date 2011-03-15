@@ -72,18 +72,18 @@ namespace art {
 
       void forceCreation(ActivityRegistry& reg)
       {
-	if(!service_) service_ = make_(config_,reg);
+        if(!service_) service_ = make_(config_,reg);
       }
 
       fhicl::ParameterSet const& getParameterSet() const { return config_; }
 
-      void putParameterSet(fhicl::ParameterSet const& n) 
+      void putParameterSet(fhicl::ParameterSet const& n)
       {
-	if(config_ != n) 
-	  {
-	    config_ = n; 
-	    if(service_) service_->reconfigure(config_);
-	  }
+        if(config_ != n)
+          {
+            config_ = n;
+            if(service_) service_->reconfigure(config_);
+          }
       }
 
     private:

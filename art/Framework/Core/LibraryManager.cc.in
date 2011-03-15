@@ -36,9 +36,9 @@ art::LibraryManager::LibraryManager(std::string const& lib_type)
    static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
    static std::string const pattern("@CMAKE_SHARED_LIBRARY_PREFIX@[A-Za-z0-9_]*_");
    std::vector<std::string> matches;
-   size_t n_matches = ld_lib_path.find_files(pattern + lib_type +
-                                             "\\@CMAKE_SHARED_LIBRARY_SUFFIX@",
-                                             matches);
+   ld_lib_path.find_files(pattern + lib_type +
+                          "\\@CMAKE_SHARED_LIBRARY_SUFFIX@",
+                          matches);
    // Note the use of reverse iterators here: files found earlier in the
    // vector will therefore overwrite those found later, which is what
    // we want from "search path"-type behavior.

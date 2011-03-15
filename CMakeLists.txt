@@ -86,7 +86,8 @@ SET ( GCC_VERSION $ENV{GCC_VERSION} )
 IF (NOT GCC_VERSION)
     MESSAGE (FATAL_ERROR "gcc has not been setup")
 ENDIF()
-message(STATUS "GCC version is ${GCC_VERSION} " )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+message(STATUS "GCC version is ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}")
 
 # include search path
 include_directories ("${PROJECT_BINARY_DIR}")
@@ -105,7 +106,6 @@ find_library( CETLIB NAMES cetlib PATHS $ENV{CETLIB_LIB} )
 find_library( FHICLCPP NAMES fhiclcpp PATHS $ENV{FHICLCPP_LIB} )
 
 # define MESSAGEFACILITY
-
 find_library( MF_MESSAGELOGGER NAMES MF_MessageLogger
                               PATHS $ENV{MESSAGEFACILITY_LIB} )
 find_library( MF_MESSAGESERVICE NAMES MF_MessageService

@@ -11,60 +11,60 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include <sstream>
 
-namespace art 
+namespace art
 {
 
-  ProducerBase::ProducerBase() : 
-    ProductRegistryHelper(), 
-    callWhenNewProductsRegistered_() 
+  ProducerBase::ProducerBase() :
+    ProductRegistryHelper(),
+    callWhenNewProductsRegistered_()
   { }
-  
-  ProducerBase::~ProducerBase() 
+
+  ProducerBase::~ProducerBase()
   { }
 
 
   typedef boost::function<void(const BranchDescription&)> callback_t;
 
   callback_t
-  ProducerBase::registrationCallback() const 
+  ProducerBase::registrationCallback() const
   {
     return callWhenNewProductsRegistered_;
   }
 
-  namespace 
+  namespace
   {
     class CallbackWrapper {
     public:
       CallbackWrapper(boost::shared_ptr<ProducerBase> producer,
-		      callback_t callback,
-		      ProductRegistry* preg,
-		      const ModuleDescription& md) :
-        prodbase_(&(*producer)), 
-	callback_(callback), 
-	reg_(preg), 
-	mdesc_(md),
-        lastSize_(producer->typeLabelList().size()) 
+                      callback_t callback,
+                      ProductRegistry* preg,
+                      const ModuleDescription& md) :
+        prodbase_(&(*producer)),
+        callback_(callback),
+        reg_(preg),
+        mdesc_(md),
+        lastSize_(producer->typeLabelList().size())
       { }
 
-      void operator()(BranchDescription const& md) 
+      void operator()(BranchDescription const& md)
       {
-	callback_(md);
-	addToRegistry();
+        callback_(md);
+        addToRegistry();
       }
 
       void addToRegistry() {
-	TypeLabelList& plist = prodbase_->typeLabelList();
+        TypeLabelList& plist = prodbase_->typeLabelList();
 
-	if (lastSize_!=plist.size())
-	  {
-	    TypeLabelList::iterator pStart = plist.begin();
-	    advance(pStart, lastSize_);
-	    ProductRegistryHelper::addToRegistry(pStart, 
-						 plist.end(),
-						 mdesc_,
-						 *reg_);
-	    lastSize_ = plist.size();
-	}
+        if (lastSize_!=plist.size())
+          {
+            TypeLabelList::iterator pStart = plist.begin();
+            advance(pStart, lastSize_);
+            ProductRegistryHelper::addToRegistry(pStart,
+                                                 plist.end(),
+                                                 mdesc_,
+                                                 *reg_);
+            lastSize_ = plist.size();
+        }
       }
 
     private:
@@ -78,14 +78,14 @@ namespace art
   }
 
 
-  void 
+  void
   ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> producer,
-				 ProductRegistry* preg,
-				 ModuleDescription const& md)
+                                 ProductRegistry* preg,
+                                 ModuleDescription const& md)
   {
-    if (typeLabelList().empty() && registrationCallback().empty()) 
+    if (typeLabelList().empty() && registrationCallback().empty())
       {
-	return;
+        return;
       }
 
     //If we have a callback, first tell the callback about all the
@@ -96,20 +96,20 @@ namespace art
     //reference problems)
 
     bool isListener = false;
-    if(!(registrationCallback().empty())) 
+    if(!(registrationCallback().empty()))
       {
-	isListener=true;
-	preg->callForEachBranch(registrationCallback());
+        isListener=true;
+        preg->callForEachBranch(registrationCallback());
       }
     TypeLabelList& plist = typeLabelList();
 
-    ProductRegistryHelper::addToRegistry(plist.begin(), 
-					 plist.end(), md, 
-					 *(preg), isListener);
-    if (!(registrationCallback().empty())) 
+    ProductRegistryHelper::addToRegistry(plist.begin(),
+                                         plist.end(), md,
+                                         *(preg), isListener);
+    if (!(registrationCallback().empty()))
       {
-	ServiceHandle<ConstProductRegistry> regService;
-	regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), preg, md));
+        ServiceHandle<ConstProductRegistry> regService;
+        regService->watchProductAdditions(CallbackWrapper(producer, registrationCallback(), preg, md));
       }
   }
 

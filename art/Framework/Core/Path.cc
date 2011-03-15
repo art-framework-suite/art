@@ -112,7 +112,7 @@ namespace art {
    void Path::findByModifiesEvent(bool modifies,
                                   std::vector<std::string> &foundLabels) const {
       for (WorkersInPath::const_iterator
-              i = workers_.begin(), 
+              i = workers_.begin(),
               endIter = workers_.end();
            i != endIter; ++i) {
          if (i->modifiesEvent() == modifies) {

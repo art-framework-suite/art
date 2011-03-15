@@ -46,9 +46,9 @@ void Reconfiguring::analyze( art::Event const & e )
   ParameterSets::iterator cur=psets.begin(),end=psets.end();
   for(;cur!=end;++cur)
     {
-      std::cerr << "service name = " 
-	    << cur->get<std::string>("service_type","none")
-	  	<< "\n";
+      std::cerr << "service name = "
+            << cur->get<std::string>("service_type","none")
+                << "\n";
       cur->put<int>("debug_level",10);
     }
   inst.presentToken().putParameterSets(psets);

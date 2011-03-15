@@ -8,7 +8,7 @@
 // there are some things of which the user of this class should be
 // aware:
 //
-// 1. This class is *not* intended for use outside ART. It should 
+// 1. This class is *not* intended for use outside ART. It should
 //    probably be put into the detail namespace.
 //
 // 2. This class depends implicitly on an invalid value of the run,

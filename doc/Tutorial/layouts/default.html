@@ -7,25 +7,25 @@
   <meta name="generator" content="nanoc 3.1.6">
 </head>
 <body>
-  
+
   <div id="main">
     <% unless @item.reps[0].path == "/" %>
     <span class="breadcrumbs"><% breadcrumbs_trail.each do |b| %>
-    	<%= link_to(  b[:title] , b.reps[0].path ) if b %> 
-    	<%= b != @item ? '»' : '' %> 
-    	<%end%>
+        <%= link_to(  b[:title] , b.reps[0].path ) if b %>
+        <%= b != @item ? '»' : '' %>
+        <%end%>
     </span>
     <% end %>
-    
+
     <%= yield %>
   </div>
-  
+
   <div id="footer">
     <%= link_to('Previous page', @item[:prev]) if @item[:prev]%>
     <br/>
     <%= link_to('Next page',     @item[:next]) if @item[:next]%>
   </div>
-      
+
   <div id="sidebar">
     <h2>art tutorial</h2>
     <ul>

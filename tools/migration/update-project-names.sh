@@ -13,7 +13,7 @@ function one_file() {
   printf "\n $F ... "
   # Fix Project Names
   #perl -wapi\~ -f fix-project-names.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
-  perl -wapi\~ -f fix-project-names.pl "${F}" 
+  perl -wapi\~ -f fix-project-names.pl "${F}"
 }
 
 # ======================================================================

@@ -402,7 +402,7 @@ AR_0_ARG_UPDATER_DEFN(PreSourceSubRun) {
 }
 
 AR_0_ARG_UPDATER_DEFN(PostSourceSubRun) {
-   restoreContext("PostSourceSubRun");   
+   restoreContext("PostSourceSubRun");
 }
 
 AR_0_ARG_UPDATER_DEFN(PreSourceRun) {
@@ -456,13 +456,13 @@ AR_2_ARG_UPDATER_DEFN(PreEndRun) {
 }
 
 AR_1_ARG_UPDATER_DEFN(PostEndRun) {
-   setWorkFlowStatus("PostEndRun");   
+   setWorkFlowStatus("PostEndRun");
 }
 
 AR_2_ARG_UPDATER_DEFN(PreBeginSubRun) {
    std::ostringstream os;
    os << arg1;
-   setWorkFlowStatus(os.str());   
+   setWorkFlowStatus(os.str());
 }
 
 AR_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
@@ -472,7 +472,7 @@ AR_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
 AR_2_ARG_UPDATER_DEFN(PreEndSubRun) {
    std::ostringstream os;
    os << "End Subrun " << arg1;
-   setWorkFlowStatus(os.str());      
+   setWorkFlowStatus(os.str());
 }
 
 AR_1_ARG_UPDATER_DEFN(PostEndSubRun) {
@@ -512,7 +512,7 @@ AR_1_ARG_UPDATER_DEFN(PrePathEndRun) {
 AR_2_ARG_UPDATER_DEFN(PostPathEndRun) {
    string context = "PostPathEndRun ";
    context += arg1;
-   setMinimalContext(context);   
+   setMinimalContext(context);
 }
 
 AR_1_ARG_UPDATER_DEFN(PrePathBeginSubRun) {
@@ -541,7 +541,7 @@ AR_2_ARG_UPDATER_DEFN(PostPathEndSubRun) {
 
 AR_1_ARG_UPDATER_DEFN(PreModuleConstruction) {
    setContext(arg1, "Construction");
-   setWorkFlowStatus("ModuleConstruction");   
+   setWorkFlowStatus("ModuleConstruction");
 }
 
 AR_1_ARG_UPDATER_DEFN(PostModuleConstruction) {
@@ -566,7 +566,7 @@ AR_1_ARG_UPDATER_DEFN(PreModuleEndJob) {
 }
 
 AR_1_ARG_UPDATER_DEFN(PostModuleEndJob) {
-   restoreContext(arg1, "EndJob");   
+   restoreContext(arg1, "EndJob");
 }
 
 AR_1_ARG_UPDATER_DEFN(PreModule) {
@@ -598,7 +598,7 @@ AR_1_ARG_UPDATER_DEFN(PreModuleBeginSubRun) {
 }
 
 AR_1_ARG_UPDATER_DEFN(PostModuleBeginSubRun) {
-   restoreContext(arg1, "BeginSubRun");   
+   restoreContext(arg1, "BeginSubRun");
 }
 
 AR_1_ARG_UPDATER_DEFN(PreModuleEndSubRun) {
@@ -611,7 +611,7 @@ AR_1_ARG_UPDATER_DEFN(PostModuleEndSubRun) {
 
 AR_1_ARG_UPDATER_DEFN(PreSourceConstruction) {
    setContext(arg1, "SourceConstruction");
-   setWorkFlowStatus("SourceConstruction");   
+   setWorkFlowStatus("SourceConstruction");
 }
 
 AR_1_ARG_UPDATER_DEFN(PostSourceConstruction) {

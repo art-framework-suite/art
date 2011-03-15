@@ -30,7 +30,7 @@
 namespace trk{
 
   //......................................................................
-  CirceFit::CirceFit(fhicl::ParameterSet const& pset) : 
+  CirceFit::CirceFit(fhicl::ParameterSet const& pset) :
     fDebug        (pset.get< int          >("Debug")       )
     ,fInputCalHits(pset.get< std::string  >("InputCalHits"))
     ,fMinXhits    (pset.get< unsigned int >("MinXhits")    )
@@ -53,7 +53,7 @@ namespace trk{
   }
 
   //......................................................................
-  void CirceFit::produce(art::Event& evt) 
+  void CirceFit::produce(art::Event& evt)
   {
     // Pull the calibrated hits out of the event
     art::Handle< std::vector<rb::CellHit> > hitcol;
@@ -65,7 +65,7 @@ namespace trk{
       art::Ptr<rb::CellHit> hit(hitcol,i);
       hits.push_back(hit);
     }
-    
+
     if (fDebug>0) {
       mf::LogWarning("CirceFit:Size") << " Found " << hits.size() << " hits in event.";
     }
@@ -81,14 +81,14 @@ namespace trk{
       double w = 0.0;
       switch (fWeightMethod) {
       case 1:
-	w = hits[i]->PE();
-	break;
+        w = hits[i]->PE();
+        break;
       default:
-	w = 1.0;
-	break;
+        w = 1.0;
+        break;
       }
       if (fDebug>0) mf::LogWarning("CirceFit:Weight") << "Weight=" << w << std::endl;
-    
+
       // Get the location of the center of the cell
       double xyz[3];
       const geo::CellGeo* cell = geom->Plane(hits[i]->Plane())->Cell(hits[i]->Cell());
@@ -99,7 +99,7 @@ namespace trk{
       m.fY.push_back(xyz[1]);
       m.fZ.push_back(xyz[2]);
       m.fW.push_back(w);
-    
+
       if (hits[i]->View()==geo::kX) ++nxview;
       if (hits[i]->View()==geo::kY) ++nyview;
     }
@@ -117,14 +117,14 @@ namespace trk{
     for (int i=1; i<=fNmax; ++i) {
       stdev = fitter.Fit(i,&m);
       if (fDebug>0) {
-	mf::LogWarning("CirceFit:stdev") << i << " stdev=" << stdev << std::endl;
+        mf::LogWarning("CirceFit:stdev") << i << " stdev=" << stdev << std::endl;
       }
       if (stdev<fStop) break;
     }
 
     std::vector<rb::Prong> prong;
     fitter.MakeProngs(prong);
-  
+
     std::auto_ptr< std::vector<rb::Prong> > prongcol( new std::vector<rb::Prong>(prong) );
 
     evt.put(prongcol);

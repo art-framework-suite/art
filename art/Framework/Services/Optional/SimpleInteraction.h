@@ -5,10 +5,10 @@
 //
 // Package:     Services
 // Class  :     UserInteraction
-// 
+//
 /*
 
- Description: Allows for reconfiguration of modules at 
+ Description: Allows for reconfiguration of modules at
    start of event loop, and reprocessing, rewind, or continuation at the end.
 
 */
@@ -36,7 +36,7 @@ namespace ui {
     std::vector<ModuleInfo> infos_;
   };
 }
-   
+
 #endif /* art_Framework_Services_Optional_SimpleInteraction_h */
 
 // Local Variables:

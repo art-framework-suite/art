@@ -9,10 +9,10 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 
-namespace art 
+namespace art
 {
-  TypeLabelList& 
-  ProductRegistryHelper::typeLabelList() 
+  TypeLabelList&
+  ProductRegistryHelper::typeLabelList()
   {
     return typeLabelList_;
   }
@@ -22,24 +22,24 @@ namespace art
                                        TypeLabelList::iterator e,
                                        ModuleDescription const& md,
                                        ProductRegistry& preg,
-                                       bool isListener) 
+                                       bool isListener)
   {
 
-    for ( ;  i != e; ++i) 
+    for ( ;  i != e; ++i)
       {
-	BranchDescription pdesc(i->branchType,
-				md.moduleLabel(),
-				md.processName(),
-				i->userClassName(),
-				i->friendlyClassName(),
-				i->productInstanceName,
-				md);
-	if (i->hasBranchAlias())
-	  {
-	    pdesc.addBranchAlias(i->branchAlias);
-	  }
-	
-	preg.addProduct(pdesc, isListener);
+        BranchDescription pdesc(i->branchType,
+                                md.moduleLabel(),
+                                md.processName(),
+                                i->userClassName(),
+                                i->friendlyClassName(),
+                                i->productInstanceName,
+                                md);
+        if (i->hasBranchAlias())
+          {
+            pdesc.addBranchAlias(i->branchAlias);
+          }
+
+        preg.addProduct(pdesc, isListener);
       }
   }
 

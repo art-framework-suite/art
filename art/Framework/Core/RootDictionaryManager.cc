@@ -31,6 +31,7 @@ dumpReflexDictionaryInfo(std::ostream &os) const {
    for (; i != end_iter; ++i) {
       dumpReflexDictionaryInfo(os, *i);
    }
+  return os;
 }
 
 std::ostream &art::RootDictionaryManager::

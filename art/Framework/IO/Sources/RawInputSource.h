@@ -20,11 +20,11 @@
 
 // ----------------------------------------------------------------------
 
-namespace art 
+namespace art
 {
   class Timestamp;
 
-  class RawInputSource : public InputSource 
+  class RawInputSource : public InputSource
   {
   public:
     explicit RawInputSource(fhicl::ParameterSet const& pset,
@@ -34,9 +34,9 @@ namespace art
   protected:
 
     std::auto_ptr<Event> makeEvent(RunNumber_t run,
-				   SubRunNumber_t subRun,
-				   EventNumber_t event,
-				   Timestamp const& tstamp);
+                                   SubRunNumber_t subRun,
+                                   EventNumber_t event,
+                                   Timestamp const& tstamp);
     virtual std::auto_ptr<Event> readOneEvent() = 0;
 
   private:

@@ -38,7 +38,7 @@ namespace art
     this->endJob();
   }
 
-  void 
+  void
   EDProducer::reconfigure(ParameterSet const&) {
     mf::LogError("FeatureNotImplemented")
        << "This module is not reconfigurable."

@@ -10,11 +10,11 @@
 namespace art
 {
 
-  struct TypeLabel 
+  struct TypeLabel
   {
-    TypeLabel (BranchType const&  branchType, 
-	       TypeID const&      itemtype, 
-	       std::string const& instanceName) :
+    TypeLabel (BranchType const&  branchType,
+               TypeID const&      itemtype,
+               std::string const& instanceName) :
       branchType(branchType),
       typeID(itemtype),
       productInstanceName(instanceName),
@@ -29,7 +29,7 @@ namespace art
     std::string productInstanceName;
     std::string branchAlias;
   };
-  
+
   typedef std::list<art::TypeLabel> TypeLabelList;
 }
 

@@ -47,7 +47,7 @@ public:
     }
 
     int value_ = e.id().event();
-    for( unsigned k = 0; k != sz; ++k ) {
+    for( int k = 0; k != sz; ++k ) {
       if( *ptrs[k] != value_+k ) {
         std::cerr
           << "ValueMismatch at position " << k
