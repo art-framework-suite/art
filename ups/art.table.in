@@ -21,6 +21,8 @@ Qualifiers = "a2"
        prodDir()
        setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+       # faking out unsetup
+       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
        execute( "get-directory-name subdir a2 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
@@ -32,6 +34,8 @@ Qualifiers = "nova"
        prodDir()
        setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+       # faking out unsetup
+       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
        execute( "get-directory-name subdir @qualifier@ ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
@@ -42,7 +46,11 @@ Common:
     envSet(${UPS_PROD_NAME_UC}_VERSION, @version@)
     prodDir( _FQ_DIR, ${${UPS_PROD_NAME_UC}_FQ} )
 
+    # faking out unsetup
+    envSet(${UPS_PROD_NAME_UC}_INC,"") 
     execute( "find-path include ${${UPS_PROD_NAME_UC}_FQ_DIR} ${UPS_PROD_DIR}", UPS_ENV, ${UPS_PROD_NAME_UC}_INC)
+    # faking out unsetup
+    envSet(${UPS_PROD_NAME_UC}_LIB,"") 
     execute( "find-path lib ${${UPS_PROD_NAME_UC}_FQ_DIR} ${UPS_PROD_DIR}", UPS_ENV, ${UPS_PROD_NAME_UC}_LIB)
     pathPrepend(LD_LIBRARY_PATH, ${${UPS_PROD_NAME_UC}_LIB})
 
