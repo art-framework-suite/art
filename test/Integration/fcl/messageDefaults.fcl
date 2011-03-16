@@ -6,7 +6,7 @@ messageDefaults:
     STDOUT:
     {
       type: cout
-      threashold: INFO
+      threshold: INFO
       categories:
       {
         default: { limit: -1 }
