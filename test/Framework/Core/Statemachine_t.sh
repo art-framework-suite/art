@@ -10,15 +10,8 @@ usage: ${0##*/} <reference-output> <passthrough-args>"
 EOF
 }
 
-# Preserve arguments for sourcing functions.
-declare -a args=("$@")
-set --
-
 # Source functions.
 . cet_test_functions.sh
-
-# Restore arguments.
-set -- "${args[@]}"
 
 # Process arguments.
 reference="${1}"
