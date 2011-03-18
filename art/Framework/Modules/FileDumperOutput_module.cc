@@ -54,15 +54,19 @@ private:
 void
   FileDumperOutput::write( EventPrincipal const & e )
 {
+  // prepare the data structure, a sequence of columns:
   typedef  std::vector<std::string>  column;
   unsigned int ncols = 5;
   std::vector<column> col(ncols);
+
+  // insert column headings:
   col[0].push_back("PROCESS NAME");
   col[1].push_back("MODULE LABEL");
   col[2].push_back("PRODUCT INSTANCE NAME");
   col[3].push_back("DATA PRODUCT TYPE");
   col[4].push_back("SIZE");
 
+  // insert the per-product data:
   for( EventPrincipal::const_iterator it  = e.begin()
                                     , end = e.end(); it != end; ++it ) {
     Group const & g = *(it->second);
@@ -77,12 +81,14 @@ void
     col[4].push_back( g.product()->productSize() );
   }
 
+  // determine each column's width:
   std::vector<unsigned> width(ncols);
   std::transform( col.begin(), col.end()
                 , width.begin()
                 , cet::column_width
                 );
 
+  // prepare and emit the per-product information:
   for( unsigned row = 0, end = col[0].size(); row != end; ++row ) {
     std::string s;
     for( unsigned c = 0, end = ncols-1; c != end; ++c ) {
