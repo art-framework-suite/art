@@ -40,10 +40,8 @@ set (HEADERS
   CRC32Calculator.h
   DebugMacros.h
   Digest.h
-  ECGetterBase.h
   Exception.h
   ExceptionMessages.h
-  ExtensionCord.h
   FirstAbsoluteOrLookupWithDotPolicy.h
   FriendlyName.h
   GetEnvironmentVariable.h
@@ -54,13 +52,11 @@ set (HEADERS
   JobMode.h
   MallocOpts.h
   Math.h
-  OutletBase.h
   Parse.h
   PretendToUse.h
   ReflexTools.h
   RegexMatch.h
   RootHandlers.h
-  SimpleOutlet.h
   SingleConsumerQ.h
   TestHelper.h
   ThreadSafeIndexedRegistry.h
