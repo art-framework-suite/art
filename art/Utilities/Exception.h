@@ -3,7 +3,12 @@
 
 // ======================================================================
 //
-// exception
+// Exception: art-specific customizations for cetlib/coded_exception
+//
+// Note that errors::ErrorCodes is tightly coupled to detail::translate()
+// such that any change to one will necessitate a corresponding change to
+// the other.  The actions table in Framework/Core/Actions may also need
+// adjustment.
 //
 // ======================================================================
 
@@ -14,10 +19,6 @@
 
 namespace art {
   namespace errors {
-
-    // If you add a new entry to the set of values, make sure to
-    // update the translation map in Utility/Exception.cc and the actions
-    // table in Framework/Core/Actions.cc (if appropriate).
 
     enum ErrorCodes {
        OtherArt = 1
@@ -58,7 +59,8 @@ namespace art {
   }  // errors
 
   namespace detail {
-    std::string translate( errors::ErrorCodes );
+    std::string
+      translate( errors::ErrorCodes );
   }
 
   typedef  cet::coded_exception<errors::ErrorCodes,detail::translate>
