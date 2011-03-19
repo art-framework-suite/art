@@ -1,0 +1,4 @@
+#include "ToyRawInput_common.fcl"
+
+source.f1: [ [1, 0, 1] ]
+source.returnTrueWithoutNewFault: true

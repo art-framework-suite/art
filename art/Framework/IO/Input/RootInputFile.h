@@ -30,6 +30,7 @@
 #include "boost/array.hpp"
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/exempt_ptr.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -77,15 +78,15 @@ namespace art {
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
-        boost::shared_ptr<ProductRegistry const> pReg);
+        cet::exempt_ptr<ProductRegistry const> pReg);
     std::auto_ptr<EventPrincipal> readEvent(
-        boost::shared_ptr<ProductRegistry const> pReg);
+        cet::exempt_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<SubRunPrincipal> readSubRun(
-        boost::shared_ptr<ProductRegistry const> pReg,
+        cet::exempt_ptr<ProductRegistry const> pReg,
         boost::shared_ptr<RunPrincipal> rp);
     std::string const& file() const {return file_;}
-    boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
-    boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+    boost::shared_ptr<RunPrincipal> readRun(cet::exempt_ptr<ProductRegistry const> pReg);
+    cet::exempt_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     SubRunAuxiliary const& subRunAux() {return subRunAux_;}
@@ -173,7 +174,7 @@ namespace art {
     RootTree subRunTree_;
     RootTree runTree_;
     RootTreePtrArray treePointers_;
-    boost::shared_ptr<ProductRegistry const> productRegistry_;
+    cet::exempt_ptr<ProductRegistry const> productRegistry_;
     boost::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;

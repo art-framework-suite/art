@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -22,7 +22,7 @@ namespace art {
 
   class InputSourceDescription;
 
-  class EDInputSource : public InputSource {
+  class EDInputSource : public DecrepitRelicInputSourceImplementation {
   public:
     explicit EDInputSource(fhicl::ParameterSet const& pset,
                            InputSourceDescription const& desc);

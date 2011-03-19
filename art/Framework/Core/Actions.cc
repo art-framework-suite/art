@@ -98,7 +98,7 @@ namespace art {
       actions::SkipEvent;
     map_[art::Exception::codeToString(errors::EventTimeout)]=
       actions::SkipEvent;
-    map_[art::Exception::codeToString(errors::EventCorruption)]=
+    map_[art::Exception::codeToString(errors::DataCorruption)]=
       actions::SkipEvent;
     map_[art::Exception::codeToString(errors::NotFound)]=
       actions::SkipEvent;

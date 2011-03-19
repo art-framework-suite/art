@@ -4,7 +4,7 @@ namespace art {
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/Run.h"
@@ -23,7 +23,7 @@ namespace art {
 
 #include "cpp0x/cstdint"
 
-class art::EmptyEvent : public art::InputSource {
+class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
 public:
    explicit EmptyEvent(fhicl::ParameterSet const& pset,
                        art::InputSourceDescription const& desc);
@@ -84,7 +84,7 @@ namespace {
 
 art::EmptyEvent::EmptyEvent
 (fhicl::ParameterSet const& pset, InputSourceDescription const& desc) :
-   InputSource              ( pset, desc ),
+   DecrepitRelicInputSourceImplementation( pset, desc ),
    numberEventsInRun_       ( pset.get<uint32_t>("numberEventsInRun", remainingEvents()) ),
    numberEventsInSubRun_    ( pset.get<uint32_t>("numberEventsInSubRun", remainingEvents()) ),
    presentTime_             ( pset.get<uint32_t>("firstTime", 0u) ),  //time in ns
@@ -164,7 +164,6 @@ std::auto_ptr<EventPrincipal>
 
 void art::EmptyEvent::reallyReadEvent() {
   if (processingMode() != RunsSubRunsAndEvents) return;
-  EventSourceSentry sentry(*this);
   EventAuxiliary eventAux(eventID_,
                           processGUID(),
                           Timestamp(presentTime_),

@@ -68,7 +68,7 @@ MockClusterListProducer::produce( art::Event& e )
 
    arttest::MockCluster c2;
    c2.skew = 2;
-   for( int k = nvalues_ / 2; k < nvalues_; ++k ) {
+   for( unsigned k = nvalues_ / 2; k < nvalues_; ++k ) {
       art::Ptr<SimpleDerived> p(h, k, true);
       c2.cells.push_back(p);
    }

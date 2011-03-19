@@ -1,0 +1,27 @@
+#include "messageDefaults.fcl"
+
+process_name: DEVEL
+
+services.message: @local::messageDefaults
+
+physics:
+{
+  e1: [ out1 ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}
+
+source:
+{
+  module_type: ToyRawInput
+  fileNames: [ f1 ]
+  f1: []
+}

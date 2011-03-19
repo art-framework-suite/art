@@ -38,8 +38,8 @@ public:
                      );
   virtual ~RootInput( );
 
-  using InputSource::productRegistryUpdate;
-  using InputSource::runPrincipal;
+  using DecrepitRelicInputSourceImplementation::productRegistryUpdate;
+  using DecrepitRelicInputSourceImplementation::runPrincipal;
 
 private:
   boost::scoped_ptr< RootInputFileSequence >             primaryFileSequence_;

@@ -24,6 +24,7 @@
 #include "art/Version/GetReleaseVersion.h"
 
 #include "boost/bind.hpp"
+#include "boost/noncopyable.hpp"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -58,6 +59,15 @@ namespace art {
   using namespace art;
 
   namespace {
+
+    class SignalSentry : private boost::noncopyable {
+    public:
+      typedef sigc::signal<void> Sig;
+      SignalSentry(Sig& pre, Sig& post) : post_(post) { pre(); }
+      ~SignalSentry() { post_(); }
+    private:
+      Sig& post_;
+    };
 
     // the next two tables must be kept in sync with the state and
     // message enums from the header
@@ -98,100 +108,100 @@ namespace art {
       "Rewind"
     };
   }
-    // IMPORTANT NOTE:
-    // the mAny messages are special, they must appear last in the
-    // table if multiple entries for a CurrentState are present.
-    // the changeState function does not use the mAny yet!!!
+  // IMPORTANT NOTE:
+  // the mAny messages are special, they must appear last in the
+  // table if multiple entries for a CurrentState are present.
+  // the changeState function does not use the mAny yet!!!
 
-    struct TransEntry
-    {
-      State current;
-      Msg   message;
-      State final;
-    };
+  struct TransEntry
+  {
+    State current;
+    Msg   message;
+    State final;
+  };
 
-    // we should use this information to initialize a two dimensional
-    // table of t[CurrentState][Message] = FinalState
+  // we should use this information to initialize a two dimensional
+  // table of t[CurrentState][Message] = FinalState
 
-    /*
-      the way this is current written, the async run can thread function
-      can return in the "JobReady" state - but not yet cleaned up.  The
-      problem is that only when stop/shutdown async is called is the
-      thread cleaned up. But the stop/shudown async functions attempt
-      first to change the state using messages that are not valid in
-      "JobReady" state.
+  /*
+    the way this is current written, the async run can thread function
+    can return in the "JobReady" state - but not yet cleaned up.  The
+    problem is that only when stop/shutdown async is called is the
+    thread cleaned up. But the stop/shudown async functions attempt
+    first to change the state using messages that are not valid in
+    "JobReady" state.
 
-      I think most of the problems can be solved by using two states
-      for "running": RunningS and RunningA (sync/async). The problems
-      seems to be the all the transitions out of running for both
-      modes of operation.  The other solution might be to only go to
-      "Stopping" from Running, and use the return code from "run_p" to
-      set the final state.  If this is used, then in the sync mode the
-      "Stopping" state would be momentary.
+    I think most of the problems can be solved by using two states
+    for "running": RunningS and RunningA (sync/async). The problems
+    seems to be the all the transitions out of running for both
+    modes of operation.  The other solution might be to only go to
+    "Stopping" from Running, and use the return code from "run_p" to
+    set the final state.  If this is used, then in the sync mode the
+    "Stopping" state would be momentary.
 
-     */
+  */
 
-    TransEntry table[] = {
+  TransEntry table[] = {
     // CurrentState   Message         FinalState
     // -----------------------------------------
-      { sInit,          mException,      sError },
-      { sInit,          mBeginJob,       sJobReady },
-      { sJobReady,      mException,      sError },
-      { sJobReady,      mSetRun,         sRunGiven },
-      { sJobReady,      mInputRewind,    sRunning },
-      { sJobReady,      mSkip,           sRunning },
-      { sJobReady,      mRunID,          sRunning },
-      { sJobReady,      mRunCount,       sRunning },
-      { sJobReady,      mEndJob,         sJobEnded },
-      { sJobReady,      mBeginJob,       sJobReady },
-      { sJobReady,      mDtor,           sEnd },    // should this be allowed?
+    { sInit,          mException,      sError },
+    { sInit,          mBeginJob,       sJobReady },
+    { sJobReady,      mException,      sError },
+    { sJobReady,      mSetRun,         sRunGiven },
+    { sJobReady,      mInputRewind,    sRunning },
+    { sJobReady,      mSkip,           sRunning },
+    { sJobReady,      mRunID,          sRunning },
+    { sJobReady,      mRunCount,       sRunning },
+    { sJobReady,      mEndJob,         sJobEnded },
+    { sJobReady,      mBeginJob,       sJobReady },
+    { sJobReady,      mDtor,           sEnd },    // should this be allowed?
 
-      { sJobReady,      mStopAsync,      sJobReady },
-      { sJobReady,      mCountComplete,  sJobReady },
-      { sJobReady,      mFinished,       sJobReady },
+    { sJobReady,      mStopAsync,      sJobReady },
+    { sJobReady,      mCountComplete,  sJobReady },
+    { sJobReady,      mFinished,       sJobReady },
 
-      { sRunGiven,      mException,      sError },
-      { sRunGiven,      mRunAsync,       sRunning },
-      { sRunGiven,      mBeginJob,       sRunGiven },
-      { sRunGiven,      mShutdownAsync,  sShuttingDown },
-      { sRunGiven,      mStopAsync,      sStopping },
-      { sRunning,       mException,      sError },
-      { sRunning,       mStopAsync,      sStopping },
-      { sRunning,       mShutdownAsync,  sShuttingDown },
-      { sRunning,       mShutdownSignal, sShuttingDown },
-      { sRunning,       mCountComplete,  sStopping }, // sJobReady
-      { sRunning,       mInputExhausted, sStopping }, // sJobReady
+    { sRunGiven,      mException,      sError },
+    { sRunGiven,      mRunAsync,       sRunning },
+    { sRunGiven,      mBeginJob,       sRunGiven },
+    { sRunGiven,      mShutdownAsync,  sShuttingDown },
+    { sRunGiven,      mStopAsync,      sStopping },
+    { sRunning,       mException,      sError },
+    { sRunning,       mStopAsync,      sStopping },
+    { sRunning,       mShutdownAsync,  sShuttingDown },
+    { sRunning,       mShutdownSignal, sShuttingDown },
+    { sRunning,       mCountComplete,  sStopping }, // sJobReady
+    { sRunning,       mInputExhausted, sStopping }, // sJobReady
 
-      { sStopping,      mInputRewind,    sRunning }, // The looper needs this
-      { sStopping,      mException,      sError },
-      { sStopping,      mFinished,       sJobReady },
-      { sStopping,      mCountComplete,  sJobReady },
-      { sStopping,      mShutdownSignal, sShuttingDown },
-      { sStopping,      mStopAsync,      sStopping },     // stay
-      { sStopping,      mInputExhausted, sStopping },     // stay
-      //{ sStopping,      mAny,            sJobReady },     // <- ??????
-      { sShuttingDown,  mException,      sError },
-      { sShuttingDown,  mShutdownSignal, sShuttingDown },
-      { sShuttingDown,  mCountComplete,  sDone }, // needed?
-      { sShuttingDown,  mInputExhausted, sDone }, // needed?
-      { sShuttingDown,  mFinished,       sDone },
-      //{ sShuttingDown,  mShutdownAsync,  sShuttingDown }, // only one at
-      //{ sShuttingDown,  mStopAsync,      sShuttingDown }, // a time
-      //{ sShuttingDown,  mAny,            sDone },         // <- ??????
-      { sDone,          mEndJob,         sJobEnded },
-      { sDone,          mException,      sError },
-      { sJobEnded,      mDtor,           sEnd },
-      { sJobEnded,      mException,      sError },
-      { sError,         mEndJob,         sError },   // funny one here
-      { sError,         mDtor,           sError },   // funny one here
-      { sInit,          mDtor,           sEnd },     // for StorM dummy EP
-      { sStopping,      mShutdownAsync,  sShuttingDown }, // For FUEP tests
-      { sInvalid,       mAny,            sInvalid }
-    };
+    { sStopping,      mInputRewind,    sRunning }, // The looper needs this
+    { sStopping,      mException,      sError },
+    { sStopping,      mFinished,       sJobReady },
+    { sStopping,      mCountComplete,  sJobReady },
+    { sStopping,      mShutdownSignal, sShuttingDown },
+    { sStopping,      mStopAsync,      sStopping },     // stay
+    { sStopping,      mInputExhausted, sStopping },     // stay
+    //{ sStopping,      mAny,            sJobReady },     // <- ??????
+    { sShuttingDown,  mException,      sError },
+    { sShuttingDown,  mShutdownSignal, sShuttingDown },
+    { sShuttingDown,  mCountComplete,  sDone }, // needed?
+    { sShuttingDown,  mInputExhausted, sDone }, // needed?
+    { sShuttingDown,  mFinished,       sDone },
+    //{ sShuttingDown,  mShutdownAsync,  sShuttingDown }, // only one at
+    //{ sShuttingDown,  mStopAsync,      sShuttingDown }, // a time
+    //{ sShuttingDown,  mAny,            sDone },         // <- ??????
+    { sDone,          mEndJob,         sJobEnded },
+    { sDone,          mException,      sError },
+    { sJobEnded,      mDtor,           sEnd },
+    { sJobEnded,      mException,      sError },
+    { sError,         mEndJob,         sError },   // funny one here
+    { sError,         mDtor,           sError },   // funny one here
+    { sInit,          mDtor,           sEnd },     // for StorM dummy EP
+    { sStopping,      mShutdownAsync,  sShuttingDown }, // For FUEP tests
+    { sInvalid,       mAny,            sInvalid }
+  };
 
 
-    // Note: many of the messages generate the mBeginJob message first
-    //  mRunID, mRunCount, mSetRun
+  // Note: many of the messages generate the mBeginJob message first
+  //  mRunID, mRunCount, mSetRun
 
   // ---------------------------------------------------------------
   shared_ptr<InputSource>
@@ -200,85 +210,76 @@ namespace art {
             ProductRegistry& preg,
             boost::shared_ptr<ActivityRegistry> areg) {
 
-     ParameterSet defaultEmptySource;
-     defaultEmptySource.put("module_type", "EmptyEvent");
-     defaultEmptySource.put("module_label", "source");
-     defaultEmptySource.put("maxEvents", 1);
+    ParameterSet defaultEmptySource;
+    defaultEmptySource.put("module_type", "EmptyEvent");
+    defaultEmptySource.put("module_label", "source");
+    defaultEmptySource.put("maxEvents", 1);
 
-     // find single source
-     bool sourceSpecified = false;
-     ParameterSet main_input = defaultEmptySource;
-     try {
-        try {
-           main_input = params.get<fhicl::ParameterSet>("source");
-        }
-        // TODO: catch correct exception.
-        catch (...) {
-           // TODO: inform that we're using the default source configuration.
-        }
-        // Fill in "ModuleDescription", in case the input source produces
-        // any EDproducts,which would be registered in the ProductRegistry.
-        // Also fill in the process history item for this process.
+    // find single source
+    bool sourceSpecified = false;
+    ParameterSet main_input = defaultEmptySource;
+    try {
+      if (!params.get_if_present("source", main_input)) {
+        mf::LogInfo("EventProcessorSourceConfig")
+          << "Could not find a source configuration: using default.";
+      }
+      // Fill in "ModuleDescription", in case the input source produces
+      // any EDproducts,which would be registered in the ProductRegistry.
+      // Also fill in the process history item for this process.
 
-        ModuleDescription md;
-        md.parameterSetID_ = main_input.id();
-        md.moduleName_ = main_input.get<std::string>("module_type");
-        md.moduleLabel_ = main_input.get<std::string>("module_label");
+      ModuleDescription md;
+      md.parameterSetID_ = main_input.id();
+      md.moduleName_ = main_input.get<std::string>("module_type");
+      md.moduleLabel_ = main_input.get<std::string>("module_label");
 
-        md.processConfiguration_ = ProcessConfiguration(processName,
-                                                        params.id(),
-                                                        getReleaseVersion(), getPassID());
+      md.processConfiguration_ = ProcessConfiguration(processName,
+                                                      params.id(),
+                                                      getReleaseVersion(), getPassID());
 
-        sourceSpecified = true;
-        InputSourceDescription isdesc(md, preg, areg,
-                                      main_input.get<int>("maxEvents", -1),
-                                      main_input.get<int>("maxSubRuns", -1));
-        areg->preSourceConstructionSignal_(md);
+      sourceSpecified = true;
+      InputSourceDescription isdesc(md, preg, areg,
+                                    main_input.get<int>("maxEvents", -1),
+                                    main_input.get<int>("maxSubRuns", -1));
 
-        shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
-                                                                          isdesc).release());
-        areg->postSourceConstructionSignal_(md);
-
-        return input;
-     }
-     catch(art::Exception const& iException) {
-        if(sourceSpecified == false &&
-           errors::Configuration == iException.categoryCode()) {
-           throw art::Exception(errors::Configuration, "FailedInputSource")
-              << "Configuration of main input source has failed\n"
-              << iException;
-        } else {
-           throw;
-        }
-     }
-     return shared_ptr<InputSource>();
+      shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
+                                                                        isdesc).release());
+      return input;
+    }
+    catch(art::Exception const& iException) {
+      if(sourceSpecified == false &&
+         errors::Configuration == iException.categoryCode()) {
+        throw art::Exception(errors::Configuration, "FailedInputSource")
+          << "Configuration of main input source has failed\n"
+          << iException;
+      } else {
+        throw;
+      }
+    }
+    return shared_ptr<InputSource>();
   }
 
   // -------- functions to help prepare the services for initialization --------
 
-   typedef std::vector<ParameterSet> ParameterSets;
+  typedef std::vector<ParameterSet> ParameterSets;
 
-   void addService(std::string const& name, ParameterSets& service_set)
+  void addService(std::string const& name, ParameterSets& service_set)
   {
     service_set.push_back(ParameterSet());
     service_set.back().put("service_type",name);
   }
 
-   void addOptionalService(std::string const& name,
+  void addOptionalService(std::string const& name,
                           ParameterSet const& source,
                           ParameterSets& service_set)
   {
-    try {
-      service_set.push_back(source.get<ParameterSet>(name));
-      service_set.back().put("service_type",name);
+    ParameterSet pset;
+    if (source.get_if_present(name, pset)) {
+      pset.put("service_type", name);
+      service_set.push_back(pset);
     }
-    catch(fhicl::exception&)
-      {
-        // ignore
-      }
   }
 
-   void addService(std::string const& name, ParameterSet const& source, ParameterSets& service_set)
+  void addService(std::string const& name, ParameterSet const& source, ParameterSets& service_set)
   {
     service_set.push_back(source.get<ParameterSet>(name,ParameterSet()));
     service_set.back().put("service_type",name);
@@ -446,11 +447,7 @@ namespace art {
 
       //make the services available
       ServiceRegistry::Operate operate(serviceToken_);
-
-      {
-        input_->repeat();
-        input_->rewind();
-      }
+      rewindInput();
       changeState(mCountComplete);
       toerror.succeeded();
     }
@@ -461,6 +458,8 @@ namespace art {
   EventProcessor::doOneEvent(EventID const& id) {
     std::auto_ptr<EventPrincipal> pep;
     {
+      SignalSentry eventSourceSentry(actReg_->preSourceSignal_,
+                                     actReg_->postSourceSignal_);
       pep = input_->readEvent(id);
     }
     procOneEvent(pep.get());
@@ -541,17 +540,17 @@ namespace art {
       input_->doBeginJob();
     } catch(cet::exception& e) {
       mf::LogError("BeginJob") << "A cet::exception happened while processing"
-                                  " the beginJob of the 'source'\n";
+        " the beginJob of the 'source'\n";
       e << "A cet::exception happened while processing"
-           " the beginJob of the 'source'\n";
+        " the beginJob of the 'source'\n";
       throw;
     } catch(std::exception& e) {
       mf::LogError("BeginJob") << "A std::exception happened while processing"
-                                  " the beginJob of the 'source'\n";
+        " the beginJob of the 'source'\n";
       throw;
     } catch(...) {
       mf::LogError("BeginJob") << "An unknown exception happened while"
-                                  " processing the beginJob of the 'source'\n";
+        " processing the beginJob of the 'source'\n";
       throw;
     }
     schedule_->beginJob();
@@ -710,7 +709,7 @@ namespace art {
           // we will not do anything yet
           mf::LogWarning("timeout")
             << "An asynchronous request was made to shut down the event loop"
-               " and the event loop did not shutdown after "
+            " and the event loop did not shutdown after "
             << timeout_seconds << " seconds\n";
         }
       else
@@ -780,7 +779,7 @@ namespace art {
         table[rc].current != sInvalid &&
           (curr != table[rc].current ||
            (curr == table[rc].current &&
-             msg != table[rc].message && table[rc].message != mAny));
+            msg != table[rc].message && table[rc].message != mAny));
         ++rc);
 
     if(table[rc].current == sInvalid)
@@ -805,9 +804,9 @@ namespace art {
     {
       boost::mutex::scoped_lock sl(stop_lock_);
       if(id_set_==true) {
-          std::string err("runAsync called while async event loop already running\n");
-          mf::LogError("ArtJob") << err;
-          throw cet::exception("BadState") << err;
+        std::string err("runAsync called while async event loop already running\n");
+        mf::LogError("ArtJob") << err;
+        throw cet::exception("BadState") << err;
       }
 
       changeState(mRunAsync);
@@ -819,9 +818,9 @@ namespace art {
       boost::xtime_get(&timeout, boost::TIME_UTC);
       timeout.sec += 60; // 60 seconds to start!!!!
       if(starter_.timed_wait(sl,timeout)==false) {
-          // yikes - the thread did not start
-          throw cet::exception("BadState")
-            << "Async run thread did not start in 60 seconds\n";
+        // yikes - the thread did not start
+        throw cet::exception("BadState")
+          << "Async run thread did not start in 60 seconds\n";
       }
     }
   }
@@ -858,19 +857,19 @@ namespace art {
     }
     catch (cet::exception& e) {
       mf::LogError("ArtJob") << "cet::exception caught in "
-                                "EventProcessor::asyncRun\n"
+        "EventProcessor::asyncRun\n"
                              << e.explain_self();
       me->last_error_text_ = e.explain_self();
     }
     catch (std::exception& e) {
       mf::LogError("ArtJob") << "Standard library exception caught in "
-                                "EventProcessor::asyncRun\n"
+        "EventProcessor::asyncRun\n"
                              << e.what();
       me->last_error_text_ = e.what();
     }
     catch (...) {
       mf::LogError("ArtJob") << "Unknown exception caught in "
-                                "EventProcessor::asyncRun\n";
+        "EventProcessor::asyncRun\n";
       me->last_error_text_ = "Unknown exception caught";
       rc = epOther;
     }
@@ -942,8 +941,8 @@ namespace art {
       else if (fileMode_ == std::string("FULLLUMIMERGE")) fileMode = statemachine::FULLLUMIMERGE;
       else {
         throw art::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
-            << fileMode_ << ".\n"
-            << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
+          << fileMode_ << ".\n"
+          << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
       }
 
       machine_.reset(new statemachine::Machine(this,
@@ -1021,7 +1020,7 @@ namespace art {
         else {
           throw art::Exception(errors::LogicError)
             << "Unknown next item type passed to EventProcessor\n"
-            << "Please report this error to the Framework group\n";
+            << "Please report this error to the art developers\n";
         }
 
         if (machine_->terminated()) {
@@ -1136,11 +1135,15 @@ namespace art {
   }
 
   void EventProcessor::readFile() {
+    SignalSentry fileOpenSentry(actReg_->preOpenFileSignal_,
+                                actReg_->postOpenFileSignal_);
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
   }
 
   void EventProcessor::closeInputFile() {
+    SignalSentry fileCloseSentry(actReg_->preCloseFileSignal_,
+                                 actReg_->postCloseFileSignal_);
     input_->closeFile();
     FDEBUG(1) << "\tcloseInputFile\n";
   }
@@ -1186,7 +1189,6 @@ namespace art {
   }
 
   void EventProcessor::rewindInput() {
-    input_->repeat();
     input_->rewind();
     FDEBUG(1) << "\trewind\n";
   }
@@ -1220,9 +1222,9 @@ namespace art {
     FDEBUG(1) << "\tdoErrorStuff\n";
     mf::LogError("StateMachine")
       << "The EventProcessor state machine encountered an unexpected event\n"
-         "and went to the error state\n"
-         "Will attempt to terminate processing normally\n"
-         "This likely indicates a bug in an input module, corrupted input, or both\n";
+      "and went to the error state\n"
+      "Will attempt to terminate processing normally\n"
+      "This likely indicates a bug in an input module, corrupted input, or both\n";
     stateMachineWasInErrorState_ = true;
   }
 
@@ -1234,7 +1236,7 @@ namespace art {
 
   void EventProcessor::endRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
-    input_->doEndRun(runPrincipal);
+    //input_->doEndRun(runPrincipal);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
@@ -1249,7 +1251,7 @@ namespace art {
 
   void EventProcessor::endSubRun(int run, int subRun) {
     SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
-    input_->doEndSubRun(subRunPrincipal);
+    //input_->doEndSubRun(subRunPrincipal);
     //NOTE: Using the max event number for the end of a subRun block is a bad idea
     // subRun blocks know their start and end times why not also start and end events?
     schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal);
@@ -1257,12 +1259,16 @@ namespace art {
   }
 
   int EventProcessor::readAndCacheRun() {
+    SignalSentry runSourceSentry(actReg_->preSourceRunSignal_,
+                                 actReg_->postSourceRunSignal_);
     principalCache_.insert(input_->readRun());
     FDEBUG(1) << "\treadAndCacheRun " << "\n";
     return principalCache_.runPrincipal().run();
   }
 
   int EventProcessor::readAndCacheSubRun() {
+    SignalSentry subRunSourceSentry(actReg_->preSourceSubRunSignal_,
+                                    actReg_->postSourceSubRunSignal_);
     principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
     FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
     return principalCache_.subRunPrincipal().subRun();

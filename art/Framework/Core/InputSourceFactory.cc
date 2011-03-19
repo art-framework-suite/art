@@ -54,8 +54,6 @@ InputSourceFactory::makeInputSource(ParameterSet const& conf,
    }
    std::auto_ptr<InputSource> wm = symbol(conf, desc);
 
-   wm->registerProducts();
-
    FDEBUG(1) << "InputSourceFactory: created input source "
              << libspec
              << std::endl;

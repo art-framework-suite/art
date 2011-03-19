@@ -27,13 +27,13 @@ public:
 
   IntTestAnalyzer( fhicl::ParameterSet const & p )
   : moduleLabel_( p.get<std::string>("input_label") )
-  , nvalues_    ( p.get<unsigned   >("nvalues") )
+  , nvalues_    ( p.get<size_t>("nvalues") )
   { }
 
   void analyze( art::Event const & e )
   {
     std::vector<int const *> ptrs;
-    unsigned sz = e.getView(moduleLabel_, ptrs);
+    size_t sz = e.getView(moduleLabel_, ptrs);
 
     if( sz != nvalues_ ) {
       std::cerr
@@ -46,9 +46,9 @@ public:
         << '\n';
     }
 
-    int value_ = e.id().event();
-    for( int k = 0; k != sz; ++k ) {
-      if( *ptrs[k] != value_+k ) {
+    art::EventNumber_t value_ = e.id().event();
+    for( size_t k = 0; k != sz; ++k ) {
+      if( *ptrs[k] != (int) (value_+k) ) {
         std::cerr
           << "ValueMismatch at position " << k
           << " expected value " << value_+k

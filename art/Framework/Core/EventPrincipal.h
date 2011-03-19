@@ -16,11 +16,12 @@ is the DataBlock.
 #include <vector>
 
 #include "art/Persistency/Provenance/BranchMapper.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/History.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Framework/Core/Principal.h"
-
+#include "cetlib/exempt_ptr.h"
 
 namespace art {
   class EventID;
@@ -39,7 +40,7 @@ namespace art {
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
-        boost::shared_ptr<ProductRegistry const> reg,
+                   cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
@@ -139,6 +140,8 @@ namespace art {
     ProductID branchIDToProductID(BranchID const& bid) const;
 
     using Base::getProvenance;
+
+    BranchType branchType() const { return InEvent; }
 
   private:
 

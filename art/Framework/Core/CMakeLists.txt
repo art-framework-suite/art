@@ -12,11 +12,13 @@ foreach(cfg_source
 endforeach()
 
 set( art_Framework_Core_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   Actions.cc
   Breakpoints.cc
   CachedProducts.cc
   CurrentProcessingContext.cc
   DataViewImpl.cc
+  DecrepitRelicInputSourceImplementation.cc
   DelayedReader.cc
   EDAnalyzer.cc
   EDFilter.cc
@@ -35,25 +37,25 @@ set( art_Framework_Core_sources
   InputSource.cc
   InputSourceFactory.cc
   IntermediateTablePostProcessor.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   ModuleFactory.cc
-  RootDictionaryManager.cc
-  SubRun.cc
-  SubRunPrincipal.cc
   NoDelayedReader.cc
   OutputModule.cc
   OutputWorker.cc
   Path.cc
-  PrincipalCache.cc
   Principal.cc
+  PrincipalCache.cc
+  PrincipalMaker.cc
   ProducerBase.cc
   ProductRegistryHelper.cc
+  RootDictionaryManager.cc
   Run.cc
   RunPrincipal.cc
   Schedule.cc
-  SelectorBase.cc
   Selector.cc
+  SelectorBase.cc
   SignallingProductRegistry.cc
+  SubRun.cc
+  SubRunPrincipal.cc
   TFileDirectory.cc
   TH1AddDirectorySentry.cc
   TriggerNames.cc
@@ -151,6 +153,7 @@ install(FILES
   CachedProducts.h
   CurrentProcessingContext.h
   DataViewImpl.h
+  DecrepitRelicInputSourceImplementation.h
   DelayedReader.h
   EDAnalyzer.h
   EDFilter.h
@@ -215,5 +218,17 @@ install(FILES
   find_config.h
   run_art.h
   DESTINATION  ${product}/${version}/include/art/Framework/Core )
+
+set(DETAIL_HEADERS
+  maybe_call_post_insert.h
+  maybe_record_parentage.h
+  )
+
+foreach (header ${DETAIL_HEADERS})
+  set (PATH_DETAIL_HEADERS ${PATH_DETAIL_HEADERS} "detail/${header}")
+endforeach (header ${DETAIL_HEADERS})
+
+install (FILES ${PATH_DETAIL_HEADERS}
+        DESTINATION ${product}/${version}/include/art/Framework/Core/detail )
 
 install_source()

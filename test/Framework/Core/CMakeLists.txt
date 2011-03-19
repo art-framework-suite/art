@@ -1,5 +1,5 @@
 # project name
-project(FrameworkCoreTest)
+project(art_Framework_Core_test)
 
 # Library link requirements for tests here
 link_libraries( 

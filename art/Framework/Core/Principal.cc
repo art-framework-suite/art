@@ -21,7 +21,7 @@ using namespace std;
 
 namespace art {
 
-  Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
+   Principal::Principal(cet::exempt_ptr<ProductRegistry const> reg,
                        ProcessConfiguration const& pc,
                        ProcessHistoryID const& hist,
                        boost::shared_ptr<BranchMapper> mapper,
@@ -79,11 +79,15 @@ namespace art {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     string const& processName = processConfiguration_.processName();
-    for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
+    for (ProcessHistory::const_iterator
+	   it = ph.begin(),
+	   itEnd = ph.end(); it != itEnd; ++it) {
       if (processName == it->processName()) {
-        throw art::Exception(errors::Configuration, "Duplicate Process")
-          << "The process name " << processName << " was previously used on these products.\n"
-          << "Please modify the configuration file to use a distinct process name.\n";
+        throw art::Exception(errors::Configuration)
+	  << "The process name " << processName
+	  << " was previously used on these products.\n"
+          << "Please modify the configuration file to use a "
+	  << "distinct process name.\n";
       }
     }
     ph.push_back(processConfiguration_);

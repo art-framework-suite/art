@@ -184,7 +184,7 @@ namespace art {
 
     // The branchIDLists branch was read directly from the input file.
     if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) == 0) {
-       throw art::Exception(errors::EventCorruption)
+       throw art::Exception(errors::DataCorruption)
           << "Failed to find branchIDLists branch in metaData tree.\n";
     }
     branchIDLists_.reset(branchIDListsAPtr.release());
@@ -314,7 +314,7 @@ namespace art {
     for (Long64_t i = 0, numEntries = parentageTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(parentageTree, i);
       if (idBuffer != parentageBuffer.id())
-        throw art::Exception(errors::EventCorruption) << "Corruption of Parentage tree detected.\n";
+        throw art::Exception(errors::DataCorruption) << "Corruption of Parentage tree detected.\n";
       ParentageRegistry::put(parentageBuffer);
     }
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(), 0);
@@ -555,7 +555,7 @@ namespace art {
       fid_ = FileID(createGlobalIdentifier());
     }
     if(!eventTree_.isValid()) {
-      throw art::Exception(errors::EventCorruption) <<
+      throw art::Exception(errors::DataCorruption) <<
          "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
     if (fileIndex_.empty()) {
@@ -593,7 +593,7 @@ namespace art {
      History* pHistory = history_.get();
      TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
      if (!eventHistoryBranch)
-        throw art::Exception(errors::EventCorruption)
+        throw art::Exception(errors::DataCorruption)
            << "Failed to find history branch in event history tree.\n";
      eventHistoryBranch->SetAddress(&pHistory);
      input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
@@ -645,7 +645,7 @@ namespace art {
   //  when it is asked to do so.
   //
   auto_ptr<EventPrincipal>
-  RootInputFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readEvent(cet::exempt_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     assert(fileIndexIter_->eventID_.runID().isValid());
@@ -665,7 +665,7 @@ namespace art {
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
   auto_ptr<EventPrincipal>
-  RootInputFile::readCurrentEvent(boost::shared_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readCurrentEvent(cet::exempt_ptr<ProductRegistry const> pReg) {
     if (!eventTree_.current()) {
       return auto_ptr<EventPrincipal>(0);
     }
@@ -696,7 +696,7 @@ namespace art {
   }
 
   boost::shared_ptr<RunPrincipal>
-  RootInputFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readRun(cet::exempt_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
     // Begin code for backward compatibility before the exixtence of run trees.
@@ -747,7 +747,7 @@ namespace art {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RootInputFile::readSubRun(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
+  RootInputFile::readSubRun(cet::exempt_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
     // Begin code for backward compatibility before the existence of subRun trees.
@@ -853,7 +853,7 @@ namespace art {
     eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(rootNames::eventHistoryTreeName().c_str()));
 
     if (!eventHistoryTree_)
-      throw art::Exception(errors::EventCorruption)
+      throw art::Exception(errors::DataCorruption)
         << "Failed to find the event history tree.\n";
   }
 

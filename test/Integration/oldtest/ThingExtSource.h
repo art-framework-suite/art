@@ -13,7 +13,10 @@
 #include "FWCore/Integration/test/ThingAlgorithm.h"
 
 namespace arttest {
-  class ThingExtSource : public art::ExternalInputSource {
+  class ThingExtSource : 
+
+
+public art::ExternalInputSourceImplementation {
   public:
 
     // The following is not yet used, but will be the primary

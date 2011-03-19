@@ -13,6 +13,8 @@
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/View.h"
+#include "art/Framework/Core/detail/maybe_call_post_insert.h"
+#include "art/Framework/Core/detail/maybe_record_parents.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
@@ -35,36 +37,6 @@
 namespace art {
 
   class ConstBranchDescription;
-
-  // The following functions objects are used by Event::put, under the
-  // control of a metafunction if, to put the given pair into the
-  // right collection.
-  template <typename PROD>
-  struct RecordInParentless {
-    typedef DataViewImpl::ProductPtrVec ptrvec_t;
-    void do_it(ptrvec_t& ignored,
-               ptrvec_t& used,
-               Wrapper<PROD>* wp,
-               ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(wp, desc));
-    }
-  };  // RecordInParentless<>
-
-// ----------------------------------------------------------------------
-
-  template <typename PROD>
-  struct RecordInParentfull {
-    typedef DataViewImpl::ProductPtrVec ptrvec_t;
-
-    void do_it(ptrvec_t& used,
-               ptrvec_t& ignored,
-               Wrapper<PROD>* wp,
-               ConstBranchDescription const* desc) const {
-      used.push_back(std::make_pair(wp, desc));
-    }
-  };  // RecordInParentfull<>
-
-// ----------------------------------------------------------------------
 
   class Event
     : private DataViewImpl
@@ -249,6 +221,7 @@ namespace art {
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     friend class InputSource;
+    friend class DecrepitRelicInputSourceImplementation;
     friend class EDFilter;
     friend class EDProducer;
 
@@ -303,26 +276,17 @@ namespace art {
         << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
-    // The following will call post_insert if T has such a function,
-    // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
-      DoPostInsert<PROD>,
-      DoNotPostInsert<PROD> >::type maybe_inserter;
-    maybe_inserter(product.get());
+    detail::maybe_call_post_insert(product.get());
 
     ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD>* wp(new Wrapper<PROD>(product));
 
-    typename boost::mpl::if_c<detail::has_donotrecordparents<PROD>::value,
-      RecordInParentless<PROD>,
-      RecordInParentfull<PROD> >::type parentage_recorder;
-    parentage_recorder.do_it(putProducts(),
-                             putProductsWithoutParents(),
-                             wp,
-                             &desc);
-
+    detail::maybe_record_parents(putProducts(),
+                                 putProductsWithoutParents(),
+                                 wp,
+                                 &desc);
     //    putProducts().push_back(std::make_pair(wp, &desc));
 
     // product.release(); // The object has been copied into the Wrapper.

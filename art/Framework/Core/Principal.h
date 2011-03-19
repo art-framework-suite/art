@@ -22,7 +22,6 @@ pointer to a Group, when queried.
 #include <string>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Group.h"
@@ -39,7 +38,8 @@ pointer to a Group, when queried.
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-
+#include "boost/shared_ptr.hpp"
+#include "cetlib/exempt_ptr.h"
 
 namespace art {
   class Principal : public EDProductGetter {
@@ -54,7 +54,7 @@ namespace art {
     typedef boost::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
 
-    Principal(boost::shared_ptr<ProductRegistry const> reg,
+    Principal(cet::exempt_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
 	      ProcessHistoryID const& hist = ProcessHistoryID(),
               boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
@@ -128,6 +128,10 @@ namespace art {
     void
     getAllProvenance(std::vector<Provenance const *> & provenances) const;
 
+    // Obtain the branch type suitable for products to be put in the
+    // principal.
+    virtual BranchType branchType() const = 0;
+
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
@@ -188,7 +192,7 @@ namespace art {
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
-    boost::shared_ptr<ProductRegistry const> preg_;
+    cet::exempt_ptr<ProductRegistry const> preg_;
 
     // Pointer to the 'mapper' that will get provenance information
     // from the persistent store.
@@ -199,12 +203,6 @@ namespace art {
     boost::shared_ptr<DelayedReader> store_;
   };
 
-  template <typename PROD>
-  inline
-  boost::shared_ptr<Wrapper<PROD> const>
-  getProductByTag(Principal const& ep, InputTag const& tag) {
-    return boost::dynamic_pointer_cast<Wrapper<PROD> const>(ep.getByLabel(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process()).product());
-  }
 }
 #endif /* art_Framework_Core_Principal_h */
 

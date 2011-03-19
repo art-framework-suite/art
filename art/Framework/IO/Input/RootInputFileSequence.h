@@ -18,6 +18,7 @@
 #include "boost/noncopyable.hpp"
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/exempt_ptr.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -68,7 +69,7 @@ namespace art {
     std::auto_ptr<EventPrincipal> readCurrentEvent();
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
-    boost::shared_ptr<ProductRegistry const> productRegistry() const;
+    cet::exempt_ptr<ProductRegistry const> productRegistry() const;
     boost::shared_ptr<RunPrincipal> runPrincipal() const;
     ProcessConfiguration const& processConfiguration() const;
     ProductRegistry & productRegistryUpdate() const;

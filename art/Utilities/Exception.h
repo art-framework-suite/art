@@ -36,7 +36,7 @@ namespace art {
     ,  NullPointerError
     ,  NoProductSpecified
     ,  EventTimeout
-    ,  EventCorruption
+    ,  DataCorruption
 
     ,  ScheduleExecutionFailure
     ,  EventProcessorFailure

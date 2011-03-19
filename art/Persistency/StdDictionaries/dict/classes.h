@@ -7,7 +7,7 @@
 
 namespace {
   struct dictionary {
-     std::basic_string<char> bsc1;
+     std::string bsc1;
   std::vector<unsigned long> dummy1;
   std::vector<unsigned int> dummy2;
   std::vector<std::vector<unsigned int> > dummy2v;
@@ -28,12 +28,12 @@ namespace {
   // std::vector<bool> dummy13;
   std::vector<unsigned long long> dummy14;
   std::vector<long long> dummy15;
-  std::vector<std::pair<std::basic_string<char>,double> > dummy16;
+  std::vector<std::pair<std::string,double> > dummy16;
   std::vector<std::pair<unsigned int,double> > dummy16_1;
   std::list<int> dummy17;
   std::deque<int> dummy18;
   std::set<int> dummy19;
-  std::set<std::basic_string<char> > dummy20;
+  std::set<std::string > dummy20;
   std::pair<unsigned long, unsigned long> dymmywp1;
   std::pair<unsigned int, unsigned int> dymmywp2;
   std::pair<unsigned int, int> dymmywp2_1;
@@ -44,11 +44,11 @@ namespace {
   std::pair<unsigned int, float> dymmywp6;
   std::pair<unsigned int, double> dymmywp6d;
   std::pair<double, double> dymmywp7;
-  std::pair<unsigned long long, std::basic_string<char> > dymmywp8;
-  std::pair<std::basic_string<char>,int> dummywp9;
-  std::pair<std::basic_string<char>,double> dummywp10;
-  std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummywp11;
-  std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > > dummywp12;
+  std::pair<unsigned long long, std::string > dymmywp8;
+  std::pair<std::string,int> dummywp9;
+  std::pair<std::string,double> dummywp10;
+  std::pair<std::string,std::vector<std::pair<std::string,double> > > dummywp11;
+  std::pair<std::string,std::vector<std::string > > dummywp12;
   std::pair<unsigned int,std::vector<unsigned int> > dymmywp13;
   std::pair<unsigned long,std::vector<unsigned long> > dymmywp14;
   std::pair<unsigned short,std::vector<unsigned short> > dymmywp15;
@@ -64,13 +64,13 @@ namespace {
   std::map<unsigned int,std::vector<std::pair<unsigned int,double> > >dymmywmv2_1;
   std::map<unsigned short, std::vector<unsigned short> > dymmypwmv3;
   std::map<unsigned int, float> dummyypwmv4;
-  std::map<unsigned long long, std::basic_string<char> > dummyypwmv5;
+  std::map<unsigned long long, std::string > dummyypwmv5;
   std::multimap<double, double> dummyypwmv6;
-  std::map<std::basic_string<char>,int> dummyypwmv7;
-  std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummyypwmv8;
+  std::map<std::string,int> dummyypwmv7;
+  std::map<std::string,std::vector<std::pair<std::string,double> > > dummyypwmv8;
   std::map<int,std::pair<unsigned int,unsigned int> > dummyypwmv9;
   std::map<int,std::pair<unsigned long,unsigned long> > dummyypwmv10;
-  std::map<std::basic_string<char>,std::vector<std::basic_string<char> > > dummyypwmv11;
+  std::map<std::string,std::vector<std::string > > dummyypwmv11;
   std::vector<char>::iterator itc;
   std::vector<short>::iterator its;
   std::vector<unsigned short>::iterator itus;

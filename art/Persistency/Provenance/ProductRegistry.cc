@@ -57,9 +57,11 @@ namespace art {
     std::pair<ProductList::iterator, bool> ret =
 	 productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     if (!ret.second) {
-      throw art::Exception(errors::Configuration, "Duplicate Process")
-	  << "The process name " << productDesc.processName() << " was previously used on these products.\n"
-	  << "Please modify the configuration file to use a distinct process name.\n";
+      throw art::Exception(errors::Configuration)
+	<< "The process name " << productDesc.processName()
+	<< " was previously used on these products.\n"
+	<< "Please modify the configuration file to use a "
+	<< "distinct process name.\n";
     }
     addCalled(productDesc,fromListener);
   }

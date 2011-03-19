@@ -213,7 +213,6 @@ std::auto_ptr<EventPrincipal>
     }
     return primaryPrincipal;
   }
-  EventSourceSentry(*this);
   return primaryFileSequence_->readEvent_();
 }  // readEvent_()
 
@@ -233,7 +232,6 @@ std::auto_ptr<EventPrincipal>
     }
     return primaryPrincipal;
   }
-  EventSourceSentry(*this);
   return primaryFileSequence_->readIt(id);
 }  // readIt()
 

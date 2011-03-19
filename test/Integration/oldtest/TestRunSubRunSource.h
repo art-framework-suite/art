@@ -57,7 +57,8 @@ namespace art {
   class SubRunPrincipal;
   class RunPrincipal;
 
-  class TestRunSubRunSource : public InputSource {
+  class TestRunSubRunSource : 
+    public DecrepitRelicInputSourceImplementation {
   public:
     explicit TestRunSubRunSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~TestRunSubRunSource();

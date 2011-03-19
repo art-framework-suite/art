@@ -16,9 +16,11 @@ is the DataBlock.
 
 #include "art/Framework/Core/Principal.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/exempt_ptr.h"
 #include <vector>
 
 namespace art {
@@ -30,7 +32,7 @@ namespace art {
     typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
     SubRunPrincipal(SubRunAuxiliary const& aux,
-        boost::shared_ptr<ProductRegistry const> reg,
+                    cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
         boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
@@ -94,6 +96,8 @@ namespace art {
     void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+
+    BranchType branchType() const { return InSubRun; }
 
   private:
     virtual void addOrReplaceGroup(std::auto_ptr<Group> g);

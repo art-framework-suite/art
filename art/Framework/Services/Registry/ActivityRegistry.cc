@@ -81,8 +81,6 @@ art::ActivityRegistry::ActivityRegistry()
    AR_WATCH_UPDATER(PostModuleBeginSubRun);
    AR_WATCH_UPDATER(PreModuleEndSubRun);
    AR_WATCH_UPDATER(PostModuleEndSubRun);
-   AR_WATCH_UPDATER(PreSourceConstruction);
-   AR_WATCH_UPDATER(PostSourceConstruction);
 }
 
 void
@@ -163,10 +161,6 @@ art::ActivityRegistry::connect(ActivityRegistry& iOther)
 
    preModuleEndJobSignal_.connect(iOther.preModuleEndJobSignal_);
    postModuleEndJobSignal_.connect(iOther.postModuleEndJobSignal_);
-
-   preSourceConstructionSignal_.connect(iOther.preSourceConstructionSignal_);
-   postSourceConstructionSignal_.connect(iOther.postSourceConstructionSignal_);
-
 }
 
 template<class T>
@@ -286,9 +280,6 @@ art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
 
   copySlotsToFrom(preModuleEndJobSignal_,iOther.preModuleEndJobSignal_);
   copySlotsToFromReverse(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
-
-  copySlotsToFrom(preSourceConstructionSignal_,iOther.preSourceConstructionSignal_);
-  copySlotsToFromReverse(postSourceConstructionSignal_,iOther.postSourceConstructionSignal_);
 
   copySlotsToFromReverse(postBeginJobWorkersSignal_,iOther.postBeginJobWorkersSignal_);
 }
@@ -607,13 +598,4 @@ AR_1_ARG_UPDATER_DEFN(PreModuleEndSubRun) {
 
 AR_1_ARG_UPDATER_DEFN(PostModuleEndSubRun) {
    restoreContext(arg1, "EndSubRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreSourceConstruction) {
-   setContext(arg1, "SourceConstruction");
-   setWorkFlowStatus("SourceConstruction");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostSourceConstruction) {
-   restoreContext(arg1, "PostSourceConstruction");
 }

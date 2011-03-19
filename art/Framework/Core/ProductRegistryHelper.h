@@ -29,6 +29,37 @@
 #include <list>
 #include <string>
 
+namespace
+{
+  inline
+  void verifyInstanceName(std::string const& instanceName)
+  {
+    if (instanceName.find('_') != std::string::npos)
+      {
+	throw art::Exception(art::errors::Configuration)
+	  << "Instance name \""
+	  << instanceName
+	  << "\" is illegal: underscores are not permitted in instance names."
+	  << '\n';
+      }
+  }
+
+  inline
+  void verifyFriendlyClassName(std::string const& fcn)
+  {
+    if (fcn.find('_') != std::string::npos)
+      {
+	throw art::Exception(art::errors::LogicError)
+	  << "Class \""
+	  << fcn
+	  << "\" is not suitable for use as a product due to the presence of "
+	  << "underscores which are not allowed anywhere in the class name "
+	  << "(including namespace and enclosing classes).\n";
+      }
+  }
+}
+
+
 namespace art {
   class EDProduct;
   class ModuleDescription;
@@ -65,18 +96,22 @@ namespace art {
     // optional instance name.
     template <class P, BranchType B>
     TypeLabel const& reconstitutes(std::string const& modLabel,
+				   std::string const& processName,
 				   std::string const& instanceName=std::string());
 
   private:
 
     template <BranchType B>
-    TypeLabel const& produces_in_branch(const TypeID& productType,
-					std::string const& instanceName=std::string());
+    TypeLabel const& 
+    produces_in_branch(TypeID const& productType,
+		       std::string const& instanceName=std::string());
 
     template <BranchType B>
-    TypeLabel const& reconstitutes_to_branch(const TypeID& productType,
-					     std::string const& moduleLabel,
-					     std::string const& instanceName=std::string());
+    TypeLabel const&
+    reconstitutes_to_branch(TypeID const& productType,
+			    std::string const& moduleLabel,
+			    std::string const& processName,
+			    std::string const& instanceName=std::string());
 
     TypeLabelList typeLabelList_;
   };
@@ -100,30 +135,25 @@ namespace art {
   TypeLabel const&
   ProductRegistryHelper::produces(std::string const& instanceName)
   {
-    TypeID tid(typeid(P));
-    if (instanceName.find('_') != std::string::npos) {
-      throw cet::exception("BAD_INSTANCE_NAME")
-	<< "Instance name \""
-	<< instanceName
-	<< "\" is illegal: underscores are not permitted in instance names.";
-    }
-    if (tid.friendlyClassName().find('_') != std::string::npos) {
-      throw cet::exception("BAD_CLASS_NAME")
-	<< "Class \""
-	<< tid.friendlyClassName()
-	<< "\" is not suitable for use as a product due to the presence of "
-	<< "underscores which are not allowed anywhere in the class name "
-	<< "(including namespace and enclosing classes).";
-    }
-    return produces_in_branch<B>(tid,instanceName);
+    verifyInstanceName(instanceName);
+    TypeID productType(typeid(P));
+    verifyFriendlyClassName(productType.friendlyClassName());
+    return produces_in_branch<B>(productType, instanceName);
   }
 
   template <typename P, BranchType B>
   TypeLabel const&
   ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
+				       std::string const& emulatedProcess,
 				       std::string const& instanceName)
   {
-    throw art::Exception(errors::UnimplementedFeature);
+    verifyInstanceName(instanceName);
+    TypeID productType(typeid(P));
+    verifyFriendlyClassName(productType.friendlyClassName());
+    return reconstitutes_to_branch<B>(productType,
+				      emulatedModule,
+				      emulatedProcess,
+				      instanceName);
   }
 
   template <BranchType B>
@@ -140,9 +170,16 @@ namespace art {
   TypeLabel const&
   ProductRegistryHelper::reconstitutes_to_branch(TypeID const& productType,
 						 std::string const& emulatedModule,
+						 std::string const& emulatedProcess,
 						 std::string const& instanceName)
   {
-    throw Exception(errors::UnimplementedFeature);
+    if (emulatedModule.empty() || emulatedProcess.empty())
+      throw Exception(errors::Configuration)
+	<< "Input sources must call reconstitutes with a non-empty "
+	<< "module label and a non-empty process name\n";
+    TypeLabel tli(B, productType, instanceName, emulatedModule, emulatedProcess);
+    typeLabelList_.push_back(tli);
+    return typeLabelList_.back();
   }
 
 }  // art

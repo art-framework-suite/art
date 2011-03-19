@@ -72,7 +72,7 @@ void verify_elements(std::vector<T> const& ptrs,
 {
   for (size_t k = 0; k != sz; ++k)
     {
-      assert(ptrs[k]->key == sz-k+event_num);
+      assert((unsigned)ptrs[k]->key == sz-k+event_num);
       double expect = 1.5 * k + 100.0;
       assert(ptrs[k]->value == expect);
       assert(ptrs[k]->dummy() == 16.25);
@@ -194,7 +194,7 @@ SimpleDerivedAnalyzer::test_PtrVector( art::Event const & e ) const
     for( product_t::const_iterator b = h->begin()
            , e = h->end(); b!= e; ++b ) {
       int k = b - h->begin();
-      if( (*b)->key != sz-k+event_num ) {
+      if( (unsigned)(*b)->key != sz-k+event_num ) {
         std::cerr
           << "ValueMismatch at position " << k
           << " expected key " << sz-k+event_num

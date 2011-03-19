@@ -26,7 +26,7 @@ int novaapp(int argc, char* argv[]) {
    std::ostringstream descstr;
 
    descstr << argv[0]
-           << " <options> [config-file]";
+           << " <-c <config-file>> <other-options> [<source-file>]+";
 
    bpo::options_description desc(descstr.str());
 
@@ -111,7 +111,7 @@ int novaapp(int argc, char* argv[]) {
    catch (cet::exception &e) {
       std::cerr << "Failed to parse the configuration file '"
                 << vm["config"].as<std::string>()
-                << "' with exception " << e.what()
+                << "' with exception\n" << e.what()
                 << "\n";
       return 7002;
    }

@@ -11,7 +11,7 @@ services:
               'BadExceptionType','ProductNotFound','DictionaryNotFound',
               'InsertFailure','Configuration','LogicError','UnimplementedFeature',
               'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
-              'EventCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'DataCorruption','ScheduleExecutionFailure','EventProcessorFailure',
               'FileInPathError','FileOpenError','FileReadError','FatalRootError',
               'MismatchedInputFiles','ProductDoesNotSupportViews',
               'ProductDoesNotSupportPtr','NotFound']

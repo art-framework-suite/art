@@ -162,8 +162,6 @@ namespace art {
     // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
       {
-        auto_ptr<InputSource::FileCloseSentry>
-          sentry((primarySequence_ && primary()) ? new InputSource::FileCloseSentry(input_) : 0);
         rootFile_->close(primary());
       }
       logFileAction("  Closed file ", rootFile_->file());
@@ -178,8 +176,6 @@ namespace art {
     boost::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
-      auto_ptr<InputSource::FileOpenSentry>
-        sentry((primarySequence_ && primary()) ? new InputSource::FileOpenSentry(input_) : 0);
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     }
     catch (cet::exception e) {
@@ -513,7 +509,7 @@ namespace art {
     return input_.productRegistryUpdate();
   }
 
-  boost::shared_ptr<ProductRegistry const>
+  cet::exempt_ptr<ProductRegistry const>
   RootInputFileSequence::productRegistry() const{
     return input_.productRegistry();
   }

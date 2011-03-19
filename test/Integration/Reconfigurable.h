@@ -1,5 +1,5 @@
-#ifndef RECONFIGU_H
-#define RECONFIGU_H 1
+#ifndef test_Integration_Reconfigurable_h
+#define test_Integration_Reconfigurable_h
 // ======================================================================
 //
 // ======================================================================
@@ -27,6 +27,10 @@ private:
 
 };
 
-#endif
+#endif /* test_Integration_Reconfigurable_h */
 
 
+
+// Local Variables:
+// mode: c++
+// End:

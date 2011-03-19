@@ -86,12 +86,12 @@ void
            ++cell_count) {
          int ck = ci - cb;
          art::Ptr<SimpleDerived> ptsd = *ci;
-         assert(ptsd->key == 2 * csz - (ck + pk * csz) + event_num);
+         assert((unsigned)ptsd->key == 2 * csz - (ck + pk * csz) + event_num);
          assert(ptsd->value == 1.5 * (ck + pk * csz) + 100.0);
          assert(ptsd->dummy() == 16.25);
       }
       assert(cell_count == csz);
-      assert(pi->eNum == event_num + pk);
+      assert(pi->eNum == (unsigned)(event_num + pk));
    }
 }  // test_PtrVector()
 

@@ -1,8 +1,9 @@
 #include "art/Framework/Core/LibraryManager.h"
+#include "art/Utilities/Exception.h"
 
 #include "art/Utilities/Exception.h"
 #include "boost/filesystem.hpp"
-#include "cetlib/exception.h"
+
 #include "cetlib/search_path.h"
 #include "cpp0x/functional"
 #include "boost/regex.hpp"
@@ -98,8 +99,8 @@ void *art::LibraryManager::getSymbolByLibspec(std::string const &libspec,
                    << lib_type_
                    << "\"\n";
       }
-      // TODO: Throw correct exception.
-      throw cet::exception(error_msg.str());
+      throw art::Exception(errors::Configuration)
+	<< error_msg.str();
    }
    return getSymbolByPath(trans->second, sym_name);
 }
@@ -109,20 +110,21 @@ void *art::LibraryManager::getSymbolByPath(std::string const &lib_loc,
    void *result = nullptr;
    void *lib_ptr = get_lib_ptr(lib_loc);
    if (lib_ptr == nullptr) {
-      // TODO: Throw correct exception.
-      throw cet::exception("Unable to load requested library " + lib_loc)
-         << dlerror() << "\n";
+
+     throw art::Exception(errors::Configuration)
+       << "Unable to load requested library " + lib_loc
+       << dlerror() << "\n";
    } else { // Found library
       dlerror();
       result = dlsym(lib_ptr, sym_name.c_str());
       char const *error = dlerror();
       if (error != nullptr) { // Error message
          result = nullptr;
-         // TODO: Throw correct exception.
-         throw cet::exception("Unable to load requested symbol " +
-                              sym_name +
-                              " from library " + 
-                              lib_loc);
+         throw art::Exception(errors::Configuration)
+	   << "Unable to load requested symbol "
+	   <<  sym_name
+	   << " from library "
+	   << lib_loc;
       }
    }
    return result;
@@ -155,8 +157,11 @@ art::LibraryManager::loadAllLibraries() const {
         i != end_iter;
         ++i) {
       if (get_lib_ptr(i->second) == nullptr) {
-         throw cet::exception("Unable to load requested library " + i->second)
-            << dlerror() << "\n";
+	throw art::Exception(errors::Configuration)
+	  << "Unable to load requested library "
+	  << i->second
+	  << dlerror() 
+	  << "\n";
       }
    }
 }
@@ -201,8 +206,11 @@ spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
    if (boost::regex_search(entry.first, match_results, e)) {
       spec_trans_map_[match_results[1]].insert(entry.second);
    } else {
-      // TODO: Throw correct exception.
-      throw cet::exception("Internal error in spec_trans_map_inserter for entry " + entry.first + " with pattern " + e.str());
+     throw art::Exception(errors::LogicError)
+       << "Internal error in spec_trans_map_inserter for entry " 
+       << entry.first
+       << " with pattern "
+       <<  e.str();
    }
 
    // Next, convert library filename to full libspec.
@@ -218,9 +226,9 @@ spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
    if (boost::regex_search(lib_name_str, match_results, stripper)) {
       spec_trans_map_[match_results[1]].insert(entry.second);
    } else {
-      // TODO: Throw correct exception.
-      throw cet::exception("Internal error in spec_trans_map_inserter stripping " +
-                           lib_name.str());
+     throw art::Exception(errors::LogicError)
+       << "Internal error in spec_trans_map_inserter stripping "
+       << lib_name.str();
    }
 }
 

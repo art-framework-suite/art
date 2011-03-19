@@ -76,10 +76,9 @@ namespace art {
   }
 
   void
-  BranchDescription::init() const {
-    if (!branchName().empty()) {
-      return;	// already called
-    }
+  BranchDescription::init() const 
+  {
+    if (!branchName().empty()) return;
     throwIfInvalid_();
 
     char const underscore('_');
@@ -185,11 +184,10 @@ namespace art {
 
   void throwExceptionWithText(const char* txt)
   {
-    art::Exception e(art::errors::LogicError);
-    e << "Problem using an incomplete BranchDescription\n"
+    throw Exception(errors::LogicError)
+      << "Problem using an incomplete BranchDescription\n"
       << txt
-      << "\nPlease report this error to the ART developers";
-    throw e;
+      << "\nPlease report this error to the ART developers\n";
   }
 
   void

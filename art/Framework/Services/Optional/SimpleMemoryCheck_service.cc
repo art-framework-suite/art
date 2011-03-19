@@ -64,8 +64,6 @@ namespace art {
     SimpleMemoryCheck( fhicl::ParameterSet const &, ActivityRegistry & );
     ~SimpleMemoryCheck();
 
-    void preSourceConstruction( ModuleDescription const & );
-    void postSourceConstruction( ModuleDescription const & );
     void postSource();
 
     void postBeginJob();
@@ -365,10 +363,6 @@ namespace art {
       }
 #endif
     if (!oncePerEventMode) { // default, prints on increases
-      iReg.watchPreSourceConstruction(this,
-           &SimpleMemoryCheck::preSourceConstruction);
-      iReg.watchPostSourceConstruction(this,
-           &SimpleMemoryCheck::postSourceConstruction);
       iReg.watchPostSource(this,
            &SimpleMemoryCheck::postSource);
       iReg.watchPostModuleConstruction(this,
@@ -446,17 +440,6 @@ namespace art {
 
   void SimpleMemoryCheck::postBeginJob()
   {
-  }
-
-  void SimpleMemoryCheck::preSourceConstruction(const ModuleDescription& md)
-  {
-    updateAndPrint("pre-ctor", md.moduleLabel_, md.moduleName_);
-  }
-
-
-  void SimpleMemoryCheck::postSourceConstruction(const ModuleDescription& md)
-  {
-    updateAndPrint("ctor", md.moduleLabel_, md.moduleName_);
   }
 
   void SimpleMemoryCheck::postSource()

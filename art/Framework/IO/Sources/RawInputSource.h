@@ -6,13 +6,10 @@
 // RawInputSource is an abstract base class, intended to make it
 // easier to write InputSources that read non-art-format data files.
 //
-// A concrete InputSource that inherits from RawInputSource must
-// implement the pure virtual function readOneEvent().
-//
 // ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
@@ -24,7 +21,7 @@ namespace art
 {
   class Timestamp;
 
-  class RawInputSource : public InputSource
+  class RawInputSource : public DecrepitRelicInputSourceImplementation
   {
   public:
     explicit RawInputSource(fhicl::ParameterSet const& pset,
@@ -32,20 +29,14 @@ namespace art
     virtual ~RawInputSource();
 
   protected:
-
-    std::auto_ptr<Event> makeEvent(RunNumber_t run,
-                                   SubRunNumber_t subRun,
-                                   EventNumber_t event,
-                                   Timestamp const& tstamp);
-    virtual std::auto_ptr<Event> readOneEvent() = 0;
+    virtual input::ItemType getNextItemType() = 0;
 
   private:
-    virtual std::auto_ptr<EventPrincipal>      readEvent_();
-    virtual boost::shared_ptr<SubRunPrincipal> readSubRun_();
-    virtual boost::shared_ptr<RunPrincipal>    readRun_();
-    virtual std::auto_ptr<EventPrincipal>      readIt(EventID const& eventID);
-    virtual void                               skip(int offset);
-    virtual input::ItemType                    getNextItemType();
+    boost::shared_ptr<RunPrincipal> readRun_();
+    boost::shared_ptr<SubRunPrincipal> readSubRun_();
+    std::auto_ptr<EventPrincipal> readEvent_();
+    std::auto_ptr<EventPrincipal> readIt(EventID const&);
+    void skip(int);
 
     RunNumber_t                   runNumber_;
     SubRunNumber_t                subRunNumber_;

@@ -25,7 +25,7 @@ detail::translate( errors::ErrorCodes code )
   case InvalidReference          : return "InvalidReference";
   case NullPointerError          : return "NullPointerError";
   case EventTimeout              : return "EventTimeout";
-  case EventCorruption           : return "EventCorruption";
+  case DataCorruption           : return "DataCorruption";
   case ScheduleExecutionFailure  : return "ScheduleExecutionFailure";
   case EventProcessorFailure     : return "EventProcessorFailure";
   case EndJobFailure             : return "EndJobFailure";

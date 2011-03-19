@@ -7,16 +7,17 @@
 namespace art {
 
   SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<BranchMapper> mapper,
-	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
-	  runPrincipal_(),
-    aux_(aux) {
-      if (reg->productProduced(InSubRun)) {
-        addToProcessHistory();
-      }
+                                   cet::exempt_ptr<ProductRegistry const> reg,
+				   ProcessConfiguration const& pc,
+				   boost::shared_ptr<BranchMapper> mapper,
+				   boost::shared_ptr<DelayedReader> rtrv) :
+    Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
+    runPrincipal_(),
+    aux_(aux) 
+  {
+    if (reg->productProduced(InSubRun)) {
+      addToProcessHistory();
+    }
   }
 
   void
@@ -46,23 +47,23 @@ namespace art {
 
   void
   SubRunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
-	ConstBranchDescription const& bd,
-	std::auto_ptr<ProductProvenance> productProvenance) {
+			    ConstBranchDescription const& bd,
+			    std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   SubRunPrincipal::addGroup(ConstBranchDescription const& bd,
-	std::auto_ptr<ProductProvenance> productProvenance) {
+			    std::auto_ptr<ProductProvenance> productProvenance) {
     std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   SubRunPrincipal::put(std::auto_ptr<EDProduct> edp,
-		ConstBranchDescription const& bd,
-		std::auto_ptr<ProductProvenance> productProvenance) {
+		       ConstBranchDescription const& bd,
+		       std::auto_ptr<ProductProvenance> productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")

@@ -75,7 +75,7 @@ void testGenericHandle::failgetbyLabelTest() {
   art::Timestamp time;
   std::string uuid = art::createGlobalIdentifier();
   art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
-  boost::shared_ptr<art::ProductRegistry const> preg(new art::ProductRegistry);
+  cet::exempt_ptr<art::ProductRegistry const> preg(new art::ProductRegistry);
   art::RunAuxiliary runAux(id.runID(), time, time);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, pc));
   art::SubRunAuxiliary subRunAux(id.subRunID(), time, time);
@@ -155,7 +155,7 @@ void testGenericHandle::getbyLabelTest() {
   art::Timestamp fakeTime;
   std::string uuid = art::createGlobalIdentifier();
   art::ProcessConfiguration pc("PROD", fhicl::ParameterSetID(), art::getReleaseVersion(), art::getPassID());
-  boost::shared_ptr<art::ProductRegistry const> pregc(preg);
+  cet::exempt_ptr<art::ProductRegistry const> pregc(preg);
   art::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, pregc, pc));
   art::SubRunAuxiliary subRunAux(rp->run(), 1, fakeTime, fakeTime);

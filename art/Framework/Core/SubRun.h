@@ -17,6 +17,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/detail/maybe_call_post_insert.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
@@ -84,6 +85,7 @@ namespace art {
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
     friend class InputSource;
+    friend class DecrepitRelicInputSourceImplementation;
     friend class EDFilter;
     friend class EDProducer;
 
@@ -105,12 +107,7 @@ namespace art {
         << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
-    // The following will call post_insert if T has such a function,
-    // and do nothing if T has no such function.
-    typename boost::mpl::if_c<detail::has_postinsert<PROD>::value,
-      DoPostInsert<PROD>,
-      DoNotPostInsert<PROD> >::type maybe_inserter;
-    maybe_inserter(product.get());
+    detail::maybe_call_post_insert(product.get());
 
     ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);

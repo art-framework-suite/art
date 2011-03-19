@@ -61,7 +61,7 @@ namespace {
     art::Wrapper<std::vector<bool> > dummy13;
     art::Wrapper<std::vector<unsigned long long> > dummy14;
     art::Wrapper<std::vector<long long> > dummy15;
-    art::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
+    art::Wrapper<std::vector<std::pair<std::string,double> > > dummy16;
     art::Wrapper<std::vector<std::pair<unsigned int,double> > > dummy16_1;
     art::Wrapper<std::list<int> > dummy17;
 
@@ -78,10 +78,10 @@ namespace {
     art::Wrapper<std::pair<unsigned int, float> > dymmywp6;
     art::Wrapper<std::pair<unsigned int, double> > dymmywp6d;
     art::Wrapper<std::pair<double, double> > dymmywp7;
-    art::Wrapper<std::pair<unsigned long long, std::basic_string<char> > > dymmywp8;
-    art::Wrapper<std::pair<std::basic_string<char>,int> > dummywp9;
-    art::Wrapper<std::pair<std::basic_string<char>,double> > dummywp10;
-    art::Wrapper<std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummywp11;
+    art::Wrapper<std::pair<unsigned long long, std::string > > dymmywp8;
+    art::Wrapper<std::pair<std::string,int> > dummywp9;
+    art::Wrapper<std::pair<std::string,double> > dummywp10;
+    art::Wrapper<std::pair<std::string,std::vector<std::pair<std::string,double> > > > dummywp11;
     art::Wrapper<std::map<unsigned long, unsigned long> > dymmywm1;
     art::Wrapper<std::map<unsigned int, unsigned int> > dymmywm2;
     art::Wrapper<std::map<unsigned int, int> > dymmywm2_1;
@@ -93,11 +93,11 @@ namespace {
     art::Wrapper<std::map<unsigned int,std::vector<std::pair<unsigned int,double> > > >dymmywmv2_1;
     art::Wrapper<std::map<unsigned short, std::vector<unsigned short> > > dymmypwmv3;
     art::Wrapper<std::map<unsigned int, float> > dummyypwmv4;
-    art::Wrapper<std::map<unsigned long long, std::basic_string<char> > > dummyypwmv5;
+    art::Wrapper<std::map<unsigned long long, std::string > > dummyypwmv5;
     art::Wrapper<std::multimap<double, double> > dummyypwmv6;
-    art::Wrapper<std::map<std::basic_string<char>,bool> > dummyypwmv6a;
-    art::Wrapper<std::map<std::basic_string<char>,int> > dummyypwmv7;
-    art::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummyypwmv8;
+    art::Wrapper<std::map<std::string,bool> > dummyypwmv6a;
+    art::Wrapper<std::map<std::string,int> > dummyypwmv7;
+    art::Wrapper<std::map<std::string,std::vector<std::pair<std::string,double> > > > dummyypwmv8;
     art::Wrapper<std::map<int,std::pair<unsigned int,unsigned int> > > dummyypwmv9;
     art::Wrapper<std::map<int,std::pair<unsigned long,unsigned long> > > dummyypwmv10;
 

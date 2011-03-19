@@ -19,7 +19,7 @@ using namespace std;
 
 namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
-	boost::shared_ptr<ProductRegistry const> reg,
+                                 cet::exempt_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
 	boost::shared_ptr<History> history,
 	boost::shared_ptr<BranchMapper> mapper,

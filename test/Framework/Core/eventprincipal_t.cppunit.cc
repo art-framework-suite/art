@@ -194,7 +194,7 @@ void test_ep::setUp()
     assert(process);
     std::string uuid = art::createGlobalIdentifier();
     art::Timestamp now(1234567UL);
-    boost::shared_ptr<art::ProductRegistry const> preg(pProductRegistry_);
+    cet::exempt_ptr<art::ProductRegistry const> preg(pProductRegistry_);
     art::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, *process));
     art::SubRunAuxiliary subRunAux(rp->run(), eventID_.subRun(), now, now);

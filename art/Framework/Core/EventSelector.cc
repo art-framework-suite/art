@@ -781,7 +781,7 @@ namespace art {
     unsigned int N = fullTriggerCount;
     if (fullTriggerCount != inputResults.size())
     {
-      throw art::Exception(errors::EventCorruption)
+      throw art::Exception(errors::DataCorruption)
         << "EventSelector::maskTriggerResults, the TriggerResults\n"
         << "size (" << inputResults.size()
         << ") does not match the number of paths in the\n"
@@ -895,7 +895,7 @@ namespace art {
     unsigned int fullTriggerCount = fullTriggerList.size();
     if (fullTriggerCount != inputResults.size())
     {
-      throw art::Exception(errors::EventCorruption)
+      throw art::Exception(errors::DataCorruption)
         << "EventSelector::maskTriggerResults, the TriggerResults\n"
         << "size (" << inputResults.size()
         << ") does not match the number of paths in the\n"

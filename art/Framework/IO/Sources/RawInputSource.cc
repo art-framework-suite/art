@@ -14,16 +14,17 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 
 
-namespace art {
-
+namespace art 
+{
   RawInputSource::RawInputSource(fhicl::ParameterSet const& pset,
                                  InputSourceDescription const& desc) :
-    InputSource(pset, desc),
+    DecrepitRelicInputSourceImplementation(pset, desc),
     runNumber_(RunNumber_t()),
     newRun_(false),
     newSubRun_(false),
-    ep_(0) {
-      setTimestamp(Timestamp::beginOfTime());
+    ep_(0) 
+  {
+    setTimestamp(Timestamp::beginOfTime());
   }
 
   RawInputSource::~RawInputSource()
@@ -41,39 +42,27 @@ namespace art {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RawInputSource::readSubRun_() {
+  RawInputSource::readSubRun_() 
+  {
     newSubRun_ = false;
     SubRunAuxiliary subRunAux(SubRunID(runNumber_, subRunNumber_),
                               timestamp(), Timestamp::invalidTimestamp());
-    return boost::shared_ptr<SubRunPrincipal>(
-        new SubRunPrincipal(subRunAux,
-                                     productRegistry(),
-                                     processConfiguration()));
+    typedef boost::shared_ptr<SubRunPrincipal> ptr_t;
+    return ptr_t(new SubRunPrincipal(subRunAux,
+				     productRegistry(),
+				     processConfiguration()));
   }
 
   std::auto_ptr<EventPrincipal>
-  RawInputSource::readEvent_() {
+  RawInputSource::readEvent_() 
+  {
     assert(ep_.get() != 0);
     return ep_;
   }
 
-  std::auto_ptr<Event>
-  RawInputSource::makeEvent(RunNumber_t run, SubRunNumber_t subRun, EventNumber_t event, Timestamp const& tstamp) {
-    EventSourceSentry sentry(*this);
-    EventAuxiliary eventAux(EventID(run, subRun, event),
-      processGUID(), tstamp, true, EventAuxiliary::Data);
-    ep_ = std::auto_ptr<EventPrincipal>(
-        new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
-    std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
-    return e;
-  }
-
-
   input::ItemType
-  RawInputSource::getNextItemType() {
-//     return input::IsStop;
-//   }
-
+  RawInputSource::getNextItemType() 
+  {
     if (state() == input::IsInvalid) {
       return input::IsFile;
     }
@@ -109,18 +98,21 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  RawInputSource::readIt(EventID const&) {
-      throw art::Exception(errors::LogicError,"RawInputSource::readEvent_(EventID const& eventID)")
-        << "Random access read cannot be used for RawInputSource.\n"
-        << "Contact a Framework developer.\n";
+  RawInputSource::readIt(EventID const&) 
+  {
+    throw art::Exception(errors::LogicError)
+      << "RawInputSource::readEvent_(EventID const& eventID)"
+      << "Random access read cannot be used for RawInputSource.\n"
+      << "Contact a Framework developer.\n";
   }
 
-  // Not yet implemented
   void
-  RawInputSource::skip(int) {
-      throw art::Exception(errors::LogicError,"RawInputSource::skip(int offset)")
-        << "Random access skip cannot be used for RawInputSource\n"
-        << "Contact a Framework developer.\n";
+  RawInputSource::skip(int)
+  {
+    throw art::Exception(errors::LogicError)
+      << "RawInputSource::skip(int offset)"
+      << "Random access skip cannot be used for RawInputSource\n"
+      << "Contact a Framework developer.\n";
   }
 
 }  // art

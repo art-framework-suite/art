@@ -2,6 +2,7 @@
 project(art_Integration_Test)
 
 simple_plugin(AddIntsProducer          "module")
+simple_plugin(BareStringProducer       "module")
 simple_plugin(DerivedPtrVectorProducer "module")
 simple_plugin(DoubleProducer           "module")
 simple_plugin(DoubleTestAnalyzer       "module")
@@ -24,12 +25,10 @@ simple_plugin(TestBitsOutput           "module")
 simple_plugin(TestOutput               "module")
 simple_plugin(TestResultAnalyzer       "module")
 simple_plugin(U_S                      "module" ALLOW_UNDERSCORES)
-
 simple_plugin(Reconfigurable           "service")
 simple_plugin(Throwing                 "service")
-
-# Temporarily deactivated in 0.5.2 pending full implementation of issue #883.
-#simple_plugin(ToyRawInput              "source")
+simple_plugin(ToyRawInput              "source" art_Framework_IO_Sources)
+simple_plugin(ToyRawInputTester        "module")
 
 # Common library link requirements for tests here.
 link_libraries(
@@ -135,6 +134,7 @@ cet_test(reconfig_t HANDBUILT
   fcl/test_reconfig_01.fcl
   fcl/messageDefaults.fcl
 )
+
 cet_test(issue_0930_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c issue_0930.fcl
@@ -148,6 +148,90 @@ cet_test( test_FileDumperOutput.sh PREBUILT
   DATAFILES
   fcl/FileDumperOutputTest.fcl
   fcl/messageDefaults.fcl
+)
+
+cet_test(ToyRawInput_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c ToyRawInput_01.fcl
+  DATAFILES
+  fcl/ToyRawInput_01.fcl
+  fcl/messageDefaults.fcl
+ )
+
+foreach(num 02 03 04)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC test_must_abort
+    TEST_ARGS art -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+    fcl/messageDefaults.fcl
+    )
+endforeach()
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Assertion `outR || inR` failed"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_03 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Assertion `outSR || inSR` failed"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_04 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Assertion `outSR || inSR` failed"
+  )
+
+foreach(num 05 06 07 08 09 10)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+    fcl/messageDefaults.fcl
+    )
+endforeach()
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a 'new' SubRun that was the same as the previous SubRun"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_06 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a 'new' Run that was the same as the previous Run"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_07 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a new Run and Event without a SubRun"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_08 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned true but created no new data"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_09 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned false but created new data"
+  )
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "readNext returned a new Run with a SubRun from the wrong Run"
+  )
+
+cet_test(BareString_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c BareString_t.fcl
+  DATAFILES
+  fcl/BareString_t.fcl
+  fcl/messageDefaults.fcl
+  TEST_PROPERTIES WILL_FAIL true # FIXME
 )
 
 ########################################################################

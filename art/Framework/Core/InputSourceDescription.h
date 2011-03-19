@@ -11,6 +11,7 @@ input source that does not come in through the ParameterSet
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/exempt_ptr.h"
 #include <string>
 
 namespace art {
@@ -33,7 +34,7 @@ namespace art {
     {}
 
     ModuleDescription moduleDescription_;
-    ProductRegistry * productRegistry_;
+    cet::exempt_ptr<ProductRegistry> productRegistry_;
     boost::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxSubRuns_;

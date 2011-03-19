@@ -348,7 +348,7 @@ void testEvent::setUp()
   // and that is used to create the group in the principal used to
   // look up the object.
 
-  boost::shared_ptr<ProductRegistry const> preg(availableProducts_);
+  cet::exempt_ptr<ProductRegistry const> preg(availableProducts_);
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();
@@ -660,9 +660,6 @@ void testEvent::getByLabel()
   CPPUNIT_ASSERT(h->value == 100);
   BasicHandle bh2(principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "nomatch"));
   CPPUNIT_ASSERT(!bh2.isValid());
-
-  boost::shared_ptr<Wrapper<arttest::IntProduct> const> ptr = getProductByTag<arttest::IntProduct>(*principal_, inputTag);
-  CPPUNIT_ASSERT(ptr->product()->value == 200);
 }
 
 

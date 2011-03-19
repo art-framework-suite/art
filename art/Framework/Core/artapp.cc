@@ -71,7 +71,7 @@ int artapp(int argc, char* argv[]) {
    catch (cet::exception &e) {
       std::cerr << "Failed to parse the configuration file '"
                 << vm["config"].as<std::string>()
-                << "' with exception " << e.what()
+                << "' with exception\n" << e.what()
                 << "\n";
       return 7002;
    }

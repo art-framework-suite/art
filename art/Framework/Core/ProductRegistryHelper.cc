@@ -27,18 +27,17 @@ namespace art
 
     for ( ;  i != e; ++i)
       {
-        BranchDescription pdesc(i->branchType,
-                                md.moduleLabel(),
-                                md.processName(),
-                                i->userClassName(),
-                                i->friendlyClassName(),
-                                i->productInstanceName,
-                                md);
+        BranchDescription
+          pdesc(i->branchType,
+                i->hasEmulatedModule() ? i->emulatedModule : md.moduleLabel(),
+                i->hasEmulatedProcess() ? i->emulatedProcess : md.processName(),
+                i->userClassName(),
+                i->friendlyClassName(),
+                i->productInstanceName,
+                md);
         if (i->hasBranchAlias())
-          {
-            pdesc.addBranchAlias(i->branchAlias);
-          }
-
+          pdesc.addBranchAlias(i->branchAlias);
+	
         preg.addProduct(pdesc, isListener);
       }
   }

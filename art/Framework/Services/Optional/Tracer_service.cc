@@ -46,9 +46,6 @@ public:
   void preEndRun(RunID const& id, Timestamp const& ts);
   void postEndRun(Run const& run);
 
-  void preSourceConstruction(ModuleDescription const& md);
-  void postSourceConstruction(ModuleDescription const& md);
-
   void preModuleConstruction(ModuleDescription const& md);
   void postModuleConstruction(ModuleDescription const& md);
 
@@ -128,9 +125,6 @@ Tracer::Tracer(fhicl::ParameterSet const& iPS, ActivityRegistry&iRegistry)
 
   iRegistry.watchPreModule(this, &Tracer::preModuleEvent);
   iRegistry.watchPostModule(this, &Tracer::postModuleEvent);
-
-  iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
-  iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
 
   iRegistry.watchPreModuleConstruction(this, &Tracer::preModuleConstruction);
   iRegistry.watchPostModuleConstruction(this, &Tracer::postModuleConstruction);
@@ -406,16 +400,6 @@ void
 Tracer::postModuleEndSubRun(ModuleDescription const& iDescription) {
    --depth_;
    indent(4+depth_) << " finished for end subRun:" << iDescription.moduleLabel_ << std::endl;
-}
-
-void
-Tracer::preSourceConstruction(ModuleDescription const& iDescription) {
-  indent(1) << " constructing source:" << iDescription.moduleName_ << std::endl;
-}
-
-void
-Tracer::postSourceConstruction(ModuleDescription const& iDescription) {
-  indent(1) << " construction finished:" << iDescription.moduleName_ << std::endl;
 }
 
 void

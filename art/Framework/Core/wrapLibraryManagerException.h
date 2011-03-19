@@ -12,3 +12,7 @@ namespace art {
 }
 
 #endif /* art_Framework_Core_wrapLibraryManagerException_h */
+
+// Local Variables:
+// mode: c++
+// End:
