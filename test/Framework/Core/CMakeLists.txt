@@ -67,7 +67,7 @@ foreach(cppunit_source ${cppunit_files})
 endforeach()
 
 target_link_libraries(generichandle_t
-  art_TestObjects_dict
+  test_TestObjects_dict
 )
 
 foreach(cpp_test

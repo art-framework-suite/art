@@ -71,7 +71,7 @@ find_ups_product( fhiclcpp v2_11_0  )
 find_ups_product( messagefacility v1_8_12  )
 find_ups_product( cetlib v0_05_03 )
 find_ups_product( cpp0x v1_01_01 )
-find_ups_product( cetbuildtools v1_08_02 )
+find_ups_product( cetbuildtools v1_09_00 )
 find_ups_root( v5_28_00_p02 )
 find_ups_boost( v1_45_0 filesystem
                         program_options
