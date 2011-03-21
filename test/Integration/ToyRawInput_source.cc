@@ -47,15 +47,14 @@ namespace arttest
 
     void closeCurrentFile();
 
-    bool moveToFile(std::string const& name);
+    void readFile(std::string const &name,
+                  art::FileBlock*& fb);
 
     bool readNext(art::RunPrincipal* const& inR,
                   art::SubRunPrincipal* const& inSR,
                   art::RunPrincipal*& outR,
                   art::SubRunPrincipal*& outSR,
                   art::EventPrincipal*& outE);
-
-    bool readFileBlock(art::FileBlock*& fb);
 
   private:
     typedef std::vector<std::vector<int> > vv_t;
@@ -91,15 +90,6 @@ namespace arttest
     fileData_.clear();
     current_ = iter();
     end_ = iter();
-  }
-
-  bool ToyFile::moveToFile(std::string const& filename)
-  {
-    bool result = data_.get_if_present(filename, fileData_);
-    currentFilename_ = filename;
-    current_ = fileData_.begin();
-    end_ = fileData_.end();
-    return result;
   }
 
   bool ToyFile::readNext(art::RunPrincipal* const& inR,
@@ -187,10 +177,21 @@ namespace arttest
     return true;
   }
 
-  bool ToyFile::readFileBlock(art::FileBlock*& fb) {
+  void ToyFile::readFile(std::string const &name,
+                         art::FileBlock*& fb) {
+    if (!data_.get_if_present(name, fileData_))
+      {
+        throw art::Exception(art::errors::Configuration)
+          << "ToyFile expects to find a parameter representing a file's\n"
+          << "contents whose name is "
+          << name
+          << "\n";
+      }
+    currentFilename_ = name;
+    current_ = fileData_.begin();
+    end_ = fileData_.end();
     fb = new art::FileBlock(FileFormatVersion(1, "ToyFile 2011a"),
                             currentFilename_);
-    return true;
   }
 
   //

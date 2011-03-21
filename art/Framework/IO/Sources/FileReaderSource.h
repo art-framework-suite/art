@@ -18,10 +18,13 @@
 //    // to register and products to be reconstituted by this source.
 //    T(fhicl::ParameterSet const&, art::ProductRegistryHelper& );
 //
-//    // Open the file of the given name. Return true on success,
-//    // false to indicate an error from which we can continue, and
-//    // raise an exception to indicate any other failure.
-//    bool moveToFile(std::string const& filename);
+//    // Open the file of the given name, returning a new fileblock in
+//    // fb. If readFile is unable to return a valid FileBlock it
+//    // should throw (suggestions for suitable exceptions are:
+//    // art::Exception(art::errors::FileOpenError) or
+//    // art::Exception(art::errors::FileReadError).
+//    void readFile(std::string const& filename,
+//                  art::FileBlock*& fb);
 //
 //    // Read the next part of the current file. Return false if nothing
 //    // was read; return true and set the appropriate 'out' arguments
@@ -103,7 +106,6 @@ namespace art
     iter                   end_;
     input::ItemType        state_;
 
-    boost::shared_ptr<FileBlock>       cachedFB_;
     boost::shared_ptr<RunPrincipal>    cachedRP_;
     boost::shared_ptr<SubRunPrincipal> cachedSRP_;
     std::auto_ptr<EventPrincipal>      cachedE_;
@@ -114,9 +116,6 @@ namespace art
     // Called in the constructor, to finish the process of product
     // registration.
     void finishProductRegistration_(InputSourceDescription const& d);
-
-    // Make detail_ read a file block, and cache it.
-    void readFileBlock_();
 
     // Make detail_ try to read more stuff from its file. Cache any new
     // run/subrun/event. Throw an exception if we detect an error in the
@@ -165,7 +164,6 @@ namespace art
     currentFile_(),
     end_(),
     state_(input::IsInvalid),
-    cachedFB_(),
     cachedRP_(),
     cachedSRP_(),
     cachedE_(),
@@ -184,18 +182,6 @@ namespace art
   template <class T>
   FileReaderSource<T>::~FileReaderSource()
   { }
-
-  template <class T>
-  void
-  FileReaderSource<T>::readFileBlock_()
-  {
-    FileBlock* newF = 0;
-    detail_.readFileBlock(newF);
-    if (!newF)
-      throw Exception(errors::LogicError)
-        << "readFileBlock failed to return a required new FileBlock\n";
-    cachedFB_.reset(newF);
-  }
 
   template <class T>
   void
@@ -236,7 +222,7 @@ namespace art
             newR = 0;
             errMsg
               << "readNext returned a new Run which is the old Run for "
-              << cachedRP_->id() << ".\nIf you don't have a new run, don't return one!";
+              << cachedRP_->id() << ".\nIf you don't have a new run, don't return one!\n";
           }
         if (cachedSRP_ && newSR && cachedSRP_.get() == newSR)
           {
@@ -245,7 +231,7 @@ namespace art
             newSR = 0;
             errMsg
               << "readNext returned a new SubRun which is the old SubRun for "
-              << cachedSRP_->id() << ".\nIf you don't have a new subRun, don't return one!";
+              << cachedSRP_->id() << ".\nIf you don't have a new subRun, don't return one!\n";
           }
         // Either or both of the above cases could be true and we need
         // to make both of them safe before we throw:
@@ -483,18 +469,14 @@ namespace art
   boost::shared_ptr<FileBlock>
   FileReaderSource<T>::readFile()
   {
-    if (!detail_.moveToFile(*currentFile_))
+    FileBlock* newF = 0;
+    detail_.readFile(*currentFile_, newF);
+    if (!newF)
       {
-        throw Exception(errors::FileOpenError)
-          << "Unable to open file \""
-          << *currentFile_ << "\" for input.\n";
+        throw Exception(errors::LogicError)
+          << "detail_::readFile() failed to return a valid FileBlock object\n";
       }
-    readFileBlock_();
-    if (!cachedFB_) throw Exception(errors::LogicError)
-      << "Error in FileReaderSource<T>\n"
-      << "readFile() called when no FileBlock exists\n"
-      << "Please report this to the art developers\n";
-  return cachedFB_;
+    return boost::shared_ptr<FileBlock>(newF);
   }
 
   template <class T>
