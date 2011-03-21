@@ -189,6 +189,7 @@ install(FILES
   Path.h
   Principal.h
   PrincipalCache.h
+  PrincipalMaker.h
   ProcessingTask.h
   ProducerBase.h
   ProductRegistryHelper.h
@@ -216,12 +217,13 @@ install(FILES
   WorkerRegistry.h
   WorkerT.h
   find_config.h
+  get_BranchDescription.h
   run_art.h
   DESTINATION  ${product}/${version}/include/art/Framework/Core )
 
 set(DETAIL_HEADERS
   maybe_call_post_insert.h
-  maybe_record_parentage.h
+  maybe_record_parents.h
   )
 
 foreach (header ${DETAIL_HEADERS})
