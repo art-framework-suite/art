@@ -23,11 +23,30 @@ namespace art {
   public:
     FileBlock() :
       fileFormatVersion_(),
-      tree_(0), metaTree_(0),
-      subRunTree_(0), subRunMetaTree_(0),
-      runTree_(0), runMetaTree_(0),
-      fastCopyable_(false), fileName_(),
-      branchChildren_(new BranchChildren) {}
+      tree_(0),
+      metaTree_(0),
+      subRunTree_(0),
+      subRunMetaTree_(0),
+      runTree_(0),
+      runMetaTree_(0),
+      fastCopyable_(false),
+      fileName_(),
+      branchChildren_(new BranchChildren)
+    {}
+
+    FileBlock(FileFormatVersion const& version,
+              std::string const& fileName) :
+      fileFormatVersion_(version),
+      tree_(0),
+      metaTree_(0),
+      subRunTree_(0),
+      subRunMetaTree_(0),
+      runTree_(0),
+      runMetaTree_(0),
+      fastCopyable_(false),
+      fileName_(fileName),
+      branchChildren_(new BranchChildren)
+    {}
 
     FileBlock(FileFormatVersion const& version,
 	      TTree const* ev, TTree const* meta,

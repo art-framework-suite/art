@@ -189,15 +189,7 @@ namespace arttest
 
   bool ToyFile::readFileBlock(art::FileBlock*& fb) {
     fb = new art::FileBlock(FileFormatVersion(1, "ToyFile 2011a"),
-                            nullptr,
-                            nullptr,
-                            nullptr,
-                            nullptr,
-                            nullptr,
-                            nullptr,
-                            false,
-                            currentFilename_,
-                            boost::shared_ptr<art::BranchChildren>(new BranchChildren));
+                            currentFilename_);
     return true;
   }
 
