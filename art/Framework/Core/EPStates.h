@@ -133,6 +133,7 @@ namespace statemachine {
       sc::transition<Stop, EndingLoop>,
       sc::transition<Restart, Error> > reactions;
 
+    void openFiles();
     void closeFiles();
     void goToNewInputFile();
     bool shouldWeCloseOutput();
@@ -178,7 +179,6 @@ namespace statemachine {
       sc::custom_reaction<File> > reactions;
 
     sc::result react(File const& file);
-    void openFiles();
   private:
     art::IEventProcessor & ep_;
   };

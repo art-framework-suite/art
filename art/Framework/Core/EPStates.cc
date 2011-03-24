@@ -66,7 +66,10 @@ namespace statemachine {
    HandleFiles::HandleFiles(my_context ctx) :
       my_base(ctx),
       ep_(context<Machine>().ep()),
-      exitCalled_(false) { }
+      exitCalled_(false)
+   {
+     openFiles();
+   }
 
    void HandleFiles::exit() {
       if (ep_.alreadyHandlingException()) return;
@@ -126,6 +129,14 @@ namespace statemachine {
       }
    }
 
+   void HandleFiles::openFiles() {
+      ep_.readFile();
+      ep_.respondToOpenInputFile();
+
+      ep_.openOutputFiles();
+      ep_.respondToOpenOutputFiles();
+   }
+
    void HandleFiles::closeFiles() {
       ep_.respondToCloseInputFile();
       ep_.closeInputFile();
@@ -179,9 +190,7 @@ namespace statemachine {
    FirstFile::FirstFile(my_context ctx) :
       my_base(ctx),
       ep_(context<Machine>().ep())
-   {
-      openFiles();
-   }
+   { }
 
    FirstFile::~FirstFile() { }
 
@@ -193,14 +202,6 @@ namespace statemachine {
       else {
          return transit<HandleNewInputFile1>();
       }
-   }
-
-   void FirstFile::openFiles() {
-      ep_.readFile();
-      ep_.respondToOpenInputFile();
-
-      ep_.openOutputFiles();
-      ep_.respondToOpenOutputFiles();
    }
 
    HandleNewInputFile1::HandleNewInputFile1(my_context ctx) :
