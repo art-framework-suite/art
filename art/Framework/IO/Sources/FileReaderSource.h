@@ -110,8 +110,13 @@ namespace art
     boost::shared_ptr<SubRunPrincipal> cachedSRP_;
     std::auto_ptr<EventPrincipal>      cachedE_;
 
-    bool hasNewSubRun_;
-    bool hasNewEvent_;
+    bool pendingSubRun_;
+    bool pendingEvent_;
+
+    bool subRunIsNew_;
+
+    size_t remainingSubRuns_;
+    size_t remainingEvents_;
 
     // Called in the constructor, to finish the process of product
     // registration.
@@ -167,8 +172,11 @@ namespace art
     cachedRP_(),
     cachedSRP_(),
     cachedE_(),
-    hasNewSubRun_(false),
-    hasNewEvent_(false)
+    pendingSubRun_(false),
+    pendingEvent_(false),
+    subRunIsNew_(false),
+    remainingSubRuns_(p.get<size_t>("maxSubRuns", -1)),
+    remainingEvents_(p.get<size_t>("maxEvents", -1))
   {
     if (!preg_ ) throw Exception(errors::LogicError) << "no ProductRegistry\n";
     if (!act_) throw Exception(errors::LogicError) << "no ActivityRegistry\n";
@@ -324,8 +332,10 @@ namespace art
 
     if (result)
       {
-        hasNewSubRun_ = newSR;
-        hasNewEvent_  = newE;
+        subRunIsNew_ = newSR &&
+          ((!cachedSRP_) || newSR->id() != cachedSRP_->id());
+        pendingSubRun_ = newSR;
+        pendingEvent_  = newE;
 
         if (newR)  cachedRP_.reset(newR);
         if (newSR) cachedSRP_.reset(newSR);
@@ -357,6 +367,7 @@ namespace art
   input::ItemType
   FileReaderSource<T>::nextItemType()
   {
+    if (remainingEvents_ == 0) state_ = input::IsStop;
     switch (state_)
       {
       case input::IsInvalid:
@@ -372,9 +383,12 @@ namespace art
         break;
 
       case input::IsRun:
-        if (hasNewSubRun_)
-          state_ = input::IsSubRun;
-        else if(hasNewEvent_)
+        if (pendingSubRun_)
+          {
+            state_ = input::IsSubRun;
+            pendingSubRun_ = false;
+          }
+        else if(pendingEvent_)
           throw Exception(errors::DataCorruption)
             << "Input file '"
             << *currentFile_
@@ -386,8 +400,11 @@ namespace art
         break;
 
       case input::IsSubRun:
-        if (hasNewEvent_)
-          state_ = input::IsEvent;
+        if (pendingEvent_)
+          {
+            state_ = input::IsEvent;
+            pendingEvent_ = false;
+          }
         else 
           readNextAndRefuseEvent_();
         break;
@@ -402,6 +419,11 @@ namespace art
       case input::IsStop:
         break;
       }
+
+    if ((state_ == input::IsRun ||
+         state_ == input::IsSubRun) &&
+        remainingSubRuns_ == 0)
+      state_ = input::IsStop;
     return state_;
   }
 
@@ -484,6 +506,8 @@ namespace art
   FileReaderSource<T>::closeFile()
   {
     detail_.closeCurrentFile();
+    cachedRP_.reset();
+    cachedSRP_.reset();
   }
 
   template <class T>
@@ -505,6 +529,11 @@ namespace art
       << "Error in FileReaderSource<T>\n"
       << "readSubRun() called when no SubRunPrincipal exists\n"
       << "Please report this to the art developers\n";
+    if (subRunIsNew_)
+      {
+        --remainingSubRuns_;
+        subRunIsNew_ = false;
+      }
     return cachedSRP_;
   }
 
@@ -512,6 +541,7 @@ namespace art
   std::auto_ptr<EventPrincipal>
   FileReaderSource<T>::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
   {
+    --remainingEvents_;
     return cachedE_;
   }
 
@@ -536,7 +566,6 @@ namespace art
                                          const_cast<ProductRegistry&>(reg),
                                          false);
   }
-
 }
 
 #endif /* art_Framework_IO_Sources_FileReaderSource_h */
