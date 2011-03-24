@@ -237,9 +237,7 @@ namespace art {
                                                       getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, areg,
-                                    main_input.get<int>("maxEvents", -1),
-                                    main_input.get<int>("maxSubRuns", -1));
+      InputSourceDescription isdesc(md, preg, areg);
 
       shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
                                                                         isdesc).release());

@@ -19,25 +19,18 @@ namespace art {
   class ActivityRegistry;
 
   struct InputSourceDescription {
-    InputSourceDescription() : moduleDescription_(), productRegistry_(0), actReg_(), maxEvents_(-1), maxSubRuns_(-1) {}
+    InputSourceDescription() : moduleDescription_(), productRegistry_(0), actReg_() {}
     InputSourceDescription(ModuleDescription const& md,
 			   ProductRegistry& preg,
-			   boost::shared_ptr<ActivityRegistry> areg,
-			   int maxEvents,
-			   int maxSubRuns) :
+			   boost::shared_ptr<ActivityRegistry> areg) :
       moduleDescription_(md),
       productRegistry_(&preg),
-      actReg_(areg),
-      maxEvents_(maxEvents),
-      maxSubRuns_(maxSubRuns)
-
+      actReg_(areg)
     {}
 
     ModuleDescription moduleDescription_;
     cet::exempt_ptr<ProductRegistry> productRegistry_;
     boost::shared_ptr<ActivityRegistry> actReg_;
-    int maxEvents_;
-    int maxSubRuns_;
   };
 
 }  // art
