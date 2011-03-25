@@ -3,7 +3,7 @@ PRODUCT = @product@
 VERSION = @version@
 
 FLAVOR = @UPSFLAVOR@
-QUALIFIERS = @qualifier@
+QUALIFIERS = @full_qualifier@
   DECLARER = CET
   DECLARED = @datime@
   MODIFIER = CET
