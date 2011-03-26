@@ -56,45 +56,45 @@ my $optional_entries =
   {
    analyzer =>
    {
-    beginJob => "void beginJob()",
-    beginRun => "void beginRun(art::Run const &r)",
-    beginSubRun => "void beginSubRun(art::SubRun const &sr)",
-    endJob => "void endJob()",
-    endRun => "void endRun(art::Run const &r)",
-    endSubRun => "void endSubRun(art::SubRun const &sr)",
-    reconfigure => "void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const &fb)",
-    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const &fb)",
-    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const &fb)",
-    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const &fb)"
+    beginJob => "virtual void beginJob()",
+    beginRun => "virtual void beginRun(art::Run const &r)",
+    beginSubRun => "virtual void beginSubRun(art::SubRun const &sr)",
+    endJob => "virtual void endJob()",
+    endRun => "virtual void endRun(art::Run const &r)",
+    endSubRun => "virtual void endSubRun(art::SubRun const &sr)",
+    reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
+    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const &fb)",
+    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const &fb)",
+    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const &fb)",
+    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const &fb)"
    },
    filter =>
    {
-    beginJob => "void beginJob()",
-    beginRun => "bool beginRun(art::Run &r)",
-    beginSubRun => "bool beginSubRun(art::SubRun &sr)",
-    endJob => "void endJob()",
-    endRun => "bool endRun(art::Run &r)",
-    endSubRun => "bool endSubRun(art::SubRun &sr)",
-    reconfigure => "void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const &fb)",
-    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const &fb)",
-    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const &fb)",
-    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const &fb)"
+    beginJob => "virtual void beginJob()",
+    beginRun => "virtual bool beginRun(art::Run &r)",
+    beginSubRun => "virtual bool beginSubRun(art::SubRun &sr)",
+    endJob => "virtual void endJob()",
+    endRun => "virtual bool endRun(art::Run &r)",
+    endSubRun => "virtual bool endSubRun(art::SubRun &sr)",
+    reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
+    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const &fb)",
+    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const &fb)",
+    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const &fb)",
+    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const &fb)"
    },
    producer =>
    {
-    beginJob => "void beginJob()",
-    beginRun => "void beginRun(art::Run &r)",
-    beginSubRun => "void beginSubRun(art::SubRun &sr)",
-    endJob => "void endJob()",
-    endRun => "void endRun(art::Run &r)",
-    endSubRun => "void endSubRun(art::SubRun &sr)",
-    reconfigure => "void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const &fb)",
-    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const &fb)",
-    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const &fb)",
-    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const &fb)"
+    beginJob => "virtual void beginJob()",
+    beginRun => "virtual void beginRun(art::Run &r)",
+    beginSubRun => "virtual void beginSubRun(art::SubRun &sr)",
+    endJob => "virtual void endJob()",
+    endRun => "virtual void endRun(art::Run &r)",
+    endSubRun => "virtual void endSubRun(art::SubRun &sr)",
+    reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
+    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const &fb)",
+    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const &fb)",
+    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const &fb)",
+    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const &fb)"
    }
   };
 
@@ -102,15 +102,15 @@ my $required_entries =
   {
    analyzer =>
    {
-    analyze => "void analyze(art::Event const &e)"
+    analyze => "virtual void analyze(art::Event const &e)"
    },
    filter =>
    {
-    filter => "bool filter(art::Event &e)"
+    filter => "virtual bool filter(art::Event &e)"
    },
    producer =>
    {
-    produce => "void produce(art::Event &e)"
+    produce => "virtual void produce(art::Event &e)"
    }
   };
 
@@ -132,8 +132,10 @@ GetOptions($options,
            "boilerplate|b=s",
            "entry-list|E=s",
            "entries|entry|e=s@",
+           "force|f",
            "header-loc=s",
            "help|h|?",
+           "help-types",
            "impl-boilerplate=s",
            "split",
            "split-ext=s",
@@ -145,6 +147,8 @@ ${options}->{split} = 1
   if (exists ${options}->{"split-ext"});
 
 pod2usage(-exitval => 1, -verbose => 3) if $options->{help};
+
+help_types() if ($options->{"help-types"});
 
 # Check non-option arguments.
 if ((scalar @ARGV) != 2) {
@@ -179,6 +183,23 @@ if (exists ${options}->{split}) {
 }
 
 1;
+
+# Print help text for available module types.
+sub help_types {
+  print STDERR "Available module types: ",
+    join(", ", sort keys %{$module_types}), ".\n\nMore details:\n";
+  foreach my $module_type (sort keys %{$module_types}) {
+    print STDERR "Module Type: $module_type\n";
+    print STDERR "Required members:\n",
+      map({sprintf("  %s\n", $required_entries->{$module_type}->{$_});}
+          sort keys %{$required_entries->{$module_type}});
+    print STDERR "Optionanl members:\n",
+      map({sprintf("  %s\n", $optional_entries->{$module_type}->{$_});}
+          sort keys %{$optional_entries->{$module_type}});
+    print STDERR "\n";
+  }
+  exit(2);
+}
 
 # Do the substitution of "%" directives in the boilerplate source.
 sub ins_vals {
@@ -439,7 +460,7 @@ sub class_defn($\@\@) {
 class ${qual_name} : public art::${base_class} {
 public:
 ${indent}explicit ${class_name}(fhicl::ParameterSet const &p);
-${indent}~${class_name}();
+${indent}virtual ~${class_name}();
 
 EOF
   foreach my $req (sort keys %{${required_entries}->{${module_type}}}) {
@@ -500,6 +521,7 @@ EOF
     map( { "${indent}${_};\n"; } grep m&\)\s*$&, @{$unrecognized_entries}),
       "\n",
         map( { "${indent}${_};\n"; } grep { not m&\)\s*$&; } @{$unrecognized_entries}),
+          "${indent}// Declare member data here.\n",
           "\n};\n";
 }
 
@@ -526,9 +548,15 @@ sub class_impl($\@\@) {
   print $fh <<EOF;
 ${qual_name}::${class_name}(fhicl::ParameterSet const &p)
 ${indent}// :
-${indent}// Initialize memeber data here.
+${indent}// Initialize member data here.
 {
+EOF
+
+print $fh <<EOF if ($module_type eq "producer" or $module_type eq "filter");
 ${indent}// Call appropriate Produces<>() functions here.
+EOF
+
+print $fh <<EOF;
 }
 
 ${qual_name}::~${class_name}() {
@@ -538,20 +566,26 @@ ${indent}// Clean up dynamic memory and other resources here.
 EOF
 
   foreach my $req (sort keys %{${required_entries}->{${module_type}}}) {
+    my $f = $required_entries->{${module_type}}->{${req}};
+    $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
-      qualify_func($required_entries->{${module_type}}->{${req}}),
+      qualify_func($f),
         " {\n${indent}// Implementation of required member function here.\n}\n\n";
   }
 
   foreach my $entry (@{$optional_ep_list}) {
+    my $f = $entry;
+    $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
-      qualify_func($entry),
+      qualify_func($f),
         " {\n${indent}// Implementation of optional member function here.\n}\n\n";
   }
 
   foreach my $entry (grep m&\)\s*$&, @{$unrecognized_entries}) {
+    my $f = $entry;
+    $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
-      qualify_func($entry),
+      qualify_func($f),
         " {\n${indent}// Implementation of private member function here.\n}\n\n";
   }
 
@@ -578,6 +612,8 @@ artmod: Generate clean module source for ART.
 
 B<artmod> B<-h> | B<--help> | B<-?>
 
+B<artmod> B<--help-types>
+
 B<artmod> [I<optons>] [--] I<module-type> I<qualified-name>
 
 I<Options>: B<--boilerplate|-b> I<file> |
@@ -598,6 +634,20 @@ into three files or combine it into one. In addition, the name of a file
 wherein boilerplate comments or code may be found for insertion into the
 source may be specified.
 
+=head2 ARGUMENTS
+
+=over
+
+=item I<module-type>
+
+The type of the module to be generated. See the B<--help-types> option.
+
+=item I<qualified-name>
+
+The namespace-qualified class name (eg ns1::ns2::MyClass).
+
+=back
+
 =head2 OPTIONS
 
 =over
@@ -605,7 +655,6 @@ source may be specified.
 =item B<--boilerplate> I<file>
 
 =item B<-b> I<file>
-
 
 Include the specified file as preamble in all generated files.
 
@@ -618,7 +667,7 @@ Certain format strings will be honored, such as:
         included.
   %F  The fully-qualified path of the file in which the
         boilerplate is included.
-  %t  The type of module generated (analyzer, filter or producer).
+  %t  The type of module generated.
   %u  The login name of the invoker of artmod.
   %U  The full name (if available) if the invoker of artmod, or
         the login name if not.
@@ -633,23 +682,19 @@ default.
 
 See also B<--impl-boilerplate>, below.
 
-
 =item B<--entry-list> I<file>
 
 =item B<-E> I<file>
 
-
 Specify a file containing a list, one per line, of desired member
 functions or data for the class to be generated. This list will be OR-ed
 with any specified on the command line (see -e, below)
-
 
 =item B<--entries> I<entry>+
 
 =item B<--entry> I<entry>+
 
 =item B<-e> I<entry>+
-
 
 Specify optional member functions or data. A recognized entry will be
 put in with the correct siganture; a non-recognized entry (member
@@ -661,16 +706,18 @@ parentheses. For example,
 -e "bool doPrivateStuff(T1 const &t1, T2 const &t2)"
 -e "std::vector<int> privateData_"
 
+=item B<--force>
+
+=item B<-f>
+
+Force overwrite of existing files; the default is to not overwrite.
 
 =item B<--header-loc> I<path>
-
 
 The path part of the header include directive for the class definition
 (eg art/Framework/Core). Ignored unless the --split option is used.
 
-
 =item B<--impl-boilerplate> I<file>
-
 
 Boilerplate specifically for placement prior to the implementation of
 the module. In the separate-file mode of operation, the standard
@@ -678,7 +725,6 @@ boilerplate will be omitted from the implementation code.  The
 environment variable ARTMOD_IMPL_BOILERPLATE will be interrogated in the
 absence of this option. See the documentation for B<--boilerplate> above
 for information about substitutions.
-
 
 =item B<--split>
 
@@ -716,18 +762,14 @@ B<--split-ext>, below.
 
 =back
 
-
 =item B<--split-ext> I<ext>
-
 
 Change the extension of the class implemenation file from .cxx to
 I<ext>. Specifying this option automatically implies --split.
 
-
 =item B<--verbose>
 
 =item B<-v>
-
 
 Print some extra messages about functions generated, etc.
 
