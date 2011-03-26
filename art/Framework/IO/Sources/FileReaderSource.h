@@ -49,6 +49,7 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -59,6 +60,7 @@
 #include "boost/noncopyable.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <memory>
 
 // ----------------------------------------------------------------------
@@ -115,8 +117,10 @@ namespace art
 
     bool subRunIsNew_;
 
-    size_t remainingSubRuns_;
-    size_t remainingEvents_;
+    SubRunNumber_t remainingSubRuns_;
+    bool haveSRLimit_;
+    EventNumber_t remainingEvents_;
+    bool haveEventLimit_;
 
     // Called in the constructor, to finish the process of product
     // registration.
@@ -175,9 +179,21 @@ namespace art
     pendingSubRun_(false),
     pendingEvent_(false),
     subRunIsNew_(false),
-    remainingSubRuns_(p.get<size_t>("maxSubRuns", -1)),
-    remainingEvents_(p.get<size_t>("maxEvents", -1))
+    remainingSubRuns_(1),
+    haveSRLimit_(false),
+    remainingEvents_(1),
+    haveEventLimit_(false)
   {
+    int64_t maxSubRuns_par = p.get<int64_t>("maxSubRuns", -1);
+    int64_t maxEvents_par = p.get<int64_t>("maxEvents", -1);
+    if (maxSubRuns_par > -1) {
+      remainingSubRuns_ = maxSubRuns_par;
+      haveSRLimit_ = true;
+    }
+    if (maxEvents_par > -1) {
+      remainingEvents_ = maxEvents_par;
+      haveEventLimit_ = true;
+    }
     if (!preg_ ) throw Exception(errors::LogicError) << "no ProductRegistry\n";
     if (!act_) throw Exception(errors::LogicError) << "no ActivityRegistry\n";
     finishProductRegistration_(d);
@@ -531,7 +547,7 @@ namespace art
       << "Please report this to the art developers\n";
     if (subRunIsNew_)
       {
-        --remainingSubRuns_;
+        if (haveSRLimit_) --remainingSubRuns_;
         subRunIsNew_ = false;
       }
     return cachedSRP_;
@@ -541,7 +557,7 @@ namespace art
   std::auto_ptr<EventPrincipal>
   FileReaderSource<T>::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
   {
-    --remainingEvents_;
+    if (haveEventLimit_) --remainingEvents_;
     return cachedE_;
   }
 
