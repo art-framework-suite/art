@@ -25,7 +25,7 @@ test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 
 test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
 test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
 
-test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, use qualifier a2$extraqual"
+test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, using qualifier a2$extraqual"
 
 set_ msg2='You MUST setup ups'
 tnotnull UPS_DIR || echo "$msg2"
