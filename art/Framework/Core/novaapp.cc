@@ -101,7 +101,15 @@ int novaapp(int argc, char* argv[]) {
    //
    fhicl::intermediate_table raw_config;
    char const * fhicl_env = getenv("FHICL_FILE_PATH");
-   std::string search_path = (fhicl_env == nullptr)?"":(std::string(fhicl_env) + ':');
+   std::string search_path;
+   if (fhicl_env == nullptr) {
+     std::cerr
+       << "Expected environment variable FHICL_FILE_PATH is "
+       << "missing or empty: using \".\"\n";
+     search_path = ".";
+   } else {
+     search_path = std::string(fhicl_env) + ":";
+   }
 
    art::FirstAbsoluteOrLookupWithDotPolicy lookupPolicy(search_path);
 
