@@ -1,5 +1,6 @@
 #include "art/Utilities/FirstAbsoluteOrLookupWithDotPolicy.h"
 #include "cetlib/filesystem.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cstdlib>
 
@@ -10,6 +11,13 @@ FirstAbsoluteOrLookupWithDotPolicy(std::string const &paths)
    first_paths(std::string("./:") + paths),
    after_paths(paths)
 {
+  if (after_paths.empty()) {
+    mf::LogWarning("EmptySearchPath")
+      << "search path empty (nonexistent environment variable"
+      << (paths.empty()?"":std::string(" ") + paths)
+      << ")?\n"
+      << "Any included configurations will not be found by this lookup policy.\n"; 
+  }
 }
 
 std::string art::FirstAbsoluteOrLookupWithDotPolicy::operator() (std::string const &filename) {
