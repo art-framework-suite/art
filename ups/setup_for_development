@@ -25,6 +25,8 @@ test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 
 test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
 test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
 
+test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, use qualifier a2$extraqual"
+
 set_ msg2='You MUST setup ups'
 tnotnull UPS_DIR || echo "$msg2"
 
@@ -34,10 +36,10 @@ tnotnull UPS_DIR || echo "$msg2"
 
 # CET products
 setup -j cetbuildtools v1_10_00
-setup -j messagefacility v1_8_15 -q a2
-setup -j fhiclcpp v2_11_12 -q a2
-setup -j cetlib v0_05_04 -q a2
-setup -j cpp0x v1_01_03 -q a2
+setup -j messagefacility v1_8_15 -q a2$extraqual
+setup -j fhiclcpp v2_11_12 -q a2$extraqual
+setup -j cetlib v0_05_04 -q a2$extraqual
+setup -j cpp0x v1_01_03 -q a2$extraqual
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
 setup -j root v5_28_00a -q gcc45
