@@ -80,6 +80,7 @@ namespace art {
       eventProcessHistoryIDs_(),
       eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
       origEventID_(origEventID),
+      eventsToSkip_(eventsToSkip),
       whichSubRunsToSkip_(whichSubRunsToSkip),
       whichEventsToProcess_(whichEventsToProcess),
       eventListIter_(whichEventsToProcess_.begin()),
