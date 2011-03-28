@@ -80,7 +80,7 @@ public:
   void postSourceRun();
 
   void preOpenFile();
-  void postOpenFile();
+  void postOpenFile(std::string const &fn);
 
   void preCloseFile();
   void postCloseFile();
@@ -237,8 +237,10 @@ Tracer::preOpenFile() {
   indent(2) << "open input file" << std::endl;
 }
 void
-Tracer::postOpenFile () {
-  indent(2) << "finished: open input file" << std::endl;
+Tracer::postOpenFile (std::string const &fn) {
+  indent(2) << "finished: open input file "
+            << fn
+            << std::endl;
 }
 
 void

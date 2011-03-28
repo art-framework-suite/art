@@ -1,9 +1,9 @@
 #include "art/Framework/Core/EventProcessor.h"
 
 #include "art/Framework/Core/Breakpoints.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Core/EPStates.h"
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
@@ -11,9 +11,10 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -1133,10 +1134,15 @@ namespace art {
   }
 
   void EventProcessor::readFile() {
-    SignalSentry fileOpenSentry(actReg_->preOpenFileSignal_,
-                                actReg_->postOpenFileSignal_);
+    actReg_->preOpenFileSignal_();
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile();
+    if (!fb_) {
+      throw Exception(errors::LogicError)
+        << "Source readFile() did not return a valid FileBlock: FileBlock "
+        << "should be valid or readFile() should throw.\n";
+    }
+    actReg_->postOpenFileSignal_(fb_->fileName());
   }
 
   void EventProcessor::closeInputFile() {

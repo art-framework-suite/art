@@ -167,13 +167,13 @@ namespace art {
     AR_DECL_STATE_0_ARG_FUNC(PreOpenFile)
 
     /// signal is emitted after the source opens a file
-      typedef sigc::signal<void> PostOpenFile;
+      typedef sigc::signal<void, std::string const &> PostOpenFile;
     PostOpenFile postOpenFileSignal_;
     void watchPostOpenFile(PostOpenFile::slot_type const& iSlot) {
       PostOpenFile::slot_list_type sl = postOpenFileSignal_.slots();
       sl.push_front(iSlot);
     }
-    AR_DECL_STATE_0_ARG_FUNC(PostOpenFile)
+    AR_DECL_STATE_1_ARG_FUNC(PostOpenFile)
 
     /// signal is emitted before the Closesource closes a file
       typedef sigc::signal<void> PreCloseFile;

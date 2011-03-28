@@ -408,7 +408,7 @@ AR_0_ARG_UPDATER_DEFN(PreOpenFile) {
    setContext("OpenFile");
 }
 
-AR_0_ARG_UPDATER_DEFN(PostOpenFile) {
+AR_1_ARG_UPDATER_DEFN(PostOpenFile) {
    restoreContext("PostOpenFile");
 }
 
