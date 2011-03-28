@@ -25,7 +25,6 @@ BOOST_AUTO_TEST_CASE ( testBadConfigOption ) {
 BOOST_AUTO_TEST_CASE ( testEmptyConfig ) {
    char const* strings[] = { "artapp_t", "--config", "empty_config.fcl" };
    BOOST_CHECK( artapp(3, const_cast<char**>(strings) ) == 0 );
-   BOOST_CHECK( system("grep -e '^%MSG-i MF_INIT_OK:' warnings.log >/dev/null 2>&1") == 0 );
 }
 
 BOOST_AUTO_TEST_CASE ( testNonesuchConfig ) {
