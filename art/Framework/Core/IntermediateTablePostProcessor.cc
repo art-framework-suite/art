@@ -98,4 +98,15 @@ apply(intermediate_table &raw_config) const {
    raw_config["all_modules"] =
       extended_value(false, SEQUENCE, all_modules);
 
+   // messagefacility configuration.
+   if (!raw_config.exists("services.message")) {
+     raw_config["services.message.destinations.STDOUT.categories.ArtReport.limit"] =
+       extended_value(false, NUMBER, fhicl::detail::encode(100));
+     raw_config["services.message.destinations.STDOUT.categories.default.limit"] =
+       extended_value(false, NUMBER, fhicl::detail::encode(-1));
+     raw_config["services.message.destinations.STDOUT.type"] =
+         extended_value(false, STRING, fhicl::detail::encode("cout"));
+     raw_config["services.message.destinations.STDOUT.threshold"] =
+         extended_value(false, STRING, fhicl::detail::encode("INFO"));
+   }
 }
