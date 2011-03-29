@@ -1,12 +1,13 @@
 # project name
 project(art_Framework_IO_Input)
 
-set( art_Framework_IO_Input_sources BranchMapperWithReader.cc
-                                 DuplicateChecker.cc
-                                 RootDelayedReader.cc
-                                 RootInputFile.cc
-                                 RootInputFileSequence.cc
-                                 RootTree.cc )
+set( art_Framework_IO_Input_sources
+  DuplicateChecker.cc
+  RootDelayedReader.cc
+  RootInputFile.cc
+  RootInputFileSequence.cc
+  RootTree.cc
+)
 
 add_library(art_Framework_IO_Input SHARED ${art_Framework_IO_Input_sources} )
 

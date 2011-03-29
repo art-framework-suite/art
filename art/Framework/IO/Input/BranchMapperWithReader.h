@@ -56,27 +56,6 @@ namespace art {
     }
   }
 
-  // Backward compatibility
-  template <>
-  class BranchMapperWithReader<EventEntryInfo> : public BranchMapper {
-  public:
-    BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
-         BranchMapper(true),
-         branchPtr_(branch), entryNumber_(entryNumber),
-         infoVector_(), pInfoVector_(&infoVector_)
-  { }
-
-    virtual ~BranchMapperWithReader() {}
-
-  private:
-    virtual void readProvenance_() const;
-
-    TBranch * branchPtr_;
-    input::EntryNumber entryNumber_;
-    std::vector<EventEntryInfo> infoVector_;
-    mutable std::vector<EventEntryInfo> * pInfoVector_;
-  };  // BranchMapperWithReader<EventEntryInfo>
-
 }  // art
 
 // ======================================================================
