@@ -88,7 +88,6 @@ namespace art {
         //we want the new branch name for the JobReport
         branchNames_.push_back(prod.branchName());
       }
-      info.provenanceBranch_ = metaTree_->GetBranch(oldBranchName.c_str());
       branches_->insert(std::make_pair(key, info));
   }
 

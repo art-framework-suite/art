@@ -3,7 +3,7 @@
 
 // ======================================================================
 //
-// BranchInfo
+// Inputfwd
 //
 // ======================================================================
 
@@ -26,15 +26,15 @@ namespace art {
 
   namespace input {
 
-    struct BranchInfo {
-      BranchInfo(ConstBranchDescription const& prod) :
-        branchDescription_(prod),
-        productBranch_(0),
-        provenanceBranch_(0) {}
+    struct BranchInfo
+    {
+      BranchInfo(ConstBranchDescription const& prod)
+        : branchDescription_(prod)
+        , productBranch_(0)
+      { }
+
       ConstBranchDescription branchDescription_;
       TBranch * productBranch_;
-      // The rest are for backward compatibility
-      TBranch * provenanceBranch_;
     };  // BranchInfo
 
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
