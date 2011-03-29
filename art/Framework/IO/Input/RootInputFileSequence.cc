@@ -479,7 +479,7 @@ namespace art {
     rootFile_->skipEvents(0);
   }
 
-  bool const
+  bool
   RootInputFileSequence::primary() const {
     return input_.primary();
   }

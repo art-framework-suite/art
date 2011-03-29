@@ -29,7 +29,7 @@ namespace art {
     FileCatalog();
     virtual ~FileCatalog() = 0;
     void commitCatalog();
-    static bool const isPhysical(std::string const& name) {
+    static bool isPhysical(std::string const& name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
     std::string & url() {return url_;}

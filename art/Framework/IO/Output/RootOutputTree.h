@@ -80,11 +80,11 @@ namespace art {
 
     void writeTree() const;
 
-    TTree *const tree() const {
+    TTree * tree() const {
       return tree_;
     }
 
-    TTree *const metaTree() const {
+    TTree * metaTree() const {
       return metaTree_;
     }
 

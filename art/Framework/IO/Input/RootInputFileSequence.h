@@ -75,7 +75,7 @@ namespace art {
     ProductRegistry & productRegistryUpdate() const;
     int remainingEvents() const;
     int remainingSubRuns() const;
-    bool const primary() const;
+    bool primary() const;
     void logFileAction(const char* msg, std::string const& file);
 
     RootInput const& input_;

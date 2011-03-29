@@ -148,7 +148,7 @@ namespace art
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
     /// Accessor for primary input source flag
-    bool const primary() const {return primary_;}
+    bool primary() const {return primary_;}
 
     /// Called by framework at beginning of job
     void doBeginJob();

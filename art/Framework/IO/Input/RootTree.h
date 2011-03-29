@@ -72,7 +72,7 @@ namespace art {
       input::getEntry(statusBranch_, entryNumber_); // backward compatibility
     } // backward compatibility
 
-    TBranch *const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    TBranch *branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
 
   private:
     boost::shared_ptr<TFile> filePtr_;

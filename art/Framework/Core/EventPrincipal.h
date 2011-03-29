@@ -72,7 +72,7 @@ namespace art {
       return aux().time();
     }
 
-    bool const isReal() const {
+    bool isReal() const {
       return aux().isRealData();
     }
 
@@ -80,11 +80,11 @@ namespace art {
       return aux().experimentType();
     }
 
-    int const bunchCrossing() const {
+    int bunchCrossing() const {
       return aux().bunchCrossing();
     }
 
-    int const storeNumber() const {
+    int storeNumber() const {
       return aux().storeNumber();
     }
 
