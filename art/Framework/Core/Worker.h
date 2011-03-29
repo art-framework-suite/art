@@ -85,8 +85,6 @@ namespace art {
     int timesExcept() const { return timesExcept_; }
     State state() const { return state_; }
 
-    int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
-
     virtual bool modifiesEvent() const = 0;
 
     std::string const &label() const { return md_.moduleLabel(); }
