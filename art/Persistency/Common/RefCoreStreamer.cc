@@ -15,7 +15,7 @@ namespace art {
       R_b >> id;
       ProductID pid;
       ProductID* obj = static_cast<ProductID *>(objp);
-      *obj = (prodGetter_ ? prodGetter_->oldToNewProductID(pid) : pid);
+      *obj = pid;
     } else {
       assert("ProductID streamer is obsolete" == 0);
     }

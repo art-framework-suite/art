@@ -48,11 +48,7 @@ namespace art {
 
       friend class Operate;
 
-      ProductID oldToNewProductID(ProductID const& oldProductID) const {
-        return oldToNewProductID_(oldProductID);
-      }
 private:
-      virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
       /**This does not take ownership of the argument, so it is up to the caller to be
          sure that the object lifetime is greater than the time for which it is set*/
       static EDProductGetter const* set(EDProductGetter const*);

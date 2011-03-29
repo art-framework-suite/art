@@ -33,7 +33,6 @@ namespace art {
     moduleLabel_(),
     processName_(),
     branchID_(),
-    productID_(),
     fullClassName_(),
     friendlyClassName_(),
     productInstanceName_(),
@@ -46,19 +45,18 @@ namespace art {
   }
 
   BranchDescription::BranchDescription(
-			BranchType const& branchType,
-			std::string const& mdLabel,
-			std::string const& procName,
-			std::string const& name,
-			std::string const& fName,
-			std::string const& pin,
-			ModuleDescription const& modDesc,
-			std::set<std::string> const& aliases) :
+                        BranchType const& branchType,
+                        std::string const& mdLabel,
+                        std::string const& procName,
+                        std::string const& name,
+                        std::string const& fName,
+                        std::string const& pin,
+                        ModuleDescription const& modDesc,
+                        std::set<std::string> const& aliases) :
     branchType_(branchType),
     moduleLabel_(mdLabel),
     processName_(procName),
     branchID_(),
-    productID_(),
     fullClassName_(name),
     friendlyClassName_(fName),
     productInstanceName_(pin),
@@ -76,7 +74,7 @@ namespace art {
   }
 
   void
-  BranchDescription::init() const 
+  BranchDescription::init() const
   {
     if (!branchName().empty()) return;
     throwIfInvalid_();
@@ -105,9 +103,9 @@ namespace art {
     }
 
     branchName().reserve(friendlyClassName().size() +
-			moduleLabel().size() +
-			productInstanceName().size() +
-			processName().size() + 4);
+                        moduleLabel().size() +
+                        productInstanceName().size() +
+                        processName().size() + 4);
     branchName() += friendlyClassName();
     branchName() += underscore;
     branchName() += moduleLabel();
@@ -129,23 +127,23 @@ namespace art {
     type() = Reflex::Type::ByName(wrappedName());
     Reflex::PropertyList wp = type().Properties();
     if (wp.HasProperty("splitLevel")) {
-	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
-	if (splitLevel() < 0) {
+        splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+        if (splitLevel() < 0) {
           throw cet::exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-	  splitLevel() << " is specified for class " << wrappedName() << ".'\n";
-	}
-	++splitLevel(); //Compensate for wrapper
+          splitLevel() << " is specified for class " << wrappedName() << ".'\n";
+        }
+        ++splitLevel(); //Compensate for wrapper
     } else {
-	splitLevel() = invalidSplitLevel;
+        splitLevel() = invalidSplitLevel;
     }
     if (wp.HasProperty("basketSize")) {
-	basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
-	if (basketSize() <= 0) {
+        basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+        if (basketSize() <= 0) {
           throw cet::exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
-	  basketSize() << " is specified for class " << wrappedName() << "'.\n";
-	}
+          basketSize() << " is specified for class " << wrappedName() << "'.\n";
+        }
     } else {
-	basketSize() = invalidBasketSize;
+        basketSize() = invalidBasketSize;
     }
   }
 
@@ -154,9 +152,9 @@ namespace art {
     assert(!psetIDs().empty());
     if (psetIDs().size() != 1) {
       throw cet::exception("Ambiguous")
-	<< "Your application requires all events on Branch '" << branchName()
-	<< "'\n to have the same provenance. This file has events with mixed provenance\n"
-	<< "on this branch.  Use a different input file.\n";
+        << "Your application requires all events on Branch '" << branchName()
+        << "'\n to have the same provenance. This file has events with mixed provenance\n"
+        << "on this branch.  Use a different input file.\n";
     }
     return *psetIDs().begin();
   }
@@ -267,8 +265,8 @@ namespace art {
 
   std::string
   match(BranchDescription const& a, BranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m) {
+        std::string const& fileName,
+        BranchDescription::MatchMode m) {
     std::ostringstream differences;
     if (a.branchName() != b.branchName()) {
       differences << "Branch name '" << b.branchName() << "' does not match '" << a.branchName() << "'.\n";
@@ -294,23 +292,23 @@ namespace art {
       differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
     }
     if (m == BranchDescription::Strict) {
-	if (b.psetIDs().size() > 1) {
-	  differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
-	} else if (a.psetIDs().size() > 1) {
-	  differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
-	} else if (a.psetIDs() != b.psetIDs()) {
-	  differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
-	  differences << "    than in previous files.\n";
-	}
+        if (b.psetIDs().size() > 1) {
+          differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
+        } else if (a.psetIDs().size() > 1) {
+          differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
+        } else if (a.psetIDs() != b.psetIDs()) {
+          differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
+          differences << "    than in previous files.\n";
+        }
 
-	if (b.processConfigurationIDs().size() > 1) {
-	  differences << "Branch '" << b.branchName() << "' uses more than one process configuration in file '" << fileName << "'.\n";
-	} else if (a.processConfigurationIDs().size() > 1) {
-	  differences << "Branch '" << a.branchName() << "' uses more than one process configuration in previous files.\n";
-	} else if (a.processConfigurationIDs() != b.processConfigurationIDs()) {
-	  differences << "Branch '" << b.branchName() << "' uses different process configurations in file '" << fileName << "'.\n";
-	  differences << "    than in previous files.\n";
-	}
+        if (b.processConfigurationIDs().size() > 1) {
+          differences << "Branch '" << b.branchName() << "' uses more than one process configuration in file '" << fileName << "'.\n";
+        } else if (a.processConfigurationIDs().size() > 1) {
+          differences << "Branch '" << a.branchName() << "' uses more than one process configuration in previous files.\n";
+        } else if (a.processConfigurationIDs() != b.processConfigurationIDs()) {
+          differences << "Branch '" << b.branchName() << "' uses different process configurations in file '" << fileName << "'.\n";
+          differences << "    than in previous files.\n";
+        }
     }
     return differences.str();
   }

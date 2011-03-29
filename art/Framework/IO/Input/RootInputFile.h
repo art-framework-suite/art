@@ -143,8 +143,6 @@ namespace art {
     template <typename T>
     boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
 
-    boost::shared_ptr<BranchMapper> makeBranchMapperInOldRelease(RootTree & rootTree, BranchType const& type) const;
-
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;

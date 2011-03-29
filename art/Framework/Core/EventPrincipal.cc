@@ -20,31 +20,31 @@ using namespace std;
 namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
                                  cet::exempt_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	boost::shared_ptr<History> history,
-	boost::shared_ptr<BranchMapper> mapper,
-	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, history->processHistoryID(), mapper, rtrv),
-	  aux_(aux),
-	  subRunPrincipal_(),
-	  unscheduledHandler_(),
-	  moduleLabelsRunning_(),
-	  history_(history),
-	  branchToProductIDHelper_() {
-	    if (reg->productProduced(InEvent)) {
-	      addToProcessHistory();
-	      // Add index into BranchIDListRegistry for products produced this process
-	      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size()-1);
-	    }
-	    // Fill in helper map for Branch to ProductID mapping
-	    for (BranchListIndexes::const_iterator
-		 it = history->branchListIndexes().begin(),
-		 itEnd = history->branchListIndexes().end();
-		 it != itEnd; ++it) {
-	      ProcessIndex pix = it - history->branchListIndexes().begin();
-	      branchToProductIDHelper_.insert(make_pair(*it, pix));
-	    }
-	  }
+        ProcessConfiguration const& pc,
+        boost::shared_ptr<History> history,
+        boost::shared_ptr<BranchMapper> mapper,
+        boost::shared_ptr<DelayedReader> rtrv) :
+          Base(reg, pc, history->processHistoryID(), mapper, rtrv),
+          aux_(aux),
+          subRunPrincipal_(),
+          unscheduledHandler_(),
+          moduleLabelsRunning_(),
+          history_(history),
+          branchToProductIDHelper_() {
+            if (reg->productProduced(InEvent)) {
+              addToProcessHistory();
+              // Add index into BranchIDListRegistry for products produced this process
+              history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size()-1);
+            }
+            // Fill in helper map for Branch to ProductID mapping
+            for (BranchListIndexes::const_iterator
+                 it = history->branchListIndexes().begin(),
+                 itEnd = history->branchListIndexes().end();
+                 it != itEnd; ++it) {
+              ProcessIndex pix = it - history->branchListIndexes().begin();
+              branchToProductIDHelper_.insert(make_pair(*it, pix));
+            }
+          }
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
@@ -68,14 +68,14 @@ namespace art {
     if (group != 0) {
       if(!group->onDemand()) {
         ConstBranchDescription const& bd = group->productDescription();
-	throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
-	  << "addGroup_: Problem found while adding product provenance, "
-	  << "product already exists for ("
-	  << bd.friendlyClassName() << ","
-	  << bd.moduleLabel() << ","
-	  << bd.productInstanceName() << ","
-	  << bd.processName()
-	  << ")\n";
+        throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
+          << "addGroup_: Problem found while adding product provenance, "
+          << "product already exists for ("
+          << bd.friendlyClassName() << ","
+          << bd.moduleLabel() << ","
+          << bd.productInstanceName() << ","
+          << bd.processName()
+          << ")\n";
       }
       replaceGroup(g);
     } else {
@@ -91,50 +91,50 @@ namespace art {
 
   void
   EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
-	 ConstBranchDescription const& bd,
-	 auto_ptr<ProductProvenance> productProvenance) {
+         ConstBranchDescription const& bd,
+         auto_ptr<ProductProvenance> productProvenance) {
     auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
-	 auto_ptr<ProductProvenance> productProvenance) {
+         auto_ptr<ProductProvenance> productProvenance) {
     auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
-	 ConstBranchDescription const& bd,
-	 boost::shared_ptr<ProductProvenance> productProvenance) {
+         ConstBranchDescription const& bd,
+         boost::shared_ptr<ProductProvenance> productProvenance) {
     auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
-	 boost::shared_ptr<ProductProvenance> productProvenance) {
+         boost::shared_ptr<ProductProvenance> productProvenance) {
     auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::put(auto_ptr<EDProduct> edp,
-		ConstBranchDescription const& bd,
-		auto_ptr<ProductProvenance> productProvenance) {
+                ConstBranchDescription const& bd,
+                auto_ptr<ProductProvenance> productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")
-	<< "put: Cannot put because auto_ptr to product is null."
-	<< "\n";
+        << "put: Cannot put because auto_ptr to product is null."
+        << "\n";
     }
     ProductID pid = branchIDToProductID(bd.branchID());
     // Group assumes ownership
     if (!pid.isValid()) {
       throw art::Exception(art::errors::InsertFailure,"Null Product ID")
-	<< "put: Cannot put product with null Product ID."
-	<< "\n";
+        << "put: Cannot put product with null Product ID."
+        << "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
     this->addGroup(edp, bd, productProvenance);
@@ -189,7 +189,7 @@ namespace art {
     if (g.get() == 0) {
       boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
-	<< "get by product ID: no product with given id: "<< pid << "\n";
+        << "get by product ID: no product with given id: "<< pid << "\n";
       return BasicHandle(whyFailed);
     }
 
@@ -198,7 +198,7 @@ namespace art {
     if (g->onDemand()) {
       boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
-	<< "get by product ID: no product with given id: " << pid << "\n"
+        << "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";
       return BasicHandle(whyFailed);
     }
@@ -257,8 +257,4 @@ namespace art {
     return true;
   }
 
-  ProductID
-  EventPrincipal::oldToNewProductID_(ProductID const& oldProductID) const {
-    return branchIDToProductID(branchMapperPtr()->oldProductIDToBranchID(oldProductID));
-  }
 }
