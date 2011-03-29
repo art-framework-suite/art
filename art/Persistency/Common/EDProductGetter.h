@@ -49,7 +49,6 @@ namespace art {
       friend class Operate;
 
       ProductID oldToNewProductID(ProductID const& oldProductID) const {
-        if (oldProductID.oldID() == 0) return oldProductID;
         return oldToNewProductID_(oldProductID);
       }
 private:

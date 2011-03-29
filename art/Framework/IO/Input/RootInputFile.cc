@@ -946,7 +946,6 @@ namespace art {
                  vector<ProductStatus>::size_type index = it->second.oldProductID().productIndex() - 1;
                  EventEntryInfo entry(it->second.branchID(), rootTree.productStatuses()[index], it->second.oldProductID(), *pb);
                  mapper->insert(entry.makeProductProvenance());
-              mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
            }
         }
         return mapper;

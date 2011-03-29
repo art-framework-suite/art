@@ -14,7 +14,6 @@ namespace art {
       unsigned int id;
       R_b >> id;
       ProductID pid;
-      pid.oldID() = id;
       ProductID* obj = static_cast<ProductID *>(objp);
       *obj = (prodGetter_ ? prodGetter_->oldToNewProductID(pid) : pid);
     } else {
