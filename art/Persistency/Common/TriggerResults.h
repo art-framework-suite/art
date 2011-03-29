@@ -79,15 +79,6 @@ namespace art {
     // Obsolete
     const std::vector<std::string>& getTriggerNames() const { return names_; }
 
-    // Obsolete
-    const std::string& name(unsigned int i) const {return names_.at(i);}
-
-    // Obsolete
-    unsigned int find (const std::string& name) const {
-      const unsigned int n(size());
-      for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
-      return n;
-    }
   };  // TriggerResults
 
   // Free swap function
