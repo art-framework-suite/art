@@ -56,6 +56,8 @@ function one_file() {
   perl -wapi\~ -f fix-services.pl "${F}"
   # Fix for relocated services
   perl -wapi\~ -f fix-macros.pl "${F}"
+  # Fix for relocated ROOT IO files.
+  perl -wapi\~ -f fix-rootIO.pl "${F}"
   # Fix use of exceptions (must fix only once due to hysteresis).
   [[ "${F}" == *"art/Utilities/Exception.cc" ]] || \
     grep -e 'art/Utilites/EDMException' \

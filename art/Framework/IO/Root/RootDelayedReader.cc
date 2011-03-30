@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Input/RootDelayedReader.h"
+#include "art/Framework/IO/Root/RootDelayedReader.h"
 
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchDescription.h"

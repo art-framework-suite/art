@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Output_RootOutputFile_h
-#define art_Framework_IO_Output_RootOutputFile_h
+#ifndef art_Framework_IO_Root_RootOutputFile_h
+#define art_Framework_IO_Root_RootOutputFile_h
 
 // ======================================================================
 //
@@ -9,8 +9,8 @@
 
 #include "TROOT.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Output/RootOutput.h"
-#include "art/Framework/IO/Output/RootOutputTree.h"
+#include "art/Framework/IO/Root/RootOutput.h"
+#include "art/Framework/IO/Root/RootOutputTree.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -115,7 +115,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Output_RootOutputFile_h */
+#endif /* art_Framework_IO_Root_RootOutputFile_h */
 
 // Local Variables:
 // mode: c++

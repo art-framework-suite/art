@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Input_RootTree_h
-#define art_Framework_IO_Input_RootTree_h
+#ifndef art_Framework_IO_Root_RootTree_h
+#define art_Framework_IO_Root_RootTree_h
 
 // ======================================================================
 //
@@ -10,8 +10,8 @@
 #include "TBranch.h"
 #include "TTree.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Input/BranchMapperWithReader.h"
-#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Framework/IO/Root/BranchMapperWithReader.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
@@ -118,7 +118,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Input_RootTree_h */
+#endif /* art_Framework_IO_Root_RootTree_h */
 
 // Local Variables:
 // mode: c++

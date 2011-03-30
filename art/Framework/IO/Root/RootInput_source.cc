@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/IO/Input/RootInput.h"
+#include "art/Framework/IO/Root/RootInput.h"
 
 #include "TTreeCache.h"
 #include "art/Framework/Core/EventPrincipal.h"
@@ -12,7 +12,7 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/IO/Input/RootInputFileSequence.h"
+#include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include <cassert>

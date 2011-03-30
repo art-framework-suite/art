@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Input_RootDelayedReader_h
-#define art_Framework_IO_Input_RootDelayedReader_h
+#ifndef art_Framework_IO_Root_RootDelayedReader_h
+#define art_Framework_IO_Root_RootDelayedReader_h
 
 // ======================================================================
 //
@@ -9,7 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/DelayedReader.h"
-#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "boost/noncopyable.hpp"
 #include "boost/shared_ptr.hpp"
@@ -58,7 +58,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Input_RootDelayedReader_h */
+#endif /* art_Framework_IO_Root_RootDelayedReader_h */
 
 // Local Variables:
 // mode: c++

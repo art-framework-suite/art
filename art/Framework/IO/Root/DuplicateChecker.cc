@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Input/DuplicateChecker.h"
+#include "art/Framework/IO/Root/DuplicateChecker.h"
 
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "cetlib/exception.h"

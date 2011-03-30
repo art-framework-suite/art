@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Input_Inputfwd_h
-#define art_Framework_IO_Input_Inputfwd_h
+#ifndef art_Framework_IO_Root_Inputfwd_h
+#define art_Framework_IO_Root_Inputfwd_h
 
 // ======================================================================
 //
@@ -47,7 +47,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Input_Inputfwd_h */
+#endif /* art_Framework_IO_Root_Inputfwd_h */
 
 // Local Variables:
 // mode: c++

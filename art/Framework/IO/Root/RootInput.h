@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Input_RootInput_h
-#define art_Framework_IO_Input_RootInput_h
+#ifndef art_Framework_IO_Root_RootInput_h
+#define art_Framework_IO_Root_RootInput_h
 
 // ======================================================================
 //
@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Sources/EDInputSource.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -73,7 +73,7 @@ private:
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Input_RootInput_h */
+#endif /* art_Framework_IO_Root_RootInput_h */
 
 // Local Variables:
 // mode: c++

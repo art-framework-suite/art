@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Input_RootInputFileSequence_h
-#define art_Framework_IO_Input_RootInputFileSequence_h
+#ifndef art_Framework_IO_Root_RootInputFileSequence_h
+#define art_Framework_IO_Root_RootInputFileSequence_h
 
 // ======================================================================
 //
@@ -10,7 +10,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -111,7 +111,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Input_RootInputFileSequence_h */
+#endif /* art_Framework_IO_Root_RootInputFileSequence_h */
 
 // Local Variables:
 // mode: c++

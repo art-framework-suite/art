@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/IO/Output/RootOutputFile.h"
+#include "art/Framework/IO/Root/RootOutputFile.h"
 
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Core/EventPrincipal.h"
@@ -32,8 +32,8 @@
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
-#include "art/Version/GetFileFormatVersion.h"
-#include "art/Version/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/GetFileFormatVersion.h"
+#include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"

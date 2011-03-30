@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Input_BranchMapperWithReader_h
-#define art_Framework_IO_Input_BranchMapperWithReader_h
+#ifndef art_Framework_IO_Root_BranchMapperWithReader_h
+#define art_Framework_IO_Root_BranchMapperWithReader_h
 
 // ======================================================================
 //
@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "TBranch.h"
-#include "art/Framework/IO/Input/Inputfwd.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/EventEntryInfo.h"
@@ -60,7 +60,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_IO_Input_BranchMapperWithReader_h */
+#endif /* art_Framework_IO_Root_BranchMapperWithReader_h */
 
 // Local Variables:
 // mode: c++

@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Output/RootOutputTree.h"
+#include "art/Framework/IO/Root/RootOutputTree.h"
 
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Utilities/Exception.h"

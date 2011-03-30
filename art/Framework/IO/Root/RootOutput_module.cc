@@ -4,14 +4,14 @@
 //
 // ======================================================================
 
-#include "art/Framework/IO/Output/RootOutput.h"
+#include "art/Framework/IO/Root/RootOutput.h"
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/IO/Output/RootOutputFile.h"
+#include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"

@@ -1,7 +1,7 @@
-#include "art/Framework/IO/Input/RootTree.h"
+#include "art/Framework/IO/Root/RootTree.h"
 
 #include "art/Framework/Core/Principal.h"
-#include "art/Framework/IO/Input/RootDelayedReader.h"
+#include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"

@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/IO/Input/RootInputFileSequence.h"
+#include "art/Framework/IO/Root/RootInputFileSequence.h"
 
 #ifdef USE_RANDOM
 // #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -15,10 +15,10 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
-#include "art/Framework/IO/Input/DuplicateChecker.h"
-#include "art/Framework/IO/Input/RootInput.h"
-#include "art/Framework/IO/Input/RootInputFile.h"
-#include "art/Framework/IO/Input/RootTree.h"
+#include "art/Framework/IO/Root/DuplicateChecker.h"
+#include "art/Framework/IO/Root/RootInput.h"
+#include "art/Framework/IO/Root/RootInputFile.h"
+#include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"

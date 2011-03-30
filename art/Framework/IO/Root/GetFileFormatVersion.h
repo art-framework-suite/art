@@ -1,5 +1,5 @@
-#ifndef art_Version_GetFileFormatVersion_h
-#define art_Version_GetFileFormatVersion_h
+#ifndef art_Framework_IO_Root_GetFileFormatVersion_h
+#define art_Framework_IO_Root_GetFileFormatVersion_h
 
 namespace art
 {
@@ -8,7 +8,7 @@ namespace art
 
   int getFileFormatVersion();
 }
-#endif /* art_Version_GetFileFormatVersion_h */
+#endif /* art_Framework_IO_Root_GetFileFormatVersion_h */
 
 // Local Variables:
 // mode: c++
