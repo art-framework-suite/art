@@ -27,33 +27,21 @@ public:
       Test = 7
    };
 
-   static int const invalidBunchXing = -1;
-
-   static int const invalidStoreNumber = 0;
-
    EventAuxiliary()
       :
       id_(),
       time_(),
       isRealData_(false),
-      experimentType_(Any),
-      bunchCrossing_(invalidBunchXing),
-      orbitNumber_(invalidBunchXing),
-      storeNumber_(invalidStoreNumber)
+      experimentType_(Any)
    {}
 
    EventAuxiliary(EventID const &theId, Timestamp const &theTime,
-                  bool isReal, ExperimentType eType = Any,
-                  int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
-                  int orbitNum = invalidBunchXing)
+                  bool isReal, ExperimentType eType = Any)
       :
       id_(theId),
       time_(theTime),
       isRealData_(isReal),
-      experimentType_(eType),
-      bunchCrossing_(bunchXing),
-      orbitNumber_(orbitNum),
-      storeNumber_(storeNumber)
+      experimentType_(eType)
    {}
 
    void write(std::ostream& os) const;
@@ -71,21 +59,12 @@ public:
 
    ExperimentType experimentType() const { return experimentType_; }
 
-   int bunchCrossing() const { return bunchCrossing_; }
-
-   int orbitNumber() const { return orbitNumber_; }
-
-   int storeNumber() const { return storeNumber_; }
-
    bool operator==(EventAuxiliary const &other) const {
       return
          id_ == other.id_ &&
          time_ == other.time_ &&
          isRealData_ == other.isRealData_ &&
-         experimentType_ == other.experimentType_ &&
-         bunchCrossing_ == other.bunchCrossing_ &&
-         orbitNumber_ == other.orbitNumber_ &&
-         storeNumber_ == other.storeNumber_;
+         experimentType_ == other.experimentType_;
    }
 
 private:
@@ -97,12 +76,6 @@ private:
    bool isRealData_;
    // Something descriptive of the source of the data
    ExperimentType experimentType_;
-   //  The bunch crossing number
-   int bunchCrossing_;
-   // The orbit number
-   int orbitNumber_;
-   //  The LHC store number
-   int storeNumber_;
 };
 
 

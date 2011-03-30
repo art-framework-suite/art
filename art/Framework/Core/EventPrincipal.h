@@ -37,8 +37,6 @@ namespace art {
     typedef Principal Base;
 
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
-    static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
-    static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
                    cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
@@ -78,14 +76,6 @@ namespace art {
 
     EventAuxiliary::ExperimentType ExperimentType() const {
       return aux().experimentType();
-    }
-
-    int bunchCrossing() const {
-      return aux().bunchCrossing();
-    }
-
-    int storeNumber() const {
-      return aux().storeNumber();
     }
 
     EventAuxiliary const& aux() const {
