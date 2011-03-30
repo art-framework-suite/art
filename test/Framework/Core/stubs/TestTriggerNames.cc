@@ -158,14 +158,6 @@ namespace arttest
              << "Failed finding trigger names from a previous process" << std::endl;
         abort();
       }
-      bool fromPSetRegistry;
-      if (tns->getTrigPaths(*prod[0], triggernames, fromPSetRegistry)) {
-        if (!fromPSetRegistry) {
-          std::cerr << "TestTriggerNames: "
-               << "fromPSetRegistry returned with incorrect value" << std::endl;
-          abort();
-        }
-      }
 
       // The provenance of the TriggerResults object should also contain the
       // parameter set ID for the parameter set that lists the trigger paths.

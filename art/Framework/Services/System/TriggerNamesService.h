@@ -65,14 +65,6 @@ public:
   bool getTrigPaths(TriggerResults const& triggerResults,
                     Strings& trigPaths);
 
-  // This is the same as the previous function except the value returned in
-  // the last argument indicates whether the results were retrieved from the
-  // ParameterSet registry.  This will always be true except in old data where
-  // the trigger names were stored inside of the TriggerResults object.
-  bool getTrigPaths(TriggerResults const& triggerResults,
-                    Strings& trigPaths,
-                    bool& fromPSetRegistry);
-
   Strings const& getEndPaths() const { return end_names_; }
   std::string const&  getEndPath(size_type const i) const { return end_names_.at(i);}
   size_type  findEndPath(std::string const& name) const { return find(end_pos_,name);}

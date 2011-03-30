@@ -23,18 +23,9 @@ namespace art {
       return false;
     }
     art::ServiceHandle<art::TriggerNamesService> tns;
-    bool fromPSetRegistry;
-    if (tns->getTrigPaths(triggerResults, triggerNames_, fromPSetRegistry)) {
-
-      if (fromPSetRegistry) {
-        psetID_ = triggerResults.parameterSetID();
-        psetID_valid_ = true;
-      }
-      // Allows backward compatibility to old TriggerResults objects
-      // which contain the names.
-      else {
-        psetID_valid_ = false;
-      }
+    if (tns->getTrigPaths(triggerResults, triggerNames_)) {
+      psetID_ = triggerResults.parameterSetID();
+      psetID_valid_ = true;
     }
     // This should never happen
     else {

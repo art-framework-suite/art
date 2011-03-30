@@ -76,7 +76,6 @@ foreach(cpp_test
     EventSelector_t
     EventSelWildcard_t
     EventSelExc_t
-    EventSelOverlap_t
     CurrentProcessingContext_t
     CPCSentry_t
     RegistryTemplate_t

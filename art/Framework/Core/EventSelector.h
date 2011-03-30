@@ -2,13 +2,9 @@
 #define art_Framework_Core_EventSelector_h
 
 // ======================================================================
-// Change Log
 //
-// 1 - Mark Fischler Feb 6, 2008
-//      Internals for implementation of glob-style wildcard selection
-//      In particular, !xyz* requires the vector nonveto_bits_
-//      nonveto_bits_ is designed to also accomodate an AND of triggers
-//      selection criterion, if that is wanted at some future date.
+// EventSelector
+//
 // ======================================================================
 
 #include "art/Persistency/Common/HLTPathStatus.h"
@@ -52,14 +48,6 @@ namespace art {
     bool acceptEvent(TriggerResults const&);
     bool acceptEvent(unsigned char const*, int) const;
 
-    // 29-Jan-2008, KAB - added methods for testing and using
-    // trigger selections (pathspecs).
-    static bool selectionIsValid(Strings const& pathspec,
-                                 Strings const& fullTriggerList);
-    static evtSel::OverlapResult
-      testSelectionOverlap(Strings const& pathspec1,
-                           Strings const& pathspec2,
-                           Strings const& fullTriggerList);
     boost::shared_ptr<TriggerResults>
       maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string>
@@ -82,11 +70,11 @@ namespace art {
     typedef std::vector<BitInfo> Bits;
 
     bool accept_all_;
-    Bits absolute_acceptors_;                                   // change 3
-    Bits conditional_acceptors_;                                // change 3
-    Bits exception_acceptors_;                                  // change 3
-    std::vector<Bits> all_must_fail_;                           // change 1
-    std::vector<Bits> all_must_fail_noex_;                      // change 3
+    Bits absolute_acceptors_;
+    Bits conditional_acceptors_;
+    Bits exception_acceptors_;
+    std::vector<Bits> all_must_fail_;
+    std::vector<Bits> all_must_fail_noex_;
 
     bool results_from_current_process_;
     bool psetID_initialized_;
