@@ -88,9 +88,11 @@ arttest::TestBitsOutput::~TestBitsOutput()
 {
 }
 
-void arttest::TestBitsOutput::write(art::EventPrincipal const& e)
+void arttest::TestBitsOutput::write(art::EventPrincipal const& ep)
 {
    assert(currentContext() != 0);
+   Event ev( const_cast<EventPrincipal&>(ep),
+             *currentContext()->moduleDescription() );
 
    Trig prod;
 
@@ -110,7 +112,7 @@ void arttest::TestBitsOutput::write(art::EventPrincipal const& e)
    if (!expectTriggerResults_) {
 
       try {
-         prod = getTriggerResults(e);
+         prod = getTriggerResults(ev);
          //throw doesn't happen until we dereference
          *prod;
       }
@@ -127,7 +129,7 @@ void arttest::TestBitsOutput::write(art::EventPrincipal const& e)
    // Now deal with the other case where we expect the object
    // to be present.
 
-   prod = getTriggerResults(e);
+   prod = getTriggerResults(ev);
 
    std::vector<unsigned char> vHltState;
 

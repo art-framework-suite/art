@@ -226,16 +226,6 @@ namespace art {
     return selectors_.getOneTriggerResults(ev);
   }
 
-  Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const {
-    // This is bad, because we're returning handles into an Event that
-    // is destructed before the return. It might not fail, because the
-    // actual EventPrincipal is not destroyed, but it still needs to
-    // be cleaned up.
-    Event ev(const_cast<EventPrincipal&>(ep),
-             *current_context_->moduleDescription());
-    return getTriggerResults(ev);
-  }
-
    namespace {
      class  PVSentry {
      public:
