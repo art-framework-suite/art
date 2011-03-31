@@ -6,12 +6,6 @@
 
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 
-#ifdef USE_RANDOM
-// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
-#endif
-// #include "Utilities/StorageFactory/interface/StorageFactory.h"
-
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
@@ -113,18 +107,6 @@ namespace art {
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
         BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
       }
-    } else {
-#ifdef USE_RANDOM
-      ServiceHandle<RandomNumberGenerator> rng;
-      if (!rng.isAvailable()) {
-        throw art::Exception(errors::Configuration)
-          << "A secondary input source requires the RandomNumberGenerator service\n"
-          << "which is not present in the configuration file.  You must add the service\n"
-          << "in the configuration file or remove the modules that require it.";
-      }
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_ = new CLHEP::RandFlat(engine);
-#endif
     }
   }
 
