@@ -3,7 +3,6 @@ project(art_Persistency_Provenance)
 
 set( art_Persistency_Provenance_sources BranchChildren.cc
                                       BranchDescription.cc
-                                      BranchEntryDescription.cc
                                       BranchID.cc
                                       BranchIDListHelper.cc
                                       BranchKey.cc
@@ -47,7 +46,6 @@ install ( TARGETS art_Persistency_Provenance DESTINATION ${flavorqual_dir}/lib )
 install(FILES
   BranchChildren.h
   BranchDescription.h
-  BranchEntryDescription.h
   BranchID.h
   BranchIDList.h
   BranchIDListHelper.h
