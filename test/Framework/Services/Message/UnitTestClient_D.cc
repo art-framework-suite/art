@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_D.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -15,11 +15,11 @@ void
                            , art::EventSetup const & /*unused*/
                               )
 {
-  art::LogWarning("cat_A")   << "This message should not appear in "
+  mf::LogWarning("cat_A")   << "This message should not appear in "
   			     << "the framework job report";
-  art::LogWarning("FwkJob")  << "<Message>This message should appear in "
+  mf::LogWarning("FwkJob")  << "<Message>This message should appear in "
  			     << "the framework job report</Message>";
-  art::LogWarning("special") << "This message should appear in "
+  mf::LogWarning("special") << "This message should appear in "
  			     << "restrict but the others should not";
 
 }  // MessageLoggerClient::analyze()
@@ -29,4 +29,4 @@ void
 
 
 using arttest::UnitTestClient_D;
-DEFINE_FWK_MODULE(UnitTestClient_D);
+DEFINE_ART_MODULE(UnitTestClient_D);

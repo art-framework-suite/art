@@ -4,7 +4,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 namespace art {
@@ -20,12 +20,12 @@ class UnitTestClient_P
 {
 public:
   explicit
-    UnitTestClient_P( art::ParameterSet const & p)
+    UnitTestClient_P( fhicl::ParameterSet const & p)
     : useLogFlush(true)
     , queueFillers(1)
   {
-    useLogFlush  = p.getUntrackedParameter<bool>("useLogFlush",  useLogFlush);
-    queueFillers = p.getUntrackedParameter<int> ("queueFillers", queueFillers);
+    useLogFlush  = p.get<bool>("useLogFlush",  useLogFlush);
+    queueFillers = p.get<int> ("queueFillers", queueFillers);
   }
 
   virtual

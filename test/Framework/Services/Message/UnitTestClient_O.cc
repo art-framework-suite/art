@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_O.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -14,9 +14,9 @@ void
                            , art::EventSetup const & /*unused*/
                               )
 {
-  art::LogInfo   ("importantInfo")
+  mf::LogInfo   ("importantInfo")
   		<< "This LogInfo message should appear in both destinations";
-  art::LogInfo   ("routineInfo")
+  mf::LogInfo   ("routineInfo")
 		<< "This LogInfo message should appear in the info destination";
 
 
@@ -27,4 +27,4 @@ void
 
 
 using arttest::UnitTestClient_O;
-DEFINE_FWK_MODULE(UnitTestClient_O);
+DEFINE_ART_MODULE(UnitTestClient_O);

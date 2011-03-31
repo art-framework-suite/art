@@ -5,13 +5,13 @@
 #include "art/Framework/Core/Run.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Utilities/Exception.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "cetlib/exception.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "ProdigalAnalyzer.h"
 #include "test/TestObjects/ToyProducts.h"
 
 namespace arttest {
-  ProdigalAnalyzer::ProdigalAnalyzer(art::ParameterSet const& )
+  ProdigalAnalyzer::ProdigalAnalyzer(fhicl::ParameterSet const& )
   {
   }
 
@@ -23,4 +23,4 @@ namespace arttest {
 
 }
 using arttest::ProdigalAnalyzer;
-DEFINE_FWK_MODULE(ProdigalAnalyzer);
+DEFINE_ART_MODULE(ProdigalAnalyzer);

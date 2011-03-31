@@ -19,7 +19,7 @@ namespace arttest {
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    explicit ThingSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc);
+    explicit ThingSource(fhicl::ParameterSet const& pset, art::InputSourceDescription const& desc);
 
     virtual ~ThingSource();
 

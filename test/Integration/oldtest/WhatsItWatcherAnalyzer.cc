@@ -43,7 +43,7 @@ namespace arttest {
 
 class WhatsItWatcherAnalyzer : public art::EDAnalyzer {
    public:
-      explicit WhatsItWatcherAnalyzer(const art::ParameterSet&);
+      explicit WhatsItWatcherAnalyzer(const fhicl::ParameterSet&);
       ~WhatsItWatcherAnalyzer();
 
 
@@ -70,7 +70,7 @@ class WhatsItWatcherAnalyzer : public art::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const art::ParameterSet& /*iConfig*/):
+WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const fhicl::ParameterSet& /*iConfig*/):
   watch1_(this,&WhatsItWatcherAnalyzer::watch1),
   watch2_(boost::bind(&WhatsItWatcherAnalyzer::watch2,this,_1)),
   watchBool_()
@@ -125,4 +125,4 @@ WhatsItWatcherAnalyzer::watch2(const GadgetRcd& iRcd)
 }
 using namespace arttest;
 //define this as a plug-in
-DEFINE_FWK_MODULE(WhatsItWatcherAnalyzer);
+DEFINE_ART_MODULE(WhatsItWatcherAnalyzer);

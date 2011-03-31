@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/MemoryTestClient_B.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -11,11 +11,11 @@ namespace arttest
 
 int  MemoryTestClient_B::nevent = 0;
 
-MemoryTestClient_B::MemoryTestClient_B( art::ParameterSet const & ps)
+MemoryTestClient_B::MemoryTestClient_B( fhicl::ParameterSet const & ps)
   : vsize(0)
 {
-  int pattern = ps.getUntrackedParameter<int>("pattern",1);
-  art::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
+  int pattern = ps.get<int>("pattern",1);
+  mf::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
   initializeMemoryPattern(pattern);
 }
 
@@ -28,12 +28,12 @@ void
   nevent++;
   int mevent = nevent/4;
   double v = memoryPattern[mevent%memoryPattern.size()];
-  art::LogVerbatim("memoryUsage") << "Event " << nevent
+  mf::LogVerbatim("memoryUsage") << "Event " << nevent
   	<< " leaks "<< v/scale << " Mbytes";
   if ( v > vsize ) {
     int leaksize = static_cast<int>(((v-vsize)/scale)*1048576);
     char* leak = new  char[leaksize];
-    art::LogPrint("memoryIncrease") << "Event " << mevent
+    mf::LogPrint("memoryIncrease") << "Event " << mevent
   	<< " increases vsize by "<< ((v-vsize)/scale) << " Mbytes";
   }
   // DO NOT delete[] leak; the point is to increment vsize!
@@ -109,4 +109,4 @@ void  MemoryTestClient_B::initializeMemoryPattern(int pattern) {
 
 
 using arttest::MemoryTestClient_B;
-DEFINE_FWK_MODULE(MemoryTestClient_B);
+DEFINE_ART_MODULE(MemoryTestClient_B);

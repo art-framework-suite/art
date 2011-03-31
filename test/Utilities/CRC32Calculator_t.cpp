@@ -4,7 +4,7 @@
 
 int main() {
 
-  artZ::CRC32Calculator crc32("type_label_instance_process");
+  art::CRC32Calculator crc32("type_label_instance_process");
 
   std::cout << "checksum = " << crc32.checksum() << std::endl;
 
@@ -12,7 +12,7 @@ int main() {
   unsigned int  knownResult = 1215348599;
   assert(crc32.checksum() == knownResult);
 
-  artZ::CRC32Calculator emptyString_crc32("");
+  art::CRC32Calculator emptyString_crc32("");
   assert(emptyString_crc32.checksum() == 0);
 
   std::cout << "Empty string checksum = "

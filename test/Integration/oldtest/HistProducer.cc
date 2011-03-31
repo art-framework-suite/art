@@ -5,7 +5,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 
 namespace arttest {
-  HistProducer::HistProducer(art::ParameterSet const& iConfig)
+  HistProducer::HistProducer(fhicl::ParameterSet const& iConfig)
   {
     produces<TH1F>();
     //produces<ThingWithHist>();
@@ -25,4 +25,4 @@ namespace arttest {
 
 }
 using arttest::HistProducer;
-DEFINE_FWK_MODULE(HistProducer);
+DEFINE_ART_MODULE(HistProducer);

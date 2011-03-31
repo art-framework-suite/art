@@ -30,7 +30,7 @@
 
 class TestInitRootHandlers : public art::EDAnalyzer {
 public:
-   explicit TestInitRootHandlers(const art::ParameterSet&);
+   explicit TestInitRootHandlers(const fhicl::ParameterSet&);
    ~TestInitRootHandlers();
 
    virtual void analyze(const art::Event&, const art::EventSetup&);

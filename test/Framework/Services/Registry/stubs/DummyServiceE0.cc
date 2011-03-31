@@ -22,7 +22,7 @@ namespace {
 
 // ------------------------------------------------------
 
-DummyServiceE0::DummyServiceE0(const art::ParameterSet& iPSet,
+DummyServiceE0::DummyServiceE0(const fhicl::ParameterSet& iPSet,
                              art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceE0 Constructor " << testCounter << std::endl;
@@ -54,7 +54,7 @@ DummyServiceE0::~DummyServiceE0()
 
 // ------------------------------------------------------
 
-DummyServiceA1::DummyServiceA1(const art::ParameterSet& iPSet,
+DummyServiceA1::DummyServiceA1(const fhicl::ParameterSet& iPSet,
                              art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceA1 Constructor " << testCounter << std::endl;
@@ -86,7 +86,7 @@ DummyServiceA1::~DummyServiceA1()
 
 // ------------------------------------------------------
 
-DummyServiceD2::DummyServiceD2(const art::ParameterSet& iPSet,
+DummyServiceD2::DummyServiceD2(const fhicl::ParameterSet& iPSet,
                              art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceD2 Constructor " << testCounter << std::endl;
@@ -118,7 +118,7 @@ DummyServiceD2::~DummyServiceD2()
 
 // ------------------------------------------------------
 
-DummyServiceB3::DummyServiceB3(const art::ParameterSet& iPSet,
+DummyServiceB3::DummyServiceB3(const fhicl::ParameterSet& iPSet,
                              art::ActivityRegistry&iAR)
 {
   // Make this service dependent on service D2 in order to "On Demand Creation"
@@ -153,7 +153,7 @@ DummyServiceB3::~DummyServiceB3()
 
 // ------------------------------------------------------
 
-DummyServiceC4::DummyServiceC4(const art::ParameterSet& iPSet,
+DummyServiceC4::DummyServiceC4(const fhicl::ParameterSet& iPSet,
                              art::ActivityRegistry&iAR)
 {
   std::cout << "DummyServiceC4 Constructor " << testCounter << std::endl;

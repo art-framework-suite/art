@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_H.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -16,8 +16,8 @@ void
 {
        LogTrace    ("cat_A") << "LogTrace was used to send this mess" << "age";
        LogDebug    ("cat_B") << "LogDebug was used to send this other message";
-  art::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
-  art::LogInfo     ("cat_B") << "LogInfo was used to send this other message";
+  mf::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
+  mf::LogInfo     ("cat_B") << "LogInfo was used to send this other message";
 }  // MessageLoggerClient::analyze()
 
 
@@ -25,4 +25,4 @@ void
 
 
 using arttest::UnitTestClient_H;
-DEFINE_FWK_MODULE(UnitTestClient_H);
+DEFINE_ART_MODULE(UnitTestClient_H);

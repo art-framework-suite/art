@@ -11,7 +11,7 @@ namespace arttest {
   class RunSubRunEventAnalyzer : public art::EDAnalyzer {
   public:
 
-    explicit RunSubRunEventAnalyzer(art::ParameterSet const& pset);
+    explicit RunSubRunEventAnalyzer(fhicl::ParameterSet const& pset);
 
     virtual ~RunSubRunEventAnalyzer() {}
 

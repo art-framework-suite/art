@@ -20,11 +20,11 @@
 #include "test/TestObjects/ThingWithIsEqual.h"
 #include "test/TestObjects/ThingWithMerge.h"
 #include "art/Utilities/InputTag.h"
-#include "art/Framework/Services/Registry/Service.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "art/Framework/Core/ModuleMacros.h"
 
@@ -45,7 +45,7 @@ namespace arttest
   {
   public:
 
-    explicit TestMergeResults(art::ParameterSet const&);
+    explicit TestMergeResults(fhicl::ParameterSet const&);
     virtual ~TestMergeResults();
 
     virtual void analyze(art::Event const& e, art::EventSetup const& c);
@@ -123,35 +123,35 @@ namespace arttest
 
   // -----------------------------------------------------------------
 
-  TestMergeResults::TestMergeResults(art::ParameterSet const& ps):
+  TestMergeResults::TestMergeResults(fhicl::ParameterSet const& ps):
     default_(),
     defaultvstring_(),
-    expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginRunProd", default_)),
-    expectedEndRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunProd", default_)),
-    expectedBeginSubRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginSubRunProd", default_)),
-    expectedEndSubRunProd_(ps.getUntrackedParameter<std::vector<int> >("expectedEndSubRunProd", default_)),
+    expectedBeginRunProd_(ps.get<std::vector<int> >("expectedBeginRunProd", default_)),
+    expectedEndRunProd_(ps.get<std::vector<int> >("expectedEndRunProd", default_)),
+    expectedBeginSubRunProd_(ps.get<std::vector<int> >("expectedBeginSubRunProd", default_)),
+    expectedEndSubRunProd_(ps.get<std::vector<int> >("expectedEndSubRunProd", default_)),
 
-    expectedBeginRunNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginRunNew", default_)),
-    expectedEndRunNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunNew", default_)),
-    expectedBeginLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiNew", default_)),
-    expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiNew", default_)),
+    expectedBeginRunNew_(ps.get<std::vector<int> >("expectedBeginRunNew", default_)),
+    expectedEndRunNew_(ps.get<std::vector<int> >("expectedEndRunNew", default_)),
+    expectedBeginLumiNew_(ps.get<std::vector<int> >("expectedBeginLumiNew", default_)),
+    expectedEndLumiNew_(ps.get<std::vector<int> >("expectedEndLumiNew", default_)),
 
-    expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
+    expectedParents_(ps.get<std::vector<std::string> >("expectedParents", defaultvstring_)),
 
-    expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
+    expectedDroppedEvent_(ps.get<std::vector<int> >("expectedDroppedEvent", default_)),
 
     nRespondToOpenInputFile_(0),
     nRespondToCloseInputFile_(0),
     nRespondToOpenOutputFiles_(0),
     nRespondToCloseOutputFiles_(0),
-    expectedRespondToOpenInputFile_(ps.getUntrackedParameter<int>("expectedRespondToOpenInputFile", -1)),
-    expectedRespondToCloseInputFile_(ps.getUntrackedParameter<int>("expectedRespondToCloseInputFile", -1)),
-    expectedRespondToOpenOutputFiles_(ps.getUntrackedParameter<int>("expectedRespondToOpenOutputFiles", -1)),
-    expectedRespondToCloseOutputFiles_(ps.getUntrackedParameter<int>("expectedRespondToCloseOutputFiles", -1)),
+    expectedRespondToOpenInputFile_(ps.get<int>("expectedRespondToOpenInputFile", -1)),
+    expectedRespondToCloseInputFile_(ps.get<int>("expectedRespondToCloseInputFile", -1)),
+    expectedRespondToOpenOutputFiles_(ps.get<int>("expectedRespondToOpenOutputFiles", -1)),
+    expectedRespondToCloseOutputFiles_(ps.get<int>("expectedRespondToCloseOutputFiles", -1)),
 
-    expectedInputFileNames_(ps.getUntrackedParameter<std::vector<std::string> >("expectedInputFileNames", defaultvstring_)),
+    expectedInputFileNames_(ps.get<std::vector<std::string> >("expectedInputFileNames", defaultvstring_)),
 
-    verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
+    verbose_(ps.get<bool>("verbose", false)),
 
     index0_(0),
     index1_(0),
@@ -176,7 +176,7 @@ namespace arttest
 
   void TestMergeResults::analyze(art::Event const& e,art::EventSetup const&)
   {
-    if (verbose_) art::LogInfo("TestMergeResults") << "analyze";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "analyze";
 
     Run const& run = e.getRun();
     SubRun const& subRun = e.getSubRun();
@@ -248,7 +248,7 @@ namespace arttest
     index1_ += 3;
     index5_ += 3;
 
-    if (verbose_) art::LogInfo("TestMergeResults") << "beginRun";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "beginRun";
 
     art::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
     checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag, "beginRun", run);
@@ -273,7 +273,7 @@ namespace arttest
     index1_ += 3;
     index5_ += 3;
 
-    if (verbose_) art::LogInfo("TestMergeResults") << "endRun";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "endRun";
 
     art::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
     checkExpectedRunProducts(index1_, expectedEndRunProd_, tag, "endRun", run);
@@ -298,7 +298,7 @@ namespace arttest
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) art::LogInfo("TestMergeResults") << "beginSubRun";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "beginSubRun";
 
     art::InputTag tag("thingWithMergeProducer", "beginSubRun", "PROD");
     checkExpectedSubRunProducts(index2_, expectedBeginSubRunProd_, tag, "beginSubRun", subRun);
@@ -323,7 +323,7 @@ namespace arttest
     index3_ += 3;
     index7_ += 3;
 
-    if (verbose_) art::LogInfo("TestMergeResults") << "endSubRun";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "endSubRun";
 
     art::InputTag tag("thingWithMergeProducer", "endSubRun", "PROD");
     checkExpectedSubRunProducts(index3_, expectedEndSubRunProd_, tag, "endSubRun", subRun);
@@ -353,7 +353,7 @@ namespace arttest
     index7_ += 3;
 
 
-    if (verbose_) art::LogInfo("TestMergeResults") << "respondToOpenInputFile";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "respondToOpenInputFile";
 
     if (!expectedInputFileNames_.empty()) {
       if (expectedInputFileNames_.size() <= static_cast<unsigned>(nRespondToOpenInputFile_) ||
@@ -368,22 +368,22 @@ namespace arttest
   }
 
   void TestMergeResults::respondToCloseInputFile(FileBlock const& fb) {
-    if (verbose_) art::LogInfo("TestMergeResults") << "respondToCloseInputFile";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "respondToCloseInputFile";
     ++nRespondToCloseInputFile_;
   }
 
   void TestMergeResults::respondToOpenOutputFiles(FileBlock const& fb) {
-    if (verbose_) art::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "respondToOpenOutputFiles";
     ++nRespondToOpenOutputFiles_;
   }
 
   void TestMergeResults::respondToCloseOutputFiles(FileBlock const& fb) {
-    if (verbose_) art::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "respondToCloseOutputFiles";
     ++nRespondToCloseOutputFiles_;
   }
 
   void TestMergeResults::endJob() {
-    if (verbose_) art::LogInfo("TestMergeResults") << "endJob";
+    if (verbose_) mf::LogInfo("TestMergeResults") << "endJob";
 
 
     if (expectedRespondToOpenInputFile_ > -1 && nRespondToOpenInputFile_ != expectedRespondToOpenInputFile_) {
@@ -487,4 +487,4 @@ namespace arttest
 
 using arttest::TestMergeResults;
 
-DEFINE_FWK_MODULE(TestMergeResults);
+DEFINE_ART_MODULE(TestMergeResults);

@@ -274,4 +274,4 @@ namespace arttest
 }
 
 using arttest::ViewAnalyzer;
-DEFINE_FWK_MODULE(ViewAnalyzer);
+DEFINE_ART_MODULE(ViewAnalyzer);

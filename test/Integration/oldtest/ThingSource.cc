@@ -6,7 +6,7 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 
 namespace arttest {
-  ThingSource::ThingSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc) :
+  ThingSource::ThingSource(fhicl::ParameterSet const& pset, art::InputSourceDescription const& desc) :
     GeneratedInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
     produces<ThingCollection, art::InSubRun>("beginSubRun");

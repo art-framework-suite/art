@@ -1,6 +1,6 @@
 #include "test/Framework/Services/Message/UnitTestClient_J.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/MessageLogger/MessageDrop.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageDrop.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -20,9 +20,9 @@ void
 
        LogTrace    ("cat_A") << "LogTrace was used to send this mess" << "age";
        LogDebug    ("cat_B") << "LogDebug was used to send this other message";
-  art::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
+  mf::LogVerbatim ("cat_A") << "LogVerbatim was us" << "ed to send this message";
   if( art::isInfoEnabled() )
-     art::LogInfo  ("cat_B") << "LogInfo was used to send this other message";
+     mf::LogInfo  ("cat_B") << "LogInfo was used to send this other message";
 }  // MessageLoggerClient::analyze()
 
 
@@ -30,4 +30,4 @@ void
 
 
 using arttest::UnitTestClient_J;
-DEFINE_FWK_MODULE(UnitTestClient_J);
+DEFINE_ART_MODULE(UnitTestClient_J);

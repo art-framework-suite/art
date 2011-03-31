@@ -37,12 +37,12 @@ private:
 
 void TestSchedulerModule1::produce(Event& e, EventSetup const&)
 {
-  std::string myname = pset_.getParameter<std::string>("module_name");
+  std::string myname = pset_.get<std::string>("module_name");
   std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
   e.put(product);
 }
 
-DEFINE_FWK_MODULE(TestSchedulerModule1);
+DEFINE_ART_MODULE(TestSchedulerModule1);
 
 
 // Configure (x)emacs for this file ...

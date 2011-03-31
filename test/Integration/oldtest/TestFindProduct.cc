@@ -14,7 +14,7 @@
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/ParameterSet/InputTag.h"
 #include "test/TestObjects/ToyProducts.h"
 #include "art/Persistency/Common/Handle.h"
@@ -31,7 +31,7 @@ namespace arttest
   {
   public:
 
-    explicit TestFindProduct(art::ParameterSet const& pset);
+    explicit TestFindProduct(fhicl::ParameterSet const& pset);
     virtual ~TestFindProduct();
 
     virtual void analyze(art::Event const& e, art::EventSetup const& es);
@@ -48,9 +48,9 @@ namespace arttest
   //
   // Implementation details
 
-  TestFindProduct::TestFindProduct(art::ParameterSet const& pset) :
-    inputTags_(pset.getUntrackedParameter<std::vector<art::InputTag> >("inputTags")),
-    expectedSum_(pset.getUntrackedParameter<int>("expectedSum", 0)),
+  TestFindProduct::TestFindProduct(fhicl::ParameterSet const& pset) :
+    inputTags_(pset.get<std::vector<art::InputTag> >("inputTags")),
+    expectedSum_(pset.get<int>("expectedSum", 0)),
     sum_(0)
   {
   }
@@ -83,4 +83,4 @@ namespace arttest
 } // arttest
 
 using arttest::TestFindProduct;
-DEFINE_FWK_MODULE(TestFindProduct);
+DEFINE_ART_MODULE(TestFindProduct);

@@ -6,16 +6,16 @@
  ************************************************************/
 
 #include <vector>
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace arttest {
 
   class alg_2
   {
   public:
-    explicit alg_2(const art::ParameterSet& ps) :
-      flavor_(ps.getParameter<std::string>("flavor")),
-      debugLevel_(ps.getUntrackedParameter<int>("debug", 0))
+    explicit alg_2(const fhicl::ParameterSet& ps) :
+      flavor_(ps.get<std::string>("flavor")),
+      debugLevel_(ps.get<int>("debug", 0))
     { }
 
     std::string& flavor() { return flavor_; }
@@ -28,9 +28,9 @@ namespace arttest {
   class alg_1
   {
   public:
-    explicit alg_1(const art::ParameterSet& ps) :
-      count_(ps.getParameter<int>("count")),
-      inner_alg_(ps.getParameter<art::ParameterSet>("nest_2"))
+    explicit alg_1(const fhicl::ParameterSet& ps) :
+      count_(ps.get<int>("count")),
+      inner_alg_(ps.get<fhicl::ParameterSet>("nest_2"))
     { }
 
   private:

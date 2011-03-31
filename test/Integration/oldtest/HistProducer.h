@@ -12,7 +12,7 @@ namespace arttest {
   class HistProducer : public art::EDProducer {
   public:
 
-    explicit HistProducer(art::ParameterSet const& ps);
+    explicit HistProducer(fhicl::ParameterSet const& ps);
 
     virtual ~HistProducer();
 

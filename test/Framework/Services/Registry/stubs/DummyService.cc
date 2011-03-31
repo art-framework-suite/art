@@ -28,8 +28,8 @@ using namespace testserviceregistry;
 //
 // constructors and destructor
 //
-DummyService::DummyService(const art::ParameterSet& iPSet,art::ActivityRegistry&iAR):
-value_(iPSet.getParameter<int>("value")),
+DummyService::DummyService(const fhicl::ParameterSet& iPSet,art::ActivityRegistry&iAR):
+value_(iPSet.get<int>("value")),
 beginJobCalled_(false)
 {
    iAR.watchPostBeginJob(this,&DummyService::doOnBeginJob);

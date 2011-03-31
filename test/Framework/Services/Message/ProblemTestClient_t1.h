@@ -18,7 +18,7 @@ class ProblemTestClient_t1
 {
 public:
   explicit
-    ProblemTestClient_t1( art::ParameterSet const & )
+    ProblemTestClient_t1( fhicl::ParameterSet const & )
   { }
 
   virtual

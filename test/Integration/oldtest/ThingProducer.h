@@ -16,7 +16,7 @@ namespace arttest {
   class ThingProducer : public art::EDProducer {
   public:
 
-    explicit ThingProducer(art::ParameterSet const& ps);
+    explicit ThingProducer(fhicl::ParameterSet const& ps);
 
     virtual ~ThingProducer();
 

@@ -13,10 +13,10 @@
 
 using namespace testserviceregistry;
 using namespace art::serviceregistry;
-DEFINE_FWK_SERVICE_MAKER(DependsOnDummyService,NoArgsMaker<DependsOnDummyService>);
-DEFINE_FWK_SERVICE(DummyService);
-DEFINE_FWK_SERVICE(DummyServiceE0);
-DEFINE_FWK_SERVICE(DummyServiceA1);
-DEFINE_FWK_SERVICE(DummyServiceD2);
-DEFINE_FWK_SERVICE(DummyServiceB3);
-DEFINE_FWK_SERVICE(DummyServiceC4);
+DEFINE_ART_SERVICE_MAKER(DependsOnDummyService,NoArgsMaker<DependsOnDummyService>);
+DEFINE_ART_SERVICE(DummyService);
+DEFINE_ART_SERVICE(DummyServiceE0);
+DEFINE_ART_SERVICE(DummyServiceA1);
+DEFINE_ART_SERVICE(DummyServiceD2);
+DEFINE_ART_SERVICE(DummyServiceB3);
+DEFINE_ART_SERVICE(DummyServiceC4);

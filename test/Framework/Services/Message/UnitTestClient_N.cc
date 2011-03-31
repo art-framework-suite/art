@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_N.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -20,9 +20,9 @@ void
        		<< "LogDebug was used to send this message";
        LogDebug  ("ridiculously_long_category_name_to_make_header_wrap_B")
         	<< "LogDebug was used to send this other message";
-  art::LogInfo   ("ridiculously_long_category_name_to_make_header_wrap_A")
+  mf::LogInfo   ("ridiculously_long_category_name_to_make_header_wrap_A")
   		<< "LogInfo was used to send this message";
-  art::LogInfo   ("ridiculously_long_category_name_to_make_header_wrap_B")
+  mf::LogInfo   ("ridiculously_long_category_name_to_make_header_wrap_B")
   		<< "LogInfo was used to send this other message";
 
  }  // MessageLoggerClient::analyze()
@@ -32,4 +32,4 @@ void
 
 
 using arttest::UnitTestClient_N;
-DEFINE_FWK_MODULE(UnitTestClient_N);
+DEFINE_ART_MODULE(UnitTestClient_N);

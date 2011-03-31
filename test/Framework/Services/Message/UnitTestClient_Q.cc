@@ -12,9 +12,9 @@ void
                             , art::EventSetup const & /*unused*/
                               )
 {
-  art::LogInfo   ("cat_A")   << "Q1 with identifier " << identifier;
-  art::LogInfo   ("timer")   << "Q1 timer with identifier " << identifier;
-  art::LogInfo   ("trace")   << "Q1 trace with identifier " << identifier;
+  mf::LogInfo   ("cat_A")   << "Q1 with identifier " << identifier;
+  mf::LogInfo   ("timer")   << "Q1 timer with identifier " << identifier;
+  mf::LogInfo   ("trace")   << "Q1 trace with identifier " << identifier;
 }
 
 void
@@ -22,9 +22,9 @@ void
                             , art::EventSetup const & /*unused*/
                               )
 {
-  art::LogInfo   ("cat_A")   << "Q2 with identifier " << identifier;
-  art::LogInfo   ("timer")   << "Q2 timer with identifier " << identifier;
-  art::LogInfo   ("trace")   << "Q2 trace with identifier " << identifier;
+  mf::LogInfo   ("cat_A")   << "Q2 with identifier " << identifier;
+  mf::LogInfo   ("timer")   << "Q2 timer with identifier " << identifier;
+  mf::LogInfo   ("trace")   << "Q2 trace with identifier " << identifier;
 }
 
 
@@ -32,5 +32,5 @@ void
 
 using arttest::UTC_Q1;
 using arttest::UTC_Q2;
-DEFINE_FWK_MODULE(UTC_Q1);
-DEFINE_FWK_MODULE(UTC_Q2);
+DEFINE_ART_MODULE(UTC_Q1);
+DEFINE_ART_MODULE(UTC_Q2);

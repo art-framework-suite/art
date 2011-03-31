@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/ProblemTestClient_t1.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -24,4 +24,4 @@ void
 
 
 using arttest::ProblemTestClient_t1;
-DEFINE_FWK_MODULE(ProblemTestClient_t1);
+DEFINE_ART_MODULE(ProblemTestClient_t1);

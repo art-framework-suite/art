@@ -41,7 +41,7 @@ namespace arttest {
 
 class WhatsItAnalyzer : public art::EDAnalyzer {
    public:
-      explicit WhatsItAnalyzer(const art::ParameterSet&);
+      explicit WhatsItAnalyzer(const fhicl::ParameterSet&);
       ~WhatsItAnalyzer();
 
 
@@ -61,7 +61,7 @@ class WhatsItAnalyzer : public art::EDAnalyzer {
 //
 // constructors and destructor
 //
-WhatsItAnalyzer::WhatsItAnalyzer(const art::ParameterSet& /*iConfig*/)
+WhatsItAnalyzer::WhatsItAnalyzer(const fhicl::ParameterSet& /*iConfig*/)
 {
    //now do what ever initialization is needed
 
@@ -95,4 +95,4 @@ WhatsItAnalyzer::analyze(const art::Event& /*iEvent*/, const art::EventSetup& iS
 }
 using namespace arttest;
 //define this as a plug-in
-DEFINE_FWK_MODULE(WhatsItAnalyzer);
+DEFINE_ART_MODULE(WhatsItAnalyzer);

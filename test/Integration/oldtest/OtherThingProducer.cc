@@ -6,10 +6,10 @@
 #include "art/Framework/Core/ModuleMacros.h"
 
 namespace arttest {
-  OtherThingProducer::OtherThingProducer(art::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
+  OtherThingProducer::OtherThingProducer(fhicl::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
     produces<OtherThingCollection>("testUserTag");
-    thingLabel_ = pset.getUntrackedParameter<std::string>("thingLabel", std::string("Thing"));
-    refsAreTransient_ = pset.getUntrackedParameter<bool>("transient", false);
+    thingLabel_ = pset.get<std::string>("thingLabel", std::string("Thing"));
+    refsAreTransient_ = pset.get<bool>("transient", false);
   }
 
   // Virtual destructor needed.
@@ -30,4 +30,4 @@ namespace arttest {
   }
 }
 using arttest::OtherThingProducer;
-DEFINE_FWK_MODULE(OtherThingProducer);
+DEFINE_ART_MODULE(OtherThingProducer);

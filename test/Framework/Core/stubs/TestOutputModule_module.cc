@@ -62,7 +62,7 @@ namespace arttest
   class TestOutputModule : public art::OutputModule
   {
   public:
-    explicit TestOutputModule(art::ParameterSet const&);
+    explicit TestOutputModule(fhicl::ParameterSet const&);
     virtual ~TestOutputModule();
 
   private:
@@ -79,12 +79,12 @@ namespace arttest
 
   // -----------------------------------------------------------------
 
-  TestOutputModule::TestOutputModule(art::ParameterSet const& ps):
+  TestOutputModule::TestOutputModule(fhicl::ParameterSet const& ps):
     art::OutputModule(ps),
-    name_(ps.getParameter<std::string>("name")),
-    bitMask_(ps.getParameter<int>("bitMask")),
+    name_(ps.get<std::string>("name")),
+    bitMask_(ps.get<int>("bitMask")),
     hltbits_(0),
-    expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true))
+    expectTriggerResults_(ps.get<bool>("expectTriggerResults",true))
   {
   }
 
@@ -177,4 +177,4 @@ namespace arttest
 
 using arttest::TestOutputModule;
 
-DEFINE_FWK_MODULE(TestOutputModule);
+DEFINE_ART_MODULE(TestOutputModule);

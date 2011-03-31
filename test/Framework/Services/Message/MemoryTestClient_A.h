@@ -22,7 +22,7 @@ class MemoryTestClient_A
 {
 public:
   explicit
-    MemoryTestClient_A( art::ParameterSet const & );
+    MemoryTestClient_A( fhicl::ParameterSet const & );
 
   virtual
     ~MemoryTestClient_A()

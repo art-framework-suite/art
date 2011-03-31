@@ -18,7 +18,7 @@ class MessageLoggerClient
 {
 public:
   explicit
-    MessageLoggerClient( art::ParameterSet const & )
+    MessageLoggerClient( fhicl::ParameterSet const & )
   { }
 
   virtual

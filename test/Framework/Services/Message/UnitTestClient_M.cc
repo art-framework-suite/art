@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_M.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -17,15 +17,15 @@ void
                            , art::EventSetup const & /*unused*/
                               )
 {
-  art::LogSystem("system")    <<
+  mf::LogSystem("system")    <<
   	"Text sent to LogSystem";
-  art::LogAbsolute("absolute")  <<
+  mf::LogAbsolute("absolute")  <<
   	"Text sent to LogAbsolute - should be unformatted";
-  art::LogProblem("problem")   <<
+  mf::LogProblem("problem")   <<
   	"Text sent to LogProblem - should be unformatted";
-  art::LogPrint("print")       <<
+  mf::LogPrint("print")       <<
   	"Text sent to LogPrint- should be unformatted";
-  art::LogVerbatim("verbatim") <<
+  mf::LogVerbatim("verbatim") <<
   	"Text sent to LogVerbatim - should be unformatted";
 }  // MessageLoggerClient::analyze()
 
@@ -34,4 +34,4 @@ void
 
 
 using arttest::UnitTestClient_M;
-DEFINE_FWK_MODULE(UnitTestClient_M);
+DEFINE_ART_MODULE(UnitTestClient_M);

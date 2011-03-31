@@ -8,7 +8,7 @@ namespace arttest {
 
   class ProdigalAnalyzer : public art::EDAnalyzer {
   public:
-    explicit ProdigalAnalyzer(art::ParameterSet const& pset);
+    explicit ProdigalAnalyzer(fhicl::ParameterSet const& pset);
     virtual ~ProdigalAnalyzer() {}
     virtual void analyze(art::Event const& e, art::EventSetup const& c);
   };

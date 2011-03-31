@@ -16,7 +16,7 @@ class UnitTestClient_L : public art::EDAnalyzer
 {
 public:
   explicit
-    UnitTestClient_L( art::ParameterSet const & )
+    UnitTestClient_L( fhicl::ParameterSet const & )
   { }
 
   virtual
@@ -35,7 +35,7 @@ class UnitTestClient_L1 : public art::EDAnalyzer
 {
 public:
   explicit
-    UnitTestClient_L1( art::ParameterSet const & )
+    UnitTestClient_L1( fhicl::ParameterSet const & )
   { }
 
   virtual

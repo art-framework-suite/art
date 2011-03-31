@@ -37,9 +37,9 @@ namespace arttest {
   };
 
   HistoryAnalyzer::HistoryAnalyzer(const ParameterSet& params) :
-    pass_(params.getParameter<int>("historySize")),
+    pass_(params.get<int>("historySize")),
     eventCount_(0),
-    expectedCount_(params.getParameter<int>("expectedCount")),
+    expectedCount_(params.get<int>("expectedCount")),
     emptyID_(ParameterSet().id()),
     outputConfigID_()
   {
@@ -72,4 +72,4 @@ namespace arttest {
 }
 
 using arttest::HistoryAnalyzer;
-DEFINE_FWK_MODULE(HistoryAnalyzer);
+DEFINE_ART_MODULE(HistoryAnalyzer);

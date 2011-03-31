@@ -1,7 +1,7 @@
 #include "TH1.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Services/Basic/TFileService.h"
+#include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
@@ -15,7 +15,7 @@ class TestTFileServiceAnalyzer
 {
 public:
   // constructor
-  TestTFileServiceAnalyzer( const art::ParameterSet & );
+  TestTFileServiceAnalyzer( const fhicl::ParameterSet & );
 
 private:
   // process one event
@@ -28,8 +28,8 @@ private:
 
 
 TestTFileServiceAnalyzer::TestTFileServiceAnalyzer( const ParameterSet & cfg )
-: dir1_( cfg.getParameter<string>( "dir1" ) )
-, dir2_( cfg.getParameter<string>( "dir2" ) )
+: dir1_( cfg.get<string>( "dir1" ) )
+, dir2_( cfg.get<string>( "dir2" ) )
 {
   ServiceHandle<TFileService> fs;
   if ( dir1_.empty() ) {
@@ -51,4 +51,4 @@ void TestTFileServiceAnalyzer::analyze( const Event& evt, const EventSetup& ) {
   h_test2->Fill( 60. );
 }
 
-DEFINE_FWK_MODULE(TestTFileServiceAnalyzer);
+DEFINE_ART_MODULE(TestTFileServiceAnalyzer);

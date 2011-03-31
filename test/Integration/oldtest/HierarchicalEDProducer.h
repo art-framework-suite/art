@@ -17,7 +17,7 @@ namespace arttest {
   class HierarchicalEDProducer : public art::EDProducer {
   public:
 
-    explicit HierarchicalEDProducer(art::ParameterSet const& ps);
+    explicit HierarchicalEDProducer(fhicl::ParameterSet const& ps);
 
     virtual ~HierarchicalEDProducer();
 

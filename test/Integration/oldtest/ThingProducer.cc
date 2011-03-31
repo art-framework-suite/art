@@ -6,9 +6,9 @@
 #include "art/Framework/Core/ModuleMacros.h"
 
 namespace arttest {
-  ThingProducer::ThingProducer(art::ParameterSet const& iConfig):
-  alg_(iConfig.getUntrackedParameter<int>("offsetDelta",0)), //this really should be tracked, but I want backwards compatibility
-  noPut_(iConfig.getUntrackedParameter<bool>("noPut", false)) // used for testing with missing products
+  ThingProducer::ThingProducer(fhicl::ParameterSet const& iConfig):
+  alg_(iConfig.get<int>("offsetDelta",0)), //this really should be tracked, but I want backwards compatibility
+  noPut_(iConfig.get<bool>("noPut", false)) // used for testing with missing products
   {
     produces<ThingCollection>();
     produces<ThingCollection, art::InSubRun>("beginSubRun");
@@ -90,4 +90,4 @@ namespace arttest {
 
 }
 using arttest::ThingProducer;
-DEFINE_FWK_MODULE(ThingProducer);
+DEFINE_ART_MODULE(ThingProducer);

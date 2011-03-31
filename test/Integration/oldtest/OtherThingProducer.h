@@ -13,7 +13,7 @@ namespace arttest {
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    explicit OtherThingProducer(art::ParameterSet const& ps);
+    explicit OtherThingProducer(fhicl::ParameterSet const& ps);
 
     virtual ~OtherThingProducer();
 

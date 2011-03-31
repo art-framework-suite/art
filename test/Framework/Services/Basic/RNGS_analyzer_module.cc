@@ -6,8 +6,8 @@
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <iostream>
 
@@ -18,12 +18,12 @@ namespace test {
   {
   public:
     static int
-      get_seed( art::ParameterSet const & pset
+      get_seed( fhicl::ParameterSet const & pset
               , char const                key [ ] = "seed"
               )
     {
       static  int const  default_seed  =  13579;
-      int const  seed  =  pset.getUntrackedParameter<int>( key
+      int const  seed  =  pset.get<int>( key
                                                          , default_seed
                                                          );
       std::cerr << key <<" is " << seed << '\n';
@@ -31,7 +31,7 @@ namespace test {
     }
 
     explicit
-      RNGS_analyzer( art::ParameterSet const & pset )
+      RNGS_analyzer( fhicl::ParameterSet const & pset )
       : this_event_number( 0u )
       , flat             ( createEngine(get_seed_value(pset)) )
     { }
@@ -63,4 +63,4 @@ namespace test {
 
 #include "art/Framework/Core/ModuleMacros.h"
 using test::RNGS_analyzer;
-DEFINE_FWK_MODULE(RNGS_analyzer);
+DEFINE_ART_MODULE(RNGS_analyzer);

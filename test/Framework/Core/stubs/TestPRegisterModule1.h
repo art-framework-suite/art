@@ -30,11 +30,11 @@
 class TestPRegisterModule1 : public art::EDProducer
 {
 public:
-   explicit TestPRegisterModule1(art::ParameterSet const& p);
+   explicit TestPRegisterModule1(fhicl::ParameterSet const& p);
    void produce(art::Event& e, art::EventSetup const&);
 
 private:
-   art::ParameterSet pset_;
+   fhicl::ParameterSet pset_;
 };
 
 

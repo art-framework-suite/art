@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_B.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -17,10 +17,10 @@ void
 {
   nevent++;
   for (int i = 0; i < nevent; ++i) {
-    art::LogError  ("cat_A")   << "LogError was used to send this message";
+    mf::LogError  ("cat_A")   << "LogError was used to send this message";
   }
-  art::LogError  ("cat_B")   << "LogError was used to send this other message";
-  art::LogStatistics();
+  mf::LogError  ("cat_B")   << "LogError was used to send this other message";
+  mf::LogStatistics();
 }  // MessageLoggerClient::analyze()
 
 
@@ -28,4 +28,4 @@ void
 
 
 using arttest::UnitTestClient_B;
-DEFINE_FWK_MODULE(UnitTestClient_B);
+DEFINE_ART_MODULE(UnitTestClient_B);

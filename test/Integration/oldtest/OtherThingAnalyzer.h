@@ -9,7 +9,7 @@ namespace arttest {
   class OtherThingAnalyzer : public art::EDAnalyzer {
   public:
 
-    explicit OtherThingAnalyzer(art::ParameterSet const& pset);
+    explicit OtherThingAnalyzer(fhicl::ParameterSet const& pset);
 
     virtual ~OtherThingAnalyzer() {}
 

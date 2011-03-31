@@ -53,8 +53,8 @@ enum {
 //
 // constructors and destructor
 //
-TestFailuresAnalyzer::TestFailuresAnalyzer(const art::ParameterSet& iConfig)
-: whichFailure_(iConfig.getParameter<int>("whichFailure"))
+TestFailuresAnalyzer::TestFailuresAnalyzer(const fhicl::ParameterSet& iConfig)
+: whichFailure_(iConfig.get<int>("whichFailure"))
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){
@@ -107,4 +107,4 @@ TestFailuresAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSe
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestFailuresAnalyzer);
+DEFINE_ART_MODULE(TestFailuresAnalyzer);

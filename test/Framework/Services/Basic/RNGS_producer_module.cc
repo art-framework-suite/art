@@ -6,8 +6,8 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/Services/Basic/RandomNumberGenerator.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "CLHEP/Random/RandFlat.h"
 #include <iostream>
 
@@ -18,7 +18,7 @@ namespace test {
   {
   public:
     explicit
-      RNGS_producer( art::ParameterSet const & pset )
+      RNGS_producer( fhicl::ParameterSet const & pset )
       : this_event_number( 0u )
       , flat1            ( createEngine( get_seed_value(pset,"seed1")
                                        , "JamesRandom"
@@ -72,12 +72,12 @@ namespace test {
                   ,  flat2;
 
     static int
-      get_seed( art::ParameterSet const & pset
+      get_seed( fhicl::ParameterSet const & pset
               , char const                key [ ] = "seed"
               )
     {
       static  int const  default_seed  =  13579;
-      int const  seed  =  pset.getUntrackedParameter<int>( key
+      int const  seed  =  pset.get<int>( key
                                                          , default_seed
                                                          );
       std::cerr << key <<" is " << seed << '\n';
