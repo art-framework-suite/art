@@ -26,56 +26,50 @@ namespace art {
 
     // Prefixes
     std::string const run                      = "Run";
-    std::string const subRun                     = "SubRun";
+    std::string const subRun                   = "SubRun";
     std::string const event                    = "Event";
 
     // Trees, branches, indices
-    std::string const runs                     = run   + 's';
-    std::string const subRuns                    = subRun  + 's';
-    std::string const events                   = event + 's';
+    std::string const runs                     = run    + 's';
+    std::string const subRuns                  = subRun + 's';
+    std::string const events                   = event  + 's';
 
-    std::string const runMeta                  = run   + metaData;
-    std::string const subRunMeta                 = subRun  + metaData;
-    std::string const eventMeta                = event + metaData;
-
-#ifdef FW_BACKWARD_COMPATIBILITY
-    std::string const runInfo                  = run   + statusInformation;
-    std::string const subRunInfo                 = subRun  + statusInformation;
-    std::string const eventInfo                = event + statusInformation;
-#endif
-
-    std::string const runAuxiliary             = run   + auxiliary;
-    std::string const subRunAuxiliary            = subRun  + auxiliary;
-    std::string const eventAuxiliary           = event + auxiliary;
+    std::string const runMeta                  = run    + metaData;
+    std::string const subRunMeta               = subRun + metaData;
+    std::string const eventMeta                = event  + metaData;
 
 #ifdef FW_BACKWARD_COMPATIBILITY
-    std::string const runProductStatus         = run   + productStatus;
-    std::string const subRunProductStatus        = subRun  + productStatus;
-    std::string const eventProductStatus       = event + productStatus;
+    std::string const runInfo                  = run    + statusInformation;
+    std::string const subRunInfo               = subRun + statusInformation;
+    std::string const eventInfo                = event  + statusInformation;
 #endif
 
-    std::string const runEventEntryInfo        = run   + branchEntryInfo;
-    std::string const subRunEventEntryInfo       = subRun  + branchEntryInfo;
-    std::string const eventEventEntryInfo      = event + branchEntryInfo;
+    std::string const runAuxiliary             = run    + auxiliary;
+    std::string const subRunAuxiliary          = subRun + auxiliary;
+    std::string const eventAuxiliary           = event  + auxiliary;
 
-    std::string const runMajorIndex            = runAuxiliary   + majorIndex;
-    std::string const subRunMajorIndex           = subRunAuxiliary  + majorIndex;
-    std::string const eventMajorIndex          = eventAuxiliary + majorIndex;
+#ifdef FW_BACKWARD_COMPATIBILITY
+    std::string const runProductStatus         = run    + productStatus;
+    std::string const subRunProductStatus      = subRun + productStatus;
+    std::string const eventProductStatus       = event  + productStatus;
+#endif
+
+    std::string const runEventEntryInfo        = run    + branchEntryInfo;
+    std::string const subRunEventEntryInfo     = subRun + branchEntryInfo;
+    std::string const eventEventEntryInfo      = event  + branchEntryInfo;
+
+    std::string const runMajorIndex            = runAuxiliary    + majorIndex;
+    std::string const subRunMajorIndex         = subRunAuxiliary + majorIndex;
+    std::string const eventMajorIndex          = eventAuxiliary  + majorIndex;
 
     std::string const runMinorIndex;           // empty
-    std::string const subRunMinorIndex           = subRunAuxiliary  + ".id_.subRun_";
-    std::string const eventMinorIndex          = eventAuxiliary + ".id_.event_";
+    std::string const subRunMinorIndex         = subRunAuxiliary + ".id_.subRun_";
+    std::string const eventMinorIndex          = eventAuxiliary  + ".id_.event_";
 
 #ifdef FW_BACKWARD_COMPATIBILITY
-    std::string const runAux                   = run   + aux;
-    std::string const subRunAux                  = subRun  + aux;
-    std::string const eventAux                 = event + aux;
-#endif
-
-#ifdef FW_OBSOLETE
-    std::string const entryDescriptionTree     = "EntryDescription";
-    std::string const entryDescriptionIDBranch = "Hash";
-    std::string const entryDescriptionBranch   = "Description";
+    std::string const runAux                   = run    + aux;
+    std::string const subRunAux                = subRun + aux;
+    std::string const eventAux                 = event  + aux;
 #endif
 
     std::string const parentageTree            = "Parentage";
@@ -104,10 +98,10 @@ namespace art {
                               )
     {
       switch( bt ) {
-        case InEvent:  return event_str;
-        case InRun  :  return run_str;
-        case InSubRun :  return subRun_str;
-        default     :  return subRun_str;  // TODO: report "none of the above"?
+        case InEvent :  return event_str;
+        case InRun   :  return run_str;
+        case InSubRun:  return subRun_str;
+        default      :  return subRun_str;  // TODO: report "none of the above"?
       }
     }
 
@@ -161,21 +155,6 @@ namespace art {
   }
 
   namespace rootNames {
-
-#ifdef FW_OBSOLETE
-    // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)
-    std::string const & entryDescriptionTreeName( ) {
-      return entryDescriptionTree;
-    }
-
-    std::string const & entryDescriptionIDBranchName( ) {
-      return entryDescriptionIDBranch;
-    }
-
-    std::string const & entryDescriptionBranchName( ) {
-      return entryDescriptionBranch;
-    }
-#endif
 
     // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)
     std::string const & parentageTreeName( ) {

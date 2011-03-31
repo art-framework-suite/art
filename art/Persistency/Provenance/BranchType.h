@@ -57,16 +57,6 @@ namespace art {
   }
 
   namespace rootNames {
-#ifdef FW_OBSOLETE
-    //------------------------------------------------------------------
-    // EntryDescription Tree
-    std::string const & entryDescriptionTreeName( );
-
-    // Branches on EntryDescription Tree
-    std::string const & entryDescriptionIDBranchName( );
-    std::string const & entryDescriptionBranchName( );
-#endif
-
     //------------------------------------------------------------------
     // Parentage Tree
     std::string const & parentageTreeName( );
@@ -75,7 +65,6 @@ namespace art {
     std::string const & parentageIDBranchName( );
     std::string const & parentageBranchName( );
 
-    //------------------------------------------------------------------
     //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const & metaDataTreeName( );

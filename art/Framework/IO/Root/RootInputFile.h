@@ -35,9 +35,6 @@
 #include <string>
 #include <vector>
 
-// backward compatibility:
-#include "art/Persistency/Provenance/EventProcessHistoryID.h"
-
 // ----------------------------------------------------------------------
 
 class TFile;
@@ -154,8 +151,6 @@ namespace art {
     FileIndex::const_iterator fileIndexBegin_;
     FileIndex::const_iterator fileIndexEnd_;
     FileIndex::const_iterator fileIndexIter_;
-    std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
-    std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
     std::vector<SubRunID> whichSubRunsToSkip_;

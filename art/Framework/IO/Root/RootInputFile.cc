@@ -1,11 +1,17 @@
 #include "art/Framework/IO/Root/RootInputFile.h"
 
+#include "Rtypes.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TROOT.h"
+#include "TTree.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
+#include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -19,24 +25,12 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
-#include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
-
-//used for backward compatibility
-#include "art/Persistency/Provenance/BranchEntryDescription.h"
-#include "art/Persistency/Provenance/EntryDescriptionRegistry.h"
-#include "art/Persistency/Provenance/RunSubRunEntryInfo.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "Rtypes.h"
-#include "TClass.h"
-#include "TFile.h"
-#include "TROOT.h"
-#include "TTree.h"
 #include <algorithm>
 
 
@@ -77,8 +71,6 @@ namespace art {
       fileIndexBegin_(fileIndex_.begin()),
       fileIndexEnd_(fileIndexBegin_),
       fileIndexIter_(fileIndexBegin_),
-      eventProcessHistoryIDs_(),
-      eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
       origEventID_(origEventID),
       eventsToSkip_(eventsToSkip),
       whichSubRunsToSkip_(whichSubRunsToSkip),
@@ -113,8 +105,6 @@ namespace art {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InSubRun]  = &subRunTree_;
     treePointers_[InRun]   = &runTree_;
-
-    setRefCoreStreamer(0, true); // backward compatibility
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(rootNames::metaDataTreeName().c_str()));
@@ -160,12 +150,6 @@ namespace art {
       metaDataTree->SetBranchAddress(rootNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
     }
 
-    // backward compatibility
-    vector<EventProcessHistoryID> *eventHistoryIDsPtr = &eventProcessHistoryIDs_;
-    if (metaDataTree->FindBranch(rootNames::eventHistoryBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(rootNames::eventHistoryBranchName().c_str(), &eventHistoryIDsPtr);
-    }
-
     ModuleDescriptionRegistry::collection_type mdMap;
     ModuleDescriptionRegistry::collection_type *mdMapPtr = &mdMap;
     if (metaDataTree->FindBranch(rootNames::moduleDescriptionMapBranchName().c_str()) != 0) {
@@ -173,8 +157,6 @@ namespace art {
     }
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
-
-    setRefCoreStreamer(true);  // backward compatibility
 
     // The branchIDLists branch was read directly from the input file.
     if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) == 0) {
@@ -226,7 +208,6 @@ namespace art {
     if (noEventSort_) fileIndex_.sortBy_Run_SubRun_EventEntry();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
     fileIndexEnd_ = fileIndex_.end();
-    eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     readEventHistoryTree();
 
@@ -692,25 +673,6 @@ namespace art {
   RootInputFile::readRun(cet::exempt_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
-    // Begin code for backward compatibility before the exixtence of run trees.
-    if (!runTree_.isValid()) {
-      // prior to the support of run trees.
-      // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
-      if (eventTree_.next()) {
-        fillEventAuxiliary();
-        // back up, so event will not be skipped.
-        eventTree_.previous();
-      }
-      RunID run = fileIndexIter_->eventID_.runID();
-      overrideRunNumber(run);
-      ++fileIndexIter_;
-      RunAuxiliary runAux(run, eventAux_.time(), Timestamp::invalidTimestamp());
-      return boost::shared_ptr<RunPrincipal>(
-          new RunPrincipal(runAux,
-          pReg,
-          processConfiguration_));
-    }
-    // End code for backward compatibility before the exixtence of run trees.
     runTree_.setEntryNumber(fileIndexIter_->entry_);
     fillRunAuxiliary();
     assert(runAux_.id() == fileIndexIter_->eventID_.runID());
@@ -743,24 +705,6 @@ namespace art {
   RootInputFile::readSubRun(cet::exempt_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
-    // Begin code for backward compatibility before the existence of subRun trees.
-    if (!subRunTree_.isValid()) {
-      if (eventTree_.next()) {
-        fillEventAuxiliary();
-        // back up, so event will not be skipped.
-        eventTree_.previous();
-      }
-
-      SubRunID subRun = fileIndexIter_->eventID_.subRunID();
-      overrideRunNumber(subRun);
-      ++fileIndexIter_;
-      SubRunAuxiliary subRunAux(rp->run(), subRun.subRun(), eventAux_.time(), Timestamp::invalidTimestamp());
-      return boost::shared_ptr<SubRunPrincipal>(
-        new SubRunPrincipal(subRunAux,
-                                     pReg,
-                                     processConfiguration_));
-    }
-    // End code for backward compatibility before the exixtence of subRun trees.
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
     fillSubRunAuxiliary();
     assert(subRunAux_.id() == fileIndexIter_->eventID_.subRunID());
