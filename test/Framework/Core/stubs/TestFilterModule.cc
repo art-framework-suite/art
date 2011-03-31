@@ -30,7 +30,7 @@ namespace arttest
   class TestFilterModule : public art::EDFilter
   {
   public:
-    explicit TestFilterModule(art::ParameterSet const&);
+    explicit TestFilterModule(fhicl::ParameterSet const&);
     virtual ~TestFilterModule();
 
     virtual bool filter(art::Event& e, art::EventSetup const& c);
@@ -47,7 +47,7 @@ namespace arttest
   class SewerModule : public art::OutputModule
   {
   public:
-    explicit SewerModule(art::ParameterSet const&);
+    explicit SewerModule(fhicl::ParameterSet const&);
     virtual ~SewerModule();
 
   private:
@@ -63,10 +63,10 @@ namespace arttest
 
   // -----------------------------------------------------------------
 
-  TestFilterModule::TestFilterModule(art::ParameterSet const& ps):
+  TestFilterModule::TestFilterModule(fhicl::ParameterSet const& ps):
     count_(),
-    accept_rate_(ps.getUntrackedParameter<int>("acceptValue",1)),
-    onlyOne_(ps.getUntrackedParameter<bool>("onlyOne",false))
+    accept_rate_(ps.get<int>("acceptValue",1)),
+    onlyOne_(ps.get<bool>("onlyOne",false))
   {
   }
 
@@ -91,10 +91,10 @@ namespace arttest
 
   // ---------
 
-  SewerModule::SewerModule(art::ParameterSet const& ps):
+  SewerModule::SewerModule(fhicl::ParameterSet const& ps):
     art::OutputModule(ps),
-    name_(ps.getParameter<std::string>("name")),
-    num_pass_(ps.getParameter<int>("shouldPass")),
+    name_(ps.get<std::string>("name")),
+    num_pass_(ps.get<int>("shouldPass")),
     total_()
   {
   }
@@ -128,5 +128,5 @@ using arttest::TestFilterModule;
 using arttest::SewerModule;
 
 
-DEFINE_FWK_MODULE(TestFilterModule);
-DEFINE_FWK_MODULE(SewerModule);
+DEFINE_ART_MODULE(TestFilterModule);
+DEFINE_ART_MODULE(SewerModule);

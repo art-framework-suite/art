@@ -39,17 +39,11 @@ namespace art {
 
     void setDelayedRead(bool value) {delayedRead_ = value;}
 
-    BranchID oldProductIDToBranchID(ProductID const& oldProductID) const {
-      return oldProductIDToBranchID_(oldProductID);
-    }
-
   private:
     typedef std::set<ProductProvenance> eiSet;
 
     void readProvenance() const;
     virtual void readProvenance_() const {}
-
-    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
 
     eiSet entryInfoSet_;
 

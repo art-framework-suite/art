@@ -18,7 +18,7 @@ class UnitTestClient_C
 {
 public:
   explicit
-    UnitTestClient_C( art::ParameterSet const & )
+    UnitTestClient_C( fhicl::ParameterSet const & )
   { }
 
   virtual

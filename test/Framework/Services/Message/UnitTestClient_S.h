@@ -3,10 +3,10 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/MessageLogger/LoggedErrorsSummary.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/LoggedErrorsSummary.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace art {
   class ParameterSet;
@@ -20,9 +20,9 @@ class UTC_S1
 {
 public:
   explicit
-    UTC_S1( art::ParameterSet const & p)
+    UTC_S1( fhicl::ParameterSet const & p)
   {
-    identifier = p.getUntrackedParameter<int> ("identifier", 99);
+    identifier = p.get<int> ("identifier", 99);
     art::GroupLogStatistics("grouped_cat");
   }
 
@@ -46,9 +46,9 @@ class UTC_S2
 {
 public:
   explicit
-    UTC_S2( art::ParameterSet const & p)
+    UTC_S2( fhicl::ParameterSet const & p)
   {
-    identifier = p.getUntrackedParameter<int> ("identifier", 98);
+    identifier = p.get<int> ("identifier", 98);
   }
 
   virtual
@@ -70,7 +70,7 @@ class UTC_SUMMARY
 {
 public:
   explicit
-    UTC_SUMMARY( art::ParameterSet const & p)
+    UTC_SUMMARY( fhicl::ParameterSet const & p)
   {
   }
 

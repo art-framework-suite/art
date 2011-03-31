@@ -6,7 +6,7 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 
 namespace arttest {
-  ThingExtSource::ThingExtSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc) :
+  ThingExtSource::ThingExtSource(fhicl::ParameterSet const& pset, art::InputSourceDescription const& desc) :
     ExternalInputSource(pset, desc), alg_() {
     produces<ThingCollection>();
     produces<ThingCollection, art::InSubRun>("beginSubRun");

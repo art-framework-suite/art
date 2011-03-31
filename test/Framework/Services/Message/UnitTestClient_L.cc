@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_L.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -20,7 +20,7 @@ void UnitTestClient_L::analyze( art::Event      const & e
 {
   for (int i=0; i<10000000; ++i) {
   }
-  art::LogInfo     ("cat") << "Event " << e.id() << "complete";
+  mf::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
 void UnitTestClient_L1::analyze( art::Event      const & e
@@ -30,7 +30,7 @@ void UnitTestClient_L1::analyze( art::Event      const & e
   for (int i=0; i<10000000; ++i) {
        LogDebug    ("dog") << "I am perhaps creating a long string here";
   }
-  art::LogInfo     ("cat") << "Event " << e.id() << "complete";
+  mf::LogInfo     ("cat") << "Event " << e.id() << "complete";
 }  // MessageLoggerClient::analyze()
 
 }  // arttest
@@ -38,5 +38,5 @@ void UnitTestClient_L1::analyze( art::Event      const & e
 
 using arttest::UnitTestClient_L;
 using arttest::UnitTestClient_L1;
-DEFINE_FWK_MODULE(UnitTestClient_L);
-DEFINE_FWK_MODULE(UnitTestClient_L1);
+DEFINE_ART_MODULE(UnitTestClient_L);
+DEFINE_ART_MODULE(UnitTestClient_L1);

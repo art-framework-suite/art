@@ -24,24 +24,28 @@ namespace art {
 
   typedef unsigned short ProcessIndex;
   typedef unsigned short ProductIndex;
-  class ProductID {
+
+  class ProductID
+  {
   public:
-    ProductID() : processIndex_(0),
-		  productIndex_(0),
-		  oldID_(0) {}
-    ProductID(ProcessIndex processIndex, ProductIndex productIndex) :
-      processIndex_(processIndex), productIndex_(productIndex), oldID_(0) {}
+    ProductID()
+    : processIndex_(0)
+    , productIndex_(0)
+    { }
+
+    ProductID(ProcessIndex processIndex, ProductIndex productIndex)
+    : processIndex_(processIndex)
+    , productIndex_(productIndex)
+    { }
+
     bool isValid() const {return productIndex_ != 0;}
+
     ProcessIndex processIndex() const {return processIndex_;}
     ProcessIndex productIndex() const {return productIndex_;}
-
-    unsigned int oldID() const {return oldID_;}
-    unsigned int & oldID() {return oldID_;}
 
   private:
     ProcessIndex processIndex_;
     ProductIndex productIndex_;
-    unsigned int oldID_;
   };
 
   inline

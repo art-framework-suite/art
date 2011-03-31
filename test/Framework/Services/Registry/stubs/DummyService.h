@@ -22,7 +22,7 @@
 // system include files
 
 // user include files
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 
 // forward declarations
@@ -31,7 +31,7 @@ namespace testserviceregistry {
    {
 
    public:
-      DummyService(const art::ParameterSet&,art::ActivityRegistry&);
+      DummyService(const fhicl::ParameterSet&,art::ActivityRegistry&);
       virtual ~DummyService();
 
       // ---------- const member functions ---------------------

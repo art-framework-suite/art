@@ -11,7 +11,7 @@ foreach my $inc (sort keys %inc_translations) {
   s&^(\s*#include\s+["<])\Q$inc\E([">].*)$&${1}$inc_translations{$inc}${2}& and last;
 }
 
-while (s/MessageFacility/messagefacility/g) {};
+while (s&MessageFacility/&messagefacility/&g) {};
 while (s&art/Message&messagefacility/Message&g) {};
 while (s&art::Log&mf::Log&g) {};
 

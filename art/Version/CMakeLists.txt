@@ -4,17 +4,12 @@ project(art_Version)
 configure_file ( ${art_SOURCE_DIR}/art/Version/GetReleaseVersion.cc.in
   ${art_BINARY_DIR}/art/Version/GetReleaseVersion.cc @ONLY )
 
-set( art_Version_sources
-  GetFileFormatEra.cc
-  GetFileFormatVersion.cc
-  ${art_BINARY_DIR}/art/Version/GetReleaseVersion.cc )
-
-add_library(art_Version SHARED ${art_Version_sources} )
+add_library(art_Version SHARED
+  ${art_BINARY_DIR}/art/Version/GetReleaseVersion.cc
+  )
 
 install ( TARGETS art_Version DESTINATION ${flavorqual_dir}/lib )
 install(FILES
-  GetFileFormatEra.h
-  GetFileFormatVersion.h
   GetReleaseVersion.h
   DESTINATION ${product}/${version}/include/art/Version )
 

@@ -38,14 +38,14 @@ namespace art{
   void TestSchedulerModule2::produce(Event& e, EventSetup const&)
   {
 
-    std::string myname = pset_.getParameter<std::string>("module_name");
+    std::string myname = pset_.get<std::string>("module_name");
     std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
     e.put(product);
 
   }
 }//namespace
 using art::TestSchedulerModule2;
-DEFINE_FWK_MODULE(TestSchedulerModule2);
+DEFINE_ART_MODULE(TestSchedulerModule2);
 
 // Configure (x)emacs for this file ...
 // Local Variables:

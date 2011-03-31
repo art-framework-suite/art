@@ -2,8 +2,8 @@
 #include <iostream>
 #include "art/Utilities/Digest.h"
 
-using artZ::Digest;
-using artZ::MD5Result;
+using art::Digest;
+using art::MD5Result;
 
 void testGivenString(std::string const& s) {
   Digest dig1(s);

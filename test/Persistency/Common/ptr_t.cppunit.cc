@@ -363,8 +363,8 @@ void testPtr::getTest() {
       ProductID const pid(1, 1);
 
       Ptr<IntValue> ref0(pid, 0,&tester);
-      CPPUNIT_ASSERT_THROW((*ref0),artZ::Exception);
-      CPPUNIT_ASSERT_THROW((ref0.operator->()),artZ::Exception);
+      CPPUNIT_ASSERT_THROW((*ref0),cet::exception);
+      CPPUNIT_ASSERT_THROW((ref0.operator->()),cet::exception);
    }
    /*
    PtrProd<IntCollection> refProd0(handle);

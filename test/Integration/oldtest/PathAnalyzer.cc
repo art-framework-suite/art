@@ -5,11 +5,11 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/Algorithms.h"
-#include "art/ParameterSet/ParameterSet.h"
-#include "art/ParameterSet/Registry.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace arttest
 {
@@ -17,7 +17,7 @@ namespace arttest
   {
   public:
 
-    explicit PathAnalyzer(art::ParameterSet const&);
+    explicit PathAnalyzer(fhicl::ParameterSet const&);
     virtual ~PathAnalyzer();
 
     virtual void analyze(art::Event const&, art::EventSetup const&);
@@ -32,7 +32,7 @@ namespace arttest
   //
   // Implementation details
 
-  PathAnalyzer::PathAnalyzer(art::ParameterSet const&) { }
+  PathAnalyzer::PathAnalyzer(fhicl::ParameterSet const&) { }
 
   PathAnalyzer::~PathAnalyzer() {}
 
@@ -51,7 +51,7 @@ namespace arttest
     // doesn't really belong here, but I had to stick it somewhere
     // quickly...
 
-    art::ParameterSet ppset = art::getProcessParameterSet();
+    fhicl::ParameterSet ppset = art::getProcessParameterSet();
     assert (ppset.id().isValid());
   }
 
@@ -64,7 +64,7 @@ namespace arttest
   void
   PathAnalyzer::dumpTriggerNamesServiceInfo(char const* where)
   {
-    typedef art::Service<art::TriggerNamesService>  TNS;
+    typedef art::ServiceHandle<art::TriggerNamesService>  TNS;
     typedef std::vector<std::string> stringvec;
 
     TNS tns;
@@ -91,7 +91,7 @@ namespace arttest
 	    << tns->getTriggerPSet()
 	    << '\n';
 
-    art::LogInfo("PathAnalyzer") << "TNS size: " << tns->size()
+    mf::LogInfo("PathAnalyzer") << "TNS size: " << tns->size()
 				 << "\n"
 				 << message.str()
 				 << std::endl;
@@ -100,4 +100,4 @@ namespace arttest
 } // arttest
 
 using arttest::PathAnalyzer;
-DEFINE_FWK_MODULE(PathAnalyzer);
+DEFINE_ART_MODULE(PathAnalyzer);

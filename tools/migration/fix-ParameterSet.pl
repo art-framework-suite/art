@@ -6,7 +6,7 @@ BEGIN { %translations = (
                          FileInPath => "<FileInPath>",
                          Int => "<int>",
                          PSet => "<fhicl::ParameterSet>",
-                         ParameterSet => "<fhicl::ParameterSet>",
+                         'ParameterSet(\([^\)])' => "<fhicl::ParameterSet>${1}",
                          String => "<std::string>",
                          UInt => "<unsigned int>",
                          Uint => "<unsigned int>",
@@ -22,11 +22,11 @@ BEGIN { %translations = (
       }
 
 foreach my $name (sort keys %translations) {
-  while (s&get\Q$name\E\b&get$translations{$name}&g) {};
+  while (s&get$name\b&get$translations{$name}&g) {};
   while (s&add\Q$name\E\b&put&g) {};
 }
 
-while (s/art::ParameterSet/fhicl::ParameterSet/g) {}
+while (s/art::ParameterSet\b/fhicl::ParameterSet/g) {}
 while (s/getParameter</get</g) {}
 while (s/getUntrackedParameter</get</g) {}
 

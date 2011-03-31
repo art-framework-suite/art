@@ -24,7 +24,7 @@ namespace arttest
   class TestResultAnalyzer : public art::EDAnalyzer
   {
   public:
-    explicit TestResultAnalyzer(art::ParameterSet const&);
+    explicit TestResultAnalyzer(fhicl::ParameterSet const&);
     virtual ~TestResultAnalyzer();
 
     virtual void analyze(art::Event const& e, art::EventSetup const& c);
@@ -40,14 +40,14 @@ namespace arttest
     std::string expected_modulelabel_; // if empty, we don't know
   };
 
-  TestResultAnalyzer::TestResultAnalyzer(art::ParameterSet const& ps):
+  TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
     passed_(),
     failed_(),
-    dump_(ps.getUntrackedParameter<bool>("dump",false)),
-    name_(ps.getUntrackedParameter<std::string>("name","DEFAULT")),
-    numbits_(ps.getUntrackedParameter<int>("numbits",-1)),
-    expected_pathname_(ps.getUntrackedParameter<std::string>("pathname", "")),
-    expected_modulelabel_(ps.getUntrackedParameter<std::string>("modlabel", ""))
+    dump_(ps.get<bool>("dump",false)),
+    name_(ps.get<std::string>("name","DEFAULT")),
+    numbits_(ps.get<int>("numbits",-1)),
+    expected_pathname_(ps.get<std::string>("pathname", "")),
+    expected_modulelabel_(ps.get<std::string>("modlabel", ""))
   {
   }
 
@@ -102,4 +102,4 @@ namespace arttest
 
 using arttest::TestResultAnalyzer;
 
-DEFINE_FWK_MODULE(TestResultAnalyzer);
+DEFINE_ART_MODULE(TestResultAnalyzer);

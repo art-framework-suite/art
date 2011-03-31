@@ -3,8 +3,8 @@
 
 // ======================================================================
 //
-// WorkerInPath - A wrapper around a Worker, so that statistics can be
-//                managed per path.  A Path holds Workers as these things.
+// WorkerInPath: A wrapper around a Worker, so that statistics can be
+//               managed per path.  A Path holds Workers as these things.
 //
 // ======================================================================
 

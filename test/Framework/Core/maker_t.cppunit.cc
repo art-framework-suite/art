@@ -44,7 +44,7 @@ void testmaker::makerTest()
     boost::shared_ptr<ParameterSet> p1 = makePSet(*art::pset::parse(param1.c_str()));;
     boost::shared_ptr<ParameterSet> p2 = makePSet(*art::pset::parse(param2.c_str()));;
 
-    std::cerr << p1->getParameter<std::string>("module_type");
+    std::cerr << p1->get<std::string>("module_type");
 
     art::ActionTable table;
 

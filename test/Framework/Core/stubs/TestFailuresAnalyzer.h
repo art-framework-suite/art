@@ -18,7 +18,7 @@
 
 class TestFailuresAnalyzer : public art::EDAnalyzer {
 public:
-   explicit TestFailuresAnalyzer(const art::ParameterSet&);
+   explicit TestFailuresAnalyzer(const fhicl::ParameterSet&);
    ~TestFailuresAnalyzer();
 
 

@@ -35,7 +35,7 @@ namespace art {
 class TestPRegisterModule2 : public art::EDProducer
 {
 public:
-   explicit TestPRegisterModule2(art::ParameterSet const& p);
+   explicit TestPRegisterModule2(fhicl::ParameterSet const& p);
 
    void produce(art::Event& e, art::EventSetup const&);
 

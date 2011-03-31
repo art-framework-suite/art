@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/UnitTestClient_K.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -16,8 +16,8 @@ void
 {
 
   for (int i=0; i<10; ++i) {
-    art::LogPrint  ("cat_P") << "LogPrint: " << i;
-    art::LogSystem ("cat_S") << "LogSystem: " << i;
+    mf::LogPrint  ("cat_P") << "LogPrint: " << i;
+    mf::LogSystem ("cat_S") << "LogSystem: " << i;
   }
 
 }  // MessageLoggerClient::analyze()
@@ -27,4 +27,4 @@ void
 
 
 using arttest::UnitTestClient_K;
-DEFINE_FWK_MODULE(UnitTestClient_K);
+DEFINE_ART_MODULE(UnitTestClient_K);

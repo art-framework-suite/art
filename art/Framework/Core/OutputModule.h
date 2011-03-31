@@ -66,12 +66,6 @@ namespace art {
     //const Trig& getTriggerResults(Event const& ep) const;
     Trig getTriggerResults(Event const& ep) const;
 
-    // This function is needed for compatibility with older code. We
-    // need to clean up the use of Event and EventPrincipal, to avoid
-    // creation of multiple Event objects when handling a single
-    // event.
-    Trig getTriggerResults(EventPrincipal const& ep) const;
-
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('write').
     CurrentProcessingContext const* currentContext() const;

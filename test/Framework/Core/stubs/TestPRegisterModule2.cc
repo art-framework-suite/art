@@ -21,7 +21,7 @@ static const char CVSId[] = "";
 
 using namespace art;
 
-TestPRegisterModule2::TestPRegisterModule2(art::ParameterSet const&){
+TestPRegisterModule2::TestPRegisterModule2(fhicl::ParameterSet const&){
    produces<arttest::DoubleProduct>();
 }
 

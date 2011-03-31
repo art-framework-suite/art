@@ -56,14 +56,16 @@ function one_file() {
   perl -wapi\~ -f fix-services.pl "${F}"
   # Fix for relocated services
   perl -wapi\~ -f fix-macros.pl "${F}"
+  # Fix for relocated ROOT IO files.
+  perl -wapi\~ -f fix-rootIO.pl "${F}"
   # Fix use of exceptions (must fix only once due to hysteresis).
   [[ "${F}" == *"art/Utilities/Exception.cc" ]] || \
-    grep -e 'art/Utilites/EDMException' \
-         -e 'cetlib/exception' \
+    grep -e 'cetlib/exception' \
          -e 'namespace[ \t]\{1,\}cet' \
          -e '\(art::\)\{0,1\}Exception\([ \t]\{1,\}[A-Za-z0-9_]*\)\{0,1\}(\(art::\)\{0,1\}errors::' \
+         -e 'art::Exception' \
          "${F}" >/dev/null 2>&1 || \
-    perl -wapi\~ -f fix-exceptions.pl   "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+    { perl -wapi\~ -f fix-exceptions.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"; }
   # Final namespace fix (must be done after exception fix).
   perl -wapi\~ -f fix-namespaces-2.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   perl -wapi\~ -f fix-messagefacility.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"

@@ -23,7 +23,6 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/ParameterSet/ParameterSetDescription.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -50,7 +49,7 @@ namespace arttest {
   //
   class FailingProducer : public art::EDProducer {
   public:
-    explicit FailingProducer(art::ParameterSet const& /*p*/) {
+    explicit FailingProducer(fhicl::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
     virtual ~FailingProducer() { }
@@ -70,7 +69,7 @@ namespace arttest {
   //
   class NonProducer : public art::EDProducer {
   public:
-    explicit NonProducer(art::ParameterSet const& /*p*/) {
+    explicit NonProducer(fhicl::ParameterSet const& /*p*/) {
       produces<IntProduct>();
     }
     virtual ~NonProducer() { }
@@ -87,8 +86,8 @@ namespace arttest {
   //
   class Int16_tProducer : public art::EDProducer {
   public:
-    explicit Int16_tProducer(art::ParameterSet const& p) :
-      value_(p.getParameter<int>("ivalue")) {
+    explicit Int16_tProducer(fhicl::ParameterSet const& p) :
+      value_(p.get<int>("ivalue")) {
       produces<Int16_tProduct>();
     }
     explicit Int16_tProducer(boost::int16_t i, boost::uint16_t j) : value_(i), uvalue_(j) {
@@ -117,8 +116,8 @@ namespace arttest {
 
   class ToyDoubleProducer : public art::EDProducer {
   public:
-    explicit ToyDoubleProducer(art::ParameterSet const& p) :
-      value_(p.getParameter<double>("dvalue")) {
+    explicit ToyDoubleProducer(fhicl::ParameterSet const& p) :
+      value_(p.get<double>("dvalue")) {
       produces<DoubleProduct>();
     }
     explicit ToyDoubleProducer(double d) : value_(d) {
@@ -145,8 +144,8 @@ namespace arttest {
 
   class AddIntsProducer : public art::EDProducer {
   public:
-    explicit AddIntsProducer(art::ParameterSet const& p) :
-      labels_(p.getParameter<std::vector<std::string> >("labels")) {
+    explicit AddIntsProducer(fhicl::ParameterSet const& p) :
+      labels_(p.get<std::vector<std::string> >("labels")) {
         produces<IntProduct>();
       }
     virtual ~AddIntsProducer() { }
@@ -175,8 +174,8 @@ namespace arttest {
   //
   class SCSimpleProducer : public art::EDProducer {
   public:
-    explicit SCSimpleProducer(art::ParameterSet const& p) :
-      size_(p.getParameter<int>("size"))
+    explicit SCSimpleProducer(fhicl::ParameterSet const& p) :
+      size_(p.get<int>("size"))
     {
       produces<SCSimpleProduct>();
       assert ( size_ > 1 );
@@ -227,8 +226,8 @@ namespace arttest {
   //
   class OVSimpleProducer : public art::EDProducer {
   public:
-    explicit OVSimpleProducer(art::ParameterSet const& p) :
-      size_(p.getParameter<int>("size"))
+    explicit OVSimpleProducer(fhicl::ParameterSet const& p) :
+      size_(p.get<int>("size"))
     {
       produces<OVSimpleProduct>();
       produces<OVSimpleDerivedProduct>("derived");
@@ -289,8 +288,8 @@ namespace arttest {
   //
   class VSimpleProducer : public art::EDProducer {
   public:
-    explicit VSimpleProducer(art::ParameterSet const& p) :
-      size_(p.getParameter<int>("size"))
+    explicit VSimpleProducer(fhicl::ParameterSet const& p) :
+      size_(p.get<int>("size"))
     {
       produces<VSimpleProduct>();
       assert ( size_ > 1 );
@@ -336,8 +335,8 @@ namespace arttest {
   class AVSimpleProducer : public art::EDProducer {
   public:
 
-    explicit AVSimpleProducer(art::ParameterSet const& p) :
-    src_(p.getParameter<art::InputTag>("src")) {
+    explicit AVSimpleProducer(fhicl::ParameterSet const& p) :
+    src_(p.get<art::InputTag>("src")) {
       produces<AVSimpleProduct>();
     }
 
@@ -378,8 +377,8 @@ namespace arttest {
   {
   public:
 
-    explicit DSVProducer(art::ParameterSet const& p) :
-      size_(p.getParameter<int>("size"))
+    explicit DSVProducer(fhicl::ParameterSet const& p) :
+      size_(p.get<int>("size"))
     {
       produces<DSVSimpleProduct>();
       produces<DSVWeirdProduct>();
@@ -457,8 +456,8 @@ namespace arttest {
   {
   public:
 
-    explicit DSTVProducer(art::ParameterSet const& p) :
-      size_(p.getParameter<int>("size"))
+    explicit DSTVProducer(fhicl::ParameterSet const& p) :
+      size_(p.get<int>("size"))
     {
       produces<DSTVSimpleProduct>();
       produces<DSTVSimpleDerivedProduct>();
@@ -542,9 +541,9 @@ namespace arttest {
   //
   class IntVectorProducer : public art::EDProducer {
   public:
-    explicit IntVectorProducer(art::ParameterSet const& p) :
-      value_(p.getParameter<int>("ivalue")),
-      count_(p.getParameter<int>("count"))
+    explicit IntVectorProducer(fhicl::ParameterSet const& p) :
+      value_(p.get<int>("ivalue")),
+      count_(p.get<int>("count"))
     {
       produces<std::vector<int> >();
     }
@@ -568,9 +567,9 @@ namespace arttest {
   //
   class IntListProducer : public art::EDProducer {
   public:
-    explicit IntListProducer(art::ParameterSet const& p) :
-      value_(p.getParameter<int>("ivalue")),
-      count_(p.getParameter<int>("count"))
+    explicit IntListProducer(fhicl::ParameterSet const& p) :
+      value_(p.get<int>("ivalue")),
+      count_(p.get<int>("count"))
     {
       produces<std::list<int> >();
     }
@@ -594,9 +593,9 @@ namespace arttest {
   //
   class IntDequeProducer : public art::EDProducer {
   public:
-    explicit IntDequeProducer(art::ParameterSet const& p) :
-      value_(p.getParameter<int>("ivalue")),
-      count_(p.getParameter<int>("count"))
+    explicit IntDequeProducer(fhicl::ParameterSet const& p) :
+      value_(p.get<int>("ivalue")),
+      count_(p.get<int>("count"))
     {
       produces<std::deque<int> >();
     }
@@ -620,9 +619,9 @@ namespace arttest {
   //
   class IntSetProducer : public art::EDProducer {
   public:
-    explicit IntSetProducer(art::ParameterSet const& p) :
-      start_(p.getParameter<int>("start")),
-      stop_(p.getParameter<int>("stop"))
+    explicit IntSetProducer(fhicl::ParameterSet const& p) :
+      start_(p.get<int>("start")),
+      stop_(p.get<int>("stop"))
     {
       produces<std::set<int> >();
     }
@@ -650,8 +649,8 @@ namespace arttest {
     typedef art::RefVector<std::vector<int> > product_type;
 
   public:
-    explicit IntVecRefVectorProducer(art::ParameterSet const& p) :
-      target_(p.getParameter<std::string>("target"))
+    explicit IntVecRefVectorProducer(fhicl::ParameterSet const& p) :
+      target_(p.get<std::string>("target"))
     {
       produces<product_type>();
     }
@@ -688,8 +687,8 @@ namespace arttest {
     typedef art::RefToBaseVector<int> product_type;
 
   public:
-    explicit IntVecRefToBaseVectorProducer(art::ParameterSet const& p) :
-      target_(p.getParameter<std::string>("target"))
+    explicit IntVecRefToBaseVectorProducer(fhicl::ParameterSet const& p) :
+      target_(p.get<std::string>("target"))
     {
       produces<product_type>();
     }
@@ -718,8 +717,8 @@ namespace arttest {
   //
   class ProdigalProducer : public art::EDProducer {
   public:
-    explicit ProdigalProducer(art::ParameterSet const& p) :
-      label_(p.getParameter<std::string>("label")) {
+    explicit ProdigalProducer(fhicl::ParameterSet const& p) :
+      label_(p.get<std::string>("label")) {
       produces<Prodigal>();
     }
     virtual ~ProdigalProducer() { }
@@ -747,7 +746,7 @@ namespace arttest {
   class SCSimpleAnalyzer : public art::EDAnalyzer
   {
   public:
-    SCSimpleAnalyzer(const art::ParameterSet& iPSet) { }
+    SCSimpleAnalyzer(const fhicl::ParameterSet& iPSet) { }
 
     virtual void
     analyze(art::Event const& e, art::EventSetup const&);
@@ -802,24 +801,24 @@ using arttest::IntSetProducer;
 using arttest::IntVecRefVectorProducer;
 using arttest::IntVecRefToBaseVectorProducer;
 using arttest::ProdigalProducer;
-DEFINE_FWK_MODULE(FailingProducer);
-DEFINE_FWK_MODULE(NonProducer);
-DEFINE_FWK_MODULE(Int16_tProducer);
-DEFINE_FWK_MODULE(ToyDoubleProducer);
-DEFINE_FWK_MODULE(SCSimpleProducer);
-DEFINE_FWK_MODULE(OVSimpleProducer);
-DEFINE_FWK_MODULE(VSimpleProducer);
-DEFINE_FWK_MODULE(AVSimpleProducer);
-DEFINE_FWK_MODULE(DSVProducer);
-DEFINE_FWK_MODULE(DSTVProducer);
-DEFINE_FWK_MODULE(SCSimpleAnalyzer);
-DEFINE_FWK_MODULE(DSVAnalyzer);
-DEFINE_FWK_MODULE(AddIntsProducer);
-DEFINE_FWK_MODULE(IntVectorProducer);
-DEFINE_FWK_MODULE(IntListProducer);
-DEFINE_FWK_MODULE(IntDequeProducer);
-DEFINE_FWK_MODULE(IntSetProducer);
-DEFINE_FWK_MODULE(IntVecRefVectorProducer);
-DEFINE_FWK_MODULE(IntVecRefToBaseVectorProducer);
-DEFINE_FWK_MODULE(ProdigalProducer);
+DEFINE_ART_MODULE(FailingProducer);
+DEFINE_ART_MODULE(NonProducer);
+DEFINE_ART_MODULE(Int16_tProducer);
+DEFINE_ART_MODULE(ToyDoubleProducer);
+DEFINE_ART_MODULE(SCSimpleProducer);
+DEFINE_ART_MODULE(OVSimpleProducer);
+DEFINE_ART_MODULE(VSimpleProducer);
+DEFINE_ART_MODULE(AVSimpleProducer);
+DEFINE_ART_MODULE(DSVProducer);
+DEFINE_ART_MODULE(DSTVProducer);
+DEFINE_ART_MODULE(SCSimpleAnalyzer);
+DEFINE_ART_MODULE(DSVAnalyzer);
+DEFINE_ART_MODULE(AddIntsProducer);
+DEFINE_ART_MODULE(IntVectorProducer);
+DEFINE_ART_MODULE(IntListProducer);
+DEFINE_ART_MODULE(IntDequeProducer);
+DEFINE_ART_MODULE(IntSetProducer);
+DEFINE_ART_MODULE(IntVecRefVectorProducer);
+DEFINE_ART_MODULE(IntVecRefToBaseVectorProducer);
+DEFINE_ART_MODULE(ProdigalProducer);
 

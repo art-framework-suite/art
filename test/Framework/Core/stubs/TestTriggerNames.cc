@@ -8,7 +8,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Core/TriggerNames.h"
-#include "art/ParameterSet/Registry.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 #include "art/Persistency/Provenance/ParameterSetID.h"
 #include "art/Persistency/Provenance/Provenance.h"
@@ -35,7 +35,7 @@ namespace arttest
 
     typedef std::vector<std::string> Strings;
 
-    explicit TestTriggerNames(art::ParameterSet const&);
+    explicit TestTriggerNames(fhicl::ParameterSet const&);
     virtual ~TestTriggerNames();
 
     virtual void analyze(art::Event const& e, art::EventSetup const& c);
@@ -56,13 +56,13 @@ namespace arttest
 
   // -----------------------------------------------------------------
 
-  TestTriggerNames::TestTriggerNames(art::ParameterSet const& ps):
+  TestTriggerNames::TestTriggerNames(fhicl::ParameterSet const& ps):
     status_(true),
-    expected_trigger_paths_(ps.getUntrackedParameter<Strings>("trigPaths", Strings())),
-    expected_trigger_previous_(ps.getUntrackedParameter<Strings>("trigPathsPrevious", Strings())),
-    expected_end_paths_(ps.getUntrackedParameter<Strings>("endPaths", Strings())),
-    streamerSource_(ps.getUntrackedParameter<bool>("streamerSource", false)),
-    dumpPSetRegistry_(ps.getUntrackedParameter<bool>("dumpPSetRegistry", false))
+    expected_trigger_paths_(ps.get<Strings>("trigPaths", Strings())),
+    expected_trigger_previous_(ps.get<Strings>("trigPathsPrevious", Strings())),
+    expected_end_paths_(ps.get<Strings>("endPaths", Strings())),
+    streamerSource_(ps.get<bool>("streamerSource", false)),
+    dumpPSetRegistry_(ps.get<bool>("dumpPSetRegistry", false))
   {
   }
 
@@ -158,14 +158,6 @@ namespace arttest
              << "Failed finding trigger names from a previous process" << std::endl;
         abort();
       }
-      bool fromPSetRegistry;
-      if (tns->getTrigPaths(*prod[0], triggernames, fromPSetRegistry)) {
-        if (!fromPSetRegistry) {
-          std::cerr << "TestTriggerNames: "
-               << "fromPSetRegistry returned with incorrect value" << std::endl;
-          abort();
-        }
-      }
 
       // The provenance of the TriggerResults object should also contain the
       // parameter set ID for the parameter set that lists the trigger paths.
@@ -177,7 +169,7 @@ namespace arttest
         ParameterSet trigpset;
         bool status = psetRegistry->getMapped(trigpathsID, trigpset);
         if (status) {
-          Strings trigpaths = trigpset.getParameter<Strings>("trigger_paths");
+          Strings trigpaths = trigpset.get<Strings>("trigger_paths");
           if (trigpaths.size() != expected_trigger_previous_.size()) {
             std::cerr << "TestTriggerNames: Using provenance\n"
                  << "Expected and actual previous trigger path not the same size" << std::endl;
@@ -253,4 +245,4 @@ namespace arttest
 
 using arttest::TestTriggerNames;
 
-DEFINE_FWK_MODULE(TestTriggerNames);
+DEFINE_ART_MODULE(TestTriggerNames);

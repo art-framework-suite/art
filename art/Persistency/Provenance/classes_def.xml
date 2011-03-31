@@ -30,7 +30,6 @@
    <class name="art::BranchKey"/>
    <class name="art::BranchDescription"/>
      <class name="art::ProductID">
-       <field name="oldID_" transient="true"/>
      </class>
      <class name="std::set<fhicl::ParameterSetID>"/>
      <class name="art::ProcessConfigurationID"/>

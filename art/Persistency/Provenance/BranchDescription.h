@@ -12,7 +12,6 @@ This description also applies to every product instance on the branch.
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
-#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/Transient.h"
 #include "art/Utilities/UseReflex.h"
@@ -61,7 +60,6 @@ namespace art {
     std::string const& moduleLabel() const {return moduleLabel_;}
     std::string const& processName() const {return processName_;}
     BranchID const& branchID() const {return branchID_;}
-    ProductID const& oldProductID() const {return productID_;}
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
@@ -145,11 +143,6 @@ namespace art {
 
     // An ID uniquely identifying the branch
     mutable BranchID branchID_;
-
-    // An ID uniquely identifying the branch
-    // This field is obsolete and is needed only for backward compatibility
-    // with file format 7 and earlier.
-    ProductID productID_;
 
     // the full name of the type of product this is
     std::string fullClassName_;

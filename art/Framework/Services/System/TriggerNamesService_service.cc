@@ -20,23 +20,28 @@ using namespace std;
 
 // ----------------------------------------------------------------------
 
+static  ParameterSet   empty_pset;
+static  vector<string> empty_svec;
+
+// ----------------------------------------------------------------------
+
 TriggerNamesService::TriggerNamesService(ParameterSet const & pset)
+  : trigger_pset_( pset.get<ParameterSet>("trigger_paths", empty_pset) )
+  , trignames_   ( trigger_pset_.get<vector<string> >("trigger_paths"
+                                                     , empty_svec) )
+  , trigpos_     ( )
+  , end_names_   ( )
+  , end_pos_     ( )
+  , modulenames_ ( )
+  , process_name_( pset.get<string>("process_name") )
+  , wantSummary_ ( )
 {
-  trigger_pset_ =
-     pset.get<ParameterSet>("trigger_paths", ParameterSet());
+  ParameterSet physics = pset.get<ParameterSet>("physics", empty_pset);
+  end_names_ = physics.get<vector<string> >("end_paths", empty_svec);
 
-  trignames_ = trigger_pset_.get<vector<string> >("trigger_paths", vector<string>());
-  ParameterSet physics = pset.get<ParameterSet>("physics", ParameterSet());
-  end_names_ = physics.get<vector<string> >("end_paths", vector<string>());
-
-  ParameterSet defopts;
-  ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet opts =
-    services.get<ParameterSet>("scheduler", defopts);
-  wantSummary_ =
-    opts.get<bool>("wantSummary",false);
-
-  process_name_ = pset.get<string>("process_name");
+  ParameterSet services = pset.get<ParameterSet>("services", empty_pset);
+  ParameterSet opts = services.get<ParameterSet>("scheduler", empty_pset);
+  wantSummary_ = opts.get<bool>("wantSummary",false);
 
   loadPosMap(trigpos_,trignames_);
   loadPosMap(end_pos_,end_names_);
@@ -45,53 +50,31 @@ TriggerNamesService::TriggerNamesService(ParameterSet const & pset)
   for(unsigned int i=0;i!=n;++i) {
     modulenames_.push_back(physics.get<vector<string> >(trignames_[i]));
   }
-}
+
+}  // c'tor
 
 // ----------------------------------------------------------------------
 
 bool
 TriggerNamesService::getTrigPaths(TriggerResults const& triggerResults,
-                                  Strings& trigPaths,
-                                  bool& fromPSetRegistry) {
-
-  // Get the parameter set containing the trigger names from the parameter set registry
-  // using the ID from TriggerResults as the key used to find it.
-  ParameterSet pset;
-  if (ParameterSetRegistry::get(triggerResults.parameterSetID(), pset)) {
-
-    trigPaths = pset.get<vector<string> >("trigger_paths",Strings());
-
-    if (trigPaths.size() != triggerResults.size()) {
-      throw art::Exception(art::errors::Unknown)
-        << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
-           "TriggerResults are different sizes.  This should be impossible,\n"
-           "please send information to reproduce this problem to\n"
-           "the edm developers.\n";
-    }
-
-    fromPSetRegistry = true;
-    return true;
-  }
-
-  fromPSetRegistry = false;
-
-  // In older versions of the code the the trigger names were stored
-  // inside of the TriggerResults object.  This will provide backward
-  // compatibility.
-  if (triggerResults.size() == triggerResults.getTriggerNames().size()) {
-    trigPaths = triggerResults.getTriggerNames();
-    return true;
-  }
-
-  return false;
-}
-
-bool
-TriggerNamesService::getTrigPaths(TriggerResults const& triggerResults,
                                   Strings& trigPaths) {
-  bool dummy;
-  return getTrigPaths(triggerResults, trigPaths, dummy);
-}
+
+  ParameterSet pset;
+  if( ! ParameterSetRegistry::get(triggerResults.parameterSetID(), pset) )
+    return false;
+
+  trigPaths = pset.get<vector<string> >("trigger_paths",Strings());
+  if (trigPaths.size() != triggerResults.size()) {
+    throw art::Exception(art::errors::Unknown)
+      << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
+         "TriggerResults are different sizes.  This should be impossible,\n"
+         "please send information to reproduce this problem to\n"
+         "the edm developers.\n";
+  }
+
+  return true;
+
+}  // getTrigPaths()
 
 // ======================================================================
 

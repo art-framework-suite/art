@@ -18,13 +18,13 @@
 #include "test/TestObjects/ThingWithIsEqual.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Utilities/InputTag.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace arttest {
-  ThingWithMergeProducer::ThingWithMergeProducer(art::ParameterSet const& pset) :
-    changeIsEqualValue_(pset.getUntrackedParameter<bool>("changeIsEqualValue", false)),
-    labelsToGet_(pset.getUntrackedParameter<std::vector<std::string> >("labelsToGet", std::vector<std::string>())),
-    noPut_(pset.getUntrackedParameter<bool>("noPut", false))
+  ThingWithMergeProducer::ThingWithMergeProducer(fhicl::ParameterSet const& pset) :
+    changeIsEqualValue_(pset.get<bool>("changeIsEqualValue", false)),
+    labelsToGet_(pset.get<std::vector<std::string> >("labelsToGet", std::vector<std::string>())),
+    noPut_(pset.get<bool>("noPut", false))
 {
     produces<Thing>("event");
     produces<Thing, art::InSubRun>("beginSubRun");
@@ -162,4 +162,4 @@ namespace arttest {
   }
 }
 using arttest::ThingWithMergeProducer;
-DEFINE_FWK_MODULE(ThingWithMergeProducer);
+DEFINE_ART_MODULE(ThingWithMergeProducer);

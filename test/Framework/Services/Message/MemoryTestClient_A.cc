@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/MemoryTestClient_A.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -11,11 +11,11 @@ namespace arttest
 
 int  MemoryTestClient_A::nevent = 0;
 
-MemoryTestClient_A::MemoryTestClient_A( art::ParameterSet const & ps)
+MemoryTestClient_A::MemoryTestClient_A( fhicl::ParameterSet const & ps)
   : vsize(0)
 {
-  int pattern = ps.getUntrackedParameter<int>("pattern",1);
-  art::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
+  int pattern = ps.get<int>("pattern",1);
+  mf::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;
   initializeMemoryPattern(pattern);
 }
 
@@ -26,12 +26,12 @@ void
 {
   nevent++;
   double v = memoryPattern[nevent%memoryPattern.size()];
-  art::LogVerbatim("memoryUsage") << "Event " << nevent
+  mf::LogVerbatim("memoryUsage") << "Event " << nevent
   	<< " uses "<< v << " Mbytes";
   if ( v > vsize ) {
     int leaksize = static_cast<int>((v-vsize)*1048576);
     char* leak = new  char[leaksize];
-    art::LogPrint("memoryIncrease") << "Event " << nevent
+    mf::LogPrint("memoryIncrease") << "Event " << nevent
   	<< " increases vsize by "<< v-vsize << " Mbytes";
     vsize = v;
     last_allocation = leak;
@@ -128,4 +128,4 @@ void  MemoryTestClient_A::initializeMemoryPattern(int pattern) {
 
 
 using arttest::MemoryTestClient_A;
-DEFINE_FWK_MODULE(MemoryTestClient_A);
+DEFINE_ART_MODULE(MemoryTestClient_A);

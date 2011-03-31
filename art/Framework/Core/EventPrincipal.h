@@ -37,8 +37,6 @@ namespace art {
     typedef Principal Base;
 
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
-    static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
-    static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
                    cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
@@ -72,20 +70,12 @@ namespace art {
       return aux().time();
     }
 
-    bool const isReal() const {
+    bool isReal() const {
       return aux().isRealData();
     }
 
     EventAuxiliary::ExperimentType ExperimentType() const {
       return aux().experimentType();
-    }
-
-    int const bunchCrossing() const {
-      return aux().bunchCrossing();
-    }
-
-    int const storeNumber() const {
-      return aux().storeNumber();
     }
 
     EventAuxiliary const& aux() const {
@@ -152,8 +142,6 @@ namespace art {
     virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
 
     virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return history().setProcessHistoryID(phid);}
-
-    virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 

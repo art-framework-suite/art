@@ -3,9 +3,9 @@
 
 namespace arttest {
 
-  HierarchicalEDProducer::HierarchicalEDProducer(art::ParameterSet const& ps) :
-    radius_ (ps.getParameter<double>("radius")),
-    outer_alg_(ps.getParameter<art::ParameterSet>("nest_1"))
+  HierarchicalEDProducer::HierarchicalEDProducer(fhicl::ParameterSet const& ps) :
+    radius_ (ps.get<double>("radius")),
+    outer_alg_(ps.get<fhicl::ParameterSet>("nest_1"))
   { produces<int>();}
 
   // Virtual destructor needed.
@@ -17,4 +17,4 @@ namespace arttest {
   }
 }
 using arttest::HierarchicalEDProducer;
-DEFINE_FWK_MODULE(HierarchicalEDProducer);
+DEFINE_ART_MODULE(HierarchicalEDProducer);

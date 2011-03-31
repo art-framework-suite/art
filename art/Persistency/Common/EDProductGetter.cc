@@ -55,13 +55,6 @@ namespace art {
      return returnValue;
   }
 
-  ProductID
-  EDProductGetter::oldToNewProductID_(ProductID const&) const {
-    throw art::Exception(errors::LogicError)
-        << "Internal error:  Call of oldToNewProductID_ for non-EventPrincipal.\n"
-        << "Please report this error to the Framework group\n";
-  }
-
   EDProductGetter const*
   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
     if (prodGetter != 0) return prodGetter;

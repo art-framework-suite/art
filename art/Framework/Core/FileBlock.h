@@ -69,12 +69,12 @@ namespace art {
     ~FileBlock() {}
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    TTree * const tree() const {return tree_;}
-    TTree * const metaTree() const {return metaTree_;}
-    TTree * const subRunTree() const {return subRunTree_;}
-    TTree * const subRunMetaTree() const {return subRunMetaTree_;}
-    TTree * const runTree() const {return runTree_;}
-    TTree * const runMetaTree() const {return runMetaTree_;}
+    TTree * tree() const {return tree_;}
+    TTree * metaTree() const {return metaTree_;}
+    TTree * subRunTree() const {return subRunTree_;}
+    TTree * subRunMetaTree() const {return subRunMetaTree_;}
+    TTree * runTree() const {return runTree_;}
+    TTree * runMetaTree() const {return runMetaTree_;}
 
     bool fastClonable() const {return fastCopyable_;}
     std::string const& fileName() const {return fileName_;}

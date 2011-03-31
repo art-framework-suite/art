@@ -1,59 +1,51 @@
 #ifndef art_Persistency_Common_TriggerResults_h
 #define art_Persistency_Common_TriggerResults_h
 
-/** \class art::TriggerResults
- *
- *  The trigger path results are maintained here as a sequence of
- *  entries, one per trigger path.  They are assigned in the order
- *  they appeared in the process-level pset.  (They are actually
- *  stored in the base class HLTGlobalStatus)
- *
- *  The ParameterSetID can be used to get a ParameterSet from
- *  the registry of parameter sets.  This ParameterSet contains
- *  a vector<string> named "trigger_paths" that contains the
- *  trigger path names in the same order as the trigger path
- *  results stored here.
- *
- *  The vector<string> contained in this class is empty and
- *  no longer used.  It is kept for backward compatibility reasons.
- *  In early versions of the code, the trigger results paths names
- *  were stored there.
- *
- */
+// ======================================================================
+//
+// TriggerResults
+//
+// The trigger path results are maintained here as a sequence of entries,
+// one per trigger path.  They are assigned in the order they appeared in
+// the process-level pset.  (They are actually stored in the base class
+// HLTGlobalStatus)
+//
+// The ParameterSetID can be used to get a ParameterSet from the registry
+// of parameter sets.  This ParameterSet contains a vector<string> named
+// "trigger_paths" that contains the trigger path names in the same order
+// as the trigger path results stored here.
+//
+// ======================================================================
 
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/traits.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include <string>
-#include <vector>
 
 // ----------------------------------------------------------------------
 
 namespace art {
 
-  class TriggerResults : public HLTGlobalStatus, public DoNotRecordParents  {
-
-    typedef std::vector<std::string> Strings;
-
+  class TriggerResults
+    : public HLTGlobalStatus
+    , public DoNotRecordParents
+  {
   private:
     // Parameter set id
     fhicl::ParameterSetID psetid_;
 
-    // Not used anymore
-    Strings             names_;
-
   public:
-
-    // Trivial contructor
-    TriggerResults() : HLTGlobalStatus(), psetid_(), names_() { }
+    // Default contructor
+    TriggerResults()
+      : HLTGlobalStatus()
+      , psetid_()
+    { }
 
     // Standard contructor
-    TriggerResults(const HLTGlobalStatus& hlt, const fhicl::ParameterSetID& psetid)
-      : HLTGlobalStatus(hlt), psetid_(psetid), names_() { }
-
-    // Not used anymore
-    TriggerResults(const HLTGlobalStatus& hlt, const Strings& names)
-      : HLTGlobalStatus(hlt), psetid_(), names_(names) { }
+    TriggerResults(const HLTGlobalStatus& hlt,
+                   const fhicl::ParameterSetID& psetid)
+      : HLTGlobalStatus(hlt)
+      , psetid_(psetid)
+    { }
 
     // Get stored parameter set id
     const fhicl::ParameterSetID& parameterSetID() const { return psetid_; }
@@ -62,8 +54,6 @@ namespace art {
     void swap(TriggerResults& other) {
       this->HLTGlobalStatus::swap(other);
       psetid_.swap(other.psetid_);
-      // next line not used any more
-      names_.swap(other.names_);
     }
 
     // Copy assignment using swap.
@@ -73,21 +63,6 @@ namespace art {
       return *this;
     }
 
-    // The next three functions are OBSOLETE and should only be used for backward
-    // compatibility to older data.  The names_ vector is always empty in new data.
-
-    // Obsolete
-    const std::vector<std::string>& getTriggerNames() const { return names_; }
-
-    // Obsolete
-    const std::string& name(unsigned int i) const {return names_.at(i);}
-
-    // Obsolete
-    unsigned int find (const std::string& name) const {
-      const unsigned int n(size());
-      for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
-      return n;
-    }
   };  // TriggerResults
 
   // Free swap function

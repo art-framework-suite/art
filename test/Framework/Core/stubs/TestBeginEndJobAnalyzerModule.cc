@@ -2,4 +2,4 @@
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestBeginEndJobAnalyzer);
+DEFINE_ART_MODULE(TestBeginEndJobAnalyzer);

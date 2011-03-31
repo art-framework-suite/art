@@ -11,7 +11,7 @@ namespace arttest {
   class ThingWithMergeProducer : public art::EDProducer {
   public:
 
-    explicit ThingWithMergeProducer(art::ParameterSet const& ps);
+    explicit ThingWithMergeProducer(fhicl::ParameterSet const& ps);
 
     virtual ~ThingWithMergeProducer();
 

@@ -204,7 +204,7 @@ namespace art {
     void getTriggerReport(TriggerReport& rep) const;
 
     /// Return whether a module has reached its maximum count.
-    bool const terminate() const;
+    bool terminate() const;
 
     ///  Clear all the counters in the trigger report.
     void clearCounters();

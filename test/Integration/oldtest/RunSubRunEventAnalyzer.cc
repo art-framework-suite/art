@@ -4,23 +4,23 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Core/Run.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
 #include <iostream>
 
 namespace arttest {
 
-  RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(art::ParameterSet const& pset) :
-    expectedRunSubRunsEvents_(pset.getUntrackedParameter<std::vector<unsigned int> >("expectedRunSubRunEvents", std::vector<unsigned int>())),
+  RunSubRunEventAnalyzer::RunSubRunEventAnalyzer(fhicl::ParameterSet const& pset) :
+    expectedRunSubRunsEvents_(pset.get<std::vector<unsigned int> >("expectedRunSubRunEvents", std::vector<unsigned int>())),
     index_(0),
-    verbose_(pset.getUntrackedParameter<bool>("verbose", false)) {
+    verbose_(pset.get<bool>("verbose", false)) {
   }
 
   void RunSubRunEventAnalyzer::analyze(art::Event const& event, art::EventSetup const& es) {
 
     if (verbose_) {
-      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      mf::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << event.run() << ", "
                                        << event.subRun() << ", "
                                        << event.id().event();
@@ -36,7 +36,7 @@ namespace arttest {
   void RunSubRunEventAnalyzer::beginRun(art::Run const& run, art::EventSetup const& es) {
 
     if (verbose_) {
-      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      mf::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << run.run() << ", "
                                        << 0 << ", "
                                        << 0;
@@ -52,7 +52,7 @@ namespace arttest {
   void RunSubRunEventAnalyzer::endRun(art::Run const& run, art::EventSetup const& es) {
 
     if (verbose_) {
-      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      mf::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << run.run() << ", "
                                        << 0 << ", "
                                        << 0;
@@ -68,7 +68,7 @@ namespace arttest {
   void RunSubRunEventAnalyzer::beginSubRun(art::SubRun const& subRun, art::EventSetup const& es) {
 
     if (verbose_) {
-      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      mf::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << subRun.run() << ", "
                                        << subRun.subRun() << ", "
                                        << 0;
@@ -84,7 +84,7 @@ namespace arttest {
   void RunSubRunEventAnalyzer::endSubRun(art::SubRun const& subRun, art::EventSetup const& es) {
 
     if (verbose_) {
-      art::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
+      mf::LogAbsolute("RunSubRunEvent") << "RUN_LUMI_EVENT "
                                        << subRun.run() << ", "
                                        << subRun.subRun() << ", "
                                        << 0;
@@ -99,4 +99,4 @@ namespace arttest {
 }
 
 using arttest::RunSubRunEventAnalyzer;
-DEFINE_FWK_MODULE(RunSubRunEventAnalyzer);
+DEFINE_ART_MODULE(RunSubRunEventAnalyzer);

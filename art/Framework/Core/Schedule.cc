@@ -268,7 +268,7 @@ namespace art
   {
   }
 
-  bool const Schedule::terminate() const
+  bool Schedule::terminate() const
   {
     if (all_output_workers_.empty()) return false;
 

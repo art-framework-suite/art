@@ -5,7 +5,7 @@
 #include "art/Persistency/Common/MapOfVectors.h"
 #undef private
 
-#include "art/Utilities/EDMException.h"
+#include "art/Utilities/Exception.h"
 
 #include<vector>
 #include<algorithm>

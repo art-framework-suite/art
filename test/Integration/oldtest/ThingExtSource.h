@@ -22,7 +22,7 @@ public art::ExternalInputSourceImplementation {
     // The following is not yet used, but will be the primary
     // constructor when the parameter set system is available.
     //
-    explicit ThingExtSource(art::ParameterSet const& pset, art::InputSourceDescription const& desc);
+    explicit ThingExtSource(fhicl::ParameterSet const& pset, art::InputSourceDescription const& desc);
 
     virtual ~ThingExtSource();
 

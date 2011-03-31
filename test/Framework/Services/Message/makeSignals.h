@@ -18,7 +18,7 @@ class makeSignals
 {
 public:
   explicit
-    makeSignals( art::ParameterSet const & ) { }
+    makeSignals( fhicl::ParameterSet const & ) { }
 
   virtual
     ~makeSignals() { }

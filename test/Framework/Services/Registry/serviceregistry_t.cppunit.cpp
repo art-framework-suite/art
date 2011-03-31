@@ -47,9 +47,9 @@ testServiceRegistry::loadTest()
 {
    art::AssertHandler ah;
 
-   std::vector<art::ParameterSet> pss;
+   std::vector<fhicl::ParameterSet> pss;
 
-   art::ParameterSet ps;
+   fhicl::ParameterSet ps;
    std::string typeName("DummyService");
    ps.addParameter("service_type", typeName);
    int value = 2;
@@ -86,9 +86,9 @@ testServiceRegistry::externalServiceTest()
          CPPUNIT_ASSERT(dummy->value_ == 2);
       }
       {
-         std::vector<art::ParameterSet> pss;
+         std::vector<fhicl::ParameterSet> pss;
 
-         art::ParameterSet ps;
+         fhicl::ParameterSet ps;
          std::string typeName("DummyService");
          ps.addParameter("service_type", typeName);
          int value = 2;
@@ -124,9 +124,9 @@ testServiceRegistry::externalServiceTest()
          CPPUNIT_ASSERT(dummy->value_ == 2);
       }
       {
-         std::vector<art::ParameterSet> pss;
+         std::vector<fhicl::ParameterSet> pss;
 
-         art::ParameterSet ps;
+         fhicl::ParameterSet ps;
          std::string typeName("DummyService");
          ps.addParameter("service_type", typeName);
          int value = 2;
@@ -153,9 +153,9 @@ testServiceRegistry::hierarchyTest()
 {
    art::AssertHandler ah;
 
-   std::vector<art::ParameterSet> pss;
+   std::vector<fhicl::ParameterSet> pss;
    {
-      art::ParameterSet ps;
+      fhicl::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("service_type", typeName);
       int value = 1;
@@ -166,7 +166,7 @@ testServiceRegistry::hierarchyTest()
 
    pss.clear();
    {
-      art::ParameterSet ps;
+      fhicl::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("service_type", typeName);
       int value = 2;
@@ -244,9 +244,9 @@ testServiceRegistry::threadTest()
 
    art::AssertHandler ah;
 
-   std::vector<art::ParameterSet> pss;
+   std::vector<fhicl::ParameterSet> pss;
    {
-      art::ParameterSet ps;
+      fhicl::ParameterSet ps;
       std::string typeName("DummyService");
       ps.addParameter("service_type", typeName);
       int value = 1;

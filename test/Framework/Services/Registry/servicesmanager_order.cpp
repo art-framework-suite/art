@@ -1,7 +1,7 @@
 
 #include "art/Framework/PluginManager/ProblemTracker.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyServiceE0.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
@@ -40,11 +40,11 @@ int main()
   // includes an explicit dependence on ServiceD2 so build on
   // demand is also tested.
 
-  std::vector<art::ParameterSet> vps;
+  std::vector<fhicl::ParameterSet> vps;
   boost::shared_ptr<ServicesManager> legacy(new ServicesManager(vps));
 
   art::ActivityRegistry ar;
-  art::ParameterSet pset;
+  fhicl::ParameterSet pset;
   std::auto_ptr<Service0> s0(new Service0(pset, ar));
   boost::shared_ptr<ServiceWrapper<Service0> >
       wrapper (new ServiceWrapper<Service0>(s0));
@@ -52,9 +52,9 @@ int main()
   legacy->copySlotsFrom(ar);
   art::ServiceToken legacyToken(legacy);
 
-  std::vector<art::ParameterSet> vps1;
+  std::vector<fhicl::ParameterSet> vps1;
 
-  art::ParameterSet ps1;
+  fhicl::ParameterSet ps1;
   std::string typeName1("DummyServiceA1");
   ps1.addParameter("service_type", typeName1);
   vps1.push_back(ps1);
@@ -64,12 +64,12 @@ int main()
   // so they should end up getting built in the reverse of the
   // order specified here.
 
-  art::ParameterSet ps3;
+  fhicl::ParameterSet ps3;
   std::string typeName3("DummyServiceB3");
   ps3.addParameter("service_type", typeName3);
   vps1.push_back(ps3);
 
-  art::ParameterSet ps2;
+  fhicl::ParameterSet ps2;
   std::string typeName2("DummyServiceD2");
   ps2.addParameter("service_type", typeName2);
   vps1.push_back(ps2);
@@ -83,7 +83,7 @@ int main()
   ServicesManager sm(legacyToken2, kOverlapIsError, vps);
 
   art::ActivityRegistry ar4;
-  art::ParameterSet pset4;
+  fhicl::ParameterSet pset4;
   std::auto_ptr<Service4> s4(new Service4(pset4, ar4));
   boost::shared_ptr<ServiceWrapper<Service4> >
       wrapper4 (new ServiceWrapper<Service4>(s4));

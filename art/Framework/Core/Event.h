@@ -62,10 +62,6 @@ namespace art {
       isRealData() const {return aux_.isRealData();}
     EventAuxiliary::ExperimentType
       experimentType() const {return aux_.experimentType();}
-    int
-      bunchCrossing() const {return aux_.bunchCrossing();}
-    int
-      orbitNumber() const {return aux_.orbitNumber();}
 
     using Base::get;
     using Base::getByLabel;

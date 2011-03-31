@@ -1,5 +1,5 @@
 #include "test/Framework/Services/Message/MessageLoggerClient.h"
-#include "art/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>
@@ -16,14 +16,14 @@ void
 {
   //std::cout << "Module reached\n";
   LogDebug("aTestMessage") << "LogDebug was used to send this message";
-  art::LogInfo("aTestMessage") << "LogInfo was used to send this message";
-  art::LogWarning("aTestMessage") << "LogWarning was used to send this message";
-  art::LogError("aTestMessage") << "LogError was used to send this message";
-  art::LogInfo("cat1|cat2||cat3") << "Three-category message";
+  mf::LogInfo("aTestMessage") << "LogInfo was used to send this message";
+  mf::LogWarning("aTestMessage") << "LogWarning was used to send this message";
+  mf::LogError("aTestMessage") << "LogError was used to send this message";
+  mf::LogInfo("cat1|cat2||cat3") << "Three-category message";
 
-  art::LogWarning("aboutToSend") << "about to send 100 warnings";
+  mf::LogWarning("aboutToSend") << "about to send 100 warnings";
   for( unsigned i = 0;  i != 100;  ++i )  {
-    art::LogWarning("unimportant") << "warning number " << i;
+    mf::LogWarning("unimportant") << "warning number " << i;
   }
 
 
@@ -34,4 +34,4 @@ void
 
 
 using arttest::MessageLoggerClient;
-DEFINE_FWK_MODULE(MessageLoggerClient);
+DEFINE_ART_MODULE(MessageLoggerClient);

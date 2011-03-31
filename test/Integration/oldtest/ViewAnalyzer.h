@@ -12,7 +12,7 @@ namespace arttest
   class ViewAnalyzer : public art::EDAnalyzer
   {
   public:
-    explicit ViewAnalyzer(art::ParameterSet const& /* no parameters*/);
+    explicit ViewAnalyzer(fhicl::ParameterSet const& /* no parameters*/);
     virtual ~ViewAnalyzer();
     virtual void analyze(art::Event const& e,
 			 art::EventSetup const& /* unused */ );

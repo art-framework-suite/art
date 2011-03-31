@@ -10,7 +10,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/ParameterSet/InputTag.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 namespace arttest
 {
@@ -18,7 +18,7 @@ namespace arttest
   {
   public:
 
-    explicit TestHistoryKeeping(art::ParameterSet const& pset);
+    explicit TestHistoryKeeping(fhicl::ParameterSet const& pset);
     virtual ~TestHistoryKeeping();
 
     virtual void analyze(art::Event const& e, art::EventSetup const&);
@@ -38,9 +38,9 @@ namespace arttest
   // Implementation details
   //--------------------------------------------------------------------
 
-  TestHistoryKeeping::TestHistoryKeeping(art::ParameterSet const& pset) :
-    expectedProcesses_(pset.getParameter<std::vector<std::string> >("expected_processes")),
-    numberOfExpectedHLTProcessesInEachRun_(pset.getParameter<int>("number_of_expected_HLT_processes_for_each_run"))
+  TestHistoryKeeping::TestHistoryKeeping(fhicl::ParameterSet const& pset) :
+    expectedProcesses_(pset.get<std::vector<std::string> >("expected_processes")),
+    numberOfExpectedHLTProcessesInEachRun_(pset.get<int>("number_of_expected_HLT_processes_for_each_run"))
   {
     // Nothing to do.
   }
@@ -63,10 +63,10 @@ namespace arttest
 	 i != e;
 	 ++i)
       {
-	art::ParameterSet ps;
+	fhicl::ParameterSet ps;
 	assert(ev.getProcessParameterSet(*i, ps));
 	assert(!ps.empty());
-	assert(ps.getParameter<std::string>("process_name") == *i);
+	assert(ps.get<std::string>("process_name") == *i);
       }
   }
 
@@ -79,4 +79,4 @@ namespace arttest
 } // arttest
 
 using arttest::TestHistoryKeeping;
-DEFINE_FWK_MODULE(TestHistoryKeeping);
+DEFINE_ART_MODULE(TestHistoryKeeping);

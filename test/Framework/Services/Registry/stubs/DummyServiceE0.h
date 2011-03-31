@@ -18,7 +18,7 @@
 //
 //
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 
 namespace testserviceregistry {
@@ -32,7 +32,7 @@ namespace testserviceregistry {
    class DummyServiceE0
    {
    public:
-      DummyServiceE0(const art::ParameterSet&,art::ActivityRegistry&);
+      DummyServiceE0(const fhicl::ParameterSet&,art::ActivityRegistry&);
       ~DummyServiceE0();
       void postBeginJob();
       void postEndJob();
@@ -41,7 +41,7 @@ namespace testserviceregistry {
    class DummyServiceA1
    {
    public:
-      DummyServiceA1(const art::ParameterSet&,art::ActivityRegistry&);
+      DummyServiceA1(const fhicl::ParameterSet&,art::ActivityRegistry&);
       ~DummyServiceA1();
       void postBeginJob();
       void postEndJob();
@@ -50,7 +50,7 @@ namespace testserviceregistry {
    class DummyServiceD2
    {
    public:
-      DummyServiceD2(const art::ParameterSet&,art::ActivityRegistry&);
+      DummyServiceD2(const fhicl::ParameterSet&,art::ActivityRegistry&);
       ~DummyServiceD2();
       void postBeginJob();
       void postEndJob();
@@ -59,7 +59,7 @@ namespace testserviceregistry {
    class DummyServiceB3
    {
    public:
-      DummyServiceB3(const art::ParameterSet&,art::ActivityRegistry&);
+      DummyServiceB3(const fhicl::ParameterSet&,art::ActivityRegistry&);
       ~DummyServiceB3();
       void postBeginJob();
       void postEndJob();
@@ -68,7 +68,7 @@ namespace testserviceregistry {
    class DummyServiceC4
    {
    public:
-      DummyServiceC4(const art::ParameterSet&,art::ActivityRegistry&);
+      DummyServiceC4(const fhicl::ParameterSet&,art::ActivityRegistry&);
       ~DummyServiceC4();
       void postBeginJob();
       void postEndJob();

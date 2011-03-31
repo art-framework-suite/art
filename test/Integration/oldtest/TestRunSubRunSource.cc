@@ -8,7 +8,7 @@
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/RunPrincipal.h"
@@ -20,7 +20,7 @@ namespace art {
   TestRunSubRunSource::TestRunSubRunSource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
-    runSubRunEvent_(pset.getUntrackedParameter<std::vector<int> >("runSubRunEvent", std::vector<int>())),
+    runSubRunEvent_(pset.get<std::vector<int> >("runSubRunEvent", std::vector<int>())),
     currentIndex_(0),
     firstTime_(true) {
   }

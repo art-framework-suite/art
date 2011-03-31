@@ -93,37 +93,6 @@ void testone(const Strings& paths,
     bitArray[1] = (bitArray[1] & 0xfc) | art::hlt::Exception;
   }
 
-  TriggerResults results(bm,paths);
-
-//        std::cerr << "pattern=" << pattern
-//                << "mask=" << mask << "\n";  // DBG
-
-//      std:: cerr << "a \n";
-  bool a = select.acceptEvent(results);
-//      std:: cerr << "a1 \n";
-  bool a1 = select1.acceptEvent(results);
-//      std:: cerr << "a2 \n";
-  bool a2 = select2.acceptEvent(results);
-//      std:: cerr << "b2 \n";
-  bool b2 = select2.acceptEvent(results);
-//      std:: cerr << "c1 \n";
-  bool c1 = select1.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
-
-  if (a!=answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer)
-    {
-      std::cerr << "failed to compare pattern with mask: "
-           << "correct=" << answer << " "
-           << "results=" << a << "  " << a1 << "  " << a2
-                              << "  " << b2 << "  " << c1 << "\n"
-           << "pattern=" << pattern << "\n"
-           << "mask=" << mask << "\n"
-           << "jmask = " << jmask << "\n";
-      abort();
-    }
-
-  // Repeat putting the list of trigger names in the pset
-  // registry
-
   ParameterSet trigger_pset;
   trigger_pset.put<Strings>("trigger_paths", paths);
   ParameterSetRegistry::put(trigger_pset);

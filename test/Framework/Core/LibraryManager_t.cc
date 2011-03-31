@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE ( libListIter )
 
 BOOST_AUTO_TEST_CASE ( getSymbolLong )
 {
-   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("art/Framework/IO/Output/RootOutput",
+   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("art/Framework/IO/Root/RootOutput",
                                             "_init") != nullptr );
 }
 

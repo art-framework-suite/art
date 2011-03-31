@@ -28,12 +28,12 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Provenance/Provenance.h"
 
-#include "art/ParameterSet/ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include "test/Framework/Services/Basic/TestInitRootHandlers.h"
 
-#include "art/MessageLogger/MessageLogger.h"
-#include "art/MessageLogger/ELseverityLevel.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageLogger/ELseverityLevel.h"
 #include "art/Utilities/EDMException.h"
 
 
@@ -334,19 +334,19 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 // Feed the message to the MessageLogger... let it choose to suppress or not.
 
   if (el_severity == art::ELseverityLevel::ELsev_fatal && !die) {
-    art::LogError("Root_Fatal") << el_location << el_message;
+    mf::LogError("Root_Fatal") << el_location << el_message;
   }
   else if (el_severity == art::ELseverityLevel::ELsev_severe && !die) {
-    art::LogError("Root_Severe") << el_location << el_message;
+    mf::LogError("Root_Severe") << el_location << el_message;
   }
   else if (el_severity == art::ELseverityLevel::ELsev_error && !die) {
-    art::LogError("Root_Error") << el_location << el_message;
+    mf::LogError("Root_Error") << el_location << el_message;
   }
   else if (el_severity == art::ELseverityLevel::ELsev_warning && !die) {
-    art::LogWarning("Root_Warning") << el_location << el_message ;
+    mf::LogWarning("Root_Warning") << el_location << el_message ;
   }
   else if (el_severity == art::ELseverityLevel::ELsev_info && !die) {
-    art::LogInfo("Root_Information") << el_location << el_message ;
+    mf::LogInfo("Root_Information") << el_location << el_message ;
   }
 
 // Root has declared a fatal error.  Throw an EDMException.
@@ -362,7 +362,7 @@ void RootErrorHandler(int level, bool die, const char* location, const char* mes
 //
 // constructors and destructor
 //
-TestInitRootHandlers::TestInitRootHandlers(const art::ParameterSet& iConfig) :
+TestInitRootHandlers::TestInitRootHandlers(const fhicl::ParameterSet& iConfig) :
   indentation_(iConfig.getUntrackedParameter("indentation",std::string("++"))),
   verboseIndentation_(iConfig.getUntrackedParameter("verboseIndention",std::string("  "))),
   moduleLabels_(iConfig.getUntrackedParameter("verboseForModuleLabels",std::vector<std::string>())),
@@ -468,4 +468,4 @@ TestInitRootHandlers::endJob()
 // std::cout << "\nInteger " << k << " expressed as a string is |" << ktext << "|" << std::endl;
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestInitRootHandlers);
+DEFINE_ART_MODULE(TestInitRootHandlers);
