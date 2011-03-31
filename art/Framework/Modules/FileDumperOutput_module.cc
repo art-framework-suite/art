@@ -9,12 +9,15 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace art {
   class FileDumperOutput;
@@ -41,12 +44,15 @@ private:
   virtual void
     writeSubRun( SubRunPrincipal const & sr );
 
+  bool wantOnDemandProduction;
+
 };  // FileDumperOutput
 
 // ----------------------------------------------------------------------
 
   FileDumperOutput::FileDumperOutput( ParameterSet const & ps )
-: OutputModule( ps )
+: OutputModule          ( ps )
+, wantOnDemandProduction( ps.get<bool>("onDemandProduction", false) )
 { }
 
 // ----------------------------------------------------------------------
@@ -59,7 +65,7 @@ void
   unsigned int ncols = 5;
   std::vector<column> col(ncols);
 
-  // insert column headings:
+  // provide column headings:
   col[0].push_back("PROCESS NAME");
   col[1].push_back("MODULE LABEL");
   col[2].push_back("PRODUCT INSTANCE NAME");
@@ -70,15 +76,34 @@ void
   for( EventPrincipal::const_iterator it  = e.begin()
                                     , end = e.end(); it != end; ++it ) {
     Group const & g = *(it->second);
+    try {
+      e.resolveProduct(g, wantOnDemandProduction);
+      if( ! g.product() )
+        throw "data corruption";
+    }
+    catch( art::Exception const & e ) {
+      if( e.category() != "ProductNotFound" )
+        throw;
+      if( g.product() )
+        throw art::Exception(errors::LogicError, "FileDumperOutput module", e)
+          << "Product reported as not present, but is pointed to nonetheless!";
+    }
 
     col[0].push_back( g.processName() );
     col[1].push_back( g.moduleLabel() );
     col[2].push_back( g.productInstanceName() );
-    col[3].push_back( g.productType().Name( Reflex::FINAL
-                                          | Reflex::SCOPED
-                                          | Reflex::QUALIFIED
-                    )                     );
-    col[4].push_back( g.product()->productSize() );
+
+    if( g.product() ) {
+      col[3].push_back( g.productType().Name( Reflex::FINAL
+                                            | Reflex::SCOPED
+                                            | Reflex::QUALIFIED
+                      )                     );
+      col[4].push_back( g.product()->productSize() );
+    }
+    else {
+      col[3].push_back( "unknown" );
+      col[4].push_back( "?" );
+    }
   }
 
   // determine each column's width:

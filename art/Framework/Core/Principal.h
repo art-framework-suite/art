@@ -132,6 +132,13 @@ namespace art {
     // principal.
     virtual BranchType branchType() const = 0;
 
+    // Make my DelayedReader get the EDProduct for a Group or
+    // trigger unscheduled execution if required.  The Group is
+    // a cache, and so can be modified through the const reference.
+    // We do not change the *number* of groups through this call, and so
+    // *this is const.
+    void resolveProduct(Group const& g, bool fillOnDemand) const;
+
   protected:
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
@@ -173,13 +180,6 @@ namespace art {
                               ProcessLookup const& processLookup,
                               SelectorBase const& selector,
                               BasicHandleVec& results) const;
-
-    // Make my DelayedReader get the EDProduct for a Group or
-    // trigger unscheduled execution if required.  The Group is
-    // a cache, and so can be modified through the const reference.
-    // We do not change the *number* of groups through this call, and so
-    // *this is const.
-    void resolveProduct(Group const& g, bool fillOnDemand) const;
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
 
