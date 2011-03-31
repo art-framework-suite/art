@@ -55,7 +55,7 @@ cet_test(LibraryManager_t.sh HANDBUILT
 #########################################################################
 # Old (pre-ART fork) tests.
 
-simple_plugin(TestMod module)
+simple_plugin(TestMod module NOINSTALL )
 
 # cppunit tests en masse.
 file(GLOB cppunit_files *.cppunit.cc)
