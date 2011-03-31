@@ -10,6 +10,9 @@
 class TBuffer;
 
 namespace art {
+
+  void setTransientStreamers();
+
   template <typename T>
   class TransientStreamer : public TClassStreamer {
   public:
@@ -39,26 +42,6 @@ namespace art {
       cl_->WriteBuffer(R_b, objp);
     }
   }
-
-  template <typename T>
-  void
-  SetTransientStreamer() {
-    TClass *cl = gROOT->GetClass(TypeID(typeid(T)).className().c_str());
-    if (cl->GetStreamer() == 0) {
-      cl->AdoptStreamer(new TransientStreamer<T>());
-    }
-  }
-
-  template <typename T>
-  void
-  SetTransientStreamer(T const&) {
-    TClass *cl = gROOT->GetClass(TypeID(typeid(T)).className().c_str());
-    if (cl->GetStreamer() == 0) {
-      cl->AdoptStreamer(new TransientStreamer<T>());
-    }
-  }
-
-  void setTransientStreamers();
 }
 
 #endif /* art_Persistency_Provenance_TransientStreamer_h */
