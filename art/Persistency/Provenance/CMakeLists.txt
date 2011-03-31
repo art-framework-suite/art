@@ -31,7 +31,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       Provenance.cc
                                       RunAuxiliary.cc
                                       RunID.cc
-                                      RunSubRunEntryInfo.cc
                                       TransientStreamer.cc )
 
 
@@ -96,7 +95,6 @@ install(FILES
   ReleaseVersion.h
   RunAuxiliary.h
   RunID.h
-  RunSubRunEntryInfo.h
   Selections.h
   SortInvalidFirst.h
   SubRunAuxiliary.h
