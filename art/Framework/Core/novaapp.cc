@@ -106,7 +106,7 @@ int novaapp(int argc, char* argv[]) {
      std::cerr
        << "Expected environment variable FHICL_FILE_PATH is "
        << "missing or empty: using \".\"\n";
-     search_path = ".";
+     search_path = ".:";
    } else {
      search_path = std::string(fhicl_env) + ":";
    }
