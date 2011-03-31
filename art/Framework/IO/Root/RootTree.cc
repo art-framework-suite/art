@@ -47,8 +47,6 @@ namespace art {
     entryNumber_(-1),
     branchNames_(),
     branches_(new BranchMap),
-    productStatuses_(), // backward compatibility
-    pProductStatuses_(&productStatuses_), // backward compatibility
     infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
     statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0) // backward compatibility
   { }

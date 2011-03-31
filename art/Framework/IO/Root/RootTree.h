@@ -83,7 +83,6 @@ namespace art {
     boost::shared_ptr<BranchMap> branches_;
 
     // below for backward compatibility
-    std::vector<ProductStatus> productStatuses_; // backward compatibility
     std::vector<ProductStatus>* pProductStatuses_; // backward compatibility
     TTree *const infoTree_; // backward compatibility
     TBranch *const statusBranch_; // backward compatibility
