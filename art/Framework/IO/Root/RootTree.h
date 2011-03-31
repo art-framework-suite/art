@@ -64,13 +64,6 @@ namespace art {
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     BranchMap const& branches() const {return *branches_;}
-    std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;} // backward compatibility
-
-    // below for backward compatibility
-    void fillStatus() { // backward compatibility
-      statusBranch_->SetAddress(&pProductStatuses_); // backward compatibility
-      input::getEntry(statusBranch_, entryNumber_); // backward compatibility
-    } // backward compatibility
 
     TBranch *branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
 
