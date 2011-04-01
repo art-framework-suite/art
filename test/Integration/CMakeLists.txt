@@ -237,10 +237,15 @@ cet_test(BareString_w HANDBUILT
 cet_test(BareString_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c BareString_r.fcl
-  TEST_PROPERTIES DEPDENDS BareString_w
   DATAFILES
   fcl/BareString_r.fcl
 )
+
+if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
+    (${CMAKE_VERSION} VERSION_GREATER "2.8"))
+  # For parallel testing, enforce an order.
+  SET_TESTS_PROPERTIES(BareString_r PROPERTIES DEPENDS BareString_w)
+endif()
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
