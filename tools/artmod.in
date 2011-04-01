@@ -121,7 +121,7 @@ my $base_header =
    producer => "art/Framework/Core/EDProducer.h"
   };
 
-my $indent = ' ' x 3;
+my $indent = ' ' x 2;
 
 my $options = {};
 
