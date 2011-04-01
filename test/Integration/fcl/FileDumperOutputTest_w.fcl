@@ -1,10 +1,4 @@
-#include "messageDefaults.fcl"
-
-process_name: FileDumperOutputTest
-
-services: {
-  message: @local::messageDefaults
-}
+process_name: FileDumperOutputTestw
 
 physics: {
   producers: {
@@ -21,12 +15,17 @@ physics: {
   p1: [ m1a, m1b ]
   trigger_paths: [ p1 ]
 
-  e1: [ out1 ]
+  e1: [ out1, out2 ]
   end_paths: [ e1 ]
 }
 
 outputs: {
   out1: { module_type: FileDumperOutput }
+  out2: 
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
 }
 
 source: {

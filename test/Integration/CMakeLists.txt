@@ -144,10 +144,11 @@ cet_test(issue_0930_t HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "LogicError BEGIN"
 )
+
 cet_test( test_FileDumperOutput.sh PREBUILT
   DATAFILES
-  fcl/FileDumperOutputTest.fcl
-  fcl/messageDefaults.fcl
+  fcl/FileDumperOutputTest_w.fcl
+  fcl/FileDumperOutputTest_r.fcl
 )
 
 cet_test(ToyRawInput_t_01 HANDBUILT
