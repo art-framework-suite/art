@@ -11,10 +11,8 @@
 //
 //----------------------------------------------------------------------
 
-#include <vector>
-#include "art/Persistency/Provenance/EventSelectionID.h"
 #include "art/Persistency/Provenance/BranchListIndex.h"
-#include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/EventSelectionID.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 
 namespace art {
