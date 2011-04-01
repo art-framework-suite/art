@@ -6,13 +6,11 @@
 Parentage: The products that were read in producing this product.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <vector>
-//#include "boost/shared_ptr.hpp"
 
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/ParentageID.h"
-#include "art/Persistency/Provenance/Transient.h"
+#include <iosfwd>
+#include <vector>
 
 /*
   Parentage

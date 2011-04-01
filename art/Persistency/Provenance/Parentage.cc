@@ -1,11 +1,8 @@
 #include "art/Persistency/Provenance/Parentage.h"
-#include "art/Persistency/Provenance/ParentageRegistry.h"
+
 #include <ostream>
 #include <sstream>
 
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
 
 namespace art {
   Parentage::Parentage() :
