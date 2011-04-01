@@ -2,6 +2,7 @@
 project(art_Integration_Test)
 
 simple_plugin(AddIntsProducer          "module" NOINSTALL )
+simple_plugin(BareStringAnalyzer       "module" NOINSTALL )
 simple_plugin(BareStringProducer       "module" NOINSTALL )
 simple_plugin(DerivedPtrVectorProducer "module" NOINSTALL )
 simple_plugin(DoubleProducer           "module" NOINSTALL )
@@ -226,13 +227,19 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
   "readNext returned a new Run with a SubRun from the wrong Run"
   )
 
-cet_test(BareString_t HANDBUILT
+cet_test(BareString_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c BareString_t.fcl
+  TEST_ARGS -c BareString_w.fcl
   DATAFILES
-  fcl/BareString_t.fcl
-  fcl/messageDefaults.fcl
-  TEST_PROPERTIES WILL_FAIL true # FIXME
+  fcl/BareString_w.fcl
+)
+
+cet_test(BareString_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c BareString_r.fcl
+  TEST_PROPERTIES DEPDENDS BareString_w
+  DATAFILES
+  fcl/BareString_r.fcl
 )
 
 ########################################################################

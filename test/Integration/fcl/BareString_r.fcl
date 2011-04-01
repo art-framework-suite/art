@@ -1,0 +1,24 @@
+process_name: DEVELr
+
+physics:
+{
+  analyzers:
+  {
+    a1:
+    {
+      module_type: BareStringAnalyzer
+      input_label: p1
+      expected_value: Mummy
+    }
+  }
+
+  e1: [ a1 ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../BareString_w.d/out.root" ]
+  maxEvents: 1
+}

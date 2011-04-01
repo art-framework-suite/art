@@ -10,6 +10,16 @@
 #include <sstream>
 #include <stdlib.h>
 
+#include "Cintex/Cintex.h"
+
+// FIXME: This should go away as soon as ROOT makes this function
+// public. In the meantime, we have to verify that this signature does
+// not change in new versions of ROOT.
+namespace ROOT {
+  namespace Cintex {
+    std::string CintName(const std::string&);
+  }
+}
 
 using fhicl::ParameterSetID;
 
@@ -124,6 +134,7 @@ namespace art {
     transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
 
     wrappedName() = wrappedClassName(fullClassName());
+    wrappedCintName() = wrappedClassName(ROOT::Cintex::CintName(fullClassName()));
     type() = Reflex::Type::ByName(wrappedName());
     Reflex::PropertyList wp = type().Properties();
     if (wp.HasProperty("splitLevel")) {

@@ -36,7 +36,7 @@ namespace art {
       return nextReader_->getProduct(k, ep);
     }
     setRefCoreStreamer(ep, oldFormat_);
-    TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
+    TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedCintName().c_str());
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);

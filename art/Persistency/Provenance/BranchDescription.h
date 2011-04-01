@@ -85,6 +85,7 @@ namespace art {
     std::string & branchName() const {return transients_.get().branchName_;}
     BranchType const& branchType() const {return branchType_;}
     std::string & wrappedName() const {return transients_.get().wrappedName_;}
+    std::string & wrappedCintName() const {return transients_.get().wrappedCintName_;}
 
     void setPresent(bool isPresent) const {present() = isPresent;}
     void updateFriendlyClassName();
@@ -103,6 +104,10 @@ namespace art {
 
       // The wrapped class name, which is currently derivable fron the other attributes.
       std::string wrappedName_;
+
+      // The wrapped class name for branches (Cint has requirements
+      // here), which is currently derivable fron the other attributes.
+      std::string wrappedCintName_;
 
       // Was this branch produced in this process
       // rather than in a previous process

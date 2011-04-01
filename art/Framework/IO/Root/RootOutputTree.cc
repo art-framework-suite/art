@@ -130,7 +130,7 @@ namespace art {
     bool produced = prod.produced();
     prod.init();
       TBranch *branch = tree_->Branch(prod.branchName().c_str(),
-                 prod.wrappedName().c_str(),
+                 prod.wrappedCintName().c_str(),
                  &pProd,
                  (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
                  (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));

@@ -54,6 +54,7 @@ namespace art {
     std::string const& branchName() const {return ptr_->branchName();}
     BranchType const& branchType() const {return ptr_->branchType();}
     std::string const& wrappedName() const {return ptr_->wrappedName();}
+    std::string const& wrappedCintName() const {return ptr_->wrappedCintName();}
 
     BranchDescription const& me() const {return *ptr_;}
 
