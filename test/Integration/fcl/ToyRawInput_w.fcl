@@ -1,0 +1,13 @@
+#include "ToyRawInput_wr_f1.fcl"
+#include "ToyRawInput_common.fcl"
+
+source.f1: @local::f1
+
+physics.producers.wp1:
+{
+  module_type: BareStringProducer
+  value: "String1"
+}
+
+physics.p1: [ wp1 ]
+physics.trigger_paths: [ p1 ]

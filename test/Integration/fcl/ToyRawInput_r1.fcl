@@ -1,0 +1,49 @@
+#include "ToyRawInput_wr_f1.fcl"
+
+services.scheduler.wantTracer: true
+
+physics:
+{
+  producers:
+  {
+    rp1:
+    {
+      module_type: BareStringProducer
+      value: "String2"
+    }
+  }
+  analyzers:
+  {
+    wp1a:
+    {
+      module_type: BareStringAnalyzer
+      input_label: wp1
+      expected_value: "String1"
+    }
+    rp1a:
+    {
+      module_type: BareStringAnalyzer
+      input_label: rp1
+      expected_value: "String2"
+    }
+    a1:
+    {
+      module_type: ToyRawProductAnalyzer
+      beginRun: false
+      beginSubRun: false
+    }
+  }
+
+  p: [ rp1 ]
+  trigger_paths: [ p ]
+  e1: [ wp1a, rp1a, a1 ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../ToyRawInput_w.d/out.root" ]
+}
+
+process_name: DEVELr

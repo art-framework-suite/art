@@ -1,8 +1,4 @@
-#include "messageDefaults.fcl"
-
 process_name: DEVEL
-
-services.message: @local::messageDefaults
 
 physics:
 {

@@ -1,0 +1,3 @@
+#include "ToyRawInput_r1.fcl"
+
+physics.analyzers.a1.beginRun: true

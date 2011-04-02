@@ -30,6 +30,7 @@ simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Throwing                 "service" NOINSTALL )
 simple_plugin(ToyRawInput              "source" art_Framework_IO_Sources NOINSTALL )
 simple_plugin(ToyRawInputTester        "module" NOINSTALL )
+simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
 
 # Common library link requirements for tests here.
 link_libraries(
@@ -227,6 +228,41 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
   "readNext returned a new Run with a SubRun from the wrong Run"
   )
 
+cet_test(ToyRawInput_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c ToyRawInput_w.fcl
+  DATAFILES
+  fcl/ToyRawInput_w.fcl
+  fcl/ToyRawInput_wr_f1.fcl
+  fcl/ToyRawInput_common.fcl
+)
+
+cet_test(ToyRawInput_r1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c ToyRawInput_r1.fcl
+  DATAFILES
+  fcl/ToyRawInput_r1.fcl
+  fcl/ToyRawInput_wr_f1.fcl
+)
+
+cet_test(ToyRawInput_r2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c ToyRawInput_r2.fcl
+  DATAFILES
+  fcl/ToyRawInput_r2.fcl
+  fcl/ToyRawInput_r1.fcl
+  fcl/ToyRawInput_wr_f1.fcl
+)
+
+cet_test(ToyRawInput_r3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c ToyRawInput_r3.fcl
+  DATAFILES
+  fcl/ToyRawInput_r3.fcl
+  fcl/ToyRawInput_r1.fcl
+  fcl/ToyRawInput_wr_f1.fcl
+)
+
 cet_test(BareString_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c BareString_w.fcl
@@ -245,6 +281,9 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
     (${CMAKE_VERSION} VERSION_GREATER "2.8"))
   # For parallel testing, enforce an order.
   SET_TESTS_PROPERTIES(BareString_r PROPERTIES DEPENDS BareString_w)
+  SET_TESTS_PROPERTIES(ToyRawInput_r1 PROPERTIES DEPENDS ToyRawInput_w)
+  SET_TESTS_PROPERTIES(ToyRawInput_r2 PROPERTIES DEPENDS ToyRawInput_w)
+  SET_TESTS_PROPERTIES(ToyRawInput_r3 PROPERTIES DEPENDS ToyRawInput_w)
 endif()
 
 ########################################################################
