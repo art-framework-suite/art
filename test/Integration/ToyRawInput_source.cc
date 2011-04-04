@@ -79,10 +79,10 @@ namespace arttest
     fileData_()
   {
     helper.reconstitutes<int, InEvent>("m1", "DAQ");
-    helper.reconstitutes<double, InSubRun>("s1", "LUMCALC");
-    helper.reconstitutes<double, InRun>("r1", "RUNCALC");
-    helper.reconstitutes<bool, InEvent>("m2", "SILLY", "a");
-    helper.reconstitutes<bool, InEvent>("m2", "SILLY", "b");
+    helper.reconstitutes<double, InSubRun>("s1", "DAQ");
+    helper.reconstitutes<double, InRun>("r1", "DAQ");
+    helper.reconstitutes<bool, InEvent>("m2", "DAQ", "a");
+    helper.reconstitutes<bool, InEvent>("m2", "DAQ", "b");
   }
 
   void ToyFile::closeCurrentFile()
@@ -113,7 +113,7 @@ namespace arttest
         put_product_in_principal(std::auto_ptr<double>(new double(76.5)),
                                  *outR,
                                  "r1",
-                                 "RUNCALC");
+                                 "DAQ");
          readSomething = true;
       }
     if ((*current_)[1] != -1) 
@@ -136,7 +136,7 @@ namespace arttest
         put_product_in_principal(std::auto_ptr<double>(new double(7.0)),
                                  *outSR,
                                  "s1",
-                                 "LUMCALC");
+                                 "DAQ");
         readSomething = true;
       }
     if ((*current_)[2] != -1) 
@@ -154,12 +154,12 @@ namespace arttest
         put_product_in_principal(std::auto_ptr<bool>(new bool(false)),
                                  *outE,
                                  "m2",
-                                 "SILLY",
+                                 "DAQ",
                                  "a");
         put_product_in_principal(std::auto_ptr<bool>(new bool(true)),
                                  *outE,
                                  "m2",
-                                 "SILLY",
+                                 "DAQ",
                                  "b");
          readSomething = true;
       }

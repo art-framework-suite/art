@@ -1,6 +1,8 @@
 #include "ToyRawInput_wr_f1.fcl"
 #include "ToyRawInput_common.fcl"
 
+services.scheduler.wantTracer: true
+
 source.f1: @local::f1
 
 physics.producers.wp1:
