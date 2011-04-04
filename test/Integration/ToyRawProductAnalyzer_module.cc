@@ -54,7 +54,7 @@ void arttest::ToyRawProductAnalyzer::analyze(art::Event const &e) {
   art::Handle<bool> hb1, hb2;
   assert(e.getByLabel("m2", "a", hb1));
   std::cerr << e.id() << " bool a = " << (*hb1) << "\n";
-  assert(e.getByLabel(art::InputTag("m2", "b", "DAQ"), hb2));
+  assert(e.getByLabel(art::InputTag("m2", "b"), hb2));
   std::cerr << e.id() << " bool b = " << (*hb2) << "\n";
 }
 

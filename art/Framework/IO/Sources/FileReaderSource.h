@@ -571,7 +571,8 @@ namespace art
     // are here as tracers to help identify any failures in coding.
     md.moduleName_ = "_NAMEERROR_";
     md.moduleLabel_ = "_LABELERROR_";
-    md.processConfiguration_.processName_ = "_PROCESSERROR_";
+
+    md.processConfiguration_.processName_ = d.moduleDescription_.processConfiguration_.processName_;
     md.parameterSetID_ = fhicl::ParameterSet().id(); // Dummy
 
     TypeLabelList& types = h_.typeLabelList();

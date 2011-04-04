@@ -22,7 +22,6 @@ namespace art {
    get_BranchDescription(T &product,
                          Principal &principal,
                          std::string const &module_label,
-                         std::string const &process_name,
                          std::string const &instance_name);
 
 }
@@ -32,13 +31,12 @@ art::ConstBranchDescription const &
 art::get_BranchDescription(T &product,
                            Principal &principal,
                            std::string const &module_label,
-                           std::string const &process_name,
                            std::string const &instance_name) {
    TypeID typeID(typeid(T));
    BranchKey bk (typeID.friendlyClassName(),
                  module_label,
                  instance_name,
-                 process_name);
+                 principal.processConfiguration().processName());
    ProductRegistry::ConstProductList const& pl =
       principal.productRegistry().constProductList();
    ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);

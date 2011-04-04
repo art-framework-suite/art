@@ -78,11 +78,11 @@ namespace arttest
     data_(ps),
     fileData_()
   {
-    helper.reconstitutes<int, InEvent>("m1", "DAQ");
-    helper.reconstitutes<double, InSubRun>("s1", "DAQ");
-    helper.reconstitutes<double, InRun>("r1", "DAQ");
-    helper.reconstitutes<bool, InEvent>("m2", "DAQ", "a");
-    helper.reconstitutes<bool, InEvent>("m2", "DAQ", "b");
+    helper.reconstitutes<int, InEvent>("m1");
+    helper.reconstitutes<double, InSubRun>("s1");
+    helper.reconstitutes<double, InRun>("r1");
+    helper.reconstitutes<bool, InEvent>("m2", "a");
+    helper.reconstitutes<bool, InEvent>("m2", "b");
   }
 
   void ToyFile::closeCurrentFile()
@@ -112,8 +112,7 @@ namespace arttest
                                     runstart);     // starting time
         put_product_in_principal(std::auto_ptr<double>(new double(76.5)),
                                  *outR,
-                                 "r1",
-                                 "DAQ");
+                                 "r1");
          readSomething = true;
       }
     if ((*current_)[1] != -1) 
@@ -135,8 +134,7 @@ namespace arttest
                                         runstart);     // starting time
         put_product_in_principal(std::auto_ptr<double>(new double(7.0)),
                                  *outSR,
-                                 "s1",
-                                 "DAQ");
+                                 "s1");
         readSomething = true;
       }
     if ((*current_)[2] != -1) 
@@ -149,17 +147,14 @@ namespace arttest
                                       runstart);     // starting time
         put_product_in_principal(std::auto_ptr<int>(new int(26)),
                                  *outE,
-                                 "m1",
-                                 "DAQ");
+                                 "m1");
         put_product_in_principal(std::auto_ptr<bool>(new bool(false)),
                                  *outE,
                                  "m2",
-                                 "DAQ",
                                  "a");
         put_product_in_principal(std::auto_ptr<bool>(new bool(true)),
                                  *outE,
                                  "m2",
-                                 "DAQ",
                                  "b");
          readSomething = true;
       }

@@ -29,7 +29,6 @@ namespace art {
    put_product_in_principal(std::auto_ptr<T> product,
                             P &principal,
                             std::string const &module_label,
-                            std::string const &process_name,
                             std::string const &instance_name = std::string());
 
 }
@@ -39,7 +38,6 @@ void
 art::put_product_in_principal(std::auto_ptr<T> product,
                               P &principal,
                               std::string const &module_label,
-                              std::string const &process_name,
                               std::string const &instance_name) {
    if (product.get() == 0) {
       TypeID typeID(typeid(T));
@@ -56,7 +54,6 @@ art::put_product_in_principal(std::auto_ptr<T> product,
       get_BranchDescription(*product,
                             principal,
                             module_label,
-                            process_name,
                             instance_name);
 
    std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));

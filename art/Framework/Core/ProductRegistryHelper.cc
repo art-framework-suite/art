@@ -30,7 +30,7 @@ namespace art
         BranchDescription
           pdesc(i->branchType,
                 i->hasEmulatedModule() ? i->emulatedModule : md.moduleLabel(),
-                i->hasEmulatedProcess() ? i->emulatedProcess : md.processName(),
+                md.processName(),
                 i->userClassName(),
                 i->friendlyClassName(),
                 i->productInstanceName,

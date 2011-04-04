@@ -96,7 +96,6 @@ namespace art {
     // optional instance name.
     template <class P, BranchType B>
     TypeLabel const& reconstitutes(std::string const& modLabel,
-				   std::string const& processName,
 				   std::string const& instanceName=std::string());
 
   private:
@@ -110,7 +109,6 @@ namespace art {
     TypeLabel const&
     reconstitutes_to_branch(TypeID const& productType,
 			    std::string const& moduleLabel,
-			    std::string const& processName,
 			    std::string const& instanceName=std::string());
 
     TypeLabelList typeLabelList_;
@@ -144,7 +142,6 @@ namespace art {
   template <typename P, BranchType B>
   TypeLabel const&
   ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
-				       std::string const& emulatedProcess,
 				       std::string const& instanceName)
   {
     verifyInstanceName(instanceName);
@@ -152,7 +149,6 @@ namespace art {
     verifyFriendlyClassName(productType.friendlyClassName());
     return reconstitutes_to_branch<B>(productType,
 				      emulatedModule,
-				      emulatedProcess,
 				      instanceName);
   }
 
@@ -170,14 +166,13 @@ namespace art {
   TypeLabel const&
   ProductRegistryHelper::reconstitutes_to_branch(TypeID const& productType,
 						 std::string const& emulatedModule,
-						 std::string const& emulatedProcess,
 						 std::string const& instanceName)
   {
-    if (emulatedModule.empty() || emulatedProcess.empty())
+    if (emulatedModule.empty())
       throw Exception(errors::Configuration)
 	<< "Input sources must call reconstitutes with a non-empty "
-	<< "module label and a non-empty process name\n";
-    TypeLabel tli(B, productType, instanceName, emulatedModule, emulatedProcess);
+	<< "module label.\n";
+    TypeLabel tli(B, productType, instanceName, emulatedModule);
     typeLabelList_.push_back(tli);
     return typeLabelList_.back();
   }
