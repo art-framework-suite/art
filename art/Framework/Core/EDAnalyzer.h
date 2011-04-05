@@ -11,7 +11,7 @@
 #include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-
+#include "boost/shared_ptr.hpp"
 #include <ostream>
 #include <string>
 

@@ -62,10 +62,10 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
+#include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
@@ -73,12 +73,10 @@
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-#include "boost/shared_ptr.hpp"
-#include "boost/type_traits.hpp"
-#include <cassert>
 #include <memory>
+#include <ostream>
 #include <string>
-#include <typeinfo>
+#include <utility>
 #include <vector>
 
 // ----------------------------------------------------------------------

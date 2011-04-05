@@ -25,11 +25,11 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include <typeinfo>
-
-#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Common/BasicHandle.h"
+#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/Exception.h"
+#include "boost/shared_ptr.hpp"
+#include <typeinfo>
 
 namespace art
 {

@@ -12,6 +12,7 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+#include "boost/shared_ptr.hpp"
 #include <memory>
 
 namespace art

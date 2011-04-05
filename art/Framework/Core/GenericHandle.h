@@ -21,20 +21,13 @@
   //call the print method of 'MyClass' instance
   myHandle->invoke("print);
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Sat Jan  7 15:40:43 EST 2006
-//
-//
 
-// system include files
-#include <string>
-
-// user include files
 #include "Reflex/Object.h"
 #include "art/Framework/Core/Event.h"
-#include "art/Utilities/UseReflex.h"
 #include "art/Persistency/Common/Handle.h"
+#include "art/Utilities/UseReflex.h"
+#include "boost/shared_ptr.hpp"
+#include <string>
 
 // forward declarations
 namespace art {

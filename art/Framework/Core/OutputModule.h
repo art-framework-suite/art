@@ -23,6 +23,7 @@
 #include "art/Persistency/Provenance/Selections.h"
 #include "boost/array.hpp"
 #include "boost/noncopyable.hpp"
+#include "boost/shared_ptr.hpp"
 #include <string>
 #include <vector>
 

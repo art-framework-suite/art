@@ -10,6 +10,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
+#include "boost/shared_ptr.hpp"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
