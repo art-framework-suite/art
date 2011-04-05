@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
 
 # A few helpful tips about the Rules file:
 #
@@ -28,6 +29,10 @@ end
 
 route '/stylesheet/' do
   '/style.css'
+end
+
+route '/images/*/' do
+  item.identifier.chop + '.' + item[:extension]
 end
 
 route '*' do
