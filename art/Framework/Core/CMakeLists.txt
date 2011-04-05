@@ -94,7 +94,7 @@ set( art_Framework_CoreArt_sources
 
 add_library(art_Framework_CoreArt SHARED ${art_Framework_CoreArt_sources} )
 
-set ( common_exec_link_libraries 
+set ( common_exec_link_libraries
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${CINTEX}
@@ -107,9 +107,9 @@ set ( common_exec_link_libraries
   ${MATHCORE}
   ${THREAD}
   ${RIO}
-	${CORE}
+  ${CORE}
   ${CINT}
-	${REFLEX}
+  ${REFLEX}
   ${CPPUNIT}
   -ldl
 )
@@ -126,6 +126,7 @@ set ( art_exec_link_libraries
 set (ART_EXECS
   art
   lar
+  mu2e
   nova
 )
 
@@ -145,7 +146,7 @@ install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
 install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
 
 install(FILES
-	TypeLabelList.h
+  TypeLabelList.h
   Actions.h
   BranchActionType.h
   Breakpoints.h
