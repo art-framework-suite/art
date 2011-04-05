@@ -193,7 +193,7 @@ sub help_types {
     print STDERR "Required members:\n",
       map({sprintf("  %s\n", $required_entries->{$module_type}->{$_});}
           sort keys %{$required_entries->{$module_type}});
-    print STDERR "Optionanl members:\n",
+    print STDERR "Optional members:\n",
       map({sprintf("  %s\n", $optional_entries->{$module_type}->{$_});}
           sort keys %{$optional_entries->{$module_type}});
     print STDERR "\n";
