@@ -2,9 +2,9 @@ namespace art {
   class EmptyEvent;
 }
 
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/Run.h"
@@ -19,9 +19,9 @@ namespace art {
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "boost/shared_ptr.hpp"
-#include "fhiclcpp/ParameterSet.h"
-
 #include "cpp0x/cstdint"
+#include "fhiclcpp/ParameterSet.h"
+#include <memory>
 
 class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
 public:

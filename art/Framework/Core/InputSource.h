@@ -3,7 +3,7 @@
 
 //----------------------------------------------------------------------
 //
-// InputSource is the abstract interface implemented by all concrete 
+// InputSource is the abstract interface implemented by all concrete
 // sources.
 //
 //----------------------------------------------------------------------
@@ -12,12 +12,13 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+#include <memory>
 
 namespace art
 {
   namespace input
   {
-    enum ItemType 
+    enum ItemType
       {
         IsInvalid,
         IsStop,
@@ -34,7 +35,7 @@ namespace art
 
     // TODO:
     // This enum should probably be moved outside of InputSource.
-    enum ProcessingMode 
+    enum ProcessingMode
       {
         Runs,
         RunsAndSubRuns,

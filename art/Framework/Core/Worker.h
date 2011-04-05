@@ -23,7 +23,6 @@ the worker is reset().
 
 */
 // ======================================================================
-#include <iosfwd>
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/BranchActionType.h"
@@ -38,6 +37,8 @@ the worker is reset().
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include <iosfwd>
+#include <memory>
 
 // ----------------------------------------------------------------------
 

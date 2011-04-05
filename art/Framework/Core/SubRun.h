@@ -22,6 +22,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace art {
 

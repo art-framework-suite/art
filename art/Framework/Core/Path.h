@@ -18,6 +18,7 @@
 #include "art/Persistency/Common/TriggerResults.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include <memory>
 #include <string>
 #include <vector>
 

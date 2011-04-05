@@ -11,6 +11,7 @@
 #include "boost/thread/tss.hpp"
 #include "cetlib/container_algorithms.h"
 #include <algorithm>
+#include <memory>
 #include <sstream>
 
 using Reflex::Base;

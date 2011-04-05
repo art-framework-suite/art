@@ -16,8 +16,9 @@ is the DataBlock.
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "cetlib/exempt_ptr.h"
 #include "boost/shared_ptr.hpp"
+#include "cetlib/exempt_ptr.h"
+#include <memory>
 #include <vector>
 
 namespace art {

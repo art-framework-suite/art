@@ -29,6 +29,7 @@
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include <cstdlib>
+#include <memory>
 #include <set>
 #include <vector>
 

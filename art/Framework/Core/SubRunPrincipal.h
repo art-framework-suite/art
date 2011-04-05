@@ -21,6 +21,7 @@ is the DataBlock.
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
+#include <memory>
 #include <vector>
 
 namespace art {

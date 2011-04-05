@@ -12,16 +12,16 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
-#include <vector>
-
+#include "art/Framework/Core/Principal.h"
+#include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Common/EDProductGetter.h"
-#include "art/Framework/Core/Principal.h"
+#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
+#include <memory>
+#include <vector>
 
 namespace art {
   class EventID;

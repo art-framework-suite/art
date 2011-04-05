@@ -8,15 +8,16 @@
 // ======================================================================
 
 #include "art/Framework/Core/LibraryManager.h"
-#include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeIDBase.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
+#include <memory>
 #include <stack>
 #include <utility>
 #include <vector>

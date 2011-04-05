@@ -11,6 +11,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/Worker.h"
+#include <memory>
 
 // ----------------------------------------------------------------------
 

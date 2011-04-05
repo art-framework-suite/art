@@ -15,6 +15,7 @@
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace art {
   class ServiceRegistry;
