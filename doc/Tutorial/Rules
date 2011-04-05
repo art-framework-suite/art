@@ -19,6 +19,7 @@ compile '*' do
     when 'md'
       filter :kramdown
       layout 'default'
+    when 'png'
     else
       filter :erb
       layout 'default'

@@ -29,7 +29,7 @@ Data-related
 Processing-related
 ------------------
 
-* **Configuration**: Structured documents describing the all processing aspects of a single job
+* **Configuration**: Structured documents describing all processing aspects of a single job
   including setting of parameters and workflow specification.
 
 * **Module**: An object (in C++) that “plugs into" a processing stream and performs a specific task on
@@ -40,3 +40,6 @@ Processing-related
 
 * **Services**: A global facility that is dependent on the state of the application and that can
   be accessed from any module.
+
+* **Process Name**: User-assigned name representing the kind of processing that a job is affiliated 
+  with, such as reconstruction, testing, filtering.

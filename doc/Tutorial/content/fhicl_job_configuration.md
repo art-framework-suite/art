@@ -16,8 +16,8 @@ FHiCL Job Configuration
           TFileService: {
             fileName: "cosmics_hist.root" 
           }
+          user: @local::ndos_services
         }
-        services.user.Geometry: @local::ndos_geo
 
         source: {
           module_type: EmptyEvent
@@ -32,18 +32,19 @@ FHiCL Job Configuration
         }
 
         physics: {
-          producers: { } # things will be added here
+          producers: { 
+            generator: @local::cosmics_ndos
+            geantgen:  @local::standard_geant4
+            photrans:  @local::standard_photrans
+            daq:       @local::standard_rsim
+
+	  } # things will be added here
 
           simulate: [ generator, geantgen, photrans, daq ] 
           stream1:  [ out1 ] 
           trigger_paths: [simulate]
           end_paths:     [stream1]
         }
-        # New modules can be added as follows...
-        physics.producers.geantgen:  @local::std_geant4
-        physics.producers.photrans:  @local::std_photrans
-        physics.producers.daq:       @local::std_rsim
-        physics.producers.generator: @local::cosmics_fd
         
         # Existing elements can be replaced ...
         services.user.Geometry:         @local::fd_geo
