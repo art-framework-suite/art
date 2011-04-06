@@ -4,10 +4,7 @@
 #include "art/Framework/Core/run_art.h"
 #include "boost/program_options.hpp"
 #include "cetlib/exception.h"
-#include "cpp0x/memory"
 #include "fhiclcpp/parse.h"
-
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
