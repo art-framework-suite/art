@@ -12,6 +12,7 @@
 #include "art/Framework/Core/RunStopwatch.h"
 #include "art/Framework/Core/Worker.h"
 #include <memory>
+#include <utility>
 
 // ----------------------------------------------------------------------
 

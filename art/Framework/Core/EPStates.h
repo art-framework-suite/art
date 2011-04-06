@@ -1,28 +1,26 @@
 #ifndef art_Framework_Core_EPStates_h
 #define art_Framework_Core_EPStates_h
 
-/*
-
-
-The state machine that controls the processing of runs, subRun
-blocks, events, and loops is implemented using the boost statechart
-library and the states and events defined here.  This machine is
-used by the EventProcessor.
-
-Original Authors: W. David Dagenhart, Marc Paterno
-*/
+// ======================================================================
+//
+// The state machine that controls the processing of runs, subRun blocks,
+// events, and loops is implemented using the boost statechart library
+// and the states and events defined here.  This machine is used by the
+// EventProcessor.
+//
+// ======================================================================
 
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-
 #include "boost/statechart/event.hpp"
 #include "boost/statechart/state_machine.hpp"
-#include <boost/statechart/state.hpp>
-#include <boost/statechart/transition.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/statechart/custom_reaction.hpp>
-#include <vector>
+#include <boost/statechart/state.hpp>
+#include <boost/statechart/transition.hpp>
 #include <set>
+#include <utility>
+#include <vector>
 
 namespace sc = boost::statechart;
 namespace mpl = boost::mpl;
@@ -427,6 +425,8 @@ namespace statemachine {
     art::IEventProcessor & ep_;
   };
 }
+
+// ======================================================================
 
 #endif /* art_Framework_Core_EPStates_h */
 

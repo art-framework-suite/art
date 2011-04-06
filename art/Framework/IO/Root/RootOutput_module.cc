@@ -6,6 +6,9 @@
 
 #include "art/Framework/IO/Root/RootOutput.h"
 
+#include "TBranchElement.h"
+#include "TObjArray.h"
+#include "TTree.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -16,11 +19,9 @@
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "TBranchElement.h"
-#include "TObjArray.h"
-#include "TTree.h"
 #include <iomanip>
 #include <sstream>
+#include <utility>
 
 using art::RootOutput;
 using fhicl::ParameterSet;

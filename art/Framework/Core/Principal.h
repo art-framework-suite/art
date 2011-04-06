@@ -17,11 +17,6 @@ pointer to a Group, when queried.
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
 ----------------------------------------------------------------------*/
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Group.h"
@@ -40,6 +35,10 @@ pointer to a Group, when queried.
 #include "art/Utilities/TypeID.h"
 #include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace art {
   class Principal : public EDProductGetter {

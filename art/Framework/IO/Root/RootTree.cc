@@ -1,19 +1,18 @@
 #include "art/Framework/IO/Root/RootTree.h"
 
+#include "Rtypes.h"
+#include "TFile.h"
+#include "TTreeCache.h"
+#include "TTreeIndex.h"
+#include "TVirtualIndex.h"
 #include "art/Framework/Core/Principal.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Utilities/WrappedClassName.h"
-
-#include "Rtypes.h"
-#include "TFile.h"
-#include "TTreeCache.h"
-#include "TTreeIndex.h"
-#include "TVirtualIndex.h"
-
 #include <iostream>
+#include <utility>
 
 
 namespace art {

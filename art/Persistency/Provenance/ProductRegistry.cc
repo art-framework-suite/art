@@ -1,20 +1,12 @@
-/**
-   \file
-   class impl
-
-   \Original author Stefano ARGIRO
-   \Current author Bill Tanenbaum
-   \date 19 Jul 2005
-*/
-
-
 #include "art/Persistency/Provenance/ProductRegistry.h"
+
 #include "art/Utilities/ReflexTools.h"
-#include "cetlib/exception.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
+#include "cetlib/exception.h"
 #include <algorithm>
 #include <sstream>
+#include <utility>
 
 namespace art {
   namespace {
@@ -22,7 +14,7 @@ namespace art {
       if (productDesc.transient()) {
         checkDictionaries(productDesc.fullClassName(), true);
       } else {
-    	checkDictionaries(wrappedClassName(productDesc.fullClassName()), false);
+        checkDictionaries(wrappedClassName(productDesc.fullClassName()), false);
       }
     }
   }
@@ -38,7 +30,7 @@ namespace art {
       productProduced_(),
       productLookup_(),
       elementLookup_() {
-	for (size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
+        for (size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
   }
 
   ProductRegistry::ProductRegistry(ProductList const& productList) :
@@ -49,19 +41,19 @@ namespace art {
 
   void
   ProductRegistry::addProduct(BranchDescription const& productDesc,
-			      bool fromListener) {
+                              bool fromListener) {
     assert(productDesc.produced());
     throwIfFrozen();
     productDesc.init();
     checkDicts(productDesc);
     std::pair<ProductList::iterator, bool> ret =
-	 productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
+         productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     if (!ret.second) {
       throw art::Exception(errors::Configuration)
-	<< "The process name " << productDesc.processName()
-	<< " was previously used on these products.\n"
-	<< "Please modify the configuration file to use a "
-	<< "distinct process name.\n";
+        << "The process name " << productDesc.processName()
+        << " was previously used on these products.\n"
+        << "Please modify the configuration file to use a "
+        << "distinct process name.\n";
     }
     addCalled(productDesc,fromListener);
   }
@@ -87,7 +79,7 @@ namespace art {
     for (ProductList::const_iterator it = productList_.begin(), itEnd = productList_.end();
         it != itEnd; ++it) {
       if (it->second.branchType() == brType) {
-	return true;
+        return true;
       }
     }
     return false;
@@ -151,7 +143,7 @@ namespace art {
   void
   ProductRegistry::updateFromInput(ProductList const& other) {
     for (ProductList::const_iterator it = other.begin(), itEnd = other.end();
-	it != itEnd; ++it) {
+        it != itEnd; ++it) {
       copyProduct(it->second);
     }
   }
@@ -159,15 +151,15 @@ namespace art {
   void
   ProductRegistry::updateFromInput(std::vector<BranchDescription> const& other) {
     for (std::vector<BranchDescription>::const_iterator it = other.begin(), itEnd = other.end();
-	it != itEnd; ++it) {
+        it != itEnd; ++it) {
       copyProduct(*it);
     }
   }
 
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
-	std::string const& fileName,
-	BranchDescription::MatchMode m) {
+        std::string const& fileName,
+        BranchDescription::MatchMode m) {
     std::ostringstream differences;
 
     ProductRegistry::ProductList::iterator j = productList_.begin();
@@ -178,28 +170,28 @@ namespace art {
     // Loop over entries in the main product registry.
     while(j != s || i != e) {
       if (j != s && j->second.produced()) {
-	// Ignore branches just produced (i.e. not in input file).
-	++j;
+        // Ignore branches just produced (i.e. not in input file).
+        ++j;
       } else if (j == s || (i != e && i->first < j->first)) {
-	if (i->second.present()) {
-	  differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
-	  differences << "    but not in previous files.\n";
-	} else {
-	  productList_.insert(*i);
-	}
-	++i;
+        if (i->second.present()) {
+          differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
+          differences << "    but not in previous files.\n";
+        } else {
+          productList_.insert(*i);
+        }
+        ++i;
       } else if (i == e || (j != s && j->first < i->first)) {
-	// Allow branch to be missing in new file
-	++j;
+        // Allow branch to be missing in new file
+        ++j;
       } else {
-	std::string difs = match(j->second, i->second, fileName, m);
-	if (difs.empty()) {
-	  if (m == BranchDescription::Permissive) j->second.merge(i->second);
-	} else {
-	  differences << difs;
-	}
-	++i;
-	++j;
+        std::string difs = match(j->second, i->second, fileName, m);
+        if (difs.empty()) {
+          if (m == BranchDescription::Permissive) j->second.merge(i->second);
+        } else {
+          differences << difs;
+        }
+        ++i;
+        ++j;
       }
     }
     initializeTransients();
@@ -212,7 +204,7 @@ namespace art {
     elementLookup().clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
       if (i->second.produced()) {
-	setProductProduced(i->second.branchType());
+        setProductProduced(i->second.branchType());
       }
 
       constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
@@ -234,8 +226,8 @@ namespace art {
         // not exist and we do not need to support those cases.
         Reflex::Type valueType;
         if ((is_RefVector(type, valueType) ||
-	     is_RefToBaseVector(type, valueType ) ||
-	     value_type_of(type, valueType))
+             is_RefToBaseVector(type, valueType ) ||
+             value_type_of(type, valueType))
             && bool(valueType)) {
 
           fillElementLookup(valueType, i->second.branchID(), i->first);
@@ -245,7 +237,7 @@ namespace art {
           public_base_classes(valueType, baseTypes);
 
           for (std::vector<Reflex::Type>::iterator iter = baseTypes.begin(),
-	       iend = baseTypes.end();
+               iend = baseTypes.end();
                iter != iend;
                ++iter) {
             fillElementLookup(*iter, i->second.branchID(), i->first);
@@ -269,7 +261,7 @@ namespace art {
 
   void ProductRegistry::print(std::ostream& os) const {
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
-	os << i->second << "\n-----\n";
+        os << i->second << "\n-----\n";
     }
   }
 

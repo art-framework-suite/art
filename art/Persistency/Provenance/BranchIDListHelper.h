@@ -6,6 +6,7 @@
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include <map>
+#include <utility>
 
 namespace art {
 

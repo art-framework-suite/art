@@ -1,5 +1,7 @@
 #include "art/Persistency/Provenance/BranchChildren.h"
 
+#include <utility>
+
 namespace art {
   void
   BranchChildren::append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const {

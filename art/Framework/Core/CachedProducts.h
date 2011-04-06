@@ -9,15 +9,15 @@
 //
 //
 // -------------------------------------------------------------------
+
+#include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/EventSelector.h"
+#include "art/Framework/Core/Selector.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Common/TriggerResults.h"
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "art/Persistency/Common/TriggerResults.h"
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/EventSelector.h"
-#include "art/Persistency/Common/Handle.h"
-#include "art/Framework/Core/Selector.h"
 
 namespace art
 {

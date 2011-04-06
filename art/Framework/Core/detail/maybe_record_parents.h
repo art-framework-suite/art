@@ -1,10 +1,8 @@
 #ifndef art_Framework_Core_detail_maybe_record_parents_h
 #define art_Framework_Core_detail_maybe_record_parents_h
 
-
-#include "cpp0x/type_traits"
 #include "art/Framework/Core/DataViewImpl.h"
-
+#include "cpp0x/type_traits"
 #include <utility>
 
 namespace art {
@@ -54,9 +52,10 @@ namespace art {
 
       // ----------------------------------------------------------------------
 
-   
+
    }
 }
+
 #endif /* art_Framework_Core_detail_maybe_record_parents_h */
 
 // Local Variables:

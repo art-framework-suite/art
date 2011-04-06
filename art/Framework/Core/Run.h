@@ -15,6 +15,7 @@
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include <memory>
+#include <utility>
 
 // ----------------------------------------------------------------------
 
@@ -65,7 +66,7 @@ namespace art {
     // result.
     bool
     getProcessParameterSet(std::string const& processName,
-			   std::vector<fhicl::ParameterSet>& ps) const;
+                           std::vector<fhicl::ParameterSet>& ps) const;
 
   private:
     RunPrincipal const&
@@ -96,8 +97,8 @@ namespace art {
       TypeID typeID(typeid(PROD));
       throw art::Exception(art::errors::NullPointerError)
         << "Run::put: A null auto_ptr was passed to 'put'.\n"
-	<< "The pointer is of type " << typeID << ".\n"
-	<< "The specified productInstanceName was '" << productInstanceName << "'.\n";
+        << "The pointer is of type " << typeID << ".\n"
+        << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
     detail::maybe_call_post_insert(product.get());

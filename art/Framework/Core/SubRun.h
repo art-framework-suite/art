@@ -1,19 +1,14 @@
 #ifndef art_Framework_Core_SubRun_h
 #define art_Framework_Core_SubRun_h
 
-// -*- C++ -*-
+// ======================================================================
 //
-// Package:     Framework
-// Class  :     SubRun
+// SubRun: This is the primary interface for accessing per subRun
+// EDProducts and inserting new derived per subRun EDProducts.
 //
-/**\class SubRun SubRun.h FWCore/Framework/interface/SubRun.h
-
-Description: This is the primary interface for accessing per subRun EDProducts
-and inserting new derived per subRun EDProducts.
-
-For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
-
-*/
+// For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
+//
+// ======================================================================
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -23,6 +18,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/shared_ptr.hpp"
 #include <memory>
+#include <utility>
 
 namespace art {
 
@@ -122,6 +118,8 @@ namespace art {
   }
 
 }  // art
+
+// ======================================================================
 
 #endif /* art_Framework_Core_SubRun_h */
 

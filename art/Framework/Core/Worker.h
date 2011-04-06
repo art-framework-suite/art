@@ -39,6 +39,7 @@ the worker is reset().
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <iosfwd>
 #include <memory>
+#include <utility>
 
 // ----------------------------------------------------------------------
 

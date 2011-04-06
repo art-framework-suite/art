@@ -1,16 +1,17 @@
 #include "art/Framework/Core/OutputModule.h"
 
 #include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Utilities/DebugMacros.h"
+#include <utility>
 
 
 using fhicl::ParameterSet;

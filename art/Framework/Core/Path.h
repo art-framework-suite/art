@@ -20,6 +20,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 // ----------------------------------------------------------------------
