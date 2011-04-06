@@ -5,6 +5,7 @@
 #include "boost/filesystem.hpp"
 
 #include "cetlib/search_path.h"
+#include "cetlib/demangle.h"
 #include "cpp0x/functional"
 #include "boost/regex.hpp"
 
@@ -122,7 +123,7 @@ void *art::LibraryManager::getSymbolByPath(std::string const &lib_loc,
          result = nullptr;
          throw art::Exception(errors::Configuration)
 	   << "Unable to load requested symbol "
-	   <<  sym_name
+	   <<  cet::demangle(sym_name)
 	   << " from library "
 	   << lib_loc;
       }

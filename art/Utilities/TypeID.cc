@@ -1,13 +1,16 @@
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
-#include <ostream>
-#include "art/Utilities/TypeID.h"
-#include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/Exception.h"
-#include "Reflex/Type.h"
-#include "boost/thread/tss.hpp"
+#include "art/Utilities/FriendlyName.h"
+#include "art/Utilities/TypeID.h"
 #include "art/Utilities/UseReflex.h"
+#include "boost/thread/tss.hpp"
+#include "cetlib/demangle.h"
+
+#include "Reflex/Type.h"
+
+#include <ostream>
 
 namespace art {
   void
@@ -20,7 +23,7 @@ namespace art {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
       throw art::Exception(errors::DictionaryNotFound,"NoMatch")
-      << "TypeID::className: No dictionary for class " << iType.name() << '\n';
+        << "TypeID::className: No dictionary for class " << cet::demangle(iType.name()) << '\n';
     }
     return t.Name(Reflex::SCOPED);
   }

@@ -1,15 +1,18 @@
 #include "art/Utilities/ReflexTools.h"
 
+#include "art/Utilities/Exception.h"
+#include "boost/algorithm/string.hpp"
+#include "boost/thread/tss.hpp"
+#include "cetlib/container_algorithms.h"
+#include "cetlib/demangle.h"
+
 // for G__ClassInfo:
 #include "Api.h"
 
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
-#include "art/Utilities/Exception.h"
-#include "boost/algorithm/string.hpp"
-#include "boost/thread/tss.hpp"
-#include "cetlib/container_algorithms.h"
+
 #include <algorithm>
 #include <memory>
 #include <sstream>
@@ -253,7 +256,7 @@ namespace art
       ostringstream ostr;
       for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end();
 	   it != itEnd; ++it) {
-	ostr << *it << "\n\n";
+        ostr << cet::demangle(*it) << "\n\n";
       }
       throw art::Exception(art::errors::DictionaryNotFound)
 	<< "No REFLEX data dictionary found for the following classes:\n\n"
