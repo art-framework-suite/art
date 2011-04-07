@@ -113,7 +113,7 @@ namespace art
     //void wakeUp() {wakeUp_();}
 
     /// issue an event report
-    void issueReports(EventID const& eventID, SubRunNumber_t const& subRun);
+    void issueReports(EventID const& eventID);
 
     /// Accessor for product registry.
     cet::exempt_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
@@ -190,7 +190,7 @@ namespace art
     void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> srp) {subRunPrincipal_ = srp;}
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
-    void reset() const {
+    void reset() {
       doneReadAhead_ = false;
       state_ = input::IsInvalid;
     }
@@ -237,10 +237,11 @@ namespace art
     cet::exempt_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
     Timestamp time_;
-    mutable bool doneReadAhead_;
-    mutable input::ItemType state_;
-    mutable boost::shared_ptr<RunPrincipal>  runPrincipal_;
-    mutable boost::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
+    bool doneReadAhead_;
+    input::ItemType state_;
+    boost::shared_ptr<RunPrincipal>  runPrincipal_;
+    boost::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
+    bool usingSequentialAccess_;
   };  // DecrepitRelicInputSourceImplementation
 
 }  // art

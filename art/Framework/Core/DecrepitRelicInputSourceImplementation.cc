@@ -57,8 +57,9 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-  DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation( ParameterSet           const & pset
-                          , InputSourceDescription const & desc )
+  DecrepitRelicInputSourceImplementation::
+  DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
+                                         InputSourceDescription const & desc)
   : ProductRegistryHelper( )
   , boost::noncopyable   ( )
   , actReg_              ( desc.actReg_ )
@@ -303,7 +304,7 @@ namespace art {
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(result->time());
-      issueReports(result->id(), result->subRun());
+      issueReports(result->id());
     }
     return result;
   }
@@ -320,7 +321,7 @@ namespace art {
         postRead(event);
         if (remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
-        issueReports(result->id(), result->subRun());
+        issueReports(result->id());
       }
     }
     return result;
@@ -332,15 +333,13 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::issueReports(EventID const& eventID, SubRunNumber_t const& subRun) {
+  DecrepitRelicInputSourceImplementation::issueReports(EventID const& eventID) {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
     strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
     mf::LogVerbatim("ArtReport")
       << "Begin processing the " << readCount_
-      << suffix(readCount_) << " record. Run " << eventID.run()
-      << ", SubRun " << subRun
-      << ", Event " << eventID.event()
+      << suffix(readCount_) << " record. " << eventID
       << " at " << ts;
     // At some point we may want to initiate checkpointing here
   }
