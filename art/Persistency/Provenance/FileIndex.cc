@@ -82,7 +82,7 @@ namespace art {
 
       // Set up the iterators to point to first two events
       // (In the trivial case where there is zero or one event,
-      // the set must be unique and ordered)
+      // the set is unique and ordered by construction).
 
       if (it == itEnd) return true;
 
