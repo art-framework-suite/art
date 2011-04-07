@@ -34,6 +34,7 @@ namespace art
                                        SubRunNumber_t sr,
                                        EventNumber_t e,
                                        Timestamp const &startTime,
+                                       bool isRealData = true,
                                        EventAuxiliary::ExperimentType eType =
                                        EventAuxiliary::Data) const;
 

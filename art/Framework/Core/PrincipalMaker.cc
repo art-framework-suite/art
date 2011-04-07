@@ -31,9 +31,10 @@ art::PrincipalMaker::makeEventPrincipal(RunNumber_t r,
                                         SubRunNumber_t sr,
                                         EventNumber_t e,
                                         Timestamp const &startTime,
+                                        bool isRealData,
                                         EventAuxiliary::ExperimentType eType) const {
    EventAuxiliary eventAux(EventID(r, sr, e),
-                           startTime, true, eType);
+                           startTime, isRealData, eType);
    return new EventPrincipal(eventAux,
                              cet::exempt_ptr<art::ProductRegistry const>(&preg_),
                              processConfig_);
