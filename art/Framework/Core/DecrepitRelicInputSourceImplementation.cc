@@ -55,28 +55,28 @@ namespace art {
     }
   }  // namespace
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
                                          InputSourceDescription const & desc)
-  : ProductRegistryHelper( )
-  , boost::noncopyable   ( )
-  , actReg_              ( desc.actReg_ )
-  , maxEvents_           ( pset.get<int>("maxEvents", -1) )
-  , remainingEvents_     ( maxEvents_ )
-  , maxSubRuns_            ( pset.get<int>("maxSubRuns", -1) )
-  , remainingSubRuns_      ( maxSubRuns_ )
-  , readCount_           ( 0 )
-  , processingMode_      ( RunsSubRunsAndEvents )
-  , moduleDescription_   ( desc.moduleDescription_ )
-  , productRegistry_     ( desc.productRegistry_ )
-  , primary_             ( pset.get<std::string>("module_label") == std::string("source") )
-  , time_                ( )
-  , doneReadAhead_       ( false )
-  , state_               ( input::IsInvalid )
-  , runPrincipal_        ( )
-  , subRunPrincipal_       ( )
+    : ProductRegistryHelper( )
+    , boost::noncopyable   ( )
+    , actReg_              ( desc.actReg_ )
+    , maxEvents_           ( pset.get<int>("maxEvents", -1) )
+    , remainingEvents_     ( maxEvents_ )
+    , maxSubRuns_            ( pset.get<int>("maxSubRuns", -1) )
+    , remainingSubRuns_      ( maxSubRuns_ )
+    , readCount_           ( 0 )
+    , processingMode_      ( RunsSubRunsAndEvents )
+    , moduleDescription_   ( desc.moduleDescription_ )
+    , productRegistry_     ( desc.productRegistry_ )
+    , primary_             ( pset.get<std::string>("module_label") == std::string("source") )
+    , time_                ( )
+    , doneReadAhead_       ( false )
+    , state_               ( input::IsInvalid )
+    , runPrincipal_        ( )
+    , subRunPrincipal_       ( )
   {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
@@ -86,7 +86,7 @@ namespace art {
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
     std::string processingMode
-       = pset.get<std::string>("processingMode", defaultMode);
+      = pset.get<std::string>("processingMode", defaultMode);
     if (processingMode == runMode) {
       processingMode_ = Runs;
     }
@@ -97,10 +97,10 @@ namespace art {
       throw art::Exception(art::errors::Configuration)
         << "DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation()\n"
         << "The 'processingMode' parameter for sources has an illegal value '"
-          << processingMode << "'\n"
+        << processingMode << "'\n"
         << "Legal values are '" << defaultMode
-          << "', '" << runSubRunMode
-          << "', or '" << runMode << "'.\n";
+        << "', '" << runSubRunMode
+        << "', or '" << runMode << "'.\n";
     }
 
     // This must come LAST in the constructor.
@@ -170,13 +170,13 @@ namespace art {
       // If the maximum subRun limit has been reached, stop
       // when reaching a new file, run, or subRun.
       if (oldState == input::IsInvalid ||
-	  oldState == input::IsFile ||
-	  oldState == input::IsRun ||
-	  processingMode() != RunsSubRunsAndEvents) {
+          oldState == input::IsFile ||
+          oldState == input::IsRun ||
+          processingMode() != RunsSubRunsAndEvents) {
         state_ = input::IsStop;
       }
       else {
-	input::ItemType newState = nextItemType_();
+        input::ItemType newState = nextItemType_();
         if (newState == input::IsEvent) {
           assert(processingMode() == RunsSubRunsAndEvents);
           state_ = input::IsEvent;
@@ -229,9 +229,9 @@ namespace art {
   DecrepitRelicInputSourceImplementation::registerProducts_()
   {
     addToRegistry(typeLabelList().begin(),
-		  typeLabelList().end(),
-		  moduleDescription(),
-		  productRegistryUpdate());
+                  typeLabelList().end(),
+                  moduleDescription(),
+                  productRegistryUpdate());
   }
 
   // Return a dummy file block.
@@ -408,8 +408,8 @@ namespace art {
     sr.commit_();
   }
 
-//   void
-//   DecrepitRelicInputSourceImplementation::wakeUp_() { }
+  //   void
+  //   DecrepitRelicInputSourceImplementation::wakeUp_() { }
 
   void
   DecrepitRelicInputSourceImplementation::endSubRun(SubRun &) { }
