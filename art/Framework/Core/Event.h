@@ -73,8 +73,7 @@ namespace art {
     using Base::processHistory;
     using Base::size;
 
-    SubRun const&
-      getSubRun() const { return *subRun_; }
+    SubRun const& getSubRun() const;
 
     Run const&
       getRun() const;

@@ -75,6 +75,22 @@ namespace art {
     this->addGroup(edp, bd, productProvenance);
   }
 
+  RunPrincipal const& SubRunPrincipal::runPrincipal() const {
+    if (!runPrincipal_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL runPrincipal.\n";
+    }
+    return *runPrincipal_;
+  }
+
+  RunPrincipal & SubRunPrincipal::runPrincipal() {
+    if (!runPrincipal_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL runPrincipal.\n";
+    }
+    return *runPrincipal_;
+  }
+
   void
   SubRunPrincipal::mergeSubRun(boost::shared_ptr<SubRunPrincipal> srp) {
 

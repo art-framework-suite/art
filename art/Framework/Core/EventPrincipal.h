@@ -45,13 +45,9 @@ namespace art {
         boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
-    SubRunPrincipal const& subRunPrincipal() const {
-      return *subRunPrincipal_;
-    }
+    SubRunPrincipal const& subRunPrincipal() const;
 
-    SubRunPrincipal & subRunPrincipal() {
-      return *subRunPrincipal_;
-    }
+    SubRunPrincipal & subRunPrincipal();
 
     boost::shared_ptr<SubRunPrincipal>
     subRunPrincipalSharedPtr() {

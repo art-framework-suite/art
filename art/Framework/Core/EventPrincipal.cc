@@ -47,6 +47,22 @@ namespace art {
             }
           }
 
+  SubRunPrincipal const& EventPrincipal::subRunPrincipal() const {
+    if (!subRunPrincipal_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL subRunPrincipal.\n";
+    }
+    return *subRunPrincipal_;
+  }
+
+  SubRunPrincipal & EventPrincipal::subRunPrincipal() {
+    if (!subRunPrincipal_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL subRunPrincipal.\n";
+    }
+    return *subRunPrincipal_;
+  }
+
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
     return subRunPrincipal().runPrincipal();

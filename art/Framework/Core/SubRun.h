@@ -50,9 +50,7 @@ namespace art {
     using Base::processHistory;
 
     Run const&
-    getRun() const {
-      return *run_;
-    }
+    getRun() const;
 
     ///Put a new product.
     template <typename PROD>

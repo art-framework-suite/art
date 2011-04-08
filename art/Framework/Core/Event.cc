@@ -47,6 +47,15 @@ namespace art {
     return eventPrincipal().branchIDToProductID(desc.branchID());
   }
 
+  SubRun const&
+  Event::getSubRun() const {
+    if (!subRun_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL subRun.\n";
+    }
+    return *subRun_;
+  }
+
   Run const&
   Event::getRun() const {
     return getSubRun().getRun();

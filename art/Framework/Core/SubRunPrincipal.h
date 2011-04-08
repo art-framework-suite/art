@@ -40,13 +40,9 @@ namespace art {
 
     ~SubRunPrincipal() {}
 
-    RunPrincipal const& runPrincipal() const {
-      return *runPrincipal_;
-    }
+    RunPrincipal const& runPrincipal() const;
 
-    RunPrincipal & runPrincipal() {
-      return *runPrincipal_;
-    }
+    RunPrincipal & runPrincipal();
 
     boost::shared_ptr<RunPrincipal>
     runPrincipalSharedPtr() {

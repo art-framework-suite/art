@@ -28,6 +28,15 @@ namespace art {
     return dynamic_cast<SubRunPrincipal const&>(principal());
   }
 
+  Run const&
+  SubRun::getRun() const {
+    if (!run_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL run.\n";
+    }
+    return *run_;
+  }
+
   Provenance
   SubRun::getProvenance(BranchID const& bid) const
   {
