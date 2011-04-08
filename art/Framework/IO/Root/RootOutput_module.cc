@@ -25,44 +25,43 @@
 
 using art::RootOutput;
 using fhicl::ParameterSet;
+using std::string;
 
 namespace art {
 
-  RootOutput::RootOutput(ParameterSet const& pset) :
-    OutputModule(pset),
-    //rootServiceChecker_(),
-    selectedOutputItemList_(),
-    fileName_(pset.get<std::string>("fileName")),
-    logicalFileName_(pset.get<std::string>("logicalFileName", std::string())),
-    catalog_(pset.get<std::string>("catalog", std::string())),
-    maxFileSize_(pset.get<int>("maxSize", 0x7f000000)),
-    compressionLevel_(pset.get<int>("compressionLevel", 7)),
-    basketSize_(pset.get<int>("basketSize", 16384)),
-    splitLevel_(pset.get<int>("splitLevel", 99)),
-    treeMaxVirtualSize_(pset.get<int>("treeMaxVirtualSize", -1)),
-    fastCloning_(pset.get<bool>("fastCloning", true) && wantAllEvents()),
-    dropMetaData_(DropNone),
-    dropMetaDataForDroppedData_(pset.get<bool>("dropMetaDataForDroppedData", false)),
-    moduleLabel_(pset.get<std::string>("module_label")),
-    outputFileCount_(0),
-    inputFileCount_(0),
-    rootOutputFile_() {
-      std::string dropMetaData(pset.get<std::string>("dropMetaData", std::string()));
-      if (dropMetaData.empty()) dropMetaData_ = DropNone;
-      else if (dropMetaData == std::string("NONE")) dropMetaData_ = DropNone;
-      else if (dropMetaData == std::string("PRIOR")) dropMetaData_ = DropPrior;
-      else if (dropMetaData == std::string("ALL")) dropMetaData_ = DropAll;
-      else {
-        throw art::Exception(errors::Configuration, "Illegal dropMetaData parameter value: ")
-            << dropMetaData << ".\n"
-            << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
-      }
-
-    // We don't use this next parameter, but we read it anyway because it is part
-    // of the configuration of this module.  An external parser creates the
-    // configuration by reading this source code.
-    pset.get<fhicl::ParameterSet>("dataset", ParameterSet());
-  }
+  RootOutput::RootOutput(ParameterSet const& ps)
+  : OutputModule               ( ps )
+  , selectedOutputItemList_    ( )
+  , fileName_                  ( ps.get<string>("fileName") )
+  , logicalFileName_           ( ps.get<string>("logicalFileName", string()) )
+  , catalog_                   ( ps.get<string>("catalog", string()) )
+  , maxFileSize_               ( ps.get<int>("maxSize", 0x7f000000) )
+  , compressionLevel_          ( ps.get<int>("compressionLevel", 7) )
+  , basketSize_                ( ps.get<int>("basketSize", 16384) )
+  , splitLevel_                ( ps.get<int>("splitLevel", 99) )
+  , treeMaxVirtualSize_        ( ps.get<int>("treeMaxVirtualSize", -1) )
+  , fastCloning_               ( ps.get<bool>("fastCloning", true)
+                                 && wantAllEvents() )
+  , dropMetaData_              ( DropNone )  // tentative: see the c'tor body
+  , dropMetaDataForDroppedData_( ps.get<bool>( "dropMetaDataForDroppedData"
+                                             , false) )
+  , moduleLabel_               ( ps.get<string>("module_label")  )
+  , outputFileCount_           ( 0 )
+  , inputFileCount_            ( 0 )
+  , rootOutputFile_            ( )
+  {
+    string dropMetaData(ps.get<string>("dropMetaData", string()));
+    if (dropMetaData.empty())                 dropMetaData_ = DropNone;
+    else if (dropMetaData == string("NONE"))  dropMetaData_ = DropNone;
+    else if (dropMetaData == string("PRIOR")) dropMetaData_ = DropPrior;
+    else if (dropMetaData == string("ALL"))   dropMetaData_ = DropAll;
+    else {
+      throw art::Exception( errors::Configuration
+                          , "Illegal dropMetaData parameter value: ")
+          << dropMetaData << ".\n"
+          << "Legal values are 'NONE', 'PRIOR', and 'ALL'.\n";
+    }
+  }  // c'tor
 
   RootOutput::OutputItem::Sorter::Sorter(TTree * tree) {
     // Fill a map mapping branch names to an index specifying the order in the tree.
@@ -70,7 +69,7 @@ namespace art {
       TObjArray * branches = tree->GetListOfBranches();
       for (int i = 0; i < branches->GetEntries(); ++i) {
         TBranchElement * br = (TBranchElement *)branches->At(i);
-        treeMap_.insert(std::make_pair(std::string(br->GetName()), i));
+        treeMap_.insert(std::make_pair(string(br->GetName()), i));
       }
     }
   }
@@ -80,10 +79,10 @@ namespace art {
     // Provides a comparison for sorting branches according to the index values in treeMap_.
     // Branches not found are always put at the end (i.e. not found > found).
     if (treeMap_.empty()) return lh < rh;
-    std::string const& lstring = lh.branchDescription_->branchName();
-    std::string const& rstring = rh.branchDescription_->branchName();
-    std::map<std::string, int>::const_iterator lit = treeMap_.find(lstring);
-    std::map<std::string, int>::const_iterator rit = treeMap_.find(rstring);
+    string const& lstring = lh.branchDescription_->branchName();
+    string const& rstring = rh.branchDescription_->branchName();
+    std::map<string, int>::const_iterator lit = treeMap_.find(lstring);
+    std::map<string, int>::const_iterator rit = treeMap_.find(rstring);
     bool lfound = (lit != treeMap_.end());
     bool rfound = (rit != treeMap_.end());
     if (lfound && rfound) {
@@ -186,11 +185,11 @@ namespace art {
           << "Attempt to open output file before input file. "
           << "Please report this to the core framework developers.\n";
       }
-      std::string suffix(".root");
-      std::string::size_type offset = fileName().rfind(suffix);
+      string suffix(".root");
+      string::size_type offset = fileName().rfind(suffix);
       bool ext = (offset == fileName().size() - suffix.size());
       if (!ext) suffix.clear();
-      std::string fileBase(ext ? fileName().substr(0, offset) : fileName());
+      string fileBase(ext ? fileName().substr(0, offset) : fileName());
       std::ostringstream ofilename;
       std::ostringstream lfilename;
       ofilename << fileBase;

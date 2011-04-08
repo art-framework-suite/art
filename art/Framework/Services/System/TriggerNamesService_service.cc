@@ -34,20 +34,16 @@ TriggerNamesService::TriggerNamesService(ParameterSet const & pset)
   , end_pos_     ( )
   , modulenames_ ( )
   , process_name_( pset.get<string>("process_name") )
-  , wantSummary_ ( )
+  , wantSummary_ ( pset.get<bool>("services.scheduler.wantSummary",false) )
 {
   ParameterSet physics = pset.get<ParameterSet>("physics", empty_pset);
   end_names_ = physics.get<vector<string> >("end_paths", empty_svec);
-
-  ParameterSet services = pset.get<ParameterSet>("services", empty_pset);
-  ParameterSet opts = services.get<ParameterSet>("scheduler", empty_pset);
-  wantSummary_ = opts.get<bool>("wantSummary",false);
 
   loadPosMap(trigpos_,trignames_);
   loadPosMap(end_pos_,end_names_);
 
   unsigned int const n(trignames_.size());
-  for(unsigned int i=0;i!=n;++i) {
+  for(unsigned int i = 0; i != n; ++i) {
     modulenames_.push_back(physics.get<vector<string> >(trignames_[i]));
   }
 

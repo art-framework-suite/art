@@ -37,7 +37,7 @@ tnotnull UPS_DIR || echo "$msg2"
 # CET products
 setup -j cetbuildtools v1_10_03
 setup -j messagefacility v1_8_16 -q a2$extraqual
-setup -j fhiclcpp v2_11_13 -q a2$extraqual
+setup -j fhiclcpp v2_12_00 -q a2$extraqual
 setup -j cetlib v0_05_05 -q a2$extraqual
 setup -j cpp0x v1_01_04 -q a2$extraqual 
 # other external products

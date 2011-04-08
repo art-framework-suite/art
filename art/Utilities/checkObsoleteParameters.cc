@@ -18,7 +18,7 @@ std::string
                          , std::string         const & old_name
                          )
 {
-  std::vector<std::string> names = pset.get_keys();
+  std::vector<std::string> const & names = pset.get_keys();
   bool has_new = std::find(names.begin(), names.end(), new_name) != names.end();
   bool has_old = std::find(names.begin(), names.end(), old_name) != names.end();
 

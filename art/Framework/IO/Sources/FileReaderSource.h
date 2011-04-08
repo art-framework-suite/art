@@ -65,7 +65,7 @@
 
 // ----------------------------------------------------------------------
 
-namespace art 
+namespace art
 {
 
   template <class T>
@@ -185,11 +185,11 @@ namespace art
     haveEventLimit_(false)
   {
     int64_t maxSubRuns_par = p.get<int64_t>("maxSubRuns", -1);
-    int64_t maxEvents_par = p.get<int64_t>("maxEvents", -1);
     if (maxSubRuns_par > -1) {
       remainingSubRuns_ = maxSubRuns_par;
       haveSRLimit_ = true;
     }
+    int64_t maxEvents_par = p.get<int64_t>("maxEvents", -1);
     if (maxEvents_par > -1) {
       remainingEvents_ = maxEvents_par;
       haveEventLimit_ = true;
@@ -341,9 +341,9 @@ namespace art
     RunPrincipal* newR = 0;
     SubRunPrincipal* newSR = 0;
     EventPrincipal* newE = 0;
-    bool result = detail_.readNext(cachedRP_.get(), 
-                                   cachedSRP_.get(), 
-                                   newR, newSR, newE);    
+    bool result = detail_.readNext(cachedRP_.get(),
+                                   cachedSRP_.get(),
+                                   newR, newSR, newE);
     throwIfInsane_(result, newR, newSR, newE);
 
     if (result)
@@ -357,11 +357,11 @@ namespace art
         if (newSR) cachedSRP_.reset(newSR);
         cachedE_.reset(newE);
 
-        if (newR) 
+        if (newR)
           state_ = input::IsRun;
         else if (newSR)
           state_ = input::IsSubRun;
-        else if (cachedE_.get()) 
+        else if (cachedE_.get())
           state_ = input::IsEvent;
       }
 
@@ -421,7 +421,7 @@ namespace art
             state_ = input::IsEvent;
             pendingEvent_ = false;
           }
-        else 
+        else
           readNextAndRefuseEvent_();
         break;
 
@@ -448,8 +448,8 @@ namespace art
   FileReaderSource<T>::readNextAndRequireRun_()
   {
     if (readNext_())
-      { 
-        if (state_ != input::IsRun) 
+      {
+        if (state_ != input::IsRun)
           throw Exception(errors::DataCorruption)
             << "Input file '"
             << *currentFile_
@@ -461,15 +461,15 @@ namespace art
       {
         checkForNextFile_();
       }
-  }    
+  }
 
   template <class T>
   void
   FileReaderSource<T>::readNextAndRefuseEvent_()
   {
     if (readNext_())
-      { 
-        if (state_ == input::IsEvent) 
+      {
+        if (state_ == input::IsEvent)
           throw Exception(errors::DataCorruption)
             << "Input file '"
             << *currentFile_
