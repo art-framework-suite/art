@@ -76,7 +76,11 @@ namespace art
 					   InputSourceDescription const&);
 
     virtual ~DecrepitRelicInputSourceImplementation() = 0;
-    input::ItemType nextItemType();
+
+    // Note: this virtual function is implemented here. It is overridden
+    // in RootInput, but may still be called under normal circumstances
+    // by the overriding function.
+    virtual input::ItemType nextItemType();
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null auto_ptr.
@@ -209,7 +213,6 @@ namespace art
     virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
     virtual boost::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);

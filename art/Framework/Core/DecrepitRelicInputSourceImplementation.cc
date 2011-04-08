@@ -311,20 +311,10 @@ namespace art {
 
   std::auto_ptr<EventPrincipal>
   DecrepitRelicInputSourceImplementation::readEvent(EventID const& eventID) {
-    std::auto_ptr<EventPrincipal> result(0);
-
-    if (!limitReached()) {
-      preRead();
-      result = readIt(eventID);
-      if (result.get() != 0) {
-        Event event(*result, moduleDescription());
-        postRead(event);
-        if (remainingEvents_ > 0) --remainingEvents_;
-        ++readCount_;
-        issueReports(result->id());
-      }
-    }
-    return result;
+    throw art::Exception(art::errors::LogicError)
+      << "DecrepitRelicInputSourceImplementation::readIt()\n"
+      << "Random access is not implemented for this type of Input Source\n"
+      << "Contact a Framework Developer\n";
   }
 
   void
@@ -342,14 +332,6 @@ namespace art {
       << suffix(readCount_) << " record. " << eventID
       << " at " << ts;
     // At some point we may want to initiate checkpointing here
-  }
-
-  std::auto_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readIt(EventID const&) {
-    throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::readIt()\n"
-      << "Random access is not implemented for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
   }
 
   void
