@@ -54,13 +54,8 @@ namespace art {
     setRun_(pset.get<unsigned int>("setRunNumber", 0U)),
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
-    randomAccess_(false),
     duplicateChecker_(),
     dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)) {
-
-//     startAtRun_(pset.get<unsigned int>("firstRun", 1U)),
-//     startAtSubRun_(pset.get<unsigned int>("firstSubRun", 1U)),
-//     startAtEvent_(pset.get<unsigned int>("firstEvent", 1U)),
 
     RunNumber_t firstRun;
     bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
@@ -70,11 +65,11 @@ namespace art {
     bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
     RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstRun();
     SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
-       SubRunID::firstSubRun(firstRunID);
+      SubRunID::firstSubRun(firstRunID);
     origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
                                           firstSubRunID.subRun(),
                                           firstEvent):
-       EventID::firstEvent(firstSubRunID);
+      EventID::firstEvent(firstSubRunID);
 
     if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && (haveFirstEvent || !eventsToProcess_.empty())) {
@@ -110,6 +105,41 @@ namespace art {
     }
   }
 
+  EventID RootInputFileSequence::seekToEvent(EventID const &eID, bool exact) {
+    // Attempt to find event in currently open input file.
+    bool found = rootFile_->setEntryAtEvent(eID, true);
+    typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+    if (!found) {
+      if (fileIndexes_.size() == 1) return EventID(); // Give up now.
+      // Look for event in files previously opened without reopening unnecessary files.
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); (!found) && it != itEnd; ++it) {
+        if (*it && (*it)->containsEvent(eID, exact)) {
+          // We found it. Close the currently open file, and open the correct one.
+          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+          initFile(false);
+          // Now get the event from the correct file.
+          found = rootFile_->setEntryAtEvent(eID, exact);
+          assert (found);
+        }
+      }
+    }
+    if (!found) { // Look for event in files not yet opened.
+      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); (!found) && it != itEnd; ++it) {
+        if (!*it) {
+          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
+          initFile(false);
+          found = rootFile_->setEntryAtEvent(eID, exact);
+        }
+      }
+    }
+    return (found)?rootFile_->eventIDForFileIndexPosition():EventID();
+  }
+
+  EventID RootInputFileSequence::seekToEvent(off_t offset, bool) {
+    skip(offset);
+    return rootFile_->eventIDForFileIndexPosition();
+  }
+
   vector<FileCatalogItem> const&
   RootInputFileSequence::fileCatalogItems() const {
     return catalog_.fileCatalogItems();
@@ -141,7 +171,7 @@ namespace art {
 
   void RootInputFileSequence::closeFile_() {
     if (rootFile_) {
-    // Account for events skipped in the file.
+      // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
       {
         rootFile_->close(primary());
@@ -163,23 +193,23 @@ namespace art {
     catch (cet::exception e) {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) << e.explain_self() << "\n" <<
-           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+          "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }
     if (filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootInputFileSharedPtr(new RootInputFile(fileIter_->fileName(), catalog_.url(),
-          processConfiguration(), fileIter_->logicalFileName(), filePtr,
-          origEventID_, eventsToSkip_, whichSubRunsToSkip_,
-          remainingEvents(), remainingSubRuns(), treeCacheSize_, treeMaxVirtualSize_,
-          input_.processingMode(),
-          forcedRunOffset_, eventsToProcess_, noEventSort_,
-          groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
+                                                           processConfiguration(), fileIter_->logicalFileName(), filePtr,
+                                                           origEventID_, eventsToSkip_, whichSubRunsToSkip_,
+                                                           remainingEvents(), remainingSubRuns(), treeCacheSize_, treeMaxVirtualSize_,
+                                                           input_.processingMode(),
+                                                           forcedRunOffset_, eventsToProcess_, noEventSort_,
+                                                           groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) <<
-           "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+          "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       mf::LogWarning("")
         << "Input file: " << fileIter_->fileName()
@@ -207,8 +237,8 @@ namespace art {
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
       string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-                                                            fileIter_->fileName(),
-                                                            matchMode_);
+                                                       fileIter_->fileName(),
+                                                       matchMode_);
       if (!mergeInfo.empty()) {
         throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
@@ -232,8 +262,8 @@ namespace art {
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
       string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-                                                            fileIter_->fileName(),
-                                                            matchMode_);
+                                                       fileIter_->fileName(),
+                                                       matchMode_);
       if (!mergeInfo.empty()) {
         throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
@@ -272,11 +302,15 @@ namespace art {
 
   auto_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_() {
-    return rootFile_->readEvent(primarySequence_ ? productRegistry() : rootFile_->productRegistry());
+    rootFileForLastReadEvent_ = rootFile_;
+    return rootFile_->readEvent(primarySequence_ ?
+                                productRegistry() :
+                                rootFile_->productRegistry());
   }
 
   auto_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
+    rootFileForLastReadEvent_ = rootFile_;
     return rootFile_->readCurrentEvent(primarySequence_ ?
                                        productRegistry() :
                                        rootFile_->productRegistry());
@@ -284,7 +318,6 @@ namespace art {
 
   auto_ptr<EventPrincipal>
   RootInputFileSequence::readIt(EventID const& id, bool exact) {
-    randomAccess_ = true;
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id, exact);
     if (!found) {
@@ -302,6 +335,7 @@ namespace art {
           // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(id, exact);
           assert (found);
+          rootFileForLastReadEvent_ = rootFile_;
           auto_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1);
           return ep;
@@ -314,6 +348,7 @@ namespace art {
           initFile(false);
           found = rootFile_->setEntryAtEvent(id, exact);
           if (found) {
+            rootFileForLastReadEvent_ = rootFile_;
             auto_ptr<EventPrincipal> ep = readCurrentEvent();
             skip(1);
             return ep;
@@ -323,6 +358,7 @@ namespace art {
       // Not found
       return auto_ptr<EventPrincipal>(0);
     }
+    rootFileForLastReadEvent_ = rootFile_;
     auto_ptr<EventPrincipal> eptr = readCurrentEvent();
     skip(1);
     return eptr;
@@ -412,12 +448,14 @@ namespace art {
       return input::IsFile;
     }
     if (rootFile_) {
+#ifdef OLD_CODE
       if (randomAccess_) {
         skip(0);
         if (fileIter_== fileIterEnd_) {
           return input::IsStop;
         }
       }
+#endif
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return input::IsEvent;
@@ -437,7 +475,6 @@ namespace art {
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
-    randomAccess_ = false;
     firstFile_ = true;
     fileIter_ = fileIterBegin_;
     if (duplicateChecker_.get() != 0) duplicateChecker_->rewind();
@@ -452,7 +489,6 @@ namespace art {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   RootInputFileSequence::skip(int offset) {
-    randomAccess_ = true;
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
       if (offset > 0 && !nextFile()) return;

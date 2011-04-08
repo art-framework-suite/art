@@ -16,6 +16,7 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include <cassert>
+#include <memory>
 #include <set>
 
 using namespace art;
@@ -103,7 +104,7 @@ RootInput::RootInput( fhicl::ParameterSet const & pset
                                                      , false
                         )                            )
 , branchIDsToReplace_   ( )
-{
+, accessState_() {
   if (secondaryFileSequence_) {
     boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
     ProductRegistry::ProductList const & secondary = secondaryFileSequence_->fileProductRegistry().productList();
@@ -132,6 +133,31 @@ RootInput::RootInput( fhicl::ParameterSet const & pset
 
 RootInput::~RootInput()
 { }
+
+RootInput::AccessState::AccessState() :
+      state_(SEQUENTIAL),
+      lastReadEventID_(),
+      rootFileForLastReadEvent_(),
+      wantedEventID_()
+    { }
+
+void RootInput::AccessState::setState(State state) {
+  state_ = state;
+}
+
+void RootInput::AccessState::setLastReadEventID(EventID const &eid) {
+  lastReadEventID_ = eid;
+}
+
+void RootInput::AccessState::setWantedEventID(EventID const &eid) {
+  wantedEventID_ = eid;
+}
+
+void
+RootInput::AccessState::
+setRootFileForLastReadEvent(boost::shared_ptr<RootInputFile> const &ptr) {
+  rootFileForLastReadEvent_ = ptr; 
+}
 
 void
   RootInput::endJob()
@@ -197,9 +223,143 @@ boost::shared_ptr<SubRunPrincipal>
   return primaryFileSequence_->readSubRun_();
 }  // readSubRun_()
 
+input::ItemType
+RootInput::nextItemType() {
+  switch (accessState_.state()) {
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::nextItemType();
+  case AccessState::SEEKING_FILE:
+    return input::IsFile;
+  case AccessState::SEEKING_RUN:
+    return input::IsRun;
+  case AccessState::SEEKING_SUBRUN:
+    return input::IsSubRun;
+  case AccessState::SEEKING_EVENT:
+    return input::IsEvent;
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::nextItemType encountered an unknown AccessState.\n";
+  }
+}
+
+std::auto_ptr<EventPrincipal>
+  RootInput::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
+{
+  switch (accessState_.state()) {
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readEvent(srp);
+  case AccessState::SEEKING_EVENT:
+    accessState_.resetState();
+    {
+      std::auto_ptr<EventPrincipal> result;
+      if (secondaryFileSequence_) {
+        std::auto_ptr<EventPrincipal> primaryPrincipal =
+          primaryFileSequence_->readIt(accessState_.wantedEventID(), true);
+        std::auto_ptr<EventPrincipal> secondaryPrincipal =
+          secondaryFileSequence_->readIt(accessState_.wantedEventID(), true);
+        if (secondaryPrincipal.get() != 0) {
+          checkConsistency(*primaryPrincipal, *secondaryPrincipal);
+          primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
+        } else {
+          throw art::Exception(errors::MismatchedInputFiles, "RootInput::readIt") <<
+            primaryPrincipal->id() << " is not found in the secondary input files\n";
+        }
+        result = primaryPrincipal;
+      }
+      if (!result.get()) result = primaryFileSequence_->readIt(accessState_.wantedEventID(),true);
+      if (result.get()) {
+        accessState_.setLastReadEventID(result->id());
+        accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
+      }
+      return result;
+    }
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readEvent encountered an unknown or inappropriate AccessState.\n";
+  }
+}
+
+boost::shared_ptr<SubRunPrincipal>
+  RootInput::readSubRun(boost::shared_ptr<RunPrincipal> rp)
+{
+  switch (accessState_.state()) {
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readSubRun(rp);
+  case AccessState::SEEKING_SUBRUN:
+    accessState_.setState(AccessState::SEEKING_EVENT);
+    if (secondaryFileSequence_ && !branchIDsToReplace_[InSubRun].empty()) {
+      boost::shared_ptr<SubRunPrincipal> primaryPrincipal =
+        primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID());
+        boost::shared_ptr<SubRunPrincipal> secondaryPrincipal =
+          secondaryFileSequence_->readIt(primaryPrincipal->id());
+      if (secondaryPrincipal.get() != 0) {
+        checkConsistency(*primaryPrincipal, *secondaryPrincipal);
+        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InSubRun]);
+      } else {
+        throw art::Exception(errors::MismatchedInputFiles, "RootInput::readSubRun_")
+          << " Run " << primaryPrincipal->run()
+          << " SubRun " << primaryPrincipal->subRun()
+          << " is not found in the secondary input files\n";
+      }
+      setSubRunPrincipal(primaryPrincipal);
+      return primaryPrincipal;
+    }
+    setSubRunPrincipal(primaryFileSequence_->readSubRun_());
+    return subRunPrincipal();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readSubRun encountered an unknown or inappropriate AccessState.\n";
+  }
+}
+
+boost::shared_ptr<RunPrincipal>
+  RootInput::readRun()
+{
+  switch (accessState_.state()) {
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readRun();
+  case AccessState::SEEKING_RUN:
+    accessState_.setState(AccessState::SEEKING_SUBRUN);
+    if (secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
+      boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readIt(accessState_.wantedEventID().runID());
+      boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readIt(primaryPrincipal->id());
+      if (secondaryPrincipal.get() != 0) {
+        checkConsistency(*primaryPrincipal, *secondaryPrincipal);
+        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
+      } else {
+        throw art::Exception(errors::MismatchedInputFiles, "RootInput::readRun_")
+          << " Run " << primaryPrincipal->run()
+          << " is not found in the secondary input files\n";
+      }
+      setRunPrincipal(primaryPrincipal);
+      return primaryPrincipal;
+    }
+    setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
+    return runPrincipal();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readRun encountered an unknown or inappropriate AccessState.\n";
+  }
+}
+
+boost::shared_ptr<FileBlock>
+RootInput::readFile() {
+  switch (accessState_.state()) {
+  case AccessState::SEQUENTIAL:
+    return DecrepitRelicInputSourceImplementation::readFile();
+  case AccessState::SEEKING_FILE:
+    accessState_.setState(AccessState::SEEKING_RUN);
+    return readFile_();
+  default:
+    throw Exception(errors::LogicError)
+      << "RootInputSource::readFile encountered an unknown or inappropriate AccessState.\n";
+  }  
+}
+
 std::auto_ptr<EventPrincipal>
   RootInput::readEvent_( )
 {
+  std::auto_ptr<EventPrincipal> result;
   if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
     std::auto_ptr<EventPrincipal> secondaryPrincipal =
@@ -211,14 +371,21 @@ std::auto_ptr<EventPrincipal>
       throw art::Exception(errors::MismatchedInputFiles, "RootInput::readEvent_") <<
         primaryPrincipal->id() << " is not found in the secondary input files\n";
     }
-    return primaryPrincipal;
+    result = primaryPrincipal;
   }
-  return primaryFileSequence_->readEvent_();
+  if (!result.get()) result = primaryFileSequence_->readEvent_();
+  if (result.get()) {
+    accessState_.setLastReadEventID(result->id());
+    accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
+  }
+  return result;
 }  // readEvent_()
 
 std::auto_ptr<EventPrincipal>
   RootInput::readIt( EventID const & id )
 {
+  assert("SHOULD NOT BE CALLED" == 0);
+  std::auto_ptr<EventPrincipal> result;
   if (secondaryFileSequence_) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
     std::auto_ptr<EventPrincipal> secondaryPrincipal =
@@ -230,9 +397,13 @@ std::auto_ptr<EventPrincipal>
       throw art::Exception(errors::MismatchedInputFiles, "RootInput::readIt") <<
         primaryPrincipal->id() << " is not found in the secondary input files\n";
     }
-    return primaryPrincipal;
+    result = primaryPrincipal;
   }
-  return primaryFileSequence_->readIt(id);
+  if (!result.get()) result = primaryFileSequence_->readIt(id);
+  if (result.get()) {
+    accessState_.setLastReadEventID(result->id());
+    accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
+  }
 }  // readIt()
 
 input::ItemType
@@ -245,6 +416,7 @@ input::ItemType
 void
   RootInput::rewind_()
 {
+  accessState_.resetState();
   primaryFileSequence_->rewind_();
 }
 

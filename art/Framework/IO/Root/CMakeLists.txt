@@ -23,4 +23,21 @@ install(TARGETS art_Framework_IO_Root art_Framework_IO_RootVersion DESTINATION $
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Sources )
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
 
+install(FILES
+  BranchMapperWithReader.h
+  DuplicateChecker.h
+  GetFileFormatEra.h
+  GetFileFormatVersion.h
+  Inputfwd.h
+  RootDelayedReader.h
+  RootInput.h
+  RootInputFile.h
+  RootInputFileSequence.h
+  RootOutput.h
+  RootOutputFile.h
+  RootOutputTree.h
+  RootTree.h
+  DESTINATION  ${product}/${version}/include/art/Framework/IO/Root
+)
+
 install_source()

@@ -119,6 +119,7 @@ namespace art {
     boost::shared_ptr<FileIndex> fileIndexSharedPtr() const {
       return fileIndexSharedPtr_;
     }
+    EventID eventIDForFileIndexPosition() const;
 
   private:
     bool setIfFastClonable(int remainingEvents, int remainingSubRuns) const;

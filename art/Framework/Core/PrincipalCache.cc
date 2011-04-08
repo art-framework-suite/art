@@ -145,9 +145,12 @@ namespace art {
   bool PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
     RunNumber_t run = rp->run();
     RunIterator iter = runPrincipals_.find(run);
+    // For random access input, we require that the current run
+    // principal be the last inserted regardless of whether it has been
+    // seen before.
+    currentRunPrincipal_ = rp;
     if (iter == runPrincipals_.end()) {
       runPrincipals_[run] = rp;
-      currentRunPrincipal_ = rp;
       return true;
     }
 
@@ -162,9 +165,12 @@ namespace art {
     SubRunNumber_t subRun = srp->subRun();
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
+    // For random access input, we require that the current run
+    // principal be the last inserted regardless of whether it has been
+    // seen before.
+    currentSubRunPrincipal_ = srp;
     if (iter == subRunPrincipals_.end()) {
       subRunPrincipals_[key] = srp;
-      currentSubRunPrincipal_ = srp;
       return true;
     }
 

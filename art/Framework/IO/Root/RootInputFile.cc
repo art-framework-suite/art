@@ -297,6 +297,13 @@ namespace art {
     parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(), 0);
   }
 
+  EventID RootInputFile::eventIDForFileIndexPosition() const {
+    return (fileIndexIter_ == fileIndexEnd_)?
+      EventID():
+      fileIndexIter_->eventID_;
+  }
+
+
   bool
   RootInputFile::setIfFastClonable(int remainingEvents, int remainingSubRuns) const {
     if (!fileFormatVersion_.fastCopyPossible()) return false;

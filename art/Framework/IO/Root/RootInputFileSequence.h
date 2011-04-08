@@ -61,6 +61,15 @@ namespace art {
     void skip(int offset);
     void rewind_();
     ProductRegistry const& fileProductRegistry() const;
+    EventID seekToEvent(EventID const &eID, bool exact = false);
+    EventID seekToEvent(off_t offset, bool exact = false);
+    RootInputFileSharedPtr rootFileForLastReadEvent() const {
+      return rootFileForLastReadEvent_;
+    }
+    RootInputFileSharedPtr rootFile() const {
+      return rootFile_;
+    }
+
   private:
     void initFile(bool skipBadFiles);
     bool nextFile();
@@ -102,9 +111,9 @@ namespace art {
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
     bool primarySequence_;
-    bool randomAccess_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
+    RootInputFileSharedPtr rootFileForLastReadEvent_;
   };  // RootInputFileSequence
 
 }  // art
