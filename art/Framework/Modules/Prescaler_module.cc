@@ -38,7 +38,8 @@ private:
 // ======================================================================
 
 Prescaler::Prescaler( fhicl::ParameterSet const & ps )
-  : count_ ( 0 )
+  : EDFilter( )
+  , count_ ( 0 )
   , n_     ( ps.get<int>("prescaleFactor") )
   , offset_( ps.get<int>("prescaleOffset") )
 { }
