@@ -35,11 +35,11 @@ tnotnull UPS_DIR || echo "$msg2"
 # use setup -j to avoid pulling dependencies
 
 # CET products
-setup -j cetbuildtools v1_10_03
-setup -j messagefacility v1_8_16 -q a2$extraqual
-setup -j fhiclcpp v2_12_00 -q a2$extraqual
-setup -j cetlib v0_05_05 -q a2$extraqual
-setup -j cpp0x v1_01_04 -q a2$extraqual 
+setup -j cetbuildtools v1_11_01
+setup -j messagefacility v1_8_17 -q a2$extraqual
+setup -j fhiclcpp v2_12_01 -q a2$extraqual
+setup -j cetlib v0_06_00 -q a2$extraqual
+setup -j cpp0x v1_01_05 -q a2$extraqual 
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
 setup -j root v5_28_00a -q gcc45
@@ -71,10 +71,11 @@ test -z "$db" && echo "$msg" || vecho_ "db=$db"
 test -n "$db" && setenv ART_SOURCE `dirname $db`
 #echo This script lives in $db
 
-tnotnull ART_BUILD && set_ fwdir=$ART_BUILD || set_ fwdir=`pwd`
-test -n "$fwdir" && setenv ART_BUILD $fwdir
-test -d "$fwdir/lib" || mkdir -p $fwdir/lib
-echo The workng build directory is $fwdir
+tnotnull ART_BUILD && set_ thisdir=$ART_BUILD || set_ thisdir=`pwd`
+test -n "$thisdir" && setenv ART_BUILD $thisdir
+test -d "$thisdir/lib" || mkdir -p $thisdir/lib
+test -d "$thisdir/bin" || mkdir -p $thisdir/bin
+echo The working build directory is $thisdir
 
 tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
 tnotnull ART_BUILD && setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
@@ -89,8 +90,8 @@ tnotnull FHICL_FILE_PATH || setenv FHICL_FILE_PATH '.'
 echo
 echo ART_SOURCE=$ART_SOURCE
 echo ART_BUILD=$ART_BUILD
-echo $fwdir/lib has been added to LD_LIBRARY_PATH
-echo $fwdir/bin has been added to PATH
+echo $thisdir/lib has been added to LD_LIBRARY_PATH
+echo $thisdir/bin has been added to PATH
 echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
 echo
@@ -100,5 +101,5 @@ echo FHICL_FILE_PATH is now ${FHICL_FILE_PATH}
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_
-unset ss msg db me fwdir py_ver
+unset ss msg db me thisdir py_ver
 unset set_ setenv unsetenv tnotnull source nullout vecho_
