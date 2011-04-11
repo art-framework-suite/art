@@ -2,14 +2,14 @@
 // ------------------------------------------------------------
 //
 // ToyRawInput is a RawInputSource that pretends to reconstitute several
-// products. It exercises the FileReaderSource template.
+// products. It exercises the ReaderSource template.
 //
 // ------------------------------------------------------------
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/IO/Sources/FileReaderSource.h"
+#include "art/Framework/IO/Sources/ReaderSource.h"
 #include "art/Framework/IO/Sources/put_product_in_principal.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
@@ -36,7 +36,7 @@ namespace arttest
 
   //
   // ToyFile is the sort of class that experimenters who make use of
-  // FileReaderSource must write.
+  // ReaderSource must write.
   //
   class ToyFile
   {
@@ -190,10 +190,10 @@ namespace arttest
   }
 
   //
-  // TowRawInput is an instantiation of the FileReaderSource template.
+  // ToyRawInput is an instantiation of the ReaderSource template.
   //
 
-  typedef art::FileReaderSource<ToyFile> ToyRawInput;
+  typedef art::ReaderSource<ToyFile> ToyRawInput;
 }
 
 DEFINE_ART_INPUT_SOURCE(arttest::ToyRawInput);

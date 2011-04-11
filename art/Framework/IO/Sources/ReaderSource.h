@@ -1,14 +1,14 @@
-#ifndef art_Framework_IO_Sources_FileReaderSource_h
-#define art_Framework_IO_Sources_FileReaderSource_h
+#ifndef art_Framework_IO_Sources_ReaderSource_h
+#define art_Framework_IO_Sources_ReaderSource_h
 
 // ======================================================================
 //
-// The FileReaderSource class template is used to create InputSources which
+// The ReaderSource class template is used to create InputSources which
 // are capable of reading Runs, SubRuns and Events from non-standard
-// input files. Sources instantiated from FileReaderSource are *not* random
+// input files. Sources instantiated from ReaderSource are *not* random
 // access sources.
 //
-// The FileReaderSource class template requires the use of a type T as its
+// The ReaderSource class template requires the use of a type T as its
 // template parameter. The type T must supply the following non-static
 // member functions:
 //
@@ -69,15 +69,15 @@ namespace art
 {
 
   template <class T>
-  class FileReaderSource : public InputSource, private boost::noncopyable
+  class ReaderSource : public InputSource, private boost::noncopyable
   {
   public:
     typedef T ReaderDetail;
 
-    FileReaderSource(fhicl::ParameterSet const& p,
-                     InputSourceDescription const& d);
+    ReaderSource(fhicl::ParameterSet const& p,
+                 InputSourceDescription const& d);
 
-    virtual ~FileReaderSource();
+    virtual ~ReaderSource();
 
     virtual input::ItemType nextItemType();
     virtual RunNumber_t run() const;
@@ -161,7 +161,7 @@ namespace art
   using fhicl::ParameterSet;
 
   template <class T>
-  FileReaderSource<T>::FileReaderSource(ParameterSet const& p,
+  ReaderSource<T>::ReaderSource(ParameterSet const& p,
                                         InputSourceDescription const& d) :
     InputSource(),
     preg_(d.productRegistry_),
@@ -204,12 +204,12 @@ namespace art
   }
 
   template <class T>
-  FileReaderSource<T>::~FileReaderSource()
+  ReaderSource<T>::~ReaderSource()
   { }
 
   template <class T>
   void
-  FileReaderSource<T>::throwDataCorruption_(const char* msg)
+  ReaderSource<T>::throwDataCorruption_(const char* msg)
   {
     throw Exception(errors::DataCorruption) << msg;
   }
@@ -228,7 +228,7 @@ namespace art
 
   template <class T>
   void
-  FileReaderSource<T>::throwIfInsane_(bool result, RunPrincipal* newR,
+  ReaderSource<T>::throwIfInsane_(bool result, RunPrincipal* newR,
                                       SubRunPrincipal* newSR,
                                       EventPrincipal* newE) const
   {
@@ -336,7 +336,7 @@ namespace art
 
   template <class T>
   bool
-  FileReaderSource<T>::readNext_()
+  ReaderSource<T>::readNext_()
   {
     RunPrincipal* newR = 0;
     SubRunPrincipal* newSR = 0;
@@ -370,7 +370,7 @@ namespace art
 
   template <class T>
   void
-  FileReaderSource<T>::checkForNextFile_()
+  ReaderSource<T>::checkForNextFile_()
   {
     if (currentFile_ == end_ || ++currentFile_ == end_) {
       state_ = input::IsStop;
@@ -381,7 +381,7 @@ namespace art
 
   template <class T>
   input::ItemType
-  FileReaderSource<T>::nextItemType()
+  ReaderSource<T>::nextItemType()
   {
     if (remainingEvents_ == 0) state_ = input::IsStop;
     switch (state_)
@@ -445,7 +445,7 @@ namespace art
 
   template <class T>
   void
-  FileReaderSource<T>::readNextAndRequireRun_()
+  ReaderSource<T>::readNextAndRequireRun_()
   {
     if (readNext_())
       {
@@ -465,7 +465,7 @@ namespace art
 
   template <class T>
   void
-  FileReaderSource<T>::readNextAndRefuseEvent_()
+  ReaderSource<T>::readNextAndRefuseEvent_()
   {
     if (readNext_())
       {
@@ -483,10 +483,10 @@ namespace art
 
   template <class T>
   RunNumber_t
-  FileReaderSource<T>::run() const
+  ReaderSource<T>::run() const
   {
     if (!cachedRP_) throw Exception(errors::LogicError)
-      << "Error in FileReaderSource<T>\n"
+      << "Error in ReaderSource<T>\n"
       << "run() called when no RunPrincipal exists\n"
       << "Please report this to the art developers\n";
     return cachedRP_->id().run();
@@ -494,10 +494,10 @@ namespace art
 
   template <class T>
   SubRunNumber_t
-  FileReaderSource<T>::subRun() const
+  ReaderSource<T>::subRun() const
   {
     if (!cachedSRP_) throw Exception(errors::LogicError)
-      << "Error in FileReaderSource<T>\n"
+      << "Error in ReaderSource<T>\n"
       << "subRun() called when no SubRunPrincipal exists\n"
       << "Please report this to the art developers\n";
     return cachedSRP_->id().subRun();
@@ -505,7 +505,7 @@ namespace art
 
   template <class T>
   boost::shared_ptr<FileBlock>
-  FileReaderSource<T>::readFile()
+  ReaderSource<T>::readFile()
   {
     FileBlock* newF = 0;
     detail_.readFile(*currentFile_, newF);
@@ -519,7 +519,7 @@ namespace art
 
   template <class T>
   void
-  FileReaderSource<T>::closeFile()
+  ReaderSource<T>::closeFile()
   {
     detail_.closeCurrentFile();
     cachedRP_.reset();
@@ -528,10 +528,10 @@ namespace art
 
   template <class T>
   boost::shared_ptr<RunPrincipal>
-  FileReaderSource<T>::readRun()
+  ReaderSource<T>::readRun()
   {
     if (!cachedRP_) throw Exception(errors::LogicError)
-      << "Error in FileReaderSource<T>\n"
+      << "Error in ReaderSource<T>\n"
       << "readRun() called when no RunPrincipal exists\n"
       << "Please report this to the art developers\n";
     return cachedRP_;
@@ -539,10 +539,10 @@ namespace art
 
   template <class T>
   boost::shared_ptr<SubRunPrincipal>
-  FileReaderSource<T>::readSubRun(boost::shared_ptr<RunPrincipal> rp)
+  ReaderSource<T>::readSubRun(boost::shared_ptr<RunPrincipal> rp)
   {
     if (!cachedSRP_) throw Exception(errors::LogicError)
-      << "Error in FileReaderSource<T>\n"
+      << "Error in ReaderSource<T>\n"
       << "readSubRun() called when no SubRunPrincipal exists\n"
       << "Please report this to the art developers\n";
     if (subRunIsNew_)
@@ -555,7 +555,7 @@ namespace art
 
   template <class T>
   std::auto_ptr<EventPrincipal>
-  FileReaderSource<T>::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
+  ReaderSource<T>::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
   {
     if (haveEventLimit_) --remainingEvents_;
     return cachedE_;
@@ -563,7 +563,7 @@ namespace art
 
   template <class T>
   void
-  FileReaderSource<T>::finishProductRegistration_(InputSourceDescription
+  ReaderSource<T>::finishProductRegistration_(InputSourceDescription
                                                   const& d)
   {
     ModuleDescription md;
@@ -585,7 +585,7 @@ namespace art
   }
 }
 
-#endif /* art_Framework_IO_Sources_FileReaderSource_h */
+#endif /* art_Framework_IO_Sources_ReaderSource_h */
 
 
 // Local Variables:

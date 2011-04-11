@@ -9,7 +9,7 @@ target_link_libraries (art_Framework_IO_Sources art_Framework_IO_Catalog )
 
 install ( TARGETS art_Framework_IO_Sources DESTINATION ${flavorqual_dir}/lib )
 install(FILES EDInputSource.h
-  FileReaderSource.h
+  ReaderSource.h
   put_product_in_principal.h
   DESTINATION  ${product}/${version}/include/art/Framework/IO/Sources )
 
