@@ -51,7 +51,7 @@ namespace art {
     }
   }
 
-  void setRefCoreStreamer(bool oldFormat) {
+  void setRefCoreStreamer() {
     {
       TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
       RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
@@ -63,7 +63,7 @@ namespace art {
     }
   }
 
-  void setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat) {
+  void setRefCoreStreamer(EDProductGetter const* ep) {
     if (ep != 0) {
         TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
         RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
