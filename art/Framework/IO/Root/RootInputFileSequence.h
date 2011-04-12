@@ -25,10 +25,6 @@
 
 // ----------------------------------------------------------------------
 
-namespace CLHEP {
-  class RandFlat;
-}
-
 namespace art {
 
   class RootInput;
@@ -95,7 +91,6 @@ namespace art {
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootInputFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
-    CLHEP::RandFlat * flatDistribution_;
     std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
 
     int eventsRemainingInFile_;

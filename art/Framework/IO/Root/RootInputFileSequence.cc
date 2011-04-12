@@ -9,6 +9,7 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
+#include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/RootInput.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
@@ -39,7 +40,6 @@ namespace art {
     fileIter_(fileIterEnd_),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
-    flatDistribution_(0),
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
     origEventID_(),
