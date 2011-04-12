@@ -1,6 +1,6 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 
-#include "art/Persistency/Common/RefCoreStreamer.h"
+#include "art/Persistency/Common/RefCoreTransientStreamer.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 
 #include "TBranch.h"
@@ -35,13 +35,13 @@ namespace art {
       assert(nextReader_);
       return nextReader_->getProduct(k, ep);
     }
-    setRefCoreStreamer(ep);
+    configureRefCoreTransientStreamer(ep);
     TClass *cp = gROOT->GetClass(branchInfo.branchDescription_.wrappedCintName().c_str());
     std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
     EDProduct *pp = p.get();
     br->SetAddress(&pp);
     input::getEntry(br, entryNumber_);
-    setRefCoreStreamer();
+    configureRefCoreTransientStreamer();
     return p;
   }
 

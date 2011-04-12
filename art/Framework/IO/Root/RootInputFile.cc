@@ -13,7 +13,6 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
