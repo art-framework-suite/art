@@ -26,29 +26,29 @@ namespace art {
 }
 
 static void
-  checkHistoryConsistency( Principal const & primary
+checkHistoryConsistency( Principal const & primary
                          , Principal const & secondary
                          )
- {
+{
   ProcessHistory const & ph1 = primary.processHistory();
   ProcessHistory const & ph2 = secondary.processHistory();
   if (ph1 != ph2 && !isAncestor(ph2, ph1)) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "RootInput::checkConsistency"
-                        )
+                          , "RootInput::checkConsistency"
+                          )
       << "The secondary file is not an ancestor of the primary file\n";
   }
 }  // checkHistoryConsistency()
 
 static void
-  checkConsistency( EventPrincipal const & primary
+checkConsistency( EventPrincipal const & primary
                   , EventPrincipal const & secondary
                   )
 {
   if (!isSameEvent(primary, secondary)) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "RootInput::checkConsistency"
-                        )
+                          , "RootInput::checkConsistency"
+                          )
       << primary.id()
       << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
   }
@@ -56,14 +56,14 @@ static void
 }  // checkConsistency()
 
 static void
-  checkConsistency( SubRunPrincipal const & primary
+checkConsistency( SubRunPrincipal const & primary
                   , SubRunPrincipal const & secondary
                   )
 {
   if (primary.id() != secondary.id()) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "RootInput::checkConsistency"
-                        )
+                          , "RootInput::checkConsistency"
+                          )
       << primary.id()
       << " has inconsistent SubRunAuxiliary data in the primary and secondary file\n";
   }
@@ -71,14 +71,14 @@ static void
 }  // checkConsistency()
 
 static void
-  checkConsistency( RunPrincipal const & primary
+checkConsistency( RunPrincipal const & primary
                   , RunPrincipal const & secondary
                   )
 {
   if (primary.id() != secondary.id()) {
     throw art::Exception( errors::MismatchedInputFiles
-                        , "RootInput::checkConsistency"
-                        )
+                          , "RootInput::checkConsistency"
+                          )
       << primary.id()
       << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
   }
@@ -87,24 +87,23 @@ static void
 
 // ----------------------------------------------------------------------
 
-RootInput::RootInput( fhicl::ParameterSet const & pset
-                      , InputSourceDescription const & desc
-                      )
-: EDInputSource     ( pset, desc )
-, primaryFileSequence_  ( new RootInputFileSequence( pset
-                                                   , *this
-                                                   , catalog()
-                                                   , primary()
-                        )                          )
-, secondaryFileSequence_( catalog(1).empty()
-                          ? 0
-                          : new RootInputFileSequence( pset
-                                                     , *this
-                                                     , catalog(1)
-                                                     , false
-                        )                            )
-, branchIDsToReplace_   ( )
-, accessState_() {
+RootInput::RootInput( fhicl::ParameterSet const & pset,
+                      InputSourceDescription const & desc)
+  : EDInputSource     ( pset, desc )
+  , primaryFileSequence_  ( new RootInputFileSequence( pset
+                                                       , *this
+                                                       , catalog()
+                                                       , true
+                                                       ))
+  , secondaryFileSequence_( catalog(1).empty()
+                            ? 0
+                            : new RootInputFileSequence( pset
+                                                         , *this
+                                                         , catalog(1)
+                                                         , false
+                                                         ))
+  , branchIDsToReplace_   ( )
+  , accessState_() {
   if (secondaryFileSequence_) {
     boost::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
     ProductRegistry::ProductList const & secondary = secondaryFileSequence_->fileProductRegistry().productList();
@@ -135,11 +134,11 @@ RootInput::~RootInput()
 { }
 
 RootInput::AccessState::AccessState() :
-      state_(SEQUENTIAL),
-      lastReadEventID_(),
-      rootFileForLastReadEvent_(),
-      wantedEventID_()
-    { }
+  state_(SEQUENTIAL),
+  lastReadEventID_(),
+  rootFileForLastReadEvent_(),
+  wantedEventID_()
+{ }
 
 void RootInput::AccessState::setState(State state) {
   state_ = state;
@@ -160,7 +159,7 @@ setRootFileForLastReadEvent(boost::shared_ptr<RootInputFile> const &ptr) {
 }
 
 void
-  RootInput::endJob()
+RootInput::endJob()
 {
   if (secondaryFileSequence_)
     secondaryFileSequence_->endJob();
@@ -168,24 +167,24 @@ void
 }
 
 boost::shared_ptr<FileBlock>
-  RootInput::readFile_( )
+RootInput::readFile_( )
 {
   if (secondaryFileSequence_) {
-      boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
-      fb->setNotFastCopyable();
-      return fb;
+    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
+    fb->setNotFastCopyable();
+    return fb;
   }
   return primaryFileSequence_->readFile_();
 }
 
 void
-  RootInput::closeFile_( )
+RootInput::closeFile_( )
 {
   primaryFileSequence_->closeFile_();
 }
 
 boost::shared_ptr<RunPrincipal>
-  RootInput::readRun_( )
+RootInput::readRun_( )
 {
   if (secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
     boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_();
@@ -204,7 +203,7 @@ boost::shared_ptr<RunPrincipal>
 }  // readRun_()
 
 boost::shared_ptr<SubRunPrincipal>
-  RootInput::readSubRun_( )
+RootInput::readSubRun_( )
 {
   if (secondaryFileSequence_ && !branchIDsToReplace_[InSubRun].empty()) {
     boost::shared_ptr<SubRunPrincipal> primaryPrincipal = primaryFileSequence_->readSubRun_();
@@ -243,7 +242,7 @@ RootInput::nextItemType() {
 }
 
 std::auto_ptr<EventPrincipal>
-  RootInput::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
+RootInput::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -280,7 +279,7 @@ std::auto_ptr<EventPrincipal>
 }
 
 boost::shared_ptr<SubRunPrincipal>
-  RootInput::readSubRun(boost::shared_ptr<RunPrincipal> rp)
+RootInput::readSubRun(boost::shared_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -290,8 +289,8 @@ boost::shared_ptr<SubRunPrincipal>
     if (secondaryFileSequence_ && !branchIDsToReplace_[InSubRun].empty()) {
       boost::shared_ptr<SubRunPrincipal> primaryPrincipal =
         primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID());
-        boost::shared_ptr<SubRunPrincipal> secondaryPrincipal =
-          secondaryFileSequence_->readIt(primaryPrincipal->id());
+      boost::shared_ptr<SubRunPrincipal> secondaryPrincipal =
+        secondaryFileSequence_->readIt(primaryPrincipal->id());
       if (secondaryPrincipal.get() != 0) {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InSubRun]);
@@ -313,7 +312,7 @@ boost::shared_ptr<SubRunPrincipal>
 }
 
 boost::shared_ptr<RunPrincipal>
-  RootInput::readRun()
+RootInput::readRun()
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -357,13 +356,13 @@ RootInput::readFile() {
 }
 
 std::auto_ptr<EventPrincipal>
-  RootInput::readEvent_( )
+RootInput::readEvent_( )
 {
   std::auto_ptr<EventPrincipal> result;
   if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readEvent_();
     std::auto_ptr<EventPrincipal> secondaryPrincipal =
-       secondaryFileSequence_->readIt(primaryPrincipal->id(), true);
+      secondaryFileSequence_->readIt(primaryPrincipal->id(), true);
     if (secondaryPrincipal.get() != 0) {
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
@@ -382,14 +381,14 @@ std::auto_ptr<EventPrincipal>
 }  // readEvent_()
 
 std::auto_ptr<EventPrincipal>
-  RootInput::readIt( EventID const & id )
+RootInput::readIt( EventID const & id )
 {
   assert("SHOULD NOT BE CALLED" == 0);
   std::auto_ptr<EventPrincipal> result;
   if (secondaryFileSequence_) {
     std::auto_ptr<EventPrincipal> primaryPrincipal = primaryFileSequence_->readIt(id);
     std::auto_ptr<EventPrincipal> secondaryPrincipal =
-       secondaryFileSequence_->readIt(id, true);
+      secondaryFileSequence_->readIt(id, true);
     if (secondaryPrincipal.get() != 0) {
       checkConsistency(*primaryPrincipal, *secondaryPrincipal);
       primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
@@ -407,14 +406,14 @@ std::auto_ptr<EventPrincipal>
 }  // readIt()
 
 input::ItemType
-  RootInput::getNextItemType()
+RootInput::getNextItemType()
 {
   return primaryFileSequence_->getNextItemType();
 }
 
 // Rewind to before the first event that was read.
 void
-  RootInput::rewind_()
+RootInput::rewind_()
 {
   accessState_.resetState();
   primaryFileSequence_->rewind_();

@@ -499,7 +499,7 @@ namespace art {
 
   bool
   RootInputFileSequence::primary() const {
-    return input_.primary();
+    return true;
   }
 
   boost::shared_ptr<RunPrincipal>

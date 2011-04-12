@@ -65,23 +65,20 @@ namespace art {
     , actReg_              ( desc.actReg_ )
     , maxEvents_           ( pset.get<int>("maxEvents", -1) )
     , remainingEvents_     ( maxEvents_ )
-    , maxSubRuns_            ( pset.get<int>("maxSubRuns", -1) )
-    , remainingSubRuns_      ( maxSubRuns_ )
+    , maxSubRuns_          ( pset.get<int>("maxSubRuns", -1) )
+    , remainingSubRuns_    ( maxSubRuns_ )
     , readCount_           ( 0 )
     , processingMode_      ( RunsSubRunsAndEvents )
     , moduleDescription_   ( desc.moduleDescription_ )
     , productRegistry_     ( desc.productRegistry_ )
-    , primary_             ( pset.get<std::string>("module_label") == std::string("source") )
     , time_                ( )
     , doneReadAhead_       ( false )
     , state_               ( input::IsInvalid )
     , runPrincipal_        ( )
-    , subRunPrincipal_       ( )
+    , subRunPrincipal_     ( )
   {
-    // Secondary input sources currently do not have a product registry.
-    if (primary_) {
-      assert(desc.productRegistry_ != 0);
-    }
+    assert(desc.productRegistry_ != 0);
+
     std::string const defaultMode("RunsSubRunsAndEvents");
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
@@ -353,11 +350,9 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::preRead() {  // roughly corresponds to "end of the prev event"
 #ifdef RNGS
-    if (primary()) {
-      ServiceHandle<RandomNumberGenerator> rng;
-      if (rng.isAvailable()) {
-        rng->takeSnapshot_();
-      }
+    ServiceHandle<RandomNumberGenerator> rng;
+    if (rng.isAvailable()) {
+      rng->takeSnapshot_();
     }
 #endif
   }
@@ -365,11 +360,9 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::postRead(Event& event) {
 #ifdef RNGS
-    if (primary()) {
-      ServiceHandle<RandomNumberGenerator> rng;
-      if (rng.isAvailable()) {
-        rng->restoreSnapshot_(event);
-      }
+    ServiceHandle<RandomNumberGenerator> rng;
+    if (rng.isAvailable()) {
+      rng->restoreSnapshot_(event);
     }
 #endif
   }
