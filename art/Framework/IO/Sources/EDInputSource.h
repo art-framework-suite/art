@@ -28,12 +28,6 @@ namespace art {
                            InputSourceDescription const& desc);
     virtual ~EDInputSource();
 
-    std::vector<std::string> const& logicalFileNames(int n = 0) const {
-      return n ? secondaryCatalog_.logicalFileNames() : catalog_.logicalFileNames();
-    }
-    std::vector<std::string> const& fileNames(int n = 0) const {
-      return n ? secondaryCatalog_.fileNames() : catalog_.fileNames();
-    }
     std::vector<FileCatalogItem> const& fileCatalogItems(int n = 0) const {
       return n ? secondaryCatalog_.fileCatalogItems() : catalog_.fileCatalogItems();
     }
