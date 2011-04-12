@@ -26,16 +26,18 @@ namespace art {
   public:
     explicit EDInputSource(fhicl::ParameterSet const& pset,
                            InputSourceDescription const& desc);
+
     virtual ~EDInputSource();
 
-    std::vector<FileCatalogItem> const& fileCatalogItems(int n = 0) const {
-      return n ? secondaryCatalog_.fileCatalogItems() : catalog_.fileCatalogItems();
+    std::vector<FileCatalogItem> const& fileCatalogItems() const
+    {
+      return catalog_.fileCatalogItems();
     }
-    InputFileCatalog& catalog(int n = 0) {return n ? secondaryCatalog_ : catalog_;}
+
+    InputFileCatalog& catalog() {return catalog_;}
 
   private:
     InputFileCatalog catalog_;
-    InputFileCatalog secondaryCatalog_;
   };
 
 }  // art

@@ -8,8 +8,8 @@ namespace art {
   EDInputSource::EDInputSource(fhicl::ParameterSet const& pset,
                                InputSourceDescription const& desc) :
       DecrepitRelicInputSourceImplementation(pset, desc),
-      catalog_(pset),
-      secondaryCatalog_(pset, std::string("secondaryFileNames"), true) {}
+      catalog_(pset)
+  { }
 
   EDInputSource::~EDInputSource() { }
 
