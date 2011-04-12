@@ -51,27 +51,13 @@ namespace art {
     }
   }
 
-  void setRefCoreStreamer() {
-    {
-      TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
-      RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
-      if (st == 0) {
-        cl->AdoptStreamer(new RefCoreTransientStreamer(0));
-      } else {
-        st->setProductGetter(0);
-      }
-    }
-  }
-
   void setRefCoreStreamer(EDProductGetter const* ep) {
-    if (ep != 0) {
-        TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
-        RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
-        if (st == 0) {
-          cl->AdoptStreamer(new RefCoreTransientStreamer(ep));
-        } else {
-          st->setProductGetter(ep);
-        }
+    TClass *cl = gROOT->GetClass("art::RefCore::RefCoreTransients");
+    RefCoreTransientStreamer *st = static_cast<RefCoreTransientStreamer *>(cl->GetStreamer());
+    if (st == 0) {
+      cl->AdoptStreamer(new RefCoreTransientStreamer(ep));
+    } else {
+      st->setProductGetter(ep);
     }
   }
 }

@@ -14,7 +14,7 @@ namespace art {
     explicit RefCoreStreamer(EDProductGetter const* ep) : cl_("art::RefCore"), prodGetter_(ep) {}
 
     void setProductGetter(EDProductGetter const* ep) {
-      prodGetter_ = ep;
+	prodGetter_ = ep;
     }
     void operator() (TBuffer &R_b, void *objp);
 
@@ -28,7 +28,7 @@ namespace art {
     explicit RefCoreTransientStreamer(EDProductGetter const* ep) : cl_("art::RefCore::RefCoreTransients"), prodGetter_(ep) {}
 
     void setProductGetter(EDProductGetter const* ep) {
-      prodGetter_ = ep;
+	prodGetter_ = ep;
     }
     void operator() (TBuffer &R_b, void *objp);
 
@@ -42,7 +42,7 @@ namespace art {
     explicit ProductIDStreamer(EDProductGetter const* ep) : cl_("art::ProductID"), prodGetter_(ep) {}
 
     void setProductGetter(EDProductGetter const* ep) {
-      prodGetter_ = ep;
+	prodGetter_ = ep;
     }
     void operator() (TBuffer &R_b, void *objp);
 
@@ -51,8 +51,7 @@ namespace art {
     EDProductGetter const* prodGetter_;
   };
 
-  void setRefCoreStreamer();
-  void setRefCoreStreamer(EDProductGetter const* ep);
+  void setRefCoreStreamer(EDProductGetter const* ep = 0);
 }
 #endif /* art_Persistency_Common_RefCoreStreamer_h */
 

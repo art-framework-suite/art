@@ -11,14 +11,14 @@
 namespace art {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
-                                       boost::shared_ptr<BranchMap const> bMap,
-                                       boost::shared_ptr<TFile const> filePtr,
-                                       bool oldFormat) :
-    entryNumber_(entry),
-    branches_(bMap),
-    filePtr_(filePtr),
-    nextReader_(),
-    oldFormat_(oldFormat) {}
+      boost::shared_ptr<BranchMap const> bMap,
+      boost::shared_ptr<TFile const> filePtr,
+      bool oldFormat) :
+   entryNumber_(entry),
+   branches_(bMap),
+   filePtr_(filePtr),
+   nextReader_(),
+   oldFormat_(oldFormat) {}
 
   RootDelayedReader::~RootDelayedReader() {}
 
