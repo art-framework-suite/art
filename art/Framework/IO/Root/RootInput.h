@@ -27,20 +27,13 @@
 
 // ----------------------------------------------------------------------
 
-namespace art {
-  class RootInputFileSequence;
-  class FileCatalogItem;
-
-  class RootInput;
-}
 
 class art::RootInput
   : public EDInputSource
 {
 public:
-  explicit RootInput( fhicl::ParameterSet    const & pset
-                     , InputSourceDescription const & desc
-                     );
+  explicit RootInput(fhicl::ParameterSet    const & pset,
+                     InputSourceDescription const & desc);
   virtual ~RootInput( );
 
   using DecrepitRelicInputSourceImplementation::productRegistryUpdate;
@@ -104,36 +97,35 @@ private:
   typedef  boost::shared_ptr<RootInputFile>  RootInputFileSharedPtr;
   typedef  input::EntryNumber           EntryNumber;
 
-  virtual input::ItemType
-    nextItemType();
+  virtual input::ItemType nextItemType();
   virtual std::auto_ptr<EventPrincipal>
-    readEvent(boost::shared_ptr<SubRunPrincipal> srp);
+  readEvent(boost::shared_ptr<SubRunPrincipal> srp);
   virtual boost::shared_ptr<SubRunPrincipal>
-    readSubRun(boost::shared_ptr<RunPrincipal> rp);
+  readSubRun(boost::shared_ptr<RunPrincipal> rp);
   virtual boost::shared_ptr<RunPrincipal>
-    readRun();
+  readRun();
   virtual boost::shared_ptr<FileBlock>
-    readFile();
+  readFile();
   virtual std::auto_ptr<EventPrincipal>
-    readEvent_( );
+  readEvent_( );
   virtual boost::shared_ptr<SubRunPrincipal>
-    readSubRun_( );
+  readSubRun_( );
   virtual boost::shared_ptr<RunPrincipal>
-    readRun_( );
+  readRun_( );
   virtual boost::shared_ptr<FileBlock>
-    readFile_( );
+  readFile_( );
   virtual void
-    closeFile_( );
+  closeFile_( );
   virtual void
-    endJob( );
+  endJob( );
   virtual input::ItemType
-    getNextItemType( );
+  getNextItemType( );
   virtual std::auto_ptr<EventPrincipal>
-    readIt( EventID const & id );
+  readIt( EventID const & id );
   virtual void
-    skip( int offset );
+  skip( int offset );
   virtual void
-    rewind_( );
+  rewind_( );
 
   template <typename T> 
   EventID postSeekChecks(EventID const &foundID, T eventSpec,

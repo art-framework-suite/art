@@ -23,6 +23,9 @@ namespace art {
   class RootInputFile;
   class RootDelayedReader;
   class RootTree;
+  class RootInputFileSequence;
+  class FileCatalogItem;
+  class RootInput;
 
   namespace input {
 
