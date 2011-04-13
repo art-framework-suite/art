@@ -10,6 +10,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Root/RootTree.h"
+#include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
@@ -59,8 +60,7 @@ namespace art {
              EventID const &origEventID,
              unsigned int eventsToSkip,
              std::vector<SubRunID> const& whichSubRunsToSkip,
-             int remainingEvents,
-             int remainingSubRuns,
+             FastCloningInfoProvider const &fcip,
              unsigned int treeCacheSize,
              int treeMaxVirtualSize,
              InputSource::ProcessingMode processingMode,
@@ -122,7 +122,7 @@ namespace art {
     EventID eventIDForFileIndexPosition() const;
 
   private:
-    bool setIfFastClonable(int remainingEvents, int remainingSubRuns) const;
+    bool setIfFastClonable(FastCloningInfoProvider const &fcip) const;
     void validateFile();
     void fillEventAuxiliary();
     void fillHistory();

@@ -1,5 +1,5 @@
-#ifndef art_Persistency_Common_RefCoreStreamer_h
-#define art_Persistency_Common_RefCoreStreamer_h
+#ifndef art_Persistency_Common_RefCoreTransientStreamer_h
+#define art_Persistency_Common_RefCoreTransientStreamer_h
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
@@ -23,7 +23,7 @@ namespace art {
 
   void configureRefCoreTransientStreamer(EDProductGetter const* ep = 0);
 }
-#endif /* art_Persistency_Common_RefCoreStreamer_h */
+#endif /* art_Persistency_Common_RefCoreTransientStreamer_h */
 
 // Local Variables:
 // mode: c++

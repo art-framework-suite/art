@@ -11,6 +11,7 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
+#include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -48,8 +49,7 @@ namespace art {
                      EventID const &origEventID,
                      unsigned int eventsToSkip,
                      vector<SubRunID> const& whichSubRunsToSkip,
-                     int remainingEvents,
-                     int remainingSubRuns,
+                     FastCloningInfoProvider const &fcip,
                      unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
                      InputSource::ProcessingMode processingMode,
@@ -264,7 +264,7 @@ namespace art {
     // Sort the EventID list the user supplied so that we can assume it is time ordered
     sort_all(whichEventsToProcess_);
     // Determine if this file is fast clonable.
-    fastClonable_ = setIfFastClonable(remainingEvents, remainingSubRuns);
+    fastClonable_ = setIfFastClonable(fcip);
 
     reportOpened();
   }
@@ -304,13 +304,14 @@ namespace art {
 
 
   bool
-  RootInputFile::setIfFastClonable(int remainingEvents, int remainingSubRuns) const {
+  RootInputFile::setIfFastClonable(FastCloningInfoProvider const &fcip) const {
+    if (!fcip.fastCloningPermitted()) return false;
     if (!fileFormatVersion_.fastCopyPossible()) return false;
     if (!fileIndex_.allEventsInEntryOrder()) return false;
     if (!whichEventsToProcess_.empty()) return false;
     if (eventsToSkip_ != 0) return false;
-    if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
-    if (remainingSubRuns >= 0 && subRunTree_.entries() > remainingSubRuns) return false;
+    if (fcip.remainingEvents() >= 0 && eventTree_.entries() > fcip.remainingEvents()) return false;
+    if (fcip.remainingSubRuns() >= 0 && subRunTree_.entries() > fcip.remainingSubRuns()) return false;
     if (processingMode_ != InputSource::RunsSubRunsAndEvents) return false;
     if (forcedRunOffset_ != 0) return false;
     // Find entry for first event in file

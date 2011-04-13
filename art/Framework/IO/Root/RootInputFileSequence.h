@@ -11,6 +11,7 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -39,20 +40,24 @@ namespace art {
     explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
                                    RootInput const& input,
                                    InputFileCatalog const& catalog,
-                                   bool primarySequence);
+                                   bool primarySequence,
+                                   FastCloningInfoProvider const &fcip,
+                                   InputSource::ProcessingMode pMode,
+                                   ProductRegistry &pReg,
+                                   ProcessConfiguration const &processConfig);
     virtual ~RootInputFileSequence();
 
     typedef boost::shared_ptr<RootInputFile> RootInputFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     std::auto_ptr<EventPrincipal> readEvent_();
-    boost::shared_ptr<SubRunPrincipal> readSubRun_();
+    boost::shared_ptr<SubRunPrincipal> readSubRun_(boost::shared_ptr<RunPrincipal> rp);
     boost::shared_ptr<RunPrincipal> readRun_();
     boost::shared_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
     input::ItemType getNextItemType();
     std::auto_ptr<EventPrincipal> readIt(EventID const& id, bool exact = false);
-    boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id);
+    boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id, boost::shared_ptr<RunPrincipal> rp);
     boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
     void rewind_();
@@ -75,15 +80,11 @@ namespace art {
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
     cet::exempt_ptr<ProductRegistry const> productRegistry() const;
-    boost::shared_ptr<RunPrincipal> runPrincipal() const;
     ProcessConfiguration const& processConfiguration() const;
     ProductRegistry & productRegistryUpdate() const;
-    int remainingEvents() const;
-    int remainingSubRuns() const;
     bool primary() const;
     void logFileAction(const char* msg, std::string const& file);
 
-    RootInput const& input_;
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
@@ -109,6 +110,10 @@ namespace art {
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     RootInputFileSharedPtr rootFileForLastReadEvent_;
+    FastCloningInfoProvider fastCloningInfo_;
+    InputSource::ProcessingMode processingMode_;
+    ProductRegistry &productRegistry_;
+    ProcessConfiguration const &processConfiguration_;
   };  // RootInputFileSequence
 
 }  // art

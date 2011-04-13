@@ -2,6 +2,7 @@ project(art_Framework_IO_Root)
 
 set(art_Framework_IO_Root_sources
   DuplicateChecker.cc
+  FastCloningInfoProvider.cc
   RootDelayedReader.cc
   RootInputFile.cc
   RootInputFileSequence.cc
@@ -26,6 +27,7 @@ simple_plugin(RootOutput "module" art_Framework_IO_Root)
 install(FILES
   BranchMapperWithReader.h
   DuplicateChecker.h
+  FastCloningInfoProvider.h
   GetFileFormatEra.h
   GetFileFormatVersion.h
   Inputfwd.h

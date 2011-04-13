@@ -13,6 +13,7 @@
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
+#include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
@@ -26,10 +27,17 @@ RootInput::RootInput( fhicl::ParameterSet const & pset,
                       InputSourceDescription const & desc) :
   DecrepitRelicInputSourceImplementation(pset, desc),
   catalog_(pset),
-  primaryFileSequence_(new RootInputFileSequence( pset,
-                                                  *this,
-                                                  catalog_,
-                                                  true)),
+  primaryFileSequence_
+  (new RootInputFileSequence(pset,
+                             *this,
+                             catalog_,
+                             true,
+                             FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
+                             processingMode(),
+                             productRegistryUpdate(),
+                             processConfiguration()
+                             )
+   ),
   branchIDsToReplace_( ),
   accessState_() 
 { }
@@ -89,7 +97,7 @@ RootInput::readRun_( )
 boost::shared_ptr<SubRunPrincipal>
 RootInput::readSubRun_( )
 {
-  return primaryFileSequence_->readSubRun_();
+  return primaryFileSequence_->readSubRun_(runPrincipal());
 }
 
 input::ItemType
@@ -142,7 +150,8 @@ RootInput::readSubRun(boost::shared_ptr<RunPrincipal> rp)
     return DecrepitRelicInputSourceImplementation::readSubRun(rp);
   case AccessState::SEEKING_SUBRUN:
     accessState_.setState(AccessState::SEEKING_EVENT);
-    setSubRunPrincipal(primaryFileSequence_->readSubRun_());
+    setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(),
+                                                    rp));
     return subRunPrincipal();
   default:
     throw Exception(errors::LogicError)
