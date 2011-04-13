@@ -24,10 +24,11 @@ using namespace art;
 
 RootInput::RootInput( fhicl::ParameterSet const & pset,
                       InputSourceDescription const & desc) :
-  EDInputSource( pset, desc ),
+  DecrepitRelicInputSourceImplementation(pset, desc),
+  catalog_(pset),
   primaryFileSequence_(new RootInputFileSequence( pset,
                                                   *this,
-                                                  catalog(),
+                                                  catalog_,
                                                   true)),
   branchIDsToReplace_( ),
   accessState_() 

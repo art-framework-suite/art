@@ -10,7 +10,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
-#include "art/Framework/IO/Sources/EDInputSource.h"
+#include "art/Framework/IO/Catalog/InputFileCatalog.h"
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -28,8 +29,7 @@
 // ----------------------------------------------------------------------
 
 
-class art::RootInput
-  : public EDInputSource
+class art::RootInput : public art::DecrepitRelicInputSourceImplementation
 {
 public:
   explicit RootInput(fhicl::ParameterSet    const & pset,
@@ -46,6 +46,7 @@ public:
   template <typename T> bool seekToEvent(T eventSpec, bool exact = false);
 
 private:
+  InputFileCatalog  catalog_;
   boost::scoped_ptr< RootInputFileSequence >             primaryFileSequence_;
   boost::array< std::vector<BranchID>, NumBranchTypes >  branchIDsToReplace_;
 

@@ -20,7 +20,7 @@ target_link_libraries(art_Framework_IO_Root art_Framework_IO_RootVersion)
 
 install(TARGETS art_Framework_IO_Root art_Framework_IO_RootVersion DESTINATION ${flavorqual_dir}/lib )
 
-simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Sources )
+simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog )
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
 
 install(FILES

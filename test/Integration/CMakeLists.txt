@@ -28,7 +28,7 @@ simple_plugin(TestResultAnalyzer       "module" NOINSTALL )
 simple_plugin(U_S                      "module" ALLOW_UNDERSCORES NOINSTALL )
 simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Throwing                 "service" NOINSTALL )
-simple_plugin(ToyRawInput              "source" art_Framework_IO_Sources NOINSTALL )
+simple_plugin(ToyRawInput              "source" NOINSTALL )
 simple_plugin(ToyRawInputTester        "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
 
