@@ -304,7 +304,7 @@ boost::shared_ptr<SubRunPrincipal>
       setSubRunPrincipal(primaryPrincipal);
       return primaryPrincipal;
     }
-    setSubRunPrincipal(primaryFileSequence_->readSubRun_());
+    setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID()));
     return subRunPrincipal();
   default:
     throw Exception(errors::LogicError)
