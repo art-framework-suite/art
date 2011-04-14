@@ -28,7 +28,6 @@
 
 namespace art {
 
-  class RootInput;
   class RootInputFile;
   class FileCatalogItem;
   class InputFileCatalog;
@@ -38,7 +37,6 @@ namespace art {
   class RootInputFileSequence : private boost::noncopyable {
   public:
     explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
-                                   RootInput const& input,
                                    InputFileCatalog const& catalog,
                                    bool primarySequence,
                                    FastCloningInfoProvider const &fcip,

@@ -11,7 +11,6 @@
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
-#include "art/Framework/IO/Root/RootInput.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -29,7 +28,6 @@ using namespace std;
 namespace art {
 
   RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
-                                                RootInput const& input,
                                                 InputFileCatalog const& catalog,
                                                 bool primarySequence,
                                                 FastCloningInfoProvider const &fcip,
@@ -456,14 +454,6 @@ namespace art {
       return input::IsFile;
     }
     if (rootFile_) {
-#ifdef OLD_CODE
-      if (randomAccess_) {
-        skip(0);
-        if (fileIter_== fileIterEnd_) {
-          return input::IsStop;
-        }
-      }
-#endif
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return input::IsEvent;
@@ -507,31 +497,13 @@ namespace art {
 
   bool
   RootInputFileSequence::primary() const {
-    return true; //input_.primary();
+    return true;
   }
 
   ProcessConfiguration const&
   RootInputFileSequence::processConfiguration() const {
     return processConfiguration_;
   }
-
-#ifdef OLD_CODE
-  boost::shared_ptr<RunPrincipal>
-  RootInputFileSequence::runPrincipal() const {
-    return input_.runPrincipal();
-  }
-
-  int
-  RootInputFileSequence::remainingEvents() const {
-    return input_.remainingEvents();
-  }
-
-  int
-  RootInputFileSequence::remainingSubRuns() const {
-    return input_.remainingSubRuns();
-  }
-
-#endif
 
   ProductRegistry &
   RootInputFileSequence::productRegistryUpdate() const{
