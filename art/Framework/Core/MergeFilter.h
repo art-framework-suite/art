@@ -23,17 +23,17 @@ private:
 };
 
 template <class T>
-art::MergeFilter::MergeFilter(fhicl::ParameterSet const &p)
+art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
   helper_(*this),
-  detail_(p, helper_),
+  detail_(p, helper_)
 {
 }
 
 template <class T>
 bool
-art::MergeFilter::filter(art::Event &e) {
+art::MergeFilter<T>::filter(art::Event &e) {
   // 1. Call detail.startEvent() if it exists.
   // 2. Ask detail object how many events to read.
   // 3. For each product to be merged:
@@ -41,6 +41,7 @@ art::MergeFilter::filter(art::Event &e) {
   //   2. Call merge function.
   //   3. Place resultant product in event.
   // 4. Call detail.finalizeEvent() if it exists.
+  return false;
 }
 #endif /* art_Framework_Core_MergeFilter_h */
 

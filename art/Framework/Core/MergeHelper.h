@@ -41,7 +41,7 @@ private:
   typedef std::vector<MergeOperationInfo> MergeOpList;
 
   ProducerBase &producesProvider_;
-  MergOpList mergeOps_;
+  MergeOpList mergeOps_;
 
 };
 
@@ -52,17 +52,18 @@ art::MergeHelper::MergeHelper(ProducerBase &producesProvider)
   mergeOps_()
 {}
 
-inline ProducerBase &
-art::MergeHelper::producesProvider() {
+inline art::ProducerBase &
+art::MergeHelper::producesProvider() const {
   return producesProvider_;
 }
 
 template <typename InType, typename OutType, typename FUNC>
 void
+art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
                FUNC const &mergeFunc) {
   producesProvider().produces<OutType>();
-  mergeOps_.push_back(MergeOperationInfo(TypeID(typeid(inType)),
+  mergeOps_.push_back(MergeOperationInfo(TypeID(typeid(InType)),
                                          inputTag,
                                          std::string(),
                                          boost::function<void (std::vector<InType> const &,
@@ -71,11 +72,12 @@ declareMergeOp(InputTag const &inputTag,
 
 template <typename InType, typename OutType, typename FUNC>
 void
+art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
                std::string const &outputInstanceName,
                FUNC const &mergeFunc) {
   producesProvider().produces<OutType>(outputInstanceName);
-  mergeOps_.push_back(MergeOperationInfo(TypeID(typeid(inType)),
+  mergeOps_.push_back(MergeOperationInfo(TypeID(typeid(InType)),
                                          inputTag,
                                          outputInstanceName,
                                          boost::function<void (std::vector<InType> const &,

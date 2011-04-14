@@ -31,6 +31,7 @@ simple_plugin(Throwing                 "service" NOINSTALL )
 simple_plugin(ToyRawInput              "source" NOINSTALL )
 simple_plugin(ToyRawInputTester        "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
+simple_plugin(MergeFilterTest          "module" NOINSTALL )
 
 # Common library link requirements for tests here.
 link_libraries(
