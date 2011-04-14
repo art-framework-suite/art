@@ -8,12 +8,6 @@ FastCloningInfoProvider(cet::exempt_ptr<RootInput> input)
   input_(input)
 { }
 
-bool
-art::FastCloningInfoProvider::
-fastCloningPermitted() const {
-  return !input_.empty();
-}
-
 off_t
 art::FastCloningInfoProvider::
 remainingEvents() const {

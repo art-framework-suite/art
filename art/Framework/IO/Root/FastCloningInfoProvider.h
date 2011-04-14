@@ -10,6 +10,7 @@ namespace art {
 
 class art::FastCloningInfoProvider {
  public:
+  FastCloningInfoProvider() : input_() {}
   explicit FastCloningInfoProvider(cet::exempt_ptr<RootInput> input);
 
   bool fastCloningPermitted() const;
@@ -20,6 +21,12 @@ class art::FastCloningInfoProvider {
  private:
   cet::exempt_ptr<RootInput> input_;
 };
+
+inline bool
+art::FastCloningInfoProvider::
+fastCloningPermitted() const {
+  return !input_.empty();
+}
 
 #endif /* art_Framework_IO_Root_FastCloningInfoProvider_h */
 
