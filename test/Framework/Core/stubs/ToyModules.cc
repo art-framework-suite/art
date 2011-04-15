@@ -758,8 +758,10 @@ namespace arttest {
   {
 
     // Get the product back out; it should be sorted.
-    art::Handle<SCSimpleProduct> h;
-    e.getByType(h);
+    std::vector< art::Handle<SCSimpleProduct> > hv;
+    e.getManyByType(hv);
+    assert( hv.size() == 1u );
+    art::Handle<SCSimpleProduct> & h = hv[0];
     assert( h.isValid() );
 
     // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are
