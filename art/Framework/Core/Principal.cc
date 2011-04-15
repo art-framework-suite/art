@@ -220,34 +220,6 @@ namespace art {
     return;
   }
 
-  BasicHandle
-  Principal::getByType(TypeID const& productType) const {
-
-    BasicHandleVec results;
-
-    art::MatchAllSelector sel;
-
-    int nFound = findGroups(productType,
-                            preg_->productLookup(),
-                            sel,
-                            results,
-                            true);
-
-    if (nFound == 0) {
-      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
-      *whyFailed
-        << "getByType: Found zero products matching all criteria\n"
-        << "Looking for type: " << productType << "\n";
-      return BasicHandle(whyFailed);
-    }
-    if (nFound > 1) {
-      throw art::Exception(art::errors::ProductNotFound)
-        << "getByType: Found "<<nFound <<" products rather than one which match all criteria\n"
-        << "Looking for type: " << productType << "\n";
-    }
-    return results[0];
-  }
-
   void
   Principal::getManyByType(TypeID const& productType,
                            BasicHandleVec& results) const {

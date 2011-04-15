@@ -77,8 +77,6 @@ namespace art {
 		 SelectorBase const&,
 		 BasicHandleVec& results) const;
 
-    BasicHandle  getByType(TypeID const& tid) const;
-
     void getManyByType(TypeID const& tid,
 		 BasicHandleVec& results) const;
 

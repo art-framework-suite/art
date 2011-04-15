@@ -36,7 +36,6 @@ namespace art {
 
     using Base::get;
     using Base::getByLabel;
-    using Base::getByType;
     using Base::getMany;
     using Base::getManyByType;
     using Base::me;

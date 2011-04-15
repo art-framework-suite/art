@@ -117,10 +117,6 @@ namespace art {
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
-    bool
-    getByType(Handle<PROD>& result) const;
-
-    template <typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -167,9 +163,6 @@ namespace art {
     getMany_(TypeID const& tid,
              SelectorBase const& sel,
              BasicHandleVec& results) const;
-
-    BasicHandle
-    getByType_(TypeID const& tid) const;
 
     void
     getManyByType_(TypeID const& tid,
@@ -332,20 +325,6 @@ namespace art {
       ++it;
     }
     results.swap(products);
-  }
-
-  template <typename PROD>
-  inline
-  bool
-  DataViewImpl::getByType(Handle<PROD>& result) const
-  {
-    result.clear();
-    BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
   }
 
   template <typename PROD>

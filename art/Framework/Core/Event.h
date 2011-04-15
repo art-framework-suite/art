@@ -66,7 +66,6 @@ namespace art {
 
     using Base::get;
     using Base::getByLabel;
-    using Base::getByType;
     using Base::getMany;
     using Base::getManyByType;
     using Base::me;
@@ -131,10 +130,6 @@ namespace art {
     void
       getMany(SelectorBase const& sel,
               std::vector<Handle<PROD> >& results) const;
-
-    template <typename PROD>
-    bool
-      getByType(Handle<PROD>& result) const;
 
     template <typename PROD>
     void
@@ -369,19 +364,6 @@ namespace art {
       addToGotBranchIDs(*it->provenance());
     }
   }  // getMany<>()
-
-// ----------------------------------------------------------------------
-
-  template <typename PROD>
-  bool
-  Event::getByType(Handle<PROD>& result) const
-  {
-    bool ok = this->Base::getByType(result);
-    if (ok) {
-      addToGotBranchIDs(*result.provenance());
-    }
-    return ok;
-  }  // getByType<>()
 
 // ----------------------------------------------------------------------
 

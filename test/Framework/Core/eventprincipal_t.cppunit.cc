@@ -48,7 +48,6 @@ class test_ep: public CppUnit::TestFixture
   CPPUNIT_TEST(failgetbySelectorTest);
   CPPUNIT_TEST(failgetbyLabelTest);
   CPPUNIT_TEST(failgetManyTest);
-  CPPUNIT_TEST(failgetbyTypeTest);
   CPPUNIT_TEST(failgetManybyTypeTest);
   CPPUNIT_TEST(failgetbyInvalidIdTest);
   CPPUNIT_TEST(failgetProvenanceTest);
@@ -60,7 +59,6 @@ public:
   void failgetbySelectorTest();
   void failgetbyLabelTest();
   void failgetManyTest();
-  void failgetbyTypeTest();
   void failgetManybyTypeTest();
   void failgetbyInvalidIdTest();
   void failgetProvenanceTest();
@@ -278,14 +276,6 @@ void test_ep::failgetManyTest()
   std::vector<art::BasicHandle > handles;
   pEvent_->getMany(tid, sel, handles);
   CPPUNIT_ASSERT(handles.empty());
-}
-
-void test_ep::failgetbyTypeTest()
-{
-  art::ProductID dummy;
-  art::TypeID tid(dummy);
-  art::BasicHandle h(pEvent_->getByType(tid));
-  CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetManybyTypeTest()

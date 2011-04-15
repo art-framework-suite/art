@@ -61,12 +61,6 @@ namespace art {
     return principal_.getByLabel(tid, label, productInstanceName, processName);
   }
 
-  BasicHandle
-  DataViewImpl::getByType_(TypeID const& tid) const
-  {
-    return principal_.getByType(tid);
-  }
-
   void
   DataViewImpl::getManyByType_(TypeID const& tid,
                   BasicHandleVec& results) const

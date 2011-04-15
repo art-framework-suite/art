@@ -48,8 +48,10 @@ arttest::ToyRawProductAnalyzer::~ToyRawProductAnalyzer() {
 
 void arttest::ToyRawProductAnalyzer::analyze(art::Event const &e) {
   // Implementation of required member function here.
-  art::Handle<int> h;
-  assert(e.getByType(h));
+  std::vector< art::Handle<int> > hv;
+  e.getManyByType(hv);
+  assert( hv.size() == 1u );
+  art::Handle<int> & h = hv[0];
   std::cerr << e.id() << " int = " << (*h) << "\n";
   art::Handle<bool> hb1, hb2;
   assert(e.getByLabel("m2", "a", hb1));
@@ -61,16 +63,20 @@ void arttest::ToyRawProductAnalyzer::analyze(art::Event const &e) {
 void arttest::ToyRawProductAnalyzer::beginRun(art::Run const &r) {
   if (!doBeginRun_) return;
   // Implementation of optional member function here.
-  art::Handle<double> h;
-  assert(r.getByType(h));
+  std::vector< art::Handle<double> > hv;
+  r.getManyByType(hv);
+  assert( hv.size() == 1u );
+  art::Handle<double> & h = hv[0];
   std::cerr << r.id() << " double = " << (*h) << "\n";
 }
 
 void arttest::ToyRawProductAnalyzer::beginSubRun(art::SubRun const &sr) {
   if (!doBeginSubRun_) return;
    // Implementation of optional member function here.
-  art::Handle<double> h;
-  assert(sr.getByType(h));
+  std::vector< art::Handle<double> > hv;
+  sr.getManyByType(hv);
+  assert( hv.size() == 1u );
+  art::Handle<double> & h = hv[0];
   std::cerr << sr.id() << " double = " << (*h) << "\n";
 }
 

@@ -75,7 +75,7 @@ class testEvent: public CppUnit::TestFixture
   CPPUNIT_TEST(getByInstanceName);
   CPPUNIT_TEST(getBySelector);
   CPPUNIT_TEST(getByLabel);
-  CPPUNIT_TEST(getByType);
+  CPPUNIT_TEST(getManyByType);
   CPPUNIT_TEST(printHistory);
   CPPUNIT_TEST_SUITE_END();
 
@@ -93,7 +93,7 @@ class testEvent: public CppUnit::TestFixture
   void getByInstanceName();
   void getBySelector();
   void getByLabel();
-  void getByType();
+  void getManyByType();
   void printHistory();
 
  private:
@@ -661,7 +661,7 @@ void testEvent::getByLabel()
 }
 
 
-void testEvent::getByType()
+void testEvent::getManyByType()
 {
   typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
@@ -691,19 +691,6 @@ void testEvent::getByType()
   EDProducer::commitEvent(*currentEvent_);
 
   CPPUNIT_ASSERT(currentEvent_->size() == 6);
-
-  handle_t h;
-  CPPUNIT_ASSERT(currentEvent_->getByType(h));
-  CPPUNIT_ASSERT(h->value == 200);
-
-  Handle<int> h_nomatch;
-  CPPUNIT_ASSERT(!currentEvent_->getByType(h_nomatch));
-  CPPUNIT_ASSERT(!h_nomatch.isValid());
-  CPPUNIT_ASSERT(h_nomatch.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h_nomatch, cet::exception);
-
-  //  Handle<std::vector<arttest::Thing> > hthing;
-  //  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing),cet::exception);
 
   handle_vec handles;
   currentEvent_->getManyByType(handles);
