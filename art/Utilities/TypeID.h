@@ -23,15 +23,9 @@ namespace art {
 
     TypeID() : TypeIDBase() {}
 
-    TypeID(const TypeID& other) :
-     TypeIDBase(other)
-    { }
-
     explicit TypeID(const std::type_info& t) :
       TypeIDBase(t)
     { }
-
-    // Copy assignment disallowed; see below.
 
     template <typename T>
     explicit TypeID(const T& t) :
@@ -50,8 +44,6 @@ namespace art {
     bool hasDictionary() const;
 
   private:
-    TypeID& operator=(const TypeID&); // not implemented
-
     static bool stripTemplate(std::string& theName);
 
     static bool stripNamespace(std::string& theName);
