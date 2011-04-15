@@ -125,6 +125,7 @@ set ( art_exec_link_libraries
 
 set (ART_EXECS
   art
+  gm2
   lar
   mu2e
   nova
