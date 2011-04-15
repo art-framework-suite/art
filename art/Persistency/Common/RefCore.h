@@ -69,11 +69,7 @@ public:
   { transients_.setProductPtr(prodPtr); }
 
   EDProductGetter const * productGetter() const
-  {
-    if( !transients_.prodGetter_ )
-      setProductGetter(EDProductGetter::instance());
-    return transients_.prodGetter_;
-  }
+  { return transients_.prodGetter_; }
 
   void
     setProductGetter( EDProductGetter const * prodGetter ) const;

@@ -48,14 +48,6 @@ namespace art {
   }
 
   EDProductGetter const*
-  EDProductGetter::instance()
-  {
-     EDProductGetter const* returnValue = EDProductGetter::set(0);
-     EDProductGetter::set(returnValue);
-     return returnValue;
-  }
-
-  EDProductGetter const*
   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
     if (prodGetter != 0) return prodGetter;
         throw Exception(errors::InvalidReference, refType)

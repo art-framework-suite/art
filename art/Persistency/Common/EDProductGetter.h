@@ -28,11 +28,7 @@ namespace art {
       EDProductGetter();
       virtual ~EDProductGetter();
 
-      // ---------- const member functions ---------------------
       virtual EDProduct const* getIt(ProductID const&) const = 0;
-
-      // ---------- static member functions --------------------
-      static EDProductGetter const* instance();
 
       //Helper class to make the EDProductGetter accessible on at the proper times
       class Operate {
