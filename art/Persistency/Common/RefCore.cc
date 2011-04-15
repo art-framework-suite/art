@@ -48,7 +48,7 @@ EDProduct const *
   // already have the pointer to the product, or we have a valid
   // EDProductGetter to use.
   //
-  //     assert(!id_.isValid() || productGetter() || prodPtr_);
+  //     assert(!id_.isValid() || productGetter() || itemPtr_);
 
   assert( !isTransient() );
 

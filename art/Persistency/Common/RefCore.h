@@ -59,7 +59,7 @@ public:
   bool  isAvailable()    const;
 
   ProductID         id()            const { return id_; }
-  void const *      productPtr()    const { return transients_.prodPtr_; }
+  void const *      productPtr()    const { return transients_.itemPtr_; }
   EDProduct const * getProductPtr() const;
 
   // --- Mutators:
@@ -84,13 +84,15 @@ public:
 
   struct RefCoreTransients
   {
-    mutable void const *            prodPtr_;     // transient
+    // itemPtr_ is the address of the item for which the Ptr in which this
+    // RefCoreTransients object resides is a pointer
+    mutable void const *            itemPtr_;     // transient
     mutable EDProductGetter const * prodGetter_;  // transient
     bool                            transient_;   // transient
 
     // --- Construction/destruction:
       RefCoreTransients()
-    : prodPtr_   ( 0 )
+    : itemPtr_   ( 0 )
     , prodGetter_( 0 )
     , transient_ ( false )
     { }
@@ -98,7 +100,7 @@ public:
       RefCoreTransients( void const *            prodPtr
                        , EDProductGetter const * prodGetter
                        , bool                    transient )
-    : prodPtr_   ( prodPtr )
+    : itemPtr_   ( prodPtr )
     , prodGetter_( prodGetter )
     , transient_ ( transient )
     { }
@@ -108,7 +110,7 @@ public:
 
     // --- Mutators:
     void setProductGetter( EDProductGetter const * prodGetter ) const;
-    void setProductPtr(void const * prodPtr) const { prodPtr_ = prodPtr; }
+    void setProductPtr(void const * itemPtr) const { itemPtr_ = itemPtr; }
 
   };  // RefCoreTransients
 

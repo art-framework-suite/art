@@ -3,7 +3,7 @@
  <class name="art::EDProductGetter"/>
  <class name="art::RefCore"/>
  <class name="art::RefCore::RefCoreTransients">
-   <field name="prodPtr_" transient="true"/>
+   <field name="itemPtr_" transient="true"/>
    <field name="prodGetter_" transient="true"/>
    <field name="transient_" transient="true"/>
  </class>
