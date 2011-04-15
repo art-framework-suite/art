@@ -23,7 +23,7 @@ struct LibraryManagerTestFixture {
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()
    :
-   lm("module"),
+   lm("dict"),
    lm_ref(lm)
 {
 }
@@ -62,13 +62,13 @@ BOOST_AUTO_TEST_CASE ( libListIter )
 
 BOOST_AUTO_TEST_CASE ( getSymbolLong )
 {
-   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("art/Framework/IO/Root/RootOutput",
+   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("art/Persistency/Common",
                                             "_init") != nullptr );
 }
 
 BOOST_AUTO_TEST_CASE ( getSymbolShort )
 {
-   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("RootOutput",
+   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("Common",
                                             "_init") != nullptr );
 }
 
