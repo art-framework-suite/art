@@ -7,9 +7,6 @@
 //      collection is in the art::Event
 //
 // ======================================================================
-#include <cstddef> // for std::size_t
-#include <list>
-#include <vector>
 
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
@@ -21,6 +18,9 @@
 #include "art/Utilities/Exception.h"
 #include "boost/type_traits/is_base_of.hpp"
 #include "boost/utility/enable_if.hpp"
+#include <cstddef>
+#include <list>
+#include <vector>
 
 namespace art
 {
@@ -173,7 +173,6 @@ namespace art
     bool hasCache() const { return 0!=core_.productPtr(); }
 
     RefCore const& refCore() const { return core_; }
-    // ---------- member functions ---------------------------
 
   private:
     // Constructor for extracting a transient Ptr from a PtrVector.
