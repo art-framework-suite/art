@@ -1,18 +1,23 @@
-# project name
-project(art_Utilities_Test)
+# cet_test macro
+include(CetTest)
 
+link_libraries(art_Utilities
+  ${MF_MESSAGELOGGER}
+  ${CINT}
+  ${REFLEX}
+  )
 
-file( GLOB cpp_files *.cpp )
+foreach(test_cpp CRC32Calculator_t.cpp Digest_t.cpp MallocOpts_t.cpp)
+  get_filename_component(tname ${test_cpp} NAME_WE )
+  cet_test(${tname}
+    SOURCES ${test_cpp}
+    )
+endforeach()
 
-link_libraries(  art_Utilities
-                 ${MF_MESSAGELOGGER}
-                 ${MF_MESSAGESERVICE}
-                 ${MF_UTILITIES}
-                 ${MF_EXTENSIONS}
-                 )
-
-foreach(file ${cpp_files} )
-  get_filename_component(ename ${file} NAME_WE )
-  add_executable( ${ename}  ${file} )
-  add_test( ${ename} ${EXECUTABLE_OUTPUT_PATH}/${ename} )
-endforeach(file ${cpp_files} )
+foreach(cppunit_test Utilities_t.cpp HRTime_t.cpp Math_t.cpp)
+  get_filename_component(tname ${cppunit_test} NAME_WE )
+  cet_test(${tname}
+    SOURCES ${cppunit_test}
+    LIBRARIES ${CPPUNIT}
+    )
+endforeach()
