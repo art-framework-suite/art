@@ -1,12 +1,15 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/MergeFilter.h"
 #include "art/Framework/Core/MergeHelper.h"
+#include "art/Framework/Core/PtrRemapper.h"
 #include "art/Utilities/InputTag.h"
 
 namespace arttest {
   class MergeFilterTestDetail;
   typedef art::MergeFilter<MergeFilterTestDetail> MergeFilterTest;
-  void ff_merge(std::vector<int const *> const &in, int &out);
+  void ff_merge(std::vector<int const *> const &in,
+                int &out,
+                art::PtrRemapper const &remap);
 }
 
 class arttest::MergeFilterTestDetail {
@@ -14,9 +17,15 @@ public:
   MergeFilterTestDetail(fhicl::ParameterSet const &p,
                         art::MergeHelper &helper);
 
-  void merge(std::vector<int const *> const &in, int &out);
-  void mergeDouble(std::vector<double const *> const &in, double &out);
-  void merge(std::vector<std::string const *> const &in, std::string &out);
+  void merge(std::vector<int const *> const &in,
+             int &out,
+             art::PtrRemapper const &remap);
+  void mergeDouble(std::vector<double const *> const &in,
+                   double &out,
+                   art::PtrRemapper const &remap);
+  void merge(std::vector<std::string const *> const &in,
+             std::string &out,
+             art::PtrRemapper const &remap);
 private:
   size_t nSecondaries_;
 };
