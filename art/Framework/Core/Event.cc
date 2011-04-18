@@ -32,6 +32,11 @@ namespace art {
   , gotBranchIDs_( )
   { }
 
+  EDProductGetter const *
+  Event::productGetter() const {
+    return &principal();
+  }
+
   EventPrincipal &
   Event::eventPrincipal() {
     return dynamic_cast<EventPrincipal &>(principal());
