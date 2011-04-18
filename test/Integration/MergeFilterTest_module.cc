@@ -1,3 +1,4 @@
+#include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/MergeFilter.h"
 #include "art/Framework/Core/MergeHelper.h"
@@ -14,9 +15,25 @@ namespace arttest {
 
 class arttest::MergeFilterTestDetail {
 public:
+  // Constructor is resposible for registering merge operations with
+  // MergeHelper::declareMergeOp() and bookkeeping products with
+  // MergeHelper::producesProvider().produces().
   MergeFilterTestDetail(fhicl::ParameterSet const &p,
                         art::MergeHelper &helper);
 
+  // Optional startEvent(): initialize state for each event,
+  void startEvent();
+
+  // Return the number of secondaries to read this time. Declare const
+  // if you don't plan to change your class' state.
+  size_t nSecondaries() const;
+
+  // Optional.finalizeEvent(): (eg) put bookkeping products in event. Do
+  // *not* place merge products into the event: this will already have
+  // been done for you.
+  void finalizeEvent(art::Event &t);
+
+  // Merge functions to be registered with the MergeHelper.
   void merge(std::vector<int const *> const &in,
              int &out,
              art::PtrRemapper const &remap);
@@ -53,6 +70,24 @@ MergeFilterTestDetail(fhicl::ParameterSet const &p,
   helper.declareMergeOp<std::string>
     (art::InputTag("stringLabel", ""),
      &MergeFilterTestDetail::merge, this);
+}
+
+void
+arttest::MergeFilterTestDetail::
+startEvent() {
+  // FIXME: placeholder.
+}
+
+size_t
+arttest::MergeFilterTestDetail::
+nSecondaries() const {
+  return nSecondaries_;
+}
+
+void
+arttest::MergeFilterTestDetail::
+finalizeEvent(art::Event &e) {
+  e.put(std::auto_ptr<std::string>(new std::string("BlahBlahBlah")));
 }
 
 DEFINE_ART_MODULE(arttest::MergeFilterTest);
