@@ -3,6 +3,7 @@
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/MergeHelper.h"
+#include "art/Framework/Core/PtrRemapper.h"
 
 namespace art {
   template <class T>
@@ -20,6 +21,7 @@ public:
 private:
   MergeHelper helper_;
   MergeDetail detail_;
+  PtrRemapper ptrRemapper_;
 };
 
 template <class T>
@@ -27,7 +29,8 @@ art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
   helper_(*this),
-  detail_(p, helper_)
+  detail_(p, helper_),
+  ptrRemapper_()
 {
 }
 
