@@ -17,7 +17,7 @@ class arttest::MergeFilterTestDetail {
 public:
   // Constructor is resposible for registering merge operations with
   // MergeHelper::declareMergeOp() and bookkeeping products with
-  // MergeHelper::producesProvider().produces().
+  // MergeHelperproduces().
   MergeFilterTestDetail(fhicl::ParameterSet const &p,
                         art::MergeHelper &helper);
 
@@ -53,7 +53,7 @@ MergeFilterTestDetail(fhicl::ParameterSet const &p,
   :
   nSecondaries_(p.get<size_t>("nunSecondaries", 1))
 {
-  helper.producesProvider().produces<std::string>(); // "Bookkeeping"
+  helper.produces<std::string>(); // "Bookkeeping"
 
   helper.declareMergeOp<int>
     (art::InputTag("intLabel", ""),

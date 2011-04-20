@@ -3,7 +3,6 @@
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/IO/ProductMerge/MergeHelper.h"
-#include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMerge/MergeHelper.h"
 #include "cpp0x/type_traits"
 
@@ -91,7 +90,6 @@ private:
 
   MergeHelper helper_;
   MergeDetail detail_;
-  PtrRemapper ptrRemapper_;
 };
 
 template <class T>
@@ -99,8 +97,7 @@ art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
   helper_(*this),
-  detail_(p, helper_),
-  ptrRemapper_()
+  detail_(p, helper_)
 {
 }
 
@@ -116,7 +113,7 @@ art::MergeFilter<T>::filter(art::Event &e) {
 
   // 3. Make the MergeHelper read info into all the products, invoke the
   // merge functions and put the products into the event.
-  helper_.mergeAndPut(nSecondaries, e, ptrRemapper_);
+  helper_.mergeAndPut(nSecondaries, e);
 
   // 4. Call detail.finalizeEvent() if it exists.
   typename std::conditional<detail::has_finalizeEvent<T>::value, detail::call_finalizeEvent<T>, detail::void_do_not_call_finalizeEvent<T> >::type maybe_call_finalizeEvent;

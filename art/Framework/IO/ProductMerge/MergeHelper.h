@@ -3,7 +3,9 @@
 
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMerge/MergeOp.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
@@ -17,16 +19,30 @@
 
 namespace art {
   class MergeHelper;
-  class PtrRemapper;
 }
 
 class art::MergeHelper {
 public:
   explicit MergeHelper(ProducerBase & producesProvider);
 
-  // Returns the object upon which produces() can be called: may replace
-  // by actually implementing forwarding templates in the helper.
-  ProducerBase &producesProvider() const;
+  //////////////////////////////////////////////////////////////////////
+  // produces() templates.
+  //
+  // Call as you would from the constructor of a module to declare
+  // (e.g. bookkeeping) products to be put into the event that are *not*
+  // direct results of a product merge. For the latter case, see the
+  // declareMergeOp() templates below.
+  //////////////////////////////////////////////////////////////////////
+
+  // Record the production of an object of type P, with optional
+  // instance name, in either the Run or SubRun.
+  template <class P, BranchType B>
+  TypeLabel const& produces(std::string const& instanceName=std::string());
+
+  // Record the production of an object of type P, with optional
+  // instance name, in the Event.
+  template <class P>
+  TypeLabel const& produces(std::string const& intanceName=std::string());
 
   //////////////////////////////////////////////////////////////////////
   // declareMergeOp templates.
@@ -102,7 +118,7 @@ public:
   //////////////////////////////////////////////////////////////////////
   // Merge module writers should not need anything below this point.
   //////////////////////////////////////////////////////////////////////
-  void mergeAndPut(size_t nSecondaries, Event &e, PtrRemapper const &remap);
+  void mergeAndPut(size_t nSecondaries, Event &e);
 
 private:
   typedef std::vector<std::shared_ptr<MergeOpBase> > MergeOpList;
@@ -110,15 +126,28 @@ private:
 
   ProducerBase &producesProvider_;
   MergeOpList mergeOps_;
+  PtrRemapper ptrRemapper_;
 
 };
+
+template <class P, art::BranchType B>
+art::TypeLabel const&
+art::MergeHelper::produces(std::string const& instanceName) {
+  return producesProvider_.produces<P, B>(instanceName);
+}
+
+template <class P>
+art::TypeLabel const&
+art::MergeHelper::produces(std::string const& instanceName) {
+  return producesProvider_.produces<P>(instanceName);
+}
 
 template <typename PROD, typename FUNC>
 void
 art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
                FUNC mergeFunc) {
-  producesProvider().produces<PROD>();
+  producesProvider_.produces<PROD>();
   mergeOps_.push_back(std::shared_ptr<MergeOpBase>
                       (new MergeOp<PROD>
                        (inputTag,
@@ -132,7 +161,7 @@ art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
                std::string const &outputInstanceLabel,
                FUNC mergeFunc) {
-  producesProvider().produces<PROD>(outputInstanceLabel);
+  producesProvider_.produces<PROD>(outputInstanceLabel);
   mergeOps_.push_back(std::shared_ptr<MergeOpBase>
                       (new MergeOp<PROD>
                        (inputTag,
@@ -148,7 +177,7 @@ declareMergeOp(InputTag const &inputTag,
                                      PROD &,
                                      PtrRemapper const &remap),
                T *t) {
-  producesProvider().produces<PROD>();
+  producesProvider_.produces<PROD>();
   mergeOps_.push_back(std::shared_ptr<MergeOpBase>
                       (new MergeOp<PROD>
                        (inputTag,
@@ -165,7 +194,7 @@ declareMergeOp(InputTag const &inputTag,
                                      PROD &,
                                      PtrRemapper const &remap),
                T *t) {
-  producesProvider().produces<PROD>(outputInstanceLabel);
+  producesProvider_.produces<PROD>(outputInstanceLabel);
   mergeOps_.push_back(std::shared_ptr<MergeOpBase>
                       (new MergeOp<PROD>
                        (inputTag,
