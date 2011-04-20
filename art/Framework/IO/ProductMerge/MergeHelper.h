@@ -7,10 +7,18 @@
 #include "art/Framework/IO/ProductMerge/MergeOp.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/FileIndex.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
+#include "cetlib/value_ptr.h"
 #include "cpp0x/functional"
 #include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
+
+#include "TFile.h"
+#include "TTree.h"
+
 #include <string>
 #include <vector>
 
@@ -20,7 +28,8 @@ namespace art {
 
 class art::MergeHelper {
 public:
-  explicit MergeHelper(ProducerBase & producesProvider);
+  MergeHelper(fhicl::ParameterSet const &pset,
+              ProducerBase & producesProvider);
 
   //////////////////////////////////////////////////////////////////////
   // produces() templates.
@@ -123,15 +132,32 @@ public:
   // Merge module writers should not need anything below this point.
   //////////////////////////////////////////////////////////////////////
   void mergeAndPut(size_t nSecondaries, Event &e);
+  void postRegistrationInit();
 
 private:
   typedef std::vector<std::shared_ptr<MergeOpBase> > MergeOpList;
   typedef MergeOpList::const_iterator MergeOpIter;
 
+  void openAndReadMetaData(std::string const &fileName);
+  void mergeAndPutOne(boost::shared_ptr<MergeOpBase> const &mergeOp,
+                      size_t nSecondaries,
+                      Event &e);
+
   ProducerBase &producesProvider_;
+  std::vector<std::string> fileNames_;
   MergeOpList mergeOps_;
   PtrRemapper ptrRemapper_;
+  std::vector<std::string>::const_iterator currentFileName_;
+  std::string readMode_;
+  double coverageFraction_;
+  size_t nEventsRead_;
+  ProductRegistry pReg_;
 
+  // Root-specific state.
+  cet::value_ptr<TFile> currentFile_;
+  cet::value_ptr<TTree> currentMetaDataTree_;
+  cet::value_ptr<TTree> currentEventTree_;
+  FileIndex fileIndex_;
 };
 
 template <class P, art::BranchType B>

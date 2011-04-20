@@ -15,7 +15,6 @@ namespace art {
     typedef char (& no_tag )[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
-
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
     template <typename T, void (T::*)()> struct startEvent_function;
@@ -84,6 +83,7 @@ public:
   typedef T MergeDetail;
   explicit MergeFilter(fhicl::ParameterSet const &p);
 
+  virtual void beginJob();
   virtual bool filter(art::Event &e);
 
 private:
@@ -96,9 +96,15 @@ template <class T>
 art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
-  helper_(*this),
+  helper_(p, *this),
   detail_(p, helper_)
 {
+}
+
+template <class T>
+void
+art::MergeFilter<T>::beginJob() {
+  helper_.postRegistrationInit();
 }
 
 template <class T>

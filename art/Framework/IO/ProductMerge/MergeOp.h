@@ -33,7 +33,7 @@ public:
 
   virtual
   void
-  initProductList(size_t nSecondaries);
+  initProductList(size_t nSecondaries = 0);
 
 private:
   typedef std::vector<Wrapper<PROD> > SpecProdList;
@@ -127,8 +127,10 @@ void
 art::MergeOp<PROD>::
 initProductList(size_t nSecondaries) {
   inProducts_.clear();
-  inProducts_.reserve(nSecondaries);
-  inProducts_.resize(nSecondaries);
+  if (nSecondaries) {
+    inProducts_.reserve(nSecondaries);
+    inProducts_.resize(nSecondaries);
+  }
   prodIter_ = inProducts_.begin();
   productsEnd_ = inProducts_.end();
 }
