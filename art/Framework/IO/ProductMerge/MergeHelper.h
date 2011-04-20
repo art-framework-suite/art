@@ -1,8 +1,9 @@
-#ifndef art_Framework_Core_MergeHelper_h
-#define art_Framework_Core_MergeHelper_h
+#ifndef art_Framework_IO_ProductMerge_MergeHelper_h
+#define art_Framework_IO_ProductMerge_MergeHelper_h
 
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/IO/ProductMerge/MergeOp.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
@@ -101,91 +102,17 @@ public:
   //////////////////////////////////////////////////////////////////////
   // Merge module writers should not need anything below this point.
   //////////////////////////////////////////////////////////////////////
-
-  //////////////////////////////////////////////////////////////////////
-  // Machinery required for retrieving and invoking stored merge
-  // operations. Only required for MergeFilter.
-  class MergeOpBase {
-  public:
-
-    virtual
-    InputTag const &inputTag() const = 0;
-
-    virtual
-    std::string const &outputInstanceLabel() const = 0;
-
-    virtual
-    void
-    mergeAndPut(Event &e,
-                std::vector<EDProduct const *> const &inProducts,
-                PtrRemapper const &remap) const = 0;
-  };
-
-  typedef std::vector<std::shared_ptr<MergeOpBase> > MergeOpList;
-  typedef MergeOpList::const_iterator MergeOpIter;
-
-  MergeOpIter mergeOpsBegin() const;
-  MergeOpIter mergeOpsEnd() const;
-  //////////////////////////////////////////////////////////////////////
+  void mergeAndPut(size_t nSecondaries, Event &e, PtrRemapper const &remap);
 
 private:
-  template <typename PROD>
-  class MergeOp : public MergeOpBase {
-  public:
-    template <typename F>
-    MergeOp(InputTag const &inputTag,
-            std::string const &outputInstanceLabel,
-            F mergeFunc);
-
-    virtual
-    InputTag const &inputTag() const;
-
-    virtual
-    std::string const &outputInstanceLabel() const;
-
-    virtual
-    void
-    mergeAndPut(Event &e,
-                std::vector<EDProduct const *> const &inProducts,
-                PtrRemapper const &remap) const;
-
-  private:
-    InputTag inputTag_;
-    std::string outputInstanceLabel_;
-    boost::function<void (std::vector<PROD const *> const &,
-                          PROD &,
-                          PtrRemapper const &remap)> mergeFunc_;
-  };
+  typedef std::vector<std::shared_ptr<MergeOpBase> > MergeOpList;
+  typedef MergeOpList::const_iterator MergeOpIter;
 
   ProducerBase &producesProvider_;
   MergeOpList mergeOps_;
 
 };
 
-inline
-art::MergeHelper::MergeHelper(ProducerBase &producesProvider)
-  :
-  producesProvider_(producesProvider),
-  mergeOps_()
-{}
-
-inline art::ProducerBase &
-art::MergeHelper::producesProvider() const {
-  return producesProvider_;
-}
-
-inline
-art::MergeHelper::MergeOpIter
-art::MergeHelper::mergeOpsBegin() const {
-  return mergeOps_.begin();
-}
-
-inline
-art::MergeHelper::MergeOpIter
-art::MergeHelper::mergeOpsEnd() const {
-  return mergeOps_.end();
-}
-
 template <typename PROD, typename FUNC>
 void
 art::MergeHelper::
@@ -246,68 +173,7 @@ declareMergeOp(InputTag const &inputTag,
                         std::bind(mergeFunc, t, _1, _2, _3))));
 }
 
-template <typename PROD>
-template <typename F>
-art::MergeHelper::
-MergeOp<PROD>::MergeOp(InputTag const &inputTag,
-                       std::string const &outputInstanceLabel,
-                       F mergeFunc)
-  :
-  inputTag_(inputTag),
-  outputInstanceLabel_(outputInstanceLabel),
-  mergeFunc_(mergeFunc)
-{}
-
-template <typename PROD>
-art::InputTag const &
-art::MergeHelper::MergeOp<PROD>::
-inputTag() const {
-  return inputTag_;
-}
-
-template <typename PROD>
-std::string const &
-art::MergeHelper::MergeOp<PROD>::
-outputInstanceLabel() const {
-  return outputInstanceLabel_;
-}
-
-template <typename PROD>
-void
-art::MergeHelper::MergeOp<PROD>::
-mergeAndPut(Event &e,
-            std::vector<EDProduct const *> const &inProducts,
-            PtrRemapper const &remap) const {
-  std::auto_ptr<PROD> rProd(new PROD);
-  std::vector<PROD const *> inConverted;
-  inConverted.reserve(inProducts.size());
-  try {
-    for (std::vector<EDProduct const *>::const_iterator
-           i = inProducts.begin(),
-           endIter = inProducts.end();
-         i != endIter;
-         ++i) {
-      inConverted.push_back(dynamic_cast<Wrapper<PROD> const &>(**i).product());
-      if (!inConverted.back()) {
-        throw Exception(errors::ProductNotFound)
-          << "While processing products of type "
-          << TypeID(*rProd).friendlyClassName()
-          << " for merging: a secondary event was missing a product.\n";
-      }
-    }
-  }
-  catch (std::bad_cast const &) {
-    throw Exception(errors::DataCorruption)
-      << "Unable to obtain correctly-typed product from wrapper.\n";
-  }
-  mergeFunc_(inConverted, *rProd, remap);
-  if (outputInstanceLabel_.empty()) {
-    e.put(rProd);
-  } else {
-    e.put(rProd, outputInstanceLabel_);
-  }
-}
-#endif /* art_Framework_Core_MergeHelper_h */
+#endif /* art_Framework_IO_ProductMerge_MergeHelper_h */
 
 // Local Variables:
 // mode: c++

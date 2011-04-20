@@ -1,9 +1,10 @@
-#ifndef art_Framework_Core_MergeFilter_h
-#define art_Framework_Core_MergeFilter_h
+#ifndef art_Framework_Modules_MergeFilter_h
+#define art_Framework_Modules_MergeFilter_h
 
 #include "art/Framework/Core/EDFilter.h"
-#include "art/Framework/Core/MergeHelper.h"
+#include "art/Framework/IO/ProductMerge/MergeHelper.h"
 #include "art/Framework/Core/PtrRemapper.h"
+#include "art/Framework/IO/ProductMerge/MergeHelper.h"
 #include "cpp0x/type_traits"
 
 namespace art {
@@ -87,11 +88,6 @@ public:
   virtual bool filter(art::Event &e);
 
 private:
-  typedef std::vector<EDProduct const *> ProductList;
-
-  void fillFromSecondary(size_t nSecondaries,
-                         InputTag const &inputTag,
-                         ProductList &inProducts);
 
   MergeHelper helper_;
   MergeDetail detail_;
@@ -118,21 +114,9 @@ art::MergeFilter<T>::filter(art::Event &e) {
   // 2. Ask detail object how many events to read.
   size_t nSecondaries = detail_.nSecondaries();
 
-  // 3. For each product to be merged:
-  for (MergeHelper::MergeOpIter
-         i = helper_.mergeOpsBegin(),
-         endIter = helper_.mergeOpsEnd();
-       i != endIter;
-       ++i) {
-    ProductList inProducts;
-    //   1. Read products and fill a container.
-    fillFromSecondary(nSecondaries,
-                      (*i)->inputTag(),
-                      inProducts);
-    //   2. Call merge function.
-    //   3. Place resultant product in event.
-    (*i)->mergeAndPut(e, inProducts, ptrRemapper_);
-  }
+  // 3. Make the MergeHelper read info into all the products, invoke the
+  // merge functions and put the products into the event.
+  helper_.mergeAndPut(nSecondaries, e, ptrRemapper_);
 
   // 4. Call detail.finalizeEvent() if it exists.
   typename std::conditional<detail::has_finalizeEvent<T>::value, detail::call_finalizeEvent<T>, detail::void_do_not_call_finalizeEvent<T> >::type maybe_call_finalizeEvent;
@@ -140,14 +124,8 @@ art::MergeFilter<T>::filter(art::Event &e) {
   return false;
 }
 
-template <class T>
-void
-art::MergeFilter<T>::fillFromSecondary(size_t nSecondaries,
-                                       InputTag const &inputTag,
-                                       ProductList &inProducts) {
-  // FIXME: placeholder.
-}
-#endif /* art_Framework_Core_MergeFilter_h */
+// }
+#endif /* art_Framework_Modules_MergeFilter_h */
 
 // Local Variables:
 // mode: c++
