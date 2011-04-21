@@ -38,7 +38,6 @@ public:
   bool       hasCache()       const { return !cachedItems_.empty(); }
 
   bool       isAvailable()    const { return core_.isAvailable(); }
-  bool       isTransient()    const { return core_.isTransient(); }
   ProductID  id()             const { return core_.id(); }
   EDProductGetter const *
              productGetter()  const { return core_.productGetter(); }
@@ -82,14 +81,12 @@ protected:
   {
     typedef  typename TPtr::value_type const *  v_ptr;
 
-    if( isTransient() )   return TPtr( reinterpret_cast<v_ptr>(cachedItems_[idx])
-                                     , indicies_[idx] );
-    else if( hasCache() ) return TPtr( this->id()
-                                     , reinterpret_cast<v_ptr>(cachedItems_[idx])
-                                     , indicies_[idx] );
-    else                  return TPtr( this->id()
-                                     , indicies_[idx]
-                                     , productGetter() );
+    if( hasCache() ) return TPtr( this->id()
+                                , reinterpret_cast<v_ptr>(cachedItems_[idx])
+                                , indicies_[idx] );
+    else             return TPtr( this->id()
+                                , indicies_[idx]
+                                , productGetter() );
   }
 
   template< typename TPtr >
@@ -98,14 +95,12 @@ protected:
   {
     typedef  typename TPtr::value_type const *  v_ptr;
 
-    if( isTransient() )   return TPtr( reinterpret_cast<v_ptr>(*it)
-                                     , indicies_[it - cachedItems_.begin()] );
-    else if( hasCache() ) return TPtr( this->id()
-                                     , reinterpret_cast<v_ptr>(*it)
-                                     , indicies_[it - cachedItems_.begin()] );
-    else                  return TPtr( this->id()
-                                     , indicies_[it - cachedItems_.begin()]
-                                     , productGetter() );
+    if( hasCache() ) return TPtr( this->id()
+                                , reinterpret_cast<v_ptr>(*it)
+                                , indicies_[it - cachedItems_.begin()] );
+    else             return TPtr( this->id()
+                                , indicies_[it - cachedItems_.begin()]
+                                , productGetter() );
   }
 
   // --- Mutators:

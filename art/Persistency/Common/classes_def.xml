@@ -5,7 +5,6 @@
  <class name="art::RefCore::RefCoreTransients">
    <field name="itemPtr_" transient="true"/>
    <field name="prodGetter_" transient="true"/>
-   <field name="transient_" transient="true"/>
  </class>
  <class name="art::ConstPtrCache">
    <field name="ptr_" transient="true"/>

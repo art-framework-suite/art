@@ -47,39 +47,11 @@ namespace art
     template <typename C>
     Ptr(OrphanHandle<C> const& handle, key_type idx, bool setNow=true);
 
-    /*
-                                WARNING
-
-      Do not use the following constructor. It shall be removed from
-      upcoming releases of the art framework. The purpose of the class
-      template Ptr<T> is to provide a peristent pointer to an object of
-      type T, in a collection in an Event. This constructor attempts to
-      create an object that subverts that purpose, and which is
-      therefore inherently broken.
-
-      The remaining documentation for this function is legacy only.
-     */
-    // Constructor for ref to object that is not in an event.  An
-    // exception will be thrown if an attempt is made to persistify any
-    // object containing this Ptr.  Also, in the future work will be
-    // done to throw an exception if an attempt is made to put any
-    // object containing this Ptr into an event(or run or subRun).
-     template <typename C>
-     Ptr(C const* product, key_type itemKey, bool setNow=true);
-
-    // Constructor from test handle.
-    // An exception will be thrown if an attempt is made to persistify
-    // any object containing this Ptr.
-//     template <typename C>
-//     Ptr(TestHandle<C> const& handle, key_type itemKey, bool setNow=true):
-//       core_(handle.id(), getItem_(handle.product(), itemKey), 0, true), key_(itemKey)
-//     { }
-
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
     Ptr(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-      core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID), false), key_(itemKey)
+      core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID)), key_(itemKey)
     { }
 
     // Constructor for use in the various X::fillView(...) functions
@@ -90,14 +62,14 @@ namespace art
     // Event. The given ProductID must be the id of the collection
     // in the Event.
     Ptr(ProductID const& productID, T const* item, key_type item_key) :
-      core_(productID, item, 0, false),
+      core_(productID, item, 0),
       key_(item_key)
     { }
 
     // Constructor that creates an invalid ("null") Ptr that is
     // associated with a given product (denoted by that product's ProductID).
     explicit Ptr(ProductID const& id) :
-      core_(id, 0, 0, false),
+      core_(id, 0, 0),
       key_(key_traits<key_type>::value)
     { }
 
@@ -115,8 +87,7 @@ namespace art
     Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
       core_(iOther.id(),
             (iOther.hasCache()? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
-            iOther.productGetter(),
-            iOther.isTransient()),
+            iOther.productGetter()),
       key_(iOther.key())
     { }
 
@@ -125,8 +96,7 @@ namespace art
     Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<U, T>::value>::type * = 0):
       core_(iOther.id(),
             dynamic_cast<T const*>(iOther.get()),
-            0,
-            iOther.isTransient()),
+            0),
       key_(iOther.key())
     { }
 
@@ -159,9 +129,6 @@ namespace art
     // in the event. No type checking is done.
     bool isAvailable() const { return core_.isAvailable(); }
 
-    // Checks if this Ptr is transient (i.e. not persistable).
-    bool isTransient() const { return core_.isTransient(); }
-
     // Accessor for product ID.
     ProductID id() const { return core_.id(); }
 
@@ -175,12 +142,6 @@ namespace art
     RefCore const& refCore() const { return core_; }
 
   private:
-    // Constructor for extracting a transient Ptr from a PtrVector.
-    Ptr(T const* item, key_type item_key) :
-      core_(ProductID(), item, 0, true),
-      key_(item_key) {
-    }
-
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
 
@@ -217,7 +178,7 @@ namespace art
   Ptr<T>::Ptr(Handle<C> const& handle,
               typename Ptr<T>::key_type idx,
               bool setNow) :
-    core_(handle.id(), getItem_(handle.product(), idx), 0, false),
+    core_(handle.id(), getItem_(handle.product(), idx), 0),
     key_(idx)
   { }
 
@@ -227,19 +188,9 @@ namespace art
   Ptr<T>::Ptr(OrphanHandle<C> const& handle,
               key_type idx,
               bool setNow) :
-    core_(handle.id(), getItem_(handle.product(), idx), 0, false),
+    core_(handle.id(), getItem_(handle.product(), idx), 0),
     key_(idx)
     { }
-
-  template <typename T>
-  template <typename C>
-  inline
-  Ptr<T>::Ptr(C const* product,
-              key_type idx,
-              bool setNow) :
-    core_(ProductID(), product != 0 ? getItem_(product,idx) : 0, 0, true),
-    key_(product != 0 ? idx : key_traits<key_type>::value)
-  { }
 
   template<typename T>
   template<typename C>
