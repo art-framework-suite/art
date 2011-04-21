@@ -39,21 +39,17 @@ public:
 
     RefCore( ProductID const &       theId
            , void const *            prodPtr
-           , EDProductGetter const * prodGetter
-           , bool                    transient )
+           , EDProductGetter const * prodGetter )
   : id_        ( theId )
-  , transients_( prodPtr, prodGetter, transient )
+  , transients_( prodPtr, prodGetter )
   { }
 
   // --- Observers:
 
-  bool  isNonnull()   const { return isTransient() ? productPtr() != 0
-                                                 : id_.isValid(); }
+  bool  isNonnull()   const { return id_.isValid(); }
   bool  isNull()      const { return !isNonnull(); }
   bool  operator ! () const { return isNull(); }
 
-  bool  isTransient()    const { return transients_.transient_; }
-  int   isTransientInt() const { return transients_.transient_ ? 1 : 0; }
   // Checks if collection is in memory or available
   // in the Event. No type checking is done.
   bool  isAvailable()    const;
@@ -88,25 +84,18 @@ public:
     // RefCoreTransients object resides is a pointer
     mutable void const *            itemPtr_;     // transient
     mutable EDProductGetter const * prodGetter_;  // transient
-    bool                            transient_;   // transient
 
     // --- Construction/destruction:
       RefCoreTransients()
     : itemPtr_   ( 0 )
     , prodGetter_( 0 )
-    , transient_ ( false )
     { }
     explicit
       RefCoreTransients( void const *            prodPtr
-                       , EDProductGetter const * prodGetter
-                       , bool                    transient )
+                       , EDProductGetter const * prodGetter )
     : itemPtr_   ( prodPtr )
     , prodGetter_( prodGetter )
-    , transient_ ( transient )
     { }
-
-    // --- Accessors:
-    bool isTransient() const { return transient_; }
 
     // --- Mutators:
     void setProductGetter( EDProductGetter const * prodGetter ) const;
@@ -117,7 +106,6 @@ public:
 private:
 
   void  setId( ProductID const & iId ) { id_ = iId; }
-  void  setTransient() { transients_.transient_ = true; }
 
   ProductID          id_;
   RefCoreTransients  transients_;
@@ -128,11 +116,7 @@ private:
 
 inline bool
   art::operator == ( RefCore const & lhs, RefCore const & rhs )
-{ return lhs.isTransient() == rhs.isTransient()
-      && (lhs.isTransient() ? lhs.productPtr() == rhs.productPtr()
-                            : lhs.id() == rhs.id()
-         );
-}
+{ return lhs.id() == rhs.id(); }
 
 inline bool
   art::operator != ( RefCore const & lhs, RefCore const & rhs )
@@ -140,10 +124,7 @@ inline bool
 
 inline bool
   art::operator < ( RefCore const & lhs, RefCore const & rhs )
-{ return lhs.isTransient()
-       ? ( rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false )
-       : ( rhs.isTransient() ? true : lhs.id() < rhs.id() );
-}
+{ return lhs.id() < rhs.id(); }
 
 inline void
   art::swap( art::RefCore & lhs, art::RefCore & rhs )

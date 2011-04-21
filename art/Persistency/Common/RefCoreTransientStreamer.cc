@@ -14,11 +14,6 @@ namespace art {
       obj->setProductGetter(prodGetter_);
       obj->setProductPtr(0);
     } else {
-      RefCoreTransients* obj = static_cast<RefCoreTransients *>(objp);
-      if (obj->isTransient()) {
-        throw Exception(errors::InvalidReference,"Inconsistency")
-          << "RefCoreTransientStreamer: transient Ref or Ptr cannot be made persistent.";
-      }
       cl->WriteBuffer(R_b, objp);
     }
   }
