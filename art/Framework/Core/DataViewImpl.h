@@ -38,15 +38,6 @@
 // ...
 // event.put("apple", pFruits);
 //
-// Getting a reference to a product before that product is put into the
-// event/subrun/run.
-// NOTE: The art::RefProd returned will not work until after the
-// art::DataViewImpl has been committed (which happens after the
-// EDProducer::produce method has ended)
-//
-// std::auto_ptr<AppleCollection> pApples( new AppleCollection);
-// art::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
-//
 // //do loop and fill collection
 // for(unsigned int index = 0; ..... ) {
 // ....

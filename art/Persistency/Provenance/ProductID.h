@@ -4,17 +4,14 @@
 /*----------------------------------------------------------------------
 
 ProductID: A unique identifier for each EDProduct within a process.
-Used only in Ref, Ptr, and similar classes.
+Used only in Ptr and similar classes.
 
 The high order 16 bits is the process index, identifying the process
 in which the product was created.  Exception: An index of 0 means that
 the product was created prior to the new format (i.e. prior to CMSSW_3_0_0.
 
-The low order 16 bits is the product index, identifying the product that
+The low order 16 bits is the product index, identifying the product
 in which the product was created.  An index of zero means no product.
-
-
-The
 
 ----------------------------------------------------------------------*/
 

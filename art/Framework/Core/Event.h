@@ -96,17 +96,6 @@ namespace art {
     OrphanHandle<PROD>
       put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
-    ///Returns a RefProd to a product before that product has been placed into the Event.
-    /// The RefProd (and any Ref's made from it) will no work properly until after the
-    /// Event has been committed (which happens after leaving the EDProducer::produce method)
-    template <typename PROD>
-    RefProd<PROD>
-      getRefBeforePut() {return getRefBeforePut<PROD>(std::string());}
-
-    template <typename PROD>
-    RefProd<PROD>
-      getRefBeforePut(std::string const& productInstanceName);
-
     template <typename PROD>
     bool
       get(SelectorBase const& sel,
@@ -285,20 +274,6 @@ namespace art {
 
     return(OrphanHandle<PROD>(wp->product(), makeProductID(desc)));
   }  // put<>()
-
-// ----------------------------------------------------------------------
-
-  template <typename PROD>
-  RefProd<PROD>
-  Event::getRefBeforePut(std::string const& productInstanceName)
-  {
-    PROD* p = 0;
-    ConstBranchDescription const& desc =
-      getBranchDescription(TypeID(*p), productInstanceName);
-
-    //should keep track of what Ref's have been requested and make sure they are 'put'
-    return RefProd<PROD>(makeProductID(desc), prodGetter());
-  }  // getRefBeforePut<>()
 
 // ----------------------------------------------------------------------
 

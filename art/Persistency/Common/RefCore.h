@@ -3,7 +3,7 @@
 
 // ======================================================================
 //
-// RefCore: The component of art::Ref containing
+// RefCore: The component of art::Ptr containing
 //            - the product ID and
 //            - the product getter.
 //
