@@ -22,7 +22,7 @@ namespace art
   //
   // The trait struct template key_traits<K> is used to carry
   // information relevant to the type K when used as a 'key' in
-  // RefVector and its related classes and templates.
+  // PtrVector and its related classes and templates.
   //
   // The general case works only for integral types K; for more
   // 'esoteric' types, one must introduce an explicit specialization.

@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// RefCore: The component of art::Ref containing
+// RefCore: The component of art::Ptr containing
 //            - the product ID and
 //            - the product getter.
 //
@@ -62,9 +62,9 @@ EDProduct const *
   if( productPtr() == 0 && productGetter() == 0) {
     throw Exception(errors::InvalidReference, "BadRefCore")
       << "Detected an attempt to dereference a RefCore containing a\n"
-         "valid ProductID but neither a valid product pointer nor\n"
+         "valid ProductID, but neither a valid product pointer nor\n"
          "EDProductGetter has been detected. The calling code must be\n"
-         "modified to establish a functioning EDProducterGetter for the\n"
+         "modified to establish a functioning EDProductGetter for the\n"
          "context in which this call is made.\n";
   }
   return productGetter()->getIt(id_);
@@ -83,8 +83,8 @@ void
   if(    productToBeInserted.isNull()
       && ! productToBeInserted.isTransient() ) {
     throw art::Exception(errors::InvalidReference, "Inconsistency")
-      << "RefCore::pushBackItem: Ref or Ptr has invalid (zero) product ID,\n"
-         "so it cannot be added to RefVector (PtrVector). id should be ("
+      << "RefCore::pushBackItem: Ptr has invalid (zero) product ID,\n"
+         "so it cannot be added to PtrVector. id should be ("
       << id() << ")\n";
   }
 
@@ -92,21 +92,21 @@ void
     if( isTransient() != productToBeInserted.isTransient() ) {
       if( productToBeInserted.isTransient() ) {
         throw art::Exception(errors::InvalidReference, "Inconsistency")
-          << "RefCore::pushBackItem: Transient Ref or Ptr cannot be added\n"
-             "to persistable RefVector (PtrVector). id should be ("
+          << "RefCore::pushBackItem: Transient Ptr cannot be added\n"
+             "to persistable PtrVector. id should be ("
           << id() << ")\n";
       } else {
         throw art::Exception(errors::InvalidReference, "Inconsistency")
-          << "RefCore::pushBackItem: Persistable Ref or Ptr cannot be added\n"
-             "to transient RefVector (PtrVector). id is ("
+          << "RefCore::pushBackItem: Persistable Ptr cannot be added\n"
+             "to transient PtrVector. id is ("
           << productToBeInserted.id() << ")\n";
       }
     }
     if(    ! productToBeInserted.isTransient()
         && id() != productToBeInserted.id() ) {
       throw art::Exception(errors::InvalidReference, "Inconsistency")
-        << "RefCore::pushBackItem: Ref or Ptr is inconsistent with\n"
-           "RefVector (PtrVector). id = ("
+        << "RefCore::pushBackItem: Ptr is inconsistent with\n"
+           "PtrVector. id = ("
         << productToBeInserted.id() << "), should be (" << id() << ")\n";
     }
     if(    productToBeInserted.isTransient()
