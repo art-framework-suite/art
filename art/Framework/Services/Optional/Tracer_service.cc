@@ -5,6 +5,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/Run.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -31,7 +32,7 @@ public:
   void postBeginJob();
   void postEndJob();
 
-  void preBeginRun(RunID const& id, Timestamp const& ts);
+  void preBeginRun(Run const& run);
   void postBeginRun(Run const& run);
 
   void preBeginSubRun(SubRunID const& id, Timestamp const& ts);
@@ -283,9 +284,13 @@ Tracer::postModuleEvent(ModuleDescription const& iDescription) {
 }
 
 void
-Tracer::preBeginRun(RunID const& iID, Timestamp const& iTime) {
+Tracer::preBeginRun(Run const& run) {
    depth_=0;
-   indent(2) << " processing begin run:" << iID << " time:" << iTime.value() << std::endl;
+   indent(2) << " processing begin run:"
+             << run.id()
+             << " time:"
+             << run.beginTime().value()
+             << std::endl;
 }
 void
 Tracer::postBeginRun(Run const&) {

@@ -56,8 +56,9 @@ namespace art {
     typedef RunPrincipal MyPrincipal;
     static bool const begin_ = true;
     static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
-      a->preBeginRunSignal_(ep->id(), ep->beginTime());
+    static void preScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
+      Run run(*ep, ModuleDescription());
+      a->preBeginRunSignal_(run);
     }
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());

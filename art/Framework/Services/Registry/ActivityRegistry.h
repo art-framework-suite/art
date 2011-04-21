@@ -209,13 +209,13 @@ namespace art {
     }
     AR_DECL_STATE_1_ARG_FUNC(PostProcessEvent)
 
-      typedef sigc::signal<void, art::RunID const&, art::Timestamp const&> PreBeginRun;
+      typedef sigc::signal<void, Run const&> PreBeginRun;
     /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
     PreBeginRun preBeginRunSignal_;
     void watchPreBeginRun(PreBeginRun::slot_type const& iSlot) {
       preBeginRunSignal_.connect(iSlot);
     }
-    AR_DECL_STATE_2_ARG_FUNC(PreBeginRun)
+    AR_DECL_STATE_1_ARG_FUNC(PreBeginRun)
 
       typedef sigc::signal<void, Run const&> PostBeginRun;
     /// signal is emitted after all modules have finished processing the beginRun

@@ -7,6 +7,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #undef AR_IMPL
 
+#include "art/Framework/Core/Run.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -430,9 +431,9 @@ AR_1_ARG_UPDATER_DEFN(PostProcessEvent) {
    setWorkFlowStatus("PostProcessEvent");
 }
 
-AR_2_ARG_UPDATER_DEFN(PreBeginRun) {
+AR_1_ARG_UPDATER_DEFN(PreBeginRun) {
    std::ostringstream os;
-   os << arg1;
+   os << arg1.id();
    setWorkFlowStatus(os.str());
 }
 
