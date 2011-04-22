@@ -80,7 +80,6 @@ namespace art {
     std::string const productRegistry          = "ProductRegistry";
     std::string const productDependencies      = "ProductDependencies";
     std::string const parameterSetMap          = "ParameterSetMap";
-    std::string const moduleDescriptionMap     = "ModuleDescriptionMap";
     std::string const processHistoryMap        = "ProcessHistoryMap";
     std::string const processConfigurationMap  = "ProcessConfigurationMap";
     std::string const branchIDLists            = "BranchIDLists";
@@ -188,13 +187,6 @@ namespace art {
     std::string const & parameterSetMapBranchName( ) {
       return parameterSetMap;
     }
-
-#ifdef FW_OBSOLETE
-    // Branch on MetaData Tree
-    std::string const & moduleDescriptionMapBranchName( ) {
-      return moduleDescriptionMap;
-    }
-#endif
 
     // Branch on MetaData Tree
     std::string const & processHistoryMapBranchName( ) {

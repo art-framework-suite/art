@@ -11,7 +11,6 @@
 
 // identify outdated components for future removal:
 #define FW_BACKWARD_COMPATIBILITY
-#define FW_OBSOLETE
 
 // ----------------------------------------------------------------------
 
@@ -73,9 +72,6 @@ namespace art {
     std::string const & productDescriptionBranchName( );
     std::string const & productDependenciesBranchName( );
     std::string const & parameterSetMapBranchName( );
-#ifdef FW_OBSOLETE
-    std::string const & moduleDescriptionMapBranchName( );
-#endif
     std::string const & processHistoryMapBranchName( );
     std::string const & processConfigurationBranchName( );
     std::string const & branchIDListBranchName( );
