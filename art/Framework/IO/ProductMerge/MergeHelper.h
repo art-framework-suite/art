@@ -136,10 +136,11 @@ public:
 
 private:
   typedef std::vector<std::shared_ptr<MergeOpBase> > MergeOpList;
-  typedef MergeOpList::const_iterator MergeOpIter;
+  typedef MergeOpList::iterator MergeOpIter;
 
   void openAndReadMetaData(std::string const &fileName);
-  void mergeAndPutOne(boost::shared_ptr<MergeOpBase> const &mergeOp,
+  void mergeAndPutOne(boost::shared_ptr<MergeOpBase> mergeOp,
+                      SecondaryEventSequence const &seq,
                       size_t nSecondaries,
                       Event &e);
 

@@ -33,10 +33,14 @@ public:
 
   virtual
   void
-  initProductList(size_t nSecondaries = 0);
+  readFromFile(TTree *eventTree,
+               SecondaryEventSequence const &seq,
+               size_t nSecondaries);
 
 private:
   typedef std::vector<Wrapper<PROD> > SpecProdList;
+
+  void initProductList(size_t nSecondaries = 0);
 
   InputTag inputTag_;
   TypeID const inputType_;
@@ -120,6 +124,15 @@ mergeAndPut(Event &e,
   } else {
     e.put(rProd, outputInstanceLabel_);
   }
+}
+
+template <typename PROD>
+void
+art::MergeOp<PROD>::
+readFromFile(TTree *eventTree,
+             SecondaryEventSequence const &seq,
+             size_t nSecondaries) {
+  initProductList(nSecondaries);
 }
 
 template <typename PROD>

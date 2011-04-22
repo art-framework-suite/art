@@ -13,12 +13,14 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
+#include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -116,53 +118,36 @@ namespace art {
     // We don't pay attention to which branches exist in which file format versions
 
     FileFormatVersion *fftPtr = &fileFormatVersion_;
-    metaDataTree->SetBranchAddress(rootNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    setMetaDataBranchAddress(metaDataTree, fftPtr);
 
     FileIndex *findexPtr = &fileIndex_;
-    if (metaDataTree->FindBranch(rootNames::fileIndexBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(rootNames::fileIndexBranchName().c_str(), &findexPtr);
-    }
+    setMetaDataBranchAddress(metaDataTree, findexPtr);
 
     // Need to read to a temporary registry so we can do a translation of the BranchKeys.
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
-    metaDataTree->SetBranchAddress(rootNames::productDescriptionBranchName().c_str(),(&ppReg));
+    setMetaDataBranchAddress(metaDataTree, ppReg);
 
     // TODO: update to separate tree per CMS code (2010/12/01).
-    typedef map<fhicl::ParameterSetID, ParameterSetBlob> PsetMap;
-    PsetMap psetMap;
-    PsetMap *psetMapPtr = &psetMap;
-    metaDataTree->SetBranchAddress(rootNames::parameterSetMapBranchName().c_str(), &psetMapPtr);
+    ParameterSetMap psetMap;
+    ParameterSetMap *psetMapPtr = &psetMap;
+    setMetaDataBranchAddress(metaDataTree, psetMapPtr);
 
-    ProcessHistoryRegistry::collection_type pHistMap;
-    ProcessHistoryRegistry::collection_type *pHistMapPtr = &pHistMap;
-    metaDataTree->SetBranchAddress(rootNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
+    ProcessHistoryMap pHistMap;
+    ProcessHistoryMap *pHistMapPtr = &pHistMap;
+    setMetaDataBranchAddress(metaDataTree, pHistMapPtr);
 
-    auto_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
-    BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
-    if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(rootNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
-    }
+    auto_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
+    BranchIDLists *branchIDListsPtr = branchIDListsAPtr.get();
+    setMetaDataBranchAddress(metaDataTree, branchIDListsPtr);
 
     BranchChildren* branchChildrenBuffer = branchChildren_.get();
-    if (metaDataTree->FindBranch(rootNames::productDependenciesBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(rootNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
-    }
+    setMetaDataBranchAddress(metaDataTree, branchChildrenBuffer);
 
-    ModuleDescriptionRegistry::collection_type mdMap;
-    ModuleDescriptionRegistry::collection_type *mdMapPtr = &mdMap;
-    if (metaDataTree->FindBranch(rootNames::moduleDescriptionMapBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(rootNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
-    }
     // Here we read the metadata tree
     input::getEntry(metaDataTree, 0);
 
-    // The branchIDLists branch was read directly from the input file.
-    if (metaDataTree->FindBranch(rootNames::branchIDListBranchName().c_str()) == 0) {
-       throw art::Exception(errors::DataCorruption)
-          << "Failed to find branchIDLists branch in metaData tree.\n";
-    }
     branchIDLists_.reset(branchIDListsAPtr.release());
 
     // Check the, "Era" of the input file (new since art v0.5.0). If it
@@ -188,7 +173,7 @@ namespace art {
     // Merge into the hashed registries.
 
     // Parameter Set
-    for (PsetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
+    for (ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
        fhicl::ParameterSet pset;
        fhicl::make_ParameterSet(i->second.pset_, pset);
       // Note ParameterSet::id() has the side effect of making sure the
@@ -197,7 +182,6 @@ namespace art {
       fhicl::ParameterSetRegistry::put(pset);
     }
     ProcessHistoryRegistry::put(pHistMap);
-    ModuleDescriptionRegistry::put(mdMap);
 
     validateFile();
 

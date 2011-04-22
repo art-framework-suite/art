@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+#include "art/Framework/IO/ProductMerge/SecondaryEventSequence.h"
+
 namespace art {
   class MergeOpBase;
 
@@ -12,6 +14,8 @@ namespace art {
   class PtrRemapper;
   class TypeID;
 }
+
+class TTree;
 
 class art::MergeOpBase {
 public:
@@ -26,11 +30,13 @@ public:
 
   virtual
   void
-  mergeAndPut(Event &e, PtrRemapper const &remap) const = 0;
+  readFromFile(TTree *eventTree,
+               SecondaryEventSequence const &seq,
+               size_t nSecondaries) = 0;
 
   virtual
   void
-  initProductList(size_t nSecondaries) = 0;
+  mergeAndPut(Event &e, PtrRemapper const &remap) const = 0;
 
 };
 #endif /* art_Framework_IO_ProductMerge_MergeOpBase_h */

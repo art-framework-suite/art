@@ -1,4 +1,5 @@
 #include "art/Framework/IO/ProductMerge/MergeHelper.h"
+#include "art/Framework/IO/ProductMerge/SecondaryEventSequence.h"
 
 art::MergeHelper::MergeHelper(fhicl::ParameterSet const &pset,
                               ProducerBase &producesProvider)
@@ -37,12 +38,22 @@ art::MergeHelper::mergeAndPut(size_t nSecondaries, Event &e) {
   ptrRemapper_.setProductGetter(e.productGetter());
 
   // Decide which events we're reading and prime the event tree cache.
+  SecondaryEventSequence seq;
 
   // Do the branch-wise read, merge and put.
   cet::for_all(mergeOps_,
                std::bind(&MergeHelper::mergeAndPutOne,
                          this,
                          _1,
+                         std::ref(seq),
                          nSecondaries,
                          std::ref(e)));
+}
+
+void
+art::MergeHelper::mergeAndPutOne(boost::shared_ptr<MergeOpBase> op,
+                                 SecondaryEventSequence const &seq,
+                                 size_t nSecondaries, Event &e) {
+  op->readFromFile(currentEventTree_, seq, nSecondaries);
+  op->mergeAndPut(e, ptrRemapper_);
 }
