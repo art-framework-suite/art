@@ -9,9 +9,6 @@
 
 #include <string>
 
-// identify outdated components for future removal:
-#define FW_BACKWARD_COMPATIBILITY
-
 // ----------------------------------------------------------------------
 
 namespace art {
@@ -30,19 +27,7 @@ namespace art {
 
   std::string const & BranchTypeToMetaDataTreeName( BranchType );
 
-#ifdef FW_BACKWARD_COMPATIBILITY
-  std::string const & BranchTypeToInfoTreeName( BranchType );
-#endif
-
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType );
-
-#ifdef FW_BACKWARD_COMPATIBILITY
-  std::string const & BranchTypeToAuxBranchName( BranchType );
-#endif
-
-#ifdef FW_BACKWARD_COMPATIBILITY
-  std::string const & BranchTypeToProductStatusBranchName( BranchType );
-#endif
 
   std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType );
 
