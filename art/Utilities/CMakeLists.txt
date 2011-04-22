@@ -36,7 +36,6 @@ target_link_libraries(art_Utilities
 
 set (HEADERS
   CPUTimer.h
-  CRC16.h
   CRC32Calculator.h
   DebugMacros.h
   Digest.h
