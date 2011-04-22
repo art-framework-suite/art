@@ -18,7 +18,6 @@
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ModuleDescriptionRegistry.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"

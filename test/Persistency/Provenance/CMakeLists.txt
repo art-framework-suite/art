@@ -19,7 +19,7 @@ foreach(cppunit_source ${cppunit_files})
     )
 endforeach()
 
-foreach(test_source EntryDescription_t.cpp ModuleDescription_t.cpp ProcessConfiguration_t.cpp ProcessHistory_t.cpp)
+foreach(test_source ModuleDescription_t.cpp ProcessConfiguration_t.cpp ProcessHistory_t.cpp)
   get_filename_component(test_name ${test_source} NAME_WE )
   cet_test(${test_name} SOURCES ${test_source})
 endforeach()

@@ -29,8 +29,6 @@
  <class name="art::ProductRegistry"/>
    <class name="art::BranchKey"/>
    <class name="art::BranchDescription"/>
-     <class name="art::ProductID">
-     </class>
      <class name="std::set<fhicl::ParameterSetID>"/>
      <class name="art::ProcessConfigurationID"/>
      <class name="std::set<art::ProcessConfigurationID>"/>
@@ -46,11 +44,11 @@
  <class name="art::RunAuxiliary"/>
    <class name="art::RunID"/>
    <class name="std::set<art::ProcessHistoryID>"/>
- <class name="art::EventEntryDescription"/>
- <class name="art::EventEntryInfo"/>
  <class name="art::ProcessHistoryMap"/>
  <class name="std::pair<const art::ProcessHistoryID, art::ProcessHistory>"/>
  <class name="art::ParameterSetBlob"/>
  <class name="art::ParameterSetMap"/>
  <class name="std::pair<fhicl::ParameterSetID, art::ParameterSetBlob>"/>
+ <class name="art::ProductID"/>
+
 </lcgdict>
