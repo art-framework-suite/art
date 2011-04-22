@@ -113,17 +113,15 @@ namespace art {
       throw art::Exception(errors::FileReadError) << "Could not find tree " << rootNames::metaDataTreeName()
                                                          << " in the input file.\n";
 
-    // To keep things simple, we just read in every possible branch that exists.
-    // We don't pay attention to which branches exist in which file format versions
-
     FileFormatVersion *fftPtr = &fileFormatVersion_;
     setMetaDataBranchAddress(metaDataTree, fftPtr);
 
     FileIndex *findexPtr = &fileIndex_;
     setMetaDataBranchAddress(metaDataTree, findexPtr);
 
-    // Need to read to a temporary registry so we can do a translation of the BranchKeys.
-    // This preserves backward compatibility against friendly class name algorithm changes.
+    // Need to read to a temporary registry so we can do a translation
+    // of the BranchKeys.  This preserves backward compatibility against
+    // friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
     setMetaDataBranchAddress(metaDataTree, ppReg);
@@ -137,7 +135,7 @@ namespace art {
     ProcessHistoryMap *pHistMapPtr = &pHistMap;
     setMetaDataBranchAddress(metaDataTree, pHistMapPtr);
 
-    auto_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
+    auto_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDLists);
     BranchIDLists *branchIDListsPtr = branchIDListsAPtr.get();
     setMetaDataBranchAddress(metaDataTree, branchIDListsPtr);
 

@@ -40,9 +40,6 @@ namespace art {
   template <typename T>
   void setMetaDataBranchAddress(TTree *tree,
                                 T *&t);
-  template <typename T>
-  void maybeSetMetaDataBranchAddress(TTree *tree,
-                                     T *&t);
 }
 
 template <typename T>
@@ -50,15 +47,6 @@ inline
 void art::setMetaDataBranchAddress(TTree *tree,
                                    T *&t) {
   tree->SetBranchAddress(rootName<T>(), &t);
-}
-
-template <typename T>
-inline
-void art::maybeSetMetaDataBranchAddress(TTree *tree,
-                                        T *&t) {
-  if (tree->FindBranch(rootName<T>())) {
-    setMetaDataBranchAddress(tree, t);
-  }
 }
 
 #undef ART_ROOTNAME_SIMPLE
