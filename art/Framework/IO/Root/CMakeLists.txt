@@ -9,6 +9,7 @@ set(art_Framework_IO_Root_sources
   RootOutputFile.cc
   RootOutputTree.cc
   RootTree.cc
+  rootNames.cc
   )
 
 add_library(art_Framework_IO_RootVersion SHARED
@@ -39,6 +40,7 @@ install(FILES
   RootOutputFile.h
   RootOutputTree.h
   RootTree.h
+  rootNames.h
   DESTINATION  ${product}/${version}/include/art/Framework/IO/Root
 )
 

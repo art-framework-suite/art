@@ -8,7 +8,6 @@
 // framework support:
 #include "art/Persistency/Provenance/BranchType.h"
 
-
 namespace art {
 
   namespace {
@@ -72,23 +71,6 @@ namespace art {
     std::string const eventAux                 = event  + aux;
 #endif
 
-    std::string const parentageTree            = "Parentage";
-    std::string const parentageIDBranch        = "Hash";
-    std::string const parentageBranch          = "Description";
-
-    std::string const metaDataTree             = "MetaData";
-    std::string const productRegistry          = "ProductRegistry";
-    std::string const productDependencies      = "ProductDependencies";
-    std::string const parameterSetMap          = "ParameterSetMap";
-    std::string const processHistoryMap        = "ProcessHistoryMap";
-    std::string const processConfigurationMap  = "ProcessConfigurationMap";
-    std::string const branchIDLists            = "BranchIDLists";
-    std::string const fileFormatVersion        = "FileFormatVersion";
-    std::string const fileIdentifier           = "FileIdentifier";
-    std::string const fileIndex                = "FileIndex";
-    std::string const eventHistory             = "EventHistory";
-    std::string const eventBranchMapper        = "EventBranchMapper";
-
     inline
     std::string const & select( BranchType          bt
                               , std::string const & event_str
@@ -105,7 +87,6 @@ namespace art {
     }
 
   }  // namespace
-
 
   std::string const & BranchTypeToString( BranchType bt ) {
     return select( bt, event, run, subRun );
@@ -151,89 +132,6 @@ namespace art {
 
   std::string const & BranchTypeToMinorIndexName( BranchType bt ) {
     return select( bt, eventMinorIndex, runMinorIndex, subRunMinorIndex );
-  }
-
-  namespace rootNames {
-
-    // EntryDescription tree (1 entry per recorded distinct value of EntryDescription)
-    std::string const & parentageTreeName( ) {
-      return parentageTree;
-    }
-
-    std::string const & parentageIDBranchName( ) {
-      return parentageIDBranch;
-    }
-
-    std::string const & parentageBranchName( ) {
-      return parentageBranch;
-    }
-
-    // MetaData Tree (1 entry per file)
-    std::string const & metaDataTreeName( ) {
-      return metaDataTree;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & productDescriptionBranchName( ) {
-      return productRegistry;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & productDependenciesBranchName( ) {
-      return productDependencies;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & parameterSetMapBranchName( ) {
-      return parameterSetMap;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & processHistoryMapBranchName( ) {
-      return processHistoryMap;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & processConfigurationBranchName( ) {
-      return processConfigurationMap;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & branchIDListBranchName( ) {
-      return branchIDLists;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & fileFormatVersionBranchName( ) {
-      return fileFormatVersion;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & fileIdentifierBranchName( ) {
-      return fileIdentifier;
-    }
-
-    // Branch on MetaData Tree
-    std::string const & fileIndexBranchName( ) {
-      return fileIndex;
-    }
-
-    // Branch on Event History Tree
-    std::string const & eventHistoryBranchName( ) {
-      return eventHistory;
-    }
-
-    std::string const & eventTreeName( ) {
-      return events;
-    }
-
-    std::string const & eventMetaDataTreeName( ) {
-      return eventMeta;
-    }
-
-    std::string const & eventHistoryTreeName( ) {
-      return eventHistory;
-    }
   }
 
 }  // art
