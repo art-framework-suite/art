@@ -1,19 +1,16 @@
 #ifndef art_Framework_IO_ProductMerge_MergeHelper_h
 #define art_Framework_IO_ProductMerge_MergeHelper_h
 
-#include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMerge/MergeOp.h"
-#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cpp0x/functional"
 #include "cpp0x/memory"
-
-#include "boost/function.hpp"
-
 #include <string>
 #include <vector>
 
@@ -61,7 +58,7 @@ public:
   //
   //       void mergefunc (std::vector<PROD const *> const &,
   //                       PROD &,
-  //                       PtrRemapper const &remap),
+  //                       PtrRemapper const &),
   //
   //    This function may be a free function, a function object (in
   //    which case operator() should be the member function with the
@@ -84,16 +81,23 @@ public:
   //////////////////////////////////////////////////////////////////////
 
   // Provide an InputTag and free function or function object.
-  template <typename PROD, typename FUNC>
+  template <typename PROD>
   void declareMergeOp(InputTag const &inputTag,
-                      FUNC mergeFunc);
+                      std::function< void (std::vector<PROD const *> const &,
+                                           PROD &,
+                                           PtrRemapper const &)
+                                   > mergeFunc);
 
-  //  Provide an InputTag, instance label and free function or function
+
+  //  Provide an InputTag, instance label, and free function or function
   //  object,
-  template <typename PROD, typename FUNC>
+  template <typename PROD>
   void declareMergeOp(InputTag const &inputTag,
                       std::string const &outputInstanceLabel,
-                      FUNC mergeFunc);
+                      std::function< void (std::vector<PROD const *> const &,
+                                           PROD &,
+                                           PtrRemapper const &)
+                                   > mergeFunc);
 
   // Provide an InputTag, member function with the correct signature and
   // object to which the member function should be bound.
@@ -101,18 +105,18 @@ public:
   void declareMergeOp(InputTag const &inputTag,
                       void (T::*mergefunc) (std::vector<PROD const *> const &,
                                             PROD &,
-                                            PtrRemapper const &remap),
+                                            PtrRemapper const &),
                       T *t);
 
   // Provide an InputTag, instance label, member function with the
-  // correct signature and object to which the member function should be
+  // correct signature, and object to which the member function should be
   // bound.
   template <typename PROD, typename T>
   void declareMergeOp(InputTag const &inputTag,
                       std::string const &outputInstanceLabel,
                       void (T::*mergefunc) (std::vector<PROD const *> const &,
                                             PROD &,
-                                            PtrRemapper const &remap),
+                                            PtrRemapper const &),
                       T *t);
 
   //////////////////////////////////////////////////////////////////////
@@ -142,31 +146,31 @@ art::MergeHelper::produces(std::string const& instanceName) {
   return producesProvider_.produces<P>(instanceName);
 }
 
-template <typename PROD, typename FUNC>
+template <typename PROD>
 void
 art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
-               FUNC mergeFunc) {
-  producesProvider_.produces<PROD>();
-  mergeOps_.push_back(std::shared_ptr<MergeOpBase>
-                      (new MergeOp<PROD>
-                       (inputTag,
-                        std::string(),
-                        mergeFunc)));
+               std::function< void (std::vector<PROD const *> const &,
+                                    PROD &,
+                                    PtrRemapper const &)
+                            > mergeFunc) {
+  declareMergeOp(inputTag, std::string(), mergeFunc);
 }
 
-template <typename PROD, typename FUNC>
+template <typename PROD>
 void
 art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
                std::string const &outputInstanceLabel,
-               FUNC mergeFunc) {
+               std::function< void (std::vector<PROD const *> const &,
+                                    PROD &,
+                                    PtrRemapper const &)
+                            > mergeFunc) {
   producesProvider_.produces<PROD>(outputInstanceLabel);
-  mergeOps_.push_back(std::shared_ptr<MergeOpBase>
-                      (new MergeOp<PROD>
-                       (inputTag,
-                        outputInstanceLabel,
-                        mergeFunc)));
+  std::shared_ptr<MergeOpBase> p(new MergeOp<PROD>(inputTag,
+                                                   outputInstanceLabel,
+                                                   mergeFunc));
+  mergeOps_.push_back(p);
 }
 
 template <typename PROD, typename T>
@@ -175,14 +179,9 @@ art::MergeHelper::
 declareMergeOp(InputTag const &inputTag,
                void (T::*mergeFunc) (std::vector<PROD const *> const &,
                                      PROD &,
-                                     PtrRemapper const &remap),
+                                     PtrRemapper const &),
                T *t) {
-  producesProvider_.produces<PROD>();
-  mergeOps_.push_back(std::shared_ptr<MergeOpBase>
-                      (new MergeOp<PROD>
-                       (inputTag,
-                        std::string(),
-                        std::bind(mergeFunc, t, _1, _2, _3))));
+  declareMergeOp(inputTag, std::string(), mergeFunc, t);
 }
 
 template <typename PROD, typename T>
@@ -192,14 +191,14 @@ declareMergeOp(InputTag const &inputTag,
                std::string const &outputInstanceLabel,
                void (T::*mergeFunc) (std::vector<PROD const *> const &,
                                      PROD &,
-                                     PtrRemapper const &remap),
+                                     PtrRemapper const &),
                T *t) {
   producesProvider_.produces<PROD>(outputInstanceLabel);
-  mergeOps_.push_back(std::shared_ptr<MergeOpBase>
-                      (new MergeOp<PROD>
-                       (inputTag,
-                        outputInstanceLabel,
-                        std::bind(mergeFunc, t, _1, _2, _3))));
+  std::shared_ptr<MergeOpBase> p(new MergeOp<PROD>(inputTag,
+                                                   outputInstanceLabel,
+                                                   std::bind(mergeFunc, t,
+                                                             _1, _2, _3)));
+  mergeOps_.push_back(p);
 }
 
 #endif /* art_Framework_IO_ProductMerge_MergeHelper_h */

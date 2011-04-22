@@ -1,9 +1,10 @@
 #ifndef art_Framework_IO_ProductMerge_MergeOp_h
 #define art_Framework_IO_ProductMerge_MergeOp_h
 
+#include "art/Framework/Core/Event.h"
 #include "art/Framework/IO/ProductMerge/MergeOpBase.h"
 #include "art/Utilities/InputTag.h"
-#include "art/Framework/Core/Event.h"
+#include "cpp0x/functional"
 
 namespace art {
   template <typename PROD> class MergeOp;
@@ -40,9 +41,9 @@ private:
   InputTag inputTag_;
   TypeID const inputType_;
   std::string outputInstanceLabel_;
-  boost::function<void (std::vector<PROD const *> const &,
-                        PROD &,
-                        PtrRemapper const &remap)> mergeFunc_;
+  std::function<void (std::vector<PROD const *> const &,
+                      PROD &,
+                      PtrRemapper const &)> mergeFunc_;
 
 SpecProdList inProducts_;
 typename SpecProdList::iterator prodIter_;
