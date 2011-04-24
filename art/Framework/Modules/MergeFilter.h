@@ -1,9 +1,10 @@
 #ifndef art_Framework_Modules_MergeFilter_h
 #define art_Framework_Modules_MergeFilter_h
 
+#include "CLHEP/Random/RandFlat.h"
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/IO/ProductMerge/MergeHelper.h"
-#include "art/Framework/IO/ProductMerge/MergeHelper.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "cpp0x/type_traits"
 
 namespace art {
@@ -87,7 +88,7 @@ public:
   virtual bool filter(art::Event &e);
 
 private:
-
+  CLHEP::RandFlat dist_;  // construct engine early so helper_ can use it
   MergeHelper helper_;
   MergeDetail detail_;
 };
@@ -96,6 +97,7 @@ template <class T>
 art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
+  dist_(createEngine(get_seed_value(p))),
   helper_(p, *this),
   detail_(p, helper_)
 {
@@ -110,8 +112,11 @@ art::MergeFilter<T>::beginJob() {
 template <class T>
 bool
 art::MergeFilter<T>::filter(art::Event &e) {
-  // 1. Call detail.startEvent() if it exists.
-  typename std::conditional<detail::has_startEvent<T>::value, detail::call_startEvent<T>, detail::void_do_not_call_startEvent<T> >::type maybe_call_startEvent;
+  // 1. Call detail object's startEvent() if it exists.
+  typename std::conditional<detail::has_startEvent<T>::value,
+                            detail::call_startEvent<T>,
+                            detail::void_do_not_call_startEvent<T> >::type
+           maybe_call_startEvent;
   maybe_call_startEvent(detail_);
 
   // 2. Ask detail object how many events to read.
@@ -121,8 +126,11 @@ art::MergeFilter<T>::filter(art::Event &e) {
   // merge functions and put the products into the event.
   helper_.mergeAndPut(nSecondaries, e);
 
-  // 4. Call detail.finalizeEvent() if it exists.
-  typename std::conditional<detail::has_finalizeEvent<T>::value, detail::call_finalizeEvent<T>, detail::void_do_not_call_finalizeEvent<T> >::type maybe_call_finalizeEvent;
+  // 4. Call detail object's finalizeEvent() if it exists.
+  typename std::conditional<detail::has_finalizeEvent<T>::value,
+                            detail::call_finalizeEvent<T>,
+                            detail::void_do_not_call_finalizeEvent<T> >::type
+           maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return false;
 }
