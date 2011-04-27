@@ -1,12 +1,12 @@
-#ifndef art_Framework_IO_ProductMerge_MergeOpBase_h
-#define art_Framework_IO_ProductMerge_MergeOpBase_h
+#ifndef art_Framework_IO_ProductMix_MixOpBase_h
+#define art_Framework_IO_ProductMix_MixOpBase_h
 
 #include <cstddef>
 
-#include "art/Framework/IO/ProductMerge/SecondaryEventSequence.h"
+#include "art/Framework/IO/ProductMix/SecondaryEventSequence.h"
 
 namespace art {
-  class MergeOpBase;
+  class MixOpBase;
 
   class EDProduct;
   class Event;
@@ -17,7 +17,7 @@ namespace art {
 
 class TTree;
 
-class art::MergeOpBase {
+class art::MixOpBase {
 public:
   virtual
   InputTag const &inputTag() const = 0;
@@ -30,7 +30,7 @@ public:
 
   virtual
   void
-  mergeAndPut(Event &e, PtrRemapper const &remap) const = 0;
+  mixAndPut(Event &e, PtrRemapper const &remap) const = 0;
 
   virtual
   BranchID
@@ -46,7 +46,7 @@ public:
                SecondaryEventSequence const &seq,
                size_t nSecondaries) = 0;
 };
-#endif /* art_Framework_IO_ProductMerge_MergeOpBase_h */
+#endif /* art_Framework_IO_ProductMix_MixOpBase_h */
 
 // Local Variables:
 // mode: c++

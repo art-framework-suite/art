@@ -1,17 +1,17 @@
-#include "art/Framework/IO/ProductMerge/MergeHelper.h"
-#include "art/Framework/IO/ProductMerge/SecondaryEventSequence.h"
+#include "art/Framework/IO/ProductMix/MixHelper.h"
+#include "art/Framework/IO/ProductMix/SecondaryEventSequence.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 
-art::MergeHelper::MergeHelper(fhicl::ParameterSet const &pset,
+art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
                               ProducerBase &producesProvider)
   :
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("filenames")),
-  mergeOps_(),
+  mixOps_(),
   ptrRemapper_(),
   currentFilename_(filenames_.begin()),
   readMode_(pset.get<std::string>("readMode", "sequential")),
@@ -28,7 +28,7 @@ art::MergeHelper::MergeHelper(fhicl::ParameterSet const &pset,
 }
 
 void
-art::MergeHelper::openAndReadMetaData(std::string const &filename) {
+art::MixHelper::openAndReadMetaData(std::string const &filename) {
   // Open file.
   try {
     currentFile_.reset(TFile::Open(filename.c_str()));
@@ -111,12 +111,12 @@ art::MergeHelper::openAndReadMetaData(std::string const &filename) {
 }
 
 void
-art::MergeHelper::postRegistrationInit() {
+art::MixHelper::postRegistrationInit() {
   // Open and read the first file to read branch information.
   openAndReadMetaData(*currentFilename_);
-  for(MergeOpList::const_iterator
-        i = mergeOps_.begin(),
-        e = mergeOps_.end();
+  for(MixOpList::const_iterator
+        i = mixOps_.begin(),
+        e = mixOps_.end();
       i != e;
       ++i) {
     
@@ -124,16 +124,16 @@ art::MergeHelper::postRegistrationInit() {
 }
 
 void
-art::MergeHelper::mergeAndPut(size_t nSecondaries, Event &e) {
+art::MixHelper::mixAndPut(size_t nSecondaries, Event &e) {
   // Set the product getter in case we need to remap any Ptrs.
   ptrRemapper_.setProductGetter(e.productGetter());
 
   // Decide which events we're reading and prime the event tree cache.
   SecondaryEventSequence seq;
 
-  // Do the branch-wise read, merge and put.
-  cet::for_all(mergeOps_,
-               std::bind(&MergeHelper::mergeAndPutOne,
+  // Do the branch-wise read, mix and put.
+  cet::for_all(mixOps_,
+               std::bind(&MixHelper::mixAndPutOne,
                          this,
                          _1,
                          std::ref(seq),
@@ -142,9 +142,9 @@ art::MergeHelper::mergeAndPut(size_t nSecondaries, Event &e) {
 }
 
 void
-art::MergeHelper::mergeAndPutOne(boost::shared_ptr<MergeOpBase> op,
+art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
                                  SecondaryEventSequence const &seq,
                                  size_t nSecondaries, Event &e) {
   op->readFromFile(currentEventTree_, seq, nSecondaries);
-  op->mergeAndPut(e, ptrRemapper_);
+  op->mixAndPut(e, ptrRemapper_);
 }

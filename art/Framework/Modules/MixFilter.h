@@ -1,14 +1,14 @@
-#ifndef art_Framework_Modules_MergeFilter_h
-#define art_Framework_Modules_MergeFilter_h
+#ifndef art_Framework_Modules_MixFilter_h
+#define art_Framework_Modules_MixFilter_h
 
 #include "art/Framework/Core/EDFilter.h"
-#include "art/Framework/IO/ProductMerge/MergeHelper.h"
+#include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "cpp0x/type_traits"
 
 namespace art {
   template <class T>
-  class MergeFilter;
+  class MixFilter;
 
   namespace detail {
     // Template metaprogramming.
@@ -78,21 +78,21 @@ namespace art {
 } // art namespace
 
 template <class T>
-class art::MergeFilter : public art::EDFilter {
+class art::MixFilter : public art::EDFilter {
 public:
-  typedef T MergeDetail;
-  explicit MergeFilter(fhicl::ParameterSet const &p);
+  typedef T MixDetail;
+  explicit MixFilter(fhicl::ParameterSet const &p);
 
   virtual void beginJob();
   virtual bool filter(art::Event &e);
 
 private:
-  MergeHelper helper_;
-  MergeDetail detail_;
+  MixHelper helper_;
+  MixDetail detail_;
 };
 
 template <class T>
-art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
+art::MixFilter<T>::MixFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
   helper_((createEngine(get_seed_value(p)),p), *this), // See note below
@@ -100,7 +100,7 @@ art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
 {
   // Note that the random number engine is created in the initializer
   // list as part of a comma-separated argument bundle to the
-  // constructor of MergeHelper. This enables the engine to be obtained
+  // constructor of MixHelper. This enables the engine to be obtained
   // by the helper and or detail objects in their constructors via a
   // service handle to the random number generator service. Do NOT
   // remove the seemingly-superfluous parentheses.
@@ -108,13 +108,13 @@ art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
 
 template <class T>
 void
-art::MergeFilter<T>::beginJob() {
+art::MixFilter<T>::beginJob() {
   helper_.postRegistrationInit();
 }
 
 template <class T>
 bool
-art::MergeFilter<T>::filter(art::Event &e) {
+art::MixFilter<T>::filter(art::Event &e) {
   // 1. Call detail object's startEvent() if it exists.
   typename std::conditional<detail::has_startEvent<T>::value,
                             detail::call_startEvent<T>,
@@ -125,9 +125,9 @@ art::MergeFilter<T>::filter(art::Event &e) {
   // 2. Ask detail object how many events to read.
   size_t nSecondaries = detail_.nSecondaries();
 
-  // 3. Make the MergeHelper read info into all the products, invoke the
-  // merge functions and put the products into the event.
-  helper_.mergeAndPut(nSecondaries, e);
+  // 3. Make the MixHelper read info into all the products, invoke the
+  // mix functions and put the products into the event.
+  helper_.mixAndPut(nSecondaries, e);
 
   // 4. Call detail object's finalizeEvent() if it exists.
   typename std::conditional<detail::has_finalizeEvent<T>::value,
@@ -139,7 +139,7 @@ art::MergeFilter<T>::filter(art::Event &e) {
 }
 
 // }
-#endif /* art_Framework_Modules_MergeFilter_h */
+#endif /* art_Framework_Modules_MixFilter_h */
 
 // Local Variables:
 // mode: c++

@@ -1,8 +1,8 @@
-#ifndef art_Framework_IO_ProductMerge_MergeOp_h
-#define art_Framework_IO_ProductMerge_MergeOp_h
+#ifndef art_Framework_IO_ProductMix_MixOp_h
+#define art_Framework_IO_ProductMix_MixOp_h
 
 #include "art/Framework/Core/Event.h"
-#include "art/Framework/IO/ProductMerge/MergeOpBase.h"
+#include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -13,16 +13,16 @@
 #include "cpp0x/functional"
 
 namespace art {
-  template <typename PROD> class MergeOp;
+  template <typename PROD> class MixOp;
 }
 
 template <typename PROD>
-class art::MergeOp : public art::MergeOpBase {
+class art::MixOp : public art::MixOpBase {
 public:
   template <typename FUNC>
-  MergeOp(InputTag const &inputTag,
+  MixOp(InputTag const &inputTag,
           std::string const &outputInstanceLabel,
-          FUNC mergeFunc);
+          FUNC mixFunc);
 
   virtual
   InputTag const &inputTag() const;
@@ -35,7 +35,7 @@ public:
 
   virtual
   void
-  mergeAndPut(Event &e, PtrRemapper const &remap) const;
+  mixAndPut(Event &e, PtrRemapper const &remap) const;
 
   virtual
   BranchID
@@ -59,7 +59,7 @@ private:
   InputTag inputTag_;
   TypeID const inputType_;
   std::string outputInstanceLabel_;
-  std::function<void (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mergeFunc_;
+  std::function<void (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mixFunc_;
   SpecProdList inProducts_;
   typename SpecProdList::iterator prodIter_;
   typename SpecProdList::iterator productsEnd_;
@@ -70,14 +70,14 @@ private:
 template <typename PROD>
 template <typename FUNC>
 art::
-MergeOp<PROD>::MergeOp(InputTag const &inputTag,
+MixOp<PROD>::MixOp(InputTag const &inputTag,
                        std::string const &outputInstanceLabel,
-                       FUNC mergeFunc)
+                       FUNC mixFunc)
   :
   inputTag_(inputTag),
   inputType_(typeid(PROD)),
   outputInstanceLabel_(outputInstanceLabel),
-  mergeFunc_(mergeFunc),
+  mixFunc_(mixFunc),
   inProducts_(),
   prodIter_(inProducts_.begin()),
   productsEnd_(inProducts_.end()),
@@ -87,29 +87,29 @@ MergeOp<PROD>::MergeOp(InputTag const &inputTag,
 
 template <typename PROD>
 art::InputTag const &
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 inputTag() const {
   return inputTag_;
 }
 
 template <typename PROD>
 art::TypeID const &
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 inputType() const {
   return inputType_;
 }
 
 template <typename PROD>
 std::string const &
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 outputInstanceLabel() const {
   return outputInstanceLabel_;
 }
 
 template <typename PROD>
 void
-art::MergeOp<PROD>::
-mergeAndPut(Event &e,
+art::MixOp<PROD>::
+mixAndPut(Event &e,
             PtrRemapper const &remap) const {
   std::auto_ptr<PROD> rProd(new PROD);
   std::vector<PROD const *> inConverted;
@@ -133,7 +133,7 @@ mergeAndPut(Event &e,
     throw Exception(errors::DataCorruption)
       << "Unable to obtain correctly-typed product from wrapper.\n";
   }
-  mergeFunc_(inConverted, *rProd, remap);
+  mixFunc_(inConverted, *rProd, remap);
   if (outputInstanceLabel_.empty()) {
     e.put(rProd);
   } else {
@@ -143,14 +143,14 @@ mergeAndPut(Event &e,
 
 template <typename PROD>
 art::BranchID
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 incomingBranchID(ProductRegistry const &pReg) const {
   return BranchID();
 }
 
 template <typename PROD>
 art::BranchID
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 outgoingBranchID(ProductRegistry const &pReg) const {
   BranchKey key(inputType_.friendlyClassName(),
                 moduleLabel_,
@@ -160,14 +160,14 @@ outgoingBranchID(ProductRegistry const &pReg) const {
     pReg.constProductList().find(key);
   if (i == pReg.constProductList().end()) {
     throw Exception(errors::LogicError)
-      << "MergeOp unable to find branch id for a product that should have been registered!\n";
+      << "MixOp unable to find branch id for a product that should have been registered!\n";
   }
   return i->second.branchID();
 }
 
 template <typename PROD>
 void
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 readFromFile(TTree *eventTree,
              SecondaryEventSequence const &seq,
              size_t nSecondaries) {
@@ -176,7 +176,7 @@ readFromFile(TTree *eventTree,
 
 template <typename PROD>
 void
-art::MergeOp<PROD>::
+art::MixOp<PROD>::
 initProductList(size_t nSecondaries) {
   inProducts_.clear();
   if (nSecondaries) {
@@ -187,7 +187,7 @@ initProductList(size_t nSecondaries) {
   productsEnd_ = inProducts_.end();
 }
 
-#endif /* art_Framework_IO_ProductMerge_MergeOp_h */
+#endif /* art_Framework_IO_ProductMix_MixOp_h */
 
 // Local Variables:
 // mode: c++
