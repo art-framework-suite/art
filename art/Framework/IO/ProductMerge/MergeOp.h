@@ -3,6 +3,12 @@
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/IO/ProductMerge/MergeOpBase.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/CurrentModule.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/InputTag.h"
 #include "cpp0x/functional"
 
@@ -32,6 +38,14 @@ public:
   mergeAndPut(Event &e, PtrRemapper const &remap) const;
 
   virtual
+  BranchID
+  incomingBranchID(ProductRegistry const &pReg) const;
+
+  virtual
+  BranchID
+  outgoingBranchID(ProductRegistry const &pReg) const;
+
+  virtual
   void
   readFromFile(TTree *eventTree,
                SecondaryEventSequence const &seq,
@@ -45,13 +59,12 @@ private:
   InputTag inputTag_;
   TypeID const inputType_;
   std::string outputInstanceLabel_;
-  std::function<void (std::vector<PROD const *> const &,
-                      PROD &,
-                      PtrRemapper const &)> mergeFunc_;
-
-SpecProdList inProducts_;
-typename SpecProdList::iterator prodIter_;
-typename SpecProdList::iterator productsEnd_;
+  std::function<void (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mergeFunc_;
+  SpecProdList inProducts_;
+  typename SpecProdList::iterator prodIter_;
+  typename SpecProdList::iterator productsEnd_;
+  std::string processName_;
+  std::string moduleLabel_;
 };
 
 template <typename PROD>
@@ -67,7 +80,9 @@ MergeOp<PROD>::MergeOp(InputTag const &inputTag,
   mergeFunc_(mergeFunc),
   inProducts_(),
   prodIter_(inProducts_.begin()),
-  productsEnd_(inProducts_.end())
+  productsEnd_(inProducts_.end()),
+  processName_(ServiceHandle<TriggerNamesService>()->getProcessName()),
+  moduleLabel_(ServiceHandle<CurrentModule>()->label())
 {}
 
 template <typename PROD>
@@ -124,6 +139,30 @@ mergeAndPut(Event &e,
   } else {
     e.put(rProd, outputInstanceLabel_);
   }
+}
+
+template <typename PROD>
+art::BranchID
+art::MergeOp<PROD>::
+incomingBranchID(ProductRegistry const &pReg) const {
+  return BranchID();
+}
+
+template <typename PROD>
+art::BranchID
+art::MergeOp<PROD>::
+outgoingBranchID(ProductRegistry const &pReg) const {
+  BranchKey key(inputType_.friendlyClassName(),
+                moduleLabel_,
+                outputInstanceLabel_,
+                processName_);
+  ProductRegistry::ConstProductList::const_iterator i =
+    pReg.constProductList().find(key);
+  if (i == pReg.constProductList().end()) {
+    throw Exception(errors::LogicError)
+      << "MergeOp unable to find branch id for a product that should have been registered!\n";
+  }
+  return i->second.branchID();
 }
 
 template <typename PROD>

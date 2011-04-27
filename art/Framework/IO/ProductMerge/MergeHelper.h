@@ -7,14 +7,18 @@
 #include "art/Framework/IO/ProductMerge/MergeOp.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
+#include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "cpp0x/functional"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
+#include "CLHEP/Random/RandFlat.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -145,19 +149,21 @@ private:
                       Event &e);
 
   ProducerBase &producesProvider_;
-  std::vector<std::string> fileNames_;
+  std::vector<std::string> filenames_;
   MergeOpList mergeOps_;
   PtrRemapper ptrRemapper_;
-  std::vector<std::string>::const_iterator currentFileName_;
+  std::vector<std::string>::const_iterator currentFilename_;
   std::string readMode_;
   double coverageFraction_;
   size_t nEventsRead_;
+  FileFormatVersion ffVersion_;
   ProductRegistry pReg_;
+  CLHEP::RandFlat dist_;
 
   // Root-specific state.
   cet::value_ptr<TFile> currentFile_;
-  cet::value_ptr<TTree> currentMetaDataTree_;
-  cet::value_ptr<TTree> currentEventTree_;
+  cet::exempt_ptr<TTree> currentMetaDataTree_;
+  cet::exempt_ptr<TTree> currentEventTree_;
   FileIndex fileIndex_;
 };
 

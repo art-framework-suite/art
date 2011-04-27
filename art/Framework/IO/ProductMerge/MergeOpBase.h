@@ -30,14 +30,21 @@ public:
 
   virtual
   void
-  readFromFile(TTree *eventTree,
-               SecondaryEventSequence const &seq,
-               size_t nSecondaries) = 0;
+  mergeAndPut(Event &e, PtrRemapper const &remap) const = 0;
+
+  virtual
+  BranchID
+  incomingBranchID(ProductRegistry const &pReg) const = 0;
+
+  virtual
+  BranchID
+  outgoingBranchID(ProductRegistry const &pReg) const = 0;
 
   virtual
   void
-  mergeAndPut(Event &e, PtrRemapper const &remap) const = 0;
-
+  readFromFile(TTree *eventTree,
+               SecondaryEventSequence const &seq,
+               size_t nSecondaries) = 0;
 };
 #endif /* art_Framework_IO_ProductMerge_MergeOpBase_h */
 

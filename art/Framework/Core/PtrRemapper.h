@@ -13,17 +13,19 @@ namespace art {
 
 class art::PtrRemapper {
 public:
-  PtrRemapper();
-  explicit PtrRemapper(std::map<ProductID, ProductID> const &prodTransMap);
+  typedef std::map<ProductID, ProductID> ProdTransMap_t;
 
-  void setProdTransMap(std::map<ProductID, ProductID> const &prodTransMap);
+  PtrRemapper();
+  explicit PtrRemapper(ProdTransMap_t const &prodTransMap);
+
+  void setProdTransMap(ProdTransMap_t const &prodTransMap);
   void setProductGetter(EDProductGetter const *productGetter);
 
   template <typename PROD>
   Ptr<PROD> operator()(Ptr<PROD> const &oldPtr,
                        size_t offset) const;
 private:
-  std::map<ProductID, ProductID> prodTransMap_;
+  ProdTransMap_t prodTransMap_;
   EDProductGetter const *productGetter_;
 };
 

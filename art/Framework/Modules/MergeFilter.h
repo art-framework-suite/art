@@ -1,7 +1,6 @@
 #ifndef art_Framework_Modules_MergeFilter_h
 #define art_Framework_Modules_MergeFilter_h
 
-#include "CLHEP/Random/RandFlat.h"
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/IO/ProductMerge/MergeHelper.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -88,7 +87,6 @@ public:
   virtual bool filter(art::Event &e);
 
 private:
-  CLHEP::RandFlat dist_;  // construct engine early so helper_ can use it
   MergeHelper helper_;
   MergeDetail detail_;
 };
@@ -97,10 +95,15 @@ template <class T>
 art::MergeFilter<T>::MergeFilter(fhicl::ParameterSet const &p)
   :
   EDFilter(),
-  dist_(createEngine(get_seed_value(p))),
-  helper_(p, *this),
+  helper_((createEngine(get_seed_value(p)),p), *this), // See note below
   detail_(p, helper_)
 {
+  // Note that the random number engine is created in the initializer
+  // list as part of a comma-separated argument bundle to the
+  // constructor of MergeHelper. This enables the engine to be obtained
+  // by the helper and or detail objects in their constructors via a
+  // service handle to the random number generator service. Do NOT
+  // remove the seemingly-superfluous parentheses.
 }
 
 template <class T>

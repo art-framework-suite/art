@@ -119,12 +119,10 @@ namespace art {
     FileIndex *findexPtr = &fileIndex_;
     setMetaDataBranchAddress(metaDataTree, findexPtr);
 
-    // Need to read to a temporary registry so we can do a translation
-    // of the BranchKeys.  This preserves backward compatibility against
-    // friendly class name algorithm changes.
-    ProductRegistry tempReg;
-    ProductRegistry *ppReg = &tempReg;
+    ProductRegistry *ppReg = 0;
     setMetaDataBranchAddress(metaDataTree, ppReg);
+
+    productRegistry_.reset(ppReg);
 
     // TODO: update to separate tree per CMS code (2010/12/01).
     ParameterSetMap psetMap;
@@ -191,45 +189,6 @@ namespace art {
     fileIndexEnd_ = fileIndex_.end();
 
     readEventHistoryTree();
-
-    // Set product presence information in the product registry.
-    ProductRegistry::ProductList const& pList = tempReg.productList();
-    for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
-        it != itEnd; ++it) {
-      BranchDescription const& prod = it->second;
-      treePointers_[prod.branchType()]->setPresence(prod);
-    }
-
-    // freeze our temporary product registry
-    tempReg.setFrozen();
-
-    auto_ptr<ProductRegistry> newReg(new ProductRegistry);
-
-    // Do the translation from the old registry to the new one
-    {
-       ProductRegistry::ProductList const& prodList = tempReg.productList();
-       for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-            it != itEnd; ++it) {
-          BranchDescription const& prod = it->second;
-          string newFriendlyName = friendlyname::friendlyName(prod.className());
-          if (newFriendlyName == prod.friendlyClassName()) {
-             newReg->copyProduct(prod);
-          } else {
-             throw art::Exception(errors::UnimplementedFeature)
-                << "Cannot change friendly class name algorithm without more development work\n"
-                << "to update BranchIDLists.  Contact the framework group.\n";
-             BranchDescription newBD(prod);
-             newBD.updateFriendlyClassName();
-             newReg->copyProduct(newBD);
-             // Need to call init to get old branch name.
-             prod.init();
-             newBranchToOldBranch_.insert(make_pair(newBD.branchName(), prod.branchName()));
-          }
-       }
-       // freeze the product registry
-       newReg->setFrozen();
-       productRegistry_.reset(newReg.release());
-    }
 
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
 

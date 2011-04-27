@@ -43,14 +43,10 @@ namespace art {
 
   bool
   RootTree::isValid() const {
-    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0)
       return tree_ != 0 && auxBranch_ != 0 && tree_->GetNbranches() == 1;
-    }
-    if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) { // backward compatibility
-      if (branchEntryInfoBranch_ != 0) return true; // backward compatibility
-      return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1);  // backward compatibility
-    } // backward compatibility
-    return false;
+    else
+      return tree_ && auxBranch_ && metaTree_ && branchEntryInfoBranch_;
   }
 
   void
