@@ -1,31 +1,53 @@
 <lcgdict>
- <class name="art::EDProduct"/>
- <class name="art::EDProductGetter"/>
- <class name="art::RefCore"/>
- <class name="art::RefCore::RefCoreTransients">
+ <class name="art::EDProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="241049717"/>
+ </class>
+ <class name="art::EDProductGetter" ClassVersion="10">
+  <version ClassVersion="10" checksum="3552558110"/>
+ </class>
+ <class name="art::RefCore" ClassVersion="10">
+  <version ClassVersion="10" checksum="83101202"/>
+ </class>
+ <class name="art::RefCore::RefCoreTransients" ClassVersion="10">
+  <version ClassVersion="10" checksum="4044837592"/>
    <field name="itemPtr_" transient="true"/>
    <field name="prodGetter_" transient="true"/>
  </class>
- <class name="art::ConstPtrCache">
+ <class name="art::ConstPtrCache" ClassVersion="10">
+  <version ClassVersion="10" checksum="2353495420"/>
    <field name="ptr_" transient="true"/>
  </class>
- <class name="art::BoolCache">
+ <class name="art::BoolCache" ClassVersion="10">
+  <version ClassVersion="10" checksum="241141409"/>
    <field name="isCached_" transient="true"/>
  </class>
- <class name="art::PtrVectorBase" >
+ <class name="art::PtrVectorBase"  ClassVersion="10">
+  <version ClassVersion="10" checksum="202379499"/>
    <field name ="cachedItems_" transient = "true"/>
  </class>
  <class name="art::PtrVector<int>"/>
  <class name="art::Wrapper<art::PtrVector<int> >"/>
- <class name="art::HLTPathStatus"/>
+ <class name="art::HLTPathStatus" ClassVersion="10">
+  <version ClassVersion="10" checksum="1387315422"/>
+ </class>
  <class name="art::Wrapper<art::HLTPathStatus>" splitLevel="0"/>
  <class name="std::vector<art::HLTPathStatus>"/>
  <class name="art::Wrapper<std::vector<art::HLTPathStatus> >" splitLevel="0"/>
- <class name="art::HLTGlobalStatus"/>
+ <class name="art::HLTGlobalStatus" ClassVersion="10">
+  <version ClassVersion="10" checksum="2764194612"/>
+ </class>
  <class name="art::Wrapper<art::HLTGlobalStatus>" splitLevel="0"/>
- <class name="art::TriggerResults"/>
+ <class name="art::TriggerResults" ClassVersion="10">
+  <version ClassVersion="10" checksum="1754135862"/>
+ </class>
  <class name="art::Wrapper<art::TriggerResults>" splitLevel="0"/>
- <class name="art::Other"/>
- <class name="art::DoNotSortUponInsertion"/>
- <class name="art::DoNotRecordParents"/>
+ <class name="art::Other" ClassVersion="10">
+  <version ClassVersion="10" checksum="2978157"/>
+ </class>
+ <class name="art::DoNotSortUponInsertion" ClassVersion="10">
+  <version ClassVersion="10" checksum="249047798"/>
+ </class>
+ <class name="art::DoNotRecordParents" ClassVersion="10">
+  <version ClassVersion="10" checksum="318074619"/>
+ </class>
 </lcgdict>

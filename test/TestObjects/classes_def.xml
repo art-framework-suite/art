@@ -1,15 +1,37 @@
 <lcgdict>
- <class name="arttest::DummyProduct"/>
- <class name="arttest::IntProduct"/>
- <class name="arttest::Int16_tProduct"/>
- <class name="arttest::DoubleProduct"/>
- <class name="arttest::StringProduct"/>
- <class name="arttest::Simple"/>
- <class name="arttest::SimpleDerived"/>
- <class name="arttest::Sortable"/>
- <class name="arttest::Unsortable"/>
- <class name="arttest::Prodigal"/>
- <class name="arttest::MockCluster"/>
+ <class name="arttest::DummyProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="464158740"/>
+ </class>
+ <class name="arttest::IntProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="3673612331"/>
+ </class>
+ <class name="arttest::Int16_tProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="3993725207"/>
+ </class>
+ <class name="arttest::DoubleProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="680393965"/>
+ </class>
+ <class name="arttest::StringProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="2490572624"/>
+ </class>
+ <class name="arttest::Simple" ClassVersion="10">
+  <version ClassVersion="10" checksum="3883226735"/>
+ </class>
+ <class name="arttest::SimpleDerived" ClassVersion="10">
+  <version ClassVersion="10" checksum="3838878701"/>
+ </class>
+ <class name="arttest::Sortable" ClassVersion="10">
+  <version ClassVersion="10" checksum="4007300496"/>
+ </class>
+ <class name="arttest::Unsortable" ClassVersion="10">
+  <version ClassVersion="10" checksum="234760861"/>
+ </class>
+ <class name="arttest::Prodigal" ClassVersion="10">
+  <version ClassVersion="10" checksum="518009779"/>
+ </class>
+ <class name="arttest::MockCluster" ClassVersion="10">
+  <version ClassVersion="10" checksum="448456917"/>
+ </class>
  <class name="arttest::MockClusterList"/>
 
  <class name="art::Wrapper<arttest::DummyProduct>"/>

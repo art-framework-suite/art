@@ -75,6 +75,9 @@ namespace art {
        the constructor takes ownership of T* */
     Wrapper(T*);
 
+    // MUST UPDATE WHEN CLASS IS CHANGED!
+    static short Class_Version() { return 10; }
+
   private:
     virtual bool isPresent_() const {return present;}
 

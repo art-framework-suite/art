@@ -1,4 +1,3 @@
-
 # project name
 project(art_Persistency_Common)
 
@@ -19,7 +18,7 @@ link_libraries( art_Utilities
 
 add_library(art_Persistency_Common SHARED ${art_Persistency_Common_sources} )
 
-build_dictionary(DICTIONARY_LIBRARIES art_Persistency_Common)
+art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Common)
 
 install ( TARGETS art_Persistency_Common DESTINATION ${flavorqual_dir}/lib )
 install(FILES
