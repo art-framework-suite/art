@@ -10,6 +10,14 @@ ADD_CUSTOM_TARGET(artmod ALL
   DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/artmod"
   )
 
+ADD_CUSTOM_TARGET(checkClassVersion ALL
+  COMMAND ${CMAKE_COMMAND} -E
+  copy "${CMAKE_CURRENT_SOURCE_DIR}/checkClassVersion"
+  "${EXECUTABLE_OUTPUT_PATH}/"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/checkClassVersion"
+  )
+
 INSTALL(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/artmod
+  ${EXECUTABLE_OUTPUT_PATH}/checkClassVersion
   DESTINATION ${flavorqual_dir}/bin
   )
