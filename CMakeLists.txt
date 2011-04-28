@@ -27,7 +27,7 @@ IF (NOT CETBUILDTOOLS_VERSION)
     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
 ENDIF()
 set(CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-set(CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH})
 message(STATUS "module path is ${CMAKE_MODULE_PATH}" )
 
 # because we want to move these libraries about,
@@ -121,7 +121,6 @@ find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_LIB} NO_DEFAULT_PATH 
 # define cppunit
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_LIB}   NO_DEFAULT_PATH )
 
-
 # define common flags
 # set( CMAKE_CXX_LINK_FLAGS "${CPPUNIT} -luuid -ldl" )
 
@@ -130,8 +129,8 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 #build all executables in a single directory
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-# macros for build_dictionary and simple_plugin
-include(BuildDictionary)
+# macros for art_dictionary and simple_plugin
+include(ArtDictionary)
 include(BuildPlugins)
 
 # tools (first)

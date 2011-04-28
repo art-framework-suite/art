@@ -60,6 +60,9 @@ namespace art {
 
     bool isCompactForm()const;
 
+    // MUST UPDATE WHEN CLASS IS CHANGED!
+    static short Class_Version() { return 10; }
+
   private:
 
     // Hexified version of data *must* contain a multiple of 2

@@ -2,51 +2,99 @@
  <class pattern="art::Transient<*>">
    <field name="value_" transient="true"/>
  </class>
- <class name="art::History"/>
+ <class name="art::History" ClassVersion="10">
+  <version ClassVersion="10" checksum="1835436919"/>
+ </class>
    <class name="art::EventSelectionIDVector"/>
    <class name="art::BranchListIndex"/>
    <class name="art::ProcessHistoryID"/>
  <class name="std::vector<art::ProductProvenance>"/>
- <class name="art::ProductProvenance"/>
-   <class name="art::BranchID"/>
+ <class name="art::ProductProvenance" ClassVersion="10">
+  <version ClassVersion="10" checksum="1364826586"/>
+ </class>
+   <class name="art::BranchID" ClassVersion="10">
+    <version ClassVersion="10" checksum="2476990556"/>
+   </class>
    <class name="art::ProductStatus"/>
    <class name="art::ParentageID"/>
- <class name="art::FileFormatVersion"/>
- <class name="art::FileIndex"/>
-   <class name="art::FileIndex::Element"/>
+ <class name="art::FileFormatVersion" ClassVersion="10">
+  <version ClassVersion="10" checksum="2316305675"/>
+ </class>
+ <class name="art::FileIndex" ClassVersion="10">
+  <version ClassVersion="10" checksum="2437688295"/>
+ </class>
+   <class name="art::FileIndex::Element" ClassVersion="10">
+    <version ClassVersion="10" checksum="2106446510"/>
+   </class>
    <class name="std::vector<art::FileIndex::Element>"/>
  <class name="std::vector<art::ProcessConfiguration>"/>
- <class name="art::ProcessConfiguration"/>
+ <class name="art::ProcessConfiguration" ClassVersion="10">
+  <version ClassVersion="10" checksum="877610178"/>
+ </class>
  <class name="std::vector<art::ProcessHistory>"/>
- <class name="art::ProcessHistory"/>
-   <class name="art::ProcessHistory::collection_type"/>
-   <class name="art::ProcessHistory::value_type"/>
+ <class name="art::ProcessHistory" ClassVersion="10">
+  <version ClassVersion="10" checksum="2473205264"/>
+ </class>
+   <class name="art::ProcessHistory::collection_type" ClassVersion="10">
+    <version ClassVersion="10" checksum="724046865"/>
+   </class>
+   <class name="art::ProcessHistory::value_type" ClassVersion="10">
+    <version ClassVersion="10" checksum="877610178"/>
+   </class>
 
- <class name="art::BranchChildren"/>
+ <class name="art::BranchChildren" ClassVersion="10">
+  <version ClassVersion="10" checksum="1681313459"/>
+ </class>
    <class name="std::set<art::BranchID>"/>
    <class name="std::pair<art::BranchID, std::set<art::BranchID> >"/>
    <class name="std::map<art::BranchID, std::set<art::BranchID> >"/>
- <class name="art::ProductRegistry"/>
-   <class name="art::BranchKey"/>
-   <class name="art::BranchDescription"/>
+ <class name="art::ProductRegistry" ClassVersion="10">
+  <version ClassVersion="10" checksum="1533689113"/>
+ </class>
+   <class name="art::BranchKey" ClassVersion="10">
+    <version ClassVersion="10" checksum="2938245437"/>
+   </class>
+   <class name="art::BranchDescription" ClassVersion="10">
+    <version ClassVersion="10" checksum="3580977508"/>
+   </class>
      <class name="std::set<fhicl::ParameterSetID>"/>
      <class name="art::ProcessConfigurationID"/>
      <class name="std::set<art::ProcessConfigurationID>"/>
    <class name="std::pair<art::BranchKey, art::BranchDescription>"/>
-   <class name="art::ProductRegistry::ProductList"/>
- <class name="art::Parentage"/>
+   <class name="art::ProductRegistry::ProductList" ClassVersion="10">
+    <version ClassVersion="10" checksum="3012044961"/>
+   </class>
+ <class name="art::Parentage" ClassVersion="10">
+  <version ClassVersion="10" checksum="3473129795"/>
+ </class>
    <class name="std::vector<art::BranchID>"/>
- <class name="art::EventAuxiliary"/>
-   <class name="art::EventID"/>
-   <class name="art::Timestamp"/>
- <class name="art::SubRunAuxiliary"/>
-   <class name="art::SubRunID"/>
- <class name="art::RunAuxiliary"/>
-   <class name="art::RunID"/>
+ <class name="art::EventAuxiliary" ClassVersion="10">
+  <version ClassVersion="10" checksum="3057204332"/>
+ </class>
+   <class name="art::EventID" ClassVersion="10">
+    <version ClassVersion="10" checksum="784191624"/>
+   </class>
+   <class name="art::Timestamp" ClassVersion="10">
+    <version ClassVersion="10" checksum="2438251709"/>
+   </class>
+ <class name="art::SubRunAuxiliary" ClassVersion="10">
+  <version ClassVersion="10" checksum="832515965"/>
+ </class>
+   <class name="art::SubRunID" ClassVersion="10">
+    <version ClassVersion="10" checksum="2879307132"/>
+   </class>
+ <class name="art::RunAuxiliary" ClassVersion="10">
+  <version ClassVersion="10" checksum="156856400"/>
+ </class>
+   <class name="art::RunID" ClassVersion="10">
+    <version ClassVersion="10" checksum="1627543759"/>
+   </class>
    <class name="std::set<art::ProcessHistoryID>"/>
  <class name="art::ProcessHistoryMap"/>
  <class name="std::pair<const art::ProcessHistoryID, art::ProcessHistory>"/>
- <class name="art::ParameterSetBlob"/>
+ <class name="art::ParameterSetBlob" ClassVersion="10">
+  <version ClassVersion="10" checksum="1823408429"/>
+ </class>
  <class name="art::ParameterSetMap"/>
  <class name="std::pair<fhicl::ParameterSetID, art::ParameterSetBlob>"/>
  <class name="art::ProductID"/>
