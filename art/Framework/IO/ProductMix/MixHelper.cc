@@ -7,7 +7,7 @@
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
-                              ProducerBase &producesProvider)
+                          ProducerBase &producesProvider)
   :
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("filenames")),
@@ -23,7 +23,8 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   currentFile_(),
   currentMetaDataTree_(),
   currentEventTree_(),
-  fileIndex_()
+  fileIndex_(),
+  dataBranches_()
 {
 }
 
@@ -76,9 +77,6 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
   FileIndex *fileIndex_p = &fileIndex_;
   setMetaDataBranchAddress(currentMetaDataTree_, fileIndex_p);
 
-  ProductRegistry *pReg_p = &pReg_;
-  setMetaDataBranchAddress(currentMetaDataTree_, pReg_p);
-
   Int_t n = currentMetaDataTree_->GetEntry(0);
   switch (n) {
   case -1:
@@ -108,19 +106,15 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
       << ".\n";
   }
 
+  dataBranches_.reset(currentEventTree_.get());
+
+  populateRemapper();
 }
 
 void
 art::MixHelper::postRegistrationInit() {
   // Open and read the first file to read branch information.
   openAndReadMetaData(*currentFilename_);
-  for(MixOpList::const_iterator
-        i = mixOps_.begin(),
-        e = mixOps_.end();
-      i != e;
-      ++i) {
-    
-  }
 }
 
 void
@@ -143,8 +137,20 @@ art::MixHelper::mixAndPut(size_t nSecondaries, Event &e) {
 
 void
 art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
-                                 SecondaryEventSequence const &seq,
-                                 size_t nSecondaries, Event &e) {
+                             SecondaryEventSequence const &seq,
+                             size_t nSecondaries, Event &e) {
   op->readFromFile(currentEventTree_, seq, nSecondaries);
   op->mixAndPut(e, ptrRemapper_);
+}
+
+void
+art::MixHelper::populateRemapper() {
+  PtrRemapper::ProdTransMap_t transMap;
+  for(MixOpList::const_iterator
+        i = mixOps_.begin(),
+        e = mixOps_.end();
+      i != e;
+      ++i) {
+    transMap[(*i)->incomingBranchID(dataBranches_)] = (*i)->outgoingBranchID(pReg_);
+  }
 }

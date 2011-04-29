@@ -33,7 +33,7 @@ namespace art {
 class art::MixHelper {
 public:
   MixHelper(fhicl::ParameterSet const &pset,
-              ProducerBase & producesProvider);
+            ProducerBase & producesProvider);
 
   //////////////////////////////////////////////////////////////////////
   // produces() templates.
@@ -96,41 +96,41 @@ public:
   // Provide an InputTag and free function or function object.
   template <typename PROD>
   void declareMixOp(InputTag const &inputTag,
-                      std::function< void (std::vector<PROD const *> const &,
-                                           PROD &,
-                                           PtrRemapper const &)
-                                   > mixFunc);
+                    std::function< void (std::vector<PROD const *> const &,
+                                         PROD &,
+                                         PtrRemapper const &)
+                    > mixFunc);
 
 
   //  Provide an InputTag, instance label, and free function or function
   //  object,
   template <typename PROD>
   void declareMixOp(InputTag const &inputTag,
-                      std::string const &outputInstanceLabel,
-                      std::function< void (std::vector<PROD const *> const &,
-                                           PROD &,
-                                           PtrRemapper const &)
-                                   > mixFunc);
+                    std::string const &outputInstanceLabel,
+                    std::function< void (std::vector<PROD const *> const &,
+                                         PROD &,
+                                         PtrRemapper const &)
+                    > mixFunc);
 
   // Provide an InputTag, member function with the correct signature and
   // object to which the member function should be bound.
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
-                      void (T::*mixfunc) (std::vector<PROD const *> const &,
-                                            PROD &,
-                                            PtrRemapper const &),
-                      T *t);
+                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                                        PROD &,
+                                        PtrRemapper const &),
+                    T *t);
 
   // Provide an InputTag, instance label, member function with the
   // correct signature, and object to which the member function should be
   // bound.
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
-                      std::string const &outputInstanceLabel,
-                      void (T::*mixfunc) (std::vector<PROD const *> const &,
-                                            PROD &,
-                                            PtrRemapper const &),
-                      T *t);
+                    std::string const &outputInstanceLabel,
+                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                                        PROD &,
+                                        PtrRemapper const &),
+                    T *t);
 
   //////////////////////////////////////////////////////////////////////
   // Mix module writers should not need anything below this point.
@@ -144,9 +144,10 @@ private:
 
   void openAndReadMetaData(std::string const &fileName);
   void mixAndPutOne(boost::shared_ptr<MixOpBase> mixOp,
-                      SecondaryEventSequence const &seq,
-                      size_t nSecondaries,
-                      Event &e);
+                    SecondaryEventSequence const &seq,
+                    size_t nSecondaries,
+                    Event &e);
+  void populateRemapper();
 
   ProducerBase &producesProvider_;
   std::vector<std::string> filenames_;
@@ -165,6 +166,7 @@ private:
   cet::exempt_ptr<TTree> currentMetaDataTree_;
   cet::exempt_ptr<TTree> currentEventTree_;
   FileIndex fileIndex_;
+  RootBranchInfoList dataBranches_;
 };
 
 template <class P, art::BranchType B>

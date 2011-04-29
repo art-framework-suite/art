@@ -3,6 +3,8 @@ project(art_Framework_IO_Root)
 set(art_Framework_IO_Root_sources
   DuplicateChecker.cc
   FastCloningInfoProvider.cc
+  RootBranchInfo.cc
+  RootBranchInfoList.cc
   RootDelayedReader.cc
   RootInputFile.cc
   RootInputFileSequence.cc
@@ -32,6 +34,8 @@ install(FILES
   GetFileFormatEra.h
   GetFileFormatVersion.h
   Inputfwd.h
+  RootBranchInfo.h
+  RootBranchInfoList.h
   RootDelayedReader.h
   RootInput.h
   RootInputFile.h

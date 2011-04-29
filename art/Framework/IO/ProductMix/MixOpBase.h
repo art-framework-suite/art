@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include "art/Framework/IO/ProductMix/SecondaryEventSequence.h"
+#include "art/Framework/IO/Root/RootBranchInfoList.h"
 
 namespace art {
   class MixOpBase;
@@ -34,7 +35,7 @@ public:
 
   virtual
   BranchID
-  incomingBranchID(ProductRegistry const &pReg) const = 0;
+  incomingBranchID(RootBranchInfoList const &rbiList) const = 0;
 
   virtual
   BranchID

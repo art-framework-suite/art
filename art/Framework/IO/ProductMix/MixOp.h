@@ -3,6 +3,7 @@
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
+#include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -39,7 +40,7 @@ public:
 
   virtual
   BranchID
-  incomingBranchID(ProductRegistry const &pReg) const;
+  incomingBranchID(RootBranchInfoList const &rbiList) const;
 
   virtual
   BranchID
@@ -144,8 +145,18 @@ mixAndPut(Event &e,
 template <typename PROD>
 art::BranchID
 art::MixOp<PROD>::
-incomingBranchID(ProductRegistry const &pReg) const {
-  return BranchID();
+incomingBranchID(RootBranchInfoList const &rbiList) const {
+  RootBranchInfo rbi;
+  if (rbiList.findBranchInfo(inputType_, inputTag_, rbi)) {
+    return BranchID(rbi.branchName());
+  } else {
+    throw Exception(errors::ProductNotFound)
+      << "Unable to find requested product "
+      << inputTag_
+      << " of type "
+      << inputType_.friendlyClassName()
+      << " in secondary input stream.\n";
+  }
 }
 
 template <typename PROD>
