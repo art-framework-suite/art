@@ -6,9 +6,7 @@
 
 #include "art/Persistency/Provenance/SortInvalidFirst.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-
 #include "cpp0x/cstdint"
-#include <functional>
 #include <ostream>
 
 namespace art {

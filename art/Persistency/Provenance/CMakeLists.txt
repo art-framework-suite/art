@@ -8,10 +8,7 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       BranchKey.cc
                                       BranchMapper.cc
                                       BranchType.cc
-                                      EntryDescription.cc
                                       EventAuxiliary.cc
-                                      EventEntryDescription.cc
-                                      EventEntryInfo.cc
                                       EventID.cc
                                       FileFormatVersion.cc
                                       FileIndex.cc
@@ -55,12 +52,7 @@ install(FILES
   BranchMapper.h
   BranchType.h
   ConstBranchDescription.h
-  EntryDescription.h
-  EntryDescriptionID.h
-  EntryDescriptionRegistry.h
   EventAuxiliary.h
-  EventEntryDescription.h
-  EventEntryInfo.h
   EventID.h
   EventProcessHistoryID.h
   EventSelectionID.h
@@ -71,7 +63,6 @@ install(FILES
   History.h
   ModuleDescription.h
   ModuleDescriptionID.h
-  ModuleDescriptionRegistry.h
   ParameterSetBlob.h
   ParameterSetMap.h
   Parentage.h

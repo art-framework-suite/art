@@ -13,7 +13,7 @@
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/TypeIDBase.h"
+#include "art/Utilities/TypeID.h"
 #include "boost/shared_ptr.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
@@ -43,9 +43,9 @@ namespace art {
     typedef  boost::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
     class Cache;
 
-    typedef  std::map< TypeIDBase, Cache >  Factory;
+    typedef  std::map< TypeID, Cache >  Factory;
     typedef  std::map< std::string, Factory::iterator > NameIndex;
-    typedef  std::vector< TypeIDBase >      TypeIDBases;
+    typedef  std::vector< TypeID >      TypeIDs;
     typedef  std::stack< WrapperBase_ptr >  ServiceStack;
 
     // A Cache object encapsulates the (possibly delayed) creation of
@@ -53,7 +53,7 @@ namespace art {
     class Cache
     {
     public:
-      Cache(fhicl::ParameterSet const & pset, TypeIDBase id, MAKER_t maker):
+      Cache(fhicl::ParameterSet const & pset, TypeID id, MAKER_t maker):
         config_(pset), typeinfo_(id), make_(maker), service_()
       { }
 
@@ -89,7 +89,7 @@ namespace art {
 
     private:
       fhicl::ParameterSet config_;
-      TypeIDBase typeinfo_;
+      TypeID typeinfo_;
       MAKER_t make_;
       WrapperBase_ptr service_;
 
@@ -129,7 +129,7 @@ namespace art {
     bool
       isAvailable() const
     {
-      return factory_.find(TypeIDBase(typeid(T))) != factory_.end();
+      return factory_.find(TypeID(typeid(T))) != factory_.end();
     }
 
     // TODO: needs to be converted to returning a void.
@@ -137,7 +137,7 @@ namespace art {
     bool
       put( boost::shared_ptr<ServiceWrapper<T> > premade_service )
     {
-      TypeIDBase id(typeid(T));
+      TypeID id(typeid(T));
       Factory::const_iterator it = factory_.find(id);
 
       if(it != factory_.end())
@@ -187,7 +187,7 @@ namespace art {
     Factory factory_;
     NameIndex index_;
 
-    TypeIDBases requestedCreationOrder_;
+    TypeIDs requestedCreationOrder_;
     ServiceStack actualCreationOrder_;
 
   };  // ServicesManager
@@ -199,7 +199,7 @@ namespace art {
     ServicesManager::get()
   {
     // Find the correct Cache object.
-    Factory::iterator it = factory_.find(TypeIDBase(typeid(T)));
+    Factory::iterator it = factory_.find(TypeID(typeid(T)));
     if( it == factory_.end() )
       throw art::Exception(art::errors::NotFound, "Service")
         << " unable to find requested service with compiler type name '"

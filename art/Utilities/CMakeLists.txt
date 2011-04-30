@@ -60,7 +60,6 @@ set (HEADERS
   TestHelper.h
   ThreadSafeIndexedRegistry.h
   TypeID.h
-  TypeIDBase.h
   UnixSignalHandlers.h
   UseReflex.h
   Verbosity.h

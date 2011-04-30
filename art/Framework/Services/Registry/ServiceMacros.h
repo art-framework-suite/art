@@ -9,7 +9,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
-#include "art/Utilities/TypeIDBase.h"
+#include "art/Utilities/TypeID.h"
 #include <memory>
 
 namespace art {
@@ -25,9 +25,9 @@ namespace fhicl {
 
 #define DEFINE_ART_SERVICE_HOOK(klass) \
 extern "C" \
-art::TypeIDBase \
+art::TypeID \
   get_typeid() \
-{ return art::TypeIDBase(typeid(klass)); }
+{ return art::TypeID(typeid(klass)); }
 
 #define DEFINE_ART_SYSTEM_SERVICE(klass) \
  DEFINE_ART_SERVICE_HOOK(klass)

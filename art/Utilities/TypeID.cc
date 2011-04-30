@@ -30,7 +30,7 @@ namespace art {
 
   std::string
   TypeID::className() const {
-    typedef std::map<art::TypeIDBase, std::string> Map;
+    typedef std::map<art::TypeID, std::string> Map;
     static boost::thread_specific_ptr<Map> s_typeToName;
     if(0 == s_typeToName.get()){
       s_typeToName.reset(new Map);

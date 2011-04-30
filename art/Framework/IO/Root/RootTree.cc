@@ -20,21 +20,14 @@ namespace art {
 
     TBranch * getAuxiliaryBranch(TTree * tree, BranchType const& branchType) {
       TBranch *branch = tree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
-      if (branch == 0) {
-        branch = tree->GetBranch(BranchTypeToAuxBranchName(branchType).c_str());
-      }
       return branch;
     }
     TBranch * getProductProvenanceBranch(TTree * tree, BranchType const& branchType) {
       TBranch *branch = tree->GetBranch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str());
       return branch;
     }
-    TBranch * getStatusBranch(TTree * tree, BranchType const& branchType) { // backward compatibility
-      TBranch *branch = tree->GetBranch(BranchTypeToProductStatusBranchName(branchType).c_str()); // backward compatibility
-      return branch; // backward compatibility
-    } // backward compatibility
-
   }  // namespace
+
   RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
@@ -45,21 +38,15 @@ namespace art {
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
     branchNames_(),
-    branches_(new BranchMap),
-    infoTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)), // backward compatibility
-    statusBranch_(infoTree_ ? getStatusBranch(infoTree_, branchType_) : 0) // backward compatibility
+    branches_(new BranchMap)
   { }
 
   bool
   RootTree::isValid() const {
-    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0)
       return tree_ != 0 && auxBranch_ != 0 && tree_->GetNbranches() == 1;
-    }
-    if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) { // backward compatibility
-      if (branchEntryInfoBranch_ != 0 || statusBranch_ != 0) return true; // backward compatibility
-      return (entries_ == metaTree_->GetEntries() && tree_->GetNbranches() <= metaTree_->GetNbranches() + 1);  // backward compatibility
-    } // backward compatibility
-    return false;
+    else
+      return tree_ && auxBranch_ && metaTree_ && branchEntryInfoBranch_;
   }
 
   void

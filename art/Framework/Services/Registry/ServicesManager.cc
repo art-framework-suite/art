@@ -80,7 +80,7 @@ ServicesManager::copySlotsTo(ActivityRegistry& iOther)
 
 void ServicesManager::forceCreation(ActivityRegistry& reg)
 {
-  TypeIDBases::iterator it(requestedCreationOrder_.begin()),
+  TypeIDs::iterator it(requestedCreationOrder_.begin()),
     end(requestedCreationOrder_.end());
 
   for(;it!=end;++it)
@@ -119,7 +119,7 @@ void
                               , LibraryManager const & lm
                               )
 {
-  typedef art::TypeIDBase (*GET_TYPEID_t)();
+  typedef art::TypeID (*GET_TYPEID_t)();
   for( ParameterSets::const_iterator it = psets.begin()
                                    , e  = psets.end(); it != e; ++it )
     {
@@ -141,7 +141,7 @@ void
           << "Could not find the maker function in the service library for " << service_name
           << "\n.  The library is probably built incorrectly.\n";
 
-      TypeIDBase id = typeid_func();
+      TypeID id = typeid_func();
 
       // insert cache object for it
       std::pair<Factory::iterator,bool> ib=factory_.insert( std::make_pair(id, Cache(*it, id, make_func)) );

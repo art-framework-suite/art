@@ -20,9 +20,13 @@ class TTree;
 namespace art {
   class BranchKey;
   class FileFormatVersion;
+  class FastCloningInfoProvider;
   class RootInputFile;
   class RootDelayedReader;
   class RootTree;
+  class RootInputFileSequence;
+  class FileCatalogItem;
+  class RootInput;
 
   namespace input {
 

@@ -11,7 +11,6 @@
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/EventEntryInfo.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include <vector>
 

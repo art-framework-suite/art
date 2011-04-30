@@ -57,9 +57,6 @@
    <class name="art::BranchDescription" ClassVersion="10">
     <version ClassVersion="10" checksum="3580977508"/>
    </class>
-     <class name="art::ProductID" ClassVersion="10">
-      <version ClassVersion="10" checksum="3687413371"/>
-     </class>
      <class name="std::set<fhicl::ParameterSetID>"/>
      <class name="art::ProcessConfigurationID"/>
      <class name="std::set<art::ProcessConfigurationID>"/>
@@ -93,12 +90,6 @@
     <version ClassVersion="10" checksum="1627543759"/>
    </class>
    <class name="std::set<art::ProcessHistoryID>"/>
- <class name="art::EventEntryDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="1066758940"/>
- </class>
- <class name="art::EventEntryInfo" ClassVersion="10">
-  <version ClassVersion="10" checksum="1493615438"/>
- </class>
  <class name="art::ProcessHistoryMap"/>
  <class name="std::pair<const art::ProcessHistoryID, art::ProcessHistory>"/>
  <class name="art::ParameterSetBlob" ClassVersion="10">
@@ -106,4 +97,6 @@
  </class>
  <class name="art::ParameterSetMap"/>
  <class name="std::pair<fhicl::ParameterSetID, art::ParameterSetBlob>"/>
+ <class name="art::ProductID"/>
+
 </lcgdict>

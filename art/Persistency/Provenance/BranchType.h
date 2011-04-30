@@ -9,10 +9,6 @@
 
 #include <string>
 
-// identify outdated components for future removal:
-#define FW_BACKWARD_COMPATIBILITY
-#define FW_OBSOLETE
-
 // ----------------------------------------------------------------------
 
 namespace art {
@@ -31,19 +27,7 @@ namespace art {
 
   std::string const & BranchTypeToMetaDataTreeName( BranchType );
 
-#ifdef FW_BACKWARD_COMPATIBILITY
-  std::string const & BranchTypeToInfoTreeName( BranchType );
-#endif
-
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType );
-
-#ifdef FW_BACKWARD_COMPATIBILITY
-  std::string const & BranchTypeToAuxBranchName( BranchType );
-#endif
-
-#ifdef FW_BACKWARD_COMPATIBILITY
-  std::string const & BranchTypeToProductStatusBranchName( BranchType );
-#endif
 
   std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType );
 
@@ -56,44 +40,6 @@ namespace art {
     return os << BranchTypeToString(branchType);
   }
 
-  namespace rootNames {
-    //------------------------------------------------------------------
-    // Parentage Tree
-    std::string const & parentageTreeName( );
-
-    // Branches on parentage tree
-    std::string const & parentageIDBranchName( );
-    std::string const & parentageBranchName( );
-
-    //------------------------------------------------------------------
-    // MetaData Tree (1 entry per file)
-    std::string const & metaDataTreeName( );
-
-    // Branches on MetaData Tree
-    std::string const & productDescriptionBranchName( );
-    std::string const & productDependenciesBranchName( );
-    std::string const & parameterSetMapBranchName( );
-#ifdef FW_OBSOLETE
-    std::string const & moduleDescriptionMapBranchName( );
-#endif
-    std::string const & processHistoryMapBranchName( );
-    std::string const & processConfigurationBranchName( );
-    std::string const & branchIDListBranchName( );
-    std::string const & fileFormatVersionBranchName( );
-    std::string const & fileIdentifierBranchName( );
-    std::string const & fileIndexBranchName( );
-
-    // Event History Tree
-    std::string const & eventHistoryTreeName( );
-
-    // Branches on EventHistory Tree
-    std::string const & eventHistoryBranchName( );
-
-    //------------------------------------------------------------------
-    // Other tree names
-    std::string const & eventTreeName( );
-    std::string const & eventMetaDataTreeName( );
-  }  // rootNames
 }  // art
 
 // ======================================================================

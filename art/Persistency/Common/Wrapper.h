@@ -46,10 +46,6 @@ namespace art {
   class Wrapper
     : public EDProduct
   {
-    // non-copyable:
-    Wrapper( Wrapper<T> const& );
-    void operator = ( Wrapper<T> const& );
-
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with Reflex to identify Wrappers

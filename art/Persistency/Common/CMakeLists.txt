@@ -8,7 +8,7 @@ set( art_Persistency_Common_sources CacheStreamers.cc
                                   PtrVectorBase.cc
                                   RNGsnapshot.cc
                                   RefCore.cc
-                                  RefCoreStreamer.cc
+                                  RefCoreTransientStreamer.cc
                                   traits.cc)
 
 link_libraries( art_Utilities
@@ -40,7 +40,7 @@ install(FILES
 	PtrVectorBase.h
 	RNGsnapshot.h
 	RefCore.h
-	RefCoreStreamer.h
+	RefCoreTraneientStreamer.h
 	TriggerResults.h
 	Wrapper.h
 	debugging_allocator.h

@@ -3,12 +3,10 @@
 
 // A SubRunID represents a unique period within a run.
 
-#include "art/Utilities/Exception.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SortInvalidFirst.h"
-
+#include "art/Utilities/Exception.h"
 #include "cpp0x/cstdint"
-#include <functional>
 #include <ostream>
 
 namespace art {

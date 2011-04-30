@@ -34,6 +34,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/rootNames.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -51,7 +52,7 @@
 
 using namespace cet;
 using namespace std;
-
+using art::rootNames::metaBranchRootName;
 
 namespace art {
 
@@ -269,7 +270,7 @@ namespace art {
   void RootOutputFile::writeFileFormatVersion() {
     FileFormatVersion fileFormatVersion(getFileFormatVersion(), getFileFormatEra());
     FileFormatVersion * pFileFmtVsn = &fileFormatVersion;
-    TBranch* b = metaDataTree_->Branch(rootNames::fileFormatVersionBranchName().c_str(), &pFileFmtVsn, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileFormatVersion>(), &pFileFmtVsn, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -277,7 +278,7 @@ namespace art {
   void RootOutputFile::writeFileIndex() {
     fileIndex_.sortBy_Run_SubRun_Event();
     FileIndex *findexPtr = &fileIndex_;
-    TBranch* b = metaDataTree_->Branch(rootNames::fileIndexBranchName().c_str(), &findexPtr, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<FileIndex>(), &findexPtr, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -291,17 +292,16 @@ namespace art {
   }
 
   void RootOutputFile::writeProcessHistoryRegistry() {
-    typedef  ProcessHistoryRegistry::collection_type  collection_t;
-    collection_t const & r = ProcessHistoryRegistry::get();
-    collection_t * p = & const_cast<collection_t &>(r);
-    TBranch* b = metaDataTree_->Branch(rootNames::processHistoryMapBranchName().c_str(), &p, om_->basketSize(), 0);
+    ProcessHistoryMap const & r = ProcessHistoryRegistry::get();
+    ProcessHistoryMap * p = & const_cast<ProcessHistoryMap &>(r);
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProcessHistoryMap>(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
   void RootOutputFile::writeBranchIDListRegistry() {
-    BranchIDListRegistry::collection_type *p = &BranchIDListRegistry::instance()->data();
-    TBranch* b = metaDataTree_->Branch(rootNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
+    BranchIDLists *p = &BranchIDListRegistry::instance()->data();
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchIDLists>(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -311,7 +311,7 @@ namespace art {
     ParameterSetMap psetMap;
     fillPsetMap(psetMap);
     ParameterSetMap *pPsetMap = &psetMap;
-    TBranch* b = metaDataTree_->Branch(rootNames::parameterSetMapBranchName().c_str(), &pPsetMap, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<ParameterSetMap>(), &pPsetMap, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
@@ -353,14 +353,14 @@ namespace art {
     }
 
     ProductRegistry * ppReg = &pReg;
-    TBranch* b = metaDataTree_->Branch(rootNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(), &ppReg, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
   void RootOutputFile::writeProductDependencies() {
     BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
     BranchChildren * ppDeps = &pDeps;
-    TBranch* b = metaDataTree_->Branch(rootNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<BranchChildren>(), &ppDeps, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

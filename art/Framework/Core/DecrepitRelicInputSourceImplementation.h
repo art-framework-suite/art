@@ -151,9 +151,6 @@ namespace art
     /// Accessor for Process Configuration
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
-    /// Accessor for primary input source flag
-    bool primary() const {return primary_;}
-
     /// Called by framework at beginning of job
     void doBeginJob();
 
@@ -238,7 +235,6 @@ namespace art
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
     cet::exempt_ptr<ProductRegistry const> productRegistry_;
-    bool const primary_;
     Timestamp time_;
     bool doneReadAhead_;
     input::ItemType state_;

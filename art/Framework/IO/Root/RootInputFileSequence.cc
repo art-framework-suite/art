@@ -9,8 +9,8 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
+#include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
-#include "art/Framework/IO/Root/RootInput.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -28,10 +28,13 @@ using namespace std;
 namespace art {
 
   RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
-                                                RootInput const& input,
                                                 InputFileCatalog const& catalog,
-                                                bool primarySequence) :
-    input_(input),
+                                                bool primarySequence,
+                                                FastCloningInfoProvider const &fcip,
+                                                InputSource::ProcessingMode pMode,
+                                                ProductRegistry &pReg,
+                                                ProcessConfiguration const &processConfig) :
+    //    input_(input),
     catalog_(catalog),
     firstFile_(true),
     fileIterBegin_(fileCatalogItems().begin()),
@@ -39,7 +42,6 @@ namespace art {
     fileIter_(fileIterEnd_),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
-    flatDistribution_(0),
     fileIndexes_(fileCatalogItems().size()),
     eventsRemainingInFile_(0),
     origEventID_(),
@@ -55,7 +57,11 @@ namespace art {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primarySequence_(primarySequence),
     duplicateChecker_(),
-    dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)) {
+    dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)),
+    fastCloningInfo_(fcip),
+    processingMode_(pMode),
+    productRegistry_(pReg),
+    processConfiguration_(processConfig) {
 
     RunNumber_t firstRun;
     bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
@@ -201,8 +207,8 @@ namespace art {
       rootFile_ = RootInputFileSharedPtr(new RootInputFile(fileIter_->fileName(), catalog_.url(),
                                                            processConfiguration(), fileIter_->logicalFileName(), filePtr,
                                                            origEventID_, eventsToSkip_, whichSubRunsToSkip_,
-                                                           remainingEvents(), remainingSubRuns(), treeCacheSize_, treeMaxVirtualSize_,
-                                                           input_.processingMode(),
+                                                           fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
+                                                           processingMode_,
                                                            forcedRunOffset_, eventsToProcess_, noEventSort_,
                                                            groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
@@ -282,8 +288,8 @@ namespace art {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readSubRun_() {
-    return rootFile_->readSubRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), runPrincipal());
+  RootInputFileSequence::readSubRun_(boost::shared_ptr<RunPrincipal> rp) {
+    return rootFile_->readSubRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), rp);
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -365,12 +371,12 @@ namespace art {
   }
 
   boost::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readIt(SubRunID const& id) {
+  RootInputFileSequence::readIt(SubRunID const& id, boost::shared_ptr<RunPrincipal> rp) {
 
     // Attempt to find subRun in currently open input file.
     bool found = rootFile_->setEntryAtSubRun(id);
     if (found) {
-      return readSubRun_();
+      return readSubRun_(rp);
     }
 
     if (fileIndexes_.size() > 1) {
@@ -384,7 +390,7 @@ namespace art {
           // Now get the subRun from the correct file.
           found = rootFile_->setEntryAtSubRun(id);
           assert (found);
-          return readSubRun_();
+          return readSubRun_(rp);
         }
       }
       // Look for subRun in files not yet opened.
@@ -394,7 +400,7 @@ namespace art {
           initFile(false);
           found = rootFile_->setEntryAtSubRun(id);
           if (found) {
-            return readSubRun_();
+            return readSubRun_(rp);
           }
         }
       }
@@ -448,14 +454,6 @@ namespace art {
       return input::IsFile;
     }
     if (rootFile_) {
-#ifdef OLD_CODE
-      if (randomAccess_) {
-        skip(0);
-        if (fileIter_== fileIterEnd_) {
-          return input::IsStop;
-        }
-      }
-#endif
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return input::IsEvent;
@@ -499,37 +497,22 @@ namespace art {
 
   bool
   RootInputFileSequence::primary() const {
-    return input_.primary();
-  }
-
-  boost::shared_ptr<RunPrincipal>
-  RootInputFileSequence::runPrincipal() const {
-    return input_.runPrincipal();
+    return true;
   }
 
   ProcessConfiguration const&
   RootInputFileSequence::processConfiguration() const {
-    return input_.processConfiguration();
-  }
-
-  int
-  RootInputFileSequence::remainingEvents() const {
-    return input_.remainingEvents();
-  }
-
-  int
-  RootInputFileSequence::remainingSubRuns() const {
-    return input_.remainingSubRuns();
+    return processConfiguration_;
   }
 
   ProductRegistry &
   RootInputFileSequence::productRegistryUpdate() const{
-    return input_.productRegistryUpdate();
+    return productRegistry_;
   }
 
   cet::exempt_ptr<ProductRegistry const>
   RootInputFileSequence::productRegistry() const{
-    return input_.productRegistry();
+    return cet::exempt_ptr<ProductRegistry const>(&productRegistry_);
   }
 
   void RootInputFileSequence::logFileAction(const char* msg, string const& file) {

@@ -8,5 +8,5 @@ subdirs (Integration)
 subdirs (Persistency/Provenance)
 subdirs (TestObjects)
 subdirs (Version)
-#subdirs (Utilities)
+subdirs (Utilities)
 

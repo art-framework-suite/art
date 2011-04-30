@@ -181,6 +181,8 @@ namespace art {
       getProcessParameterSet(std::string const& processName,
                              fhicl::ParameterSet& ps) const;
 
+    EDProductGetter const * productGetter() const;
+
   private:
     EventPrincipal const& eventPrincipal() const;
     EventPrincipal      & eventPrincipal();
