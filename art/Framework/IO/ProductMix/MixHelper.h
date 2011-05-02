@@ -6,10 +6,14 @@
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchIDList.h"
+#include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
@@ -141,23 +145,44 @@ public:
 private:
   typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
   typedef MixOpList::iterator MixOpIter;
+  typedef std::map<BranchID, BranchID> BranchIDTransMap;
+  typedef std::map<BranchID, std::pair<BranchListIndex, ProductIndex> > BranchIDToIndexMap;
+  typedef std::map<BranchID, ProductID> BtoPTransMap;
+
+  friend class BranchIDToProductIDConverter;
+  class BranchIDToProductIDConverter :
+    public std::unary_function<BranchIDTransMap::value_type const &, BtoPTransMap::value_type> {
+  public:
+    BranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h);
+    result_type operator()(argument_type bID) const;
+  private:
+    typedef std::map<BranchListIndex, ProcessIndex> BLItoPIMap;
+    BranchIDToIndexMap const &bidi_;
+    BLItoPIMap branchToProductIDHelper_;
+  };
 
   void openAndReadMetaData(std::string const &fileName);
   void mixAndPutOne(boost::shared_ptr<MixOpBase> mixOp,
                     SecondaryEventSequence const &seq,
                     size_t nSecondaries,
                     Event &e);
-  void populateRemapper();
+  void buildBranchIDTransMap();
+  void buildBranchIDToIndexMap(BranchIDLists const &bidl);
+  void buildSecondaryProductMap();
+  void populateRemapper(Event &e);
 
   ProducerBase &producesProvider_;
   std::vector<std::string> filenames_;
   MixOpList mixOps_;
+  BranchIDTransMap branchIDTransMap_;
+  BtoPTransMap secondaryProductMap_;
   PtrRemapper ptrRemapper_;
   std::vector<std::string>::const_iterator currentFilename_;
   std::string readMode_;
   double coverageFraction_;
   size_t nEventsRead_;
   FileFormatVersion ffVersion_;
+  BranchIDToIndexMap branchIDToIndexMap_;
   CLHEP::RandFlat dist_;
 
   // Root-specific state.

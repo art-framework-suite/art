@@ -45,13 +45,15 @@ public:
              art::PtrRemapper const &remap);
 private:
   size_t nSecondaries_;
+  bool testRemapper_;
 };
 
 arttest::MixFilterTestDetail::
 MixFilterTestDetail(fhicl::ParameterSet const &p,
                       art::MixHelper &helper)
   :
-  nSecondaries_(p.get<size_t>("nunSecondaries", 1))
+  nSecondaries_(p.get<size_t>("nunSecondaries", 1)),
+  testRemapper_(p.get<bool>("testRemapper", 1))
 {
   helper.produces<std::string>(); // "Bookkeeping"
 

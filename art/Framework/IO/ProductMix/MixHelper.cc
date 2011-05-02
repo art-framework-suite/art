@@ -4,6 +4,11 @@
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/History.h"
+
+#include <functional>
+
+#include "Rtypes.h"
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
                           ProducerBase &producesProvider)
@@ -11,12 +16,15 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   producesProvider_(producesProvider),
   filenames_(pset.get<std::vector<std::string> >("filenames")),
   mixOps_(),
+  branchIDTransMap_(),
+  secondaryProductMap_(),
   ptrRemapper_(),
   currentFilename_(filenames_.begin()),
   readMode_(pset.get<std::string>("readMode", "sequential")),
   coverageFraction_(pset.get<double>("coverageFraction", 100.0)),
   nEventsRead_(0),
   ffVersion_(),
+  branchIDToIndexMap_(),
   dist_(ServiceHandle<RandomNumberGenerator>()->getEngine()),
   currentFile_(),
   currentMetaDataTree_(),
@@ -24,6 +32,39 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   fileIndex_(),
   dataBranches_()
 {
+}
+
+art::MixHelper::BranchIDToProductIDConverter::
+BranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h)
+  :
+  bidi_(bidi),
+  branchToProductIDHelper_()
+{
+  for(BranchListIndexes::const_iterator
+        bli_beg = h.branchListIndexes().begin(),
+        bli_it = bli_beg,
+        bli_end = h.branchListIndexes().end();
+      bli_it != bli_end;
+      ++bli_it) {
+    ProcessIndex pix = bli_it - bli_beg;
+    branchToProductIDHelper_.insert(std::make_pair(*bli_it, pix));
+  }
+}
+
+art::MixHelper::BranchIDToProductIDConverter::result_type
+art::MixHelper::BranchIDToProductIDConverter::operator()(argument_type bID) const {
+  BranchIDToIndexMap::const_iterator bidi_it = bidi_.find(bID.second);
+  if (bidi_it == bidi_.end()) {
+    throw Exception(errors::NotFound, "Bad BranchID")
+      << "Cannot determine secondary ProductID from BranchID.\n";
+  }
+  BLItoPIMap::const_iterator i =
+    branchToProductIDHelper_.find(bidi_it->second.first);
+  if (i == branchToProductIDHelper_.end()) {
+    throw Exception(errors::NotFound, "Bad BranchID")
+      << "Cannot determine secondary ProductID from BranchID.\n";
+  }
+  return std::make_pair(bID.second, ProductID(i->second+1, bidi_it->second.second));
 }
 
 void
@@ -37,7 +78,6 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
       << "Unable to open specified secondary event stream file "
       << filename
       << ".\n";
-    
   }
   if (!currentFile_ || currentFile_->IsZombie()) {
     throw Exception(errors::FileOpenError)
@@ -75,6 +115,10 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
   FileIndex *fileIndex_p = &fileIndex_;
   setMetaDataBranchAddress(currentMetaDataTree_, fileIndex_p);
 
+  BranchIDLists branchIDLists;
+  BranchIDLists *branchIDLists_p = &branchIDLists;
+  setMetaDataBranchAddress(currentMetaDataTree_, branchIDLists_p);
+  
   Int_t n = currentMetaDataTree_->GetEntry(0);
   switch (n) {
   case -1:
@@ -106,7 +150,9 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
 
   dataBranches_.reset(currentEventTree_.get());
 
-  populateRemapper();
+  buildBranchIDTransMap();
+
+  buildBranchIDToIndexMap(branchIDLists);
 }
 
 void
@@ -117,8 +163,8 @@ art::MixHelper::postRegistrationInit() {
 
 void
 art::MixHelper::mixAndPut(size_t nSecondaries, Event &e) {
-  // Set the product getter in case we need to remap any Ptrs.
-  ptrRemapper_.setProductGetter(e.productGetter());
+  // Populate the remapper in case we need to remap any Ptrs.
+  populateRemapper(e);
 
   // Decide which events we're reading and prime the event tree cache.
   SecondaryEventSequence seq;
@@ -142,8 +188,8 @@ art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
 }
 
 void
-art::MixHelper::populateRemapper() {
-  PtrRemapper::ProdTransMap_t transMap;
+art::MixHelper::buildBranchIDTransMap() {
+  BranchIDTransMap transMap;
   for(MixOpList::const_iterator
         i = mixOps_.begin(),
         e = mixOps_.end();
@@ -151,4 +197,69 @@ art::MixHelper::populateRemapper() {
       ++i) {
     transMap[(*i)->incomingBranchID(dataBranches_)] = (*i)->outgoingBranchID();
   }
+  if (branchIDTransMap_.empty()) {
+    transMap.swap(branchIDTransMap_);
+  } else if (branchIDTransMap_ != transMap) {
+    throw Exception(errors::DataCorruption)
+      << "Secondary input file "
+      << *currentFilename_
+      << " has BranchIDs inconsistent with previous files.\n";
+  }
+}
+
+void
+art::MixHelper::buildBranchIDToIndexMap(BranchIDLists const &bidl) {
+  BranchIDToIndexMap tmpMap;
+  for (BranchIDLists::const_iterator
+         bidl_beg = bidl.begin(),
+         bidl_it = bidl_beg,
+         bidl_end = bidl.end();
+       bidl_it != bidl.end();
+       ++bidl_it) {
+    BranchListIndex blix = bidl_it - bidl_beg;
+    for (BranchIDList::const_iterator
+           bids_beg = bidl_it->begin(),
+           bids_it = bidl_it->begin(),
+           bids_end = bidl_it->end();
+         bids_it != bids_end;
+         ++bids_it) {
+      ProductIndex pix = bids_it - bids_beg;
+      tmpMap.insert(std::make_pair(*bids_it, std::make_pair(blix, pix)));
+    }
+  }
+  tmpMap.swap(branchIDToIndexMap_);
+}
+
+void
+art::MixHelper::buildSecondaryProductMap() {
+  TTree* ehTree = 
+    dynamic_cast<TTree*>(currentFile_->Get(rootNames::eventHistoryTreeName().c_str()));
+  if (ehTree == 0) {
+    throw Exception(errors::FileReadError)
+      << "Unable to read event history tree from secondary event stream file "
+      << *currentFilename_
+      << ".\n";
+  }
+  History h;
+  History *h_p = &h;
+  setMetaDataBranchAddress(ehTree, h_p);
+  Long64_t nEvt = -1;
+  BtoPTransMap tmpProdMap;
+  while (Int_t n = ehTree->GetEntry(++nEvt)) {
+    if (n > 0) {
+      tmpProdMap.clear();
+      std::transform(branchIDTransMap_.begin(),
+                     branchIDTransMap_.end(),
+                     std::inserter(tmpProdMap, tmpProdMap.begin()),
+                     BranchIDToProductIDConverter(std::cref(branchIDToIndexMap_), std::cref(h)));
+    } else {
+    }
+  }
+}
+
+void
+art::MixHelper::populateRemapper(Event &e) {
+  ptrRemapper_.setProductGetter(e.productGetter());
+
+  // FIXME: check whether PtrRemapper has been filled yet
 }

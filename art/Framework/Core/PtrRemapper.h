@@ -3,7 +3,7 @@
 
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/Ptr.h"
-#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/ProductID.h"
 
 #include <map>
 
@@ -13,7 +13,7 @@ namespace art {
 
 class art::PtrRemapper {
 public:
-  typedef std::map<BranchID, BranchID> ProdTransMap_t;
+  typedef std::map<ProductID, ProductID> ProdTransMap_t;
 
   PtrRemapper();
   explicit PtrRemapper(ProdTransMap_t const &prodTransMap);
