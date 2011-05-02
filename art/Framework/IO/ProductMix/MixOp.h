@@ -8,6 +8,7 @@
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/InputTag.h"
@@ -44,7 +45,7 @@ public:
 
   virtual
   BranchID
-  outgoingBranchID(ProductRegistry const &pReg) const;
+  outgoingBranchID() const;
 
   virtual
   void
@@ -162,11 +163,13 @@ incomingBranchID(RootBranchInfoList const &rbiList) const {
 template <typename PROD>
 art::BranchID
 art::MixOp<PROD>::
-outgoingBranchID(ProductRegistry const &pReg) const {
+outgoingBranchID() const {
   BranchKey key(inputType_.friendlyClassName(),
                 moduleLabel_,
                 outputInstanceLabel_,
                 processName_);
+  ProductRegistry const &pReg = 
+    ServiceHandle<ConstProductRegistry>()->productRegistry();
   ProductRegistry::ConstProductList::const_iterator i =
     pReg.constProductList().find(key);
   if (i == pReg.constProductList().end()) {

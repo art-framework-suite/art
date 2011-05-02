@@ -158,7 +158,6 @@ private:
   double coverageFraction_;
   size_t nEventsRead_;
   FileFormatVersion ffVersion_;
-  ProductRegistry pReg_;
   CLHEP::RandFlat dist_;
 
   // Root-specific state.

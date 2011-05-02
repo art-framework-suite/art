@@ -39,7 +39,7 @@ public:
 
   virtual
   BranchID
-  outgoingBranchID(ProductRegistry const &pReg) const = 0;
+  outgoingBranchID() const = 0;
 
   virtual
   void

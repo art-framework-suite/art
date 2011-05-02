@@ -4,7 +4,6 @@
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
                           ProducerBase &producesProvider)
@@ -18,7 +17,6 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   coverageFraction_(pset.get<double>("coverageFraction", 100.0)),
   nEventsRead_(0),
   ffVersion_(),
-  pReg_(),
   dist_(ServiceHandle<RandomNumberGenerator>()->getEngine()),
   currentFile_(),
   currentMetaDataTree_(),
@@ -151,6 +149,6 @@ art::MixHelper::populateRemapper() {
         e = mixOps_.end();
       i != e;
       ++i) {
-    transMap[(*i)->incomingBranchID(dataBranches_)] = (*i)->outgoingBranchID(pReg_);
+    transMap[(*i)->incomingBranchID(dataBranches_)] = (*i)->outgoingBranchID();
   }
 }
