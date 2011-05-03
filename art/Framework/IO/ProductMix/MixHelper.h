@@ -12,7 +12,6 @@
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/Exception.h"
@@ -146,11 +145,18 @@ public:
 private:
   typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
   typedef MixOpList::iterator MixOpIter;
+
+  enum Mode { SEQUENTIAL, RANDOM };
+
   void openAndReadMetaData(std::string const &fileName);
+  void buildEventIDIndex(FileIndex const &fileIndex);
   void mixAndPutOne(boost::shared_ptr<MixOpBase> mixOp,
-                    SecondaryEventSequence const &seq,
-                    size_t nSecondaries,
+                    MixOpBase::EntryNumberSequence const &enSeq,
+                    MixOpBase::EventIDSequence const &eIDseq,
                     Event &e);
+  bool generateEventSequence(size_t nSecondaries,
+                             MixOpBase::EntryNumberSequence const &enSeq,
+                             MixOpBase::EventIDSequence const &eIDseq);
   void buildBranchIDTransMap(ProdToProdMapBuilder::BranchIDTransMap &transMap);
 
   ProducerBase &producesProvider_;
@@ -158,7 +164,7 @@ private:
   MixOpList mixOps_;
   PtrRemapper ptrRemapper_;
   std::vector<std::string>::const_iterator currentFilename_;
-  std::string readMode_;
+  Mode readMode_;
   double coverageFraction_;
   size_t nEventsRead_;
   FileFormatVersion ffVersion_;
@@ -166,10 +172,10 @@ private:
   CLHEP::RandFlat dist_;
 
   // Root-specific state.
+  MixOpBase::EventIDIndex eventIDIndex_;
   cet::value_ptr<TFile> currentFile_;
   cet::exempt_ptr<TTree> currentMetaDataTree_;
   cet::exempt_ptr<TTree> currentEventTree_;
-  FileIndex fileIndex_;
   RootBranchInfoList dataBranches_;
 };
 

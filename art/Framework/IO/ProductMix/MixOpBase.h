@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-#include "art/Framework/IO/ProductMix/SecondaryEventSequence.h"
+#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 
 namespace art {
@@ -20,6 +20,10 @@ class TTree;
 
 class art::MixOpBase {
 public:
+  typedef std::map<FileIndex::EntryNumber_t, EventID> EventIDIndex;
+  typedef std::vector<EventID> EventIDSequence;
+  typedef std::vector<FileIndex::EntryNumber_t> EntryNumberSequence;
+
   virtual
   InputTag const &inputTag() const = 0;
 
@@ -31,7 +35,9 @@ public:
 
   virtual
   void
-  mixAndPut(Event &e, PtrRemapper const &remap) const = 0;
+  mixAndPut(Event &e,
+            PtrRemapper const &remap,
+            EventIDSequence const &seq) const = 0;
 
   virtual
   BranchID
@@ -44,8 +50,7 @@ public:
   virtual
   void
   readFromFile(TTree *eventTree,
-               SecondaryEventSequence const &seq,
-               size_t nSecondaries) = 0;
+               EntryNumberSequence const &seq) = 0;
 };
 #endif /* art_Framework_IO_ProductMix_MixOpBase_h */
 

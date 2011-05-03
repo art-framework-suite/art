@@ -37,7 +37,9 @@ public:
 
   virtual
   void
-  mixAndPut(Event &e, PtrRemapper const &remap) const;
+  mixAndPut(Event &e,
+            PtrRemapper const &remap,
+            EventIDSequence const &seq) const;
 
   virtual
   BranchID
@@ -50,8 +52,7 @@ public:
   virtual
   void
   readFromFile(TTree *eventTree,
-               SecondaryEventSequence const &seq,
-               size_t nSecondaries);
+               EntryNumberSequence const &seq);
 
 private:
   typedef std::vector<Wrapper<PROD> > SpecProdList;
@@ -112,7 +113,8 @@ template <typename PROD>
 void
 art::MixOp<PROD>::
 mixAndPut(Event &e,
-            PtrRemapper const &remap) const {
+          PtrRemapper const &remap,
+          EventIDSequence const &seq) const {
   std::auto_ptr<PROD> rProd(new PROD);
   std::vector<PROD const *> inConverted;
   inConverted.reserve(inProducts_.size());
@@ -183,18 +185,15 @@ template <typename PROD>
 void
 art::MixOp<PROD>::
 readFromFile(TTree *eventTree,
-             SecondaryEventSequence const &seq,
-             size_t nSecondaries) {
-  initProductList(nSecondaries);
+             EntryNumberSequence const &seq) {
+  initProductList(seq.size());
 }
 
 template <typename PROD>
 void
 art::MixOp<PROD>::
 initProductList(size_t nSecondaries) {
-  inProducts_.clear();
   if (nSecondaries) {
-    inProducts_.reserve(nSecondaries);
     inProducts_.resize(nSecondaries);
   }
   prodIter_ = inProducts_.begin();

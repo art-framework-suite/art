@@ -1,15 +1,49 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
-#include "art/Framework/IO/ProductMix/SecondaryEventSequence.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
+#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/History.h"
 
+#include "boost/regex.hpp"
+
 #include <functional>
 
 #include "Rtypes.h"
+
+namespace {
+  class EventIDIndexBuilder :
+    public std::unary_function<art::FileIndex::Element const &,
+                               void> {
+  public:
+    EventIDIndexBuilder(art::MixOpBase::EventIDIndex &index);
+    result_type operator()(argument_type bIDs) const;
+  private:
+    art::MixOpBase::EventIDIndex &index_;
+  };
+
+  boost::regex const & modeRegex() {
+    static boost::regex r("^seq", boost::regex_constants::icase);
+    return r;
+  }
+}
+
+inline
+EventIDIndexBuilder::EventIDIndexBuilder(art::MixOpBase::EventIDIndex &index)
+  :
+  index_(index)
+{
+  index_.clear();
+}
+
+EventIDIndexBuilder::result_type
+EventIDIndexBuilder::operator()(argument_type element) const {
+  if (element.getEntryType() == art::FileIndex::kEvent) {
+    index_[element.entry_] = element.eventID_;
+  }
+}
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
                           ProducerBase &producesProvider)
@@ -19,16 +53,17 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   mixOps_(),
   ptrRemapper_(),
   currentFilename_(filenames_.begin()),
-  readMode_(pset.get<std::string>("readMode", "sequential")),
+  readMode_(boost::regex_search(pset.get<std::string>("readMode", "sequential"),
+                                modeRegex())?SEQUENTIAL:RANDOM),
   coverageFraction_(pset.get<double>("coverageFraction", 100.0)),
   nEventsRead_(0),
   ffVersion_(),
   ptpBuilder_(),
   dist_(ServiceHandle<RandomNumberGenerator>()->getEngine()),
+  eventIDIndex_(),
   currentFile_(),
   currentMetaDataTree_(),
   currentEventTree_(),
-  fileIndex_(),
   dataBranches_()
 {
 }
@@ -78,7 +113,8 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
   FileFormatVersion *ffVersion_p = &ffVersion_;
   setMetaDataBranchAddress(currentMetaDataTree_, ffVersion_p);
 
-  FileIndex *fileIndex_p = &fileIndex_;
+  FileIndex fileIndex;
+  FileIndex *fileIndex_p = &fileIndex;
   setMetaDataBranchAddress(currentMetaDataTree_, fileIndex_p);
 
   BranchIDLists branchIDLists;
@@ -126,9 +162,19 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
       << *currentFilename_
       << ".\n";
   }
+
+  buildEventIDIndex(fileIndex);
+
   ProdToProdMapBuilder::BranchIDTransMap transMap;
   buildBranchIDTransMap(transMap);
   ptpBuilder_.prepareTranslationTables(transMap, branchIDLists, ehTree);
+}
+
+void
+art::MixHelper::buildEventIDIndex(FileIndex const &fileIndex) {
+  std::for_each(fileIndex.begin(),
+                fileIndex.end(),
+                EventIDIndexBuilder(eventIDIndex_));
 }
 
 void
@@ -143,24 +189,38 @@ art::MixHelper::mixAndPut(size_t nSecondaries, Event &e) {
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
 
   // Decide which events we're reading and prime the event tree cache.
-  SecondaryEventSequence seq;
+  MixOpBase::EntryNumberSequence enSeq;
+  MixOpBase::EventIDSequence eIDseq;
+  generateEventSequence(nSecondaries, enSeq, eIDseq);
 
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
                std::bind(&MixHelper::mixAndPutOne,
                          this,
                          _1,
-                         std::ref(seq),
-                         nSecondaries,
+                         std::cref(enSeq),
+                         std::cref(eIDseq),
                          std::ref(e)));
 }
 
 void
 art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
-                             SecondaryEventSequence const &seq,
-                             size_t nSecondaries, Event &e) {
-  op->readFromFile(currentEventTree_, seq, nSecondaries);
-  op->mixAndPut(e, ptrRemapper_);
+                             MixOpBase::EntryNumberSequence const &enSeq,
+                             MixOpBase::EventIDSequence const &eIDseq,
+                             Event &e) {
+  op->readFromFile(currentEventTree_, enSeq);
+  op->mixAndPut(e, ptrRemapper_, eIDseq);
+}
+
+bool
+art::MixHelper::
+generateEventSequence(size_t nSecondaries,
+                      MixOpBase::EntryNumberSequence const &enSeq,
+                      MixOpBase::EventIDSequence const &eIDseq) {
+  if (readMode_ == SEQUENTIAL) {
+  } else { // RANDOM
+  }
+  return false;
 }
 
 void
