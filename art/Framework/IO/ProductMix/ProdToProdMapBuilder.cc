@@ -40,12 +40,9 @@ art::ProdToProdMapBuilder::populateRemapper(PtrRemapper &mapper, Event &e) const
   std::transform(branchIDTransMap_.begin(),
                  branchIDTransMap_.end(),
                  std::inserter(prodTransMap, prodTransMap.begin()),
-                 ProdTransMapBuilder
-                 (secondaryProductMap_,
-                  *dynamic_cast<EventPrincipal const *>
-                  (e.productGetter())
-                  )
-                 );
+                 ProdTransMapBuilder(secondaryProductMap_,
+                                     *dynamic_cast<EventPrincipal const *>
+                                     (e.productGetter())));
 
   mapper.setProdTransMap(cet::exempt_ptr<PtrRemapper::ProdTransMap_t const>(&prodTransMap));
 }
@@ -131,7 +128,7 @@ operator()(argument_type bID) const {
       << "Cannot determine secondary ProductID from BranchID.\n";
   }
   return std::make_pair(bID.first,
-                        ProductID(i->second+1, bidi_it->second.second));
+                        ProductID(i->second+1, bidi_it->second.second+1));
 }
 
 art::ProdToProdMapBuilder::ProdTransMapBuilder::
