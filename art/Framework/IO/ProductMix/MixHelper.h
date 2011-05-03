@@ -149,16 +149,30 @@ private:
   typedef std::map<BranchID, std::pair<BranchListIndex, ProductIndex> > BranchIDToIndexMap;
   typedef std::map<BranchID, ProductID> BtoPTransMap;
 
-  friend class BranchIDToProductIDConverter;
-  class BranchIDToProductIDConverter :
-    public std::unary_function<BranchIDTransMap::value_type const &, BtoPTransMap::value_type> {
+  friend class SecondaryBranchIDToProductIDConverter;
+  class SecondaryBranchIDToProductIDConverter :
+    public std::unary_function<BranchIDTransMap::value_type const &,
+                               BtoPTransMap::value_type> {
   public:
-    BranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h);
+    SecondaryBranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h);
     result_type operator()(argument_type bID) const;
   private:
     typedef std::map<BranchListIndex, ProcessIndex> BLItoPIMap;
     BranchIDToIndexMap const &bidi_;
     BLItoPIMap branchToProductIDHelper_;
+  };
+
+  friend class ProdTransMapBuilder;
+  class ProdTransMapBuilder :
+    public std::unary_function<BranchIDTransMap::value_type const &,
+                               PtrRemapper::ProdTransMap_t::value_type> {
+  public:
+    ProdTransMapBuilder(BtoPTransMap const & spMap,
+                        EventPrincipal const &ep);
+    result_type operator()(argument_type bIDs) const;
+  private:
+    BtoPTransMap const &spMap_;
+    EventPrincipal const &ep_;
   };
 
   void openAndReadMetaData(std::string const &fileName);

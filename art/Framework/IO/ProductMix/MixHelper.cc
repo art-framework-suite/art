@@ -1,3 +1,4 @@
+#include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/SecondaryEventSequence.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
@@ -34,8 +35,8 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
 {
 }
 
-art::MixHelper::BranchIDToProductIDConverter::
-BranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h)
+art::MixHelper::SecondaryBranchIDToProductIDConverter::
+SecondaryBranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h)
   :
   bidi_(bidi),
   branchToProductIDHelper_()
@@ -51,9 +52,10 @@ BranchIDToProductIDConverter(BranchIDToIndexMap const &bidi, History const &h)
   }
 }
 
-art::MixHelper::BranchIDToProductIDConverter::result_type
-art::MixHelper::BranchIDToProductIDConverter::operator()(argument_type bID) const {
-  BranchIDToIndexMap::const_iterator bidi_it = bidi_.find(bID.second);
+art::MixHelper::SecondaryBranchIDToProductIDConverter::result_type
+art::MixHelper::SecondaryBranchIDToProductIDConverter::
+operator()(argument_type bID) const {
+  BranchIDToIndexMap::const_iterator bidi_it = bidi_.find(bID.first);
   if (bidi_it == bidi_.end()) {
     throw Exception(errors::NotFound, "Bad BranchID")
       << "Cannot determine secondary ProductID from BranchID.\n";
@@ -64,7 +66,28 @@ art::MixHelper::BranchIDToProductIDConverter::operator()(argument_type bID) cons
     throw Exception(errors::NotFound, "Bad BranchID")
       << "Cannot determine secondary ProductID from BranchID.\n";
   }
-  return std::make_pair(bID.second, ProductID(i->second+1, bidi_it->second.second));
+  return std::make_pair(bID.first,
+                        ProductID(i->second+1, bidi_it->second.second));
+}
+
+art::MixHelper::ProdTransMapBuilder::
+ProdTransMapBuilder(BtoPTransMap const & spMap,
+                    EventPrincipal const &ep)
+  :
+  spMap_(spMap),
+  ep_(ep)
+{}
+
+
+art::MixHelper::ProdTransMapBuilder::result_type
+art::MixHelper::ProdTransMapBuilder::
+operator()(argument_type bIDs) const {
+  BtoPTransMap::const_iterator secondary_i = spMap_.find(bIDs.first);
+  if (secondary_i == spMap_.end()) {
+    throw Exception(errors::NotFound)
+      << "Unable to find product translation from secondary file.\n";
+  }
+  return std::make_pair(secondary_i->second, ep_.branchIDToProductID(bIDs.second));
 }
 
 void
@@ -153,6 +176,8 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
   buildBranchIDTransMap();
 
   buildBranchIDToIndexMap(branchIDLists);
+
+  buildSecondaryProductMap();
 }
 
 void
@@ -247,19 +272,37 @@ art::MixHelper::buildSecondaryProductMap() {
   BtoPTransMap tmpProdMap;
   while (Int_t n = ehTree->GetEntry(++nEvt)) {
     if (n > 0) {
-      tmpProdMap.clear();
       std::transform(branchIDTransMap_.begin(),
                      branchIDTransMap_.end(),
                      std::inserter(tmpProdMap, tmpProdMap.begin()),
-                     BranchIDToProductIDConverter(std::cref(branchIDToIndexMap_), std::cref(h)));
+                     SecondaryBranchIDToProductIDConverter(branchIDToIndexMap_, h));
     } else {
+    }
+    if (secondaryProductMap_.empty()) {
+      tmpProdMap.swap(secondaryProductMap_);
+    } else if (tmpProdMap != secondaryProductMap_) {
+      throw Exception(errors::UnimplementedFeature)
+        << "Unable to mix from a secondary input file which has skimmed events.\n"
+        << "Contact artists@fnal.gov if you really need this feature.\n";
     }
   }
 }
 
 void
 art::MixHelper::populateRemapper(Event &e) {
-  ptrRemapper_.setProductGetter(e.productGetter());
+  ptrRemapper_.setProductGetter(cet::exempt_ptr<EDProductGetter const>(e.productGetter()));
 
-  // FIXME: check whether PtrRemapper has been filled yet
+  PtrRemapper::ProdTransMap_t prodTransMap;
+  
+  std::transform(branchIDTransMap_.begin(),
+                 branchIDTransMap_.end(),
+                 std::inserter(prodTransMap, prodTransMap.begin()),
+                 ProdTransMapBuilder
+                 (secondaryProductMap_,
+                  *dynamic_cast<EventPrincipal const *>
+                  (e.productGetter())
+                  )
+                 );
+
+  ptrRemapper_.setProdTransMap(cet::exempt_ptr<PtrRemapper::ProdTransMap_t const>(&prodTransMap));
 }

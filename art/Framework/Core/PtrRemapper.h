@@ -4,6 +4,7 @@
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <map>
 
@@ -16,17 +17,17 @@ public:
   typedef std::map<ProductID, ProductID> ProdTransMap_t;
 
   PtrRemapper();
-  explicit PtrRemapper(ProdTransMap_t const &prodTransMap);
+  explicit PtrRemapper(cet::exempt_ptr<ProdTransMap_t const> prodTransMap);
 
-  void setProdTransMap(ProdTransMap_t const &prodTransMap);
-  void setProductGetter(EDProductGetter const *productGetter);
+  void setProdTransMap(cet::exempt_ptr<ProdTransMap_t const> prodTransMap);
+  void setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter);
 
   template <typename PROD>
   Ptr<PROD> operator()(Ptr<PROD> const &oldPtr,
                        size_t offset) const;
 private:
-  ProdTransMap_t prodTransMap_;
-  EDProductGetter const *productGetter_;
+  cet::exempt_ptr<ProdTransMap_t const> prodTransMap_;
+  cet::exempt_ptr<EDProductGetter const> productGetter_;
 };
 
 inline
@@ -35,7 +36,7 @@ PtrRemapper() : prodTransMap_() {}
 
 inline
 art::PtrRemapper::
-PtrRemapper(ProdTransMap_t const &prodTransMap)
+PtrRemapper(cet::exempt_ptr<ProdTransMap_t const> prodTransMap)
   :
   prodTransMap_(prodTransMap)
 {}
@@ -43,14 +44,14 @@ PtrRemapper(ProdTransMap_t const &prodTransMap)
 inline
 void
 art::PtrRemapper::
-setProdTransMap(ProdTransMap_t const &prodTransMap) {
+setProdTransMap(cet::exempt_ptr<ProdTransMap_t const> prodTransMap) {
   prodTransMap_ = prodTransMap;
 }
 
 inline
 void
 art::PtrRemapper::
-setProductGetter(EDProductGetter const *productGetter) {
+setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter) {
   productGetter_ = productGetter;
 }
 
