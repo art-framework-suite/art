@@ -2,6 +2,7 @@
 add_library(art_Framework_IO_ProductMix
   SHARED
   MixHelper.cc
+  ProdToProdMapBuilder.cc
   )
 
 install_headers()
