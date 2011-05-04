@@ -4,6 +4,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
+#include "art/Persistency/Common/RefCoreTransientStreamer.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -13,6 +14,8 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/InputTag.h"
 #include "cpp0x/functional"
+
+#include "TBranch.h"
 
 namespace art {
   template <typename PROD> class MixOp;
@@ -38,12 +41,15 @@ public:
   virtual
   void
   mixAndPut(Event &e,
-            PtrRemapper const &remap,
-            EventIDSequence const &seq) const;
+            PtrRemapper const &remap) const;
+
+  virtual
+  void
+  initializeBranchInfo(RootBranchInfoList const &rbiList);
 
   virtual
   BranchID
-  incomingBranchID(RootBranchInfoList const &rbiList) const;
+  incomingBranchID() const;
 
   virtual
   BranchID
@@ -51,8 +57,7 @@ public:
 
   virtual
   void
-  readFromFile(TTree *eventTree,
-               EntryNumberSequence const &seq);
+  readFromFile(EntryNumberSequence const &seq);
 
 private:
   typedef std::vector<Wrapper<PROD> > SpecProdList;
@@ -64,10 +69,9 @@ private:
   std::string outputInstanceLabel_;
   std::function<void (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mixFunc_;
   SpecProdList inProducts_;
-  typename SpecProdList::iterator prodIter_;
-  typename SpecProdList::iterator productsEnd_;
   std::string processName_;
   std::string moduleLabel_;
+  RootBranchInfo branchInfo_;
 };
 
 template <typename PROD>
@@ -82,10 +86,9 @@ MixOp<PROD>::MixOp(InputTag const &inputTag,
   outputInstanceLabel_(outputInstanceLabel),
   mixFunc_(mixFunc),
   inProducts_(),
-  prodIter_(inProducts_.begin()),
-  productsEnd_(inProducts_.end()),
   processName_(ServiceHandle<TriggerNamesService>()->getProcessName()),
-  moduleLabel_(ServiceHandle<CurrentModule>()->label())
+  moduleLabel_(ServiceHandle<CurrentModule>()->label()),
+  branchInfo_()
 {}
 
 template <typename PROD>
@@ -113,8 +116,7 @@ template <typename PROD>
 void
 art::MixOp<PROD>::
 mixAndPut(Event &e,
-          PtrRemapper const &remap,
-          EventIDSequence const &seq) const {
+          PtrRemapper const &remap) const {
   std::auto_ptr<PROD> rProd(new PROD);
   std::vector<PROD const *> inConverted;
   inConverted.reserve(inProducts_.size());
@@ -146,13 +148,10 @@ mixAndPut(Event &e,
 }
 
 template <typename PROD>
-art::BranchID
+void
 art::MixOp<PROD>::
-incomingBranchID(RootBranchInfoList const &rbiList) const {
-  RootBranchInfo rbi;
-  if (rbiList.findBranchInfo(inputType_, inputTag_, rbi)) {
-    return BranchID(rbi.branchName());
-  } else {
+initializeBranchInfo(RootBranchInfoList const &branchInfo_List) {
+  if (!branchInfo_List.findBranchInfo(inputType_, inputTag_, branchInfo_)) {
     throw Exception(errors::ProductNotFound)
       << "Unable to find requested product "
       << inputTag_
@@ -161,6 +160,13 @@ incomingBranchID(RootBranchInfoList const &rbiList) const {
       << " in secondary input stream.\n";
   }
 }
+
+template <typename PROD>
+art::BranchID
+art::MixOp<PROD>::
+incomingBranchID() const {
+  return BranchID(branchInfo_.branchName());
+}  
 
 template <typename PROD>
 art::BranchID
@@ -184,9 +190,28 @@ outgoingBranchID() const {
 template <typename PROD>
 void
 art::MixOp<PROD>::
-readFromFile(TTree *eventTree,
-             EntryNumberSequence const &seq) {
+readFromFile(EntryNumberSequence const &seq) {
+  if (branchInfo_.branch() == 0) {
+    throw Exception(errors::LogicError)
+      << "Branch not initialized for read.\n";
+  }
   initProductList(seq.size());
+
+  // Make sure we don't have a ProductGetter set.
+  configureRefCoreTransientStreamer();
+
+  // Assume the seqenece is ordered per
+  // MixHelper::generateEventSequence.
+  typename SpecProdList::iterator prod_iter =
+    inProducts_.begin();
+  for (EntryNumberSequence::const_iterator
+         i = seq.begin(),
+         e = seq.end();
+       i != e;
+       ++i) {
+    branchInfo_.branch()->SetAddress(&(*prod_iter++));
+    branchInfo_.branch()->GetEntry(*i);
+  }
 }
 
 template <typename PROD>
@@ -196,8 +221,6 @@ initProductList(size_t nSecondaries) {
   if (nSecondaries) {
     inProducts_.resize(nSecondaries);
   }
-  prodIter_ = inProducts_.begin();
-  productsEnd_ = inProducts_.end();
 }
 
 #endif /* art_Framework_IO_ProductMix_MixOp_h */

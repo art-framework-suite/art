@@ -24,6 +24,9 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
+#include "boost/noncopyable.hpp"
+
+#include "Rtypes.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -34,7 +37,7 @@ namespace art {
   class MixHelper;
 }
 
-class art::MixHelper {
+class art::MixHelper : private boost::noncopyable {
 public:
   MixHelper(fhicl::ParameterSet const &pset,
             ProducerBase & producesProvider);
@@ -139,7 +142,11 @@ public:
   //////////////////////////////////////////////////////////////////////
   // Mix module writers should not need anything below this point.
   //////////////////////////////////////////////////////////////////////
-  void mixAndPut(size_t nSecondaries, Event &e);
+  bool generateEventSequence(size_t nSecondaries,
+                             MixOpBase::EntryNumberSequence &enSeq,
+                             MixOpBase::EventIDSequence &eIDseq);
+  void mixAndPut(MixOpBase::EntryNumberSequence const &enSeq,
+                 Event &e);
   void postRegistrationInit();
 
 private:
@@ -152,11 +159,8 @@ private:
   void buildEventIDIndex(FileIndex const &fileIndex);
   void mixAndPutOne(boost::shared_ptr<MixOpBase> mixOp,
                     MixOpBase::EntryNumberSequence const &enSeq,
-                    MixOpBase::EventIDSequence const &eIDseq,
                     Event &e);
-  bool generateEventSequence(size_t nSecondaries,
-                             MixOpBase::EntryNumberSequence const &enSeq,
-                             MixOpBase::EventIDSequence const &eIDseq);
+  bool openNextFile();
   void buildBranchIDTransMap(ProdToProdMapBuilder::BranchIDTransMap &transMap);
 
   ProducerBase &producesProvider_;
@@ -166,7 +170,8 @@ private:
   std::vector<std::string>::const_iterator currentFilename_;
   Mode readMode_;
   double coverageFraction_;
-  size_t nEventsRead_;
+  Long64_t nEventsRead_;
+  Long64_t nEventsInFile_;
   FileFormatVersion ffVersion_;
   ProdToProdMapBuilder ptpBuilder_;
   CLHEP::RandFlat dist_;

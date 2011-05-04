@@ -16,8 +16,6 @@ namespace art {
   class TypeID;
 }
 
-class TTree;
-
 class art::MixOpBase {
 public:
   typedef std::map<FileIndex::EntryNumber_t, EventID> EventIDIndex;
@@ -36,12 +34,15 @@ public:
   virtual
   void
   mixAndPut(Event &e,
-            PtrRemapper const &remap,
-            EventIDSequence const &seq) const = 0;
+            PtrRemapper const &remap) const = 0;
+
+  virtual
+  void
+  initializeBranchInfo(RootBranchInfoList const &rbiList) = 0;
 
   virtual
   BranchID
-  incomingBranchID(RootBranchInfoList const &rbiList) const = 0;
+  incomingBranchID() const = 0;
 
   virtual
   BranchID
@@ -49,8 +50,7 @@ public:
 
   virtual
   void
-  readFromFile(TTree *eventTree,
-               EntryNumberSequence const &seq) = 0;
+  readFromFile(EntryNumberSequence const &seq) = 0;
 };
 #endif /* art_Framework_IO_ProductMix_MixOpBase_h */
 

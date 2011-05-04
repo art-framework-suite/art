@@ -3,6 +3,7 @@
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
+#include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "cpp0x/type_traits"
 
@@ -41,6 +42,36 @@ namespace art {
     struct has_startEvent {
       static bool const value =
         sizeof(has_startEvent_helper<T>(0)) == sizeof(yes_tag);
+    };
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method void
+    // processEventIDs(MixOpBase::EventIDSequence &)?
+    template <typename T, void (T::*)(MixOpBase::EventIDSequence &)> struct processEventIDs_function;
+
+    template <typename T> struct void_do_not_call_processEventIDs {
+    public:
+      void operator()(T &, MixOpBase::EventIDSequence &) {}
+    };
+
+    template <typename T> struct call_processEventIDs {
+    public:
+      void operator()(T &t, MixOpBase::EventIDSequence &seq) { t.processEventIDs(seq); }
+    };
+
+    template <typename T>
+    no_tag
+    has_processEventIDs_helper(...);
+
+    template <typename T>
+    yes_tag
+    has_processEventIDs_helper(processEventIDs_function<T, &T::processEventIDs> * dummy);
+
+    template <typename T>
+    struct has_processEventIDs {
+      static bool const value =
+        sizeof(has_processEventIDs_helper<T>(0)) == sizeof(yes_tag);
     };
     ////////////////////////////////////////////////////////////////////
 
@@ -117,23 +148,36 @@ bool
 art::MixFilter<T>::filter(art::Event &e) {
   // 1. Call detail object's startEvent() if it exists.
   typename std::conditional<detail::has_startEvent<T>::value,
-                            detail::call_startEvent<T>,
-                            detail::void_do_not_call_startEvent<T> >::type
-           maybe_call_startEvent;
+    detail::call_startEvent<T>,
+    detail::void_do_not_call_startEvent<T> >::type maybe_call_startEvent;
   maybe_call_startEvent(detail_);
 
   // 2. Ask detail object how many events to read.
   size_t nSecondaries = detail_.nSecondaries();
 
+  // 3. Decide which events we're reading and prime the event tree cache.
+  MixOpBase::EntryNumberSequence enSeq(nSecondaries);
+  MixOpBase::EventIDSequence eIDseq(nSecondaries);
+  if (!helper_.generateEventSequence(nSecondaries, enSeq, eIDseq)) {
+    throw Exception(errors::FileReadError)
+      << "Insufficient secondary events available to mix.\n";
+  }
+
+  // 4. Give the event ID sequence to the detail object.
+  typename std::conditional<detail::has_processEventIDs<T>::value,
+    detail::call_processEventIDs<T>,
+    detail::void_do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
+  maybe_call_processEventIDs(detail_, eIDseq);
+
   // 3. Make the MixHelper read info into all the products, invoke the
   // mix functions and put the products into the event.
-  helper_.mixAndPut(nSecondaries, e);
+  helper_.mixAndPut(enSeq, e);
 
   // 4. Call detail object's finalizeEvent() if it exists.
   typename std::conditional<detail::has_finalizeEvent<T>::value,
-                            detail::call_finalizeEvent<T>,
-                            detail::void_do_not_call_finalizeEvent<T> >::type
-           maybe_call_finalizeEvent;
+    detail::call_finalizeEvent<T>,
+    detail::void_do_not_call_finalizeEvent<T> >::type
+    maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return false;
 }

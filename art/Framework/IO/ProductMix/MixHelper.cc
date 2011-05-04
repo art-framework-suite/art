@@ -6,9 +6,11 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/History.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "boost/regex.hpp"
 
+#include <cassert>
 #include <functional>
 
 #include "Rtypes.h"
@@ -23,6 +25,16 @@ namespace {
   private:
     art::MixOpBase::EventIDIndex &index_;
   };
+
+  class EventIDLookup :
+    public std::unary_function<Long64_t, art::EventID> {
+  public:
+    EventIDLookup(art::MixOpBase::EventIDIndex const &index);
+    result_type operator()(argument_type bIDs) const;
+  private:
+    art::MixOpBase::EventIDIndex const &index_;
+  };
+    
 
   boost::regex const & modeRegex() {
     static boost::regex r("^seq", boost::regex_constants::icase);
@@ -45,6 +57,24 @@ EventIDIndexBuilder::operator()(argument_type element) const {
   }
 }
 
+inline
+EventIDLookup::EventIDLookup(art::MixOpBase::EventIDIndex const &index)
+  :
+  index_(index)
+{}
+
+EventIDLookup::result_type
+EventIDLookup::operator()(argument_type element) const {
+  art::MixOpBase::EventIDIndex::const_iterator i = index_.find(element);
+  if (i == index_.end()) {
+    throw art::Exception(art::errors::LogicError)
+      << "MixHelper could not find entry number "
+      << element
+      << " in its own lookup table.\n";
+  }
+  return i->second;
+}
+
 art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
                           ProducerBase &producesProvider)
   :
@@ -55,8 +85,9 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   currentFilename_(filenames_.begin()),
   readMode_(boost::regex_search(pset.get<std::string>("readMode", "sequential"),
                                 modeRegex())?SEQUENTIAL:RANDOM),
-  coverageFraction_(pset.get<double>("coverageFraction", 100.0)),
+  coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
   nEventsRead_(0),
+  nEventsInFile_(0),
   ffVersion_(),
   ptpBuilder_(),
   dist_(ServiceHandle<RandomNumberGenerator>()->getEngine()),
@@ -66,6 +97,11 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   currentEventTree_(),
   dataBranches_()
 {
+  if (coverageFraction_ > 1.00001) {
+    mf::LogWarning("Configuration")
+      << "coverageFraction > 1: treating as a percentage.\n";
+    coverageFraction_ /= 100.0;
+  }
 }
 
 void
@@ -108,7 +144,8 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
       << filename
       << ".\n";
   }
-  
+  nEventsInFile_ = currentEventTree_->GetEntries();
+
   // Read meta data
   FileFormatVersion *ffVersion_p = &ffVersion_;
   setMetaDataBranchAddress(currentMetaDataTree_, ffVersion_p);
@@ -183,44 +220,78 @@ art::MixHelper::postRegistrationInit() {
   openAndReadMetaData(*currentFilename_);
 }
 
+bool
+art::MixHelper::
+generateEventSequence(size_t nSecondaries,
+                      MixOpBase::EntryNumberSequence &enSeq,
+                      MixOpBase::EventIDSequence &eIDseq) {
+  assert(enSeq.empty());
+  assert(eIDseq.empty());
+  bool over_threshold = (readMode_ == SEQUENTIAL)?
+    ((nEventsRead_ + nSecondaries) > nEventsInFile_):
+    ((nEventsRead_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
+  if (over_threshold) {
+    if (openNextFile()) {
+      return generateEventSequence(nSecondaries, enSeq, eIDseq);
+    } else {
+      return false;
+    }
+  }
+  if (readMode_ == SEQUENTIAL) {
+    for (size_t
+           i = nEventsRead_,
+           end = nEventsRead_ + nSecondaries;
+         i < end;
+         ++i) {
+      enSeq.push_back(i);
+    }
+  } else { // RANDOM
+    std::generate_n(std::back_inserter(enSeq),
+                    nSecondaries,
+                    std::bind(static_cast<long (CLHEP::RandFlat::*) (long)>
+                              (&CLHEP::RandFlat::fireInt), // Resolve overload.
+                              &dist_, nEventsInFile_));
+    std::sort(enSeq.begin(), enSeq.end());
+  }
+  std::transform(enSeq.begin(),
+                 enSeq.end(),
+                 std::back_inserter(eIDseq),
+                 EventIDLookup(eventIDIndex_));
+  return true;
+}
+
 void
-art::MixHelper::mixAndPut(size_t nSecondaries, Event &e) {
+art::MixHelper::mixAndPut(MixOpBase::EntryNumberSequence const &enSeq,
+                          Event &e) {
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
-
-  // Decide which events we're reading and prime the event tree cache.
-  MixOpBase::EntryNumberSequence enSeq;
-  MixOpBase::EventIDSequence eIDseq;
-  generateEventSequence(nSecondaries, enSeq, eIDseq);
 
   // Do the branch-wise read, mix and put.
   cet::for_all(mixOps_,
                std::bind(&MixHelper::mixAndPutOne,
                          this,
                          _1,
-                         std::cref(enSeq),
-                         std::cref(eIDseq),
+                         enSeq,
                          std::ref(e)));
+
+  nEventsRead_ += enSeq.size();
 }
 
 void
 art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
                              MixOpBase::EntryNumberSequence const &enSeq,
-                             MixOpBase::EventIDSequence const &eIDseq,
                              Event &e) {
-  op->readFromFile(currentEventTree_, enSeq);
-  op->mixAndPut(e, ptrRemapper_, eIDseq);
+  op->readFromFile(enSeq);
+  op->mixAndPut(e, ptrRemapper_);
 }
 
 bool
-art::MixHelper::
-generateEventSequence(size_t nSecondaries,
-                      MixOpBase::EntryNumberSequence const &enSeq,
-                      MixOpBase::EventIDSequence const &eIDseq) {
-  if (readMode_ == SEQUENTIAL) {
-  } else { // RANDOM
+art::MixHelper::openNextFile() {
+  if (++currentFilename_ == filenames_.end()) {
+    return false;
   }
-  return false;
+  openAndReadMetaData(*currentFilename_);
+  return true;
 }
 
 void
@@ -230,7 +301,8 @@ art::MixHelper::buildBranchIDTransMap(ProdToProdMapBuilder::BranchIDTransMap &tr
         e = mixOps_.end();
       i != e;
       ++i) {
-    transMap[(*i)->incomingBranchID(dataBranches_)] =
+    (*i)->initializeBranchInfo(dataBranches_);
+    transMap[(*i)->incomingBranchID()] =
       (*i)->outgoingBranchID();
   }
 }
