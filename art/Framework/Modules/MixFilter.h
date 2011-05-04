@@ -1,7 +1,56 @@
 #ifndef art_Framework_Modules_MixFilter_h
 #define art_Framework_Modules_MixFilter_h
 
+// ======================================================================
+//
+// The MixFilter class template is used to create filters capable of
+// mixing products from a secondary event stream into the primary event.
+//
+// The MixFilter class template requires the use of a type T as its
+// template parameter, The type T must supply the following non-static
+// member functions:
+//
+//    // Construct an object of type T. The ParameterSet provided will
+//    // be the configuration of the module constructing the T. The
+//    // helper is not copyable and must be used in the constructor to
+//    // register:
+//    //
+//    // a. Any mixing operations to be carried out by this module by
+//    //    means of declareMixOp<> calls.
+//    //
+//    // b. Any non-mix (e.g. bookkeeping) products by means of
+//    //    produces<> calls.
+//    //
+//    // Further details may be found in
+//    // art/Framework/ProductMix/MixHelper.h.
+//    T(fhicl::ParameterSet const &p, art::MixHelper &helper);
+//
+//    // Provide the number of secondary events to be mixed into the
+//    // current primary event.
+//    size_t nSecondaries() const;
+//
+// In addition, the following optional member functions are called at
+// the appropriate time if defined:
+//
+//    // Optionally reset internal cache information at the start of the
+//    // current event.
+//    void startEvent();
+//
+//    // Optionally receive the ordered sequence of EventIDs that will
+//    // be mixed into the current event for bookkeeping purposes.
+//    void processEventIDs(art::EventIDSequence const &seq);
+//
+//    // Do end-of-event tasks including the placement of bookkeeping
+//    // objects into the primary event.
+//    void finalizeEvent(art::Event &t);
+//
+// Functions declared to the MixHelper to actually carry out the mixing
+// of the products may be member functions of this or another class; or
+// free functions or function objects.
+// ======================================================================
+
 #include "art/Framework/Core/EDFilter.h"
+#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -47,17 +96,17 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
-    // processEventIDs(MixOpBase::EventIDSequence &)?
-    template <typename T, void (T::*)(MixOpBase::EventIDSequence &)> struct processEventIDs_function;
+    // processEventIDs(EventIDSequence &)?
+    template <typename T, void (T::*)(EventIDSequence &)> struct processEventIDs_function;
 
     template <typename T> struct void_do_not_call_processEventIDs {
     public:
-      void operator()(T &, MixOpBase::EventIDSequence &) {}
+      void operator()(T &, EventIDSequence &) {}
     };
 
     template <typename T> struct call_processEventIDs {
     public:
-      void operator()(T &t, MixOpBase::EventIDSequence &seq) { t.processEventIDs(seq); }
+      void operator()(T &t, EventIDSequence &seq) { t.processEventIDs(seq); }
     };
 
     template <typename T>
@@ -156,8 +205,8 @@ art::MixFilter<T>::filter(art::Event &e) {
   size_t nSecondaries = detail_.nSecondaries();
 
   // 3. Decide which events we're reading and prime the event tree cache.
-  MixOpBase::EntryNumberSequence enSeq(nSecondaries);
-  MixOpBase::EventIDSequence eIDseq(nSecondaries);
+  EntryNumberSequence enSeq(nSecondaries);
+  EventIDSequence eIDseq(nSecondaries);
   if (!helper_.generateEventSequence(nSecondaries, enSeq, eIDseq)) {
     throw Exception(errors::FileReadError)
       << "Insufficient secondary events available to mix.\n";

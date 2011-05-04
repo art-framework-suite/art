@@ -20,19 +20,19 @@ namespace {
     public std::unary_function<art::FileIndex::Element const &,
                                void> {
   public:
-    EventIDIndexBuilder(art::MixOpBase::EventIDIndex &index);
+    EventIDIndexBuilder(art::EventIDIndex &index);
     result_type operator()(argument_type bIDs) const;
   private:
-    art::MixOpBase::EventIDIndex &index_;
+    art::EventIDIndex &index_;
   };
 
   class EventIDLookup :
     public std::unary_function<Long64_t, art::EventID> {
   public:
-    EventIDLookup(art::MixOpBase::EventIDIndex const &index);
+    EventIDLookup(art::EventIDIndex const &index);
     result_type operator()(argument_type bIDs) const;
   private:
-    art::MixOpBase::EventIDIndex const &index_;
+    art::EventIDIndex const &index_;
   };
     
 
@@ -43,7 +43,7 @@ namespace {
 }
 
 inline
-EventIDIndexBuilder::EventIDIndexBuilder(art::MixOpBase::EventIDIndex &index)
+EventIDIndexBuilder::EventIDIndexBuilder(art::EventIDIndex &index)
   :
   index_(index)
 {
@@ -58,14 +58,14 @@ EventIDIndexBuilder::operator()(argument_type element) const {
 }
 
 inline
-EventIDLookup::EventIDLookup(art::MixOpBase::EventIDIndex const &index)
+EventIDLookup::EventIDLookup(art::EventIDIndex const &index)
   :
   index_(index)
 {}
 
 EventIDLookup::result_type
 EventIDLookup::operator()(argument_type element) const {
-  art::MixOpBase::EventIDIndex::const_iterator i = index_.find(element);
+  art::EventIDIndex::const_iterator i = index_.find(element);
   if (i == index_.end()) {
     throw art::Exception(art::errors::LogicError)
       << "MixHelper could not find entry number "
@@ -223,8 +223,8 @@ art::MixHelper::postRegistrationInit() {
 bool
 art::MixHelper::
 generateEventSequence(size_t nSecondaries,
-                      MixOpBase::EntryNumberSequence &enSeq,
-                      MixOpBase::EventIDSequence &eIDseq) {
+                      EntryNumberSequence &enSeq,
+                      EventIDSequence &eIDseq) {
   assert(enSeq.empty());
   assert(eIDseq.empty());
   bool over_threshold = (readMode_ == SEQUENTIAL)?
@@ -261,7 +261,7 @@ generateEventSequence(size_t nSecondaries,
 }
 
 void
-art::MixHelper::mixAndPut(MixOpBase::EntryNumberSequence const &enSeq,
+art::MixHelper::mixAndPut(EntryNumberSequence const &enSeq,
                           Event &e) {
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
@@ -279,7 +279,7 @@ art::MixHelper::mixAndPut(MixOpBase::EntryNumberSequence const &enSeq,
 
 void
 art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
-                             MixOpBase::EntryNumberSequence const &enSeq,
+                             EntryNumberSequence const &enSeq,
                              Event &e) {
   op->readFromFile(enSeq);
   op->mixAndPut(e, ptrRemapper_);

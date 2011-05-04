@@ -18,10 +18,6 @@ namespace art {
 
 class art::MixOpBase {
 public:
-  typedef std::map<FileIndex::EntryNumber_t, EventID> EventIDIndex;
-  typedef std::vector<EventID> EventIDSequence;
-  typedef std::vector<FileIndex::EntryNumber_t> EntryNumberSequence;
-
   virtual
   InputTag const &inputTag() const = 0;
 

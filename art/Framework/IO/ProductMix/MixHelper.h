@@ -4,6 +4,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
+#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 #include "art/Persistency/Common/EDProduct.h"
@@ -69,35 +70,40 @@ public:
   // be specified by providing:
   //
   // 1, an InputTag specifying which secondary products should be
-  // mixed;
+  //    mixed;
   //
   // 2. an optional instance label for the mixed product; and
   //
   // 3. a mix function. This mix function should have the following
   //    signature:
   //
-  //       void mixfunc (std::vector<PROD const *> const &,
-  //                       PROD &,
-  //                       PtrRemapper const &),
+  //       void mixfunc(std::vector<PROD const *> const &,
+  //                    PROD &,
+  //                    PtrRemapper const &),
   //
   //    This function may be a free function, a function object (in
   //    which case operator() should be the member function with the
   //    correct signature) or a member function of any class provided it
-  //    has the same return type and arguments. If it is a member
-  //    function it may be provided bound to the object upon which it is
-  //    to be called by the user (in which case it is treated as a free
-  //    function by the registration method) or by specifying the member
-  //    function followed by the object to which it should be bound (in
-  //    which case the bind will be done for the user). In this latter
-  //    case the template argument specifying the product type need
-  //    *not* be specified usually as it may be deduced from the
-  //    signature of the provided function. If one specifies an overload
-  //    set however (eg in the case where a class has several mix()
-  //    member functions, each one with a different mix function) then
-  //    the template argument must be specified in order to constrain
-  //    the overload set to a single function. For free functions,
-  //    function objects and pre-bound member functions the product type
-  //    template argument must be specified as it cannot be deduced,
+  //    has the same return type and arguments.
+  //
+  //    For free functions, function objects and pre-bound member
+  //    functions the product type template argument need not be
+  //    specified as it can be deduced from the signature of the
+  //    provided function.
+  //
+  //    If the provided function is a member function it may be provided
+  //    bound to the object upon which it is to be called by the user
+  //    (in which case it is treated as a free function by the
+  //    registration method) or by specifying the member function
+  //    followed by the object to which it should be bound (in which
+  //    case the bind will be done for the user). In this latter case
+  //    the template argument specifying the product type need *not* be
+  //    specified usually as it may be deduced from the signature of the
+  //    provided function. If one specifies an overload set however
+  //    (e.g.  in the case where a class has several mix() member
+  //    functions, each one with a different mix function) then the
+  //    template argument must be specified in order to constrain the
+  //    overload set to a single function.
   //////////////////////////////////////////////////////////////////////
 
   // Provide an InputTag and free function or function object.
@@ -143,9 +149,9 @@ public:
   // Mix module writers should not need anything below this point.
   //////////////////////////////////////////////////////////////////////
   bool generateEventSequence(size_t nSecondaries,
-                             MixOpBase::EntryNumberSequence &enSeq,
-                             MixOpBase::EventIDSequence &eIDseq);
-  void mixAndPut(MixOpBase::EntryNumberSequence const &enSeq,
+                             EntryNumberSequence &enSeq,
+                             EventIDSequence &eIDseq);
+  void mixAndPut(EntryNumberSequence const &enSeq,
                  Event &e);
   void postRegistrationInit();
 
@@ -158,7 +164,7 @@ private:
   void openAndReadMetaData(std::string const &fileName);
   void buildEventIDIndex(FileIndex const &fileIndex);
   void mixAndPutOne(boost::shared_ptr<MixOpBase> mixOp,
-                    MixOpBase::EntryNumberSequence const &enSeq,
+                    EntryNumberSequence const &enSeq,
                     Event &e);
   bool openNextFile();
   void buildBranchIDTransMap(ProdToProdMapBuilder::BranchIDTransMap &transMap);
@@ -177,7 +183,7 @@ private:
   CLHEP::RandFlat dist_;
 
   // Root-specific state.
-  MixOpBase::EventIDIndex eventIDIndex_;
+  EventIDIndex eventIDIndex_;
   cet::value_ptr<TFile> currentFile_;
   cet::exempt_ptr<TTree> currentMetaDataTree_;
   cet::exempt_ptr<TTree> currentEventTree_;
