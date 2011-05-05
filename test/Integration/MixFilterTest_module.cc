@@ -4,6 +4,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Utilities/InputTag.h"
+#include "test/TestObjects/ToyProducts.h"
 
 namespace arttest {
   class MixFilterTestDetail;
@@ -19,7 +20,7 @@ public:
   // MixHelper::declareMixOp() and bookkeeping products with
   // MixHelperproduces().
   MixFilterTestDetail(fhicl::ParameterSet const &p,
-                        art::MixHelper &helper);
+                      art::MixHelper &helper);
 
   // Optional startEvent(): initialize state for each event,
   void startEvent();
@@ -28,25 +29,79 @@ public:
   // if you don't plan to change your class' state.
   size_t nSecondaries() const;
 
+  // Optional processEventIDs(): after the generation of the event
+  // sequence, this function will be called if it exists to provide the
+  // sequence of EventIDs.
+  void processEventIDs(art::EventIDSequence const &seq);
+
   // Optional.finalizeEvent(): (eg) put bookkeping products in event. Do
   // *not* place mix products into the event: this will already have
   // been done for you.
   void finalizeEvent(art::Event &t);
 
-  // Mix functions to be registered with the MixHelper.
-  void mix(std::vector<int const *> const &in,
-             int &out,
-             art::PtrRemapper const &remap);
-  void mixDouble(std::vector<double const *> const &in,
-                   double &out,
-                   art::PtrRemapper const &remap);
-  void mix(std::vector<std::string const *> const &in,
-             std::string &out,
-             art::PtrRemapper const &remap);
+  // Mixing functions. Note that they do not *have* to be member
+  // functions of this detail class: they may be member functions of a
+  // completely unrelated class; free functions or function objects
+  // provided they (or the function object's operator()) have the
+  // expected signature.
+  template <typename T>
+  void
+  mixByAddition(std::vector<T const *> const &,
+                T &,
+                art::PtrRemapper const &);
+
+  void
+  aggregateCollection(std::vector<std::vector<double> const *> const &in,
+                      std::vector<double> &out,
+                      art::PtrRemapper const &);
+
 private:
   size_t nSecondaries_;
   bool testRemapper_;
+  std::vector<size_t> doubleVectorOffsets_;
 };
+
+namespace {
+  template <class CONTAINER>
+  void
+  concatContainers(CONTAINER &out, CONTAINER const &in) {
+    out.insert(out.end(), in.begin(), in.end());
+  }
+
+  template <class COLLECTION>
+  void
+  flattenCollections(std::vector<COLLECTION const *> const &in,
+                     COLLECTION &out) {
+    for(typename std::vector<COLLECTION const *>::const_iterator
+          i = in.begin(),
+          e = in.end();
+        i != e;
+        ++i) {
+      concatContainers(out, **i);
+    }
+  }
+
+  template <class COLLECTION>
+  void
+  flattenCollections(std::vector<COLLECTION const *> const &in,
+                     COLLECTION &out,
+                     std::vector<size_t> &offsets) {
+    offsets.clear();
+    offsets.reserve(in.size());
+    size_t current_offset = 0;
+    for (typename std::vector<COLLECTION const *>::const_iterator
+           i = in.begin(),
+           e = in.end();
+         i != e;
+         ++i) {
+      size_t current_size = (*i)->size();
+      offsets.push_back(current_offset);
+      current_offset += current_size;
+    }
+    out.reserve(current_offset);
+    flattenCollections(in, out);
+  }
+}
 
 arttest::MixFilterTestDetail::
 MixFilterTestDetail(fhicl::ParameterSet const &p,
@@ -57,21 +112,21 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
 {
   helper.produces<std::string>(); // "Bookkeeping"
 
-  helper.declareMixOp<int>
-    (art::InputTag("intLabel", ""),
-     ff_mix);
-
-  helper.declareMixOp<int>
-    (art::InputTag("intLabel", ""),
-     &MixFilterTestDetail::mix, this);
-
   helper.declareMixOp
     (art::InputTag("doubleLabel", ""),
-     &MixFilterTestDetail::mixDouble, this);
+     &MixFilterTestDetail::mixByAddition<double>, this);
 
-  helper.declareMixOp<std::string>
-    (art::InputTag("stringLabel", ""),
-     &MixFilterTestDetail::mix, this);
+  helper.declareMixOp
+    (art::InputTag("IntProductLabel", ""),
+     &MixFilterTestDetail::mixByAddition<arttest::IntProduct>, this);
+
+  helper.declareMixOp
+    (art::InputTag("stringLabel", "SWRITE"),
+     &MixFilterTestDetail::mixByAddition<std::string>, this);
+
+  helper.declareMixOp
+    (art::InputTag("doubleCollectionLabel", ""),
+     &MixFilterTestDetail::aggregateCollection, this);
 }
 
 void
@@ -88,8 +143,37 @@ nSecondaries() const {
 
 void
 arttest::MixFilterTestDetail::
+processEventIDs(art::EventIDSequence const &seq) {
+  // FIXME: placeholder.
+}
+
+void
+arttest::MixFilterTestDetail::
 finalizeEvent(art::Event &e) {
   e.put(std::auto_ptr<std::string>(new std::string("BlahBlahBlah")));
 }
 
+template<typename T>
+void
+mixByAddition(std::vector<T const *> const &in,
+              T &out,
+              art::PtrRemapper const &) {
+  for (typename std::vector<T const *>::const_iterator
+         i = in.begin(),
+         e = in.end();
+       i != e;
+       ++i) {
+    out += *i;
+  }
+}
+
+void
+arttest::MixFilterTestDetail::
+aggregateCollection(std::vector<std::vector<double> const *> const &in,
+                    std::vector<double> &out,
+                    art::PtrRemapper const &) {
+  flattenCollections(in, out, doubleVectorOffsets_);
+}
+
 DEFINE_ART_MODULE(arttest::MixFilterTest);
+
