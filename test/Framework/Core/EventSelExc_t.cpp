@@ -16,22 +16,19 @@
 
 
 #include "art/Framework/Core/EventSelector.h"
-#include "art/Persistency/Common/TriggerResults.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-
-#include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
-
-#include <vector>
-#include <string>
-#include <iostream>
-#include <memory>
+#include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Common/TriggerResults.h"
+#include "cpp0x/array"
+#include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include <cassert>
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace art;
 using namespace fhicl;
@@ -47,7 +44,7 @@ typedef std::vector<Bools> VBools;
 // bits.
 
 const size_t num_trig_paths = 8;
-boost::array<char const*,num_trig_paths> cpaths =
+std::array<char const*,num_trig_paths> cpaths =
       {{
               "ap1", "ap2", "aq1", "aq2",
               "bp1", "bp2", "bq1", "bq2",
@@ -149,7 +146,7 @@ std::ostream& operator<<(std::ostream& ost, const TrigResults &tr)
 }
 
 template <size_t nb>
-Bools toBools( boost::array<bool,nb> const & t )
+Bools toBools( std::array<bool,nb> const & t )
 {
   Bools b;
   b.insert (b.end(), t.begin(), t.end());
@@ -241,7 +238,7 @@ int main()
   typedef art::TriggerNamesService TNS;
   typedef ServiceWrapper<TNS> w_TNS;
 
-  boost::shared_ptr<w_TNS> tnsptr
+  std::shared_ptr<w_TNS> tnsptr
     (new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
 
   ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);

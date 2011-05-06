@@ -1,8 +1,8 @@
 #include "art/Framework/Core/CachedProducts.h"
 
-#include <algorithm>
-#include "boost/bind.hpp"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/functional"
+#include <algorithm>
 
 
 using namespace cet;
@@ -155,7 +155,7 @@ namespace art
     void
     CachedProducts::clear()
     {
-      for_all(selectors_, boost::bind(&NamedEventSelector::clear, _1));
+      for_all(selectors_, std::bind(&NamedEventSelector::clear, _1));
       fillDone_ = false;
       numberFound_ = 0;
     }

@@ -11,7 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
@@ -25,7 +25,7 @@ namespace art {
     : public art::EDProducer
   {
   public:
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
     explicit TriggerResultInserter(fhicl::ParameterSet const& ps);

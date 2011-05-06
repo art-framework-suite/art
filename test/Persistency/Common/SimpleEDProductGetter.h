@@ -1,28 +1,25 @@
 #ifndef test_Persistency_Common_SimpleEDProductGetter_h
 #define test_Persistency_Common_SimpleEDProductGetter_h
 
-#include <map>
-#include <memory>
-
-#include "boost/shared_ptr.hpp"
-
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/Wrapper.h"
+#include "cpp0x/memory"
+#include <map>
 
 
 class SimpleEDProductGetter : public art::EDProductGetter
 {
  public:
 
-  typedef std::map<art::ProductID, boost::shared_ptr<art::EDProduct> > map_t;
+  typedef std::map<art::ProductID, std::shared_ptr<art::EDProduct> > map_t;
   template <class T>
   void
   addProduct(art::ProductID const& id, std::auto_ptr<T> p)
   {
     typedef art::Wrapper<T> wrapper_t;
 
-    boost::shared_ptr<wrapper_t> product(new wrapper_t(p));
+    std::shared_ptr<wrapper_t> product(new wrapper_t(p));
     database[id] = product;
   }
 

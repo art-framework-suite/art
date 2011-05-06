@@ -16,9 +16,8 @@ is the DataBlock.
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
-#include <memory>
+#include "cpp0x/memory"
 #include <vector>
 
 namespace art {
@@ -32,8 +31,8 @@ namespace art {
     RunPrincipal(RunAuxiliary const& aux,
                  cet::exempt_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+	std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
+	std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~RunPrincipal() {}
 
     RunAuxiliary const& aux() const {
@@ -60,9 +59,9 @@ namespace art {
       aux_.setEndTime(time);
     }
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
+    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeRun(boost::shared_ptr<RunPrincipal> rp);
+    void mergeRun(std::shared_ptr<RunPrincipal> rp);
 
     void put(std::auto_ptr<EDProduct> edp,
 	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);

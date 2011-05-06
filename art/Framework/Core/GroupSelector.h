@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "boost/regex.hpp"
+#include "cpp0x/regex"
 #include "fhiclcpp/ParameterSet.h"
 #include <iosfwd>
 #include <string>

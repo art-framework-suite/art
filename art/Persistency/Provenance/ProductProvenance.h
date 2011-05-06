@@ -10,7 +10,7 @@ and how it came into existence, plus the status.
 #include <iosfwd>
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/ParentageID.h"
@@ -32,7 +32,7 @@ namespace art {
 		    ProductStatus status);
     ProductProvenance(BranchID const& bid,
 		    ProductStatus status,
-		    boost::shared_ptr<Parentage> parentagePtr);
+		    std::shared_ptr<Parentage> parentagePtr);
     ProductProvenance(BranchID const& bid,
 		    ProductStatus status,
 		    ParentageID const& id);
@@ -59,13 +59,13 @@ namespace art {
 
     struct Transients {
       Transients();
-      boost::shared_ptr<Parentage> parentagePtr_;
+      std::shared_ptr<Parentage> parentagePtr_;
       bool noParentage_;
     };
 
   private:
 
-    boost::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
+    std::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
 
     BranchID branchID_;
     ProductStatus productStatus_;

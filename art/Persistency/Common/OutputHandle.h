@@ -29,7 +29,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/exception.h"
-#include <boost/shared_ptr.hpp>
+#include "cpp0x/memory"
 
 namespace art {
   class EDProduct;
@@ -46,13 +46,13 @@ namespace art {
       productProvenance_(h.productProvenance_),
       whyFailed_(h.whyFailed_){}
 
-    OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, boost::shared_ptr<ProductProvenance> productProvenance) :
+    OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, std::shared_ptr<ProductProvenance> productProvenance) :
       wrap_(prod),
       desc_(desc),
       productProvenance_(productProvenance) {}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(boost::shared_ptr<cet::exception> const& iWhyFailed):
+    OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed):
       wrap_(0),
       desc_(0),
       productProvenance_(),
@@ -87,7 +87,7 @@ namespace art {
       return wrap_;
     }
 
-    boost::shared_ptr<cet::exception> whyFailed() const {
+    std::shared_ptr<cet::exception> whyFailed() const {
       return whyFailed_;
     }
 
@@ -95,7 +95,7 @@ namespace art {
       return productProvenance_.get();
     }
 
-    boost::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {
+    std::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {
       return productProvenance_;
     }
 
@@ -106,8 +106,8 @@ namespace art {
   private:
     EDProduct const* wrap_;
     ConstBranchDescription const* desc_;
-    boost::shared_ptr<ProductProvenance> productProvenance_;
-    boost::shared_ptr<cet::exception> whyFailed_;
+    std::shared_ptr<ProductProvenance> productProvenance_;
+    std::shared_ptr<cet::exception> whyFailed_;
   };
 
   // Free swap function

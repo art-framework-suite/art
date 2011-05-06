@@ -26,10 +26,9 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <cstdlib>
-#include <memory>
 #include <set>
 #include <vector>
 
@@ -216,7 +215,7 @@ namespace art {
       getByProductID_(ProductID const& oid) const;
 
     EventAuxiliary const& aux_;
-    boost::shared_ptr<SubRun const> const subRun_;
+    std::shared_ptr<SubRun const> const subRun_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the DataViewImpl. gotBranchIDs_ is

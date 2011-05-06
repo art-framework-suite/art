@@ -30,10 +30,10 @@ namespace arttest
 
   struct Int16_tProduct
   {
-    explicit Int16_tProduct(int16_t i=0, uint16_t j=1) :value(i), uvalue(j) {}
+    explicit Int16_tProduct(int16_t i=0, std::uint16_t j=1) :value(i), uvalue(j) {}
     ~Int16_tProduct() {}
     int16_t value;
-    uint16_t uvalue;
+    std::uint16_t uvalue;
   };
 
   struct DoubleProduct

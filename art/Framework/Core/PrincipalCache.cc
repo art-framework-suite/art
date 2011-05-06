@@ -35,7 +35,7 @@ namespace art {
     return *iter->second.get();
   }
 
-  boost::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(RunNumber_t run) {
+  std::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(RunNumber_t run) {
     RunIterator iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
@@ -66,7 +66,7 @@ namespace art {
     return *currentRunPrincipal_.get();
   }
 
-  boost::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr() {
+  std::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr() {
     if (currentRunPrincipal_.get() == 0) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipalPtr\n"
@@ -100,7 +100,7 @@ namespace art {
     return *iter->second.get();
   }
 
-  boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun) {
+  std::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun) {
     SubRunKey key(run, subRun);
     SubRunIterator iter = subRunPrincipals_.find(key);
     if (iter == subRunPrincipals_.end()) {
@@ -132,7 +132,7 @@ namespace art {
     return *currentSubRunPrincipal_.get();
   }
 
-  boost::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr() {
+  std::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr() {
     if (currentSubRunPrincipal_.get() == 0) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipalPtr\n"
@@ -142,7 +142,7 @@ namespace art {
     return currentSubRunPrincipal_;
   }
 
-  bool PrincipalCache::insert(boost::shared_ptr<RunPrincipal> rp) {
+  bool PrincipalCache::insert(std::shared_ptr<RunPrincipal> rp) {
     RunNumber_t run = rp->run();
     RunIterator iter = runPrincipals_.find(run);
     // For random access input, we require that the current run
@@ -160,7 +160,7 @@ namespace art {
     return true;
   }
 
-  bool PrincipalCache::insert(boost::shared_ptr<SubRunPrincipal> srp) {
+  bool PrincipalCache::insert(std::shared_ptr<SubRunPrincipal> srp) {
     RunNumber_t run = srp->run();
     SubRunNumber_t subRun = srp->subRun();
     SubRunKey key(run, subRun);

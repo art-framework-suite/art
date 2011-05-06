@@ -36,8 +36,7 @@ for every event.
 
 #include "art/Framework/Core/SelectorBase.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
-#include "boost/type_traits.hpp"
-#include "boost/utility/enable_if.hpp"
+#include "cpp0x/type_traits"
 #include <string>
 
 namespace art
@@ -50,7 +49,7 @@ namespace art
   template <class T>
   struct has_match
   {
-    static const bool value = boost::is_base_of<SelectorBase,T>::value;
+    static const bool value = std::is_base_of<SelectorBase,T>::value;
   };
 
   template <>
@@ -198,8 +197,8 @@ namespace art
   };
 
   template <class A, class B>
-  typename boost::enable_if_c< has_match<A>::value && has_match<B>::value,
-			       AndHelper<A,B> >::type
+  typename std::enable_if< has_match<A>::value && has_match<B>::value,
+                           AndHelper<A,B> >::type
   operator&& (A const& a, B const& b)
   {
     return AndHelper<A,B>(a,b);
@@ -230,13 +229,12 @@ namespace art
   };
 
   template <class A, class B>
-  typename boost::enable_if_c< has_match<A>::value && has_match<B>::value,
-			       OrHelper<A,B> >::type
+  typename std::enable_if< has_match<A>::value && has_match<B>::value,
+                           OrHelper<A,B> >::type
   operator|| (A const& a, B const& b)
   {
     return OrHelper<A,B>(a,b);
   }
-
 
   //----------------------------------------------------------
   //
@@ -256,8 +254,8 @@ namespace art
   };
 
   template <class A>
-  typename boost::enable_if_c< has_match<A>::value,
-			       NotHelper<A> >::type
+  typename std::enable_if< has_match<A>::value,
+                           NotHelper<A> >::type
   operator! (A const& a)
   {
     return NotHelper<A>(a);

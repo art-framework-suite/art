@@ -9,7 +9,7 @@
 
 #include "art/Persistency/Common/HLTPathStatus.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include <string>
@@ -48,7 +48,7 @@ namespace art {
     bool acceptEvent(TriggerResults const&);
     bool acceptEvent(unsigned char const*, int) const;
 
-    boost::shared_ptr<TriggerResults>
+    std::shared_ptr<TriggerResults>
       maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string>
       getEventSelectionVString(fhicl::ParameterSet const& pset);

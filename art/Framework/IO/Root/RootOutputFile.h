@@ -19,8 +19,8 @@
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/array"
+#include "cpp0x/memory"
 #include <map>
 #include <string>
 #include <vector>
@@ -38,7 +38,7 @@ namespace art {
   public:
     typedef RootOutput::OutputItem OutputItem;
     typedef RootOutput::OutputItemList OutputItemList;
-    typedef boost::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
+    typedef std::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(RootOutput * om, std::string const& fileName,
                             std::string const& logicalFileName);
     ~RootOutputFile() {}
@@ -85,7 +85,7 @@ namespace art {
     std::string logicalFile_;
     RootOutput const* om_;
     bool currentlyFastCloning_;
-    boost::shared_ptr<TFile> filePtr_;
+    std::shared_ptr<TFile> filePtr_;
     FileIndex fileIndex_;
     FileIndex::EntryNumber_t eventEntryNumber_;
     FileIndex::EntryNumber_t subRunEntryNumber_;

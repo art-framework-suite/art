@@ -11,8 +11,8 @@
 namespace art {
 
   RootDelayedReader::RootDelayedReader(EntryNumber const& entry,
-      boost::shared_ptr<BranchMap const> bMap,
-      boost::shared_ptr<TFile const> filePtr,
+      std::shared_ptr<BranchMap const> bMap,
+      std::shared_ptr<TFile const> filePtr,
       bool oldFormat) :
    entryNumber_(entry),
    branches_(bMap),

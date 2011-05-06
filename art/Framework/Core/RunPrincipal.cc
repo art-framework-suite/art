@@ -8,8 +8,8 @@ namespace art {
   RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
                              cet::exempt_ptr<ProductRegistry const> reg,
 			     ProcessConfiguration const& pc,
-			     boost::shared_ptr<BranchMapper> mapper,
-			     boost::shared_ptr<DelayedReader> rtrv) :
+			     std::shared_ptr<BranchMapper> mapper,
+			     std::shared_ptr<DelayedReader> rtrv) :
     Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
     aux_(aux) {
     if (reg->productProduced(InRun)) {
@@ -74,7 +74,7 @@ namespace art {
   }
 
   void
-  RunPrincipal::mergeRun(boost::shared_ptr<RunPrincipal> rp) {
+  RunPrincipal::mergeRun(std::shared_ptr<RunPrincipal> rp) {
 
     aux_.mergeAuxiliary(rp->aux());
 

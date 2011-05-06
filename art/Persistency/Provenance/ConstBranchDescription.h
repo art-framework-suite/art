@@ -12,7 +12,7 @@ This class is not persistable.
 
 #include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include <iosfwd>
 #include <set>
 #include <string>
@@ -59,7 +59,7 @@ namespace art {
     BranchDescription const& me() const {return *ptr_;}
 
   private:
-    boost::shared_ptr<BranchDescription> ptr_;
+    std::shared_ptr<BranchDescription> ptr_;
   };  // ConstBranchDescription
 
   inline

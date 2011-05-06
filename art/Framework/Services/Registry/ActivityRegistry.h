@@ -11,9 +11,8 @@
 //
 // ======================================================================
 
-#include "boost/bind.hpp"
-#include "boost/mem_fn.hpp"
 #include "boost/noncopyable.hpp"
+#include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageDrop.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "messagefacility/MessageService/MessageLogger.h"
@@ -44,7 +43,7 @@ namespace art {
   stateTag::slot_type::result_type updateStatusTo##stateTag()
 #define AR_0_ARG_UPDATER_DEFN(stateTag)                                 \
   art::ActivityRegistry::stateTag::slot_type::result_type art::ActivityRegistry::updateStatusTo##stateTag()
-#define AR_DECL_STATE_0_ARG_FUNC(stateTag) template<class TClass, class TMethod> void watch##stateTag (TClass* iObject, TMethod iMethod) { watch##stateTag (boost::bind(boost::mem_fn(iMethod), iObject)); } \
+#define AR_DECL_STATE_0_ARG_FUNC(stateTag) template<class TClass, class TMethod> void watch##stateTag (TClass* iObject, TMethod iMethod) { watch##stateTag (std::bind(std::mem_fn(iMethod), iObject)); } \
   private:                                                              \
   AR_0_ARG_UPDATER_DECL(stateTag);                                      \
   public:
@@ -53,7 +52,7 @@ namespace art {
 #define AR_1_ARG_UPDATER_DEFN(stateTag)                                 \
   art::ActivityRegistry::stateTag::slot_type::result_type               \
   art::ActivityRegistry::updateStatusTo##stateTag(stateTag::slot_type::arg1_type_ arg1)
-#define AR_DECL_STATE_1_ARG_FUNC(stateTag) template<class TClass, class TMethod> void watch##stateTag (TClass* iObject, TMethod iMethod) { watch##stateTag (boost::bind(boost::mem_fn(iMethod), iObject, _1)); } \
+#define AR_DECL_STATE_1_ARG_FUNC(stateTag) template<class TClass, class TMethod> void watch##stateTag (TClass* iObject, TMethod iMethod) { watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, _1)); } \
   private:                                                              \
   AR_1_ARG_UPDATER_DECL(stateTag);                                      \
   public:
@@ -63,7 +62,7 @@ namespace art {
   art::ActivityRegistry::stateTag::slot_type::result_type               \
   art::ActivityRegistry::updateStatusTo##stateTag(stateTag::slot_type::arg1_type_ arg1, \
                                                   stateTag::slot_type::arg2_type_ arg2)
-#define AR_DECL_STATE_2_ARG_FUNC(stateTag) template<class TClass, class TMethod> void watch##stateTag (TClass* iObject, TMethod iMethod) { watch##stateTag (boost::bind(boost::mem_fn(iMethod), iObject, _1,_2)); } \
+#define AR_DECL_STATE_2_ARG_FUNC(stateTag) template<class TClass, class TMethod> void watch##stateTag (TClass* iObject, TMethod iMethod) { watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, _1,_2)); } \
   private:                                                              \
   AR_2_ARG_UPDATER_DECL(stateTag);                                      \
   public:

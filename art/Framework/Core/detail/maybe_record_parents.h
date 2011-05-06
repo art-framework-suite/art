@@ -11,7 +11,7 @@ namespace art {
          struct has_donotrecordparents
          {
             static bool const value =
-               boost::is_base_of<art::DoNotRecordParents,T>::value;
+               std::is_base_of<art::DoNotRecordParents,T>::value;
          };
 
       template <typename T>

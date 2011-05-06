@@ -26,7 +26,7 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Utilities/UseReflex.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include <string>
 
 // forward declarations
@@ -130,7 +130,7 @@ public:
    void clear() { prov_ = 0; id_ = ProductID();
    whyFailed_.reset();}
 
-   void setWhyFailed(boost::shared_ptr<cet::exception> const& iWhyFailed) {
+   void setWhyFailed(std::shared_ptr<cet::exception> const& iWhyFailed) {
     whyFailed_=iWhyFailed;
   }
 private:
@@ -138,7 +138,7 @@ private:
    Reflex::Object prod_;
    Provenance const* prov_;
    ProductID id_;
-   boost::shared_ptr<cet::exception> whyFailed_;
+   std::shared_ptr<cet::exception> whyFailed_;
 
 };
 

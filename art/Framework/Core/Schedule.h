@@ -77,12 +77,11 @@
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <map>
-#include <memory>
 #include <set>
 #include <string>
 #include <utility>
@@ -104,8 +103,8 @@ namespace art {
   {
     typedef std::vector<std::string> vstring;
     typedef std::vector<Path> Paths;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<OutputWorker*> OutputWorkers;
     typedef std::vector<WorkerInPath> PathWorkers;
 
@@ -117,7 +116,7 @@ namespace art {
              WorkerRegistry& wregistry,
              ProductRegistry& pregistry,
              ActionTable& actions,
-             boost::shared_ptr<ActivityRegistry> areg);
+             std::shared_ptr<ActivityRegistry> areg);
 
     enum State { Ready=0, Running, Latched };
 
@@ -263,7 +262,7 @@ namespace art {
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
     std::string         processName_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
 
     State   state_;
     vstring trig_name_list_;
@@ -283,8 +282,8 @@ namespace art {
     int                            total_passed_;
     RunStopwatch::StopwatchPointer stopwatch_;
 
-    boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
-    std::vector<boost::shared_ptr<ConstBranchDescription const> >  demandBranches_;
+    std::shared_ptr<UnscheduledCallProducer> unscheduled_;
+    std::vector<std::shared_ptr<ConstBranchDescription const> >  demandBranches_;
 
     volatile bool       endpathsAreActive_;
   };

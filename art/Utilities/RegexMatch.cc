@@ -1,12 +1,10 @@
-// functions used to assist with  regular expression matching of strings
-
-#include <vector>
-#include <string>
-
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
+// functions used to assist with regular expression matching of strings
 
 #include "art/Utilities/RegexMatch.h"
+#include "boost/algorithm/string.hpp"
+#include "cpp0x/regex"
+#include <string>
+#include <vector>
 
 namespace art {
 
@@ -22,10 +20,10 @@ namespace art {
   }
 
   std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, boost::regex const& regexp) {
+  regexMatch(std::vector<std::string> const& strings, std::regex const& regexp) {
     std::vector< std::vector<std::string>::const_iterator> matches;
     for (std::vector<std::string>::const_iterator i = strings.begin(), iEnd = strings.end(); i != iEnd; ++i) {
-      if (boost::regex_match((*i), regexp)) {
+      if (std::regex_match((*i), regexp)) {
         matches.push_back(i);
       }
     }
@@ -34,7 +32,7 @@ namespace art {
 
   std::vector<std::vector<std::string>::const_iterator>
   regexMatch(std::vector<std::string> const& strings, std::string const& pattern) {
-    boost::regex regexp(glob2reg(pattern));
+    std::regex regexp(glob2reg(pattern));
     return regexMatch(strings, regexp);
   }
 

@@ -110,7 +110,7 @@ testServiceRegistry::externalServiceTest()
 
    {
       std::auto_ptr<DummyService> dummyPtr(new DummyService);
-      boost::shared_ptr<art::serviceregistry::ServiceWrapper<DummyService> >
+      std::shared_ptr<art::serviceregistry::ServiceWrapper<DummyService> >
 	  wrapper(new art::serviceregistry::ServiceWrapper<DummyService>(dummyPtr));
       art::ServiceToken token(art::ServiceRegistry::createContaining(wrapper));
 

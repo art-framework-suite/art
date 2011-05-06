@@ -1,8 +1,8 @@
 #include "art/Framework/Core/Path.h"
 
 #include "art/Framework/Core/Actions.h"
-#include "boost/bind.hpp"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <algorithm>
 
@@ -18,7 +18,7 @@ namespace art {
              TrigResPtr trptr,
              ParameterSet const&,
              ActionTable& actions,
-             boost::shared_ptr<ActivityRegistry> areg,
+             std::shared_ptr<ActivityRegistry> areg,
              bool isEndPath):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesRun_(),
@@ -98,7 +98,7 @@ namespace art {
   void
   Path::clearCounters() {
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
-    for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
+    for_all(workers_, std::bind(&WorkerInPath::clearCounters, _1));
   }
 
    void Path::findEventModifiers(std::vector<std::string> &foundLabels) const {

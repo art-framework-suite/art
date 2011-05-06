@@ -9,9 +9,8 @@ EDProducts into an Event.
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "boost/bind.hpp"
-#include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/functional"
+#include "cpp0x/memory"
 #include <string>
 
 namespace art {
@@ -25,11 +24,11 @@ namespace art {
     virtual ~ProducerBase();
 
     /// used by the fwk to register list of products
-    typedef boost::function<void(const BranchDescription&)> callback_t;
+    typedef std::function<void(const BranchDescription&)> callback_t;
 
     callback_t registrationCallback() const;
 
-    void registerProducts(boost::shared_ptr<ProducerBase>,
+    void registerProducts(std::shared_ptr<ProducerBase>,
                         ProductRegistry *,
                         ModuleDescription const&);
 
@@ -42,7 +41,7 @@ namespace art {
     template<class TProducer, class TMethod>
     void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod)
     {
-       callWhenNewProductsRegistered_ = boost::bind(iMethod,iProd,_1);
+       callWhenNewProductsRegistered_ = std::bind(iMethod,iProd,_1);
     }
 
   private:

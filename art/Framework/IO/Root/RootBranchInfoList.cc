@@ -1,10 +1,9 @@
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
-#include "art/Utilities/Exception.h"
 
-#include "boost/regex.hpp"
-
-#include "TObjArray.h"
 #include "TIterator.h"
+#include "TObjArray.h"
+#include "art/Utilities/Exception.h"
+#include "cpp0x/regex"
 
 art::RootBranchInfoList::RootBranchInfoList()
   :
@@ -51,14 +50,14 @@ findBranchInfo(TypeID const &type,
     pat_s << tag.process();
   }
   pat_s << '$';
-  boost::regex r(pat_s.str());
+  std::regex r(pat_s.str());
   // data_t is ordered so that the first match is the best.
   for (Data_t::const_iterator
          i = data_.begin(),
          e = data_.end();
        i !=e;
        ++i) {
-    if (boost::regex_match(i->branchName(), r)) {
+    if (std::regex_match(i->branchName(), r)) {
       rbInfo = *i;
       return true;
     }

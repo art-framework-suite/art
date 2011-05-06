@@ -23,11 +23,10 @@
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
-
-#include "boost/bind.hpp"
 #include "boost/noncopyable.hpp"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
+#include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <exception>
 #include <iomanip>
@@ -36,7 +35,7 @@
 #include <utility>
 #include <vector>
 
-using boost::shared_ptr;
+using std::shared_ptr;
 using fhicl::ParameterSet;
 
 namespace art {
@@ -209,7 +208,7 @@ namespace art {
   makeInput(ParameterSet const& params,
             std::string const &processName,
             ProductRegistry& preg,
-            boost::shared_ptr<ActivityRegistry> areg) {
+            std::shared_ptr<ActivityRegistry> areg) {
 
     ParameterSet defaultEmptySource;
     defaultEmptySource.put("module_type", "EmptyEvent");
@@ -569,15 +568,15 @@ namespace art {
     cet::exception_collector c;
 
     // only allowed to run if state is sIdle,sJobReady,sRunGiven
-    c.call(boost::bind(&EventProcessor::changeState, this, mEndJob));
+    c.call(std::bind(&EventProcessor::changeState, this, mEndJob));
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    c.call(boost::bind(&EventProcessor::terminateMachine, this));
-    c.call(boost::bind(&Schedule::endJob, schedule_.get()));
-    c.call(boost::bind(&InputSource::doEndJob, input_));
-    c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
+    c.call(std::bind(&EventProcessor::terminateMachine, this));
+    c.call(std::bind(&Schedule::endJob, schedule_.get()));
+    c.call(std::bind(&InputSource::doEndJob, input_));
+    c.call(std::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
   }
 
   ServiceToken
@@ -812,7 +811,7 @@ namespace art {
 
       stop_count_=0;
       last_rc_=epSuccess; // forget the last value!
-      event_loop_.reset(new thread(boost::bind(EventProcessor::asyncRun,this)));
+      event_loop_.reset(new thread(std::bind(EventProcessor::asyncRun,this)));
       boost::xtime timeout;
       boost::xtime_get(&timeout, boost::TIME_UTC);
       timeout.sec += 60; // 60 seconds to start!!!!

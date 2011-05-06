@@ -22,9 +22,9 @@ namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
                                  cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        boost::shared_ptr<History> history,
-        boost::shared_ptr<BranchMapper> mapper,
-        boost::shared_ptr<DelayedReader> rtrv) :
+        std::shared_ptr<History> history,
+        std::shared_ptr<BranchMapper> mapper,
+        std::shared_ptr<DelayedReader> rtrv) :
           Base(reg, pc, history->processHistoryID(), mapper, rtrv),
           aux_(aux),
           subRunPrincipal_(),
@@ -124,14 +124,14 @@ namespace art {
   void
   EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
          ConstBranchDescription const& bd,
-         boost::shared_ptr<ProductProvenance> productProvenance) {
+         std::shared_ptr<ProductProvenance> productProvenance) {
     auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(ConstBranchDescription const& bd,
-         boost::shared_ptr<ProductProvenance> productProvenance) {
+         std::shared_ptr<ProductProvenance> productProvenance) {
     auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
@@ -204,7 +204,7 @@ namespace art {
     BranchID bid = productIDToBranchID(pid);
     SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
     if (g.get() == 0) {
-      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
+      std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
         << "get by product ID: no product with given id: "<< pid << "\n";
       return BasicHandle(whyFailed);
@@ -213,7 +213,7 @@ namespace art {
     // Check for case where we tried on demand production and
     // it failed to produce the object
     if (g->onDemand()) {
-      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
+      std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
         << "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";
@@ -234,7 +234,7 @@ namespace art {
   }
 
   void
-  EventPrincipal::setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
+  EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
     unscheduledHandler_ = iHandler;
   }
 

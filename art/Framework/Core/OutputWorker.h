@@ -9,23 +9,19 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-
 ----------------------------------------------------------------------*/
 
-#include <memory>
-
-#include "boost/shared_ptr.hpp"
-
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/WorkerT.h"
+#include "cpp0x/memory"
 
 namespace art {
 
   class OutputWorker : public WorkerT<OutputModule> {
   public:
     OutputWorker(std::auto_ptr<OutputModule> mod,
-		 ModuleDescription const&,
-		 WorkerParams const&);
+                 ModuleDescription const&,
+                 WorkerParams const&);
 
     virtual ~OutputWorker();
 

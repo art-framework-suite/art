@@ -29,14 +29,14 @@ namespace art {
     // matching of strings, and knows about wildcarding rules.
     inline
     bool
-    partial_match(const boost::regex& regularExpression,
+    partial_match(const std::regex& regularExpression,
                   const string& branchstring)
     {
       if (regularExpression.empty()) {
         if (branchstring == "") return true;
         else return false;
       }
-      return boost::regex_match(branchstring, regularExpression);
+      return std::regex_match(branchstring, regularExpression);
     }
 
   }  // namespace
@@ -155,7 +155,7 @@ namespace art {
               }
            }
 
-           // We are using the boost regex library to deal with the wildcards.
+           // We are using the regex library to deal with the wildcards.
            // The configuration file uses a syntax that accepts "*" and "?"
            // as wildcards so we need to convert these to the syntax used in
            // regular expressions.

@@ -42,11 +42,8 @@ written to the output file anyway.
 
 ----------------------------------------------------------------------*/
 
-
 #include "art/Framework/Core/InputSource.h"
-
-#include "boost/shared_ptr.hpp"
-#include <memory>
+#include "cpp0x/memory"
 #include <vector>
 
 namespace art {
@@ -57,7 +54,7 @@ namespace art {
   class SubRunPrincipal;
   class RunPrincipal;
 
-  class TestRunSubRunSource : 
+  class TestRunSubRunSource :
     public DecrepitRelicInputSourceImplementation {
   public:
     explicit TestRunSubRunSource(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -67,8 +64,8 @@ namespace art {
 
     virtual ItemType getNextItemType();
     virtual std::auto_ptr<EventPrincipal> readEvent_();
-    boost::shared_ptr<SubRunPrincipal> readSubRun_();
-    boost::shared_ptr<RunPrincipal> readRun_();
+    std::shared_ptr<SubRunPrincipal> readSubRun_();
+    std::shared_ptr<RunPrincipal> readRun_();
 
     // This vector holds 3 values representing (run, subRun, event)
     // repeated over and over again, in one vector.

@@ -14,8 +14,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "boost/shared_ptr.hpp"
-#include <memory>
+#include "cpp0x/memory"
 
 namespace art {
   class ServiceRegistry;
@@ -47,7 +46,7 @@ public:
   template< class T >
     bool add( std::auto_ptr<T> serv )
   {
-     return manager_->put(boost::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
+     return manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
   }
 
   void forceCreation(ActivityRegistry& reg)
@@ -61,11 +60,11 @@ public:
   { manager_->putParameterSets(in); }
 
 private:
-  ServiceToken( boost::shared_ptr<ServicesManager> iManager )
+  ServiceToken( std::shared_ptr<ServicesManager> iManager )
   : manager_( iManager )
   { }
 
-  boost::shared_ptr<ServicesManager> manager_;
+  std::shared_ptr<ServicesManager> manager_;
 
 };  // ServiceToken
 

@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 
 namespace art {
 

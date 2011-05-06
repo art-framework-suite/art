@@ -14,14 +14,14 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
 
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 
 #include <cstdio>
 
 using fhicl::ParameterSet;
 using std::string;
 using std::vector;
-using boost::shared_ptr;
+using std::shared_ptr;
 using namespace art;
 
 

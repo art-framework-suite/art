@@ -46,7 +46,7 @@ namespace art {
   }
 
   Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-         ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
+         ProductID const& pid, std::shared_ptr<ProductProvenance> productProvenance) :
     product_(edp.release()),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
@@ -57,7 +57,7 @@ namespace art {
   }
 
   Group::Group(ConstBranchDescription const& bd,
-         ProductID const& pid, boost::shared_ptr<ProductProvenance> productProvenance) :
+         ProductID const& pid, std::shared_ptr<ProductProvenance> productProvenance) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),
     pid_(pid),
@@ -132,7 +132,7 @@ namespace art {
   }
 
   void
-  Group::setProvenance(boost::shared_ptr<ProductProvenance> productProvenance) const {
+  Group::setProvenance(std::shared_ptr<ProductProvenance> productProvenance) const {
     productProvenance_ = productProvenance;  // Group takes ownership
     if (productProvenance_) {
       prov_.reset(new Provenance(*branchDescription_, pid_, productProvenance_));

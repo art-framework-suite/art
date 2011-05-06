@@ -32,7 +32,7 @@ namespace art {
     entryInfoSet_.insert(entryInfo);
   }
 
-  boost::shared_ptr<ProductProvenance>
+  std::shared_ptr<ProductProvenance>
   BranchMapper::branchToEntryInfo(BranchID const& bid) const {
     readProvenance();
     ProductProvenance ei(bid);
@@ -41,10 +41,10 @@ namespace art {
       if (nextMapper_) {
 	return nextMapper_->branchToEntryInfo(bid);
       } else {
-	return boost::shared_ptr<ProductProvenance>();
+	return std::shared_ptr<ProductProvenance>();
       }
     }
-    return boost::shared_ptr<ProductProvenance>(new ProductProvenance(*it));
+    return std::shared_ptr<ProductProvenance>(new ProductProvenance(*it));
   }
 
 }

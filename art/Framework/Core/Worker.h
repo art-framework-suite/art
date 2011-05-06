@@ -33,12 +33,11 @@ the worker is reset().
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exception.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <iosfwd>
-#include <memory>
 #include <utility>
 
 // ----------------------------------------------------------------------
@@ -70,7 +69,7 @@ namespace art {
     ModuleDescription const* descPtr() const {return &md_; }
     ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
-    void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
+    void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
 
     std::pair<double,double> timeCpuReal() const {
       return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
@@ -125,9 +124,9 @@ namespace art {
 
     ModuleDescription md_;
     ActionTable const* actions_; // memory assumed to be managed elsewhere
-    boost::shared_ptr<art::Exception> cached_exception_; // if state is 'exception'
+    std::shared_ptr<art::Exception> cached_exception_; // if state is 'exception'
 
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
   };
 
   namespace {

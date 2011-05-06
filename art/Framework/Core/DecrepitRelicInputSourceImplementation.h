@@ -52,11 +52,10 @@ Some examples of InputSource subclasses may be:
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "boost/noncopyable.hpp"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "sigc++/signal.h"
-#include <memory>
 #include <string>
 
 // ----------------------------------------------------------------------
@@ -84,19 +83,19 @@ namespace art
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<SubRunPrincipal> srp);
+    std::auto_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp);
 
     /// Read a specific event
     std::auto_ptr<EventPrincipal> readEvent(EventID const&);
 
     /// Read next subRun
-    boost::shared_ptr<SubRunPrincipal> readSubRun(boost::shared_ptr<RunPrincipal> rp);
+    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
 
     /// Read next run
-    boost::shared_ptr<RunPrincipal> readRun();
+    std::shared_ptr<RunPrincipal> readRun();
 
     /// Read next file
-    boost::shared_ptr<FileBlock> readFile();
+    std::shared_ptr<FileBlock> readFile();
 
     /// close current file
     void closeFile();
@@ -174,7 +173,7 @@ namespace art
     ProcessingMode processingMode() const {return processingMode_;}
 
     /// Accessor for Activity Registry
-    boost::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
+    std::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
     using ProductRegistryHelper::reconstitutes;
     using ProductRegistryHelper::typeLabelList;
@@ -185,10 +184,10 @@ namespace art
 
     ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
     input::ItemType state() const{return state_;}
-    boost::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
-    boost::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
-    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
-    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> srp) {subRunPrincipal_ = srp;}
+    std::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
+    std::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
+    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
+    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) {subRunPrincipal_ = srp;}
     void resetRunPrincipal() {runPrincipal_.reset();}
     void resetSubRunPrincipal() {subRunPrincipal_.reset();}
     void reset() {
@@ -207,10 +206,10 @@ namespace art
     bool limitReached() const {return eventLimitReached() || subRunLimitReached();}
     virtual input::ItemType getNextItemType() = 0;
     input::ItemType nextItemType_();
-    virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
-    virtual boost::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
+    virtual std::shared_ptr<RunPrincipal> readRun_() = 0;
+    virtual std::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
-    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual std::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
@@ -226,7 +225,7 @@ namespace art
     void registerProducts_();
 
   private:
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int remainingEvents_;
     int maxSubRuns_;
@@ -238,8 +237,8 @@ namespace art
     Timestamp time_;
     bool doneReadAhead_;
     input::ItemType state_;
-    boost::shared_ptr<RunPrincipal>  runPrincipal_;
-    boost::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
+    std::shared_ptr<RunPrincipal>  runPrincipal_;
+    std::shared_ptr<SubRunPrincipal>  subRunPrincipal_;
     bool usingSequentialAccess_;
   };  // DecrepitRelicInputSourceImplementation
 

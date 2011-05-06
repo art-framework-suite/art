@@ -34,13 +34,13 @@
 
 #include "art/Framework/Core/EventSelector.h"
 
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/RegexMatch.h"
 #include "boost/algorithm/string.hpp"
-#include "boost/regex.hpp"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/regex"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <algorithm>
 #include <cassert>
 
@@ -454,7 +454,7 @@ namespace art {
    *         if the trigger selection is invalid in the context of the
    *         full trigger list.
    */
-  boost::shared_ptr<TriggerResults>
+  std::shared_ptr<TriggerResults>
   EventSelector::maskTriggerResults(TriggerResults const& inputResults)
   {
     // fetch and validate the total number of paths
@@ -539,7 +539,7 @@ namespace art {
 
     // Based on the global status for the mask, create and return a
     // TriggerResults
-    boost::shared_ptr<TriggerResults>
+    std::shared_ptr<TriggerResults>
       maskedResults(new TriggerResults(mask, inputResults.parameterSetID()));
     return maskedResults;
   }  // maskTriggerResults

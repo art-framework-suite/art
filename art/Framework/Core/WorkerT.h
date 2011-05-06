@@ -5,20 +5,15 @@
 
 WorkerT: Code common to all workers.
 
-
-
 ----------------------------------------------------------------------*/
 
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Core/WorkerParams.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-
-#include "boost/shared_ptr.hpp"
-
 #include <iosfwd>
-#include <memory>
 
 
 namespace art {
@@ -72,7 +67,7 @@ namespace art {
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb);
     virtual std::string workerType() const;
 
-    boost::shared_ptr<T> module_;
+    std::shared_ptr<T> module_;
   };
 
   template <typename T>

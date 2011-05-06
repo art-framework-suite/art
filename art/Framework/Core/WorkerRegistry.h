@@ -12,7 +12,7 @@
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "boost/noncopyable.hpp"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <string>
@@ -38,7 +38,7 @@ namespace art {
 
   public:
 
-    explicit WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg);
+    explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
     ~WorkerRegistry();
 
     /// Retrieve the particular instance of the worker
@@ -57,11 +57,11 @@ namespace art {
                                        PassID const& passID);
 
     /// the container of workers
-    typedef std::map<std::string, boost::shared_ptr<Worker> > WorkerMap;
+    typedef std::map<std::string, std::shared_ptr<Worker> > WorkerMap;
 
     /// internal map of registered workers (owned).
     WorkerMap m_workerMap;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
 
   };  // WorkerRegistry
 

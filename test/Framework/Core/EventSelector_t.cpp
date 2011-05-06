@@ -1,20 +1,16 @@
-
 #include "art/Framework/Core/EventSelector.h"
-#include "art/Persistency/Common/TriggerResults.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-
-#include "boost/array.hpp"
-#include "boost/shared_ptr.hpp"
-
-#include <vector>
-#include <string>
+#include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Common/TriggerResults.h"
+#include "cpp0x/array"
+#include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include <iostream>
-#include <memory>
+#include <string>
+#include <vector>
 
 using namespace art;
 using namespace fhicl;
@@ -140,22 +136,22 @@ int main()
 
   // Name all our paths. We have as many paths as there are trigger
   // bits.
-  boost::array<char const*,numBits> cpaths = {{"a1","a2","a3","a4","a5"}};
+  std::array<char const*,numBits> cpaths = {{"a1","a2","a3","a4","a5"}};
   Strings paths(cpaths.begin(),cpaths.end());
 
   //
 
-  boost::array<char const*,2> cw1 = {{ "a1","a2" }};
-  boost::array<char const*,2> cw2 = {{ "!a1","!a2" }};
-  boost::array<char const*,2> cw3 = {{ "a1","!a2" }};
-  boost::array<char const*,1> cw4 = {{ "*" }};
-  boost::array<char const*,1> cw5 = {{ "!*" }};
-  boost::array<char const*,2> cw6 = {{ "*","!*" }};
-  boost::array<char const*,2> cw7 = {{ "*","!a2" }};
-  boost::array<char const*,2> cw8 = {{ "!*","a2" }};
-  boost::array<char const*,3> cw9 = {{ "a1","a2","a5" }};
-  boost::array<char const*,2> cwA = {{ "a3","a4" }};
-  boost::array<char const*,1> cwB = {{ "!a5" }};
+  std::array<char const*,2> cw1 = {{ "a1","a2" }};
+  std::array<char const*,2> cw2 = {{ "!a1","!a2" }};
+  std::array<char const*,2> cw3 = {{ "a1","!a2" }};
+  std::array<char const*,1> cw4 = {{ "*" }};
+  std::array<char const*,1> cw5 = {{ "!*" }};
+  std::array<char const*,2> cw6 = {{ "*","!*" }};
+  std::array<char const*,2> cw7 = {{ "*","!a2" }};
+  std::array<char const*,2> cw8 = {{ "!*","a2" }};
+  std::array<char const*,3> cw9 = {{ "a1","a2","a5" }};
+  std::array<char const*,2> cwA = {{ "a3","a4" }};
+  std::array<char const*,1> cwB = {{ "!a5" }};
 
   VStrings patterns(numPatterns);
   patterns[0].insert(patterns[0].end(),cw1.begin(),cw1.end());
@@ -170,15 +166,15 @@ int main()
   patterns[9].insert(patterns[9].end(),cwA.begin(),cwA.end());
   patterns[10].insert(patterns[10].end(),cwB.begin(),cwB.end());
 
-  boost::array<bool,numBits> t1 = {{ true,  false, true,  false, true  }};
-  boost::array<bool,numBits> t2 = {{ false, true,  true,  false, true  }};
-  boost::array<bool,numBits> t3 = {{ true,  true,  true,  false, true  }};
-  boost::array<bool,numBits> t4 = {{ false, false, true,  false, true  }};
-  boost::array<bool,numBits> t5 = {{ false, false, false, false, false }};
-  boost::array<bool,numBits> t6 = {{ true,  true,  true,  true,  true  }};
-  boost::array<bool,numBits> t7 = {{ true,  true,  true,  true,  false }};
-  boost::array<bool,numBits> t8 = {{ false, false, false, false, true  }};
-  boost::array<bool,numBits> t9 = {{ false, false, false, false, false }};  // for t9 only, above the
+  std::array<bool,numBits> t1 = {{ true,  false, true,  false, true  }};
+  std::array<bool,numBits> t2 = {{ false, true,  true,  false, true  }};
+  std::array<bool,numBits> t3 = {{ true,  true,  true,  false, true  }};
+  std::array<bool,numBits> t4 = {{ false, false, true,  false, true  }};
+  std::array<bool,numBits> t5 = {{ false, false, false, false, false }};
+  std::array<bool,numBits> t6 = {{ true,  true,  true,  true,  true  }};
+  std::array<bool,numBits> t7 = {{ true,  true,  true,  true,  false }};
+  std::array<bool,numBits> t8 = {{ false, false, false, false, true  }};
+  std::array<bool,numBits> t9 = {{ false, false, false, false, false }};  // for t9 only, above the
                                                                             // first is reset to ready
                                                                             // last is reset to exception
 
@@ -237,7 +233,7 @@ int main()
   typedef art::TriggerNamesService TNS;
   typedef ServiceWrapper<TNS> w_TNS;
 
-  boost::shared_ptr<w_TNS> tnsptr
+  std::shared_ptr<w_TNS> tnsptr
     (new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
 
   ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);

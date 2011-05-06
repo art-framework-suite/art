@@ -1,15 +1,13 @@
 /*
  *  friendlyName.cpp
  *  CMSSW
- *
- *  Created by Chris Jones on 2/24/06.
- *
  */
-#include <string>
-#include <boost/regex.hpp>
+
+#include "boost/thread/tss.hpp"
+#include "cpp0x/regex"
 #include <iostream>
 #include <map>
-#include "boost/thread/tss.hpp"
+#include <string>
 
 //NOTE:  This should probably be rewritten so that we break the class name into a tree where the template arguments are the node.  On the way down the tree
 // we look for '<' or ',' and on the way up (caused by finding a '>') we can apply the transformation to the output string based on the class name for the
@@ -18,51 +16,51 @@
 
 namespace art {
   namespace friendlyname {
-    static boost::regex const reBeginSpace("^ +");
-    static boost::regex const reEndSpace(" +$");
-    static boost::regex const reAllSpaces(" +");
-    static boost::regex const reColons("::");
-    static boost::regex const reComma(",");
-    static boost::regex const reTemplateArgs("[^<]*<(.*)>$");
-    static boost::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
+    static std::regex const reBeginSpace("^ +");
+    static std::regex const reEndSpace(" +$");
+    static std::regex const reAllSpaces(" +");
+    static std::regex const reColons("::");
+    static std::regex const reComma(",");
+    static std::regex const reTemplateArgs("[^<]*<(.*)>$");
+    static std::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
     static std::string const emptyString("");
 
     std::string removeExtraSpaces(std::string const& iIn) {
-       return boost::regex_replace(boost::regex_replace(iIn,reBeginSpace,emptyString),
+       return std::regex_replace(std::regex_replace(iIn,reBeginSpace,emptyString),
                                     reEndSpace, emptyString);
     }
 
     std::string removeAllSpaces(std::string const& iIn) {
-      return boost::regex_replace(iIn, reAllSpaces,emptyString);
+      return std::regex_replace(iIn, reAllSpaces,emptyString);
     }
-    static boost::regex const reWrapper("art::Wrapper<(.*)>");
-    static boost::regex const reString("std::basic_string<char>");
-    static boost::regex const reSorted("art::SortedCollection<(.*), *art::StrictWeakOrdering<\\1 *> >");
-    static boost::regex const reUnsigned("unsigned ");
-    static boost::regex const reLong("long ");
-    static boost::regex const reVector("std::vector");
-    static boost::regex const reAIKR(", *art::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
+    static std::regex const reWrapper("art::Wrapper<(.*)>");
+    static std::regex const reString("std::basic_string<char>");
+    static std::regex const reSorted("art::SortedCollection<(.*), *art::StrictWeakOrdering<\\1 *> >");
+    static std::regex const reUnsigned("unsigned ");
+    static std::regex const reLong("long ");
+    static std::regex const reVector("std::vector");
+    static std::regex const reAIKR(", *art::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
     //force first argument to also be the argument to art::ClonePolicy so that if OwnVector is within
     // a template it will not eat all the remaining '>'s
-    static boost::regex const reOwnVector("art::OwnVector<(.*), *art::ClonePolicy<\\1 *> >");
+    static std::regex const reOwnVector("art::OwnVector<(.*), *art::ClonePolicy<\\1 *> >");
 
     //NOTE: the '?' means make the smallest match. This may lead to problems where the template arguments themselves have commas
     // but we are using it in the cases where art::AssociationMap appears multiple times in template arguments
-    static boost::regex const reOneToOne("art::AssociationMap< *art::OneToOne<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToMany("art::AssociationMap< *art::OneToMany<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToValue("art::AssociationMap< *art::OneToValue<(.*?),(.*?), *u[a-z]*> >");
-    static boost::regex const reOneToManyWithQuality("art::AssociationMap<art::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
-    static boost::regex const reToVector("art::AssociationVector<(.*), *(.*), *art::Ref.*,.*>");
+    static std::regex const reOneToOne("art::AssociationMap< *art::OneToOne<(.*?),(.*?), *u[a-z]*> >");
+    static std::regex const reOneToMany("art::AssociationMap< *art::OneToMany<(.*?),(.*?), *u[a-z]*> >");
+    static std::regex const reOneToValue("art::AssociationMap< *art::OneToValue<(.*?),(.*?), *u[a-z]*> >");
+    static std::regex const reOneToManyWithQuality("art::AssociationMap<art::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
+    static std::regex const reToVector("art::AssociationVector<(.*), *(.*), *art::Ref.*,.*>");
     //NOTE: if the item within a clone policy is a template, this substitution will probably fail
-    static boost::regex const reToRangeMap("art::RangeMap< *(.*), *(.*), *art::ClonePolicy<([^>]*)> >");
+    static std::regex const reToRangeMap("art::RangeMap< *(.*), *(.*), *art::ClonePolicy<([^>]*)> >");
     //NOTE: If container is a template with one argument which is its 'type' then can simplify name
-    static boost::regex const reToRefs1("art::RefVector< *(.*)< *(.*) *>, *\\2 *, *art::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
-    static boost::regex const reToRefs2("art::RefVector< *(.*) *, *(.*) *, *art::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
-    static boost::regex const reToRefsAssoc("art::RefVector< *Association(.*) *, *art::helper(.*), *Association(.*)::Find>");
+    static std::regex const reToRefs1("art::RefVector< *(.*)< *(.*) *>, *\\2 *, *art::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
+    static std::regex const reToRefs2("art::RefVector< *(.*) *, *(.*) *, *art::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
+    static std::regex const reToRefsAssoc("art::RefVector< *Association(.*) *, *art::helper(.*), *Association(.*)::Find>");
 
     std::string standardRenames(std::string const& iIn) {
-       using boost::regex_replace;
-       using boost::regex;
+       using std::regex_replace;
+       using std::regex;
        std::string name = regex_replace(iIn, reWrapper, "$1");
        name = regex_replace(name,reAIKR,"");
        name = regex_replace(name,reString,"String");

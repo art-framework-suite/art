@@ -14,10 +14,9 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
-#include <memory>
 #include <stack>
 #include <utility>
 #include <vector>
@@ -40,7 +39,7 @@ namespace art {
 
   public:
     typedef  std::vector<fhicl::ParameterSet>       ParameterSets;
-    typedef  boost::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
+    typedef  std::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
     class Cache;
 
     typedef  std::map< TypeID, Cache >  Factory;
@@ -135,7 +134,7 @@ namespace art {
     // TODO: needs to be converted to returning a void.
     template< class T >
     bool
-      put( boost::shared_ptr<ServiceWrapper<T> > premade_service )
+      put( std::shared_ptr<ServiceWrapper<T> > premade_service )
     {
       TypeID id(typeid(T));
       Factory::const_iterator it = factory_.find(id);
@@ -180,7 +179,7 @@ namespace art {
     // we will probably not be using this because we do not use the
     // inheritance or sharing features
     // (although we may not understand this properly).
-    boost::shared_ptr<ServicesManager> associatedManager_;
+    std::shared_ptr<ServicesManager> associatedManager_;
 
     // these are real things that we use.
     art::ActivityRegistry registry_;
@@ -212,9 +211,9 @@ namespace art {
     // Not sure this is technique is correct ... is is mostly copied
     // from the previous implementation.
     typedef ServiceWrapper<T> Wrapper;
-    typedef boost::shared_ptr<Wrapper> Wrapper_ptr;
+    typedef std::shared_ptr<Wrapper> Wrapper_ptr;
 
-    Wrapper_ptr concrete = boost::dynamic_pointer_cast<Wrapper>(swb);
+    Wrapper_ptr concrete = std::dynamic_pointer_cast<Wrapper>(swb);
     return concrete->get();
   }  // get<>()
 

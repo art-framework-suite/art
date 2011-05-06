@@ -50,8 +50,8 @@ namespace art {
     };
 
     template <typename T>
-    boost::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
-      return  boost::shared_ptr<T>(ptr, do_nothing_deleter());
+    std::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
+      return  std::shared_ptr<T>(ptr, do_nothing_deleter());
     }
   }  // namespace
 
@@ -232,14 +232,14 @@ namespace art {
   }
 
   // Return a dummy file block.
-  boost::shared_ptr<FileBlock>
+  std::shared_ptr<FileBlock>
   DecrepitRelicInputSourceImplementation::readFile()
   {
     assert(doneReadAhead_);
     assert(state_ == input::IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
-    boost::shared_ptr<FileBlock> fb = readFile_();
+    std::shared_ptr<FileBlock> fb = readFile_();
     return fb;
   }
 
@@ -251,12 +251,12 @@ namespace art {
   // Return a dummy file block.
   // This function must be overridden for any input source that reads a file
   // containing Products.
-  boost::shared_ptr<FileBlock>
+  std::shared_ptr<FileBlock>
   DecrepitRelicInputSourceImplementation::readFile_() {
-    return boost::shared_ptr<FileBlock>(new FileBlock);
+    return std::shared_ptr<FileBlock>(new FileBlock);
   }
 
-  boost::shared_ptr<RunPrincipal>
+  std::shared_ptr<RunPrincipal>
   DecrepitRelicInputSourceImplementation::readRun() {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
@@ -268,8 +268,8 @@ namespace art {
     return runPrincipal_;
   }
 
-  boost::shared_ptr<SubRunPrincipal>
-  DecrepitRelicInputSourceImplementation::readSubRun(boost::shared_ptr<RunPrincipal> rp) {
+  std::shared_ptr<SubRunPrincipal>
+  DecrepitRelicInputSourceImplementation::readSubRun(std::shared_ptr<RunPrincipal> rp) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of subRuns
     // (e.g. beginSubRun(), endSubRun())
@@ -284,7 +284,7 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(boost::shared_ptr<SubRunPrincipal> srp) {
+  DecrepitRelicInputSourceImplementation::readEvent(std::shared_ptr<SubRunPrincipal> srp) {
     assert(doneReadAhead_);
     assert(state_ == input::IsEvent);
     assert(!eventLimitReached());

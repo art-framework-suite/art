@@ -13,7 +13,7 @@ RootOutputTree.h // used by ROOT output modules
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "boost/noncopyable.hpp"
 #include <string>
 #include <vector>
@@ -28,7 +28,7 @@ namespace art {
     // Constructor for trees with no fast cloning
     template <typename T>
     RootOutputTree(T* , // first argument is a dummy so that the compiiler can resolve the match.
-                   boost::shared_ptr<TFile> filePtr,
+                   std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    typename T::Auxiliary const*& pAux,
                    typename T::EntryInfoVector *& pEntryInfoVector,
@@ -107,7 +107,7 @@ namespace art {
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
-    boost::shared_ptr<TFile> filePtr_;
+    std::shared_ptr<TFile> filePtr_;
     TTree *const tree_;
     TTree *const metaTree_;
     TBranch * auxBranch_;

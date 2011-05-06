@@ -24,7 +24,7 @@
  */
 
 #include "art/Persistency/Common/HLTenums.h"
-#include <boost/cstdint.hpp>
+#include "cpp0x/cstdint"
 #include <cassert>
 
 namespace art
@@ -33,7 +33,7 @@ namespace art
 
   private:
     // packed status of trigger path [unsigned char is too small]
-    uint16_t status_;
+    std::uint16_t status_;
     // bits 0- 1 (0-    3): HLT state
     // bits 2-16 (0-16383): index of module on path making path decision
 

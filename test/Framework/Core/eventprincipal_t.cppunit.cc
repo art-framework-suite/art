@@ -181,7 +181,7 @@ void test_ep::setUp()
 
     const art::ConstBranchDescription branchFromRegistry(it->second);
 
-    boost::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
+    std::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
     std::auto_ptr<art::ProductProvenance> branchEntryInfoPtr(
       new art::ProductProvenance(branchFromRegistry.branchID(),
                                art::productstatus::present(),
@@ -192,9 +192,9 @@ void test_ep::setUp()
     art::Timestamp now(1234567UL);
     cet::exempt_ptr<art::ProductRegistry const> preg(pProductRegistry_);
     art::RunAuxiliary runAux(eventID_.run(), now, now);
-    boost::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, *process));
+    std::shared_ptr<art::RunPrincipal> rp(new art::RunPrincipal(runAux, preg, *process));
     art::SubRunAuxiliary subRunAux(rp->run(), eventID_.subRun(), now, now);
-    boost::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, *process));
+    std::shared_ptr<art::SubRunPrincipal>srp(new art::SubRunPrincipal(subRunAux, preg, *process));
     srp->setRunPrincipal(rp);
     art::EventAuxiliary eventAux(eventID_, now, true);
     pEvent_ = new art::EventPrincipal(eventAux, preg, *process);

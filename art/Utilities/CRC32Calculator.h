@@ -53,8 +53,7 @@ from the original code follow below to attribute the source.
 /*                                                               */
 /*****************************************************************/
 
-#include "boost/cstdint.hpp"
-
+#include "cpp0x/cstdint"
 #include <string>
 
 namespace art {
@@ -65,11 +64,11 @@ namespace art {
 
     CRC32Calculator(std::string const& message);
 
-    boost::uint32_t checksum() { return checksum_; }
+    std::uint32_t checksum() { return checksum_; }
 
   private:
 
-    boost::uint32_t checksum_;
+    std::uint32_t checksum_;
   };
 }
 #endif /* art_Utilities_CRC32Calculator_h */

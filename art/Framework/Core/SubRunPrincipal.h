@@ -10,8 +10,6 @@ such code sees the SubRun class, which is a proxy for SubRunPrincipal.
 The major internal component of the SubRunPrincipal
 is the DataBlock.
 
-
-
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/Principal.h"
@@ -19,9 +17,8 @@ is the DataBlock.
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
-#include <memory>
+#include "cpp0x/memory"
 #include <vector>
 
 namespace art {
@@ -35,8 +32,8 @@ namespace art {
     SubRunPrincipal(SubRunAuxiliary const& aux,
                     cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
+        std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     ~SubRunPrincipal() {}
 
@@ -44,12 +41,12 @@ namespace art {
 
     RunPrincipal & runPrincipal();
 
-    boost::shared_ptr<RunPrincipal>
+    std::shared_ptr<RunPrincipal>
     runPrincipalSharedPtr() {
       return runPrincipal_;
     }
 
-    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {
+    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {
       runPrincipal_ = rp;
     }
 
@@ -81,9 +78,9 @@ namespace art {
       return aux().run();
     }
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
+    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeSubRun(boost::shared_ptr<SubRunPrincipal> srp);
+    void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
 
     void put(std::auto_ptr<EDProduct> edp,
              ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
@@ -105,7 +102,7 @@ namespace art {
 
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
-    boost::shared_ptr<RunPrincipal> runPrincipal_;
+    std::shared_ptr<RunPrincipal> runPrincipal_;
     SubRunAuxiliary aux_;
   };
 

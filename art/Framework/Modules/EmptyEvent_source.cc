@@ -18,10 +18,9 @@ namespace art {
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "boost/shared_ptr.hpp"
 #include "cpp0x/cstdint"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>
 
 class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
 public:
@@ -41,8 +40,8 @@ private:
    virtual art::input::ItemType getNextItemType();
    virtual void setRunAndEventInfo();
    virtual std::auto_ptr<EventPrincipal> readEvent_();
-   virtual boost::shared_ptr<SubRunPrincipal> readSubRun_();
-   virtual boost::shared_ptr<RunPrincipal> readRun_();
+   virtual std::shared_ptr<SubRunPrincipal> readSubRun_();
+   virtual std::shared_ptr<RunPrincipal> readRun_();
    virtual void skip(int offset);
    virtual void rewind_();
 
@@ -71,6 +70,7 @@ private:
 };  // EmptyEvent
 
 using namespace art;
+using std::uint32_t;
 
 //used for defaults
 
@@ -126,11 +126,11 @@ art::EmptyEvent::EmptyEvent
 
 art::EmptyEvent::~EmptyEvent() { }
 
-boost::shared_ptr<RunPrincipal>
+std::shared_ptr<RunPrincipal>
 art::EmptyEvent::readRun_() {
   Timestamp ts = Timestamp(presentTime_);
   RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
-  boost::shared_ptr<RunPrincipal> runPrincipal(
+  std::shared_ptr<RunPrincipal> runPrincipal(
       new RunPrincipal(runAux, productRegistry(), processConfiguration()));
   #if 0
   RunPrincipal & rp =
@@ -140,14 +140,14 @@ art::EmptyEvent::readRun_() {
   return runPrincipal;
 }
 
-boost::shared_ptr<SubRunPrincipal>
+std::shared_ptr<SubRunPrincipal>
 EmptyEvent::readSubRun_() {
-   if (processingMode() == Runs) return boost::shared_ptr<SubRunPrincipal>();
+   if (processingMode() == Runs) return std::shared_ptr<SubRunPrincipal>();
    Timestamp ts = Timestamp(presentTime_);
    SubRunAuxiliary subRunAux(eventID_.subRunID(),
                              ts,
                              Timestamp::invalidTimestamp());
-   boost::shared_ptr<SubRunPrincipal>
+   std::shared_ptr<SubRunPrincipal>
       subRunPrincipal(new SubRunPrincipal(subRunAux,
                                           productRegistry(),
                                           processConfiguration()));

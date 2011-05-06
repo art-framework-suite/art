@@ -18,27 +18,27 @@ namespace art {
     productProvenancePtr_() {
   }
 
-  Provenance::Provenance(BranchDescription const& p, ProductID const& pid, boost::shared_ptr<ProductProvenance> ei) :
+  Provenance::Provenance(BranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> ei) :
     branchDescription_(p),
     productID_(pid),
     productProvenancePtr_(ei)
   { }
 
-  Provenance::Provenance(ConstBranchDescription const& p, ProductID const& pid, boost::shared_ptr<ProductProvenance> ei) :
+  Provenance::Provenance(ConstBranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> ei) :
     branchDescription_(p),
     productID_(pid),
     productProvenancePtr_(ei)
   { }
 
   void
-  Provenance::setProductProvenance(boost::shared_ptr<ProductProvenance> bei) const {
+  Provenance::setProductProvenance(std::shared_ptr<ProductProvenance> bei) const {
     assert(productProvenancePtr_.get() == 0);
     productProvenancePtr_ = bei;
   }
 
-  boost::shared_ptr<ProductProvenance>
+  std::shared_ptr<ProductProvenance>
   Provenance::resolve () const {
-    boost::shared_ptr<ProductProvenance> prov = store_->branchToEntryInfo(branchDescription_.branchID());
+    std::shared_ptr<ProductProvenance> prov = store_->branchToEntryInfo(branchDescription_.branchID());
     setProductProvenance(prov);
     return prov;
 }

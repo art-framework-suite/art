@@ -12,7 +12,7 @@
 #include <set>
 #include <utility>
 
-using boost::shared_ptr;
+using std::shared_ptr;
 using fhicl::ParameterSet;
 using namespace art;
 using namespace std;

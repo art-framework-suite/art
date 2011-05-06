@@ -12,7 +12,7 @@ FileBlock: Properties of an input file.
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 class TTree;
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include <map>
 #include <string>
 #include <vector>
@@ -54,7 +54,7 @@ namespace art {
 	      TTree const* run, TTree const* runMeta,
 	      bool fastCopy,
 	      std::string const& fileName,
-	      boost::shared_ptr<BranchChildren> branchChildren) :
+	      std::shared_ptr<BranchChildren> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree *>(ev)),
       metaTree_(const_cast<TTree *>(meta)),
@@ -93,7 +93,7 @@ namespace art {
     TTree * runMetaTree_;
     bool fastCopyable_;
     std::string fileName_;
-    boost::shared_ptr<BranchChildren> branchChildren_;
+    std::shared_ptr<BranchChildren> branchChildren_;
   };
 }
 #endif /* art_Framework_Core_FileBlock_h */

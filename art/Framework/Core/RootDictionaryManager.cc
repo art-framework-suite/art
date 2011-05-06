@@ -1,13 +1,11 @@
 #include "art/Framework/Core/RootDictionaryManager.h"
 
+#include "Cintex/Cintex.h"
+#include "cetlib/exception.h"
+#include "cpp0x/regex"
 #include <iostream>
 #include <iterator>
 #include <sstream>
-
-#include "boost/regex.hpp"
-
-#include "cetlib/exception.h"
-#include "Cintex/Cintex.h"
 
 art::RootDictionaryManager::RootDictionaryManager()
    :
@@ -39,8 +37,8 @@ dumpReflexDictionaryInfo(std::ostream &os, std::string const &libpath) const {
    typedef void (*CapFunc)(const char **&, int &);
    std::ostringstream map_lib;
    std::ostream_iterator<char, char> oi(map_lib);
-   boost::regex_replace(oi, libpath.begin(), libpath.end(),
-                        boost::regex(std::string("_(") + dm_.libType() + ")(" + dm_.dllExt() + ")$"),
+   std::regex_replace(oi, libpath.begin(), libpath.end(),
+                        std::regex(std::string("_(") + dm_.libType() + ")(" + dm_.dllExt() + ")$"),
                         std::string("(?1_" + mm_.libType() + "$2)"),
                         boost::match_default | boost::format_all);
    CapFunc func = (CapFunc) mm_.getSymbolByPath(map_lib.str(), "SEAL_CAPABILITIES");

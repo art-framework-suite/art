@@ -10,7 +10,7 @@
 #include <ostream>
 
 namespace art {
-   typedef uint32_t SubRunNumber_t;
+   typedef std::uint32_t SubRunNumber_t;
    class SubRunID;
 }
 

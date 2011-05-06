@@ -9,8 +9,8 @@ namespace art {
   SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
                                    cet::exempt_ptr<ProductRegistry const> reg,
 				   ProcessConfiguration const& pc,
-				   boost::shared_ptr<BranchMapper> mapper,
-				   boost::shared_ptr<DelayedReader> rtrv) :
+				   std::shared_ptr<BranchMapper> mapper,
+				   std::shared_ptr<DelayedReader> rtrv) :
     Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
     runPrincipal_(),
     aux_(aux) 
@@ -92,7 +92,7 @@ namespace art {
   }
 
   void
-  SubRunPrincipal::mergeSubRun(boost::shared_ptr<SubRunPrincipal> srp) {
+  SubRunPrincipal::mergeSubRun(std::shared_ptr<SubRunPrincipal> srp) {
 
     aux_.mergeAuxiliary(srp->aux());
 

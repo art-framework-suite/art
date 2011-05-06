@@ -5,11 +5,11 @@
 #include "art/Persistency/Common/DataFrame.h"
 #include "art/Persistency/Common/DataFrameContainer.h"
 #undef private
-#include<vector>
-#include<algorithm>
-#include<cstdlib>
-#include <boost/bind.hpp>
+#include "cpp0x/functional"
+#include <algorithm>
+#include <cstdlib>
 #include <numeric>
+#include <vector>
 
 
 class TestDataFrame: public CppUnit::TestFixture
@@ -44,7 +44,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestDataFrame);
 TestDataFrame::TestDataFrame() : sv1(10),sv2(10){
   art::DataFrame::data_type v[10] = {0,1,2,3,4,5,6,7,8,9};
   std::copy(v,v+10,sv1.begin());
-  std::transform(sv1.begin(),sv1.end(),sv2.begin(),boost::bind(std::plus<art::DataFrame::data_type>(),10,_1));
+  std::transform(sv1.begin(),sv1.end(),sv2.begin(),std::bind(std::plus<art::DataFrame::data_type>(),10,_1));
 }
 
 

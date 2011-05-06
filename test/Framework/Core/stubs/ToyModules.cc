@@ -5,28 +5,25 @@ Toy EDProducers and EDProducts for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <cassert>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-#include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Common/Ref.h"
-#include "art/Persistency/Common/View.h"
-#include "art/Persistency/Common/RefVector.h"
-#include "art/Persistency/Common/RefToBaseVector.h"
-#include "test/TestObjects/ToyProducts.h"
-
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Common/Ref.h"
+#include "art/Persistency/Common/RefToBaseVector.h"
+#include "art/Persistency/Common/RefVector.h"
+#include "art/Persistency/Common/View.h"
+#include "cpp0x/cstdint"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-
-#include <boost/shared_ptr.hpp>
-
+#include "test/TestObjects/ToyProducts.h"
+#include <cassert>
 #include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 extern "C"
 {
@@ -90,15 +87,15 @@ namespace arttest {
       value_(p.get<int>("ivalue")) {
       produces<Int16_tProduct>();
     }
-    explicit Int16_tProducer(boost::int16_t i, boost::uint16_t j) : value_(i), uvalue_(j) {
+    explicit Int16_tProducer(std::int16_t i, std::uint16_t j) : value_(i), uvalue_(j) {
       produces<Int16_tProduct>();
     }
     virtual ~Int16_tProducer() { }
     virtual void produce(art::Event& e, art::EventSetup const& c);
 
   private:
-    boost::int16_t value_;
-    boost::uint16_t uvalue_;
+    std::int16_t value_;
+    std::uint16_t uvalue_;
   };
 
   void

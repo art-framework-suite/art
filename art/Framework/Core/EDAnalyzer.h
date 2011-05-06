@@ -11,7 +11,7 @@
 #include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include <ostream>
 #include <string>
 
@@ -60,7 +60,7 @@ namespace art
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-    void registerAnyProducts(boost::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
+    void registerAnyProducts(std::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
 
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}

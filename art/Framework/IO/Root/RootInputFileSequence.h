@@ -10,17 +10,16 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/noncopyable.hpp"
 #include "boost/noncopyable.hpp"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
-#include <memory>
+#include "cpp0x/memory"
 #include <string>
 #include <vector>
 
@@ -45,18 +44,18 @@ namespace art {
                                    ProcessConfiguration const &processConfig);
     virtual ~RootInputFileSequence();
 
-    typedef boost::shared_ptr<RootInputFile> RootInputFileSharedPtr;
+    typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
     std::auto_ptr<EventPrincipal> readEvent_();
-    boost::shared_ptr<SubRunPrincipal> readSubRun_(boost::shared_ptr<RunPrincipal> rp);
-    boost::shared_ptr<RunPrincipal> readRun_();
-    boost::shared_ptr<FileBlock> readFile_();
+    std::shared_ptr<SubRunPrincipal> readSubRun_(std::shared_ptr<RunPrincipal> rp);
+    std::shared_ptr<RunPrincipal> readRun_();
+    std::shared_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
     input::ItemType getNextItemType();
     std::auto_ptr<EventPrincipal> readIt(EventID const& id, bool exact = false);
-    boost::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id, boost::shared_ptr<RunPrincipal> rp);
-    boost::shared_ptr<RunPrincipal> readIt(RunID const& run);
+    std::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp);
+    std::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset);
     void rewind_();
     ProductRegistry const& fileProductRegistry() const;
@@ -90,7 +89,7 @@ namespace art {
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootInputFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
-    std::vector<boost::shared_ptr<FileIndex> > fileIndexes_;
+    std::vector<std::shared_ptr<FileIndex> > fileIndexes_;
 
     int eventsRemainingInFile_;
     EventID origEventID_;
@@ -105,7 +104,7 @@ namespace art {
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
     bool primarySequence_;
-    boost::shared_ptr<DuplicateChecker> duplicateChecker_;
+    std::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     RootInputFileSharedPtr rootFileForLastReadEvent_;
     FastCloningInfoProvider fastCloningInfo_;

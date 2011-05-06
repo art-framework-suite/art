@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "boost/regex.hpp"
+#include "cpp0x/regex"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 #include <vector>
@@ -68,10 +68,10 @@ namespace art {
       // selectflag_ carries the value to which we should set the 'select
       // bit' if this rule matches.
       bool   selectflag_;
-      boost::regex productType_;
-      boost::regex moduleLabel_;
-      boost::regex instanceName_;
-      boost::regex processName_;
+      std::regex productType_;
+      std::regex moduleLabel_;
+      std::regex instanceName_;
+      std::regex processName_;
     };
   private:
     std::vector<Rule> rules_;

@@ -10,7 +10,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 
-#include "boost/mpl/if.hpp"
+#include "cpp0x/type_traits"
 #include <memory>
 
 namespace art {
@@ -73,7 +73,7 @@ public:
 
   void reconfigure(fhicl::ParameterSet const& n)
   {
-    typename boost::mpl::if_c<detail::has_reconfig_function<T>::value,
+    typename std::conditional<detail::has_reconfig_function<T>::value,
       detail::DoReconfig<T>,
       detail::DoNothing<T> >::type reconfig_or_nothing;
     reconfig_or_nothing(*service_ptr_,n);

@@ -42,7 +42,7 @@ ServiceToken
 ServiceToken
   ServiceRegistry::createSet( std::vector<ParameterSet> const & iPS )
 {
-  boost::shared_ptr<ServicesManager>
+  std::shared_ptr<ServicesManager>
     result( new ServicesManager( iPS
                                , ServiceRegistry::instance().lm_
           )                    );
@@ -54,7 +54,7 @@ ServiceToken
                             , ServiceLegacy iLegacy
                             )
 {
-  boost::shared_ptr<ServicesManager>
+  std::shared_ptr<ServicesManager>
     result( new ServicesManager( iToken
                                , iLegacy
                                , iPS

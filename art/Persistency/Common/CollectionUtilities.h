@@ -4,9 +4,7 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/ProductID.h"
-
-#include "boost/type_traits.hpp"
-
+#include "cpp0x/type_traits"
 #include <cstddef>
 #include <vector>
 
@@ -25,7 +23,7 @@ namespace art {
   flattenCollections(std::vector<COLLECTION const *> const &in,
                      COLLECTION &out);
 
-  // Flatten a vector of compatible PtrVectors to a single PtrVector. 
+  // Flatten a vector of compatible PtrVectors to a single PtrVector.
   template <typename T>
   void
   flattenCollections(std::vector<PtrVector<T> const *> const &in,
@@ -64,7 +62,7 @@ namespace art {
 
     // Verify a collection of PtrVector const * (alternative interface).
     template <typename iterator>
-    typename boost::enable_if_c<boost::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
+    typename std::enable_if<std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
     verifyPtrCollection(iterator beg, iterator end);
 
     // Verify a collection of Ptrs.
@@ -77,7 +75,7 @@ namespace art {
 
     // Verify a collection of const pointers to collections of Ptrs.
     template <typename iterator>
-    typename boost::disable_if_c<boost::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
+    typename std::enable_if<!std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
     verifyPtrCollection(iterator beg, iterator end);
   }
 }
@@ -89,7 +87,7 @@ art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &i
 }
 
 template <typename iterator>
-typename boost::enable_if_c<boost::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
+typename std::enable_if<std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
 art::detail::verifyPtrCollection(iterator beg, iterator end) {
   if (beg == end) return;
   art::ProductID id(beg->id());
@@ -132,7 +130,7 @@ art::detail::verifyPtrCollection(iterator beg,
 }
 
 template <typename iterator>
-typename boost::disable_if_c<boost::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
+typename std::enable_if<!std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
 art::detail::verifyPtrCollection(iterator beg, iterator end) {
   if (beg == end) return true;
   art::ProductID id;
@@ -181,7 +179,7 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
   detail::verifyPtrCollection(in);
   flattenCollections<PtrVector<T> >(in, out);
 }
-    
+
 template <class COLLECTION>
 void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,

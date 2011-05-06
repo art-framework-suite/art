@@ -28,7 +28,7 @@ namespace art {
          {
             static bool const value =
                sizeof(has_postinsert_helper<T>(0)) == sizeof(yes_tag) &&
-               !boost::is_base_of<art::DoNotSortUponInsertion, T>::value;
+               !std::is_base_of<art::DoNotSortUponInsertion, T>::value;
          };
 
       template <typename T>

@@ -114,7 +114,7 @@ namespace art {
   EventID RootInputFileSequence::seekToEvent(EventID const &eID, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(eID, true);
-    typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+    typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
     if (!found) {
       if (fileIndexes_.size() == 1) return EventID(); // Give up now.
       // Look for event in files previously opened without reopening unnecessary files.
@@ -156,7 +156,7 @@ namespace art {
     closeFile_();
   }
 
-  boost::shared_ptr<FileBlock>
+  std::shared_ptr<FileBlock>
   RootInputFileSequence::readFile_() {
     if (firstFile_) {
       // The first input file has already been opened, or a rewind has occurred.
@@ -170,7 +170,7 @@ namespace art {
       }
     }
     if (!rootFile_) {
-      return boost::shared_ptr<FileBlock>(new FileBlock);
+      return std::shared_ptr<FileBlock>(new FileBlock);
     }
     return rootFile_->createFileBlock();
   }
@@ -191,7 +191,7 @@ namespace art {
   void RootInputFileSequence::initFile(bool skipBadFiles) {
     // close the currently open file, any, and delete the RootInputFile object.
     closeFile_();
-    boost::shared_ptr<TFile> filePtr;
+    std::shared_ptr<TFile> filePtr;
     try {
       logFileAction("  Initiating request to open file ", fileIter_->fileName());
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
@@ -282,13 +282,13 @@ namespace art {
   RootInputFileSequence::~RootInputFileSequence() {
   }
 
-  boost::shared_ptr<RunPrincipal>
+  std::shared_ptr<RunPrincipal>
   RootInputFileSequence::readRun_() {
     return rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry());
   }
 
-  boost::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readSubRun_(boost::shared_ptr<RunPrincipal> rp) {
+  std::shared_ptr<SubRunPrincipal>
+  RootInputFileSequence::readSubRun_(std::shared_ptr<RunPrincipal> rp) {
     return rootFile_->readSubRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), rp);
   }
 
@@ -332,7 +332,7 @@ namespace art {
         return auto_ptr<EventPrincipal>(0);
       }
       // Look for event in files previously opened without reopening unnecessary files.
-      typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsEvent(id, exact)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -370,8 +370,8 @@ namespace art {
     return eptr;
   }
 
-  boost::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readIt(SubRunID const& id, boost::shared_ptr<RunPrincipal> rp) {
+  std::shared_ptr<SubRunPrincipal>
+  RootInputFileSequence::readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp) {
 
     // Attempt to find subRun in currently open input file.
     bool found = rootFile_->setEntryAtSubRun(id);
@@ -381,7 +381,7 @@ namespace art {
 
     if (fileIndexes_.size() > 1) {
       // Look for subRun in files previously opened without reopening unnecessary files.
-      typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsSubRun(id, true)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -405,10 +405,10 @@ namespace art {
         }
       }
     }
-    return boost::shared_ptr<SubRunPrincipal>();
+    return std::shared_ptr<SubRunPrincipal>();
   }
 
-  boost::shared_ptr<RunPrincipal>
+  std::shared_ptr<RunPrincipal>
   RootInputFileSequence::readIt(RunID const& id) {
 
     // Attempt to find run in currently open input file.
@@ -418,7 +418,7 @@ namespace art {
     }
     if (fileIndexes_.size() > 1) {
       // Look for run in files previously opened without reopening unnecessary files.
-      typedef vector<boost::shared_ptr<FileIndex> >::const_iterator Iter;
+      typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsRun(id, true)) {
           // We found it. Close the currently open file, and open the correct one.
@@ -442,7 +442,7 @@ namespace art {
         }
       }
     }
-    return boost::shared_ptr<RunPrincipal>();
+    return std::shared_ptr<RunPrincipal>();
   }
 
   input::ItemType

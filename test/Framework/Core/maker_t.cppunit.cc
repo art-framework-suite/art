@@ -41,8 +41,8 @@ void testmaker::makerTest()
     //std::cout << (*ib)->name() << std::endl;
     // }
 
-    boost::shared_ptr<ParameterSet> p1 = makePSet(*art::pset::parse(param1.c_str()));;
-    boost::shared_ptr<ParameterSet> p2 = makePSet(*art::pset::parse(param2.c_str()));;
+    std::shared_ptr<ParameterSet> p1 = makePSet(*art::pset::parse(param1.c_str()));;
+    std::shared_ptr<ParameterSet> p2 = makePSet(*art::pset::parse(param2.c_str()));;
 
     std::cerr << p1->get<std::string>("module_type");
 

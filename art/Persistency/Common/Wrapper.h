@@ -15,7 +15,6 @@
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
 #include "boost/lexical_cast.hpp"
-#include "boost/mpl/if.hpp"
 #include "cpp0x/type_traits"
 #include <deque>
 #include <list>
@@ -156,7 +155,7 @@ namespace art {
                              unsigned long index,
                              void const*& ptr) const
   {
-    typename boost::mpl::if_c<has_setPtr<T>::value,
+    typename std::conditional<has_setPtr<T>::value,
       DoSetPtr<T>,
       DoNotSetPtr<T> >::type maybe_filler;
     maybe_filler(this->obj, toType, index, ptr);
@@ -168,7 +167,7 @@ namespace art {
                                           std::vector<unsigned long> const& indices,
                                           std::vector<void const*>& ptrs) const
   {
-    typename boost::mpl::if_c<has_setPtr<T>::value,
+    typename std::conditional<has_setPtr<T>::value,
       DoSetPtr<T>,
       DoNotSetPtr<T> >::type maybe_filler;
     maybe_filler(this->obj, toType, indices, ptrs);
@@ -319,7 +318,7 @@ namespace art {
     if (present) {
       // The following will call swap if T has such a function,
       // and use assignment if T has no such function.
-      typename boost::mpl::if_c<detail::has_swap_function<T>::value,
+      typename std::conditional<detail::has_swap_function<T>::value,
         DoSwap<T>,
         DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);
@@ -336,7 +335,7 @@ namespace art {
     if (present) {
       // The following will call swap if T has such a function,
       // and use assignment if T has no such function.
-      typename boost::mpl::if_c<detail::has_swap_function<T>::value,
+      typename std::conditional<detail::has_swap_function<T>::value,
         DoSwap<T>,
         DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);
@@ -348,7 +347,7 @@ namespace art {
   template <class T>
   bool Wrapper<T>::isMergeable_() const
   {
-    typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
+    typename std::conditional<detail::has_mergeProduct_function<T>::value,
       IsMergeable<T>,
       IsNotMergeable<T> >::type is_mergeable;
   return is_mergeable(obj);
@@ -359,7 +358,7 @@ bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
 {
   Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
   if (wrappedNewProduct == 0) return false;
-  typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
+  typename std::conditional<detail::has_mergeProduct_function<T>::value,
     DoMergeProduct<T>,
     DoNotMergeProduct<T> >::type merge_product;
   return merge_product(obj, wrappedNewProduct->obj);
@@ -368,7 +367,7 @@ bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
 template <class T>
 bool Wrapper<T>::hasIsProductEqual_() const
 {
-  typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
+  typename std::conditional<detail::has_isProductEqual_function<T>::value,
     DoHasIsProductEqual<T>,
     DoNotHasIsProductEqual<T> >::type has_is_equal;
   return has_is_equal(obj);
@@ -379,7 +378,7 @@ bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
 {
   Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
   if (wrappedNewProduct == 0) return false;
-  typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
+  typename std::conditional<detail::has_isProductEqual_function<T>::value,
     DoIsProductEqual<T>,
     DoNotIsProductEqual<T> >::type is_equal;
 return is_equal(obj, wrappedNewProduct->obj);

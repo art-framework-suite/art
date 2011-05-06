@@ -21,9 +21,9 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "boost/array.hpp"
 #include "boost/noncopyable.hpp"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/array"
+#include "cpp0x/memory"
 #include <string>
 #include <vector>
 
@@ -59,7 +59,7 @@ namespace art {
     void selectProducts();
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
-    boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
 
@@ -99,7 +99,7 @@ namespace art {
     // We do not own the BranchDescriptions to which we point.
     SelectionsArray keptProducts_;
 
-    boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
+    std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
     GroupSelectorRules groupSelectorRules_;
@@ -162,7 +162,7 @@ namespace art {
     // the appropriate tests have been done.
     void reallyCloseFile();
 
-    void registerAnyProducts(boost::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
+    void registerAnyProducts(std::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
 
     // Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}

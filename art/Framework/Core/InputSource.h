@@ -12,8 +12,7 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "boost/shared_ptr.hpp"
-#include <memory>
+#include "cpp0x/memory"
 
 namespace art
 {
@@ -69,11 +68,11 @@ namespace art
     virtual input::ItemType nextItemType() = 0;
     virtual RunNumber_t run() const = 0;
     virtual SubRunNumber_t subRun() const = 0;
-    virtual boost::shared_ptr<FileBlock> readFile() = 0;
+    virtual std::shared_ptr<FileBlock> readFile() = 0;
     virtual void closeFile() = 0;
-    virtual boost::shared_ptr<RunPrincipal> readRun() = 0;
-    virtual boost::shared_ptr<SubRunPrincipal> readSubRun(boost::shared_ptr<RunPrincipal> rp) = 0;
-    virtual std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<SubRunPrincipal> srp) = 0;
+    virtual std::shared_ptr<RunPrincipal> readRun() = 0;
+    virtual std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) = 0;
+    virtual std::auto_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) = 0;
   };
 }
 

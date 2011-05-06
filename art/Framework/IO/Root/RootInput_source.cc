@@ -65,7 +65,7 @@ void RootInput::AccessState::setWantedEventID(EventID const &eid) {
 
 void
 RootInput::AccessState::
-setRootFileForLastReadEvent(boost::shared_ptr<RootInputFile> const &ptr) {
+setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const &ptr) {
   rootFileForLastReadEvent_ = ptr; 
 }
 
@@ -75,7 +75,7 @@ RootInput::endJob()
   primaryFileSequence_->endJob();
 }
 
-boost::shared_ptr<FileBlock>
+std::shared_ptr<FileBlock>
 RootInput::readFile_( )
 {
   return primaryFileSequence_->readFile_();
@@ -87,13 +87,13 @@ RootInput::closeFile_( )
   primaryFileSequence_->closeFile_();
 }
 
-boost::shared_ptr<RunPrincipal>
+std::shared_ptr<RunPrincipal>
 RootInput::readRun_( )
 {
   return primaryFileSequence_->readRun_();
 }
 
-boost::shared_ptr<SubRunPrincipal>
+std::shared_ptr<SubRunPrincipal>
 RootInput::readSubRun_( )
 {
   return primaryFileSequence_->readSubRun_(runPrincipal());
@@ -119,7 +119,7 @@ RootInput::nextItemType() {
 }
 
 std::auto_ptr<EventPrincipal>
-RootInput::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
+RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -141,8 +141,8 @@ RootInput::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
   }
 }
 
-boost::shared_ptr<SubRunPrincipal>
-RootInput::readSubRun(boost::shared_ptr<RunPrincipal> rp)
+std::shared_ptr<SubRunPrincipal>
+RootInput::readSubRun(std::shared_ptr<RunPrincipal> rp)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -159,7 +159,7 @@ RootInput::readSubRun(boost::shared_ptr<RunPrincipal> rp)
   }
 }
 
-boost::shared_ptr<RunPrincipal>
+std::shared_ptr<RunPrincipal>
 RootInput::readRun()
 {
   switch (accessState_.state()) {
@@ -175,7 +175,7 @@ RootInput::readRun()
   }
 }
 
-boost::shared_ptr<FileBlock>
+std::shared_ptr<FileBlock>
 RootInput::readFile() {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:

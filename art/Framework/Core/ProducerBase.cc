@@ -3,10 +3,10 @@
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/ProducerBase.h"
-#include "art/Framework/Core/TypeLabelList.h"
 
-#include "art/Framework/Services/System/ConstProductRegistry.h"
+#include "art/Framework/Core/TypeLabelList.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include <sstream>
@@ -23,7 +23,7 @@ namespace art
   { }
 
 
-  typedef boost::function<void(const BranchDescription&)> callback_t;
+  typedef std::function<void(const BranchDescription&)> callback_t;
 
   callback_t
   ProducerBase::registrationCallback() const
@@ -35,7 +35,7 @@ namespace art
   {
     class CallbackWrapper {
     public:
-      CallbackWrapper(boost::shared_ptr<ProducerBase> producer,
+      CallbackWrapper(std::shared_ptr<ProducerBase> producer,
                       callback_t callback,
                       ProductRegistry* preg,
                       const ModuleDescription& md) :
@@ -79,7 +79,7 @@ namespace art
 
 
   void
-  ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> producer,
+  ProducerBase::registerProducts(std::shared_ptr<ProducerBase> producer,
                                  ProductRegistry* preg,
                                  ModuleDescription const& md)
   {

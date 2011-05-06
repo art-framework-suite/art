@@ -1,11 +1,10 @@
-#include <cassert>
-#include <cstddef>
-#include <string>
-#include <iostream>
-
-#include "cetlib/exception.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/exception.h"
+#include <cassert>
+#include <cstddef>
+#include <iostream>
+#include <string>
 
 namespace
 {

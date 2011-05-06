@@ -160,7 +160,7 @@
 // ======================================================================
 
 #include "art/Persistency/Common/RNGsnapshot.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <string>
@@ -200,7 +200,7 @@ public:
   // --- Internal state characteristics:
   enum     init_t  { VIA_SEED=1, VIA_FILE, VIA_PRODUCT };
   typedef  RNGsnapshot::label_t              label_t;
-  typedef  boost::shared_ptr<base_engine_t>  eptr_t;
+  typedef  std::shared_ptr<base_engine_t>  eptr_t;
   typedef  std::map<label_t,eptr_t>          dict_t;
   typedef  std::map<label_t,init_t>          tracker_t;
   typedef  std::map<label_t,std::string>     kind_t;

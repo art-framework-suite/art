@@ -352,12 +352,12 @@ void testEvent::setUp()
   EventID id = make_id();
   ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
   RunAuxiliary runAux(id.run(), time, time);
-  boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
+  std::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
   SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
-  boost::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, preg, pc));
+  std::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, preg, pc));
   srp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, time, true);
-  boost::shared_ptr<History> history(new History);
+  std::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
   principal_  = new EventPrincipal(eventAux,
 				   preg,

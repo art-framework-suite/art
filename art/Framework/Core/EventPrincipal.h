@@ -18,9 +18,8 @@ is the DataBlock.
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/History.h"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
-#include <memory>
+#include "cpp0x/memory"
 #include <vector>
 
 namespace art {
@@ -40,21 +39,21 @@ namespace art {
     EventPrincipal(EventAuxiliary const& aux,
                    cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        std::shared_ptr<History> history = std::shared_ptr<History>(new History),
+        std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
+        std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~EventPrincipal() {}
 
     SubRunPrincipal const& subRunPrincipal() const;
 
     SubRunPrincipal & subRunPrincipal();
 
-    boost::shared_ptr<SubRunPrincipal>
+    std::shared_ptr<SubRunPrincipal>
     subRunPrincipalSharedPtr() {
       return subRunPrincipal_;
     }
 
-    void setSubRunPrincipal(boost::shared_ptr<SubRunPrincipal> srp) {
+    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) {
       subRunPrincipal_ = srp;
     }
 
@@ -92,7 +91,7 @@ namespace art {
 
     void addOnDemandGroup(ConstBranchDescription const& desc);
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
+    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler);
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
@@ -117,9 +116,9 @@ namespace art {
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
     void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-         boost::shared_ptr<ProductProvenance> productProvenance);
+         std::shared_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, boost::shared_ptr<ProductProvenance> productProvenance);
+    void addGroup(ConstBranchDescription const& bd, std::shared_ptr<ProductProvenance> productProvenance);
 
     virtual EDProduct const* getIt(ProductID const& pid) const;
 
@@ -142,14 +141,14 @@ namespace art {
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
     EventAuxiliary aux_;
-    boost::shared_ptr<SubRunPrincipal> subRunPrincipal_;
+    std::shared_ptr<SubRunPrincipal> subRunPrincipal_;
 
     // Handler for unscheduled modules
-    boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
+    std::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
     mutable std::vector<std::string> moduleLabelsRunning_;
 
-    boost::shared_ptr<History> history_;
+    std::shared_ptr<History> history_;
 
     std::map<BranchListIndex, ProcessIndex> branchToProductIDHelper_;
 

@@ -46,7 +46,7 @@ namespace art {
                      string const& catalogName,
                      ProcessConfiguration const& processConfiguration,
                      string const& logicalFileName,
-                     boost::shared_ptr<TFile> filePtr,
+                     std::shared_ptr<TFile> filePtr,
                      EventID const &origEventID,
                      unsigned int eventsToSkip,
                      vector<SubRunID> const& whichSubRunsToSkip,
@@ -59,7 +59,7 @@ namespace art {
                      bool noEventSort,
                      GroupSelectorRules const& groupSelectorRules,
                      bool dropMergeable,
-                     boost::shared_ptr<DuplicateChecker> duplicateChecker,
+                     std::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants) :
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -283,9 +283,9 @@ namespace art {
      return forcedRunOffset_;
   }
 
-  boost::shared_ptr<FileBlock>
+  std::shared_ptr<FileBlock>
   RootInputFile::createFileBlock() const {
-    return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion_,
+    return std::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion_,
                                                      eventTree_.tree(),
                                                      eventTree_.metaTree(),
                                                      subRunTree_.tree(),
@@ -595,7 +595,7 @@ namespace art {
     // the const_cast.
     overrideRunNumber(const_cast<EventID&>(eventAux_.id()), eventAux_.isRealData());
 
-    boost::shared_ptr<BranchMapper> mapper =
+    std::shared_ptr<BranchMapper> mapper =
         makeBranchMapper<ProductProvenance>(eventTree_, InEvent);
 
     // We're not done ... so prepare the EventPrincipal
@@ -617,7 +617,7 @@ namespace art {
     eventTree_.setEntryNumber(entry);
   }
 
-  boost::shared_ptr<RunPrincipal>
+  std::shared_ptr<RunPrincipal>
   RootInputFile::readRun(cet::exempt_ptr<ProductRegistry const> pReg) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
@@ -635,7 +635,7 @@ namespace art {
       runAux_.beginTime_ = eventAux_.time();
       runAux_.endTime_ = Timestamp::invalidTimestamp();
     }
-    boost::shared_ptr<RunPrincipal> thisRun(
+    std::shared_ptr<RunPrincipal> thisRun(
         new RunPrincipal(runAux_,
                          pReg,
                          processConfiguration_,
@@ -649,8 +649,8 @@ namespace art {
     return thisRun;
   }
 
-  boost::shared_ptr<SubRunPrincipal>
-  RootInputFile::readSubRun(cet::exempt_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
+  std::shared_ptr<SubRunPrincipal>
+  RootInputFile::readSubRun(cet::exempt_ptr<ProductRegistry const> pReg, std::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -669,7 +669,7 @@ namespace art {
       subRunAux_.beginTime_ = eventAux_.time();
       subRunAux_.endTime_ = Timestamp::invalidTimestamp();
     }
-    boost::shared_ptr<SubRunPrincipal> thisSubRun(
+    std::shared_ptr<SubRunPrincipal> thisSubRun(
         new SubRunPrincipal(subRunAux_,
                                      pReg, processConfiguration_,
                                      makeBranchMapper<ProductProvenance>(subRunTree_, InSubRun),
@@ -803,7 +803,7 @@ namespace art {
         BranchDescription const& prod = it->second;
         if (prod.branchType() != InEvent) {
           TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
-          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+          std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
           if (dummy->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
             ProductRegistry::ProductList::iterator icopy = it;

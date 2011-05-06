@@ -1,15 +1,13 @@
-
 #include "art/Utilities/CRC32Calculator.h"
-
 
 namespace art {
 
   namespace {
 
-    const boost::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
-    const boost::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
+    const std::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
+    const std::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
 
-    boost::uint32_t crctable[256] =
+    std::uint32_t crctable[256] =
     {
       0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL,
       0x076DC419L, 0x706AF48FL, 0xE963A535L, 0x9E6495A3L,
@@ -76,7 +74,7 @@ namespace art {
       0xB3667A2EL, 0xC4614AB8L, 0x5D681B02L, 0x2A6F2B94L,
       0xB40BBE37L, 0xC30C8EA1L, 0x5A05DF1BL, 0x2D02EF8DL
     };
-  }
+  }  // namespace
 
   CRC32Calculator::CRC32Calculator(std::string const& message) {
 
@@ -94,4 +92,5 @@ namespace art {
     /* return XOR out value */
     checksum_ = checksum_ ^ CRC32_XOROT;
   }
-}
+
+}  // art

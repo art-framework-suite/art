@@ -8,13 +8,12 @@
 #undef AR_IMPL
 
 #include "art/Framework/Core/Run.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLoggerQ.h"
-
 #include <algorithm>
 
 
@@ -172,7 +171,7 @@ copySlotsToFrom(T& iTo, T& iFrom)
 {
   typename T::slot_list_type slots = iFrom.slots();
 
-  for_all(slots, boost::bind( &T::connect, iTo, _1) );
+  for_all(slots, std::bind( &T::connect, iTo, _1) );
 }
 
 template<class T>
@@ -196,7 +195,7 @@ copySlotsToFromReverse(T& iTo, T& iFrom)
   reverse(slotsTo.begin(), slotsTo.end());
   reverse(slotsFrom.begin(), slotsFrom.end());
 
-  for_all(slotsFrom, boost::bind( &T::connect, iTo, _1) );
+  for_all(slotsFrom, std::bind( &T::connect, iTo, _1) );
 
   reverse(slotsTo.begin(), slotsTo.end());
 

@@ -9,10 +9,10 @@
 //
 // ======================================================================
 
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "sigc++/signal.h"
 #include "sigc++/connection.h"
-#include "boost/bind.hpp"
+#include "cpp0x/functional"
 
 namespace art {
   template< class Func, class T1=void*, class T2=void*, class T3=void* >
@@ -24,8 +24,8 @@ namespace art {
     void
       operator () ()
     {
-      boost::shared_ptr<void> guard( static_cast<void*>(0)
-                                   , boost::bind(&BlockingWrapper::unblock,this)
+      std::shared_ptr<void> guard( static_cast<void*>(0)
+                                   , std::bind(&BlockingWrapper::unblock,this)
                                    );
       if( startBlocking() ) { func_(); }
     }
@@ -33,8 +33,8 @@ namespace art {
     void
       operator () (T1 iT)
     {
-      boost::shared_ptr<void> guard( static_cast<void*>(0)
-                                   , boost::bind(&BlockingWrapper::unblock,this)
+      std::shared_ptr<void> guard( static_cast<void*>(0)
+                                   , std::bind(&BlockingWrapper::unblock,this)
                                    );
       if( startBlocking() ) { func_(iT); }
     }
@@ -42,8 +42,8 @@ namespace art {
     void
       operator () (T1 iT1, T2 iT2)
     {
-      boost::shared_ptr<void> guard( static_cast<void*>(0)
-                                   , boost::bind(&BlockingWrapper::unblock,this)
+      std::shared_ptr<void> guard( static_cast<void*>(0)
+                                   , std::bind(&BlockingWrapper::unblock,this)
                                    );
       if( startBlocking() ) { func_(iT1,iT2); }
     }
@@ -51,8 +51,8 @@ namespace art {
     void
       operator () (T1 iT1, T2 iT2, T3 iT3)
     {
-      boost::shared_ptr<void> guard( static_cast<void*>(0)
-                                   , boost::bind(&BlockingWrapper::unblock,this)
+      std::shared_ptr<void> guard( static_cast<void*>(0)
+                                   , std::bind(&BlockingWrapper::unblock,this)
                                    );
       if( startBlocking() ) { func_(iT1,iT2,iT3); }
     }
@@ -87,8 +87,8 @@ namespace art {
   void
     connect_but_block_self(Signal& oSignal, const Func& iFunc)
   {
-    boost::shared_ptr<boost::shared_ptr<sigc::connection> > holder(new boost::shared_ptr<sigc::connection>());
-    *holder = boost::shared_ptr<sigc::connection>(
+    std::shared_ptr<std::shared_ptr<sigc::connection> > holder(new std::shared_ptr<sigc::connection>());
+    *holder = std::shared_ptr<sigc::connection>(
     new sigc::connection(oSignal.connect( make_blockingwrapper(iFunc, static_cast<const typename Signal::slot_type*>(0)))));
   }
 

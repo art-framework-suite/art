@@ -3,41 +3,16 @@
 // Package:    WhatsItWatcherAnalyzer
 // Class:      WhatsItWatcherAnalyzer
 //
-/**\class WhatsItWatcherAnalyzer WhatsItWatcherAnalyzer.cc test/WhatsItWatcherAnalyzer/src/WhatsItWatcherAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Fri Jun 24 19:13:25 EDT 2005
-//
-//
-//
 
 
-// system include files
-#include <memory>
-#include <iostream>
-
-// user include files
-#include "art/Framework/Core/EDAnalyzer.h"
-
-#include "art/Framework/Core/ModuleMacros.h"
-
-
-#include "FWCore/Integration/test/WhatsIt.h"
 #include "FWCore/Integration/test/GadgetRcd.h"
-
+#include "FWCore/Integration/test/WhatsIt.h"
+#include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ESHandle.h"
-
 #include "art/Framework/Core/ESWatcher.h"
-
-//
-// class decleration
-//
+#include "art/Framework/Core/ModuleMacros.h"
+#include <iostream>
+#include <memory>
 
 namespace arttest {
 
@@ -60,19 +35,11 @@ class WhatsItWatcherAnalyzer : public art::EDAnalyzer {
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const fhicl::ParameterSet& /*iConfig*/):
   watch1_(this,&WhatsItWatcherAnalyzer::watch1),
-  watch2_(boost::bind(&WhatsItWatcherAnalyzer::watch2,this,_1)),
+  watch2_(std::bind(&WhatsItWatcherAnalyzer::watch2,this,_1)),
   watchBool_()
 {
    //now do what ever initialization is needed

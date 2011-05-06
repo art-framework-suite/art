@@ -420,7 +420,7 @@ namespace art {
     for(vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
-      boost::shared_ptr<ProductProvenance> info = iMapper.branchToEntryInfo(*it);
+      std::shared_ptr<ProductProvenance> info = iMapper.branchToEntryInfo(*it);
       if(info) {
         if(om_->dropMetaData() == RootOutput::DropNone ||
                  principal.getProvenance(info->branchID()).product().produced()) {
@@ -438,7 +438,7 @@ namespace art {
                 Principal const& principal,
                 vector<ProductProvenance>* productProvenanceVecPtr) {
 
-    vector<boost::shared_ptr<EDProduct> > dummies;
+    vector<std::shared_ptr<EDProduct> > dummies;
 
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
 
@@ -485,7 +485,7 @@ namespace art {
           // No product with this ID is in the event.
           // Add a null product.
           TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
-          boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+          std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
           dummies.push_back(dummy);
           product = dummy.get();
         }

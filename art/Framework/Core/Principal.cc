@@ -25,10 +25,10 @@ namespace art {
    Principal::Principal(cet::exempt_ptr<ProductRegistry const> reg,
                        ProcessConfiguration const& pc,
                        ProcessHistoryID const& hist,
-                       boost::shared_ptr<BranchMapper> mapper,
-                       boost::shared_ptr<DelayedReader> rtrv) :
+                       std::shared_ptr<BranchMapper> mapper,
+                       std::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
-    processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
+    processHistoryPtr_(std::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),
     groups_(),
@@ -151,7 +151,7 @@ namespace art {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
+      std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
         << "getBySelector: Found zero products matching all criteria\n"
         << "Looking for type: " << productType << "\n";
@@ -185,7 +185,7 @@ namespace art {
                             true);
 
     if (nFound == 0) {
-      boost::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
+      std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
         << "getByLabel: Found zero products matching all criteria\n"
         << "Looking for type: " << productType << "\n"

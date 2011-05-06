@@ -14,8 +14,7 @@ is the storage unit of such information.
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Provenance.h"
-#include "boost/shared_ptr.hpp"
-#include <memory>
+#include "cpp0x/memory"
 
 namespace art {
   class Group {
@@ -38,11 +37,11 @@ namespace art {
     Group(std::auto_ptr<EDProduct> edp,
           ConstBranchDescription const& bd,
           ProductID const& pid,
-          boost::shared_ptr<ProductProvenance> productProvenance);
+          std::shared_ptr<ProductProvenance> productProvenance);
 
     Group(ConstBranchDescription const& bd,
           ProductID const& pid,
-          boost::shared_ptr<ProductProvenance> productProvenance);
+          std::shared_ptr<ProductProvenance> productProvenance);
 
     ~Group();
 
@@ -57,9 +56,9 @@ namespace art {
     // Scheduled for on demand production
     bool onDemand() const;
 
-    boost::shared_ptr<EDProduct> product() const { return product_; }
+    std::shared_ptr<EDProduct> product() const { return product_; }
 
-    boost::shared_ptr<ProductProvenance> productProvenancePtr() const {return productProvenance_;}
+    std::shared_ptr<ProductProvenance> productProvenancePtr() const {return productProvenance_;}
 
     ConstBranchDescription const& productDescription() const {return *branchDescription_;}
 
@@ -81,7 +80,7 @@ namespace art {
     // The following is const because we can add the provenance
     // to the cache after creation of the Group, without changing the meaning
     // of the Group.
-    void setProvenance(boost::shared_ptr<ProductProvenance> productProvenance) const;
+    void setProvenance(std::shared_ptr<ProductProvenance> productProvenance) const;
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -109,11 +108,11 @@ namespace art {
     Group(const Group&);
     void operator=(const Group&);
 
-    mutable boost::shared_ptr<EDProduct> product_;
-    boost::shared_ptr<ConstBranchDescription> branchDescription_;
+    mutable std::shared_ptr<EDProduct> product_;
+    std::shared_ptr<ConstBranchDescription> branchDescription_;
     mutable ProductID pid_;
-    mutable boost::shared_ptr<ProductProvenance> productProvenance_;
-    mutable boost::shared_ptr<Provenance> prov_;
+    mutable std::shared_ptr<ProductProvenance> productProvenance_;
+    mutable std::shared_ptr<Provenance> prov_;
     bool    dropped_;
     bool    onDemand_;
   };

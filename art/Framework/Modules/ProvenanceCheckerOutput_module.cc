@@ -10,7 +10,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -56,7 +56,7 @@ namespace art {
          if(oMap.find(*it) == oMap.end()) {
             //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
             oMap[*it];
-            boost::shared_ptr<ProductProvenance> pInfo = iMapper.branchToEntryInfo(*it);
+            std::shared_ptr<ProductProvenance> pInfo = iMapper.branchToEntryInfo(*it);
             if(pInfo.get()) {
                markAncestors(*pInfo,iMapper,oMap,oMapperMissing);
             } else {
@@ -69,7 +69,7 @@ namespace art {
     void
    ProvenanceCheckerOutput::write(EventPrincipal const& e) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
-      boost::shared_ptr<BranchMapper> mapperPtr= e.branchMapperPtr();
+      std::shared_ptr<BranchMapper> mapperPtr= e.branchMapperPtr();
 
       std::map<BranchID,bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
@@ -86,7 +86,7 @@ namespace art {
                missingProductProvenance.insert(it->first);
                continue;
             }
-            boost::shared_ptr<ProductProvenance> pInfo = mapperPtr->branchToEntryInfo(it->first);
+            std::shared_ptr<ProductProvenance> pInfo = mapperPtr->branchToEntryInfo(it->first);
             if(!pInfo.get()) {
                missingFromMapper.insert(it->first);
             }

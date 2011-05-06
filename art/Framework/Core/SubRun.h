@@ -16,8 +16,7 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "boost/shared_ptr.hpp"
-#include <memory>
+#include "cpp0x/memory"
 #include <utility>
 
 namespace art {
@@ -86,7 +85,7 @@ namespace art {
     void commit_();
 
     SubRunAuxiliary const& aux_;
-    boost::shared_ptr<Run const> const run_;
+    std::shared_ptr<Run const> const run_;
   };
 
   template <typename PROD>

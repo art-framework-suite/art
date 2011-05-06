@@ -1,22 +1,19 @@
 
-#include "art/Framework/PluginManager/ProblemTracker.h"
 #include "FWCore/ServiceRegistry/test/stubs/DummyServiceE0.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Framework/PluginManager/ProblemTracker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Framework/Services/Registry/ServicesManager.h"
+#include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
+#include <cstdlib>
+#include <iostream>
+#include <vector>
 
 //NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'
 #define private public
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #undef private
-
-#include "boost/shared_ptr.hpp"
-
-#include <cstdlib>
-#include <vector>
-#include <memory>
-#include <iostream>
 
 int main()
 {
@@ -41,12 +38,12 @@ int main()
   // demand is also tested.
 
   std::vector<fhicl::ParameterSet> vps;
-  boost::shared_ptr<ServicesManager> legacy(new ServicesManager(vps));
+  std::shared_ptr<ServicesManager> legacy(new ServicesManager(vps));
 
   art::ActivityRegistry ar;
   fhicl::ParameterSet pset;
   std::auto_ptr<Service0> s0(new Service0(pset, ar));
-  boost::shared_ptr<ServiceWrapper<Service0> >
+  std::shared_ptr<ServiceWrapper<Service0> >
       wrapper (new ServiceWrapper<Service0>(s0));
   legacy->put(wrapper);
   legacy->copySlotsFrom(ar);
@@ -74,7 +71,7 @@ int main()
   ps2.addParameter("service_type", typeName2);
   vps1.push_back(ps2);
 
-  boost::shared_ptr<ServicesManager> legacy2(new ServicesManager(legacyToken,
+  std::shared_ptr<ServicesManager> legacy2(new ServicesManager(legacyToken,
                                                                  kTokenOverrides,
                                                                  vps1));
   art::ServiceToken legacyToken2(legacy2);
@@ -85,7 +82,7 @@ int main()
   art::ActivityRegistry ar4;
   fhicl::ParameterSet pset4;
   std::auto_ptr<Service4> s4(new Service4(pset4, ar4));
-  boost::shared_ptr<ServiceWrapper<Service4> >
+  std::shared_ptr<ServiceWrapper<Service4> >
       wrapper4 (new ServiceWrapper<Service4>(s4));
   sm.put(wrapper4);
   sm.copySlotsFrom(ar4);

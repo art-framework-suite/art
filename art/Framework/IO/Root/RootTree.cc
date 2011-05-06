@@ -28,7 +28,7 @@ namespace art {
     }
   }  // namespace
 
-  RootTree::RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType) :
+  RootTree::RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType) :
     filePtr_(filePtr),
     tree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()) : 0)),
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
@@ -98,9 +98,9 @@ namespace art {
       }
   }
 
-  boost::shared_ptr<DelayedReader>
+  std::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader(bool oldFormat) const {
-    boost::shared_ptr<DelayedReader>
+    std::shared_ptr<DelayedReader>
         store(new RootDelayedReader(entryNumber_, branches_, filePtr_, oldFormat));
     return store;
   }

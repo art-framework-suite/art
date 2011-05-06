@@ -1,15 +1,14 @@
-#include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
+
+#include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
-#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
+#include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "boost/regex.hpp"
-
 #include <cassert>
 #include <functional>
 
@@ -34,10 +33,10 @@ namespace {
   private:
     art::EventIDIndex const &index_;
   };
-    
 
-  boost::regex const & modeRegex() {
-    static boost::regex r("^seq", boost::regex_constants::icase);
+
+  std::regex const & modeRegex() {
+    static std::regex r("^seq", std::regex_constants::icase);
     return r;
   }
 }
@@ -83,8 +82,8 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   mixOps_(),
   ptrRemapper_(),
   currentFilename_(filenames_.begin()),
-  readMode_(boost::regex_search(pset.get<std::string>("readMode", "sequential"),
-                                modeRegex())?SEQUENTIAL:RANDOM),
+  readMode_(std::regex_search(pset.get<std::string>("readMode", "sequential"),
+                              modeRegex())?SEQUENTIAL:RANDOM),
   coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
   nEventsRead_(0),
   nEventsInFile_(0),
@@ -157,7 +156,7 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
   BranchIDLists branchIDLists;
   BranchIDLists *branchIDLists_p = &branchIDLists;
   setMetaDataBranchAddress(currentMetaDataTree_, branchIDLists_p);
-  
+
   Int_t n = currentMetaDataTree_->GetEntry(0);
   switch (n) {
   case -1:
@@ -190,7 +189,7 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
   dataBranches_.reset(currentEventTree_.get());
 
   // Prepare to read EventHistory tree.
-  TTree* ehTree = 
+  TTree* ehTree =
     dynamic_cast<TTree*>(currentFile_->
                          Get(rootNames::eventHistoryTreeName().c_str()));
   if (ehTree == 0) {
@@ -278,7 +277,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const &enSeq,
 }
 
 void
-art::MixHelper::mixAndPutOne(boost::shared_ptr<MixOpBase> op,
+art::MixHelper::mixAndPutOne(std::shared_ptr<MixOpBase> op,
                              EntryNumberSequence const &enSeq,
                              Event &e) {
   op->readFromFile(enSeq);

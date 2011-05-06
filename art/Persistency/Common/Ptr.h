@@ -16,8 +16,7 @@
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
-#include "boost/type_traits/is_base_of.hpp"
-#include "boost/utility/enable_if.hpp"
+#include "cpp0x/type_traits"
 #include <cstddef>
 #include <list>
 #include <vector>
@@ -84,7 +83,7 @@ namespace art
     { }
 
     template<typename U>
-    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
+    Ptr(Ptr<U> const& iOther, typename std::enable_if<std::is_base_of<T, U>::value>::type * = 0):
       core_(iOther.id(),
             (iOther.hasCache()? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
             iOther.productGetter()),
@@ -93,7 +92,7 @@ namespace art
 
     template<typename U>
     explicit
-    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<U, T>::value>::type * = 0):
+    Ptr(Ptr<U> const& iOther, typename std::enable_if<std::is_base_of<U, T>::value>::type * = 0):
       core_(iOther.id(),
             dynamic_cast<T const*>(iOther.get()),
             0),
@@ -249,7 +248,7 @@ namespace art
   void
   fill_ptr_vector(std::vector<Ptr<T> >& ptrs, Handle<C> const& h)
   {
-    for (size_t i = 0, sz = h->size(); i != sz; ++i)
+    for (std::size_t i = 0, sz = h->size(); i != sz; ++i)
       ptrs.push_back(Ptr<T>(h, i));
   }
 
@@ -258,7 +257,7 @@ namespace art
   void
   fill_ptr_list(std::list<Ptr<T> >& ptrs, Handle<C> const& h)
   {
-    for (size_t i = 0, sz = h->size(); i != sz; ++i)
+    for (std::size_t i = 0, sz = h->size(); i != sz; ++i)
       ptrs.push_back(Ptr<T>(h, i));
   }
 

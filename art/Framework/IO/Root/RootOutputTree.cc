@@ -1,14 +1,14 @@
 #include "art/Framework/IO/Root/RootOutputTree.h"
 
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/Exception.h"
-#include "boost/bind.hpp"
-#include "cetlib/container_algorithms.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "Rtypes.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTreeCloner.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/Exception.h"
+#include "cetlib/container_algorithms.h"
+#include "cpp0x/functional"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <limits>
 
 
@@ -88,7 +88,7 @@ namespace art {
 
   void
   RootOutputTree::fillTTree(TTree * tree, vector<TBranch *> const& branches) {
-    for_all(branches, boost::bind(&TBranch::Fill, _1));
+    for_all(branches, bind(&TBranch::Fill, _1));
   }
 
   void

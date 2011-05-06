@@ -33,7 +33,7 @@ namespace
 
 namespace art {
 
-  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
+  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg) :
     m_workerMap(),
     actReg_(areg)
   { }

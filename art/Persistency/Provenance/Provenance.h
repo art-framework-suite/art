@@ -14,7 +14,7 @@ existence.
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 
@@ -36,8 +36,8 @@ namespace art {
   public:
     explicit Provenance(ConstBranchDescription const& p, ProductID const& pid);
     explicit Provenance(BranchDescription const& p, ProductID const& pid);
-    Provenance(ConstBranchDescription const& p, ProductID const& pid, boost::shared_ptr<ProductProvenance> entryDesc);
-    Provenance(BranchDescription const& p, ProductID const& pid, boost::shared_ptr<ProductProvenance> entryDesc);
+    Provenance(ConstBranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> entryDesc);
+    Provenance(BranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> entryDesc);
 
     ~Provenance() {}
 
@@ -47,8 +47,8 @@ namespace art {
     BranchDescription const& branchDescription() const {return branchDescription_.me();}
     ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
     ProductProvenance const* productProvenancePtr() const {return productProvenancePtr_.get();}
-    boost::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {return productProvenancePtr_;}
-    boost::shared_ptr<ProductProvenance> resolve() const;
+    std::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {return productProvenancePtr_;}
+    std::shared_ptr<ProductProvenance> resolve() const;
     ProductProvenance const& productProvenance() const {
       if (productProvenancePtr_.get()) return *productProvenancePtr_;
       return *resolve();
@@ -70,17 +70,17 @@ namespace art {
 
     void write(std::ostream& os) const;
 
-    void setProductProvenance(boost::shared_ptr<ProductProvenance> bei) const;
+    void setProductProvenance(std::shared_ptr<ProductProvenance> bei) const;
 
-    void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
+    void setStore(std::shared_ptr<BranchMapper> store) const {store_ = store;}
 
     ProductID const& productID() const {return productID_;}
 
   private:
     ConstBranchDescription const branchDescription_;
     ProductID productID_;
-    mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
-    mutable boost::shared_ptr<BranchMapper> store_;
+    mutable std::shared_ptr<ProductProvenance> productProvenancePtr_;
+    mutable std::shared_ptr<BranchMapper> store_;
   };
 
   inline

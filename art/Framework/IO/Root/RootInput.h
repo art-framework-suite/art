@@ -7,22 +7,19 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
-#include "art/Framework/IO/Catalog/InputFileCatalog.h"
-#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "boost/array.hpp"
 #include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
-#include "boost/type_traits.hpp"
-#include "boost/utility.hpp"
+#include "cpp0x/array"
+#include "cpp0x/memory"
+#include "cpp0x/type_traits"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,8 +44,8 @@ public:
 
 private:
   InputFileCatalog  catalog_;
-  boost::scoped_ptr< RootInputFileSequence >             primaryFileSequence_;
-  boost::array< std::vector<BranchID>, NumBranchTypes >  branchIDsToReplace_;
+  boost::scoped_ptr< RootInputFileSequence >           primaryFileSequence_;
+  std::array< std::vector<BranchID>, NumBranchTypes >  branchIDsToReplace_;
 
   class AccessState {
   public:
@@ -78,41 +75,41 @@ private:
 
     void setWantedEventID(EventID const &eid);
 
-    boost::shared_ptr<RootInputFile> rootFileForLastReadEvent() const {
+    std::shared_ptr<RootInputFile> rootFileForLastReadEvent() const {
       return rootFileForLastReadEvent_;
     }
 
-    void setRootFileForLastReadEvent(boost::shared_ptr<RootInputFile> const
+    void setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const
                                      &ptr);
 
   private:
     State state_;
     EventID lastReadEventID_;
-    boost::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
+    std::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
     EventID wantedEventID_;
   };
 
   AccessState accessState_;
 
-  typedef  boost::shared_ptr<RootInputFile>  RootInputFileSharedPtr;
+  typedef  std::shared_ptr<RootInputFile>  RootInputFileSharedPtr;
   typedef  input::EntryNumber           EntryNumber;
 
   virtual input::ItemType nextItemType();
   virtual std::auto_ptr<EventPrincipal>
-  readEvent(boost::shared_ptr<SubRunPrincipal> srp);
-  virtual boost::shared_ptr<SubRunPrincipal>
-  readSubRun(boost::shared_ptr<RunPrincipal> rp);
-  virtual boost::shared_ptr<RunPrincipal>
+  readEvent(std::shared_ptr<SubRunPrincipal> srp);
+  virtual std::shared_ptr<SubRunPrincipal>
+  readSubRun(std::shared_ptr<RunPrincipal> rp);
+  virtual std::shared_ptr<RunPrincipal>
   readRun();
-  virtual boost::shared_ptr<FileBlock>
+  virtual std::shared_ptr<FileBlock>
   readFile();
   virtual std::auto_ptr<EventPrincipal>
   readEvent_( );
-  virtual boost::shared_ptr<SubRunPrincipal>
+  virtual std::shared_ptr<SubRunPrincipal>
   readSubRun_( );
-  virtual boost::shared_ptr<RunPrincipal>
+  virtual std::shared_ptr<RunPrincipal>
   readRun_( );
-  virtual boost::shared_ptr<FileBlock>
+  virtual std::shared_ptr<FileBlock>
   readFile_( );
   virtual void
   closeFile_( );
@@ -127,13 +124,13 @@ private:
   virtual void
   rewind_( );
 
-  template <typename T> 
+  template <typename T>
   EventID postSeekChecks(EventID const &foundID, T eventSpec,
-                         typename boost::enable_if<boost::is_convertible<T, off_t> >::type *dummy = 0);
+                         typename std::enable_if<std::is_convertible<T, off_t>::value >::type * = 0);
 
   template <typename T>
   EventID postSeekChecks(EventID const &foundID, T eventSpec,
-                         typename boost::disable_if<boost::is_convertible<T, off_t> >::type *dummy = 0);
+                         typename std::enable_if<! std::is_convertible<T, off_t>::value >::type * = 0);
 }; // RootInput
 
 template <typename T>
@@ -164,10 +161,10 @@ bool art::RootInput::seekToEvent(T eventSpec, bool exact) {
 }
 
 template <typename T>
-art::EventID 
+art::EventID
 art::RootInput::postSeekChecks(EventID const &foundID,
                                T eventspec,
-                               typename boost::enable_if<boost::is_convertible<T, off_t> >::type *) {
+                               typename std::enable_if<std::is_convertible<T, off_t>::value >::type *) {
   if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
     // We're supposed to be reading the, "next" event but it's a
     // duplicate of the current one: skip it.
@@ -184,7 +181,7 @@ template <typename T>
 art::EventID
 art::RootInput::postSeekChecks(EventID const &foundID,
                                T eventspec,
-                               typename boost::disable_if<boost::is_convertible<T, off_t> >::type *) {
+                               typename std::enable_if<! std::is_convertible<T, off_t>::value >::type *) {
   // Default implementation is NOP.
   return foundID;
 }

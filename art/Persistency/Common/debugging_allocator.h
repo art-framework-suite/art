@@ -17,8 +17,8 @@
 //
 //---------------------------------------------------------------------
 
-#include <limits>
 #include <cstddef>
+#include <limits>
 
 namespace art
 {
@@ -26,13 +26,13 @@ namespace art
   class debugging_allocator
   {
   public:
-    typedef size_t    size_type;
-    typedef ptrdiff_t difference_type;
-    typedef T*        pointer;
-    typedef T const*  const_pointer;
-    typedef T&        reference;
-    typedef T const&  const_reference;
-    typedef T         value_type;
+    typedef std::size_t size_type;
+    typedef ptrdiff_t   difference_type;
+    typedef T*          pointer;
+    typedef T const*    const_pointer;
+    typedef T&          reference;
+    typedef T const&    const_reference;
+    typedef T           value_type;
 
     template <class U> struct rebind { typedef debugging_allocator<U> other; };
 

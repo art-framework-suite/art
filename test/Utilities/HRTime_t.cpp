@@ -1,21 +1,11 @@
-
 #include "art/Utilities/HRRealTime.h"
 
-// #include <boost/mpl/assert.hpp>
-// #include <boost/type_traits/is_same.hpp>
-
-// #include <boost/function_types/result_type.hpp>
-
-
-#include <ctime>
-#include <cmath>
-#include <typeinfo>
-#include <iostream>
-
-
 #include "test/CppUnit_testdriver.icpp"
+#include <cmath>
 #include <cppunit/extensions/HelperMacros.h>
-
+#include <ctime>
+#include <iostream>
+#include <typeinfo>
 
 
 namespace {
@@ -47,8 +37,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestTimers);
 template<typename S>
 void checkTime(S source, bool hr) {
 
-//  typedef typename boost::function_traits<S>::result_type T;
-  // typedef typename boost::function_types::result_type<S>::type T;
   typedef art::HRTimeDiffType T;
 
   T i = source();
@@ -80,7 +68,7 @@ void checkTime(S source, bool hr) {
 }
 
 #define CHECKTIME(S,HR) \
-  std::cout << "checking source " << #S << std::endl;	\
+  std::cout << "checking source " << #S << std::endl; \
   checkTime(&S,HR)
 
 
@@ -91,5 +79,3 @@ void TestTimers::check_stdclock() {
 void TestTimers::check_RealTime() {
   CHECKTIME(art::hrRealTime,true);
 }
-
-

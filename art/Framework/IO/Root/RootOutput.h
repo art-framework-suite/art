@@ -10,6 +10,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "boost/scoped_ptr.hpp"
+#include "cpp0x/array"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
@@ -66,7 +67,7 @@ namespace art {
 
     typedef std::vector<OutputItem> OutputItemList;
 
-    typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
+    typedef std::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 

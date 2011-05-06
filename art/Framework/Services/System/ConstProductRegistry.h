@@ -2,30 +2,14 @@
 #define art_Framework_Services_System_ConstProductRegistry_h
 
 //
-// Package:     Framework
-// Class  :     ConstProductRegistry
-//
-/**\class ConstProductRegistry ConstProductRegistry.h FWCore/Framework/interface/ConstProductRegistry.h
-
-Description: Provides a 'service' interface to the ProductRegistry
-
-Usage:
-<usage>
-
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Thu Sep 22 18:01:21 CEST 2005
-//
+// ConstProductRegistry: Provides a 'service' interface to the ProductRegistry
 //
 
-// system include files
-#include <vector>
-#include <string>
-
-// user include files
 #include "art/Framework/Core/SignallingProductRegistry.h"
 #include "art/Framework/Services/Registry/connect_but_block_self.h"
+#include "cpp0x/functional"
+#include <string>
+#include <vector>
 
 // forward declarations
 namespace art {
@@ -63,7 +47,7 @@ namespace art {
     void watchProductAdditions(T& iObj, TMethod iMethod)
     {
       connect_but_block_self(reg_->productAddedSignal_,
-                                              boost::bind(iMethod, iObj,_1));
+                                              std::bind(iMethod, iObj,_1));
     }
 
   private:

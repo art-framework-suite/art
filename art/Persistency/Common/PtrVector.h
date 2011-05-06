@@ -11,8 +11,7 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
 #include "boost/iterator.hpp"
-#include "boost/static_assert.hpp"
-#include "boost/type_traits/is_base_of.hpp"
+#include "cpp0x/type_traits"
 #include <iterator>
 #include <vector>
 
@@ -160,7 +159,7 @@ public:
   template< typename U >
     PtrVector( PtrVector<U> const & other )
   : PtrVectorBase( other )
-  { BOOST_STATIC_ASSERT(( boost::is_base_of<T,U>::value )); }
+  { STATIC_ASSERT(( std::is_base_of<T,U>::value ), "PtrVector: incompatible types"); }
 
   // --- Observers:
 
@@ -193,7 +192,7 @@ public:
     push_back( Ptr<U> const & p )
   {
     // ensure that types are compatible
-    BOOST_STATIC_ASSERT(( boost::is_base_of<T,U>::value ));
+    STATIC_ASSERT(( std::is_base_of<T,U>::value ), "PtrVector: incompatible types");
     push_back_base( p.refCore()
                   , p.key()
                   , p.hasCache() ? p.operator->()

@@ -2,41 +2,24 @@
 #define art_Persistency_Provenance_ProductRegistry_h
 
 /**
-   \file
    Implementation of ProductRegistry
-
-   \original author Stefano ARGIRO
-   \current author Bill Tanenbaum
-   \date 19 Jul 2005
 */
 
+#include "Reflex/Type.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "art/Persistency/Provenance/Transient.h"
+#include "cpp0x/array"
+#include <iosfwd>
 #include <map>
 #include <set>
-#include <iosfwd>
 #include <string>
 #include <vector>
 
-#include "boost/array.hpp"
-
-#include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
-#include "art/Persistency/Provenance/Transient.h"
-
-#include "Reflex/Type.h"
-
 namespace art {
 
-  /**
-     \class ProductRegistry ProductRegistry.h "edm/ProductRegistry.h"
-
-     \brief
-
-     \original author Stefano ARGIRO
-     \current author Bill Tanenbaum
-     \date 19 Jul 2005
-  */
   class ProductRegistry {
 
   public:
@@ -65,8 +48,8 @@ namespace art {
     void setFrozen() const;
 
     std::string merge(ProductRegistry const& other,
-	std::string const& fileName,
-	BranchDescription::MatchMode m);
+        std::string const& fileName,
+        BranchDescription::MatchMode m);
 
     void updateFromInput(ProductList const& other);
 
@@ -107,7 +90,7 @@ namespace art {
     bool anyProducts(BranchType const brType) const;
 
     ConstProductList & constProductList() const {
-	 //throwIfNotFrozen();
+         //throwIfNotFrozen();
        return transients_.get().constProductList_;
     }
 
@@ -120,7 +103,7 @@ namespace art {
       bool frozen_;
       ConstProductList constProductList_;
       // Is at least one (run), (subRun), (event) product produced this process?
-      boost::array<bool, NumBranchTypes> productProduced_;
+      std::array<bool, NumBranchTypes> productProduced_;
 
       // indices used to quickly find a group in the vector groups_
       // by type, first one by the type of the EDProduct and the

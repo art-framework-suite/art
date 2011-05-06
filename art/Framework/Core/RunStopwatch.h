@@ -12,7 +12,7 @@ calls the destructor which stops the clock.
 
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "art/Utilities/CPUTimer.h"
 
 namespace art {
@@ -20,7 +20,7 @@ namespace art {
   class RunStopwatch {
 
   public:
-    typedef boost::shared_ptr<CPUTimer> StopwatchPointer;
+    typedef std::shared_ptr<CPUTimer> StopwatchPointer;
 
     RunStopwatch(const StopwatchPointer& ptr): stopwatch_(ptr) {
       stopwatch_->start();

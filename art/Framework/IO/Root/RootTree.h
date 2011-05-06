@@ -16,8 +16,7 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "boost/noncopyable.hpp"
-#include "boost/shared_ptr.hpp"
-#include <memory>
+#include "cpp0x/memory"
 #include <string>
 #include <vector>
 
@@ -31,7 +30,7 @@ namespace art {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType);
+    RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType);
     ~RootTree() {}
 
     bool isValid() const;
@@ -50,9 +49,9 @@ namespace art {
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
-    boost::shared_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
+    std::shared_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
     template <typename T>
-    boost::shared_ptr<BranchMapper> makeBranchMapper() const;
+    std::shared_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
@@ -68,7 +67,7 @@ namespace art {
     TBranch *branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
 
   private:
-    boost::shared_ptr<TFile> filePtr_;
+    std::shared_ptr<TFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.
@@ -80,7 +79,7 @@ namespace art {
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
-    boost::shared_ptr<BranchMap> branches_;
+    std::shared_ptr<BranchMap> branches_;
   };  // RootTree
 
   template <typename T>
@@ -94,10 +93,10 @@ namespace art {
   }
 
   template <typename T>
-  boost::shared_ptr<BranchMapper>
+  std::shared_ptr<BranchMapper>
   RootTree::makeBranchMapper() const {
     assert (branchEntryInfoBranch_);
-    boost::shared_ptr<BranchMapper> mapper(new BranchMapperWithReader<T>(branchEntryInfoBranch_, entryNumber_));
+    std::shared_ptr<BranchMapper> mapper(new BranchMapperWithReader<T>(branchEntryInfoBranch_, entryNumber_));
     return mapper;
   }
 

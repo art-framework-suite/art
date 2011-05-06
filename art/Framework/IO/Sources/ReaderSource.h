@@ -40,28 +40,25 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "cetlib/exempt_ptr.h"
-
-#include "boost/shared_ptr.hpp"
+#include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/noncopyable.hpp"
-
+#include "cetlib/exempt_ptr.h"
+#include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
 #include <algorithm>
 #include <limits>
-#include <memory>
 
 // ----------------------------------------------------------------------
 
@@ -82,16 +79,16 @@ namespace art
     virtual input::ItemType nextItemType();
     virtual RunNumber_t run() const;
     virtual SubRunNumber_t subRun() const;
-    virtual boost::shared_ptr<FileBlock> readFile();
+    virtual std::shared_ptr<FileBlock> readFile();
     virtual void closeFile();
 
-    virtual boost::shared_ptr<RunPrincipal> readRun();
+    virtual std::shared_ptr<RunPrincipal> readRun();
 
-    virtual boost::shared_ptr<SubRunPrincipal>
-    readSubRun(boost::shared_ptr<RunPrincipal> rp);
+    virtual std::shared_ptr<SubRunPrincipal>
+    readSubRun(std::shared_ptr<RunPrincipal> rp);
 
     virtual std::auto_ptr<EventPrincipal>
-    readEvent(boost::shared_ptr<SubRunPrincipal> srp);
+    readEvent(std::shared_ptr<SubRunPrincipal> srp);
 
   private:
     typedef std::vector<std::string> strings;
@@ -108,8 +105,8 @@ namespace art
     iter                   end_;
     input::ItemType        state_;
 
-    boost::shared_ptr<RunPrincipal>    cachedRP_;
-    boost::shared_ptr<SubRunPrincipal> cachedSRP_;
+    std::shared_ptr<RunPrincipal>    cachedRP_;
+    std::shared_ptr<SubRunPrincipal> cachedSRP_;
     std::auto_ptr<EventPrincipal>      cachedE_;
 
     bool pendingSubRun_;
@@ -504,7 +501,7 @@ namespace art
   }
 
   template <class T>
-  boost::shared_ptr<FileBlock>
+  std::shared_ptr<FileBlock>
   ReaderSource<T>::readFile()
   {
     FileBlock* newF = 0;
@@ -514,7 +511,7 @@ namespace art
         throw Exception(errors::LogicError)
           << "detail_::readFile() failed to return a valid FileBlock object\n";
       }
-    return boost::shared_ptr<FileBlock>(newF);
+    return std::shared_ptr<FileBlock>(newF);
   }
 
   template <class T>
@@ -527,7 +524,7 @@ namespace art
   }
 
   template <class T>
-  boost::shared_ptr<RunPrincipal>
+  std::shared_ptr<RunPrincipal>
   ReaderSource<T>::readRun()
   {
     if (!cachedRP_) throw Exception(errors::LogicError)
@@ -538,8 +535,8 @@ namespace art
   }
 
   template <class T>
-  boost::shared_ptr<SubRunPrincipal>
-  ReaderSource<T>::readSubRun(boost::shared_ptr<RunPrincipal> rp)
+  std::shared_ptr<SubRunPrincipal>
+  ReaderSource<T>::readSubRun(std::shared_ptr<RunPrincipal> rp)
   {
     if (!cachedSRP_) throw Exception(errors::LogicError)
       << "Error in ReaderSource<T>\n"
@@ -555,7 +552,7 @@ namespace art
 
   template <class T>
   std::auto_ptr<EventPrincipal>
-  ReaderSource<T>::readEvent(boost::shared_ptr<SubRunPrincipal> srp)
+  ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal> srp)
   {
     if (haveEventLimit_) --remainingEvents_;
     return cachedE_;

@@ -1,26 +1,18 @@
 #ifndef art_Persistency_Provenance_Timestamp_h
 #define art_Persistency_Provenance_Timestamp_h
-//
-// OriginalAuthor:      Chris Jones
-// Created:             Thu Mar 24 16:23:05 EST 2005
-//
 
-// system include files
 #include "cpp0x/cstdint"
 
-// user include files
-
-// forward declarations
 namespace art {
-   typedef uint64_t TimeValue_t;
+   typedef std::uint64_t TimeValue_t;
    class Timestamp;
 }
 
 class art::Timestamp {
 public:
    Timestamp(TimeValue_t iValue) :
-      timeLow_(static_cast<uint32_t>(lowMask() & iValue)),
-      timeHigh_(static_cast<uint32_t>(iValue >> 32))
+      timeLow_(static_cast<std::uint32_t>(lowMask() & iValue)),
+      timeHigh_(static_cast<std::uint32_t>(iValue >> 32))
    {}
 
    Timestamp() :
@@ -31,12 +23,12 @@ public:
    virtual ~Timestamp() {}
 
    TimeValue_t value() const {
-      return (static_cast<uint64_t>(timeHigh_) << 32) | timeLow_;
+      return (static_cast<std::uint64_t>(timeHigh_) << 32) | timeLow_;
    }
 
-   uint32_t timeLow() const { return timeLow_; }
+   std::uint32_t timeLow() const { return timeLow_; }
 
-   uint32_t timeHigh() const { return timeHigh_; }
+   std::uint32_t timeHigh() const { return timeHigh_; }
 
    // ---------- const member functions ---------------------
    bool operator==(const Timestamp& iRHS) const {
@@ -96,8 +88,8 @@ private:
    // ---------- member data --------------------------------
    // ROOT does not support ULL
    //TimeValue_t time_;
-   uint32_t timeLow_;
-   uint32_t timeHigh_;
+   std::uint32_t timeLow_;
+   std::uint32_t timeHigh_;
 
    TimeValue_t lowMask() const {
       static TimeValue_t const s_lowMask = 0xFFFFFFFF;

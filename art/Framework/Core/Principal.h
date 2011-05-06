@@ -33,31 +33,30 @@ pointer to a Group, when queried.
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-#include "boost/shared_ptr.hpp"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/memory"
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace art {
   class Principal : public EDProductGetter {
   public:
-    typedef std::map<BranchID, boost::shared_ptr<Group> > GroupCollection;
+    typedef std::map<BranchID, std::shared_ptr<Group> > GroupCollection;
     typedef GroupCollection::const_iterator const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
-    typedef boost::shared_ptr<const Group> SharedConstGroupPtr;
+    typedef std::shared_ptr<const Group> SharedConstGroupPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
     typedef GroupCollection::size_type      size_type;
 
-    typedef boost::shared_ptr<Group> SharedGroupPtr;
+    typedef std::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
 
     Principal(cet::exempt_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
 	      ProcessHistoryID const& hist = ProcessHistoryID(),
-              boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-              boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+              std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
+              std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~Principal();
 
@@ -103,9 +102,9 @@ namespace art {
 
     ProductRegistry const& productRegistry() const {return *preg_;}
 
-    boost::shared_ptr<DelayedReader> store() const {return store_;}
+    std::shared_ptr<DelayedReader> store() const {return store_;}
 
-    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
+    std::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
     // ----- Mark this Principal as having been updated in the
     // current Process.
@@ -178,7 +177,7 @@ namespace art {
                               SelectorBase const& selector,
                               BasicHandleVec& results) const;
 
-    boost::shared_ptr<ProcessHistory> processHistoryPtr_;
+    std::shared_ptr<ProcessHistory> processHistoryPtr_;
 
     ProcessConfiguration const& processConfiguration_;
 
@@ -193,11 +192,11 @@ namespace art {
 
     // Pointer to the 'mapper' that will get provenance information
     // from the persistent store.
-    boost::shared_ptr<BranchMapper> branchMapperPtr_;
+    std::shared_ptr<BranchMapper> branchMapperPtr_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
-    boost::shared_ptr<DelayedReader> store_;
+    std::shared_ptr<DelayedReader> store_;
   };
 
 }

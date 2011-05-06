@@ -16,9 +16,8 @@
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Persistency/Common/HLTenums.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -33,14 +32,14 @@ namespace art {
 
     typedef std::vector<WorkerInPath> WorkersInPath;
     typedef WorkersInPath::size_type        size_type;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
          WorkersInPath const& workers,
          TrigResPtr trptr,
          fhicl::ParameterSet const& proc_pset,
          ActionTable& actions,
-         boost::shared_ptr<ActivityRegistry> reg,
+         std::shared_ptr<ActivityRegistry> reg,
          bool isEndPath);
 
     template <typename T>
@@ -91,7 +90,7 @@ namespace art {
     int bitpos_;
     std::string name_;
     TrigResPtr trptr_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
     ActionTable* act_table_;
 
     WorkersInPath workers_;

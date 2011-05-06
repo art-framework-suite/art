@@ -10,7 +10,7 @@ input source that does not come in through the ParameterSet
 ----------------------------------------------------------------------*/
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "cetlib/exempt_ptr.h"
 #include <string>
 
@@ -22,7 +22,7 @@ namespace art {
     InputSourceDescription() : moduleDescription_(), productRegistry_(0), actReg_() {}
     InputSourceDescription(ModuleDescription const& md,
 			   ProductRegistry& preg,
-			   boost::shared_ptr<ActivityRegistry> areg) :
+			   std::shared_ptr<ActivityRegistry> areg) :
       moduleDescription_(md),
       productRegistry_(&preg),
       actReg_(areg)
@@ -30,7 +30,7 @@ namespace art {
 
     ModuleDescription moduleDescription_;
     cet::exempt_ptr<ProductRegistry> productRegistry_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
   };
 
 }  // art

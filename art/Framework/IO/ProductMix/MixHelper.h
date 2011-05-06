@@ -163,7 +163,7 @@ private:
 
   void openAndReadMetaData(std::string const &fileName);
   void buildEventIDIndex(FileIndex const &fileIndex);
-  void mixAndPutOne(boost::shared_ptr<MixOpBase> mixOp,
+  void mixAndPutOne(std::shared_ptr<MixOpBase> mixOp,
                     EntryNumberSequence const &enSeq,
                     Event &e);
   bool openNextFile();

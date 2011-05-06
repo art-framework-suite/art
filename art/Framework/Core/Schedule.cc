@@ -11,22 +11,19 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerRegistry.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "boost/bind.hpp"
-#include "boost/ref.hpp"
 #include "cpp0x/functional"
-
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -83,7 +80,7 @@ namespace art
                      WorkerRegistry& wreg,
                      ProductRegistry& preg,
                      ActionTable& actions,
-                     boost::shared_ptr<ActivityRegistry> areg):
+                     std::shared_ptr<ActivityRegistry> areg):
     pset_(proc_pset),
     worker_reg_(&wreg),
     prod_reg_(&preg),
@@ -366,7 +363,7 @@ namespace art
 	       pset_,*act_table_,actReg_,false);
 	trig_paths_.push_back(p);
       }
-    for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
+    for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::fillEndPath(int bitpos, string const& name)
@@ -389,7 +386,7 @@ namespace art
 	       pset_,*act_table_,actReg_,true);
 	end_paths_.push_back(p);
       }
-    for_all(holder, boost::bind(&art::Schedule::addToAllWorkers, this, _1));
+    for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
   void Schedule::endJob()
@@ -760,50 +757,50 @@ namespace art
 
 
   void Schedule::closeOutputFiles() {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::closeFile, _1));
+    for_all(all_output_workers_, std::bind(&OutputWorker::closeFile, _1));
   }
 
   void Schedule::openNewOutputFilesIfNeeded() {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::openNewFileIfNeeded, _1));
+    for_all(all_output_workers_, std::bind(&OutputWorker::openNewFileIfNeeded, _1));
   }
 
   void Schedule::openOutputFiles(FileBlock & fb) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::openFile, _1, boost::cref(fb)));
+    for_all(all_output_workers_, std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
   }
 
   void Schedule::writeRun(RunPrincipal const& rp) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::writeRun, _1, boost::cref(rp)));
+    for_all(all_output_workers_, std::bind(&OutputWorker::writeRun, _1, std::cref(rp)));
   }
 
   void Schedule::writeSubRun(SubRunPrincipal const& srp) {
-    for_all(all_output_workers_, boost::bind(&OutputWorker::writeSubRun, _1, boost::cref(srp)));
+    for_all(all_output_workers_, std::bind(&OutputWorker::writeSubRun, _1, std::cref(srp)));
   }
 
   bool Schedule::shouldWeCloseOutput() const {
     // Return true iff at least one output module returns true.
     return (find_if(all_output_workers_.begin(), all_output_workers_.end(),
-		    boost::bind(&OutputWorker::shouldWeCloseFile, _1))
+		    std::bind(&OutputWorker::shouldWeCloseFile, _1))
 	    != all_output_workers_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToOpenInputFile, _1, boost::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
   }
 
   void Schedule::respondToCloseInputFile(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToCloseInputFile, _1, boost::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
   void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToOpenOutputFiles, _1, boost::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToOpenOutputFiles, _1, std::cref(fb)));
   }
 
   void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
-    for_all(all_workers_, boost::bind(&Worker::respondToCloseOutputFiles, _1, boost::cref(fb)));
+    for_all(all_workers_, std::bind(&Worker::respondToCloseOutputFiles, _1, std::cref(fb)));
   }
 
   void Schedule::beginJob() {
-    for_all(all_workers_, boost::bind(&Worker::beginJob, _1));
+    for_all(all_workers_, std::bind(&Worker::beginJob, _1));
   }
 
   vector<ModuleDescription const*>
@@ -895,9 +892,9 @@ namespace art
   void
   Schedule::clearCounters() {
     total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(all_workers_, boost::bind(&Worker::clearCounters, _1));
+    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
+    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
+    for_all(all_workers_, std::bind(&Worker::clearCounters, _1));
   }
 
   void
@@ -908,7 +905,7 @@ namespace art
 
   void
   Schedule::resetAll() {
-    for_all(all_workers_, boost::bind(&Worker::reset, _1));
+    for_all(all_workers_, std::bind(&Worker::reset, _1));
     results_->reset();
     endpath_results_->reset();
   }
@@ -922,7 +919,7 @@ namespace art
   Schedule::setupOnDemandSystem(EventPrincipal& ep) {
     // NOTE: who owns the productdescrption?  Just copied by value
     ep.setUnscheduledHandler(unscheduled_);
-    typedef vector<boost::shared_ptr<ConstBranchDescription const> > branches;
+    typedef vector<std::shared_ptr<ConstBranchDescription const> > branches;
     for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
         itBranch != itBranchEnd;
         ++itBranch) {
@@ -957,7 +954,7 @@ namespace art
 	++itProdInfo) {
       if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
 	 unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-	boost::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+	std::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
 	demandBranches_.push_back(bd);
       }
     }

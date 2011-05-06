@@ -21,11 +21,10 @@
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "boost/noncopyable.hpp"
-#include "boost/shared_ptr.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/thread/thread.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -277,7 +276,7 @@ namespace art {
     //
     // Now private functions.
     // init() is used by only by constructors
-    void init(boost::shared_ptr<art::ProcessDesc> & processDesc,
+    void init(std::shared_ptr<art::ProcessDesc> & processDesc,
               ServiceToken const& token,
               ServiceLegacy);
 
@@ -310,16 +309,16 @@ namespace art {
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    boost::shared_ptr<ActivityRegistry>           actReg_;
+    std::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
     ServiceToken                                  serviceToken_;
-    boost::shared_ptr<InputSource>                input_;
+    std::shared_ptr<InputSource>                input_;
     std::auto_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
     volatile event_processor::State               state_;
-    boost::shared_ptr<boost::thread>              event_loop_;
+    std::shared_ptr<boost::thread>              event_loop_;
 
     boost::mutex                                  state_lock_;
     boost::mutex                                  stop_lock_;
@@ -331,7 +330,7 @@ namespace art {
     volatile bool                                 id_set_;
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
-    boost::shared_ptr<FileBlock>                  fb_;
+    std::shared_ptr<FileBlock>                  fb_;
 
     std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;

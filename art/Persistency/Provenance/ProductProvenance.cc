@@ -45,7 +45,7 @@ namespace art {
 
    ProductProvenance::ProductProvenance(BranchID const& bid,
 				    ProductStatus status,
-				    boost::shared_ptr<Parentage> pPtr) :
+				    std::shared_ptr<Parentage> pPtr) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(pPtr->id()),
@@ -61,7 +61,7 @@ namespace art {
     productStatus_(status),
     parentageID_(),
     transients_() {
-      parentagePtr() = boost::shared_ptr<Parentage>(new Parentage);
+      parentagePtr() = std::shared_ptr<Parentage>(new Parentage);
       parentagePtr()->parents() = parents;
       parentageID_ = parentagePtr()->id();
       ParentageRegistry::put(*parentagePtr());

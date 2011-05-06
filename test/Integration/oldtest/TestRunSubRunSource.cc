@@ -28,30 +28,30 @@ namespace art {
   TestRunSubRunSource::~TestRunSubRunSource() {
   }
 
-  boost::shared_ptr<RunPrincipal>
+  std::shared_ptr<RunPrincipal>
   TestRunSubRunSource::readRun_() {
     unsigned int run = runSubRunEvent_[currentIndex_];
     Timestamp ts = Timestamp(1);  // 1 is just a meaningless number to make it compile for the test
 
     RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<RunPrincipal> runPrincipal(
+    std::shared_ptr<RunPrincipal> runPrincipal(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
     currentIndex_ += 3;
     return runPrincipal;
   }
 
-  boost::shared_ptr<SubRunPrincipal>
+  std::shared_ptr<SubRunPrincipal>
   TestRunSubRunSource::readSubRun_() {
     unsigned int run = runSubRunEvent_[currentIndex_];
     unsigned int subRun = runSubRunEvent_[currentIndex_ + 1];
     Timestamp ts = Timestamp(1);
 
     RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<RunPrincipal> rp2(
+    std::shared_ptr<RunPrincipal> rp2(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
     SubRunAuxiliary subRunAux(rp2->run(), subRun, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<SubRunPrincipal> subRunPrincipal(
+    std::shared_ptr<SubRunPrincipal> subRunPrincipal(
         new SubRunPrincipal(subRunAux, productRegistry(), processConfiguration()));
     subRunPrincipal->setRunPrincipal(rp2);
 
@@ -68,11 +68,11 @@ namespace art {
     Timestamp ts = Timestamp(1);
 
     RunAuxiliary runAux(run, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<RunPrincipal> rp2(
+    std::shared_ptr<RunPrincipal> rp2(
         new RunPrincipal(runAux, productRegistry(), processConfiguration()));
 
     SubRunAuxiliary subRunAux(rp2->run(), subRun, ts, Timestamp::invalidTimestamp());
-    boost::shared_ptr<SubRunPrincipal> lbp2(
+    std::shared_ptr<SubRunPrincipal> lbp2(
         new SubRunPrincipal(subRunAux, productRegistry(), processConfiguration()));
     lbp2->setRunPrincipal(rp2);
 

@@ -11,9 +11,8 @@
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "boost/shared_ptr.hpp"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>
 
 // ----------------------------------------------------------------------
 
@@ -96,10 +95,10 @@ namespace art {
       ParameterSets config;
       typedef ServiceWrapper<T> SW;
 
-      boost::shared_ptr<SM> manager( new SM( config
+      std::shared_ptr<SM> manager( new SM( config
                                            , ServiceRegistry::instance().lm_
                                    )       );
-      boost::shared_ptr<SW> wrapper( new SW(iService) );
+      std::shared_ptr<SW> wrapper( new SW(iService) );
 
       manager->put(wrapper);
       return manager;
@@ -115,12 +114,12 @@ namespace art {
       ParameterSets config;
       typedef ServiceWrapper<T> SW;
 
-      boost::shared_ptr<SM> manager( new SM( iToken
+      std::shared_ptr<SM> manager( new SM( iToken
                                            , iLegacy
                                            , config
                                            , ServiceRegistry::instance().lm_
                                    )       );
-      boost::shared_ptr<SW> wrapper( new SW(iService));
+      std::shared_ptr<SW> wrapper( new SW(iService));
 
       manager->put(wrapper);
       return manager;
@@ -129,10 +128,10 @@ namespace art {
     // create a service token that holds the service held by iWrapper
     template< class T >
     static ServiceToken
-      createContaining( boost::shared_ptr<ServiceWrapper<T> > wrap )
+      createContaining( std::shared_ptr<ServiceWrapper<T> > wrap )
     {
       ParameterSets config;
-      boost::shared_ptr<SM> manager( new SM( config
+      std::shared_ptr<SM> manager( new SM( config
                                            , ServiceRegistry::instance().lm_
                                    )       );
       manager->put(wrap);
@@ -141,13 +140,13 @@ namespace art {
 
     template<class T>
     static ServiceToken
-      createContaining( boost ::shared_ptr<ServiceWrapper<T> > wrap
+      createContaining( std::shared_ptr<ServiceWrapper<T> > wrap
                       , ServiceToken iToken
                       , ServiceLegacy iLegacy
                       )
     {
       ParameterSets config;
-      boost::shared_ptr<SM> manager( new SM( iToken
+      std::shared_ptr<SM> manager( new SM( iToken
                                            , iLegacy
                                            , config
                                            , ServiceRegistry::instance().lm_
@@ -166,7 +165,7 @@ namespace art {
 
     // ---------- member data --------------------------------
     LibraryManager lm_;
-    boost::shared_ptr<ServicesManager> manager_;
+    std::shared_ptr<ServicesManager> manager_;
 
   };  // ServiceRegistry
 
