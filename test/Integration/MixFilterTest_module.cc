@@ -3,6 +3,8 @@
 #include "art/Framework/Modules/MixFilter.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/Core/PtrRemapper.h"
+#include "art/Persistency/Common/CollectionUtilities.h"
+#include "art/Persistency/Common/PtrVector.h"
 #include "art/Utilities/InputTag.h"
 #include "test/TestObjects/ToyProducts.h"
 
@@ -60,48 +62,6 @@ private:
   bool testRemapper_;
   std::vector<size_t> doubleVectorOffsets_;
 };
-
-namespace {
-  template <class CONTAINER>
-  void
-  concatContainers(CONTAINER &out, CONTAINER const &in) {
-    out.insert(out.end(), in.begin(), in.end());
-  }
-
-  template <class COLLECTION>
-  void
-  flattenCollections(std::vector<COLLECTION const *> const &in,
-                     COLLECTION &out) {
-    for(typename std::vector<COLLECTION const *>::const_iterator
-          i = in.begin(),
-          e = in.end();
-        i != e;
-        ++i) {
-      concatContainers(out, **i);
-    }
-  }
-
-  template <class COLLECTION>
-  void
-  flattenCollections(std::vector<COLLECTION const *> const &in,
-                     COLLECTION &out,
-                     std::vector<size_t> &offsets) {
-    offsets.clear();
-    offsets.reserve(in.size());
-    size_t current_offset = 0;
-    for (typename std::vector<COLLECTION const *>::const_iterator
-           i = in.begin(),
-           e = in.end();
-         i != e;
-         ++i) {
-      size_t current_size = (*i)->size();
-      offsets.push_back(current_offset);
-      current_offset += current_size;
-    }
-    out.reserve(current_offset);
-    flattenCollections(in, out);
-  }
-}
 
 arttest::MixFilterTestDetail::
 MixFilterTestDetail(fhicl::ParameterSet const &p,
@@ -172,7 +132,7 @@ arttest::MixFilterTestDetail::
 aggregateCollection(std::vector<std::vector<double> const *> const &in,
                     std::vector<double> &out,
                     art::PtrRemapper const &) {
-  flattenCollections(in, out, doubleVectorOffsets_);
+  art::flattenCollections(in, out, doubleVectorOffsets_);
 }
 
 DEFINE_ART_MODULE(arttest::MixFilterTest);

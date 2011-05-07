@@ -1,10 +1,11 @@
 #ifndef art_Framework_IO_ProductMix_MixOpBase_h
 #define art_Framework_IO_ProductMix_MixOpBase_h
 
-#include <cstddef>
+#include <string>
 
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
+#include "art/Framework/IO/ProductMix/MixContainerTypes.h"
 
 namespace art {
   class MixOpBase;
