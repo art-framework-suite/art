@@ -149,6 +149,7 @@ class art::PtrVector
 public:
   typedef  PtrVectorItr<T>  const_iterator;
   typedef  Ptr<T>           value_type;
+  typedef  Ptr<T> const &   const_reference;
 
   // --- Construction/destruction:
 

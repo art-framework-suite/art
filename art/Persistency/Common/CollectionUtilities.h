@@ -61,7 +61,7 @@ namespace art {
   namespace detail {
     // 1. Verify a collection of PtrVector const *
     template <typename T>
-    void
+    bool
     verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in);
 
     // 2. Verify a collection (including PtrVector) of Ptrs.
@@ -69,21 +69,16 @@ namespace art {
     bool
     verifyPtrCollection(iterator beg,
                         iterator end,
-                        art::ProductID const &id = art::ProductID(),
+                        art::ProductID id = art::ProductID(),
                         art::EDProductGetter const *getter = 0);
-
-    // 3. Verify a collection of const pointers to collections (including PtrVectors) of Ptrs.
-    template <typename iterator>
-    void
-    verifyPtrCollection(iterator beg, iterator end);
   }
 }
 
 // 1.
 template <typename T>
-void
+bool
 art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in) {
-  verifyCollection(in.begin(), in.end());
+  return verifyCollection(in.begin(), in.end());
 }
 
 // 2.
@@ -91,7 +86,7 @@ template <typename iterator>
 bool
 art::detail::verifyPtrCollection(iterator beg,
                                  iterator end,
-                                 art::ProductID const &id = art::ProductID(),
+                                 art::ProductID id = art::ProductID(),
                                  art::EDProductGetter const *getter = 0) {
   if (beg == end) return true;
   if (!id.isValid()) {
@@ -109,29 +104,6 @@ art::detail::verifyPtrCollection(iterator beg,
     }
   }
   return true;
-}
-
-// 3.
-template <typename iterator>
-void
-art::detail::verifyPtrCollection(iterator beg, iterator end) {
-  if (beg == end) return true;
-  art::ProductID id;
-  art::EDProductGetter *getter = 0;
-  for (iterator i = beg;
-       i != end;
-       ++i) {
-    if (!(getter || (*i)->empty())) {
-      id = (*i)->front().id();
-      getter = (*i)->front.productGetter();
-    }
-    if (!verifyPtrCollection(*i.begin(), *i,end(), id, getter)) {
-      throw art::Exception(art::errors::LogicError)
-        << "Cannot concatenate this set of containers of Ptr because they "
-        << "do not refer to the same collection in the same event.\n"
-        << "see PtrRemapper.\n";
-    }
-  }
 }
 
 template <class CONTAINER>
@@ -183,7 +155,10 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
                         PtrVector<T> &out) {
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
-  detail::verifyPtrCollection(in);
+  if (!detail::verifyPtrCollection(in)) {
+    // FIXME: correct this exception.
+    throw Exception(errors::LogicError);
+  }
   flattenCollections<PtrVector<T> >(in, out);
 }
 
@@ -195,7 +170,10 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
                         std::vector<size_t> &offsets) {
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
-  detail::verifyPtrCollection(in);
+  if (!detail::verifyPtrCollection(in)) {
+    // FIXME: correct this exception.
+    throw Exception(errors::LogicError);
+  }
   flattenCollections<PtrVector<T> >(in, out, offsets);
 }
 
