@@ -27,13 +27,13 @@ class XmlParser(object):
     ClassVersion attributes. Once found looks for sub-elements named 'version'
     which contain the ClassVersion to checksum mappings.
     """
-    
+
     #The following are constants used to describe what data is kept
     # in which index in the 'classes' member data
     originalNameIndex=0
     classVersionIndex=1
     versionsToChecksumIndex = 2
-    
+
     def __init__(self,filename):
         self._file = filename
         self.classes = dict()
@@ -109,7 +109,7 @@ def checkClass(name,version,versionsToChecksums):
 
     #is the version already in our list?
     found = False
-    
+
     for v,cs in versionsToChecksums:
         if v == version:
             found = True
@@ -122,6 +122,7 @@ def checkClass(name,version,versionsToChecksums):
 
 import ROOT
 def main():
+    ROOT.gROOT.SetBatch()
     #Setup the options
     from optparse import OptionParser
     oparser = OptionParser()
@@ -207,7 +208,7 @@ def main():
                       str(classVersion) + \
                       '" checksum="' + \
                       str(classChecksum) + \
-                      '"/>' 
+                      '"/>'
             else:
                 print "ERROR: class '" + \
                       name + \
