@@ -7,11 +7,30 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/functional"
 
 #include <map>
 
 namespace art {
   class PtrRemapper;
+
+  // Utility function object to use as a default argument to 4.
+  namespace detail {
+    template <typename PROD, typename InIter>
+    class SimpleExtractor :
+      public std::unary_function<std::pair<InIter, InIter>, PROD const *> {
+    public:
+      typename SimpleExtractor::result_type
+      operator()(typename SimpleExtractor::argument_type prod) const;
+    };
+  }
+}
+
+template <typename PROD, typename InIter>
+typename art::detail::SimpleExtractor<PROD, InIter>::result_type
+art::detail::SimpleExtractor<PROD, InIter>::operator()
+  (typename SimpleExtractor<PROD, InIter>::argument_type prod) const {
+  return std::make_pair(prod.begin(), prod.end());
 }
 
 class art::PtrRemapper {
@@ -24,20 +43,44 @@ public:
   void setProdTransMap(cet::exempt_ptr<ProdTransMap_t const> prodTransMap);
   void setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter);
 
-  //  Remap a single Ptr.
+  // 1. Remap a single Ptr.
   template <typename PROD>
   Ptr<PROD> operator()(Ptr<PROD> const &oldPtr, size_t offset) const;
 
-  // Remap a single PtrVector.
+  // 2. Remap a single PtrVector.
   template <typename PROD>
   PtrVector<PROD> operator()(PtrVector<PROD> const &old, size_t offset) const;
 
-  // Remap a compatible collection of Ptr (or of PtrVector).
-  template <typename PROD, typename iterator, typename OutIter>
-  void operator()(iterator beg,
-                  iterator end,
+  // 3. Remap a compatible collection (including PtrVector) of Ptr. Will
+  // also remap a compatible collection of PtrVector, but not of
+  // PtrVector const * -- for the latter, see 4. and 5.
+  template <typename PROD, typename InIter, typename OutIter>
+  void operator()(InIter beg,
+                  InIter end,
                   OutIter dest,
                   size_t offset) const;
+
+  // 4. Remap and flatten a set of containers of Ptrs (including
+  // PtrVector) which may be a component of the provided product. If it
+  // is the product itself, allow the final argument to default.
+  template <typename PROD, typename InIter, typename OutIter>
+  void
+  operator()(std::vector<PROD const *> const &in,
+             OutIter out,
+             std::vector<size_t> const &offsets,
+             std::function<std::pair<InIter, InIter> (PROD const *)>
+             extractor = detail::SimpleExtractor<PROD, InIter>()) const;
+
+  // 5. Remap and flatten a set of containers of Ptrs (including
+  // PtrVector) which is a component of the provided product using the
+  // provided accessor member function.
+  template <typename PROD, typename InIter, typename OutIter, typename X>
+  void
+  operator()(std::vector<PROD const *> const &in,
+             OutIter out,
+             std::vector<size_t> const &offsets,
+             std::pair<InIter, InIter> (X::*extractor) (PROD const *),
+             X *x) const;
 
 private:
   cet::exempt_ptr<ProdTransMap_t const> prodTransMap_;
@@ -62,6 +105,7 @@ setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter) {
   productGetter_ = productGetter;
 }
 
+// 1.
 template <typename PROD>
 art::Ptr<PROD>
 art::PtrRemapper::
@@ -72,6 +116,7 @@ operator()(Ptr<PROD> const &oldPtr,
                    productGetter_);
 }
 
+// 2.
 template <typename PROD>
 art::PtrVector<PROD>
 art::PtrRemapper::
@@ -87,21 +132,64 @@ operator()(PtrVector<PROD> const &old,
   return result;
 }
 
-template <typename PROD, typename iterator, typename OutIter>
+// 3.
+template <typename PROD, typename InIter, typename OutIter>
 void
 art::PtrRemapper::
-operator()(iterator beg,
-           iterator end,
+operator()(InIter beg,
+           InIter end,
            OutIter dest,
            size_t offset) const {
   detail::verifyPtrCollection(beg, end);
-  for (iterator i = beg;
+  for (InIter i = beg;
        i != end;
        ++i) {
     *dest++ = this->operator()(*i, offset);
   }
 }
 
+// 4. 
+template <typename PROD, typename InIter, typename OutIter>
+void
+art::PtrRemapper::
+operator()(std::vector<PROD const *> const &in,
+           OutIter out,
+           std::vector<size_t> const &offsets,
+           std::function<std::pair<InIter, InIter> (PROD const *)>
+           extractor) const {
+  typename std::vector<PROD const *>::const_iter
+    i = in.begin(),
+    e = in.end();
+  std::vector<size_t>::const_iterator
+    off_iter = offsets.begin(),
+    off_end = offsets.end();
+  for (; i != e; ++i, ++off_iter) {
+    if (off_iter == off_end) {
+      throw Exception(errors::LogicError)
+        << ".\n";
+    }
+    std::pair<InIter, InIter> i_p =
+      extractor(*i);
+    this->operator()(i_p.first, i_p.second, out, *off_iter);
+  }
+}
+
+
+// 5.
+template <typename PROD, typename InIter, typename OutIter, typename X>
+void
+art::PtrRemapper::
+operator()(std::vector<PROD const *> const &in,
+           OutIter out,
+           std::vector<size_t> const &offsets,
+           std::pair<InIter, InIter> (X::*extractor) (PROD const *),
+           X *x) const {
+  using std::placeholders::_1;
+  this->operator()(in,
+                   out,
+                   offsets,
+                   std::bind(static_cast<std::pair<InIter, InIter> (*)(PROD const *)>(extractor), x, _1));
+}
 #endif /* art_Framework_Core_PtrRemapper_h */
 
 // Local Variables:

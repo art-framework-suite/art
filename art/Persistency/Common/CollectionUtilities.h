@@ -17,20 +17,16 @@ namespace art {
   void
   concatContainers(CONTAINER &out, CONTAINER const &in);
 
-  // Flatten a vector of collections to a single collection.
+  // 1. Flatten a vector of collections to a single collection (not a
+  // PtrVector or other collection of Ptr -- cf 3. below or
+  // PtrRemapper).
   template <class COLLECTION>
   void
   flattenCollections(std::vector<COLLECTION const *> const &in,
                      COLLECTION &out);
 
-  // Flatten a vector of compatible PtrVectors to a single PtrVector.
-  template <typename T>
-  void
-  flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                     PtrVector<T> &out);
-
-  // Flatten a vector of collections to a single collection, filling a
-  // vector of offests into the resultant collection (eg for use by
+  // 2. Flatten a vector of collections to a single collection, filling
+  // a vector of offests into the resultant collection (eg for use by
   // PtrRemapper later).
   template <class COLLECTION>
   void
@@ -38,7 +34,15 @@ namespace art {
                      COLLECTION &out,
                      std::vector<size_t> &offsets);
 
-  // Flatten a vector of compatible PtrVectors, filling a vector of
+  // 3. Flatten a vector of *compatible* PtrVectors (ie they all point
+  // to the same product) to a single PtrVector. If they require
+  // remapping, do *not* use this method -- use PtrRemapper instead.
+  template <typename T>
+  void
+  flattenCollections(std::vector<PtrVector<T> const *> const &in,
+                     PtrVector<T> &out);
+
+  // 4. Flatten a vector of *compatible* PtrVectors, filling a vector of
   // offsets into the resultant collection (eg for use by a
   // PtrRemapper). This function is only useful in the (hopefully rare)
   // case that one has a Ptr *into* a PtrVector.
@@ -55,17 +59,12 @@ namespace art {
 
 namespace art {
   namespace detail {
-    // Verify a collection of PtrVector const *
+    // 1. Verify a collection of PtrVector const *
     template <typename T>
     void
     verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in);
 
-    // Verify a collection of PtrVector const * (alternative interface).
-    template <typename iterator>
-    typename std::enable_if<std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
-    verifyPtrCollection(iterator beg, iterator end);
-
-    // Verify a collection of Ptrs.
+    // 2. Verify a collection (including PtrVector) of Ptrs.
     template <typename iterator>
     bool
     verifyPtrCollection(iterator beg,
@@ -73,38 +72,21 @@ namespace art {
                         art::ProductID const &id = art::ProductID(),
                         art::EDProductGetter const *getter = 0);
 
-    // Verify a collection of const pointers to collections of Ptrs.
+    // 3. Verify a collection of const pointers to collections (including PtrVectors) of Ptrs.
     template <typename iterator>
-    typename std::enable_if<!std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
+    void
     verifyPtrCollection(iterator beg, iterator end);
   }
 }
 
+// 1.
 template <typename T>
 void
 art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in) {
   verifyCollection(in.begin(), in.end());
 }
 
-template <typename iterator>
-typename std::enable_if<std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
-art::detail::verifyPtrCollection(iterator beg, iterator end) {
-  if (beg == end) return;
-  art::ProductID id(beg->id());
-  art::EDProductGetter *getter(beg->productGetter());
-  for (iterator i = beg;
-       i != end;
-       ++i) {
-    if (!((*i)->productGetter() && (*i)->productGetter() == getter &&
-          (*i)->id().isValid() && (*i)->id() == id)) {
-      throw art::Exception(art::errors::LogicError)
-        << "Cannot concatenate this set of PtrVectors because they "
-        << "do not refer to the same collection in the same event.\n"
-        << "Should you have remapped them first?\n";
-    }
-  }
-}
-
+// 2.
 template <typename iterator>
 bool
 art::detail::verifyPtrCollection(iterator beg,
@@ -129,8 +111,9 @@ art::detail::verifyPtrCollection(iterator beg,
   return true;
 }
 
+// 3.
 template <typename iterator>
-typename std::enable_if<!std::is_base_of<art::PtrVectorBase, typename iterator::value_type>::value>::type
+void
 art::detail::verifyPtrCollection(iterator beg, iterator end) {
   if (beg == end) return true;
   art::ProductID id;
@@ -142,11 +125,11 @@ art::detail::verifyPtrCollection(iterator beg, iterator end) {
       id = (*i)->front().id();
       getter = (*i)->front.productGetter();
     }
-    if (!verifyPtrCollection(*i, id, getter)) {
+    if (!verifyPtrCollection(*i.begin(), *i,end(), id, getter)) {
       throw art::Exception(art::errors::LogicError)
         << "Cannot concatenate this set of containers of Ptr because they "
         << "do not refer to the same collection in the same event.\n"
-        << "Should you have remapped them first?\n";
+        << "see PtrRemapper.\n";
     }
   }
 }
@@ -157,6 +140,7 @@ art::concatContainers(CONTAINER &out, CONTAINER const &in) {
   out.insert(out.end(), in.begin(), in.end());
 }
 
+// 1.
 template <class COLLECTION>
 void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,
@@ -170,16 +154,7 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
   }
 }
 
-template <typename T>
-void
-art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                        PtrVector<T> &out) {
-  // Extra checks are required to verify that the PtrVectors are
-  // compatible.
-  detail::verifyPtrCollection(in);
-  flattenCollections<PtrVector<T> >(in, out);
-}
-
+// 2.
 template <class COLLECTION>
 void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,
@@ -201,6 +176,18 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
   flattenCollections<COLLECTION>(in, out);
 }
 
+// 3.
+template <typename T>
+void
+art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
+                        PtrVector<T> &out) {
+  // Extra checks are required to verify that the PtrVectors are
+  // compatible.
+  detail::verifyPtrCollection(in);
+  flattenCollections<PtrVector<T> >(in, out);
+}
+
+// 4.
 template <typename T>
 void
 art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
