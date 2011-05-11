@@ -13,14 +13,14 @@ namespace art {
   class EDProductGetter;
 
   // Append container in to container out.
-  template <class CONTAINER>
+  template <typename CONTAINER>
   void
   concatContainers(CONTAINER &out, CONTAINER const &in);
 
   // 1. Flatten a vector of collections to a single collection (not a
   // PtrVector or other collection of Ptr -- cf 3. below or
   // PtrRemapper).
-  template <class COLLECTION>
+  template <typename COLLECTION>
   void
   flattenCollections(std::vector<COLLECTION const *> const &in,
                      COLLECTION &out);
@@ -28,11 +28,11 @@ namespace art {
   // 2. Flatten a vector of collections to a single collection, filling
   // a vector of offests into the resultant collection (eg for use by
   // PtrRemapper later).
-  template <class COLLECTION>
+  template <typename COLLECTION, typename OFFSETS>
   void
   flattenCollections(std::vector<COLLECTION const *> const &in,
                      COLLECTION &out,
-                     std::vector<size_t> &offsets);
+                     OFFSETS &offsets);
 
   // 3. Flatten a vector of *compatible* PtrVectors (ie they all point
   // to the same product) to a single PtrVector. If they require
@@ -46,11 +46,11 @@ namespace art {
   // offsets into the resultant collection (eg for use by a
   // PtrRemapper). This function is only useful in the (hopefully rare)
   // case that one has a Ptr *into* a PtrVector.
-  template <typename T>
+  template <typename T, typename OFFSETS>
   void
   flattenCollections(std::vector<PtrVector<T> const *> const &in,
                      PtrVector<T> &out,
-                     std::vector<size_t> &offsets);
+                     OFFSETS &offsets);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -106,14 +106,14 @@ art::detail::verifyPtrCollection(iterator beg,
   return true;
 }
 
-template <class CONTAINER>
+template <typename CONTAINER>
 void
 art::concatContainers(CONTAINER &out, CONTAINER const &in) {
   out.insert(out.end(), in.begin(), in.end());
 }
 
 // 1.
-template <class COLLECTION>
+template <typename COLLECTION>
 void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,
                         COLLECTION &out) {
@@ -127,20 +127,20 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
 }
 
 // 2.
-template <class COLLECTION>
+template <typename COLLECTION, typename OFFSETS>
 void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,
                         COLLECTION &out,
-                        std::vector<size_t> &offsets) {
+                        OFFSETS &offsets) {
   offsets.clear();
   offsets.reserve(in.size());
-  size_t current_offset = 0;
+  typename COLLECTION::size_type current_offset = 0;
   for (typename std::vector<COLLECTION const *>::const_iterator
          i = in.begin(),
          e = in.end();
        i != e;
        ++i) {
-    size_t current_size = (*i)->size();
+    typename COLLECTION::size_type current_size = (*i)->size();
     offsets.push_back(current_offset);
     current_offset += current_size;
   }
@@ -163,11 +163,11 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
 }
 
 // 4.
-template <typename T>
+template <typename T, typename OFFSETS>
 void
 art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
                         PtrVector<T> &out,
-                        std::vector<size_t> &offsets) {
+                        OFFSETS &offsets) {
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {

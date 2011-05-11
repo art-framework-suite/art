@@ -6,14 +6,12 @@
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Utilities/InputTag.h"
+#include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
 
 namespace arttest {
   class MixFilterTestDetail;
   typedef art::MixFilter<MixFilterTestDetail> MixFilterTest;
-  void ff_mix(std::vector<int const *> const &in,
-                int &out,
-                art::PtrRemapper const &remap);
 }
 
 class arttest::MixFilterTestDetail {
@@ -67,6 +65,11 @@ public:
                  art::PtrVector<double> &out,
                  art::PtrRemapper const &remap);
 
+  void
+  mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
+                     arttest::ProductWithPtrs &out,
+                     art::PtrRemapper const &remap);
+
 private:
   size_t nSecondaries_;
   bool testRemapper_;
@@ -105,6 +108,10 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
   helper.declareMixOp
     (art::InputTag("doublePtrVectorLabel", ""),
      &MixFilterTestDetail::mixPtrVectors, this);
+
+  helper.declareMixOp
+    (art::InputTag("ProductWithPtsLabel", ""),
+     &MixFilterTestDetail::mixProductWithPtrs, this);
 }
 
 void
@@ -153,35 +160,14 @@ aggregateCollection(std::vector<std::vector<double> const *> const &in,
   art::flattenCollections(in, out, doubleVectorOffsets_);
 }
 
-namespace {
-  namespace n1 {
-    typedef typename std::vector<art::Ptr<double> > PROD;
-    typedef typename PROD::const_iterator InIter;
-    typedef typename std::pair<InIter, InIter> InIterPair;
-
-    InIterPair f(PROD const* p) { return InIterPair(p->begin(), p->end()); }
-  }
-
-  namespace n2 {
-    typedef typename art::PtrVector<double> PROD;
-    typedef typename PROD::const_iterator InIter;
-    typedef typename std::pair<InIter, InIter> InIterPair;
-
-    InIterPair f(PROD const* p) { return InIterPair(p->begin(), p->end()); }
-  }
-}
-
 void
 arttest::MixFilterTestDetail::
 mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
         std::vector<art::Ptr<double> > &out,
         art::PtrRemapper const &remap) {
-  using namespace ::n1;
-  std::function<InIterPair (PROD const *)> foff(f);
   remap(in,
         std::back_inserter(out),
-        doubleVectorOffsets_,
-        foff);
+        doubleVectorOffsets_);
 }
 
 void
@@ -189,12 +175,34 @@ arttest::MixFilterTestDetail::
 mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
               art::PtrVector<double> &out,
               art::PtrRemapper const &remap) {
-  using namespace ::n2;
-  std::function<InIterPair (PROD const *)> foff(f);
   remap(in,
         std::back_inserter(out),
+        doubleVectorOffsets_);
+}
+
+void
+arttest::MixFilterTestDetail::
+mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
+                   arttest::ProductWithPtrs &out,
+                   art::PtrRemapper const &remap) {
+  remap(in,
+        out.ptrVectorDouble(),
         doubleVectorOffsets_,
-        foff);
+        &arttest::ProductWithPtrs::ptrVectorDouble);
+
+  remap(in,
+        out.vectorPtrDouble(),
+        doubleVectorOffsets_,
+        &arttest::ProductWithPtrs::ptrVectorDouble);
+
+  // Throw-away object to test non-standard remap interface.
+  arttest::ProductWithPtrs tmp;
+
+  remap(in,
+        out.vectorPtrDouble(),
+        doubleVectorOffsets_,
+        &arttest::ProductWithPtrs::pvd_);
+
 }
 
 DEFINE_ART_MODULE(arttest::MixFilterTest);
