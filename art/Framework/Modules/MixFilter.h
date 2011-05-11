@@ -10,6 +10,8 @@
 // template parameter, The type T must supply the following non-static
 // member functions:
 //
+//    T(fhicl::ParameterSet const &p, art::MixHelper &helper);
+//
 //    // Construct an object of type T. The ParameterSet provided will
 //    // be the configuration of the module constructing the T. The
 //    // helper is not copyable and must be used in the constructor to
@@ -23,26 +25,30 @@
 //    //
 //    // Further details may be found in
 //    // art/Framework/ProductMix/MixHelper.h.
-//    T(fhicl::ParameterSet const &p, art::MixHelper &helper);
+//
+//    size_t nSecondaries() const;
 //
 //    // Provide the number of secondary events to be mixed into the
 //    // current primary event.
-//    size_t nSecondaries() const;
 //
 // In addition, the following optional member functions are called at
-// the appropriate time if defined:
+// the appropriate time if defined (it is *not* an error to omit these
+// declarations but if they are declared they must be defined).:
+//
+//    void startEvent();
 //
 //    // Optionally reset internal cache information at the start of the
 //    // current event.
-//    void startEvent();
+//
+//    void processEventIDs(art::EventIDSequence const &seq);
 //
 //    // Optionally receive the ordered sequence of EventIDs that will
 //    // be mixed into the current event for bookkeeping purposes.
-//    void processEventIDs(art::EventIDSequence const &seq);
+//
+//    void finalizeEvent(art::Event &t);
 //
 //    // Do end-of-event tasks including the placement of bookkeeping
 //    // objects into the primary event.
-//    void finalizeEvent(art::Event &t);
 //
 // Functions declared to the MixHelper to actually carry out the mixing
 // of the products may be member functions of this or another class; or

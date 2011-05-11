@@ -1,6 +1,111 @@
 #ifndef art_Framework_IO_ProductMix_MixHelper_h
 #define art_Framework_IO_ProductMix_MixHelper_h
-
+////////////////////////////////////////////////////////////////////////
+// MixHelper
+//
+// Class providing registration services at construction time to
+// "detail" classes for mixing, such being the class given as template
+// argument to the instantiation of the "MixFilter" module template.
+//
+//////////////////////////////////////////////////////////////////////
+// declareMixOp templates.
+//
+// These function templates should be used by writers of product-mixing
+// modules to declare a product mix operation. Such an operation may be
+// specified by providing:
+//
+//  1. an InputTag specifying which secondary products should be mixed;
+//
+//  2. an optional instance label for the mixed product; and
+//
+//  3. a mix function. This mix function should have the following
+// signature:
+//
+//     void mixfunc(std::vector<PROD const *> const &,
+//                  PROD &,
+//                  PtrRemapper const &),
+//
+//     This function may be a free function, a function object (in which
+//     case operator() should be the member function with the correct
+//     signature) or a member function of any class provided it has the
+//     same return type and arguments.
+//
+//     For free functions, function objects and pre-bound member
+//     functions the product type template argument need not be
+//     specified as it can be deduced from the signature of the provided
+//     function.
+//
+//     If the provided function is a member function it may be provided
+//     bound to the object upon which it is to be called by the user (in
+//     which case it is treated as a free function by the registration
+//     method) or by specifying the member function followed by the
+//     object to which it should be bound (in which case the bind will
+//     be done for the user). In this latter case the template argument
+//     specifying the product type need *not* be specified usually as it
+//     may be deduced from the signature of the provided function. If
+//     one specifies an overload set however (e.g. in the case where a
+//     class has several mix() member functions, each one with a
+//     different mix function) then the template argument must be
+//     specified in order to constrain the overload set to a single
+//     function.
+//
+// Signatures for declareMixOp():
+//
+//   1. Provide an InputTag and free function or function object.
+//
+//
+//   2. Provide an InputTag, output instance label, and free function or
+//   function object of the required signature.
+//
+//
+//   3. Provide an InputTag, member function (of any class) with the
+//   required signature and object to which the member function should
+//   be bound.
+//
+//
+//   4. Provide an InputTag, output instance label, member function (of
+//   any class) with the required signature, and object to which the
+//   member function should be bound.
+//
+//
+//    5. Per 3, providing a const member function.
+//
+//
+//    6. Per 4, providing a const member function.
+//
+// Note: For signatures 3-6, if the compiler complains about an
+// unresolved overload your first move should be to specify the product
+// type as template argument. If that does not resolve the problem, try
+// an explicit:
+//
+//   const_cast<T const&>(t)
+//
+// or
+//
+//   const_cast<T &>(t)
+//
+// as appropriate.
+//
+////////////////////////////////////
+// produces() templates.
+//
+// Call as you would from the constructor of a module to declare
+// (e.g. bookkeeping) products to be put into the event that are *not*
+// direct results of a product mix. For the latter case, see the
+// declareMixOp() templates above.
+//
+// Signatures for produces:
+//
+// 1. produces<PROD>(optional_instance_name);
+//
+//    Register a product to go into the event.
+//
+// 2. produces<PROD, art::InRun>(optional_instance_name);
+//    produces<PROD, art::InSubRun>(optional_instance_name);
+//
+//    Register a product to go into the run or subrun.
+//
+////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
@@ -43,70 +148,15 @@ public:
   MixHelper(fhicl::ParameterSet const &pset,
             ProducerBase & producesProvider);
 
-  //////////////////////////////////////////////////////////////////////
-  // produces() templates.
-  //
-  // Call as you would from the constructor of a module to declare
-  // (e.g. bookkeeping) products to be put into the event that are *not*
-  // direct results of a product mix. For the latter case, see the
-  // declareMixOp() templates below.
-  //////////////////////////////////////////////////////////////////////
-
-  // Record the production of an object of type P, with optional
-  // instance name, in either the Run or SubRun.
-  template <class P, BranchType B>
-  TypeLabel const& produces(std::string const& instanceName=std::string());
-
-  // Record the production of an object of type P, with optional
-  // instance name, in the Event.
+  // A.
   template <class P>
   TypeLabel const& produces(std::string const& intanceName=std::string());
 
-  //////////////////////////////////////////////////////////////////////
-  // declareMixOp templates.
-  //
-  // These function templates may be used by writers of product-merging
-  // modules to declare a product mix operation. Such an operation may
-  // be specified by providing:
-  //
-  // 1, an InputTag specifying which secondary products should be
-  //    mixed;
-  //
-  // 2. an optional instance label for the mixed product; and
-  //
-  // 3. a mix function. This mix function should have the following
-  //    signature:
-  //
-  //       void mixfunc(std::vector<PROD const *> const &,
-  //                    PROD &,
-  //                    PtrRemapper const &),
-  //
-  //    This function may be a free function, a function object (in
-  //    which case operator() should be the member function with the
-  //    correct signature) or a member function of any class provided it
-  //    has the same return type and arguments.
-  //
-  //    For free functions, function objects and pre-bound member
-  //    functions the product type template argument need not be
-  //    specified as it can be deduced from the signature of the
-  //    provided function.
-  //
-  //    If the provided function is a member function it may be provided
-  //    bound to the object upon which it is to be called by the user
-  //    (in which case it is treated as a free function by the
-  //    registration method) or by specifying the member function
-  //    followed by the object to which it should be bound (in which
-  //    case the bind will be done for the user). In this latter case
-  //    the template argument specifying the product type need *not* be
-  //    specified usually as it may be deduced from the signature of the
-  //    provided function. If one specifies an overload set however
-  //    (e.g.  in the case where a class has several mix() member
-  //    functions, each one with a different mix function) then the
-  //    template argument must be specified in order to constrain the
-  //    overload set to a single function.
-  //////////////////////////////////////////////////////////////////////
+  // B.
+  template <class P, BranchType B>
+  TypeLabel const& produces(std::string const& instanceName=std::string());
 
-  // Provide an InputTag and free function or function object.
+  // 1.
   template <typename PROD>
   void declareMixOp(InputTag const &inputTag,
                     std::function< void (std::vector<PROD const *> const &,
@@ -115,8 +165,7 @@ public:
                     > mixFunc);
 
 
-  //  Provide an InputTag, instance label, and free function or function
-  //  object,
+  // 2.
   template <typename PROD>
   void declareMixOp(InputTag const &inputTag,
                     std::string const &outputInstanceLabel,
@@ -125,25 +174,39 @@ public:
                                          PtrRemapper const &)
                     > mixFunc);
 
-  // Provide an InputTag, member function with the correct signature and
-  // object to which the member function should be bound.
+  // 3.
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
                     void (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &),
-                    T *t);
+                    T &t);
 
-  // Provide an InputTag, instance label, member function with the
-  // correct signature, and object to which the member function should be
-  // bound.
+  // 4.
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
                     std::string const &outputInstanceLabel,
                     void (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &),
-                    T *t);
+                    T &t);
+
+  // 5.
+  template <typename PROD, typename T>
+  void declareMixOp(InputTag const &inputTag,
+                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                                        PROD &,
+                                        PtrRemapper const &) const,
+                    T const &t);
+
+  // 6.
+  template <typename PROD, typename T>
+  void declareMixOp(InputTag const &inputTag,
+                    std::string const &outputInstanceLabel,
+                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                                        PROD &,
+                                        PtrRemapper const &) const,
+                    T const &t);
 
   //////////////////////////////////////////////////////////////////////
   // Mix module writers should not need anything below this point.
@@ -190,70 +253,106 @@ private:
   RootBranchInfoList dataBranches_;
 };
 
-template <class P, art::BranchType B>
-art::TypeLabel const&
-art::MixHelper::produces(std::string const& instanceName) {
-  return producesProvider_.produces<P, B>(instanceName);
-}
-
+// A.
 template <class P>
 art::TypeLabel const&
 art::MixHelper::produces(std::string const& instanceName) {
   return producesProvider_.produces<P>(instanceName);
 }
 
-template <typename PROD>
-void
-art::MixHelper::
-declareMixOp(InputTag const &inputTag,
-               std::function< void (std::vector<PROD const *> const &,
-                                    PROD &,
-                                    PtrRemapper const &)
-                            > mixFunc) {
-  declareMixOp(inputTag, std::string(), mixFunc);
+// B.
+template <class P, art::BranchType B>
+art::TypeLabel const&
+art::MixHelper::produces(std::string const& instanceName) {
+  return producesProvider_.produces<P, B>(instanceName);
 }
 
+// 1.
 template <typename PROD>
 void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
-               std::string const &outputInstanceLabel,
-               std::function< void (std::vector<PROD const *> const &,
-                                    PROD &,
-                                    PtrRemapper const &)
-                            > mixFunc) {
+             std::function< void (std::vector<PROD const *> const &,
+                                  PROD &,
+                                  PtrRemapper const &)
+             > mixFunc) {
+  declareMixOp(inputTag, std::string(), mixFunc); // 2.
+}
+
+// 2.
+template <typename PROD>
+void
+art::MixHelper::
+declareMixOp(InputTag const &inputTag,
+             std::string const &outputInstanceLabel,
+             std::function< void (std::vector<PROD const *> const &,
+                                  PROD &,
+                                  PtrRemapper const &)
+             > mixFunc) {
   producesProvider_.produces<PROD>(outputInstanceLabel);
   std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
-                                                   outputInstanceLabel,
-                                                   mixFunc));
+                                               outputInstanceLabel,
+                                               mixFunc));
   mixOps_.push_back(p);
 }
 
+// 3.
 template <typename PROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
-               void (T::*mixFunc) (std::vector<PROD const *> const &,
-                                     PROD &,
-                                     PtrRemapper const &),
-               T *t) {
-  declareMixOp(inputTag, std::string(), mixFunc, t);
+             void (T::*mixFunc) (std::vector<PROD const *> const &,
+                                 PROD &,
+                                 PtrRemapper const &),
+             T &t) {
+  declareMixOp(inputTag, std::string(), mixFunc, t); // 4.
 }
 
+// 4.
 template <typename PROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
-               std::string const &outputInstanceLabel,
-               void (T::*mixFunc) (std::vector<PROD const *> const &,
-                                     PROD &,
-                                     PtrRemapper const &),
-               T *t) {
+             std::string const &outputInstanceLabel,
+             void (T::*mixFunc) (std::vector<PROD const *> const &,
+                                 PROD &,
+                                 PtrRemapper const &),
+             T &t) {
   producesProvider_.produces<PROD>(outputInstanceLabel);
   std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
-                                                   outputInstanceLabel,
-                                                   std::bind(mixFunc, t,
-                                                             _1, _2, _3)));
+                                               outputInstanceLabel,
+                                               std::bind(mixFunc, t,
+                                                         _1, _2, _3)));
+  mixOps_.push_back(p);
+}
+
+// 5.
+template <typename PROD, typename T>
+void
+art::MixHelper::
+declareMixOp(InputTag const &inputTag,
+             void (T::*mixFunc) (std::vector<PROD const *> const &,
+                                 PROD &,
+                                 PtrRemapper const &) const,
+             T const &t) {
+  declareMixOp(inputTag, std::string(), mixFunc, t); // 6.
+}
+
+// 6.
+template <typename PROD, typename T>
+void
+art::MixHelper::
+declareMixOp(InputTag const &inputTag,
+             std::string const &outputInstanceLabel,
+             void (T::*mixFunc) (std::vector<PROD const *> const &,
+                                 PROD &,
+                                 PtrRemapper const &) const,
+             T const &t) {
+  producesProvider_.produces<PROD>(outputInstanceLabel);
+  std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
+                                               outputInstanceLabel,
+                                               std::bind(mixFunc, t,
+                                                         _1, _2, _3)));
   mixOps_.push_back(p);
 }
 

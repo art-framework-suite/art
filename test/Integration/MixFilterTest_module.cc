@@ -87,31 +87,31 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
 
   helper.declareMixOp
     (art::InputTag("doubleLabel", ""),
-     &MixFilterTestDetail::mixByAddition<double>, this);
+     &MixFilterTestDetail::mixByAddition<double>, *this);
 
   helper.declareMixOp
     (art::InputTag("IntProductLabel", ""),
-     &MixFilterTestDetail::mixByAddition<arttest::IntProduct>, this);
+     &MixFilterTestDetail::mixByAddition<arttest::IntProduct>, *this);
 
   helper.declareMixOp
     (art::InputTag("stringLabel", "SWRITE"),
-     &MixFilterTestDetail::mixByAddition<std::string>, this);
+     &MixFilterTestDetail::mixByAddition<std::string>, *this);
 
   helper.declareMixOp
     (art::InputTag("doubleCollectionLabel", ""),
-     &MixFilterTestDetail::aggregateCollection, this);
+     &MixFilterTestDetail::aggregateCollection, *this);
 
   helper.declareMixOp
     (art::InputTag("doubleVectorPtrLabel", ""),
-     &MixFilterTestDetail::mixPtrs, this);
+     &MixFilterTestDetail::mixPtrs, *this);
 
   helper.declareMixOp
     (art::InputTag("doublePtrVectorLabel", ""),
-     &MixFilterTestDetail::mixPtrVectors, this);
+     &MixFilterTestDetail::mixPtrVectors, *this);
 
   helper.declareMixOp
     (art::InputTag("ProductWithPtsLabel", ""),
-     &MixFilterTestDetail::mixProductWithPtrs, this);
+     &MixFilterTestDetail::mixProductWithPtrs, *this);
 }
 
 void

@@ -128,7 +128,7 @@
 //     Note: if the compiler complains about an unresolved overload set
 //     for this signature, try an explicit:
 //
-//       const_cast<Aprocessor *>(myAp);
+//       const_cast<Aprocessor &>(myAp);
 //
 //  9. Remap and flatten a set of containers of Ptrs (including
 // PtrVector) which is a component of the provided product using the
@@ -147,7 +147,7 @@
 //     Note: if the compiler complains about an unresolved overload set
 //     for this signature, try an explicit:
 //
-//       const_cast<Aprocessor const *>(myAp);
+//       const_cast<Aprocessor const &>(myAp);
 //
 // 10. More general version of 5-9. that takes a final argument which is
 // of arbitrary type provided it or its operator() has the correct
