@@ -7,7 +7,7 @@
 // mixing products from a secondary event stream into the primary event.
 //
 // The MixFilter class template requires the use of a type T as its
-// template parameter, The type T must supply the following non-static
+// template parameter; this type T must supply the following non-static
 // member functions:
 //
 //    T(fhicl::ParameterSet const &p, art::MixHelper &helper);
@@ -31,28 +31,29 @@
 //    // Provide the number of secondary events to be mixed into the
 //    // current primary event.
 //
-// In addition, the following optional member functions are called at
-// the appropriate time if defined (it is *not* an error to omit these
-// declarations but if they are declared they must be defined).:
+// In addition, T may optionally provide any or all of the following
+// member functions; each will be called at the appropriate time iff
+// it is declared.  (There must, of course, be a function definition
+// corresponding to each declared function.)
 //
 //    void startEvent();
 //
-//    // Optionally reset internal cache information at the start of the
-//    // current event.
+//    // Reset internal cache information at the start of the current
+//    // event.
 //
 //    void processEventIDs(art::EventIDSequence const &seq);
 //
-//    // Optionally receive the ordered sequence of EventIDs that will
-//    // be mixed into the current event for bookkeeping purposes.
+//    // Receive the ordered sequence of EventIDs that will be mixed into
+//    // the current event; useful for bookkeeping purposes.
 //
 //    void finalizeEvent(art::Event &t);
 //
-//    // Do end-of-event tasks including the placement of bookkeeping
-//    // objects into the primary event.
+//    // Do end-of-event tasks (e.g., inserting bookkeeping objects into
+//    // the primary event).
 //
 // Functions declared to the MixHelper to actually carry out the mixing
-// of the products may be member functions of this or another class; or
-// free functions or function objects.
+// of the products may be (1) member functions of this or another class;
+// or (2) free functions or (3) function objects.
 // ======================================================================
 
 #include "art/Framework/Core/EDFilter.h"
@@ -75,7 +76,7 @@ namespace art {
     // Does the detail object have a method void startEvent()?
     template <typename T, void (T::*)()> struct startEvent_function;
 
-    template <typename T> struct void_do_not_call_startEvent {
+    template <typename T> struct do_not_call_startEvent {
     public:
       void operator()(T &t) {}
     };
@@ -105,7 +106,7 @@ namespace art {
     // processEventIDs(EventIDSequence &)?
     template <typename T, void (T::*)(EventIDSequence &)> struct processEventIDs_function;
 
-    template <typename T> struct void_do_not_call_processEventIDs {
+    template <typename T> struct do_not_call_processEventIDs {
     public:
       void operator()(T &, EventIDSequence &) {}
     };
@@ -134,7 +135,7 @@ namespace art {
     // Does the detail object have a method void finalizeEvent(Event&)?
     template <typename T, void (T::*)(Event &)> struct finalizeEvent_function;
 
-    template <typename T> struct void_do_not_call_finalizeEvent {
+    template <typename T> struct do_not_call_finalizeEvent {
     public:
       void operator()(T &, Event &) {}
     };
@@ -204,7 +205,7 @@ art::MixFilter<T>::filter(art::Event &e) {
   // 1. Call detail object's startEvent() if it exists.
   typename std::conditional<detail::has_startEvent<T>::value,
     detail::call_startEvent<T>,
-    detail::void_do_not_call_startEvent<T> >::type maybe_call_startEvent;
+    detail::do_not_call_startEvent<T> >::type maybe_call_startEvent;
   maybe_call_startEvent(detail_);
 
   // 2. Ask detail object how many events to read.
@@ -221,7 +222,7 @@ art::MixFilter<T>::filter(art::Event &e) {
   // 4. Give the event ID sequence to the detail object.
   typename std::conditional<detail::has_processEventIDs<T>::value,
     detail::call_processEventIDs<T>,
-    detail::void_do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
+    detail::do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
 
   // 3. Make the MixHelper read info into all the products, invoke the
@@ -231,13 +232,12 @@ art::MixFilter<T>::filter(art::Event &e) {
   // 4. Call detail object's finalizeEvent() if it exists.
   typename std::conditional<detail::has_finalizeEvent<T>::value,
     detail::call_finalizeEvent<T>,
-    detail::void_do_not_call_finalizeEvent<T> >::type
+    detail::do_not_call_finalizeEvent<T> >::type
     maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return false;
 }
 
-// }
 #endif /* art_Framework_Modules_MixFilter_h */
 
 // Local Variables:

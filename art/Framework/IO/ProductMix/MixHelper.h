@@ -3,35 +3,38 @@
 ////////////////////////////////////////////////////////////////////////
 // MixHelper
 //
-// Class providing registration services at construction time to
-// "detail" classes for mixing, such being the class given as template
-// argument to the instantiation of the "MixFilter" module template.
+// Class providing, at construction time, registration services to
+// users' "detail" mixing classes. (A "detail" class is the template
+// argument to the instantiation of the "MixFilter" module template.)
 //
 //////////////////////////////////////////////////////////////////////
 // declareMixOp templates.
 //
 // These function templates should be used by writers of product-mixing
-// modules to declare a product mix operation. Such an operation may be
-// specified by providing:
+// "detail" classes to declare each product mix operation. Such an
+// operation may be specified by providing:
 //
 //  1. an InputTag specifying which secondary products should be mixed;
 //
 //  2. an optional instance label for the mixed product; and
 //
-//  3. a mix function. This mix function should have the following
-// signature:
+//  3. a callable mixer such as:
 //
 //     void mixfunc(std::vector<PROD const *> const &,
 //                  PROD &,
 //                  PtrRemapper const &),
 //
-//     This function may be a free function, a function object (in which
-//     case operator() should be the member function with the correct
-//     signature) or a member function of any class provided it has the
-//     same return type and arguments.
+//     As the user may prefer, the mixer may take the form of:
+//       a) an arbitrarily-named free function, or
+//       b) a function object whose operator() must have the correct
+//          type (see below), or
+//       c) an arbitrarily-named member function of any class.
+//     In each case, the mixer must have the same type (i.e.,
+//     the same return type and the same parameter types) illustrated
+//     by "mixfunc" above.
 //
-//     For free functions, function objects and pre-bound member
-//     functions the product type template argument need not be
+//     For free functions, function objects, and pre-bound member
+//     functions, the product type template argument need not be
 //     specified as it can be deduced from the signature of the provided
 //     function.
 //
@@ -49,29 +52,26 @@
 //     specified in order to constrain the overload set to a single
 //     function.
 //
-// Signatures for declareMixOp():
+// declareMixOp() may be called with any of the following argument
+// combinations:
 //
-//   1. Provide an InputTag and free function or function object.
+//   1. Provide an InputTag and a mixer that is a free function or
+//      function object.
 //
+//   2. Provide an InputTag, an output instance label, and a mixer that
+//      is a free function or function object.
 //
-//   2. Provide an InputTag, output instance label, and free function or
-//   function object of the required signature.
+//   3. Provide an InputTag, a mixer that is a non-const member function
+//      (of any class), and an object to which that member function should
+//      be bound.
 //
+//   4. Provide an InputTag, an output instance label, a mixer that is a
+//      non-const member function (of any class), and an object to which
+//      that member function should be bound.
 //
-//   3. Provide an InputTag, member function (of any class) with the
-//   required signature and object to which the member function should
-//   be bound.
+//    5. Same as 3, but providing a mixer that is a const member function.
 //
-//
-//   4. Provide an InputTag, output instance label, member function (of
-//   any class) with the required signature, and object to which the
-//   member function should be bound.
-//
-//
-//    5. Per 3, providing a const member function.
-//
-//
-//    6. Per 4, providing a const member function.
+//    6. Same as 4, but providing a mixer that is a const member function.
 //
 // Note: For signatures 3-6, if the compiler complains about an
 // unresolved overload your first move should be to specify the product
@@ -90,11 +90,11 @@
 // produces() templates.
 //
 // Call as you would from the constructor of a module to declare
-// (e.g. bookkeeping) products to be put into the event that are *not*
+// (e.g., bookkeeping) products to be put into the event that are *not*
 // direct results of a product mix. For the latter case, see the
 // declareMixOp() templates above.
 //
-// Signatures for produces:
+// Signatures for produces():
 //
 // 1. produces<PROD>(optional_instance_name);
 //
@@ -106,6 +106,11 @@
 //    Register a product to go into the run or subrun.
 //
 ////////////////////////////////////////////////////////////////////////
+
+#include "CLHEP/Random/RandFlat.h"
+#include "Rtypes.h"
+#include "TFile.h"
+#include "TTree.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
@@ -118,24 +123,16 @@
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
+#include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "cpp0x/functional"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-
-#include "CLHEP/Random/RandFlat.h"
-
-#include "boost/noncopyable.hpp"
-
-#include "Rtypes.h"
-#include "TFile.h"
-#include "TTree.h"
-
 #include <string>
 #include <vector>
 

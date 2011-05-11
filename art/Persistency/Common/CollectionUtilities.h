@@ -1,9 +1,9 @@
 #ifndef art_Persistency_Common_CollectionUtilities_h
 #define art_Persistency_Common_CollectionUtilities_h
 ////////////////////////////////////////////////////////////////////////
-// CollectionUtilites.h
+// CollectionUtilities.h
 //
-// A collection of possibly-useful free function templatess for use with
+// A collection of possibly-useful free function templates for use with
 // collections. In all the below signatures, the following variables are
 // used:
 //
@@ -24,7 +24,7 @@
 // OFFSET_CONTAINER must support clear(), reserve() and push_back();
 //
 // COLLECTION must support insert() specifying iterators, const and
-// non-const begin() and end(), reserve(). Its iterators must support
+// non-const begin() and end(), and reserve(). Its iterators must support
 // preincrement (operator++), comparisons and dereferencing (operator*).
 //
 // Some functions below expect COLLECTION to be a PtrVector<PROD> or
@@ -67,6 +67,7 @@
 // case that one has a Ptr *into* a PtrVector.
 //
 ////////////////////////////////////////////////////////////////////////
+
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/ProductID.h"
@@ -111,7 +112,7 @@ namespace art {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// No user-servicable parts below.
+// No user-serviceable parts below.
 ////////////////////////////////////////////////////////////////////////
 
 namespace art {

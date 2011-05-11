@@ -14,7 +14,7 @@
 //
 // PtrRemapper is a function object, so all of its work is done with the
 // apply operator -- operator(). This means that if your mixing function
-// has an argument (eg)
+// has an argument (e.g.)
 //
 //   art::PtrRemapper const &remap
 //
@@ -26,12 +26,12 @@
 // templates, they can look fairly impenetrable. It is recommended
 // tberefore to use this header documentation to decide what signature
 // is most appropriate for your use rather than looking below at the
-// prototypes or the implementation: there really are, "No
-// User-servicable Parts."
+// prototypes or the implementation: there really are "No
+// User-serviceable Parts."
 //
 // Notes common to several signatures.
 //
-// * With the exception of the (required rarely) signature 10 (see its
+// * With the exception of the (rarely required) signature 10 (see its
 // specific documentation), all template arguments are deducible from
 // the function arguments and therefore it is not necessary to specify
 // them in <>.
@@ -67,9 +67,9 @@
 //       PtrVector<A> newPV(remap(oldPV, offset));
 //
 //  3. Remap a compatible collection (including PtrVector) of Ptr
-// providing begin, end iteratorsq. This will also remap a compatible
+// providing begin, end iteratorsq. (This will also remap a compatible
 // collection of PtrVector, but not of PtrVector const * -- for the
-// latter, see 4-10.
+// latter, see 4-10.)
 //
 //       PtrVector<A> newPV;
 //       remap(oldPV.begin(),
@@ -95,7 +95,7 @@
 //         return prod->myBs();
 //       }
 //
-//       remap(in, out, offsets, &myfunc); 
+//       remap(in, out, offsets, &myfunc);
 //
 //  6. Remap and flatten a set of containers of Ptrs (including
 // PtrVector) which may be obtained from a component of the provided
@@ -166,6 +166,7 @@
 //     flexibility.
 //
 ////////////////////////////////////////////////////////////////////////
+
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/Ptr.h"
@@ -173,7 +174,6 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/functional"
-
 #include <map>
 
 namespace art {
@@ -429,7 +429,7 @@ operator()(std::vector<PROD const *> const &in,
            OFFSETS const &offsets,
            CONT PROD::*const data) const {
   this->operator()<CONT>(in, out, offsets, data); // 10.
-}  
+}
 
 // 8.
 template <typename PROD, typename OutIter, typename CONT, typename X, typename OFFSETS>

@@ -1,5 +1,6 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
+#include "Rtypes.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
@@ -11,8 +12,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <cassert>
 #include <functional>
-
-#include "Rtypes.h"
 
 namespace {
   class EventIDIndexBuilder :
@@ -39,7 +38,7 @@ namespace {
     static std::regex r("^seq", std::regex_constants::icase);
     return r;
   }
-}
+}  // namespace
 
 inline
 EventIDIndexBuilder::EventIDIndexBuilder(art::EventIDIndex &index)
