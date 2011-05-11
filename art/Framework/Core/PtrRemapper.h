@@ -3,8 +3,9 @@
 ////////////////////////////////////////////////////////////////////////
 // PtrRemapper
 //
-// Class to aid in remapping Ptrs in various settings from one branch
-// to another branch of the same type.
+// Class to aid in remapping Ptrs in various settings from items in one
+// branch to (presumably the equivalent) items in another branch of the
+// same type.
 //
 // This class is primarily for use in product mixing and will be
 // properly initialized (setProdTransMap(), setProductGetter()) by the
@@ -12,8 +13,8 @@
 // function.
 //
 // PtrRemapper is a function object, so all of its work is done with the
-// apply operator -- operator(). This means that if your function has an
-// argument (eg)
+// apply operator -- operator(). This means that if your mixing function
+// has an argument (eg)
 //
 //   art::PtrRemapper const &remap
 //
@@ -24,8 +25,36 @@
 // There are several signatures to operator() and because they are all
 // templates, they can look fairly impenetrable. It is recommended
 // tberefore to use this header documentation to decide what signature
-// is most appropriate for your use rather thanlooking below: there
-// really are, "No User-servicable Parts."
+// is most appropriate for your use rather than looking below at the
+// prototypes or the implementation: there really are, "No
+// User-servicable Parts."
+//
+// Notes common to several signatures.
+//
+// * With the exception of the (required rarely) signature 10 (see its
+// specific documentation), all template arguments are deducible from
+// the function arguments and therefore it is not necessary to specify
+// them in <>.
+//
+// * Commonly-used arguments:
+//
+//     * std::vector<COLLECTION<PROD> const *> const &in
+//
+//     * OutIter &out
+//
+//       OutIter is a variable of category insert_iterator (usually
+//       created by, for instance std::back_inserter(container)) into a
+//       container of Ptr (either PtrVector or some other collection of
+//       Ptr).
+//
+//     * offset is a single offset into the container into which the Ptr
+//     points. It should be of type
+//     convertible-to-container::size::type.
+//
+//     * offsets is an arbitrary container of such offsets as described
+//     in the documentation in
+//     art/Persistency/Common/CollectionUtilities.h.
+//
 //
 // Available signatures to operator() and example usage:
 //
@@ -122,8 +151,9 @@
 //
 // 10. More general version of 5-9. that takes a final argument which is
 // of arbitrary type provided it or its operator() has the correct
-// signature. The drawback is that one of the template arguments is not
-// deducible, meaning that instead of:
+// signature. The drawback is that one of the template arguments (CONT,
+// specifying the type of the collection of Ptrs you wish to remap) is
+// not deducible, meaning that instead of:
 //
 //       remap(...);
 //
@@ -201,7 +231,7 @@ public:
   void setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter);
 
   //////////////////////////////////////////////////////////////////////
-  // Signatures for operator() -- see documentation at top of header..
+  // Signatures for operator() -- see documentation at top of header.
 
   // 1.
   template <typename PROD, typename SIZE_TYPE>
@@ -215,7 +245,7 @@ public:
   template <typename InIter, typename OutIter, typename SIZE_TYPE>
   void operator()(InIter beg,
                   InIter end,
-                  OutIter dest,
+                  OutIter out,
                   SIZE_TYPE offset) const;
 
   // 4.
@@ -334,7 +364,7 @@ void
 art::PtrRemapper::
 operator()(InIter beg,
            InIter end,
-           OutIter dest,
+           OutIter out,
            SIZE_TYPE offset) const {
   if (!detail::verifyPtrCollection(beg, end)) {
     // FIXME: correct this exception.
@@ -350,7 +380,7 @@ operator()(InIter beg,
     // PtrVector, then the call order will be 3, 2, 3, 1 due to the
     // templates that will be instantiated i.e. the relationship between
     // signatures 2 and 3 is *not* infinitely recursive.
-    *dest++ = this->operator()(*i, offset); // 1 OR 2.
+    *out++ = this->operator()(*i, offset); // 1 OR 2.
   }
 }
 
