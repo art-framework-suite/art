@@ -30,6 +30,7 @@ namespace {
       std::pair<art::BranchKey, art::BranchDescription> d10;
       std::map<art::BranchKey, art::BranchDescription> d11;
       std::set<fhicl::ParameterSetID> d12;
+      art::ProcessConfigurationID d13a;
       std::set<art::ProcessConfigurationID> d13;
       std::vector<art::BranchID> d14;
       std::set<art::ProcessHistoryID> d15;
