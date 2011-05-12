@@ -12,7 +12,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include <string>
 
 namespace art {

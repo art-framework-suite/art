@@ -20,6 +20,7 @@
 //
 // -----------------------------------------------------------------
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Utilities/TypeID.h"

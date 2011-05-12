@@ -8,6 +8,7 @@
 //
 //----------------------------------------------------------------------
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"

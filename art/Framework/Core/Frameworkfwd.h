@@ -17,34 +17,21 @@ namespace art {
 
   class ConfigurableInputSource;
   class CurrentProcessingContext;
-  class DataViewImpl;
   class DelayedReader;
   class EDAnalyzer;
   class EDFilter;
   class EDLooper;
   class EDProducer;
-  class Event;
-  class EventPrincipal;
   class FileBlock;
   class GeneratedInputSource;
-  class Group;
   class InputSource;
   class InputSourceDescription;
-  class SubRun;
-  class SubRunPrincipal;
-  class NoDelayedReader;
   class OutputModule;
   class OutputModuleDescription;
-  class Principal;
   class ProcessNameSelector;
   class ProductRegistryHelper;
-  class Run;
-  class RunPrincipal;
   class Schedule;
-  class Selector;
-  class SelectorBase;
   class TypeID;
-  class UnscheduledHandler;
 
   struct EventSummary;
   struct PathSummary;

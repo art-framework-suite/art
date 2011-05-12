@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/Actions.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"

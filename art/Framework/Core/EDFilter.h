@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"

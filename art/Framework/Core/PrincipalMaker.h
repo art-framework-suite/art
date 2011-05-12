@@ -9,6 +9,7 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 

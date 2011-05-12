@@ -65,6 +65,7 @@
 
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/Path.h"

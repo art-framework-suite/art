@@ -18,7 +18,7 @@ pointer to a Group, when queried.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Group.h"
 #include "art/Framework/Core/NoDelayedReader.h"
 #include "art/Persistency/Common/BasicHandle.h"

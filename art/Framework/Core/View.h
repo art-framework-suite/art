@@ -17,6 +17,7 @@
 //
 
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Common/PtrVector.h"
 
 namespace art

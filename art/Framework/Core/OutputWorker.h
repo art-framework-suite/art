@@ -11,6 +11,7 @@ appear in one worker.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "cpp0x/memory"

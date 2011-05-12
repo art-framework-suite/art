@@ -9,6 +9,8 @@ Abstract base class for Event Processors
 Original Authors: W. David Dagenhart, Marc Paterno
 */
 
+#include "art/Framework/Core/FCPfwd.h"
+
 #include <string>
 
 namespace statemachine {

@@ -8,6 +8,7 @@ uses input sources to retrieve EDProducts from external storage.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "cpp0x/memory"
 

@@ -8,6 +8,7 @@ WorkerT: Code common to all workers.
 ----------------------------------------------------------------------*/
 
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Core/WorkerParams.h"

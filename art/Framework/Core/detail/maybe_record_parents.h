@@ -2,6 +2,7 @@
 #define art_Framework_Core_detail_maybe_record_parents_h
 
 #include "art/Framework/Core/DataViewImpl.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "cpp0x/type_traits"
 #include <utility>
 

@@ -43,6 +43,7 @@ Some examples of InputSource subclasses may be:
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"

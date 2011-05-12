@@ -8,6 +8,7 @@ EDProducts into an Event.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "cpp0x/functional"
 #include "cpp0x/memory"

@@ -10,6 +10,7 @@
 
 #include "art/Framework/Core/CachedProducts.h"
 #include "art/Framework/Core/EventObserver.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"

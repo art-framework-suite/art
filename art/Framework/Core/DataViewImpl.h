@@ -50,7 +50,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/Handle.h"

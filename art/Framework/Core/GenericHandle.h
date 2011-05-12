@@ -24,6 +24,7 @@
 
 #include "Reflex/Object.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Utilities/UseReflex.h"
 #include "cpp0x/memory"

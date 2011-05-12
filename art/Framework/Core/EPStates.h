@@ -10,6 +10,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/statechart/event.hpp"

@@ -12,6 +12,7 @@ or subRun.
 Original Author: W. David Dagenhart
 */
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 

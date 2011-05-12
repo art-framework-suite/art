@@ -7,6 +7,7 @@
 // 2011/03/15 CG,
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Principal.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"

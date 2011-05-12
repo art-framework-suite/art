@@ -11,26 +11,38 @@ foreach(cfg_source
     )
 endforeach()
 
+set(art_Framework_CorePrincipal_sources
+  DataViewImpl.cc
+  Event.cc
+  EventPrincipal.cc
+  Group.cc
+  NoDelayedReader.cc
+  Principal.cc
+  Run.cc
+  RunPrincipal.cc
+  Selector.cc
+  SelectorBase.cc
+  SubRun.cc
+  SubRunPrincipal.cc
+)
+
 set( art_Framework_Core_sources
   ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   Actions.cc
   Breakpoints.cc
   CachedProducts.cc
   CurrentProcessingContext.cc
-  DataViewImpl.cc
   DecrepitRelicInputSourceImplementation.cc
   DelayedReader.cc
   EDAnalyzer.cc
   EDFilter.cc
   EDProducer.cc
+  EngineCreator.cc
   EPStates.cc
-  Event.cc
   EventObserver.cc
-  EventPrincipal.cc
   EventProcessor.cc
   EventSelector.cc
   GenericHandle.cc
-  Group.cc
   GroupSelector.cc
   GroupSelectorRules.cc
   IEventProcessor.cc
@@ -38,24 +50,16 @@ set( art_Framework_Core_sources
   InputSourceFactory.cc
   IntermediateTablePostProcessor.cc
   ModuleFactory.cc
-  NoDelayedReader.cc
   OutputModule.cc
   OutputWorker.cc
   Path.cc
-  Principal.cc
   PrincipalCache.cc
   PrincipalMaker.cc
   ProducerBase.cc
   ProductRegistryHelper.cc
   RootDictionaryManager.cc
-  Run.cc
-  RunPrincipal.cc
   Schedule.cc
-  Selector.cc
-  SelectorBase.cc
   SignallingProductRegistry.cc
-  SubRun.cc
-  SubRunPrincipal.cc
   TFileDirectory.cc
   TH1AddDirectorySentry.cc
   TriggerNames.cc
@@ -74,6 +78,8 @@ target_link_libraries(art_Framework_Core
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_System_TriggerNamesService_service
+  art_Framework_Services_Optional_RandomNumberGenerator_service
+  art_Framework_CorePrincipal
   art_Persistency_Provenance
   art_Persistency_Common
   art_Framework_Services_Registry
@@ -84,6 +90,21 @@ target_link_libraries(art_Framework_Core
   ${CLHEP}
   ${SIGC}
 )
+
+add_library(art_Framework_CorePrincipal SHARED ${art_Framework_CorePrincipal_sources})
+target_link_libraries(art_Framework_CorePrincipal
+  art_Persistency_Provenance
+  art_Persistency_Common
+  art_Framework_Services_Registry
+  art_Version
+  ${MF_MESSAGELOGGER}
+  ${FHICLCPP}
+  ${CETLIB}
+  ${CLHEP}
+  ${SIGC}
+)
+
+
 set( art_Framework_CoreArt_sources
   NovaConfigPostProcessor.cc
   artapp.cc

@@ -11,6 +11,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"

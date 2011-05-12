@@ -10,6 +10,7 @@
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRun.h"
