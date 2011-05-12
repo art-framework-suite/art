@@ -10,8 +10,10 @@
 #include "art/Persistency/Provenance/History.h"
 #include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include <cassert>
 #include <functional>
+#include <limits>
 
 namespace {
   class EventIDIndexBuilder :
@@ -77,7 +79,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
                           ProducerBase &producesProvider)
   :
   producesProvider_(producesProvider),
-  filenames_(pset.get<std::vector<std::string> >("filenames")),
+  filenames_(pset.get<std::vector<std::string> >("fileNames")),
   mixOps_(),
   ptrRemapper_(),
   currentFilename_(filenames_.begin()),
@@ -95,7 +97,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const &pset,
   currentEventTree_(),
   dataBranches_()
 {
-  if (coverageFraction_ > 1.00001) {
+  if (coverageFraction_ > (1 + std::numeric_limits<double>::epsilon())) {
     mf::LogWarning("Configuration")
       << "coverageFraction > 1: treating as a percentage.\n";
     coverageFraction_ /= 100.0;
