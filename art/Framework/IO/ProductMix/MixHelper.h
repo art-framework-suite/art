@@ -69,9 +69,9 @@
 //      non-const member function (of any class), and an object to which
 //      that member function should be bound.
 //
-//    5. Same as 3, but providing a mixer that is a const member function.
+//   5. Same as 3, but providing a mixer that is a const member function.
 //
-//    6. Same as 4, but providing a mixer that is a const member function.
+//   6. Same as 4, but providing a mixer that is a const member function.
 //
 // Note: For signatures 3-6, if the compiler complains about an
 // unresolved overload your first move should be to specify the product
