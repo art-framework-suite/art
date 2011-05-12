@@ -31,7 +31,8 @@ simple_plugin(Throwing                 "service" NOINSTALL )
 simple_plugin(ToyRawInput              "source" NOINSTALL )
 simple_plugin(ToyRawInputTester        "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
-simple_plugin(MixFilterTest          "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixProducer              "module" NOINSTALL )
+simple_plugin(MixFilterTest            "module" art_Framework_IO_ProductMix NOINSTALL )
 
 # Common library link requirements for tests here.
 link_libraries(
@@ -278,6 +279,21 @@ cet_test(BareString_r HANDBUILT
   fcl/BareString_r.fcl
 )
 
+
+cet_test(ProductMix_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "ProductMix_w.fcl"
+  DATAFILES
+  fcl/ProductMix_w.fcl
+)
+
+cet_test(ProductMix_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "ProductMix_r.fcl"
+  DATAFILES
+  fcl/ProductMix_r.fcl
+)
+
 if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
     (${CMAKE_VERSION} VERSION_GREATER "2.8"))
   # For parallel testing, enforce an order.
@@ -285,6 +301,7 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
   SET_TESTS_PROPERTIES(ToyRawInput_r1 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ToyRawInput_r2 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ToyRawInput_r3 PROPERTIES DEPENDS ToyRawInput_w)
+  SET_TESTS_PROPERTIES(ProductMix_r PROPERTIES DEPENDS ProductMix_w)
 endif()
 
 ########################################################################

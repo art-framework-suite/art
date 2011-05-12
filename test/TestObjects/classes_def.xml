@@ -48,4 +48,12 @@
  <class name="art::Ptr<arttest::SimpleDerived>"/>
  <class name="art::PtrVector<arttest::SimpleDerived>"/>
  <class name="art::Wrapper<art::PtrVector<arttest::SimpleDerived> >"/>
+
+ <class name="arttest::ProductWithPtrs"/>
+ <class name="std::vector<art::Ptr<double> >"/>
+ <class name="art::Ptr<double>"/>
+ <class name="art::PtrVector<double>"/>
+ <class name="art::Wrapper<arttest::ProductWithPtrs>"/>
+ <class name="art::Wrapper<std::vector<art::Ptr<double> > >"/>
+ <class name="art::Wrapper<art::PtrVector<double> >"/>
 </lcgdict>

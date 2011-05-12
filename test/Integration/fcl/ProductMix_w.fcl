@@ -1,0 +1,32 @@
+process_name: "SWRITE"
+
+physics:
+{
+  producers:
+  {
+    mixProducer:
+    {
+      module_type: MixProducer
+    }
+  }
+
+  p1: [ mixProducer ]
+  trigger_paths: [ p1 ]
+  e1: [ out ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out:
+  {
+    module_type: RootOutput
+    fileName: "mix.root"
+  }
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1000
+}

@@ -15,6 +15,9 @@ class arttest::ProductWithPtrs {
 public:
   ProductWithPtrs();
 
+  ProductWithPtrs(art::PtrVector<double> const &pvd,
+                  std::vector<art::Ptr<double> > const &vpd);
+
   // Observers
   art::PtrVector<double> const &ptrVectorDouble() const;
   std::vector<art::Ptr<double> > const &vectorPtrDouble() const;
@@ -29,7 +32,21 @@ public:
 };
 
 inline
-arttest::ProductWithPtrs::ProductWithPtrs() {}
+arttest::ProductWithPtrs::
+ProductWithPtrs()
+  :
+  pvd_(),
+  vpd_()
+{}
+
+inline
+arttest::ProductWithPtrs::
+ProductWithPtrs(art::PtrVector<double> const &pvd,
+                std::vector<art::Ptr<double> > const &vpd)
+  :
+  pvd_(pvd),
+  vpd_(vpd)
+{}
 
 inline
 art::PtrVector<double> const &
@@ -42,6 +59,20 @@ inline
 std::vector<art::Ptr<double> > const &
 arttest::ProductWithPtrs::
 vectorPtrDouble() const {
+  return vpd_;
+}
+
+inline
+art::PtrVector<double> &
+arttest::ProductWithPtrs::
+ptrVectorDouble() {
+  return pvd_;
+}
+
+inline
+std::vector<art::Ptr<double> > &
+arttest::ProductWithPtrs::
+vectorPtrDouble() {
   return vpd_;
 }
 

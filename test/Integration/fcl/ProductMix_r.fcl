@@ -1,0 +1,36 @@
+process_name: "SWRITE"
+
+physics:
+{
+  filters:
+  {
+    mixFilter:
+    {
+      module_type: MixFilterTest
+      numSecondaries: 5
+      mixProducerLabel: mixProducer
+      fileNames: [ "mix.root" ]
+      readMode: sequential
+    }
+  }
+
+  p1: [ mixFilter ]
+  trigger_paths: [ p1 ]
+  e1: [ out ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1000
+}

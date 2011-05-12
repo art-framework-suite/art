@@ -25,8 +25,13 @@ namespace arttest
     explicit IntProduct(int i=0) : value(i) { }
     ~IntProduct() { }
 
+    IntProduct &operator+= (IntProduct const &other)
+    { value += other.value; return *this; }
+
     int value;
   };
+
+
 
   struct Int16_tProduct
   {

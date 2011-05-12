@@ -16,7 +16,7 @@ namespace arttest {
 
 class arttest::MixFilterTestDetail {
 public:
-  // Constructor is resposible for registering mix operations with
+  // Constructor is responsible for registering mix operations with
   // MixHelper::declareMixOp() and bookkeeping products with
   // MixHelperproduces().
   MixFilterTestDetail(fhicl::ParameterSet const &p,
@@ -83,34 +83,37 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
   nSecondaries_(p.get<size_t>("nunSecondaries", 1)),
   testRemapper_(p.get<bool>("testRemapper", 1))
 {
+  std::string mixProducerLabel(p.get<std::string>("mixProducerLabel",
+                                                  "mixProducer"));
+
   helper.produces<std::string>(); // "Bookkeeping"
 
   helper.declareMixOp
-    (art::InputTag("doubleLabel", ""),
+    (art::InputTag(mixProducerLabel, "doubleLabel"),
      &MixFilterTestDetail::mixByAddition<double>, *this);
 
   helper.declareMixOp
-    (art::InputTag("IntProductLabel", ""),
+    (art::InputTag(mixProducerLabel, "IntProductLabel"),
      &MixFilterTestDetail::mixByAddition<arttest::IntProduct>, *this);
 
   helper.declareMixOp
-    (art::InputTag("stringLabel", "SWRITE"),
+    (art::InputTag(mixProducerLabel, "stringLabel", "SWRITE"),
      &MixFilterTestDetail::mixByAddition<std::string>, *this);
 
   helper.declareMixOp
-    (art::InputTag("doubleCollectionLabel", ""),
+    (art::InputTag(mixProducerLabel, "doubleCollectionLabel"),
      &MixFilterTestDetail::aggregateCollection, *this);
 
   helper.declareMixOp
-    (art::InputTag("doubleVectorPtrLabel", ""),
+    (art::InputTag(mixProducerLabel, "doubleVectorPtrLabel"),
      &MixFilterTestDetail::mixPtrs, *this);
 
   helper.declareMixOp
-    (art::InputTag("doublePtrVectorLabel", ""),
+    (art::InputTag(mixProducerLabel, "doublePtrVectorLabel"),
      &MixFilterTestDetail::mixPtrVectors, *this);
 
   helper.declareMixOp
-    (art::InputTag("ProductWithPtsLabel", ""),
+    (art::InputTag("ProductWithPtrsLabel"),
      &MixFilterTestDetail::mixProductWithPtrs, *this);
 }
 
@@ -140,6 +143,7 @@ finalizeEvent(art::Event &e) {
 
 template<typename T>
 void
+arttest::MixFilterTestDetail::
 mixByAddition(std::vector<T const *> const &in,
               T &out,
               art::PtrRemapper const &) {
@@ -148,7 +152,7 @@ mixByAddition(std::vector<T const *> const &in,
          e = in.end();
        i != e;
        ++i) {
-    out += *i;
+    out += **i;
   }
 }
 
