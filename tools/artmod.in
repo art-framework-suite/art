@@ -164,6 +164,7 @@ if (not exists $module_types->{lc $module_type}) {
     join(",", sort keys %{$module_types}), ")\n";
   exit(1);
 }
+$module_type = lc $module_type;
 
 # Process name;
 my @namespaces = split '::', $qual_name;
