@@ -5,22 +5,25 @@
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "cpp0x/memory"
 #include "art/Utilities/InputTag.h"
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
+
+#include "boost/noncopyable.hpp"
 
 namespace arttest {
   class MixFilterTestDetail;
   typedef art::MixFilter<MixFilterTestDetail> MixFilterTest;
 }
 
-class arttest::MixFilterTestDetail {
+class arttest::MixFilterTestDetail : private boost::noncopyable {
 public:
   // Constructor is responsible for registering mix operations with
   // MixHelper::declareMixOp() and bookkeeping products with
   // MixHelperproduces().
   MixFilterTestDetail(fhicl::ParameterSet const &p,
-                      art::MixHelper &helper);
+                      art::MixHelper &helper);    
 
   // Optional startEvent(): initialize state for each event,
   void startEvent();
@@ -60,10 +63,12 @@ public:
           std::vector<art::Ptr<double> > &out,
           art::PtrRemapper const &remap);
 
+#ifndef ART_NO_MIX_PTRVECTOR
   void
   mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
                  art::PtrVector<double> &out,
                  art::PtrRemapper const &remap);
+#endif
 
   void
   mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
@@ -74,19 +79,27 @@ private:
   size_t nSecondaries_;
   bool testRemapper_;
   std::vector<size_t> doubleVectorOffsets_;
+  std::auto_ptr<art::EventIDSequence> eIDs_;
+  bool startEvent_called_;
+  bool processEventIDs_called_;
 };
 
 arttest::MixFilterTestDetail::
 MixFilterTestDetail(fhicl::ParameterSet const &p,
                       art::MixHelper &helper)
   :
-  nSecondaries_(p.get<size_t>("nunSecondaries", 1)),
-  testRemapper_(p.get<bool>("testRemapper", 1))
+  nSecondaries_(p.get<size_t>("numSecondaries", 1)),
+  testRemapper_(p.get<bool>("testRemapper", 1)),
+  doubleVectorOffsets_(),
+  eIDs_(),
+  startEvent_called_(false),
+  processEventIDs_called_(false)
 {
   std::string mixProducerLabel(p.get<std::string>("mixProducerLabel",
                                                   "mixProducer"));
 
   helper.produces<std::string>(); // "Bookkeeping"
+  helper.produces<art::EventIDSequence>(); // "Bookkeeping"
 
   helper.declareMixOp
     (art::InputTag(mixProducerLabel, "doubleLabel"),
@@ -108,19 +121,22 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
     (art::InputTag(mixProducerLabel, "doubleVectorPtrLabel"),
      &MixFilterTestDetail::mixPtrs, *this);
 
+#ifndef ART_NO_MIX_PTRVECTOR
   helper.declareMixOp
     (art::InputTag(mixProducerLabel, "doublePtrVectorLabel"),
      &MixFilterTestDetail::mixPtrVectors, *this);
+#endif
 
   helper.declareMixOp
-    (art::InputTag("ProductWithPtrsLabel"),
+    (art::InputTag(mixProducerLabel, "ProductWithPtrsLabel"),
      &MixFilterTestDetail::mixProductWithPtrs, *this);
 }
 
 void
 arttest::MixFilterTestDetail::
 startEvent() {
-  // FIXME: placeholder.
+  startEvent_called_ = true;
+  eIDs_.reset();
 }
 
 size_t
@@ -132,13 +148,20 @@ nSecondaries() const {
 void
 arttest::MixFilterTestDetail::
 processEventIDs(art::EventIDSequence const &seq) {
-  // FIXME: placeholder.
+  processEventIDs_called_ = true;
+  eIDs_.reset(new art::EventIDSequence(seq));
 }
 
 void
 arttest::MixFilterTestDetail::
 finalizeEvent(art::Event &e) {
   e.put(std::auto_ptr<std::string>(new std::string("BlahBlahBlah")));
+  e.put(eIDs_);
+
+  assert(startEvent_called_);
+  assert(processEventIDs_called_);
+  startEvent_called_ = false;
+  processEventIDs_called_ = false;
 }
 
 template<typename T>
@@ -174,6 +197,7 @@ mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
         doubleVectorOffsets_);
 }
 
+#ifndef ART_NO_MIX_PTRVECTOR
 void
 arttest::MixFilterTestDetail::
 mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
@@ -183,29 +207,32 @@ mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
         std::back_inserter(out),
         doubleVectorOffsets_);
 }
+#endif
 
 void
 arttest::MixFilterTestDetail::
 mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
                    arttest::ProductWithPtrs &out,
                    art::PtrRemapper const &remap) {
+#ifndef ART_NO_MIX_PTRVECTOR
   remap(in,
-        out.ptrVectorDouble(),
+        std::back_inserter(out.ptrVectorDouble()),
         doubleVectorOffsets_,
         &arttest::ProductWithPtrs::ptrVectorDouble);
+#endif
 
   remap(in,
-        out.vectorPtrDouble(),
+        std::back_inserter(out.vectorPtrDouble()),
         doubleVectorOffsets_,
-        &arttest::ProductWithPtrs::ptrVectorDouble);
+        &arttest::ProductWithPtrs::vectorPtrDouble);
 
   // Throw-away object to test non-standard remap interface.
   arttest::ProductWithPtrs tmp;
 
   remap(in,
-        out.vectorPtrDouble(),
+        std::back_inserter(out.vectorPtrDouble()),
         doubleVectorOffsets_,
-        &arttest::ProductWithPtrs::pvd_);
+        &arttest::ProductWithPtrs::vpd_);
 
 }
 

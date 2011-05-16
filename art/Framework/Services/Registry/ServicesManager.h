@@ -14,6 +14,7 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
+#include "cetlib/demangle.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
@@ -202,7 +203,7 @@ namespace art {
     if( it == factory_.end() )
       throw art::Exception(art::errors::NotFound, "Service")
         << " unable to find requested service with compiler type name '"
-        << typeid(T).name() << "'.\n";
+        << cet::demangle(typeid(T).name()) << "'.\n";
 
     // Get the ServiceWrapperBase from the Cache object.
     WrapperBase_ptr swb = it->second.getService(registry_, actualCreationOrder_);

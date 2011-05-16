@@ -13,26 +13,27 @@ simple_plugin(IntProducer              "module" NOINSTALL )
 simple_plugin(IntTestAnalyzer          "module" NOINSTALL )
 simple_plugin(IntVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(IntVectorProducer        "module" NOINSTALL )
+simple_plugin(MixAnalyzer              "module" NOINSTALL )
+simple_plugin(MixFilterTest            "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixProducer              "module" NOINSTALL )
 simple_plugin(MockClusterListAnalyzer  "module" NOINSTALL )
 simple_plugin(MockClusterListProducer  "module" NOINSTALL )
 simple_plugin(PtrListAnalyzer          "module" NOINSTALL )
 simple_plugin(PtrVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(PtrVectorProducer        "module" NOINSTALL )
+simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Reconfiguring            "module" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer    "module" NOINSTALL )
 simple_plugin(SimpleDerivedProducer    "module" NOINSTALL )
-simple_plugin(TestFilter               "module" NOINSTALL )
 simple_plugin(TestBitsOutput           "module" NOINSTALL )
+simple_plugin(TestFilter               "module" NOINSTALL )
 simple_plugin(TestOutput               "module" NOINSTALL )
 simple_plugin(TestResultAnalyzer       "module" NOINSTALL )
-simple_plugin(U_S                      "module" ALLOW_UNDERSCORES NOINSTALL )
-simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Throwing                 "service" NOINSTALL )
 simple_plugin(ToyRawInput              "source" NOINSTALL )
 simple_plugin(ToyRawInputTester        "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
-simple_plugin(MixProducer              "module" NOINSTALL )
-simple_plugin(MixFilterTest            "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(U_S                      "module" ALLOW_UNDERSCORES NOINSTALL )
 
 # Common library link requirements for tests here.
 link_libraries(
@@ -287,11 +288,18 @@ cet_test(ProductMix_w HANDBUILT
   fcl/ProductMix_w.fcl
 )
 
-cet_test(ProductMix_r HANDBUILT
+cet_test(ProductMix_r1 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c "ProductMix_r.fcl"
+  TEST_ARGS -c "ProductMix_r1.fcl"
   DATAFILES
-  fcl/ProductMix_r.fcl
+  fcl/ProductMix_r1.fcl
+)
+
+cet_test(ProductMix_r2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "ProductMix_r2.fcl"
+  DATAFILES
+  fcl/ProductMix_r2.fcl
 )
 
 if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
@@ -301,7 +309,8 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
   SET_TESTS_PROPERTIES(ToyRawInput_r1 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ToyRawInput_r2 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ToyRawInput_r3 PROPERTIES DEPENDS ToyRawInput_w)
-  SET_TESTS_PROPERTIES(ProductMix_r PROPERTIES DEPENDS ProductMix_w)
+  SET_TESTS_PROPERTIES(ProductMix_r1 PROPERTIES DEPENDS ProductMix_w)
+  SET_TESTS_PROPERTIES(ProductMix_r2 PROPERTIES DEPENDS ProductMix_r1)
 endif()
 
 ########################################################################

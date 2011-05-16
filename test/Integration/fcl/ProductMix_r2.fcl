@@ -1,0 +1,27 @@
+process_name: "SR2"
+
+services.user: {
+  RandomNumberGenerator: { }
+}
+
+physics:
+{
+  analyzers:
+  {
+    mixAnalyzer:
+    {
+      module_type: MixAnalyzer
+      numSecondaries: 5
+      mixFilterLabel: mixFilter
+    }
+  }
+
+  e1: [ mixAnalyzer ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../ProductMix_r1.d/out.root" ]
+}

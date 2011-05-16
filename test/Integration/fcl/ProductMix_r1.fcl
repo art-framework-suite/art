@@ -1,4 +1,8 @@
-process_name: "SWRITE"
+process_name: "SREAD"
+
+services.user: {
+  RandomNumberGenerator: { }
+}
 
 physics:
 {
@@ -9,14 +13,24 @@ physics:
       module_type: MixFilterTest
       numSecondaries: 5
       mixProducerLabel: mixProducer
-      fileNames: [ "mix.root" ]
+      fileNames: [ "../ProductMix_w.d/mix.root" ]
       readMode: sequential
+    }
+  }
+
+  analyzers:
+  {
+    mixAnalyzer:
+    {
+      module_type: MixAnalyzer
+      numSecondaries: 5
+      mixFilterLabel: mixFilter
     }
   }
 
   p1: [ mixFilter ]
   trigger_paths: [ p1 ]
-  e1: [ out ]
+  e1: [ mixAnalyzer, out ]
   end_paths: [ e1 ]
 }
 
@@ -32,5 +46,5 @@ outputs:
 source:
 {
   module_type: EmptyEvent
-  maxEvents: 1000
+  maxEvents: 200
 }

@@ -103,17 +103,17 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
-    // processEventIDs(EventIDSequence &)?
-    template <typename T, void (T::*)(EventIDSequence &)> struct processEventIDs_function;
+    // processEventIDs(EventIDSequence const &)?
+    template <typename T, void (T::*)(EventIDSequence const &)> struct processEventIDs_function;
 
     template <typename T> struct do_not_call_processEventIDs {
     public:
-      void operator()(T &, EventIDSequence &) {}
+      void operator()(T &, EventIDSequence const &) {}
     };
 
     template <typename T> struct call_processEventIDs {
     public:
-      void operator()(T &t, EventIDSequence &seq) { t.processEventIDs(seq); }
+      void operator()(T &t, EventIDSequence const &seq) { t.processEventIDs(seq); }
     };
 
     template <typename T>
@@ -212,8 +212,10 @@ art::MixFilter<T>::filter(art::Event &e) {
   size_t nSecondaries = detail_.nSecondaries();
 
   // 3. Decide which events we're reading and prime the event tree cache.
-  EntryNumberSequence enSeq(nSecondaries);
-  EventIDSequence eIDseq(nSecondaries);
+  EntryNumberSequence enSeq;
+  EventIDSequence eIDseq;
+  enSeq.reserve(nSecondaries);
+  eIDseq.reserve(nSecondaries);
   if (!helper_.generateEventSequence(nSecondaries, enSeq, eIDseq)) {
     throw Exception(errors::FileReadError)
       << "Insufficient secondary events available to mix.\n";

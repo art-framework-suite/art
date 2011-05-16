@@ -8,9 +8,8 @@
 // same type.
 //
 // This class is primarily for use in product mixing and will be
-// properly initialized (setProdTransMap(), setProductGetter()) by the
-// time it is provided as an argument to the user-supplied mixing
-// function.
+// properly initialized by the time it is provided as an argument to the
+// user-supplied mixing function.
 //
 // PtrRemapper is a function object, so all of its work is done with the
 // apply operator -- operator(). This means that if your mixing function
@@ -178,6 +177,7 @@
 
 namespace art {
   class PtrRemapper;
+  class ProdToProdMapBuilder;
 
   namespace PtrRemapperDetail {
     // Function template used by 4.
@@ -185,35 +185,37 @@ namespace art {
     PROD const &simpleProdReturner (PROD const *prod) { return *prod; }
 
     // Function object used by 10.
-    template <typename CALLBACK>
+    template <typename CONT, typename PROD, typename CALLBACK>
     class ContReturner {
-    public:
-      explicit ContReturner(CALLBACK callback)
-        :
-        callback_(callback)
-      {}
-
-      // General case.
-      template <typename CONT, typename PROD>
-      typename std::enable_if<std::is_convertible<CALLBACK, std::function<CONT const & (PROD const *)> >::value, CONT const &>::type operator()
-        (PROD const *prod) const {
+      public:
+      explicit ContReturner(CALLBACK callback) : callback_(callback) { }
+      CONT const &operator() (PROD const *prod) const {
         return callback_(prod);
       }
+    private:
+      CALLBACK callback_;
+    };
 
-      // CALLBACK is a pointer to a const member function of PROD.
-      template <typename CONT, typename PROD>
-      typename std::enable_if<std::is_convertible<CALLBACK, CONT const & (PROD::*)() const>::value, CONT const &>::type  operator()
-        (PROD const *prod) const {
-        return prod->*callback_();
-      }
+    template <typename CONT, typename PROD>
+    class ContReturner<CONT, PROD, CONT const &(PROD::*)() const> {
+    public:
+      typedef CONT const &(PROD::*CALLBACK)() const;
+      explicit ContReturner(CALLBACK callback) : callback_(callback) { }
+        CONT const &operator()(PROD const *prod) const {
+          return (prod->*callback_)();
+        }
+    private:
+        CALLBACK callback_;
+    };
 
-      // CALLBACK is a pointer to a member datum of PROD.
-      template <typename CONT, typename PROD>
-      typename std::enable_if<std::is_convertible<CALLBACK, CONT PROD::*const>::value, CONT const &>::type  operator()
-        (PROD const *prod) const {
+    template <typename CONT, typename PROD>
+    class ContReturner<CONT, PROD, CONT PROD::*const> {
+    public:
+      typedef CONT PROD::*const CALLBACK;
+      explicit ContReturner(CALLBACK callback) : callback_(callback) { }
+      CONT const &operator()(PROD const *prod) const {
         return prod->*callback_;
       }
-
     private:
       CALLBACK callback_;
     };
@@ -222,13 +224,7 @@ namespace art {
 
 class art::PtrRemapper {
 public:
-  typedef std::map<ProductID, ProductID> ProdTransMap_t;
-
   PtrRemapper();
-
-  // Prepare the pointer remapper for use by detail objects.
-  void setProdTransMap(cet::exempt_ptr<ProdTransMap_t const> prodTransMap);
-  void setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter);
 
   //////////////////////////////////////////////////////////////////////
   // Signatures for operator() -- see documentation at top of header.
@@ -243,10 +239,11 @@ public:
 
   // 3.
   template <typename InIter, typename OutIter, typename SIZE_TYPE>
-  void operator()(InIter beg,
-                  InIter end,
-                  OutIter out,
-                  SIZE_TYPE offset) const;
+  void
+  operator()(InIter beg,
+             InIter end,
+             OutIter out,
+             SIZE_TYPE offset) const;
 
   // 4.
   template <typename OutIter, typename PROD, typename OFFSETS>
@@ -305,8 +302,12 @@ public:
              OFFSETS const &offsets,
              CALLBACK extractor) const;
 
+  friend class art::ProdToProdMapBuilder;
+
 private:
-  cet::exempt_ptr<ProdTransMap_t const> prodTransMap_;
+  typedef std::map<ProductID, ProductID> ProdTransMap_t;
+
+  ProdTransMap_t prodTransMap_;
   cet::exempt_ptr<EDProductGetter const> productGetter_;
 };
 
@@ -314,34 +315,22 @@ inline
 art::PtrRemapper::
 PtrRemapper() : prodTransMap_() {}
 
-inline
-void
-art::PtrRemapper::
-setProdTransMap(cet::exempt_ptr<ProdTransMap_t const> prodTransMap) {
-  prodTransMap_ = prodTransMap;
-}
-
-inline
-void
-art::PtrRemapper::
-setProductGetter(cet::exempt_ptr<EDProductGetter const> productGetter) {
-  productGetter_ = productGetter;
-}
-
 // 1.
 template <typename PROD, typename SIZE_TYPE>
 art::Ptr<PROD>
 art::PtrRemapper::
 operator()(Ptr<PROD> const &oldPtr,
            SIZE_TYPE offset) const {
-  ProdTransMap_t::const_iterator iter = prodTransMap_->find(oldPtr.id());
-  if (iter == prodTransMap_->end()) {
+  ProdTransMap_t::const_iterator iter = prodTransMap_.find(oldPtr.id());
+  if (iter == prodTransMap_.end()) {
     // FIXME: correct this exception.
     throw Exception(errors::LogicError);
   }
-  return Ptr<PROD>(iter->second,
-                   oldPtr.key() + offset,
-                   productGetter_);
+  return (oldPtr.isNonnull())?
+    Ptr<PROD>(iter->second,
+              oldPtr.key() + offset,
+              productGetter_):
+    Ptr<PROD>(iter->second);
 }
 
 // 2.
@@ -366,10 +355,9 @@ operator()(InIter beg,
            InIter end,
            OutIter out,
            SIZE_TYPE offset) const {
-  if (!detail::verifyPtrCollection(beg, end)) {
-    // FIXME: correct this exception.
-    throw Exception(errors::LogicError);
-  }
+  // Need to assume that all Ptr containers and consistent internally
+  // and with each other due to a lack of productGetters.
+
   // Not using transform here allows instantiation for iterator to
   // collection of Ptr or collection of PtrVector.
   for (InIter i = beg;
@@ -405,7 +393,8 @@ operator()(std::vector<PROD const *> const &in,
            OutIter out,
            OFFSETS const &offsets,
            CONT const & (*extractor) (PROD const *)) const {
-  this->operator()<CONT>(in, out, offsets, extractor); // 10.
+  this->operator()<CONT, CONT const & (*)(PROD const *)>
+    (in, out, offsets, extractor); // 10.
 }
 
 // 6.
@@ -416,7 +405,8 @@ operator()(std::vector<PROD const *> const &in,
            OutIter out,
            OFFSETS const &offsets,
            CONT const & (PROD::*extractor) () const) const {
-  this->operator()<CONT>(in, out, offsets, extractor); // 10.
+  this->operator()<CONT, CONT const & (PROD::*) () const>
+    (in, out, offsets, extractor); // 10.
 }
 
 
@@ -428,7 +418,8 @@ operator()(std::vector<PROD const *> const &in,
            OutIter out,
            OFFSETS const &offsets,
            CONT PROD::*const data) const {
-  this->operator()<CONT>(in, out, offsets, data); // 10.
+  this->operator()<CONT, CONT PROD::*const>
+    (in, out, offsets, data); // 10.
 }
 
 // 8.
@@ -444,7 +435,7 @@ operator()(std::vector<PROD const *> const &in,
   this->operator()<CONT>(in,
                          out,
                          offsets,
-                         std::bind(extractor, &x, _1)); // 10.
+                         std::bind(extractor, &x, _1)); // 10?
 }
 
 // 9.
@@ -474,15 +465,21 @@ operator()(std::vector<PROD const *> const &in,
   if (in.size() != offsets.size()) {
     // FIXME: correct exception.
     throw Exception(errors::LogicError)
+      << "Collection size of "
+      << in.size()
+      << " disagrees with offset container size of "
+      << offsets.size()
       << ".\n";
   }
   typename std::vector<PROD const *>::const_iterator
     i = in.begin(),
     e = in.end();
   typename OFFSETS::const_iterator off_iter = offsets.begin();
-  art::PtrRemapperDetail::ContReturner<CALLBACK> returner(extractor);
+  art::PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner(extractor);
   for (; i != e; ++i, ++off_iter) {
-    CONT const &cont(returner.operator()<CONT>(*i));
+    CONT const &cont(returner.operator()(*i));
+    STATIC_ASSERT((!std::is_base_of<PtrVectorBase, CONT>::value),
+                  "Mixing PtrVectors is not currently possible: contact artists@fnal.gov to request.");
     this->operator()(cont.begin(), cont.end(), out, *off_iter); // 3.
   }
 }

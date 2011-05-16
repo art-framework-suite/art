@@ -122,7 +122,7 @@ namespace art
     // Checks for non-null
     bool isNonnull() const { return key_traits<key_type>::value != key_; }
     // Checks for null
-    bool operator!() const { return isNull(); }
+    //    bool operator!() const { return isNull(); }
 
     // Checks if collection is in memory or available
     // in the event. No type checking is done.
@@ -227,12 +227,12 @@ namespace art
     return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
   }
 
-  template <typename T>
-  inline
-  bool
-  operator!=(Ptr<T> const& lhs, Ptr<T> const& rhs) {
-    return !(lhs == rhs);
-  }
+//   template <typename T>
+//   inline
+//   bool
+//   operator!=(Ptr<T> const& lhs, Ptr<T> const& rhs) {
+//     return !(lhs == rhs);
+//   }
 
   template <typename T>
   inline

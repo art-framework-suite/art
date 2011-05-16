@@ -60,7 +60,7 @@ namespace art {
           state_ = art::hlt::Exception;
           recordStatus(nwrwue, isEvent);
           throw art::Exception(errors::ScheduleExecutionFailure,
-              "ProcessingStopped", e)
+              "ProcessingStopped.\n", e)
               << "Exception going through path " << name_ << "\n";
       }
     }

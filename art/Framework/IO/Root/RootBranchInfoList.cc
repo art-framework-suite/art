@@ -49,9 +49,9 @@ findBranchInfo(TypeID const &type,
   } else {
     pat_s << tag.process();
   }
-  pat_s << '$';
+  pat_s << "\\.$";
   std::regex r(pat_s.str());
-  // data_t is ordered so that the first match is the best.
+  // data_ is ordered so that the first match is the best.
   for (Data_t::const_iterator
          i = data_.begin(),
          e = data_.end();

@@ -16,7 +16,8 @@
 //
 //  1. an InputTag specifying which secondary products should be mixed;
 //
-//  2. an optional instance label for the mixed product; and
+//  2. an optional instance label for the mixed product (defaulting to
+//     the instance label of the incoming product if unspecified); and
 //
 //  3. a callable mixer such as:
 //
@@ -273,7 +274,7 @@ declareMixOp(InputTag const &inputTag,
                                   PROD &,
                                   PtrRemapper const &)
              > mixFunc) {
-  declareMixOp(inputTag, std::string(), mixFunc); // 2.
+  declareMixOp(inputTag, inputTag.instance(), mixFunc); // 2.
 }
 
 // 2.
@@ -302,7 +303,7 @@ declareMixOp(InputTag const &inputTag,
                                  PROD &,
                                  PtrRemapper const &),
              T &t) {
-  declareMixOp(inputTag, std::string(), mixFunc, t); // 4.
+  declareMixOp(inputTag, inputTag.instance(), mixFunc, t); // 4.
 }
 
 // 4.
@@ -316,10 +317,10 @@ declareMixOp(InputTag const &inputTag,
                                  PtrRemapper const &),
              T &t) {
   producesProvider_.produces<PROD>(outputInstanceLabel);
-  std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
-                                               outputInstanceLabel,
-                                               std::bind(mixFunc, t,
-                                                         _1, _2, _3)));
+  std::shared_ptr<MixOpBase>
+    p(new MixOp<PROD>(inputTag,
+                      outputInstanceLabel,
+                      std::bind(mixFunc, &t, _1, _2, _3)));
   mixOps_.push_back(p);
 }
 
@@ -332,7 +333,7 @@ declareMixOp(InputTag const &inputTag,
                                  PROD &,
                                  PtrRemapper const &) const,
              T const &t) {
-  declareMixOp(inputTag, std::string(), mixFunc, t); // 6.
+  declareMixOp(inputTag, inputTag.instance(), mixFunc, t); // 6.
 }
 
 // 6.
@@ -346,10 +347,10 @@ declareMixOp(InputTag const &inputTag,
                                  PtrRemapper const &) const,
              T const &t) {
   producesProvider_.produces<PROD>(outputInstanceLabel);
-  std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
-                                               outputInstanceLabel,
-                                               std::bind(mixFunc, t,
-                                                         _1, _2, _3)));
+  std::shared_ptr<MixOpBase>
+    p(new MixOp<PROD>(inputTag,
+                      outputInstanceLabel,
+                      std::bind(mixFunc, &t, _1, _2, _3)));
   mixOps_.push_back(p);
 }
 

@@ -302,6 +302,18 @@ art::MixHelper::buildBranchIDTransMap(ProdToProdMapBuilder::BranchIDTransMap &tr
       i != e;
       ++i) {
     (*i)->initializeBranchInfo(dataBranches_);
+#if ART_DEBUG_PTRREMAPPER
+    std::cerr << "BranchIDTransMap: "
+              << std::hex
+              << std::setfill('0')
+              << std::setw(8)
+              << (*i)->incomingBranchID()
+              << " -> "
+              << std::setw(8)
+              << (*i)->outgoingBranchID()
+              << std::dec
+              << ".\n";
+#endif
     transMap[(*i)->incomingBranchID()] =
       (*i)->outgoingBranchID();
   }

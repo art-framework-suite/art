@@ -209,7 +209,8 @@ readFromFile(EntryNumberSequence const &seq) {
          e = seq.end();
        i != e;
        ++i) {
-    branchInfo_.branch()->SetAddress(&(*prod_iter++));
+    typename SpecProdList::value_type *wp = &(*prod_iter++);
+    branchInfo_.branch()->SetAddress(&wp);
     branchInfo_.branch()->GetEntry(*i);
   }
 }

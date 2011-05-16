@@ -7,6 +7,9 @@
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Utilities/Exception.h"
 
+#include <iomanip>
+#include <iostream>
+
 art::ProdToProdMapBuilder::ProdToProdMapBuilder()
 :
   branchIDTransMap_(),
@@ -33,18 +36,34 @@ art::ProdToProdMapBuilder::prepareTranslationTables(BranchIDTransMap &transMap,
 
 void
 art::ProdToProdMapBuilder::populateRemapper(PtrRemapper &mapper, Event &e) const {
-  mapper.setProductGetter(cet::exempt_ptr<EDProductGetter const>(e.productGetter()));
+  mapper.productGetter_ = cet::exempt_ptr<EDProductGetter const>(e.productGetter());
 
-  PtrRemapper::ProdTransMap_t prodTransMap;
-  
+  mapper.prodTransMap_.clear();
+
   std::transform(branchIDTransMap_.begin(),
                  branchIDTransMap_.end(),
-                 std::inserter(prodTransMap, prodTransMap.begin()),
+                 std::inserter(mapper.prodTransMap_, mapper.prodTransMap_.begin()),
                  ProdTransMapBuilder(secondaryProductMap_,
                                      *dynamic_cast<EventPrincipal const *>
                                      (e.productGetter())));
-
-  mapper.setProdTransMap(cet::exempt_ptr<PtrRemapper::ProdTransMap_t const>(&prodTransMap));
+#if ART_DEBUG_PTRREMAPPER
+  for (PtrRemapper::ProdTransMap_t::const_iterator
+         i = mapper.prodTransMap_.begin(),
+         e = mapper.prodTransMap_.end();
+       i != e;
+       ++i) {
+    std::cerr << "ProdTransMap_t: "
+              << "("
+              << i->first.processIndex()
+              << ", "
+              << i->first.productIndex()
+              << ") -> ("
+              << i->second.processIndex()
+              << ", "
+              << i->second.productIndex()
+              << ").\n";
+  }
+#endif
 }
 
 void
@@ -64,6 +83,20 @@ art::ProdToProdMapBuilder::buildBranchIDToIndexMap(BranchIDLists const &bidl) {
          bids_it != bids_end;
          ++bids_it) {
       ProductIndex pix = bids_it - bids_beg;
+#if ART_DEBUG_PTRREMAPPER
+      std::cerr << "BranchIDtoIndexMap: "
+                << std::hex
+                << std::setfill('0')
+                << std::setw(8)
+                << *bids_it
+                << std::dec
+                << " -> "
+                << "("
+                << blix
+                << ", "
+                << pix
+                << ").\n";
+#endif
       tmpMap.insert(std::make_pair(*bids_it, std::make_pair(blix, pix)));
     }
   }
@@ -84,8 +117,29 @@ art::ProdToProdMapBuilder::buildSecondaryProductMap(TTree *ehTree) {
                      std::inserter(tmpProdMap, tmpProdMap.begin()),
                      SecondaryBranchIDToProductIDConverter(branchIDToIndexMap_, h));
     } else {
+      // FIXME: correct exception.
+      throw Exception(errors::LogicError)
+        << "Could not retrieve secondary event " << nEvt << ".\n";
     }
     if (secondaryProductMap_.empty()) {
+#if ART_DEBUG_PTRREMAPPER
+      for (BtoPTransMap::const_iterator
+             i = tmpProdMap.begin(),
+             e = tmpProdMap.end();
+           i != e;
+           ++i) {
+        std::cerr << "BtoPTransMap: "
+                  << std::hex
+                  << std::setfill('0')
+                  << std::setw(8)
+                  << i->first
+                  << " -> ("
+                  << i->second.processIndex()
+                  << ", "
+                  << i->second.productIndex()
+                  << ").\n";
+      }
+#endif
       tmpProdMap.swap(secondaryProductMap_);
     } else if (tmpProdMap != secondaryProductMap_) {
       throw Exception(errors::UnimplementedFeature)
