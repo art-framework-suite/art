@@ -140,6 +140,9 @@ namespace art
 
     RefCore const& refCore() const { return core_; }
 
+    // Fulfills the role of, "convertible to bool"
+    operator void const *() const { return get(); }
+
   private:
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
