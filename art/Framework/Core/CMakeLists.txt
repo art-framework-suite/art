@@ -188,6 +188,7 @@ install(FILES
   EventPrincipal.h
   EventProcessor.h
   EventSelector.h
+  FCPfwd.h
   FileBlock.h
   Frameworkfwd.h
   GenericHandle.h

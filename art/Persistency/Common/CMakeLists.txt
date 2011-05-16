@@ -40,7 +40,7 @@ install(FILES
 	PtrVectorBase.h
 	RNGsnapshot.h
 	RefCore.h
-	RefCoreTraneientStreamer.h
+	RefCoreTransientStreamer.h
 	TriggerResults.h
 	Wrapper.h
 	debugging_allocator.h
