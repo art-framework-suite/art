@@ -70,6 +70,7 @@ FILE: foreach my $file (@ARGV) {
   open (FILEOUT, ">${tmp_file}") or do { print STDERR "Unable to open \"${tmp_file}\" for write\n"; exit(2); };
   my $new_guard = $file;
   while ($new_guard =~ s&[^\w\d_]&_&g) {}
+  while ($new_guard =~ s&_(?:include|inc|interface)?_&_&g) {}
   my $seen_guard_check;
   my $seen_guard_def;
   my $seen_guard_close;

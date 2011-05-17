@@ -70,6 +70,8 @@ function one_file() {
   perl -wapi\~ -f fix-namespaces-2.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   perl -wapi\~ -f fix-messagefacility.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
 
+  perl -wapi\~ -f fix-services.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then
     echo "OK"
@@ -123,7 +125,7 @@ if [[ -n "${file}" ]]; then
   fi
 else
   for F in `find $TOP \( -type d \( -name .git -o -name .svn -o -name CVS -o -name ups -o -path '*/tools/migration' -o -path '*/art/ParameterSet' \) \
-                       -prune \) -o -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' \) -print`; do
+                       -prune \) -o -type f \! \( -name '*~' -o -name '*.bak' -o -name '*.new' -o -name '*.gdml' -o -name '*.py' -o -name '*.sh' \) -print`; do
     one_file "$F"
   done
 fi
