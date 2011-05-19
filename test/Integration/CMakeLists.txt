@@ -177,17 +177,17 @@ endforeach()
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Assertion `outR || inR` failed"
+  "Assertion `outR \\|\\| inR' failed"
   )
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_03 PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Assertion `outSR || inSR` failed"
+  "Assertion `outSR \\|\\| inSR' failed"
   )
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_04 PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Assertion `outSR || inSR` failed"
+  "Assertion `outSR \\|\\| inSR' failed"
   )
 
 foreach(num 05 06 07 08 09 10)

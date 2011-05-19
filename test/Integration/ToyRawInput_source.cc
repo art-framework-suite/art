@@ -1,4 +1,3 @@
-
 // ------------------------------------------------------------
 //
 // ToyRawInput is a RawInputSource that pretends to reconstitute several
@@ -18,6 +17,18 @@
 
 #include <cstdio>
 
+namespace
+{
+  // Helper function to throw an exception with the appropriate text.
+  void throw_exception_from(const char* funcname)
+  {
+    throw art::Exception(art::errors::OtherArt)
+      << "Expected exception from ToyRawInputSource::"
+      << funcname
+      << '\n';
+  }
+}
+
 using fhicl::ParameterSet;
 using std::string;
 using std::vector;
@@ -25,7 +36,7 @@ using std::shared_ptr;
 using namespace art;
 
 
-// Out simulated input file format is:
+// Our simulated input file format is:
 // A parameter in a parameter set, which contains a vector of vector of int.
 // Each inner vector is a triplet of run/subrun/event number.
 //   -1 means no new item of that type
@@ -67,6 +78,10 @@ namespace arttest
     ParameterSet data_;
     vv_t fileData_;
     string currentFilename_;
+    bool throw_on_construction_;
+    bool throw_on_closeCurrentFile_;
+    bool throw_on_readNext_;
+    bool throw_on_readFile_;
   };
 
   ToyFile::ToyFile(fhicl::ParameterSet const& ps,
@@ -76,8 +91,14 @@ namespace arttest
     current_(),
     end_(),
     data_(ps),
-    fileData_()
+    fileData_(),
+    currentFilename_(),
+    throw_on_construction_(ps.get<bool>("throw_on_construction", false)),
+    throw_on_closeCurrentFile_(ps.get<bool>("throw_on_closeCurrentFile", false)),
+    throw_on_readNext_(ps.get<bool>("throw_on_readNext", false)),
+    throw_on_readFile_(ps.get<bool>("throw_on_construction", false))
   {
+    if (throw_on_construction_) throw_exception_from("ToyFile");
     helper.reconstitutes<int, InEvent>("m1");
     helper.reconstitutes<double, InSubRun>("s1");
     helper.reconstitutes<double, InRun>("r1");
@@ -86,7 +107,8 @@ namespace arttest
   }
 
   void ToyFile::closeCurrentFile()
-  { 
+  {
+    if (throw_on_closeCurrentFile_) throw_exception_from("closeCurrentFile");
     fileData_.clear();
     current_ = iter();
     end_ = iter();
@@ -98,6 +120,7 @@ namespace arttest
                          art::SubRunPrincipal*& outSR,
                          art::EventPrincipal*& outE)
   {
+    if (throw_on_readNext_) throw_exception_from("readNext");
     // Have we any more to read?
     if (current_ == end_) return false;
 
@@ -173,7 +196,9 @@ namespace arttest
   }
 
   void ToyFile::readFile(std::string const &name,
-                         art::FileBlock*& fb) {
+                         art::FileBlock*& fb) 
+  {
+    if (throw_on_readFile_) throw_exception_from("readFile");
     if (!data_.get_if_present(name, fileData_))
       {
         throw art::Exception(art::errors::Configuration)
