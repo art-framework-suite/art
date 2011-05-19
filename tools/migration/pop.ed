@@ -366,6 +366,7 @@ g/#include/s:FWCore/ServiceRegistry/interface/ServiceLegacy.h:art/Framework/Serv
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceMacros.h:art/Framework/Services/Registry/ServiceMacros.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceMacrosBase.h:art/Framework/Services/Registry/ServiceMacrosBase.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServicePluginFactory.h:art/Framework/Services/Registry/ServicePluginFactory.h:
+g/#include/s:FWCore/ServiceRegistry/interface/ServiceMaker.h:art/Framework/Services/Registry/ServiceMacros.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceRegistry.h:art/Framework/Services/Registry/ServiceRegistry.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceToken.h:art/Framework/Services/Registry/ServiceToken.h:
 g/#include/s:FWCore/ServiceRegistry/interface/ServiceWrapper.h:art/Framework/Services/Registry/ServiceWrapper.h:
@@ -378,7 +379,7 @@ g/#include/s:FWCore/Services/test/TestTFileServiceAnalyzer.h:test/Framework/Serv
 g/#include/s:FWCore/Services/test/UnitTestClient.h:test/Framework/Services/Basic/UnitTestClient.h:
 g/#include/s:FWCore/Services/interface/CurrentModuleService.h:art/Framework/Services/Basic/CurrentModuleService.h:
 g/#include/s:FWCore/Services/interface/PrintLoadingPlugins.h:art/Framework/Services/Basic/PrintLoadingPlugins.h:
-g/#include/s:FWCore/Services/interface/RandomNumberGeneratorService.h:art/Framework/Services/Basic/RandomNumberGeneratorService.h:
+g/#include/s:FWCore/Services/interface/RandomNumberGeneratorService.h:art/Framework/Services/Optional/RandomNumberGeneratorService.h:
 g/#include/s:FWCore/Services/interface/TFileService.h:art/Framework/Services/Basic/TFileService.h:
 g/#include/s:FWCore/Services/interface/Timing.h:art/Framework/Services/Basic/Timing.h:
 g/#include/s:FWCore/Services/interface/UpdaterService.h:art/Framework/Services/Basic/UpdaterService.h:
