@@ -865,6 +865,18 @@ namespace art {
                              << e.what();
       me->last_error_text_ = e.what();
     }
+    catch (std::string const &e) {
+      mf::LogError("ArtJob") << "String-based exception caught in "
+        "EventProcessor::asyncRun\n"
+                             << e;
+      me->last_error_text_ = e;
+    }
+    catch (char const *e) {
+      mf::LogError("ArtJob") << "String-based exception caught in "
+        "EventProcessor::asyncRun\n"
+                             << e;
+      me->last_error_text_ = e;
+    }
     catch (...) {
       mf::LogError("ArtJob") << "Unknown exception caught in "
         "EventProcessor::asyncRun\n";
@@ -1101,6 +1113,30 @@ namespace art {
       throw cet::exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
         << "Previous information:\n" << e.what() << "\n"
+        << exceptionMessageSubRuns_
+        << exceptionMessageRuns_
+        << exceptionMessageFiles_;
+    }
+    catch (std::string const &e) {
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
+      throw cet::exception("Unknown")
+        << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
+        << e
+        << "\n"
+        << exceptionMessageSubRuns_
+        << exceptionMessageRuns_
+        << exceptionMessageFiles_;
+    }
+    catch (char const *e) {
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
+      throw cet::exception("Unknown")
+        << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
+        << e
+        << "\n"
         << exceptionMessageSubRuns_
         << exceptionMessageRuns_
         << exceptionMessageFiles_;
