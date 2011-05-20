@@ -164,8 +164,13 @@ add_executable( check_libs ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc )
 target_link_libraries( check_libs ${common_exec_link_libraries} )
 install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )
 
-install ( TARGETS art_Framework_Core DESTINATION ${flavorqual_dir}/lib )
-install ( TARGETS art_Framework_CoreArt DESTINATION ${flavorqual_dir}/lib )
+install ( TARGETS
+  art_Framework_Core
+  art_Framework_CoreArt
+  art_Framework_CorePrincipal
+  DESTINATION
+  ${flavorqual_dir}/lib
+  )
 
 install(FILES
   TypeLabelList.h

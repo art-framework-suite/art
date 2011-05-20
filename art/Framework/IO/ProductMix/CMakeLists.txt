@@ -17,6 +17,11 @@ add_library(art_Framework_IO_ProductMix
   MixHelper.cc
   ProdToProdMapBuilder.cc
   )
+install ( TARGETS
+  art_Framework_IO_ProductMix
+  DESTINATION
+  ${flavorqual_dir}/lib
+  )
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance)
 

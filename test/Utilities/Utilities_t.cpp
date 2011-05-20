@@ -46,7 +46,7 @@ void testCPUTimer::testTiming()
   timer.stop();
   std::cerr <<"real "<<timer.realTime()<<" cpu "<<timer.cpuTime()<< std::endl;
   CPPUNIT_ASSERT(timer.realTime() > 2.0);
-  CPPUNIT_ASSERT(timer.cpuTime()+2.0 <= timer.realTime());
+  CPPUNIT_ASSERT(timer.cpuTime()+1.5 <= timer.realTime()); // Allow for timer slop.
 
   timer.start();
   sleep(2);
