@@ -24,11 +24,21 @@
 #include <typeinfo>
 #include <vector>
 
+// Required for specializations of has_size_member<T>, below.
+namespace CLHEP {
+  class HepMatrix;
+  class HepSymMatrix;
+}
+
 namespace art { namespace detail {
   template< typename T >
   struct has_fillView_member;
   template< typename T >
   struct has_size_member;
+  template<>
+  struct has_size_member<CLHEP::HepMatrix>;
+  template<>
+  struct has_size_member<CLHEP::HepSymMatrix>;
 } }
 
 // ----------------------------------------------------------------------
@@ -282,6 +292,20 @@ namespace art {
     {
       static bool const value =
         sizeof(has_size_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    // CLHEP::HepMatrix and CLHEP::HepSymMatrix have private size data members
+    // and therefore require specializations to avoid problems.
+    template<>
+    struct has_size_member<CLHEP::HepMatrix>
+    {
+      static bool const value = false;
+    };
+
+    template<>
+    struct has_size_member<CLHEP::HepSymMatrix>
+    {
+      static bool const value = false;
     };
 
 #ifndef __REFLEX__
