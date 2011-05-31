@@ -71,17 +71,44 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cpp0x/type_traits"
 #include <cstddef>
 #include <vector>
 
 namespace art {
-  // Forward declaration.
+  // Forward declarations.
   class EDProductGetter;
 
+  // Template metaprogramming.
+  namespace detail {
+    template <typename T, typename InIter, void (T::*)(InIter, InIter)> struct two_arg_insert_func;
+    template <typename T, typename I> no_tag has_two_arg_insert_helper(...);
+    template <typename T, typename I> yes_tag has_two_arg_insert_helper(two_arg_insert_func<T, I, &T::insert> *dummy);
+    template <typename T>
+    struct has_two_arg_insert {
+      static bool const value =
+        sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T, typename OutIter, typename InIter, void (T::*)(OutIter, InIter, InIter)> struct three_arg_insert_func;
+    template <typename T, typename O, typename I> no_tag has_three_arg_insert_helper(...);
+    template <typename T, typename O, typename I> yes_tag has_three_arg_insert_helper(three_arg_insert_func<T, O, I, &T::insert> *dummy);
+    template <typename T>
+    struct has_three_arg_insert {
+      static bool const value =
+        sizeof(has_three_arg_insert_helper<T, typename T::iterator, typename T::const_iterator>(0)) == sizeof(yes_tag);
+    };
+  }
+
   // Append container in to container out.
+  // I.
   template <typename CONTAINER>
-  void
+  typename std::enable_if<detail::has_two_arg_insert<CONTAINER>::value>::type
+  concatContainers(CONTAINER &out, CONTAINER const &in);
+  // II.
+  template <typename CONTAINER>
+  typename std::enable_if<detail::has_three_arg_insert<CONTAINER>::value>::type
   concatContainers(CONTAINER &out, CONTAINER const &in);
 
   // 1.
@@ -164,8 +191,15 @@ art::detail::verifyPtrCollection(iterator beg,
   return true;
 }
 
+// I.
 template <typename CONTAINER>
-void
+typename std::enable_if<art::detail::has_two_arg_insert<CONTAINER>::value>::type
+art::concatContainers(CONTAINER &out, CONTAINER const &in) {
+  out.insert(in.begin(), in.end());
+}
+// II.
+template <typename CONTAINER>
+typename std::enable_if<art::detail::has_three_arg_insert<CONTAINER>::value>::type
 art::concatContainers(CONTAINER &out, CONTAINER const &in) {
   out.insert(out.end(), in.begin(), in.end());
 }

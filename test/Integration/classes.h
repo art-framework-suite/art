@@ -12,8 +12,12 @@ namespace {
     cet::map_vector<std::string> mvs;
     cet::map_vector<std::string>::value_type mvs_v;
     cet::map_vector<std::string>::impl_type mvs_i;
-
     art::Wrapper<cet::map_vector<std::string> > mvs_w;
+    cet::map_vector<unsigned int> mvui;
+    cet::map_vector<unsigned int>::value_type mvui_v;
+    cet::map_vector<unsigned int>::impl_type mvui_i;
+    art::Wrapper<cet::map_vector<unsigned int> > mvui_w;
+
 
     art::Ptr<std::string> ps;
     art::Wrapper<art::Ptr<std::string> > ps_w;

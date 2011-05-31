@@ -5,6 +5,7 @@
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "cetlib/map_vector.h"
 #include "cpp0x/memory"
 #include "art/Utilities/InputTag.h"
 #include "test/TestObjects/ProductWithPtrs.h"
@@ -54,9 +55,14 @@ public:
                 art::PtrRemapper const &);
 
   void
-  aggregateCollection(std::vector<std::vector<double> const *> const &in,
+  aggregateDoubleCollection(std::vector<std::vector<double> const *> const &in,
                       std::vector<double> &out,
                       art::PtrRemapper const &);
+
+  void
+  aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
+                       cet::map_vector<unsigned int> &out,
+                       art::PtrRemapper const &);
 
   void
   mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
@@ -115,7 +121,7 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
 
   helper.declareMixOp
     (art::InputTag(mixProducerLabel, "doubleCollectionLabel"),
-     &MixFilterTestDetail::aggregateCollection, *this);
+     &MixFilterTestDetail::aggregateDoubleCollection, *this);
 
   helper.declareMixOp
     (art::InputTag(mixProducerLabel, "doubleVectorPtrLabel"),
@@ -130,6 +136,10 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
   helper.declareMixOp
     (art::InputTag(mixProducerLabel, "ProductWithPtrsLabel"),
      &MixFilterTestDetail::mixProductWithPtrs, *this);
+
+  helper.declareMixOp
+    (art::InputTag(mixProducerLabel, ""),
+     &MixFilterTestDetail::aggregate_map_vector, *this);
 }
 
 void
@@ -181,10 +191,18 @@ mixByAddition(std::vector<T const *> const &in,
 
 void
 arttest::MixFilterTestDetail::
-aggregateCollection(std::vector<std::vector<double> const *> const &in,
+aggregateDoubleCollection(std::vector<std::vector<double> const *> const &in,
                     std::vector<double> &out,
                     art::PtrRemapper const &) {
   art::flattenCollections(in, out, doubleVectorOffsets_);
+}
+
+void
+arttest::MixFilterTestDetail::
+aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
+                     cet::map_vector<unsigned int> &out,
+                     art::PtrRemapper const &) {
+  art::flattenCollections(in, out);
 }
 
 void

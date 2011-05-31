@@ -79,12 +79,6 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
   art::Handle<std::vector<double> > vdH;
   assert(e.getByLabel(mixFilterLabel_, "doubleCollectionLabel", vdH));
   assert(vdH->size() == 10 * nSecondaries_);
-  for (std::vector<double>::const_iterator
-         i = vdH->begin(),
-         end = vdH->end();
-       i != end;
-       ++i) {
-  }
   for (size_t i = 0; i < nSecondaries_; ++i) {
     for (size_t j = 1; j < 11; ++j) {
       assert((*vdH)[i*10 + j - 1] == j + 10 * (i + (eventCounter_ - 1) * nSecondaries_));
@@ -120,6 +114,22 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
     assert(*(pwpH->ptrVectorDouble())[i * 3 + 1] == *(*pvdH)[i * 3 + 1]); // 4.
     assert(*(pwpH->ptrVectorDouble())[i * 3 + 2] == *(*pvdH)[i * 3 + 2]); // 4.
 #endif
+  }
+
+  // map_vector<unsigned int>
+  art::Handle<cet::map_vector<unsigned int> > mv;
+  assert(e.getByLabel(mixFilterLabel_, "", mv));
+  assert(mv->size() == 5 * nSecondaries_);
+  cet::map_vector<unsigned int>::const_iterator it = mv->begin();
+  size_t delta = 0;
+  size_t index = 0;
+  for (size_t i = 0; i < nSecondaries_; ++i, delta = index + 1) {
+    for (size_t j = 0; j < 5; ++j, ++it) {
+      index = 1 + j * 2 + delta + 10 * (i + nSecondaries_ * (eventCounter_ - 1));
+      size_t answer = (eventCounter_ - 1) * nSecondaries_ + i + 1;
+      assert(*mv->getOrNull(cet::map_vector_key(static_cast<unsigned int>(index))) ==
+             answer);
+    }
   }
 
   // Bookkeeping.
