@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="std::pair<cet::map_vector_key, std::string>"/>
-  <class name="std::vector<std::pair<cet::map_vector_key, std::string> >"/>
+  <class name="cet::map_vector<std::string>::value_type"/>
+  <class name="cet::map_vector<std::string>::impl_type"/>
   <class name="cet::map_vector<std::string>"/>
   <class name="art::Wrapper<cet::map_vector<std::string> >"/>
   <class name="art::Ptr<std::string>"/>
