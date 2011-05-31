@@ -15,6 +15,7 @@
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
 #include "boost/lexical_cast.hpp"
+#include "cetlib/map_vector.h"
 #include "cpp0x/type_traits"
 #include <deque>
 #include <list>
@@ -118,9 +119,6 @@ namespace art {
                     const std::type_info& toType,
                     const std::vector<unsigned long>& index,
                     std::vector<void const*>& ptrs) const;
-    void operator()(T const& obj,
-                    std::type_info const& toType,
-                    std::vector<void const*>& ptrs) const;
   };
 
   template <class T>
@@ -148,15 +146,6 @@ namespace art {
         << "\ndoes not support art::PtrVector\n";
     }
 
-    void operator()(T const&,
-                    std::type_info const&,
-                    std::vector<void const*>&) const
-    {
-      throw Exception(errors::ProductDoesNotSupportPtr)
-        << "The product type "
-        << typeid(T).name()
-        << "\ndoes not support art::PtrVector\n";
-    }
   };
 
   template <typename T>
@@ -637,6 +626,42 @@ namespace art {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
 
+  template <class T>
+  void
+  setPtr(cet::map_vector<T> const &obj,
+         const std::type_info& iToType,
+         unsigned int iIndex, // FIXME: Remove when map_vector supports unsigned long explicitly.
+         void const*& oPtr) {
+    typedef cet::map_vector<T> product_type;
+    typedef typename product_type::mapped_type element_type;
+    typedef typename product_type::const_iterator iter;
+    typedef typename product_type::size_type size_type;
+
+    if(iToType == typeid(element_type)) {
+      element_type const* address = obj.getOrNull(cet::map_vector_key(iIndex));
+      oPtr = address;
+    } else {
+      using Reflex::Type;
+      using Reflex::Object;
+      static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
+
+      element_type const* address = obj.getOrNull(cet::map_vector_key(iIndex));
+
+      // The const_cast below is needed because
+      // Object's constructor requires a pointer to
+      // non-const void, although the implementation does not, of
+      // course, modify the object to which the pointer points.
+      Object obj(s_type, const_cast<void*>(static_cast<const void*>(address)));
+      Object cast = obj.CastObject(Type::ByTypeInfo(iToType));
+      if(0 != cast.Address()) {
+        oPtr = cast.Address(); // returns void*, after pointer adjustment
+      } else {
+        throw cet::exception("TypeConversionError")
+          << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
+          << " to " << iToType.name() << "\n";
+      }
+    }
+  }
 }
 ////////////////////////////////////////////////////////////////////////
 
@@ -649,10 +674,9 @@ namespace art {
                     unsigned long iIndex,
                     void const*& oPtr)
     {
-      // setPtr is the name of an overload set; each concrete
-      // collection T should supply a fillView function, in the same
-      // namespace at that in which T is defined, or in the 'edm'
-      // namespace.
+      // setPtr is the name of an overload set; each concrete collection
+      // T should supply a setPtr function, in the same namespace at
+      // that in which T is defined, or in the 'art' namespace.
       setPtr(obj, iToType, iIndex, oPtr);
     }
 
@@ -664,7 +688,7 @@ namespace art {
       // getElementAddresses is the name of an overload set; each
       // concrete collection T should supply a getElementAddresses
       // function, in the same namespace at that in which T is
-      // defined, or in the 'edm' namespace.
+      // defined, or in the 'art' namespace.
       getElementAddresses(obj, iToType, iIndex, oPtr);
     }
   };
@@ -687,13 +711,6 @@ namespace art {
     PtrSetter<T>::fill(obj, toType, indices, ptr);
   }
 
-  template <class T>
-  void DoSetPtr<T>::operator()(T const& obj,
-                               std::type_info const& toType,
-                               std::vector<void const*>& ptrs) const
-  {
-    PtrSetter<T>::fill(obj, toType, ptrs);
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -812,6 +829,73 @@ namespace art {
     detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
   }
 
+  template <class T>
+  void
+  getElementAddresses(cet::map_vector<T> const &obj,
+                      const std::type_info& iToType,
+                      const std::vector<unsigned long>& iIndicies,
+                      std::vector<void const*>& oPtr) {
+    typedef cet::map_vector<T> product_type;
+    typedef typename product_type::mapped_type element_type;
+    typedef typename product_type::const_iterator iter;
+    typedef typename product_type::size_type size_type;
+
+    oPtr.reserve(iIndicies.size());
+    if (iToType == typeid(element_type))
+      {
+        for(std::vector<unsigned long>::const_iterator
+              itIndex=iIndicies.begin(),
+              itEnd = iIndicies.end();
+            itIndex != itEnd;
+            ++itIndex)
+          {
+            element_type const* address =
+              // FIXME: Remove static_cast when map_vector supports
+              // unsigned long explicitly.
+              obj.getOrNull(cet::map_vector_key(static_cast<unsigned>(*itIndex)));
+            oPtr.push_back(address);
+          }
+      }
+    else
+      {
+        using Reflex::Type;
+        using Reflex::Object;
+        static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
+        Type toType=Type::ByTypeInfo(iToType);
+
+        for(std::vector<unsigned long>::const_iterator
+              itIndex=iIndicies.begin(),
+              itEnd = iIndicies.end();
+            itIndex != itEnd;
+            ++itIndex)
+          {
+            // FIXME: Remove static_cast when map_vector supports
+            // unsigned long explicitly.
+            element_type const* address =
+              obj.getOrNull(cet::map_vector_key(static_cast<unsigned>(*itIndex)));
+
+            // The const_cast below is needed because
+            // Object's constructor requires a pointer to
+            // non-const void, although the implementation does not, of
+            // course, modify the object to which the pointer points.
+            Object obj(s_type,
+                       const_cast<void*>(static_cast<const void*>(address)));
+            Object cast = obj.CastObject(toType);
+            if (0 != cast.Address())
+              {
+                // returns void*, after pointer adjustment
+                oPtr.push_back(cast.Address());
+              }
+            else
+              {
+                throw cet::exception("TypeConversionError")
+                  << "art::PtrVector<> : unable to convert type "
+                  << typeid(element_type).name()
+                  << " to " << iToType.name() << "\n";
+              }
+          }
+      }
+  }
 }
 ////////////////////////////////////////////////////////////////////////
 

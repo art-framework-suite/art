@@ -21,6 +21,8 @@ simple_plugin(MockClusterListProducer  "module" NOINSTALL )
 simple_plugin(PtrListAnalyzer          "module" NOINSTALL )
 simple_plugin(PtrVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(PtrVectorProducer        "module" NOINSTALL )
+simple_plugin(PtrmvProducer            "module" NOINSTALL )
+simple_plugin(PtrmvAnalyzer            "module" NOINSTALL )
 simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Reconfiguring            "module" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer    "module" NOINSTALL )
@@ -34,6 +36,8 @@ simple_plugin(ToyRawInput              "source" NOINSTALL )
 simple_plugin(ToyRawInputTester        "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
 simple_plugin(U_S                      "module" ALLOW_UNDERSCORES NOINSTALL )
+
+art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 
 # Common library link requirements for tests here.
 link_libraries(
@@ -302,6 +306,20 @@ cet_test(ProductMix_r2 HANDBUILT
   fcl/ProductMix_r2.fcl
 )
 
+cet_test(Ptrmv_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "Ptrmv_w.fcl"
+  DATAFILES
+  fcl/Ptrmv_w.fcl
+)
+
+cet_test(Ptrmv_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "Ptrmv_r.fcl"
+  DATAFILES
+  fcl/Ptrmv_r.fcl
+)
+
 if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
     (${CMAKE_VERSION} VERSION_GREATER "2.8"))
   # For parallel testing, enforce an order.
@@ -311,6 +329,7 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
   SET_TESTS_PROPERTIES(ToyRawInput_r3 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ProductMix_r1 PROPERTIES DEPENDS ProductMix_w)
   SET_TESTS_PROPERTIES(ProductMix_r2 PROPERTIES DEPENDS ProductMix_r1)
+  SET_TESTS_PROPERTIES(Ptrmv_r PROPERTIES DEPENDS Ptrmv_w)
 endif()
 
 ########################################################################

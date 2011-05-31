@@ -1,0 +1,22 @@
+process_name: PtrmvR
+
+physics:
+{
+  analyzers:
+  {
+    ptrmvReader:
+    {
+      module_type: PtrmvAnalyzer
+      input_label: ptrmvWriter
+    }
+  }
+
+  e1: [ ptrmvReader ]
+  end_paths: [ e1 ]  
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../Ptrmv_w.d/out.root" ]
+}

@@ -1,3 +1,4 @@
+#include "cetlib/map_vector.h"
 #include "cetlib/sha1.h"
 
 namespace {

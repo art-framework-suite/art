@@ -1,0 +1,10 @@
+<lcgdict>
+  <class name="std::pair<cet::map_vector_key, std::string>"/>
+  <class name="std::vector<std::pair<cet::map_vector_key, std::string> >"/>
+  <class name="cet::map_vector<std::string>"/>
+  <class name="art::Wrapper<cet::map_vector<std::string> >"/>
+  <class name="art::Ptr<std::string>"/>
+  <class name="art::Wrapper<art::Ptr<std::string> >"/>
+  <class name="art::PtrVector<std::string>"/>
+  <class name="art::Wrapper<art::PtrVector<std::string> >"/>
+</lcgdict>

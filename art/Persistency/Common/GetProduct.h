@@ -1,29 +1,5 @@
 #ifndef art_Persistency_Common_GetProduct_h
 #define art_Persistency_Common_GetProduct_h
-// -*- C++ -*-
-//
-// Package:     Common
-// Class  :     GetProduct
-//
-/**\class GetProduct GetProduct.h DataFormats/Common/interface/GetProduct.h
-
- Description: Controls how art::View and art::Ptr interact with containers
-
- Usage:
-    Override this class in order to specialize art::View or art::Ptr's interaction with a container
-
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Sat Oct 20 10:20:20 EDT 2007
-//
-//
-
-// system include files
-
-// user include files
-
-// forward declarations
 
 namespace art {
   namespace detail {
@@ -31,11 +7,11 @@ namespace art {
     struct GetProduct {
       typedef typename COLLECTION::value_type element_type;
       typedef typename COLLECTION::const_iterator iter;
-      static const element_type * address( const iter & i ) {
-	return &*i;
+      static element_type const *address(iter const &i) {
+        return &*i;
       }
-      static const COLLECTION * product( const COLLECTION & coll ) {
-	return & coll;
+      static COLLECTION const *product(COLLECTION const &coll) {
+        return &coll;
       }
     };
   }
