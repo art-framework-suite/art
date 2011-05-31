@@ -14,6 +14,7 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "boost/lexical_cast.hpp"
 #include "cetlib/map_vector.h"
 #include "cpp0x/type_traits"
@@ -246,9 +247,6 @@ namespace art {
 
   namespace detail
   {
-    typedef char (& no_tag )[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
-
     template <typename T, void (T::*)(T&)>  struct swap_function;
     template <typename T> no_tag  has_swap_helper(...);
     template <typename T> yes_tag has_swap_helper(swap_function<T, &T::swap> * dummy);

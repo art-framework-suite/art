@@ -4,6 +4,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exception.h"
 #include "cpp0x/type_traits"
 #include "fhiclcpp/ParameterSet.h"
@@ -14,18 +15,15 @@ namespace arttest {
   namespace detail {
     // All this detail is to decide whether our product P has a "value"
     // member or is (effectively) converitible-to-V.
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
-
     template <typename V, typename P, V P::*> struct value_member;
-    template <typename V, typename P> no_tag  has_value_helper(...);
-    template <typename V, typename P> yes_tag has_value_helper(value_member<V, P, &P::value> *x);
+    template <typename V, typename P> art::detail::no_tag  has_value_helper(...);
+    template <typename V, typename P> art::detail::yes_tag has_value_helper(value_member<V, P, &P::value> *x);
 
     template <typename V, typename P>
     struct has_value_member
     {
       static bool const value =
-        sizeof(has_value_helper<V, P>(0)) == sizeof(yes_tag);
+        sizeof(has_value_helper<V, P>(0)) == sizeof(art::detail::yes_tag);
     };
 
     template <typename V, typename P>

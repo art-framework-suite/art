@@ -71,17 +71,14 @@ set (HEADERS
 
 set (DETAIL_HEADERS
   math_private.h
+  metaprogramming.h
 )
 
 foreach (header ${DETAIL_HEADERS})
   set (PATH_DETAIL_HEADERS ${PATH_DETAIL_HEADERS} "detail/${header}")
 endforeach (header ${DETAIL_HEADERS})
 
-install (FILES ${PATH_DETAIL_HEADERS}
-        DESTINATION ${product}/${version}/include/art/Utilities/detail )
-
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
-install (FILES ${HEADERS}
-         DESTINATION ${product}/${version}/include/art/Utilities )
 
+install_headers(SUBDIRS detail)
 install_source()
