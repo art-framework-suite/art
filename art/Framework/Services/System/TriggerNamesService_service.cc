@@ -65,7 +65,7 @@ TriggerNamesService::getTrigPaths(TriggerResults const& triggerResults,
       << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
          "TriggerResults are different sizes.  This should be impossible,\n"
          "please send information to reproduce this problem to\n"
-         "the edm developers.\n";
+         "the ART developers.\n";
   }
 
   return true;

@@ -303,7 +303,7 @@ namespace art {
                "a process for which the configuration has requested that the\n"
                "OutputModule use TriggerResults to select events from.  This should\n"
                "be impossible, please send information to reproduce this problem to\n"
-               "the edm developers.\n";
+               "the ART developers.\n";
         }
       }
     }

@@ -33,7 +33,7 @@ namespace art {
         << "TriggerNames::init cannot find the trigger names for\n"
            "a TriggerResults object.  This should be impossible,\n"
            "please send information to reproduce this problem to\n"
-           "the edm developers.  (Actually if you started with a\n"
+           "the ART developers.  (Actually if you started with a\n"
            "Streamer file and the release used to read the streamer\n"
            "is older than the release used to create it, this may\n"
            "occur, but that is not supported and you should not do that)\n";
