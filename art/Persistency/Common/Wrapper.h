@@ -16,6 +16,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "boost/lexical_cast.hpp"
+#include "cetlib/demangle.h"
 #include "cetlib/map_vector.h"
 #include "cpp0x/type_traits"
 #include <deque>
@@ -75,7 +76,7 @@ namespace art {
     { art::fillView<T>()(obj, view); }
 
     virtual std::string
-      productSize() const
+    productSize() const
     { return art::productSize<T>()(obj); }
 
     /**REFLEX must call the following constructor
@@ -361,17 +362,17 @@ namespace art {
     typename std::conditional<detail::has_mergeProduct_function<T>::value,
       IsMergeable<T>,
       IsNotMergeable<T> >::type is_mergeable;
-  return is_mergeable(obj);
-}
+    return is_mergeable(obj);
+  }
 
-template <class T>
-bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
-{
-  Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
-  if (wrappedNewProduct == 0) return false;
-  typename std::conditional<detail::has_mergeProduct_function<T>::value,
-    DoMergeProduct<T>,
-    DoNotMergeProduct<T> >::type merge_product;
+  template <class T>
+  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
+  {
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
+    if (wrappedNewProduct == 0) return false;
+    typename std::conditional<detail::has_mergeProduct_function<T>::value,
+      DoMergeProduct<T>,
+      DoNotMergeProduct<T> >::type merge_product;
   return merge_product(obj, wrappedNewProduct->obj);
 }
 
@@ -392,7 +393,7 @@ bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
   typename std::conditional<detail::has_isProductEqual_function<T>::value,
     DoIsProductEqual<T>,
     DoNotIsProductEqual<T> >::type is_equal;
-return is_equal(obj, wrappedNewProduct->obj);
+  return is_equal(obj, wrappedNewProduct->obj);
 }
 #endif
 
@@ -400,8 +401,8 @@ template< class T >
 struct fillView<T, true>
 {
   void operator () ( T const                   & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     product.fillView(view);
   }
@@ -411,8 +412,8 @@ template< class T >
 struct fillView<T, false>
 {
   void operator () ( T const                   & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     throw Exception(errors::ProductDoesNotSupportViews)
       << "Product type " << typeid(T).name()
@@ -424,8 +425,8 @@ template< >
 struct fillView< std::vector<bool>, false >
 {
   void operator () ( std::vector<bool> const   & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     throw Exception(errors::ProductDoesNotSupportViews)
       << "Product type std::vector<bool> has no fillView() capability\n";
@@ -436,8 +437,8 @@ template< class E >
 struct fillView< std::vector<E>, false >
 {
   void operator () ( std::vector<E> const      & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     for( typename std::vector<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -450,8 +451,8 @@ template< class E >
 struct fillView< std::list<E>, false >
 {
   void operator () ( std::list<E> const        & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     for( typename std::list<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -464,8 +465,8 @@ template< class E >
 struct fillView< std::deque<E>, false >
 {
   void operator () ( std::deque<E> const       & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     for( typename std::deque<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -478,8 +479,8 @@ template< class E >
 struct fillView< std::set<E>, false >
 {
   void operator () ( std::set<E> const         & product
-                   , std::vector<void const *> & view
-                   )
+                     , std::vector<void const *> & view
+                     )
   {
     for( typename std::set<E>::const_iterator b = product.begin()
            , e = product.end()
@@ -492,7 +493,7 @@ template< class T >
 struct productSize<T, true>
 {
   std::string
-    operator () ( T const & obj ) const
+  operator () ( T const & obj ) const
   { return boost::lexical_cast<std::string>(obj.size()); }
 };
 
@@ -500,33 +501,33 @@ template< class T >
 struct productSize<T, false>
 {
   std::string
-    operator () ( T const & ) const
+  operator () ( T const & ) const
   { return "-"; }
 };
 
 template< class E >
 struct productSize<std::vector<E>, false>
-: public productSize<std::vector<E>, true>
+  : public productSize<std::vector<E>, true>
 { };
 
 template< class E >
 struct productSize<std::list<E>, false>
-: public productSize<std::list<E>, true>
+  : public productSize<std::list<E>, true>
 { };
 
 template< class E >
 struct productSize<std::deque<E>, false>
-: public productSize<std::deque<E>, true>
+  : public productSize<std::deque<E>, true>
 { };
 
 template< class E >
 struct productSize<std::set<E>, false>
-: public productSize<std::set<E>, true>
+  : public productSize<std::set<E>, true>
 { };
 
 template< class E >
 struct productSize<art::PtrVector<E>, false>
-: public productSize<art::PtrVector<E>, true>
+  : public productSize<art::PtrVector<E>, true>
 { };
 
 }  // art
@@ -545,32 +546,17 @@ struct productSize<art::PtrVector<E>, false>
 namespace art {
   namespace detail {
 
-    template <class COLLECTION>
-    void
-    reallySetPtr(COLLECTION const& coll,
-                 const std::type_info& iToType,
-                 unsigned long iIndex,
-                 void const*& oPtr)
-    {
-      typedef COLLECTION                            product_type;
-      typedef typename GetProduct<product_type>::element_type     element_type;
-      typedef typename product_type::const_iterator iter;
-      typedef typename product_type::size_type      size_type;
-
+    template <class element_type>
+    void const *
+    maybeCastObj(element_type const *address,
+                 const std::type_info& iToType) {
       if(iToType == typeid(element_type)) {
-        iter it = coll.begin();
-        advance(it,iIndex);
-        element_type const* address = GetProduct<product_type>::address( it );
-        oPtr = address;
+        return address;
       } else {
         using Reflex::Type;
         using Reflex::Object;
         static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-
-        iter it = coll.begin();
-        advance(it,iIndex);
-        element_type const* address = GetProduct<product_type>::address( it );
-
+        
         // The const_cast below is needed because
         // Object's constructor requires a pointer to
         // non-const void, although the implementation does not, of
@@ -578,13 +564,30 @@ namespace art {
         Object obj(s_type, const_cast<void*>(static_cast<const void*>(address)));
         Object cast = obj.CastObject(Type::ByTypeInfo(iToType));
         if(0 != cast.Address()) {
-          oPtr = cast.Address(); // returns void*, after pointer adjustment
+          return cast.Address(); // returns void*, after pointer adjustment
         } else {
           throw cet::exception("TypeConversionError")
-            << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
-            << " to " << iToType.name() << "\n";
+            << "art::Wrapper<> : unable to convert type "
+            << cet::demangle(typeid(element_type).name())
+            << " to "
+            << cet::demangle(iToType.name())
+            << "\n";
         }
       }
+    }
+
+    template <class COLLECTION>
+    void
+    reallySetPtr(COLLECTION const& coll,
+                 const std::type_info& iToType,
+                 unsigned long iIndex,
+                 void const*& oPtr) {
+      typedef COLLECTION product_type;
+      typedef typename product_type::const_iterator iter;
+
+      iter it = coll.begin();
+      advance(it,iIndex);
+      oPtr = maybeCastObj(GetProduct<product_type>::address(it), iToType);
     }
   }
 
@@ -624,6 +627,34 @@ namespace art {
     detail::reallySetPtr(obj, iToType, iIndex, oPtr);
   }
 
+  namespace detail {
+
+    class value_type_helper {
+    public:
+      static std::string const & pair_stem() {
+        static std::string const pair_stem_s("std::pair<");
+        return pair_stem_s;
+      }
+
+      static size_t pair_stem_offset() {
+        static size_t const pair_stem_offset_s = pair_stem().size();
+        return pair_stem_offset_s;
+      }
+
+      bool starts_with_pair(std::string const &type_name, size_t pos = 0) {
+        return (type_name.compare(pos, pair_stem_offset(), pair_stem()) == 0);
+      }
+
+      template <typename T>
+      size_t look_past_pair() {
+        static std::string const mapped_type = cet::demangle(typeid(T).name());
+        size_t pos = 0;
+        while (starts_with_pair(mapped_type, pos)) pos += pair_stem_offset();
+        return pos;
+      }
+    };
+  }
+
   template <class T>
   void
   setPtr(cet::map_vector<T> const &obj,
@@ -631,33 +662,17 @@ namespace art {
          unsigned int iIndex, // FIXME: Remove when map_vector supports unsigned long explicitly.
          void const*& oPtr) {
     typedef cet::map_vector<T> product_type;
-    typedef typename product_type::mapped_type element_type;
     typedef typename product_type::const_iterator iter;
-    typedef typename product_type::size_type size_type;
 
-    if(iToType == typeid(element_type)) {
-      element_type const* address = obj.getOrNull(cet::map_vector_key(iIndex));
-      oPtr = address;
+    detail::value_type_helper vh;
+    std::string const wanted_type = cet::demangle(iToType.name());
+    static size_t pos = vh.look_past_pair<T>();
+    if ((pos < wanted_type.size()) && vh.starts_with_pair(wanted_type, pos)) {
+      // Want value_type, not mapped_type;
+      iter it = obj.find(cet::map_vector_key(iIndex));
+      oPtr = detail::maybeCastObj((it == obj.end())?0:&(*it), iToType);
     } else {
-      using Reflex::Type;
-      using Reflex::Object;
-      static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-
-      element_type const* address = obj.getOrNull(cet::map_vector_key(iIndex));
-
-      // The const_cast below is needed because
-      // Object's constructor requires a pointer to
-      // non-const void, although the implementation does not, of
-      // course, modify the object to which the pointer points.
-      Object obj(s_type, const_cast<void*>(static_cast<const void*>(address)));
-      Object cast = obj.CastObject(Type::ByTypeInfo(iToType));
-      if(0 != cast.Address()) {
-        oPtr = cast.Address(); // returns void*, after pointer adjustment
-      } else {
-        throw cet::exception("TypeConversionError")
-          << "art::Ptr<> : unable to convert type " << typeid(element_type).name()
-          << " to " << iToType.name() << "\n";
-      }
+      oPtr = detail::maybeCastObj(obj.getOrNull(cet::map_vector_key(iIndex)), iToType);
     }
   }
 }
@@ -726,68 +741,22 @@ namespace art {
     void
     reallygetElementAddresses(COLLECTION const& coll,
                               const std::type_info& iToType,
-                              const std::vector<unsigned long>& iIndicies,
+                              const std::vector<unsigned long>& iIndices,
                               std::vector<void const*>& oPtr)
     {
-      typedef COLLECTION                            product_type;
-      typedef typename GetProduct<product_type>::element_type     element_type;
+      typedef COLLECTION product_type;
       typedef typename product_type::const_iterator iter;
-      typedef typename product_type::size_type      size_type;
 
-      oPtr.reserve(iIndicies.size());
-      if (iToType == typeid(element_type))
-        {
-          for(std::vector<unsigned long>::const_iterator
-                itIndex=iIndicies.begin(),
-              itEnd = iIndicies.end();
-            itIndex != itEnd;
-            ++itIndex)
-            {
-              iter it = coll.begin();
-              advance(it,*itIndex);
-              element_type const* address =
-                GetProduct<product_type>::address( it );
-              oPtr.push_back(address);
-            }
-        }
-      else
-        {
-          using Reflex::Type;
-          using Reflex::Object;
-          static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-          Type toType=Type::ByTypeInfo(iToType);
-
-          for(std::vector<unsigned long>::const_iterator
-                itIndex=iIndicies.begin(),
-                itEnd = iIndicies.end();
-              itIndex != itEnd;
-              ++itIndex)
-            {
-              iter it = coll.begin();
-              advance(it,*itIndex);
-              element_type const* address =
-                GetProduct<product_type>::address( it );
-              // The const_cast below is needed because
-              // Object's constructor requires a pointer to
-              // non-const void, although the implementation does not, of
-              // course, modify the object to which the pointer points.
-              Object obj(s_type,
-                         const_cast<void*>(static_cast<const void*>(address)));
-              Object cast = obj.CastObject(toType);
-              if (0 != cast.Address())
-                {
-                  // returns void*, after pointer adjustment
-                  oPtr.push_back(cast.Address());
-                }
-              else
-                {
-                  throw cet::exception("TypeConversionError")
-                    << "art::PtrVector<> : unable to convert type "
-                    << typeid(element_type).name()
-                    << " to " << iToType.name() << "\n";
-                }
-            }
-        }
+      oPtr.reserve(iIndices.size());
+      for(std::vector<unsigned long>::const_iterator
+            itIndex=iIndices.begin(),
+            itEnd = iIndices.end();
+          itIndex != itEnd;
+          ++itIndex) {
+        iter it = coll.begin();
+        advance(it,*itIndex);
+        oPtr.push_back(maybeCastObj(GetProduct<product_type>::address(it), iToType));
+      }
     }
   }
 
@@ -795,106 +764,82 @@ namespace art {
   void
   getElementAddresses(std::vector<T,A> const& obj,
                       const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndicies,
+                      const std::vector<unsigned long>& iIndices,
                       std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
+    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
   }
 
   template <class T, class A>
   void
   getElementAddresses(std::list<T,A> const& obj,
                       const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndicies,
+                      const std::vector<unsigned long>& iIndices,
                       std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
+    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
   }
 
   template <class T, class A>
   void
   getElementAddresses(std::deque<T,A> const& obj,
                       const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndicies,
+                      const std::vector<unsigned long>& iIndices,
                       std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
+    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
   }
 
   template <class T, class A, class Comp>
   void
   getElementAddresses(std::set<T,A,Comp> const& obj,
                       const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndicies,
+                      const std::vector<unsigned long>& iIndices,
                       std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndicies, oPtr);
+    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
   }
 
   template <class T>
   void
   getElementAddresses(cet::map_vector<T> const &obj,
                       const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndicies,
+                      const std::vector<unsigned long>& iIndices,
                       std::vector<void const*>& oPtr) {
     typedef cet::map_vector<T> product_type;
-    typedef typename product_type::mapped_type element_type;
     typedef typename product_type::const_iterator iter;
-    typedef typename product_type::size_type size_type;
 
-    oPtr.reserve(iIndicies.size());
-    if (iToType == typeid(element_type))
-      {
-        for(std::vector<unsigned long>::const_iterator
-              itIndex=iIndicies.begin(),
-              itEnd = iIndicies.end();
-            itIndex != itEnd;
-            ++itIndex)
-          {
-            element_type const* address =
-              // FIXME: Remove static_cast when map_vector supports
-              // unsigned long explicitly.
-              obj.getOrNull(cet::map_vector_key(static_cast<unsigned>(*itIndex)));
-            oPtr.push_back(address);
-          }
+    detail::value_type_helper vh;
+    std::string const wanted_type = cet::demangle(iToType.name());
+    static size_t pos = vh.look_past_pair<T>();
+
+    oPtr.reserve(iIndices.size());
+    if ((pos < wanted_type.size()) && vh.starts_with_pair(wanted_type, pos)) {
+      // Want value_type.
+      for(std::vector<unsigned long>::const_iterator
+            itIndex=iIndices.begin(),
+            itEnd = iIndices.end();
+          itIndex != itEnd;
+          ++itIndex) {
+        // FIXME: Remove static_cast when map_vector supports unsigned
+        // long explicitly.
+        iter it = obj.find(cet::map_vector_key(static_cast<unsigned>(*itIndex)));
+        oPtr.push_back(detail::maybeCastObj((it == obj.end())?0:&(*it), iToType));
       }
-    else
-      {
-        using Reflex::Type;
-        using Reflex::Object;
-        static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-        Type toType=Type::ByTypeInfo(iToType);
-
-        for(std::vector<unsigned long>::const_iterator
-              itIndex=iIndicies.begin(),
-              itEnd = iIndicies.end();
-            itIndex != itEnd;
-            ++itIndex)
-          {
-            // FIXME: Remove static_cast when map_vector supports
-            // unsigned long explicitly.
-            element_type const* address =
-              obj.getOrNull(cet::map_vector_key(static_cast<unsigned>(*itIndex)));
-
-            // The const_cast below is needed because
-            // Object's constructor requires a pointer to
-            // non-const void, although the implementation does not, of
-            // course, modify the object to which the pointer points.
-            Object obj(s_type,
-                       const_cast<void*>(static_cast<const void*>(address)));
-            Object cast = obj.CastObject(toType);
-            if (0 != cast.Address())
-              {
-                // returns void*, after pointer adjustment
-                oPtr.push_back(cast.Address());
-              }
-            else
-              {
-                throw cet::exception("TypeConversionError")
-                  << "art::PtrVector<> : unable to convert type "
-                  << typeid(element_type).name()
-                  << " to " << iToType.name() << "\n";
-              }
-          }
+    } else {
+      // Want mapped_type.
+      for(std::vector<unsigned long>::const_iterator
+            itIndex=iIndices.begin(),
+            itEnd = iIndices.end();
+          itIndex != itEnd;
+          ++itIndex) {
+        // FIXME: Remove static_cast when map_vector supports unsigned
+        // long explicitly.
+        oPtr.push_back(detail::maybeCastObj
+                       (obj.getOrNull(cet::map_vector_key
+                                      (static_cast<unsigned>(*itIndex))),
+                        iToType));
       }
+    }
   }
 }
+
 ////////////////////////////////////////////////////////////////////////
 
 #endif /* art_Persistency_Common_Wrapper_h */

@@ -22,7 +22,7 @@ simple_plugin(PtrListAnalyzer          "module" NOINSTALL )
 simple_plugin(PtrVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(PtrVectorProducer        "module" NOINSTALL )
 simple_plugin(PtrmvProducer            "module" NOINSTALL )
-simple_plugin(PtrmvAnalyzer            "module" NOINSTALL )
+simple_plugin(PtrmvAnalyzer            "module" ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} NOINSTALL )
 simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Reconfiguring            "module" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer    "module" NOINSTALL )
@@ -307,15 +307,15 @@ cet_test(ProductMix_r2 HANDBUILT
 )
 
 cet_test(Ptrmv_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c "Ptrmv_w.fcl"
+  TEST_EXEC art_ut
+  TEST_ARGS --config "Ptrmv_w.fcl"
   DATAFILES
   fcl/Ptrmv_w.fcl
 )
 
 cet_test(Ptrmv_r HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c "Ptrmv_r.fcl"
+  TEST_EXEC art_ut
+  TEST_ARGS --config "Ptrmv_r.fcl"
   DATAFILES
   fcl/Ptrmv_r.fcl
 )

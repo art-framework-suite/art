@@ -176,6 +176,7 @@ void testfriendlyName::test()
                                  "reco::Candidateart::RefToBaseProdTodoublesAssociationVector"));
   classToFriendly.insert( Values("art::RefVector<art::AssociationMap<art::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >,art::helpers::KeyVal<art::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,art::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >,art::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,art::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >,art::AssociationMap<art::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >::Find>",
                                  "reco::BasicClustersToOnereco::ClusterShapesAssociationRefs"));
+  classToFriendly.insert( Values("cet::map_vector_key","mvk") );
   classToFriendly.insert( Values("cet::map_vector<Foo>","Foomv") );
 
   for(std::map<std::string, std::string>::iterator itInfo = classToFriendly.begin(),

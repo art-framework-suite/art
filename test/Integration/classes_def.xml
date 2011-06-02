@@ -11,4 +11,8 @@
   <class name="art::Wrapper<art::Ptr<std::string> >"/>
   <class name="art::PtrVector<std::string>"/>
   <class name="art::Wrapper<art::PtrVector<std::string> >"/>
+  <class name="art::Ptr<std::pair<cet::map_vector_key, std::string> >"/>
+  <class name="art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string> > >"/>
+  <class name="art::PtrVector<std::pair<cet::map_vector_key, std::string> >"/>
+  <class name="art::Wrapper<art::PtrVector<std::pair<cet::map_vector_key, std::string> > >"/>
 </lcgdict>

@@ -160,6 +160,28 @@ foreach (art_exec ${ART_EXECS})
   install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
 endforeach (art_exec ${ART_EXECS})
 
+# Versions of the ART execs supporting modules using BOOST unit test framework.
+macro(art_ut_exec TARGET_STEM MAIN_FUNC)
+  set(ART_UT_MAIN_FUNC ${MAIN_FUNC})
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/art_ut.cc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc @ONLY
+    )
+  add_executable(${TARGET_STEM}_ut ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc)
+  target_link_libraries(${TARGET_STEM}_ut
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+    ${art_exec_link_libraries}
+    ${common_exec_link_libraries} )
+  install ( TARGETS ${TARGET_STEM}_ut DESTINATION ${flavorqual_dir}/bin )
+  set_target_properties(${TARGET_STEM}_ut PROPERTIES
+    COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK"
+    )
+endmacro()
+
+art_ut_exec(art artapp)
+art_ut_exec(nova novaapp)
+art_ut_exec(mu2e novaapp)
+art_ut_exec(gm2 novaapp)
+
 add_executable( check_libs ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc )
 target_link_libraries( check_libs ${common_exec_link_libraries} )
 install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )

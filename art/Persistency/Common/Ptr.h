@@ -215,6 +215,30 @@ namespace art
       cet::map_vector_key k(static_cast<unsigned>(iKey));
       return product->getOrNull(k);
     }
+
+    template <typename T>
+    class ItemGetter<std::pair<cet::map_vector_key, T>, cet::map_vector<T> > {
+    public:
+      std::pair<cet::map_vector_key, T> const *
+      operator()(cet::map_vector<T> const *product,
+                 typename Ptr<T>::key_type iKey) const;
+    };
+
+    template <typename T>
+    inline
+    std::pair<cet::map_vector_key, T> const *
+    ItemGetter<std::pair<cet::map_vector_key, T>, cet::map_vector<T> >::
+    operator()(cet::map_vector<T> const *product,
+               typename Ptr<T>::key_type iKey) const {
+      assert (product != 0);
+      cet::map_vector_key k(static_cast<unsigned>(iKey));
+      typename cet::map_vector<T>::const_iterator it = product->find(k);
+      if (it == product->end()) {
+        return nullptr;
+      } else {
+        return &(*it);
+      }
+    }
   }
 
   template <typename T>

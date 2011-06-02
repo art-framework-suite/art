@@ -18,11 +18,16 @@ namespace {
     cet::map_vector<unsigned int>::impl_type mvui_i;
     art::Wrapper<cet::map_vector<unsigned int> > mvui_w;
 
-
     art::Ptr<std::string> ps;
     art::Wrapper<art::Ptr<std::string> > ps_w;
 
     art::PtrVector<std::string> pvs;
     art::Wrapper<art::PtrVector<std::string> > pvs_w;
+
+    art::Ptr<std::pair<cet::map_vector_key, std::string> > pp;
+    art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string> > > pp_w;
+
+    art::PtrVector<std::pair<cet::map_vector_key, std::string> > pvp;
+    art::Wrapper<art::PtrVector<std::pair<cet::map_vector_key, std::string> > > pvp_w;
   };
 }
