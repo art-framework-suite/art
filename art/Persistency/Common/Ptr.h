@@ -210,9 +210,7 @@ namespace art
     operator()(cet::map_vector<T> const *product,
                typename Ptr<T>::key_type iKey) const {
       assert (product != 0);
-      // FIXME: Remove static_cast when map_vector supports unsigned long
-      // explicitly.
-      cet::map_vector_key k(static_cast<unsigned>(iKey));
+      cet::map_vector_key k(iKey);
       return product->getOrNull(k);
     }
 

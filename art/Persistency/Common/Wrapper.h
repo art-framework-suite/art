@@ -659,7 +659,7 @@ namespace art {
   void
   setPtr(cet::map_vector<T> const &obj,
          const std::type_info& iToType,
-         unsigned int iIndex, // FIXME: Remove when map_vector supports unsigned long explicitly.
+         unsigned long iIndex,
          void const*& oPtr) {
     typedef cet::map_vector<T> product_type;
     typedef typename product_type::const_iterator iter;
@@ -810,17 +810,17 @@ namespace art {
     static size_t pos = vh.look_past_pair<T>();
 
     oPtr.reserve(iIndices.size());
-    if ((pos < wanted_type.size()) && vh.starts_with_pair(wanted_type, pos)) {
+    if ((pos < wanted_type.size()) &&
+        vh.starts_with_pair(wanted_type, pos)) {
       // Want value_type.
       for(std::vector<unsigned long>::const_iterator
             itIndex=iIndices.begin(),
             itEnd = iIndices.end();
           itIndex != itEnd;
           ++itIndex) {
-        // FIXME: Remove static_cast when map_vector supports unsigned
-        // long explicitly.
-        iter it = obj.find(cet::map_vector_key(static_cast<unsigned>(*itIndex)));
-        oPtr.push_back(detail::maybeCastObj((it == obj.end())?0:&(*it), iToType));
+        iter it = obj.find(cet::map_vector_key(*itIndex));
+        oPtr.push_back(detail::maybeCastObj((it == obj.end())?0:&(*it),
+                                            iToType));
       }
     } else {
       // Want mapped_type.
@@ -829,11 +829,8 @@ namespace art {
             itEnd = iIndices.end();
           itIndex != itEnd;
           ++itIndex) {
-        // FIXME: Remove static_cast when map_vector supports unsigned
-        // long explicitly.
         oPtr.push_back(detail::maybeCastObj
-                       (obj.getOrNull(cet::map_vector_key
-                                      (static_cast<unsigned>(*itIndex))),
+                       (obj.getOrNull(cet::map_vector_key(*itIndex)),
                         iToType));
       }
     }
