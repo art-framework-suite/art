@@ -35,11 +35,11 @@ tnotnull UPS_DIR || echo "$msg2"
 # use setup -j to avoid pulling dependencies
 
 # CET products
-setup -j cetbuildtools v1_11_05
-setup -j messagefacility v1_8_21 -q a2$extraqual
-setup -j fhiclcpp v2_12_07 -q a2$extraqual
-setup -j cetlib v1_00_01 -q a2$extraqual
-setup -j cpp0x v1_01_11 -q a2$extraqual 
+setup -j cetbuildtools v1_11_06
+setup -j messagefacility v1_8_22 -q a2$extraqual
+setup -j fhiclcpp v2_12_08 -q a2$extraqual
+setup -j cetlib v1_00_02 -q a2$extraqual
+setup -j cpp0x v1_01_12 -q a2$extraqual 
 # other external products
 setup -j clhep v2_1_0_1 -q gcc45
 setup -j root v5_28_00a -q gcc45
