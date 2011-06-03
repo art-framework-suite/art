@@ -118,7 +118,7 @@ int art::run_art(intermediate_table raw_config) {
    char const *debug_config = getenv("ART_DEBUG_CONFIG");
    if (debug_config != nullptr) {
       std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
-      std::cerr << main_pset.to_string() << "\n";
+      std::cerr << main_pset.to_indented_string() << "\n";
       return 1;
    }
 
