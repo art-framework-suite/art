@@ -7,6 +7,8 @@ Definition of traits templates used in the EDM.
 
 ----------------------------------------------------------------------*/
 
+#include "cetlib/map_vector.h"
+
 #include <deque>
 #include <limits>
 #include <list>
@@ -187,6 +189,12 @@ namespace art
 
   template <class T, class A>
     struct has_setPtr<std::set<T,A> >
+  {
+    static bool const value = true;
+  };
+
+  template <class T>
+  struct has_setPtr<cet::map_vector<T> >
   {
     static bool const value = true;
   };

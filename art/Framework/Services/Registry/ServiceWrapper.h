@@ -9,6 +9,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
+#include "art/Utilities/detail/metaprogramming.h"
 
 #include "cpp0x/type_traits"
 #include <memory>
@@ -18,8 +19,6 @@ namespace art {
     class ServiceWrapper;
 
   namespace detail {
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
 
     template <typename T, void (T::*)(fhicl::ParameterSet const&)>  struct reconfig_function;
     template <typename T> no_tag  has_reconfig_helper(...);

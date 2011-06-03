@@ -57,6 +57,7 @@ namespace art {
     static std::regex const reToRefs1("art::RefVector< *(.*)< *(.*) *>, *\\2 *, *art::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
     static std::regex const reToRefs2("art::RefVector< *(.*) *, *(.*) *, *art::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
     static std::regex const reToRefsAssoc("art::RefVector< *Association(.*) *, *art::helper(.*), *Association(.*)::Find>");
+    static std::regex const reMapVectorKey("cet::map_vector_key");
     static std::regex const reMapVector("cet::map_vector");
 
     std::string standardRenames(std::string const& iIn) {
@@ -79,6 +80,7 @@ namespace art {
        name = regex_replace(name,reToRefs1,"Refs<$1<$2>>");
        name = regex_replace(name,reToRefs2,"Refs<$1,$2>");
        name = regex_replace(name,reToRefsAssoc,"Refs<Association$1>");
+       name = regex_replace(name,reMapVectorKey,"mvk");
        name = regex_replace(name,reMapVector,"mv");
        //std::cout <<"standardRenames '"<<name<<"'"<<std::endl;
        return name;

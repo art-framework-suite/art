@@ -1,0 +1,18 @@
+<lcgdict>
+  <class name="cet::map_vector<std::string>::value_type"/>
+  <class name="cet::map_vector<std::string>::impl_type"/>
+  <class name="cet::map_vector<std::string>"/>
+  <class name="art::Wrapper<cet::map_vector<std::string> >"/>
+  <class name="cet::map_vector<unsigned int>::value_type"/>
+  <class name="cet::map_vector<unsigned int>::impl_type"/>
+  <class name="cet::map_vector<unsigned int>"/>
+  <class name="art::Wrapper<cet::map_vector<unsigned int> >"/>
+  <class name="art::Ptr<std::string>"/>
+  <class name="art::Wrapper<art::Ptr<std::string> >"/>
+  <class name="art::PtrVector<std::string>"/>
+  <class name="art::Wrapper<art::PtrVector<std::string> >"/>
+  <class name="art::Ptr<std::pair<cet::map_vector_key, std::string> >"/>
+  <class name="art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string> > >"/>
+  <class name="art::PtrVector<std::pair<cet::map_vector_key, std::string> >"/>
+  <class name="art::Wrapper<art::PtrVector<std::pair<cet::map_vector_key, std::string> > >"/>
+</lcgdict>

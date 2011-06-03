@@ -143,6 +143,9 @@ namespace art
     // Fulfills the role of, "convertible to bool"
     operator void const *() const { return get(); }
 
+    // MUST UPDATE WHEN CLASS IS CHANGED!
+    static short Class_Version() { return 10; }
+
   private:
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
@@ -174,6 +177,70 @@ namespace art
   // Implementation details below.
   //------------------------------------------------------------
 
+  namespace detail {
+    template <typename T, typename C>
+    class ItemGetter {
+    public:
+      T const *operator()(C const *product,
+                          typename Ptr<T>::key_type iKey) const;
+    };
+
+    template <typename T, typename C>
+    inline
+    T const *
+    ItemGetter<T, C>::operator()(C const *product,
+                                 typename Ptr<T>::key_type iKey) const {
+      assert (product != 0);
+      typename C::const_iterator it = product->begin();
+      advance(it,iKey);
+      T const* address = detail::GetProduct<C>::address(it);
+      return address;
+    }
+
+    template <typename T>
+    class ItemGetter<T, cet::map_vector<T> > {
+    public:
+      T const *operator()(cet::map_vector<T> const *product,
+                          typename Ptr<T>::key_type iKey) const;
+    };
+
+    template <typename T>
+    inline
+    T const *ItemGetter<T, cet::map_vector<T> >::
+    operator()(cet::map_vector<T> const *product,
+               typename Ptr<T>::key_type iKey) const {
+      assert (product != 0);
+      // FIXME: Remove static_cast when map_vector supports unsigned long
+      // explicitly.
+      cet::map_vector_key k(static_cast<unsigned>(iKey));
+      return product->getOrNull(k);
+    }
+
+    template <typename T>
+    class ItemGetter<std::pair<cet::map_vector_key, T>, cet::map_vector<T> > {
+    public:
+      std::pair<cet::map_vector_key, T> const *
+      operator()(cet::map_vector<T> const *product,
+                 typename Ptr<T>::key_type iKey) const;
+    };
+
+    template <typename T>
+    inline
+    std::pair<cet::map_vector_key, T> const *
+    ItemGetter<std::pair<cet::map_vector_key, T>, cet::map_vector<T> >::
+    operator()(cet::map_vector<T> const *product,
+               typename Ptr<T>::key_type iKey) const {
+      assert (product != 0);
+      cet::map_vector_key k(static_cast<unsigned>(iKey));
+      typename cet::map_vector<T>::const_iterator it = product->find(k);
+      if (it == product->end()) {
+        return nullptr;
+      } else {
+        return &(*it);
+      }
+    }
+  }
+
   template <typename T>
   template <typename C>
   inline
@@ -192,17 +259,13 @@ namespace art
               bool setNow) :
     core_(handle.id(), getItem_(handle.product(), idx), 0),
     key_(idx)
-    { }
+  { }
 
   template<typename T>
   template<typename C>
   T const* Ptr<T>::getItem_(C const* product, key_type iKey)
   {
-    assert (product != 0);
-    typename C::const_iterator it = product->begin();
-    advance(it,iKey);
-    T const* address = detail::GetProduct<C>::address(it);
-    return address;
+    return detail::ItemGetter<T, C>()(product, iKey);
   }
 
   // Dereference operator
@@ -229,13 +292,6 @@ namespace art
   operator==(Ptr<T> const& lhs, Ptr<T> const& rhs) {
     return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
   }
-
-//   template <typename T>
-//   inline
-//   bool
-//   operator!=(Ptr<T> const& lhs, Ptr<T> const& rhs) {
-//     return !(lhs == rhs);
-//   }
 
   template <typename T>
   inline

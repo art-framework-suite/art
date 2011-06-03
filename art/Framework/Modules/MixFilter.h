@@ -61,6 +61,7 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cpp0x/type_traits"
 
 namespace art {
@@ -69,8 +70,6 @@ namespace art {
 
   namespace detail {
     // Template metaprogramming.
-    typedef char (& no_tag )[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?

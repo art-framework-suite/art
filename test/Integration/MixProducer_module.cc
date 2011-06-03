@@ -11,6 +11,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "cetlib/map_vector.h"
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
 
@@ -51,6 +52,7 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &p)
   produces<std::vector<art::Ptr<double> > >("doubleVectorPtrLabel");
   produces<art::PtrVector<double> >("doublePtrVectorLabel");
   produces<ProductWithPtrs>("ProductWithPtrsLabel");
+  produces<cet::map_vector<unsigned int> >();
 }
 
 arttest::MixProducer::~MixProducer() {
@@ -106,6 +108,15 @@ void arttest::MixProducer::produce(art::Event &e) {
   e.put(vpd, "doubleVectorPtrLabel"); // 2.
   e.put(pvd, "doublePtrVectorLabel"); // 3.
   e.put(pwp, "ProductWithPtrsLabel"); // 4.
+
+  // cet::map_vector<unsigned int>
+  std::auto_ptr<cet::map_vector<unsigned int> > mv(new cet::map_vector<unsigned int>);
+  mv->reserve(5);
+  for (size_t i = 0; i < 5; ++i) {
+    (*mv)[cet::map_vector_key(static_cast<unsigned int>(1 + i * 2 + 10 * (eventCounter_ - 1)))] =
+      eventCounter_;
+  }
+  e.put(mv);
 }
 
 DEFINE_ART_MODULE(arttest::MixProducer);
