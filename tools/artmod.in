@@ -134,6 +134,7 @@ GetOptions($options,
            "entries|entry|e=s@",
            "force|f",
            "header-loc=s",
+           "guard=s",
            "help|h|?",
            "help-types",
            "impl-boilerplate=s",
@@ -226,6 +227,8 @@ sub ins_vals {
           { $wanted_data = basename($current_filename); last SW1; };
         $lc eq "F" and do
           { $wanted_data = $current_filename; last SW1; };
+        $lc eq "n" and do
+          { $wanted_data = join("::", @namespaces); last SW1; };
         $lc eq "t" and do
           { $wanted_data = $module_type; last SW1; };
         $lc eq "u" and do
@@ -245,6 +248,10 @@ sub ins_vals {
       pos $$bp = $s + length($replacement_exp);
     }
   }
+  # Deal with any embedded \\[UE] sets
+  $$bp =~ s&\\[U](.*?)(?:\\E|$)&\U$1\E&gm;
+  $$bp =~ s&\\[L](.*?)(?:\\E|$)&\L$1\E&gm;
+  $$bp =~ s&\\[E]&&gm; # Deal with dangling \Es.
 }
 
 sub decl_boilerplate(\$) {
@@ -285,9 +292,13 @@ sub generate_multi {
     exit(1);
   }
 
-  my $header_guard = $header_path;
+  my $header_guard = ${options}->{guard} ||
+    $ENV{ARTMOD_HEADER_GUARD} ||
+      $header_path;
 
-  while ($header_guard =~ s&[/\.]&_&g) {}
+  ins_vals(\$header_guard);
+
+  $header_guard =~ s&(?:[/\.]|::)&_&g;
 
   print $fh "#ifndef $header_guard\n";
   print $fh "#define $header_guard\n";
@@ -668,6 +679,7 @@ Certain format strings will be honored, such as:
         included.
   %F  The fully-qualified path of the file in which the
         boilerplate is included.
+  %n  The qualification (namespace chain) of the class.
   %t  The type of module generated.
   %u  The login name of the invoker of artmod.
   %U  The full name (if available) if the invoker of artmod, or
@@ -712,6 +724,16 @@ parentheses. For example,
 =item B<-f>
 
 Force overwrite of existing files; the default is to not overwrite.
+
+=item B<guard> I<header-guard-spec>
+
+The specification for the header guard. '%' format specifiers are
+honored, as are the Perl-regex directives \U, \L and \E. Ignored unless
+the --split option is used. The environment variable ARTMOD_HEADER_GUARD
+will be interrogated in the absence of this option, and failing, that
+the default will be the header file's path from package-top. See the
+documentation for B<--boilerplate> above for information about
+substitutions.
 
 =item B<--header-loc> I<path>
 
