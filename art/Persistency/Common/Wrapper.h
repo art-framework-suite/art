@@ -556,7 +556,7 @@ namespace art {
         using Reflex::Type;
         using Reflex::Object;
         static const Type s_type(Type::ByTypeInfo(typeid(element_type)));
-        
+
         // The const_cast below is needed because
         // Object's constructor requires a pointer to
         // non-const void, although the implementation does not, of

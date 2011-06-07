@@ -1,10 +1,6 @@
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/Core/TypeLabelList.h"
 
+#include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
@@ -24,7 +20,6 @@ namespace art
                                        ProductRegistry& preg,
                                        bool isListener)
   {
-
     for ( ;  i != e; ++i)
       {
         BranchDescription
@@ -37,7 +32,7 @@ namespace art
                 md);
         if (i->hasBranchAlias())
           pdesc.addBranchAlias(i->branchAlias);
-	
+
         preg.addProduct(pdesc, isListener);
       }
   }

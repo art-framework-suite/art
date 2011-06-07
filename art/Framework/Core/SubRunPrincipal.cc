@@ -13,7 +13,7 @@ namespace art {
 				   std::shared_ptr<DelayedReader> rtrv) :
     Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
     runPrincipal_(),
-    aux_(aux) 
+    aux_(aux)
   {
     if (reg->productProduced(InSubRun)) {
       addToProcessHistory();

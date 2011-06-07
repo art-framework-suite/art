@@ -102,7 +102,7 @@ namespace art {
   private:
 
     template <BranchType B>
-    TypeLabel const& 
+    TypeLabel const&
     produces_in_branch(TypeID const& productType,
 		       std::string const& instanceName=std::string());
 

@@ -63,7 +63,7 @@ namespace art {
     ART_ROOTNAME_SIMPLE(BranchIDLists);
     ART_ROOTNAME(BranchChildren,"ProductDependencies");
     ART_ROOTNAME(History,"EventHistory");
-    
+
 #undef ART_ROOTNAME_SIMPLE
 #undef ART_ROOTNAME
 

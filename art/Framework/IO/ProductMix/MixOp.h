@@ -166,7 +166,7 @@ art::BranchID
 art::MixOp<PROD>::
 incomingBranchID() const {
   return BranchID(branchInfo_.branchName());
-}  
+}
 
 template <typename PROD>
 art::BranchID
@@ -176,7 +176,7 @@ outgoingBranchID() const {
                 moduleLabel_,
                 outputInstanceLabel_,
                 processName_);
-  ProductRegistry const &pReg = 
+  ProductRegistry const &pReg =
     ServiceHandle<ConstProductRegistry>()->productRegistry();
   ProductRegistry::ConstProductList::const_iterator i =
     pReg.constProductList().find(key);

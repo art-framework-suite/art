@@ -9,10 +9,10 @@ namespace {
 
   std::string const metaDataTree             = "MetaData";
   std::string const eventHistory             = "EventHistory";
-  std::string const eventBranchMapper        = "EventBranchMapper";  
+  std::string const eventBranchMapper        = "EventBranchMapper";
 
-  std::string const events                   = "Events";  
-  std::string const eventMeta                = "EventMetaData";  
+  std::string const events                   = "Events";
+  std::string const eventMeta                = "EventMetaData";
 }
 
 // Parentage tree.

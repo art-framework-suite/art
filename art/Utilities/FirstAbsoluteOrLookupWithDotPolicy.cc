@@ -16,7 +16,7 @@ FirstAbsoluteOrLookupWithDotPolicy(std::string const &paths)
       << "search path empty (nonexistent environment variable"
       << (paths.empty()?"":std::string(" ") + paths)
       << ")?\n"
-      << "Any included configurations will not be found by this lookup policy.\n"; 
+      << "Any included configurations will not be found by this lookup policy.\n";
   }
 }
 

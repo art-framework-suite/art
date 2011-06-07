@@ -75,7 +75,7 @@ namespace ui {
       {
       case NextEvent:
         break;
-      case ReprocessEvent: 
+      case ReprocessEvent:
         input_->skipEvents(-1);
         break;
       case RewindFile:
