@@ -29,8 +29,8 @@ namespace art {
                  ProductRegistry& reg,
                  ActionTable& actions,
                  std::string const& processName,
-                 std::string releaseVersion=getReleaseVersion(),
-                 std::string passID=getPassID()):
+                 std::string const & releaseVersion=getReleaseVersion(),
+                 std::string const & passID=getPassID()):
       procPset_(&procPset),pset_(&pset),reg_(&reg),actions_(&actions),
       processName_(processName),releaseVersion_(releaseVersion),passID_(passID) { }
 

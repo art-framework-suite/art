@@ -2,8 +2,10 @@
 #include "art/Version/GetReleaseVersion.h"
 
 namespace art {
-  std::string getReleaseVersion() {
+
+  std::string const & getReleaseVersion() {
     static std::string const releaseVersion("@version@");
     return releaseVersion;
   }
+
 }

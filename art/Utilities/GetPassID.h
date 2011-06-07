@@ -4,12 +4,14 @@
 #include <string>
 
 namespace art {
+
   inline
-  std::string getPassID () {
-    static std::string passID;
+  std::string const & getPassID () {
+    static std::string const  passID;
     // return empty string for now.
     return passID;
   }
+
 }
 #endif /* art_Utilities_GetPassID_h */
 
