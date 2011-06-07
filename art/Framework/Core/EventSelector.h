@@ -97,7 +97,6 @@ namespace art {
 
     bool selectionDecision(HLTGlobalStatus const & tr) const;
 
-    static std::string glob2reg(std::string const& s);
     static std::vector< Strings::const_iterator >
       matching_triggers(Strings const& trigs, std::string const& s);
 
