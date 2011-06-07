@@ -44,7 +44,8 @@ namespace art {
   public:
     typedef DataViewImpl Base;
     Event(EventPrincipal& ep, const ModuleDescription& md);
-    ~Event(){}
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     // AUX functions.
     EventID

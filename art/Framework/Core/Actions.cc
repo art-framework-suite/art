@@ -113,9 +113,6 @@ namespace art {
 
   }
 
-  ActionTable::~ActionTable()
-  { }
-
   void ActionTable::add(const string& category,
                         actions::ActionCodes code)
   {

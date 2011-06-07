@@ -4,12 +4,10 @@
 #include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
 #include "art/Version/GetReleaseVersion.h"
-
 #include "fhiclcpp/ParameterSet.h"
-  using fhicl::ParameterSet;
-
 #include <iostream>
 
+using fhicl::ParameterSet;
 using namespace art;
 
 InputSourceFactory::InputSourceFactory()

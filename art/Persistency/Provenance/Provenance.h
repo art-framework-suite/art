@@ -6,6 +6,11 @@
 Provenance: The full description of a product and how it came into
 existence.
 
+definitions:
+  Product: The EDProduct to which a provenance object is associated
+  Creator: The EDProducer that made the product.
+  Parents: The EDProducts used as input by the creator.
+
 ----------------------------------------------------------------------*/
 
 #include "art/Persistency/Provenance/BranchDescription.h"
@@ -20,17 +25,6 @@ existence.
 
 // ----------------------------------------------------------------------
 
-/*
-  Provenance
-
-  definitions:
-  Product: The EDProduct to which a provenance object is associated
-
-  Creator: The EDProducer that made the product.
-
-  Parents: The EDProducts used as input by the creator.
-*/
-
 namespace art {
   class Provenance {
   public:
@@ -39,7 +33,7 @@ namespace art {
     Provenance(ConstBranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> entryDesc);
     Provenance(BranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> entryDesc);
 
-    ~Provenance() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     Parentage const& event() const {return parentage();}
     BranchDescription const& product() const {return branchDescription_.me();}

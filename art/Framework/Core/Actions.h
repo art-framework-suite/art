@@ -28,7 +28,8 @@ namespace art {
 
     ActionTable();
     explicit ActionTable(const fhicl::ParameterSet&);
-    ~ActionTable();
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     void add(const std::string& category, actions::ActionCodes code);
     actions::ActionCodes find(const std::string& category) const;

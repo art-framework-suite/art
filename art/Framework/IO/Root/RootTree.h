@@ -31,7 +31,8 @@ namespace art {
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
     RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType);
-    ~RootTree() {}
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     bool isValid() const;
     void addBranch(BranchKey const& key,

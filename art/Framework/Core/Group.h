@@ -43,7 +43,7 @@ namespace art {
           ProductID const& pid,
           std::shared_ptr<ProductProvenance> productProvenance);
 
-    ~Group();
+    // use compiler-generated d'tor
 
     void swap(Group& other);
 
@@ -105,6 +105,7 @@ namespace art {
     ProductID const& productID() const {return pid_;};
 
   private:
+    // not copyable:
     Group(const Group&);
     void operator=(const Group&);
 

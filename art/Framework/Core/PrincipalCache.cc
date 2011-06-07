@@ -1,17 +1,17 @@
-
-
-//
-
 #include "art/Framework/Core/PrincipalCache.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+
 #include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
 
 namespace art {
 
-  PrincipalCache::PrincipalCache() { }
-
-  PrincipalCache::~PrincipalCache() { }
+  PrincipalCache::PrincipalCache() :
+    runPrincipals_         ( ),
+    subRunPrincipals_      ( ),
+    currentRunPrincipal_   ( ),
+    currentSubRunPrincipal_( )
+  { }
 
   RunPrincipal & PrincipalCache::runPrincipal(RunNumber_t run) {
     RunIterator iter = runPrincipals_.find(run);

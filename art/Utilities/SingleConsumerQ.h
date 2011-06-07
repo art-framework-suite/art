@@ -1,8 +1,6 @@
 #ifndef art_Utilities_SingleConsumerQ_h
 #define art_Utilities_SingleConsumerQ_h
 
-// -*- C++ -*-
-
 /*
  A bounded queue for use in a multi-threaded producer/consumer application.
  This is a simple design.  It is only meant to be used where there is
@@ -34,9 +32,9 @@
 
 */
 
-#include <vector>
-#include "boost/thread/mutex.hpp"
 #include "boost/thread/condition.hpp"
+#include "boost/thread/mutex.hpp"
+#include <vector>
 
 namespace art {
 
@@ -53,7 +51,8 @@ namespace art {
     };
 
     SingleConsumerQ(int max_event_size, int max_queue_depth);
-    ~SingleConsumerQ();
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     struct ConsumerType
     {
@@ -79,7 +78,7 @@ namespace art {
     {
     public:
       explicit OperateBuffer(SingleConsumerQ& b):
-	b_(b),v_(T::get(b)),committed_(false) { }
+        b_(b),v_(T::get(b)),committed_(false) { }
       ~OperateBuffer()
       { if(!committed_) T::release(b_,v_.ptr_); }
 
@@ -133,7 +132,6 @@ namespace art {
     boost::condition push_cond_;
 
   };
-
 
 }
 #endif /* art_Utilities_SingleConsumerQ_h */

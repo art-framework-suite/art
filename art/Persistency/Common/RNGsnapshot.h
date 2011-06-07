@@ -52,9 +52,10 @@ namespace art {
     BOOST_STATIC_ASSERT( std::numeric_limits<saved_t>::digits == 32 );
     BOOST_STATIC_ASSERT( sizeof(saved_t) <= sizeof(CLHEP_t) );
 
-    // --- C'tor/d'tor:
+    // --- C'tor:
     RNGsnapshot( );
-    ~RNGsnapshot( );
+
+    // --- Use compiler-generated copy c'tor, copy assignment, and d'tor
 
     // --- Access:
     std::string      const &  ekind( ) const  { return engine_kind_; }

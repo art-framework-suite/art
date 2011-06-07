@@ -57,7 +57,7 @@ namespace art {
       metaBranches_.push_back(branchEntryInfoBranch_);
   }
 
-    ~RootOutputTree() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     static void fastCloneTTree(TTree *in, TTree *out);
 

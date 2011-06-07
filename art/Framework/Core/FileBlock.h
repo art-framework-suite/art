@@ -66,7 +66,7 @@ namespace art {
       fileName_(fileName),
       branchChildren_(branchChildren) {}
 
-    ~FileBlock() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
     TTree * tree() const {return tree_;}

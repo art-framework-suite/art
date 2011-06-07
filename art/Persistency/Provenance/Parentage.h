@@ -5,6 +5,10 @@
 
 Parentage: The products that were read in producing this product.
 
+definitions:
+Product: The EDProduct to which a provenance object is associated
+Parents: The EDProducts used as input by the creator.
+
 ----------------------------------------------------------------------*/
 
 #include "art/Persistency/Provenance/BranchID.h"
@@ -12,21 +16,12 @@ Parentage: The products that were read in producing this product.
 #include <iosfwd>
 #include <vector>
 
-/*
-  Parentage
-
-  definitions:
-  Product: The EDProduct to which a provenance object is associated
-
-  Parents: The EDProducts used as input by the creator.
-*/
-
 namespace art {
   class Parentage {
   public:
     Parentage();
 
-    ~Parentage() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     // Only the 'salient attributes' are encoded into the ID.
     ParentageID id() const;

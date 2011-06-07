@@ -42,7 +42,8 @@ namespace art {
         std::shared_ptr<History> history = std::shared_ptr<History>(new History),
         std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
         std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
-    ~EventPrincipal() {}
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     SubRunPrincipal const& subRunPrincipal() const;
 

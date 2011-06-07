@@ -3,7 +3,10 @@
 
 // ======================================================================
 //
-// ModuleRegistry
+// WorkerRegistry: The Registry of all workers that were requested
+//
+// Holds all instances of workers.
+// In this implementation, Workers are owned.
 //
 // ======================================================================
 
@@ -23,23 +26,13 @@ namespace art {
 
   class Worker;
 
-  /**
-     \class ModuleRegistry ModuleRegistry.h "edm/ModuleRegistry.h"
-
-     \brief The Registry of all workers that where requested
-     Holds all instances of workers. In this implementation, Workers
-     are owned.
-
-     \author Stefano ARGIRO
-     \date 18 May 200
-  */
-
   class WorkerRegistry : private boost::noncopyable {
 
   public:
 
     explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
-    ~WorkerRegistry();
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     /// Retrieve the particular instance of the worker
     /** If the worker with that set of parameters does not exist,

@@ -1,7 +1,7 @@
 #include "art/Utilities/FirstAbsoluteOrLookupWithDotPolicy.h"
+
 #include "cetlib/filesystem.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include <cstdlib>
 
 art::FirstAbsoluteOrLookupWithDotPolicy::

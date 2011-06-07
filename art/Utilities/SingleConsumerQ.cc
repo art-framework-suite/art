@@ -23,8 +23,6 @@ namespace art
 
   }
 
-  SingleConsumerQ::~SingleConsumerQ() { }
-
   SingleConsumerQ::Buffer SingleConsumerQ::getProducerBuffer()
   {
     // get lock

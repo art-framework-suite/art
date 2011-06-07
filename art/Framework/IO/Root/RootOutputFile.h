@@ -41,7 +41,7 @@ namespace art {
     typedef std::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
     explicit RootOutputFile(RootOutput * om, std::string const& fileName,
                             std::string const& logicalFileName);
-    ~RootOutputFile() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
     void writeOne(EventPrincipal const& e);
     //void endFile();
     void writeSubRun(SubRunPrincipal const& sr);

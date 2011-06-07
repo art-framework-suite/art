@@ -26,27 +26,28 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include <vector>
-#include <cassert>
+#include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/Transient.h"
-
+#include <cassert>
 #include <iosfwd>
+#include <vector>
 
 namespace art {
 
    class FileIndex;
 
 }
+
 class art::FileIndex {
 
 public:
    typedef long long EntryNumber_t;
 
    FileIndex();
-   ~FileIndex() {}
+
+   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
    void addEntry(EventID const &eID, EntryNumber_t entry);
 

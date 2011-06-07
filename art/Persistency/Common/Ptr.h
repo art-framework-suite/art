@@ -77,11 +77,6 @@ namespace art
       key_(key_traits<key_type>::value)
     { }
 
-    Ptr(Ptr<T> const& iOther):
-      core_(iOther.core_),
-      key_(iOther.key_)
-    { }
-
     template<typename U>
     Ptr(Ptr<U> const& iOther, typename std::enable_if<std::is_base_of<T, U>::value>::type * = 0):
       core_(iOther.id(),
@@ -99,8 +94,7 @@ namespace art
       key_(iOther.key())
     { }
 
-    // Destructor
-    ~Ptr() { }
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     // Dereference operator
     T const&
@@ -237,7 +231,7 @@ namespace art
         return &(*it);
       }
     }
-  }
+  }  // namespace detail
 
   template <typename T>
   template <typename C>
@@ -261,7 +255,9 @@ namespace art
 
   template<typename T>
   template<typename C>
-  T const* Ptr<T>::getItem_(C const* product, key_type iKey)
+  inline
+  T const*
+  Ptr<T>::getItem_(C const* product, key_type iKey)
   {
     return detail::ItemGetter<T, C>()(product, iKey);
   }
@@ -301,7 +297,6 @@ namespace art
   }
 
   template <class T, class C>
-  inline
   void
   fill_ptr_vector(std::vector<Ptr<T> >& ptrs, Handle<C> const& h)
   {
@@ -310,7 +305,6 @@ namespace art
   }
 
   template <class T, class C>
-  inline
   void
   fill_ptr_list(std::list<Ptr<T> >& ptrs, Handle<C> const& h)
   {

@@ -1,4 +1,5 @@
 #include "art/Utilities/InputTag.h"
+
 #include "art/Utilities/Parse.h"
 #include "art/Utilities/Exception.h"
 
@@ -44,14 +45,11 @@ namespace art {
     if(nwords > 2) process_=tokens[2];
   }
 
-  InputTag::~InputTag() {}
-
   bool InputTag::operator==(InputTag const& tag) const {
     return (label_ == tag.label_)
         && (instance_ == tag.instance_)
         && (process_ == tag.process_);
   }
-
 
   std::string InputTag::encode() const {
     //NOTE: since the encoding gets used to form the configuration hash I did not want
@@ -70,9 +68,9 @@ namespace art {
 
   std::ostream& operator<<(std::ostream& ost, art::InputTag const& tag) {
     static std::string const process(", process = ");
-    ost << "InputTag:  label = " << tag.label() << ", instance = " << tag.instance()
-    <<(tag.process().empty()?std::string():(process+tag.process()));
+    ost << "InputTag:  label = " << tag.label()
+        << ", instance = " << tag.instance()
+        <<(tag.process().empty()?std::string():(process+tag.process()));
     return ost;
   }
 }
-

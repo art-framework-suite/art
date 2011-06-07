@@ -45,18 +45,15 @@ namespace art
     // Default constructed handles are invalid.
     Handle();
 
-    Handle(Handle<T> const& h);
-
     Handle(T const* prod, Provenance const* prov);
 
     Handle(std::shared_ptr<cet::exception> const&);
 
+    // use compiler-generated copy c'tor and copy assignment
+
     ~Handle();
 
     void swap(Handle<T>& other);
-
-
-    Handle<T>& operator=(Handle<T> const& rhs);
 
     bool isValid() const;
 
@@ -84,25 +81,19 @@ namespace art
   Handle<T>::Handle() :
     prod_(0),
     prov_(0),
-    id_()
-  { }
-
-  template <class T>
-  Handle<T>::Handle(Handle<T> const& h) :
-    prod_(h.prod_),
-    prov_(h.prov_),
-    id_(h.id_),
-    whyFailed_(h.whyFailed_)
+    id_(),
+    whyFailed_()
   { }
 
   template <class T>
   Handle<T>::Handle(T const* prod, Provenance const* prov) :
     prod_(prod),
     prov_(prov),
-    id_(prov->productID())
+    id_(prov->productID()),
+    whyFailed_()
   {
-      assert(prod_);
-      assert(prov_);
+    assert(prod_);
+    assert(prov_);
   }
 
   template <class T>
@@ -133,15 +124,6 @@ namespace art
   }
 
   template <class T>
-  Handle<T>&
-  Handle<T>::operator=(Handle<T> const& rhs)
-  {
-    Handle<T> temp(rhs);
-    this->swap(temp);
-    return *this;
-  }
-
-  template <class T>
   bool
   Handle<T>::isValid() const
   {
@@ -167,6 +149,7 @@ namespace art
   }
 
   template <class T>
+  inline
   T const*
   Handle<T>::operator->() const
   {
@@ -174,6 +157,7 @@ namespace art
   }
 
   template <class T>
+  inline
   T const&
   Handle<T>::operator*() const
   {
@@ -181,6 +165,7 @@ namespace art
   }
 
   template <class T>
+  inline
   Provenance const*
   Handle<T>::provenance() const
   {
@@ -189,6 +174,7 @@ namespace art
   }
 
   template <class T>
+  inline
   ProductID
   Handle<T>::id() const
   {

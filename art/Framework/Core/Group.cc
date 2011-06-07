@@ -88,9 +88,6 @@ namespace art {
     onDemand_(false) {
   }
 
-  Group::~Group() {
-  }
-
   ProductStatus
   Group::status() const {
     if (dropped_) return productstatus::dropped();

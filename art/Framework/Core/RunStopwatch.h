@@ -3,8 +3,6 @@
 
 /*----------------------------------------------------------------------
 
-
-
 Simple "guard" class as suggested by Chris Jones to start/stop the
 Stopwatch: creating an object of type RunStopwatch starts the clock
 pointed to, deleting it (when it goes out of scope) automatically
@@ -12,8 +10,8 @@ calls the destructor which stops the clock.
 
 ----------------------------------------------------------------------*/
 
-#include "cpp0x/memory"
 #include "art/Utilities/CPUTimer.h"
+#include "cpp0x/memory"
 
 namespace art {
 
@@ -26,7 +24,7 @@ namespace art {
       stopwatch_->start();
     }
 
-    ~RunStopwatch(){
+    ~RunStopwatch() {
       stopwatch_->stop();
     }
 

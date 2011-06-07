@@ -41,7 +41,7 @@ namespace art {
 		   ProductStatus status,
 		   std::vector<BranchID> const& parents);
 
-    ~ProductProvenance() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     ProductProvenance makeProductProvenance() const;
 

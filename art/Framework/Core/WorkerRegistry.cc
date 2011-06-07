@@ -38,10 +38,6 @@ namespace art {
     actReg_(areg)
   { }
 
-  WorkerRegistry:: ~WorkerRegistry() {
-    m_workerMap.clear();
-  }
-
   void WorkerRegistry::clear() {
     m_workerMap.clear();
   }

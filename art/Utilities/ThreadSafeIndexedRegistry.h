@@ -80,11 +80,9 @@ namespace art {
       ThreadSafeIndexedRegistry();
       ~ThreadSafeIndexedRegistry();
 
-      // The following two are not implemented.
+      // Not copyable:
       ThreadSafeIndexedRegistry(ThreadSafeIndexedRegistry<T, E> const&);
-
-      ThreadSafeIndexedRegistry<T, E>&
-      operator= (ThreadSafeIndexedRegistry<T, E> const&);
+      void operator= (ThreadSafeIndexedRegistry<T, E> const&);
 
       collection_type data_;
       extra_type      extra_;

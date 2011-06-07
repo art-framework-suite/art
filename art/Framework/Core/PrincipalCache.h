@@ -29,7 +29,8 @@ namespace art {
   public:
 
     PrincipalCache();
-    ~PrincipalCache();
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     RunPrincipal & runPrincipal(RunNumber_t run);
     RunPrincipal const& runPrincipal(RunNumber_t run) const;

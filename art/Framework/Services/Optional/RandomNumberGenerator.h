@@ -191,6 +191,10 @@ class art::RandomNumberGenerator
   friend class RandomNumberSaver;
   friend class InputSource;  // TODO: remove this
 
+  // --- Prevent copying:
+  RandomNumberGenerator( RandomNumberGenerator const & );
+  void  operator = ( RandomNumberGenerator const & );
+
 public:
   // --- CLHEP engine characteristics:
   typedef  CLHEP::HepRandomEngine            base_engine_t;
@@ -200,7 +204,7 @@ public:
   // --- Internal state characteristics:
   enum     init_t  { VIA_SEED=1, VIA_FILE, VIA_PRODUCT };
   typedef  RNGsnapshot::label_t              label_t;
-  typedef  std::shared_ptr<base_engine_t>  eptr_t;
+  typedef  std::shared_ptr<base_engine_t>    eptr_t;
   typedef  std::map<label_t,eptr_t>          dict_t;
   typedef  std::map<label_t,init_t>          tracker_t;
   typedef  std::map<label_t,std::string>     kind_t;
@@ -208,21 +212,16 @@ public:
 
   // --- C'tor/d'tor:
   RandomNumberGenerator( fhicl::ParameterSet const &
-                              , art::ActivityRegistry   &
-                              );
+                       , art::ActivityRegistry     &
+                       );
 
-  ~RandomNumberGenerator()
-  { }
+  // use compiler-generated d'tor
 
   // --- Engine access:
   base_engine_t &  getEngine( ) const;
   base_engine_t &  getEngine( label_t const &  engine_label ) const;
 
 private:
-  // --- Prevent copying:
-  RandomNumberGenerator( RandomNumberGenerator const & );
-  void  operator = ( RandomNumberGenerator const & );
-
   // --- Engine establishment:
   base_engine_t &
     createEngine( seed_t  seed );

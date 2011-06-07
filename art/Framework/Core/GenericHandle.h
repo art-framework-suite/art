@@ -86,7 +86,7 @@ public:
       assert(id_ != ProductID());
    }
 
-      //~Handle();
+   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
    void swap(Handle<GenericObject>& other)
    {

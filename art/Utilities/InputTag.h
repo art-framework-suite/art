@@ -1,8 +1,8 @@
 #ifndef art_Utilities_InputTag_h
 #define art_Utilities_InputTag_h
 
-#include <string>
 #include <iosfwd>
+#include <string>
 
 namespace art {
 
@@ -16,7 +16,9 @@ namespace art {
     /// label:instance
     /// label:instance:process
     InputTag(std::string const& s);
-    ~InputTag();
+
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
+
     std::string encode() const;
 
     std::string const& label() const {return label_;}

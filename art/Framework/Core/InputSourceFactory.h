@@ -9,7 +9,6 @@
 
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/LibraryManager.h"
-
 #include "fhiclcpp/ParameterSet.h"
 #include <memory>
 #include <string>

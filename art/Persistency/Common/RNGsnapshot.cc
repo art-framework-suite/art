@@ -14,13 +14,10 @@
 // ======================================================================
 
 
-// --- C'tor/d'tor:
+// --- C'tor:
 RNGsnapshot::RNGsnapshot( )
   : label_( )
   , state_( )
-{ }
-
-RNGsnapshot::~RNGsnapshot( )
 { }
 
 // --- Save/restore:

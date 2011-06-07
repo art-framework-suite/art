@@ -1,42 +1,21 @@
-// -*- C++ -*-
 //
 // Package:     Utilities
 // Class  :     CPUTimer
 //
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Chris Jones
-//         Created:  Sun Apr 16 20:32:20 EDT 2006
-//
-//
 
-// system include files
+#include "art/Utilities/CPUTimer.h"
 #include <sys/resource.h>
 #include <errno.h>
-
-// user include files
-#include "art/Utilities/CPUTimer.h"
 #include "cetlib/exception.h"
 
-//
-// constants, enums and typedefs
-//
 using namespace art;
 
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 CPUTimer::CPUTimer() :
-state_(kStopped),
-startRealTime_(),
-startCPUTime_(),
-accumulatedRealTime_(0),
-accumulatedCPUTime_(0)
+  state_(kStopped),
+  startRealTime_(),
+  startCPUTime_(),
+  accumulatedRealTime_(0),
+  accumulatedCPUTime_(0)
 {
   startRealTime_.tv_sec=0;
   startRealTime_.tv_usec=0;
@@ -44,30 +23,10 @@ accumulatedCPUTime_(0)
   startCPUTime_.tv_usec=0;
 }
 
-// CPUTimer::CPUTimer(const CPUTimer& rhs)
-// {
-//    // do actual copying here;
-// }
-
 CPUTimer::~CPUTimer()
 {
 }
 
-//
-// assignment operators
-//
-// const CPUTimer& CPUTimer::operator=(const CPUTimer& rhs)
-// {
-//   //An exception safe implementation is
-//   CPUTimer temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 void
 CPUTimer::start() {
   if(kStopped == state_) {
@@ -116,9 +75,7 @@ CPUTimer::calculateDeltaTime() const
   returnValue.real_ = tp.tv_sec-startRealTime_.tv_sec+microsecToSec*(tp.tv_usec -startRealTime_.tv_usec);
   return returnValue;
 }
-//
-// const member functions
-//
+
 double
 CPUTimer::realTime() const
 {
@@ -136,7 +93,3 @@ CPUTimer::cpuTime() const
   }
   return accumulatedCPUTime_+ calculateDeltaTime().cpu_;
 }
-
-//
-// static member functions
-//

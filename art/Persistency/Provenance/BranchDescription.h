@@ -49,7 +49,7 @@ namespace art {
                       ModuleDescription const& modDesc,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
-    ~BranchDescription() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     void init() const;
 

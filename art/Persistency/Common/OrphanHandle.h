@@ -35,16 +35,13 @@ namespace art {
     // Default constructed handles are invalid.
     OrphanHandle();
 
-    OrphanHandle(OrphanHandle<T> const& h);
-
     OrphanHandle(T const* prod, ProductID const& id);
+
+    // use compiler-generated copy c'tor and copy assignment
 
     ~OrphanHandle();
 
     void swap(OrphanHandle<T>& other);
-
-
-    OrphanHandle<T>& operator=(OrphanHandle<T> const& rhs);
 
     bool isValid() const;
 
@@ -65,12 +62,6 @@ namespace art {
   OrphanHandle<T>::OrphanHandle() :
     prod_(0),
     id_()
-  { }
-
-  template <class T>
-  OrphanHandle<T>::OrphanHandle(OrphanHandle<T> const& h) :
-    prod_(h.prod_),
-    id_(h.id_)
   { }
 
   template <class T>
@@ -104,20 +95,13 @@ namespace art {
   }
 
   template <class T>
-  OrphanHandle<T>&
-  OrphanHandle<T>::operator=(OrphanHandle<T> const& rhs) {
-    OrphanHandle<T> temp(rhs);
-    this->swap(temp);
-    return *this;
-  }
-
-  template <class T>
   bool
   OrphanHandle<T>::isValid() const {
     return prod_ != 0 && id_ != ProductID();
   }
 
   template <class T>
+  inline
   T const*
   OrphanHandle<T>::product() const {
     // Should we throw if the pointer is null?
@@ -125,18 +109,21 @@ namespace art {
   }
 
   template <class T>
+  inline
   T const*
   OrphanHandle<T>::operator->() const {
     return product();
   }
 
   template <class T>
+  inline
   T const&
   OrphanHandle<T>::operator*() const {
     return *product();
   }
 
   template <class T>
+  inline
   ProductID
   OrphanHandle<T>::id() const {
     return id_;

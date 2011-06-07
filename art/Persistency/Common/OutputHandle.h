@@ -38,18 +38,14 @@ namespace art {
     OutputHandle() :
       wrap_(0),
       desc_(0),
-      productProvenance_() {}
-
-    OutputHandle(OutputHandle const& h) :
-      wrap_(h.wrap_),
-      desc_(h.desc_),
-      productProvenance_(h.productProvenance_),
-      whyFailed_(h.whyFailed_){}
+      productProvenance_(),
+      whyFailed_(){}
 
     OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, std::shared_ptr<ProductProvenance> productProvenance) :
       wrap_(prod),
       desc_(desc),
-      productProvenance_(productProvenance) {}
+      productProvenance_(productProvenance),
+      whyFailed_(){}
 
     ///Used when the attempt to get the data failed
     OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed):
@@ -58,7 +54,7 @@ namespace art {
       productProvenance_(),
       whyFailed_(iWhyFailed) {}
 
-    ~OutputHandle() {}
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     void swap(OutputHandle& other) {
       using std::swap;
@@ -66,13 +62,6 @@ namespace art {
       std::swap(desc_, other.desc_);
       std::swap(productProvenance_, other.productProvenance_);
       swap(whyFailed_,other.whyFailed_);
-    }
-
-
-    OutputHandle& operator=(OutputHandle const& rhs) {
-      OutputHandle temp(rhs);
-      this->swap(temp);
-      return *this;
     }
 
     bool isValid() const {

@@ -41,17 +41,11 @@ namespace art {
     BasicHandle() :
       product_(),
       prov_(0),
-      id_() {}
-
-    BasicHandle(BasicHandle const& h) :
-      product_(h.product_),
-      prov_(h.prov_),
-      id_(h.id_),
-      whyFailed_(h.whyFailed_){}
+      id_(),
+      whyFailed_(){}
 
     BasicHandle(std::shared_ptr<EDProduct const> prod, Provenance const* prov) :
       product_(prod), prov_(prov), id_(prov->productID()) {
-
     }
 
     // Used when the attempt to get the data failed
@@ -61,8 +55,6 @@ namespace art {
     id_(),
     whyFailed_(iWhyFailed) {}
 
-    ~BasicHandle() {}
-
     void swap(BasicHandle& other) {
       using std::swap;
       swap(product_, other.product_);
@@ -71,12 +63,7 @@ namespace art {
       swap(whyFailed_,other.whyFailed_);
     }
 
-
-    BasicHandle& operator=(BasicHandle const& rhs) {
-      BasicHandle temp(rhs);
-      this->swap(temp);
-      return *this;
-    }
+    // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     bool isValid() const {
       return product_ && prov_;
