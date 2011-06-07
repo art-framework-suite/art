@@ -148,7 +148,7 @@ public:
 
   // A.
   template <class P>
-  TypeLabel const& produces(std::string const& intanceName=std::string());
+  TypeLabel const& produces(std::string const& instanceName=std::string());
 
   // B.
   template <class P, BranchType B>
