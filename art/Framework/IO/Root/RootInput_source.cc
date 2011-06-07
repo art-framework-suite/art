@@ -12,13 +12,13 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
+#include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
+#include "cpp0x/memory"
 #include <cassert>
-#include <memory>
 #include <set>
 
 using namespace art;
@@ -38,7 +38,7 @@ RootInput::RootInput( fhicl::ParameterSet const & pset,
                              )
    ),
   branchIDsToReplace_( ),
-  accessState_() 
+  accessState_()
 { }
 
 RootInput::~RootInput()
@@ -66,7 +66,7 @@ void RootInput::AccessState::setWantedEventID(EventID const &eid) {
 void
 RootInput::AccessState::
 setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const &ptr) {
-  rootFileForLastReadEvent_ = ptr; 
+  rootFileForLastReadEvent_ = ptr;
 }
 
 void
@@ -186,7 +186,7 @@ RootInput::readFile() {
   default:
     throw Exception(errors::LogicError)
       << "RootInputSource::readFile encountered an unknown or inappropriate AccessState.\n";
-  }  
+  }
 }
 
 std::auto_ptr<EventPrincipal>
