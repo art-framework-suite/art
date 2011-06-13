@@ -1,5 +1,7 @@
 process_name: PtrmvR
 
+services.scheduler.Rethrow: [ ProductNotFound ]
+
 physics:
 {
   analyzers:
