@@ -157,37 +157,36 @@ namespace art
         }
       if (noComponents) return;
 
-      if (name.find("std::") == 0)
-        {
-          if (t.IsTemplateInstance())
-            {
-              string::size_type n = name.find('<');
-              int cnt = 0;
-              if (find(oneParam,
-                       oneParam + oneParamArraySize,
-                       name.substr(5, n - 5)) != oneParam + oneParamArraySize)
-                {
-                  cnt = 1;
-                }
-              else if (find(twoParam, twoParam + twoParamArraySize, name.substr(5, n - 5)) != twoParam + twoParamArraySize)
-                {
-                  cnt = 2;
-                }
-              for (int i = 0; i < cnt; ++i) checkType(t.TemplateArgumentAt(i));
-            }
+      if (name.find("std::") == 0) {
+        if (t.IsTemplateInstance()) {
+          string::size_type n = name.find('<');
+          int cnt = 0;
+          if (find(oneParam, oneParam + oneParamArraySize, name.substr(5, n - 5)) != oneParam + oneParamArraySize) {
+            cnt = 1;
+          } else if (find(twoParam, twoParam + twoParamArraySize, name.substr(5, n - 5)) != twoParam + twoParamArraySize) {
+            cnt = 2;
+          }
+          for(int i = 0; i < cnt; ++i) {
+            checkType(t.TemplateArgumentAt(i));
+          }
         }
-      else
-        {
-          int mcnt = t.DataMemberSize();
-          for(int i = 0; i < mcnt; ++i)
-            {
-              Member m = t.DataMemberAt(i);
-              if(m.IsTransient() || m.IsStatic()) continue;
-              checkType(m.TypeOf());
-            }
-          int cnt = t.BaseSize();
-          for(int i = 0; i < cnt; ++i) checkType(t.BaseAt(i).ToType());
+      } else {
+        int mcnt = t.DataMemberSize();
+        for(int i = 0; i < mcnt; ++i) {
+          Member m = t.DataMemberAt(i);
+          if(m.IsTransient() ||
+             m.IsStatic() ||
+             // Work around problem with //! transient not telling Reflex
+             // about Transient property.
+             (m.Properties().HasProperty("comment") &&
+              m.Properties().PropertyAsString("comment")[0] == '!')) continue;
+          checkType(m.TypeOf());
         }
+        int cnt = t.BaseSize();
+        for(int i = 0; i < cnt; ++i) {
+          checkType(t.BaseAt(i).ToType());
+        }
+      }
     }
   }  // namespace
 
