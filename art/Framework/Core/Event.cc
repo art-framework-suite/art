@@ -37,6 +37,11 @@ namespace art {
     return &principal();
   }
 
+  ProductID
+  Event::branchIDToProductID(BranchID const &bid) const {
+    return eventPrincipal().branchIDToProductID(bid);
+  }
+
   EventPrincipal &
   Event::eventPrincipal() {
     return dynamic_cast<EventPrincipal &>(principal());

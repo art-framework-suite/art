@@ -21,6 +21,9 @@ namespace {
     art::Ptr<std::string> ps;
     art::Wrapper<art::Ptr<std::string> > ps_w;
 
+    art::Ptr<int> pi;
+    art::Wrapper<art::Ptr<int> > pi_w;
+
     art::PtrVector<std::string> pvs;
     art::Wrapper<art::PtrVector<std::string> > pvs_w;
 

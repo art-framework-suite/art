@@ -183,6 +183,8 @@ namespace art {
 
     EDProductGetter const * productGetter() const;
 
+    ProductID branchIDToProductID(BranchID const &bid) const;
+
   private:
     EventPrincipal const& eventPrincipal() const;
     EventPrincipal      & eventPrincipal();

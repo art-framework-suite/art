@@ -41,6 +41,16 @@ namespace art
     { }
     virtual ~EDFilter();
 
+    template <typename PROD, BranchType B, typename TRANS>
+    ProductID
+    getProductID(TRANS const &translator,
+                 std::string const& instanceName=std::string()) const;
+
+    template <typename PROD, typename TRANS>
+    ProductID
+    getProductID(TRANS const &translator,
+                 std::string const& instanceName=std::string()) const;
+
   protected:
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('filter').
@@ -88,6 +98,26 @@ namespace art
     ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
   };  // EDFilter
+
+  template <typename PROD, BranchType B, typename TRANS>
+  inline
+  ProductID
+  EDFilter::getProductID(TRANS const &translator,
+                         std::string const& instanceName) const {
+    return ProducerBase::getProductID<PROD, B>(translator,
+                                               moduleDescription_,
+                                               instanceName);
+  }
+
+  template <typename PROD, typename TRANS>
+  inline
+  ProductID
+  EDFilter::getProductID(TRANS const &translator,
+                         std::string const& instanceName) const {
+    return ProducerBase::getProductID<PROD, InEvent>(translator,
+                                                     moduleDescription_,
+                                                     instanceName);
+  }
 
 }  // art
 

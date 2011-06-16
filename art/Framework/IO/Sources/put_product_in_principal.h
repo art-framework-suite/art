@@ -51,10 +51,9 @@ art::put_product_in_principal(std::auto_ptr<T> product,
    detail::maybe_call_post_insert(product.get());
 
    ConstBranchDescription const &desc =
-      get_BranchDescription(*product,
-                            principal,
-                            module_label,
-                            instance_name);
+      get_BranchDescription<T>(principal,
+                               module_label,
+                               instance_name);
 
    std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));
    std::auto_ptr<ProductProvenance>

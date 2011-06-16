@@ -67,6 +67,7 @@ set( art_Framework_Core_sources
   Worker.cc
   WorkerInPath.cc
   WorkerRegistry.cc
+  get_BranchDescription.cc
   wrapLibraryManagerException.cc
 )
 

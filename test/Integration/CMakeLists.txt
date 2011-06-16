@@ -18,6 +18,8 @@ simple_plugin(MixFilterTest            "module" art_Framework_IO_ProductMix NOIN
 simple_plugin(MixProducer              "module" NOINSTALL )
 simple_plugin(MockClusterListAnalyzer  "module" NOINSTALL )
 simple_plugin(MockClusterListProducer  "module" NOINSTALL )
+simple_plugin(ProductIDGetter          "module" NOINSTALL )
+simple_plugin(ProductIDGetterAnalyzer  "module" NOINSTALL )
 simple_plugin(PtrListAnalyzer          "module" NOINSTALL )
 simple_plugin(PtrVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(PtrVectorProducer        "module" NOINSTALL )
@@ -331,6 +333,13 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
   SET_TESTS_PROPERTIES(ProductMix_r2 PROPERTIES DEPENDS ProductMix_r1)
   SET_TESTS_PROPERTIES(Ptrmv_r PROPERTIES DEPENDS Ptrmv_w)
 endif()
+
+cet_test(ProductIDGetter_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --config "ProductIDGetter_t.fcl"
+  DATAFILES
+  fcl/ProductIDGetter_t.fcl
+)
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test

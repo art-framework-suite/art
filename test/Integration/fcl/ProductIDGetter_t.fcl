@@ -1,0 +1,32 @@
+process_name: PIDG
+
+physics:
+{
+  producers:
+  {
+    p1:
+    {
+      module_type: ProductIDGetter
+    }
+  }
+
+  analyzers:
+  {
+    a1:
+    {
+      module_type: ProductIDGetterAnalyzer
+      input_label: p1
+    }
+  }
+
+  t1: [ p1 ]
+  e1: [ a1 ]
+  trigger_paths: [ t1 ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}
