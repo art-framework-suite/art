@@ -89,7 +89,7 @@ namespace art {
     // Record the production of an object of type P, with optional
     // instance name, in the Event.
     template <class P>
-    TypeLabel const& produces(std::string const& intanceName=std::string());
+    TypeLabel const& produces(std::string const& instanceName=std::string());
 
     // Record the reconstitution of an object of type P, in either the
     // Run, SubRun, or Event, recording that this object was
