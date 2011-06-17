@@ -295,14 +295,14 @@ cet_test(ProductMix_w HANDBUILT
 )
 
 cet_test(ProductMix_r1 HANDBUILT
-  TEST_EXEC art
+  TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r1.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
 )
 
 cet_test(ProductMix_r2 HANDBUILT
-  TEST_EXEC art
+  TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r2.fcl"
   DATAFILES
   fcl/ProductMix_r2.fcl
@@ -310,14 +310,14 @@ cet_test(ProductMix_r2 HANDBUILT
 
 cet_test(Ptrmv_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --config "Ptrmv_w.fcl"
+  TEST_ARGS -c "Ptrmv_w.fcl"
   DATAFILES
   fcl/Ptrmv_w.fcl
 )
 
 cet_test(Ptrmv_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --config "Ptrmv_r.fcl"
+  TEST_ARGS -c "Ptrmv_r.fcl"
   DATAFILES
   fcl/Ptrmv_r.fcl
 )
@@ -336,7 +336,7 @@ endif()
 
 cet_test(ProductIDGetter_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS --config "ProductIDGetter_t.fcl"
+  TEST_ARGS -c "ProductIDGetter_t.fcl"
   DATAFILES
   fcl/ProductIDGetter_t.fcl
 )
