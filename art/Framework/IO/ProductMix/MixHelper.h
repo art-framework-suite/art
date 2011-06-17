@@ -21,7 +21,7 @@
 //
 //  3. a callable mixer such as:
 //
-//     void mixfunc(std::vector<PROD const *> const &,
+//     bool mixfunc(std::vector<PROD const *> const &,
 //                  PROD &,
 //                  PtrRemapper const &),
 //
@@ -32,7 +32,9 @@
 //       c) an arbitrarily-named member function of any class.
 //     In each case, the mixer must have the same type (i.e.,
 //     the same return type and the same parameter types) illustrated
-//     by "mixfunc" above.
+//     by "mixfunc" above. The return value of the mix function is
+//     taken to indicate whether the product should be placed in the
+//     event.
 //
 //     For free functions, function objects, and pre-bound member
 //     functions, the product type template argument need not be
@@ -157,7 +159,7 @@ public:
   // 1.
   template <typename PROD>
   void declareMixOp(InputTag const &inputTag,
-                    std::function< void (std::vector<PROD const *> const &,
+                    std::function< bool (std::vector<PROD const *> const &,
                                          PROD &,
                                          PtrRemapper const &)
                     > mixFunc);
@@ -167,7 +169,7 @@ public:
   template <typename PROD>
   void declareMixOp(InputTag const &inputTag,
                     std::string const &outputInstanceLabel,
-                    std::function< void (std::vector<PROD const *> const &,
+                    std::function< bool (std::vector<PROD const *> const &,
                                          PROD &,
                                          PtrRemapper const &)
                     > mixFunc);
@@ -175,7 +177,7 @@ public:
   // 3.
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
-                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                    bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &),
                     T &t);
@@ -184,7 +186,7 @@ public:
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
                     std::string const &outputInstanceLabel,
-                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                    bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &),
                     T &t);
@@ -192,7 +194,7 @@ public:
   // 5.
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
-                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                    bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &) const,
                     T const &t);
@@ -201,7 +203,7 @@ public:
   template <typename PROD, typename T>
   void declareMixOp(InputTag const &inputTag,
                     std::string const &outputInstanceLabel,
-                    void (T::*mixfunc) (std::vector<PROD const *> const &,
+                    bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &) const,
                     T const &t);
@@ -270,7 +272,7 @@ template <typename PROD>
 void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
-             std::function< void (std::vector<PROD const *> const &,
+             std::function< bool (std::vector<PROD const *> const &,
                                   PROD &,
                                   PtrRemapper const &)
              > mixFunc) {
@@ -283,7 +285,7 @@ void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
              std::string const &outputInstanceLabel,
-             std::function< void (std::vector<PROD const *> const &,
+             std::function< bool (std::vector<PROD const *> const &,
                                   PROD &,
                                   PtrRemapper const &)
              > mixFunc) {
@@ -299,7 +301,7 @@ template <typename PROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
-             void (T::*mixFunc) (std::vector<PROD const *> const &,
+             bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &),
              T &t) {
@@ -312,7 +314,7 @@ void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
              std::string const &outputInstanceLabel,
-             void (T::*mixFunc) (std::vector<PROD const *> const &,
+             bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &),
              T &t) {
@@ -329,7 +331,7 @@ template <typename PROD, typename T>
 void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
-             void (T::*mixFunc) (std::vector<PROD const *> const &,
+             bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &) const,
              T const &t) {
@@ -342,7 +344,7 @@ void
 art::MixHelper::
 declareMixOp(InputTag const &inputTag,
              std::string const &outputInstanceLabel,
-             void (T::*mixFunc) (std::vector<PROD const *> const &,
+             bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &) const,
              T const &t) {

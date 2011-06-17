@@ -67,7 +67,7 @@ private:
   InputTag inputTag_;
   TypeID const inputType_;
   std::string outputInstanceLabel_;
-  std::function<void (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mixFunc_;
+  std::function<bool (std::vector<PROD const *> const &, PROD &, PtrRemapper const &)> mixFunc_;
   SpecProdList inProducts_;
   std::string processName_;
   std::string moduleLabel_;
@@ -117,7 +117,7 @@ void
 art::MixOp<PROD>::
 mixAndPut(Event &e,
           PtrRemapper const &remap) const {
-  std::auto_ptr<PROD> rProd(new PROD);
+  std::auto_ptr<PROD> rProd(new PROD()); // Parens necessary for native types.
   std::vector<PROD const *> inConverted;
   inConverted.reserve(inProducts_.size());
   try {
@@ -139,12 +139,13 @@ mixAndPut(Event &e,
     throw Exception(errors::DataCorruption)
       << "Unable to obtain correctly-typed product from wrapper.\n";
   }
-  mixFunc_(inConverted, *rProd, remap);
-  if (outputInstanceLabel_.empty()) {
-    e.put(rProd);
-  } else {
-    e.put(rProd, outputInstanceLabel_);
-  }
+  if (mixFunc_(inConverted, *rProd, remap)) {
+    if (outputInstanceLabel_.empty()) {
+      e.put(rProd);
+    } else {
+      e.put(rProd, outputInstanceLabel_);
+    }
+  } // false means don't want this in the event.
 }
 
 template <typename PROD>
