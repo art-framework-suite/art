@@ -49,34 +49,34 @@ public:
   // provided they (or the function object's operator()) have the
   // expected signature.
   template <typename T>
-  void
+  bool
   mixByAddition(std::vector<T const *> const &,
                 T &,
                 art::PtrRemapper const &);
 
-  void
+  bool
   aggregateDoubleCollection(std::vector<std::vector<double> const *> const &in,
                       std::vector<double> &out,
                       art::PtrRemapper const &);
 
-  void
+  bool
   aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
                        cet::map_vector<unsigned int> &out,
                        art::PtrRemapper const &);
 
-  void
+  bool
   mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
           std::vector<art::Ptr<double> > &out,
           art::PtrRemapper const &remap);
 
 #ifndef ART_NO_MIX_PTRVECTOR
-  void
+  bool
   mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
                  art::PtrVector<double> &out,
                  art::PtrRemapper const &remap);
 #endif
 
-  void
+  bool
   mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
                      arttest::ProductWithPtrs &out,
                      art::PtrRemapper const &remap);
@@ -175,7 +175,7 @@ finalizeEvent(art::Event &e) {
 }
 
 template<typename T>
-void
+bool
 arttest::MixFilterTestDetail::
 mixByAddition(std::vector<T const *> const &in,
               T &out,
@@ -187,25 +187,28 @@ mixByAddition(std::vector<T const *> const &in,
        ++i) {
     out += **i;
   }
+  return true; //  Always want product in event.
 }
 
-void
+bool
 arttest::MixFilterTestDetail::
 aggregateDoubleCollection(std::vector<std::vector<double> const *> const &in,
                     std::vector<double> &out,
                     art::PtrRemapper const &) {
   art::flattenCollections(in, out, doubleVectorOffsets_);
+  return true; //  Always want product in event.
 }
 
-void
+bool
 arttest::MixFilterTestDetail::
 aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
                      cet::map_vector<unsigned int> &out,
                      art::PtrRemapper const &) {
   art::flattenCollections(in, out);
+  return true; //  Always want product in event.
 }
 
-void
+bool
 arttest::MixFilterTestDetail::
 mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
         std::vector<art::Ptr<double> > &out,
@@ -213,10 +216,11 @@ mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
   remap(in,
         std::back_inserter(out),
         doubleVectorOffsets_);
+  return true; //  Always want product in event.
 }
 
 #ifndef ART_NO_MIX_PTRVECTOR
-void
+bool
 arttest::MixFilterTestDetail::
 mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
               art::PtrVector<double> &out,
@@ -224,10 +228,11 @@ mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
   remap(in,
         std::back_inserter(out),
         doubleVectorOffsets_);
+  return true; //  Always want product in event.
 }
 #endif
 
-void
+bool
 arttest::MixFilterTestDetail::
 mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
                    arttest::ProductWithPtrs &out,
@@ -252,6 +257,7 @@ mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
         doubleVectorOffsets_,
         &arttest::ProductWithPtrs::vpd_);
 
+  return true; //  Always want product in event.
 }
 
 DEFINE_ART_MODULE(arttest::MixFilterTest);
