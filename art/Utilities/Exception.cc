@@ -15,7 +15,7 @@ using namespace art;
 
 // Map an art::errors::ErrorCodes into the appropriate string.
 std::string
-  detail::translate( errors::ErrorCodes code )
+  ExceptionDetail::translate( errors::ErrorCodes code )
 {
   using namespace errors;
 

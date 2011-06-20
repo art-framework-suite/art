@@ -2,7 +2,7 @@
 #define art_Framework_IO_Root_RootBranchInfoList_h
 
 #include "art/Framework/IO/Root/RootBranchInfo.h"
-#include "art/Utilities/InputTag.h"
+#include "art/Utilities/fwd.h"
 #include "art/Utilities/TypeID.h"
 
 #include <vector>

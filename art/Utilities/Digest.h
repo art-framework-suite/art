@@ -1,11 +1,11 @@
 #ifndef art_Utilities_Digest_h
 #define art_Utilities_Digest_h
 
+#include "art/Utilities/fwd.h"
 #include "art/Utilities/md5.h"
 
 #include <iosfwd>
 #include <string>
-
 
 namespace art
 {

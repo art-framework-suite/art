@@ -13,6 +13,8 @@
 #include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Utilities/TypeID.h"
+
 #include <memory>
 #include <utility>
 

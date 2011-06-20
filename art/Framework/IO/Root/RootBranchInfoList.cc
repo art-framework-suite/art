@@ -1,9 +1,12 @@
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/InputTag.h"
+
+#include "cpp0x/regex"
+
 #include "TIterator.h"
 #include "TObjArray.h"
-#include "art/Utilities/Exception.h"
-#include "cpp0x/regex"
 
 art::RootBranchInfoList::RootBranchInfoList()
   :

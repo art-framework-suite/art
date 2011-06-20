@@ -1,7 +1,9 @@
 #include "art/Utilities/InputTag.h"
 
-#include "art/Utilities/Parse.h"
+#include "cetlib/split.h"
 #include "art/Utilities/Exception.h"
+
+#include <vector>
 
 namespace art {
 
@@ -34,7 +36,9 @@ namespace art {
     process_()
   {
     // string is delimited by colons
-    std::vector<std::string> tokens = tokenize(s, ":");
+    std::vector<std::string> tokens;
+    cet::split(s, ':', std::back_inserter(tokens));
+
     int nwords = tokens.size();
     if(nwords > 3) {
       throw art::Exception(errors::Configuration,"InputTag")

@@ -129,7 +129,8 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/TypeID.h"
+#include "art/Utilities/fwd.h"
+
 #include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"

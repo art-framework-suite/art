@@ -53,6 +53,8 @@ from the original code follow below to attribute the source.
 /*                                                               */
 /*****************************************************************/
 
+#include "art/Utilities/fwd.h"
+
 #include "cpp0x/cstdint"
 #include <string>
 

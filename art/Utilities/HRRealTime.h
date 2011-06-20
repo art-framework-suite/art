@@ -13,6 +13,8 @@
  *  Performance comparison make sense only if the clock-rate has been fixed
  */
 
+#include "art/Utilities/fwd.h"
+
 namespace art {
   namespace details {
 
@@ -67,9 +69,6 @@ namespace art {
 }
 
 namespace art {
-
-  typedef long long int HRTimeDiffType;
-  typedef unsigned long long int HRTimeType;
 
   // High Precision real time in clock-units
   inline HRTimeType hrRealTime() {

@@ -14,7 +14,6 @@ This description also applies to every product instance on the branch.
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/Transient.h"
-#include "art/Utilities/UseReflex.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 #include <set>

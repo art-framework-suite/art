@@ -1,6 +1,8 @@
 #ifndef art_Utilities_InputTag_h
 #define art_Utilities_InputTag_h
 
+#include "art/Utilities/fwd.h"
+
 #include <iosfwd>
 #include <string>
 

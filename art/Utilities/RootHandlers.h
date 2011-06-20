@@ -3,6 +3,8 @@
 
 // ----------------------------------------------------------------------
 
+#include "art/Utilities/fwd.h"
+
 namespace art {
 
   class RootHandlers {

@@ -1,11 +1,10 @@
 #ifndef art_Utilities_FirstAbsoluteOrLookupWithDotPolicy_h
 #define art_Utilities_FirstAbsoluteOrLookupWithDotPolicy_h
 
-#include "cetlib/filepath_maker.h"
+#include "art/Utilities/fwd.h"
 
-namespace art {
-   class FirstAbsoluteOrLookupWithDotPolicy;
-}
+#include "cetlib/filepath_maker.h"
+#include "cetlib/search_path.h"
 
 class art::FirstAbsoluteOrLookupWithDotPolicy :
 public cet::filepath_maker {

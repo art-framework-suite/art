@@ -1,28 +1,27 @@
 # project name
 project(art_Utilities)
 
-set( art_Utilities_sources CPUTimer.cc
-                          CRC32Calculator.cc
-                          DebugMacros.cc
-                          Digest.cc
-                          Exception.cc
-                          ExceptionMessages.cc
-                          FirstAbsoluteOrLookupWithDotPolicy.cc
-                          FriendlyName.cc
-                          InputTag.cc
-                          MallocOpts.cc
-                          md5.c
-                          Parse.cc
-                          ReflexTools.cc
-                          RegexMatch.cc
-                          RootHandlers.cc
-                          SingleConsumerQ.cc
-                          TestHelper.cc
-                          TypeID.cc
-                          UnixSignalHandlers.cc
-                          WrappedClassName.cc
-                          ensureTable.cc
-                          )
+set(art_Utilities_sources
+  CPUTimer.cc
+  CRC32Calculator.cc
+  DebugMacros.cc
+  Digest.cc
+  Exception.cc
+  ExceptionMessages.cc
+  FirstAbsoluteOrLookupWithDotPolicy.cc
+  FriendlyName.cc
+  InputTag.cc
+  MallocOpts.cc
+  ReflexTools.cc
+  RegexMatch.cc
+  RootHandlers.cc
+  TestHelper.cc
+  TypeID.cc
+  UnixSignalHandlers.cc
+  WrappedClassName.cc
+  ensureTable.cc
+  md5.c
+  )
 
 add_library(art_Utilities SHARED ${art_Utilities_sources} )
 target_link_libraries(art_Utilities
@@ -43,7 +42,6 @@ set (HEADERS
   ExceptionMessages.h
   FirstAbsoluteOrLookupWithDotPolicy.h
   FriendlyName.h
-  GetEnvironmentVariable.h
   GetPassID.h
   GetReleaseVersion.h
   HRRealTime.h
@@ -51,17 +49,13 @@ set (HEADERS
   JobMode.h
   MallocOpts.h
   Math.h
-  Parse.h
-  PretendToUse.h
   ReflexTools.h
   RegexMatch.h
   RootHandlers.h
-  SingleConsumerQ.h
   TestHelper.h
   ThreadSafeIndexedRegistry.h
   TypeID.h
   UnixSignalHandlers.h
-  UseReflex.h
   Verbosity.h
   WrappedClassName.h
   ensureTable.h

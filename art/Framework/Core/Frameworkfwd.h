@@ -31,7 +31,6 @@ namespace art {
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Schedule;
-  class TypeID;
 
   struct EventSummary;
   struct PathSummary;

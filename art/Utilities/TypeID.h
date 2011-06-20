@@ -9,12 +9,13 @@ The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
 ----------------------------------------------------------------------*/
+#include "art/Utilities/fwd.h"
+
 #include <iosfwd>
 #include <typeinfo>
 #include <string>
 
 namespace art {
-  class TypeID;
 
   bool operator > ( TypeID const & a, TypeID const & b );
   bool operator != ( TypeID const & a, TypeID const & b );

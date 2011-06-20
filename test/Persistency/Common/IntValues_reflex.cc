@@ -15,7 +15,6 @@
 
 // user include files
 #include "test/Persistency/Common/IntValues.h"
-#include "art/Utilities/UseReflex.h"
 
 namespace {
   using namespace test_with_reflex;

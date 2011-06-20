@@ -1,30 +1,10 @@
 #ifndef art_Utilities_CPUTimer_h
 #define art_Utilities_CPUTimer_h
-// -*- C++ -*-
-//
-// Package:     Utilities
-// Class  :     CPUTimer
-//
-/**\class CPUTimer CPUTimer.h FWCore/Utilities/interface/CPUTimer.h
 
- Description: Timer which measures the CPU and wallclock time
+#include "art/Utilities/fwd.h"
 
- Usage:
-    <usage>
-
-*/
-//
-// Original Author:  Chris Jones
-//         Created:  Sun Apr 16 20:32:13 EDT 2006
-//
-//
-
-// system include files
 #include <sys/time.h>
 
-// user include files
-
-// forward declarations
 namespace art {
 class CPUTimer
 {

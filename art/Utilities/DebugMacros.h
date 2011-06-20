@@ -1,6 +1,8 @@
 #ifndef art_Utilities_DebugMacros_h
 #define art_Utilities_DebugMacros_h
 
+#include "art/Utilities/fwd.h"
+
 namespace art {
   struct debugvalue {
 

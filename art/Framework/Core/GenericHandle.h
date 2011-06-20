@@ -22,12 +22,14 @@
   myHandle->invoke("print);
 */
 
-#include "Reflex/Object.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/FCPfwd.h"
 #include "art/Persistency/Common/Handle.h"
-#include "art/Utilities/UseReflex.h"
+#include "art/Utilities/fwd.h"
 #include "cpp0x/memory"
+
+#include "Reflex/Object.h"
+
 #include <string>
 
 // forward declarations

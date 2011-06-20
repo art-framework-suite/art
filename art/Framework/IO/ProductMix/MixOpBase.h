@@ -3,18 +3,17 @@
 
 #include <string>
 
-#include "art/Persistency/Provenance/FileIndex.h"
-#include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Framework/IO/ProductMix/MixContainerTypes.h"
+#include "art/Framework/IO/Root/RootBranchInfoList.h"
+#include "art/Persistency/Provenance/FileIndex.h"
+#include "art/Utilities/fwd.h"
 
 namespace art {
   class MixOpBase;
 
   class EDProduct;
   class Event;
-  class InputTag;
   class PtrRemapper;
-  class TypeID;
 }
 
 class art::MixOpBase {

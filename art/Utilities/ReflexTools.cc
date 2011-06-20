@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <set>
 #include <sstream>
 
 using Reflex::Base;
@@ -29,6 +30,16 @@ using Reflex::Type_Iterator;
 using namespace cet;
 using namespace std;
 
+namespace {
+  typedef std::set<std::string> StringSet;
+  StringSet & missingTypes() {
+    static boost::thread_specific_ptr<StringSet> missingTypes_;
+    if (0 == missingTypes_.get()) {
+      missingTypes_.reset(new StringSet);
+    }
+    return *missingTypes_.get();
+  }
+}
 
 namespace art
 {
@@ -189,14 +200,6 @@ namespace art
       }
     }
   }  // namespace
-
-  StringSet & missingTypes() {
-    static boost::thread_specific_ptr<StringSet> missingTypes_;
-    if (0 == missingTypes_.get()) {
-      missingTypes_.reset(new StringSet);
-    }
-    return *missingTypes_.get();
-  }
 
   void checkDictionaries(string const& name, bool noComponents) {
     Type null;

@@ -58,12 +58,12 @@ namespace art {
 
   }  // errors
 
-  namespace detail {
+  namespace ExceptionDetail {
     std::string
       translate( errors::ErrorCodes );
   }
 
-  typedef  cet::coded_exception<errors::ErrorCodes,detail::translate>
+  typedef  cet::coded_exception<errors::ErrorCodes,ExceptionDetail::translate>
            Exception;
 }  // art
 

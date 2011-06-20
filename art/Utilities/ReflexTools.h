@@ -11,17 +11,13 @@ the CMS event model.
 
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
-#include "art/Utilities/UseReflex.h"
+
 #include <ostream>
-#include <set>
 #include <string>
 #include <vector>
 
-
 namespace art
 {
-
-  typedef std::set<std::string> StringSet;
 
   bool
   find_nested_type_named(std::string const& nested_type,
@@ -59,7 +55,6 @@ namespace art
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void checkAllDictionaries();
-  StringSet & missingTypes();
 
   void public_base_classes(const Reflex::Type& type,
                            std::vector<Reflex::Type>& baseTypes);

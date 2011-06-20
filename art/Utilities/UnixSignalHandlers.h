@@ -8,8 +8,11 @@ and manipulate Unix-style signal handling.
 
 ----------------------------------------------------------------------*/
 
-#include <signal.h>
+#include "art/Utilities/fwd.h"
+
 #include "boost/thread/thread.hpp"
+
+#include <csignal>
 
 namespace art {
 
