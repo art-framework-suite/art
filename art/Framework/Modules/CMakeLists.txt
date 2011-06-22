@@ -6,4 +6,5 @@ simple_plugin(Prescaler               "module")
 simple_plugin(ProvenanceCheckerOutput "module")
 simple_plugin(FileDumperOutput        "module")
 
+install_headers()
 install_source()
