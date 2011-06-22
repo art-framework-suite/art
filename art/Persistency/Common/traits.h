@@ -8,7 +8,6 @@ Definition of traits templates used in the EDM.
 ----------------------------------------------------------------------*/
 
 #include "cetlib/map_vector.h"
-
 #include <deque>
 #include <limits>
 #include <list>
@@ -54,8 +53,8 @@ namespace art
 
   template <class U, class V>
   typename key_traits<std::pair<U,V> >::key_type const
-  key_traits<std::pair<U,V> >::value =
-    std::make_pair(key_traits<U>::value, key_traits<V>::value);
+  key_traits<std::pair<U,V> >::value( key_traits<U>::value,
+                                      key_traits<V>::value );
 
   // If we ever need to support instantiations of std::basic_string
   // other than std::string, this is the place to do it.
@@ -194,7 +193,7 @@ namespace art
   };
 
   template <class T>
-  struct has_setPtr<cet::map_vector<T> >
+    struct has_setPtr<cet::map_vector<T> >
   {
     static bool const value = true;
   };
