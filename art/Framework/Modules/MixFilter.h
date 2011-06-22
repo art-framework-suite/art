@@ -236,7 +236,7 @@ art::MixFilter<T>::filter(art::Event &e) {
     detail::do_not_call_finalizeEvent<T> >::type
     maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
-  return false;
+  return true;
 }
 
 #endif /* art_Framework_Modules_MixFilter_h */
