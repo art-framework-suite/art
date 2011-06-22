@@ -253,7 +253,7 @@ mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
   arttest::ProductWithPtrs tmp;
 
   remap(in,
-        std::back_inserter(out.vectorPtrDouble()),
+        std::back_inserter(tmp.vectorPtrDouble()),
         doubleVectorOffsets_,
         &arttest::ProductWithPtrs::vpd_);
 
