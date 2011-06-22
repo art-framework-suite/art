@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/traits.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/cstdint"
 #include <stdexcept>
@@ -116,6 +115,7 @@ namespace arttest
     return a.data < b.data;
   }
 
+#if 0
   struct Unsortable : public art::DoNotSortUponInsertion
   {
     int data;
@@ -128,6 +128,7 @@ namespace arttest
   {
     throw std::logic_error("operator< called for Unsortable");
   }
+#endif
 
   struct Prodigal : public art::DoNotRecordParents
   {

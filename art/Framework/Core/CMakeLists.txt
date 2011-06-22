@@ -274,7 +274,6 @@ install(FILES
   DESTINATION  ${product}/${version}/include/art/Framework/Core )
 
 set(DETAIL_HEADERS
-  maybe_call_post_insert.h
   maybe_record_parents.h
   )
 

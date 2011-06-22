@@ -44,9 +44,6 @@
  <class name="art::Other" ClassVersion="10">
   <version ClassVersion="10" checksum="2978157"/>
  </class>
- <class name="art::DoNotSortUponInsertion" ClassVersion="10">
-  <version ClassVersion="10" checksum="249047798"/>
- </class>
  <class name="art::DoNotRecordParents" ClassVersion="10">
   <version ClassVersion="10" checksum="318074619"/>
  </class>

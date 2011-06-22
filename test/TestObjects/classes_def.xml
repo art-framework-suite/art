@@ -23,9 +23,6 @@
  <class name="arttest::Sortable" ClassVersion="10">
   <version ClassVersion="10" checksum="4007300496"/>
  </class>
- <class name="arttest::Unsortable" ClassVersion="10">
-  <version ClassVersion="10" checksum="234760861"/>
- </class>
  <class name="arttest::Prodigal" ClassVersion="10">
   <version ClassVersion="10" checksum="518009779"/>
  </class>

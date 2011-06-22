@@ -11,7 +11,6 @@
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/FCPfwd.h"
-#include "art/Framework/Core/detail/maybe_call_post_insert.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include <memory>
@@ -99,8 +98,6 @@ namespace art {
         << "The pointer is of type " << typeID << ".\n"
         << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
-
-    detail::maybe_call_post_insert(product.get());
 
     ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);

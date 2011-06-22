@@ -11,7 +11,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/get_BranchDescription.h"
-#include "art/Framework/Core/detail/maybe_call_post_insert.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
@@ -19,7 +18,6 @@
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
-
 #include <memory>
 #include <string>
 
@@ -47,8 +45,6 @@ art::put_product_in_principal(std::auto_ptr<T> product,
          << "The specified product instance name was '"
          << instance_name << "'.\n";
    }
-
-   detail::maybe_call_post_insert(product.get());
 
    ConstBranchDescription const &desc =
       get_BranchDescription<T>(principal,

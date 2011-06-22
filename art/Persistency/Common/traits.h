@@ -69,14 +69,6 @@ namespace art
     static const key_type value;
   };
 
-
-  //------------------------------------------------------------
-  //
-  // DoNotSortUponInsertion is a base class.
-  // Do not use it; it is a broken left-over from CMS,
-  // and will be removed at the first possible release.
-  struct DoNotSortUponInsertion { };
-
   //------------------------------------------------------------
   //
   // DoNotRecordParents is a base class. Derive your own (EDProduct)
