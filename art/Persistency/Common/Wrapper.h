@@ -680,39 +680,16 @@ namespace art {
 
 namespace art {
 
-  template<typename T>
-  struct PtrSetter {
-    static void set(T const& obj,
-                    const std::type_info& iToType,
-                    unsigned long iIndex,
-                    void const*& oPtr)
-    {
-      // setPtr is the name of an overload set; each concrete collection
-      // T should supply a setPtr function, in the same namespace at
-      // that in which T is defined, or in the 'art' namespace.
-      setPtr(obj, iToType, iIndex, oPtr);
-    }
-
-    static void fill(T const& obj,
-                     const std::type_info& iToType,
-                     const std::vector<unsigned long>& iIndex,
-                     std::vector<void const*>& oPtr)
-    {
-      // getElementAddresses is the name of an overload set; each
-      // concrete collection T should supply a getElementAddresses
-      // function, in the same namespace at that in which T is
-      // defined, or in the 'art' namespace.
-      getElementAddresses(obj, iToType, iIndex, oPtr);
-    }
-  };
-
   template <class T>
   void DoSetPtr<T>::operator()(T const& obj,
                                const std::type_info &toType,
                                unsigned long index,
                                void const* &ptr) const
   {
-    PtrSetter<T>::set(obj, toType, index, ptr);
+    // setPtr is the name of an overload set; each concrete collection
+    // T should supply a setPtr function, in the same namespace at
+    // that in which T is defined, or in the 'art' namespace.
+    setPtr(obj, toType, index, ptr);
   }
 
   template <class T>
@@ -721,7 +698,11 @@ namespace art {
                                const std::vector<unsigned long> &indices,
                                std::vector<void const*> &ptr) const
   {
-    PtrSetter<T>::fill(obj, toType, indices, ptr);
+    // getElementAddresses is the name of an overload set; each
+    // concrete collection T should supply a getElementAddresses
+    // function, in the same namespace at that in which T is
+    // defined, or in the 'art' namespace.
+    getElementAddresses(obj, toType, indices, ptr);
   }
 
 }
