@@ -1,5 +1,6 @@
 <lcgdict>
- <class name="cet::map_vector_key" ClassVersion="10">
+ <class name="cet::map_vector_key" ClassVersion="11">
+  <version ClassVersion="11" checksum="3228785540"/>
   <version ClassVersion="10" checksum="3701390079"/>
  </class>
  <class name="cet::sha1::digest_t"/>
