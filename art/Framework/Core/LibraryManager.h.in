@@ -85,7 +85,6 @@ namespace art
                                  std::string const &lib_type);
     void good_spec_trans_map_inserter(spec_trans_map_t::value_type const &entry);
     void *get_lib_ptr(std::string const &lib_loc) const;
-    std::string demangle_symbols_in_message(char const *message) const;
 
     std::string lib_type_; // eg _plugin.
     // Map of library filename -> full path.

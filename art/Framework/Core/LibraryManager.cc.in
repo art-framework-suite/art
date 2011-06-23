@@ -6,7 +6,6 @@
 
 #include "cetlib/demangle.h"
 #include "cetlib/search_path.h"
-#include "cetlib/split.h"
 #include "cpp0x/functional"
 
 #include "boost/regex.hpp"
@@ -118,7 +117,7 @@ void *art::LibraryManager::getSymbolByPath(std::string const &lib_loc,
       << "Unable to load requested library "
       << lib_loc
       << "\n"
-      << demangle_symbols_in_message(dlerror()) << "\n";
+      << cet::demangle_message(dlerror()) << "\n";
   } else { // Found library
     dlerror();
     result = dlsym(lib_ptr, sym_name.c_str());
@@ -127,11 +126,11 @@ void *art::LibraryManager::getSymbolByPath(std::string const &lib_loc,
       result = nullptr;
       throw art::Exception(errors::Configuration)
         << "Unable to load requested symbol "
-        <<  cet::demangle(sym_name)
+        <<  cet::demangle_symbol(sym_name)
         << " from library "
         << lib_loc
         << "\n"
-        << demangle_symbols_in_message(error)
+        << cet::demangle_message(error)
         << "\n";
     }
   }
@@ -169,7 +168,7 @@ art::LibraryManager::loadAllLibraries() const {
         << "Unable to load requested library "
         << i->second
         << "\n"
-        << demangle_symbols_in_message(dlerror())
+        << cet::demangle_message(dlerror())
         << "\n";
     }
   }
@@ -258,20 +257,6 @@ void *art::LibraryManager::get_lib_ptr(std::string const&lib_loc) const {
     return ptr;
   }
   return it->second;
-}
-
-std::string art::LibraryManager::demangle_symbols_in_message(char const *message) const {
-  std::ostringstream result;
-  std::vector<std::string> words;
-  cet::split(message, ' ', std::back_inserter(words));
-  for (std::vector<std::string>::const_iterator
-         i = words.begin(),
-         e = words.end();
-       i != e;
-       ++i) {
-    result << cet::demangle(*i) << " ";
-  }
-  return result.str();
 }
 
 // Local Variables:
