@@ -1,0 +1,104 @@
+#!/bin/bash
+########################################################################
+# cp-tag
+#
+# ART-specific cross-package tagger.
+#
+# Requires MANAGER role on all packages to be tagged (including ART).
+#
+#
+# Takes at least one version argument, 
+########################################################################
+
+# Subsidiary packages to be tagged,
+declare -a packages=(cetbuildtools cpp0x cetlib fhicl-cpp messagefacility)
+
+# Tag message.
+tag_msg='ART suite cross-package tag'
+
+function ensure_gitconfig() {
+    local package=$1
+    ssh p-$1@cdcvs.fnal.gov "git config --global user.name '$package admin'; git config --global user.email 'artists@fnal.gov'"
+}
+
+function maybe_tag() {
+    local tag=$1
+    shift
+    cat <<EOF
+git tag | grep -qe '^'"$1"'\$' && echo "tag $tag already exists: doing nothing." || { echo "applying tag $tag."; git tag -am '$tag_msg' '$tag' "$*"; }
+EOF
+}
+
+function ptag() {
+    local package=$1
+    local tag=$2
+    local pv=$3
+    printf "Tagging version $pv of $package with cross-package tag $tag: "
+    ssh p-$1@cdcvs.fnal.gov "cd '/cvs/projects/${package}' && `maybe_tag $tag \"$pv\"`"
+}
+
+function product_for() {
+  local package=$1
+  case $package in
+      fhicl-cpp)
+        echo "fhiclcpp"
+      ;;
+      *)
+        echo "$package"
+  esac
+}
+
+prog=${0##*/}
+
+function usage() {
+    cat 1>&2 <<EOF
+${prog} -help|-h|-\?
+${prog} <tag>+
+EOF
+}
+
+TEMP=`getopt -n "$prog" -o ':h\?' --long help -- "${@}"`
+
+eval set -- "$TEMP"
+while true; do
+  case $1 in
+    --help|-h|-\?)
+      usage
+      exit 1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Bad argument \"$1\"" 1>&2
+      usage
+      exit 1
+  esac
+done
+
+[[ -z "$1" ]] && { echo "Require existing ART tag as non-option argument" 1>&2; exit 1; }
+
+while [[ -n "$1" ]]; do
+  art_version=$1
+  shift
+
+  ensure_gitconfig art
+
+  ssh p-art@cdcvs.fnal.gov "cd /cvs/projects/art && { git tag | grep -q $art_version || { echo 'Unable to find ART tag ${art_version}' 1>&2; exit 1; }; } && `maybe_tag \"ART_SUITE_${art_version}\" \"${art_version}\"`"
+
+  for package in "${packages[@]}"; do
+    product=`product_for "$package"`
+    pv=`wget -q -O - "https://cdcvs.fnal.gov/redmine/projects/art/repository/raw/ups/setup_for_development?rev=ART_SUITE_${art_version}" | \
+     grep -e 'setup.*\b'"$product"'\b' | \
+     sed -e 's/^.*\(v[^ ]*\).*$/\1/'`
+    if [[ -n "$pv" ]]; then
+      echo "Found $package tag $pv corresponding to ART tag $art_version."
+    else
+      echo "Could not find tag for package $package corresponding to ART tag $art_version." 1>&2
+      continue
+    fi
+    ensure_gitconfig $package
+    ptag "${package}" "ART_SUITE_${art_version}" "${pv}"
+  done
+done
