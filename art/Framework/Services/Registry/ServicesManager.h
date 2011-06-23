@@ -203,7 +203,7 @@ namespace art {
     if( it == factory_.end() )
       throw art::Exception(art::errors::NotFound, "Service")
         << " unable to find requested service with compiler type name '"
-        << cet::demangle(typeid(T).name()) << "'.\n";
+        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
 
     // Get the ServiceWrapperBase from the Cache object.
     WrapperBase_ptr swb = it->second.getService(registry_, actualCreationOrder_);

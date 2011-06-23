@@ -256,7 +256,7 @@ namespace art
       ostringstream ostr;
       for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end();
 	   it != itEnd; ++it) {
-        ostr << cet::demangle(*it) << "\n\n";
+        ostr << cet::demangle_symbol(*it) << "\n\n";
       }
       throw art::Exception(art::errors::DictionaryNotFound)
 	<< "No REFLEX data dictionary found for the following classes:\n\n"

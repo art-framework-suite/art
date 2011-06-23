@@ -23,7 +23,7 @@ namespace art {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
       throw art::Exception(errors::DictionaryNotFound,"NoMatch")
-        << "TypeID::className: No dictionary for class " << cet::demangle(iType.name()) << '\n';
+        << "TypeID::className: No dictionary for class " << cet::demangle_symbol(iType.name()) << '\n';
     }
     return t.Name(Reflex::SCOPED);
   }

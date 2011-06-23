@@ -557,9 +557,9 @@ namespace art {
         } else {
           throw cet::exception("TypeConversionError")
             << "art::Wrapper<> : unable to convert type "
-            << cet::demangle(typeid(element_type).name())
+            << cet::demangle_symbol(typeid(element_type).name())
             << " to "
-            << cet::demangle(iToType.name())
+            << cet::demangle_symbol(iToType.name())
             << "\n";
         }
       }
@@ -601,7 +601,7 @@ namespace art {
 
       template <typename T>
       size_t look_past_pair() {
-        static std::string const mapped_type = cet::demangle(typeid(T).name());
+        static std::string const mapped_type = cet::demangle_symbol(typeid(T).name());
         size_t pos = 0;
         while (starts_with_pair(mapped_type, pos)) pos += pair_stem_offset();
         return pos;
@@ -619,7 +619,7 @@ namespace art {
     typedef typename product_type::const_iterator iter;
 
     detail::value_type_helper vh;
-    std::string const wanted_type = cet::demangle(iToType.name());
+    std::string const wanted_type = cet::demangle_symbol(iToType.name());
     static size_t pos = vh.look_past_pair<T>();
     if ((pos < wanted_type.size()) && vh.starts_with_pair(wanted_type, pos)) {
       // Want value_type, not mapped_type;
@@ -694,7 +694,7 @@ namespace art {
     typedef typename product_type::const_iterator iter;
 
     detail::value_type_helper vh;
-    std::string const wanted_type = cet::demangle(iToType.name());
+    std::string const wanted_type = cet::demangle_symbol(iToType.name());
     static size_t pos = vh.look_past_pair<T>();
 
     oPtr.reserve(iIndices.size());
