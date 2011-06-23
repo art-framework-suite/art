@@ -32,5 +32,9 @@ namespace {
 
     art::PtrVector<std::pair<cet::map_vector_key, std::string> > pvp;
     art::Wrapper<art::PtrVector<std::pair<cet::map_vector_key, std::string> > > pvp_w;
+
+    std::vector<art::Ptr<unsigned int> > mvvp;
+    art::Ptr<unsigned int> mvvp_p;
+    art::Wrapper<std::vector<art::Ptr<unsigned int> > > mvvp_w;
   };
 }

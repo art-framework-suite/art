@@ -32,7 +32,6 @@ public:
 
   virtual void produce(art::Event &e);
 
-
 private:
 
   // Declare member data here.
@@ -52,7 +51,8 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &p)
   produces<std::vector<art::Ptr<double> > >("doubleVectorPtrLabel");
   produces<art::PtrVector<double> >("doublePtrVectorLabel");
   produces<ProductWithPtrs>("ProductWithPtrsLabel");
-  produces<cet::map_vector<unsigned int> >();
+  produces<cet::map_vector<unsigned int> >("mapVectorLabel");
+  produces<std::vector<art::Ptr<unsigned int> > >("intVectorPtrLabel");
 }
 
 arttest::MixProducer::~MixProducer() {
@@ -85,20 +85,20 @@ void arttest::MixProducer::produce(art::Event &e) {
   for (size_t i = 1; i < 11; ++i) {
     coll->push_back(i + 10 * (eventCounter_ - 1));
   }
-  art::OrphanHandle<std::vector<double> >
-    collHandle(e.put(coll, "doubleCollectionLabel")); // 1.
+  e.put(coll, "doubleCollectionLabel"); // 1.
   std::auto_ptr<std::vector<art::Ptr<double> > >
     vpd(new std::vector<art::Ptr<double> >);
   vpd->reserve(3);
   std::auto_ptr<art::PtrVector<double> >
     pvd(new art::PtrVector<double>());
   pvd->reserve(3);
-  vpd->push_back(art::Ptr<double>(collHandle, 0));
-  vpd->push_back(art::Ptr<double>(collHandle, 4));
-  vpd->push_back(art::Ptr<double>(collHandle, 8));
-  pvd->push_back(art::Ptr<double>(collHandle, 1));
-  pvd->push_back(art::Ptr<double>(collHandle, 5));
-  pvd->push_back(art::Ptr<double>(collHandle, 9));
+  art::ProductID collID(getProductID<std::vector<double> >(e, "doubleCollectionLabel"));
+  vpd->push_back(art::Ptr<double>(collID, 0, e.productGetter()));
+  vpd->push_back(art::Ptr<double>(collID, 4, e.productGetter()));
+  vpd->push_back(art::Ptr<double>(collID, 8, e.productGetter()));
+  pvd->push_back(art::Ptr<double>(collID, 1, e.productGetter()));
+  pvd->push_back(art::Ptr<double>(collID, 5, e.productGetter()));
+  pvd->push_back(art::Ptr<double>(collID, 9, e.productGetter()));
   std::auto_ptr<ProductWithPtrs>
     pwp(new ProductWithPtrs(
 #ifndef ART_NO_MIX_PTRVECTOR
@@ -109,14 +109,26 @@ void arttest::MixProducer::produce(art::Event &e) {
   e.put(pvd, "doublePtrVectorLabel"); // 3.
   e.put(pwp, "ProductWithPtrsLabel"); // 4.
 
-  // cet::map_vector<unsigned int>
+  // map_vector, .
   std::auto_ptr<cet::map_vector<unsigned int> > mv(new cet::map_vector<unsigned int>);
   mv->reserve(5);
   for (size_t i = 0; i < 5; ++i) {
     (*mv)[cet::map_vector_key(static_cast<unsigned int>(1 + i * 2 + 10 * (eventCounter_ - 1)))] =
       eventCounter_;
   }
-  e.put(mv);
+
+  // std::vector<art::Ptr<int> > into map_vector.
+  std::auto_ptr<std::vector<art::Ptr<unsigned int> > > mvvp(new std::vector<art::Ptr<unsigned int> >);
+  mvvp->reserve(5);
+  art::ProductID mvID(getProductID<cet::map_vector<unsigned int> >(e, "mapVectorLabel"));
+  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 6, e.productGetter()));
+  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 0, e.productGetter()));
+  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 2, e.productGetter()));
+  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 8, e.productGetter()));
+  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 4, e.productGetter()));
+
+  e.put(mvvp, "intVectorPtrLabel");
+  e.put(mv, "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
 }
 
 DEFINE_ART_MODULE(arttest::MixProducer);

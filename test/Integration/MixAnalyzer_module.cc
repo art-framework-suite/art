@@ -121,17 +121,33 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
 
   // map_vector<unsigned int>
   art::Handle<cet::map_vector<unsigned int> > mv;
-  BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "", mv));
+  BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "mapVectorLabel", mv));
   BOOST_REQUIRE_EQUAL(mv->size(), 5 * nSecondaries_);
-  cet::map_vector<unsigned int>::const_iterator it = mv->begin();
-  size_t delta = 0;
-  size_t index = 0;
-  for (size_t i = 0; i < nSecondaries_; ++i, delta = index + 1) {
-    for (size_t j = 0; j < 5; ++j, ++it) {
-      index = 1 + j * 2 + delta + 10 * (i + nSecondaries_ * (eventCounter_ - 1));
+  {
+    cet::map_vector<unsigned int>::const_iterator it = mv->begin();
+    size_t delta = 0;
+    size_t index = 0;
+    for (size_t i = 0; i < nSecondaries_; ++i, delta = index + 1) {
+      for (size_t j = 0; j < 5; ++j, ++it) {
+        index = 1 + j * 2 + delta + 10 * (i + nSecondaries_ * (eventCounter_ - 1));
+        size_t answer = (eventCounter_ - 1) * nSecondaries_ + i + 1;
+        BOOST_REQUIRE_EQUAL(*mv->getOrNull(cet::map_vector_key(index)),
+                            answer);
+      }
+    }
+  }
+
+  // Ptrs into map_vector
+  art::Handle<std::vector<art::Ptr<unsigned int> > > mvvp;
+  BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "intVectorPtrLabel", mvvp));
+  BOOST_REQUIRE_EQUAL(mvvp->size(), 5 * nSecondaries_);
+  {
+    std::vector<art::Ptr<unsigned int> >::const_iterator it = mvvp->begin();
+    for (size_t i = 0; i < nSecondaries_; ++i) {
       size_t answer = (eventCounter_ - 1) * nSecondaries_ + i + 1;
-      BOOST_REQUIRE_EQUAL(*mv->getOrNull(cet::map_vector_key(static_cast<unsigned int>(index))),
-             answer);
+      for (size_t j = 0; j < 5; ++j) {
+        BOOST_REQUIRE_EQUAL(**it++, answer);
+      }
     }
   }
 

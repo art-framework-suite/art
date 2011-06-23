@@ -81,10 +81,15 @@ public:
                      arttest::ProductWithPtrs &out,
                      art::PtrRemapper const &remap);
 
+  bool
+  mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<unsigned int> > const *> const &in,
+                    std::vector<art::Ptr<unsigned int> > &out,
+                    art::PtrRemapper const &remap);
+
 private:
   size_t nSecondaries_;
   bool testRemapper_;
-  std::vector<size_t> doubleVectorOffsets_;
+  std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
   std::auto_ptr<art::EventIDSequence> eIDs_;
   bool startEvent_called_;
   bool processEventIDs_called_;
@@ -97,6 +102,7 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
   nSecondaries_(p.get<size_t>("numSecondaries", 1)),
   testRemapper_(p.get<bool>("testRemapper", 1)),
   doubleVectorOffsets_(),
+  map_vectorOffsets_(),
   eIDs_(),
   startEvent_called_(false),
   processEventIDs_called_(false)
@@ -138,8 +144,13 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
      &MixFilterTestDetail::mixProductWithPtrs, *this);
 
   helper.declareMixOp
-    (art::InputTag(mixProducerLabel, ""),
+    (art::InputTag(mixProducerLabel, "mapVectorLabel"),
      &MixFilterTestDetail::aggregate_map_vector, *this);
+
+  helper.declareMixOp
+    (art::InputTag(mixProducerLabel, "intVectorPtrLabel"),
+     &MixFilterTestDetail::mixmap_vectorPtrs, *this);
+
 }
 
 void
@@ -204,7 +215,7 @@ arttest::MixFilterTestDetail::
 aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
                      cet::map_vector<unsigned int> &out,
                      art::PtrRemapper const &) {
-  art::flattenCollections(in, out);
+  art::flattenCollections(in, out, map_vectorOffsets_);
   return true; //  Always want product in event.
 }
 
@@ -256,6 +267,18 @@ mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
         std::back_inserter(tmp.vectorPtrDouble()),
         doubleVectorOffsets_,
         &arttest::ProductWithPtrs::vpd_);
+
+  return true; //  Always want product in event.
+}
+
+bool
+arttest::MixFilterTestDetail::
+mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<unsigned int> > const *> const &in,
+                  std::vector<art::Ptr<unsigned int> > &out,
+                  art::PtrRemapper const &remap) {
+  remap(in,
+        std::back_inserter(out),
+        map_vectorOffsets_);
 
   return true; //  Always want product in event.
 }
