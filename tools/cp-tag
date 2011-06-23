@@ -25,7 +25,7 @@ function maybe_tag() {
     local tag=$1
     shift
     cat <<EOF
-git tag | grep -qe '^'"$1"'\$' && echo "tag $tag already exists: doing nothing." || { echo "applying tag $tag."; git tag -am '$tag_msg' '$tag' "$*"; }
+git tag | grep -qe '^'"$tag"'\$' && echo "tag $tag already exists: doing nothing." || { echo "applying tag $tag."; git tag -am '$tag_msg' '$tag' "$*"; }
 EOF
 }
 
