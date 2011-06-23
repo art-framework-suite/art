@@ -532,17 +532,6 @@ struct productSize<art::PtrVector<E>, false>
 
 }  // art
 
-////////////////////////////////////////////////////////////////////////
-// Import from setPtr.h
-////////////////////////////////////
-//
-// Original Author:  Chris Jones
-//         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: setPtr.h,v 1.3.4.1 2008/11/29 05:22:59 wmtan Exp $
-//
-
-
-// forward declarations
 namespace art {
   namespace detail {
 
@@ -576,55 +565,20 @@ namespace art {
       }
     }
 
-    template <class COLLECTION>
-    void
-    reallySetPtr(COLLECTION const& coll,
-                 const std::type_info& iToType,
-                 unsigned long iIndex,
-                 void const*& oPtr) {
-      typedef COLLECTION product_type;
-      typedef typename product_type::const_iterator iter;
-
-      iter it = coll.begin();
-      advance(it,iIndex);
-      oPtr = maybeCastObj(GetProduct<product_type>::address(it), iToType);
-    }
   }
 
-  template <class T, class A>
+  template <class COLLECTION>
   void
-  setPtr(std::vector<T,A> const& obj,
+  setPtr(COLLECTION const& coll,
          const std::type_info& iToType,
          unsigned long iIndex,
          void const*& oPtr) {
-    detail::reallySetPtr(obj, iToType, iIndex, oPtr);
-  }
+    typedef COLLECTION product_type;
+    typedef typename product_type::const_iterator iter;
 
-  template <class T, class A>
-  void
-  setPtr(std::list<T,A> const& obj,
-         const std::type_info& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
-    detail::reallySetPtr(obj, iToType, iIndex, oPtr);
-  }
-
-  template <class T, class A>
-  void
-  setPtr(std::deque<T,A> const& obj,
-         const std::type_info& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
-    detail::reallySetPtr(obj, iToType, iIndex, oPtr);
-  }
-
-  template <class T, class A, class Comp>
-  void
-  setPtr(std::set<T,A,Comp> const& obj,
-         const std::type_info& iToType,
-         unsigned long iIndex,
-         void const*& oPtr) {
-    detail::reallySetPtr(obj, iToType, iIndex, oPtr);
+    iter it = coll.begin();
+    advance(it,iIndex);
+    oPtr = detail::maybeCastObj(detail::GetProduct<product_type>::address(it), iToType);
   }
 
   namespace detail {
@@ -707,74 +661,27 @@ namespace art {
 
 }
 
-////////////////////////////////////////////////////////////////////////
-// Import from getElementAddresses.h
-////////////////////////////////////
-//
-// Original Author:  Chris Jones
-//         Created:  Sat Oct 20 11:45:38 CEST 2007
-// $Id: getElementAddresses.h,v 1.3.4.1 2008/11/29 05:22:59 wmtan Exp $
-//
-
 namespace art {
-  namespace detail {
-    template <class COLLECTION>
-    void
-    reallygetElementAddresses(COLLECTION const& coll,
-                              const std::type_info& iToType,
-                              const std::vector<unsigned long>& iIndices,
-                              std::vector<void const*>& oPtr)
-    {
-      typedef COLLECTION product_type;
-      typedef typename product_type::const_iterator iter;
+  template <class COLLECTION>
+  void
+  getElementAddresses(COLLECTION const& coll,
+                      const std::type_info& iToType,
+                      const std::vector<unsigned long>& iIndices,
+                      std::vector<void const*>& oPtr)
+  {
+    typedef COLLECTION product_type;
+    typedef typename product_type::const_iterator iter;
 
-      oPtr.reserve(iIndices.size());
-      for(std::vector<unsigned long>::const_iterator
-            itIndex=iIndices.begin(),
-            itEnd = iIndices.end();
-          itIndex != itEnd;
-          ++itIndex) {
-        iter it = coll.begin();
-        advance(it,*itIndex);
-        oPtr.push_back(maybeCastObj(GetProduct<product_type>::address(it), iToType));
-      }
+    oPtr.reserve(iIndices.size());
+    for(std::vector<unsigned long>::const_iterator
+          itIndex=iIndices.begin(),
+          itEnd = iIndices.end();
+        itIndex != itEnd;
+        ++itIndex) {
+      iter it = coll.begin();
+      advance(it,*itIndex);
+      oPtr.push_back(detail::maybeCastObj(detail::GetProduct<product_type>::address(it), iToType));
     }
-  }
-
-  template <class T, class A>
-  void
-  getElementAddresses(std::vector<T,A> const& obj,
-                      const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndices,
-                      std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
-  }
-
-  template <class T, class A>
-  void
-  getElementAddresses(std::list<T,A> const& obj,
-                      const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndices,
-                      std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
-  }
-
-  template <class T, class A>
-  void
-  getElementAddresses(std::deque<T,A> const& obj,
-                      const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndices,
-                      std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
-  }
-
-  template <class T, class A, class Comp>
-  void
-  getElementAddresses(std::set<T,A,Comp> const& obj,
-                      const std::type_info& iToType,
-                      const std::vector<unsigned long>& iIndices,
-                      std::vector<void const*>& oPtr) {
-    detail::reallygetElementAddresses(obj, iToType, iIndices, oPtr);
   }
 
   template <class T>
