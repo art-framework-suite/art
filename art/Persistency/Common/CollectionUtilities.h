@@ -72,6 +72,7 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/detail/metaprogramming.h"
+#include "cetlib/map_vector.h"
 #include "cpp0x/type_traits"
 #include <cstddef>
 #include <vector>
@@ -99,7 +100,29 @@ namespace art {
       static bool const value =
         sizeof(has_three_arg_insert_helper<T, typename T::iterator, typename T::const_iterator>(0)) == sizeof(yes_tag);
     };
+
+    template <typename C>
+    struct mix_offset {
+      static
+      size_t
+      (C::* offset)() const;
+    };
+
+    template<>
+    template <typename P>
+    struct mix_offset<cet::map_vector<P> > {
+      static
+      size_t
+      (cet::map_vector<P>::* offset)() const;
+    };
   }
+
+  template <typename C>
+  size_t (C::* art::detail::mix_offset<C>::offset)() const = &C::size;
+
+  template<>
+  template <typename P>
+  size_t (cet::map_vector<P>::* art::detail::mix_offset<cet::map_vector<P> >::offset)() const  = &cet::map_vector<P>::delta;
 
   // Append container in to container out.
   // I.
@@ -232,9 +255,9 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
          e = in.end();
        i != e;
        ++i) {
-    typename COLLECTION::size_type current_size = (*i)->size();
+    typename COLLECTION::size_type delta = ((*i)->*detail::mix_offset<COLLECTION>::offset)();
     offsets.push_back(current_offset);
-    current_offset += current_size;
+    current_offset += delta;
   }
   out.reserve(current_offset);
   flattenCollections<COLLECTION>(in, out);
