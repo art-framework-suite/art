@@ -43,9 +43,6 @@
 // ....
 // apples->push_back( Apple(...) );
 //
-// //create an art::Ref to the new object
-// art::Ref<AppleCollection> ref(refApples, index);
-// ....
 // }
 //
 // ======================================================================

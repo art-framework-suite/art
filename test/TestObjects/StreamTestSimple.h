@@ -1,7 +1,6 @@
 #ifndef test_TestObjects_StreamTestSimple_h
 #define test_TestObjects_StreamTestSimple_h
 
-#include "art/Persistency/Common/SortedCollection.h"
 
 namespace arttestprod
 {
@@ -16,7 +15,6 @@ namespace arttestprod
     bool operator<(const Simple&) const { return true; }
   };
 
-  typedef art::SortedCollection<Simple> StreamTestSimple;
 
   struct X0123456789012345678901234567890123456789012345678901234567890123456789012345678901
   {

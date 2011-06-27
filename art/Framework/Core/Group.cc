@@ -168,7 +168,7 @@ namespace art {
     // If our product is not a sequence, we can't match...
     if (!is_sequence) return false;
 
-    Type elementType = value_type; // this is not true for RefVector...
+    Type elementType = value_type;
 
     TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
 

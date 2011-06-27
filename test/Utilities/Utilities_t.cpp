@@ -137,27 +137,7 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("std::vector<Foo>","Foos") );
   classToFriendly.insert( Values("std::vector<bar::Foo>","bar::Foos") );
   classToFriendly.insert( Values("V<A,B>","ABV") );
-  classToFriendly.insert( Values("art::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>","reco::SuperClustersreco::SuperClusterRefProdsart::ExtCollection") );
-  classToFriendly.insert( Values("art::SortedCollection<EcalUncalibratedRecHit,art::StrictWeakOrdering<EcalUncalibratedRecHit> >","EcalUncalibratedRecHitsSorted") );
-  classToFriendly.insert( Values("art::OwnVector<aod::Candidate,art::ClonePolicy<aod::Candidate> >","aod::CandidatesOwned") );
-  classToFriendly.insert( Values("art::OwnVector<Foo,art::ClonePolicy<Foo> >","FoosOwned") );
-  classToFriendly.insert( Values("art::OwnVector<My<int>, art::ClonePolicy<My<int> > >","intMysOwned") );
-  classToFriendly.insert( Values("std::vector<art::OwnVector<My<int>, art::ClonePolicy<My<int> > > >","intMysOwneds") );
   classToFriendly.insert( Values("art::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >","CSCDetIdCSCALCTDigiMuonDigiCollection") );
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToMany<std::vector<CaloJet>,std::vector<reco::Track>,unsigned int> >","CaloJetsToManyreco::TracksAssociation") );
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToOne<std::vector<reco::Track>,std::vector<reco::TrackInfo>,unsigned int> >","reco::TracksToOnereco::TrackInfosAssociation") );
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToValue<std::vector<reco::Electron>,float,unsigned int> >",
-                                 "reco::ElectronsToValuefloatAssociation"));
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToManyWithQuality<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,double,unsigned int> >",
-                                 "reco::CandidatesOwnedToManyreco::CandidatesOwnedWithQuantitydoubleAssociation"));
-  classToFriendly.insert( Values("art::AssociationVector<art::RefProd<std::vector<reco::CaloJet> >,std::vector<int>,art::Ref<std::vector<reco::CaloJet>,reco::CaloJet,art::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >,unsigned int,art::helper::AssociationIdenticalKeyReference>",
-                                 "reco::CaloJetsart::RefProdTointsAssociationVector") );
-  classToFriendly.insert( Values("art::AssociationVector<art::RefProd<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> > >,std::vector<double>,art::Ref<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,reco::Candidate,art::refhelper::FindUsingAdvance<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,reco::Candidate> >,unsigned int,art::helper::AssociationIdenticalKeyReference>",
-                                 "reco::CandidatesOwnedart::RefProdTodoublesAssociationVector") );
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToOne<std::vector<reco::Track>,std::vector<std::pair<double,double> >,unsigned int> >",
-                                 "reco::TracksToOnedoubledoublestd::pairsAssociation"));
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToOne<std::vector<reco::Track>,std::vector<std::pair<Point3DBase<float,GlobalTag>,GlobalErrorBase<double,ErrorMatrixTag> > >,unsigned int> >",
-                                 "reco::TracksToOnefloatGlobalTagPoint3DBasedoubleErrorMatrixTagGlobalErrorBasestd::pairsAssociation"));
   classToFriendly.insert( Values("A<B<C>, D<E> >","CBEDA"));
   classToFriendly.insert( Values("A<B<C<D> > >","DCBA"));
   classToFriendly.insert( Values("A<B<C,D>, E<F> >","CDBFEA"));
@@ -165,17 +145,6 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("Aa<Bb<Cc<Dd> > >","DdCcBbAa"));
   classToFriendly.insert( Values("Aa<Bb<Cc,Dd>, Ee<Ff> >","CcDdBbFfEeAa"));
   classToFriendly.insert( Values("Aa<Bb<Cc,Dd>, Ee<Ff,Gg> >","CcDdBbFfGgEeAa"));
-  classToFriendly.insert( Values("art::RangeMap<DetId,art::OwnVector<SiPixelRecHit,art::ClonePolicy<SiPixelRecHit> >,art::ClonePolicy<SiPixelRecHit> >","DetIdSiPixelRecHitsOwnedRangeMap"));
-  classToFriendly.insert( Values("std::vector<art::RangeMap<DetId,art::OwnVector<SiPixelRecHit,art::ClonePolicy<SiPixelRecHit> >,art::ClonePolicy<SiPixelRecHit> > >","DetIdSiPixelRecHitsOwnedRangeMaps"));
-  classToFriendly.insert( Values("art::RefVector< art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >,reco::Candidate, art::refhelper::FindUsingAdvance<art::OwnVector<reco::Candidate,art::ClonePolicy<reco::Candidate> >, reco::Candidate> >","reco::CandidatesOwnedRefs"));
-  classToFriendly.insert( Values("art::RefVector< std::vector<reco::Track>, reco::Track, art::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >","reco::TracksRefs"));
-  classToFriendly.insert( Values("art::RefVector<Col, Type, art::refhelper::FindUsingAdvance<Col, Type> >","ColTypeRefs"));
-  classToFriendly.insert( Values("art::AssociationMap<art::OneToMany<std::vector<reco::PixelMatchGsfElectron>,art::SortedCollection<EcalRecHit,art::StrictWeakOrdering<EcalRecHit> >,unsigned int> >",
-                                 "reco::PixelMatchGsfElectronsToManyEcalRecHitsSortedAssociation"));
-  classToFriendly.insert( Values("art::AssociationVector<art::RefToBaseProd<reco::Candidate>,std::vector<double>,art::RefToBase<reco::Candidate>,unsigned int,art::helper::AssociationIdenticalKeyReference>",
-                                 "reco::Candidateart::RefToBaseProdTodoublesAssociationVector"));
-  classToFriendly.insert( Values("art::RefVector<art::AssociationMap<art::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >,art::helpers::KeyVal<art::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,art::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >,art::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,art::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >,art::AssociationMap<art::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >::Find>",
-                                 "reco::BasicClustersToOnereco::ClusterShapesAssociationRefs"));
   classToFriendly.insert( Values("cet::map_vector_key","mvk") );
   classToFriendly.insert( Values("cet::map_vector<Foo>","Foomv") );
 
@@ -191,13 +160,6 @@ void testfriendlyName::test()
     }
   }
 }
-/*----------------------------------------------------------------------
-
-Test program for art::TypeID class.
-Changed by Viji on 29-06-2005
-
-
- ----------------------------------------------------------------------*/
 
 #include <cassert>
 #include <iostream>

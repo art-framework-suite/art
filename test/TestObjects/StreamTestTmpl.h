@@ -2,7 +2,6 @@
 #define test_TestObjects_StreamTestTmpl_h
 
 #include <vector>
-#include "art/Persistency/Common/SortedCollection.h"
 #include "test/TestObjects/StreamTestSimple.h"
 
 namespace arttestprod

@@ -225,10 +225,7 @@ namespace art {
         // because there are known cases where the dictionary does
         // not exist and we do not need to support those cases.
         Reflex::Type valueType;
-        if ((is_RefVector(type, valueType) ||
-             is_RefToBaseVector(type, valueType ) ||
-             value_type_of(type, valueType))
-            && bool(valueType)) {
+        if ( value_type_of(type, valueType) && static_cast<bool>(valueType)) {
 
           fillElementLookup(valueType, i->second.branchID(), i->first);
 

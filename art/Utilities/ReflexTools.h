@@ -25,8 +25,8 @@ namespace art
 
   bool
   find_nested_type_named(std::string const& nested_type,
-			 Reflex::Type const& type_to_search,
-			 Reflex::Type& found_type);
+                         Reflex::Type const& type_to_search,
+                         Reflex::Type& found_type);
 
   inline
   bool
@@ -35,42 +35,27 @@ namespace art
     return find_nested_type_named("value_type", t, found_type);
   }
 
-
   inline
   bool
   wrapper_type_of(Reflex::Type const& possible_wrapper,
-		  Reflex::Type& found_wrapped_type)
+                  Reflex::Type& found_wrapped_type)
   {
     return find_nested_type_named("wrapped_type",
-				  possible_wrapper,
-				  found_wrapped_type);
+                                  possible_wrapper,
+                                  found_wrapped_type);
   }
 
   // is_sequence_wrapper is used to determine whether the Type
   // 'possible_sequence_wrapper' represents
   //   art::Wrapper<Seq<X> >,
   // where Seq<X> is anything that is a sequence of X.
-  // Note there is special support of art::RefVector<Seq<X> >, which
-  // will be recognized as a sequence of X.
   bool
   is_sequence_wrapper(Reflex::Type const& possible_sequence_wrapper,
-		      Reflex::Type& found_sequence_value_type);
+                      Reflex::Type& found_sequence_value_type);
 
   bool
   if_edm_ref_get_value_type(Reflex::Type const& possible_ref,
-			    Reflex::Type& value_type);
-
-  bool
-  if_edm_refToBase_get_value_type(Reflex::Type const& possible_ref,
-				  Reflex::Type& value_type);
-
-  bool
-  is_RefVector(Reflex::Type const& possible_ref_vector,
-	       Reflex::Type& value_type);
-
-  bool
-  is_RefToBaseVector(Reflex::Type const& possible_ref_vector,
-		     Reflex::Type& value_type);
+                            Reflex::Type& value_type);
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void checkAllDictionaries();
@@ -129,8 +114,8 @@ namespace art
 
   void const*
   reflex_pointer_adjust(void* raw,
-			Reflex::Type const& dynamicType,
-			std::type_info const& toType);
+                        Reflex::Type const& dynamicType,
+                        std::type_info const& toType);
 
 }
 
