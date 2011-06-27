@@ -16,7 +16,6 @@
 #include <vector>
 
 namespace art {
-  template< typename > class PtrProxy;
   template< typename > class PtrVector;
   template< typename > class PtrVectorItr;
 
@@ -26,26 +25,6 @@ namespace art {
   template< class T >
   bool  default_lt( T const &, T const & );
 }
-
-// ======================================================================
-
-template< typename T >
-  class art::PtrProxy
-{
-private:
-  Ptr<T> ptr_;
-
-public:
-  // --- Construction/destruction:
-
-  PtrProxy( Ptr<T> const & p ) : ptr_(p) { }
-
-  // --- Observers:
-
-  Ptr<T> const &  operator *  () const { return ptr_; }
-  Ptr<T> const *  operator -> () const { return & ptr_; }
-
-};  // PtrProxy<>
 
 // ======================================================================
 
@@ -78,9 +57,6 @@ public:
   Ptr<T>
     operator * () const
   { return base_->fromItr(iter_); }
-  PtrProxy<T>
-    operator-> () const
-  { return PtrProxy<T>( operator *() ); }
 
   // --- Operators:
 
