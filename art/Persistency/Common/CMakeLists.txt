@@ -24,6 +24,7 @@ install ( TARGETS art_Persistency_Common DESTINATION ${flavorqual_dir}/lib )
 install(FILES
 	BoolCache.h
 	CacheStreamers.h
+  CollectionUtilities.h
 	ConstPtrCache.h
 	EDProduct.h
 	EDProductGetter.h
