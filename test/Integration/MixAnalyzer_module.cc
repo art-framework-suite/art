@@ -35,6 +35,9 @@ public:
 
 
 private:
+  typedef cet::map_vector<unsigned int> mv_t;
+  typedef typename mv_t::value_type mvv_t;
+  typedef typename mv_t::mapped_type mvm_t;
 
   size_t eventCounter_;
   size_t nSecondaries_;
@@ -120,34 +123,54 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
   }
 
   // map_vector<unsigned int>
-  art::Handle<cet::map_vector<unsigned int> > mv;
+  art::Handle<mv_t > mv;
   BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "mapVectorLabel", mv));
   BOOST_REQUIRE_EQUAL(mv->size(), 5 * nSecondaries_);
   {
-    cet::map_vector<unsigned int>::const_iterator it = mv->begin();
+    typename mv_t::const_iterator it = mv->begin();
     size_t delta = 0;
     size_t index = 0;
     for (size_t i = 0; i < nSecondaries_; ++i, delta = index + 1) {
       for (size_t j = 0; j < 5; ++j, ++it) {
         index = 1 + j * 2 + delta + 10 * (i + nSecondaries_ * (eventCounter_ - 1));
-        size_t answer = (eventCounter_ - 1) * nSecondaries_ + i + 1;
+        BOOST_REQUIRE_EQUAL(it->first, static_cast<cet::map_vector_key>(index));
+        size_t answer = j + 1 + 5 * i + (eventCounter_ - 1) * 5 * nSecondaries_;
+        BOOST_REQUIRE_EQUAL(it->second, answer);
         BOOST_REQUIRE_EQUAL(*mv->getOrNull(cet::map_vector_key(index)),
                             answer);
       }
     }
+    std::cerr << "\n";
   }
 
   // Ptrs into map_vector
-  art::Handle<std::vector<art::Ptr<unsigned int> > > mvvp;
+  art::Handle<std::vector<art::Ptr<mvv_t> > > mvvp;
   BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "intVectorPtrLabel", mvvp));
   BOOST_REQUIRE_EQUAL(mvvp->size(), 5 * nSecondaries_);
   {
-    std::vector<art::Ptr<unsigned int> >::const_iterator it = mvvp->begin();
-    for (size_t i = 0; i < nSecondaries_; ++i) {
-      size_t answer = (eventCounter_ - 1) * nSecondaries_ + i + 1;
-      for (size_t j = 0; j < 5; ++j) {
-        BOOST_REQUIRE_EQUAL(**it++, answer);
-      }
+    std::vector<art::Ptr<mvv_t> >::const_iterator it = mvvp->begin();
+    size_t delta = 0;
+    size_t index_base = 0;
+    for (size_t i = 0;
+         i < nSecondaries_;
+         ++i, delta = index_base + 9, ++it) {
+      std::cerr << "delta = " << delta << "\n";
+      index_base = delta + 1 + 10 * (i + nSecondaries_ * (eventCounter_ - 1));
+      size_t answer_base = (eventCounter_ - 1) * 5 * nSecondaries_ + i * 5 + 1;
+      BOOST_REQUIRE_EQUAL((*it)->first, static_cast<cet::map_vector_key>(index_base + 6));
+      BOOST_REQUIRE_EQUAL((*it)->second, answer_base + 3);
+      ++it;
+      BOOST_REQUIRE_EQUAL((*it)->first, static_cast<cet::map_vector_key>(index_base + 0));
+      BOOST_REQUIRE_EQUAL((*it)->second, answer_base + 0);
+      ++it;
+      BOOST_REQUIRE_EQUAL((*it)->first, static_cast<cet::map_vector_key>(index_base + 2));
+      BOOST_REQUIRE_EQUAL((*it)->second, answer_base + 1);
+      ++it;
+      BOOST_REQUIRE_EQUAL((*it)->first, static_cast<cet::map_vector_key>(index_base + 8));
+      BOOST_REQUIRE_EQUAL((*it)->second, answer_base + 4);
+      ++it;
+      BOOST_REQUIRE_EQUAL((*it)->first, static_cast<cet::map_vector_key>(index_base + 4));
+      BOOST_REQUIRE_EQUAL((*it)->second, answer_base + 2);
     }
   }
 

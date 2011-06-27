@@ -323,8 +323,10 @@ operator()(Ptr<PROD> const &oldPtr,
            SIZE_TYPE offset) const {
   ProdTransMap_t::const_iterator iter = prodTransMap_.find(oldPtr.id());
   if (iter == prodTransMap_.end()) {
-    // FIXME: correct this exception.
-    throw Exception(errors::LogicError);
+    throw Exception(errors::LogicError)
+      << "PtrRemapper: could not find old ProductID "
+      << oldPtr.id()
+      << " in translation table: already translated?\n";
   }
   return (oldPtr.isNonnull())?
     Ptr<PROD>(iter->second,
@@ -463,7 +465,6 @@ operator()(std::vector<PROD const *> const &in,
            OFFSETS const &offsets,
            CALLBACK extractor) const {
   if (in.size() != offsets.size()) {
-    // FIXME: correct exception.
     throw Exception(errors::LogicError)
       << "Collection size of "
       << in.size()

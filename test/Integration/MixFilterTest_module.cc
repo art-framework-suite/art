@@ -20,6 +20,10 @@ namespace arttest {
 
 class arttest::MixFilterTestDetail : private boost::noncopyable {
 public:
+  typedef cet::map_vector<unsigned int> mv_t;
+  typedef typename mv_t::value_type mvv_t;
+  typedef typename mv_t::mapped_type mvm_t;
+
   // Constructor is responsible for registering mix operations with
   // MixHelper::declareMixOp() and bookkeeping products with
   // MixHelperproduces().
@@ -60,8 +64,8 @@ public:
                       art::PtrRemapper const &);
 
   bool
-  aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
-                       cet::map_vector<unsigned int> &out,
+  aggregate_map_vector(std::vector<mv_t const *> const &in,
+                       mv_t &out,
                        art::PtrRemapper const &);
 
   bool
@@ -82,11 +86,10 @@ public:
                      art::PtrRemapper const &remap);
 
   bool
-  mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<unsigned int> > const *> const &in,
-                    std::vector<art::Ptr<unsigned int> > &out,
+  mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > const *> const &in,
+                    std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > &out,
                     art::PtrRemapper const &remap);
 
-private:
   size_t nSecondaries_;
   bool testRemapper_;
   std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
@@ -212,8 +215,8 @@ aggregateDoubleCollection(std::vector<std::vector<double> const *> const &in,
 
 bool
 arttest::MixFilterTestDetail::
-aggregate_map_vector(std::vector<cet::map_vector<unsigned int> const *> const &in,
-                     cet::map_vector<unsigned int> &out,
+aggregate_map_vector(std::vector<mv_t const *> const &in,
+                     mv_t &out,
                      art::PtrRemapper const &) {
   art::flattenCollections(in, out, map_vectorOffsets_);
   return true; //  Always want product in event.
@@ -273,8 +276,8 @@ mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
 
 bool
 arttest::MixFilterTestDetail::
-mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<unsigned int> > const *> const &in,
-                  std::vector<art::Ptr<unsigned int> > &out,
+mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > const *> const &in,
+                  std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > &out,
                   art::PtrRemapper const &remap) {
   remap(in,
         std::back_inserter(out),
