@@ -245,6 +245,7 @@ install(FILES
   ProcessingTask.h
   ProducerBase.h
   ProductRegistryHelper.h
+  PtrRemapper.h
   RootDictionaryManager.h
   Run.h
   RunPrincipal.h
