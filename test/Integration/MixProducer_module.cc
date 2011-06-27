@@ -33,6 +33,9 @@ public:
   virtual void produce(art::Event &e);
 
 private:
+  typedef cet::map_vector<unsigned int> mv_t;
+  typedef typename mv_t::value_type mvv_t;
+  typedef typename mv_t::mapped_type mvm_t;
 
   // Declare member data here.
   size_t eventCounter_;
@@ -51,8 +54,8 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const &p)
   produces<std::vector<art::Ptr<double> > >("doubleVectorPtrLabel");
   produces<art::PtrVector<double> >("doublePtrVectorLabel");
   produces<ProductWithPtrs>("ProductWithPtrsLabel");
-  produces<cet::map_vector<unsigned int> >("mapVectorLabel");
-  produces<std::vector<art::Ptr<unsigned int> > >("intVectorPtrLabel");
+  produces<mv_t>("mapVectorLabel");
+  produces<std::vector<art::Ptr<mvv_t> > >("intVectorPtrLabel");
 }
 
 arttest::MixProducer::~MixProducer() {
@@ -110,22 +113,23 @@ void arttest::MixProducer::produce(art::Event &e) {
   e.put(pwp, "ProductWithPtrsLabel"); // 4.
 
   // map_vector, .
-  std::auto_ptr<cet::map_vector<unsigned int> > mv(new cet::map_vector<unsigned int>);
-  mv->reserve(5);
-  for (size_t i = 0; i < 5; ++i) {
-    (*mv)[cet::map_vector_key(static_cast<unsigned int>(1 + i * 2 + 10 * (eventCounter_ - 1)))] =
-      eventCounter_;
+  std::auto_ptr<mv_t> mv(new mv_t);
+  static size_t const mv_size = 5;
+  mv->reserve(mv_size);
+  for (size_t i = 0; i < mv_size; ++i) {
+    (*mv)[cet::map_vector_key(static_cast<mvm_t>(1 + i * 2 + 10 * (eventCounter_ - 1)))] =
+      (eventCounter_ - 1) * mv_size + i + 1;
   }
 
-  // std::vector<art::Ptr<int> > into map_vector.
-  std::auto_ptr<std::vector<art::Ptr<unsigned int> > > mvvp(new std::vector<art::Ptr<unsigned int> >);
-  mvvp->reserve(5);
-  art::ProductID mvID(getProductID<cet::map_vector<unsigned int> >(e, "mapVectorLabel"));
-  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 6, e.productGetter()));
-  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 0, e.productGetter()));
-  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 2, e.productGetter()));
-  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 8, e.productGetter()));
-  mvvp->push_back(art::Ptr<unsigned int>(mvID, 1 + 10 * (eventCounter_ - 1) + 4, e.productGetter()));
+  // Ptr into map_vector.
+  std::auto_ptr<std::vector<art::Ptr<mvv_t> > > mvvp(new std::vector<art::Ptr<mvv_t> >);
+  mvvp->reserve(mv_size);
+  art::ProductID mvID(getProductID<mv_t>(e, "mapVectorLabel"));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 7, e.productGetter()));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 1, e.productGetter()));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 3, e.productGetter()));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 9, e.productGetter()));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 5, e.productGetter()));
 
   e.put(mvvp, "intVectorPtrLabel");
   e.put(mv, "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
