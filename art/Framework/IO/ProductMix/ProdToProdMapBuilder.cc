@@ -117,8 +117,7 @@ art::ProdToProdMapBuilder::buildSecondaryProductMap(TTree *ehTree) {
                      std::inserter(tmpProdMap, tmpProdMap.begin()),
                      SecondaryBranchIDToProductIDConverter(branchIDToIndexMap_, h));
     } else {
-      // FIXME: correct exception.
-      throw Exception(errors::LogicError)
+      throw Exception(errors::FileReadError)
         << "Could not retrieve secondary event " << nEvt << ".\n";
     }
     if (secondaryProductMap_.empty()) {

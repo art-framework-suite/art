@@ -271,8 +271,9 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {
-    // FIXME: correct this exception.
-    throw Exception(errors::LogicError);
+    throw Exception(errors::LogicError)
+      << "Attempt to flatten incompatible PtrVectors "
+      << "referring to different ProductIDs.\n";
   }
   flattenCollections<PtrVector<T> >(in, out);
 }
@@ -286,8 +287,9 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {
-    // FIXME: correct this exception.
-    throw Exception(errors::LogicError);
+    throw Exception(errors::LogicError)
+      << "Attempt to flatten incompatible PtrVectors "
+      << "referring to different ProductIDs.\n";
   }
   flattenCollections<PtrVector<T> >(in, out, offsets);
 }
