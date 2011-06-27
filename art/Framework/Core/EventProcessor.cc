@@ -253,6 +253,11 @@ namespace art {
         throw;
       }
     }
+    catch (cet::exception const& x) {
+      throw art::Exception(errors::Configuration, "FailedInputSource")
+        << "Configuration of main input source has failed\n"
+        << x;
+    }
     return shared_ptr<InputSource>();
   }
 
