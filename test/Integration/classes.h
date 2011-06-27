@@ -27,14 +27,14 @@ namespace {
     art::PtrVector<std::string> pvs;
     art::Wrapper<art::PtrVector<std::string> > pvs_w;
 
-    art::Ptr<std::pair<cet::map_vector_key, std::string> > pp;
-    art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string> > > pp_w;
+    art::Ptr<cet::map_vector<std::string>::value_type> pp;
+    art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type> > pp_w;
 
-    art::PtrVector<std::pair<cet::map_vector_key, std::string> > pvp;
-    art::Wrapper<art::PtrVector<std::pair<cet::map_vector_key, std::string> > > pvp_w;
+    art::PtrVector<cet::map_vector<std::string>::value_type> pvp;
+    art::Wrapper<art::PtrVector<cet::map_vector<std::string>::value_type> > pvp_w;
 
-    std::vector<art::Ptr<unsigned int> > mvvp;
-    art::Ptr<unsigned int> mvvp_p;
-    art::Wrapper<std::vector<art::Ptr<unsigned int> > > mvvp_w;
+    std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > mvvp;
+    art::Ptr<cet::map_vector<unsigned int>::value_type> mvvp_p;
+    art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > > mvvp_w;
   };
 }

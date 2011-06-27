@@ -13,11 +13,11 @@
   <class name="art::Wrapper<art::Ptr<int> >"/>
   <class name="art::PtrVector<std::string>"/>
   <class name="art::Wrapper<art::PtrVector<std::string> >"/>
-  <class name="art::Ptr<std::pair<cet::map_vector_key, std::string> >"/>
-  <class name="art::Wrapper<art::Ptr<std::pair<cet::map_vector_key, std::string> > >"/>
-  <class name="art::PtrVector<std::pair<cet::map_vector_key, std::string> >"/>
-  <class name="art::Wrapper<art::PtrVector<std::pair<cet::map_vector_key, std::string> > >"/>
-  <class name="art::Ptr<unsigned int>"/>
-  <class name="std::vector<art::Ptr<unsigned int> >"/>
-  <class name="art::Wrapper<std::vector<art::Ptr<unsigned int> > >"/>
+  <class name="art::Ptr<cet::map_vector<std::string>::value_type>"/>
+  <class name="art::Wrapper<art::Ptr<cet::map_vector<std::string>::value_type> >"/>
+  <class name="art::PtrVector<cet::map_vector<std::string>::value_type>"/>
+  <class name="art::Wrapper<art::PtrVector<cet::map_vector<std::string>::value_type> >"/>
+  <class name="art::Ptr<cet::map_vector<unsigned int>::value_type>"/>
+  <class name="std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> >"/>
+  <class name="art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > >"/>
 </lcgdict>
