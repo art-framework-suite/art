@@ -4,11 +4,8 @@
 //
 // ======================================================================
 
-// Class definition:
 #include "art/Persistency/Common/PtrVectorBase.h"
-using art::PtrVectorBase;
 
-// Framework support:
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
@@ -17,76 +14,30 @@ using art::PtrVectorBase;
 // C++ support:
 #include <algorithm>
 
+#include "TBuffer.h"
+#include "TClassRef.h"
 
 // Constructor and destructor:
 
-  PtrVectorBase::PtrVectorBase()
-: core_       ( )
-, indicies_   ( )
-, cachedItems_( )
-{ }
+art::PtrVectorBase::PtrVectorBase()
+  : core_ ( )
+  , indices_ ( )
+{}
 
-  PtrVectorBase::~PtrVectorBase()
-{ }
+art::PtrVectorBase::~PtrVectorBase()
+{}
 
-// Mutators:
 
 void
-  PtrVectorBase::push_back_base( RefCore const & core
-                               , key_type        key
-                               , void const *    data )
-{
-  core_.pushBackItem(core, false);
+art::PtrVectorBase::fillPtrs() const {
+  if (indices_.size() ==  0) return; // Empty or already done.
+  fill_from_offsets(indices_);
 
-  // Did we already push a 'non-cached' Ptr into the container,
-  // or is this a 'non-cached' Ptr?
-  if( indicies_.size() == cachedItems_.size() ) {
-    if( data )                                    cachedItems_.push_back(data);
-    else if( key_traits<key_type>::value == key ) cachedItems_.push_back(0);
-    else                                          cachedItems_.clear();
-  }
-  indicies_.push_back(key);
-}
-
-void
-  PtrVectorBase::swap( PtrVectorBase & other )
-{
-  core_       .swap(other.core_);
-  indicies_   .swap(other.indicies_);
-  cachedItems_.swap(other.cachedItems_);
-}
-
-// --- Helpers:
-
-void
-  PtrVectorBase::getProduct_() const
-{
-  if( hasCache() )
-    return;
-  if( indicies_.size() == 0 )
-    return;
-  if( 0 == productGetter())
-    throw art::Exception(art::errors::LogicError)
-          << "Tried to get data for a PtrVector which has no EDProductGetter\n";
-
-  EDProduct const * product = productGetter()->getIt(id());
-
-  if( 0 == product )
-    throw art::Exception(art::errors::InvalidReference)
-          << "Asked for data from a PtrVector"
-             " that refers to a non-existent product with id "
-          << id()
-          << '\n';
-
-  product->getElementAddresses(typeInfo(), indicies_, cachedItems_);
+  indices_t tmp;
+  indices_.swap(tmp); // Zero -- no longer needed.
 }
 
 bool
-  PtrVectorBase::operator == ( PtrVectorBase const & other ) const
-{
-  return core_ == other.core_ && indicies_.size() == other.indicies_.size()
-       ? std::equal( indicies_.begin(), indicies_.end()
-                   , other.indicies_.begin() )
-       : false;
-
+art::PtrVectorBase::operator==(PtrVectorBase const &other) const {
+  return core_ == other.core_;
 }

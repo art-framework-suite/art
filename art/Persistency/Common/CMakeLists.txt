@@ -1,15 +1,17 @@
 # project name
 project(art_Persistency_Common)
 
-set( art_Persistency_Common_sources CacheStreamers.cc
-                                  EDProduct.cc
-                                  EDProductGetter.cc
-                                  InitRootHandlers.cc
-                                  PtrVectorBase.cc
-                                  RNGsnapshot.cc
-                                  RefCore.cc
-                                  RefCoreTransientStreamer.cc
-                                  traits.cc)
+set(art_Persistency_Common_sources
+  CacheStreamers.cc
+  EDProduct.cc
+  EDProductGetter.cc
+  InitRootHandlers.cc
+  PtrVectorBase.cc
+  RNGsnapshot.cc
+  RefCore.cc
+  RefCoreTransientStreamer.cc
+  priv/setPtrVectorBaseStreamer.cc
+  traits.cc)
 
 link_libraries( art_Utilities
                 art_Framework_Services_Registry
@@ -45,6 +47,7 @@ install(FILES
 	TriggerResults.h
 	Wrapper.h
 	debugging_allocator.h
+  priv/setPtrVectorBaseStreamer.h
   fwd.h
 	traits.h
   BasicHandle.h

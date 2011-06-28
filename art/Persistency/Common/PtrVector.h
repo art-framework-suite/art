@@ -4,241 +4,257 @@
 // ======================================================================
 //
 // PtrVector: a container which returns art::Ptr<>'s referring to items
-//            in one container in the art::Event
+// in one container in the art::Event
 //
 // ======================================================================
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
+
 #include "boost/iterator.hpp"
+#include "cpp0x/functional"
 #include "cpp0x/type_traits"
+
 #include <iterator>
 #include <vector>
 
 namespace art {
-  template< typename > class PtrVector;
-  template< typename > class PtrVectorItr;
+  template <typename> class PtrVector;
 
-  template< typename T >
-    void  swap( PtrVector<T> &, PtrVector<T> & );
+  template <typename T>
+  void swap(PtrVector<T> &, PtrVector<T> &);
 
-  template< class T >
-  bool  default_lt( T const &, T const & );
+  template <typename COMP>
+  class ComparePtrs {
+  public:
+    ComparePtrs(COMP comp) : comp_(comp) {}
+    template <typename T>
+    bool operator()(Ptr<T> const &a,
+                    Ptr<T> const &b) {
+      return comp_(*a, *b);
+    }
+  private:
+    COMP comp_;
+  };
 }
 
-// ======================================================================
-
-template< typename T >
-  class art::PtrVectorItr
-: public std::iterator< std::random_access_iterator_tag, Ptr<T> >
-{
+template<typename T>
+class art::PtrVector : public PtrVectorBase {
 private:
-  typedef  std::iterator< std::random_access_iterator_tag, Ptr<T> >
-           base_t;
-
-  std::vector<void const *>::const_iterator  iter_;
-  PtrVector<T> const *                       base_;
-
+  typedef std::vector<Ptr<T> > data_t;
 public:
-  typedef  PtrVectorItr<T>                   iterator;
-  typedef  typename base_t::difference_type  difference_type;
+  typedef typename data_t::const_iterator const_iterator;
+  typedef typename data_t::iterator iterator;
+  typedef typename data_t::value_type value_type;
+  typedef typename data_t::const_reference const_reference;
+  typedef typename data_t::reference reference;
+  typedef typename data_t::size_type size_type;
 
-  // --- Construction/destruction:
+  // Constructors
+  PtrVector();
+  template<typename U> PtrVector(PtrVector<U> const & other);
 
-    PtrVectorItr( std::vector<void const *>::const_iterator const & it
-                , PtrVector<T> const *                              b )
-  : base_t( )
-  , iter_ ( it )
-  , base_ ( b )
- { }
+  // Observers
+  bool operator==(PtrVector const & other) const;
+  Ptr<T> const &operator[](unsigned long const idx) const;
+  const_iterator begin() const;
+  const_iterator end() const;
+  bool empty() const;
+  size_type size() const;
+  size_type capacity() const;
 
-  // --- Observers:
+  // Mutators
+  iterator begin();
+  iterator end();
+  void push_back(Ptr<T> const &p);
+  template<typename U> void push_back(Ptr<U> const &p);
+  void clear();
+  void reserve(size_type n);
+  void swap(PtrVector &other);
+  void swap(key_type k1, key_type k2);
+  void sort();
+  template <class COMP> void sort(COMP comp);
 
-  Ptr<T>
-    operator * () const
-  { return base_->fromItr(iter_); }
-
-  // --- Operators:
-
-  iterator &
-    operator ++ ()
-  { ++iter_; return *this; }
-  iterator &
-    operator -- ()
-  { --iter_; return *this; }
-
-  iterator &
-    operator += ( difference_type n )
-  { iter_ += n; return *this; }
-  iterator &
-    operator -= ( difference_type n )
-  { iter_ -= n; return *this; }
-
-  iterator
-    operator ++ (int)
-  { iterator it(*this); ++iter_; return it; }
-  iterator
-    operator -- (int)
-  { iterator it(*this); --iter_; return it; }
-
-  iterator
-    operator + ( difference_type n ) const
-  { iterator it(*this); return it += n; }
-
-  iterator
-    operator - ( difference_type n ) const
-  { iterator it(*this); return it -= n; }
-
-  difference_type
-    operator - ( iterator const & other ) const
-  { return iter_ - other.iter_; }
-
-  bool
-    operator == ( iterator const & other ) const
-  { return iter_ == other.iter_; }
-  bool
-    operator != ( iterator const & other ) const
-  { return iter_ != other.iter_; }
-  bool
-    operator <  ( iterator const & other ) const
-  { return iter_ < other.iter_; }
-  bool
-    operator >  ( iterator const & other ) const
-  { return iter_ > other.iter_; }
-  bool
-    operator <= ( iterator const & other ) const
-  { return iter_ <= other.iter_; }
-  bool
-    operator >= ( iterator const & other ) const
-  { return iter_ >= other.iter_; }
-
-};  // PtrVectorItr<>
-
-// ======================================================================
-
-template< typename T >
-class art::PtrVector
-  : public PtrVectorBase
-{
-  friend class PtrVectorItr<T>;
-
-public:
-  typedef  PtrVectorItr<T>  const_iterator;
-  typedef  Ptr<T>           value_type;
-  typedef  Ptr<T> const &   const_reference;
-
-  // --- Construction/destruction:
-
-    PtrVector()
-  : PtrVectorBase( )
-  { }
-
-  template< typename U >
-    PtrVector( PtrVector<U> const & other )
-  : PtrVectorBase( other )
-  { STATIC_ASSERT(( std::is_base_of<T,U>::value ), "PtrVector: incompatible types"); }
-
-  // --- Observers:
-
-  Ptr<T>
-    operator [] ( unsigned long const idx ) const
-  { return makePtr<Ptr<T> >(idx); }
-
-  const_iterator
-    begin() const
-  { return const_iterator(void_begin(), this); }
-
-  const_iterator
-    end() const
-  { return const_iterator(void_end(), this); }
-
-  // --- Mutators:
-
-  void
-    push_back( Ptr<T> const & p )
-  {
-    push_back_base( p.refCore()
-                  , p.key()
-                  , p.hasCache() ? p.operator->()
-                                 : static_cast<void const *>(0)
-                  );
-  }
-
-  template< typename U >
-  void
-    push_back( Ptr<U> const & p )
-  {
-    // ensure that types are compatible
-    STATIC_ASSERT(( std::is_base_of<T,U>::value ), "PtrVector: incompatible types");
-    push_back_base( p.refCore()
-                  , p.key()
-                  , p.hasCache() ? p.operator->()
-                                 : static_cast<void const *>(0)
-                  );
-  }
-
-  void
-    swap( PtrVector & other )
-  { PtrVectorBase::swap(other); }
-
-  void
-    sort( )
-  { sort( &default_lt<T> ); }
-  template< class LT >
-  void
-    sort( LT lt );
+  static short Class_Version() { return 10; }
 
 private:
-  // --- Helpers:
 
-  std::type_info const &
-    typeInfo() const
-  { return typeid(T); }
+  void fill_offsets(indices_t &indices);
+  void fill_from_offsets(indices_t const &indices) const;
+  void zeroTransients();
 
-  Ptr<T>
-    fromItr( std::vector<void const *>::const_iterator const & it ) const
-  { return makePtr< Ptr<T> >(it); }
+  // Need to explicitly zero this from custom streamer for base class.
+  mutable data_t ptrs_; //! transient
+}; // PtrVector<T>
 
-};  // PtrVector<T>
+template <typename T>
+inline
+art::PtrVector<T>::PtrVector()
+  :
+  PtrVectorBase()
+{}
 
-template< typename T >
+template <typename T>
+template <typename U>
+inline
+art::PtrVector<T>::PtrVector(PtrVector<U> const &other)
+  :
+  PtrVectorBase(other)
+{
+  // Ensure that types are compatible.
+  STATIC_ASSERT(( std::is_base_of<T,U>::value ), "PtrVector: incompatible types");
+}
+
+template <typename T>
+inline bool
+art::PtrVector<T>::operator==(PtrVector const &other) const {
+  return fillPtrs(),
+    ptrs_ == other.ptrs_ &&
+    this->PtrVectorBase::operator==(other);
+}
+
+template <typename T>
+inline art::Ptr<T> const &
+art::PtrVector<T>::operator[](unsigned long const idx) const {
+  return *(begin() + idx);
+}
+
+template <typename T>
+inline typename art::PtrVector<T>::const_iterator
+art::PtrVector<T>::begin() const {
+  return fillPtrs(), ptrs_.begin();
+}
+
+template <typename T>
+inline typename art::PtrVector<T>::const_iterator
+art::PtrVector<T>::end() const {
+  return fillPtrs(), ptrs_.end();
+}
+
+template <typename T>
+inline
+bool art::PtrVector<T>::empty() const {
+  return fillPtrs(), ptrs_.empty();
+}
+
+template <typename T>
+inline typename art::PtrVector<T>::size_type
+art::PtrVector<T>::size() const {
+  return fillPtrs(), ptrs_.size();
+}
+
+template <typename T>
+inline typename art::PtrVector<T>::size_type
+art::PtrVector<T>::capacity() const {
+  return ptrs_.capacity();
+}
+
+template <typename T>
+inline typename art::PtrVector<T>::iterator
+art::PtrVector<T>::begin() {
+  return ptrs_.begin();
+}
+
+template <typename T>
+inline typename art::PtrVector<T>::iterator
+art::PtrVector<T>::end() {
+  return ptrs_.end();
+}
+
+template <typename T>
 inline void
-  art::swap( PtrVector<T> & lhs, PtrVector<T> & rhs )
-{
+art::PtrVector<T>::push_back(Ptr<T> const &p) {
+  updateCore(p.refCore());
+  ptrs_.push_back(p);
+}
+
+template<typename T>
+template<typename U>
+inline void
+art::PtrVector<T>::push_back(Ptr<U> const &p) {
+  // Ensure that types are compatible.
+  STATIC_ASSERT(( std::is_base_of<T,U>::value ), "PtrVector: incompatible types");
+  updateCore(p.refCore());
+  ptrs_.push_back(p);
+}
+
+template <typename T>
+inline void
+art::PtrVector<T>::clear() {
+  ptrs_.clear();
+  PtrVectorBase::clear();
+}
+
+template <typename T>
+inline void
+art::PtrVector<T>::reserve(size_type n) {
+  ptrs_.reserve(n);
+}
+
+template <typename T>
+inline void
+art::PtrVector<T>::swap(PtrVector &other) {
+  ptrs_.swap(other.ptrs_);
+  PtrVectorBase::swap(other);
+}
+
+template <typename T>
+inline void
+art::PtrVector<T>::swap(key_type k1, key_type k2) {
+  std::swap(ptrs_[k1], ptrs_[k2]);
+}
+
+template <typename T>
+inline void
+art::PtrVector<T>::sort() {
+  sort(std::less<T>());
+}
+
+template <typename T> 
+template <class COMP>
+inline void
+art::PtrVector<T>::sort(COMP comp) {
+  std::sort(ptrs_.begin(), ptrs_.end(), ComparePtrs<COMP>(comp));
+}
+
+template <typename T>
+void
+art::PtrVector<T>::fill_offsets(indices_t &indices) {
+  indices.reserve(ptrs_.size());
+  for (typename data_t::const_iterator
+         i = ptrs_.begin(),
+         e = ptrs_.end();
+       i != e;
+       ++i) {
+    indices.push_back(key(*i));
+  }
+}
+
+template <typename T>
+void
+art::PtrVector<T>::fill_from_offsets(indices_t const &indices) const {
+  ptrs_.reserve(indices.size());
+  for (typename indices_t::const_iterator
+         i = indices.begin(),
+         e = indices.end();
+       i != e;
+       ++i) {
+    ptrs_.push_back(Ptr<T>(id(), *i, productGetter()));
+  }
+}
+
+template <typename T>
+inline void
+art::PtrVector<T>::zeroTransients() {
+  data_t tmp;
+  ptrs_.swap(tmp);
+}
+
+template<typename T>
+inline void
+art::swap(PtrVector<T> &lhs, PtrVector<T> &rhs) {
   lhs.swap(rhs);
 }
-
-template< typename T >
-template< class LT >
-void
-  art::PtrVector<T>::sort( LT lt )
-{
-  if( size() <= 1 )
-    return;
-
-  // just use O(n^2) sort for now
-  // TODO: consider a more sophisticated algorithm
-  for( key_type k1 = 0; k1 < size(); ++k1 ) {
-    key_type min = k1;
-    Ptr<T> p_min = makePtr< Ptr<T> >(min);
-    for( key_type k2 = k1+1; k2 != size(); ++k2 ) {
-      Ptr<T> p2 = makePtr< Ptr<T> >(k2);
-      if( lt(*p2,*p_min) )
-        min = k2, p_min = p2;
-    }
-    PtrVectorBase::swap(k1, min);
-  }
-
-}  // sort()
-
-template< class T >
-inline bool
-  art::default_lt( T const & t1, T const & t2 )
-{
-  return t1 < t2;
-}
-
-// ======================================================================
 
 #endif /* art_Persistency_Common_PtrVector_h */
 

@@ -479,8 +479,6 @@ operator()(std::vector<PROD const *> const &in,
   art::PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner(extractor);
   for (; i != e; ++i, ++off_iter) {
     CONT const &cont(returner.operator()(*i));
-    STATIC_ASSERT((!std::is_base_of<PtrVectorBase, CONT>::value),
-                  "Mixing PtrVectors is not currently possible: contact artists@fnal.gov to request.");
     this->operator()(cont.begin(), cont.end(), out, *off_iter); // 3.
   }
 }

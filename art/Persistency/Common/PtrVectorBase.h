@@ -1,137 +1,126 @@
 #ifndef art_Persistency_Common_PtrVectorBase_h
 #define art_Persistency_Common_PtrVectorBase_h
 
-// ======================================================================
-//
-// PtrVectorBase: provide PtrVector<T> behavior that's independent of T
-//
-// ======================================================================
-
 #include "art/Persistency/Common/RefCore.h"
+#include "art/Persistency/Common/Ptr.h"
+
 #include <vector>
 #include <typeinfo>
 #include <utility>
 
+class TBuffer;
+
 namespace art {
   class PtrVectorBase;
+
+  namespace priv {
+    class PtrVectorBaseStreamer;
+  }
 }
 
-// ======================================================================
-
-class art::PtrVectorBase
-{
+class art::PtrVectorBase {
 public:
-  typedef  unsigned long                     key_type;
-  typedef  std::vector<key_type>::size_type  size_type;
+  typedef unsigned long key_type;
+protected:
+  typedef std::vector<key_type> indices_t;
+public:
+  typedef indices_t::size_type size_type;
 
-  // --- Construction/destruction:
+  virtual ~PtrVectorBase();
 
-  virtual
-    ~PtrVectorBase();
+  // Observers
+  bool isNonnull() const;
+  bool isNull() const;
+  bool isAvailable() const;
+  ProductID id() const;
+  EDProductGetter const * productGetter() const;
 
-  // --- Observers:
-
-  bool       isNonnull()      const { return core_.isNonnull(); }
-  bool       isNull()         const { return ! isNonnull(); }
-  bool       operator ! ()    const { return isNull(); }
-
-  bool       hasCache()       const { return !cachedItems_.empty(); }
-
-  bool       isAvailable()    const { return core_.isAvailable(); }
-  ProductID  id()             const { return core_.id(); }
-  EDProductGetter const *
-             productGetter()  const { return core_.productGetter(); }
-
-  bool       empty()          const { return indicies_.empty(); }
-  size_type  size()           const { return indicies_.size(); }
-  size_type  capacity()       const { return indicies_.capacity(); }
-
-  bool       operator == ( PtrVectorBase const & ) const;
-
-  // --- Mutators ---
-
-  void
-    clear()
-  { core_ = RefCore(), indicies_.clear(), cachedItems_.clear(); }
-
-  void
-    reserve( size_type n )
-  { indicies_.reserve(n), cachedItems_.reserve(n); }
-
-  void
-    setProductGetter( EDProductGetter * g ) const
-  { core_.setProductGetter(g); }
+  // Mutators
+  void setProductGetter(EDProductGetter *g) const;
 
 protected:
   PtrVectorBase();
 
-  // --- Observers:
+  void clear();
+  void reserve(size_type n);
+  void swap(PtrVectorBase &);
+  void fillPtrs() const;
+  void updateCore(RefCore const &core);
 
-  std::vector<void const *>::const_iterator
-    void_begin() const
-  { return getProduct_(), cachedItems_.begin(); }
+  template <typename T>
+  typename Ptr<T>::key_type key(Ptr<T> const &ptr) const;
 
-  std::vector<void const *>::const_iterator
-    void_end() const
-  { return getProduct_(), cachedItems_.end(); }
-
-  template< typename TPtr >
-    TPtr
-    makePtr( unsigned long idx ) const
-  {
-    typedef  typename TPtr::value_type const *  v_ptr;
-
-    if( hasCache() ) return TPtr( this->id()
-                                , reinterpret_cast<v_ptr>(cachedItems_[idx])
-                                , indicies_[idx] );
-    else             return TPtr( this->id()
-                                , indicies_[idx]
-                                , productGetter() );
-  }
-
-  template< typename TPtr >
-    TPtr
-    makePtr( std::vector<void const *>::const_iterator const it ) const
-  {
-    typedef  typename TPtr::value_type const *  v_ptr;
-
-    if( hasCache() ) return TPtr( this->id()
-                                , reinterpret_cast<v_ptr>(*it)
-                                , indicies_[it - cachedItems_.begin()] );
-    else             return TPtr( this->id()
-                                , indicies_[it - cachedItems_.begin()]
-                                , productGetter() );
-  }
-
-  // --- Mutators:
-
-  void push_back_base( RefCore const &
-                     , key_type
-                     , void const * );
-  void swap( PtrVectorBase & );
-
-  void
-    swap( key_type k1, key_type k2 )
-  {
-    std::swap( indicies_[k1], indicies_[k2] );
-    std::swap( cachedItems_[k1], cachedItems_[k2] );
-  }
+  bool operator==(PtrVectorBase const &) const;
 
 private:
-  RefCore                            core_;
-  std::vector<key_type>              indicies_;
-  mutable std::vector<void const *>  cachedItems_;  //! transient
+  RefCore core_;
+  mutable indices_t indices_; // Will be zeroed-out by fillPtrs();
 
-  // --- Helpers:
+  virtual void fill_offsets(indices_t &indices) = 0;
+  virtual void fill_from_offsets(indices_t const &indices) const = 0;
+  virtual void zeroTransients() = 0;
 
-  void
-    getProduct_() const;
-  virtual std::type_info const &
-    typeInfo() const = 0;
+  friend class art::priv::PtrVectorBaseStreamer;
+}; // PtrVectorBase
 
-};  // PtrVectorBase
+inline bool
+art::PtrVectorBase::isNonnull() const {
+  return core_.isNonnull();
+}
 
-// ======================================================================
+inline bool
+art::PtrVectorBase::isNull() const {
+  return ! isNonnull();
+}
+
+inline bool
+art::PtrVectorBase::isAvailable() const {
+  return core_.isAvailable();
+}
+
+inline art::ProductID
+art::PtrVectorBase::id() const {
+  return core_.id();
+}
+
+inline art::EDProductGetter const *
+art::PtrVectorBase::productGetter() const {
+  return core_.productGetter();
+}
+
+inline void
+art::PtrVectorBase::setProductGetter(EDProductGetter *g) const {
+  core_.setProductGetter(g);
+}
+
+inline void
+art::PtrVectorBase::clear() {
+  core_ = RefCore();
+  indices_t tmp;
+  indices_.swap(tmp); // Free up memory
+}
+
+inline void
+art::PtrVectorBase::reserve(size_type n) {
+  indices_.reserve(n);
+}
+
+inline void
+art::PtrVectorBase::swap(PtrVectorBase &other) {
+  core_.swap(other.core_);
+}
+
+inline void
+art::PtrVectorBase::updateCore(RefCore const &core) {
+  core_.pushBackItem(core, false);
+}
+
+template <typename T>
+inline
+typename art::Ptr<T>::key_type
+art::PtrVectorBase::key(Ptr<T> const &ptr) const {
+  return ptr.key_;
+}
 
 #endif /* art_Persistency_Common_PtrVectorBase_h */
 

@@ -50,7 +50,7 @@ namespace art
     // but have a pointer to a product getter (such as the EventPrincipal).
     // prodGetter will ususally be a pointer to the event principal.
     Ptr(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-      core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID)), key_(itemKey)
+      core_(productID, 0, prodGetter), key_(itemKey)
     { }
 
     // Constructor for use in the various X::fillView(...) functions
@@ -145,17 +145,23 @@ namespace art
     T const* getItem_(C const* product, key_type iKey);
 
     void getData_() const {
-      if(!hasCache() && 0 != productGetter()) {
-        void const* ad = 0;
-        const EDProduct* prod = productGetter()->getIt(core_.id());
-        if(prod==0) {
-          throw art::Exception(errors::ProductNotFound)
-            << "A request to resolve an art::Ptr to a product containing items of type: "
+      if (!hasCache()) {
+        const EDProduct* prod = productGetter()?productGetter()->getIt(core_.id()):0;
+        if (prod == 0) {
+          art::Exception e(errors::ProductNotFound);
+          e << "A request to resolve an art::Ptr to a product containing items of type: "
             << typeid(T).name()
-            << " with ProductID "<<core_.id()
-            << "\ncan not be satisfied because the product cannot be found."
-            << "\nProbably the branch containing the product is not stored in the input file.\n";
+            << " with ProductID "
+            << core_.id()
+            << "\ncannot be satisfied because the product cannot be found.\n";
+          if (productGetter() == 0) {
+            e << "The productGetter was not set -- are you trying to dereference a Ptr during mixing?\n";
+          } else {
+            e << "Probably the branch containing the product is not stored in the input file.\n";
+          }
+          throw e;
         }
+        void const* ad = 0;
         prod->setPtr(typeid(T),
                      key_,
                      ad);

@@ -1,4 +1,7 @@
 <lcgdict>
+ <class pattern="art::Transient<*>">
+   <field name="value_" transient="true"/>
+ </class>
  <class name="art::EDProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="241049717"/>
  </class>
@@ -21,10 +24,14 @@
   <version ClassVersion="10" checksum="241141409"/>
    <field name="isCached_" transient="true"/>
  </class>
- <class name="art::PtrVectorBase"  ClassVersion="10">
+ <class name="art::PtrVectorBase"  ClassVersion="11">
+  <version ClassVersion="11" checksum="3900270648"/>
   <version ClassVersion="10" checksum="202379499"/>
-   <field name ="cachedItems_" transient = "true"/>
  </class>
+ <ioread sourceClass="art::PtrVectorBase" version="[-10]"
+  targetClass="art::PtrVectorBase" source="std::vector<unsigned long> indicies_;" target="indices_">
+  <![CDATA[indices_ = onfile.indicies_; ]]>
+</ioread>
  <class name="art::PtrVector<int>"/>
  <class name="art::Wrapper<art::PtrVector<int> >"/>
  <class name="art::HLTPathStatus" ClassVersion="10">
