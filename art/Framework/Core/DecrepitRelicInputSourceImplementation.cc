@@ -44,15 +44,6 @@ namespace art {
       if (count % 100 - lastDigit == 10) return th;
       return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
     }
-
-    struct do_nothing_deleter {
-      void  operator () (void const*) const { }
-    };
-
-    template <typename T>
-    std::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
-      return  std::shared_ptr<T>(ptr, do_nothing_deleter());
-    }
   }  // namespace
 
   // ----------------------------------------------------------------------
