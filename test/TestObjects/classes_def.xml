@@ -44,6 +44,7 @@
 
  <class name="art::Ptr<arttest::SimpleDerived>"/>
  <class name="art::PtrVector<arttest::SimpleDerived>"/>
+ <class name="art::PtrVector<arttest::Simple>"/><!-- For view<Simple> -->
  <class name="art::Wrapper<art::PtrVector<arttest::SimpleDerived> >"/>
 
  <class name="arttest::ProductWithPtrs"/>

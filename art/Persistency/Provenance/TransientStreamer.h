@@ -54,7 +54,7 @@ art::TransientStreamer<T>::operator()(TBuffer &R_b, void *objp) {
 template <typename T>
 void
 art::detail::SetTransientStreamer() {
-  TClass *cl = gROOT->GetClass(TypeID(typeid(T)).className().c_str());
+  TClass *cl = gROOT->GetClass(typeid(T));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new TransientStreamer<T>());
   }
@@ -63,7 +63,7 @@ art::detail::SetTransientStreamer() {
 template <typename T>
 void
 art::detail::SetTransientStreamer(T const&) {
-  TClass *cl = gROOT->GetClass(TypeID(typeid(T)).className().c_str());
+  TClass *cl = gROOT->GetClass(typeid(T));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new TransientStreamer<T>());
   }

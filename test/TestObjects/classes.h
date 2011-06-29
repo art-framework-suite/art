@@ -20,6 +20,7 @@ namespace {
 
     art::Ptr<arttest::SimpleDerived> dummy234;
     art::PtrVector<arttest::SimpleDerived> dummy235;
+    art::PtrVector<arttest::Simple> dummy235a;
     art::Wrapper<art::PtrVector<arttest::SimpleDerived> > dummy235w;
 
     arttest::MockClusterList dummyMCL;

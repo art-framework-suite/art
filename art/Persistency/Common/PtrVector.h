@@ -10,13 +10,18 @@
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVectorBase.h"
-
-#include "boost/iterator.hpp"
+#include "art/Utilities/TypeID.h"
+#include "cetlib/demangle.h"
 #include "cpp0x/functional"
 #include "cpp0x/type_traits"
 
+#include "boost/iterator.hpp"
+
 #include <iterator>
 #include <vector>
+
+#include "TClass.h"
+#include "TROOT.h"
 
 namespace art {
   template <typename> class PtrVector;
@@ -79,6 +84,8 @@ public:
 
 private:
 
+  static void setSplitting();
+
   void fill_offsets(indices_t &indices);
   void fill_from_offsets(indices_t const &indices) const;
   void zeroTransients();
@@ -92,7 +99,9 @@ inline
 art::PtrVector<T>::PtrVector()
   :
   PtrVectorBase()
-{}
+{
+  setSplitting(); // FIXME: not thread-safe.
+}
 
 template <typename T>
 template <typename U>
@@ -215,6 +224,23 @@ template <class COMP>
 inline void
 art::PtrVector<T>::sort(COMP comp) {
   std::sort(ptrs_.begin(), ptrs_.end(), ComparePtrs<COMP>(comp));
+}
+
+template <typename T>
+void
+art::PtrVector<T>::setSplitting() {
+  static bool firstCall = true;
+  if (firstCall) {
+    TClass *cl = gROOT->GetClass(typeid(PtrVector<T>));
+    if (!cl) {
+      throw Exception(errors::DictionaryNotFound)
+        << "art::PtrVector::setSplitting(): No dictionary for class "
+        << cet::demangle_symbol(typeid(PtrVector<T>).name())
+        << "\n";
+    }
+    cl->SetCanSplit(0);
+    firstCall = false;
+  }
 }
 
 template <typename T>

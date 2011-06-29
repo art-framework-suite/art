@@ -75,7 +75,7 @@ find_ups_product( messagefacility v1_8_12 )
 find_ups_product( cetlib v1_01_00 )
 find_ups_product( cpp0x v1_01_01 )
 find_ups_product( cetbuildtools v1_11_06 )
-find_ups_root( v5_28_00_p02 )
+find_ups_root( v5_30_00 )
 find_ups_boost( v1_45_0 filesystem
                         program_options
                         regex

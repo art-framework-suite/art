@@ -6,6 +6,15 @@
 #include "TClass.h"
 #include "TROOT.h"
 
+// FIXME: This should go away as soon as ROOT makes this function
+// public. In the meantime, we have to verify that this signature does
+// not change in new versions of ROOT.
+namespace ROOT {
+  namespace Cintex {
+    std::string CintName(const std::string&);
+  }
+}
+
 void
 art::priv::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
   static TClassRef cl("art::PtrVectorBase");
@@ -23,8 +32,9 @@ art::priv::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
 
 void
 art::priv::setPtrVectorBaseStreamer() {
-  TClass *cl = gROOT->GetClass(TypeID(typeid(PtrVectorBase)).className().c_str());
+  TClass *cl = gROOT->GetClass(typeid(PtrVectorBase));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new PtrVectorBaseStreamer());
   }
+  cl->SetCanSplit(0);
 }

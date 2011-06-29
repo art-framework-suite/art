@@ -33,10 +33,10 @@ namespace art {
   }
 
   void setCacheStreamers() {
-    TClass *cl = gROOT->GetClass("art::BoolCache");
+    TClass *cl = gROOT->GetClass(typeid(BoolCache));
     if (cl == nullptr) {
        throw cet::exception("INTERNAL_ERROR")
-          << "Could not find Reflex Dictionary for art::BoolCache.";
+          << "Could not find dictionary for art::BoolCache.";
     }
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new BoolCacheStreamer());
@@ -44,10 +44,10 @@ namespace art {
       std::cout <<"ERROR: no art::BoolCache found"<<std::endl;*/
     }
 
-    cl = gROOT->GetClass("art::ConstPtrCache");
+    cl = gROOT->GetClass(typeid(ConstPtrCache));
     if (cl == nullptr) {
        throw cet::exception("INTERNAL_ERROR")
-          << "Could not find Reflex Dictionary for art::ConstPtrCache.";
+          << "Could not find dictionary for art::ConstPtrCache.";
     }
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new ConstPtrCacheStreamer());
