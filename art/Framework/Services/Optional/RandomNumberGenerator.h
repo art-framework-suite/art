@@ -249,9 +249,7 @@ private:
   bool  invariant_holds_( );
 
   // --- Callbacks:
-  void  preProcessEvent( art::EventID   const &
-                       , art::Timestamp const &
-                       );
+  void  preProcessEvent( art::Event const &);
   void  postProcessEvent( art::Event const &);
   void  postBeginJob( );
   void  postEndJob( );

@@ -5,6 +5,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
@@ -38,7 +39,7 @@ public:
   void preBeginSubRun(SubRunID const& id, Timestamp const& ts);
   void postBeginSubRun(SubRun const& run);
 
-  void preEvent(EventID const& id, Timestamp const& ts);
+  void preEvent(Event const& ev);
   void postEvent(Event const& ev);
 
   void preEndSubRun(SubRunID const& id, Timestamp const& ts);
@@ -254,9 +255,13 @@ Tracer::postCloseFile () {
 }
 
 void
-Tracer::preEvent(EventID const& iID, Timestamp const& iTime) {
+Tracer::preEvent(Event const& ev) {
    depth_=0;
-   indent(2) << " processing event:" << iID << " time:" << iTime.value() << std::endl;
+   indent(2) << " processing event:"
+             << ev.id()
+             << " time:"
+             << ev.time().value()
+             << std::endl;
 }
 void
 Tracer::postEvent(Event const&) {

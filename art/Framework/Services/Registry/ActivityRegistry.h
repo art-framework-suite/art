@@ -191,13 +191,13 @@ namespace art {
     }
     AR_DECL_STATE_0_ARG_FUNC(PostCloseFile)
 
-      typedef sigc::signal<void, art::EventID const&, art::Timestamp const&> PreProcessEvent;
+      typedef sigc::signal<void, Event const&> PreProcessEvent;
     /// signal is emitted after the Event has been created by the InputSource but before any modules have seen the Event
     PreProcessEvent preProcessEventSignal_;
     void watchPreProcessEvent(PreProcessEvent::slot_type const& iSlot) {
       preProcessEventSignal_.connect(iSlot);
     }
-    AR_DECL_STATE_2_ARG_FUNC(PreProcessEvent)
+    AR_DECL_STATE_1_ARG_FUNC(PreProcessEvent)
 
       typedef sigc::signal<void, Event const&> PostProcessEvent;
     /// signal is emitted after all modules have finished processing the Event

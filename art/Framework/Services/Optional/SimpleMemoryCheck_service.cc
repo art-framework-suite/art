@@ -69,7 +69,7 @@ namespace art {
 
     void postBeginJob();
 
-    void preEventProcessing(  art::EventID const &, art::Timestamp const & );
+    void preEventProcessing(  art::Event const &);
     void postEventProcessing( Event const & );
 
     void postModuleBeginJob( ModuleDescription const & );
@@ -602,10 +602,9 @@ namespace art {
 #endif
   } // postEndJob
 
-  void SimpleMemoryCheck::preEventProcessing(const art::EventID& iID,
-                                             const art::Timestamp& iTime)
+  void SimpleMemoryCheck::preEventProcessing(const art::Event& ev)
   {
-    currentEventID_ = iID;                                    // changelog 2
+    currentEventID_ = ev.id();
   }
 
   void SimpleMemoryCheck::postEventProcessing(const Event& e)

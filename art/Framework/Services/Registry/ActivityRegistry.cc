@@ -7,6 +7,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #undef AR_IMPL
 
+#include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -420,9 +421,9 @@ AR_0_ARG_UPDATER_DEFN(PostCloseFile) {
    restoreContext("PostCloseFile");
 }
 
-AR_2_ARG_UPDATER_DEFN(PreProcessEvent) {
+AR_1_ARG_UPDATER_DEFN(PreProcessEvent) {
    std::ostringstream os;
-   os << arg1;
+   os << arg1.id();
    setWorkFlowStatus(os.str());
 }
 

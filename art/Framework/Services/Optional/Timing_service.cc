@@ -35,7 +35,7 @@ private:
   void postBeginJob();
   void postEndJob();
 
-  void preEventProcessing(EventID const&, Timestamp const&);
+  void preEventProcessing(Event const&);
   void postEventProcessing(Event const&);
 
   void preModule(ModuleDescription const&);
@@ -114,10 +114,9 @@ void Timing::postEndJob()
 
 // ----------------------------------------------------------------------
 
-void Timing::preEventProcessing(art::EventID const& iID,
-                                art::Timestamp const& iTime)
+void Timing::preEventProcessing(art::Event const& ev)
 {
-  curr_event_ = iID;
+  curr_event_ = ev.id();
   curr_event_time_ = getTime();
 }
 

@@ -225,9 +225,7 @@ RNGservice::RandomNumberGenerator( ParameterSet const    & pset
   // Register for callbacks:
   reg.watchPostBeginJob   ( this, & RNGservice::postBeginJob     );
   reg.watchPostEndJob     ( this, & RNGservice::postEndJob       );
-#ifdef NOTYET
   reg.watchPreProcessEvent( this, & RNGservice::preProcessEvent  );
-#endif
 
   assert( invariant_holds_() && "RNGservice::RNGservice()" );
 }  // RNGservice()
@@ -408,14 +406,6 @@ void
       log << " could not be restored;\n"
              "no established engine bears this label.\n";
       continue;
-#ifdef PREPARE_TO_RESTORE_ANYWAY
-      eptr_t  eptr( engine_factory(it->ekind(), USE_DEFAULT_SEED) );
-      assert( eptr != 0 && "RNGservice::restoreSnapshot_()" );
-      dict_   [label] = eptr;
-      tracker_[label] = VIA_PRODUCT;
-      kind_   [label] = it->ekind();
-      t = tracker_.find( label );
-#endif
     }
 
     if( t->second == VIA_FILE ) {
@@ -525,16 +515,12 @@ void
   engine_creation_is_okay_ = false;
 }  // postBeginJob()
 
-#ifdef NOTYET
 void
-  RNGservice::preProcessEvent( art::EventID   const &  // unused
-                             , art::Timestamp const &  // unused
-                             )
+  RNGservice::preProcessEvent( art::Event const &e)
 {
   takeSnapshot_();
-  //restoreSnapshot_(e);  // TODO: needs Event argument!
+  restoreSnapshot_(e);  // TODO: needs Event argument!
 }
-#endif
 
 void
   RNGservice::postEndJob( )

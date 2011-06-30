@@ -61,7 +61,7 @@ namespace ui {
     input_ = is;
   }
 
-  void UserInteraction::preEvent(EventID const& iID, Timestamp const& iTime)
+  void UserInteraction::preEvent(Event const&)
   {
     //std::cout << "event:"<< iID<<" time:"<<iTime.value()<< std::endl;
     pickModule();

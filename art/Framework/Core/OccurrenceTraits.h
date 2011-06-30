@@ -30,8 +30,9 @@ namespace art {
     typedef EventPrincipal MyPrincipal;
     static bool const begin_ = true;
     static bool const isEvent_ = true;
-    static void preScheduleSignal(ActivityRegistry *a, EventPrincipal const* ep) {
-      a->preProcessEventSignal_(ep->id(), ep->time());
+    static void preScheduleSignal(ActivityRegistry *a, EventPrincipal * ep) {
+      Event ev(*ep, ModuleDescription());
+      a->preProcessEventSignal_(ev);
     }
     static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep) {
       Event ev(*ep, ModuleDescription());

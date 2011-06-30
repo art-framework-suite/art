@@ -70,7 +70,7 @@ namespace ui {
                          fhicl::ParameterSet const& pset);
 
   private:
-    void preEvent(art::EventID const& id, art::Timestamp const& ts);
+    void preEvent(art::Event const& ev);
     void postEvent(art::Event const& ev);
     void postBeginJobWorkers(art::InputSource* is, std::vector<art::Worker*> const&);
 
