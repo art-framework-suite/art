@@ -21,10 +21,5 @@ namespace {
 
     art::PtrVector<int>                dummypvi;
     art::Wrapper<art::PtrVector<int> > dummypviw;
-
-    art::RNGsnapshot                             dummyRNGsnap;
-    std::vector<art::RNGsnapshot>                dummyVectorRNGsnap;
-    art::Wrapper<std::vector<art::RNGsnapshot> > dummyWrapperVectorRNGsnap;
-
   };
 }  // namespace

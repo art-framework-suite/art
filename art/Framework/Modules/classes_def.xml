@@ -1,0 +1,4 @@
+<lcgdict>
+ <class name="std::vector<art::RNGsnapshot>"/>
+ <class name="art::Wrapper<std::vector<art::RNGsnapshot> >"/>
+</lcgdict>

@@ -54,4 +54,7 @@
  <class name="art::DoNotRecordParents" ClassVersion="10">
   <version ClassVersion="10" checksum="318074619"/>
  </class>
+ <class name="art::RNGsnapshot" ClassVersion="10">
+  <version ClassVersion="10" checksum="2374217630"/>
+ </class>
 </lcgdict>
