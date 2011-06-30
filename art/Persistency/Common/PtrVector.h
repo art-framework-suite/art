@@ -236,7 +236,7 @@ art::PtrVector<T>::back() const {
 
 template <typename T>
 template <typename U>
-inline art::PtrVector<T> const &
+inline art::PtrVector<T> &
 art::PtrVector<T>::operator=(PtrVector<U> const &other) {
   STATIC_ASSERT(( std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
   assign<U>(other.begin(), other.end());
@@ -323,13 +323,13 @@ art::PtrVector<T>::insert(iterator position, InputIterator first, InputIterator 
 }
 
 template <typename T>
-inline art::PtrVector<T>::iterator
+inline typename art::PtrVector<T>::iterator
 art::PtrVector<T>::erase(iterator position) {
   return ptrs_.erase(position);
 }
 
 template <typename T>
-inline art::PtrVector<T>::iterator
+inline typename art::PtrVector<T>::iterator
 art::PtrVector<T>::erase(iterator first, iterator last) {
   return ptrs_.erase(first, last);
 }
