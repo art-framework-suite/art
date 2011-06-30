@@ -7,6 +7,7 @@
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -36,8 +37,8 @@ public:
   void preBeginRun(Run const& run);
   void postBeginRun(Run const& run);
 
-  void preBeginSubRun(SubRunID const& id, Timestamp const& ts);
-  void postBeginSubRun(SubRun const& run);
+  void preBeginSubRun(SubRun const& subRun);
+  void postBeginSubRun(SubRun const& subRun);
 
   void preEvent(Event const& ev);
   void postEvent(Event const& ev);
@@ -306,6 +307,7 @@ void
 Tracer::prePathBeginRun(std::string const& iName) {
   indent(3) << " processing path for begin run:" << iName << std::endl;
 }
+
 void
 Tracer::postPathBeginRun(std::string const& iName, HLTPathStatus const&) {
   indent(3) << " finished path for begin run:" << std::endl;
@@ -327,6 +329,7 @@ Tracer::preEndRun(RunID const& iID, Timestamp const& iTime) {
    depth_=0;
    indent(2) << " processing end run:" << iID << " time:" << iTime.value() << std::endl;
 }
+
 void
 Tracer::postEndRun(Run const&) {
    indent(2) << " finished end run:" << std::endl;
@@ -353,10 +356,15 @@ Tracer::postModuleEndRun(ModuleDescription const& iDescription) {
 }
 
 void
-Tracer::preBeginSubRun(SubRunID const& iID, Timestamp const& iTime) {
+Tracer::preBeginSubRun(SubRun const& subRun) {
    depth_=0;
-   indent(2) << " processing begin subRun:" << iID << " time:" << iTime.value() << std::endl;
+   indent(2) << " processing begin subRun:"
+             << subRun.id()
+             << " time:"
+             << subRun.beginTime().value()
+             << std::endl;
 }
+
 void
 Tracer::postBeginSubRun(SubRun const&) {
    indent(2) << " finished begin subRun:" << std::endl;

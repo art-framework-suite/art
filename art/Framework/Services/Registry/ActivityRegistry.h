@@ -242,13 +242,13 @@ namespace art {
     }
     AR_DECL_STATE_1_ARG_FUNC(PostEndRun)
 
-      typedef sigc::signal<void, art::SubRunID const&, art::Timestamp const&> PreBeginSubRun;
+      typedef sigc::signal<void, art::SubRun const&> PreBeginSubRun;
     /// signal is emitted after the SubRun has been created by the InputSource but before any modules have seen the SubRun
     PreBeginSubRun preBeginSubRunSignal_;
     void watchPreBeginSubRun(PreBeginSubRun::slot_type const& iSlot) {
       preBeginSubRunSignal_.connect(iSlot);
     }
-    AR_DECL_STATE_2_ARG_FUNC(PreBeginSubRun)
+    AR_DECL_STATE_1_ARG_FUNC(PreBeginSubRun)
 
       typedef sigc::signal<void, SubRun const&> PostBeginSubRun;
     /// signal is emitted after all modules have finished processing the beginSubRun

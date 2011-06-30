@@ -113,8 +113,9 @@ namespace art {
     typedef SubRunPrincipal MyPrincipal;
     static bool const begin_ = true;
     static bool const isEvent_ = false;
-    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
-      a->preBeginSubRunSignal_(ep->id(), ep->beginTime());
+    static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal * ep) {
+      SubRun subRun(*ep, ModuleDescription());
+      a->preBeginSubRunSignal_(subRun);
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
       SubRun subRun(*ep, ModuleDescription());

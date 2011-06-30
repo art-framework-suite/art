@@ -9,6 +9,7 @@
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/Run.h"
+#include "art/Framework/Core/SubRun.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
@@ -451,9 +452,9 @@ AR_1_ARG_UPDATER_DEFN(PostEndRun) {
    setWorkFlowStatus("PostEndRun");
 }
 
-AR_2_ARG_UPDATER_DEFN(PreBeginSubRun) {
+AR_1_ARG_UPDATER_DEFN(PreBeginSubRun) {
    std::ostringstream os;
-   os << arg1;
+   os << arg1.id();
    setWorkFlowStatus(os.str());
 }
 
