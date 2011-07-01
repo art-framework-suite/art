@@ -43,7 +43,7 @@ setup -j cppunit v1_12_1 -q gcc45
 setup -j gccxml v0_9_20101128 -q gcc45
 setup -j libsigcpp v2_2_7 -q gcc45
 setup -j python v2_7_2 -q gcc45
-setup -j root v5_30_00 -q gcc45
+setup -j root v5_30_00_p01 -q gcc45
 # set up CET products
 setup -j cetbuildtools v1_11_09
 setup -j cpp0x v1_01_14 -q a2$extraqual
