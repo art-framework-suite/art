@@ -1,0 +1,232 @@
+#!/usr/bin/perl -w
+########################################################################
+# rn-skel
+#
+# Produce skeleton Wiki release notes for a version.
+#
+# Requires MANAGER role on all packages to be interrogated (including ART).
+#
+# Takes at least one version argument,
+########################################################################
+use strict;
+
+use Cwd qw(chdir :DEFAULT);
+use File::Basename;
+use FileHandle;
+use Getopt::Long;
+use Pod::Usage;
+
+my $options = {};
+
+Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
+
+# Subsidiary packages to be recognized.
+my @known_packages = qw(cetbuildtools cpp0x cetlib fhicl-cpp messagefacility);
+my %product_for = ( "fhicl-cpp" => "fhiclcpp" );
+
+GetOptions($options,
+           "help|h|?",
+           "help-packages",
+           "suite-version|s") or pod2usafe(-exitval => 2);
+
+pod2usage(-exitval => 1, -verbose => 3) if $options->{help};
+
+help_packages() if $options->{"help-packages"};
+
+if ((scalar @ARGV) != 2) {
+  print STDERR "ERROR: Expected exactly two non-option arguments.\n";
+  pod2usage(-exitval => 2);
+}
+
+my ($package, $version) = @ARGV;
+
+my $suite_version;
+
+if (lc $package eq "art") { # Want ART Suite release notes.
+  $suite_version = "ART_SUITE_$version";
+  print "h1. ART Suite Release Notes $version.\n\n";
+  print "h2. ART ",
+    vpage($version),
+      ".\n\n";
+  print map { my $package = $_;
+              my $pv = p_version($package, $suite_version);
+              sprintf("h2. \%s.\n\n",
+                      rpage($package, $pv)) } @known_packages;
+} else { # Simpler: want package release notes.
+  if ($options->{"suite-version"}) {
+    $suite_version = "ART_SUITE_$version";
+    $version = p_version($package, $suite_version);
+  }
+  printf "h2. %%(#%s)$package%% %s %s.\n",
+    dot_version($version),
+      vpage($version),
+        suite_reference_string($package, $version);
+}
+
+1;
+
+sub help_packages {
+  print STDERR "Known packages: ART, ",
+    join(", ", @{known_packages}),
+      "\n";
+  exit(2);
+}
+
+sub for_package {
+  my $package = shift;
+  my $command = join(" ", @_);
+  return "" unless $command =~ m&\S&;
+  my $result = `ssh p-$package\@cdcvs.fnal.gov \"$command\" 2>/dev/null`;
+  chomp $result;
+  return $result;
+}
+
+sub ensure_gitconfig {
+  my $package = shift;
+  for_package($package,
+              "git config --global user.name '$package admin'; git config --global user.email 'artists\@fnal.gov'");
+}
+
+sub vpage {
+  my $version = dot_version(shift);
+  return "version:\"$version\"";
+}
+
+sub dot_version {
+  my $dot_version = shift;
+  $dot_version =~ s&.*(v[^_]+)_([^_]+)_([^_]+)(.*)$&$1.$2.$3$4&;
+  return $dot_version;
+}
+
+sub rpage {
+  my ($package, $version) = @_;
+  my $lpkg = lc $package;
+  $version =~ s/^ART_SUITE_//;
+  my $rversion = $version;
+  my $dot_version = dot_version($version);
+  $rversion =~ s/_//g;
+  return (lc $package eq "art"?
+          "[[art:Release_Notes_$rversion|$package $version]]":
+          "[[$lpkg:Release_Notes#${dot_version}|$package ${dot_version}]]");
+}
+
+sub product_for {
+  my $package = shift;
+  return $product_for{$package} || $package;
+}
+
+sub p_version {
+  my ($package, $suite_version) = @_;
+  my $product = product_for($package);
+  open(SETUP, "wget -q -O - \"https://cdcvs.fnal.gov/redmine/projects/art/repository/raw/ups/setup_for_development?rev=${suite_version}\"|")
+    or die "Unable to obtain setup_for_development for ART version $suite_version.\n";
+  my $pv;
+  while (<SETUP>) {
+    ($pv) = m&^\s*setup.*\b$product\b.*\b(v\S*).*$&;
+    last if $pv;
+  }
+  close(SETUP);
+  if (!$pv) {
+    print STDERR "ERROR: Could not find package $package in ART Suite $version.\n";
+    exit(1);
+  }
+  return $pv;
+}
+
+sub suite_reference_string {
+  my ($package, $version) = @_;
+  ensure_gitconfig($package);
+  my $v_string =
+    for_package($package,
+                "cd /cvs/projects/$package; git log -1 --pretty=format:'\%d' $version");
+  if (!$v_string) {
+    print STDERR "ERROR: Could not obtain log information for $package version $version: no tag?\n";
+    exit(1);
+  }
+  $v_string =~ s&tag: &&g;
+  $v_string =~ s&^\s*\((.*)\)$&$1&;
+  my @versions = grep /^ART_SUITE/, split /,\s*/, $v_string;
+  return sprintf('(%s)',
+                 join(", ", map { if (!$_) { (); } else { rpage("ART", $_); } } sort @versions));
+}
+
+__END__
+
+=pod
+
+=head1 NAME
+
+rn-skel: Produce Wiki snippets for release notes for ART or a subsidiary package.
+
+=head1 SYNOPSIS
+
+B<rn-skel> B<-h> | B<--help> | B<-?>
+
+B<rn-skel> B<--help-packages>
+
+B<rm-skel> [I<options>] -- I<package> I<version>
+
+I<Options>: B<--suite-version|-s>
+
+=head1 DESCRIPTION
+
+I<rn-skel> is a tool to produce Wiki snippets for release notes for ART packages: either ART or a subsidiary package:
+
+=over
+
+=item B<ART>
+
+Produce a skeleton Art Suite Release Notes page for pasting into a blank
+page (which by convention should be named,
+"Release_Notes_vMMmmuu"). This will include links to the correct section
+of each subsidiary package's Release Notes page (which by convention
+should be named, "Release_Notes").
+
+=item B<Subsidiary packages>
+
+Produce a skeleton h2 line for the specific version of said package
+including links to all the ART Suite Release Notes pages of which this
+package version is a part.
+
+=back
+
+=head2 ARGUMENTS
+
+=over
+
+=item I<package>
+
+The package for which to produce the skeleton.
+
+=item I<version>
+
+The version of the package or (with I<-s>) a version of ART whose suite
+contains the desired version of I<package>.
+
+=back
+
+=head2 OPTIONS
+
+=over
+
+=item B<--suite-version>
+
+=item B<-s>
+
+Interpret I<version> as the version of ART whose suite comprises the
+desired version of I<package>.
+
+=back
+
+=head2 Redmine Version Pages
+
+Distinct from yet related to release notes pages (which are entirely
+normal Wiki pages created by the user), a Version page exists for every
+version of a package as defined in the Settings/Versions section (or
+created with the "+" button while updating the Target Version of an
+issue). If the "Wiki" link is defined for that version then the content
+of that page will be incorporated into the version page, below certain
+specific information such as listing the issues listing this version as
+their Target Version.
+
+=cut
