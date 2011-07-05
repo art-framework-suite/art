@@ -40,11 +40,15 @@ if ((scalar @ARGV) != 2) {
 
 my ($package, $version) = @ARGV;
 
+$version =~ s/\./_/g;
+
 my $suite_version;
+
+my $dot_version = dot_version($version);
 
 if (lc $package eq "art") { # Want ART Suite release notes.
   $suite_version = "ART_SUITE_$version";
-  print "h1. ART Suite Release Notes $version.\n\n";
+  print "h1. ART Suite Release Notes $dot_version.\n\n";
   print "h2. ART ",
     vpage($version),
       ".\n\n";
@@ -68,7 +72,7 @@ if (lc $package eq "art") { # Want ART Suite release notes.
 sub help_packages {
   print STDERR "Known packages: ART, ",
     join(", ", @{known_packages}),
-      "\n";
+      ".\n";
   exit(2);
 }
 
@@ -228,5 +232,35 @@ issue). If the "Wiki" link is defined for that version then the content
 of that page will be incorporated into the version page, below certain
 specific information such as listing the issues listing this version as
 their Target Version.
+
+=head1 EXAMPLES
+
+=over
+
+=item rn-skel art v0.7.13
+
+h1. ART Suite Release Notes v0.07.13.
+
+h2. ART version:"v0.07.13".
+
+h2. [[cetbuildtools:Release_Notes#v1.11.09|cetbuildtools v1.11.09]].
+
+h2. [[cpp0x:Release_Notes#v1.01.14|cpp0x v1.01.14]].
+
+h2. [[cetlib:Release_Notes#v1.01.00|cetlib v1.01.00]].
+
+h2. [[fhicl-cpp:Release_Notes#v2.12.10|fhicl-cpp v2.12.10]].
+
+h2. [[messagefacility:Release_Notes#v1.08.24|messagefacility v1.08.24]].
+
+=item rn-skel -s cetlib v0.7.13
+
+h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|ART v0_07_12]], [[art:Release_Notes_v00713|ART v0_07_13]]).
+
+=item rn-skel cetlib v1.01.00
+
+h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|ART v0_07_12]], [[art:Release_Notes_v00713|ART v0_07_13]]).
+
+=back
 
 =cut
