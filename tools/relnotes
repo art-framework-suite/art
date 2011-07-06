@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 ########################################################################
-# rn-skel
+# relnotes
 #
 # Produce skeleton Wiki release notes for a version.
 #
@@ -38,33 +38,27 @@ if ((scalar @ARGV) != 2) {
   pod2usage(-exitval => 2);
 }
 
-my ($package, $version) = @ARGV;
-
-$version =~ s/\./_/g;
-
-my $suite_version;
-
-my $dot_version = dot_version($version);
+my ($package, $vnum) = @ARGV;
 
 if (lc $package eq "art") { # Want ART Suite release notes.
-  $suite_version = "ART_SUITE_$version";
+  my $suite_version = suite_version($vnum);
+  my $dot_version = dot_version($vnum);
   print "h1. ART Suite Release Notes $dot_version.\n\n";
   print "h2. ART ",
-    vpage($version),
+    vpage($dot_version),
       ".\n\n";
   print map { my $package = $_;
-              my $pv = p_version($package, $suite_version);
+              my $pv = pkg_version($package, $suite_version);
               sprintf("h2. \%s.\n\n",
                       rpage($package, $pv)) } @known_packages;
 } else { # Simpler: want package release notes.
   if ($options->{"suite-version"}) {
-    $suite_version = "ART_SUITE_$version";
-    $version = p_version($package, $suite_version);
+    $vnum = pkg_version($package, $vnum);
   }
   printf "h2. %%(#%s)$package%% %s %s.\n",
-    dot_version($version),
-      vpage($version),
-        suite_reference_string($package, $version);
+    dot_version($vnum),
+      vpage($vnum),
+        suite_reference_string($package, $vnum);
 }
 
 1;
@@ -98,19 +92,33 @@ sub vpage {
 
 sub dot_version {
   my $dot_version = shift;
-  $dot_version =~ s&.*(v[^_]+)_([^_]+)_([^_]+)(.*)$&$1.$2.$3$4&;
+  $dot_version =~ s&.*(?:ART_SUITE_)?v?([^_\.]+)[\._]([^_\.]+)[\._]([^_\.]+)(.*)$&$1.$2.$3$4&;
   return $dot_version;
+}
+
+sub prod_version {
+  my $version = dot_version(shift);
+  $version =~ s/\./_/g;
+  return "v$version";
+}
+
+sub nosep_version {
+  my $version = dot_version(shift);
+  $version =~ s/\.//g;
+  return $version;
+}
+
+sub suite_version {
+  return sprintf("ART_SUITE_%s", prod_version(shift));
 }
 
 sub rpage {
   my ($package, $version) = @_;
   my $lpkg = lc $package;
-  $version =~ s/^ART_SUITE_//;
-  my $rversion = $version;
-  my $dot_version = dot_version($version);
-  $rversion =~ s/_//g;
+  my $rversion = nosep_version(${version});
+  my $dot_version = dot_version(${version});
   return (lc $package eq "art"?
-          "[[art:Release_Notes_$rversion|$package $version]]":
+          "[[art:Release_Notes_${rversion}|ART Suite ${dot_version}]]":
           "[[$lpkg:Release_Notes#${dot_version}|$package ${dot_version}]]");
 }
 
@@ -119,32 +127,35 @@ sub product_for {
   return $product_for{$package} || $package;
 }
 
-sub p_version {
-  my ($package, $suite_version) = @_;
+sub pkg_version {
+  my $package = shift;
+  my $suite_version = suite_version(shift);
   my $product = product_for($package);
   open(SETUP, "wget -q -O - \"https://cdcvs.fnal.gov/redmine/projects/art/repository/raw/ups/setup_for_development?rev=${suite_version}\"|")
     or die "Unable to obtain setup_for_development for ART version $suite_version.\n";
   my $pv;
   while (<SETUP>) {
-    ($pv) = m&^\s*setup.*\b$product\b.*\b(v\S*).*$&;
+    ($pv) = m&^\s*setup.*\b${product}\b.*\b(v\S*).*$&;
     last if $pv;
   }
   close(SETUP);
   if (!$pv) {
-    print STDERR "ERROR: Could not find package $package in ART Suite $version.\n";
+    printf STDERR "ERROR: Could not find package $package in ART Suite %s.\n", dot_version($suite_version);
     exit(1);
   }
-  return $pv;
+  return dot_version($pv);
 }
 
 sub suite_reference_string {
-  my ($package, $version) = @_;
+  my $package = shift;
+  my $dot_version = dot_version(shift);
+  my $prod_version = prod_version($dot_version);
   ensure_gitconfig($package);
   my $v_string =
     for_package($package,
-                "cd /cvs/projects/$package; git log -1 --pretty=format:'\%d' $version");
+                "cd /cvs/projects/$package; git log -1 --pretty=format:'\%d' $prod_version");
   if (!$v_string) {
-    print STDERR "ERROR: Could not obtain log information for $package version $version: no tag?\n";
+    print STDERR "ERROR: Could not obtain log information for $package version $dot_version: no tag $prod_version?\n";
     exit(1);
   }
   $v_string =~ s&tag: &&g;
@@ -160,13 +171,13 @@ __END__
 
 =head1 NAME
 
-rn-skel: Produce Wiki snippets for release notes for ART or a subsidiary package.
+relnotes: Produce Wiki snippets for release notes for ART or a subsidiary package.
 
 =head1 SYNOPSIS
 
-B<rn-skel> B<-h> | B<--help> | B<-?>
+B<relnotes> B<-h> | B<--help> | B<-?>
 
-B<rn-skel> B<--help-packages>
+B<relnotes> B<--help-packages>
 
 B<rm-skel> [I<options>] -- I<package> I<version>
 
@@ -174,7 +185,7 @@ I<Options>: B<--suite-version|-s>
 
 =head1 DESCRIPTION
 
-I<rn-skel> is a tool to produce Wiki snippets for release notes for ART packages: either ART or a subsidiary package:
+I<relnotes> is a tool to produce Wiki snippets for release notes for ART packages: either ART or a subsidiary package:
 
 =over
 
@@ -237,7 +248,7 @@ their Target Version.
 
 =over
 
-=item rn-skel art v0.7.13
+=item relnotes art v0.7.13
 
 h1. ART Suite Release Notes v0.07.13.
 
@@ -253,11 +264,11 @@ h2. [[fhicl-cpp:Release_Notes#v2.12.10|fhicl-cpp v2.12.10]].
 
 h2. [[messagefacility:Release_Notes#v1.08.24|messagefacility v1.08.24]].
 
-=item rn-skel -s cetlib v0.7.13
+=item relnotes -s cetlib v0.7.13
 
 h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|ART v0_07_12]], [[art:Release_Notes_v00713|ART v0_07_13]]).
 
-=item rn-skel cetlib v1.01.00
+=item relnotes cetlib v1.01.00
 
 h2. %(#v1.01.00)cetlib% version:"v1.01.00" ([[art:Release_Notes_v00712|ART v0_07_12]], [[art:Release_Notes_v00713|ART v0_07_13]]).
 
