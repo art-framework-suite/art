@@ -95,6 +95,7 @@ private:
   typedef  input::EntryNumber           EntryNumber;
 
   virtual input::ItemType nextItemType();
+  using DecrepitRelicInputSourceImplementation::readEvent;
   virtual std::auto_ptr<EventPrincipal>
   readEvent(std::shared_ptr<SubRunPrincipal> srp);
   virtual std::shared_ptr<SubRunPrincipal>
