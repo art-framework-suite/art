@@ -55,14 +55,14 @@ namespace art {
         << "\n";
     }
 
-    ART_ROOTNAME_SIMPLE(FileFormatVersion);
-    ART_ROOTNAME_SIMPLE(FileIndex);
-    ART_ROOTNAME_SIMPLE(ProductRegistry);
-    ART_ROOTNAME_SIMPLE(ParameterSetMap);
-    ART_ROOTNAME_SIMPLE(ProcessHistoryMap);
-    ART_ROOTNAME_SIMPLE(BranchIDLists);
-    ART_ROOTNAME(BranchChildren,"ProductDependencies");
-    ART_ROOTNAME(History,"EventHistory");
+    ART_ROOTNAME_SIMPLE(FileFormatVersion) // Ignore extra indentation for subsequent lines.
+      ART_ROOTNAME_SIMPLE(FileIndex)
+      ART_ROOTNAME_SIMPLE(ProductRegistry)
+      ART_ROOTNAME_SIMPLE(ParameterSetMap)
+      ART_ROOTNAME_SIMPLE(ProcessHistoryMap)
+      ART_ROOTNAME_SIMPLE(BranchIDLists)
+      ART_ROOTNAME(BranchChildren,"ProductDependencies")
+      ART_ROOTNAME(History,"EventHistory")
 
 #undef ART_ROOTNAME_SIMPLE
 #undef ART_ROOTNAME
