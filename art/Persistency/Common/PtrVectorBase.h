@@ -13,7 +13,7 @@ class TBuffer;
 namespace art {
   class PtrVectorBase;
 
-  namespace priv {
+  namespace detail {
     class PtrVectorBaseStreamer;
   }
 }
@@ -60,7 +60,7 @@ private:
   virtual void fill_from_offsets(indices_t const &indices) const = 0;
   virtual void zeroTransients() = 0;
 
-  friend class art::priv::PtrVectorBaseStreamer;
+  friend class art::detail::PtrVectorBaseStreamer;
 }; // PtrVectorBase
 
 inline bool

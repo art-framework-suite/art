@@ -2,7 +2,7 @@
 #define art_Persistency_Common_priv_setPtrVectorBaseStreamer_h
 
 namespace art {
-  namespace priv {
+  namespace detail {
     class PtrVectorBaseStreamer;
     void setPtrVectorBaseStreamer();
   }
@@ -12,7 +12,7 @@ namespace art {
 
 class TBuffer;
 
-class art::priv::PtrVectorBaseStreamer : public TClassStreamer {
+class art::detail::PtrVectorBaseStreamer : public TClassStreamer {
 public:
   void operator()(TBuffer &R_b, void *objp);
 };

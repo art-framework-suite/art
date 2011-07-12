@@ -10,7 +10,7 @@ set(art_Persistency_Common_sources
   RNGsnapshot.cc
   RefCore.cc
   RefCoreTransientStreamer.cc
-  priv/setPtrVectorBaseStreamer.cc
+  detail/setPtrVectorBaseStreamer.cc
   traits.cc)
 
 link_libraries( art_Utilities
@@ -47,7 +47,7 @@ install(FILES
 	TriggerResults.h
 	Wrapper.h
 	debugging_allocator.h
-  priv/setPtrVectorBaseStreamer.h
+  detail/setPtrVectorBaseStreamer.h
   fwd.h
 	traits.h
   BasicHandle.h

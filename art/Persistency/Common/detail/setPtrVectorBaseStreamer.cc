@@ -1,4 +1,4 @@
-#include "art/Persistency/Common/priv/setPtrVectorBaseStreamer.h"
+#include "art/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
 
 #include "art/Persistency/Common/PtrVectorBase.h"
 #include "art/Utilities/TypeID.h"
@@ -16,7 +16,7 @@ namespace ROOT {
 }
 
 void
-art::priv::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
+art::detail::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
   static TClassRef cl("art::PtrVectorBase");
   PtrVectorBase* obj = reinterpret_cast<PtrVectorBase *>(objp);
   if (R_b.IsReading()) {
@@ -31,10 +31,10 @@ art::priv::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
 }
 
 void
-art::priv::setPtrVectorBaseStreamer() {
+art::detail::setPtrVectorBaseStreamer() {
   TClass *cl = gROOT->GetClass(typeid(PtrVectorBase));
   if (cl->GetStreamer() == 0) {
-    cl->AdoptStreamer(new PtrVectorBaseStreamer());
+    cl->AdoptStreamer(new PtrVectorBaseStreamer);
   }
   cl->SetCanSplit(0);
 }
