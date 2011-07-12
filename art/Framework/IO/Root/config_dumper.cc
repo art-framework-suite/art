@@ -51,8 +51,13 @@ inline bool is_module_configuration(ParameterSet const& ps)
 // the "module_label" parameter.
 void print_stripped_module_pset(ParameterSet const& ps, ostream& output)
 {
-  output << ps.to_indented_string();
-  output << "\n\n";
+  string label = ps.get<string>("module_label");
+
+  ParameterSet copy(ps);
+  copy.erase("module_label");
+  output << label << ":{\n";  
+  output << copy.to_indented_string();
+  output << "}\n\n";
 }
 
 // Print all the ParameterSets in the vector 'psets' which are module
