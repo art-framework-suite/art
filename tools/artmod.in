@@ -152,12 +152,23 @@ pod2usage(-exitval => 1, -verbose => 3) if $options->{help};
 help_types() if ($options->{"help-types"});
 
 # Check non-option arguments.
-if ((scalar @ARGV) != 2) {
+my ($module_type, $qual_name);
+if ((scalar @ARGV) == 1) {
+  my @mtypes_found = map { ($ARGV[0] =~ /\Q$_\E$/i)?$_:(); } keys %${module_types};
+  if (scalar @mtypes_found == 1) {
+    printf STDERR "INFO: Inferring module type $mtypes_found[0] from class name $ARGV[0].\n";
+    ($module_type, $qual_name) = ($mtypes_found[0], $ARGV[0]);
+  } else {
+    printf STDERR "ERROR: Unable to infer module type from single argument, class name $ARGV[0], \n";
+    pod2usage(-exitval => 2);
+  }
+} elsif ((scalar @ARGV) == 2) {
+ ($module_type, $qual_name) = @ARGV;
+} else {
   print STDERR "ERROR: Expected exactly two non-option arguments.\n";
   pod2usage(-exitval => 2);
 }
 
-my ($module_type, $qual_name) = @ARGV;
 
 # Process module type
 if (not exists $module_types->{lc $module_type}) {
@@ -275,7 +286,7 @@ sub impl_boilerplate(\$) {
   } elsif ($ENV{ARTMOD_IMPL_BOILERPLATE}) {
     $$i_b = `cat \"$ENV{ARTMOD_IMPL_BOILERPLATE}\"`;
   } else {
-    $$i_b = "";
+    $$i_b = $default_boilerplate;
   }
   ins_vals($i_b);
 }
