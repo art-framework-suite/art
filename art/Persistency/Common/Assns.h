@@ -5,6 +5,7 @@
 #include "art/Utilities/TypeID.h"
 
 #include "TBuffer.h"
+#include "TClassStreamer.h" // Temporary
 #include "TClass.h"
 #include "TClassRef.h"
 
@@ -18,6 +19,26 @@ namespace art {
   // Specialization.
   template <typename L, typename R>
   class Assns<L, R, void>;
+
+  namespace detail {
+    // Temporary streamer class until streamer method registration is
+    // working again.
+    template <typename L, typename R>
+    class AssnsStreamer : public TClassStreamer {
+    public:
+      void operator()(TBuffer &R_b, void *objp) {
+        static TClassRef cl(TClass::GetClass(typeid(Assns<L, R, void>)));
+        Assns<L, R, void> *obj = reinterpret_cast<Assns<L, R, void> *>(objp);
+        if (R_b.IsReading()) {
+          cl->ReadBuffer(R_b, obj);
+          obj->fill_transients();
+        } else {
+          obj->fill_from_transients();
+          cl->WriteBuffer(R_b, obj);
+        }
+      }
+    };
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -33,6 +54,15 @@ private:
   typedef std::vector<std::pair<RefCore, size_t> > ptr_data_t;
 
 public:
+  // Temporary constructor for the purposes of setting the streamer
+  // class.
+  Assns() : ptrs_(), ptr_data_1_(), ptr_data_2_() {
+    static TClassRef cl(TClass::GetClass(typeid(Assns<L,R,void>)));
+    if (cl->GetStreamer() == 0) {
+      cl->AdoptStreamer(new detail::AssnsStreamer<L,R>);
+    }
+  }
+
   // Temporary accessors for testing persistency.
   typename ptrs_t::value_type const &operator[](typename ptrs_t::size_type index) const;
   typename ptrs_t::size_type size() const;
@@ -43,6 +73,8 @@ public:
   static short Class_Version() { return 10; }
 
 private:
+  friend class detail::AssnsStreamer<left_t, right_t>;
+
   static bool left_first();
 
   void fill_transients();
