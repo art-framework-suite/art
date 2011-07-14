@@ -66,10 +66,6 @@ foreach(cppunit_source ${cppunit_files})
     )
 endforeach()
 
-target_link_libraries(generichandle_t
-  test_TestObjects_dict
-)
-
 foreach(cpp_test
     Event_t
     GroupSelector_t

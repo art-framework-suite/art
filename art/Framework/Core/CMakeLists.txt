@@ -42,7 +42,6 @@ set( art_Framework_Core_sources
   EventObserver.cc
   EventProcessor.cc
   EventSelector.cc
-  GenericHandle.cc
   GroupSelector.cc
   GroupSelectorRules.cc
   IEventProcessor.cc
@@ -217,7 +216,6 @@ install(FILES
   FCPfwd.h
   FileBlock.h
   Frameworkfwd.h
-  GenericHandle.h
   Group.h
   GroupSelector.h
   GroupSelectorRules.h
