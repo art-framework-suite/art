@@ -28,6 +28,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/demangle.h"
 #include "cpp0x/memory"
 #include <typeinfo>
 
@@ -221,7 +222,8 @@ namespace art
     if (wrap == 0)
       throw art::Exception(art::errors::LogicError,"ConvertType")
       << "art::Wrapper converting from EDProduct to "
-      << typeid(*originalWrap).name();
+      << cet::demangle(typeid(*originalWrap).name())
+      << ".\n";
 
     Handle<T> h(wrap->product(), orig.provenance());
     h.swap(result);
