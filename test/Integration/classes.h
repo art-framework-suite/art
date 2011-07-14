@@ -1,5 +1,8 @@
+#include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/Wrapper.h"
+
+#include "test/TestObjects/AssnTestData.h"
 
 #include "cetlib/map_vector.h"
 
@@ -36,5 +39,12 @@ namespace {
     std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > mvvp;
     art::Ptr<cet::map_vector<unsigned int>::value_type> mvvp_p;
     art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > > mvvp_w;
+
+    art::Wrapper<std::vector<size_t> > vst_w;
+
+    std::vector<arttest::AssnTestData> vat;
+    art::Assns<size_t, std::string, arttest::AssnTestData> atd;
+    art::Assns<size_t, std::string, void> av;
+    art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData> > atd_w;
   };
 }

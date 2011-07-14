@@ -1,0 +1,33 @@
+process_name: ASSNS
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 2
+}
+
+physics:
+{
+  producers:
+  {
+    ap1:
+    {
+      module_type: AssnsProducer
+    }
+  }
+
+  p1: [ ap1 ]
+  trigger_paths: [ p1 ]
+
+  e1: [ o1 ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}

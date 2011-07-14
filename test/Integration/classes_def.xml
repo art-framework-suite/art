@@ -20,4 +20,9 @@
   <class name="art::Ptr<cet::map_vector<unsigned int>::value_type>"/>
   <class name="std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> >"/>
   <class name="art::Wrapper<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > >"/>
+  <class name="art::Wrapper<std::vector<size_t> >"/>
+  <class name="art::Assns<size_t, std::string, void>"/>
+  <class name="art::Assns<size_t, std::string, arttest::AssnTestData>"/>
+  <class name="std::vector<arttest::AssnTestData>"/>
+  <class name="art::Wrapper<art::Assns<size_t, std::string,  arttest::AssnTestData> >"/>
 </lcgdict>

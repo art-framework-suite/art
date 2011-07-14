@@ -2,6 +2,8 @@
 project(art_Integration_Test)
 
 simple_plugin(AddIntsProducer          "module" NOINSTALL )
+simple_plugin(AssnsAnalyzer            "module" NOINSTALL )
+simple_plugin(AssnsProducer            "module" NOINSTALL )
 simple_plugin(BareStringAnalyzer       "module" NOINSTALL )
 simple_plugin(BareStringProducer       "module" NOINSTALL )
 simple_plugin(DerivedPtrVectorProducer "module" NOINSTALL )
@@ -340,6 +342,22 @@ cet_test(ProductIDGetter_t HANDBUILT
   DATAFILES
   fcl/ProductIDGetter_t.fcl
 )
+
+cet_test(Assns_w HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "Assns_w.fcl"
+  DATAFILES
+  fcl/Assns_w.fcl
+)
+
+cet_test(Assns_r HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "Assns_r.fcl"
+  DATAFILES
+  fcl/Assns_r.fcl
+)
+
+SET_TESTS_PROPERTIES(Assns_r PROPERTIES DEPENDS Assns_w)
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test

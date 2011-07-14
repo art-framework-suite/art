@@ -30,7 +30,9 @@
   <version ClassVersion="10" checksum="448456917"/>
  </class>
  <class name="arttest::MockClusterList"/>
-
+ <class name="arttest::AssnTestData" ClassVersion="10">
+  <version ClassVersion="10" checksum="171613676"/>
+ </class>
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
  <class name="art::Wrapper<arttest::Int16_tProduct>"/>

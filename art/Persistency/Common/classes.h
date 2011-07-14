@@ -10,6 +10,8 @@
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Persistency/Common/Wrapper.h"
+
+#include <utility>
 #include <vector>
 
 namespace {
@@ -21,5 +23,9 @@ namespace {
 
     art::PtrVector<int>                dummypvi;
     art::Wrapper<art::PtrVector<int> > dummypviw;
+
+    std::pair<art::RefCore, size_t> prs;
+    std::vector<std::pair<art::RefCore, size_t> > vprs;
+
   };
 }  // namespace

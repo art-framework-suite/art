@@ -24,6 +24,7 @@ art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Common)
 
 install ( TARGETS art_Persistency_Common DESTINATION ${flavorqual_dir}/lib )
 install(FILES
+  Assns.h
 	BoolCache.h
 	CacheStreamers.h
   CollectionUtilities.h

@@ -2,6 +2,7 @@
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/Wrapper.h"
 
+#include "test/TestObjects/AssnTestData.h"
 #include "test/TestObjects/MockCluster.h"
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
