@@ -1,6 +1,6 @@
 #include "art/Persistency/Provenance/ProductRegistry.h"
 
-#include "art/Utilities/ReflexTools.h"
+#include "art/Persistency/Provenance/ReflexTools.h"
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"

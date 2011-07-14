@@ -36,5 +36,4 @@ art::detail::setPtrVectorBaseStreamer() {
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new PtrVectorBaseStreamer);
   }
-  cl->SetCanSplit(0);
 }

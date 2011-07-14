@@ -1,5 +1,5 @@
-#ifndef art_Utilities_ReflexTools_h
-#define art_Utilities_ReflexTools_h
+#ifndef art_Persistency_Provenance_ReflexTools_h
+#define art_Persistency_Provenance_ReflexTools_h
 
 /*----------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ namespace art
 
 }
 
-#endif /* art_Utilities_ReflexTools_h */
+#endif /* art_Persistency_Provenance_ReflexTools_h */
 
 // Local Variables:
 // mode: c++

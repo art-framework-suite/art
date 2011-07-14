@@ -25,6 +25,7 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       ProductProvenance.cc
                                       ProductRegistry.cc
                                       Provenance.cc
+                                      ReflexTools.cc
                                       RunAuxiliary.cc
                                       RunID.cc
                                       TransientStreamer.cc )
@@ -81,6 +82,7 @@ install(FILES
   ProductStatus.h
   Provenance.h
   ProvenanceFwd.h
+  ReflexTools.h
   ReleaseVersion.h
   RunAuxiliary.h
   RunID.h

@@ -4,7 +4,7 @@
 
 #include "art/Framework/Core/Group.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
-#include "art/Utilities/ReflexTools.h"
+#include "art/Persistency/Provenance/ReflexTools.h"
   using Reflex::Type;
   using Reflex::TypeTemplate;
 

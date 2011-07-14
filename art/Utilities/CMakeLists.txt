@@ -12,7 +12,6 @@ set(art_Utilities_sources
   FriendlyName.cc
   InputTag.cc
   MallocOpts.cc
-  ReflexTools.cc
   RegexMatch.cc
   RootHandlers.cc
   TestHelper.cc
@@ -49,7 +48,6 @@ set (HEADERS
   JobMode.h
   MallocOpts.h
   Math.h
-  ReflexTools.h
   RegexMatch.h
   RootHandlers.h
   TestHelper.h

@@ -1,10 +1,12 @@
-#include "art/Utilities/ReflexTools.h"
-
+#include "art/Persistency/Provenance/ReflexTools.h"
 #include "art/Utilities/Exception.h"
-#include "boost/algorithm/string.hpp"
-#include "boost/thread/tss.hpp"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/demangle.h"
+#include "cpp0x/regex"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "boost/algorithm/string.hpp"
+#include "boost/thread/tss.hpp"
 
 // for G__ClassInfo:
 #include "Api.h"
@@ -12,6 +14,9 @@
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
+
+#include "TClass.h"
+#include "TROOT.h"
 
 #include <algorithm>
 #include <memory>
@@ -30,6 +35,15 @@ using Reflex::Type_Iterator;
 using namespace cet;
 using namespace std;
 
+// FIXME: This should go away as soon as ROOT makes this function
+// public. In the meantime, we have to verify that this signature does
+// not change in new versions of ROOT.
+namespace ROOT {
+  namespace Cintex {
+    std::string CintName(const std::string&);
+  }
+}
+
 namespace {
   typedef std::set<std::string> StringSet;
   StringSet & missingTypes() {
@@ -38,6 +52,31 @@ namespace {
       missingTypes_.reset(new StringSet);
     }
     return *missingTypes_.get();
+  }
+
+  static std::regex const rePtrVector("^art::PtrVector(<|Base$)");
+  static std::regex const reAssns("^art::Assns<");
+
+  void maybeSetNoSplit(std::string const &name) {
+    if (std::regex_search(name, rePtrVector) ||
+        std::regex_search(name, reAssns)) {
+      TClass *cl = gROOT->GetClass(ROOT::Cintex::CintName(name).c_str());
+      if (cl) {
+//         mf::LogInfo("IOSplitInfo")
+        mf::LogVerbatim("IOSplitInfo")
+          << "Setting NoSplit on class "
+          << name
+          << "\n";
+        cl->SetCanSplit(0);
+      } else {
+        throw art::Exception(art::errors::DictionaryNotFound)
+          << "MaybSetNoSplit: Cannot find TClass for "
+          << name
+          << " (CintName "
+          << ROOT::Cintex::CintName(name)
+          << ") despite already having verified its Reflex dictionary!\n";
+      }
+    }
   }
 }
 
@@ -166,6 +205,9 @@ namespace art
           if (!hasCintDictionary(name)) missingTypes().insert(name);
           return;
         }
+
+      maybeSetNoSplit(name);
+
       if (noComponents) return;
 
       if (name.find("std::") == 0) {

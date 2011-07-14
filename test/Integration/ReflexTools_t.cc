@@ -10,7 +10,7 @@
 #include "Reflex/Type.h"
 
 #include "art/Framework/Core/RootDictionaryManager.h"
-#include "art/Utilities/ReflexTools.h"
+#include "art/Persistency/Provenance/ReflexTools.h"
 #include "art/Persistency/Common/Wrapper.h"
 
 using Reflex::Type;
