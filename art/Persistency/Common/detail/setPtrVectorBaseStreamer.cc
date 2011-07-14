@@ -4,7 +4,6 @@
 #include "art/Utilities/TypeID.h"
 
 #include "TClass.h"
-#include "TROOT.h"
 
 // FIXME: This should go away as soon as ROOT makes this function
 // public. In the meantime, we have to verify that this signature does
@@ -32,7 +31,7 @@ art::detail::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
 
 void
 art::detail::setPtrVectorBaseStreamer() {
-  TClass *cl = gROOT->GetClass(typeid(PtrVectorBase));
+  TClass *cl = TClass::GetClass(typeid(PtrVectorBase));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new PtrVectorBaseStreamer);
   }

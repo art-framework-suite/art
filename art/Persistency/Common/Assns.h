@@ -7,7 +7,6 @@
 #include "TBuffer.h"
 #include "TClass.h"
 #include "TClassRef.h"
-#include "TROOT.h"
 
 #include <vector>
 
@@ -110,7 +109,7 @@ template <typename L, typename R>
 inline
 void
 art::Assns<L, R, void>::Streamer(TBuffer &R_b) {
-  static TClassRef cl(gROOT->GetClass(typeid(Assns<L, R, void>)));
+  static TClassRef cl(TClass::GetClass(typeid(Assns<L, R, void>)));
   if (R_b.IsReading()) {
     cl->ReadBuffer(R_b, this);
     fill_transients();

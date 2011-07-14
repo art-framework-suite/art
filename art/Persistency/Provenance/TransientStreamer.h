@@ -3,7 +3,6 @@
 
 #include "TClassRef.h"
 #include "TClassStreamer.h"
-#include "TROOT.h"
 #include "art/Utilities/TypeID.h"
 #include <string>
 
@@ -54,7 +53,7 @@ art::TransientStreamer<T>::operator()(TBuffer &R_b, void *objp) {
 template <typename T>
 void
 art::detail::SetTransientStreamer() {
-  TClass *cl = gROOT->GetClass(typeid(T));
+  TClass *cl = TClass::GetClass(typeid(T));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new TransientStreamer<T>());
   }
@@ -63,7 +62,7 @@ art::detail::SetTransientStreamer() {
 template <typename T>
 void
 art::detail::SetTransientStreamer(T const&) {
-  TClass *cl = gROOT->GetClass(typeid(T));
+  TClass *cl = TClass::GetClass(typeid(T));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new TransientStreamer<T>());
   }

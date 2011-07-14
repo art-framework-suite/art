@@ -3,7 +3,6 @@
 #include "art/Persistency/Common/BoolCache.h"
 #include "cetlib/exception.h"
 
-#include "TROOT.h"
 // For nullptr:
 #include "cpp0x/memory"
 
@@ -33,7 +32,7 @@ namespace art {
   }
 
   void setCacheStreamers() {
-    TClass *cl = gROOT->GetClass(typeid(BoolCache));
+    TClass *cl = TClass::GetClass(typeid(BoolCache));
     if (cl == nullptr) {
        throw cet::exception("INTERNAL_ERROR")
           << "Could not find dictionary for art::BoolCache.";
@@ -44,7 +43,7 @@ namespace art {
       std::cout <<"ERROR: no art::BoolCache found"<<std::endl;*/
     }
 
-    cl = gROOT->GetClass(typeid(ConstPtrCache));
+    cl = TClass::GetClass(typeid(ConstPtrCache));
     if (cl == nullptr) {
        throw cet::exception("INTERNAL_ERROR")
           << "Could not find dictionary for art::ConstPtrCache.";

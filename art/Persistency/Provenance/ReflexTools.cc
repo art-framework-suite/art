@@ -16,7 +16,6 @@
 #include "Reflex/TypeTemplate.h"
 
 #include "TClass.h"
-#include "TROOT.h"
 
 #include <algorithm>
 #include <memory>
@@ -60,7 +59,7 @@ namespace {
   void maybeSetNoSplit(std::string const &name) {
     if (std::regex_search(name, rePtrVector) ||
         std::regex_search(name, reAssns)) {
-      TClass *cl = gROOT->GetClass(ROOT::Cintex::CintName(name).c_str());
+      TClass *cl = TClass::GetClass(ROOT::Cintex::CintName(name).c_str());
       if (cl) {
 //         mf::LogInfo("IOSplitInfo")
         mf::LogVerbatim("IOSplitInfo")

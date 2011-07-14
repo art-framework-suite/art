@@ -3,7 +3,6 @@
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TROOT.h"
 #include "TTree.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -802,7 +801,7 @@ namespace art {
       for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if (prod.branchType() != InEvent) {
-          TClass *cp = gROOT->GetClass(prod.wrappedName().c_str());
+          TClass *cp = TClass::GetClass(prod.wrappedName().c_str());
           std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
           if (dummy->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));

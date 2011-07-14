@@ -42,7 +42,6 @@
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TROOT.h"
 #include "TTree.h"
 #include <algorithm>
 #include <iomanip>
@@ -484,7 +483,7 @@ namespace art {
         if (product == 0) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
+          TClass *cp = TClass::GetClass(i->branchDescription_->wrappedName().c_str());
           std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
           dummies.push_back(dummy);
           product = dummy.get();
