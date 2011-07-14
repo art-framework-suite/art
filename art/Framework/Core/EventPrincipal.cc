@@ -219,7 +219,7 @@ namespace art {
         << "onDemand production failed to produce it.\n";
       return BasicHandle(whyFailed);
     }
-    return BasicHandle(g->product().get(), g->provenance());
+    return BasicHandle(g->product(), g->provenance());
   }
 
   EDProduct const *

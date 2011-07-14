@@ -140,12 +140,13 @@ namespace art {
 
   void
   Group::swap(Group& other) {
-    std::swap(product_, other.product_);
-    std::swap(branchDescription_, other.branchDescription_);
-    std::swap(productProvenance_, other.productProvenance_);
-    std::swap(prov_, other.prov_);
-    std::swap(dropped_, other.dropped_);
-    std::swap(onDemand_, other.onDemand_);
+    using std::swap;
+    swap(product_, other.product_);
+    swap(branchDescription_, other.branchDescription_);
+    swap(productProvenance_, other.productProvenance_);
+    swap(prov_, other.prov_);
+    swap(dropped_, other.dropped_);
+    swap(onDemand_, other.onDemand_);
   }
 
   void

@@ -351,7 +351,7 @@ namespace art {
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
-            BasicHandle bh(group->product().get(), group->provenance());
+            BasicHandle bh(group->product(), group->provenance());
             bh.provenance()->setStore(branchMapperPtr_);
             results.push_back(bh);
           }
@@ -411,7 +411,7 @@ namespace art {
     if (!g->product() && !g->productProvenancePtr()) {
       return OutputHandle();
     }
-    return OutputHandle(g->product().get(), &g->productDescription(), g->productProvenancePtr());
+    return OutputHandle(g->product(), &g->productDescription(), g->productProvenancePtr());
   }
 
   Provenance

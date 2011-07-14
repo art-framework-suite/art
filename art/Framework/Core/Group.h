@@ -14,6 +14,7 @@ is the storage unit of such information.
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Provenance.h"
+#include "cetlib/value_ptr.h"
 #include "cpp0x/memory"
 
 namespace art {
@@ -56,7 +57,7 @@ namespace art {
     // Scheduled for on demand production
     bool onDemand() const;
 
-    std::shared_ptr<EDProduct> product() const { return product_; }
+    EDProduct const *product() const { return product_.get(); }
 
     std::shared_ptr<ProductProvenance> productProvenancePtr() const {return productProvenance_;}
 
@@ -109,7 +110,7 @@ namespace art {
     Group(const Group&);
     void operator=(const Group&);
 
-    mutable std::shared_ptr<EDProduct> product_;
+    mutable cet::value_ptr<EDProduct> product_;
     std::shared_ptr<ConstBranchDescription> branchDescription_;
     mutable ProductID pid_;
     mutable std::shared_ptr<ProductProvenance> productProvenance_;
