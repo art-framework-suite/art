@@ -30,6 +30,8 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "cetlib/exception.h"
 #include "cpp0x/memory"
 
+#include <algorithm>
+
 // ----------------------------------------------------------------------
 
 namespace art {
@@ -44,7 +46,7 @@ namespace art {
       id_(),
       whyFailed_(){}
 
-    BasicHandle(std::shared_ptr<EDProduct const> prod, Provenance const* prov) :
+    BasicHandle(EDProduct const *prod, Provenance const* prov) :
       product_(prod), prov_(prov), id_(prov->productID()) {
     }
 
@@ -58,8 +60,8 @@ namespace art {
     void swap(BasicHandle& other) {
       using std::swap;
       swap(product_, other.product_);
-      std::swap(prov_, other.prov_);
-      std::swap(id_, other.id_);
+      swap(prov_, other.prov_);
+      swap(id_, other.id_);
       swap(whyFailed_,other.whyFailed_);
     }
 
@@ -74,10 +76,6 @@ namespace art {
     }
 
     EDProduct const* wrapper() const {
-      return product_.get();
-    }
-
-    std::shared_ptr<EDProduct const> product() const {
       return product_;
     }
 
@@ -93,7 +91,7 @@ namespace art {
       return whyFailed_;
     }
   private:
-    std::shared_ptr<EDProduct const> product_;
+    EDProduct const *product_;
     Provenance const* prov_;
     ProductID id_;
     std::shared_ptr<cet::exception> whyFailed_;
