@@ -46,5 +46,9 @@ namespace {
     art::Assns<size_t, std::string, arttest::AssnTestData> atd;
     art::Assns<size_t, std::string, void> av;
     art::Wrapper<art::Assns<size_t, std::string, arttest::AssnTestData> > atd_w;
+
+    art::Assns<std::string, size_t, arttest::AssnTestData> atd2;
+    art::Assns<std::string, size_t, void> av2;
+    art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> > atd_w2;
   };
 }

@@ -15,6 +15,7 @@ physics:
     {
       module_type: AssnsAnalyzer
       input_label: ap1
+      test_BA: true
     }
   }
 

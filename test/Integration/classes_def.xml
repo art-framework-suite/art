@@ -25,4 +25,7 @@
   <class name="art::Assns<size_t, std::string, arttest::AssnTestData>"/>
   <class name="std::vector<arttest::AssnTestData>"/>
   <class name="art::Wrapper<art::Assns<size_t, std::string,  arttest::AssnTestData> >"/>
+  <class name="art::Assns<std::string, size_t, void>"/>
+  <class name="art::Assns<std::string, size_t, arttest::AssnTestData>"/>
+  <class name="art::Wrapper<art::Assns<std::string, size_t, arttest::AssnTestData> >"/>
 </lcgdict>
