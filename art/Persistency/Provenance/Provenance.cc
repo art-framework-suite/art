@@ -52,12 +52,5 @@ namespace art {
     productProvenance().write(os);
   }
 
-
-  bool operator==(Provenance const& a, Provenance const& b) {
-    return
-      a.product() == b.product()
-      && a.productProvenance() == b.productProvenance();
-  }
-
 }
 
