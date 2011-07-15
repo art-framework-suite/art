@@ -44,13 +44,6 @@ namespace art {
   }
 
   void
-  SubRun::getAllProvenance(std::vector<Provenance const*> & provenances) const
-  {
-    subRunPrincipal().getAllProvenance(provenances);
-  }
-
-
-  void
   SubRun::commit_() {
     // fill in guts of provenance here
     SubRunPrincipal & srp = subRunPrincipal();

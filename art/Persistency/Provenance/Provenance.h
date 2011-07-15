@@ -40,8 +40,6 @@ namespace art {
 
     BranchDescription const& branchDescription() const {return branchDescription_.me();}
     ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
-    ProductProvenance const* productProvenancePtr() const {return productProvenancePtr_.get();}
-    std::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {return productProvenancePtr_;}
     Parentage const& parentage() const {return productProvenance().parentage();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
@@ -65,13 +63,16 @@ namespace art {
 
     ProductID const& productID() const {return productID_;}
 
-    bool operator==(Provenance const &other) const;
+    // bool operator==(Provenance const &other) const;
   private:
     std::shared_ptr<ProductProvenance> resolve() const;
     ProductProvenance const& productProvenance() const {
       if (productProvenancePtr_.get()) return *productProvenancePtr_;
       return *resolve();
     }
+    ProductProvenance const* productProvenancePtr() const {return productProvenancePtr_.get();}
+    std::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {return productProvenancePtr_;}
+
     ConstBranchDescription const branchDescription_;
     ProductID productID_;
     mutable std::shared_ptr<ProductProvenance> productProvenancePtr_;
@@ -85,18 +86,18 @@ namespace art {
     return os;
   }
 
-  inline
-  bool
-  Provenance::operator==(Provenance const &other) const {
-    return product() == other.product() &&
-      productProvenance() == other.productProvenance();
-  }
+  // inline
+  // bool
+  // Provenance::operator==(Provenance const &other) const {
+  //   return product() == other.product() &&
+  //     productProvenance() == other.productProvenance();
+  // }
 
-  inline
-  bool
-  operator==(Provenance const& a, Provenance const& b) {
-    return a.operator==(b);
-  }
+  // inline
+  // bool
+  // operator==(Provenance const& a, Provenance const& b) {
+  //   return a.operator==(b);
+  // }
 
 }  // art
 

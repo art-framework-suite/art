@@ -121,9 +121,6 @@ namespace art {
     Provenance
     getProvenance(BranchID const& bid) const;
 
-    void
-    getAllProvenance(std::vector<Provenance const *> & provenances) const;
-
     // Obtain the branch type suitable for products to be put in the
     // principal.
     virtual BranchType branchType() const = 0;

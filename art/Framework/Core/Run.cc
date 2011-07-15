@@ -36,12 +36,6 @@ namespace art {
     return runPrincipal().getProvenance(bid);
   }
 
-  void
-  Run::getAllProvenance(std::vector<Provenance const*> & provenances) const
-  {
-    runPrincipal().getAllProvenance(provenances);
-  }
-
   bool
   Run::getProcessParameterSet(std::string const& processName,
                               std::vector<ParameterSet>& psets) const

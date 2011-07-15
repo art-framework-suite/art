@@ -65,9 +65,6 @@ namespace art {
     Provenance
     getProvenance(BranchID const& theID) const;
 
-    void
-    getAllProvenance(std::vector<Provenance const*> &provenances) const;
-
   private:
     SubRunPrincipal const&
     subRunPrincipal() const;

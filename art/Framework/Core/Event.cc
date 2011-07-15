@@ -102,12 +102,6 @@ namespace art {
     return eventPrincipal().getProvenance(pid);
   }
 
-  void
-  Event::getAllProvenance(vector<Provenance const*> & provenances) const
-  {
-    principal().getAllProvenance(provenances);
-  }
-
   bool
   Event::getProcessParameterSet(string const& processName,
                                 ParameterSet& ps) const
