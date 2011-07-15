@@ -79,11 +79,6 @@ namespace art {
     // of the Group.
     void setProduct(std::auto_ptr<EDProduct> prod) const;
 
-    // The following is const because we can add the provenance
-    // to the cache after creation of the Group, without changing the meaning
-    // of the Group.
-    void setProvenance(std::shared_ptr<ProductProvenance> productProvenance) const;
-
     // Write the group to the stream.
     void write(std::ostream& os) const;
 
@@ -109,6 +104,11 @@ namespace art {
     void resolveProvenance(BranchMapper const &mapper) const;
 
   private:
+    // The following is const because we can add the provenance
+    // to the cache after creation of the Group, without changing the meaning
+    // of the Group.
+    void setProvenance(std::shared_ptr<ProductProvenance> productProvenance) const;
+
     // not copyable:
     Group(const Group&);
     void operator=(const Group&);
