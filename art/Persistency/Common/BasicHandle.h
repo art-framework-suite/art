@@ -28,6 +28,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "cetlib/exception.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 
 #include <algorithm>
@@ -91,8 +92,8 @@ namespace art {
       return whyFailed_;
     }
   private:
-    EDProduct const *product_;
-    Provenance const* prov_;
+    cet::exempt_ptr<EDProduct const> product_;
+    cet::exempt_ptr<Provenance const> prov_;
     ProductID id_;
     std::shared_ptr<cet::exception> whyFailed_;
   };  // BasicHandle
