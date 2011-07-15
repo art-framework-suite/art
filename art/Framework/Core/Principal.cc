@@ -126,7 +126,7 @@ namespace art {
             return SharedConstGroupPtr();
          }
       }
-      this->resolveProvenance(*g);
+      g->resolveProvenance(*branchMapperPtr_);
     }
     if (resolveProd && !g->productUnavailable()) {
       this->resolveProduct(*g, fillOnDemand);
@@ -263,7 +263,7 @@ namespace art {
   Principal::readProvenanceImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (i->second->provenanceAvailable()) {
-        resolveProvenance(*i->second);
+        i->second->resolveProvenance(*branchMapperPtr_);
       }
     }
     branchMapperPtr_->setDelayedRead(false);
@@ -385,14 +385,6 @@ namespace art {
     g.setProduct(edp);
   }
 
-  void
-  Principal::resolveProvenance(Group const& g) const {
-    if (!g.productProvenancePtr()) {
-      // Now fix up the Group
-      g.setProvenance(branchMapperPtr()->branchToEntryInfo(g.productDescription().branchID()));
-    }
-  }
-
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
     SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
@@ -443,7 +435,7 @@ namespace art {
     provenances.clear();
     for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (i->second->provenanceAvailable()) {
-        resolveProvenance(*i->second);
+        i->second->resolveProvenance(*branchMapperPtr_);
         if (i->second->provenance()->productProvenanceSharedPtr() &&
             i->second->provenance()->isPresent() &&
             i->second->provenance()->product().present())

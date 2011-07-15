@@ -10,6 +10,7 @@ is the storage unit of such information.
 
 #include "Reflex/Type.h"
 #include "art/Persistency/Common/EDProduct.h"
+#include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
@@ -104,6 +105,8 @@ namespace art {
     void mergeGroup(Group * newGroup);
 
     ProductID const& productID() const {return pid_;};
+
+    void resolveProvenance(BranchMapper const &mapper) const;
 
   private:
     // not copyable:

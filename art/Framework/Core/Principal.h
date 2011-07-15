@@ -148,8 +148,6 @@ namespace art {
                                        bool resolveProv,
 				       bool fillOnDemand) const;
 
-    void resolveProvenance(Group const& g) const;
-
   private:
     virtual EDProduct const* getIt(ProductID const&) const;
 
