@@ -23,9 +23,7 @@ namespace art {
   public:
     Group();
 
-    Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand);
-
-    Group(ConstBranchDescription const& bd, ProductID const& pid);
+    Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand=false);
 
     Group(std::auto_ptr<EDProduct> edp,
           ConstBranchDescription const& bd,

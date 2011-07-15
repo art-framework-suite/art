@@ -74,18 +74,8 @@ namespace art {
     productProvenance_(),
     prov_(),
     dropped_(!branchDescription_->present()),
-    onDemand_(true) {
-        assert(demand);
-  }
-
-  Group::Group(ConstBranchDescription const& bd, ProductID const& pid) :
-    product_(),
-    branchDescription_(new ConstBranchDescription(bd)),
-    pid_(pid),
-    productProvenance_(),
-    prov_(),
-    dropped_(!branchDescription_->present()),
-    onDemand_(false) {
+    onDemand_(demand)
+  {
   }
 
   ProductStatus
