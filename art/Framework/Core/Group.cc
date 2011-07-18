@@ -45,28 +45,6 @@ namespace art {
     onDemand_(false) {
   }
 
-  Group::Group(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-         ProductID const& pid, std::shared_ptr<ProductProvenance> productProvenance) :
-    product_(edp.release()),
-    branchDescription_(new ConstBranchDescription(bd)),
-    pid_(pid),
-    productProvenance_(productProvenance),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
-    dropped_(!branchDescription_->present()),
-    onDemand_(false) {
-  }
-
-  Group::Group(ConstBranchDescription const& bd,
-         ProductID const& pid, std::shared_ptr<ProductProvenance> productProvenance) :
-    product_(),
-    branchDescription_(new ConstBranchDescription(bd)),
-    pid_(pid),
-    productProvenance_(productProvenance),
-    prov_(new Provenance(*branchDescription_, pid, productProvenance_)),
-    dropped_(!branchDescription_->present()),
-    onDemand_(false) {
-  }
-
   Group::Group(ConstBranchDescription const& bd, ProductID const& pid, bool demand) :
     product_(),
     branchDescription_(new ConstBranchDescription(bd)),

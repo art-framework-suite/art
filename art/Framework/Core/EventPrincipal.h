@@ -116,11 +116,6 @@ namespace art {
 
     void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-         std::shared_ptr<ProductProvenance> productProvenance);
-
-    void addGroup(ConstBranchDescription const& bd, std::shared_ptr<ProductProvenance> productProvenance);
-
     virtual EDProduct const* getIt(ProductID const& pid) const;
 
     ProductID branchIDToProductID(BranchID const& bid) const;

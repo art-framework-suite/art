@@ -34,15 +34,6 @@ namespace art {
           ProductID const& pid,
           std::auto_ptr<ProductProvenance> productProvenance);
 
-    Group(std::auto_ptr<EDProduct> edp,
-          ConstBranchDescription const& bd,
-          ProductID const& pid,
-          std::shared_ptr<ProductProvenance> productProvenance);
-
-    Group(ConstBranchDescription const& bd,
-          ProductID const& pid,
-          std::shared_ptr<ProductProvenance> productProvenance);
-
     // use compiler-generated d'tor
 
     void swap(Group& other);

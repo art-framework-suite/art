@@ -122,21 +122,6 @@ namespace art {
   }
 
   void
-  EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
-         ConstBranchDescription const& bd,
-         std::shared_ptr<ProductProvenance> productProvenance) {
-    auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  EventPrincipal::addGroup(ConstBranchDescription const& bd,
-         std::shared_ptr<ProductProvenance> productProvenance) {
-    auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
   EventPrincipal::put(auto_ptr<EDProduct> edp,
                 ConstBranchDescription const& bd,
                 auto_ptr<ProductProvenance> productProvenance) {
