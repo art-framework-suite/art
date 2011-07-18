@@ -71,7 +71,6 @@ namespace art {
       return *resolve();
     }
     ProductProvenance const* productProvenancePtr() const {return productProvenancePtr_.get();}
-    std::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {return productProvenancePtr_;}
 
     ConstBranchDescription const branchDescription_;
     ProductID productID_;

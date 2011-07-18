@@ -84,10 +84,6 @@ namespace art {
       return productProvenance_.get();
     }
 
-    std::shared_ptr<ProductProvenance> productProvenanceSharedPtr() const {
-      return productProvenance_;
-    }
-
     ConstBranchDescription const* desc() const {
       return desc_;
     }
