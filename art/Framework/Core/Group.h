@@ -79,13 +79,6 @@ namespace art {
     // so we are free to copy them at will.
     Reflex::Type productType() const;
 
-    // Return true if this group's product is a sequence, and if the
-    // sequence has a 'value_type' that 'matches' the given type.
-    // 'Matches' in this context means the sequence's value_type is
-    // either the same as the given type, or has the given type as a
-    // public base type.
-    bool isMatchingSequence(Reflex::Type const& wanted) const;
-
     void mergeGroup(Group * newGroup);
 
     ProductID const& productID() const {return pid_;};

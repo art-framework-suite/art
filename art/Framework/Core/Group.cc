@@ -128,26 +128,6 @@ namespace art {
     return Type::ByTypeInfo(typeid(*product()));
   }
 
-  bool
-  Group::isMatchingSequence(Type const& wantedElementType) const
-  {
-    Type value_type;
-    bool is_sequence = is_sequence_wrapper(productType(), value_type);
-
-    // If our product is not a sequence, we can't match...
-    if (!is_sequence) return false;
-
-    Type elementType = value_type;
-
-    TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
-
-    return
-      is_sequence
-      ? (elementType==wantedElementType ||
-         elementType.HasBase(wantedElementType))
-      : false;
-  }
-
   Provenance const *
   Group::provenance() const {
     if (!prov_.get()) {
