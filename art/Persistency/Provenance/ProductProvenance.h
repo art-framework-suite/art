@@ -43,8 +43,6 @@ namespace art {
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    ProductProvenance makeProductProvenance() const;
-
     void write(std::ostream& os) const;
 
     BranchID const& branchID() const {return branchID_;}

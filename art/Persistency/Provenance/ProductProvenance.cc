@@ -67,11 +67,6 @@ namespace art {
       ParentageRegistry::put(*parentagePtr());
   }
 
-  ProductProvenance
-  ProductProvenance::makeProductProvenance() const {
-    return *this;
-  }
-
   Parentage const &
   ProductProvenance::parentage() const {
     if (!parentagePtr()) {
