@@ -16,6 +16,7 @@ is the storage unit of such information.
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "cetlib/value_ptr.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 
 namespace art {
@@ -96,10 +97,10 @@ namespace art {
     void operator=(const Group&);
 
     mutable cet::value_ptr<EDProduct> product_;
-    std::shared_ptr<ConstBranchDescription> branchDescription_;
+    cet::exempt_ptr<ConstBranchDescription const> branchDescription_;
     mutable ProductID pid_;
     mutable std::shared_ptr<ProductProvenance> productProvenance_;
-    mutable std::shared_ptr<Provenance> prov_;
+    mutable cet::value_ptr<Provenance> prov_;
     bool    dropped_;
     bool    onDemand_;
   };
