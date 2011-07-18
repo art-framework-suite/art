@@ -30,12 +30,6 @@ namespace art {
     return dynamic_cast<RunPrincipal const&>(principal());
   }
 
-  Provenance
-  Run::getProvenance(BranchID const& bid) const
-  {
-    return runPrincipal().getProvenance(bid);
-  }
-
   bool
   Run::getProcessParameterSet(std::string const& processName,
                               std::vector<ParameterSet>& psets) const

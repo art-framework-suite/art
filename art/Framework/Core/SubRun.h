@@ -62,9 +62,6 @@ namespace art {
     void
     put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
-    Provenance
-    getProvenance(BranchID const& theID) const;
-
   private:
     SubRunPrincipal const&
     subRunPrincipal() const;

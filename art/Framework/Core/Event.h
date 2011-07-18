@@ -163,12 +163,6 @@ namespace art {
                , std::vector<ELEMENT const *> & result
                ) const;
 
-    Provenance
-      getProvenance(BranchID const& theID) const;
-
-    Provenance
-      getProvenance(ProductID const& theID) const;
-
     // Return true if this Event has been subjected to a process with
     // the given processName, and false otherwise.
     // If true is returned, then ps is filled with the ParameterSet

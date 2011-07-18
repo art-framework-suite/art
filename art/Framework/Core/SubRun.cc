@@ -37,12 +37,6 @@ namespace art {
     return *run_;
   }
 
-  Provenance
-  SubRun::getProvenance(BranchID const& bid) const
-  {
-    return subRunPrincipal().getProvenance(bid);
-  }
-
   void
   SubRun::commit_() {
     // fill in guts of provenance here

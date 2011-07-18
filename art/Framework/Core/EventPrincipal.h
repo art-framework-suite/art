@@ -100,9 +100,6 @@ namespace art {
 
     History& history() {return *history_;}
 
-    Provenance
-    getProvenance(ProductID const& pid) const;
-
     BasicHandle
     getByProductID(ProductID const& oid) const;
 
@@ -119,8 +116,6 @@ namespace art {
     virtual EDProduct const* getIt(ProductID const& pid) const;
 
     ProductID branchIDToProductID(BranchID const& bid) const;
-
-    using Base::getProvenance;
 
     BranchType branchType() const { return InEvent; }
 

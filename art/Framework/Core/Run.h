@@ -52,9 +52,6 @@ namespace art {
     void
     put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
-    Provenance
-    getProvenance(BranchID const& theID) const;
-
     // Return true if this Run has been subjected to a process with
     // the given processName, and false otherwise.
     // If true is returned, then ps is filled with the ParameterSets

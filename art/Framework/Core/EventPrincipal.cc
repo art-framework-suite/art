@@ -212,12 +212,6 @@ namespace art {
     return getByProductID(pid).wrapper();
   }
 
-  Provenance
-  EventPrincipal::getProvenance(ProductID const& pid) const {
-    BranchID bid = productIDToBranchID(pid);
-    return getProvenance(bid);
-  }
-
   void
   EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
     unscheduledHandler_ = iHandler;

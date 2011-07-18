@@ -90,18 +90,6 @@ namespace art {
   }
 
 
-  Provenance
-  Event::getProvenance(BranchID const& bid) const
-  {
-    return principal().getProvenance(bid);
-  }
-
-  Provenance
-  Event::getProvenance(ProductID const& pid) const
-  {
-    return eventPrincipal().getProvenance(pid);
-  }
-
   bool
   Event::getProcessParameterSet(string const& processName,
                                 ParameterSet& ps) const
