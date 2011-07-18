@@ -12,6 +12,7 @@
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -20,7 +21,6 @@ class TBranch;
 
 namespace art {
 
-  template <typename T>
   class BranchMapperWithReader : public BranchMapper {
   public:
     BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber);
@@ -32,24 +32,23 @@ namespace art {
 
     TBranch * branchPtr_;
     input::EntryNumber entryNumber_;
-    std::vector<T> infoVector_;
-    mutable std::vector<T> * pInfoVector_;
-  };  // BranchMapperWithReader<>
+  };  // BranchMapperWithReader
 
-  template <typename T>
-  BranchMapperWithReader<T>::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
+  inline
+  BranchMapperWithReader::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
          BranchMapper(true),
-         branchPtr_(branch), entryNumber_(entryNumber),
-         infoVector_(), pInfoVector_(&infoVector_)
+         branchPtr_(branch), entryNumber_(entryNumber)
   { }
 
-  template <typename T>
+  inline
   void
-  BranchMapperWithReader<T>::readProvenance_() const {
-    branchPtr_->SetAddress(&pInfoVector_);
+  BranchMapperWithReader::readProvenance_() const {
+    std::vector<ProductProvenance> infoVector;
+    std::vector<ProductProvenance> * pInfoVector(&infoVector);
+    branchPtr_->SetAddress(&pInfoVector);
     input::getEntry(branchPtr_, entryNumber_);
-    BranchMapperWithReader<T> * me = const_cast<BranchMapperWithReader<T> *>(this);
-    for (typename std::vector<T>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
+    BranchMapperWithReader * me = const_cast<BranchMapperWithReader*>(this);
+    for (typename std::vector<ProductProvenance>::const_iterator it = infoVector.begin(), itEnd = infoVector.end();
       it != itEnd; ++it) {
       me->insert(*it);
     }

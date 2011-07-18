@@ -595,7 +595,7 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux_.id()), eventAux_.isRealData());
 
     std::shared_ptr<BranchMapper> mapper =
-        makeBranchMapper<ProductProvenance>(eventTree_, InEvent);
+        makeBranchMapper(eventTree_, InEvent);
 
     // We're not done ... so prepare the EventPrincipal
     auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
@@ -638,7 +638,7 @@ namespace art {
         new RunPrincipal(runAux_,
                          pReg,
                          processConfiguration_,
-                         makeBranchMapper<ProductProvenance>(runTree_, InRun),
+                         makeBranchMapper(runTree_, InRun),
                          runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
@@ -671,7 +671,7 @@ namespace art {
     std::shared_ptr<SubRunPrincipal> thisSubRun(
         new SubRunPrincipal(subRunAux_,
                                      pReg, processConfiguration_,
-                                     makeBranchMapper<ProductProvenance>(subRunTree_, InSubRun),
+                                     makeBranchMapper(subRunTree_, InSubRun),
                                      subRunTree_.makeDelayedReader()));
     // Create a group in the subRun for each product
     subRunTree_.fillGroups(*thisSubRun);

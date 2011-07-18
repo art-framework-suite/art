@@ -137,7 +137,6 @@ namespace art {
 
     void initializeDuplicateChecker();
 
-    template <typename T>
     std::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
 
     std::string const file_;
@@ -176,12 +175,10 @@ namespace art {
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
   }; // RootInputFile
 
-  template <typename T>
   inline
   std::shared_ptr<BranchMapper>
   RootInputFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
-    std::shared_ptr<BranchMapper> bm = rootTree.makeBranchMapper<T>();
-    return bm;
+    return rootTree.makeBranchMapper();
   }
 
 }  // art
