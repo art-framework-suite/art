@@ -35,19 +35,15 @@ namespace art {
 
     void insert(ProductProvenance const& provenanceProduct);
 
-    void mergeMappers(std::shared_ptr<BranchMapper> other) {nextMapper_ = other;}
-
     void setDelayedRead(bool value) {delayedRead_ = value;}
 
   private:
-    typedef std::set<ProductProvenance> eiSet;
+    typedef std::map<BranchID, ProductProvenance> eiSet;
 
     void readProvenance() const;
     virtual void readProvenance_() const {}
 
     eiSet entryInfoSet_;
-
-    std::shared_ptr<BranchMapper> nextMapper_;
 
     mutable bool delayedRead_;
 

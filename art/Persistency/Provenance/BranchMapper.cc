@@ -8,13 +8,11 @@
 namespace art {
   BranchMapper::BranchMapper() :
     entryInfoSet_(),
-    nextMapper_(),
     delayedRead_(false)
   { }
 
   BranchMapper::BranchMapper(bool delayedRead) :
     entryInfoSet_(),
-    nextMapper_(),
     delayedRead_(delayedRead)
   { }
 
@@ -29,22 +27,18 @@ namespace art {
   void
   BranchMapper::insert(ProductProvenance const& entryInfo) {
     readProvenance();
-    entryInfoSet_.insert(entryInfo);
+    entryInfoSet_.insert(std::make_pair(entryInfo.branchID(), entryInfo));
   }
 
   std::shared_ptr<ProductProvenance>
   BranchMapper::branchToEntryInfo(BranchID const& bid) const {
     readProvenance();
-    ProductProvenance ei(bid);
-    eiSet::const_iterator it = entryInfoSet_.find(ei);
-    if (it == entryInfoSet_.end()) {
-      if (nextMapper_) {
-	return nextMapper_->branchToEntryInfo(bid);
-      } else {
-	return std::shared_ptr<ProductProvenance>();
-      }
+    eiSet::const_iterator it = entryInfoSet_.find(bid);
+    if (it != entryInfoSet_.end()) {
+      return std::shared_ptr<ProductProvenance>(new ProductProvenance(it->second));
+    } else {
+      return std::shared_ptr<ProductProvenance>();
     }
-    return std::shared_ptr<ProductProvenance>(new ProductProvenance(*it));
   }
 
 }

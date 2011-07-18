@@ -110,9 +110,6 @@ namespace art {
     // current Process.
     void addToProcessHistory() const;
 
-    // merge Principals containing different groups.
-    void recombine(Principal & other, std::vector<BranchID> const& bids);
-
     size_t  size() const { return groups_.size(); }
 
     const_iterator begin() const {return groups_.begin();}

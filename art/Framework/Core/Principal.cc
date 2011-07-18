@@ -427,15 +427,6 @@ namespace art {
     return *g->provenance();
   }
 
-  void
-  Principal::recombine(Principal & other, vector<BranchID> const& bids) {
-    for (vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
-      groups_[*it].swap(other.groups_[*it]);
-    }
-    store_->mergeReaders(other.store());
-    branchMapperPtr_->mergeMappers(other.branchMapperPtr());
-  }
-
   EDProduct const*
   Principal::getIt(ProductID const& pid) const {
     assert(0);
