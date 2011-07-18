@@ -74,7 +74,6 @@ namespace art
   private:
     T const* prod_;
     Provenance const* prov_;
-    ProductID id_;
     std::shared_ptr<cet::exception> whyFailed_;
   };
 
@@ -82,7 +81,6 @@ namespace art
   Handle<T>::Handle() :
     prod_(0),
     prov_(0),
-    id_(),
     whyFailed_()
   { }
 
@@ -90,7 +88,6 @@ namespace art
   Handle<T>::Handle(T const* prod, Provenance const* prov) :
     prod_(prod),
     prov_(prov),
-    id_(prov->productID()),
     whyFailed_()
   {
     assert(prod_);
@@ -101,7 +98,6 @@ namespace art
     Handle<T>::Handle(std::shared_ptr<cet::exception> const& iWhyFailed):
     prod_(0),
     prov_(0),
-    id_(),
     whyFailed_(iWhyFailed)
   { }
 
@@ -120,7 +116,6 @@ namespace art
     using std::swap;
     std::swap(prod_, other.prod_);
     std::swap(prov_, other.prov_);
-    swap(id_, other.id_);
     swap(whyFailed_,other.whyFailed_);
   }
 
@@ -179,7 +174,7 @@ namespace art
   ProductID
   Handle<T>::id() const
   {
-    return id_;
+    return prov_ ? prov_->productID() : ProductID();
   }
 
   template <class T>
@@ -188,7 +183,6 @@ namespace art
   {
     prod_ = 0;
     prov_ = 0;
-    id_ = ProductID();
     whyFailed_.reset();
   }
   //------------------------------------------------------------
