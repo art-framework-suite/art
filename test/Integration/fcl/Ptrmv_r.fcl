@@ -13,7 +13,7 @@ physics:
     }
   }
 
-  e1: [ ptrmvReader ]
+  e1: [ ptrmvReader, pc ]
   end_paths: [ e1 ]  
 }
 
@@ -21,4 +21,12 @@ source:
 {
   module_type: RootInput
   fileNames: [ "../Ptrmv_w.d/out.root" ]
+}
+
+outputs:
+{
+  pc:
+  {
+    module_type: ProvenanceCheckerOutput
+  }
 }
