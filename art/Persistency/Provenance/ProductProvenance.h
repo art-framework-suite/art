@@ -23,72 +23,77 @@ and how it came into existence, plus the status.
 */
 
 namespace art {
-  class ProductProvenance {
-  public:
-    typedef std::vector<ProductProvenance> EntryInfoVector;
-    ProductProvenance();
-    explicit ProductProvenance(BranchID const& bid);
-    ProductProvenance(BranchID const& bid,
-		    ProductStatus status);
-    ProductProvenance(BranchID const& bid,
-		    ProductStatus status,
-		    std::shared_ptr<Parentage> parentagePtr);
-    ProductProvenance(BranchID const& bid,
-		    ProductStatus status,
-		    ParentageID const& id);
+  class ProductProvenance;
+  typedef std::vector<ProductProvenance> ProductProvenances;
 
-    ProductProvenance(BranchID const& bid,
-		   ProductStatus status,
-		   std::vector<BranchID> const& parents);
+  bool operator<(ProductProvenance const &a, ProductProvenance const &b);
+  std::ostream &operator<<(std::ostream &os, ProductProvenance const &p);
+  bool operator==(ProductProvenance const &a, ProductProvenance const &b);
+  bool operator!=(ProductProvenance const &a, ProductProvenance const &b);
+}
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
+class art::ProductProvenance {
+public:
+  ProductProvenance();
+  explicit ProductProvenance(BranchID const& bid);
+  ProductProvenance(BranchID const& bid,
+                    ProductStatus status);
+  ProductProvenance(BranchID const& bid,
+                    ProductStatus status,
+                    std::shared_ptr<Parentage> parentagePtr);
+  ProductProvenance(BranchID const& bid,
+                    ProductStatus status,
+                    ParentageID const& id);
 
-    void write(std::ostream& os) const;
+  ProductProvenance(BranchID const& bid,
+                    ProductStatus status,
+                    std::vector<BranchID> const& parents);
 
-    BranchID const& branchID() const {return branchID_;}
-    ProductStatus const& productStatus() const {return productStatus_;}
-    ParentageID const& parentageID() const {return parentageID_;}
-    Parentage const& parentage() const;
-    void setStatus(ProductStatus status) {productStatus_ = status;}
-    void setPresent();
-    void setNotPresent();
+  // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    bool & noParentage() const {return transients_.get().noParentage_;}
+  void write(std::ostream& os) const;
 
-    struct Transients {
-      Transients();
-      std::shared_ptr<Parentage> parentagePtr_;
-      bool noParentage_;
-    };
+  BranchID const& branchID() const {return branchID_;}
+  ProductStatus const& productStatus() const {return productStatus_;}
+  ParentageID const& parentageID() const {return parentageID_;}
+  Parentage const& parentage() const;
+  void setStatus(ProductStatus status) {productStatus_ = status;}
+  void setPresent();
+  void setNotPresent();
 
-  private:
+  bool & noParentage() const {return transients_.get().noParentage_;}
 
-    std::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
-
-    BranchID branchID_;
-    ProductStatus productStatus_;
-    ParentageID parentageID_;
-    mutable Transient<Transients> transients_;
+  struct Transients {
+    Transients();
+    std::shared_ptr<Parentage> parentagePtr_;
+    bool noParentage_;
   };
 
-  inline
-  bool
-  operator < (ProductProvenance const& a, ProductProvenance const& b) {
-    return a.branchID() < b.branchID();
-  }
+private:
 
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, ProductProvenance const& p) {
-    p.write(os);
-    return os;
-  }
+  std::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
 
-  // Only the 'salient attributes' are testing in equality comparison.
-  bool operator==(ProductProvenance const& a, ProductProvenance const& b);
-  inline bool operator!=(ProductProvenance const& a, ProductProvenance const& b) { return !(a==b); }
-  typedef std::vector<ProductProvenance> ProductProvenanceVector;
+  BranchID branchID_;
+  ProductStatus productStatus_;
+  ParentageID parentageID_;
+  mutable Transient<Transients> transients_;
+};
+
+inline
+bool
+art::operator < (ProductProvenance const& a, ProductProvenance const& b) {
+  return a.branchID() < b.branchID();
 }
+
+inline
+std::ostream&
+art::operator<<(std::ostream& os, ProductProvenance const& p) {
+  p.write(os);
+  return os;
+}
+
+inline bool art::operator!=(ProductProvenance const& a, ProductProvenance const& b) { return !(a==b); }
+
 #endif /* art_Persistency_Provenance_ProductProvenance_h */
 
 // Local Variables:

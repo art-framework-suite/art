@@ -27,7 +27,6 @@ namespace art {
   class SubRunPrincipal : public Principal {
   public:
     typedef SubRunAuxiliary Auxiliary;
-    typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
     SubRunPrincipal(SubRunAuxiliary const& aux,
                     cet::exempt_ptr<ProductRegistry const> reg,

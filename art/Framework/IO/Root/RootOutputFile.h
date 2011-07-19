@@ -96,12 +96,12 @@ namespace art {
     EventAuxiliary const*           pEventAux_;
     SubRunAuxiliary const* pSubRunAux_;
     RunAuxiliary const*             pRunAux_;
-    ProductProvenanceVector         eventEntryInfoVector_;
-    ProductProvenanceVector         subRunEntryInfoVector_;
-    ProductProvenanceVector         runEntryInfoVector_;
-    ProductProvenanceVector *       pEventEntryInfoVector_;
-    ProductProvenanceVector *       pSubRunEntryInfoVector_;
-    ProductProvenanceVector *       pRunEntryInfoVector_;
+    ProductProvenances         eventEntryInfoVector_;
+    ProductProvenances         subRunEntryInfoVector_;
+    ProductProvenances         runEntryInfoVector_;
+    ProductProvenances *       pEventEntryInfoVector_;
+    ProductProvenances *       pSubRunEntryInfoVector_;
+    ProductProvenances *       pRunEntryInfoVector_;
     History const*                  pHistory_;
     RootOutputTree eventTree_;
     RootOutputTree subRunTree_;

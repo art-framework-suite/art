@@ -31,7 +31,7 @@ namespace art {
                    std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    typename T::Auxiliary const*& pAux,
-                   typename T::EntryInfoVector *& pEntryInfoVector,
+                   ProductProvenances *& pEntryInfoVector,
                    int bufSize,
                    int splitLevel,
                    int treeMaxVirtualSize) :

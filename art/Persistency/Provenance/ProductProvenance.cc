@@ -100,6 +100,7 @@ namespace art {
     }
   }
 
+  // Only the 'salient attributes' are tested in equality comparison.
   bool
   operator==(ProductProvenance const& a, ProductProvenance const& b) {
     if (a.noParentage() != b.noParentage()) return false;
