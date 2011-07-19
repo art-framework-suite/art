@@ -22,10 +22,10 @@ using namespace std;
 
 namespace art {
 
-   Principal::Principal(cet::exempt_ptr<ProductRegistry const> reg,
+  Principal::Principal(cet::exempt_ptr<ProductRegistry const> reg,
                        ProcessConfiguration const& pc,
                        ProcessHistoryID const& hist,
-                       std::shared_ptr<BranchMapper> mapper,
+                       std::auto_ptr<BranchMapper> mapper,
                        std::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryPtr_(std::shared_ptr<ProcessHistory>(new ProcessHistory)),
@@ -33,7 +33,7 @@ namespace art {
     processHistoryModified_(false),
     groups_(),
     preg_(reg),
-    branchMapperPtr_(mapper),
+    branchMapperPtr_(mapper.release()),
     store_(rtrv)
   {
     if (hist.isValid()) {
@@ -352,7 +352,7 @@ namespace art {
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
             BasicHandle bh(group->product(), group->provenance());
-            bh.provenance()->setStore(branchMapperPtr_);
+            bh.provenance()->setStore(cet::exempt_ptr<BranchMapper const>(branchMapperPtr_.get()));
             results.push_back(bh);
           }
         }

@@ -34,6 +34,7 @@ pointer to a Group, when queried.
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/value_ptr.h"
 #include "cpp0x/memory"
 #include <map>
 #include <string>
@@ -53,10 +54,10 @@ namespace art {
     typedef std::string ProcessName;
 
     Principal(cet::exempt_ptr<ProductRegistry const> reg,
-	      ProcessConfiguration const& pc,
-	      ProcessHistoryID const& hist = ProcessHistoryID(),
-              std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
-              std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
+              ProcessConfiguration const& pc,
+              ProcessHistoryID const& hist,
+              std::auto_ptr<BranchMapper> mapper,
+              std::shared_ptr<DelayedReader> rtrv);
 
     virtual ~Principal();
 
@@ -103,8 +104,7 @@ namespace art {
     ProductRegistry const& productRegistry() const {return *preg_;}
 
     std::shared_ptr<DelayedReader> store() const {return store_;}
-
-    std::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
+    BranchMapper const &branchMapper() const {return *branchMapperPtr_;}
 
     // ----- Mark this Principal as having been updated in the
     // current Process.
@@ -136,11 +136,12 @@ namespace art {
     void addGroup_(std::auto_ptr<Group> g);
     Group*  getExistingGroup(Group const& g);
     void replaceGroup(std::auto_ptr<Group> g);
-
     SharedConstGroupPtr const getGroup(BranchID const& oid,
                                        bool resolveProd,
                                        bool resolveProv,
-				       bool fillOnDemand) const;
+                                       bool fillOnDemand) const;
+    BranchMapper &branchMapper() {return *branchMapperPtr_;}
+
 
   private:
     virtual EDProduct const* getIt(ProductID const&) const;
@@ -184,7 +185,7 @@ namespace art {
 
     // Pointer to the 'mapper' that will get provenance information
     // from the persistent store.
-    std::shared_ptr<BranchMapper> branchMapperPtr_;
+    cet::value_ptr<BranchMapper> branchMapperPtr_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.

@@ -134,6 +134,11 @@ namespace art {
     tree_->LoadTree(theEntryNumber);
   }
 
+  std::auto_ptr<BranchMapper>
+  RootTree::makeBranchMapper() const {
+    return std::auto_ptr<BranchMapper>(new BranchMapperWithReader(branchEntryInfoBranch_, entryNumber_));
+  }
+
   namespace input {
 
     Int_t

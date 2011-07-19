@@ -413,7 +413,7 @@ namespace art {
                                   set<ProductProvenance>& oToFill) {
     if(om_->dropMetaData() == RootOutput::DropAll) return;
     if(om_->dropMetaDataForDroppedData()) return;
-    BranchMapper const& iMapper = *principal.branchMapperPtr();
+    BranchMapper const& iMapper = principal.branchMapper();
     vector<BranchID> const& parentIDs = iGetParents.parentage().parents();
     for(vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
@@ -474,7 +474,6 @@ namespace art {
         product = oh.wrapper();
         if (keepProvenance) {
           provenanceToKeep.insert(*oh.productProvenance());
-          assert(principal.branchMapperPtr());
           insertAncestors(*oh.productProvenance(), principal, provenanceToKeep);
         }
       }

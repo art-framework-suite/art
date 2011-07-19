@@ -8,9 +8,9 @@ namespace art {
 
   SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
                                    cet::exempt_ptr<ProductRegistry const> reg,
-				   ProcessConfiguration const& pc,
-				   std::shared_ptr<BranchMapper> mapper,
-				   std::shared_ptr<DelayedReader> rtrv) :
+                                   ProcessConfiguration const& pc,
+                                   std::auto_ptr<BranchMapper> mapper,
+                                   std::shared_ptr<DelayedReader> rtrv) :
     Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
     runPrincipal_(),
     aux_(aux)
@@ -70,7 +70,7 @@ namespace art {
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
-    branchMapperPtr()->insert(*productProvenance);
+    branchMapper().insert(*productProvenance);
     // Group assumes ownership
     this->addGroup(edp, bd, productProvenance);
   }

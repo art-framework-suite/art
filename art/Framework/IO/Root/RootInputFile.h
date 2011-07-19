@@ -137,8 +137,6 @@ namespace art {
 
     void initializeDuplicateChecker();
 
-    std::shared_ptr<BranchMapper> makeBranchMapper(RootTree & rootTree, BranchType const& type) const;
-
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
@@ -174,12 +172,6 @@ namespace art {
     std::shared_ptr<BranchChildren> branchChildren_;
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
   }; // RootInputFile
-
-  inline
-  std::shared_ptr<BranchMapper>
-  RootInputFile::makeBranchMapper(RootTree & rootTree, BranchType const& type) const {
-    return rootTree.makeBranchMapper();
-  }
 
 }  // art
 

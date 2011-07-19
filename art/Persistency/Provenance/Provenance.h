@@ -19,6 +19,7 @@ definitions:
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
@@ -59,7 +60,7 @@ namespace art {
 
     void setProductProvenance(std::shared_ptr<ProductProvenance> bei) const;
 
-    void setStore(std::shared_ptr<BranchMapper> store) const {store_ = store;}
+    void setStore(cet::exempt_ptr<BranchMapper const> store) const {store_ = store;}
 
     ProductID const& productID() const {return productID_;}
 
@@ -75,7 +76,7 @@ namespace art {
     ConstBranchDescription const branchDescription_;
     ProductID productID_;
     mutable std::shared_ptr<ProductProvenance> productProvenancePtr_;
-    mutable std::shared_ptr<BranchMapper> store_;
+    mutable cet::exempt_ptr<BranchMapper const> store_;
   };
 
   inline

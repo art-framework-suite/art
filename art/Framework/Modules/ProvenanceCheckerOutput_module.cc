@@ -69,7 +69,7 @@ namespace art {
     void
    ProvenanceCheckerOutput::write(EventPrincipal const& e) {
       //check ProductProvenance's parents to see if they are in the ProductProvenance list
-      std::shared_ptr<BranchMapper> mapperPtr= e.branchMapperPtr();
+      BranchMapper const &mapper = e.branchMapper();
 
       std::map<BranchID,bool> seenParentInPrincipal;
       std::set<BranchID> missingFromMapper;
@@ -86,11 +86,11 @@ namespace art {
                missingProductProvenance.insert(it->first);
                continue;
             }
-            std::shared_ptr<ProductProvenance> pInfo = mapperPtr->branchToEntryInfo(it->first);
+            std::shared_ptr<ProductProvenance> pInfo = mapper.branchToEntryInfo(it->first);
             if(!pInfo.get()) {
                missingFromMapper.insert(it->first);
             }
-            markAncestors(*(it->second->productProvenancePtr()),*mapperPtr,seenParentInPrincipal, missingFromMapper);
+            markAncestors(*(it->second->productProvenancePtr()),mapper,seenParentInPrincipal, missingFromMapper);
          }
          seenParentInPrincipal[it->first]=true;
       }

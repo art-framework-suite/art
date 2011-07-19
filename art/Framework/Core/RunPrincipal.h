@@ -31,7 +31,7 @@ namespace art {
     RunPrincipal(RunAuxiliary const& aux,
                  cet::exempt_ptr<ProductRegistry const> reg,
 	ProcessConfiguration const& pc,
-	std::shared_ptr<BranchMapper> mapper = std::shared_ptr<BranchMapper>(new BranchMapper),
+	std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
 	std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~RunPrincipal() {}
 

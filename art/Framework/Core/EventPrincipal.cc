@@ -23,7 +23,7 @@ namespace art {
                                  cet::exempt_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         std::shared_ptr<History> history,
-        std::shared_ptr<BranchMapper> mapper,
+        std::auto_ptr<BranchMapper> mapper,
         std::shared_ptr<DelayedReader> rtrv) :
           Base(reg, pc, history->processHistoryID(), mapper, rtrv),
           aux_(aux),
@@ -138,7 +138,7 @@ namespace art {
         << "put: Cannot put product with null Product ID."
         << "\n";
     }
-    branchMapperPtr()->insert(*productProvenance);
+    branchMapper().insert(*productProvenance);
     this->addGroup(edp, bd, productProvenance);
   }
 

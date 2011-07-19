@@ -51,7 +51,7 @@ namespace art {
     template <typename T>
     void fillGroups(T& item);
     std::shared_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
-    std::shared_ptr<BranchMapper> makeBranchMapper() const;
+    std::auto_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>
     void fillAux(T *& pAux) const {
@@ -90,12 +90,6 @@ namespace art {
     for (BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end(); pit != pitEnd; ++pit) {
       item.addGroup(pit->second.branchDescription_);
     }
-  }
-
-  inline
-  std::shared_ptr<BranchMapper>
-  RootTree::makeBranchMapper() const {
-    return std::shared_ptr<BranchMapper>(new BranchMapperWithReader(branchEntryInfoBranch_, entryNumber_));
   }
 
 }  // art
