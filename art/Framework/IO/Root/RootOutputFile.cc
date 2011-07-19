@@ -85,21 +85,21 @@ namespace art {
       pEventAux_(0),
       pSubRunAux_(0),
       pRunAux_(0),
-      eventEntryInfoVector_(),
-      subRunEntryInfoVector_(),
-      runEntryInfoVector_(),
-      pEventEntryInfoVector_(&eventEntryInfoVector_),
-      pSubRunEntryInfoVector_(&subRunEntryInfoVector_),
-      pRunEntryInfoVector_(&runEntryInfoVector_),
+      eventProductProvenanceVector_(),
+      subRunProductProvenanceVector_(),
+      runProductProvenanceVector_(),
+      pEventProductProvenanceVector_(&eventProductProvenanceVector_),
+      pSubRunProductProvenanceVector_(&subRunProductProvenanceVector_),
+      pRunProductProvenanceVector_(&runProductProvenanceVector_),
       pHistory_(0),
       eventTree_(static_cast<EventPrincipal *>(0),
-                 filePtr_, InEvent, pEventAux_, pEventEntryInfoVector_,
+                 filePtr_, InEvent, pEventAux_, pEventProductProvenanceVector_,
                  om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       subRunTree_(static_cast<SubRunPrincipal *>(0),
-                filePtr_, InSubRun, pSubRunAux_, pSubRunEntryInfoVector_,
+                filePtr_, InSubRun, pSubRunAux_, pSubRunProductProvenanceVector_,
                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       runTree_(static_cast<RunPrincipal *>(0),
-               filePtr_, InRun, pRunAux_, pRunEntryInfoVector_,
+               filePtr_, InRun, pRunAux_, pRunProductProvenanceVector_,
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       dataTypeReported_(false) {
@@ -194,7 +194,7 @@ namespace art {
     // first before writing anything to the file about this event
     // NOTE: pEventAux_ must be set before calling fillBranches since it gets written out
     // in that routine.
-    fillBranches(InEvent, e, pEventEntryInfoVector_);
+    fillBranches(InEvent, e, pEventProductProvenanceVector_);
 
     // History branch
     History historyForOutput(e.history());
@@ -228,7 +228,7 @@ namespace art {
     // Add subRun to index.
     fileIndex_.addEntry(EventID::invalidEvent(pSubRunAux_->id()), subRunEntryNumber_);
     ++subRunEntryNumber_;
-    fillBranches(InSubRun, sr, pSubRunEntryInfoVector_);
+    fillBranches(InSubRun, sr, pSubRunProductProvenanceVector_);
   }
 
   void RootOutputFile::writeRun(RunPrincipal const& r) {
@@ -237,7 +237,7 @@ namespace art {
     // Add run to index.
     fileIndex_.addEntry(EventID::invalidEvent(pRunAux_->id()),runEntryNumber_);
     ++runEntryNumber_;
-    fillBranches(InRun, r, pRunEntryInfoVector_);
+    fillBranches(InRun, r, pRunProductProvenanceVector_);
   }
 
   void RootOutputFile::writeParentageRegistry() {
@@ -418,7 +418,7 @@ namespace art {
     for(vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
-      std::shared_ptr<ProductProvenance> info = iMapper.branchToEntryInfo(*it);
+      std::shared_ptr<ProductProvenance> info = iMapper.branchToProductProvenance(*it);
       if(info) {
         if(om_->dropMetaData() == RootOutput::DropNone ||
                  principal.getProvenance(info->branchID()).product().produced()) {

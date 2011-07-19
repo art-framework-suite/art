@@ -38,7 +38,7 @@ namespace art {
 
   std::shared_ptr<ProductProvenance>
   Provenance::resolve () const {
-    std::shared_ptr<ProductProvenance> prov = store_->branchToEntryInfo(branchDescription_.branchID());
+    std::shared_ptr<ProductProvenance> prov = store_->branchToProductProvenance(branchDescription_.branchID());
     setProductProvenance(prov);
     return prov;
 }

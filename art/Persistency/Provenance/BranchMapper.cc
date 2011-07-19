@@ -31,7 +31,7 @@ namespace art {
   }
 
   std::shared_ptr<ProductProvenance>
-  BranchMapper::branchToEntryInfo(BranchID const& bid) const {
+  BranchMapper::branchToProductProvenance(BranchID const& bid) const {
     readProvenance();
     eiSet::const_iterator it = entryInfoSet_.find(bid);
     if (it != entryInfoSet_.end()) {

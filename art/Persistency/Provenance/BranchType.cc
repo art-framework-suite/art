@@ -14,7 +14,7 @@ namespace art {
 
     // Suffixes
     std::string const auxiliary                = "Auxiliary";
-    std::string const branchEntryInfo          = "BranchEntryInfo";
+    std::string const productProvenance        = "BranchEntryInfo";
     std::string const majorIndex               = ".id_.run_";
     std::string const metaData                 = "MetaData";
     std::string const productStatus            = "ProductStatus";
@@ -38,9 +38,9 @@ namespace art {
     std::string const subRunAuxiliary          = subRun + auxiliary;
     std::string const eventAuxiliary           = event  + auxiliary;
 
-    std::string const runEventEntryInfo        = run    + branchEntryInfo;
-    std::string const subRunEventEntryInfo     = subRun + branchEntryInfo;
-    std::string const eventEventEntryInfo      = event  + branchEntryInfo;
+    std::string const runProductProvenance        = run    + productProvenance;
+    std::string const subRunProductProvenance     = subRun + productProvenance;
+    std::string const eventProductProvenance      = event  + productProvenance;
 
     std::string const runMajorIndex            = runAuxiliary    + majorIndex;
     std::string const subRunMajorIndex         = subRunAuxiliary + majorIndex;
@@ -83,8 +83,8 @@ namespace art {
     return select( bt, eventAuxiliary, runAuxiliary, subRunAuxiliary );
   }
 
-  std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType bt ) {
-    return select( bt, eventEventEntryInfo, runEventEntryInfo, subRunEventEntryInfo );
+  std::string const & productProvenanceBranchName( BranchType bt ) {
+    return select( bt, eventProductProvenance, runProductProvenance, subRunProductProvenance );
   }
 
   std::string const & BranchTypeToMajorIndexName( BranchType bt ) {

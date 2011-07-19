@@ -182,7 +182,7 @@ void test_ep::setUp()
     const art::ConstBranchDescription branchFromRegistry(it->second);
 
     std::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
-    std::auto_ptr<art::ProductProvenance> branchEntryInfoPtr(
+    std::auto_ptr<art::ProductProvenance> productProvenancePtr(
       new art::ProductProvenance(branchFromRegistry.branchID(),
                                art::productstatus::present(),
                                entryDescriptionPtr));
@@ -199,7 +199,7 @@ void test_ep::setUp()
     art::EventAuxiliary eventAux(eventID_, now, true);
     pEvent_ = new art::EventPrincipal(eventAux, preg, *process);
     pEvent_->setSubRunPrincipal(srp);
-    pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
+    pEvent_->put(product, branchFromRegistry, productProvenancePtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
 

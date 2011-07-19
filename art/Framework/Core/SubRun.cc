@@ -50,10 +50,10 @@ namespace art {
 	pit->first = 0;
 
 	// set provenance
-	std::auto_ptr<ProductProvenance> subRunEntryInfoPtr(
+	std::auto_ptr<ProductProvenance> subRunProductProvenancePtr(
 		new ProductProvenance(pit->second->branchID(),
 				    productstatus::present()));
-	srp.put(pr, *pit->second, subRunEntryInfoPtr);
+	srp.put(pr, *pit->second, subRunProductProvenancePtr);
 	++pit;
     }
 

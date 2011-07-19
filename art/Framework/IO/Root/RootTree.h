@@ -64,7 +64,7 @@ namespace art {
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     BranchMap const& branches() const {return *branches_;}
 
-    TBranch *branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    TBranch *productProvenanceBranch() const {return productProvenanceBranch_;}
 
   private:
     std::shared_ptr<TFile> filePtr_;
@@ -75,7 +75,7 @@ namespace art {
     TTree *const metaTree_;
     BranchType branchType_;
     TBranch *const auxBranch_;
-    TBranch *const branchEntryInfoBranch_;
+    TBranch *const productProvenanceBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;

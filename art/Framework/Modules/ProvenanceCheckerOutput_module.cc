@@ -56,7 +56,7 @@ namespace art {
          if(oMap.find(*it) == oMap.end()) {
             //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
             oMap[*it];
-            std::shared_ptr<ProductProvenance> pInfo = iMapper.branchToEntryInfo(*it);
+            std::shared_ptr<ProductProvenance> pInfo = iMapper.branchToProductProvenance(*it);
             if(pInfo.get()) {
                markAncestors(*pInfo,iMapper,oMap,oMapperMissing);
             } else {
@@ -86,7 +86,7 @@ namespace art {
                missingProductProvenance.insert(it->first);
                continue;
             }
-            std::shared_ptr<ProductProvenance> pInfo = mapper.branchToEntryInfo(it->first);
+            std::shared_ptr<ProductProvenance> pInfo = mapper.branchToProductProvenance(it->first);
             if(!pInfo.get()) {
                missingFromMapper.insert(it->first);
             }

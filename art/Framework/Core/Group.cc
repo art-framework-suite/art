@@ -203,7 +203,7 @@ namespace art {
 
   void Group::resolveProvenance(BranchMapper const &mapper) const {
     if (!productProvenancePtr()) {
-      setProvenance(mapper.branchToEntryInfo(productDescription().branchID()));
+      setProvenance(mapper.branchToProductProvenance(productDescription().branchID()));
     }
   }
 }

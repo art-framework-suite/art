@@ -31,7 +31,7 @@ namespace art {
                    std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    typename T::Auxiliary const*& pAux,
-                   ProductProvenances *& pEntryInfoVector,
+                   ProductProvenances *& pProductProvenanceVector,
                    int bufSize,
                    int splitLevel,
                    int treeMaxVirtualSize) :
@@ -52,9 +52,9 @@ namespace art {
       auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
       readBranches_.push_back(auxBranch_);
 
-      branchEntryInfoBranch_ = metaTree_->Branch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str(),
-                                                 &pEntryInfoVector, bufSize, 0);
-      metaBranches_.push_back(branchEntryInfoBranch_);
+      productProvenanceBranch_ = metaTree_->Branch(productProvenanceBranchName(branchType).c_str(),
+                                                 &pProductProvenanceVector, bufSize, 0);
+      metaBranches_.push_back(productProvenanceBranch_);
   }
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
@@ -111,7 +111,7 @@ namespace art {
     TTree *const tree_;
     TTree *const metaTree_;
     TBranch * auxBranch_;
-    TBranch * branchEntryInfoBranch_;
+    TBranch * productProvenanceBranch_;
     std::vector<TBranch *> producedBranches_; // does not include cloned branches
     std::vector<TBranch *> metaBranches_;
     std::vector<TBranch *> readBranches_;

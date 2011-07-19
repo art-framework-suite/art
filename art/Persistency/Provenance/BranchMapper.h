@@ -31,7 +31,7 @@ namespace art {
 
     void write(std::ostream& os) const;
 
-    std::shared_ptr<ProductProvenance> branchToEntryInfo(BranchID const& bid) const;
+    std::shared_ptr<ProductProvenance> branchToProductProvenance(BranchID const& bid) const;
 
     void insert(ProductProvenance const& provenanceProduct);
 

@@ -52,10 +52,11 @@ art::put_product_in_principal(std::auto_ptr<T> product,
                                instance_name);
 
    std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));
-   std::auto_ptr<ProductProvenance>
-      runEntryInfoPtr(new ProductProvenance(desc.branchID(),
-                                            productstatus::present()));
-   principal.put(wp, desc, runEntryInfoPtr);
+   principal.put(wp,
+                 desc,
+                 std::auto_ptr<ProductProvenance>
+                 (new ProductProvenance(desc.branchID(),
+                                        productstatus::present())));
 }
 
 #endif /* art_Framework_IO_Sources_put_product_in_principal_h */

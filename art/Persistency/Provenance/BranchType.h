@@ -29,7 +29,7 @@ namespace art {
 
   std::string const & BranchTypeToAuxiliaryBranchName( BranchType );
 
-  std::string const & BranchTypeToBranchEntryInfoBranchName( BranchType );
+  std::string const & productProvenanceBranchName( BranchType );
 
   std::string const & BranchTypeToMajorIndexName( BranchType );
 
