@@ -4,7 +4,6 @@ project(art_Persistency_Provenance)
 set( art_Persistency_Provenance_sources BranchChildren.cc
                                       BranchDescription.cc
                                       BranchID.cc
-                                      BranchIDListHelper.cc
                                       BranchKey.cc
                                       BranchMapper.cc
                                       BranchType.cc
@@ -46,7 +45,6 @@ install(FILES
   BranchDescription.h
   BranchID.h
   BranchIDList.h
-  BranchIDListHelper.h
   BranchIDListRegistry.h
   BranchKey.h
   BranchListIndex.h

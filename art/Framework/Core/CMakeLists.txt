@@ -29,6 +29,7 @@ set(art_Framework_CorePrincipal_sources
 set( art_Framework_Core_sources
   ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   Actions.cc
+  detail/BranchIDListHelper.cc
   Breakpoints.cc
   CachedProducts.cc
   CurrentProcessingContext.cc
@@ -271,6 +272,7 @@ install(FILES
   DESTINATION  ${product}/${version}/include/art/Framework/Core )
 
 set(DETAIL_HEADERS
+  BranchIDListHelper.h
   maybe_record_parents.h
   )
 

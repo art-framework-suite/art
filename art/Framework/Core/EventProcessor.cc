@@ -15,7 +15,7 @@
 #include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Utilities/DebugMacros.h"

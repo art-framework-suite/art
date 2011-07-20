@@ -2,7 +2,7 @@
 #define art_Persistency_Provenance_BranchIDListRegistry_h
 
 #include "art/Utilities/ThreadSafeIndexedRegistry.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 
 namespace art {

@@ -13,7 +13,7 @@ Test of the EventPrincipal class.
 
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSetID.h"

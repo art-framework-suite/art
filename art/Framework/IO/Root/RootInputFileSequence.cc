@@ -14,7 +14,7 @@
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"

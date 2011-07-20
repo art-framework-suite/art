@@ -1,4 +1,4 @@
-#include "art/Persistency/Provenance/BranchIDListHelper.h"
+#include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"

@@ -1,5 +1,5 @@
-#ifndef art_Persistency_Provenance_BranchIDListHelper_h
-#define art_Persistency_Provenance_BranchIDListHelper_h
+#ifndef art_Framework_Core_detail_BranchIDListHelper_h
+#define art_Framework_Core_detail_BranchIDListHelper_h
 
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
@@ -26,7 +26,7 @@ namespace art {
   };
 }
 
-#endif /* art_Persistency_Provenance_BranchIDListHelper_h */
+#endif /* art_Framework_Core_detail_BranchIDListHelper_h */
 
 // Local Variables:
 // mode: c++
