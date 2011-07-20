@@ -59,11 +59,11 @@ namespace art {
   void
   RootTree::addBranch(BranchKey const& key,
                       BranchDescription const& prod,
-                      std::string const& oldBranchName) {
+                      std::string const& branchName) {
       assert(isValid());
       prod.init();
       //use the translated branch name
-      TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
+      TBranch * branch = tree_->GetBranch(branchName.c_str());
       assert (prod.present() == (branch != 0));
       input::BranchInfo info = input::BranchInfo(ConstBranchDescription(prod));
       info.productBranch_ = 0;
@@ -76,9 +76,9 @@ namespace art {
   }
 
   void
-  RootTree::dropBranch(std::string const& oldBranchName) {
+  RootTree::dropBranch(std::string const& branchName) {
       //use the translated branch name
-      TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
+      TBranch * branch = tree_->GetBranch(branchName.c_str());
       if (branch != 0) {
         TObjArray * leaves = tree_->GetListOfLeaves();
         int entries = leaves->GetEntries();

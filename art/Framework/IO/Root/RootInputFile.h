@@ -130,7 +130,6 @@ namespace art {
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(SubRunID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
-    std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
     void readParentageTree();
     void readEventHistoryTree();
@@ -166,7 +165,6 @@ namespace art {
     std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
-    std::map<std::string, std::string> newBranchToOldBranch_;
     TTree * eventHistoryTree_;
     std::shared_ptr<History> history_;
     std::shared_ptr<BranchChildren> branchChildren_;

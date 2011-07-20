@@ -89,7 +89,6 @@ namespace art {
       branchIDLists_(),
       processingMode_(processingMode),
       forcedRunOffset_(forcedRunOffset),
-      newBranchToOldBranch_(),
       eventHistoryTree_(0),
       history_(new History),
       branchChildren_(new BranchChildren),
@@ -196,8 +195,7 @@ namespace art {
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
-      treePointers_[prod.branchType()]->addBranch(it->first, prod,
-                                                  newBranchToOldBranch(prod.branchName()));
+      treePointers_[prod.branchType()]->addBranch(it->first, prod, prod.branchName());
     }
 
     // Sort the EventID list the user supplied so that we can assume it is time ordered
@@ -294,15 +292,6 @@ namespace art {
                                                      fastClonable(),
                                                      file_,
                                                      branchChildren_));
-  }
-
-  string const&
-  RootInputFile::newBranchToOldBranch(string const& newBranch) const {
-    map<string, string>::const_iterator it = newBranchToOldBranch_.find(newBranch);
-    if (it != newBranchToOldBranch_.end()) {
-      return it->second;
-    }
-    return newBranch;
   }
 
   FileIndex::EntryType
@@ -783,7 +772,7 @@ namespace art {
             << "of file '" << file_ << "' because it is dependent on a branch\n"
             << "that was explicitly dropped.\n";
         }
-        treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+        treePointers_[prod.branchType()]->dropBranch(prod.branchName());
         ProductRegistry::ProductList::iterator icopy = it;
         ++it;
         prodList.erase(icopy);
@@ -801,7 +790,7 @@ namespace art {
           TClass *cp = TClass::GetClass(prod.wrappedName().c_str());
           std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
           if (dummy->isMergeable()) {
-            treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+            treePointers_[prod.branchType()]->dropBranch(prod.branchName());
             ProductRegistry::ProductList::iterator icopy = it;
             ++it;
             prodList.erase(icopy);
