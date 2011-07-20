@@ -22,20 +22,13 @@ namespace art {
 
   void
   SubRunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
-
     Group* group = getExistingGroup(*g);
-    if (group != 0) {
-
-      if (!group->productUnavailable()) {
-        assert(group->product() != 0);
-      }
-      if (!g->productUnavailable()) {
-        assert(g->product() != 0);
-      }
-
-      group->mergeGroup(g.get());
-    } else {
+    if (group == 0) {
       addGroup_(g);
+    } else {
+      assert(group->productUnavailable() || group->product());
+      assert(g->productUnavailable() || g->product());
+      group->mergeGroup(g.get());
     }
   }
 

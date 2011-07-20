@@ -82,21 +82,20 @@ namespace art {
   void
   EventPrincipal::addOrReplaceGroup(auto_ptr<Group> g) {
     Group const* group = getExistingGroup(*g);
-    if (group != 0) {
-      if(!group->onDemand()) {
-        ConstBranchDescription const& bd = group->productDescription();
-        throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
-          << "addGroup_: Problem found while adding product provenance, "
-          << "product already exists for ("
-          << bd.friendlyClassName() << ","
-          << bd.moduleLabel() << ","
-          << bd.productInstanceName() << ","
-          << bd.processName()
-          << ")\n";
-      }
+    if (group == 0) {
+      addGroup_(g);
+    } else if(group->onDemand()) {
       replaceGroup(g);
     } else {
-      addGroup_(g);
+      ConstBranchDescription const& bd = group->productDescription();
+      throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
+        << "addGroup_: Problem found while adding product provenance, "
+        << "product already exists for ("
+        << bd.friendlyClassName() << ","
+        << bd.moduleLabel() << ","
+        << bd.productInstanceName() << ","
+        << bd.processName()
+        << ")\n";
     }
   }
 
