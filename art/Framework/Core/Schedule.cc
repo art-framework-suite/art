@@ -917,7 +917,7 @@ namespace art
 
   void
   Schedule::setupOnDemandSystem(EventPrincipal& ep) {
-    // NOTE: who owns the productdescrption?  Just copied by value
+    // NOTE: who owns the productdescription?  Just copied by value
     ep.setUnscheduledHandler(unscheduled_);
     typedef vector<std::shared_ptr<ConstBranchDescription const> > branches;
     for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
@@ -948,14 +948,17 @@ namespace art
 
   void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels) {
     ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
-    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-	  itProdInfoEnd = prodsList.end();
-	itProdInfo != itProdInfoEnd;
-	++itProdInfo) {
-      if(processName_ == itProdInfo->second.processName() && itProdInfo->second.branchType() == InEvent &&
-	 unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-	std::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-	demandBranches_.push_back(bd);
+    typename std::set<std::string>::const_iterator const ul_end = unscheduledLabels.end();
+    for (ProductRegistry::ProductList::const_iterator
+           itProdInfo = prodsList.begin(),
+           itProdInfoEnd = prodsList.end();
+         itProdInfo != itProdInfoEnd;
+         ++itProdInfo) {
+      if (processName_ == itProdInfo->second.processName() &&
+          itProdInfo->second.branchType() == InEvent &&
+          ul_end != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
+        std::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
+        demandBranches_.push_back(bd);
       }
     }
   }
