@@ -29,7 +29,6 @@ set(art_Framework_CorePrincipal_sources
 set( art_Framework_Core_sources
   ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   Actions.cc
-  detail/BranchIDListHelper.cc
   Breakpoints.cc
   CachedProducts.cc
   CurrentProcessingContext.cc
@@ -56,6 +55,7 @@ set( art_Framework_Core_sources
   PrincipalCache.cc
   PrincipalMaker.cc
   ProducerBase.cc
+  ProductMetaData.cc
   ProductRegistryHelper.cc
   RootDictionaryManager.cc
   Schedule.cc
@@ -67,6 +67,7 @@ set( art_Framework_Core_sources
   Worker.cc
   WorkerInPath.cc
   WorkerRegistry.cc
+  detail/BranchIDListHelper.cc
   get_BranchDescription.cc
   wrapLibraryManagerException.cc
 )
@@ -241,6 +242,7 @@ install(FILES
   PrincipalMaker.h
   ProcessingTask.h
   ProducerBase.h
+  ProductMetaData.h
   ProductRegistryHelper.h
   PtrRemapper.h
   RootDictionaryManager.h
