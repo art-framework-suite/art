@@ -68,6 +68,7 @@ set( art_Framework_Core_sources
   WorkerInPath.cc
   WorkerRegistry.cc
   detail/BranchIDListHelper.cc
+  detail/MasterProductRegistry.cc
   get_BranchDescription.cc
   wrapLibraryManagerException.cc
 )
@@ -275,6 +276,7 @@ install(FILES
 
 set(DETAIL_HEADERS
   BranchIDListHelper.h
+  MasterProductRegistry.h
   maybe_record_parents.h
   )
 
