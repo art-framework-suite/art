@@ -135,9 +135,9 @@ namespace art {
     Reflex::PropertyList p = t.Properties();
     if (p.HasProperty("persistent") && p.PropertyAsString("persistent") == std::string("false")) {
       mf::LogWarning("TransientBranch")
-        << "BranchDescription::init() called for a non-persistable entity: "
+        << "BranchDescription::init() called for the non-persistable entity: "
         << friendlyClassName()
-        << "\nThis behavior is DEPRECATED and will be removed in a future release of Art.";
+        << ".\nPlease check your experiment's policy on the advisability of such products.\n";
       transients_.get().transient_ = true;
     }
 
