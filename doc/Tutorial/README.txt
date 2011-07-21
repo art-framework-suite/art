@@ -14,7 +14,7 @@ and just causing it to copy the files from it.
 Talk for the g-2 meeting.  Most of this stuff is in the tutorial
 already and I will add no more material now.
 
-0) key terms 
+0) key terms
 1) configuring a program
 2) running the program
 3) writing a new module
@@ -29,7 +29,7 @@ what about this format?
 4) configuring the program to use modules and writing files
 
 In addition, I need to discuss the organization of the ROOT file.
-Go to ~novasoft on oink if they want to see an example of the 
+Go to ~novasoft on oink if they want to see an example of the
 library files that are generated.
   (releases/development/lib/Linux2.6-GCC)
 

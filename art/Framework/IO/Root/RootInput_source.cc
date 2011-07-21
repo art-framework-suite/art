@@ -9,13 +9,13 @@
 #include "TTreeCache.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include "cpp0x/memory"
 #include <cassert>
@@ -24,7 +24,7 @@
 using namespace art;
 
 RootInput::RootInput( fhicl::ParameterSet const & pset,
-                      InputSourceDescription const & desc) :
+                      InputSourceDescription & desc) :
   DecrepitRelicInputSourceImplementation(pset, desc),
   catalog_(pset),
   primaryFileSequence_
@@ -33,7 +33,7 @@ RootInput::RootInput( fhicl::ParameterSet const & pset,
                              true,
                              FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
                              processingMode(),
-                             productRegistryUpdate(),
+                             desc.productRegistry,
                              processConfiguration()
                              )
    ),
@@ -76,9 +76,9 @@ RootInput::endJob()
 }
 
 std::shared_ptr<FileBlock>
-RootInput::readFile_( )
+RootInput::readFile_(MasterProductRegistry& mpr)
 {
-  return primaryFileSequence_->readFile_();
+  return primaryFileSequence_->readFile_(mpr);
 }
 
 void
@@ -119,7 +119,7 @@ RootInput::nextItemType() {
 }
 
 std::auto_ptr<EventPrincipal>
-RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp)
+RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr)
 {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
@@ -128,7 +128,7 @@ RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp)
     accessState_.resetState();
     {
       std::auto_ptr<EventPrincipal> result;
-      if (!result.get()) result = primaryFileSequence_->readIt(accessState_.wantedEventID(),true);
+      if (!result.get()) result = primaryFileSequence_->readIt(accessState_.wantedEventID(), mpr, true);
       if (result.get()) {
         accessState_.setLastReadEventID(result->id());
         accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
@@ -176,13 +176,13 @@ RootInput::readRun()
 }
 
 std::shared_ptr<FileBlock>
-RootInput::readFile() {
+RootInput::readFile(MasterProductRegistry& mpr) {
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
-    return DecrepitRelicInputSourceImplementation::readFile();
+    return DecrepitRelicInputSourceImplementation::readFile(mpr);
   case AccessState::SEEKING_FILE:
     accessState_.setState(AccessState::SEEKING_RUN);
-    return readFile_();
+    return readFile_(mpr);
   default:
     throw Exception(errors::LogicError)
       << "RootInputSource::readFile encountered an unknown or inappropriate AccessState.\n";
@@ -202,11 +202,11 @@ RootInput::readEvent_( )
 }  // readEvent_()
 
 std::auto_ptr<EventPrincipal>
-RootInput::readIt( EventID const & id )
+RootInput::readIt( EventID const & id, MasterProductRegistry& mpr)
 {
   assert("SHOULD NOT BE CALLED" == 0);
   std::auto_ptr<EventPrincipal> result;
-  if (!result.get()) result = primaryFileSequence_->readIt(id);
+  if (!result.get()) result = primaryFileSequence_->readIt(id, mpr);
   if (result.get()) {
     accessState_.setLastReadEventID(result->id());
     accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
@@ -229,9 +229,9 @@ RootInput::rewind_()
 
 // Advance "offset" events.  Offset can be positive or negative (or zero).
 void
-RootInput::skip(int offset)
+RootInput::skip(int offset, MasterProductRegistry& mpr)
 {
-  primaryFileSequence_->skip(offset);
+  primaryFileSequence_->skip(offset, mpr);
 }
 
 // ======================================================================

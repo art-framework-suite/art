@@ -16,6 +16,7 @@ set(art_Framework_CorePrincipal_sources
   Event.cc
   EventPrincipal.cc
   Group.cc
+  GroupQueryResult.cc
   NoDelayedReader.cc
   Principal.cc
   Run.cc
@@ -60,7 +61,6 @@ set( art_Framework_Core_sources
   ProductRegistryHelper.cc
   RootDictionaryManager.cc
   Schedule.cc
-  SignallingProductRegistry.cc
   TFileDirectory.cc
   TH1AddDirectorySentry.cc
   TriggerNames.cc
@@ -75,7 +75,6 @@ set( art_Framework_Core_sources
 
 add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
 target_link_libraries(art_Framework_Core
-  art_Framework_Services_System_ConstProductRegistry_service
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_System_TriggerNamesService_service
@@ -196,7 +195,7 @@ install ( TARGETS
   )
 
 install(FILES
-  TypeLabelList.h
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.h
   Actions.h
   BranchActionType.h
   Breakpoints.h
@@ -220,6 +219,7 @@ install(FILES
   FileBlock.h
   Frameworkfwd.h
   Group.h
+  GroupQueryResult.h
   GroupSelector.h
   GroupSelectorRules.h
   IEventProcessor.h
@@ -228,7 +228,6 @@ install(FILES
   InputSourceFactory.h
   InputSourceMacros.h
   IntermediateTablePostProcessor.h
-  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.h
   MasterProductRegistry.h
   ModuleFactory.h
   ModuleMacros.h
@@ -254,7 +253,6 @@ install(FILES
   Schedule.h
   Selector.h
   SelectorBase.h
-  SignallingProductRegistry.h
   SubRun.h
   SubRunPrincipal.h
   TFileDirectory.h
@@ -262,6 +260,7 @@ install(FILES
   TriggerNames.h
   TriggerReport.h
   TriggerResultInserter.h
+  TypeLabelList.h
   UnknownModuleException.h
   UnscheduledHandler.h
   View.h

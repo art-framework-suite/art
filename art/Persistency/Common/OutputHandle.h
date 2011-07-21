@@ -29,6 +29,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/exception.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 
 namespace art {
@@ -41,7 +42,9 @@ namespace art {
       productProvenance_(),
       whyFailed_(){}
 
-    OutputHandle(EDProduct const* prod, ConstBranchDescription const* desc, std::shared_ptr<ProductProvenance> productProvenance) :
+    OutputHandle(EDProduct const* prod,
+                 BranchDescription const* desc,
+                 cet::exempt_ptr<ProductProvenance const> productProvenance) :
       wrap_(prod),
       desc_(desc),
       productProvenance_(productProvenance),
@@ -58,40 +61,28 @@ namespace art {
 
     void swap(OutputHandle& other) {
       using std::swap;
-      std::swap(wrap_, other.wrap_);
-      std::swap(desc_, other.desc_);
-      std::swap(productProvenance_, other.productProvenance_);
+      swap(wrap_, other.wrap_);
+      swap(desc_, other.desc_);
+      swap(productProvenance_, other.productProvenance_);
       swap(whyFailed_,other.whyFailed_);
     }
 
-    bool isValid() const {
-      return wrap_ && desc_ &&productProvenance_;
-    }
+    bool isValid() const { return wrap_ && desc_ &&productProvenance_; }
 
-    bool failedToGet() const {
-      return 0 != whyFailed_.get();
-    }
+    bool failedToGet() const { return 0 != whyFailed_.get(); }
 
-    EDProduct const* wrapper() const {
-      return wrap_;
-    }
+    EDProduct const* wrapper() const { return wrap_; }
 
-    std::shared_ptr<cet::exception> whyFailed() const {
-      return whyFailed_;
-    }
+    std::shared_ptr<cet::exception> whyFailed() const { return whyFailed_; }
 
-    ProductProvenance const* productProvenance() const {
-      return productProvenance_.get();
-    }
+    ProductProvenance const* productProvenance() const { return productProvenance_.get(); }
 
-    ConstBranchDescription const* desc() const {
-      return desc_;
-    }
+    BranchDescription const* desc() const { return desc_; }
 
   private:
     EDProduct const* wrap_;
-    ConstBranchDescription const* desc_;
-    std::shared_ptr<ProductProvenance> productProvenance_;
+    BranchDescription const* desc_;
+    cet::exempt_ptr<ProductProvenance const> productProvenance_;
     std::shared_ptr<cet::exception> whyFailed_;
   };
 

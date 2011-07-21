@@ -9,54 +9,66 @@
 
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "cpp0x/memory"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exempt_ptr.h"
+#include "cetlib/value_ptr.h"
+#include "cpp0x/memory"
 #include <iosfwd>
 #include <map>
 #include <set>
 
+namespace art {
+  // defined below:
+  class BranchMapper;
+  std::ostream & operator << (std::ostream &, BranchMapper const &);
+
+  // forward declaration:
+  class ProductID;
+}
+
 // ----------------------------------------------------------------------
 
-namespace art {
+class art::BranchMapper
+{
+  // non-copyable:
+  BranchMapper(BranchMapper const &);
+  void operator = (BranchMapper const &);
 
-  class ProductID;
+  typedef  cet::exempt_ptr<ProductProvenance const>  result_t;
 
-  class BranchMapper {
-  public:
-    BranchMapper();
+public:
+  BranchMapper();
+  explicit BranchMapper(bool delayedRead);
+  virtual ~BranchMapper() { }
 
-    explicit BranchMapper(bool delayedRead);
+  void write(std::ostream&) const;
 
-    virtual ~BranchMapper() {}
+  result_t branchToProductProvenance(BranchID const&) const;
 
-    void write(std::ostream& os) const;
+  result_t insert(std::auto_ptr<ProductProvenance const>);
 
-    std::shared_ptr<ProductProvenance> branchToProductProvenance(BranchID const& bid) const;
+  void setDelayedRead(bool value) {delayedRead_ = value;}
 
-    void insert(ProductProvenance const& provenanceProduct);
+private:
+  typedef std::map< BranchID,
+                    cet::value_ptr<ProductProvenance const>
+                  >
+          eiSet;
 
-    void setDelayedRead(bool value) {delayedRead_ = value;}
+  eiSet         entryInfoSet_;
+  mutable bool  delayedRead_;
 
-  private:
-    typedef std::map<BranchID, ProductProvenance> eiSet;
+  void readProvenance() const;
+  virtual void readProvenance_() const { }
 
-    void readProvenance() const;
-    virtual void readProvenance_() const {}
+};  // BranchMapper
 
-    eiSet entryInfoSet_;
-
-    mutable bool delayedRead_;
-
-  };
-
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, BranchMapper const& p) {
-    p.write(os);
-    return os;
-  }
-
-}  // art
+inline std::ostream &
+  art::operator << (std::ostream & os, BranchMapper const & p)
+{
+  p.write(os);
+  return os;
+}
 
 // ======================================================================
 

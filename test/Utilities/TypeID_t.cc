@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE ( TypeID_t )
   arttest::empty e;
   art::TypeID id1(typeid(e));
   art::TypeID id2(typeid(e));
-  
+
   BOOST_CHECK(!(id1 < id2));
   BOOST_CHECK(!(id2 < id1));
 

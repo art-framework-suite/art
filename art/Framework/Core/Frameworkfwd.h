@@ -25,7 +25,7 @@ namespace art {
   class FileBlock;
   class GeneratedInputSource;
   class InputSource;
-  class InputSourceDescription;
+  struct InputSourceDescription;
   class OutputModule;
   class OutputModuleDescription;
   class ProcessNameSelector;

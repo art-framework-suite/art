@@ -14,7 +14,7 @@ Developers who make their own Selectors should inherit from SelectorBase.
 
 namespace art
 {
-  class ConstBranchDescription;
+  class BranchDescription;
 
   //------------------------------------------------------------------
   //
@@ -25,11 +25,11 @@ namespace art
   class SelectorBase {
   public:
     virtual ~SelectorBase();
-    bool match(ConstBranchDescription const& p) const;
+    bool match(BranchDescription const& p) const;
     virtual SelectorBase* clone() const = 0;
 
   private:
-    virtual bool doMatch(ConstBranchDescription const& p) const = 0;
+    virtual bool doMatch(BranchDescription const& p) const = 0;
   };
 }
 

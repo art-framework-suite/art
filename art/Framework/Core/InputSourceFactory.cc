@@ -25,8 +25,8 @@ InputSourceFactory &
 }
 
 std::auto_ptr<InputSource>
-InputSourceFactory::makeInputSource(ParameterSet const& conf,
-                                    InputSourceDescription const& desc)
+InputSourceFactory::make(ParameterSet const& conf,
+                        InputSourceDescription & desc)
 {
    std::string libspec = conf.get<std::string>("module_type");
 
@@ -34,7 +34,7 @@ InputSourceFactory::makeInputSource(ParameterSet const& conf,
 
    typedef std::auto_ptr<InputSource>
       (make_t)(fhicl::ParameterSet const&,
-               InputSourceDescription const&);
+               InputSourceDescription &);
 
    make_t *symbol = nullptr;
 

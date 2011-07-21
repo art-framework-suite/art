@@ -1,6 +1,6 @@
 project ( art_TestObjects )
 
-install(FILES 
+install(FILES
 	      ToyProducts.h
 	DESTINATION ${product}/${version}/include/art/TestObjects )
 

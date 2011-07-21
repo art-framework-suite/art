@@ -8,7 +8,9 @@
 
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "cpp0x/array"
+#include "cpp0x/memory"
 
 #include "Reflex/Type.h"
 
@@ -22,15 +24,19 @@ namespace art {
 
   class BranchID;
   class BranchKey;
-  
+
   std::ostream &operator<<(std::ostream &os, MasterProductRegistry const &mpr);
 }
 
 class art::MasterProductRegistry {
 public:
-  typedef std::map<BranchKey, BranchDescription> ProductList;
+  MasterProductRegistry();
 
   // Used for indices to find branch IDs by type and process.
+  // TODO: Consider moving this typedef outside of the class. ProductMetaData needs to
+  // share this typedef with its users, and so has to include this header to get the typedef.
+  // If we move the typedef to a different header, then MasterProductRegistry could be moved
+  // to the "detail" directory.
   typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
   typedef std::map<std::string, ProcessLookup> TypeLookup;
 
@@ -55,7 +61,7 @@ public:
 
   ////////////////////////////////////////////////////////////////////////
   // Mutators for use while we are unfrozen only.
-  void addProduct(BranchDescription &productDesc);
+  void addProduct(std::auto_ptr<BranchDescription> bdp);
 
   void updateFromInput(ProductList const &other);
   void updateFromInput(std::vector<BranchDescription> const &other);
@@ -86,13 +92,13 @@ private:
 };
 
 inline
-art::MasterProductRegistry::ProductList const &
+art::ProductList const &
 art::MasterProductRegistry::productList() const {
   return productList_;
 }
 
 inline
-art::MasterProductRegistry::ProductList::size_type
+art::ProductList::size_type
 art::MasterProductRegistry::size() const {
   return productList_.size();
 }

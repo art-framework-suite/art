@@ -42,7 +42,7 @@ private:
   size_t eventCounter_;
   size_t nSecondaries_;
   std::string mixFilterLabel_;
-  
+
 };
 
 
@@ -70,7 +70,7 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
   // IntProduct
   art::Handle<IntProduct> ipH;
   BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "IntProductLabel", ipH));
-  BOOST_REQUIRE_EQUAL(ipH->value, dExpected + 1000000 * nSecondaries_); 
+  BOOST_REQUIRE_EQUAL(ipH->value, dExpected + 1000000 * nSecondaries_);
 
   // String
   art::Handle<std::string> sH;

@@ -10,7 +10,7 @@ services:
 services.messageDefaults: @local::messageDefaults
 
 source: { module_type: EmptyEvent maxEvents: 5 }
-physics: 
+physics:
 {
   producers:
   {

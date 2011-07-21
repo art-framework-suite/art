@@ -7,7 +7,7 @@ next: /sources
 Modules
 =======
 
-* These are the user-written processing elements of the system. Each has its own configuration.  
+* These are the user-written processing elements of the system. Each has its own configuration.
 
 * Each module processes one *Event* at a time.
 

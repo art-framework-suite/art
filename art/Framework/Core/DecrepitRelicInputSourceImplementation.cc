@@ -16,7 +16,6 @@
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #ifdef RNGS
 //#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #endif
@@ -50,26 +49,23 @@ namespace art {
 
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
-                                         InputSourceDescription const & desc)
+                                         InputSourceDescription & desc)
     : ProductRegistryHelper( )
     , boost::noncopyable   ( )
-    , actReg_              ( desc.actReg_ )
+//    , actReg_              ( desc.activityRegistry )
     , maxEvents_           ( pset.get<int>("maxEvents", -1) )
     , remainingEvents_     ( maxEvents_ )
     , maxSubRuns_          ( pset.get<int>("maxSubRuns", -1) )
     , remainingSubRuns_    ( maxSubRuns_ )
     , readCount_           ( 0 )
     , processingMode_      ( RunsSubRunsAndEvents )
-    , moduleDescription_   ( desc.moduleDescription_ )
-    , productRegistry_     ( desc.productRegistry_ )
+    , moduleDescription_   ( desc.moduleDescription )
     , time_                ( )
     , doneReadAhead_       ( false )
     , state_               ( input::IsInvalid )
     , runPrincipal_        ( )
     , subRunPrincipal_     ( )
   {
-    assert(desc.productRegistry_ != 0);
-
     std::string const defaultMode("RunsSubRunsAndEvents");
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
@@ -92,7 +88,7 @@ namespace art {
     }
 
     // This must come LAST in the constructor.
-    registerProducts_();
+    registerProducts_(desc.productRegistry);
   }
 
 
@@ -214,23 +210,23 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::registerProducts_()
+  DecrepitRelicInputSourceImplementation::registerProducts_(MasterProductRegistry& mpr)
   {
     addToRegistry(typeLabelList().begin(),
                   typeLabelList().end(),
                   moduleDescription(),
-                  productRegistryUpdate());
+                  mpr);
   }
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile()
+  DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry& mpr)
   {
     assert(doneReadAhead_);
     assert(state_ == input::IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
-    std::shared_ptr<FileBlock> fb = readFile_();
+    std::shared_ptr<FileBlock> fb = readFile_(mpr);
     return fb;
   }
 
@@ -241,9 +237,10 @@ namespace art {
 
   // Return a dummy file block.
   // This function must be overridden for any input source that reads a file
-  // containing Products.
+  // containing Products. Such a function should update the MasterProductRegistry
+  // to reflect the products found in this new file.
   std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile_() {
+  DecrepitRelicInputSourceImplementation::readFile_(MasterProductRegistry&) {
     return std::shared_ptr<FileBlock>(new FileBlock);
   }
 

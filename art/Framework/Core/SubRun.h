@@ -96,15 +96,12 @@ namespace art {
         << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
 
     putProducts().push_back(std::make_pair(wp, &desc));
-
-    // product.release(); // The object has been copied into the Wrapper.
-    // The old copy must be deleted, so we cannot release ownership.
   }
 
 }  // art

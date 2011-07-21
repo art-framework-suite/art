@@ -21,7 +21,7 @@ physics: {
 
 outputs: {
   out1: { module_type: FileDumperOutput }
-  out2: 
+  out2:
   {
     module_type: RootOutput
     fileName: "out.root"

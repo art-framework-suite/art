@@ -25,7 +25,7 @@ namespace art {
 class art::EmptyEvent : public art::DecrepitRelicInputSourceImplementation {
 public:
    explicit EmptyEvent(fhicl::ParameterSet const& pset,
-                       art::InputSourceDescription const& desc);
+                       InputSourceDescription & desc);
    virtual ~EmptyEvent();
 
    unsigned int numberEventsInRun() const { return numberEventsInRun_; }
@@ -83,7 +83,7 @@ namespace {
 }
 
 art::EmptyEvent::EmptyEvent
-(fhicl::ParameterSet const& pset, InputSourceDescription const& desc) :
+(fhicl::ParameterSet const& pset, InputSourceDescription & desc) :
    DecrepitRelicInputSourceImplementation( pset, desc ),
    numberEventsInRun_       ( pset.get<uint32_t>("numberEventsInRun", remainingEvents()) ),
    numberEventsInSubRun_    ( pset.get<uint32_t>("numberEventsInSubRun", remainingEvents()) ),
@@ -130,14 +130,9 @@ std::shared_ptr<RunPrincipal>
 art::EmptyEvent::readRun_() {
   Timestamp ts = Timestamp(presentTime_);
   RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
-  std::shared_ptr<RunPrincipal> runPrincipal(
-      new RunPrincipal(runAux, productRegistry(), processConfiguration()));
-  #if 0
-  RunPrincipal & rp =
-     const_cast<RunPrincipal &>(*runPrincipal);
-  #endif
   newRun_ = false;
-  return runPrincipal;
+  typedef boost::shared_ptr<RunPrincipal> rp_ptr;
+  return rp_ptr(new RunPrincipal(runAux, processConfiguration()));
 }
 
 std::shared_ptr<SubRunPrincipal>
@@ -149,7 +144,6 @@ EmptyEvent::readSubRun_() {
                              Timestamp::invalidTimestamp());
    std::shared_ptr<SubRunPrincipal>
       subRunPrincipal(new SubRunPrincipal(subRunAux,
-                                          productRegistry(),
                                           processConfiguration()));
    SubRun sr(*subRunPrincipal, moduleDescription());
    newSubRun_ = false;
@@ -168,7 +162,7 @@ void art::EmptyEvent::reallyReadEvent() {
                           Timestamp(presentTime_),
                           eType_);
   std::auto_ptr<EventPrincipal> result(
-      new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
+      new EventPrincipal(eventAux, processConfiguration()));
   ep_ = result;
 }
 

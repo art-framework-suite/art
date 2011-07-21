@@ -8,7 +8,6 @@
 #include "art/Framework/Core/Principal.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Utilities/WrappedClassName.h"
 #include <iostream>
@@ -65,7 +64,7 @@ namespace art {
       //use the translated branch name
       TBranch * branch = tree_->GetBranch(branchName.c_str());
       assert (prod.present() == (branch != 0));
-      input::BranchInfo info = input::BranchInfo(ConstBranchDescription(prod));
+      input::BranchInfo info(prod);
       info.productBranch_ = 0;
       if (prod.present()) {
         info.productBranch_ = branch;

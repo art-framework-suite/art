@@ -3,7 +3,7 @@ use strict;
 use vars qw(@optional @system);
 
 BEGIN { @optional = qw(RandomNumberGenerator TFileService);
-	@system = qw(ConstProductRegistry CurrentModule FloatingPointControl TriggerNamesService);
+	@system = qw(CurrentModule FloatingPointControl TriggerNamesService);
     }
 
 foreach my $service (@optional) {

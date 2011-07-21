@@ -7,7 +7,7 @@ next: /new_product_definition
 Event Product Access
 ====================
 
-        bool CirceFit::filter(art::Event& evt) 
+        bool CirceFit::filter(art::Event& evt)
         {
           // Pull the calibrated hits out of the event
           typedef std::vector<rb::CellHit> input_t;

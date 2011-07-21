@@ -4,8 +4,8 @@
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
@@ -20,17 +20,6 @@ using std::string;
 
 
 namespace art {
-  // This grotesque little function exists just to allow calling of
-  // ConstProductRegistry::allBranchDescriptions in the context of
-  // OutputModule's initialization list, rather than in the body of
-  // the constructor.
-
-  vector<art::BranchDescription const*>
-  getAllBranchDescriptions() {
-    art::ServiceHandle<art::ConstProductRegistry> reg;
-    return reg->allBranchDescriptions();
-  }
-
   vector<std::string> const& getAllTriggerNames() {
     art::ServiceHandle<art::TriggerNamesService> tns;
     return tns->getTrigPaths();
@@ -174,23 +163,22 @@ namespace art {
 
   void OutputModule::selectProducts() {
     if (groupSelector_.initialized()) return;
-    groupSelector_.initialize(groupSelectorRules_, getAllBranchDescriptions());
-    ServiceHandle<ConstProductRegistry> reg;
+    ProductList const& pList = ProductMetaData::instance().productList();
+    groupSelector_.initialize(groupSelectorRules_, pList);
 
     // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
     // single object. See the notes in the header for GroupSelector
     // for more information.
 
-    ProductRegistry::ProductList::const_iterator it  =
-      reg->productList().begin();
-    ProductRegistry::ProductList::const_iterator end =
-      reg->productList().end();
-
-    for (; it != end; ++it) {
+    for (ProductList::const_iterator
+           it  = pList.begin(),
+           end = pList.end();
+         it != end;
+         ++it) {
       BranchDescription const& desc = it->second;
-      if(desc.transient()) {
+      if (desc.transient()) {
         // if the class of the branch is marked transient, output nothing
-      } else if(!desc.present() && !desc.produced()) {
+      } else if (!desc.present() && !desc.produced()) {
         // else if the branch containing the product has been previously dropped,
         // output nothing
       } else if (selected(desc)) {
@@ -379,7 +367,7 @@ namespace art {
   void
   OutputModule::updateBranchParents(EventPrincipal const& ep) {
     for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
-      if (i->second->productProvenancePtr() != 0) {
+      if (i->second->productProvenancePtr()) {
         BranchID const& bid = i->first;
         BranchParents::iterator it = branchParents_.find(bid);
         if (it == branchParents_.end()) {

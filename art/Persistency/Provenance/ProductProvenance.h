@@ -57,9 +57,9 @@ public:
   ProductStatus const& productStatus() const {return productStatus_;}
   ParentageID const& parentageID() const {return parentageID_;}
   Parentage const& parentage() const;
-  void setStatus(ProductStatus status) {productStatus_ = status;}
-  void setPresent();
-  void setNotPresent();
+  void setStatus(ProductStatus status) const {productStatus_ = status;}
+  void setPresent() const;
+  void setNotPresent() const;
 
   bool & noParentage() const {return transients_.get().noParentage_;}
 
@@ -74,7 +74,7 @@ private:
   std::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
 
   BranchID branchID_;
-  ProductStatus productStatus_;
+  mutable ProductStatus productStatus_;
   ParentageID parentageID_;
   mutable Transient<Transients> transients_;
 };

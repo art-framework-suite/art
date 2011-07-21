@@ -67,6 +67,7 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/RunStopwatch.h"
@@ -79,6 +80,7 @@
 #include "art/Persistency/Provenance/Provenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -115,7 +117,7 @@ namespace art {
     Schedule(fhicl::ParameterSet const& processDesc,
              art::TriggerNamesService& tns,
              WorkerRegistry& wregistry,
-             ProductRegistry& pregistry,
+             MasterProductRegistry& pregistry,
              ActionTable& actions,
              std::shared_ptr<ActivityRegistry> areg);
 
@@ -238,17 +240,17 @@ namespace art {
     void reportSkipped(SubRunPrincipal const&) const {}
     void reportSkipped(RunPrincipal const&) const {}
 
-    void fillWorkers(std::string const& name, PathWorkers& out, bool IsTrigPath);
-    void fillTrigPath(int bitpos, std::string const& name, TrigResPtr);
-    void fillEndPath(int bitpos, std::string const& name);
+    void fillWorkers(std::string const& name, PathWorkers& out, bool IsTrigPath, MasterProductRegistry &pregistry);
+    void fillTrigPath(int bitpos, std::string const& name, TrigResPtr trptr, MasterProductRegistry &pregistry);
+    void fillEndPath(int bitpos, std::string const& name, MasterProductRegistry &pregistry);
 
     void limitOutput();
 
     void addToAllWorkers(Worker* w);
 
-    WorkerPtr makeInserter(ParameterSet const& trig_pset) const;
+    WorkerPtr makeInserter(ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const;
 
-    void catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels);
+    void catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels, MasterProductRegistry &pregistry);
 
     void pathConsistencyCheck(size_t expected_num_workers) const;
 
@@ -260,7 +262,6 @@ namespace art {
 
     fhicl::ParameterSet pset_;
     WorkerRegistry*     worker_reg_;
-    ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
     std::string         processName_;
     std::shared_ptr<ActivityRegistry> actReg_;
@@ -284,7 +285,7 @@ namespace art {
     RunStopwatch::StopwatchPointer stopwatch_;
 
     std::shared_ptr<UnscheduledCallProducer> unscheduled_;
-    std::vector<std::shared_ptr<ConstBranchDescription const> >  demandBranches_;
+    std::vector<cet::exempt_ptr<BranchDescription const> >  demandBranches_;
 
     volatile bool       endpathsAreActive_;
   };

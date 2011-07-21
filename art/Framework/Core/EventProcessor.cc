@@ -12,7 +12,6 @@
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/Core/detail/BranchIDListHelper.h"
@@ -207,7 +206,7 @@ namespace art {
   shared_ptr<InputSource>
   makeInput(ParameterSet const& params,
             std::string const &processName,
-            ProductRegistry& preg,
+            MasterProductRegistry& preg,
             std::shared_ptr<ActivityRegistry> areg) {
 
     ParameterSet defaultEmptySource;
@@ -224,8 +223,9 @@ namespace art {
           << "Could not find a source configuration: using default.";
       }
       // Fill in "ModuleDescription", in case the input source produces
-      // any EDproducts,which would be registered in the ProductRegistry.
-      // Also fill in the process history item for this process.
+      // any EDproducts,which would be registered in the
+      // MasterProductRegistry.  Also fill in the process history item
+      // for this process.
 
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
@@ -237,13 +237,10 @@ namespace art {
                                                       getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg, areg);
-
-      shared_ptr<InputSource> input(InputSourceFactory::makeInputSource(main_input,
-                                                                        isdesc).release());
-      return input;
+      InputSourceDescription isd(md, preg, *areg);
+      return shared_ptr<InputSource>(InputSourceFactory::make(main_input, isd).release());
     }
-    catch(art::Exception const& iException) {
+    catch (art::Exception const& iException) {
       if(sourceSpecified == false &&
          errors::Configuration == iException.categoryCode()) {
         throw art::Exception(errors::Configuration, "FailedInputSource")
@@ -372,11 +369,9 @@ namespace art {
     // that sigc++ does way in the guts of the add operation.
 
     typedef art::TriggerNamesService TNS;
-    typedef ConstProductRegistry CPR;
     // no configuration available
     serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(*actReg_)));
     // special construction
-    serviceToken_.add(std::auto_ptr<CPR>(new CPR(preg_)));
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
     serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset,*actReg_)));
     // May be able to do this with CurrentModule serive, else might need
@@ -1177,7 +1172,7 @@ namespace art {
   void EventProcessor::readFile() {
     actReg_->preOpenFileSignal_();
     FDEBUG(1) << " \treadFile\n";
-    fb_ = input_->readFile();
+    fb_ = input_->readFile(preg_);
     if (!fb_) {
       throw Exception(errors::LogicError)
         << "Source readFile() did not return a valid FileBlock: FileBlock "

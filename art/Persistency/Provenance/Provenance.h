@@ -1,21 +1,21 @@
 #ifndef art_Persistency_Provenance_Provenance_h
 #define art_Persistency_Provenance_Provenance_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// Provenance: The full description of a product and how it came into
+//             existence.
+//
+// definitions:
+// Product: The EDProduct to which a provenance object is associated
+// Creator: The EDProducer that made the product.
+// Parents: The EDProducts used as input by the creator.
+//
+// ======================================================================
 
-Provenance: The full description of a product and how it came into
-existence.
-
-definitions:
-  Product: The EDProduct to which a provenance object is associated
-  Creator: The EDProducer that made the product.
-  Parents: The EDProducts used as input by the creator.
-
-----------------------------------------------------------------------*/
-
+#include "art/Framework/Core/Group.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
@@ -24,82 +24,61 @@ definitions:
 #include "fhiclcpp/ParameterSetID.h"
 #include <iosfwd>
 
+namespace art {
+  class Provenance;
+  std::ostream &
+    operator << ( std::ostream &, Provenance const & );
+}
+
 // ----------------------------------------------------------------------
 
-namespace art {
-  class Provenance {
-  public:
-    explicit Provenance(ConstBranchDescription const& p, ProductID const& pid);
-    explicit Provenance(BranchDescription const& p, ProductID const& pid);
-    Provenance(ConstBranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> entryDesc);
-    Provenance(BranchDescription const& p, ProductID const& pid, std::shared_ptr<ProductProvenance> entryDesc);
+class art::Provenance
+{
+public:
+  Provenance( ) : group_( )  { }
+  Provenance( cet::exempt_ptr<Group const> g ) : group_( g )  { }
 
-    // use compiler-generated copy c'tor, copy assignment, and d'tor
+  // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    Parentage const& event() const {return parentage();}
-    BranchDescription const& product() const {return branchDescription_.me();}
+  bool  isValid( ) const  { return group_; }
 
-    BranchDescription const& branchDescription() const {return branchDescription_.me();}
-    ConstBranchDescription const& constBranchDescription() const {return branchDescription_;}
-    Parentage const& parentage() const {return productProvenance().parentage();}
-    BranchID const& branchID() const {return product().branchID();}
-    std::string const& branchName() const {return product().branchName();}
-    std::string const& className() const {return product().className();}
-    std::string const& moduleLabel() const {return product().moduleLabel();}
-    std::string const& processName() const {return product().processName();}
-    ProductStatus const& productStatus() const {return productProvenance().productStatus();}
-    std::string const& productInstanceName() const {return product().productInstanceName();}
-    std::string const& friendlyClassName() const {return product().friendlyClassName();}
-    std::set<fhicl::ParameterSetID> const& psetIDs() const {return product().psetIDs();}
-    std::set<std::string> const& branchAliases() const {return product().branchAliases();}
-    bool isPresent() const {return productstatus::present(productStatus());}
+  BranchDescription const&  product            () const {return group_->productDescription();}
+  BranchDescription const&  branchDescription  () const {return product();}
+  ProductID         const&  productID          () const {return group_->productID();}
+  Parentage         const&  event              () const {return parentage();}
+  Parentage         const&  parentage          () const {return productProvenance().parentage();}
+  BranchID          const&  branchID           () const {return product().branchID();}
+  std::string       const&  branchName         () const {return product().branchName();}
+  std::string       const&  className          () const {return product().className();}
+  std::string       const&  moduleLabel        () const {return product().moduleLabel();}
+  std::string       const&  processName        () const {return product().processName();}
+  ProductStatus     const&  productStatus      () const {return productProvenance().productStatus();}
+  std::string       const&  productInstanceName() const {return product().productInstanceName();}
+  std::string       const&  friendlyClassName  () const {return product().friendlyClassName();}
+  std::set<fhicl::ParameterSetID> const&
+                            psetIDs            () const {return product().psetIDs();}
+  std::set<std::string> const&
+                            branchAliases      () const {return product().branchAliases();}
+  std::vector<BranchID> const&
+                            parents            () const {return parentage().parents();}
 
-    std::vector<BranchID> const& parents() const {return parentage().parents();}
+  bool isPresent()  const {return productstatus::present(productStatus());}
 
-    void write(std::ostream& os) const;
+  std::ostream & write(std::ostream& os) const;
 
-    void setProductProvenance(std::shared_ptr<ProductProvenance> bei) const;
+private:
+  cet::exempt_ptr<Group const> group_;
 
-    void setStore(cet::exempt_ptr<BranchMapper const> store) const {store_ = store;}
+  ProductProvenance const*  productProvenancePtr() const {return group_->productProvenancePtr().get();}
+  ProductProvenance const&  productProvenance   () const {return * productProvenancePtr();}
 
-    ProductID const& productID() const {return productID_;}
+};  // Provenance
 
-    // bool operator==(Provenance const &other) const;
-  private:
-    std::shared_ptr<ProductProvenance> resolve() const;
-    ProductProvenance const& productProvenance() const {
-      if (productProvenancePtr_.get()) return *productProvenancePtr_;
-      return *resolve();
-    }
-    ProductProvenance const* productProvenancePtr() const {return productProvenancePtr_.get();}
-
-    ConstBranchDescription const branchDescription_;
-    ProductID productID_;
-    mutable std::shared_ptr<ProductProvenance> productProvenancePtr_;
-    mutable cet::exempt_ptr<BranchMapper const> store_;
-  };
-
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, Provenance const& p) {
-    p.write(os);
-    return os;
-  }
-
-  // inline
-  // bool
-  // Provenance::operator==(Provenance const &other) const {
-  //   return product() == other.product() &&
-  //     productProvenance() == other.productProvenance();
-  // }
-
-  // inline
-  // bool
-  // operator==(Provenance const& a, Provenance const& b) {
-  //   return a.operator==(b);
-  // }
-
-}  // art
+inline  std::ostream &
+  art::operator << ( std::ostream & os, Provenance const & p )
+{
+  return p.write(os);
+}
 
 // ======================================================================
 

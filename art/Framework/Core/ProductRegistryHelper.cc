@@ -3,7 +3,7 @@
 #include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
 
 namespace art
 {
@@ -17,23 +17,24 @@ namespace art
   ProductRegistryHelper::addToRegistry(TypeLabelList::iterator i,
                                        TypeLabelList::iterator e,
                                        ModuleDescription const& md,
-                                       ProductRegistry& preg,
+                                       MasterProductRegistry& preg,
                                        bool isListener)
   {
+    assert(!isListener);
     for ( ;  i != e; ++i)
       {
-        BranchDescription
-          pdesc(i->branchType,
-                i->hasEmulatedModule() ? i->emulatedModule : md.moduleLabel(),
-                md.processName(),
-                i->userClassName(),
-                i->friendlyClassName(),
-                i->productInstanceName,
-                md);
+        std::auto_ptr<BranchDescription>
+          bdp(new BranchDescription(i->branchType,
+                                    i->hasEmulatedModule() ? i->emulatedModule : md.moduleLabel(),
+                                    md.processName(),
+                                    i->userClassName(),
+                                    i->friendlyClassName(),
+                                    i->productInstanceName,
+                                    md));
         if (i->hasBranchAlias())
-          pdesc.addBranchAlias(i->branchAlias);
+          bdp->addBranchAlias(i->branchAlias);
 
-        preg.addProduct(pdesc, isListener);
+        preg.addProduct(bdp);
       }
   }
 

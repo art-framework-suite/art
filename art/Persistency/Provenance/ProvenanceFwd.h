@@ -10,28 +10,26 @@
 namespace art {
 
   class BranchDescription;
-  class Parentage;
   class BranchID;
   class BranchKey;
-  class ConstBranchDescription;
-  class ProductProvenance;
-  class ProductProvenance;
   class BranchKey;
+  class BranchMapper;
   class EventAuxiliary;
   class EventID;
-  class SubRunAuxiliary;
-  class SubRunID;
   class ModuleDescription;
+  class Parentage;
   class ProcessConfiguration;
   class ProcessHistory;
   class ProcessRegistry;
   class ProductID;
-  class ProductRegistry;
+  class ProductProvenance;
+  class ProductProvenance;
   class Provenance;
   class RunAuxiliary;
   class RunID;
+  class SubRunAuxiliary;
+  class SubRunID;
   class Timestamp;
-  class BranchMapper;
 
 }  // art
 
@@ -41,11 +39,10 @@ namespace art {
 #include "art/Persistency/Provenance/BranchListIndex.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/PassID.h"
+#include "art/Persistency/Provenance/ProcessConfigurationID.h"
+#include "art/Persistency/Provenance/ProcessHistoryID.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-#include "art/Persistency/Provenance/ProcessHistoryID.h"
-#include "art/Persistency/Provenance/ProcessConfigurationID.h"
-//#include "art/Persistency/Provenance/ProcessConfigurationRegistry.h"
 
 // ======================================================================
 

@@ -20,20 +20,15 @@ EDProducts into an Event.
 namespace art {
   class BranchDescription;
   class ModuleDescription;
-  class ProductRegistry;
+  class MasterProductRegistry;
   class ProducerBase : private ProductRegistryHelper
   {
   public:
     ProducerBase ();
     virtual ~ProducerBase();
 
-    /// used by the fwk to register list of products
-    typedef std::function<void(const BranchDescription&)> callback_t;
-
-    callback_t registrationCallback() const;
-
     void registerProducts(std::shared_ptr<ProducerBase>,
-                        ProductRegistry *,
+                        MasterProductRegistry *,
                         ModuleDescription const&);
 
     using ProductRegistryHelper::produces;
@@ -45,16 +40,6 @@ namespace art {
     ProductID getProductID(TRANS const &translator,
                            ModuleDescription const &moduleDescription,
                            std::string const& instanceName) const;
-
-  protected:
-    template<class TProducer, class TMethod>
-    void callWhenNewProductsRegistered(TProducer* iProd, TMethod iMethod)
-    {
-       callWhenNewProductsRegistered_ = std::bind(iMethod,iProd,_1);
-    }
-
-  private:
-    callback_t callWhenNewProductsRegistered_;
   };
 
   template <typename PROD, BranchType B, typename TRANS>
@@ -67,7 +52,7 @@ namespace art {
       (get_BranchDescription<PROD>(B,
                                    md.moduleLabel(),
                                    instanceName).branchID());
-                                   
+
   }
 
 }  // art

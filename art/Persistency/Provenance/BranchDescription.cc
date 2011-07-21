@@ -1,18 +1,16 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 
+#include "Cintex/Cintex.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "cetlib/exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/WrappedClassName.h"
+#include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include <cassert>
+#include <cstdlib>
 #include <ostream>
 #include <sstream>
-#include <cstdlib>
-
-#include "Cintex/Cintex.h"
 
 // FIXME: This should go away as soon as ROOT makes this function
 // public. In the meantime, we have to verify that this signature does
@@ -24,7 +22,6 @@ namespace ROOT {
 }
 
 using fhicl::ParameterSetID;
-
 
 namespace art {
 
@@ -164,7 +161,7 @@ namespace art {
     } else {
         transients_.get().basketSize_ = invalidBasketSize;
     }
-  }
+  }  // init()
 
   ParameterSetID const&
     BranchDescription::psetID() const {
@@ -198,6 +195,22 @@ namespace art {
     os << "Friendly Class Name = " << friendlyClassName() << '\n';
     os << "Product Instance Name = " << productInstanceName() << std::endl;
   }
+
+  void
+  BranchDescription::swap(BranchDescription &other) {
+    using std::swap;
+    swap(branchType_, other.branchType_);
+    swap(moduleLabel_, other.moduleLabel_);
+    swap(processName_, other.processName_);
+    swap(branchID_, other.branchID_);
+    swap(fullClassName_, other.fullClassName_);
+    swap(friendlyClassName_, other.friendlyClassName_);
+    swap(productInstanceName_, other.productInstanceName_);
+    swap(psetIDs_, other.psetIDs_);
+    swap(processConfigurationIDs_, other.processConfigurationIDs_);
+    swap(branchAliases_, other.branchAliases_);
+    swap(transients_, other.transients_);
+  };
 
   void throwExceptionWithText(const char* txt)
   {

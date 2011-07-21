@@ -1,11 +1,11 @@
 #include "art/Framework/Core/Principal.h"
 
+#include "art/Framework/Core/GroupQueryResult.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Core/Selector.h"
-#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
@@ -22,8 +22,7 @@ using namespace std;
 
 namespace art {
 
-  Principal::Principal(cet::exempt_ptr<ProductRegistry const> reg,
-                       ProcessConfiguration const& pc,
+  Principal::Principal(ProcessConfiguration const& pc,
                        ProcessHistoryID const& hist,
                        std::auto_ptr<BranchMapper> mapper,
                        std::shared_ptr<DelayedReader> rtrv) :
@@ -32,7 +31,6 @@ namespace art {
     processConfiguration_(pc),
     processHistoryModified_(false),
     groups_(),
-    preg_(reg),
     branchMapperPtr_(mapper.release()),
     store_(rtrv)
   {
@@ -55,7 +53,7 @@ namespace art {
 
   void
   Principal::addGroup_(auto_ptr<Group> group) {
-    ConstBranchDescription const& bd = group->productDescription();
+    BranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
@@ -66,7 +64,7 @@ namespace art {
 
   void
   Principal::replaceGroup(auto_ptr<Group> group) {
-    ConstBranchDescription const& bd = group->productDescription();
+    BranchDescription const& bd = group->productDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
@@ -87,8 +85,7 @@ namespace art {
         throw art::Exception(errors::Configuration)
 	  << "The process name " << processName
 	  << " was previously used on these products.\n"
-          << "Please modify the configuration file to use a "
-	  << "distinct process name.\n";
+             "Please modify the configuration file to use a distinct process name.\n";
       }
     }
     ph.push_back(processConfiguration_);
@@ -116,7 +113,7 @@ namespace art {
       return SharedConstGroupPtr();
     }
     SharedConstGroupPtr const& g = it->second;
-    if (resolveProv && (g->provenanceAvailable() || g->onDemand())) {
+    if (resolveProv) {
       if(g->onDemand()) {
          //must execute the unscheduled to get the provenance
          this->resolveProduct(*g, true);
@@ -138,14 +135,14 @@ namespace art {
     return g;
   }
 
-  BasicHandle
+  GroupQueryResult
   Principal::getBySelector(TypeID const& productType,
                            SelectorBase const& sel) const {
 
-    BasicHandleVec results;
+    GroupQueryResultVec results;
 
     int nFound = findGroups(productType,
-                            preg_->productLookup(),
+                            ProductMetaData::instance().productLookup(),
                             sel,
                             results,
                             true);
@@ -155,31 +152,31 @@ namespace art {
       *whyFailed
         << "getBySelector: Found zero products matching all criteria\n"
         << "Looking for type: " << productType << "\n";
-      return BasicHandle(whyFailed);
+      return GroupQueryResult(whyFailed);
     }
     if (nFound > 1) {
       throw art::Exception(art::errors::ProductNotFound)
         << "getBySelector: Found "<<nFound<<" products rather than one which match all criteria\n"
-        << "Looking for type: " << productType << "\n";
+           "Looking for type: " << productType << "\n";
     }
     return results[0];
   }
 
-  BasicHandle
+  GroupQueryResult
   Principal::getByLabel(TypeID const& productType,
                         string const& label,
                         string const& productInstanceName,
                         string const& processName) const
   {
 
-    BasicHandleVec results;
+    GroupQueryResultVec results;
 
     art::Selector sel(art::ModuleLabelSelector(label) &&
                       art::ProductInstanceNameSelector(productInstanceName) &&
                       art::ProcessNameSelector(processName));
 
     int nFound = findGroups(productType,
-                            preg_->productLookup(),
+                            ProductMetaData::instance().productLookup(),
                             sel,
                             results,
                             true);
@@ -188,18 +185,18 @@ namespace art {
       std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound) );
       *whyFailed
         << "getByLabel: Found zero products matching all criteria\n"
-        << "Looking for type: " << productType << "\n"
-        << "Looking for module label: " << label << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n"
+           "Looking for type: " << productType << "\n"
+           "Looking for module label: " << label << "\n"
+           "Looking for productInstanceName: " << productInstanceName << "\n"
         << (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
-      return BasicHandle(whyFailed);
+      return GroupQueryResult(whyFailed);
     }
     if (nFound > 1) {
       throw art::Exception(art::errors::ProductNotFound)
         << "getByLabel: Found "<<nFound<<" products rather than one which match all criteria\n"
-        << "Looking for type: " << productType << "\n"
-        << "Looking for module label: " << label << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n"
+           "Looking for type: " << productType << "\n"
+           "Looking for module label: " << label << "\n"
+           "Looking for productInstanceName: " << productInstanceName << "\n"
         << (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
     }
     return results[0];
@@ -209,10 +206,10 @@ namespace art {
   void
   Principal::getMany(TypeID const& productType,
                      SelectorBase const& sel,
-                     BasicHandleVec& results) const {
+                     GroupQueryResultVec& results) const {
 
     findGroups(productType,
-               preg_->productLookup(),
+               ProductMetaData::instance().productLookup(),
                sel,
                results,
                false);
@@ -222,12 +219,12 @@ namespace art {
 
   void
   Principal::getManyByType(TypeID const& productType,
-                           BasicHandleVec& results) const {
+                           GroupQueryResultVec& results) const {
 
     art::MatchAllSelector sel;
 
     findGroups(productType,
-               preg_->productLookup(),
+               ProductMetaData::instance().productLookup(),
                sel,
                results,
                false);
@@ -237,13 +234,13 @@ namespace art {
   size_t
   Principal::getMatchingSequence(TypeID const& typeID,
                                  SelectorBase const& selector,
-                                 BasicHandleVec& results,
+                                 GroupQueryResultVec& results,
                                  bool stopIfProcessHasMatch) const {
 
     // One new argument is the element lookup container
     // Otherwise this just passes through the arguments to findGroups
     return findGroups(typeID,
-                      preg_->elementLookup(),
+                      ProductMetaData::instance().elementLookup(),
                       selector,
                       results,
                       stopIfProcessHasMatch);
@@ -262,7 +259,7 @@ namespace art {
   void
   Principal::readProvenanceImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if (i->second->provenanceAvailable()) {
+      if ( ! i->second->onDemand()) {
         i->second->resolveProvenance(*branchMapperPtr_);
       }
     }
@@ -273,7 +270,7 @@ namespace art {
   Principal::findGroups(TypeID const& typeID,
                         TypeLookup const& typeLookup,
                         SelectorBase const& selector,
-                        BasicHandleVec& results,
+                        GroupQueryResultVec& results,
                         bool stopIfProcessHasMatch) const {
     assert(results.empty());
 
@@ -323,7 +320,7 @@ namespace art {
   Principal::findGroupsForProcess(string const& processName,
                                   ProcessLookup const& processLookup,
                                   SelectorBase const& selector,
-                                  BasicHandleVec& results) const {
+                                  GroupQueryResultVec& results) const {
 
     ProcessLookup::const_iterator j = processLookup.find(processName);
 
@@ -351,9 +348,7 @@ namespace art {
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
             // Found a good match, save it
-            BasicHandle bh(group->product(), group->provenance());
-            bh.provenance()->setStore(cet::exempt_ptr<BranchMapper const>(branchMapperPtr_.get()));
-            results.push_back(bh);
+            results.push_back( GroupQueryResult(group.get()) );
           }
         }
       }
@@ -366,7 +361,8 @@ namespace art {
     if (g.productUnavailable()) {
       throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
         << "resolve_: product is not accessible\n"
-        << g.provenance() << '\n';
+        << g.productDescription() << '\n'
+        << *g.productProvenancePtr() << '\n';
     }
 
     if (g.product()) return; // nothing to do.
@@ -397,34 +393,13 @@ namespace art {
             productstatus::present(g->productProvenancePtr()->productStatus())) {
         throw art::Exception(art::errors::LogicError, "Principal::getForOutput\n")
          << "A product with a status of 'present' is not actually present.\n"
-         << "The branch name is " << g->productDescription().branchName() << "\n"
-         << "Contact a framework developer.\n";
+            "The branch name is " << g->productDescription().branchName() << "\n"
+            "Contact a framework developer.\n";
     }
     if (!g->product() && !g->productProvenancePtr()) {
       return OutputHandle();
     }
     return OutputHandle(g->product(), &g->productDescription(), g->productProvenancePtr());
-  }
-
-  Provenance
-  Principal::getProvenance(BranchID const& bid) const {
-    SharedConstGroupPtr const& g = getGroup(bid, false, true, true);
-    if (g.get() == 0) {
-      throw art::Exception(art::errors::ProductNotFound,"InvalidID")
-        << "getProvenance: no product with given branch id: "<< bid << "\n";
-    }
-
-    if (g->onDemand()) {
-      unscheduledFill(g->productDescription().moduleLabel());
-    }
-    // We already tried to produce the unscheduled products above
-    // If they still are not there, then throw
-    if (g->onDemand()) {
-      throw art::Exception(art::errors::ProductNotFound)
-        << "getProvenance: no product with given BranchID: "<< bid <<"\n";
-    }
-
-    return *g->provenance();
   }
 
   EDProduct const*

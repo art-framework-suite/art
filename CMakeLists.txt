@@ -3,8 +3,8 @@
 #
 #  cd .../path/to/build/directory
 #  source .../path/to/art/ups/setup_for_development
-#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] 
-#        [-Dqualifier:STRING=nova] 
+#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path]
+#        [-Dqualifier:STRING=nova]
 #        -DCMAKE_BUILD_TYPE=Debug
 #        $ART_SOURCE
 #  make

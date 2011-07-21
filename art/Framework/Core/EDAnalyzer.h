@@ -20,6 +20,7 @@
 
 namespace art
 {
+  class MasterProductRegistry;
 
   class EDAnalyzer
     : public EventObserver,
@@ -61,7 +62,10 @@ namespace art
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-    void registerAnyProducts(std::shared_ptr<EDAnalyzer>const&, ProductRegistry const*) {}
+
+    // Classes that inherit from EDAnalyzer should *never* override this function.
+    void registerAnyProducts(std::shared_ptr<EDAnalyzer>const&,
+                             MasterProductRegistry const*) {}
 
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}

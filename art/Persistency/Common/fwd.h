@@ -11,7 +11,6 @@
 
 namespace art {
 
-  class BasicHandle;
   class EDProduct;
   class EDProductGetter;
   class OutputHandle;

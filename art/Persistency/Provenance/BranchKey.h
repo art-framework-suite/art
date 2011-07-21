@@ -14,7 +14,6 @@ is determined entirely from the BranchKey.
 
 namespace art {
   class BranchDescription;
-  class ConstBranchDescription;
 
   struct BranchKey {
     BranchKey() : friendlyClassName_(), moduleLabel_(), productInstanceName_(), processName_()
@@ -29,7 +28,6 @@ namespace art {
     {}
 
     explicit BranchKey(BranchDescription const& desc);
-    explicit BranchKey(ConstBranchDescription const& desc);
 
     std::string friendlyClassName_;
     std::string moduleLabel_;

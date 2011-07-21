@@ -11,7 +11,7 @@ Key concepts of the art framework
 Data-related
 ------------
 
-* **Event Data Model**: Representation of the data that an experiment collects, all derived information, 
+* **Event Data Model**: Representation of the data that an experiment collects, all derived information,
   and historical records necessary for reproduction of results.
 
 * **Data Products**: Experiment defined classes that represent detector signals, reconstruction results,
@@ -41,5 +41,5 @@ Processing-related
 * **Services**: A global facility that is dependent on the state of the application and that can
   be accessed from any module.
 
-* **Process Name**: User-assigned name representing the kind of processing that a job is affiliated 
+* **Process Name**: User-assigned name representing the kind of processing that a job is affiliated
   with, such as reconstruction, testing, filtering.

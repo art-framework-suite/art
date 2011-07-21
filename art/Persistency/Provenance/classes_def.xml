@@ -48,7 +48,8 @@
    <class name="std::set<art::BranchID>"/>
    <class name="std::pair<art::BranchID, std::set<art::BranchID> >"/>
    <class name="std::map<art::BranchID, std::set<art::BranchID> >"/>
- <class name="art::ProductRegistry" ClassVersion="10">
+ <class name="art::ProductRegistry" ClassVersion="11">
+  <version ClassVersion="11" checksum="2309607360"/>
   <version ClassVersion="10" checksum="1533689113"/>
  </class>
    <class name="art::BranchKey" ClassVersion="10">
@@ -61,9 +62,7 @@
      <class name="art::ProcessConfigurationID"/>
      <class name="std::set<art::ProcessConfigurationID>"/>
    <class name="std::pair<art::BranchKey, art::BranchDescription>"/>
-   <class name="art::ProductRegistry::ProductList" ClassVersion="10">
-    <version ClassVersion="10" checksum="3012044961"/>
-   </class>
+   <class name="art::ProductList"/>
  <class name="art::Parentage" ClassVersion="10">
   <version ClassVersion="10" checksum="3473129795"/>
  </class>

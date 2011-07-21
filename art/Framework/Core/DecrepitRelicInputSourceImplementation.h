@@ -64,6 +64,7 @@ Some examples of InputSource subclasses may be:
 namespace art
 {
   class ActivityRegistry;
+  class MasterProductRegistry;
 
   class DecrepitRelicInputSourceImplementation :
     public InputSource,
@@ -73,7 +74,7 @@ namespace art
   public:
 
     DecrepitRelicInputSourceImplementation(fhicl::ParameterSet const&,
-					   InputSourceDescription const&);
+					   InputSourceDescription &);
 
     virtual ~DecrepitRelicInputSourceImplementation() = 0;
 
@@ -92,11 +93,11 @@ namespace art
     /// Read next subRun
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
 
-    /// Read next run
+    /// Read next run.
     std::shared_ptr<RunPrincipal> readRun();
 
     /// Read next file
-    std::shared_ptr<FileBlock> readFile();
+    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&);
 
     /// close current file
     void closeFile();
@@ -118,9 +119,6 @@ namespace art
 
     /// issue an event report
     void issueReports(EventID const& eventID);
-
-    /// Accessor for product registry.
-    cet::exempt_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
 
     /// Reset the remaining number of events/subRuns to the maximum number.
     void repeat_() {
@@ -174,7 +172,7 @@ namespace art
     ProcessingMode processingMode() const {return processingMode_;}
 
     /// Accessor for Activity Registry
-    std::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
+    //std::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
     using ProductRegistryHelper::reconstitutes;
     using ProductRegistryHelper::typeLabelList;
@@ -183,7 +181,6 @@ namespace art
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
     input::ItemType state() const{return state_;}
     std::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
     std::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
@@ -210,7 +207,9 @@ namespace art
     virtual std::shared_ptr<RunPrincipal> readRun_() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
-    virtual std::shared_ptr<FileBlock> readFile_();
+    // Only subclasses that actually read a file will need to use the
+    // MasterProductRegistry.
+    virtual std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
@@ -222,8 +221,8 @@ namespace art
     virtual void beginJob();
     virtual void endJob();
 
-    /// Register any produced products
-    void registerProducts_();
+    /// Register any products read by this input.
+    void registerProducts_(MasterProductRegistry&);
 
   private:
     std::shared_ptr<ActivityRegistry> actReg_;
@@ -234,7 +233,6 @@ namespace art
     int readCount_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    cet::exempt_ptr<ProductRegistry const> productRegistry_;
     Timestamp time_;
     bool doneReadAhead_;
     input::ItemType state_;

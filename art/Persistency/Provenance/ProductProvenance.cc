@@ -77,14 +77,14 @@ namespace art {
   }
 
   void
-  ProductProvenance::setPresent() {
+  ProductProvenance::setPresent() const {
     if (productstatus::present(productStatus())) return;
     assert(productstatus::unknown(productStatus()));
     setStatus(productstatus::present());
   }
 
   void
-  ProductProvenance::setNotPresent() {
+  ProductProvenance::setNotPresent() const {
     if (productstatus::neverCreated(productStatus())) return;
     if (productstatus::dropped(productStatus())) return;
     assert(productstatus::unknown(productStatus()));

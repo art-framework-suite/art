@@ -22,7 +22,6 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       ProcessHistory.cc
                                       ProductID.cc
                                       ProductProvenance.cc
-                                      ProductRegistry.cc
                                       Provenance.cc
                                       ReflexTools.cc
                                       RunAuxiliary.cc
@@ -50,7 +49,6 @@ install(FILES
   BranchListIndex.h
   BranchMapper.h
   BranchType.h
-  ConstBranchDescription.h
   EventAuxiliary.h
   EventID.h
   EventProcessHistoryID.h

@@ -34,10 +34,10 @@ services:
 services.message: @local::messageDefaults
 
 physics:
-{  
+{
   analyzers:
   {
-    a1: 
+    a1:
     {
       module_type: FailingAnalyzer
     }

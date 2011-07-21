@@ -17,25 +17,23 @@ using namespace std;
 
 
 namespace art {
-// The following typedef is used only in this implementation file, in
-// order to shorten several lines of code.
-  typedef vector<art::BranchDescription const*> VCBDP;
-
   GroupSelector::GroupSelector() : groupsToSelect_(), initialized_(false) {}
 
   void
-  GroupSelector::initialize(GroupSelectorRules const& rules, VCBDP const& branchDescriptions) {
+  GroupSelector::initialize(GroupSelectorRules const& rules,
+                            ProductList const& branchDescriptions) {
     typedef GroupSelectorRules::BranchSelectState BranchSelectState;
 
     // Get a BranchSelectState for each branch, containing the branch
     // name, with its 'select bit' set to false.
     vector<BranchSelectState> branchstates;
-    {
-      branchstates.reserve(branchDescriptions.size());
-
-      VCBDP::const_iterator it = branchDescriptions.begin();
-      VCBDP::const_iterator end = branchDescriptions.end();
-      for (; it != end; ++it) branchstates.push_back(BranchSelectState(*it));
+    branchstates.reserve(branchDescriptions.size());
+    for (ProductList::const_iterator
+           it = branchDescriptions.begin(),
+           end = branchDescriptions.end();
+         it != end;
+         ++it) {
+      branchstates.push_back(BranchSelectState(&it->second));
     }
 
     // Now  apply the rules to  the branchstates, in order.  Each rule

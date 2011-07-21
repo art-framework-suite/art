@@ -14,7 +14,7 @@ are encouraged to skip to the `Summary`_.
 Overview and Purpose
 ====================
 
-This document provides guidelines for the use of pointers 
+This document provides guidelines for the use of pointers
 and "smart pointer" templates
 in art-based software.
 It is intended to help you choose the best type of "pointer"
@@ -31,7 +31,7 @@ The most important guideline is:
 
 This means that you should use the pointer type that most directly conveys
 the purpose of the code.
-Writing your code so that it 
+Writing your code so that it
 *clearly expresses your intent*
 takes little extra effort,
 and pays large dividends in the future.
@@ -65,7 +65,7 @@ The code below shows the common (but not universal) interface::
   X* xptr = p.operator->();       // member selection, abnormal use
   p->someMemberFunctionOfTypeX(); // member selection, normal use
 
-The Standard Library provides only one pointer class template: ``std::auto_ptr<T>``. 
+The Standard Library provides only one pointer class template: ``std::auto_ptr<T>``.
 To use it, one must include the header ``<memory>``.
 
 The Boost_ library, which may be used freely by any software project based on art,
@@ -84,7 +84,7 @@ we make no further mention of these array forms.
 
 The key issue regarding choice of pointer type
 is the issue of *resource ownership*.
-The answer to the question 
+The answer to the question
 "Who is responsible for managing the memory for the pointed-to object?"
 most often dictates the choice of pointer type to be used.
 
@@ -177,14 +177,14 @@ Thus, no pointer is needed::
     ...   use the object s ...
   } // s destroyed on function exit
 
-The stack-based allocation of the object ``s`` 
+The stack-based allocation of the object ``s``
 assures that it will not be "leaked".
 The following code is never appropriate::
 
    void bad_f() {
      SomeType* s = new SomeType(...); // create it on the heap
      ...  use the object pointed to by s ...
-     delete s; 
+     delete s;
    }
 
 Even though this code calls ``delete`` on ``s``,
@@ -261,7 +261,7 @@ Ask the following questions:
 For class data members
 ----------------------
 
-Please refer to EDM documentation 
+Please refer to EDM documentation
 for special issues regarding design of classes used as ``EDProducts``.
 Such classes are subject to restrictions
 imposed by the art Event Data Model
@@ -318,7 +318,7 @@ Pointer type         Ownership   Copy semantics   Example uses
                                                   but not where shared ownership is
                                                   inappropriate
 ``auto_ptr<T>``      sole        transfer         return newly created object;
-                                                  pass ownership into called function 
+                                                  pass ownership into called function
 ``scoped_ptr<T>``    sole        not allowed      object created locally in function;
                                                   data member for class that should not
                                                   be copyable
@@ -340,4 +340,3 @@ Pointer type         Ownership   Copy semantics   Example uses
        or *letter-envelope* technique,
        can be used to make private members of a class truly invisible.
        See **C++ Coding Standards**, by Sutter and Alexandrescu, Item 43.
-

@@ -18,11 +18,7 @@ namespace art
   class PrincipalMaker
   {
   public:
-    PrincipalMaker(ProductRegistry& preg,
-                   ProcessConfiguration& pconf) :
-      preg_(preg),
-      processConfig_(pconf)
-    { }
+    explicit PrincipalMaker(ProcessConfiguration const& pconf);
 
     RunPrincipal* makeRunPrincipal(RunNumber_t r,
                                    Timestamp const &startTime) const;
@@ -40,9 +36,7 @@ namespace art
                                        EventAuxiliary::Data) const;
 
   private:
-    ProductRegistry&      preg_;
-    ProcessConfiguration& processConfig_;
-
+    ProcessConfiguration const& processConfig_;
   };
 }
 

@@ -128,7 +128,7 @@ namespace arttest
 
     bool readSomething = false;
 
-    if ((*current_)[0] != -1) 
+    if ((*current_)[0] != -1)
       {
         Timestamp runstart; // current time?
         outR = pm_.makeRunPrincipal((*current_)[0],  // run number
@@ -138,7 +138,7 @@ namespace arttest
                                  "r1");
          readSomething = true;
       }
-    if ((*current_)[1] != -1) 
+    if ((*current_)[1] != -1)
       {
         assert(outR || inR);
         SubRunID newSRID;
@@ -160,7 +160,7 @@ namespace arttest
                                  "s1");
         readSomething = true;
       }
-    if ((*current_)[2] != -1) 
+    if ((*current_)[2] != -1)
       {
         assert(outSR || inSR);
         Timestamp runstart; // current time?
@@ -196,7 +196,7 @@ namespace arttest
   }
 
   void ToyFile::readFile(std::string const &name,
-                         art::FileBlock*& fb) 
+                         art::FileBlock*& fb)
   {
     if (throw_on_readFile_) throw_exception_from("readFile");
     if (!data_.get_if_present(name, fileData_))

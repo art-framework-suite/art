@@ -412,7 +412,7 @@ art::PtrVector<T>::sort() {
   sort(std::less<T>());
 }
 
-template <typename T> 
+template <typename T>
 template <class COMP>
 inline void
 art::PtrVector<T>::sort(COMP comp) {

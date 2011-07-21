@@ -13,6 +13,7 @@
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "boost/noncopyable.hpp"

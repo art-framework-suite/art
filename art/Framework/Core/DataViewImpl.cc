@@ -1,10 +1,11 @@
 #include "art/Framework/Core/DataViewImpl.h"
 
 #include "art/Framework/Core/Principal.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Core/Selector.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "cetlib/container_algorithms.h"
 #include <algorithm>
@@ -24,7 +25,7 @@ namespace art {
   {  }
 
   struct deleter {
-    void operator()(pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
+    void operator()(pair<EDProduct*, BranchDescription const*> const p) const { delete p.first; }
   };
 
   DataViewImpl::~DataViewImpl() {
@@ -38,7 +39,7 @@ namespace art {
     return putProducts_.size() + principal_.size();
   }
 
-  BasicHandle
+  GroupQueryResult
   DataViewImpl::get_(TypeID const& tid, SelectorBase const& sel) const
   {
     return principal_.getBySelector(tid, sel);
@@ -47,12 +48,12 @@ namespace art {
   void
   DataViewImpl::getMany_(TypeID const& tid,
                   SelectorBase const& sel,
-                  BasicHandleVec& results) const
+                  GroupQueryResultVec& results) const
   {
     principal_.getMany(tid, sel, results);
   }
 
-  BasicHandle
+  GroupQueryResult
   DataViewImpl::getByLabel_(TypeID const& tid,
                      string const& label,
                      string const& productInstanceName,
@@ -63,7 +64,7 @@ namespace art {
 
   void
   DataViewImpl::getManyByType_(TypeID const& tid,
-                  BasicHandleVec& results) const
+                  GroupQueryResultVec& results) const
   {
     principal_.getManyByType(tid, results);
   }
@@ -71,7 +72,7 @@ namespace art {
   int
   DataViewImpl::getMatchingSequence_(TypeID const& typeID,
                                      SelectorBase const& selector,
-                                     BasicHandleVec& results,
+                                     GroupQueryResultVec& results,
                                      bool stopIfProcessHasMatch) const
   {
     return principal_.getMatchingSequence(typeID,
@@ -84,7 +85,7 @@ namespace art {
   DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
                                             string const& label,
                                             string const& productInstanceName,
-                                            BasicHandleVec& results,
+                                            GroupQueryResultVec& results,
                                             bool stopIfProcessHasMatch) const
   {
     art::Selector sel(art::ModuleLabelSelector(label) &&
@@ -102,7 +103,7 @@ namespace art {
                                             string const& label,
                                             string const& productInstanceName,
                                             string const& processName,
-                                            BasicHandleVec& results,
+                                            GroupQueryResultVec& results,
                                             bool stopIfProcessHasMatch) const
   {
     art::Selector sel(art::ModuleLabelSelector(label) &&
@@ -122,13 +123,13 @@ namespace art {
     return principal_.processHistory();
   }
 
-  ConstBranchDescription const&
+  BranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
                                      string const& productInstanceName) const {
     string friendlyClassName = type.friendlyClassName();
         BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
-    ProductRegistry::ConstProductList const& pl = principal_.productRegistry().constProductList();
-    ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);
+    ProductList const& pl = ProductMetaData::instance().productList();
+    ProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {
       throw art::Exception(art::errors::InsertFailure)
         << "Illegal attempt to 'put' an unregistered product.\n"
@@ -138,8 +139,8 @@ namespace art {
         << "  product friendly class name: '" << bk.friendlyClassName_ << "'\n"
         << "  product instance name:       '" << bk.productInstanceName_ << "'\n"
 
-        << "The ProductRegistry contains:\n"
-        << principal_.productRegistry()
+        << "Registered products currently:\n"
+        << ProductMetaData::instance()
         << '\n';
     }
     if(it->second.branchType() != branchType_) {

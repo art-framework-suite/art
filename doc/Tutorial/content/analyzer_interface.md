@@ -9,7 +9,7 @@ Analyzer Interface
 ==================
 
     class EDAnalyzer {
-      // explicit EDAnalyzer(ParameterSet const&) 
+      // explicit EDAnalyzer(ParameterSet const&)
 
       virtual void analyze(Event const&) = 0
       virtual void reconfigure(ParameterSet const&)

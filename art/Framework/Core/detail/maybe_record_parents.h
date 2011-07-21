@@ -20,7 +20,7 @@ namespace art {
             void operator()(DataViewImpl::ProductPtrVec &used,
                             DataViewImpl::ProductPtrVec &ignored,
                             Wrapper<T>* wp,
-                            ConstBranchDescription const* desc) const {
+                            BranchDescription const* desc) const {
                used.push_back(std::make_pair(wp, desc));
             }
          };  // RecordInParentless<>
@@ -30,7 +30,7 @@ namespace art {
             void operator()(DataViewImpl::ProductPtrVec &used,
                             DataViewImpl::ProductPtrVec &ignored,
                             Wrapper<T>* wp,
-                            ConstBranchDescription const* desc) const {
+                            BranchDescription const* desc) const {
                used.push_back(std::make_pair(wp, desc));
             }
          };  // RecordInParentfull<>
@@ -39,7 +39,7 @@ namespace art {
          void maybe_record_parents(DataViewImpl::ProductPtrVec &used,
                                    DataViewImpl::ProductPtrVec &ignored,
                                    Wrapper<T> *wp,
-                                   ConstBranchDescription const *desc) {
+                                   BranchDescription const *desc) {
          typename std::conditional<
             has_donotrecordparents<T>::value,
             RecordInParentless<T>,

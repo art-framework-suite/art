@@ -25,6 +25,22 @@ operator<<(std::ostream &os, art::MasterProductRegistry const &mpr) {
   return os;
 }
 
+art::MasterProductRegistry::MasterProductRegistry()
+  :
+  productList_(),
+  frozen_(false),
+  productProduced_(),
+  productLookup_(),
+  elementLookup_()
+{
+   // FIXME: Use C++2011 initialization when available.
+  for (std::array<bool, NumBranchTypes>::size_type i = 0;
+       i < productProduced_.size();
+       ++i) {
+    productProduced_[i] = false;
+  }
+}
+
 std::vector<art::BranchDescription const *>
 art::MasterProductRegistry::allBranchDescriptions() const {
   std::vector<BranchDescription const *> result;
@@ -78,15 +94,19 @@ art::MasterProductRegistry::print(std::ostream &os) const {
 }
 
 void
-art::MasterProductRegistry::addProduct(BranchDescription  &productDesc) {
-  assert(productDesc.produced());
+art::MasterProductRegistry::addProduct(std::auto_ptr<BranchDescription> bdp) {
+  assert(bdp->produced());
   throwIfFrozen();
-  productDesc.init();
-  checkDicts(productDesc);
-  if (!productList_.insert(std::make_pair(BranchKey(productDesc), productDesc)).second) {
+  bdp->init();
+  checkDicts(*bdp);
+  std::pair<ProductList::iterator, bool> result =
+    productList_.insert(std::make_pair(BranchKey(*bdp), BranchDescription()));
+  if (result.second) {
+    result.first->second.swap(*bdp);
+  } else { // Error.
     throw art::Exception(errors::Configuration)
       << "The process name "
-      << productDesc.processName()
+      << bdp->processName()
       << " was previously used on these products.\n"
       << "Please modify the configuration file to use a "
       << "distinct process name.\n";

@@ -14,7 +14,7 @@
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/PrincipalCache.h"
-#include "art/Framework/Core/SignallingProductRegistry.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/WorkerRegistry.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
@@ -312,7 +312,7 @@ namespace art {
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     std::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
-    SignallingProductRegistry                     preg_;
+    MasterProductRegistry                         preg_;
     ServiceToken                                  serviceToken_;
     std::shared_ptr<InputSource>                input_;
     std::auto_ptr<Schedule>                       schedule_;

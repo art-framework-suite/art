@@ -11,6 +11,8 @@
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
+#include "art/Persistency/Provenance/ProductList.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
@@ -19,10 +21,10 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PassID.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
+#include "cetlib/exempt_ptr.h"
 #include "cpp0x/functional"
 #include <algorithm>
 #include <cassert>
@@ -78,12 +80,11 @@ namespace art
   Schedule::Schedule(ParameterSet const& proc_pset,
                      art::TriggerNamesService& tns,
                      WorkerRegistry& wreg,
-                     ProductRegistry& preg,
+                     MasterProductRegistry& pregistry,
                      ActionTable& actions,
                      std::shared_ptr<ActivityRegistry> areg):
     pset_(proc_pset),
     worker_reg_(&wreg),
-    prod_reg_(&preg),
     act_table_(&actions),
     processName_(tns.getProcessName()),
     actReg_(areg),
@@ -116,7 +117,7 @@ namespace art
           i != e;
           ++i)
         {
-           fillTrigPath(trig_bitpos, *i, results_);
+          fillTrigPath(trig_bitpos, *i, results_, pregistry);
            ++trig_bitpos;
            hasPath = true;
         }
@@ -124,7 +125,7 @@ namespace art
      if (hasPath)
         {
            // the results inserter stands alone
-           results_inserter_ = makeInserter(tns.getTriggerPSet());
+          results_inserter_ = makeInserter(tns.getTriggerPSet(), pregistry);
            addToAllWorkers(results_inserter_.get());
         }
 
@@ -135,7 +136,7 @@ namespace art
      vstring::iterator eib(end_path_name_list_.begin());
      vstring::iterator eie(end_path_name_list_.end());
      for(int bitpos = 0; eib != eie; ++eib, ++bitpos)
-        fillEndPath(bitpos, *eib);
+       fillEndPath(bitpos, *eib, pregistry);
 
      //See if all modules were used
      set<string> usedWorkerLabels;
@@ -182,7 +183,7 @@ namespace art
                           outputs.get_if_present(*itLabel, workersParams) ||
                           analyzers.get_if_present(*itLabel, workersParams);
                        WorkerParams params(proc_pset, workersParams,
-                                           *prod_reg_, *act_table_,
+                                           pregistry, *act_table_,
                                            processName_, getReleaseVersion(),
                                            getPassID());
                        Worker* newWorker(wreg.getWorker(params));
@@ -246,17 +247,19 @@ namespace art
      // Now that the output workers are filled in, set any output limits.
      limitOutput();
 
-     prod_reg_->setFrozen();
+     pregistry.setFrozen();
 
      if (allowUnscheduled)
         {
            // Now that these have been set, we can create the list of
            // Branches we need for the 'on demand.'
-           catalogOnDemandBranches(unscheduledLabels);
+          catalogOnDemandBranches(unscheduledLabels, pregistry);
         }
 
      // Test path invariants.
      pathConsistencyCheck(all_workers_count);
+
+     ProductMetaData::create_instance(pregistry);
 
   } // Schedule::Schedule
 
@@ -283,9 +286,11 @@ namespace art
     return true;
   }
 
-  void Schedule::fillWorkers(string const& name,
-			     PathWorkers& out,
-			     bool isTrigPath)
+  void
+  Schedule::fillWorkers(string const& name,
+                        PathWorkers& out,
+                        bool isTrigPath,
+                        MasterProductRegistry &pregistry)
   {
      ParameterSet empty;
      ParameterSet physics =   pset_.get<ParameterSet>("physics");
@@ -317,7 +322,7 @@ namespace art
                (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
                (isTrigPath?outputs:filters).get_if_present(realname, modpset))
               {
-                 WorkerParams params(pset_, modpset, *prod_reg_, *act_table_,
+                 WorkerParams params(pset_, modpset, pregistry, *act_table_,
                                      processName_, getReleaseVersion(), getPassID());
                  WorkerInPath w(worker_reg_->getWorker(params), filterAction);
                  tmpworkers.push_back(w);
@@ -340,13 +345,15 @@ namespace art
      out.swap(tmpworkers);
   }
 
-  void Schedule::fillTrigPath(int bitpos,
-			      string const& name,
-			      TrigResPtr trptr)
+  void
+  Schedule::fillTrigPath(int bitpos,
+                         string const& name,
+                         TrigResPtr trptr,
+                         MasterProductRegistry &pregistry)
   {
     PathWorkers tmpworkers;
     Workers holder;
-    fillWorkers(name,tmpworkers, true);
+    fillWorkers(name,tmpworkers, true, pregistry);
 
     for(PathWorkers::iterator
 	  i = tmpworkers.begin(),
@@ -366,10 +373,10 @@ namespace art
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
-  void Schedule::fillEndPath(int bitpos, string const& name)
+  void Schedule::fillEndPath(int bitpos, string const& name, MasterProductRegistry &pregistry)
   {
     PathWorkers tmpworkers;
-    fillWorkers(name,tmpworkers, false);
+    fillWorkers(name,tmpworkers, false, pregistry);
     Workers holder;
 
     for(PathWorkers::iterator
@@ -917,9 +924,8 @@ namespace art
 
   void
   Schedule::setupOnDemandSystem(EventPrincipal& ep) {
-    // NOTE: who owns the productdescription?  Just copied by value
     ep.setUnscheduledHandler(unscheduled_);
-    typedef vector<std::shared_ptr<ConstBranchDescription const> > branches;
+    typedef vector<cet::exempt_ptr<BranchDescription const> > branches;
     for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
         itBranch != itBranchEnd;
         ++itBranch) {
@@ -928,9 +934,9 @@ namespace art
   }
 
   Schedule::WorkerPtr
-  Schedule::makeInserter(ParameterSet const& trig_pset) const {
+  Schedule::makeInserter(ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const {
 
-    WorkerParams work_args(pset_,trig_pset,*prod_reg_,*act_table_,processName_);
+    WorkerParams work_args(pset_,trig_pset,pregistry,*act_table_,processName_);
     ModuleDescription md;
     md.parameterSetID_ = trig_pset.id();
     md.moduleName_ = "TriggerResultInserter";
@@ -946,10 +952,10 @@ namespace art
     return ptr;
   }
 
-  void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels) {
-    ProductRegistry::ProductList const& prodsList = prod_reg_->productList();
+  void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels, MasterProductRegistry &pregistry) {
+    ProductList const& prodsList = pregistry.productList();
     typename std::set<std::string>::const_iterator const ul_end = unscheduledLabels.end();
-    for (ProductRegistry::ProductList::const_iterator
+    for (ProductList::const_iterator
            itProdInfo = prodsList.begin(),
            itProdInfoEnd = prodsList.end();
          itProdInfo != itProdInfoEnd;
@@ -957,8 +963,7 @@ namespace art
       if (processName_ == itProdInfo->second.processName() &&
           itProdInfo->second.branchType() == InEvent &&
           ul_end != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-        std::shared_ptr<ConstBranchDescription const> bd(new ConstBranchDescription(itProdInfo->second));
-        demandBranches_.push_back(bd);
+        demandBranches_.push_back(cet::exempt_ptr<BranchDescription const>(&itProdInfo->second));
       }
     }
   }

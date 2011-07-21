@@ -42,7 +42,7 @@ namespace art
 
 
   bool
-  Selector::doMatch(ConstBranchDescription const& prov) const
+  Selector::doMatch(BranchDescription const& prov) const
   {
     return sel_->match(prov);
   }

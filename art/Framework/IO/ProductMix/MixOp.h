@@ -2,14 +2,14 @@
 #define art_Framework_IO_ProductMix_MixOp_h
 
 #include "art/Framework/Core/Event.h"
+#include "art/Persistency/Provenance/ProductList.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Persistency/Common/RefCoreTransientStreamer.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/InputTag.h"
@@ -177,11 +177,11 @@ outgoingBranchID() const {
                 moduleLabel_,
                 outputInstanceLabel_,
                 processName_);
-  ProductRegistry const &pReg =
-    ServiceHandle<ConstProductRegistry>()->productRegistry();
-  ProductRegistry::ConstProductList::const_iterator i =
-    pReg.constProductList().find(key);
-  if (i == pReg.constProductList().end()) {
+
+  ProductList const& products = ProductMetaData::instance().productList();
+  ProductList::const_iterator i = products.find(key);
+
+  if (i == products.end()) {
     throw Exception(errors::LogicError)
       << "MixOp unable to find branch id for a product that should have been registered!\n";
   }

@@ -62,16 +62,16 @@ namespace
 }
 
 
-namespace art {
+namespace art
+{
   class EDProduct;
   class ModuleDescription;
-  class ProductRegistry;
-
+  class MasterProductRegistry;
   class ProductRegistryHelper;
-}  // art
+}
 
-
-class art::ProductRegistryHelper {
+class art::ProductRegistryHelper
+{
 public:
 
   // used by the fwk to register the list of products that are
@@ -83,7 +83,7 @@ public:
   void addToRegistry(TypeLabelList::iterator i,
                      TypeLabelList::iterator e,
                      ModuleDescription const& md,
-                     ProductRegistry& preg,
+                     MasterProductRegistry& preg,
                      bool isListener=false);
 
   // Record the production of an object of type P, with optional

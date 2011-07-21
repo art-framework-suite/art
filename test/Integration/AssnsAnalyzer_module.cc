@@ -56,11 +56,11 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
 
   if (testAB_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hAB));
-    BOOST_REQUIRE_EQUAL(hAB->size(),3);
+    BOOST_REQUIRE_EQUAL(hAB->size(),3u);
   }
   if (testBA_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hBA));
-    BOOST_REQUIRE_EQUAL(hBA->size(),3);
+    BOOST_REQUIRE_EQUAL(hBA->size(),3u);
   }
 
   for (size_t i = 0; i < 3; ++i) {

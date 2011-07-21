@@ -4,10 +4,10 @@
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/ModuleFactory.h"
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -62,7 +62,7 @@ void testmaker2::maker2Test()
 
   art::ActionTable table;
 
-  art::ProductRegistry preg;
+  art::MasterProductRegistry preg;
   art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
   art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 

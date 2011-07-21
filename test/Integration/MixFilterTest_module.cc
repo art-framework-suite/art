@@ -28,7 +28,7 @@ public:
   // MixHelper::declareMixOp() and bookkeeping products with
   // MixHelperproduces().
   MixFilterTestDetail(fhicl::ParameterSet const &p,
-                      art::MixHelper &helper);    
+                      art::MixHelper &helper);
 
   // Optional startEvent(): initialize state for each event,
   void startEvent();

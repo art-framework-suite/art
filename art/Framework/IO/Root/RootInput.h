@@ -25,15 +25,18 @@
 
 // ----------------------------------------------------------------------
 
+namespace art
+{
+  class MasterProductRegistry;
+}
 
 class art::RootInput : public art::DecrepitRelicInputSourceImplementation
 {
 public:
   explicit RootInput(fhicl::ParameterSet    const & pset,
-                     InputSourceDescription const & desc);
+                     InputSourceDescription & desc);
   virtual ~RootInput( );
 
-  using DecrepitRelicInputSourceImplementation::productRegistryUpdate;
   using DecrepitRelicInputSourceImplementation::runPrincipal;
 
   // This function will find the requested event and set the system up
@@ -96,37 +99,51 @@ private:
 
   virtual input::ItemType nextItemType();
   using DecrepitRelicInputSourceImplementation::readEvent;
+
   virtual std::auto_ptr<EventPrincipal>
-  readEvent(std::shared_ptr<SubRunPrincipal> srp);
+  readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr);
+
   virtual std::shared_ptr<SubRunPrincipal>
   readSubRun(std::shared_ptr<RunPrincipal> rp);
+
   virtual std::shared_ptr<RunPrincipal>
   readRun();
+
   virtual std::shared_ptr<FileBlock>
-  readFile();
+  readFile(MasterProductRegistry&);
+
   virtual std::auto_ptr<EventPrincipal>
   readEvent_( );
+
   virtual std::shared_ptr<SubRunPrincipal>
   readSubRun_( );
+
   virtual std::shared_ptr<RunPrincipal>
   readRun_( );
+
   virtual std::shared_ptr<FileBlock>
-  readFile_( );
+  readFile_(MasterProductRegistry&);
+
   virtual void
   closeFile_( );
+
   virtual void
   endJob( );
+
   virtual input::ItemType
   getNextItemType( );
+
   virtual std::auto_ptr<EventPrincipal>
-  readIt( EventID const & id );
+  readIt( EventID const& id, MasterProductRegistry& );
+
   virtual void
-  skip( int offset );
+  skip( int offset, MasterProductRegistry& );
+
   virtual void
   rewind_( );
 
   template <typename T>
-  EventID postSeekChecks(EventID const &foundID, T eventSpec,
+  EventID postSeekChecks(EventID const &foundID, T eventSpec, MasterProductRegistry& mpr,
                          typename std::enable_if<std::is_convertible<T, off_t>::value >::type * = 0);
 
   template <typename T>
@@ -165,6 +182,7 @@ template <typename T>
 art::EventID
 art::RootInput::postSeekChecks(EventID const &foundID,
                                T eventspec,
+                               MasterProductRegistry& mpr,
                                typename std::enable_if<std::is_convertible<T, off_t>::value >::type *) {
   if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
     // We're supposed to be reading the, "next" event but it's a
@@ -173,7 +191,7 @@ art::RootInput::postSeekChecks(EventID const &foundID,
       << "Duplicate Events found: "
       << "both events were " << foundID << ".\n"
       << "The duplicate will be skipped.\n";
-    return primaryFileSequence_->seekToEvent(1, false);
+    return primaryFileSequence_->seekToEvent(1, mpr, false);
   }
   return foundID;
 }

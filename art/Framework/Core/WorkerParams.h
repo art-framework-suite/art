@@ -1,12 +1,10 @@
+
 #ifndef art_Framework_Core_WorkerParams_h
 #define art_Framework_Core_WorkerParams_h
 
-/** ----------------------
+// This struct is used to communicate parameters into the worker factory.
 
-This struct is used to communication parameters into the worker factory.
-
----------------------- **/
-
+#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"
@@ -15,7 +13,6 @@ This struct is used to communication parameters into the worker factory.
 #include <string>
 
 namespace art {
-  class ProductRegistry;
   class ActionTable;
 
   struct WorkerParams
@@ -26,7 +23,7 @@ namespace art {
 
     WorkerParams(fhicl::ParameterSet const& procPset,
                  fhicl::ParameterSet const& pset,
-                 ProductRegistry& reg,
+                 MasterProductRegistry& reg,
                  ActionTable& actions,
                  std::string const& processName,
                  std::string const & releaseVersion=getReleaseVersion(),
@@ -36,7 +33,7 @@ namespace art {
 
     fhicl::ParameterSet const* procPset_;
     fhicl::ParameterSet const* pset_;
-    ProductRegistry* reg_;
+    MasterProductRegistry* reg_;
     ActionTable* actions_;
     std::string processName_;
     ReleaseVersion releaseVersion_;

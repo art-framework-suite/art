@@ -14,7 +14,7 @@ FHiCL Job Configuration
 
         services: {
           TFileService: {
-            fileName: "cosmics_hist.root" 
+            fileName: "cosmics_hist.root"
           }
           user: @local::ndos_services
         }
@@ -26,13 +26,13 @@ FHiCL Job Configuration
 
         outputs: {
           out1: {
-            module_type: RootOutput   
+            module_type: RootOutput
             fileName: "cosmics_gen.root"
           }
         }
 
         physics: {
-          producers: { 
+          producers: {
             generator: @local::cosmics_ndos
             geantgen:  @local::standard_geant4
             photrans:  @local::standard_photrans
@@ -40,14 +40,14 @@ FHiCL Job Configuration
 
 	  } # things will be added here
 
-          simulate: [ generator, geantgen, photrans, daq ] 
-          stream1:  [ out1 ] 
+          simulate: [ generator, geantgen, photrans, daq ]
+          stream1:  [ out1 ]
           trigger_paths: [simulate]
           end_paths:     [stream1]
         }
-        
+
         # Existing elements can be replaced ...
         services.user.Geometry:         @local::fd_geo
         services.TFileService.fileName: "mccheckout.root"
-        
+
         outputs.out1.fileName: "sim_cosmics.root"

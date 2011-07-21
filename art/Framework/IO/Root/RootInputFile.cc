@@ -7,6 +7,8 @@
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/GroupSelector.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
@@ -21,7 +23,6 @@
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
@@ -85,7 +86,7 @@ namespace art {
       subRunTree_(filePtr_, InSubRun),
       runTree_(filePtr_, InRun),
       treePointers_(),
-      productRegistry_(),
+      productListHolder_(),
       branchIDLists_(),
       processingMode_(processingMode),
       forcedRunOffset_(forcedRunOffset),
@@ -117,10 +118,8 @@ namespace art {
     FileIndex *findexPtr = &fileIndex_;
     setMetaDataBranchAddress(metaDataTree, findexPtr);
 
-    ProductRegistry *ppReg = 0;
-    setMetaDataBranchAddress(metaDataTree, ppReg);
-
-    productRegistry_.reset(ppReg);
+    ProductRegistry *ppList = 0;
+    setMetaDataBranchAddress(metaDataTree, ppList);
 
     // TODO: update to separate tree per CMS code (2010/12/01).
     ParameterSetMap psetMap;
@@ -188,12 +187,16 @@ namespace art {
 
     readEventHistoryTree();
 
-    dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
+    dropOnInput(groupSelectorRules, dropDescendants, dropMergeable, ppList->productList_);
+    productListHolder_ = ppList;
 
     // Set up information from the product registry.
-    ProductRegistry::ProductList const& prodList = productRegistry()->productList();
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-        it != itEnd; ++it) {
+    ProductList const& prodList = ppList->productList_;
+    for (ProductList::const_iterator
+           it = prodList.begin(),
+           itEnd = prodList.end();
+         it != itEnd;
+         ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod, prod.branchName());
     }
@@ -553,13 +556,13 @@ namespace art {
   //  when it is asked to do so.
   //
   auto_ptr<EventPrincipal>
-  RootInputFile::readEvent(cet::exempt_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readEvent() {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     assert(fileIndexIter_->eventID_.runID().isValid());
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
-    auto_ptr<EventPrincipal> ep = readCurrentEvent(pReg);
+    auto_ptr<EventPrincipal> ep = readCurrentEvent();
 
     assert(ep.get() != 0);
     assert(eventAux_.run() == fileIndexIter_->eventID_.run() + forcedRunOffset_);
@@ -573,7 +576,7 @@ namespace art {
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
   auto_ptr<EventPrincipal>
-  RootInputFile::readCurrentEvent(cet::exempt_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readCurrentEvent() {
     if (!eventTree_.current()) {
       return auto_ptr<EventPrincipal>(0);
     }
@@ -586,7 +589,6 @@ namespace art {
     // We're not done ... so prepare the EventPrincipal
     auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventAux_,
-                pReg,
                 processConfiguration_,
                 history_,
                 eventTree_.makeBranchMapper(),
@@ -603,7 +605,7 @@ namespace art {
   }
 
   std::shared_ptr<RunPrincipal>
-  RootInputFile::readRun(cet::exempt_ptr<ProductRegistry const> pReg) {
+  RootInputFile::readRun() {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kRun);
     runTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -622,7 +624,6 @@ namespace art {
     }
     std::shared_ptr<RunPrincipal> thisRun(
         new RunPrincipal(runAux_,
-                         pReg,
                          processConfiguration_,
                          runTree_.makeBranchMapper(),
                          runTree_.makeDelayedReader()));
@@ -635,7 +636,7 @@ namespace art {
   }
 
   std::shared_ptr<SubRunPrincipal>
-  RootInputFile::readSubRun(cet::exempt_ptr<ProductRegistry const> pReg, std::shared_ptr<RunPrincipal> rp) {
+  RootInputFile::readSubRun(std::shared_ptr<RunPrincipal> rp) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
@@ -656,9 +657,9 @@ namespace art {
     }
     std::shared_ptr<SubRunPrincipal> thisSubRun(
         new SubRunPrincipal(subRunAux_,
-                                     pReg, processConfiguration_,
-                                     subRunTree_.makeBranchMapper(),
-                                     subRunTree_.makeDelayedReader()));
+                            processConfiguration_,
+                            subRunTree_.makeBranchMapper(),
+                            subRunTree_.makeDelayedReader()));
     // Create a group in the subRun for each product
     subRunTree_.fillGroups(*thisSubRun);
     // Read in all the products now.
@@ -740,18 +741,23 @@ namespace art {
   }
 
   void
-  RootInputFile::dropOnInput (GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable) {
+  RootInputFile::dropOnInput(GroupSelectorRules const& rules,
+                             bool dropDescendants, 
+                             bool dropMergeable, 
+                             ProductList &branchDescriptions) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;
-    groupSelector.initialize(rules, productRegistry()->allBranchDescriptions());
+    groupSelector.initialize(rules, branchDescriptions);
 
-    ProductRegistry::ProductList& prodList = const_cast<ProductRegistry::ProductList&>(productRegistry()->productList());
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
     set<BranchID> branchesToDrop;
-    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
-        it != itEnd; ++it) {
+    for (ProductList::const_iterator
+           it = branchDescriptions.begin(),
+           itEnd = branchDescriptions.end();
+         it != itEnd;
+         ++it) {
       BranchDescription const& prod = it->second;
-      if(!groupSelector.selected(prod)) {
+      if (!groupSelector.selected(prod)) {
         if (dropDescendants) {
           branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
         } else {
@@ -762,10 +768,14 @@ namespace art {
 
     // On this pass, actually drop the branches.
     set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
-    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
+    for (ProductList::iterator
+           it = branchDescriptions.begin(),
+           itEnd = branchDescriptions.end();
+         it != itEnd;
+         ) {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
-      if(drop) {
+      if (drop) {
         if (groupSelector.selected(prod)) {
           mf::LogWarning("RootInputFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
@@ -773,9 +783,9 @@ namespace art {
             << "that was explicitly dropped.\n";
         }
         treePointers_[prod.branchType()]->dropBranch(prod.branchName());
-        ProductRegistry::ProductList::iterator icopy = it;
+        ProductList::iterator icopy = it;
         ++it;
-        prodList.erase(icopy);
+        branchDescriptions.erase(icopy);
       } else {
         ++it;
       }
@@ -784,16 +794,20 @@ namespace art {
     // Drop on input mergeable run and subRun products, this needs to be invoked for
     // secondary file input
     if (dropMergeable) {
-      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
+      for (ProductList::iterator
+             it = branchDescriptions.begin(),
+             itEnd = branchDescriptions.end();
+           it != itEnd;
+           ) {
         BranchDescription const& prod = it->second;
         if (prod.branchType() != InEvent) {
           TClass *cp = TClass::GetClass(prod.wrappedName().c_str());
           std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
           if (dummy->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(prod.branchName());
-            ProductRegistry::ProductList::iterator icopy = it;
+            ProductList::iterator icopy = it;
             ++it;
-            prodList.erase(icopy);
+            branchDescriptions.erase(icopy);
           } else {
             ++it;
           }

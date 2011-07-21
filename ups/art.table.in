@@ -73,10 +73,10 @@ Common:
     prodDir( _FQ_DIR, ${${UPS_PROD_NAME_UC}_FQ} )
 
     # faking out unsetup
-    envSet(${UPS_PROD_NAME_UC}_INC,"") 
+    envSet(${UPS_PROD_NAME_UC}_INC,"")
     execute( "find-path include ${${UPS_PROD_NAME_UC}_FQ_DIR} ${UPS_PROD_DIR}", UPS_ENV, ${UPS_PROD_NAME_UC}_INC)
     # faking out unsetup
-    envSet(${UPS_PROD_NAME_UC}_LIB,"") 
+    envSet(${UPS_PROD_NAME_UC}_LIB,"")
     execute( "find-path lib ${${UPS_PROD_NAME_UC}_FQ_DIR} ${UPS_PROD_DIR}", UPS_ENV, ${UPS_PROD_NAME_UC}_LIB)
     pathPrepend(LD_LIBRARY_PATH, ${${UPS_PROD_NAME_UC}_LIB})
 

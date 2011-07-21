@@ -1,6 +1,6 @@
 
-execute_process( COMMAND date 
-                 OUTPUT_VARIABLE datime 
+execute_process( COMMAND date
+                 OUTPUT_VARIABLE datime
                  OUTPUT_STRIP_TRAILING_WHITESPACE )
 
 # create package configuration and version files

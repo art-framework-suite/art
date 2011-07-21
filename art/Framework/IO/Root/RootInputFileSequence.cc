@@ -8,17 +8,18 @@
 
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Core/detail/BranchIDListHelper.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "TFile.h"
 #include <ctime>
 
@@ -32,7 +33,7 @@ namespace art {
                                                 bool primarySequence,
                                                 FastCloningInfoProvider const &fcip,
                                                 InputSource::ProcessingMode pMode,
-                                                ProductRegistry &pReg,
+                                                MasterProductRegistry &mpr,
                                                 ProcessConfiguration const &processConfig) :
     //    input_(input),
     catalog_(catalog),
@@ -60,7 +61,6 @@ namespace art {
     dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)),
     fastCloningInfo_(fcip),
     processingMode_(pMode),
-    productRegistry_(pReg),
     processConfiguration_(processConfig) {
 
     RunNumber_t firstRun;
@@ -105,7 +105,7 @@ namespace art {
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
             << setRun_ - forcedRunOffset_ << ".\n";
         }
-        productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
+        mpr.updateFromInput(rootFile_->productList());
         BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
       }
     }
@@ -141,8 +141,8 @@ namespace art {
     return (found)?rootFile_->eventIDForFileIndexPosition():EventID();
   }
 
-  EventID RootInputFileSequence::seekToEvent(off_t offset, bool) {
-    skip(offset);
+  EventID RootInputFileSequence::seekToEvent(off_t offset, MasterProductRegistry& mpr, bool) {
+    skip(offset, mpr);
     return rootFile_->eventIDForFileIndexPosition();
   }
 
@@ -157,7 +157,7 @@ namespace art {
   }
 
   std::shared_ptr<FileBlock>
-  RootInputFileSequence::readFile_() {
+  RootInputFileSequence::readFile_(MasterProductRegistry& mpr) {
     if (firstFile_) {
       // The first input file has already been opened, or a rewind has occurred.
       firstFile_ = false;
@@ -165,7 +165,7 @@ namespace art {
         initFile(skipBadFiles_);
       }
     } else {
-      if (!nextFile()) {
+      if (!nextFile(mpr)) {
         assert(0);
       }
     }
@@ -223,12 +223,7 @@ namespace art {
     }
   }
 
-  ProductRegistry const&
-  RootInputFileSequence::fileProductRegistry() const {
-    return *rootFile_->productRegistry();
-  }
-
-  bool RootInputFileSequence::nextFile() {
+  bool RootInputFileSequence::nextFile(MasterProductRegistry& mpr) {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
       if (primarySequence_) {
@@ -242,9 +237,9 @@ namespace art {
 
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
-      string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-                                                       fileIter_->fileName(),
-                                                       matchMode_);
+      string mergeInfo = mpr.merge(rootFile_->productList(),
+                                   fileIter_->fileName(),
+                                   matchMode_);
       if (!mergeInfo.empty()) {
         throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
@@ -253,7 +248,7 @@ namespace art {
     return true;
   }
 
-  bool RootInputFileSequence::previousFile() {
+  bool RootInputFileSequence::previousFile(MasterProductRegistry& mpr) {
     if(fileIter_ == fileIterBegin_) {
       if (primarySequence_) {
         return false;
@@ -267,9 +262,9 @@ namespace art {
 
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
-      string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
-                                                       fileIter_->fileName(),
-                                                       matchMode_);
+      string mergeInfo = mpr.merge(rootFile_->productList(),
+                                   fileIter_->fileName(),
+                                   matchMode_);
       if (!mergeInfo.empty()) {
         throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
@@ -284,12 +279,12 @@ namespace art {
 
   std::shared_ptr<RunPrincipal>
   RootInputFileSequence::readRun_() {
-    return rootFile_->readRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry());
+    return rootFile_->readRun();
   }
 
   std::shared_ptr<SubRunPrincipal>
   RootInputFileSequence::readSubRun_(std::shared_ptr<RunPrincipal> rp) {
-    return rootFile_->readSubRun(primarySequence_ ? productRegistry() : rootFile_->productRegistry(), rp);
+    return rootFile_->readSubRun(rp);
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -309,21 +304,17 @@ namespace art {
   auto_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_() {
     rootFileForLastReadEvent_ = rootFile_;
-    return rootFile_->readEvent(primarySequence_ ?
-                                productRegistry() :
-                                rootFile_->productRegistry());
+    return rootFile_->readEvent();
   }
 
   auto_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
     rootFileForLastReadEvent_ = rootFile_;
-    return rootFile_->readCurrentEvent(primarySequence_ ?
-                                       productRegistry() :
-                                       rootFile_->productRegistry());
+    return rootFile_->readCurrentEvent();
   }
 
   auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id, bool exact) {
+  RootInputFileSequence::readIt(EventID const& id, MasterProductRegistry& mpr, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id, exact);
     if (!found) {
@@ -343,7 +334,7 @@ namespace art {
           assert (found);
           rootFileForLastReadEvent_ = rootFile_;
           auto_ptr<EventPrincipal> ep = readCurrentEvent();
-          skip(1);
+          skip(1, mpr);
           return ep;
         }
       }
@@ -356,7 +347,7 @@ namespace art {
           if (found) {
             rootFileForLastReadEvent_ = rootFile_;
             auto_ptr<EventPrincipal> ep = readCurrentEvent();
-            skip(1);
+            skip(1, mpr);
             return ep;
           }
         }
@@ -366,7 +357,7 @@ namespace art {
     }
     rootFileForLastReadEvent_ = rootFile_;
     auto_ptr<EventPrincipal> eptr = readCurrentEvent();
-    skip(1);
+    skip(1, mpr);
     return eptr;
   }
 
@@ -486,11 +477,11 @@ namespace art {
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
-  RootInputFileSequence::skip(int offset) {
+  RootInputFileSequence::skip(int offset, MasterProductRegistry& mpr) {
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
-      if (offset > 0 && !nextFile()) return;
-      if (offset < 0 && !previousFile()) return;
+      if (offset > 0 && !nextFile(mpr)) return;
+      if (offset < 0 && !previousFile(mpr)) return;
     }
     rootFile_->skipEvents(0);
   }
@@ -503,16 +494,6 @@ namespace art {
   ProcessConfiguration const&
   RootInputFileSequence::processConfiguration() const {
     return processConfiguration_;
-  }
-
-  ProductRegistry &
-  RootInputFileSequence::productRegistryUpdate() const{
-    return productRegistry_;
-  }
-
-  cet::exempt_ptr<ProductRegistry const>
-  RootInputFileSequence::productRegistry() const{
-    return cet::exempt_ptr<ProductRegistry const>(&productRegistry_);
   }
 
   void RootInputFileSequence::logFileAction(const char* msg, string const& file) {

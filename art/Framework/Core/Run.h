@@ -95,7 +95,7 @@ namespace art {
         << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));

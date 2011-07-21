@@ -71,7 +71,7 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   e.put(vui);
   e.put(vs);
   e.put(a);
-  
+
 }
 
 DEFINE_ART_MODULE(arttest::AssnsProducer);

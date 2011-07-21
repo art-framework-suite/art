@@ -125,7 +125,6 @@ g/#include/s:DataFormats/Provenance/interface/BranchKey.h:art/Persistency/Proven
 g/#include/s:DataFormats/Provenance/interface/BranchListIndex.h:art/Persistency/Provenance/BranchListIndex.h:
 g/#include/s:DataFormats/Provenance/interface/BranchMapper.h:art/Persistency/Provenance/BranchMapper.h:
 g/#include/s:DataFormats/Provenance/interface/BranchType.h:art/Persistency/Provenance/BranchType.h:
-g/#include/s:DataFormats/Provenance/interface/ConstBranchDescription.h:art/Persistency/Provenance/ConstBranchDescription.h:
 g/#include/s:DataFormats/Provenance/interface/EntryDescription.h:art/Persistency/Provenance/EntryDescription.h:
 g/#include/s:DataFormats/Provenance/interface/EntryDescriptionID.h:art/Persistency/Provenance/EntryDescriptionID.h:
 g/#include/s:DataFormats/Provenance/interface/EntryDescriptionRegistry.h:art/Persistency/Provenance/EntryDescriptionRegistry.h:
@@ -417,7 +416,6 @@ g/#include/s:FWCore/Framework/interface/ComponentDescription.h:art/Framework/Cor
 g/#include/s:FWCore/Framework/interface/ComponentFactory.h:art/Framework/Core/ComponentFactory.h:
 g/#include/s:FWCore/Framework/interface/ComponentMaker.h:art/Framework/Core/ComponentMaker.h:
 g/#include/s:FWCore/Framework/interface/ConfigurableInputSource.h:art/Framework/Core/ConfigurableInputSource.h:
-g/#include/s:FWCore/Framework/interface/ConstProductRegistry.h:art/Framework/Services/Basic/ConstProductRegistry.h:
 g/#include/s:FWCore/Framework/interface/CurrentProcessingContext.h:art/Framework/Core/CurrentProcessingContext.h:
 g/#include/s:FWCore/Framework/interface/DataKey.h:art/Framework/Core/DataKey.h:
 g/#include/s:FWCore/Framework/interface/DataKeyTags.h:art/Framework/Core/DataKeyTags.h:
@@ -525,7 +523,6 @@ g/#include/s:FWCore/Framework/src/Path.h:art/Framework/Core/Path.h:
 g/#include/s:FWCore/Framework/src/PrincipalCache.h:art/Framework/Core/PrincipalCache.h:
 g/#include/s:FWCore/Framework/src/ProcessingTask.h:art/Framework/Core/ProcessingTask.h:
 g/#include/s:FWCore/Framework/src/RunStopwatch.h:art/Framework/Core/RunStopwatch.h:
-g/#include/s:FWCore/Framework/src/SignallingProductRegistry.h:art/Framework/Core/SignallingProductRegistry.h:
 g/#include/s:FWCore/Framework/src/TriggerResultInserter.h:art/Framework/Core/TriggerResultInserter.h:
 g/#include/s:FWCore/Framework/src/Worker.h:art/Framework/Core/Worker.h:
 g/#include/s:FWCore/Framework/src/WorkerInPath.h:art/Framework/Core/WorkerInPath.h:

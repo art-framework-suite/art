@@ -9,7 +9,6 @@
 
 #include "Reflex/Type.h"
 #include "Rtypes.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include <map>
 
 // ----------------------------------------------------------------------
@@ -18,6 +17,7 @@ class TBranch;
 class TTree;
 
 namespace art {
+  class BranchDescription;
   class BranchKey;
   class FileFormatVersion;
   class FastCloningInfoProvider;
@@ -32,12 +32,12 @@ namespace art {
 
     struct BranchInfo
     {
-      BranchInfo(ConstBranchDescription const& prod)
+      BranchInfo(BranchDescription const& prod)
         : branchDescription_(prod)
         , productBranch_(0)
       { }
 
-      ConstBranchDescription branchDescription_;
+      BranchDescription const& branchDescription_;
       TBranch * productBranch_;
     };  // BranchInfo
 

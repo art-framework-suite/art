@@ -1,21 +1,20 @@
-#include "art/Framework/Core/SubRunPrincipal.h"
-#include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Group.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Framework/Core/ProductMetaData.h"
+#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ProductID.h"
 
 namespace art {
 
   SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
-                                   cet::exempt_ptr<ProductRegistry const> reg,
                                    ProcessConfiguration const& pc,
                                    std::auto_ptr<BranchMapper> mapper,
                                    std::shared_ptr<DelayedReader> rtrv) :
-    Base(reg, pc, aux.processHistoryID_, mapper, rtrv),
+    Principal(pc, aux.processHistoryID_, mapper, rtrv),
     runPrincipal_(),
     aux_(aux)
   {
-    if (reg->productProduced(InSubRun)) {
+    if (ProductMetaData::instance().productProduced(InSubRun)) {
       addToProcessHistory();
     }
   }
@@ -33,39 +32,37 @@ namespace art {
   }
 
   void
-  SubRunPrincipal::addGroup(ConstBranchDescription const& bd) {
+  SubRunPrincipal::addGroup(BranchDescription const& bd) {
     std::auto_ptr<Group> g(new Group(bd, ProductID()));
     addOrReplaceGroup(g);
   }
 
   void
   SubRunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
-			    ConstBranchDescription const& bd,
-			    std::auto_ptr<ProductProvenance> productProvenance) {
+			    BranchDescription const& bd,
+			    cet::exempt_ptr<ProductProvenance const> productProvenance) {
     std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
-  SubRunPrincipal::addGroup(ConstBranchDescription const& bd,
-			    std::auto_ptr<ProductProvenance> productProvenance) {
+  SubRunPrincipal::addGroup(BranchDescription const& bd,
+			    cet::exempt_ptr<ProductProvenance const> productProvenance) {
     std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   SubRunPrincipal::put(std::auto_ptr<EDProduct> edp,
-		       ConstBranchDescription const& bd,
-		       std::auto_ptr<ProductProvenance> productProvenance) {
+		       BranchDescription const& bd,
+		       std::auto_ptr<ProductProvenance const> productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
-    branchMapper().insert(*productProvenance);
-    // Group assumes ownership
-    this->addGroup(edp, bd, productProvenance);
+    this->addGroup(edp, bd, branchMapper().insert(productProvenance));
   }
 
   RunPrincipal const& SubRunPrincipal::runPrincipal() const {
@@ -89,7 +86,7 @@ namespace art {
 
     aux_.mergeAuxiliary(srp->aux());
 
-    for (Base::const_iterator i = srp->begin(), iEnd = srp->end(); i != iEnd; ++i) {
+    for (Principal::const_iterator i = srp->begin(), iEnd = srp->end(); i != iEnd; ++i) {
 
       std::auto_ptr<Group> g(new Group());
       g->swap(*i->second);

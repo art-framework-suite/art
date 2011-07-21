@@ -9,6 +9,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
+#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/RootTree.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
@@ -21,7 +22,6 @@
 #include "art/Persistency/Provenance/Parentage.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
@@ -72,16 +72,12 @@ namespace art {
              bool dropDescendantsOfDroppedProducts);
     void reportOpened();
     void close(bool reallyClose);
-    std::auto_ptr<EventPrincipal> readCurrentEvent(
-        cet::exempt_ptr<ProductRegistry const> pReg);
-    std::auto_ptr<EventPrincipal> readEvent(
-        cet::exempt_ptr<ProductRegistry const> pReg);
-    std::shared_ptr<SubRunPrincipal> readSubRun(
-        cet::exempt_ptr<ProductRegistry const> pReg,
-        std::shared_ptr<RunPrincipal> rp);
+    std::auto_ptr<EventPrincipal> readCurrentEvent();
+    std::auto_ptr<EventPrincipal> readEvent();
+    std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
     std::string const& file() const {return file_;}
-    std::shared_ptr<RunPrincipal> readRun(cet::exempt_ptr<ProductRegistry const> pReg);
-    cet::exempt_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+    std::shared_ptr<RunPrincipal> readRun();
+    ProductList const &productList() const {return productListHolder_->productList_;}
     BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     SubRunAuxiliary const& subRunAux() {return subRunAux_;}
@@ -130,7 +126,10 @@ namespace art {
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(SubRunID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
-    void dropOnInput(GroupSelectorRules const& rules, bool dropDescendants, bool dropMergeable);
+    void dropOnInput(GroupSelectorRules const& rules,
+                     bool dropDescendants,
+                     bool dropMergeable, 
+                     ProductList &branchDescriptions);
     void readParentageTree();
     void readEventHistoryTree();
 
@@ -161,7 +160,7 @@ namespace art {
     RootTree subRunTree_;
     RootTree runTree_;
     RootTreePtrArray treePointers_;
-    cet::exempt_ptr<ProductRegistry const> productRegistry_;
+    cet::exempt_ptr<ProductRegistry const> productListHolder_;
     std::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;

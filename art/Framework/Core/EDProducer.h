@@ -11,6 +11,7 @@
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -67,7 +68,7 @@ namespace art
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-    void registerAnyProducts(std::shared_ptr<EDProducer>& module, ProductRegistry *reg) {
+    void registerAnyProducts(std::shared_ptr<EDProducer>& module, MasterProductRegistry *reg) {
       registerProducts(module, reg, moduleDescription_);
     }
 

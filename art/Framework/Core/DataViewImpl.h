@@ -48,20 +48,19 @@
 // ======================================================================
 
 #include "art/Framework/Core/FCPfwd.h"
-#include "art/Persistency/Common/BasicHandle.h"
+#include "art/Framework/Core/GroupQueryResult.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Common/traits.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-
 #include <memory>
 #include <ostream>
 #include <string>
@@ -115,7 +114,7 @@ namespace art {
     DataViewImpl const&
     me() const {return *this;}
 
-    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
+    typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
   protected:
 
     Principal & principal() {return principal_;}
@@ -127,10 +126,10 @@ namespace art {
     ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
     ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
 
-    ConstBranchDescription const&
+    BranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
-    typedef std::vector<BasicHandle>  BasicHandleVec;
+    typedef std::vector<GroupQueryResult>  GroupQueryResultVec;
 
     //------------------------------------------------------------
     // Protected functions.
@@ -139,10 +138,10 @@ namespace art {
     // The following 'get' functions serve to isolate the DataViewImpl class
     // from the Principal class.
 
-    BasicHandle
+    GroupQueryResult
     get_(TypeID const& tid, SelectorBase const&) const;
 
-    BasicHandle
+    GroupQueryResult
     getByLabel_(TypeID const& tid,
                 std::string const& label,
                 std::string const& productInstanceName,
@@ -151,23 +150,23 @@ namespace art {
     void
     getMany_(TypeID const& tid,
              SelectorBase const& sel,
-             BasicHandleVec& results) const;
+             GroupQueryResultVec& results) const;
 
     void
     getManyByType_(TypeID const& tid,
-                   BasicHandleVec& results) const;
+                   GroupQueryResultVec& results) const;
 
     int
     getMatchingSequence_(TypeID const& typeID,
                          SelectorBase const& selector,
-                         BasicHandleVec& results,
+                         GroupQueryResultVec& results,
                          bool stopIfProcessHasMatch) const;
 
     int
     getMatchingSequenceByLabel_(TypeID const& typeID,
                                 std::string const& label,
                                 std::string const& productInstanceName,
-                                BasicHandleVec& results,
+                                GroupQueryResultVec& results,
                                 bool stopIfProcessHasMatch) const;
 
     int
@@ -175,7 +174,7 @@ namespace art {
                                 std::string const& label,
                                 std::string const& productInstanceName,
                                 std::string const& processName,
-                                BasicHandleVec& results,
+                                GroupQueryResultVec& results,
                                 bool stopIfProcessHasMatch) const;
 
   protected:
@@ -233,12 +232,9 @@ namespace art {
                     Handle<PROD>& result) const
   {
     result.clear();
-    BasicHandle bh = this->get_(TypeID(typeid(PROD)),sel);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
+    GroupQueryResult bh = this->get_(TypeID(typeid(PROD)),sel);
+    convert_handle(bh, result);
+    return bh.succeeded();
   }
 
   template <typename PROD>
@@ -247,7 +243,6 @@ namespace art {
   DataViewImpl::getByLabel(std::string const& label,
                            Handle<PROD>& result) const
   {
-    result.clear();
     return getByLabel(label, std::string(), result);
   }
 
@@ -257,12 +252,9 @@ namespace art {
   DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
     result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
+    GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
+    convert_handle(bh, result);
+    return bh.succeeded();
   }
 
   template <typename PROD>
@@ -273,12 +265,9 @@ namespace art {
                            Handle<PROD>& result) const
   {
     result.clear();
-    BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
+    GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
+    convert_handle(bh, result);
+    return bh.succeeded();
   }
 
   template <typename PROD>
@@ -287,7 +276,7 @@ namespace art {
   DataViewImpl::getMany(SelectorBase const& sel,
                         std::vector<Handle<PROD> >& results) const
   {
-    BasicHandleVec bhv;
+    GroupQueryResultVec bhv;
     this->getMany_(TypeID(typeid(PROD)), sel, bhv);
 
     // Go through the returned handles; for each element,
@@ -304,8 +293,8 @@ namespace art {
     // for this function, since it is *not* to be used by EDProducers?
     std::vector<Handle<PROD> > products;
 
-    typename BasicHandleVec::const_iterator it = bhv.begin();
-    typename BasicHandleVec::const_iterator end = bhv.end();
+    typename GroupQueryResultVec::const_iterator it = bhv.begin();
+    typename GroupQueryResultVec::const_iterator end = bhv.end();
 
     while (it != end) {
       Handle<PROD> result;
@@ -321,7 +310,7 @@ namespace art {
   void
   DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
   {
-    BasicHandleVec bhv;
+    GroupQueryResultVec bhv;
     this->getManyByType_(TypeID(typeid(PROD)), bhv);
 
     // Go through the returned handles; for each element,
@@ -338,8 +327,8 @@ namespace art {
     // for this function, since it is *not* to be used by EDProducers?
     std::vector<Handle<PROD> > products;
 
-    typename BasicHandleVec::const_iterator it = bhv.begin();
-    typename BasicHandleVec::const_iterator end = bhv.end();
+    typename GroupQueryResultVec::const_iterator it = bhv.begin();
+    typename GroupQueryResultVec::const_iterator end = bhv.end();
 
     while (it != end) {
       Handle<PROD> result;

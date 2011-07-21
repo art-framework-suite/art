@@ -55,7 +55,7 @@ physics:
   }
 
   filters:
-  { 
+  {
     f1:
     {
       module_type: TestFilter

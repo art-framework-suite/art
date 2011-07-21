@@ -1,6 +1,8 @@
+#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Framework/Core/detail/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
+#include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Utilities/Exception.h"
 
 namespace art {
@@ -24,11 +26,14 @@ namespace art {
   }
 
   void
-  BranchIDListHelper::updateRegistries(ProductRegistry const& preg) {
+  BranchIDListHelper::updateRegistries(MasterProductRegistry const& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
-    for (ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();
-        it != itEnd; ++it) {
+    for (ProductList::const_iterator
+           it = preg.productList().begin(),
+           itEnd = preg.productList().end();
+         it != itEnd;
+         ++it) {
       if (it->second.produced()) {
         if (it->second.branchType() == InEvent) {
           bidlist.push_back(it->second.branchID().id());

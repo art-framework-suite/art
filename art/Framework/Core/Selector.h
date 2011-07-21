@@ -35,7 +35,8 @@ for every event.
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/SelectorBase.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+
 #include "cpp0x/type_traits"
 #include <string>
 
@@ -75,7 +76,7 @@ namespace art
     pn_(pn.empty() ? std::string("*") : pn)
       { }
 
-    virtual bool doMatch(ConstBranchDescription const& p) const
+    virtual bool doMatch(BranchDescription const& p) const
     {
       return (pn_=="*") || (p.processName() == pn_);
     }
@@ -108,7 +109,7 @@ namespace art
       pin_(pin)
     { }
 
-    virtual bool doMatch(ConstBranchDescription const& p) const
+    virtual bool doMatch(BranchDescription const& p) const
     {
       return p.productInstanceName() == pin_;
     }
@@ -135,7 +136,7 @@ namespace art
       label_(label)
     { }
 
-    virtual bool doMatch(ConstBranchDescription const& p) const
+    virtual bool doMatch(BranchDescription const& p) const
     {
       return p.moduleLabel() == label_;
     }
@@ -161,7 +162,7 @@ namespace art
     MatchAllSelector()
     { }
 
-    virtual bool doMatch(ConstBranchDescription const& p) const
+    virtual bool doMatch(BranchDescription const& p) const
     {
       return true;
     }
@@ -184,7 +185,7 @@ namespace art
   {
   public:
     AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
-    bool match(ConstBranchDescription const& p) const { return a_.match(p) && b_.match(p); }
+    bool match(BranchDescription const& p) const { return a_.match(p) && b_.match(p); }
   private:
     A a_;
     B b_;
@@ -216,7 +217,7 @@ namespace art
   {
   public:
     OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
-    bool match(ConstBranchDescription const& p) const { return a_.match(p) || b_.match(p); }
+    bool match(BranchDescription const& p) const { return a_.match(p) || b_.match(p); }
   private:
     A a_;
     B b_;
@@ -248,7 +249,7 @@ namespace art
   {
   public:
     explicit NotHelper(A const& a) : a_(a) { }
-    bool match(ConstBranchDescription const& p) const { return ! a_.match(p); }
+    bool match(BranchDescription const& p) const { return ! a_.match(p); }
   private:
     A a_;
   };
@@ -281,7 +282,7 @@ namespace art
     typedef T wrapped_type;
     explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
     ~ComposedSelectorWrapper() {};
-    virtual bool doMatch(ConstBranchDescription const& p) const { return expression_.match(p); }
+    virtual bool doMatch(BranchDescription const& p) const { return expression_.match(p); }
     ComposedSelectorWrapper<T>* clone() const { return new ComposedSelectorWrapper<T>(*this); }
   private:
     wrapped_type expression_;
@@ -303,7 +304,7 @@ namespace art
     virtual ~Selector();
     virtual Selector* clone() const;
 
-    virtual bool doMatch(ConstBranchDescription const& p) const;
+    virtual bool doMatch(BranchDescription const& p) const;
 
   private:
     SelectorBase* sel_;

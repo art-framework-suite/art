@@ -1,29 +1,29 @@
 #ifndef art_Framework_Core_get_BranchDescription_h
 #define art_Framework_Core_get_BranchDescription_h
 ////////////////////////////////////////////////////////////////////////
-// Helper class to find a product's BranchDescription in the principal's
-// ProductRegistry.
+// Helper class to find a product's BranchDescription in the 
+// MasterProductRegistry.
 //
 // 2011/03/15 CG,
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/TypeID.h"
 
 #include <string>
 
 namespace art {
   // Forward declarations.
-  class ConstBranchDescription;
+  class BranchDescription;
   class Principal;
 
   // 1. Get:
   // a. type info from template arg;
   // b. process name from TriggerNameService;
-  // c. product registry from ConstProductRegistry.
+  // c. product registry from ProductMetaData.
   template <typename T>
-  ConstBranchDescription const &
+  BranchDescription const &
   get_BranchDescription(BranchType branch_type,
                         std::string const &module_label,
                         std::string const &instance_name);
@@ -34,7 +34,7 @@ namespace art {
   // c. product registry from principal;
   // d. branch type from principal.
   template <typename T>
-  ConstBranchDescription const &
+  BranchDescription const &
   get_BranchDescription(Principal const &principal,
                         std::string const &module_label,
                         std::string const &instance_name);
@@ -42,8 +42,8 @@ namespace art {
   // 3. Get:
   // a. type info from TypeID;
   // b. process name from TriggerNameService;
-  // c. product registry from ConstProductRegistry.
-  ConstBranchDescription const &
+  // c. product registry from ProductMetaData.
+  BranchDescription const &
   get_BranchDescription(TypeID type_id,
                         BranchType branch_type,
                         std::string const &module_label,
@@ -52,9 +52,9 @@ namespace art {
   // 4. Get:
   // a. type info from TypeID;
   // b. process name from principal;
-  // c. product registry from principal. 
+  // c. product registry from principal.
   // d. branch type from principal.
-  ConstBranchDescription const &
+  BranchDescription const &
   get_BranchDescription(TypeID type_id,
                         Principal const &principal,
                         std::string const &module_label,
@@ -64,10 +64,10 @@ namespace art {
   // a. type info from TypeID;
   // b. process name from string;
   // c. product list from reference.
-  ConstBranchDescription const &
+  BranchDescription const &
   get_BranchDescription(TypeID tid,
                         std::string const &process_name,
-                        ProductRegistry::ConstProductList const &product_list,
+                        ProductList const &product_list,
                         BranchType branch_type,
                         std::string const &module_label,
                         std::string const &instance_name);
@@ -76,7 +76,7 @@ namespace art {
 // 1
 template <typename T>
 inline
-art::ConstBranchDescription const &
+art::BranchDescription const &
 art::get_BranchDescription(BranchType branch_type,
                            std::string const &module_label,
                            std::string const &instance_name) {
@@ -89,7 +89,7 @@ art::get_BranchDescription(BranchType branch_type,
 // 2.
 template <typename T>
 inline
-art::ConstBranchDescription const &
+art::BranchDescription const &
 art::get_BranchDescription(Principal const &principal,
                            std::string const &module_label,
                            std::string const &instance_name) {

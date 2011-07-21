@@ -12,6 +12,7 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/GroupQueryResult.h"
 #include "art/Framework/Core/Principal.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
@@ -31,16 +32,13 @@ namespace art {
   class EventPrincipal : public Principal {
   public:
     typedef EventAuxiliary Auxiliary;
+    typedef Principal::SharedConstGroupPtr SharedConstGroupPtr;
 
-    typedef Principal Base;
-
-    typedef Base::SharedConstGroupPtr SharedConstGroupPtr;
     EventPrincipal(EventAuxiliary const& aux,
-                   cet::exempt_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc,
-        std::shared_ptr<History> history = std::shared_ptr<History>(new History),
-        std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-        std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
+                  ProcessConfiguration const& pc,
+                  std::shared_ptr<History> history = std::shared_ptr<History>(new History),
+                  std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
+                  std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -48,48 +46,29 @@ namespace art {
 
     SubRunPrincipal & subRunPrincipal();
 
-    std::shared_ptr<SubRunPrincipal>
-    subRunPrincipalSharedPtr() {
-      return subRunPrincipal_;
-    }
+    std::shared_ptr<SubRunPrincipal> subRunPrincipalSharedPtr() { return subRunPrincipal_; }
 
-    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) {
-      subRunPrincipal_ = srp;
-    }
+    void setSubRunPrincipal(std::shared_ptr<SubRunPrincipal> srp) { subRunPrincipal_ = srp; }
 
-    EventID const& id() const {
-      return aux().id();
-    }
+    EventID const& id() const { return aux().id(); }
 
-    Timestamp const& time() const {
-      return aux().time();
-    }
+    Timestamp const& time() const { return aux().time(); }
 
-    bool isReal() const {
-      return aux().isRealData();
-    }
+    bool isReal() const { return aux().isRealData(); }
 
-    EventAuxiliary::ExperimentType ExperimentType() const {
-      return aux().experimentType();
-    }
+    EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
 
-    EventAuxiliary const& aux() const {
-      return aux_;
-    }
+    EventAuxiliary const& aux() const { return aux_; }
 
-    SubRunNumber_t subRun() const {
-      return aux().subRun();
-    }
+    SubRunNumber_t subRun() const { return aux().subRun(); }
 
-    RunNumber_t run() const {
-      return id().run();
-    }
+    RunNumber_t run() const { return id().run(); }
 
     RunPrincipal const& runPrincipal() const;
 
     RunPrincipal & runPrincipal();
 
-    void addOnDemandGroup(ConstBranchDescription const& desc);
+    void addOnDemandGroup(BranchDescription const& desc);
 
     void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler);
 
@@ -99,18 +78,19 @@ namespace art {
 
     History& history() {return *history_;}
 
-    BasicHandle
-    getByProductID(ProductID const& oid) const;
+    GroupQueryResult getByProductID(ProductID const& oid) const;
 
-    void put(std::auto_ptr<EDProduct> edp, ConstBranchDescription const& bd,
-         std::auto_ptr<ProductProvenance> productProvenance);
+    void put(std::auto_ptr<EDProduct> edp, BranchDescription const& bd,
+             std::auto_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd);
+    void addGroup(BranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd,
-         std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(std::auto_ptr<EDProduct> prod,
+                  BranchDescription const& bd,
+                  cet::exempt_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(BranchDescription const& bd,
+                  cet::exempt_ptr<ProductProvenance const> productProvenance);
 
     virtual EDProduct const* getIt(ProductID const& pid) const;
 

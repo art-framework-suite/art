@@ -1,35 +1,47 @@
+
+
+#include "art/Framework/Core/GroupSelector.h"
+#include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/Exception.h"
+#include "fhiclcpp/ParameterSet.h"
+
 #include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
 
-
-#include "art/Framework/Core/GroupSelectorRules.h"
-#include "art/Framework/Core/GroupSelector.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/Exception.h"
-
-typedef std::vector<art::BranchDescription const*> VCBDP;
+art::BranchKey
+make_BranchKey(art::BranchDescription const &b) {
+  return art::BranchKey(b.friendlyClassName(),
+                        b.moduleLabel(),
+                        b.productInstanceName(),
+                        b.processName());
+}
 
 void apply_gs(art::GroupSelector const& gs,
-	      VCBDP const&  allbranches,
-	      std::vector<bool>& results)
+              art::ProductList const &pList,
+              std::vector<bool>& results)
 {
-  VCBDP::const_iterator it  = allbranches.begin();
-  VCBDP::const_iterator end = allbranches.end();
-  for (; it != end; ++it) results.push_back(gs.selected(**it));
+  for (art::ProductList::const_iterator
+         it = pList.begin(),
+         end = pList.end();
+       it != end;
+       ++it) {
+    results.push_back(gs.selected(it->second));
+  }
 }
 
 int doTest(fhicl::ParameterSet const& params,
-	     char const* testname,
-	     VCBDP const&  allbranches,
-	     std::vector<bool>& expected)
+           char const* testname,
+           art::ProductList const &pList,
+           std::vector<bool>& expected)
 {
   art::GroupSelectorRules gsr(params, "outputCommands", testname);
   art::GroupSelector gs;
-  gs.initialize(gsr, allbranches);
+  gs.initialize(gsr, pList);
   std::cout << "GroupSelector from "
 	    << testname
 	    << ": "
@@ -37,11 +49,11 @@ int doTest(fhicl::ParameterSet const& params,
 	    << std::endl;
 
   std::vector<bool> results;
-  apply_gs(gs, allbranches, results);
+  apply_gs(gs, pList, results);
 
   int rc = 0;
   if (expected != results) rc = 1;
-  if (rc == 1) std::cerr << "FAILURE: " << testname << '\n';
+  if (rc == 1) std::cout << "FAILURE: " << testname << '\n';
   std::cout << "---" << std::endl;
   return rc;
 }
@@ -90,14 +102,14 @@ int work()
 			    "ProdTypeA", "i2", mod);
 
   // These are pointers to all the branches that are available. In a
-  // framework program, these would come from the ProductRegistry
+  // framework program, these would come from the MasterProductRegistry
   // which is used to initialze the OutputModule being configured.
-  VCBDP allbranches;
-  allbranches.push_back(&b1); // ProdTypeA_modA_i1. (PROD)
-  allbranches.push_back(&b2); // ProdTypeA_modA_i2. (PROD)
-  allbranches.push_back(&b3); // ProdTypeB_modB_HLT. (no instance name)
-  allbranches.push_back(&b4); // ProdTypeA_modA_i1_USER.
-  allbranches.push_back(&b5); // ProdTypeA_modA_i2_USER.
+  art::ProductList pList;
+  pList.insert(std::make_pair(make_BranchKey(b1), b1)); // ProdTypeA_modA_i1. (PROD)
+  pList.insert(std::make_pair(make_BranchKey(b2), b2)); // ProdTypeA_modA_i2. (PROD)
+  pList.insert(std::make_pair(make_BranchKey(b3), b3)); // ProdTypeB_modB_HLT. (no instance name)
+  pList.insert(std::make_pair(make_BranchKey(b4), b4)); // ProdTypeA_modA_i1_USER.
+  pList.insert(std::make_pair(make_BranchKey(b5), b5)); // ProdTypeA_modA_i2_USER.
 
   // Test default parameters
   {
@@ -105,12 +117,12 @@ int work()
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
     fhicl::ParameterSet noparams;
 
-    rc += doTest(noparams, "default parameters", allbranches, expected);
+    rc += doTest(noparams, "default parameters", pList, expected);
   }
 
   // Keep all branches with instance name i2.
   {
-    bool wanted[] = { false, true, false, false, true };
+    bool wanted[] = { false, false, true, true, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet keep_i2;
@@ -119,12 +131,12 @@ int work()
     cmds.push_back(keep_i2_rule);
     keep_i2.put<std::vector<std::string> >("outputCommands", cmds);
 
-    rc += doTest(keep_i2, "keep_i2 parameters", allbranches, expected);
+    rc += doTest(keep_i2, "keep_i2 parameters", pList, expected);
   }
 
   // Drop all branches with instance name i2.
   {
-    bool wanted[] = { true, false, true, true, false };
+    bool wanted[] = { true, true, false, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_i2;
@@ -135,7 +147,7 @@ int work()
     cmds.push_back(drop_i2_rule2);
     drop_i2.put<std::vector<std::string> >("outputCommands", cmds);
 
-    rc += doTest(drop_i2, "drop_i2 parameters", allbranches, expected);
+    rc += doTest(drop_i2, "drop_i2 parameters", pList, expected);
   }
 
   // Now try dropping all branches with product type "foo". There are
@@ -152,12 +164,12 @@ int work()
     cmds.push_back(drop_foo_rule2);
     drop_foo.put<std::vector<std::string> >("outputCommands", cmds);
 
-    rc += doTest(drop_foo, "drop_foo parameters", allbranches, expected);
+    rc += doTest(drop_foo, "drop_foo parameters", pList, expected);
   }
 
   // Now try dropping all branches with product type "ProdTypeA".
   {
-    bool wanted[] = { false, false, true, false, false };
+    bool wanted[] = { false, false, false, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_ProdTypeA;
@@ -170,7 +182,7 @@ int work()
 
     rc += doTest(drop_ProdTypeA,
 		 "drop_ProdTypeA",
-		 allbranches, expected);
+		 pList, expected);
   }
 
   // Keep only branches with instance name 'i1', from Production.
@@ -186,7 +198,7 @@ int work()
 
     rc += doTest(keep_i1prod,
 		 "keep_i1prod",
-		 allbranches, expected);
+		 pList, expected);
   }
 
   // First say to keep everything,  then  to drop everything, then  to
@@ -207,13 +219,13 @@ int work()
 
     rc += doTest(indecisive,
 		 "indecisive",
-		 allbranches, expected);
+		 pList, expected);
   }
 
-  // Keep all things, bu drop all things from modA, but later keep all
+  // Keep all things, but drop all things from modA, but later keep all
   // things from USER.
   {
-    bool wanted[] = { false, false, true, true, true };
+    bool wanted[] = { false, true, false, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
@@ -228,12 +240,12 @@ int work()
 
     rc += doTest(params,
 		 "drop_modA_keep_user",
-		 allbranches, expected);
+		 pList, expected);
   }
 
   // Exercise the wildcards * and ?
   {
-    bool wanted[] = { true, true, true, false, false };
+    bool wanted[] = { true, false, true, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
@@ -247,8 +259,8 @@ int work()
     params.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(params,
-		 "excercise wildcards1",
-		 allbranches, expected);
+		 "exercise wildcards1",
+		 pList, expected);
   }
 
   {
@@ -261,7 +273,7 @@ int work()
 	bad.put<std::vector<std::string> >("outputCommands", cmds);
 	art::GroupSelectorRules gsr(bad, "outputCommands", "GroupSelectorTest");
 	art::GroupSelector gs;
-        gs.initialize(gsr, allbranches);
+        gs.initialize(gsr, pList);
 	std::cerr << "Failed to throw required exception\n";
 	rc += 1;
     }

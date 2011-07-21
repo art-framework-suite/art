@@ -27,8 +27,8 @@ class art::InputSourceFactory
 
  public:
   static std::auto_ptr<InputSource>
-     makeInputSource(fhicl::ParameterSet const&,
-                     InputSourceDescription const&);
+     make(fhicl::ParameterSet const&,
+          InputSourceDescription &);
 
 private:
   LibraryManager lm_;

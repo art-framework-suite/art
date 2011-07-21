@@ -45,7 +45,7 @@ physics:
     }
   }
 
-  p: [ one, two ]  
+  p: [ one, two ]
   e: [ getOne, getTwo ]
 
   trigger_paths: [ p ]

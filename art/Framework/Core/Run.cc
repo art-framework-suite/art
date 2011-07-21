@@ -75,9 +75,9 @@ namespace art {
         pit->first = 0;
 
         // set provenance
-        std::auto_ptr<ProductProvenance> runProductProvenancePtr(
+        std::auto_ptr<ProductProvenance const> runProductProvenancePtr(
                 new ProductProvenance(pit->second->branchID(),
-                                    productstatus::present()));
+                                      productstatus::present()));
         rp.put(pr, *pit->second, runProductProvenancePtr);
         ++pit;
     }

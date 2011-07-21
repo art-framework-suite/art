@@ -45,6 +45,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RunPrincipal.h"
@@ -72,14 +73,19 @@ namespace art
     typedef T ReaderDetail;
 
     ReaderSource(fhicl::ParameterSet const& p,
-                 InputSourceDescription const& d);
+                 InputSourceDescription& d);
 
     virtual ~ReaderSource();
 
     virtual input::ItemType nextItemType();
     virtual RunNumber_t run() const;
     virtual SubRunNumber_t subRun() const;
-    virtual std::shared_ptr<FileBlock> readFile();
+
+    // ReaderSource does not use the MasterProductRegistry it is passed.
+    // This *could* be used for merging files read by a ReaderSource;
+    // however, doing so requires solving some hard problems of file
+    // merging in a more general manner than has been done thus far.
+    virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry&);
     virtual void closeFile();
 
     virtual std::shared_ptr<RunPrincipal> readRun();
@@ -94,7 +100,6 @@ namespace art
     typedef std::vector<std::string> strings;
     typedef strings::const_iterator  iter;
 
-    cet::exempt_ptr<ProductRegistry>  preg_;
     cet::exempt_ptr<ActivityRegistry> act_;
 
     ProductRegistryHelper  h_;
@@ -121,7 +126,7 @@ namespace art
 
     // Called in the constructor, to finish the process of product
     // registration.
-    void finishProductRegistration_(InputSourceDescription const& d);
+    void finishProductRegistration_(InputSourceDescription& d);
 
     // Make detail_ try to read more stuff from its file. Cache any new
     // run/subrun/event. Throw an exception if we detect an error in the
@@ -159,13 +164,12 @@ namespace art
 
   template <class T>
   ReaderSource<T>::ReaderSource(ParameterSet const& p,
-                                        InputSourceDescription const& d) :
+                                        InputSourceDescription& d) :
     InputSource(),
-    preg_(d.productRegistry_),
-    act_(d.actReg_.get()),
+    act_(&d.activityRegistry),
     h_(),
-    pc_(d.moduleDescription_.processConfiguration_),
-    detail_(p, h_, PrincipalMaker(*preg_, pc_)),
+    pc_(d.moduleDescription.processConfiguration_),
+    detail_(p, h_, PrincipalMaker(pc_)),
     filenames_(p.get<strings>("fileNames")),
     currentFile_(),
     end_(),
@@ -191,7 +195,6 @@ namespace art
       remainingEvents_ = maxEvents_par;
       haveEventLimit_ = true;
     }
-    if (!preg_ ) throw Exception(errors::LogicError) << "no ProductRegistry\n";
     if (!act_) throw Exception(errors::LogicError) << "no ActivityRegistry\n";
     finishProductRegistration_(d);
     std::sort(filenames_.begin(),
@@ -502,7 +505,7 @@ namespace art
 
   template <class T>
   std::shared_ptr<FileBlock>
-  ReaderSource<T>::readFile()
+  ReaderSource<T>::readFile(MasterProductRegistry&)
   {
     FileBlock* newF = 0;
     detail_.readFile(*currentFile_, newF);
@@ -560,8 +563,7 @@ namespace art
 
   template <class T>
   void
-  ReaderSource<T>::finishProductRegistration_(InputSourceDescription
-                                                  const& d)
+  ReaderSource<T>::finishProductRegistration_(InputSourceDescription& d)
   {
     ModuleDescription md;
     // These _xERROR_ strings should never appear in branch names; they
@@ -569,15 +571,15 @@ namespace art
     md.moduleName_ = "_NAMEERROR_";
     md.moduleLabel_ = "_LABELERROR_";
 
-    md.processConfiguration_.processName_ = d.moduleDescription_.processConfiguration_.processName_;
+    md.processConfiguration_.processName_ = d.moduleDescription.processConfiguration_.processName_;
     md.parameterSetID_ = fhicl::ParameterSet().id(); // Dummy
 
     TypeLabelList& types = h_.typeLabelList();
-    ProductRegistry const& reg = *d.productRegistry_;
+    MasterProductRegistry& reg = d.productRegistry;
     ProductRegistryHelper::addToRegistry(types.begin(),
                                          types.end(),
                                          md,
-                                         const_cast<ProductRegistry&>(reg),
+                                         reg,
                                          false);
   }
 }

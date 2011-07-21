@@ -57,7 +57,6 @@ namespace art {
 
     bool selected(BranchDescription const& desc) const;
 
-    void selectProducts();
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
@@ -79,7 +78,6 @@ namespace art {
     fhicl::ParameterSetID selectorConfig() const { return selector_config_id_; }
 
   private:
-
     int maxEvents_;
     int remainingEvents_;
 
@@ -129,6 +127,7 @@ namespace art {
     // private member functions
     //------------------------------------------------------------------
     void configure(OutputModuleDescription const& desc);
+    void selectProducts();
     void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep,
@@ -163,7 +162,9 @@ namespace art {
     // the appropriate tests have been done.
     void reallyCloseFile();
 
-    void registerAnyProducts(std::shared_ptr<OutputModule>const&, ProductRegistry const*) {}
+    // OutputModules *never* register that they create products, but because
+    // they are created in WorkerT's, we need this dummy function.
+    void registerAnyProducts(std::shared_ptr<OutputModule>const&, MasterProductRegistry const*) {}
 
     // Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}

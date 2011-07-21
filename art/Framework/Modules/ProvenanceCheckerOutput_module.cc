@@ -9,9 +9,10 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
-#include "cpp0x/memory"
+#include "art/Framework/Core/ProductMetaData.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "cetlib/exception.h"
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -56,7 +57,7 @@ namespace art {
          if(oMap.find(*it) == oMap.end()) {
             //use side effect of calling operator[] which is if the item isn't there it will add it as 'false'
             oMap[*it];
-            std::shared_ptr<ProductProvenance> pInfo = iMapper.branchToProductProvenance(*it);
+            cet::exempt_ptr<ProductProvenance const> pInfo = iMapper.branchToProductProvenance(*it);
             if(pInfo.get()) {
                markAncestors(*pInfo,iMapper,oMap,oMapperMissing);
             } else {
@@ -86,7 +87,7 @@ namespace art {
                missingProductProvenance.insert(it->first);
                continue;
             }
-            std::shared_ptr<ProductProvenance> pInfo = mapper.branchToProductProvenance(it->first);
+            cet::exempt_ptr<ProductProvenance const> pInfo = mapper.branchToProductProvenance(it->first);
             if(!pInfo.get()) {
                missingFromMapper.insert(it->first);
             }
@@ -96,10 +97,9 @@ namespace art {
       }
 
       //Determine what BranchIDs are in the product registry
-      const ProductRegistry& reg = e.productRegistry();
-      const ProductRegistry::ProductList prodList = reg.productList();
+      ProductList const &prodList = ProductMetaData::instance().productList();
       std::set<BranchID> branchesInReg;
-      for(ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+      for(ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
           it != itEnd;
           ++it) {
          branchesInReg.insert(it->second.branchID());

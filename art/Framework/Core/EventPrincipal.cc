@@ -1,13 +1,13 @@
 #include "art/Framework/Core/EventPrincipal.h"
 
 #include "art/Framework/Core/Group.h"
+#include "art/Framework/Core/GroupQueryResult.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
 #include "art/Framework/Core/UnscheduledHandler.h"
-#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchListIndex.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/Provenance.h"
 #include "cetlib/container_algorithms.h"
 #include <algorithm>
@@ -20,19 +20,18 @@ using namespace std;
 
 namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
-                                 cet::exempt_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc,
-        std::shared_ptr<History> history,
-        std::auto_ptr<BranchMapper> mapper,
-        std::shared_ptr<DelayedReader> rtrv) :
-          Base(reg, pc, history->processHistoryID(), mapper, rtrv),
+                                 ProcessConfiguration const& pc,
+                                 std::shared_ptr<History> history,
+                                 std::auto_ptr<BranchMapper> mapper,
+                                 std::shared_ptr<DelayedReader> rtrv) :
+          Principal(pc, history->processHistoryID(), mapper, rtrv),
           aux_(aux),
           subRunPrincipal_(),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
           history_(history),
           branchToProductIDHelper_() {
-            if (reg->productProduced(InEvent)) {
+            if (ProductMetaData::instance().productProduced(InEvent)) {
               addToProcessHistory();
               // Add index into BranchIDListRegistry for products produced this process
               history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->size()-1);
@@ -74,7 +73,7 @@ namespace art {
   }
 
   void
-  EventPrincipal::addOnDemandGroup(ConstBranchDescription const& desc) {
+  EventPrincipal::addOnDemandGroup(BranchDescription const& desc) {
     auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
     addOrReplaceGroup(g);
   }
@@ -87,7 +86,7 @@ namespace art {
     } else if(group->onDemand()) {
       replaceGroup(g);
     } else {
-      ConstBranchDescription const& bd = group->productDescription();
+      BranchDescription const& bd = group->productDescription();
       throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
         << "addGroup_: Problem found while adding product provenance, "
         << "product already exists for ("
@@ -100,45 +99,41 @@ namespace art {
   }
 
   void
-  EventPrincipal::addGroup(ConstBranchDescription const& bd) {
+  EventPrincipal::addGroup(BranchDescription const& bd) {
     auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
-         ConstBranchDescription const& bd,
-         auto_ptr<ProductProvenance> productProvenance) {
+         BranchDescription const& bd,
+         cet::exempt_ptr<ProductProvenance const> productProvenance) {
     auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
-  EventPrincipal::addGroup(ConstBranchDescription const& bd,
-         auto_ptr<ProductProvenance> productProvenance) {
+  EventPrincipal::addGroup(BranchDescription const& bd,
+         cet::exempt_ptr<ProductProvenance const> productProvenance) {
     auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
     addOrReplaceGroup(g);
   }
 
   void
   EventPrincipal::put(auto_ptr<EDProduct> edp,
-                ConstBranchDescription const& bd,
-                auto_ptr<ProductProvenance> productProvenance) {
+                BranchDescription const& bd,
+                auto_ptr<ProductProvenance const> productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null."
-        << "\n";
+        << "put: Cannot put because auto_ptr to product is null.\n";
     }
     ProductID pid = branchIDToProductID(bd.branchID());
-    // Group assumes ownership
     if (!pid.isValid()) {
       throw art::Exception(art::errors::InsertFailure,"Null Product ID")
-        << "put: Cannot put product with null Product ID."
-        << "\n";
+        << "put: Cannot put product with null Product ID.\n";
     }
-    branchMapper().insert(*productProvenance);
-    this->addGroup(edp, bd, productProvenance);
+    this->addGroup(edp, bd, branchMapper().insert(productProvenance));
   }
 
   BranchID
@@ -183,7 +178,7 @@ namespace art {
     return ProductID(processIndex+1, productIndex+1);
   }
 
-  BasicHandle
+  GroupQueryResult
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = productIDToBranchID(pid);
     SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
@@ -191,7 +186,7 @@ namespace art {
       std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
       *whyFailed
         << "get by product ID: no product with given id: "<< pid << "\n";
-      return BasicHandle(whyFailed);
+      return GroupQueryResult(whyFailed);
     }
 
     // Check for case where we tried on demand production and
@@ -201,14 +196,15 @@ namespace art {
       *whyFailed
         << "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";
-      return BasicHandle(whyFailed);
+      return GroupQueryResult(whyFailed);
     }
-    return BasicHandle(g->product(), g->provenance());
+    else
+      return GroupQueryResult(g.get());
   }
 
   EDProduct const *
   EventPrincipal::getIt(ProductID const& pid) const {
-    return getByProductID(pid).wrapper();
+    return getByProductID(pid).result()->product();
   }
 
   void

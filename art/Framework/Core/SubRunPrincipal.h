@@ -27,12 +27,11 @@ namespace art {
   class SubRunPrincipal : public Principal {
   public:
     typedef SubRunAuxiliary Auxiliary;
-    typedef Principal Base;
+
     SubRunPrincipal(SubRunAuxiliary const& aux,
-                    cet::exempt_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc,
-        std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-        std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
+                    ProcessConfiguration const& pc,
+                    std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
+                    std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     ~SubRunPrincipal() {}
 
@@ -41,54 +40,40 @@ namespace art {
     RunPrincipal & runPrincipal();
 
     std::shared_ptr<RunPrincipal>
-    runPrincipalSharedPtr() {
-      return runPrincipal_;
-    }
+    runPrincipalSharedPtr() { return runPrincipal_; }
 
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {
-      runPrincipal_ = rp;
-    }
+    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
-    SubRunID id() const {
-      return aux().id();
-    }
+    SubRunID id() const { return aux().id(); }
 
-    Timestamp const& beginTime() const {
-      return aux().beginTime();
-    }
+    Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    Timestamp const& endTime() const {
-      return aux().endTime();
-    }
+    Timestamp const& endTime() const { return aux().endTime(); }
 
-    void setEndTime(Timestamp const& time) {
-      aux_.setEndTime(time);
-    }
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-    SubRunNumber_t subRun() const {
-      return aux().subRun();
-    }
+    SubRunNumber_t subRun() const { return aux().subRun(); }
 
-    SubRunAuxiliary const& aux() const {
-      return aux_;
-    }
+    SubRunAuxiliary const& aux() const { return aux_; }
 
-    RunNumber_t run() const {
-      return aux().run();
-    }
+    RunNumber_t run() const { return aux().run(); }
 
     void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
 
     void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
 
     void put(std::auto_ptr<EDProduct> edp,
-             ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+             BranchDescription const& bd,
+             std::auto_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd);
+    void addGroup(BranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(std::auto_ptr<EDProduct> prod,
+                  BranchDescription const& bd,
+                  cet::exempt_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(BranchDescription const& bd,
+                  cet::exempt_ptr<ProductProvenance const> productProvenance);
 
     BranchType branchType() const { return InSubRun; }
 

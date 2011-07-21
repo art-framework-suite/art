@@ -3,35 +3,42 @@
 
 /*----------------------------------------------------------------------
 
-InputSourceDescription : the stuff that is needed to configure an
-input source that does not come in through the ParameterSet
+InputSourceDescription: This is an "argument pack" structure, used to
+pass a collection of related arguments to the constructors of InputSources.
+InputSourceDescriptions should *not* be kept as data members, or stored
+in any way.
 
+InputSourceDescriptions should generally be passed by non-const reference,
+so that the non-const reference data members can be used correctly.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "cpp0x/memory"
-#include "cetlib/exempt_ptr.h"
-#include <string>
-
-namespace art {
-  class ProductRegistry;
+namespace art
+{
   class ActivityRegistry;
+  class MasterProductRegistry;
+  class ModuleDescription;
 
-  struct InputSourceDescription {
-    InputSourceDescription() : moduleDescription_(), productRegistry_(0), actReg_() {}
-    InputSourceDescription(ModuleDescription const& md,
-			   ProductRegistry& preg,
-			   std::shared_ptr<ActivityRegistry> areg) :
-      moduleDescription_(md),
-      productRegistry_(&preg),
-      actReg_(areg)
-    {}
+  struct InputSourceDescription
+  {
+    InputSourceDescription(ModuleDescription const & ,
+                           MasterProductRegistry & ,
+                           ActivityRegistry &);
 
-    ModuleDescription moduleDescription_;
-    cet::exempt_ptr<ProductRegistry> productRegistry_;
-    std::shared_ptr<ActivityRegistry> actReg_;
+
+    ModuleDescription const& moduleDescription;
+    MasterProductRegistry&   productRegistry;
+    ActivityRegistry&        activityRegistry;
   };
+
+  inline
+  InputSourceDescription::InputSourceDescription(ModuleDescription const& md,
+                                                MasterProductRegistry& preg,
+                                                ActivityRegistry& areg) :
+    moduleDescription(md),
+    productRegistry(preg),
+    activityRegistry(areg)
+  {}
 
 }  // art
 

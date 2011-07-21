@@ -46,7 +46,7 @@ public:
         vv_t tokens(p.get<vv_t>(fileNames_[i]));
         RunNumber_t currentRun = -1;
         SubRunNumber_t currentSubRun = -1;
-        for (vv_t::const_iterator 
+        for (vv_t::const_iterator
                it = tokens.begin(),
                itend = tokens.end();
              it != itend; ++it)
@@ -61,7 +61,7 @@ public:
               {
                 ++numSubRunsExpected_;
                 currentSubRun = (*it)[1];
-                expected << "begin " 
+                expected << "begin "
                          << SubRunID(currentRun, currentSubRun) << '\n';
 
               }
@@ -128,7 +128,7 @@ private:
   strings fileNames_;
   fhicl::ParameterSet pset_;
   ostringstream messages_;
-  string expectedMessage_;  
+  string expectedMessage_;
 };
 
 DEFINE_ART_MODULE(arttest::ToyRawInputTester);

@@ -25,8 +25,8 @@ namespace art {
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
     WorkerT(std::auto_ptr<T>,
-                   ModuleDescription const&,
-                   WorkerParams const&);
+            ModuleDescription const&,
+            WorkerParams const&);
 
     virtual ~WorkerT();
 

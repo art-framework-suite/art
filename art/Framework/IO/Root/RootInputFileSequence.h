@@ -3,7 +3,8 @@
 
 // ======================================================================
 //
-// RootInputFileSequence - This is an InputSource
+// RootInputFileSequence: This encapsulates a sequence of RootInputFiles,
+// and keeps track of the current location within the seqeuence.
 //
 // ======================================================================
 
@@ -27,11 +28,12 @@
 
 namespace art {
 
-  class RootInputFile;
-  class FileCatalogItem;
-  class InputFileCatalog;
-  class FileIndex;
   class DuplicateChecker;
+  class FileCatalogItem;
+  class FileIndex;
+  class InputFileCatalog;
+  class MasterProductRegistry;
+  class RootInputFile;
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
@@ -40,7 +42,7 @@ namespace art {
                                    bool primarySequence,
                                    FastCloningInfoProvider const &fcip,
                                    InputSource::ProcessingMode pMode,
-                                   ProductRegistry &pReg,
+                                   MasterProductRegistry &pReg,
                                    ProcessConfiguration const &processConfig);
     virtual ~RootInputFileSequence();
 
@@ -49,18 +51,17 @@ namespace art {
     std::auto_ptr<EventPrincipal> readEvent_();
     std::shared_ptr<SubRunPrincipal> readSubRun_(std::shared_ptr<RunPrincipal> rp);
     std::shared_ptr<RunPrincipal> readRun_();
-    std::shared_ptr<FileBlock> readFile_();
+    std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);
     void closeFile_();
     void endJob();
     input::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, bool exact = false);
+    std::auto_ptr<EventPrincipal> readIt(EventID const& id, MasterProductRegistry& mpr, bool exact = false);
     std::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp);
     std::shared_ptr<RunPrincipal> readIt(RunID const& run);
-    void skip(int offset);
+    void skip(int offset, MasterProductRegistry&);
     void rewind_();
-    ProductRegistry const& fileProductRegistry() const;
     EventID seekToEvent(EventID const &eID, bool exact = false);
-    EventID seekToEvent(off_t offset, bool exact = false);
+    EventID seekToEvent(off_t offset, MasterProductRegistry& mpr, bool exact = false);
     RootInputFileSharedPtr rootFileForLastReadEvent() const {
       return rootFileForLastReadEvent_;
     }
@@ -70,15 +71,13 @@ namespace art {
 
   private:
     void initFile(bool skipBadFiles);
-    bool nextFile();
-    bool previousFile();
+    bool nextFile(MasterProductRegistry&);
+    bool previousFile(MasterProductRegistry&);
     void rewindFile();
     std::auto_ptr<EventPrincipal> readCurrentEvent();
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
-    cet::exempt_ptr<ProductRegistry const> productRegistry() const;
     ProcessConfiguration const& processConfiguration() const;
-    ProductRegistry & productRegistryUpdate() const;
     bool primary() const;
     void logFileAction(const char* msg, std::string const& file);
 
@@ -109,7 +108,6 @@ namespace art {
     RootInputFileSharedPtr rootFileForLastReadEvent_;
     FastCloningInfoProvider fastCloningInfo_;
     InputSource::ProcessingMode processingMode_;
-    ProductRegistry &productRegistry_;
     ProcessConfiguration const &processConfiguration_;
   };  // RootInputFileSequence
 

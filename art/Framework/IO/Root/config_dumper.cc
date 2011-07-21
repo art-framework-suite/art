@@ -55,7 +55,7 @@ void print_stripped_module_pset(ParameterSet const& ps, ostream& output)
 
   ParameterSet copy(ps);
   copy.erase("module_label");
-  output << label << ":{\n";  
+  output << label << ":{\n";
   output << copy.to_indented_string();
   output << "}\n\n";
 }
@@ -70,7 +70,7 @@ void print_all_module_psets(vector<ParameterSet> const& psets,
     {
       if (is_module_configuration(psets[i]))
         print_stripped_module_pset(psets[i], output);
-    }  
+    }
 }
 
 // Return true if the ParameterSet 'ps' was used to configure a module
@@ -79,7 +79,7 @@ inline bool matches_criteria(ParameterSet const& ps,
                       stringvec const& module_labels)
 {
   string label;
-  return ps.get_if_present<string>("module_label", label) && 
+  return ps.get_if_present<string>("module_label", label) &&
     cet::search_all(module_labels, label);
 }
 
@@ -162,7 +162,7 @@ int print_pset_from_file(TFile& file,
       errors << "Unable to to read parameter sets.\n";
       return 1;
     }
-  
+
   // Iterate through all the ParameterSets, printing the correct ones.
   // In this version, we do not yet use the process_names.
 
@@ -201,7 +201,7 @@ int print_psets_from_files(stringvec const& file_names,
       if (current_file.IsZombie())
         {
           ++rc;
-          errors << "Unable to open file '" 
+          errors << "Unable to open file '"
                  << *i
                  << "' for reading."
                  << "\nSkipping to next file.\n";
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 
   // The variables_map contains the actual program options.
   bpo::variables_map vm;
-  try 
+  try
     {
       bpo::store(bpo::command_line_parser(argc,argv).options(all_opts).positional(pd).run(),
                  vm);
@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
     }
   catch(bpo::error const& e)
     {
-      std::cerr << "Exception from command line processing in " 
+      std::cerr << "Exception from command line processing in "
                 << argv[0] << ": " << e.what() << "\n";
       return 2;
     }
@@ -284,7 +284,7 @@ int main(int argc, char* argv[])
     }
   //
   // ------------------------------------------------------------
-  
+
 
   // Get the labels of the modules we will look for; if none are
   // specified we want them all.
@@ -316,7 +316,7 @@ int main(int argc, char* argv[])
                                 module_labels,
                                 cout,
                                 cerr);
-  
+
   // Testing.
   //   cout << "Specified module labels\n";
   //   cet::copy_all(module_labels,

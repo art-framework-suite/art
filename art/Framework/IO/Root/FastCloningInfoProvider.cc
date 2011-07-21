@@ -3,14 +3,12 @@
 #include "art/Utilities/Exception.h"
 
 art::FastCloningInfoProvider::
-FastCloningInfoProvider(cet::exempt_ptr<RootInput> input)
-  :
+FastCloningInfoProvider(cet::exempt_ptr<RootInput> input) :
   input_(input)
 { }
 
 off_t
-art::FastCloningInfoProvider::
-remainingEvents() const {
+art::FastCloningInfoProvider::remainingEvents() const {
   if (!fastCloningPermitted()) {
     throw Exception(errors::LogicError)
       << "FastCloningInfoProvider::remainingEvents() has no meaning"
@@ -21,8 +19,7 @@ remainingEvents() const {
 }
 
 off_t
-art::FastCloningInfoProvider::
-remainingSubRuns() const {
+art::FastCloningInfoProvider::remainingSubRuns() const {
   if (!fastCloningPermitted()) {
     throw Exception(errors::LogicError)
       << "FastCloningInfoProvider::remainingSubRuns() has no meaning"

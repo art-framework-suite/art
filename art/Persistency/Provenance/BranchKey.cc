@@ -7,18 +7,10 @@
 
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
-
 
 namespace art
 {
   BranchKey::BranchKey(BranchDescription const& desc) :
-    friendlyClassName_(desc.friendlyClassName()),
-    moduleLabel_(desc.moduleLabel()),
-    productInstanceName_(desc.productInstanceName()),
-    processName_(desc.processName()) {}
-
-  BranchKey::BranchKey(ConstBranchDescription const& desc) :
     friendlyClassName_(desc.friendlyClassName()),
     moduleLabel_(desc.moduleLabel()),
     productInstanceName_(desc.productInstanceName()),

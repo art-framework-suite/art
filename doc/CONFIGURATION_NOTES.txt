@@ -88,7 +88,7 @@ configuration file. Our example does not make any such use.
   }
 
   # The "outputs" block is optional.
-  outputs: 
+  outputs:
   {
     ....
   }
@@ -102,7 +102,7 @@ configuration file. Our example does not make any such use.
 Historical Notes
 ================
 
-CMS has *forced services* where we have *facilities*. 
+CMS has *forced services* where we have *facilities*.
 
 The CMS *CurrentModuleService* has no configurable parameters, and
 must be present. Because it has no parameters to configure, and
@@ -113,7 +113,3 @@ file.
 The automatic loading of Root class information on demand
 and the initial loading of *all* dictionary libraries used to be
 optional and configurable: this is no longer the case.
-
-
-  
-  

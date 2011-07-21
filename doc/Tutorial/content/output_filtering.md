@@ -16,9 +16,9 @@ Output Filtering
       {
         pathA: [ ... ]  # producers and filters are put in this path
         pathB: [ ... ]  # other producers, other filters are put in this path
-  
+
         outpath: [ pathAwriter ] # output modules and analyzers are put in this path
-  
+
         trigger_paths: [ pathA, pathB ] # declare that these are "trigger paths"
         end_paths: [ outpath ]          # declare this is an "end path"
       }
@@ -32,4 +32,3 @@ Output Filtering
           SelectEvents: { SelectEvents: [ pathA ] } # Only events passing pathA will be written
         }
       }
-  

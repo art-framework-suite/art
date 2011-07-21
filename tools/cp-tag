@@ -7,7 +7,7 @@
 # Requires MANAGER role on all packages to be tagged (including ART).
 #
 #
-# Takes at least one version argument, 
+# Takes at least one version argument,
 ########################################################################
 
 # Subsidiary packages to be tagged,

@@ -1,14 +1,10 @@
-
-/*----------------------------------------------------------------------
-
-Test program for art::Event.
-
-----------------------------------------------------------------------*/
-#include "test/CppUnit_testdriver.icpp"
-#include <cppunit/extensions/HelperMacros.h>
+#define BOOST_TEST_MODULE ( Event_t )
+#include "boost/test/auto_unit_test.hpp"
 
 #include "art/Framework/Core/Event.h"
 #include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/Selector.h"
@@ -25,7 +21,6 @@ Test program for art::Event.
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/Timestamp.h"
@@ -51,80 +46,32 @@ Test program for art::Event.
 using namespace art;
 using fhicl::ParameterSet;
 
+namespace {
+  art::EventID   make_id() { return art::EventID(2112, 47, 25); }
+  art::Timestamp make_timestamp() { return art::Timestamp(1); }
+}
+
 // This is a gross hack, to allow us to test the event
-namespace art
-{
-  class EDProducer
-  {
+namespace art {
+  class EDProducer {
   public:
     static void commitEvent(Event& e) { e.commit_(); }
-
   };
 }
 
+class MPRGlobalTestFixture {
+public:
+  MPRGlobalTestFixture();
 
-class testEvent: public CppUnit::TestFixture
-{
-  CPPUNIT_TEST_SUITE(testEvent);
-  CPPUNIT_TEST(emptyEvent);
-  CPPUNIT_TEST(getBySelectorFromEmpty);
-  CPPUNIT_TEST(putAnIntProduct);
-  CPPUNIT_TEST(putAndGetAnIntProduct);
-  CPPUNIT_TEST(getByProductID);
-  CPPUNIT_TEST(transaction);
-  CPPUNIT_TEST(getByInstanceName);
-  CPPUNIT_TEST(getBySelector);
-  CPPUNIT_TEST(getByLabel);
-  CPPUNIT_TEST(getManyByType);
-  CPPUNIT_TEST(printHistory);
-  CPPUNIT_TEST_SUITE_END();
-
- public:
-  testEvent();
-  ~testEvent();
-  void setUp();
-  void tearDown();
-  void emptyEvent();
-  void getBySelectorFromEmpty();
-  void putAnIntProduct();
-  void putAndGetAnIntProduct();
-  void getByProductID();
-  void transaction();
-  void getByInstanceName();
-  void getBySelector();
-  void getByLabel();
-  void getManyByType();
-  void printHistory();
-
- private:
-
-  template <class T>
+  template <typename T>
   void registerProduct(std::string const& tag,
-		       std::string const& moduleLabel,
-		       std::string const& moduleClassName,
-		       std::string const& processName,
-		       std::string const& productInstanceName);
+                       std::string const& moduleLabel,
+                       std::string const& moduleClassName,
+                       std::string const& processName,
+                       std::string const& productInstanceName = std::string());
 
-  template <class T>
-  void registerProduct(std::string const& tag,
-		       std::string const& moduleLabel,
-		       std::string const& moduleClassName,
-		       std::string const& processName)
-  {
-    std::string productInstanceName;
-    registerProduct<T>(tag, moduleLabel, moduleClassName, processName,
-		       productInstanceName);
-  }
-
-  template <class T>
-  ProductID addProduct(std::auto_ptr<T> product,
-		       std::string const& tag,
-		       std::string const& productLabel = std::string());
-
-  ProductRegistry*   availableProducts_;
-  EventPrincipal*    principal_;
-  Event*             currentEvent_;
-  ModuleDescription* currentModuleDescription_;
+  std::auto_ptr<MasterProductRegistry> availableProducts_;
+  std::auto_ptr<ModuleDescription> currentModuleDescription_;
   typedef std::map<std::string, ModuleDescription> modCache_t;
   typedef modCache_t::iterator iterator_t;
 
@@ -132,103 +79,20 @@ class testEvent: public CppUnit::TestFixture
   art::RootDictionaryManager rdm_;
 };
 
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testEvent);
-
-namespace
+MPRGlobalTestFixture::MPRGlobalTestFixture()
+  :
+  availableProducts_(new MasterProductRegistry()),
+  currentModuleDescription_(new ModuleDescription),
+  moduleDescriptions_(),
+  rdm_()
 {
-  template <class T> void kill_and_clear(T*& p) { delete p; p = 0; }
-}
-
-EventID   make_id() { return EventID(2112, 47, 25); }
-Timestamp make_timestamp() { return Timestamp(1); }
-
-template <class T>
-void
-testEvent::registerProduct(std::string const& tag,
-			   std::string const& moduleLabel,
- 			   std::string const& moduleClassName,
- 			   std::string const& processName,
-			   std::string const& productInstanceName)
-{
-  if (!availableProducts_)
-    availableProducts_ = new ProductRegistry();
-
-  ParameterSet moduleParams;
-  moduleParams.template put<std::string>("module_type", moduleClassName);
-  moduleParams.template put<std::string>("module_label", moduleLabel);
-
-  ParameterSet processParams;
-  processParams.template put<std::string>("process_name", processName);
-  processParams.template put<ParameterSet>(moduleLabel, moduleParams);
-
-  ProcessConfiguration process;
-  process.processName_    = processName;
-  process.releaseVersion_ = getReleaseVersion();
-  process.passID_         = getPassID();
-  process.parameterSetID_ = processParams.id();
-
-  ModuleDescription localModuleDescription;
-  localModuleDescription.parameterSetID_       = moduleParams.id();
-  localModuleDescription.moduleName_           = moduleClassName;
-  localModuleDescription.moduleLabel_          = moduleLabel;
-  localModuleDescription.processConfiguration_ = process;
-
-  TypeID product_type(typeid(T));
-
-  BranchDescription branch(InEvent,
-			   moduleLabel,
-			   processName,
-			   product_type.userClassName(),
-			   product_type.friendlyClassName(),
-			   productInstanceName,
-			   localModuleDescription
-			  );
-
-  moduleDescriptions_[tag] = localModuleDescription;
-  availableProducts_->addProduct(branch);
-}
-
-// Add the given product, of type T, to the current event,
-// as if it came from the module specified by the given tag.
-template <class T>
-ProductID
-testEvent::addProduct(std::auto_ptr<T> product,
-		      std::string const& tag,
-		      std::string const& productLabel)
-{
-  iterator_t description = moduleDescriptions_.find(tag);
-  if (description == moduleDescriptions_.end())
-    throw art::Exception(errors::LogicError)
-      << "Failed to find a module description for tag: "
-      << tag << '\n';
-
-  Event temporaryEvent(*principal_, description->second);
-  OrphanHandle<T> h = temporaryEvent.put(product, productLabel);
-  ProductID id = h.id();
-  EDProducer::commitEvent(temporaryEvent);
-  return id;
-}
-
-testEvent::testEvent() :
-  availableProducts_(new ProductRegistry()),
-  principal_(0),
-  currentEvent_(0),
-  currentModuleDescription_(0),
-  moduleDescriptions_()
-{
-  BranchIDListHelper::clearRegistries();
-
   typedef arttest::IntProduct prod_t;
-  //  typedef std::vector<arttest::Thing> vec_t;
 
   registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
   registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
   registerProduct<prod_t>("int1_tag_late", "modMulti", "IntProducer",   "LATE",  "int1");
   registerProduct<prod_t>("int2_tag",      "modMulti", "IntProducer",   "EARLY", "int2");
   registerProduct<prod_t>("int3_tag",      "modMulti", "IntProducer",   "EARLY");
-  //  registerProduct<vec_t>("thing",          "modthing", "ThingProducer", "LATE");
-  //  registerProduct<vec_t>("thing2",         "modthing", "ThingProducer", "LATE",  "inst2");
 
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
@@ -251,7 +115,6 @@ testEvent::testEvent() :
 
   TypeID product_type(typeid(prod_t));
 
-  currentModuleDescription_ = new ModuleDescription();
   currentModuleDescription_->parameterSetID_       = moduleParams.id();
   currentModuleDescription_->moduleName_           = moduleClassName;
   currentModuleDescription_->moduleLabel_          = moduleLabel;
@@ -259,32 +122,87 @@ testEvent::testEvent() :
 
   std::string productInstanceName("int1");
 
-  BranchDescription branch(InEvent,
-			   moduleLabel,
-			   processName,
-			   product_type.userClassName(),
-			   product_type.friendlyClassName(),
-			   productInstanceName,
-			   *currentModuleDescription_
-			  );
-
-  availableProducts_->addProduct(branch);
+  availableProducts_->addProduct(std::auto_ptr<BranchDescription>
+                                 (new BranchDescription(InEvent,
+                                                        moduleLabel,
+                                                        processName,
+                                                        product_type.userClassName(),
+                                                        product_type.friendlyClassName(),
+                                                        productInstanceName,
+                                                        *currentModuleDescription_)
+                                  ));
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
+  ProductMetaData::create_instance(*availableProducts_);
   BranchIDListHelper::updateRegistries(*availableProducts_);
 }
 
-testEvent::~testEvent()
+template <class T>
+void
+MPRGlobalTestFixture::
+registerProduct(std::string const& tag,
+                std::string const& moduleLabel,
+                std::string const& moduleClassName,
+                std::string const& processName,
+                std::string const& productInstanceName)
 {
-  delete principal_;
-  delete currentEvent_;
-  delete currentModuleDescription_;
+  ParameterSet moduleParams;
+  moduleParams.template put<std::string>("module_type", moduleClassName);
+  moduleParams.template put<std::string>("module_label", moduleLabel);
+
+  ParameterSet processParams;
+  processParams.template put<std::string>("process_name", processName);
+  processParams.template put<ParameterSet>(moduleLabel, moduleParams);
+
+  ProcessConfiguration process;
+  process.processName_    = processName;
+  process.releaseVersion_ = getReleaseVersion();
+  process.passID_         = getPassID();
+  process.parameterSetID_ = processParams.id();
+
+  ModuleDescription localModuleDescription;
+  localModuleDescription.parameterSetID_       = moduleParams.id();
+  localModuleDescription.moduleName_           = moduleClassName;
+  localModuleDescription.moduleLabel_          = moduleLabel;
+  localModuleDescription.processConfiguration_ = process;
+
+  TypeID product_type(typeid(T));
+
+  moduleDescriptions_[tag] = localModuleDescription;
+  availableProducts_->addProduct(std::auto_ptr<BranchDescription>
+                                 (new BranchDescription(InEvent,
+                                                        moduleLabel,
+                                                        processName,
+                                                        product_type.userClassName(),
+                                                        product_type.friendlyClassName(),
+                                                        productInstanceName,
+                                                        localModuleDescription)
+                                                        ));
 }
 
-void testEvent::setUp()
-{
+struct EventTestFixture {
+  EventTestFixture();
 
+  template <class T>
+  ProductID addProduct(std::auto_ptr<T> product,
+                       std::string const& tag,
+                       std::string const& productLabel = std::string());
+
+  MPRGlobalTestFixture &gf();
+  typedef MPRGlobalTestFixture::modCache_t modCache_t;
+  typedef MPRGlobalTestFixture::iterator_t iterator_t;
+
+
+  std::auto_ptr<EventPrincipal> principal_;
+  std::auto_ptr<Event> currentEvent_;
+};
+
+EventTestFixture::EventTestFixture()
+  :
+  principal_(0),
+  currentEvent_(0)
+{
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than
@@ -347,67 +265,85 @@ void testEvent::setUp()
   // and that is used to create the group in the principal used to
   // look up the object.
 
-  cet::exempt_ptr<ProductRegistry const> preg(availableProducts_);
   Timestamp time = make_timestamp();
   EventID id = make_id();
-  ProcessConfiguration const& pc = currentModuleDescription_->processConfiguration();
+  ProcessConfiguration const& pc = gf().currentModuleDescription_->processConfiguration();
   RunAuxiliary runAux(id.run(), time, time);
-  std::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
-  SubRunAuxiliary subRunAux(rp->run(), 1, time, time);
-  std::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, preg, pc));
+  std::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, pc));
+  SubRunAuxiliary subRunAux(rp->run(), 1u, time, time);
+  std::shared_ptr<SubRunPrincipal>srp(new SubRunPrincipal(subRunAux, pc));
   srp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, time, true);
   std::shared_ptr<History> history(new History);
   const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
-  principal_  = new EventPrincipal(eventAux,
-				   preg,
-                                   pc,
-                                   history);
+  principal_.reset(new EventPrincipal(eventAux, pc, history));
 
   principal_->setSubRunPrincipal(srp);
-  currentEvent_ = new Event(*principal_, *currentModuleDescription_);
+  currentEvent_.reset(new Event(*principal_, *gf().currentModuleDescription_));
 
   delete processHistory;
 }
 
-void
-testEvent::tearDown()
+// Add the given product, of type T, to the current event,
+// as if it came from the module specified by the given tag.
+template <class T>
+ProductID
+EventTestFixture::
+addProduct(std::auto_ptr<T> product,
+           std::string const& tag,
+           std::string const& productLabel)
 {
-  kill_and_clear(currentEvent_);
-  kill_and_clear(principal_);
+  iterator_t description = gf().moduleDescriptions_.find(tag);
+  if (description == gf().moduleDescriptions_.end())
+    throw art::Exception(errors::LogicError)
+      << "Failed to find a module description for tag: "
+      << tag << '\n';
+
+  Event temporaryEvent(*principal_, description->second);
+  OrphanHandle<T> h = temporaryEvent.put(product, productLabel);
+  ProductID id = h.id();
+  EDProducer::commitEvent(temporaryEvent);
+  return id;
 }
 
-void testEvent::emptyEvent()
-
-{
-  CPPUNIT_ASSERT(currentEvent_);
-  CPPUNIT_ASSERT(currentEvent_->id() == make_id());
-  CPPUNIT_ASSERT(currentEvent_->time() == make_timestamp());
-  CPPUNIT_ASSERT(currentEvent_->size() == 0);
+MPRGlobalTestFixture &
+EventTestFixture::gf() {
+  static MPRGlobalTestFixture gf_s;
+  return gf_s;
 }
 
-void testEvent::getBySelectorFromEmpty()
+BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture);
+
+BOOST_AUTO_TEST_CASE(emptyEvent)
+{
+  BOOST_REQUIRE(currentEvent_.get());
+  BOOST_REQUIRE_EQUAL(currentEvent_->id(), make_id());
+  BOOST_REQUIRE(currentEvent_->time() == make_timestamp());
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 0u);
+}
+
+BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
 {
   ModuleLabelSelector byModuleLabel("mod1");
   Handle<int> nonesuch;
-  CPPUNIT_ASSERT(!nonesuch.isValid());
-  CPPUNIT_ASSERT(!currentEvent_->get(byModuleLabel, nonesuch));
-  CPPUNIT_ASSERT(!nonesuch.isValid());
-  CPPUNIT_ASSERT(nonesuch.failedToGet());
-  CPPUNIT_ASSERT_THROW(*nonesuch,
-		       cet::exception);
+  BOOST_REQUIRE(!nonesuch.isValid());
+  BOOST_REQUIRE(!currentEvent_->get(byModuleLabel, nonesuch));
+  BOOST_REQUIRE(!nonesuch.isValid());
+  BOOST_REQUIRE(nonesuch.failedToGet());
+  BOOST_REQUIRE_THROW(*nonesuch,
+                      cet::exception);
 }
 
-void testEvent::putAnIntProduct()
+BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
   std::auto_ptr<arttest::IntProduct> three(new arttest::IntProduct(3));
   currentEvent_->put(three, "int1");
-  CPPUNIT_ASSERT(currentEvent_->size() == 1);
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
   EDProducer::commitEvent(*currentEvent_);
-  CPPUNIT_ASSERT(currentEvent_->size() == 1);
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
 }
 
-void testEvent::putAndGetAnIntProduct()
+BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   std::auto_ptr<arttest::IntProduct> four(new arttest::IntProduct(4));
   currentEvent_->put(four, "int1");
@@ -417,13 +353,13 @@ void testEvent::putAndGetAnIntProduct()
   ProcessNameSelector should_not_match("NONESUCH");
   Handle<arttest::IntProduct> h;
   currentEvent_->get(should_match, h);
-  CPPUNIT_ASSERT(h.isValid());
-  CPPUNIT_ASSERT(!currentEvent_->get(should_not_match, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cet::exception);
+  BOOST_REQUIRE(h.isValid());
+  BOOST_REQUIRE(!currentEvent_->get(should_not_match, h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
 }
 
-void testEvent::getByProductID()
+BOOST_AUTO_TEST_CASE(getByProductID)
 {
 
   typedef arttest::IntProduct product_t;
@@ -435,56 +371,56 @@ void testEvent::getByProductID()
   {
     ap_t one(new product_t(1));
     ProductID id1 = addProduct(one, "int1_tag", "int1");
-    CPPUNIT_ASSERT(id1 != ProductID());
+    BOOST_REQUIRE(id1 != ProductID());
     wanted = id1;
 
     ap_t two(new product_t(2));
     ProductID id2 = addProduct(two, "int2_tag", "int2");
-    CPPUNIT_ASSERT(id2 != ProductID());
-    CPPUNIT_ASSERT(id2 != id1);
+    BOOST_REQUIRE(id2 != ProductID());
+    BOOST_REQUIRE(id2 != id1);
 
     EDProducer::commitEvent(*currentEvent_);
-    CPPUNIT_ASSERT(currentEvent_->size() == 2);
+    BOOST_REQUIRE_EQUAL(currentEvent_->size(), 2u);
   }
 
   handle_t h;
   currentEvent_->get(wanted, h);
-  CPPUNIT_ASSERT(h.isValid());
-  CPPUNIT_ASSERT(h.id() == wanted);
-  CPPUNIT_ASSERT(h->value == 1);
+  BOOST_REQUIRE(h.isValid());
+  BOOST_REQUIRE_EQUAL(h.id(), wanted);
+  BOOST_REQUIRE_EQUAL(h->value, 1);
 
   ProductID invalid;
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(invalid, h), cet::exception);
-  CPPUNIT_ASSERT(!h.isValid());
+  BOOST_REQUIRE_THROW(currentEvent_->get(invalid, h), cet::exception);
+  BOOST_REQUIRE(!h.isValid());
   ProductID notpresent(0, std::numeric_limits<unsigned short>::max());
-  CPPUNIT_ASSERT(!currentEvent_->get(notpresent, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT(h.failedToGet());
-  CPPUNIT_ASSERT_THROW(*h, cet::exception);
+  BOOST_REQUIRE(!currentEvent_->get(notpresent, h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE(h.failedToGet());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
 }
 
-void testEvent::transaction()
+BOOST_AUTO_TEST_CASE(transaction)
 {
   // Put a product into an Event, and make sure that if we don't
   // commit, there is no product in the EventPrincipal afterwards.
-  CPPUNIT_ASSERT(principal_->size() == 0);
+  BOOST_REQUIRE_EQUAL(principal_->size(), 0u);
   {
     typedef arttest::IntProduct product_t;
     typedef std::auto_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
     currentEvent_->put(three, "int1");
-    CPPUNIT_ASSERT(principal_->size() == 0);
-    CPPUNIT_ASSERT(currentEvent_->size() == 1);
+    BOOST_REQUIRE_EQUAL(principal_->size(), 0u);
+    BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
     // DO NOT COMMIT!
   }
 
   // The Event has been destroyed without a commit -- we should not
   // have any products in the EventPrincipal.
-  CPPUNIT_ASSERT(principal_->size() == 0);
+  BOOST_REQUIRE_EQUAL(principal_->size(), 0u);
 }
 
-void testEvent::getByInstanceName()
+BOOST_AUTO_TEST_CASE(getByInstanceName)
 {
   typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
@@ -500,33 +436,33 @@ void testEvent::getByInstanceName()
   addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 4);
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 4u);
 
   Selector sel(ProductInstanceNameSelector("int2") &&
-	       ModuleLabelSelector("modMulti"));;
+               ModuleLabelSelector("modMulti"));;
   handle_t h;
-  CPPUNIT_ASSERT(currentEvent_->get(sel, h));
-  CPPUNIT_ASSERT(h->value == 2);
+  BOOST_REQUIRE(currentEvent_->get(sel, h));
+  BOOST_REQUIRE_EQUAL(h->value, 2);
 
   std::string instance;
   Selector sel1(ProductInstanceNameSelector(instance) &&
-	       ModuleLabelSelector("modMulti"));;
+                ModuleLabelSelector("modMulti"));;
 
-  CPPUNIT_ASSERT(currentEvent_->get(sel1, h));
-  CPPUNIT_ASSERT(h->value == 3);
+  BOOST_REQUIRE(currentEvent_->get(sel1, h));
+  BOOST_REQUIRE_EQUAL(h->value, 3);
 
   handle_vec handles;
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
-  CPPUNIT_ASSERT(handles.size() == 3);
+  BOOST_REQUIRE_EQUAL(handles.size(), 3u);
   handles.clear();
   currentEvent_->getMany(ModuleLabelSelector("nomatch"), handles);
-  CPPUNIT_ASSERT(handles.empty());
+  BOOST_REQUIRE(handles.empty());
   std::vector<Handle<int> > nomatches;
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), nomatches);
-  CPPUNIT_ASSERT(nomatches.empty());
+  BOOST_REQUIRE(nomatches.empty());
 }
 
-void testEvent::getBySelector()
+BOOST_AUTO_TEST_CASE(getBySelector)
 {
   typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
@@ -552,64 +488,64 @@ void testEvent::getBySelector()
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 6);
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
   Selector sel(ProductInstanceNameSelector("int2") &&
-	       ModuleLabelSelector("modMulti") &&
+               ModuleLabelSelector("modMulti") &&
                ProcessNameSelector("EARLY"));;
   handle_t h;
-  CPPUNIT_ASSERT(currentEvent_->get(sel, h));
-  CPPUNIT_ASSERT(h->value == 2);
+  BOOST_REQUIRE(currentEvent_->get(sel, h));
+  BOOST_REQUIRE_EQUAL(h->value, 2);
 
   Selector sel1(ProductInstanceNameSelector("nomatch") &&
-	        ModuleLabelSelector("modMulti") &&
+                ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
-  CPPUNIT_ASSERT(!currentEvent_->get(sel1, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cet::exception);
+  BOOST_REQUIRE(!currentEvent_->get(sel1, h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
 
   Selector sel2(ProductInstanceNameSelector("int2") &&
-	        ModuleLabelSelector("nomatch") &&
+                ModuleLabelSelector("nomatch") &&
                 ProcessNameSelector("EARLY"));
-  CPPUNIT_ASSERT(!currentEvent_->get(sel2, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cet::exception);
+  BOOST_REQUIRE(!currentEvent_->get(sel2, h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
 
   Selector sel3(ProductInstanceNameSelector("int2") &&
-	        ModuleLabelSelector("modMulti") &&
+                ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("nomatch"));
-  CPPUNIT_ASSERT(!currentEvent_->get(sel3, h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cet::exception);
+  BOOST_REQUIRE(!currentEvent_->get(sel3, h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
 
   Selector sel4(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
   //multiple selections throw
-  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), cet::exception);
+  BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
   Selector sel5(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("LATE"));;
   currentEvent_->get(sel5, h);
-  CPPUNIT_ASSERT(h->value == 100);
+  BOOST_REQUIRE_EQUAL(h->value, 100);
 
   Selector sel6(ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("CURRENT"));;
   currentEvent_->get(sel6, h);
-  CPPUNIT_ASSERT(h->value == 200);
+  BOOST_REQUIRE_EQUAL(h->value, 200);
 
   Selector sel7(ModuleLabelSelector("modMulti"));;
   currentEvent_->get(sel7, h);
-  CPPUNIT_ASSERT(h->value == 200);
+  BOOST_REQUIRE_EQUAL(h->value, 200);
 
   handle_vec handles;
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
-  CPPUNIT_ASSERT(handles.size() == 5);
+  BOOST_REQUIRE_EQUAL(handles.size(), 5u);
   int sum = 0;
   for (int k = 0; k < 5; ++k) sum += handles[k]->value;
-  CPPUNIT_ASSERT(sum == 306);
+  BOOST_REQUIRE_EQUAL(sum, 306);
 }
 
-void testEvent::getByLabel()
+BOOST_AUTO_TEST_CASE(getByLabel)
 {
   typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
@@ -635,33 +571,32 @@ void testEvent::getByLabel()
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 6);
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
   handle_t h;
-  CPPUNIT_ASSERT(currentEvent_->getByLabel("modMulti", h));
-  CPPUNIT_ASSERT(h->value == 3);
+  BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", h));
+  BOOST_REQUIRE_EQUAL(h->value, 3);
 
-  CPPUNIT_ASSERT(currentEvent_->getByLabel("modMulti", "int1", h));
-  CPPUNIT_ASSERT(h->value == 200);
+  BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", "int1", h));
+  BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  CPPUNIT_ASSERT(!currentEvent_->getByLabel("modMulti", "nomatch", h));
-  CPPUNIT_ASSERT(!h.isValid());
-  CPPUNIT_ASSERT_THROW(*h, cet::exception);
+  BOOST_REQUIRE(!currentEvent_->getByLabel("modMulti", "nomatch", h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
 
   InputTag inputTag("modMulti", "int1");
-  CPPUNIT_ASSERT(currentEvent_->getByLabel(inputTag, h));
-  CPPUNIT_ASSERT(h->value == 200);
+  BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
+  BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  BasicHandle bh =
+  GroupQueryResult bh =
     principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "LATE");
   convert_handle(bh, h);
-  CPPUNIT_ASSERT(h->value == 100);
-  BasicHandle bh2(principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "nomatch"));
-  CPPUNIT_ASSERT(!bh2.isValid());
+  BOOST_REQUIRE_EQUAL(h->value, 100);
+  GroupQueryResult bh2(principal_->getByLabel(TypeID(typeid(arttest::IntProduct)), "modMulti", "int1", "nomatch"));
+  BOOST_REQUIRE(!bh2.succeeded());
 }
 
-
-void testEvent::getManyByType()
+BOOST_AUTO_TEST_CASE(getManyByType)
 {
   typedef arttest::IntProduct product_t;
   typedef std::auto_ptr<product_t> ap_t;
@@ -690,20 +625,22 @@ void testEvent::getManyByType()
   currentEvent_->put(twoHundred, "int1");
   EDProducer::commitEvent(*currentEvent_);
 
-  CPPUNIT_ASSERT(currentEvent_->size() == 6);
+  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
   handle_vec handles;
   currentEvent_->getManyByType(handles);
-  CPPUNIT_ASSERT(handles.size() == 6);
+  BOOST_REQUIRE_EQUAL(handles.size(), 6u);
   int sum = 0;
   for (int k = 0; k < 6; ++k) sum += handles[k]->value;
-  CPPUNIT_ASSERT(sum == 310);
+  BOOST_REQUIRE_EQUAL(sum, 310);
 }
 
-void testEvent::printHistory()
+BOOST_AUTO_TEST_CASE(printHistory)
 {
   ProcessHistory const& history = currentEvent_->processHistory();
   std::ofstream out("history.log");
 
   cet::copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }
+
+BOOST_AUTO_TEST_SUITE_END();

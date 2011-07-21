@@ -53,7 +53,7 @@ namespace art {
   }
 
   ProductID
-  Event::makeProductID(ConstBranchDescription const& desc) const {
+  Event::makeProductID(BranchDescription const& desc) const {
     return eventPrincipal().branchIDToProductID(desc.branchID());
   }
 
@@ -112,7 +112,7 @@ namespace art {
     return process_found;
   }
 
-  BasicHandle
+  GroupQueryResult
   Event::getByProductID_(ProductID const& oid) const
   {
     return eventPrincipal().getByProductID(oid);
@@ -153,10 +153,10 @@ namespace art {
         pit->first = 0;
 
         // set provenance
-        auto_ptr<ProductProvenance> productProvenancePtr(
+        auto_ptr<ProductProvenance const> productProvenancePtr(
                 new ProductProvenance(pit->second->branchID(),
-                                   productstatus::present(),
-                                   gotBranchIDVector));
+                                      productstatus::present(),
+                                      gotBranchIDVector));
         ep.put(pr, *pit->second, productProvenancePtr);
         ++pit;
     }

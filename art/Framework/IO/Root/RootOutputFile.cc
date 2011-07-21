@@ -6,11 +6,18 @@
 
 #include "art/Framework/IO/Root/RootOutputFile.h"
 
-#include "art/Framework/Services/System/ConstProductRegistry.h"
+#include "Rtypes.h"
+#include "TClass.h"
+#include "TFile.h"
+#include "TTree.h"
 #include "art/Framework/Core/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/ProductMetaData.h"
 #include "art/Framework/Core/RunPrincipal.h"
 #include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/IO/Root/GetFileFormatEra.h"
+#include "art/Framework/IO/Root/GetFileFormatVersion.h"
+#include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -25,28 +32,20 @@
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryID.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
-#include "art/Framework/IO/Root/GetFileFormatVersion.h"
-#include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/rootNames.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "Rtypes.h"
-#include "TClass.h"
-#include "TFile.h"
-#include "TTree.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
 #include <utility>
-
 
 using namespace cet;
 using namespace std;
@@ -332,29 +331,32 @@ namespace art {
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
-    // Make a local copy of the ProductRegistry, removing any transient or pruned products.
-    typedef ProductRegistry::ProductList ProductList;
-    art::ServiceHandle<art::ConstProductRegistry> reg;
-    ProductRegistry pReg(reg->productList());
-    ProductList & pList  = const_cast<ProductList &>(pReg.productList());
+    // Make a local copy of the MasterProductRegistry's ProductList,
+    // removing any transient or pruned products.
+    ProductRegistry plh(art::ProductMetaData::instance().productList());
+    ProductList &pList = plh.productList_;
     set<BranchID>::iterator end = branchesWithStoredHistory_.end();
-    for (ProductList::iterator it = pList.begin(); it != pList.end(); ) {
+    for (ProductList::iterator
+           it = pList.begin(),
+           ple = pList.end();
+         it != ple; ) {
       if (branchesWithStoredHistory_.find(it->second.branchID()) == end) {
-        // avoid invalidating iterator on deletion
-        ProductList::iterator itCopy = it;
+        ProductList::iterator itCopy(it);
         ++it;
         pList.erase(itCopy);
-
       } else {
         ++it;
       }
     }
 
-    ProductRegistry * ppReg = &pReg;
-    TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(), &ppReg, om_->basketSize(), 0);
+    ProductRegistry * pplh = &plh;
+    TBranch* b = metaDataTree_->Branch(metaBranchRootName<ProductRegistry>(),
+                                       &pplh,
+                                       om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
+
   void RootOutputFile::writeProductDependencies() {
     BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
     BranchChildren * ppDeps = &pDeps;
@@ -418,14 +420,12 @@ namespace art {
     for(vector<BranchID>::const_iterator it=parentIDs.begin(), itEnd = parentIDs.end();
           it != itEnd; ++it) {
       branchesWithStoredHistory_.insert(*it);
-      std::shared_ptr<ProductProvenance> info = iMapper.branchToProductProvenance(*it);
-      if(info) {
-        if(om_->dropMetaData() == RootOutput::DropNone ||
-                 principal.getProvenance(info->branchID()).product().produced()) {
-          if(oToFill.insert(*info).second) {
-            //haven't seen this one yet
-            insertAncestors(*info, principal, oToFill);
-          }
+      cet::exempt_ptr<ProductProvenance const> info = iMapper.branchToProductProvenance(*it);
+      if(info && om_->dropMetaData() == RootOutput::DropNone) {
+        BranchDescription const * bd(principal.getForOutput(info->branchID(),false).desc());
+        if(bd && bd->produced() && oToFill.insert(*info).second) {
+          //haven't seen this one yet
+          insertAncestors(*info, principal, oToFill);
         }
       }
     }

@@ -11,7 +11,7 @@ contains an EDProduct and its associated Provenance, along with
 ancillary transient information regarding the two. Groups are handled
 through shared pointers.
 
-The Principal returns BasicHandle, rather than a shared
+The Principal returns GroupQueryResult, rather than a shared
 pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
@@ -20,8 +20,8 @@ pointer to a Group, when queried.
 
 #include "art/Framework/Core/FCPfwd.h"
 #include "art/Framework/Core/Group.h"
+#include "art/Framework/Core/GroupQueryResult.h"
 #include "art/Framework/Core/NoDelayedReader.h"
-#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/OutputHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
@@ -41,20 +41,21 @@ pointer to a Group, when queried.
 #include <vector>
 
 namespace art {
-  class Principal : public EDProductGetter {
+  class Principal
+    : public EDProductGetter
+  {
   public:
     typedef std::map<BranchID, std::shared_ptr<Group> > GroupCollection;
     typedef GroupCollection::const_iterator const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
     typedef std::shared_ptr<const Group> SharedConstGroupPtr;
-    typedef std::vector<BasicHandle> BasicHandleVec;
+    typedef std::vector<GroupQueryResult> GroupQueryResultVec;
     typedef GroupCollection::size_type      size_type;
 
     typedef std::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
 
-    Principal(cet::exempt_ptr<ProductRegistry const> reg,
-              ProcessConfiguration const& pc,
+    Principal(ProcessConfiguration const& pc,
               ProcessHistoryID const& hist,
               std::auto_ptr<BranchMapper> mapper,
               std::shared_ptr<DelayedReader> rtrv);
@@ -65,22 +66,22 @@ namespace art {
 
     OutputHandle getForOutput(BranchID const& bid, bool getProd) const;
 
-    BasicHandle  getBySelector(TypeID const& tid,
+    GroupQueryResult  getBySelector(TypeID const& tid,
                                SelectorBase const& s) const;
 
-    BasicHandle  getByLabel(TypeID const& tid,
+    GroupQueryResult  getByLabel(TypeID const& tid,
 			    std::string const& label,
 			    std::string const& productInstanceName,
 			    std::string const& processName) const;
 
     void getMany(TypeID const& tid,
 		 SelectorBase const&,
-		 BasicHandleVec& results) const;
+		 GroupQueryResultVec& results) const;
 
     void getManyByType(TypeID const& tid,
-		 BasicHandleVec& results) const;
+		 GroupQueryResultVec& results) const;
 
-    // Return a vector of BasicHandles to the products which:
+    // Return a vector of GroupQueryResults to the products which:
     //   1. are sequences,
     //   2. and have the nested type 'value_type'
     //   3. and for which typeID is the same as or a public base of
@@ -88,7 +89,7 @@ namespace art {
     //   4. and which matches the given selector
     size_t getMatchingSequence(TypeID const& typeID,
 			       SelectorBase const& selector,
-			       BasicHandleVec& results,
+			       GroupQueryResultVec& results,
 			       bool stopIfProcessHasMatch) const;
 
     void
@@ -101,8 +102,6 @@ namespace art {
 
     ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
 
-    ProductRegistry const& productRegistry() const {return *preg_;}
-
     std::shared_ptr<DelayedReader> store() const {return store_;}
     BranchMapper const &branchMapper() const {return *branchMapperPtr_;}
 
@@ -114,9 +113,6 @@ namespace art {
 
     const_iterator begin() const {return groups_.begin();}
     const_iterator end() const {return groups_.end();}
-
-    Provenance
-    getProvenance(BranchID const& bid) const;
 
     // Obtain the branch type suitable for products to be put in the
     // principal.
@@ -162,13 +158,13 @@ namespace art {
     size_t findGroups(TypeID const& typeID,
 		      TypeLookup const& typeLookup,
 		      SelectorBase const& selector,
-		      BasicHandleVec& results,
+		      GroupQueryResultVec& results,
 		      bool stopIfProcessHasMatch) const;
 
     void findGroupsForProcess(std::string const& processName,
                               ProcessLookup const& processLookup,
                               SelectorBase const& selector,
-                              BasicHandleVec& results) const;
+                              GroupQueryResultVec& results) const;
 
     std::shared_ptr<ProcessHistory> processHistoryPtr_;
 
@@ -178,10 +174,6 @@ namespace art {
 
     // A vector of groups.
     GroupCollection groups_; // products and provenances are persistent
-
-    // Pointer to the product registry. There is one entry in the registry
-    // for each EDProduct in the event.
-    cet::exempt_ptr<ProductRegistry const> preg_;
 
     // Pointer to the 'mapper' that will get provenance information
     // from the persistent store.

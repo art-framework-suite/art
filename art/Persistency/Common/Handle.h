@@ -1,229 +1,223 @@
 #ifndef art_Persistency_Common_Handle_h
 #define art_Persistency_Common_Handle_h
 
-/*----------------------------------------------------------------------
+// ======================================================================
+//
+// Handle: Non-owning "smart pointer" for reference to EDProducts and
+//         their Provenances.
+//
+// If the pointed-to EDProduct or Provenance is destroyed, use of the
+// Handle becomes undefined. There is no way to query the Handle to
+// discover if this has happened.
+//
+// Handles can have:
+// -- Product and Provenance pointers both null;
+// -- Both pointers valid
+//
+// To check validity, one can use the isValid() function.
+//
+// If failedToGet() returns true then the requested data is not available
+// If failedToGet() returns false but isValid() is also false then no
+// attempt to get data has occurred
+//
+// ======================================================================
 
-Handle: Non-owning "smart pointer" for reference to EDProducts and
-their Provenances.
-
-This is a very preliminary version, and lacks safety features and
-elegance.
-
-If the pointed-to EDProduct or Provenance is destroyed, use of the
-Handle becomes undefined. There is no way to query the Handle to
-discover if this has happened.
-
-Handles can have:
-  -- Product and Provenance pointers both null;
-  -- Both pointers valid
-
-To check validity, one can use the isValid() function.
-
-If failedToGet() returns true then the requested data is not available
-If failedToGet() returns false but isValid() is also false then no attempt
-  to get data has occurred
-
-----------------------------------------------------------------------*/
-
-#include "art/Persistency/Common/BasicHandle.h"
+#include "art/Framework/Core/Group.h"
+#include "art/Framework/Core/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "art/Persistency/Provenance/Provenance.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
+#include "cetlib/exception.h"
 #include "cpp0x/memory"
 #include <typeinfo>
 
-namespace art
-{
-  class EDProduct;
-  template <typename T> class Wrapper;
-
+namespace art {
+  // defined herein:
   template <typename T>
-  class Handle
-  {
-  public:
-    typedef T element_type;
-
-    // Default constructed handles are invalid.
-    Handle();
-
-    Handle(T const* prod, Provenance const* prov);
-
-    Handle(std::shared_ptr<cet::exception> const&);
-
-    // use compiler-generated copy c'tor and copy assignment
-
-    ~Handle();
-
-    void swap(Handle<T>& other);
-
-    bool isValid() const;
-
-    ///Returns true only if Handle was used in a 'get' call and the data could not be found
-    bool failedToGet() const;
-
-    T const* product() const;
-    T const* operator->() const; // alias for product()
-    T const& operator*() const;
-
-    Provenance const* provenance() const;
-
-    ProductID id() const;
-
-    void clear();
-
-  private:
-    T const* prod_;
-    Provenance const* prov_;
-    std::shared_ptr<cet::exception> whyFailed_;
-  };
-
+    class Handle;
   template <class T>
-  Handle<T>::Handle() :
-    prod_(0),
-    prov_(0),
-    whyFailed_()
-  { }
-
+    void  swap(Handle<T> & a, Handle<T> & b);
   template <class T>
-  Handle<T>::Handle(T const* prod, Provenance const* prov) :
-    prod_(prod),
-    prov_(prov),
-    whyFailed_()
-  {
-    assert(prod_);
-    assert(prov_);
-  }
+    void  convert_handle(GroupQueryResult const &, Handle<T> &);
 
-  template <class T>
-    Handle<T>::Handle(std::shared_ptr<cet::exception> const& iWhyFailed):
-    prod_(0),
-    prov_(0),
-    whyFailed_(iWhyFailed)
-  { }
-
-  template <class T>
-  Handle<T>::~Handle()
-  {
-    // Really nothing to do -- we do not own the things to which we
-    // point.  For help in debugging, we clear the data.
-    clear();
-  }
-
-  template <class T>
-  void
-  Handle<T>::swap(Handle<T>& other)
-  {
-    using std::swap;
-    std::swap(prod_, other.prod_);
-    std::swap(prov_, other.prov_);
-    swap(whyFailed_,other.whyFailed_);
-  }
-
-  template <class T>
-  bool
-  Handle<T>::isValid() const
-  {
-    return prod_ != 0 && prov_ != 0;
-  }
-
-  template <class T>
-  bool
-  Handle<T>::failedToGet() const
-  {
-    return 0 != whyFailed_.get();
-  }
-
-  template <class T>
-  T const*
-  Handle<T>::product() const
-  {
-    if(failedToGet()) {
-      throw *whyFailed_;
-    }
-    // Should we throw if the pointer is null?
-    return prod_;
-  }
-
-  template <class T>
-  inline
-  T const*
-  Handle<T>::operator->() const
-  {
-    return product();
-  }
-
-  template <class T>
-  inline
-  T const&
-  Handle<T>::operator*() const
-  {
-    return *product();
-  }
-
-  template <class T>
-  inline
-  Provenance const*
-  Handle<T>::provenance() const
-  {
-    // Should we throw if the pointer is null?
-    return prov_;
-  }
-
-  template <class T>
-  inline
-  ProductID
-  Handle<T>::id() const
-  {
-    return prov_ ? prov_->productID() : ProductID();
-  }
-
-  template <class T>
-  void
-  Handle<T>::clear()
-  {
-    prod_ = 0;
-    prov_ = 0;
-    whyFailed_.reset();
-  }
-  //------------------------------------------------------------
-  // Non-member functions
-  //
-
-  // Free swap function
-  template <class T>
-  inline
-  void
-  swap(Handle<T>& a, Handle<T>& b)
-  {
-    a.swap(b);
-  }
-
-  // Convert from handle-to-EDProduct to handle-to-T
-  template <class T>
-  void convert_handle(BasicHandle const& orig,
-		      Handle<T>& result)
-  {
-    if(orig.failedToGet()) {
-      Handle<T> h(orig.whyFailed());
-      h.swap(result);
-      return;
-    }
-    EDProduct const* originalWrap = orig.wrapper();
-    if (originalWrap == 0)
-      throw art::Exception(art::errors::InvalidReference,"NullPointer")
-      << "art::BasicHandle has null pointer to Wrapper";
-    Wrapper<T> const* wrap = dynamic_cast<Wrapper<T> const*>(originalWrap);
-    if (wrap == 0)
-      throw art::Exception(art::errors::LogicError,"ConvertType")
-      << "art::Wrapper converting from EDProduct to "
-      << cet::demangle(typeid(*originalWrap).name())
-      << ".\n";
-
-    Handle<T> h(wrap->product(), orig.provenance());
-    h.swap(result);
-  }
-
+  // forward declarations:
+  class EDProduct;
+  template <typename T>  class Wrapper;
 }
+
+// ======================================================================
+
+template <typename T>
+class art::Handle
+{
+public:
+  typedef  T  element_type;
+
+  // c'tors:
+  Handle( );  // Default-constructed handles are invalid.
+  Handle( GroupQueryResult const  & );
+
+  // use compiler-generated copy c'tor, copy assignment, and d'tor
+
+  // pointer behaviors:
+  T const &  operator * ( ) const;
+  T const *  operator-> ( ) const; // alias for product()
+  T const *  product    ( ) const;
+
+  // inspectors:
+  bool isValid( ) const;
+  bool failedToGet( ) const; // was Handle used in a 'get' call whose data could not be found?
+  Provenance const * provenance( ) const;
+  ProductID id( ) const;
+
+  // mutators:
+  void swap( Handle<T> & other );
+  void clear( );
+
+private:
+  T const *                              prod_;
+  Provenance                             prov_;
+  std::shared_ptr<cet::exception const>  whyFailed_;
+
+};  // Handle<>
+
+// ----------------------------------------------------------------------
+// c'tors:
+
+template <class T>
+art::Handle<T>::Handle( ) :
+  prod_     ( 0 ),
+  prov_     ( ),
+  whyFailed_( )
+{ }
+
+template <class T>
+art::Handle<T>::Handle(GroupQueryResult const & gqr) :
+  prod_     ( 0 ),
+  prov_     ( gqr.result() ),
+  whyFailed_( gqr.whyFailed() )
+{
+  if( gqr.succeeded() )
+    try {
+      prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->product()
+                                               ).product();
+    }
+    catch( std::bad_cast const & e ) {
+      typedef  cet::exception const  exc_t;
+      whyFailed_ = std::shared_ptr<exc_t>( new art::Exception( errors::LogicError
+                                                             , "Handle<T> c'tor"
+                                         )                   );
+    }
+}
+
+// ----------------------------------------------------------------------
+// pointer behaviors:
+
+template <class T>
+inline
+T const &
+art::Handle<T>::operator *( ) const
+{
+  return *product();
+}
+
+template <class T>
+T const *
+art::Handle<T>::product( ) const
+{
+  if( failedToGet() ) {
+    throw *whyFailed_;
+  }
+  // Should we throw if the pointer is null?
+  return prod_;
+}
+
+template <class T>
+inline
+T const *
+art::Handle<T>::operator->( ) const
+{
+  return product();
+}
+
+// ----------------------------------------------------------------------
+// inspectors:
+
+template <class T>
+bool
+art::Handle<T>::isValid( ) const
+{
+  return prod_ && prov_.isValid();
+}
+
+template <class T>
+bool
+art::Handle<T>::failedToGet() const
+{
+  return whyFailed_.get();
+}
+
+template <class T>
+inline
+art::Provenance const *
+art::Handle<T>::provenance() const
+{
+  // Should we throw if the pointer is null?
+  return & prov_;
+}
+
+template <class T>
+inline
+art::ProductID
+art::Handle<T>::id() const
+{
+  return prov_.isValid() ? prov_.productID() : ProductID();
+}
+
+// ----------------------------------------------------------------------
+// mutators:
+
+template <class T>
+void
+art::Handle<T>::swap(Handle<T> & other)
+{
+  using std::swap;
+  swap(prod_, other.prod_);
+  swap(prov_, other.prov_);
+  swap(whyFailed_, other.whyFailed_);
+}
+
+template <class T>
+void
+  art::Handle<T>::clear( )
+{
+  prod_ = 0;
+  prov_ = Provenance();
+  whyFailed_.reset();
+}
+
+// ======================================================================
+// Non-members:
+
+template <class T>
+inline
+void
+  art::swap(Handle<T> & a, Handle<T> & b)
+{
+  a.swap(b);
+}
+
+// Convert from handle-to-EDProduct to handle-to-T
+template <class T>
+void
+  art::convert_handle(GroupQueryResult const & orig, Handle<T> & result)
+{
+  Handle<T> h(orig);
+  swap(result, h);
+}
+
+// ======================================================================
 
 #endif /* art_Persistency_Common_Handle_h */
 

@@ -7,8 +7,10 @@
 //
 // ======================================================================
 
+#include "art/Persistency/Provenance/ProductList.h"
 #include "cpp0x/regex"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -26,7 +28,7 @@ namespace art {
 
     // N.B.: we assume there are not null pointers in the vector allBranches.
     void initialize(GroupSelectorRules const& rules,
-                    std::vector<BranchDescription const*> const& branchDescriptions);
+                    ProductList const &branchDescriptions);
 
     bool selected(BranchDescription const& desc) const;
 
@@ -42,9 +44,9 @@ namespace art {
 
     // TODO: See if we can keep pointer to (const) BranchDescriptions,
     // so that we can do pointer comparison rather than string
-    // comparison. This will work if the BranchDescription we are
-    // given in the 'selected' member function is one of the instances
-    // that are managed by the ProductRegistry used to initialize the
+    // comparison. This will work if the BranchDescription we are given
+    // in the 'selected' member function is one of the instances that
+    // are managed by the MasterProductRegistry used to initialize the
     // entity that contains this GroupSelector.
     std::vector<std::string> groupsToSelect_;
     bool initialized_;

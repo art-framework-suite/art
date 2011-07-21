@@ -1,4 +1,4 @@
---- 
+---
 title: The art framework
 next: /concepts
 ---

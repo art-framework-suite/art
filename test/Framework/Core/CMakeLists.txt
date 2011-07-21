@@ -2,7 +2,7 @@
 project(art_Framework_Core_test)
 
 # Library link requirements for tests here
-link_libraries( 
+link_libraries(
   art_Framework_Services_Registry
   art_Utilities
   art_Framework_Core
@@ -52,6 +52,9 @@ cet_test(LibraryManager_t.sh HANDBUILT
   TEST_EXEC ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
   )
 
+cet_test(eventprincipal_t USE_BOOST_UNIT)
+cet_test(Event_t USE_BOOST_UNIT)
+
 #########################################################################
 # Old (pre-ART fork) tests.
 
@@ -67,7 +70,6 @@ foreach(cppunit_source ${cppunit_files})
 endforeach()
 
 foreach(cpp_test
-    Event_t
     GroupSelector_t
     EventSelector_t
     EventSelWildcard_t

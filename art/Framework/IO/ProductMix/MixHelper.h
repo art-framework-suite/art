@@ -127,7 +127,6 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/ProductRegistry.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/fwd.h"
 

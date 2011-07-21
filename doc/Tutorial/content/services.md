@@ -29,7 +29,7 @@ FHiCL configuration of services
 
         services:
         {
-          TFileService: 
+          TFileService:
           {
             fileName: "tfile_output.root"
           }

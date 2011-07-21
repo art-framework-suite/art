@@ -8,7 +8,7 @@ Filter Interface
 ================
 
     class EDFilter {
-      // explicit EDFilter(ParameterSet const&) 
+      // explicit EDFilter(ParameterSet const&)
 
       virtual bool filter(Event&) = 0
       virtual void reconfigure(ParameterSet const&)

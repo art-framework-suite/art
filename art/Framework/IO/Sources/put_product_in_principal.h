@@ -1,5 +1,6 @@
 #ifndef art_Framework_IO_Sources_put_product_in_principal_h
 #define art_Framework_IO_Sources_put_product_in_principal_h
+
 ////////////////////////////////////////////////////////////////////////
 // Helper class to put products directly into the {Run, SubRun, Event}
 // Principal.
@@ -13,7 +14,7 @@
 #include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchKey.h"
-#include "art/Persistency/Provenance/ConstBranchDescription.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Utilities/Exception.h"
@@ -46,7 +47,7 @@ art::put_product_in_principal(std::auto_ptr<T> product,
          << instance_name << "'.\n";
    }
 
-   ConstBranchDescription const &desc =
+   BranchDescription const &desc =
       get_BranchDescription<T>(principal,
                                module_label,
                                instance_name);
@@ -54,9 +55,8 @@ art::put_product_in_principal(std::auto_ptr<T> product,
    std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));
    principal.put(wp,
                  desc,
-                 std::auto_ptr<ProductProvenance>
-                 (new ProductProvenance(desc.branchID(),
-                                        productstatus::present())));
+                 std::auto_ptr<ProductProvenance const>(
+                   new ProductProvenance(desc.branchID(), productstatus::present())));
 }
 
 #endif /* art_Framework_IO_Sources_put_product_in_principal_h */

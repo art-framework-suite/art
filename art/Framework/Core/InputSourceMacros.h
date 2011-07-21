@@ -7,7 +7,7 @@
    extern "C" { \
       std::auto_ptr<art::InputSource> \
          make(fhicl::ParameterSet const &ps, \
-              art::InputSourceDescription const &desc) \
+              art::InputSourceDescription &desc) \
          { return std::auto_ptr<art::InputSource>(new klass(ps, desc)); } \
    }
 

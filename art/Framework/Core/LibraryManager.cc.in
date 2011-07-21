@@ -202,7 +202,7 @@ lib_loc_map_inserter(std::string const &path) {
   lib_loc_map_[boost::filesystem::path(path).filename()] = path;
 }
 
-void 
+void
 art::LibraryManager::
 spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
                         std::string const &lib_type) {
@@ -215,7 +215,7 @@ spec_trans_map_inserter(lib_loc_map_t::value_type const& entry,
     spec_trans_map_[match_results[1]].insert(entry.second);
   } else {
     throw art::Exception(errors::LogicError)
-      << "Internal error in spec_trans_map_inserter for entry " 
+      << "Internal error in spec_trans_map_inserter for entry "
       << entry.first
       << " with pattern "
       <<  e.str();

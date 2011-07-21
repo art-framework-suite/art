@@ -25,51 +25,41 @@ namespace art {
   class RunPrincipal : public Principal {
   public:
     typedef RunAuxiliary Auxiliary;
-    typedef Principal Base;
 
     RunPrincipal(RunAuxiliary const& aux,
-                 cet::exempt_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc,
-	std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-	std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
+                 ProcessConfiguration const& pc,
+                 std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
+                 std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
     ~RunPrincipal() {}
 
-    RunAuxiliary const& aux() const {
-      return aux_;
-    }
+    RunAuxiliary const& aux() const { return aux_; }
 
-    RunNumber_t run() const {
-      return aux().run();
-    }
+    RunNumber_t run() const { return aux().run(); }
 
-    RunID const& id() const {
-      return aux().id();
-    }
+    RunID const& id() const { return aux().id(); }
 
-    Timestamp const& beginTime() const {
-      return aux().beginTime();
-    }
+    Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    Timestamp const& endTime() const {
-      return aux().endTime();
-    }
+    Timestamp const& endTime() const { return aux().endTime(); }
 
-    void setEndTime(Timestamp const& time) {
-      aux_.setEndTime(time);
-    }
+    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
+    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) { }
 
     void mergeRun(std::shared_ptr<RunPrincipal> rp);
 
     void put(std::auto_ptr<EDProduct> edp,
-	     ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+	     BranchDescription const& bd,
+             std::auto_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd);
+    void addGroup(BranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod, ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(std::auto_ptr<EDProduct> prod,
+                  BranchDescription const& bd,
+                  cet::exempt_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(ConstBranchDescription const& bd, std::auto_ptr<ProductProvenance> productProvenance);
+    void addGroup(BranchDescription const& bd,
+                  cet::exempt_ptr<ProductProvenance const> productProvenance);
 
     BranchType branchType() const { return InRun; }
 

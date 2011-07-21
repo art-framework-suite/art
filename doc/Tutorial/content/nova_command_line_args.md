@@ -20,7 +20,7 @@ nova Command Line Arguments
           --nskip arg              Number of events to skip.
           -o [ --output ] arg      Event output stream file.
           -s [ --source ] arg      Source data file (multiple OK).
-          -S [ --source-list ] arg file containing a list of source files to read, one 
+          -S [ --source-list ] arg file containing a list of source files to read, one
                                    per line.
           --trace                  Activate tracing.
           --notrace                Deactivate tracing.

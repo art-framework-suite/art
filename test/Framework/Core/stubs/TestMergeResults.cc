@@ -1,5 +1,3 @@
-
-//
 //
 // Reads some simple test objects in the event, run, and subRun
 // principals.  Then checks to see if the values in these
@@ -7,30 +5,25 @@
 // test the values in a file that has merged run and subRun
 // products.
 //
-// Original Author: David Dagenhart, Fermilab, February 2008
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Core/Event.h"
+#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/Run.h"
 #include "art/Framework/Core/SubRun.h"
-#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Common/Handle.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Utilities/InputTag.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "test/TestObjects/Thing.h"
 #include "test/TestObjects/ThingWithIsEqual.h"
 #include "test/TestObjects/ThingWithMerge.h"
-#include "art/Utilities/InputTag.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/ConstProductRegistry.h"
-#include "art/Persistency/Provenance/BranchKey.h"
-
-#include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "art/Framework/Core/ModuleMacros.h"
-
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace art {
   class EventSetup;

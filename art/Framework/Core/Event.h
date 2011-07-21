@@ -12,9 +12,9 @@
 
 #include "art/Framework/Core/DataViewImpl.h"
 #include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Core/GroupQueryResult.h"
 #include "art/Framework/Core/View.h"
 #include "art/Framework/Core/detail/maybe_record_parents.h"
-#include "art/Persistency/Common/BasicHandle.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
@@ -35,7 +35,7 @@
 
 namespace art {
 
-  class ConstBranchDescription;
+  class BranchDescription;
 
   class Event
     : private DataViewImpl
@@ -159,7 +159,7 @@ namespace art {
 
     template< typename ELEMENT >
     void
-      fillView_( BasicHandle & bh
+      fillView_( GroupQueryResult & bh
                , std::vector<ELEMENT const *> & result
                ) const;
 
@@ -180,7 +180,7 @@ namespace art {
     EventPrincipal      & eventPrincipal();
 
     ProductID
-      makeProductID(ConstBranchDescription const& desc) const;
+      makeProductID(BranchDescription const& desc) const;
 
     void
       ensure_unique_product( std::size_t         nFound
@@ -204,7 +204,7 @@ namespace art {
     void
       commit_aux(Base::ProductPtrVec& products, bool record_parents);
 
-    BasicHandle
+    GroupQueryResult
       getByProductID_(ProductID const& oid) const;
 
     EventAuxiliary const& aux_;
@@ -227,13 +227,11 @@ namespace art {
   Event::get(ProductID const& oid, Handle<PROD>& result) const
   {
     result.clear();
-    BasicHandle bh = this->getByProductID_(oid);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    addToGotBranchIDs(*bh.provenance());
-    return true;
+    GroupQueryResult bh = this->getByProductID_(oid);
+    convert_handle(bh, result);
+    if (bh.succeeded())
+      addToGotBranchIDs(*result.provenance());
+    return bh.succeeded();
   }  // get<>()
 
 // ----------------------------------------------------------------------
@@ -250,7 +248,7 @@ namespace art {
         << "The specified productInstanceName was '" << productInstanceName << "'.\n";
     }
 
-    ConstBranchDescription const& desc =
+    BranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD>* wp(new Wrapper<PROD>(product));
@@ -364,7 +362,7 @@ namespace art {
                   ) const
   {
     TypeID typeID( typeid(ELEMENT) );
-    BasicHandleVec bhv;
+    GroupQueryResultVec bhv;
     int nFound = getMatchingSequenceByLabel_( typeID
                                             , moduleLabel
                                             , productInstanceName
@@ -391,7 +389,7 @@ namespace art {
     }
 
     TypeID typeID( typeid(ELEMENT) );
-    BasicHandleVec bhv;
+    GroupQueryResultVec bhv;
     int nFound = getMatchingSequenceByLabel_( typeID
                                             , tag.label()
                                             , tag.instance()
@@ -424,7 +422,7 @@ namespace art {
                  View<ELEMENT>&     result) const
   {
     TypeID typeID( typeid(ELEMENT) );
-    BasicHandleVec bhv;
+    GroupQueryResultVec bhv;
     int nFound = getMatchingSequenceByLabel_( typeID
                                             , moduleLabel
                                             , productInstanceName
@@ -435,9 +433,8 @@ namespace art {
                          , moduleLabel, productInstanceName, std::string()
                          );
 
-
     fillView_(bhv[0], result.vals());
-    result.set_innards(bhv[0].id(), bhv[0].wrapper());
+    result.set_innards(bhv[0].result()->productID(), bhv[0].result()->product());
     return true;
   }
 
@@ -449,7 +446,7 @@ namespace art {
       return getView(tag.label(), tag.instance(), result);
 
     TypeID typeID( typeid(ELEMENT) );
-    BasicHandleVec bhv;
+    GroupQueryResultVec bhv;
     int nFound = getMatchingSequenceByLabel_(typeID,
                                              tag.label(),
                                              tag.instance(),
@@ -460,7 +457,7 @@ namespace art {
                            tag.label(), tag.instance(), tag.process());
 
     fillView_(bhv[0], result.vals());
-    result.set_innards(bhv[0].id(), bhv[0].wrapper());
+    result.set_innards(bhv[0].result()->productID(), bhv[0].result()->product());
     return true;
   }
 
@@ -468,7 +465,7 @@ namespace art {
 
   template< typename ELEMENT >
   void
-    Event::fillView_( BasicHandle & bh
+    Event::fillView_( GroupQueryResult & bh
                     , std::vector<ELEMENT const *> & result
                     ) const
   {
@@ -476,8 +473,9 @@ namespace art {
              iter_t;
 
     std::vector<void const *> erased_ptrs;
-    bh.wrapper()->fillView(erased_ptrs);
-    addToGotBranchIDs(*bh.provenance());
+    bh.result()->product()->fillView(erased_ptrs);
+    Handle<ELEMENT> h(bh);
+    addToGotBranchIDs(*h.provenance());
 
     for( iter_t b = erased_ptrs.begin()
               , e = erased_ptrs.end();  b != e;  ++b ) {

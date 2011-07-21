@@ -1,12 +1,12 @@
 # macros for building plugin libraries
 #
-# The plugin type is expected to be service, source, or module, 
+# The plugin type is expected to be service, source, or module,
 # but we do not enforce this.
 #
 # USAGE:
-# simple_plugin( <name> <plugin type> 
-#                [library list] 
-#                [ALLOW_UNDERSCORES] 
+# simple_plugin( <name> <plugin type>
+#                [library list]
+#                [ALLOW_UNDERSCORES]
 #                [NOINSTALL] )
 #        the base plugin name is derived from the current source code subdirectory
 #        specify NOINSTALL when building a plugin for the tests
