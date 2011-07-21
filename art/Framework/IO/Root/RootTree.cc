@@ -50,7 +50,7 @@ namespace art {
   }
 
   void
-  RootTree::setPresence(BranchDescription const& prod) {
+  RootTree::setPresence(BranchDescription &prod) {
       assert(isValid());
       prod.init();
       prod.setPresent(tree_->GetBranch(prod.branchName().c_str()) != 0);

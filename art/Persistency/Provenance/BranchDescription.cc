@@ -5,10 +5,12 @@
 #include "art/Utilities/FriendlyName.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "fhiclcpp/ParameterSetID.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include <cassert>
 #include <ostream>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Cintex/Cintex.h"
 
@@ -75,9 +77,9 @@ namespace art {
     branchAliases_(aliases),
     transients_()
   {
-    present() = true;
-    produced() = true;
-    transients_.get().parameterSetID_ = modDesc.parameterSetID();
+    guts().present_ = true;
+    guts().produced_ = true;
+    guts().parameterSetID_ = modDesc.parameterSetID();
     psetIDs_.insert(modDesc.parameterSetID());
     processConfigurationIDs_.insert(modDesc.processConfigurationID());
     init();
@@ -86,7 +88,7 @@ namespace art {
   void
   BranchDescription::init() const
   {
-    if (!branchName().empty()) return;
+    if (!guts().branchName_.empty()) return;
     throwIfInvalid_();
 
     char const underscore('_');
@@ -112,49 +114,55 @@ namespace art {
       << "' contains an underscore ('_'), which is illegal in a process name.\n";
     }
 
-    branchName().reserve(friendlyClassName().size() +
+    transients_.get().branchName_.reserve(friendlyClassName().size() +
                         moduleLabel().size() +
                         productInstanceName().size() +
                         processName().size() + 4);
-    branchName() += friendlyClassName();
-    branchName() += underscore;
-    branchName() += moduleLabel();
-    branchName() += underscore;
-    branchName() += productInstanceName();
-    branchName() += underscore;
-    branchName() += processName();
-    branchName() += period;
+    transients_.get().branchName_ += friendlyClassName();
+    transients_.get().branchName_ += underscore;
+    transients_.get().branchName_ += moduleLabel();
+    transients_.get().branchName_ += underscore;
+    transients_.get().branchName_ += productInstanceName();
+    transients_.get().branchName_ += underscore;
+    transients_.get().branchName_ += processName();
+    transients_.get().branchName_ += period;
 
     if (!branchID_.isValid()) {
-      branchID_.setID(branchName());
+      branchID_.setID(guts().branchName_);
     }
 
     Reflex::Type t = Reflex::Type::ByName(fullClassName());
     Reflex::PropertyList p = t.Properties();
-    transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
+    if (p.HasProperty("persistent") && p.PropertyAsString("persistent") == std::string("false")) {
+      mf::LogWarning("TransientBranch")
+        << "BranchDescription::init() called for a non-persistable entity: "
+        << friendlyClassName()
+        << "\nThis behavior is DEPRECATED and will be removed in a future release of Art.";
+      transients_.get().transient_ = true;
+    }
 
-    wrappedName() = wrappedClassName(fullClassName());
-    wrappedCintName() = wrappedClassName(ROOT::Cintex::CintName(fullClassName()));
-    type() = Reflex::Type::ByName(wrappedName());
-    Reflex::PropertyList wp = type().Properties();
+    transients_.get().wrappedName_ = wrappedClassName(fullClassName());
+    transients_.get().wrappedCintName_ = wrappedClassName(ROOT::Cintex::CintName(fullClassName()));
+    transients_.get().type_ = Reflex::Type::ByName(transients_.get().wrappedName_);
+    Reflex::PropertyList wp = guts().type_.Properties();
     if (wp.HasProperty("splitLevel")) {
-        splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
-        if (splitLevel() < 0) {
+        transients_.get().splitLevel_ = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+        if (transients_.get().splitLevel_ < 0) {
           throw cet::exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-          splitLevel() << " is specified for class " << wrappedName() << ".'\n";
+          transients_.get().splitLevel_ << " is specified for class " << transients_.get().wrappedName_ << ".'\n";
         }
-        ++splitLevel(); //Compensate for wrapper
+        ++transients_.get().splitLevel_; //Compensate for wrapper
     } else {
-        splitLevel() = invalidSplitLevel;
+        transients_.get().splitLevel_ = invalidSplitLevel;
     }
     if (wp.HasProperty("basketSize")) {
-        basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
-        if (basketSize() <= 0) {
+        transients_.get().basketSize_ = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+        if (transients_.get().basketSize_ <= 0) {
           throw cet::exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
-          basketSize() << " is specified for class " << wrappedName() << "'.\n";
+          transients_.get().basketSize_ << " is specified for class " << transients_.get().wrappedName_ << "'.\n";
         }
     } else {
-        basketSize() = invalidBasketSize;
+        transients_.get().basketSize_ = invalidBasketSize;
     }
   }
 
@@ -163,7 +171,7 @@ namespace art {
     assert(!psetIDs().empty());
     if (psetIDs().size() != 1) {
       throw cet::exception("Ambiguous")
-        << "Your application requires all events on Branch '" << branchName()
+        << "Your application requires all events on Branch '" << guts().branchName_
         << "'\n to have the same provenance. This file has events with mixed provenance\n"
         << "on this branch.  Use a different input file.\n";
     }
@@ -175,14 +183,14 @@ namespace art {
     psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
     processConfigurationIDs_.insert(other.processConfigurationIDs().begin(), other.processConfigurationIDs().end());
     branchAliases_.insert(other.branchAliases().begin(), other.branchAliases().end());
-    present() = present() || other.present();
-    if (splitLevel() == invalidSplitLevel) splitLevel() = other.splitLevel();
-    if (basketSize() == invalidBasketSize) basketSize() = other.basketSize();
+    guts().present_ = guts().present_ || other.guts().present_;
+    if (guts().splitLevel_ == invalidSplitLevel) guts().splitLevel_ = other.guts().splitLevel_;
+    if (guts().basketSize_ == invalidBasketSize) guts().basketSize_ = other.guts().basketSize_;
   }
 
   void
   BranchDescription::write(std::ostream& os) const {
-    os << "Branch Type = " << branchType() << std::endl;
+    os << "Branch Type = " << branchType_ << std::endl;
     os << "Process Name = " << processName() << std::endl;
     os << "ModuleLabel = " << moduleLabel() << std::endl;
     os << "Branch ID = " << branchID() << '\n';
@@ -268,7 +276,7 @@ namespace art {
   bool
   operator==(BranchDescription const& a, BranchDescription const& b) {
     return combinable(a, b) &&
-       (a.present() == b.present()) &&
+      (a.present() == b.present()) &&
        (a.psetIDs() == b.psetIDs()) &&
        (a.processConfigurationIDs() == b.processConfigurationIDs()) &&
        (a.branchAliases() == b.branchAliases());

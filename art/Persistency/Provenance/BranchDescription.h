@@ -63,14 +63,14 @@ namespace art {
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& productInstanceName() const {return productInstanceName_;}
-    bool & produced() const {return transients_.get().produced_;}
-    bool & present() const {return transients_.get().present_;}
-    bool & transient() const {return transients_.get().transient_;}
-    Reflex::Type & type() const {return transients_.get().type_;}
-    int & splitLevel() const {return transients_.get().splitLevel_;}
-    int & basketSize() const {return transients_.get().basketSize_;}
+    bool const & produced() const {return guts().produced_;}
+    bool const & present() const {return guts().present_;}
+    bool const & transient() const {return guts().transient_;}
+    Reflex::Type const & type() const {return guts().type_;}
+    int const & splitLevel() const {return guts().splitLevel_;}
+    int const & basketSize() const {return guts().basketSize_;}
 
-    fhicl::ParameterSetID const& parameterSetID() const {return transients_.get().parameterSetID_;}
+    fhicl::ParameterSetID const& parameterSetID() const {return guts().parameterSetID_;}
     std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
     fhicl::ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return psetIDs().size() == 1;}
@@ -81,12 +81,12 @@ namespace art {
     {
       branchAliases_.insert(newalias);
     }
-    std::string & branchName() const {return transients_.get().branchName_;}
-    BranchType const& branchType() const {return branchType_;}
-    std::string & wrappedName() const {return transients_.get().wrappedName_;}
-    std::string & wrappedCintName() const {return transients_.get().wrappedCintName_;}
+    std::string const &branchName() const {return guts().branchName_;}
+    BranchType const &branchType() const {return branchType_;}
+    std::string const &wrappedName() const {return guts().wrappedName_;}
+    std::string const &wrappedCintName() const {return guts().wrappedCintName_;}
 
-    void setPresent(bool isPresent) const {present() = isPresent;}
+    void setPresent(bool isPresent) {guts().present_ = isPresent;}
     void updateFriendlyClassName();
 
     struct Transients {
@@ -133,6 +133,9 @@ namespace art {
     };
 
   private:
+    Transients &guts() {return transients_.get(); }
+    Transients const &guts() const {return transients_.get(); }
+
     void throwIfInvalid_() const;
 
     // What tree is the branch in?
