@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_detail_MasterProductRegistry_h
-#define art_Framework_Core_detail_MasterProductRegistry_h
+#ifndef art_Framework_Core_MasterProductRegistry_h
+#define art_Framework_Core_MasterProductRegistry_h
 ////////////////////////////////////////////////////////////////////////
 // MasterProductRegistry
 //
@@ -13,6 +13,7 @@
 #include "Reflex/Type.h"
 
 #include <iosfwd>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -29,7 +30,7 @@ class art::MasterProductRegistry {
 public:
   typedef std::map<BranchKey, BranchDescription> ProductList;
 
-  // Used for indices to find branch IDs by type and process
+  // Used for indices to find branch IDs by type and process.
   typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
   typedef std::map<std::string, ProcessLookup> TypeLookup;
 
@@ -42,7 +43,7 @@ public:
   ProductList const &productList() const;
   ProductList::size_type size() const;
 
-  bool anyProducts(BranchType brType) const;
+  bool anyProducts(BranchType bracnhType) const;
   bool productProduced(BranchType branchType) const;
 
   // Obtain lookup map to find a group by type of product.
@@ -54,8 +55,8 @@ public:
 
   ////////////////////////////////////////////////////////////////////////
   // Mutators for use while we are unfrozen only.
-  void addProduct(BranchDescription const &productDesc);
-  ProductList &productList();
+  void addProduct(BranchDescription &productDesc);
+
   void updateFromInput(ProductList const &other);
   void updateFromInput(std::vector<BranchDescription> const &other);
 
@@ -69,11 +70,12 @@ public:
 
 private:
   void copyProduct(BranchDescription const &productDesc);
-  void fillElementLookup(const Reflex::Type &type,
-                         const BranchID &slotNumber,
-                         const BranchKey &bk);
+  void fillElementLookup(Reflex::Type const &type,
+                         BranchID const &id,
+                         BranchKey const &bk);
   void throwIfNotFrozen() const;
   void throwIfFrozen() const;
+  void processFrozenProductList();
 
   // Member data.
   ProductList productList_;
@@ -82,7 +84,37 @@ private:
   TypeLookup productLookup_;
   TypeLookup elementLookup_;
 };
-#endif /* art_Framework_Core_detail_MasterProductRegistry_h */
+
+inline
+art::MasterProductRegistry::ProductList const &
+art::MasterProductRegistry::productList() const {
+  return productList_;
+}
+
+inline
+art::MasterProductRegistry::ProductList::size_type
+art::MasterProductRegistry::size() const {
+  return productList_.size();
+}
+
+inline
+bool
+art::MasterProductRegistry::productProduced(BranchType branchType) const {
+  return productProduced_[branchType];
+}
+
+inline
+art::MasterProductRegistry::TypeLookup const &
+art::MasterProductRegistry::productLookup() const {
+  return productLookup_;
+}
+
+inline
+art::MasterProductRegistry::TypeLookup const &
+art::MasterProductRegistry::elementLookup() const {
+  return elementLookup_;
+}
+#endif /* art_Framework_Core_MasterProductRegistry_h */
 
 // Local Variables:
 // mode: c++
