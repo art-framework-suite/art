@@ -154,7 +154,6 @@ namespace art {
     // the full name of the type of product this is
     std::string fullClassName_;
 
-  public:
     // a readable name of the type of product this is
     std::string friendlyClassName_;
 
@@ -162,7 +161,6 @@ namespace art {
     // that are produced by the same producer
     std::string productInstanceName_;
 
-  private:
     // ID's of parameter set of the creators of products
     // on this branch
     std::set<fhicl::ParameterSetID> psetIDs_;
