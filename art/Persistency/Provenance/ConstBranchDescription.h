@@ -27,8 +27,6 @@ namespace art {
     explicit ConstBranchDescription(BranchDescription const& bd) :
       ptr_(new BranchDescription(bd)) {}
 
-    void init() const {ptr_->init();}
-
     void write(std::ostream& os) const {ptr_->write(os);}
 
     std::string const& moduleLabel() const {return ptr_->moduleLabel();}
@@ -41,15 +39,11 @@ namespace art {
     bool const& produced() const {return ptr_->produced();}
     bool const& present() const {return ptr_->present();}
     bool const& transient() const {return ptr_->transient();}
-    Reflex::Type const& type() const {return ptr_->type();}
     int const& splitLevel() const {return ptr_->splitLevel();}
     int const& basketSize() const {return ptr_->basketSize();}
 
     fhicl::ParameterSetID const& parameterSetID() const {return ptr_->parameterSetID();}
     std::set<fhicl::ParameterSetID> const& psetIDs() const {return ptr_->psetIDs();}
-    fhicl::ParameterSetID const& psetID() const {return ptr_->psetID();}
-    bool isPsetIDUnique() const {return ptr_->psetIDs().size() == 1;}
-    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return ptr_->processConfigurationIDs();}
     std::set<std::string> const& branchAliases() const {return ptr_->branchAliases();}
     std::string const& branchName() const {return ptr_->branchName();}
     BranchType const& branchType() const {return ptr_->branchType();}
@@ -59,7 +53,7 @@ namespace art {
     BranchDescription const& me() const {return *ptr_;}
 
   private:
-    std::shared_ptr<BranchDescription> ptr_;
+    std::shared_ptr<BranchDescription const> ptr_;
   };  // ConstBranchDescription
 
   inline

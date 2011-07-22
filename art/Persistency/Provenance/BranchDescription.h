@@ -54,8 +54,6 @@ namespace art {
 
     void write(std::ostream& os) const;
 
-    void merge(BranchDescription const& other);
-
     std::string const& moduleLabel() const {return moduleLabel_;}
     std::string const& processName() const {return processName_;}
     BranchID const& branchID() const {return branchID_;}
@@ -63,31 +61,35 @@ namespace art {
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
     std::string const& productInstanceName() const {return productInstanceName_;}
+
     bool const & produced() const {return guts().produced_;}
     bool const & present() const {return guts().present_;}
     bool const & transient() const {return guts().transient_;}
-    Reflex::Type const & type() const {return guts().type_;}
+
     int const & splitLevel() const {return guts().splitLevel_;}
     int const & basketSize() const {return guts().basketSize_;}
-
     fhicl::ParameterSetID const& parameterSetID() const {return guts().parameterSetID_;}
     std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
-    fhicl::ParameterSetID const& psetID() const;
-    bool isPsetIDUnique() const {return psetIDs().size() == 1;}
-    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
     std::set<std::string> const& branchAliases() const {return branchAliases_;}
-    std::set<std::string> & branchAliases() {return branchAliases_;}
-    void addBranchAlias(std::string const& newalias)
-    {
-      branchAliases_.insert(newalias);
-    }
     std::string const &branchName() const {return guts().branchName_;}
     BranchType const &branchType() const {return branchType_;}
     std::string const &wrappedName() const {return guts().wrappedName_;}
     std::string const &wrappedCintName() const {return guts().wrappedCintName_;}
 
+    void merge(BranchDescription const& other);
+    void addBranchAlias(std::string const& newalias)
+    {
+      branchAliases_.insert(newalias);
+    }
     void setPresent(bool isPresent) {guts().present_ = isPresent;}
-    void updateFriendlyClassName();
+
+    friend bool combinable(BranchDescription const &, BranchDescription const &);
+    friend std::string match(BranchDescription const &,
+                             BranchDescription const &,
+                             std::string const &,
+                             BranchDescription::MatchMode);
+    friend bool operator<(BranchDescription const &, BranchDescription const &);
+    friend bool operator==(BranchDescription const &, BranchDescription const &);
 
     struct Transients {
       Transients();
@@ -133,6 +135,13 @@ namespace art {
     };
 
   private:
+    fhicl::ParameterSetID const& psetID() const;
+    bool isPsetIDUnique() const {return psetIDs().size() == 1;}
+    std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
+    std::set<std::string> & branchAliases() {return branchAliases_;}
+    Reflex::Type const & type() const {return guts().type_;}
+    void updateFriendlyClassName();
+
     Transients &guts() {return transients_.get(); }
     Transients const &guts() const {return transients_.get(); }
 
