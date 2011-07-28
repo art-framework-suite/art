@@ -18,7 +18,6 @@ namespace art {
   class RefCore;
 
   template< typename T > class Handle;
-  template< typename T > class OrphanHandle;
   template< typename T > class Wrapper;
 
 }  // art

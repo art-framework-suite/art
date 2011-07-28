@@ -14,11 +14,11 @@ namespace art {
       void touch() { fixed_ = false; }
       template<typename C>
       void operator()(const C & c) const {
-	if (!fixed_) {
-	  fixed_ = true;
-	  for (typename C::const_iterator i = c.begin(), e = c.end(); i != e; ++i)
-	    (*i)->fixup();
-	}
+        if (!fixed_) {
+          fixed_ = true;
+          for (typename C::const_iterator i = c.begin(), e = c.end(); i != e; ++i)
+            (*i)->fixup();
+        }
       }
     private:
       mutable bool fixed_;

@@ -30,7 +30,6 @@ simple_plugin(RootOutput "module" art_Framework_IO_Root)
 add_executable( config_dumper config_dumper.cc )
 target_link_libraries( config_dumper
         art_Framework_IO_Root
-        art_Framework_CoreArt
         art_Utilities
         art_Framework_Core
         ${Boost_PROGRAM_OPTIONS_LIBRARY}

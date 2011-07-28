@@ -14,8 +14,8 @@
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>
 
 // DEFINE_ART_MODULE_TEMP is a short-term expedient, to get an early
 // version of art working. It will be removed as soon as feasible.

@@ -1,12 +1,11 @@
 #ifndef art_Persistency_Common_PtrVectorBase_h
 #define art_Persistency_Common_PtrVectorBase_h
 
-#include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/Ptr.h"
-
-#include <vector>
+#include "art/Persistency/Common/RefCore.h"
+#include "cpp0x/utility"
 #include <typeinfo>
-#include <utility>
+#include <vector>
 
 class TBuffer;
 

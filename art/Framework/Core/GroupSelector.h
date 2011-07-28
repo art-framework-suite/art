@@ -8,54 +8,45 @@
 // ======================================================================
 
 #include "art/Persistency/Provenance/ProductList.h"
-#include "cpp0x/regex"
-#include "fhiclcpp/ParameterSet.h"
-
 #include <iosfwd>
 #include <string>
 #include <vector>
 
-// ----------------------------------------------------------------------
-
 namespace art {
+  // defined herein:
+  class GroupSelector;
+  std::ostream&
+    operator<< (std::ostream& os, const GroupSelector& gs);
+
+  // used herein:
   class BranchDescription;
   class GroupSelectorRules;
+}
 
-  class GroupSelector
-  {
-  public:
-    GroupSelector();
+// ----------------------------------------------------------------------
 
-    // N.B.: we assume there are not null pointers in the vector allBranches.
-    void initialize(GroupSelectorRules const& rules,
-                    ProductList const &branchDescriptions);
+class art::GroupSelector
+{
+public:
+  GroupSelector();
 
-    bool selected(BranchDescription const& desc) const;
+  // N.B.: we assume there are not null pointers in the vector allBranches.
+  void initialize(GroupSelectorRules const& rules,
+                  ProductList const &branchDescriptions);
 
-    // Printout intended for debugging purposes.
-    void print(std::ostream& os) const;
+  bool selected(BranchDescription const& desc) const;
 
-    bool initialized() const {return initialized_;}
+  // Printout intended for debugging purposes.
+  void print(std::ostream& os) const;
 
-  private:
+  bool initialized() const {return initialized_;}
 
-    // We keep a sorted collection of branch names, indicating the
-    // groups which are to be selected.
+private:
 
-    // TODO: See if we can keep pointer to (const) BranchDescriptions,
-    // so that we can do pointer comparison rather than string
-    // comparison. This will work if the BranchDescription we are given
-    // in the 'selected' member function is one of the instances that
-    // are managed by the MasterProductRegistry used to initialize the
-    // entity that contains this GroupSelector.
-    std::vector<std::string> groupsToSelect_;
-    bool initialized_;
-  };  // GroupSelector
-
-  std::ostream&
-  operator<< (std::ostream& os, const GroupSelector& gs);
-
-}  // art
+  // Keep a sorted collection indicating which groups are to be selected.
+  std::vector<BranchDescription const *>  groupsToSelect_;
+  bool initialized_;
+};  // GroupSelector
 
 // ======================================================================
 

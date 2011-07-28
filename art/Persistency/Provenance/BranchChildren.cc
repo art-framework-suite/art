@@ -1,6 +1,6 @@
 #include "art/Persistency/Provenance/BranchChildren.h"
 
-#include <utility>
+#include "cpp0x/utility"
 
 namespace art {
   void
@@ -8,11 +8,11 @@ namespace art {
     BranchIDSet const& items = const_cast<map_t &>(lookup)[item];
     // For each parent(child)
     for (BranchIDSet::const_iterator ci = items.begin(), ce = items.end();
-	ci != ce; ++ci) {
+        ci != ce; ++ci) {
       // Insert the BranchID of the parents(children) into the set of ancestors(descendants).
       // If the insert succeeds, append recursively.
       if (itemSet.insert(*ci).second) {
-	append_(lookup, *ci, itemSet);
+        append_(lookup, *ci, itemSet);
       }
     }
   }

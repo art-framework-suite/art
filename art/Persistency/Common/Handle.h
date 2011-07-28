@@ -22,10 +22,10 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/Group.h"
-#include "art/Framework/Core/GroupQueryResult.h"
+#include "art/Persistency/Common/Group.h"
+#include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/Provenance.h"
+#include "art/Persistency/Common/Provenance.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"
@@ -103,7 +103,7 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
       prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->product()
                                                ).product();
     }
-    catch( std::bad_cast const & e ) {
+    catch( std::bad_cast const & ) {
       typedef  cet::exception const  exc_t;
       whyFailed_ = std::shared_ptr<exc_t>( new art::Exception( errors::LogicError
                                                              , "Handle<T> c'tor"

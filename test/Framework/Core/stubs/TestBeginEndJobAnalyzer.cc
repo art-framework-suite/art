@@ -3,24 +3,11 @@
 // Package:    TestBeginEndJobAnalyzer
 // Class:      TestBeginEndJobAnalyzer
 //
-/**\class TestBeginEndJobAnalyzer TestBeginEndJobAnalyzer.cc stubs/TestBeginEndJobAnalyzer/src/TestBeginEndJobAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Fri Sep  2 13:54:17 EDT 2005
-//
-//
-//
 
-
-#include "test/Framework/Core/stubs/TestBeginEndJobAnalyzer.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include <memory>
+#include "cpp0x/memory"
+#include "test/Framework/Core/stubs/TestBeginEndJobAnalyzer.h"
 
 TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const fhicl::ParameterSet& /* iConfig */) {
 }

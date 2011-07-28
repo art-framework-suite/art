@@ -13,13 +13,13 @@
 
 #include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Persistency/Common/EDProduct.h"
-#include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
-#include <memory>
+#include "cpp0x/memory"
 #include <string>
 
 namespace art {

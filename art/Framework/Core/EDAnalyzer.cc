@@ -1,9 +1,9 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 
 #include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 
 
 namespace art
@@ -32,7 +32,7 @@ namespace art
   }
 
   void
-  EDAnalyzer::reconfigure(ParameterSet const&) {
+  EDAnalyzer::reconfigure(fhicl::ParameterSet const&) {
      mf::LogError("FeatureNotImplemented")
         << "This module is not reconfigurable."
         << "\n";

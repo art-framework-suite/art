@@ -6,8 +6,8 @@
 BranchIDList:
 BranchIDLists:
         one table stored per File
-	table BranchIDLists keyed by ProcessInfo::branchListIndex_;
-	entry BranchIDList keyed by ProductID::productIndex_;
+        table BranchIDLists keyed by ProcessInfo::branchListIndex_;
+        entry BranchIDList keyed by ProductID::productIndex_;
 
 ----------------------------------------------------------------------*/
 

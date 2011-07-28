@@ -1,9 +1,9 @@
 #ifndef art_Utilities_Math_h
 #define art_Utilities_Math_h
 
-#include <cmath>
-#include <sys/types.h>
 #include "art/Utilities/detail/math_private.h"
+#include "cpp0x/cmath"
+#include <sys/types.h>
 
 namespace art
 {
@@ -47,9 +47,9 @@ namespace art
 #if defined(__i386__)||defined(__x86_64)
     u_int16_t flags;
     __asm__("fxam\n\t"
-	    "fstsw %%ax"
-	    : "=a" (flags) /* output */
-	    : "t"  (x)     /* input */
+            "fstsw %%ax"
+            : "=a" (flags) /* output */
+            : "t"  (x)     /* input */
             :              /* clobbered */
             );
     return (flags & 0x4500)==0x0100;

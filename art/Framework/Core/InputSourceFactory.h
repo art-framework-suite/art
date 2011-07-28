@@ -8,16 +8,16 @@
 // ======================================================================
 
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Core/LibraryManager.h"
+#include "art/Utilities/LibraryManager.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <memory>
 #include <string>
-
-// ----------------------------------------------------------------------
 
 namespace art {
   class InputSourceFactory;
 }
+
+// ----------------------------------------------------------------------
 
 class art::InputSourceFactory
 {

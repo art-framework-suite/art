@@ -1,4 +1,6 @@
+subdirs (Art)
 subdirs (Core)
 subdirs (IO)
 subdirs (Modules)
+subdirs (Principal)
 subdirs (Services)

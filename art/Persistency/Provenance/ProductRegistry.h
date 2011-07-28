@@ -13,6 +13,8 @@ struct art::ProductRegistry {
   ProductRegistry() : productList_() {} // For ROOT.
   ProductRegistry(ProductList const &pl) : productList_(pl) {}
 
+  void initAllBranches();
+
   ProductList productList_;
 };
 #endif /* art_Persistency_Provenance_ProductRegistry_h */

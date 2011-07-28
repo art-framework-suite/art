@@ -22,9 +22,9 @@ void branchlist()
       tname = tname + ";";
       file->GetObject(tname.c_str(),tree);
       if (tree)  {
-	tree->Print("all");
+        tree->Print("all");
       } else {
-	std::cout << "There is no TTree object named " << tname << std::endl;
+        std::cout << "There is no TTree object named " << tname << std::endl;
       }
     }
   }

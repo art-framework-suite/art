@@ -52,10 +52,10 @@ namespace art
     bool operator==(const MallocOpts& opts) const
     {
       return
-	mmap_max_ == opts.mmap_max_ &&
-	trim_thr_ == opts.trim_thr_ &&
-	top_pad_ == opts.top_pad_ &&
-	mmap_thr_ == opts.mmap_thr_;
+        mmap_max_ == opts.mmap_max_ &&
+        trim_thr_ == opts.trim_thr_ &&
+        top_pad_ == opts.top_pad_ &&
+        mmap_thr_ == opts.mmap_thr_;
     }
     bool operator!=(const MallocOpts& opts) const
     { return !operator==(opts); }

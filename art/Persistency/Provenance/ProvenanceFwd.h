@@ -24,7 +24,6 @@ namespace art {
   class ProductID;
   class ProductProvenance;
   class ProductProvenance;
-  class Provenance;
   class RunAuxiliary;
   class RunID;
   class SubRunAuxiliary;

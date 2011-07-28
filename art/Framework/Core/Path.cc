@@ -2,9 +2,9 @@
 
 #include "art/Framework/Core/Actions.h"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/algorithm"
 #include "cpp0x/functional"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include <algorithm>
 
 
 using namespace cet;

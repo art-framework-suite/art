@@ -6,14 +6,14 @@
 
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
-#include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRun.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #ifdef RNGS

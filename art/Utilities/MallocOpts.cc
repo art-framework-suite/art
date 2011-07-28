@@ -27,9 +27,9 @@ namespace art
   std::ostream& operator<<(std::ostream& ost,const MallocOpts& opts)
   {
     ost << "mmap_max=" << opts.mmap_max_
-	<< " trim_threshold=" << opts.trim_thr_
-	<< " top_padding=" << opts.top_pad_
-	<< " mmap_threshold=" << opts.mmap_thr_;
+        << " trim_threshold=" << opts.trim_thr_
+        << " top_padding=" << opts.top_pad_
+        << " mmap_threshold=" << opts.mmap_thr_;
     return ost;
   }
 
@@ -51,43 +51,43 @@ namespace art
 #if defined(__x86_64__)
 
       __asm__ __volatile__ ("pushq %%rdx;\
- pushq %%rcx;				 \
- pushq %%rsi;				 \
- pushq %%rbx;				 \
- cpuid;					 \
- movq  %%rbx,%%rsi;			 \
- popq  %%rbx;				 \
- movl  %%ecx,%0;			 \
- movl  %%edx,%1;			 \
- movl  %%esi,%2;			 \
- movl  %%eax,%3;			 \
- popq  %%rsi;				 \
- popq  %%rcx;				 \
+ pushq %%rcx;                            \
+ pushq %%rsi;                            \
+ pushq %%rbx;                            \
+ cpuid;                                  \
+ movq  %%rbx,%%rsi;                      \
+ popq  %%rbx;                            \
+ movl  %%ecx,%0;                         \
+ movl  %%edx,%1;                         \
+ movl  %%esi,%2;                         \
+ movl  %%eax,%3;                         \
+ popq  %%rsi;                            \
+ popq  %%rcx;                            \
  popq  %%rdx;"
                             : "=m"(ans[2]), "=m"(ans[1]), "=m"(ans[0]), "=m"(a)
                             : "a"(op)
-			    );
+                            );
 
 #elif defined(__i386__)
 
 
       __asm__ __volatile__ ("pushl %%edx;\
- pushl %%ecx;				 \
- pushl %%esi;				 \
- pushl %%ebx;				 \
- cpuid;					 \
- movl  %%ebx,%%esi;			 \
- popl  %%ebx;				 \
- movl  %%ecx,%0;			 \
- movl  %%edx,%1;			 \
- movl  %%esi,%2;			 \
- movl  %%eax,%3;			 \
- popl  %%esi;				 \
- popl  %%ecx;				 \
+ pushl %%ecx;                            \
+ pushl %%esi;                            \
+ pushl %%ebx;                            \
+ cpuid;                                  \
+ movl  %%ebx,%%esi;                      \
+ popl  %%ebx;                            \
+ movl  %%ecx,%0;                         \
+ movl  %%edx,%1;                         \
+ movl  %%esi,%2;                         \
+ movl  %%eax,%3;                         \
+ popl  %%esi;                            \
+ popl  %%ecx;                            \
  popl  %%edx;"
                             : "=m"(ans[2]), "=m"(ans[1]), "=m"(ans[0]), "=m"(a)
                             : "a"(op)
-			    );
+                            );
 
 
 #else
@@ -105,7 +105,7 @@ namespace art
       ans[3]=0;
 
       return strncmp(str,amd_str,amd_sz)==0?AMD_CPU:
-	strncmp(str,intel_str,intel_sz)==0?INTEL_CPU:UNKNOWN_CPU;
+        strncmp(str,intel_str,intel_sz)==0?INTEL_CPU:UNKNOWN_CPU;
     }
 
     // values determined experimentally for each architecture
@@ -122,20 +122,20 @@ namespace art
     switch(get_cpu_type())
       {
       case AMD_CPU:
-	{
-	  values_ = amd_opts;
-	  changed_=true;
-	  break;
-	}
+        {
+          values_ = amd_opts;
+          changed_=true;
+          break;
+        }
       case INTEL_CPU:
-	{
-	  values_ = intel_opts;
-	  changed_=true;
-	  break;
-	}
+        {
+          values_ = intel_opts;
+          changed_=true;
+          break;
+        }
       case UNKNOWN_CPU:
       default:
-	rc=false;
+        rc=false;
       }
 
     return rc;
@@ -146,12 +146,12 @@ namespace art
   {
     if(retrieveFromEnv() || retrieveFromCpuType())
       {
-	adjustMallocParams();
-	if(hasErrors())
-	  {
-	    std::cerr << "ERROR: Reset of malloc options has fails:\n"
-		      << error_message_ << "\n";
-	  }
+        adjustMallocParams();
+        if(hasErrors())
+          {
+            std::cerr << "ERROR: Reset of malloc options has fails:\n"
+                      << error_message_ << "\n";
+          }
       }
   }
 
@@ -190,24 +190,24 @@ namespace art
 
     if(spar.size()>1)
       {
-	std::istringstream ist(spar);
-	ist >> values_.mmap_max_ >> values_.trim_thr_
-	    >> values_.top_pad_ >> values_.mmap_thr_;
+        std::istringstream ist(spar);
+        ist >> values_.mmap_max_ >> values_.trim_thr_
+            >> values_.top_pad_ >> values_.mmap_thr_;
 
-	if(ist.bad())
-	  {
-	    std::cerr << "bad malloc options in ART_MALLOC_RESET: "
-		      << spar << "\n"
-		      << "format is: "
-		      << "ART_MALLOC_RESET=\"mmap_max trim_thres top_pad mmap_thres\"\n";
-	  }
-	else
-	  {
-	    std::cout << "MALLOC_OPTIONS> Reset options: "
-		      << "ART_MALLOC_RESET=" << par << "\n";
-	  }
-	rc=true;
-	changed_=true;
+        if(ist.bad())
+          {
+            std::cerr << "bad malloc options in ART_MALLOC_RESET: "
+                      << spar << "\n"
+                      << "format is: "
+                      << "ART_MALLOC_RESET=\"mmap_max trim_thres top_pad mmap_thres\"\n";
+          }
+        else
+          {
+            std::cout << "MALLOC_OPTIONS> Reset options: "
+                      << "ART_MALLOC_RESET=" << par << "\n";
+          }
+        rc=true;
+        changed_=true;
       }
 
     return rc;

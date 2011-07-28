@@ -8,9 +8,9 @@
 
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include <set>
-#include <utility>
 
 using std::shared_ptr;
 using fhicl::ParameterSet;
@@ -110,7 +110,7 @@ void ServicesManager::putParameterSets(ParameterSets const& n)
       string service_name = cur->get<string>("service_type","junk");
       NameIndex::iterator ii = index_.find(service_name);
       if(ii!=index_.end())
-	(ii->second)->second.putParameterSet(*cur);
+        (ii->second)->second.putParameterSet(*cur);
     }
 }
 
@@ -147,7 +147,7 @@ void
       std::pair<Factory::iterator,bool> ib=factory_.insert( std::make_pair(id, Cache(*it, id, make_func)) );
 
       if(service_name!="junk")
-	index_[service_name]=ib.first;
+        index_[service_name]=ib.first;
       requestedCreationOrder_.push_back(id);
     }
 }  // fillFactory()

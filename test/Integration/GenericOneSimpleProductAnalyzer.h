@@ -2,7 +2,7 @@
 #define test_Integration_GenericOneSimpleProductAnalyzer_h
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exception.h"

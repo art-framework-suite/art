@@ -9,19 +9,19 @@
 #include "TBranchElement.h"
 #include "TObjArray.h"
 #include "TTree.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Persistency/Provenance/FileFormatVersion.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include <iomanip>
 #include <sstream>
-#include <utility>
 
 using art::RootOutput;
 using fhicl::ParameterSet;

@@ -40,18 +40,18 @@ int run_script(const std::string& shell, const std::string& script)
   else // parent
     {
       while(waitpid(pid,&status,0)<0)
-	{
-	  if (errno!=EINTR)
-	    {
+        {
+          if (errno!=EINTR)
+            {
               std::cerr <<"child process failed "<<strerror(errno)<<"\n";
-	      status=-1;
-	      break;
-	    } else {
+              status=-1;
+              break;
+            } else {
               if( WIFSIGNALED(status) ) {
                 std::cerr << "child existed because of a signal "<<WTERMSIG(status)<<"\n";
               }
             }
-	}
+        }
     if( WIFSIGNALED(status) ) {
       std::cerr << "child existed because of a signal "<<WTERMSIG(status)<<"\n";
     }
@@ -71,10 +71,10 @@ int do_work(int argc, char* argv[], char** env)
   if (argc<4)
     {
       std::cout << "Usage: " << argv[0] << " shell subdir script1 script2 ... scriptN\n\n"
-		<< "where shell is the path+shell (e.g., /bin/bash) intended to run the scripts\n"
-		<< "and subdir is the subsystem/package/subdir in which the scripts are found\n"
-		<< "(e.g., FWCore/Utilities/test)\n"
-		<< std::endl;
+                << "where shell is the path+shell (e.g., /bin/bash) intended to run the scripts\n"
+                << "and subdir is the subsystem/package/subdir in which the scripts are found\n"
+                << "(e.g., FWCore/Utilities/test)\n"
+                << std::endl;
 
       std::cout << "Current directory is: " << currentPath.native_directory_string() << '\n';
       std::cout << "Current environment:\n";
@@ -108,10 +108,10 @@ int do_work(int argc, char* argv[], char** env)
       bf::path exepath(argv[0], bf::no_check);
       std::string maybe_arch = exepath.branch_path().leaf();
       if (setenv("SCRAM_ARCH", maybe_arch.c_str(), 1) != 0)
-	{
-	  std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
-	  return -1;
-	}
+        {
+          std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
+          return -1;
+        }
     }
 
   int rc=0;
@@ -178,25 +178,25 @@ int ptomaine(int argc, char* argv[], char** env)
   catch ( art::Exception& x )
     {
       std::cerr << "Caught an art::Exception in "
-		<< argv[0] << '\n'
-		<< x;
+                << argv[0] << '\n'
+                << x;
     }
   catch ( cet::exception& x )
     {
       std::cerr << "Caught a cet::exception in "
-		<< argv[0] << '\n'
-		<< x;
+                << argv[0] << '\n'
+                << x;
     }
   catch ( std::exception& x )
     {
       std::cerr << "Caught a std::exception in "
-		<< argv[0] << '\n'
-		<< x.what();
+                << argv[0] << '\n'
+                << x.what();
     }
   catch (...)
     {
       std::cerr << "Caught an unknown exception in "
-		<< argv[0];
+                << argv[0];
     }
   return rc;
 }

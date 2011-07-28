@@ -3,7 +3,7 @@
 #include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 
 namespace art
 {

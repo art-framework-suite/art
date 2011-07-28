@@ -48,7 +48,7 @@
 #include "CLHEP/Random/RanluxEngine.h"
 #include "CLHEP/Random/RanshiEngine.h"
 #include "CLHEP/Random/TripleRand.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"

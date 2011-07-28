@@ -13,9 +13,9 @@ namespace art
   struct TypeLabel
   {
     TypeLabel (BranchType const&  branchType,
-	       TypeID const&      itemtype,
-	       std::string const& instanceName,
-	       std::string const& emulatedMod = std::string()) :
+               TypeID const&      itemtype,
+               std::string const& instanceName,
+               std::string const& emulatedMod = std::string()) :
       branchType(branchType),
       typeID(itemtype),
       productInstanceName(instanceName),

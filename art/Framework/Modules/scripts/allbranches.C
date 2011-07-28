@@ -24,7 +24,7 @@ void allbranches()
         charname = ((TTree*)obj)->GetName();
         std::cout << "\nAll branches for TTree " << charname
                   << " in file " << fname << "\n" << std::endl;
-	file->GetObject(charname,tree);
+        file->GetObject(charname,tree);
         if(tree) {
           tree->Print("all");
         } else {

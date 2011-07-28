@@ -8,10 +8,10 @@
 //
 // -----------------------------------------------------------------
 
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/FCPfwd.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 
 namespace art
 {

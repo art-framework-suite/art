@@ -5,14 +5,14 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <iostream>
-#include <memory>
 #include <vector>
 
 namespace arttest {

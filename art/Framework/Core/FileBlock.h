@@ -49,12 +49,12 @@ namespace art {
     {}
 
     FileBlock(FileFormatVersion const& version,
-	      TTree const* ev, TTree const* meta,
-	      TTree const* subRun, TTree const* subRunMeta,
-	      TTree const* run, TTree const* runMeta,
-	      bool fastCopy,
-	      std::string const& fileName,
-	      std::shared_ptr<BranchChildren> branchChildren) :
+              TTree const* ev, TTree const* meta,
+              TTree const* subRun, TTree const* subRunMeta,
+              TTree const* run, TTree const* runMeta,
+              bool fastCopy,
+              std::string const& fileName,
+              std::shared_ptr<BranchChildren> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree *>(ev)),
       metaTree_(const_cast<TTree *>(meta)),

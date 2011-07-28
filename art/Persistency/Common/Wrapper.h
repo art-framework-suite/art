@@ -18,10 +18,10 @@
 #include "boost/lexical_cast.hpp"
 #include "cetlib/demangle.h"
 #include "cetlib/map_vector.h"
+#include "cpp0x/memory"
 #include "cpp0x/type_traits"
 #include <deque>
 #include <list>
-#include <memory>
 #include <set>
 #include <string>
 #include <typeinfo>

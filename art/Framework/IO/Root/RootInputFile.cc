@@ -4,13 +4,11 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/GroupSelector.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/ProductList.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
@@ -19,21 +17,23 @@
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchType.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ParameterSetBlob.h"
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ParentageRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/algorithm"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include <algorithm>
-#include <utility>
 
 
 using namespace cet;
@@ -95,7 +95,6 @@ namespace art {
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker)
   {
-
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -187,6 +186,7 @@ namespace art {
 
     readEventHistoryTree();
 
+    ppList->initAllBranches();
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable, ppList->productList_);
     productListHolder_ = ppList;
 
@@ -742,8 +742,8 @@ namespace art {
 
   void
   RootInputFile::dropOnInput(GroupSelectorRules const& rules,
-                             bool dropDescendants, 
-                             bool dropMergeable, 
+                             bool dropDescendants,
+                             bool dropMergeable,
                              ProductList &branchDescriptions) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;

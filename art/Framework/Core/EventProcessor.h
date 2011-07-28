@@ -9,12 +9,12 @@
 // ======================================================================
 
 #include "art/Framework/Core/Actions.h"
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/PrincipalCache.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/WorkerRegistry.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"

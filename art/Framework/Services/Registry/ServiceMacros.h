@@ -10,16 +10,7 @@
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include "art/Utilities/TypeID.h"
-#include <memory>
-
-namespace art {
-  class ActivityRegistry;
-}
-namespace fhicl {
-  class ParameterSet;
-}
-
-// ----------------------------------------------------------------------
+#include "cpp0x/memory"
 
 // ----------------------------------------------------------------------
 

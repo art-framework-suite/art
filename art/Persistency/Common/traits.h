@@ -8,13 +8,13 @@ Definition of traits templates used in the EDM.
 ----------------------------------------------------------------------*/
 
 #include "cetlib/map_vector.h"
+#include "cpp0x/utility"
 #include <deque>
 #include <limits>
 #include <list>
 #include <map>
 #include <set>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace art

@@ -30,3 +30,36 @@ foreach(cppunit_test HRTime_t.cpp Math_t.cpp)
     LIBRARIES ${CPPUNIT}
     )
 endforeach()
+
+cet_test(LibraryManager_t USE_BOOST_UNIT NO_AUTO)
+# Long link list required because the test will attempt to load
+# dictionaries. One might argue that this qualifies it as an integration
+# test.
+target_link_libraries(LibraryManager_t
+  art_Framework_Core
+  art_Framework_Services_Registry
+  art_Framework_Principal
+  art_Utilities
+  ${SIGC}
+  ${Boost_FILESYSTEM_LIBRARY}
+  ${CINTEX}
+  ${TREE}
+  ${HIST}
+  ${MATRIX}
+  ${NET}
+  ${MATHCORE}
+  ${THREAD}
+  ${RIO}
+	${CORE}
+  ${CINT}
+	${REFLEX}
+  ${CPPUNIT}
+  -ldl
+  )
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.sh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
+  @ONLY
+  )
+cet_test(LibraryManager_t.sh HANDBUILT
+  TEST_EXEC ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
+  )

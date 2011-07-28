@@ -1,24 +1,19 @@
 #include "art/Persistency/Provenance/ReflexTools.h"
-#include "art/Utilities/Exception.h"
-#include "cetlib/container_algorithms.h"
-#include "cetlib/demangle.h"
-#include "cpp0x/regex"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/thread/tss.hpp"
-
-// for G__ClassInfo:
 #include "Api.h"
-
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
-
 #include "TClass.h"
-
-#include <algorithm>
-#include <memory>
+#include "art/Utilities/Exception.h"
+#include "boost/algorithm/string.hpp"
+#include "boost/thread/tss.hpp"
+#include "cetlib/container_algorithms.h"
+#include "cetlib/demangle.h"
+#include "cpp0x/algorithm"
+#include "cpp0x/memory"
+#include "cpp0x/regex"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 #include <set>
 #include <sstream>
 

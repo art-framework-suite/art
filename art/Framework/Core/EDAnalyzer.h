@@ -9,10 +9,12 @@
 
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/EventObserver.h"
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
+
 #include <ostream>
 #include <string>
 
@@ -70,7 +72,7 @@ namespace art
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void reconfigure(ParameterSet const&);
+    virtual void reconfigure(fhicl::ParameterSet const&);
     virtual void beginRun(Run const&){}
     virtual void endRun(Run const&){}
     virtual void beginSubRun(SubRun const&){}

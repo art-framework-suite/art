@@ -1,9 +1,9 @@
 #include "art/Framework/Core/EDFilter.h"
 
 #include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -34,7 +34,7 @@ namespace art
   }
 
   void
-  EDFilter::reconfigure(ParameterSet const&) {
+  EDFilter::reconfigure(fhicl::ParameterSet const&) {
     mf::LogError("FeatureNotImplemented")
        << "This module is not reconfigurable."
        << "\n";

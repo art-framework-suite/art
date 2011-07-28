@@ -1,9 +1,9 @@
 #ifndef art_Framework_IO_ProductMix_MixOp_h
 #define art_Framework_IO_ProductMix_MixOp_h
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Provenance/ProductList.h"
-#include "art/Framework/Core/ProductMetaData.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Persistency/Common/RefCoreTransientStreamer.h"

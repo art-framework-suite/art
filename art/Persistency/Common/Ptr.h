@@ -12,12 +12,11 @@
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/GetProduct.h"
 #include "art/Persistency/Common/Handle.h"
-#include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
+#include "cpp0x/cstddef"
 #include "cpp0x/type_traits"
-#include <cstddef>
 #include <list>
 #include <vector>
 
@@ -37,14 +36,6 @@ namespace art
     // the collection is identified by the index 'idx'.
     template <typename C>
     Ptr(Handle<C> const& handle, key_type idx, bool setNow=true);
-
-    // An OrphanHandle is a handle to a collection that has been put
-    // into an Event during the running of the same module.  This
-    // constructor creates a Ptr<T> to a specific element within such a
-    // collection of type C. The collection is identified by 'handle',
-    // and the element in the collection is identified by index 'idx'.
-    template <typename C>
-    Ptr(OrphanHandle<C> const& handle, key_type idx, bool setNow=true);
 
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
@@ -244,16 +235,6 @@ namespace art
   inline
   Ptr<T>::Ptr(Handle<C> const& handle,
               typename Ptr<T>::key_type idx,
-              bool setNow) :
-    core_(handle.id(), getItem_(handle.product(), idx), 0),
-    key_(idx)
-  { }
-
-  template <typename T>
-  template <typename C>
-  inline
-  Ptr<T>::Ptr(OrphanHandle<C> const& handle,
-              key_type idx,
               bool setNow) :
     core_(handle.id(), getItem_(handle.product(), idx), 0),
     key_(idx)

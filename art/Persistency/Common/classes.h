@@ -4,14 +4,13 @@
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "art/Persistency/Common/HLTPathStatus.h"
-#include "art/Persistency/Common/PtrVectorBase.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "art/Persistency/Common/PtrVectorBase.h"
 #include "art/Persistency/Common/RNGsnapshot.h"
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Persistency/Common/Wrapper.h"
-
-#include <utility>
+#include "cpp0x/utility"
 #include <vector>
 
 namespace {
@@ -26,6 +25,5 @@ namespace {
 
     std::pair<art::RefCore, size_t> prs;
     std::vector<std::pair<art::RefCore, size_t> > vprs;
-
   };
 }  // namespace

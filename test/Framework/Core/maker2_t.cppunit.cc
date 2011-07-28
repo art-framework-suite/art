@@ -4,7 +4,7 @@
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/ModuleFactory.h"
 #include "art/Framework/Core/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"

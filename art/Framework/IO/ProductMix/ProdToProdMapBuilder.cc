@@ -1,7 +1,7 @@
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Persistency/Provenance/BranchIDList.h"

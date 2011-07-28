@@ -1,22 +1,15 @@
 /**
-   \file
    Test Module for testScheduler
-
-   \author Stefano ARGIRO
-   \version
-   \date 19 May 2005
 */
 
 static const char CVSId[] = "";
 
-
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
-#include <memory>
 #include <string>
 
 namespace art{
@@ -44,11 +37,10 @@ namespace art{
 
   }
 }//namespace
+
 using art::TestSchedulerModule2;
 DEFINE_ART_MODULE(TestSchedulerModule2);
 
-// Configure (x)emacs for this file ...
 // Local Variables:
 // mode:c++
-// compile-command: "make -C .. -k"
 // End:

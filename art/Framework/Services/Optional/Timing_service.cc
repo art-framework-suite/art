@@ -4,7 +4,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/EventID.h"

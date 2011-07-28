@@ -10,11 +10,11 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/ProductMetaData.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/GetFileFormatVersion.h"
 #include "art/Framework/IO/Root/rootNames.h"
@@ -39,13 +39,13 @@
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/algorithm"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include <algorithm>
 #include <iomanip>
 #include <sstream>
-#include <utility>
 
 using namespace cet;
 using namespace std;
@@ -112,7 +112,7 @@ namespace art {
           itEnd = om_->selectedOutputItemList()[branchType].end();
           it != itEnd; ++it) {
         treePointers_[branchType]->addBranch(*it->branchDescription_,
-					     it->product_);
+                                             it->product_);
       }
     }
     // Don't split metadata tree or event description tree

@@ -1,20 +1,17 @@
-
+#include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/EDFilter.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "fhiclcpp/ParameterSet.h"
-
-#include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/CurrentProcessingContext.h"
-
-#include <string>
+#include "cpp0x/algorithm"
+#include "cpp0x/numeric"
+#include "fhiclcpp/ParameterSet.h"
 #include <iostream>
-#include <algorithm>
-#include <numeric>
 #include <iterator>
+#include <string>
 
 using namespace art;
 
@@ -70,13 +67,13 @@ namespace arttest
 
     if ( !expected_modulelabel_.empty() )
       {
-	assert(expected_modulelabel_ == *(cpc->moduleLabel()) );
+        assert(expected_modulelabel_ == *(cpc->moduleLabel()) );
       }
 
     if(prod.size() == 0) return;
     if(prod.size() > 1) {
       std::cerr << "More than one trigger result in the event, using first one"
-	   << std::endl;
+           << std::endl;
     }
 
     if (prod[0]->accept()) ++passed_; else ++failed_;
@@ -86,8 +83,8 @@ namespace arttest
     unsigned int numbits = numbits_;
     if(numbits != prod[0]->size()) {
       std::cerr << "TestResultAnalyzer named: " << name_
-	   << " should have " << numbits
-	   << ", got " << prod[0]->size() << " in TriggerResults\n";
+           << " should have " << numbits
+           << ", got " << prod[0]->size() << " in TriggerResults\n";
       abort();
     }
   }
@@ -95,7 +92,7 @@ namespace arttest
   void TestResultAnalyzer::endJob()
   {
     std::cerr << "TESTRESULTANALYZER " << name_ << ": "
-	 << "passed=" << passed_ << " failed=" << failed_ << "\n";
+         << "passed=" << passed_ << " failed=" << failed_ << "\n";
   }
 
 }

@@ -4,6 +4,7 @@ project(art_Persistency_Provenance)
 set( art_Persistency_Provenance_sources BranchChildren.cc
                                       BranchDescription.cc
                                       BranchID.cc
+                                      BranchIDListHelper.cc
                                       BranchKey.cc
                                       BranchMapper.cc
                                       BranchType.cc
@@ -15,14 +16,16 @@ set( art_Persistency_Provenance_sources BranchChildren.cc
                                       History.cc
                                       SubRunAuxiliary.cc
                                       SubRunID.cc
+                                      MasterProductRegistry.cc
                                       ModuleDescription.cc
                                       ParameterSetBlob.cc
                                       Parentage.cc
                                       ProcessConfiguration.cc
                                       ProcessHistory.cc
                                       ProductID.cc
+                                      ProductMetaData.cc
                                       ProductProvenance.cc
-                                      Provenance.cc
+                                      ProductRegistry.cc
                                       ReflexTools.cc
                                       RunAuxiliary.cc
                                       RunID.cc
@@ -44,6 +47,7 @@ install(FILES
   BranchDescription.h
   BranchID.h
   BranchIDList.h
+  BranchIDListHelper.h
   BranchIDListRegistry.h
   BranchKey.h
   BranchListIndex.h
@@ -58,6 +62,7 @@ install(FILES
   Hash.h
   HashedTypes.h
   History.h
+  MasterProductRegistry.h
   ModuleDescription.h
   ModuleDescriptionID.h
   ParameterSetBlob.h
@@ -73,6 +78,7 @@ install(FILES
   ProcessHistoryID.h
   ProcessHistoryRegistry.h
   ProductID.h
+  ProductMetaData.h
   ProductProvenance.h
   ProductRegistry.h
   ProductStatus.h

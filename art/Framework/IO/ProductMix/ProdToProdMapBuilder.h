@@ -1,18 +1,16 @@
 #ifndef art_Framework_IO_ProductMix_ProdToProdMapBuilder_h
 #define art_Framework_IO_ProductMix_ProdToProdMapBuilder_h
 
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/PtrRemapper.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Provenance/History.h"
-#include "art/Persistency/Provenance/BranchListIndex.h"
-#include "cetlib/exempt_ptr.h"
-
 #include "Rtypes.h"
 #include "TTree.h"
-
-#include <functional>
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Core/PtrRemapper.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchListIndex.h"
+#include "art/Persistency/Provenance/History.h"
+#include "art/Persistency/Provenance/ProductID.h"
+#include "cetlib/exempt_ptr.h"
+#include "cpp0x/functional"
 #include <map>
 
 namespace art {

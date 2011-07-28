@@ -1,13 +1,10 @@
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/Wrapper.h"
-
-#include "test/TestObjects/AssnTestData.h"
-
 #include "cetlib/map_vector.h"
-
+#include "cpp0x/utility"
+#include "test/TestObjects/AssnTestData.h"
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace {

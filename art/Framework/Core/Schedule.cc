@@ -8,11 +8,10 @@
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Persistency/Provenance/ProductList.h"
-#include "art/Framework/Core/ProductMetaData.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
@@ -21,17 +20,18 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PassID.h"
+#include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/algorithm"
 #include "cpp0x/functional"
-#include <algorithm>
+#include "cpp0x/numeric"
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
 #include <list>
-#include <numeric>
 
 using namespace cet;
 using namespace fhicl;
@@ -52,7 +52,7 @@ namespace
   template <class InputIterator, class ForwardIterator, class Func>
   void
   transform_into(InputIterator begin, InputIterator end,
-		 ForwardIterator out, Func func)
+                 ForwardIterator out, Func func)
   {
     for (; begin != end; ++begin, ++out) func(*begin, *out);
   }
@@ -273,11 +273,11 @@ namespace art
     if (all_output_workers_.empty()) return false;
 
     for (OutputWorkers::const_iterator
-	   i = all_output_workers_.begin(),
-	   e = all_output_workers_.end();
+           i = all_output_workers_.begin(),
+           e = all_output_workers_.end();
          i != e; ++i)
       {
-	if (!(*i)->limitReached()) return false;
+        if (!(*i)->limitReached()) return false;
       }
 
     LogInfo("SuccessfulTermination")
@@ -356,19 +356,19 @@ namespace art
     fillWorkers(name,tmpworkers, true, pregistry);
 
     for(PathWorkers::iterator
-	  i = tmpworkers.begin(),
+          i = tmpworkers.begin(),
           e = tmpworkers.end();
-	i != e; ++i)
+        i != e; ++i)
       {
-	holder.push_back(i->getWorker());
+        holder.push_back(i->getWorker());
       }
 
     // an empty path will cause an extra bit that is not used
     if(!tmpworkers.empty())
       {
-	Path p(bitpos,name,tmpworkers,trptr,
-	       pset_,*act_table_,actReg_,false);
-	trig_paths_.push_back(p);
+        Path p(bitpos,name,tmpworkers,trptr,
+               pset_,*act_table_,actReg_,false);
+        trig_paths_.push_back(p);
       }
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
@@ -380,18 +380,18 @@ namespace art
     Workers holder;
 
     for(PathWorkers::iterator
-	  i = tmpworkers.begin(),
+          i = tmpworkers.begin(),
           e = tmpworkers.end();
-	i != e; ++i)
+        i != e; ++i)
       {
-	holder.push_back(i->getWorker());
+        holder.push_back(i->getWorker());
       }
 
     if (!tmpworkers.empty())
       {
-	Path p(bitpos,name,tmpworkers,endpath_results_,
-	       pset_,*act_table_,actReg_,true);
-	end_paths_.push_back(p);
+        Path p(bitpos,name,tmpworkers,endpath_results_,
+               pset_,*act_table_,actReg_,true);
+        end_paths_.push_back(p);
       }
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
@@ -402,31 +402,31 @@ namespace art
     Exception error(errors::EndJobFailure);
 
     for (Workers::iterator
-	   i = workersBegin(),
-	   e = workersEnd();
-	 i != e; ++i)
+           i = workersBegin(),
+           e = workersEnd();
+         i != e; ++i)
       {
-	try
-	  {
-	    (*i)->endJob();
-	  }
-	catch (cet::exception& e)
-	  {
-	    error << "cet::exception caught in Schedule::endJob\n"
-		  << e.explain_self();
-	    failure = true;
-	  }
-	catch (std::exception& e)
-	  {
-	    error << "Standard library exception caught in Schedule::endJob\n"
-		  << e.what();
-	    failure = true;
-	  }
-	catch (...)
-	  {
-	    error << "Unknown exception caught in Schedule::endJob\n";
-	    failure = true;
-	  }
+        try
+          {
+            (*i)->endJob();
+          }
+        catch (cet::exception& e)
+          {
+            error << "cet::exception caught in Schedule::endJob\n"
+                  << e.explain_self();
+            failure = true;
+          }
+        catch (std::exception& e)
+          {
+            error << "Standard library exception caught in Schedule::endJob\n"
+                  << e.what();
+            failure = true;
+          }
+        catch (...)
+          {
+            error << "Unknown exception caught in Schedule::endJob\n";
+            failure = true;
+          }
       }
     if (failure) throw error;
     if (wantSummary_) writeSummary();
@@ -786,8 +786,8 @@ namespace art
   bool Schedule::shouldWeCloseOutput() const {
     // Return true iff at least one output module returns true.
     return (find_if(all_output_workers_.begin(), all_output_workers_.end(),
-		    std::bind(&OutputWorker::shouldWeCloseFile, _1))
-	    != all_output_workers_.end());
+                    std::bind(&OutputWorker::shouldWeCloseFile, _1))
+            != all_output_workers_.end());
   }
 
   void Schedule::respondToOpenInputFile(FileBlock const& fb) {
@@ -973,37 +973,37 @@ namespace art
     // we've already relied on all_workers_ being full. Failure here
     // indicates a logic error in Schedule().
     assert(expected_num_workers == all_workers_.size() &&
-	   "INTERNAL ASSERTION ERROR: all_workers_ changed after being used.");
+           "INTERNAL ASSERTION ERROR: all_workers_ changed after being used.");
 
     size_t numFailures = 0;
     numFailures = std::accumulate(trig_paths_.begin(),
-				  trig_paths_.end(),
-				  numFailures,
-				  std::bind(&art::Schedule::accumulateConsistencyFailures,
-					    this,
-					    _1,
-					    _2,
-					    false));
+                                  trig_paths_.end(),
+                                  numFailures,
+                                  std::bind(&art::Schedule::accumulateConsistencyFailures,
+                                            this,
+                                            _1,
+                                            _2,
+                                            false));
     numFailures = std::accumulate(end_paths_.begin(),
-				  end_paths_.end(),
-				  numFailures,
-				  std::bind(&art::Schedule::accumulateConsistencyFailures,
-					    this,
-					    _1,
-					    _2,
-					    true));
+                                  end_paths_.end(),
+                                  numFailures,
+                                  std::bind(&art::Schedule::accumulateConsistencyFailures,
+                                            this,
+                                            _1,
+                                            _2,
+                                            true));
     if (numFailures > 0) {
       // TODO: Throw correct exception.
       throw cet::exception("IllegalPathEntries")
-	<< "Found a total of "
-	<< numFailures
-	<< " illegal entries in paths; see error log for full list.";
+        << "Found a total of "
+        << numFailures
+        << " illegal entries in paths; see error log for full list.";
     }
   }
 
   size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
-						 art::Path const &path,
-						 bool isEndPath) const {
+                                                 art::Path const &path,
+                                                 bool isEndPath) const {
     return current_num_failures +
       checkOnePath(path, isEndPath);
   }
@@ -1013,15 +1013,15 @@ namespace art
     std::ostringstream message;
     if (isEndPath) {
       message << "The following modules are illegal in an end path  (\""
-	      << path.name()
-	      << "\"): they modify the event "
-	      << "and should be in a standard (trigger) path.";
+              << path.name()
+              << "\"): they modify the event "
+              << "and should be in a standard (trigger) path.";
       path.findEventModifiers(results);
     } else {
       message << "The following modules are illegal in a standard (trigger) path (\""
-	      << path.name()
-	      << "\"): they are observers "
-	      << "and should be in an end path.";
+              << path.name()
+              << "\"): they are observers "
+              << "and should be in an end path.";
       path.findEventObservers(results);
     }
     size_t nFailures = results.size();
@@ -1029,7 +1029,7 @@ namespace art
       message << "\n";
       cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
       LogError("IllegalPathEntries")
-	<< message.str();
+        << message.str();
     }
     return results.size();
   }

@@ -128,7 +128,7 @@ namespace art {
     void overrideRunNumber(EventID & id, bool isRealData);
     void dropOnInput(GroupSelectorRules const& rules,
                      bool dropDescendants,
-                     bool dropMergeable, 
+                     bool dropMergeable,
                      ProductList &branchDescriptions);
     void readParentageTree();
     void readEventHistoryTree();

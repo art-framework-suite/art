@@ -9,7 +9,6 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 
@@ -55,32 +54,31 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
   (*mv)[cet::map_vector_key(5)] = "THREE";
   (*mv)[cet::map_vector_key(7)] = "FOUR";
 
-  art::OrphanHandle<mv_t>
-    mvHandle(e.put(mv));
+  art::ProductID mvID(e.put(mv));
 
-  e.put(std::auto_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvHandle, 3)));
+  e.put(std::auto_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter())));
 
   std::auto_ptr<art::PtrVector<std::string> >
     pv(new art::PtrVector<std::string>());
 
   pv->reserve(4);
-  pv->push_back(art::Ptr<std::string>(mvHandle, 5));
-  pv->push_back(art::Ptr<std::string>(mvHandle, 0));
-  pv->push_back(art::Ptr<std::string>(mvHandle, 7));
-  pv->push_back(art::Ptr<std::string>(mvHandle, 3));
+  pv->push_back(art::Ptr<std::string>(mvID, 5, e.productGetter()));
+  pv->push_back(art::Ptr<std::string>(mvID, 0, e.productGetter()));
+  pv->push_back(art::Ptr<std::string>(mvID, 7, e.productGetter()));
+  pv->push_back(art::Ptr<std::string>(mvID, 3, e.productGetter()));
 
   e.put(pv);
 
-  e.put(std::auto_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvHandle, 3)));
+  e.put(std::auto_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter())));
 
   std::auto_ptr<art::PtrVector<mvp_t> >
     pvp(new art::PtrVector<mvp_t>());
 
   pvp->reserve(4);
-  pvp->push_back(art::Ptr<mvp_t>(mvHandle, 5));
-  pvp->push_back(art::Ptr<mvp_t>(mvHandle, 0));
-  pvp->push_back(art::Ptr<mvp_t>(mvHandle, 7));
-  pvp->push_back(art::Ptr<mvp_t>(mvHandle, 3));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 5, e.productGetter()));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 0, e.productGetter()));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 7, e.productGetter()));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 3, e.productGetter()));
 
   e.put(pvp);
 }

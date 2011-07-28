@@ -85,8 +85,8 @@ namespace art
     // Reflex/Object.h, at the cost of some speed.
     //
     //     return static_cast<T const*>(reflex_pointer_adjust(raw,
-    // 						       dynamicType,
-    // 						       typeid(T)));
+    //                                                 dynamicType,
+    //                                                 typeid(T)));
   }
 
   // The following function should not now be used. It is here in case

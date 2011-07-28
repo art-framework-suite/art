@@ -1,7 +1,7 @@
 #include "test/Framework/Services/Message/makeSignals.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "messagefacility/MessageLogger/MessageDrop.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include <iostream>

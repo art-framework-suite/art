@@ -7,16 +7,16 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #undef AR_IMPL
 
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/algorithm"
 #include "messagefacility/MessageLogger/MessageLoggerQ.h"
-#include <algorithm>
 
 
 using namespace cet;

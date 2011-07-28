@@ -13,8 +13,8 @@
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
+#include "cpp0x/algorithm"
 #include "fhiclcpp/ParameterSet.h"
-#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>

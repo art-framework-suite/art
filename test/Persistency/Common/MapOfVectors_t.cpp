@@ -6,9 +6,8 @@
 #undef private
 
 #include "art/Utilities/Exception.h"
-
-#include<vector>
-#include<algorithm>
+#include "cpp0x/algorithm"
+#include <vector>
 
 typedef art::MapOfVectors<int,int>  MII;
 typedef MII::TheMap TheMap;

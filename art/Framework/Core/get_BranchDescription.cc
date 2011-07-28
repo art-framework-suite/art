@@ -1,8 +1,8 @@
 #include "art/Framework/Core/get_BranchDescription.h"
 
-#include "art/Framework/Core/Principal.h"
+#include "art/Framework/Principal/Principal.h"
 #include "art/Persistency/Provenance/ProductList.h"
-#include "art/Framework/Core/ProductMetaData.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchKey.h"

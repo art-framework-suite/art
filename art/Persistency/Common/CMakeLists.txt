@@ -5,7 +5,10 @@ set(art_Persistency_Common_sources
   CacheStreamers.cc
   EDProduct.cc
   EDProductGetter.cc
+  Group.cc
+  GroupQueryResult.cc
   InitRootHandlers.cc
+  Provenance.cc
   PtrVectorBase.cc
   RNGsnapshot.cc
   RefCore.cc
@@ -33,6 +36,8 @@ install(FILES
   EDProduct.h
   EDProductGetter.h
   GetProduct.h
+  Group.h
+  GroupQueryResult.h
   HLTGlobalStatus.h
   HLTPathStatus.h
   HLTenums.h
@@ -40,6 +45,7 @@ install(FILES
   OrphanHandle.h
   OutputHandle.h
   PostReadFixupTrait.h
+  Provenance.h
   Ptr.h
   PtrVector.h
   PtrVectorBase.h

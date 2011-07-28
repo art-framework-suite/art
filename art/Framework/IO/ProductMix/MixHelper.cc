@@ -1,18 +1,17 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 
 #include "Rtypes.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
+#include "cpp0x/functional"
 #include "cpp0x/regex"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include <cassert>
-#include <functional>
 #include <limits>
 
 namespace {

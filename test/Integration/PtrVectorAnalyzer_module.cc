@@ -5,7 +5,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/PtrVector.h"

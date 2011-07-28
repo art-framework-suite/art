@@ -1,16 +1,13 @@
-
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Framework/Core/ModuleMacros.h"
-
-#include <algorithm>
+#include "cpp0x/algorithm"
+#include "cpp0x/numeric"
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <iterator>
-#include <numeric>
 #include <string>
 
 using namespace art;

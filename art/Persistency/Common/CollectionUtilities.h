@@ -73,8 +73,8 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/map_vector.h"
+#include "cpp0x/cstddef"
 #include "cpp0x/type_traits"
-#include <cstddef>
 #include <vector>
 
 namespace art {

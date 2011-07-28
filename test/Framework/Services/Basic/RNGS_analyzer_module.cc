@@ -5,7 +5,7 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "CLHEP/Random/RandFlat.h"

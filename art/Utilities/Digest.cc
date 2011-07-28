@@ -18,19 +18,19 @@ namespace art
     char unhexify(char hexed)
     {
       switch (hexed)
-	{
-	case '0': case '1': case '2': case '3': case '4':
-	case '5': case '6': case '7': case '8': case '9':
-	  return hexed - '0';
-	case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-	  return hexed - 'a' + 10;
-	case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-	  return hexed - 'A' + 10;
-	default:
-	  throw art::Exception(art::errors::LogicError)
-	    << "Non-hex character in Hash "
-	    << "Please report this to the core framework developers";
-	}
+        {
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+          return hexed - '0';
+        case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+          return hexed - 'a' + 10;
+        case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+          return hexed - 'A' + 10;
+        default:
+          throw art::Exception(art::errors::LogicError)
+            << "Non-hex character in Hash "
+            << "Please report this to the core framework developers";
+        }
       // We never get here; return put in place to calm the compiler's
       // anxieties.
       return '\0';
@@ -91,30 +91,30 @@ namespace art
     switch (hexy.size())
       {
       case 0:
-	{
-	  set_to_default(*this);
-	}
-	break;
+        {
+          set_to_default(*this);
+        }
+        break;
       case 32:
-	{
-	  std::string::const_iterator it = hexy.begin();
-	  for (size_t i = 0; i != 16; ++i)
-	    {
-	      // first nybble
-	      bytes[i] = ( unhexify(*it++) << 4 );
-	      // second nybble
-	      bytes[i] += ( unhexify(*it++) );
-	    }
-	}
-	break;
+        {
+          std::string::const_iterator it = hexy.begin();
+          for (size_t i = 0; i != 16; ++i)
+            {
+              // first nybble
+              bytes[i] = ( unhexify(*it++) << 4 );
+              // second nybble
+              bytes[i] += ( unhexify(*it++) );
+            }
+        }
+        break;
       default:
-	{
-	  // Not really sure of what sort of exception to throw...
-	  throw art::Exception(art::errors::LogicError)
-	    << "String of illegal length: "
-	    << hexy.size()
-	    << " given to MD5Result::fromHexifiedString";
-	}
+        {
+          // Not really sure of what sort of exception to throw...
+          throw art::Exception(art::errors::LogicError)
+            << "String of illegal length: "
+            << hexy.size()
+            << " given to MD5Result::fromHexifiedString";
+        }
       }
   }
 
@@ -132,9 +132,9 @@ namespace art
   bool operator< (MD5Result const& a, MD5Result const& b)
   {
     return std::lexicographical_compare(a.bytes,
-					a.bytes+sizeof(a.bytes),
-					b.bytes,
-					b.bytes+sizeof(b.bytes));
+                                        a.bytes+sizeof(a.bytes),
+                                        b.bytes,
+                                        b.bytes+sizeof(b.bytes));
   }
 
 

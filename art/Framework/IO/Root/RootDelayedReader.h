@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/DelayedReader.h"
+#include "art/Framework/Principal/DelayedReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "boost/noncopyable.hpp"

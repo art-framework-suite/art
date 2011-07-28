@@ -9,13 +9,14 @@
 // ======================================================================
 
 #include "art/Framework/Core/EngineCreator.h"
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
 #include <ostream>
 #include <string>
 
@@ -77,7 +78,7 @@ namespace art
     virtual void produce(Event &) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void reconfigure(ParameterSet const&);
+    virtual void reconfigure(fhicl::ParameterSet const&);
 
     virtual void beginRun(Run &){}
     virtual void endRun(Run &){}

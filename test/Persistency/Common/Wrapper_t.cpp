@@ -4,12 +4,11 @@
  *
  */
 
+#include "art/Persistency/Common/Wrapper.h"
+#include "cpp0x/memory"
 #include <cassert>
 #include <iostream>
-#include <memory>
 #include <vector>
-
-#include "art/Persistency/Common/Wrapper.h"
 
 class CopyNoSwappy
 {

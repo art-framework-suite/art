@@ -7,19 +7,18 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/LibraryManager.h"
+#include "art/Utilities/LibraryManager.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
 #include "cpp0x/memory"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <stack>
-#include <utility>
 #include <vector>
 
 /*

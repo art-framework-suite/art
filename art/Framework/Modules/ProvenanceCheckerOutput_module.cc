@@ -5,11 +5,11 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Framework/Core/ProductMetaData.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductList.h"
 #include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"

@@ -14,7 +14,6 @@
 #include "art/Persistency/Common/Ptr.h"
 
 #include "art/Persistency/Common/EDProductGetter.h"
-#include "art/Persistency/Common/OrphanHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
 
 #include <iostream>
@@ -88,8 +87,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyCollection> handle(&dummyContainer, pid);
-     Ptr<Dummy> dummyPtr(handle,key);
+     Ptr<Dummy> dummyPtr(pid, &dummyContainer, key);
 
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
@@ -108,8 +106,7 @@ void testPtr::constructTest() {
      dummyContainer.insert(dummy);
      dummyContainer.insert(dummy);
      dummyContainer.insert(dummy);
-     OrphanHandle<DummySet> handle(&dummyContainer, pid);
-     Ptr<Dummy> dummyPtr(handle,key);
+     Ptr<Dummy> dummyPtr(pid, &dummyContainer, key);
 
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
@@ -130,8 +127,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyList> handle(&dummyContainer, pid);
-     Ptr<Dummy> dummyPtr(handle,key);
+     Ptr<Dummy> dummyPtr(pid, &dummyContainer, key);
 
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
@@ -152,8 +148,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyDeque> handle(&dummyContainer, pid);
-     Ptr<Dummy> dummyPtr(handle,key);
+     Ptr<Dummy> dummyPtr(pid, &dummyContainer, key);
 
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
@@ -174,8 +169,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
      dummyContainer.push_back(dummy);
-     OrphanHandle<DummyCollection2> handle(&dummyContainer, pid);
-     Ptr<Dummy> dummyPtr(handle,key);
+     Ptr<Dummy> dummyPtr(pid, &dummyContainer, key);
      Ptr<Dummy2> dummyPtr2(dummyPtr);
 
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
@@ -195,7 +189,7 @@ void testPtr::constructTest() {
      CPPUNIT_ASSERT((dummyPtr2.operator->()) == &dummyContainer[key]);
      CPPUNIT_ASSERT(dummyPtr2->address() == dummyContainer[key].address());
 
-     Ptr<Dummy2> dummy2Ptr(handle,key);
+     Ptr<Dummy2> dummy2Ptr(pid, &dummyContainer, key);
      Ptr<Dummy> copyPtr(dummy2Ptr);
      CPPUNIT_ASSERT(dummy2Ptr.key() == copyPtr.key());
      CPPUNIT_ASSERT(dummy2Ptr.get() == static_cast<const Dummy*>(dummy2Ptr.get()));
@@ -212,12 +206,8 @@ void testPtr::comparisonTest() {
    Dummy const dummy;
    DummyCollection dummyContainer;
    dummyContainer.push_back(dummy);
-   OrphanHandle<DummyCollection> handle(&dummyContainer, pid);
-   OrphanHandle<DummyCollection> handle2(&dummyContainer, pid);
-   Ptr<Dummy> dummyPtr1(handle, key);
-   Ptr<Dummy> dummyPtr2(handle2, key);
-   //PtrProd<DummyCollection> dummyPtrProd1(handle);
-   //PtrProd<DummyCollection> dummyPtrProd2(handle2);
+   Ptr<Dummy> dummyPtr1(pid, &dummyContainer, key);
+   Ptr<Dummy> dummyPtr2(pid, &dummyContainer, key);
 
    CPPUNIT_ASSERT(dummyPtr1 == dummyPtr2);
    CPPUNIT_ASSERT(!(dummyPtr1 != dummyPtr2));
@@ -226,58 +216,17 @@ void testPtr::comparisonTest() {
    CPPUNIT_ASSERT(!(dummyPtr1 < dummyPtr1));
    CPPUNIT_ASSERT(!(dummyPtr2 < dummyPtr2));
 
-/*   CPPUNIT_ASSERT(dummyPtrProd1 == dummyPtrProd2);
-   CPPUNIT_ASSERT(!(dummyPtrProd1 != dummyPtrProd2));
-   CPPUNIT_ASSERT(!(dummyPtrProd1 < dummyPtrProd2));
-   CPPUNIT_ASSERT(!(dummyPtrProd2 < dummyPtrProd1));
-   CPPUNIT_ASSERT(!(dummyPtrProd1 < dummyPtrProd1));
-   CPPUNIT_ASSERT(!(dummyPtrProd2 < dummyPtrProd2)); */
-
-   Ptr<Dummy> dummyPtrNewKey(handle, key+1);
+   Ptr<Dummy> dummyPtrNewKey(pid, &dummyContainer, key+1);
    CPPUNIT_ASSERT(!(dummyPtr1 == dummyPtrNewKey));
    CPPUNIT_ASSERT(dummyPtr1 != dummyPtrNewKey);
    CPPUNIT_ASSERT(dummyPtr1 < dummyPtrNewKey);
    CPPUNIT_ASSERT(!(dummyPtrNewKey < dummyPtr1));
 
    ProductID const pidOther(1, 4);
-   OrphanHandle<DummyCollection> handleNewPID(&dummyContainer, pidOther);
-   Ptr<Dummy> dummyPtrNewPID(handleNewPID, key);
-   //PtrProd<DummyCollection> dummyPtrProdNewPID(handleNewPID);
+   Ptr<Dummy> dummyPtrNewPID(pidOther, &dummyContainer, key);
    CPPUNIT_ASSERT(!(dummyPtr1 == dummyPtrNewPID));
    CPPUNIT_ASSERT(dummyPtr1 != dummyPtrNewPID);
-   /*CPPUNIT_ASSERT(!(dummyPtrProd1 == dummyPtrProdNewPID));
-   CPPUNIT_ASSERT(dummyPtrProd1 != dummyPtrProdNewPID);
-   CPPUNIT_ASSERT(dummyPtrProd1 < dummyPtrProdNewPID);
-   CPPUNIT_ASSERT(!(dummyPtrProdNewPID < dummyPtrProd1)); */
  }
-  /*
-
-{
-   typedef std::map<int, double> DummyCollection2;
-   ProductID const pid2(1, 2);
-   DummyCollection2 dummyContainer2;
-   dummyContainer2.insert(std::make_pair(1, 1.0));
-   dummyContainer2.insert(std::make_pair(2, 2.0));
-   OrphanHandle<DummyCollection2> handle2(&dummyContainer2, pid2);
-   Ptr<DummyCollection2> dummyPtr21(handle2, 1);
-   Ptr<DummyCollection2> dummyPtr22(handle2, 2);
-   CPPUNIT_ASSERT(dummyPtr21 != dummyPtr22);
-   CPPUNIT_ASSERT(dummyPtr21 < dummyPtr22);
-   CPPUNIT_ASSERT(!(dummyPtr22 < dummyPtr21));
-
-   typedef std::map<int, double, std::greater<int> > DummyCollection3;
-   ProductID const pid3(1, 3);
-   DummyCollection3 dummyContainer3;
-   dummyContainer3.insert(std::make_pair(1, 1.0));
-   dummyContainer3.insert(std::make_pair(2, 2.0));
-   OrphanHandle<DummyCollection3> handle3(&dummyContainer3, pid3);
-   Ptr<DummyCollection3> dummyPtr31(handle3, 1);
-   Ptr<DummyCollection3> dummyPtr32(handle3, 2);
-   CPPUNIT_ASSERT(dummyPtr31 != dummyPtr32);
-   CPPUNIT_ASSERT(!(dummyPtr31 < dummyPtr32));
-   CPPUNIT_ASSERT(dummyPtr32 < dummyPtr31);
- }
-*/
 }
 
 
@@ -307,8 +256,6 @@ void testPtr::getTest() {
    ProductID const pid(1, 1);
 
    IntCollection const* wptr = dynamic_cast<IntCollection const*>(wrapper.product());
-
-   OrphanHandle<IntCollection> handle(wptr, pid);
 
    Ptr<IntValue> ref0(pid, 0,&tester);
    CPPUNIT_ASSERT( !ref0.hasCache());
@@ -341,8 +288,6 @@ void testPtr::getTest() {
 
      SDCollection const* wptr = dynamic_cast<SDCollection const*>(wrapper.product());
 
-     OrphanHandle<SDCollection> handle(wptr, pid);
-
      Ptr<IntValue> ref0(pid, 0,&tester);
      CPPUNIT_ASSERT( !ref0.hasCache());
 
@@ -366,53 +311,4 @@ void testPtr::getTest() {
       CPPUNIT_ASSERT_THROW((*ref0),cet::exception);
       CPPUNIT_ASSERT_THROW((ref0.operator->()),cet::exception);
    }
-   /*
-   PtrProd<IntCollection> refProd0(handle);
-   refProd0.refCore().setProductGetter(&tester);
-   refProd0.refCore().setProductPtr(0);
-
-   PtrProd<IntCollection> refProd2(pid, &tester);
-
-   CPPUNIT_ASSERT(0 == (*refProd0)[0].value_);
-   CPPUNIT_ASSERT(1 == (*refProd0)[1].value_);
-   CPPUNIT_ASSERT(1 == (*refProd2)[1].value_);
-
-   //get it via the 'singleton'
-   art::EDProductGetter::Operate operate(&tester);
-   Ptr<IntCollection> ref0b(handle, 0);
-   ref0b.ref().refCore().setProductPtr(0);
-   ref0b.ref().item().setPtr(0);
-   CPPUNIT_ASSERT(0 == ref0b->value_);
-
-   PtrProd<IntCollection> refProd0b(handle);
-   refProd0b.refCore().setProductPtr(0);
-   CPPUNIT_ASSERT(1 == (*refProd0b)[1].value_);
-
-   cerr << ">>> PtrToBaseProd from PtrProd" << endl;
-   PtrToBaseProd<IntValue> refToBaseProd0(refProd0);
-   cerr << ">>> PtrToBaseProd from Ptr" << endl;
-   PtrToBaseProd<IntValue> refToBaseProd1(ref0);
-   cerr << ">>> PtrToBaseProd from Handle" << endl;
-   PtrToBaseProd<IntValue> refToBaseProd2(handle);
-   cerr << ">>> checking View from PtrToBaseProd" << endl;
-   const View<IntValue> & vw = * refToBaseProd0;
-   cerr << ">>> checking View not empty" << endl;
-   CPPUNIT_ASSERT( ! vw.empty() );
-   cerr << ">>> checking View size" << endl;
-   CPPUNIT_ASSERT( vw.size() == 2 );
-   cerr << ">>> checking View element #0" << endl;
-   CPPUNIT_ASSERT( vw[0].value_ == ref0->value_ );
-   cerr << ">>> checking View element #1" << endl;
-   CPPUNIT_ASSERT( vw[1].value_ == ref1->value_ );
-   cerr << ">>> PtrToBaseProd from View" << endl;
-   PtrToBaseProd<IntValue> refToBaseProd3(vw);
-   cerr << ">>> checking ref. not empty" << endl;
-   CPPUNIT_ASSERT( ! refToBaseProd3->empty() );
-   cerr << ">>> checking ref. size" << endl;
-   CPPUNIT_ASSERT( refToBaseProd3->size() == 2 );
-   cerr << ">>> checking ref. element #0" << endl;
-   CPPUNIT_ASSERT( (*refToBaseProd3)[0].value_ == ref0->value_ );
-   cerr << ">>> checking ref. element #1" << endl;
-   CPPUNIT_ASSERT( (*refToBaseProd3)[1].value_ == ref1->value_ );
-    */
 }

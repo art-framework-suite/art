@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/LibraryManager.h"
+#include "art/Utilities/LibraryManager.h"
 #include <iosfwd>
 #include <string>
 #include <vector>

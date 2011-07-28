@@ -1,7 +1,7 @@
 #include "art/Persistency/Provenance/FileIndex.h"
 
 #include "cetlib/container_algorithms.h"
-#include <algorithm>
+#include "cpp0x/algorithm"
 #include <iomanip>
 #include <ostream>
 

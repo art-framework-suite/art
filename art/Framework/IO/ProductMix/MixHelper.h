@@ -114,7 +114,7 @@
 #include "Rtypes.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixContainerTypes.h"

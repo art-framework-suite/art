@@ -20,7 +20,7 @@
 //
 // -----------------------------------------------------------------
 
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -38,11 +38,11 @@ namespace
   {
     if (instanceName.find('_') != std::string::npos)
       {
-	throw art::Exception(art::errors::Configuration)
-	  << "Instance name \""
-	  << instanceName
-	  << "\" is illegal: underscores are not permitted in instance names."
-	  << '\n';
+        throw art::Exception(art::errors::Configuration)
+          << "Instance name \""
+          << instanceName
+          << "\" is illegal: underscores are not permitted in instance names."
+          << '\n';
       }
   }
 
@@ -51,12 +51,12 @@ namespace
   {
     if (fcn.find('_') != std::string::npos)
       {
-	throw art::Exception(art::errors::LogicError)
-	  << "Class \""
-	  << fcn
-	  << "\" is not suitable for use as a product due to the presence of "
-	  << "underscores which are not allowed anywhere in the class name "
-	  << "(including namespace and enclosing classes).\n";
+        throw art::Exception(art::errors::LogicError)
+          << "Class \""
+          << fcn
+          << "\" is not suitable for use as a product due to the presence of "
+          << "underscores which are not allowed anywhere in the class name "
+          << "(including namespace and enclosing classes).\n";
       }
   }
 }

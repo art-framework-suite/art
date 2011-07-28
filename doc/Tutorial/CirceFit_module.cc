@@ -3,14 +3,13 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "fhiclcpp/ParameterSet.h"
 // event interactions
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "art/Persistency/Common/Ptr.h"
 // service interactions
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Core/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // experiment specific headers go here

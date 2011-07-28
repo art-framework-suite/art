@@ -1,9 +1,9 @@
 #include "art/Framework/Core/EDProducer.h"
 
 #include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Core/Event.h"
-#include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 
 
 namespace art
@@ -39,7 +39,7 @@ namespace art
   }
 
   void
-  EDProducer::reconfigure(ParameterSet const&) {
+  EDProducer::reconfigure(fhicl::ParameterSet const&) {
     mf::LogError("FeatureNotImplemented")
        << "This module is not reconfigurable."
        << "\n";

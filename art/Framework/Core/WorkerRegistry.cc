@@ -45,24 +45,24 @@ namespace art {
   Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
     std::string workerid =
       mangleWorkerParameters(*p.pset_, p.processName_,
-			     p.releaseVersion_,p.passID_);
+                             p.releaseVersion_,p.passID_);
 
     WorkerMap::iterator workerIt = m_workerMap.find(workerid);
 
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end())
       {
-	ModuleDescription moduleDesc(createModuleDescription(p));
-	actReg_->preModuleConstructionSignal_(moduleDesc);
+        ModuleDescription moduleDesc(createModuleDescription(p));
+        actReg_->preModuleConstructionSignal_(moduleDesc);
 
-	std::auto_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
+        std::auto_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
 
-	actReg_->postModuleConstructionSignal_(moduleDesc);
-	workerPtr->setActivityRegistry(actReg_);
+        actReg_->postModuleConstructionSignal_(moduleDesc);
+        workerPtr->setActivityRegistry(actReg_);
 
         // Transfer ownership of worker to the registry
-	m_workerMap[workerid].reset(workerPtr.release());
-	return m_workerMap[workerid].get();
+        m_workerMap[workerid].reset(workerPtr.release());
+        return m_workerMap[workerid].get();
       }
     return (workerIt->second.get());
 
@@ -70,9 +70,9 @@ namespace art {
 
 
   std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
-						     std::string const& processName,
-						     ReleaseVersion const& releaseVersion,
-						     PassID const& passID) {
+                                                     std::string const& processName,
+                                                     ReleaseVersion const& releaseVersion,
+                                                     PassID const& passID) {
 
   std::stringstream mangled_parameters;
   mangled_parameters<< parameterSet.to_string()

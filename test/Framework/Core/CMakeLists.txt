@@ -4,8 +4,9 @@ project(art_Framework_Core_test)
 # Library link requirements for tests here
 link_libraries(
   art_Framework_Services_Registry
-  art_Utilities
   art_Framework_Core
+  art_Framework_Principal
+  art_Utilities
   ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${CINTEX}
@@ -36,24 +37,6 @@ cet_test(IntermediateTablePostProcessor_t USE_BOOST_UNIT
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/fcl/messageDefaults.fcl # Avoid duplication
 )
 cet_test(RootDictionaryManager_t USE_BOOST_UNIT)
-cet_test(artapp_t USE_BOOST_UNIT
-  LIBRARIES
-  art_Framework_CoreArt
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  DATAFILES
-  empty_config.fcl
-)
-cet_test(LibraryManager_t USE_BOOST_UNIT NO_AUTO)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
-  @ONLY
-  )
-cet_test(LibraryManager_t.sh HANDBUILT
-  TEST_EXEC ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
-  )
-
-cet_test(eventprincipal_t USE_BOOST_UNIT)
-cet_test(Event_t USE_BOOST_UNIT)
 
 #########################################################################
 # Old (pre-ART fork) tests.

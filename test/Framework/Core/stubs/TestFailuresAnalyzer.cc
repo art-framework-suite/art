@@ -3,45 +3,13 @@
 // Package:    TestFailuresAnalyzer
 // Class:      TestFailuresAnalyzer
 //
-/**\class TestFailuresAnalyzer TestFailuresAnalyzer.cc stubs/TestFailuresAnalyzer/src/TestFailuresAnalyzer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
-// Original Author:  Chris Jones
-//         Created:  Fri Sep  2 13:54:17 EDT 2005
-//
-//
-//
-
-
-// system include files
-#include <memory>
-
-// user include files
-
-#include "art/Framework/Core/ModuleMacros.h"
-
-#include "fhiclcpp/ParameterSet.h"
 
 #include "FWCore/Framework/test/stubs/TestFailuresAnalyzer.h"
-
+#include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/exception.h"
-
-//
-// class decleration
-//
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#include "cpp0x/memory"
+#include "fhiclcpp/ParameterSet.h"
 
 enum {
    kConstructor,

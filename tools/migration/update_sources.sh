@@ -60,17 +60,20 @@ function one_file() {
   perl -wapi\~ -f fix-rootIO.pl "${F}"
   # Fix use of exceptions (must fix only once due to hysteresis).
   [[ "${F}" == *"art/Utilities/Exception.cc" ]] || \
+    grep -vi exception "${F}" >/dev/null 2>&1 || \
     grep -e 'cetlib/exception' \
          -e 'namespace[ \t]\{1,\}cet' \
-         -e '\(art::\)\{0,1\}Exception\([ \t]\{1,\}[A-Za-z0-9_]*\)\{0,1\}(\(art::\)\{0,1\}errors::' \
+         -e '\(art::\)\{0,1\}Exception\([ \t]\{1,\}[A-Za-z0-9_]*\([ \t]*=[ \t]*\)\{0,1\}\)\{0,1\}([ \t]*[A-Za-z0-9_]\{1,\}' \
          -e 'art::Exception' \
          "${F}" >/dev/null 2>&1 || \
+      printf ' (would fix exceptions) ' || \
     { perl -wapi\~ -f fix-exceptions.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"; }
   # Final namespace fix (must be done after exception fix).
   perl -wapi\~ -f fix-namespaces-2.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   perl -wapi\~ -f fix-messagefacility.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
 
   perl -wapi\~ -f fix-services.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  perl -wapi\~ -f fix-header-locs-2011-07.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
 
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then

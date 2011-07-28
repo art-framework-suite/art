@@ -4,7 +4,7 @@
 
 #include "art/Framework/Core/ProducerBase.h"
 
-#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/TypeLabelList.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"

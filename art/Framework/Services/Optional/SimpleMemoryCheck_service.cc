@@ -4,13 +4,14 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/MallocOpts.h"
 #include "cetlib/exception.h"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <fcntl.h>
@@ -18,7 +19,6 @@
 #include <malloc.h>
 #include <sstream>
 #include <unistd.h>
-#include <utility>
 
 #ifdef __linux__
 #define LINUX 1

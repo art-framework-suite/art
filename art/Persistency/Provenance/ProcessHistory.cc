@@ -22,9 +22,9 @@ namespace art {
     ostringstream oss;
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       oss << i->processName() << ' '
-	  << i->parameterSetID() << ' '
-	  << i->releaseVersion() << ' '
-	  << i->passID() << ' ';
+          << i->parameterSetID() << ' '
+          << i->releaseVersion() << ' '
+          << i->passID() << ' ';
     }
     string stringrep = oss.str();
     art::Digest md5alg(stringrep);
@@ -35,11 +35,11 @@ namespace art {
 
   bool
   ProcessHistory::getConfigurationForProcess(string const& name,
-					     ProcessConfiguration& config) const {
+                                             ProcessConfiguration& config) const {
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       if (i->processName() == name) {
-	config = *i;
-	return true;
+        config = *i;
+        return true;
       }
     }
     // Name not found!

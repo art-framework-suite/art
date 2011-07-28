@@ -1,18 +1,12 @@
 /**
    \file
    Test Modules for testProductRegistry
-
-   \author Stefano ARGIRO
-   \version
-   \date 19 May 2005
 */
 
-
-#include "art/Framework/Core/Event.h"
-
-#include "test/TestObjects/ToyProducts.h"
 #include "FWCore/Framework/test/stubs/TestPRegisterModule1.h"
-#include <memory>
+#include "art/Framework/Principal/Event.h"
+#include "cpp0x/memory"
+#include "test/TestObjects/ToyProducts.h"
 #include <string>
 
 using namespace art;

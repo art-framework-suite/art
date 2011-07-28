@@ -11,12 +11,12 @@ namespace art {
 
   namespace actions {
     enum ActionCodes {
-	IgnoreCompletely=0,
-	Rethrow,
-	SkipEvent,
-	FailModule,
-	FailPath,
-	LastCode
+        IgnoreCompletely=0,
+        Rethrow,
+        SkipEvent,
+        FailModule,
+        FailPath,
+        LastCode
     };
 
     const char* actionName(ActionCodes code);

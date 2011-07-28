@@ -2,19 +2,20 @@
 
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Core/EPStates.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
-#include "art/Framework/Core/RunPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
+#include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/Core/detail/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Utilities/DebugMacros.h"
@@ -26,12 +27,12 @@
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "cpp0x/functional"
+#include "cpp0x/utility"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <exception>
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include <utility>
 #include <vector>
 
 using std::shared_ptr;

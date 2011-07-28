@@ -7,11 +7,11 @@
 //
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/Run.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Provenance/BranchKey.h"

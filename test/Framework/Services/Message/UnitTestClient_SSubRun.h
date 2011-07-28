@@ -5,7 +5,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "messagefacility/MessageLogger/LoggedErrorsSummary.h"
-#include "art/Framework/Core/SubRun.h"
+#include "art/Framework/Principal/SubRun.h"
 
 #include "fhiclcpp/ParameterSet.h"
 

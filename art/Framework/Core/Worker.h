@@ -27,7 +27,7 @@ the worker is reset().
 #include "art/Framework/Core/Actions.h"
 #include "art/Framework/Core/BranchActionType.h"
 #include "art/Framework/Core/CurrentProcessingContext.h"
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/RunStopwatch.h"
@@ -36,10 +36,10 @@ the worker is reset().
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 #include "cpp0x/memory"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <iosfwd>
-#include <utility>
 
 // ----------------------------------------------------------------------
 

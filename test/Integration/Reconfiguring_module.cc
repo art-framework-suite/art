@@ -4,16 +4,16 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDAnalyzer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include "test/TestObjects/ToyProducts.h"
 #include "test/Integration/Reconfigurable.h"
-#include <memory>
-#include <vector>
+#include "test/TestObjects/ToyProducts.h"
 #include <iostream>
+#include <vector>
 
 using namespace art;
 

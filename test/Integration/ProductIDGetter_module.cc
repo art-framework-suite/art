@@ -58,9 +58,9 @@ void arttest::ProductIDGetter::produce(art::Event &e) {
 
   BOOST_REQUIRE(ptr->id().isValid());
 
-  art::OrphanHandle<std::vector<int> > h(e.put(vip));
+  art::ProductID id(e.put(vip));
 
-  art::Ptr<int> ptr_check(h, 2);
+  art::Ptr<int> ptr_check(id, 2, e.productGetter());
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
 

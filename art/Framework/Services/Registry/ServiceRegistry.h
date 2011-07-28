@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/LibraryManager.h"
+#include "art/Utilities/LibraryManager.h"
 #include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"

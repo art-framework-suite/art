@@ -8,10 +8,10 @@ RootOutputTree.h // used by ROOT output modules
 ----------------------------------------------------------------------*/
 
 #include "TTree.h"
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "cpp0x/memory"
 #include "boost/noncopyable.hpp"

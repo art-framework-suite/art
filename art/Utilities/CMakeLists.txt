@@ -1,7 +1,17 @@
 # project name
 project(art_Utilities)
 
+foreach(cfg_source
+    LibraryManager.h
+    LibraryManager.cc
+    )
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${cfg_source}.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${cfg_source} @ONLY
+    )
+endforeach()
+
 set(art_Utilities_sources
+  ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.cc
   CPUTimer.cc
   CRC32Calculator.cc
   DebugMacros.cc

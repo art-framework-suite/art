@@ -10,9 +10,8 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include "art/Utilities/detail/metaprogramming.h"
-
+#include "cpp0x/memory"
 #include "cpp0x/type_traits"
-#include <memory>
 
 namespace art {
   template< class T >

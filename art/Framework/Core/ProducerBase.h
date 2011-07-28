@@ -8,7 +8,7 @@ EDProducts into an Event.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/get_BranchDescription.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"

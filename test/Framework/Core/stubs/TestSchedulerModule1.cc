@@ -1,20 +1,13 @@
 /**
-   \file
    Test Modules for ScheduleBuilder
-
-   \author Stefano ARGIRO
-   \version
-   \date 19 May 2005
 */
 
-
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
-#include <memory>
 #include <string>
 
 using namespace art;

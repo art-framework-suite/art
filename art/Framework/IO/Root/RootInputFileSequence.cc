@@ -6,10 +6,10 @@
 
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
 
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
-#include "art/Framework/Core/detail/BranchIDListHelper.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/DuplicateChecker.h"

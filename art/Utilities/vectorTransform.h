@@ -11,7 +11,7 @@
 //
 // ======================================================================
 
-#include <algorithm>
+#include "cpp0x/algorithm"
 #include <iterator>
 #include <vector>
 

@@ -14,9 +14,9 @@ namespace art
 
       /// status of a trigger path
       enum HLTState {Ready=0,     ///< not [yet] run
-		     Pass =1,     ///< accept
-		     Fail =2,     ///< reject
-		     Exception=3  ///< error
+                     Pass =1,     ///< accept
+                     Fail =2,     ///< reject
+                     Exception=3  ///< error
       };
 
     }

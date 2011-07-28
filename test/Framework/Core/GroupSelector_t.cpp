@@ -101,19 +101,29 @@ int work()
   art::BranchDescription b5(art::InEvent, "modA", "USER", "UglyProdTypeA",
 			    "ProdTypeA", "i2", mod);
 
+  // Extra tests.
+  art::BranchDescription b6(art::InEvent,
+                            "ptrmvWriter",
+                            "PtrmvW",
+                            "art::Ptr<std::basic_string<char> >",
+                            "Stringart::Ptr",
+                            "",
+                            mod);
+
   // These are pointers to all the branches that are available. In a
   // framework program, these would come from the MasterProductRegistry
   // which is used to initialze the OutputModule being configured.
   art::ProductList pList;
-  pList.insert(std::make_pair(make_BranchKey(b1), b1)); // ProdTypeA_modA_i1. (PROD)
-  pList.insert(std::make_pair(make_BranchKey(b2), b2)); // ProdTypeA_modA_i2. (PROD)
-  pList.insert(std::make_pair(make_BranchKey(b3), b3)); // ProdTypeB_modB_HLT. (no instance name)
+  pList.insert(std::make_pair(make_BranchKey(b1), b1)); // ProdTypeA_modA_i1_PROD
+  pList.insert(std::make_pair(make_BranchKey(b2), b2)); // ProdTypeA_modA_i2_PROD
+  pList.insert(std::make_pair(make_BranchKey(b3), b3)); // ProdTypeB_modB__HLT.
   pList.insert(std::make_pair(make_BranchKey(b4), b4)); // ProdTypeA_modA_i1_USER.
   pList.insert(std::make_pair(make_BranchKey(b5), b5)); // ProdTypeA_modA_i2_USER.
+  pList.insert(std::make_pair(make_BranchKey(b6), b6)); // Stringart::Ptr_ptrmvWriter__PtrmvW
 
   // Test default parameters
   {
-    bool wanted[] = { true, true, true, true, true };
+    bool wanted[] = { true, true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
     fhicl::ParameterSet noparams;
 
@@ -122,7 +132,7 @@ int work()
 
   // Keep all branches with instance name i2.
   {
-    bool wanted[] = { false, false, true, true, false };
+    bool wanted[] = { false, false, true, true, false, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet keep_i2;
@@ -136,7 +146,7 @@ int work()
 
   // Drop all branches with instance name i2.
   {
-    bool wanted[] = { true, true, false, false, true };
+    bool wanted[] = { true, true, false, false, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_i2;
@@ -153,7 +163,7 @@ int work()
   // Now try dropping all branches with product type "foo". There are
   // none, so all branches should be written.
   {
-    bool wanted[] = { true, true, true, true, true };
+    bool wanted[] = { true, true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_foo;
@@ -169,7 +179,7 @@ int work()
 
   // Now try dropping all branches with product type "ProdTypeA".
   {
-    bool wanted[] = { false, false, false, false, true };
+    bool wanted[] = { false, false, false, false, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_ProdTypeA;
@@ -187,7 +197,7 @@ int work()
 
   // Keep only branches with instance name 'i1', from Production.
   {
-    bool wanted[] = { true, false, false, false, false };
+    bool wanted[] = { true, false, false, false, false, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet keep_i1prod;
@@ -204,7 +214,7 @@ int work()
   // First say to keep everything,  then  to drop everything, then  to
   // keep it again. The end result should be to keep everything.
   {
-    bool wanted[] = { true, true, true, true, true };
+    bool wanted[] = { true, true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet indecisive;
@@ -225,7 +235,7 @@ int work()
   // Keep all things, but drop all things from modA, but later keep all
   // things from USER.
   {
-    bool wanted[] = { false, true, false, true, true };
+    bool wanted[] = { false, true, false, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
@@ -245,7 +255,7 @@ int work()
 
   // Exercise the wildcards * and ?
   {
-    bool wanted[] = { true, false, true, false, true };
+    bool wanted[] = { true, false, true, false, true, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
@@ -260,6 +270,24 @@ int work()
 
     rc += doTest(params,
 		 "exercise wildcards1",
+		 pList, expected);
+  }
+
+  // Drop one product specifically by full specification.
+  {
+    bool wanted[] = { true, true, true, true, true, false };
+    std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
+
+    fhicl::ParameterSet params;
+    std::string const rule1 = "keep *";
+    std::string const rule2 = "drop Stringart::Ptr_ptrmvWriter__PtrmvW";
+    std::vector<std::string> cmds;
+    cmds.push_back(rule1);
+    cmds.push_back(rule2);
+    params.put<std::vector<std::string> >("outputCommands", cmds);
+
+    rc += doTest(params,
+		 "drop product by full spec.",
 		 pList, expected);
   }
 

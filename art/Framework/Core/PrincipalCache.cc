@@ -1,7 +1,7 @@
 #include "art/Framework/Core/PrincipalCache.h"
 
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
 
 namespace art {

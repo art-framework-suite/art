@@ -1,20 +1,17 @@
-
+#include "art/Framework/Core/CurrentProcessingContext.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/EDFilter.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "fhiclcpp/ParameterSet.h"
-
-#include "art/Framework/Core/Event.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
-#include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/CurrentProcessingContext.h"
-
-#include <string>
+#include "cpp0x/algorithm"
+#include "cpp0x/numeric"
+#include "fhiclcpp/ParameterSet.h"
 #include <iostream>
-#include <algorithm>
-#include <numeric>
 #include <iterator>
+#include <string>
 
 using namespace art;
 
@@ -113,13 +110,13 @@ namespace arttest
   {
     assert( currentContext() == 0 );
     std::cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
-	 << ", did pass " << total_ << "\n";
+         << ", did pass " << total_ << "\n";
 
     if(total_!=num_pass_)
       {
-	std::cerr << "number passed should be " << num_pass_
-	     << ", but got " << total_ << "\n";
-	abort();
+        std::cerr << "number passed should be " << num_pass_
+             << ", but got " << total_ << "\n";
+        abort();
       }
   }
 }

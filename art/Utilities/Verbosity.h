@@ -1,6 +1,6 @@
 #ifndef art_Utilities_Verbosity_h
 #define art_Utilities_Verbosity_h
-// A first attempt to define a descriptive enumenration for verbosity.
+// A first attempt to define a descriptive enumeration for verbosity.
 namespace art {
   enum Verbosity {
     Silent=0,

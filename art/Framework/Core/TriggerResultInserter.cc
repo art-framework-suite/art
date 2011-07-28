@@ -1,32 +1,27 @@
 #include "art/Framework/Core/TriggerResultInserter.h"
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/TriggerResults.h"
-
+#include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-  using fhicl::ParameterSet;
 
-#include <memory>
+using art::TriggerResultInserter;
+using fhicl::ParameterSet;
 
+TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
+  trptr_(trptr),
+  pset_id_(pset.id())
+{
+  produces<TriggerResults>();
+}
 
-namespace art {
+TriggerResultInserter::~TriggerResultInserter()
+{ }
 
-  TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
-    trptr_(trptr),
-    pset_id_(pset.id())
-  {
-    produces<TriggerResults>();
-  }
+void TriggerResultInserter::produce(art::Event& e)
+{
+  std::auto_ptr<TriggerResults>
+    results(new TriggerResults(*trptr_, pset_id_));
 
-  TriggerResultInserter::~TriggerResultInserter()
-  { }
-
-  void TriggerResultInserter::produce(art::Event& e)
-  {
-    std::auto_ptr<TriggerResults>
-      results(new TriggerResults(*trptr_, pset_id_));
-
-    e.put(results);
-  }
-
-}  // art
+  e.put(results);
+}

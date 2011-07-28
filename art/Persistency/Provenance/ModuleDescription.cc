@@ -1,7 +1,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include "art/Utilities/Digest.h"
-
 #include <ostream>
 #include <sstream>
 
@@ -49,12 +48,12 @@ namespace art {
   void
   ModuleDescription::write(std::ostream& os) const {
     os  << "Module type=" << moduleName() << ", "
-	<< "Module label=" << moduleLabel() << ", "
-	<< "Parameter Set ID=" << parameterSetID() << ", "
-	<< "Process name=" << processName() << ", "
-	<< "Release Version=" << releaseVersion() << ", "
-	<< "Pass ID=" << passID() << ", "
-	<< "Main Parameter Set ID=" << mainParameterSetID();
+        << "Module label=" << moduleLabel() << ", "
+        << "Parameter Set ID=" << parameterSetID() << ", "
+        << "Process name=" << processName() << ", "
+        << "Release Version=" << releaseVersion() << ", "
+        << "Pass ID=" << passID() << ", "
+        << "Main Parameter Set ID=" << mainParameterSetID();
   }
 
   ModuleDescriptionID
@@ -64,12 +63,12 @@ namespace art {
     // We do not use operator<< because it does not write out everything.
     std::ostringstream oss;
     oss << parameterSetID() << ' '
-	<< moduleName() << ' '
-	<< moduleLabel() << ' '
-	<< mainParameterSetID() << ' '
-	<< releaseVersion() << ' '
-	<< processName() << ' '
-	<< passID();
+        << moduleName() << ' '
+        << moduleLabel() << ' '
+        << mainParameterSetID() << ' '
+        << releaseVersion() << ' '
+        << processName() << ' '
+        << passID();
     std::string stringrep = oss.str();
     art::Digest md5alg(stringrep);
     return ModuleDescriptionID(md5alg.digest().toString());

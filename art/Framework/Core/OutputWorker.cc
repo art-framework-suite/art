@@ -9,8 +9,8 @@
 
 namespace art {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
-			     ModuleDescription const& md,
-			     WorkerParams const& wp):
+                             ModuleDescription const& md,
+                             WorkerParams const& wp):
       WorkerT<OutputModule>(mod, md, wp)
   {
   }

@@ -10,7 +10,7 @@ public:
    void produce(art::Event&);
 };
 
-TestMod::TestMod(ParameterSet const&)
+TestMod::TestMod(fhicl::ParameterSet const&)
 { produces<int>(); }
 
 void TestMod::produce(art::Event&)

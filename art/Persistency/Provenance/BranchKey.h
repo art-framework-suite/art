@@ -39,14 +39,14 @@ namespace art {
   bool
   operator<(BranchKey const& a, BranchKey const& b) {
       return
-	a.friendlyClassName_ < b.friendlyClassName_ ? true :
-	a.friendlyClassName_ > b.friendlyClassName_ ? false :
-	a.moduleLabel_ < b.moduleLabel_ ? true :
-	a.moduleLabel_ > b.moduleLabel_ ? false :
-	a.productInstanceName_ < b.productInstanceName_ ? true :
-	a.productInstanceName_ > b.productInstanceName_ ? false :
-	a.processName_ < b.processName_ ? true :
-	false;
+        a.friendlyClassName_ < b.friendlyClassName_ ? true :
+        a.friendlyClassName_ > b.friendlyClassName_ ? false :
+        a.moduleLabel_ < b.moduleLabel_ ? true :
+        a.moduleLabel_ > b.moduleLabel_ ? false :
+        a.productInstanceName_ < b.productInstanceName_ ? true :
+        a.productInstanceName_ > b.productInstanceName_ ? false :
+        a.processName_ < b.processName_ ? true :
+        false;
   }
 
   inline

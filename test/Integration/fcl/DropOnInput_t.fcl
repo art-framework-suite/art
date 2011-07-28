@@ -4,7 +4,7 @@ source:
 {
   module_type: RootInput
   fileNames: [ "../Ptrmv_w.d/out.root" ]
-  inputCommands: [ "keep *", "drop Stringart::Ptr_*__PtrmvW" ]
+  inputCommands: [ "keep *", "drop Stringart::Ptr_ptrmvWriter__PtrmvW" ]
 }
 
 physics:

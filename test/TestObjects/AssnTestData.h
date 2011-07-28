@@ -1,6 +1,7 @@
 #ifndef test_TestObjects_AssnTestData_h
 #define test_TestObjects_AssnTestData_h
-#include <cstddef>
+
+#include "cpp0x/cstddef"
 #include <string>
 
 namespace arttest {

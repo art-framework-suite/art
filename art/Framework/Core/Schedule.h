@@ -64,30 +64,30 @@
 // ======================================================================
 
 #include "art/Framework/Core/Actions.h"
-#include "art/Framework/Core/EventPrincipal.h"
-#include "art/Framework/Core/FCPfwd.h"
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Core/UnscheduledHandler.h"
+#include "art/Framework/Principal/UnscheduledHandler.h"
 #include "art/Framework/Core/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
-#include "art/Persistency/Provenance/Provenance.h"
+#include "art/Persistency/Common/Provenance.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
+#include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include <map>
 #include <set>
 #include <string>
-#include <utility>
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -248,7 +248,7 @@ namespace art {
 
     void addToAllWorkers(Worker* w);
 
-    WorkerPtr makeInserter(ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const;
+    WorkerPtr makeInserter(fhicl::ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const;
 
     void catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels, MasterProductRegistry &pregistry);
 

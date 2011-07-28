@@ -6,16 +6,13 @@
 
 #include "art/Persistency/Common/PtrVectorBase.h"
 
+#include "TBuffer.h"
+#include "TClassRef.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/exception.h"
-
-// C++ support:
-#include <algorithm>
-
-#include "TBuffer.h"
-#include "TClassRef.h"
+#include "cpp0x/algorithm"
 
 // Constructor and destructor:
 

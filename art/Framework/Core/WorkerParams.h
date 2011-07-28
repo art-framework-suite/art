@@ -4,7 +4,7 @@
 
 // This struct is used to communicate parameters into the worker factory.
 
-#include "art/Framework/Core/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
 #include "art/Utilities/GetPassID.h"

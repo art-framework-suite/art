@@ -27,7 +27,7 @@ namespace art {
   {}
 
    ProductProvenance::ProductProvenance(BranchID const& bid,
-				    ProductStatus status) :
+                                        ProductStatus status) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(),
@@ -35,8 +35,8 @@ namespace art {
   {}
 
    ProductProvenance::ProductProvenance(BranchID const& bid,
-				    ProductStatus status,
-				    ParentageID const& edid) :
+                                        ProductStatus status,
+                                        ParentageID const& edid) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(edid),
@@ -44,8 +44,8 @@ namespace art {
   {}
 
    ProductProvenance::ProductProvenance(BranchID const& bid,
-				    ProductStatus status,
-				    std::shared_ptr<Parentage> pPtr) :
+                                    ProductStatus status,
+                                    std::shared_ptr<Parentage> pPtr) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(pPtr->id()),
@@ -55,8 +55,8 @@ namespace art {
   }
 
   ProductProvenance::ProductProvenance(BranchID const& bid,
-		   ProductStatus status,
-		   std::vector<BranchID> const& parents) :
+                   ProductStatus status,
+                   std::vector<BranchID> const& parents) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(),

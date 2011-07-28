@@ -116,11 +116,11 @@ namespace art {
     ThreadSafeIndexedRegistry<T, E>*
     ThreadSafeIndexedRegistry<T, E>::instance() {
       if (instance_ == 0) {
-	boost::mutex::scoped_lock lock(registry_mutex);
-	if (instance_ == 0) {
-	  static ThreadSafeIndexedRegistry<T, E> me;
-	  instance_ = &me;
-	}
+        boost::mutex::scoped_lock lock(registry_mutex);
+        if (instance_ == 0) {
+          static ThreadSafeIndexedRegistry<T, E> me;
+          instance_ = &me;
+        }
       }
       return instance_;
     }
@@ -144,7 +144,7 @@ namespace art {
     void
     ThreadSafeIndexedRegistry<T, E>::insertCollection(collection_type const& c) {
       for (typename collection_type::const_iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it) {
-	insertMapped(*it);
+        insertMapped(*it);
       }
     }
 
@@ -188,7 +188,7 @@ namespace art {
     ThreadSafeIndexedRegistry<T, E>::print(std::ostream& os) const {
       os << "Registry with " << size() << " entries\n";
       for (const_iterator i = begin(), e = end(); i != e; ++i) {
-	  os << i - begin() << " " << i << '\n';
+          os << i - begin() << " " << i << '\n';
       }
     }
 

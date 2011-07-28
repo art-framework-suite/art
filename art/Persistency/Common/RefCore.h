@@ -11,8 +11,7 @@
 
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include <algorithm>
-
+#include "cpp0x/algorithm"
 
 namespace art {
   class EDProduct;

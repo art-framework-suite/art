@@ -75,7 +75,7 @@ contains several other pointer class templates:
 * ``boost::scoped_ptr<T>`` from ``"boost/scoped_ptr.hpp"``
 * ``boost::intrusive_ptr<T>`` from ``"boost/intrusive_ptr.hpp"``
 * ``boost::weak_ptr<T>``   from   ``"boost/weak_ptr.hpp"``
-* ``edm::value_ptr<T>``       from  ``"FWCore/Utilities/interface/value_ptr.h"``
+* ``art::value_ptr<T>``       from  ``"FWCore/Utilities/interface/value_ptr.h"``
 
 For ``scoped_ptr`` and ``shared_ptr``, there are also *array* forms.
 Since C++ code should rarely use arrays
@@ -117,7 +117,7 @@ std::auto_ptr<T>:
   it consumes the object it was given,
   which is no longer available to the caller.
 
-  This is used, for example, in the ``edm::Event::put`` function,
+  This is used, for example, in the ``art::Event::put`` function,
   which inserts an ``EDProduct`` into an ``Event``. Code that puts
   an object into the ``Event`` gives up control of that object;
   control of the object is passed to the ``Event``.
@@ -156,7 +156,7 @@ boost::weak_ptr<T>:
    Its correct use is fairly subtle,
    and it should rarely be needed.
 
-edm::value_ptr<T>:
+art::value_ptr<T>:
    ``value_ptr`` implements *sole ownership*. Copying a ``value_ptr``
    causes a copy of the pointed-to object to be created. This makes
    ``value_ptr`` useful for managing class data members when the
@@ -242,7 +242,7 @@ Ask the following questions:
    If so, then use ``auto_ptr``. This is useful in functions that are
    "sources" (that is, *factory functions*), to indicate that ownership of
    the created object that is returned by the call is given to the caller.
-   It is useful in functions that are "sinks" (such as ``edm::Event::put``),
+   It is useful in functions that are "sinks" (such as ``art::Event::put``),
    to indicate that the called function is taking control of the passed
    object.
 

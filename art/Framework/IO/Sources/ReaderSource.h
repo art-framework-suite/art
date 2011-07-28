@@ -40,25 +40,25 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/EventPrincipal.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
-#include "art/Framework/Core/MasterProductRegistry.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/Core/RunPrincipal.h"
-#include "art/Framework/Core/SubRunPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
+#include "cpp0x/algorithm"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
-#include <algorithm>
 #include <limits>
 
 // ----------------------------------------------------------------------

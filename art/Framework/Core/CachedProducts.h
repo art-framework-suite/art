@@ -10,14 +10,14 @@
 //
 // -------------------------------------------------------------------
 
-#include "art/Framework/Core/Event.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/EventSelector.h"
-#include "art/Framework/Core/FCPfwd.h"
-#include "art/Framework/Core/Selector.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
+#include "cpp0x/utility"
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace art
@@ -30,29 +30,29 @@ namespace art
     {
     public:
       NamedEventSelector(std::string const& n, EventSelector const& s) :
-	nameSelector_(n),
-	eventSelector_(s),
-	product_()
+        nameSelector_(n),
+        eventSelector_(s),
+        product_()
       { }
 
       void fill(Event const& e)
       {
-	e.get(nameSelector_, product_);
+        e.get(nameSelector_, product_);
       }
 
       bool match()
       {
-	return eventSelector_.acceptEvent(*product_);
+        return eventSelector_.acceptEvent(*product_);
       }
 
       handle_t product() const
       {
-	return product_;
+        return product_;
       }
 
       void clear()
       {
-	product_ = handle_t();
+        product_ = handle_t();
       }
 
     private:
@@ -74,7 +74,7 @@ namespace art
       void setupDefault(std::vector<std::string> const& triggernames);
 
       void setup(std::vector<parsed_path_spec_t> const& path_specs,
-		 std::vector<std::string> const& triggernames,
+                 std::vector<std::string> const& triggernames,
                  const std::string& process_name);
 
       bool wantEvent(Event const& e);

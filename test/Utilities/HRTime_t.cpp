@@ -1,7 +1,7 @@
 #include "art/Utilities/HRRealTime.h"
 
+#include "cpp0x/cmath"
 #include "test/CppUnit_testdriver.icpp"
-#include <cmath>
 #include <cppunit/extensions/HelperMacros.h>
 #include <ctime>
 #include <iostream>

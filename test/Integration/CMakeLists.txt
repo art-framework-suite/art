@@ -46,7 +46,7 @@ art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 
 # Common library link requirements for tests here.
 link_libraries(
-  art_Framework_CoreArt
+  art_Framework_Art
   art_Framework_Services_Registry
   art_Utilities
   art_Framework_Core

@@ -1,14 +1,11 @@
-//
-
-#include <algorithm>
-#include <vector>
-#include <iostream>
-
-#include <cppunit/extensions/HelperMacros.h>
-#include "art/Persistency/Common/TestHandle.h"
 #include "art/Persistency/Common/PtrVector.h"
-#include "test/Persistency/Common/IntValues.h"
+#include "art/Persistency/Common/TestHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
+#include "cpp0x/algorithm"
+#include "test/Persistency/Common/IntValues.h"
+#include <cppunit/extensions/HelperMacros.h>
+#include <iostream>
+#include <vector>
 
 class testPtrVector : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testPtrVector);
