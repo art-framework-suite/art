@@ -56,29 +56,29 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
 
   art::ProductID mvID(e.put(mv));
 
-  e.put(std::auto_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter())));
+  e.put(std::auto_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter(mvID))));
 
   std::auto_ptr<art::PtrVector<std::string> >
     pv(new art::PtrVector<std::string>());
 
   pv->reserve(4);
-  pv->push_back(art::Ptr<std::string>(mvID, 5, e.productGetter()));
-  pv->push_back(art::Ptr<std::string>(mvID, 0, e.productGetter()));
-  pv->push_back(art::Ptr<std::string>(mvID, 7, e.productGetter()));
-  pv->push_back(art::Ptr<std::string>(mvID, 3, e.productGetter()));
+  pv->push_back(art::Ptr<std::string>(mvID, 5, e.productGetter(mvID)));
+  pv->push_back(art::Ptr<std::string>(mvID, 0, e.productGetter(mvID)));
+  pv->push_back(art::Ptr<std::string>(mvID, 7, e.productGetter(mvID)));
+  pv->push_back(art::Ptr<std::string>(mvID, 3, e.productGetter(mvID)));
 
   e.put(pv);
 
-  e.put(std::auto_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter())));
+  e.put(std::auto_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID))));
 
   std::auto_ptr<art::PtrVector<mvp_t> >
     pvp(new art::PtrVector<mvp_t>());
 
   pvp->reserve(4);
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 5, e.productGetter()));
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 0, e.productGetter()));
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 7, e.productGetter()));
-  pvp->push_back(art::Ptr<mvp_t>(mvID, 3, e.productGetter()));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 5, e.productGetter(mvID)));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 0, e.productGetter(mvID)));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 7, e.productGetter(mvID)));
+  pvp->push_back(art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID)));
 
   e.put(pvp);
 }

@@ -1,12 +1,11 @@
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Utilities/Exception.h"
-
 #include <iomanip>
 #include <iostream>
 
@@ -26,7 +25,7 @@ art::ProdToProdMapBuilder::prepareTranslationTables(BranchIDTransMap &transMap,
   } else if (branchIDTransMap_ != transMap) {
     throw Exception(errors::DataCorruption)
       << "Secondary input file "
-      << " has BranchIDs inconsistent with previous files.\n";
+         " has BranchIDs inconsistent with previous files.\n";
   }
 
   buildBranchIDToIndexMap(bidl);
@@ -36,7 +35,8 @@ art::ProdToProdMapBuilder::prepareTranslationTables(BranchIDTransMap &transMap,
 
 void
 art::ProdToProdMapBuilder::populateRemapper(PtrRemapper &mapper, Event &e) const {
-  mapper.productGetter_ = cet::exempt_ptr<EDProductGetter const>(e.productGetter());
+////  mapper.productGetter_ = cet::exempt_ptr<EDProductGetter const>(e.productGetter());
+  mapper.event_.reset(&e);
 
   mapper.prodTransMap_.clear();
 
@@ -44,8 +44,9 @@ art::ProdToProdMapBuilder::populateRemapper(PtrRemapper &mapper, Event &e) const
                  branchIDTransMap_.end(),
                  std::inserter(mapper.prodTransMap_, mapper.prodTransMap_.begin()),
                  ProdTransMapBuilder(secondaryProductMap_,
-                                     *dynamic_cast<EventPrincipal const *>
-                                     (e.productGetter())));
+////                                     *dynamic_cast<EventPrincipal const *>
+////                                     (e.productGetter())));
+                                     e.eventPrincipal()));
 #if ART_DEBUG_PTRREMAPPER
   for (PtrRemapper::ProdTransMap_t::const_iterator
          i = mapper.prodTransMap_.begin(),

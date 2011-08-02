@@ -166,6 +166,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/Ptr.h"
@@ -308,12 +309,13 @@ private:
   typedef std::map<ProductID, ProductID> ProdTransMap_t;
 
   ProdTransMap_t prodTransMap_;
-  cet::exempt_ptr<EDProductGetter const> productGetter_;
+////  cet::exempt_ptr<EDProductGetter const> productGetter_;
+  cet::exempt_ptr<Event const> event_;
 };
 
 inline
 art::PtrRemapper::
-PtrRemapper() : prodTransMap_() {}
+PtrRemapper() : prodTransMap_(), event_() {}
 
 // 1.
 template <typename PROD, typename SIZE_TYPE>
@@ -331,7 +333,8 @@ operator()(Ptr<PROD> const &oldPtr,
   return (oldPtr.isNonnull())?
     Ptr<PROD>(iter->second,
               oldPtr.key() + offset,
-              productGetter_):
+              event_->productGetter(iter->second)):
+////              productGetter_):
     Ptr<PROD>(iter->second);
 }
 

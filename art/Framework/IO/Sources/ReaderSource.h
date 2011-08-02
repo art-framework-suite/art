@@ -40,13 +40,13 @@
 //
 // ======================================================================
 
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -59,6 +59,7 @@
 #include "cpp0x/algorithm"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <limits>
 
 // ----------------------------------------------------------------------
@@ -110,9 +111,9 @@ namespace art
     iter                   end_;
     input::ItemType        state_;
 
-    std::shared_ptr<RunPrincipal>    cachedRP_;
+    std::shared_ptr<RunPrincipal> cachedRP_;
     std::shared_ptr<SubRunPrincipal> cachedSRP_;
-    std::auto_ptr<EventPrincipal>      cachedE_;
+    std::auto_ptr<EventPrincipal> cachedE_;
 
     bool pendingSubRun_;
     bool pendingEvent_;

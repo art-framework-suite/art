@@ -7,16 +7,17 @@ RootOutputTree.h // used by ROOT output modules
 
 ----------------------------------------------------------------------*/
 
-#include "TTree.h"
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "cpp0x/memory"
+#include "art/Persistency/Provenance/ProductProvenance.h"
 #include "boost/noncopyable.hpp"
+#include "cpp0x/memory"
+
+#include <set>
 #include <string>
 #include <vector>
+
+#include "TTree.h"
 
 class TFile;
 class TBranch;
@@ -27,7 +28,7 @@ namespace art {
   public:
     // Constructor for trees with no fast cloning
     template <typename T>
-    RootOutputTree(T* , // first argument is a dummy so that the compiiler can resolve the match.
+    RootOutputTree(T* , // first argument is a dummy so that the compiler can resolve the match.
                    std::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    typename T::Auxiliary const*& pAux,

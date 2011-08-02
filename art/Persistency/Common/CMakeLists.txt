@@ -3,16 +3,15 @@ project(art_Persistency_Common)
 
 set(art_Persistency_Common_sources
   CacheStreamers.cc
+  DelayedReader.cc
   EDProduct.cc
   EDProductGetter.cc
   Group.cc
   GroupQueryResult.cc
-  InitRootHandlers.cc
   Provenance.cc
   PtrVectorBase.cc
   RNGsnapshot.cc
   RefCore.cc
-  RefCoreTransientStreamer.cc
   detail/setPtrVectorBaseStreamer.cc
   traits.cc
 )
@@ -33,6 +32,7 @@ install(FILES
   CacheStreamers.h
   CollectionUtilities.h
   ConstPtrCache.h
+  DelayedReader.h
   EDProduct.h
   EDProductGetter.h
   GetProduct.h
@@ -51,14 +51,12 @@ install(FILES
   PtrVectorBase.h
   RNGsnapshot.h
   RefCore.h
-  RefCoreTransientStreamer.h
   TriggerResults.h
   Wrapper.h
   debugging_allocator.h
   detail/setPtrVectorBaseStreamer.h
   fwd.h
   traits.h
-  InitRootHandlers.h
   DESTINATION  ${product}/${version}/include/art/Persistency/Common
 )
 

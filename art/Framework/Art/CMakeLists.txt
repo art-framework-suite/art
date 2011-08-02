@@ -7,6 +7,7 @@ foreach(cfg_source
 endforeach()
 
 set( art_Framework_Art_sources
+  InitRootHandlers.cc
   NovaConfigPostProcessor.cc
   artapp.cc
   find_config.cc
@@ -15,6 +16,15 @@ set( art_Framework_Art_sources
   )
 
 add_library(art_Framework_Art SHARED ${art_Framework_Art_sources} )
+target_link_libraries(art_Framework_Art
+  art_Framework_IO_Root
+  art_Framework_Core
+  art_Framework_Services_Registry
+  art_Persistency_Common
+  art_Persistency_Provenance
+  art_Utilities
+  )
+
 install ( TARGETS
   art_Framework_Art
   DESTINATION
@@ -92,3 +102,5 @@ add_executable( check_libs ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc )
 target_link_libraries( check_libs ${common_exec_link_libraries} )
 install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )
 
+install_headers()
+install_source()

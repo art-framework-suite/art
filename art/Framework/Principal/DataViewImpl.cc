@@ -159,9 +159,9 @@ namespace art {
     return it->second;
   }
 
-  EDProductGetter const*
-  DataViewImpl::prodGetter() const{
-    return principal_.prodGetter();
-  }
+////  EDProductGetter const*
+////  DataViewImpl::prodGetter() const{
+////    return principal_.prodGetter();
+////  }
 
 }  // art

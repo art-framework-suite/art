@@ -396,12 +396,17 @@ set(test_list
   TrigBits2_t
   TrigBits3_t
   TrigBits4_t
-  Unscheduled_01_t
-  Unscheduled_02_t
-  Unscheduled_04_t
-  Unscheduled_05_t
-  Unscheduled_06_t
 )
+
+if(ART_UNSCHEDULED_ENABLED) # Unscheduled logic needs to be moved into group.
+  set(test list ${test_list}
+    Unscheduled_01_t
+    Unscheduled_02_t
+    Unscheduled_04_t
+    Unscheduled_05_t
+    Unscheduled_06_t
+    )
+endif()
 
 # There were two more Unscheduled tests in FW that tested out-of-order
 # module specification, but that is moot if we require analyzers to be
@@ -417,26 +422,28 @@ foreach(test ${test_list})
     )
 endforeach()
 
-# Extra test properties
-foreach(n 1;4;5;6)
-  SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
-    PASS_REGULAR_EXPRESSION
-    "module for event:"
+if(ART_UNSCHEDULED_ENABLED) # Unscheduled logic needs to be moved into group.
+  # Extra test properties
+  foreach(n 1;4;5;6)
+    SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
+      PASS_REGULAR_EXPRESSION
+      "module for event:"
+      )
+  endforeach()
+
+  SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
+    WILL_FAIL true
     )
-endforeach()
 
-SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
-  WILL_FAIL true
-  )
-
-# This test is a little more complicated because we expect it to abort,
-# which is not covered by the WILL_FAIL test property.
-cet_test(Unscheduled_03_t HANDBUILT
-  TEST_EXEC test_must_abort
-  TEST_ARGS art -c "Unscheduled_03_t.fcl"
-  TEST_PROPERTIES PASS_REGULAR_EXPRESSION
-  "Assertion `handle.isValid\\\\\\\\(\\\\\\\\) == require_presence_' failed."
-  DATAFILES
-  fcl/Unscheduled_03_t.fcl
-  fcl/messageDefaults.fcl
-)
+  # This test is a little more complicated because we expect it to
+  # abort, which is not covered by the WILL_FAIL test property.
+  cet_test(Unscheduled_03_t HANDBUILT
+    TEST_EXEC test_must_abort
+    TEST_ARGS art -c "Unscheduled_03_t.fcl"
+    TEST_PROPERTIES PASS_REGULAR_EXPRESSION
+    "Assertion `handle.isValid\\\\\\\\(\\\\\\\\) == require_presence_' failed."
+    DATAFILES
+    fcl/Unscheduled_03_t.fcl
+    fcl/messageDefaults.fcl
+    )
+endif()

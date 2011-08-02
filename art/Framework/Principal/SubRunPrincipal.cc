@@ -9,7 +9,7 @@ namespace art {
   SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
                                    ProcessConfiguration const& pc,
                                    std::auto_ptr<BranchMapper> mapper,
-                                   std::shared_ptr<DelayedReader> rtrv) :
+                                   std::auto_ptr<DelayedReader> rtrv) :
     Principal(pc, aux.processHistoryID_, mapper, rtrv),
     runPrincipal_(),
     aux_(aux)
@@ -39,16 +39,8 @@ namespace art {
 
   void
   SubRunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
-                            BranchDescription const& bd,
-                            cet::exempt_ptr<ProductProvenance const> productProvenance) {
-    std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  SubRunPrincipal::addGroup(BranchDescription const& bd,
-                            cet::exempt_ptr<ProductProvenance const> productProvenance) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
+                            BranchDescription const& bd) {
+    std::auto_ptr<Group> g(new Group(prod, bd, ProductID()));
     addOrReplaceGroup(g);
   }
 
@@ -62,7 +54,8 @@ namespace art {
         << "put: Cannot put because auto_ptr to product is null."
         << "\n";
     }
-    this->addGroup(edp, bd, branchMapper().insert(productProvenance));
+    branchMapper().insert(productProvenance);
+    this->addGroup(edp, bd);
   }
 
   RunPrincipal const& SubRunPrincipal::runPrincipal() const {

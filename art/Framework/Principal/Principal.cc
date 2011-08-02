@@ -1,20 +1,21 @@
 #include "art/Framework/Principal/Principal.h"
 
-#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ProcessHistory.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/algorithm"
 #include "cpp0x/utility"
+
 #include <sstream>
 #include <stdexcept>
-
 
 using namespace cet;
 using namespace std;
@@ -25,14 +26,14 @@ namespace art {
   Principal::Principal(ProcessConfiguration const& pc,
                        ProcessHistoryID const& hist,
                        std::auto_ptr<BranchMapper> mapper,
-                       std::shared_ptr<DelayedReader> rtrv) :
-    EDProductGetter(),
+                       std::auto_ptr<DelayedReader> rtrv) :
+////    EDProductGetter(),
     processHistoryPtr_(std::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),
     groups_(),
     branchMapperPtr_(mapper.release()),
-    store_(rtrv)
+    store_(rtrv.release())
   {
     if (hist.isValid()) {
       assert(! ProcessHistoryRegistry::empty());
@@ -58,6 +59,7 @@ namespace art {
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
+    group->setResolvers(branchMapper(), *store_);
     SharedGroupPtr g(group);
     groups_.insert(make_pair(bd.branchID(), g));
   }
@@ -69,6 +71,7 @@ namespace art {
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
+    group->setResolvers(branchMapper(), *store_);
     SharedGroupPtr g(group);
     groups_[bd.branchID()]->replace(*g);
   }
@@ -107,32 +110,34 @@ namespace art {
   }
 
   Principal::SharedConstGroupPtr const
-  Principal::getGroup(BranchID const& bid, bool resolveProd, bool resolveProv, bool fillOnDemand) const {
+  Principal::getGroup(BranchID const& bid) const {
+    GroupCollection::const_iterator it = groups_.find(bid);
+    if (it == groups_.end()) {
+      return SharedConstGroupPtr();
+    } else {
+      return it->second;
+    }
+  }
+
+  Principal::SharedConstGroupPtr const
+  Principal::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
+    // FIXME: This reproduces the behavior of the original getGroup with
+    // resolveProv == false but I'm not sure this is correct in the face
+    // of an unavailable product.
     GroupCollection::const_iterator it = groups_.find(bid);
     if (it == groups_.end()) {
       return SharedConstGroupPtr();
     }
-    SharedConstGroupPtr const& g = it->second;
-    if (resolveProv) {
-      if(g->onDemand()) {
-         //must execute the unscheduled to get the provenance
-         this->resolveProduct(*g, true);
-         //check if this failed (say because of a caught exception)
-         if( 0 == g->product()) {
-            //behavior is the same as if the group wasn't there
-            return SharedConstGroupPtr();
-         }
-      }
-      g->resolveProvenance(*branchMapperPtr_);
+    SharedConstGroupPtr const& g(getGroup(bid));
+    if (g.get() &&
+        resolveProd &&
+        !g->resolveProductIfAvailable(fillOnDemand) &&
+        g->onDemand()) {
+      // Behavior is the same as if the group wasn't there.
+      return SharedConstGroupPtr();
+    } else {
+      return g;
     }
-    if (resolveProd && !g->productUnavailable()) {
-      this->resolveProduct(*g, fillOnDemand);
-      if(g->onDemand() && 0 == g->product()) {
-         //behavior is the same as if the group wasn't there
-         return SharedConstGroupPtr();
-      }
-    }
-    return g;
   }
 
   GroupQueryResult
@@ -251,7 +256,8 @@ namespace art {
     readProvenanceImmediate();
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if (!i->second->productUnavailable()) {
-        resolveProduct(*i->second, false);
+////        resolveProduct(*i->second, false);
+        i->second->resolveProduct(false);
       }
     }
   }
@@ -260,7 +266,8 @@ namespace art {
   Principal::readProvenanceImmediate() const {
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       if ( ! i->second->onDemand()) {
-        i->second->resolveProvenance(*branchMapperPtr_);
+        (void) i->second->productProvenancePtr();
+        //        i->second->resolveProvenance(*branchMapperPtr_);
       }
     }
     branchMapperPtr_->setDelayedRead(false);
@@ -334,7 +341,7 @@ namespace art {
     for (vector<BranchID>::const_iterator ib(vindex.begin()), ie(vindex.end());
          ib != ie;
          ++ib) {
-      SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
+      SharedConstGroupPtr const& group = getGroup(*ib);
       if(group.get() == 0) {
         continue;
       }
@@ -343,7 +350,8 @@ namespace art {
 
         // Skip product if not available.
         if (!group->productUnavailable()) {
-          this->resolveProduct(*group, true);
+////          this->resolveProduct(*group, true);
+          group->resolveProduct(true);
           // If the product is a dummy filler, group will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->productUnavailable() && !group->onDemand()) {
@@ -353,45 +361,44 @@ namespace art {
         }
       }
     }
-    return;
   }
 
-  void
-  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
-    if (g.productUnavailable()) {
-      throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
-        << "resolve_: product is not accessible\n"
-        << g.productDescription() << '\n'
-        << *g.productProvenancePtr() << '\n';
-    }
-
-    if (g.product()) return; // nothing to do.
-
-    // Try unscheduled production.
-    if (g.onDemand()) {
-      if (fillOnDemand) unscheduledFill(g.productDescription().moduleLabel());
-      return;
-    }
-
-    // must attempt to load from persistent store
-    BranchKey const bk = BranchKey(g.productDescription());
-    auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
-
-    // Now fix up the Group
-    g.setProduct(edp);
-  }
+////  void
+////  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
+////    if (g.productUnavailable()) {
+////      throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
+////        << "resolve_: product is not accessible\n"
+////        << g.productDescription() << '\n'
+////        << *g.productProvenancePtr() << '\n';
+////    }
+////
+////    if (g.product()) return; // nothing to do.
+////
+////    // Try unscheduled production.
+////    if (g.onDemand()) {
+////      if (fillOnDemand) unscheduledFill(g.productDescription().moduleLabel());
+////      return;
+////    }
+////
+////    // must attempt to load from persistent store
+////    BranchKey const bk = BranchKey(g.productDescription());
+////    auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
+////
+////    // Now fix up the Group
+////    g.setProduct(edp);
+////  }
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    SharedConstGroupPtr const& g = getGroup(bid, getProd, true, false);
-    if (g.get() == 0) {
+    SharedConstGroupPtr const &g = getGroup(bid, getProd, false);
+    if (!g) {
       return OutputHandle();
     }
     if (getProd && (g->product() == 0 || !g->product()->isPresent()) &&
             g->productDescription().present() &&
             g->productDescription().branchType() == InEvent &&
             productstatus::present(g->productProvenancePtr()->productStatus())) {
-        throw art::Exception(art::errors::LogicError, "Principal::getForOutput\n")
+        throw Exception(errors::LogicError, "Principal::getForOutput\n")
          << "A product with a status of 'present' is not actually present.\n"
             "The branch name is " << g->productDescription().branchName() << "\n"
             "Contact a framework developer.\n";
@@ -402,9 +409,9 @@ namespace art {
     return OutputHandle(g->product(), &g->productDescription(), g->productProvenancePtr());
   }
 
-  EDProduct const*
-  Principal::getIt(ProductID const& pid) const {
-    assert(0);
-    return 0;
-  }
+////  EDProduct const*
+////  Principal::getIt(ProductID const& pid) const {
+////    assert(0);
+////    return 0;
+////  }
 }

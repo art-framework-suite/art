@@ -77,7 +77,8 @@ void
                                     , end = e.end(); it != end; ++it ) {
     Group const & g = *(it->second);
     try {
-      e.resolveProduct(g, wantOnDemandProduction);
+////      e.resolveProduct(g, wantOnDemandProduction);
+      g.resolveProduct(wantOnDemandProduction);
       if( ! g.product() )
         throw "data corruption";
     }

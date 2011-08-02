@@ -26,6 +26,7 @@
 class TFile;
 
 namespace art {
+  class DelayedReader;
 
   class RootTree : private boost::noncopyable {
   public:
@@ -51,7 +52,7 @@ namespace art {
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
-    std::shared_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
+    std::auto_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
     std::auto_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
     template <typename T>

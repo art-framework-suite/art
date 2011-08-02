@@ -1,5 +1,11 @@
 #include "art/Framework/Core/PrincipalMaker.h"
 
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/RunAuxiliary.h"
+#include "art/Persistency/Provenance/SubRunAuxiliary.h"
+
 #include <cassert>
 
 art::PrincipalMaker::PrincipalMaker(ProcessConfiguration const& pc) :

@@ -1,17 +1,17 @@
 #ifndef art_Framework_IO_ProductMix_MixOp_h
 #define art_Framework_IO_ProductMix_MixOp_h
 
-#include "art/Framework/Principal/Event.h"
-#include "art/Persistency/Provenance/ProductList.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
-#include "art/Persistency/Common/RefCoreTransientStreamer.h"
-#include "art/Persistency/Provenance/BranchID.h"
-#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Framework/IO/Root/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/BranchID.h"
+#include "art/Persistency/Provenance/BranchKey.h"
+#include "art/Persistency/Provenance/ProductList.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Utilities/InputTag.h"
 #include "cpp0x/functional"
 
@@ -199,7 +199,7 @@ readFromFile(EntryNumberSequence const &seq) {
   initProductList(seq.size());
 
   // Make sure we don't have a ProductGetter set.
-  configureRefCoreTransientStreamer();
+  configureRefCoreStreamer();
 
   // Assume the seqenece is ordered per
   // MixHelper::generateEventSequence.

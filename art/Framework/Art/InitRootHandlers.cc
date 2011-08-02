@@ -1,8 +1,8 @@
 
-#include "art/Persistency/Common/InitRootHandlers.h"
+#include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
-#include "art/Persistency/Common/RefCoreTransientStreamer.h"
+#include "art/Framework/IO/Root/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
 #include "art/Utilities/Exception.h"
 
@@ -180,7 +180,7 @@ namespace art {
       setCacheStreamers();
       setProvenanceTransientStreamers();
       detail::setPtrVectorBaseStreamer();
-      configureRefCoreTransientStreamer();
+      configureRefCoreStreamer();
    }
 
 }  // art

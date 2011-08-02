@@ -8,13 +8,17 @@
 //
 // -----------------------------------------------------------------
 
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 namespace art
 {
+  class ProcessConfiguration;
+  class Timestamp;
+
   class PrincipalMaker
   {
   public:

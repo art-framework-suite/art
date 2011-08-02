@@ -17,7 +17,6 @@ namespace art {
 
   class ConfigurableInputSource;
   class CurrentProcessingContext;
-  class DelayedReader;
   class EDAnalyzer;
   class EDFilter;
   class EDLooper;

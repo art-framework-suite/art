@@ -23,7 +23,7 @@ namespace art {
                                  ProcessConfiguration const& pc,
                                  std::shared_ptr<History> history,
                                  std::auto_ptr<BranchMapper> mapper,
-                                 std::shared_ptr<DelayedReader> rtrv) :
+                                 std::auto_ptr<DelayedReader> rtrv) :
   Principal(pc, history->processHistoryID(), mapper, rtrv),
   aux_(aux),
   subRunPrincipal_(),
@@ -31,6 +31,7 @@ namespace art {
   moduleLabelsRunning_(),
   history_(history),
   branchToProductIDHelper_() {
+    productReader().setGroupFinder(cet::exempt_ptr<EventPrincipal const>(this));
     if (ProductMetaData::instance().productProduced(InEvent)) {
       addToProcessHistory();
       // Add index into BranchIDListRegistry for products produced this process
@@ -106,16 +107,8 @@ namespace art {
 
   void
   EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
-         BranchDescription const& bd,
-         cet::exempt_ptr<ProductProvenance const> productProvenance) {
-    auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID()), productProvenance));
-    addOrReplaceGroup(g);
-  }
-
-  void
-  EventPrincipal::addGroup(BranchDescription const& bd,
-         cet::exempt_ptr<ProductProvenance const> productProvenance) {
-    auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID()), productProvenance));
+         BranchDescription const& bd) {
+    auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID())));
     addOrReplaceGroup(g);
   }
 
@@ -133,7 +126,8 @@ namespace art {
       throw art::Exception(art::errors::InsertFailure,"Null Product ID")
         << "put: Cannot put product with null Product ID.\n";
     }
-    this->addGroup(edp, bd, branchMapper().insert(productProvenance));
+    branchMapper().insert(productProvenance);
+    this->addGroup(edp, bd);
   }
 
   BranchID
@@ -179,33 +173,42 @@ namespace art {
   }
 
   GroupQueryResult
-  EventPrincipal::getByProductID(ProductID const& pid) const {
+  EventPrincipal::getGroup(ProductID const &pid) const {
     BranchID bid = productIDToBranchID(pid);
-    SharedConstGroupPtr const& g = getGroup(bid, true, true, true);
-    if (g.get() == 0) {
-      std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
-      *whyFailed
-        << "get by product ID: no product with given id: "<< pid << "\n";
-      return GroupQueryResult(whyFailed);
-    }
-
-    // Check for case where we tried on demand production and
-    // it failed to produce the object
-    if (g->onDemand()) {
-      std::shared_ptr<cet::exception> whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
-      *whyFailed
-        << "get by product ID: no product with given id: " << pid << "\n"
-        << "onDemand production failed to produce it.\n";
-      return GroupQueryResult(whyFailed);
-    }
-    else
+    SharedConstGroupPtr const& g = getGroup(bid);
+    if (g.get()) {
       return GroupQueryResult(g.get());
+    } else {
+      std::shared_ptr<cet::exception>
+        whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
+      *whyFailed
+        << "getGroup: no product with given product id: "<< pid << "\n";
+      return GroupQueryResult(whyFailed);
+    }
   }
 
-  EDProduct const *
-  EventPrincipal::getIt(ProductID const& pid) const {
-    return getByProductID(pid).result()->product();
+  GroupQueryResult
+  EventPrincipal::getByProductID(ProductID const& pid) const {
+    // FIXME: This reproduces the logic of the old version of the
+    // function, but I'm not sure it does the *right* thing in the face
+    // of an unavailable product or other rare failure.
+    BranchID bid = productIDToBranchID(pid);
+    SharedConstGroupPtr const &g(getGroup(bid, true, true));
+    if (!g) {
+      std::shared_ptr<cet::exception>
+        whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );
+      *whyFailed
+        << "getGroup: no product with given product id: "<< pid << "\n";
+      return GroupQueryResult(whyFailed);
+    } else {
+      return GroupQueryResult(g.get());
+    }
   }
+
+////  EDProduct const *
+////  EventPrincipal::getIt(ProductID const& pid) const {
+////    return getByProductID(pid).result()->product();
+////  }
 
   void
   EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
@@ -232,11 +235,11 @@ namespace art {
     if (i != moduleLabelsRunning_.end()) {
       throw art::Exception(errors::LogicError)
         << "Hit circular dependency while trying to run an unscheduled module.\n"
-        << "Current implementation of unscheduled execution cannot always determine\n"
-        << "the proper order for module execution.  It is also possible the modules\n"
-        << "have a built in circular dependence that will not work with any order.\n"
-        << "In the first case, scheduling some or all required modules in paths will help.\n"
-        << "In the second case, the modules themselves will have to be fixed.\n";
+           "Current implementation of unscheduled execution cannot always determine\n"
+           "the proper order for module execution.  It is also possible the modules\n"
+           "have a built in circular dependence that will not work with any order.\n"
+           "In the first case, scheduling some or all required modules in paths will help.\n"
+           "In the second case, the modules themselves will have to be fixed.\n";
     }
 
     moduleLabelsRunning_.push_back(moduleLabel);

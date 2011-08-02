@@ -22,7 +22,8 @@ bool
     return productPtr() != 0
         || (    id_.isValid()
              && productGetter() != 0
-             && productGetter()->getIt(id_) != 0
+////             && productGetter()->getIt(id_) != 0
+             && productGetter()->getIt() != 0
            );
 }  // RefCore::isAvailable()
 
@@ -58,7 +59,8 @@ EDProduct const *
          "modified to establish a functioning EDProductGetter for the\n"
          "context in which this call is made.\n";
   }
-  return productGetter()->getIt(id_);
+////  return productGetter()->getIt(id_);
+  return productGetter()->getIt();
 }  // RefCore::getProductPtr()
 
 void

@@ -1,0 +1,8 @@
+#include "art/Persistency/Common/DelayedReader.h"
+
+art::DelayedReader::~DelayedReader() {}
+
+void
+art::DelayedReader::
+setGroupFinder_(cet::exempt_ptr<EventPrincipal const> ep) {
+}

@@ -9,7 +9,7 @@ using art::RunPrincipal;
 RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
                            ProcessConfiguration const& pc,
                            std::auto_ptr<BranchMapper> mapper,
-                           std::shared_ptr<DelayedReader> rtrv) :
+                           std::auto_ptr<DelayedReader> rtrv) :
   Principal(pc, aux.processHistoryID_, mapper, rtrv),
   aux_(aux) {
   if (ProductMetaData::instance().productProduced(InRun)) {
@@ -38,16 +38,8 @@ RunPrincipal::addGroup(BranchDescription const& bd) {
 
 void
 RunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
-                       BranchDescription const& bd,
-                       cet::exempt_ptr<ProductProvenance const> productProvenance) {
-  std::auto_ptr<Group> g(new Group(prod, bd, ProductID(), productProvenance));
-  addOrReplaceGroup(g);
-}
-
-void
-RunPrincipal::addGroup(BranchDescription const& bd,
-                       cet::exempt_ptr<ProductProvenance const> productProvenance) {
-  std::auto_ptr<Group> g(new Group(bd, ProductID(), productProvenance));
+                       BranchDescription const& bd) {
+  std::auto_ptr<Group> g(new Group(prod, bd, ProductID()));
   addOrReplaceGroup(g);
 }
 
@@ -60,7 +52,8 @@ RunPrincipal::put(std::auto_ptr<EDProduct> edp,
       << "put: Cannot put because auto_ptr to product is null."
       << "\n";
   }
-  this->addGroup(edp, bd, branchMapper().insert(productProvenance));
+  branchMapper().insert(productProvenance);
+  this->addGroup(edp, bd);
 }
 
 void

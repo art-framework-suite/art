@@ -64,14 +64,14 @@
 // ======================================================================
 
 #include "art/Framework/Core/Actions.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OccurrenceTraits.h"
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Principal/UnscheduledHandler.h"
 #include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/UnscheduledHandler.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
@@ -85,6 +85,7 @@
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include <map>
 #include <set>
 #include <string>

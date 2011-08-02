@@ -13,34 +13,28 @@
 // ======================================================================
 
 #include "art/Framework/Principal/fwd.h"
+
 #include <string>
 
-namespace art {
-
-  class UnscheduledHandler
-  {
-  public:
+class art::UnscheduledHandler {
+public:
   UnscheduledHandler() {}
-    virtual ~UnscheduledHandler() {}
+  virtual ~UnscheduledHandler() {}
 
-    //returns true if found an EDProducer and ran it
-    bool tryToFill(std::string const& label,
-                   EventPrincipal& iEvent) {
-      return tryToFillImpl(label, iEvent);
-    }
+  // Returns true if found an EDProducer and ran it.
+  bool tryToFill(std::string const& label,
+                 EventPrincipal& iEvent) {
+    return tryToFillImpl(label, iEvent);
+  }
 
-  private:
-    UnscheduledHandler(UnscheduledHandler const&); // stop default
+private:
+  UnscheduledHandler(UnscheduledHandler const&); // stop default
 
-    const UnscheduledHandler& operator=(UnscheduledHandler const&); // stop default
+  const UnscheduledHandler& operator=(UnscheduledHandler const&); // stop default
 
-    virtual bool tryToFillImpl(std::string const&,
-                                EventPrincipal&) = 0;
-  };  // UnscheduledHandler
-
-}  // art
-
-// ======================================================================
+  virtual bool tryToFillImpl(std::string const&,
+                             EventPrincipal&) = 0;
+};  // UnscheduledHandler
 
 #endif /* art_Framework_Principal_UnscheduledHandler_h */
 

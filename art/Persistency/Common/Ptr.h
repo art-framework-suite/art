@@ -15,6 +15,7 @@
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
+#include "cetlib/demangle.h"
 #include "cpp0x/cstddef"
 #include "cpp0x/type_traits"
 #include <list>
@@ -137,11 +138,12 @@ namespace art
 
     void getData_() const {
       if (!hasCache()) {
-        const EDProduct* prod = productGetter()?productGetter()->getIt(core_.id()):0;
+////        const EDProduct* prod = productGetter()?productGetter()->getIt(core_.id()):0;
+        const EDProduct* prod = productGetter()?productGetter()->getIt():0;
         if (prod == 0) {
           art::Exception e(errors::ProductNotFound);
           e << "A request to resolve an art::Ptr to a product containing items of type: "
-            << typeid(T).name()
+            << cet::demangle_symbol(typeid(T).name())
             << " with ProductID "
             << core_.id()
             << "\ncannot be satisfied because the product cannot be found.\n";

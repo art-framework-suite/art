@@ -1,6 +1,5 @@
 set(art_Framework_Principal_sources
   DataViewImpl.cc
-  DelayedReader.cc
   Event.cc
   EventPrincipal.cc
   NoDelayedReader.cc

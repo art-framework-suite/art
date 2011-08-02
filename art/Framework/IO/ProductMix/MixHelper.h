@@ -111,15 +111,12 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "CLHEP/Random/RandFlat.h"
-#include "Rtypes.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixContainerTypes.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
@@ -129,15 +126,19 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/fwd.h"
-
 #include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "cpp0x/functional"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <string>
 #include <vector>
+
+#include "Rtypes.h"
+#include "TFile.h"
+#include "TTree.h"
 
 namespace art {
   class MixHelper;

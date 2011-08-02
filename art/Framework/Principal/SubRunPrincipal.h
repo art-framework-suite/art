@@ -12,85 +12,79 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
+
 #include <vector>
 
-namespace art {
-  class RunPrincipal;
-  class UnscheduledHandler;
-  class SubRunPrincipal : public Principal {
-  public:
-    typedef SubRunAuxiliary Auxiliary;
+class art::SubRunPrincipal : public art::Principal {
+public:
+  typedef SubRunAuxiliary Auxiliary;
 
-    SubRunPrincipal(SubRunAuxiliary const& aux,
-                    ProcessConfiguration const& pc,
-                    std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-                    std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
+  SubRunPrincipal(SubRunAuxiliary const& aux,
+                  ProcessConfiguration const& pc,
+                  std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
+                  std::auto_ptr<DelayedReader> rtrv = std::auto_ptr<DelayedReader>(new NoDelayedReader));
 
-    ~SubRunPrincipal() {}
+  ~SubRunPrincipal() {}
 
-    RunPrincipal const& runPrincipal() const;
+  RunPrincipal const& runPrincipal() const;
 
-    RunPrincipal & runPrincipal();
+  RunPrincipal & runPrincipal();
 
-    std::shared_ptr<RunPrincipal>
-    runPrincipalSharedPtr() { return runPrincipal_; }
+  std::shared_ptr<RunPrincipal>
+  runPrincipalSharedPtr() { return runPrincipal_; }
 
-    void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
+  void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
 
-    SubRunID id() const { return aux().id(); }
+  SubRunID id() const { return aux().id(); }
 
-    Timestamp const& beginTime() const { return aux().beginTime(); }
+  Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    Timestamp const& endTime() const { return aux().endTime(); }
+  Timestamp const& endTime() const { return aux().endTime(); }
 
-    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
+  void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-    SubRunNumber_t subRun() const { return aux().subRun(); }
+  SubRunNumber_t subRun() const { return aux().subRun(); }
 
-    SubRunAuxiliary const& aux() const { return aux_; }
+  SubRunAuxiliary const& aux() const { return aux_; }
 
-    RunNumber_t run() const { return aux().run(); }
+  RunNumber_t run() const { return aux().run(); }
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
+  void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
 
-    void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
+  void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
 
-    void put(std::auto_ptr<EDProduct> edp,
-             BranchDescription const& bd,
-             std::auto_ptr<ProductProvenance const> productProvenance);
+  void put(std::auto_ptr<EDProduct> edp,
+           BranchDescription const& bd,
+           std::auto_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(BranchDescription const& bd);
+  void addGroup(BranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod,
-                  BranchDescription const& bd,
-                  cet::exempt_ptr<ProductProvenance const> productProvenance);
+  void addGroup(std::auto_ptr<EDProduct> prod,
+                BranchDescription const& bd);
 
-    void addGroup(BranchDescription const& bd,
-                  cet::exempt_ptr<ProductProvenance const> productProvenance);
+  BranchType branchType() const { return InSubRun; }
 
-    BranchType branchType() const { return InSubRun; }
+private:
+  virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-  private:
-    virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
+  virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
-    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
+  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
-    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
+  virtual bool unscheduledFill(std::string const&) const {return false;}
 
-    virtual bool unscheduledFill(std::string const&) const {return false;}
-
-    std::shared_ptr<RunPrincipal> runPrincipal_;
-    SubRunAuxiliary aux_;
-  };
-
-}  // art
+  std::shared_ptr<RunPrincipal> runPrincipal_;
+  SubRunAuxiliary aux_;
+};
 
 #endif /* art_Framework_Principal_SubRunPrincipal_h */
 

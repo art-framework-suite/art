@@ -96,12 +96,12 @@ void arttest::MixProducer::produce(art::Event &e) {
     pvd(new art::PtrVector<double>());
   pvd->reserve(3);
   art::ProductID collID(getProductID<std::vector<double> >(e, "doubleCollectionLabel"));
-  vpd->push_back(art::Ptr<double>(collID, 0, e.productGetter()));
-  vpd->push_back(art::Ptr<double>(collID, 4, e.productGetter()));
-  vpd->push_back(art::Ptr<double>(collID, 8, e.productGetter()));
-  pvd->push_back(art::Ptr<double>(collID, 1, e.productGetter()));
-  pvd->push_back(art::Ptr<double>(collID, 5, e.productGetter()));
-  pvd->push_back(art::Ptr<double>(collID, 9, e.productGetter()));
+  vpd->push_back(art::Ptr<double>(collID, 0, e.productGetter(collID)));
+  vpd->push_back(art::Ptr<double>(collID, 4, e.productGetter(collID)));
+  vpd->push_back(art::Ptr<double>(collID, 8, e.productGetter(collID)));
+  pvd->push_back(art::Ptr<double>(collID, 1, e.productGetter(collID)));
+  pvd->push_back(art::Ptr<double>(collID, 5, e.productGetter(collID)));
+  pvd->push_back(art::Ptr<double>(collID, 9, e.productGetter(collID)));
   std::auto_ptr<ProductWithPtrs>
     pwp(new ProductWithPtrs(
 #ifndef ART_NO_MIX_PTRVECTOR
@@ -125,11 +125,11 @@ void arttest::MixProducer::produce(art::Event &e) {
   std::auto_ptr<std::vector<art::Ptr<mvv_t> > > mvvp(new std::vector<art::Ptr<mvv_t> >);
   mvvp->reserve(mv_size);
   art::ProductID mvID(getProductID<mv_t>(e, "mapVectorLabel"));
-  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 7, e.productGetter()));
-  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 1, e.productGetter()));
-  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 3, e.productGetter()));
-  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 9, e.productGetter()));
-  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 5, e.productGetter()));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 7, e.productGetter(mvID)));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 1, e.productGetter(mvID)));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 3, e.productGetter(mvID)));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 9, e.productGetter(mvID)));
+  mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 5, e.productGetter(mvID)));
 
   e.put(mvvp, "intVectorPtrLabel");
   e.put(mv, "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.

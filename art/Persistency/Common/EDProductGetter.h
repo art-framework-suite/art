@@ -28,7 +28,8 @@ namespace art {
       EDProductGetter();
       virtual ~EDProductGetter();
 
-      virtual EDProduct const* getIt(ProductID const&) const = 0;
+      ////virtual EDProduct const* getIt(ProductID const&) const = 0;
+      virtual EDProduct const* getIt() const = 0;
 
       //Helper class to make the EDProductGetter accessible on at the proper times
       class Operate {

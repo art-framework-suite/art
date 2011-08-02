@@ -20,74 +20,69 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/PtrVector.h"
 
-namespace art
+template <class T>
+class art::View  {
+public:
+  typedef std::vector<T const*> collection_type;
+
+  View() : vals_(), id_(), prod_(0) { }
+  collection_type&       vals()       { return vals_; }
+  collection_type const& vals() const { return vals_; }
+
+  // return true if this view has been populated, and false if it
+  // has not.
+  bool isValid() const { return prod_ != 0; }
+
+  // Fill the given PtrVector<T> to refer to the same elements as
+  // the View does. It is only safe to call this if isValid() is
+  // true.
+  void fill(PtrVector<T>& pv) const;
+
+  // Conversion operators
+  operator collection_type& ()             { return vals_; }
+  operator collection_type const& () const { return vals_; }
+
+private:
+  typedef T const*              value_type;
+
+  collection_type  vals_; // we do not own the pointed-to elements
+  ProductID        id_;
+  EDProduct const* prod_; // we do not own the product
+
+  friend class Event;
+  void set_innards(ProductID const& id, EDProduct const* p);
+};
+
+template <class T>
+void
+art::View<T>::fill(PtrVector<T>& pv) const
 {
-  template <class T>
-  class View
-  {
-  public:
-    typedef std::vector<T const*> collection_type;
-
-    View() : vals_(), id_(), prod_(0) { }
-    collection_type&       vals()       { return vals_; }
-    collection_type const& vals() const { return vals_; }
-
-    // return true if this view has been populated, and false if it
-    // has not.
-    bool isValid() const { return prod_ != 0; }
-
-    // Fill the given PtrVector<T> to refer to the same elements as
-    // the View does. It is only safe to call this if isValid() is
-    // true.
-    void fill(PtrVector<T>& pv) const;
-
-    // Conversion operators
-    operator collection_type& ()             { return vals_; }
-    operator collection_type const& () const { return vals_; }
-
-  private:
-    typedef T const*              value_type;
-
-    collection_type  vals_; // we do not own the pointed-to elements
-    ProductID        id_;
-    EDProduct const* prod_; // we do not own the product
-
-    friend class Event;
-    void set_innards(ProductID const& id, EDProduct const* p);
-  };
-
-  template <class T>
-  void
-  View<T>::fill(PtrVector<T>& pv) const
-  {
-    std::vector<void const*> addresses;
-    prod_->fillView(addresses);
-    // Go through the pointers in vals_, look up each one in
-    // addresses, and create the Ptr for each element.
-    // TODO: optimize this loop
-    typename collection_type::const_iterator vals_begin = vals_.begin();
-    typename collection_type::const_iterator vals_end = vals_.end();
-    for (size_t i = 0, sz = addresses.size(); i != sz; ++i)
-      {
-	if (std::find(vals_begin, vals_end, addresses[i]) != vals_end)
-	  {
-	    T const* p = reinterpret_cast<T const*>(addresses[i]);
-	    pv.push_back(Ptr<T>(id_,  const_cast<T*>(p), i));
-	  }
-      }
-  }
-
-  template <class T>
-  inline
-  void
-  View<T>::set_innards(ProductID const& id,
-		       EDProduct const* p)
-  {
-    id_ = id;
-    prod_ = p;
-  }
+  std::vector<void const*> addresses;
+  prod_->fillView(addresses);
+  // Go through the pointers in vals_, look up each one in
+  // addresses, and create the Ptr for each element.
+  // TODO: optimize this loop
+  typename collection_type::const_iterator vals_begin = vals_.begin();
+  typename collection_type::const_iterator vals_end = vals_.end();
+  for (size_t i = 0, sz = addresses.size(); i != sz; ++i)
+    {
+      if (std::find(vals_begin, vals_end, addresses[i]) != vals_end)
+        {
+          T const* p = reinterpret_cast<T const*>(addresses[i]);
+          pv.push_back(Ptr<T>(id_,  const_cast<T*>(p), i));
+        }
+    }
 }
 
+template <class T>
+inline
+void
+art::View<T>::set_innards(ProductID const& id,
+                          EDProduct const* p)
+{
+  id_ = id;
+  prod_ = p;
+}
 
 #endif /* art_Framework_Principal_View_h */
 

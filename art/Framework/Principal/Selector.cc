@@ -28,11 +28,11 @@ namespace art
   void
   Selector::swap(Selector& other)
   {
-    std::swap(sel_, other.sel_);
+    using std::swap;
+    swap(sel_, other.sel_);
   }
 
-  // We set sel_ = 0 to help diagnose memory overwrites.
-  Selector::~Selector() { delete sel_; sel_ = 0; }
+  Selector::~Selector() { }
 
   Selector*
   Selector::clone() const

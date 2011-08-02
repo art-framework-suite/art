@@ -12,71 +12,66 @@ is the DataBlock.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
+
 #include <vector>
 
-namespace art {
-  class UnscheduledHandler;
-  class RunPrincipal : public Principal {
-  public:
-    typedef RunAuxiliary Auxiliary;
+class art::RunPrincipal : public art::Principal {
+public:
+  typedef RunAuxiliary Auxiliary;
 
-    RunPrincipal(RunAuxiliary const& aux,
-                 ProcessConfiguration const& pc,
-                 std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-                 std::shared_ptr<DelayedReader> rtrv = std::shared_ptr<DelayedReader>(new NoDelayedReader));
-    ~RunPrincipal() {}
+  RunPrincipal(RunAuxiliary const& aux,
+               ProcessConfiguration const& pc,
+               std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
+               std::auto_ptr<DelayedReader> rtrv = std::auto_ptr<DelayedReader>(new NoDelayedReader));
+  ~RunPrincipal() {}
 
-    RunAuxiliary const& aux() const { return aux_; }
+  RunAuxiliary const& aux() const { return aux_; }
 
-    RunNumber_t run() const { return aux().run(); }
+  RunNumber_t run() const { return aux().run(); }
 
-    RunID const& id() const { return aux().id(); }
+  RunID const& id() const { return aux().id(); }
 
-    Timestamp const& beginTime() const { return aux().beginTime(); }
+  Timestamp const& beginTime() const { return aux().beginTime(); }
 
-    Timestamp const& endTime() const { return aux().endTime(); }
+  Timestamp const& endTime() const { return aux().endTime(); }
 
-    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
+  void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) { }
+  void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) { }
 
-    void mergeRun(std::shared_ptr<RunPrincipal> rp);
+  void mergeRun(std::shared_ptr<RunPrincipal> rp);
 
-    void put(std::auto_ptr<EDProduct> edp,
-             BranchDescription const& bd,
-             std::auto_ptr<ProductProvenance const> productProvenance);
+  void put(std::auto_ptr<EDProduct> edp,
+           BranchDescription const& bd,
+           std::auto_ptr<ProductProvenance const> productProvenance);
 
-    void addGroup(BranchDescription const& bd);
+  void addGroup(BranchDescription const& bd);
 
-    void addGroup(std::auto_ptr<EDProduct> prod,
-                  BranchDescription const& bd,
-                  cet::exempt_ptr<ProductProvenance const> productProvenance);
+  void addGroup(std::auto_ptr<EDProduct> prod,
+                BranchDescription const& bd);
 
-    void addGroup(BranchDescription const& bd,
-                  cet::exempt_ptr<ProductProvenance const> productProvenance);
+  BranchType branchType() const { return InRun; }
 
-    BranchType branchType() const { return InRun; }
+private:
 
-  private:
+  virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-    virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
+  virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
-    virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
+  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
-    virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
+  virtual bool unscheduledFill(std::string const&) const {return false;}
 
-    virtual bool unscheduledFill(std::string const&) const {return false;}
-
-    RunAuxiliary aux_;
-  };
-
-}  // art
+  RunAuxiliary aux_;
+};
 
 #endif /* art_Framework_Principal_RunPrincipal_h */
 

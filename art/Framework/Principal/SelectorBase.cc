@@ -15,10 +15,4 @@ namespace art
   //------------------------------------------------------------------
   SelectorBase::~SelectorBase()
   { }
-
-  bool
-  SelectorBase::match(BranchDescription const& p) const
-  {
-    return doMatch(p);
-  }
 }

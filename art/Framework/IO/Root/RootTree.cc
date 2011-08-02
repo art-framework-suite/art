@@ -97,9 +97,9 @@ namespace art {
       }
   }
 
-  std::shared_ptr<DelayedReader>
+  std::auto_ptr<DelayedReader>
   RootTree::makeDelayedReader(bool oldFormat) const {
-    std::shared_ptr<DelayedReader>
+    std::auto_ptr<DelayedReader>
         store(new RootDelayedReader(entryNumber_, branches_, filePtr_, oldFormat));
     return store;
   }

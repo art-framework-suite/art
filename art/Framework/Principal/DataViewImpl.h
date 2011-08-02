@@ -62,285 +62,280 @@
 #include "art/Utilities/TypeID.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
+
+#include "boost/noncopyable.hpp"
+
 #include <ostream>
 #include <string>
 #include <vector>
 
-// ----------------------------------------------------------------------
-
 namespace art {
+  template <typename PROD>
+  std::ostream&
+  operator<<(std::ostream& os, Handle<PROD> const& h);
+}
 
-  class DataViewImpl {
-  public:
-    DataViewImpl(Principal & pcpl,
-                 ModuleDescription const& md,
-                 BranchType const& branchType);
+class art::DataViewImpl : boost::noncopyable {
+public:
+  DataViewImpl(Principal & pcpl,
+               ModuleDescription const& md,
+               BranchType const& branchType);
 
-    ~DataViewImpl();
+  ~DataViewImpl();
 
-    size_t size() const;
-
-    template <typename PROD>
-    bool
-    get(SelectorBase const&, Handle<PROD>& result) const;
-
-    template <typename PROD>
-    bool
-    getByLabel(std::string const& label, Handle<PROD>& result) const;
-
-    template <typename PROD>
-    bool
-    getByLabel(std::string const& label,
-               std::string const& productInstanceName,
-               Handle<PROD>& result) const;
-
-    /// same as above, but using the InputTag class
-    template <typename PROD>
-    bool
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-
-    template <typename PROD>
-    void
-    getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
-
-    template <typename PROD>
-    void
-    getManyByType(std::vector<Handle<PROD> >& results) const;
-
-    ProcessHistory const&
-    processHistory() const;
-
-    DataViewImpl const&
-    me() const {return *this;}
-
-    typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
-  protected:
-
-    Principal & principal() {return principal_;}
-    Principal const& principal() const {return principal_;}
-
-    ProductPtrVec & putProducts() {return putProducts_;}
-    ProductPtrVec const& putProducts() const {return putProducts_;}
-
-    ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
-    ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
-
-    BranchDescription const&
-    getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
-
-    typedef std::vector<GroupQueryResult>  GroupQueryResultVec;
-
-    //------------------------------------------------------------
-    // Protected functions.
-    //
-
-    // The following 'get' functions serve to isolate the DataViewImpl class
-    // from the Principal class.
-
-    GroupQueryResult
-    get_(TypeID const& tid, SelectorBase const&) const;
-
-    GroupQueryResult
-    getByLabel_(TypeID const& tid,
-                std::string const& label,
-                std::string const& productInstanceName,
-                std::string const& processName) const;
-
-    void
-    getMany_(TypeID const& tid,
-             SelectorBase const& sel,
-             GroupQueryResultVec& results) const;
-
-    void
-    getManyByType_(TypeID const& tid,
-                   GroupQueryResultVec& results) const;
-
-    int
-    getMatchingSequence_(TypeID const& typeID,
-                         SelectorBase const& selector,
-                         GroupQueryResultVec& results,
-                         bool stopIfProcessHasMatch) const;
-
-    int
-    getMatchingSequenceByLabel_(TypeID const& typeID,
-                                std::string const& label,
-                                std::string const& productInstanceName,
-                                GroupQueryResultVec& results,
-                                bool stopIfProcessHasMatch) const;
-
-    int
-    getMatchingSequenceByLabel_(TypeID const& typeID,
-                                std::string const& label,
-                                std::string const& productInstanceName,
-                                std::string const& processName,
-                                GroupQueryResultVec& results,
-                                bool stopIfProcessHasMatch) const;
-
-  protected:
-    // Also isolates the DataViewImpl class
-    // from the Principal class.
-    EDProductGetter const* prodGetter() const;
-  private:
-    //------------------------------------------------------------
-    // Copying and assignment of DataViewImpls is disallowed
-    //
-    DataViewImpl(DataViewImpl const&);                  // not implemented
-    DataViewImpl const& operator=(DataViewImpl const&);   // not implemented
-
-  private:
-    //------------------------------------------------------------
-    // Data members
-    //
-
-    // putProducts_ and putProductsWithoutParents_ are the holding
-    // pens for EDProducts inserted into this DataViewImpl. Pointers
-    // in these collections own the products to which they point.
-    //
-    ProductPtrVec putProducts_;               // keep parentage info for these
-    ProductPtrVec putProductsWithoutParents_; // ... but not for these
-
-    // Each DataViewImpl must have an associated Principal, used as the
-    // source of all 'gets' and the target of 'puts'.
-    Principal & principal_;
-
-    // Each DataViewImpl must have a description of the module executing the
-    // "transaction" which the DataViewImpl represents.
-    ModuleDescription const& md_;
-
-    // Is this an Event, a SubRun, or a Run.
-    BranchType const branchType_;
-  };
+  size_t size() const;
 
   template <typename PROD>
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, Handle<PROD> const& h)
-  {
-    os << h.product() << " " << h.provenance() << " " << h.id();
-    return os;
-  }
+  bool
+  get(SelectorBase const&, Handle<PROD>& result) const;
 
-  // Implementation of  DataViewImpl  member templates. See  DataViewImpl.cc for the
-  // implementation of non-template members.
+  template <typename PROD>
+  bool
+  getByLabel(std::string const& label, Handle<PROD>& result) const;
+
+  template <typename PROD>
+  bool
+  getByLabel(std::string const& label,
+             std::string const& productInstanceName,
+             Handle<PROD>& result) const;
+
+  /// same as above, but using the InputTag class
+  template <typename PROD>
+  bool
+  getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+
+  template <typename PROD>
+  void
+  getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
+
+  template <typename PROD>
+  void
+  getManyByType(std::vector<Handle<PROD> >& results) const;
+
+  ProcessHistory const&
+  processHistory() const;
+
+  DataViewImpl const&
+  me() const {return *this;}
+
+  typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
+protected:
+
+  Principal & principal() {return principal_;}
+  Principal const& principal() const {return principal_;}
+
+  ProductPtrVec & putProducts() {return putProducts_;}
+  ProductPtrVec const& putProducts() const {return putProducts_;}
+
+  ProductPtrVec & putProductsWithoutParents() {return putProductsWithoutParents_;}
+  ProductPtrVec const& putProductsWithoutParents() const {return putProductsWithoutParents_;}
+
+  BranchDescription const&
+  getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
+
+  typedef std::vector<GroupQueryResult>  GroupQueryResultVec;
+
+  //------------------------------------------------------------
+  // Protected functions.
   //
 
-  template <typename PROD>
-  inline
-  bool
-  DataViewImpl::get(SelectorBase const& sel,
-                    Handle<PROD>& result) const
-  {
-    result.clear();
-    GroupQueryResult bh = this->get_(TypeID(typeid(PROD)),sel);
-    convert_handle(bh, result);
-    return bh.succeeded();
-  }
+  // The following 'get' functions serve to isolate the DataViewImpl class
+  // from the Principal class.
 
-  template <typename PROD>
-  inline
-  bool
-  DataViewImpl::getByLabel(std::string const& label,
-                           Handle<PROD>& result) const
-  {
-    return getByLabel(label, std::string(), result);
-  }
+  GroupQueryResult
+  get_(TypeID const& tid, SelectorBase const&) const;
 
-  template <typename PROD>
-  inline
-  bool
-  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
-  {
-    result.clear();
-    GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
-    convert_handle(bh, result);
-    return bh.succeeded();
-  }
+  GroupQueryResult
+  getByLabel_(TypeID const& tid,
+              std::string const& label,
+              std::string const& productInstanceName,
+              std::string const& processName) const;
 
-  template <typename PROD>
-  inline
-  bool
-  DataViewImpl::getByLabel(std::string const& label,
-                           std::string const& productInstanceName,
-                           Handle<PROD>& result) const
-  {
-    result.clear();
-    GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
-    convert_handle(bh, result);
-    return bh.succeeded();
-  }
-
-  template <typename PROD>
-  inline
   void
-  DataViewImpl::getMany(SelectorBase const& sel,
-                        std::vector<Handle<PROD> >& results) const
-  {
-    GroupQueryResultVec bhv;
-    this->getMany_(TypeID(typeid(PROD)), sel, bhv);
+  getMany_(TypeID const& tid,
+           SelectorBase const& sel,
+           GroupQueryResultVec& results) const;
 
-    // Go through the returned handles; for each element,
-    //   1. create a Handle<PROD> and
-    //
-    // This function presents an exception safety difficulty. If an
-    // exception is thrown when converting a handle, the "got
-    // products" record will be wrong.
-    //
-    // Since EDProducers are not allowed to use this function,
-    // the problem does not seem too severe.
-    //
-    // Question: do we even need to keep track of the "got products"
-    // for this function, since it is *not* to be used by EDProducers?
-    std::vector<Handle<PROD> > products;
-
-    typename GroupQueryResultVec::const_iterator it = bhv.begin();
-    typename GroupQueryResultVec::const_iterator end = bhv.end();
-
-    while (it != end) {
-      Handle<PROD> result;
-      convert_handle(*it, result);  // throws on conversion error
-      products.push_back(result);
-      ++it;
-    }
-    results.swap(products);
-  }
-
-  template <typename PROD>
-  inline
   void
-  DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
-  {
-    GroupQueryResultVec bhv;
-    this->getManyByType_(TypeID(typeid(PROD)), bhv);
+  getManyByType_(TypeID const& tid,
+                 GroupQueryResultVec& results) const;
 
-    // Go through the returned handles; for each element,
-    //   1. create a Handle<PROD> and
-    //
-    // This function presents an exception safety difficulty. If an
-    // exception is thrown when converting a handle, the "got
-    // products" record will be wrong.
-    //
-    // Since EDProducers are not allowed to use this function,
-    // the problem does not seem too severe.
-    //
-    // Question: do we even need to keep track of the "got products"
-    // for this function, since it is *not* to be used by EDProducers?
-    std::vector<Handle<PROD> > products;
+  int
+  getMatchingSequence_(TypeID const& typeID,
+                       SelectorBase const& selector,
+                       GroupQueryResultVec& results,
+                       bool stopIfProcessHasMatch) const;
 
-    typename GroupQueryResultVec::const_iterator it = bhv.begin();
-    typename GroupQueryResultVec::const_iterator end = bhv.end();
+  int
+  getMatchingSequenceByLabel_(TypeID const& typeID,
+                              std::string const& label,
+                              std::string const& productInstanceName,
+                              GroupQueryResultVec& results,
+                              bool stopIfProcessHasMatch) const;
 
-    while (it != end) {
-      Handle<PROD> result;
-      convert_handle(*it, result);  // throws on conversion error
-      products.push_back(result);
-      ++it;
-    }
-    results.swap(products);
+  int
+  getMatchingSequenceByLabel_(TypeID const& typeID,
+                              std::string const& label,
+                              std::string const& productInstanceName,
+                              std::string const& processName,
+                              GroupQueryResultVec& results,
+                              bool stopIfProcessHasMatch) const;
+
+protected:
+  // Also isolates the DataViewImpl class
+  // from the Principal class.
+  EDProductGetter const* prodGetter() const;
+
+private:
+  //------------------------------------------------------------
+  // Data members
+  //
+
+  // putProducts_ and putProductsWithoutParents_ are the holding
+  // pens for EDProducts inserted into this DataViewImpl. Pointers
+  // in these collections own the products to which they point.
+  //
+  ProductPtrVec putProducts_;               // keep parentage info for these
+  ProductPtrVec putProductsWithoutParents_; // ... but not for these
+
+  // Each DataViewImpl must have an associated Principal, used as the
+  // source of all 'gets' and the target of 'puts'.
+  Principal & principal_;
+
+  // Each DataViewImpl must have a description of the module executing the
+  // "transaction" which the DataViewImpl represents.
+  ModuleDescription const& md_;
+
+  // Is this an Event, a SubRun, or a Run.
+  BranchType const branchType_;
+};
+
+template <typename PROD>
+inline
+std::ostream&
+art::operator<<(std::ostream& os, Handle<PROD> const& h)
+{
+  os << h.product() << " " << h.provenance() << " " << h.id();
+  return os;
+}
+
+// Implementation of  DataViewImpl  member templates. See  DataViewImpl.cc for the
+// implementation of non-template members.
+//
+
+template <typename PROD>
+inline
+bool
+art::DataViewImpl::get(SelectorBase const& sel,
+                       Handle<PROD>& result) const
+{
+  result.clear();
+  GroupQueryResult bh = this->get_(TypeID(typeid(PROD)),sel);
+  convert_handle(bh, result);
+  return bh.succeeded();
+}
+
+template <typename PROD>
+inline
+bool
+art::DataViewImpl::getByLabel(std::string const& label,
+                         Handle<PROD>& result) const
+{
+  return getByLabel(label, std::string(), result);
+}
+
+template <typename PROD>
+inline
+bool
+art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
+{
+  result.clear();
+  GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), tag.label(), tag.instance(), tag.process());
+  convert_handle(bh, result);
+  return bh.succeeded();
+}
+
+template <typename PROD>
+inline
+bool
+art::DataViewImpl::getByLabel(std::string const& label,
+                         std::string const& productInstanceName,
+                         Handle<PROD>& result) const
+{
+  result.clear();
+  GroupQueryResult bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
+  convert_handle(bh, result);
+  return bh.succeeded();
+}
+
+template <typename PROD>
+inline
+void
+art::DataViewImpl::getMany(SelectorBase const& sel,
+                           std::vector<Handle<PROD> >& results) const
+{
+  GroupQueryResultVec bhv;
+  this->getMany_(TypeID(typeid(PROD)), sel, bhv);
+
+  // Go through the returned handles; for each element,
+  //   1. create a Handle<PROD> and
+  //
+  // This function presents an exception safety difficulty. If an
+  // exception is thrown when converting a handle, the "got
+  // products" record will be wrong.
+  //
+  // Since EDProducers are not allowed to use this function,
+  // the problem does not seem too severe.
+  //
+  // Question: do we even need to keep track of the "got products"
+  // for this function, since it is *not* to be used by EDProducers?
+  std::vector<Handle<PROD> > products;
+
+  typename GroupQueryResultVec::const_iterator it = bhv.begin();
+  typename GroupQueryResultVec::const_iterator end = bhv.end();
+
+  while (it != end) {
+    Handle<PROD> result;
+    convert_handle(*it, result);  // throws on conversion error
+    products.push_back(result);
+    ++it;
   }
+  results.swap(products);
+}
 
-}  // art
+template <typename PROD>
+inline
+void
+art::DataViewImpl::getManyByType(std::vector<Handle<PROD> >& results) const
+{
+  GroupQueryResultVec bhv;
+  this->getManyByType_(TypeID(typeid(PROD)), bhv);
 
-// ======================================================================
+  // Go through the returned handles; for each element,
+  //   1. create a Handle<PROD> and
+  //
+  // This function presents an exception safety difficulty. If an
+  // exception is thrown when converting a handle, the "got
+  // products" record will be wrong.
+  //
+  // Since EDProducers are not allowed to use this function,
+  // the problem does not seem too severe.
+  //
+  // Question: do we even need to keep track of the "got products"
+  // for this function, since it is *not* to be used by EDProducers?
+  std::vector<Handle<PROD> > products;
+
+  typename GroupQueryResultVec::const_iterator it = bhv.begin();
+  typename GroupQueryResultVec::const_iterator end = bhv.end();
+
+  while (it != end) {
+    Handle<PROD> result;
+    convert_handle(*it, result);  // throws on conversion error
+    products.push_back(result);
+    ++it;
+  }
+  results.swap(products);
+}
 
 #endif /* art_Framework_Principal_DataViewImpl_h */
 
