@@ -1,0 +1,22 @@
+process_name: DOI
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../Ptrmv_w.d/out.root" ]
+  inputCommands: [ "keep *", "drop Stringart::Ptr_*__PtrmvW" ]
+}
+
+physics:
+{
+  analyzers:
+  {
+    a1:
+    {
+      module_type: DropOnInputTestAnalyzer
+      input_label: ptrmvWriter
+    }
+  }
+  e1: [ a1 ]
+  end_paths: [ e1 ]
+}

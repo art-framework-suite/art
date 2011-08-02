@@ -9,6 +9,7 @@ simple_plugin(BareStringProducer       "module" NOINSTALL )
 simple_plugin(DerivedPtrVectorProducer "module" NOINSTALL )
 simple_plugin(DoubleProducer           "module" NOINSTALL )
 simple_plugin(DoubleTestAnalyzer       "module" NOINSTALL )
+simple_plugin(DropOnInputTestAnalyzer  "module" NOINSTALL )
 simple_plugin(FailingAnalyzer          "module" NOINSTALL )
 simple_plugin(FailingProducer          "module" NOINSTALL )
 simple_plugin(IntProducer              "module" NOINSTALL )
@@ -358,6 +359,25 @@ cet_test(Assns_r HANDBUILT
 )
 
 SET_TESTS_PROPERTIES(Assns_r PROPERTIES DEPENDS Assns_w)
+
+cet_test(DropOnInput_null_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "DropOnInput_null_t.fcl"
+  DATAFILES
+  fcl/DropOnInput_null_t.fcl
+  fcl/DropOnInput_t.fcl
+  TEST_PROPERTIES WILL_FAIL true
+)
+
+cet_test(DropOnInput_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "DropOnInput_t.fcl"
+  DATAFILES
+  fcl/DropOnInput_t.fcl
+)
+
+SET_TESTS_PROPERTIES(DropOnInput_null_t PROPERTIES DEPENDS Ptrmv_w)
+SET_TESTS_PROPERTIES(DropOnInput_t PROPERTIES DEPENDS Ptrmv_w)
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
