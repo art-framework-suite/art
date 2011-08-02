@@ -1,0 +1,3 @@
+#include "DropOnInput_t.fcl"
+
+source.inputCommands: [ "keep *" ]

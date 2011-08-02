@@ -274,8 +274,8 @@ sub impl_boilerplate(\$) {
     $$i_b = `cat \"$f\"`;
   } elsif ($ENV{ARTMOD_IMPL_BOILERPLATE}) {
     $$i_b = `cat \"$ENV{ARTMOD_IMPL_BOILERPLATE}\"`;
-  } else {
-    $$i_b = "";
+  } elsif ($options->{split}) {
+    $$i_b = $default_boilerplate;
   }
   ins_vals($i_b);
 }
