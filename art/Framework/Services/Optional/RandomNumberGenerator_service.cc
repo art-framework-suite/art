@@ -53,7 +53,7 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"

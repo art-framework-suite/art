@@ -9,10 +9,10 @@
   can be kept for each worker.
 */
 
-#include "art/Framework/Core/CurrentProcessingContext.h"
-#include "art/Framework/Core/OccurrenceTraits.h"
-#include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/CurrentProcessingContext.h"
+#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Persistency/Common/HLTenums.h"
 #include "art/Persistency/Common/TriggerResults.h"

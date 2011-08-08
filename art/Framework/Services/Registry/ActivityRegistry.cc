@@ -7,82 +7,52 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #undef AR_IMPL
 
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "art/Persistency/Provenance/EventID.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/Provenance/SubRunID.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/algorithm"
-#include "messagefacility/MessageLogger/MessageLoggerQ.h"
+#include "cpp0x/functional"
 
+namespace {
+  template<class T>
+  static
+  inline
+  void
+  copySlotsToFrom(T& iTo, T& iFrom)
+  {
+    typename T::slot_list_type slots = iFrom.slots();
 
-using namespace cet;
-using namespace std;
+    cet::for_all(slots, std::bind( &T::connect, iTo, _1) );
+  }
 
+  template<class T>
+  static
+  inline
+  void
+  copySlotsToFromReverse(T& iTo, T& iFrom)
+  {
+    // This handles service slots that are supposed to be in reverse
+    // order of construction. Copying new ones in is a little
+    // tricky.  Here is an example of what follows
+    // slots in iTo before  4 3 2 1  and copy in slots in iFrom 8 7 6 5
+    // reverse both  1 2 3 4  plus 5 6 7 8
+    // then do the copy 1 2 3 4 5 6 7 8
+    // then reverse back again to get the desired order
+    // 8 7 6 5 4 3 2 1
 
-//
-// member functions
-//
-art::ActivityRegistry::ActivityRegistry()
-   :
-   programStatus_(),
-   workFlowStatus_(),
-   md_(*mf::MessageDrop::instance()),
-   mls_(*(mf::MessageFacilityService::instance().theML.get()))
- {
-   AR_WATCH_UPDATER(PostBeginJob);
-   AR_WATCH_UPDATER(PostEndJob);
-   AR_WATCH_UPDATER(JobFailure);
-   AR_WATCH_UPDATER(PreSource);
-   AR_WATCH_UPDATER(PostSource);
-   AR_WATCH_UPDATER(PreSourceSubRun);
-   AR_WATCH_UPDATER(PostSourceSubRun);
-   AR_WATCH_UPDATER(PreSourceRun);
-   AR_WATCH_UPDATER(PostSourceRun);
-   AR_WATCH_UPDATER(PreOpenFile);
-   AR_WATCH_UPDATER(PostOpenFile);
-   AR_WATCH_UPDATER(PreCloseFile);
-   AR_WATCH_UPDATER(PostCloseFile);
-   AR_WATCH_UPDATER(PreProcessEvent);
-   AR_WATCH_UPDATER(PostProcessEvent);
-   AR_WATCH_UPDATER(PreBeginRun);
-   AR_WATCH_UPDATER(PostBeginRun);
-   AR_WATCH_UPDATER(PreEndRun);
-   AR_WATCH_UPDATER(PostEndRun);
-   AR_WATCH_UPDATER(PreBeginSubRun);
-   AR_WATCH_UPDATER(PostBeginSubRun);
-   AR_WATCH_UPDATER(PreEndSubRun);
-   AR_WATCH_UPDATER(PostEndSubRun);
-   AR_WATCH_UPDATER(PreProcessPath);
-   AR_WATCH_UPDATER(PostProcessPath);
-   AR_WATCH_UPDATER(PrePathBeginRun);
-   AR_WATCH_UPDATER(PostPathBeginRun);
-   AR_WATCH_UPDATER(PrePathEndRun);
-   AR_WATCH_UPDATER(PostPathEndRun);
-   AR_WATCH_UPDATER(PrePathBeginSubRun);
-   AR_WATCH_UPDATER(PostPathBeginSubRun);
-   AR_WATCH_UPDATER(PrePathEndSubRun);
-   AR_WATCH_UPDATER(PostPathEndSubRun);
-   AR_WATCH_UPDATER(PreModuleConstruction);
-   AR_WATCH_UPDATER(PostModuleConstruction);
-   //   AR_WATCH_UPDATER(PostBeginJobWorkers); // Nothing to do.
-   AR_WATCH_UPDATER(PreModuleBeginJob);
-   AR_WATCH_UPDATER(PostModuleBeginJob);
-   AR_WATCH_UPDATER(PreModuleEndJob);
-   AR_WATCH_UPDATER(PostModuleEndJob);
-   AR_WATCH_UPDATER(PreModule);
-   AR_WATCH_UPDATER(PostModule);
-   AR_WATCH_UPDATER(PreModuleBeginRun);
-   AR_WATCH_UPDATER(PostModuleBeginRun);
-   AR_WATCH_UPDATER(PreModuleEndRun);
-   AR_WATCH_UPDATER(PostModuleEndRun);
-   AR_WATCH_UPDATER(PreModuleBeginSubRun);
-   AR_WATCH_UPDATER(PostModuleBeginSubRun);
-   AR_WATCH_UPDATER(PreModuleEndSubRun);
-   AR_WATCH_UPDATER(PostModuleEndSubRun);
+    typename T::slot_list_type slotsFrom = iFrom.slots();
+    typename T::slot_list_type slotsTo   = iTo.slots();
+
+    std::reverse(slotsTo.begin(), slotsTo.end());
+    std::reverse(slotsFrom.begin(), slotsFrom.end());
+
+    cet::for_all(slotsFrom, std::bind( &T::connect, iTo, _1) );
+
+    std::reverse(slotsTo.begin(), slotsTo.end());
+
+    // Be nice and put these back in the state they were
+    // at the beginning
+    std::reverse(slotsFrom.begin(), slotsFrom.end());
+  }
+
 }
 
 void
@@ -165,47 +135,6 @@ art::ActivityRegistry::connect(ActivityRegistry& iOther)
    postModuleEndJobSignal_.connect(iOther.postModuleEndJobSignal_);
 }
 
-template<class T>
-static
-inline
-void
-copySlotsToFrom(T& iTo, T& iFrom)
-{
-  typename T::slot_list_type slots = iFrom.slots();
-
-  for_all(slots, std::bind( &T::connect, iTo, _1) );
-}
-
-template<class T>
-static
-inline
-void
-copySlotsToFromReverse(T& iTo, T& iFrom)
-{
-  // This handles service slots that are supposed to be in reverse
-  // order of construction. Copying new ones in is a little
-  // tricky.  Here is an example of what follows
-  // slots in iTo before  4 3 2 1  and copy in slots in iFrom 8 7 6 5
-  // reverse both  1 2 3 4  plus 5 6 7 8
-  // then do the copy 1 2 3 4 5 6 7 8
-  // then reverse back again to get the desired order
-  // 8 7 6 5 4 3 2 1
-
-  typename T::slot_list_type slotsFrom = iFrom.slots();
-  typename T::slot_list_type slotsTo   = iTo.slots();
-
-  reverse(slotsTo.begin(), slotsTo.end());
-  reverse(slotsFrom.begin(), slotsFrom.end());
-
-  for_all(slotsFrom, std::bind( &T::connect, iTo, _1) );
-
-  reverse(slotsTo.begin(), slotsTo.end());
-
-  // Be nice and put these back in the state they were
-  // at the beginning
-  reverse(slotsFrom.begin(), slotsFrom.end());
-}
-
 void
 art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
 {
@@ -284,320 +213,4 @@ art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFromReverse(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
 
   copySlotsToFromReverse(postBeginJobWorkersSignal_,iOther.postBeginJobWorkersSignal_);
-}
-
-void art::ActivityRegistry::setContext(std::string const &ps) {
-   programStatus_ = ps;
-   savedEnabledState_ = mls_.setContext(ps);
-}
-
-void art::ActivityRegistry::setMinimalContext(std::string const &ps) {
-   programStatus_ = ps;
-   mls_.setMinimalContext(ps);
-}
-
-void art::ActivityRegistry::setContext(art::ModuleDescription const &desc) {
-   programStatus_ = moduleIDString(desc);
-   savedEnabledState_ = mls_.setContext(programStatus_, desc.moduleLabel());
-}
-
-void art::ActivityRegistry::setContext(art::ModuleDescription const &desc,
-                                       std::string const &phase) {
-   programStatus_ = moduleIDString(desc, phase);
-   savedEnabledState_ = mls_.setContext(programStatus_, desc.moduleLabel());
-}
-
-void art::ActivityRegistry::restoreContext(art::ModuleDescription const &desc) {
-   programStatus_ = moduleIDString(desc);
-   if (savedEnabledState_.isValid()) {
-      mls_.setContext(programStatus_, savedEnabledState_);
-      savedEnabledState_.reset();
-   } else {
-      // When we have a full set of watchpoints, we should probably throw
-      // here.
-      savedEnabledState_ = mls_.setContext(programStatus_);
-   }
-}
-
-void art::ActivityRegistry::restoreContext(art::ModuleDescription const &desc,
-                                           std::string const &phase) {
-   programStatus_ = moduleIDString(desc, phase);
-   if (savedEnabledState_.isValid()) {
-      mls_.setContext(programStatus_, savedEnabledState_);
-      savedEnabledState_.reset();
-   } else {
-      // When we have a full set of watchpoints, we should probably throw
-      // here.
-      savedEnabledState_ = mls_.setContext(programStatus_);
-   }
-}
-
-void art::ActivityRegistry::restoreContext(std::string const &ps) {
-   programStatus_ = ps;
-   if (savedEnabledState_.isValid()) {
-      mls_.setContext(ps, savedEnabledState_);
-      savedEnabledState_.reset();
-   } else {
-      // When we have a full set of watchpoints, we should probably throw
-      // here.
-      savedEnabledState_ = mls_.setContext(ps);
-   }
-}
-
-void art::ActivityRegistry::setWorkFlowStatus(std::string wfs) {
-   workFlowStatus_ = wfs;
-   md_.runEvent = wfs;
-}
-
-std::string
-art::ActivityRegistry::moduleIDString(const ModuleDescription &desc) {
-   string result = desc.moduleName();
-   result += ":";
-   result += desc.moduleLabel();
-   return result;
-}
-
-std::string
-art::ActivityRegistry::moduleIDString(const ModuleDescription &desc,
-                                       std::string const &suffix) {
-   string result = desc.moduleName();
-   result += ":";
-   result += desc.moduleLabel();
-   result += "@";
-   result += suffix;
-   return result;
-}
-
-AR_0_ARG_UPDATER_DEFN(PostBeginJob) {
-   setContext("PostBeginJob");
-   setWorkFlowStatus("BeforeEvents");
-}
-
-AR_0_ARG_UPDATER_DEFN(PostEndJob) {
-   mf::MessageLoggerQ::MLqSUM();
-}
-
-AR_0_ARG_UPDATER_DEFN(JobFailure) {
-   setContext("JobFailure");
-   mf::MessageLoggerQ::MLqSUM();
-}
-
-AR_0_ARG_UPDATER_DEFN(PreSource) {
-   setContext("Source");
-}
-
-AR_0_ARG_UPDATER_DEFN(PostSource) {
-   restoreContext("PostSource");
-}
-
-AR_0_ARG_UPDATER_DEFN(PreSourceSubRun) {
-   setContext("SourceSubRun");
-}
-
-AR_0_ARG_UPDATER_DEFN(PostSourceSubRun) {
-   restoreContext("PostSourceSubRun");
-}
-
-AR_0_ARG_UPDATER_DEFN(PreSourceRun) {
-   setContext("SourceRun");
-}
-
-AR_0_ARG_UPDATER_DEFN(PostSourceRun) {
-   restoreContext("PostSourceRun");
-}
-
-AR_0_ARG_UPDATER_DEFN(PreOpenFile) {
-   setContext("OpenFile");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostOpenFile) {
-   restoreContext("PostOpenFile");
-}
-
-AR_0_ARG_UPDATER_DEFN(PreCloseFile) {
-   setContext("CloseFile");
-}
-
-AR_0_ARG_UPDATER_DEFN(PostCloseFile) {
-   restoreContext("PostCloseFile");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreProcessEvent) {
-   std::ostringstream os;
-   os << arg1.id();
-   setWorkFlowStatus(os.str());
-}
-
-AR_1_ARG_UPDATER_DEFN(PostProcessEvent) {
-   setWorkFlowStatus("PostProcessEvent");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreBeginRun) {
-   std::ostringstream os;
-   os << arg1.id();
-   setWorkFlowStatus(os.str());
-}
-
-AR_1_ARG_UPDATER_DEFN(PostBeginRun) {
-   setWorkFlowStatus("PostBeginRun");
-}
-
-AR_2_ARG_UPDATER_DEFN(PreEndRun) {
-   std::stringstream os;
-   os << "End " << arg1;
-   setWorkFlowStatus(os.str());
-}
-
-AR_1_ARG_UPDATER_DEFN(PostEndRun) {
-   setWorkFlowStatus("PostEndRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreBeginSubRun) {
-   std::ostringstream os;
-   os << arg1.id();
-   setWorkFlowStatus(os.str());
-}
-
-AR_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
-   setWorkFlowStatus("PostBeginSubRun");
-}
-
-AR_2_ARG_UPDATER_DEFN(PreEndSubRun) {
-   std::ostringstream os;
-   os << "End Subrun " << arg1;
-   setWorkFlowStatus(os.str());
-}
-
-AR_1_ARG_UPDATER_DEFN(PostEndSubRun) {
-   setWorkFlowStatus("PostEndSubRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreProcessPath) {
-   string context = "ProcessPath ";
-   context += arg1;
-   setContext(context);
-}
-
-AR_2_ARG_UPDATER_DEFN(PostProcessPath) {
-   string context = "PostProcessPath ";
-   context += arg1;
-   restoreContext(context);
-}
-
-AR_1_ARG_UPDATER_DEFN(PrePathBeginRun) {
-   string context = "PathBeginRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_2_ARG_UPDATER_DEFN(PostPathBeginRun) {
-   string context = "PostPathBeginRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_1_ARG_UPDATER_DEFN(PrePathEndRun) {
-   string context = "PathEndRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_2_ARG_UPDATER_DEFN(PostPathEndRun) {
-   string context = "PostPathEndRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_1_ARG_UPDATER_DEFN(PrePathBeginSubRun) {
-   string context = "PathBeginSubRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_2_ARG_UPDATER_DEFN(PostPathBeginSubRun) {
-   string context = "PostPathBeginSubRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_1_ARG_UPDATER_DEFN(PrePathEndSubRun) {
-   string context = "PathEndSubRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_2_ARG_UPDATER_DEFN(PostPathEndSubRun) {
-   string context = "PostPathEndSubRun ";
-   context += arg1;
-   setMinimalContext(context);
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleConstruction) {
-   setContext(arg1, "Construction");
-   setWorkFlowStatus("ModuleConstruction");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleConstruction) {
-   restoreContext(arg1, "Construction");
-}
-
-AR_2_ARG_UPDATER_DEFN(PostBeginJobWorkers) {
-   throw cet::exception("InternalError")
-      << "NOP: do not call";
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleBeginJob) {
-   setContext(arg1, "BeginJob");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleBeginJob) {
-   restoreContext(arg1, "BeginJob");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleEndJob) {
-   setContext(arg1, "EndJob");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleEndJob) {
-   restoreContext(arg1, "EndJob");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModule) {
-   setContext(arg1);
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModule) {
-   restoreContext(arg1);
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleBeginRun) {
-   setContext(arg1, "BeginRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleBeginRun) {
-   restoreContext(arg1, "BeginRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleEndRun) {
-   setContext(arg1, "EndRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleEndRun) {
-   restoreContext(arg1, "EndRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleBeginSubRun) {
-   setContext(arg1, "BeginSubRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleBeginSubRun) {
-   restoreContext(arg1, "BeginSubRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PreModuleEndSubRun) {
-   setContext(arg1, "EndSubRun");
-}
-
-AR_1_ARG_UPDATER_DEFN(PostModuleEndSubRun) {
-   restoreContext(arg1, "EndSubRun");
 }

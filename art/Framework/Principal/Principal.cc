@@ -124,10 +124,6 @@ namespace art {
     // FIXME: This reproduces the behavior of the original getGroup with
     // resolveProv == false but I'm not sure this is correct in the face
     // of an unavailable product.
-    GroupCollection::const_iterator it = groups_.find(bid);
-    if (it == groups_.end()) {
-      return SharedConstGroupPtr();
-    }
     SharedConstGroupPtr const& g(getGroup(bid));
     if (g.get() &&
         resolveProd &&
@@ -350,7 +346,6 @@ namespace art {
 
         // Skip product if not available.
         if (!group->productUnavailable()) {
-////          this->resolveProduct(*group, true);
           group->resolveProduct(true);
           // If the product is a dummy filler, group will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
@@ -362,31 +357,6 @@ namespace art {
       }
     }
   }
-
-////  void
-////  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
-////    if (g.productUnavailable()) {
-////      throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
-////        << "resolve_: product is not accessible\n"
-////        << g.productDescription() << '\n'
-////        << *g.productProvenancePtr() << '\n';
-////    }
-////
-////    if (g.product()) return; // nothing to do.
-////
-////    // Try unscheduled production.
-////    if (g.onDemand()) {
-////      if (fillOnDemand) unscheduledFill(g.productDescription().moduleLabel());
-////      return;
-////    }
-////
-////    // must attempt to load from persistent store
-////    BranchKey const bk = BranchKey(g.productDescription());
-////    auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
-////
-////    // Now fix up the Group
-////    g.setProduct(edp);
-////  }
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
@@ -409,9 +379,4 @@ namespace art {
     return OutputHandle(g->product(), &g->productDescription(), g->productProvenancePtr());
   }
 
-////  EDProduct const*
-////  Principal::getIt(ProductID const& pid) const {
-////    assert(0);
-////    return 0;
-////  }
 }

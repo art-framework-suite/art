@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/BranchActionType.h"
+#include "art/Framework/Principal/BranchActionType.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"

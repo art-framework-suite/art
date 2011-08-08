@@ -98,12 +98,11 @@ namespace art
     all_output_workers_(),
     trig_paths_(),
     end_paths_(),
+    demand_branches_(),
     wantSummary_(tns.wantSummary()),
     total_events_(),
     total_passed_(),
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
-    unscheduled_(new UnscheduledCallProducer),
-    demandBranches_(),
     endpathsAreActive_(true)
   {
      ParameterSet services(pset_.get<ParameterSet>("services", ParameterSet()));
@@ -152,7 +151,6 @@ namespace art
                     back_inserter(unusedLabels));
      //does the configuration say we should allow on demand?
      bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
-     set<string> unscheduledLabels;
      if(!unusedLabels.empty())
         {
            ParameterSet empty;
@@ -166,7 +164,7 @@ namespace art
            // 2) if it is a WorkerT<EDProducer>, add it to our list
            // 3) hand list to our delayed reader
            vstring  shouldBeUsedLabels;
-
+           OnDemandWorkers onDemandWorkers;
            for(vstring::iterator
                   itLabel = unusedLabels.begin(),
                   itLabelEnd = unusedLabels.end();
@@ -190,10 +188,10 @@ namespace art
                        if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
                            dynamic_cast<WorkerT<EDFilter>*>(newWorker) )
                           {
-                             unscheduledLabels.insert(*itLabel);
-                             unscheduled_->addWorker(newWorker);
-                             // add to list so it gets reset each new event
-                             addToAllWorkers(newWorker);
+                            onDemandWorkers.
+                              push_back(cet::exempt_ptr<Worker>(newWorker));
+                            // add to list so it gets reset each new event
+                            addToAllWorkers(newWorker);
                           }
                        else
                           {
@@ -208,6 +206,13 @@ namespace art
                        shouldBeUsedLabels.push_back(*itLabel);
                     }
               }
+
+           if (allowUnscheduled) {
+             BranchesByModuleLabel branchLookup;
+             fillBranchLookup(pregistry.productList(), branchLookup);
+             catalogOnDemandBranches(onDemandWorkers, branchLookup);
+           }
+
            if (!shouldBeUsedLabels.empty())
               {
                  ostringstream unusedStream;
@@ -248,13 +253,6 @@ namespace art
      limitOutput();
 
      pregistry.setFrozen();
-
-     if (allowUnscheduled)
-        {
-           // Now that these have been set, we can create the list of
-           // Branches we need for the 'on demand.'
-          catalogOnDemandBranches(unscheduledLabels, pregistry);
-        }
 
      // Test path invariants.
      pathConsistencyCheck(all_workers_count);
@@ -922,14 +920,20 @@ namespace art
     if (!search_all(all_workers_, w)) all_workers_.push_back(w);
   }
 
+  // FIXME: This can work with generic Principals just as soon as the
+  // metadata can handle (or obviate) a BranchID <-> ProductID
+  // conversion for all principal types.
   void
-  Schedule::setupOnDemandSystem(EventPrincipal& ep) {
-    ep.setUnscheduledHandler(unscheduled_);
-    typedef vector<cet::exempt_ptr<BranchDescription const> > branches;
-    for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
+  Schedule::setupOnDemandSystem(EventPrincipal &p) {
+    BranchType b(p.branchType());
+    for(OnDemandBranches::const_iterator
+          itBranch = demand_branches_.begin(),
+          itBranchEnd = demand_branches_.end();
         itBranch != itBranchEnd;
         ++itBranch) {
-      ep.addOnDemandGroup(**itBranch);
+      if (itBranch->second->branchType() == b) {
+        p.addOnDemandGroup(*itBranch->second, itBranch->first);
+      }
     }
   }
 
@@ -952,19 +956,39 @@ namespace art
     return ptr;
   }
 
-  void Schedule::catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels, MasterProductRegistry &pregistry) {
-    ProductList const& prodsList = pregistry.productList();
-    typename std::set<std::string>::const_iterator const ul_end = unscheduledLabels.end();
+  void Schedule::fillBranchLookup(ProductList const &pList,
+                                  BranchesByModuleLabel &branchLookup) const {
     for (ProductList::const_iterator
-           itProdInfo = prodsList.begin(),
-           itProdInfoEnd = prodsList.end();
-         itProdInfo != itProdInfoEnd;
-         ++itProdInfo) {
-      if (processName_ == itProdInfo->second.processName() &&
-          itProdInfo->second.branchType() == InEvent &&
-          ul_end != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-        demandBranches_.push_back(cet::exempt_ptr<BranchDescription const>(&itProdInfo->second));
-      }
+           i = pList.begin(),
+           e = pList.end();
+         i != e;
+         ++i) {
+      branchLookup.insert(std::make_pair(i->second.moduleLabel(),
+                                         cet::exempt_ptr<BranchDescription const>(&i->second)));
+    }
+  }
+
+  void Schedule::catalogOnDemandBranches(OnDemandWorkers const &odw,
+                                         BranchesByModuleLabel const &branchLookup) {
+    cet::for_all(odw,
+                 std::bind
+                 (&Schedule::catalogOneOnDemandWorker,
+                  this,
+                  std::placeholders::_1,
+                  branchLookup));
+  }
+
+  void Schedule::catalogOneOnDemandWorker(cet::exempt_ptr<Worker> wp,
+                                          BranchesByModuleLabel const &branchLookup) {
+    BranchesByModuleLabel::const_iterator
+      lb(branchLookup.lower_bound(wp->label())),
+      e(branchLookup.end()),
+      ub(branchLookup.upper_bound(wp->label()));
+    if (lb == ub) return; // This worker produces nothing.
+    for (BranchesByModuleLabel::const_iterator i = lb;
+         i != ub;
+         ++i) {
+      demand_branches_.insert(std::make_pair(wp, i->second));
     }
   }
 

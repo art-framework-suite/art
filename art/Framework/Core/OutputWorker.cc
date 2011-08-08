@@ -4,7 +4,7 @@
 ----------------------------------------------------------------------*/
 
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Framework/Core/WorkerParams.h"
+#include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Core/OutputWorker.h"
 
 namespace art {

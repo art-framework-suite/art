@@ -17,7 +17,7 @@
 #include "art/Persistency/Provenance/Timestamp.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/RunID.h"
-#include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/InputSource.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 

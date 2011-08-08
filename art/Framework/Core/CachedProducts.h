@@ -14,7 +14,7 @@
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "cpp0x/utility"
 #include <string>

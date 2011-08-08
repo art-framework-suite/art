@@ -13,7 +13,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"

@@ -7,7 +7,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "cpp0x/memory"
@@ -57,7 +57,7 @@ PtrVectorProducer::produce( art::Event& e )
 
   std::auto_ptr<product_t> prod( new product_t );
   for( int k = 0; k != 8; ++k ) {
-    art::Ptr<int> p(h, 7-k, true);
+    art::Ptr<int> p(h, 7-k);
     prod->push_back(p);
   }
   prod->sort();

@@ -9,6 +9,7 @@
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "test/TestObjects/AssnTestData.h"

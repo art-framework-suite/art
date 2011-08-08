@@ -70,9 +70,8 @@ public:
 
   RunPrincipal & runPrincipal();
 
-  void addOnDemandGroup(BranchDescription const& desc);
-
-  void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler);
+  void addOnDemandGroup(BranchDescription const& desc,
+                        cet::exempt_ptr<Worker> worker);
 
   EventSelectionIDVector const& eventSelectionIDs() const;
 
@@ -109,15 +108,8 @@ private:
 
   virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return history().setProcessHistoryID(phid);}
 
-  virtual bool unscheduledFill(std::string const& moduleLabel) const;
-
   EventAuxiliary aux_;
   std::shared_ptr<SubRunPrincipal> subRunPrincipal_;
-
-  // Handler for unscheduled modules
-  std::shared_ptr<UnscheduledHandler> unscheduledHandler_;
-
-  mutable std::vector<std::string> moduleLabelsRunning_;
 
   std::shared_ptr<History> history_;
 

@@ -10,7 +10,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/WorkerParams.h"
+#include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"

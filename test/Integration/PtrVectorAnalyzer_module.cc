@@ -7,7 +7,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"

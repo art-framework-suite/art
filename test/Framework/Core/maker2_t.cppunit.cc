@@ -1,12 +1,12 @@
 
 #include <iostream>
 
-#include "art/Framework/Core/Actions.h"
-#include "art/Framework/Core/CurrentProcessingContext.h"
+#include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/ModuleFactory.h"
-#include "art/Framework/Core/WorkerParams.h"
+#include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Version/GetReleaseVersion.h"

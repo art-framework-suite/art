@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"

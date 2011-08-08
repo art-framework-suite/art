@@ -7,7 +7,7 @@
 #include "art/Framework/Core/WorkerRegistry.h"
 
 #include "art/Framework/Core/ModuleFactory.h"
-#include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include <sstream>

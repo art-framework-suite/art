@@ -9,6 +9,7 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "Reflex/Type.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
@@ -36,7 +37,11 @@ class art::Group
 
 public:
   Group();
-  Group(BranchDescription const& bd, ProductID const& pid, bool demand=false);
+  Group(BranchDescription const& bd,
+        ProductID const& pid,
+        cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
+        cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
+        cet::exempt_ptr<EventPrincipal>());
   Group(std::auto_ptr<EDProduct> edp,
         BranchDescription const& bd,
         ProductID const& pid);
@@ -48,7 +53,7 @@ public:
   bool productUnavailable() const;
 
   // Scheduled for on-demand production
-  bool onDemand() const { return onDemand_; }
+  bool onDemand() const { return productProducer_ && onDemandPrincipal_; }
 
   EDProduct const *product() const { return product_.get(); }
   EDProduct const* getIt() const { resolveProductIfAvailable(true); return product(); }
@@ -100,8 +105,9 @@ private:
   mutable cet::value_ptr<EDProduct>         product_;
   cet::exempt_ptr<BranchDescription const>  branchDescription_;
   mutable ProductID                         pid_;
-  bool                                      onDemand_;
-
+  cet::exempt_ptr<Worker>                   productProducer_;
+  // FIXME: This will be a generic principal when meta data is fixed.
+  cet::exempt_ptr<EventPrincipal>           onDemandPrincipal_;
 };  // Group
 
 // Free swap function

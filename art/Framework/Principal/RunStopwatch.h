@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_RunStopwatch_h
-#define art_Framework_Core_RunStopwatch_h
+#ifndef art_Framework_Worker_RunStopwatch_h
+#define art_Framework_Worker_RunStopwatch_h
 
 /*----------------------------------------------------------------------
 
@@ -10,31 +10,28 @@ calls the destructor which stops the clock.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/CPUTimer.h"
 #include "cpp0x/memory"
 
-namespace art {
+class art::RunStopwatch {
 
-  class RunStopwatch {
+public:
+  typedef std::shared_ptr<CPUTimer> StopwatchPointer;
 
-  public:
-    typedef std::shared_ptr<CPUTimer> StopwatchPointer;
+  RunStopwatch(const StopwatchPointer& ptr): stopwatch_(ptr) {
+    stopwatch_->start();
+  }
 
-    RunStopwatch(const StopwatchPointer& ptr): stopwatch_(ptr) {
-      stopwatch_->start();
-    }
+  ~RunStopwatch() {
+    stopwatch_->stop();
+  }
 
-    ~RunStopwatch() {
-      stopwatch_->stop();
-    }
+private:
+  StopwatchPointer stopwatch_;
 
-  private:
-    StopwatchPointer stopwatch_;
-
-  };
-
-}
-#endif /* art_Framework_Core_RunStopwatch_h */
+};
+#endif /* art_Framework_Worker_RunStopwatch_h */
 
 // Local Variables:
 // mode: c++

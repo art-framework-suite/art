@@ -15,7 +15,7 @@ Test of the EventPrincipal class.
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchID.h"

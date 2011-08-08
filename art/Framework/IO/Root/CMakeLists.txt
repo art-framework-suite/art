@@ -21,7 +21,14 @@ add_library(art_Framework_IO_RootVersion SHARED
 )
 
 add_library(art_Framework_IO_Root SHARED ${art_Framework_IO_Root_sources} )
-target_link_libraries(art_Framework_IO_Root art_Framework_IO_RootVersion)
+target_link_libraries(art_Framework_IO_Root
+  art_Framework_Core
+  art_Framework_IO_Catalog
+  art_Framework_Principal
+  art_Framework_Services_Registry
+  art_Persistency_Common
+  art_Persistency_Provenance
+  art_Framework_IO_RootVersion)
 
 install(TARGETS art_Framework_IO_Root art_Framework_IO_RootVersion DESTINATION ${flavorqual_dir}/lib )
 

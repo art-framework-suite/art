@@ -58,8 +58,6 @@ public:
 
   RunNumber_t run() const { return aux().run(); }
 
-  void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) {}
-
   void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
 
   void put(std::auto_ptr<EDProduct> edp,
@@ -79,8 +77,6 @@ private:
   virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
   virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
-
-  virtual bool unscheduledFill(std::string const&) const {return false;}
 
   std::shared_ptr<RunPrincipal> runPrincipal_;
   SubRunAuxiliary aux_;

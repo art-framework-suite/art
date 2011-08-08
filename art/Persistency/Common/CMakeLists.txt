@@ -6,9 +6,7 @@ set(art_Persistency_Common_sources
   DelayedReader.cc
   EDProduct.cc
   EDProductGetter.cc
-  Group.cc
   GroupQueryResult.cc
-  Provenance.cc
   PtrVectorBase.cc
   RNGsnapshot.cc
   RefCore.cc
@@ -16,10 +14,11 @@ set(art_Persistency_Common_sources
   traits.cc
 )
 
-link_libraries(art_Utilities
-               art_Framework_Services_Registry
-               ${Boost_THREAD_LIBRARY}
-)
+link_libraries(
+  art_Persistency_Provenance
+  art_Utilities
+  ${Boost_THREAD_LIBRARY}
+  )
 
 add_library(art_Persistency_Common SHARED ${art_Persistency_Common_sources})
 
@@ -36,16 +35,11 @@ install(FILES
   EDProduct.h
   EDProductGetter.h
   GetProduct.h
-  Group.h
   GroupQueryResult.h
   HLTGlobalStatus.h
   HLTPathStatus.h
   HLTenums.h
-  Handle.h
-  OrphanHandle.h
-  OutputHandle.h
   PostReadFixupTrait.h
-  Provenance.h
   Ptr.h
   PtrVector.h
   PtrVectorBase.h

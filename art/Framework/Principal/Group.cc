@@ -1,9 +1,13 @@
-#include "art/Persistency/Common/Group.h"
+#include "art/Framework/Principal/Group.h"
 
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/OccurrenceTraits.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include <string>
 
 using art::Group;
@@ -16,18 +20,22 @@ Group::Group() :
   product_(),
   branchDescription_(),
   pid_(),
-  onDemand_(false)
+  productProducer_(),
+  onDemandPrincipal_()
 { }
 
 Group::Group(BranchDescription const& bd,
              ProductID const& pid,
-             bool demand) :
+             cet::exempt_ptr<Worker> productProducer,
+             cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
+  :
   ppResolver_(),
   productResolver_(),
   product_(),
   branchDescription_(&bd),
   pid_(pid),
-  onDemand_(demand)
+  productProducer_(productProducer),
+  onDemandPrincipal_(onDemandPrincipal)
 { }
 
 Group::Group(std::auto_ptr<EDProduct> edp,
@@ -38,7 +46,8 @@ Group::Group(std::auto_ptr<EDProduct> edp,
   product_(edp.release()),
   branchDescription_(&bd),
   pid_(pid),
-  onDemand_(false)
+  productProducer_(),
+  onDemandPrincipal_()
 { }
 
 Group::~Group()
@@ -84,12 +93,11 @@ bool
 Group::resolveProductIfAvailable(bool fillOnDemand) const {
   if (product()) return true; // Nothing to do.
   if (productUnavailable()) return false; // Nothing we *can* do.
-
   // Try unscheduled production.
   if (fillOnDemand && onDemand()) {
-#if UNSCHEDULED_ENABLED // re-enable once on-demand logic is available to Group
-    unscheduledFill(productDescription().moduleLabel());
-#endif  // 0
+    productProducer_->
+      doWork<OccurrenceTraits<EventPrincipal,
+      BranchActionBegin> >(*onDemandPrincipal_, 0);
   } else {
     BranchKey const bk(productDescription());
     std::auto_ptr<EDProduct> edp(productResolver_->getProduct(bk, this));
@@ -134,7 +142,8 @@ Group::swap(Group& other) {
   swap(product_, other.product_);
   swap(branchDescription_, other.branchDescription_);
   swap(pid_, other.pid_);
-  swap(onDemand_, other.onDemand_);
+  swap(productProducer_, other.productProducer_);
+  swap(onDemandPrincipal_, other.onDemandPrincipal_);
 }
 
 void

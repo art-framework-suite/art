@@ -37,9 +37,6 @@ namespace art {
 
 }  // art
 
-// The following are trivial enough so that the real headers can be included.
-#include "art/Framework/Core/BranchActionType.h"
-
 // ======================================================================
 
 #endif /* art_Framework_Core_Frameworkfwd_h */

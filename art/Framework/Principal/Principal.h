@@ -20,9 +20,9 @@ pointer to a Group, when queried.
 
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Common/Group.h"
+#include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/OutputHandle.h"
+#include "art/Framework/Principal/OutputHandle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
@@ -115,13 +115,6 @@ public:
   // principal.
   virtual BranchType branchType() const = 0;
 
-  // Make my DelayedReader get the EDProduct for a Group or
-  // trigger unscheduled execution if required.  The Group is
-  // a cache, and so can be modified through the const reference.
-  // We do not change the *number* of groups through this call, and so
-  // *this is const.
-  ////    void resolveProduct(Group const& g, bool fillOnDemand) const;
-
 protected:
   // ----- Add a new Group
   // *this takes ownership of the Group, which in turn owns its
@@ -147,8 +140,6 @@ private:
 
   virtual void setProcessHistoryID(ProcessHistoryID const& phid) const = 0;
 
-  virtual bool unscheduledFill(std::string const& moduleLabel) const = 0;
-
   // Used for indices to find groups by type and process
   typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
   typedef std::map<std::string, ProcessLookup> TypeLookup;
@@ -170,7 +161,6 @@ private:
 
   mutable bool processHistoryModified_;
 
-  // A vector of groups.
   GroupCollection groups_; // products and provenances are persistent
 
   // Pointer to the 'mapper' that will get provenance information

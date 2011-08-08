@@ -11,7 +11,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 using namespace std;

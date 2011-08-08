@@ -8,8 +8,8 @@
 // ======================================================================
 
 #include "art/Utilities/LibraryManager.h"
-#include "art/Framework/Core/Worker.h"
-#include "art/Framework/Core/WorkerParams.h"
+#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/WorkerParams.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cpp0x/memory"
 #include <string>

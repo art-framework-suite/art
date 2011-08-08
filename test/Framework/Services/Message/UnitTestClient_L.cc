@@ -1,7 +1,7 @@
 #include "test/Framework/Services/Message/UnitTestClient_L.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/EDAnalyzer.h"

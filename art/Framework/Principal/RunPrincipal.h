@@ -45,8 +45,6 @@ public:
 
   void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
-  void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler>) { }
-
   void mergeRun(std::shared_ptr<RunPrincipal> rp);
 
   void put(std::auto_ptr<EDProduct> edp,
@@ -67,8 +65,6 @@ private:
   virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
   virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
-
-  virtual bool unscheduledFill(std::string const&) const {return false;}
 
   RunAuxiliary aux_;
 };

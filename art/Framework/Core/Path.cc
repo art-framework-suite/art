@@ -1,6 +1,6 @@
 #include "art/Framework/Core/Path.h"
 
-#include "art/Framework/Core/Actions.h"
+#include "art/Framework/Principal/Actions.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/algorithm"
 #include "cpp0x/functional"

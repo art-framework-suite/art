@@ -11,7 +11,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/WorkerParams.h"
+#include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cpp0x/memory"

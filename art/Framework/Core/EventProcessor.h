@@ -8,11 +8,12 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/Actions.h"
+#include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/IEventProcessor.h"
 #include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PrincipalCache.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/WorkerRegistry.h"
@@ -311,6 +312,7 @@ namespace art {
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     std::shared_ptr<ActivityRegistry>           actReg_;
+    MFStatusUpdater                               mfStatusUpdater_;
     WorkerRegistry                                wreg_;
     MasterProductRegistry                         preg_;
     ServiceToken                                  serviceToken_;

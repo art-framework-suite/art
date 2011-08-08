@@ -1,6 +1,3 @@
-# project name
-project(art_Persistency_WrappedStdDictionaries)
-
-build_dictionary( )
+build_dictionary()
 
 install_source()

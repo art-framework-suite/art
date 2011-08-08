@@ -13,7 +13,7 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/Group.h"
+#include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/Parentage.h"

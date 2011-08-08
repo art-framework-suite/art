@@ -7,6 +7,7 @@
 //
 // ======================================================================
 
+#include "art/Persistency/Common/traits.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/cstdint"
 #include <stdexcept>

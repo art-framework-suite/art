@@ -2,10 +2,9 @@
 
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/UnscheduledHandler.h"
-#include "art/Persistency/Common/Group.h"
+#include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchListIndex.h"
@@ -27,8 +26,6 @@ namespace art {
   Principal(pc, history->processHistoryID(), mapper, rtrv),
   aux_(aux),
   subRunPrincipal_(),
-  unscheduledHandler_(),
-  moduleLabelsRunning_(),
   history_(history),
   branchToProductIDHelper_() {
     productReader().setGroupFinder(cet::exempt_ptr<EventPrincipal const>(this));
@@ -74,8 +71,14 @@ namespace art {
   }
 
   void
-  EventPrincipal::addOnDemandGroup(BranchDescription const& desc) {
-    auto_ptr<Group> g(new Group(desc, branchIDToProductID(desc.branchID()), true));
+  EventPrincipal::addOnDemandGroup(BranchDescription const& desc,
+                                   cet::exempt_ptr<Worker> worker) {
+    ProductID pid(branchIDToProductID(desc.branchID()));
+    cet::exempt_ptr<EventPrincipal> epp(this);
+    auto_ptr<Group> g(new Group(desc,
+                                pid,
+                                worker,
+                                epp));
     addOrReplaceGroup(g);
   }
 
@@ -210,45 +213,9 @@ namespace art {
 ////    return getByProductID(pid).result()->product();
 ////  }
 
-  void
-  EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
-    unscheduledHandler_ = iHandler;
-  }
-
   EventSelectionIDVector const&
   EventPrincipal::eventSelectionIDs() const
   {
     return history_->eventSelectionIDs();
   }
-
-  bool
-  EventPrincipal::unscheduledFill(string const& moduleLabel) const {
-
-    // If it is a module already currently running in unscheduled
-    // mode, then there is a circular dependency related to which
-    // EDProducts modules require and produce.  There is no safe way
-    // to recover from this.  Here we check for this problem and throw
-    // an exception.
-    vector<string>::const_iterator i =
-      find_in_all(moduleLabelsRunning_, moduleLabel);
-
-    if (i != moduleLabelsRunning_.end()) {
-      throw art::Exception(errors::LogicError)
-        << "Hit circular dependency while trying to run an unscheduled module.\n"
-           "Current implementation of unscheduled execution cannot always determine\n"
-           "the proper order for module execution.  It is also possible the modules\n"
-           "have a built in circular dependence that will not work with any order.\n"
-           "In the first case, scheduling some or all required modules in paths will help.\n"
-           "In the second case, the modules themselves will have to be fixed.\n";
-    }
-
-    moduleLabelsRunning_.push_back(moduleLabel);
-
-    if (unscheduledHandler_) {
-      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal *>(this));
-    }
-    moduleLabelsRunning_.pop_back();
-    return true;
-  }
-
 }

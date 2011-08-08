@@ -45,7 +45,7 @@ physics:
     {
       module_type: IntTestAnalyzer
       input_label: "result4"
-      expected_value: 1
+      expected_value: 4
     }
   }
 

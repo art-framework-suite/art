@@ -9,6 +9,7 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"

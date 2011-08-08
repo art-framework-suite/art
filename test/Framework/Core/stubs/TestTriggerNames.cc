@@ -2,7 +2,7 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -11,7 +11,7 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 #include "art/Persistency/Provenance/ParameterSetID.h"
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
 
 #include "art/Framework/Core/ModuleMacros.h"
 

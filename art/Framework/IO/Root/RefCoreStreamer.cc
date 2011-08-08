@@ -33,18 +33,8 @@ namespace art {
     static TClassRef cl("art::RefCore");
     RefCoreStreamer *st = static_cast<RefCoreStreamer *>(cl->GetStreamer());
     if (st == 0) {
-      mf::LogVerbatim("RefCoreStreamer")
-        << "Constructing new RefCoreStreamer with groupFinder = 0x"
-        << std::hex
-        << groupFinder.get();
       cl->AdoptStreamer(new RefCoreStreamer(groupFinder));
     } else {
-      mf::LogVerbatim("RefCoreStreamer")
-        << "Poking new groupFinder = 0x"
-        << std::hex
-        << groupFinder.get()
-        << " into RefCoreStreamer 0x"
-        << st;
       st->setGroupFinder(groupFinder);
     }
   }

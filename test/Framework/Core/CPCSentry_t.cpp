@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include "cetlib/exception.h"
-#include "art/Framework/Core/CurrentProcessingContext.h"
+#include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Core/CPCSentry.h"
 
 int work()

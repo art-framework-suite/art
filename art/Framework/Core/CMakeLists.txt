@@ -1,8 +1,6 @@
 set( art_Framework_Core_sources
-  Actions.cc
   Breakpoints.cc
   CachedProducts.cc
-  CurrentProcessingContext.cc
   DecrepitRelicInputSourceImplementation.cc
   EDAnalyzer.cc
   EDFilter.cc
@@ -18,6 +16,7 @@ set( art_Framework_Core_sources
   InputSource.cc
   InputSourceFactory.cc
   IntermediateTablePostProcessor.cc
+  MFStatusUpdater.cc
   ModuleFactory.cc
   OutputModule.cc
   OutputWorker.cc
@@ -30,7 +29,6 @@ set( art_Framework_Core_sources
   Schedule.cc
   TriggerNames.cc
   TriggerResultInserter.cc
-  Worker.cc
   WorkerInPath.cc
   WorkerRegistry.cc
   get_BranchDescription.cc
@@ -44,9 +42,10 @@ target_link_libraries(art_Framework_Core
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service
   art_Framework_Principal
-  art_Persistency_Provenance
   art_Persistency_Common
+  art_Persistency_Provenance
   art_Framework_Services_Registry
+  art_Utilities
   art_Version
   ${MF_MESSAGELOGGER}
   ${FHICLCPP}
@@ -62,12 +61,9 @@ install ( TARGETS
   )
 
 install(FILES
-  Actions.h
-  BranchActionType.h
   Breakpoints.h
   CPCSentry.h
   CachedProducts.h
-  CurrentProcessingContext.h
   DecrepitRelicInputSourceImplementation.h
   EDAnalyzer.h
   EDFilter.h
@@ -77,7 +73,6 @@ install(FILES
   EventObserver.h
   EventProcessor.h
   EventSelector.h
-  FCPfwd.h
   FileBlock.h
   Frameworkfwd.h
   GroupSelector.h
@@ -88,9 +83,9 @@ install(FILES
   InputSourceFactory.h
   InputSourceMacros.h
   IntermediateTablePostProcessor.h
+  MFStatusUpdater.h
   ModuleFactory.h
   ModuleMacros.h
-  OccurrenceTraits.h
   OutputModule.h
   OutputModuleDescription.h
   OutputWorker.h
@@ -102,18 +97,13 @@ install(FILES
   ProductRegistryHelper.h
   PtrRemapper.h
   RootDictionaryManager.h
-  RunStopwatch.h
   Schedule.h
-  TFileDirectory.h
-  TH1AddDirectorySentry.h
   TriggerNames.h
   TriggerReport.h
   TriggerResultInserter.h
   TypeLabelList.h
   UnknownModuleException.h
-  Worker.h
   WorkerInPath.h
-  WorkerParams.h
   WorkerRegistry.h
   WorkerT.h
   get_BranchDescription.h

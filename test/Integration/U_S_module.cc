@@ -1,5 +1,6 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
 #include "test/TestObjects/ToyProducts.h"
 
 namespace arttest {

@@ -63,20 +63,20 @@
 */
 // ======================================================================
 
-#include "art/Framework/Core/Actions.h"
+#include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/OccurrenceTraits.h"
+#include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Core/Path.h"
-#include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/UnscheduledHandler.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
+#include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/container_algorithms.h"
@@ -94,15 +94,11 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-
-  class TriggerNamesService;
-
   class ActivityRegistry;
   class OutputWorker;
-  class UnscheduledCallProducer;
-  class RunStopwatch;
-  class WorkerInPath;
+  class TriggerNamesService;
   class WorkerRegistry;
+
   class Schedule
   {
     typedef std::vector<std::string> vstring;
@@ -217,6 +213,18 @@ namespace art {
     void getAllWorkers(Workers &out);
 
   private:
+    typedef std::vector<cet::exempt_ptr<Worker> > OnDemandWorkers;
+    typedef
+    std::multimap<std::string,
+                  cet::exempt_ptr<BranchDescription const> >
+    BranchesByModuleLabel;
+    typedef
+    std::multimap<cet::exempt_ptr<Worker>,
+                  cet::exempt_ptr<BranchDescription const>,
+                  // Temporary workaround until exempt_ptr gets an operator<().
+                  std::less<Worker const*> >
+    OnDemandBranches;
+
     void writeSummary();
 
     Workers::const_iterator workersBegin() const { return all_workers_.begin(); }
@@ -235,7 +243,7 @@ namespace art {
     template <typename T>
     void runEndPaths(typename T::MyPrincipal &);
 
-    void setupOnDemandSystem(EventPrincipal& principal);
+    void setupOnDemandSystem(EventPrincipal& p);
 
     void reportSkipped(EventPrincipal const& ep) const;
     void reportSkipped(SubRunPrincipal const&) const {}
@@ -251,7 +259,13 @@ namespace art {
 
     WorkerPtr makeInserter(fhicl::ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const;
 
-    void catalogOnDemandBranches(std::set<std::string> const & unscheduledLabels, MasterProductRegistry &pregistry);
+    void fillBranchLookup(ProductList const & pList,
+                          BranchesByModuleLabel &branchLookup) const;
+
+    void catalogOnDemandBranches(OnDemandWorkers const &odw,
+                                  BranchesByModuleLabel const &branchLookup);
+    void catalogOneOnDemandWorker(cet::exempt_ptr<Worker> wp,
+                                  BranchesByModuleLabel const &branchLookup);
 
     void pathConsistencyCheck(size_t expected_num_workers) const;
 
@@ -279,14 +293,12 @@ namespace art {
     OutputWorkers  all_output_workers_;
     Paths          trig_paths_;
     Paths          end_paths_;
+    OnDemandBranches demand_branches_;
 
     bool                           wantSummary_;
     int                            total_events_;
     int                            total_passed_;
     RunStopwatch::StopwatchPointer stopwatch_;
-
-    std::shared_ptr<UnscheduledCallProducer> unscheduled_;
-    std::vector<cet::exempt_ptr<BranchDescription const> >  demandBranches_;
 
     volatile bool       endpathsAreActive_;
   };
@@ -335,33 +347,6 @@ namespace art {
     typename T::MyPrincipal&   ep;
   };
 
-  class UnscheduledCallProducer : public UnscheduledHandler
-  {
-  public:
-    UnscheduledCallProducer() : UnscheduledHandler(), labelToWorkers_() {}
-    void addWorker(Worker* aWorker)
-    {
-      assert(0 != aWorker);
-      labelToWorkers_[aWorker->description().moduleLabel_]=aWorker;
-    }
-  private:
-    virtual bool tryToFillImpl(std::string const& moduleLabel,
-                               EventPrincipal& event)
-    {
-      std::map<std::string, Worker*>::const_iterator itFound =
-        labelToWorkers_.find(moduleLabel);
-      if(itFound != labelToWorkers_.end()) {
-        // Unscheduled reconstruction has no accepted definition
-        // (yet) of the "current path". We indicate this by passing
-        // a null pointer as the CurrentProcessingContext.
-        itFound->second->doWork<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(event, 0);
-        return true;
-      }
-      return false;
-    }
-    std::map<std::string, Worker*> labelToWorkers_;
-  };
-
   void
   inline
   Schedule::reportSkipped(EventPrincipal const& ep) const
@@ -378,11 +363,10 @@ namespace art {
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
-    if (T::isEvent_)
-      {
-        ++total_events_;
-        setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep));
-      }
+    if (T::isEvent_) {
+      ++total_events_;
+      setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep));
+    }
     try
       {
         ScheduleSignalSentry<T> sentry(actReg_.get(), &ep);

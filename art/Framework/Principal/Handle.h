@@ -22,10 +22,10 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/Group.h"
+#include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProductID.h"
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "cetlib/exception.h"

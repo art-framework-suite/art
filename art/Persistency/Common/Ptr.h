@@ -11,7 +11,6 @@
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/EDProductGetter.h"
 #include "art/Persistency/Common/GetProduct.h"
-#include "art/Persistency/Common/Handle.h"
 #include "art/Persistency/Common/RefCore.h"
 #include "art/Persistency/Common/traits.h"
 #include "art/Utilities/Exception.h"
@@ -32,11 +31,11 @@ namespace art
     typedef std::size_t   key_type;
     typedef T             value_type;
 
-    // Create a Ptr<T> to a specific element within a collection of type
-    // C. The collection is identified by 'handle', and the element in
-    // the collection is identified by the index 'idx'.
-    template <typename C>
-    Ptr(Handle<C> const& handle, key_type idx, bool setNow=true);
+    // Create a Ptr<T> to a specific element within a collection
+    // identified by 'handle', and the element in the collection is
+    // identified by the index 'idx'.
+    template <typename H>
+    Ptr(H const& handle, key_type idx);
 
     // Constructor for those users who do not have a product handle,
     // but have a pointer to a product getter (such as the EventPrincipal).
@@ -233,11 +232,10 @@ namespace art
   }  // namespace detail
 
   template <typename T>
-  template <typename C>
+  template <typename H>
   inline
-  Ptr<T>::Ptr(Handle<C> const& handle,
-              typename Ptr<T>::key_type idx,
-              bool setNow) :
+  Ptr<T>::Ptr(H const& handle,
+              typename Ptr<T>::key_type idx) :
     core_(handle.id(), getItem_(handle.product(), idx), 0),
     key_(idx)
   { }
@@ -285,17 +283,17 @@ namespace art
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
 
-  template <class T, class C>
+  template <class T, class H>
   void
-  fill_ptr_vector(std::vector<Ptr<T> >& ptrs, Handle<C> const& h)
+  fill_ptr_vector(std::vector<Ptr<T> >& ptrs, H const& h)
   {
     for (std::size_t i = 0, sz = h->size(); i != sz; ++i)
       ptrs.push_back(Ptr<T>(h, i));
   }
 
-  template <class T, class C>
+  template <class T, class H>
   void
-  fill_ptr_list(std::list<Ptr<T> >& ptrs, Handle<C> const& h)
+  fill_ptr_list(std::list<Ptr<T> >& ptrs, H const& h)
   {
     for (std::size_t i = 0, sz = h->size(); i != sz; ++i)
       ptrs.push_back(Ptr<T>(h, i));

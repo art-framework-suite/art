@@ -8,6 +8,9 @@ add_library(art_Framework_Services_UserInteraction
 )
 
 target_link_libraries(art_Framework_Services_UserInteraction
+  art_Framework_Core
+  art_Framework_Principal
+  art_Persistency_Provenance
   art_Framework_Services_Registry
   ${FHICLCPP}
 )

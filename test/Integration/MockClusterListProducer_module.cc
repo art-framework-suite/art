@@ -3,7 +3,7 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/PtrVector.h"
 #include "cpp0x/memory"
@@ -60,7 +60,7 @@ MockClusterListProducer::produce( art::Event& e )
    arttest::MockCluster c1;
    c1.skew = 1;
    for( int k = 0; k < (nvalues_ / 2); ++k ) {
-      art::Ptr<SimpleDerived> p(h, k, true);
+      art::Ptr<SimpleDerived> p(h, k);
       c1.cells.push_back(p);
    }
    c1.eNum = e.id().event();
@@ -69,7 +69,7 @@ MockClusterListProducer::produce( art::Event& e )
    arttest::MockCluster c2;
    c2.skew = 2;
    for( unsigned k = nvalues_ / 2; k < nvalues_; ++k ) {
-      art::Ptr<SimpleDerived> p(h, k, true);
+      art::Ptr<SimpleDerived> p(h, k);
       c2.cells.push_back(p);
    }
    c2.eNum = e.id().event() + 1;

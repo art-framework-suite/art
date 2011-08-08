@@ -9,8 +9,8 @@
 // ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/RunStopwatch.h"
-#include "art/Framework/Core/Worker.h"
+#include "art/Framework/Principal/RunStopwatch.h"
+#include "art/Framework/Principal/Worker.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 

@@ -7,7 +7,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
-#include "art/Framework/Core/OccurrenceTraits.h"
+#include "art/Framework/Principal/OccurrenceTraits.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -317,6 +317,7 @@ namespace art {
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     actReg_(new ActivityRegistry),
+    mfStatusUpdater_(*actReg_),
     wreg_(actReg_),
     preg_(),
     serviceToken_(),

@@ -1,6 +1,6 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "cpp0x/algorithm"
 #include "cpp0x/numeric"

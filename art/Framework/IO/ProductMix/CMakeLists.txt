@@ -1,9 +1,12 @@
 
 link_libraries(art_Framework_IO_Root
+  art_Framework_IO_Root
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service
   art_Framework_Core
+  art_Framework_Principal
+  art_Framework_Services_Registry
   art_Persistency_Common
   art_Persistency_Provenance
   art_Utilities

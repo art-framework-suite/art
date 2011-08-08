@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/detail/maybe_record_parents.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Provenance/EventAuxiliary.h"
 #include "art/Persistency/Provenance/EventID.h"

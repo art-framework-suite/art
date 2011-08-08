@@ -1,4 +1,4 @@
-#include "art/Persistency/Common/Group.h"
+#include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"

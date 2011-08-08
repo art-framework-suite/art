@@ -10,7 +10,7 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/Provenance.h"
+#include "art/Framework/Principal/Provenance.h"
 
 #if 0
 void

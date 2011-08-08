@@ -50,7 +50,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/EDProduct.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/Handle.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Wrapper.h"
 #include "art/Persistency/Common/fwd.h"
 #include "art/Persistency/Common/traits.h"
