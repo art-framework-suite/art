@@ -47,7 +47,6 @@ Some examples of InputSource subclasses may be:
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
@@ -175,7 +174,6 @@ namespace art
     //std::shared_ptr<ActivityRegistry> actReg() const {return actReg_;}
 
     using ProductRegistryHelper::reconstitutes;
-    using ProductRegistryHelper::typeLabelList;
 
   protected:
     /// To set the current time, as seen by the input source
@@ -220,9 +218,6 @@ namespace art
     virtual void endRun(Run &);
     virtual void beginJob();
     virtual void endJob();
-
-    /// Register any products read by this input.
-    void registerProducts_(MasterProductRegistry&);
 
   private:
     std::shared_ptr<ActivityRegistry> actReg_;

@@ -8,6 +8,7 @@ the CMS event model.
 
 ----------------------------------------------------------------------*/
 
+#include "art/Utilities/WrappedClassName.h"
 
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
@@ -24,12 +25,8 @@ namespace art
                          Reflex::Type const& type_to_search,
                          Reflex::Type& found_type);
 
-  inline
   bool
-  value_type_of(Reflex::Type const& t, Reflex::Type& found_type)
-  {
-    return find_nested_type_named("value_type", t, found_type);
-  }
+  value_type_of(Reflex::Type const& t, Reflex::Type& found_type);
 
   inline
   bool
@@ -40,18 +37,6 @@ namespace art
                                   possible_wrapper,
                                   found_wrapped_type);
   }
-
-  // is_sequence_wrapper is used to determine whether the Type
-  // 'possible_sequence_wrapper' represents
-  //   art::Wrapper<Seq<X> >,
-  // where Seq<X> is anything that is a sequence of X.
-  bool
-  is_sequence_wrapper(Reflex::Type const& possible_sequence_wrapper,
-                      Reflex::Type& found_sequence_value_type);
-
-  bool
-  if_edm_ref_get_value_type(Reflex::Type const& possible_ref,
-                            Reflex::Type& value_type);
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void checkAllDictionaries();
@@ -112,6 +97,13 @@ namespace art
                         Reflex::Type const& dynamicType,
                         std::type_info const& toType);
 
+  std::string cint_wrapper_name(std::string const &className);
+
+  Reflex::Type type_of_template_arg(Reflex::Type const &template_instance,
+                                    size_t arg_index);
+
+  bool is_instantiation_of(Reflex::Type const &in,
+                           std::string const &template_name);
 }
 
 #endif /* art_Persistency_Provenance_ReflexTools_h */

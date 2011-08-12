@@ -100,7 +100,7 @@ Group::resolveProductIfAvailable(bool fillOnDemand) const {
       BranchActionBegin> >(*onDemandPrincipal_, 0);
   } else {
     BranchKey const bk(productDescription());
-    std::auto_ptr<EDProduct> edp(productResolver_->getProduct(bk, this));
+    std::auto_ptr<EDProduct> edp(productResolver_->getProduct(bk));
     // Now fix up the Group
     setProduct(edp);
   }
@@ -163,60 +163,4 @@ Group::write(std::ostream& os) const
   // This is grossly inadequate. It is also not critical for the
   // first pass.
   os << "Group for product with ID: " << pid_;
-}
-
-void
-Group::mergeGroup(Group * newGroup) {
-
-  if (status() != newGroup->status()) {
-    throw art::Exception(art::errors::Unknown, "Merging")
-      << "Group::mergeGroup(), Trying to merge two run products or two subRun products.\n"
-         "The products have different creation status's.\n"
-         "For example \"present\" and \"notCreated\"\n"
-         "The Framework does not currently support this and probably\n"
-         "should not support this case.\n"
-         "Likely a problem exists in the producer that created these\n"
-         "products.  If this problem cannot be reasonably resolved by\n"
-         "fixing the producer module, then contact the Framework development\n"
-         "group with details so we can discuss whether and how to support this\n"
-         "use case.\n"
-         "className = " << branchDescription_->className() << "\n"
-         "moduleLabel = " << moduleLabel() << "\n"
-         "instance = " << productInstanceName() << "\n"
-         "process = " << processName() << "\n";
-  }
-
-  if (!productProvenancePtr()) {
-    return;
-  }
-
-  if (!productUnavailable() && !newGroup->productUnavailable()) {
-
-    if (product_->isMergeable()) {
-      product_->mergeProduct(newGroup->product_.get());
-    }
-    else if (product_->hasIsProductEqual()) {
-
-      if (!product_->isProductEqual(newGroup->product_.get())) {
-        mf::LogWarning("RunSubRunMerging")
-          << "Group::mergeGroup\n"
-             "Two run/subRun products for the same run/subRun which should be equal are not\n"
-             "Using the first, ignoring the second\n"
-             "className = " << branchDescription_->className() << "\n"
-             "moduleLabel = " << moduleLabel() << "\n"
-             "instance = " << productInstanceName() << "\n"
-             "process = " << processName() << "\n";
-      }
-    }
-    else {
-      mf::LogWarning("RunSubRunMerging")
-        << "Group::mergeGroup\n"
-           "Run/subRun product has neither a mergeProduct nor isProductEqual function\n"
-           "Using the first, ignoring the second in merge\n"
-           "className = " << branchDescription_->className() << "\n"
-           "moduleLabel = " << moduleLabel() << "\n"
-           "instance = " << productInstanceName() << "\n"
-           "process = " << processName() << "\n";
-    }
-  }
 }

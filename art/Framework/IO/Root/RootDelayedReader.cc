@@ -21,17 +21,17 @@ RootDelayedReader(EntryNumber const& entry,
 art::RootDelayedReader::~RootDelayedReader() {}
 
 std::auto_ptr<art::EDProduct>
-art::RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
+art::RootDelayedReader::getProduct_(BranchKey const& k) const {
   iterator iter = branchIter(k);
   if (!found(iter)) {
     assert(nextReader_);
-    return nextReader_->getProduct(k, ep);
+    return nextReader_->getProduct(k);
   }
   input::BranchInfo const& branchInfo = getBranchInfo(iter);
   TBranch *br = branchInfo.productBranch_;
   if (br == 0) {
     assert(nextReader_);
-    return nextReader_->getProduct(k, ep);
+    return nextReader_->getProduct(k);
   }
   configureRefCoreStreamer(groupFinder_);
   TClass *cp = TClass::GetClass(branchInfo.branchDescription_.wrappedCintName().c_str());

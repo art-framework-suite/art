@@ -79,7 +79,7 @@ namespace art {
     Worker(md, wp),
     module_(ed) {
     module_->setModuleDescription(md);
-    module_->registerAnyProducts(module_, wp.reg_);
+    module_->registerProducts(*wp.reg_, md);
   }
 
   template <typename T>

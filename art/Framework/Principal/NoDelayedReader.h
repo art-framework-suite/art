@@ -10,7 +10,7 @@ class art::NoDelayedReader : public art::DelayedReader {
 public:
   virtual ~NoDelayedReader();
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const;
+  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k) const;
 };
 
 #endif /* art_Framework_Principal_NoDelayedReader_h */

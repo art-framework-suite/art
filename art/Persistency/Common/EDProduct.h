@@ -48,26 +48,6 @@ public:
     productSize() const
   { return "-"; }
 
-#ifndef __REFLEX__
-
-  bool
-    isMergeable() const
-  { return isMergeable_(); }
-
-  bool
-    mergeProduct( EDProduct const * newProduct )
-  { return mergeProduct_(newProduct); }
-
-  bool
-    hasIsProductEqual() const
-  { return hasIsProductEqual_(); }
-
-  bool
-    isProductEqual( EDProduct const * newProduct ) const
-  { return isProductEqual_(newProduct); }
-
-#endif
-
 protected:
 
    virtual void do_setPtr(std::type_info const &toType,
@@ -84,24 +64,6 @@ private:
   virtual bool
     isPresent_() const
   { return true; }
-
-#ifndef __REFLEX__
-  virtual bool
-    isMergeable_() const
-  { return true; }
-
-  virtual bool
-    mergeProduct_( EDProduct const * newProduct )
-  { return true; }
-
-  virtual bool
-    hasIsProductEqual_() const
-  { return true; }
-
-  virtual bool
-    isProductEqual_( EDProduct const * newProduct ) const
-  { return true; }
-#endif
 
 };  // EDProduct
 

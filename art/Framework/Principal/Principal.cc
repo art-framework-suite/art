@@ -45,17 +45,18 @@ namespace art {
   Principal::~Principal() {
   }
 
-  Group*
-  Principal::getExistingGroup(Group const& group) {
-    GroupCollection::const_iterator it = groups_.find(group.productDescription().branchID());
-    if (it == groups_.end()) return 0;
-    return it->second.get();
+  cet::exempt_ptr<Group const>
+  Principal::getExistingGroup(BranchID const &bid) {
+    GroupCollection::const_iterator it = groups_.find(bid);
+    return (it == groups_.end())?
+      cet::exempt_ptr<Group const>():
+      cet::exempt_ptr<Group const>(it->second.get());
   }
 
   void
   Principal::addGroup_(auto_ptr<Group> group) {
     BranchDescription const& bd = group->productDescription();
-    assert (!bd.className().empty());
+    assert (!bd.producedClassName().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
@@ -67,7 +68,7 @@ namespace art {
   void
   Principal::replaceGroup(auto_ptr<Group> group) {
     BranchDescription const& bd = group->productDescription();
-    assert (!bd.className().empty());
+    assert (!bd.producedClassName().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
@@ -233,14 +234,14 @@ namespace art {
   }
 
   size_t
-  Principal::getMatchingSequence(TypeID const& typeID,
+  Principal::getMatchingSequence(TypeID const& elementType,
                                  SelectorBase const& selector,
                                  GroupQueryResultVec& results,
                                  bool stopIfProcessHasMatch) const {
 
     // One new argument is the element lookup container
     // Otherwise this just passes through the arguments to findGroups
-    return findGroups(typeID,
+    return findGroups(elementType,
                       ProductMetaData::instance().elementLookup(),
                       selector,
                       results,

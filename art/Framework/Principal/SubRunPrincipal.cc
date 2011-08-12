@@ -3,6 +3,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
 
@@ -21,13 +22,20 @@ namespace art {
 
   void
   SubRunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
-    Group* group = getExistingGroup(*g);
-    if (group == 0) {
+    cet::exempt_ptr<Group const> group =
+      getExistingGroup(g->productDescription().branchID());
+    if (!group) {
       addGroup_(g);
     } else {
-      assert(group->productUnavailable() || group->product());
-      assert(g->productUnavailable() || g->product());
-      group->mergeGroup(g.get());
+      BranchDescription const& bd = group->productDescription();
+      mf::LogWarning("SubRunMerging")
+        << "Problem found while adding product provenance, "
+        << "product already exists for ("
+        << bd.friendlyClassName() << ","
+        << bd.moduleLabel() << ","
+        << bd.productInstanceName() << ","
+        << bd.processName()
+        << ")\n";
     }
   }
 

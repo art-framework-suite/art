@@ -84,8 +84,9 @@ namespace art {
 
   void
   EventPrincipal::addOrReplaceGroup(auto_ptr<Group> g) {
-    Group const* group = getExistingGroup(*g);
-    if (group == 0) {
+    cet::exempt_ptr<Group const> group =
+      getExistingGroup(g->productDescription().branchID());
+    if (!group) {
       addGroup_(g);
     } else if(group->onDemand()) {
       replaceGroup(g);

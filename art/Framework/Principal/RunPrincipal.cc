@@ -3,6 +3,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductID.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 using art::RunPrincipal;
 
@@ -19,13 +20,20 @@ RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
 
 void
 RunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
-  Group* group = getExistingGroup(*g);
-  if (group == 0) {
+  cet::exempt_ptr<Group const> group =
+    getExistingGroup(g->productDescription().branchID());
+  if (!group) {
     addGroup_(g);
   } else {
-    assert(group->productUnavailable() || group->product());
-    assert(g->productUnavailable() || g->product());
-    group->mergeGroup(g.get());
+    BranchDescription const& bd = group->productDescription();
+    mf::LogWarning("RunMerging")
+      << "Problem found while adding product provenance, "
+      << "product already exists for ("
+      << bd.friendlyClassName() << ","
+      << bd.moduleLabel() << ","
+      << bd.productInstanceName() << ","
+      << bd.processName()
+      << ")\n";
   }
 }
 

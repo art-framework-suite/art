@@ -45,10 +45,6 @@ class art::ProductMetaData : boost::noncopyable
    // for the MasterProductRegistry.
    ProductList const& productList() const;
 
-   // This should be changed to take a vector by reference, and to fill
-   // that vector.
-   std::vector<BranchDescription const*> allBranchDescriptions() const;
-
    // Print all the BranchDescriptions we contain.
    void printBranchDescriptions(std::ostream&) const;
 

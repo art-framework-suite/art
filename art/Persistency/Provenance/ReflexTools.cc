@@ -105,37 +105,10 @@ namespace art
   }
 
   bool
-  if_edm_ref_get_value_type(Type const& possible_ref,
-                            Type & result)
+  value_type_of(Reflex::Type const& t, Reflex::Type& found_type)
   {
-    TypeTemplate primary_template_id(possible_ref.TemplateFamily());
-    if (primary_template_id == TypeTemplate()) return false;
-    if (primary_template_id == TypeTemplate::ByName("art::Ref", 3)) {
-      (void)value_type_of(possible_ref, result);
-      return true;
-    } else {
-      result = possible_ref;
-      return false;
-    }
-  }
 
-  bool
-  is_sequence_wrapper(Type const& possible_sequence_wrapper,
-                      Type& found_sequence_value_type)
-  {
-    Type possible_sequence;
-    if (!art::wrapper_type_of(possible_sequence_wrapper, possible_sequence))
-      return false;
-
-    Type outer_value_type;
-    if (!art::value_type_of(possible_sequence, outer_value_type))
-      return false;
-
-    found_sequence_value_type = outer_value_type;
-
-    if_edm_ref_get_value_type(outer_value_type,
-                              found_sequence_value_type);
-    return true;
+    return find_nested_type_named("value_type", t, found_type);
   }
 
   namespace
@@ -328,6 +301,26 @@ namespace art
   {
     Object  obj(dynamicType, raw);
     return obj.CastObject(Type::ByTypeInfo(toType)).Address();
+  }
+
+  std::string cint_wrapper_name(std::string const &className) {
+    return ROOT::Cintex::CintName(wrappedClassName(className));
+  }
+
+  Reflex::Type type_of_template_arg(Reflex::Type const &template_instance,
+                                    size_t arg_index)
+  {
+    return template_instance ?
+      template_instance.TemplateArgumentAt(arg_index) :
+      Reflex::Type();
+  }
+
+  bool is_instantiation_of(Reflex::Type const &in,
+                           std::string const &template_name)
+  {
+    return in &&
+      in.TemplateFamily() ==
+      Reflex::TypeTemplate::ByName(template_name, in.TemplateArgumentSize());
   }
 
 }  // art

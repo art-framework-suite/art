@@ -162,10 +162,6 @@ namespace art {
     // the appropriate tests have been done.
     void reallyCloseFile();
 
-    // OutputModules *never* register that they create products, but because
-    // they are created in WorkerT's, we need this dummy function.
-    void registerAnyProducts(std::shared_ptr<OutputModule>const&, MasterProductRegistry const*) {}
-
     // Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}
 

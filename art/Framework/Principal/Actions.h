@@ -1,5 +1,5 @@
-#ifndef art_Framework_Worker_Actions_h
-#define art_Framework_Worker_Actions_h
+#ifndef art_Framework_Principal_Actions_h
+#define art_Framework_Principal_Actions_h
 
 #include "art/Framework/Principal/fwd.h"
 
@@ -33,7 +33,7 @@ private:
   ActionMap map_;
 };  // ActionTable
 
-#endif /* art_Framework_Worker_Actions_h */
+#endif /* art_Framework_Principal_Actions_h */
 
 // Local Variables:
 // mode: c++

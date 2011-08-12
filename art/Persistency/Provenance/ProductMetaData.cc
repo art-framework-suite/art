@@ -42,23 +42,11 @@ art::ProductMetaData::productList() const
   return mpr_->productList();
 }
 
-std::vector<art::BranchDescription const*>
-art::ProductMetaData::allBranchDescriptions() const
-{
-  return mpr_->allBranchDescriptions();
-}
-
-void
-art::ProductMetaData::printBranchDescriptions(std::ostream& os) const
-{
-  typedef std::vector<BranchDescription const*> desc_vec;
-  desc_vec descs = allBranchDescriptions();
-  // Todo: replace this loop by the appropriate algorithm, probably cet::for_all.
-  for (desc_vec::const_iterator i = descs.begin(), e = descs.end(); i !=e; ++i)
-  {
-    os << *i << "\n-----\n";
-  }
-}
+ void
+ art::ProductMetaData::printBranchDescriptions(std::ostream& os) const
+ {
+   mpr_->print(os);
+ }
 
 art::ProductMetaData::TypeLookup const&
 art::ProductMetaData::productLookup() const

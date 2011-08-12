@@ -1,6 +1,6 @@
 
-#ifndef art_Framework_Worker_WorkerParams_h
-#define art_Framework_Worker_WorkerParams_h
+#ifndef art_Framework_Principal_WorkerParams_h
+#define art_Framework_Principal_WorkerParams_h
 
 // This struct is used to communicate parameters into the worker factory.
 
@@ -42,7 +42,7 @@ namespace art {
 
 }  // art
 
-#endif /* art_Framework_Worker_WorkerParams_h */
+#endif /* art_Framework_Principal_WorkerParams_h */
 
 // Local Variables:
 // mode: c++

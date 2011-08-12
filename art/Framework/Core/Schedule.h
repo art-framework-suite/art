@@ -257,7 +257,7 @@ namespace art {
 
     void addToAllWorkers(Worker* w);
 
-    WorkerPtr makeInserter(fhicl::ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const;
+    void makeTriggerResultsInserter(fhicl::ParameterSet const& trig_pset, MasterProductRegistry &pregistry);
 
     void fillBranchLookup(ProductList const & pList,
                           BranchesByModuleLabel &branchLookup) const;
@@ -275,7 +275,7 @@ namespace art {
                                          art::Path const &path,
                                          bool isEndPath) const;
 
-    fhicl::ParameterSet pset_;
+    fhicl::ParameterSet process_pset_;
     WorkerRegistry*     worker_reg_;
     ActionTable*        act_table_;
     std::string         processName_;

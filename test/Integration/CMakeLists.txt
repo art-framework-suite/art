@@ -72,7 +72,8 @@ link_libraries(
 include(CetTest)
 
 # Tests
-cet_test(ReflexTools_t)
+cet_test(ReflexTools_t USE_BOOST_UNIT)
+
 cet_test(EventSelectorFromFile_t.sh PREBUILT
   DATAFILES
   fcl/EventSelectorFromFile_w.fcl

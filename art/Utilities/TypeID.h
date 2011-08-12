@@ -42,8 +42,6 @@ public:
 
   std::string className() const;
 
-  std::string userClassName() const;
-
   std::string friendlyClassName() const;
 
   bool hasDictionary() const;
@@ -55,6 +53,8 @@ public:
   bool
   operator == ( const TypeID & other ) const
   { return *t_ == *other.t_; }
+
+  operator bool() { return t_; }
 
 private:
   struct Def {};

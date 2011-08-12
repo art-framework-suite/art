@@ -65,10 +65,6 @@ namespace art
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
-    // Classes that inherit from EDAnalyzer should *never* override this function.
-    void registerAnyProducts(std::shared_ptr<EDAnalyzer>const&,
-                             MasterProductRegistry const*) {}
-
     virtual void analyze(Event const&) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}

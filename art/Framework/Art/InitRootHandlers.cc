@@ -3,6 +3,7 @@
 #include "art/Persistency/Common/CacheStreamers.h"
 #include "art/Persistency/Common/detail/setPtrVectorBaseStreamer.h"
 #include "art/Framework/IO/Root/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
 #include "art/Utilities/Exception.h"
 
@@ -179,6 +180,7 @@ namespace art {
       // Set custom streamers
       setCacheStreamers();
       setProvenanceTransientStreamers();
+      detail::setBranchDescriptionStreamer();
       detail::setPtrVectorBaseStreamer();
       configureRefCoreStreamer();
    }

@@ -41,7 +41,6 @@ namespace art {
                    BranchDescription const& prod,
                    std::string const& branchName);
     void dropBranch(std::string const& branchName);
-    void setPresence(BranchDescription &prod);
     bool next() {return ++entryNumber_ < entries_;}
     bool previous() {return --entryNumber_ >= 0;}
     bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;}

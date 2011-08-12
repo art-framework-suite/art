@@ -1,5 +1,5 @@
-#ifndef art_Persistency_Common_Handle_h
-#define art_Persistency_Common_Handle_h
+#ifndef art_Framework_Principal_Handle_h
+#define art_Framework_Principal_Handle_h
 
 // ======================================================================
 //
@@ -219,7 +219,7 @@ void
 
 // ======================================================================
 
-#endif /* art_Persistency_Common_Handle_h */
+#endif /* art_Framework_Principal_Handle_h */
 
 // Local Variables:
 // mode: c++

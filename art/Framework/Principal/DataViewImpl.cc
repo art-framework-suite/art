@@ -70,19 +70,19 @@ namespace art {
   }
 
   int
-  DataViewImpl::getMatchingSequence_(TypeID const& typeID,
+  DataViewImpl::getMatchingSequence_(TypeID const& elementType,
                                      SelectorBase const& selector,
                                      GroupQueryResultVec& results,
                                      bool stopIfProcessHasMatch) const
   {
-    return principal_.getMatchingSequence(typeID,
+    return principal_.getMatchingSequence(elementType,
                                     selector,
                                     results,
                                     stopIfProcessHasMatch);
   }
 
   int
-  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
+  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& elementType,
                                             string const& label,
                                             string const& productInstanceName,
                                             GroupQueryResultVec& results,
@@ -91,7 +91,7 @@ namespace art {
     art::Selector sel(art::ModuleLabelSelector(label) &&
                       art::ProductInstanceNameSelector(productInstanceName));
 
-    int n = principal_.getMatchingSequence(typeID,
+    int n = principal_.getMatchingSequence(elementType,
                                      sel,
                                      results,
                                      stopIfProcessHasMatch);
@@ -99,7 +99,7 @@ namespace art {
   }
 
   int
-  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
+  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& elementType,
                                             string const& label,
                                             string const& productInstanceName,
                                             string const& processName,
@@ -110,7 +110,7 @@ namespace art {
                       art::ProductInstanceNameSelector(productInstanceName) &&
                       art::ProcessNameSelector(processName) );
 
-    int n = principal_.getMatchingSequence(typeID,
+    int n = principal_.getMatchingSequence(elementType,
                                    sel,
                                    results,
                                    stopIfProcessHasMatch);

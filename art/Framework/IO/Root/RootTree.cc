@@ -49,18 +49,10 @@ namespace art {
   }
 
   void
-  RootTree::setPresence(BranchDescription &prod) {
-      assert(isValid());
-      prod.init();
-      prod.setPresent(tree_->GetBranch(prod.branchName().c_str()) != 0);
-  }
-
-  void
   RootTree::addBranch(BranchKey const& key,
                       BranchDescription const& prod,
                       std::string const& branchName) {
       assert(isValid());
-      prod.init();
       //use the translated branch name
       TBranch * branch = tree_->GetBranch(branchName.c_str());
       assert (prod.present() == (branch != 0));

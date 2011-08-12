@@ -12,9 +12,9 @@
 namespace {
   void checkDicts(art::BranchDescription const &productDesc) {
     if (productDesc.transient()) { // FIXME: make this go away soon.
-      art::checkDictionaries(productDesc.fullClassName(), true);
+      art::checkDictionaries(productDesc.producedClassName(), true);
     } else {
-      art::checkDictionaries(art::wrappedClassName(productDesc.fullClassName()), false);
+      art::checkDictionaries(art::wrappedClassName(productDesc.producedClassName()), false);
     }
   }
 }
@@ -39,19 +39,6 @@ art::MasterProductRegistry::MasterProductRegistry()
        ++i) {
     productProduced_[i] = false;
   }
-}
-
-std::vector<art::BranchDescription const *>
-art::MasterProductRegistry::allBranchDescriptions() const {
-  std::vector<BranchDescription const *> result;
-  result.reserve(productList_.size());
-  for (ProductList::const_iterator
-         i = productList_.begin(),
-         e = productList_.end();
-       i != e; ++i) {
-    result.push_back(&i->second);
-  }
-  return result;
 }
 
 std::vector<std::string>
@@ -97,7 +84,6 @@ void
 art::MasterProductRegistry::addProduct(std::auto_ptr<BranchDescription> bdp) {
   assert(bdp->produced());
   throwIfFrozen();
-  bdp->init();
   checkDicts(*bdp);
   std::pair<ProductList::iterator, bool> result =
     productList_.insert(std::make_pair(BranchKey(*bdp), BranchDescription()));
@@ -122,18 +108,6 @@ art::MasterProductRegistry::updateFromInput(ProductList const &other) {
        ++it) {
     copyProduct(it->second);
   }
-}
-
-void
-art::MasterProductRegistry::updateFromInput(std::vector<BranchDescription> const &other) {
-  for (std::vector<BranchDescription>::const_iterator
-         it = other.begin(),
-         itEnd = other.end();
-       it != itEnd;
-       ++it) {
-    copyProduct(*it);
-  }
-
 }
 
 std::string
@@ -194,7 +168,6 @@ void
 art::MasterProductRegistry::copyProduct(BranchDescription const &productDesc) {
   assert(!productDesc.produced());
   throwIfFrozen();
-  productDesc.init();
   BranchKey k = BranchKey(productDesc);
   ProductList::iterator iter = productList_.find(k);
   if (iter == productList_.end()) {
@@ -249,7 +222,7 @@ art::MasterProductRegistry::processFrozenProductList() {
     std::vector<BranchID> &vint = processLookup[i->first.processName_];
     vint.push_back(i->second.branchID());
 
-    Reflex::Type type(Reflex::Type::ByName(i->second.className()));
+    Reflex::Type type(Reflex::Type::ByName(i->second.producedClassName()));
     if (type) {
       // Here we look in the object named "type" for a typedef named
       // "value_type" and get the Reflex::Type for it.  Then check to
@@ -258,8 +231,7 @@ art::MasterProductRegistry::processFrozenProductList() {
       // are known cases where the dictionary does not exist and we do
       // not need to support those cases.
       Reflex::Type valueType;
-      if (value_type_of(type, valueType) && static_cast<bool>(valueType)) {
-        // FIXME: Why is there an explicit static_cast above? Reflex type foo?
+      if (value_type_of(type, valueType) && valueType) {
         fillElementLookup(valueType, i->second.branchID(), i->first);
 
         // Repeat this for all public base classes of the value_type

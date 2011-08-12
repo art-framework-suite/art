@@ -1,5 +1,5 @@
-#ifndef art_Framework_Worker_RunStopwatch_h
-#define art_Framework_Worker_RunStopwatch_h
+#ifndef art_Framework_Principal_RunStopwatch_h
+#define art_Framework_Principal_RunStopwatch_h
 
 /*----------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ private:
   StopwatchPointer stopwatch_;
 
 };
-#endif /* art_Framework_Worker_RunStopwatch_h */
+#endif /* art_Framework_Principal_RunStopwatch_h */
 
 // Local Variables:
 // mode: c++

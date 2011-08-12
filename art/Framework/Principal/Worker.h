@@ -1,5 +1,5 @@
-#ifndef art_Framework_Worker_Worker_h
-#define art_Framework_Worker_Worker_h
+#ifndef art_Framework_Principal_Worker_h
+#define art_Framework_Principal_Worker_h
 
 // ======================================================================
 /*
@@ -345,7 +345,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
 
   return rc;
 }
-#endif /* art_Framework_Worker_Worker_h */
+#endif /* art_Framework_Principal_Worker_h */
 
 // Local Variables:
 // mode: c++

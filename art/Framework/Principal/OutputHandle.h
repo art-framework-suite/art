@@ -1,5 +1,5 @@
-#ifndef art_Persistency_Common_OutputHandle_h
-#define art_Persistency_Common_OutputHandle_h
+#ifndef art_Framework_Principal_OutputHandle_h
+#define art_Framework_Principal_OutputHandle_h
 
 /*----------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ namespace art {
   }
 }
 
-#endif /* art_Persistency_Common_OutputHandle_h */
+#endif /* art_Framework_Principal_OutputHandle_h */
 
 // Local Variables:
 // mode: c++

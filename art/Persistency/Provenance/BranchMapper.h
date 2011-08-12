@@ -13,6 +13,9 @@
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "cpp0x/memory"
+
+#include "boost/noncopyable.hpp"
+
 #include <iosfwd>
 #include <map>
 #include <set>
@@ -20,7 +23,7 @@
 namespace art {
   // defined below:
   class BranchMapper;
-  std::ostream & operator << (std::ostream &, BranchMapper const &);
+  std::ostream &operator << (std::ostream &, BranchMapper const &);
 
   // forward declaration:
   class ProductID;
@@ -28,32 +31,23 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::BranchMapper
-{
-  // non-copyable:
-  BranchMapper(BranchMapper const &);
-  void operator = (BranchMapper const &);
-
+class art::BranchMapper : boost::noncopyable {
+public:
   typedef  cet::exempt_ptr<ProductProvenance const>  result_t;
 
-public:
-  BranchMapper();
-  explicit BranchMapper(bool delayedRead);
+  explicit BranchMapper(bool delayedRead = false);
   virtual ~BranchMapper() { }
 
-  void write(std::ostream&) const;
+  void write(std::ostream &) const;
 
-  result_t branchToProductProvenance(BranchID const&) const;
+  result_t branchToProductProvenance(BranchID const &) const;
 
   result_t insert(std::auto_ptr<ProductProvenance const>);
 
   void setDelayedRead(bool value) {delayedRead_ = value;}
 
 private:
-  typedef std::map< BranchID,
-                    cet::value_ptr<ProductProvenance const>
-                  >
-          eiSet;
+  typedef std::map <BranchID, cet::value_ptr<ProductProvenance const> >  eiSet;
 
   eiSet         entryInfoSet_;
   mutable bool  delayedRead_;
@@ -63,8 +57,9 @@ private:
 
 };  // BranchMapper
 
-inline std::ostream &
-  art::operator << (std::ostream & os, BranchMapper const & p)
+inline
+std::ostream &
+art::operator << (std::ostream &os, BranchMapper const &p)
 {
   p.write(os);
   return os;

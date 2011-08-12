@@ -43,7 +43,6 @@ void TestRefCore::default_ctor_without_active_getter()
 void TestRefCore::default_ctor_with_active_getter()
 {
   SimpleEDProductGetter getter;
-  art::EDProductGetter::Operate op(&getter);
   art::RefCore  default_refcore;
   CPPUNIT_ASSERT(default_refcore.isNull());
   CPPUNIT_ASSERT(default_refcore.isNonnull()==false);
@@ -55,7 +54,6 @@ void TestRefCore::default_ctor_with_active_getter()
 void TestRefCore::nondefault_ctor()
 {
   SimpleEDProductGetter getter;
-  art::EDProductGetter::Operate op(&getter);
   art::ProductID id(1, 201U);
   CPPUNIT_ASSERT(id.isValid());
 

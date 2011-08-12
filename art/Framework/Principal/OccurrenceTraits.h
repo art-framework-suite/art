@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_OccurrenceTraits_h
-#define art_Framework_Core_OccurrenceTraits_h
+#ifndef art_Framework_Principal_OccurrenceTraits_h
+#define art_Framework_Principal_OccurrenceTraits_h
 
 // ======================================================================
 //
@@ -165,7 +165,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_Core_OccurrenceTraits_h */
+#endif /* art_Framework_Principal_OccurrenceTraits_h */
 
 // Local Variables:
 // mode: c++

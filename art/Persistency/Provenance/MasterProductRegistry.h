@@ -42,8 +42,6 @@ public:
 
   ////////////////////////////////////////////////////////////////////////
   // const functions available to clients of ProductMetaData.
-
-  std::vector<BranchDescription const*> allBranchDescriptions() const;
   std::vector<std::string> allBranchNames() const;
 
   ProductList const &productList() const;
@@ -64,7 +62,6 @@ public:
   void addProduct(std::auto_ptr<BranchDescription> bdp);
 
   void updateFromInput(ProductList const &other);
-  void updateFromInput(std::vector<BranchDescription> const &other);
 
   // Mutator for use while frozen only.
   std::string merge(ProductList const &other,

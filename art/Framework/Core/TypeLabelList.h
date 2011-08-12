@@ -1,7 +1,7 @@
 #ifndef art_Framework_Core_TypeLabelList_h
 #define art_Framework_Core_TypeLabelList_h
 
-#include <list>
+#include <set>
 #include <string>
 #include "art/Utilities/TypeID.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -19,12 +19,10 @@ namespace art
       branchType(branchType),
       typeID(itemtype),
       productInstanceName(instanceName),
-      emulatedModule(emulatedMod),
-      branchAlias()
+      emulatedModule(emulatedMod)
     {}
 
-    bool hasBranchAlias() const { return !branchAlias.empty(); }
-    std::string userClassName() const { return typeID.userClassName(); }
+    std::string className() const { return typeID.className(); }
     std::string friendlyClassName() const { return typeID.friendlyClassName(); }
     bool hasEmulatedModule() const { return !emulatedModule.empty(); }
 
@@ -32,10 +30,20 @@ namespace art
     TypeID      typeID;
     std::string productInstanceName;
     std::string emulatedModule;
-    std::string branchAlias;
   };
 
-  typedef std::list<art::TypeLabel> TypeLabelList;
+  // Types with the same friendlyClassName are in the same equivalence
+  // class for the purposes of this comparison.
+  inline
+  bool operator<(TypeLabel const &a, TypeLabel const &b) {
+    return (a.branchType != b.branchType) ? a.branchType < b.branchType :
+      (a.emulatedModule != b.emulatedModule) ? a.emulatedModule < b.emulatedModule :
+      (a.productInstanceName != b.productInstanceName) ? a.productInstanceName < b.productInstanceName :
+      a.friendlyClassName() < b.friendlyClassName();
+  }
+
+  typedef std::set<art::TypeLabel> TypeLabelList;
+
 }
 
 

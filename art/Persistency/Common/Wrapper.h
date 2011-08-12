@@ -89,13 +89,6 @@ namespace art {
   private:
     virtual bool isPresent_() const {return present;}
 
-#ifndef __REFLEX__
-    virtual bool isMergeable_() const;
-    virtual bool mergeProduct_(EDProduct const* newProduct);
-    virtual bool hasIsProductEqual_() const;
-    virtual bool isProductEqual_(EDProduct const* newProduct) const;
-#endif
-
     virtual void do_setPtr(std::type_info const &toType,
                            unsigned long index,
                            void const * &ptr) const;
@@ -191,56 +184,6 @@ namespace art {
     void operator()(T& a, T& b) { a = b; }
   };
 
-#ifndef __REFLEX__
-  template <typename T>
-  struct IsMergeable
-  {
-    bool operator()(T const& a) const { return true; }
-  };
-
-  template <typename T>
-  struct IsNotMergeable
-  {
-    bool operator()(T const& a) const { return false; }
-  };
-
-  template <typename T>
-  struct DoMergeProduct
-  {
-    bool operator()(T & a, T const& b) { return a.mergeProduct(b); }
-  };
-
-  template <typename T>
-  struct DoNotMergeProduct
-  {
-    bool operator()(T & a, T const& b) { return true; }
-  };
-
-  template <typename T>
-  struct DoHasIsProductEqual
-  {
-    bool operator()(T const& a) const { return true; }
-  };
-
-  template <typename T>
-  struct DoNotHasIsProductEqual
-  {
-    bool operator()(T const& a) const { return false; }
-  };
-
-  template <typename T>
-  struct DoIsProductEqual
-  {
-    bool operator()(T const& a, T const& b) const { return a.isProductEqual(b); }
-  };
-
-  template <typename T>
-  struct DoNotIsProductEqual
-  {
-    bool operator()(T const& a, T const& b) const { return true; }
-  };
-#endif
-
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in
   // Wrapper constructor
@@ -296,29 +239,6 @@ namespace art {
       static bool const value = false;
     };
 
-#ifndef __REFLEX__
-    template <typename T, bool (T::*)(T const &)>  struct mergeProduct_function;
-    template <typename T> no_tag  has_mergeProduct_helper(...);
-    template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
-
-    template<typename T>
-    struct has_mergeProduct_function
-    {
-      static bool const value =
-        sizeof(has_mergeProduct_helper<T>(0)) == sizeof(yes_tag);
-    };
-
-    template <typename T, bool (T::*)(T const &)>  struct isProductEqual_function;
-    template <typename T> no_tag  has_isProductEqual_helper(...);
-    template <typename T> yes_tag has_isProductEqual_helper(isProductEqual_function<T, &T::isProductEqual> * dummy);
-
-    template<typename T>
-    struct has_isProductEqual_function
-    {
-      static bool const value =
-        sizeof(has_isProductEqual_helper<T>(0)) == sizeof(yes_tag);
-    };
-#endif
   }
 
   template <class T>
@@ -354,48 +274,6 @@ namespace art {
     }
 
   }
-
-#ifndef __REFLEX__
-  template <class T>
-  bool Wrapper<T>::isMergeable_() const
-  {
-    typename std::conditional<detail::has_mergeProduct_function<T>::value,
-      IsMergeable<T>,
-      IsNotMergeable<T> >::type is_mergeable;
-    return is_mergeable(obj);
-  }
-
-  template <class T>
-  bool Wrapper<T>::mergeProduct_(EDProduct const* newProduct)
-  {
-    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
-    if (wrappedNewProduct == 0) return false;
-    typename std::conditional<detail::has_mergeProduct_function<T>::value,
-      DoMergeProduct<T>,
-      DoNotMergeProduct<T> >::type merge_product;
-  return merge_product(obj, wrappedNewProduct->obj);
-}
-
-template <class T>
-bool Wrapper<T>::hasIsProductEqual_() const
-{
-  typename std::conditional<detail::has_isProductEqual_function<T>::value,
-    DoHasIsProductEqual<T>,
-    DoNotHasIsProductEqual<T> >::type has_is_equal;
-  return has_is_equal(obj);
-}
-
-template <class T>
-bool Wrapper<T>::isProductEqual_(EDProduct const* newProduct) const
-{
-  Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const* >(newProduct);
-  if (wrappedNewProduct == 0) return false;
-  typename std::conditional<detail::has_isProductEqual_function<T>::value,
-    DoIsProductEqual<T>,
-    DoNotIsProductEqual<T> >::type is_equal;
-  return is_equal(obj, wrappedNewProduct->obj);
-}
-#endif
 
 template< class T >
 struct fillView<T, true>

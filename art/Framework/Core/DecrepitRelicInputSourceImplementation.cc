@@ -88,7 +88,7 @@ namespace art {
     }
 
     // This must come LAST in the constructor.
-    registerProducts_(desc.productRegistry);
+    registerProducts(desc.productRegistry, moduleDescription_);
   }
 
 
@@ -207,15 +207,6 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::doEndJob() {
     endJob();
-  }
-
-  void
-  DecrepitRelicInputSourceImplementation::registerProducts_(MasterProductRegistry& mpr)
-  {
-    addToRegistry(typeLabelList().begin(),
-                  typeLabelList().end(),
-                  moduleDescription(),
-                  mpr);
   }
 
   // Return a dummy file block.

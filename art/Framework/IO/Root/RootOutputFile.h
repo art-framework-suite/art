@@ -67,8 +67,6 @@ namespace art {
     //-------------------------------
     // Private functions
 
-    void setBranchAliases(TTree *tree, Selections const& branches) const;
-
     void fillBranches(BranchType const& branchType,
                       Principal const& principal,
                       std::vector<ProductProvenance> * productProvenanceVecPtr);

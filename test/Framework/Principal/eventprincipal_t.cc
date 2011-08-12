@@ -118,7 +118,7 @@ fake_single_process_branch(std::string const& tag,
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   art::TypeID dummyType(typeid(arttest::DummyProduct));
-  std::string productClassName = dummyType.userClassName();
+  std::string productClassName = dummyType.className();
   std::string friendlyProductClassName = dummyType.friendlyClassName();
   fhicl::ParameterSet modParams;
   modParams.put<std::string>("module_type", moduleClass);

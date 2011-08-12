@@ -1,5 +1,5 @@
-#ifndef art_Persistency_Common_Provenance_h
-#define art_Persistency_Common_Provenance_h
+#ifndef art_Framework_Principal_Provenance_h
+#define art_Framework_Principal_Provenance_h
 
 // ======================================================================
 //
@@ -49,7 +49,7 @@ public:
   Parentage         const&  parentage          () const {return productProvenance().parentage();}
   BranchID          const&  branchID           () const {return productDescription().branchID();}
   std::string       const&  branchName         () const {return productDescription().branchName();}
-  std::string       const&  className          () const {return productDescription().className();}
+  std::string       const&  producedClassName      () const {return productDescription().producedClassName();}
   std::string       const&  moduleLabel        () const {return productDescription().moduleLabel();}
   std::string       const&  processName        () const {return productDescription().processName();}
   ProductStatus     const&  productStatus      () const {return productProvenance().productStatus();}
@@ -57,8 +57,6 @@ public:
   std::string       const&  friendlyClassName  () const {return productDescription().friendlyClassName();}
   std::set<fhicl::ParameterSetID> const&
                             psetIDs            () const {return productDescription().psetIDs();}
-  std::set<std::string> const&
-                            branchAliases      () const {return productDescription().branchAliases();}
   std::vector<BranchID> const&
                             parents            () const {return parentage().parents();}
 
@@ -82,7 +80,7 @@ inline  std::ostream &
 
 // ======================================================================
 
-#endif /* art_Persistency_Common_Provenance_h */
+#endif /* art_Framework_Principal_Provenance_h */
 
 // Local Variables:
 // mode: c++

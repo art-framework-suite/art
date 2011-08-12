@@ -1,5 +1,5 @@
-#ifndef art_Framework_Worker_CurrentProcessingContext_h
-#define art_Framework_Worker_CurrentProcessingContext_h
+#ifndef art_Framework_Principal_CurrentProcessingContext_h
+#define art_Framework_Principal_CurrentProcessingContext_h
 
 // CurrentProcessingContext is a class that carries information about
 // the current event processing context. Each module in a framework
@@ -84,7 +84,7 @@ private:
   bool is_active() const { return moduleDescription_ != 0; }
 };  // CurrentProcessingContext
 
-#endif /* art_Framework_Worker_CurrentProcessingContext_h */
+#endif /* art_Framework_Principal_CurrentProcessingContext_h */
 
 // Local Variables:
 // mode: c++

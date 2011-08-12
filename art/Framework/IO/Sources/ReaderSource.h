@@ -574,14 +574,7 @@ namespace art
 
     md.processConfiguration_.processName_ = d.moduleDescription.processConfiguration_.processName_;
     md.parameterSetID_ = fhicl::ParameterSet().id(); // Dummy
-
-    TypeLabelList& types = h_.typeLabelList();
-    MasterProductRegistry& reg = d.productRegistry;
-    ProductRegistryHelper::addToRegistry(types.begin(),
-                                         types.end(),
-                                         md,
-                                         reg,
-                                         false);
+    h_.registerProducts(d.productRegistry, md);
   }
 }
 

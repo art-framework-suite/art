@@ -151,11 +151,11 @@ public:
 
   // A.
   template <class P>
-  TypeLabel const& produces(std::string const& instanceName=std::string());
+  void produces(std::string const& instanceName=std::string());
 
   // B.
   template <class P, BranchType B>
-  TypeLabel const& produces(std::string const& instanceName=std::string());
+  void produces(std::string const& instanceName=std::string());
 
   // 1.
   template <typename PROD>
@@ -256,16 +256,16 @@ private:
 
 // A.
 template <class P>
-art::TypeLabel const&
+void
 art::MixHelper::produces(std::string const& instanceName) {
-  return producesProvider_.produces<P>(instanceName);
+  producesProvider_.produces<P>(instanceName);
 }
 
 // B.
 template <class P, art::BranchType B>
-art::TypeLabel const&
+void
 art::MixHelper::produces(std::string const& instanceName) {
-  return producesProvider_.produces<P, B>(instanceName);
+  producesProvider_.produces<P, B>(instanceName);
 }
 
 // 1.

@@ -69,9 +69,6 @@ namespace art
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-    void registerAnyProducts(std::shared_ptr<EDProducer>& module, MasterProductRegistry *reg) {
-      registerProducts(module, reg, moduleDescription_);
-    }
 
     std::string workerType() const {return "WorkerT<EDProducer>";}
 

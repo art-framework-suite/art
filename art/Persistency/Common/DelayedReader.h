@@ -14,7 +14,6 @@ uses input sources to retrieve EDProducts from external storage.
 
 namespace art {
   class BranchKey;
-  class EDProductGetter;
   // Use this instead of Principal/fwd.h to prevent false positives in dependency checking.
   class EventPrincipal;
 
@@ -24,20 +23,20 @@ namespace art {
 class art::DelayedReader {
 public:
   virtual ~DelayedReader();
-  std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* pg) const;
+  std::auto_ptr<EDProduct> getProduct(BranchKey const& k) const;
   void setGroupFinder(cet::exempt_ptr<EventPrincipal const>);
   void mergeReaders(std::shared_ptr<DelayedReader> other) {mergeReaders_(other);}
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* pg) const = 0;
+  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k) const = 0;
   virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
-  virtual void mergeReaders_(std::shared_ptr<DelayedReader>) {}
+  virtual void mergeReaders_(std::shared_ptr<DelayedReader>);
 };
 
 inline
 std::auto_ptr<art::EDProduct>
 art::DelayedReader::
-getProduct(BranchKey const& k, EDProductGetter const* pg) const {
-  return getProduct_(k, pg);
+getProduct(BranchKey const& k) const {
+  return getProduct_(k);
 }
 
 inline

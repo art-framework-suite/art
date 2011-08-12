@@ -42,15 +42,6 @@ namespace art {
   }
 
   std::string
-  TypeID::userClassName() const {
-    std::string theName = className();
-    if (theName.find("art::Wrapper") == 0) {
-      stripTemplate(theName);
-    }
-    return theName;
-  }
-
-  std::string
   TypeID::friendlyClassName() const {
     return friendlyname::friendlyName(className());
   }

@@ -39,7 +39,7 @@ public:
   virtual ~RootDelayedReader();
 
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const;
+  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k) const;
   virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
   virtual void mergeReaders_(std::shared_ptr<DelayedReader> other) {nextReader_ = other;}
   BranchMap const& branches() const {return *branches_;}

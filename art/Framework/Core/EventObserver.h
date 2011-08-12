@@ -4,15 +4,24 @@
 // OutputModule and EDAnalyzer.
 
 namespace art {
-   class EventObserver {
-   public:
-      bool modifiesEvent() const { return false; }
+  class MasterProductRegistry;
+  class ModuleDescription;
 
-   protected:
-      virtual ~EventObserver();
-
-   };
+  class EventObserver;
 }
+
+class art::EventObserver {
+public:
+  bool modifiesEvent() const { return false; }
+
+  // FIXME: One could obviate the need for this trivial implementation
+  // by putting some type logic in WorkerT.
+  void registerProducts(MasterProductRegistry&, ModuleDescription const &) {}
+
+protected:
+  virtual ~EventObserver();
+
+};
 
 #endif /* art_Framework_Core_EventObserver_h */
 

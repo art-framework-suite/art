@@ -83,7 +83,7 @@ namespace art
                      MasterProductRegistry& pregistry,
                      ActionTable& actions,
                      std::shared_ptr<ActivityRegistry> areg):
-    pset_(proc_pset),
+    process_pset_(proc_pset),
     worker_reg_(&wreg),
     act_table_(&actions),
     processName_(tns.getProcessName()),
@@ -105,7 +105,7 @@ namespace art
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     endpathsAreActive_(true)
   {
-     ParameterSet services(pset_.get<ParameterSet>("services", ParameterSet()));
+     ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
      ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
      bool hasPath = false;
 
@@ -124,8 +124,8 @@ namespace art
      if (hasPath)
         {
            // the results inserter stands alone
-          results_inserter_ = makeInserter(tns.getTriggerPSet(), pregistry);
-           addToAllWorkers(results_inserter_.get());
+          makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
+          addToAllWorkers(results_inserter_.get());
         }
 
      TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
@@ -154,11 +154,11 @@ namespace art
      if(!unusedLabels.empty())
         {
            ParameterSet empty;
-           ParameterSet physics =   pset_.get<ParameterSet>("physics");
+           ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
            ParameterSet producers = physics.get<ParameterSet>("producers", empty);
            ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
            ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-           ParameterSet outputs   = pset_.get<ParameterSet>("outputs", empty);
+           ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
            //Need to
            // 1) create worker
            // 2) if it is a WorkerT<EDProducer>, add it to our list
@@ -291,12 +291,12 @@ namespace art
                         MasterProductRegistry &pregistry)
   {
      ParameterSet empty;
-     ParameterSet physics =   pset_.get<ParameterSet>("physics");
+     ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
      vstring modnames =       physics.get<vstring >(name);
      ParameterSet producers = physics.get<ParameterSet>("producers", empty);
      ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
      ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-     ParameterSet outputs   = pset_.get<ParameterSet>("outputs", empty);
+     ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
 
      vstring::iterator it(modnames.begin()),ie(modnames.end());
      PathWorkers tmpworkers;
@@ -320,7 +320,7 @@ namespace art
                (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
                (isTrigPath?outputs:filters).get_if_present(realname, modpset))
               {
-                 WorkerParams params(pset_, modpset, pregistry, *act_table_,
+                 WorkerParams params(process_pset_, modpset, pregistry, *act_table_,
                                      processName_, getReleaseVersion(), getPassID());
                  WorkerInPath w(worker_reg_->getWorker(params), filterAction);
                  tmpworkers.push_back(w);
@@ -365,7 +365,7 @@ namespace art
     if(!tmpworkers.empty())
       {
         Path p(bitpos,name,tmpworkers,trptr,
-               pset_,*act_table_,actReg_,false);
+               process_pset_,*act_table_,actReg_,false);
         trig_paths_.push_back(p);
       }
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
@@ -388,7 +388,7 @@ namespace art
     if (!tmpworkers.empty())
       {
         Path p(bitpos,name,tmpworkers,endpath_results_,
-               pset_,*act_table_,actReg_,true);
+               process_pset_,*act_table_,actReg_,true);
         end_paths_.push_back(p);
       }
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
@@ -937,23 +937,22 @@ namespace art
     }
   }
 
-  Schedule::WorkerPtr
-  Schedule::makeInserter(ParameterSet const& trig_pset, MasterProductRegistry &pregistry) const {
+  void
+  Schedule::makeTriggerResultsInserter(ParameterSet const& trig_pset, MasterProductRegistry &pregistry) {
 
-    WorkerParams work_args(pset_,trig_pset,pregistry,*act_table_,processName_);
+    WorkerParams work_args(process_pset_,trig_pset,pregistry,*act_table_,processName_);
     ModuleDescription md;
     md.parameterSetID_ = trig_pset.id();
     md.moduleName_ = "TriggerResultInserter";
     md.moduleLabel_ = "TriggerResults";
-    md.processConfiguration_ = ProcessConfiguration(processName_, pset_.id(), getReleaseVersion(), getPassID());
+    md.processConfiguration_ = ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion(), getPassID());
 
     actReg_->preModuleConstructionSignal_(md);
     auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
     actReg_->postModuleConstructionSignal_(md);
 
-    Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
-    ptr->setActivityRegistry(actReg_);
-    return ptr;
+    results_inserter_.reset(new WorkerT<EDProducer>(producer, md, work_args));
+    results_inserter_->setActivityRegistry(actReg_);
   }
 
   void Schedule::fillBranchLookup(ProductList const &pList,

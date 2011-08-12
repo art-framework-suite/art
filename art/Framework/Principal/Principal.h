@@ -82,10 +82,10 @@ public:
   // Return a vector of GroupQueryResults to the products which:
   //   1. are sequences,
   //   2. and have the nested type 'value_type'
-  //   3. and for which typeID is the same as or a public base of
+  //   3. and for which elementType is the same as or a public base of
   //      this value_type,
   //   4. and which matches the given selector
-  size_t getMatchingSequence(TypeID const& typeID,
+  size_t getMatchingSequence(TypeID const& elementType,
                              SelectorBase const& selector,
                              GroupQueryResultVec& results,
                              bool stopIfProcessHasMatch) const;
@@ -120,7 +120,7 @@ protected:
   // *this takes ownership of the Group, which in turn owns its
   // data.
   void addGroup_(std::auto_ptr<Group> g);
-  Group*  getExistingGroup(Group const& g);
+  cet::exempt_ptr<Group const>  getExistingGroup(BranchID const &bid);
   void replaceGroup(std::auto_ptr<Group> g);
   SharedConstGroupPtr const getGroup(BranchID const& oid) const;
   SharedConstGroupPtr const getGroup(BranchID const& oid,

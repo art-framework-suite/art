@@ -53,21 +53,6 @@ using art::rootNames::metaBranchRootName;
 
 namespace art {
 
-  namespace {
-    bool
-    sorterForJobReportHash(BranchDescription const* lh, BranchDescription const* rh) {
-      return
-        lh->fullClassName() < rh->fullClassName() ? true :
-        lh->fullClassName() > rh->fullClassName() ? false :
-        lh->moduleLabel() < rh->moduleLabel() ? true :
-        lh->moduleLabel() > rh->moduleLabel() ? false :
-        lh->productInstanceName() < rh->productInstanceName() ? true :
-        lh->productInstanceName() > rh->productInstanceName() ? false :
-        lh->processName() < rh->processName() ? true :
-        false;
-    }
-  }
-
   RootOutputFile::RootOutputFile(RootOutput *om, string const& fileName, string const& logicalFileName) :
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -128,40 +113,6 @@ namespace art {
     if (! eventHistoryTree_->Branch(rootNames::eventHistoryBranchName().c_str(), &pHistory_, om_->basketSize(), 0))
       throw art::Exception(art::errors::FatalRootError)
         << "Failed to create a branch for Historys in the output file\n";
-
-    // For the Job Report, get a vector of branch names in the "Events" tree.
-    // Also create a hash of all the branch names in the "Events" tree
-    // in a deterministic order, except use the full class name instead of the friendly class name.
-    // To avoid extra string copies, we create a vector of pointers into the product registry,
-    // and use a custom comparison operator for sorting.
-    vector<string> branchNames;
-    vector<BranchDescription const*> branches;
-    branchNames.reserve(om_->selectedOutputItemList()[InEvent].size());
-    branches.reserve(om->selectedOutputItemList()[InEvent].size());
-    for (OutputItemList::const_iterator it = om_->selectedOutputItemList()[InEvent].begin(),
-          itEnd = om_->selectedOutputItemList()[InEvent].end();
-          it != itEnd; ++it) {
-      branchNames.push_back(it->branchDescription_->branchName());
-      branches.push_back(it->branchDescription_);
-    }
-    // Now sort the branches for the hash.
-    sort_all(branches, sorterForJobReportHash);
-    // Now, make a concatenated string.
-    ostringstream oss;
-    char const underscore = '_';
-    for (vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
-      BranchDescription const& bd = **it;
-      oss <<  bd.fullClassName() << underscore
-          << bd.moduleLabel() << underscore
-          << bd.productInstanceName() << underscore
-          << bd.processName() << underscore;
-    }
-    string stringrep = oss.str();
-    art::Digest md5alg(stringrep);
-
-    // Register the output file with the JobReport service
-    // and get back the token for it.
-    string moduleName = "RootOutput";
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
@@ -371,12 +322,9 @@ namespace art {
 
     RootOutputTree::writeTTree(parentageTree_);
 
-    // Create branch aliases for all the branches in the
-    // events/subRuns/runs trees. The loop is over all types of data
-    // products.
+    // Write out the tree corresponding to each BranchType
     for (int i = InEvent; i < NumBranchTypes; ++i) {
       BranchType branchType = static_cast<BranchType>(i);
-      setBranchAliases(treePointers_[branchType]->tree(), om_->keptProducts()[branchType]);
       treePointers_[branchType]->writeTree();
     }
 
@@ -386,27 +334,6 @@ namespace art {
 
     // report that file has been closed
 
-  }
-
-  void
-  RootOutputFile::setBranchAliases(TTree *tree, Selections const& branches) const {
-    if (tree && tree->GetNbranches() != 0) {
-      for (Selections::const_iterator i = branches.begin(), iEnd = branches.end();
-          i != iEnd; ++i) {
-        BranchDescription const& pd = **i;
-        string const& full = pd.branchName() + "obj";
-        if (pd.branchAliases().empty()) {
-          string const& alias =
-              (pd.productInstanceName().empty() ? pd.moduleLabel() : pd.productInstanceName());
-          tree->SetAlias(alias.c_str(), full.c_str());
-        } else {
-          set<string>::const_iterator it = pd.branchAliases().begin(), itEnd = pd.branchAliases().end();
-          for (; it != itEnd; ++it) {
-            tree->SetAlias((*it).c_str(), full.c_str());
-          }
-        }
-      }
-    }
   }
 
   void

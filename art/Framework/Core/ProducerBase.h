@@ -24,15 +24,10 @@ namespace art {
   class ProducerBase : private ProductRegistryHelper
   {
   public:
-    ProducerBase ();
     virtual ~ProducerBase();
 
-    void registerProducts(std::shared_ptr<ProducerBase>,
-                        MasterProductRegistry *,
-                        ModuleDescription const&);
-
+    using ProductRegistryHelper::registerProducts;
     using ProductRegistryHelper::produces;
-    using ProductRegistryHelper::typeLabelList;
 
     bool modifiesEvent() const { return true; }
 

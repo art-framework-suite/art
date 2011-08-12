@@ -9,13 +9,19 @@ This description also applies to every product instance on the branch.
 
 ----------------------------------------------------------------------*/
 
-#include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/Transient.h"
 #include "fhiclcpp/ParameterSetID.h"
+
+#include "Reflex/Type.h"
+#include "TBuffer.h"
+#include "TClassStreamer.h" // Temporary
+#include "TClass.h"
+#include "TClassRef.h"
+
 #include <iosfwd>
 #include <set>
 #include <string>
@@ -33,14 +39,22 @@ namespace art {
 
   bool combinable(BranchDescription const& a, BranchDescription const& b);
 
-  // declared below: std::string match(....);
+  namespace detail {
+    class BranchDescriptionStreamer;
+    void setBranchDescriptionStreamer();
+  }
+
+  // Declared below due to use of nested type:
+//   std::string match(BranchDescription const& a,
+//                     BranchDescription const& b,
+//                     std::string const& fileName,
+//                     BranchDescription::MatchMode m);
 
 }
 
 // ----------------------------------------------------------------------
 
-class art::BranchDescription
-{
+class art::BranchDescription {
 public:
   static int const invalidSplitLevel = -1;
   static int const invalidBasketSize = 0;
@@ -55,20 +69,16 @@ public:
                     std::string const& name,
                     std::string const& fName,
                     std::string const& pin,
-                    ModuleDescription const& modDesc,
-                    std::set<std::string> const& aliases = std::set<std::string>());
+                    ModuleDescription const& modDesc);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
-
-  void init() const;
 
   void write(std::ostream& os) const;
 
   std::string const& moduleLabel() const {return moduleLabel_;}
   std::string const& processName() const {return processName_;}
   BranchID const& branchID() const {return branchID_;}
-  std::string const& fullClassName() const {return fullClassName_;}
-  std::string const& className() const {return fullClassName();}
+  std::string const& producedClassName() const {return producedClassName_;}
   std::string const& friendlyClassName() const {return friendlyClassName_;}
   std::string const& productInstanceName() const {return productInstanceName_;}
 
@@ -80,17 +90,12 @@ public:
   int const & basketSize() const {return guts().basketSize_;}
   fhicl::ParameterSetID const& parameterSetID() const {return guts().parameterSetID_;}
   std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
-  std::set<std::string> const& branchAliases() const {return branchAliases_;}
   std::string const &branchName() const {return guts().branchName_;}
   BranchType const &branchType() const {return branchType_;}
   std::string const &wrappedName() const {return guts().wrappedName_;}
   std::string const &wrappedCintName() const {return guts().wrappedCintName_;}
 
   void merge(BranchDescription const& other);
-  void addBranchAlias(std::string const& newalias)
-  {
-    branchAliases_.insert(newalias);
-  }
   void setPresent(bool isPresent) {guts().present_ = isPresent;}
   void swap(BranchDescription &other);
 
@@ -133,9 +138,6 @@ public:
     // in the data dictionary
     bool transient_;
 
-    // The Reflex Type of the wrapped object.
-    Reflex::Type type_;
-
     // The split level of the branch, as marked
     // in the data dictionary.
     int splitLevel_;
@@ -146,11 +148,15 @@ public:
   };
 
 private:
+  friend class detail::BranchDescriptionStreamer;
+
+  bool transientsFluffed_() const {return !guts().branchName_.empty(); }
+  void initBranchID_();
+  void fluffTransients_() const;
+
   fhicl::ParameterSetID const& psetID() const;
   bool isPsetIDUnique() const {return psetIDs().size() == 1;}
   std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
-  std::set<std::string> & branchAliases() {return branchAliases_;}
-  Reflex::Type const & type() const {return guts().type_;}
   void updateFriendlyClassName();
 
   Transients &guts() {return transients_.get(); }
@@ -169,10 +175,10 @@ private:
   std::string processName_;
 
   // An ID uniquely identifying the branch
-  mutable BranchID branchID_;
+  BranchID branchID_;
 
   // the full name of the type of product this is
-  std::string fullClassName_;
+  std::string producedClassName_;
 
   // a readable name of the type of product this is
   std::string friendlyClassName_;
@@ -189,22 +195,13 @@ private:
   // on this branch
   std::set<ProcessConfigurationID> processConfigurationIDs_;
 
-  // The branch ROOT alias(es), which are settable by the user.
-  std::set<std::string> branchAliases_;
-
   mutable Transient<Transients> transients_;
 };  // BranchDescription
 
-// ----------------------------------------------------------------------
-
-inline std::ostream&
-  art::operator<<(std::ostream& os, BranchDescription const& p)
-{
-  p.write(os);
-  return os;
-}
-
-// ----------------------------------------------------------------------
+class art::detail::BranchDescriptionStreamer : public TClassStreamer {
+public:
+  void operator()(TBuffer &R_b, void *objp);
+};
 
 namespace art {
   std::string match(BranchDescription const& a,
@@ -213,7 +210,12 @@ namespace art {
                     BranchDescription::MatchMode m);
 }
 
-// ======================================================================
+inline std::ostream&
+  art::operator<<(std::ostream& os, BranchDescription const& p)
+{
+  p.write(os);
+  return os;
+}
 
 #endif /* art_Persistency_Provenance_BranchDescription_h */
 

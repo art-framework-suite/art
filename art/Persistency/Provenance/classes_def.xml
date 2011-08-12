@@ -55,7 +55,9 @@
    <class name="art::BranchKey" ClassVersion="10">
     <version ClassVersion="10" checksum="2938245437"/>
    </class>
-   <class name="art::BranchDescription" ClassVersion="10">
+   <class name="art::BranchDescription" ClassVersion="12">
+    <version ClassVersion="12" checksum="544968977"/>
+    <version ClassVersion="11" checksum="1740239918"/>
     <version ClassVersion="10" checksum="3580977508"/>
    </class>
      <class name="std::set<fhicl::ParameterSetID>"/>

@@ -186,7 +186,6 @@ namespace art {
 
     readEventHistoryTree();
 
-    ppList->initAllBranches();
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable, ppList->productList_);
     productListHolder_ = ppList;
 
@@ -791,30 +790,6 @@ namespace art {
       }
     }
 
-    // Drop on input mergeable run and subRun products, this needs to be invoked for
-    // secondary file input
-    if (dropMergeable) {
-      for (ProductList::iterator
-             it = branchDescriptions.begin(),
-             itEnd = branchDescriptions.end();
-           it != itEnd;
-           ) {
-        BranchDescription const& prod = it->second;
-        if (prod.branchType() != InEvent) {
-          TClass *cp = TClass::GetClass(prod.wrappedName().c_str());
-          std::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
-          if (dummy->isMergeable()) {
-            treePointers_[prod.branchType()]->dropBranch(prod.branchName());
-            ProductList::iterator icopy = it;
-            ++it;
-            branchDescriptions.erase(icopy);
-          } else {
-            ++it;
-          }
-        }
-        else ++it;
-      }
-    }
   }
 
 }  // art

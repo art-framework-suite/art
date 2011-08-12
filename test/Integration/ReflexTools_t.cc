@@ -1,11 +1,11 @@
 // Test of the ReflexTools functions.
 
+#define BOOST_TEST_MODULE (ReflexTools_t)
+#include "boost/test/auto_unit_test.hpp"
+
 #include <iostream>
 #include <typeinfo>
 #include <vector>
-
-#include "test/CppUnit_testdriver.icpp"
-#include <cppunit/extensions/HelperMacros.h>
 
 #include "Reflex/Type.h"
 
@@ -16,151 +16,90 @@
 using Reflex::Type;
 using Reflex::TypeTemplate;
 
-class TestReflex: public CppUnit::TestFixture
-{
-  CPPUNIT_TEST_SUITE(TestReflex);
-  CPPUNIT_TEST(default_is_invalid);
-  CPPUNIT_TEST(no_dictionary_is_invalid);
-  CPPUNIT_TEST(find_nested);
-  CPPUNIT_TEST(burrowing);
-  CPPUNIT_TEST(burrowing_failure);
-  CPPUNIT_TEST(wrapper_type);
-  CPPUNIT_TEST(wrapper_type_failure);
-  CPPUNIT_TEST(sequence_wrapper);
-  CPPUNIT_TEST(sequence_wrapper_failure);
-  CPPUNIT_TEST(primary_template_id);
-  CPPUNIT_TEST(not_a_template_instance);
-  CPPUNIT_TEST_SUITE_END();
-
- public:
-  TestReflex() {}
-  ~TestReflex() {}
-  void setUp() {}
-  void tearDown() {}
-
-  void default_is_invalid();
-  void no_dictionary_is_invalid();
-  void find_nested();
-  void burrowing();
-  void burrowing_failure();
-  void wrapper_type();
-  void wrapper_type_failure();
-  void sequence_wrapper();
-  void sequence_wrapper_failure();
-  void primary_template_id();
-  void not_a_template_instance();
-
- private:
-   art::RootDictionaryManager rdm_;
+struct TestFixture {
+  TestFixture() {
+    static art::RootDictionaryManager rdm_s;
+  }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestReflex);
+BOOST_FIXTURE_TEST_SUITE(ReflexTools_t, TestFixture)
 
-void TestReflex::default_is_invalid()
+BOOST_AUTO_TEST_CASE(default_is_invalid)
 {
   Type t;
-  CPPUNIT_ASSERT(!t);
+  BOOST_REQUIRE(!t);
 }
 
-
-void TestReflex::no_dictionary_is_invalid()
+BOOST_AUTO_TEST_CASE(no_dictionary_is_invalid)
 {
   Type t(Type::ByName("ThereIsNoTypeWithThisName"));
-  CPPUNIT_ASSERT(!t);
+  BOOST_REQUIRE(!t);
 }
 
-void TestReflex::find_nested()
+BOOST_AUTO_TEST_CASE(find_nested)
 {
   Type intvec(Type::ByName("std::vector<int>"));
-  CPPUNIT_ASSERT(intvec);
+  BOOST_REQUIRE(intvec);
 
   Type found_type;
 
-  CPPUNIT_ASSERT(art::find_nested_type_named("const_iterator",
+  BOOST_REQUIRE(art::find_nested_type_named("const_iterator",
 					     intvec,
 					     found_type));
 
-  CPPUNIT_ASSERT(!art::find_nested_type_named("WankelRotaryEngine",
+  BOOST_REQUIRE(!art::find_nested_type_named("WankelRotaryEngine",
 					      intvec,
 					      found_type));
 }
 
-void TestReflex::burrowing()
+BOOST_AUTO_TEST_CASE(burrowing)
 {
   Type wrapper_type(Type::ByTypeInfo(typeid(art::Wrapper<int>)));
-  CPPUNIT_ASSERT(wrapper_type);
+  BOOST_REQUIRE(wrapper_type);
   Type wrapped_type;
-  CPPUNIT_ASSERT(art::find_nested_type_named("wrapped_type",
+  BOOST_REQUIRE(art::find_nested_type_named("wrapped_type",
 					     wrapper_type,
 					     wrapped_type));
-  CPPUNIT_ASSERT(wrapped_type);
-  CPPUNIT_ASSERT(!wrapped_type.IsTypedef());
-  CPPUNIT_ASSERT(wrapped_type.IsFundamental());
-  CPPUNIT_ASSERT(wrapped_type == Type::ByName("int"));
-  CPPUNIT_ASSERT(wrapped_type.TypeInfo() == typeid(int));
+  BOOST_REQUIRE(wrapped_type);
+  BOOST_REQUIRE(!wrapped_type.IsTypedef());
+  BOOST_REQUIRE(wrapped_type.IsFundamental());
+  BOOST_REQUIRE(wrapped_type == Type::ByName("int"));
+  BOOST_REQUIRE(wrapped_type.TypeInfo() == typeid(int));
 }
 
-void TestReflex::burrowing_failure()
+BOOST_AUTO_TEST_CASE(burrowing_failure)
 {
   Type not_a_wrapper(Type::ByName("double"));
-  CPPUNIT_ASSERT(not_a_wrapper);
+  BOOST_REQUIRE(not_a_wrapper);
   Type no_such_wrapped_type;
-  CPPUNIT_ASSERT(!no_such_wrapped_type);
-  CPPUNIT_ASSERT(!art::find_nested_type_named("wrapped_type",
+  BOOST_REQUIRE(!no_such_wrapped_type);
+  BOOST_REQUIRE(!art::find_nested_type_named("wrapped_type",
 					      not_a_wrapper,
 					      no_such_wrapped_type));
-  CPPUNIT_ASSERT(!no_such_wrapped_type);
+  BOOST_REQUIRE(!no_such_wrapped_type);
 }
 
-void TestReflex::wrapper_type()
+BOOST_AUTO_TEST_CASE(wrapper_type)
 {
   Type wrapper_type(Type::ByTypeInfo(typeid(art::Wrapper<int>)));
   Type wrapped_type;
-  CPPUNIT_ASSERT(art::wrapper_type_of(wrapper_type, wrapped_type));
-  CPPUNIT_ASSERT(!wrapped_type.IsTypedef());
-  CPPUNIT_ASSERT(wrapped_type == Type::ByName("int"));
+  BOOST_REQUIRE(art::wrapper_type_of(wrapper_type, wrapped_type));
+  BOOST_REQUIRE(!wrapped_type.IsTypedef());
+  BOOST_REQUIRE(wrapped_type == Type::ByName("int"));
 }
 
-void TestReflex::wrapper_type_failure()
+BOOST_AUTO_TEST_CASE(wrapper_type_failure)
 {
   Type not_a_wrapper(Type::ByName("double"));
-  CPPUNIT_ASSERT(not_a_wrapper);
+  BOOST_REQUIRE(not_a_wrapper);
   Type no_such_wrapped_type;
-  CPPUNIT_ASSERT(!no_such_wrapped_type);
-  CPPUNIT_ASSERT(!art::wrapper_type_of(not_a_wrapper,
+  BOOST_REQUIRE(!no_such_wrapped_type);
+  BOOST_REQUIRE(!art::wrapper_type_of(not_a_wrapper,
 				       no_such_wrapped_type));
-  CPPUNIT_ASSERT(!no_such_wrapped_type);
+  BOOST_REQUIRE(!no_such_wrapped_type);
 }
 
-void TestReflex::sequence_wrapper()
-{
-  Type wrapper(Type::ByTypeInfo(typeid(art::Wrapper<std::vector<int> >)));
-  CPPUNIT_ASSERT(wrapper);
-  Type value_type;
-  CPPUNIT_ASSERT(!value_type);
-  CPPUNIT_ASSERT(art::is_sequence_wrapper(wrapper, value_type));
-  CPPUNIT_ASSERT(value_type);
-  CPPUNIT_ASSERT(value_type == Type::ByName("int"));
-}
-
-void TestReflex::sequence_wrapper_failure()
-{
-  Type not_a_wrapper(Type::ByName("std::vector<int>"));
-  CPPUNIT_ASSERT(not_a_wrapper);
-  Type no_such_value_type;
-  CPPUNIT_ASSERT(!no_such_value_type);
-  CPPUNIT_ASSERT(!art::is_sequence_wrapper(not_a_wrapper,
-					   no_such_value_type));
-  CPPUNIT_ASSERT(!no_such_value_type);
-
-  Type wrapper_of_nonsequence(Type::ByName("art::Wrapper<int>"));
-  CPPUNIT_ASSERT(wrapper_of_nonsequence);
-  CPPUNIT_ASSERT(!art::is_sequence_wrapper(wrapper_of_nonsequence,
-					   no_such_value_type));
-  CPPUNIT_ASSERT(!no_such_value_type);
-}
-
-void TestReflex::primary_template_id()
+BOOST_AUTO_TEST_CASE(primary_template_id)
 {
   Type intvec(Type::ByName("std::vector<int>"));
   TypeTemplate vec(intvec.TemplateFamily());
@@ -168,20 +107,44 @@ void TestReflex::primary_template_id()
   // The template std::vector has two template parameters, thus the
   // '2' in the following line.
   TypeTemplate standard_vec(TypeTemplate::ByName("std::vector",2));
-  CPPUNIT_ASSERT(!standard_vec);
-  CPPUNIT_ASSERT(vec != standard_vec);
+  BOOST_REQUIRE(!standard_vec);
+  BOOST_REQUIRE(vec != standard_vec);
 
   // Reflex in use by CMS as of 26 Feb 2007 understands vector to have
   // one template parameter; this is not standard.
   TypeTemplate nonstandard_vec(TypeTemplate::ByName("std::vector",1));
-  CPPUNIT_ASSERT(nonstandard_vec);
-  CPPUNIT_ASSERT(vec == nonstandard_vec);
+  BOOST_REQUIRE(nonstandard_vec);
+  BOOST_REQUIRE(vec == nonstandard_vec);
 }
 
-void TestReflex::not_a_template_instance()
+BOOST_AUTO_TEST_CASE(not_a_template_instance)
 {
   Type not_a_template(Type::ByName("double"));
-  CPPUNIT_ASSERT(not_a_template);
+  BOOST_REQUIRE(not_a_template);
   TypeTemplate nonesuch(not_a_template.TemplateFamily());
-  CPPUNIT_ASSERT(!nonesuch);
+  BOOST_REQUIRE(!nonesuch);
 }
+
+BOOST_AUTO_TEST_CASE(cint_wrapper_name)
+{
+  BOOST_REQUIRE_EQUAL(art::cint_wrapper_name("std::string"),
+                      std::string("art::Wrapper<string>"));
+}
+
+BOOST_AUTO_TEST_CASE(type_of_template_arg)
+{
+  Reflex::Type wrapper(Reflex::Type::ByName("art::Wrapper<int>"));
+  BOOST_REQUIRE(wrapper);
+  Reflex::Type arg(art::type_of_template_arg(wrapper, 0));
+  BOOST_REQUIRE(arg);
+  BOOST_REQUIRE_EQUAL(arg.Name(Reflex::FINAL), std::string("int"));
+}
+
+BOOST_AUTO_TEST_CASE(is_instantiation_of)
+{
+  Reflex::Type wrapper(Reflex::Type::ByName("art::Wrapper<int>"));
+  BOOST_REQUIRE(wrapper);
+  BOOST_REQUIRE(art::is_instantiation_of(wrapper, "art::Wrapper"));
+}
+
+BOOST_AUTO_TEST_SUITE_END()

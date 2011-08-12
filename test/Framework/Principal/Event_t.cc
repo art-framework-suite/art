@@ -122,7 +122,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
                                  (new BranchDescription(InEvent,
                                                         moduleLabel,
                                                         processName,
-                                                        product_type.userClassName(),
+                                                        product_type.className(),
                                                         product_type.friendlyClassName(),
                                                         productInstanceName,
                                                         *currentModuleDescription_)
@@ -170,7 +170,7 @@ registerProduct(std::string const& tag,
                                  (new BranchDescription(InEvent,
                                                         moduleLabel,
                                                         processName,
-                                                        product_type.userClassName(),
+                                                        product_type.className(),
                                                         product_type.friendlyClassName(),
                                                         productInstanceName,
                                                         localModuleDescription)

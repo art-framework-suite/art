@@ -129,7 +129,6 @@ namespace art {
   RootOutputTree::addBranch(BranchDescription const& prod,
                             void const*& pProd) {
     bool produced = prod.produced();
-    prod.init();
       TBranch *branch = tree_->Branch(prod.branchName().c_str(),
                  prod.wrappedCintName().c_str(),
                  &pProd,
