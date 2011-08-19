@@ -431,7 +431,7 @@ art::Event::getView(std::string const& moduleLabel,
                          );
 
   fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->product());
+  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
 }
 
@@ -454,7 +454,7 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
                          tag.label(), tag.instance(), tag.process());
 
   fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->product());
+  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
 }
 
@@ -470,7 +470,7 @@ art::Event::fillView_( GroupQueryResult & bh
     iter_t;
 
   std::vector<void const *> erased_ptrs;
-  bh.result()->product()->fillView(erased_ptrs);
+  bh.result()->uniqueProduct()->fillView(erased_ptrs);
   Handle<ELEMENT> h(bh);
   addToGotBranchIDs(*h.provenance());
 

@@ -9,6 +9,8 @@
 // ======================================================================
 
 #include "art/Persistency/Common/fwd.h"
+#include "cpp0x/memory"
+
 #include <string>
 #include <vector>
 
@@ -48,11 +50,19 @@ public:
     productSize() const
   { return "-"; }
 
+  std::auto_ptr<EDProduct>
+  makePartner(std::type_info const &wanted_type) const
+    { return do_makePartner(wanted_type); }
+
 protected:
 
-   virtual void do_setPtr(std::type_info const &toType,
-                          unsigned long index,
-                          void const * &ptr) const = 0;
+  virtual
+  std::auto_ptr<EDProduct>
+  do_makePartner(std::type_info const &wanted_type) const = 0;
+
+  virtual void do_setPtr(std::type_info const &toType,
+                         unsigned long index,
+                         void const * &ptr) const = 0;
 
    virtual void
    do_getElementAddresses(std::type_info const &toType,

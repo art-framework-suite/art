@@ -352,14 +352,16 @@ cet_test(Assns_w HANDBUILT
   fcl/Assns_w.fcl
 )
 
-cet_test(Assns_r HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -c "Assns_r.fcl"
-  DATAFILES
-  fcl/Assns_r.fcl
-)
-
-SET_TESTS_PROPERTIES(Assns_r PROPERTIES DEPENDS Assns_w)
+foreach(num 1 2)
+  cet_test(Assns_r${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS -c "Assns_r${num}.fcl"
+    DATAFILES
+    fcl/Assns_r_inc.fcl
+    fcl/Assns_r${num}.fcl
+    )
+  SET_TESTS_PROPERTIES(Assns_r${num} PROPERTIES DEPENDS Assns_w)
+endforeach()
 
 cet_test(DropOnInput_null_t HANDBUILT
   TEST_EXEC art_ut

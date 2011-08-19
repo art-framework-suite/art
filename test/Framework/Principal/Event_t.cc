@@ -23,6 +23,7 @@
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/Timestamp.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -119,14 +120,11 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   std::string productInstanceName("int1");
 
   availableProducts_->addProduct(std::auto_ptr<BranchDescription>
-                                 (new BranchDescription(InEvent,
-                                                        moduleLabel,
-                                                        processName,
-                                                        product_type.className(),
-                                                        product_type.friendlyClassName(),
-                                                        productInstanceName,
+                                 (new BranchDescription(art::TypeLabel(InEvent,
+                                                                       product_type,
+                                                                       productInstanceName),
                                                         *currentModuleDescription_)
-                                  ));
+                                 ));
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
@@ -167,14 +165,11 @@ registerProduct(std::string const& tag,
 
   moduleDescriptions_[tag] = localModuleDescription;
   availableProducts_->addProduct(std::auto_ptr<BranchDescription>
-                                 (new BranchDescription(InEvent,
-                                                        moduleLabel,
-                                                        processName,
-                                                        product_type.className(),
-                                                        product_type.friendlyClassName(),
-                                                        productInstanceName,
+                                 (new BranchDescription(art::TypeLabel(InEvent,
+                                                                       product_type,
+                                                                       productInstanceName),
                                                         localModuleDescription)
-                                                        ));
+                                 ));
 }
 
 struct EventTestFixture {

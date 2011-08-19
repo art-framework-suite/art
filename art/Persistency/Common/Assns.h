@@ -2,6 +2,8 @@
 #define art_Persistency_Common_Assns_h
 
 #include "art/Persistency/Common/Ptr.h"
+#include "art/Persistency/Common/Wrapper.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 
 #include "TBuffer.h"
@@ -48,6 +50,7 @@ class art::Assns<L, R, void> {
 public:
   typedef L left_t;
   typedef R right_t;
+  typedef art::Assns<right_t, left_t, void> partner_t;
 
 private:
   typedef std::vector<std::pair<Ptr<left_t>, Ptr<right_t> > > ptrs_t;
@@ -56,13 +59,9 @@ private:
 public:
   // Temporary constructor for the purposes of setting the streamer
   // class.
-  Assns() : ptrs_(), ptr_data_1_(), ptr_data_2_() {
-    static TClassRef cl(TClass::GetClass(typeid(Assns<L,R,void>)));
-    if (cl->GetStreamer() == 0) {
-      cl->AdoptStreamer(new detail::AssnsStreamer<L,R>);
-    }
-  }
-
+  Assns();
+  Assns(partner_t const &other);
+  virtual ~Assns();
   // Temporary accessors for testing persistency.
   typename ptrs_t::value_type const &operator[](typename ptrs_t::size_type index) const;
   typename ptrs_t::size_type size() const;
@@ -72,14 +71,34 @@ public:
   void Streamer(TBuffer &R_b);
   static short Class_Version() { return 10; }
 
+  void swap(art::Assns<L, R, void> &other) { swap_(other); }
+
+  std::auto_ptr<EDProduct> makePartner() const { return makePartner_(); }
+
+protected:
+  virtual void swap_(art::Assns<L, R, void> &other);
+  virtual std::auto_ptr<EDProduct> makePartner_() const;
+
 private:
   friend class detail::AssnsStreamer<left_t, right_t>;
+  friend class art::Assns<right_t, left_t, void>; // partner_t.
 
-  static bool left_first();
+  // FIXME: The only reason this function is virtual is to cause the
+  // correct behavior to occur when the wrong streamer class is
+  // called. In future (>5.30.00) versions of ROOT that can register
+  // ioread rules for class template instantiations using typedefs, this
+  // can be made back into a static function.
+#ifdef ROOT_CAN_REGISTER_IOREADS_PROPERLY
+  static
+#else
+  virtual
+#endif
+  bool left_first();
 
   void fill_transients();
   void fill_from_transients();
 
+  void init_streamer();
 
   mutable ptrs_t ptrs_; //! transient
   mutable ptr_data_t ptr_data_1_;
@@ -97,9 +116,18 @@ public:
   typedef typename base::left_t left_t;
   typedef typename base::right_t right_t;
   typedef D data_t;
+  typedef art::Assns<right_t, left_t, data_t> partner_t;
 
+  Assns();
+  Assns(partner_t const &other);
+  
   using base::size;
   using base::operator[];
+
+  using base::swap; // Prevent warning.
+  void swap(art::Assns<L, R, D> &other);
+
+  std::auto_ptr<EDProduct> makePartner() const { return makePartner_(); }
 
   // Temporary accessor for testing persistency.
   data_t const &data(typename std::vector<data_t>::size_type index) const;
@@ -110,10 +138,50 @@ public:
   static short Class_Version() { return 10; }
 
 private:
+  friend class art::Assns<right_t, left_t, data_t>; // partner_t.
+
+  virtual void swap_(art::Assns<L, R, void> &other);
+  virtual std::auto_ptr<EDProduct> makePartner_() const;
+
   std::vector<data_t> data_;
 };
 
 ////////////////////////////////////////////////////////////////////////
+template <typename L, typename R>
+inline
+art::Assns<L, R, void>::Assns()
+  :
+  ptrs_(),
+  ptr_data_1_(),
+  ptr_data_2_()
+{
+  init_streamer();
+}
+
+template <typename L, typename R>
+inline
+art::Assns<L, R, void>::Assns(partner_t const &other)
+  :
+  ptrs_(),
+  ptr_data_1_(),
+  ptr_data_2_()
+{
+  ptrs_.reserve(other.ptrs_.size());
+  for (typename partner_t::ptrs_t::const_iterator
+         i = other.ptrs_.begin(),
+         e = other.ptrs_.end();
+       i != e;
+       ++i) {
+    ptrs_.push_back(std::make_pair(i->second, i->first));
+  }
+  init_streamer();
+}
+
+template <typename L, typename R>
+inline
+art::Assns<L, R, void>::~Assns()
+{
+}
 
 template <typename L, typename R>
 inline
@@ -149,6 +217,25 @@ art::Assns<L, R, void>::Streamer(TBuffer &R_b) {
     fill_from_transients();
     cl->WriteBuffer(R_b, this);
   }
+}
+
+template <typename L, typename R>
+inline
+void
+art::Assns<L, R, void>::swap_(art::Assns<L, R, void> &other) {
+  using std::swap;
+  swap(ptrs_, other.ptrs_);
+  swap(ptr_data_1_, other.ptr_data_1_);
+  swap(ptr_data_2_, other.ptr_data_2_);
+}
+
+template <typename L, typename R>
+std::auto_ptr<art::EDProduct>
+art::Assns<L, R, void>::makePartner_() const{
+  return
+    std::auto_ptr<EDProduct>
+    (new Wrapper<partner_t>
+     (std::auto_ptr<partner_t>(new partner_t(*this))));
 }
 
 template <typename L, typename R>
@@ -208,6 +295,41 @@ art::Assns<L, R, void>::fill_from_transients() {
   }
 }
 
+template <typename L, typename R>
+void
+art::Assns<L, R, void>::init_streamer()
+{
+  static TClassRef cl(TClass::GetClass(typeid(Assns<L,R,void>)));
+  if (cl->GetStreamer() == 0) {
+    cl->AdoptStreamer(new detail::AssnsStreamer<L,R>);
+  }
+}
+
+template <typename L, typename R, typename D>
+inline
+art::Assns<L, R, D>::Assns()
+  :
+  Assns<L, R, void>()
+{
+}
+
+template <typename L, typename R, typename D>
+art::Assns<L, R, D>::Assns(partner_t const &other)
+  :
+  base(other),
+  data_(other.data_)
+{
+}
+
+template <typename L, typename R, typename D>
+inline
+void
+art::Assns<L, R, D>::swap(Assns<L, R, D> &other) {
+  using std::swap;
+  base::swap_(other);
+  swap(data_, other.data_);
+}
+
 template <typename L, typename R, typename D>
 inline
 typename art::Assns<L, R, D>::data_t const &
@@ -223,6 +345,28 @@ art::Assns<L, R, D>::addSingle(Ptr<left_t> const &left,
                                data_t const &data) {
   base::addSingle(left, right);
   data_.push_back(data);
+}
+
+template <typename L, typename R, typename D>
+inline
+void
+art::Assns<L, R, D>::swap_(Assns<L, R, void> &other) {
+  try {
+    swap(dynamic_cast<Assns<L, R, D> &>(other));
+  }
+  catch (std::bad_cast &) {
+    throw Exception(errors::LogicError, "AssnsBadCast")
+      << "Attempt to swap base with derived!\n";
+  }
+}
+
+template <typename L, typename R, typename D>
+std::auto_ptr<art::EDProduct>
+art::Assns<L, R, D>::makePartner_() const{
+  return
+    std::auto_ptr<EDProduct>
+    (new Wrapper<partner_t>
+     (std::auto_ptr<partner_t>(new partner_t(*this))));
 }
 
 #endif /* art_Persistency_Common_Assns_h */

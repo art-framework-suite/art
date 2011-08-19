@@ -101,7 +101,6 @@ install(FILES
   TriggerNames.h
   TriggerReport.h
   TriggerResultInserter.h
-  TypeLabelList.h
   UnknownModuleException.h
   WorkerInPath.h
   WorkerRegistry.h

@@ -8,11 +8,13 @@
 //
 // ======================================================================
 
-#include "art/Persistency/Common/DelayedReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Provenance/BranchKey.h"
-#include "boost/noncopyable.hpp"
 #include "cpp0x/memory"
+
+#include "boost/noncopyable.hpp"
+
 #include <map>
 #include <string>
 
@@ -39,7 +41,7 @@ public:
   virtual ~RootDelayedReader();
 
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k) const;
+  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const;
   virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
   virtual void mergeReaders_(std::shared_ptr<DelayedReader> other) {nextReader_ = other;}
   BranchMap const& branches() const {return *branches_;}

@@ -1,6 +1,8 @@
 # cet_test macro
 include(CetTest)
 
+art_dictionary()
+
 link_libraries(
   art_Framework_Core
   art_Framework_Principal
@@ -24,3 +26,4 @@ link_libraries(
 
 cet_test(eventprincipal_t USE_BOOST_UNIT)
 cet_test(Event_t USE_BOOST_UNIT)
+cet_test(GroupFactory_t USE_BOOST_UNIT)

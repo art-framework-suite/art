@@ -65,30 +65,25 @@ art::BranchDescription::BranchDescription() :
 {
 }
 
-art::BranchDescription::BranchDescription(
-  BranchType const& branchType,
-  std::string const& mdLabel,
-  std::string const& procName,
-  std::string const& name,
-  std::string const& fName,
-  std::string const& pin,
-  ModuleDescription const& modDesc) :
-  branchType_(branchType),
-  moduleLabel_(mdLabel),
-  processName_(procName),
+art::BranchDescription::
+BranchDescription(TypeLabel const &tl,
+                  ModuleDescription const& md) :
+  branchType_(tl.branchType),
+  moduleLabel_(tl.hasEmulatedModule() ? tl.emulatedModule : md.moduleLabel()),
+  processName_(md.processName()),
   branchID_(),
-  producedClassName_(name),
-  friendlyClassName_(fName),
-  productInstanceName_(pin),
+  producedClassName_(tl.className()),
+  friendlyClassName_(tl.friendlyClassName()),
+  productInstanceName_(tl.productInstanceName),
   psetIDs_(),
   processConfigurationIDs_(),
   transients_()
 {
   guts().present_ = true;
   guts().produced_ = true;
-  guts().parameterSetID_ = modDesc.parameterSetID();
-  psetIDs_.insert(modDesc.parameterSetID());
-  processConfigurationIDs_.insert(modDesc.processConfigurationID());
+  guts().parameterSetID_ = md.parameterSetID();
+  psetIDs_.insert(md.parameterSetID());
+  processConfigurationIDs_.insert(md.processConfigurationID());
   throwIfInvalid_();
   fluffTransients_();
   initBranchID_();

@@ -1,10 +1,12 @@
 set(art_Framework_Principal_sources
   Actions.cc
+  AssnsGroup.cc
   CurrentProcessingContext.cc
   DataViewImpl.cc
   Event.cc
   EventPrincipal.cc
   Group.cc
+  GroupFactory.cc
   NoDelayedReader.cc
   Principal.cc
   Provenance.cc

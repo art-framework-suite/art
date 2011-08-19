@@ -9,6 +9,7 @@ uses input sources to retrieve EDProducts from external storage.
 ----------------------------------------------------------------------*/
 
 #include "art/Persistency/Common/EDProduct.h"
+#include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 
@@ -23,11 +24,11 @@ namespace art {
 class art::DelayedReader {
 public:
   virtual ~DelayedReader();
-  std::auto_ptr<EDProduct> getProduct(BranchKey const& k) const;
+  std::auto_ptr<EDProduct> getProduct(BranchKey const& k, art::TypeID const &wrapper_type) const;
   void setGroupFinder(cet::exempt_ptr<EventPrincipal const>);
   void mergeReaders(std::shared_ptr<DelayedReader> other) {mergeReaders_(other);}
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k) const = 0;
+  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const = 0;
   virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
   virtual void mergeReaders_(std::shared_ptr<DelayedReader>);
 };
@@ -35,8 +36,8 @@ private:
 inline
 std::auto_ptr<art::EDProduct>
 art::DelayedReader::
-getProduct(BranchKey const& k) const {
-  return getProduct_(k);
+getProduct(BranchKey const& k, art::TypeID const &wrapper_type) const {
+  return getProduct_(k, wrapper_type);
 }
 
 inline

@@ -54,12 +54,12 @@ public:
   operator == ( const TypeID & other ) const
   { return *t_ == *other.t_; }
 
-  operator bool() { return t_; }
+  operator bool() const { return t_ != &typeid(Def); }
+
+  std::type_info const &typeInfo() const { return *t_; }
 
 private:
   struct Def {};
-
-  std::type_info const &typeInfo() const { return *t_; }
 
   static bool stripTemplate(std::string& theName);
 

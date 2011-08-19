@@ -100,14 +100,15 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
 {
   if( gqr.succeeded() )
     try {
-      prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->product()
+      prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->uniqueProduct(TypeID(typeid(Wrapper<T>)))
                                                ).product();
     }
     catch( std::bad_cast const & ) {
       typedef  cet::exception const  exc_t;
-      whyFailed_ = std::shared_ptr<exc_t>( new art::Exception( errors::LogicError
-                                                             , "Handle<T> c'tor"
-                                         )                   );
+      whyFailed_ = std::shared_ptr<exc_t>(new art::Exception(errors::LogicError,
+                                                             "Handle<T> c'tor"
+                                                            )
+                                         );
     }
 }
 

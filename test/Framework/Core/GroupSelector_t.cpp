@@ -1,11 +1,15 @@
-
+#include "GroupSelector_t.h"
 
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/RootDictionaryManager.h"
+#include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Utilities/Exception.h"
+#include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -13,24 +17,45 @@
 #include <string>
 #include <vector>
 
-art::BranchKey
-make_BranchKey(art::BranchDescription const &b) {
-  return art::BranchKey(b.friendlyClassName(),
-                        b.moduleLabel(),
-                        b.productInstanceName(),
-                        b.processName());
-}
+namespace {
+  art::BranchKey
+  make_BranchKey(art::BranchDescription const &b) {
+    return art::BranchKey(b.friendlyClassName(),
+                          b.moduleLabel(),
+                          b.productInstanceName(),
+                          b.processName());
+  }
 
-void apply_gs(art::GroupSelector const& gs,
-              art::ProductList const &pList,
-              std::vector<bool>& results)
-{
-  for (art::ProductList::const_iterator
-         it = pList.begin(),
-         end = pList.end();
-       it != end;
-       ++it) {
-    results.push_back(gs.selected(it->second));
+  art::BranchDescription
+  makeBranchDescription(art::BranchType bt,
+                        std::string const &moduleLabel,
+                        std::string const &processName,
+                        std::string const &instanceName,
+                        fhicl::ParameterSet const &pset,
+                        art::TypeID const &producedType) {
+    art::ModuleDescription md;
+    md.parameterSetID_ = pset.id();
+    md.moduleName_ = "arttest::NOMOD";
+    md.moduleLabel_ = moduleLabel;
+    md.processConfiguration_ =
+      art::ProcessConfiguration(processName,
+                                fhicl::ParameterSet().id(),
+                                art::getReleaseVersion(),
+                                "");
+    return art::BranchDescription(art::TypeLabel(bt, producedType, instanceName), md);
+  }
+
+  void apply_gs(art::GroupSelector const& gs,
+                art::ProductList const &pList,
+                std::vector<bool>& results)
+  {
+    for (art::ProductList::const_iterator
+           it = pList.begin(),
+           end = pList.end();
+         it != end;
+         ++it) {
+      results.push_back(gs.selected(it->second));
+    }
   }
 }
 
@@ -60,55 +85,51 @@ int doTest(fhicl::ParameterSet const& params,
 
 int work()
 {
-  art::ModuleDescription mod;
-  mod.parameterSetID_ = fhicl::ParameterSet().id();
-
   int rc = 0;
   // We pretend to have one module, with two products. The products
   // are of the same and, type differ in instance name.
-  std::set<fhicl::ParameterSetID> psetsA;
   fhicl::ParameterSet modAparams;
   modAparams.put<int>("i", 2112);
   modAparams.put<std::string>("s", "hi");
-  psetsA.insert(modAparams.id());
 
-  //art::BranchDescription b1(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1", md, psetsA);
-  //art::BranchDescription b2(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2", md, psetsA);
-  art::BranchDescription b1(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i1",
-			    mod);
-  art::BranchDescription b2(art::InEvent, "modA", "PROD", "UglyProdTypeA", "ProdTypeA", "i2",
-			    mod);
+  art::BranchDescription
+    b1(makeBranchDescription(art::InEvent, "modA", "PROD", "i1",
+                             modAparams,
+                             art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
+  art::BranchDescription
+    b2(makeBranchDescription(art::InEvent, "modA", "PROD", "i2",
+                             modAparams,
+                             art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
 
   // Our second pretend module has only one product, and gives it no
   // instance name.
-  std::set<fhicl::ParameterSetID> psetsB;
   fhicl::ParameterSet modBparams;
   modBparams.put<double>("d", 2.5);
-  psetsB.insert(modBparams.id());
 
-  //art::BranchDescription b3(art::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "", md, psetsB);
-  art::BranchDescription b3(art::InEvent, "modB", "HLT", "UglyProdTypeB", "ProdTypeB", "",
-			    mod);
+  art::BranchDescription
+    b3(makeBranchDescription(art::InEvent, "modB", "HLT", "",
+                             modBparams,
+                             art::TypeID(typeid(arttest::ProdTypeB<std::string>))));
 
   // Our third pretend is like modA, except it hass processName_ of
   // "USER"
-
-  //art::BranchDescription b4(art::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i1", md, psetsA);
-  //art::BranchDescription b5(art::InEvent, "modA", "USER", "UglyProdTypeA", "ProdTypeA", "i2", md, psetsA);
-
-  art::BranchDescription b4(art::InEvent, "modA", "USER", "UglyProdTypeA",
-			    "ProdTypeA", "i1", mod);
-  art::BranchDescription b5(art::InEvent, "modA", "USER", "UglyProdTypeA",
-			    "ProdTypeA", "i2", mod);
+  art::BranchDescription
+    b4(makeBranchDescription(art::InEvent, "modA", "USER", "i1",
+                             modAparams,
+                             art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
+  art::BranchDescription
+    b5(makeBranchDescription(art::InEvent, "modA", "USER", "i2",
+                             modAparams,
+                             art::TypeID(typeid(arttest::ProdTypeA<std::string>))));
 
   // Extra tests.
-  art::BranchDescription b6(art::InEvent,
-                            "ptrmvWriter",
-                            "PtrmvW",
-                            "art::Ptr<std::basic_string<char> >",
-                            "Stringart::Ptr",
-                            "",
-                            mod);
+  art::BranchDescription
+    b6(makeBranchDescription(art::InEvent,
+                             "ptrmvWriter",
+                             "PtrmvW",
+                             "",
+                             modAparams,
+                             art::TypeID(typeid(art::Ptr<std::string>))));
 
   // These are pointers to all the branches that are available. In a
   // framework program, these would come from the MasterProductRegistry
@@ -132,7 +153,7 @@ int work()
 
   // Keep all branches with instance name i2.
   {
-    bool wanted[] = { false, false, true, true, false, false };
+    bool wanted[] = { false, false, false, true, true, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet keep_i2;
@@ -146,7 +167,7 @@ int work()
 
   // Drop all branches with instance name i2.
   {
-    bool wanted[] = { true, true, false, false, true, true };
+    bool wanted[] = { true, true, true, false, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_i2;
@@ -179,12 +200,12 @@ int work()
 
   // Now try dropping all branches with product type "ProdTypeA".
   {
-    bool wanted[] = { false, false, false, false, true, true };
+    bool wanted[] = { true, false, false, false, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet drop_ProdTypeA;
     std::string const drop_ProdTypeA_rule1 = "keep *";
-    std::string const drop_ProdTypeA_rule2 = "drop ProdTypeA_*_*_*";
+    std::string const drop_ProdTypeA_rule2 = "drop *ProdTypeA_*_*_*";
     std::vector<std::string> cmds;
     cmds.push_back(drop_ProdTypeA_rule1);
     cmds.push_back(drop_ProdTypeA_rule2);
@@ -197,7 +218,7 @@ int work()
 
   // Keep only branches with instance name 'i1', from Production.
   {
-    bool wanted[] = { true, false, false, false, false, false };
+    bool wanted[] = { false, true, false, false, false, false };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet keep_i1prod;
@@ -235,7 +256,7 @@ int work()
   // Keep all things, but drop all things from modA, but later keep all
   // things from USER.
   {
-    bool wanted[] = { false, true, false, true, true, true };
+    bool wanted[] = { true, false, true, false, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
@@ -255,12 +276,12 @@ int work()
 
   // Exercise the wildcards * and ?
   {
-    bool wanted[] = { true, false, true, false, true, false };
+    bool wanted[] = { false, true, false, true, false, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
     std::string const rule1 = "drop *";
-    std::string const rule2 = "keep Pr*A_m?dA_??_P?O*";
+    std::string const rule2 = "keep *Pr*A_m?dA_??_P?O*";
     std::string const rule3 = "keep *?*?***??*????*?***_??***?__*?***T";
     std::vector<std::string> cmds;
     cmds.push_back(rule1);
@@ -275,7 +296,7 @@ int work()
 
   // Drop one product specifically by full specification.
   {
-    bool wanted[] = { true, true, true, true, true, false };
+    bool wanted[] = { false, true, true, true, true, true };
     std::vector<bool> expected(wanted, wanted+sizeof(wanted)/sizeof(bool));
 
     fhicl::ParameterSet params;
@@ -320,6 +341,7 @@ int work()
 
 int main()
 {
+  art::RootDictionaryManager rdm;
   int rc = 0;
   try
     {

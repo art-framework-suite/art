@@ -78,15 +78,13 @@ void
                                     , end = e.end(); it != end; ++it ) {
     Group const & g = *(it->second);
     try {
-////      e.resolveProduct(g, wantOnDemandProduction);
-      g.resolveProduct(wantOnDemandProduction);
-      if( ! g.product() )
-        throw "data corruption";
+      if (!g.resolveProduct(wantOnDemandProduction, g.producedWrapperType()))
+        throw Exception(errors::DataCorruption, "data corruption");
     }
     catch( art::Exception const & e ) {
       if( e.category() != "ProductNotFound" )
         throw;
-      if( g.product() )
+      if( g.anyProduct() )
         throw art::Exception(errors::LogicError, "FileDumperOutput module", e)
           << "Product reported as not present, but is pointed to nonetheless!";
     }
@@ -95,12 +93,9 @@ void
     col[1].push_back( g.moduleLabel() );
     col[2].push_back( g.productInstanceName() );
 
-    if( g.product() ) {
-      col[3].push_back( g.productType().Name( Reflex::FINAL
-                                            | Reflex::SCOPED
-                                            | Reflex::QUALIFIED
-                      )                     );
-      col[4].push_back( g.product()->productSize() );
+    if( g.anyProduct() ) {
+      col[3].push_back( g.productDescription().producedClassName() );
+      col[4].push_back( g.anyProduct()->productSize() );
     }
     else {
       col[3].push_back( "unknown" );

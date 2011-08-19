@@ -15,6 +15,7 @@ using Reflex::Type;
 using Reflex::TypeTemplate;
 
 Group::Group() :
+  wrapper_type_(),
   ppResolver_(),
   productResolver_(),
   product_(),
@@ -26,9 +27,11 @@ Group::Group() :
 
 Group::Group(BranchDescription const& bd,
              ProductID const& pid,
+             art::TypeID const &wrapper_type,
              cet::exempt_ptr<Worker> productProducer,
              cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
   :
+  wrapper_type_(wrapper_type),
   ppResolver_(),
   productResolver_(),
   product_(),
@@ -40,7 +43,9 @@ Group::Group(BranchDescription const& bd,
 
 Group::Group(std::auto_ptr<EDProduct> edp,
              BranchDescription const& bd,
-             ProductID const& pid) :
+             ProductID const& pid,
+             art::TypeID const &wrapper_type) :
+  wrapper_type_(wrapper_type),
   ppResolver_(),
   productResolver_(),
   product_(edp.release()),
@@ -79,32 +84,34 @@ Group::status() const {
 }
 
 bool
-Group::resolveProduct(bool fillOnDemand) const {
+Group::resolveProduct(bool fillOnDemand,
+                      TypeID const &wanted_wrapper_type) const {
   if (productUnavailable()) {
     throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
       << "resolveProduct: product is not accessible\n"
       << productDescription() << '\n'
       << *productProvenancePtr() << '\n';
   }
-  return resolveProductIfAvailable(fillOnDemand);
+  return resolveProductIfAvailable(fillOnDemand, wanted_wrapper_type);
 }
 
 bool
-Group::resolveProductIfAvailable(bool fillOnDemand) const {
-  if (product()) return true; // Nothing to do.
+Group::resolveProductIfAvailable(bool fillOnDemand,
+                                 TypeID const &wanted_wrapper_type) const {
+  if (uniqueProduct()) return true; // Nothing to do.
   if (productUnavailable()) return false; // Nothing we *can* do.
-  // Try unscheduled production.
-  if (fillOnDemand && onDemand()) {
-    productProducer_->
-      doWork<OccurrenceTraits<EventPrincipal,
-      BranchActionBegin> >(*onDemandPrincipal_, 0);
-  } else {
-    BranchKey const bk(productDescription());
-    std::auto_ptr<EDProduct> edp(productResolver_->getProduct(bk));
-    // Now fix up the Group
-    setProduct(edp);
+  if (wanted_wrapper_type != wrapper_type_) {
+    throw Exception(errors::LogicError)
+      << "Attempted to obtain a product of different type ("
+      << wanted_wrapper_type.className()
+      << ") than produced ("
+      << wrapper_type_.className()
+      << ").\n";
   }
-  return product();
+  std::auto_ptr<EDProduct>
+    edp(obtainDesiredProduct(fillOnDemand, wanted_wrapper_type));
+  if (edp.get()) setProduct(edp);
+  return uniqueProduct();
 }
 
 bool
@@ -126,8 +133,24 @@ Group::productProvenancePtr() const {
 
 void
 Group::setProduct(std::auto_ptr<EDProduct> prod) const {
-  assert (product() == 0);
+  assert (!product_);
   product_.reset(prod.release());  // Group takes ownership
+}
+
+std::auto_ptr<art::EDProduct>
+Group::obtainDesiredProduct(bool fillOnDemand,
+                            TypeID const &wanted_wrapper_type) const {
+  // Try unscheduled production.
+  if (fillOnDemand && onDemand()) {
+    productProducer_->
+      doWork<OccurrenceTraits<EventPrincipal,
+      BranchActionBegin> >(*onDemandPrincipal_, 0);
+    return std::auto_ptr<EDProduct>();
+  } else {
+    BranchKey const bk(productDescription());
+    std::auto_ptr<EDProduct> edp(productResolver_->getProduct(bk, wanted_wrapper_type));
+    return edp;
+  }
 }
 
 bool
@@ -149,12 +172,6 @@ Group::swap(Group& other) {
 void
 Group::replace(Group& g) {
   this->swap(g);
-}
-
-Type
-Group::productType() const
-{
-  return Type::ByTypeInfo(typeid(*product()));
 }
 
 void

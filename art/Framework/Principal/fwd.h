@@ -8,10 +8,12 @@
 namespace art {
 
   class ActionTable; // Action.h
+  class AssnsGroup;
   class CurrentProcessingContext;
   class DataViewImpl;
   class Event;
   class EventPrincipal;
+  class Group;
   class NoDelayedReader;
   class Principal;
   class Run;

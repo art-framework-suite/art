@@ -1,12 +1,12 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 
-#include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Utilities/Exception.h"
-#include "cpp0x/functional"
 #include "cetlib/container_algorithms.h"
+#include "cpp0x/functional"
 
 namespace {
   void
@@ -14,16 +14,8 @@ namespace {
                 art::ModuleDescription const& md,
                 art::MasterProductRegistry& preg)
   {
-    std::auto_ptr<art::BranchDescription>
-      bdp(new art::BranchDescription
-          (tl.branchType,
-           tl.hasEmulatedModule() ? tl.emulatedModule : md.moduleLabel(),
-           md.processName(),
-           tl.className(),
-           tl.friendlyClassName(),
-           tl.productInstanceName,
-           md));
-    preg.addProduct(bdp);
+    preg.addProduct(std::auto_ptr<art::BranchDescription>
+                    (new art::BranchDescription(tl, md)));
   }
 }
 

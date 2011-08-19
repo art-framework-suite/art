@@ -31,6 +31,7 @@ Test of the EventPrincipal class.
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/Timestamp.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/TypeID.h"
@@ -118,8 +119,6 @@ fake_single_process_branch(std::string const& tag,
   std::string moduleLabel = processName + "dummyMod";
   std::string moduleClass("DummyModule");
   art::TypeID dummyType(typeid(arttest::DummyProduct));
-  std::string productClassName = dummyType.className();
-  std::string friendlyProductClassName = dummyType.friendlyClassName();
   fhicl::ParameterSet modParams;
   modParams.put<std::string>("module_type", moduleClass);
   modParams.put<std::string>("module_label", moduleLabel);
@@ -131,13 +130,10 @@ fake_single_process_branch(std::string const& tag,
   mod.processConfiguration_ = *process;
 
   art::BranchDescription* result =
-    new art::BranchDescription(art::InEvent,
-			       moduleLabel,
-			       processName,
-			       productClassName,
-			       friendlyProductClassName,
-			       productInstanceName,
-			       mod);
+    new art::BranchDescription(art::TypeLabel(art::InEvent,
+                                              dummyType,
+                                              productInstanceName),
+                               mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
   return std::auto_ptr<art::BranchDescription>(result);
 }

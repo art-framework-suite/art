@@ -1,5 +1,4 @@
-# project name
-project(art_Framework_Core_test)
+art_dictionary(NOINSTALL)
 
 # Library link requirements for tests here
 link_libraries(

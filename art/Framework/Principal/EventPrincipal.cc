@@ -3,6 +3,7 @@
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Group.h"
+#include "art/Framework/Principal/GroupFactory.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
@@ -75,11 +76,10 @@ namespace art {
                                    cet::exempt_ptr<Worker> worker) {
     ProductID pid(branchIDToProductID(desc.branchID()));
     cet::exempt_ptr<EventPrincipal> epp(this);
-    auto_ptr<Group> g(new Group(desc,
-                                pid,
-                                worker,
-                                epp));
-    addOrReplaceGroup(g);
+    addOrReplaceGroup(gfactory::make_group(desc,
+                                           pid,
+                                           worker,
+                                           epp));
   }
 
   void
@@ -105,15 +105,13 @@ namespace art {
 
   void
   EventPrincipal::addGroup(BranchDescription const& bd) {
-    auto_ptr<Group> g(new Group(bd, branchIDToProductID(bd.branchID())));
-    addOrReplaceGroup(g);
+    addOrReplaceGroup(gfactory::make_group(bd, branchIDToProductID(bd.branchID())));
   }
 
   void
   EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
          BranchDescription const& bd) {
-    auto_ptr<Group> g(new Group(prod, bd, branchIDToProductID(bd.branchID())));
-    addOrReplaceGroup(g);
+    addOrReplaceGroup(gfactory::make_group(prod, bd, branchIDToProductID(bd.branchID())));
   }
 
   void
@@ -197,7 +195,7 @@ namespace art {
     // function, but I'm not sure it does the *right* thing in the face
     // of an unavailable product or other rare failure.
     BranchID bid = productIDToBranchID(pid);
-    SharedConstGroupPtr const &g(getGroup(bid, true, true));
+    SharedConstGroupPtr const &g(getResolvedGroup(bid, true, true));
     if (!g) {
       std::shared_ptr<cet::exception>
         whyFailed( new art::Exception(art::errors::ProductNotFound,"InvalidID") );

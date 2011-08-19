@@ -93,6 +93,7 @@ install(FILES
   Timestamp.h
   Transient.h
   TransientStreamer.h
+  TypeLabel.h
   DESTINATION  ${product}/${version}/include/art/Persistency/Provenance )
 
 install_source()

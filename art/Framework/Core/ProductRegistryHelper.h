@@ -21,14 +21,14 @@
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Core/TypeLabelList.h"
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Provenance/BranchType.h"
-#include "art/Utilities/TypeID.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "art/Utilities/Exception.h"
+#include "art/Utilities/TypeID.h"
 #include "cetlib/exception.h"
 
-#include <list>
+#include <set>
 #include <string>
 
 namespace
@@ -96,6 +96,7 @@ public:
                         ModuleDescription const&);
 
 private:
+  typedef std::set<art::TypeLabel> TypeLabelList;
 
   template <BranchType B>
   void

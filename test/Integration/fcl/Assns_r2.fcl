@@ -1,0 +1,4 @@
+#include "Assns_r_inc.fcl"
+
+physics.analyzers.aa1.test_AB: false
+physics.analyzers.aa1.test_BA: true

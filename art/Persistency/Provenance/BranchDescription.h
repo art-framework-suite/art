@@ -14,6 +14,7 @@ This description also applies to every product instance on the branch.
 #include "art/Persistency/Provenance/ProcessConfigurationID.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Persistency/Provenance/Transient.h"
+#include "art/Persistency/Provenance/TypeLabel.h"
 #include "fhiclcpp/ParameterSetID.h"
 
 #include "Reflex/Type.h"
@@ -63,12 +64,7 @@ public:
 
   BranchDescription();
 
-  BranchDescription(BranchType const& branchType,
-                    std::string const& mdLabel,
-                    std::string const& procName,
-                    std::string const& name,
-                    std::string const& fName,
-                    std::string const& pin,
+  BranchDescription(TypeLabel const &tl,
                     ModuleDescription const& modDesc);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor

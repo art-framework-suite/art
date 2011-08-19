@@ -1,6 +1,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 
 #include "art/Framework/Principal/Group.h"
+#include "art/Framework/Principal/GroupFactory.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -40,15 +41,13 @@ RunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
 
 void
 RunPrincipal::addGroup(BranchDescription const& bd) {
-  std::auto_ptr<Group> g(new Group(bd, ProductID()));
-  addOrReplaceGroup(g);
+  addOrReplaceGroup(gfactory::make_group(bd, ProductID()));
 }
 
 void
 RunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
                        BranchDescription const& bd) {
-  std::auto_ptr<Group> g(new Group(prod, bd, ProductID()));
-  addOrReplaceGroup(g);
+  addOrReplaceGroup(gfactory::make_group(prod, bd, ProductID()));
 }
 
 void

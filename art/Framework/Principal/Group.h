@@ -9,6 +9,7 @@ is the storage unit of such information.
 ----------------------------------------------------------------------*/
 
 #include "Reflex/Type.h"
+#include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/EDProduct.h"
@@ -17,6 +18,7 @@ is the storage unit of such information.
 #include "art/Persistency/Provenance/BranchMapper.h"
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
+#include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "cpp0x/memory"
@@ -32,14 +34,21 @@ class art::Group : public EDProductGetter {
 
 public:
   Group();
+protected: // Use GroupFactory to make.
   Group(BranchDescription const &bd,
         ProductID const &pid,
+        art::TypeID const &wrapper_type,
         cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
         cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
           cet::exempt_ptr<EventPrincipal>());
   Group(std::auto_ptr<EDProduct> edp,
         BranchDescription const &bd,
-        ProductID const &pid);
+        ProductID const &pid,
+        art::TypeID const &wrapper_type);
+  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
+  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
+  friend std::auto_ptr<Group> gfactory::make_group(std::auto_ptr<EDProduct>, BranchDescription const&, ProductID const &);
+public:
   virtual ~Group();
 
   void swap(Group &other);
@@ -50,8 +59,10 @@ public:
   // Scheduled for on-demand production
   bool onDemand() const { return productProducer_ && onDemandPrincipal_; }
 
-  EDProduct const *product() const { return product_.get(); }
-  EDProduct const *getIt() const { resolveProductIfAvailable(true); return product(); }
+  virtual EDProduct const *getIt() const { resolveProductIfAvailable(true, producedWrapperType()); return uniqueProduct(); }
+  virtual EDProduct const *anyProduct() const { return product_.get(); }
+  virtual EDProduct const *uniqueProduct() const { return product_.get(); }
+  virtual EDProduct const *uniqueProduct(TypeID const &) const { return product_.get(); }
 
   cet::exempt_ptr<ProductProvenance const> productProvenancePtr() const;
 
@@ -71,8 +82,10 @@ public:
     productResolver_.reset(&dr);
   }
 
-  bool resolveProduct(bool fillOnDemand) const;
-  bool resolveProductIfAvailable(bool fillOnDemand) const;
+  virtual bool
+  resolveProduct(bool fillOnDemand, TypeID const &) const;
+  virtual bool
+  resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const;
 
   // Write the group to the stream.
   void write(std::ostream &os) const;
@@ -80,21 +93,18 @@ public:
   // Replace the existing group with a new one
   void replace(Group &g);
 
-  // Return the type of the product stored in this Group.
-  // We are relying on the fact that Type instances are small, and
-  // so we are free to copy them at will.
-  Reflex::Type productType() const;
-
   ProductID const &productID() const {return pid_;};
+
+  TypeID const & producedWrapperType() const { return wrapper_type_; }
+
+protected:
+  std::auto_ptr<EDProduct> obtainDesiredProduct(bool fillOnDemand, TypeID const &) const;
+  void setProduct(std::auto_ptr<EDProduct> prod) const;
 
 private:
   bool dropped() const;
 
-  // The following is const because we can add an EDProduct to the
-  // cache after creation of the Group, without changing the meaning
-  // of the Group.
-  void setProduct(std::auto_ptr<EDProduct> prod) const;
-
+  art::TypeID                               wrapper_type_;
   cet::exempt_ptr<BranchMapper const>       ppResolver_;
   cet::exempt_ptr<DelayedReader const>      productResolver_;
   mutable cet::value_ptr<EDProduct>         product_;

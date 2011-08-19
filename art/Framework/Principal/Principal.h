@@ -122,10 +122,11 @@ protected:
   void addGroup_(std::auto_ptr<Group> g);
   cet::exempt_ptr<Group const>  getExistingGroup(BranchID const &bid);
   void replaceGroup(std::auto_ptr<Group> g);
-  SharedConstGroupPtr const getGroup(BranchID const& oid) const;
-  SharedConstGroupPtr const getGroup(BranchID const& oid,
-                                     bool resolveProd,
-                                     bool fillOnDemand) const;
+  SharedConstGroupPtr const getGroup(BranchID const& bid) const;
+  SharedConstGroupPtr const
+  getResolvedGroup(BranchID const& bid,
+                   bool resolveProd,
+                   bool fillOnDemand) const;
   BranchMapper &branchMapper() {return *branchMapperPtr_;}
 
   DelayedReader &productReader() { return *store_; }
@@ -144,16 +145,30 @@ private:
   typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
   typedef std::map<std::string, ProcessLookup> TypeLookup;
 
-  size_t findGroups(TypeID const& typeID,
-                    TypeLookup const& typeLookup,
+  size_t
+  findGroupsForProduct(TypeID const& wanted_product,
+                       SelectorBase const& selector,
+                       GroupQueryResultVec& results,
+                       bool stopIfProcessHasMatch) const;
+
+  size_t
+  findGroupsForElement(TypeID const& wanted_element,
+                       TypeLookup const& typeLookup,
+                       SelectorBase const& selector,
+                       GroupQueryResultVec& results,
+                       bool stopIfProcessHasMatch) const;
+
+  size_t findGroups(ProcessLookup const& processLookup,
                     SelectorBase const& selector,
                     GroupQueryResultVec& results,
-                    bool stopIfProcessHasMatch) const;
+                    bool stopIfProcessHasMatch,
+                    TypeID wanted_wrapper = TypeID()) const;
 
   void findGroupsForProcess(std::string const& processName,
                             ProcessLookup const& processLookup,
                             SelectorBase const& selector,
-                            GroupQueryResultVec& results) const;
+                            GroupQueryResultVec& results,
+                            TypeID wanted_wrapper) const;
 
   std::shared_ptr<ProcessHistory> processHistoryPtr_;
 

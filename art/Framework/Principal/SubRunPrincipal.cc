@@ -1,4 +1,5 @@
 #include "art/Framework/Principal/Group.h"
+#include "art/Framework/Principal/GroupFactory.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -41,15 +42,13 @@ namespace art {
 
   void
   SubRunPrincipal::addGroup(BranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(bd, ProductID()));
-    addOrReplaceGroup(g);
+    addOrReplaceGroup(gfactory::make_group(bd, ProductID()));
   }
 
   void
   SubRunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
                             BranchDescription const& bd) {
-    std::auto_ptr<Group> g(new Group(prod, bd, ProductID()));
-    addOrReplaceGroup(g);
+    addOrReplaceGroup(gfactory::make_group(prod, bd, ProductID()));
   }
 
   void

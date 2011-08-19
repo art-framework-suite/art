@@ -1,17 +1,14 @@
 #ifndef art_Framework_Core_TypeLabelList_h
 #define art_Framework_Core_TypeLabelList_h
 
-#include <set>
 #include <string>
 #include "art/Utilities/TypeID.h"
 #include "art/Persistency/Provenance/BranchType.h"
 
-
 namespace art
 {
 
-  struct TypeLabel
-  {
+  struct TypeLabel {
     TypeLabel (BranchType const&  branchType,
                TypeID const&      itemtype,
                std::string const& instanceName,
@@ -41,9 +38,6 @@ namespace art
       (a.productInstanceName != b.productInstanceName) ? a.productInstanceName < b.productInstanceName :
       a.friendlyClassName() < b.friendlyClassName();
   }
-
-  typedef std::set<art::TypeLabel> TypeLabelList;
-
 }
 
 
