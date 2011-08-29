@@ -12,7 +12,7 @@ public cet::filepath_maker {
    FirstAbsoluteOrLookupWithDotPolicy(std::string const &paths);
    virtual std::string operator() (std::string const &filename);
    void reset();
-   virtual ~FirstAbsoluteOrLookupWithDotPolicy();
+   virtual ~FirstAbsoluteOrLookupWithDotPolicy() noexcept;
 
  private:
    bool first;

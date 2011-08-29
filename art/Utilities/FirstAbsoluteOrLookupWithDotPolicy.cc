@@ -33,5 +33,5 @@ void art::FirstAbsoluteOrLookupWithDotPolicy::reset() {
    first = true;
 }
 
-art::FirstAbsoluteOrLookupWithDotPolicy::~FirstAbsoluteOrLookupWithDotPolicy() {
+art::FirstAbsoluteOrLookupWithDotPolicy::~FirstAbsoluteOrLookupWithDotPolicy() noexcept {
 }
