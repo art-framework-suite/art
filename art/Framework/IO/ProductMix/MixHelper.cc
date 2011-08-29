@@ -149,15 +149,15 @@ art::MixHelper::openAndReadMetaData(std::string const &filename) {
 
   // Read meta data
   FileFormatVersion *ffVersion_p = &ffVersion_;
-  setMetaDataBranchAddress(currentMetaDataTree_, ffVersion_p);
+  setMetaDataBranchAddress(currentMetaDataTree_.get(), ffVersion_p);
 
   FileIndex fileIndex;
   FileIndex *fileIndex_p = &fileIndex;
-  setMetaDataBranchAddress(currentMetaDataTree_, fileIndex_p);
+  setMetaDataBranchAddress(currentMetaDataTree_.get(), fileIndex_p);
 
   BranchIDLists branchIDLists;
   BranchIDLists *branchIDLists_p = &branchIDLists;
-  setMetaDataBranchAddress(currentMetaDataTree_, branchIDLists_p);
+  setMetaDataBranchAddress(currentMetaDataTree_.get(), branchIDLists_p);
 
   Int_t n = currentMetaDataTree_->GetEntry(0);
   switch (n) {

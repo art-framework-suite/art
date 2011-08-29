@@ -39,7 +39,7 @@ namespace art {
 
   EDProductGetter const *
   Event::productGetter(ProductID const & pid) const {
-    return eventPrincipal().getByProductID(pid).result();
+    return eventPrincipal().getByProductID(pid).result().get();
   }
 
   ProductID
