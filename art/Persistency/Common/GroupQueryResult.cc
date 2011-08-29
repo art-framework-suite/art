@@ -22,7 +22,7 @@ using art::GroupQueryResult;
 }
 
   GroupQueryResult::GroupQueryResult( std::shared_ptr<cet::exception const> e )
-: result_   ( 0 )
+: result_   ( nullptr )
 , whyFailed_( e )
 {
   assert(invariant());
