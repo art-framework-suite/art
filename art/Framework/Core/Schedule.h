@@ -220,9 +220,7 @@ namespace art {
     BranchesByModuleLabel;
     typedef
     std::multimap<cet::exempt_ptr<Worker>,
-                  cet::exempt_ptr<BranchDescription const>,
-                  // Temporary workaround until exempt_ptr gets an operator<().
-                  std::less<Worker const*> >
+                  cet::exempt_ptr<BranchDescription const> >
     OnDemandBranches;
 
     void writeSummary();
