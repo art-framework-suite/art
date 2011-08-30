@@ -18,15 +18,15 @@ void
                               )
 {
   mf::LogSystem("system")    <<
-  	"Text sent to LogSystem";
+        "Text sent to LogSystem";
   mf::LogAbsolute("absolute")  <<
-  	"Text sent to LogAbsolute - should be unformatted";
+        "Text sent to LogAbsolute - should be unformatted";
   mf::LogProblem("problem")   <<
-  	"Text sent to LogProblem - should be unformatted";
+        "Text sent to LogProblem - should be unformatted";
   mf::LogPrint("print")       <<
-  	"Text sent to LogPrint- should be unformatted";
+        "Text sent to LogPrint- should be unformatted";
   mf::LogVerbatim("verbatim") <<
-  	"Text sent to LogVerbatim - should be unformatted";
+        "Text sent to LogVerbatim - should be unformatted";
 }  // MessageLoggerClient::analyze()
 
 

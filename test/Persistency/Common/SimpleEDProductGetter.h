@@ -31,9 +31,9 @@ class SimpleEDProductGetter : public art::EDProductGetter
     map_t::const_iterator i = database.find(id);
     if (i == database.end())
       throw art::Exception(art::errors::ProductNotFound, "InvalidID")
-	<< "No product with ProductID "
-	<< id
-	<< " is available from this EDProductGetter\n";
+        << "No product with ProductID "
+        << id
+        << " is available from this EDProductGetter\n";
     return i->second.get();
   }
 

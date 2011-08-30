@@ -68,10 +68,10 @@ int doTest(fhicl::ParameterSet const& params,
   art::GroupSelector gs;
   gs.initialize(gsr, pList);
   std::cout << "GroupSelector from "
-	    << testname
-	    << ": "
-	    << gs
-	    << std::endl;
+            << testname
+            << ": "
+            << gs
+            << std::endl;
 
   std::vector<bool> results;
   apply_gs(gs, pList, results);
@@ -212,8 +212,8 @@ int work()
     drop_ProdTypeA.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(drop_ProdTypeA,
-		 "drop_ProdTypeA",
-		 pList, expected);
+                 "drop_ProdTypeA",
+                 pList, expected);
   }
 
   // Keep only branches with instance name 'i1', from Production.
@@ -228,8 +228,8 @@ int work()
     keep_i1prod.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(keep_i1prod,
-		 "keep_i1prod",
-		 pList, expected);
+                 "keep_i1prod",
+                 pList, expected);
   }
 
   // First say to keep everything,  then  to drop everything, then  to
@@ -249,8 +249,8 @@ int work()
     indecisive.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(indecisive,
-		 "indecisive",
-		 pList, expected);
+                 "indecisive",
+                 pList, expected);
   }
 
   // Keep all things, but drop all things from modA, but later keep all
@@ -270,8 +270,8 @@ int work()
     params.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(params,
-		 "drop_modA_keep_user",
-		 pList, expected);
+                 "drop_modA_keep_user",
+                 pList, expected);
   }
 
   // Exercise the wildcards * and ?
@@ -290,8 +290,8 @@ int work()
     params.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(params,
-		 "exercise wildcards1",
-		 pList, expected);
+                 "exercise wildcards1",
+                 pList, expected);
   }
 
   // Drop one product specifically by full specification.
@@ -308,31 +308,31 @@ int work()
     params.put<std::vector<std::string> >("outputCommands", cmds);
 
     rc += doTest(params,
-		 "drop product by full spec.",
-		 pList, expected);
+                 "drop product by full spec.",
+                 pList, expected);
   }
 
   {
     // Now try an illegal specification: not starting with 'keep' or 'drop'
     try {
-	fhicl::ParameterSet bad;
-	std::string const bad_rule = "beep *_*_i2_*";
-	std::vector<std::string> cmds;
-	cmds.push_back(bad_rule);
-	bad.put<std::vector<std::string> >("outputCommands", cmds);
-	art::GroupSelectorRules gsr(bad, "outputCommands", "GroupSelectorTest");
-	art::GroupSelector gs;
+        fhicl::ParameterSet bad;
+        std::string const bad_rule = "beep *_*_i2_*";
+        std::vector<std::string> cmds;
+        cmds.push_back(bad_rule);
+        bad.put<std::vector<std::string> >("outputCommands", cmds);
+        art::GroupSelectorRules gsr(bad, "outputCommands", "GroupSelectorTest");
+        art::GroupSelector gs;
         gs.initialize(gsr, pList);
-	std::cerr << "Failed to throw required exception\n";
-	rc += 1;
+        std::cerr << "Failed to throw required exception\n";
+        rc += 1;
     }
     catch (art::Exception const& x) {
-	// OK, we should be here... now check exception type
-	assert (x.categoryCode() == art::errors::Configuration);
+        // OK, we should be here... now check exception type
+        assert (x.categoryCode() == art::errors::Configuration);
     }
     catch (...) {
-	std::cerr << "Wrong exception type\n";
-	rc += 1;
+        std::cerr << "Wrong exception type\n";
+        rc += 1;
     }
   }
 

@@ -120,7 +120,7 @@ public:
 
   Assns();
   Assns(partner_t const &other);
-  
+
   using base::size;
   using base::operator[];
 

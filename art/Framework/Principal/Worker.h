@@ -187,12 +187,12 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
   case Ready: break;
   case Pass: return true;
   case Fail: return false;
-  case Exception: 
+  case Exception:
     {
       // rethrow the cached exception again
       // It seems impossible to
       // get here a second time until a cet::exception has been
-      // thrown prviously.      
+      // thrown prviously.
       mf::LogWarning("repeat")
         << "A module has been invoked a second time even though"
         " it caught an exception during the previous invocation."

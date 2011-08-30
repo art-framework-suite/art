@@ -101,7 +101,7 @@ fake_single_module_process(std::string const& tag,
   fhicl::ParameterSet processParams;
   processParams.put(processName, moduleParams);
   processParams.put<std::string>("process_name",
-					  processName);
+                                          processName);
 
   art::ProcessConfiguration* result =
     new art::ProcessConfiguration(processName, processParams.id(), release, pass);

@@ -23,7 +23,7 @@ void
   n++;
   if (n <= 2) return;
   mf::LogError   ("cat_A")   << "S1 with identifier " << identifier
-  			      << " n = " << n;
+                              << " n = " << n;
   mf::LogError   ("grouped_cat")  << "S1 timer with identifier " << identifier;
 }
 

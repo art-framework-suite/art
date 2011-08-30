@@ -15,9 +15,9 @@ void
                               )
 {
   mf::LogInfo   ("importantInfo")
-  		<< "This LogInfo message should appear in both destinations";
+                << "This LogInfo message should appear in both destinations";
   mf::LogInfo   ("routineInfo")
-		<< "This LogInfo message should appear in the info destination";
+                << "This LogInfo message should appear in the info destination";
 
 
 }  // MessageLoggerClient::analyze()

@@ -25,8 +25,8 @@ public:
     identifier = p.get<int> ("identifier", 99);
     art::GroupLogStatistics("timer");  // these lines would normally be in
     art::GroupLogStatistics("trace");  // whatever service knows that
-    				       // timer and trace should be groupd
-				       // by moduels for statistics
+                                       // timer and trace should be groupd
+                                       // by moduels for statistics
   }
 
   virtual

@@ -16,11 +16,11 @@ void
                               )
 {
   mf::LogWarning("cat_A")   << "This message should not appear in "
-  			     << "the framework job report";
+                             << "the framework job report";
   mf::LogWarning("FwkJob")  << "<Message>This message should appear in "
- 			     << "the framework job report</Message>";
+                             << "the framework job report</Message>";
   mf::LogWarning("special") << "This message should appear in "
- 			     << "restrict but the others should not";
+                             << "restrict but the others should not";
 
 }  // MessageLoggerClient::analyze()
 

@@ -98,7 +98,7 @@ namespace art {
       }
 
       if (myMachine.terminated()) {
-	output_ << "The state machine reports it has been terminated\n";
+        output_ << "The state machine reports it has been terminated\n";
       }
     }
     return epSuccess;

@@ -85,8 +85,8 @@ int main(int argc, char* argv[]) {
         else if (fileMode == MERGE) output << "mode = MERGE";
         else if (fileMode == FULLLUMIMERGE) output << "mode = FULLLUMIMERGE";
         else output << "mode = FULLMERGE";
-	output << "  handleEmptyRuns = " << handleEmptyRuns;
-	output << "  handleEmptySubRuns = " << handleEmptySubRuns << "\n";
+        output << "  handleEmptyRuns = " << handleEmptyRuns;
+        output << "  handleEmptySubRuns = " << handleEmptySubRuns << "\n";
 
         art::MockEventProcessor mockEventProcessor(mockData,
                                                    output,

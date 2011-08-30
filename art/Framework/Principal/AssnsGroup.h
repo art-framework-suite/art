@@ -40,7 +40,7 @@ public:
   virtual EDProduct const *uniqueProduct() const;
   virtual EDProduct const *uniqueProduct(TypeID const &wanted_wrapper_type) const;
   virtual bool resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const;
-    
+
 private:
   std::auto_ptr<EDProduct>
   maybeObtainProductFromPartner(TypeID const &wanted_wrapper_type) const;

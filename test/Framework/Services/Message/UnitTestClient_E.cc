@@ -36,15 +36,15 @@ void
 
   for (int i=1; i<=50; ++i) {
     mf::LogInfo   ("unlisted_category")   <<
-  	"message with overall default limit of 5: " << i;
+        "message with overall default limit of 5: " << i;
     mf::LogInfo   ("lim3bydefault")   <<
-  	"message with specific overall default limit of 3: " << i;
+        "message with specific overall default limit of 3: " << i;
     mf::LogInfo   ("lim2bycommondefault")   <<
-  	"message with specific overall default limit of 2: " << i;
+        "message with specific overall default limit of 2: " << i;
     mf::LogInfo   ("lim0bydefaults")   <<
-  	"message with overall default and dest default limit of 0: " << i;
+        "message with overall default and dest default limit of 0: " << i;
 //    mf::LogInfo   ("lim3bydefault")   <<
-//  	"message with overall default limit (superceded) of 2: " << i;
+//      "message with overall default limit (superceded) of 2: " << i;
    }
 
 }  // MessageLoggerClient::analyze()

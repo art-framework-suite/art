@@ -20,7 +20,7 @@ void
                               )
 {
   mf::LogWarning ("configuration") << "useLogFlush = " << useLogFlush
-  			       << " queueFillers = " << queueFillers;
+                               << " queueFillers = " << queueFillers;
   std::string longMessage;
   for (int k=0; k<100; k++) {
     longMessage += "Line in long message\n";

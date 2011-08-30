@@ -87,8 +87,8 @@ public:
 
   virtual
     void endSubRun ( art::SubRun const & sr
-                	    , art::EventSetup 	   const & c
-                	    );
+                            , art::EventSetup      const & c
+                            );
 
 private:
 };

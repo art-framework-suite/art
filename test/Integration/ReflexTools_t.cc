@@ -44,12 +44,12 @@ BOOST_AUTO_TEST_CASE(find_nested)
   Type found_type;
 
   BOOST_REQUIRE(art::find_nested_type_named("const_iterator",
-					     intvec,
-					     found_type));
+                                             intvec,
+                                             found_type));
 
   BOOST_REQUIRE(!art::find_nested_type_named("WankelRotaryEngine",
-					      intvec,
-					      found_type));
+                                              intvec,
+                                              found_type));
 }
 
 BOOST_AUTO_TEST_CASE(burrowing)
@@ -58,8 +58,8 @@ BOOST_AUTO_TEST_CASE(burrowing)
   BOOST_REQUIRE(wrapper_type);
   Type wrapped_type;
   BOOST_REQUIRE(art::find_nested_type_named("wrapped_type",
-					     wrapper_type,
-					     wrapped_type));
+                                             wrapper_type,
+                                             wrapped_type));
   BOOST_REQUIRE(wrapped_type);
   BOOST_REQUIRE(!wrapped_type.IsTypedef());
   BOOST_REQUIRE(wrapped_type.IsFundamental());
@@ -74,8 +74,8 @@ BOOST_AUTO_TEST_CASE(burrowing_failure)
   Type no_such_wrapped_type;
   BOOST_REQUIRE(!no_such_wrapped_type);
   BOOST_REQUIRE(!art::find_nested_type_named("wrapped_type",
-					      not_a_wrapper,
-					      no_such_wrapped_type));
+                                              not_a_wrapper,
+                                              no_such_wrapped_type));
   BOOST_REQUIRE(!no_such_wrapped_type);
 }
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(wrapper_type_failure)
   Type no_such_wrapped_type;
   BOOST_REQUIRE(!no_such_wrapped_type);
   BOOST_REQUIRE(!art::wrapper_type_of(not_a_wrapper,
-				       no_such_wrapped_type));
+                                       no_such_wrapped_type));
   BOOST_REQUIRE(!no_such_wrapped_type);
 }
 

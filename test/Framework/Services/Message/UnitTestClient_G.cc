@@ -21,8 +21,8 @@ void
 
   double d = 3.14159265357989;
   mf::LogWarning("cat_A")   << "Test of std::setprecision(p):"
-  			     << " Pi with precision 12 is "
-  			     << std::setprecision(12) << d;
+                             << " Pi with precision 12 is "
+                             << std::setprecision(12) << d;
 
   for( int i=0; i<10; ++i) {
     mf::LogInfo("cat_B")      << "\t\tEmit Info level message " << i+1;

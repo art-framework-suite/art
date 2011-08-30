@@ -33,9 +33,9 @@ void TestTraits::vector_is_happy()
 {
   typedef std::vector<double>::size_type key_type;
   CPPUNIT_ASSERT(art::key_traits<key_type>::value ==
-		 std::numeric_limits<key_type>::max());
+                 std::numeric_limits<key_type>::max());
   CPPUNIT_ASSERT(art::key_traits<key_type>::value ==
-		 static_cast<key_type>(-1));
+                 static_cast<key_type>(-1));
 }
 
 void TestTraits::string_is_happy()

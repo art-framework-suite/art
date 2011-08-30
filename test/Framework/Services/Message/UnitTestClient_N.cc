@@ -17,13 +17,13 @@ void
   std::string empty_;
   std::string file_ = "nameOfFile";
        LogDebug  ("ridiculously_long_category_name_to_make_header_wrap_A")
-       		<< "LogDebug was used to send this message";
+                << "LogDebug was used to send this message";
        LogDebug  ("ridiculously_long_category_name_to_make_header_wrap_B")
-        	<< "LogDebug was used to send this other message";
+                << "LogDebug was used to send this other message";
   mf::LogInfo   ("ridiculously_long_category_name_to_make_header_wrap_A")
-  		<< "LogInfo was used to send this message";
+                << "LogInfo was used to send this message";
   mf::LogInfo   ("ridiculously_long_category_name_to_make_header_wrap_B")
-  		<< "LogInfo was used to send this other message";
+                << "LogInfo was used to send this other message";
 
  }  // MessageLoggerClient::analyze()
 

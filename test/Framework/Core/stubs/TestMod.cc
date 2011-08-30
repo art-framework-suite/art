@@ -20,7 +20,7 @@ TestMod::TestMod(ParameterSet const& p)
 {
   produces<int>(); // We don't really produce anything.
   std::cerr << "TestMod instance created: " << p.get<std::string>("module_label")
-	    << std::endl;
+            << std::endl;
 }
 
 void TestMod::produce(Event&, EventSetup const&)

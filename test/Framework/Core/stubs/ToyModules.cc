@@ -152,7 +152,7 @@ namespace arttest {
     // EventSetup is not used.
     int value = 0;
     for(std::vector<std::string>::iterator itLabel = labels_.begin(), itLabelEnd = labels_.end();
-	itLabel != itLabelEnd; ++itLabel) {
+        itLabel != itLabelEnd; ++itLabel) {
       art::Handle<IntProduct> anInt;
       e.getByLabel(*itLabel, anInt);
       value +=anInt->value;

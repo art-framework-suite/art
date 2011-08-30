@@ -38,13 +38,13 @@ void
 
   for (int i=1; i<=50; ++i) {
     mf::LogInfo   ("unlisted_category")   <<
-  	"message with overall default interval of 5: " << i;
+        "message with overall default interval of 5: " << i;
     mf::LogInfo   ("int4bydefault")   <<
-  	"message with specific overall default interval of 4: " << i;
+        "message with specific overall default interval of 4: " << i;
     mf::LogInfo   ("int7bycommondefault")   <<
-  	"message with specific overall default interval of 7: " << i;
+        "message with specific overall default interval of 7: " << i;
     mf::LogInfo   ("int25bydefaults")   <<
-  	"message with overall default and dest default interval of 25: " << i;
+        "message with overall default and dest default interval of 25: " << i;
    }
 
 }  // MessageLoggerClient::analyze()
