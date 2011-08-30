@@ -37,11 +37,11 @@ art::RootDelayedReader::getProduct_(BranchKey const& k, art::TypeID const &wrapp
   }
   configureRefCoreStreamer(groupFinder_);
   TClass *cl(TClass::GetClass(wrapper_type.typeInfo()));
-  TBranchElement &be(dynamic_cast<TBranchElement&>(*br));
   // FIXME: This code should be resurrected when ROOT is capable of
   // registering ioread rules for instantiations of class templates
   // using typdefs.
 #ifdef ROOT_CAN_REGISTER_IOREADS_PROPERLY
+  TBranchElement &be(dynamic_cast<TBranchElement&>(*br));
   if (be.GetClass() != cl) {
     // Need to make sure we're calling the correct streamer.
     be.SetTargetClass(cl->GetName());
