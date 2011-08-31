@@ -1,0 +1,88 @@
+===================
+art parameter names
+===================
+
+Purpose of this document
+========================
+
+This document describes
+the parameter names
+that are meaningful to the **art** framework.
+These should be distinguished
+from the parameter names
+that are meaningful
+to modules and services
+developed by an experiment.
+
+Parameter values with an expected type of *table*
+appear in **art** as objects of type *fhicl::ParameterSet*.
+See the documentation for the FHiCL language,
+and for the C++ binding for FHiCL,
+for a description of how the parameter values
+associated with these parameter names
+are available to C++ programs.
+
+Top-level names
+===============
+
+*Top-level* names are the names
+that appear directly in the configuration document,
+and are not nested within any other structure.
+
+Information in this section comes primarily
+from the function ``art::run_art(intermediate_table )``.
+
+============ ==============
+name         expected type
+============ ==============
+services     table
+source       table
+physics      table
+output       table
+process_name string
+============ ==============
+
+Names in the *services* table
+=============================
+
+The *services* table
+is used to configure
+all the services in an **art** program.
+Services known to the **art** framework itself
+are configured by parameters named in this table;
+services supplied by experiments are configured
+by parameters in the contained table named *user*.
+The suggested type for those parameters
+is *table*.
+
+============ ==============
+name         expected type
+============ ==============
+scheduler    table
+
+============ ==============
+
+Names in the *source* table
+===========================
+
+============ ==============
+name         expected type
+============ ==============
+
+
+Names in the *physics* table
+===========================
+
+============ ==============
+name         expected type
+============ ==============
+============ ==============
+
+Names in the *output* table
+===========================
+
+============ ==============
+name         expected type
+============ ==============
+============ ==============
+
