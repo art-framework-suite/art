@@ -46,10 +46,10 @@ setup -j python v2_7_2 -q gcc45
 setup -j root v5_30_00_p01 -q gcc45
 # set up CET products
 setup -j cetbuildtools v1_11_09
-setup -j cpp0x v1_01_14 -q a2$extraqual
-setup -j cetlib v1_01_00 -q a2$extraqual
-setup -j fhiclcpp v2_13_00 -q a2$extraqual
-setup -j messagefacility v1_08_25 -q a2$extraqual
+setup -j cpp0x v1_02_00 -q a2$extraqual
+setup -j cetlib v1_02_00 -q a2$extraqual
+setup -j fhiclcpp v2_14_00 -q a2$extraqual
+setup -j messagefacility v1_09_00 -q a2$extraqual
 
 test $?shell = 1 && set ss=csh || ss=sh
 test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@";}'
