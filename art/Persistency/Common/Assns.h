@@ -124,7 +124,6 @@ public:
   using base::size;
   using base::operator[];
 
-  using base::swap; // Prevent warning.
   void swap(art::Assns<L, R, D> &other);
 
   std::auto_ptr<EDProduct> makePartner() const { return makePartner_(); }
