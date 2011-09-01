@@ -386,8 +386,7 @@ namespace art {
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
-    act_table_ = ActionTable(pset);
+    act_table_ = ActionTable(scheduler);
     input_= makeInput(pset, processName,preg_, actReg_);
 
     schedule_ = std::auto_ptr<Schedule>

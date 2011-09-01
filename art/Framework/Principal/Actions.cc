@@ -47,42 +47,25 @@ namespace art {
   namespace {
     inline void install(actions::ActionCodes code,
                         ActionTable::ActionMap& out,
-                        const ParameterSet& pset)
+                        const ParameterSet& scheduler)
     {
       using namespace boost::lambda;
       typedef vector<string> vstring;
-
-      // we cannot have parameters in the main process section so look
-      // for an untracked (optional) ParameterSet called
-      // "services.options" for now.  Notice that all exceptions (most
-      // actally) throw art::Exception with the configuration category.
-      // This category should probably be more specific or a derived
-      // exception type should be used so the catch can be more
-      // specific.
-
-//      cerr << pset.toString() << endl;
-
-      ParameterSet defopts;
-      ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
-      ParameterSet opts =
-        services.get<ParameterSet>("scheduler", defopts);
-      //cerr << "looking for " << actionName(code) << endl;
-      vstring v =
-        opts.get<vector<string> >(actionName(code),vstring());
+      vstring v(scheduler.get<vector<string> >(actionName(code),vstring()));
       for_all(v, var(out)[boost::lambda::_1] = code);
-
     }
   }
 
-  ActionTable::ActionTable(const ParameterSet& pset) : map_()
+  ActionTable::ActionTable(const ParameterSet& scheduleOpts) :
+    map_()
   {
     addDefaults();
 
-    install(actions::SkipEvent, map_, pset);
-    install(actions::Rethrow, map_, pset);
-    install(actions::IgnoreCompletely, map_, pset);
-    install(actions::FailModule, map_, pset);
-    install(actions::FailPath, map_, pset);
+    install(actions::SkipEvent, map_, scheduleOpts);
+    install(actions::Rethrow, map_, scheduleOpts);
+    install(actions::IgnoreCompletely, map_, scheduleOpts);
+    install(actions::FailModule, map_, scheduleOpts);
+    install(actions::FailPath, map_, scheduleOpts);
   }
 
   void ActionTable::addDefaults()
