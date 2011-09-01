@@ -2,6 +2,9 @@
 art parameter names
 ===================
 
+This document was last updated 1 September 2011
+to reflect **art** version 0.7.13.
+
 Purpose of this document
 ========================
 
@@ -29,9 +32,6 @@ Top-level names
 that appear directly in the configuration document,
 and are not nested within any other structure.
 
-Information in this section comes primarily
-from the function ``art::run_art(intermediate_table )``.
-
 ============ ==============
 name         expected type
 ============ ==============
@@ -55,12 +55,58 @@ by parameters in the contained table named *user*.
 The suggested type for those parameters
 is *table*.
 
-============ ==============
-name         expected type
-============ ==============
-scheduler    table
+====================== =====
+name                   expected type
+====================== =====
+scheduler              table
+messages               table
+floating_point_control table
+RandomNumberGenerator  table
+SimpleMemoryCheck      table
+TFileService           table
+user                   table
+====================== =====
 
-============ ==============
+Names in the *scheduler* table
+------------------------------
+
+These parameters are mostly used to control
+the behavior of the portions of the framework
+that deal with control-of-flow
+(i.e., the *EventProcessor* and *Schedule* classes).
+
+==================== ============== =============
+name                 expected type  default value
+==================== ============== =============
+enableSigInt         bool           true
+unloadRootSigHandler bool           true
+resetRootErrHandler  bool           true
+fileMode             string         ""
+handleEmptyRuns      bool           true
+handleEmptySubRuns   bool           true
+wantTracer           bool           false
+[action name]        vector<string> empty
+==================== ============== =============
+
+The list of recognized *action names* is taken from *art::actions::<anon>::ActionNames*.
+It includes the following:
+
+ * IgnoreCompletely
+ * Rethrow
+ * SkipEvent
+ * FailModule
+ * FailPath
+
+The *vector<string>* value expected for each of these parameter names
+is the list of *art::errors::ErrorCodes* values
+for which the named action is to be taken.
+
+Names in the *messages* table
+-----------------------------
+
+The *messages* table is used
+to configure the *messagefacility* system,
+which is beyond the scope of this document.
 
 Names in the *source* table
 ===========================
@@ -68,10 +114,11 @@ Names in the *source* table
 ============ ==============
 name         expected type
 ============ ==============
+============ ==============
 
 
 Names in the *physics* table
-===========================
+============================
 
 ============ ==============
 name         expected type

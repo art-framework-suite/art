@@ -35,22 +35,21 @@
 #include <string>
 #include <vector>
 
-using std::shared_ptr;
+                                      using std::shared_ptr;
 using fhicl::ParameterSet;
 
 namespace art {
 
   namespace event_processor {
 
-    class StateSentry
-    {
+    class StateSentry {
     public:
-      StateSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
-      ~StateSentry() {if(!success_) ep_->changeState(mException);}
+      StateSentry(EventProcessor * ep) : ep_(ep), success_(false) { }
+      ~StateSentry() {if (!success_) { ep_->changeState(mException); }}
       void succeeded() {success_ = true;}
 
     private:
-      EventProcessor* ep_;
+      EventProcessor * ep_;
       bool success_;
     };
   }
@@ -63,16 +62,16 @@ namespace art {
     class SignalSentry : private boost::noncopyable {
     public:
       typedef sigc::signal<void> Sig;
-      SignalSentry(Sig& pre, Sig& post) : post_(post) { pre(); }
+      SignalSentry(Sig & pre, Sig & post) : post_(post) { pre(); }
       ~SignalSentry() { post_(); }
     private:
-      Sig& post_;
+      Sig & post_;
     };
 
     // the next two tables must be kept in sync with the state and
     // message enums from the header
 
-    char const* stateNames[] = {
+    char const * stateNames[] = {
       "Init",
       "JobReady",
       "RunGiven",
@@ -87,7 +86,7 @@ namespace art {
       "Invalid"
     };
 
-    char const* msgNames[] = {
+    char const * msgNames[] = {
       "SetRun",
       "Skip",
       "RunAsync",
@@ -113,8 +112,7 @@ namespace art {
   // table if multiple entries for a CurrentState are present.
   // the changeState function does not use the mAny yet!!!
 
-  struct TransEntry
-  {
+  struct TransEntry {
     State current;
     Msg   message;
     State final;
@@ -179,15 +177,11 @@ namespace art {
     { sStopping,      mShutdownSignal, sShuttingDown },
     { sStopping,      mStopAsync,      sStopping },     // stay
     { sStopping,      mInputExhausted, sStopping },     // stay
-    //{ sStopping,      mAny,            sJobReady },     // <- ??????
     { sShuttingDown,  mException,      sError },
     { sShuttingDown,  mShutdownSignal, sShuttingDown },
     { sShuttingDown,  mCountComplete,  sDone }, // needed?
     { sShuttingDown,  mInputExhausted, sDone }, // needed?
     { sShuttingDown,  mFinished,       sDone },
-    //{ sShuttingDown,  mShutdownAsync,  sShuttingDown }, // only one at
-    //{ sShuttingDown,  mStopAsync,      sShuttingDown }, // a time
-    //{ sShuttingDown,  mAny,            sDone },         // <- ??????
     { sDone,          mEndJob,         sJobEnded },
     { sDone,          mException,      sError },
     { sJobEnded,      mDtor,           sEnd },
@@ -203,58 +197,59 @@ namespace art {
   // Note: many of the messages generate the mBeginJob message first
   //  mRunID, mRunCount, mSetRun
 
-  // ---------------------------------------------------------------
+  void setupAsDefaultEmptySource(ParameterSet & p)
+  {
+    p.put("module_type", "EmptyEvent");
+    p.put("module_label", "source");
+    p.put("maxEvents", 1);
+  }
+
   shared_ptr<InputSource>
-  makeInput(ParameterSet const& params,
-            std::string const &processName,
-            MasterProductRegistry& preg,
-            std::shared_ptr<ActivityRegistry> areg) {
-
+  makeInput(ParameterSet const & params,
+            std::string const & processName,
+            MasterProductRegistry & preg,
+            std::shared_ptr<ActivityRegistry> areg)
+  {
     ParameterSet defaultEmptySource;
-    defaultEmptySource.put("module_type", "EmptyEvent");
-    defaultEmptySource.put("module_label", "source");
-    defaultEmptySource.put("maxEvents", 1);
-
+    setupAsDefaultEmptySource(defaultEmptySource);
     // find single source
     bool sourceSpecified = false;
     ParameterSet main_input = defaultEmptySource;
     try {
       if (!params.get_if_present("source", main_input)) {
         mf::LogInfo("EventProcessorSourceConfig")
-          << "Could not find a source configuration: using default.";
+            << "Could not find a source configuration: using default.";
       }
       // Fill in "ModuleDescription", in case the input source produces
       // any EDproducts,which would be registered in the
       // MasterProductRegistry.  Also fill in the process history item
       // for this process.
-
       ModuleDescription md;
       md.parameterSetID_ = main_input.id();
       md.moduleName_ = main_input.get<std::string>("module_type");
       md.moduleLabel_ = main_input.get<std::string>("module_label");
-
       md.processConfiguration_ = ProcessConfiguration(processName,
-                                                      params.id(),
-                                                      getReleaseVersion(), getPassID());
-
+                                 params.id(),
+                                 getReleaseVersion(), getPassID());
       sourceSpecified = true;
       InputSourceDescription isd(md, preg, *areg);
       return shared_ptr<InputSource>(InputSourceFactory::make(main_input, isd).release());
     }
-    catch (art::Exception const& iException) {
-      if(sourceSpecified == false &&
-         errors::Configuration == iException.categoryCode()) {
+    catch (art::Exception const & iException) {
+      if (sourceSpecified == false &&
+          errors::Configuration == iException.categoryCode()) {
         throw art::Exception(errors::Configuration, "FailedInputSource")
-          << "Configuration of main input source has failed\n"
-          << iException;
-      } else {
+            << "Configuration of main input source has failed\n"
+            << iException;
+      }
+      else {
         throw;
       }
     }
-    catch (cet::exception const& x) {
+    catch (cet::exception const & x) {
       throw art::Exception(errors::Configuration, "FailedInputSource")
-        << "Configuration of main input source has failed\n"
-        << x;
+          << "Configuration of main input source has failed\n"
+          << x;
     }
     return shared_ptr<InputSource>();
   }
@@ -263,15 +258,15 @@ namespace art {
 
   typedef std::vector<ParameterSet> ParameterSets;
 
-  void addService(std::string const& name, ParameterSets& service_set)
+  void addService(std::string const & name, ParameterSets & service_set)
   {
     service_set.push_back(ParameterSet());
-    service_set.back().put("service_type",name);
+    service_set.back().put("service_type", name);
   }
 
-  void addOptionalService(std::string const& name,
-                          ParameterSet const& source,
-                          ParameterSets& service_set)
+  void addOptionalService(std::string const & name,
+                          ParameterSet const & source,
+                          ParameterSets & service_set)
   {
     ParameterSet pset;
     if (source.get_if_present(name, pset)) {
@@ -280,13 +275,13 @@ namespace art {
     }
   }
 
-  void addService(std::string const& name, ParameterSet const& source, ParameterSets& service_set)
+  void addService(std::string const & name, ParameterSet const & source, ParameterSets & service_set)
   {
-    service_set.push_back(source.get<ParameterSet>(name,ParameterSet()));
-    service_set.back().put("service_type",name);
+    service_set.push_back(source.get<ParameterSet>(name, ParameterSet()));
+    service_set.back().put("service_type", name);
   }
 
-  void extractServices(ParameterSet const& services, ParameterSets& service_set)
+  void extractServices(ParameterSet const & services, ParameterSets & service_set)
   {
     // this is not ideal.  Need to change the ServiceRegistry "createSet" and ServicesManager "put"
     // functions to take the parameter set vector and a list of service objects to be added to
@@ -296,24 +291,20 @@ namespace art {
     // a service token, it injects a new service object using the "put" of the
     // servicesManager.
     // order might be important here
-
     // only configured if pset present in services
-    addOptionalService("RandomNumberGenerator",services,service_set);
-    addOptionalService("SimpleMemoryCheck",services, service_set);
-    addOptionalService("Timing",services,service_set);
-    addOptionalService("TFileService",services,service_set);
-
-    ParameterSet user_services = services.get<ParameterSet>("user",ParameterSet());
-
+    addOptionalService("RandomNumberGenerator", services, service_set);
+    addOptionalService("SimpleMemoryCheck", services, service_set);
+    addOptionalService("Timing", services, service_set);
+    addOptionalService("TFileService", services, service_set);
+    ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
     std::vector<std::string> keys = user_services.get_pset_keys();
-
-    for(std::vector<std::string>::iterator i=keys.begin(),e=keys.end();i!=e;++i)
-      addService(*i, user_services,service_set);
+    for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)
+    { addService(*i, user_services, service_set); }
   }
 
   // ----------- event processor functions ------------------
 
-  EventProcessor::EventProcessor(ParameterSet const& pset):
+  EventProcessor::EventProcessor(ParameterSet const & pset):
     preProcessEventSignal_(),
     postProcessEventSignal_(),
     actReg_(new ActivityRegistry),
@@ -342,64 +333,50 @@ namespace art {
     // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
     //  They must be cleared here because some processes run multiple EventProcessors in succession.
     BranchIDListHelper::clearRegistries();
-
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
-
-    ParameterSet services = pset.get<ParameterSet>("services",ParameterSet());
+    ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
     ParameterSet scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-
-    ParameterSet fpc_pset = services.get<ParameterSet>("floating_point_control",ParameterSet());
-
+    ParameterSet fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
     fileMode_ = scheduler.get<std::string>("fileMode", "");
     handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
     handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
-    bool wantTracer = scheduler.get<bool>("wantTracer",false);
+    bool wantTracer = scheduler.get<bool>("wantTracer", false);
     std::string processName = pset.get<std::string>("process_name");
-
     // build a list of service parameter sets that will be used by the service registry
     ParameterSets service_set;
-    extractServices(services,service_set);
-
+    extractServices(services, service_set);
     // configured based on optional parameters
-    if(wantTracer) addService("Tracer",service_set);
-
+    if (wantTracer) { addService("Tracer", service_set); }
     serviceToken_ = ServiceRegistry::createSet(service_set);
-
     // NOTE: the order here might be backwards, due to the "push_front" registering
     // that sigc++ does way in the guts of the add operation.
-
     typedef art::TriggerNamesService TNS;
     // no configuration available
     serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(*actReg_)));
     // special construction
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
-    serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset,*actReg_)));
+    serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
     // May be able to do this with CurrentModule serive, else might need
     // small service to configure the ContextProvider of the
     // MessageFacility.
     // serviceToken_.add(std::auto_ptr<MessageLogger>(new
     // MessageLogger(logger_pset,*actReg_)));
-
     serviceToken_.forceCreation(*actReg_);
-
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
     act_table_ = ActionTable(scheduler);
-    input_= makeInput(pset, processName,preg_, actReg_);
-
+    input_ = makeInput(pset, processName, preg_, actReg_);
     schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(pset,
-                    ServiceRegistry::instance().get<TNS>(),
-                    wreg_,
-                    preg_,
-                    act_table_,
-                    actReg_));
-
+                (new Schedule(pset,
+                              ServiceRegistry::instance().get<TNS>(),
+                              wreg_,
+                              preg_,
+                              act_table_,
+                              actReg_));
     //   initialize(token,legacy);
     FDEBUG(2) << pset.to_string() << std::endl;
-
     connectSigs(this);
     BranchIDListHelper::updateRegistries(preg_);
   }
@@ -409,7 +386,6 @@ namespace art {
     // Make the services available while everything is being deleted.
     ServiceToken token = getToken();
     ServiceRegistry::Operate op(token);
-
     // The state machine should have already been cleaned up
     // and destroyed at this point by a call to EndJob or
     // earlier when it completed processing events, but if it
@@ -420,15 +396,12 @@ namespace art {
     // the EventProcessor to explicitly call EndJob or use runToCompletion,
     // then the next line of code is never executed.
     terminateMachine();
-
     try {
       changeState(mDtor);
     }
-    catch(cet::exception& e)
-      {
-        mf::LogError("System") << e.explain_self() << "\n";
-      }
-
+    catch (cet::exception & e) {
+      mf::LogError("System") << e.explain_self() << "\n";
+    }
     // manually destroy all these thing that may need the services around
     schedule_.reset();
     input_.reset();
@@ -444,7 +417,6 @@ namespace art {
     changeState(mInputRewind);
     {
       StateSentry toerror(this);
-
       //make the services available
       ServiceRegistry::Operate operate(serviceToken_);
       rewindInput();
@@ -455,7 +427,8 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  EventProcessor::doOneEvent(EventID const& id) {
+  EventProcessor::doOneEvent(EventID const & id)
+  {
     std::auto_ptr<EventPrincipal> pep;
     {
       SignalSentry eventSourceSentry(actReg_->preSourceSignal_,
@@ -467,26 +440,26 @@ namespace art {
   }
 
   void
-  EventProcessor::procOneEvent(EventPrincipal *pep) {
-    if(0 != pep) {
+  EventProcessor::procOneEvent(EventPrincipal * pep)
+  {
+    if (0 != pep) {
       schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep);
     }
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(EventID const& id)
+  EventProcessor::run(EventID const & id)
   {
     beginJob(); //make sure this was called
     changeState(mRunID);
     StateSentry toerror(this);
     Status rc = epSuccess;
-
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
-    if(doOneEvent(id).get() == 0) {
+    if (doOneEvent(id).get() == 0) {
       changeState(mInputExhausted);
-    } else {
+    }
+    else {
       changeState(mCountComplete);
       rc = epInputComplete;
     }
@@ -502,10 +475,8 @@ namespace art {
     changeState(mSkip);
     {
       StateSentry toerror(this);
-
       //make the services available
       ServiceRegistry::Operate operate(serviceToken_);
-
       {
         input_->skipEvents(numberToSkip);
       }
@@ -519,15 +490,13 @@ namespace art {
   void
   EventProcessor::beginJob()
   {
-    if(state_ != sInit) return;
+    if (state_ != sInit) { return; }
     bk::beginJob();
     // can only be run if in the initial state
     changeState(mBeginJob);
-
     // StateSentry toerror(this); // should we add this ?
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will
@@ -538,28 +507,29 @@ namespace art {
     // to be called.
     try {
       input_->doBeginJob();
-    } catch(cet::exception& e) {
+    }
+    catch (cet::exception & e) {
       mf::LogError("BeginJob") << "A cet::exception happened while processing"
-        " the beginJob of the 'source'\n";
+                               " the beginJob of the 'source'\n";
       e << "A cet::exception happened while processing"
         " the beginJob of the 'source'\n";
       throw;
-    } catch(std::exception& e) {
+    }
+    catch (std::exception & e) {
       mf::LogError("BeginJob") << "A std::exception happened while processing"
-        " the beginJob of the 'source'\n";
+                               " the beginJob of the 'source'\n";
       throw;
-    } catch(...) {
+    }
+    catch (...) {
       mf::LogError("BeginJob") << "An unknown exception happened while"
-        " processing the beginJob of the 'source'\n";
+                               " processing the beginJob of the 'source'\n";
       throw;
     }
     schedule_->beginJob();
     actReg_->postBeginJobSignal_();
-
     Schedule::Workers aw_vec;
     schedule_->getAllWorkers(aw_vec);
     actReg_->postBeginJobWorkersSignal_(input_.get(), aw_vec);
-
     // toerror.succeeded(); // should we add this?
   }
 
@@ -568,13 +538,10 @@ namespace art {
   {
     // Collects exceptions, so we don't throw before all operations are performed.
     cet::exception_collector c;
-
     // only allowed to run if state is sIdle,sJobReady,sRunGiven
     c.call(std::bind(&EventProcessor::changeState, this, mEndJob));
-
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
     c.call(std::bind(&EventProcessor::terminateMachine, this));
     c.call(std::bind(&Schedule::endJob, schedule_.get()));
     c.call(std::bind(&InputSource::doEndJob, input_));
@@ -588,7 +555,7 @@ namespace art {
   }
 
   void
-  EventProcessor::connectSigs(EventProcessor* ep)
+  EventProcessor::connectSigs(EventProcessor * ep)
   {
     // When these signals are given, pass them to the appropriate
     // EventProcessor signals so that the outside world can see the
@@ -597,7 +564,7 @@ namespace art {
     actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal_);
   }
 
-  std::vector<ModuleDescription const*>
+  std::vector<ModuleDescription const *>
   EventProcessor::getAllModuleDescriptions() const
   {
     return schedule_->getAllModuleDescriptions();
@@ -634,7 +601,7 @@ namespace art {
   }
 
   void
-  EventProcessor::getTriggerReport(TriggerReport& rep) const
+  EventProcessor::getTriggerReport(TriggerReport & rep) const
   {
     schedule_->getTriggerReport(rep);
   }
@@ -646,17 +613,17 @@ namespace art {
   }
 
 
-  char const* EventProcessor::currentStateName() const
+  char const * EventProcessor::currentStateName() const
   {
     return stateName(getState());
   }
 
-  char const* EventProcessor::stateName(State s) const
+  char const * EventProcessor::stateName(State s) const
   {
     return stateNames[s];
   }
 
-  char const* EventProcessor::msgName(Msg m) const
+  char const * EventProcessor::msgName(Msg m) const
   {
     return msgNames[m];
   }
@@ -680,55 +647,47 @@ namespace art {
     boost::xtime timeout;
     boost::xtime_get(&timeout, boost::TIME_UTC);
     timeout.sec += timeout_seconds;
-
     // make sure to include a timeout here so we don't wait forever
     // I suspect there are still timing issues with thread startup
     // and the setting of the various control variables (stop_count,id_set)
     {
       boost::mutex::scoped_lock sl(stop_lock_);
-
       // look here - if runAsync not active, just return the last return code
-      if(stop_count_ < 0) return last_rc_;
-
-      if(timeout_seconds==0)
-        while(stop_count_==0) stopper_.wait(sl);
+      if (stop_count_ < 0) { return last_rc_; }
+      if (timeout_seconds == 0)
+        while (stop_count_ == 0) { stopper_.wait(sl); }
       else
-        while(stop_count_==0 &&
-              (rc = stopper_.timed_wait(sl,timeout)) == true);
-
-      if(rc == false)
-        {
-          // timeout occurred
-          // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
-          // this is a temporary hack until we get the input source
-          // upgraded to allow blocking input sources to be unblocked
-
-          // the next line is dangerous and causes all sorts of trouble
-          if(id_set_) pthread_cancel(event_loop_id_);
-
-          // we will not do anything yet
-          mf::LogWarning("timeout")
+        while (stop_count_ == 0 &&
+               (rc = stopper_.timed_wait(sl, timeout)) == true);
+      if (rc == false) {
+        // timeout occurred
+        // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
+        // this is a temporary hack until we get the input source
+        // upgraded to allow blocking input sources to be unblocked
+        // the next line is dangerous and causes all sorts of trouble
+        if (id_set_) { pthread_cancel(event_loop_id_); }
+        // we will not do anything yet
+        mf::LogWarning("timeout")
             << "An asynchronous request was made to shut down the event loop"
             " and the event loop did not shutdown after "
             << timeout_seconds << " seconds\n";
-        }
-      else
-        {
-          event_loop_->join();
-          event_loop_.reset();
-          id_set_ = false;
-          stop_count_ = -1;
-        }
+      }
+      else {
+        event_loop_->join();
+        event_loop_.reset();
+        id_set_ = false;
+        stop_count_ = -1;
+      }
     }
-    return rc==false?epTimedOut:last_rc_;
+    return rc == false ? epTimedOut : last_rc_;
   }
 
   EventProcessor::StatusCode
   EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs)
   {
     StatusCode rc = waitForAsyncCompletion(timeout_value_secs);
-    if(rc!=epTimedOut) changeState(mCountComplete);
-    else errorState();
+    if (rc != epTimedOut) { changeState(mCountComplete); }
+    else { errorState(); }
     return rc;
   }
 
@@ -737,8 +696,8 @@ namespace art {
   {
     changeState(mStopAsync);
     StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc!=epTimedOut) changeState(mFinished);
-    else errorState();
+    if (rc != epTimedOut) { changeState(mFinished); }
+    else { errorState(); }
     return rc;
   }
 
@@ -746,8 +705,8 @@ namespace art {
   {
     changeState(mShutdownAsync);
     StatusCode rc = waitForAsyncCompletion(secs);
-    if(rc!=epTimedOut) changeState(mFinished);
-    else errorState();
+    if (rc != epTimedOut) { changeState(mFinished); }
+    else { errorState(); }
     return rc;
   }
 
@@ -763,37 +722,33 @@ namespace art {
     // I suspect there are still timing issues with thread startup
     // and the setting of the various control variables (stop_count,id_set)
     changeState(m);
-    return waitForAsyncCompletion(60*2);
+    return waitForAsyncCompletion(60 * 2);
   }
 
   void EventProcessor::changeState(Msg msg)
   {
     // most likely need to serialize access to this routine
-
     boost::mutex::scoped_lock sl(state_lock_);
     State curr = state_;
     int rc;
     // found if(not end of table) and
     // (state == table.state && (msg == table.message || msg == any))
-    for(rc = 0;
-        table[rc].current != sInvalid &&
-          (curr != table[rc].current ||
-           (curr == table[rc].current &&
-            msg != table[rc].message && table[rc].message != mAny));
-        ++rc);
-
-    if(table[rc].current == sInvalid)
+    for (rc = 0;
+         table[rc].current != sInvalid &&
+         (curr != table[rc].current ||
+          (curr == table[rc].current &&
+           msg != table[rc].message && table[rc].message != mAny));
+         ++rc);
+    if (table[rc].current == sInvalid)
       throw cet::exception("BadState")
-        << "A member function of EventProcessor has been called in an"
-        << " inappropriate order.\n"
-        << "Bad transition from " << stateName(curr) << " "
-        << "using message " << msgName(msg) << "\n"
-        << "No where to go from here.\n";
-
+          << "A member function of EventProcessor has been called in an"
+          << " inappropriate order.\n"
+          << "Bad transition from " << stateName(curr) << " "
+          << "using message " << msgName(msg) << "\n"
+          << "No where to go from here.\n";
     FDEBUG(1) << "changeState: current=" << stateName(curr)
               << ", message=" << msgName(msg)
               << " -> new=" << stateName(table[rc].final) << "\n";
-
     state_ = table[rc].final;
   }
 
@@ -803,91 +758,83 @@ namespace art {
     beginJob();
     {
       boost::mutex::scoped_lock sl(stop_lock_);
-      if(id_set_==true) {
+      if (id_set_ == true) {
         std::string err("runAsync called while async event loop already running\n");
         mf::LogError("ArtJob") << err;
         throw cet::exception("BadState") << err;
       }
-
       changeState(mRunAsync);
-
-      stop_count_=0;
-      last_rc_=epSuccess; // forget the last value!
-      event_loop_.reset(new thread(std::bind(EventProcessor::asyncRun,this)));
+      stop_count_ = 0;
+      last_rc_ = epSuccess; // forget the last value!
+      event_loop_.reset(new thread(std::bind(EventProcessor::asyncRun, this)));
       boost::xtime timeout;
       boost::xtime_get(&timeout, boost::TIME_UTC);
       timeout.sec += 60; // 60 seconds to start!!!!
-      if(starter_.timed_wait(sl,timeout)==false) {
+      if (starter_.timed_wait(sl, timeout) == false) {
         // yikes - the thread did not start
         throw cet::exception("BadState")
-          << "Async run thread did not start in 60 seconds\n";
+            << "Async run thread did not start in 60 seconds\n";
       }
     }
   }
 
-  void EventProcessor::asyncRun(EventProcessor* me)
+  void EventProcessor::asyncRun(EventProcessor * me)
   {
     // set up signals to allow for interruptions
     // ignore all other signals
     // make sure no exceptions escape out
-
     // temporary hack until we modify the input source to allow
     // wakeup calls from other threads.  This mimics the solution
     // in EventFilter/Processor, which I do not like.
     // allowing cancels means that the thread just disappears at
     // certain points.  This is bad for C++ stack variables.
-    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,0);
+    pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
     //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
-
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
     {
       boost::mutex::scoped_lock(me->stop_lock_);
       me->event_loop_id_ = pthread_self();
       me->id_set_ = true;
       me->starter_.notify_all();
     }
-
     Status rc = epException;
     FDEBUG(2) << "asyncRun starting ...........\n";
-
     try {
       bool onlineStateTransitions = true;
       rc = me->runToCompletion(onlineStateTransitions);
     }
-    catch (cet::exception& e) {
+    catch (cet::exception & e) {
       mf::LogError("ArtJob") << "cet::exception caught in "
-        "EventProcessor::asyncRun\n"
+                             "EventProcessor::asyncRun\n"
                              << e.explain_self();
       me->last_error_text_ = e.explain_self();
     }
-    catch (std::exception& e) {
+    catch (std::exception & e) {
       mf::LogError("ArtJob") << "Standard library exception caught in "
-        "EventProcessor::asyncRun\n"
+                             "EventProcessor::asyncRun\n"
                              << e.what();
       me->last_error_text_ = e.what();
     }
-    catch (std::string const &e) {
+    catch (std::string const & e) {
       mf::LogError("ArtJob") << "String-based exception caught in "
-        "EventProcessor::asyncRun\n"
+                             "EventProcessor::asyncRun\n"
                              << e;
       me->last_error_text_ = e;
     }
-    catch (char const *e) {
+    catch (char const * e) {
       mf::LogError("ArtJob") << "String-based exception caught in "
-        "EventProcessor::asyncRun\n"
+                             "EventProcessor::asyncRun\n"
                              << e;
       me->last_error_text_ = e;
     }
     catch (...) {
       mf::LogError("ArtJob") << "Unknown exception caught in "
-        "EventProcessor::asyncRun\n";
+                             "EventProcessor::asyncRun\n";
       me->last_error_text_ = "Unknown exception caught";
       rc = epOther;
     }
-
     me->last_rc_ = rc;
-
     {
       // notify anyone waiting for exit that we are doing so now
       boost::mutex::scoped_lock sl(me->stop_lock_);
@@ -899,84 +846,63 @@ namespace art {
 
 
   art::EventProcessor::StatusCode
-  EventProcessor::runToCompletion(bool onlineStateTransitions) {
-
+  EventProcessor::runToCompletion(bool onlineStateTransitions)
+  {
     StateSentry toerror(this);
-
     int numberOfEventsToProcess = -1;
     StatusCode returnCode = runCommon(onlineStateTransitions, numberOfEventsToProcess);
-
     if (machine_.get() != 0) {
       throw art::Exception(errors::LogicError)
-        << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
-        << "Please report this error to the Framework group\n";
+          << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
+          << "Please report this error to the Framework group\n";
     }
-
     toerror.succeeded();
-
     return returnCode;
   }
 
   art::EventProcessor::StatusCode
-  EventProcessor::runEventCount(int numberOfEventsToProcess) {
-
+  EventProcessor::runEventCount(int numberOfEventsToProcess)
+  {
     StateSentry toerror(this);
-
     bool onlineStateTransitions = false;
     StatusCode returnCode = runCommon(onlineStateTransitions, numberOfEventsToProcess);
-
     toerror.succeeded();
-
     return returnCode;
   }
 
   art::EventProcessor::StatusCode
-  EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
-
+  EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess)
+  {
     beginJob(); //make sure this was called
-
-    if (!onlineStateTransitions) changeState(mRunCount);
-
+    if (!onlineStateTransitions) { changeState(mRunCount); }
     StatusCode returnCode = epSuccess;
     stateMachineWasInErrorState_ = false;
-
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
     if (machine_.get() == 0) {
-
       statemachine::FileMode fileMode;
-      if (fileMode_.empty()) fileMode = statemachine::FULLMERGE;
-      else if (fileMode_ == std::string("MERGE")) fileMode = statemachine::MERGE;
-      else if (fileMode_ == std::string("NOMERGE")) fileMode = statemachine::NOMERGE;
-      else if (fileMode_ == std::string("FULLMERGE")) fileMode = statemachine::FULLMERGE;
-      else if (fileMode_ == std::string("FULLLUMIMERGE")) fileMode = statemachine::FULLLUMIMERGE;
+      if (fileMode_.empty()) { fileMode = statemachine::FULLMERGE; }
+      else if (fileMode_ == std::string("MERGE")) { fileMode = statemachine::MERGE; }
+      else if (fileMode_ == std::string("NOMERGE")) { fileMode = statemachine::NOMERGE; }
+      else if (fileMode_ == std::string("FULLMERGE")) { fileMode = statemachine::FULLMERGE; }
+      else if (fileMode_ == std::string("FULLLUMIMERGE")) { fileMode = statemachine::FULLLUMIMERGE; }
       else {
         throw art::Exception(errors::Configuration, "Illegal fileMode parameter value: ")
-          << fileMode_ << ".\n"
-          << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
+            << fileMode_ << ".\n"
+            << "Legal values are 'MERGE', 'NOMERGE', 'FULLMERGE', and 'FULLLUMIMERGE'.\n";
       }
-
       machine_.reset(new statemachine::Machine(this,
-                                               fileMode,
-                                               handleEmptyRuns_,
-                                               handleEmptySubRuns_));
-
+                     fileMode,
+                     handleEmptyRuns_,
+                     handleEmptySubRuns_));
       machine_->initiate();
     }
-
     try {
-
       input::ItemType itemType;
-
       int iEvents = 0;
-
       while (true) {
-
         itemType = input_->nextItemType();
-
         FDEBUG(1) << "itemType = " << itemType << "\n";
-
         // These are used for asynchronous running only and
         // and are checking to see if stopAsync or shutdownAsync
         // were called from another thread.  In the future, we
@@ -994,7 +920,6 @@ namespace art {
           machine_->process_event(statemachine::Stop());
           break;
         }
-
         // Look for a shutdown signal
         {
           boost::mutex::scoped_lock sl(usr2_lock);
@@ -1005,7 +930,6 @@ namespace art {
             break;
           }
         }
-
         if (itemType == input::IsStop) {
           machine_->process_event(statemachine::Stop());
         }
@@ -1031,17 +955,15 @@ namespace art {
         // This should be impossible
         else {
           throw art::Exception(errors::LogicError)
-            << "Unknown next item type passed to EventProcessor\n"
-            << "Please report this error to the art developers\n";
+              << "Unknown next item type passed to EventProcessor\n"
+              << "Please report this error to the art developers\n";
         }
-
         if (machine_->terminated()) {
           changeState(mInputExhausted);
           break;
         }
       }  // End of loop over state machine events
     } // Try block
-
     // Some comments on exception handling related to the boost state machine:
     //
     // Some states used in the machine are special because they
@@ -1086,8 +1008,7 @@ namespace art {
     // terminate the state machine before invoking its destructor.
     // We've seen crashes which are not understood when that is not
     // done.  Maintainers of this code should be careful about this.
-
-    catch (cet::exception& e) {
+    catch (cet::exception & e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
@@ -1097,148 +1018,157 @@ namespace art {
       e << exceptionMessageFiles_;
       throw e;
     }
-    catch (std::bad_alloc& e) {
+    catch (std::bad_alloc & e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
       throw cet::exception("std::bad_alloc")
-        << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
-        << "The job has probably exhausted the virtual memory available to the process.\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+          << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
+          << "The job has probably exhausted the virtual memory available to the process.\n"
+          << exceptionMessageSubRuns_
+          << exceptionMessageRuns_
+          << exceptionMessageFiles_;
     }
-    catch (std::exception& e) {
+    catch (std::exception & e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
       throw cet::exception("StdException")
-        << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
-        << "Previous information:\n" << e.what() << "\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+          << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
+          << "Previous information:\n" << e.what() << "\n"
+          << exceptionMessageSubRuns_
+          << exceptionMessageRuns_
+          << exceptionMessageFiles_;
     }
-    catch (std::string const &e) {
+    catch (std::string const & e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
       throw cet::exception("Unknown")
-        << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-        << e
-        << "\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+          << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
+          << e
+          << "\n"
+          << exceptionMessageSubRuns_
+          << exceptionMessageRuns_
+          << exceptionMessageFiles_;
     }
-    catch (char const *e) {
+    catch (char const * e) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
       throw cet::exception("Unknown")
-        << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
-        << e
-        << "\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+          << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
+          << e
+          << "\n"
+          << exceptionMessageSubRuns_
+          << exceptionMessageRuns_
+          << exceptionMessageFiles_;
     }
     catch (...) {
       alreadyHandlingException_ = true;
       terminateMachine();
       alreadyHandlingException_ = false;
       throw cet::exception("Unknown")
-        << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
-        << exceptionMessageSubRuns_
-        << exceptionMessageRuns_
-        << exceptionMessageFiles_;
+          << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
+          << exceptionMessageSubRuns_
+          << exceptionMessageRuns_
+          << exceptionMessageFiles_;
     }
-
     if (machine_->terminated()) {
       FDEBUG(1) << "The state machine reports it has been terminated\n";
       machine_.reset();
     }
-
-    if (!onlineStateTransitions) changeState(mFinished);
-
+    if (!onlineStateTransitions) { changeState(mFinished); }
     if (stateMachineWasInErrorState_) {
       throw cet::exception("BadState")
-        << "The boost state machine in the EventProcessor exited after\n"
-        << "entering the Error state.\n";
+          << "The boost state machine in the EventProcessor exited after\n"
+          << "entering the Error state.\n";
     }
-
     return returnCode;
   }
 
-  void EventProcessor::readFile() {
+  void EventProcessor::readFile()
+  {
     actReg_->preOpenFileSignal_();
     FDEBUG(1) << " \treadFile\n";
     fb_ = input_->readFile(preg_);
     if (!fb_) {
       throw Exception(errors::LogicError)
-        << "Source readFile() did not return a valid FileBlock: FileBlock "
-        << "should be valid or readFile() should throw.\n";
+          << "Source readFile() did not return a valid FileBlock: FileBlock "
+          << "should be valid or readFile() should throw.\n";
     }
     actReg_->postOpenFileSignal_(fb_->fileName());
   }
 
-  void EventProcessor::closeInputFile() {
+  void EventProcessor::closeInputFile()
+  {
     SignalSentry fileCloseSentry(actReg_->preCloseFileSignal_,
                                  actReg_->postCloseFileSignal_);
     input_->closeFile();
     FDEBUG(1) << "\tcloseInputFile\n";
   }
 
-  void EventProcessor::openOutputFiles() {
+  void EventProcessor::openOutputFiles()
+  {
     schedule_->openOutputFiles(*fb_);
     FDEBUG(1) << "\topenOutputFiles\n";
   }
 
-  void EventProcessor::closeOutputFiles() {
+  void EventProcessor::closeOutputFiles()
+  {
     schedule_->closeOutputFiles();
     FDEBUG(1) << "\tcloseOutputFiles\n";
   }
 
-  void EventProcessor::respondToOpenInputFile() {
+  void EventProcessor::respondToOpenInputFile()
+  {
     schedule_->respondToOpenInputFile(*fb_);
     FDEBUG(1) << "\trespondToOpenInputFile\n";
   }
 
-  void EventProcessor::respondToCloseInputFile() {
+  void EventProcessor::respondToCloseInputFile()
+  {
     schedule_->respondToCloseInputFile(*fb_);
     FDEBUG(1) << "\trespondToCloseInputFile\n";
   }
 
-  void EventProcessor::respondToOpenOutputFiles() {
+  void EventProcessor::respondToOpenOutputFiles()
+  {
     schedule_->respondToOpenOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToOpenOutputFiles\n";
   }
 
-  void EventProcessor::respondToCloseOutputFiles() {
+  void EventProcessor::respondToCloseOutputFiles()
+  {
     schedule_->respondToCloseOutputFiles(*fb_);
     FDEBUG(1) << "\trespondToCloseOutputFiles\n";
   }
 
-  void EventProcessor::startingNewLoop() {
+  void EventProcessor::startingNewLoop()
+  {
     shouldWeStop_ = false;
     FDEBUG(1) << "\tstartingNewLoop\n";
   }
 
-  bool EventProcessor::endOfLoop() {
+  bool EventProcessor::endOfLoop()
+  {
     FDEBUG(1) << "\tendOfLoop\n";
     return true;
   }
 
-  void EventProcessor::rewindInput() {
+  void EventProcessor::rewindInput()
+  {
     input_->rewind();
     FDEBUG(1) << "\trewind\n";
   }
 
-  void EventProcessor::prepareForNextLoop() {
+  void EventProcessor::prepareForNextLoop()
+  {
     FDEBUG(1) << "\tprepareForNextLoop\n";
   }
 
-  void EventProcessor::writeSubRunCache() {
+  void EventProcessor::writeSubRunCache()
+  {
     while (!principalCache_.noMoreSubRuns()) {
       schedule_->writeSubRun(principalCache_.lowestSubRun());
       principalCache_.deleteLowestSubRun();
@@ -1246,7 +1176,8 @@ namespace art {
     FDEBUG(1) << "\twriteSubRunCache\n";
   }
 
-  void EventProcessor::writeRunCache() {
+  void EventProcessor::writeRunCache()
+  {
     while (!principalCache_.noMoreRuns()) {
       schedule_->writeRun(principalCache_.lowestRun());
       principalCache_.deleteLowestRun();
@@ -1254,44 +1185,50 @@ namespace art {
     FDEBUG(1) << "\twriteRunCache\n";
   }
 
-  bool EventProcessor::shouldWeCloseOutput() const {
+  bool EventProcessor::shouldWeCloseOutput() const
+  {
     FDEBUG(1) << "\tshouldWeCloseOutput\n";
     return schedule_->shouldWeCloseOutput();
   }
 
-  void EventProcessor::doErrorStuff() {
+  void EventProcessor::doErrorStuff()
+  {
     FDEBUG(1) << "\tdoErrorStuff\n";
     mf::LogError("StateMachine")
-      << "The EventProcessor state machine encountered an unexpected event\n"
-      "and went to the error state\n"
-      "Will attempt to terminate processing normally\n"
-      "This likely indicates a bug in an input module, corrupted input, or both\n";
+        << "The EventProcessor state machine encountered an unexpected event\n"
+        "and went to the error state\n"
+        "Will attempt to terminate processing normally\n"
+        "This likely indicates a bug in an input module, corrupted input, or both\n";
     stateMachineWasInErrorState_ = true;
   }
 
-  void EventProcessor::beginRun(int run) {
-    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+  void EventProcessor::beginRun(int run)
+  {
+    RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal);
     FDEBUG(1) << "\tbeginRun " << run << "\n";
   }
 
-  void EventProcessor::endRun(int run) {
-    RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
+  void EventProcessor::endRun(int run)
+  {
+    RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
     //input_->doEndRun(runPrincipal);
     schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
     FDEBUG(1) << "\tendRun " << run << "\n";
   }
 
-  void EventProcessor::beginSubRun(int run, int subRun) {
-    SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
+  void EventProcessor::beginSubRun(int run, int subRun)
+  {
+    SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
     // NOTE: Using 0 as the event number for the begin of a subRun block is a bad idea
     // subRun blocks know their start and end times why not also start and end events?
     schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal);
     FDEBUG(1) << "\tbeginSubRun " << run << "/" << subRun << "\n";
   }
 
-  void EventProcessor::endSubRun(int run, int subRun) {
-    SubRunPrincipal& subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
+  void EventProcessor::endSubRun(int run, int subRun)
+  {
+    SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
     //input_->doEndSubRun(subRunPrincipal);
     //NOTE: Using the max event number for the end of a subRun block is a bad idea
     // subRun blocks know their start and end times why not also start and end events?
@@ -1299,7 +1236,8 @@ namespace art {
     FDEBUG(1) << "\tendSubRun " << run << "/" << subRun << "\n";
   }
 
-  int EventProcessor::readAndCacheRun() {
+  int EventProcessor::readAndCacheRun()
+  {
     SignalSentry runSourceSentry(actReg_->preSourceRunSignal_,
                                  actReg_->postSourceRunSignal_);
     principalCache_.insert(input_->readRun());
@@ -1307,7 +1245,8 @@ namespace art {
     return principalCache_.runPrincipal().run();
   }
 
-  int EventProcessor::readAndCacheSubRun() {
+  int EventProcessor::readAndCacheSubRun()
+  {
     SignalSentry subRunSourceSentry(actReg_->preSourceSubRunSignal_,
                                     actReg_->postSourceSubRunSignal_);
     principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
@@ -1315,60 +1254,71 @@ namespace art {
     return principalCache_.subRunPrincipal().subRun();
   }
 
-  void EventProcessor::writeRun(int run) {
+  void EventProcessor::writeRun(int run)
+  {
     schedule_->writeRun(principalCache_.runPrincipal(run));
     FDEBUG(1) << "\twriteRun " << run << "\n";
   }
 
-  void EventProcessor::deleteRunFromCache(int run) {
+  void EventProcessor::deleteRunFromCache(int run)
+  {
     principalCache_.deleteRun(run);
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeSubRun(int run, int subRun) {
+  void EventProcessor::writeSubRun(int run, int subRun)
+  {
     schedule_->writeSubRun(principalCache_.subRunPrincipal(run, subRun));
     FDEBUG(1) << "\twriteSubRun " << run << "/" << subRun << "\n";
   }
 
-  void EventProcessor::deleteSubRunFromCache(int run, int subRun) {
+  void EventProcessor::deleteSubRunFromCache(int run, int subRun)
+  {
     principalCache_.deleteSubRun(run, subRun);
     FDEBUG(1) << "\tdeleteSubRunFromCache " << run << "/" << subRun << "\n";
   }
 
-  void EventProcessor::readEvent() {
+  void EventProcessor::readEvent()
+  {
     sm_evp_ = input_->readEvent(principalCache_.subRunPrincipalPtr());
     FDEBUG(1) << "\treadEvent\n";
   }
 
-  void EventProcessor::processEvent() {
+  void EventProcessor::processEvent()
+  {
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
-
     FDEBUG(1) << "\tprocessEvent\n";
   }
 
-  bool EventProcessor::shouldWeStop() const {
+  bool EventProcessor::shouldWeStop() const
+  {
     FDEBUG(1) << "\tshouldWeStop\n";
-    if (shouldWeStop_) return true;
+    if (shouldWeStop_) { return true; }
     return schedule_->terminate();
   }
 
-  void EventProcessor::setExceptionMessageFiles(std::string& message) {
+  void EventProcessor::setExceptionMessageFiles(std::string & message)
+  {
     exceptionMessageFiles_ = message;
   }
 
-  void EventProcessor::setExceptionMessageRuns(std::string& message) {
+  void EventProcessor::setExceptionMessageRuns(std::string & message)
+  {
     exceptionMessageRuns_ = message;
   }
 
-  void EventProcessor::setExceptionMessageSubRuns(std::string& message) {
+  void EventProcessor::setExceptionMessageSubRuns(std::string & message)
+  {
     exceptionMessageSubRuns_ = message;
   }
 
-  bool EventProcessor::alreadyHandlingException() const {
+  bool EventProcessor::alreadyHandlingException() const
+  {
     return alreadyHandlingException_;
   }
 
-  void EventProcessor::terminateMachine() {
+  void EventProcessor::terminateMachine()
+  {
     if (machine_.get() != 0) {
       if (!machine_->terminated()) {
         machine_->process_event(statemachine::Stop());
