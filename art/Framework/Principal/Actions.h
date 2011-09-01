@@ -3,10 +3,13 @@
 
 #include "art/Framework/Principal/fwd.h"
 
-#include "fhiclcpp/ParameterSet.h"
-
 #include <map>
 #include <string>
+
+namespace fhicl
+{
+  class ParameterSet;
+}
 
 // ----------------------------------------------------------------------
 
@@ -18,7 +21,7 @@ namespace art {
 
 class art::ActionTable {
 public:
-  typedef std::map<std::string, actions::ActionCodes> ActionMap;
+
 
   ActionTable();
   explicit ActionTable(const fhicl::ParameterSet&);
@@ -29,7 +32,11 @@ public:
   actions::ActionCodes find(const std::string& category) const;
 
 private:
-  void addDefaults();
+  typedef std::map<std::string, actions::ActionCodes> ActionMap;
+
+  void addDefaults_();
+  void install_(actions::ActionCodes code, const fhicl::ParameterSet& scheduler);
+
   ActionMap map_;
 };  // ActionTable
 
