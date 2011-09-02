@@ -35,11 +35,11 @@ and are not nested within any other structure.
 ============ ==============
 name         expected type
 ============ ==============
+outputs      table
+physics      table
+process_name string
 services     table
 source       table
-physics      table
-output       table
-process_name string
 ============ ==============
 
 Names in the *services* table
@@ -58,10 +58,10 @@ is *table*.
 ====================== =====
 name                   expected type
 ====================== =====
-scheduler              table
-messages               table
 floating_point_control table
+messages               table
 RandomNumberGenerator  table
+scheduler              table
 SimpleMemoryCheck      table
 TFileService           table
 user                   table
@@ -79,11 +79,11 @@ that deal with control-of-flow
 name                 expected type  default value
 ==================== ============== =============
 enableSigInt         bool           true
-unloadRootSigHandler bool           true
-resetRootErrHandler  bool           true
 fileMode             string         ""
 handleEmptyRuns      bool           true
 handleEmptySubRuns   bool           true
+resetRootErrHandler  bool           true
+unloadRootSigHandler bool           true
 wantTracer           bool           false
 [action name]        vector<string> empty
 ==================== ============== =============
@@ -91,11 +91,11 @@ wantTracer           bool           false
 The list of recognized *action names* is taken from *art::actions::<anon>::ActionNames*.
 It includes the following:
 
+ * FailModule
+ * FailPath
  * IgnoreCompletely
  * Rethrow
  * SkipEvent
- * FailModule
- * FailPath
 
 The *vector<string>* value expected for each of these parameter names
 is the list of *art::errors::ErrorCodes* values
@@ -111,25 +111,66 @@ which is beyond the scope of this document.
 Names in the *source* table
 ===========================
 
+The *source* table is used to configure
+the main source of event data input
+for the program.
+The contents required differ according to the module type
+being configured.
+
+If no *source* table is specified,
+an *EmptySource* configured to deliver one event is constructed.
+If a *source* table is specified,
+the only parameter required
+names the type of source to be used.
+
 ============ ==============
 name         expected type
 ============ ==============
+module_type  string
 ============ ==============
-
 
 Names in the *physics* table
 ============================
 
-============ ==============
-name         expected type
-============ ==============
-============ ==============
+The entries in the *physics* table
+control the actual work done by the program.
+The *analyzers*, *filters*, *outputs* and *producers*  tables
+are used to define the names of modules instances of each of the given categories
+that are to be created,
+and to specify their configurations.
+The vectors *trigger_paths* and *end_paths*
+are used to identify which is the variety of each "path".
+Any other name is assumed to be the name of a "path";
+the vector associated with each name
+is the sequence of names of modules
+that form that "path".
+Each "path" must be identified as either a *trigger_path*
+or an *end_path*,
+by putting the name of the path into the appropriate vector.
 
-Names in the *output* table
-===========================
+============= ==============
+name          expected type
+============= ==============
+analyzers     table
+filters       table
+producers     table
+trigger_paths vector<string>
+end_paths     vector<string>
+[path name]   vector<string>
+============= ==============
 
-============ ==============
-name         expected type
-============ ==============
-============ ==============
+Names in the *outputs* table
+============================
+
+The entries in the *outputs* table configure the output system.
+Each parameter name in the *outputs* table is a "module label".
+The table associated with that name
+carries the configuration parameters of the output module
+which is created and given that label.
+
+============== ==============
+name           expected type
+============== ==============
+[module label] table
+============== ==============
 
