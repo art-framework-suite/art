@@ -189,7 +189,7 @@ namespace art {
     fileIndexEnd_ = fileIndex_.end();
 
     readEventHistoryTree();
-
+    ppReg->initAllBranches();
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
 
     // Set up information from the product registry.

@@ -198,6 +198,18 @@ namespace art {
     return differences.str();
   }
 
+  void
+  art::ProductRegistry::initAllBranches() {
+    for (ProductList::iterator
+           i = productList_.begin(),
+           e = productList_.end();
+         i != e;
+         ++i) {
+      i->second.init();
+    }
+  }
+
+
   void ProductRegistry::initializeTransients() const {
     constProductList().clear();
     productLookup().clear();
