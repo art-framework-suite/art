@@ -358,8 +358,16 @@ cet_test(DropOnInput_t HANDBUILT
   fcl/DropOnInput_t.fcl
 )
 
+cet_test(DropOnInput_r HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "DropOnInput_r.fcl"
+  DATAFILES
+  fcl/DropOnInput_r.fcl
+)
+
 SET_TESTS_PROPERTIES(DropOnInput_null_t PROPERTIES DEPENDS Ptrmv_w)
 SET_TESTS_PROPERTIES(DropOnInput_t PROPERTIES DEPENDS Ptrmv_w)
+SET_TESTS_PROPERTIES(DropOnInput_r PROPERTIES DEPENDS DropOnInput_t)
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
