@@ -46,6 +46,16 @@ void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
   art::Handle<art::Ptr<std::string> > sh;
   BOOST_CHECK(!e.getByLabel(inputLabel_, sh));
   BOOST_REQUIRE(!sh.isValid());
+
+  typedef cet::map_vector<std::string> mv_t;
+  art::Handle<mv_t> mvth;
+  BOOST_CHECK(e.getByLabel(inputLabel_, mvth));
+  BOOST_REQUIRE(mvth.isValid());
+  mv_t const & mapvec = *mvth;
+  BOOST_REQUIRE(mapvec[cet::map_vector_key(7)] == "FOUR");
+  BOOST_REQUIRE(mapvec[cet::map_vector_key(5)] == "THREE");
+  BOOST_REQUIRE(mapvec[cet::map_vector_key(3)] == "TWO");
+  BOOST_REQUIRE(mapvec[cet::map_vector_key(0)] == "ONE");
 }
 
 DEFINE_ART_MODULE(arttest::DropOnInputTestAnalyzer);
