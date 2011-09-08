@@ -39,7 +39,7 @@ namespace art
   }
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
-  void checkAllDictionaries();
+  void reportFailedDictionaryChecks();
 
   void public_base_classes(const Reflex::Type& type,
                            std::vector<Reflex::Type>& baseTypes);

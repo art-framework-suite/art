@@ -220,7 +220,7 @@ namespace art
     checkType(Type::ByName(name), noComponents);
   }
 
-  void checkAllDictionaries() {
+  void reportFailedDictionaryChecks() {
     if (!missingTypes().empty()) {
       ostringstream ostr;
       for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end();

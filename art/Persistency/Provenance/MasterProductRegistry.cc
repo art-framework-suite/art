@@ -158,7 +158,7 @@ art::MasterProductRegistry::merge(ProductList const &other,
 
 void
 art::MasterProductRegistry::setFrozen() {
-    checkAllDictionaries();
+    reportFailedDictionaryChecks();
     if (frozen_) return;
     frozen_ = true;
     processFrozenProductList();
@@ -168,6 +168,7 @@ void
 art::MasterProductRegistry::copyProduct(BranchDescription const &productDesc) {
   assert(!productDesc.produced());
   throwIfFrozen();
+  checkDicts(productDesc);
   BranchKey k = BranchKey(productDesc);
   ProductList::iterator iter = productList_.find(k);
   if (iter == productList_.end()) {
