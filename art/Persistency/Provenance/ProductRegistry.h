@@ -115,8 +115,6 @@ namespace art {
 
     bool productProduced(BranchType branchType) const {return transients_.get().productProduced_[branchType];}
 
-    void initAllBranches();
-
   private:
     void setProductProduced(BranchType branchType) const {transients_.get().productProduced_[branchType] = true;}
 
