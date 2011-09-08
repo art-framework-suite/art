@@ -50,6 +50,7 @@ arttest::ToyRawProductAnalyzer::~ToyRawProductAnalyzer() {
 }
 
 void arttest::ToyRawProductAnalyzer::analyze(art::Event const &e) {
+  e.getRun(); // Will throw if subRun or run are unavailable.
   // Implementation of required member function here.
   std::vector< art::Handle<int> > hv;
   e.getManyByType(hv);
@@ -75,6 +76,7 @@ void arttest::ToyRawProductAnalyzer::beginRun(art::Run const &r) {
 
 void arttest::ToyRawProductAnalyzer::beginSubRun(art::SubRun const &sr) {
   if (!doBeginSubRun_) return;
+  sr.getRun(); // Will throw if not available.
    // Implementation of optional member function here.
   std::vector< art::Handle<double> > hv;
   sr.getManyByType(hv);
