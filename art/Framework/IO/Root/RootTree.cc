@@ -39,7 +39,14 @@ namespace art {
     entryNumber_(-1),
     branchNames_(),
     branches_(new BranchMap)
-  { }
+  { 
+    if (!isValid()) {
+      throw Exception(errors::FileReadError)
+        << "RootTree for branch type "
+        << BranchTypeToString(branchType)
+        << "Could not be initialized correctly from input file.\n";
+    }
+  }
 
   bool
   RootTree::isValid() const {
