@@ -190,6 +190,16 @@ namespace art {
 
     readEventHistoryTree();
 
+    // Set product presence information in the product registry.
+    ProductRegistry::ProductList const& pList = ppReg->productList();
+    for (ProductRegistry::ProductList::const_iterator
+           it = pList.begin(),
+           itEnd = pList.end();
+         it != itEnd; ++it) {
+      BranchDescription const& prod = it->second;
+      treePointers_[prod.branchType()]->setPresence(prod);
+    }
+
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable);
 
     // Set up information from the product registry.
