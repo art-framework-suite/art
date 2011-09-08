@@ -307,6 +307,10 @@ namespace art
               {
                 throwDataCorruption_("readNext returned a SubRun with an invalid SubRunID.\n");
               }
+            if (newSR->runPrincipalSharedPtr())
+            {
+              throwDataCorruption_("readNext returned a SubRun with a non-null embedded Run.\n");
+            }
           }
         else if (cachedSRP_) srID = cachedSRP_->id();
         if (newE)
@@ -324,6 +328,10 @@ namespace art
               {
                 throwDataCorruption_("readNext returned an Event with an invalid EventID.\n");
               }
+            if (newE->subRunPrincipalSharedPtr())
+            {
+              throwDataCorruption_("readNext returned an Event with a non-null embedded SubRun.\n");
+            }
           }
       }
     else
@@ -354,8 +362,12 @@ namespace art
         pendingSubRun_ = newSR;
         pendingEvent_  = newE;
 
-        if (newR)  cachedRP_.reset(newR);
-        if (newSR) cachedSRP_.reset(newSR);
+        if (newR) cachedRP_.reset(newR);
+        if (newSR) {
+          newSR->setRunPrincipal(cachedRP_);
+          cachedSRP_.reset(newSR);
+        }
+        newE->setSubRunPrincipal(cachedSRP_);
         cachedE_.reset(newE);
 
         if (newR)
