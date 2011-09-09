@@ -16,13 +16,15 @@ use FileHandle;
 use Getopt::Long;
 use Pod::Usage;
 
+sub previous_version($\@);
+
 my $options = {};
 
 Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
 
 # Subsidiary packages to be recognized.
 my @known_packages = qw(cetbuildtools cpp0x cetlib fhicl-cpp messagefacility);
-my %product_for = ( "fhicl-cpp" => "fhiclcpp" );
+my %product_name = ( "fhicl-cpp" => "fhiclcpp" );
 
 GetOptions($options,
            "help|h|?",
@@ -40,18 +42,24 @@ if ((scalar @ARGV) != 2) {
 
 my ($package, $vnum) = @ARGV;
 
+my @all_suite_versions = suite_versions(for_package("art", "cd /cvs/projects/art; git tag"));
+
 if (lc $package eq "art") { # Want ART Suite release notes.
   my $suite_version = suite_version($vnum);
   my $dot_version = dot_version($vnum);
   print "h1. ART Suite Release Notes $dot_version.\n\n";
+  my $prev = previous_version($dot_version, @all_suite_versions);
+  if ($prev =~ /^\d/) {
+    print "Previous version's [[Release Notes $prev|release notes]].\n\n";
+  }
   print "h2. ART ",
     vpage($dot_version),
       ".\n\n";
   print map { my $package = $_;
               my $pv = pkg_version($package, $suite_version);
-              sprintf("h2. \%s.\n\n",
-                      rpage($package, $pv)) } @known_packages;
-} else { # Simpler: want package release notes.
+              sprintf("h2. \%s\%s.\n\n",
+                      rpage($package, $pv), new_first($package, $pv, $dot_version)); } @known_packages;
+} else {                        # Simpler: want package release notes.
   if ($options->{"suite-version"}) {
     $vnum = pkg_version($package, $vnum);
   }
@@ -62,6 +70,17 @@ if (lc $package eq "art") { # Want ART Suite release notes.
 }
 
 1;
+
+sub new_first {
+  my ($package, $pv, $dot_version) = @_;
+  my @versions = suite_references($package, $pv);
+  my $first_version = dot_version($versions[0]);
+  if ($first_version eq $dot_version) {
+    return " (*%{color:green}new version%*)";
+  } else {
+    return sprintf(" (in since ART %s)", vpage($first_version));
+  }
+}
 
 sub help_packages {
   print STDERR "Known packages: ART, ",
@@ -112,25 +131,51 @@ sub suite_version {
   return sprintf("ART_SUITE_%s", prod_version(shift));
 }
 
+sub ncmp {
+  my $s = ( (length($_[0]) <=> length($_[1])) > 0 ) ? length($_[0]) : length($_[1]);
+  my ($l, $r) = map { if (m&^(\d+)(.*)$&) { sprintf("%0${s}d${2}",${1}) } else { $_; } } @_;
+  return $l cmp $r;
+}
+
+sub by_version {
+  my ($aM, $am, $au) = split /\./, dot_version($a);
+  my ($bM, $bm, $bu) = split /\./, dot_version($b);
+  return ncmp($aM, $bM) || ncmp($am, $bm) || ncmp($au, $bu);
+}
+
+sub previous_version($\@) {
+  my $current = dot_version(shift);
+  my $vref = shift;
+  @$vref = map { dot_version($_); } @$vref;
+  my $index = 0;
+  foreach my $test_version (@$vref) {
+    if ($test_version eq $current) {
+      return $index ? $$vref[$index - 1] : 'none';
+    }
+    ++$index;
+  }
+  return "not found";
+}
+
 sub rpage {
   my ($package, $version) = @_;
   my $lpkg = lc $package;
   my $rversion = nosep_version(${version});
   my $dot_version = dot_version(${version});
-  return (lc $package eq "art"?
-          "[[art:Release_Notes_${rversion}|ART Suite ${dot_version}]]":
-          "[[$lpkg:Release_Notes#${dot_version}|$package ${dot_version}]]");
+  return ($lpkg eq "art"?
+          "[[art:Release Notes ${dot_version}|ART Suite ${dot_version}]]":
+          "[[$lpkg:Release Notes#${dot_version}|$package ${dot_version}]]");
 }
 
-sub product_for {
+sub product_name {
   my $package = shift;
-  return $product_for{$package} || $package;
+  return $product_name{$package} || $package;
 }
 
 sub pkg_version {
   my $package = shift;
   my $suite_version = suite_version(shift);
-  my $product = product_for($package);
+  my $product = product_name($package);
   open(SETUP, "wget -q -O - \"https://cdcvs.fnal.gov/redmine/projects/art/repository/raw/ups/setup_for_development?rev=${suite_version}\"|")
     or die "Unable to obtain setup_for_development for ART version $suite_version.\n";
   my $pv;
@@ -146,7 +191,12 @@ sub pkg_version {
   return dot_version($pv);
 }
 
-sub suite_reference_string {
+sub suite_versions {
+  my @versions = grep /^ART_SUITE/, (split /[,\s]/, $_[0]);
+  return sort by_version @versions;
+}
+
+sub suite_references {
   my $package = shift;
   my $dot_version = dot_version(shift);
   my $prod_version = prod_version($dot_version);
@@ -160,9 +210,14 @@ sub suite_reference_string {
   }
   $v_string =~ s&tag: &&g;
   $v_string =~ s&^\s*\((.*)\)$&$1&;
-  my @versions = grep /^ART_SUITE/, split /,\s*/, $v_string;
-  return sprintf('(%s)',
-                 join(", ", map { if (!$_) { (); } else { rpage("ART", $_); } } sort @versions));
+  return suite_versions($v_string);
+}
+
+sub suite_reference_string {
+  return (scalar @_) ?
+    sprintf('(%s)',
+            join(", ", map { if (!$_) { (); } else { rpage("ART", $_); } } sort by_version @_)) :
+              '';
 }
 
 __END__
@@ -179,7 +234,7 @@ B<relnotes> B<-h> | B<--help> | B<-?>
 
 B<relnotes> B<--help-packages>
 
-B<rm-skel> [I<options>] -- I<package> I<version>
+B<relnotes> [I<options>] -- I<package> I<version>
 
 I<Options>: B<--suite-version|-s>
 
@@ -192,10 +247,11 @@ I<relnotes> is a tool to produce Wiki snippets for release notes for ART package
 =item B<ART>
 
 Produce a skeleton Art Suite Release Notes page for pasting into a blank
-page (which by convention should be named,
-"Release_Notes_vMMmmuu"). This will include links to the correct section
-of each subsidiary package's Release Notes page (which by convention
-should be named, "Release_Notes").
+page (which by convention should be named, "Release_Notes_MMmmuu" --
+automatic if creating from a link "Release Notes MM.mm.uu"). This will
+include links to the correct section of each subsidiary package's
+Release Notes page (which by convention should be named,
+"Release Notes").
 
 =item B<Subsidiary packages>
 
