@@ -52,7 +52,7 @@ prog=${0##*/}
 
 function usage() {
     cat 1>&2 <<EOF
-${prog} -help|-h|-\?
+${prog} --help|-h|-\?
 ${prog} <tag>+
 EOF
 }
