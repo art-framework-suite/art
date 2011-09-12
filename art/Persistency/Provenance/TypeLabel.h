@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_TypeLabelList_h
-#define art_Framework_Core_TypeLabelList_h
+#ifndef art_Persistency_Provenance_TypeLabel_h
+#define art_Persistency_Provenance_TypeLabel_h
 
 #include <string>
 #include "art/Utilities/TypeID.h"
@@ -42,7 +42,7 @@ namespace art
 
 
 
-#endif /* art_Framework_Core_TypeLabelList_h */
+#endif /* art_Persistency_Provenance_TypeLabel_h */
 
 // Local Variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef TKEYVFS_H
-#define TKEYVFS_H
+#ifndef art_Persistency_RootDB_tkeyvfs_h
+#define art_Persistency_RootDB_tkeyvfs_h
 
 /*
  * Save db to root file on close.
@@ -17,11 +17,17 @@
 
 #include <sqlite3.h>
 
-int tkeyvfs_init(void);
-int tkeyvfs_open_v2(const char* filename, sqlite3** ppDb, int flags, const char* zVfs
+extern "C" {
+  int tkeyvfs_init(void);
+  int tkeyvfs_open_v2(const char * filename, sqlite3 ** ppDb, int flags, const char * zVfs
 #ifdef TKEYVFS_DO_ROOT
-, TFile* rootFile
+                      ,TFile * rootFile
 #endif // TKEYVFS_DO_ROOT
-);
+                     );
+}
 
-#endif // TKEYVFS_H
+#endif /* art_Persistency_RootDB_tkeyvfs_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -125,6 +125,8 @@ find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_LIB} NO_DEFAULT_PATH 
 # define cppunit
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_LIB}   NO_DEFAULT_PATH )
 
+find_library(SQLITE3 NAMES sqlite3 PATHS $ENV{SQLITE3_LIB} NO_DEFAULT_PATH)
+
 # define common flags
 # set( CMAKE_CXX_LINK_FLAGS "${CPPUNIT} -luuid -ldl" )
 

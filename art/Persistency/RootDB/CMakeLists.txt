@@ -1,5 +1,5 @@
 set(art_Persistency_RootDB_suorce
-  tkeyvfs.c
+  tkeyvfs.cc
 )
 
 add_definitions(-DTKEYVFS_DO_ROOT)

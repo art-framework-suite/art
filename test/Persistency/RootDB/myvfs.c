@@ -19,21 +19,6 @@ typedef sqlite_int64 i64;
 #define _FILE_OFFSET_BITS 64
 #define _LARGEFILE_SOURCE 1
 
-/*
- * Save db to root file on close.
-*/
-
-#if 0
-#ifndef TKEYVFS_DO_ROOT
-#define TKEYVFS_DO_ROOT 1
-#endif // TKEYVFS_DO_ROOT
-#endif // 0
-
-#ifdef TKEYVFS_DO_ROOT
-#include "TFile.h"
-#include "TKey.h"
-#endif // TKEYVFS_DO_ROOT
-
 #include <assert.h>
 #include <dlfcn.h>
 #include <errno.h>
@@ -48,24 +33,11 @@ typedef sqlite_int64 i64;
 #include <unistd.h>
 
 /*
- *  Debug tracing.
+** Default permissions when creating a new file
 */
-
-#define TKEYVFS_TRACE 0
-
-/*
- * Externally provided ROOT file, must be open.
-*/
-
-#ifdef TKEYVFS_DO_ROOT
-static TFile* gRootFile;
-#endif // TKEYVFS_DO_ROOT
-
-/*
- * Memory Page size.
-*/
-
-#define MEMPAGE 2048
+#ifndef SQLITE_DEFAULT_FILE_PERMISSIONS
+# define SQLITE_DEFAULT_FILE_PERMISSIONS 0644
+#endif
 
 /*
 ** Maximum supported path-length.
@@ -74,21 +46,72 @@ static TFile* gRootFile;
 
 #define SQLITE_TEMP_FILE_PREFIX "etilqs_"
 
+typedef struct unixShmNode unixShmNode;       /* Shared memory instance */
+
+/*
+** An instance of the following structure serves as the key used
+** to locate a particular unixInodeInfo object.
+*/
+struct unixFileId {
+  dev_t dev;                  /* Device number */
+  ino_t ino;                  /* Inode number */
+};
+
+
+/*
+** Sometimes, after a file handle is closed by SQLite, the file descriptor
+** cannot be closed immediately. In these cases, instances of the following
+** structure are used to store the file descriptor while waiting for an
+** opportunity to either close or reuse it.
+*/
+struct UnixUnusedFd {
+   int fd;                      /* File descriptor to close */
+   int flags;                   /* Flags this file descriptor was opened with */
+   struct UnixUnusedFd* pNext;  /* Next unused file descriptor on same file */
+};
+
+/*
+** An instance of the following structure is allocated for each open
+** inode.  Or, on LinuxThreads, there is one of these structures for
+** each inode opened by each thread.
+**
+** A single inode can have multiple file descriptors, so each unixFile
+** structure contains a pointer to an instance of this object and this
+** object keeps a count of the number of unixFile pointing to it.
+*/
+struct unixInodeInfo {
+  struct unixFileId fileId;       /* The lookup key */
+  int nShared;                    /* Number of SHARED locks held */
+  unsigned char eFileLock;        /* One of SHARED_LOCK, RESERVED_LOCK etc. */
+  unsigned char bProcessLock;     /* An exclusive process lock is held */
+  int nRef;                       /* Number of pointers to this structure */
+  unixShmNode *pShmNode;          /* Shared memory associated with this inode */
+  int nLock;                      /* Number of outstanding file locks */
+  struct UnixUnusedFd *pUnused;   /* Unused file descriptors to close */
+  struct unixInodeInfo *pNext;    /* List of all unixInodeInfo objects */
+  struct unixInodeInfo *pPrev;    /*    .... doubly linked */
+};
+
+/*
+** A lists of all unixInodeInfo objects.
+*/
+static struct unixInodeInfo *inodeList = 0;
+
 /*
 ** The unixFile structure is subclass of sqlite3_file specific to the unix
 ** VFS implementations.
 */
+typedef struct unixFile unixFile;
 struct unixFile {
    sqlite3_io_methods const* pMethod;  /* Always the first entry */
-#ifdef TKEYVFS_DO_ROOT
-   TFile* rootFile;                    /* The ROOT file the db is stored in */
-   int saveToRootFile;                 /* On close, save db to root file */
-#endif // TKEYVFS_DO_ROOT
-   char* pBuf;                         /* File contents */
-   i64 bufAllocated;                   /* File buffer size in bytes */
-   i64 fileSize;                       /* Current file size in bytes */
-   int eFileLock;                      /* The type of lock held on this fd */
+   struct unixInodeInfo* pInode;       /* Info about locks on this inode */
+   int h;                              /* The file descriptor */
+   int dirfd;                          /* File descriptor for the directory */
+   unsigned char eFileLock;            /* The type of lock held on this fd */
+   unsigned char ctrlFlags;            /* Behavioral bits.  UNIXFILE_* flags */
    int lastErrno;                      /* The unix errno from last I/O error */
+   void* lockingContext;               /* Locking style specific state */
+   struct UnixUnusedFd* pUnused;       /* Pre-allocated UnixUnusedFd */
    const char* zPath;                  /* Name of the file */
    int szChunk;                        /* Configured by FCNTL_CHUNK_SIZE */
    /* The next group of variables are used to track whether or not the
@@ -102,11 +125,15 @@ struct unixFile {
    unsigned char dbUpdate;        /* True if any part of database file changed */
    unsigned char inNormalWrite;   /* True if in a normal write operation */
 };
-typedef struct unixFile unixFile;
+
+/*
+** Allowed values for the unixFile.ctrlFlags bitmask:
+*/
+#define UNIXFILE_EXCL   0x01     /* Connections from one process only */
+#define UNIXFILE_RDONLY 0x02     /* Connection is read only */
 
 /*
 ** Define various macros that are missing from some systems.
-** Must come after the include of the system headers.
 */
 #ifndef O_LARGEFILE
 # define O_LARGEFILE 0
@@ -133,8 +160,15 @@ static const sqlite3_io_methods* nolockIoFinderImpl(const char* z, unixFile* p);
 static int unixLogErrorAtLine(int errcode, const char* zFunc, const char* zPath, int iLine);
 static int robust_open(const char* z, int f, int m);
 static void robust_close(unixFile* pFile, int h, int lineno);
+static int robust_ftruncate(int h, sqlite3_int64 sz);
+static int fillInUnixFile(sqlite3_vfs* pVfs, int h, int dirfd, sqlite3_file* pId, const char* zFilename, int noLock, int isDelete, int isReadOnly);
+static int openDirectory(const char* zFilename, int* pFd);
+static const char* unixTempFileDir(void);
 static int unixGetTempname(int nBuf, char* zBuf);
+static struct UnixUnusedFd* findReusableFd(const char* zPath, int flags);
+static int findCreateFileMode(const char* zPath, int flags, mode_t* pMode);
 static int fcntlSizeHint(unixFile* pFile, i64 nByte);
+static int full_fsync(int fd, int fullSync, int dataOnly);
 static int seekAndRead(unixFile* id, sqlite3_int64 offset, void* pBuf, int cnt);
 static int seekAndWrite(unixFile* id, i64 offset, const void* pBuf, int cnt);
 /* IoMethods calls */
@@ -169,16 +203,16 @@ static sqlite3_syscall_ptr unixGetSystemCall(sqlite3_vfs* pNotUsed, const char* 
 static const char* unixNextSystemCall(sqlite3_vfs* p, const char* zName);
 /**/
 int sqlite3_os_init(void);
-int tkeyvfs_open_v2(const char* filename, sqlite3** ppDb, int flags, const char* zVfs
-#ifdef TKEYVFS_DO_ROOT
-  , TFile* rootFile
-#endif // TKEYVFS_DO_ROOT
-);
 
 static int sqlite3CantopenError(int lineno)
 {
+#if 0
+   sqlite3_log(SQLITE_CANTOPEN,
+               "cannot open file at line %d of [%.10s]",
+               lineno, 20 + sqlite3_sourceid());
+#endif // 0
    fprintf(stderr,
-           "tkeyvfs.c: cannot open file at line %d of [%.10s]",
+           "myvfs.c: cannot open file at line %d of [%.10s]",
            lineno, 20 + sqlite3_sourceid());
    return SQLITE_CANTOPEN;
 }
@@ -359,11 +393,18 @@ static int unixLogErrorAtLine(
    char* zErr; /* Message from strerror() or equivalent */
    int iErrno = errno; /* Saved syscall error number */
    zErr = strerror(iErrno);
+   assert(errcode != SQLITE_OK);
    if (zPath == 0) {
       zPath = "";
    }
+#if 0
+   sqlite3_log(errcode,
+               "os_unix.c:%d: (%d) %s(%s) - %s",
+               iLine, iErrno, zFunc, zPath, zErr
+              );
+#endif // 0
    fprintf(stderr,
-           "tkeyvfs.c:%d: (%d) %s(%s) - %s",
+           "myvfs.c:%d: (%d) %s(%s) - %s",
            iLine, iErrno, zFunc, zPath, zErr
           );
    return errcode;
@@ -375,50 +416,44 @@ static int unixLogErrorAtLine(
 static int robust_open(const char* z, int f, int m)
 {
    int rc;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin robust_open ...\n");
-#endif /* TKEYVFS_TRACE */
    do {
       rc = osOpen(z, f, m);
    }
    while (rc < 0 && errno == EINTR);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   robust_open ...\n");
-#endif /* TKEYVFS_TRACE */
    return rc;
 }
 
 /*
-** Close a file descriptor.
-**
-** We assume that close() almost always works, since it is only in a
-** very sick application or on a very sick platform that it might fail.
-** If it does fail, simply leak the file descriptor, but do log the
-** error.
-**
-** Note that it is not safe to retry close() after EINTR since the
-** file descriptor might have already been reused by another thread.
-** So we don't even try to recover from an EINTR.  Just log the error
-** and move on.
-*/
+ * ** Close a file descriptor.
+ * **
+ * ** We assume that close() almost always works, since it is only in a
+ * ** very sick application or on a very sick platform that it might fail.
+ * ** If it does fail, simply leak the file descriptor, but do log the
+ * ** error.
+ * **
+ * ** Note that it is not safe to retry close() after EINTR since the
+ * ** file descriptor might have already been reused by another thread.
+ * ** So we don't even try to recover from an EINTR.  Just log the error
+ * ** and move on.
+ * */
 static void robust_close(unixFile* pFile, int h, int lineno)
 {
-   /**/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin robust_close ...\n");
-#endif /* TKEYVFS_TRACE */
    if (osClose(h)) {
-      if (pFile) {
-         unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close", pFile->zPath, lineno);
-      }
-      else {
-         unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close", 0, lineno);
-      }
+      unixLogErrorAtLine(SQLITE_IOERR_CLOSE, "close", pFile ? pFile->zPath : 0, lineno);
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   robust_close ...\n");
-#endif /* TKEYVFS_TRACE */
-   /**/
+}
+
+/*
+** Retry ftruncate() calls that fail due to EINTR
+*/
+static int robust_ftruncate(int h, sqlite3_int64 sz)
+{
+   int rc;
+   do {
+      rc = osFtruncate(h, sz);
+   }
+   while (rc < 0 && errno == EINTR);
+   return rc;
 }
 
 /*
@@ -434,61 +469,138 @@ static void robust_close(unixFile* pFile, int h, int lineno)
 static int closeUnixFile(sqlite3_file* id)
 {
    unixFile* pFile = (unixFile*)id;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin closeUnixFile ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
+   if (pFile->dirfd >= 0) {
+      robust_close(pFile, pFile->dirfd, __LINE__);
+      pFile->dirfd = -1;
    }
-   fprintf(stderr, "saveToRootFile: %d\n", ((unixFile*)id)->saveToRootFile);
-#endif /* TKEYVFS_TRACE */
-#ifdef TKEYVFS_DO_ROOT
-   if (pFile->saveToRootFile) {
-      /**/
-#if TKEYVFS_TRACE
-      fprintf(stderr, "fileSize: 0x%016lx\n", (unsigned long long)pFile->fileSize);
-#endif /* TKEYVFS_TRACE */
-      /* Create a tkey which will contain the contents
-      ** of the database in the root file */
-      TKey* k = new TKey(pFile->zPath, "sqlite3 database file", TKey::Class(),
-                         pFile->fileSize /*nbytes*/, pFile->rootFile /*dir*/);
-#if TKEYVFS_TRACE
-      /* Ask the key for the size of the database file it contains. */
-      Int_t objlen = k->GetObjlen();
-      fprintf(stderr, "objlen: %d\n", objlen);
-#endif /* TKEYVFS_TRACE */
-      /* Add the new key to the root file toplevel directory. */
-      /* Note: The tkey is now owned by the root file. */
-      Int_t cycle = pFile->rootFile->AppendKey(k);
-      /* Get a pointer to the i/o buffer inside the tkey. */
-      char* p = k->GetBuffer();
-      /* Copy the entire in-memory database file into the tkey i/o buffer. */
-      (void*)memcpy((void*)p, (void*)pFile->pBuf, (size_t)pFile->fileSize);
-      /* Write the tkey contents to the root file. */
-      /* Note: This has not yet written the top-level directory entry for the key. */
-      Int_t cnt = k->WriteFile(1 /*cycle*/, 0 /*file*/);
-      if (cnt == -1) {
-         /* bad */
-         fprintf(stderr, "tkeyvfs: failed to write root tkey containing database to root file!\n");
-      }
-      /* Force the root file to flush the top-level directory entry for our tkey to disk. */
-      cnt = pFile->rootFile->Write();
-      if (cnt < 0) {
-         /* bad */
-         fprintf(stderr, "tkeyvfs: failed to write root file to disk!\n");
-      }
+   if (pFile->h >= 0) {
+      robust_close(pFile, pFile->h, __LINE__);
+      pFile->h = -1;
    }
-#endif // TKEYVFS_DO_ROOT
-   if (pFile->pBuf != NULL) {
-      free(pFile->pBuf);
-   }
-   if (pFile->zPath != NULL) {
-      free((void*)pFile->zPath);
-   }
+   sqlite3_free(pFile->pUnused);
    memset(pFile, 0, sizeof(unixFile));
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   closeUnixFile ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_OK;
+}
+
+/*
+** Initialize the contents of the unixFile structure pointed to by pId.
+*/
+static int fillInUnixFile(
+   sqlite3_vfs* pVfs,      /* Pointer to vfs object */
+   int h,                  /* Open file descriptor of file being opened */
+   int dirfd,              /* Directory file descriptor */
+   sqlite3_file* pId,      /* Write to the unixFile structure here */
+   const char* zFilename,  /* Name of the file being opened */
+   int noLock,             /* Omit locking if true */
+   int isDelete,           /* Delete on close if true */
+   int isReadOnly          /* True if the file is opened read-only */
+)
+{
+   const sqlite3_io_methods* pLockingStyle;
+   unixFile* pNew = (unixFile*)pId;
+   int rc = SQLITE_OK;
+   assert(pNew->pInode == NULL);
+   /* Parameter isDelete is only used on vxworks. Express this explicitly
+   ** here to prevent compiler warnings about unused parameters.
+   */
+   UNUSED_PARAMETER(isDelete);
+   /* Usually the path zFilename should not be a relative pathname. The
+   ** exception is when opening the proxy "conch" file in builds that
+   ** include the special Apple locking styles.
+   */
+   assert(zFilename == 0 || zFilename[0] == '/');
+   pNew->h = h;
+   pNew->dirfd = dirfd;
+   pNew->zPath = zFilename;
+   if (memcmp(pVfs->zName, "unix-excl", 10) == 0) {
+      pNew->ctrlFlags = UNIXFILE_EXCL;
+   }
+   else {
+      pNew->ctrlFlags = 0;
+   }
+   if (isReadOnly) {
+      pNew->ctrlFlags |= UNIXFILE_RDONLY;
+   }
+   pLockingStyle = &nolockIoMethods;
+   pNew->lastErrno = 0;
+   if (rc != SQLITE_OK) {
+      if (dirfd >= 0) {
+         robust_close(pNew, dirfd, __LINE__);
+      }
+      if (h >= 0) {
+         robust_close(pNew, h, __LINE__);
+      }
+   }
+   else {
+      pNew->pMethod = pLockingStyle;
+   }
+   return rc;
+}
+
+/*
+** Open a file descriptor to the directory containing file zFilename.
+** If successful, *pFd is set to the opened file descriptor and
+** SQLITE_OK is returned. If an error occurs, either SQLITE_NOMEM
+** or SQLITE_CANTOPEN is returned and *pFd is set to an undefined
+** value.
+**
+** If SQLITE_OK is returned, the caller is responsible for closing
+** the file descriptor *pFd using close().
+*/
+static int openDirectory(const char* zFilename, int* pFd)
+{
+   int ii;
+   int fd = -1;
+   char zDirname[MAX_PATHNAME + 1];
+   sqlite3_snprintf(MAX_PATHNAME, zDirname, "%s", zFilename);
+   for (ii = (int)strlen(zDirname); ii > 1 && zDirname[ii] != '/'; ii--) {
+      ;
+   }
+   if (ii > 0) {
+      zDirname[ii] = '\0';
+      fd = robust_open(zDirname, O_RDONLY | O_BINARY, 0);
+   }
+   *pFd = fd;
+   return (fd >= 0 ? SQLITE_OK : unixLogError(SQLITE_CANTOPEN_BKPT, "open", zDirname));
+}
+
+/*
+** Return the name of a directory in which to put temporary files.
+** If no suitable temporary file directory can be found, return NULL.
+*/
+static const char* unixTempFileDir(void)
+{
+   static const char* azDirs[] = {
+      0,
+      0,
+      "/var/tmp",
+      "/usr/tmp",
+      "/tmp",
+      0        /* List terminator */
+   };
+   unsigned int i;
+   struct stat buf;
+   const char* zDir = 0;
+   azDirs[0] = sqlite3_temp_directory;
+   if (!azDirs[1]) {
+      azDirs[1] = getenv("TMPDIR");
+   }
+   for (i = 0; i < sizeof(azDirs) / sizeof(azDirs[0]); zDir = azDirs[i++]) {
+      if (zDir == 0) {
+         continue;
+      }
+      if (osStat(zDir, &buf)) {
+         continue;
+      }
+      if (!S_ISDIR(buf.st_mode)) {
+         continue;
+      }
+      if (osAccess(zDir, 07)) {
+         continue;
+      }
+      break;
+   }
+   return zDir;
 }
 
 /*
@@ -503,30 +615,150 @@ static int unixGetTempname(int nBuf, char* zBuf)
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
       "0123456789";
    unsigned int i, j;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixGetTempname ...\n");
-#endif /* TKEYVFS_TRACE */
+   const char* zDir;
+   /* It's odd to simulate an io-error here, but really this is just
+   ** using the io-error infrastructure to test that SQLite handles this
+   ** function failing.
+   */
+   zDir = unixTempFileDir();
+   if (zDir == 0) {
+      zDir = ".";
+   }
    /* Check that the output buffer is large enough for the temporary file
    ** name. If it is not, return SQLITE_ERROR.
    */
-   if ((strlen(SQLITE_TEMP_FILE_PREFIX) + 17) >= (size_t)nBuf) {
-      /**/
-#if TKEYVFS_TRACE
-      fprintf(stderr, "End   unixGetTempname ...\n");
-#endif /* TKEYVFS_TRACE */
+   if ((strlen(zDir) + strlen(SQLITE_TEMP_FILE_PREFIX) + 17) >= (size_t)nBuf) {
       return SQLITE_ERROR;
    }
-   sqlite3_snprintf(nBuf - 17, zBuf, SQLITE_TEMP_FILE_PREFIX);
-   j = (int)strlen(zBuf);
-   sqlite3_randomness(15, &zBuf[j]);
-   for (i = 0; i < 15; i++, j++) {
-      zBuf[j] = (char)zChars[((unsigned char)zBuf[j]) % (sizeof(zChars) - 1)];
+   do {
+      sqlite3_snprintf(nBuf - 17, zBuf, "%s/"SQLITE_TEMP_FILE_PREFIX, zDir);
+      j = (int)strlen(zBuf);
+      sqlite3_randomness(15, &zBuf[j]);
+      for (i = 0; i < 15; i++, j++) {
+         zBuf[j] = (char)zChars[((unsigned char)zBuf[j]) % (sizeof(zChars) - 1) ];
+      }
+      zBuf[j] = 0;
    }
-   zBuf[j] = 0;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixGetTempname ...\n");
-#endif /* TKEYVFS_TRACE */
+   while (osAccess(zBuf, 0) == 0);
    return SQLITE_OK;
+}
+
+/*
+** Search for an unused file descriptor that was opened on the database
+** file (not a journal or master-journal file) identified by pathname
+** zPath with SQLITE_OPEN_XXX flags matching those passed as the second
+** argument to this function.
+**
+** Such a file descriptor may exist if a database connection was closed
+** but the associated file descriptor could not be closed because some
+** other file descriptor open on the same file is holding a file-lock.
+** Refer to comments in the unixClose() function and the lengthy comment
+** describing "Posix Advisory Locking" at the start of this file for
+** further details. Also, ticket #4018.
+**
+** If a suitable file descriptor is found, then it is returned. If no
+** such file descriptor is located, -1 is returned.
+*/
+static struct UnixUnusedFd* findReusableFd(const char* zPath, int flags)
+{
+   struct UnixUnusedFd* pUnused = 0;
+   /* Do not search for an unused file descriptor on vxworks. Not because
+   ** vxworks would not benefit from the change (it might, we're not sure),
+   ** but because no way to test it is currently available. It is better
+   ** not to risk breaking vxworks support for the sake of such an obscure
+   ** feature.  */
+   struct stat sStat;                   /* Results of stat() call */
+   /* A stat() call may fail for various reasons. If this happens, it is
+   ** almost certain that an open() call on the same path will also fail.
+   ** For this reason, if an error occurs in the stat() call here, it is
+   ** ignored and -1 is returned. The caller will try to open a new file
+   ** descriptor on the same path, fail, and return an error to SQLite.
+   **
+   ** Even if a subsequent open() call does succeed, the consequences of
+   ** not searching for a resusable file descriptor are not dire.  */
+   if (0 == stat(zPath, &sStat)) {
+      struct unixInodeInfo* pInode;
+      pInode = inodeList;
+      while (pInode && (pInode->fileId.dev != sStat.st_dev
+                        || pInode->fileId.ino != sStat.st_ino)) {
+         pInode = pInode->pNext;
+      }
+      if (pInode) {
+         struct UnixUnusedFd** pp;
+         for (pp = &pInode->pUnused; *pp && (*pp)->flags != flags; pp = &((*pp)->pNext)) {
+            ;
+         }
+         pUnused = *pp;
+         if (pUnused) {
+            *pp = pUnused->pNext;
+         }
+      }
+   }
+   return pUnused;
+}
+
+/*
+** This function is called by unixOpen() to determine the unix permissions
+** to create new files with. If no error occurs, then SQLITE_OK is returned
+** and a value suitable for passing as the third argument to open(2) is
+** written to *pMode. If an IO error occurs, an SQLite error code is
+** returned and the value of *pMode is not modified.
+**
+** If the file being opened is a temporary file, it is always created with
+** the octal permissions 0600 (read/writable by owner only). If the file
+** is a database or master journal file, it is created with the permissions
+** mask SQLITE_DEFAULT_FILE_PERMISSIONS.
+**
+** Finally, if the file being opened is a WAL or regular journal file, then
+** this function queries the file-system for the permissions on the
+** corresponding database file and sets *pMode to this value. Whenever
+** possible, WAL and journal files are created using the same permissions
+** as the associated database file.
+*/
+static int findCreateFileMode(
+   const char* zPath,              /* Path of file (possibly) being created */
+   int flags,                      /* Flags passed as 4th argument to xOpen() */
+   mode_t* pMode                   /* OUT: Permissions to open file with */
+)
+{
+   int rc = SQLITE_OK;             /* Return Code */
+   if (flags & (SQLITE_OPEN_WAL | SQLITE_OPEN_MAIN_JOURNAL)) {
+      char zDb[MAX_PATHNAME + 1];   /* Database file path */
+      int nDb;                      /* Number of valid bytes in zDb */
+      struct stat sStat;            /* Output of stat() on database file */
+      /* zPath is a path to a WAL or journal file. The following block derives
+      ** the path to the associated database file from zPath. This block handles
+      ** the following naming conventions:
+      **
+      **   "<path to db>-journal"
+      **   "<path to db>-wal"
+      **   "<path to db>-journal-NNNN"
+      **   "<path to db>-wal-NNNN"
+      **
+      ** where NNNN is a 4 digit decimal number. The NNNN naming schemes are
+      ** used by the test_multiplex.c module.
+      */
+      nDb = sqlite3Strlen30(zPath) - 1;
+      while (nDb > 0 && zPath[nDb] != 'l') {
+         nDb--;
+      }
+      nDb -= ((flags & SQLITE_OPEN_WAL) ? 3 : 7);
+      memcpy(zDb, zPath, nDb);
+      zDb[nDb] = '\0';
+      if (0 == stat(zDb, &sStat)) {
+         *pMode = sStat.st_mode & 0777;
+      }
+      else {
+         rc = SQLITE_IOERR_FSTAT;
+      }
+   }
+   else if (flags & SQLITE_OPEN_DELETEONCLOSE) {
+      *pMode = 0600;
+   }
+   else {
+      *pMode = SQLITE_DEFAULT_FILE_PERMISSIONS;
+   }
+   return rc;
 }
 
 /*
@@ -539,39 +771,61 @@ static int unixGetTempname(int nBuf, char* zBuf)
 */
 static int fcntlSizeHint(unixFile* pFile, i64 nByte)
 {
-   /**/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin fcntlSizeHint ...\n");
-#endif /* TKEYVFS_TRACE */
    if (pFile->szChunk) {
-      i64 nSize; /* Required file size */
-      i64 nAlloc;
-      nSize = ((nByte + (pFile->szChunk - 1)) / pFile->szChunk) * pFile->szChunk;
-      nAlloc = ((nSize + ((i64)(MEMPAGE-1))) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
-      if ((nSize > pFile->fileSize) && (nAlloc > pFile->bufAllocated)) {
-         if (nAlloc > pFile->bufAllocated) {
-            char* pNewBuf = (char*)realloc((void*)pFile->pBuf, (size_t)nAlloc);
-            if (pNewBuf == NULL) {
-               /**/
-#if TKEYVFS_TRACE
-               fprintf(stderr, "End   fcntlSizeHint ...\n");
-#endif /* TKEYVFS_TRACE */
-               return SQLITE_IOERR_WRITE;
-            }
-            (void)memset(pNewBuf + pFile->fileSize, 0, (size_t)(nAlloc - pFile->fileSize));
-            pFile->pBuf = pNewBuf;
-            pFile->bufAllocated = nAlloc;
+      i64 nSize;                    /* Required file size */
+      struct stat buf;              /* Used to hold return values of fstat() */
+      if (osFstat(pFile->h, &buf)) {
+         return SQLITE_IOERR_FSTAT;
+      }
+      nSize = ((nByte + pFile->szChunk - 1) / pFile->szChunk) * pFile->szChunk;
+      if (nSize > (i64)buf.st_size) {
+         /* The code below is handling the return value of osFallocate()
+         ** correctly. posix_fallocate() is defined to "returns zero on success,
+         ** or an error number on  failure". See the manpage for details. */
+         int err;
+         do {
+            err = osFallocate(pFile->h, buf.st_size, nSize - buf.st_size);
          }
-         else {
-            (void)memset(pFile->pBuf + pFile->fileSize, 0, (size_t)(nSize - pFile->fileSize));
+         while (err == EINTR);
+         if (err) {
+            return SQLITE_IOERR_WRITE;
          }
-         pFile->fileSize = nSize;
       }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   fcntlSizeHint ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_OK;
+}
+
+/*
+** The fsync() system call does not work as advertised on many
+** unix systems.  The following procedure is an attempt to make
+** it work better.
+**
+** The SQLITE_NO_SYNC macro disables all fsync()s.  This is useful
+** for testing when we want to run through the test suite quickly.
+** You are strongly advised *not* to deploy with SQLITE_NO_SYNC
+** enabled, however, since with SQLITE_NO_SYNC enabled, an OS crash
+** or power failure will likely corrupt the database file.
+**
+** SQLite sets the dataOnly flag if the size of the file is unchanged.
+** The idea behind dataOnly is that it should only write the file content
+** to disk, not the inode.  We only set dataOnly if the file size is
+** unchanged since the file size is part of the inode.  However,
+** Ted Ts'o tells us that fdatasync() will also write the inode if the
+** file size has changed.  The only real difference between fdatasync()
+** and fsync(), Ted tells us, is that fdatasync() will not flush the
+** inode if the mtime or owner or other inode attributes have changed.
+** We only care about the file size, not the other file attributes, so
+** as far as SQLite is concerned, an fdatasync() is always adequate.
+** So, we always use fdatasync() if it is available, regardless of
+** the value of the dataOnly flag.
+*/
+static int full_fsync(int fd, int fullSync, int dataOnly)
+{
+   int rc;
+   UNUSED_PARAMETER(fullSync);
+   UNUSED_PARAMETER(dataOnly);
+   rc = fdatasync(fd);
+   return rc;
 }
 
 /*
@@ -589,25 +843,26 @@ static int fcntlSizeHint(unixFile* pFile, i64 nByte)
 */
 static int seekAndRead(unixFile* id, sqlite3_int64 offset, void* pBuf, int cnt)
 {
-   /**/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin seekAndRead ...\n");
-#endif /* TKEYVFS_TRACE */
-   if (offset >= id->fileSize) {
-      id->lastErrno = 0;
-#if TKEYVFS_TRACE
-      fprintf(stderr, "End   seekAndRead ...\n");
-#endif /* TKEYVFS_TRACE */
-      return 0;
+   int got;
+   i64 newOffset;
+   newOffset = lseek(id->h, offset, SEEK_SET);
+   if (newOffset != offset) {
+      if (newOffset == -1) {
+         ((unixFile*)id)->lastErrno = errno;
+      }
+      else {
+         ((unixFile*)id)->lastErrno = 0;
+      }
+      return -1;
    }
-   if ((offset + cnt) > id->fileSize) {
-      cnt = (offset + cnt) - id->fileSize;
+   do {
+      got = osRead(id->h, pBuf, cnt);
    }
-   (void*)memcpy(pBuf, (const void*)(id->pBuf + offset), (size_t)cnt);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   seekAndRead ...\n");
-#endif /* TKEYVFS_TRACE */
-   return cnt;
+   while (got < 0 && errno == EINTR);
+   if (got < 0) {
+      ((unixFile*)id)->lastErrno = errno;
+   }
+   return got;
 }
 
 /*
@@ -619,41 +874,26 @@ static int seekAndRead(unixFile* id, sqlite3_int64 offset, void* pBuf, int cnt)
 */
 static int seekAndWrite(unixFile* id, i64 offset, const void* pBuf, int cnt)
 {
-   unixFile* pFile = (unixFile*)id;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin seekAndWrite ...\n");
-#endif /* TKEYVFS_TRACE */
-   if ((offset + (i64)cnt) > id->bufAllocated) {
-      i64 nByte;
-      i64 newBufSize;
-      nByte = offset + ((i64)cnt);
-      if (pFile->szChunk) {
-         nByte = ((nByte + (pFile->szChunk - 1)) / pFile->szChunk) * pFile->szChunk;
+   int got;
+   i64 newOffset;
+   newOffset = lseek(id->h, offset, SEEK_SET);
+   if (newOffset != offset) {
+      if (newOffset == -1) {
+         ((unixFile*)id)->lastErrno = errno;
       }
-      newBufSize = ((nByte + (i64)(MEMPAGE-1)) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
-      char* pNewBuf = (char*)realloc((void*)id->pBuf, (size_t)(newBufSize));
-      if (pNewBuf == NULL) {
-         id->lastErrno = errno;
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   seekAndWrite ...\n");
-#endif /* TKEYVFS_TRACE */
-         return 0;
+      else {
+         ((unixFile*)id)->lastErrno = 0;
       }
-      if ((offset + (i64)cnt) < newBufSize) {
-         i64 zeroCnt = newBufSize - (offset + (i64)cnt);
-         (void*)memset((void*)(pNewBuf + offset + (i64)cnt), 0, (size_t)zeroCnt);
-      }
-      id->pBuf = pNewBuf;
-      id->bufAllocated = newBufSize;
+      return -1;
    }
-   (void*)memcpy((void*)(id->pBuf + offset), pBuf, (size_t)cnt);
-   if ((offset + (i64)cnt) > id->fileSize) {
-      id->fileSize = offset + (i64)cnt;
+   do {
+      got = osWrite(id->h, pBuf, cnt);
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   seekAndWrite ...\n");
-#endif /* TKEYVFS_TRACE */
-   return cnt;
+   while (got < 0 && errno == EINTR);
+   if (got < 0) {
+      ((unixFile*)id)->lastErrno = errno;
+   }
+   return got;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -661,15 +901,8 @@ static int seekAndWrite(unixFile* id, i64 offset, const void* pBuf, int cnt)
 
 static int nolockClose(sqlite3_file* id)
 {
-   /**/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin nolockClose ...\n");
-#endif /* TKEYVFS_TRACE */
-   int val = closeUnixFile(id);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   nolockClose ...\n");
-#endif /* TKEYVFS_TRACE */
-   return val;
+   fprintf(stderr, "trace: begin nolockClose ...\n");
+   return closeUnixFile(id);
 }
 
 /*
@@ -681,35 +914,28 @@ static int unixRead(sqlite3_file* id, void* pBuf, int amt, sqlite3_int64 offset)
 {
    unixFile* pFile = (unixFile*)id;
    int got;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixRead ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-   fprintf(stderr, "offset: 0x%016lx  amt: 0x%08x\n", (unsigned long long)offset, amt);
-#endif /* TKEYVFS_TRACE */
+   fprintf(stderr, "trace: begin unixRead ...\n");
+   assert(id);
+   /* If this is a database file (not a journal, master-journal or temp
+   ** file), the bytes in the locking range should never be read or written. */
+#if 0
+   assert(pFile->pUnused == 0
+          || offset >= PENDING_BYTE + 512
+          || offset + amt <= PENDING_BYTE
+         );
+#endif
    got = seekAndRead(pFile, offset, pBuf, amt);
    if (got == amt) {
-      /**/
-#if TKEYVFS_TRACE
-      fprintf(stderr, "End   unixRead ...\n");
-#endif /* TKEYVFS_TRACE */
       return SQLITE_OK;
    }
    else if (got < 0) {
       /* lastErrno set by seekAndRead */
-#if TKEYVFS_TRACE
-      fprintf(stderr, "End   unixRead ...\n");
-#endif /* TKEYVFS_TRACE */
       return SQLITE_IOERR_READ;
    }
    else {
       pFile->lastErrno = 0; /* not a system error */
       /* Unread parts of the buffer must be zero-filled */
       memset(&((char*)pBuf)[got], 0, amt - got);
-#if TKEYVFS_TRACE
-      fprintf(stderr, "End   unixRead ...\n");
-#endif /* TKEYVFS_TRACE */
       return SQLITE_IOERR_SHORT_READ;
    }
 }
@@ -722,13 +948,17 @@ static int unixWrite(sqlite3_file* id, const void* pBuf, int amt, sqlite3_int64 
 {
    unixFile* pFile = (unixFile*)id;
    int wrote = 0;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixWrite ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-   fprintf(stderr, "offset: 0x%016lx  amt: 0x%08x\n", (unsigned long long)offset, amt);
-#endif /* TKEYVFS_TRACE */
+   fprintf(stderr, "trace: begin unixWrite ...\n");
+   assert(id);
+   assert(amt > 0);
+   /* If this is a database file (not a journal, master-journal or temp
+   ** file), the bytes in the locking range should never be read or written. */
+#if 0
+   assert(pFile->pUnused == 0
+          || offset >= PENDING_BYTE + 512
+          || offset + amt <= PENDING_BYTE
+         );
+#endif
    /* If we are doing a normal write to a database file (as opposed to
    ** doing a hot-journal rollback or a write to some file other than a
    ** normal database file) then record the fact that the database
@@ -737,7 +967,7 @@ static int unixWrite(sqlite3_file* id, const void* pBuf, int amt, sqlite3_int64 
    */
    if (pFile->inNormalWrite) {
       pFile->dbUpdate = 1;  /* The database has been modified */
-      if ((offset <= 24) && (offset + amt >= 27)) {
+      if (offset <= 24 && offset + amt >= 27) {
          int rc;
          char oldCntr[4];
          rc = seekAndRead(pFile, 24, oldCntr, 4);
@@ -746,7 +976,7 @@ static int unixWrite(sqlite3_file* id, const void* pBuf, int amt, sqlite3_int64 
          }
       }
    }
-   while ((amt > 0) && ((wrote = seekAndWrite(pFile, offset, pBuf, amt)) > 0)) {
+   while (amt > 0 && (wrote = seekAndWrite(pFile, offset, pBuf, amt)) > 0) {
       amt -= wrote;
       offset += wrote;
       pBuf = &((char*)pBuf)[wrote];
@@ -754,22 +984,13 @@ static int unixWrite(sqlite3_file* id, const void* pBuf, int amt, sqlite3_int64 
    if (amt > 0) {
       if (wrote < 0) {
          /* lastErrno set by seekAndWrite */
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixWrite ...\n");
-#endif /* TKEYVFS_TRACE */
          return SQLITE_IOERR_WRITE;
       }
       else {
          pFile->lastErrno = 0; /* not a system error */
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixWrite ...\n");
-#endif /* TKEYVFS_TRACE */
          return SQLITE_FULL;
       }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixWrite ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_OK;
 }
 
@@ -780,13 +1001,8 @@ static int unixTruncate(sqlite3_file* id, i64 nByte)
 {
    unixFile* pFile = (unixFile*)id;
    int rc;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixTruncate ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-   fprintf(stderr, "nByte: 0x%016lx\n", (unsigned long long)nByte);
-#endif /* TKEYVFS_TRACE */
+   fprintf(stderr, "trace: begin unixTruncate ...\n");
+   assert(pFile);
    /* If the user has configured a chunk-size for this file, truncate the
    ** file so that it consists of an integer number of chunks (i.e. the
    ** actual file size after the operation may be larger than the requested
@@ -795,51 +1011,24 @@ static int unixTruncate(sqlite3_file* id, i64 nByte)
    if (pFile->szChunk) {
       nByte = ((nByte + pFile->szChunk - 1) / pFile->szChunk) * pFile->szChunk;
    }
-   if (nByte == 0) {
-      free(pFile->pBuf);
-      pFile->pBuf = (char*)calloc(1, MEMPAGE);
-      if (pFile->pBuf == NULL) {
-         pFile->bufAllocated = 0;
-         pFile->fileSize = 0;
-         pFile->lastErrno = errno;
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixTruncate ...\n");
-#endif /* TKEYVFS_TRACE */
-         return unixLogError(SQLITE_IOERR_TRUNCATE, "ftruncate", pFile->zPath);
-      }
-      pFile->bufAllocated = MEMPAGE;
-      pFile->fileSize = 0;
+   rc = robust_ftruncate(pFile->h, (off_t)nByte);
+   if (rc) {
+      pFile->lastErrno = errno;
+      return unixLogError(SQLITE_IOERR_TRUNCATE, "ftruncate", pFile->zPath);
    }
    else {
-      i64 newBufSize = ((nByte + (i64)(MEMPAGE-1)) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
-      i64 zeroCnt = newBufSize - nByte;
-      char* pNewBuf = (char*)realloc((void*)pFile->pBuf, (size_t)newBufSize);
-      if (pNewBuf == NULL) {
-         pFile->lastErrno = errno;
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixTruncate ...\n");
-#endif /* TKEYVFS_TRACE */
-         return unixLogError(SQLITE_IOERR_TRUNCATE, "ftruncate", pFile->zPath);
+      /* If we are doing a normal write to a database file (as opposed to
+      ** doing a hot-journal rollback or a write to some file other than a
+      ** normal database file) and we truncate the file to zero length,
+      ** that effectively updates the change counter.  This might happen
+      ** when restoring a database using the backup API from a zero-length
+      ** source.
+      */
+      if (pFile->inNormalWrite && nByte == 0) {
+         pFile->transCntrChng = 1;
       }
-      (void*)memset((void*)(pNewBuf + nByte), 0, (size_t)zeroCnt);
-      pFile->pBuf = pNewBuf;
-      pFile->bufAllocated = newBufSize;
-      pFile->fileSize = nByte;
+      return SQLITE_OK;
    }
-   /* If we are doing a normal write to a database file (as opposed to
-   ** doing a hot-journal rollback or a write to some file other than a
-   ** normal database file) and we truncate the file to zero length,
-   ** that effectively updates the change counter.  This might happen
-   ** when restoring a database using the backup API from a zero-length
-   ** source.
-   */
-   if (pFile->inNormalWrite && (nByte == 0)) {
-      pFile->transCntrChng = 1;
-   }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixTruncate ...\n");
-#endif /* TKEYVFS_TRACE */
-   return SQLITE_OK;
 }
 
 /*
@@ -859,17 +1048,44 @@ static int unixTruncate(sqlite3_file* id, i64 nByte)
 */
 static int unixSync(sqlite3_file* id, int flags)
 {
-   UNUSED_PARAMETER2(id, flags);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixSync ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
+   int rc;
+   unixFile* pFile = (unixFile*)id;
+   int isDataOnly = (flags & SQLITE_SYNC_DATAONLY);
+   int isFullsync = (flags & 0x0F) == SQLITE_SYNC_FULL;
+   fprintf(stderr, "trace: begin unixSync ...\n");
+   /* Check that one of SQLITE_SYNC_NORMAL or FULL was passed */
+   assert((flags & 0x0F) == SQLITE_SYNC_NORMAL
+          || (flags & 0x0F) == SQLITE_SYNC_FULL
+         );
+   /* Unix cannot, but some systems may return SQLITE_FULL from here. This
+   ** line is to test that doing so does not cause any problems.
+   */
+   assert(pFile);
+   rc = full_fsync(pFile->h, isFullsync, isDataOnly);
+   if (rc) {
+      pFile->lastErrno = errno;
+      return unixLogError(SQLITE_IOERR_FSYNC, "full_fsync", pFile->zPath);
    }
-#endif /* TKEYVFS_TRACE */
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixSync ...\n");
-#endif /* TKEYVFS_TRACE */
-   return SQLITE_OK;
+   if (pFile->dirfd >= 0) {
+      /* The directory sync is only attempted if full_fsync is
+      ** turned off or unavailable.  If a full_fsync occurred above,
+      ** then the directory sync is superfluous.
+      */
+      if (full_fsync(pFile->dirfd, 0, 0)) {
+         /*
+         ** We have received multiple reports of fsync() returning
+         ** errors when applied to directories on certain file systems.
+         ** A failed directory sync is not a big deal.  So it seems
+         ** better to ignore the error.  Ticket #1657
+         */
+         /* pFile->lastErrno = errno; */
+         /* return SQLITE_IOERR; */
+      }
+      /* Only need to sync once, so close the  directory when we are done */
+      robust_close(pFile, pFile->dirfd, __LINE__);
+      pFile->dirfd = -1;
+   }
+   return rc;
 }
 
 /*
@@ -877,14 +1093,15 @@ static int unixSync(sqlite3_file* id, int flags)
 */
 static int unixFileSize(sqlite3_file* id, i64* pSize)
 {
-   unixFile* p = (unixFile*)id;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixFileSize ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
+   int rc;
+   struct stat buf;
+   assert(id);
+   rc = osFstat(((unixFile*)id)->h, &buf);
+   if (rc != 0) {
+      ((unixFile*)id)->lastErrno = errno;
+      return SQLITE_IOERR_FSTAT;
    }
-#endif /* TKEYVFS_TRACE */
-   *pSize = p->fileSize;
+   *pSize = buf.st_size;
    /* When opening a zero-size database, the findInodeInfo() procedure
    ** writes a single byte into that file in order to work around a bug
    ** in the OS-X msdos filesystem.  In order to avoid problems with upper
@@ -894,57 +1111,25 @@ static int unixFileSize(sqlite3_file* id, i64* pSize)
    if (*pSize == 1) {
       *pSize = 0;
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixFileSize ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_OK;
 }
 
-static int nolockLock(sqlite3_file* id /*NotUsed*/, int NotUsed2)
+static int nolockLock(sqlite3_file* NotUsed, int NotUsed2)
 {
-   /*UNUSED_PARAMETER2(NotUsed, NotUsed2);*/
-   UNUSED_PARAMETER(NotUsed2);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin nolockLock ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-#endif /* TKEYVFS_TRACE */
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   nolockLock ...\n");
-#endif /* TKEYVFS_TRACE */
+   UNUSED_PARAMETER2(NotUsed, NotUsed2);
    return SQLITE_OK;
 }
 
-static int nolockUnlock(sqlite3_file* id /*NotUsed*/, int NotUsed2)
+static int nolockUnlock(sqlite3_file* NotUsed, int NotUsed2)
 {
-   /*UNUSED_PARAMETER2(NotUsed, NotUsed2);*/
-   UNUSED_PARAMETER(NotUsed2);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin nolockUnlock ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-#endif /* TKEYVFS_TRACE */
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   nolockUnlock ...\n");
-#endif /* TKEYVFS_TRACE */
+   UNUSED_PARAMETER2(NotUsed, NotUsed2);
    return SQLITE_OK;
 }
 
-static int nolockCheckReservedLock(sqlite3_file* id /*NotUsed*/, int* pResOut)
+static int nolockCheckReservedLock(sqlite3_file* NotUsed, int* pResOut)
 {
-   /*UNUSED_PARAMETER(NotUsed);*/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin nolockCheckReservedLock ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-#endif /* TKEYVFS_TRACE */
+   UNUSED_PARAMETER(NotUsed);
    *pResOut = 0;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   nolockCheckReservedLock ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_OK;
 }
 
@@ -953,60 +1138,21 @@ static int nolockCheckReservedLock(sqlite3_file* id /*NotUsed*/, int* pResOut)
 */
 static int unixFileControl(sqlite3_file* id, int op, void* pArg)
 {
-   /**/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixFileControl ...\n");
-   if (((unixFile*)id)->zPath) {
-      fprintf(stderr, "filename: %s\n", ((unixFile*)id)->zPath);
-   }
-#endif /* TKEYVFS_TRACE */
    switch (op) {
       case SQLITE_FCNTL_LOCKSTATE: {
-            /**/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "op: LOCKSTATE\n");
-#endif /* TKEYVFS_TRACE */
             *(int*)pArg = ((unixFile*)id)->eFileLock;
-            /*SQLITE_LOCK_NONE*/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
             return SQLITE_OK;
          }
       case SQLITE_LAST_ERRNO: {
-            /**/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "op: LAST_ERRNO\n");
-#endif /* TKEYVFS_TRACE */
             *(int*)pArg = ((unixFile*)id)->lastErrno;
-#if TKEYVFS_TRACE
-            fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
             return SQLITE_OK;
          }
       case SQLITE_FCNTL_CHUNK_SIZE: {
-            /**/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "op: CHUNK_SIZE\n");
-            fprintf(stderr, "szChunk: %d\n", *(int*)pArg);
-#endif /* TKEYVFS_TRACE */
             ((unixFile*)id)->szChunk = *(int*)pArg;
-#if TKEYVFS_TRACE
-            fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
             return SQLITE_OK;
          }
       case SQLITE_FCNTL_SIZE_HINT: {
-            /**/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "op: SIZE_HINT\n");
-            fprintf(stderr, "hint: 0x%016lx\n", *(i64*)pArg);
-#endif /* TKEYVFS_TRACE */
-            int val = fcntlSizeHint((unixFile*)id, *(i64*)pArg);
-#if TKEYVFS_TRACE
-            fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
-            return val;
+            return fcntlSizeHint((unixFile*)id, *(i64*)pArg);
          }
          /* The pager calls this method to signal that it has done
          ** a rollback and that the database is therefore unchanged and
@@ -1014,28 +1160,13 @@ static int unixFileControl(sqlite3_file* id, int op, void* pArg)
          ** unchanged.
          */
       case SQLITE_FCNTL_DB_UNCHANGED: {
-            /**/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "op: DB_UNCHANGED\n");
-#endif /* TKEYVFS_TRACE */
             ((unixFile*)id)->dbUpdate = 0;
-#if TKEYVFS_TRACE
-            fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
             return SQLITE_OK;
          }
       case SQLITE_FCNTL_SYNC_OMITTED: {
-            /**/
-#if TKEYVFS_TRACE
-            fprintf(stderr, "op: SYNC_OMITTED\n");
-            fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
             return SQLITE_OK;  /* A no-op */
          }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixFileControl ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_NOTFOUND;
 }
 
@@ -1052,12 +1183,6 @@ static int unixFileControl(sqlite3_file* id, int op, void* pArg)
 static int unixSectorSize(sqlite3_file* NotUsed)
 {
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixSectorSize ...\n");
-#endif /* TKEYVFS_TRACE */
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixSectorSize ...\n");
-#endif /* TKEYVFS_TRACE */
    return SQLITE_DEFAULT_SECTOR_SIZE;
 }
 
@@ -1067,12 +1192,6 @@ static int unixSectorSize(sqlite3_file* NotUsed)
 static int unixDeviceCharacteristics(sqlite3_file* NotUsed)
 {
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixDeviceCharacteristics ...\n");
-#endif /* TKEYVFS_TRACE */
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixDeviceCharacteristics ...\n");
-#endif /* TKEYVFS_TRACE */
    return 0;
 }
 
@@ -1110,120 +1229,149 @@ static int unixOpen(
 )
 {
    unixFile* p = (unixFile*)pFile;
+   int fd = -1;                   /* File descriptor returned by open() */
+   int dirfd = -1;                /* Directory file descriptor */
+   int openFlags = 0;             /* Flags to pass to open() */
    int eType = flags & 0xFFFFFF00; /* Type of file to open */
-   int rc = SQLITE_OK;
+   int noLock;                    /* True to omit locking primitives */
+   int rc = SQLITE_OK;            /* Function Return Code */
    int isExclusive  = (flags & SQLITE_OPEN_EXCLUSIVE);
    int isDelete     = (flags & SQLITE_OPEN_DELETEONCLOSE);
    int isCreate     = (flags & SQLITE_OPEN_CREATE);
    int isReadonly   = (flags & SQLITE_OPEN_READONLY);
    int isReadWrite  = (flags & SQLITE_OPEN_READWRITE);
-   char zTmpname[MAX_PATHNAME+1];
+   /* If creating a master or main-file journal, this function will open
+   ** a file-descriptor on the directory too. The first time unixSync()
+   ** is called the directory file descriptor will be fsync()ed and close()d.
+   */
+   int isOpenDirectory = (isCreate && (
+                             eType == SQLITE_OPEN_MASTER_JOURNAL
+                             || eType == SQLITE_OPEN_MAIN_JOURNAL
+                             || eType == SQLITE_OPEN_WAL
+                          ));
+   /* If argument zPath is a NULL pointer, this function is required to open
+   ** a temporary file. Use this buffer to store the file name in.
+   */
+   char zTmpname[MAX_PATHNAME + 1];
    const char* zName = zPath;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixOpen ...\n");
-   if (zPath != NULL) {
-      fprintf(stderr, "filename: %s\n", zPath);
-   }
-#endif /* TKEYVFS_TRACE */
+   fprintf(stderr, "trace: begin unixOpen ...\n");
+   /* Check the following statements are true:
+   **
+   **   (a) Exactly one of the READWRITE and READONLY flags must be set, and
+   **   (b) if CREATE is set, then READWRITE must also be set, and
+   **   (c) if EXCLUSIVE is set, then CREATE must also be set.
+   **   (d) if DELETEONCLOSE is set, then CREATE must also be set.
+   */
+   assert((isReadonly == 0 || isReadWrite == 0) && (isReadWrite || isReadonly));
+   assert(isCreate == 0 || isReadWrite);
+   assert(isExclusive == 0 || isCreate);
+   assert(isDelete == 0 || isCreate);
+   /* The main DB, main journal, WAL file and master journal are never
+   ** automatically deleted. Nor are they ever temporary files.  */
+   assert((!isDelete && zName) || eType != SQLITE_OPEN_MAIN_DB);
+   assert((!isDelete && zName) || eType != SQLITE_OPEN_MAIN_JOURNAL);
+   assert((!isDelete && zName) || eType != SQLITE_OPEN_MASTER_JOURNAL);
+   assert((!isDelete && zName) || eType != SQLITE_OPEN_WAL);
+   /* Assert that the upper layer has set one of the "file-type" flags. */
+   assert(eType == SQLITE_OPEN_MAIN_DB      || eType == SQLITE_OPEN_TEMP_DB
+          || eType == SQLITE_OPEN_MAIN_JOURNAL || eType == SQLITE_OPEN_TEMP_JOURNAL
+          || eType == SQLITE_OPEN_SUBJOURNAL   || eType == SQLITE_OPEN_MASTER_JOURNAL
+          || eType == SQLITE_OPEN_TRANSIENT_DB || eType == SQLITE_OPEN_WAL
+         );
    memset(p, 0, sizeof(unixFile));
-   if (pOutFlags) {
-      *pOutFlags = flags;
+   if (eType == SQLITE_OPEN_MAIN_DB) {
+      struct UnixUnusedFd* pUnused;
+      pUnused = findReusableFd(zName, flags);
+      if (pUnused) {
+         fd = pUnused->fd;
+      }
+      else {
+         pUnused = sqlite3_malloc(sizeof(*pUnused));
+         if (!pUnused) {
+            return SQLITE_NOMEM;
+         }
+      }
+      p->pUnused = pUnused;
    }
-   if (!zName) {
+   else if (!zName) {
+      /* If zName is NULL, the upper layer is requesting a temp file. */
+      assert(isDelete && !isOpenDirectory);
       rc = unixGetTempname(MAX_PATHNAME + 1, zTmpname);
       if (rc != SQLITE_OK) {
          return rc;
       }
       zName = zTmpname;
    }
-   if (zName != NULL) {
-      p->zPath = (char*)malloc(strlen(zName) + 1);
-      if (p->zPath != NULL) {
-         (void*)strcpy((char*)p->zPath, zName);
-      }
+   /* Determine the value of the flags parameter passed to POSIX function
+   ** open(). These must be calculated even if open() is not called, as
+   ** they may be stored as part of the file handle and used by the
+   ** 'conch file' locking functions later on.  */
+   if (isReadonly) {
+      openFlags |= O_RDONLY;
    }
-   p->lastErrno = 0;
-   p->pMethod = &nolockIoMethods;
-#ifdef TKEYVFS_DO_ROOT
-   p->rootFile = (TFile*)NULL;
-   if (eType & SQLITE_OPEN_MAIN_DB) {
-      p->rootFile = gRootFile;
+   if (isReadWrite) {
+      openFlags |= O_RDWR;
    }
-   p->saveToRootFile = 0;
-   if ((eType & SQLITE_OPEN_MAIN_DB) && isCreate && !isDelete) {
-      p->saveToRootFile = 1;
+   if (isCreate) {
+      openFlags |= O_CREAT;
    }
-#endif // TKEYVFS_DO_ROOT
-   if ((eType & SQLITE_OPEN_MAIN_DB) && !isCreate) {
-      /**/
-      i64 nBytes = 0;
-      i64 nAlloc = 0;
-#ifdef TKEYVFS_DO_ROOT
-      Bool_t status = kFALSE;
-      TKey* k = 0;
-      char* pKeyBuf = 0;
-      /* Read the highest numbered cycle of the tkey which contains
-      ** the database from the root file. */
-      k = p->rootFile->GetKey(p->zPath, 9999 /*cycle*/);
-      /* Force the tkey to allocate an i/o buffer for its contents. */
-      k->SetBuffer();
-      /* Read the contents of the tkey from the root file. */
-      status = k->ReadFile();
-      if (!status) {
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixOpen ...\n");
-#endif /* TKEYVFS_TRACE */
-         rc = unixLogError(SQLITE_CANTOPEN_BKPT, "open", zName);
+   if (isExclusive) {
+      openFlags |= (O_EXCL | O_NOFOLLOW);
+   }
+   openFlags |= (O_LARGEFILE | O_BINARY);
+   if (fd < 0) {
+      mode_t openMode;              /* Permissions to create file with */
+      rc = findCreateFileMode(zName, flags, &openMode);
+      if (rc != SQLITE_OK) {
+         assert(!p->pUnused);
+         assert(eType == SQLITE_OPEN_WAL || eType == SQLITE_OPEN_MAIN_JOURNAL);
          return rc;
       }
-      /* Get a pointer to the tkey i/o buffer. */
-      pKeyBuf = k->GetBuffer();
-      /* Get the size of the contained database file from the tkey. */
-      nBytes = k->GetObjlen();
-      /* Allocate enough memory pages to contain the database file. */
-      nAlloc = ((nBytes + ((i64)(MEMPAGE-1))) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
-      p->pBuf = (char*)malloc((size_t)nAlloc);
-#else // TKEYVFS_DO_ROOT
-      /* If not using root, a database file read is a noop. */
-      nBytes = 0;
-      nAlloc = MEMPAGE;
-      p->pBuf = (char*)calloc(1, MEMPAGE);
-#endif // TKEYVFS_DO_ROOT
-      if (p->pBuf == NULL) {
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixOpen ...\n");
-#endif /* TKEYVFS_TRACE */
-         rc = unixLogError(SQLITE_CANTOPEN_BKPT, "open", zName);
-         return rc;
+      fd = robust_open(zName, openFlags, openMode);
+      if (fd < 0 && errno != EISDIR && isReadWrite && !isExclusive) {
+         /* Failed to open the file for read/write access. Try read-only. */
+         flags &= ~(SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
+         openFlags &= ~(O_RDWR | O_CREAT);
+         flags |= SQLITE_OPEN_READONLY;
+         openFlags |= O_RDONLY;
+         isReadonly = 1;
+         fd = robust_open(zName, openFlags, openMode);
       }
-#ifdef TKEYVFS_DO_ROOT
-      /* Copy the entire database file from the tkey i/o buffer
-      ** into our in-memory database. */
-      (void*)memcpy(p->pBuf, pKeyBuf, (size_t)nBytes);
-#endif // TKEYVFS_DO_ROOT
-      p->bufAllocated = nAlloc;
-      p->fileSize = nBytes;
-      /**/
-   }
-   else {
-      p->pBuf = (char*)calloc(1, MEMPAGE);
-      if (p->pBuf == NULL) {
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixOpen ...\n");
-#endif /* TKEYVFS_TRACE */
+      if (fd < 0) {
          rc = unixLogError(SQLITE_CANTOPEN_BKPT, "open", zName);
-         return rc;
+         goto open_finished;
       }
-      p->bufAllocated = MEMPAGE;
-      p->fileSize = 0;
    }
-   rc = SQLITE_OK;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixOpen ...\n");
-#endif /* TKEYVFS_TRACE */
+   assert(fd >= 0);
+   if (pOutFlags) {
+      *pOutFlags = flags;
+   }
+   if (p->pUnused) {
+      p->pUnused->fd = fd;
+      p->pUnused->flags = flags;
+   }
+   if (isDelete) {
+      unlink(zName);
+   }
+   if (isOpenDirectory) {
+      rc = openDirectory(zPath, &dirfd);
+      if (rc != SQLITE_OK) {
+         /* It is safe to close fd at this point, because it is guaranteed not
+         ** to be open on a database file. If it were open on a database file,
+         ** it would not be safe to close as this would release any locks held
+         ** on the file by this process.  */
+         assert(eType != SQLITE_OPEN_MAIN_DB);
+         robust_close(p, fd, __LINE__);
+         goto open_finished;
+      }
+   }
+   noLock = eType != SQLITE_OPEN_MAIN_DB;
+   rc = fillInUnixFile(pVfs, fd, dirfd, pFile, zPath, noLock,
+                       isDelete, isReadonly);
+open_finished:
+   if (rc != SQLITE_OK) {
+      sqlite3_free(p->pUnused);
+   }
    return rc;
 }
 
@@ -1239,15 +1387,19 @@ static int unixDelete(
 {
    int rc = SQLITE_OK;
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixDelete ...\n");
-   if (zPath != NULL) {
-      fprintf(stderr, "filename: %s\n", zPath);
+   if (unlink(zPath) == (-1) && errno != ENOENT) {
+      return unixLogError(SQLITE_IOERR_DELETE, "unlink", zPath);
    }
-#endif /* TKEYVFS_TRACE */
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixDelete ...\n");
-#endif /* TKEYVFS_TRACE */
+   if (dirSync) {
+      int fd;
+      rc = openDirectory(zPath, &fd);
+      if (rc == SQLITE_OK) {
+         if (fsync(fd)) {
+            rc = unixLogError(SQLITE_IOERR_DIR_FSYNC, "fsync", zPath);
+         }
+         robust_close(0, fd, __LINE__);
+      }
+   }
    return rc;
 }
 
@@ -1270,41 +1422,26 @@ static int unixAccess(
 {
    int amode = 0;
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixAccess ...\n");
-   if (zPath != NULL) {
-      fprintf(stderr, "filename: %s\n", zPath);
-   }
-#endif /* TKEYVFS_TRACE */
    switch (flags) {
       case SQLITE_ACCESS_EXISTS:
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "op: SQLITE_ACCESS_EXISTS\n");
-#endif /* TKEYVFS_TRACE */
          amode = F_OK;
          break;
       case SQLITE_ACCESS_READWRITE:
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "op: SQLITE_ACCESS_READWRITE\n");
-#endif /* TKEYVFS_TRACE */
          amode = W_OK | R_OK;
          break;
       case SQLITE_ACCESS_READ:
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "op: SQLITE_ACCESS_READ\n");
-#endif /* TKEYVFS_TRACE */
          amode = R_OK;
          break;
       default:
          assert(!"Invalid flags argument");
    }
-   *pResOut = 0;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixAccess ...\n");
-#endif /* TKEYVFS_TRACE */
+   *pResOut = (osAccess(zPath, amode) == 0);
+   if (flags == SQLITE_ACCESS_EXISTS && *pResOut) {
+      struct stat buf;
+      if (0 == stat(zPath, &buf) && buf.st_size == 0) {
+         *pResOut = 0;
+      }
+   }
    return SQLITE_OK;
 }
 
@@ -1324,20 +1461,25 @@ static int unixFullPathname(
    char* zOut                    /* Output buffer */
 )
 {
-   /**/
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixFullPathName ...\n");
-   if (zPath != NULL) {
-      fprintf(stderr, "filename: %s\n", zPath);
-   }
-#endif /* TKEYVFS_TRACE */
+   /* It's odd to simulate an io-error here, but really this is just
+   ** using the io-error infrastructure to test that SQLite handles this
+   ** function failing. This function could fail if, for example, the
+   ** current working directory has been unlinked.
+   */
    assert(pVfs->mxPathname == MAX_PATHNAME);
    UNUSED_PARAMETER(pVfs);
    zOut[nOut - 1] = '\0';
-   sqlite3_snprintf(nOut, zOut, "%s", zPath);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixFullPathName ...\n");
-#endif /* TKEYVFS_TRACE */
+   if (zPath[0] == '/') {
+      sqlite3_snprintf(nOut, zOut, "%s", zPath);
+   }
+   else {
+      int nCwd;
+      if (osGetcwd(zOut, nOut - 1) == 0) {
+         return unixLogError(SQLITE_CANTOPEN_BKPT, "getcwd", zPath);
+      }
+      nCwd = (int)strlen(zOut);
+      sqlite3_snprintf(nOut - nCwd, &zOut[nCwd], "/%s", zPath);
+   }
    return SQLITE_OK;
 }
 
@@ -1348,14 +1490,7 @@ static int unixFullPathname(
 static void* unixDlOpen(sqlite3_vfs* NotUsed, const char* zFilename)
 {
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixFullPathName ...\n");
-#endif /* TKEYVFS_TRACE */
-   void* p =  dlopen(zFilename, RTLD_NOW | RTLD_GLOBAL);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixFullPathName ...\n");
-#endif /* TKEYVFS_TRACE */
-   return p;
+   return dlopen(zFilename, RTLD_NOW | RTLD_GLOBAL);
 }
 
 /*
@@ -1369,17 +1504,10 @@ static void unixDlError(sqlite3_vfs* NotUsed, int nBuf, char* zBufOut)
 {
    const char* zErr;
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixDlError ...\n");
-#endif /* TKEYVFS_TRACE */
    zErr = dlerror();
    if (zErr) {
       sqlite3_snprintf(nBuf, zBufOut, "%s", zErr);
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixDlError ...\n");
-#endif /* TKEYVFS_TRACE */
-   /**/
 }
 
 static void (*unixDlSym(sqlite3_vfs* NotUsed, void* p, const char* zSym))(void)
@@ -1403,9 +1531,6 @@ static void (*unixDlSym(sqlite3_vfs* NotUsed, void* p, const char* zSym))(void)
    */
    void (*(*x)(void*, const char*))(void);
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixDlSym ...\n");
-#endif /* TKEYVFS_TRACE */
    x = (void(*(*)(void*, const char*))(void))dlsym;
    return (*x)(p, zSym);
 }
@@ -1413,14 +1538,7 @@ static void (*unixDlSym(sqlite3_vfs* NotUsed, void* p, const char* zSym))(void)
 static void unixDlClose(sqlite3_vfs* NotUsed, void* pHandle)
 {
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixDlClose ...\n");
-#endif /* TKEYVFS_TRACE */
    dlclose(pHandle);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixDlClose ...\n");
-#endif /* TKEYVFS_TRACE */
-   /**/
 }
 
 /*
@@ -1430,9 +1548,6 @@ static int unixRandomness(sqlite3_vfs* NotUsed, int nBuf, char* zBuf)
 {
    UNUSED_PARAMETER(NotUsed);
    assert((size_t)nBuf >= (sizeof(time_t) + sizeof(int)));
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixRandomness ...\n");
-#endif /* TKEYVFS_TRACE */
    /* We have to initialize zBuf to prevent valgrind from reporting
    ** errors.  The reports issued by valgrind are incorrect - we would
    ** prefer that the randomness be increased by making use of the
@@ -1466,9 +1581,6 @@ static int unixRandomness(sqlite3_vfs* NotUsed, int nBuf, char* zBuf)
          robust_close(0, fd, __LINE__);
       }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixRandomness ...\n");
-#endif /* TKEYVFS_TRACE */
    return nBuf;
 }
 
@@ -1483,14 +1595,8 @@ static int unixRandomness(sqlite3_vfs* NotUsed, int nBuf, char* zBuf)
 */
 static int unixSleep(sqlite3_vfs* NotUsed, int microseconds)
 {
-   UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixSleep ...\n");
-#endif /* TKEYVFS_TRACE */
    usleep(microseconds);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixSleep ...\n");
-#endif /* TKEYVFS_TRACE */
+   UNUSED_PARAMETER(NotUsed);
    return microseconds;
 }
 
@@ -1503,14 +1609,8 @@ static int unixCurrentTime(sqlite3_vfs* NotUsed, double* prNow)
 {
    sqlite3_int64 i;
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixCurrentTime ...\n");
-#endif /* TKEYVFS_TRACE */
    unixCurrentTimeInt64(0, &i);
    *prNow = i / 86400000.0;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixCurrentTime ...\n");
-#endif /* TKEYVFS_TRACE */
    return 0;
 }
 
@@ -1526,10 +1626,6 @@ static int unixGetLastError(sqlite3_vfs* NotUsed, int NotUsed2, char* NotUsed3)
    UNUSED_PARAMETER(NotUsed);
    UNUSED_PARAMETER(NotUsed2);
    UNUSED_PARAMETER(NotUsed3);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixGetLastError ...\n");
-   fprintf(stderr, "End   unixGetLastError ...\n");
-#endif /* TKEYVFS_TRACE */
    return 0;
 }
 
@@ -1546,15 +1642,9 @@ static int unixCurrentTimeInt64(sqlite3_vfs* NotUsed, sqlite3_int64* piNow)
 {
    static const sqlite3_int64 unixEpoch = 24405875 * (sqlite3_int64)8640000;
    struct timeval sNow;
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixCurrentTimeInt64 ...\n");
-#endif /* TKEYVFS_TRACE */
    gettimeofday(&sNow, 0);
    *piNow = unixEpoch + 1000 * (sqlite3_int64)sNow.tv_sec + sNow.tv_usec / 1000;
    UNUSED_PARAMETER(NotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixCurrentTimeInt64 ...\n");
-#endif /* TKEYVFS_TRACE */
    return 0;
 }
 
@@ -1573,9 +1663,6 @@ static int unixSetSystemCall(
    unsigned int i;
    int rc = SQLITE_NOTFOUND;
    UNUSED_PARAMETER(pNotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixSetSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
    if (zName == 0) {
       /* If no zName is given, restore all system calls to their default
       ** settings and return NULL
@@ -1605,9 +1692,6 @@ static int unixSetSystemCall(
          }
       }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixSetSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
    return rc;
 }
 
@@ -1620,21 +1704,11 @@ static sqlite3_syscall_ptr unixGetSystemCall(sqlite3_vfs* pNotUsed, const char* 
 {
    unsigned int i;
    UNUSED_PARAMETER(pNotUsed);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixGetSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
    for (i = 0; i < sizeof(aSyscall) / sizeof(aSyscall[0]); i++) {
       if (strcmp(zName, aSyscall[i].zName) == 0) {
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixGetSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
          return aSyscall[i].pCurrent;
       }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixGetSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
    return 0;
 }
 
@@ -1648,9 +1722,6 @@ static const char* unixNextSystemCall(sqlite3_vfs* p, const char* zName)
 {
    int i = -1;
    UNUSED_PARAMETER(p);
-#if TKEYVFS_TRACE
-   fprintf(stderr, "Begin unixNextSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
    if (zName) {
       for (i = 0; i < ArraySize(aSyscall) - 1; i++) {
          if (strcmp(zName, aSyscall[i].zName) == 0) {
@@ -1660,20 +1731,13 @@ static const char* unixNextSystemCall(sqlite3_vfs* p, const char* zName)
    }
    for (i++; i < ArraySize(aSyscall); i++) {
       if (aSyscall[i].pCurrent != 0) {
-         /**/
-#if TKEYVFS_TRACE
-         fprintf(stderr, "End   unixNextSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
          return aSyscall[i].zName;
       }
    }
-#if TKEYVFS_TRACE
-   fprintf(stderr, "End   unixNextSystemCall ...\n");
-#endif /* TKEYVFS_TRACE */
    return 0;
 }
 
-int tkeyvfs_init(void)
+int myvfs_init(void)
 {
    /*
    ** The following macro defines an initializer for an sqlite3_vfs object.
@@ -1727,7 +1791,7 @@ int tkeyvfs_init(void)
    ** array cannot be const.
    */
    static sqlite3_vfs aVfs[] = {
-      UNIXVFS("tkeyvfs",     nolockIoFinder),
+      UNIXVFS("myvfs",     nolockIoFinder),
    };
    unsigned int i;          /* Loop counter */
    /* Double-check that the aSyscall[] array has been constructed
@@ -1738,26 +1802,5 @@ int tkeyvfs_init(void)
       sqlite3_vfs_register(&aVfs[i], i == 0);
    }
    return SQLITE_OK;
-}
-
-int tkeyvfs_open_v2(
-  const char* filename,   /* Database filename (UTF-8) */
-  sqlite3** ppDb,         /* OUT: SQLite db handle */
-  int flags,              /* Flags */
-  const char* zVfs        /* Name of VFS module to use */
-#ifdef TKEYVFS_DO_ROOT
-  , TFile* rootFile       /* IN-OUT: Root file, must be already open. */
-#endif // TKEYVFS_DO_ROOT
-)
-{
-  /**/
-#ifdef TKEYVFS_DO_ROOT
-  /* Save passed root file pointer in a file-local static
-  ** so that we may use it in the vfs code later. */
-  /* Note: This is a hack because there is no way to pass
-  **       user data through the vfs interface. */
-  gRootFile = rootFile;
-#endif // TKEYVFS_DO_ROOT
-  return sqlite3_open_v2(filename, ppDb, flags, zVfs);
 }
 

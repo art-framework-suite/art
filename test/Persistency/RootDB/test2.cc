@@ -1,10 +1,16 @@
-#include "tkeyvfs.h"
+#include "art/Persistency/RootDB/tkeyvfs.h"
 
+extern "C" {
 #include <sqlite3.h>
+}
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+#ifdef TKEYVFS_DO_ROOT
+#include "TFile.h"
+#endif
 
 using namespace std;
 
@@ -33,10 +39,24 @@ int main(int argc, char** argv)
    }
    tkeyvfs_init();
    if (!strcmp(argv[1], "r")) {
-      err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READONLY, "tkeyvfs");
+#ifdef TKEYVFS_DO_ROOT
+      TFile* rootFile = new TFile(argv[2]);
+#endif
+      err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READONLY, "tkeyvfs"
+#ifdef TKEYVFS_DO_ROOT
+                            , rootFile
+#endif
+                           );
    }
    else {
-      err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "tkeyvfs");
+#ifdef TKEYVFS_DO_ROOT
+     TFile* rootFile = new TFile(argv[2], "RECREATE");
+#endif
+     err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "tkeyvfs"
+#ifdef TKEYVFS_DO_ROOT
+                           , rootFile
+#endif
+                          );
    }
    if (err) {
       fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));

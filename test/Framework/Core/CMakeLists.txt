@@ -14,8 +14,8 @@ link_libraries(
   ${MATRIX}
   ${NET}
   ${MATHCORE}
-  ${THREAD}
   ${RIO}
+  ${THREAD}
 	${CORE}
   ${CINT}
 	${REFLEX}
