@@ -1,0 +1,1 @@
+create table T1(id INTEGER PRIMARY KEY AUTOINCREMENT, data, dob);insert into t1(data, dob) values(25, '2011-09-12');

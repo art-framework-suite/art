@@ -33,8 +33,8 @@ int main(int argc, char ** argv)
   sqlite3 * db = 0;
   char * error_msg = 0;
   int err = 0;
-  if (argc != 5) {
-    fprintf(stderr, "usage: %s: <op> <db-filename> <db-tkeyname> <sql-statement>\n", argv[0]);
+  if (argc < 4 || argc > 5) {
+    fprintf(stderr, "usage: %s: <op> <db-filename> <db-tkeyname> [<sql-statement>]\n", argv[0]);
     exit(1);
   }
   tkeyvfs_init();
@@ -80,7 +80,16 @@ int main(int argc, char ** argv)
     sqlite3_close(db);
     exit(1);
   }
-  err = sqlite3_exec(db, argv[4], callback, 0, &error_msg);
+  if (argc == 5) {
+    err = sqlite3_exec(db, argv[4], callback, 0, &error_msg);
+  }
+  else {
+    char * buf = 0;
+    size_t n = 0;
+    getline(&buf, &n, stdin);
+    err = sqlite3_exec(db, buf, callback, 0, &error_msg);
+    free(buf);
+  }
   if (err != SQLITE_OK) {
     fprintf(stderr, "SQL error: %s\n", error_msg);
     sqlite3_free(error_msg);
