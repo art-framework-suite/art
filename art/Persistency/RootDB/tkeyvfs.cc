@@ -62,7 +62,7 @@ extern "C" {
 */
 
 #ifdef TKEYVFS_DO_ROOT
-static TFile * gRootFile;
+static TFile ** gRootFile;
 #endif // TKEYVFS_DO_ROOT
 
 /*
@@ -85,7 +85,7 @@ static TFile * gRootFile;
 struct unixFile {
   sqlite3_io_methods const * pMethod; /* Always the first entry */
 #ifdef TKEYVFS_DO_ROOT
-  TFile * rootFile;                   /* The ROOT file the db is stored in */
+  TFile ** rootFile;                  /* The ROOT file the db is stored in */
   int saveToRootFile;                 /* On close, save db to root file */
 #endif // TKEYVFS_DO_ROOT
   char * pBuf;                        /* File contents */
@@ -439,7 +439,7 @@ static int closeUnixFile(sqlite3_file * id)
   fprintf(stderr, "saveToRootFile: %d\n", ((unixFile *)id)->saveToRootFile);
 #endif /* TKEYVFS_TRACE */
 #ifdef TKEYVFS_DO_ROOT
-  if (pFile->saveToRootFile) {
+  if (pFile->saveToRootFile && pFile->rootFile && *pFile->rootFile) {
     /**/
 #if TKEYVFS_TRACE
     fprintf(stderr, "fileSize: 0x%016lx\n", (unsigned long long)pFile->fileSize);
@@ -447,7 +447,7 @@ static int closeUnixFile(sqlite3_file * id)
     /* Create a tkey which will contain the contents
     ** of the database in the root file */
     TKey * k = new TKey(pFile->zPath, "sqlite3 database file", TKey::Class(),
-                        pFile->fileSize /*nbytes*/, pFile->rootFile /*dir*/);
+                        pFile->fileSize /*nbytes*/, *pFile->rootFile /*dir*/);
 #if TKEYVFS_TRACE
     /* Ask the key for the size of the database file it contains. */
     Int_t objlen = k->GetObjlen();
@@ -455,7 +455,7 @@ static int closeUnixFile(sqlite3_file * id)
 #endif /* TKEYVFS_TRACE */
     /* Add the new key to the root file toplevel directory. */
     /* Note: The tkey is now owned by the root file. */
-    Int_t cycle = pFile->rootFile->AppendKey(k);
+    Int_t cycle = (*pFile->rootFile)->AppendKey(k);
     /* Get a pointer to the i/o buffer inside the tkey. */
     char * p = k->GetBuffer();
     /* Copy the entire in-memory database file into the tkey i/o buffer. */
@@ -468,7 +468,7 @@ static int closeUnixFile(sqlite3_file * id)
       fprintf(stderr, "tkeyvfs: failed to write root tkey containing database to root file!\n");
     }
     /* Force the root file to flush the top-level directory entry for our tkey to disk. */
-    cnt = pFile->rootFile->Write();
+    cnt = (*pFile->rootFile)->Write();
     if (cnt < 0) {
       /* bad */
       fprintf(stderr, "tkeyvfs: failed to write root file to disk!\n");
@@ -1109,11 +1109,11 @@ static int unixOpen(
   unixFile * p = (unixFile *)pFile;
   int eType = flags & 0xFFFFFF00; /* Type of file to open */
   int rc = SQLITE_OK;
-  int isExclusive  = (flags & SQLITE_OPEN_EXCLUSIVE);
+  // int isExclusive  = (flags & SQLITE_OPEN_EXCLUSIVE); // Not used.
   int isDelete     = (flags & SQLITE_OPEN_DELETEONCLOSE);
   int isCreate     = (flags & SQLITE_OPEN_CREATE);
-  int isReadonly   = (flags & SQLITE_OPEN_READONLY);
-  int isReadWrite  = (flags & SQLITE_OPEN_READWRITE);
+  // int isReadonly   = (flags & SQLITE_OPEN_READONLY); // Not used.
+  // int isReadWrite  = (flags & SQLITE_OPEN_READWRITE); // Not used.
   char zTmpname[MAX_PATHNAME + 1];
   const char * zName = zPath;
 #if TKEYVFS_TRACE
@@ -1142,7 +1142,7 @@ static int unixOpen(
   p->lastErrno = 0;
   p->pMethod = &nolockIoMethods;
 #ifdef TKEYVFS_DO_ROOT
-  p->rootFile = (TFile *)NULL;
+  p->rootFile = (TFile **)NULL;
   if (eType & SQLITE_OPEN_MAIN_DB) {
     p->rootFile = gRootFile;
   }
@@ -1161,7 +1161,7 @@ static int unixOpen(
     char * pKeyBuf = 0;
     /* Read the highest numbered cycle of the tkey which contains
     ** the database from the root file. */
-    k = p->rootFile->GetKey(p->zPath, 9999 /*cycle*/);
+    k = (*p->rootFile)->GetKey(p->zPath, 9999 /*cycle*/);
     /* Force the tkey to allocate an i/o buffer for its contents. */
     k->SetBuffer();
     /* Read the contents of the tkey from the root file. */
@@ -1674,62 +1674,62 @@ extern "C" {
   int tkeyvfs_init(void)
   {
     /*
-  ** The following macro defines an initializer for an sqlite3_vfs object.
-  ** The name of the VFS is NAME.  The pAppData is a pointer to a pointer
-  ** to the "finder" function.  (pAppData is a pointer to a pointer because
-  ** silly C90 rules prohibit a void* from being cast to a function pointer
-  ** and so we have to go through the intermediate pointer to avoid problems
-  ** when compiling with -pedantic-errors on GCC.)
-  **
-  ** The FINDER parameter to this macro is the name of the pointer to the
-  ** finder-function.  The finder-function returns a pointer to the
-  ** sqlite_io_methods object that implements the desired locking
-  ** behaviors.  See the division above that contains the IOMETHODS
-  ** macro for addition information on finder-functions.
-  **
-  ** Most finders simply return a pointer to a fixed sqlite3_io_methods
-  ** object.  But the "autolockIoFinder" available on MacOSX does a little
-  ** more than that; it looks at the filesystem type that hosts the
-  ** database file and tries to choose an locking method appropriate for
-  ** that filesystem time.
-  */
+    ** The following macro defines an initializer for an sqlite3_vfs object.
+    ** The name of the VFS is NAME.  The pAppData is a pointer to a pointer
+    ** to the "finder" function.  (pAppData is a pointer to a pointer because
+    ** silly C90 rules prohibit a void* from being cast to a function pointer
+    ** and so we have to go through the intermediate pointer to avoid problems
+    ** when compiling with -pedantic-errors on GCC.)
+    **
+    ** The FINDER parameter to this macro is the name of the pointer to the
+    ** finder-function.  The finder-function returns a pointer to the
+    ** sqlite_io_methods object that implements the desired locking
+    ** behaviors.  See the division above that contains the IOMETHODS
+    ** macro for addition information on finder-functions.
+    **
+    ** Most finders simply return a pointer to a fixed sqlite3_io_methods
+    ** object.  But the "autolockIoFinder" available on MacOSX does a little
+    ** more than that; it looks at the filesystem type that hosts the
+    ** database file and tries to choose an locking method appropriate for
+    ** that filesystem time.
+    */
 #define UNIXVFS(VFSNAME, FINDER) {                        \
-      1,                    /* iVersion */                \
-        sizeof(unixFile),     /* szOsFile */              \
-        MAX_PATHNAME,         /* mxPathname */            \
-        0,                    /* pNext */                 \
-        VFSNAME,              /* zName */                 \
-        (void*)&FINDER,       /* pAppData */              \
-        unixOpen,             /* xOpen */                 \
-        unixDelete,           /* xDelete */               \
-        unixAccess,           /* xAccess */               \
-        unixFullPathname,     /* xFullPathname */         \
-        unixDlOpen,           /* xDlOpen */               \
-        unixDlError,          /* xDlError */              \
-        unixDlSym,            /* xDlSym */                \
-        unixDlClose,          /* xDlClose */              \
-        unixRandomness,       /* xRandomness */           \
-        unixSleep,            /* xSleep */                \
-        unixCurrentTime,      /* xCurrentTime */          \
-        unixGetLastError,     /* xGetLastError */         \
-        /* unixCurrentTimeInt64, v2, xCurrentTimeInt64 */ \
-        /* unixSetSystemCall,    v3, xSetSystemCall */    \
-        /* unixGetSystemCall,    v3, xGetSystemCall */    \
-        /* unixNextSystemCall,   v3, xNextSystemCall */   \
-        }
+    1,                    /* iVersion */                \
+    sizeof(unixFile),     /* szOsFile */              \
+    MAX_PATHNAME,         /* mxPathname */            \
+    0,                    /* pNext */                 \
+    VFSNAME,              /* zName */                 \
+    (void*)&FINDER,       /* pAppData */              \
+    unixOpen,             /* xOpen */                 \
+    unixDelete,           /* xDelete */               \
+    unixAccess,           /* xAccess */               \
+    unixFullPathname,     /* xFullPathname */         \
+    unixDlOpen,           /* xDlOpen */               \
+    unixDlError,          /* xDlError */              \
+    unixDlSym,            /* xDlSym */                \
+    unixDlClose,          /* xDlClose */              \
+    unixRandomness,       /* xRandomness */           \
+    unixSleep,            /* xSleep */                \
+    unixCurrentTime,      /* xCurrentTime */          \
+    unixGetLastError,     /* xGetLastError */         \
+    /* unixCurrentTimeInt64, v2, xCurrentTimeInt64 */ \
+    /* unixSetSystemCall,    v3, xSetSystemCall */    \
+    /* unixGetSystemCall,    v3, xGetSystemCall */    \
+    /* unixNextSystemCall,   v3, xNextSystemCall */   \
+  }
     /*
-  ** All default VFSes for unix are contained in the following array.
-  **
-  ** Note that the sqlite3_vfs.pNext field of the VFS object is modified
-  ** by the SQLite core when the VFS is registered.  So the following
-  ** array cannot be const.
-  */
+    ** All default VFSes for unix are contained in the following array.
+    **
+    ** Note that the sqlite3_vfs.pNext field of the VFS object is modified
+    ** by the SQLite core when the VFS is registered.  So the following
+    ** array cannot be const.
+    */
     static sqlite3_vfs aVfs[] = {
       UNIXVFS("tkeyvfs",     nolockIoFinder),
     };
     unsigned int i;          /* Loop counter */
     /* Double-check that the aSyscall[] array has been constructed
-  ** correctly.  See ticket [bb3a86e890c8e96ab] */
+    ** correctly.  See ticket [bb3a86e890c8e96ab] */
     assert(ArraySize(aSyscall) == 16);
     /* Register all VFSes defined in the aVfs[] array */
     for (i = 0; i < (sizeof(aVfs) / sizeof(sqlite3_vfs)); i++) {
@@ -1744,16 +1744,16 @@ extern "C" {
     int flags,              /* Flags */
     const char * zVfs       /* Name of VFS module to use */
 #ifdef TKEYVFS_DO_ROOT
-    , TFile * rootFile      /* IN-OUT: Root file, must be already open. */
+    , TFile ** rootFile     /* IN-OUT: Root file, must be already open. */
 #endif // TKEYVFS_DO_ROOT
   )
   {
     /**/
 #ifdef TKEYVFS_DO_ROOT
     /* Save passed root file pointer in a file-local static
-  ** so that we may use it in the vfs code later. */
+    ** so that we may use it in the vfs code later. */
     /* Note: This is a hack because there is no way to pass
-  **       user data through the vfs interface. */
+    **       user data through the vfs interface. */
     gRootFile = rootFile;
 #endif // TKEYVFS_DO_ROOT
     return sqlite3_open_v2(filename, ppDb, flags, zVfs);

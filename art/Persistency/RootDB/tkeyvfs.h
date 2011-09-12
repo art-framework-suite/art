@@ -21,7 +21,7 @@ extern "C" {
   int tkeyvfs_init(void);
   int tkeyvfs_open_v2(const char * filename, sqlite3 ** ppDb, int flags, const char * zVfs
 #ifdef TKEYVFS_DO_ROOT
-                      ,TFile * rootFile
+                      , TFile ** rootFile
 #endif // TKEYVFS_DO_ROOT
                      );
 }
