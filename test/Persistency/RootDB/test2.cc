@@ -51,7 +51,17 @@ int main(int argc, char ** argv)
 #endif
                          );
   }
-  else {
+  else if (!strcmp(argv[1], "u")) {
+#ifdef TKEYVFS_DO_ROOT
+    rootFile = new TFile(argv[2], "UPDATE");
+#endif
+    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE, "tkeyvfs"
+#ifdef TKEYVFS_DO_ROOT
+                          , &rootFile
+#endif
+                         );
+  }
+  else if (!strcmp(argv[1], "w")) {
 #ifdef TKEYVFS_DO_ROOT
     rootFile = new TFile(argv[2], "RECREATE");
 #endif
@@ -60,6 +70,10 @@ int main(int argc, char ** argv)
                           , &rootFile
 #endif
                          );
+  }
+  else {
+    fprintf(stderr, "Unrecognized file mode designator %s", argv[1]);
+    exit(1);
   }
   if (err) {
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));

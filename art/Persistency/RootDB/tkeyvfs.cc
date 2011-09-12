@@ -1112,8 +1112,8 @@ static int unixOpen(
   // int isExclusive  = (flags & SQLITE_OPEN_EXCLUSIVE); // Not used.
   int isDelete     = (flags & SQLITE_OPEN_DELETEONCLOSE);
   int isCreate     = (flags & SQLITE_OPEN_CREATE);
-  // int isReadonly   = (flags & SQLITE_OPEN_READONLY); // Not used.
-  // int isReadWrite  = (flags & SQLITE_OPEN_READWRITE); // Not used.
+  int isReadonly   = (flags & SQLITE_OPEN_READONLY); // Not used.
+  int isReadWrite  = (flags & SQLITE_OPEN_READWRITE); // Not used.
   char zTmpname[MAX_PATHNAME + 1];
   const char * zName = zPath;
 #if TKEYVFS_TRACE
@@ -1147,7 +1147,7 @@ static int unixOpen(
     p->rootFile = gRootFile;
   }
   p->saveToRootFile = 0;
-  if ((eType & SQLITE_OPEN_MAIN_DB) && isCreate && !isDelete) {
+  if ((eType & SQLITE_OPEN_MAIN_DB) && (isCreate || isReadWrite) && !isDelete) {
     p->saveToRootFile = 1;
   }
 #endif // TKEYVFS_DO_ROOT
