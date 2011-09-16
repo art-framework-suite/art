@@ -27,7 +27,7 @@ foreach(test_source ModuleDescription_t.cpp ProcessConfiguration_t.cpp ProcessHi
   cet_test(${test_name} SOURCES ${test_source} LIBRARIES ${standard_libraries})
 endforeach()
 
-cet_test(RootClassMapping_t  NO_AUTO USE_BOOST_UNIT
+cet_test(RootClassMapping_t USE_BOOST_UNIT
   LIBRARIES
   test_Persistency_Provenance_dict
   ${CINTEX}
