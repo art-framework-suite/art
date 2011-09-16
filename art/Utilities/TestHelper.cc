@@ -1,22 +1,20 @@
 //------------------------------------------------------------
 //
 //------------------------------------------------------------
+
+#include "art/Utilities/Exception.h"
+#include "art/Utilities/TestHelper.h"
+#include "boost/filesystem/convenience.hpp"
+#include "boost/filesystem/path.hpp"
+#include "cetlib/exception.h"
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <string>
-
 #include <sys/wait.h>
 #include <unistd.h>
-#include <cstring>
-
-#include "boost/filesystem/convenience.hpp"
-#include "boost/filesystem/path.hpp"
-
-#include "art/Utilities/Exception.h"
-#include "cetlib/exception.h"
-#include "art/Utilities/TestHelper.h"
 
 namespace bf=boost::filesystem;
 
@@ -66,7 +64,13 @@ int run_script(const std::string& shell, const std::string& script)
 
 int do_work(int argc, char* argv[], char** env)
 {
+#if BOOST_FILESYSTEM_VERSION == 2
   bf::path currentPath(bf::initial_path().string(), bf::no_check);
+#elif BOOST_FILESYSTEM_VERSION == 3
+  bf::path currentPath(bf::initial_path().string());
+#else
+  #error unknown BOOST_FILESYSTEM_VERSION!
+#endif
 
   if (argc<4)
     {
@@ -76,7 +80,13 @@ int do_work(int argc, char* argv[], char** env)
                 << "(e.g., FWCore/Utilities/test)\n"
                 << std::endl;
 
+#if BOOST_FILESYSTEM_VERSION == 2
       std::cout << "Current directory is: " << currentPath.native_directory_string() << '\n';
+#elif BOOST_FILESYSTEM_VERSION == 3
+      std::cout << "Current directory is: " << currentPath.string() << '\n';
+#else
+  #error unknown BOOST_FILESYSTEM_VERSION!
+#endif
       std::cout << "Current environment:\n";
       std::cout << "---------------------\n";
       for (int i = 0; env[i] != 0; ++i) std::cout << env[i] << '\n';
@@ -94,7 +104,13 @@ int do_work(int argc, char* argv[], char** env)
   std::string shell(argv[1]);
   std::cerr << "shell is: " << shell << '\n';
 
+#if BOOST_FILESYSTEM_VERSION == 2
   std::cout << "Current directory is: " << currentPath.native_directory_string() << '\n';
+#elif BOOST_FILESYSTEM_VERSION == 3
+  std::cout << "Current directory is: " << currentPath.string() << '\n';
+#else
+  #error unknown BOOST_FILESYSTEM_VERSION!
+#endif
   // It is unclear about which of these environment variables should
   // be used.
   const char* topdir  = getenv("SCRAMRT_LOCALRT");
@@ -105,8 +121,15 @@ int do_work(int argc, char* argv[], char** env)
   if ( !arch )
     {
       // Try to synthesize SCRAM_ARCH value.
+#if BOOST_FILESYSTEM_VERSION == 2
       bf::path exepath(argv[0], bf::no_check);
       std::string maybe_arch = exepath.branch_path().leaf();
+#elif BOOST_FILESYSTEM_VERSION == 3
+      bf::path exepath(argv[0]);
+      std::string maybe_arch = exepath.branch_path().filename().native();
+#else
+  #error unknown BOOST_FILESYSTEM_VERSION!
+#endif
       if (setenv("SCRAM_ARCH", maybe_arch.c_str(), 1) != 0)
         {
           std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
