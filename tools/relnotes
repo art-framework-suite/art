@@ -63,10 +63,10 @@ if (lc $package eq "art") { # Want ART Suite release notes.
   if ($options->{"suite-version"}) {
     $vnum = pkg_version($package, $vnum);
   }
-  printf "h2. %%(#%s)$package%% %s %s.\n",
+  printf "h2. %%(#%s)$package%% %s%s.\n",
     dot_version($vnum),
       vpage($vnum),
-        suite_reference_string($package, $vnum);
+        suite_reference_string(suite_references($package, $vnum));
 }
 
 1;
@@ -215,7 +215,7 @@ sub suite_references {
 
 sub suite_reference_string {
   return (scalar @_) ?
-    sprintf('(%s)',
+    sprintf(' (%s)',
             join(", ", map { if (!$_) { (); } else { rpage("ART", $_); } } sort by_version @_)) :
               '';
 }
