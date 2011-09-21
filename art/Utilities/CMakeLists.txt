@@ -39,6 +39,8 @@ target_link_libraries(art_Utilities
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_THREAD_LIBRARY}
+  ${CINT}
+  ${REFLEX}
   -luuid
 )
 
