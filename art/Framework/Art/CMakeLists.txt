@@ -42,8 +42,8 @@ set ( common_exec_link_libraries
   ${MATRIX}
   ${NET}
   ${MATHCORE}
-  ${THREAD}
   ${RIO}
+  ${THREAD}
   ${CORE}
   ${CINT}
   ${REFLEX}
