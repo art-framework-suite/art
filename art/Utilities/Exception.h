@@ -51,6 +51,8 @@ namespace art {
     ,  ProductDoesNotSupportViews
     ,  ProductDoesNotSupportPtr
 
+    ,  SQLExecutionError
+
     ,  InvalidNumber
 
     ,  NotFound

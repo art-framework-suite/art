@@ -52,6 +52,8 @@ std::string
   case ProductDoesNotSupportViews: return "ProductDoesNotSupportViews";
   case ProductDoesNotSupportPtr  : return "ProductDoesNotSupportPtr";
 
+  case SQLExecutionError         : return "SQLExecutionError";
+
   case InvalidNumber             : return "InvalidNumber";
 
   case NotFound                  : return "NotFound";
