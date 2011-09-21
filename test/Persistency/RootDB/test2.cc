@@ -8,7 +8,7 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
 #include "TFile.h"
 #endif
 
@@ -38,36 +38,36 @@ int main(int argc, char ** argv)
     exit(1);
   }
   tkeyvfs_init();
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
   TFile * rootFile = 0;
 #endif
   if (!strcmp(argv[1], "r")) {
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
     rootFile = new TFile(argv[2]);
 #endif
-    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READONLY, "tkeyvfs"
-#ifdef TKEYVFS_DO_ROOT
-                          , &rootFile
+    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READONLY
+#ifndef TKEYVFS_NO_ROOT
+                          , rootFile
 #endif
                          );
   }
   else if (!strcmp(argv[1], "u")) {
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
     rootFile = new TFile(argv[2], "UPDATE");
 #endif
-    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE, "tkeyvfs"
-#ifdef TKEYVFS_DO_ROOT
-                          , &rootFile
+    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE
+#ifndef TKEYVFS_NO_ROOT
+                          , rootFile
 #endif
                          );
   }
   else if (!strcmp(argv[1], "w")) {
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
     rootFile = new TFile(argv[2], "RECREATE");
 #endif
-    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "tkeyvfs"
-#ifdef TKEYVFS_DO_ROOT
-                          , &rootFile
+    err = tkeyvfs_open_v2(argv[3], &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
+#ifndef TKEYVFS_NO_ROOT
+                          , rootFile
 #endif
                          );
   }
