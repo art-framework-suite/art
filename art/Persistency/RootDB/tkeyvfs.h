@@ -5,24 +5,18 @@
  * Save db to root file on close.
 */
 
-#if 0
-#ifndef TKEYVFS_DO_ROOT
-#define TKEYVFS_DO_ROOT 1
-#endif // TKEYVFS_DO_ROOT
-#endif // 0
-
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
 #include "TFile.h"
-#endif // TKEYVFS_DO_ROOT
+#endif // TKEYVFS_NO_ROOT
 
 #include <sqlite3.h>
 
 extern "C" {
   int tkeyvfs_init(void);
-  int tkeyvfs_open_v2(const char * filename, sqlite3 ** ppDb, int flags, const char * zVfs
-#ifdef TKEYVFS_DO_ROOT
-                      , TFile ** rootFile
-#endif // TKEYVFS_DO_ROOT
+  int tkeyvfs_open_v2(const char * filename, sqlite3 ** ppDb, int flags
+#ifndef TKEYVFS_NO_ROOT
+                      , TFile * rootFile
+#endif // TKEYVFS_NO_ROOT
                      );
 }
 

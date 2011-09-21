@@ -25,16 +25,10 @@ typedef sqlite_int64 i64;
  * Save db to root file on close.
 */
 
-#if 0
-#ifndef TKEYVFS_DO_ROOT
-#define TKEYVFS_DO_ROOT 1
-#endif // TKEYVFS_DO_ROOT
-#endif // 0
-
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
 #include "TFile.h"
 #include "TKey.h"
-#endif // TKEYVFS_DO_ROOT
+#endif // TKEYVFS_NO_ROOT
 
 #include <cassert>
 #include <cstdio>
@@ -61,9 +55,9 @@ extern "C" {
  * Externally provided ROOT file, must be open.
 */
 
-#ifdef TKEYVFS_DO_ROOT
-static TFile ** gRootFile;
-#endif // TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
+static TFile * gRootFile;
+#endif // TKEYVFS_NO_ROOT
 
 /*
  * Memory Page size.
@@ -84,10 +78,10 @@ static TFile ** gRootFile;
 */
 struct unixFile {
   sqlite3_io_methods const * pMethod; /* Always the first entry */
-#ifdef TKEYVFS_DO_ROOT
-  TFile ** rootFile;                  /* The ROOT file the db is stored in */
+#ifndef TKEYVFS_NO_ROOT
+  TFile * rootFile;                   /* The ROOT file the db is stored in */
   int saveToRootFile;                 /* On close, save db to root file */
-#endif // TKEYVFS_DO_ROOT
+#endif // TKEYVFS_NO_ROOT
   char * pBuf;                        /* File contents */
   i64 bufAllocated;                   /* File buffer size in bytes */
   i64 fileSize;                       /* Current file size in bytes */
@@ -436,10 +430,12 @@ static int closeUnixFile(sqlite3_file * id)
   if (((unixFile *)id)->zPath) {
     fprintf(stderr, "filename: %s\n", ((unixFile *)id)->zPath);
   }
+#ifndef TKEYVFS_NO_ROOT
   fprintf(stderr, "saveToRootFile: %d\n", ((unixFile *)id)->saveToRootFile);
+#endif // TKEYVFS_NO_ROOT
 #endif /* TKEYVFS_TRACE */
-#ifdef TKEYVFS_DO_ROOT
-  if (pFile->saveToRootFile && pFile->rootFile && *pFile->rootFile) {
+#ifndef TKEYVFS_NO_ROOT
+  if (pFile->saveToRootFile) {
     /**/
 #if TKEYVFS_TRACE
     fprintf(stderr, "fileSize: 0x%016lx\n", (unsigned long long)pFile->fileSize);
@@ -447,7 +443,7 @@ static int closeUnixFile(sqlite3_file * id)
     /* Create a tkey which will contain the contents
     ** of the database in the root file */
     TKey * k = new TKey(pFile->zPath, "sqlite3 database file", TKey::Class(),
-                        pFile->fileSize /*nbytes*/, *pFile->rootFile /*dir*/);
+                        pFile->fileSize /*nbytes*/, pFile->rootFile /*dir*/);
 #if TKEYVFS_TRACE
     /* Ask the key for the size of the database file it contains. */
     Int_t objlen = k->GetObjlen();
@@ -455,7 +451,7 @@ static int closeUnixFile(sqlite3_file * id)
 #endif /* TKEYVFS_TRACE */
     /* Add the new key to the root file toplevel directory. */
     /* Note: The tkey is now owned by the root file. */
-    Int_t cycle = (*pFile->rootFile)->AppendKey(k);
+    Int_t cycle = pFile->rootFile->AppendKey(k);
     /* Get a pointer to the i/o buffer inside the tkey. */
     char * p = k->GetBuffer();
     /* Copy the entire in-memory database file into the tkey i/o buffer. */
@@ -468,13 +464,13 @@ static int closeUnixFile(sqlite3_file * id)
       fprintf(stderr, "tkeyvfs: failed to write root tkey containing database to root file!\n");
     }
     /* Force the root file to flush the top-level directory entry for our tkey to disk. */
-    cnt = (*pFile->rootFile)->Write();
+    cnt = pFile->rootFile->Write();
     if (cnt < 0) {
       /* bad */
       fprintf(stderr, "tkeyvfs: failed to write root file to disk!\n");
     }
   }
-#endif // TKEYVFS_DO_ROOT
+#endif // TKEYVFS_NO_ROOT
   if (pFile->pBuf != NULL) {
     free(pFile->pBuf);
   }
@@ -1112,8 +1108,9 @@ static int unixOpen(
   // int isExclusive  = (flags & SQLITE_OPEN_EXCLUSIVE); // Not used.
   int isDelete     = (flags & SQLITE_OPEN_DELETEONCLOSE);
   int isCreate     = (flags & SQLITE_OPEN_CREATE);
-  int isReadonly   = (flags & SQLITE_OPEN_READONLY); // Not used.
-  int isReadWrite  = (flags & SQLITE_OPEN_READWRITE); // Not used.
+  int isReadonly   = (flags & SQLITE_OPEN_READONLY);
+  int isReadWrite  = (flags & SQLITE_OPEN_READWRITE);
+  int isTransient  = (flags & SQLITE_OPEN_TRANSIENT_DB);
   char zTmpname[MAX_PATHNAME + 1];
   const char * zName = zPath;
 #if TKEYVFS_TRACE
@@ -1141,27 +1138,28 @@ static int unixOpen(
   }
   p->lastErrno = 0;
   p->pMethod = &nolockIoMethods;
-#ifdef TKEYVFS_DO_ROOT
-  p->rootFile = (TFile **)NULL;
+#ifndef TKEYVFS_NO_ROOT
+  p->rootFile = (TFile *)NULL;
   if (eType & SQLITE_OPEN_MAIN_DB) {
     p->rootFile = gRootFile;
   }
-  p->saveToRootFile = 0;
-  if ((eType & SQLITE_OPEN_MAIN_DB) && (isCreate || isReadWrite) && !isDelete) {
-    p->saveToRootFile = 1;
-  }
-#endif // TKEYVFS_DO_ROOT
+  p->saveToRootFile = (p->rootFile &&
+                       (eType & SQLITE_OPEN_MAIN_DB) &&
+                       (isCreate || isReadWrite) &&
+                       !isDelete &&
+                       !isTransient);
+#endif // TKEYVFS_NO_ROOT
   if ((eType & SQLITE_OPEN_MAIN_DB) && !isCreate) {
     /**/
     i64 nBytes = 0;
     i64 nAlloc = 0;
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
     Bool_t status = kFALSE;
     TKey * k = 0;
     char * pKeyBuf = 0;
     /* Read the highest numbered cycle of the tkey which contains
     ** the database from the root file. */
-    k = (*p->rootFile)->GetKey(p->zPath, 9999 /*cycle*/);
+    k = p->rootFile->GetKey(p->zPath, 9999 /*cycle*/);
     /* Force the tkey to allocate an i/o buffer for its contents. */
     k->SetBuffer();
     /* Read the contents of the tkey from the root file. */
@@ -1181,12 +1179,12 @@ static int unixOpen(
     /* Allocate enough memory pages to contain the database file. */
     nAlloc = ((nBytes + ((i64)(MEMPAGE - 1))) / ((i64)MEMPAGE)) * ((i64)MEMPAGE);
     p->pBuf = (char *)malloc((size_t)nAlloc);
-#else // TKEYVFS_DO_ROOT
+#else // TKEYVFS_NO_ROOT
     /* If not using root, a database file read is a noop. */
     nBytes = 0;
     nAlloc = MEMPAGE;
     p->pBuf = (char *)calloc(1, MEMPAGE);
-#endif // TKEYVFS_DO_ROOT
+#endif // TKEYVFS_NO_ROOT
     if (p->pBuf == NULL) {
       /**/
 #if TKEYVFS_TRACE
@@ -1195,11 +1193,11 @@ static int unixOpen(
       rc = unixLogError(SQLITE_CANTOPEN_BKPT, "open", zName);
       return rc;
     }
-#ifdef TKEYVFS_DO_ROOT
+#ifndef TKEYVFS_NO_ROOT
     /* Copy the entire database file from the tkey i/o buffer
     ** into our in-memory database. */
     (void *)memcpy(p->pBuf, pKeyBuf, (size_t)nBytes);
-#endif // TKEYVFS_DO_ROOT
+#endif // TKEYVFS_NO_ROOT
     p->bufAllocated = nAlloc;
     p->fileSize = nBytes;
     /**/
@@ -1670,6 +1668,24 @@ static const char * unixNextSystemCall(sqlite3_vfs * p, const char * zName)
   return 0;
 }
 
+#ifndef TKEYVFS_NO_ROOT
+class RootFileSentry {
+public:
+  RootFileSentry(TFile * fPtr);
+  ~RootFileSentry();
+};
+
+RootFileSentry::RootFileSentry(TFile * fPtr)
+{
+  gRootFile = fPtr;
+}
+
+RootFileSentry::~RootFileSentry()
+{
+  gRootFile = 0;
+}
+#endif
+
 extern "C" {
   int tkeyvfs_init(void)
   {
@@ -1741,21 +1757,15 @@ extern "C" {
   int tkeyvfs_open_v2(
     const char * filename,  /* Database filename (UTF-8) */
     sqlite3 ** ppDb,        /* OUT: SQLite db handle */
-    int flags,              /* Flags */
-    const char * zVfs       /* Name of VFS module to use */
-#ifdef TKEYVFS_DO_ROOT
-    , TFile ** rootFile     /* IN-OUT: Root file, must be already open. */
-#endif // TKEYVFS_DO_ROOT
+    int flags              /* Flags */
+#ifndef TKEYVFS_NO_ROOT
+    , TFile * rootFile     /* IN-OUT: Root file, must be already open. */
+#endif // TKEYVFS_NO_ROOT
   )
   {
-    /**/
-#ifdef TKEYVFS_DO_ROOT
-    /* Save passed root file pointer in a file-local static
-    ** so that we may use it in the vfs code later. */
-    /* Note: This is a hack because there is no way to pass
-    **       user data through the vfs interface. */
-    gRootFile = rootFile;
-#endif // TKEYVFS_DO_ROOT
-    return sqlite3_open_v2(filename, ppDb, flags, zVfs);
+#ifndef TKEYVFS_NO_ROOT
+    RootFileSentry rfs(rootFile);
+#endif // TKEYVFS_NO_ROOT
+    return sqlite3_open_v2(filename, ppDb, flags, "tkeyvfs");
   }
 }
