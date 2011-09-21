@@ -1,9 +1,20 @@
 set(art_Persistency_RootDB_suorce
+  MetaDataAccess.cc
+  SQLErrMsg.cc
+  SQLite3Wrapper.cc
   tkeyvfs.cc
+  trace_sqldb.cc
 )
 
-add_definitions(-DTKEYVFS_DO_ROOT)
-link_libraries( ${SQLITE3} )
+link_libraries(
+  ${RIO}
+  ${THREAD}
+  ${CORE}
+  ${CINT}
+  art_Utilities
+  ${SQLITE3}
+  )
+
 add_library(art_Persistency_RootDB SHARED ${art_Persistency_RootDB_suorce} )
 
 install_headers()

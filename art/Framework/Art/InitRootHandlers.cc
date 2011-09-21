@@ -5,6 +5,8 @@
 #include "art/Framework/IO/Root/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/TransientStreamer.h"
+#include "art/Persistency/RootDB/tkeyvfs.h"
+
 #include "art/Utilities/Exception.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -169,13 +171,13 @@ namespace art {
 
    void completeRootHandlers()
    {
-      // Enable Cintex.
-      ROOT::Cintex::Cintex::Enable();
-
       // Set ROOT parameters.
       TTree::SetMaxTreeSize(kMaxLong64);
       TH1::AddDirectory(kFALSE);
       G__SetCatchException(0);
+
+      // Initialize tkeyvfs sqlite3 extension for ROOT..
+      tkeyvfs_init();
 
       // Set custom streamers
       setCacheStreamers();

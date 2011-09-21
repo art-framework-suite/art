@@ -32,7 +32,9 @@ set(art_Persistency_Provenance_sources
   TransientStreamer.cc )
 
 
-link_libraries( art_Utilities
+link_libraries( 
+  art_Persistency_RootDB
+  art_Utilities
   ${Boost_THREAD_LIBRARY}
   )
 

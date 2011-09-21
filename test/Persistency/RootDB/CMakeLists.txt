@@ -1,7 +1,8 @@
 set_source_files_properties(
-  test2.cc
+  test3.cc
+  tkeyvfs_noroot.cc
   PROPERTIES
-  COMPILE_DEFINITIONS TKEYVFS_DO_ROOT
+  COMPILE_DEFINITIONS TKEYVFS_NO_ROOT
   )
 
 cet_test(dbtest_wrap_sql PREBUILT NO_AUTO)
@@ -31,7 +32,7 @@ endif()
 
 cet_test(tkeyvfs_t_02 NO_AUTO
   SOURCES test2.cc
-  LIBRARIES art_Persistency_RootDB ${RIO} ${THREAD} ${CORE} ${CINT} ${SQLITE3} -ldl
+  LIBRARIES art_Persistency_RootDB
   )
 
 cet_test(tkeyvfs_t_02w HANDBUILT

@@ -24,6 +24,9 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/RootDB/MetaDataAccess.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/RootDB/trace_sqldb.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
@@ -35,6 +38,9 @@
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+extern "C" {
+  #include "sqlite3.h"
+}
 
 using namespace cet;
 using namespace std;
@@ -123,7 +129,10 @@ namespace art {
     // TODO: update to separate tree per CMS code (2010/12/01).
     ParameterSetMap psetMap;
     ParameterSetMap *psetMapPtr = &psetMap;
-    setMetaDataBranchAddress(metaDataTree, psetMapPtr);
+    if (metaDataTreeHasBranchFor<ParameterSetMap>(metaDataTree)) {
+      // May be in MetaData tree or DB.
+      setMetaDataBranchAddress(metaDataTree, psetMapPtr);
+    }
 
     ProcessHistoryMap pHistMap;
     ProcessHistoryMap *pHistMapPtr = &pHistMap;
@@ -172,6 +181,24 @@ namespace art {
       pset.id();
       fhicl::ParameterSetRegistry::put(pset);
     }
+
+    // Also need to check MetaData DB if we have one.
+    if (fileFormatVersion_.value_ >=5) {
+      // Open the DB
+      SQLite3Wrapper sqliteDB(filePtr_.get(), "RootFileDB");
+      if (MetaDataAccess::instance().isTracing()) {
+        trace_sqldb(sqliteDB, true, "RootFileDB input");
+      }
+      // Read the ParameterSets into memory.
+      sqlite3_stmt *stmt = 0;
+      sqlite3_prepare_v2(sqliteDB, "SELECT PSetBlob from ParameterSets;", -1, &stmt, NULL);
+      while (sqlite3_step(stmt) == SQLITE_ROW) {
+        fhicl::ParameterSet pset;
+        fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), pset);
+        fhicl::ParameterSetRegistry::put(pset);
+      }
+    }
+
     ProcessHistoryRegistry::put(pHistMap);
 
     validateFile();

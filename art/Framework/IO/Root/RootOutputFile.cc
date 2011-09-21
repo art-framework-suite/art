@@ -35,6 +35,10 @@
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
+#include "art/Persistency/RootDB/MetaDataAccess.h"
+#include "art/Persistency/RootDB/SQLErrMsg.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Persistency/RootDB/trace_sqldb.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -86,7 +90,13 @@ namespace art {
                filePtr_, InRun, pRunAux_, pRunProductProvenanceVector_,
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
-      dataTypeReported_(false) {
+      dataTypeReported_(false),
+      metaDataHandle_(filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
+  {
+    if (MetaDataAccess::instance().isTracing()) {
+      trace_sqldb(metaDataHandle_, true, "RootFileDB output");
+    }
+
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InSubRun]  = &subRunTree_;
     treePointers_[InRun]   = &runTree_;
@@ -255,30 +265,35 @@ namespace art {
   }
 
   void RootOutputFile::writeParameterSetRegistry() {
-     // TODO: update to separate tree per CMS code (2010/12/01),
-    ParameterSetMap psetMap;
-    fillPsetMap(psetMap);
-    ParameterSetMap *pPsetMap = &psetMap;
-    TBranch* b = metaDataTree_->Branch(metaBranchRootName<ParameterSetMap>(), &pPsetMap, om_->basketSize(), 0);
-    assert(b);
-    b->Fill();
+    SQLErrMsg errMsg;
+    sqlite3_exec(metaDataHandle_,
+                 "BEGIN TRANSACTION; DROP TABLE IF EXISTS ParameterSets; " // +
+                 "CREATE TABLE ParameterSets(ID PRIMARY KEY, PSetBlob); COMMIT;",
+                 0,
+                 0,
+                 errMsg);
+    errMsg.throwIfError();
+    fillPsetMap();
   }
 
-  void RootOutputFile::fillPsetMap( ParameterSetMap & psetMap ) {
-    using fhicl::ParameterSetID;
-    using fhicl::ParameterSetRegistry;
-    typedef  ParameterSetRegistry::const_iterator  const_iterator;
-
-    typedef  std::pair<ParameterSetID const, ParameterSetBlob>  pair_t;
-
-    psetMap.clear();
-    for( const_iterator it = ParameterSetRegistry::begin()
-                      , e  = ParameterSetRegistry::end(); it != e; ++it )  {
-      // TODO: Update to write out only those parameter sets we actually want.
-      psetMap.insert( pair_t( it->first
-                            , ParameterSetBlob(it->second.to_string())
-                    )       );
+  void RootOutputFile::fillPsetMap() {
+    typedef  fhicl::ParameterSetRegistry::const_iterator  const_iterator;
+    SQLErrMsg errMsg;
+    sqlite3_exec(metaDataHandle_, "BEGIN TRANSACTION;", 0, 0, errMsg);
+    sqlite3_stmt *stmt = 0;
+    sqlite3_prepare_v2(metaDataHandle_, "INSERT INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);", -1, &stmt, NULL);
+    for( const_iterator it = fhicl::ParameterSetRegistry::begin()
+                      , e  = fhicl::ParameterSetRegistry::end(); it != e; ++it )  {
+      std::string psID(it->first.to_string());
+      std::string psBlob(it->second.to_string());
+      sqlite3_bind_text(stmt, 1, psID.c_str(), psID.size() + 1, SQLITE_STATIC);
+      sqlite3_bind_text(stmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
+      sqlite3_step(stmt);
+      sqlite3_reset(stmt);
+      sqlite3_clear_bindings(stmt);
     }
+    sqlite3_finalize(stmt);
+    sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() {
@@ -327,6 +342,9 @@ namespace art {
       BranchType branchType = static_cast<BranchType>(i);
       treePointers_[branchType]->writeTree();
     }
+
+    // Write out the metadata DB
+    metaDataHandle_.reset();
 
     // close the file -- mfp
     filePtr_->Close();

@@ -19,13 +19,14 @@
 #include "art/Persistency/Provenance/ParameterSetMap.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/Selections.h"
+#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+
 #include "cpp0x/array"
 #include "cpp0x/memory"
+
 #include <map>
 #include <string>
 #include <vector>
-
-// ----------------------------------------------------------------------
 
 class TFile;
 class TTree;
@@ -74,7 +75,7 @@ namespace art {
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
                           std::set<ProductProvenance>& oToFill);
-     void fillPsetMap(ParameterSetMap &psetMap);
+     void fillPsetMap();
 
     //-------------------------------
     // Member data
@@ -107,6 +108,7 @@ namespace art {
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_;
     std::set<BranchID> branchesWithStoredHistory_;
+    SQLite3Wrapper metaDataHandle_;
   };  // RootOutputFile
 
 }  // art
