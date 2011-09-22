@@ -35,10 +35,8 @@
 #include "art/Persistency/Provenance/ProductStatus.h"
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
-#include "art/Persistency/RootDB/MetaDataAccess.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "art/Persistency/RootDB/trace_sqldb.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -93,10 +91,6 @@ namespace art {
       dataTypeReported_(false),
       metaDataHandle_(filePtr_.get(), "RootFileDB", SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)
   {
-    if (MetaDataAccess::instance().isTracing()) {
-      trace_sqldb(metaDataHandle_, true, "RootFileDB output");
-    }
-
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InSubRun]  = &subRunTree_;
     treePointers_[InRun]   = &runTree_;

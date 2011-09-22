@@ -1,6 +1,10 @@
 #ifndef art_Persistency_RootDB_SQLite3Wrapper_h
 #define art_Persistency_RootDB_SQLite3Wrapper_h
 
+// Sentry-like entity to manage the lifetime of an SQL database handle.
+
+#include "boost/noncopyable.hpp"
+
 #include <string>
 
 extern "C" {
@@ -13,8 +17,7 @@ namespace art {
 
 #include "TFile.h"
 
-// Sentry-like entity to manage the lifetime of an SQL database handle
-class art::SQLite3Wrapper {
+class art::SQLite3Wrapper : boost::noncopyable {
 public:
   typedef int (*callback_t)(void *, int, char **, char **) ;
 
@@ -32,6 +35,8 @@ public:
 
   operator sqlite3 * () { return db_; }
 
+  static bool wantTracing();
+
   void reset();
 
   void reset(std::string const & key,
@@ -47,6 +52,8 @@ public:
 
 private:
   void initDB(int flags, TFile * tfile = 0);
+
+  void maybeTrace() const;
 
   sqlite3 * db_;
   std::string key_;

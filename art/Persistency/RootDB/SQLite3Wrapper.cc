@@ -3,6 +3,9 @@
 #include "art/Persistency/RootDB/tkeyvfs.h"
 #include "art/Persistency/RootDB/SQLErrMsg.h"
 #include "art/Utilities/Exception.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <cassert>
 
 namespace {
   enum DBTYPE {
@@ -35,6 +38,16 @@ namespace {
     }
     return result;
   }
+
+  void traceit(void * string_ptr, const char * zSQL)
+  {
+    assert(string_ptr);
+    mf::LogAbsolute("SQLTrace")
+        << "+ SQLTrace ("
+        << *reinterpret_cast<std::string *>(string_ptr)
+        << "): "
+        << zSQL;
+  }
 }
 
 art::SQLite3Wrapper::
@@ -64,6 +77,13 @@ SQLite3Wrapper(TFile * tfile,
   key_(key)
 {
   initDB(flags, tfile);
+}
+
+bool
+art::SQLite3Wrapper::wantTracing()
+{
+  static char const * s_debug = getenv("ART_DEBUG_SQL");
+  return s_debug;
 }
 
 void
@@ -146,5 +166,14 @@ initDB(int flags, TFile * tfile)
         << sqlite3_errmsg(db_)
         << "\n";
   }
+  maybeTrace();
 }
 
+void
+art::SQLite3Wrapper::maybeTrace() const
+{
+  if (wantTracing()) {
+    // Cast away constness for C interface.
+    sqlite3_trace(db_, traceit, const_cast<std::string *>(&key_));
+  }
+}

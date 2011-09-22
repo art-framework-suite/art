@@ -17,15 +17,11 @@ public:
   SQLite3Wrapper const & dbHandle() const { return dbHandle_; };
   SQLite3Wrapper & dbHandle() { return dbHandle_; };
 
-  bool isTracing() const { return tracing_; }
-  void setTracing(bool onOff = true);
-
 private:
   MetaDataAccess();
   ~MetaDataAccess();
 
   SQLite3Wrapper dbHandle_;
-  bool tracing_;
 };
 
 #endif /* art_Persistency_RootDB_MetaDataAccess_h */

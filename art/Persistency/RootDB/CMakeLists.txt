@@ -3,7 +3,6 @@ set(art_Persistency_RootDB_suorce
   SQLErrMsg.cc
   SQLite3Wrapper.cc
   tkeyvfs.cc
-  trace_sqldb.cc
 )
 
 link_libraries(

@@ -24,9 +24,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/RunID.h"
-#include "art/Persistency/RootDB/MetaDataAccess.h"
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
-#include "art/Persistency/RootDB/trace_sqldb.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/FriendlyName.h"
 #include "cetlib/container_algorithms.h"
@@ -186,9 +184,6 @@ namespace art {
     if (fileFormatVersion_.value_ >=5) {
       // Open the DB
       SQLite3Wrapper sqliteDB(filePtr_.get(), "RootFileDB");
-      if (MetaDataAccess::instance().isTracing()) {
-        trace_sqldb(sqliteDB, true, "RootFileDB input");
-      }
       // Read the ParameterSets into memory.
       sqlite3_stmt *stmt = 0;
       sqlite3_prepare_v2(sqliteDB, "SELECT PSetBlob from ParameterSets;", -1, &stmt, NULL);
