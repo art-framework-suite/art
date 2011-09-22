@@ -422,7 +422,7 @@ namespace art
 	  }
       }
     if (failure) throw error;
-    if (wantSummary_) writeSummary();
+    writeSummary();
   }
 
   void Schedule::writeSummary()
@@ -431,89 +431,93 @@ namespace art
 
     // The trigger report (pass/fail etc.):
 
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
-    LogVerbatim("ArtSummary") << "TrigReport"
+    // Printed even if summary not requested, per issue #1864.
+    LogAbsolute("ArtSummary") << "";
+    LogAbsolute("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
+    LogAbsolute("ArtSummary") << "TrigReport"
                               << " Events total = " << totalEvents()
                               << " passed = " << totalEventsPassed()
                               << " failed = " << (totalEventsFailed())
                               << "";
 
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
-    LogVerbatim("ArtSummary") << "TrigReport "
-                              << right << setw(10) << "Trig Bit#" << " "
-                              << right << setw(10) << "Run" << " "
-                              << right << setw(10) << "Passed" << " "
-                              << right << setw(10) << "Failed" << " "
-                              << right << setw(10) << "Error" << " "
-                              << "Name" << "";
-    pi=trig_paths_.begin();
-    pe=trig_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "TrigReport "
-                                << right << setw( 5) << 1
-                                << right << setw( 5) << pi->bitPosition() << " "
-                                << right << setw(10) << pi->timesRun() << " "
-                                << right << setw(10) << pi->timesPassed() << " "
-                                << right << setw(10) << pi->timesFailed() << " "
-                                << right << setw(10) << pi->timesExcept() << " "
-                                << pi->name() << "";
-    }
-
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
-    LogVerbatim("ArtSummary") << "TrigReport "
-                              << right << setw(10) << "Trig Bit#" << " "
-                              << right << setw(10) << "Run" << " "
-                              << right << setw(10) << "Passed" << " "
-                              << right << setw(10) << "Failed" << " "
-                              << right << setw(10) << "Error" << " "
-                              << "Name" << "";
-    pi=end_paths_.begin();
-    pe=end_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "TrigReport "
-                                << right << setw( 5) << 0
-                                << right << setw( 5) << pi->bitPosition() << " "
-                                << right << setw(10) << pi->timesRun() << " "
-                                << right << setw(10) << pi->timesPassed() << " "
-                                << right << setw(10) << pi->timesFailed() << " "
-                                << right << setw(10) << pi->timesExcept() << " "
-                                << pi->name() << "";
-    }
-
-    pi=trig_paths_.begin();
-    pe=trig_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "";
-      LogVerbatim("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
-      LogVerbatim("ArtSummary") << "TrigReport "
+    if (wantSummary_) {
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
+      LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
-                                << right << setw(10) << "Visited" << " "
+                                << right << setw(10) << "Run" << " "
                                 << right << setw(10) << "Passed" << " "
                                 << right << setw(10) << "Failed" << " "
                                 << right << setw(10) << "Error" << " "
                                 << "Name" << "";
-
-      for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("ArtSummary") << "TrigReport "
+      pi=trig_paths_.begin();
+      pe=trig_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "TrigReport "
                                   << right << setw( 5) << 1
                                   << right << setw( 5) << pi->bitPosition() << " "
-                                  << right << setw(10) << pi->timesVisited(i) << " "
-                                  << right << setw(10) << pi->timesPassed(i) << " "
-                                  << right << setw(10) << pi->timesFailed(i) << " "
-                                  << right << setw(10) << pi->timesExcept(i) << " "
-                                  << pi->getWorker(i)->description().moduleLabel_ << "";
+                                  << right << setw(10) << pi->timesRun() << " "
+                                  << right << setw(10) << pi->timesPassed() << " "
+                                  << right << setw(10) << pi->timesFailed() << " "
+                                  << right << setw(10) << pi->timesExcept() << " "
+                                  << pi->name() << "";
+      }
+
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
+      LogAbsolute("ArtSummary") << "TrigReport "
+                                << right << setw(10) << "Trig Bit#" << " "
+                                << right << setw(10) << "Run" << " "
+                                << right << setw(10) << "Passed" << " "
+                                << right << setw(10) << "Failed" << " "
+                                << right << setw(10) << "Error" << " "
+                                << "Name" << "";
+      pi=end_paths_.begin();
+      pe=end_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "TrigReport "
+                                  << right << setw( 5) << 0
+                                  << right << setw( 5) << pi->bitPosition() << " "
+                                  << right << setw(10) << pi->timesRun() << " "
+                                  << right << setw(10) << pi->timesPassed() << " "
+                                  << right << setw(10) << pi->timesFailed() << " "
+                                  << right << setw(10) << pi->timesExcept() << " "
+                                  << pi->name() << "";
+      }
+
+      pi=trig_paths_.begin();
+      pe=trig_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "";
+        LogAbsolute("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
+        LogAbsolute("ArtSummary") << "TrigReport "
+                                  << right << setw(10) << "Trig Bit#" << " "
+                                  << right << setw(10) << "Visited" << " "
+                                  << right << setw(10) << "Passed" << " "
+                                  << right << setw(10) << "Failed" << " "
+                                  << right << setw(10) << "Error" << " "
+                                  << "Name" << "";
+
+        for (unsigned int i = 0; i < pi->size(); ++i) {
+          LogAbsolute("ArtSummary") << "TrigReport "
+                                    << right << setw( 5) << 1
+                                    << right << setw( 5) << pi->bitPosition() << " "
+                                    << right << setw(10) << pi->timesVisited(i) << " "
+                                    << right << setw(10) << pi->timesPassed(i) << " "
+                                    << right << setw(10) << pi->timesFailed(i) << " "
+                                    << right << setw(10) << pi->timesExcept(i) << " "
+                                    << pi->getWorker(i)->description().moduleLabel_ << "";
+        }
       }
     }
 
+    // Printed even if summary not requested, per issue #1864.
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "";
-      LogVerbatim("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
-      LogVerbatim("ArtSummary") << "TrigReport "
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
+      LogAbsolute("ArtSummary") << "TrigReport "
                                 << right << setw(10) << "Trig Bit#" << " "
                                 << right << setw(10) << "Visited" << " "
                                 << right << setw(10) << "Passed" << " "
@@ -522,7 +526,7 @@ namespace art
                                 << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("ArtSummary") << "TrigReport "
+        LogAbsolute("ArtSummary") << "TrigReport "
                                   << right << setw( 5) << 0
                                   << right << setw( 5) << pi->bitPosition() << " "
                                   << right << setw(10) << pi->timesVisited(i) << " "
@@ -533,228 +537,236 @@ namespace art
       }
     }
 
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
-    LogVerbatim("ArtSummary") << "TrigReport "
-                              << right << setw(10) << "Visited" << " "
-                              << right << setw(10) << "Run" << " "
-                              << right << setw(10) << "Passed" << " "
-                              << right << setw(10) << "Failed" << " "
-                              << right << setw(10) << "Error" << " "
-                              << "Name" << "";
-
     Workers::iterator ai, ae;
 
-    for( ai = workersBegin(), ae = workersEnd(); ai != ae; ++ai) {
-      LogVerbatim("ArtSummary") << "TrigReport "
-                                << right << setw(10) << (*ai)->timesVisited() << " "
-                                << right << setw(10) << (*ai)->timesRun() << " "
-                                << right << setw(10) << (*ai)->timesPassed() << " "
-                                << right << setw(10) << (*ai)->timesFailed() << " "
-                                << right << setw(10) << (*ai)->timesExcept() << " "
-                                << (*ai)->description().moduleLabel_ << "";
+    if (wantSummary_) {
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
+      LogAbsolute("ArtSummary") << "TrigReport "
+                                << right << setw(10) << "Visited" << " "
+                                << right << setw(10) << "Run" << " "
+                                << right << setw(10) << "Passed" << " "
+                                << right << setw(10) << "Failed" << " "
+                                << right << setw(10) << "Error" << " "
+                                << "Name" << "";
 
+      for( ai = workersBegin(), ae = workersEnd(); ai != ae; ++ai) {
+        LogAbsolute("ArtSummary") << "TrigReport "
+                                  << right << setw(10) << (*ai)->timesVisited() << " "
+                                  << right << setw(10) << (*ai)->timesRun() << " "
+                                  << right << setw(10) << (*ai)->timesPassed() << " "
+                                  << right << setw(10) << (*ai)->timesFailed() << " "
+                                  << right << setw(10) << (*ai)->timesExcept() << " "
+                                  << (*ai)->description().moduleLabel_ << "";
+
+      }
     }
-    LogVerbatim("ArtSummary") << "";
 
+    LogAbsolute("ArtSummary") << "";
     // The timing report (CPU and Real Time):
-
-    LogVerbatim("ArtSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
-    LogVerbatim("ArtSummary") << "TimeReport"
+    LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
+    LogAbsolute("ArtSummary") << "TimeReport"
                               << setprecision(6) << fixed
-                              << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
-                              << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
+                              << " CPU = " << timeCpuReal().first
+                              << " Real = " << timeCpuReal().second
                               << "";
+    LogAbsolute("ArtSummary") << "";
 
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per path-run "
-                              << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    pi=trig_paths_.begin();
-    pe=trig_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "TimeReport "
+    if (wantSummary_) {
+      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport"
                                 << setprecision(6) << fixed
-                                << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
-                                << pi->name() << "";
-    }
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per path-run "
-                              << "";
-
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per endpath-run "
-                              << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    pi=end_paths_.begin();
-    pe=end_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "TimeReport "
-                                << setprecision(6) << fixed
-                                << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
-                                << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
-                                << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
-                                << pi->name() << "";
-    }
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per endpath-run "
-                              << "";
-
-    pi=trig_paths_.begin();
-    pe=trig_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "";
-      LogVerbatim("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
-      LogVerbatim("ArtSummary") << "TimeReport "
-                                << right << setw(22) << "per event "
-                                << right << setw(22) << "per module-visit "
+                                << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
+                                << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
                                 << "";
-      LogVerbatim("ArtSummary") << "TimeReport "
+      LogAbsolute("ArtSummary") << "";
+
+      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per path-run "
+                                << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("ArtSummary") << "TimeReport "
+      pi=trig_paths_.begin();
+      pe=trig_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
-                                  << pi->getWorker(i)->description().moduleLabel_ << "";
+                                  << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
+                                  << pi->name() << "";
       }
-    }
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-visit "
-                              << "";
-
-    pi=end_paths_.begin();
-    pe=end_paths_.end();
-    for(; pi != pe; ++pi) {
-      LogVerbatim("ArtSummary") << "";
-      LogVerbatim("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
-      LogVerbatim("ArtSummary") << "TimeReport "
-                                << right << setw(22) << "per event "
-                                << right << setw(22) << "per module-visit "
-                                << "";
-      LogVerbatim("ArtSummary") << "TimeReport "
+      LogAbsolute("ArtSummary") << "TimeReport "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      for (unsigned int i = 0; i < pi->size(); ++i) {
-        LogVerbatim("ArtSummary") << "TimeReport "
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per path-run "
+                                << "";
+
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per endpath-run "
+                                << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << "Name" << "";
+      pi=end_paths_.begin();
+      pe=end_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
-                                  << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
-                                  << pi->getWorker(i)->description().moduleLabel_ << "";
+                                  << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
+                                  << pi->name() << "";
       }
-    }
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-visit "
-                              << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << "Name" << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per endpath-run "
+                                << "";
 
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-run "
-                              << right << setw(22) << "per module-visit "
-                              << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    ai=workersBegin();
-    ae=workersEnd();
-    for(; ai != ae; ++ai) {
-      LogVerbatim("ArtSummary") << "TimeReport "
-                                << setprecision(6) << fixed
-                                << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
-                                << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
-                                << (*ai)->description().moduleLabel_ << "";
-    }
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << right << setw(10) << "CPU" << " "
-                              << right << setw(10) << "Real" << " "
-                              << "Name" << "";
-    LogVerbatim("ArtSummary") << "TimeReport "
-                              << right << setw(22) << "per event "
-                              << right << setw(22) << "per module-run "
-                              << right << setw(22) << "per module-visit "
-                              << "";
+      pi=trig_paths_.begin();
+      pe=trig_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "";
+        LogAbsolute("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
+        LogAbsolute("ArtSummary") << "TimeReport "
+                                  << right << setw(22) << "per event "
+                                  << right << setw(22) << "per module-visit "
+                                  << "";
+        LogAbsolute("ArtSummary") << "TimeReport "
+                                  << right << setw(10) << "CPU" << " "
+                                  << right << setw(10) << "Real" << " "
+                                  << right << setw(10) << "CPU" << " "
+                                  << right << setw(10) << "Real" << " "
+                                  << "Name" << "";
+        for (unsigned int i = 0; i < pi->size(); ++i) {
+          LogAbsolute("ArtSummary") << "TimeReport "
+                                    << setprecision(6) << fixed
+                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
+                                    << pi->getWorker(i)->description().moduleLabel_ << "";
+        }
+      }
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << "Name" << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per module-visit "
+                                << "";
 
-    LogVerbatim("ArtSummary") << "";
-    LogVerbatim("ArtSummary") << "T---Report end!" << "";
-    LogVerbatim("ArtSummary") << "";
+      pi=end_paths_.begin();
+      pe=end_paths_.end();
+      for(; pi != pe; ++pi) {
+        LogAbsolute("ArtSummary") << "";
+        LogAbsolute("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
+        LogAbsolute("ArtSummary") << "TimeReport "
+                                  << right << setw(22) << "per event "
+                                  << right << setw(22) << "per module-visit "
+                                  << "";
+        LogAbsolute("ArtSummary") << "TimeReport "
+                                  << right << setw(10) << "CPU" << " "
+                                  << right << setw(10) << "Real" << " "
+                                  << right << setw(10) << "CPU" << " "
+                                  << right << setw(10) << "Real" << " "
+                                  << "Name" << "";
+        for (unsigned int i = 0; i < pi->size(); ++i) {
+          LogAbsolute("ArtSummary") << "TimeReport "
+                                    << setprecision(6) << fixed
+                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
+                                    << pi->getWorker(i)->description().moduleLabel_ << "";
+        }
+      }
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << "Name" << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per module-visit "
+                                << "";
+
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per module-run "
+                                << right << setw(22) << "per module-visit "
+                                << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << "Name" << "";
+      ai=workersBegin();
+      ae=workersEnd();
+      for(; ai != ae; ++ai) {
+        LogAbsolute("ArtSummary") << "TimeReport "
+                                  << setprecision(6) << fixed
+                                  << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
+                                  << (*ai)->description().moduleLabel_ << "";
+      }
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << right << setw(10) << "CPU" << " "
+                                << right << setw(10) << "Real" << " "
+                                << "Name" << "";
+      LogAbsolute("ArtSummary") << "TimeReport "
+                                << right << setw(22) << "per event "
+                                << right << setw(22) << "per module-run "
+                                << right << setw(22) << "per module-visit "
+                                << "";
+
+    LogAbsolute("ArtSummary") << "";
+    LogAbsolute("ArtSummary") << "T---Report end!" << "";
+    LogAbsolute("ArtSummary") << "";
+    }
   }
-
-
-
 
   void Schedule::closeOutputFiles() {
     for_all(all_output_workers_, std::bind(&OutputWorker::closeFile, _1));
