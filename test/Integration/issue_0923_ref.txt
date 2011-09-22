@@ -19,3 +19,4 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                      }
           }
 
+Art has completed and will exit with status 1.
