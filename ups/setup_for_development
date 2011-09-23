@@ -25,7 +25,7 @@ test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 
 test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
 test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
 
-test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, using qualifier a2$extraqual"
+test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, using qualifier a3$extraqual"
 
 set_ msg2='You MUST setup ups'
 tnotnull UPS_DIR || echo "$msg2"
@@ -46,10 +46,10 @@ setup -j python v2_7_2 -q gcc45
 setup -j root v5_30_00_p02 -q gcc45
 # set up CET products
 setup -j cetbuildtools v1_11_09
-setup -j cpp0x v1_02_00 -q a2$extraqual
-setup -j cetlib v1_02_00 -q a2$extraqual
-setup -j fhiclcpp v2_14_00 -q a2$extraqual
-setup -j messagefacility v1_09_00 -q a2$extraqual
+setup -j cpp0x v1_02_01 -q a3$extraqual
+setup -j cetlib v1_02_01 -q a3$extraqual
+setup -j fhiclcpp v2_15_01 -q a3$extraqual
+setup -j messagefacility v1_09_01 -q a3$extraqual
 setup -j sqlite3 v3_7_7_1
 
 test $?shell = 1 && set ss=csh || ss=sh
