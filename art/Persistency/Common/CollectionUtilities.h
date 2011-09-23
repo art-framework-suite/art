@@ -232,12 +232,21 @@ template <typename COLLECTION>
 void
 art::flattenCollections(std::vector<COLLECTION const *> const &in,
                         COLLECTION &out) {
-  for(typename std::vector<COLLECTION const *>::const_iterator
-        i = in.begin(),
-        e = in.end();
+  typename COLLECTION::size_type total_size = 0;
+  typedef typename std::vector<COLLECTION const *>::const_iterator it_t;
+  it_t const
+    b = in.begin(),
+    e = in.end();
+  for(it_t i = b;
       i != e;
       ++i) {
-    concatContainers(out, **i);
+    total_size += (*i)->size();
+  }
+  out.reserve(total_size);
+  for(it_t i = b;
+      i != e;
+      ++i) {
+    concatContainers(out, **i); // I or II.
   }
 }
 
@@ -259,8 +268,7 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
     offsets.push_back(current_offset);
     current_offset += delta;
   }
-  out.reserve(current_offset);
-  flattenCollections<COLLECTION>(in, out);
+  flattenCollections<COLLECTION>(in, out); // 1.
 }
 
 // 3.
@@ -275,7 +283,7 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
       << "Attempt to flatten incompatible PtrVectors "
       << "referring to different ProductIDs.\n";
   }
-  flattenCollections<PtrVector<T> >(in, out);
+  flattenCollections<PtrVector<T> >(in, out); // 1
 }
 
 // 4.
@@ -291,7 +299,7 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
       << "Attempt to flatten incompatible PtrVectors "
       << "referring to different ProductIDs.\n";
   }
-  flattenCollections<PtrVector<T> >(in, out, offsets);
+  flattenCollections<PtrVector<T> >(in, out, offsets); // 2.
 }
 
 #endif /* art_Persistency_Common_CollectionUtilities_h */
