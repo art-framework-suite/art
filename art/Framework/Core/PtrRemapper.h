@@ -331,7 +331,7 @@ operator()(Ptr<PROD> const &oldPtr,
   return (oldPtr.isNonnull())?
     Ptr<PROD>(iter->second,
               oldPtr.key() + offset,
-              productGetter_):
+              productGetter_.get()):
     Ptr<PROD>(iter->second);
 }
 
