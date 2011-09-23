@@ -19,7 +19,7 @@ cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
 set( product art )
-set( version v0_07_15 )
+set( version v0_07_16 )
 if ( NOT qualifier )
   SET (qualifier a2)
 endif ( NOT qualifier )
@@ -69,14 +69,14 @@ endif ()
 find_ups_product( cppunit v1_12_1 )
 find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_7 )
-find_ups_product( clhep v2_1_0_0 )
-find_ups_product( fhiclcpp v2_12_07 )
-find_ups_product( messagefacility v1_8_12 )
-find_ups_product( cetlib v1_01_00 )
-find_ups_product( cpp0x v1_01_01 )
+find_ups_product( clhep v2_1_1_0 )
+find_ups_product( fhiclcpp v2_15_01 )
+find_ups_product( messagefacility v1_09_01 )
+find_ups_product( cetlib v1_02_01 )
+find_ups_product( cpp0x v1_02_01 )
 find_ups_product( cetbuildtools v1_11_06 )
 find_ups_root( v5_28_00_p02 )
-find_ups_boost( v1_45_0 filesystem
+find_ups_boost( v1_46_1 filesystem
                         program_options
                         regex
                         thread
