@@ -1,0 +1,7 @@
+#include "ProductMix_r1.fcl"
+
+physics.filters.mixFilter.fileNames[1]: " ../ProductMix_w.d/mix.root"
+physics.analyzers: {}
+outputs: {}
+physics.end_paths: [ ]
+source.maxEvents: 210

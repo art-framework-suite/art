@@ -313,6 +313,14 @@ cet_test(ProductMix_r1a HANDBUILT
   fcl/ProductMix_r1a.fcl
 )
 
+cet_test(ProductMix_r1b HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "ProductMix_r1b.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1b.fcl
+)
+
 cet_test(ProductMix_r2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r2.fcl"
@@ -343,6 +351,7 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
   SET_TESTS_PROPERTIES(ToyRawInput_r3 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ProductMix_r1 PROPERTIES DEPENDS ProductMix_w)
   SET_TESTS_PROPERTIES(ProductMix_r1a PROPERTIES DEPENDS ProductMix_w)
+  SET_TESTS_PROPERTIES(ProductMix_r1b PROPERTIES DEPENDS ProductMix_w)
   SET_TESTS_PROPERTIES(ProductMix_r2 PROPERTIES DEPENDS ProductMix_r1)
   SET_TESTS_PROPERTIES(Ptrmv_r PROPERTIES DEPENDS Ptrmv_w)
 endif()
