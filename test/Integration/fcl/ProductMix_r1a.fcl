@@ -1,0 +1,6 @@
+#include "ProductMix_r1.fcl"
+
+physics.filters.mixFilter.testZeroSecondaries: true
+physics.analyzers: {}
+outputs: {}
+physics.end_paths: [ ]

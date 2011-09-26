@@ -1,13 +1,16 @@
-#include "art/Framework/Principal/Event.h"
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/included/unit_test.hpp>
+
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Modules/MixFilter.h"
-#include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/Core/PtrRemapper.h"
+#include "art/Framework/IO/ProductMix/MixHelper.h"
+#include "art/Framework/Modules/MixFilter.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
 #include "art/Persistency/Common/PtrVector.h"
+#include "art/Utilities/InputTag.h"
 #include "cetlib/map_vector.h"
 #include "cpp0x/memory"
-#include "art/Utilities/InputTag.h"
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
 
@@ -90,25 +93,41 @@ public:
                     std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > &out,
                     art::PtrRemapper const &remap);
 
+  template <typename COLL>
+  void verifyInSize(COLL const &in) const;
+
   size_t nSecondaries_;
   bool testRemapper_;
   std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
   std::auto_ptr<art::EventIDSequence> eIDs_;
   bool startEvent_called_;
   bool processEventIDs_called_;
+  int currentEvent_;
+  bool testZeroSecondaries_;
 };
+
+template <typename COLL>
+inline
+void
+arttest::MixFilterTestDetail::
+verifyInSize(COLL const &in) const {
+  BOOST_REQUIRE_EQUAL(in.size(), (currentEvent_ == 2 && testZeroSecondaries_)?0:nSecondaries_);
+}
+
 
 arttest::MixFilterTestDetail::
 MixFilterTestDetail(fhicl::ParameterSet const &p,
                       art::MixHelper &helper)
   :
   nSecondaries_(p.get<size_t>("numSecondaries", 1)),
-  testRemapper_(p.get<bool>("testRemapper", 1)),
+  testRemapper_(p.get<bool>("testRemapper", true)),
   doubleVectorOffsets_(),
   map_vectorOffsets_(),
   eIDs_(),
   startEvent_called_(false),
-  processEventIDs_called_(false)
+  processEventIDs_called_(false),
+  currentEvent_(-1),
+  testZeroSecondaries_(p.get<bool>("testZeroSecondaries", false))
 {
   std::string mixProducerLabel(p.get<std::string>("mixProducerLabel",
                                                   "mixProducer"));
@@ -161,12 +180,13 @@ arttest::MixFilterTestDetail::
 startEvent() {
   startEvent_called_ = true;
   eIDs_.reset();
+  ++currentEvent_;
 }
 
 size_t
 arttest::MixFilterTestDetail::
 nSecondaries() const {
-  return nSecondaries_;
+  return (currentEvent_ == 2 && testZeroSecondaries_)?0:nSecondaries_;
 }
 
 void
@@ -194,6 +214,7 @@ arttest::MixFilterTestDetail::
 mixByAddition(std::vector<T const *> const &in,
               T &out,
               art::PtrRemapper const &) {
+  verifyInSize(in);
   for (typename std::vector<T const *>::const_iterator
          i = in.begin(),
          e = in.end();
@@ -209,6 +230,7 @@ arttest::MixFilterTestDetail::
 aggregateDoubleCollection(std::vector<std::vector<double> const *> const &in,
                     std::vector<double> &out,
                     art::PtrRemapper const &) {
+  verifyInSize(in);
   art::flattenCollections(in, out, doubleVectorOffsets_);
   return true; //  Always want product in event.
 }
@@ -218,6 +240,7 @@ arttest::MixFilterTestDetail::
 aggregate_map_vector(std::vector<mv_t const *> const &in,
                      mv_t &out,
                      art::PtrRemapper const &) {
+  verifyInSize(in);
   art::flattenCollections(in, out, map_vectorOffsets_);
   return true; //  Always want product in event.
 }
@@ -227,6 +250,7 @@ arttest::MixFilterTestDetail::
 mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
         std::vector<art::Ptr<double> > &out,
         art::PtrRemapper const &remap) {
+  verifyInSize(in);
   remap(in,
         std::back_inserter(out),
         doubleVectorOffsets_);
@@ -239,6 +263,7 @@ arttest::MixFilterTestDetail::
 mixPtrVectors(std::vector<art::PtrVector<double> const *> const &in,
               art::PtrVector<double> &out,
               art::PtrRemapper const &remap) {
+  verifyInSize(in);
   remap(in,
         std::back_inserter(out),
         doubleVectorOffsets_);
@@ -251,6 +276,7 @@ arttest::MixFilterTestDetail::
 mixProductWithPtrs(std::vector<arttest::ProductWithPtrs const *> const &in,
                    arttest::ProductWithPtrs &out,
                    art::PtrRemapper const &remap) {
+  verifyInSize(in);
 #ifndef ART_NO_MIX_PTRVECTOR
   remap(in,
         std::back_inserter(out.ptrVectorDouble()),
@@ -279,6 +305,7 @@ arttest::MixFilterTestDetail::
 mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > const *> const &in,
                   std::vector<art::Ptr<cet::map_vector<unsigned int>::value_type> > &out,
                   art::PtrRemapper const &remap) {
+  verifyInSize(in);
   remap(in,
         std::back_inserter(out),
         map_vectorOffsets_);
