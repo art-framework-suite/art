@@ -288,6 +288,7 @@ cet_test(BareString_r HANDBUILT
 )
 
 
+# Write the data file required for the other mixing tests.
 cet_test(ProductMix_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "ProductMix_w.fcl"
@@ -295,6 +296,8 @@ cet_test(ProductMix_w HANDBUILT
   fcl/ProductMix_w.fcl
 )
 
+# Mix the events from ProductMix_w, analyzing the results and
+# writing an output file.
 cet_test(ProductMix_r1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r1.fcl"
@@ -302,6 +305,9 @@ cet_test(ProductMix_r1 HANDBUILT
   fcl/ProductMix_r1.fcl
 )
 
+# Mix the events from ProductMix_w, testing that things behave properly
+# with primary event #2 having no secondaries to mix. No analysis is done
+# nor output written.
 cet_test(ProductMix_r1a HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r1a.fcl"
@@ -310,6 +316,9 @@ cet_test(ProductMix_r1a HANDBUILT
   fcl/ProductMix_r1a.fcl
 )
 
+# Mix the events from ProductMix_w, testing that things behave properly
+# with multiple secondary input files (actually, the same file specified
+# twice).
 cet_test(ProductMix_r1b HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r1b.fcl"
@@ -318,6 +327,8 @@ cet_test(ProductMix_r1b HANDBUILT
   fcl/ProductMix_r1b.fcl
 )
 
+# Mix the events from ProductMix_w, testing that things behave properly
+# with secondary input file wrappring.
 cet_test(ProductMix_r1c HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r1c.fcl"
@@ -326,6 +337,8 @@ cet_test(ProductMix_r1c HANDBUILT
   fcl/ProductMix_r1c.fcl
 )
 
+# Read the output from ProductMix_r1a running the analysis to ensure that
+# everything works as read from an output file written post-mixing.
 cet_test(ProductMix_r2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -c "ProductMix_r2.fcl"
