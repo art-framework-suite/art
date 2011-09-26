@@ -90,8 +90,10 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
   readMode_(std::regex_search(pset.get<std::string>("readMode", "sequential"),
                               modeRegex()) ? SEQUENTIAL : RANDOM),
   coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
-  nEventsRead_(0),
+  nEventsReadThisFile(0),
   nEventsInFile_(0),
+  totalEventsRead_(0),
+  canWrapFiles_(pset.get<bool>("wrapFiles", false)),
   ffVersion_(),
   ptpBuilder_(),
   dist_(ServiceHandle<RandomNumberGenerator>()->getEngine()),
@@ -225,8 +227,8 @@ generateEventSequence(size_t nSecondaries,
   assert(enSeq.empty());
   assert(eIDseq.empty());
   bool over_threshold = (readMode_ == SEQUENTIAL) ?
-                        ((nEventsRead_ + nSecondaries) > nEventsInFile_) :
-                        ((nEventsRead_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
+                        ((nEventsReadThisFile + nSecondaries) > nEventsInFile_) :
+                        ((nEventsReadThisFile + nSecondaries) > (nEventsInFile_ * coverageFraction_));
   if (over_threshold) {
     if (openNextFile()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
@@ -237,8 +239,8 @@ generateEventSequence(size_t nSecondaries,
   }
   if (readMode_ == SEQUENTIAL) {
     for (size_t
-         i = nEventsRead_,
-         end = nEventsRead_ + nSecondaries;
+         i = nEventsReadThisFile,
+         end = nEventsReadThisFile + nSecondaries;
          i < end;
          ++i) {
       enSeq.push_back(i);
@@ -272,7 +274,8 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                          _1,
                          enSeq,
                          std::ref(e)));
-  nEventsRead_ += enSeq.size();
+  nEventsReadThisFile += enSeq.size();
+  totalEventsRead_ += enSeq.size();
 }
 
 void
@@ -288,9 +291,18 @@ bool
 art::MixHelper::openNextFile()
 {
   if (++currentFilename_ == filenames_.end()) {
-    return false;
+    if (canWrapFiles_) {
+      mf::LogWarning("MixingInputWrap")
+          << "Wrapping around to initial input file for mixing after "
+          << totalEventsRead_
+          << " seconday events read.";
+      currentFilename_ = filenames_.begin();
+    }
+    else {
+      return false;
+    }
   }
-  nEventsRead_ = 0; // Reset for this file.
+  nEventsReadThisFile = 0; // Reset for this file.
   openAndReadMetaData(*currentFilename_);
   return true;
 }
