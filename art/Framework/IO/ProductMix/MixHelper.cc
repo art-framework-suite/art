@@ -290,6 +290,7 @@ art::MixHelper::openNextFile()
   if (++currentFilename_ == filenames_.end()) {
     return false;
   }
+  nEventsRead_ = 0; // Reset for this file.
   openAndReadMetaData(*currentFilename_);
   return true;
 }

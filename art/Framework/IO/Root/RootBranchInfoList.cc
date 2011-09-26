@@ -26,11 +26,18 @@ void art::RootBranchInfoList::reset(TTree *tree) {
       << "RootInfoBranchList given null TTree pointer.\n";
   }
   TObjArray *branches = tree->GetListOfBranches();
+  size_t nBranches = branches->GetEntriesFast();
+  data_.clear();
+  data_.reserve(nBranches);
   TIter it(branches, kIterBackward);
   // Load the list backward, then searches can take place in the forward
   // direction.
   while (TBranch *b = dynamic_cast<TBranch *>(it.Next())) {
     data_.push_back(RootBranchInfo(b));
+  }
+  if (nBranches != data_.size()) {
+    throw Exception(errors::DataCorruption, "RootBranchInfoList")
+      << "Could not read expected number of branches from TTree's list.\n";
   }
 }
 
