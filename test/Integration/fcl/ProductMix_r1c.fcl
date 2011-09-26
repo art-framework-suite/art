@@ -1,0 +1,7 @@
+#include "ProductMix_r1.fcl"
+
+physics.filters.mixFilter.wrapFiles: true
+physics.analyzers: {}
+outputs: {}
+physics.end_paths: [ ]
+source.maxEvents: 400
