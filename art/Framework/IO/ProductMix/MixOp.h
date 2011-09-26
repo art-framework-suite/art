@@ -220,9 +220,7 @@ template <typename PROD>
 void
 art::MixOp<PROD>::
 initProductList(size_t nSecondaries) {
-  if (nSecondaries) {
-    inProducts_.resize(nSecondaries);
-  }
+  inProducts_.resize(nSecondaries);
 }
 
 #endif /* art_Framework_IO_ProductMix_MixOp_h */
