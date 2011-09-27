@@ -15,6 +15,7 @@ cet_test(CPUTimer_t USE_BOOST_UNIT
   )
 cet_test(FriendlyName_t USE_BOOST_UNIT)
 cet_test(TypeID_t USE_BOOST_UNIT)
+cet_test(ensurePointer_t USE_BOOST_UNIT)
 
 foreach(test_cpp CRC32Calculator_t.cpp Digest_t.cpp MallocOpts_t.cpp)
   get_filename_component(tname ${test_cpp} NAME_WE )

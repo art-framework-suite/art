@@ -3,6 +3,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Common/Ptr.h"
+#include "art/Utilities/ensurePointer.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "test/TestObjects/ToyProducts.h"
 
@@ -70,6 +71,11 @@ namespace arttest
         assert( **i == expected_value);
         ++expected_value;
       }
+
+    // Basic test of ensurePointer for Ptrs.
+    art::ensurePointer<int const *>(ptrs.begin());
+    std::list<art::Ptr<int> > const &ptrscref(ptrs);
+    art::ensurePointer<int const *>(ptrscref.begin());
   }
 
   void PtrListAnalyzer::test_fill_vector(art::Event const& ev)
