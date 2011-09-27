@@ -44,44 +44,6 @@ target_link_libraries(art_Utilities
   -luuid
 )
 
-set (HEADERS
-  CPUTimer.h
-  CRC32Calculator.h
-  DebugMacros.h
-  Digest.h
-  Exception.h
-  ExceptionMessages.h
-  FirstAbsoluteOrLookupWithDotPolicy.h
-  FriendlyName.h
-  GetPassID.h
-  GetReleaseVersion.h
-  HRRealTime.h
-  InputTag.h
-  JobMode.h
-  MallocOpts.h
-  Math.h
-  RegexMatch.h
-  RootHandlers.h
-  TestHelper.h
-  ThreadSafeIndexedRegistry.h
-  TypeID.h
-  UnixSignalHandlers.h
-  Verbosity.h
-  WrappedClassName.h
-  ensureTable.h
-  md5.h
-  vectorTransform.h
-)
-
-set (DETAIL_HEADERS
-  math_private.h
-  metaprogramming.h
-)
-
-foreach (header ${DETAIL_HEADERS})
-  set (PATH_DETAIL_HEADERS ${PATH_DETAIL_HEADERS} "detail/${header}")
-endforeach (header ${DETAIL_HEADERS})
-
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
 
 install_headers(SUBDIRS detail)
