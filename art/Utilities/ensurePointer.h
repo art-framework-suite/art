@@ -71,7 +71,6 @@ catch (std::bad_cast &)
       << cet::demangle_symbol(typeid(WANTED_POINTER).name())
       << " are incompatible.\n";
 }
-
 #endif /* art_Utilities_ensurePointer_h */
 
 // Local Variables:

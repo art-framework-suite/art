@@ -57,13 +57,18 @@ private:
   typedef std::vector<std::pair<RefCore, size_t> > ptr_data_t;
 
 public:
+  typedef typename ptrs_t::value_type assn_t;
+  typedef typename ptrs_t::const_iterator assn_iterator;
+
   // Temporary constructor for the purposes of setting the streamer
   // class.
   Assns();
   Assns(partner_t const &other);
   virtual ~Assns();
   // Temporary accessors for testing persistency.
-  typename ptrs_t::value_type const &operator[](typename ptrs_t::size_type index) const;
+  assn_iterator begin() const { return ptrs_.begin(); }
+  assn_iterator end() const { return ptrs_.end(); }
+  assn_t const &operator[](typename ptrs_t::size_type index) const;
   typename ptrs_t::size_type size() const;
 
   void addSingle(Ptr<left_t> const &left,
@@ -117,11 +122,14 @@ public:
   typedef typename base::right_t right_t;
   typedef D data_t;
   typedef art::Assns<right_t, left_t, data_t> partner_t;
+  typedef typename base::assn_iterator assn_iterator;
 
   Assns();
   Assns(partner_t const &other);
 
   using base::size;
+  using base::begin;
+  using base::end;
   using base::operator[];
 
   void swap(art::Assns<L, R, D> &other);

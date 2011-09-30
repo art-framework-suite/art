@@ -31,6 +31,7 @@ public:
 
 namespace {
   typedef art::Assns<size_t, std::string, arttest::AssnTestData> Assns_t;
+  typedef art::Assns<size_t, std::string> AssnsV_t;
 }
 
 arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &p)
@@ -38,6 +39,7 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &p)
   produces<std::vector<size_t> >();
   produces<std::vector<std::string> >();
   produces<Assns_t>();
+  produces<AssnsV_t>();
 }
 
 arttest::AssnsProducer::~AssnsProducer() {
@@ -57,21 +59,29 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   vs->push_back("zero");
 
   std::auto_ptr<Assns_t> a(new Assns_t);
+  std::auto_ptr<AssnsV_t> av(new AssnsV_t);
   art::ProductID vui_pid = getProductID<std::vector<size_t> >(e);
   art::ProductID vs_pid = getProductID<std::vector<std::string> >(e);
   a->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
                art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)),
                AssnTestData(1, 2, "A"));
+  av->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
+                art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)));
   a->addSingle(art::Ptr<size_t>(vui_pid, 2, e.productGetter(vui_pid)),
                art::Ptr<std::string>(vs_pid, 0, e.productGetter(vs_pid)),
                AssnTestData(2, 0, "B"));
+  av->addSingle(art::Ptr<size_t>(vui_pid, 2, e.productGetter(vui_pid)),
+                art::Ptr<std::string>(vs_pid, 0, e.productGetter(vs_pid)));
   a->addSingle(art::Ptr<size_t>(vui_pid, 0, e.productGetter(vui_pid)),
                art::Ptr<std::string>(vs_pid, 1, e.productGetter(vs_pid)),
                AssnTestData(0, 1, "C"));
+  av->addSingle(art::Ptr<size_t>(vui_pid, 0, e.productGetter(vui_pid)),
+                art::Ptr<std::string>(vs_pid, 1, e.productGetter(vs_pid)));
 
   e.put(vui);
   e.put(vs);
   e.put(a);
+  e.put(av);
 
 }
 

@@ -33,6 +33,8 @@ public:
   // has not.
   bool isValid() const { return prod_ != 0; }
 
+  ProductID id() const { return id_; }
+
   // Fill the given PtrVector<T> to refer to the same elements as
   // the View does. It is only safe to call this if isValid() is
   // true.
