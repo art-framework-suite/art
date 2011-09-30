@@ -3,6 +3,11 @@
 
 // Ensure we can get a desired pointer type from a compatible iterator.
 
+// In order to allow new iterator value types (e.g. smart pointers) to
+// be converted to pointers. specialize art::detail::EnsurePointer. See
+// art/Persistency/Common/Ptr.h for an example of this. Also see
+// test/Utilities/ensurePointer.h for testing coverage illustration.
+
 #include "art/Utilities/Exception.h"
 #include "cetlib/demangle.h"
 #include "cpp0x/type_traits"
