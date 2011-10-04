@@ -56,7 +56,7 @@ public:
   value_type assoc(size_type i) const;
 
   // Associated item by index (bounds-checked).
-  void get(size_type i, reference item) const;
+  bool get(size_type i, reference item) const;
 
   bool operator == (FindOne<ProdB, void> const & other) const;
 
@@ -110,7 +110,7 @@ public:
   data_const_pointer data(size_type i) const;
 
   // Associated item and extra-data object by index (bounds-checked).
-  void get(size_type i, reference item, data_reference data) const;
+  bool get(size_type i, reference item, data_reference data) const;
 
   bool operator == (FindOne<ProdB, Data> const & other) const;
 
@@ -180,10 +180,10 @@ art::FindOne<ProdB, void>::assoc(size_type i) const
 
 template <typename ProdB>
 inline
-void
+bool
 art::FindOne<ProdB, void>::get(size_type i, reference item) const
 {
-  item = bCollection_.at(i);
+  return item = bCollection_.at(i);
 }
 
 template <typename ProdB>
@@ -248,11 +248,12 @@ art::FindOne<ProdB, Data>::data(size_type i) const
 
 template <typename ProdB, typename Data>
 inline
-void
+bool
 art::FindOne<ProdB, Data>::get(size_type i, reference item, data_reference data) const
 {
-  base::get(i, item);
+  bool result = base::get(i, item);
   data = dataCollection_.at(i);
+  return result;
 }
 
 template <typename ProdB, typename Data>
