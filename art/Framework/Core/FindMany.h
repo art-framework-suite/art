@@ -7,6 +7,7 @@
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Utilities/InputTag.h"
+#include "cetlib/maybe_ref.h"
 
 #include <vector>
 
@@ -52,10 +53,8 @@ public:
   // Number of query results
   size_type size() const;
 
-  // Associated item by index (not bounds-checked).
-  const_reference assoc(size_type i) const;
-
   // Associated item by index (bounds-checked).
+  const_reference at(size_type i) const;
   size_type get(size_type i, reference item) const;
 
   bool operator == (FindMany<ProdB, void> const & other) const;
@@ -103,10 +102,10 @@ public:
           InputTag const & tag);
 
   using base::size;
-  using base::assoc;
+  using base::at;
   using base::get;
 
-  // Association extra-data object by index (not bounds-checked).
+  // Association extra-data object by index (bounds-checked).
   data_const_reference data(size_type i) const;
 
   // Associated item and extra-data object by index (bounds-checked).
@@ -173,9 +172,9 @@ art::FindMany<ProdB, void>::size() const
 template <typename ProdB>
 inline
 typename art::FindMany<ProdB, void>::const_reference
-art::FindMany<ProdB, void>::assoc(size_type i) const
+art::FindMany<ProdB, void>::at(size_type i) const
 {
-  return bCollection_[i];
+  return bCollection_.at(i);
 }
 
 template <typename ProdB>
@@ -245,7 +244,7 @@ inline
 typename art::FindMany<ProdB, Data>::data_const_reference
 art::FindMany<ProdB, Data>::data(size_type i) const
 {
-  return dataCollection_[i];
+  return dataCollection_.at(i);
 }
 
 template <typename ProdB, typename Data>

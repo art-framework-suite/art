@@ -69,6 +69,7 @@ public:
   assn_iterator begin() const { return ptrs_.begin(); }
   assn_iterator end() const { return ptrs_.end(); }
   assn_t const &operator[](typename ptrs_t::size_type index) const;
+  assn_t const &at(typename ptrs_t::size_type index) const;
   typename ptrs_t::size_type size() const;
 
   void addSingle(Ptr<left_t> const &left,
@@ -131,13 +132,14 @@ public:
   using base::begin;
   using base::end;
   using base::operator[];
+  using base::at;
 
   void swap(art::Assns<L, R, D> &other);
 
   std::auto_ptr<EDProduct> makePartner() const { return makePartner_(); }
 
-  // Temporary accessor for testing persistency.
   data_t const &data(typename std::vector<data_t>::size_type index) const;
+  data_t const &data(assn_iterator it) const;
 
   void addSingle(Ptr<left_t> const &left,
                  Ptr<right_t> const &right,
@@ -195,6 +197,13 @@ inline
 typename art::Assns<L, R, void>::ptrs_t::value_type const &
 art::Assns<L, R, void>::operator[](typename ptrs_t::size_type index) const {
   return ptrs_[index];
+}
+
+template <typename L, typename R>
+inline
+typename art::Assns<L, R, void>::ptrs_t::value_type const &
+art::Assns<L, R, void>::at(typename ptrs_t::size_type index) const {
+  return ptrs_.at(index);
 }
 
 template <typename L, typename R>
@@ -318,6 +327,7 @@ art::Assns<L, R, D>::Assns()
   :
   Assns<L, R, void>()
 {
+  STATIC_ASSERT((!std::is_pointer<D>::value), "Data template argument must not be pointer type!");
 }
 
 template <typename L, typename R, typename D>
@@ -341,7 +351,14 @@ template <typename L, typename R, typename D>
 inline
 typename art::Assns<L, R, D>::data_t const &
 art::Assns<L, R, D>::data(typename std::vector<data_t>::size_type index) const {
-  return data_[index];
+  return data_.at(index);
+}
+
+template <typename L, typename R, typename D>
+inline
+typename art::Assns<L, R, D>::data_t const &
+art::Assns<L, R, D>::data(assn_iterator it) const {
+  return data_.at(it - begin());
 }
 
 template <typename L, typename R, typename D>

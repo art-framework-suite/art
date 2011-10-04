@@ -112,17 +112,30 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
     }
 
     // Check FindOne.
-    BOOST_CHECK_EQUAL(*foB.assoc(i), std::string(x[ai[i]]));
-    BOOST_CHECK_EQUAL(foB.data(i)->d1, i);
-    BOOST_CHECK_EQUAL(foB.data(i)->d2, bi[i]);
+    BOOST_CHECK_EQUAL(foB.at(i).ref(), std::string(x[ai[i]]));
+    BOOST_CHECK_EQUAL(foB.data(i).ref().d1, i);
+    BOOST_CHECK_EQUAL(foB.data(i).ref().d2, bi[i]);
 
-    BOOST_CHECK_EQUAL(*foBV.assoc(i), std::string(x[ai[i]]));
+    BOOST_CHECK_EQUAL(foBV.at(i).ref(), std::string(x[ai[i]]));
 
-    BOOST_CHECK_EQUAL(*foA.assoc(i), bi[i]);
-    BOOST_CHECK_EQUAL(foA.data(i)->d1, ai[i]);
-    BOOST_CHECK_EQUAL(foA.data(i)->d2, i);
+    BOOST_CHECK_EQUAL(foA.at(i).ref(), bi[i]);
+    BOOST_CHECK_EQUAL(foA.data(i).ref().d1, ai[i]);
+    BOOST_CHECK_EQUAL(foA.data(i).ref().d2, i);
 
-    BOOST_CHECK_EQUAL(*foAV.assoc(i), bi[i]);
+    BOOST_CHECK_EQUAL(foAV.at(i).ref(), bi[i]);
+  }
+
+  // Check alternative accessors and range checking for Assns.
+  if (testAB_) {
+    BOOST_CHECK_THROW((*hAB).at(3), std::out_of_range);
+    BOOST_CHECK_EQUAL(&(*hAB).data(0), &(*hAB).data((*hAB).begin()));
+    BOOST_CHECK_THROW((*hAB).data(3), std::out_of_range);
+  }
+
+  if (testBA_) {
+    BOOST_CHECK_THROW((*hBA).at(3), std::out_of_range);
+    BOOST_CHECK_EQUAL(&(*hBA).data(0), &(*hBA).data((*hBA).begin()));
+    BOOST_CHECK_THROW((*hBA).data(3), std::out_of_range);
   }
 
   // Check FindOne on View.
@@ -141,22 +154,22 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
   art::PtrVector<A_t> pva;
   va.fill(pva);
   art::FindOne<B_t, arttest::AssnTestData> foBpv(pva, e, inputLabel_);
-  BOOST_CHECK_EQUAL(foBpv.assoc(0), foB.assoc(0));
+  BOOST_CHECK_EQUAL(foBpv.at(0), foB.at(0));
   BOOST_CHECK_EQUAL(foBpv.data(0), foB.data(0));
-  BOOST_CHECK_EQUAL(foBpv.assoc(1), foB.assoc(2)); // Knocked out the middle.
+  BOOST_CHECK_EQUAL(foBpv.at(1), foB.at(2)); // Knocked out the middle.
   BOOST_CHECK_EQUAL(foBpv.data(1), foB.data(2));
 
   vb.vals()[1] = 0;
   art::PtrVector<B_t> pvb;
   vb.fill(pvb);
   art::FindOne<A_t, arttest::AssnTestData> foApv(pvb, e, inputLabel_);
-  BOOST_CHECK_EQUAL(foApv.assoc(0), foA.assoc(0));
+  BOOST_CHECK_EQUAL(foApv.at(0), foA.at(0));
   BOOST_CHECK_EQUAL(foApv.data(0), foA.data(0));
-  BOOST_CHECK_EQUAL(foApv.assoc(1), foA.assoc(2)); // Knocked out the middle.
+  BOOST_CHECK_EQUAL(foApv.at(1), foA.at(2)); // Knocked out the middle.
   BOOST_CHECK_EQUAL(foApv.data(1), foA.data(2));
 
   // Check for range errors.
-//   BOOST_CHECK_THROW(foApv.assoc(3), std::out_of_range);
+//   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
 //   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
 
 // Check FindMany.
@@ -164,17 +177,17 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
 
   art::FindMany<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
 
-  BOOST_CHECK_EQUAL(fmB.assoc(0).size(), 1u);
-  BOOST_CHECK_EQUAL(fmB.assoc(1).size(), 2u);
-  BOOST_CHECK_EQUAL(fmB.assoc(2).size(), 1u);
+  BOOST_CHECK_EQUAL(fmB.at(0).size(), 1u);
+  BOOST_CHECK_EQUAL(fmB.at(1).size(), 2u);
+  BOOST_CHECK_EQUAL(fmB.at(2).size(), 1u);
   BOOST_CHECK_EQUAL(fmB.data(0).size(), 1u);
   BOOST_CHECK_EQUAL(fmB.data(1).size(), 2u);
   BOOST_CHECK_EQUAL(fmB.data(2).size(), 1u);
 
   art::FindMany<B_t> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
-  BOOST_CHECK_EQUAL(fmBV.assoc(0).size(), 1u);
-  BOOST_CHECK_EQUAL(fmBV.assoc(1).size(), 2u);
-  BOOST_CHECK_EQUAL(fmBV.assoc(2).size(), 1u);
+  BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1u);
+  BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2u);
+  BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1u);
 }
 
 DEFINE_ART_MODULE(AssnsAnalyzer);

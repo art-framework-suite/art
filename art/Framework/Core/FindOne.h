@@ -7,6 +7,7 @@
 #include "art/Persistency/Common/Assns.h"
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Utilities/InputTag.h"
+#include "cetlib/maybe_ref.h"
 
 #include <vector>
 
@@ -52,11 +53,9 @@ public:
   // Number of query results
   size_type size() const;
 
-  // Associated item by index (not bounds-checked).
-  value_type assoc(size_type i) const;
-
   // Associated item by index (bounds-checked).
-  bool get(size_type i, reference item) const;
+  cet::maybe_ref<assoc_t const> at(size_type i) const;
+  void get(size_type i, cet::maybe_ref<assoc_t const> & item) const;
 
   bool operator == (FindOne<ProdB, void> const & other) const;
 
@@ -103,14 +102,16 @@ public:
           InputTag const & tag);
 
   using base::size;
-  using base::assoc;
+  using base::at;
   using base::get;
 
-  // Association extra-data object by index (not bounds-checked).
-  data_const_pointer data(size_type i) const;
+  // Association extra-data object by index (bounds-checked).
+  cet::maybe_ref<Data const> data(size_type i) const;
 
   // Associated item and extra-data object by index (bounds-checked).
-  bool get(size_type i, reference item, data_reference data) const;
+  void get(size_type i,
+           cet::maybe_ref<assoc_t const> & item,
+           cet::maybe_ref<Data const> & data) const;
 
   bool operator == (FindOne<ProdB, Data> const & other) const;
 
@@ -172,18 +173,19 @@ art::FindOne<ProdB, void>::size() const
 
 template <typename ProdB>
 inline
-typename art::FindOne<ProdB, void>::value_type
-art::FindOne<ProdB, void>::assoc(size_type i) const
+cet::maybe_ref<typename art::FindOne<ProdB, void>::assoc_t const>
+art::FindOne<ProdB, void>::at(size_type i) const
 {
-  return bCollection_[i];
+  return cet::maybe_ref<assoc_t const>(*bCollection_.at(i));
 }
 
 template <typename ProdB>
 inline
-bool
-art::FindOne<ProdB, void>::get(size_type i, reference item) const
+void
+art::FindOne<ProdB, void>::
+get(size_type i, cet::maybe_ref<assoc_t const> & item) const
 {
-  return item = bCollection_.at(i);
+  item.reseat(*bCollection_.at(i));
 }
 
 template <typename ProdB>
@@ -240,20 +242,22 @@ art::FindOne<ProdB, Data>::FindOne(PtrProdAColl const & aPtrColl,
 
 template <typename ProdB, typename Data>
 inline
-typename art::FindOne<ProdB, Data>::data_const_pointer
+cet::maybe_ref<Data const>
 art::FindOne<ProdB, Data>::data(size_type i) const
 {
-  return dataCollection_[i];
+  return cet::maybe_ref<Data const>(*dataCollection_.at(i));
 }
 
 template <typename ProdB, typename Data>
 inline
-bool
-art::FindOne<ProdB, Data>::get(size_type i, reference item, data_reference data) const
+void
+art::FindOne<ProdB, Data>::
+get(size_type i,
+    cet::maybe_ref<assoc_t const> & item,
+    cet::maybe_ref<Data const> & data) const
 {
-  bool result = base::get(i, item);
-  data = dataCollection_.at(i);
-  return result;
+  base::get(i, item);
+  data.reseat(*dataCollection_.at(i));
 }
 
 template <typename ProdB, typename Data>
