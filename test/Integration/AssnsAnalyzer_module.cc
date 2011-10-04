@@ -11,6 +11,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/FindMany.h"
 #include "art/Framework/Core/FindOne.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
@@ -124,6 +125,7 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
     BOOST_CHECK_EQUAL(*foAV.assoc(i), bi[i]);
   }
 
+  // Check FindOne on View.
   art::View<A_t> va;
   BOOST_REQUIRE(e.getView(inputLabel_, va));
   art::FindOne<B_t, arttest::AssnTestData> foBv(va, e, inputLabel_);
@@ -134,6 +136,7 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
   art::FindOne<A_t, arttest::AssnTestData> foAv(vb, e, inputLabel_);
   BOOST_REQUIRE(foA == foAv);
 
+  // Check FindOne on PtrVector.
   va.vals()[1] = 0;
   art::PtrVector<A_t> pva;
   va.fill(pva);
@@ -151,6 +154,27 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
   BOOST_CHECK_EQUAL(foApv.data(0), foA.data(0));
   BOOST_CHECK_EQUAL(foApv.assoc(1), foA.assoc(2)); // Knocked out the middle.
   BOOST_CHECK_EQUAL(foApv.data(1), foA.data(2));
+
+  // Check for range errors.
+//   BOOST_CHECK_THROW(foApv.assoc(3), std::out_of_range);
+//   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
+
+// Check FindMany.
+  BOOST_CHECK_THROW((art::FindOne<B_t, arttest::AssnTestData> (hAcoll, e, art::InputTag(inputLabel_, "M"))), art::Exception);
+
+  art::FindMany<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
+
+  BOOST_CHECK_EQUAL(fmB.assoc(0).size(), 1u);
+  BOOST_CHECK_EQUAL(fmB.assoc(1).size(), 2u);
+  BOOST_CHECK_EQUAL(fmB.assoc(2).size(), 1u);
+  BOOST_CHECK_EQUAL(fmB.data(0).size(), 1u);
+  BOOST_CHECK_EQUAL(fmB.data(1).size(), 2u);
+  BOOST_CHECK_EQUAL(fmB.data(2).size(), 1u);
+
+  art::FindMany<B_t> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
+  BOOST_CHECK_EQUAL(fmBV.assoc(0).size(), 1u);
+  BOOST_CHECK_EQUAL(fmBV.assoc(1).size(), 2u);
+  BOOST_CHECK_EQUAL(fmBV.assoc(2).size(), 1u);
 }
 
 DEFINE_ART_MODULE(AssnsAnalyzer);

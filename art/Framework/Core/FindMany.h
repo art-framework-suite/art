@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_FindOne_h
-#define art_Framework_Core_FindOne_h
+#ifndef art_Framework_Core_FindMany_h
+#define art_Framework_Core_FindMany_h
 
 #include "art/Framework/Core/detail/IPRHelper.h"
 #include "art/Framework/Core/detail/ProductIDProvider.h"
@@ -13,19 +13,19 @@
 namespace art {
   // General template
   template <typename ProdB, typename DATA = void>
-  class FindOne;
+  class FindMany;
 
   // Specialization.
   template <typename ProdB>
-  class FindOne<ProdB, void>;
+  class FindMany<ProdB, void>;
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Implementation of the specialization.
 template <typename ProdB>
-class art::FindOne<ProdB, void> {
+class art::FindMany<ProdB, void> {
 public:
-  typedef std::vector<ProdB const *> bColl_t;
+  typedef std::vector<std::vector<ProdB const *> > bColl_t;
   typedef typename bColl_t::value_type value_type;
   typedef typename bColl_t::size_type size_type;
   typedef typename bColl_t::difference_type difference_type;
@@ -35,17 +35,17 @@ public:
   typedef ProdB assoc_t;
 
   template <typename ProdAColl>
-  FindOne(Handle<ProdAColl> const & aCollection,
+  FindMany(Handle<ProdAColl> const & aCollection,
           Event const & e,
           InputTag const & tag);
 
   template <typename ProdA>
-  FindOne(View<ProdA> const & view,
+  FindMany(View<ProdA> const & view,
           Event const & e,
           InputTag const & tag);
 
   template <typename PtrProdAColl>
-  FindOne(PtrProdAColl const & aPtrColl,
+  FindMany(PtrProdAColl const & aPtrColl,
           Event const & e,
           InputTag const & tag);
 
@@ -53,15 +53,15 @@ public:
   size_type size() const;
 
   // Associated item by index (not bounds-checked).
-  value_type assoc(size_type i) const;
+  const_reference assoc(size_type i) const;
 
   // Associated item by index (bounds-checked).
-  bool get(size_type i, reference item) const;
+  size_type get(size_type i, reference item) const;
 
-  bool operator == (FindOne<ProdB, void> const & other) const;
+  bool operator == (FindMany<ProdB, void> const & other) const;
 
 protected: 
-  FindOne() : bCollection_() { }
+  FindMany() : bCollection_() { }
   bColl_t & bCollection() { return bCollection_; }
 
 private:
@@ -69,11 +69,11 @@ private:
 };
 
 template <typename ProdB, typename Data>
-class art::FindOne : private art::FindOne<ProdB, void> {
+class art::FindMany : private art::FindMany<ProdB, void> {
 private:
-  typedef FindOne<ProdB, void> base;
+  typedef FindMany<ProdB, void> base;
 public:
-  typedef std::vector<Data const *> dataColl_t;
+  typedef std::vector<std::vector<Data const *> > dataColl_t;
   typedef typename base::value_type value_type;
   typedef typename base::size_type size_type;
   typedef typename base::difference_type difference_type;
@@ -81,24 +81,24 @@ public:
   typedef typename base::reference reference;
   typedef typename base::assoc_t assoc_t;
 
-  typedef Data const * data_const_pointer;
-  typedef Data const & data_const_reference;
-  typedef Data & data_reference;
+  typedef typename dataColl_t::const_pointer data_const_pointer;
+  typedef typename dataColl_t::const_reference data_const_reference;
+  typedef typename dataColl_t::reference data_reference;
 
   typedef Data data_t;
 
   template <typename ProdAColl>
-  FindOne(Handle<ProdAColl> const & aCollection,
+  FindMany(Handle<ProdAColl> const & aCollection,
           Event const & e,
           InputTag const & tag);
 
   template <typename ProdA>
-  FindOne(View<ProdA> const & view,
+  FindMany(View<ProdA> const & view,
           Event const & e,
           InputTag const & tag);
 
   template <typename PtrProdAColl>
-  FindOne(PtrProdAColl const & aPtrColl,
+  FindMany(PtrProdAColl const & aPtrColl,
           Event const & e,
           InputTag const & tag);
 
@@ -107,12 +107,12 @@ public:
   using base::get;
 
   // Association extra-data object by index (not bounds-checked).
-  data_const_pointer data(size_type i) const;
+  data_const_reference data(size_type i) const;
 
   // Associated item and extra-data object by index (bounds-checked).
-  bool get(size_type i, reference item, data_reference data) const;
+  size_type get(size_type i, reference item, data_reference data) const;
 
-  bool operator == (FindOne<ProdB, Data> const & other) const;
+  bool operator == (FindMany<ProdB, Data> const & other) const;
 
 private:
   dataColl_t dataCollection_;
@@ -122,8 +122,8 @@ private:
 // Base class implementation.
 template <typename ProdB>
 template <typename ProdAColl>
-art::FindOne<ProdB, void>::
-FindOne(Handle<ProdAColl> const & aCollection,
+art::FindMany<ProdB, void>::
+FindMany(Handle<ProdAColl> const & aCollection,
         Event const & e,
         InputTag const & tag)
   :
@@ -136,8 +136,8 @@ FindOne(Handle<ProdAColl> const & aCollection,
 
 template <typename ProdB>
 template <typename ProdA>
-art::FindOne<ProdB, void>::
-FindOne(View<ProdA> const & view,
+art::FindMany<ProdB, void>::
+FindMany(View<ProdA> const & view,
         Event const & e,
         InputTag const & tag)
   :
@@ -150,8 +150,8 @@ FindOne(View<ProdA> const & view,
 
 template <typename ProdB>
 template <typename PtrProdAColl>
-art::FindOne<ProdB, void>::
-FindOne(PtrProdAColl const & aPtrColl,
+art::FindMany<ProdB, void>::
+FindMany(PtrProdAColl const & aPtrColl,
         Event const & e,
         InputTag const & tag)
   :
@@ -164,32 +164,34 @@ FindOne(PtrProdAColl const & aPtrColl,
 
 template <typename ProdB>
 inline
-typename art::FindOne<ProdB, void>::size_type
-art::FindOne<ProdB, void>::size() const
+typename art::FindMany<ProdB, void>::size_type
+art::FindMany<ProdB, void>::size() const
 {
   return bCollection_.size();
 }
 
 template <typename ProdB>
 inline
-typename art::FindOne<ProdB, void>::value_type
-art::FindOne<ProdB, void>::assoc(size_type i) const
+typename art::FindMany<ProdB, void>::const_reference
+art::FindMany<ProdB, void>::assoc(size_type i) const
 {
   return bCollection_[i];
 }
 
 template <typename ProdB>
 inline
-bool
-art::FindOne<ProdB, void>::get(size_type i, reference item) const
+typename art::FindMany<ProdB, void>::size_type
+art::FindMany<ProdB, void>::get(size_type i, reference item) const
 {
-  return item = bCollection_.at(i);
+  reference ref(bCollection_.at(i));
+  item.insert(item.end(), ref.begin(), ref.end());
+  return ref.size();
 }
 
 template <typename ProdB>
 inline
 bool
-art::FindOne<ProdB, void>::operator == (FindOne<ProdB, void> const & other) const
+art::FindMany<ProdB, void>::operator == (FindMany<ProdB, void> const & other) const
 {
   return bCollection_ == other.bCollection_;
 }
@@ -198,7 +200,7 @@ art::FindOne<ProdB, void>::operator == (FindOne<ProdB, void> const & other) cons
 // Derived class implementation.
 template <typename ProdB, typename Data>
 template <typename ProdAColl>
-art::FindOne<ProdB, Data>::FindOne(Handle<ProdAColl> const & aCollection,
+art::FindMany<ProdB, Data>::FindMany(Handle<ProdAColl> const & aCollection,
                                    Event const & e,
                                    InputTag const & tag)
   :
@@ -212,7 +214,7 @@ art::FindOne<ProdB, Data>::FindOne(Handle<ProdAColl> const & aCollection,
 
 template <typename ProdB, typename Data>
 template <typename ProdA>
-art::FindOne<ProdB, Data>::FindOne(View<ProdA> const & view,
+art::FindMany<ProdB, Data>::FindMany(View<ProdA> const & view,
                                    Event const & e,
                                    InputTag const & tag)
   :
@@ -226,7 +228,7 @@ art::FindOne<ProdB, Data>::FindOne(View<ProdA> const & view,
 
 template <typename ProdB, typename Data>
 template <typename PtrProdAColl>
-art::FindOne<ProdB, Data>::FindOne(PtrProdAColl const & aPtrColl,
+art::FindMany<ProdB, Data>::FindMany(PtrProdAColl const & aPtrColl,
                                    Event const & e,
                                    InputTag const & tag)
   :
@@ -240,31 +242,32 @@ art::FindOne<ProdB, Data>::FindOne(PtrProdAColl const & aPtrColl,
 
 template <typename ProdB, typename Data>
 inline
-typename art::FindOne<ProdB, Data>::data_const_pointer
-art::FindOne<ProdB, Data>::data(size_type i) const
+typename art::FindMany<ProdB, Data>::data_const_reference
+art::FindMany<ProdB, Data>::data(size_type i) const
 {
   return dataCollection_[i];
 }
 
 template <typename ProdB, typename Data>
 inline
-bool
-art::FindOne<ProdB, Data>::get(size_type i, reference item, data_reference data) const
+typename art::FindMany<ProdB, Data>::size_type
+art::FindMany<ProdB, Data>::get(size_type i, reference item, data_reference data) const
 {
-  bool result = base::get(i, item);
-  data = dataCollection_.at(i);
+  size_type result = base::get(i, item);
+  data_reference ref(dataCollection_.at(i));
+  data.insert(data.end(), ref.begin(), ref.end());;
   return result;
 }
 
 template <typename ProdB, typename Data>
 inline
 bool
-art::FindOne<ProdB, Data>::operator == (FindOne<ProdB, Data> const & other) const
+art::FindMany<ProdB, Data>::operator == (FindMany<ProdB, Data> const & other) const
 {
   return dataCollection_ == other.dataCollection_ &&
          this->base::operator==(other);
 }
-#endif /* art_Framework_Core_FindOne_h */
+#endif /* art_Framework_Core_FindMany_h */
 
 // Local Variables:
 // mode: c++

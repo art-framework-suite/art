@@ -20,7 +20,7 @@ namespace art {
 
     class IPRHelperDef { };
 
-    template <typename ProdA, typename ProdB, typename Data>
+    template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
     class IPRHelper;
 
     template <typename DATA>
@@ -72,11 +72,11 @@ namespace art {
   }
 }
 
-template <typename ProdA, typename ProdB, typename Data>
+template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 class art::detail::IPRHelper {
 private:
-  //  typedef typename std::conditional<std::is_void<Data>::value, IPRHelperDef, typename FindOne<ProdB, Data>::dataColl_t>::type dataColl_t;
-  typedef typename std::conditional<std::is_void<Data>::value, IPRHelperDef, std::vector<Data const *> >::type dataColl_t;
+
+  typedef typename std::conditional<std::is_void<Data>::value, IPRHelperDef, DATACOLL>::type dataColl_t;
 
 public:
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
@@ -102,10 +102,10 @@ private:
 };
 
 // 1.
-template <typename ProdA, typename ProdB, typename Data>
+template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
 void
-art::detail::IPRHelper<ProdA, ProdB, Data>::
+art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
 {
   IPRHelperDef dummy;
@@ -113,10 +113,10 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
 }
 
 // 2.
-template <typename ProdA, typename ProdB, typename Data>
+template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
 typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value >::type
-art::detail::IPRHelper<ProdA, ProdB, Data>::
+art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
@@ -142,10 +142,10 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_
 }
 
 // 3.
-template <typename ProdA, typename ProdB, typename Data>
+template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
 typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value>::type
-art::detail::IPRHelper<ProdA, ProdB, Data>::
+art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
@@ -230,7 +230,9 @@ fill(ptrdiff_t assns_index,
      size_t data_index,
      std::vector<std::vector<DATA const *> > & data) const
 {
-  data[data_index].push_back(assns.data(assns_index));
+ if (&assns.data(assns_index)) {
+    data[data_index].push_back(&assns.data(assns_index));
+ }
 }
 
 template <typename DATA>
@@ -305,7 +307,9 @@ fill(size_t index,
      ProdB const * item,
      std::vector<std::vector<ProdB const *> >  & bColl) const
 {
-  bColl[index].push_back(item);
+  if (item) {
+    bColl[index].push_back(item);
+  }
 }
 
 #endif /* art_Framework_Core_detail_IPRHelper_h */

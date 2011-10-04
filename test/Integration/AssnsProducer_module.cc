@@ -31,6 +31,7 @@ public:
 
 namespace {
   typedef art::Assns<size_t, std::string, arttest::AssnTestData> Assns_t;
+  typedef art::Assns<std::string, size_t, arttest::AssnTestData> AssnsBA_t;
   typedef art::Assns<size_t, std::string> AssnsV_t;
 }
 
@@ -40,6 +41,8 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &p)
   produces<std::vector<std::string> >();
   produces<Assns_t>();
   produces<AssnsV_t>();
+  produces<Assns_t>("M");
+  produces<AssnsV_t>("M");
 }
 
 arttest::AssnsProducer::~AssnsProducer() {
@@ -78,10 +81,21 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   av->addSingle(art::Ptr<size_t>(vui_pid, 0, e.productGetter(vui_pid)),
                 art::Ptr<std::string>(vs_pid, 1, e.productGetter(vs_pid)));
 
+  std::auto_ptr<Assns_t> am(new Assns_t(*a));
+  std::auto_ptr<AssnsV_t> avm(new AssnsV_t(*av));
+
+  am->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
+                art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)),
+                AssnTestData(1, 2, "AA"));
+  avm->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
+                 art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)));
+
   e.put(vui);
   e.put(vs);
   e.put(a);
   e.put(av);
+  e.put(am, "M");
+  e.put(avm, "M");
 
 }
 
