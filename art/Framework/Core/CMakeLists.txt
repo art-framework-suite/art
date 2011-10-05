@@ -60,52 +60,5 @@ install ( TARGETS
   ${flavorqual_dir}/lib
   )
 
-install(FILES
-  Breakpoints.h
-  CPCSentry.h
-  CachedProducts.h
-  DecrepitRelicInputSourceImplementation.h
-  EDAnalyzer.h
-  EDFilter.h
-  EDProducer.h
-  EPStates.h
-  EngineCreator.h
-  EventObserver.h
-  EventProcessor.h
-  EventSelector.h
-  FileBlock.h
-  Frameworkfwd.h
-  GroupSelector.h
-  GroupSelectorRules.h
-  IEventProcessor.h
-  InputSource.h
-  InputSourceDescription.h
-  InputSourceFactory.h
-  InputSourceMacros.h
-  IntermediateTablePostProcessor.h
-  MFStatusUpdater.h
-  ModuleFactory.h
-  ModuleMacros.h
-  OutputModule.h
-  OutputModuleDescription.h
-  OutputWorker.h
-  Path.h
-  PrincipalCache.h
-  PrincipalMaker.h
-  ProcessingTask.h
-  ProducerBase.h
-  ProductRegistryHelper.h
-  PtrRemapper.h
-  RootDictionaryManager.h
-  Schedule.h
-  TriggerNames.h
-  TriggerReport.h
-  TriggerResultInserter.h
-  UnknownModuleException.h
-  WorkerInPath.h
-  WorkerRegistry.h
-  WorkerT.h
-  get_BranchDescription.h
-  DESTINATION  ${product}/${version}/include/art/Framework/Core )
-
+install_headers(SUBDIRS detail)
 install_source()
