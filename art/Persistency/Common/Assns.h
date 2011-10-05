@@ -1,5 +1,77 @@
 #ifndef art_Persistency_Common_Assns_h
 #define art_Persistency_Common_Assns_h
+////////////////////////////////////////////////////////////////////////
+// Assns
+//
+// An association collection: a persistable collection of associations
+// between two items in other persistent collections, with an optional
+// ancillary object containing information about the assocition itself.
+//
+// Note that the associations may be one-to-one, one-to-many or
+// many-to-many.
+//
+// An Assns need only be used directly:
+//
+// 1. When being filled and put into the event; or
+//
+// 2. When the emphasis is on the associations themselves (and possibly
+// their order) rather than particularly the associated objets. When it
+// is desireed to loop over A (or B) objects and access their
+// counterparts and/or extra data objects a FindOne or FindMany would be
+// more suitable.
+//
+////////////////////////////////////
+// Interface.
+//////////
+//
+// Note that the structure of the Assns template is non-trivial because
+// there is a variant that has an extra data object attached to each
+// association, and a variant that does not. In order to minimize code
+// duplication then, a fairly advanced specialization technique is used.
+//
+// In order that the user of an Assns does not need to be able to parse
+// and understand this mechanism, the interface is presented below:
+//
+// Notes:
+//
+// * L and R below are the types of two objects to be found in
+// collections in the event. D where used is an arbitrary user-supplied
+// type wherein information is stored about the association between a
+// particular L and a particular R.
+//
+// * An Assns operates essentially as a vector of pairs of Ptr, with
+// axuiliary methods for accessing the attached extra data object for an
+// association, if applicable.
+//
+// * An attempt to create an Assns with a template argument D of
+// pointer-type will result in a compile-time assertion failure.
+//
+// Useful typedefs.
+//
+// typedef std::pair<Ptr<L>, Ptr<R> > assn_t;
+//
+// Constructors.
+//
+// Assns<L, R>();
+// Assns<L, R, D>();
+//
+// Modifiers.
+//
+// void swap(Assns & other);
+// void addSingle(Ptr<L> const &, Ptr<R> const &); // Assns<L, R> only.
+// void addSingle(Ptr<L> const &, Ptr<R> const &, D const &);
+//
+// Accessors.
+//
+// assn_iterator begin() const; // De-referencing an assn_iterator
+// assn_iterator end() const;   // yields an assn_t const &.
+// assn_t const & operator [] (size_type i) const;
+// assn_t const & at(size_type i) const; // Bounds-checked.
+// size_type size() const;
+// D const & data(size_t index) const;
+// D const & data(assn_iterator it) const;
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Common/Wrapper.h"
@@ -28,13 +100,14 @@ namespace art {
     template <typename L, typename R>
     class AssnsStreamer : public TClassStreamer {
     public:
-      void operator()(TBuffer &R_b, void *objp) {
+      void operator()(TBuffer & R_b, void * objp) {
         static TClassRef cl(TClass::GetClass(typeid(Assns<L, R, void>)));
         Assns<L, R, void> *obj = reinterpret_cast<Assns<L, R, void> *>(objp);
         if (R_b.IsReading()) {
           cl->ReadBuffer(R_b, obj);
           obj->fill_transients();
-        } else {
+        }
+        else {
           obj->fill_from_transients();
           cl->WriteBuffer(R_b, obj);
         }
@@ -59,27 +132,28 @@ private:
 public:
   typedef typename ptrs_t::value_type assn_t;
   typedef typename ptrs_t::const_iterator assn_iterator;
+  typedef typename ptrs_t::size_type size_type;
 
-  // Temporary constructor for the purposes of setting the streamer
-  // class.
+  // Constructors, destructor.
   Assns();
-  Assns(partner_t const &other);
+  Assns(partner_t const & other);
   virtual ~Assns();
-  // Temporary accessors for testing persistency.
-  assn_iterator begin() const { return ptrs_.begin(); }
-  assn_iterator end() const { return ptrs_.end(); }
-  assn_t const &operator[](typename ptrs_t::size_type index) const;
-  assn_t const &at(typename ptrs_t::size_type index) const;
-  typename ptrs_t::size_type size() const;
 
-  void addSingle(Ptr<left_t> const &left,
-                 Ptr<right_t> const &right);
-  void Streamer(TBuffer &R_b);
+  // Accessors.
+  assn_iterator begin() const;
+  assn_iterator end() const;
+  assn_t const & operator [](size_type index) const;
+  assn_t const & at(size_type index) const;
+  size_type size() const;
+
+  // Modifier.
+  void addSingle(Ptr<left_t> const & left,
+                 Ptr<right_t> const & right);
+  void swap(art::Assns<L, R, void> &other);
+
+  std::auto_ptr<EDProduct> makePartner() const;
+
   static short Class_Version() { return 10; }
-
-  void swap(art::Assns<L, R, void> &other) { swap_(other); }
-
-  std::auto_ptr<EDProduct> makePartner() const { return makePartner_(); }
 
 protected:
   virtual void swap_(art::Assns<L, R, void> &other);
@@ -126,7 +200,7 @@ public:
   typedef typename base::assn_iterator assn_iterator;
 
   Assns();
-  Assns(partner_t const &other);
+  Assns(partner_t const & other);
 
   using base::size;
   using base::begin;
@@ -134,16 +208,16 @@ public:
   using base::operator[];
   using base::at;
 
+  data_t const & data(typename std::vector<data_t>::size_type index) const;
+  data_t const & data(assn_iterator it) const;
+
+  void addSingle(Ptr<left_t> const & left,
+                 Ptr<right_t> const & right,
+                 data_t const & data);
   void swap(art::Assns<L, R, D> &other);
 
-  std::auto_ptr<EDProduct> makePartner() const { return makePartner_(); }
+  std::auto_ptr<EDProduct> makePartner() const;
 
-  data_t const &data(typename std::vector<data_t>::size_type index) const;
-  data_t const &data(assn_iterator it) const;
-
-  void addSingle(Ptr<left_t> const &left,
-                 Ptr<right_t> const &right,
-                 data_t const &data);
   static short Class_Version() { return 10; }
 
 private:
@@ -169,7 +243,7 @@ art::Assns<L, R, void>::Assns()
 
 template <typename L, typename R>
 inline
-art::Assns<L, R, void>::Assns(partner_t const &other)
+art::Assns<L, R, void>::Assns(partner_t const & other)
   :
   ptrs_(),
   ptr_data_1_(),
@@ -177,8 +251,8 @@ art::Assns<L, R, void>::Assns(partner_t const &other)
 {
   ptrs_.reserve(other.ptrs_.size());
   for (typename partner_t::ptrs_t::const_iterator
-         i = other.ptrs_.begin(),
-         e = other.ptrs_.end();
+       i = other.ptrs_.begin(),
+       e = other.ptrs_.end();
        i != e;
        ++i) {
     ptrs_.push_back(std::make_pair(i->second, i->first));
@@ -194,51 +268,74 @@ art::Assns<L, R, void>::~Assns()
 
 template <typename L, typename R>
 inline
-typename art::Assns<L, R, void>::ptrs_t::value_type const &
-art::Assns<L, R, void>::operator[](typename ptrs_t::size_type index) const {
+typename art::Assns<L, R, void>::assn_iterator
+art::Assns<L, R, void>::begin() const
+{
+  return ptrs_.begin();
+}
+
+template <typename L, typename R>
+inline
+typename art::Assns<L, R, void>::assn_iterator
+art::Assns<L, R, void>::end() const
+{
+  return ptrs_.end();
+}
+
+template <typename L, typename R>
+inline
+typename art::Assns<L, R, void>::assn_t const &
+art::Assns<L, R, void>::operator[](size_type index) const
+{
   return ptrs_[index];
 }
 
 template <typename L, typename R>
 inline
-typename art::Assns<L, R, void>::ptrs_t::value_type const &
-art::Assns<L, R, void>::at(typename ptrs_t::size_type index) const {
+typename art::Assns<L, R, void>::assn_t const &
+art::Assns<L, R, void>::at(size_type index) const
+{
   return ptrs_.at(index);
 }
 
 template <typename L, typename R>
 inline
-typename art::Assns<L, R, void>::ptrs_t::size_type
-art::Assns<L, R, void>::size() const {
+typename art::Assns<L, R, void>::size_type
+art::Assns<L, R, void>::size() const
+{
   return ptrs_.size();
 }
 
 template <typename L, typename R>
 inline
 void
-art::Assns<L, R, void>::addSingle(Ptr<left_t> const &left,
-                                  Ptr<right_t> const &right) {
+art::Assns<L, R, void>::addSingle(Ptr<left_t> const & left,
+                                  Ptr<right_t> const & right)
+{
   ptrs_.push_back(std::make_pair(left, right));
 }
 
 template <typename L, typename R>
 inline
 void
-art::Assns<L, R, void>::Streamer(TBuffer &R_b) {
-  static TClassRef cl(TClass::GetClass(typeid(Assns<L, R, void>)));
-  if (R_b.IsReading()) {
-    cl->ReadBuffer(R_b, this);
-    fill_transients();
-  } else {
-    fill_from_transients();
-    cl->WriteBuffer(R_b, this);
-  }
+art::Assns<L, R, void>::swap(art::Assns<L, R, void> &other)
+{
+  swap_(other);
+}
+
+template <typename L, typename R>
+inline
+std::auto_ptr<art::EDProduct>
+art::Assns<L, R, void>::makePartner() const
+{
+  return makePartner_();
 }
 
 template <typename L, typename R>
 inline
 void
-art::Assns<L, R, void>::swap_(art::Assns<L, R, void> &other) {
+art::Assns<L, R, void>::swap_(art::Assns<L, R, void> &other)
+{
   using std::swap;
   swap(ptrs_, other.ptrs_);
   swap(ptr_data_1_, other.ptr_data_1_);
@@ -247,7 +344,8 @@ art::Assns<L, R, void>::swap_(art::Assns<L, R, void> &other) {
 
 template <typename L, typename R>
 std::auto_ptr<art::EDProduct>
-art::Assns<L, R, void>::makePartner_() const{
+art::Assns<L, R, void>::makePartner_() const
+{
   return
     std::auto_ptr<EDProduct>
     (new Wrapper<partner_t>
@@ -257,7 +355,8 @@ art::Assns<L, R, void>::makePartner_() const{
 template <typename L, typename R>
 inline
 bool
-art::Assns<L, R, void>::left_first() {
+art::Assns<L, R, void>::left_first()
+{
   static bool lf_s = (art::TypeID(typeid(left_t)).friendlyClassName() <
                       art::TypeID(typeid(right_t)).friendlyClassName());
   return lf_s;
@@ -265,24 +364,25 @@ art::Assns<L, R, void>::left_first() {
 
 template <typename L, typename R>
 void
-art::Assns<L, R, void>::fill_transients() {
+art::Assns<L, R, void>::fill_transients()
+{
   // Precondition: ptrs_ is empty.
   // Precondition: ptr_data_1_.size() = ptr_data_2_.size();
   ptrs_.reserve(ptr_data_1_.size());
-  ptr_data_t &l_ref = left_first()?ptr_data_1_:ptr_data_2_;
-  ptr_data_t &r_ref = left_first()?ptr_data_2_:ptr_data_1_;
+  ptr_data_t & l_ref = left_first() ? ptr_data_1_ : ptr_data_2_;
+  ptr_data_t & r_ref = left_first() ? ptr_data_2_ : ptr_data_1_;
   for (typename ptr_data_t::const_iterator
-         l = l_ref.begin(),
-         e = l_ref.end(),
-         r = r_ref.begin();
+       l = l_ref.begin(),
+       e = l_ref.end(),
+       r = r_ref.begin();
        l != e;
        ++l, ++r) {
     ptrs_.push_back(std::make_pair(Ptr<left_t>(l->first.id(),
-                                               l->second,
-                                               l->first.productGetter()),
+                                   l->second,
+                                   l->first.productGetter()),
                                    Ptr<right_t>(r->first.id(),
-                                                r->second,
-                                                r->first.productGetter())));
+                                       r->second,
+                                       r->first.productGetter())));
   }
   // Empty persistent representation.
   ptr_data_t tmp1, tmp2;
@@ -292,16 +392,17 @@ art::Assns<L, R, void>::fill_transients() {
 
 template <typename L, typename R>
 void
-art::Assns<L, R, void>::fill_from_transients() {
+art::Assns<L, R, void>::fill_from_transients()
+{
   // Precondition: ptr_data_1_ is empty;
   // Precondition: ptr_data_2_ is empty;
-  ptr_data_t &l_ref = left_first()?ptr_data_1_:ptr_data_2_;
-  ptr_data_t &r_ref = left_first()?ptr_data_2_:ptr_data_1_;
+  ptr_data_t & l_ref = left_first() ? ptr_data_1_ : ptr_data_2_;
+  ptr_data_t & r_ref = left_first() ? ptr_data_2_ : ptr_data_1_;
   l_ref.reserve(ptrs_.size());
   r_ref.reserve(ptrs_.size());
   for (typename ptrs_t::const_iterator
-         i = ptrs_.begin(),
-         e = ptrs_.end();
+       i = ptrs_.begin(),
+       e = ptrs_.end();
        i != e;
        ++i) {
     l_ref.push_back(std::make_pair(i->first.refCore(),
@@ -315,9 +416,9 @@ template <typename L, typename R>
 void
 art::Assns<L, R, void>::init_streamer()
 {
-  static TClassRef cl(TClass::GetClass(typeid(Assns<L,R,void>)));
+  static TClassRef cl(TClass::GetClass(typeid(Assns<L, R, void>)));
   if (cl->GetStreamer() == 0) {
-    cl->AdoptStreamer(new detail::AssnsStreamer<L,R>);
+    cl->AdoptStreamer(new detail::AssnsStreamer<L, R>);
   }
 }
 
@@ -331,7 +432,7 @@ art::Assns<L, R, D>::Assns()
 }
 
 template <typename L, typename R, typename D>
-art::Assns<L, R, D>::Assns(partner_t const &other)
+art::Assns<L, R, D>::Assns(partner_t const & other)
   :
   base(other),
   data_(other.data_)
@@ -340,33 +441,27 @@ art::Assns<L, R, D>::Assns(partner_t const &other)
 
 template <typename L, typename R, typename D>
 inline
-void
-art::Assns<L, R, D>::swap(Assns<L, R, D> &other) {
-  using std::swap;
-  base::swap_(other);
-  swap(data_, other.data_);
-}
-
-template <typename L, typename R, typename D>
-inline
 typename art::Assns<L, R, D>::data_t const &
-art::Assns<L, R, D>::data(typename std::vector<data_t>::size_type index) const {
+art::Assns<L, R, D>::data(typename std::vector<data_t>::size_type index) const
+{
   return data_.at(index);
 }
 
 template <typename L, typename R, typename D>
 inline
 typename art::Assns<L, R, D>::data_t const &
-art::Assns<L, R, D>::data(assn_iterator it) const {
+art::Assns<L, R, D>::data(assn_iterator it) const
+{
   return data_.at(it - begin());
 }
 
 template <typename L, typename R, typename D>
 inline
 void
-art::Assns<L, R, D>::addSingle(Ptr<left_t> const &left,
-                               Ptr<right_t> const &right,
-                               data_t const &data) {
+art::Assns<L, R, D>::addSingle(Ptr<left_t> const & left,
+                               Ptr<right_t> const & right,
+                               data_t const & data)
+{
   base::addSingle(left, right);
   data_.push_back(data);
 }
@@ -374,19 +469,39 @@ art::Assns<L, R, D>::addSingle(Ptr<left_t> const &left,
 template <typename L, typename R, typename D>
 inline
 void
-art::Assns<L, R, D>::swap_(Assns<L, R, void> &other) {
+art::Assns<L, R, D>::swap(Assns<L, R, D> &other)
+{
+  using std::swap;
+  base::swap_(other);
+  swap(data_, other.data_);
+}
+
+template <typename L, typename R, typename D>
+inline
+std::auto_ptr<art::EDProduct>
+art::Assns<L, R, D>::makePartner() const
+{
+  return makePartner_();
+}
+
+template <typename L, typename R, typename D>
+inline
+void
+art::Assns<L, R, D>::swap_(Assns<L, R, void> &other)
+{
   try {
     swap(dynamic_cast<Assns<L, R, D> &>(other));
   }
   catch (std::bad_cast &) {
     throw Exception(errors::LogicError, "AssnsBadCast")
-      << "Attempt to swap base with derived!\n";
+        << "Attempt to swap base with derived!\n";
   }
 }
 
 template <typename L, typename R, typename D>
 std::auto_ptr<art::EDProduct>
-art::Assns<L, R, D>::makePartner_() const{
+art::Assns<L, R, D>::makePartner_() const
+{
   return
     std::auto_ptr<EDProduct>
     (new Wrapper<partner_t>
