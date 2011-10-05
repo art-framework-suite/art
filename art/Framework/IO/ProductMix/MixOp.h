@@ -12,6 +12,7 @@
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ProductList.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Utilities/Exception.h"
 #include "art/Utilities/InputTag.h"
 #include "cpp0x/functional"
 
@@ -27,7 +28,8 @@ public:
   template <typename FUNC>
   MixOp(InputTag const &inputTag,
           std::string const &outputInstanceLabel,
-          FUNC mixFunc);
+        FUNC mixFunc,
+        bool outputProduct);
 
   virtual
   InputTag const &inputTag() const;
@@ -72,6 +74,7 @@ private:
   std::string processName_;
   std::string moduleLabel_;
   RootBranchInfo branchInfo_;
+  bool outputProduct_;
 };
 
 template <typename PROD>
@@ -79,7 +82,8 @@ template <typename FUNC>
 art::
 MixOp<PROD>::MixOp(InputTag const &inputTag,
                        std::string const &outputInstanceLabel,
-                       FUNC mixFunc)
+                   FUNC mixFunc,
+                   bool outputProduct)
   :
   inputTag_(inputTag),
   inputType_(typeid(PROD)),
@@ -88,7 +92,8 @@ MixOp<PROD>::MixOp(InputTag const &inputTag,
   inProducts_(),
   processName_(ServiceHandle<TriggerNamesService>()->getProcessName()),
   moduleLabel_(ServiceHandle<CurrentModule>()->label()),
-  branchInfo_()
+  branchInfo_(),
+  outputProduct_(outputProduct)
 {}
 
 template <typename PROD>
@@ -140,6 +145,11 @@ mixAndPut(Event &e,
       << "Unable to obtain correctly-typed product from wrapper.\n";
   }
   if (mixFunc_(inConverted, *rProd, remap)) {
+    if (!outputProduct_) {
+      throw Exception(errors::LogicError)
+        << "Returned true (output product to be put in event) from a mix function\n"
+        << "declared with outputProduct=false.\n";
+    }
     if (outputInstanceLabel_.empty()) {
       e.put(rProd);
     } else {

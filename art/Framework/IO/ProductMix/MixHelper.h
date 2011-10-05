@@ -163,7 +163,8 @@ public:
                     std::function< bool (std::vector<PROD const *> const &,
                                          PROD &,
                                          PtrRemapper const &)
-                    > mixFunc);
+                    > mixFunc,
+                    bool outputProduct = true);
 
 
   // 2.
@@ -173,7 +174,8 @@ public:
                     std::function< bool (std::vector<PROD const *> const &,
                                          PROD &,
                                          PtrRemapper const &)
-                    > mixFunc);
+                    > mixFunc,
+                    bool outputProduct = true);
 
   // 3.
   template <typename PROD, typename T>
@@ -181,7 +183,8 @@ public:
                     bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &),
-                    T &t);
+                    T &t,
+                    bool outputProduct = true);
 
   // 4.
   template <typename PROD, typename T>
@@ -190,7 +193,8 @@ public:
                     bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &),
-                    T &t);
+                    T &t,
+                    bool outputProduct = true);
 
   // 5.
   template <typename PROD, typename T>
@@ -198,7 +202,8 @@ public:
                     bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &) const,
-                    T const &t);
+                    T const &t,
+                    bool outputProduct = true);
 
   // 6.
   template <typename PROD, typename T>
@@ -207,7 +212,8 @@ public:
                     bool (T::*mixfunc) (std::vector<PROD const *> const &,
                                         PROD &,
                                         PtrRemapper const &) const,
-                    T const &t);
+                    T const &t,
+                    bool outputProduct = true);
 
   //////////////////////////////////////////////////////////////////////
   // Mix module writers should not need anything below this point.
@@ -276,7 +282,8 @@ declareMixOp(InputTag const &inputTag,
              std::function< bool (std::vector<PROD const *> const &,
                                   PROD &,
                                   PtrRemapper const &)
-             > mixFunc) {
+             > mixFunc,
+             bool outputProduct) {
   declareMixOp(inputTag, inputTag.instance(), mixFunc); // 2.
 }
 
@@ -289,11 +296,13 @@ declareMixOp(InputTag const &inputTag,
              std::function< bool (std::vector<PROD const *> const &,
                                   PROD &,
                                   PtrRemapper const &)
-             > mixFunc) {
-  producesProvider_.produces<PROD>(outputInstanceLabel);
+             > mixFunc,
+             bool outputProduct) {
+  if (outputProduct) producesProvider_.produces<PROD>(outputInstanceLabel);
   std::shared_ptr<MixOpBase> p(new MixOp<PROD>(inputTag,
                                                outputInstanceLabel,
-                                               mixFunc));
+                                               mixFunc,
+                                              outputProduct));
   mixOps_.push_back(p);
 }
 
@@ -305,7 +314,8 @@ declareMixOp(InputTag const &inputTag,
              bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &),
-             T &t) {
+             T &t,
+             bool outputProduct) {
   declareMixOp(inputTag, inputTag.instance(), mixFunc, t); // 4.
 }
 
@@ -318,12 +328,14 @@ declareMixOp(InputTag const &inputTag,
              bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &),
-             T &t) {
-  producesProvider_.produces<PROD>(outputInstanceLabel);
+             T &t,
+             bool outputProduct) {
+  if (outputProduct) producesProvider_.produces<PROD>(outputInstanceLabel);
   std::shared_ptr<MixOpBase>
     p(new MixOp<PROD>(inputTag,
                       outputInstanceLabel,
-                      std::bind(mixFunc, &t, _1, _2, _3)));
+                      std::bind(mixFunc, &t, _1, _2, _3),
+                     outputProduct));
   mixOps_.push_back(p);
 }
 
@@ -335,7 +347,8 @@ declareMixOp(InputTag const &inputTag,
              bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &) const,
-             T const &t) {
+             T const &t,
+             bool outputProduct) {
   declareMixOp(inputTag, inputTag.instance(), mixFunc, t); // 6.
 }
 
@@ -348,12 +361,14 @@ declareMixOp(InputTag const &inputTag,
              bool (T::*mixFunc) (std::vector<PROD const *> const &,
                                  PROD &,
                                  PtrRemapper const &) const,
-             T const &t) {
-  producesProvider_.produces<PROD>(outputInstanceLabel);
+             T const &t,
+             bool outputProduct) {
+  if (outputProduct) producesProvider_.produces<PROD>(outputInstanceLabel);
   std::shared_ptr<MixOpBase>
     p(new MixOp<PROD>(inputTag,
                       outputInstanceLabel,
-                      std::bind(mixFunc, &t, _1, _2, _3)));
+                      std::bind(mixFunc, &t, _1, _2, _3),
+                      outputProduct));
   mixOps_.push_back(p);
 }
 
