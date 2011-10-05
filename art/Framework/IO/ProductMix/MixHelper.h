@@ -268,6 +268,7 @@ private:
 
 // A.
 template <class P>
+inline
 void
 art::MixHelper::produces(std::string const & instanceName)
 {
@@ -276,6 +277,7 @@ art::MixHelper::produces(std::string const & instanceName)
 
 // B.
 template <class P, art::BranchType B>
+inline
 void
 art::MixHelper::produces(std::string const & instanceName)
 {
@@ -284,6 +286,7 @@ art::MixHelper::produces(std::string const & instanceName)
 
 // 1.
 template <typename PROD>
+inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
@@ -293,7 +296,7 @@ declareMixOp(InputTag const & inputTag,
              > mixFunc,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc); // 2.
+  declareMixOp(inputTag, inputTag.instance(), mixFunc, outputProduct); // 2.
 }
 
 // 2.
@@ -318,6 +321,7 @@ declareMixOp(InputTag const & inputTag,
 
 // 3.
 template <typename PROD, typename T>
+inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
@@ -327,7 +331,7 @@ declareMixOp(InputTag const & inputTag,
              T & t,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, t); // 4.
+  declareMixOp(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 4.
 }
 
 // 4.
@@ -353,6 +357,7 @@ declareMixOp(InputTag const & inputTag,
 
 // 5.
 template <typename PROD, typename T>
+inline
 void
 art::MixHelper::
 declareMixOp(InputTag const & inputTag,
@@ -362,7 +367,7 @@ declareMixOp(InputTag const & inputTag,
              T const & t,
              bool outputProduct)
 {
-  declareMixOp(inputTag, inputTag.instance(), mixFunc, t); // 6.
+  declareMixOp(inputTag, inputTag.instance(), mixFunc, t, outputProduct); // 6.
 }
 
 // 6.
