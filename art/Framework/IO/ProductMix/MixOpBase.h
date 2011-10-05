@@ -19,22 +19,22 @@ namespace art {
 class art::MixOpBase {
 public:
   virtual
-  InputTag const &inputTag() const = 0;
+  InputTag const & inputTag() const = 0;
 
   virtual
-  TypeID const &inputType() const = 0;
+  TypeID const & inputType() const = 0;
 
   virtual
-  std::string const &outputInstanceLabel() const = 0;
-
-  virtual
-  void
-  mixAndPut(Event &e,
-            PtrRemapper const &remap) const = 0;
+  std::string const & outputInstanceLabel() const = 0;
 
   virtual
   void
-  initializeBranchInfo(RootBranchInfoList const &rbiList) = 0;
+  mixAndPut(Event & e,
+            PtrRemapper const & remap) const = 0;
+
+  virtual
+  void
+  initializeBranchInfo(RootBranchInfoList const & rbiList) = 0;
 
   virtual
   BranchID
@@ -46,7 +46,7 @@ public:
 
   virtual
   void
-  readFromFile(EntryNumberSequence const &seq) = 0;
+  readFromFile(EntryNumberSequence const & seq) = 0;
 };
 #endif /* art_Framework_IO_ProductMix_MixOpBase_h */
 

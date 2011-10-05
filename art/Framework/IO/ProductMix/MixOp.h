@@ -1,6 +1,9 @@
 #ifndef art_Framework_IO_ProductMix_MixOp_h
 #define art_Framework_IO_ProductMix_MixOp_h
 
+// Template encapsulating all the attributes and functionality of a
+// product mixing operation.
+
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Framework/Principal/Event.h"
@@ -26,28 +29,28 @@ template <typename PROD>
 class art::MixOp : public art::MixOpBase {
 public:
   template <typename FUNC>
-  MixOp(InputTag const &inputTag,
-          std::string const &outputInstanceLabel,
+  MixOp(InputTag const & inputTag,
+        std::string const & outputInstanceLabel,
         FUNC mixFunc,
         bool outputProduct);
 
   virtual
-  InputTag const &inputTag() const;
+  InputTag const & inputTag() const;
 
   virtual
-  TypeID const &inputType() const;
+  TypeID const & inputType() const;
 
   virtual
-  std::string const &outputInstanceLabel() const;
-
-  virtual
-  void
-  mixAndPut(Event &e,
-            PtrRemapper const &remap) const;
+  std::string const & outputInstanceLabel() const;
 
   virtual
   void
-  initializeBranchInfo(RootBranchInfoList const &rbiList);
+  mixAndPut(Event & e,
+            PtrRemapper const & remap) const;
+
+  virtual
+  void
+  initializeBranchInfo(RootBranchInfoList const & rbiList);
 
   virtual
   BranchID
@@ -59,7 +62,7 @@ public:
 
   virtual
   void
-  readFromFile(EntryNumberSequence const &seq);
+  readFromFile(EntryNumberSequence const & seq);
 
 private:
   typedef std::vector<Wrapper<PROD> > SpecProdList;
@@ -80,8 +83,8 @@ private:
 template <typename PROD>
 template <typename FUNC>
 art::
-MixOp<PROD>::MixOp(InputTag const &inputTag,
-                       std::string const &outputInstanceLabel,
+MixOp<PROD>::MixOp(InputTag const & inputTag,
+                   std::string const & outputInstanceLabel,
                    FUNC mixFunc,
                    bool outputProduct)
   :
@@ -99,60 +102,65 @@ MixOp<PROD>::MixOp(InputTag const &inputTag,
 template <typename PROD>
 art::InputTag const &
 art::MixOp<PROD>::
-inputTag() const {
+inputTag() const
+{
   return inputTag_;
 }
 
 template <typename PROD>
 art::TypeID const &
 art::MixOp<PROD>::
-inputType() const {
+inputType() const
+{
   return inputType_;
 }
 
 template <typename PROD>
 std::string const &
 art::MixOp<PROD>::
-outputInstanceLabel() const {
+outputInstanceLabel() const
+{
   return outputInstanceLabel_;
 }
 
 template <typename PROD>
 void
 art::MixOp<PROD>::
-mixAndPut(Event &e,
-          PtrRemapper const &remap) const {
+mixAndPut(Event & e,
+          PtrRemapper const & remap) const
+{
   std::auto_ptr<PROD> rProd(new PROD()); // Parens necessary for native types.
   std::vector<PROD const *> inConverted;
   inConverted.reserve(inProducts_.size());
   try {
     for (typename SpecProdList::const_iterator
-           i = inProducts_.begin(),
-           endIter = inProducts_.end();
+         i = inProducts_.begin(),
+         endIter = inProducts_.end();
          i != endIter;
          ++i) {
       inConverted.push_back(i->product());
       if (!inConverted.back()) {
         throw Exception(errors::ProductNotFound)
-          << "While processing products of type "
-          << TypeID(*rProd).friendlyClassName()
-          << " for merging: a secondary event was missing a product.\n";
+            << "While processing products of type "
+            << TypeID(*rProd).friendlyClassName()
+            << " for merging: a secondary event was missing a product.\n";
       }
     }
   }
   catch (std::bad_cast const &) {
     throw Exception(errors::DataCorruption)
-      << "Unable to obtain correctly-typed product from wrapper.\n";
+        << "Unable to obtain correctly-typed product from wrapper.\n";
   }
   if (mixFunc_(inConverted, *rProd, remap)) {
     if (!outputProduct_) {
       throw Exception(errors::LogicError)
-        << "Returned true (output product to be put in event) from a mix function\n"
-        << "declared with outputProduct=false.\n";
+          << "Returned true (output product to be put in event) from a mix function\n"
+          << "declared with outputProduct=false.\n";
     }
     if (outputInstanceLabel_.empty()) {
       e.put(rProd);
-    } else {
+    }
+    else {
       e.put(rProd, outputInstanceLabel_);
     }
   } // false means don't want this in the event.
@@ -161,39 +169,40 @@ mixAndPut(Event &e,
 template <typename PROD>
 void
 art::MixOp<PROD>::
-initializeBranchInfo(RootBranchInfoList const &branchInfo_List) {
+initializeBranchInfo(RootBranchInfoList const & branchInfo_List)
+{
   if (!branchInfo_List.findBranchInfo(inputType_, inputTag_, branchInfo_)) {
     throw Exception(errors::ProductNotFound)
-      << "Unable to find requested product "
-      << inputTag_
-      << " of type "
-      << inputType_.friendlyClassName()
-      << " in secondary input stream.\n";
+        << "Unable to find requested product "
+        << inputTag_
+        << " of type "
+        << inputType_.friendlyClassName()
+        << " in secondary input stream.\n";
   }
 }
 
 template <typename PROD>
 art::BranchID
 art::MixOp<PROD>::
-incomingBranchID() const {
+incomingBranchID() const
+{
   return BranchID(branchInfo_.branchName());
 }
 
 template <typename PROD>
 art::BranchID
 art::MixOp<PROD>::
-outgoingBranchID() const {
+outgoingBranchID() const
+{
   BranchKey key(inputType_.friendlyClassName(),
                 moduleLabel_,
                 outputInstanceLabel_,
                 processName_);
-
-  ProductList const& products = ProductMetaData::instance().productList();
+  ProductList const & products = ProductMetaData::instance().productList();
   ProductList::const_iterator i = products.find(key);
-
   if (i == products.end()) {
     throw Exception(errors::LogicError)
-      << "MixOp unable to find branch id for a product that should have been registered!\n";
+        << "MixOp unable to find branch id for a product that should have been registered!\n";
   }
   return i->second.branchID();
 }
@@ -201,26 +210,25 @@ outgoingBranchID() const {
 template <typename PROD>
 void
 art::MixOp<PROD>::
-readFromFile(EntryNumberSequence const &seq) {
+readFromFile(EntryNumberSequence const & seq)
+{
   if (branchInfo_.branch() == 0) {
     throw Exception(errors::LogicError)
-      << "Branch not initialized for read.\n";
+        << "Branch not initialized for read.\n";
   }
   initProductList(seq.size());
-
   // Make sure we don't have a ProductGetter set.
   configureRefCoreStreamer();
-
   // Assume the seqenece is ordered per
   // MixHelper::generateEventSequence.
   typename SpecProdList::iterator prod_iter =
     inProducts_.begin();
   for (EntryNumberSequence::const_iterator
-         i = seq.begin(),
-         e = seq.end();
+       i = seq.begin(),
+       e = seq.end();
        i != e;
        ++i) {
-    typename SpecProdList::value_type *wp = &(*prod_iter++);
+    typename SpecProdList::value_type * wp = &(*prod_iter++);
     branchInfo_.branch()->SetAddress(&wp);
     branchInfo_.branch()->GetEntry(*i);
   }
@@ -229,7 +237,8 @@ readFromFile(EntryNumberSequence const &seq) {
 template <typename PROD>
 void
 art::MixOp<PROD>::
-initProductList(size_t nSecondaries) {
+initProductList(size_t nSecondaries)
+{
   if (nSecondaries) {
     inProducts_.resize(nSecondaries);
   }
