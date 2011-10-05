@@ -1,6 +1,6 @@
-#include "art/Framework/Core/wrapLibraryManagerException.h"
+#include "art/Framework/Core/detail/wrapLibraryManagerException.h"
 
-void art::wrapLibraryManagerException(art::Exception const &e,
+void art::detail::wrapLibraryManagerException(art::Exception const &e,
                                       std::string const &item_type,
                                       std::string const &libspec,
                                       std::string const &release) {

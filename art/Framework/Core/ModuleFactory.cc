@@ -6,7 +6,7 @@
 
 #include "art/Framework/Core/ModuleFactory.h"
 
-#include "art/Framework/Core/wrapLibraryManagerException.h"
+#include "art/Framework/Core/detail/wrapLibraryManagerException.h"
 #include "art/Utilities/Exception.h"
 
 using namespace art;
@@ -46,7 +46,7 @@ ModuleFactory::makeWorker( WorkerParams      const & p
       symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
    }
    catch (art::Exception &e) {
-      wrapLibraryManagerException(e, "Module", libspec, p.releaseVersion_);
+     detail::wrapLibraryManagerException(e, "Module", libspec, p.releaseVersion_);
    }
    if (symbol == nullptr) {
       throw art::Exception(errors::Configuration, "BadPluginLibrary")

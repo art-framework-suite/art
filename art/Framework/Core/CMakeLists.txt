@@ -32,7 +32,7 @@ set( art_Framework_Core_sources
   WorkerInPath.cc
   WorkerRegistry.cc
   get_BranchDescription.cc
-  wrapLibraryManagerException.cc
+  detail/wrapLibraryManagerException.cc
 )
 
 add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
