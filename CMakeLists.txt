@@ -19,9 +19,9 @@ cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
 set( product art )
-set( version v0_07_12 )
+set( version v1_00_00 )
 if ( NOT qualifier )
-  SET (qualifier a3)
+  SET (qualifier a4)
 endif ( NOT qualifier )
 
 # cetbuildtools contains our cmake modules
