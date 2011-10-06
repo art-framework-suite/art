@@ -4,28 +4,28 @@
 //
 // ======================================================================
 
-
-// Framework support:
 #include "art/Persistency/Common/RNGsnapshot.h"
-#include "art/Utilities/vectorTransform.h"
-  using art::RNGsnapshot;
 
+#include "art/Utilities/vectorTransform.h"
+
+using art::RNGsnapshot;
 
 // ======================================================================
 
-
 // --- C'tor:
-RNGsnapshot::RNGsnapshot( )
+RNGsnapshot::
+RNGsnapshot( )
   : label_( )
   , state_( )
 { }
 
 // --- Save/restore:
 void
-  RNGsnapshot::saveFrom( std::string    const & ekind
-                       , label_t        const & lbl
-                       , engine_state_t const & est
-                       )
+  RNGsnapshot::
+  saveFrom( std::string    const & ekind
+          , label_t        const & lbl
+          , engine_state_t const & est
+          )
 {
   engine_kind_ = ekind;
   label_ = lbl;
@@ -33,7 +33,10 @@ void
 }
 
 void
-  RNGsnapshot::restoreTo( engine_state_t & est ) const
+  RNGsnapshot::
+  restoreTo( engine_state_t & est ) const
 {
   vectorTransform<saved_t,CLHEP_t>( state_, est );
 }
+
+// ======================================================================

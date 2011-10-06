@@ -235,7 +235,7 @@ private:
 
   // --- Snapshot management helpers:
   void  takeSnapshot_( );
-  void  restoreSnapshot_( art::Event const & event );
+  void  restoreSnapshot_( art::Event const & );
   snapshot_t const &  accessSnapshot_( )  { return snapshot_; }
 
   // --- File management helpers:
@@ -247,8 +247,8 @@ private:
   bool  invariant_holds_( );
 
   // --- Callbacks:
-  void  preProcessEvent( art::Event const &);
-  void  postProcessEvent( art::Event const &);
+  void  preProcessEvent( art::Event const & );
+  void  postProcessEvent( art::Event const & );
   void  postBeginJob( );
   void  postEndJob( );
 

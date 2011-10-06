@@ -47,11 +47,10 @@ private:
 
 // ======================================================================
 
-RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
+RandomNumberSaver::
+RandomNumberSaver( ParameterSet const & pset )
   : EDProducer( )
-  , debug_    ( pset.get<bool>( "debug"
-                              , false
-              )               )
+  , debug_    ( pset.get<bool>("debug", false) )
 {
   produces<snapshot_t>();
 }
@@ -59,7 +58,8 @@ RandomNumberSaver::RandomNumberSaver( ParameterSet const & pset )
 // ----------------------------------------------------------------------
 
 void
-  RandomNumberSaver::produce( Event & event )
+  RandomNumberSaver::
+  produce( Event & event )
 {
   using std::auto_ptr;
 

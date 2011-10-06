@@ -76,7 +76,7 @@ using std::string;
 
 namespace {
 
-  typedef  RandomNumberGenerator  RNGservice;
+  typedef  RandomNumberGenerator         RNGservice;
   typedef  RNGservice::eptr_t            eptr_t;
   typedef  RNGservice::label_t           label_t;
   typedef  RNGservice::seed_t            seed_t;
@@ -190,7 +190,7 @@ namespace {
   }  // engine_factory()
 
   void
-    expand_if_abbrev_kind( std::string & requested_engine_kind )
+    expand_if_abbrev_kind( string & requested_engine_kind )
   {
     if(  requested_engine_kind.empty()
       || requested_engine_kind == "DefaultEngine"
@@ -204,34 +204,25 @@ namespace {
 
 // ======================================================================
 
-RNGservice::RandomNumberGenerator( ParameterSet const    & pset
-                                        , art::ActivityRegistry & reg
-                                        )
+RNGservice::
+RandomNumberGenerator( ParameterSet const    & pset
+                     , art::ActivityRegistry & reg
+                     )
 : engine_creation_is_okay_( true )
-, dict_( )
-, tracker_( )
-, kind_( )
-, snapshot_( )
-, restoreStateLabel_( pset.get<std::string>( "restoreStateLabel"
-                                           , EMPTY_STRING
-                    )                      )
-, saveToFilename_( pset.get<std::string>( "saveTo"
-                                        , EMPTY_STRING
-                 )                      )
-, restoreFromFilename_( pset.get<std::string>( "restoreFrom"
-                                             , EMPTY_STRING
-                      )                      )
-, nPrint_( pset.get<int>( "nPrint"
-                        , DEFAULT_NPRINT_VALUE
-         )              )
-, debug_( pset.get<bool>( "debug"
-                        , DEFAULT_DEBUG_VALUE
-        )               )
+, dict_                   ( )
+, tracker_                ( )
+, kind_                   ( )
+, snapshot_               ( )
+, restoreStateLabel_      ( pset.get<string>("restoreStateLabel", EMPTY_STRING) )
+, saveToFilename_         ( pset.get<string>("saveTo", EMPTY_STRING) )
+, restoreFromFilename_    ( pset.get<string>("restoreFrom", EMPTY_STRING) )
+, nPrint_                 ( pset.get<int>( "nPrint", DEFAULT_NPRINT_VALUE) )
+, debug_                  ( pset.get<bool>( "debug", DEFAULT_DEBUG_VALUE) )
 {
   // Register for callbacks:
-  reg.watchPostBeginJob   ( this, & RNGservice::postBeginJob     );
-  reg.watchPostEndJob     ( this, & RNGservice::postEndJob       );
-  reg.watchPreProcessEvent( this, & RNGservice::preProcessEvent  );
+  reg.watchPostBeginJob   (this, & RNGservice::postBeginJob   );
+  reg.watchPostEndJob     (this, & RNGservice::postEndJob     );
+  reg.watchPreProcessEvent(this, & RNGservice::preProcessEvent);
 
   assert( invariant_holds_() && "RNGservice::RNGservice()" );
 }  // RNGservice()
@@ -239,13 +230,15 @@ RNGservice::RandomNumberGenerator( ParameterSet const    & pset
 // ----------------------------------------------------------------------
 
 base_engine_t &
-  RNGservice::getEngine( ) const
+  RNGservice::
+  getEngine( ) const
 {
   return getEngine( label_t() );
 }
 
 base_engine_t &
-  RNGservice::getEngine( label_t const & engine_label ) const
+  RNGservice::
+  getEngine( label_t const & engine_label ) const
 {
   label_t const &  label = qualify_engine_label( engine_label );
   dict_t::const_iterator  d = dict_.find(label);
@@ -265,7 +258,8 @@ base_engine_t &
 // ======================================================================
 
 bool
-  RNGservice::invariant_holds_( )
+  RNGservice::
+  invariant_holds_( )
 {
   return  dict_.size() == tracker_.size()
       &&  dict_.size() == kind_.size();
@@ -274,7 +268,8 @@ bool
 // ----------------------------------------------------------------------
 
 base_engine_t &
-  RNGservice::createEngine( seed_t  seed )
+  RNGservice::
+  createEngine( seed_t  seed )
 {
   return createEngine( seed
                      , DEFAULT_ENGINE_KIND
@@ -283,9 +278,10 @@ base_engine_t &
 
 
 base_engine_t &
-  RNGservice::createEngine( seed_t           seed
-                          , string const &   requested_engine_kind
-                          )
+  RNGservice::
+  createEngine( seed_t          seed
+              , string const &  requested_engine_kind
+              )
 {
   return createEngine( seed
                      , requested_engine_kind
@@ -295,10 +291,11 @@ base_engine_t &
 
 
 base_engine_t &
-  RNGservice::createEngine( seed_t           seed
-                          , string           requested_engine_kind
-                          , label_t const &  engine_label
-                          )
+  RNGservice::
+  createEngine( seed_t           seed
+              , string           requested_engine_kind
+              , label_t const &  engine_label
+              )
 {
   label_t const &  label  = qualify_engine_label( engine_label );
 
@@ -338,7 +335,8 @@ base_engine_t &
 // ----------------------------------------------------------------------
 
 void
-  RNGservice::print_()
+  RNGservice::
+  print_( )
 {
   static int  ncalls( 0 );
 
@@ -364,16 +362,15 @@ void
 // ----------------------------------------------------------------------
 
 void
-  RNGservice::takeSnapshot_( )
+  RNGservice::
+  takeSnapshot_( )
 {
   mf::LogInfo  log("RANDOM");
   log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
 
   snapshot_.clear();
   for( dict_t::const_iterator it = dict_.begin()
-                            , e  = dict_.end()
-     ; it != e; ++it
-     ) {
+                            , e  = dict_.end(); it != e; ++it ) {
     label_t const &  label = it->first;
     eptr_t  const &  eptr  = it->second;
     assert( eptr != 0 && "RNGservice::takeSnapshot_()" );
@@ -388,7 +385,8 @@ void
 // ----------------------------------------------------------------------
 
 void
-  RNGservice::restoreSnapshot_( art::Event const & event )
+  RNGservice::
+  restoreSnapshot_( art::Event const & event )
 {
   if( restoreStateLabel_.empty() )
     return;
@@ -400,9 +398,7 @@ void
 
   // restore engines from saved-states product:
   for( saved_t::const_iterator it = saved->begin()
-                             , e  = saved->end()
-     ; it != e; ++it
-     ) {
+                             , e  = saved->end(); it != e; ++it ) {
     label_t const &  label = it->label();
     mf::LogInfo  log("RANDOM");
     log << "RNGservice::restoreSnapshot_(): label \"" << label << "\"";
@@ -443,7 +439,8 @@ void
 // ----------------------------------------------------------------------
 
 void
-  RNGservice::saveToFile_( )
+  RNGservice::
+  saveToFile_( )
 {
   if( saveToFilename_.empty() )
     return;
@@ -456,9 +453,7 @@ void
 
   // save each engine:
   for( dict_t::const_iterator it = dict_.begin()
-                            , e  = dict_.end()
-     ; it != e; ++it
-     ) {
+                            , e  = dict_.end(); it != e; ++it ) {
     //label_t const &  label = it->first;
     eptr_t  const &  eptr  = it->second;
     assert( eptr != 0 && "RNGservice::saveToFile_()" );
@@ -474,7 +469,8 @@ void
 // ----------------------------------------------------------------------
 
 void
-  RNGservice::restoreFromFile_( )
+  RNGservice::
+  restoreFromFile_( )
 {
   if( restoreFromFilename_.empty() )
     return;
@@ -515,21 +511,24 @@ void
 // ----------------------------------------------------------------------
 
 void
-  RNGservice::postBeginJob( )
+  RNGservice::
+  postBeginJob( )
 {
   restoreFromFile_();
   engine_creation_is_okay_ = false;
 }  // postBeginJob()
 
 void
-  RNGservice::preProcessEvent( art::Event const &e)
+  RNGservice::
+  preProcessEvent( art::Event const & e )
 {
   takeSnapshot_();
-  restoreSnapshot_(e);  // TODO: needs Event argument!
-}
+  restoreSnapshot_(e);
+}  // preProcessEvent()
 
 void
-  RNGservice::postEndJob( )
+  RNGservice::
+  postEndJob( )
 {
   saveToFile_();
 }  // postEndJob()
