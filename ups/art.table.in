@@ -16,17 +16,17 @@ Qualifiers = ""
        setupRequired(root      @ROOT_VERSION@ )
 
 Flavor     = ANY
-Qualifiers = "a3"
+Qualifiers = "a4"
   Action = setup
        prodDir()
        setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a3 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a4 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
-       setupRequired(root      @ROOT_VERSION@ -q gcc45)
+       setupRequired(root      @ROOT_VERSION@ -q gcc46)
 
 Flavor     = ANY
 Qualifiers = "nova"
@@ -42,17 +42,17 @@ Qualifiers = "nova"
        setupRequired(root      @ROOT_VERSION@ -q nova)
 
 Flavor     = ANY
-Qualifiers = "a3:debug"
+Qualifiers = "a4:debug"
   Action = setup
        prodDir()
        setupEnv()
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a3.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a4.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
-       setupRequired(root      @ROOT_VERSION@ -q gcc45)
+       setupRequired(root      @ROOT_VERSION@ -q gcc46)
 
 Flavor     = ANY
 Qualifiers = "nova:debug"

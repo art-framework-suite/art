@@ -25,7 +25,7 @@ test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 
 test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
 test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
 
-test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, using qualifier a3$extraqual"
+test "$1" = "-d" && set_ extraqual=":debug" && echo "called with $1, using qualifier a4$extraqual"
 
 set_ msg2='You MUST setup ups'
 tnotnull UPS_DIR || echo "$msg2"
@@ -36,20 +36,20 @@ tnotnull UPS_DIR || echo "$msg2"
 
 # set up external products
 setup cmake
-setup gcc v4_5_1
-setup -j boost v1_45_0 -q gcc45
-setup -j clhep v2_1_0_1 -q gcc45
-setup -j cppunit v1_12_1 -q gcc45
-setup -j gccxml v0_9_20101128 -q gcc45
-setup -j libsigcpp v2_2_7 -q gcc45
-setup -j python v2_7_2 -q gcc45
-setup -j root v5_30_00_p02 -q gcc45
+setup gcc v4_6_1
+setup -j boost v1_46_1 -q gcc46$extraqual
+setup -j clhep v2_1_1_0 -q gcc46$extraqual
+setup -j cppunit v1_12_1 -q gcc46$extraqual
+setup -j gccxml v0_9_20110907 -q gcc46$extraqual
+setup -j libsigcpp v2_2_10 -q gcc46$extraqual
+setup -j python v2_7_2 -q gcc46
+setup -j root v5_30_02 -q gcc46$extraqual
 # set up CET products
-setup -j cetbuildtools v1_11_09
-setup -j cpp0x v1_02_01 -q a3$extraqual
-setup -j cetlib v1_02_01 -q a3$extraqual
-setup -j fhiclcpp v2_15_01 -q a3$extraqual
-setup -j messagefacility v1_09_01 -q a3$extraqual
+setup -j cetbuildtools v1_12_00
+setup -j cpp0x v1_02_02 -q a4$extraqual
+setup -j cetlib v1_02_02 -q a4$extraqual
+setup -j fhiclcpp v2_15_02 -q a4$extraqual
+setup -j messagefacility v1_09_02 -q a4$extraqual
 setup -j sqlite3 v3_7_7_1
 
 test $?shell = 1 && set ss=csh || ss=sh
