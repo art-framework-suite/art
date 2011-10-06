@@ -1,6 +1,107 @@
 #ifndef art_Framework_Core_FindOne_h
 #define art_Framework_Core_FindOne_h
-
+////////////////////////////////////////////////////////////////////////
+// FindOne
+//
+// A smart query object used as the main way of accessing associated
+// objects in a one-to-one association.
+//
+// Given an Assns associating A with B (or B with A) (poosibly with an
+// associated data object D) and a sequence ACOLL of A objects to be
+// found in the Assns, allow indexed access to the B and/or D objects
+// associated with the A objects in ACOLL.
+//
+////////////////////////////////////
+// Interface.
+//////////
+//
+// For ease of understanding, the interface is presented here; reading
+// the rest of the header is not for the faint of heart.
+//
+// Notes:
+//
+// * ProdB and Data are the only template arguments that must be
+// specified when constructing a FindOne. Any other items are deducible
+// from arguments.
+//
+// * An attempt to create a FindOne where one of the listed A objects
+// actually has multuple B objects associated with it will result in an
+// exception.
+//
+// * The FindOne needs a source of objects of type A, an event and an
+// input tag corresponding to the underlying association collection from
+// which to create itself.
+//
+// * When constructed, the FindOne will obtain and interrogate the
+// correct Assns and provide access to the B (and/or D) object(s)
+// associated with each supplied A object in the order in which the A
+// objects were specified.
+//
+// * If the specified A does not have an associated B or D then the
+// cet::maybe_ref will be invalid.
+//
+// * If the specified A has multiple associated Bs (or Ds) then an
+// exception will be thrown: use FindMany instead.
+//
+// * If the required association collection has an extra data object D
+// with each association then it *must* be specified as a template
+// argument, even if it is not relevant to the current query.
+//
+// * *All* indexed accessors (at(), data(), get()) are bounds-checked,
+//
+// Useful typedefs.
+//
+// typedef ProdB assoc_t;
+// typedef Data data_t;
+// typedef typename std::vector<ProdB const *>::size_type size_type;
+//
+// Constructors.
+//
+// // From Handle to colelction of A.
+// FindOne<ProdB>(Handle<ProdAColl> const &,
+//                Event const &,
+//                InputTag const &);
+// FindOne<ProdB, Data>(Handle<ProdAColl> const &,
+//                      Event const &,
+//                      InputTag const &);
+//
+// // From View<A>.
+// FindOne<ProdB>(View<ProdA> const &,
+//                Event const &,
+//                InputTag const &);
+// FindOne<ProdB, Data>(View<ProdA> const &,
+//                      Event const &,
+//                      InputTag const &);
+//
+// // From arbitrary sequence of Ptr<A>.
+// FindOne<ProdB>(PtrProdAColl const &,
+//                Event const &,
+//                InputTag const &);
+// FindOne<ProdB, Data>(PtrProdAColl const &,
+//                      Event const &,
+//                      InputTag const &);
+//
+// Modifiers.
+//
+// <NONE>.
+//
+// Accessors.
+//
+// size_type size() const;
+// cet::maybe_ref<assoc_t const> at(size_type) const;
+// cet::maybe_ref<data_t const> data(size_type) const;
+// void get(size_type,
+//          cet::maybe_ref<assoc_t const> &) const;
+// void get(size_type,
+//          cet::maybe_ref<assoc_t const> &,
+//          cet::maybe_ref<data_t const> &)
+//   const; // *Must* be used for FindOne<ProdB, Data>.
+//
+// Comparison operations.
+//
+// bool operator == (FindOne const & other) const;
+//
+////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/detail/IPRHelper.h"
 #include "art/Framework/Core/detail/ProductIDProvider.h"
 #include "art/Framework/Principal/Handle.h"
@@ -59,7 +160,7 @@ public:
 
   bool operator == (FindOne<ProdB, void> const & other) const;
 
-protected: 
+protected:
   FindOne() : bCollection_() { }
   bColl_t & bCollection() { return bCollection_; }
 
