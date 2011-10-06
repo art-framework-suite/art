@@ -174,7 +174,6 @@ namespace art {
 
   class EngineCreator;      // to be granted friendship
   class RandomNumberSaver;  // to be granted friendship
-  class InputSource;        // to be granted friendship TODO: remove this
 
   class RandomNumberGenerator;
 }
@@ -189,7 +188,6 @@ class art::RandomNumberGenerator
 {
   friend class EngineCreator;
   friend class RandomNumberSaver;
-  friend class InputSource;  // TODO: remove this
 
   // --- Prevent copying:
   RandomNumberGenerator( RandomNumberGenerator const & );
