@@ -84,7 +84,13 @@ namespace {
 
   bool         const  DEFAULT_DEBUG_VALUE( false );
   int          const  DEFAULT_NPRINT_VALUE( 10 );
-  ParameterSet const  DEFAULT_PSET;
+  ParameterSet const  DEFAULT_PSET
+#if __GNUC__ == 4 && __GNUC_MINOR__ == 6
+ // Required by C++03 & C++2011; GCC v4.6 became more strict. ISO agreed
+ // to relax.
+  = ParameterSet()
+#endif
+;
   string       const  EMPTY_STRING( "" );
   string       const  DEFAULT_ENGINE_KIND( "HepJamesRandom" );
   seed_t       const  MAXIMUM_CLHEP_SEED( 900000000 );

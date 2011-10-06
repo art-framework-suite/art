@@ -74,7 +74,7 @@ namespace art
 
   private:
     std::string mockData_;
-    mutable std::ostream & output_;
+    std::ostream & output_;
     statemachine::FileMode fileMode_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
