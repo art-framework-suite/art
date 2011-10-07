@@ -52,7 +52,7 @@ Qualifiers = "a4:debug"
        execute( "get-directory-name subdir a4.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
-       setupRequired(root      @ROOT_VERSION@ -q gcc46)
+       setupRequired(root      @ROOT_VERSION@ -q gcc46:debug)
 
 Flavor     = ANY
 Qualifiers = "nova:debug"
@@ -65,7 +65,7 @@ Qualifiers = "nova:debug"
        execute( "get-directory-name subdir nova.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
-       setupRequired(root      @ROOT_VERSION@ -q nova)
+       setupRequired(root      @ROOT_VERSION@ -q nova:debug)
 
 Common:
   Action = setup__
