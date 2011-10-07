@@ -63,6 +63,7 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cpp0x/type_traits"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
   template <class T>
@@ -75,11 +76,41 @@ namespace art {
     // Does the detail object have a method void startEvent()?
     template <typename T, void (T::*)(Event const &)> struct startEvent_function;
 
+    //////////
+    // Temporary trapping of old interface in user code.
+    template <typename X, void (X::*)()> struct old_startEvent_function;
+    template <typename X>
+    no_tag
+    has_old_startEvent_helper(...);
+    template <typename X>
+    yes_tag
+    has_old_startEvent_helper(old_startEvent_function<X, &X::startEvent> * dummy);
+    template <typename X>
+    struct has_old_startEvent {
+      static bool const value =
+        sizeof(has_old_startEvent_helper<X>(0)) == sizeof(yes_tag);
+    };
+
     template <typename T> struct do_not_call_startEvent {
     public:
       do_not_call_startEvent(Event const &) { }
-      void operator()(T &t) { }
+      void operator()(T &t) {
+        static bool need_warning =
+          has_old_startEvent<T>::value;
+        if (has_old_startEvent<T>::value) {
+          if (need_warning) {
+            mf::LogWarning("Deprecated")
+              << "Mixing driver function has signature startEvent(), which is deprecated.\n"
+              << "Please update your code to define startEvent(Event const &).\n"
+              << "In a future version of ART the old method will no longer be called.";
+            need_warning = false;
+          }
+          t.startEvent();
+        }
+      }
+    private:
     };
+    //////////
 
     template <typename T> struct call_startEvent {
     public:
