@@ -3,6 +3,7 @@ set(art_Framework_Principal_sources
   AssnsGroup.cc
   CurrentProcessingContext.cc
   DataViewImpl.cc
+  DeferredProductGetter.cc
   Event.cc
   EventPrincipal.cc
   Group.cc
