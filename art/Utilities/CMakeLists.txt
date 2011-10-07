@@ -46,5 +46,5 @@ target_link_libraries(art_Utilities
 
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
 
-install_headers(SUBDIRS detail)
+install_headers(SUBDIRS detail EXTRAS ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.h)
 install_source()
