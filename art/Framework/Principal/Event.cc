@@ -32,14 +32,9 @@ namespace art {
   , gotBranchIDs_( )
   { }
 
-////  EDProductGetter const *
-////  Event::productGetter() const {
-////    return &principal();
-////  }
-
   EDProductGetter const *
   Event::productGetter(ProductID const & pid) const {
-    return eventPrincipal().getByProductID(pid).result().get();
+    return eventPrincipal().productGetter(pid);
   }
 
   ProductID

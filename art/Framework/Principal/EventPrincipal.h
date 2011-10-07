@@ -23,6 +23,7 @@ is the DataBlock.
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 
+#include <map>
 #include <vector>
 
 namespace art {
@@ -98,6 +99,9 @@ public:
 
   BranchType branchType() const { return InEvent; }
 
+  EDProductGetter const *
+  productGetter(ProductID const & pid) const;
+
 private:
 
   BranchID productIDToBranchID(ProductID const& pid) const;
@@ -107,6 +111,12 @@ private:
   virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
 
   virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return history().setProcessHistoryID(phid);}
+
+  // This function and its associated member datum are required to
+  // handle the lifetime of a deferred getter, which in turn is required
+  // because a group does not exist until it is placed in the event.
+  EDProductGetter const * deferredGetter_(ProductID const & pid) const;
+  mutable std::map<ProductID, std::shared_ptr<DeferredProductGetter const> > deferredGetters_;
 
   EventAuxiliary aux_;
   std::shared_ptr<SubRunPrincipal> subRunPrincipal_;

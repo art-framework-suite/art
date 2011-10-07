@@ -1,14 +1,15 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 
-#include "art/Persistency/Provenance/ProductMetaData.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/DeferredProductGetter.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/GroupFactory.h"
-#include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Framework/Principal/Provenance.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/BranchIDList.h"
 #include "art/Persistency/Provenance/BranchIDListRegistry.h"
 #include "art/Persistency/Provenance/BranchListIndex.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/algorithm"
 #include "cpp0x/utility"
@@ -25,6 +26,7 @@ namespace art {
                                  std::auto_ptr<BranchMapper> mapper,
                                  std::auto_ptr<DelayedReader> rtrv) :
   Principal(pc, history->processHistoryID(), mapper, rtrv),
+  deferredGetters_(),
   aux_(aux),
   subRunPrincipal_(),
   history_(history),
@@ -132,6 +134,13 @@ namespace art {
     this->addGroup(edp, bd);
   }
 
+  EDProductGetter const *
+  EventPrincipal::productGetter(ProductID const & pid) const {
+    EDProductGetter const * result =
+      getByProductID(pid).result().get();
+    return result?result:deferredGetter_(pid);
+  }
+
   BranchID
   EventPrincipal::productIDToBranchID(ProductID const& pid) const {
     if (!pid.isValid()) {
@@ -207,14 +216,27 @@ namespace art {
     }
   }
 
-////  EDProduct const *
-////  EventPrincipal::getIt(ProductID const& pid) const {
-////    return getByProductID(pid).result()->product();
-////  }
-
   EventSelectionIDVector const&
   EventPrincipal::eventSelectionIDs() const
   {
     return history_->eventSelectionIDs();
   }
+
+  EDProductGetter const *
+  EventPrincipal::deferredGetter_(ProductID const & pid) const {
+    typename
+      std::map<ProductID, std::shared_ptr<DeferredProductGetter const> >::
+      const_iterator
+      it = deferredGetters_.find(pid);
+    if ( it != deferredGetters_.end()) {
+      return (it->second.get());
+    } else {
+      std::shared_ptr<DeferredProductGetter const> tmp
+        (new DeferredProductGetter(cet::exempt_ptr<EventPrincipal const>
+                                   (this),
+                                   pid));
+      return (deferredGetters_[pid] = tmp).get();
+    }
+  }
+
 }
