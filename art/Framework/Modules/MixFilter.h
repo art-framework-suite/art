@@ -36,7 +36,7 @@
 // it is declared.  (There must, of course, be a function definition
 // corresponding to each declared function.)
 //
-//    void startEvent();
+//    void startEvent(art::Event const &e);
 //
 //    // Reset internal cache information at the start of the current
 //    // event.
@@ -73,16 +73,20 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
-    template <typename T, void (T::*)()> struct startEvent_function;
+    template <typename T, void (T::*)(Event const &)> struct startEvent_function;
 
     template <typename T> struct do_not_call_startEvent {
     public:
-      void operator()(T &t) {}
+      do_not_call_startEvent(Event const &) { }
+      void operator()(T &t) { }
     };
 
     template <typename T> struct call_startEvent {
     public:
-      void operator()(T &t) { t.startEvent(); }
+      call_startEvent(Event const &e) : e_(e) { }
+      void operator()(T &t) { t.startEvent(e_); }
+    private:
+      Event const &e_;
     };
 
     template <typename T>
@@ -204,7 +208,7 @@ art::MixFilter<T>::filter(art::Event &e) {
   // 1. Call detail object's startEvent() if it exists.
   typename std::conditional<detail::has_startEvent<T>::value,
     detail::call_startEvent<T>,
-    detail::do_not_call_startEvent<T> >::type maybe_call_startEvent;
+    detail::do_not_call_startEvent<T> >::type maybe_call_startEvent(e);
   maybe_call_startEvent(detail_);
 
   // 2. Ask detail object how many events to read.

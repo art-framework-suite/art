@@ -33,8 +33,8 @@ public:
   MixFilterTestDetail(fhicl::ParameterSet const &p,
                       art::MixHelper &helper);
 
-  // Optional startEvent(): initialize state for each event,
-  void startEvent();
+  // Optional startEvent(Event const &): initialize state for each event,
+  void startEvent(art::Event const &);
 
   // Return the number of secondaries to read this time. Declare const
   // if you don't plan to change your class' state.
@@ -177,7 +177,7 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
 
 void
 arttest::MixFilterTestDetail::
-startEvent() {
+startEvent(art::Event const &) {
   startEvent_called_ = true;
   eIDs_.reset();
   ++currentEvent_;
@@ -202,8 +202,8 @@ finalizeEvent(art::Event &e) {
   e.put(std::auto_ptr<std::string>(new std::string("BlahBlahBlah")));
   e.put(eIDs_);
 
-  assert(startEvent_called_);
-  assert(processEventIDs_called_);
+  BOOST_REQUIRE(startEvent_called_);
+  BOOST_REQUIRE(processEventIDs_called_);
   startEvent_called_ = false;
   processEventIDs_called_ = false;
 }
