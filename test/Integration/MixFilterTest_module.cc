@@ -96,6 +96,7 @@ public:
   template <typename COLL>
   void verifyInSize(COLL const &in) const;
 
+private:
   size_t nSecondaries_;
   bool testRemapper_;
   std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
@@ -104,6 +105,7 @@ public:
   bool processEventIDs_called_;
   int currentEvent_;
   bool testZeroSecondaries_;
+  bool testPtrFailure_;
 };
 
 template <typename COLL>
@@ -127,7 +129,8 @@ MixFilterTestDetail(fhicl::ParameterSet const &p,
   startEvent_called_(false),
   processEventIDs_called_(false),
   currentEvent_(-1),
-  testZeroSecondaries_(p.get<bool>("testZeroSecondaries", false))
+  testZeroSecondaries_(p.get<bool>("testZeroSecondaries", false)),
+  testPtrFailure_(p.get<bool>("testPtrFailure", false))
 {
   std::string mixProducerLabel(p.get<std::string>("mixProducerLabel",
                                                   "mixProducer"));
@@ -254,6 +257,9 @@ mixPtrs(std::vector<std::vector<art::Ptr<double> > const *> const &in,
   remap(in,
         std::back_inserter(out),
         doubleVectorOffsets_);
+  if (testPtrFailure_) {
+    BOOST_REQUIRE_THROW(*out.front(), art::Exception);
+  }
   return true; //  Always want product in event.
 }
 

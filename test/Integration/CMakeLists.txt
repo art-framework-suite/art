@@ -340,6 +340,16 @@ cet_test(ProductMix_r1c HANDBUILT
   fcl/ProductMix_r1c.fcl
 )
 
+# Mix the events from ProductMix_w, testing that we correctly detect an
+# inappropriate attempt to dereference a Ptr.
+cet_test(ProductMix_r1d HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "ProductMix_r1d.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1d.fcl
+)
+
 # Read the output from ProductMix_r1a running the analysis to ensure that
 # everything works as read from an output file written post-mixing.
 cet_test(ProductMix_r2 HANDBUILT
