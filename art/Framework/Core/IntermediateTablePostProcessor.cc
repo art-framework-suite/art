@@ -117,7 +117,7 @@ applyRethrowOptions(intermediate_table & raw_config) const
 {
   if (rethrowAll_ || rethrowDefault_) {
     raw_config["services.scheduler.defaultExceptions"] =
-      extended_value(false, BOOL, false);
+      extended_value(false, BOOL, fhicl::detail::encode(false));
   }
   if (!rethrowAll_) { return; }
   raw_config["services.scheduler.IgnoreCompletely"] =
