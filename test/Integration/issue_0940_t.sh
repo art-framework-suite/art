@@ -4,7 +4,7 @@
 
 rm -f cerr.log warnings.log
 
-fail_art issue_0940.fcl
+fail_art issue_0940.fcl --rethrow-all
 
 # Re-source tests but change behavior on fail
 export CET_TF_LEAVE=return

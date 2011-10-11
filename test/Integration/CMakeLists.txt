@@ -144,7 +144,7 @@ cet_test(issue_0940_t.sh PREBUILT
   )
 cet_test(reconfig_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c test_reconfig_01.fcl
+  TEST_ARGS --rethrow-all -c test_reconfig_01.fcl
   DATAFILES
   fcl/test_reconfig_01.fcl
   fcl/messageDefaults.fcl
@@ -152,7 +152,7 @@ cet_test(reconfig_t HANDBUILT
 
 cet_test(issue_0930_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c issue_0930.fcl
+  TEST_ARGS --rethrow-all -c issue_0930.fcl
   DATAFILES
   fcl/issue_0930.fcl
   fcl/messageDefaults.fcl
@@ -168,7 +168,7 @@ cet_test( test_FileDumperOutput.sh PREBUILT
 
 cet_test(ToyRawInput_t_01 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c ToyRawInput_01.fcl
+  TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
   DATAFILES
   fcl/ToyRawInput_01.fcl
   fcl/messageDefaults.fcl
@@ -203,7 +203,7 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_04 PROPERTIES
 foreach(num 05 06 07 08 09 10)
   cet_test(ToyRawInput_t_${num} HANDBUILT
     TEST_EXEC art
-    TEST_ARGS -c ToyRawInput_${num}.fcl
+    TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
     DATAFILES
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
@@ -243,7 +243,7 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
 
 cet_test(ToyRawInput_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c ToyRawInput_w.fcl
+  TEST_ARGS --rethrow-all -c ToyRawInput_w.fcl
   DATAFILES
   fcl/ToyRawInput_w.fcl
   fcl/ToyRawInput_wr_f1.fcl
@@ -252,7 +252,7 @@ cet_test(ToyRawInput_w HANDBUILT
 
 cet_test(ToyRawInput_r1 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c ToyRawInput_r1.fcl
+  TEST_ARGS --rethrow-all -c ToyRawInput_r1.fcl
   DATAFILES
   fcl/ToyRawInput_r1.fcl
   fcl/ToyRawInput_wr_f1.fcl
@@ -260,7 +260,7 @@ cet_test(ToyRawInput_r1 HANDBUILT
 
 cet_test(ToyRawInput_r2 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c ToyRawInput_r2.fcl
+  TEST_ARGS --rethrow-all -c ToyRawInput_r2.fcl
   DATAFILES
   fcl/ToyRawInput_r2.fcl
   fcl/ToyRawInput_r1.fcl
@@ -269,7 +269,7 @@ cet_test(ToyRawInput_r2 HANDBUILT
 
 cet_test(ToyRawInput_r3 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c ToyRawInput_r3.fcl
+  TEST_ARGS --rethrow-all -c ToyRawInput_r3.fcl
   DATAFILES
   fcl/ToyRawInput_r3.fcl
   fcl/ToyRawInput_r1.fcl
@@ -278,14 +278,14 @@ cet_test(ToyRawInput_r3 HANDBUILT
 
 cet_test(BareString_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c BareString_w.fcl
+  TEST_ARGS --rethrow-all -c BareString_w.fcl
   DATAFILES
   fcl/BareString_w.fcl
 )
 
 cet_test(BareString_r HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c BareString_r.fcl
+  TEST_ARGS --rethrow-all -c BareString_r.fcl
   DATAFILES
   fcl/BareString_r.fcl
 )
@@ -294,7 +294,7 @@ cet_test(BareString_r HANDBUILT
 # Write the data file required for the other mixing tests.
 cet_test(ProductMix_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c "ProductMix_w.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_w.fcl"
   DATAFILES
   fcl/ProductMix_w.fcl
 )
@@ -303,7 +303,7 @@ cet_test(ProductMix_w HANDBUILT
 # writing an output file.
 cet_test(ProductMix_r1 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductMix_r1.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_r1.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
 )
@@ -313,7 +313,7 @@ cet_test(ProductMix_r1 HANDBUILT
 # nor output written.
 cet_test(ProductMix_r1a HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductMix_r1a.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_r1a.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1a.fcl
@@ -324,7 +324,7 @@ cet_test(ProductMix_r1a HANDBUILT
 # twice).
 cet_test(ProductMix_r1b HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductMix_r1b.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_r1b.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1b.fcl
@@ -334,7 +334,7 @@ cet_test(ProductMix_r1b HANDBUILT
 # with secondary input file wrappring.
 cet_test(ProductMix_r1c HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductMix_r1c.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
@@ -344,7 +344,7 @@ cet_test(ProductMix_r1c HANDBUILT
 # inappropriate attempt to dereference a Ptr.
 cet_test(ProductMix_r1d HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductMix_r1d.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_r1d.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1d.fcl
@@ -354,21 +354,21 @@ cet_test(ProductMix_r1d HANDBUILT
 # everything works as read from an output file written post-mixing.
 cet_test(ProductMix_r2 HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductMix_r2.fcl"
+  TEST_ARGS --rethrow-all -c "ProductMix_r2.fcl"
   DATAFILES
   fcl/ProductMix_r2.fcl
 )
 
 cet_test(Ptrmv_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "Ptrmv_w.fcl"
+  TEST_ARGS --rethrow-all -c "Ptrmv_w.fcl"
   DATAFILES
   fcl/Ptrmv_w.fcl
 )
 
 cet_test(Ptrmv_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "Ptrmv_r.fcl"
+  TEST_ARGS --rethrow-all -c "Ptrmv_r.fcl"
   DATAFILES
   fcl/Ptrmv_r.fcl
 )
@@ -390,14 +390,14 @@ endif()
 
 cet_test(ProductIDGetter_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ProductIDGetter_t.fcl"
+  TEST_ARGS --rethrow-all -c "ProductIDGetter_t.fcl"
   DATAFILES
   fcl/ProductIDGetter_t.fcl
 )
 
 cet_test(Assns_w HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "Assns_w.fcl"
+  TEST_ARGS --rethrow-all -c "Assns_w.fcl"
   DATAFILES
   fcl/Assns_w.fcl
 )
@@ -405,7 +405,7 @@ cet_test(Assns_w HANDBUILT
 foreach(num 1 2)
   cet_test(Assns_r${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS -c "Assns_r${num}.fcl"
+    TEST_ARGS --rethrow-all -c "Assns_r${num}.fcl"
     DATAFILES
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
@@ -415,7 +415,7 @@ endforeach()
 
 cet_test(DropOnInput_null_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "DropOnInput_null_t.fcl"
+  TEST_ARGS --rethrow-all -c "DropOnInput_null_t.fcl"
   DATAFILES
   fcl/DropOnInput_null_t.fcl
   fcl/DropOnInput_t.fcl
@@ -424,14 +424,14 @@ cet_test(DropOnInput_null_t HANDBUILT
 
 cet_test(DropOnInput_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "DropOnInput_t.fcl"
+  TEST_ARGS --rethrow-all -c "DropOnInput_t.fcl"
   DATAFILES
   fcl/DropOnInput_t.fcl
 )
 
 cet_test(DropOnInput_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "DropOnInput_r.fcl"
+  TEST_ARGS --rethrow-all -c "DropOnInput_r.fcl"
   DATAFILES
   fcl/DropOnInput_r.fcl
 )
@@ -474,7 +474,7 @@ set(test_list ${test_list}
 foreach(test ${test_list})
   cet_test(${test} HANDBUILT
     TEST_EXEC art
-    TEST_ARGS -c ${test}.fcl
+    TEST_ARGS --rethrow-all -c ${test}.fcl
     DATAFILES
     fcl/${test}.fcl
     fcl/messageDefaults.fcl
@@ -497,7 +497,7 @@ SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
 # abort, which is not covered by the WILL_FAIL test property.
 cet_test(Unscheduled_03_t HANDBUILT
   TEST_EXEC test_must_abort
-  TEST_ARGS art -c "Unscheduled_03_t.fcl"
+  TEST_ARGS art --rethrow-all -c "Unscheduled_03_t.fcl"
   TEST_PROPERTIES PASS_REGULAR_EXPRESSION
   "Assertion `handle.isValid\\\\\\\\(\\\\\\\\) == require_presence_' failed."
   DATAFILES

@@ -4,5 +4,5 @@
 
 rm -f out.root cerr.log warnings.log
 
-run_art raw_input_01.fcl
+run_art raw_input_01.fcl --rethrow-all
 
