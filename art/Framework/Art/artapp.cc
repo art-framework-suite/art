@@ -23,8 +23,11 @@ int artapp(int argc, char * argv[])
   bpo::options_description desc(descstr.str());
   desc.add_options()
   ("help,h", "produce help message")
-  ("config,c", bpo::value<std::string>(), "configuration file");
-  bpo::options_description all_options("All Options");
+  ("config,c", bpo::value<std::string>(), "configuration file.")
+  ("rethrow-default", "all exceptions default to rethrow.")
+  ("rethrow-all", "all exceptions overridden to rethrow (cf rethrow-default).")
+  ;
+  bpo::options_description all_options("All Options.");
   all_options.add(desc);
   bpo::variables_map vm;
   try {
@@ -68,5 +71,5 @@ int artapp(int argc, char * argv[])
               << vm["config"].as<std::string>()
               << "' is empty: using minimal defaults.\n";
   }
-  return art::run_art(raw_config);
+  return art::run_art(raw_config, vm);
 }

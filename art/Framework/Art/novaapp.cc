@@ -38,6 +38,8 @@ int novaapp(int argc, char * argv[])
   ("notrace", "Deactivate tracing.")
   ("memcheck", "Activate monitoring of memory use.")
   ("nomemcheck", "Deactivate monitoring of memory use.")
+  ("rethrow-default", "all exceptions default to rethrow.")
+  ("rethrow-all", "all exceptions overridden to rethrow (cf rethrow-default).")
   ;
   bpo::positional_options_description pd;
   // A single non-option argument will be taken to be the source data file.
@@ -141,5 +143,5 @@ int novaapp(int argc, char * argv[])
   if (vm.count("nskip"))
   { ncpp.skipEvts(vm["nskip"].as<unsigned long>()); }
   ncpp.apply(raw_config);
-  return art::run_art(raw_config);
+  return art::run_art(raw_config, vm);
 }

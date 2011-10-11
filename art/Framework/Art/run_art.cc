@@ -24,6 +24,7 @@
 #include <vector>
 
 using namespace fhicl;
+namespace  bpo = boost::program_options;
 
 using std::string;
 using std::ostringstream;
@@ -81,8 +82,8 @@ namespace {
 
 } // namespace
 
-
-int art::run_art(intermediate_table raw_config)
+int art::run_art(intermediate_table raw_config,
+                 boost::program_options::variables_map const & vm)
 {
   //
   // Make the parameter set from the intermediate table with any
@@ -90,6 +91,12 @@ int art::run_art(intermediate_table raw_config)
   //
   ParameterSet main_pset;
   art::IntermediateTablePostProcessor itpp;
+  if (vm.count("rethrow-all")) {
+    itpp.wantRethrowAll();
+  }
+  if (vm.count("rethrow-default")) {
+    itpp.wantRethrowDefault();
+  }
   itpp.apply(raw_config);
   try {
     make_ParameterSet(raw_config, main_pset);

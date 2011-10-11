@@ -2,15 +2,25 @@
 #define art_Framework_Core_IntermediateTablePostProcessor_h
 
 namespace art {
-   class IntermediateTablePostProcessor;
+  class IntermediateTablePostProcessor;
 }
 
 namespace fhicl {
-   class intermediate_table;
+  class intermediate_table;
 }
 
-struct art::IntermediateTablePostProcessor {
-   void apply(fhicl::intermediate_table &raw_config) const;
+class art::IntermediateTablePostProcessor {
+public:
+  IntermediateTablePostProcessor();
+  void apply(fhicl::intermediate_table & raw_config) const;
+
+  void wantRethrowDefault() { rethrowDefault_ = true; }
+  void wantRethrowAll() { rethrowAll_ = true; }
+private:
+  void applyRethrowOptions(fhicl::intermediate_table & raw_config) const;
+
+  bool rethrowDefault_;
+  bool rethrowAll_;
 };
 #endif /* art_Framework_Core_IntermediateTablePostProcessor_h */
 

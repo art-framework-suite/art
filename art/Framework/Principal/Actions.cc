@@ -45,7 +45,9 @@ namespace art {
   ActionTable::ActionTable(const ParameterSet& scheduleOpts) :
     map_()
   {
-    addDefaults_();
+    if (scheduleOpts.get<bool>("defaultExceptions", true)) {
+      addDefaults_();
+    }
     install_(actions::SkipEvent, scheduleOpts);
     install_(actions::Rethrow, scheduleOpts);
     install_(actions::IgnoreCompletely, scheduleOpts);
@@ -55,7 +57,6 @@ namespace art {
 
   void ActionTable::addDefaults_()
   {
-    using namespace boost::lambda;
     // populate defaults that are not 'Rethrow'
     // 'Rethrow' is the default default.
     map_[art::Exception::codeToString(errors::ProductNotFound)] =
