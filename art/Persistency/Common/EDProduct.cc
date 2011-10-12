@@ -18,19 +18,19 @@ EDProduct::~EDProduct()
 { }
 
 void
-EDProduct::setPtr(std::type_info const &toType,
+EDProduct::setPtr(std::type_info const & toType,
                   unsigned long index,
                   void const * &ptr) const
 {
-   do_setPtr(toType, index, ptr);
+  do_setPtr(toType, index, ptr);
 }
 
 void
-EDProduct::getElementAddresses(std::type_info const &toType,
-                         std::vector<unsigned long> const &indices,
-                         std::vector<void const *> &ptr) const
+EDProduct::getElementAddresses(std::type_info const & toType,
+                               std::vector<unsigned long> const & indices,
+                               std::vector<void const *> &ptr) const
 {
-   do_getElementAddresses(toType, indices, ptr);
+  do_getElementAddresses(toType, indices, ptr);
 }
 
 // ======================================================================

@@ -4,7 +4,7 @@
 #include <string>
 
 namespace art {
-  std::string wrappedClassName(std::string const& iFullName);
+  std::string wrappedClassName(std::string const & iFullName);
 }
 #endif /* art_Utilities_WrappedClassName_h */
 

@@ -19,40 +19,41 @@ namespace art {
   namespace rootNames {
     //------------------------------------------------------------------
     // Parentage Tree
-    std::string const & parentageTreeName( );
+    std::string const & parentageTreeName();
 
     // Branches on parentage tree
-    std::string const & parentageIDBranchName( );
-    std::string const & parentageBranchName( );
+    std::string const & parentageIDBranchName();
+    std::string const & parentageBranchName();
 
     //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
-    std::string const & metaDataTreeName( );
+    std::string const & metaDataTreeName();
 
     // Event History Tree
-    std::string const & eventHistoryTreeName( );
+    std::string const & eventHistoryTreeName();
 
     // Branches on EventHistory Tree
-    std::string const & eventHistoryBranchName( );
+    std::string const & eventHistoryBranchName();
 
     //------------------------------------------------------------------
     // Other tree names
-    std::string const & eventTreeName( );
-    std::string const & eventMetaDataTreeName( );
+    std::string const & eventTreeName();
+    std::string const & eventMetaDataTreeName();
 
 #define ART_ROOTNAME(T,N)                                     \
-    template <>                                               \
-    inline char const *metaBranchRootName<T>() { return N; }
+  template <>                                               \
+  inline char const *metaBranchRootName<T>() { return N; }
 
 #define ART_ROOTNAME_SIMPLE(T)                  \
-    ART_ROOTNAME(T,#T)
+  ART_ROOTNAME(T,#T)
 
     template <typename T>
-    char const *metaBranchRootName() {
+    char const * metaBranchRootName()
+    {
       throw Exception(errors::LogicError)
-        << "art::metaBranchRootName requires a specialization for type "
-        << TypeID(typeid(T)).className()
-        << "\n";
+          << "art::metaBranchRootName requires a specialization for type "
+          << TypeID(typeid(T)).className()
+          << "\n";
     }
 
     ART_ROOTNAME_SIMPLE(FileFormatVersion)
@@ -61,8 +62,8 @@ namespace art {
     ART_ROOTNAME_SIMPLE(ParameterSetMap)
     ART_ROOTNAME_SIMPLE(ProcessHistoryMap)
     ART_ROOTNAME_SIMPLE(BranchIDLists)
-    ART_ROOTNAME(BranchChildren,"ProductDependencies")
-    ART_ROOTNAME(History,"EventHistory")
+    ART_ROOTNAME(BranchChildren, "ProductDependencies")
+    ART_ROOTNAME(History, "EventHistory")
 
 #undef ART_ROOTNAME_SIMPLE
 #undef ART_ROOTNAME

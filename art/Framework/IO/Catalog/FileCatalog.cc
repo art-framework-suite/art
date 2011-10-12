@@ -13,13 +13,16 @@ namespace art {
 
   FileCatalog::FileCatalog() :
     url_(),
-    active_(false) {
+    active_(false)
+  {
   }
 
-  FileCatalog::~FileCatalog() {
+  FileCatalog::~FileCatalog()
+  {
   }
 
-  void FileCatalog::commitCatalog() {
+  void FileCatalog::commitCatalog()
+  {
   }
 
 }

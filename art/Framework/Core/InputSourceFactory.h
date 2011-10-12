@@ -19,16 +19,15 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::InputSourceFactory
-{
+class art::InputSourceFactory {
   // non-copyable:
-  InputSourceFactory( InputSourceFactory const & );
-  void  operator = ( InputSourceFactory const & );
+  InputSourceFactory(InputSourceFactory const &);
+  void  operator = (InputSourceFactory const &);
 
- public:
+public:
   static std::auto_ptr<InputSource>
-     make(fhicl::ParameterSet const&,
-          InputSourceDescription &);
+  make(fhicl::ParameterSet const &,
+       InputSourceDescription &);
 
 private:
   LibraryManager lm_;
@@ -37,7 +36,7 @@ private:
   ~InputSourceFactory();
 
   static InputSourceFactory &
-     the_factory_();
+  the_factory_();
 
 };  // InputSourceFactory
 

@@ -24,12 +24,12 @@ namespace art {
           table_[FailPath] = "FailPath";
         }
 
-        typedef vector<const char*> Table;
+        typedef vector<const char *> Table;
         Table table_;
       };
     }
 
-    const char* actionName(ActionCodes code)
+    const char * actionName(ActionCodes code)
     {
       static ActionNames tab;
       return static_cast<unsigned int>(code) < tab.table_.size() ?
@@ -42,7 +42,7 @@ namespace art {
     addDefaults_();
   }
 
-  ActionTable::ActionTable(const ParameterSet& scheduleOpts) :
+  ActionTable::ActionTable(const ParameterSet & scheduleOpts) :
     map_()
   {
     if (scheduleOpts.get<bool>("defaultExceptions", true)) {
@@ -81,7 +81,7 @@ namespace art {
 
   void
   ActionTable::install_(actions::ActionCodes code,
-                        const ParameterSet& scheduler)
+                        const ParameterSet & scheduler)
   {
     using namespace boost::lambda;
     typedef vector<string> vstring;
@@ -89,13 +89,13 @@ namespace art {
     for_all(v, var(map_)[boost::lambda::_1] = code);
   }
 
-  void ActionTable::add(const string& category,
+  void ActionTable::add(const string & category,
                         actions::ActionCodes code)
   {
     map_[category] = code;
   }
 
-  actions::ActionCodes ActionTable::find(const string& category) const
+  actions::ActionCodes ActionTable::find(const string & category) const
   {
     ActionMap::const_iterator i(map_.find(category));
     return i != map_.end() ? i->second : actions::Rethrow;

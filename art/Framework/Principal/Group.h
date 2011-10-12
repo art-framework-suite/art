@@ -26,7 +26,7 @@ is the storage unit of such information.
 namespace art {
   class Group;
 
-  std::ostream &operator<<(std::ostream &os, Group const &g);
+  std::ostream & operator<<(std::ostream & os, Group const & g);
 }
 
 // Noncopyable through inheritance from EDProductGetter.
@@ -35,23 +35,23 @@ class art::Group : public EDProductGetter {
 public:
   Group();
 protected: // Use GroupFactory to make.
-  Group(BranchDescription const &bd,
-        ProductID const &pid,
-        art::TypeID const &wrapper_type,
+  Group(BranchDescription const & bd,
+        ProductID const & pid,
+        art::TypeID const & wrapper_type,
         cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
         cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
           cet::exempt_ptr<EventPrincipal>());
   Group(std::auto_ptr<EDProduct> edp,
-        BranchDescription const &bd,
-        ProductID const &pid,
-        art::TypeID const &wrapper_type);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
-  friend std::auto_ptr<Group> gfactory::make_group(std::auto_ptr<EDProduct>, BranchDescription const&, ProductID const &);
+        BranchDescription const & bd,
+        ProductID const & pid,
+        art::TypeID const & wrapper_type);
+  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const &, ProductID const &);
+  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const &, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
+  friend std::auto_ptr<Group> gfactory::make_group(std::auto_ptr<EDProduct>, BranchDescription const &, ProductID const &);
 public:
   virtual ~Group();
 
-  void swap(Group &other);
+  void swap(Group & other);
 
   // product is not available (dropped or never created)
   bool productUnavailable() const;
@@ -59,25 +59,25 @@ public:
   // Scheduled for on-demand production
   bool onDemand() const { return productProducer_ && onDemandPrincipal_; }
 
-  virtual EDProduct const *getIt() const { resolveProductIfAvailable(true, producedWrapperType()); return uniqueProduct(); }
-  virtual EDProduct const *anyProduct() const { return product_.get(); }
-  virtual EDProduct const *uniqueProduct() const { return product_.get(); }
-  virtual EDProduct const *uniqueProduct(TypeID const &) const { return product_.get(); }
+  virtual EDProduct const * getIt() const { resolveProductIfAvailable(true, producedWrapperType()); return uniqueProduct(); }
+  virtual EDProduct const * anyProduct() const { return product_.get(); }
+  virtual EDProduct const * uniqueProduct() const { return product_.get(); }
+  virtual EDProduct const * uniqueProduct(TypeID const &) const { return product_.get(); }
 
   cet::exempt_ptr<ProductProvenance const> productProvenancePtr() const;
 
-  BranchDescription const &productDescription() const {return *branchDescription_;}
+  BranchDescription const & productDescription() const {return *branchDescription_;}
 
-  std::string const &moduleLabel() const {return branchDescription_->moduleLabel();}
+  std::string const & moduleLabel() const {return branchDescription_->moduleLabel();}
 
-  std::string const &productInstanceName() const {return branchDescription_->productInstanceName();}
+  std::string const & productInstanceName() const {return branchDescription_->productInstanceName();}
 
-  std::string const &processName() const {return branchDescription_->processName();}
+  std::string const & processName() const {return branchDescription_->processName();}
 
   ProductStatus status() const;
 
-  void setResolvers(BranchMapper  const &bm,
-                    DelayedReader const &dr) {
+  void setResolvers(BranchMapper  const & bm,
+                    DelayedReader const & dr) {
     ppResolver_.reset(&bm);
     productResolver_.reset(&dr);
   }
@@ -88,12 +88,12 @@ public:
   resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const;
 
   // Write the group to the stream.
-  void write(std::ostream &os) const;
+  void write(std::ostream & os) const;
 
   // Replace the existing group with a new one
-  void replace(Group &g);
+  void replace(Group & g);
 
-  ProductID const &productID() const {return pid_;};
+  ProductID const & productID() const {return pid_;};
 
   TypeID const & producedWrapperType() const { return wrapper_type_; }
 
@@ -117,7 +117,7 @@ private:
 
 inline
 std::ostream &
-art::operator << (std::ostream &os, art::Group const &g)
+art::operator << (std::ostream & os, art::Group const & g)
 {
   g.write(os);
   return os;

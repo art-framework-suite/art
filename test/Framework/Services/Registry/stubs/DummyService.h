@@ -27,31 +27,30 @@
 
 // forward declarations
 namespace testserviceregistry {
-   class DummyService
-   {
+  class DummyService {
 
-   public:
-      DummyService(const fhicl::ParameterSet&,art::ActivityRegistry&);
-      virtual ~DummyService();
+  public:
+    DummyService(const fhicl::ParameterSet &, art::ActivityRegistry &);
+    virtual ~DummyService();
 
-      // ---------- const member functions ---------------------
-      int value() const { return value_; }
+    // ---------- const member functions ---------------------
+    int value() const { return value_; }
 
-      bool beginJobCalled() const {return beginJobCalled_;}
-      // ---------- static member functions --------------------
+    bool beginJobCalled() const {return beginJobCalled_;}
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-   private:
-      void doOnBeginJob() { beginJobCalled_=true;}
-      DummyService(const DummyService&); // stop default
+  private:
+    void doOnBeginJob() { beginJobCalled_ = true;}
+    DummyService(const DummyService &); // stop default
 
-      const DummyService& operator=(const DummyService&); // stop default
+    const DummyService & operator=(const DummyService &); // stop default
 
-      // ---------- member data --------------------------------
-      int value_;
-      bool beginJobCalled_;
-   };
+    // ---------- member data --------------------------------
+    int value_;
+    bool beginJobCalled_;
+  };
 }
 
 #endif /* test_Framework_Services_Registry_stubs_DummyService_h */

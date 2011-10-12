@@ -40,16 +40,13 @@ BOOST_AUTO_TEST_CASE(find_nested)
 {
   Type intvec(Type::ByName("std::vector<int>"));
   BOOST_REQUIRE(intvec);
-
   Type found_type;
-
   BOOST_REQUIRE(art::find_nested_type_named("const_iterator",
-                                             intvec,
-                                             found_type));
-
+                intvec,
+                found_type));
   BOOST_REQUIRE(!art::find_nested_type_named("WankelRotaryEngine",
-                                              intvec,
-                                              found_type));
+                intvec,
+                found_type));
 }
 
 BOOST_AUTO_TEST_CASE(burrowing)
@@ -58,8 +55,8 @@ BOOST_AUTO_TEST_CASE(burrowing)
   BOOST_REQUIRE(wrapper_type);
   Type wrapped_type;
   BOOST_REQUIRE(art::find_nested_type_named("wrapped_type",
-                                             wrapper_type,
-                                             wrapped_type));
+                wrapper_type,
+                wrapped_type));
   BOOST_REQUIRE(wrapped_type);
   BOOST_REQUIRE(!wrapped_type.IsTypedef());
   BOOST_REQUIRE(wrapped_type.IsFundamental());
@@ -74,8 +71,8 @@ BOOST_AUTO_TEST_CASE(burrowing_failure)
   Type no_such_wrapped_type;
   BOOST_REQUIRE(!no_such_wrapped_type);
   BOOST_REQUIRE(!art::find_nested_type_named("wrapped_type",
-                                              not_a_wrapper,
-                                              no_such_wrapped_type));
+                not_a_wrapper,
+                no_such_wrapped_type));
   BOOST_REQUIRE(!no_such_wrapped_type);
 }
 
@@ -95,7 +92,7 @@ BOOST_AUTO_TEST_CASE(wrapper_type_failure)
   Type no_such_wrapped_type;
   BOOST_REQUIRE(!no_such_wrapped_type);
   BOOST_REQUIRE(!art::wrapper_type_of(not_a_wrapper,
-                                       no_such_wrapped_type));
+                                      no_such_wrapped_type));
   BOOST_REQUIRE(!no_such_wrapped_type);
 }
 
@@ -103,16 +100,14 @@ BOOST_AUTO_TEST_CASE(primary_template_id)
 {
   Type intvec(Type::ByName("std::vector<int>"));
   TypeTemplate vec(intvec.TemplateFamily());
-
   // The template std::vector has two template parameters, thus the
   // '2' in the following line.
-  TypeTemplate standard_vec(TypeTemplate::ByName("std::vector",2));
+  TypeTemplate standard_vec(TypeTemplate::ByName("std::vector", 2));
   BOOST_REQUIRE(!standard_vec);
   BOOST_REQUIRE(vec != standard_vec);
-
   // Reflex in use by CMS as of 26 Feb 2007 understands vector to have
   // one template parameter; this is not standard.
-  TypeTemplate nonstandard_vec(TypeTemplate::ByName("std::vector",1));
+  TypeTemplate nonstandard_vec(TypeTemplate::ByName("std::vector", 1));
   BOOST_REQUIRE(nonstandard_vec);
   BOOST_REQUIRE(vec == nonstandard_vec);
 }

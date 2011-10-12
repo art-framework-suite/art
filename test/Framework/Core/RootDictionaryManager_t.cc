@@ -13,68 +13,68 @@ using namespace art;
 
 struct RootDictionaryManagerTestFixture {
 
-   RootDictionaryManagerTestFixture();
-   ~RootDictionaryManagerTestFixture() {}
+  RootDictionaryManagerTestFixture();
+  ~RootDictionaryManagerTestFixture() {}
 
-   RootDictionaryManager rdm;
-   RootDictionaryManager const &rdm_ref;
+  RootDictionaryManager rdm;
+  RootDictionaryManager const & rdm_ref;
 
 };
 
 RootDictionaryManagerTestFixture::RootDictionaryManagerTestFixture()
-   :
-   rdm(),
-   rdm_ref(rdm)
+  :
+  rdm(),
+  rdm_ref(rdm)
 {
 }
 
-BOOST_FIXTURE_TEST_SUITE ( RootDictionaryManagerTests, RootDictionaryManagerTestFixture )
+BOOST_FIXTURE_TEST_SUITE(RootDictionaryManagerTests, RootDictionaryManagerTestFixture)
 
-BOOST_AUTO_TEST_CASE ( DictLoaded )
+BOOST_AUTO_TEST_CASE(DictLoaded)
 {
-   LibraryManager dlm("dict");
-   std::vector<std::string> lib_list;
-   dlm.getLoadableLibraries(lib_list);
-   BOOST_REQUIRE(lib_list.size() > 1);
-   BOOST_REQUIRE(rdm_ref.dictIsLoaded(*lib_list.begin()));
+  LibraryManager dlm("dict");
+  std::vector<std::string> lib_list;
+  dlm.getLoadableLibraries(lib_list);
+  BOOST_REQUIRE(lib_list.size() > 1);
+  BOOST_REQUIRE(rdm_ref.dictIsLoaded(*lib_list.begin()));
 }
 
-BOOST_AUTO_TEST_CASE ( DictNotLoaded )
+BOOST_AUTO_TEST_CASE(DictNotLoaded)
 {
-   BOOST_REQUIRE(!rdm_ref.dictIsLoaded("UnknownLibrary"));
+  BOOST_REQUIRE(!rdm_ref.dictIsLoaded("UnknownLibrary"));
 }
 
-BOOST_AUTO_TEST_CASE ( DictLoadable )
+BOOST_AUTO_TEST_CASE(DictLoadable)
 {
-   LibraryManager dlm("dict");
-   std::vector<std::string> lib_list;
-   dlm.getLoadableLibraries(lib_list);
-   BOOST_REQUIRE(lib_list.size() > 1);
-   BOOST_REQUIRE(rdm_ref.dictIsLoadable(*lib_list.begin()));
+  LibraryManager dlm("dict");
+  std::vector<std::string> lib_list;
+  dlm.getLoadableLibraries(lib_list);
+  BOOST_REQUIRE(lib_list.size() > 1);
+  BOOST_REQUIRE(rdm_ref.dictIsLoadable(*lib_list.begin()));
 }
 
-BOOST_AUTO_TEST_CASE ( DictNotLoadable )
+BOOST_AUTO_TEST_CASE(DictNotLoadable)
 {
-   BOOST_REQUIRE(!rdm_ref.dictIsLoadable("UnknownLibrary"));
+  BOOST_REQUIRE(!rdm_ref.dictIsLoadable("UnknownLibrary"));
 }
 
-BOOST_AUTO_TEST_CASE ( dumpReflexDictionaryInfoOne )
+BOOST_AUTO_TEST_CASE(dumpReflexDictionaryInfoOne)
 {
-   LibraryManager dlm("dict");
-   std::vector<std::string> lib_list;
-   dlm.getLoadableLibraries(lib_list);
-   BOOST_REQUIRE(lib_list.size() > 1);
-   std::ostringstream out;
-   rdm_ref.dumpReflexDictionaryInfo(out, *lib_list.begin());
-   BOOST_REQUIRE(out.str().size() > 5);
+  LibraryManager dlm("dict");
+  std::vector<std::string> lib_list;
+  dlm.getLoadableLibraries(lib_list);
+  BOOST_REQUIRE(lib_list.size() > 1);
+  std::ostringstream out;
+  rdm_ref.dumpReflexDictionaryInfo(out, *lib_list.begin());
+  BOOST_REQUIRE(out.str().size() > 5);
 }
 
-BOOST_AUTO_TEST_CASE ( dumpReflexDictionaryInfoAll )
+BOOST_AUTO_TEST_CASE(dumpReflexDictionaryInfoAll)
 {
-   std::ostringstream out;
-   rdm_ref.dumpReflexDictionaryInfo(out);
-   BOOST_REQUIRE(out.str().size() > 5);
-   std::cerr << out.str();
+  std::ostringstream out;
+  rdm_ref.dumpReflexDictionaryInfo(out);
+  BOOST_REQUIRE(out.str().size() > 5);
+  std::cerr << out.str();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

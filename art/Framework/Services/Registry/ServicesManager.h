@@ -27,15 +27,14 @@
 
 namespace art {
 
-   typedef std::auto_ptr<art::ServiceWrapperBase> (*MAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
+  typedef std::auto_ptr<art::ServiceWrapperBase> (*MAKER_t)(fhicl::ParameterSet const &, art::ActivityRegistry &);
 
   class ServiceToken;
 
-  class ServicesManager
-  {
+  class ServicesManager {
     // non-copyable:
-    ServicesManager( ServicesManager const & );
-    void operator = ( ServicesManager const & );
+    ServicesManager(ServicesManager const &);
+    void operator = (ServicesManager const &);
 
   public:
     typedef  std::vector<fhicl::ParameterSet>       ParameterSets;
@@ -49,8 +48,7 @@ namespace art {
 
     // A Cache object encapsulates the (possibly delayed) creation of
     // a Service object.
-    class Cache
-    {
+    class Cache {
     public:
       Cache(fhicl::ParameterSet const & pset, TypeID id, MAKER_t maker):
         config_(pset), typeinfo_(id), make_(maker), service_()
@@ -63,27 +61,23 @@ namespace art {
       // Create the service if necessary, and return the WrapperBase_ptr
       // that refers to it.
       WrapperBase_ptr
-        getService(ActivityRegistry & reg, ServiceStack & creationOrder)
-      {
-        if( ! service_ )
-          createService(reg, creationOrder);
+      getService(ActivityRegistry & reg, ServiceStack & creationOrder) {
+        if (! service_)
+        { createService(reg, creationOrder); }
         return service_;
       }
 
-      void forceCreation(ActivityRegistry& reg)
-      {
-        if(!service_) service_ = make_(config_,reg);
+      void forceCreation(ActivityRegistry & reg) {
+        if (!service_) { service_ = make_(config_, reg); }
       }
 
-      fhicl::ParameterSet const& getParameterSet() const { return config_; }
+      fhicl::ParameterSet const & getParameterSet() const { return config_; }
 
-      void putParameterSet(fhicl::ParameterSet const& n)
-      {
-        if(config_ != n)
-          {
-            config_ = n;
-            if(service_) service_->reconfigure(config_);
-          }
+      void putParameterSet(fhicl::ParameterSet const & n) {
+        if (config_ != n) {
+          config_ = n;
+          if (service_) { service_->reconfigure(config_); }
+        }
       }
 
     private:
@@ -93,8 +87,7 @@ namespace art {
       WrapperBase_ptr service_;
 
       void
-        createService( ActivityRegistry & reg, ServiceStack & creationOrder )
-      {
+      createService(ActivityRegistry & reg, ServiceStack & creationOrder) {
         // When we actually create the Service object, we have to
         // remember the order of creation.
         service_ = make_(config_, reg);
@@ -107,44 +100,40 @@ namespace art {
     // Conflicts over Services provided by both the iToken and iConfiguration
     // are resolved based on the value of iLegacy
 
-    ServicesManager( ParameterSets       const & psets
-                   , art::LibraryManager const &
+    ServicesManager(ParameterSets       const & psets
+                    , art::LibraryManager const &
                    );
-    ServicesManager( ServiceToken                iToken
-                   , ServiceLegacy               iLegacy
-                   , ParameterSets       const & psets
-                   , art::LibraryManager const &
+    ServicesManager(ServiceToken                iToken
+                    , ServiceLegacy               iLegacy
+                    , ParameterSets       const & psets
+                    , art::LibraryManager const &
                    );
 
     ~ServicesManager();
 
     template< class T >
     T &
-      get();  // not const because of possible lazy creation
+    get();  // not const because of possible lazy creation
 
     //returns true of the particular service is accessible -- that is,
     // it either can be made (if requested) or has already been made.
     template< class T >
     bool
-      isAvailable() const
-    {
+    isAvailable() const {
       return factory_.find(TypeID(typeid(T))) != factory_.end();
     }
 
     // TODO: needs to be converted to returning a void.
     template< class T >
     bool
-      put( std::shared_ptr<ServiceWrapper<T> > premade_service )
-    {
+    put(std::shared_ptr<ServiceWrapper<T> > premade_service) {
       TypeID id(typeid(T));
       Factory::const_iterator it = factory_.find(id);
-
-      if(it != factory_.end())
-        throw art::Exception(art::errors::LogicError,"Service")
-          << "The system has manually added service of type " << id.name()
-          << ", but the service system already has a configured service of that type\n";
-
-      factory_.insert( std::make_pair(id, Cache(premade_service)) );
+      if (it != factory_.end())
+        throw art::Exception(art::errors::LogicError, "Service")
+            << "The system has manually added service of type " << id.name()
+            << ", but the service system already has a configured service of that type\n";
+      factory_.insert(std::make_pair(id, Cache(premade_service)));
       actualCreationOrder_.push(premade_service);
       return true;
     }
@@ -162,13 +151,13 @@ namespace art {
 
     // force all the services that are not alrady made into existance
     // using 'reg'.  The order of creation will be the registration order.
-    void forceCreation(ActivityRegistry& reg);
+    void forceCreation(ActivityRegistry & reg);
 
-    void getParameterSets(ParameterSets& out) const;
-    void putParameterSets(ParameterSets const&);
+    void getParameterSets(ParameterSets & out) const;
+    void putParameterSets(ParameterSets const &);
 
   private:
-    void fillFactory( ParameterSets const & psets, LibraryManager const & lm );
+    void fillFactory(ParameterSets const & psets, LibraryManager const & lm);
 
     // ---------- member data --------------------------------
     // hold onto the Manager passed in from the ServiceToken so that
@@ -191,28 +180,25 @@ namespace art {
 
   };  // ServicesManager
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   template< class T >
   T &
-    ServicesManager::get()
+  ServicesManager::get()
   {
     // Find the correct Cache object.
     Factory::iterator it = factory_.find(TypeID(typeid(T)));
-    if( it == factory_.end() )
+    if (it == factory_.end())
       throw art::Exception(art::errors::NotFound, "Service")
-        << " unable to find requested service with compiler type name '"
-        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-
+          << " unable to find requested service with compiler type name '"
+          << cet::demangle_symbol(typeid(T).name()) << "'.\n";
     // Get the ServiceWrapperBase from the Cache object.
     WrapperBase_ptr swb = it->second.getService(registry_, actualCreationOrder_);
-
     // Cast it to the correct type.
     // Not sure this is technique is correct ... is is mostly copied
     // from the previous implementation.
     typedef ServiceWrapper<T> Wrapper;
     typedef std::shared_ptr<Wrapper> Wrapper_ptr;
-
     Wrapper_ptr concrete = std::dynamic_pointer_cast<Wrapper>(swb);
     return concrete->get();
   }  // get<>()

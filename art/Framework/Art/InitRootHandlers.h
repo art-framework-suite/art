@@ -3,9 +3,9 @@
 
 namespace art {
 
-   void unloadRootSigHandler();
-   void setRootErrorHandler(bool want_custom);
-   void completeRootHandlers();
+  void unloadRootSigHandler();
+  void setRootErrorHandler(bool want_custom);
+  void completeRootHandlers();
 
 }  // art
 

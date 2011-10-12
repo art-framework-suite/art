@@ -5,7 +5,7 @@ namespace arttest {
 
   struct Thing {
     ~Thing() { }
-    Thing():a() { }
+    Thing(): a() { }
     int a;
   };
 

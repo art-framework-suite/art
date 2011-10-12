@@ -27,14 +27,13 @@
 
 // forward declarations
 
-class TestPRegisterModule1 : public art::EDProducer
-{
+class TestPRegisterModule1 : public art::EDProducer {
 public:
-   explicit TestPRegisterModule1(fhicl::ParameterSet const& p);
-   void produce(art::Event& e, art::EventSetup const&);
+  explicit TestPRegisterModule1(fhicl::ParameterSet const & p);
+  void produce(art::Event & e, art::EventSetup const &);
 
 private:
-   fhicl::ParameterSet pset_;
+  fhicl::ParameterSet pset_;
 };
 
 

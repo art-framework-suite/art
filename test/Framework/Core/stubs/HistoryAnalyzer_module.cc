@@ -24,8 +24,8 @@ namespace arttest {
   class HistoryAnalyzer : public EDAnalyzer {
   public:
 
-    explicit HistoryAnalyzer(const ParameterSet& params);
-    void analyze(const Event& event, EventSetup const&);
+    explicit HistoryAnalyzer(const ParameterSet & params);
+    void analyze(const Event & event, EventSetup const &);
     void endJob();
 
   private:
@@ -36,7 +36,7 @@ namespace arttest {
     ParameterSetID outputConfigID_;
   };
 
-  HistoryAnalyzer::HistoryAnalyzer(const ParameterSet& params) :
+  HistoryAnalyzer::HistoryAnalyzer(const ParameterSet & params) :
     pass_(params.get<int>("historySize")),
     eventCount_(0),
     expectedCount_(params.get<int>("expectedCount")),
@@ -51,11 +51,10 @@ namespace arttest {
   }
 
   void
-  HistoryAnalyzer::analyze(const Event& event, EventSetup const&)
+  HistoryAnalyzer::analyze(const Event & event, EventSetup const &)
   {
-    History const& h = event.history();
+    History const & h = event.history();
     assert(h.size() == static_cast<size_t>(pass_ - 1));
-
     assert(h.getEventSelectionID(0) == emptyID_);
     assert(h.getEventSelectionID(1) == outputConfigID_);
     assert(h.getEventSelectionID(2) == emptyID_);

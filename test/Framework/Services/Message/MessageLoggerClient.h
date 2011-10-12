@@ -10,28 +10,26 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-class MessageLoggerClient
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    MessageLoggerClient( fhicl::ParameterSet const & )
-  { }
+  class MessageLoggerClient
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    MessageLoggerClient(fhicl::ParameterSet const &)
+    { }
 
-  virtual
+    virtual
     ~MessageLoggerClient()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-};
+  private:
+  };
 
 
 }  // arttest

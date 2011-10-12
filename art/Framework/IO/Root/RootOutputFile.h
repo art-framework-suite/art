@@ -40,13 +40,13 @@ namespace art {
     typedef RootOutput::OutputItem OutputItem;
     typedef RootOutput::OutputItemList OutputItemList;
     typedef std::array<RootOutputTree *, NumBranchTypes> RootOutputTreePtrArray;
-    explicit RootOutputFile(RootOutput * om, std::string const& fileName,
-                            std::string const& logicalFileName);
+    explicit RootOutputFile(RootOutput * om, std::string const & fileName,
+                            std::string const & logicalFileName);
     // use compiler-generated copy c'tor, copy assignment, and d'tor
-    void writeOne(EventPrincipal const& e);
+    void writeOne(EventPrincipal const & e);
     //void endFile();
-    void writeSubRun(SubRunPrincipal const& sr);
-    void writeRun(RunPrincipal const& r);
+    void writeSubRun(SubRunPrincipal const & sr);
+    void writeRun(RunPrincipal const & r);
     void writeFileFormatVersion();
     void writeFileIndex();
     void writeEventHistory();
@@ -59,8 +59,8 @@ namespace art {
     void writeProductDependencies();
 
     void finishEndFile();
-    void beginInputFile(FileBlock const& fb, bool fastClone);
-    void respondToCloseInputFile(FileBlock const& fb);
+    void beginInputFile(FileBlock const & fb, bool fastClone);
+    void respondToCloseInputFile(FileBlock const & fb);
     bool shouldWeCloseFile() const;
 
   private:
@@ -68,21 +68,21 @@ namespace art {
     //-------------------------------
     // Private functions
 
-    void fillBranches(BranchType const& branchType,
-                      Principal const& principal,
+    void fillBranches(BranchType const & branchType,
+                      Principal const & principal,
                       std::vector<ProductProvenance> * productProvenanceVecPtr);
 
-     void insertAncestors(ProductProvenance const& iGetParents,
-                          Principal const& principal,
-                          std::set<ProductProvenance>& oToFill);
-     void fillPsetMap();
+    void insertAncestors(ProductProvenance const & iGetParents,
+                         Principal const & principal,
+                         std::set<ProductProvenance>& oToFill);
+    void fillPsetMap();
 
     //-------------------------------
     // Member data
 
     std::string file_;
     std::string logicalFile_;
-    RootOutput const* om_;
+    RootOutput const * om_;
     bool currentlyFastCloning_;
     std::shared_ptr<TFile> filePtr_;
     FileIndex fileIndex_;
@@ -92,16 +92,16 @@ namespace art {
     TTree * metaDataTree_;
     TTree * parentageTree_;
     TTree * eventHistoryTree_;
-    EventAuxiliary const*           pEventAux_;
-    SubRunAuxiliary const* pSubRunAux_;
-    RunAuxiliary const*             pRunAux_;
+    EventAuxiliary const      *     pEventAux_;
+    SubRunAuxiliary const * pSubRunAux_;
+    RunAuxiliary const       *      pRunAux_;
     ProductProvenances         eventProductProvenanceVector_;
     ProductProvenances         subRunProductProvenanceVector_;
     ProductProvenances         runProductProvenanceVector_;
-    ProductProvenances *       pEventProductProvenanceVector_;
-    ProductProvenances *       pSubRunProductProvenanceVector_;
-    ProductProvenances *       pRunProductProvenanceVector_;
-    History const*                  pHistory_;
+    ProductProvenances    *    pEventProductProvenanceVector_;
+    ProductProvenances    *    pSubRunProductProvenanceVector_;
+    ProductProvenances    *    pRunProductProvenanceVector_;
+    History const         *         pHistory_;
     RootOutputTree eventTree_;
     RootOutputTree subRunTree_;
     RootOutputTree runTree_;

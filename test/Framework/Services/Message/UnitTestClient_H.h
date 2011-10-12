@@ -10,28 +10,26 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-class UnitTestClient_H
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UnitTestClient_H( fhicl::ParameterSet const & )
-  { }
+  class UnitTestClient_H
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UnitTestClient_H(fhicl::ParameterSet const &)
+    { }
 
-  virtual
+    virtual
     ~UnitTestClient_H()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-};
+  private:
+  };
 
 
 }  // arttest

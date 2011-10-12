@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------
 
-int ptomaine(int argc, char* argv[], char** env);
+int ptomaine(int argc, char * argv[], char ** env);
 
 #define RUNTEST() extern "C" char** environ; int main(int argc, char* argv[]) { return ptomaine(argc, argv, environ); }
 

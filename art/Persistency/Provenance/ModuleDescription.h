@@ -25,25 +25,25 @@ namespace art {
 
     ModuleDescription();
 
-    void write(std::ostream& os) const;
+    void write(std::ostream & os) const;
 
-    fhicl::ParameterSetID const& parameterSetID() const {return parameterSetID_;}
-    std::string const& moduleName() const {return moduleName_;}
-    std::string const& moduleLabel() const {return moduleLabel_;}
-    ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
+    fhicl::ParameterSetID const & parameterSetID() const {return parameterSetID_;}
+    std::string const & moduleName() const {return moduleName_;}
+    std::string const & moduleLabel() const {return moduleLabel_;}
+    ProcessConfiguration const & processConfiguration() const {return processConfiguration_;}
     ProcessConfigurationID const processConfigurationID() const {return processConfiguration().id();}
-    std::string const& processName() const {return processConfiguration().processName();}
-    std::string const& releaseVersion() const {return processConfiguration().releaseVersion();}
-    std::string const& passID() const {return processConfiguration().passID();}
-    fhicl::ParameterSetID const& mainParameterSetID() const {return processConfiguration().parameterSetID();}
+    std::string const & processName() const {return processConfiguration().processName();}
+    std::string const & releaseVersion() const {return processConfiguration().releaseVersion();}
+    std::string const & passID() const {return processConfiguration().passID();}
+    fhicl::ParameterSetID const & mainParameterSetID() const {return processConfiguration().parameterSetID();}
 
     // compiler-written copy c'tor, assignment, and d'tor are correct.
 
-    bool operator<(ModuleDescription const& rh) const;
+    bool operator<(ModuleDescription const & rh) const;
 
-    bool operator==(ModuleDescription const& rh) const;
+    bool operator==(ModuleDescription const & rh) const;
 
-    bool operator!=(ModuleDescription const& rh) const;
+    bool operator!=(ModuleDescription const & rh) const;
 
     ModuleDescriptionID id() const; // For backward compatibility
 
@@ -62,8 +62,9 @@ namespace art {
   };
 
   inline
-  std::ostream&
-  operator<<(std::ostream& os, const ModuleDescription& p) {
+  std::ostream &
+  operator<<(std::ostream & os, const ModuleDescription & p)
+  {
     p.write(os);
     return os;
   }

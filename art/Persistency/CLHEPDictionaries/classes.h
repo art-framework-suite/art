@@ -10,16 +10,16 @@
 
 #include <vector>
 namespace {
-   struct dictionary {
-     std::vector<CLHEP::Hep3Vector> h3v;
-     art::Wrapper<std::vector<CLHEP::Hep3Vector> > h3v_w;
-     std::vector<CLHEP::HepLorentzVector> hlv;
-     art::Wrapper<std::vector<CLHEP::HepLorentzVector> > hlv_w;
-     art::Wrapper<CLHEP::Hep2Vector> w01;
-     art::Wrapper<CLHEP::Hep3Vector> w02;
-     art::Wrapper<CLHEP::HepMatrix> w03;
-     art::Wrapper<CLHEP::HepLorentzVector> w04;
-     art::Wrapper<CLHEP::HepSymMatrix> w05;
-     art::Wrapper<CLHEP::HepVector> w06;
-   };
+  struct dictionary {
+    std::vector<CLHEP::Hep3Vector> h3v;
+    art::Wrapper<std::vector<CLHEP::Hep3Vector> > h3v_w;
+    std::vector<CLHEP::HepLorentzVector> hlv;
+    art::Wrapper<std::vector<CLHEP::HepLorentzVector> > hlv_w;
+    art::Wrapper<CLHEP::Hep2Vector> w01;
+    art::Wrapper<CLHEP::Hep3Vector> w02;
+    art::Wrapper<CLHEP::HepMatrix> w03;
+    art::Wrapper<CLHEP::HepLorentzVector> w04;
+    art::Wrapper<CLHEP::HepSymMatrix> w05;
+    art::Wrapper<CLHEP::HepVector> w06;
+  };
 }

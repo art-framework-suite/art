@@ -6,15 +6,15 @@
 #include "art/Framework/Principal/SubRun.h"
 
 
-namespace art
-{
+namespace art {
 
   EDAnalyzer::~EDAnalyzer()
   { }
 
   bool
-  EDAnalyzer::doEvent(EventPrincipal const& ep,
-                        CurrentProcessingContext const* cpc) {
+  EDAnalyzer::doEvent(EventPrincipal const & ep,
+                      CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
     this->analyze(e);
@@ -22,25 +22,29 @@ namespace art
   }
 
   void
-  EDAnalyzer::doBeginJob() {
+  EDAnalyzer::doBeginJob()
+  {
     this->beginJob();
   }
 
   void
-  EDAnalyzer::doEndJob() {
+  EDAnalyzer::doEndJob()
+  {
     this->endJob();
   }
 
   void
-  EDAnalyzer::reconfigure(fhicl::ParameterSet const&) {
-     mf::LogError("FeatureNotImplemented")
+  EDAnalyzer::reconfigure(fhicl::ParameterSet const &)
+  {
+    mf::LogError("FeatureNotImplemented")
         << "This module is not reconfigurable."
         << "\n";
-   }
+  }
 
   bool
-  EDAnalyzer::doBeginRun(RunPrincipal const& rp,
-                        CurrentProcessingContext const* cpc) {
+  EDAnalyzer::doBeginRun(RunPrincipal const & rp,
+                         CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
     this->beginRun(r);
@@ -48,8 +52,9 @@ namespace art
   }
 
   bool
-  EDAnalyzer::doEndRun(RunPrincipal const& rp,
-                        CurrentProcessingContext const* cpc) {
+  EDAnalyzer::doEndRun(RunPrincipal const & rp,
+                       CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(const_cast<RunPrincipal &>(rp), moduleDescription_);
     this->endRun(r);
@@ -57,8 +62,9 @@ namespace art
   }
 
   bool
-  EDAnalyzer::doBeginSubRun(SubRunPrincipal const& srp,
-                        CurrentProcessingContext const* cpc) {
+  EDAnalyzer::doBeginSubRun(SubRunPrincipal const & srp,
+                            CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
     this->beginSubRun(sr);
@@ -66,8 +72,9 @@ namespace art
   }
 
   bool
-  EDAnalyzer::doEndSubRun(SubRunPrincipal const& srp,
-                        CurrentProcessingContext const* cpc) {
+  EDAnalyzer::doEndSubRun(SubRunPrincipal const & srp,
+                          CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(const_cast<SubRunPrincipal &>(srp), moduleDescription_);
     this->endSubRun(sr);
@@ -75,27 +82,32 @@ namespace art
   }
 
   void
-  EDAnalyzer::doRespondToOpenInputFile(FileBlock const& fb) {
+  EDAnalyzer::doRespondToOpenInputFile(FileBlock const & fb)
+  {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDAnalyzer::doRespondToCloseInputFile(FileBlock const& fb) {
+  EDAnalyzer::doRespondToCloseInputFile(FileBlock const & fb)
+  {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDAnalyzer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+  EDAnalyzer::doRespondToOpenOutputFiles(FileBlock const & fb)
+  {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDAnalyzer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+  EDAnalyzer::doRespondToCloseOutputFiles(FileBlock const & fb)
+  {
     respondToCloseOutputFiles(fb);
   }
 
-  CurrentProcessingContext const*
-  EDAnalyzer::currentContext() const {
+  CurrentProcessingContext const *
+  EDAnalyzer::currentContext() const
+  {
     return current_context_;
   }
 

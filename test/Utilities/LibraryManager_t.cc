@@ -13,18 +13,18 @@ using namespace art;
 
 struct LibraryManagerTestFixture {
 
-   LibraryManagerTestFixture();
-   ~LibraryManagerTestFixture();
+  LibraryManagerTestFixture();
+  ~LibraryManagerTestFixture();
 
-   LibraryManager lm;
-   LibraryManager const &lm_ref;
+  LibraryManager lm;
+  LibraryManager const & lm_ref;
 
 };
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()
-   :
-   lm("dict"),
-   lm_ref(lm)
+  :
+  lm("dict"),
+  lm_ref(lm)
 {
 }
 
@@ -32,94 +32,94 @@ LibraryManagerTestFixture::~LibraryManagerTestFixture()
 {
 };
 
-BOOST_FIXTURE_TEST_SUITE ( LibraryManagerTests, LibraryManagerTestFixture )
+BOOST_FIXTURE_TEST_SUITE(LibraryManagerTests, LibraryManagerTestFixture)
 
-BOOST_AUTO_TEST_CASE ( libSpecsVector )
+BOOST_AUTO_TEST_CASE(libSpecsVector)
 {
-   std::vector<std::string> lib_list;
-   BOOST_REQUIRE(lm_ref.getValidLibspecs(lib_list) > 0);
-//    BOOST_TEST_MESSAGE( "List of valid libspec values:" );
-//    cet::copy_all(lib_list, std::ostream_iterator<std::string>(std::cerr, "\n"));
+  std::vector<std::string> lib_list;
+  BOOST_REQUIRE(lm_ref.getValidLibspecs(lib_list) > 0);
+  //    BOOST_TEST_MESSAGE( "List of valid libspec values:" );
+  //    cet::copy_all(lib_list, std::ostream_iterator<std::string>(std::cerr, "\n"));
 }
 
-BOOST_AUTO_TEST_CASE (libSpecsIter)
+BOOST_AUTO_TEST_CASE(libSpecsIter)
 {
-   std::vector<std::string> lib_list;
-   BOOST_REQUIRE(lm_ref.getValidLibspecs(std::back_inserter(lib_list)) > 0);
+  std::vector<std::string> lib_list;
+  BOOST_REQUIRE(lm_ref.getValidLibspecs(std::back_inserter(lib_list)) > 0);
 }
 
-BOOST_AUTO_TEST_CASE ( libListVector )
+BOOST_AUTO_TEST_CASE(libListVector)
 {
-   std::vector<std::string> lib_list;
-   BOOST_REQUIRE(lm_ref.getLoadableLibraries(lib_list) > 0);
+  std::vector<std::string> lib_list;
+  BOOST_REQUIRE(lm_ref.getLoadableLibraries(lib_list) > 0);
 }
 
-BOOST_AUTO_TEST_CASE ( libListIter )
+BOOST_AUTO_TEST_CASE(libListIter)
 {
-   std::vector<std::string> lib_list;
-   BOOST_REQUIRE(lm_ref.getLoadableLibraries(std::back_inserter(lib_list)) > 0);
+  std::vector<std::string> lib_list;
+  BOOST_REQUIRE(lm_ref.getLoadableLibraries(std::back_inserter(lib_list)) > 0);
 }
 
-BOOST_AUTO_TEST_CASE ( getSymbolLong )
+BOOST_AUTO_TEST_CASE(getSymbolLong)
 {
-   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("art/Persistency/Common",
-                                            "_init") != nullptr );
+  BOOST_REQUIRE(lm_ref.getSymbolByLibspec("art/Persistency/Common",
+                                          "_init") != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE ( getSymbolShort )
+BOOST_AUTO_TEST_CASE(getSymbolShort)
 {
-   BOOST_REQUIRE( lm_ref.getSymbolByLibspec("Common",
-                                            "_init") != nullptr );
+  BOOST_REQUIRE(lm_ref.getSymbolByLibspec("Common",
+                                          "_init") != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE ( getSymbolPathPrecedence )
+BOOST_AUTO_TEST_CASE(getSymbolPathPrecedence)
 {
-   BOOST_CHECK_NO_THROW( lm_ref.getSymbolByLibspec ( "1/1/1", "_init") );
+  BOOST_CHECK_NO_THROW(lm_ref.getSymbolByLibspec("1/1/1", "_init"));
 }
 
-BOOST_AUTO_TEST_CASE ( getSymbolAmbiguity )
+BOOST_AUTO_TEST_CASE(getSymbolAmbiguity)
 {
-   BOOST_CHECK_THROW( lm_ref.getSymbolByLibspec ( "3", "_init") == nullptr, cet::exception );
+  BOOST_CHECK_THROW(lm_ref.getSymbolByLibspec("3", "_init") == nullptr, cet::exception);
 }
 
-BOOST_AUTO_TEST_CASE ( getSymbolNoAmbiguity )
+BOOST_AUTO_TEST_CASE(getSymbolNoAmbiguity)
 {
-   BOOST_CHECK_NO_THROW( lm_ref.getSymbolByLibspec ( "2/1/3", "_init") );
+  BOOST_CHECK_NO_THROW(lm_ref.getSymbolByLibspec("2/1/3", "_init"));
 }
 
-BOOST_AUTO_TEST_CASE ( dictLoadable )
+BOOST_AUTO_TEST_CASE(dictLoadable)
 {
-   std::vector<std::string> lib_list;
-   lm_ref.getLoadableLibraries(lib_list);
-   BOOST_REQUIRE(lm_ref.libraryIsLoadable(*lib_list.begin()));
+  std::vector<std::string> lib_list;
+  lm_ref.getLoadableLibraries(lib_list);
+  BOOST_REQUIRE(lm_ref.libraryIsLoadable(*lib_list.begin()));
 }
 
-BOOST_AUTO_TEST_CASE ( dictLoadableButNotLoaded )
+BOOST_AUTO_TEST_CASE(dictLoadableButNotLoaded)
 {
-   std::vector<std::string> lib_list;
-   lm_ref.getLoadableLibraries(lib_list);
-   BOOST_REQUIRE(lm_ref.libraryIsLoadable(*lib_list.begin()));
-   BOOST_REQUIRE(!lm_ref.libraryIsLoaded(*lib_list.begin()));
+  std::vector<std::string> lib_list;
+  lm_ref.getLoadableLibraries(lib_list);
+  BOOST_REQUIRE(lm_ref.libraryIsLoadable(*lib_list.begin()));
+  BOOST_REQUIRE(!lm_ref.libraryIsLoaded(*lib_list.begin()));
 }
 
-BOOST_AUTO_TEST_CASE ( loadAllLibraries )
+BOOST_AUTO_TEST_CASE(loadAllLibraries)
 {
-   BOOST_REQUIRE_NO_THROW(lm_ref.loadAllLibraries());
+  BOOST_REQUIRE_NO_THROW(lm_ref.loadAllLibraries());
 }
 
-BOOST_AUTO_TEST_CASE ( dictLoaded )
+BOOST_AUTO_TEST_CASE(dictLoaded)
 {
-   std::vector<std::string> lib_list;
-   lm_ref.getLoadableLibraries(lib_list);
-   lm_ref.loadAllLibraries();
-   BOOST_REQUIRE(lm_ref.libraryIsLoaded(*lib_list.begin()));
+  std::vector<std::string> lib_list;
+  lm_ref.getLoadableLibraries(lib_list);
+  lm_ref.loadAllLibraries();
+  BOOST_REQUIRE(lm_ref.libraryIsLoaded(*lib_list.begin()));
 }
 
-BOOST_AUTO_TEST_CASE ( dictNotLoadable )
+BOOST_AUTO_TEST_CASE(dictNotLoadable)
 {
-   std::vector<std::string> lib_list;
-   lm_ref.getLoadableLibraries(lib_list);
-   BOOST_REQUIRE(!lm_ref.libraryIsLoadable("UnknownLibrary"));
+  std::vector<std::string> lib_list;
+  lm_ref.getLoadableLibraries(lib_list);
+  BOOST_REQUIRE(!lm_ref.libraryIsLoadable("UnknownLibrary"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

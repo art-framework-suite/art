@@ -8,11 +8,13 @@
 
 namespace art {
 
-  bool is_glob(std::string const& pattern) {
+  bool is_glob(std::string const & pattern)
+  {
     return (pattern.find_first_of("*?") != pattern.npos);
   }
 
-  std::string glob2reg(std::string const& pattern) {
+  std::string glob2reg(std::string const & pattern)
+  {
     std::string regexp = pattern;
     boost::replace_all(regexp, "*", ".*");
     boost::replace_all(regexp, "?", ".");
@@ -20,7 +22,8 @@ namespace art {
   }
 
   std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, std::regex const& regexp) {
+  regexMatch(std::vector<std::string> const & strings, std::regex const & regexp)
+  {
     std::vector< std::vector<std::string>::const_iterator> matches;
     for (std::vector<std::string>::const_iterator i = strings.begin(), iEnd = strings.end(); i != iEnd; ++i) {
       if (std::regex_match((*i), regexp)) {
@@ -31,7 +34,8 @@ namespace art {
   }
 
   std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, std::string const& pattern) {
+  regexMatch(std::vector<std::string> const & strings, std::string const & pattern)
+  {
     std::regex regexp(glob2reg(pattern));
     return regexMatch(strings, regexp);
   }

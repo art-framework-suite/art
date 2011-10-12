@@ -19,56 +19,59 @@ namespace art {
     transients_()
   {}
 
-  ProductProvenance::ProductProvenance(BranchID const& bid) :
+  ProductProvenance::ProductProvenance(BranchID const & bid) :
     branchID_(bid),
     productStatus_(productstatus::uninitialized()),
     parentageID_(),
     transients_()
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-                                        ProductStatus status) :
+  ProductProvenance::ProductProvenance(BranchID const & bid,
+                                       ProductStatus status) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(),
     transients_()
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-                                        ProductStatus status,
-                                        ParentageID const& edid) :
+  ProductProvenance::ProductProvenance(BranchID const & bid,
+                                       ProductStatus status,
+                                       ParentageID const & edid) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(edid),
     transients_()
   {}
 
-   ProductProvenance::ProductProvenance(BranchID const& bid,
-                                    ProductStatus status,
-                                    std::shared_ptr<Parentage> pPtr) :
+  ProductProvenance::ProductProvenance(BranchID const & bid,
+                                       ProductStatus status,
+                                       std::shared_ptr<Parentage> pPtr) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(pPtr->id()),
-    transients_() {
-       parentagePtr() = pPtr;
-       ParentageRegistry::put(*pPtr);
+    transients_()
+  {
+    parentagePtr() = pPtr;
+    ParentageRegistry::put(*pPtr);
   }
 
-  ProductProvenance::ProductProvenance(BranchID const& bid,
-                   ProductStatus status,
-                   std::vector<BranchID> const& parents) :
+  ProductProvenance::ProductProvenance(BranchID const & bid,
+                                       ProductStatus status,
+                                       std::vector<BranchID> const & parents) :
     branchID_(bid),
     productStatus_(status),
     parentageID_(),
-    transients_() {
-      parentagePtr() = std::shared_ptr<Parentage>(new Parentage);
-      parentagePtr()->parents() = parents;
-      parentageID_ = parentagePtr()->id();
-      ParentageRegistry::put(*parentagePtr());
+    transients_()
+  {
+    parentagePtr() = std::shared_ptr<Parentage>(new Parentage);
+    parentagePtr()->parents() = parents;
+    parentageID_ = parentagePtr()->id();
+    ParentageRegistry::put(*parentagePtr());
   }
 
   Parentage const &
-  ProductProvenance::parentage() const {
+  ProductProvenance::parentage() const
+  {
     if (!parentagePtr()) {
       parentagePtr().reset(new Parentage);
       ParentageRegistry::get(parentageID_, *parentagePtr());
@@ -77,22 +80,25 @@ namespace art {
   }
 
   void
-  ProductProvenance::setPresent() const {
-    if (productstatus::present(productStatus())) return;
+  ProductProvenance::setPresent() const
+  {
+    if (productstatus::present(productStatus())) { return; }
     assert(productstatus::unknown(productStatus()));
     setStatus(productstatus::present());
   }
 
   void
-  ProductProvenance::setNotPresent() const {
-    if (productstatus::neverCreated(productStatus())) return;
-    if (productstatus::dropped(productStatus())) return;
+  ProductProvenance::setNotPresent() const
+  {
+    if (productstatus::neverCreated(productStatus())) { return; }
+    if (productstatus::dropped(productStatus())) { return; }
     assert(productstatus::unknown(productStatus()));
     setStatus(productstatus::neverCreated());
   }
 
   void
-  ProductProvenance::write(std::ostream& os) const {
+  ProductProvenance::write(std::ostream & os) const
+  {
     os << "branch ID = " << branchID() << '\n';
     os << "product status = " << static_cast<int>(productStatus()) << '\n';
     if (!noParentage()) {
@@ -102,8 +108,9 @@ namespace art {
 
   // Only the 'salient attributes' are tested in equality comparison.
   bool
-  operator==(ProductProvenance const& a, ProductProvenance const& b) {
-    if (a.noParentage() != b.noParentage()) return false;
+  operator==(ProductProvenance const & a, ProductProvenance const & b)
+  {
+    if (a.noParentage() != b.noParentage()) { return false; }
     if (a.noParentage()) {
       return
         a.branchID() == b.branchID()

@@ -18,24 +18,24 @@ using fhicl::ParameterSet;
 
 // ----------------------------------------------------------------------
 
-CurrentModule::CurrentModule( ActivityRegistry & r )
-: desc_( )
+CurrentModule::CurrentModule(ActivityRegistry & r)
+  : desc_()
 {
   // activities to monitor in order to note the current module
-  r.watchPreModuleConstruction( this, & CurrentModule::track_module );
-  r.watchPreModule            ( this, & CurrentModule::track_module );
-  r.watchPreModuleBeginJob    ( this, & CurrentModule::track_module );
-  r.watchPreModuleEndJob      ( this, & CurrentModule::track_module );
-  r.watchPreModuleBeginRun    ( this, & CurrentModule::track_module );
-  r.watchPreModuleEndRun      ( this, & CurrentModule::track_module );
-  r.watchPreModuleBeginSubRun ( this, & CurrentModule::track_module );
-  r.watchPreModuleEndSubRun   ( this, & CurrentModule::track_module );
+  r.watchPreModuleConstruction(this, & CurrentModule::track_module);
+  r.watchPreModule(this, & CurrentModule::track_module);
+  r.watchPreModuleBeginJob(this, & CurrentModule::track_module);
+  r.watchPreModuleEndJob(this, & CurrentModule::track_module);
+  r.watchPreModuleBeginRun(this, & CurrentModule::track_module);
+  r.watchPreModuleEndRun(this, & CurrentModule::track_module);
+  r.watchPreModuleBeginSubRun(this, & CurrentModule::track_module);
+  r.watchPreModuleEndSubRun(this, & CurrentModule::track_module);
 }  // CurrentModule()
 
 // ----------------------------------------------------------------------
 
 void
-  CurrentModule::track_module( ModuleDescription const & desc )
+CurrentModule::track_module(ModuleDescription const & desc)
 {
   desc_ = desc;
 }

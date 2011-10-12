@@ -20,38 +20,31 @@
 #include <string>
 #include <vector>
 
-namespace art
-{
-  namespace detail
-  {
+namespace art {
+  namespace detail {
     typedef art::Handle<art::TriggerResults> handle_t;
 
-    class NamedEventSelector
-    {
+    class NamedEventSelector {
     public:
-      NamedEventSelector(std::string const& n, EventSelector const& s) :
+      NamedEventSelector(std::string const & n, EventSelector const & s) :
         nameSelector_(n),
         eventSelector_(s),
         product_()
       { }
 
-      void fill(Event const& e)
-      {
+      void fill(Event const & e) {
         e.get(nameSelector_, product_);
       }
 
-      bool match()
-      {
+      bool match() {
         return eventSelector_.acceptEvent(*product_);
       }
 
-      handle_t product() const
-      {
+      handle_t product() const {
         return product_;
       }
 
-      void clear()
-      {
+      void clear() {
         product_ = handle_t();
       }
 
@@ -62,8 +55,7 @@ namespace art
     };
 
 
-    class CachedProducts
-    {
+    class CachedProducts {
     public:
       CachedProducts();
       typedef detail::handle_t                    handle_t;
@@ -71,19 +63,19 @@ namespace art
       typedef selectors_t::size_type              size_type;
       typedef std::pair<std::string, std::string> parsed_path_spec_t;
 
-      void setupDefault(std::vector<std::string> const& triggernames);
+      void setupDefault(std::vector<std::string> const & triggernames);
 
-      void setup(std::vector<parsed_path_spec_t> const& path_specs,
-                 std::vector<std::string> const& triggernames,
-                 const std::string& process_name);
+      void setup(std::vector<parsed_path_spec_t> const & path_specs,
+                 std::vector<std::string> const & triggernames,
+                 const std::string & process_name);
 
-      bool wantEvent(Event const& e);
+      bool wantEvent(Event const & e);
 
       // Get all TriggerResults objects for the process names we're
       // interested in.
-      size_type fill(Event const& ev);
+      size_type fill(Event const & ev);
 
-      handle_t getOneTriggerResults(Event const& e);
+      handle_t getOneTriggerResults(Event const & e);
 
       // Clear the cache
       void clear();

@@ -2,6 +2,7 @@
 #include <ostream>
 
 void
-art::EventAuxiliary::write(std::ostream& os) const {
-   os << id_ << std::endl;
+art::EventAuxiliary::write(std::ostream & os) const
+{
+  os << id_ << std::endl;
 }

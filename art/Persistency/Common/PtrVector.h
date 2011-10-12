@@ -34,8 +34,8 @@ namespace art {
   public:
     ComparePtrs(COMP comp) : comp_(comp) {}
     template <typename T>
-    bool operator()(Ptr<T> const &a,
-                    Ptr<T> const &b) {
+    bool operator()(Ptr<T> const & a,
+                    Ptr<T> const & b) {
       return comp_(*a, *b);
     }
   private:
@@ -62,11 +62,11 @@ public:
 
   // Constructors
   PtrVector();
-  template <typename U> PtrVector(PtrVector<U> const &other);
+  template <typename U> PtrVector(PtrVector<U> const & other);
 
   // Observers
-  bool operator==(PtrVector const &other) const;
-  Ptr<T> const &operator[](unsigned long const idx) const;
+  bool operator==(PtrVector const & other) const;
+  Ptr<T> const & operator[](unsigned long const idx) const;
   const_iterator begin() const;
   const_iterator end() const;
   const_reverse_iterator rbegin() const;
@@ -81,18 +81,18 @@ public:
 
   // Mutators
   template <typename U>
-  PtrVector<T> &operator=(PtrVector<U> const &other);
+  PtrVector<T> &operator=(PtrVector<U> const & other);
   iterator begin();
   iterator end();
   reverse_iterator rbegin();
   reverse_iterator rend();
-  template <typename U> void push_back(Ptr<U> const &p);
+  template <typename U> void push_back(Ptr<U> const & p);
   void pop_back();
 
   template <typename U>
-  iterator insert(iterator position, Ptr<U> const &p);
+  iterator insert(iterator position, Ptr<U> const & p);
   template <typename U>
-  void insert(iterator position, size_type n, Ptr<U> const &p);
+  void insert(iterator position, size_type n, Ptr<U> const & p);
   template <typename InputIterator>
   void insert(iterator position, InputIterator first, InputIterator last);
   template <typename U, typename InputIterator>
@@ -106,13 +106,13 @@ public:
   reference front();
   reference back();
   template <typename U>
-  void assign(size_type n, Ptr<U> const &p);
+  void assign(size_type n, Ptr<U> const & p);
   template <class InputIterator>
-  void assign(InputIterator first, InputIterator last );
+  void assign(InputIterator first, InputIterator last);
   template <typename U, class InputIterator>
-  void assign(InputIterator first, InputIterator last );
+  void assign(InputIterator first, InputIterator last);
 
-  void swap(PtrVector &other);
+  void swap(PtrVector & other);
   void swap(key_type k1, key_type k2);
   void sort();
   template <class COMP> void sort(COMP comp);
@@ -121,8 +121,8 @@ public:
 
 private:
 
-  void fill_offsets(indices_t &indices);
-  void fill_from_offsets(indices_t const &indices) const;
+  void fill_offsets(indices_t & indices);
+  void fill_from_offsets(indices_t const & indices) const;
   void zeroTransients();
 
   // Need to explicitly zero this from custom streamer for base class.
@@ -140,152 +140,173 @@ art::PtrVector<T>::PtrVector()
 template <typename T>
 template <typename U>
 inline
-art::PtrVector<T>::PtrVector(PtrVector<U> const &other)
+art::PtrVector<T>::PtrVector(PtrVector<U> const & other)
   :
   PtrVectorBase(other),
   ptrs_()
 {
   // Ensure that types are compatible.
-  STATIC_ASSERT(( std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+  STATIC_ASSERT((std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   ptrs_.reserve(other.ptrs_.size());
   std::copy(other.begin(), other.end(), std::back_inserter(ptrs_));
 }
 
 template <typename T>
 inline bool
-art::PtrVector<T>::operator==(PtrVector const &other) const {
+art::PtrVector<T>::operator==(PtrVector const & other) const
+{
   return fillPtrs(),
-    ptrs_ == other.ptrs_ &&
-    this->PtrVectorBase::operator==(other);
+         ptrs_ == other.ptrs_ &&
+         this->PtrVectorBase::operator==(other);
 }
 
 template <typename T>
 inline art::Ptr<T> const &
-art::PtrVector<T>::operator[](unsigned long const idx) const {
+art::PtrVector<T>::operator[](unsigned long const idx) const
+{
   return *(begin() + idx);
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_iterator
-art::PtrVector<T>::begin() const {
+art::PtrVector<T>::begin() const
+{
   return fillPtrs(), ptrs_.begin();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_iterator
-art::PtrVector<T>::end() const {
+art::PtrVector<T>::end() const
+{
   return fillPtrs(), ptrs_.end();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_reverse_iterator
-art::PtrVector<T>::rbegin() const {
+art::PtrVector<T>::rbegin() const
+{
   return fillPtrs(), ptrs_.rbegin();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_reverse_iterator
-art::PtrVector<T>::rend() const {
+art::PtrVector<T>::rend() const
+{
   return fillPtrs(), ptrs_.rend();
 }
 
 template <typename T>
 inline
-bool art::PtrVector<T>::empty() const {
+bool art::PtrVector<T>::empty() const
+{
   return fillPtrs(), ptrs_.empty();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::size_type
-art::PtrVector<T>::size() const {
+art::PtrVector<T>::size() const
+{
   return fillPtrs(), ptrs_.size();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::size_type
-art::PtrVector<T>::max_size() const {
+art::PtrVector<T>::max_size() const
+{
   return fillPtrs(), ptrs_.max_size();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::size_type
-art::PtrVector<T>::capacity() const {
+art::PtrVector<T>::capacity() const
+{
   return ptrs_.capacity();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_reference
-art::PtrVector<T>::at(size_type n) const {
+art::PtrVector<T>::at(size_type n) const
+{
   return fillPtrs(), ptrs_.at(n);
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_reference
-art::PtrVector<T>::front() const {
+art::PtrVector<T>::front() const
+{
   return fillPtrs(), ptrs_.front();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::const_reference
-art::PtrVector<T>::back() const {
+art::PtrVector<T>::back() const
+{
   return fillPtrs(), ptrs_.back();
 }
 
 template <typename T>
 template <typename U>
 inline art::PtrVector<T> &
-art::PtrVector<T>::operator=(PtrVector<U> const &other) {
-  STATIC_ASSERT(( std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+art::PtrVector<T>::operator=(PtrVector<U> const & other)
+{
+  STATIC_ASSERT((std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   assign<U>(other.begin(), other.end());
   this->PtrVectorBase::operator=(other);
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::iterator
-art::PtrVector<T>::begin() {
+art::PtrVector<T>::begin()
+{
   return ptrs_.begin();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::iterator
-art::PtrVector<T>::end() {
+art::PtrVector<T>::end()
+{
   return ptrs_.end();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::reverse_iterator
-art::PtrVector<T>::rbegin() {
+art::PtrVector<T>::rbegin()
+{
   return ptrs_.rbegin();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::reverse_iterator
-art::PtrVector<T>::rend() {
+art::PtrVector<T>::rend()
+{
   return ptrs_.rend();
 }
 
 template <typename T>
 template <typename U>
 inline void
-art::PtrVector<T>::push_back(Ptr<U> const &p) {
+art::PtrVector<T>::push_back(Ptr<U> const & p)
+{
   // Ensure that types are compatible.
-  STATIC_ASSERT(( std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+  STATIC_ASSERT((std::is_same<T, U>::value || std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   updateCore(p.refCore());
   ptrs_.push_back(p);
 }
 
 template <typename T>
 inline void
-art::PtrVector<T>::pop_back() {
+art::PtrVector<T>::pop_back()
+{
   ptrs_.pop_back();
 }
 
 template <typename T>
 template <typename U>
 inline typename art::PtrVector<T>::iterator
-art::PtrVector<T>::insert(iterator position, Ptr<U> const &p) {
+art::PtrVector<T>::insert(iterator position, Ptr<U> const & p)
+{
   // Ensure that types are compatible.
-  STATIC_ASSERT(( std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+  STATIC_ASSERT((std::is_same<T, U>::value || std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   updateCore(p);
   return ptrs_.insert(position, p);
 }
@@ -293,9 +314,10 @@ art::PtrVector<T>::insert(iterator position, Ptr<U> const &p) {
 template <typename T>
 template <typename U>
 inline void
-art::PtrVector<T>::insert(iterator position, size_type n, Ptr<U> const &p) {
+art::PtrVector<T>::insert(iterator position, size_type n, Ptr<U> const & p)
+{
   // Ensure that types are compatible.
-  STATIC_ASSERT(( std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+  STATIC_ASSERT((std::is_same<T, U>::value || std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   updateCore(p);
   ptrs_.insert(position, n, p);
 }
@@ -303,7 +325,8 @@ art::PtrVector<T>::insert(iterator position, size_type n, Ptr<U> const &p) {
 template <typename T>
 template <typename InputIterator>
 inline void
-art::PtrVector<T>::insert(iterator position, InputIterator first, InputIterator last) {
+art::PtrVector<T>::insert(iterator position, InputIterator first, InputIterator last)
+{
   using std::placeholders::_1;
   for_each(first, last, std::bind(&art::PtrVectorBase::updateCore, this, _1));
   ptrs_.insert(first, last);
@@ -312,61 +335,70 @@ art::PtrVector<T>::insert(iterator position, InputIterator first, InputIterator 
 template <typename T>
 template <typename U, typename InputIterator>
 inline void
-art::PtrVector<T>::insert(iterator position, InputIterator first, InputIterator last) {
-  STATIC_ASSERT(( std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
-  for(InputIterator i = first; i != last; ++i) {
+art::PtrVector<T>::insert(iterator position, InputIterator first, InputIterator last)
+{
+  STATIC_ASSERT((std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
+  for (InputIterator i = first; i != last; ++i) {
     insert(position++, *i); // Not a simple forward to insert() due to type differences.
   }
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::iterator
-art::PtrVector<T>::erase(iterator position) {
+art::PtrVector<T>::erase(iterator position)
+{
   return ptrs_.erase(position);
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::iterator
-art::PtrVector<T>::erase(iterator first, iterator last) {
+art::PtrVector<T>::erase(iterator first, iterator last)
+{
   return ptrs_.erase(first, last);
 }
 
 template <typename T>
 inline void
-art::PtrVector<T>::clear() {
+art::PtrVector<T>::clear()
+{
   ptrs_.clear();
   PtrVectorBase::clear();
 }
 
 template <typename T>
 inline void
-art::PtrVector<T>::reserve(size_type n) {
+art::PtrVector<T>::reserve(size_type n)
+{
   ptrs_.reserve(n);
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::reference
-art::PtrVector<T>::at(size_type n) {
+art::PtrVector<T>::at(size_type n)
+{
   return fillPtrs(), ptrs_.at(n);
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::reference
-art::PtrVector<T>::front() {
+art::PtrVector<T>::front()
+{
   return fillPtrs(), ptrs_.front();
 }
 
 template <typename T>
 inline typename art::PtrVector<T>::reference
-art::PtrVector<T>::back() {
+art::PtrVector<T>::back()
+{
   return fillPtrs(), ptrs_.back();
 }
 
 template <typename T>
 template <typename U>
 inline void
-art::PtrVector<T>::assign(size_type n, Ptr<U> const &p) {
-  STATIC_ASSERT(( std::is_same<T,U>::value || std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+art::PtrVector<T>::assign(size_type n, Ptr<U> const & p)
+{
+  STATIC_ASSERT((std::is_same<T, U>::value || std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   PtrVectorBase::clear();
   updateCore(p);
   ptrs_.assign(n, p);
@@ -375,7 +407,8 @@ art::PtrVector<T>::assign(size_type n, Ptr<U> const &p) {
 template <typename T>
 template <typename InputIterator>
 inline void
-art::PtrVector<T>::assign(InputIterator first, InputIterator last) {
+art::PtrVector<T>::assign(InputIterator first, InputIterator last)
+{
   PtrVectorBase::clear();
   using std::placeholders::_1;
   for_each(first, last, std::bind(&art::PtrVectorBase::updateCore, this, _1));
@@ -385,47 +418,53 @@ art::PtrVector<T>::assign(InputIterator first, InputIterator last) {
 template <typename T>
 template <typename U, typename InputIterator>
 inline void
-art::PtrVector<T>::assign(InputIterator first, InputIterator last) {
-  STATIC_ASSERT(( std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
+art::PtrVector<T>::assign(InputIterator first, InputIterator last)
+{
+  STATIC_ASSERT((std::is_base_of<T, U>::value || std::is_base_of<U, T>::value), "PtrVector: incompatible types");
   clear();
-  for(InputIterator i = first; i != last; ++i) {
+  for (InputIterator i = first; i != last; ++i) {
     push_back(*i); // Not a simple forward to assign() due to type differences.
   }
 }
 
 template <typename T>
 inline void
-art::PtrVector<T>::swap(PtrVector &other) {
+art::PtrVector<T>::swap(PtrVector & other)
+{
   ptrs_.swap(other.ptrs_);
   PtrVectorBase::swap(other);
 }
 
 template <typename T>
 inline void
-art::PtrVector<T>::swap(key_type k1, key_type k2) {
+art::PtrVector<T>::swap(key_type k1, key_type k2)
+{
   std::swap(ptrs_[k1], ptrs_[k2]);
 }
 
 template <typename T>
 inline void
-art::PtrVector<T>::sort() {
+art::PtrVector<T>::sort()
+{
   sort(std::less<T>());
 }
 
 template <typename T>
 template <class COMP>
 inline void
-art::PtrVector<T>::sort(COMP comp) {
+art::PtrVector<T>::sort(COMP comp)
+{
   std::sort(ptrs_.begin(), ptrs_.end(), ComparePtrs<COMP>(comp));
 }
 
 template <typename T>
 void
-art::PtrVector<T>::fill_offsets(indices_t &indices) {
+art::PtrVector<T>::fill_offsets(indices_t & indices)
+{
   indices.reserve(ptrs_.size());
   for (typename data_t::const_iterator
-         i = ptrs_.begin(),
-         e = ptrs_.end();
+       i = ptrs_.begin(),
+       e = ptrs_.end();
        i != e;
        ++i) {
     indices.push_back(key(*i));
@@ -434,11 +473,12 @@ art::PtrVector<T>::fill_offsets(indices_t &indices) {
 
 template <typename T>
 void
-art::PtrVector<T>::fill_from_offsets(indices_t const &indices) const {
+art::PtrVector<T>::fill_from_offsets(indices_t const & indices) const
+{
   ptrs_.reserve(indices.size());
   for (typename indices_t::const_iterator
-         i = indices.begin(),
-         e = indices.end();
+       i = indices.begin(),
+       e = indices.end();
        i != e;
        ++i) {
     ptrs_.push_back(Ptr<T>(id(), *i, productGetter()));
@@ -447,14 +487,16 @@ art::PtrVector<T>::fill_from_offsets(indices_t const &indices) const {
 
 template <typename T>
 inline void
-art::PtrVector<T>::zeroTransients() {
+art::PtrVector<T>::zeroTransients()
+{
   data_t tmp;
   ptrs_.swap(tmp);
 }
 
 template <typename T>
 inline void
-art::swap(PtrVector<T> &lhs, PtrVector<T> &rhs) {
+art::swap(PtrVector<T> &lhs, PtrVector<T> &rhs)
+{
   lhs.swap(rhs);
 }
 

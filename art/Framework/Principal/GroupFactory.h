@@ -13,17 +13,17 @@ namespace art {
 
   namespace gfactory {
     std::auto_ptr<Group>
-    make_group(BranchDescription const &bd,
-               ProductID const &pid);
+    make_group(BranchDescription const & bd,
+               ProductID const & pid);
     std::auto_ptr<Group>
-    make_group(BranchDescription const &bd,
-               ProductID const &pid,
+    make_group(BranchDescription const & bd,
+               ProductID const & pid,
                cet::exempt_ptr<Worker> productProducer,
                cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
     std::auto_ptr<Group>
     make_group(std::auto_ptr<EDProduct> edp,
-               BranchDescription const &bd,
-               ProductID const &pid);
+               BranchDescription const & bd,
+               ProductID const & pid);
   }
 }
 #endif /* art_Framework_Principal_GroupFactory_h */

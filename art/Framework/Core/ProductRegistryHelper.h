@@ -31,85 +31,80 @@
 #include <set>
 #include <string>
 
-namespace
-{
+namespace {
   inline
-  void verifyInstanceName(std::string const& instanceName)
+  void verifyInstanceName(std::string const & instanceName)
   {
-    if (instanceName.find('_') != std::string::npos)
-      {
-        throw art::Exception(art::errors::Configuration)
+    if (instanceName.find('_') != std::string::npos) {
+      throw art::Exception(art::errors::Configuration)
           << "Instance name \""
           << instanceName
           << "\" is illegal: underscores are not permitted in instance names."
           << '\n';
-      }
+    }
   }
 
   inline
-  void verifyFriendlyClassName(std::string const& fcn)
+  void verifyFriendlyClassName(std::string const & fcn)
   {
-    if (fcn.find('_') != std::string::npos)
-      {
-        throw art::Exception(art::errors::LogicError)
+    if (fcn.find('_') != std::string::npos) {
+      throw art::Exception(art::errors::LogicError)
           << "Class \""
           << fcn
           << "\" is not suitable for use as a product due to the presence of "
           << "underscores which are not allowed anywhere in the class name "
           << "(including namespace and enclosing classes).\n";
-      }
+    }
   }
 }
 
 
-namespace art
-{
+namespace art {
   class EDProduct;
   class ModuleDescription;
   class MasterProductRegistry;
   class ProductRegistryHelper;
 }
 
-class art::ProductRegistryHelper
-{
+class art::ProductRegistryHelper {
 public:
 
   // Record the production of an object of type P, with optional
   // instance name, in either the Run or SubRun.
   template <class P, BranchType B>
-  void produces(std::string const& instanceName=std::string());
+  void produces(std::string const & instanceName = std::string());
 
   // Record the production of an object of type P, with optional
   // instance name, in the Event.
   template <class P>
-  void produces(std::string const& instanceName=std::string());
+  void produces(std::string const & instanceName = std::string());
 
   // Record the reconstitution of an object of type P, in either the
   // Run, SubRun, or Event, recording that this object was
   // originally created by a module with label modLabel, and with an
   // optional instance name.
   template <class P, BranchType B>
-  void reconstitutes(std::string const& modLabel,
-                                 std::string const& instanceName=std::string());
+  void reconstitutes(std::string const & modLabel,
+                     std::string const & instanceName = std::string());
 
   void registerProducts(MasterProductRegistry &,
-                        ModuleDescription const&);
+                        ModuleDescription const &);
 
 private:
   typedef std::set<art::TypeLabel> TypeLabelList;
 
   template <BranchType B>
   void
-  produces_in_branch(TypeID const& productType,
-                     std::string const& instanceName=std::string());
+  produces_in_branch(TypeID const & productType,
+                     std::string const & instanceName = std::string());
 
   template <BranchType B>
   void
-  reconstitutes_to_branch(TypeID const& productType,
-                          std::string const& moduleLabel,
-                          std::string const& instanceName=std::string());
+  reconstitutes_to_branch(TypeID const & productType,
+                          std::string const & moduleLabel,
+                          std::string const & instanceName = std::string());
 
-  void insertOrThrow(TypeLabel const &tl);
+  void insertOrThrow(TypeLabel const & tl);
 
   TypeLabelList typeLabelList_;
 
@@ -121,7 +116,7 @@ private:
 template <class P>
 inline
 void
-art::ProductRegistryHelper::produces(std::string const& instanceName)
+art::ProductRegistryHelper::produces(std::string const & instanceName)
 {
   verifyInstanceName(instanceName);
   TypeID productType(typeid(P));
@@ -132,7 +127,7 @@ art::ProductRegistryHelper::produces(std::string const& instanceName)
 template <typename P, art::BranchType B>
 inline
 void
-art::ProductRegistryHelper::produces(std::string const& instanceName)
+art::ProductRegistryHelper::produces(std::string const & instanceName)
 {
   verifyInstanceName(instanceName);
   TypeID productType(typeid(P));
@@ -142,8 +137,8 @@ art::ProductRegistryHelper::produces(std::string const& instanceName)
 
 template <typename P, art::BranchType B>
 void
-art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
-                                     std::string const& instanceName)
+art::ProductRegistryHelper::reconstitutes(std::string const & emulatedModule,
+    std::string const & instanceName)
 {
   verifyInstanceName(instanceName);
   TypeID productType(typeid(P));
@@ -155,22 +150,22 @@ art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
 
 template <art::BranchType B>
 void
-art::ProductRegistryHelper::produces_in_branch(TypeID const& productType,
-                                          std::string const& instanceName)
+art::ProductRegistryHelper::produces_in_branch(TypeID const & productType,
+    std::string const & instanceName)
 {
   insertOrThrow(TypeLabel(B, productType, instanceName));
 }
 
 template <art::BranchType B>
 void
-art::ProductRegistryHelper::reconstitutes_to_branch(TypeID const& productType,
-                                               std::string const& emulatedModule,
-                                               std::string const& instanceName)
+art::ProductRegistryHelper::reconstitutes_to_branch(TypeID const & productType,
+    std::string const & emulatedModule,
+    std::string const & instanceName)
 {
   if (emulatedModule.empty())
     throw Exception(errors::Configuration)
-      << "Input sources must call reconstitutes with a non-empty "
-      << "module label.\n";
+        << "Input sources must call reconstitutes with a non-empty "
+        << "module label.\n";
   insertOrThrow(TypeLabel(B, productType, instanceName, emulatedModule));
 }
 

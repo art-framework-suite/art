@@ -18,31 +18,28 @@ namespace arttest {
 }
 
 class arttest::DoubleProducer
-  : public art::EDProducer
-{
+    : public art::EDProducer {
 public:
-  explicit DoubleProducer( fhicl::ParameterSet const& p )
-  : value_( p.get<double>("dvalue") )
-  {
+  explicit DoubleProducer(fhicl::ParameterSet const & p)
+    : value_(p.get<double>("dvalue")) {
     produces<DoubleProduct>();
   }
 
-  explicit DoubleProducer( double d )
-  : value_(d)
-  {
+  explicit DoubleProducer(double d)
+    : value_(d) {
     produces<DoubleProduct>();
   }
 
   virtual ~DoubleProducer() { }
 
-  virtual void produce( art::Event& e );
+  virtual void produce(art::Event & e);
 
 private:
   double value_;
 };  // DoubleProducer
 
 void
-arttest::DoubleProducer::produce( art::Event& e )
+arttest::DoubleProducer::produce(art::Event & e)
 {
   std::cerr << "Holy cow, DoubleProducer::produce is running!\n";
   std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));

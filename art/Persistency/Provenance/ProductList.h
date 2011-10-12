@@ -10,8 +10,7 @@
 #include "art/Persistency/Provenance/BranchDescription.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 
-namespace art
-{
+namespace art {
   typedef std::map<BranchKey, BranchDescription> ProductList;
 }
 

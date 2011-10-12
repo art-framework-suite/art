@@ -3,16 +3,18 @@
 // Package:    TestBeginEndJobAnalyzer
 // Class:      TestBeginEndJobAnalyzer
 //
-*/
+* /
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "cpp0x/memory"
 #include "test/Framework/Core/stubs/TestBeginEndJobAnalyzer.h"
 
-TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const fhicl::ParameterSet& /* iConfig */) {
+TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const fhicl::ParameterSet & /* iConfig */)
+{
 }
 
-TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer() {
+TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer()
+{
   destructorCalled = true;
 }
 
@@ -25,35 +27,42 @@ bool TestBeginEndJobAnalyzer::endSubRunCalled = false;
 bool TestBeginEndJobAnalyzer::destructorCalled = false;
 
 void
-TestBeginEndJobAnalyzer::beginJob(const art::EventSetup&) {
+TestBeginEndJobAnalyzer::beginJob(const art::EventSetup &)
+{
   beginJobCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endJob() {
+TestBeginEndJobAnalyzer::endJob()
+{
   endJobCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::beginRun(art::Run const&) {
+TestBeginEndJobAnalyzer::beginRun(art::Run const &)
+{
   beginRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endRun(art::Run const&) {
+TestBeginEndJobAnalyzer::endRun(art::Run const &)
+{
   endRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::beginSubRun(art::SubRun const&) {
+TestBeginEndJobAnalyzer::beginSubRun(art::SubRun const &)
+{
   beginSubRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::endSubRun(art::SubRun const&) {
+TestBeginEndJobAnalyzer::endSubRun(art::SubRun const &)
+{
   endSubRunCalled = true;
 }
 
 void
-TestBeginEndJobAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSetup& /* iSetup */) {
+TestBeginEndJobAnalyzer::analyze(const art::Event & /* iEvent */, const art::EventSetup & /* iSetup */)
+{
 }

@@ -44,21 +44,21 @@ namespace art {
 
   template <class A, class B>
   typename
-  std::enable_if<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
-                 art::AndHelper<A,B> >::type
-  operator&& (A const& a, B const& b);
+  std::enable_if < std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
+      art::AndHelper<A, B> >::type
+      operator&& (A const & a, B const & b);
 
   template <class A, class B>
   typename
-  std::enable_if<std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
-                 art::OrHelper<A,B> >::type
-  operator|| (A const& a, B const& b);
+  std::enable_if < std::is_base_of<art::SelectorBase, A>::value && std::is_base_of<art::SelectorBase, B>::value,
+      art::OrHelper<A, B> >::type
+      operator|| (A const & a, B const & b);
 
   template <class A>
   typename
-  std::enable_if<std::is_base_of<art::SelectorBase, A>::value,
-                 art::NotHelper<A> >::type
-  operator! (A const& a);
+  std::enable_if < std::is_base_of<art::SelectorBase, A>::value,
+      art::NotHelper<A> >::type
+      operator!(A const & a);
 }
 
 //------------------------------------------------------------------
@@ -73,24 +73,21 @@ namespace art {
 
 class art::ProcessNameSelector : public art::SelectorBase {
 public:
-  ProcessNameSelector(const std::string& pn) :
+  ProcessNameSelector(const std::string & pn) :
     pn_(pn.empty() ? std::string("*") : pn)
   { }
 
-  virtual ProcessNameSelector* clone() const
-  {
+  virtual ProcessNameSelector * clone() const {
     return new ProcessNameSelector(*this);
   }
 
-  std::string const& name() const
-  {
+  std::string const & name() const {
     return pn_;
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
-  {
-    return (pn_=="*") || (p.processName() == pn_);
+  virtual bool doMatch(BranchDescription const & p) const {
+    return (pn_ == "*") || (p.processName() == pn_);
   }
 
   std::string pn_;
@@ -105,18 +102,16 @@ private:
 
 class art::ProductInstanceNameSelector : public art::SelectorBase {
 public:
-  ProductInstanceNameSelector(const std::string& pin) :
+  ProductInstanceNameSelector(const std::string & pin) :
     pin_(pin)
   { }
 
-  virtual ProductInstanceNameSelector* clone() const
-  {
+  virtual ProductInstanceNameSelector * clone() const {
     return new ProductInstanceNameSelector(*this);
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
-  {
+  virtual bool doMatch(BranchDescription const & p) const {
     return p.productInstanceName() == pin_;
   }
 
@@ -132,18 +127,16 @@ private:
 
 class art::ModuleLabelSelector : public art::SelectorBase {
 public:
-  ModuleLabelSelector(const std::string& label) :
+  ModuleLabelSelector(const std::string & label) :
     label_(label)
   { }
 
-  virtual ModuleLabelSelector* clone() const
-  {
+  virtual ModuleLabelSelector * clone() const {
     return new ModuleLabelSelector(*this);
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
-  {
+  virtual bool doMatch(BranchDescription const & p) const {
     return p.moduleLabel() == label_;
   }
 
@@ -162,14 +155,12 @@ public:
   MatchAllSelector()
   { }
 
-  virtual MatchAllSelector* clone() const
-  {
+  virtual MatchAllSelector * clone() const {
     return new MatchAllSelector;
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
-  {
+  virtual bool doMatch(BranchDescription const & p) const {
     return true;
   }
 
@@ -185,10 +176,10 @@ private:
 template <class A, class B>
 class art::AndHelper : public SelectorBase {
 public:
-  AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
-  virtual AndHelper *clone() const { return new AndHelper(*this); }
+  AndHelper(A const & a, B const & b) : a_(a), b_(b) { }
+  virtual AndHelper * clone() const { return new AndHelper(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return a_.match(p) && b_.match(p); }
+  virtual bool doMatch(BranchDescription const & p) const { return a_.match(p) && b_.match(p); }
 
   A a_;
   B b_;
@@ -196,11 +187,12 @@ private:
 
 template <class A, class B>
 typename
-std::enable_if<std::is_base_of<art::SelectorBase, A>::value &&
-               std::is_base_of<art::SelectorBase, B>::value,
-               art::AndHelper<A,B> >::type
-art::operator&& (A const& a, B const& b) {
-  return art::AndHelper<A,B>(a,b);
+std::enable_if < std::is_base_of<art::SelectorBase, A>::value &&
+std::is_base_of<art::SelectorBase, B>::value,
+    art::AndHelper<A, B> >::type
+    art::operator&& (A const & a, B const & b)
+{
+  return art::AndHelper<A, B>(a, b);
 }
 
 //----------------------------------------------------------
@@ -213,10 +205,10 @@ art::operator&& (A const& a, B const& b) {
 template <class A, class B>
 class art::OrHelper : public art::SelectorBase {
 public:
-  OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
-  virtual OrHelper *clone() { return new OrHelper(*this); }
+  OrHelper(A const & a, B const & b) : a_(a), b_(b) { }
+  virtual OrHelper * clone() { return new OrHelper(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return a_.match(p) || b_.match(p); }
+  virtual bool doMatch(BranchDescription const & p) const { return a_.match(p) || b_.match(p); }
 
   A a_;
   B b_;
@@ -224,11 +216,12 @@ private:
 
 template <class A, class B>
 typename
-std::enable_if<std::is_base_of<art::SelectorBase, A>::value &&
-               std::is_base_of<art::SelectorBase, B>::value,
-               art::OrHelper<A,B> >::type
-art::operator|| (A const& a, B const& b) {
-  return art::OrHelper<A,B>(a,b);
+std::enable_if < std::is_base_of<art::SelectorBase, A>::value &&
+std::is_base_of<art::SelectorBase, B>::value,
+    art::OrHelper<A, B> >::type
+    art::operator|| (A const & a, B const & b)
+{
+  return art::OrHelper<A, B>(a, b);
 }
 
 //----------------------------------------------------------
@@ -241,19 +234,20 @@ art::operator|| (A const& a, B const& b) {
 template <class A>
 class art::NotHelper : public art::SelectorBase {
 public:
-  explicit NotHelper(A const& a) : a_(a) { }
-  NotHelper *clone() const { return new NotHelper(*this); }
+  explicit NotHelper(A const & a) : a_(a) { }
+  NotHelper * clone() const { return new NotHelper(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return ! a_.match(p); }
+  virtual bool doMatch(BranchDescription const & p) const { return ! a_.match(p); }
 
   A a_;
 };
 
 template <class A>
 typename
-std::enable_if<std::is_base_of<art::SelectorBase, A>::value,
-               art::NotHelper<A> >::type
-art::operator! (A const& a) {
+std::enable_if < std::is_base_of<art::SelectorBase, A>::value,
+    art::NotHelper<A> >::type
+    art::operator!(A const & a)
+{
   return art::NotHelper<A>(a);
 }
 
@@ -268,11 +262,11 @@ template <class T>
 class art::ComposedSelectorWrapper : public art::SelectorBase {
 public:
   typedef T wrapped_type;
-  explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
+  explicit ComposedSelectorWrapper(T const & t) : expression_(t) { }
   ~ComposedSelectorWrapper() {};
   ComposedSelectorWrapper<T>* clone() const { return new ComposedSelectorWrapper<T>(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return expression_.match(p); }
+  virtual bool doMatch(BranchDescription const & p) const { return expression_.match(p); }
 
   wrapped_type expression_;
 };
@@ -285,21 +279,21 @@ private:
 
 class art::Selector : public art::SelectorBase {
 public:
-  template <class T> Selector(T const& expression);
-  Selector(Selector const& other);
-  Selector& operator= (Selector const& other);
-  void swap(Selector& other);
+  template <class T> Selector(T const & expression);
+  Selector(Selector const & other);
+  Selector & operator= (Selector const & other);
+  void swap(Selector & other);
   virtual ~Selector();
-  virtual Selector* clone() const;
+  virtual Selector * clone() const;
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const;
+  virtual bool doMatch(BranchDescription const & p) const;
 
   cet::value_ptr<SelectorBase> sel_;
 };
 
 template <class T>
-art::Selector::Selector(T const& expression) :
+art::Selector::Selector(T const & expression) :
   sel_(new ComposedSelectorWrapper<T>(expression))
 { }
 

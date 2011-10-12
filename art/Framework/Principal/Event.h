@@ -37,7 +37,7 @@ namespace art {
 class art::Event : private art::DataViewImpl {
 public:
   typedef DataViewImpl Base;
-  Event(EventPrincipal& ep, const ModuleDescription& md);
+  Event(EventPrincipal & ep, const ModuleDescription & md);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -66,18 +66,18 @@ public:
   using Base::processHistory;
   using Base::size;
 
-  SubRun const& getSubRun() const;
+  SubRun const & getSubRun() const;
 
-  Run const&
+  Run const &
   getRun() const;
 
   template <typename PROD>
   bool
-  get(ProductID const& oid, Handle<PROD>& result) const;
+  get(ProductID const & oid, Handle<PROD>& result) const;
 
-  History const&
+  History const &
   history() const;
-  ProcessHistoryID const&
+  ProcessHistoryID const &
   processHistoryID() const;
 
   ///Put a new product.
@@ -88,30 +88,30 @@ public:
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   ProductID
-  put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+  put(std::auto_ptr<PROD> product, std::string const & productInstanceName);
 
   template <typename PROD>
   bool
-  get(SelectorBase const& sel,
+  get(SelectorBase const & sel,
       Handle<PROD>& result) const;
 
   template <typename PROD>
   bool
-  getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+  getByLabel(InputTag const & tag, Handle<PROD>& result) const;
 
   template <typename PROD>
   bool
-  getByLabel(std::string const& label, Handle<PROD>& result) const;
+  getByLabel(std::string const & label, Handle<PROD>& result) const;
 
   template <typename PROD>
   bool
-  getByLabel(std::string const& label,
-             std::string const& productInstanceName,
+  getByLabel(std::string const & label,
+             std::string const & productInstanceName,
              Handle<PROD>& result) const;
 
   template <typename PROD>
   void
-  getMany(SelectorBase const& sel,
+  getMany(SelectorBase const & sel,
           std::vector<Handle<PROD> >& results) const;
 
   template <typename PROD>
@@ -120,71 +120,71 @@ public:
 
   template< class ELEMENT >
   std::size_t
-  getView( std::string const &            moduleLabel
-           , std::vector<ELEMENT const *> & result
-           ) const;
+  getView(std::string const       &      moduleLabel
+          , std::vector<ELEMENT const *> & result
+         ) const;
 
   template< class ELEMENT >
   std::size_t
-  getView( std::string const &            moduleLabel
-           , std::string const &            productInstanceName
-           , std::vector<ELEMENT const *> & result
-           ) const;
+  getView(std::string const       &      moduleLabel
+          , std::string const       &      productInstanceName
+          , std::vector<ELEMENT const *> & result
+         ) const;
 
   template< class ELEMENT >
   std::size_t
-  getView( InputTag const &               tag
-           , std::vector<ELEMENT const *> & result
-           ) const;
+  getView(InputTag const        &        tag
+          , std::vector<ELEMENT const *> & result
+         ) const;
 
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
   template <class ELEMENT>
   bool
-  getView(std::string const& moduleLabel, View<ELEMENT>& result) const;
+  getView(std::string const & moduleLabel, View<ELEMENT>& result) const;
 
   template <class ELEMENT>
   bool
-  getView(std::string const& moduleLabel, std::string const& instanceName,
+  getView(std::string const & moduleLabel, std::string const & instanceName,
           View<ELEMENT>& result) const;
 
   template <class ELEMENT>
   bool
-  getView(InputTag const& tag, View<ELEMENT>& result) const;
+  getView(InputTag const & tag, View<ELEMENT>& result) const;
 
   template< typename ELEMENT >
   void
-  fillView_( GroupQueryResult & bh
-             , std::vector<ELEMENT const *> & result
-             ) const;
+  fillView_(GroupQueryResult & bh
+            , std::vector<ELEMENT const *> & result
+           ) const;
 
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
   // If true is returned, then ps is filled with the ParameterSet
   // used to configure the identified process.
   bool
-  getProcessParameterSet(std::string const& processName,
-                         fhicl::ParameterSet& ps) const;
+  getProcessParameterSet(std::string const & processName,
+                         fhicl::ParameterSet & ps) const;
 
   ////    EDProductGetter const * productGetter() const;
   EDProductGetter const * productGetter(ProductID const &) const;
 
-  ProductID branchIDToProductID(BranchID const &bid) const;
+  ProductID branchIDToProductID(BranchID const & bid) const;
 
 private:
-  EventPrincipal const& eventPrincipal() const;
-  EventPrincipal      & eventPrincipal();
+  EventPrincipal const & eventPrincipal() const;
+  EventPrincipal    &   eventPrincipal();
 
   ProductID
-  makeProductID(BranchDescription const& desc) const;
+  makeProductID(BranchDescription const & desc) const;
 
   void
-  ensure_unique_product( std::size_t         nFound
-                         , TypeID      const & typeID
-                         , std::string const & moduleLabel
-                         , std::string const & productInstanceName
-                         , std::string const & processName
-                         ) const;
+  ensure_unique_product(std::size_t         nFound
+                        , TypeID      const & typeID
+                        , std::string const & moduleLabel
+                        , std::string const & productInstanceName
+                        , std::string const & processName
+                       ) const;
 
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
@@ -199,12 +199,12 @@ private:
   void
   commit_();
   void
-  commit_aux(Base::ProductPtrVec& products, bool record_parents);
+  commit_aux(Base::ProductPtrVec & products, bool record_parents);
 
   GroupQueryResult
-  getByProductID_(ProductID const& oid) const;
+  getByProductID_(ProductID const & oid) const;
 
-  EventAuxiliary const& aux_;
+  EventAuxiliary const & aux_;
   std::shared_ptr<SubRun const> const subRun_;
 
   // gotBranchIDs_ must be mutable because it records all 'gets',
@@ -214,20 +214,20 @@ private:
   typedef std::set<BranchID> BranchIDSet;
   mutable BranchIDSet gotBranchIDs_;
   void
-  addToGotBranchIDs(Provenance const& prov) const;
+  addToGotBranchIDs(Provenance const & prov) const;
 };  // Event
 
 // ----------------------------------------------------------------------
 
 template <typename PROD>
 bool
-art::Event::get(ProductID const& oid, Handle<PROD>& result) const
+art::Event::get(ProductID const & oid, Handle<PROD>& result) const
 {
   result.clear();
   GroupQueryResult bh = this->getByProductID_(oid);
   convert_handle(bh, result);
   if (bh.succeeded())
-    addToGotBranchIDs(*result.provenance());
+  { addToGotBranchIDs(*result.provenance()); }
   return bh.succeeded();
 }  // get<>()
 
@@ -235,30 +235,25 @@ art::Event::get(ProductID const& oid, Handle<PROD>& result) const
 
 template <typename PROD>
 art::ProductID
-art::Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
+art::Event::put(std::auto_ptr<PROD> product, std::string const & productInstanceName)
 {
   if (product.get() == 0) {                // null pointer is illegal
     TypeID typeID(typeid(PROD));
     throw art::Exception(art::errors::NullPointerError)
-      << "Event::put: A null auto_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
-      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
+        << "Event::put: A null auto_ptr was passed to 'put'.\n"
+        << "The pointer is of type " << typeID << ".\n"
+        << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
-
-  BranchDescription const& desc =
+  BranchDescription const & desc =
     getBranchDescription(TypeID(*product), productInstanceName);
-
   Wrapper<PROD>* wp(new Wrapper<PROD>(product));
-
   detail::maybe_record_parents(putProducts(),
                                putProductsWithoutParents(),
                                wp,
                                &desc);
   //    putProducts().push_back(std::make_pair(wp, &desc));
-
   // product.release(); // The object has been copied into the Wrapper.
   // The old copy must be deleted, so we cannot release ownership.
-
   return makeProductID(desc);
 }  // put<>()
 
@@ -266,8 +261,8 @@ art::Event::put(std::auto_ptr<PROD> product, std::string const& productInstanceN
 
 template <typename PROD>
 bool
-art::Event::get(SelectorBase const& sel,
-           Handle<PROD>& result) const
+art::Event::get(SelectorBase const & sel,
+                Handle<PROD>& result) const
 {
   bool ok = this->Base::get(sel, result);
   if (ok) {
@@ -280,7 +275,7 @@ art::Event::get(SelectorBase const& sel,
 
 template <typename PROD>
 bool
-art::Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
+art::Event::getByLabel(InputTag const & tag, Handle<PROD>& result) const
 {
   bool ok = this->Base::getByLabel(tag, result);
   if (ok) {
@@ -291,7 +286,7 @@ art::Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 
 template <typename PROD>
 bool
-art::Event::getByLabel(std::string const& label, Handle<PROD>& result) const
+art::Event::getByLabel(std::string const & label, Handle<PROD>& result) const
 {
   bool ok = this->Base::getByLabel(label, result);
   if (ok) {
@@ -302,9 +297,9 @@ art::Event::getByLabel(std::string const& label, Handle<PROD>& result) const
 
 template <typename PROD>
 bool
-art::Event::getByLabel(std::string const& label,
-                  std::string const& productInstanceName,
-                  Handle<PROD>& result) const
+art::Event::getByLabel(std::string const & label,
+                       std::string const & productInstanceName,
+                       Handle<PROD>& result) const
 {
   bool ok = this->Base::getByLabel(label, productInstanceName, result);
   if (ok) {
@@ -317,8 +312,8 @@ art::Event::getByLabel(std::string const& label,
 
 template <typename PROD>
 void
-art::Event::getMany(SelectorBase const& sel,
-               std::vector<Handle<PROD> >& results) const
+art::Event::getMany(SelectorBase const & sel,
+                    std::vector<Handle<PROD> >& results) const
 {
   this->Base::getMany(sel, results);
   for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
@@ -344,32 +339,31 @@ art::Event::getManyByType(std::vector<Handle<PROD> >& results) const
 
 template< class ELEMENT >
 std::size_t
-art::Event::getView( std::string const &            moduleLabel
-                , std::vector<ELEMENT const *> & result
-                ) const
+art::Event::getView(std::string const       &      moduleLabel
+                    , std::vector<ELEMENT const *> & result
+                   ) const
 {
   return getView(moduleLabel, std::string(), result);
 }
 
 template< class ELEMENT >
 std::size_t
-art::Event::getView( std::string const &            moduleLabel
-                , std::string const &            productInstanceName
-                , std::vector<ELEMENT const *> & result
-                ) const
+art::Event::getView(std::string const       &      moduleLabel
+                    , std::string const       &      productInstanceName
+                    , std::vector<ELEMENT const *> & result
+                   ) const
 {
-  TypeID typeID( typeid(ELEMENT) );
+  TypeID typeID(typeid(ELEMENT));
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID
-                                            , moduleLabel
-                                            , productInstanceName
-                                            , bhv
-                                            , true
-                                            );
-  ensure_unique_product( nFound, typeID
-                         , moduleLabel, productInstanceName, std::string()
-                         );
-
+  int nFound = getMatchingSequenceByLabel_(typeID
+               , moduleLabel
+               , productInstanceName
+               , bhv
+               , true
+                                          );
+  ensure_unique_product(nFound, typeID
+                        , moduleLabel, productInstanceName, std::string()
+                       );
   std::size_t orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
@@ -377,28 +371,25 @@ art::Event::getView( std::string const &            moduleLabel
 
 template< class ELEMENT >
 std::size_t
-art::Event::getView( InputTag const &               tag
-                , std::vector<ELEMENT const *> & result
-                ) const
+art::Event::getView(InputTag const        &        tag
+                    , std::vector<ELEMENT const *> & result
+                   ) const
 {
   if (tag.process().empty()) {
     return getView(tag.label(), tag.instance(), result);
   }
-
-  TypeID typeID( typeid(ELEMENT) );
+  TypeID typeID(typeid(ELEMENT));
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID
-                                            , tag.label()
-                                            , tag.instance()
-                                            , tag.process()
-                                            , bhv
-                                            , true
-                                            );
-  ensure_unique_product( nFound, typeID
-                         , tag.label(), tag.instance(), tag.process()
-                         );
-
-
+  int nFound = getMatchingSequenceByLabel_(typeID
+               , tag.label()
+               , tag.instance()
+               , tag.process()
+               , bhv
+               , true
+                                          );
+  ensure_unique_product(nFound, typeID
+                        , tag.label(), tag.instance(), tag.process()
+                       );
   std::size_t orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
@@ -406,30 +397,29 @@ art::Event::getView( InputTag const &               tag
 
 template <class ELEMENT>
 bool
-art::Event::getView(std::string const& moduleLabel,
-               View<ELEMENT>&     result) const
+art::Event::getView(std::string const & moduleLabel,
+                    View<ELEMENT>&     result) const
 {
   return getView(moduleLabel, std::string(), result);
 }
 
 template <class ELEMENT>
 bool
-art::Event::getView(std::string const& moduleLabel,
-               std::string const& productInstanceName,
-               View<ELEMENT>&     result) const
+art::Event::getView(std::string const & moduleLabel,
+                    std::string const & productInstanceName,
+                    View<ELEMENT>&     result) const
 {
-  TypeID typeID( typeid(ELEMENT) );
+  TypeID typeID(typeid(ELEMENT));
   GroupQueryResultVec bhv;
-  int nFound = getMatchingSequenceByLabel_( typeID
-                                            , moduleLabel
-                                            , productInstanceName
-                                            , bhv
-                                            , true
-                                            );
-  ensure_unique_product( nFound, typeID
-                         , moduleLabel, productInstanceName, std::string()
-                         );
-
+  int nFound = getMatchingSequenceByLabel_(typeID
+               , moduleLabel
+               , productInstanceName
+               , bhv
+               , true
+                                          );
+  ensure_unique_product(nFound, typeID
+                        , moduleLabel, productInstanceName, std::string()
+                       );
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
@@ -437,22 +427,20 @@ art::Event::getView(std::string const& moduleLabel,
 
 template <class ELEMENT>
 bool
-art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
+art::Event::getView(InputTag const & tag, View<ELEMENT>& result) const
 {
   if (tag.process().empty())
-    return getView(tag.label(), tag.instance(), result);
-
-  TypeID typeID( typeid(ELEMENT) );
+  { return getView(tag.label(), tag.instance(), result); }
+  TypeID typeID(typeid(ELEMENT));
   GroupQueryResultVec bhv;
   int nFound = getMatchingSequenceByLabel_(typeID,
-                                           tag.label(),
-                                           tag.instance(),
-                                           tag.process(),
-                                           bhv,
-                                           true);
-  ensure_unique_product( nFound, typeID,
-                         tag.label(), tag.instance(), tag.process());
-
+               tag.label(),
+               tag.instance(),
+               tag.process(),
+               bhv,
+               true);
+  ensure_unique_product(nFound, typeID,
+                        tag.label(), tag.instance(), tag.process());
   fillView_(bhv[0], result.vals());
   result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
   return true;
@@ -462,23 +450,20 @@ art::Event::getView(InputTag const& tag, View<ELEMENT>& result) const
 
 template< typename ELEMENT >
 void
-art::Event::fillView_( GroupQueryResult & bh
-                  , std::vector<ELEMENT const *> & result
-                  ) const
+art::Event::fillView_(GroupQueryResult & bh
+                      , std::vector<ELEMENT const *> & result
+                     ) const
 {
   typedef  std::vector<void const *>::const_iterator
-    iter_t;
-
+  iter_t;
   std::vector<void const *> erased_ptrs;
   bh.result()->uniqueProduct()->fillView(erased_ptrs);
   Handle<ELEMENT> h(bh);
   addToGotBranchIDs(*h.provenance());
-
-  for( iter_t b = erased_ptrs.begin()
-         , e = erased_ptrs.end();  b != e;  ++b ) {
-    result.push_back( static_cast<ELEMENT const *>(*b) );
+  for (iter_t b = erased_ptrs.begin()
+                  , e = erased_ptrs.end();  b != e;  ++b) {
+    result.push_back(static_cast<ELEMENT const *>(*b));
   }
-
 }  // fillView_<>()
 
 #endif /* art_Framework_Principal_Event_h */

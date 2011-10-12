@@ -38,16 +38,16 @@ namespace art {
     /** If the worker with that set of parameters does not exist,
         create it
         @note Workers are owned by this class, do not delete them*/
-    Worker*  getWorker(WorkerParams const&);
+    Worker * getWorker(WorkerParams const &);
     void clear();
 
   private:
     /// Get a unique name for the worker
     /** Form a string to be used as a key in the map of workers */
-    std::string mangleWorkerParameters(fhicl::ParameterSet const& parameterSet,
-                                       std::string const& processName,
-                                       ReleaseVersion const& releaseVersion,
-                                       PassID const& passID);
+    std::string mangleWorkerParameters(fhicl::ParameterSet const & parameterSet,
+                                       std::string const & processName,
+                                       ReleaseVersion const & releaseVersion,
+                                       PassID const & passID);
 
     /// the container of workers
     typedef std::map<std::string, std::shared_ptr<Worker> > WorkerMap;

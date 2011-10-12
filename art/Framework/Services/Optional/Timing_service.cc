@@ -26,20 +26,19 @@ using fhicl::ParameterSet;
 
 // ======================================================================
 
-class art::Timing
-{
+class art::Timing {
 public:
-  Timing(ParameterSet const&, ActivityRegistry&);
+  Timing(ParameterSet const &, ActivityRegistry &);
 
 private:
   void postBeginJob();
   void postEndJob();
 
-  void preEventProcessing(Event const&);
-  void postEventProcessing(Event const&);
+  void preEventProcessing(Event const &);
+  void postEventProcessing(Event const &);
 
-  void preModule(ModuleDescription const&);
-  void postModule(ModuleDescription const&);
+  void preModule(ModuleDescription const &);
+  void postModule(ModuleDescription const &);
 
   EventID curr_event_;
   double curr_job_;         // seconds
@@ -59,15 +58,14 @@ private:
 static double getTime()
 {
   struct timeval t;
-  if(gettimeofday(&t, 0) < 0)
-    throw cet::exception("SysCallFailed", "Failed call to gettimeofday");
-
+  if (gettimeofday(&t, 0) < 0)
+  { throw cet::exception("SysCallFailed", "Failed call to gettimeofday"); }
   return (double)t.tv_sec + (double(t.tv_usec) * 1E-6);
 }
 
 // ----------------------------------------------------------------------
 
-Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
+Timing::Timing(ParameterSet const & iPS, ActivityRegistry & iRegistry):
   summary_only_(iPS.get<bool>("summaryOnly", false)),
   max_event_time_(0.),
   min_event_time_(0.),
@@ -75,10 +73,8 @@ Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
 {
   iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
   iRegistry.watchPostEndJob(this, &Timing::postEndJob);
-
   iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);
   iRegistry.watchPostProcessEvent(this, &Timing::postEventProcessing);
-
   iRegistry.watchPreModule(this, &Timing::preModule);
   iRegistry.watchPostModule(this, &Timing::postModule);
 }
@@ -89,11 +85,11 @@ void Timing::postBeginJob()
 {
   if (not summary_only_) {
     mf::LogAbsolute("TimeReport")
-      << "TimeReport> Report activated\n"
-         "TimeReport> Report columns headings for events: "
-         "eventnum runnum timetaken\n"
-         "TimeReport> Report columns headings for modules: "
-         "eventnum runnum modulelabel modulename timetaken";
+        << "TimeReport> Report activated\n"
+        "TimeReport> Report columns headings for events: "
+        "eventnum runnum timetaken\n"
+        "TimeReport> Report columns headings for modules: "
+        "eventnum runnum modulelabel modulename timetaken";
   }
   curr_job_ = getTime();
 }
@@ -103,57 +99,55 @@ void Timing::postEndJob()
   double t = getTime() - curr_job_;
   double average_event_t = t / total_event_count_;
   mf::LogAbsolute("TimeReport")                            // Changelog 1
-    << "TimeReport> Time report complete in "
-    << t << " seconds\n"
-    << " Time Summary: \n"
-    << " Min: " << min_event_time_ << "\n"
-    << " Max: " << max_event_time_ << "\n"
-    << " Avg: " << average_event_t << "\n";
-
+      << "TimeReport> Time report complete in "
+      << t << " seconds\n"
+      << " Time Summary: \n"
+      << " Min: " << min_event_time_ << "\n"
+      << " Max: " << max_event_time_ << "\n"
+      << " Avg: " << average_event_t << "\n";
 }
 
 // ----------------------------------------------------------------------
 
-void Timing::preEventProcessing(art::Event const& ev)
+void Timing::preEventProcessing(art::Event const & ev)
 {
   curr_event_ = ev.id();
   curr_event_time_ = getTime();
 }
 
-void Timing::postEventProcessing(Event const& e)
+void Timing::postEventProcessing(Event const & e)
 {
   double t = getTime() - curr_event_time_;
   if (not summary_only_) {
     mf::LogAbsolute("TimeEvent")
-       << "TimeEvent> "
-       << curr_event_ << " " << t;
+        << "TimeEvent> "
+        << curr_event_ << " " << t;
   }
   if (total_event_count_ == 0) {
     max_event_time_ = t;
     min_event_time_ = t;
   }
-
-  if (t > max_event_time_) max_event_time_ = t;
-  if (t < min_event_time_) min_event_time_ = t;
+  if (t > max_event_time_) { max_event_time_ = t; }
+  if (t < min_event_time_) { min_event_time_ = t; }
   total_event_count_ = total_event_count_ + 1;
 }
 
 // ----------------------------------------------------------------------
 
-void Timing::preModule(ModuleDescription const&)
+void Timing::preModule(ModuleDescription const &)
 {
   curr_module_time_ = getTime();
 }
 
-void Timing::postModule(ModuleDescription const& desc)
+void Timing::postModule(ModuleDescription const & desc)
 {
   double t = getTime() - curr_module_time_;
   if (not summary_only_) {
     mf::LogAbsolute("TimeModule") << "TimeModule> "
-       << curr_event_ << " "
-       << desc.moduleLabel_ << " "
-       << desc.moduleName_ << " "
-       << t;
+                                  << curr_event_ << " "
+                                  << desc.moduleLabel_ << " "
+                                  << desc.moduleName_ << " "
+                                  << t;
   }
 }
 

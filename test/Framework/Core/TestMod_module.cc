@@ -2,23 +2,22 @@
 #include "art/Framework/Core/EDProducer.h"
 #include <cppunit/extensions/HelperMacros.h>
 
-class TestMod : public art::EDProducer
-{
+class TestMod : public art::EDProducer {
 public:
-   explicit TestMod(fhicl::ParameterSet const& p);
+  explicit TestMod(fhicl::ParameterSet const & p);
 
-   void produce(art::Event&);
+  void produce(art::Event &);
 };
 
-TestMod::TestMod(fhicl::ParameterSet const&)
+TestMod::TestMod(fhicl::ParameterSet const &)
 { produces<int>(); }
 
-void TestMod::produce(art::Event&)
+void TestMod::produce(art::Event &)
 {
-   art::CurrentProcessingContext const* p = currentContext();
-   CPPUNIT_ASSERT( p != 0 );
-   CPPUNIT_ASSERT( p->moduleDescription() != 0 );
-   CPPUNIT_ASSERT( p->moduleLabel() != 0 );
+  art::CurrentProcessingContext const * p = currentContext();
+  CPPUNIT_ASSERT(p != 0);
+  CPPUNIT_ASSERT(p->moduleDescription() != 0);
+  CPPUNIT_ASSERT(p->moduleLabel() != 0);
 }
 
 DEFINE_ART_MODULE(TestMod)

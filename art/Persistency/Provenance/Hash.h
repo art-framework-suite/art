@@ -24,10 +24,9 @@
 
 namespace art {
 
-  namespace detail
-  {
+  namespace detail {
     // This string is the 16-byte, non-printable version.
-    std::string const& InvalidHash();
+    std::string const & InvalidHash();
   }
 
   template <int I>
@@ -36,10 +35,10 @@ namespace art {
     typedef std::string value_type;
 
     Hash();
-    explicit Hash(value_type const& v);
+    explicit Hash(value_type const & v);
 
-    Hash(Hash<I> const&);
-    Hash<I> const& operator=(Hash<I> const& iRHS);
+    Hash(Hash<I> const &);
+    Hash<I> const & operator=(Hash<I> const & iRHS);
 
     // For now, just check the most basic: a default constructed
     // ParameterSetID is not valid. This is very crude: we are
@@ -48,11 +47,11 @@ namespace art {
     // representation of an MD5 checksum.
     bool isValid() const;
 
-    bool operator< (Hash<I> const& other) const;
-    bool operator> (Hash<I> const& other) const;
-    bool operator== (Hash<I> const& other) const;
-    bool operator!= (Hash<I> const& other) const;
-    std::ostream& print(std::ostream& os) const;
+    bool operator< (Hash<I> const & other) const;
+    bool operator> (Hash<I> const & other) const;
+    bool operator== (Hash<I> const & other) const;
+    bool operator!= (Hash<I> const & other) const;
+    std::ostream & print(std::ostream & os) const;
     void swap(Hash<I>& other);
 
     // Return the 16-byte (non-printable) string form.
@@ -75,15 +74,15 @@ namespace art {
     void fixup();
 
     template< typename Op>
-      bool
-      compareUsing(Hash<I> const& iOther, Op op) const {
-        if(this->isCompactForm() == iOther.isCompactForm()) {
-          return op(this->hash_,iOther.hash_);
-        }
-        Hash<I> tMe(*this);
-        Hash<I> tOther(iOther);
-        return op(tMe.hash_,tOther.hash_);
+    bool
+    compareUsing(Hash<I> const & iOther, Op op) const {
+      if (this->isCompactForm() == iOther.isCompactForm()) {
+        return op(this->hash_, iOther.hash_);
       }
+      Hash<I> tMe(*this);
+      Hash<I> tOther(iOther);
+      return op(tMe.hash_, tOther.hash_);
+    }
 
     value_type hash_;
   };
@@ -105,7 +104,7 @@ namespace art {
 
   template <int I>
   inline
-  Hash<I>::Hash(typename Hash<I>::value_type const& v) :
+  Hash<I>::Hash(typename Hash<I>::value_type const & v) :
     hash_(v)
   {
     fixup();
@@ -113,18 +112,18 @@ namespace art {
 
   template <int I>
   inline
-  Hash<I>::Hash(Hash<I> const& iOther):
+  Hash<I>::Hash(Hash<I> const & iOther):
     hash_(iOther.hash_)
   {
-      fixup();
+    fixup();
   }
 
   template <int I>
   inline
-  Hash<I> const&
-  Hash<I>::operator=(Hash<I> const& iRHS)
+  Hash<I> const &
+  Hash<I>::operator=(Hash<I> const & iRHS)
   {
-    hash_=iRHS.hash_;
+    hash_ = iRHS.hash_;
     fixup();
     return *this;
   }
@@ -134,13 +133,13 @@ namespace art {
   bool
   Hash<I>::isValid() const
   {
-    return isCompactForm() ? (hash_ != art::detail::InvalidHash()) : (hash_.size()!=0);
+    return isCompactForm() ? (hash_ != art::detail::InvalidHash()) : (hash_.size() != 0);
   }
 
   template <int I>
   inline
   bool
-  Hash<I>::operator< (Hash<I> const& other) const
+  Hash<I>::operator< (Hash<I> const & other) const
   {
     return this->compareUsing(other, std::less<std::string >());
   }
@@ -148,7 +147,7 @@ namespace art {
   template <int I>
   inline
   bool
-  Hash<I>::operator> (Hash<I> const& other) const
+  Hash<I>::operator> (Hash<I> const & other) const
   {
     return this->compareUsing(other, std::greater<std::string >());
   }
@@ -156,7 +155,7 @@ namespace art {
   template <int I>
   inline
   bool
-  Hash<I>::operator== (Hash<I> const& other) const
+  Hash<I>::operator== (Hash<I> const & other) const
   {
     return this->compareUsing(other, std::equal_to<std::string >());
   }
@@ -164,15 +163,15 @@ namespace art {
   template <int I>
   inline
   bool
-  Hash<I>::operator!= (Hash<I> const& other) const
+  Hash<I>::operator!= (Hash<I> const & other) const
   {
     return this->compareUsing(other, std::not_equal_to<std::string >());
   }
 
   template <int I>
   inline
-  std::ostream&
-  Hash<I>::print(std::ostream& os) const
+  std::ostream &
+  Hash<I>::print(std::ostream & os) const
   {
     Hash<I> tMe(*this);
     art::MD5Result temp;
@@ -209,12 +208,11 @@ namespace art {
   Hash<I>::throwIfIllFormed() const
   {
     // Fixup not needed here.
-    if (hash_.size() % 2 == 1)
-      {
-        throw art::Exception(art::errors::LogicError)
+    if (hash_.size() % 2 == 1) {
+      throw art::Exception(art::errors::LogicError)
           << "Ill-formed Hash instance. "
           << "Please report this to the core framework developers";
-      }
+    }
   }
 
   // Note: this template is not declared 'inline' because of the
@@ -222,36 +220,34 @@ namespace art {
 
   template <int I>
   void
-  Hash<I>::fixup() {
+  Hash<I>::fixup()
+  {
     switch (hash_.size()) {
-      case 0:
-      {
+      case 0: {
         hash_ = art::detail::InvalidHash();
       }
-      case 16:
-      {
+      case 16: {
         break;
       }
-      case 32:
-      {
+      case 32: {
         art::MD5Result temp;
         temp.fromHexifiedString(hash_);
         hash_ = temp.compactForm();
         break;
       }
-      default:
-      {
+      default: {
         throw art::Exception(art::errors::LogicError)
-          << "art::Hash<> instance with data in illegal state:\n"
-          << hash_
-          << "\nPlease report this to the core framework developers";
+            << "art::Hash<> instance with data in illegal state:\n"
+            << hash_
+            << "\nPlease report this to the core framework developers";
       }
     }
   }
 
   template <int I>
   inline
-  bool Hash<I>::isCompactForm() const {
+  bool Hash<I>::isCompactForm() const
+  {
     return 16 == hash_.size();
   }
 
@@ -267,8 +263,8 @@ namespace art {
 
   template <int I>
   inline
-  std::ostream&
-  operator<< (std::ostream& os, Hash<I> const& h)
+  std::ostream &
+  operator<< (std::ostream & os, Hash<I> const & h)
   {
     return h.print(os);
   }

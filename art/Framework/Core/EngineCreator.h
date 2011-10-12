@@ -16,8 +16,7 @@
 
 namespace art {
 
-  class EngineCreator
-  {
+  class EngineCreator {
   private:
     typedef  RandomNumberGenerator      RNGservice;
     typedef  RNGservice::label_t        label_t;
@@ -27,27 +26,27 @@ namespace art {
   public:
     // --- Engine establishment:
     base_engine_t &
-      createEngine( seed_t  seed );
+    createEngine(seed_t  seed);
     base_engine_t &
-      createEngine( seed_t               seed
-                  , std::string const &  kind_of_engine_to_make
-                  );
+    createEngine(seed_t               seed
+                 , std::string const  & kind_of_engine_to_make
+                );
     base_engine_t &
-      createEngine( seed_t               seed
-                  , std::string const &  kind_of_engine_to_make
-                  , label_t const &      engine_label
-                  );
+    createEngine(seed_t               seed
+                 , std::string const  & kind_of_engine_to_make
+                 , label_t const    &   engine_label
+                );
 
     // --- seed access
     seed_t
-      get_seed_value( fhicl::ParameterSet const &  pset
-                    , char              const    key [ ]       = "seed"
-                    , seed_t            const    implicit_seed = -1
-                    );
+    get_seed_value(fhicl::ParameterSet const  & pset
+                   , char              const    key [ ]       = "seed"
+                       , seed_t            const    implicit_seed = -1
+                  );
 
   private:
     static  art::ServiceHandle<art::RandomNumberGenerator> &
-      rng( );
+    rng();
 
   };  // EngineCreator
 

@@ -7,15 +7,15 @@
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-namespace art
-{
+namespace art {
 
   EDFilter::~EDFilter()
   { }
 
   bool
-  EDFilter::doEvent(EventPrincipal& ep,
-                     CurrentProcessingContext const* cpc) {
+  EDFilter::doEvent(EventPrincipal & ep,
+                    CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Event e(ep, moduleDescription_);
@@ -25,24 +25,28 @@ namespace art
   }
 
   void
-  EDFilter::doBeginJob() {
+  EDFilter::doBeginJob()
+  {
     this->beginJob();
   }
 
-  void EDFilter::doEndJob() {
+  void EDFilter::doEndJob()
+  {
     this->endJob();
   }
 
   void
-  EDFilter::reconfigure(fhicl::ParameterSet const&) {
+  EDFilter::reconfigure(fhicl::ParameterSet const &)
+  {
     mf::LogError("FeatureNotImplemented")
-       << "This module is not reconfigurable."
-       << "\n";
-   }
+        << "This module is not reconfigurable."
+        << "\n";
+  }
 
   bool
   EDFilter::doBeginRun(RunPrincipal & rp,
-                        CurrentProcessingContext const* cpc) {
+                       CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
@@ -53,7 +57,8 @@ namespace art
 
   bool
   EDFilter::doEndRun(RunPrincipal & rp,
-                        CurrentProcessingContext const* cpc) {
+                     CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     Run r(rp, moduleDescription_);
@@ -64,7 +69,8 @@ namespace art
 
   bool
   EDFilter::doBeginSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     SubRun sr(srp, moduleDescription_);
@@ -75,7 +81,8 @@ namespace art
 
   bool
   EDFilter::doEndSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                        CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     bool rc = false;
     SubRun sr(srp, moduleDescription_);
@@ -85,27 +92,32 @@ namespace art
   }
 
   void
-  EDFilter::doRespondToOpenInputFile(FileBlock const& fb) {
+  EDFilter::doRespondToOpenInputFile(FileBlock const & fb)
+  {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDFilter::doRespondToCloseInputFile(FileBlock const& fb) {
+  EDFilter::doRespondToCloseInputFile(FileBlock const & fb)
+  {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDFilter::doRespondToOpenOutputFiles(FileBlock const& fb) {
+  EDFilter::doRespondToOpenOutputFiles(FileBlock const & fb)
+  {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDFilter::doRespondToCloseOutputFiles(FileBlock const& fb) {
+  EDFilter::doRespondToCloseOutputFiles(FileBlock const & fb)
+  {
     respondToCloseOutputFiles(fb);
   }
 
-  CurrentProcessingContext const*
-  EDFilter::currentContext() const {
+  CurrentProcessingContext const *
+  EDFilter::currentContext() const
+  {
     return current_context_;
   }
 

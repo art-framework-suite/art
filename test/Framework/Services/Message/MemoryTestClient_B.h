@@ -14,32 +14,30 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-class MemoryTestClient_B
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    MemoryTestClient_B( fhicl::ParameterSet const & );
+  class MemoryTestClient_B
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    MemoryTestClient_B(fhicl::ParameterSet const &);
 
-  virtual
+    virtual
     ~MemoryTestClient_B()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  static int nevent;
-  std::vector<double> memoryPattern;
-  void initializeMemoryPattern(int pattern);
-  double vsize;
-  char* last_Allocation;
-};
+  private:
+    static int nevent;
+    std::vector<double> memoryPattern;
+    void initializeMemoryPattern(int pattern);
+    double vsize;
+    char * last_Allocation;
+  };
 
 
 }  // arttest

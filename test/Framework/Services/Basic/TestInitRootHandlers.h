@@ -30,21 +30,21 @@
 
 class TestInitRootHandlers : public art::EDAnalyzer {
 public:
-   explicit TestInitRootHandlers(const fhicl::ParameterSet&);
-   ~TestInitRootHandlers();
+  explicit TestInitRootHandlers(const fhicl::ParameterSet &);
+  ~TestInitRootHandlers();
 
-   virtual void analyze(const art::Event&, const art::EventSetup&);
-   virtual void endJob();
+  virtual void analyze(const art::Event &, const art::EventSetup &);
+  virtual void endJob();
 
 private:
 
-   // ----------member data ---------------------------
-   std::string indentation_;
-   std::string verboseIndentation_;
-   std::vector<std::string> moduleLabels_;
-   bool        verbose_;
-   int         evno_;
-   std::map<std::string, int>  cumulates_;
+  // ----------member data ---------------------------
+  std::string indentation_;
+  std::string verboseIndentation_;
+  std::vector<std::string> moduleLabels_;
+  bool        verbose_;
+  int         evno_;
+  std::map<std::string, int>  cumulates_;
 };
 
 

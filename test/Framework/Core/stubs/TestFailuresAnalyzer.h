@@ -18,17 +18,17 @@
 
 class TestFailuresAnalyzer : public art::EDAnalyzer {
 public:
-   explicit TestFailuresAnalyzer(const fhicl::ParameterSet&);
-   ~TestFailuresAnalyzer();
+  explicit TestFailuresAnalyzer(const fhicl::ParameterSet &);
+  ~TestFailuresAnalyzer();
 
 
-   virtual void analyze(const art::Event&, const art::EventSetup&);
+  virtual void analyze(const art::Event &, const art::EventSetup &);
 
-   virtual void beginJob(const art::EventSetup&);
-   virtual void endJob();
+  virtual void beginJob(const art::EventSetup &);
+  virtual void endJob();
 
 private:
-      int whichFailure_;
+  int whichFailure_;
 };
 
 

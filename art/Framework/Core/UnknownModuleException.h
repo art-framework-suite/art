@@ -13,20 +13,18 @@
 namespace art {
 
   class UnknownModuleException
-    : public cet::exception
-  {
+      : public cet::exception {
   public:
     UnknownModuleException(const std::string & moduletype):
-      cet::exception("UnknownModule")
-    {
+      cet::exception("UnknownModule") {
       (*this) << "Module " << moduletype << " was not registered \n"
-        "Perhaps your module type is misspelled or is not a framework plugin\n"
-        "Try running EdmPluginDump to obtain a list of available Plugins\n";
+              "Perhaps your module type is misspelled or is not a framework plugin\n"
+              "Try running EdmPluginDump to obtain a list of available Plugins\n";
     }
 
-   // use compiler-generated copy c'tor and copy assignment
+    // use compiler-generated copy c'tor and copy assignment
 
-    ~UnknownModuleException() throw(){}
+    ~UnknownModuleException() throw() {}
 
   }; // UnknownModuleException
 

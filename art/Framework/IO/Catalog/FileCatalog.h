@@ -14,26 +14,26 @@ namespace art {
   class FileCatalogItem {
   public:
     FileCatalogItem() : pfn_(), lfn_() {}
-    FileCatalogItem(std::string const& pfn, std::string const& lfn) : pfn_(pfn), lfn_(lfn) {}
-    std::string const& fileName() const {return pfn_;}
-    std::string const& logicalFileName() const {return lfn_;}
+    FileCatalogItem(std::string const & pfn, std::string const & lfn) : pfn_(pfn), lfn_(lfn) {}
+    std::string const & fileName() const {return pfn_;}
+    std::string const & logicalFileName() const {return lfn_;}
   private:
     std::string pfn_;
     std::string lfn_;
   };  // FileCatalogItem
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   class FileCatalog {
   public:
     FileCatalog();
     virtual ~FileCatalog() = 0;
     void commitCatalog();
-    static bool isPhysical(std::string const& name) {
+    static bool isPhysical(std::string const & name) {
       return (name.empty() || name.find(':') != std::string::npos);
     }
     std::string & url() {return url_;}
-    std::string const& url() const {return url_;}
+    std::string const & url() const {return url_;}
     void setActive() {active_ = true;}
     bool active() const {return active_;}
   private:

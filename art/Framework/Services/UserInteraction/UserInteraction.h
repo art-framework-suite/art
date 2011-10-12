@@ -29,24 +29,22 @@ namespace art {
 
 namespace ui {
 
-  class UserInteraction
-  {
+  class UserInteraction {
   public:
-    typedef std::vector<art::Worker*> Workers;
+    typedef std::vector<art::Worker *> Workers;
 
-    enum NextStep { NextEvent=0, ReprocessEvent=1, RewindFile=2, Invalid=3};
+    enum NextStep { NextEvent = 0, ReprocessEvent = 1, RewindFile = 2, Invalid = 3};
 
-    struct ModuleInfo
-    {
-      ModuleInfo(std::string const& lab,std::string const& n,
-                 fhicl::ParameterSet const& p):
-        label(lab),class_name(n),pset(p) { }
+    struct ModuleInfo {
+      ModuleInfo(std::string const & lab, std::string const & n,
+                 fhicl::ParameterSet const & p):
+        label(lab), class_name(n), pset(p) { }
       std::string label;
       std::string class_name;
       fhicl::ParameterSet pset;
     };
 
-    explicit UserInteraction(art::ActivityRegistry&);
+    explicit UserInteraction(art::ActivityRegistry &);
     virtual ~UserInteraction();
 
     // must be supplied by user. called when the module list is
@@ -67,19 +65,19 @@ namespace ui {
     // executed in the module.  The argument is the index into the
     // worker (module) array.
     void callReconfigure(int module_index,
-                         fhicl::ParameterSet const& pset);
+                         fhicl::ParameterSet const & pset);
 
   private:
-    void preEvent(art::Event const& ev);
-    void postEvent(art::Event const& ev);
-    void postBeginJobWorkers(art::InputSource* is, std::vector<art::Worker*> const&);
+    void preEvent(art::Event const & ev);
+    void postEvent(art::Event const & ev);
+    void postBeginJobWorkers(art::InputSource * is, std::vector<art::Worker *> const &);
 
 
     // void preModuleEvent(art::ModuleDescription const& md);
     // void postModuleEvent(art::ModuleDescription const& md);
 
     Workers workers_;
-    art::InputSource* input_;
+    art::InputSource * input_;
   };
 }
 

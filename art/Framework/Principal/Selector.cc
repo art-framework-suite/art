@@ -4,8 +4,7 @@
 
 #include "art/Framework/Principal/Selector.h"
 
-namespace art
-{
+namespace art {
   //------------------------------------------------------------------
   //
   // Selector
@@ -13,12 +12,12 @@ namespace art
   //------------------------------------------------------------------
 
 
-  Selector::Selector(Selector const& other) :
+  Selector::Selector(Selector const & other) :
     sel_(other.sel_->clone())
   { }
 
-  Selector&
-  Selector::operator= (Selector const& other)
+  Selector &
+  Selector::operator= (Selector const & other)
   {
     Selector temp(other);
     swap(temp);
@@ -26,7 +25,7 @@ namespace art
   }
 
   void
-  Selector::swap(Selector& other)
+  Selector::swap(Selector & other)
   {
     using std::swap;
     swap(sel_, other.sel_);
@@ -34,7 +33,7 @@ namespace art
 
   Selector::~Selector() { }
 
-  Selector*
+  Selector *
   Selector::clone() const
   {
     return new Selector(*this);
@@ -42,7 +41,7 @@ namespace art
 
 
   bool
-  Selector::doMatch(BranchDescription const& prov) const
+  Selector::doMatch(BranchDescription const & prov) const
   {
     return sel_->match(prov);
   }

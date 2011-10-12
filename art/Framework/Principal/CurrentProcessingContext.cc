@@ -11,9 +11,9 @@ namespace art {
     isEndPath_(false)
   { }
 
-  CurrentProcessingContext::CurrentProcessingContext(std::string const* name,
-                                                     int bitpos,
-                                                     bool isEndPth) :
+  CurrentProcessingContext::CurrentProcessingContext(std::string const * name,
+      int bitpos,
+      bool isEndPth) :
     pathInSchedule_(bitpos),
     slotInPath_(0),
     moduleDescription_(0),
@@ -21,21 +21,21 @@ namespace art {
     isEndPath_(isEndPth)
   { }
 
-  std::string const*
+  std::string const *
   CurrentProcessingContext::moduleLabel() const
   {
     return is_active()
-      ? &(moduleDescription_->moduleLabel_)
-      : 0;
+           ? &(moduleDescription_->moduleLabel_)
+           : 0;
   }
 
-  std::string const*
+  std::string const *
   CurrentProcessingContext::pathName() const
   {
     return pathName_;
   }
 
-  ModuleDescription const*
+  ModuleDescription const *
   CurrentProcessingContext::moduleDescription() const
   {
     return moduleDescription_;
@@ -45,8 +45,8 @@ namespace art {
   CurrentProcessingContext::pathInSchedule() const
   {
     return is_active()
-      ? pathInSchedule_
-      : -1;
+           ? pathInSchedule_
+           : -1;
   }
 
 
@@ -54,8 +54,8 @@ namespace art {
   CurrentProcessingContext::slotInPath() const
   {
     return is_active()
-      ? static_cast<int>(slotInPath_)
-      : -1;
+           ? static_cast<int>(slotInPath_)
+           : -1;
   }
 
   bool
@@ -66,9 +66,9 @@ namespace art {
 
   void
   CurrentProcessingContext::activate(size_t theSlotInPath,
-                                     ModuleDescription const* mod)
+                                     ModuleDescription const * mod)
   {
-    assert( mod );
+    assert(mod);
     slotInPath_     = theSlotInPath;
     moduleDescription_ = mod;
   }

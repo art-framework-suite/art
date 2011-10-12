@@ -10,31 +10,31 @@
 // member functions
 //
 void
-art::ServiceToken::connectTo(art::ActivityRegistry& iConnectTo)
+art::ServiceToken::connectTo(art::ActivityRegistry & iConnectTo)
 {
-   if(0!=manager_.get()){
-      manager_->connectTo(iConnectTo);
-   }
+  if (0 != manager_.get()) {
+    manager_->connectTo(iConnectTo);
+  }
 }
 void
-art::ServiceToken::connect(art::ActivityRegistry& iConnectTo)
+art::ServiceToken::connect(art::ActivityRegistry & iConnectTo)
 {
-   if(0!=manager_.get()){
-      manager_->connect(iConnectTo);
-   }
+  if (0 != manager_.get()) {
+    manager_->connect(iConnectTo);
+  }
 }
 
 void
-art::ServiceToken::copySlotsTo(art::ActivityRegistry& iConnectTo)
+art::ServiceToken::copySlotsTo(art::ActivityRegistry & iConnectTo)
 {
-  if(0!=manager_.get()){
+  if (0 != manager_.get()) {
     manager_->copySlotsTo(iConnectTo);
   }
 }
 void
-art::ServiceToken::copySlotsFrom(art::ActivityRegistry& iConnectTo)
+art::ServiceToken::copySlotsFrom(art::ActivityRegistry & iConnectTo)
 {
-  if(0!=manager_.get()){
+  if (0 != manager_.get()) {
     manager_->copySlotsFrom(iConnectTo);
   }
 }

@@ -6,21 +6,19 @@
 #include <string>
 #include <iomanip>
 
-namespace arttest
-{
+namespace arttest {
 
 
-void
-  UnitTestClient_R::analyze( art::Event      const & e
-                           , art::EventSetup const & /*unused*/
-                              )
-{
-
-  for( int i=0; i<10000; ++i) {
-    mf::LogError("cat_A")   << "A " << i;
-    mf::LogError("cat_B")   << "B " << i;
-  }
-}  // MessageLoggerClient::analyze()
+  void
+  UnitTestClient_R::analyze(art::Event      const & e
+                            , art::EventSetup const & /*unused*/
+                           )
+  {
+    for (int i = 0; i < 10000; ++i) {
+      mf::LogError("cat_A")   << "A " << i;
+      mf::LogError("cat_B")   << "B " << i;
+    }
+  }  // MessageLoggerClient::analyze()
 
 }  // arttest
 

@@ -17,18 +17,17 @@ tracked parameters within a ParameterSet,
 
 namespace art {
 
-  struct ParameterSetBlob
-  {
+  struct ParameterSetBlob {
     typedef std::string value_t;
 
     ParameterSetBlob() : pset_() {}
-    explicit ParameterSetBlob(value_t const& v) : pset_(v) {}
+    explicit ParameterSetBlob(value_t const & v) : pset_(v) {}
 
     value_t pset_;
   };
 
-  std::ostream&
-  operator<<(std::ostream& os, ParameterSetBlob const& blob);
+  std::ostream &
+  operator<<(std::ostream & os, ParameterSetBlob const & blob);
 
 }  // art
 

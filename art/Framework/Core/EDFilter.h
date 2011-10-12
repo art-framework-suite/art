@@ -24,13 +24,11 @@
 
 // ----------------------------------------------------------------------
 
-namespace art
-{
+namespace art {
 
   class EDFilter
     : public ProducerBase
-    , public EngineCreator
-  {
+      , public EngineCreator {
   public:
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
@@ -46,77 +44,79 @@ namespace art
 
     template <typename PROD, BranchType B, typename TRANS>
     ProductID
-    getProductID(TRANS const &translator,
-                 std::string const& instanceName=std::string()) const;
+    getProductID(TRANS const & translator,
+                 std::string const & instanceName = std::string()) const;
 
     template <typename PROD, typename TRANS>
     ProductID
-    getProductID(TRANS const &translator,
-                 std::string const& instanceName=std::string()) const;
+    getProductID(TRANS const & translator,
+                 std::string const & instanceName = std::string()) const;
 
   protected:
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('filter').
-    CurrentProcessingContext const* currentContext() const;
+    CurrentProcessingContext const * currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal& ep,
-                  CurrentProcessingContext const* cpc);
+    bool doEvent(EventPrincipal & ep,
+                 CurrentProcessingContext const * cpc);
     void doBeginJob();
     void doEndJob();
     bool doBeginRun(RunPrincipal & rp,
-                   CurrentProcessingContext const* cpc);
+                    CurrentProcessingContext const * cpc);
     bool doEndRun(RunPrincipal & rp,
-                   CurrentProcessingContext const* cpc);
+                  CurrentProcessingContext const * cpc);
     bool doBeginSubRun(SubRunPrincipal & srp,
-                   CurrentProcessingContext const* cpc);
+                       CurrentProcessingContext const * cpc);
     bool doEndSubRun(SubRunPrincipal & srp,
-                   CurrentProcessingContext const* cpc);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
+                     CurrentProcessingContext const * cpc);
+    void doRespondToOpenInputFile(FileBlock const & fb);
+    void doRespondToCloseInputFile(FileBlock const & fb);
+    void doRespondToOpenOutputFiles(FileBlock const & fb);
+    void doRespondToCloseOutputFiles(FileBlock const & fb);
 
     std::string workerType() const {return "WorkerT<EDFilter>";}
 
-    virtual bool filter(Event&) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&);
-    virtual bool beginRun(Run &){return true;}
-    virtual bool endRun(Run &){return true;}
-    virtual bool beginSubRun(SubRun &){return true;}
-    virtual bool endSubRun(SubRun &){return true;}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual bool filter(Event &) = 0;
+    virtual void beginJob() {}
+    virtual void endJob() {}
+    virtual void reconfigure(fhicl::ParameterSet const &);
+    virtual bool beginRun(Run &) {return true;}
+    virtual bool endRun(Run &) {return true;}
+    virtual bool beginSubRun(SubRun &) {return true;}
+    virtual bool endSubRun(SubRun &) {return true;}
+    virtual void respondToOpenInputFile(FileBlock const & fb) {}
+    virtual void respondToCloseInputFile(FileBlock const & fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const & fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const & fb) {}
 
-    void setModuleDescription(ModuleDescription const& md) {
+    void setModuleDescription(ModuleDescription const & md) {
       moduleDescription_ = md;
     }
     ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
+    CurrentProcessingContext const * current_context_;
   };  // EDFilter
 
   template <typename PROD, BranchType B, typename TRANS>
   inline
   ProductID
-  EDFilter::getProductID(TRANS const &translator,
-                         std::string const& instanceName) const {
+  EDFilter::getProductID(TRANS const & translator,
+                         std::string const & instanceName) const
+  {
     return ProducerBase::getProductID<PROD, B>(translator,
-                                               moduleDescription_,
-                                               instanceName);
+           moduleDescription_,
+           instanceName);
   }
 
   template <typename PROD, typename TRANS>
   inline
   ProductID
-  EDFilter::getProductID(TRANS const &translator,
-                         std::string const& instanceName) const {
+  EDFilter::getProductID(TRANS const & translator,
+                         std::string const & instanceName) const
+  {
     return ProducerBase::getProductID<PROD, InEvent>(translator,
-                                                     moduleDescription_,
-                                                     instanceName);
+           moduleDescription_,
+           instanceName);
   }
 
 }  // art

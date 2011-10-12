@@ -25,43 +25,40 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::ServiceToken
-{
+class art::ServiceToken {
   friend class ServiceRegistry;
   friend class ServicesManager;
 
 public:
-  ServiceToken( ) { }
+  ServiceToken() { }
 
   // the argument's signals are propagated to the Service's held by the token
-  void connectTo( ActivityRegistry & );
+  void connectTo(ActivityRegistry &);
   // the argument's signals will forward the token's signals
-  void connect( ActivityRegistry & );
+  void connect(ActivityRegistry &);
 
   // copy our Service's slots to the argument's signals
-  void copySlotsTo( ActivityRegistry & );
+  void copySlotsTo(ActivityRegistry &);
   // the copy the argument's slots to the token's signals
-  void copySlotsFrom( ActivityRegistry & );
+  void copySlotsFrom(ActivityRegistry &);
 
   template< class T >
-    bool add( std::auto_ptr<T> serv )
-  {
-     return manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
+  bool add(std::auto_ptr<T> serv) {
+    return manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
   }
 
-  void forceCreation(ActivityRegistry& reg)
-  {
+  void forceCreation(ActivityRegistry & reg) {
     manager_->forceCreation(reg);
   }
 
-  void getParameterSets(ServicesManager::ParameterSets& out) const
+  void getParameterSets(ServicesManager::ParameterSets & out) const
   { manager_->getParameterSets(out); }
-  void putParameterSets(ServicesManager::ParameterSets const& in)
+  void putParameterSets(ServicesManager::ParameterSets const & in)
   { manager_->putParameterSets(in); }
 
 private:
-  ServiceToken( std::shared_ptr<ServicesManager> iManager )
-  : manager_( iManager )
+  ServiceToken(std::shared_ptr<ServicesManager> iManager)
+    : manager_(iManager)
   { }
 
   std::shared_ptr<ServicesManager> manager_;

@@ -21,47 +21,45 @@ namespace art {
 
   // possible return codes for the testSelectionOverlap
   // method defined below.
-  namespace evtSel
-  {
+  namespace evtSel {
     enum OverlapResult {InvalidSelection = 0,
                         NoOverlap = 1,
                         PartialOverlap = 2,
-                        ExactMatch = 3};
+                        ExactMatch = 3
+                       };
   }  // evtSel
 
-  class EventSelector
-  {
+  class EventSelector {
   public:
 
     typedef std::vector<std::string> Strings;
 
-    EventSelector(Strings const& pathspecs,
-                  Strings const& names);
+    EventSelector(Strings const & pathspecs,
+                  Strings const & names);
 
     explicit
-    EventSelector(Strings const& pathspecs);
+    EventSelector(Strings const & pathspecs);
 
-    EventSelector(fhicl::ParameterSet const& pset,
-                  Strings const& triggernames);
+    EventSelector(fhicl::ParameterSet const & pset,
+                  Strings const & triggernames);
 
     bool wantAll() const { return accept_all_; }
-    bool acceptEvent(TriggerResults const&);
-    bool acceptEvent(unsigned char const*, int) const;
+    bool acceptEvent(TriggerResults const &);
+    bool acceptEvent(unsigned char const *, int) const;
 
     std::shared_ptr<TriggerResults>
-      maskTriggerResults(TriggerResults const& inputResults);
+    maskTriggerResults(TriggerResults const & inputResults);
     static std::vector<std::string>
-      getEventSelectionVString(fhicl::ParameterSet const& pset);
+    getEventSelectionVString(fhicl::ParameterSet const & pset);
 
   private:
 
-    void init(Strings const& paths,
-              Strings const& triggernames);
+    void init(Strings const & paths,
+              Strings const & triggernames);
 
-    struct BitInfo
-    {
-      BitInfo(unsigned int pos, bool state):pos_(pos),accept_state_(state) { }
-      BitInfo():pos_(),accept_state_() { }
+    struct BitInfo {
+      BitInfo(unsigned int pos, bool state): pos_(pos), accept_state_(state) { }
+      BitInfo(): pos_(), accept_state_() { }
 
       unsigned int pos_;
       bool accept_state_;
@@ -85,36 +83,36 @@ namespace art {
     int nTriggerNames_;
     bool notStarPresent_;
 
-    bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;
+    bool acceptTriggerPath(HLTPathStatus const &, BitInfo const &) const;
 
-    bool acceptOneBit (Bits const & b,
-                       HLTGlobalStatus const & tr,
-                       hlt::HLTState const & s = hlt::Ready) const;
-    bool acceptAllBits (Bits const & b,
-                        HLTGlobalStatus const & tr) const;
+    bool acceptOneBit(Bits const & b,
+                      HLTGlobalStatus const & tr,
+                      hlt::HLTState const & s = hlt::Ready) const;
+    bool acceptAllBits(Bits const & b,
+                       HLTGlobalStatus const & tr) const;
 
     bool containsExceptions(HLTGlobalStatus const & tr) const;
 
     bool selectionDecision(HLTGlobalStatus const & tr) const;
 
     static std::vector< Strings::const_iterator >
-      matching_triggers(Strings const& trigs, std::string const& s);
+    matching_triggers(Strings const & trigs, std::string const & s);
 
-    static bool identical (std::vector<bool> const & a,
-                           std::vector<bool> const & b);
-    static bool identical (EventSelector const & a,
-                           EventSelector const & b,
-                           unsigned int N);
-    static std::vector<bool> expandDecisionList (
-                Bits const & b,
-                bool PassOrFail,
-                unsigned int n);
-    static bool overlapping ( std::vector<bool> const& a,
-                              std::vector<bool> const& b );
-    static bool subset  ( std::vector<bool> const& a,
-                          std::vector<bool> const& b );
-    static std::vector<bool> combine ( std::vector<bool> const& a,
-                                       std::vector<bool> const& b );
+    static bool identical(std::vector<bool> const & a,
+                          std::vector<bool> const & b);
+    static bool identical(EventSelector const & a,
+                          EventSelector const & b,
+                          unsigned int N);
+    static std::vector<bool> expandDecisionList(
+      Bits const & b,
+      bool PassOrFail,
+      unsigned int n);
+    static bool overlapping(std::vector<bool> const & a,
+                            std::vector<bool> const & b);
+    static bool subset(std::vector<bool> const & a,
+                       std::vector<bool> const & b);
+    static std::vector<bool> combine(std::vector<bool> const & a,
+                                     std::vector<bool> const & b);
   };  // EventSelector
 
 }  // art

@@ -23,19 +23,18 @@ namespace art {
   class HLTGlobalStatus;
 
   class TriggerResultInserter
-    : public art::EDProducer
-  {
+      : public art::EDProducer {
   public:
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     // standard constructor not supported for this module
-    explicit TriggerResultInserter(fhicl::ParameterSet const& ps);
+    explicit TriggerResultInserter(fhicl::ParameterSet const & ps);
 
     // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(fhicl::ParameterSet const& ps, const TrigResPtr& trptr);
+    TriggerResultInserter(fhicl::ParameterSet const & ps, const TrigResPtr & trptr);
     virtual ~TriggerResultInserter();
 
-    virtual void produce(art::Event& e);
+    virtual void produce(art::Event & e);
 
   private:
     TrigResPtr trptr_;

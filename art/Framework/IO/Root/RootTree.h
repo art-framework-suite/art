@@ -32,25 +32,25 @@ namespace art {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType);
+    RootTree(std::shared_ptr<TFile> filePtr, BranchType const & branchType);
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     bool isValid() const;
-    void addBranch(BranchKey const& key,
-                   BranchDescription const& prod,
-                   std::string const& branchName);
-    void dropBranch(std::string const& branchName);
+    void addBranch(BranchKey const & key,
+                   BranchDescription const & prod,
+                   std::string const & branchName);
+    void dropBranch(std::string const & branchName);
     bool next() {return ++entryNumber_ < entries_;}
     bool previous() {return --entryNumber_ >= 0;}
     bool current() {return entryNumber_ < entries_ && entryNumber_ >= 0;}
     void rewind() {entryNumber_ = 0;}
-    EntryNumber const& entryNumber() const {return entryNumber_;}
-    EntryNumber const& entries() const {return entries_;}
+    EntryNumber const & entryNumber() const {return entryNumber_;}
+    EntryNumber const & entries() const {return entries_;}
     void setEntryNumber(EntryNumber theEntryNumber);
-    std::vector<std::string> const& branchNames() const {return branchNames_;}
+    std::vector<std::string> const & branchNames() const {return branchNames_;}
     template <typename T>
-    void fillGroups(T& item);
+    void fillGroups(T & item);
     std::auto_ptr<DelayedReader> makeDelayedReader(bool oldFormat = false) const;
     std::auto_ptr<BranchMapper> makeBranchMapper() const;
     //TBranch *auxBranch() {return auxBranch_;}
@@ -59,24 +59,24 @@ namespace art {
       auxBranch_->SetAddress(&pAux);
       input::getEntry(auxBranch_, entryNumber_);
     }
-    TTree const* tree() const {return tree_;}
-    TTree const* metaTree() const {return metaTree_;}
+    TTree const * tree() const {return tree_;}
+    TTree const * metaTree() const {return metaTree_;}
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
-    BranchMap const& branches() const {return *branches_;}
+    BranchMap const & branches() const {return *branches_;}
 
-    TBranch *productProvenanceBranch() const {return productProvenanceBranch_;}
+    TBranch * productProvenanceBranch() const {return productProvenanceBranch_;}
 
   private:
     std::shared_ptr<TFile> filePtr_;
-// We use bare pointers for pointers to some ROOT entities.
-// Root owns them and uses bare pointers internally.
-// Therefore,using smart pointers here will do no good.
-    TTree *const tree_;
-    TTree *const metaTree_;
+    // We use bare pointers for pointers to some ROOT entities.
+    // Root owns them and uses bare pointers internally.
+    // Therefore,using smart pointers here will do no good.
+    TTree * const tree_;
+    TTree * const metaTree_;
     BranchType branchType_;
-    TBranch *const auxBranch_;
-    TBranch *const productProvenanceBranch_;
+    TBranch * const auxBranch_;
+    TBranch * const productProvenanceBranch_;
     EntryNumber entries_;
     EntryNumber entryNumber_;
     std::vector<std::string> branchNames_;
@@ -85,8 +85,9 @@ namespace art {
 
   template <typename T>
   void
-  RootTree::fillGroups(T& item) {
-    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) return;
+  RootTree::fillGroups(T & item)
+  {
+    if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) { return; }
     // Loop over provenance
     for (BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end(); pit != pitEnd; ++pit) {
       item.addGroup(pit->second.branchDescription_);

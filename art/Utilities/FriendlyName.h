@@ -12,7 +12,7 @@
 
 namespace art {
   namespace friendlyname {
-    std::string friendlyName(std::string const& iFullName);
+    std::string friendlyName(std::string const & iFullName);
   }
 }
 #endif /* art_Utilities_FriendlyName_h */

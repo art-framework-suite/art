@@ -30,13 +30,13 @@ namespace art {
     // Look up all the descendants of the given parent, and insert them
     // into descendants. N.B.: this does not clear out descendants first;
     // it only appends *new* elements to the collection.
-    void appendToDescendants(BranchID parent, BranchIDSet& descendants) const;
+    void appendToDescendants(BranchID parent, BranchIDSet & descendants) const;
 
   private:
     typedef std::map<BranchID, BranchIDSet> map_t;
     map_t childLookup_;
 
-    void append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const;
+    void append_(map_t const & lookup, BranchID item, BranchIDSet & itemSet) const;
   };
 
 }

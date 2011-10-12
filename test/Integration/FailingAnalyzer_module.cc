@@ -3,7 +3,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 
 namespace arttest {
-   class FailingAnalyzer;
+  class FailingAnalyzer;
 }
 
 //--------------------------------------------------------------------
@@ -11,19 +11,17 @@ namespace arttest {
 // throws an exception.
 // Every call to FailingAnalyzer::produce throws an art::Exception
 //
-class arttest::FailingAnalyzer : public art::EDAnalyzer
-{
+class arttest::FailingAnalyzer : public art::EDAnalyzer {
 public:
-  explicit FailingAnalyzer(fhicl::ParameterSet const&);
+  explicit FailingAnalyzer(fhicl::ParameterSet const &);
   virtual ~FailingAnalyzer();
-  virtual void analyze(art::Event const& e);
-  void makeTrouble(art::Event const& e);
+  virtual void analyze(art::Event const & e);
+  void makeTrouble(art::Event const & e);
 };
 
 
-arttest::FailingAnalyzer::FailingAnalyzer(fhicl::ParameterSet const&)
+arttest::FailingAnalyzer::FailingAnalyzer(fhicl::ParameterSet const &)
 {
-
 }
 
 arttest::FailingAnalyzer::~FailingAnalyzer()
@@ -32,16 +30,16 @@ arttest::FailingAnalyzer::~FailingAnalyzer()
 
 
 void
-arttest::FailingAnalyzer::analyze(art::Event const&)
+arttest::FailingAnalyzer::analyze(art::Event const &)
 {
   // Nothing to do.
 }
 
 void
-arttest::FailingAnalyzer::makeTrouble(art::Event const& e)
+arttest::FailingAnalyzer::makeTrouble(art::Event const & e)
 {
   throw art::Exception(art::errors::ProductNotFound)
-    << "Intentional exception for testing purposes\n";
+      << "Intentional exception for testing purposes\n";
 }
 
 

@@ -17,8 +17,7 @@ namespace statemachine {
   class Restart;
 }
 
-namespace art
-{
+namespace art {
   class IEventProcessor {
   public:
 
@@ -30,8 +29,9 @@ namespace art
     //   4     input complete
     //   5     call timed out
     //   6     input count complete
-    enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
-                  epInputComplete=4, epTimedOut=5, epCountComplete=6 };
+    enum Status { epSuccess = 0, epException = 1, epOther = 2, epSignal = 3,
+                  epInputComplete = 4, epTimedOut = 5, epCountComplete = 6
+                };
 
     // Eventually, we might replace StatusCode with a class. This
     // class should have an automatic conversion to 'int'.
@@ -79,9 +79,9 @@ namespace art
     virtual void processEvent() = 0;
     virtual bool shouldWeStop() const = 0;
 
-    virtual void setExceptionMessageFiles(std::string& message) = 0;
-    virtual void setExceptionMessageRuns(std::string& message) = 0;
-    virtual void setExceptionMessageSubRuns(std::string& message) = 0;
+    virtual void setExceptionMessageFiles(std::string & message) = 0;
+    virtual void setExceptionMessageRuns(std::string & message) = 0;
+    virtual void setExceptionMessageSubRuns(std::string & message) = 0;
 
     virtual bool alreadyHandlingException() const = 0;
   };

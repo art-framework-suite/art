@@ -6,7 +6,8 @@
 namespace art {
 
   inline
-  std::string const & getPassID () {
+  std::string const & getPassID()
+  {
     static std::string const  passID;
     // return empty string for now.
     return passID;

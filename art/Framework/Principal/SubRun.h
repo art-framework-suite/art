@@ -21,7 +21,7 @@
 
 class art::SubRun : private art::DataViewImpl {
 public:
-  SubRun(SubRunPrincipal& srp, const ModuleDescription& md);
+  SubRun(SubRunPrincipal & srp, const ModuleDescription & md);
   ~SubRun() {}
 
   typedef DataViewImpl Base;
@@ -34,8 +34,8 @@ public:
     return aux_.id();
   }
 
-  Timestamp const& beginTime() const {return aux_.beginTime();}
-  Timestamp const& endTime() const {return aux_.endTime();}
+  Timestamp const & beginTime() const {return aux_.beginTime();}
+  Timestamp const & endTime() const {return aux_.endTime();}
 
   using Base::get;
   using Base::getByLabel;
@@ -44,7 +44,7 @@ public:
   using Base::me;
   using Base::processHistory;
 
-  Run const&
+  Run const &
   getRun() const;
 
   ///Put a new product.
@@ -55,10 +55,10 @@ public:
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   void
-  put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+  put(std::auto_ptr<PROD> product, std::string const & productInstanceName);
 
 private:
-  SubRunPrincipal const&
+  SubRunPrincipal const &
   subRunPrincipal() const;
 
   SubRunPrincipal &
@@ -75,26 +75,24 @@ private:
 
   void commit_();
 
-  SubRunAuxiliary const& aux_;
+  SubRunAuxiliary const & aux_;
   std::shared_ptr<Run const> const run_;
 };
 
 template <typename PROD>
 void
-art::SubRun::put(std::auto_ptr<PROD> product, std::string const& productInstanceName) {
+art::SubRun::put(std::auto_ptr<PROD> product, std::string const & productInstanceName)
+{
   if (product.get() == 0) {                // null pointer is illegal
     TypeID typeID(typeid(PROD));
     throw art::Exception(art::errors::NullPointerError)
-      << "SubRun::put: A null auto_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << typeID << ".\n"
-      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
+        << "SubRun::put: A null auto_ptr was passed to 'put'.\n"
+        << "The pointer is of type " << typeID << ".\n"
+        << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
-
-  BranchDescription const& desc =
+  BranchDescription const & desc =
     getBranchDescription(TypeID(*product), productInstanceName);
-
   Wrapper<PROD> *wp(new Wrapper<PROD>(product));
-
   putProducts().push_back(std::make_pair(wp, &desc));
 }
 

@@ -5,11 +5,9 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/Digest.h"
 
-namespace art
-{
-  namespace
-  {
-    MD5Result const& invalidResult()
+namespace art {
+  namespace {
+    MD5Result const & invalidResult()
     {
       static const MD5Result val;
       return val;
@@ -17,8 +15,7 @@ namespace art
 
     char unhexify(char hexed)
     {
-      switch (hexed)
-        {
+      switch (hexed) {
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
           return hexed - '0';
@@ -28,9 +25,9 @@ namespace art
           return hexed - 'A' + 10;
         default:
           throw art::Exception(art::errors::LogicError)
-            << "Non-hex character in Hash "
-            << "Please report this to the core framework developers";
-        }
+              << "Non-hex character in Hash "
+              << "Please report this to the core framework developers";
+      }
       // We never get here; return put in place to calm the compiler's
       // anxieties.
       return '\0';
@@ -42,7 +39,7 @@ namespace art
   // MD5Result and associated free functions
   //
 
-  void set_to_default(MD5Result& val)
+  void set_to_default(MD5Result & val)
   {
     val.bytes[0] = 0xd4;
     val.bytes[1] = 0x1d;
@@ -73,7 +70,7 @@ namespace art
     std::ostringstream os;
     os << std::hex << std::setfill('0');
     for (size_t i = 0 ; i < sizeof(bytes) ; ++i)
-      os << std::setw(2) << static_cast<int>(bytes[i]);
+    { os << std::setw(2) << static_cast<int>(bytes[i]); }
     return os.str();
   }
 
@@ -82,40 +79,35 @@ namespace art
     // This is somewhat dangerous, because the conversion of 'unsigned
     // char' to 'char' may be undefined if 'char' is a signed type
     // (4.7p3 in the Standard).
-    const char* p = reinterpret_cast<const char*>(&bytes[0]);
-    return std::string(p, p+sizeof(bytes));
+    const char * p = reinterpret_cast<const char *>(&bytes[0]);
+    return std::string(p, p + sizeof(bytes));
   }
 
-  void MD5Result::fromHexifiedString(std::string const& hexy)
+  void MD5Result::fromHexifiedString(std::string const & hexy)
   {
-    switch (hexy.size())
-      {
-      case 0:
-        {
-          set_to_default(*this);
+    switch (hexy.size()) {
+      case 0: {
+        set_to_default(*this);
+      }
+      break;
+      case 32: {
+        std::string::const_iterator it = hexy.begin();
+        for (size_t i = 0; i != 16; ++i) {
+          // first nybble
+          bytes[i] = (unhexify(*it++) << 4);
+          // second nybble
+          bytes[i] += (unhexify(*it++));
         }
-        break;
-      case 32:
-        {
-          std::string::const_iterator it = hexy.begin();
-          for (size_t i = 0; i != 16; ++i)
-            {
-              // first nybble
-              bytes[i] = ( unhexify(*it++) << 4 );
-              // second nybble
-              bytes[i] += ( unhexify(*it++) );
-            }
-        }
-        break;
-      default:
-        {
-          // Not really sure of what sort of exception to throw...
-          throw art::Exception(art::errors::LogicError)
+      }
+      break;
+      default: {
+        // Not really sure of what sort of exception to throw...
+        throw art::Exception(art::errors::LogicError)
             << "String of illegal length: "
             << hexy.size()
             << " given to MD5Result::fromHexifiedString";
-        }
       }
+    }
   }
 
   bool MD5Result::isValid() const
@@ -123,18 +115,18 @@ namespace art
     return (*this != invalidResult());
   }
 
-  bool operator==(MD5Result const& a, MD5Result const& b)
+  bool operator==(MD5Result const & a, MD5Result const & b)
   {
-    return std::equal(a.bytes, a.bytes+sizeof(a.bytes), b.bytes);
+    return std::equal(a.bytes, a.bytes + sizeof(a.bytes), b.bytes);
   }
 
 
-  bool operator< (MD5Result const& a, MD5Result const& b)
+  bool operator< (MD5Result const & a, MD5Result const & b)
   {
     return std::lexicographical_compare(a.bytes,
-                                        a.bytes+sizeof(a.bytes),
+                                        a.bytes + sizeof(a.bytes),
                                         b.bytes,
-                                        b.bytes+sizeof(b.bytes));
+                                        b.bytes + sizeof(b.bytes));
   }
 
 
@@ -150,17 +142,17 @@ namespace art
     md5_init(&state_);
   }
 
-  Digest::Digest(std::string const& s) :
+  Digest::Digest(std::string const & s) :
     state_()
   {
     md5_init(&state_);
     this->append(s);
   }
 
-  void Digest::append(std::string const& s)
+  void Digest::append(std::string const & s)
   {
-    const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s.data());
-    md5_append(&state_, const_cast<md5_byte_t*>(data), s.size());
+    const md5_byte_t * data = reinterpret_cast<const md5_byte_t *>(s.data());
+    md5_append(&state_, const_cast<md5_byte_t *>(data), s.size());
   }
 
   MD5Result Digest::digest() const

@@ -27,8 +27,7 @@ namespace art {
 
   class TriggerResults
     : public HLTGlobalStatus
-    , public DoNotRecordParents
-  {
+      , public DoNotRecordParents {
   private:
     // Parameter set id
     fhicl::ParameterSetID psetid_;
@@ -41,23 +40,23 @@ namespace art {
     { }
 
     // Standard contructor
-    TriggerResults(const HLTGlobalStatus& hlt,
-                   const fhicl::ParameterSetID& psetid)
+    TriggerResults(const HLTGlobalStatus & hlt,
+                   const fhicl::ParameterSetID & psetid)
       : HLTGlobalStatus(hlt)
       , psetid_(psetid)
     { }
 
     // Get stored parameter set id
-    const fhicl::ParameterSetID& parameterSetID() const { return psetid_; }
+    const fhicl::ParameterSetID & parameterSetID() const { return psetid_; }
 
     // swap function
-    void swap(TriggerResults& other) {
+    void swap(TriggerResults & other) {
       this->HLTGlobalStatus::swap(other);
       psetid_.swap(other.psetid_);
     }
 
     // Copy assignment using swap.
-    TriggerResults& operator=(TriggerResults const& rhs) {
+    TriggerResults & operator=(TriggerResults const & rhs) {
       TriggerResults temp(rhs);
       this->swap(temp);
       return *this;
@@ -68,7 +67,8 @@ namespace art {
   // Free swap function
   inline
   void
-  swap(TriggerResults& lhs, TriggerResults& rhs) {
+  swap(TriggerResults & lhs, TriggerResults & rhs)
+  {
     lhs.swap(rhs);
   }
 

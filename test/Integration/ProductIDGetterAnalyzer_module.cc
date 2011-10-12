@@ -21,10 +21,10 @@ namespace arttest {
 
 class arttest::ProductIDGetterAnalyzer : public art::EDAnalyzer {
 public:
-  explicit ProductIDGetterAnalyzer(fhicl::ParameterSet const &p);
+  explicit ProductIDGetterAnalyzer(fhicl::ParameterSet const & p);
   virtual ~ProductIDGetterAnalyzer();
 
-  virtual void analyze(art::Event const &e);
+  virtual void analyze(art::Event const & e);
 
 
 private:
@@ -32,19 +32,20 @@ private:
 };
 
 
-arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet const &p)
+arttest::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(fhicl::ParameterSet const & p)
   :
   input_label_(p.get<std::string>("input_label"))
 {
 }
 
-arttest::ProductIDGetterAnalyzer::~ProductIDGetterAnalyzer() {
+arttest::ProductIDGetterAnalyzer::~ProductIDGetterAnalyzer()
+{
 }
 
-void arttest::ProductIDGetterAnalyzer::analyze(art::Event const &e) {
+void arttest::ProductIDGetterAnalyzer::analyze(art::Event const & e)
+{
   art::Handle<art::Ptr<int> > h;
   BOOST_REQUIRE(e.getByLabel(input_label_, h));
-
   BOOST_REQUIRE_EQUAL(**h, 4);
 }
 

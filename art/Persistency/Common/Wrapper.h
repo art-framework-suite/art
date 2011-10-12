@@ -118,10 +118,11 @@ namespace art {
                std::type_info const & wanted_wrapper_type) {
       if (typeid(Wrapper<typename T::partner_t>) == wanted_wrapper_type) {
         return obj.makePartner();
-      } else {
+      }
+      else {
         throw Exception(errors::LogicError, "makePartner")
-          << "Attempted to make partner with inconsistent type information:\n"
-          << "Please report to the ART framework developers.\n";
+            << "Attempted to make partner with inconsistent type information:\n"
+            << "Please report to the ART framework developers.\n";
       }
     }
   };
@@ -141,9 +142,9 @@ namespace art {
   std::auto_ptr<EDProduct>
   Wrapper<T>::do_makePartner(std::type_info const & wanted_wrapper) const
   {
-    typename std::conditional <detail::has_makePartner_member<T>::value,
-      DoMakePartner<T>,
-      DoNotMakePartner<T> >::type maybe_maker;
+    typename std::conditional < detail::has_makePartner_member<T>::value,
+             DoMakePartner<T>,
+             DoNotMakePartner<T> >::type maybe_maker;
     return maybe_maker(obj, wanted_wrapper);
   }
 

@@ -230,9 +230,9 @@ fill(ptrdiff_t assns_index,
      size_t data_index,
      std::vector<std::vector<DATA const *> > & data) const
 {
- if (&assns.data(assns_index)) {
+  if (&assns.data(assns_index)) {
     data[data_index].push_back(&assns.data(assns_index));
- }
+  }
 }
 
 template <typename DATA>

@@ -28,10 +28,10 @@ namespace art {
 
     ProcessHistory() : data_(), transients_() {}
     explicit ProcessHistory(size_type n) : data_(n), transients_() {}
-    explicit ProcessHistory(collection_type const& vec) : data_(vec), transients_() {}
+    explicit ProcessHistory(collection_type const & vec) : data_(vec), transients_() {}
 
     void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
-    void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
+    void swap(ProcessHistory & other) {data_.swap(other.data_); phid().swap(other.phid());}
     bool empty() const {return data_.empty();}
     size_type size() const {return data_.size();}
     size_type capacity() const {return data_.capacity();}
@@ -49,13 +49,13 @@ namespace art {
     const_reverse_iterator rbegin() const {return data_.rbegin();}
     const_reverse_iterator rend() const {return data_.rend();}
 
-//     iterator begin() {return data_.begin();}
-//     iterator end() {return data_.end();}
+    //     iterator begin() {return data_.begin();}
+    //     iterator end() {return data_.end();}
 
-//     reverse_iterator rbegin() {return data_.rbegin();}
-//     reverse_iterator rend() {return data_.rend();}
+    //     reverse_iterator rbegin() {return data_.rbegin();}
+    //     reverse_iterator rend() {return data_.rend();}
 
-    collection_type const& data() const {return data_;}
+    collection_type const & data() const {return data_;}
     ProcessHistoryID id() const;
 
 
@@ -63,7 +63,7 @@ namespace art {
     // with the given name is recorded in this ProcessHistory. Return
     // false, and do not modify config, if process with the given name
     // is found.
-    bool getConfigurationForProcess(std::string const& name, ProcessConfiguration& config) const;
+    bool getConfigurationForProcess(std::string const & name, ProcessConfiguration & config) const;
 
     struct Transients {
       Transients() : phid_() {}
@@ -79,32 +79,36 @@ namespace art {
   // Free swap function
   inline
   void
-  swap(ProcessHistory& a, ProcessHistory& b) {
+  swap(ProcessHistory & a, ProcessHistory & b)
+  {
     a.swap(b);
   }
 
   inline
   bool
-  operator==(ProcessHistory const& a, ProcessHistory const& b) {
+  operator==(ProcessHistory const & a, ProcessHistory const & b)
+  {
     return a.data() == b.data();
   }
 
   inline
   bool
-  operator!=(ProcessHistory const& a, ProcessHistory const& b) {
-    return !(a==b);
+  operator!=(ProcessHistory const & a, ProcessHistory const & b)
+  {
+    return !(a == b);
   }
 
   bool
-  isAncestor(ProcessHistory const& a, ProcessHistory const& b);
+  isAncestor(ProcessHistory const & a, ProcessHistory const & b);
 
   inline
   bool
-  isDescendant(ProcessHistory const& a, ProcessHistory const& b) {
+  isDescendant(ProcessHistory const & a, ProcessHistory const & b)
+  {
     return isAncestor(b, a);
   }
 
-  std::ostream& operator<<(std::ostream& ost, ProcessHistory const& ph);
+  std::ostream & operator<<(std::ostream & ost, ProcessHistory const & ph);
 }
 
 #endif /* art_Persistency_Provenance_ProcessHistory_h */

@@ -27,18 +27,18 @@
 // forward declarations
 namespace art {
 
-template <typename T>
-class Transient {
-public:
-  typedef T value_type;
-  Transient(T value = T()) : value_(value) {}
-  operator T() const { return value_; }
-  Transient & operator=(T rh) { value_ = rh; return *this; }
-  T const& get() const { return value_;}
-  T & get() { return value_;}
-private:
-  T value_;
-};
+  template <typename T>
+  class Transient {
+  public:
+    typedef T value_type;
+    Transient(T value = T()) : value_(value) {}
+    operator T() const { return value_; }
+    Transient & operator=(T rh) { value_ = rh; return *this; }
+    T const & get() const { return value_;}
+    T & get() { return value_;}
+  private:
+    T value_;
+  };
 }
 #endif /* art_Persistency_Provenance_Transient_h */
 

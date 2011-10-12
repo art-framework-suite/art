@@ -7,19 +7,17 @@
  *
  */
 
-namespace art
-{
-  namespace hlt
-    {
+namespace art {
+  namespace hlt {
 
-      /// status of a trigger path
-      enum HLTState {Ready=0,     ///< not [yet] run
-                     Pass =1,     ///< accept
-                     Fail =2,     ///< reject
-                     Exception=3  ///< error
-      };
+    /// status of a trigger path
+    enum HLTState {Ready = 0,   ///< not [yet] run
+                   Pass = 1,    ///< accept
+                   Fail = 2,    ///< reject
+                   Exception = 3 ///< error
+                  };
 
-    }
+  }
 }
 
 // ======================================================================

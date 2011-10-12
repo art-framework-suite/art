@@ -83,7 +83,7 @@ namespace art {
 
   // Template metaprogramming.
   namespace detail {
-    template <typename T, typename InIter, void (T::*)(InIter, InIter)> struct two_arg_insert_func;
+    template <typename T, typename InIter, void (T:: *)(InIter, InIter)> struct two_arg_insert_func;
     template <typename T, typename I> no_tag has_two_arg_insert_helper(...);
     template <typename T, typename I> yes_tag has_two_arg_insert_helper(two_arg_insert_func<T, I, &T::insert> *dummy);
     template <typename T>
@@ -92,7 +92,7 @@ namespace art {
         sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) == sizeof(yes_tag);
     };
 
-    template <typename T, typename OutIter, typename InIter, void (T::*)(OutIter, InIter, InIter)> struct three_arg_insert_func;
+    template <typename T, typename OutIter, typename InIter, void (T:: *)(OutIter, InIter, InIter)> struct three_arg_insert_func;
     template <typename T, typename O, typename I> no_tag has_three_arg_insert_helper(...);
     template <typename T, typename O, typename I> yes_tag has_three_arg_insert_helper(three_arg_insert_func<T, O, I, &T::insert> *dummy);
     template <typename T>
@@ -128,37 +128,37 @@ namespace art {
   // I.
   template <typename CONTAINER>
   typename std::enable_if<detail::has_two_arg_insert<CONTAINER>::value>::type
-  concatContainers(CONTAINER &out, CONTAINER const &in);
+  concatContainers(CONTAINER & out, CONTAINER const & in);
   // II.
   template <typename CONTAINER>
   typename std::enable_if<detail::has_three_arg_insert<CONTAINER>::value>::type
-  concatContainers(CONTAINER &out, CONTAINER const &in);
+  concatContainers(CONTAINER & out, CONTAINER const & in);
 
   // 1.
   template <typename COLLECTION>
   void
-  flattenCollections(std::vector<COLLECTION const *> const &in,
-                     COLLECTION &out);
+  flattenCollections(std::vector<COLLECTION const *> const & in,
+                     COLLECTION & out);
 
   // 2.
   template <typename COLLECTION, typename OFFSETS>
   void
-  flattenCollections(std::vector<COLLECTION const *> const &in,
-                     COLLECTION &out,
-                     OFFSETS &offsets);
+  flattenCollections(std::vector<COLLECTION const *> const & in,
+                     COLLECTION & out,
+                     OFFSETS & offsets);
 
   // 3.
   template <typename T>
   void
-  flattenCollections(std::vector<PtrVector<T> const *> const &in,
+  flattenCollections(std::vector<PtrVector<T> const *> const & in,
                      PtrVector<T> &out);
 
   // 4.
   template <typename T, typename OFFSETS>
   void
-  flattenCollections(std::vector<PtrVector<T> const *> const &in,
+  flattenCollections(std::vector<PtrVector<T> const *> const & in,
                      PtrVector<T> &out,
-                     OFFSETS &offsets);
+                     OFFSETS & offsets);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ namespace art {
     // A. Verify a collection of PtrVector const *
     template <typename T>
     bool
-    verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in);
+    verifyPtrCollection(std::vector<art::PtrVector<T> const *> const & in);
 
     // B. Verify a collection (including PtrVector) of Ptrs.
     template <typename iterator>
@@ -178,14 +178,15 @@ namespace art {
     verifyPtrCollection(iterator beg,
                         iterator end,
                         art::ProductID id = art::ProductID(),
-                        art::EDProductGetter const *getter = 0);
+                        art::EDProductGetter const * getter = 0);
   }
 }
 
 // A.
 template <typename T>
 bool
-art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in) {
+art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const & in)
+{
   return verifyCollection(in.begin(), in.end());
 }
 
@@ -195,8 +196,9 @@ bool
 art::detail::verifyPtrCollection(iterator beg,
                                  iterator end,
                                  art::ProductID id = art::ProductID(),
-                                 art::EDProductGetter const *getter = 0) {
-  if (beg == end) return true;
+                                 art::EDProductGetter const * getter = 0)
+{
+  if (beg == end) { return true; }
   if (!id.isValid()) {
     id = (*beg).id();
   }
@@ -217,35 +219,38 @@ art::detail::verifyPtrCollection(iterator beg,
 // I.
 template <typename CONTAINER>
 typename std::enable_if<art::detail::has_two_arg_insert<CONTAINER>::value>::type
-art::concatContainers(CONTAINER &out, CONTAINER const &in) {
+art::concatContainers(CONTAINER & out, CONTAINER const & in)
+{
   out.insert(in.begin(), in.end());
 }
 // II.
 template <typename CONTAINER>
 typename std::enable_if<art::detail::has_three_arg_insert<CONTAINER>::value>::type
-art::concatContainers(CONTAINER &out, CONTAINER const &in) {
+art::concatContainers(CONTAINER & out, CONTAINER const & in)
+{
   out.insert(out.end(), in.begin(), in.end());
 }
 
 // 1.
 template <typename COLLECTION>
 void
-art::flattenCollections(std::vector<COLLECTION const *> const &in,
-                        COLLECTION &out) {
+art::flattenCollections(std::vector<COLLECTION const *> const & in,
+                        COLLECTION & out)
+{
   typename COLLECTION::size_type total_size = 0;
   typedef typename std::vector<COLLECTION const *>::const_iterator it_t;
   it_t const
-    b = in.begin(),
-    e = in.end();
-  for(it_t i = b;
-      i != e;
-      ++i) {
+  b = in.begin(),
+  e = in.end();
+  for (it_t i = b;
+       i != e;
+       ++i) {
     total_size += (*i)->size();
   }
   out.reserve(total_size);
-  for(it_t i = b;
-      i != e;
-      ++i) {
+  for (it_t i = b;
+       i != e;
+       ++i) {
     concatContainers(out, **i); // I or II.
   }
 }
@@ -253,15 +258,16 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
 // 2.
 template <typename COLLECTION, typename OFFSETS>
 void
-art::flattenCollections(std::vector<COLLECTION const *> const &in,
-                        COLLECTION &out,
-                        OFFSETS &offsets) {
+art::flattenCollections(std::vector<COLLECTION const *> const & in,
+                        COLLECTION & out,
+                        OFFSETS & offsets)
+{
   offsets.clear();
   offsets.reserve(in.size());
   typename COLLECTION::size_type current_offset = 0;
   for (typename std::vector<COLLECTION const *>::const_iterator
-         i = in.begin(),
-         e = in.end();
+       i = in.begin(),
+       e = in.end();
        i != e;
        ++i) {
     typename COLLECTION::size_type delta = ((*i)->*detail::mix_offset<COLLECTION>::offset)();
@@ -274,14 +280,15 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
 // 3.
 template <typename T>
 void
-art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                        PtrVector<T> &out) {
+art::flattenCollections(std::vector<PtrVector<T> const *> const & in,
+                        PtrVector<T> &out)
+{
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {
     throw Exception(errors::LogicError)
-      << "Attempt to flatten incompatible PtrVectors "
-      << "referring to different ProductIDs.\n";
+        << "Attempt to flatten incompatible PtrVectors "
+        << "referring to different ProductIDs.\n";
   }
   flattenCollections<PtrVector<T> >(in, out); // 1
 }
@@ -289,15 +296,16 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
 // 4.
 template <typename T, typename OFFSETS>
 void
-art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
+art::flattenCollections(std::vector<PtrVector<T> const *> const & in,
                         PtrVector<T> &out,
-                        OFFSETS &offsets) {
+                        OFFSETS & offsets)
+{
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {
     throw Exception(errors::LogicError)
-      << "Attempt to flatten incompatible PtrVectors "
-      << "referring to different ProductIDs.\n";
+        << "Attempt to flatten incompatible PtrVectors "
+        << "referring to different ProductIDs.\n";
   }
   flattenCollections<PtrVector<T> >(in, out, offsets); // 2.
 }

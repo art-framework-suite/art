@@ -2,22 +2,19 @@
 #define test_TestObjects_StreamTestSimple_h
 
 
-namespace arttestprod
-{
-  struct Simple
-  {
+namespace arttestprod {
+  struct Simple {
     typedef int key_type;
     int key_;
     double data_;
 
     key_type  id() const { return key_; }
-    bool operator==(const Simple&) const { return true; }
-    bool operator<(const Simple&) const { return true; }
+    bool operator==(const Simple &) const { return true; }
+    bool operator<(const Simple &) const { return true; }
   };
 
 
-  struct X0123456789012345678901234567890123456789012345678901234567890123456789012345678901
-  {
+  struct X0123456789012345678901234567890123456789012345678901234567890123456789012345678901 {
     int blob_;
   };
 

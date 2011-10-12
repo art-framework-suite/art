@@ -20,14 +20,12 @@
 
 // ----------------------------------------------------------------------
 
-namespace art
-{
+namespace art {
   class MasterProductRegistry;
 
   class EDAnalyzer
     : public EventObserver,
-      public EngineCreator
-  {
+      public EngineCreator {
   public:
     template <typename T> friend class WorkerT;
     typedef EDAnalyzer ModuleType;
@@ -45,45 +43,45 @@ namespace art
   protected:
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('analyze').
-    CurrentProcessingContext const* currentContext() const;
+    CurrentProcessingContext const * currentContext() const;
 
   private:
-    bool doEvent(EventPrincipal const& ep,
-                   CurrentProcessingContext const* cpc);
+    bool doEvent(EventPrincipal const & ep,
+                 CurrentProcessingContext const * cpc);
     void doBeginJob();
     void doEndJob();
-    bool doBeginRun(RunPrincipal const& rp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp,
-                   CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp,
-                   CurrentProcessingContext const* cpc);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
+    bool doBeginRun(RunPrincipal const & rp,
+                    CurrentProcessingContext const * cpc);
+    bool doEndRun(RunPrincipal const & rp,
+                  CurrentProcessingContext const * cpc);
+    bool doBeginSubRun(SubRunPrincipal const & srp,
+                       CurrentProcessingContext const * cpc);
+    bool doEndSubRun(SubRunPrincipal const & srp,
+                     CurrentProcessingContext const * cpc);
+    void doRespondToOpenInputFile(FileBlock const & fb);
+    void doRespondToCloseInputFile(FileBlock const & fb);
+    void doRespondToOpenOutputFiles(FileBlock const & fb);
+    void doRespondToCloseOutputFiles(FileBlock const & fb);
 
-    virtual void analyze(Event const&) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&);
-    virtual void beginRun(Run const&){}
-    virtual void endRun(Run const&){}
-    virtual void beginSubRun(SubRun const&){}
-    virtual void endSubRun(SubRun const&){}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void analyze(Event const &) = 0;
+    virtual void beginJob() {}
+    virtual void endJob() {}
+    virtual void reconfigure(fhicl::ParameterSet const &);
+    virtual void beginRun(Run const &) {}
+    virtual void endRun(Run const &) {}
+    virtual void beginSubRun(SubRun const &) {}
+    virtual void endSubRun(SubRun const &) {}
+    virtual void respondToOpenInputFile(FileBlock const & fb) {}
+    virtual void respondToCloseInputFile(FileBlock const & fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const & fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const & fb) {}
 
-    void setModuleDescription(ModuleDescription const& md) {
+    void setModuleDescription(ModuleDescription const & md) {
       moduleDescription_ = md;
     }
 
     ModuleDescription moduleDescription_;
-    CurrentProcessingContext const* current_context_;
+    CurrentProcessingContext const * current_context_;
   };  // EDAnalyzer
 
 }  // art

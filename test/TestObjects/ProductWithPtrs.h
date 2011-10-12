@@ -17,15 +17,15 @@ public:
 
   ProductWithPtrs(
 #ifndef ART_NO_MIX_PTRVECTOR
-                  art::PtrVector<double> const &pvd,
+    art::PtrVector<double> const & pvd,
 #endif
-                  std::vector<art::Ptr<double> > const &vpd);
+    std::vector<art::Ptr<double> > const & vpd);
 
   // Observers
 #ifndef ART_NO_MIX_PTRVECTOR
-  art::PtrVector<double> const &ptrVectorDouble() const;
+  art::PtrVector<double> const & ptrVectorDouble() const;
 #endif
-  std::vector<art::Ptr<double> > const &vectorPtrDouble() const;
+  std::vector<art::Ptr<double> > const & vectorPtrDouble() const;
 
   // Modifiers
 #ifndef ART_NO_MIX_PTRVECTOR
@@ -54,9 +54,9 @@ inline
 arttest::ProductWithPtrs::
 ProductWithPtrs(
 #ifndef ART_NO_MIX_PTRVECTOR
-                art::PtrVector<double> const &pvd,
+  art::PtrVector<double> const & pvd,
 #endif
-                std::vector<art::Ptr<double> > const &vpd)
+  std::vector<art::Ptr<double> > const & vpd)
   :
 #ifndef ART_NO_MIX_PTRVECTOR
   pvd_(pvd),
@@ -68,7 +68,8 @@ ProductWithPtrs(
 inline
 art::PtrVector<double> const &
 arttest::ProductWithPtrs::
-ptrVectorDouble() const {
+ptrVectorDouble() const
+{
   return pvd_;
 }
 #endif
@@ -76,7 +77,8 @@ ptrVectorDouble() const {
 inline
 std::vector<art::Ptr<double> > const &
 arttest::ProductWithPtrs::
-vectorPtrDouble() const {
+vectorPtrDouble() const
+{
   return vpd_;
 }
 
@@ -84,7 +86,8 @@ vectorPtrDouble() const {
 inline
 art::PtrVector<double> &
 arttest::ProductWithPtrs::
-ptrVectorDouble() {
+ptrVectorDouble()
+{
   return pvd_;
 }
 #endif
@@ -92,7 +95,8 @@ ptrVectorDouble() {
 inline
 std::vector<art::Ptr<double> > &
 arttest::ProductWithPtrs::
-vectorPtrDouble() {
+vectorPtrDouble()
+{
   return vpd_;
 }
 

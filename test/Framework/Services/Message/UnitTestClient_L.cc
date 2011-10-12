@@ -10,28 +10,27 @@
 #include <string>
 
 
-namespace arttest
-{
+namespace arttest {
 
 
-void UnitTestClient_L::analyze( art::Event      const & e
-                           , art::EventSetup const & /*unused*/
-                              )
-{
-  for (int i=0; i<10000000; ++i) {
-  }
-  mf::LogInfo     ("cat") << "Event " << e.id() << "complete";
-}  // MessageLoggerClient::analyze()
+  void UnitTestClient_L::analyze(art::Event      const & e
+                                 , art::EventSetup const & /*unused*/
+                                )
+  {
+    for (int i = 0; i < 10000000; ++i) {
+    }
+    mf::LogInfo("cat") << "Event " << e.id() << "complete";
+  }  // MessageLoggerClient::analyze()
 
-void UnitTestClient_L1::analyze( art::Event      const & e
-                           , art::EventSetup const & /*unused*/
-                              )
-{
-  for (int i=0; i<10000000; ++i) {
-       LogDebug    ("dog") << "I am perhaps creating a long string here";
-  }
-  mf::LogInfo     ("cat") << "Event " << e.id() << "complete";
-}  // MessageLoggerClient::analyze()
+  void UnitTestClient_L1::analyze(art::Event      const & e
+                                  , art::EventSetup const & /*unused*/
+                                 )
+  {
+    for (int i = 0; i < 10000000; ++i) {
+      LogDebug("dog") << "I am perhaps creating a long string here";
+    }
+    mf::LogInfo("cat") << "Event " << e.id() << "complete";
+  }  // MessageLoggerClient::analyze()
 
 }  // arttest
 

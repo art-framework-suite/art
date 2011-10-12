@@ -14,84 +14,77 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-class UTC_SL1
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_SL1( fhicl::ParameterSet const & p)
-  {
-    identifier = p.get<int> ("identifier", 99);
-    art::GroupLogStatistics("grouped_cat");
-  }
+  class UTC_SL1
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_SL1(fhicl::ParameterSet const & p) {
+      identifier = p.get<int> ("identifier", 99);
+      art::GroupLogStatistics("grouped_cat");
+    }
 
-  virtual
+    virtual
     ~UTC_SL1()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  int identifier;
-  static bool enableNotYetCalled;
-  static int n;
-};
+  private:
+    int identifier;
+    static bool enableNotYetCalled;
+    static int n;
+  };
 
-class UTC_SL2
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_SL2( fhicl::ParameterSet const & p)
-  {
-    identifier = p.get<int> ("identifier", 98);
-  }
+  class UTC_SL2
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_SL2(fhicl::ParameterSet const & p) {
+      identifier = p.get<int> ("identifier", 98);
+    }
 
-  virtual
+    virtual
     ~UTC_SL2()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  int identifier;
-  static int n;
-};
+  private:
+    int identifier;
+    static int n;
+  };
 
-class UTC_SLUMMARY
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_SLUMMARY( fhicl::ParameterSet const & p)
-  {
-  }
+  class UTC_SLUMMARY
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_SLUMMARY(fhicl::ParameterSet const & p) {
+    }
 
-  virtual
+    virtual
     ~UTC_SLUMMARY()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-  virtual
-    void endSubRun ( art::SubRun const & sr
-                            , art::EventSetup      const & c
-                            );
+    virtual
+    void endSubRun(art::SubRun const & sr
+                   , art::EventSetup      const & c
+                  );
 
-private:
-};
+  private:
+  };
 
 
 }  // arttest

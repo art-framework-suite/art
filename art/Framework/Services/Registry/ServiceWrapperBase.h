@@ -16,17 +16,16 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::ServiceWrapperBase
-{
+class art::ServiceWrapperBase {
   // non-copyable:
-  ServiceWrapperBase( ServiceWrapperBase const & );
-  void operator = ( ServiceWrapperBase const & );
+  ServiceWrapperBase(ServiceWrapperBase const &);
+  void operator = (ServiceWrapperBase const &);
 
 public:
-  ServiceWrapperBase( ) { }
+  ServiceWrapperBase() { }
 
-  virtual ~ServiceWrapperBase( );
-  virtual void reconfigure(fhicl::ParameterSet const&);
+  virtual ~ServiceWrapperBase();
+  virtual void reconfigure(fhicl::ParameterSet const &);
 
 };  // ServiceWrapperBase
 

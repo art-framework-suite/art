@@ -9,8 +9,8 @@ namespace art {
 
   class RootHandlers {
   public:
-    RootHandlers ();
-    virtual ~RootHandlers ();
+    RootHandlers();
+    virtual ~RootHandlers();
     void disableErrorHandler();
     void enableErrorHandler();
   private:

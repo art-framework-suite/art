@@ -43,8 +43,8 @@ public:
 
   typedef std::size_t   key_type;
   typedef T             value_type;
-  typedef T const *     const_pointer;
-  typedef T const &     const_reference;
+  typedef T const   *   const_pointer;
+  typedef T const   &   const_reference;
 
   // Create a Ptr<T> to a specific element within a collection
   // identified by 'handle', and the element in the collection is

@@ -26,41 +26,41 @@ namespace art {
     enum DropMetaData { DropNone, DropPrior, DropAll };
   public:
     friend class RootOutputFile;
-    explicit RootOutput(fhicl::ParameterSet const& ps);
+    explicit RootOutput(fhicl::ParameterSet const & ps);
     virtual ~RootOutput();
-    std::string const& fileName() const {return fileName_;}
-    std::string const& logicalFileName() const {return logicalFileName_;}
-    int const& compressionLevel() const {return compressionLevel_;}
-    int const& basketSize() const {return basketSize_;}
-    int const& splitLevel() const {return splitLevel_;}
-    int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
-    bool const& fastCloning() const {return fastCloning_;}
-    DropMetaData const& dropMetaData() const {return dropMetaData_;}
-    bool const& dropMetaDataForDroppedData() const {return dropMetaDataForDroppedData_;}
+    std::string const & fileName() const {return fileName_;}
+    std::string const & logicalFileName() const {return logicalFileName_;}
+    int const & compressionLevel() const {return compressionLevel_;}
+    int const & basketSize() const {return basketSize_;}
+    int const & splitLevel() const {return splitLevel_;}
+    int const & treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
+    bool const & fastCloning() const {return fastCloning_;}
+    DropMetaData const & dropMetaData() const {return dropMetaData_;}
+    bool const & dropMetaDataForDroppedData() const {return dropMetaDataForDroppedData_;}
 
     struct OutputItem {
       class Sorter {
       public:
         explicit Sorter(TTree * tree);
-        bool operator() (OutputItem const& lh, OutputItem const& rh) const;
+        bool operator()(OutputItem const & lh, OutputItem const & rh) const;
       private:
         std::map<std::string, int> treeMap_;
       };
 
       OutputItem() : branchDescription_(0), product_(0) {}
 
-      explicit OutputItem(BranchDescription const* bd) :
+      explicit OutputItem(BranchDescription const * bd) :
         branchDescription_(bd), product_(0) {}
 
       ~OutputItem() {}
 
       BranchID branchID() const { return branchDescription_->branchID(); }
-      std::string const& branchName() const { return branchDescription_->branchName(); }
+      std::string const & branchName() const { return branchDescription_->branchName(); }
 
-      BranchDescription const* branchDescription_;
-      mutable void const* product_;
+      BranchDescription const * branchDescription_;
+      mutable void const * product_;
 
-      bool operator <(OutputItem const& rh) const {
+      bool operator <(OutputItem const & rh) const {
         return *branchDescription_ < *rh.branchDescription_;
       }
     };
@@ -69,15 +69,15 @@ namespace art {
 
     typedef std::array<OutputItemList, NumBranchTypes> OutputItemListArray;
 
-    OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
+    OutputItemListArray const & selectedOutputItemList() const {return selectedOutputItemList_;}
 
   private:
-    virtual void openFile(FileBlock const& fb);
-    virtual void respondToOpenInputFile(FileBlock const& fb);
-    virtual void respondToCloseInputFile(FileBlock const& fb);
-    virtual void write(EventPrincipal const& e);
-    virtual void writeSubRun(SubRunPrincipal const& sr);
-    virtual void writeRun(RunPrincipal const& r);
+    virtual void openFile(FileBlock const & fb);
+    virtual void respondToOpenInputFile(FileBlock const & fb);
+    virtual void respondToCloseInputFile(FileBlock const & fb);
+    virtual void write(EventPrincipal const & e);
+    virtual void writeSubRun(SubRunPrincipal const & sr);
+    virtual void writeRun(RunPrincipal const & r);
 
     virtual bool isFileOpen() const;
     virtual bool shouldWeCloseFile() const;
@@ -97,7 +97,7 @@ namespace art {
     virtual void writeProductDependencies();
     virtual void finishEndFile();
 
-    void fillSelectedItemList(BranchType branchtype, TTree *theTree);
+    void fillSelectedItemList(BranchType branchtype, TTree * theTree);
 
     OutputItemListArray selectedOutputItemList_;
     std::string const fileName_;

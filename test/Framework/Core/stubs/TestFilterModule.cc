@@ -21,16 +21,14 @@ extern "C"
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-  class TestFilterModule : public art::EDFilter
-  {
+  class TestFilterModule : public art::EDFilter {
   public:
-    explicit TestFilterModule(fhicl::ParameterSet const&);
+    explicit TestFilterModule(fhicl::ParameterSet const &);
     virtual ~TestFilterModule();
 
-    virtual bool filter(art::Event& e, art::EventSetup const& c);
+    virtual bool filter(art::Event & e, art::EventSetup const & c);
     void endJob();
 
   private:
@@ -41,16 +39,15 @@ namespace arttest
 
   // -------
 
-  class SewerModule : public art::OutputModule
-  {
+  class SewerModule : public art::OutputModule {
   public:
-    explicit SewerModule(fhicl::ParameterSet const&);
+    explicit SewerModule(fhicl::ParameterSet const &);
     virtual ~SewerModule();
 
   private:
-    virtual void write(art::EventPrincipal const& e);
-    virtual void writeSubRun(art::SubRunPrincipal const&){}
-    virtual void writeRun(art::RunPrincipal const&){}
+    virtual void write(art::EventPrincipal const & e);
+    virtual void writeSubRun(art::SubRunPrincipal const &) {}
+    virtual void writeRun(art::RunPrincipal const &) {}
     virtual void endJob();
 
     std::string name_;
@@ -60,10 +57,10 @@ namespace arttest
 
   // -----------------------------------------------------------------
 
-  TestFilterModule::TestFilterModule(fhicl::ParameterSet const& ps):
+  TestFilterModule::TestFilterModule(fhicl::ParameterSet const & ps):
     count_(),
-    accept_rate_(ps.get<int>("acceptValue",1)),
-    onlyOne_(ps.get<bool>("onlyOne",false))
+    accept_rate_(ps.get<int>("acceptValue", 1)),
+    onlyOne_(ps.get<bool>("onlyOne", false))
   {
   }
 
@@ -71,14 +68,14 @@ namespace arttest
   {
   }
 
-  bool TestFilterModule::filter(art::Event&, art::EventSetup const&)
+  bool TestFilterModule::filter(art::Event &, art::EventSetup const &)
   {
     ++count_;
-    assert( currentContext() != 0 );
-    if(onlyOne_)
-      return count_ % accept_rate_ ==0;
+    assert(currentContext() != 0);
+    if (onlyOne_)
+    { return count_ % accept_rate_ == 0; }
     else
-      return count_ % 100 <= accept_rate_;
+    { return count_ % 100 <= accept_rate_; }
   }
 
   void TestFilterModule::endJob()
@@ -88,7 +85,7 @@ namespace arttest
 
   // ---------
 
-  SewerModule::SewerModule(fhicl::ParameterSet const& ps):
+  SewerModule::SewerModule(fhicl::ParameterSet const & ps):
     art::OutputModule(ps),
     name_(ps.get<std::string>("name")),
     num_pass_(ps.get<int>("shouldPass")),
@@ -100,7 +97,7 @@ namespace arttest
   {
   }
 
-  void SewerModule::write(art::EventPrincipal const&)
+  void SewerModule::write(art::EventPrincipal const &)
   {
     ++total_;
     assert(currentContext() != 0);
@@ -108,16 +105,14 @@ namespace arttest
 
   void SewerModule::endJob()
   {
-    assert( currentContext() == 0 );
+    assert(currentContext() == 0);
     std::cerr << "SEWERMODULE " << name_ << ": should pass " << num_pass_
-         << ", did pass " << total_ << "\n";
-
-    if(total_!=num_pass_)
-      {
-        std::cerr << "number passed should be " << num_pass_
-             << ", but got " << total_ << "\n";
-        abort();
-      }
+              << ", did pass " << total_ << "\n";
+    if (total_ != num_pass_) {
+      std::cerr << "number passed should be " << num_pass_
+                << ", but got " << total_ << "\n";
+      abort();
+    }
   }
 }
 

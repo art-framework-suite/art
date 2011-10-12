@@ -20,34 +20,33 @@
 #include "art/Framework/PluginManager/ProblemTracker.h"
 #include <iostream>
 
-class testServicesManager: public CppUnit::TestFixture
-{
-   CPPUNIT_TEST_SUITE(testServicesManager);
+class testServicesManager: public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testServicesManager);
 
-   CPPUNIT_TEST(putGetTest);
-   CPPUNIT_TEST(loadTest);
-   CPPUNIT_TEST(legacyTest);
-   CPPUNIT_TEST(dependencyTest);
+  CPPUNIT_TEST(putGetTest);
+  CPPUNIT_TEST(loadTest);
+  CPPUNIT_TEST(legacyTest);
+  CPPUNIT_TEST(dependencyTest);
 
-   CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
 public:
-      void setUp(){}
-   void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
-   void putGetTest();
-   void loadTest();
-   void legacyTest();
-   void dependencyTest();
+  void putGetTest();
+  void loadTest();
+  void legacyTest();
+  void dependencyTest();
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testServicesManager);
 
 namespace {
-   struct DummyService {
-      //DummyService(const fhicl::ParameterSet&,
-      //             art::ActivityRegistry&) {}
-   };
+  struct DummyService {
+    //DummyService(const fhicl::ParameterSet&,
+    //             art::ActivityRegistry&) {}
+  };
 }
 
 //namespace art {
@@ -57,242 +56,201 @@ namespace {
 void
 testServicesManager::putGetTest()
 {
-
-   using namespace art::serviceregistry;
-
-   std::vector<fhicl::ParameterSet> ps;
-   ServicesManager sm(ps);
-
-
-   CPPUNIT_ASSERT(!sm.isAvailable<DummyService>());
-   bool exceptionThrown = true;
-   try {
-      sm.get<DummyService>();
-      exceptionThrown = false;
-   } catch(const art::Exception&) {
-   }
-   CPPUNIT_ASSERT(exceptionThrown);
-
-   std::auto_ptr< DummyService > pService(new DummyService);
-   std::shared_ptr< ServiceWrapper<DummyService> >
-      ptrWrapper (new ServiceWrapper<DummyService>(pService));
-
-   CPPUNIT_ASSERT(sm.put(ptrWrapper));
-
-   CPPUNIT_ASSERT(sm.isAvailable<DummyService>());
-
-   sm.get<DummyService>();
-
-   CPPUNIT_ASSERT(!sm.put(ptrWrapper));
+  using namespace art::serviceregistry;
+  std::vector<fhicl::ParameterSet> ps;
+  ServicesManager sm(ps);
+  CPPUNIT_ASSERT(!sm.isAvailable<DummyService>());
+  bool exceptionThrown = true;
+  try {
+    sm.get<DummyService>();
+    exceptionThrown = false;
+  }
+  catch (const art::Exception &) {
+  }
+  CPPUNIT_ASSERT(exceptionThrown);
+  std::auto_ptr< DummyService > pService(new DummyService);
+  std::shared_ptr< ServiceWrapper<DummyService> >
+  ptrWrapper(new ServiceWrapper<DummyService>(pService));
+  CPPUNIT_ASSERT(sm.put(ptrWrapper));
+  CPPUNIT_ASSERT(sm.isAvailable<DummyService>());
+  sm.get<DummyService>();
+  CPPUNIT_ASSERT(!sm.put(ptrWrapper));
 }
 
 
 void
 testServicesManager::loadTest()
 {
-   typedef testserviceregistry::DummyService TestService;
-
-   using namespace art::serviceregistry;
-
-   art::AssertHandler ah;
-
-   {
-      std::vector<fhicl::ParameterSet> pss;
-
-      fhicl::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("service_type", typeName);
-      int value = 1;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-
+  typedef testserviceregistry::DummyService TestService;
+  using namespace art::serviceregistry;
+  art::AssertHandler ah;
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    fhicl::ParameterSet ps;
+    std::string typeName("DummyService");
+    ps.addParameter("service_type", typeName);
+    int value = 1;
+    ps.addParameter("value", value);
+    pss.push_back(ps);
+    ServicesManager sm(pss);
+    CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
+  }
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    fhicl::ParameterSet ps;
+    std::string typeName("DoesntExistService");
+    ps.addParameter("service_type", typeName);
+    pss.push_back(ps);
+    bool threwConfigurationException = false;
+    try {
       ServicesManager sm(pss);
-
-      CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
-   }
-   {
-      std::vector<fhicl::ParameterSet> pss;
-
-      fhicl::ParameterSet ps;
-      std::string typeName("DoesntExistService");
-      ps.addParameter("service_type", typeName);
-      pss.push_back(ps);
-
-      bool threwConfigurationException = false;
-      try {
-         ServicesManager sm(pss);
-      } catch(const art::Exception&) {
-         threwConfigurationException = true;
-      }
-
-      CPPUNIT_ASSERT(threwConfigurationException);
-   }
-   {
-      std::vector<fhicl::ParameterSet> pss;
-
-      fhicl::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("service_type", typeName);
-      int value = 1;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-      pss.push_back(ps);
-
-      bool caughtMultipleServiceError = false;
-      try {
-         ServicesManager sm(pss);
-      } catch(const art::Exception&) {
-         caughtMultipleServiceError = true;
-      }
-
-      CPPUNIT_ASSERT(caughtMultipleServiceError);
-   }
-   //NEED A TEST FOR SERVICES THAT DEPEND ON OTHER SERVICES
+    }
+    catch (const art::Exception &) {
+      threwConfigurationException = true;
+    }
+    CPPUNIT_ASSERT(threwConfigurationException);
+  }
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    fhicl::ParameterSet ps;
+    std::string typeName("DummyService");
+    ps.addParameter("service_type", typeName);
+    int value = 1;
+    ps.addParameter("value", value);
+    pss.push_back(ps);
+    pss.push_back(ps);
+    bool caughtMultipleServiceError = false;
+    try {
+      ServicesManager sm(pss);
+    }
+    catch (const art::Exception &) {
+      caughtMultipleServiceError = true;
+    }
+    CPPUNIT_ASSERT(caughtMultipleServiceError);
+  }
+  //NEED A TEST FOR SERVICES THAT DEPEND ON OTHER SERVICES
 }
 
 
 void
 testServicesManager::legacyTest()
 {
-   typedef testserviceregistry::DummyService TestService;
-
-   using namespace art::serviceregistry;
-
-   art::AssertHandler ah;
-
-   std::vector<fhicl::ParameterSet> pss;
-
-   fhicl::ParameterSet ps;
-   std::string typeName("DummyService");
-   ps.addParameter("service_type", typeName);
-   int value = 1;
-   ps.addParameter("value", value);
-   pss.push_back(ps);
-
-   std::shared_ptr<ServicesManager>  legacy(new ServicesManager(pss));
-   CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
-
-   art::ServiceToken legacyToken(legacy);
-   {
+  typedef testserviceregistry::DummyService TestService;
+  using namespace art::serviceregistry;
+  art::AssertHandler ah;
+  std::vector<fhicl::ParameterSet> pss;
+  fhicl::ParameterSet ps;
+  std::string typeName("DummyService");
+  ps.addParameter("service_type", typeName);
+  int value = 1;
+  ps.addParameter("value", value);
+  pss.push_back(ps);
+  std::shared_ptr<ServicesManager>  legacy(new ServicesManager(pss));
+  CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
+  art::ServiceToken legacyToken(legacy);
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    fhicl::ParameterSet ps;
+    std::string typeName("DummyService");
+    ps.addParameter("service_type", typeName);
+    int value = 2;
+    ps.addParameter("value", value);
+    pss.push_back(ps);
+    bool threwConfigurationException = false;
+    try {
+      ServicesManager sm(legacyToken, kOverlapIsError, pss);
+    }
+    catch (const art::Exception &) {
+      threwConfigurationException = true;
+    }
+    CPPUNIT_ASSERT(threwConfigurationException);
+  }
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    fhicl::ParameterSet ps;
+    std::string typeName("DummyService");
+    ps.addParameter("service_type", typeName);
+    int value = 2;
+    ps.addParameter("value", value);
+    pss.push_back(ps);
+    ServicesManager sm(legacyToken, kTokenOverrides, pss);
+    CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
+  }
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    fhicl::ParameterSet ps;
+    std::string typeName("DummyService");
+    ps.addParameter("service_type", typeName);
+    int value = 2;
+    ps.addParameter("value", value);
+    pss.push_back(ps);
+    ServicesManager sm(legacyToken, kConfigurationOverrides, pss);
+    CPPUNIT_ASSERT(2 == sm.get<TestService>().value());
+  }
+  {
+    try {
       std::vector<fhicl::ParameterSet> pss;
-
-      fhicl::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("service_type", typeName);
-      int value = 2;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-
-      bool threwConfigurationException = false;
-      try {
-         ServicesManager sm(legacyToken, kOverlapIsError, pss);
-      } catch(const art::Exception&) {
-         threwConfigurationException = true;
-      }
-
-      CPPUNIT_ASSERT(threwConfigurationException);
-   }
-   {
-      std::vector<fhicl::ParameterSet> pss;
-
-      fhicl::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("service_type", typeName);
-      int value = 2;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-
-      ServicesManager sm(legacyToken, kTokenOverrides, pss);
-
-      CPPUNIT_ASSERT(1 == sm.get<TestService>().value());
-   }
-   {
-      std::vector<fhicl::ParameterSet> pss;
-
-      fhicl::ParameterSet ps;
-      std::string typeName("DummyService");
-      ps.addParameter("service_type", typeName);
-      int value = 2;
-      ps.addParameter("value", value);
-      pss.push_back(ps);
-
-      ServicesManager sm(legacyToken, kConfigurationOverrides, pss);
-
-      CPPUNIT_ASSERT(2 == sm.get<TestService>().value());
-   }
-   {
-      try {
-         std::vector<fhicl::ParameterSet> pss;
-
-         ServicesManager sm(legacyToken, kOverlapIsError, pss);
-
-         CPPUNIT_ASSERT(!sm.get<TestService>().beginJobCalled());
-         art::ActivityRegistry ar;
-         sm.connectTo(ar);
-         ar.postBeginJobSignal_();
-
-         CPPUNIT_ASSERT(sm.get<TestService>().beginJobCalled());
-      }catch(const art::Exception& iException) {
-         std::cout<<iException.what()<<std::endl;
-         throw;
-      }catch(const std::exception& iException) {
-         std::cout<<iException.what()<<std::endl;
-         throw;
-      }
-   }
+      ServicesManager sm(legacyToken, kOverlapIsError, pss);
+      CPPUNIT_ASSERT(!sm.get<TestService>().beginJobCalled());
+      art::ActivityRegistry ar;
+      sm.connectTo(ar);
+      ar.postBeginJobSignal_();
+      CPPUNIT_ASSERT(sm.get<TestService>().beginJobCalled());
+    }
+    catch (const art::Exception & iException) {
+      std::cout << iException.what() << std::endl;
+      throw;
+    }
+    catch (const std::exception & iException) {
+      std::cout << iException.what() << std::endl;
+      throw;
+    }
+  }
 }
 
 void
 testServicesManager::dependencyTest()
 {
-   //Try both order of creating services
-   typedef testserviceregistry::DummyService TestService;
-
-   using namespace art::serviceregistry;
-
-   art::AssertHandler ah;
-
-   {
-      std::vector<fhicl::ParameterSet> pss;
-      {
-         fhicl::ParameterSet ps;
-         std::string typeName("DummyService");
-         ps.addParameter("service_type", typeName);
-         int value = 1;
-         ps.addParameter("value", value);
-         pss.push_back(ps);
-      }
-      {
-         fhicl::ParameterSet ps;
-         std::string typeName("DependsOnDummyService");
-         ps.addParameter("service_type", typeName);
-         pss.push_back(ps);
-      }
-
-      ServicesManager sm(pss);
-
-      CPPUNIT_ASSERT(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
-   }
-   {
-      std::vector<fhicl::ParameterSet> pss;
-      {
-         fhicl::ParameterSet ps;
-         std::string typeName("DependsOnDummyService");
-         ps.addParameter("service_type", typeName);
-         pss.push_back(ps);
-      }
-      {
-         fhicl::ParameterSet ps;
-         std::string typeName("DummyService");
-         ps.addParameter("service_type", typeName);
-         int value = 1;
-         ps.addParameter("value", value);
-         pss.push_back(ps);
-      }
-
-      ServicesManager sm(pss);
-
-      CPPUNIT_ASSERT(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
-
-   }
+  //Try both order of creating services
+  typedef testserviceregistry::DummyService TestService;
+  using namespace art::serviceregistry;
+  art::AssertHandler ah;
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    {
+      fhicl::ParameterSet ps;
+      std::string typeName("DummyService");
+      ps.addParameter("service_type", typeName);
+      int value = 1;
+      ps.addParameter("value", value);
+      pss.push_back(ps);
+    }
+    {
+      fhicl::ParameterSet ps;
+      std::string typeName("DependsOnDummyService");
+      ps.addParameter("service_type", typeName);
+      pss.push_back(ps);
+    }
+    ServicesManager sm(pss);
+    CPPUNIT_ASSERT(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
+  }
+  {
+    std::vector<fhicl::ParameterSet> pss;
+    {
+      fhicl::ParameterSet ps;
+      std::string typeName("DependsOnDummyService");
+      ps.addParameter("service_type", typeName);
+      pss.push_back(ps);
+    }
+    {
+      fhicl::ParameterSet ps;
+      std::string typeName("DummyService");
+      ps.addParameter("service_type", typeName);
+      int value = 1;
+      ps.addParameter("value", value);
+      pss.push_back(ps);
+    }
+    ServicesManager sm(pss);
+    CPPUNIT_ASSERT(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
+  }
 }

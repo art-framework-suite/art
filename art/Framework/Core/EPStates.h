@@ -71,26 +71,25 @@ namespace statemachine {
 
   class Starting;
 
-  class Machine : public sc::state_machine<Machine, Starting>
-  {
+  class Machine : public sc::state_machine<Machine, Starting> {
   public:
-    Machine(art::IEventProcessor* ep,
+    Machine(art::IEventProcessor * ep,
             FileMode fileMode,
             bool handleEmptyRuns,
             bool handleEmptySubRuns);
 
-    art::IEventProcessor& ep() const;
+    art::IEventProcessor & ep() const;
     FileMode fileMode() const;
     bool handleEmptyRuns() const;
     bool handleEmptySubRuns() const;
 
-    void startingNewLoop(File const& file);
-    void startingNewLoop(Stop const& stop);
-    void rewindAndPrepareForNextLoop(Restart const& restart);
+    void startingNewLoop(File const & file);
+    void startingNewLoop(Stop const & stop);
+    void rewindAndPrepareForNextLoop(Restart const & restart);
 
   private:
 
-    art::IEventProcessor* ep_;
+    art::IEventProcessor * ep_;
     FileMode fileMode_;
     bool handleEmptyRuns_;
     bool handleEmptySubRuns_;
@@ -100,37 +99,35 @@ namespace statemachine {
   class HandleFiles;
   class EndingLoop;
 
-  class Starting : public sc::state<Starting, Machine>
-  {
+  class Starting : public sc::state<Starting, Machine> {
   public:
     Starting(my_context ctx);
     ~Starting();
 
-    typedef mpl::list<
-      sc::transition<Event, Error>,
-      sc::transition<SubRun, Error>,
-      sc::transition<Run, Error>,
-      sc::transition<File, HandleFiles, Machine, &Machine::startingNewLoop>,
-      sc::transition<Stop, EndingLoop, Machine, &Machine::startingNewLoop>,
-      sc::transition<Restart, Error> > reactions;
+    typedef mpl::list <
+    sc::transition<Event, Error>,
+       sc::transition<SubRun, Error>,
+       sc::transition<Run, Error>,
+       sc::transition<File, HandleFiles, Machine, &Machine::startingNewLoop>,
+       sc::transition<Stop, EndingLoop, Machine, &Machine::startingNewLoop>,
+       sc::transition<Restart, Error> > reactions;
   };
 
   class FirstFile;
 
-  class HandleFiles : public sc::state<HandleFiles, Machine, FirstFile>
-  {
+  class HandleFiles : public sc::state<HandleFiles, Machine, FirstFile> {
   public:
     HandleFiles(my_context ctx);
     void exit();
     ~HandleFiles();
 
-    typedef mpl::list<
-      sc::transition<Event, Error>,
-      sc::transition<SubRun, Error>,
-      sc::transition<Run, Error>,
-      sc::transition<File, Error>,
-      sc::transition<Stop, EndingLoop>,
-      sc::transition<Restart, Error> > reactions;
+    typedef mpl::list <
+    sc::transition<Event, Error>,
+       sc::transition<SubRun, Error>,
+       sc::transition<Run, Error>,
+       sc::transition<File, Error>,
+       sc::transition<Stop, EndingLoop>,
+       sc::transition<Restart, Error> > reactions;
 
     void openFiles();
     void closeFiles();
@@ -141,22 +138,20 @@ namespace statemachine {
     bool exitCalled_;
   };
 
-  class EndingLoop : public sc::state<EndingLoop, Machine>
-  {
+  class EndingLoop : public sc::state<EndingLoop, Machine> {
   public:
     EndingLoop(my_context ctx);
     ~EndingLoop();
-    typedef mpl::list<
-      sc::transition<Restart, Starting, Machine, &Machine::rewindAndPrepareForNextLoop>,
-      sc::custom_reaction<Stop> > reactions;
+    typedef mpl::list <
+    sc::transition<Restart, Starting, Machine, &Machine::rewindAndPrepareForNextLoop>,
+       sc::custom_reaction<Stop> > reactions;
 
-    sc::result react(Stop const&);
+    sc::result react(Stop const &);
   private:
     art::IEventProcessor & ep_;
   };
 
-  class Error : public sc::state<Error, Machine>
-  {
+  class Error : public sc::state<Error, Machine> {
   public:
     Error(my_context ctx);
     ~Error();
@@ -167,45 +162,42 @@ namespace statemachine {
 
   class HandleRuns;
 
-  class FirstFile : public sc::state<FirstFile, HandleFiles>
-  {
+  class FirstFile : public sc::state<FirstFile, HandleFiles> {
   public:
     FirstFile(my_context ctx);
     ~FirstFile();
 
-    typedef mpl::list<
-      sc::transition<Run, HandleRuns>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Run, HandleRuns>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   private:
     art::IEventProcessor & ep_;
   };
 
-  class HandleNewInputFile1 : public sc::state<HandleNewInputFile1, HandleFiles>
-  {
+  class HandleNewInputFile1 : public sc::state<HandleNewInputFile1, HandleFiles> {
   public:
     HandleNewInputFile1(my_context ctx);
     ~HandleNewInputFile1();
 
-    typedef mpl::list<
-      sc::transition<Run, HandleRuns>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Run, HandleRuns>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   };
 
-  class NewInputAndOutputFiles : public sc::state<NewInputAndOutputFiles, HandleFiles>
-  {
+  class NewInputAndOutputFiles : public sc::state<NewInputAndOutputFiles, HandleFiles> {
   public:
     NewInputAndOutputFiles(my_context ctx);
     ~NewInputAndOutputFiles();
 
-    typedef mpl::list<
-      sc::transition<Run, HandleRuns>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Run, HandleRuns>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
 
   private:
 
@@ -216,8 +208,7 @@ namespace statemachine {
 
   class NewRun;
 
-  class HandleRuns : public sc::state<HandleRuns, HandleFiles, NewRun>
-  {
+  class HandleRuns : public sc::state<HandleRuns, HandleFiles, NewRun> {
   public:
     HandleRuns(my_context ctx);
     void exit();
@@ -231,7 +222,7 @@ namespace statemachine {
     void setupCurrentRun();
     void beginRun(art::RunNumber_t run);
     void endRun(art::RunNumber_t run);
-    void finalizeRun(Run const&);
+    void finalizeRun(Run const &);
     void finalizeRun();
     void beginRunIfNotDoneAlready();
   private:
@@ -245,60 +236,56 @@ namespace statemachine {
 
   class HandleSubRuns;
 
-  class NewRun : public sc::state<NewRun, HandleRuns>
-  {
+  class NewRun : public sc::state<NewRun, HandleRuns> {
   public:
     NewRun(my_context ctx);
     ~NewRun();
 
-    typedef mpl::list<
-      sc::transition<SubRun, HandleSubRuns>,
-      sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<SubRun, HandleSubRuns>,
+       sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   };
 
   class ContinueRun1;
 
-  class HandleNewInputFile2 : public sc::state<HandleNewInputFile2, HandleRuns>
-  {
+  class HandleNewInputFile2 : public sc::state<HandleNewInputFile2, HandleRuns> {
   public:
     HandleNewInputFile2(my_context ctx);
     ~HandleNewInputFile2();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::custom_reaction<Run>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::custom_reaction<Run>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(Run const& run);
-    sc::result react(File const& file);
+    sc::result react(Run const & run);
+    sc::result react(File const & file);
   };
 
-  class ContinueRun1 : public sc::state<ContinueRun1, HandleRuns>
-  {
+  class ContinueRun1 : public sc::state<ContinueRun1, HandleRuns> {
   public:
     ContinueRun1(my_context ctx);
     ~ContinueRun1();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
-      sc::custom_reaction<File>,
-      sc::transition<SubRun, HandleSubRuns> > reactions;
+    typedef mpl::list <
+    sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
+       sc::custom_reaction<File>,
+       sc::transition<SubRun, HandleSubRuns> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   private:
     art::IEventProcessor & ep_;
   };
 
   class FirstSubRun;
 
-  class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, FirstSubRun>
-  {
+  class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, FirstSubRun> {
   public:
-     typedef std::pair<art::RunNumber_t, art::SubRunNumber_t> SubRunID;
+    typedef std::pair<art::RunNumber_t, art::SubRunNumber_t> SubRunID;
     HandleSubRuns(my_context ctx);
     void exit();
     ~HandleSubRuns();
@@ -306,7 +293,7 @@ namespace statemachine {
 
     SubRunID currentSubRun() const;
     bool currentSubRunEmpty() const;
-    std::vector<SubRunID> const& unhandledSubRuns() const;
+    std::vector<SubRunID> const & unhandledSubRuns() const;
     void setupCurrentSubRun();
     void finalizeAllSubRuns();
     void finalizeSubRun();
@@ -328,100 +315,94 @@ namespace statemachine {
   class HandleEvent;
   class AnotherSubRun;
 
-  class FirstSubRun : public sc::state<FirstSubRun, HandleSubRuns>
-  {
+  class FirstSubRun : public sc::state<FirstSubRun, HandleSubRuns> {
   public:
     FirstSubRun(my_context ctx);
     ~FirstSubRun();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::transition<Event, HandleEvent>,
-      sc::transition<SubRun, AnotherSubRun>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Event, HandleEvent>,
+       sc::transition<SubRun, AnotherSubRun>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   };
 
-  class AnotherSubRun : public sc::state<AnotherSubRun, HandleSubRuns>
-  {
+  class AnotherSubRun : public sc::state<AnotherSubRun, HandleSubRuns> {
   public:
     AnotherSubRun(my_context ctx);
     ~AnotherSubRun();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::transition<Event, HandleEvent>,
-      sc::transition<SubRun, AnotherSubRun>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Event, HandleEvent>,
+       sc::transition<SubRun, AnotherSubRun>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   };
 
-  class HandleEvent : public sc::state<HandleEvent, HandleSubRuns>
-  {
+  class HandleEvent : public sc::state<HandleEvent, HandleSubRuns> {
   public:
     HandleEvent(my_context ctx);
     ~HandleEvent();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::transition<Event, HandleEvent>,
-      sc::transition<SubRun, AnotherSubRun>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Event, HandleEvent>,
+       sc::transition<SubRun, AnotherSubRun>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
     void readAndProcessEvent();
     void markNonEmpty();
   private:
     art::IEventProcessor & ep_;
   };
 
-  class HandleNewInputFile3 : public sc::state<HandleNewInputFile3, HandleSubRuns>
-  {
+  class HandleNewInputFile3 : public sc::state<HandleNewInputFile3, HandleSubRuns> {
   public:
     HandleNewInputFile3(my_context ctx);
     ~HandleNewInputFile3();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::custom_reaction<Run>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::custom_reaction<Run>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(Run const& run);
-    sc::result react(File const& file);
+    sc::result react(Run const & run);
+    sc::result react(File const & file);
   };
 
-  class ContinueRun2 : public sc::state<ContinueRun2, HandleSubRuns>
-  {
+  class ContinueRun2 : public sc::state<ContinueRun2, HandleSubRuns> {
   public:
     ContinueRun2(my_context ctx);
     ~ContinueRun2();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::custom_reaction<SubRun>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::custom_reaction<SubRun>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(SubRun const& subRun);
-    sc::result react(File const& file);
+    sc::result react(SubRun const & subRun);
+    sc::result react(File const & file);
   private:
     art::IEventProcessor & ep_;
   };
 
-  class ContinueSubRun : public sc::state<ContinueSubRun, HandleSubRuns>
-  {
+  class ContinueSubRun : public sc::state<ContinueSubRun, HandleSubRuns> {
   public:
     ContinueSubRun(my_context ctx);
     ~ContinueSubRun();
     bool checkInvariant();
 
-    typedef mpl::list<
-      sc::transition<Event, HandleEvent>,
-      sc::transition<SubRun, AnotherSubRun>,
-      sc::custom_reaction<File> > reactions;
+    typedef mpl::list <
+    sc::transition<Event, HandleEvent>,
+       sc::transition<SubRun, AnotherSubRun>,
+       sc::custom_reaction<File> > reactions;
 
-    sc::result react(File const& file);
+    sc::result react(File const & file);
   private:
     art::IEventProcessor & ep_;
   };

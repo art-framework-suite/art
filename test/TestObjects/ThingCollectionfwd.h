@@ -4,8 +4,8 @@
 #include <vector>
 
 namespace arttest {
-        class Thing;
-        typedef std::vector<Thing> ThingCollection;
+  class Thing;
+  typedef std::vector<Thing> ThingCollection;
 }
 
 #endif /* test_TestObjects_ThingCollectionfwd_h */

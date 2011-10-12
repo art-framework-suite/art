@@ -5,16 +5,13 @@
 #include "cpp0x/cmath"
 #include <sys/types.h>
 
-namespace art
-{
+namespace art {
 
-  namespace detail
-  {
+  namespace detail {
     inline bool isnan(float x)
     {
       u_int32_t wx;
-
-      GET_FLOAT_WORD (wx, x);
+      GET_FLOAT_WORD(wx, x);
       wx &= 0x7fffffff;
       return (bool)(wx > 0x7f800000);
     }
@@ -22,8 +19,7 @@ namespace art
     inline bool isnan(double x)
     {
       u_int32_t hx, lx;
-
-      EXTRACT_WORDS (hx, lx, x);
+      EXTRACT_WORDS(hx, lx, x);
       lx |= hx & 0xfffff;
       hx &= 0x7ff00000;
       return (bool)(hx == 0x7ff00000) && (lx != 0);
@@ -32,8 +28,7 @@ namespace art
     inline bool isnan(long double x)
     {
       u_int32_t ex, hx, lx;
-
-      GET_LDOUBLE_WORDS (ex, hx, lx, x);
+      GET_LDOUBLE_WORDS(ex, hx, lx, x);
       ex &= 0x7fff;
       return (bool)((ex == 0x7fff) && ((hx & 0x7fffffff) | lx));
     }
@@ -48,20 +43,20 @@ namespace art
     u_int16_t flags;
     __asm__("fxam\n\t"
             "fstsw %%ax"
-            : "=a" (flags) /* output */
-            : "t"  (x)     /* input */
+            : "=a"(flags)  /* output */
+            : "t"(x)       /* input */
             :              /* clobbered */
-            );
-    return (flags & 0x4500)==0x0100;
+           );
+    return (flags & 0x4500) == 0x0100;
 #else
-    #error No asm_isnan for this architecture.
+#error No asm_isnan for this architecture.
 #endif
   }
 
   template <class FP> inline bool equal_isnan(FP x)
-    {
-      return x !=x;
-    }
+  {
+    return x != x;
+  }
 
   // Here are the public functions, chosen by best timing on Intel
   // Pentium 4.  Other architectures are likely to have different

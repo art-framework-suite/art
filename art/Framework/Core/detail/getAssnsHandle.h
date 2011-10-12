@@ -30,21 +30,24 @@ namespace art {
 template <typename ProdA, typename ProdB>
 inline
 art::Handle <art::Assns<ProdA, ProdB, void> >
-art::detail::getAssnsHandle(Event const & e, InputTag const & tag) {
+art::detail::getAssnsHandle(Event const & e, InputTag const & tag)
+{
   return GetAssnsHandle<ProdA, ProdB, void>()(e, tag);
 }
 
 template <typename ProdA, typename ProdB, typename Data>
 inline
 art::Handle <art::Assns<ProdA, ProdB, Data> >
-art::detail::getAssnsHandle(Event const & e, InputTag const & tag) {
+art::detail::getAssnsHandle(Event const & e, InputTag const & tag)
+{
   return GetAssnsHandle<ProdA, ProdB, Data>()(e, tag);
 }
 
 template <typename ProdA, typename ProdB, typename Data>
 art::Handle <art::Assns<ProdA, ProdB, Data> >
 art::detail::GetAssnsHandle<ProdA, ProdB, Data>::
-operator()(Event const & e, InputTag const & tag) const {
+operator()(Event const & e, InputTag const & tag) const
+{
   Handle<Assns<ProdA, ProdB, Data> > h;
   e.getByLabel(tag, h);
   if (h.failedToGet()) {

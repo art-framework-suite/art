@@ -9,42 +9,49 @@
 
 namespace art {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
-                             ModuleDescription const& md,
-                             WorkerParams const& wp):
-      WorkerT<OutputModule>(mod, md, wp)
+                             ModuleDescription const & md,
+                             WorkerParams const & wp):
+    WorkerT<OutputModule>(mod, md, wp)
   {
   }
 
-  OutputWorker::~OutputWorker() {
+  OutputWorker::~OutputWorker()
+  {
   }
 
   void
-  OutputWorker::closeFile() {
+  OutputWorker::closeFile()
+  {
     module().doCloseFile();
   }
 
   bool
-  OutputWorker::shouldWeCloseFile() const {
+  OutputWorker::shouldWeCloseFile() const
+  {
     return module().shouldWeCloseFile();
   }
 
   void
-  OutputWorker::openNewFileIfNeeded() {
+  OutputWorker::openNewFileIfNeeded()
+  {
     module().maybeOpenFile();
   }
 
   void
-  OutputWorker::openFile(FileBlock const& fb) {
+  OutputWorker::openFile(FileBlock const & fb)
+  {
     module().doOpenFile(fb);
   }
 
   void
-  OutputWorker::writeRun(RunPrincipal const& rp) {
+  OutputWorker::writeRun(RunPrincipal const & rp)
+  {
     module().doWriteRun(rp);
   }
 
   void
-  OutputWorker::writeSubRun(SubRunPrincipal const& srp) {
+  OutputWorker::writeSubRun(SubRunPrincipal const & srp)
+  {
     module().doWriteSubRun(srp);
   }
 
@@ -52,5 +59,5 @@ namespace art {
 
   bool OutputWorker::limitReached() const {return module().limitReached();}
 
-  void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
+  void OutputWorker::configure(OutputModuleDescription const & desc) {module().configure(desc);}
 }

@@ -25,19 +25,21 @@ namespace art {
     return ProcessConfigurationID(md5alg.digest().toString());
   }
 
-  bool operator<(ProcessConfiguration const& a, ProcessConfiguration const& b) {
-    if (a.processName_ < b.processName_) return true;
-    if (b.processName_ < a.processName_) return false;
-    if (a.parameterSetID_ < b.parameterSetID_) return true;
-    if (b.parameterSetID_ < a.parameterSetID_) return false;
-    if (a.releaseVersion_ < b.releaseVersion_) return true;
-    if (b.releaseVersion_ < a.releaseVersion_) return false;
-    if (a.passID_ < b.passID_) return true;
+  bool operator<(ProcessConfiguration const & a, ProcessConfiguration const & b)
+  {
+    if (a.processName_ < b.processName_) { return true; }
+    if (b.processName_ < a.processName_) { return false; }
+    if (a.parameterSetID_ < b.parameterSetID_) { return true; }
+    if (b.parameterSetID_ < a.parameterSetID_) { return false; }
+    if (a.releaseVersion_ < b.releaseVersion_) { return true; }
+    if (b.releaseVersion_ < a.releaseVersion_) { return false; }
+    if (a.passID_ < b.passID_) { return true; }
     return false;
   }
 
-  std::ostream&
-  operator<< (std::ostream& os, ProcessConfiguration const& pc) {
+  std::ostream &
+  operator<< (std::ostream & os, ProcessConfiguration const & pc)
+  {
     os << pc.processName_ << ' '
        << pc.parameterSetID_ << ' '
        << pc.releaseVersion_ << ' '

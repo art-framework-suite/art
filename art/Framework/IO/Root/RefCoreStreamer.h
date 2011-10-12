@@ -14,13 +14,13 @@ namespace art {
 
   void
   configureRefCoreStreamer(cet::exempt_ptr<EventPrincipal const> groupFinder =
-                           cet::exempt_ptr<EventPrincipal const>());
+                             cet::exempt_ptr<EventPrincipal const>());
 }
 
 class art::RefCoreStreamer : public TClassStreamer {
 public:
   explicit RefCoreStreamer(cet::exempt_ptr<EventPrincipal const> groupFinder =
-                           cet::exempt_ptr<EventPrincipal const>())
+                             cet::exempt_ptr<EventPrincipal const>())
     :
     groupFinder_(groupFinder)
   {}
@@ -28,7 +28,7 @@ public:
   void setGroupFinder(cet::exempt_ptr<EventPrincipal const> groupFinder) {
     groupFinder_ = groupFinder;
   }
-  void operator() (TBuffer &R_b, void *objp);
+  void operator()(TBuffer & R_b, void * objp);
 
 private:
   cet::exempt_ptr<EventPrincipal const> groupFinder_;

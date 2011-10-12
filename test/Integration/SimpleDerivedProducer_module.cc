@@ -23,26 +23,24 @@ using arttest::SimpleDerivedProducer;
 // Produces a SimpleProduct product instance.
 //
 class arttest::SimpleDerivedProducer
-  : public art::EDProducer
-{
+    : public art::EDProducer {
 public:
   typedef  std::vector<arttest::SimpleDerived>  SimpleDerivedProduct;
 
-  explicit SimpleDerivedProducer( fhicl::ParameterSet const & p )
-  : size_( p.get<int>("nvalues") )
-  {
+  explicit SimpleDerivedProducer(fhicl::ParameterSet const & p)
+    : size_(p.get<int>("nvalues")) {
     produces<SimpleDerivedProduct>("derived");
   }
 
   virtual ~SimpleDerivedProducer() { }
-  virtual void produce( art::Event & e );
+  virtual void produce(art::Event & e);
 
 private:
   int size_;  // number of Simples to put in the collection
 };
 
 void
-  SimpleDerivedProducer::produce( art::Event & e )
+SimpleDerivedProducer::produce(art::Event & e)
 {
   // Fill up a collection of SimpleDerived objects
   std::auto_ptr<SimpleDerivedProduct> prod(new SimpleDerivedProduct);
@@ -54,7 +52,6 @@ void
     // sd.dummy_ = default-constructed value
     prod->push_back(sd);
   }
-
   // Put the product into the Event
   e.put(prod, "derived");
 }

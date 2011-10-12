@@ -23,11 +23,10 @@ typedef std::vector<std::vector<int> > vv_t;
 using namespace art;
 
 class arttest::ToyRawInputTester :
-  public art::EDAnalyzer
-{
+  public art::EDAnalyzer {
 public:
 
-  ToyRawInputTester( fhicl::ParameterSet const & p ) :
+  ToyRawInputTester(fhicl::ParameterSet const & p) :
     numEventsSeen_(0),
     numEventsExpected_(0),
     numSubRunsSeen_(0),
@@ -38,73 +37,61 @@ public:
     numFilesExpected_(0),
     fileNames_(p.get<strings>("fileNames")),
     pset_(p),
-    messages_()
-  {
+    messages_() {
     numFilesExpected_ = fileNames_.size();
     ostringstream expected;
-    for (size_t i=0; i != numFilesExpected_; ++i)
-      {
-        expected << "open " << fileNames_[i] << '\n';
-        vv_t tokens(p.get<vv_t>(fileNames_[i]));
-        RunNumber_t currentRun = -1;
-        SubRunNumber_t currentSubRun = -1;
-        for (vv_t::const_iterator
-               it = tokens.begin(),
-               itend = tokens.end();
-             it != itend; ++it)
-          {
-            if ((*it)[0] != -1)
-              {
-                ++numRunsExpected_;
-                currentRun = (*it)[0];
-                expected << "begin " << RunID(currentRun) << '\n';
-              }
-            if ((*it)[1] != -1)
-              {
-                ++numSubRunsExpected_;
-                currentSubRun = (*it)[1];
-                expected << "begin "
-                         << SubRunID(currentRun, currentSubRun) << '\n';
-
-              }
-            if ((*it)[2] != -1)
-              {
-                ++numEventsExpected_;
-                expected << "event "
-                         << EventID(currentRun, currentSubRun, (*it)[2])
-                         << '\n';
-              }
-          }
+    for (size_t i = 0; i != numFilesExpected_; ++i) {
+      expected << "open " << fileNames_[i] << '\n';
+      vv_t tokens(p.get<vv_t>(fileNames_[i]));
+      RunNumber_t currentRun = -1;
+      SubRunNumber_t currentSubRun = -1;
+      for (vv_t::const_iterator
+           it = tokens.begin(),
+           itend = tokens.end();
+           it != itend; ++it) {
+        if ((*it)[0] != -1) {
+          ++numRunsExpected_;
+          currentRun = (*it)[0];
+          expected << "begin " << RunID(currentRun) << '\n';
+        }
+        if ((*it)[1] != -1) {
+          ++numSubRunsExpected_;
+          currentSubRun = (*it)[1];
+          expected << "begin "
+                   << SubRunID(currentRun, currentSubRun) << '\n';
+        }
+        if ((*it)[2] != -1) {
+          ++numEventsExpected_;
+          expected << "event "
+                   << EventID(currentRun, currentSubRun, (*it)[2])
+                   << '\n';
+        }
       }
+    }
     expectedMessage_ = expected.str();
   }
 
-  void respondToOpenInputFile(art::FileBlock const& fb)
-  {
+  void respondToOpenInputFile(art::FileBlock const & fb) {
     ++numFilesSeen_;
     messages_ << "open " <<  fb.fileName() << '\n';
   }
 
-  void beginRun(art::Run const& r)
-  {
+  void beginRun(art::Run const & r) {
     ++numRunsSeen_;
     messages_ << "begin " << r.id() << '\n';
   }
 
-  void beginSubRun(art::SubRun const& sr)
-  {
+  void beginSubRun(art::SubRun const & sr) {
     ++numSubRunsSeen_;
     messages_ << "begin " << sr.id() << '\n';
   }
 
-  void analyze(art::Event const& e)
-  {
+  void analyze(art::Event const & e) {
     ++numEventsSeen_;
     messages_ << "event " << e.id() << '\n';
   }
 
-  void endJob()
-  {
+  void endJob() {
     std::cerr << "------------------------------------------------------------------------\n"
               << expectedMessage_
               << "------------------------------------------------------------------------\n"

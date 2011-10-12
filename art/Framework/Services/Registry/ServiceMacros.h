@@ -15,24 +15,24 @@
 // ----------------------------------------------------------------------
 
 #define DEFINE_ART_SERVICE_HOOK(klass) \
-extern "C" \
-art::TypeID \
+  extern "C" \
+  art::TypeID \
   get_typeid() \
-{ return art::TypeID(typeid(klass)); }
+  { return art::TypeID(typeid(klass)); }
 
 #define DEFINE_ART_SYSTEM_SERVICE(klass) \
- DEFINE_ART_SERVICE_HOOK(klass)
+  DEFINE_ART_SERVICE_HOOK(klass)
 
 #define DEFINE_ART_SERVICE(klass) \
-extern "C" \
-std::auto_ptr<art::ServiceWrapperBase> \
+  extern "C" \
+  std::auto_ptr<art::ServiceWrapperBase> \
   make( fhicl::ParameterSet const & cfg, art::ActivityRegistry & reg ) \
-{ return std::auto_ptr<art::ServiceWrapperBase>( \
-    new art::ServiceWrapper<klass>( \
-      std::auto_ptr<klass>( \
-        new klass(cfg,reg)) ) ); \
-} \
-DEFINE_ART_SERVICE_HOOK(klass)
+  { return std::auto_ptr<art::ServiceWrapperBase>( \
+           new art::ServiceWrapper<klass>( \
+                                           std::auto_ptr<klass>( \
+                                               new klass(cfg,reg)) ) ); \
+  } \
+  DEFINE_ART_SERVICE_HOOK(klass)
 
 // ======================================================================
 

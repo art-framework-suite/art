@@ -11,7 +11,7 @@ namespace art {
 
 struct art::ProductRegistry {
   ProductRegistry() : productList_() {} // For ROOT.
-  ProductRegistry(ProductList const &pl) : productList_(pl) {}
+  ProductRegistry(ProductList const & pl) : productList_(pl) {}
 
   ProductList productList_;
 };

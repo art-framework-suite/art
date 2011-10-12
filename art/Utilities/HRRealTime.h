@@ -26,7 +26,7 @@ namespace art {
     static __inline__ unsigned long long rdtsc(void)
     {
       unsigned long long int x;
-      __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+      __asm__ volatile(".byte 0x0f, 0x31" : "=A"(x));
       return x;
     }
 
@@ -35,29 +35,28 @@ namespace art {
     static __inline__ unsigned long long rdtsc(void)
     {
       unsigned hi, lo;
-      __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-      return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
+      __asm__ __volatile__("rdtsc" : "=a"(lo), "=d"(hi));
+      return ((unsigned long long)lo) | (((unsigned long long)hi) << 32);
     }
 
 #elif defined(__powerpc__)
 
     static __inline__ unsigned long long rdtsc(void)
     {
-      unsigned long long int result=0;
-      unsigned long int upper, lower,tmp;
+      unsigned long long int result = 0;
+      unsigned long int upper, lower, tmp;
       __asm__ volatile(
-                       "0:                  \n"
-                       "\tmftbu   %0           \n"
-                       "\tmftb    %1           \n"
-                       "\tmftbu   %2           \n"
-                       "\tcmpw    %2,%0        \n"
-                       "\tbne     0b         \n"
-                       : "=r"(upper),"=r"(lower),"=r"(tmp)
-                       );
+        "0:                  \n"
+        "\tmftbu   %0           \n"
+        "\tmftb    %1           \n"
+        "\tmftbu   %2           \n"
+        "\tcmpw    %2,%0        \n"
+        "\tbne     0b         \n"
+        : "=r"(upper), "=r"(lower), "=r"(tmp)
+      );
       result = upper;
-      result = result<<32;
-      result = result|lower;
-
+      result = result << 32;
+      result = result | lower;
       return(result);
     }
 
@@ -65,13 +64,14 @@ namespace art {
 #error The file FWCore/Utilities/interface/RealTime.h needs to be set up for your CPU type.
 
 #endif
- }
+  }
 }
 
 namespace art {
 
   // High Precision real time in clock-units
-  inline HRTimeType hrRealTime() {
+  inline HRTimeType hrRealTime()
+  {
     return details::rdtsc();
   }
 

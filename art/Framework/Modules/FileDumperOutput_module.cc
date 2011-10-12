@@ -30,20 +30,19 @@ using fhicl::ParameterSet;
 // ----------------------------------------------------------------------
 
 class art::FileDumperOutput
-  : public OutputModule
-{
+    : public OutputModule {
 public:
-  explicit FileDumperOutput( ParameterSet const & );
+  explicit FileDumperOutput(ParameterSet const &);
 
-  virtual ~FileDumperOutput( ) { }
+  virtual ~FileDumperOutput() { }
 
 private:
   virtual void
-    write      ( EventPrincipal const & e );
+  write(EventPrincipal const & e);
   virtual void
-    writeRun   ( RunPrincipal const & r );
+  writeRun(RunPrincipal const & r);
   virtual void
-    writeSubRun( SubRunPrincipal const & sr );
+  writeSubRun(SubRunPrincipal const & sr);
 
   bool wantOnDemandProduction;
 
@@ -51,82 +50,75 @@ private:
 
 // ----------------------------------------------------------------------
 
-  FileDumperOutput::FileDumperOutput( ParameterSet const & ps )
-: OutputModule          ( ps )
-, wantOnDemandProduction( ps.get<bool>("onDemandProduction", false) )
+FileDumperOutput::FileDumperOutput(ParameterSet const & ps)
+  : OutputModule(ps)
+  , wantOnDemandProduction(ps.get<bool>("onDemandProduction", false))
 { }
 
 // ----------------------------------------------------------------------
 
 void
-  FileDumperOutput::write( EventPrincipal const & e )
+FileDumperOutput::write(EventPrincipal const & e)
 {
   // prepare the data structure, a sequence of columns:
   typedef  std::vector<std::string>  column;
   unsigned int ncols = 5;
   std::vector<column> col(ncols);
-
   // provide column headings:
   col[0].push_back("PROCESS NAME");
   col[1].push_back("MODULE LABEL");
   col[2].push_back("PRODUCT INSTANCE NAME");
   col[3].push_back("DATA PRODUCT TYPE");
   col[4].push_back("SIZE");
-
   // insert the per-product data:
-  for( EventPrincipal::const_iterator it  = e.begin()
-                                    , end = e.end(); it != end; ++it ) {
+  for (EventPrincipal::const_iterator it  = e.begin()
+       , end = e.end(); it != end; ++it) {
     Group const & g = *(it->second);
     try {
       if (!g.resolveProduct(wantOnDemandProduction, g.producedWrapperType()))
-        throw Exception(errors::DataCorruption, "data corruption");
+      { throw Exception(errors::DataCorruption, "data corruption"); }
     }
-    catch( art::Exception const & e ) {
-      if( e.category() != "ProductNotFound" )
-        throw;
-      if( g.anyProduct() )
+    catch (art::Exception const & e) {
+      if (e.category() != "ProductNotFound")
+      { throw; }
+      if (g.anyProduct())
         throw art::Exception(errors::LogicError, "FileDumperOutput module", e)
-          << "Product reported as not present, but is pointed to nonetheless!";
+            << "Product reported as not present, but is pointed to nonetheless!";
     }
-
-    col[0].push_back( g.processName() );
-    col[1].push_back( g.moduleLabel() );
-    col[2].push_back( g.productInstanceName() );
-
-    if( g.anyProduct() ) {
-      col[3].push_back( g.productDescription().producedClassName() );
-      col[4].push_back( g.anyProduct()->productSize() );
+    col[0].push_back(g.processName());
+    col[1].push_back(g.moduleLabel());
+    col[2].push_back(g.productInstanceName());
+    if (g.anyProduct()) {
+      col[3].push_back(g.productDescription().producedClassName());
+      col[4].push_back(g.anyProduct()->productSize());
     }
     else {
-      col[3].push_back( "unknown" );
-      col[4].push_back( "?" );
+      col[3].push_back("unknown");
+      col[4].push_back("?");
     }
   }
-
   // determine each column's width:
   std::vector<unsigned> width(ncols);
-  std::transform( col.begin(), col.end()
-                , width.begin()
-                , cet::column_width
+  std::transform(col.begin(), col.end()
+                 , width.begin()
+                 , cet::column_width
                 );
-
   // prepare and emit the per-product information:
-  for( unsigned row = 0, end = col[0].size(); row != end; ++row ) {
+  for (unsigned row = 0, end = col[0].size(); row != end; ++row) {
     std::string s;
-    for( unsigned c = 0, end = ncols-1; c != end; ++c ) {
-      s.append( cet::rpad(col[c][row], width[c], '.') )
-       .append( " | ");
+    for (unsigned c = 0, end = ncols - 1; c != end; ++c) {
+      s.append(cet::rpad(col[c][row], width[c], '.'))
+      .append(" | ");
     }
-    s.append( cet::lpad(col[ncols-1][row], width[ncols-1], '.') );
+    s.append(cet::lpad(col[ncols - 1][row], width[ncols - 1], '.'));
     std::cout << s << '\n';
   }
-
 }
 
 // ----------------------------------------------------------------------
 
 void
-  FileDumperOutput::writeRun( RunPrincipal const & e )
+FileDumperOutput::writeRun(RunPrincipal const & e)
 {
   // required by base class, but nothing to be done here
 }
@@ -134,7 +126,7 @@ void
 // ----------------------------------------------------------------------
 
 void
-  FileDumperOutput::writeSubRun( SubRunPrincipal const & e )
+FileDumperOutput::writeSubRun(SubRunPrincipal const & e)
 {
   // required by base class, but nothing to be done here
 }

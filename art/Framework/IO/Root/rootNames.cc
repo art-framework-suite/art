@@ -16,38 +16,46 @@ namespace {
 }
 
 // Parentage tree.
-std::string const & art::rootNames::parentageTreeName( ) {
+std::string const & art::rootNames::parentageTreeName()
+{
   return parentageTree;
 }
 
-std::string const & art::rootNames::parentageIDBranchName( ) {
+std::string const & art::rootNames::parentageIDBranchName()
+{
   return parentageIDBranch;
 }
 
-std::string const & art::rootNames::parentageBranchName( ) {
+std::string const & art::rootNames::parentageBranchName()
+{
   return parentageBranch;
 }
 
 // MetaData Tree (1 entry per file)
-std::string const & art::rootNames::metaDataTreeName( ) {
+std::string const & art::rootNames::metaDataTreeName()
+{
   return metaDataTree;
 }
 
 // EventHistory Tree
-std::string const & art::rootNames::eventHistoryTreeName( ) {
+std::string const & art::rootNames::eventHistoryTreeName()
+{
   return eventHistory;
 }
 
 // Branch on Event History Tree
-std::string const & art::rootNames::eventHistoryBranchName( ) {
+std::string const & art::rootNames::eventHistoryBranchName()
+{
   return eventHistory;
 }
 
-std::string const & art::rootNames::eventTreeName( ) {
+std::string const & art::rootNames::eventTreeName()
+{
   return events;
 }
 
-std::string const & art::rootNames::eventMetaDataTreeName( ) {
+std::string const & art::rootNames::eventMetaDataTreeName()
+{
   return eventMeta;
 }
 

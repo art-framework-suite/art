@@ -2,8 +2,9 @@
 
 namespace art {
 
-  std::ostream&
-  operator<<(std::ostream& os, ParameterSetBlob const& blob) {
+  std::ostream &
+  operator<<(std::ostream & os, ParameterSetBlob const & blob)
+  {
     os << blob.pset_;
     return os;
   }

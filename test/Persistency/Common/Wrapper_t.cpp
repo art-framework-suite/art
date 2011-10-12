@@ -10,38 +10,32 @@
 #include <iostream>
 #include <vector>
 
-class CopyNoSwappy
-{
- public:
+class CopyNoSwappy {
+public:
   CopyNoSwappy() {}
-  CopyNoSwappy(CopyNoSwappy const&) { /* std::cout << "copied\n"; */ }
-  CopyNoSwappy& operator=(CopyNoSwappy const&) { /*std::cout << "assigned\n";*/ return *this;}
- private:
+  CopyNoSwappy(CopyNoSwappy const &) { /* std::cout << "copied\n"; */ }
+  CopyNoSwappy & operator=(CopyNoSwappy const &) { /*std::cout << "assigned\n";*/ return *this;}
+private:
 };
 
-class SwappyNoCopy
-{
- public:
+class SwappyNoCopy {
+public:
   SwappyNoCopy() {}
-  void swap(SwappyNoCopy&) { /* std::cout << "swapped\n";*/ }
- private:
-  SwappyNoCopy(SwappyNoCopy const&); // not implemented
-  SwappyNoCopy& operator=(SwappyNoCopy const&); // not implemented
+  void swap(SwappyNoCopy &) { /* std::cout << "swapped\n";*/ }
+private:
+  SwappyNoCopy(SwappyNoCopy const &); // not implemented
+  SwappyNoCopy & operator=(SwappyNoCopy const &); // not implemented
 };
 
 void work()
 {
   std::auto_ptr<CopyNoSwappy> thing(new CopyNoSwappy);
   art::Wrapper<CopyNoSwappy> wrap(thing);
-
   std::auto_ptr<SwappyNoCopy> thing2(new SwappyNoCopy);
   art::Wrapper<SwappyNoCopy> wrap2(thing2);
-
-
   std::auto_ptr<std::vector<double> >
-    thing3(new std::vector<double>(10,2.2));
+  thing3(new std::vector<double>(10, 2.2));
   assert(thing3->size() == 10);
-
   art::Wrapper<std::vector<double> > wrap3(thing3);
   assert(wrap3->size() == 10);
   assert(thing3.get() == 0);
@@ -51,11 +45,11 @@ int main()
 {
   int rc = 0;
   try {
-      work();
+    work();
   }
   catch (...) {
-      rc = 1;
-      std::cerr << "Failure: unidentified exception caught\n";
+    rc = 1;
+    std::cerr << "Failure: unidentified exception caught\n";
   }
   return rc;
 }

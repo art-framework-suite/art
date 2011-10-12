@@ -26,37 +26,37 @@ namespace art {
   class ProductProvenance;
   typedef std::vector<ProductProvenance> ProductProvenances;
 
-  bool operator<(ProductProvenance const &a, ProductProvenance const &b);
-  std::ostream &operator<<(std::ostream &os, ProductProvenance const &p);
-  bool operator==(ProductProvenance const &a, ProductProvenance const &b);
-  bool operator!=(ProductProvenance const &a, ProductProvenance const &b);
+  bool operator<(ProductProvenance const & a, ProductProvenance const & b);
+  std::ostream & operator<<(std::ostream & os, ProductProvenance const & p);
+  bool operator==(ProductProvenance const & a, ProductProvenance const & b);
+  bool operator!=(ProductProvenance const & a, ProductProvenance const & b);
 }
 
 class art::ProductProvenance {
 public:
   ProductProvenance();
-  explicit ProductProvenance(BranchID const& bid);
-  ProductProvenance(BranchID const& bid,
+  explicit ProductProvenance(BranchID const & bid);
+  ProductProvenance(BranchID const & bid,
                     ProductStatus status);
-  ProductProvenance(BranchID const& bid,
+  ProductProvenance(BranchID const & bid,
                     ProductStatus status,
                     std::shared_ptr<Parentage> parentagePtr);
-  ProductProvenance(BranchID const& bid,
+  ProductProvenance(BranchID const & bid,
                     ProductStatus status,
-                    ParentageID const& id);
+                    ParentageID const & id);
 
-  ProductProvenance(BranchID const& bid,
+  ProductProvenance(BranchID const & bid,
                     ProductStatus status,
-                    std::vector<BranchID> const& parents);
+                    std::vector<BranchID> const & parents);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-  void write(std::ostream& os) const;
+  void write(std::ostream & os) const;
 
-  BranchID const& branchID() const {return branchID_;}
-  ProductStatus const& productStatus() const {return productStatus_;}
-  ParentageID const& parentageID() const {return parentageID_;}
-  Parentage const& parentage() const;
+  BranchID const & branchID() const {return branchID_;}
+  ProductStatus const & productStatus() const {return productStatus_;}
+  ParentageID const & parentageID() const {return parentageID_;}
+  Parentage const & parentage() const;
   void setStatus(ProductStatus status) const {productStatus_ = status;}
   void setPresent() const;
   void setNotPresent() const;
@@ -81,18 +81,20 @@ private:
 
 inline
 bool
-art::operator < (ProductProvenance const& a, ProductProvenance const& b) {
+art::operator < (ProductProvenance const & a, ProductProvenance const & b)
+{
   return a.branchID() < b.branchID();
 }
 
 inline
-std::ostream&
-art::operator<<(std::ostream& os, ProductProvenance const& p) {
+std::ostream &
+art::operator<<(std::ostream & os, ProductProvenance const & p)
+{
   p.write(os);
   return os;
 }
 
-inline bool art::operator!=(ProductProvenance const& a, ProductProvenance const& b) { return !(a==b); }
+inline bool art::operator!=(ProductProvenance const & a, ProductProvenance const & b) { return !(a == b); }
 
 #endif /* art_Persistency_Provenance_ProductProvenance_h */
 

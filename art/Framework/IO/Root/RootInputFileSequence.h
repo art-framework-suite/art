@@ -37,13 +37,13 @@ namespace art {
 
   class RootInputFileSequence : private boost::noncopyable {
   public:
-    explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
-                                   InputFileCatalog const& catalog,
+    explicit RootInputFileSequence(fhicl::ParameterSet const & pset,
+                                   InputFileCatalog const & catalog,
                                    bool primarySequence,
-                                   FastCloningInfoProvider const &fcip,
+                                   FastCloningInfoProvider const & fcip,
                                    InputSource::ProcessingMode pMode,
-                                   MasterProductRegistry &pReg,
-                                   ProcessConfiguration const &processConfig);
+                                   MasterProductRegistry & pReg,
+                                   ProcessConfiguration const & processConfig);
     virtual ~RootInputFileSequence();
 
     typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
@@ -51,17 +51,17 @@ namespace art {
     std::auto_ptr<EventPrincipal> readEvent_();
     std::shared_ptr<SubRunPrincipal> readSubRun_(std::shared_ptr<RunPrincipal> rp);
     std::shared_ptr<RunPrincipal> readRun_();
-    std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);
+    std::shared_ptr<FileBlock> readFile_(MasterProductRegistry &);
     void closeFile_();
     void endJob();
     input::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, MasterProductRegistry& mpr, bool exact = false);
-    std::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp);
-    std::shared_ptr<RunPrincipal> readIt(RunID const& run);
-    void skip(int offset, MasterProductRegistry&);
+    std::auto_ptr<EventPrincipal> readIt(EventID const & id, MasterProductRegistry & mpr, bool exact = false);
+    std::shared_ptr<SubRunPrincipal> readIt(SubRunID const & id, std::shared_ptr<RunPrincipal> rp);
+    std::shared_ptr<RunPrincipal> readIt(RunID const & run);
+    void skip(int offset, MasterProductRegistry &);
     void rewind_();
-    EventID seekToEvent(EventID const &eID, bool exact = false);
-    EventID seekToEvent(off_t offset, MasterProductRegistry& mpr, bool exact = false);
+    EventID seekToEvent(EventID const & eID, bool exact = false);
+    EventID seekToEvent(off_t offset, MasterProductRegistry & mpr, bool exact = false);
     RootInputFileSharedPtr rootFileForLastReadEvent() const {
       return rootFileForLastReadEvent_;
     }
@@ -71,17 +71,17 @@ namespace art {
 
   private:
     void initFile(bool skipBadFiles);
-    bool nextFile(MasterProductRegistry&);
-    bool previousFile(MasterProductRegistry&);
+    bool nextFile(MasterProductRegistry &);
+    bool previousFile(MasterProductRegistry &);
     void rewindFile();
     std::auto_ptr<EventPrincipal> readCurrentEvent();
-    std::vector<FileCatalogItem> const& fileCatalogItems() const;
+    std::vector<FileCatalogItem> const & fileCatalogItems() const;
 
-    ProcessConfiguration const& processConfiguration() const;
+    ProcessConfiguration const & processConfiguration() const;
     bool primary() const;
-    void logFileAction(const char* msg, std::string const& file);
+    void logFileAction(const char * msg, std::string const & file);
 
-    InputFileCatalog const& catalog_;
+    InputFileCatalog const & catalog_;
     bool firstFile_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
@@ -108,7 +108,7 @@ namespace art {
     RootInputFileSharedPtr rootFileForLastReadEvent_;
     FastCloningInfoProvider fastCloningInfo_;
     InputSource::ProcessingMode processingMode_;
-    ProcessConfiguration const &processConfiguration_;
+    ProcessConfiguration const & processConfiguration_;
   };  // RootInputFileSequence
 
 }  // art

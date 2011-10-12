@@ -34,19 +34,19 @@ namespace art {
 
   typedef art::detail::CachedProducts::handle_t Trig;
 
-  std::vector<std::string> const& getAllTriggerNames();
+  std::vector<std::string> const & getAllTriggerNames();
 
   class OutputModule : public EventObserver,
-     private boost::noncopyable {
+    private boost::noncopyable {
   public:
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 
-    explicit OutputModule(fhicl::ParameterSet const& pset);
+    explicit OutputModule(fhicl::ParameterSet const & pset);
     virtual ~OutputModule();
-    void reconfigure(fhicl::ParameterSet const&);
+    void reconfigure(fhicl::ParameterSet const &);
     // Accessor for maximum number of events to be written.
     // -1 is used for unlimited.
     int maxEvents() const {return maxEvents_;}
@@ -55,23 +55,23 @@ namespace art {
     // -1 is used for unlimited.
     int remainingEvents() const {return remainingEvents_;}
 
-    bool selected(BranchDescription const& desc) const;
+    bool selected(BranchDescription const & desc) const;
 
-    std::string const& processName() const {return process_name_;}
-    SelectionsArray const& keptProducts() const {return keptProducts_;}
-    std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
+    std::string const & processName() const {return process_name_;}
+    SelectionsArray const & keptProducts() const {return keptProducts_;}
+    std::array<bool, NumBranchTypes> const & hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
-    BranchChildren const& branchChildren() const {return branchChildren_;}
+    BranchChildren const & branchChildren() const {return branchChildren_;}
 
   protected:
     //const Trig& getTriggerResults(Event const& ep) const;
-    Trig getTriggerResults(Event const& ep) const;
+    Trig getTriggerResults(Event const & ep) const;
 
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('write').
-    CurrentProcessingContext const* currentContext() const;
+    CurrentProcessingContext const * currentContext() const;
 
-    ModuleDescription const& description() const;
+    ModuleDescription const & description() const;
 
     bool wantAllEvents() const {return wantAllEvents_;}
 
@@ -106,7 +106,7 @@ namespace art {
     ModuleDescription moduleDescription_;
 
     // We do not own the pointed-to CurrentProcessingContext.
-    CurrentProcessingContext const* current_context_;
+    CurrentProcessingContext const * current_context_;
 
     //This will store TriggerResults objects for the current event.
     // mutable std::vector<Trig> prods_;
@@ -126,27 +126,27 @@ namespace art {
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
-    void configure(OutputModuleDescription const& desc);
+    void configure(OutputModuleDescription const & desc);
     void selectProducts();
     void doBeginJob();
     void doEndJob();
-    bool doEvent(EventPrincipal const& ep,
-                    CurrentProcessingContext const* cpc);
-    bool doBeginRun(RunPrincipal const& rp,
-                    CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp,
-                    CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp,
-                    CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp,
-                    CurrentProcessingContext const* cpc);
-    void doWriteRun(RunPrincipal const& rp);
-    void doWriteSubRun(SubRunPrincipal const& srp);
-    void doOpenFile(FileBlock const& fb);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
+    bool doEvent(EventPrincipal const & ep,
+                 CurrentProcessingContext const * cpc);
+    bool doBeginRun(RunPrincipal const & rp,
+                    CurrentProcessingContext const * cpc);
+    bool doEndRun(RunPrincipal const & rp,
+                  CurrentProcessingContext const * cpc);
+    bool doBeginSubRun(SubRunPrincipal const & srp,
+                       CurrentProcessingContext const * cpc);
+    bool doEndSubRun(SubRunPrincipal const & srp,
+                     CurrentProcessingContext const * cpc);
+    void doWriteRun(RunPrincipal const & rp);
+    void doWriteSubRun(SubRunPrincipal const & srp);
+    void doOpenFile(FileBlock const & fb);
+    void doRespondToOpenInputFile(FileBlock const & fb);
+    void doRespondToCloseInputFile(FileBlock const & fb);
+    void doRespondToOpenOutputFiles(FileBlock const & fb);
+    void doRespondToCloseOutputFiles(FileBlock const & fb);
 
     std::string workerType() const {return "OutputWorker";}
 
@@ -165,30 +165,30 @@ namespace art {
     // Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}
 
-    virtual void write(EventPrincipal const& e) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const& r){}
-    virtual void endRun(RunPrincipal const& r){}
-    virtual void writeRun(RunPrincipal const& r) = 0;
-    virtual void beginSubRun(SubRunPrincipal const& sr){}
-    virtual void endSubRun(SubRunPrincipal const& sr){}
-    virtual void writeSubRun(SubRunPrincipal const& sr) = 0;
-    virtual void openFile(FileBlock const& fb) {}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void write(EventPrincipal const & e) = 0;
+    virtual void beginJob() {}
+    virtual void endJob() {}
+    virtual void beginRun(RunPrincipal const & r) {}
+    virtual void endRun(RunPrincipal const & r) {}
+    virtual void writeRun(RunPrincipal const & r) = 0;
+    virtual void beginSubRun(SubRunPrincipal const & sr) {}
+    virtual void endSubRun(SubRunPrincipal const & sr) {}
+    virtual void writeSubRun(SubRunPrincipal const & sr) = 0;
+    virtual void openFile(FileBlock const & fb) {}
+    virtual void respondToOpenInputFile(FileBlock const & fb) {}
+    virtual void respondToCloseInputFile(FileBlock const & fb) {}
+    virtual void respondToOpenOutputFiles(FileBlock const & fb) {}
+    virtual void respondToCloseOutputFiles(FileBlock const & fb) {}
 
     virtual bool isFileOpen() const { return true; }
 
     virtual void doOpenFile() { }
 
-    void setModuleDescription(ModuleDescription const& md) {
+    void setModuleDescription(ModuleDescription const & md) {
       moduleDescription_ = md;
     }
 
-    void updateBranchParents(EventPrincipal const& ep);
+    void updateBranchParents(EventPrincipal const & ep);
     void fillDependencyGraph();
 
     bool limitReached() const {return remainingEvents_ == 0;}

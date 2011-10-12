@@ -20,31 +20,28 @@ namespace arttest {
 using arttest::BareStringProducer;
 
 class arttest::BareStringProducer
-  : public art::EDProducer
-{
+    : public art::EDProducer {
 public:
-  explicit BareStringProducer( fhicl::ParameterSet const& p )
-    : value_( p.get<std::string>("value") )
-  {
+  explicit BareStringProducer(fhicl::ParameterSet const & p)
+    : value_(p.get<std::string>("value")) {
     produces<std::string>();
   }
 
-  explicit BareStringProducer( std::string const &s )
-  : value_(s)
-  {
+  explicit BareStringProducer(std::string const & s)
+    : value_(s) {
     produces<std::string>();
   }
 
   virtual ~BareStringProducer() { }
 
-  virtual void produce( art::Event& e );
+  virtual void produce(art::Event & e);
 
 private:
   std::string value_;
 };  // BareStringProducer
 
 void
-BareStringProducer::produce( art::Event& e )
+BareStringProducer::produce(art::Event & e)
 {
   std::cerr << "Holy cow, BareStringProducer::produce is running!\n";
   std::auto_ptr<std::string> p(new std::string(value_));

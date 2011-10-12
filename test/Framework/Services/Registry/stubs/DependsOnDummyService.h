@@ -25,28 +25,27 @@
 
 // forward declarations
 namespace testserviceregistry {
-   class DependsOnDummyService
-   {
+  class DependsOnDummyService {
 
-   public:
-      DependsOnDummyService();
-      virtual ~DependsOnDummyService();
+  public:
+    DependsOnDummyService();
+    virtual ~DependsOnDummyService();
 
-      // ---------- const member functions ---------------------
-      int value() const { return value_; }
+    // ---------- const member functions ---------------------
+    int value() const { return value_; }
 
-      // ---------- static member functions --------------------
+    // ---------- static member functions --------------------
 
-      // ---------- member functions ---------------------------
+    // ---------- member functions ---------------------------
 
-   private:
-      DependsOnDummyService(const DependsOnDummyService&); // stop default
+  private:
+    DependsOnDummyService(const DependsOnDummyService &); // stop default
 
-      const DependsOnDummyService& operator=(const DependsOnDummyService&); // stop default
+    const DependsOnDummyService & operator=(const DependsOnDummyService &); // stop default
 
-      // ---------- member data --------------------------------
-      int value_;
-   };
+    // ---------- member data --------------------------------
+    int value_;
+  };
 }
 
 #endif /* test_Framework_Services_Registry_stubs_DependsOnDummyService_h */

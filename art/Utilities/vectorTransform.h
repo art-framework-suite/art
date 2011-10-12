@@ -21,24 +21,24 @@ namespace art {
 
   namespace {
     template< class From, class To >
-      inline To
-      cast_one( From value )
+    inline To
+    cast_one(From value)
     {
-      return static_cast<To>( value );
+      return static_cast<To>(value);
     }
   }  // namespace
 
   template< class From, class To >
-    inline void
-    vectorTransform( std::vector<From> const & in
-                   , std::vector<To>         & out
-                   )
+  inline void
+  vectorTransform(std::vector<From> const & in
+                  , std::vector<To>         & out
+                 )
   {
     out.clear();
-    out.reserve( in.size() );
-    std::transform( in.begin(), in.end()
-                  , std::back_inserter(out)
-                  , cast_one<From,To>
+    out.reserve(in.size());
+    std::transform(in.begin(), in.end()
+                   , std::back_inserter(out)
+                   , cast_one<From, To>
                   );
   }  // vectorTransform<,>()
 

@@ -34,8 +34,8 @@ namespace art {
       branchChildren_(new BranchChildren)
     {}
 
-    FileBlock(FileFormatVersion const& version,
-              std::string const& fileName) :
+    FileBlock(FileFormatVersion const & version,
+              std::string const & fileName) :
       fileFormatVersion_(version),
       tree_(0),
       metaTree_(0),
@@ -48,12 +48,12 @@ namespace art {
       branchChildren_(new BranchChildren)
     {}
 
-    FileBlock(FileFormatVersion const& version,
-              TTree const* ev, TTree const* meta,
-              TTree const* subRun, TTree const* subRunMeta,
-              TTree const* run, TTree const* runMeta,
+    FileBlock(FileFormatVersion const & version,
+              TTree const * ev, TTree const * meta,
+              TTree const * subRun, TTree const * subRunMeta,
+              TTree const * run, TTree const * runMeta,
               bool fastCopy,
-              std::string const& fileName,
+              std::string const & fileName,
               std::shared_ptr<BranchChildren> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree *>(ev)),
@@ -68,7 +68,7 @@ namespace art {
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
+    FileFormatVersion const & fileFormatVersion() const {return fileFormatVersion_;}
     TTree * tree() const {return tree_;}
     TTree * metaTree() const {return metaTree_;}
     TTree * subRunTree() const {return subRunTree_;}
@@ -77,10 +77,10 @@ namespace art {
     TTree * runMetaTree() const {return runMetaTree_;}
 
     bool fastClonable() const {return fastCopyable_;}
-    std::string const& fileName() const {return fileName_;}
+    std::string const & fileName() const {return fileName_;}
 
     void setNotFastCopyable() {fastCopyable_ = false;}
-    BranchChildren const& branchChildren() const { return *branchChildren_; }
+    BranchChildren const & branchChildren() const { return *branchChildren_; }
 
   private:
     FileFormatVersion fileFormatVersion_;

@@ -184,14 +184,13 @@ namespace CLHEP {
 
 // ======================================================================
 
-class art::RandomNumberGenerator
-{
+class art::RandomNumberGenerator {
   friend class EngineCreator;
   friend class RandomNumberSaver;
 
   // --- Prevent copying:
-  RandomNumberGenerator( RandomNumberGenerator const & );
-  void  operator = ( RandomNumberGenerator const & );
+  RandomNumberGenerator(RandomNumberGenerator const &);
+  void  operator = (RandomNumberGenerator const &);
 
 public:
   // --- CLHEP engine characteristics:
@@ -200,57 +199,57 @@ public:
   typedef  RNGsnapshot::engine_state_t       engine_state_t;
 
   // --- Internal state characteristics:
-  enum     init_t  { VIA_SEED=1, VIA_FILE, VIA_PRODUCT };
+  enum     init_t  { VIA_SEED = 1, VIA_FILE, VIA_PRODUCT };
   typedef  RNGsnapshot::label_t              label_t;
   typedef  std::shared_ptr<base_engine_t>    eptr_t;
-  typedef  std::map<label_t,eptr_t>          dict_t;
-  typedef  std::map<label_t,init_t>          tracker_t;
-  typedef  std::map<label_t,std::string>     kind_t;
+  typedef  std::map<label_t, eptr_t>          dict_t;
+  typedef  std::map<label_t, init_t>          tracker_t;
+  typedef  std::map<label_t, std::string>     kind_t;
   typedef  std::vector<RNGsnapshot>          snapshot_t;
 
   // --- C'tor/d'tor:
-  RandomNumberGenerator( fhicl::ParameterSet const &
-                       , art::ActivityRegistry     &
+  RandomNumberGenerator(fhicl::ParameterSet const &
+                        , art::ActivityRegistry     &
                        );
 
   // use compiler-generated d'tor
 
   // --- Engine access:
-  base_engine_t &  getEngine( ) const;
-  base_engine_t &  getEngine( label_t const &  engine_label ) const;
+  base_engine_t  & getEngine() const;
+  base_engine_t  & getEngine(label_t const  & engine_label) const;
 
 private:
   // --- Engine establishment:
   base_engine_t &
-    createEngine( seed_t  seed );
+  createEngine(seed_t  seed);
   base_engine_t &
-    createEngine( seed_t               seed
-                , std::string const &  kind_of_engine_to_make
-                );
+  createEngine(seed_t               seed
+               , std::string const  & kind_of_engine_to_make
+              );
   base_engine_t &
-    createEngine( seed_t               seed
-                , std::string          kind_of_engine_to_make
-                , label_t const &      engine_label
-                );
+  createEngine(seed_t               seed
+               , std::string          kind_of_engine_to_make
+               , label_t const    &   engine_label
+              );
 
   // --- Snapshot management helpers:
-  void  takeSnapshot_( );
-  void  restoreSnapshot_( art::Event const & );
-  snapshot_t const &  accessSnapshot_( )  { return snapshot_; }
+  void  takeSnapshot_();
+  void  restoreSnapshot_(art::Event const &);
+  snapshot_t const  & accessSnapshot_()  { return snapshot_; }
 
   // --- File management helpers:
-  void  saveToFile_     ( );
-  void  restoreFromFile_( );
+  void  saveToFile_();
+  void  restoreFromFile_();
 
   // --- Debugging helpers:
-  void  print_( );
-  bool  invariant_holds_( );
+  void  print_();
+  bool  invariant_holds_();
 
   // --- Callbacks:
-  void  preProcessEvent( art::Event const & );
-  void  postProcessEvent( art::Event const & );
-  void  postBeginJob( );
-  void  postEndJob( );
+  void  preProcessEvent(art::Event const &);
+  void  postProcessEvent(art::Event const &);
+  void  postBeginJob();
+  void  postEndJob();
 
   // --- Guard against tardy engine creation:
   bool  engine_creation_is_okay_;

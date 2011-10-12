@@ -16,7 +16,7 @@ public:
 
   // FIXME: One could obviate the need for this trivial implementation
   // by putting some type logic in WorkerT.
-  void registerProducts(MasterProductRegistry&, ModuleDescription const &) {}
+  void registerProducts(MasterProductRegistry &, ModuleDescription const &) {}
 
 protected:
   virtual ~EventObserver();

@@ -33,12 +33,12 @@ namespace art {
 
   class BranchDescription;
 
-  std::ostream& operator << (std::ostream& os, BranchDescription const& p);
+  std::ostream & operator << (std::ostream & os, BranchDescription const & p);
 
-  bool operator <  (BranchDescription const& a, BranchDescription const& b);
-  bool operator == (BranchDescription const& a, BranchDescription const& b);
+  bool operator < (BranchDescription const & a, BranchDescription const & b);
+  bool operator == (BranchDescription const & a, BranchDescription const & b);
 
-  bool combinable(BranchDescription const& a, BranchDescription const& b);
+  bool combinable(BranchDescription const & a, BranchDescription const & b);
 
   namespace detail {
     class BranchDescriptionStreamer;
@@ -46,10 +46,10 @@ namespace art {
   }
 
   // Declared below due to use of nested type:
-//   std::string match(BranchDescription const& a,
-//                     BranchDescription const& b,
-//                     std::string const& fileName,
-//                     BranchDescription::MatchMode m);
+  //   std::string match(BranchDescription const& a,
+  //                     BranchDescription const& b,
+  //                     std::string const& fileName,
+  //                     BranchDescription::MatchMode m);
 
 }
 
@@ -60,23 +60,24 @@ public:
   static int const invalidSplitLevel = -1;
   static int const invalidBasketSize = 0;
   enum MatchMode { Strict = 0,
-                   Permissive };
+                   Permissive
+                 };
 
   BranchDescription();
 
-  BranchDescription(TypeLabel const &tl,
-                    ModuleDescription const& modDesc);
+  BranchDescription(TypeLabel const & tl,
+                    ModuleDescription const & modDesc);
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-  void write(std::ostream& os) const;
+  void write(std::ostream & os) const;
 
-  std::string const& moduleLabel() const {return moduleLabel_;}
-  std::string const& processName() const {return processName_;}
-  BranchID const& branchID() const {return branchID_;}
-  std::string const& producedClassName() const {return producedClassName_;}
-  std::string const& friendlyClassName() const {return friendlyClassName_;}
-  std::string const& productInstanceName() const {return productInstanceName_;}
+  std::string const & moduleLabel() const {return moduleLabel_;}
+  std::string const & processName() const {return processName_;}
+  BranchID const & branchID() const {return branchID_;}
+  std::string const & producedClassName() const {return producedClassName_;}
+  std::string const & friendlyClassName() const {return friendlyClassName_;}
+  std::string const & productInstanceName() const {return productInstanceName_;}
 
   bool const & produced() const {return guts().produced_;}
   bool const & present() const {return guts().present_;}
@@ -84,16 +85,16 @@ public:
 
   int const & splitLevel() const {return guts().splitLevel_;}
   int const & basketSize() const {return guts().basketSize_;}
-  fhicl::ParameterSetID const& parameterSetID() const {return guts().parameterSetID_;}
-  std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
-  std::string const &branchName() const {return guts().branchName_;}
-  BranchType const &branchType() const {return branchType_;}
-  std::string const &wrappedName() const {return guts().wrappedName_;}
-  std::string const &wrappedCintName() const {return guts().wrappedCintName_;}
+  fhicl::ParameterSetID const & parameterSetID() const {return guts().parameterSetID_;}
+  std::set<fhicl::ParameterSetID> const & psetIDs() const {return psetIDs_;}
+  std::string const & branchName() const {return guts().branchName_;}
+  BranchType const & branchType() const {return branchType_;}
+  std::string const & wrappedName() const {return guts().wrappedName_;}
+  std::string const & wrappedCintName() const {return guts().wrappedCintName_;}
 
-  void merge(BranchDescription const& other);
+  void merge(BranchDescription const & other);
   void setPresent(bool isPresent) {guts().present_ = isPresent;}
-  void swap(BranchDescription &other);
+  void swap(BranchDescription & other);
 
   friend bool combinable(BranchDescription const &, BranchDescription const &);
   friend std::string match(BranchDescription const &,
@@ -150,13 +151,13 @@ private:
   void initBranchID_();
   void fluffTransients_() const;
 
-  fhicl::ParameterSetID const& psetID() const;
+  fhicl::ParameterSetID const & psetID() const;
   bool isPsetIDUnique() const {return psetIDs().size() == 1;}
-  std::set<ProcessConfigurationID> const& processConfigurationIDs() const {return processConfigurationIDs_;}
+  std::set<ProcessConfigurationID> const & processConfigurationIDs() const {return processConfigurationIDs_;}
   void updateFriendlyClassName();
 
-  Transients &guts() {return transients_.get(); }
-  Transients const &guts() const {return transients_.get(); }
+  Transients & guts() {return transients_.get(); }
+  Transients const & guts() const {return transients_.get(); }
 
   void throwIfInvalid_() const;
 
@@ -196,18 +197,18 @@ private:
 
 class art::detail::BranchDescriptionStreamer : public TClassStreamer {
 public:
-  void operator()(TBuffer &R_b, void *objp);
+  void operator()(TBuffer & R_b, void * objp);
 };
 
 namespace art {
-  std::string match(BranchDescription const& a,
-                    BranchDescription const& b,
-                    std::string const& fileName,
+  std::string match(BranchDescription const & a,
+                    BranchDescription const & b,
+                    std::string const & fileName,
                     BranchDescription::MatchMode m);
 }
 
-inline std::ostream&
-  art::operator<<(std::ostream& os, BranchDescription const& p)
+inline std::ostream &
+art::operator<<(std::ostream & os, BranchDescription const & p)
 {
   p.write(os);
   return os;

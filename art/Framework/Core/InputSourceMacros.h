@@ -4,12 +4,12 @@
 #include "art/Framework/Core/InputSource.h"
 
 #define DEFINE_ART_INPUT_SOURCE(klass) \
-   extern "C" { \
-      std::auto_ptr<art::InputSource> \
-         make(fhicl::ParameterSet const &ps, \
-              art::InputSourceDescription &desc) \
-         { return std::auto_ptr<art::InputSource>(new klass(ps, desc)); } \
-   }
+  extern "C" { \
+    std::auto_ptr<art::InputSource> \
+    make(fhicl::ParameterSet const &ps, \
+         art::InputSourceDescription &desc) \
+    { return std::auto_ptr<art::InputSource>(new klass(ps, desc)); } \
+  }
 
 #endif /* art_Framework_Core_InputSourceMacros_h */
 

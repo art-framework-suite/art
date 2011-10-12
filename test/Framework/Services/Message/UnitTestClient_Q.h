@@ -12,58 +12,53 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-class UTC_Q1
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_Q1( fhicl::ParameterSet const & p)
-  {
-    identifier = p.get<int> ("identifier", 99);
-    art::GroupLogStatistics("timer");  // these lines would normally be in
-    art::GroupLogStatistics("trace");  // whatever service knows that
-                                       // timer and trace should be groupd
-                                       // by moduels for statistics
-  }
+  class UTC_Q1
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_Q1(fhicl::ParameterSet const & p) {
+      identifier = p.get<int> ("identifier", 99);
+      art::GroupLogStatistics("timer");  // these lines would normally be in
+      art::GroupLogStatistics("trace");  // whatever service knows that
+      // timer and trace should be groupd
+      // by moduels for statistics
+    }
 
-  virtual
+    virtual
     ~UTC_Q1()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  int identifier;
-};
+  private:
+    int identifier;
+  };
 
-class UTC_Q2
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_Q2( fhicl::ParameterSet const & p)
-  {
-    identifier = p.get<int> ("identifier", 98);
-  }
+  class UTC_Q2
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_Q2(fhicl::ParameterSet const & p) {
+      identifier = p.get<int> ("identifier", 98);
+    }
 
-  virtual
+    virtual
     ~UTC_Q2()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  int identifier;
-};
+  private:
+    int identifier;
+  };
 
 
 }  // arttest

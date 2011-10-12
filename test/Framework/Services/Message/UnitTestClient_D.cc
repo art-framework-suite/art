@@ -6,23 +6,21 @@
 #include <string>
 #include <iomanip>
 
-namespace arttest
-{
+namespace arttest {
 
 
-void
-  UnitTestClient_D::analyze( art::Event      const & e
-                           , art::EventSetup const & /*unused*/
-                              )
-{
-  mf::LogWarning("cat_A")   << "This message should not appear in "
-                             << "the framework job report";
-  mf::LogWarning("FwkJob")  << "<Message>This message should appear in "
-                             << "the framework job report</Message>";
-  mf::LogWarning("special") << "This message should appear in "
-                             << "restrict but the others should not";
-
-}  // MessageLoggerClient::analyze()
+  void
+  UnitTestClient_D::analyze(art::Event      const & e
+                            , art::EventSetup const & /*unused*/
+                           )
+  {
+    mf::LogWarning("cat_A")   << "This message should not appear in "
+                              << "the framework job report";
+    mf::LogWarning("FwkJob")  << "<Message>This message should appear in "
+                              << "the framework job report</Message>";
+    mf::LogWarning("special") << "This message should appear in "
+                              << "restrict but the others should not";
+  }  // MessageLoggerClient::analyze()
 
 
 }  // arttest

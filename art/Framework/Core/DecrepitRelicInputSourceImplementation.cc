@@ -31,16 +31,17 @@ using fhicl::ParameterSet;
 namespace art {
 
   namespace {
-    std::string const& suffix(int count) {
+    std::string const & suffix(int count)
+    {
       static std::string const st("st");
       static std::string const nd("nd");
       static std::string const rd("rd");
       static std::string const th("th");
       // *0, *4 - *9 use "th".
       int lastDigit = count % 10;
-      if (lastDigit >= 4 || lastDigit == 0) return th;
+      if (lastDigit >= 4 || lastDigit == 0) { return th; }
       // *11, *12, or *13 use "th".
-      if (count % 100 - lastDigit == 10) return th;
+      if (count % 100 - lastDigit == 10) { return th; }
       return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
     }
   }  // namespace
@@ -50,21 +51,21 @@ namespace art {
   DecrepitRelicInputSourceImplementation::
   DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
                                          InputSourceDescription & desc)
-    : ProductRegistryHelper( )
-    , boost::noncopyable   ( )
-//    , actReg_              ( desc.activityRegistry )
-    , maxEvents_           ( pset.get<int>("maxEvents", -1) )
-    , remainingEvents_     ( maxEvents_ )
-    , maxSubRuns_          ( pset.get<int>("maxSubRuns", -1) )
-    , remainingSubRuns_    ( maxSubRuns_ )
-    , readCount_           ( 0 )
-    , processingMode_      ( RunsSubRunsAndEvents )
-    , moduleDescription_   ( desc.moduleDescription )
-    , time_                ( )
-    , doneReadAhead_       ( false )
-    , state_               ( input::IsInvalid )
-    , runPrincipal_        ( )
-    , subRunPrincipal_     ( )
+    : ProductRegistryHelper()
+    , boost::noncopyable()
+    //    , actReg_              ( desc.activityRegistry )
+    , maxEvents_(pset.get<int>("maxEvents", -1))
+    , remainingEvents_(maxEvents_)
+    , maxSubRuns_(pset.get<int>("maxSubRuns", -1))
+    , remainingSubRuns_(maxSubRuns_)
+    , readCount_(0)
+    , processingMode_(RunsSubRunsAndEvents)
+    , moduleDescription_(desc.moduleDescription)
+    , time_()
+    , doneReadAhead_(false)
+    , state_(input::IsInvalid)
+    , runPrincipal_()
+    , subRunPrincipal_()
   {
     std::string const defaultMode("RunsSubRunsAndEvents");
     std::string const runMode("Runs");
@@ -79,35 +80,34 @@ namespace art {
     }
     else if (processingMode != defaultMode) {
       throw art::Exception(art::errors::Configuration)
-        << "DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation()\n"
-        << "The 'processingMode' parameter for sources has an illegal value '"
-        << processingMode << "'\n"
-        << "Legal values are '" << defaultMode
-        << "', '" << runSubRunMode
-        << "', or '" << runMode << "'.\n";
+          << "DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation()\n"
+          << "The 'processingMode' parameter for sources has an illegal value '"
+          << processingMode << "'\n"
+          << "Legal values are '" << defaultMode
+          << "', '" << runSubRunMode
+          << "', or '" << runMode << "'.\n";
     }
-
     // This must come LAST in the constructor.
     registerProducts(desc.productRegistry, moduleDescription_);
   }
 
 
   void
-  DecrepitRelicInputSourceImplementation::commitEvent(art::Event &e)
+  DecrepitRelicInputSourceImplementation::commitEvent(art::Event & e)
   {
     e.commit_();
   }
 
 
   void
-  DecrepitRelicInputSourceImplementation::commitRun(art::Run &r)
+  DecrepitRelicInputSourceImplementation::commitRun(art::Run & r)
   {
     r.commit_();
   }
 
 
   void
-  DecrepitRelicInputSourceImplementation::commitSubRun(art::SubRun &sr)
+  DecrepitRelicInputSourceImplementation::commitSubRun(art::SubRun & sr)
   {
     sr.commit_();
   }
@@ -126,7 +126,8 @@ namespace art {
   // done for a source, the 'if' blocks in this function will never be
   // entered for that source.
   input::ItemType
-  DecrepitRelicInputSourceImplementation::nextItemType_() {
+  DecrepitRelicInputSourceImplementation::nextItemType_()
+  {
     input::ItemType itemType = getNextItemType();
     if (itemType == input::IsEvent && processingMode() != RunsSubRunsAndEvents) {
       readEvent_();
@@ -140,7 +141,8 @@ namespace art {
   }
 
   input::ItemType
-  DecrepitRelicInputSourceImplementation::nextItemType() {
+  DecrepitRelicInputSourceImplementation::nextItemType()
+  {
     if (doneReadAhead_) {
       return state_;
     }
@@ -200,18 +202,20 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::doBeginJob() {
+  DecrepitRelicInputSourceImplementation::doBeginJob()
+  {
     beginJob();
   }
 
   void
-  DecrepitRelicInputSourceImplementation::doEndJob() {
+  DecrepitRelicInputSourceImplementation::doEndJob()
+  {
     endJob();
   }
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry& mpr)
+  DecrepitRelicInputSourceImplementation::readFile(MasterProductRegistry & mpr)
   {
     assert(doneReadAhead_);
     assert(state_ == input::IsFile);
@@ -222,7 +226,8 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::closeFile() {
+  DecrepitRelicInputSourceImplementation::closeFile()
+  {
     return closeFile_();
   }
 
@@ -231,12 +236,14 @@ namespace art {
   // containing Products. Such a function should update the MasterProductRegistry
   // to reflect the products found in this new file.
   std::shared_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::readFile_(MasterProductRegistry&) {
+  DecrepitRelicInputSourceImplementation::readFile_(MasterProductRegistry &)
+  {
     return std::shared_ptr<FileBlock>(new FileBlock);
   }
 
   std::shared_ptr<RunPrincipal>
-  DecrepitRelicInputSourceImplementation::readRun() {
+  DecrepitRelicInputSourceImplementation::readRun()
+  {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
@@ -248,7 +255,8 @@ namespace art {
   }
 
   std::shared_ptr<SubRunPrincipal>
-  DecrepitRelicInputSourceImplementation::readSubRun(std::shared_ptr<RunPrincipal> rp) {
+  DecrepitRelicInputSourceImplementation::readSubRun(std::shared_ptr<RunPrincipal> rp)
+  {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of subRuns
     // (e.g. beginSubRun(), endSubRun())
@@ -263,12 +271,12 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(std::shared_ptr<SubRunPrincipal> srp) {
+  DecrepitRelicInputSourceImplementation::readEvent(std::shared_ptr<SubRunPrincipal> srp)
+  {
     assert(doneReadAhead_);
     assert(state_ == input::IsEvent);
     assert(!eventLimitReached());
     doneReadAhead_ = false;
-
     preRead();
     std::auto_ptr<EventPrincipal> result = readEvent_();
     assert(srp->run() == result->run());
@@ -277,7 +285,7 @@ namespace art {
     if (result.get() != 0) {
       Event event(*result, moduleDescription());
       postRead(event);
-      if (remainingEvents_ > 0) --remainingEvents_;
+      if (remainingEvents_ > 0) { --remainingEvents_; }
       ++readCount_;
       setTimestamp(result->time());
       issueReports(result->id());
@@ -286,48 +294,54 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(EventID const& eventID) {
+  DecrepitRelicInputSourceImplementation::readEvent(EventID const & eventID)
+  {
     throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::readIt()\n"
-      << "Random access is not implemented for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
+        << "DecrepitRelicInputSourceImplementation::readIt()\n"
+        << "Random access is not implemented for this type of Input Source\n"
+        << "Contact a Framework Developer\n";
   }
 
   void
-  DecrepitRelicInputSourceImplementation::skipEvents(int offset) {
+  DecrepitRelicInputSourceImplementation::skipEvents(int offset)
+  {
     this->skip(offset);
   }
 
   void
-  DecrepitRelicInputSourceImplementation::issueReports(EventID const& eventID) {
+  DecrepitRelicInputSourceImplementation::issueReports(EventID const & eventID)
+  {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+    strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
     mf::LogVerbatim("ArtReport")
-      << "Begin processing the " << readCount_
-      << suffix(readCount_) << " record. " << eventID
-      << " at " << ts;
+        << "Begin processing the " << readCount_
+        << suffix(readCount_) << " record. " << eventID
+        << " at " << ts;
     // At some point we may want to initiate checkpointing here
   }
 
   void
-  DecrepitRelicInputSourceImplementation::skip(int) {
+  DecrepitRelicInputSourceImplementation::skip(int)
+  {
     throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::skip()\n"
-      << "Random access is not implemented for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
+        << "DecrepitRelicInputSourceImplementation::skip()\n"
+        << "Random access is not implemented for this type of Input Source\n"
+        << "Contact a Framework Developer\n";
   }
 
   void
-  DecrepitRelicInputSourceImplementation::rewind_() {
+  DecrepitRelicInputSourceImplementation::rewind_()
+  {
     throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::rewind()\n"
-      << "Rewind is not implemented for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
+        << "DecrepitRelicInputSourceImplementation::rewind()\n"
+        << "Rewind is not implemented for this type of Input Source\n"
+        << "Contact a Framework Developer\n";
   }
 
   void
-  DecrepitRelicInputSourceImplementation::preRead() {  // roughly corresponds to "end of the prev event"
+  DecrepitRelicInputSourceImplementation::preRead()    // roughly corresponds to "end of the prev event"
+  {
 #ifdef RNGS
     ServiceHandle<RandomNumberGenerator> rng;
     if (rng.isAvailable()) {
@@ -337,7 +351,8 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::postRead(Event& event) {
+  DecrepitRelicInputSourceImplementation::postRead(Event & event)
+  {
 #ifdef RNGS
     ServiceHandle<RandomNumberGenerator> rng;
     if (rng.isAvailable()) {
@@ -347,7 +362,8 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::doEndRun(RunPrincipal& rp) {
+  DecrepitRelicInputSourceImplementation::doEndRun(RunPrincipal & rp)
+  {
     rp.setEndTime(time_);
     Run run(rp, moduleDescription());
     endRun(run);
@@ -355,7 +371,8 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::doEndSubRun(SubRunPrincipal & srp) {
+  DecrepitRelicInputSourceImplementation::doEndSubRun(SubRunPrincipal & srp)
+  {
     srp.setEndTime(time_);
     SubRun sr(srp, moduleDescription());
     endSubRun(sr);
@@ -378,13 +395,15 @@ namespace art {
   DecrepitRelicInputSourceImplementation::endJob() { }
 
   RunNumber_t
-  DecrepitRelicInputSourceImplementation::run() const {
+  DecrepitRelicInputSourceImplementation::run() const
+  {
     assert(runPrincipal());
     return runPrincipal()->run();
   }
 
   SubRunNumber_t
-  DecrepitRelicInputSourceImplementation::subRun() const {
+  DecrepitRelicInputSourceImplementation::subRun() const
+  {
     assert(subRunPrincipal());
     return subRunPrincipal()->subRun();
   }

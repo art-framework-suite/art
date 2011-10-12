@@ -7,11 +7,9 @@
 #include <iosfwd>
 #include <string>
 
-namespace art
-{
+namespace art {
 
-  struct MD5Result
-  {
+  struct MD5Result {
     // The default-constructed MD5Result is invalid; all others are
     // valid. The MD5 digest of the empty string is the value of the
     // default-constructed MD5Result.
@@ -29,21 +27,21 @@ namespace art
     std::string compactForm() const;
 
     // Set our data from the given hexdigest string.
-    void fromHexifiedString(std::string const& s);
+    void fromHexifiedString(std::string const & s);
 
     bool isValid() const;
   };
 
-  bool operator==(MD5Result const& a, MD5Result const& b);
-  bool operator< (MD5Result const& a, MD5Result const& b);
+  bool operator==(MD5Result const & a, MD5Result const & b);
+  bool operator< (MD5Result const & a, MD5Result const & b);
 
-  inline bool operator!=(MD5Result const& a, MD5Result const& b)
+  inline bool operator!=(MD5Result const & a, MD5Result const & b)
   {
-    return !(a==b);
+    return !(a == b);
   }
 
   inline
-  std::ostream& operator<< (std::ostream& os, MD5Result const& r)
+  std::ostream & operator<< (std::ostream & os, MD5Result const & r)
   {
     os << r.toString();
     return os;
@@ -51,13 +49,12 @@ namespace art
 
   // Digest creates an MD5 digest of the given string. The digest can
   // be updated by using 'append'.
-  class Digest
-  {
+  class Digest {
   public:
     Digest();
-    explicit Digest(std::string const& s);
+    explicit Digest(std::string const & s);
 
-    void append(std::string const& s);
+    void append(std::string const & s);
 
     MD5Result digest() const;
 

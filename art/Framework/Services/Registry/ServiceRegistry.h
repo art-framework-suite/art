@@ -18,27 +18,25 @@
 
 namespace art {
   template< typename T >
-    class ServiceWrapper;
+  class ServiceWrapper;
 
-  class ServiceRegistry
-  {
+  class ServiceRegistry {
     // non-copyable:
-    ServiceRegistry( ServiceRegistry const & );
-    void  operator=( ServiceRegistry const & );
+    ServiceRegistry(ServiceRegistry const &);
+    void  operator=(ServiceRegistry const &);
 
   public:
-    class Operate
-    {
+    class Operate {
       // non-copyable:
-      Operate( Operate const & );
-      void  operator = ( Operate const & );
+      Operate(Operate const &);
+      void  operator = (Operate const &);
 
       // override operator new to stop use on heap?
 
     public:
       // c'tor:
       Operate(const ServiceToken & iToken)
-      : oldToken_( ServiceRegistry::instance().setContext(iToken) )
+        : oldToken_(ServiceRegistry::instance().setContext(iToken))
       { }
 
       // d'tor:
@@ -49,30 +47,28 @@ namespace art {
       ServiceToken oldToken_;
     };  // Operate
 
-    friend int main( int argc, char* argv[] );
+    friend int main(int argc, char * argv[]);
     friend class Operate;
 
     virtual ~ServiceRegistry();
 
     template< class T >
-      T & get() const
-    {
-      if( ! manager_.get() )
+    T & get() const {
+      if (! manager_.get())
         throw art::Exception(art::errors::NotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
+            << " no ServiceRegistry has been set for this thread";
       return manager_-> template get<T>();
     }
 
-    template<class T> bool isAvailable() const
-    {
-      if( ! manager_.get() )
+    template<class T> bool isAvailable() const {
+      if (! manager_.get())
         throw art::Exception(art::errors::NotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
+            << " no ServiceRegistry has been set for this thread";
       return manager_-> template isAvailable<T>();
     }
 
-     // The token can be passed to another thread in order to have the
-     // same services available in the other thread.
+    // The token can be passed to another thread in order to have the
+    // same services available in the other thread.
 
     ServiceToken presentToken() const;
 
@@ -82,7 +78,7 @@ namespace art {
     typedef ServicesManager SM;
     typedef std::vector<fhicl::ParameterSet> ParameterSets;
 
-    static ServiceToken createSet(ParameterSets const & );
+    static ServiceToken createSet(ParameterSets const &);
     static ServiceToken createSet(ParameterSets const &,
                                   ServiceToken,
                                   ServiceLegacy);
@@ -90,37 +86,31 @@ namespace art {
     // create a service token that holds the service defined by iService
     template<class T>
     static ServiceToken
-      createContaining( std::auto_ptr<T> iService )
-    {
+    createContaining(std::auto_ptr<T> iService) {
       ParameterSets config;
       typedef ServiceWrapper<T> SW;
-
-      std::shared_ptr<SM> manager( new SM( config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
-      std::shared_ptr<SW> wrapper( new SW(iService) );
-
+      std::shared_ptr<SM> manager(new SM(config
+                                         , ServiceRegistry::instance().lm_
+                                        ));
+      std::shared_ptr<SW> wrapper(new SW(iService));
       manager->put(wrapper);
       return manager;
     }
 
     template< class T >
     static ServiceToken
-      createContaining( std::auto_ptr<T> iService
-                      , ServiceToken iToken
-                      , ServiceLegacy iLegacy
-                      )
-    {
+    createContaining(std::auto_ptr<T> iService
+                     , ServiceToken iToken
+                     , ServiceLegacy iLegacy
+                    ) {
       ParameterSets config;
       typedef ServiceWrapper<T> SW;
-
-      std::shared_ptr<SM> manager( new SM( iToken
-                                           , iLegacy
-                                           , config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
-      std::shared_ptr<SW> wrapper( new SW(iService));
-
+      std::shared_ptr<SM> manager(new SM(iToken
+                                         , iLegacy
+                                         , config
+                                         , ServiceRegistry::instance().lm_
+                                        ));
+      std::shared_ptr<SW> wrapper(new SW(iService));
       manager->put(wrapper);
       return manager;
     }
@@ -128,38 +118,35 @@ namespace art {
     // create a service token that holds the service held by iWrapper
     template< class T >
     static ServiceToken
-      createContaining( std::shared_ptr<ServiceWrapper<T> > wrap )
-    {
+    createContaining(std::shared_ptr<ServiceWrapper<T> > wrap) {
       ParameterSets config;
-      std::shared_ptr<SM> manager( new SM( config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
+      std::shared_ptr<SM> manager(new SM(config
+                                         , ServiceRegistry::instance().lm_
+                                        ));
       manager->put(wrap);
       return manager;
     }
 
     template<class T>
     static ServiceToken
-      createContaining( std::shared_ptr<ServiceWrapper<T> > wrap
-                      , ServiceToken iToken
-                      , ServiceLegacy iLegacy
-                      )
-    {
+    createContaining(std::shared_ptr<ServiceWrapper<T> > wrap
+                     , ServiceToken iToken
+                     , ServiceLegacy iLegacy
+                    ) {
       ParameterSets config;
-      std::shared_ptr<SM> manager( new SM( iToken
-                                           , iLegacy
-                                           , config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
-
+      std::shared_ptr<SM> manager(new SM(iToken
+                                         , iLegacy
+                                         , config
+                                         , ServiceRegistry::instance().lm_
+                                        ));
       manager->put(wrap);
       return manager;
     }
 
   private:
     // returns old token
-    ServiceToken setContext( ServiceToken const & iNewToken );
-    void unsetContext( ServiceToken const & iOldToken );
+    ServiceToken setContext(ServiceToken const & iNewToken);
+    void unsetContext(ServiceToken const & iOldToken);
 
     ServiceRegistry();
 

@@ -6,8 +6,7 @@
 #include "art/Framework/Principal/SubRun.h"
 
 
-namespace art
-{
+namespace art {
 
   EDProducer::EDProducer()
     : ProducerBase()
@@ -19,8 +18,9 @@ namespace art
   EDProducer::~EDProducer() { }
 
   bool
-  EDProducer::doEvent(EventPrincipal& ep,
-                             CurrentProcessingContext const* cpc) {
+  EDProducer::doEvent(EventPrincipal & ep,
+                      CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     Event e(ep, moduleDescription_);
     this->produce(e);
@@ -29,25 +29,29 @@ namespace art
   }
 
   void
-  EDProducer::doBeginJob() {
+  EDProducer::doBeginJob()
+  {
     this->beginJob();
   }
 
   void
-  EDProducer::doEndJob() {
+  EDProducer::doEndJob()
+  {
     this->endJob();
   }
 
   void
-  EDProducer::reconfigure(fhicl::ParameterSet const&) {
+  EDProducer::reconfigure(fhicl::ParameterSet const &)
+  {
     mf::LogError("FeatureNotImplemented")
-       << "This module is not reconfigurable."
-       << "\n";
-   }
+        << "This module is not reconfigurable."
+        << "\n";
+  }
 
   bool
   EDProducer::doBeginRun(RunPrincipal & rp,
-                        CurrentProcessingContext const* cpc) {
+                         CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->beginRun(r);
@@ -57,7 +61,8 @@ namespace art
 
   bool
   EDProducer::doEndRun(RunPrincipal & rp,
-                        CurrentProcessingContext const* cpc) {
+                       CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     Run r(rp, moduleDescription_);
     this->endRun(r);
@@ -67,7 +72,8 @@ namespace art
 
   bool
   EDProducer::doBeginSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                            CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(srp, moduleDescription_);
     this->beginSubRun(sr);
@@ -77,7 +83,8 @@ namespace art
 
   bool
   EDProducer::doEndSubRun(SubRunPrincipal & srp,
-                        CurrentProcessingContext const* cpc) {
+                          CurrentProcessingContext const * cpc)
+  {
     detail::CPCSentry sentry(current_context_, cpc);
     SubRun sr(srp, moduleDescription_);
     this->endSubRun(sr);
@@ -86,27 +93,32 @@ namespace art
   }
 
   void
-  EDProducer::doRespondToOpenInputFile(FileBlock const& fb) {
+  EDProducer::doRespondToOpenInputFile(FileBlock const & fb)
+  {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDProducer::doRespondToCloseInputFile(FileBlock const& fb) {
+  EDProducer::doRespondToCloseInputFile(FileBlock const & fb)
+  {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+  EDProducer::doRespondToOpenOutputFiles(FileBlock const & fb)
+  {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+  EDProducer::doRespondToCloseOutputFiles(FileBlock const & fb)
+  {
     respondToCloseOutputFiles(fb);
   }
 
-  CurrentProcessingContext const*
-  EDProducer::currentContext() const {
+  CurrentProcessingContext const *
+  EDProducer::currentContext() const
+  {
     return current_context_;
   }
 

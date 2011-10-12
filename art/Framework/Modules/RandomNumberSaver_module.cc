@@ -23,8 +23,7 @@ using fhicl::ParameterSet;
 // ======================================================================
 
 class art::RandomNumberSaver
-  : public EDProducer
-{
+    : public EDProducer {
   typedef  RandomNumberGenerator  RNGservice;
 
 public:
@@ -33,12 +32,12 @@ public:
   typedef  RNGservice::snapshot_t  snapshot_t;
 
   // --- C'tor/d'tor:
-  explicit  RandomNumberSaver( ParameterSet const & );
+  explicit  RandomNumberSaver(ParameterSet const &);
   virtual  ~RandomNumberSaver()  { }
 
   // --- Production:
   virtual void
-    produce( Event & );
+  produce(Event &);
 
 private:
   bool  debug_;
@@ -48,9 +47,9 @@ private:
 // ======================================================================
 
 RandomNumberSaver::
-RandomNumberSaver( ParameterSet const & pset )
-  : EDProducer( )
-  , debug_    ( pset.get<bool>("debug", false) )
+RandomNumberSaver(ParameterSet const & pset)
+  : EDProducer()
+  , debug_(pset.get<bool>("debug", false))
 {
   produces<snapshot_t>();
 }
@@ -58,18 +57,15 @@ RandomNumberSaver( ParameterSet const & pset )
 // ----------------------------------------------------------------------
 
 void
-  RandomNumberSaver::
-  produce( Event & event )
+RandomNumberSaver::
+produce(Event & event)
 {
   using std::auto_ptr;
-
   ServiceHandle<RNGservice>  rng;
-  auto_ptr<snapshot_t>  product_ptr( new snapshot_t( rng->accessSnapshot_()
-                                   )               );
-
-  event.put( product_ptr );
-
-  if( debug_ )  {
+  auto_ptr<snapshot_t>  product_ptr(new snapshot_t(rng->accessSnapshot_()
+                                                  ));
+  event.put(product_ptr);
+  if (debug_)  {
     rng->print_();
   }
 }  // produce()

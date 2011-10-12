@@ -24,8 +24,7 @@ namespace art {
 // ----------------------------------------------------------------------
 
 class art::BranchMapperWithReader
-  : public BranchMapper
-{
+    : public BranchMapper {
 public:
   BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber);
 
@@ -42,7 +41,7 @@ private:
 inline
 art::BranchMapperWithReader::BranchMapperWithReader(TBranch * branch, input::EntryNumber entryNumber) :
   BranchMapper(true),
-  branchPtr_  (branch),
+  branchPtr_(branch),
   entryNumber_(entryNumber)
 { }
 
@@ -52,17 +51,14 @@ art::BranchMapperWithReader::readProvenance_() const
 {
   typedef  std::vector<ProductProvenance>  ppVec;
   typedef  typename ppVec::const_iterator  iter_t;
-
   ppVec infoVector;
   ppVec * pInfoVector(&infoVector);
-
   branchPtr_->SetAddress(&pInfoVector);
   input::getEntry(branchPtr_, entryNumber_);
-
-  BranchMapperWithReader * me = const_cast<BranchMapperWithReader*>(this);
+  BranchMapperWithReader * me = const_cast<BranchMapperWithReader *>(this);
   for (iter_t it  = infoVector.begin()
-            , end = infoVector.end(); it != end; ++it) {
-    std::auto_ptr<ProductProvenance const> ap( new ProductProvenance(*it) );
+                    , end = infoVector.end(); it != end; ++it) {
+    std::auto_ptr<ProductProvenance const> ap(new ProductProvenance(*it));
     me->insert(ap);
   }
 }

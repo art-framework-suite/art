@@ -22,10 +22,9 @@ Original Author: W. David Dagenhart
 
 namespace art {
 
-   typedef SubRunID SubRunKey;
+  typedef SubRunID SubRunKey;
 
-  class PrincipalCache
-  {
+  class PrincipalCache {
   public:
 
     PrincipalCache();
@@ -33,21 +32,21 @@ namespace art {
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     RunPrincipal & runPrincipal(RunNumber_t run);
-    RunPrincipal const& runPrincipal(RunNumber_t run) const;
+    RunPrincipal const & runPrincipal(RunNumber_t run) const;
     std::shared_ptr<RunPrincipal> runPrincipalPtr(RunNumber_t run);
 
     // Current run (most recently read and inserted run)
     RunPrincipal & runPrincipal();
-    RunPrincipal const& runPrincipal() const;
+    RunPrincipal const & runPrincipal() const;
     std::shared_ptr<RunPrincipal> runPrincipalPtr();
 
     SubRunPrincipal & subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun);
-    SubRunPrincipal const& subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) const;
+    SubRunPrincipal const & subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) const;
     std::shared_ptr<SubRunPrincipal> subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun);
 
     // Current subRun (most recently read and inserted subRun)
     SubRunPrincipal & subRunPrincipal();
-    SubRunPrincipal const& subRunPrincipal() const;
+    SubRunPrincipal const & subRunPrincipal() const;
     std::shared_ptr<SubRunPrincipal> subRunPrincipalPtr();
 
     bool insert(std::shared_ptr<RunPrincipal> rp);
@@ -56,8 +55,8 @@ namespace art {
     bool noMoreRuns();
     bool noMoreSubRuns();
 
-    RunPrincipal const& lowestRun() const;
-    SubRunPrincipal const& lowestSubRun() const;
+    RunPrincipal const & lowestRun() const;
+    SubRunPrincipal const & lowestSubRun() const;
 
     void deleteLowestRun();
     void deleteLowestSubRun();

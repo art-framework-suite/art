@@ -5,22 +5,19 @@
 #include <iostream>
 #include <string>
 
-namespace arttest
-{
+namespace arttest {
 
 
-void
-  UnitTestClient_O::analyze( art::Event      const & e
-                           , art::EventSetup const & /*unused*/
-                              )
-{
-  mf::LogInfo   ("importantInfo")
-                << "This LogInfo message should appear in both destinations";
-  mf::LogInfo   ("routineInfo")
-                << "This LogInfo message should appear in the info destination";
-
-
-}  // MessageLoggerClient::analyze()
+  void
+  UnitTestClient_O::analyze(art::Event      const & e
+                            , art::EventSetup const & /*unused*/
+                           )
+  {
+    mf::LogInfo("importantInfo")
+        << "This LogInfo message should appear in both destinations";
+    mf::LogInfo("routineInfo")
+        << "This LogInfo message should appear in the info destination";
+  }  // MessageLoggerClient::analyze()
 
 
 }  // arttest

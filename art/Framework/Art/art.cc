@@ -2,11 +2,12 @@
 
 #include <iostream>
 
-int main( int argc, char* argv[] ) {
-  int result = artapp(argc,argv);
+int main(int argc, char * argv[])
+{
+  int result = artapp(argc, argv);
   std::cout
-    << "Art has completed and will exit with status "
-    << result
-    << ".\n";
+      << "Art has completed and will exit with status "
+      << result
+      << ".\n";
   return result;
 }

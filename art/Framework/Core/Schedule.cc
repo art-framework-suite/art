@@ -42,8 +42,7 @@ using namespace art;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
-namespace
-{
+namespace {
 
   // Function template to transform each element in the input range to
   // a value placed into the output range. The supplied function
@@ -54,7 +53,7 @@ namespace
   transform_into(InputIterator begin, InputIterator end,
                  ForwardIterator out, Func func)
   {
-    for (; begin != end; ++begin, ++out) func(*begin, *out);
+    for (; begin != end; ++begin, ++out) { func(*begin, *out); }
   }
 
   // Function template that takes a sequence 'from', a sequence
@@ -64,7 +63,7 @@ namespace
   // outupt only if all calls succeed.
   template <class FROM, class TO, class FUNC>
   void
-  fill_summary(FROM const& from, TO& to, FUNC func)
+  fill_summary(FROM const & from, TO & to, FUNC func)
   {
     TO temp(from.size());
     transform_into(from.begin(), from.end(), temp.begin(), func);
@@ -74,14 +73,13 @@ namespace
 }  // namespace
 
 
-namespace art
-{
+namespace art {
 
-  Schedule::Schedule(ParameterSet const& proc_pset,
-                     art::TriggerNamesService& tns,
-                     WorkerRegistry& wreg,
-                     MasterProductRegistry& pregistry,
-                     ActionTable& actions,
+  Schedule::Schedule(ParameterSet const & proc_pset,
+                     art::TriggerNamesService & tns,
+                     WorkerRegistry & wreg,
+                     MasterProductRegistry & pregistry,
+                     ActionTable & actions,
                      std::shared_ptr<ActivityRegistry> areg):
     process_pset_(proc_pset),
     worker_reg_(&wreg),
@@ -91,7 +89,7 @@ namespace art
     state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
     end_path_name_list_(tns.getEndPaths()),
-    results_        (new HLTGlobalStatus(trig_name_list_.size())),
+    results_(new HLTGlobalStatus(trig_name_list_.size())),
     endpath_results_(), // delay!
     results_inserter_(),
     all_workers_(),
@@ -105,160 +103,135 @@ namespace art
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     endpathsAreActive_(true)
   {
-     ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
-     ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-     bool hasPath = false;
-
-     int trig_bitpos = 0;
-     for (vstring::const_iterator
-             i = trig_name_list_.begin(),
-             e = trig_name_list_.end();
-          i != e;
-          ++i)
-        {
-          fillTrigPath(trig_bitpos, *i, results_, pregistry);
-           ++trig_bitpos;
-           hasPath = true;
+    ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
+    ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
+    bool hasPath = false;
+    int trig_bitpos = 0;
+    for (vstring::const_iterator
+         i = trig_name_list_.begin(),
+         e = trig_name_list_.end();
+         i != e;
+         ++i) {
+      fillTrigPath(trig_bitpos, *i, results_, pregistry);
+      ++trig_bitpos;
+      hasPath = true;
+    }
+    if (hasPath) {
+      // the results inserter stands alone
+      makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
+      addToAllWorkers(results_inserter_.get());
+    }
+    TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
+    endpath_results_ = epptr;
+    // fill normal endpaths
+    vstring::iterator eib(end_path_name_list_.begin());
+    vstring::iterator eie(end_path_name_list_.end());
+    for (int bitpos = 0; eib != eie; ++eib, ++bitpos)
+    { fillEndPath(bitpos, *eib, pregistry); }
+    //See if all modules were used
+    set<string> usedWorkerLabels;
+    for (Workers::iterator i = workersBegin(), e = workersEnd(); i != e; ++i)
+    { usedWorkerLabels.insert((*i)->description().moduleLabel_); }
+    vstring modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
+    set<string> modulesInConfigSet(modulesInConfig.begin(),
+                                   modulesInConfig.end());
+    vstring unusedLabels;
+    set_difference(modulesInConfigSet.begin(), modulesInConfigSet.end(),
+                   usedWorkerLabels.begin(), usedWorkerLabels.end(),
+                   back_inserter(unusedLabels));
+    //does the configuration say we should allow on demand?
+    bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
+    if (!unusedLabels.empty()) {
+      ParameterSet empty;
+      ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
+      ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+      ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+      ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+      ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
+      //Need to
+      // 1) create worker
+      // 2) if it is a WorkerT<EDProducer>, add it to our list
+      // 3) hand list to our delayed reader
+      vstring  shouldBeUsedLabels;
+      OnDemandWorkers onDemandWorkers;
+      for (vstring::iterator
+           itLabel = unusedLabels.begin(),
+           itLabelEnd = unusedLabels.end();
+           itLabel != itLabelEnd;
+           ++itLabel) {
+        if (allowUnscheduled) {
+          // Need to hold onto the parameters long enough to
+          // make the call to getWorker
+          ParameterSet workersParams;
+          producers.get_if_present(*itLabel, workersParams) ||
+          filters.get_if_present(*itLabel, workersParams) ||
+          outputs.get_if_present(*itLabel, workersParams) ||
+          analyzers.get_if_present(*itLabel, workersParams);
+          WorkerParams params(proc_pset, workersParams,
+                              pregistry, *act_table_,
+                              processName_, getReleaseVersion(),
+                              getPassID());
+          Worker * newWorker(wreg.getWorker(params));
+          if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+              dynamic_cast<WorkerT<EDFilter>*>(newWorker)) {
+            onDemandWorkers.
+            push_back(cet::exempt_ptr<Worker>(newWorker));
+            // add to list so it gets reset each new event
+            addToAllWorkers(newWorker);
+          }
+          else {
+            //not a producer so should be marked as not used
+            shouldBeUsedLabels.push_back(*itLabel);
+          }
         }
-
-     if (hasPath)
-        {
-           // the results inserter stands alone
-          makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
-          addToAllWorkers(results_inserter_.get());
+        else {
+          // everything is marked are unused so no 'on demand'
+          // allowed
+          shouldBeUsedLabels.push_back(*itLabel);
         }
-
-     TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
-     endpath_results_ = epptr;
-
-     // fill normal endpaths
-     vstring::iterator eib(end_path_name_list_.begin());
-     vstring::iterator eie(end_path_name_list_.end());
-     for(int bitpos = 0; eib != eie; ++eib, ++bitpos)
-       fillEndPath(bitpos, *eib, pregistry);
-
-     //See if all modules were used
-     set<string> usedWorkerLabels;
-     for(Workers::iterator i=workersBegin(), e = workersEnd(); i != e; ++i)
-        usedWorkerLabels.insert((*i)->description().moduleLabel_);
-
-     vstring modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
-     set<string> modulesInConfigSet(modulesInConfig.begin(),
-                                    modulesInConfig.end());
-     vstring unusedLabels;
-     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
-                    usedWorkerLabels.begin(),usedWorkerLabels.end(),
-                    back_inserter(unusedLabels));
-     //does the configuration say we should allow on demand?
-     bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
-     if(!unusedLabels.empty())
-        {
-           ParameterSet empty;
-           ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
-           ParameterSet producers = physics.get<ParameterSet>("producers", empty);
-           ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
-           ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-           ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
-           //Need to
-           // 1) create worker
-           // 2) if it is a WorkerT<EDProducer>, add it to our list
-           // 3) hand list to our delayed reader
-           vstring  shouldBeUsedLabels;
-           OnDemandWorkers onDemandWorkers;
-           for(vstring::iterator
-                  itLabel = unusedLabels.begin(),
-                  itLabelEnd = unusedLabels.end();
-               itLabel != itLabelEnd;
-               ++itLabel)
-              {
-                 if (allowUnscheduled)
-                    {
-                       // Need to hold onto the parameters long enough to
-                       // make the call to getWorker
-                       ParameterSet workersParams;
-                       producers.get_if_present(*itLabel, workersParams) ||
-                          filters.get_if_present(*itLabel, workersParams) ||
-                          outputs.get_if_present(*itLabel, workersParams) ||
-                          analyzers.get_if_present(*itLabel, workersParams);
-                       WorkerParams params(proc_pset, workersParams,
-                                           pregistry, *act_table_,
-                                           processName_, getReleaseVersion(),
-                                           getPassID());
-                       Worker* newWorker(wreg.getWorker(params));
-                       if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
-                           dynamic_cast<WorkerT<EDFilter>*>(newWorker) )
-                          {
-                            onDemandWorkers.
-                              push_back(cet::exempt_ptr<Worker>(newWorker));
-                            // add to list so it gets reset each new event
-                            addToAllWorkers(newWorker);
-                          }
-                       else
-                          {
-                             //not a producer so should be marked as not used
-                             shouldBeUsedLabels.push_back(*itLabel);
-                          }
-                    }
-                 else
-                    {
-                       // everything is marked are unused so no 'on demand'
-                       // allowed
-                       shouldBeUsedLabels.push_back(*itLabel);
-                    }
-              }
-
-           if (allowUnscheduled) {
-             BranchesByModuleLabel branchLookup;
-             fillBranchLookup(pregistry.productList(), branchLookup);
-             catalogOnDemandBranches(onDemandWorkers, branchLookup);
-           }
-
-           if (!shouldBeUsedLabels.empty())
-              {
-                 ostringstream unusedStream;
-                 unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-                 for (vstring::iterator
-                         i = shouldBeUsedLabels.begin() + 1,
-                         e = shouldBeUsedLabels.end();
-                      i != e;
-                      ++i)
-                    {
-                       unusedStream << ",'" << *i << "'";
-                    }
-                 LogInfo("path")
-                    << "The following module labels are not assigned to any path:\n"
-                    << unusedStream.str()
-                    << "\n";
-              }
+      }
+      if (allowUnscheduled) {
+        BranchesByModuleLabel branchLookup;
+        fillBranchLookup(pregistry.productList(), branchLookup);
+        catalogOnDemandBranches(onDemandWorkers, branchLookup);
+      }
+      if (!shouldBeUsedLabels.empty()) {
+        ostringstream unusedStream;
+        unusedStream << "'" << shouldBeUsedLabels.front() << "'";
+        for (vstring::iterator
+             i = shouldBeUsedLabels.begin() + 1,
+             e = shouldBeUsedLabels.end();
+             i != e;
+             ++i) {
+          unusedStream << ",'" << *i << "'";
         }
-
-     // All the workers should be in all_workers_ by this point. Thus
-     // we can now fill all_output_workers_.  We provide a little
-     // sanity-check to make sure no code modifications alter the
-     // number of workers at a later date... Much better would be to
-     // refactor this huge constructor into a series of well-named
-     // private functions.
-     size_t all_workers_count = all_workers_.size();
-     for (Workers::iterator
-             i = all_workers_.begin(),
-             e = all_workers_.end();
-          i != e;
-          ++i)
-        {
-           OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
-           if (ow) all_output_workers_.push_back(ow);
-        }
-
-     // Now that the output workers are filled in, set any output limits.
-     limitOutput();
-
-     pregistry.setFrozen();
-
-     // Test path invariants.
-     pathConsistencyCheck(all_workers_count);
-
-     ProductMetaData::create_instance(pregistry);
-
+        LogInfo("path")
+            << "The following module labels are not assigned to any path:\n"
+            << unusedStream.str()
+            << "\n";
+      }
+    }
+    // All the workers should be in all_workers_ by this point. Thus
+    // we can now fill all_output_workers_.  We provide a little
+    // sanity-check to make sure no code modifications alter the
+    // number of workers at a later date... Much better would be to
+    // refactor this huge constructor into a series of well-named
+    // private functions.
+    size_t all_workers_count = all_workers_.size();
+    for (Workers::iterator
+         i = all_workers_.begin(),
+         e = all_workers_.end();
+         i != e;
+         ++i) {
+      OutputWorker * ow = dynamic_cast<OutputWorker *>(*i);
+      if (ow) { all_output_workers_.push_back(ow); }
+    }
+    // Now that the output workers are filled in, set any output limits.
+    limitOutput();
+    pregistry.setFrozen();
+    // Test path invariants.
+    pathConsistencyCheck(all_workers_count);
+    ProductMetaData::create_instance(pregistry);
   } // Schedule::Schedule
 
   void
@@ -268,129 +241,112 @@ namespace art
 
   bool Schedule::terminate() const
   {
-    if (all_output_workers_.empty()) return false;
-
+    if (all_output_workers_.empty()) { return false; }
     for (OutputWorkers::const_iterator
-           i = all_output_workers_.begin(),
-           e = all_output_workers_.end();
-         i != e; ++i)
-      {
-        if (!(*i)->limitReached()) return false;
-      }
-
+         i = all_output_workers_.begin(),
+         e = all_output_workers_.end();
+         i != e; ++i) {
+      if (!(*i)->limitReached()) { return false; }
+    }
     LogInfo("SuccessfulTermination")
-      << "The job is terminating successfully because each output module\n"
-      << "has reached its configured limit.\n";
+        << "The job is terminating successfully because each output module\n"
+        << "has reached its configured limit.\n";
     return true;
   }
 
   void
-  Schedule::fillWorkers(string const& name,
-                        PathWorkers& out,
+  Schedule::fillWorkers(string const & name,
+                        PathWorkers & out,
                         bool isTrigPath,
-                        MasterProductRegistry &pregistry)
+                        MasterProductRegistry & pregistry)
   {
-     ParameterSet empty;
-     ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
-     vstring modnames =       physics.get<vstring >(name);
-     ParameterSet producers = physics.get<ParameterSet>("producers", empty);
-     ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
-     ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-     ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
-
-     vstring::iterator it(modnames.begin()),ie(modnames.end());
-     PathWorkers tmpworkers;
-
-     for(; it != ie; ++it)
-        {
-           WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-           if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
-           else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
-
-           string realname = *it;
-           if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
-
-           ParameterSet modpset;
-           // Look for the module's parameter set in the module
-           // groups. If we're a trigger path, the search order is:
-           // producers, filters, outputs, analyzers; otherwise it is:
-           // analyzers, outputs, producers, filters.
-           if ((isTrigPath?producers:analyzers).get_if_present(realname, modpset) ||
-               (isTrigPath?filters:outputs).get_if_present(realname, modpset) ||
-               (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
-               (isTrigPath?outputs:filters).get_if_present(realname, modpset))
-              {
-                 WorkerParams params(process_pset_, modpset, pregistry, *act_table_,
-                                     processName_, getReleaseVersion(), getPassID());
-                 WorkerInPath w(worker_reg_->getWorker(params), filterAction);
-                 tmpworkers.push_back(w);
-              } else {
-              string pathType("endpath");
-              if(!search_all(end_path_name_list_, name))
-                 {
-                    pathType = string("path");
-                 }
-              throw art::Exception(art::errors::Configuration)
-                 << "The unknown module label '"
-                 << realname
-                 << "' appears in "
-                 << pathType
-                 << " '"
-                 << name
-                 << "'\nplease check spelling or remove that label from the path.";
-           }
+    ParameterSet empty;
+    ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
+    vstring modnames =       physics.get<vstring >(name);
+    ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+    ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+    ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+    ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
+    vstring::iterator it(modnames.begin()), ie(modnames.end());
+    PathWorkers tmpworkers;
+    for (; it != ie; ++it) {
+      WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
+      if ((*it)[0] == '!')       { filterAction = WorkerInPath::Veto; }
+      else if ((*it)[0] == '-')  { filterAction = WorkerInPath::Ignore; }
+      string realname = *it;
+      if (filterAction != WorkerInPath::Normal) { realname.erase(0, 1); }
+      ParameterSet modpset;
+      // Look for the module's parameter set in the module
+      // groups. If we're a trigger path, the search order is:
+      // producers, filters, outputs, analyzers; otherwise it is:
+      // analyzers, outputs, producers, filters.
+      if ((isTrigPath ? producers : analyzers).get_if_present(realname, modpset) ||
+          (isTrigPath ? filters : outputs).get_if_present(realname, modpset) ||
+          (isTrigPath ? analyzers : producers).get_if_present(realname, modpset) ||
+          (isTrigPath ? outputs : filters).get_if_present(realname, modpset)) {
+        WorkerParams params(process_pset_, modpset, pregistry, *act_table_,
+                            processName_, getReleaseVersion(), getPassID());
+        WorkerInPath w(worker_reg_->getWorker(params), filterAction);
+        tmpworkers.push_back(w);
+      }
+      else {
+        string pathType("endpath");
+        if (!search_all(end_path_name_list_, name)) {
+          pathType = string("path");
         }
-     out.swap(tmpworkers);
+        throw art::Exception(art::errors::Configuration)
+            << "The unknown module label '"
+            << realname
+            << "' appears in "
+            << pathType
+            << " '"
+            << name
+            << "'\nplease check spelling or remove that label from the path.";
+      }
+    }
+    out.swap(tmpworkers);
   }
 
   void
   Schedule::fillTrigPath(int bitpos,
-                         string const& name,
+                         string const & name,
                          TrigResPtr trptr,
-                         MasterProductRegistry &pregistry)
+                         MasterProductRegistry & pregistry)
   {
     PathWorkers tmpworkers;
     Workers holder;
-    fillWorkers(name,tmpworkers, true, pregistry);
-
-    for(PathWorkers::iterator
-          i = tmpworkers.begin(),
-          e = tmpworkers.end();
-        i != e; ++i)
-      {
-        holder.push_back(i->getWorker());
-      }
-
+    fillWorkers(name, tmpworkers, true, pregistry);
+    for (PathWorkers::iterator
+         i = tmpworkers.begin(),
+         e = tmpworkers.end();
+         i != e; ++i) {
+      holder.push_back(i->getWorker());
+    }
     // an empty path will cause an extra bit that is not used
-    if(!tmpworkers.empty())
-      {
-        Path p(bitpos,name,tmpworkers,trptr,
-               process_pset_,*act_table_,actReg_,false);
-        trig_paths_.push_back(p);
-      }
+    if (!tmpworkers.empty()) {
+      Path p(bitpos, name, tmpworkers, trptr,
+             process_pset_, *act_table_, actReg_, false);
+      trig_paths_.push_back(p);
+    }
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
-  void Schedule::fillEndPath(int bitpos, string const& name, MasterProductRegistry &pregistry)
+  void Schedule::fillEndPath(int bitpos, string const & name, MasterProductRegistry & pregistry)
   {
     PathWorkers tmpworkers;
-    fillWorkers(name,tmpworkers, false, pregistry);
+    fillWorkers(name, tmpworkers, false, pregistry);
     Workers holder;
-
-    for(PathWorkers::iterator
-          i = tmpworkers.begin(),
-          e = tmpworkers.end();
-        i != e; ++i)
-      {
-        holder.push_back(i->getWorker());
-      }
-
-    if (!tmpworkers.empty())
-      {
-        Path p(bitpos,name,tmpworkers,endpath_results_,
-               process_pset_,*act_table_,actReg_,true);
-        end_paths_.push_back(p);
-      }
+    for (PathWorkers::iterator
+         i = tmpworkers.begin(),
+         e = tmpworkers.end();
+         i != e; ++i) {
+      holder.push_back(i->getWorker());
+    }
+    if (!tmpworkers.empty()) {
+      Path p(bitpos, name, tmpworkers, endpath_results_,
+             process_pset_, *act_table_, actReg_, true);
+      end_paths_.push_back(p);
+    }
     for_all(holder, std::bind(&art::Schedule::addToAllWorkers, this, _1));
   }
 
@@ -398,44 +354,36 @@ namespace art
   {
     bool failure = false;
     Exception error(errors::EndJobFailure);
-
     for (Workers::iterator
-           i = workersBegin(),
-           e = workersEnd();
-         i != e; ++i)
-      {
-        try
-          {
-            (*i)->endJob();
-          }
-        catch (cet::exception& e)
-          {
-            error << "cet::exception caught in Schedule::endJob\n"
-                  << e.explain_self();
-            failure = true;
-          }
-        catch (std::exception& e)
-          {
-            error << "Standard library exception caught in Schedule::endJob\n"
-                  << e.what();
-            failure = true;
-          }
-        catch (...)
-          {
-            error << "Unknown exception caught in Schedule::endJob\n";
-            failure = true;
-          }
+         i = workersBegin(),
+         e = workersEnd();
+         i != e; ++i) {
+      try {
+        (*i)->endJob();
       }
-    if (failure) throw error;
+      catch (cet::exception & e) {
+        error << "cet::exception caught in Schedule::endJob\n"
+              << e.explain_self();
+        failure = true;
+      }
+      catch (std::exception & e) {
+        error << "Standard library exception caught in Schedule::endJob\n"
+              << e.what();
+        failure = true;
+      }
+      catch (...) {
+        error << "Unknown exception caught in Schedule::endJob\n";
+        failure = true;
+      }
+    }
+    if (failure) { throw error; }
     writeSummary();
   }
 
   void Schedule::writeSummary()
   {
-    Paths::const_iterator pi,pe;
-
+    Paths::const_iterator pi, pe;
     // The trigger report (pass/fail etc.):
-
     // Printed even if summary not requested, per issue #1864.
     LogAbsolute("ArtSummary") << "";
     LogAbsolute("ArtSummary") << "TrigReport " << "---------- Event  Summary ------------";
@@ -444,7 +392,6 @@ namespace art
                               << " passed = " << totalEventsPassed()
                               << " failed = " << (totalEventsFailed())
                               << "";
-
     if (wantSummary_) {
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TrigReport " << "---------- Path   Summary ------------";
@@ -455,19 +402,18 @@ namespace art
                                 << right << setw(10) << "Failed" << " "
                                 << right << setw(10) << "Error" << " "
                                 << "Name" << "";
-      pi=trig_paths_.begin();
-      pe=trig_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = trig_paths_.begin();
+      pe = trig_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "TrigReport "
-                                  << right << setw( 5) << 1
-                                  << right << setw( 5) << pi->bitPosition() << " "
+                                  << right << setw(5) << 1
+                                  << right << setw(5) << pi->bitPosition() << " "
                                   << right << setw(10) << pi->timesRun() << " "
                                   << right << setw(10) << pi->timesPassed() << " "
                                   << right << setw(10) << pi->timesFailed() << " "
                                   << right << setw(10) << pi->timesExcept() << " "
                                   << pi->name() << "";
       }
-
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TrigReport " << "-------End-Path   Summary ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
@@ -477,22 +423,21 @@ namespace art
                                 << right << setw(10) << "Failed" << " "
                                 << right << setw(10) << "Error" << " "
                                 << "Name" << "";
-      pi=end_paths_.begin();
-      pe=end_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = end_paths_.begin();
+      pe = end_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "TrigReport "
-                                  << right << setw( 5) << 0
-                                  << right << setw( 5) << pi->bitPosition() << " "
+                                  << right << setw(5) << 0
+                                  << right << setw(5) << pi->bitPosition() << " "
                                   << right << setw(10) << pi->timesRun() << " "
                                   << right << setw(10) << pi->timesPassed() << " "
                                   << right << setw(10) << pi->timesFailed() << " "
                                   << right << setw(10) << pi->timesExcept() << " "
                                   << pi->name() << "";
       }
-
-      pi=trig_paths_.begin();
-      pe=trig_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = trig_paths_.begin();
+      pe = trig_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "";
         LogAbsolute("ArtSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
         LogAbsolute("ArtSummary") << "TrigReport "
@@ -502,11 +447,10 @@ namespace art
                                   << right << setw(10) << "Failed" << " "
                                   << right << setw(10) << "Error" << " "
                                   << "Name" << "";
-
         for (unsigned int i = 0; i < pi->size(); ++i) {
           LogAbsolute("ArtSummary") << "TrigReport "
-                                    << right << setw( 5) << 1
-                                    << right << setw( 5) << pi->bitPosition() << " "
+                                    << right << setw(5) << 1
+                                    << right << setw(5) << pi->bitPosition() << " "
                                     << right << setw(10) << pi->timesVisited(i) << " "
                                     << right << setw(10) << pi->timesPassed(i) << " "
                                     << right << setw(10) << pi->timesFailed(i) << " "
@@ -515,11 +459,10 @@ namespace art
         }
       }
     }
-
     // Printed even if summary not requested, per issue #1864.
-    pi=end_paths_.begin();
-    pe=end_paths_.end();
-    for(; pi != pe; ++pi) {
+    pi = end_paths_.begin();
+    pe = end_paths_.end();
+    for (; pi != pe; ++pi) {
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
       LogAbsolute("ArtSummary") << "TrigReport "
@@ -529,11 +472,10 @@ namespace art
                                 << right << setw(10) << "Failed" << " "
                                 << right << setw(10) << "Error" << " "
                                 << "Name" << "";
-
       for (unsigned int i = 0; i < pi->size(); ++i) {
         LogAbsolute("ArtSummary") << "TrigReport "
-                                  << right << setw( 5) << 0
-                                  << right << setw( 5) << pi->bitPosition() << " "
+                                  << right << setw(5) << 0
+                                  << right << setw(5) << pi->bitPosition() << " "
                                   << right << setw(10) << pi->timesVisited(i) << " "
                                   << right << setw(10) << pi->timesPassed(i) << " "
                                   << right << setw(10) << pi->timesFailed(i) << " "
@@ -541,9 +483,7 @@ namespace art
                                   << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-
     Workers::iterator ai, ae;
-
     if (wantSummary_) {
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TrigReport " << "---------- Module Summary ------------";
@@ -554,8 +494,7 @@ namespace art
                                 << right << setw(10) << "Failed" << " "
                                 << right << setw(10) << "Error" << " "
                                 << "Name" << "";
-
-      for( ai = workersBegin(), ae = workersEnd(); ai != ae; ++ai) {
+      for (ai = workersBegin(), ae = workersEnd(); ai != ae; ++ai) {
         LogAbsolute("ArtSummary") << "TrigReport "
                                   << right << setw(10) << (*ai)->timesVisited() << " "
                                   << right << setw(10) << (*ai)->timesRun() << " "
@@ -563,10 +502,8 @@ namespace art
                                   << right << setw(10) << (*ai)->timesFailed() << " "
                                   << right << setw(10) << (*ai)->timesExcept() << " "
                                   << (*ai)->description().moduleLabel_ << "";
-
       }
     }
-
     LogAbsolute("ArtSummary") << "";
     // The timing report (CPU and Real Time):
     LogAbsolute("ArtSummary") << "TimeReport " << "---------- Time  Summary ---[sec]----";
@@ -576,16 +513,14 @@ namespace art
                               << " Real = " << timeCpuReal().second
                               << "";
     LogAbsolute("ArtSummary") << "";
-
     if (wantSummary_) {
       LogAbsolute("ArtSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport"
                                 << setprecision(6) << fixed
-                                << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
-                                << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
+                                << " CPU/event = " << timeCpuReal().first / max(1, totalEvents())
+                                << " Real/event = " << timeCpuReal().second / max(1, totalEvents())
                                 << "";
       LogAbsolute("ArtSummary") << "";
-
       LogAbsolute("ArtSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
                                 << right << setw(22) << "per event "
@@ -597,15 +532,15 @@ namespace art
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      pi=trig_paths_.begin();
-      pe=trig_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = trig_paths_.begin();
+      pe = trig_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
-                                  << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().first / max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second / max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().first / max(1, pi->timesRun()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second / max(1, pi->timesRun()) << " "
                                   << pi->name() << "";
       }
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -618,7 +553,6 @@ namespace art
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per path-run "
                                 << "";
-
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -631,15 +565,15 @@ namespace art
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      pi=end_paths_.begin();
-      pe=end_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = end_paths_.begin();
+      pe = end_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
-                                  << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
-                                  << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().first / max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second / max(1, totalEvents()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().first / max(1, pi->timesRun()) << " "
+                                  << right << setw(10) << pi->timeCpuReal().second / max(1, pi->timesRun()) << " "
                                   << pi->name() << "";
       }
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -652,10 +586,9 @@ namespace art
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per endpath-run "
                                 << "";
-
-      pi=trig_paths_.begin();
-      pe=trig_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = trig_paths_.begin();
+      pe = trig_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "";
         LogAbsolute("ArtSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
         LogAbsolute("ArtSummary") << "TimeReport "
@@ -671,10 +604,10 @@ namespace art
         for (unsigned int i = 0; i < pi->size(); ++i) {
           LogAbsolute("ArtSummary") << "TimeReport "
                                     << setprecision(6) << fixed
-                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1, totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1, totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1, pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1, pi->timesVisited(i)) << " "
                                     << pi->getWorker(i)->description().moduleLabel_ << "";
         }
       }
@@ -688,10 +621,9 @@ namespace art
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per module-visit "
                                 << "";
-
-      pi=end_paths_.begin();
-      pe=end_paths_.end();
-      for(; pi != pe; ++pi) {
+      pi = end_paths_.begin();
+      pe = end_paths_.end();
+      for (; pi != pe; ++pi) {
         LogAbsolute("ArtSummary") << "";
         LogAbsolute("ArtSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
         LogAbsolute("ArtSummary") << "TimeReport "
@@ -707,10 +639,10 @@ namespace art
         for (unsigned int i = 0; i < pi->size(); ++i) {
           LogAbsolute("ArtSummary") << "TimeReport "
                                     << setprecision(6) << fixed
-                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
-                                    << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1, totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1, totalEvents()) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).first / max(1, pi->timesVisited(i)) << " "
+                                    << right << setw(10) << pi->timeCpuReal(i).second / max(1, pi->timesVisited(i)) << " "
                                     << pi->getWorker(i)->description().moduleLabel_ << "";
         }
       }
@@ -724,7 +656,6 @@ namespace art
                                 << right << setw(22) << "per event "
                                 << right << setw(22) << "per module-visit "
                                 << "";
-
       LogAbsolute("ArtSummary") << "";
       LogAbsolute("ArtSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -740,17 +671,17 @@ namespace art
                                 << right << setw(10) << "CPU" << " "
                                 << right << setw(10) << "Real" << " "
                                 << "Name" << "";
-      ai=workersBegin();
-      ae=workersEnd();
-      for(; ai != ae; ++ai) {
+      ai = workersBegin();
+      ae = workersEnd();
+      for (; ai != ae; ++ai) {
         LogAbsolute("ArtSummary") << "TimeReport "
                                   << setprecision(6) << fixed
-                                  << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
-                                  << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1, totalEvents()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1, totalEvents()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1, (*ai)->timesRun()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1, (*ai)->timesRun()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().first / max(1, (*ai)->timesVisited()) << " "
+                                  << right << setw(10) << (*ai)->timeCpuReal().second / max(1, (*ai)->timesVisited()) << " "
                                   << (*ai)->description().moduleLabel_ << "";
       }
       LogAbsolute("ArtSummary") << "TimeReport "
@@ -766,95 +697,108 @@ namespace art
                                 << right << setw(22) << "per module-run "
                                 << right << setw(22) << "per module-visit "
                                 << "";
-
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "T---Report end!" << "";
-    LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "T---Report end!" << "";
+      LogAbsolute("ArtSummary") << "";
     }
   }
 
-  void Schedule::closeOutputFiles() {
+  void Schedule::closeOutputFiles()
+  {
     for_all(all_output_workers_, std::bind(&OutputWorker::closeFile, _1));
   }
 
-  void Schedule::openNewOutputFilesIfNeeded() {
+  void Schedule::openNewOutputFilesIfNeeded()
+  {
     for_all(all_output_workers_, std::bind(&OutputWorker::openNewFileIfNeeded, _1));
   }
 
-  void Schedule::openOutputFiles(FileBlock & fb) {
+  void Schedule::openOutputFiles(FileBlock & fb)
+  {
     for_all(all_output_workers_, std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp) {
+  void Schedule::writeRun(RunPrincipal const & rp)
+  {
     for_all(all_output_workers_, std::bind(&OutputWorker::writeRun, _1, std::cref(rp)));
   }
 
-  void Schedule::writeSubRun(SubRunPrincipal const& srp) {
+  void Schedule::writeSubRun(SubRunPrincipal const & srp)
+  {
     for_all(all_output_workers_, std::bind(&OutputWorker::writeSubRun, _1, std::cref(srp)));
   }
 
-  bool Schedule::shouldWeCloseOutput() const {
+  bool Schedule::shouldWeCloseOutput() const
+  {
     // Return true iff at least one output module returns true.
     return (find_if(all_output_workers_.begin(), all_output_workers_.end(),
                     std::bind(&OutputWorker::shouldWeCloseFile, _1))
             != all_output_workers_.end());
   }
 
-  void Schedule::respondToOpenInputFile(FileBlock const& fb) {
+  void Schedule::respondToOpenInputFile(FileBlock const & fb)
+  {
     for_all(all_workers_, std::bind(&Worker::respondToOpenInputFile, _1, std::cref(fb)));
   }
 
-  void Schedule::respondToCloseInputFile(FileBlock const& fb) {
+  void Schedule::respondToCloseInputFile(FileBlock const & fb)
+  {
     for_all(all_workers_, std::bind(&Worker::respondToCloseInputFile, _1, std::cref(fb)));
   }
 
-  void Schedule::respondToOpenOutputFiles(FileBlock const& fb) {
+  void Schedule::respondToOpenOutputFiles(FileBlock const & fb)
+  {
     for_all(all_workers_, std::bind(&Worker::respondToOpenOutputFiles, _1, std::cref(fb)));
   }
 
-  void Schedule::respondToCloseOutputFiles(FileBlock const& fb) {
+  void Schedule::respondToCloseOutputFiles(FileBlock const & fb)
+  {
     for_all(all_workers_, std::bind(&Worker::respondToCloseOutputFiles, _1, std::cref(fb)));
   }
 
-  void Schedule::beginJob() {
+  void Schedule::beginJob()
+  {
     for_all(all_workers_, std::bind(&Worker::beginJob, _1));
   }
 
-  vector<ModuleDescription const*>
-  Schedule::getAllModuleDescriptions() const {
+  vector<ModuleDescription const *>
+  Schedule::getAllModuleDescriptions() const
+  {
     Workers::const_iterator i(workersBegin());
     Workers::const_iterator e(workersEnd());
-
-    vector<ModuleDescription const*> result;
+    vector<ModuleDescription const *> result;
     result.reserve(all_workers_.size());
-
-    for (; i!=e; ++i) {
-      ModuleDescription const* p = (*i)->descPtr();
+    for (; i != e; ++i) {
+      ModuleDescription const * p = (*i)->descPtr();
       result.push_back(p);
     }
     return result;
   }
 
   void
-  Schedule::enableEndPaths(bool active) {
+  Schedule::enableEndPaths(bool active)
+  {
     endpathsAreActive_ = active;
   }
 
   bool
-  Schedule::endPathsEnabled() const {
+  Schedule::endPathsEnabled() const
+  {
     return endpathsAreActive_;
   }
 
   void
-  fillModuleInPathSummary(Path const&,
-                          ModuleInPathSummary&) {
+  fillModuleInPathSummary(Path const &,
+                          ModuleInPathSummary &)
+  {
   }
 
 
   void
-  fillModuleInPathSummary(Path const& path,
+  fillModuleInPathSummary(Path const & path,
                           size_t which,
-                          ModuleInPathSummary& sum) {
+                          ModuleInPathSummary & sum)
+  {
     sum.timesVisited = path.timesVisited(which);
     sum.timesPassed  = path.timesPassed(which);
     sum.timesFailed  = path.timesFailed(which);
@@ -864,14 +808,14 @@ namespace art
   }
 
   void
-  fillPathSummary(Path const& path, PathSummary& sum) {
+  fillPathSummary(Path const & path, PathSummary & sum)
+  {
     sum.name        = path.name();
     sum.bitPosition = path.bitPosition();
     sum.timesRun    = path.timesRun();
     sum.timesPassed = path.timesPassed();
     sum.timesFailed = path.timesFailed();
     sum.timesExcept = path.timesExcept();
-
     Path::size_type sz = path.size();
     vector<ModuleInPathSummary> temp(sz);
     for (size_t i = 0; i != sz; ++i) {
@@ -881,7 +825,8 @@ namespace art
   }
 
   void
-  fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum) {
+  fillWorkerSummaryAux(Worker const & w, WorkerSummary & sum)
+  {
     sum.timesVisited = w.timesVisited();
     sum.timesRun     = w.timesRun();
     sum.timesPassed  = w.timesPassed();
@@ -891,23 +836,25 @@ namespace art
   }
 
   void
-  fillWorkerSummary(Worker const* pw, WorkerSummary& sum) {
+  fillWorkerSummary(Worker const * pw, WorkerSummary & sum)
+  {
     fillWorkerSummaryAux(*pw, sum);
   }
 
   void
-  Schedule::getTriggerReport(TriggerReport& rep) const {
+  Schedule::getTriggerReport(TriggerReport & rep) const
+  {
     rep.eventSummary.totalEvents = totalEvents();
     rep.eventSummary.totalEventsPassed = totalEventsPassed();
     rep.eventSummary.totalEventsFailed = totalEventsFailed();
-
     fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
     fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
     fill_summary(all_workers_, rep.workerSummaries,   &fillWorkerSummary);
   }
 
   void
-  Schedule::clearCounters() {
+  Schedule::clearCounters()
+  {
     total_events_ = total_passed_ = 0;
     for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
     for_all(end_paths_, std::bind(&Path::clearCounters, _1));
@@ -915,34 +862,37 @@ namespace art
   }
 
   void
-  Schedule::getAllWorkers(std::vector<Worker*> &out)
+  Schedule::getAllWorkers(std::vector<Worker *> &out)
   {
     copy_all(all_workers_, std::back_inserter(out));
   }
 
   void
-  Schedule::resetAll() {
+  Schedule::resetAll()
+  {
     for_all(all_workers_, std::bind(&Worker::reset, _1));
     results_->reset();
     endpath_results_->reset();
   }
 
   void
-  Schedule::addToAllWorkers(Worker* w) {
-    if (!search_all(all_workers_, w)) all_workers_.push_back(w);
+  Schedule::addToAllWorkers(Worker * w)
+  {
+    if (!search_all(all_workers_, w)) { all_workers_.push_back(w); }
   }
 
   // FIXME: This can work with generic Principals just as soon as the
   // metadata can handle (or obviate) a BranchID <-> ProductID
   // conversion for all principal types.
   void
-  Schedule::setupOnDemandSystem(EventPrincipal &p) {
+  Schedule::setupOnDemandSystem(EventPrincipal & p)
+  {
     BranchType b(p.branchType());
-    for(OnDemandBranches::const_iterator
-          itBranch = demand_branches_.begin(),
-          itBranchEnd = demand_branches_.end();
-        itBranch != itBranchEnd;
-        ++itBranch) {
+    for (OnDemandBranches::const_iterator
+         itBranch = demand_branches_.begin(),
+         itBranchEnd = demand_branches_.end();
+         itBranch != itBranchEnd;
+         ++itBranch) {
       if (itBranch->second->branchType() == b) {
         p.addOnDemandGroup(*itBranch->second, itBranch->first);
       }
@@ -950,28 +900,27 @@ namespace art
   }
 
   void
-  Schedule::makeTriggerResultsInserter(ParameterSet const& trig_pset, MasterProductRegistry &pregistry) {
-
-    WorkerParams work_args(process_pset_,trig_pset,pregistry,*act_table_,processName_);
+  Schedule::makeTriggerResultsInserter(ParameterSet const & trig_pset, MasterProductRegistry & pregistry)
+  {
+    WorkerParams work_args(process_pset_, trig_pset, pregistry, *act_table_, processName_);
     ModuleDescription md;
     md.parameterSetID_ = trig_pset.id();
     md.moduleName_ = "TriggerResultInserter";
     md.moduleLabel_ = "TriggerResults";
     md.processConfiguration_ = ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion(), getPassID());
-
     actReg_->preModuleConstructionSignal_(md);
-    auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
+    auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
     actReg_->postModuleConstructionSignal_(md);
-
     results_inserter_.reset(new WorkerT<EDProducer>(producer, md, work_args));
     results_inserter_->setActivityRegistry(actReg_);
   }
 
-  void Schedule::fillBranchLookup(ProductList const &pList,
-                                  BranchesByModuleLabel &branchLookup) const {
+  void Schedule::fillBranchLookup(ProductList const & pList,
+                                  BranchesByModuleLabel & branchLookup) const
+  {
     for (ProductList::const_iterator
-           i = pList.begin(),
-           e = pList.end();
+         i = pList.begin(),
+         e = pList.end();
          i != e;
          ++i) {
       branchLookup.insert(std::make_pair(i->second.moduleLabel(),
@@ -979,8 +928,9 @@ namespace art
     }
   }
 
-  void Schedule::catalogOnDemandBranches(OnDemandWorkers const &odw,
-                                         BranchesByModuleLabel const &branchLookup) {
+  void Schedule::catalogOnDemandBranches(OnDemandWorkers const & odw,
+                                         BranchesByModuleLabel const & branchLookup)
+  {
     cet::for_all(odw,
                  std::bind
                  (&Schedule::catalogOneOnDemandWorker,
@@ -990,12 +940,13 @@ namespace art
   }
 
   void Schedule::catalogOneOnDemandWorker(cet::exempt_ptr<Worker> wp,
-                                          BranchesByModuleLabel const &branchLookup) {
+                                          BranchesByModuleLabel const & branchLookup)
+  {
     BranchesByModuleLabel::const_iterator
-      lb(branchLookup.lower_bound(wp->label())),
-      e(branchLookup.end()),
-      ub(branchLookup.upper_bound(wp->label()));
-    if (lb == ub) return; // This worker produces nothing.
+    lb(branchLookup.lower_bound(wp->label())),
+       e(branchLookup.end()),
+       ub(branchLookup.upper_bound(wp->label()));
+    if (lb == ub) { return; } // This worker produces nothing.
     for (BranchesByModuleLabel::const_iterator i = lb;
          i != ub;
          ++i) {
@@ -1003,13 +954,13 @@ namespace art
     }
   }
 
-  void Schedule::pathConsistencyCheck(size_t expected_num_workers) const {
+  void Schedule::pathConsistencyCheck(size_t expected_num_workers) const
+  {
     // Major sanity check: make sure nobody has added a worker after
     // we've already relied on all_workers_ being full. Failure here
     // indicates a logic error in Schedule().
     assert(expected_num_workers == all_workers_.size() &&
            "INTERNAL ASSERTION ERROR: all_workers_ changed after being used.");
-
     size_t numFailures = 0;
     numFailures = std::accumulate(trig_paths_.begin(),
                                   trig_paths_.end(),
@@ -1030,20 +981,22 @@ namespace art
     if (numFailures > 0) {
       // TODO: Throw correct exception.
       throw cet::exception("IllegalPathEntries")
-        << "Found a total of "
-        << numFailures
-        << " illegal entries in paths; see error log for full list.";
+          << "Found a total of "
+          << numFailures
+          << " illegal entries in paths; see error log for full list.";
     }
   }
 
   size_t Schedule::accumulateConsistencyFailures(size_t current_num_failures,
-                                                 art::Path const &path,
-                                                 bool isEndPath) const {
+      art::Path const & path,
+      bool isEndPath) const
+  {
     return current_num_failures +
-      checkOnePath(path, isEndPath);
+           checkOnePath(path, isEndPath);
   }
 
-  size_t Schedule::checkOnePath(Path const &path, bool isEndPath) const {
+  size_t Schedule::checkOnePath(Path const & path, bool isEndPath) const
+  {
     std::vector<std::string> results;
     std::ostringstream message;
     if (isEndPath) {
@@ -1052,7 +1005,8 @@ namespace art
               << "\"): they modify the event "
               << "and should be in a standard (trigger) path.";
       path.findEventModifiers(results);
-    } else {
+    }
+    else {
       message << "The following modules are illegal in a standard (trigger) path (\""
               << path.name()
               << "\"): they are observers "
@@ -1064,7 +1018,7 @@ namespace art
       message << "\n";
       cet::copy_all(results, std::ostream_iterator<std::string>(message, "\n"));
       LogError("IllegalPathEntries")
-        << message.str();
+          << message.str();
     }
     return results.size();
   }

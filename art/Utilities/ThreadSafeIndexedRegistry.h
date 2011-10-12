@@ -22,7 +22,7 @@ namespace art {
 
     struct Empty { };
 
-    template <typename T, typename E=Empty>
+    template <typename T, typename E = Empty>
     class ThreadSafeIndexedRegistry {
     public:
       typedef T     value_type;
@@ -32,22 +32,22 @@ namespace art {
 
       typedef typename collection_type::const_iterator const_iterator;
 
-      static ThreadSafeIndexedRegistry* instance();
+      static ThreadSafeIndexedRegistry * instance();
 
       // Retrieve the value_type object with the given index.
       // If we return 'true', then 'result' carries the
       // value_type object.
       // If we return 'false, no matching index was found, and
       // the value of 'result' is undefined.
-      void getMapped(size_type index, value_type& result) const;
+      void getMapped(size_type index, value_type & result) const;
 
       // put the given value_type object into the
       // registry.
-      bool insertMapped(value_type const& v);
+      bool insertMapped(value_type const & v);
 
       // put the value_type objects in the given collection
       // into the registry.
-      void insertCollection(collection_type const& c);
+      void insertCollection(collection_type const & c);
 
       // Return true if there are no contained value_type objects.
       bool empty() const;
@@ -64,38 +64,39 @@ namespace art {
       const_iterator end() const;
 
       // Print the contents of this registry to the given ostream.
-      void print(std::ostream& os) const;
+      void print(std::ostream & os) const;
 
       // Provide access to the contained collection
-      collection_type& data();
-      collection_type const& data() const;
+      collection_type & data();
+      collection_type const & data() const;
 
       // Provide access to the appendage "extra". The
       // ThreadSafeIndexedRegistry doesn't know what this is for, but
       // instantiations of the template can use it.
-      extra_type& extra();
-      extra_type const& extra() const;
+      extra_type & extra();
+      extra_type const & extra() const;
 
     private:
       ThreadSafeIndexedRegistry();
       ~ThreadSafeIndexedRegistry();
 
       // Not copyable:
-      ThreadSafeIndexedRegistry(ThreadSafeIndexedRegistry<T, E> const&);
-      void operator= (ThreadSafeIndexedRegistry<T, E> const&);
+      ThreadSafeIndexedRegistry(ThreadSafeIndexedRegistry<T, E> const &);
+      void operator= (ThreadSafeIndexedRegistry<T, E> const &);
 
       collection_type data_;
       extra_type      extra_;
 
-      static ThreadSafeIndexedRegistry* instance_;
+      static ThreadSafeIndexedRegistry * instance_;
 
       static boost::mutex registry_mutex;
     };
 
     template <typename T, typename E>
     inline
-    std::ostream&
-    operator<< (std::ostream& os, ThreadSafeIndexedRegistry<T, E> const& reg) {
+    std::ostream &
+    operator<< (std::ostream & os, ThreadSafeIndexedRegistry<T, E> const & reg)
+    {
       reg.print(os);
       return os;
     }
@@ -114,7 +115,8 @@ namespace art {
 
     template <typename T, typename E>
     ThreadSafeIndexedRegistry<T, E>*
-    ThreadSafeIndexedRegistry<T, E>::instance() {
+    ThreadSafeIndexedRegistry<T, E>::instance()
+    {
       if (instance_ == 0) {
         boost::mutex::scoped_lock lock(registry_mutex);
         if (instance_ == 0) {
@@ -127,14 +129,16 @@ namespace art {
 
     template <typename T, typename E>
     void
-    ThreadSafeIndexedRegistry<T, E>::getMapped(size_type k, value_type& result) const {
+    ThreadSafeIndexedRegistry<T, E>::getMapped(size_type k, value_type & result) const
+    {
       boost::mutex::scoped_lock lock(registry_mutex);
       result = data_[k];
     }
 
     template <typename T, typename E>
     bool
-    ThreadSafeIndexedRegistry<T, E>::insertMapped(value_type const& v) {
+    ThreadSafeIndexedRegistry<T, E>::insertMapped(value_type const & v)
+    {
       boost::mutex::scoped_lock lock(registry_mutex);
       data_.push_back(v);
       return true;
@@ -142,7 +146,8 @@ namespace art {
 
     template <typename T, typename E>
     void
-    ThreadSafeIndexedRegistry<T, E>::insertCollection(collection_type const& c) {
+    ThreadSafeIndexedRegistry<T, E>::insertCollection(collection_type const & c)
+    {
       for (typename collection_type::const_iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it) {
         insertMapped(*it);
       }
@@ -151,72 +156,82 @@ namespace art {
     template <typename T, typename E>
     inline
     bool
-    ThreadSafeIndexedRegistry<T, E>::empty() const {
+    ThreadSafeIndexedRegistry<T, E>::empty() const
+    {
       return data_.empty();
     }
 
     template <typename T, typename E>
     inline
     bool
-    ThreadSafeIndexedRegistry<T, E>::notEmpty() const {
+    ThreadSafeIndexedRegistry<T, E>::notEmpty() const
+    {
       return !empty();
     }
 
     template <typename T, typename E>
     inline
     typename ThreadSafeIndexedRegistry<T, E>::size_type
-    ThreadSafeIndexedRegistry<T, E>::size() const {
+    ThreadSafeIndexedRegistry<T, E>::size() const
+    {
       return data_.size();
     }
 
     template <typename T, typename E>
     inline
     typename ThreadSafeIndexedRegistry<T, E>::const_iterator
-    ThreadSafeIndexedRegistry<T, E>::begin() const {
+    ThreadSafeIndexedRegistry<T, E>::begin() const
+    {
       return data_.begin();
     }
 
     template <typename T, typename E>
     inline
     typename ThreadSafeIndexedRegistry<T, E>::const_iterator
-    ThreadSafeIndexedRegistry<T, E>::end() const {
+    ThreadSafeIndexedRegistry<T, E>::end() const
+    {
       return data_.end();
     }
 
     template <typename T, typename E>
     void
-    ThreadSafeIndexedRegistry<T, E>::print(std::ostream& os) const {
+    ThreadSafeIndexedRegistry<T, E>::print(std::ostream & os) const
+    {
       os << "Registry with " << size() << " entries\n";
       for (const_iterator i = begin(), e = end(); i != e; ++i) {
-          os << i - begin() << " " << i << '\n';
+        os << i - begin() << " " << i << '\n';
       }
     }
 
     template <typename T, typename E>
     inline
-    typename ThreadSafeIndexedRegistry<T, E>::collection_type&
-    ThreadSafeIndexedRegistry<T, E>::data() {
+    typename ThreadSafeIndexedRegistry<T, E>::collection_type &
+    ThreadSafeIndexedRegistry<T, E>::data()
+    {
       return data_;
     }
 
     template <typename T, typename E>
     inline
-    typename ThreadSafeIndexedRegistry<T, E>::extra_type&
-    ThreadSafeIndexedRegistry<T, E>::extra() {
+    typename ThreadSafeIndexedRegistry<T, E>::extra_type &
+    ThreadSafeIndexedRegistry<T, E>::extra()
+    {
       return extra_;
     }
 
     template <typename T, typename E>
     inline
-    typename ThreadSafeIndexedRegistry<T, E>::extra_type const&
-    ThreadSafeIndexedRegistry<T, E>::extra() const {
+    typename ThreadSafeIndexedRegistry<T, E>::extra_type const &
+    ThreadSafeIndexedRegistry<T, E>::extra() const
+    {
       return extra_;
     }
 
     template <typename T, typename E>
     inline
-    typename ThreadSafeIndexedRegistry<T, E>::collection_type const&
-    ThreadSafeIndexedRegistry<T, E>::data() const {
+    typename ThreadSafeIndexedRegistry<T, E>::collection_type const &
+    ThreadSafeIndexedRegistry<T, E>::data() const
+    {
       return data_;
     }
 

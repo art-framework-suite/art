@@ -10,30 +10,27 @@
 #include <iostream>
 #include <string>
 
-namespace arttest
-{
+namespace arttest {
 
 
-void
-  UnitTestClient_P::analyze( art::Event      const & e
-                           , art::EventSetup const & /*unused*/
-                              )
-{
-  mf::LogWarning ("configuration") << "useLogFlush = " << useLogFlush
-                               << " queueFillers = " << queueFillers;
-  std::string longMessage;
-  for (int k=0; k<100; k++) {
-    longMessage += "Line in long message\n";
-  }
-  for (int i=0; i< queueFillers; ++i) {
-    mf::LogInfo("cat") <<  "message " << i << "\n" << longMessage;
-  }
-
-  mf::LogError ("keyMessage") << "This message is issued just before abort";
-  if  (useLogFlush)  art::FlushMessageLog();
-  abort();
-
- }  // MessageLoggerClient::analyze()
+  void
+  UnitTestClient_P::analyze(art::Event      const & e
+                            , art::EventSetup const & /*unused*/
+                           )
+  {
+    mf::LogWarning("configuration") << "useLogFlush = " << useLogFlush
+                                    << " queueFillers = " << queueFillers;
+    std::string longMessage;
+    for (int k = 0; k < 100; k++) {
+      longMessage += "Line in long message\n";
+    }
+    for (int i = 0; i < queueFillers; ++i) {
+      mf::LogInfo("cat") <<  "message " << i << "\n" << longMessage;
+    }
+    mf::LogError("keyMessage") << "This message is issued just before abort";
+    if (useLogFlush)  { art::FlushMessageLog(); }
+    abort();
+  }  // MessageLoggerClient::analyze()
 
 
 }  // arttest

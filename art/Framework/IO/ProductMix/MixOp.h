@@ -237,7 +237,8 @@ readFromFile(EntryNumberSequence const & seq)
 template <typename PROD>
 void
 art::MixOp<PROD>::
-initProductList(size_t nSecondaries) {
+initProductList(size_t nSecondaries)
+{
   inProducts_.resize(nSecondaries);
 }
 

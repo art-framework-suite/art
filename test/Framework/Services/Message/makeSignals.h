@@ -10,26 +10,24 @@ namespace art {
 }
 
 
-namespace arttest
-{
+namespace arttest {
 
-class makeSignals
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    makeSignals( fhicl::ParameterSet const & ) { }
+  class makeSignals
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    makeSignals(fhicl::ParameterSet const &) { }
 
-  virtual
+    virtual
     ~makeSignals() { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-};
+  private:
+  };
 
 }  // arttest
 

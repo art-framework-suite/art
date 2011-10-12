@@ -14,21 +14,20 @@ using namespace art;
 
 static const char CVSId[] = "";
 
-class TestSchedulerModule1 : public EDProducer
-{
- public:
-  explicit TestSchedulerModule1(ParameterSet const& p):pset_(p){
+class TestSchedulerModule1 : public EDProducer {
+public:
+  explicit TestSchedulerModule1(ParameterSet const & p): pset_(p) {
     produces<arttest::StringProduct>();
   }
 
-  void produce(Event& e, EventSetup const&);
+  void produce(Event & e, EventSetup const &);
 
 private:
   ParameterSet pset_;
 };
 
 
-void TestSchedulerModule1::produce(Event& e, EventSetup const&)
+void TestSchedulerModule1::produce(Event & e, EventSetup const &)
 {
   std::string myname = pset_.get<std::string>("module_name");
   std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));

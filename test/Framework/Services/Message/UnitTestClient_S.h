@@ -15,76 +15,70 @@ namespace art {
 
 namespace arttest {
 
-class UTC_S1
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_S1( fhicl::ParameterSet const & p)
-  {
-    identifier = p.get<int> ("identifier", 99);
-    art::GroupLogStatistics("grouped_cat");
-  }
+  class UTC_S1
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_S1(fhicl::ParameterSet const & p) {
+      identifier = p.get<int> ("identifier", 99);
+      art::GroupLogStatistics("grouped_cat");
+    }
 
-  virtual
+    virtual
     ~UTC_S1()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  int identifier;
-  static bool enableNotYetCalled;
-  static int n;
-};
+  private:
+    int identifier;
+    static bool enableNotYetCalled;
+    static int n;
+  };
 
-class UTC_S2
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_S2( fhicl::ParameterSet const & p)
-  {
-    identifier = p.get<int> ("identifier", 98);
-  }
+  class UTC_S2
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_S2(fhicl::ParameterSet const & p) {
+      identifier = p.get<int> ("identifier", 98);
+    }
 
-  virtual
+    virtual
     ~UTC_S2()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-  int identifier;
-  static int n;
-};
+  private:
+    int identifier;
+    static int n;
+  };
 
-class UTC_SUMMARY
-  : public art::EDAnalyzer
-{
-public:
-  explicit
-    UTC_SUMMARY( fhicl::ParameterSet const & p)
-  {
-  }
+  class UTC_SUMMARY
+      : public art::EDAnalyzer {
+  public:
+    explicit
+    UTC_SUMMARY(fhicl::ParameterSet const & p) {
+    }
 
-  virtual
+    virtual
     ~UTC_SUMMARY()
-  { }
+    { }
 
-  virtual
-    void analyze( art::Event      const & e
-                , art::EventSetup const & c
+    virtual
+    void analyze(art::Event      const & e
+                 , art::EventSetup const & c
                 );
 
-private:
-};
+  private:
+  };
 
 }  // arttest
 

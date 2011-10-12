@@ -13,10 +13,10 @@ public:
                         ProductID pid);
   virtual ~DeferredProductGetter();
 
-  virtual EDProduct const *getIt() const;
-  virtual EDProduct const *anyProduct() const;
-  virtual EDProduct const *uniqueProduct() const;
-  virtual EDProduct const *uniqueProduct(TypeID const &) const;
+  virtual EDProduct const * getIt() const;
+  virtual EDProduct const * anyProduct() const;
+  virtual EDProduct const * uniqueProduct() const;
+  virtual EDProduct const * uniqueProduct(TypeID const &) const;
   virtual bool resolveProduct(bool fillOnDemand, TypeID const &) const;
   virtual bool resolveProductIfAvailable(bool fillOnDemand,
                                          TypeID const &) const;

@@ -7,15 +7,14 @@
 //
 // ======================================================================
 
-namespace art
-{
+namespace art {
   enum HashedTypes {
-      ModuleDescriptionType, // Obsolete
-      ParameterSetType,
-      ProcessHistoryType,
-      ProcessConfigurationType,
-      EntryDescriptionType, // Obsolete
-      ParentageType
+    ModuleDescriptionType, // Obsolete
+    ParameterSetType,
+    ProcessHistoryType,
+    ProcessConfigurationType,
+    EntryDescriptionType, // Obsolete
+    ParentageType
   };
 }
 

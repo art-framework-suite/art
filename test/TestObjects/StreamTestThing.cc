@@ -11,16 +11,16 @@ namespace {
 
 namespace arttestprod {
 
- StreamTestThing::~StreamTestThing() { }
+  StreamTestThing::~StreamTestThing() { }
 
- StreamTestThing::StreamTestThing() : data_()
- {
- }
+  StreamTestThing::StreamTestThing() : data_()
+  {
+  }
 
- StreamTestThing::StreamTestThing(int sz) : data_(sz)
- {
+  StreamTestThing::StreamTestThing(int sz) : data_(sz)
+  {
     static Setter junker;
-    generate(data_.begin(),data_.end(),rand);
- }
+    generate(data_.begin(), data_.end(), rand);
+  }
 
 }
