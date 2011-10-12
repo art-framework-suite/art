@@ -80,11 +80,11 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
-    template <typename T, void (T::*)(Event const &)> struct startEvent_function;
+    template <typename T, void (T:: *)(Event const &)> struct startEvent_function;
 
     //////////
     // Temporary trapping of old interface in user code.
-    template <typename X, void (X::*)()> struct old_startEvent_function;
+    template <typename X, void (X:: *)()> struct old_startEvent_function;
     template <typename X>
     no_tag
     has_old_startEvent_helper(...);
@@ -100,15 +100,15 @@ namespace art {
     template <typename T> struct do_not_call_startEvent {
     public:
       do_not_call_startEvent(Event const &) { }
-      void operator()(T &t) {
+      void operator()(T & t) {
         static bool need_warning =
           has_old_startEvent<T>::value;
         if (has_old_startEvent<T>::value) {
           if (need_warning) {
             mf::LogWarning("Deprecated")
-              << "Mixing driver function has signature startEvent(), which is deprecated.\n"
-              << "Please update your code to define startEvent(Event const &).\n"
-              << "In a future version of ART the old method will no longer be called.";
+                << "Mixing driver function has signature startEvent(), which is deprecated.\n"
+                << "Please update your code to define startEvent(Event const &).\n"
+                << "In a future version of ART the old method will no longer be called.";
             need_warning = false;
           }
           t.startEvent();
@@ -120,10 +120,10 @@ namespace art {
 
     template <typename T> struct call_startEvent {
     public:
-      call_startEvent(Event const &e) : e_(e) { }
-      void operator()(T &t) { t.startEvent(e_); }
+      call_startEvent(Event const & e) : e_(e) { }
+      void operator()(T & t) { t.startEvent(e_); }
     private:
-      Event const &e_;
+      Event const & e_;
     };
 
     template <typename T>
@@ -143,8 +143,8 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method size_t eventsToSkip() const?
-    template <typename T, size_t (T::*)()> struct eventsToSkip_function;
-    template <typename T, size_t (T::*)() const> struct const_eventsToSkip_function;
+    template <typename T, size_t (T:: *)()> struct eventsToSkip_function;
+    template <typename T, size_t (T:: *)() const> struct const_eventsToSkip_function;
 
     template <typename T> struct do_not_setup_eventsToSkip {
       do_not_setup_eventsToSkip(MixHelper &, T &) { }
@@ -155,11 +155,10 @@ namespace art {
     call_eventsToSkip(T & t) { return t.eventsToSkip(); }
 
     template <typename T> struct setup_eventsToSkip {
-  public:
-      setup_eventsToSkip(MixHelper & helper, T & t)
-        {
-          helper.setEventsToSkipFunction(std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
-        }
+    public:
+      setup_eventsToSkip(MixHelper & helper, T & t) {
+        helper.setEventsToSkipFunction(std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
+      }
     };
 
     template <typename T>
@@ -184,7 +183,7 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
     // processEventIDs(EventIDSequence const &)?
-    template <typename T, void (T::*)(EventIDSequence const &)> struct processEventIDs_function;
+    template <typename T, void (T:: *)(EventIDSequence const &)> struct processEventIDs_function;
 
     template <typename T> struct do_not_call_processEventIDs {
     public:
@@ -193,7 +192,7 @@ namespace art {
 
     template <typename T> struct call_processEventIDs {
     public:
-      void operator()(T &t, EventIDSequence const &seq) { t.processEventIDs(seq); }
+      void operator()(T & t, EventIDSequence const & seq) { t.processEventIDs(seq); }
     };
 
     template <typename T>
@@ -213,7 +212,7 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
-    template <typename T, void (T::*)(Event &)> struct finalizeEvent_function;
+    template <typename T, void (T:: *)(Event &)> struct finalizeEvent_function;
 
     template <typename T> struct do_not_call_finalizeEvent {
     public:
@@ -222,7 +221,7 @@ namespace art {
 
     template <typename T> struct call_finalizeEvent {
     public:
-      void operator()(T &t, Event &e) { t.finalizeEvent(e); }
+      void operator()(T & t, Event & e) { t.finalizeEvent(e); }
     };
 
     template <typename T>
@@ -248,10 +247,10 @@ template <class T>
 class art::MixFilter : public art::EDFilter {
 public:
   typedef T MixDetail;
-  explicit MixFilter(fhicl::ParameterSet const &p);
+  explicit MixFilter(fhicl::ParameterSet const & p);
 
   virtual void beginJob();
-  virtual bool filter(art::Event &e);
+  virtual bool filter(art::Event & e);
 
 private:
   MixHelper helper_;
@@ -259,10 +258,10 @@ private:
 };
 
 template <class T>
-art::MixFilter<T>::MixFilter(fhicl::ParameterSet const &p)
+art::MixFilter<T>::MixFilter(fhicl::ParameterSet const & p)
   :
   EDFilter(),
-  helper_((createEngine(get_seed_value(p)),p), *this), // See note below
+  helper_((createEngine(get_seed_value(p)), p), *this), // See note below
   detail_(p, helper_)
 {
   // Note that the random number engine is created in the initializer
@@ -272,27 +271,27 @@ art::MixFilter<T>::MixFilter(fhicl::ParameterSet const &p)
   // service handle to the random number generator service. Do NOT
   // remove the seemingly-superfluous parentheses.
   typename std::conditional<detail::has_eventsToSkip<T>::value, detail::setup_eventsToSkip<T>, detail::do_not_setup_eventsToSkip<T> >::type
-    maybe_setup_skipper(helper_, detail_);
+  maybe_setup_skipper(helper_, detail_);
 }
 
 template <class T>
 void
-art::MixFilter<T>::beginJob() {
+art::MixFilter<T>::beginJob()
+{
   helper_.postRegistrationInit();
 }
 
 template <class T>
 bool
-art::MixFilter<T>::filter(art::Event &e) {
+art::MixFilter<T>::filter(art::Event & e)
+{
   // 1. Call detail object's startEvent() if it exists.
-  typename std::conditional<detail::has_startEvent<T>::value,
-    detail::call_startEvent<T>,
-    detail::do_not_call_startEvent<T> >::type maybe_call_startEvent(e);
+  typename std::conditional < detail::has_startEvent<T>::value,
+           detail::call_startEvent<T>,
+           detail::do_not_call_startEvent<T> >::type maybe_call_startEvent(e);
   maybe_call_startEvent(detail_);
-
   // 2. Ask detail object how many events to read.
   size_t nSecondaries = detail_.nSecondaries();
-
   // 3. Decide which events we're reading and prime the event tree cache.
   EntryNumberSequence enSeq;
   EventIDSequence eIDseq;
@@ -300,24 +299,21 @@ art::MixFilter<T>::filter(art::Event &e) {
   eIDseq.reserve(nSecondaries);
   if (!helper_.generateEventSequence(nSecondaries, enSeq, eIDseq)) {
     throw Exception(errors::FileReadError)
-      << "Insufficient secondary events available to mix.\n";
+        << "Insufficient secondary events available to mix.\n";
   }
-
   // 4. Give the event ID sequence to the detail object.
-  typename std::conditional<detail::has_processEventIDs<T>::value,
-    detail::call_processEventIDs<T>,
-    detail::do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
+  typename std::conditional < detail::has_processEventIDs<T>::value,
+           detail::call_processEventIDs<T>,
+           detail::do_not_call_processEventIDs<T> >::type maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
-
   // 3. Make the MixHelper read info into all the products, invoke the
   // mix functions and put the products into the event.
   helper_.mixAndPut(enSeq, e);
-
   // 4. Call detail object's finalizeEvent() if it exists.
-  typename std::conditional<detail::has_finalizeEvent<T>::value,
-    detail::call_finalizeEvent<T>,
-    detail::do_not_call_finalizeEvent<T> >::type
-    maybe_call_finalizeEvent;
+  typename std::conditional < detail::has_finalizeEvent<T>::value,
+           detail::call_finalizeEvent<T>,
+           detail::do_not_call_finalizeEvent<T> >::type
+           maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return true;
 }

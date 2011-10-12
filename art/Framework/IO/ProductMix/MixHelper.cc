@@ -310,8 +310,8 @@ art::MixHelper::openNextFile()
     }
   }
   nEventsReadThisFile_ = (readMode_ == SEQUENTIAL && eventsToSkip_) ?
-                        eventsToSkip_() - 1 :
-                        0; // Reset for this file.
+                         eventsToSkip_() - 1 :
+                         0; // Reset for this file.
   openAndReadMetaData(*currentFilename_);
   return true;
 }
