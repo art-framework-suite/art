@@ -64,7 +64,7 @@ namespace art {
 
   public:
 
-    CRC32Calculator(std::string const & message);
+    CRC32Calculator(std::string const& message);
 
     std::uint32_t checksum() { return checksum_; }
 

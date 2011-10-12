@@ -15,14 +15,16 @@
 
 using namespace art;
 
-namespace arttest {
+namespace arttest
+{
 
-  class TestResultAnalyzer : public art::EDAnalyzer {
+  class TestResultAnalyzer : public art::EDAnalyzer
+  {
   public:
-    explicit TestResultAnalyzer(fhicl::ParameterSet const &);
+    explicit TestResultAnalyzer(fhicl::ParameterSet const&);
     virtual ~TestResultAnalyzer();
 
-    virtual void analyze(art::Event const & e, art::EventSetup const & c);
+    virtual void analyze(art::Event const& e, art::EventSetup const& c);
     void endJob();
 
   private:
@@ -35,12 +37,12 @@ namespace arttest {
     std::string expected_modulelabel_; // if empty, we don't know
   };
 
-  TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const & ps):
+  TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps):
     passed_(),
     failed_(),
-    dump_(ps.get<bool>("dump", false)),
-    name_(ps.get<std::string>("name", "DEFAULT")),
-    numbits_(ps.get<int>("numbits", -1)),
+    dump_(ps.get<bool>("dump",false)),
+    name_(ps.get<std::string>("name","DEFAULT")),
+    numbits_(ps.get<int>("numbits",-1)),
     expected_pathname_(ps.get<std::string>("pathname", "")),
     expected_modulelabel_(ps.get<std::string>("modlabel", ""))
   {
@@ -50,32 +52,39 @@ namespace arttest {
   {
   }
 
-  void TestResultAnalyzer::analyze(art::Event const & e, art::EventSetup const &)
+  void TestResultAnalyzer::analyze(art::Event const& e,art::EventSetup const&)
   {
     typedef std::vector<art::Handle<art::TriggerResults> > Trig;
     Trig prod;
     e.getManyByType(prod);
-    art::CurrentProcessingContext const * cpc = currentContext();
-    assert(cpc != 0);
-    assert(cpc->moduleDescription() != 0);
-    if (!expected_pathname_.empty())
-    { assert(expected_pathname_ == *(cpc->pathName())); }
-    if (!expected_modulelabel_.empty()) {
-      assert(expected_modulelabel_ == *(cpc->moduleLabel()));
-    }
-    if (prod.size() == 0) { return; }
-    if (prod.size() > 1) {
+
+    art::CurrentProcessingContext const* cpc = currentContext();
+    assert( cpc != 0 );
+    assert( cpc->moduleDescription() != 0 );
+
+    if ( !expected_pathname_.empty() )
+      assert( expected_pathname_ == *(cpc->pathName()) );
+
+    if ( !expected_modulelabel_.empty() )
+      {
+        assert(expected_modulelabel_ == *(cpc->moduleLabel()) );
+      }
+
+    if(prod.size() == 0) return;
+    if(prod.size() > 1) {
       std::cerr << "More than one trigger result in the event, using first one"
-                << std::endl;
+           << std::endl;
     }
-    if (prod[0]->accept()) { ++passed_; }
-    else { ++failed_; }
-    if (numbits_ < 0) { return; }
+
+    if (prod[0]->accept()) ++passed_; else ++failed_;
+
+    if(numbits_ < 0) return;
+
     unsigned int numbits = numbits_;
-    if (numbits != prod[0]->size()) {
+    if(numbits != prod[0]->size()) {
       std::cerr << "TestResultAnalyzer named: " << name_
-                << " should have " << numbits
-                << ", got " << prod[0]->size() << " in TriggerResults\n";
+           << " should have " << numbits
+           << ", got " << prod[0]->size() << " in TriggerResults\n";
       abort();
     }
   }
@@ -83,7 +92,7 @@ namespace arttest {
   void TestResultAnalyzer::endJob()
   {
     std::cerr << "TESTRESULTANALYZER " << name_ << ": "
-              << "passed=" << passed_ << " failed=" << failed_ << "\n";
+         << "passed=" << passed_ << " failed=" << failed_ << "\n";
   }
 
 }

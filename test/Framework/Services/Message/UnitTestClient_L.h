@@ -9,43 +9,46 @@ namespace art {
 }
 
 
-namespace arttest {
+namespace arttest
+{
 
-  class UnitTestClient_L : public art::EDAnalyzer {
-  public:
-    explicit
-    UnitTestClient_L(fhicl::ParameterSet const &)
-    { }
+class UnitTestClient_L : public art::EDAnalyzer
+{
+public:
+  explicit
+    UnitTestClient_L( fhicl::ParameterSet const & )
+  { }
 
-    virtual
+  virtual
     ~UnitTestClient_L()
-    { }
+  { }
 
-    virtual
-    void analyze(art::Event      const & e
-                 , art::EventSetup const & c
+  virtual
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
-  private:
-  };
+private:
+};
 
-  class UnitTestClient_L1 : public art::EDAnalyzer {
-  public:
-    explicit
-    UnitTestClient_L1(fhicl::ParameterSet const &)
-    { }
+class UnitTestClient_L1 : public art::EDAnalyzer
+{
+public:
+  explicit
+    UnitTestClient_L1( fhicl::ParameterSet const & )
+  { }
 
-    virtual
+  virtual
     ~UnitTestClient_L1()
-    { }
+  { }
 
-    virtual
-    void analyze(art::Event      const & e
-                 , art::EventSetup const & c
+  virtual
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
-  private:
-  };
+private:
+};
 
 
 }  // arttest

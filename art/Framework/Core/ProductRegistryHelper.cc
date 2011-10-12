@@ -10,9 +10,9 @@
 
 namespace {
   void
-  addToRegistry(art::TypeLabel const & tl,
-                art::ModuleDescription const & md,
-                art::MasterProductRegistry & preg)
+  addToRegistry(art::TypeLabel const &tl,
+                art::ModuleDescription const& md,
+                art::MasterProductRegistry& preg)
   {
     preg.addProduct(std::auto_ptr<art::BranchDescription>
                     (new art::BranchDescription(tl, md)));
@@ -21,8 +21,8 @@ namespace {
 
 void
 art::ProductRegistryHelper::
-registerProducts(MasterProductRegistry & preg,
-                 ModuleDescription const & md)
+registerProducts(MasterProductRegistry& preg,
+                 ModuleDescription const& md)
 {
   cet::for_all(typeLabelList_,
                std::bind(&addToRegistry,
@@ -33,17 +33,16 @@ registerProducts(MasterProductRegistry & preg,
 
 void
 art::ProductRegistryHelper::
-insertOrThrow(TypeLabel const & tl)
-{
+insertOrThrow(TypeLabel const &tl) {
   std::pair<TypeLabelList::iterator, bool>
-  result(typeLabelList_.insert(tl));
+    result(typeLabelList_.insert(tl));
   if (!result.second) {
     throw Exception(errors::LogicError, "RegistrationFailure")
-        << "The module being constructed attempted to register conflicting products with:\n"
-        << "friendlyClassName: "
-        << tl.friendlyClassName()
-        << " and instanceName: "
-        << tl.productInstanceName
-        << ".\n";
+      << "The module being constructed attempted to register conflicting products with:\n"
+      << "friendlyClassName: "
+      << tl.friendlyClassName()
+      << " and instanceName: "
+      << tl.productInstanceName
+      << ".\n";
   }
 }

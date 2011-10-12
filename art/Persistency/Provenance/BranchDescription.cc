@@ -19,19 +19,19 @@
 // not change in new versions of ROOT.
 namespace ROOT {
   namespace Cintex {
-    std::string CintName(const std::string &);
+    std::string CintName(const std::string&);
   }
 }
 
 using fhicl::ParameterSetID;
 
 namespace {
-  void throwExceptionWithText(const char * txt)
+  void throwExceptionWithText(const char* txt)
   {
     throw art::Exception(art::errors::LogicError)
-        << "Problem using an incomplete BranchDescription\n"
-        << txt
-        << "\nPlease report this error to the ART developers\n";
+      << "Problem using an incomplete BranchDescription\n"
+      << txt
+      << "\nPlease report this error to the ART developers\n";
   }
 
   static char const underscore('_');
@@ -66,8 +66,8 @@ art::BranchDescription::BranchDescription() :
 }
 
 art::BranchDescription::
-BranchDescription(TypeLabel const & tl,
-                  ModuleDescription const & md) :
+BranchDescription(TypeLabel const &tl,
+                  ModuleDescription const& md) :
   branchType_(tl.branchType),
   moduleLabel_(tl.hasEmulatedModule() ? tl.emulatedModule : md.moduleLabel()),
   processName_(md.processName()),
@@ -89,17 +89,16 @@ BranchDescription(TypeLabel const & tl,
   initBranchID_();
 }
 
-void art::BranchDescription::initBranchID_()
-{
-  if (!transientsFluffed_()) { return; }
+void art::BranchDescription::initBranchID_() {
+  if (!transientsFluffed_()) return;
   if (!branchID_.isValid()) {
     branchID_.setID(guts().branchName_);
   }
 }
 
-void art::BranchDescription::fluffTransients_() const
-{
-  if (transientsFluffed_()) { return; }
+void art::BranchDescription::fluffTransients_() const {
+  if (transientsFluffed_()) return;
+
   transients_.get().branchName_.reserve(friendlyClassName().size() +
                                         moduleLabel().size() +
                                         productInstanceName().size() +
@@ -112,18 +111,20 @@ void art::BranchDescription::fluffTransients_() const
   transients_.get().branchName_ += underscore;
   transients_.get().branchName_ += processName();
   transients_.get().branchName_ += period;
+
   Reflex::Type t = Reflex::Type::ByName(producedClassName());
   Reflex::PropertyList p = t.Properties();
   if (p.HasProperty("persistent") &&
       p.PropertyAsString("persistent") == std::string("false")) {
     mf::LogWarning("TransientBranch")
-        << "BranchDescription::fluffTransients() called for the non-persistable\n"
-        << "entity: "
-        << friendlyClassName()
-        << ". Please check your experiment's policy\n"
-        << "on the advisability of such products.\n";
+      << "BranchDescription::fluffTransients() called for the non-persistable\n"
+      << "entity: "
+      << friendlyClassName()
+      << ". Please check your experiment's policy\n"
+      << "on the advisability of such products.\n";
     transients_.get().transient_ = true;
   }
+
   transients_.get().wrappedName_ = wrappedClassName(producedClassName());
   transients_.get().wrappedCintName_ =
     wrappedClassName(ROOT::Cintex::CintName(producedClassName()));
@@ -134,15 +135,14 @@ void art::BranchDescription::fluffTransients_() const
       strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
     if (transients_.get().splitLevel_ < 0) {
       throw Exception(errors::Configuration, "IllegalSplitLevel")
-          << "' An illegal ROOT split level of "
-          << transients_.get().splitLevel_
-          << " is specified for class "
-          << transients_.get().wrappedName_
-          << ".'\n";
+        << "' An illegal ROOT split level of "
+        << transients_.get().splitLevel_
+        << " is specified for class "
+        << transients_.get().wrappedName_
+        << ".'\n";
     }
     ++transients_.get().splitLevel_; //Compensate for wrapper
-  }
-  else {
+  } else {
     transients_.get().splitLevel_ = invalidSplitLevel;
   }
   if (wp.HasProperty("basketSize")) {
@@ -150,35 +150,32 @@ void art::BranchDescription::fluffTransients_() const
       strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
     if (transients_.get().basketSize_ <= 0) {
       throw Exception(errors::Configuration, "IllegalBasketSize")
-          << "' An illegal ROOT basket size of "
-          << transients_.get().basketSize_
-          << " is specified for class "
-          << transients_.get().wrappedName_
-          << "'.\n";
+        << "' An illegal ROOT basket size of "
+        << transients_.get().basketSize_
+        << " is specified for class "
+        << transients_.get().wrappedName_
+        << "'.\n";
     }
-  }
-  else {
+  } else {
     transients_.get().basketSize_ = invalidBasketSize;
   }
 }
 
-ParameterSetID const &
-art::BranchDescription::psetID() const
-{
+ParameterSetID const&
+art::BranchDescription::psetID() const {
   assert(!psetIDs().empty());
   if (psetIDs().size() != 1) {
     throw Exception(errors::Configuration, "AmbiguousProvenance")
-        << "Your application requires all events on Branch '"
-        << guts().branchName_
-        << "'\n to have the same provenance. This file has events with mixed provenance\n"
-        << "on this branch.  Use a different input file.\n";
+      << "Your application requires all events on Branch '"
+      << guts().branchName_
+      << "'\n to have the same provenance. This file has events with mixed provenance\n"
+      << "on this branch.  Use a different input file.\n";
   }
   return *psetIDs().begin();
 }
 
 void
-art::BranchDescription::merge(BranchDescription const & other)
-{
+art::BranchDescription::merge(BranchDescription const& other) {
   psetIDs_.insert(other.psetIDs().begin(), other.psetIDs().end());
   processConfigurationIDs_.insert(other.processConfigurationIDs().begin(),
                                   other.processConfigurationIDs().end());
@@ -192,8 +189,7 @@ art::BranchDescription::merge(BranchDescription const & other)
 }
 
 void
-art::BranchDescription::write(std::ostream & os) const
-{
+art::BranchDescription::write(std::ostream& os) const {
   os << "Branch Type = " << branchType_ << std::endl;
   os << "Process Name = " << processName() << std::endl;
   os << "ModuleLabel = " << moduleLabel() << std::endl;
@@ -204,8 +200,7 @@ art::BranchDescription::write(std::ostream & os) const
 }
 
 void
-art::BranchDescription::swap(BranchDescription & other)
-{
+art::BranchDescription::swap(BranchDescription &other) {
   using std::swap;
   swap(branchType_, other.branchType_);
   swap(moduleLabel_, other.moduleLabel_);
@@ -222,84 +217,90 @@ art::BranchDescription::swap(BranchDescription & other)
 void
 art::BranchDescription::throwIfInvalid_() const
 {
-  if (transientsFluffed_()) { return; }
+  if (transientsFluffed_()) return;
   if (branchType_ >= art::NumBranchTypes)
-  { throwExceptionWithText("Illegal BranchType detected"); }
+    throwExceptionWithText("Illegal BranchType detected");
+
   if (moduleLabel_.empty())
-  { throwExceptionWithText("Module label is not allowed to be empty"); }
+    throwExceptionWithText("Module label is not allowed to be empty");
+
   if (processName_.empty())
-  { throwExceptionWithText("Process name is not allowed to be empty"); }
+    throwExceptionWithText("Process name is not allowed to be empty");
+
   if (producedClassName_.empty())
-  { throwExceptionWithText("Full class name is not allowed to be empty"); }
+    throwExceptionWithText("Full class name is not allowed to be empty");
+
   if (friendlyClassName_.empty())
-  { throwExceptionWithText("Friendly class name is not allowed to be empty"); }
+    throwExceptionWithText("Friendly class name is not allowed to be empty");
+
   if (produced() && !parameterSetID().is_valid())
-  { throwExceptionWithText("Invalid ParameterSetID detected"); }
+    throwExceptionWithText("Invalid ParameterSetID detected");
+
   if (friendlyClassName_.find(underscore) != std::string::npos) {
     throw Exception(errors::LogicError, "IllegalCharacter")
-        << "Class name '"
-        << friendlyClassName()
-        << "' contains an underscore ('_'), which is illegal in the "
-        << "name of a product.\n";
+      << "Class name '"
+      << friendlyClassName()
+      << "' contains an underscore ('_'), which is illegal in the "
+      << "name of a product.\n";
   }
+
   if (moduleLabel_.find(underscore) != std::string::npos) {
     throw Exception(errors::Configuration, "IllegalCharacter")
-        << "Module label '"
-        << moduleLabel()
-        << "' contains an underscore ('_'), which is illegal in a "
-        << "module label.\n";
+      << "Module label '"
+      << moduleLabel()
+      << "' contains an underscore ('_'), which is illegal in a "
+      << "module label.\n";
   }
+
   if (productInstanceName_.find(underscore) != std::string::npos) {
     throw Exception(errors::Configuration, "IllegalCharacter")
-        << "Product instance name '"
-        << productInstanceName()
-        << "' contains an underscore ('_'), which is illegal in a "
-        << "product instance name.\n";
+      << "Product instance name '"
+      << productInstanceName()
+      << "' contains an underscore ('_'), which is illegal in a "
+      << "product instance name.\n";
   }
+
   if (processName_.find(underscore) != std::string::npos) {
     throw Exception(errors::Configuration, "IllegalCharacter")
-        << "Process name '"
-        << processName()
-        << "' contains an underscore ('_'), which is illegal in a "
-        << "process name.\n";
+      << "Process name '"
+      << processName()
+      << "' contains an underscore ('_'), which is illegal in a "
+      << "process name.\n";
   }
 }
 
 void
-art::BranchDescription::updateFriendlyClassName()
-{
+art::BranchDescription::updateFriendlyClassName() {
   friendlyClassName_ = friendlyname::friendlyName(producedClassName());
 }
 
 bool
-art::operator<(BranchDescription const & a, BranchDescription const & b)
-{
-  if (a.processName() < b.processName()) { return true; }
-  if (b.processName() < a.processName()) { return false; }
-  if (a.producedClassName() < b.producedClassName()) { return true; }
-  if (b.producedClassName() < a.producedClassName()) { return false; }
-  if (a.friendlyClassName() < b.friendlyClassName()) { return true; }
-  if (b.friendlyClassName() < a.friendlyClassName()) { return false; }
-  if (a.productInstanceName() < b.productInstanceName()) { return true; }
-  if (b.productInstanceName() < a.productInstanceName()) { return false; }
-  if (a.moduleLabel() < b.moduleLabel()) { return true; }
-  if (b.moduleLabel() < a.moduleLabel()) { return false; }
-  if (a.branchType() < b.branchType()) { return true; }
-  if (b.branchType() < a.branchType()) { return false; }
-  if (a.branchID() < b.branchID()) { return true; }
-  if (b.branchID() < a.branchID()) { return false; }
-  if (a.psetIDs() < b.psetIDs()) { return true; }
-  if (b.psetIDs() < a.psetIDs()) { return false; }
-  if (a.processConfigurationIDs() < b.processConfigurationIDs()) { return true; }
-  if (b.processConfigurationIDs() < a.processConfigurationIDs()) { return false; }
-  if (a.present() < b.present()) { return true; }
-  if (b.present() < a.present()) { return false; }
+art::operator<(BranchDescription const& a, BranchDescription const& b) {
+  if (a.processName() < b.processName()) return true;
+  if (b.processName() < a.processName()) return false;
+  if (a.producedClassName() < b.producedClassName()) return true;
+  if (b.producedClassName() < a.producedClassName()) return false;
+  if (a.friendlyClassName() < b.friendlyClassName()) return true;
+  if (b.friendlyClassName() < a.friendlyClassName()) return false;
+  if (a.productInstanceName() < b.productInstanceName()) return true;
+  if (b.productInstanceName() < a.productInstanceName()) return false;
+  if (a.moduleLabel() < b.moduleLabel()) return true;
+  if (b.moduleLabel() < a.moduleLabel()) return false;
+  if (a.branchType() < b.branchType()) return true;
+  if (b.branchType() < a.branchType()) return false;
+  if (a.branchID() < b.branchID()) return true;
+  if (b.branchID() < a.branchID()) return false;
+  if (a.psetIDs() < b.psetIDs()) return true;
+  if (b.psetIDs() < a.psetIDs()) return false;
+  if (a.processConfigurationIDs() < b.processConfigurationIDs()) return true;
+  if (b.processConfigurationIDs() < a.processConfigurationIDs()) return false;
+  if (a.present() < b.present()) return true;
+  if (b.present() < a.present()) return false;
   return false;
 }
 
 bool
-art::  combinable(BranchDescription const & a, BranchDescription const & b)
-{
+art::  combinable(BranchDescription const& a, BranchDescription const& b) {
   return
     (a.branchType() == b.branchType()) &&
     (a.processName() == b.processName()) &&
@@ -311,31 +312,27 @@ art::  combinable(BranchDescription const & a, BranchDescription const & b)
 }
 
 bool
-art::operator==(BranchDescription const & a, BranchDescription const & b)
-{
+art::operator==(BranchDescription const& a, BranchDescription const& b) {
   return combinable(a, b) &&
-         (a.present() == b.present()) &&
-         (a.psetIDs() == b.psetIDs()) &&
-         (a.processConfigurationIDs() == b.processConfigurationIDs());
+    (a.present() == b.present()) &&
+    (a.psetIDs() == b.psetIDs()) &&
+    (a.processConfigurationIDs() == b.processConfigurationIDs());
 }
 
 void
-art::detail::BranchDescriptionStreamer::operator()(TBuffer & R_b, void * objp)
-{
+art::detail::BranchDescriptionStreamer::operator()(TBuffer &R_b, void *objp) {
   static TClassRef cl(TClass::GetClass(typeid(BranchDescription)));
-  BranchDescription * obj(reinterpret_cast<BranchDescription *>(objp));
+  BranchDescription *obj(reinterpret_cast<BranchDescription*>(objp));
   if (R_b.IsReading()) {
     cl->ReadBuffer(R_b, obj);
     obj->fluffTransients_();
-  }
-  else {
+  } else {
     cl->WriteBuffer(R_b, obj);
   }
 }
 
 void
-art::detail::setBranchDescriptionStreamer()
-{
+art::detail::setBranchDescriptionStreamer() {
   static TClassRef cl(TClass::GetClass(typeid(BranchDescription)));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new BranchDescriptionStreamer);
@@ -343,11 +340,10 @@ art::detail::setBranchDescriptionStreamer()
 }
 
 std::string
-art::match(BranchDescription const & a,
-           BranchDescription const & b,
-           std::string const & fileName,
-           BranchDescription::MatchMode m)
-{
+art::match(BranchDescription const& a,
+           BranchDescription const& b,
+           std::string const& fileName,
+           BranchDescription::MatchMode m) {
   std::ostringstream differences;
   if (a.branchName() != b.branchName()) {
     differences << "Branch name '" << b.branchName() << "' does not match '" << a.branchName() << "'.\n";
@@ -375,21 +371,18 @@ art::match(BranchDescription const & a,
   if (m == BranchDescription::Strict) {
     if (b.psetIDs().size() > 1) {
       differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
-    }
-    else if (a.psetIDs().size() > 1) {
+    } else if (a.psetIDs().size() > 1) {
       differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
-    }
-    else if (a.psetIDs() != b.psetIDs()) {
+    } else if (a.psetIDs() != b.psetIDs()) {
       differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
       differences << "    than in previous files.\n";
     }
+
     if (b.processConfigurationIDs().size() > 1) {
       differences << "Branch '" << b.branchName() << "' uses more than one process configuration in file '" << fileName << "'.\n";
-    }
-    else if (a.processConfigurationIDs().size() > 1) {
+    } else if (a.processConfigurationIDs().size() > 1) {
       differences << "Branch '" << a.branchName() << "' uses more than one process configuration in previous files.\n";
-    }
-    else if (a.processConfigurationIDs() != b.processConfigurationIDs()) {
+    } else if (a.processConfigurationIDs() != b.processConfigurationIDs()) {
       differences << "Branch '" << b.branchName() << "' uses different process configurations in file '" << fileName << "'.\n";
       differences << "    than in previous files.\n";
     }

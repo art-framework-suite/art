@@ -7,7 +7,8 @@ namespace art {
     const std::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
     const std::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
 
-    std::uint32_t crctable[256] = {
+    std::uint32_t crctable[256] =
+    {
       0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL,
       0x076DC419L, 0x706AF48FL, 0xE963A535L, 0x9E6495A3L,
       0x0EDB8832L, 0x79DCB8A4L, 0xE0D5E91EL, 0x97D2D988L,
@@ -75,17 +76,19 @@ namespace art {
     };
   }  // namespace
 
-  CRC32Calculator::CRC32Calculator(std::string const & message)
-  {
+  CRC32Calculator::CRC32Calculator(std::string const& message) {
+
     /* initialize value */
     checksum_ = CRC32_XINIT;
+
     /* process each byte prior to checksum field */
     int length = message.length();
-    char const * p = message.data();
+    char const* p = message.data();
     for (int j = 0; j < length; j++) {
       unsigned char uc = *p++;
       checksum_ = art::crctable[(checksum_ ^ uc) & 0xFFL] ^ (checksum_ >> 8);
     }
+
     /* return XOR out value */
     checksum_ = checksum_ ^ CRC32_XOROT;
   }

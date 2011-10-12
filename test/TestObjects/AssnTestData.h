@@ -10,7 +10,7 @@ namespace arttest {
 
 struct arttest::AssnTestData {
   AssnTestData() : d1(0), d2(0), label() {}
-  AssnTestData(size_t d1, size_t d2, std::string const & label)
+  AssnTestData(size_t d1, size_t d2, std::string const &label)
     : d1(d1), d2(d2), label(label) {}
   size_t d1;
   size_t d2;

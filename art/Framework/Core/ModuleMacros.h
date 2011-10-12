@@ -20,16 +20,16 @@
 // DEFINE_ART_MODULE_TEMP is a short-term expedient, to get an early
 // version of art working. It will be removed as soon as feasible.
 #define DEFINE_ART_MODULE_TEMP(klass) \
-  extern "C" \
-  art::Worker* make_temp(art::WorkerParams const& wp, art::ModuleDescription const& md) \
-  { return new klass::WorkerType(std::auto_ptr<klass::ModuleType>(new klass(*(wp.pset_))), md, wp); }
+extern "C" \
+art::Worker* make_temp(art::WorkerParams const& wp, art::ModuleDescription const& md) \
+{ return new klass::WorkerType(std::auto_ptr<klass::ModuleType>(new klass(*(wp.pset_))), md, wp); }
 
 // produce the function that is used to create a module instance.
 #define DEFINE_ART_MODULE(klass) \
-  extern "C" \
-  std::auto_ptr<klass::ModuleType> make(fhicl::ParameterSet const& ps) \
-  { return std::auto_ptr<klass::ModuleType>(new klass(ps)); } \
-  DEFINE_ART_MODULE_TEMP(klass)
+extern "C" \
+std::auto_ptr<klass::ModuleType> make(fhicl::ParameterSet const& ps) \
+{ return std::auto_ptr<klass::ModuleType>(new klass(ps)); } \
+ DEFINE_ART_MODULE_TEMP(klass)
 
 // ======================================================================
 

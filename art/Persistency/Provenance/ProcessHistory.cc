@@ -13,9 +13,8 @@ using namespace std;
 
 namespace art {
   ProcessHistoryID
-  ProcessHistory::id() const
-  {
-    if (phid().isValid()) {
+  ProcessHistory::id() const {
+    if(phid().isValid()) {
       return phid();
     }
     // This implementation is ripe for optimization.
@@ -35,9 +34,8 @@ namespace art {
   }
 
   bool
-  ProcessHistory::getConfigurationForProcess(string const & name,
-      ProcessConfiguration & config) const
-  {
+  ProcessHistory::getConfigurationForProcess(string const& name,
+                                             ProcessConfiguration& config) const {
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       if (i->processName() == name) {
         config = *i;
@@ -49,22 +47,20 @@ namespace art {
   }
 
   bool
-  isAncestor(ProcessHistory const & a, ProcessHistory const & b)
-  {
-    if (a.size() >= b.size()) { return false; }
+  isAncestor(ProcessHistory const& a, ProcessHistory const& b) {
+    if (a.size() >= b.size()) return false;
     typedef ProcessHistory::collection_type::const_iterator const_iterator;
     for (const_iterator itA = a.data().begin(), itB = b.data().begin(),
          itAEnd = a.data().end(); itA != itAEnd; ++itA, ++itB) {
-      if (*itA != *itB) { return false; }
+      if (*itA != *itB) return false;
     }
     return true;
   }
 
-  ostream &
-  operator<<(ostream & ost, ProcessHistory const & ph)
-  {
+  ostream&
+  operator<<(ostream& ost, ProcessHistory const& ph) {
     ost << "Process History = ";
-    copy_all(ph, ostream_iterator<ProcessHistory::value_type>(ost, ";"));
+    copy_all(ph, ostream_iterator<ProcessHistory::value_type>(ost,";"));
     return ost;
   }
 }

@@ -19,7 +19,7 @@ class art::RunStopwatch {
 public:
   typedef std::shared_ptr<CPUTimer> StopwatchPointer;
 
-  RunStopwatch(const StopwatchPointer & ptr): stopwatch_(ptr) {
+  RunStopwatch(const StopwatchPointer& ptr): stopwatch_(ptr) {
     stopwatch_->start();
   }
 

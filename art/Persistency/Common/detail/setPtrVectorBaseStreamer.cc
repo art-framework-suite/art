@@ -10,20 +10,18 @@
 // not change in new versions of ROOT.
 namespace ROOT {
   namespace Cintex {
-    std::string CintName(const std::string &);
+    std::string CintName(const std::string&);
   }
 }
 
 void
-art::detail::PtrVectorBaseStreamer::operator()(TBuffer & R_b, void * objp)
-{
+art::detail::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
   static TClassRef cl("art::PtrVectorBase");
-  PtrVectorBase * obj = reinterpret_cast<PtrVectorBase *>(objp);
+  PtrVectorBase* obj = reinterpret_cast<PtrVectorBase *>(objp);
   if (R_b.IsReading()) {
     obj->zeroTransients(); // Clear transient rep.
     cl->ReadBuffer(R_b, objp);
-  }
-  else {
+  } else {
     obj->fill_offsets(obj->indices_); // Fill persistent rep.
     cl->WriteBuffer(R_b, objp);
     PtrVectorBase::indices_t tmp;
@@ -32,9 +30,8 @@ art::detail::PtrVectorBaseStreamer::operator()(TBuffer & R_b, void * objp)
 }
 
 void
-art::detail::setPtrVectorBaseStreamer()
-{
-  TClass * cl = TClass::GetClass(typeid(PtrVectorBase));
+art::detail::setPtrVectorBaseStreamer() {
+  TClass *cl = TClass::GetClass(typeid(PtrVectorBase));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new PtrVectorBaseStreamer);
   }

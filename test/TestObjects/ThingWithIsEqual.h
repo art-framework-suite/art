@@ -5,8 +5,8 @@ namespace arttest {
 
   struct ThingWithIsEqual {
     ~ThingWithIsEqual() { }
-    ThingWithIsEqual(): a() { }
-    bool isProductEqual(ThingWithIsEqual const & thingWithIsEqual) const;
+    ThingWithIsEqual():a() { }
+    bool isProductEqual(ThingWithIsEqual const& thingWithIsEqual) const;
     int a;
   };
 

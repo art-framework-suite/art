@@ -6,7 +6,8 @@
 
 // Obsolete
 
-namespace art {
+namespace art
+{
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }
 

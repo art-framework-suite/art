@@ -5,8 +5,8 @@ namespace arttest {
 
   struct ThingWithMerge {
     ~ThingWithMerge() { }
-    ThingWithMerge(): a() { }
-    bool mergeProduct(ThingWithMerge const & newThing);
+    ThingWithMerge():a() { }
+    bool mergeProduct(ThingWithMerge const& newThing);
     int a;
   };
 

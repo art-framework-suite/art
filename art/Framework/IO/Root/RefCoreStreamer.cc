@@ -13,33 +13,28 @@
 
 namespace art {
   void
-  RefCoreStreamer::operator()(TBuffer & R_b, void * objp)
-  {
+  RefCoreStreamer::operator()(TBuffer &R_b, void *objp) {
     static TClassRef cl("art::RefCore");
     if (R_b.IsReading()) {
       cl->ReadBuffer(R_b, objp);
-      RefCore * obj = static_cast<RefCore *>(objp);
+      RefCore* obj = static_cast<RefCore *>(objp);
       if (groupFinder_) {
         obj->setProductGetter(groupFinder_->getGroup(obj->id()).result().get());
-      }
-      else {
+      } else {
         obj->setProductGetter(0);
       }
       obj->setProductPtr(0);
-    }
-    else {
+    } else {
       cl->WriteBuffer(R_b, objp);
     }
   }
 
-  void configureRefCoreStreamer(cet::exempt_ptr<EventPrincipal const> groupFinder)
-  {
+  void configureRefCoreStreamer(cet::exempt_ptr<EventPrincipal const> groupFinder) {
     static TClassRef cl("art::RefCore");
-    RefCoreStreamer * st = static_cast<RefCoreStreamer *>(cl->GetStreamer());
+    RefCoreStreamer *st = static_cast<RefCoreStreamer *>(cl->GetStreamer());
     if (st == 0) {
       cl->AdoptStreamer(new RefCoreStreamer(groupFinder));
-    }
-    else {
+    } else {
       st->setGroupFinder(groupFinder);
     }
   }

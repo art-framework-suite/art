@@ -19,15 +19,15 @@
 
 class art::Run : private art::DataViewImpl {
 public:
-  Run(RunPrincipal & rp, const ModuleDescription & md);
-  ~Run() {}
+  Run(RunPrincipal& rp, const ModuleDescription& md);
+  ~Run(){}
 
   typedef DataViewImpl Base;
   // AUX functions.
-  RunID const & id() const {return aux_.id();}
+  RunID const& id() const {return aux_.id();}
   RunNumber_t run() const {return aux_.run();}
-  Timestamp const & beginTime() const {return aux_.beginTime();}
-  Timestamp const & endTime() const {return aux_.endTime();}
+  Timestamp const& beginTime() const {return aux_.beginTime();}
+  Timestamp const& endTime() const {return aux_.endTime();}
 
   using Base::get;
   using Base::getByLabel;
@@ -44,7 +44,7 @@ public:
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   void
-  put(std::auto_ptr<PROD> product, std::string const & productInstanceName);
+  put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -53,11 +53,11 @@ public:
   // process(es). Equivalent ParameterSets are compressed out of the
   // result.
   bool
-  getProcessParameterSet(std::string const & processName,
+  getProcessParameterSet(std::string const& processName,
                          std::vector<fhicl::ParameterSet>& ps) const;
 
 private:
-  RunPrincipal const &
+  RunPrincipal const&
   runPrincipal() const;
 
   RunPrincipal &
@@ -74,24 +74,28 @@ private:
 
   void commit_();
 
-  RunAuxiliary const & aux_;
+  RunAuxiliary const& aux_;
 };
 
 template <typename PROD>
 void
-art::Run::put(std::auto_ptr<PROD> product, std::string const & productInstanceName)
+art::Run::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
 {
   if (product.get() == 0) {                // null pointer is illegal
     TypeID typeID(typeid(PROD));
     throw art::Exception(art::errors::NullPointerError)
-        << "Run::put: A null auto_ptr was passed to 'put'.\n"
-        << "The pointer is of type " << typeID << ".\n"
-        << "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      << "Run::put: A null auto_ptr was passed to 'put'.\n"
+      << "The pointer is of type " << typeID << ".\n"
+      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }
-  BranchDescription const & desc =
+
+  BranchDescription const& desc =
     getBranchDescription(TypeID(*product), productInstanceName);
+
   Wrapper<PROD> *wp(new Wrapper<PROD>(product));
+
   putProducts().push_back(std::make_pair(wp, &desc));
+
   // product.release(); // The object has been copied into the Wrapper.
   // The old copy must be deleted, so we cannot release ownership.
 }

@@ -108,27 +108,28 @@ using fhicl::ParameterSet;
 
 // ----------------------------------------------------------------------
 
-class art::FloatingPointControl {
+class art::FloatingPointControl
+{
   // non-copyable:
-  FloatingPointControl(FloatingPointControl const &);
-  void  operator = (FloatingPointControl const &);
+  FloatingPointControl( FloatingPointControl const & );
+  void  operator = ( FloatingPointControl const & );
 
 public:
   // c'tor:
-  FloatingPointControl(ParameterSet const &
-                       , ActivityRegistry   &
-                      );
+  FloatingPointControl( ParameterSet const &
+                               , ActivityRegistry   &
+                               );
 
   // use compiler-generated d'tor
 
-  void postEndJob();
+  void postEndJob( );
 
-  void preModule(const ModuleDescription &);
-  void postModule(const ModuleDescription &);
+  void preModule(const ModuleDescription&);
+  void postModule(const ModuleDescription&);
 
 private:
-  void controlFpe();
-  void echoState();
+  void controlFpe( );
+  void echoState( );
 
   bool enableDivByZeroEx_;
   bool enableInvalidEx_;

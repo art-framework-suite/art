@@ -13,10 +13,10 @@
 
 namespace art {
 
-  typedef  cet::registry_via_id<ProcessConfigurationID, ProcessConfiguration>
-  ProcessConfigurationRegistry;
+  typedef  cet::registry_via_id<ProcessConfigurationID,ProcessConfiguration>
+           ProcessConfigurationRegistry;
   typedef  ProcessConfigurationRegistry::collection_type
-  ProcessConfigurationMap;
+           ProcessConfigurationMap;
 
 }  // art
 

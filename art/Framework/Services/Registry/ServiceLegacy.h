@@ -10,8 +10,8 @@
 
 namespace art {
   enum ServiceLegacy { kOverlapIsError
-                       , kTokenOverrides
-                       , kConfigurationOverrides
+                     , kTokenOverrides
+                     , kConfigurationOverrides
                      };
 }
 

@@ -8,7 +8,7 @@
 using art::TriggerResultInserter;
 using fhicl::ParameterSet;
 
-TriggerResultInserter::TriggerResultInserter(const ParameterSet & pset, const TrigResPtr & trptr) :
+TriggerResultInserter::TriggerResultInserter(const ParameterSet& pset, const TrigResPtr& trptr) :
   trptr_(trptr),
   pset_id_(pset.id())
 {
@@ -18,9 +18,10 @@ TriggerResultInserter::TriggerResultInserter(const ParameterSet & pset, const Tr
 TriggerResultInserter::~TriggerResultInserter()
 { }
 
-void TriggerResultInserter::produce(art::Event & e)
+void TriggerResultInserter::produce(art::Event& e)
 {
   std::auto_ptr<TriggerResults>
-  results(new TriggerResults(*trptr_, pset_id_));
+    results(new TriggerResults(*trptr_, pset_id_));
+
   e.put(results);
 }

@@ -19,28 +19,28 @@ using fhicl::ParameterSet;
 
 // ----------------------------------------------------------------------
 
-TFileService::TFileService(ParameterSet const & cfg
-                           , ActivityRegistry & r
+TFileService::TFileService( ParameterSet const & cfg
+                          , ActivityRegistry & r
                           )
-  : TFileDirectory(""
+: TFileDirectory   ( ""
                    , ""
-                   , new TFile(cfg.get<std::string>("fileName").c_str()
-                               , "RECREATE"
+                   , new TFile( cfg.get<std::string>("fileName").c_str()
+                              , "RECREATE"
                               )
                    , ""
-                  )
-  , file_(TFileDirectory::file_)
-  , closeFileFast_(cfg.get<bool>("closeFileFast", false))
+                   )
+, file_            ( TFileDirectory::file_ )
+, closeFileFast_   ( cfg.get<bool>("closeFileFast", false) )
 {
   // activities to monitor in order to set the proper directory
   r.watchPreModuleConstruction(this, & TFileService::setDirectoryName);
-  r.watchPreModule(this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginJob(this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndJob(this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginRun(this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndRun(this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginSubRun(this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndSubRun(this, & TFileService::setDirectoryName);
+  r.watchPreModule            (this, & TFileService::setDirectoryName);
+  r.watchPreModuleBeginJob    (this, & TFileService::setDirectoryName);
+  r.watchPreModuleEndJob      (this, & TFileService::setDirectoryName);
+  r.watchPreModuleBeginRun    (this, & TFileService::setDirectoryName);
+  r.watchPreModuleEndRun      (this, & TFileService::setDirectoryName);
+  r.watchPreModuleBeginSubRun (this, & TFileService::setDirectoryName);
+  r.watchPreModuleEndSubRun   (this, & TFileService::setDirectoryName);
 }
 
 // ----------------------------------------------------------------------
@@ -48,8 +48,8 @@ TFileService::TFileService(ParameterSet const & cfg
 TFileService::~TFileService()
 {
   file_->Write();
-  if (closeFileFast_)
-  { gROOT->GetListOfFiles()->Remove(file_); }
+  if( closeFileFast_ )
+    gROOT->GetListOfFiles()->Remove(file_);
   file_->Close();
   delete file_;
 }
@@ -57,7 +57,7 @@ TFileService::~TFileService()
 // ----------------------------------------------------------------------
 
 void
-TFileService::setDirectoryName(ModuleDescription const & desc)
+  TFileService::setDirectoryName( ModuleDescription const & desc )
 {
   dir_ = desc.moduleLabel_;
   descr_ = (dir_ + " (" + desc.moduleName_ + ") folder").c_str();

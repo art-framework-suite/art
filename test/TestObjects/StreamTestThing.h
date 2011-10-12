@@ -5,7 +5,8 @@
 
 namespace arttestprod {
 
-  struct StreamTestThing {
+  struct StreamTestThing
+  {
     ~StreamTestThing();
     explicit StreamTestThing(int sz);
     StreamTestThing();

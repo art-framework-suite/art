@@ -28,17 +28,17 @@ namespace art {
   class DuplicateChecker {
   public:
 
-    DuplicateChecker(fhicl::ParameterSet const & pset);
+    DuplicateChecker(fhicl::ParameterSet const& pset);
 
     void init(bool realData,
-              FileIndex const & fileIndex);
+              FileIndex const& fileIndex);
 
     void inputFileClosed();
 
     void rewind();
 
-    bool isDuplicateAndCheckActive(EventID const & eventID,
-                                   std::string const & fileName);
+    bool isDuplicateAndCheckActive(EventID const& eventID,
+                                   std::string const& fileName);
 
   private:
 

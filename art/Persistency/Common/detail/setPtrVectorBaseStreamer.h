@@ -14,7 +14,7 @@ class TBuffer;
 
 class art::detail::PtrVectorBaseStreamer : public TClassStreamer {
 public:
-  void operator()(TBuffer & R_b, void * objp);
+  void operator()(TBuffer &R_b, void *objp);
 };
 
 #endif /* art_Persistency_Common_detail_setPtrVectorBaseStreamer_h */

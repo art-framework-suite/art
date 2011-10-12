@@ -42,21 +42,21 @@ uniqueProduct() const
 
 art::EDProduct const *
 art::DeferredProductGetter::
-uniqueProduct(TypeID const & tid) const
+uniqueProduct(TypeID const &tid) const
 {
   return resolveGetter_()->uniqueProduct(tid);
 }
 
 bool
 art::DeferredProductGetter::
-resolveProduct(bool fillOnDemand, TypeID const & tid) const
+resolveProduct(bool fillOnDemand, TypeID const &tid) const
 {
   return resolveGetter_()->resolveProduct(fillOnDemand, tid);
 }
 
 bool
 art::DeferredProductGetter::
-resolveProductIfAvailable(bool fillOnDemand, TypeID const & tid) const
+resolveProductIfAvailable(bool fillOnDemand, TypeID const &tid) const
 {
   return resolveGetter_()->resolveProductIfAvailable(fillOnDemand, tid);
 }
@@ -67,14 +67,12 @@ resolveGetter_() const
 {
   if (realGetter_) {
     return realGetter_;
-  }
-  else if (realGetter_ = groupFinder_->getByProductID(pid_).result().get()) {
+  } else if (realGetter_ = groupFinder_->getByProductID(pid_).result().get()) {
     return realGetter_;
-  }
-  else {
+  } else {
     throw Exception(errors::ProductNotFound)
-        << "Product corresponding to ProductID "
-        << pid_
-        << "Not found: possible attempt to resolve a Ptr before its product has been committed.\n";
+      << "Product corresponding to ProductID "
+      << pid_
+      << "Not found: possible attempt to resolve a Ptr before its product has been committed.\n";
   }
 }

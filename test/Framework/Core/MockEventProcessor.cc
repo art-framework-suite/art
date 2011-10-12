@@ -15,18 +15,17 @@ namespace {
     char id;
   };
 
-  std::istream & operator>>(std::istream & is, token & t)
-  {
-    if (is >> t.id) { is >> t.value; }
+  std::istream & operator>>(std::istream & is, token & t) {
+    if(is >> t.id) is >> t.value;
     return is;
   }
 }
 
 namespace art {
 
-  MockEventProcessor::MockEventProcessor(const std::string & mockData,
-                                         std::ostream & output,
-                                         const statemachine::FileMode & fileMode,
+  MockEventProcessor::MockEventProcessor(const std::string& mockData,
+                                         std::ostream& output,
+                                         const statemachine::FileMode& fileMode,
                                          bool handleEmptyRuns,
                                          bool handleEmptySubRuns) :
     mockData_(mockData),
@@ -36,32 +35,35 @@ namespace art {
     handleEmptySubRuns_(handleEmptySubRuns),
     shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
-    shouldWeStop_(false)
-  {
+    shouldWeStop_(false)  {
   }
 
   art::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool onlineStateTransitions)
-  {
+  MockEventProcessor::runToCompletion(bool onlineStateTransitions) {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     handleEmptyRuns_,
                                     handleEmptySubRuns_);
+
+
     myMachine.initiate();
+
     // Loop over the mock data items
     std::istringstream input(mockData_);
     token t;
     while (input >> t) {
+
       char ch = t.id;
+
       if (ch == 'r') {
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
         run_ = t.value;
-        myMachine.process_event(statemachine::Run(t.value));
+        myMachine.process_event( statemachine::Run(t.value) );
       }
       else if (ch == 'l') {
         output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
         subRun_ = t.value;
-        myMachine.process_event(statemachine::SubRun(t.value));
+        myMachine.process_event( statemachine::SubRun(t.value) );
       }
       else if (ch == 'e') {
         output_ << "    *** nextItemType: Event ***\n";
@@ -73,27 +75,28 @@ namespace art {
         else {
           shouldWeStop_ = false;
         }
-        myMachine.process_event(statemachine::Event());
+        myMachine.process_event( statemachine::Event() );
       }
       else if (ch == 'f') {
         output_ << "    *** nextItemType: File " << t.value << " ***\n";
         // a special value for test purposes only
-        if (t.value == 0) { shouldWeCloseOutput_ = false; }
-        else { shouldWeCloseOutput_ = true; }
-        myMachine.process_event(statemachine::File());
+        if (t.value == 0) shouldWeCloseOutput_ = false;
+        else shouldWeCloseOutput_ = true;
+        myMachine.process_event( statemachine::File() );
       }
       else if (ch == 's') {
         output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
         // a special value for test purposes only
-        if (t.value == 0) { shouldWeEndLoop_ = false; }
-        else { shouldWeEndLoop_ = true; }
-        myMachine.process_event(statemachine::Stop());
+        if (t.value == 0) shouldWeEndLoop_ = false;
+        else shouldWeEndLoop_ = true;
+        myMachine.process_event( statemachine::Stop() );
       }
       else if (ch == 'x') {
         output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
         shouldWeEndLoop_ = t.value;
-        myMachine.process_event(statemachine::Restart());
+        myMachine.process_event( statemachine::Restart() );
       }
+
       if (myMachine.terminated()) {
         output_ << "The state machine reports it has been terminated\n";
       }
@@ -103,164 +106,134 @@ namespace art {
 
   // Not used, this one does nothing
   art::MockEventProcessor::StatusCode
-  MockEventProcessor::runEventCount(int numberOfEventsToProcess)
-  {
+  MockEventProcessor::runEventCount(int numberOfEventsToProcess) {
     return epSuccess;
   }
 
-  void MockEventProcessor::readFile()
-  {
+  void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";
   }
 
-  void MockEventProcessor::closeInputFile()
-  {
+  void MockEventProcessor::closeInputFile() {
     output_ << "\tcloseInputFile\n";
   }
 
-  void MockEventProcessor::openOutputFiles()
-  {
+  void MockEventProcessor::openOutputFiles() {
     output_ << "\topenOutputFiles\n";
   }
 
-  void MockEventProcessor::closeOutputFiles()
-  {
+  void MockEventProcessor::closeOutputFiles() {
     output_ << "\tcloseOutputFiles\n";
   }
 
-  void MockEventProcessor::respondToOpenInputFile()
-  {
+  void MockEventProcessor::respondToOpenInputFile() {
     output_ << "\trespondToOpenInputFile\n";
   }
 
-  void MockEventProcessor::respondToCloseInputFile()
-  {
+  void MockEventProcessor::respondToCloseInputFile() {
     output_ << "\trespondToCloseInputFile\n";
   }
 
-  void MockEventProcessor::respondToOpenOutputFiles()
-  {
+  void MockEventProcessor::respondToOpenOutputFiles() {
     output_ << "\trespondToOpenOutputFiles\n";
   }
 
-  void MockEventProcessor::respondToCloseOutputFiles()
-  {
+  void MockEventProcessor::respondToCloseOutputFiles() {
     output_ << "\trespondToCloseOutputFiles\n";
   }
 
-  void MockEventProcessor::startingNewLoop()
-  {
+  void MockEventProcessor::startingNewLoop() {
     output_ << "\tstartingNewLoop\n";
   }
 
-  bool MockEventProcessor::endOfLoop()
-  {
+  bool MockEventProcessor::endOfLoop() {
     output_ << "\tendOfLoop\n";
     return shouldWeEndLoop_;
   }
 
-  void MockEventProcessor::rewindInput()
-  {
+  void MockEventProcessor::rewindInput() {
     output_ << "\trewind\n";
   }
 
-  void MockEventProcessor::prepareForNextLoop()
-  {
+  void MockEventProcessor::prepareForNextLoop() {
     output_ << "\tprepareForNextLoop\n";
   }
 
-  void MockEventProcessor::writeSubRunCache()
-  {
+  void MockEventProcessor::writeSubRunCache() {
     output_ << "\twriteSubRunCache\n";
   }
 
-  void MockEventProcessor::writeRunCache()
-  {
+  void MockEventProcessor::writeRunCache() {
     output_ << "\twriteRunCache\n";
   }
 
-  bool MockEventProcessor::shouldWeCloseOutput() const
-  {
+  bool MockEventProcessor::shouldWeCloseOutput() const {
     output_ << "\tshouldWeCloseOutput\n";
     return shouldWeCloseOutput_;
   }
 
-  void MockEventProcessor::doErrorStuff()
-  {
+  void MockEventProcessor::doErrorStuff() {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(int run)
-  {
+  void MockEventProcessor::beginRun(int run) {
     output_ << "\tbeginRun " << run << "\n";
   }
 
-  void MockEventProcessor::endRun(int run)
-  {
+  void MockEventProcessor::endRun(int run) {
     output_ << "\tendRun " << run << "\n";
   }
 
-  void MockEventProcessor::beginSubRun(int run, int subRun)
-  {
+  void MockEventProcessor::beginSubRun(int run, int subRun) {
     output_ << "\tbeginSubRun " << run << "/" << subRun << "\n";
   }
 
-  void MockEventProcessor::endSubRun(int run, int subRun)
-  {
+  void MockEventProcessor::endSubRun(int run, int subRun) {
     output_ << "\tendSubRun " << run << "/" << subRun << "\n";
   }
 
-  int MockEventProcessor::readAndCacheRun()
-  {
+  int MockEventProcessor::readAndCacheRun() {
     output_ << "\treadAndCacheRun " << run_ << "\n";
     return run_;
   }
 
-  int MockEventProcessor::readAndCacheSubRun()
-  {
+  int MockEventProcessor::readAndCacheSubRun() {
     output_ << "\treadAndCacheSubRun " << subRun_ << "\n";
     return subRun_;
   }
 
-  void MockEventProcessor::writeRun(int run)
-  {
+  void MockEventProcessor::writeRun(int run) {
     output_ << "\twriteRun " << run << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(int run)
-  {
+  void MockEventProcessor::deleteRunFromCache(int run) {
     output_ << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void MockEventProcessor::writeSubRun(int run, int subRun)
-  {
+  void MockEventProcessor::writeSubRun(int run, int subRun) {
     output_ << "\twriteSubRun " << run << "/" << subRun << "\n";
   }
 
-  void MockEventProcessor::deleteSubRunFromCache(int run, int subRun)
-  {
+  void MockEventProcessor::deleteSubRunFromCache(int run, int subRun) {
     output_ << "\tdeleteSubRunFromCache " << run << "/" << subRun << "\n";
   }
 
-  void MockEventProcessor::readEvent()
-  {
+  void MockEventProcessor::readEvent() {
     output_ << "\treadEvent\n";
   }
 
-  void MockEventProcessor::processEvent()
-  {
+  void MockEventProcessor::processEvent() {
     output_ << "\tprocessEvent\n";
   }
 
-  bool MockEventProcessor::shouldWeStop() const
-  {
+  bool MockEventProcessor::shouldWeStop() const {
     output_ << "\tshouldWeStop\n";
     return shouldWeStop_;
   }
 
-  void MockEventProcessor::setExceptionMessageFiles(std::string & message) { }
-  void MockEventProcessor::setExceptionMessageRuns(std::string & message) { }
-  void MockEventProcessor::setExceptionMessageSubRuns(std::string & message) { }
+  void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageSubRuns(std::string& message) { }
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
 }

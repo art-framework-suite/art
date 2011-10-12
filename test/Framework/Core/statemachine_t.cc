@@ -17,20 +17,20 @@ Test of the statemachine classes.
 #include <fstream>
 
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
   using namespace statemachine;
   std::cout << "Running test in statemachine_t.cc\n";
+
   // Handle the command line arguments
   std::string inputFile;
   std::string outputFile;
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
-  ("help,h", "produce help message")
-  ("inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))
-  ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"))
-  ("skipmode,m", "NOMERGE, FULLLUMIMERGE and FULLMERGE only")
-  ("skipmodes,s", "NOMERGE and FULLMERGE only");
+    ("help,h", "produce help message")
+    ("inputFile,i", boost::program_options::value<std::string>(&inputFile)->default_value(""))
+    ("outputFile,o", boost::program_options::value<std::string>(&outputFile)->default_value("statemachine_test_output.txt"))
+    ("skipmode,m", "NOMERGE, FULLLUMIMERGE and FULLMERGE only")
+    ("skipmodes,s", "NOMERGE and FULLMERGE only");
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
@@ -38,6 +38,7 @@ int main(int argc, char * argv[])
     std::cout << desc << "\n";
     return 1;
   }
+
   // Get some fake data from an input file.
   // The fake data has the format of a series pairs of items.
   // The first is a letter to indicate the data type
@@ -59,7 +60,9 @@ int main(int argc, char * argv[])
     }
     std::getline(input, mockData, '.');
   }
+
   std::ofstream output(outputFile.c_str());
+
   std::vector<FileMode> fileModes;
   fileModes.reserve(4);
   fileModes.push_back(NOMERGE);
@@ -70,6 +73,7 @@ int main(int argc, char * argv[])
     fileModes.push_back(FULLLUMIMERGE);
   }
   fileModes.push_back(FULLMERGE);
+
   for (size_t k = 0; k < fileModes.size(); ++k) {
     FileMode fileMode = fileModes[k];
     for (int i = 0; i < 2; ++i) {
@@ -77,21 +81,25 @@ int main(int argc, char * argv[])
       for (int j = 0; j < 2; ++j) {
         bool handleEmptySubRuns = j;
         output << "\nMachine parameters:  ";
-        if (fileMode == NOMERGE) { output << "mode = NOMERGE"; }
-        else if (fileMode == MERGE) { output << "mode = MERGE"; }
-        else if (fileMode == FULLLUMIMERGE) { output << "mode = FULLLUMIMERGE"; }
-        else { output << "mode = FULLMERGE"; }
+        if (fileMode == NOMERGE) output << "mode = NOMERGE";
+        else if (fileMode == MERGE) output << "mode = MERGE";
+        else if (fileMode == FULLLUMIMERGE) output << "mode = FULLLUMIMERGE";
+        else output << "mode = FULLMERGE";
         output << "  handleEmptyRuns = " << handleEmptyRuns;
         output << "  handleEmptySubRuns = " << handleEmptySubRuns << "\n";
+
         art::MockEventProcessor mockEventProcessor(mockData,
-            output,
-            fileMode,
-            handleEmptyRuns,
-            handleEmptySubRuns);
+                                                   output,
+                                                   fileMode,
+                                                   handleEmptyRuns,
+                                                   handleEmptySubRuns);
+
         bool onlineStateTransitions = false;
         mockEventProcessor.runToCompletion(onlineStateTransitions);
       }
     }
   }
+
+
   return 0;
 }

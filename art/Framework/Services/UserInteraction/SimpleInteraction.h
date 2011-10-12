@@ -23,11 +23,12 @@
 
 namespace ui {
 
-  class SimpleInteraction : public UserInteraction {
+  class SimpleInteraction : public UserInteraction
+  {
   public:
-    SimpleInteraction(const fhicl::ParameterSet &, art::ActivityRegistry &);
+    SimpleInteraction(const fhicl::ParameterSet&,art::ActivityRegistry&);
 
-    void moduleList(std::vector<ModuleInfo> const &);
+    void moduleList(std::vector<ModuleInfo> const&);
     void pickModule();
     UserInteraction::NextStep nextAction();
 

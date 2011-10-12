@@ -23,7 +23,7 @@
 namespace art {
   // defined below:
   class BranchMapper;
-  std::ostream & operator << (std::ostream &, BranchMapper const &);
+  std::ostream &operator << (std::ostream &, BranchMapper const &);
 
   // forward declaration:
   class ProductID;
@@ -59,7 +59,7 @@ private:
 
 inline
 std::ostream &
-art::operator << (std::ostream & os, BranchMapper const & p)
+art::operator << (std::ostream &os, BranchMapper const &p)
 {
   p.write(os);
   return os;

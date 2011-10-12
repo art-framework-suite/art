@@ -6,7 +6,7 @@
 #include "test/TestObjects/Thing.h"
 
 namespace arttest {
-  typedef std::vector<arttest::Thing> ThingCollection;
+   typedef std::vector<arttest::Thing> ThingCollection;
 }
 
 #endif /* test_TestObjects_ThingCollection_h */

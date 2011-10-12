@@ -21,52 +21,52 @@ namespace art {
   namespace errors {
 
     enum ErrorCodes {
-      OtherArt = 1
-                 ,  StdException
-      ,  Unknown
-      ,  BadAlloc
-      ,  BadExceptionType
+       OtherArt = 1
+    ,  StdException
+    ,  Unknown
+    ,  BadAlloc
+    ,  BadExceptionType
 
-      ,  ProductNotFound
-      ,  DictionaryNotFound
-      ,  InsertFailure
-      ,  Configuration
-      ,  LogicError
-      ,  UnimplementedFeature
-      ,  InvalidReference
-      ,  NullPointerError
-      ,  NoProductSpecified
-      ,  EventTimeout
-      ,  DataCorruption
+    ,  ProductNotFound
+    ,  DictionaryNotFound
+    ,  InsertFailure
+    ,  Configuration
+    ,  LogicError
+    ,  UnimplementedFeature
+    ,  InvalidReference
+    ,  NullPointerError
+    ,  NoProductSpecified
+    ,  EventTimeout
+    ,  DataCorruption
 
-      ,  ScheduleExecutionFailure
-      ,  EventProcessorFailure
-      ,  EndJobFailure
+    ,  ScheduleExecutionFailure
+    ,  EventProcessorFailure
+    ,  EndJobFailure
 
-      ,  FileOpenError
-      ,  FileReadError
-      ,  FatalRootError
-      ,  MismatchedInputFiles
+    ,  FileOpenError
+    ,  FileReadError
+    ,  FatalRootError
+    ,  MismatchedInputFiles
 
-      ,  ProductDoesNotSupportViews
-      ,  ProductDoesNotSupportPtr
+    ,  ProductDoesNotSupportViews
+    ,  ProductDoesNotSupportPtr
 
-      ,  SQLExecutionError
+    ,  SQLExecutionError
 
-      ,  InvalidNumber
+    ,  InvalidNumber
 
-      ,  NotFound
+    ,  NotFound
     };
 
   }  // errors
 
   namespace ExceptionDetail {
     std::string
-    translate(errors::ErrorCodes);
+      translate( errors::ErrorCodes );
   }
 
-  typedef  cet::coded_exception<errors::ErrorCodes, ExceptionDetail::translate>
-  Exception;
+  typedef  cet::coded_exception<errors::ErrorCodes,ExceptionDetail::translate>
+           Exception;
 }  // art
 
 // ======================================================================

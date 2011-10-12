@@ -8,25 +8,23 @@ FastCloningInfoProvider(cet::exempt_ptr<RootInput> input) :
 { }
 
 off_t
-art::FastCloningInfoProvider::remainingEvents() const
-{
+art::FastCloningInfoProvider::remainingEvents() const {
   if (!fastCloningPermitted()) {
     throw Exception(errors::LogicError)
-        << "FastCloningInfoProvider::remainingEvents() has no meaning"
-        << " in this context:\n"
-        << "Check fastCloningPermitted() first.\n";
+      << "FastCloningInfoProvider::remainingEvents() has no meaning"
+      << " in this context:\n"
+      << "Check fastCloningPermitted() first.\n";
   }
   return input_->remainingEvents();
 }
 
 off_t
-art::FastCloningInfoProvider::remainingSubRuns() const
-{
+art::FastCloningInfoProvider::remainingSubRuns() const {
   if (!fastCloningPermitted()) {
     throw Exception(errors::LogicError)
-        << "FastCloningInfoProvider::remainingSubRuns() has no meaning"
-        << " in this context:\n"
-        << "Check fastCloningPermitted() first.\n";
+      << "FastCloningInfoProvider::remainingSubRuns() has no meaning"
+      << " in this context:\n"
+      << "Check fastCloningPermitted() first.\n";
   }
   return input_->remainingSubRuns();
 }

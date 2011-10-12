@@ -21,37 +21,44 @@ using namespace art;
 //
 // Produces a SimpleProduct product instance.
 //
-class Reconfiguring : public art::EDAnalyzer {
+class Reconfiguring : public art::EDAnalyzer
+{
 public:
-  explicit Reconfiguring(fhicl::ParameterSet const & p) {
+  explicit Reconfiguring( fhicl::ParameterSet const & p )
+  {
   }
 
   virtual ~Reconfiguring() { }
-  virtual void analyze(art::Event const & e);
+  virtual void analyze( art::Event const & e );
 
 private:
   typedef std::vector<fhicl::ParameterSet> ParameterSets;
 };
 
-void Reconfiguring::analyze(art::Event const & e)
+void Reconfiguring::analyze( art::Event const & e )
 {
   ServiceHandle<Reconfigurable> rc;
   int level_before = rc->get_debug_level();
-  ServiceRegistry & inst = ServiceRegistry::instance();
+  ServiceRegistry& inst = ServiceRegistry::instance();
   ParameterSets psets;
   inst.presentToken().getParameterSets(psets);
-  ParameterSets::iterator cur = psets.begin(), end = psets.end();
-  for (; cur != end; ++cur) {
-    std::cerr << "service name = "
-              << cur->get<std::string>("service_type", "none")
-              << "\n";
-    cur->put<int>("debug_level", 10);
-  }
+
+  ParameterSets::iterator cur=psets.begin(),end=psets.end();
+  for(;cur!=end;++cur)
+    {
+      std::cerr << "service name = "
+            << cur->get<std::string>("service_type","none")
+                << "\n";
+      cur->put<int>("debug_level",10);
+    }
   inst.presentToken().putParameterSets(psets);
+
   int level_after = rc->get_debug_level();
+
   std::cerr << "before=" << level_before << " after=" << level_after << "\n";
-  assert(level_before == 0);
-  assert(level_after == 10);
+
+  assert(level_before==0);
+  assert(level_after==10);
 }
 
 // ----------------------------------------------------------------------

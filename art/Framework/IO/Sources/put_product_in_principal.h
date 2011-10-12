@@ -23,39 +23,40 @@
 #include <string>
 
 namespace art {
-  template <typename T, typename P>
-  void
-  put_product_in_principal(std::auto_ptr<T> product,
-                           P & principal,
-                           std::string const & module_label,
-                           std::string const & instance_name = std::string());
+   template <typename T, typename P>
+   void
+   put_product_in_principal(std::auto_ptr<T> product,
+                            P &principal,
+                            std::string const &module_label,
+                            std::string const &instance_name = std::string());
 
 }
 
 template <typename T, typename P>
 void
 art::put_product_in_principal(std::auto_ptr<T> product,
-                              P & principal,
-                              std::string const & module_label,
-                              std::string const & instance_name)
-{
-  if (product.get() == 0) {
-    TypeID typeID(typeid(T));
-    throw art::Exception(art::errors::NullPointerError)
-        << "put_product_in_principal: A null auto_ptr was passed to 'put'.\n"
-        << "The pointer is of type " << typeID << ".\n"
-        << "The specified product instance name was '"
-        << instance_name << "'.\n";
-  }
-  BranchDescription const & desc =
-    get_BranchDescription<T>(principal,
-                             module_label,
-                             instance_name);
-  std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));
-  principal.put(wp,
-                desc,
-                std::auto_ptr<ProductProvenance const>(
-                  new ProductProvenance(desc.branchID(), productstatus::present())));
+                              P &principal,
+                              std::string const &module_label,
+                              std::string const &instance_name) {
+   if (product.get() == 0) {
+      TypeID typeID(typeid(T));
+      throw art::Exception(art::errors::NullPointerError)
+         << "put_product_in_principal: A null auto_ptr was passed to 'put'.\n"
+         << "The pointer is of type " << typeID << ".\n"
+         << "The specified product instance name was '"
+         << instance_name << "'.\n";
+   }
+
+   BranchDescription const &desc =
+      get_BranchDescription<T>(principal,
+                               module_label,
+                               instance_name);
+
+   std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));
+   principal.put(wp,
+                 desc,
+                 std::auto_ptr<ProductProvenance const>(
+                   new ProductProvenance(desc.branchID(), productstatus::present())));
 }
 
 #endif /* art_Framework_IO_Sources_put_product_in_principal_h */

@@ -26,9 +26,9 @@ namespace art {
     // Only the 'salient attributes' are encoded into the ID.
     ParentageID id() const;
 
-    void write(std::ostream & os) const;
+    void write(std::ostream& os) const;
 
-    std::vector<BranchID> const & parents() const {return parents_;}
+    std::vector<BranchID> const& parents() const {return parents_;}
     std::vector<BranchID> & parents() {return parents_;}
 
   private:
@@ -38,16 +38,15 @@ namespace art {
   };
 
   inline
-  std::ostream &
-  operator<<(std::ostream & os, Parentage const & p)
-  {
+  std::ostream&
+  operator<<(std::ostream& os, Parentage const& p) {
     p.write(os);
     return os;
   }
 
   // Only the 'salient attributes' are testing in equality comparison.
-  bool operator==(Parentage const & a, Parentage const & b);
-  inline bool operator!=(Parentage const & a, Parentage const & b) { return !(a == b); }
+  bool operator==(Parentage const& a, Parentage const& b);
+  inline bool operator!=(Parentage const& a, Parentage const& b) { return !(a==b); }
 }
 #endif /* art_Persistency_Provenance_Parentage_h */
 

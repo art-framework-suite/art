@@ -25,15 +25,17 @@
 
 // ----------------------------------------------------------------------
 
-namespace art {
+namespace art
+{
   class MasterProductRegistry;
 }
 
-class art::RootInput : public art::DecrepitRelicInputSourceImplementation {
+class art::RootInput : public art::DecrepitRelicInputSourceImplementation
+{
 public:
   explicit RootInput(fhicl::ParameterSet    const & pset,
                      InputSourceDescription & desc);
-  virtual ~RootInput();
+  virtual ~RootInput( );
 
   using DecrepitRelicInputSourceImplementation::runPrincipal;
 
@@ -68,13 +70,13 @@ private:
       state_ = SEQUENTIAL;
     }
 
-    EventID const & lastReadEventID() const { return lastReadEventID_; }
+    EventID const &lastReadEventID() const { return lastReadEventID_; }
 
-    void setLastReadEventID(EventID const & eid);
+    void setLastReadEventID(EventID const &eid);
 
-    EventID const & wantedEventID() const { return wantedEventID_; }
+    EventID const &wantedEventID() const { return wantedEventID_; }
 
-    void setWantedEventID(EventID const & eid);
+    void setWantedEventID(EventID const &eid);
 
     std::shared_ptr<RootInputFile> rootFileForLastReadEvent() const {
       return rootFileForLastReadEvent_;
@@ -99,7 +101,7 @@ private:
   using DecrepitRelicInputSourceImplementation::readEvent;
 
   virtual std::auto_ptr<EventPrincipal>
-  readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry & mpr);
+  readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr);
 
   virtual std::shared_ptr<SubRunPrincipal>
   readSubRun(std::shared_ptr<RunPrincipal> rp);
@@ -108,73 +110,69 @@ private:
   readRun();
 
   virtual std::shared_ptr<FileBlock>
-  readFile(MasterProductRegistry &);
+  readFile(MasterProductRegistry&);
 
   virtual std::auto_ptr<EventPrincipal>
-  readEvent_();
+  readEvent_( );
 
   virtual std::shared_ptr<SubRunPrincipal>
-  readSubRun_();
+  readSubRun_( );
 
   virtual std::shared_ptr<RunPrincipal>
-  readRun_();
+  readRun_( );
 
   virtual std::shared_ptr<FileBlock>
-  readFile_(MasterProductRegistry &);
+  readFile_(MasterProductRegistry&);
 
   virtual void
-  closeFile_();
+  closeFile_( );
 
   virtual void
-  endJob();
+  endJob( );
 
   virtual input::ItemType
-  getNextItemType();
+  getNextItemType( );
 
   virtual std::auto_ptr<EventPrincipal>
-  readIt(EventID const & id, MasterProductRegistry &);
+  readIt( EventID const& id, MasterProductRegistry& );
 
   virtual void
-  skip(int offset, MasterProductRegistry &);
+  skip( int offset, MasterProductRegistry& );
 
   virtual void
-  rewind_();
+  rewind_( );
 
   template <typename T>
-  EventID postSeekChecks(EventID const & foundID, T eventSpec, MasterProductRegistry & mpr,
+  EventID postSeekChecks(EventID const &foundID, T eventSpec, MasterProductRegistry& mpr,
                          typename std::enable_if<std::is_convertible<T, off_t>::value >::type * = 0);
 
   template <typename T>
-  EventID postSeekChecks(EventID const & foundID, T eventSpec,
-                         typename std::enable_if < ! std::is_convertible<T, off_t>::value >::type * = 0);
+  EventID postSeekChecks(EventID const &foundID, T eventSpec,
+                         typename std::enable_if<! std::is_convertible<T, off_t>::value >::type * = 0);
 }; // RootInput
 
 template <typename T>
-bool art::RootInput::seekToEvent(T eventSpec, bool exact)
-{
+bool art::RootInput::seekToEvent(T eventSpec, bool exact) {
   if (accessState_.state()) {
     throw Exception(errors::LogicError)
-        << "Attempted to initiate a random access seek "
-        << "with one already in progress at state = "
-        << accessState_.state()
-        << ".\n";
+      << "Attempted to initiate a random access seek "
+      << "with one already in progress at state = "
+      << accessState_.state()
+      << ".\n";
   }
   EventID foundID = primaryFileSequence_->seekToEvent(eventSpec, exact);
-  if (!foundID.isValid()) { return false; }
+  if (!foundID.isValid()) return false;
   foundID = postSeekChecks(foundID, eventSpec);
   accessState_.setWantedEventID(foundID);
   if (primaryFileSequence_->rootFile() !=
       accessState_.rootFileForLastReadEvent()) {
     accessState_.setState(AccessState::SEEKING_FILE);
-  }
-  else if (foundID.runID() != accessState_.lastReadEventID().runID()) {
+  } else if (foundID.runID() != accessState_.lastReadEventID().runID()) {
     accessState_.setState(AccessState::SEEKING_RUN);
-  }
-  else if (foundID.subRunID() !=
-           accessState_.lastReadEventID().subRunID()) {
+  } else if (foundID.subRunID() !=
+             accessState_.lastReadEventID().subRunID()) {
     accessState_.setState(AccessState::SEEKING_SUBRUN);
-  }
-  else {
+  } else {
     accessState_.setState(AccessState::SEEKING_EVENT);
   }
   return true;
@@ -182,18 +180,17 @@ bool art::RootInput::seekToEvent(T eventSpec, bool exact)
 
 template <typename T>
 art::EventID
-art::RootInput::postSeekChecks(EventID const & foundID,
+art::RootInput::postSeekChecks(EventID const &foundID,
                                T eventspec,
-                               MasterProductRegistry & mpr,
-                               typename std::enable_if<std::is_convertible<T, off_t>::value >::type *)
-{
+                               MasterProductRegistry& mpr,
+                               typename std::enable_if<std::is_convertible<T, off_t>::value >::type *) {
   if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
     // We're supposed to be reading the, "next" event but it's a
     // duplicate of the current one: skip it.
     mf::LogWarning("DuplicateEvent")
-        << "Duplicate Events found: "
-        << "both events were " << foundID << ".\n"
-        << "The duplicate will be skipped.\n";
+      << "Duplicate Events found: "
+      << "both events were " << foundID << ".\n"
+      << "The duplicate will be skipped.\n";
     return primaryFileSequence_->seekToEvent(1, mpr, false);
   }
   return foundID;
@@ -201,10 +198,9 @@ art::RootInput::postSeekChecks(EventID const & foundID,
 
 template <typename T>
 art::EventID
-art::RootInput::postSeekChecks(EventID const & foundID,
+art::RootInput::postSeekChecks(EventID const &foundID,
                                T eventspec,
-                               typename std::enable_if < ! std::is_convertible<T, off_t>::value >::type *)
-{
+                               typename std::enable_if<! std::is_convertible<T, off_t>::value >::type *) {
   // Default implementation is NOP.
   return foundID;
 }

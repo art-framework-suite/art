@@ -17,18 +17,18 @@ using art::RefCore;
 // ======================================================================
 
 bool
-RefCore::isAvailable() const
+  RefCore::isAvailable() const
 {
-  return productPtr() != 0
-         || (id_.isValid()
+    return productPtr() != 0
+        || (    id_.isValid()
              && productGetter() != 0
-             ////             && productGetter()->getIt(id_) != 0
+////             && productGetter()->getIt(id_) != 0
              && productGetter()->getIt() != 0
-            );
+           );
 }  // RefCore::isAvailable()
 
 EDProduct const *
-RefCore::getProductPtr() const
+  RefCore::getProductPtr() const
 {
   // The following invariant would be nice to establish in all
   // constructors, but we can't be sure that the context in which
@@ -43,60 +43,65 @@ RefCore::getProductPtr() const
   // EDProductGetter to use.
   //
   //     assert(!id_.isValid() || productGetter() || itemPtr_);
-  if (!id_.isValid()) {
+
+  if( !id_.isValid()) {
     throw Exception(errors::InvalidReference, "BadRefCore")
-        << "Detected an attempt to dereference a RefCore containing an\n"
-        "invalid ProductID. Please modify the calling code to test\n"
-        "validity before dereferencing.\n";
+      << "Detected an attempt to dereference a RefCore containing an\n"
+         "invalid ProductID. Please modify the calling code to test\n"
+         "validity before dereferencing.\n";
   }
-  if (productPtr() == 0 && productGetter() == 0) {
+
+  if( productPtr() == 0 && productGetter() == 0) {
     throw Exception(errors::InvalidReference, "BadRefCore")
-        << "Detected an attempt to dereference a RefCore containing a\n"
-        "valid ProductID, but neither a valid product pointer nor\n"
-        "EDProductGetter has been detected. The calling code must be\n"
-        "modified to establish a functioning EDProductGetter for the\n"
-        "context in which this call is made.\n";
+      << "Detected an attempt to dereference a RefCore containing a\n"
+         "valid ProductID, but neither a valid product pointer nor\n"
+         "EDProductGetter has been detected. The calling code must be\n"
+         "modified to establish a functioning EDProductGetter for the\n"
+         "context in which this call is made.\n";
   }
-  ////  return productGetter()->getIt(id_);
+////  return productGetter()->getIt(id_);
   return productGetter()->getIt();
 }  // RefCore::getProductPtr()
 
 void
-RefCore::setProductGetter(EDProductGetter const * prodGetter) const
+  RefCore::setProductGetter( EDProductGetter const * prodGetter ) const
 { transients_.setProductGetter(prodGetter); }
 
 void
-RefCore::pushBackItem(RefCore const & productToBeInserted
-                      , bool            checkPointer)
+  RefCore::pushBackItem( RefCore const & productToBeInserted
+                       , bool            checkPointer )
 {
-  if (productToBeInserted.isNull()) {
+  if( productToBeInserted.isNull() ) {
     throw art::Exception(errors::InvalidReference, "Inconsistency")
-        << "RefCore::pushBackItem: Ptr has invalid (zero) product ID,\n"
-        "so it cannot be added to PtrVector. id should be ("
-        << id() << ")\n";
+      << "RefCore::pushBackItem: Ptr has invalid (zero) product ID,\n"
+         "so it cannot be added to PtrVector. id should be ("
+      << id() << ")\n";
   }
-  if (isNull()) {
+
+  if( isNull() ) {
     setId(productToBeInserted.id());
   }
-  else if (id() != productToBeInserted.id()) {
+  else if( id() != productToBeInserted.id() ) {
     throw art::Exception(errors::InvalidReference, "Inconsistency")
-        << "RefCore::pushBackItem: Ptr is inconsistent with\n"
-        "PtrVector. id = ("
-        << productToBeInserted.id() << "), should be (" << id() << ")\n";
+      << "RefCore::pushBackItem: Ptr is inconsistent with\n"
+         "PtrVector. id = ("
+      << productToBeInserted.id() << "), should be (" << id() << ")\n";
   }
-  if (productGetter() == 0
-      && productToBeInserted.productGetter() != 0)
-  { setProductGetter(productToBeInserted.productGetter()); }
-  if (productPtr() == 0
-      && productToBeInserted.productPtr() != 0)
-  { setProductPtr(productToBeInserted.productPtr()); }
+
+  if(    productGetter() == 0
+      && productToBeInserted.productGetter() != 0 )
+    setProductGetter(productToBeInserted.productGetter());
+  if(    productPtr() == 0
+      && productToBeInserted.productPtr() != 0 )
+    setProductPtr(productToBeInserted.productPtr());
+
 }  // RefCore::pushBackItem()
 
 // ======================================================================
 
 void
-RefCore::RefCoreTransients
-::setProductGetter(EDProductGetter const * prodGetter) const
+  RefCore::RefCoreTransients
+         ::setProductGetter( EDProductGetter const * prodGetter) const
 {
   prodGetter_ = prodGetter;
 }

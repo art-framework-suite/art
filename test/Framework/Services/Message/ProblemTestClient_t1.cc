@@ -5,17 +5,19 @@
 #include <iostream>
 #include <string>
 
-namespace arttest {
+namespace arttest
+{
 
 
-  void
-  ProblemTestClient_t1::analyze(art::Event      const & e
-                                , art::EventSetup const & /*unused*/
-                               )
-  {
-    LogDebug("cat_A")   << "This message should not appear";
-    LogDebug("TrackerGeom")  << "LogDebug was used to send this message";
-  }  // MessageLoggerClient::analyze()
+void
+  ProblemTestClient_t1::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
+                              )
+{
+       LogDebug  ("cat_A")   << "This message should not appear";
+       LogDebug  ("TrackerGeom")  << "LogDebug was used to send this message";
+
+}  // MessageLoggerClient::analyze()
 
 
 }  // arttest

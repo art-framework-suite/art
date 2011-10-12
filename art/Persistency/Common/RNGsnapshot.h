@@ -37,7 +37,8 @@
 
 namespace art {
 
-  class RNGsnapshot {
+  class RNGsnapshot
+  {
   public:
     // --- CLHEP engine state characteristics:
     typedef  unsigned long         CLHEP_t;
@@ -48,24 +49,24 @@ namespace art {
     typedef  std::vector<saved_t>  snapshot_state_t;
     typedef  std::string           label_t;
 
-    BOOST_STATIC_ASSERT(std::numeric_limits<saved_t>::digits == 32);
-    BOOST_STATIC_ASSERT(sizeof(saved_t) <= sizeof(CLHEP_t));
+    BOOST_STATIC_ASSERT( std::numeric_limits<saved_t>::digits == 32 );
+    BOOST_STATIC_ASSERT( sizeof(saved_t) <= sizeof(CLHEP_t) );
 
     // --- C'tor:
-    RNGsnapshot();
+    RNGsnapshot( );
 
     // --- Use compiler-generated copy c'tor, copy assignment, and d'tor
 
     // --- Access:
-    std::string      const  & ekind() const  { return engine_kind_; }
-    label_t          const  & label() const  { return label_; }
-    snapshot_state_t const  & state() const  { return state_; }
+    std::string      const &  ekind( ) const  { return engine_kind_; }
+    label_t          const &  label( ) const  { return label_; }
+    snapshot_state_t const &  state( ) const  { return state_; }
 
     // --- Save/restore:
-    void  saveFrom(std::string const &
-                   , label_t const &
-                   , engine_state_t const &);
-    void  restoreTo(engine_state_t &) const;
+    void  saveFrom( std::string const &
+                  , label_t const &
+                  , engine_state_t const & );
+    void  restoreTo( engine_state_t & ) const;
 
   private:
     std::string       engine_kind_;

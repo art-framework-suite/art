@@ -13,41 +13,39 @@ art::RootBranchInfoList::RootBranchInfoList()
   data_()
 {}
 
-art::RootBranchInfoList::RootBranchInfoList(TTree * tree)
+art::RootBranchInfoList::RootBranchInfoList(TTree *tree)
   :
   data_()
 {
   reset(tree);
 }
 
-void art::RootBranchInfoList::reset(TTree * tree)
-{
+void art::RootBranchInfoList::reset(TTree *tree) {
   if (!tree) {
     throw Exception(errors::NullPointerError)
-        << "RootInfoBranchList given null TTree pointer.\n";
+      << "RootInfoBranchList given null TTree pointer.\n";
   }
-  TObjArray * branches = tree->GetListOfBranches();
+  TObjArray *branches = tree->GetListOfBranches();
   size_t nBranches = branches->GetEntriesFast();
   data_.clear();
   data_.reserve(nBranches);
   TIter it(branches, kIterBackward);
   // Load the list backward, then searches can take place in the forward
   // direction.
-  while (TBranch * b = dynamic_cast<TBranch *>(it.Next())) {
+  while (TBranch *b = dynamic_cast<TBranch *>(it.Next())) {
     data_.push_back(RootBranchInfo(b));
   }
   if (nBranches != data_.size()) {
     throw Exception(errors::DataCorruption, "RootBranchInfoList")
-        << "Could not read expected number of branches from TTree's list.\n";
+      << "Could not read expected number of branches from TTree's list.\n";
   }
 }
 
 bool
 art::RootBranchInfoList::
-findBranchInfo(TypeID const & type,
-               InputTag const & tag,
-               RootBranchInfo & rbInfo) const
-{
+findBranchInfo(TypeID const &type,
+               InputTag const &tag,
+               RootBranchInfo &rbInfo) const {
   std::ostringstream pat_s;
   pat_s << '^'
         << type.friendlyClassName()
@@ -58,17 +56,16 @@ findBranchInfo(TypeID const & type,
         << '_';
   if (tag.process().empty()) {
     pat_s << ".*";
-  }
-  else {
+  } else {
     pat_s << tag.process();
   }
   pat_s << "\\.$";
   std::regex r(pat_s.str());
   // data_ is ordered so that the first match is the best.
   for (Data_t::const_iterator
-       i = data_.begin(),
-       e = data_.end();
-       i != e;
+         i = data_.begin(),
+         e = data_.end();
+       i !=e;
        ++i) {
     if (std::regex_match(i->branchName(), r)) {
       rbInfo = *i;

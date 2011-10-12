@@ -22,17 +22,17 @@ namespace arttest {
 
 class arttest::ProductIDGetter : public art::EDProducer {
 public:
-  explicit ProductIDGetter(fhicl::ParameterSet const & p);
+  explicit ProductIDGetter(fhicl::ParameterSet const &p);
   virtual ~ProductIDGetter();
 
-  virtual void produce(art::Event & e);
+  virtual void produce(art::Event &e);
 
 private:
 
 };
 
 
-arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const & p)
+arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const &p)
 {
   produces<int>();
   produces<int>("i1");
@@ -40,12 +40,10 @@ arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const & p)
   produces<art::Ptr<int> >();
 }
 
-arttest::ProductIDGetter::~ProductIDGetter()
-{
+arttest::ProductIDGetter::~ProductIDGetter() {
 }
 
-void arttest::ProductIDGetter::produce(art::Event & e)
-{
+void arttest::ProductIDGetter::produce(art::Event &e) {
   art::ProductID p1(getProductID<int>(e));
   BOOST_REQUIRE(p1.isValid());
   art::ProductID p2(getProductID<int>(e, "i1"));
@@ -56,12 +54,18 @@ void arttest::ProductIDGetter::produce(art::Event & e)
   vip->push_back(2);
   vip->push_back(4);
   vip->push_back(6);
+
   art::ProductID pv(getProductID<std::vector<int> >(e));
   std::auto_ptr<art::Ptr<int> >ptr(new art::Ptr<int>(pv, 2, e.productGetter(pv)));
+
   BOOST_REQUIRE(ptr->id().isValid());
+
   art::ProductID id(e.put(vip));
+
   art::Ptr<int> ptr_check(id, 2, e.productGetter(id));
+
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
+
   e.put(ptr);
 }
 

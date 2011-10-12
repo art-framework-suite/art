@@ -23,7 +23,8 @@
 //
 
 
-class TH1AddDirectorySentry {
+class TH1AddDirectorySentry
+{
 
 public:
   TH1AddDirectorySentry();
@@ -31,8 +32,8 @@ public:
 
 
 private:
-  TH1AddDirectorySentry(const TH1AddDirectorySentry &);
-  TH1AddDirectorySentry & operator=(const TH1AddDirectorySentry &);
+  TH1AddDirectorySentry(const TH1AddDirectorySentry&);
+  TH1AddDirectorySentry& operator=(const TH1AddDirectorySentry&);
   bool status_;
 };
 

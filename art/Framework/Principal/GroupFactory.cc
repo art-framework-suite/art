@@ -10,38 +10,32 @@
 #include "Reflex/Type.h"
 
 namespace {
-  Reflex::Type type_of_wrapper(Reflex::Type const & wrapped_item_type)
-  {
+  Reflex::Type type_of_wrapper(Reflex::Type const &wrapped_item_type) {
     return
       Reflex::Type::ByName(art::wrappedClassName
                            (wrapped_item_type.Name
                             (Reflex::FINAL | Reflex::SCOPED)));
   }
 
-  Reflex::Type type_of_wrapper(art::BranchDescription const & bd)
-  {
+  Reflex::Type type_of_wrapper(art::BranchDescription const &bd) {
     return Reflex::Type::ByName(bd.wrappedName());
   }
 
-  Reflex::Type type_of_wrapped_item(art::BranchDescription const & bd)
-  {
+  Reflex::Type type_of_wrapped_item(art::BranchDescription const &bd) {
     return art::type_of_template_arg(type_of_wrapper(bd), 0);
   }
 
-  Reflex::Type is_assns(Reflex::Type const & wrapped_item_type)
-  {
+  Reflex::Type is_assns(Reflex::Type const &wrapped_item_type) {
     return art::is_instantiation_of(wrapped_item_type, "art::Assns") ?
-           wrapped_item_type :
-           Reflex::Type();
+      wrapped_item_type :
+      Reflex::Type();
   }
 
-  Reflex::Type is_assns(art::BranchDescription const & bd)
-  {
+  Reflex::Type is_assns(art::BranchDescription const &bd) {
     return is_assns(type_of_wrapped_item(bd));
   }
 
-  Reflex::Type type_of_wrapper_of_other_assns(Reflex::Type const & assns_type)
-  {
+  Reflex::Type type_of_wrapper_of_other_assns(Reflex::Type const & assns_type) {
     assert(is_assns(assns_type));
     Reflex::Type partner(Reflex::Type::ByName(assns_type.Name(Reflex::FINAL | Reflex::SCOPED) + "::partner_t"));
     assert(partner);
@@ -51,8 +45,8 @@ namespace {
 
 std::auto_ptr<art::Group>
 art::gfactory::
-make_group(BranchDescription const & bd,
-           ProductID const & pid)
+make_group(BranchDescription const &bd,
+           ProductID const &pid)
 {
   Reflex::Type atype(is_assns(bd));
   return
@@ -69,8 +63,8 @@ make_group(BranchDescription const & bd,
 
 std::auto_ptr<art::Group>
 art::gfactory::
-make_group(BranchDescription const & bd,
-           ProductID const & pid,
+make_group(BranchDescription const &bd,
+           ProductID const &pid,
            cet::exempt_ptr<Worker> productProducer,
            cet::exempt_ptr<EventPrincipal> onDemandPrincipal)
 {
@@ -94,8 +88,8 @@ make_group(BranchDescription const & bd,
 std::auto_ptr<art::Group>
 art::gfactory::
 make_group(std::auto_ptr<EDProduct> edp,
-           BranchDescription const & bd,
-           ProductID const & pid)
+           BranchDescription const &bd,
+           ProductID const &pid)
 {
   Reflex::Type atype(is_assns(bd));
   return

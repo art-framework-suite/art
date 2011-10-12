@@ -28,14 +28,14 @@ class art::SubRunPrincipal : public art::Principal {
 public:
   typedef SubRunAuxiliary Auxiliary;
 
-  SubRunPrincipal(SubRunAuxiliary const & aux,
-                  ProcessConfiguration const & pc,
+  SubRunPrincipal(SubRunAuxiliary const& aux,
+                  ProcessConfiguration const& pc,
                   std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
                   std::auto_ptr<DelayedReader> rtrv = std::auto_ptr<DelayedReader>(new NoDelayedReader));
 
   ~SubRunPrincipal() {}
 
-  RunPrincipal const & runPrincipal() const;
+  RunPrincipal const& runPrincipal() const;
 
   RunPrincipal & runPrincipal();
 
@@ -46,37 +46,37 @@ public:
 
   SubRunID id() const { return aux().id(); }
 
-  Timestamp const & beginTime() const { return aux().beginTime(); }
+  Timestamp const& beginTime() const { return aux().beginTime(); }
 
-  Timestamp const & endTime() const { return aux().endTime(); }
+  Timestamp const& endTime() const { return aux().endTime(); }
 
-  void setEndTime(Timestamp const & time) { aux_.setEndTime(time); }
+  void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
   SubRunNumber_t subRun() const { return aux().subRun(); }
 
-  SubRunAuxiliary const & aux() const { return aux_; }
+  SubRunAuxiliary const& aux() const { return aux_; }
 
   RunNumber_t run() const { return aux().run(); }
 
   void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
 
   void put(std::auto_ptr<EDProduct> edp,
-           BranchDescription const & bd,
+           BranchDescription const& bd,
            std::auto_ptr<ProductProvenance const> productProvenance);
 
-  void addGroup(BranchDescription const & bd);
+  void addGroup(BranchDescription const& bd);
 
   void addGroup(std::auto_ptr<EDProduct> prod,
-                BranchDescription const & bd);
+                BranchDescription const& bd);
 
   BranchType branchType() const { return InSubRun; }
 
 private:
   virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-  virtual ProcessHistoryID const & processHistoryID() const {return aux().processHistoryID_;}
+  virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
-  virtual void setProcessHistoryID(ProcessHistoryID const & phid) const {return aux().setProcessHistoryID(phid);}
+  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
   std::shared_ptr<RunPrincipal> runPrincipal_;
   SubRunAuxiliary aux_;

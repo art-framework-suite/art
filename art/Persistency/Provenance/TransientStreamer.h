@@ -22,10 +22,10 @@ namespace art {
 
 template <typename T>
 class art::TransientStreamer : public TClassStreamer {
-public:
+  public:
   typedef T element_type;
   TransientStreamer();
-  void operator()(TBuffer & R_b, void * objp);
+  void operator() (TBuffer &R_b, void *objp);
 private:
   std::string className_;
   TClassRef cl_;
@@ -39,24 +39,21 @@ art::TransientStreamer<T>::TransientStreamer() :
 
 template <typename T>
 void
-art::TransientStreamer<T>::operator()(TBuffer & R_b, void * objp)
-{
+art::TransientStreamer<T>::operator()(TBuffer &R_b, void *objp) {
   if (R_b.IsReading()) {
     cl_->ReadBuffer(R_b, objp);
     // Fill with default constructed object;
-    T * obj = static_cast<T *>(objp);
+    T* obj = static_cast<T *>(objp);
     *obj = T();
-  }
-  else {
+  } else {
     cl_->WriteBuffer(R_b, objp);
   }
 }
 
 template <typename T>
 void
-art::detail::SetTransientStreamer()
-{
-  TClass * cl = TClass::GetClass(typeid(T));
+art::detail::SetTransientStreamer() {
+  TClass *cl = TClass::GetClass(typeid(T));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new TransientStreamer<T>());
   }
@@ -64,9 +61,8 @@ art::detail::SetTransientStreamer()
 
 template <typename T>
 void
-art::detail::SetTransientStreamer(T const &)
-{
-  TClass * cl = TClass::GetClass(typeid(T));
+art::detail::SetTransientStreamer(T const&) {
+  TClass *cl = TClass::GetClass(typeid(T));
   if (cl->GetStreamer() == 0) {
     cl->AdoptStreamer(new TransientStreamer<T>());
   }

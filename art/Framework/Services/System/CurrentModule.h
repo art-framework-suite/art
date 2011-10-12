@@ -21,26 +21,27 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-class art::CurrentModule {
+class art::CurrentModule
+{
   // non-copyable:
-  CurrentModule(CurrentModule const &);
-  void  operator = (CurrentModule const &);
+  CurrentModule( CurrentModule const & );
+  void  operator = ( CurrentModule const & );
 
 public:
   // c'tor:
-  CurrentModule(art::ActivityRegistry & r);
+  CurrentModule( art::ActivityRegistry & r );
 
   // use compiler-generated d'tor
 
   // accessor:
   std::string
-  label() const { return desc_.moduleLabel(); }
+    label() const { return desc_.moduleLabel(); }
 
 private:
   art::ModuleDescription  desc_;
 
   void
-  track_module(art::ModuleDescription const & desc);
+    track_module( art::ModuleDescription const & desc );
 
 };  // CurrentModule
 

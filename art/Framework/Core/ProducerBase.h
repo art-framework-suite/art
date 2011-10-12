@@ -21,7 +21,8 @@ namespace art {
   class BranchDescription;
   class ModuleDescription;
   class MasterProductRegistry;
-  class ProducerBase : private ProductRegistryHelper {
+  class ProducerBase : private ProductRegistryHelper
+  {
   public:
     virtual ~ProducerBase();
 
@@ -31,22 +32,22 @@ namespace art {
     bool modifiesEvent() const { return true; }
 
     template <typename PROD, BranchType B, typename TRANS>
-    ProductID getProductID(TRANS const & translator,
-                           ModuleDescription const & moduleDescription,
-                           std::string const & instanceName) const;
+    ProductID getProductID(TRANS const &translator,
+                           ModuleDescription const &moduleDescription,
+                           std::string const& instanceName) const;
   };
 
   template <typename PROD, BranchType B, typename TRANS>
   ProductID
-  ProducerBase::getProductID(TRANS const & translator,
-                             ModuleDescription const & md,
-                             std::string const & instanceName) const
-  {
+  ProducerBase::getProductID(TRANS const &translator,
+                             ModuleDescription const &md,
+                             std::string const &instanceName) const {
     return
       translator.branchIDToProductID
       (get_BranchDescription<PROD>(B,
                                    md.moduleLabel(),
                                    instanceName).branchID());
+
   }
 
 }  // art

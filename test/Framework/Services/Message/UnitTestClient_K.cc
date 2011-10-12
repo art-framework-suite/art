@@ -5,19 +5,22 @@
 #include <iostream>
 #include <string>
 
-namespace arttest {
+namespace arttest
+{
 
 
-  void
-  UnitTestClient_K::analyze(art::Event      const & e
-                            , art::EventSetup const & /*unused*/
-                           )
-  {
-    for (int i = 0; i < 10; ++i) {
-      mf::LogPrint("cat_P") << "LogPrint: " << i;
-      mf::LogSystem("cat_S") << "LogSystem: " << i;
-    }
-  }  // MessageLoggerClient::analyze()
+void
+  UnitTestClient_K::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
+                              )
+{
+
+  for (int i=0; i<10; ++i) {
+    mf::LogPrint  ("cat_P") << "LogPrint: " << i;
+    mf::LogSystem ("cat_S") << "LogSystem: " << i;
+  }
+
+}  // MessageLoggerClient::analyze()
 
 
 }  // arttest

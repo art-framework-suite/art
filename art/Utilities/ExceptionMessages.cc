@@ -3,7 +3,7 @@
 #include "cetlib/exception.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
-using mf::LogSystem;
+  using mf::LogSystem;
 
 #include <string>
 #include <sstream>
@@ -11,9 +11,8 @@ using mf::LogSystem;
 
 namespace art {
   void
-  printArtException(cet::exception & e, char const * prog)
-  try
-  {
+  printArtException(cet::exception& e, char const* prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("ArtException");
     std::ostringstream longDesc;
@@ -21,13 +20,11 @@ namespace art {
              << e.explain_self();
     LogSystem(shortDesc) << longDesc.str() << "\n";
   }
-  catch (...)
-  {
+  catch(...) {
   }
 
-  void printBadAllocException(char const * prog)
-  try
-  {
+  void printBadAllocException(char const *prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("std::bad_allocException");
     std::ostringstream longDesc;
@@ -35,13 +32,11 @@ namespace art {
              << "The job has probably exhausted the virtual memory available to the process.\n";
     LogSystem(shortDesc) << longDesc.str() << "\n";
   }
-  catch (...)
-  {
+  catch(...) {
   }
 
-  void printStdException(std::exception & e, char const * prog)
-  try
-  {
+  void printStdException(std::exception& e, char const*prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("StdLibException");
     std::ostringstream longDesc;
@@ -49,21 +44,18 @@ namespace art {
              << e.what();
     LogSystem(shortDesc) << longDesc.str() << "\n";
   }
-  catch (...)
-  {
+  catch(...) {
   }
 
-  void printUnknownException(char const * prog)
-  try
-  {
+  void printUnknownException(char const *prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("UnknownException");
     std::ostringstream longDesc;
     longDesc << "Unknown exception caught in " << programName << "\n";
     LogSystem(shortDesc) << longDesc.str() << "\n";
   }
-  catch (...)
-  {
+  catch(...) {
   }
 
 }  // art

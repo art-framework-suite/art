@@ -27,34 +27,34 @@ class art::RunPrincipal : public art::Principal {
 public:
   typedef RunAuxiliary Auxiliary;
 
-  RunPrincipal(RunAuxiliary const & aux,
-               ProcessConfiguration const & pc,
+  RunPrincipal(RunAuxiliary const& aux,
+               ProcessConfiguration const& pc,
                std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
                std::auto_ptr<DelayedReader> rtrv = std::auto_ptr<DelayedReader>(new NoDelayedReader));
   ~RunPrincipal() {}
 
-  RunAuxiliary const & aux() const { return aux_; }
+  RunAuxiliary const& aux() const { return aux_; }
 
   RunNumber_t run() const { return aux().run(); }
 
-  RunID const & id() const { return aux().id(); }
+  RunID const& id() const { return aux().id(); }
 
-  Timestamp const & beginTime() const { return aux().beginTime(); }
+  Timestamp const& beginTime() const { return aux().beginTime(); }
 
-  Timestamp const & endTime() const { return aux().endTime(); }
+  Timestamp const& endTime() const { return aux().endTime(); }
 
-  void setEndTime(Timestamp const & time) { aux_.setEndTime(time); }
+  void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
 
   void mergeRun(std::shared_ptr<RunPrincipal> rp);
 
   void put(std::auto_ptr<EDProduct> edp,
-           BranchDescription const & bd,
+           BranchDescription const& bd,
            std::auto_ptr<ProductProvenance const> productProvenance);
 
-  void addGroup(BranchDescription const & bd);
+  void addGroup(BranchDescription const& bd);
 
   void addGroup(std::auto_ptr<EDProduct> prod,
-                BranchDescription const & bd);
+                BranchDescription const& bd);
 
   BranchType branchType() const { return InRun; }
 
@@ -62,9 +62,9 @@ private:
 
   virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
 
-  virtual ProcessHistoryID const & processHistoryID() const {return aux().processHistoryID_;}
+  virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 
-  virtual void setProcessHistoryID(ProcessHistoryID const & phid) const {return aux().setProcessHistoryID(phid);}
+  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const {return aux().setProcessHistoryID(phid);}
 
   RunAuxiliary aux_;
 };

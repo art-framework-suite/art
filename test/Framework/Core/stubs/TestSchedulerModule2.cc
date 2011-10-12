@@ -12,26 +12,29 @@ static const char CVSId[] = "";
 #include "test/TestObjects/ToyProducts.h"
 #include <string>
 
-namespace art {
+namespace art{
 
-  class TestSchedulerModule2 : public EDProducer {
+  class TestSchedulerModule2 : public EDProducer
+  {
   public:
-    explicit TestSchedulerModule2(ParameterSet const & p): pset_(p) {
-      produces<arttest::StringProduct>();
+    explicit TestSchedulerModule2(ParameterSet const& p):pset_(p){
+       produces<arttest::StringProduct>();
     }
 
-    void produce(Event & e, EventSetup const &);
+    void produce(Event& e, EventSetup const&);
 
   private:
     ParameterSet pset_;
   };
 
 
-  void TestSchedulerModule2::produce(Event & e, EventSetup const &)
+  void TestSchedulerModule2::produce(Event& e, EventSetup const&)
   {
+
     std::string myname = pset_.get<std::string>("module_name");
     std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
     e.put(product);
+
   }
 }//namespace
 

@@ -40,26 +40,26 @@ namespace art {
 
   class ProcessDesc;
 
-  namespace event_processor {
+  namespace event_processor
+  {
     /*
       Several of these state are likely to be transitory in
       the offline because they are completly driven by the
       data coming from the input source.
     */
-    enum State { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
-                 sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid
-               };
+    enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
+                 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
 
-    enum Msg { mSetRun = 0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
+    enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
                mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
                mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
-               mAny, mDtor, mException, mInputRewind
-             };
+               mAny, mDtor, mException, mInputRewind };
 
     class StateSentry;
   }  // event_processor
 
-  class EventProcessor : public IEventProcessor, private boost::noncopyable {
+  class EventProcessor : public IEventProcessor, private boost::noncopyable
+  {
   public:
 
     // The input string 'config' contains the entire contents of a  configuration file.
@@ -68,7 +68,7 @@ namespace art {
     // 'defaultServices' are overridden by 'config'.
     // 'forcedServices' cause an exception if the same service is specified in 'config'.
 
-    EventProcessor(fhicl::ParameterSet const & pset);
+    EventProcessor(fhicl::ParameterSet const& pset);
     ~EventProcessor();
 
     /**This should be called before the first call to 'run'
@@ -85,9 +85,9 @@ namespace art {
     /**Member functions to support asynchronous interface.
        */
 
-    char const * currentStateName() const;
-    char const * stateName(event_processor::State s) const;
-    char const * msgName(event_processor::Msg m) const;
+    char const* currentStateName() const;
+    char const* stateName(event_processor::State s) const;
+    char const* msgName(event_processor::Msg m) const;
     event_processor::State getState() const;
     void runAsync();
     StatusCode statusAsync() const;
@@ -105,20 +105,20 @@ namespace art {
     // error state.
 
     // tell the event loop to stop and wait for its completion
-    StatusCode stopAsync(unsigned int timeout_secs = 60 * 2);
+    StatusCode stopAsync(unsigned int timeout_secs=60*2);
 
     // tell the event loop to shutdown and wait for the completion
-    StatusCode shutdownAsync(unsigned int timeout_secs = 60 * 2);
+    StatusCode shutdownAsync(unsigned int timeout_secs=60*2);
 
     // wait until async event loop thread completes
     // or timeout occurs (See StatusCode for return values)
-    StatusCode waitTillDoneAsync(unsigned int timeout_seconds = 0);
+    StatusCode waitTillDoneAsync(unsigned int timeout_seconds=0);
 
     // Run to completion (non-online)
     StatusCode run() { return runToCompletion(false); }
 
     // Process one event with the given EventID
-    StatusCode run(EventID const & id);
+    StatusCode run(EventID const& id);
 
     // Skip the specified number of events.
     // If numberToSkip is negative, we will back up.
@@ -134,7 +134,7 @@ namespace art {
     /// *** passed to the caller. Do not call delete on these
     /// *** pointers!
 
-    std::vector<ModuleDescription const *>
+    std::vector<ModuleDescription const*>
     getAllModuleDescriptions() const;
 
     /// Return the number of events this EventProcessor has tried to process
@@ -160,7 +160,7 @@ namespace art {
 
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport & rep) const;
+    void getTriggerReport(TriggerReport& rep) const;
 
     /// Clears counters used by trigger report.
     void clearCounters();
@@ -267,9 +267,9 @@ namespace art {
     virtual void processEvent();
     virtual bool shouldWeStop() const;
 
-    virtual void setExceptionMessageFiles(std::string & message);
-    virtual void setExceptionMessageRuns(std::string & message);
-    virtual void setExceptionMessageSubRuns(std::string & message);
+    virtual void setExceptionMessageFiles(std::string& message);
+    virtual void setExceptionMessageRuns(std::string& message);
+    virtual void setExceptionMessageSubRuns(std::string& message);
 
     virtual bool alreadyHandlingException() const;
 
@@ -279,7 +279,7 @@ namespace art {
     // Now private functions.
     // init() is used by only by constructors
     void init(std::shared_ptr<art::ProcessDesc> & processDesc,
-              ServiceToken const & token,
+              ServiceToken const& token,
               ServiceLegacy);
 
 
@@ -289,8 +289,8 @@ namespace art {
 
     StatusCode doneAsync(event_processor::Msg m);
 
-    std::auto_ptr<EventPrincipal> doOneEvent(EventID const & id);
-    void procOneEvent(EventPrincipal * pep);
+    std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
+    void procOneEvent(EventPrincipal *pep);
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
 

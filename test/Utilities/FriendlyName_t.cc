@@ -39,13 +39,13 @@ FriendlyNameTestFixture::FriendlyNameTestFixture()
   nameMap.insert(std::make_pair("art::Assns<Rr,Ll,Dd>", "LlRrDdart::Assns"));
 }
 
-BOOST_FIXTURE_TEST_SUITE(FriendlyName_t, FriendlyNameTestFixture)
+BOOST_FIXTURE_TEST_SUITE ( FriendlyName_t, FriendlyNameTestFixture )
 
-BOOST_AUTO_TEST_CASE(FriendlyName_t)
+  BOOST_AUTO_TEST_CASE( FriendlyName_t )
 {
   for (fnmap_t::const_iterator
-       i = nameMap.begin(),
-       e = nameMap.end();
+         i = nameMap.begin(),
+         e = nameMap.end();
        i != e;
        ++i) {
     BOOST_CHECK_EQUAL(art::friendlyname::friendlyName(i->first), i->second);

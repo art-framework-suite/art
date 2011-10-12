@@ -40,18 +40,18 @@ namespace art {
       wrap_(0),
       desc_(0),
       productProvenance_(),
-      whyFailed_() {}
+      whyFailed_(){}
 
-    OutputHandle(EDProduct const * prod,
-                 BranchDescription const * desc,
+    OutputHandle(EDProduct const* prod,
+                 BranchDescription const* desc,
                  cet::exempt_ptr<ProductProvenance const> productProvenance) :
       wrap_(prod),
       desc_(desc),
       productProvenance_(productProvenance),
-      whyFailed_() {}
+      whyFailed_(){}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(std::shared_ptr<cet::exception> const & iWhyFailed):
+    OutputHandle(std::shared_ptr<cet::exception> const& iWhyFailed):
       wrap_(0),
       desc_(0),
       productProvenance_(),
@@ -59,29 +59,29 @@ namespace art {
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    void swap(OutputHandle & other) {
+    void swap(OutputHandle& other) {
       using std::swap;
       swap(wrap_, other.wrap_);
       swap(desc_, other.desc_);
       swap(productProvenance_, other.productProvenance_);
-      swap(whyFailed_, other.whyFailed_);
+      swap(whyFailed_,other.whyFailed_);
     }
 
-    bool isValid() const { return wrap_ && desc_ && productProvenance_; }
+    bool isValid() const { return wrap_ && desc_ &&productProvenance_; }
 
     bool failedToGet() const { return 0 != whyFailed_.get(); }
 
-    EDProduct const * wrapper() const { return wrap_; }
+    EDProduct const* wrapper() const { return wrap_; }
 
     std::shared_ptr<cet::exception> whyFailed() const { return whyFailed_; }
 
-    ProductProvenance const * productProvenance() const { return productProvenance_.get(); }
+    ProductProvenance const* productProvenance() const { return productProvenance_.get(); }
 
-    BranchDescription const * desc() const { return desc_; }
+    BranchDescription const* desc() const { return desc_; }
 
   private:
-    EDProduct const * wrap_;
-    BranchDescription const * desc_;
+    EDProduct const* wrap_;
+    BranchDescription const* desc_;
     cet::exempt_ptr<ProductProvenance const> productProvenance_;
     std::shared_ptr<cet::exception> whyFailed_;
   };
@@ -89,8 +89,7 @@ namespace art {
   // Free swap function
   inline
   void
-  swap(OutputHandle & a, OutputHandle & b)
-  {
+  swap(OutputHandle& a, OutputHandle& b) {
     a.swap(b);
   }
 }

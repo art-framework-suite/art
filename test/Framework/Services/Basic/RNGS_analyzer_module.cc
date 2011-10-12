@@ -14,35 +14,39 @@
 namespace test {
 
   class RNGS_analyzer
-      : public art::EDAnalyzer {
+    : public art::EDAnalyzer
+  {
   public:
     static int
-    get_seed(fhicl::ParameterSet const & pset
-             , char const                key [ ] = "seed"
-            ) {
+      get_seed( fhicl::ParameterSet const & pset
+              , char const                key [ ] = "seed"
+              )
+    {
       static  int const  default_seed  =  13579;
-      int const  seed  =  pset.get<int>(key
-                                        , default_seed
-                                       );
-      std::cerr << key << " is " << seed << '\n';
+      int const  seed  =  pset.get<int>( key
+                                                         , default_seed
+                                                         );
+      std::cerr << key <<" is " << seed << '\n';
       return seed;
     }
 
     explicit
-    RNGS_analyzer(fhicl::ParameterSet const & pset)
-      : this_event_number(0u)
-      , flat(createEngine(get_seed_value(pset)))
+      RNGS_analyzer( fhicl::ParameterSet const & pset )
+      : this_event_number( 0u )
+      , flat             ( createEngine(get_seed_value(pset)) )
     { }
 
     virtual
-    ~RNGS_analyzer()
+      ~RNGS_analyzer( )
     { }
 
     virtual void
-    analyze(art::Event const &, art::EventSetup const &) {
+      analyze( art::Event const &, art::EventSetup const & )
+    {
       ++this_event_number;
+
       std::cerr << "Firing flat: ";
-      for (int i = 0; i != 5; ++i) {
+      for ( int i = 0; i != 5; ++i ) {
         std::cerr << " " << flat.fire();
       }
       std::cerr << '\n';

@@ -15,13 +15,14 @@ Original Authors: W. David Dagenhart, Marc Paterno
 #include <iostream>
 #include <string>
 
-namespace art {
+namespace art
+{
   class MockEventProcessor : public IEventProcessor {
   public:
 
-    MockEventProcessor(const std::string & mockData,
-                       std::ostream & output,
-                       const statemachine::FileMode & fileMode,
+    MockEventProcessor(const std::string& mockData,
+                       std::ostream& output,
+                       const statemachine::FileMode& fileMode,
                        bool handleEmptyRuns,
                        bool handleEmptySubRuns);
 
@@ -65,9 +66,9 @@ namespace art {
     virtual void processEvent();
     virtual bool shouldWeStop() const;
 
-    virtual void setExceptionMessageFiles(std::string & message);
-    virtual void setExceptionMessageRuns(std::string & message);
-    virtual void setExceptionMessageSubRuns(std::string & message);
+    virtual void setExceptionMessageFiles(std::string& message);
+    virtual void setExceptionMessageRuns(std::string& message);
+    virtual void setExceptionMessageSubRuns(std::string& message);
 
     virtual bool alreadyHandlingException() const;
 

@@ -183,14 +183,14 @@ namespace art {
   namespace PtrRemapperDetail {
     // Function template used by 4.
     template <typename PROD>
-    PROD const & simpleProdReturner(PROD const * prod) { return *prod; }
+    PROD const &simpleProdReturner (PROD const *prod) { return *prod; }
 
     // Function object used by 10.
     template <typename CONT, typename PROD, typename CALLBACK>
     class ContReturner {
-    public:
+      public:
       explicit ContReturner(CALLBACK callback) : callback_(callback) { }
-      CONT const & operator()(PROD const * prod) const {
+      CONT const &operator() (PROD const *prod) const {
         return callback_(prod);
       }
     private:
@@ -198,23 +198,23 @@ namespace art {
     };
 
     template <typename CONT, typename PROD>
-    class ContReturner<CONT, PROD, CONT const & (PROD:: *)() const> {
+    class ContReturner<CONT, PROD, CONT const &(PROD::*)() const> {
     public:
-      typedef CONT const & (PROD::*CALLBACK)() const;
+      typedef CONT const &(PROD::*CALLBACK)() const;
       explicit ContReturner(CALLBACK callback) : callback_(callback) { }
-      CONT const & operator()(PROD const * prod) const {
-        return (prod->*callback_)();
-      }
+        CONT const &operator()(PROD const *prod) const {
+          return (prod->*callback_)();
+        }
     private:
-      CALLBACK callback_;
+        CALLBACK callback_;
     };
 
     template <typename CONT, typename PROD>
     class ContReturner<CONT, PROD, CONT PROD::*const> {
     public:
-      typedef CONT PROD::* const CALLBACK;
+      typedef CONT PROD::*const CALLBACK;
       explicit ContReturner(CALLBACK callback) : callback_(callback) { }
-      CONT const & operator()(PROD const * prod) const {
+      CONT const &operator()(PROD const *prod) const {
         return prod->*callback_;
       }
     private:
@@ -232,11 +232,11 @@ public:
 
   // 1.
   template <typename PROD, typename SIZE_TYPE>
-  Ptr<PROD> operator()(Ptr<PROD> const & oldPtr, SIZE_TYPE offset) const;
+  Ptr<PROD> operator()(Ptr<PROD> const &oldPtr, SIZE_TYPE offset) const;
 
   // 2.
   template <typename PROD, typename SIZE_TYPE>
-  PtrVector<PROD> operator()(PtrVector<PROD> const & old, SIZE_TYPE offset) const;
+  PtrVector<PROD> operator()(PtrVector<PROD> const &old, SIZE_TYPE offset) const;
 
   // 3.
   template <typename InIter, typename OutIter, typename SIZE_TYPE>
@@ -249,58 +249,58 @@ public:
   // 4.
   template <typename OutIter, typename PROD, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets) const;
+             OFFSETS const &offsets) const;
 
   // 5.
   template <typename CONT, typename OutIter, typename PROD, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets,
-             CONT const & (*extractor)(PROD const *)) const;
+             OFFSETS const &offsets,
+             CONT const & (*extractor) (PROD const *)) const;
 
   // 6.
   template <typename CONT, typename OutIter, typename PROD, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets,
-             CONT const & (PROD::*extractor)() const) const;
+             OFFSETS const &offsets,
+             CONT const & (PROD::*extractor) () const) const;
 
   // 7.
   template <typename CONT, typename OutIter, typename PROD, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets,
+             OFFSETS const &offsets,
              CONT PROD::*const data) const;
 
   // 8.
   template <typename PROD, typename OutIter, typename CONT, typename X, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets,
-             CONT const & (X::*extractor)(PROD const *),
-             X & x) const;
+             OFFSETS const &offsets,
+             CONT const & (X::*extractor) (PROD const *),
+             X &x) const;
 
   // 9.
   template <typename PROD, typename OutIter, typename CONT, typename X, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets,
-             CONT const & (X::*extractor)(PROD const *) const,
-             X const & x) const;
+             OFFSETS const &offsets,
+             CONT const & (X::*extractor) (PROD const *) const,
+             X const &x) const;
 
   // 10.
   template <typename CONT, typename CALLBACK, typename OutIter, typename PROD, typename OFFSETS>
   void
-  operator()(std::vector<PROD const *> const & in,
+  operator()(std::vector<PROD const *> const &in,
              OutIter out,
-             OFFSETS const & offsets,
+             OFFSETS const &offsets,
              CALLBACK extractor) const;
 
   friend class art::ProdToProdMapBuilder;
@@ -309,7 +309,7 @@ private:
   typedef std::map<ProductID, ProductID> ProdTransMap_t;
 
   ProdTransMap_t prodTransMap_;
-  ////  cet::exempt_ptr<EDProductGetter const> productGetter_;
+////  cet::exempt_ptr<EDProductGetter const> productGetter_;
   cet::exempt_ptr<Event const> event_;
 };
 
@@ -321,31 +321,29 @@ PtrRemapper() : prodTransMap_(), event_() {}
 template <typename PROD, typename SIZE_TYPE>
 art::Ptr<PROD>
 art::PtrRemapper::
-operator()(Ptr<PROD> const & oldPtr,
-           SIZE_TYPE offset) const
-{
+operator()(Ptr<PROD> const &oldPtr,
+           SIZE_TYPE offset) const {
   ProdTransMap_t::const_iterator iter = prodTransMap_.find(oldPtr.id());
   if (iter == prodTransMap_.end()) {
     throw Exception(errors::LogicError)
-        << "PtrRemapper: could not find old ProductID "
-        << oldPtr.id()
-        << " in translation table: already translated?\n";
+      << "PtrRemapper: could not find old ProductID "
+      << oldPtr.id()
+      << " in translation table: already translated?\n";
   }
-  return (oldPtr.isNonnull()) ?
-         Ptr<PROD>(iter->second,
-                   oldPtr.key() + offset,
-                   event_->productGetter(iter->second)) :
-         ////              productGetter_):
-         Ptr<PROD>(iter->second);
+  return (oldPtr.isNonnull())?
+    Ptr<PROD>(iter->second,
+              oldPtr.key() + offset,
+              event_->productGetter(iter->second)):
+////              productGetter_):
+    Ptr<PROD>(iter->second);
 }
 
 // 2.
 template <typename PROD, typename SIZE_TYPE>
 art::PtrVector<PROD>
 art::PtrRemapper::
-operator()(PtrVector<PROD> const & old,
-           SIZE_TYPE offset) const
-{
+operator()(PtrVector<PROD> const &old,
+           SIZE_TYPE offset) const {
   PtrVector<PROD> result;
   result.reserve(old.size());
   this->operator()(old.begin(),
@@ -361,10 +359,10 @@ art::PtrRemapper::
 operator()(InIter beg,
            InIter end,
            OutIter out,
-           SIZE_TYPE offset) const
-{
+           SIZE_TYPE offset) const {
   // Need to assume that all Ptr containers and consistent internally
   // and with each other due to a lack of productGetters.
+
   // Not using transform here allows instantiation for iterator to
   // collection of Ptr or collection of PtrVector.
   for (InIter i = beg;
@@ -383,10 +381,9 @@ operator()(InIter beg,
 template <typename OutIter, typename PROD, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets) const
-{
+           OFFSETS const &offsets) const {
   this->operator()(in,
                    out,
                    offsets,
@@ -397,26 +394,24 @@ operator()(std::vector<PROD const *> const & in,
 template <typename CONT, typename OutIter, typename PROD, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets,
-           CONT const & (*extractor)(PROD const *)) const
-{
-  this->operator()<CONT, CONT const & ( *)(PROD const *)>
-  (in, out, offsets, extractor); // 10.
+           OFFSETS const &offsets,
+           CONT const & (*extractor) (PROD const *)) const {
+  this->operator()<CONT, CONT const & (*)(PROD const *)>
+    (in, out, offsets, extractor); // 10.
 }
 
 // 6.
 template <typename CONT, typename OutIter, typename PROD, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets,
-           CONT const & (PROD::*extractor)() const) const
-{
-  this->operator()<CONT, CONT const & (PROD:: *)() const>
-  (in, out, offsets, extractor); // 10.
+           OFFSETS const &offsets,
+           CONT const & (PROD::*extractor) () const) const {
+  this->operator()<CONT, CONT const & (PROD::*) () const>
+    (in, out, offsets, extractor); // 10.
 }
 
 
@@ -424,25 +419,23 @@ operator()(std::vector<PROD const *> const & in,
 template <typename CONT, typename OutIter, typename PROD, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets,
-           CONT PROD::*const data) const
-{
+           OFFSETS const &offsets,
+           CONT PROD::*const data) const {
   this->operator()<CONT, CONT PROD::*const>
-  (in, out, offsets, data); // 10.
+    (in, out, offsets, data); // 10.
 }
 
 // 8.
 template <typename PROD, typename OutIter, typename CONT, typename X, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets,
-           CONT const & (X::*extractor)(PROD const *),
-           X & x) const
-{
+           OFFSETS const &offsets,
+           CONT const & (X::*extractor) (PROD const *),
+           X &x) const {
   using std::placeholders::_1;
   this->operator()<CONT>(in,
                          out,
@@ -454,12 +447,11 @@ operator()(std::vector<PROD const *> const & in,
 template <typename PROD, typename OutIter, typename CONT, typename X, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets,
-           CONT const & (X::*extractor)(PROD const *) const,
-           X const & x) const
-{
+           OFFSETS const &offsets,
+           CONT const & (X::*extractor) (PROD const *) const,
+           X const &x) const {
   using std::placeholders::_1;
   this->operator()<CONT>(in,
                          out,
@@ -471,26 +463,25 @@ operator()(std::vector<PROD const *> const & in,
 template <typename CONT, typename CALLBACK, typename OutIter, typename PROD, typename OFFSETS>
 void
 art::PtrRemapper::
-operator()(std::vector<PROD const *> const & in,
+operator()(std::vector<PROD const *> const &in,
            OutIter out,
-           OFFSETS const & offsets,
-           CALLBACK extractor) const
-{
+           OFFSETS const &offsets,
+           CALLBACK extractor) const {
   if (in.size() != offsets.size()) {
     throw Exception(errors::LogicError)
-        << "Collection size of "
-        << in.size()
-        << " disagrees with offset container size of "
-        << offsets.size()
-        << ".\n";
+      << "Collection size of "
+      << in.size()
+      << " disagrees with offset container size of "
+      << offsets.size()
+      << ".\n";
   }
   typename std::vector<PROD const *>::const_iterator
-  i = in.begin(),
-  e = in.end();
+    i = in.begin(),
+    e = in.end();
   typename OFFSETS::const_iterator off_iter = offsets.begin();
   art::PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner(extractor);
   for (; i != e; ++i, ++off_iter) {
-    CONT const & cont(returner.operator()(*i));
+    CONT const &cont(returner.operator()(*i));
     this->operator()(cont.begin(), cont.end(), out, *off_iter); // 3.
   }
 }

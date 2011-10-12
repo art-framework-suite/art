@@ -27,7 +27,8 @@
 #include "cpp0x/cstdint"
 #include <cassert>
 
-namespace art {
+namespace art
+{
   class HLTPathStatus {
 
   private:
@@ -39,9 +40,9 @@ namespace art {
   public:
     // constructor
     HLTPathStatus(const hlt::HLTState state = hlt::Ready, const unsigned int index = 0)
-      : status_(index * 4 + state) {
-      assert(state < 4);
-      assert(index < 16384);
+    : status_(index*4+state) {
+      assert (state<4);
+      assert (index<16384);
     }
 
     // get state of path
@@ -49,7 +50,7 @@ namespace art {
     // get index of module giving the status of this path
     unsigned int  index() const {return (static_cast<unsigned int >(status_ / 4));}
     // reset this path
-    void reset() {status_ = 0;}
+    void reset() {status_=0;}
 
     // was this path run?
     bool wasrun() const {return (state() != hlt::Ready);}

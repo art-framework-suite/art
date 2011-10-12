@@ -14,31 +14,33 @@
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 
-namespace art {
+namespace art
+{
   class ProcessConfiguration;
   class Timestamp;
 
-  class PrincipalMaker {
+  class PrincipalMaker
+  {
   public:
-    explicit PrincipalMaker(ProcessConfiguration const & pconf);
+    explicit PrincipalMaker(ProcessConfiguration const& pconf);
 
-    RunPrincipal * makeRunPrincipal(RunNumber_t r,
-                                    Timestamp const & startTime) const;
+    RunPrincipal* makeRunPrincipal(RunNumber_t r,
+                                   Timestamp const &startTime) const;
 
-    SubRunPrincipal * makeSubRunPrincipal(RunNumber_t r,
-                                          SubRunNumber_t sr,
-                                          Timestamp const & startTime) const;
+    SubRunPrincipal* makeSubRunPrincipal(RunNumber_t r,
+                                         SubRunNumber_t sr,
+                                         Timestamp const &startTime) const;
 
-    EventPrincipal * makeEventPrincipal(RunNumber_t r,
-                                        SubRunNumber_t sr,
-                                        EventNumber_t e,
-                                        Timestamp const & startTime,
-                                        bool isRealData = true,
-                                        EventAuxiliary::ExperimentType eType =
-                                          EventAuxiliary::Data) const;
+    EventPrincipal* makeEventPrincipal(RunNumber_t r,
+                                       SubRunNumber_t sr,
+                                       EventNumber_t e,
+                                       Timestamp const &startTime,
+                                       bool isRealData = true,
+                                       EventAuxiliary::ExperimentType eType =
+                                       EventAuxiliary::Data) const;
 
   private:
-    ProcessConfiguration const & processConfig_;
+    ProcessConfiguration const& processConfig_;
   };
 }
 

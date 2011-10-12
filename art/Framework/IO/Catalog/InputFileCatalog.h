@@ -18,17 +18,17 @@ namespace art {
 
   class InputFileCatalog : public FileCatalog {
   public:
-    explicit InputFileCatalog(fhicl::ParameterSet const & pset,
-                              std::string const & namesParameter = std::string("fileNames"),
+    explicit InputFileCatalog(fhicl::ParameterSet const& pset,
+                              std::string const& namesParameter = std::string("fileNames"),
                               bool canBeEmpty = false,
                               bool noThrow = false);
     virtual ~InputFileCatalog();
-    std::vector<FileCatalogItem> const & fileCatalogItems() const {return fileCatalogItems_;}
-    std::vector<std::string> const & logicalFileNames() const {return logicalFileNames_;}
-    std::vector<std::string> const & fileNames() const {return fileNames_;}
+    std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
+    std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
+    std::vector<std::string> const& fileNames() const {return fileNames_;}
     bool empty() const {return fileCatalogItems_.empty();}
   private:
-    void findFile(std::string & pfn, std::string const & lfn, bool noThrow);
+    void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;

@@ -30,21 +30,21 @@ namespace art {
     // Add the given entry to this History. When a new data member is
     // added to the History class, this function should be modified to
     // take an instance of the type of the new data member.
-    void addEventSelectionEntry(EventSelectionID const & eventSelection);
+    void addEventSelectionEntry(EventSelectionID const& eventSelection);
 
-    void addBranchListIndexEntry(BranchListIndex const & branchListIndex);
+    void addBranchListIndexEntry(BranchListIndex const& branchListIndex);
 
-    EventSelectionID const & getEventSelectionID(size_type i) const;
+    EventSelectionID const& getEventSelectionID(size_type i) const;
 
-    EventSelectionIDVector const & eventSelectionIDs() const;
+    EventSelectionIDVector const& eventSelectionIDs() const;
 
-    ProcessHistoryID const & processHistoryID() const {return processHistoryID_;}
+    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
 
-    void setProcessHistoryID(ProcessHistoryID const & phid) const {processHistoryID_ = phid;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) const {processHistoryID_ = phid;}
 
-    BranchListIndexes const & branchListIndexes() const {return branchListIndexes_;}
+    BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
 
-    BranchListIndexes & branchListIndexes() {return branchListIndexes_;}
+    BranchListIndexes& branchListIndexes() {return branchListIndexes_;}
   private:
 
     // Note: We could, instead, define a struct that contains the

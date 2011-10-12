@@ -21,15 +21,16 @@ namespace fhicl {
 // ----------------------------------------------------------------------
 
 class art::TFileService
-    : public TFileDirectory {
+  : public TFileDirectory
+{
   // non-copyable:
-  TFileService(TFileService const &);
-  void  operator = (TFileService const &);
+  TFileService( TFileService const & );
+  void  operator = ( TFileService const & );
 
 public:
   // c'tor:
-  TFileService(fhicl::ParameterSet const & cfg
-               , art::ActivityRegistry   &   r
+  TFileService( fhicl::ParameterSet const & cfg
+              , art::ActivityRegistry     & r
               );
 
   // d'tor:
@@ -37,14 +38,14 @@ public:
 
   // accessor:
   TFile &
-  file() const { return * file_; }
+    file( ) const { return * file_; }
 
 private:
   TFile * file_;           // pointer to opened TFile
   bool closeFileFast_;
 
   // set current directory according to module name and prepare to create directory
-  void setDirectoryName(art::ModuleDescription const & desc);
+  void setDirectoryName( art::ModuleDescription const & desc );
 };  // TFileService
 
 // ======================================================================

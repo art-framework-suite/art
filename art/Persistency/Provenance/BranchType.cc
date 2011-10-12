@@ -51,13 +51,13 @@ namespace art {
     std::string const eventMinorIndex          = eventAuxiliary  + ".id_.event_";
 
     inline
-    std::string const & select(BranchType          bt
-                               , std::string const & event_str
-                               , std::string const & run_str
-                               , std::string const & subRun_str
+    std::string const & select( BranchType          bt
+                              , std::string const & event_str
+                              , std::string const & run_str
+                              , std::string const & subRun_str
                               )
     {
-      switch (bt) {
+      switch( bt ) {
         case InEvent :  return event_str;
         case InRun   :  return run_str;
         case InSubRun:  return subRun_str;
@@ -67,39 +67,32 @@ namespace art {
 
   }  // namespace
 
-  std::string const & BranchTypeToString(BranchType bt)
-  {
-    return select(bt, event, run, subRun);
+  std::string const & BranchTypeToString( BranchType bt ) {
+    return select( bt, event, run, subRun );
   }
 
-  std::string const & BranchTypeToProductTreeName(BranchType bt)
-  {
-    return select(bt, events, runs, subRuns);
+  std::string const & BranchTypeToProductTreeName( BranchType bt ) {
+    return select( bt, events, runs, subRuns );
   }
 
-  std::string const & BranchTypeToMetaDataTreeName(BranchType bt)
-  {
-    return select(bt, eventMeta, runMeta, subRunMeta);
+  std::string const & BranchTypeToMetaDataTreeName( BranchType bt ) {
+    return select( bt, eventMeta, runMeta, subRunMeta );
   }
 
-  std::string const & BranchTypeToAuxiliaryBranchName(BranchType bt)
-  {
-    return select(bt, eventAuxiliary, runAuxiliary, subRunAuxiliary);
+  std::string const & BranchTypeToAuxiliaryBranchName( BranchType bt ) {
+    return select( bt, eventAuxiliary, runAuxiliary, subRunAuxiliary );
   }
 
-  std::string const & productProvenanceBranchName(BranchType bt)
-  {
-    return select(bt, eventProductProvenance, runProductProvenance, subRunProductProvenance);
+  std::string const & productProvenanceBranchName( BranchType bt ) {
+    return select( bt, eventProductProvenance, runProductProvenance, subRunProductProvenance );
   }
 
-  std::string const & BranchTypeToMajorIndexName(BranchType bt)
-  {
-    return select(bt, eventMajorIndex, runMajorIndex, subRunMajorIndex);
+  std::string const & BranchTypeToMajorIndexName( BranchType bt ) {
+    return select( bt, eventMajorIndex, runMajorIndex, subRunMajorIndex );
   }
 
-  std::string const & BranchTypeToMinorIndexName(BranchType bt)
-  {
-    return select(bt, eventMinorIndex, runMinorIndex, subRunMinorIndex);
+  std::string const & BranchTypeToMinorIndexName( BranchType bt ) {
+    return select( bt, eventMinorIndex, runMinorIndex, subRunMinorIndex );
   }
 
 }  // art

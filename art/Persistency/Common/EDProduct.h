@@ -20,58 +20,59 @@ namespace art {
 
 // ======================================================================
 
-class art::EDProduct {
+class art::EDProduct
+{
 public:
   EDProduct();
   virtual ~EDProduct();
 
   bool
-  isPresent() const
+    isPresent() const
   { return isPresent_(); }
 
   // We use vector<void *> so as to keep the type information out
   // of the EDProduct class.
   virtual void
-  fillView(std::vector<void const *> & view) const
+    fillView( std::vector<void const *> & view ) const
   { /* should be called only polymorphically */ }
 
   void
-  setPtr(std::type_info const & toType,
-         unsigned long index,
-         void const * &ptr) const;
+    setPtr(std::type_info const &toType,
+          unsigned long index,
+          void const * &ptr) const;
 
   void
-  getElementAddresses(std::type_info const & toType,
-                      std::vector<unsigned long> const & indices,
-                      std::vector<void const *> &ptr) const;
+    getElementAddresses(std::type_info const &toType,
+                       std::vector<unsigned long> const &indices,
+                       std::vector<void const *> &ptr) const;
 
   virtual std::string
-  productSize() const
+    productSize() const
   { return "-"; }
 
   std::auto_ptr<EDProduct>
-  makePartner(std::type_info const & wanted_type) const
-  { return do_makePartner(wanted_type); }
+  makePartner(std::type_info const &wanted_type) const
+    { return do_makePartner(wanted_type); }
 
 protected:
 
   virtual
   std::auto_ptr<EDProduct>
-  do_makePartner(std::type_info const & wanted_type) const = 0;
+  do_makePartner(std::type_info const &wanted_type) const = 0;
 
-  virtual void do_setPtr(std::type_info const & toType,
+  virtual void do_setPtr(std::type_info const &toType,
                          unsigned long index,
                          void const * &ptr) const = 0;
 
-  virtual void
-  do_getElementAddresses(std::type_info const & toType,
-                         std::vector<unsigned long> const & indices,
-                         std::vector<void const *> &ptr) const = 0;
+   virtual void
+   do_getElementAddresses(std::type_info const &toType,
+                          std::vector<unsigned long> const &indices,
+                          std::vector<void const *> &ptr) const = 0;
 private:
   // These will never be called.
   // For technical ROOT related reasons, we cannot declare it = 0.
   virtual bool
-  isPresent_() const
+    isPresent_() const
   { return true; }
 
 };  // EDProduct

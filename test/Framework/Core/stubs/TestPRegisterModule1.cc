@@ -13,13 +13,13 @@ using namespace art;
 
 static const char CVSId[] = "";
 
-TestPRegisterModule1::TestPRegisterModule1(fhicl::ParameterSet const & p): pset_(p)
-{
-  produces<arttest::StringProduct>();
+TestPRegisterModule1::TestPRegisterModule1(fhicl::ParameterSet const& p):pset_(p){
+   produces<arttest::StringProduct>();
 }
 
-void TestPRegisterModule1::produce(Event & e, EventSetup const &)
+void TestPRegisterModule1::produce(Event& e, EventSetup const&)
 {
+
   std::string myname = pset_.get<std::string>("module_label");
   std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
   e.put(product);

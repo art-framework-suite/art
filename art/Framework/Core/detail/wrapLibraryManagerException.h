@@ -6,10 +6,10 @@
 
 namespace art {
   namespace detail {
-    void wrapLibraryManagerException(art::Exception const & e,
-                                     std::string const & item_type,
-                                     std::string const & libspec,
-                                     std::string const & release);
+    void wrapLibraryManagerException(art::Exception const &e,
+                                     std::string const &item_type,
+                                     std::string const &libspec,
+                                     std::string const &release);
   }
 }
 

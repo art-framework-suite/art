@@ -23,31 +23,30 @@ namespace arttest {
 
 class arttest::DropOnInputTestAnalyzer : public art::EDAnalyzer {
 public:
-  explicit DropOnInputTestAnalyzer(fhicl::ParameterSet const & p);
+  explicit DropOnInputTestAnalyzer(fhicl::ParameterSet const &p);
   virtual ~DropOnInputTestAnalyzer();
 
-  virtual void analyze(art::Event const & e);
+  virtual void analyze(art::Event const &e);
 
 
 private:
   std::string inputLabel_;
 };
 
-arttest::DropOnInputTestAnalyzer::DropOnInputTestAnalyzer(fhicl::ParameterSet const & p)
+arttest::DropOnInputTestAnalyzer::DropOnInputTestAnalyzer(fhicl::ParameterSet const &p)
   :
   inputLabel_(p.get<std::string>("input_label"))
 {
 }
 
-arttest::DropOnInputTestAnalyzer::~DropOnInputTestAnalyzer()
-{
+arttest::DropOnInputTestAnalyzer::~DropOnInputTestAnalyzer() {
 }
 
-void arttest::DropOnInputTestAnalyzer::analyze(art::Event const & e)
-{
+void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
   art::Handle<art::Ptr<std::string> > sh;
   BOOST_CHECK(!e.getByLabel(inputLabel_, sh));
   BOOST_REQUIRE(!sh.isValid());
+
   typedef cet::map_vector<std::string> mv_t;
   art::Handle<mv_t> mvth;
   BOOST_CHECK(e.getByLabel(inputLabel_, mvth));

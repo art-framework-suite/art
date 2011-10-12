@@ -34,25 +34,25 @@ namespace art {
     typedef WorkersInPath::size_type        size_type;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
-    Path(int bitpos, std::string const & path_name,
-         WorkersInPath const & workers,
+    Path(int bitpos, std::string const& path_name,
+         WorkersInPath const& workers,
          TrigResPtr trptr,
-         fhicl::ParameterSet const & proc_pset,
-         ActionTable & actions,
+         fhicl::ParameterSet const& proc_pset,
+         ActionTable& actions,
          std::shared_ptr<ActivityRegistry> reg,
          bool isEndPath);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal &);
+    void processOneOccurrence(typename T::MyPrincipal&);
 
     int bitPosition() const { return bitpos_; }
-    std::string const & name() const { return name_; }
+    std::string const& name() const { return name_; }
 
-    std::pair<double, double> timeCpuReal() const {
-      return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
+    std::pair<double,double> timeCpuReal() const {
+      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
     }
 
-    std::pair<double, double> timeCpuReal(unsigned int const i) const {
+    std::pair<double,double> timeCpuReal(unsigned int const i) const {
       return workers_.at(i).timeCpuReal();
     }
 
@@ -67,10 +67,10 @@ namespace art {
 
     size_type size() const { return workers_.size(); }
     int timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
-    int timesPassed(size_type i) const { return workers_.at(i).timesPassed() ; }
-    int timesFailed(size_type i) const { return workers_.at(i).timesFailed() ; }
-    int timesExcept(size_type i) const { return workers_.at(i).timesExcept() ; }
-    Worker const * getWorker(size_type i) const { return workers_.at(i).getWorker(); }
+    int timesPassed (size_type i) const { return workers_.at(i).timesPassed() ; }
+    int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
+    int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
+    Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
 
     void findEventModifiers(std::vector<std::string> &foundLabels) const;
     void findEventObservers(std::vector<std::string> &foundLabels) const;
@@ -91,7 +91,7 @@ namespace art {
     std::string name_;
     TrigResPtr trptr_;
     std::shared_ptr<ActivityRegistry> actReg_;
-    ActionTable * act_table_;
+    ActionTable* act_table_;
 
     WorkersInPath workers_;
 
@@ -99,7 +99,7 @@ namespace art {
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
-    bool handleWorkerFailure(cet::exception const & e, int nwrwue, bool isEvent);
+    bool handleWorkerFailure(cet::exception const& e, int nwrwue, bool isEvent);
     void recordUnknownException(int nwrwue, bool isEvent);
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
@@ -109,58 +109,62 @@ namespace art {
     template <typename T>
     class PathSignalSentry {
     public:
-      PathSignalSentry(ActivityRegistry * a,
-                       std::string const & name,
-                       int const & nwrwue,
-                       hlt::HLTState const & state) :
-        a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
-        if (a_) { T::prePathSignal(a_, name_); }
+      PathSignalSentry(ActivityRegistry *a,
+                       std::string const& name,
+                       int const& nwrwue,
+                       hlt::HLTState const& state) :
+      a_(a), name_(name), nwrwue_(nwrwue), state_(state) {
+        if (a_) T::prePathSignal(a_, name_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        if (a_) { T::postPathSignal(a_, name_, status); }
+        if(a_) T::postPathSignal(a_, name_, status);
       }
     private:
-      ActivityRegistry * a_;
-      std::string const & name_;
-      int const & nwrwue_;
-      hlt::HLTState const & state_;
+      ActivityRegistry* a_;
+      std::string const& name_;
+      int const& nwrwue_;
+      hlt::HLTState const& state_;
     };
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal & ep)
-  {
+  void Path::processOneOccurrence(typename T::MyPrincipal& ep) {
+
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
     int nwrwue = -1;
     std::auto_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
+
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+
     if (T::isEvent_) {
       ++timesRun_;
     }
     state_ = hlt::Ready;
+
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
     CurrentProcessingContext cpc(&name_, bitPosition(), isEndPath_);
+
     WorkersInPath::size_type idx = 0;
     // It seems likely that 'nwrwue' and 'idx' can never differ ---
     // if so, we should remove one of them!.
     for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
-         i != end && should_continue;
-         ++i, ++idx) {
+          i != end && should_continue;
+          ++i, ++idx) {
       ++nwrwue;
-      assert(static_cast<int>(idx) == nwrwue);
+      assert (static_cast<int>(idx) == nwrwue);
       try {
         cpc.activate(idx, i->getWorker()->descPtr());
         should_continue = i->runWorker<T>(ep, &cpc);
       }
-      catch (cet::exception & e) {
+      catch(cet::exception& e) {
         // handleWorkerFailure may throw a new exception.
         should_continue = handleWorkerFailure(e, nwrwue, T::isEvent_);
       }
-      catch (...) {
+      catch(...) {
         recordUnknownException(nwrwue, T::isEvent_);
         throw;
       }

@@ -3,5 +3,5 @@
 
 int main()
 {
-  assert(art::ProcessHistoryRegistry::empty());
+  assert( art::ProcessHistoryRegistry::empty() );
 }

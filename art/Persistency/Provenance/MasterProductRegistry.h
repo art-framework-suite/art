@@ -25,7 +25,7 @@ namespace art {
   class BranchID;
   class BranchKey;
 
-  std::ostream & operator<<(std::ostream & os, MasterProductRegistry const & mpr);
+  std::ostream &operator<<(std::ostream &os, MasterProductRegistry const &mpr);
 }
 
 class art::MasterProductRegistry {
@@ -44,38 +44,38 @@ public:
   // const functions available to clients of ProductMetaData.
   std::vector<std::string> allBranchNames() const;
 
-  ProductList const & productList() const;
+  ProductList const &productList() const;
   ProductList::size_type size() const;
 
   bool anyProducts(BranchType bracnhType) const;
   bool productProduced(BranchType branchType) const;
 
   // Obtain lookup map to find a group by type of product.
-  TypeLookup const & productLookup() const;
+  TypeLookup const &productLookup() const;
   // Obtain lookup map to find a group by type of element in a product which is a collection.
-  TypeLookup const & elementLookup() const;
+  TypeLookup const &elementLookup() const;
 
-  void print(std::ostream & os) const;
+  void print(std::ostream& os) const;
 
   ////////////////////////////////////////////////////////////////////////
   // Mutators for use while we are unfrozen only.
   void addProduct(std::auto_ptr<BranchDescription> bdp);
 
-  void updateFromInput(ProductList const & other);
+  void updateFromInput(ProductList const &other);
 
   // Mutator for use while frozen only.
-  std::string merge(ProductList const & other,
-                    std::string const & fileName,
+  std::string merge(ProductList const &other,
+                    std::string const &fileName,
                     BranchDescription::MatchMode m);
 
   // Freeze.
   void setFrozen();
 
 private:
-  void copyProduct(BranchDescription const & productDesc);
-  void fillElementLookup(Reflex::Type const & type,
-                         BranchID const & id,
-                         BranchKey const & bk);
+  void copyProduct(BranchDescription const &productDesc);
+  void fillElementLookup(Reflex::Type const &type,
+                         BranchID const &id,
+                         BranchKey const &bk);
   void throwIfNotFrozen() const;
   void throwIfFrozen() const;
   void processFrozenProductList();
@@ -90,36 +90,31 @@ private:
 
 inline
 art::ProductList const &
-art::MasterProductRegistry::productList() const
-{
+art::MasterProductRegistry::productList() const {
   return productList_;
 }
 
 inline
 art::ProductList::size_type
-art::MasterProductRegistry::size() const
-{
+art::MasterProductRegistry::size() const {
   return productList_.size();
 }
 
 inline
 bool
-art::MasterProductRegistry::productProduced(BranchType branchType) const
-{
+art::MasterProductRegistry::productProduced(BranchType branchType) const {
   return productProduced_[branchType];
 }
 
 inline
 art::MasterProductRegistry::TypeLookup const &
-art::MasterProductRegistry::productLookup() const
-{
+art::MasterProductRegistry::productLookup() const {
   return productLookup_;
 }
 
 inline
 art::MasterProductRegistry::TypeLookup const &
-art::MasterProductRegistry::elementLookup() const
-{
+art::MasterProductRegistry::elementLookup() const {
   return elementLookup_;
 }
 #endif /* art_Persistency_Provenance_MasterProductRegistry_h */

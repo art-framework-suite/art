@@ -18,47 +18,54 @@ extern "C"
 
 namespace {
 
-  void printBits(unsigned char c)
-  {
-    //cout << "HEX: "<< "0123456789ABCDEF"[((c >> 4) & 0xF)] << std::endl;
-    for (int i = 7; i >= 0; --i) {
-      int bit = ((c >> i) & 1);
-      std::cout << " " << bit;
-    }
-  }
+ void printBits(unsigned char c){
 
-  void packIntoString(std::vector<unsigned char> const & source,
-                      std::vector<unsigned char>& package)
-  {
-    unsigned int packInOneByte = 4;
-    unsigned int sizeOfPackage = 1 +
-                                 ((source.size() - 1) / packInOneByte); //Two bits per HLT
-    if (source.size() == 0) { sizeOfPackage = 0; }
-    package.resize(sizeOfPackage);
-    memset(&package[0], 0x00, sizeOfPackage);
-    for (unsigned int i = 0; i != source.size() ; ++i) {
-      unsigned int whichByte = i / packInOneByte;
+         //cout << "HEX: "<< "0123456789ABCDEF"[((c >> 4) & 0xF)] << std::endl;
+
+        for (int i = 7; i >= 0; --i) {
+            int bit = ((c >> i) & 1);
+            std::cout << " "<<bit;
+        }
+ }
+
+ void packIntoString(std::vector<unsigned char> const& source,
+                    std::vector<unsigned char>& package)
+ {
+ unsigned int packInOneByte = 4;
+ unsigned int sizeOfPackage = 1 +
+           ((source.size()-1)/packInOneByte); //Two bits per HLT
+ if (source.size() == 0) sizeOfPackage = 0;
+
+ package.resize(sizeOfPackage);
+ memset(&package[0], 0x00, sizeOfPackage);
+
+ for (unsigned int i=0; i != source.size() ; ++i)
+   {
+      unsigned int whichByte = i/packInOneByte;
       unsigned int indxWithinByte = i % packInOneByte;
       package[whichByte] = package[whichByte] |
-                           (source[i] << (indxWithinByte * 2));
-    }
-    //for (unsigned int i=0; i !=package.size() ; ++i)
-    //   printBits(package[i]);
-    std::cout << std::endl;
-  }
+                            (source[i] << (indxWithinByte*2));
+   }
+  //for (unsigned int i=0; i !=package.size() ; ++i)
+  //   printBits(package[i]);
+   std::cout<< std::endl;
+
+ }
 
 }
-namespace arttest {
+namespace arttest
+{
 
-  class TestOutputModule : public art::OutputModule {
+  class TestOutputModule : public art::OutputModule
+  {
   public:
-    explicit TestOutputModule(fhicl::ParameterSet const &);
+    explicit TestOutputModule(fhicl::ParameterSet const&);
     virtual ~TestOutputModule();
 
   private:
-    virtual void write(art::EventPrincipal const & e);
-    virtual void writeSubRun(art::SubRunPrincipal const &) {}
-    virtual void writeRun(art::RunPrincipal const &) {}
+    virtual void write(art::EventPrincipal const& e);
+    virtual void writeSubRun(art::SubRunPrincipal const&){}
+    virtual void writeRun(art::RunPrincipal const&){}
     virtual void endJob();
 
     std::string name_;
@@ -69,12 +76,12 @@ namespace arttest {
 
   // -----------------------------------------------------------------
 
-  TestOutputModule::TestOutputModule(fhicl::ParameterSet const & ps):
+  TestOutputModule::TestOutputModule(fhicl::ParameterSet const& ps):
     art::OutputModule(ps),
     name_(ps.get<std::string>("name")),
     bitMask_(ps.get<int>("bitMask")),
     hltbits_(0),
-    expectTriggerResults_(ps.get<bool>("expectTriggerResults", true))
+    expectTriggerResults_(ps.get<bool>("expectTriggerResults",true))
   {
   }
 
@@ -82,10 +89,12 @@ namespace arttest {
   {
   }
 
-  void TestOutputModule::write(art::EventPrincipal const & e)
+  void TestOutputModule::write(art::EventPrincipal const& e)
   {
     assert(currentContext() != 0);
+
     Trig prod;
+
     // There should not be a TriggerResults object in the event
     // if all three of the following requirements are met:
     //
@@ -98,53 +107,68 @@ namespace arttest {
     // if no TriggerResults object is expected using the configuration
     // file.  In this case, the next few lines of code will abort
     // if a TriggerResults object is found.
+
     if (!expectTriggerResults_) {
+
       try {
         prod = getTriggerResults(e);
         //throw doesn't happen until we dereference
         *prod;
       }
-      catch (const cet::exception &) {
+      catch (const cet::exception&) {
         // We did not find one as expected, nothing else to test.
         return;
       }
       std::cerr << "\nTestOutputModule::write\n"
-                << "Expected there to be no TriggerResults object but we found one"
-                << std::endl;
+           << "Expected there to be no TriggerResults object but we found one"
+           << std::endl;
       abort();
     }
+
     // Now deal with the other case where we expect the object
     // to be present.
+
     prod = getTriggerResults(e);
+
     std::vector<unsigned char> vHltState;
+
     std::vector<std::string> hlts = getAllTriggerNames();
     unsigned int hltSize = hlts.size();
-    for (unsigned int i = 0; i != hltSize ; ++i) {
+
+    for(unsigned int i=0; i != hltSize ; ++i) {
       vHltState.push_back(((prod->at(i)).state()));
     }
+
     //Pack into member hltbits_
     packIntoString(vHltState, hltbits_);
+
     //This is Just a printing code.
-    std::cout << "Size of hltbits:" << hltbits_.size() << std::endl;
-    char * intp = (char *)&bitMask_;
+    std::cout <<"Size of hltbits:"<<hltbits_.size()<< std::endl;
+
+    char* intp = (char*)&bitMask_;
     bool matched = false;
-    for (int i = hltbits_.size() - 1; i != -1 ; --i) {
-      std::cout << std::endl << "Current Bits Mask byte:"; printBits(hltbits_[i]);
-      unsigned char tmp = static_cast<unsigned char>(*(intp + i));
-      std::cout << std::endl << "Original Byte:"; printBits(tmp); std::cout << std::endl;
-      if (tmp == hltbits_[i]) { matched = true; }
+
+    for(int i = hltbits_.size() - 1; i != -1 ; --i) {
+      std::cout<< std::endl<<"Current Bits Mask byte:";printBits(hltbits_[i]);
+      unsigned char tmp = static_cast<unsigned char>(*(intp+i));
+      std::cout<< std::endl<<"Original Byte:";printBits(tmp);std::cout<< std::endl;
+
+      if (tmp == hltbits_[i]) matched = true;
     }
-    std::cout << "\n";
-    if (!matched && hltSize > 0) {
-      std::cerr << "\ncfg bitMask is different from event..aborting." << std::endl;
-      abort();
+    std::cout<<"\n";
+
+    if ( !matched && hltSize > 0)
+    {
+       std::cerr << "\ncfg bitMask is different from event..aborting."<< std::endl;
+
+       abort();
     }
-    else { std::cout << "\nSUCCESS: Found Matching Bits" << std::endl; }
+    else std::cout <<"\nSUCCESS: Found Matching Bits"<< std::endl;
   }
 
   void TestOutputModule::endJob()
   {
-    assert(currentContext() == 0);
+    assert( currentContext() == 0 );
   }
 }
 

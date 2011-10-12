@@ -4,17 +4,20 @@
 #include <vector>
 #include "test/TestObjects/StreamTestSimple.h"
 
-namespace arttestprod {
+namespace arttestprod
+{
   template <class T>
-  struct Ord {
-    T data_;
-  };
+    struct Ord
+    {
+      T data_;
+    };
 
   template <class T> //, class U = Ord<T> >
-  struct StreamTestTmpl {
-    T data_;
-    //U more_;
-  };
+    struct StreamTestTmpl
+    {
+      T data_;
+      //U more_;
+    };
 
   typedef Ord<Simple> OSimple;
   //typedef Simple OSimple;

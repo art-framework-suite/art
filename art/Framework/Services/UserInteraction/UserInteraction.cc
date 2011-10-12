@@ -28,45 +28,51 @@ namespace ui {
 
   UserInteraction::~UserInteraction() { }
 
-  UserInteraction::UserInteraction(ActivityRegistry & iReg)
+  UserInteraction::UserInteraction(ActivityRegistry&iReg)
   {
     iReg.watchPostBeginJobWorkers(this, &UserInteraction::postBeginJobWorkers);
+
     //iReg.watchPreModule(this, &Tracer::preModuleEvent);
     //iReg.watchPostModule(this, &UserInteraction::postModuleEvent);
+
     iReg.watchPreProcessEvent(this, &UserInteraction::preEvent);
     iReg.watchPostProcessEvent(this, &UserInteraction::postEvent);
   }
 
-  void UserInteraction::postBeginJobWorkers(InputSource * is,
-      std::vector<art::Worker *> const & workers)
+  void UserInteraction::postBeginJobWorkers(InputSource* is,
+                                            std::vector<art::Worker*> const& workers)
   {
-    std::cout << "Post Begin Job Workers" << std::endl;
-    std::vector<art::Worker *>::const_iterator ib(workers.begin()), ie(workers.end());
+    std::cout << "Post Begin Job Workers"<<std::endl;
+    std::vector<art::Worker*>::const_iterator ib(workers.begin()),ie(workers.end());
     std::vector<ModuleInfo> mi;
-    for (; ib != ie; ++ib) {
-      workers_.push_back(*ib);
-      const ModuleDescription & md = (*ib)->description();
-      //std::cout << md.moduleName() << " " << md.moduleLabel() << "\n";
-      mi.push_back(ModuleInfo(md.moduleLabel(),
-                              md.moduleName(),
-                              fhicl::ParameterSet()));
-      fhicl::ParameterSetRegistry::get(md.parameterSetID(),
-                                       mi.back().pset);
-    }
+
+    for(;ib!=ie;++ib)
+      {
+        workers_.push_back(*ib);
+        const ModuleDescription& md = (*ib)->description();
+        //std::cout << md.moduleName() << " " << md.moduleLabel() << "\n";
+        mi.push_back(ModuleInfo(md.moduleLabel(),
+                                md.moduleName(),
+                                fhicl::ParameterSet()));
+        fhicl::ParameterSetRegistry::get(md.parameterSetID(),
+                                         mi.back().pset);
+      }
     moduleList(mi);
     input_ = is;
   }
 
-  void UserInteraction::preEvent(Event const &)
+  void UserInteraction::preEvent(Event const&)
   {
     //std::cout << "event:"<< iID<<" time:"<<iTime.value()<< std::endl;
     pickModule();
   }
 
-  void UserInteraction::postEvent(Event const &)
+  void UserInteraction::postEvent(Event const&)
   {
     NextStep which = nextAction();
-    switch (which) {
+
+    switch(which)
+      {
       case NextEvent:
         break;
       case ReprocessEvent:
@@ -77,11 +83,11 @@ namespace ui {
         break;
       default:
         break;
-    }
+      }
   }
 
   void UserInteraction::callReconfigure(int mod_index,
-                                        fhicl::ParameterSet const & pset)
+                                        fhicl::ParameterSet const& pset)
   {
     workers_[mod_index]->reconfigure(pset);
   }
@@ -89,12 +95,10 @@ namespace ui {
 
 #if 0
   void
-  UserInteraction::preModuleEvent(ModuleDescription const & iDescription)
-  {
+  UserInteraction::preModuleEvent(ModuleDescription const& iDescription) {
   }
   void
-  UserInteraction::postModuleEvent(ModuleDescription const & iDescription)
-  {
+  UserInteraction::postModuleEvent(ModuleDescription const& iDescription) {
   }
 #endif
 

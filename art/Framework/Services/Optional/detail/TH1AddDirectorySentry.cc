@@ -21,13 +21,13 @@
 // constructors and destructor
 //
 TH1AddDirectorySentry::TH1AddDirectorySentry():
-  status_(TH1::AddDirectoryStatus())
+   status_(TH1::AddDirectoryStatus())
 {
-  TH1::AddDirectory(true);
+   TH1::AddDirectory(true);
 }
 
 TH1AddDirectorySentry::~TH1AddDirectorySentry()
 {
-  TH1::AddDirectory(status_);
+   TH1::AddDirectory(status_);
 }
 

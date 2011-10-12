@@ -28,13 +28,13 @@ using namespace std;
 
 namespace art {
 
-  RootInputFileSequence::RootInputFileSequence(fhicl::ParameterSet const & pset,
-      InputFileCatalog const & catalog,
-      bool primarySequence,
-      FastCloningInfoProvider const & fcip,
-      InputSource::ProcessingMode pMode,
-      MasterProductRegistry & mpr,
-      ProcessConfiguration const & processConfig) :
+  RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
+                                                InputFileCatalog const& catalog,
+                                                bool primarySequence,
+                                                FastCloningInfoProvider const &fcip,
+                                                InputSource::ProcessingMode pMode,
+                                                MasterProductRegistry &mpr,
+                                                ProcessConfiguration const &processConfig) :
     //    input_(input),
     catalog_(catalog),
     firstFile_(true),
@@ -61,45 +61,49 @@ namespace art {
     dropDescendants_(pset.get<bool>("dropDescendantsOfDroppedBranches", true)),
     fastCloningInfo_(fcip),
     processingMode_(pMode),
-    processConfiguration_(processConfig)
-  {
+    processConfiguration_(processConfig) {
+
     RunNumber_t firstRun;
     bool haveFirstRun = pset.get_if_present("firstRun", firstRun);
     SubRunNumber_t firstSubRun;
     bool haveFirstSubRun = pset.get_if_present("firstSubRun", firstSubRun);
     EventNumber_t firstEvent;
     bool haveFirstEvent = pset.get_if_present("firstEvent", firstEvent);
-    RunID firstRunID = haveFirstRun ? RunID(firstRun) : RunID::firstRun();
-    SubRunID firstSubRunID = haveFirstSubRun ? SubRunID(firstRunID.run(), firstSubRun) :
-                             SubRunID::firstSubRun(firstRunID);
-    origEventID_ = haveFirstEvent ? EventID(firstSubRunID.run(),
-                                            firstSubRunID.subRun(),
-                                            firstEvent) :
-                   EventID::firstEvent(firstSubRunID);
-    if (!primarySequence_) { noEventSort_ = false; }
+    RunID firstRunID = haveFirstRun?RunID(firstRun):RunID::firstRun();
+    SubRunID firstSubRunID = haveFirstSubRun?SubRunID(firstRunID.run(), firstSubRun):
+      SubRunID::firstSubRun(firstRunID);
+    origEventID_ = haveFirstEvent?EventID(firstSubRunID.run(),
+                                          firstSubRunID.subRun(),
+                                          firstEvent):
+      EventID::firstEvent(firstSubRunID);
+
+    if (!primarySequence_) noEventSort_ = false;
     if (noEventSort_ && (haveFirstEvent || !eventsToProcess_.empty())) {
       throw art::Exception(errors::Configuration)
-          << "Illegal configuration options passed to RootInput\n"
-          << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
-          << "or \"eventsToProcess\".\n";
+        << "Illegal configuration options passed to RootInput\n"
+        << "You cannot request \"noEventSort\" and also set \"firstEvent\"\n"
+        << "or \"eventsToProcess\".\n";
     }
-    if (primarySequence_ && primary()) { duplicateChecker_.reset(new DuplicateChecker(pset)); }
+
+    if (primarySequence_ && primary()) duplicateChecker_.reset(new DuplicateChecker(pset));
+
+
     sort_all(eventsToProcess_);
     string matchMode = pset.get<string>("fileMatchMode", string("permissive"));
-    if (matchMode == string("strict")) { matchMode_ = BranchDescription::Strict; }
+    if (matchMode == string("strict")) matchMode_ = BranchDescription::Strict;
     if (primary()) {
-      for (fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
+      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
         initFile(skipBadFiles_);
-        if (rootFile_) { break; }
+        if (rootFile_) break;
       }
       if (rootFile_) {
         forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
         if (forcedRunOffset_ < 0) {
           throw art::Exception(errors::Configuration)
-              << "The value of the 'setRunNumber' parameter must not be\n"
-              << "less than the first run number in the first input file.\n"
-              << "'setRunNumber' was " << setRun_ << ", while the first run was "
-              << setRun_ - forcedRunOffset_ << ".\n";
+            << "The value of the 'setRunNumber' parameter must not be\n"
+            << "less than the first run number in the first input file.\n"
+            << "'setRunNumber' was " << setRun_ <<", while the first run was "
+            << setRun_ - forcedRunOffset_ << ".\n";
         }
         mpr.updateFromInput(rootFile_->productList());
         BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
@@ -107,13 +111,12 @@ namespace art {
     }
   }
 
-  EventID RootInputFileSequence::seekToEvent(EventID const & eID, bool exact)
-  {
+  EventID RootInputFileSequence::seekToEvent(EventID const &eID, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(eID, true);
     typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
     if (!found) {
-      if (fileIndexes_.size() == 1) { return EventID(); } // Give up now.
+      if (fileIndexes_.size() == 1) return EventID(); // Give up now.
       // Look for event in files previously opened without reopening unnecessary files.
       for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); (!found) && it != itEnd; ++it) {
         if (*it && (*it)->containsEvent(eID, exact)) {
@@ -122,7 +125,7 @@ namespace art {
           initFile(false);
           // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(eID, exact);
-          assert(found);
+          assert (found);
         }
       }
     }
@@ -135,38 +138,33 @@ namespace art {
         }
       }
     }
-    return (found) ? rootFile_->eventIDForFileIndexPosition() : EventID();
+    return (found)?rootFile_->eventIDForFileIndexPosition():EventID();
   }
 
-  EventID RootInputFileSequence::seekToEvent(off_t offset, MasterProductRegistry & mpr, bool)
-  {
+  EventID RootInputFileSequence::seekToEvent(off_t offset, MasterProductRegistry& mpr, bool) {
     skip(offset, mpr);
     return rootFile_->eventIDForFileIndexPosition();
   }
 
-  vector<FileCatalogItem> const &
-  RootInputFileSequence::fileCatalogItems() const
-  {
+  vector<FileCatalogItem> const&
+  RootInputFileSequence::fileCatalogItems() const {
     return catalog_.fileCatalogItems();
   }
 
   void
-  RootInputFileSequence::endJob()
-  {
+  RootInputFileSequence::endJob() {
     closeFile_();
   }
 
   std::shared_ptr<FileBlock>
-  RootInputFileSequence::readFile_(MasterProductRegistry & mpr)
-  {
+  RootInputFileSequence::readFile_(MasterProductRegistry& mpr) {
     if (firstFile_) {
       // The first input file has already been opened, or a rewind has occurred.
       firstFile_ = false;
       if (!rootFile_) {
         initFile(skipBadFiles_);
       }
-    }
-    else {
+    } else {
       if (!nextFile(mpr)) {
         assert(0);
       }
@@ -177,8 +175,7 @@ namespace art {
     return rootFile_->createFileBlock();
   }
 
-  void RootInputFileSequence::closeFile_()
-  {
+  void RootInputFileSequence::closeFile_() {
     if (rootFile_) {
       // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
@@ -187,12 +184,11 @@ namespace art {
       }
       logFileAction("  Closed file ", rootFile_->file());
       rootFile_.reset();
-      if (duplicateChecker_.get() != 0) { duplicateChecker_->inputFileClosed(); }
+      if (duplicateChecker_.get() != 0) duplicateChecker_->inputFileClosed();
     }
   }
 
-  void RootInputFileSequence::initFile(bool skipBadFiles)
-  {
+  void RootInputFileSequence::initFile(bool skipBadFiles) {
     // close the currently open file, any, and delete the RootInputFile object.
     closeFile_();
     std::shared_ptr<TFile> filePtr;
@@ -203,95 +199,91 @@ namespace art {
     catch (cet::exception e) {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) << e.explain_self() << "\n" <<
-            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+          "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
     }
     if (filePtr && !filePtr->IsZombie()) {
       logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootInputFileSharedPtr(new RootInputFile(fileIter_->fileName(), catalog_.url(),
-                                         processConfiguration(), fileIter_->logicalFileName(), filePtr,
-                                         origEventID_, eventsToSkip_, whichSubRunsToSkip_,
-                                         fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
-                                         processingMode_,
-                                         forcedRunOffset_, eventsToProcess_, noEventSort_,
-                                         groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
+                                                           processConfiguration(), fileIter_->logicalFileName(), filePtr,
+                                                           origEventID_, eventsToSkip_, whichSubRunsToSkip_,
+                                                           fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
+                                                           processingMode_,
+                                                           forcedRunOffset_, eventsToProcess_, noEventSort_,
+                                                           groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
-    }
-    else {
+    } else {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) <<
-            "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+          "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
       }
       mf::LogWarning("")
-          << "Input file: " << fileIter_->fileName()
-          << " was not found or could not be opened, and will be skipped.\n";
+        << "Input file: " << fileIter_->fileName()
+        << " was not found or could not be opened, and will be skipped.\n";
     }
   }
 
-  bool RootInputFileSequence::nextFile(MasterProductRegistry & mpr)
-  {
-    if (fileIter_ != fileIterEnd_) { ++fileIter_; }
-    if (fileIter_ == fileIterEnd_) {
+  bool RootInputFileSequence::nextFile(MasterProductRegistry& mpr) {
+    if(fileIter_ != fileIterEnd_) ++fileIter_;
+    if(fileIter_ == fileIterEnd_) {
       if (primarySequence_) {
         return false;
-      }
-      else {
+      } else {
         fileIter_ = fileIterBegin_;
       }
     }
+
     initFile(skipBadFiles_);
+
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible with the main one
       string mergeInfo = mpr.merge(rootFile_->productList(),
                                    fileIter_->fileName(),
                                    matchMode_);
       if (!mergeInfo.empty()) {
-        throw art::Exception(errors::MismatchedInputFiles, "RootInputFileSequence::nextFile()") << mergeInfo;
+        throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
       BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
     return true;
   }
 
-  bool RootInputFileSequence::previousFile(MasterProductRegistry & mpr)
-  {
-    if (fileIter_ == fileIterBegin_) {
+  bool RootInputFileSequence::previousFile(MasterProductRegistry& mpr) {
+    if(fileIter_ == fileIterBegin_) {
       if (primarySequence_) {
         return false;
-      }
-      else {
+      } else {
         fileIter_ = fileIterEnd_;
       }
     }
     --fileIter_;
+
     initFile(false);
+
     if (primarySequence_ && rootFile_) {
       // make sure the new product registry is compatible to the main one
       string mergeInfo = mpr.merge(rootFile_->productList(),
                                    fileIter_->fileName(),
                                    matchMode_);
       if (!mergeInfo.empty()) {
-        throw art::Exception(errors::MismatchedInputFiles, "RootInputFileSequence::previousEvent()") << mergeInfo;
+        throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
       BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
     }
-    if (rootFile_) { rootFile_->setToLastEntry(); }
+    if (rootFile_) rootFile_->setToLastEntry();
     return true;
   }
 
-  RootInputFileSequence::~RootInputFileSequence()
-  {
+  RootInputFileSequence::~RootInputFileSequence() {
   }
 
   std::shared_ptr<RunPrincipal>
-  RootInputFileSequence::readRun_()
-  {
+  RootInputFileSequence::readRun_() {
     return rootFile_->readRun();
   }
 
   std::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readSubRun_(std::shared_ptr<RunPrincipal> rp)
-  {
+  RootInputFileSequence::readSubRun_(std::shared_ptr<RunPrincipal> rp) {
     return rootFile_->readSubRun(rp);
   }
 
@@ -310,22 +302,19 @@ namespace art {
   //
 
   auto_ptr<EventPrincipal>
-  RootInputFileSequence::readEvent_()
-  {
+  RootInputFileSequence::readEvent_() {
     rootFileForLastReadEvent_ = rootFile_;
     return rootFile_->readEvent();
   }
 
   auto_ptr<EventPrincipal>
-  RootInputFileSequence::readCurrentEvent()
-  {
+  RootInputFileSequence::readCurrentEvent() {
     rootFileForLastReadEvent_ = rootFile_;
     return rootFile_->readCurrentEvent();
   }
 
   auto_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const & id, MasterProductRegistry & mpr, bool exact)
-  {
+  RootInputFileSequence::readIt(EventID const& id, MasterProductRegistry& mpr, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id, exact);
     if (!found) {
@@ -342,7 +331,7 @@ namespace art {
           initFile(false);
           // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(id, exact);
-          assert(found);
+          assert (found);
           rootFileForLastReadEvent_ = rootFile_;
           auto_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1, mpr);
@@ -373,13 +362,14 @@ namespace art {
   }
 
   std::shared_ptr<SubRunPrincipal>
-  RootInputFileSequence::readIt(SubRunID const & id, std::shared_ptr<RunPrincipal> rp)
-  {
+  RootInputFileSequence::readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp) {
+
     // Attempt to find subRun in currently open input file.
     bool found = rootFile_->setEntryAtSubRun(id);
     if (found) {
       return readSubRun_(rp);
     }
+
     if (fileIndexes_.size() > 1) {
       // Look for subRun in files previously opened without reopening unnecessary files.
       typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
@@ -390,7 +380,7 @@ namespace art {
           initFile(false);
           // Now get the subRun from the correct file.
           found = rootFile_->setEntryAtSubRun(id);
-          assert(found);
+          assert (found);
           return readSubRun_(rp);
         }
       }
@@ -410,8 +400,8 @@ namespace art {
   }
 
   std::shared_ptr<RunPrincipal>
-  RootInputFileSequence::readIt(RunID const & id)
-  {
+  RootInputFileSequence::readIt(RunID const& id) {
+
     // Attempt to find run in currently open input file.
     bool found = rootFile_->setEntryAtRun(id);
     if (found) {
@@ -427,7 +417,7 @@ namespace art {
           initFile(false);
           // Now get the event from the correct file.
           found = rootFile_->setEntryAtRun(id);
-          assert(found);
+          assert (found);
           return readRun_();
         }
       }
@@ -447,8 +437,7 @@ namespace art {
   }
 
   input::ItemType
-  RootInputFileSequence::getNextItemType()
-  {
+  RootInputFileSequence::getNextItemType() {
     if (fileIter_ == fileIterEnd_) {
       return input::IsStop;
     }
@@ -459,11 +448,9 @@ namespace art {
       FileIndex::EntryType entryType = rootFile_->getNextEntryTypeWanted();
       if (entryType == FileIndex::kEvent) {
         return input::IsEvent;
-      }
-      else if (entryType == FileIndex::kSubRun) {
+      } else if (entryType == FileIndex::kSubRun) {
         return input::IsSubRun;
-      }
-      else if (entryType == FileIndex::kRun) {
+      } else if (entryType == FileIndex::kRun) {
         return input::IsRun;
       }
       assert(entryType == FileIndex::kEnd);
@@ -476,52 +463,46 @@ namespace art {
 
   // Rewind to before the first event that was read.
   void
-  RootInputFileSequence::rewind_()
-  {
+  RootInputFileSequence::rewind_() {
     firstFile_ = true;
     fileIter_ = fileIterBegin_;
-    if (duplicateChecker_.get() != 0) { duplicateChecker_->rewind(); }
+    if (duplicateChecker_.get() != 0) duplicateChecker_->rewind();
   }
 
   // Rewind to the beginning of the current file
   void
-  RootInputFileSequence::rewindFile()
-  {
+  RootInputFileSequence::rewindFile() {
     rootFile_->rewind();
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
-  RootInputFileSequence::skip(int offset, MasterProductRegistry & mpr)
-  {
+  RootInputFileSequence::skip(int offset, MasterProductRegistry& mpr) {
     while (offset != 0) {
       offset = rootFile_->skipEvents(offset);
-      if (offset > 0 && !nextFile(mpr)) { return; }
-      if (offset < 0 && !previousFile(mpr)) { return; }
+      if (offset > 0 && !nextFile(mpr)) return;
+      if (offset < 0 && !previousFile(mpr)) return;
     }
     rootFile_->skipEvents(0);
   }
 
   bool
-  RootInputFileSequence::primary() const
-  {
+  RootInputFileSequence::primary() const {
     return true;
   }
 
-  ProcessConfiguration const &
-  RootInputFileSequence::processConfiguration() const
-  {
+  ProcessConfiguration const&
+  RootInputFileSequence::processConfiguration() const {
     return processConfiguration_;
   }
 
-  void RootInputFileSequence::logFileAction(const char * msg, string const & file)
-  {
+  void RootInputFileSequence::logFileAction(const char* msg, string const& file) {
     if (primarySequence_) {
       time_t t = time(0);
       char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-      strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
+      strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
       mf::LogAbsolute("fileAction")
-          << ts << msg << file;
+        << ts << msg << file;
       mf::FlushMessageLog();
     }
   }

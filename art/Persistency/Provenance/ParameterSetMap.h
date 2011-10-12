@@ -5,7 +5,7 @@
 #include <map>
 
 namespace art {
-  typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
+   typedef std::map<fhicl::ParameterSetID, ParameterSetBlob> ParameterSetMap;
 }
 
 #endif /* art_Persistency_Provenance_ParameterSetMap_h */

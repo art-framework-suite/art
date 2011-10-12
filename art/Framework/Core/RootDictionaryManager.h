@@ -16,17 +16,18 @@
 
 namespace art {
 
-  class RootDictionaryManager {
+  class RootDictionaryManager
+  {
   public:
     RootDictionaryManager();
 
-    std::ostream & dumpReflexDictionaryInfo(std::ostream & os) const;
+    std::ostream & dumpReflexDictionaryInfo(std::ostream &os) const;
 
-    std::ostream & dumpReflexDictionaryInfo(std::ostream & os,
-                                            std::string const & libpath) const;
+    std::ostream & dumpReflexDictionaryInfo(std::ostream &os,
+                               std::string const &libpath) const;
 
-    bool dictIsLoadable(std::string const & path) const;
-    bool dictIsLoaded(std::string const & path) const;
+    bool dictIsLoadable(std::string const &path) const;
+    bool dictIsLoaded(std::string const &path) const;
 
   private:
     typedef std::vector<std::string> lib_list_t;

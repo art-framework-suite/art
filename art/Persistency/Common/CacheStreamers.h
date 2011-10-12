@@ -8,21 +8,21 @@ class TBuffer;
 namespace art {
   class ConstPtrCacheStreamer : public TClassStreamer {
   public:
-    explicit ConstPtrCacheStreamer() : cl_("art::ConstPtrCache") {}
+    explicit ConstPtrCacheStreamer() : cl_("art::ConstPtrCache"){}
 
-    void operator()(TBuffer & R_b, void * objp);
+    void operator() (TBuffer &R_b, void *objp);
 
   private:
     TClassRef cl_;
   };
 
   class BoolCacheStreamer : public TClassStreamer {
-  public:
-    explicit BoolCacheStreamer() : cl_("art::BoolCache") {}
+public:
+    explicit BoolCacheStreamer() : cl_("art::BoolCache"){}
 
-    void operator()(TBuffer & R_b, void * objp);
+    void operator() (TBuffer &R_b, void *objp);
 
-  private:
+private:
     TClassRef cl_;
   };
 

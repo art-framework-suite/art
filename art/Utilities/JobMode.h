@@ -11,10 +11,10 @@
 namespace art {
 
   enum JobMode {
-    GridJobMode
-    , ReleaseValidationJobMode
-    , AnalysisJobMode
-    , NilJobMode
+         GridJobMode
+       , ReleaseValidationJobMode
+       , AnalysisJobMode
+       , NilJobMode
   };
 
 }  // art

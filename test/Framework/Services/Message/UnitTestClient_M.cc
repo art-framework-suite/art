@@ -8,25 +8,26 @@
 
 // Test of LogSystem, LogAbsolute, LogProblem, LogPrint, LogVerbatim
 
-namespace arttest {
+namespace arttest
+{
 
 
-  void
-  UnitTestClient_M::analyze(art::Event      const & e
-                            , art::EventSetup const & /*unused*/
-                           )
-  {
-    mf::LogSystem("system")    <<
-                               "Text sent to LogSystem";
-    mf::LogAbsolute("absolute")  <<
-                                 "Text sent to LogAbsolute - should be unformatted";
-    mf::LogProblem("problem")   <<
-                                "Text sent to LogProblem - should be unformatted";
-    mf::LogPrint("print")       <<
-                                "Text sent to LogPrint- should be unformatted";
-    mf::LogVerbatim("verbatim") <<
-                                "Text sent to LogVerbatim - should be unformatted";
-  }  // MessageLoggerClient::analyze()
+void
+  UnitTestClient_M::analyze( art::Event      const & e
+                           , art::EventSetup const & /*unused*/
+                              )
+{
+  mf::LogSystem("system")    <<
+        "Text sent to LogSystem";
+  mf::LogAbsolute("absolute")  <<
+        "Text sent to LogAbsolute - should be unformatted";
+  mf::LogProblem("problem")   <<
+        "Text sent to LogProblem - should be unformatted";
+  mf::LogPrint("print")       <<
+        "Text sent to LogPrint- should be unformatted";
+  mf::LogVerbatim("verbatim") <<
+        "Text sent to LogVerbatim - should be unformatted";
+}  // MessageLoggerClient::analyze()
 
 
 }  // arttest

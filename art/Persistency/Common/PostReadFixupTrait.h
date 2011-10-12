@@ -17,7 +17,7 @@ namespace art {
         if (!fixed_) {
           fixed_ = true;
           for (typename C::const_iterator i = c.begin(), e = c.end(); i != e; ++i)
-          { (*i)->fixup(); }
+            (*i)->fixup();
         }
       }
     private:
@@ -26,7 +26,7 @@ namespace art {
 
     template<typename T>
     struct PostReadFixupTrait {
-      typedef DoNoPostReadFixup type;
+     typedef DoNoPostReadFixup type;
     };
   }
 }

@@ -17,33 +17,33 @@ class art::AssnsGroup : public art::Group {
 public:
   AssnsGroup();
 private:
-  AssnsGroup(BranchDescription const & bd,
-             ProductID const & pid,
-             art::TypeID const & prinary_wrapper_type,
-             art::TypeID const & secondary_wrapper_type,
+  AssnsGroup(BranchDescription const &bd,
+             ProductID const &pid,
+             art::TypeID const &prinary_wrapper_type,
+             art::TypeID const &secondary_wrapper_type,
              cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
              cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
-               cet::exempt_ptr<EventPrincipal>());
+             cet::exempt_ptr<EventPrincipal>());
   AssnsGroup(std::auto_ptr<EDProduct> edp,
-             BranchDescription const & bd,
-             ProductID const & pid,
-             art::TypeID const & prinary_type,
-             art::TypeID const & secondary_type);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const &, ProductID const &);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const &, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
-  friend std::auto_ptr<Group> gfactory::make_group(std::auto_ptr<EDProduct>, BranchDescription const &, ProductID const &);
+             BranchDescription const &bd,
+             ProductID const &pid,
+             art::TypeID const &prinary_type,
+             art::TypeID const &secondary_type);
+  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
+  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
+  friend std::auto_ptr<Group> gfactory::make_group(std::auto_ptr<EDProduct>, BranchDescription const&, ProductID const &);
 public:
   virtual ~AssnsGroup();
 
-  virtual EDProduct const * getIt() const;
-  virtual EDProduct const * anyProduct() const;
-  virtual EDProduct const * uniqueProduct() const;
-  virtual EDProduct const * uniqueProduct(TypeID const & wanted_wrapper_type) const;
+  virtual EDProduct const *getIt() const;
+  virtual EDProduct const *anyProduct() const;
+  virtual EDProduct const *uniqueProduct() const;
+  virtual EDProduct const *uniqueProduct(TypeID const &wanted_wrapper_type) const;
   virtual bool resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const;
 
 private:
   std::auto_ptr<EDProduct>
-  maybeObtainProductFromPartner(TypeID const & wanted_wrapper_type) const;
+  maybeObtainProductFromPartner(TypeID const &wanted_wrapper_type) const;
 
   art::TypeID secondary_wrapper_type_;
   mutable cet::value_ptr<EDProduct> secondaryProduct_;

@@ -15,7 +15,7 @@ using namespace cet;
 using namespace fhicl;
 using namespace std;
 
-typedef vector<BranchDescription const *> VCBDP;
+typedef vector<BranchDescription const*> VCBDP;
 
 namespace {
 
@@ -24,12 +24,12 @@ namespace {
   // matching of strings, and knows about wildcarding rules.
   inline
   bool
-  partial_match(const std::regex & regularExpression,
-                const string & branchstring)
+  partial_match(const std::regex& regularExpression,
+                const string& branchstring)
   {
     return regularExpression.empty()
-           ? branchstring == ""
-           : std::regex_match(branchstring, regularExpression);
+         ? branchstring == ""
+         : std::regex_match(branchstring, regularExpression);
   }
 
 }  // namespace
@@ -62,9 +62,9 @@ namespace {
 // This class has much room for optimization. This should be
 // revisited as soon as profiling data are available.
 
-GroupSelectorRules::Rule::Rule(string const & s,
-                               string const & parameterName,
-                               string const & owner) :
+GroupSelectorRules::Rule::Rule(string const& s,
+                               string const& parameterName,
+                               string const& owner) :
   selectflag_(),
   productType_(),
   moduleLabel_(),
@@ -73,41 +73,48 @@ GroupSelectorRules::Rule::Rule(string const & s,
 {
   if (s.size() < 6)
     throw art::Exception(art::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        "In " << owner << " parameter named '" << parameterName << "'\n"
-        "Rule must have at least 6 characters because it must\n"
-        "specify 'keep ' or 'drop ' and also supply a pattern.\n"
-        "This is the invalid output configuration rule:\n"
-        "    " << s << "\n"
-        "Exception thrown from GroupSelectorRules::Rule\n";
-  if (s.substr(0, 4) == "keep")
-  { selectflag_ = true; }
-  else if (s.substr(0, 4) == "drop")
-  { selectflag_ = false; }
+      << "Invalid statement in configuration file\n"
+         "In " << owner << " parameter named '" << parameterName << "'\n"
+         "Rule must have at least 6 characters because it must\n"
+         "specify 'keep ' or 'drop ' and also supply a pattern.\n"
+         "This is the invalid output configuration rule:\n"
+         "    " << s << "\n"
+         "Exception thrown from GroupSelectorRules::Rule\n";
+
+  if (s.substr(0,4) == "keep")
+    selectflag_ = true;
+  else if (s.substr(0,4) == "drop")
+    selectflag_ = false;
   else
     throw art::Exception(art::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        "In " << owner << " parameter named '" << parameterName << "'\n"
-        "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
-        "This is the invalid output configuration rule:\n"
-        "    " << s << "\n"
-        "Exception thrown from GroupSelectorRules::Rule\n";
-  if (!isspace(s[4])) {
+      << "Invalid statement in configuration file\n"
+         "In " << owner << " parameter named '" << parameterName << "'\n"
+         "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
+         "This is the invalid output configuration rule:\n"
+         "    " << s << "\n"
+         "Exception thrown from GroupSelectorRules::Rule\n";
+
+  if ( !isspace(s[4]) ) {
+
     throw art::Exception(art::errors::Configuration)
-        << "Invalid statement in configuration file\n"
-        "In " << owner << " parameter named '" << parameterName << "'\n"
-        "In each rule, 'keep' or 'drop' must be followed by a space\n"
-        "This is the invalid output configuration rule:\n"
-        "    " << s << "\n"
-        "Exception thrown from GroupSelectorRules::Rule\n";
+      << "Invalid statement in configuration file\n"
+         "In " << owner << " parameter named '" << parameterName << "'\n"
+         "In each rule, 'keep' or 'drop' must be followed by a space\n"
+         "This is the invalid output configuration rule:\n"
+         "    " << s << "\n"
+         "Exception thrown from GroupSelectorRules::Rule\n";
   }
+
   // Now pull apart the string to get at the bits and pieces of the
   // specification...
+
   // Grab from after 'keep/drop ' (note the space!) to the end of
   // the string...
-  string spec(s.begin() + 5, s.end());
+  string spec(s.begin()+5, s.end());
+
   // Trim any leading and trailing whitespace from spec
   boost::trim(spec);
+
   if (spec == "*") { // special case for wildcard
     productType_  = ".*";
     moduleLabel_  = ".*";
@@ -118,55 +125,61 @@ GroupSelectorRules::Rule::Rule(string const & s,
   else {
     vector<string> parts;
     boost::split(parts, spec, boost::is_any_of("_"));
+
     // The vector must contain at least 4 parts
     // and none may be empty.
     bool good = (parts.size() == 4);
+
     // Require all the strings to contain only alphanumberic
     // characters or "*" or "?"
     if (good) {
       for (int i = 0; i < 4; ++i) {
-        string & field = parts[i];
-        int size = field.size();
-        for (int j = 0; j < size; ++j) {
-          if (!(isalnum(field[j]) || field[j] == '*' || field[j] == '?')) {
-            if (i == 0 && (j - 1) < size && field[j] == ':' && field[j + 1] == ':') {
-              // Colons allowed as namespace delimiters in type field only
-              ++j;
-              continue;
+         string& field = parts[i];
+         int size = field.size();
+         for (int j = 0; j < size; ++j) {
+            if ( !(isalnum(field[j]) || field[j] == '*' || field[j] == '?') ) {
+               if (i == 0 && (j-1) < size && field[j] == ':' && field[j+1] == ':') {
+                  // Colons allowed as namespace delimiters in type field only
+                  ++j;
+                  continue;
+               }
+               good = false;
             }
-            good = false;
-          }
-        }
-        // We are using the regex library to deal with the wildcards.
-        // The configuration file uses a syntax that accepts "*" and "?"
-        // as wildcards so we need to convert these to the syntax used in
-        // regular expressions.
-        boost::replace_all(parts[i], "*", ".*");
-        boost::replace_all(parts[i], "?", ".");
+         }
+
+         // We are using the regex library to deal with the wildcards.
+         // The configuration file uses a syntax that accepts "*" and "?"
+         // as wildcards so we need to convert these to the syntax used in
+         // regular expressions.
+         boost::replace_all(parts[i], "*", ".*");
+         boost::replace_all(parts[i], "?", ".");
       }
     }
+
     if (!good) {
       throw art::Exception(art::errors::Configuration)
-          << "Invalid statement in configuration file\n"
-          "In " << owner << " parameter named '" << parameterName << "'\n"
-          "In each rule, after 'keep ' or 'drop ' there must\n"
-          "be a branch specification of the form 'type_label_instance_process'\n"
-          "There must be 4 fields separated by underscores\n"
-          "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
-          "The first field *only* can contain additionally \"::\" as part of\n"
-          "namespace specification.\n"
-          "Alternately, a single * is also allowed for the branch specification\n"
-          "This is the invalid output configuration rule:\n"
-          "    " << s << "\n"
-          "Exception thrown from GroupSelectorRules::Rule\n";
+        << "Invalid statement in configuration file\n"
+           "In " << owner << " parameter named '" << parameterName << "'\n"
+           "In each rule, after 'keep ' or 'drop ' there must\n"
+           "be a branch specification of the form 'type_label_instance_process'\n"
+           "There must be 4 fields separated by underscores\n"
+           "The fields can only contain alphanumeric characters and the wildcards * or ?\n"
+           "The first field *only* can contain additionally \"::\" as part of\n"
+           "namespace specification.\n"
+           "Alternately, a single * is also allowed for the branch specification\n"
+           "This is the invalid output configuration rule:\n"
+           "    " << s << "\n"
+           "Exception thrown from GroupSelectorRules::Rule\n";
     }
+
     // Assign the strings to the regex (regular expression) objects
     // If the string is empty we skip the assignment and leave
     // the regular expression also empty.
-    if (parts[0] != "") { productType_  = parts[0]; }
-    if (parts[1] != "") { moduleLabel_  = parts[1]; }
-    if (parts[2] != "") { instanceName_ = parts[2]; }
-    if (parts[3] != "") { processName_  = parts[3]; }
+
+    if (parts[0] != "") productType_  = parts[0];
+    if (parts[1] != "") moduleLabel_  = parts[1];
+    if (parts[2] != "") instanceName_ = parts[2];
+    if (parts[3] != "") processName_  = parts[3];
   }
 }
 
@@ -175,7 +188,7 @@ GroupSelectorRules::Rule::applyToAll(vector<BranchSelectState>& branchstates) co
 {
   vector<BranchSelectState>::iterator it = branchstates.begin();
   vector<BranchSelectState>::iterator end = branchstates.end();
-  for (; it != end; ++it) { applyToOne(it->desc, it->selectMe); }
+  for (; it != end; ++it) applyToOne(it->desc, it->selectMe);
 }
 
 void
@@ -183,18 +196,18 @@ GroupSelectorRules::applyToAll(vector<BranchSelectState>& branchstates) const
 {
   vector<Rule>::const_iterator it = rules_.begin();
   vector<Rule>::const_iterator end = rules_.end();
-  for (; it != end; ++it) { it->applyToAll(branchstates); }
+  for (; it != end; ++it) it->applyToAll(branchstates);
 }
 
 void
-GroupSelectorRules::Rule::applyToOne(BranchDescription const * branch,
-                                     bool & result) const
+GroupSelectorRules::Rule::applyToOne(BranchDescription const* branch,
+                 bool& result) const
 {
-  if (this->appliesTo(branch)) { result = selectflag_; }
+  if (this->appliesTo(branch)) result = selectflag_;
 }
 
 bool
-GroupSelectorRules::Rule::appliesTo(BranchDescription const * branch) const
+GroupSelectorRules::Rule::appliesTo(BranchDescription const* branch) const
 {
   return
     partial_match(productType_ , branch->friendlyClassName()) &&
@@ -203,12 +216,12 @@ GroupSelectorRules::Rule::appliesTo(BranchDescription const * branch) const
     partial_match(processName_ , branch->processName());
 }
 
-GroupSelectorRules::GroupSelectorRules(ParameterSet const & pset,
-                                       string const & parameterName,
-                                       string const & parameterOwnerName) :
-  rules_(),
-  parameterName_(parameterName),
-  parameterOwnerName_(parameterOwnerName)
+GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,
+                             string const& parameterName,
+                             string const& parameterOwnerName) :
+rules_(),
+parameterName_(parameterName),
+parameterOwnerName_(parameterOwnerName)
 {
   // Fill the rules.
   // If there is no parameter whose name is parameterName_ in the
@@ -216,9 +229,10 @@ GroupSelectorRules::GroupSelectorRules(ParameterSet const & pset,
   vector<string> defaultCommands(1U, string("keep *"));
   vector<string> commands =
     pset.get<vector<string> >(parameterName, defaultCommands);
+
   rules_.reserve(commands.size());
-  for (vector<string>::const_iterator it = commands.begin(), end = commands.end();
-       it != end; ++it) {
+  for(vector<string>::const_iterator it = commands.begin(), end = commands.end();
+      it != end; ++it) {
     rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
   }
   keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];

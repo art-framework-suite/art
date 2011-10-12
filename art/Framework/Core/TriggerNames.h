@@ -46,7 +46,7 @@ namespace art {
     typedef std::map<std::string, unsigned int> IndexMap;
 
     TriggerNames();
-    TriggerNames(TriggerResults const & triggerResults);
+    TriggerNames(TriggerResults const& triggerResults);
 
     // Returns true if the trigger names actually change.
     // If the ID stored in TriggerResults is the same
@@ -54,16 +54,16 @@ namespace art {
     // the trigger names are also the same.  In this case,
     // this function immediately returns false and does not
     // waste any time or CPU cycles.
-    bool init(TriggerResults const & triggerResults);
+    bool init(TriggerResults const& triggerResults);
 
-    Strings const & triggerNames() const;
+    Strings const& triggerNames() const;
 
     // Throws if the number is out of range.
-    std::string const & triggerName(unsigned int index) const;
+    std::string const& triggerName(unsigned int index) const;
 
     // If the input name is not known, this returns a value
     // equal to the size.
-    unsigned int triggerIndex(std::string const & name) const;
+    unsigned int triggerIndex(std::string const& name) const;
 
     // The number of trigger names.
     Strings::size_type size() const;

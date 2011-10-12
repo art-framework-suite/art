@@ -60,17 +60,19 @@ Some examples of InputSource subclasses may be:
 
 // ----------------------------------------------------------------------
 
-namespace art {
+namespace art
+{
   class ActivityRegistry;
   class MasterProductRegistry;
 
   class DecrepitRelicInputSourceImplementation :
     public InputSource,
     private ProductRegistryHelper,
-    private boost::noncopyable {
+    private boost::noncopyable
+  {
   public:
 
-    DecrepitRelicInputSourceImplementation(fhicl::ParameterSet const &,
+    DecrepitRelicInputSourceImplementation(fhicl::ParameterSet const&,
                                            InputSourceDescription &);
 
     virtual ~DecrepitRelicInputSourceImplementation() = 0;
@@ -85,7 +87,7 @@ namespace art {
     std::auto_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp);
 
     /// Read a specific event
-    std::auto_ptr<EventPrincipal> readEvent(EventID const &);
+    std::auto_ptr<EventPrincipal> readEvent(EventID const&);
 
     /// Read next subRun
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
@@ -94,7 +96,7 @@ namespace art {
     std::shared_ptr<RunPrincipal> readRun();
 
     /// Read next file
-    std::shared_ptr<FileBlock> readFile(MasterProductRegistry &);
+    std::shared_ptr<FileBlock> readFile(MasterProductRegistry&);
 
     /// close current file
     void closeFile();
@@ -115,7 +117,7 @@ namespace art {
     //void wakeUp() {wakeUp_();}
 
     /// issue an event report
-    void issueReports(EventID const & eventID);
+    void issueReports(EventID const& eventID);
 
     /// Reset the remaining number of events/subRuns to the maximum number.
     void repeat_() {
@@ -141,10 +143,10 @@ namespace art {
     int remainingSubRuns() const {return remainingSubRuns_;}
 
     /// Accessor for 'module' description.
-    ModuleDescription const & moduleDescription() const {return moduleDescription_;}
+    ModuleDescription const& moduleDescription() const {return moduleDescription_;}
 
     /// Accessor for Process Configuration
-    ProcessConfiguration const & processConfiguration() const {return moduleDescription().processConfiguration();}
+    ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
     /// Called by framework at beginning of job
     void doBeginJob();
@@ -153,11 +155,11 @@ namespace art {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doEndSubRun(SubRunPrincipal & srp);
-    void doEndRun(RunPrincipal & rp);
+    void doEndSubRun(SubRunPrincipal& srp);
+    void doEndRun(RunPrincipal& rp);
 
     /// Accessor for the current time, as seen by the input source
-    Timestamp const & timestamp() const {return time_;}
+    Timestamp const& timestamp() const {return time_;}
 
     /// Accessor for current run number
     RunNumber_t run() const;
@@ -175,9 +177,9 @@ namespace art {
 
   protected:
     /// To set the current time, as seen by the input source
-    void setTimestamp(Timestamp const & theTime) {time_ = theTime;}
+    void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    input::ItemType state() const {return state_;}
+    input::ItemType state() const{return state_;}
     std::shared_ptr<RunPrincipal> runPrincipal() const {return runPrincipal_;}
     std::shared_ptr<SubRunPrincipal> subRunPrincipal() const {return subRunPrincipal_;}
     void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) {runPrincipal_ = rp;}
@@ -190,9 +192,9 @@ namespace art {
     }
 
     // To call the private commit_() functions of classes with which we are friends
-    void commitEvent(Event & e);
-    void commitRun(Run & r);
-    void commitSubRun(SubRun & sr);
+    void commitEvent(Event &e);
+    void commitRun(Run &r);
+    void commitSubRun(SubRun &sr);
 
   private:
     bool eventLimitReached() const {return remainingEvents_ == 0;}
@@ -205,13 +207,13 @@ namespace art {
     virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
     // Only subclasses that actually read a file will need to use the
     // MasterProductRegistry.
-    virtual std::shared_ptr<FileBlock> readFile_(MasterProductRegistry &);
+    virtual std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);
     virtual void closeFile_() {}
     virtual void skip(int);
     virtual void rewind_();
     //virtual void wakeUp_();
     void preRead();
-    void postRead(Event & event);
+    void postRead(Event& event);
     virtual void endSubRun(SubRun &);
     virtual void endRun(Run &);
     virtual void beginJob();

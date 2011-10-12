@@ -25,11 +25,11 @@ namespace art {
 
 class art::MFStatusUpdater : boost::noncopyable {
 public:
-  MFStatusUpdater(ActivityRegistry & areg);
+  MFStatusUpdater(ActivityRegistry &areg);
 
   // Public interface to get state information.
-  std::string const & programStatus() const { return programStatus_; }
-  std::string const & workFlowSatus() const { return workFlowStatus_; }
+  std::string const &programStatus() const { return programStatus_; }
+  std::string const &workFlowSatus() const { return workFlowStatus_; }
 
 private:
   MFSU_0_ARG_UPDATER_DECL(PostBeginJob);
@@ -83,27 +83,27 @@ private:
   MFSU_1_ARG_UPDATER_DECL(PreModuleEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostModuleEndSubRun);
 
-  void setContext(std::string const & ps);
-  void setMinimalContext(std::string const & ps);
-  void setContext(art::ModuleDescription const & desc);
-  void setContext(art::ModuleDescription const & desc,
-                  std::string const & phase);
-  void restoreContext(std::string const & ps);
-  void restoreContext(art::ModuleDescription const & desc);
-  void restoreContext(art::ModuleDescription const & desc,
-                      std::string const & phase);
+  void setContext(std::string const &ps);
+  void setMinimalContext(std::string const &ps);
+  void setContext(art::ModuleDescription const &desc);
+  void setContext(art::ModuleDescription const &desc,
+                  std::string const &phase);
+  void restoreContext(std::string const &ps);
+  void restoreContext(art::ModuleDescription const &desc);
+  void restoreContext(art::ModuleDescription const &desc,
+                      std::string const &phase);
   void setWorkFlowStatus(std::string wfs);
-  std::string moduleIDString(const ModuleDescription & desc);
-  std::string moduleIDString(const ModuleDescription & desc,
-                             std::string const & suffix);
+  std::string moduleIDString(const ModuleDescription &desc);
+  std::string moduleIDString(const ModuleDescription &desc,
+                             std::string const &suffix);
 
-  ActivityRegistry & areg_;
+  ActivityRegistry &areg_;
 
   std::string programStatus_;
   std::string workFlowStatus_;
 
-  mf::MessageDrop & md_;
-  mf::service::MessageLogger & mls_;
+  mf::MessageDrop& md_;
+  mf::service::MessageLogger& mls_;
   mf::service::MessageLogger::EnabledState savedEnabledState_;
 };
 

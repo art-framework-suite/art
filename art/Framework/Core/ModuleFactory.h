@@ -20,16 +20,17 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::ModuleFactory {
+class art::ModuleFactory
+{
   // non-copyable:
-  ModuleFactory(ModuleFactory const &);
-  void  operator = (ModuleFactory const &);
+  ModuleFactory( ModuleFactory const & );
+  void  operator = ( ModuleFactory const & );
 
 public:
   static std::auto_ptr<Worker>
-  makeWorker(WorkerParams      const & wp
-             , ModuleDescription const & md
-            );
+    makeWorker( WorkerParams      const & wp
+              , ModuleDescription const & md
+              );
 
 private:
   LibraryManager lm_;
@@ -38,7 +39,7 @@ private:
   ~ModuleFactory();
 
   static ModuleFactory &
-  the_factory_();
+    the_factory_();
 
 };  // ModuleFactory
 

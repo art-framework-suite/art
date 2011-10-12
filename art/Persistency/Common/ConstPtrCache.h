@@ -26,14 +26,15 @@ is always reset to 0 when ever a new instance of this class is read from a file
 
 // forward declarations
 namespace art {
-  class ConstPtrCache {
+class ConstPtrCache
+{
 
-  public:
-    ConstPtrCache() : ptr_(0) {}
-    ConstPtrCache(const void * iPtr) : ptr_(iPtr) {}
+   public:
+   ConstPtrCache() : ptr_(0) {}
+  ConstPtrCache(const void* iPtr) : ptr_(iPtr) {}
 
-    const void * ptr_;
-  };
+   const void* ptr_;
+};
 
 }
 #endif /* art_Persistency_Common_ConstPtrCache_h */

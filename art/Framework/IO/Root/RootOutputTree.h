@@ -28,9 +28,9 @@ namespace art {
   public:
     // Constructor for trees with no fast cloning
     template <typename T>
-    RootOutputTree(T * , // first argument is a dummy so that the compiler can resolve the match.
+    RootOutputTree(T* , // first argument is a dummy so that the compiler can resolve the match.
                    std::shared_ptr<TFile> filePtr,
-                   BranchType const & branchType,
+                   BranchType const& branchType,
                    typename T::Auxiliary const*& pAux,
                    ProductProvenances *& pProductProvenanceVector,
                    int bufSize,
@@ -48,32 +48,34 @@ namespace art {
       currentlyFastCloning_(),
       basketSize_(bufSize),
       splitLevel_(splitLevel) {
-      if (treeMaxVirtualSize >= 0) { tree_->SetMaxVirtualSize(treeMaxVirtualSize); }
+
+      if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
       auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
       readBranches_.push_back(auxBranch_);
+
       productProvenanceBranch_ = metaTree_->Branch(productProvenanceBranchName(branchType).c_str(),
-                                 &pProductProvenanceVector, bufSize, 0);
+                                                 &pProductProvenanceVector, bufSize, 0);
       metaBranches_.push_back(productProvenanceBranch_);
-    }
+  }
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    static void fastCloneTTree(TTree * in, TTree * out);
+    static void fastCloneTTree(TTree *in, TTree *out);
 
-    static TTree * makeTTree(TFile * filePtr, std::string const & name, int splitLevel);
+    static TTree * makeTTree(TFile *filePtr, std::string const& name, int splitLevel);
 
-    static TTree * assignTTree(TFile * file, TTree * tree);
+    static TTree * assignTTree(TFile *file, TTree * tree);
 
-    static void writeTTree(TTree * tree);
+    static void writeTTree(TTree *tree);
 
     bool isValid() const;
 
-    void addBranch(BranchDescription const & prod,
+    void addBranch(BranchDescription const& prod,
                    void const*& pProd);
 
-    bool checkSplitLevelAndBasketSize(TTree * inputTree) const;
+    bool checkSplitLevelAndBasketSize(TTree *inputTree) const;
 
-    void fastCloneTree(TTree * tree);
+    void fastCloneTree(TTree *tree);
 
     void fillTree() const;
 
@@ -88,8 +90,8 @@ namespace art {
     }
 
     void setEntries() {
-      if (tree_->GetNbranches() != 0) { tree_->SetEntries(-1); }
-      if (metaTree_->GetNbranches() != 0) { metaTree_->SetEntries(-1); }
+      if (tree_->GetNbranches() != 0) tree_->SetEntries(-1);
+      if (metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
     }
 
     void beginInputFile(bool fastCloning) {
@@ -97,18 +99,18 @@ namespace art {
     }
 
     bool
-    uncloned(std::string const & branchName) const {
-      return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
+    uncloned(std::string const& branchName) const {
+        return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
     }
 
   private:
-    static void fillTTree(TTree * tree, std::vector<TBranch *> const & branches);
-    // We use bare pointers for pointers to some ROOT entities.
-    // Root owns them and uses bare pointers internally.
-    // Therefore,using smart pointers here will do no good.
+    static void fillTTree(TTree *tree, std::vector<TBranch *> const& branches);
+// We use bare pointers for pointers to some ROOT entities.
+// Root owns them and uses bare pointers internally.
+// Therefore,using smart pointers here will do no good.
     std::shared_ptr<TFile> filePtr_;
-    TTree * const tree_;
-    TTree * const metaTree_;
+    TTree *const tree_;
+    TTree *const metaTree_;
     TBranch * auxBranch_;
     TBranch * productProvenanceBranch_;
     std::vector<TBranch *> producedBranches_; // does not include cloned branches

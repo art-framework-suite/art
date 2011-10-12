@@ -15,18 +15,20 @@ namespace art {
 
   namespace detail {
 
-    class CPCSentry {
+    class CPCSentry
+    {
     public:
       CPCSentry(CurrentProcessingContext const*& c,
-                CurrentProcessingContext const * value) :
-        referenced_(&c) {
+                CurrentProcessingContext const* value) :
+        referenced_(&c)
+      {
         c = value;
       }
 
       ~CPCSentry() { *referenced_ = 0; }
 
     private:
-      CurrentProcessingContext const ** referenced_;
+      CurrentProcessingContext const** referenced_;
     };  // CPCSentry
 
   }  // detail

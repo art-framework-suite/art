@@ -14,29 +14,29 @@ using art::RNGsnapshot;
 
 // --- C'tor:
 RNGsnapshot::
-RNGsnapshot()
-  : label_()
-  , state_()
+RNGsnapshot( )
+  : label_( )
+  , state_( )
 { }
 
 // --- Save/restore:
 void
-RNGsnapshot::
-saveFrom(std::string    const & ekind
-         , label_t        const & lbl
-         , engine_state_t const & est
-        )
+  RNGsnapshot::
+  saveFrom( std::string    const & ekind
+          , label_t        const & lbl
+          , engine_state_t const & est
+          )
 {
   engine_kind_ = ekind;
   label_ = lbl;
-  vectorTransform<CLHEP_t, saved_t>(est, state_);
+  vectorTransform<CLHEP_t,saved_t>( est, state_ );
 }
 
 void
-RNGsnapshot::
-restoreTo(engine_state_t & est) const
+  RNGsnapshot::
+  restoreTo( engine_state_t & est ) const
 {
-  vectorTransform<saved_t, CLHEP_t>(state_, est);
+  vectorTransform<saved_t,CLHEP_t>( state_, est );
 }
 
 // ======================================================================

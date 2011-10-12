@@ -7,45 +7,42 @@
 
 using namespace std;
 
-namespace art {
+namespace art
+{
 
-  void TFileDirectory::cd() const
-  {
+  void TFileDirectory::cd() const {
     string fpath = fullPath();
-    TDirectory * dir = file_->GetDirectory(fpath.c_str());
-    if (dir == 0) {
-      if (! path_.empty()) {
-        dir = file_->GetDirectory(path_.c_str());
-        if (dir == 0)
+    TDirectory * dir = file_->GetDirectory( fpath.c_str() );
+    if ( dir == 0 ) {
+      if ( ! path_.empty() ) {
+        dir = file_->GetDirectory( path_.c_str() );
+        if ( dir == 0 )
           throw
-          cet::exception("InvalidDirectory")
-              << "Can't change directory to path: " << path_;
-      }
-      else {
+            cet::exception( "InvalidDirectory" )
+            << "Can't change directory to path: " << path_;
+      } else {
         dir = file_;
       }
-      dir = dir->mkdir(dir_.c_str(), descr_.c_str());
-      if (dir == 0)
+      dir = dir->mkdir( dir_.c_str(), descr_.c_str() );
+      if ( dir == 0 )
         throw
-        cet::exception("InvalidDirectory")
-            << "Can't create directory " << dir_ << " in path: " << path_;
+          cet::exception( "InvalidDirectory" )
+          << "Can't create directory " << dir_ << " in path: " << path_;
     }
-    bool ok = file_->cd(fpath.c_str());
-    if (! ok)
+    bool ok = file_->cd( fpath.c_str() );
+    if ( ! ok )
       throw
-      cet::exception("InvalidDirectory")
-          << "Can't change directory to path: " << fpath;
+        cet::exception( "InvalidDirectory" )
+        << "Can't change directory to path: " << fpath;
   }
 
-  std::string TFileDirectory::fullPath() const
-  {
-    return string(path_.empty() ? dir_ : path_ + "/" + dir_);
+  std::string TFileDirectory::fullPath() const {
+    return string( path_.empty() ? dir_ : path_ + "/" + dir_ );
   }
 
-  TFileDirectory TFileDirectory::mkdir(const std::string & dir, const std::string & descr)
-  {
+  TFileDirectory TFileDirectory::mkdir( const std::string & dir, const std::string & descr ) {
     TH1AddDirectorySentry sentry;
     cd();
-    return TFileDirectory(dir, descr, file_, fullPath());
+    return TFileDirectory( dir, descr, file_, fullPath() );
   }
 }

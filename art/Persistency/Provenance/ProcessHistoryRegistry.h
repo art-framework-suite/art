@@ -15,10 +15,10 @@
 
 namespace art {
 
-  typedef  cet::registry_via_id<ProcessHistoryID, ProcessHistory>
-  ProcessHistoryRegistry;
+  typedef  cet::registry_via_id<ProcessHistoryID,ProcessHistory>
+           ProcessHistoryRegistry;
   typedef  ProcessHistoryRegistry::collection_type
-  ProcessHistoryMap;
+           ProcessHistoryMap;
 
 }  // art
 

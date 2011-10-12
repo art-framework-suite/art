@@ -52,8 +52,8 @@ public:
   typedef std::shared_ptr<Group> SharedGroupPtr;
   typedef std::string ProcessName;
 
-  Principal(ProcessConfiguration const & pc,
-            ProcessHistoryID const & hist,
+  Principal(ProcessConfiguration const& pc,
+            ProcessHistoryID const& hist,
             std::auto_ptr<BranchMapper> mapper,
             //std::shared_ptr<DelayedReader> rtrv);
             std::auto_ptr<DelayedReader> rtrv);
@@ -62,22 +62,22 @@ public:
 
   ////    EDProductGetter const* prodGetter() const {return this;}
 
-  OutputHandle getForOutput(BranchID const & bid, bool getProd) const;
+  OutputHandle getForOutput(BranchID const& bid, bool getProd) const;
 
-  GroupQueryResult  getBySelector(TypeID const & tid,
-                                  SelectorBase const & s) const;
+  GroupQueryResult  getBySelector(TypeID const& tid,
+                                  SelectorBase const& s) const;
 
-  GroupQueryResult  getByLabel(TypeID const & tid,
-                               std::string const & label,
-                               std::string const & productInstanceName,
-                               std::string const & processName) const;
+  GroupQueryResult  getByLabel(TypeID const& tid,
+                               std::string const& label,
+                               std::string const& productInstanceName,
+                               std::string const& processName) const;
 
-  void getMany(TypeID const & tid,
-               SelectorBase const &,
-               GroupQueryResultVec & results) const;
+  void getMany(TypeID const& tid,
+               SelectorBase const&,
+               GroupQueryResultVec& results) const;
 
-  void getManyByType(TypeID const & tid,
-                     GroupQueryResultVec & results) const;
+  void getManyByType(TypeID const& tid,
+                     GroupQueryResultVec& results) const;
 
   // Return a vector of GroupQueryResults to the products which:
   //   1. are sequences,
@@ -85,9 +85,9 @@ public:
   //   3. and for which elementType is the same as or a public base of
   //      this value_type,
   //   4. and which matches the given selector
-  size_t getMatchingSequence(TypeID const & elementType,
-                             SelectorBase const & selector,
-                             GroupQueryResultVec & results,
+  size_t getMatchingSequence(TypeID const& elementType,
+                             SelectorBase const& selector,
+                             GroupQueryResultVec& results,
                              bool stopIfProcessHasMatch) const;
 
   void
@@ -96,11 +96,11 @@ public:
   void
   readProvenanceImmediate() const;
 
-  ProcessHistory const & processHistory() const;
+  ProcessHistory const& processHistory() const;
 
-  ProcessConfiguration const & processConfiguration() const {return processConfiguration_;}
+  ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
 
-  BranchMapper const & branchMapper() const {return *branchMapperPtr_;}
+  BranchMapper const &branchMapper() const {return *branchMapperPtr_;}
 
   // ----- Mark this Principal as having been updated in the
   // current Process.
@@ -120,16 +120,16 @@ protected:
   // *this takes ownership of the Group, which in turn owns its
   // data.
   void addGroup_(std::auto_ptr<Group> g);
-  cet::exempt_ptr<Group const>  getExistingGroup(BranchID const & bid);
+  cet::exempt_ptr<Group const>  getExistingGroup(BranchID const &bid);
   void replaceGroup(std::auto_ptr<Group> g);
-  SharedConstGroupPtr const getGroup(BranchID const & bid) const;
+  SharedConstGroupPtr const getGroup(BranchID const& bid) const;
   SharedConstGroupPtr const
-  getResolvedGroup(BranchID const & bid,
+  getResolvedGroup(BranchID const& bid,
                    bool resolveProd,
                    bool fillOnDemand) const;
-  BranchMapper & branchMapper() {return *branchMapperPtr_;}
+  BranchMapper &branchMapper() {return *branchMapperPtr_;}
 
-  DelayedReader & productReader() { return *store_; }
+  DelayedReader &productReader() { return *store_; }
 
 private:
   ////    virtual EDProduct const* getIt(ProductID const&) const;
@@ -137,42 +137,42 @@ private:
   virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
 
 
-  virtual ProcessHistoryID const & processHistoryID() const = 0;
+  virtual ProcessHistoryID const& processHistoryID() const = 0;
 
-  virtual void setProcessHistoryID(ProcessHistoryID const & phid) const = 0;
+  virtual void setProcessHistoryID(ProcessHistoryID const& phid) const = 0;
 
   // Used for indices to find groups by type and process
   typedef std::map<std::string, std::vector<BranchID> > ProcessLookup;
   typedef std::map<std::string, ProcessLookup> TypeLookup;
 
   size_t
-  findGroupsForProduct(TypeID const & wanted_product,
-                       SelectorBase const & selector,
-                       GroupQueryResultVec & results,
+  findGroupsForProduct(TypeID const& wanted_product,
+                       SelectorBase const& selector,
+                       GroupQueryResultVec& results,
                        bool stopIfProcessHasMatch) const;
 
   size_t
-  findGroupsForElement(TypeID const & wanted_element,
-                       TypeLookup const & typeLookup,
-                       SelectorBase const & selector,
-                       GroupQueryResultVec & results,
+  findGroupsForElement(TypeID const& wanted_element,
+                       TypeLookup const& typeLookup,
+                       SelectorBase const& selector,
+                       GroupQueryResultVec& results,
                        bool stopIfProcessHasMatch) const;
 
-  size_t findGroups(ProcessLookup const & processLookup,
-                    SelectorBase const & selector,
-                    GroupQueryResultVec & results,
+  size_t findGroups(ProcessLookup const& processLookup,
+                    SelectorBase const& selector,
+                    GroupQueryResultVec& results,
                     bool stopIfProcessHasMatch,
                     TypeID wanted_wrapper = TypeID()) const;
 
-  void findGroupsForProcess(std::string const & processName,
-                            ProcessLookup const & processLookup,
-                            SelectorBase const & selector,
-                            GroupQueryResultVec & results,
+  void findGroupsForProcess(std::string const& processName,
+                            ProcessLookup const& processLookup,
+                            SelectorBase const& selector,
+                            GroupQueryResultVec& results,
                             TypeID wanted_wrapper) const;
 
   std::shared_ptr<ProcessHistory> processHistoryPtr_;
 
-  ProcessConfiguration const & processConfiguration_;
+  ProcessConfiguration const& processConfiguration_;
 
   mutable bool processHistoryModified_;
 

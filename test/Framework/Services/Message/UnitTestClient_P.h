@@ -12,32 +12,35 @@ namespace art {
 }
 
 
-namespace arttest {
+namespace arttest
+{
 
-  class UnitTestClient_P
-      : public art::EDAnalyzer {
-  public:
-    explicit
-    UnitTestClient_P(fhicl::ParameterSet const & p)
-      : useLogFlush(true)
-      , queueFillers(1) {
-      useLogFlush  = p.get<bool>("useLogFlush",  useLogFlush);
-      queueFillers = p.get<int> ("queueFillers", queueFillers);
-    }
+class UnitTestClient_P
+  : public art::EDAnalyzer
+{
+public:
+  explicit
+    UnitTestClient_P( fhicl::ParameterSet const & p)
+    : useLogFlush(true)
+    , queueFillers(1)
+  {
+    useLogFlush  = p.get<bool>("useLogFlush",  useLogFlush);
+    queueFillers = p.get<int> ("queueFillers", queueFillers);
+  }
 
-    virtual
+  virtual
     ~UnitTestClient_P()
-    { }
+  { }
 
-    virtual
-    void analyze(art::Event      const & e
-                 , art::EventSetup const & c
+  virtual
+    void analyze( art::Event      const & e
+                , art::EventSetup const & c
                 );
 
-  private:
-    bool useLogFlush;
-    int  queueFillers;
-  };
+private:
+  bool useLogFlush;
+  int  queueFillers;
+};
 
 
 }  // arttest

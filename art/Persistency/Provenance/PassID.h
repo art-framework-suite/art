@@ -3,7 +3,8 @@
 
 #include <string>
 
-namespace art {
+namespace art
+{
   typedef std::string PassID;
 }
 

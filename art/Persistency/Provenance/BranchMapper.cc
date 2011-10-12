@@ -32,7 +32,7 @@ BranchMapper::insert(std::auto_ptr<ProductProvenance const> pp_ptr)
 }
 
 BranchMapper::result_t
-BranchMapper::branchToProductProvenance(BranchID const & bid) const
+BranchMapper::branchToProductProvenance(BranchID const &bid) const
 {
   readProvenance();
   eiSet::const_iterator it = entryInfoSet_.find(bid);

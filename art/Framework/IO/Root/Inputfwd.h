@@ -30,13 +30,14 @@ namespace art {
 
   namespace input {
 
-    struct BranchInfo {
-      BranchInfo(BranchDescription const & prod)
+    struct BranchInfo
+    {
+      BranchInfo(BranchDescription const& prod)
         : branchDescription_(prod)
         , productBranch_(0)
       { }
 
-      BranchDescription const & branchDescription_;
+      BranchDescription const& branchDescription_;
       TBranch * productBranch_;
     };  // BranchInfo
 

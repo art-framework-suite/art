@@ -14,13 +14,15 @@
 
 // ----------------------------------------------------------------------
 
-namespace arttest {
-  class Throwing {
+namespace arttest
+{
+  class Throwing
+  {
   public:
-    Throwing(fhicl::ParameterSet const & cfg, art::ActivityRegistry & ar);
+   Throwing(fhicl::ParameterSet const& cfg, art::ActivityRegistry& ar);
 
   private:
-    void throwError(art::Event const & e);
+    void throwError(art::Event const& e);
   };
 }
 
@@ -33,11 +35,11 @@ arttest::Throwing::Throwing(fhicl::ParameterSet const &,
 
 
 void
-arttest::Throwing::throwError(art::Event const &)
+arttest::Throwing::throwError(art::Event const&)
 {
   mf::LogInfo("testing") << "Throwing service about to throw";
   throw art::Exception(art::errors::ProductNotFound)
-      << "Intentional exception from Throwing service";
+    << "Intentional exception from Throwing service";
 }
 
 // ======================================================================

@@ -4,7 +4,8 @@
 
 #include "art/Framework/Principal/SelectorBase.h"
 
-namespace art {
+namespace art
+{
   class BranchDescription;
 
   //------------------------------------------------------------------

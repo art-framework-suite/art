@@ -14,16 +14,16 @@ using art::GroupQueryResult;
 // ----------------------------------------------------------------------
 // c'tors:
 
-GroupQueryResult::GroupQueryResult(Group const * g)
-  : result_(g)
-  , whyFailed_()
+  GroupQueryResult::GroupQueryResult( Group const * g )
+: result_   ( g )
+, whyFailed_( )
 {
   assert(invariant());
 }
 
-GroupQueryResult::GroupQueryResult(std::shared_ptr<cet::exception const> e)
-  : result_(nullptr)
-  , whyFailed_(e)
+  GroupQueryResult::GroupQueryResult( std::shared_ptr<cet::exception const> e )
+: result_   ( nullptr )
+, whyFailed_( e )
 {
   assert(invariant());
 }

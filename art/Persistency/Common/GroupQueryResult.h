@@ -23,27 +23,28 @@ namespace art {
 
 // ======================================================================
 
-class art::GroupQueryResult {
+class art::GroupQueryResult
+{
 public:
   // c'tors:
-  GroupQueryResult(Group const *);
-  GroupQueryResult(std::shared_ptr<cet::exception const>);
+  GroupQueryResult( Group const * );
+  GroupQueryResult( std::shared_ptr<cet::exception const> );
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
   // observers:
-  bool  succeeded() const  { return result_; }
-  bool  failed() const  { return whyFailed_; }
+  bool  succeeded( ) const  { return result_; }
+  bool  failed   ( ) const  { return whyFailed_; }
 
   // properties:
-  cet::exempt_ptr<Group const>           result() const  { return result_; }
-  std::shared_ptr<cet::exception const>  whyFailed() const  { return whyFailed_; }
+  cet::exempt_ptr<Group const>           result   ( ) const  { return result_; }
+  std::shared_ptr<cet::exception const>  whyFailed( ) const  { return whyFailed_; }
 
 private:
   cet::exempt_ptr<Group const>           result_;
   std::shared_ptr<cet::exception const>  whyFailed_;
 
-  bool  invariant()  const  { return succeeded() != failed(); }
+  bool  invariant( )  const  { return succeeded() != failed(); }
 
 };  // GroupQueryResult
 

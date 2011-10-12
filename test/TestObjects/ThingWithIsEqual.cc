@@ -5,8 +5,7 @@
 
 namespace arttest {
 
-  bool ThingWithIsEqual::isProductEqual(ThingWithIsEqual const & newThing) const
-  {
+  bool ThingWithIsEqual::isProductEqual(ThingWithIsEqual const& newThing) const {
     return a == newThing.a;
   }
 }

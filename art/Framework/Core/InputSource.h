@@ -15,30 +15,35 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cpp0x/memory"
 
-namespace art {
+namespace art
+{
   class MasterProductRegistry;
 
-  namespace input {
-    enum ItemType {
-      IsInvalid,
-      IsStop,
-      IsFile,
-      IsRun,
-      IsSubRun,
-      IsEvent
-    };
+  namespace input
+  {
+    enum ItemType
+      {
+        IsInvalid,
+        IsStop,
+        IsFile,
+        IsRun,
+        IsSubRun,
+        IsEvent
+      };
   }
 
-  class InputSource {
+  class InputSource
+  {
   public:
 
     // TODO:
     // This enum should probably be moved outside of InputSource.
-    enum ProcessingMode {
-      Runs,
-      RunsAndSubRuns,
-      RunsSubRunsAndEvents
-    };
+    enum ProcessingMode
+      {
+        Runs,
+        RunsAndSubRuns,
+        RunsSubRunsAndEvents
+      };
 
     virtual ~InputSource();
 
@@ -49,7 +54,7 @@ namespace art {
     // given id can not be found. Derived classes that can not perform
     // random access should not implement this function; the default
     // implementation will throw an exception.
-    virtual std::auto_ptr<EventPrincipal> readEvent(EventID const & id);
+    virtual std::auto_ptr<EventPrincipal> readEvent(EventID const& id);
 
     // Skip forward (or backward, if n<0) n events. Derived classes that
     // can not perform random access should not implement this function;
@@ -66,7 +71,7 @@ namespace art {
     virtual input::ItemType nextItemType() = 0;
     virtual RunNumber_t run() const = 0;
     virtual SubRunNumber_t subRun() const = 0;
-    virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry &) = 0;
+    virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
     virtual void closeFile() = 0;
     virtual std::shared_ptr<RunPrincipal> readRun() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) = 0;

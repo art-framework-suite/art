@@ -16,16 +16,17 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testCloningPtr);
 namespace testcloningptr {
-  struct Base {
+  struct Base
+  {
     virtual ~Base() {}
-    virtual int val() const = 0;
-    virtual Base * clone() const = 0;
+    virtual int val() const=0;
+    virtual Base* clone() const = 0;
   };
 
   struct Inherit : public Base {
-    Inherit(int iValue): val_(iValue) {}
+    Inherit(int iValue):val_(iValue) {}
     virtual int val() const { return val_;}
-    virtual Base * clone() const { return new Inherit(*this);}
+    virtual Base* clone() const { return new Inherit(*this);}
     int val_;
   };
 }
@@ -36,16 +37,20 @@ void
 testCloningPtr::check()
 {
   using namespace art;
+
   Inherit one(1);
   CloningPtr<Base> cpOne(one);
   CPPUNIT_ASSERT(&one != cpOne.get());
-  CPPUNIT_ASSERT(1 == cpOne->val());
-  CPPUNIT_ASSERT(1 == (*cpOne).val());
+  CPPUNIT_ASSERT(1==cpOne->val());
+  CPPUNIT_ASSERT(1==(*cpOne).val());
+
+
   CloningPtr<Base> cpOtherOne(cpOne);
   CPPUNIT_ASSERT(cpOne.get() != cpOtherOne.get());
-  CPPUNIT_ASSERT(cpOtherOne->val() == 1);
+  CPPUNIT_ASSERT(cpOtherOne->val()==1);
+
   CloningPtr<Base> eqOne;
-  eqOne = cpOne;
+  eqOne=cpOne;
+
   CPPUNIT_ASSERT(cpOne.get() != eqOne.get());
-  CPPUNIT_ASSERT(eqOne->val() == 1);
-}
+  CPPUNIT_ASSERT(eqOne->val()==1);}

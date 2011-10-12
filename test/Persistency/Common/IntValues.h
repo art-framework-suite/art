@@ -30,8 +30,8 @@ namespace test_with_reflex {
     IntValue(int iValue): value_(iValue) {}
   };
 
-  struct IntValue2 : public IntValue {
-    IntValue2(int iValue2): IntValue(iValue2) {}
+  struct IntValue2 :public IntValue {
+    IntValue2(int iValue2):IntValue(iValue2) {}
   };
 }
 

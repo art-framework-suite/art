@@ -32,7 +32,7 @@ using namespace testserviceregistry;
 // constructors and destructor
 //
 DependsOnDummyService::DependsOnDummyService():
-  value_(art::ServiceHandle<DummyService>()->value())
+value_(art::ServiceHandle<DummyService>()->value())
 {
 }
 

@@ -26,15 +26,15 @@
 
 // forward declarations
 namespace art {
-  class BoolCache {
-  public:
-    BoolCache() : isCached_(false) {}
-    BoolCache(bool iValue) : isCached_(iValue) {}
-    operator bool() { return isCached_; }
-    BoolCache & operator=(bool b) { isCached_ = b; return *this; }
-  private:
-    bool isCached_;
-  };
+class BoolCache {
+public:
+  BoolCache() : isCached_(false) {}
+  BoolCache(bool iValue) : isCached_(iValue) {}
+  operator bool() { return isCached_; }
+  BoolCache & operator=( bool b ) { isCached_ = b; return *this; }
+private:
+  bool isCached_;
+};
 
 }
 #endif /* art_Persistency_Common_BoolCache_h */

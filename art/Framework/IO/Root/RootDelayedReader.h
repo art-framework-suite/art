@@ -33,7 +33,7 @@ public:
   typedef input::BranchInfo BranchInfo;
   typedef input::BranchMap::const_iterator iterator;
 
-  RootDelayedReader(EntryNumber const & entry,
+  RootDelayedReader(EntryNumber const& entry,
                     std::shared_ptr<BranchMap const> bMap,
                     std::shared_ptr<TFile const> filePtr,
                     bool oldFormat);
@@ -41,13 +41,13 @@ public:
   virtual ~RootDelayedReader();
 
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const & k, art::TypeID const & wrapper_type) const;
+  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const;
   virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
   virtual void mergeReaders_(std::shared_ptr<DelayedReader> other) {nextReader_ = other;}
-  BranchMap const & branches() const {return *branches_;}
-  iterator branchIter(BranchKey const & k) const {return branches().find(k);}
-  bool found(iterator const & iter) const {return iter != branches().end();}
-  BranchInfo const & getBranchInfo(iterator const & iter) const {return iter->second; }
+  BranchMap const& branches() const {return *branches_;}
+  iterator branchIter(BranchKey const& k) const {return branches().find(k);}
+  bool found(iterator const& iter) const {return iter != branches().end();}
+  BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
 
   EntryNumber const entryNumber_;
   std::shared_ptr<BranchMap const> branches_;

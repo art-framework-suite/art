@@ -21,8 +21,8 @@ namespace art {
   class OutputWorker : public WorkerT<OutputModule> {
   public:
     OutputWorker(std::auto_ptr<OutputModule> mod,
-                 ModuleDescription const &,
-                 WorkerParams const &);
+                 ModuleDescription const&,
+                 WorkerParams const&);
 
     virtual ~OutputWorker();
 
@@ -36,15 +36,15 @@ namespace art {
 
     bool wantAllEvents() const;
 
-    void openFile(FileBlock const & fb);
+    void openFile(FileBlock const& fb);
 
-    void writeRun(RunPrincipal const & rp);
+    void writeRun(RunPrincipal const& rp);
 
-    void writeSubRun(SubRunPrincipal const & srp);
+    void writeSubRun(SubRunPrincipal const& srp);
 
     bool limitReached() const;
 
-    void configure(OutputModuleDescription const & desc);
+    void configure(OutputModuleDescription const& desc);
   };
 
 }

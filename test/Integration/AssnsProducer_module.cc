@@ -23,10 +23,10 @@ namespace arttest {
 
 class arttest::AssnsProducer : public art::EDProducer {
 public:
-  explicit AssnsProducer(fhicl::ParameterSet const & p);
+  explicit AssnsProducer(fhicl::ParameterSet const &p);
   virtual ~AssnsProducer();
 
-  virtual void produce(art::Event & e);
+  virtual void produce(art::Event &e);
 };
 
 namespace {
@@ -35,7 +35,7 @@ namespace {
   typedef art::Assns<size_t, std::string> AssnsV_t;
 }
 
-arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const & p)
+arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &p)
 {
   produces<std::vector<size_t> >();
   produces<std::vector<std::string> >();
@@ -45,22 +45,22 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const & p)
   produces<AssnsV_t>("M");
 }
 
-arttest::AssnsProducer::~AssnsProducer()
-{
+arttest::AssnsProducer::~AssnsProducer() {
 }
 
-void arttest::AssnsProducer::produce(art::Event & e)
-{
+void arttest::AssnsProducer::produce(art::Event &e) {
   std::auto_ptr<std::vector<size_t> > vui(new std::vector<size_t>);
   vui->reserve(3);
   vui->push_back(2);
   vui->push_back(0);
   vui->push_back(1);
+
   std::auto_ptr<std::vector<std::string> > vs(new std::vector<std::string>);
   vs->reserve(3);
   vs->push_back("one");
   vs->push_back("two");
   vs->push_back("zero");
+
   std::auto_ptr<Assns_t> a(new Assns_t);
   std::auto_ptr<AssnsV_t> av(new AssnsV_t);
   art::ProductID vui_pid = getProductID<std::vector<size_t> >(e);
@@ -80,19 +80,23 @@ void arttest::AssnsProducer::produce(art::Event & e)
                AssnTestData(0, 1, "C"));
   av->addSingle(art::Ptr<size_t>(vui_pid, 0, e.productGetter(vui_pid)),
                 art::Ptr<std::string>(vs_pid, 1, e.productGetter(vs_pid)));
+
   std::auto_ptr<Assns_t> am(new Assns_t(*a));
   std::auto_ptr<AssnsV_t> avm(new AssnsV_t(*av));
+
   am->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
                 art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)),
                 AssnTestData(1, 2, "AA"));
   avm->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
                  art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)));
+
   e.put(vui);
   e.put(vs);
   e.put(a);
   e.put(av);
   e.put(am, "M");
   e.put(avm, "M");
+
 }
 
 DEFINE_ART_MODULE(arttest::AssnsProducer);

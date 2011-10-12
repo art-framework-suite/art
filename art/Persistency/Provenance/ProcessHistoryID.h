@@ -4,7 +4,8 @@
 #include "art/Persistency/Provenance/HashedTypes.h"
 #include "art/Persistency/Provenance/Hash.h"
 
-namespace art {
+namespace art
+{
   typedef Hash<ProcessHistoryType> ProcessHistoryID;
 }
 

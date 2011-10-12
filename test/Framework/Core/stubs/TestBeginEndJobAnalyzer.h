@@ -26,28 +26,28 @@
 // forward declarations
 class TestBeginEndJobAnalyzer : public art::EDAnalyzer {
 public:
-  explicit TestBeginEndJobAnalyzer(const fhicl::ParameterSet &);
-  ~TestBeginEndJobAnalyzer();
+   explicit TestBeginEndJobAnalyzer(const fhicl::ParameterSet&);
+   ~TestBeginEndJobAnalyzer();
 
 
-  virtual void analyze(const art::Event &, const art::EventSetup &);
+   virtual void analyze(const art::Event&, const art::EventSetup&);
 
-  virtual void beginJob(art::EventSetup const &);
-  virtual void endJob();
-  virtual void beginRun(art::Run const &);
-  virtual void endRun(art::Run const &);
-  virtual void beginSubRun(art::SubRun const &);
-  virtual void endSubRun(art::SubRun const &);
+   virtual void beginJob(art::EventSetup const&);
+   virtual void endJob();
+   virtual void beginRun(art::Run const&);
+   virtual void endRun(art::Run const&);
+   virtual void beginSubRun(art::SubRun const&);
+   virtual void endSubRun(art::SubRun const&);
 
-  static bool beginJobCalled;
-  static bool endJobCalled;
-  static bool beginRunCalled;
-  static bool endRunCalled;
-  static bool beginSubRunCalled;
-  static bool endSubRunCalled;
-  static bool destructorCalled;
+   static bool beginJobCalled;
+   static bool endJobCalled;
+   static bool beginRunCalled;
+   static bool endRunCalled;
+   static bool beginSubRunCalled;
+   static bool endSubRunCalled;
+   static bool destructorCalled;
 private:
-  // ----------member data ---------------------------
+      // ----------member data ---------------------------
 };
 
 

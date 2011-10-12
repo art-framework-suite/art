@@ -33,7 +33,7 @@ public:
 
   // Create a CurrentProcessingContext ready to handle the Path
   // with given name and bit position (slot in Schedule).
-  CurrentProcessingContext(std::string const * name,
+  CurrentProcessingContext(std::string const* name,
                            int bitpos, bool isEndPth);
 
   // The compiler-generated copy c'tor and d'tor are correct,
@@ -42,16 +42,16 @@ public:
 
   // Return the address of the moduleLabel if the module is active,
   // and null otherwise.
-  std::string const * moduleLabel() const;
+  std::string const* moduleLabel() const;
 
 
   // Return the name of the current path if the module is active,
   // and null otherwise.
-  std::string const * pathName() const;
+  std::string const* pathName() const;
 
   // Return the address of the ModuleDescription describing this
   // module if active, and null otherwise.
-  ModuleDescription const * moduleDescription() const;
+  ModuleDescription const* moduleDescription() const;
 
   // Return the slot number of this path in the schedule (this is
   // the bit position of the path) if the path is active, and -1
@@ -67,7 +67,7 @@ public:
 
   // Set the context to reflect the active state.
   void activate(std::size_t theSlotInPath,
-                ModuleDescription const * mod);
+                ModuleDescription const* mod);
 
   // Set all data to reflect inactive state.
   void deactivate();
@@ -77,8 +77,8 @@ private:
   // N.B.: We own none of the pointed-to resources!
   int                      pathInSchedule_;
   std::size_t              slotInPath_;
-  ModuleDescription const * moduleDescription_;
-  std::string const    *   pathName_;
+  ModuleDescription const* moduleDescription_;
+  std::string const*       pathName_;
   bool                     isEndPath_;
 
   bool is_active() const { return moduleDescription_ != 0; }

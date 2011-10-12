@@ -13,9 +13,8 @@
 art::BranchDescription const &
 art::get_BranchDescription(TypeID tid,
                            BranchType branch_type,
-                           std::string const & module_label,
-                           std::string const & instance_name)
-{
+                           std::string const &module_label,
+                           std::string const &instance_name) {
   return
     get_BranchDescription(tid,
                           ServiceHandle<TriggerNamesService>()->getProcessName(),
@@ -28,10 +27,9 @@ art::get_BranchDescription(TypeID tid,
 // 4.
 art::BranchDescription const &
 art::get_BranchDescription(TypeID type_id,
-                           Principal const & principal,
-                           std::string const & module_label,
-                           std::string const & instance_name)
-{
+                           Principal const &principal,
+                           std::string const &module_label,
+                           std::string const &instance_name) {
   return
     get_BranchDescription(type_id,
                           principal.processConfiguration().processName(),
@@ -44,12 +42,11 @@ art::get_BranchDescription(TypeID type_id,
 // 5.
 art::BranchDescription const &
 art::get_BranchDescription(TypeID type_id,
-                           std::string const & process_name,
-                           ProductList const & product_list,
+                           std::string const &process_name,
+                           ProductList const &product_list,
                            BranchType branch_type,
-                           std::string const & module_label,
-                           std::string const & instance_name)
-{
+                           std::string const &module_label,
+                           std::string const &instance_name) {
   BranchKey bk(type_id.friendlyClassName(),
                module_label,
                instance_name,
@@ -57,27 +54,27 @@ art::get_BranchDescription(TypeID type_id,
   ProductList::const_iterator it = product_list.find(bk);
   if (it == product_list.end()) {
     throw art::Exception(art::errors::InsertFailure)
-        << "No product is registered for\n"
-        << "  process name:                '"
-        << bk.processName_ << "'\n"
-        << "  module label:                '"
-        << bk.moduleLabel_ << "'\n"
-        << "  product friendly class name: '"
-        << bk.friendlyClassName_ << "'\n"
-        << "  product instance name:       '"
-        << bk.productInstanceName_ << "'\n";
+      << "No product is registered for\n"
+      << "  process name:                '"
+      << bk.processName_ << "'\n"
+      << "  module label:                '"
+      << bk.moduleLabel_ << "'\n"
+      << "  product friendly class name: '"
+      << bk.friendlyClassName_ << "'\n"
+      << "  product instance name:       '"
+      << bk.productInstanceName_ << "'\n";
   }
-  if (it->second.branchType() != branch_type) {
-    throw art::Exception(art::errors::InsertFailure, "Not Registered")
-        << "The product for ("
-        << bk.friendlyClassName_ << ","
-        << bk.moduleLabel_ << ","
-        << bk.productInstanceName_ << ","
-        << bk.processName_
-        << ")\n"
-        << "is registered for a(n) " << it->second.branchType()
-        << " instead of for a(n) " << branch_type
-        << ".\n";
+  if(it->second.branchType() != branch_type) {
+    throw art::Exception(art::errors::InsertFailure,"Not Registered")
+      << "The product for ("
+      << bk.friendlyClassName_ << ","
+      << bk.moduleLabel_ << ","
+      << bk.productInstanceName_ << ","
+      << bk.processName_
+      << ")\n"
+      << "is registered for a(n) " << it->second.branchType()
+      << " instead of for a(n) " << branch_type
+      << ".\n";
   }
   return it->second;
 }

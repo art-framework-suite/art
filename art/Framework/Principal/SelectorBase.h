@@ -12,17 +12,18 @@ Developers who make their own Selectors should inherit from SelectorBase.
 
 #include "art/Framework/Principal/fwd.h"
 
-namespace art {
+namespace art
+{
   class BranchDescription;
 }
 
 class art::SelectorBase {
-public:
-  virtual ~SelectorBase();
-  bool match(BranchDescription const & p) const { return doMatch(p); }
-  virtual SelectorBase * clone() const = 0;
-private:
-  virtual bool doMatch(BranchDescription const & p) const = 0;
+ public:
+    virtual ~SelectorBase();
+    bool match(BranchDescription const &p) const { return doMatch(p); }
+    virtual SelectorBase* clone() const = 0;
+ private:
+    virtual bool doMatch(BranchDescription const &p) const = 0;
 };
 
 #endif /* art_Framework_Principal_SelectorBase_h */

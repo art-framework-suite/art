@@ -10,11 +10,11 @@ namespace art {
 
     int operator()() { return value_; }
 
-    const char * cvalue_;
+    const char* cvalue_;
     int value_;
   };
 
-  extern debugvalue debugit;
+extern debugvalue debugit;
 }
 
 #define FDEBUG(lev) if(lev <= debugit()) std::cerr

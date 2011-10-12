@@ -7,10 +7,10 @@ namespace art {
     struct GetProduct {
       typedef typename COLLECTION::value_type element_type;
       typedef typename COLLECTION::const_iterator iter;
-      static element_type const * address(iter const & i) {
+      static element_type const *address(iter const &i) {
         return &*i;
       }
-      static COLLECTION const * product(COLLECTION const & coll) {
+      static COLLECTION const *product(COLLECTION const &coll) {
         return &coll;
       }
     };

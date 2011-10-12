@@ -35,11 +35,11 @@
 namespace art {
   // defined herein:
   template <typename T>
-  class Handle;
+    class Handle;
   template <class T>
-  void  swap(Handle<T> & a, Handle<T> & b);
+    void  swap(Handle<T> & a, Handle<T> & b);
   template <class T>
-  void  convert_handle(GroupQueryResult const &, Handle<T> &);
+    void  convert_handle(GroupQueryResult const &, Handle<T> &);
 
   // forward declarations:
   class EDProduct;
@@ -49,33 +49,34 @@ namespace art {
 // ======================================================================
 
 template <typename T>
-class art::Handle {
+class art::Handle
+{
 public:
   typedef  T  element_type;
 
   // c'tors:
-  Handle();   // Default-constructed handles are invalid.
-  Handle(GroupQueryResult const &);
+  Handle( );  // Default-constructed handles are invalid.
+  Handle( GroupQueryResult const  & );
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
   // pointer behaviors:
-  T const  & operator * () const;
-  T const  * operator-> () const;  // alias for product()
-  T const  * product() const;
+  T const &  operator * ( ) const;
+  T const *  operator-> ( ) const; // alias for product()
+  T const *  product    ( ) const;
 
   // inspectors:
-  bool isValid() const;
-  bool failedToGet() const;  // was Handle used in a 'get' call whose data could not be found?
-  Provenance const * provenance() const;
-  ProductID id() const;
+  bool isValid( ) const;
+  bool failedToGet( ) const; // was Handle used in a 'get' call whose data could not be found?
+  Provenance const * provenance( ) const;
+  ProductID id( ) const;
 
   // mutators:
-  void swap(Handle<T> & other);
-  void clear();
+  void swap( Handle<T> & other );
+  void clear( );
 
 private:
-  T const                *               prod_;
+  T const *                              prod_;
   Provenance                             prov_;
   std::shared_ptr<cet::exception const>  whyFailed_;
 
@@ -85,27 +86,27 @@ private:
 // c'tors:
 
 template <class T>
-art::Handle<T>::Handle() :
-  prod_(0),
-  prov_(),
-  whyFailed_()
+art::Handle<T>::Handle( ) :
+  prod_     ( 0 ),
+  prov_     ( ),
+  whyFailed_( )
 { }
 
 template <class T>
 art::Handle<T>::Handle(GroupQueryResult const & gqr) :
-  prod_(0),
-  prov_(gqr.result()),
-  whyFailed_(gqr.whyFailed())
+  prod_     ( 0 ),
+  prov_     ( gqr.result() ),
+  whyFailed_( gqr.whyFailed() )
 {
-  if (gqr.succeeded())
+  if( gqr.succeeded() )
     try {
       prod_ = dynamic_cast< Wrapper<T> const &>(*gqr.result()->uniqueProduct(TypeID(typeid(Wrapper<T>)))
                                                ).product();
     }
-    catch (std::bad_cast const &) {
+    catch( std::bad_cast const & ) {
       typedef  cet::exception const  exc_t;
       whyFailed_ = std::shared_ptr<exc_t>(new art::Exception(errors::LogicError,
-                                          "Handle<T> c'tor"
+                                                             "Handle<T> c'tor"
                                                             )
                                          );
     }
@@ -117,17 +118,17 @@ art::Handle<T>::Handle(GroupQueryResult const & gqr) :
 template <class T>
 inline
 T const &
-art::Handle<T>::operator *() const
+art::Handle<T>::operator *( ) const
 {
   return *product();
 }
 
 template <class T>
 T const *
-art::Handle<T>::product() const
+art::Handle<T>::product( ) const
 {
-  if (failedToGet()) {
-    throw * whyFailed_;
+  if( failedToGet() ) {
+    throw *whyFailed_;
   }
   // Should we throw if the pointer is null?
   return prod_;
@@ -136,7 +137,7 @@ art::Handle<T>::product() const
 template <class T>
 inline
 T const *
-art::Handle<T>::operator->() const
+art::Handle<T>::operator->( ) const
 {
   return product();
 }
@@ -146,7 +147,7 @@ art::Handle<T>::operator->() const
 
 template <class T>
 bool
-art::Handle<T>::isValid() const
+art::Handle<T>::isValid( ) const
 {
   return prod_ && prov_.isValid();
 }
@@ -190,7 +191,7 @@ art::Handle<T>::swap(Handle<T> & other)
 
 template <class T>
 void
-art::Handle<T>::clear()
+  art::Handle<T>::clear( )
 {
   prod_ = 0;
   prov_ = Provenance();
@@ -203,7 +204,7 @@ art::Handle<T>::clear()
 template <class T>
 inline
 void
-art::swap(Handle<T> & a, Handle<T> & b)
+  art::swap(Handle<T> & a, Handle<T> & b)
 {
   a.swap(b);
 }
@@ -211,7 +212,7 @@ art::swap(Handle<T> & a, Handle<T> & b)
 // Convert from handle-to-EDProduct to handle-to-T
 template <class T>
 void
-art::convert_handle(GroupQueryResult const & orig, Handle<T> & result)
+  art::convert_handle(GroupQueryResult const & orig, Handle<T> & result)
 {
   Handle<T> h(orig);
   swap(result, h);

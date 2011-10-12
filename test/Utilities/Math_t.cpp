@@ -14,7 +14,7 @@ class TestMath : public CppUnit::TestFixture {
   CPPUNIT_TEST(timing);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp() {}
+  void setUp(){}
   void tearDown() {}
   void test_isnan();
   void timing();
@@ -33,6 +33,7 @@ test_fp_type()
   CPPUNIT_ASSERT(!art::isnan(static_cast<FP>(-0.0)));
   CPPUNIT_ASSERT(!art::isnan(std::numeric_limits<FP>::infinity()));
   CPPUNIT_ASSERT(!art::isnan(-std::numeric_limits<FP>::infinity()));
+
   CPPUNIT_ASSERT(art::isnan(nan));
   CPPUNIT_ASSERT(art::isnan(std::numeric_limits<FP>::signaling_NaN()));
 }
@@ -46,6 +47,7 @@ void TestMath::test_isnan()
   test_fp_type<float>();
   test_fp_type<double>();
   test_fp_type<long double>();
+
   CPPUNIT_ASSERT(art::isnan(std::numeric_limits<float>::quiet_NaN()));
   CPPUNIT_ASSERT(art::isnan(std::numeric_limits<double>::quiet_NaN()));
   CPPUNIT_ASSERT(art::isnan(std::numeric_limits<long double>::quiet_NaN()));
@@ -55,34 +57,38 @@ template <class FP>
 void
 time_fp_type()
 {
-  volatile FP values[] = { 1.0, 1.0 / 0.0, -2.5, 1.0 / 3.0, 0.0 / 0.0 };
+  volatile FP values[] = { 1.0, 1.0/0.0, -2.5, 1.0/3.0, 0.0/0.0 };
   unsigned long sum = 0;
+
   art::HRTimeType start = art::hrRealTime();
-  for (int i = 0; i < 1000 * 1000; ++i)
+  for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-    { sum += (std::isnan(values[j]) ? 0 : 1); }
+      sum += (std::isnan(values[j]) ? 0 : 1);
   art::HRTimeType stop = art::hrRealTime();
   std::cout << "std::isnan time:         " << (stop - start) << std::endl;
+
   sum = 0;
   start = art::hrRealTime();
-  for (int i = 0; i < 1000 * 1000; ++i)
+  for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-    { sum += (art::detail::isnan(values[j]) ? 0 : 1); }
+      sum += (art::detail::isnan(values[j]) ? 0 : 1);
   stop = art::hrRealTime();
   stop = art::hrRealTime();
   std::cout << "art::detail::isnan time: " << (stop - start) << std::endl;
+
   sum = 0;
   start = art::hrRealTime();
-  for (int i = 0; i < 1000 * 1000; ++i)
+  for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-    { sum += (art::isnan(values[j]) ? 0 : 1); }
+      sum += (art::isnan(values[j]) ? 0 : 1);
   stop = art::hrRealTime();
   std::cout << "art::isnan time:         " << (stop - start) << std::endl;
+
   sum = 0;
   start = art::hrRealTime();
-  for (int i = 0; i < 1000 * 1000; ++i)
+  for (int i = 0; i < 1000*1000; ++i)
     for (int j = 0; j < 5; ++j)
-    { sum += (art::equal_isnan(values[j]) ? 0 : 1); }
+      sum += (art::equal_isnan(values[j]) ? 0 : 1);
   stop = art::hrRealTime();
   std::cout << "art::equal_isnan time:   " << (stop - start) << std::endl;
 }

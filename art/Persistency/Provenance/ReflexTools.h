@@ -17,30 +17,31 @@ the CMS event model.
 #include <string>
 #include <vector>
 
-namespace art {
+namespace art
+{
 
   bool
-  find_nested_type_named(std::string const & nested_type,
-                         Reflex::Type const & type_to_search,
-                         Reflex::Type & found_type);
+  find_nested_type_named(std::string const& nested_type,
+                         Reflex::Type const& type_to_search,
+                         Reflex::Type& found_type);
 
   bool
-  value_type_of(Reflex::Type const & t, Reflex::Type & found_type);
+  value_type_of(Reflex::Type const& t, Reflex::Type& found_type);
 
   inline
   bool
-  wrapper_type_of(Reflex::Type const & possible_wrapper,
-                  Reflex::Type & found_wrapped_type)
+  wrapper_type_of(Reflex::Type const& possible_wrapper,
+                  Reflex::Type& found_wrapped_type)
   {
     return find_nested_type_named("wrapped_type",
                                   possible_wrapper,
                                   found_wrapped_type);
   }
 
-  void checkDictionaries(std::string const & name, bool noComponents = false);
+  void checkDictionaries(std::string const& name, bool noComponents = false);
   void reportFailedDictionaryChecks();
 
-  void public_base_classes(const Reflex::Type & type,
+  void public_base_classes(const Reflex::Type& type,
                            std::vector<Reflex::Type>& baseTypes);
 
   /// Try to convert the un-typed pointer raw (which we promise is a
@@ -55,13 +56,15 @@ namespace art {
   // the Reflex interface for creating an Object will not allow that.
 
   template <class T>
-  T const *
-  reflex_cast(void * raw, Reflex::Type const & dynamicType)
+  T const*
+  reflex_cast(void* raw, Reflex::Type const& dynamicType)
   {
     static const Reflex::Type
-    toType(Reflex::Type::ByTypeInfo(typeid(T)));
+      toType(Reflex::Type::ByTypeInfo(typeid(T)));
+
     Reflex::Object obj(dynamicType, raw);
-    return static_cast<T const *>(obj.CastObject(toType).Address());
+    return static_cast<T const*>(obj.CastObject(toType).Address());
+
     // This alternative implementation of reflex_cast would allow us
     // to remove the compile-time depenency on Reflex/Type.h and
     // Reflex/Object.h, at the cost of some speed.
@@ -89,18 +92,18 @@ namespace art {
   /// neither the same as, nor a public base of, the type denoted by
   /// dynamicType.
 
-  void const *
-  reflex_pointer_adjust(void * raw,
-                        Reflex::Type const & dynamicType,
-                        std::type_info const & toType);
+  void const*
+  reflex_pointer_adjust(void* raw,
+                        Reflex::Type const& dynamicType,
+                        std::type_info const& toType);
 
-  std::string cint_wrapper_name(std::string const & className);
+  std::string cint_wrapper_name(std::string const &className);
 
-  Reflex::Type type_of_template_arg(Reflex::Type const & template_instance,
+  Reflex::Type type_of_template_arg(Reflex::Type const &template_instance,
                                     size_t arg_index);
 
-  bool is_instantiation_of(Reflex::Type const & in,
-                           std::string const & template_name);
+  bool is_instantiation_of(Reflex::Type const &in,
+                           std::string const &template_name);
 }
 
 #endif /* art_Persistency_Provenance_ReflexTools_h */

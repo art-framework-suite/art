@@ -1,7 +1,8 @@
 
 #include "art/Utilities/RootHandlers.h"
 
-namespace art {
+namespace art
+{
   RootHandlers::RootHandlers() { }
 
   RootHandlers::~RootHandlers() { }

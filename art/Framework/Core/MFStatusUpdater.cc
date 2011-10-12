@@ -28,7 +28,7 @@
   updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1, \
                            ActivityRegistry::stateTag::slot_type::arg2_type_ arg2)
 
-art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry & areg) :
+art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   areg_(areg),
   programStatus_(),
   workFlowStatus_(),
@@ -87,83 +87,71 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry & areg) :
   MFSU_WATCH_UPDATER(PostModuleEndSubRun);
 }
 
-void art::MFStatusUpdater::setContext(std::string const & ps)
-{
+void art::MFStatusUpdater::setContext(std::string const &ps) {
   programStatus_ = ps;
   savedEnabledState_ = mls_.setContext(ps);
 }
 
-void art::MFStatusUpdater::setMinimalContext(std::string const & ps)
-{
+void art::MFStatusUpdater::setMinimalContext(std::string const &ps) {
   programStatus_ = ps;
   mls_.setMinimalContext(ps);
 }
 
-void art::MFStatusUpdater::setContext(art::ModuleDescription const & desc)
-{
+void art::MFStatusUpdater::setContext(art::ModuleDescription const &desc) {
   programStatus_ = moduleIDString(desc);
   savedEnabledState_ = mls_.setContext(programStatus_, desc.moduleLabel());
 }
 
-void art::MFStatusUpdater::setContext(art::ModuleDescription const & desc,
-                                      std::string const & phase)
-{
+void art::MFStatusUpdater::setContext(art::ModuleDescription const &desc,
+                                      std::string const &phase) {
   programStatus_ = moduleIDString(desc, phase);
   savedEnabledState_ = mls_.setContext(programStatus_, desc.moduleLabel());
 }
 
-void art::MFStatusUpdater::restoreContext(art::ModuleDescription const & desc)
-{
+void art::MFStatusUpdater::restoreContext(art::ModuleDescription const &desc) {
   programStatus_ = moduleIDString(desc);
   if (savedEnabledState_.isValid()) {
     mls_.setContext(programStatus_, savedEnabledState_);
     savedEnabledState_.reset();
-  }
-  else {
+  } else {
     // When we have a full set of watchpoints, we should probably throw
     // here.
     savedEnabledState_ = mls_.setContext(programStatus_);
   }
 }
 
-void art::MFStatusUpdater::restoreContext(art::ModuleDescription const & desc,
-    std::string const & phase)
-{
+void art::MFStatusUpdater::restoreContext(art::ModuleDescription const &desc,
+                                          std::string const &phase) {
   programStatus_ = moduleIDString(desc, phase);
   if (savedEnabledState_.isValid()) {
     mls_.setContext(programStatus_, savedEnabledState_);
     savedEnabledState_.reset();
-  }
-  else {
+  } else {
     // When we have a full set of watchpoints, we should probably throw
     // here.
     savedEnabledState_ = mls_.setContext(programStatus_);
   }
 }
 
-void art::MFStatusUpdater::restoreContext(std::string const & ps)
-{
+void art::MFStatusUpdater::restoreContext(std::string const &ps) {
   programStatus_ = ps;
   if (savedEnabledState_.isValid()) {
     mls_.setContext(ps, savedEnabledState_);
     savedEnabledState_.reset();
-  }
-  else {
+  } else {
     // When we have a full set of watchpoints, we should probably throw
     // here.
     savedEnabledState_ = mls_.setContext(ps);
   }
 }
 
-void art::MFStatusUpdater::setWorkFlowStatus(std::string wfs)
-{
+void art::MFStatusUpdater::setWorkFlowStatus(std::string wfs) {
   workFlowStatus_ = wfs;
   md_.runEvent = wfs;
 }
 
 std::string
-art::MFStatusUpdater::moduleIDString(const ModuleDescription & desc)
-{
+art::MFStatusUpdater::moduleIDString(const ModuleDescription &desc) {
   std::string result = desc.moduleName();
   result += ":";
   result += desc.moduleLabel();
@@ -171,9 +159,8 @@ art::MFStatusUpdater::moduleIDString(const ModuleDescription & desc)
 }
 
 std::string
-art::MFStatusUpdater::moduleIDString(const ModuleDescription & desc,
-                                     std::string const & suffix)
-{
+art::MFStatusUpdater::moduleIDString(const ModuleDescription &desc,
+                                     std::string const &suffix) {
   std::string result = desc.moduleName();
   result += ":";
   result += desc.moduleLabel();
@@ -182,286 +169,236 @@ art::MFStatusUpdater::moduleIDString(const ModuleDescription & desc,
   return result;
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostBeginJob)
-{
+MFSU_0_ARG_UPDATER_DEFN(PostBeginJob) {
   setContext("PostBeginJob");
   setWorkFlowStatus("BeforeEvents");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostEndJob)
-{
+MFSU_0_ARG_UPDATER_DEFN(PostEndJob) {
   mf::MessageLoggerQ::MLqSUM();
 }
 
-MFSU_0_ARG_UPDATER_DEFN(JobFailure)
-{
+MFSU_0_ARG_UPDATER_DEFN(JobFailure) {
   setContext("JobFailure");
   mf::MessageLoggerQ::MLqSUM();
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PreSource)
-{
+MFSU_0_ARG_UPDATER_DEFN(PreSource) {
   setContext("Source");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostSource)
-{
+MFSU_0_ARG_UPDATER_DEFN(PostSource) {
   restoreContext("PostSource");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PreSourceSubRun)
-{
+MFSU_0_ARG_UPDATER_DEFN(PreSourceSubRun) {
   setContext("SourceSubRun");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostSourceSubRun)
-{
+MFSU_0_ARG_UPDATER_DEFN(PostSourceSubRun) {
   restoreContext("PostSourceSubRun");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PreSourceRun)
-{
+MFSU_0_ARG_UPDATER_DEFN(PreSourceRun) {
   setContext("SourceRun");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostSourceRun)
-{
+MFSU_0_ARG_UPDATER_DEFN(PostSourceRun) {
   restoreContext("PostSourceRun");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PreOpenFile)
-{
+MFSU_0_ARG_UPDATER_DEFN(PreOpenFile) {
   setContext("OpenFile");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostOpenFile)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostOpenFile) {
   restoreContext("PostOpenFile");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PreCloseFile)
-{
+MFSU_0_ARG_UPDATER_DEFN(PreCloseFile) {
   setContext("CloseFile");
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostCloseFile)
-{
+MFSU_0_ARG_UPDATER_DEFN(PostCloseFile) {
   restoreContext("PostCloseFile");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreProcessEvent)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreProcessEvent) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostProcessEvent)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostProcessEvent) {
   setWorkFlowStatus("PostProcessEvent");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreBeginRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreBeginRun) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostBeginRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostBeginRun) {
   setWorkFlowStatus("PostBeginRun");
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PreEndRun)
-{
+MFSU_2_ARG_UPDATER_DEFN(PreEndRun) {
   std::stringstream os;
   os << "End " << arg1;
   setWorkFlowStatus(os.str());
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostEndRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostEndRun) {
   setWorkFlowStatus("PostEndRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreBeginSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreBeginSubRun) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostBeginSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
   setWorkFlowStatus("PostBeginSubRun");
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PreEndSubRun)
-{
+MFSU_2_ARG_UPDATER_DEFN(PreEndSubRun) {
   std::ostringstream os;
   os << "End Subrun " << arg1;
   setWorkFlowStatus(os.str());
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostEndSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostEndSubRun) {
   setWorkFlowStatus("PostEndSubRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreProcessPath)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreProcessPath) {
   std::string context = "ProcessPath ";
   context += arg1;
   setContext(context);
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PostProcessPath)
-{
+MFSU_2_ARG_UPDATER_DEFN(PostProcessPath) {
   std::string context = "PostProcessPath ";
   context += arg1;
   restoreContext(context);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PrePathBeginRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PrePathBeginRun) {
   std::string context = "PathBeginRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PostPathBeginRun)
-{
+MFSU_2_ARG_UPDATER_DEFN(PostPathBeginRun) {
   std::string context = "PostPathBeginRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PrePathEndRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PrePathEndRun) {
   std::string context = "PathEndRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PostPathEndRun)
-{
+MFSU_2_ARG_UPDATER_DEFN(PostPathEndRun) {
   std::string context = "PostPathEndRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PrePathBeginSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PrePathBeginSubRun) {
   std::string context = "PathBeginSubRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PostPathBeginSubRun)
-{
+MFSU_2_ARG_UPDATER_DEFN(PostPathBeginSubRun) {
   std::string context = "PostPathBeginSubRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PrePathEndSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PrePathEndSubRun) {
   std::string context = "PathEndSubRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PostPathEndSubRun)
-{
+MFSU_2_ARG_UPDATER_DEFN(PostPathEndSubRun) {
   std::string context = "PostPathEndSubRun ";
   context += arg1;
   setMinimalContext(context);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleConstruction)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleConstruction) {
   setContext(arg1, "Construction");
   setWorkFlowStatus("ModuleConstruction");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleConstruction)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleConstruction) {
   restoreContext(arg1, "Construction");
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PostBeginJobWorkers)
-{
+MFSU_2_ARG_UPDATER_DEFN(PostBeginJobWorkers) {
   throw cet::exception("InternalError")
-      << "NOP: do not call";
+    << "NOP: do not call";
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginJob)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginJob) {
   setContext(arg1, "BeginJob");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginJob)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginJob) {
   restoreContext(arg1, "BeginJob");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleEndJob)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleEndJob) {
   setContext(arg1, "EndJob");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleEndJob)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleEndJob) {
   restoreContext(arg1, "EndJob");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModule)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModule) {
   setContext(arg1);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModule)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModule) {
   restoreContext(arg1);
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginRun) {
   setContext(arg1, "BeginRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginRun) {
   restoreContext(arg1, "BeginRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleEndRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleEndRun) {
   setContext(arg1, "EndRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleEndRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleEndRun) {
   restoreContext(arg1, "EndRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginSubRun) {
   setContext(arg1, "BeginSubRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginSubRun) {
   restoreContext(arg1, "BeginSubRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreModuleEndSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PreModuleEndSubRun) {
   setContext(arg1, "EndSubRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PostModuleEndSubRun)
-{
+MFSU_1_ARG_UPDATER_DEFN(PostModuleEndSubRun) {
   restoreContext(arg1, "EndSubRun");
 }

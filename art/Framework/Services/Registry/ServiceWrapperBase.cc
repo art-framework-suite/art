@@ -7,10 +7,10 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 
-art::ServiceWrapperBase::~ServiceWrapperBase()
+art::ServiceWrapperBase::~ServiceWrapperBase( )
 { }
 
-void art::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const &)
+void art::ServiceWrapperBase::reconfigure(fhicl::ParameterSet const&)
 { }
 
 // ======================================================================

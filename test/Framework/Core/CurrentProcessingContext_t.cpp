@@ -6,10 +6,11 @@
 #include <iostream>
 #include <string>
 
-namespace {
+namespace
+{
   // Forward declare test helpers
-  art::ModuleDescription makeModuleDescription(std::string const & label);
-  void setup_ctx(art::CurrentProcessingContext & ctx);
+  art::ModuleDescription makeModuleDescription(std::string const& label);
+  void setup_ctx(art::CurrentProcessingContext& ctx);
 
   // Icky global junk, to mock lifetime of ModuleDescription.
   static art::ModuleDescription moduleA = makeModuleDescription("aaa");
@@ -17,18 +18,18 @@ namespace {
   static std::size_t pathNumber(21);
   static std::size_t slotInPath(13);
 
-  static art::ModuleDescription const * p_moduleA = &moduleA;
-  static std::string const      *      p_pathName = &pathName;
+  static art::ModuleDescription const* p_moduleA = &moduleA;
+  static std::string const*            p_pathName = &pathName;
 
   // Test helpers
-  art::ModuleDescription makeModuleDescription(std::string const & label)
+  art::ModuleDescription makeModuleDescription(std::string const& label)
   {
     art::ModuleDescription temp;
     temp.moduleLabel_ = label;
     return temp;
   }
 
-  void setup_ctx(art::CurrentProcessingContext & ctx)
+  void setup_ctx(art::CurrentProcessingContext& ctx)
   {
     assert(p_moduleA);
     art::CurrentProcessingContext temp(p_pathName, pathNumber, false);
@@ -53,7 +54,7 @@ void test_activate()
   art::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
   ctx.activate(slotInPath, p_moduleA);
   {
-    art::CurrentProcessingContext const & r_ctx = ctx;
+    art::CurrentProcessingContext const& r_ctx = ctx;
     assert(r_ctx.moduleDescription() == p_moduleA);
     assert(r_ctx.moduleLabel());
     assert(*r_ctx.moduleLabel() == "aaa");
@@ -83,19 +84,19 @@ int main()
 {
   int rc = -1;
   try { rc = work(); }
-  catch (cet::exception & x) {
-    std::cerr << "cet::exception caught\n";
-    std::cerr << x.what() << '\n';
-    rc = -2;
+  catch (cet::exception& x) {
+      std::cerr << "cet::exception caught\n";
+      std::cerr << x.what() << '\n';
+      rc = -2;
   }
-  catch (std::exception & x) {
-    std::cerr << "std::exception caught\n";
-    std::cerr << x.what() << '\n';
-    rc = -3;
+  catch (std::exception& x) {
+      std::cerr << "std::exception caught\n";
+      std::cerr << x.what() << '\n';
+      rc = -3;
   }
   catch (...) {
-    std::cerr << "Unknown exception caught\n";
-    rc = -4;
+      std::cerr << "Unknown exception caught\n";
+      rc = -4;
   }
   return rc;
 }

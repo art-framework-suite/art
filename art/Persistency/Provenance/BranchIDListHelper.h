@@ -17,11 +17,11 @@ namespace art {
     typedef std::pair<BranchListIndex, ProductIndex> IndexPair;
     typedef std::map<BranchID, IndexPair> BranchIDToIndexMap;
     BranchIDListHelper() : branchIDToIndexMap_() {}
-    static void updateFromInput(BranchIDLists const & bidlists, std::string const & fileName);
-    static void updateRegistries(MasterProductRegistry const & reg);
+    static void updateFromInput(BranchIDLists const& bidlists, std::string const& fileName);
+    static void updateRegistries(MasterProductRegistry const& reg);
     static void clearRegistries();  // Use only for tests
 
-    BranchIDToIndexMap const & branchIDToIndexMap() const {return branchIDToIndexMap_;}
+    BranchIDToIndexMap const& branchIDToIndexMap() const {return branchIDToIndexMap_;}
 
   private:
     BranchIDToIndexMap branchIDToIndexMap_;

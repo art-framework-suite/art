@@ -51,48 +51,48 @@ namespace art {
   class RootInputFile : private boost::noncopyable {
   public:
     typedef std::array<RootTree *, NumBranchTypes> RootTreePtrArray;
-    RootInputFile(std::string const & fileName,
-                  std::string const & catalogName,
-                  ProcessConfiguration const & processConfiguration,
-                  std::string const & logicalFileName,
-                  std::shared_ptr<TFile> filePtr,
-                  EventID const & origEventID,
-                  unsigned int eventsToSkip,
-                  std::vector<SubRunID> const & whichSubRunsToSkip,
-                  FastCloningInfoProvider const & fcip,
-                  unsigned int treeCacheSize,
-                  int treeMaxVirtualSize,
-                  InputSource::ProcessingMode processingMode,
-                  int forcedRunOffset,
-                  std::vector<EventID> const & whichEventsToProcess,
-                  bool noEventSort,
-                  GroupSelectorRules const & groupSelectorRules,
-                  bool dropMergeable,
-                  std::shared_ptr<DuplicateChecker> duplicateChecker,
-                  bool dropDescendantsOfDroppedProducts);
+    RootInputFile(std::string const& fileName,
+             std::string const& catalogName,
+             ProcessConfiguration const& processConfiguration,
+             std::string const& logicalFileName,
+             std::shared_ptr<TFile> filePtr,
+             EventID const &origEventID,
+             unsigned int eventsToSkip,
+             std::vector<SubRunID> const& whichSubRunsToSkip,
+             FastCloningInfoProvider const &fcip,
+             unsigned int treeCacheSize,
+             int treeMaxVirtualSize,
+             InputSource::ProcessingMode processingMode,
+             int forcedRunOffset,
+             std::vector<EventID> const& whichEventsToProcess,
+             bool noEventSort,
+             GroupSelectorRules const& groupSelectorRules,
+             bool dropMergeable,
+             std::shared_ptr<DuplicateChecker> duplicateChecker,
+             bool dropDescendantsOfDroppedProducts);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent();
     std::auto_ptr<EventPrincipal> readEvent();
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
-    std::string const & file() const {return file_;}
+    std::string const& file() const {return file_;}
     std::shared_ptr<RunPrincipal> readRun();
-    ProductList const & productList() const {return productListHolder_->productList_;}
-    BranchIDListRegistry::collection_type const & branchIDLists() {return *branchIDLists_;}
-    EventAuxiliary const & eventAux() const {return eventAux_;}
-    SubRunAuxiliary const & subRunAux() {return subRunAux_;}
-    RunAuxiliary const & runAux() const {return runAux_;}
-    EventID const & eventID() const {return eventAux().id();}
+    ProductList const &productList() const {return productListHolder_->productList_;}
+    BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
+    EventAuxiliary const& eventAux() const {return eventAux_;}
+    SubRunAuxiliary const& subRunAux() {return subRunAux_;}
+    RunAuxiliary const& runAux() const {return runAux_;}
+    EventID const& eventID() const {return eventAux().id();}
     RootTreePtrArray & treePointers() {return treePointers_;}
-    RootTree const & eventTree() const {return eventTree_;}
-    RootTree const & subRunTree() const {return subRunTree_;}
+    RootTree const& eventTree() const {return eventTree_;}
+    RootTree const& subRunTree() const {return subRunTree_;}
     RootTree const & runTree() const {return runTree_;}
     FileFormatVersion fileFormatVersion() const {return fileFormatVersion_;}
     bool fastClonable() const {return fastClonable_;}
     std::shared_ptr<FileBlock> createFileBlock() const;
-    bool setEntryAtEvent(EventID const & eID, bool exact);
-    bool setEntryAtSubRun(SubRunID const & subRun);
-    bool setEntryAtRun(RunID const & run);
+    bool setEntryAtEvent(EventID const &eID, bool exact);
+    bool setEntryAtSubRun(SubRunID const& subRun);
+    bool setEntryAtRun(RunID const& run);
     void setAtEventEntry(FileIndex::EntryNumber_t entry);
     void rewind() {
       fileIndexIter_ = fileIndexBegin_;
@@ -106,7 +106,7 @@ namespace art {
 
     unsigned int eventsToSkip() const {return eventsToSkip_;}
     int skipEvents(int offset);
-    int setForcedRunOffset(RunNumber_t const & forcedRunNumber);
+    int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
     bool nextEventEntry() {return eventTree_.next();}
     FileIndex::EntryType getEntryType() const;
     FileIndex::EntryType getEntryTypeSkippingDups();
@@ -117,7 +117,7 @@ namespace art {
     EventID eventIDForFileIndexPosition() const;
 
   private:
-    bool setIfFastClonable(FastCloningInfoProvider const & fcip) const;
+    bool setIfFastClonable(FastCloningInfoProvider const &fcip) const;
     void validateFile();
     void fillEventAuxiliary();
     void fillHistory();
@@ -126,10 +126,10 @@ namespace art {
     void overrideRunNumber(RunID & id);
     void overrideRunNumber(SubRunID & id);
     void overrideRunNumber(EventID & id, bool isRealData);
-    void dropOnInput(GroupSelectorRules const & rules,
+    void dropOnInput(GroupSelectorRules const& rules,
                      bool dropDescendants,
                      bool dropMergeable,
-                     ProductList & branchDescriptions);
+                     ProductList &branchDescriptions);
     void readParentageTree();
     void readEventHistoryTree();
 
@@ -138,7 +138,7 @@ namespace art {
     std::string const file_;
     std::string const logicalFile_;
     std::string const catalog_;
-    ProcessConfiguration const & processConfiguration_;
+    ProcessConfiguration const& processConfiguration_;
     std::shared_ptr<TFile> filePtr_;
     FileFormatVersion fileFormatVersion_;
     std::shared_ptr<FileIndex> fileIndexSharedPtr_;

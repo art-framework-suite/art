@@ -4,12 +4,11 @@
 
 namespace art {
   void
-  BranchChildren::append_(map_t const & lookup, BranchID item, BranchIDSet & itemSet) const
-  {
-    BranchIDSet const & items = const_cast<map_t &>(lookup)[item];
+  BranchChildren::append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const {
+    BranchIDSet const& items = const_cast<map_t &>(lookup)[item];
     // For each parent(child)
     for (BranchIDSet::const_iterator ci = items.begin(), ce = items.end();
-         ci != ce; ++ci) {
+        ci != ce; ++ci) {
       // Insert the BranchID of the parents(children) into the set of ancestors(descendants).
       // If the insert succeeds, append recursively.
       if (itemSet.insert(*ci).second) {
@@ -19,26 +18,22 @@ namespace art {
   }
 
   void
-  BranchChildren::clear()
-  {
+  BranchChildren::clear() {
     childLookup_.clear();
   }
 
   void
-  BranchChildren::insertEmpty(BranchID parent)
-  {
+  BranchChildren::insertEmpty(BranchID parent) {
     childLookup_.insert(std::make_pair(parent, BranchIDSet()));
   }
 
   void
-  BranchChildren::insertChild(BranchID parent, BranchID child)
-  {
+  BranchChildren::insertChild(BranchID parent, BranchID child) {
     childLookup_[parent].insert(child);
   }
 
   void
-  BranchChildren::appendToDescendants(BranchID parent, BranchIDSet & descendants) const
-  {
+  BranchChildren::appendToDescendants(BranchID parent, BranchIDSet& descendants) const {
     descendants.insert(parent);
     append_(childLookup_, parent, descendants);
   }
