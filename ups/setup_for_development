@@ -45,7 +45,7 @@ setup -j libsigcpp v2_2_10 -q gcc46$extraqual
 setup -j python v2_7_2 -q gcc46
 setup -j root v5_30_02 -q gcc46$extraqual
 # set up CET products
-setup -j cetbuildtools v1_12_00
+setup -j cetbuildtools v1_13_00
 setup -j cpp0x v1_02_02 -q a4$extraqual
 setup -j cetlib v1_02_02 -q a4$extraqual
 setup -j fhiclcpp v2_15_02 -q a4$extraqual

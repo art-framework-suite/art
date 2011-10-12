@@ -9,7 +9,7 @@ link_libraries( DataFormatsProvenance
 		FWCoreMessageLogger
 		FWCoreParameterSet
 		FWCoreUtilities
-		${MATRIX}
+		${ROOT_MATRIX}
                 ${Boost_THREAD_LIBRARY} )
 
 foreach(file ${cc_files} )

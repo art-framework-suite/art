@@ -6,10 +6,10 @@ set(art_Persistency_RootDB_suorce
 )
 
 link_libraries(
-  ${RIO}
-  ${THREAD}
-  ${CORE}
-  ${CINT}
+  ${ROOT_RIO}
+  ${ROOT_THREAD}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
   art_Utilities
   ${SQLITE3}
   )

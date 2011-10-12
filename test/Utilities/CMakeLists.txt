@@ -6,8 +6,8 @@ art_dictionary(NOINSTALL)
 link_libraries(art_Utilities
   test_Utilities_dict
   ${MF_MESSAGELOGGER}
-  ${CINT}
-  ${REFLEX}
+  ${ROOT_CINT}
+  ${ROOT_REFLEX}
   )
 
 cet_test(CPUTimer_t USE_BOOST_UNIT
@@ -44,17 +44,17 @@ target_link_libraries(LibraryManager_t
   art_Utilities
   ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
-  ${CINTEX}
-  ${TREE}
-  ${HIST}
-  ${MATRIX}
-  ${NET}
-  ${MATHCORE}
-  ${THREAD}
-  ${RIO}
-	${CORE}
-  ${CINT}
-	${REFLEX}
+  ${ROOT_CINTEX}
+  ${ROOT_TREE}
+  ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_THREAD}
+  ${ROOT_RIO}
+	${ROOT_CORE}
+  ${ROOT_CINT}
+	${ROOT_REFLEX}
   ${CPPUNIT}
   -ldl
   )

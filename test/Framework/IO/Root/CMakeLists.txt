@@ -22,13 +22,13 @@ link_libraries( IORootInput
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_THREAD_LIBRARY}
 	${CLHEP}
-  ${CORE}
-	${REFLEX}
-	${CINTEX}
-	${CINT}
-	${RIO}
-	${NET}
-	${TREE}
+  ${ROOT_CORE}
+	${ROOT_REFLEX}
+	${ROOT_CINTEX}
+	${ROOT_CINT}
+	${ROOT_RIO}
+	${ROOT_NET}
+	${ROOT_TREE}
 	${CPPUNIT}
 	-luuid -ldl )
 
@@ -50,13 +50,13 @@ link_libraries( IORootOutput
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_THREAD_LIBRARY}
 	${CLHEP}
-  ${CORE}
-	${REFLEX}
-	${CINTEX}
-	${CINT}
-	${RIO}
-	${NET}
-	${TREE}
+  ${ROOT_CORE}
+	${ROOT_REFLEX}
+	${ROOT_CINTEX}
+	${ROOT_CINT}
+	${ROOT_RIO}
+	${ROOT_NET}
+	${ROOT_TREE}
 	${CPPUNIT}
 	-luuid -ldl )
 

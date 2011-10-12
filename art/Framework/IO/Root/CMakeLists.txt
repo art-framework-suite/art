@@ -41,19 +41,19 @@ target_link_libraries( config_dumper
         art_Utilities
         art_Framework_Core
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${CINTEX}
-        ${PHYSICS}
+        ${ROOT_CINTEX}
+        ${ROOT_PHYSICS}
         ${ROOTSYS}/lib/libGraf.so
-        ${TREE}
-        ${HIST}
-        ${MATRIX}
-        ${NET}
-        ${MATHCORE}
-        ${THREAD}
-        ${RIO}
-        ${CORE}
-        ${CINT}
-        ${REFLEX}
+        ${ROOT_TREE}
+        ${ROOT_HIST}
+        ${ROOT_MATRIX}
+        ${ROOT_NET}
+        ${ROOT_MATHCORE}
+        ${ROOT_THREAD}
+        ${ROOT_RIO}
+        ${ROOT_CORE}
+        ${ROOT_CINT}
+        ${ROOT_REFLEX}
         -ldl
         )
 

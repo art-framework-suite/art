@@ -7,10 +7,10 @@ set(standard_libraries
   art_Utilities
   art_Version
 	${Boost_THREAD_LIBRARY}
-  ${CINTEX}
-  ${CORE}
-  ${CINT}
-	${REFLEX}
+  ${ROOT_CINTEX}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
+	${ROOT_REFLEX}
   -ldl
   )
 
@@ -30,15 +30,15 @@ endforeach()
 cet_test(RootClassMapping_t USE_BOOST_UNIT
   LIBRARIES
   test_Persistency_Provenance_dict
-  ${CINTEX}
-  ${TREE}
-  ${NET}
-  ${MATHCORE}
-  ${RIO}
-  ${THREAD}
-  ${CORE}
-  ${CINT}
-	${REFLEX}
+  ${ROOT_CINTEX}
+  ${ROOT_TREE}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_RIO}
+  ${ROOT_THREAD}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
+	${ROOT_REFLEX}
   -ldl
   # When ROOT is fixed WILL_FAIL should be removed and the code in ASSNS
   # (and associated ioread rules) should be fixed accordingly.

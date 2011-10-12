@@ -34,19 +34,19 @@ install ( TARGETS
 set ( common_exec_link_libraries
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${CINTEX}
-  ${PHYSICS}
+  ${ROOT_CINTEX}
+  ${ROOT_PHYSICS}
   ${ROOTSYS}/lib/libGraf.so
-  ${TREE}
-  ${HIST}
-  ${MATRIX}
-  ${NET}
-  ${MATHCORE}
-  ${RIO}
-  ${THREAD}
-  ${CORE}
-  ${CINT}
-  ${REFLEX}
+  ${ROOT_TREE}
+  ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_RIO}
+  ${ROOT_THREAD}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
+  ${ROOT_REFLEX}
   ${CPPUNIT}
   -ldl
 )

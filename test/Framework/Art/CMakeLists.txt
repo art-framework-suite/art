@@ -7,17 +7,17 @@ link_libraries(
   art_Framework_Core
   ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
-  ${CINTEX}
-  ${TREE}
-  ${HIST}
-  ${MATRIX}
-  ${NET}
-  ${MATHCORE}
-  ${THREAD}
-  ${RIO}
-	${CORE}
-  ${CINT}
-	${REFLEX}
+  ${ROOT_CINTEX}
+  ${ROOT_TREE}
+  ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_THREAD}
+  ${ROOT_RIO}
+	${ROOT_CORE}
+  ${ROOT_CINT}
+	${ROOT_REFLEX}
   ${CPPUNIT}
   -ldl
  )

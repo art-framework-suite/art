@@ -20,14 +20,14 @@ target_link_libraries( testServiceRegistry FWCoreServiceRegistryTestDummyService
                 			   FWCorePluginManager
                 			   FWCoreUtilities
 					   DataFormatsProvenance
-					   ${MATRIX} )
+					   ${ROOT_MATRIX} )
 target_link_libraries( servicesmanager_order FWCoreServiceRegistryTestDummyService
                 			     FWCoreServiceRegistry
                 			     FWCoreParameterSet
                 			     FWCorePluginManager
                 			     FWCoreUtilities
 					     DataFormatsProvenance
-					     ${MATRIX} )
+					     ${ROOT_MATRIX} )
 
 add_test( testServiceRegistry   ${EXECUTABLE_OUTPUT_PATH}/testServiceRegistry)
 add_test( servicesmanager_order ${EXECUTABLE_OUTPUT_PATH}/servicesmanager_order)

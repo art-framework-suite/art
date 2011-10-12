@@ -11,9 +11,9 @@ link_libraries( art_Persistency_Common
                 art_Framework_Services_Registry
 		${Boost_THREAD_LIBRARY}
 		${Boost_PYTHON_LIBRARY}
-		${MATRIX}
-		${REFLEX}
-		${CORE}
+		${ROOT_MATRIX}
+		${ROOT_REFLEX}
+		${ROOT_CORE}
 		${PYTHON} )
 
 
