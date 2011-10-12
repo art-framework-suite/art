@@ -1,5 +1,23 @@
 #include "ProductMix_r1.fcl"
 
+services.message:
+{
+  destinations:
+  {
+    STDOUT:
+    {
+      categories:
+      {
+        ArtReport: { limit: 100 }
+        default: { limit: -1 }
+      }
+      threshold: INFO
+      type: cout
+      outputStatistics: true
+    }
+  }
+}
+
 physics.filters.mixFilter.wrapFiles: true
 physics.analyzers: {}
 outputs: {}

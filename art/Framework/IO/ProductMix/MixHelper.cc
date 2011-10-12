@@ -90,7 +90,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
   readMode_(std::regex_search(pset.get<std::string>("readMode", "sequential"),
                               modeRegex()) ? SEQUENTIAL : RANDOM),
   coverageFraction_(pset.get<double>("coverageFraction", 1.0)),
-  nEventsReadThisFile(0),
+  nEventsReadThisFile_(0),
   nEventsInFile_(0),
   totalEventsRead_(0),
   canWrapFiles_(pset.get<bool>("wrapFiles", false)),
@@ -218,6 +218,13 @@ art::MixHelper::postRegistrationInit()
   openAndReadMetaData(*currentFilename_);
 }
 
+void
+art::MixHelper::
+setEventsToSkipFunction(std::function < size_t () > eventsToSkip)
+{
+  eventsToSkip_ = eventsToSkip;
+}
+
 bool
 art::MixHelper::
 generateEventSequence(size_t nSecondaries,
@@ -227,8 +234,8 @@ generateEventSequence(size_t nSecondaries,
   assert(enSeq.empty());
   assert(eIDseq.empty());
   bool over_threshold = (readMode_ == SEQUENTIAL) ?
-                        ((nEventsReadThisFile + nSecondaries) > nEventsInFile_) :
-                        ((nEventsReadThisFile + nSecondaries) > (nEventsInFile_ * coverageFraction_));
+                        ((nEventsReadThisFile_ + nSecondaries) > nEventsInFile_) :
+                        ((nEventsReadThisFile_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
   if (over_threshold) {
     if (openNextFile()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
@@ -239,8 +246,8 @@ generateEventSequence(size_t nSecondaries,
   }
   if (readMode_ == SEQUENTIAL) {
     for (size_t
-         i = nEventsReadThisFile,
-         end = nEventsReadThisFile + nSecondaries;
+         i = nEventsReadThisFile_,
+         end = nEventsReadThisFile_ + nSecondaries;
          i < end;
          ++i) {
       enSeq.push_back(i);
@@ -274,7 +281,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                          _1,
                          enSeq,
                          std::ref(e)));
-  nEventsReadThisFile += enSeq.size();
+  nEventsReadThisFile_ += enSeq.size();
   totalEventsRead_ += enSeq.size();
 }
 
@@ -295,14 +302,16 @@ art::MixHelper::openNextFile()
       mf::LogWarning("MixingInputWrap")
           << "Wrapping around to initial input file for mixing after "
           << totalEventsRead_
-          << " seconday events read.";
+          << " secondary events read.";
       currentFilename_ = filenames_.begin();
     }
     else {
       return false;
     }
   }
-  nEventsReadThisFile = 0; // Reset for this file.
+  nEventsReadThisFile_ = (readMode_ == SEQUENTIAL && eventsToSkip_) ?
+                        eventsToSkip_() - 1 :
+                        0; // Reset for this file.
   openAndReadMetaData(*currentFilename_);
   return true;
 }

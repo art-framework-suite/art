@@ -41,6 +41,12 @@
 //    // Reset internal cache information at the start of the current
 //    // event.
 //
+//    size_t eventsToSkip();
+//
+//    // Provide the number of secondary events at the beginning of the
+//    // next secondary input file that should be skipped. Note:
+//    // may be declare const or not as appropriate.
+//
 //    void processEventIDs(art::EventIDSequence const &seq);
 //
 //    // Receive the ordered sequence of EventIDs that will be mixed into
@@ -136,6 +142,46 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a method size_t eventsToSkip() const?
+    template <typename T, size_t (T::*)()> struct eventsToSkip_function;
+    template <typename T, size_t (T::*)() const> struct const_eventsToSkip_function;
+
+    template <typename T> struct do_not_setup_eventsToSkip {
+      do_not_setup_eventsToSkip(MixHelper &, T &) { }
+    };
+
+    template <typename T>
+    size_t
+    call_eventsToSkip(T & t) { return t.eventsToSkip(); }
+
+    template <typename T> struct setup_eventsToSkip {
+  public:
+      setup_eventsToSkip(MixHelper & helper, T & t)
+        {
+          helper.setEventsToSkipFunction(std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
+        }
+    };
+
+    template <typename T>
+    no_tag
+    has_eventsToSkip_helper(...);
+
+    template <typename T>
+    yes_tag
+    has_eventsToSkip_helper(eventsToSkip_function<T, &T::eventsToSkip> *);
+
+    template <typename T>
+    yes_tag
+    has_eventsToSkip_helper(const_eventsToSkip_function<T, &T::eventsToSkip> *);
+
+    template <typename T> struct has_eventsToSkip {
+      static bool const value =
+        sizeof(has_eventsToSkip_helper<T>(0)) == sizeof(yes_tag);
+    };
+
+    ////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
     // processEventIDs(EventIDSequence const &)?
     template <typename T, void (T::*)(EventIDSequence const &)> struct processEventIDs_function;
@@ -225,6 +271,8 @@ art::MixFilter<T>::MixFilter(fhicl::ParameterSet const &p)
   // by the helper and or detail objects in their constructors via a
   // service handle to the random number generator service. Do NOT
   // remove the seemingly-superfluous parentheses.
+  typename std::conditional<detail::has_eventsToSkip<T>::value, detail::setup_eventsToSkip<T>, detail::do_not_setup_eventsToSkip<T> >::type
+    maybe_setup_skipper(helper_, detail_);
 }
 
 template <class T>

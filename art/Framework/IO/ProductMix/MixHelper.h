@@ -230,6 +230,7 @@ public:
   void mixAndPut(EntryNumberSequence const & enSeq,
                  Event & e);
   void postRegistrationInit();
+  void setEventsToSkipFunction(std::function < size_t () > eventsToSkip);
 
 private:
   typedef std::vector<std::shared_ptr<MixOpBase> > MixOpList;
@@ -252,13 +253,14 @@ private:
   std::vector<std::string>::const_iterator currentFilename_;
   Mode readMode_;
   double coverageFraction_;
-  Long64_t nEventsReadThisFile;
+  Long64_t nEventsReadThisFile_;
   Long64_t nEventsInFile_;
   Long64_t totalEventsRead_;
   bool canWrapFiles_;
   FileFormatVersion ffVersion_;
   ProdToProdMapBuilder ptpBuilder_;
   CLHEP::RandFlat dist_;
+  std::function < size_t () > eventsToSkip_;
 
   // Root-specific state.
   EventIDIndex eventIDIndex_;

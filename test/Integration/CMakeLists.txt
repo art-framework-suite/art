@@ -1,6 +1,14 @@
 # project name
 project(art_Integration_Test)
 
+set_source_files_properties(MixFilterTestETS_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0
+)
+
+set_source_files_properties(MixFilterTestETSc_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=1
+)
+
 simple_plugin(AddIntsProducer          "module" NOINSTALL )
 simple_plugin(AssnsAnalyzer            "module" NOINSTALL )
 simple_plugin(AssnsProducer            "module" NOINSTALL )
@@ -18,6 +26,8 @@ simple_plugin(IntVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(IntVectorProducer        "module" NOINSTALL )
 simple_plugin(MixAnalyzer              "module" NOINSTALL )
 simple_plugin(MixFilterTest            "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixFilterTestETS         "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixFilterTestETSc        "module" art_Framework_IO_ProductMix NOINSTALL )
 simple_plugin(MixProducer              "module" NOINSTALL )
 simple_plugin(MockClusterListAnalyzer  "module" NOINSTALL )
 simple_plugin(MockClusterListProducer  "module" NOINSTALL )
@@ -331,13 +341,31 @@ cet_test(ProductMix_r1b HANDBUILT
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring.
-cet_test(ProductMix_r1c HANDBUILT
+# with secondary input file wrappring and eventsToSkip().
+cet_test(ProductMix_r1c1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
+)
+
+cet_test(ProductMix_r1c2 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1c.fcl
+  fcl/ProductMix_r1c2.fcl
+)
+
+cet_test(ProductMix_r1c3 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1c.fcl
+  fcl/ProductMix_r1c3.fcl
 )
 
 # Mix the events from ProductMix_w, testing that we correctly detect an
@@ -375,7 +403,7 @@ cet_test(Ptrmv_r HANDBUILT
 
 if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
     (${CMAKE_VERSION} VERSION_GREATER "2.8"))
-  # For parallel testing, enforce an order.
+  # For parallel testing, enforce a loose order.
   SET_TESTS_PROPERTIES(BareString_r PROPERTIES DEPENDS BareString_w)
   SET_TESTS_PROPERTIES(ToyRawInput_r1 PROPERTIES DEPENDS ToyRawInput_w)
   SET_TESTS_PROPERTIES(ToyRawInput_r2 PROPERTIES DEPENDS ToyRawInput_w)
@@ -383,7 +411,19 @@ if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
   SET_TESTS_PROPERTIES(ProductMix_r1 PROPERTIES DEPENDS ProductMix_w)
   SET_TESTS_PROPERTIES(ProductMix_r1a PROPERTIES DEPENDS ProductMix_w)
   SET_TESTS_PROPERTIES(ProductMix_r1b PROPERTIES DEPENDS ProductMix_w)
-  SET_TESTS_PROPERTIES(ProductMix_r1c PROPERTIES DEPENDS ProductMix_w)
+  SET_TESTS_PROPERTIES(ProductMix_r1c1
+    PROPERTIES DEPENDS ProductMix_w
+    PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
+)
+  SET_TESTS_PROPERTIES(ProductMix_r1c2
+    PROPERTIES DEPENDS ProductMix_w
+    PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
+)
+  SET_TESTS_PROPERTIES(ProductMix_r1c2
+    PROPERTIES DEPENDS ProductMix_w
+    PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
+)
+  SET_TESTS_PROPERTIES(ProductMix_r1d PROPERTIES DEPENDS ProductMix_w)
   SET_TESTS_PROPERTIES(ProductMix_r2 PROPERTIES DEPENDS ProductMix_r1)
   SET_TESTS_PROPERTIES(Ptrmv_r PROPERTIES DEPENDS Ptrmv_w)
 endif()
