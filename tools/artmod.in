@@ -57,44 +57,44 @@ my $optional_entries =
    analyzer =>
    {
     beginJob => "virtual void beginJob()",
-    beginRun => "virtual void beginRun(art::Run const &r)",
-    beginSubRun => "virtual void beginSubRun(art::SubRun const &sr)",
+    beginRun => "virtual void beginRun(art::Run const & r)",
+    beginSubRun => "virtual void beginSubRun(art::SubRun const & sr)",
     endJob => "virtual void endJob()",
-    endRun => "virtual void endRun(art::Run const &r)",
-    endSubRun => "virtual void endSubRun(art::SubRun const &sr)",
+    endRun => "virtual void endRun(art::Run const & r)",
+    endSubRun => "virtual void endSubRun(art::SubRun const & sr)",
     reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const &fb)",
-    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const &fb)",
-    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const &fb)",
-    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const &fb)"
+    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const & fb)",
+    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const & fb)",
+    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const & fb)",
+    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const & fb)"
    },
    filter =>
    {
     beginJob => "virtual void beginJob()",
-    beginRun => "virtual bool beginRun(art::Run &r)",
-    beginSubRun => "virtual bool beginSubRun(art::SubRun &sr)",
+    beginRun => "virtual bool beginRun(art::Run & r)",
+    beginSubRun => "virtual bool beginSubRun(art::SubRun & sr)",
     endJob => "virtual void endJob()",
-    endRun => "virtual bool endRun(art::Run &r)",
-    endSubRun => "virtual bool endSubRun(art::SubRun &sr)",
+    endRun => "virtual bool endRun(art::Run & r)",
+    endSubRun => "virtual bool endSubRun(art::SubRun & sr)",
     reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const &fb)",
-    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const &fb)",
-    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const &fb)",
-    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const &fb)"
+    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const & fb)",
+    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const & fb)",
+    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const  &fb)",
+    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const & fb)"
    },
    producer =>
    {
     beginJob => "virtual void beginJob()",
-    beginRun => "virtual void beginRun(art::Run &r)",
-    beginSubRun => "virtual void beginSubRun(art::SubRun &sr)",
+    beginRun => "virtual void beginRun(art::Run & r)",
+    beginSubRun => "virtual void beginSubRun(art::SubRun & sr)",
     endJob => "virtual void endJob()",
-    endRun => "virtual void endRun(art::Run &r)",
-    endSubRun => "virtual void endSubRun(art::SubRun &sr)",
+    endRun => "virtual void endRun(art::Run & r)",
+    endSubRun => "virtual void endSubRun(art::SubRun & sr)",
     reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const &fb)",
-    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const &fb)",
-    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const &fb)",
-    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const &fb)"
+    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const & fb)",
+    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const & fb)",
+    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const & fb)",
+    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const & fb)"
    }
   };
 
@@ -102,15 +102,15 @@ my $required_entries =
   {
    analyzer =>
    {
-    analyze => "virtual void analyze(art::Event const &e)"
+    analyze => "virtual void analyze(art::Event const & e)"
    },
    filter =>
    {
-    filter => "virtual bool filter(art::Event &e)"
+    filter => "virtual bool filter(art::Event & e)"
    },
    producer =>
    {
-    produce => "virtual void produce(art::Event &e)"
+    produce => "virtual void produce(art::Event & e)"
    }
   };
 
@@ -217,6 +217,7 @@ sub help_types {
 # Do the substitution of "%" directives in the boilerplate source.
 sub ins_vals {
   my $bp = shift;
+  return unless $$bp;
  WL:  while ($$bp =~ m&(.?%.)&mg) {
     my $found_exp = ${1};
     my $s = (pos $$bp) - length($found_exp);
@@ -482,7 +483,7 @@ sub class_defn($\@\@) {
   print $fh <<EOF;
 class ${qual_name} : public art::${base_class} {
 public:
-${indent}explicit ${class_name}(fhicl::ParameterSet const &p);
+${indent}explicit ${class_name}(fhicl::ParameterSet const & p);
 ${indent}virtual ~${class_name}();
 
 EOF
@@ -569,9 +570,9 @@ sub class_impl($\@\@) {
 
   # Constructor and destructor.
   print $fh <<EOF;
-${qual_name}::${class_name}(fhicl::ParameterSet const &p)
-${indent}// :
-${indent}// Initialize member data here.
+${qual_name}::${class_name}(fhicl::ParameterSet const & p)
+// :
+// Initialize member data here.
 {
 EOF
 
@@ -582,7 +583,8 @@ EOF
 print $fh <<EOF;
 }
 
-${qual_name}::~${class_name}() {
+${qual_name}::~${class_name}()
+{
 ${indent}// Clean up dynamic memory and other resources here.
 }
 
@@ -593,7 +595,7 @@ EOF
     $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
       qualify_func($f),
-        " {\n${indent}// Implementation of required member function here.\n}\n\n";
+        "\n{\n${indent}// Implementation of required member function here.\n}\n\n";
   }
 
   foreach my $entry (@{$optional_ep_list}) {
@@ -601,7 +603,7 @@ EOF
     $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
       qualify_func($f),
-        " {\n${indent}// Implementation of optional member function here.\n}\n\n";
+        "\n{\n${indent}// Implementation of optional member function here.\n}\n\n";
   }
 
   foreach my $entry (grep m&\)\s*$&, @{$unrecognized_entries}) {
@@ -609,7 +611,7 @@ EOF
     $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
       qualify_func($f),
-        " {\n${indent}// Implementation of private member function here.\n}\n\n";
+        "\n{\n${indent}// Implementation of private member function here.\n}\n\n";
   }
 
 }
