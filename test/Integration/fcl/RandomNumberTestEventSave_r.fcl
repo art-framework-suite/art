@@ -1,0 +1,26 @@
+process_name: RNTESr
+
+services:
+{
+  RandomNumberGenerator: { restoreStateLabel: randomSaver }
+}
+
+physics:
+{
+  filters:
+  {
+    randomTester:
+    {
+      module_type: RandomNumberSaveTest
+    }
+  }
+
+  p1: [ randomTester ]
+  trigger_paths: [ p1 ]
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../RandomNumberTestEventSave_w.d/out.root" ]
+}

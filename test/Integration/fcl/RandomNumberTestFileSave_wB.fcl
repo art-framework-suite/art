@@ -1,0 +1,6 @@
+#include "RandomNumberTestEventSave_r.fcl"
+
+services.RandomNumberGenerator.saveTo: "state.txt"
+
+physics.filters.randomTester.dieOnNthEvent: 10
+physics.filters.randomTester.genUnsaved: false

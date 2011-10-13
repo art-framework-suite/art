@@ -37,7 +37,8 @@ simple_plugin(PtrListAnalyzer          "module" NOINSTALL )
 simple_plugin(PtrVectorAnalyzer        "module" NOINSTALL )
 simple_plugin(PtrVectorProducer        "module" NOINSTALL )
 simple_plugin(PtrmvProducer            "module" NOINSTALL )
-simple_plugin(PtrmvAnalyzer            "module" ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} NOINSTALL )
+simple_plugin(PtrmvAnalyzer            "module" NOINSTALL )
+simple_plugin(RandomNumberSaveTest     "module" NOINSTALL )
 simple_plugin(Reconfigurable           "service" NOINSTALL )
 simple_plugin(Reconfiguring            "module" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer    "module" NOINSTALL )
@@ -195,6 +196,7 @@ foreach(num 02 03 04)
     )
 endforeach()
 
+
 SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Assertion `outR \\|\\| inR' failed"
@@ -266,6 +268,7 @@ cet_test(ToyRawInput_r1 HANDBUILT
   DATAFILES
   fcl/ToyRawInput_r1.fcl
   fcl/ToyRawInput_wr_f1.fcl
+  TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
 cet_test(ToyRawInput_r2 HANDBUILT
@@ -275,6 +278,7 @@ cet_test(ToyRawInput_r2 HANDBUILT
   fcl/ToyRawInput_r2.fcl
   fcl/ToyRawInput_r1.fcl
   fcl/ToyRawInput_wr_f1.fcl
+  TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
 cet_test(ToyRawInput_r3 HANDBUILT
@@ -284,6 +288,7 @@ cet_test(ToyRawInput_r3 HANDBUILT
   fcl/ToyRawInput_r3.fcl
   fcl/ToyRawInput_r1.fcl
   fcl/ToyRawInput_wr_f1.fcl
+  TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
 cet_test(BareString_w HANDBUILT
@@ -298,8 +303,8 @@ cet_test(BareString_r HANDBUILT
   TEST_ARGS --rethrow-all -c BareString_r.fcl
   DATAFILES
   fcl/BareString_r.fcl
+  TEST_PROPERTIES DEPENDS BareString_w
 )
-
 
 # Write the data file required for the other mixing tests.
 cet_test(ProductMix_w HANDBUILT
@@ -316,6 +321,7 @@ cet_test(ProductMix_r1 HANDBUILT
   TEST_ARGS --rethrow-all -c "ProductMix_r1.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
@@ -327,6 +333,7 @@ cet_test(ProductMix_r1a HANDBUILT
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1a.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
@@ -338,18 +345,27 @@ cet_test(ProductMix_r1b HANDBUILT
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1b.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
-# with secondary input file wrappring and eventsToSkip().
+# with secondary input file wrappring and no eventsToSkip().
 cet_test(ProductMix_r1c1 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
+SET_TESTS_PROPERTIES(ProductMix_r1c1
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
+  )
+
+# Mix the events from ProductMix_w, testing that things behave properly
+# with secondary input file wrappring and eventsToSkip().
 cet_test(ProductMix_r1c2 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
@@ -357,8 +373,16 @@ cet_test(ProductMix_r1c2 HANDBUILT
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
   fcl/ProductMix_r1c2.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
+SET_TESTS_PROPERTIES(ProductMix_r1c2
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
+  )
+
+# Mix the events from ProductMix_w, testing that things behave properly
+# with secondary input file wrappring and eventsToSkip() const.
 cet_test(ProductMix_r1c3 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
@@ -366,7 +390,13 @@ cet_test(ProductMix_r1c3 HANDBUILT
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
   fcl/ProductMix_r1c3.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
+
+SET_TESTS_PROPERTIES(ProductMix_r1c2
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
+  )
 
 # Mix the events from ProductMix_w, testing that we correctly detect an
 # inappropriate attempt to dereference a Ptr.
@@ -376,6 +406,7 @@ cet_test(ProductMix_r1d HANDBUILT
   DATAFILES
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1d.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
 # Read the output from ProductMix_r1a running the analysis to ensure that
@@ -385,6 +416,7 @@ cet_test(ProductMix_r2 HANDBUILT
   TEST_ARGS --rethrow-all -c "ProductMix_r2.fcl"
   DATAFILES
   fcl/ProductMix_r2.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_r1
 )
 
 cet_test(Ptrmv_w HANDBUILT
@@ -399,41 +431,15 @@ cet_test(Ptrmv_r HANDBUILT
   TEST_ARGS --rethrow-all -c "Ptrmv_r.fcl"
   DATAFILES
   fcl/Ptrmv_r.fcl
+  TEST_PROPERTIES DEPENDS Ptrmv_w
 )
-
-if ((${CMAKE_VERSION} VERSION_EQUAL "2.8") OR
-    (${CMAKE_VERSION} VERSION_GREATER "2.8"))
-  # For parallel testing, enforce a loose order.
-  SET_TESTS_PROPERTIES(BareString_r PROPERTIES DEPENDS BareString_w)
-  SET_TESTS_PROPERTIES(ToyRawInput_r1 PROPERTIES DEPENDS ToyRawInput_w)
-  SET_TESTS_PROPERTIES(ToyRawInput_r2 PROPERTIES DEPENDS ToyRawInput_w)
-  SET_TESTS_PROPERTIES(ToyRawInput_r3 PROPERTIES DEPENDS ToyRawInput_w)
-  SET_TESTS_PROPERTIES(ProductMix_r1 PROPERTIES DEPENDS ProductMix_w)
-  SET_TESTS_PROPERTIES(ProductMix_r1a PROPERTIES DEPENDS ProductMix_w)
-  SET_TESTS_PROPERTIES(ProductMix_r1b PROPERTIES DEPENDS ProductMix_w)
-  SET_TESTS_PROPERTIES(ProductMix_r1c1
-    PROPERTIES DEPENDS ProductMix_w
-    PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
-)
-  SET_TESTS_PROPERTIES(ProductMix_r1c2
-    PROPERTIES DEPENDS ProductMix_w
-    PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
-)
-  SET_TESTS_PROPERTIES(ProductMix_r1c2
-    PROPERTIES DEPENDS ProductMix_w
-    PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
-)
-  SET_TESTS_PROPERTIES(ProductMix_r1d PROPERTIES DEPENDS ProductMix_w)
-  SET_TESTS_PROPERTIES(ProductMix_r2 PROPERTIES DEPENDS ProductMix_r1)
-  SET_TESTS_PROPERTIES(Ptrmv_r PROPERTIES DEPENDS Ptrmv_w)
-endif()
 
 cet_test(ProductIDGetter_t HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS --rethrow-all -c "ProductIDGetter_t.fcl"
   DATAFILES
   fcl/ProductIDGetter_t.fcl
-)
+  )
 
 cet_test(Assns_w HANDBUILT
   TEST_EXEC art_ut
@@ -459,7 +465,7 @@ cet_test(DropOnInput_null_t HANDBUILT
   DATAFILES
   fcl/DropOnInput_null_t.fcl
   fcl/DropOnInput_t.fcl
-  TEST_PROPERTIES WILL_FAIL true
+  TEST_PROPERTIES WILL_FAIL true DEPENDS Ptrmv_w
 )
 
 cet_test(DropOnInput_t HANDBUILT
@@ -467,6 +473,7 @@ cet_test(DropOnInput_t HANDBUILT
   TEST_ARGS --rethrow-all -c "DropOnInput_t.fcl"
   DATAFILES
   fcl/DropOnInput_t.fcl
+  TEST_PROPERTIES DEPENDS Ptrmv_w
 )
 
 cet_test(DropOnInput_r HANDBUILT
@@ -474,11 +481,79 @@ cet_test(DropOnInput_r HANDBUILT
   TEST_ARGS --rethrow-all -c "DropOnInput_r.fcl"
   DATAFILES
   fcl/DropOnInput_r.fcl
+  TEST_PROPERTIES DEPENDS DropOnInput_t
 )
 
-SET_TESTS_PROPERTIES(DropOnInput_null_t PROPERTIES DEPENDS Ptrmv_w)
-SET_TESTS_PROPERTIES(DropOnInput_t PROPERTIES DEPENDS Ptrmv_w)
-SET_TESTS_PROPERTIES(DropOnInput_r PROPERTIES DEPENDS DropOnInput_t)
+# Write a data file containing stored products and stored random number
+# states for subsequent tests.
+cet_test(RandomNumberTestEventSave_w HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestEventSave_w.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_w.fcl
+)
+
+# Test the ability to restore random number states from data product.
+cet_test(RandomNumberTestEventSave_r1 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestEventSave_r.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_r.fcl
+  TEST_PROPERTIES DEPENDS RandomNumberTestEventSave_w
+)
+
+# Test that we get numbers out of sync. when we do *not* restore the
+# state from data product
+cet_test(RandomNumberTestEventSave_r2 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestEventSave_r2.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_r.fcl
+  fcl/RandomNumberTestEventSave_r2.fcl
+  TEST_PROPERTIES WILL_FAIL true
+  DEPENDS RandomNumberTestEventSave_w
+)
+
+# Write the state file terminating normally after 9 events.
+cet_test(RandomNumberTestFileSave_wA HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_wA.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_r.fcl
+  fcl/RandomNumberTestFileSave_wA.fcl
+  TEST_PROPERTIES DEPENDS RandomNumberTestEventSave_w
+)
+
+# Read the normal-termination state file to process the 10th event.
+cet_test(RandomNumberTestFileSave_rA HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_rA.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_r.fcl
+  fcl/RandomNumberTestFileSave_rA.fcl
+  TEST_PROPERTIES DEPENDS RandomNumberTestFileSave_wA
+)
+
+# Write the state file terminating abnormally in event #10.
+cet_test(RandomNumberTestFileSave_wB HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_wB.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_r.fcl
+  fcl/RandomNumberTestFileSave_wB.fcl
+  TEST_PROPERTIES WILL_FAIL true
+  DEPENDS RandomNumberTestEventSave_w
+)
+
+# Read the abnormal-termination state file to process the 10th event.
+cet_test(RandomNumberTestFileSave_rB HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "RandomNumberTestFileSave_rB.fcl"
+  DATAFILES
+  fcl/RandomNumberTestEventSave_r.fcl
+  fcl/RandomNumberTestFileSave_rB.fcl
+  TEST_PROPERTIES DEPENDS RandomNumberTestFileSave_wB
+)
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
