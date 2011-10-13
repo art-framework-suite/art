@@ -202,13 +202,10 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
   "Assertion `outR \\|\\| inR' failed"
   )
 
-SET_TESTS_PROPERTIES(ToyRawInput_t_03 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Assertion `outSR \\|\\| inSR' failed"
-  )
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_04 PROPERTIES
-  PASS_REGULAR_EXPRESSION
+SET_TESTS_PROPERTIES(
+  ToyRawInput_t_03
+  ToyRawInput_t_04
+  PROPERTIES   PASS_REGULAR_EXPRESSION
   "Assertion `outSR \\|\\| inSR' failed"
   )
 
@@ -376,11 +373,6 @@ cet_test(ProductMix_r1c2 HANDBUILT
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
-SET_TESTS_PROPERTIES(ProductMix_r1c2
-  PROPERTIES
-  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
-  )
-
 # Mix the events from ProductMix_w, testing that things behave properly
 # with secondary input file wrappring and eventsToSkip() const.
 cet_test(ProductMix_r1c3 HANDBUILT
@@ -393,7 +385,9 @@ cet_test(ProductMix_r1c3 HANDBUILT
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
-SET_TESTS_PROPERTIES(ProductMix_r1c2
+SET_TESTS_PROPERTIES(
+  ProductMix_r1c2
+  ProductMix_r1c3
   PROPERTIES
   PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
   )
