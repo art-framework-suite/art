@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/FileIndex.h"
 #include "art/Persistency/Provenance/History.h"
 #include "cpp0x/functional"
@@ -96,13 +97,23 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
   canWrapFiles_(pset.get<bool>("wrapFiles", false)),
   ffVersion_(),
   ptpBuilder_(),
-  dist_(ServiceHandle<RandomNumberGenerator>()->getEngine()),
+  dist_(),
   eventIDIndex_(),
   currentFile_(),
   currentMetaDataTree_(),
   currentEventTree_(),
   dataBranches_()
 {
+  if (readMode_ == RANDOM) {
+    if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+      dist_.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
+    } else {
+      throw Exception(errors::Configuration, "MixHelper")
+        << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
+        << "Ensure service is loaded with: \n"
+        << "services.RandomNumberGenerator: {}\n";
+    }
+  }
   if (coverageFraction_ > (1 + std::numeric_limits<double>::epsilon())) {
     mf::LogWarning("Configuration")
         << "coverageFraction > 1: treating as a percentage.\n";
@@ -258,7 +269,7 @@ generateEventSequence(size_t nSecondaries,
                     nSecondaries,
                     std::bind(static_cast<long(CLHEP::RandFlat:: *)(long)>
                               (&CLHEP::RandFlat::fireInt), // Resolve overload.
-                              &dist_, nEventsInFile_));
+                              dist_.get(), nEventsInFile_));
     std::sort(enSeq.begin(), enSeq.end());
   }
   std::transform(enSeq.begin(),

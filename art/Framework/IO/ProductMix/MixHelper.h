@@ -259,7 +259,7 @@ private:
   bool canWrapFiles_;
   FileFormatVersion ffVersion_;
   ProdToProdMapBuilder ptpBuilder_;
-  CLHEP::RandFlat dist_;
+  std::auto_ptr<CLHEP::RandFlat> dist_;
   std::function < size_t () > eventsToSkip_;
 
   // Root-specific state.

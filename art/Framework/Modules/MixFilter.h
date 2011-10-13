@@ -66,7 +66,7 @@
 #include "art/Framework/IO/ProductMix/MixContainerTypes.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cpp0x/type_traits"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -253,6 +253,8 @@ public:
   virtual bool filter(art::Event & e);
 
 private:
+  fhicl::ParameterSet const &
+  initEngine(fhicl::ParameterSet const & p);
   MixHelper helper_;
   MixDetail detail_;
 };
@@ -261,15 +263,16 @@ template <class T>
 art::MixFilter<T>::MixFilter(fhicl::ParameterSet const & p)
   :
   EDFilter(),
-  helper_((createEngine(get_seed_value(p)), p), *this), // See note below
+  helper_(initEngine(p), *this), // See note below
   detail_(p, helper_)
 {
   // Note that the random number engine is created in the initializer
-  // list as part of a comma-separated argument bundle to the
-  // constructor of MixHelper. This enables the engine to be obtained
-  // by the helper and or detail objects in their constructors via a
-  // service handle to the random number generator service. Do NOT
-  // remove the seemingly-superfluous parentheses.
+  // list by calling initEngine(). This enables the engine to be
+  // obtained by the helper and or detail objects in their constructors
+  // via a service handle to the random number generator service. The
+  // initEngine() function returns a ParameterSet simply so that it may
+  // be called in this place without having to resort to comma-separated
+  // bundles to do the job.
   typename std::conditional<detail::has_eventsToSkip<T>::value, detail::setup_eventsToSkip<T>, detail::do_not_setup_eventsToSkip<T> >::type
   maybe_setup_skipper(helper_, detail_);
 }
@@ -316,6 +319,17 @@ art::MixFilter<T>::filter(art::Event & e)
            maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return true;
+}
+
+template <class T>
+fhicl::ParameterSet const &
+art::MixFilter<T>::initEngine(fhicl::ParameterSet const & p) {
+  // If we can't create one of these, the helper will deal with the
+  // situation accordingly.
+  if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+    createEngine(get_seed_value(p));
+  }
+  return p;
 }
 
 #endif /* art_Framework_Modules_MixFilter_h */
