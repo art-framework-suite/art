@@ -1,9 +1,5 @@
 process_name: "SREAD"
 
-services.user: {
-  RandomNumberGenerator: { }
-}
-
 physics:
 {
   filters:
