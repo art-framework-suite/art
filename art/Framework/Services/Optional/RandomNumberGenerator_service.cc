@@ -455,6 +455,7 @@ void
   for( dict_t::const_iterator it = dict_.begin()
                             , e  = dict_.end(); it != e; ++it ) {
     //label_t const &  label = it->first;
+    outfile << it->first << '\n';
     eptr_t  const &  eptr  = it->second;
     assert( eptr != 0 && "RNGservice::saveToFile_()" );
 
@@ -488,23 +489,38 @@ void
   while( infile >> label ) {
     dict_t::iterator  d = dict_.find( label );
     if( d == dict_.end() ) {
-      eptr_t &  eptr  = d->second;
-      assert( eptr != 0 && "RNGservice::restoreFromFile_()" );
+      throw Exception(errors::Configuration, "RANDOM")
+        << "Attempt to restore an engine with label "
+        << label
+        << " not configured in this job.\n";
+    }
+    eptr_t &  eptr  = d->second;
+    assert( eptr != 0 && "RNGservice::restoreFromFile_()" );
+    assert(tracker_.find(label) != tracker_.end() && "RNGservice::restoreFromFile_()");
+    init_t & how(tracker_[label]);
+    if (how == VIA_SEED) { // OK
       if( ! eptr->get(infile) ) {
         throw cet::exception("RANDOM")
           << "RNGservice::restoreFromFile_():\n"
-             "Failed during restore of state of engine for: " << label
-              << "from file \"" << restoreFromFilename_ << "\"\n";
+          << "Failed during restore of state of engine for label "
+          << label
+          << "from file \"" << restoreFromFilename_ << "\"\n";
       }
-      tracker_[label] = VIA_FILE;
-    }
-    else {
-      throw cet::exception("RANDOM")
-        << "RNGservice::restoreFromFile_():\n"
-           "Engine \"" << label << "\" has already been established.\n";
+      how = VIA_FILE;
+    } else if (how == VIA_FILE) {
+      throw Exception(errors::Configuration, "RANDOM")
+        << "Engine state file contains two engine states with the "
+        << "same label: "
+        << label
+        << "\n.";
+    } else {
+      throw Exception(errors::LogicError, "RANDOM")
+        << "Internal error: attempt to restore an engine state "
+        << label
+        << " from file\nwhich was originally initialized via an "
+        << " unknown or impossible method.\n";
     }
   }
-
   assert( invariant_holds_() && "RNGservice::restoreFromFile_()" );
 }  // restoreFromFile_()
 
