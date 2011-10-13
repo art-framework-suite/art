@@ -173,6 +173,7 @@ namespace art {
   class Timestamp;
 
   class EngineCreator;      // to be granted friendship
+  class EventProcessor;     // to be granted friendship
   class RandomNumberSaver;  // to be granted friendship
 
   class RandomNumberGenerator;
@@ -187,6 +188,7 @@ namespace CLHEP {
 class art::RandomNumberGenerator
 {
   friend class EngineCreator;
+  friend class EventProcessor;
   friend class RandomNumberSaver;
 
   // --- Prevent copying:

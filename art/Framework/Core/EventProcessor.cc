@@ -11,6 +11,8 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
@@ -35,7 +37,7 @@
 #include <string>
 #include <vector>
 
-                                      using std::shared_ptr;
+using std::shared_ptr;
 using fhicl::ParameterSet;
 
 namespace art {
@@ -1009,9 +1011,7 @@ namespace art {
     // We've seen crashes which are not understood when that is not
     // done.  Maintainers of this code should be careful about this.
     catch (cet::exception & e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
+      terminateAbnormally();
       e << "cet::exception caught in EventProcessor and rethrown\n";
       e << exceptionMessageSubRuns_;
       e << exceptionMessageRuns_;
@@ -1019,9 +1019,7 @@ namespace art {
       throw e;
     }
     catch (std::bad_alloc & e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
+      terminateAbnormally();
       throw cet::exception("std::bad_alloc")
           << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
           << "The job has probably exhausted the virtual memory available to the process.\n"
@@ -1030,9 +1028,7 @@ namespace art {
           << exceptionMessageFiles_;
     }
     catch (std::exception & e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
+      terminateAbnormally();
       throw cet::exception("StdException")
           << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
           << "Previous information:\n" << e.what() << "\n"
@@ -1041,9 +1037,7 @@ namespace art {
           << exceptionMessageFiles_;
     }
     catch (std::string const & e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
+      terminateAbnormally();
       throw cet::exception("Unknown")
           << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
           << e
@@ -1053,9 +1047,7 @@ namespace art {
           << exceptionMessageFiles_;
     }
     catch (char const * e) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
+      terminateAbnormally();
       throw cet::exception("Unknown")
           << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
           << e
@@ -1065,9 +1057,7 @@ namespace art {
           << exceptionMessageFiles_;
     }
     catch (...) {
-      alreadyHandlingException_ = true;
-      terminateMachine();
-      alreadyHandlingException_ = false;
+      terminateAbnormally();
       throw cet::exception("Unknown")
           << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
           << exceptionMessageSubRuns_
@@ -1331,5 +1321,18 @@ namespace art {
       }
       machine_.reset();
     }
+  }
+
+  void EventProcessor::terminateAbnormally() try
+  {
+    alreadyHandlingException_ = true;
+    if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+      ServiceHandle<RandomNumberGenerator>()->saveToFile_();
+    }
+    terminateMachine();
+    alreadyHandlingException_ = false;
+  }
+  catch (...)
+  {
   }
 }

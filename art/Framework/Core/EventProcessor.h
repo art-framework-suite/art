@@ -286,6 +286,7 @@ namespace art {
 
     StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
     void terminateMachine();
+    void terminateAbnormally();
 
     StatusCode doneAsync(event_processor::Msg m);
 

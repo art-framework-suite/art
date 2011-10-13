@@ -319,7 +319,7 @@ base_engine_t &
   tracker_[label] = VIA_SEED;
   kind_   [label] = requested_engine_kind;
 
-  mf::LogInfo  log("RANDOM");
+  mf::LogInfo log("RANDOM");
   log << "Instantiated " << requested_engine_kind
       << " engine \"" << label
       << "\" with ";
@@ -343,7 +343,7 @@ void
   if( !debug_  ||  ++ncalls > nPrint_ )
     return;
 
-  mf::LogInfo  log("RANDOM");
+  mf::LogInfo log("RANDOM");
 
   if( snapshot_.size() == 0 ) {
     log << "No snapshot has yet been made.\n";
@@ -365,7 +365,7 @@ void
   RNGservice::
   takeSnapshot_( )
 {
-  mf::LogInfo  log("RANDOM");
+  mf::LogDebug log("RANDOM");
   log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
 
   snapshot_.clear();
@@ -400,7 +400,7 @@ void
   for( saved_t::const_iterator it = saved->begin()
                              , e  = saved->end(); it != e; ++it ) {
     label_t const &  label = it->label();
-    mf::LogInfo  log("RANDOM");
+    mf::LogInfo log("RANDOM");
     log << "RNGservice::restoreSnapshot_(): label \"" << label << "\"";
 
     tracker_t::iterator  t = tracker_.find( label );
@@ -530,6 +530,9 @@ void
   RNGservice::
   postEndJob( )
 {
+  // For normal termination, we wish to save the state at the *end* of
+  // processing, not that at the beginning of the last event.
+  takeSnapshot_();
   saveToFile_();
 }  // postEndJob()
 
