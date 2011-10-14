@@ -10,12 +10,15 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
 #include "cpp0x/algorithm"
 #include "fhiclcpp/ParameterSet.h"
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -45,6 +48,10 @@ private:
   virtual void
     writeSubRun( SubRunPrincipal const & sr );
 
+  template <typename P>
+  void
+  printPrincipal(P const & p);
+
   bool wantOnDemandProduction;
 
 };  // FileDumperOutput
@@ -61,6 +68,30 @@ private:
 void
   FileDumperOutput::write( EventPrincipal const & e )
 {
+  printPrincipal(e);
+}
+
+// ----------------------------------------------------------------------
+
+void
+  FileDumperOutput::writeRun( RunPrincipal const & r )
+{
+  printPrincipal(r);
+}
+
+// ----------------------------------------------------------------------
+
+void
+  FileDumperOutput::writeSubRun( SubRunPrincipal const & sr )
+{
+  printPrincipal(sr);
+}
+
+template <typename P>
+void
+FileDumperOutput::printPrincipal(P const & p) {
+  if (!p.size()) return; // Nothing to do.
+
   // prepare the data structure, a sequence of columns:
   typedef  std::vector<std::string>  column;
   unsigned int ncols = 5;
@@ -73,13 +104,19 @@ void
   col[3].push_back("DATA PRODUCT TYPE");
   col[4].push_back("SIZE");
 
+  size_t present = 0;
+  size_t not_present = 0;
   // insert the per-product data:
-  for( EventPrincipal::const_iterator it  = e.begin()
-                                    , end = e.end(); it != end; ++it ) {
+  for(typename P::const_iterator
+        it  = p.begin(),
+        end = p.end();
+      it != end;
+      ++it ) {
     Group const & g = *(it->second);
     try {
       if (!g.resolveProduct(wantOnDemandProduction, g.producedWrapperType()))
         throw Exception(errors::DataCorruption, "data corruption");
+      ++present;
     }
     catch( art::Exception const & e ) {
       if( e.category() != "ProductNotFound" )
@@ -87,19 +124,19 @@ void
       if( g.anyProduct() )
         throw art::Exception(errors::LogicError, "FileDumperOutput module", e)
           << "Product reported as not present, but is pointed to nonetheless!";
+      ++not_present;
     }
 
     col[0].push_back( g.processName() );
     col[1].push_back( g.moduleLabel() );
     col[2].push_back( g.productInstanceName() );
+    col[3].push_back( g.productDescription().producedClassName() );
 
     if( g.anyProduct() ) {
-      col[3].push_back( g.productDescription().producedClassName() );
       col[4].push_back( g.anyProduct()->productSize() );
     }
     else {
-      col[3].push_back( "unknown" );
-      col[4].push_back( "?" );
+      col[4].push_back( g.onDemand() ? "o/d" : "?");
     }
   }
 
@@ -121,22 +158,13 @@ void
     std::cout << s << '\n';
   }
 
-}
-
-// ----------------------------------------------------------------------
-
-void
-  FileDumperOutput::writeRun( RunPrincipal const & e )
-{
-  // required by base class, but nothing to be done here
-}
-
-// ----------------------------------------------------------------------
-
-void
-  FileDumperOutput::writeSubRun( SubRunPrincipal const & e )
-{
-  // required by base class, but nothing to be done here
+  std::cout << "\nTotal products (present, not present): "
+            << present + not_present
+            << " ("
+            << present
+            << ", "
+            << not_present
+            << ").\n\n";
 }
 
 // ======================================================================
