@@ -13,8 +13,11 @@
 //    T(fhicl::ParameterSet const &p, art::MixHelper &helper);
 //
 //    // Construct an object of type T. The ParameterSet provided will
-//    // be the configuration of the module constructing the T. The
-//    // helper is not copyable and must be used in the constructor to
+//    // be the configuration of the module constructing the T. It is
+//    // recommended (but not enforced) that detail parameters be placed
+//    // in their own (eg "detail") ParameterSet to reduce the potential
+//    // for clashes with parameters used by the template. The helper
+//    // is not copyable and must be used in the constructor to
 //    // register:
 //    //
 //    // a. Any mixing operations to be carried out by this module by
