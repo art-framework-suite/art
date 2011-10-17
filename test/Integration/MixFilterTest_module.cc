@@ -18,14 +18,19 @@
 
 namespace arttest {
   class MixFilterTestDetail;
-#if ! defined  ART_TEST_EVENTS_TO_SKIP_CONST
-#  define ART_MFT MixFilterTest
-#elif ART_TEST_EVENTS_TO_SKIP_CONST
+#if ART_TEST_EVENTS_TO_SKIP_CONST
 #  define ART_MFT MixFilterTestETSc
 #  define ART_TEST_EVENTS_TO_SKIP_CONST_TXT const
-#else
+#elif defined ART_TEST_EVENTS_TO_SKIP_CONST
 #  define ART_MFT MixFilterTestETS
 #  define ART_TEST_EVENTS_TO_SKIP_CONST_TXT
+#elif defined ART_TEST_OLD_STARTEVENT
+#  define ART_MT MixFilterTestOldStartEvent
+#elif defined ART_TEST_NO_STARTEVENT
+#  define ART_MT MixFilterTestNoStartEvent
+#else
+// Normal case
+#  define ART_MFT MixFilterTest
 #endif
   typedef art::MixFilter<MixFilterTestDetail> ART_MFT;
 }
@@ -42,8 +47,13 @@ public:
   MixFilterTestDetail(fhicl::ParameterSet const & p,
                       art::MixHelper & helper);
 
+#ifdef ART_TEST_OLD_STARTEVENT
+  // Old startEvent signature -- check it still works
+  void startEvent();
+#elif ! defined ART_TEST_NO_STARTEVENT
   // Optional startEvent(Event const &): initialize state for each event,
   void startEvent(art::Event const &);
+#endif
 
   // Return the number of secondaries to read this time. Declare const
   // if you don't plan to change your class' state.
@@ -183,14 +193,21 @@ MixFilterTestDetail(fhicl::ParameterSet const & p,
    &MixFilterTestDetail::mixmap_vectorPtrs, *this);
 }
 
+#ifndef ART_TEST_NO_STARTEVENT
 void
 arttest::MixFilterTestDetail::
+#  ifdef ART_TEST_OLD_STARTEVENT
+startEvent()
+#  else
+// Normal case
 startEvent(art::Event const &)
+#  endif
 {
   startEvent_called_ = true;
   eIDs_.reset();
   ++currentEvent_;
 }
+#endif
 
 size_t
 arttest::MixFilterTestDetail::
@@ -203,6 +220,10 @@ void
 arttest::MixFilterTestDetail::
 processEventIDs(art::EventIDSequence const & seq)
 {
+#ifdef ART_TEST_NO_STARTEVENT
+// Need to deal with this here
+  ++currentEvent_;
+#endif
   processEventIDs_called_ = true;
   eIDs_.reset(new art::EventIDSequence(seq));
 }
@@ -213,9 +234,11 @@ finalizeEvent(art::Event & e)
 {
   e.put(std::auto_ptr<std::string>(new std::string("BlahBlahBlah")));
   e.put(eIDs_);
+#ifndef ART_TEST_NO_STARTEVENT
   BOOST_REQUIRE(startEvent_called_);
-  BOOST_REQUIRE(processEventIDs_called_);
   startEvent_called_ = false;
+#endif
+  BOOST_REQUIRE(processEventIDs_called_);
   processEventIDs_called_ = false;
 }
 

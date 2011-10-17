@@ -100,22 +100,33 @@ namespace art {
         sizeof(has_old_startEvent_helper<X>(0)) == sizeof(yes_tag);
     };
 
+    template <typename T> struct do_call_old_startEvent {
+  public:
+      void operator()(T & t) {
+        static bool need_warning = true;
+        if (need_warning) {
+          mf::LogWarning("Deprecated")
+            << "Mixing driver function has signature startEvent(), which is deprecated.\n"
+            << "Please update your code to define startEvent(Event const &).\n"
+            << "In a future version of ART the old method will no longer be called.";
+          need_warning = false;
+        }
+        t.startEvent();
+      }
+    };
+
+    template <typename T> struct do_not_call_old_startEvent {
+      void operator()(T&) { }
+    };
+
     template <typename T> struct do_not_call_startEvent {
     public:
       do_not_call_startEvent(Event const &) { }
       void operator()(T & t) {
-        static bool need_warning =
-          has_old_startEvent<T>::value;
-        if (has_old_startEvent<T>::value) {
-          if (need_warning) {
-            mf::LogWarning("Deprecated")
-                << "Mixing driver function has signature startEvent(), which is deprecated.\n"
-                << "Please update your code to define startEvent(Event const &).\n"
-                << "In a future version of ART the old method will no longer be called.";
-            need_warning = false;
-          }
-          t.startEvent();
-        }
+        typename std::conditional<has_old_startEvent<T>::value,
+          do_call_old_startEvent<T>,
+          do_not_call_old_startEvent<T> >::type maybe_call_old_startEvent;
+        maybe_call_old_startEvent(t);
       }
     private:
     };

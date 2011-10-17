@@ -1,0 +1,3 @@
+#include "ProductMix_r1.fcl"
+
+physics.filters.mixFilter.module_type: MixFilterTestOldStartEvent

@@ -9,50 +9,60 @@ set_source_files_properties(MixFilterTestETSc_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=1
 )
 
-simple_plugin(AddIntsProducer          "module" NOINSTALL )
-simple_plugin(AssnsAnalyzer            "module" NOINSTALL )
-simple_plugin(AssnsProducer            "module" NOINSTALL )
-simple_plugin(BareStringAnalyzer       "module" NOINSTALL )
-simple_plugin(BareStringProducer       "module" NOINSTALL )
-simple_plugin(DerivedPtrVectorProducer "module" NOINSTALL )
-simple_plugin(DoubleProducer           "module" NOINSTALL )
-simple_plugin(DoubleTestAnalyzer       "module" NOINSTALL )
-simple_plugin(DropOnInputTestAnalyzer  "module" NOINSTALL )
-simple_plugin(FailingAnalyzer          "module" NOINSTALL )
-simple_plugin(FailingProducer          "module" NOINSTALL )
-simple_plugin(IntProducer              "module" NOINSTALL )
-simple_plugin(IntTestAnalyzer          "module" NOINSTALL )
-simple_plugin(IntVectorAnalyzer        "module" NOINSTALL )
-simple_plugin(IntVectorProducer        "module" NOINSTALL )
-simple_plugin(MixAnalyzer              "module" NOINSTALL )
-simple_plugin(MixFilterTest            "module" art_Framework_IO_ProductMix NOINSTALL )
-simple_plugin(MixFilterTestETS         "module" art_Framework_IO_ProductMix NOINSTALL )
-simple_plugin(MixFilterTestETSc        "module" art_Framework_IO_ProductMix NOINSTALL )
-simple_plugin(MixProducer              "module" NOINSTALL )
-simple_plugin(MockClusterListAnalyzer  "module" NOINSTALL )
-simple_plugin(MockClusterListProducer  "module" NOINSTALL )
-simple_plugin(ProductIDGetter          "module" NOINSTALL )
-simple_plugin(ProductIDGetterAnalyzer  "module" NOINSTALL )
-simple_plugin(PtrListAnalyzer          "module" NOINSTALL )
-simple_plugin(PtrVectorAnalyzer        "module" NOINSTALL )
-simple_plugin(PtrVectorProducer        "module" NOINSTALL )
-simple_plugin(PtrmvProducer            "module" NOINSTALL )
-simple_plugin(PtrmvAnalyzer            "module" NOINSTALL )
-simple_plugin(RandomNumberSaveTest     "module" NOINSTALL )
-simple_plugin(Reconfigurable           "service" NOINSTALL )
-simple_plugin(Reconfiguring            "module" NOINSTALL )
-simple_plugin(SimpleDerivedAnalyzer    "module" NOINSTALL )
-simple_plugin(SimpleDerivedProducer    "module" NOINSTALL )
-simple_plugin(TestBitsOutput           "module" NOINSTALL )
-simple_plugin(TestFilter               "module" NOINSTALL )
-simple_plugin(TestOutput               "module" NOINSTALL )
-simple_plugin(TestProvenanceDumper     "module" NOINSTALL )
-simple_plugin(TestResultAnalyzer       "module" NOINSTALL )
-simple_plugin(Throwing                 "service" NOINSTALL )
-simple_plugin(ToyRawInput              "source" NOINSTALL )
-simple_plugin(ToyRawInputTester        "module" NOINSTALL )
-simple_plugin(ToyRawProductAnalyzer    "module" NOINSTALL )
-simple_plugin(U_S                      "module" ALLOW_UNDERSCORES NOINSTALL )
+set_source_files_properties(MixFilterTestNoStartEvent_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_NO_STARTEVENT
+)
+
+set_source_files_properties(MixFilterTestOldStartEvent_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_OLD_STARTEVENT
+)
+
+simple_plugin(AddIntsProducer            "module" NOINSTALL )
+simple_plugin(AssnsAnalyzer              "module" NOINSTALL )
+simple_plugin(AssnsProducer              "module" NOINSTALL )
+simple_plugin(BareStringAnalyzer         "module" NOINSTALL )
+simple_plugin(BareStringProducer         "module" NOINSTALL )
+simple_plugin(DerivedPtrVectorProducer   "module" NOINSTALL )
+simple_plugin(DoubleProducer             "module" NOINSTALL )
+simple_plugin(DoubleTestAnalyzer         "module" NOINSTALL )
+simple_plugin(DropOnInputTestAnalyzer    "module" NOINSTALL )
+simple_plugin(FailingAnalyzer            "module" NOINSTALL )
+simple_plugin(FailingProducer            "module" NOINSTALL )
+simple_plugin(IntProducer                "module" NOINSTALL )
+simple_plugin(IntTestAnalyzer            "module" NOINSTALL )
+simple_plugin(IntVectorAnalyzer          "module" NOINSTALL )
+simple_plugin(IntVectorProducer          "module" NOINSTALL )
+simple_plugin(MixAnalyzer                "module" NOINSTALL )
+simple_plugin(MixFilterTest              "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixFilterTestETS           "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixFilterTestETSc          "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixFilterTestNoStartEvent  "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixFilterTestOldStartEvent "module" art_Framework_IO_ProductMix NOINSTALL )
+simple_plugin(MixProducer                "module" NOINSTALL )
+simple_plugin(MockClusterListAnalyzer    "module" NOINSTALL )
+simple_plugin(MockClusterListProducer    "module" NOINSTALL )
+simple_plugin(ProductIDGetter            "module" NOINSTALL )
+simple_plugin(ProductIDGetterAnalyzer    "module" NOINSTALL )
+simple_plugin(PtrListAnalyzer            "module" NOINSTALL )
+simple_plugin(PtrVectorAnalyzer          "module" NOINSTALL )
+simple_plugin(PtrVectorProducer          "module" NOINSTALL )
+simple_plugin(PtrmvProducer              "module" NOINSTALL )
+simple_plugin(PtrmvAnalyzer              "module" NOINSTALL )
+simple_plugin(RandomNumberSaveTest       "module" NOINSTALL )
+simple_plugin(Reconfigurable             "service" NOINSTALL )
+simple_plugin(Reconfiguring              "module" NOINSTALL )
+simple_plugin(SimpleDerivedAnalyzer      "module" NOINSTALL )
+simple_plugin(SimpleDerivedProducer      "module" NOINSTALL )
+simple_plugin(TestBitsOutput             "module" NOINSTALL )
+simple_plugin(TestFilter                 "module" NOINSTALL )
+simple_plugin(TestOutput                 "module" NOINSTALL )
+simple_plugin(TestProvenanceDumper       "module" NOINSTALL )
+simple_plugin(TestResultAnalyzer         "module" NOINSTALL )
+simple_plugin(Throwing                   "service" NOINSTALL )
+simple_plugin(ToyRawInput                "source" NOINSTALL )
+simple_plugin(ToyRawInputTester          "module" NOINSTALL )
+simple_plugin(ToyRawProductAnalyzer      "module" NOINSTALL )
+simple_plugin(U_S                        "module" ALLOW_UNDERSCORES NOINSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 
@@ -383,6 +393,28 @@ cet_test(ProductMix_r1c3 HANDBUILT
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
   fcl/ProductMix_r1c3.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
+)
+
+# Mix the events from ProductMix_w, testing that things behave properly
+# with no startEvent function.
+cet_test(ProductMix_r1d1 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1d1.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1d1.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
+)
+
+# Mix the events from ProductMix_w, testing that things behave properly
+# with an old-signature startEvent function.
+cet_test(ProductMix_r1d2 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProductMix_r1d2.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1d2.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
