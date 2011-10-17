@@ -4,7 +4,7 @@ prog=${0##*/}
 # ======================================================================
 function usage() {
     cat 1>&2 <<EOF
-usage: $prog [-a|--all-lumi-cases] [--one-file <file>] <top-dir>
+usage: $prog [-a|--all-lumi-cases] [--no-fix-pset] [--one-file <file>] <top-dir>
 EOF
 }
 
@@ -49,7 +49,9 @@ function one_file() {
   # Fix edm and cms namespaces
   perl -wapi\~ -f fix-namespaces-1.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix ParameterSet calls
-  perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  if (( ${fix_pset:-1} )); then
+    perl -wapi\~ -f fix-ParameterSet.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+  fi
   # Fix Service -> ServiceHandle
   perl -wapi\~ -f fix-ServiceHandle.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   # Fix for relocated services
@@ -83,7 +85,7 @@ function one_file() {
 
 # ======================================================================
 # Prepare:
-TEMP=`getopt -n "$prog" -o a --long all-lumi-cases --long one-file: -- "${@}"`
+TEMP=`getopt -n "$prog" -o a --long all-lumi-cases --long one-file: --long no-fix-pset -- "${@}"`
 eval set -- "$TEMP"
 while true; do
   case $1 in
@@ -93,6 +95,10 @@ while true; do
       ;;
     --fix-whitespace)
       fix_whitespace=1
+      shift
+      ;;
+    --no-fix-pset)
+      fix_pset=0
       shift
       ;;
     --one-file)
