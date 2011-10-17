@@ -83,7 +83,7 @@ find_ups_boost( v1_46_1 filesystem
                         thread
                         unit_test_framework
  )
-find_ups_product( sqlite3 v3_7_7_1 )
+find_ups_product( sqlite v3_07_08_00 )
 
 # make sure gcc has been set
 # note that gcc has no qualifier

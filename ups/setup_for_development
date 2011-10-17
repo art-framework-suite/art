@@ -50,7 +50,7 @@ setup -j cpp0x v1_02_02 -q a4$extraqual
 setup -j cetlib v1_02_02 -q a4$extraqual
 setup -j fhiclcpp v2_15_02 -q a4$extraqual
 setup -j messagefacility v1_09_02 -q a4$extraqual
-setup -j sqlite3 v3_7_7_1
+setup -j sqlite v3_07_08_00 -q gcc46$extraqual
 
 test $?shell = 1 && set ss=csh || ss=sh
 test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@";}'
