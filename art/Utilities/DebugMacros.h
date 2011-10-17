@@ -17,7 +17,7 @@ namespace art {
 extern debugvalue debugit;
 }
 
-#define FDEBUG(lev) if(lev <= debugit()) std::cerr
+#define FDEBUG(lev) if(lev <= art::debugit()) std::cerr
 
 #endif /* art_Utilities_DebugMacros_h */
 
