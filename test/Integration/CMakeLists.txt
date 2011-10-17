@@ -46,6 +46,7 @@ simple_plugin(SimpleDerivedProducer    "module" NOINSTALL )
 simple_plugin(TestBitsOutput           "module" NOINSTALL )
 simple_plugin(TestFilter               "module" NOINSTALL )
 simple_plugin(TestOutput               "module" NOINSTALL )
+simple_plugin(TestProvenanceDumper     "module" NOINSTALL )
 simple_plugin(TestResultAnalyzer       "module" NOINSTALL )
 simple_plugin(Throwing                 "service" NOINSTALL )
 simple_plugin(ToyRawInput              "source" NOINSTALL )
@@ -548,6 +549,28 @@ cet_test(RandomNumberTestFileSave_rB HANDBUILT
   fcl/RandomNumberTestFileSave_rB.fcl
   TEST_PROPERTIES DEPENDS RandomNumberTestFileSave_wB
 )
+
+# Test the ProvenanceDumper module template (write and check).
+cet_test(ProvenanceDumper_w HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProvenanceDumper_w.fcl"
+  DATAFILES
+  fcl/FileDumperOutputTest_w.fcl
+  fcl/ProvenanceDumper_w.fcl
+)
+
+# Test the ProvenanceDumper module template (read and check).
+foreach(num 1 2 3 4)
+  cet_test(ProvenanceDumper_r${num} HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProvenanceDumper_r${num}.fcl"
+  DATAFILES
+  fcl/FileDumperOutputTest_r.fcl
+  fcl/ProvenanceDumper_r1.fcl
+  fcl/ProvenanceDumper_r${num}.fcl # Should be ignored as dup. as appropriate.
+  TEST_PROPERTIES DEPENDS ProvenanceDumper_w
+  )
+endforeach()
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test

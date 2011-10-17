@@ -1,0 +1,5 @@
+#include "ProvenanceDumper_r1.fcl"
+
+outputs.out1.expectSubRunProducts: false
+
+source.inputCommands: [ "keep *", "drop *_m3_*_*" ]

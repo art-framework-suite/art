@@ -1,0 +1,9 @@
+#include "FileDumperOutputTest_w.fcl"
+
+process_name: "ProcenanveDumperW"
+
+outputs.out1:
+{ module_type: TestProvenanceDumper
+  expectSubRunProducts: true
+  expectRunProducts: true
+}
