@@ -11,8 +11,18 @@ physics: {
       module_type: PtrVectorProducer
       input_label: m1a
     }
+    m2: {
+      module_type: IntProducer
+      ivalue: 1
+      branchType: 1
+    }
+    m3: {
+      module_type: IntProducer
+      ivalue: 2
+      branchType: 2
+    }
   }
-  p1: [ m1a, m1b ]
+  p1: [ m1a, m1b, m2, m3 ]
   trigger_paths: [ p1 ]
 
   e1: [ out1, out2 ]
