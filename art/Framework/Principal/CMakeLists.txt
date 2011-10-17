@@ -39,5 +39,5 @@ install(TARGETS art_Framework_Principal
   ${flavorqual_dir}/lib
   )
 
-install_headers()
+install_headers(SUBDIRS detail)
 install_source()
