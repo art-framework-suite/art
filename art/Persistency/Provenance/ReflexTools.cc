@@ -5,6 +5,7 @@
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
 #include "TClass.h"
+#include "art/Utilities/DebugMacros.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
@@ -56,8 +57,7 @@ namespace {
         std::regex_search(name, reAssns)) {
       TClass *cl = TClass::GetClass(ROOT::Cintex::CintName(name).c_str());
       if (cl) {
-//         mf::LogInfo("IOSplitInfo")
-        mf::LogVerbatim("IOSplitInfo")
+        FDEBUG(1)
           << "Setting NoSplit on class "
           << name
           << "\n";
