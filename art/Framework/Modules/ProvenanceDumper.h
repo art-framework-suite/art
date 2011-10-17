@@ -35,7 +35,7 @@
 //    // DETAIL. It is recommended (but not enforced) that detail
 //    // parameters be placed in their own (eg "detail") ParameterSet to
 //    // reduce the potential for clashes with parameters used by the
-//    // template. 
+//    // template.
 //
 // In addition, T may optionally provide any or all of the following
 // member functions; each will be callled at the appropriate time iff it
@@ -44,7 +44,7 @@
 //
 //    void beginJob();
 //
-//    // Called at the beginning of the job, from the template module's 
+//    // Called at the beginning of the job, from the template module's
 //    // beginJob() member function.
 //
 //    void preProcessEvent();
@@ -94,7 +94,7 @@
 //
 //    void endJob();
 //
-//    // Called at the end of the job, from the template module's 
+//    // Called at the end of the job, from the template module's
 //    // endJob() member function.
 //
 ////////////////////////////////////
@@ -442,8 +442,8 @@ art::ProvenanceDumper<DETAIL>::
 beginJob()
 {
   typename std::conditional < detail::has_detail_beginJob_function<DETAIL>::value,
-    detail::call_detail_beginJob_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callBeginJob(detail_);    
+           detail::call_detail_beginJob_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callBeginJob(detail_);
 }
 
 template <typename DETAIL>
@@ -452,15 +452,15 @@ art::ProvenanceDumper<DETAIL>::
 write(EventPrincipal const & e)
 {
   typename std::conditional < detail::has_detail_preEvent_function<DETAIL>::value,
-    detail::call_detail_preEvent_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
+           detail::call_detail_preEvent_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
   typename std::conditional < detail::has_detail_event_function<DETAIL>::value,
            detail::call_detail_event_function<DETAIL>,
            detail::do_not_call_detail_provenance_function<DETAIL> >::type maybe_processPrincipal(pp_);
   maybe_processPrincipal(e);
   typename std::conditional < detail::has_detail_postEvent_function<DETAIL>::value,
-    detail::call_detail_postEvent_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
+           detail::call_detail_postEvent_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
 }
 
 template <typename DETAIL>
@@ -469,15 +469,15 @@ art::ProvenanceDumper<DETAIL>::
 writeSubRun(SubRunPrincipal const & sr)
 {
   typename std::conditional < detail::has_detail_preSubRun_function<DETAIL>::value,
-    detail::call_detail_preSubRun_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
+           detail::call_detail_preSubRun_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
   typename std::conditional < detail::has_detail_subRun_function<DETAIL>::value,
            detail::call_detail_subRun_function<DETAIL>,
            detail::do_not_call_detail_provenance_function<DETAIL> >::type maybe_processPrincipal(pp_);
   maybe_processPrincipal(sr);
   typename std::conditional < detail::has_detail_postSubRun_function<DETAIL>::value,
-    detail::call_detail_postSubRun_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
+           detail::call_detail_postSubRun_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
 }
 
 template <typename DETAIL>
@@ -486,15 +486,15 @@ art::ProvenanceDumper<DETAIL>::
 writeRun(RunPrincipal const & r)
 {
   typename std::conditional < detail::has_detail_preRun_function<DETAIL>::value,
-    detail::call_detail_preRun_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
+           detail::call_detail_preRun_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPre(detail_);
   typename std::conditional < detail::has_detail_run_function<DETAIL>::value,
            detail::call_detail_run_function<DETAIL>,
            detail::do_not_call_detail_provenance_function<DETAIL> >::type maybe_processPrincipal(pp_);
   maybe_processPrincipal(r);
   typename std::conditional < detail::has_detail_postRun_function<DETAIL>::value,
-    detail::call_detail_postRun_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
+           detail::call_detail_postRun_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callPost(detail_);
 }
 
 template <typename DETAIL>
@@ -503,8 +503,8 @@ art::ProvenanceDumper<DETAIL>::
 endJob()
 {
   typename std::conditional < detail::has_detail_endJob_function<DETAIL>::value,
-    detail::call_detail_endJob_function<DETAIL>,
-    detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callEndJob(detail_);    
+           detail::call_detail_endJob_function<DETAIL>,
+           detail::do_not_call_detail_void_function<DETAIL> >::type maybe_callEndJob(detail_);
 }
 
 #endif /* art_Framework_Modules_ProvenanceDumper_h */

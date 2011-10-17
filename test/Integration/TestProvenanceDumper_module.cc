@@ -24,8 +24,7 @@ public:
     functionsCalled_()
   { }
 
-  ~PDDetail()
-  {
+  ~PDDetail() {
     // Required to be sure that we actually did the main check!
     BOOST_CHECK(functionsCalled_.find("endJob") != functionsCalled_.end());
   }
