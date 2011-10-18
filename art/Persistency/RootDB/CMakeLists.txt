@@ -15,6 +15,9 @@ link_libraries(
   )
 
 add_library(art_Persistency_RootDB SHARED ${art_Persistency_RootDB_suorce} )
-
+install(TARGETS art_Persistency_RootDB
+  DESTINATION
+  ${flavorqual_dir}/lib
+  )
 install_headers()
 install_source()
