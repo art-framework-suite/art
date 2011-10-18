@@ -1,5 +1,5 @@
 set( art_Framework_Services_Optional_sources
-  detail/TFileDirectory.cc
+  TFileDirectory.cc
   detail/TH1AddDirectorySentry.cc
 )
 
@@ -17,7 +17,7 @@ target_link_libraries(art_Framework_Services_Optional
 
 simple_plugin(RandomNumberGenerator "service")
 simple_plugin(SimpleMemoryCheck "service")
-simple_plugin(TFileService "service")
+simple_plugin(TFileService "service" art_Framework_Services_Optional)
 simple_plugin(Timing "service")
 simple_plugin(Tracer "service")
 

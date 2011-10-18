@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Optional/detail/TFileDirectory.h"
+#include "art/Framework/Services/Optional/TFileDirectory.h"
 
 namespace art {
   class ActivityRegistry;   // declaration only

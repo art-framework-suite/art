@@ -2,7 +2,7 @@
 
 #include "TROOT.h"
 #include "TFile.h"
-#include "art/Framework/Services/Optional/detail/TFileDirectory.h"
+#include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "cetlib/exception.h"
 
 using namespace std;
