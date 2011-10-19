@@ -764,7 +764,7 @@ namespace art {
   void
   RootInputFile::dropOnInput(GroupSelectorRules const& rules,
                              bool dropDescendants,
-                             bool dropMergeable,
+                             bool /*dropMergeable*/,
                              ProductList &branchDescriptions) {
     // This is the selector for drop on input.
     GroupSelector groupSelector;

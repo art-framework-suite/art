@@ -17,8 +17,8 @@ namespace art {
 
       template <typename T>
          struct RecordInParentless {
-            void operator()(DataViewImpl::ProductPtrVec &used,
-                            DataViewImpl::ProductPtrVec &ignored,
+            void operator()(DataViewImpl::ProductPtrVec & used,
+                            DataViewImpl::ProductPtrVec & /*ignored*/,
                             Wrapper<T>* wp,
                             BranchDescription const* desc) const {
                used.push_back(std::make_pair(wp, desc));
@@ -27,8 +27,8 @@ namespace art {
 
       template <typename T>
          struct RecordInParentfull {
-            void operator()(DataViewImpl::ProductPtrVec &used,
-                            DataViewImpl::ProductPtrVec &ignored,
+            void operator()(DataViewImpl::ProductPtrVec & used,
+                            DataViewImpl::ProductPtrVec & /*ignored*/,
                             Wrapper<T>* wp,
                             BranchDescription const* desc) const {
                used.push_back(std::make_pair(wp, desc));
@@ -36,8 +36,8 @@ namespace art {
          };  // RecordInParentfull<>
 
       template <typename T>
-         void maybe_record_parents(DataViewImpl::ProductPtrVec &used,
-                                   DataViewImpl::ProductPtrVec &ignored,
+         void maybe_record_parents(DataViewImpl::ProductPtrVec & used,
+                                   DataViewImpl::ProductPtrVec & ignored,
                                    Wrapper<T> *wp,
                                    BranchDescription const *desc) {
          typename std::conditional<

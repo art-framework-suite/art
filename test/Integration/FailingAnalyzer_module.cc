@@ -38,7 +38,7 @@ arttest::FailingAnalyzer::analyze(art::Event const&)
 }
 
 void
-arttest::FailingAnalyzer::makeTrouble(art::Event const& e)
+arttest::FailingAnalyzer::makeTrouble(art::Event const&)
 {
   throw art::Exception(art::errors::ProductNotFound)
     << "Intentional exception for testing purposes\n";

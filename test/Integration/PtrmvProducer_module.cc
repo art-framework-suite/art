@@ -34,7 +34,7 @@ public:
   virtual void produce(art::Event &e);
 };
 
-arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const &p)
+arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const &)
 {
   produces<mv_t>();
   produces<art::Ptr<std::string> >();

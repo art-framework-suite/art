@@ -1,12 +1,12 @@
-#include <iostream>
-#include <iomanip>
+#include "art/Utilities/UnixSignalHandlers.h"
+
+#include "art/Utilities/DebugMacros.h"
 #include <cstdlib>
+#include <exception>
+#include <iomanip>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
-#include <exception>
-
-#include "art/Utilities/UnixSignalHandlers.h"
-#include "art/Utilities/DebugMacros.h"
 
 #if !defined(NSIG)
 #if defined(_NSIG)
@@ -119,7 +119,7 @@ namespace art {
 
 //--------------------------------------------------------------
 
-    void installCustomHandler( const int signum, CFUNC func )
+    void installCustomHandler( const int signum, CFUNC /*func*/ )
     {
       sigset_t oldset;
       art::disableAllSigs(&oldset);

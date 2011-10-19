@@ -274,7 +274,7 @@ Tracer::prePathEvent(std::string const& iName) {
   indent(3) << " processing path for event:" << iName << std::endl;
 }
 void
-Tracer::postPathEvent(std::string const& iName, HLTPathStatus const&) {
+Tracer::postPathEvent(std::string const& /*iName*/, HLTPathStatus const&) {
   indent(3) << " finished path for event:" << std::endl;
 }
 
@@ -309,7 +309,7 @@ Tracer::prePathBeginRun(std::string const& iName) {
 }
 
 void
-Tracer::postPathBeginRun(std::string const& iName, HLTPathStatus const&) {
+Tracer::postPathBeginRun(std::string const& /*iName*/, HLTPathStatus const&) {
   indent(3) << " finished path for begin run:" << std::endl;
 }
 
@@ -340,7 +340,7 @@ Tracer::prePathEndRun(std::string const& iName) {
   indent(3) << " processing path for end run:" << iName << std::endl;
 }
 void
-Tracer::postPathEndRun(std::string const& iName, HLTPathStatus const&) {
+Tracer::postPathEndRun(std::string const& /*iName*/, HLTPathStatus const&) {
   indent(3) << " finished path for end run:" << std::endl;
 }
 
@@ -375,7 +375,7 @@ Tracer::prePathBeginSubRun(std::string const& iName) {
   indent(3) << " processing path for begin subRun:" << iName << std::endl;
 }
 void
-Tracer::postPathBeginSubRun(std::string const& iName, HLTPathStatus const&) {
+Tracer::postPathBeginSubRun(std::string const& /*iName*/, HLTPathStatus const&) {
   indent(3) << " finished path for begin subRun:" << std::endl;
 }
 
@@ -406,7 +406,7 @@ Tracer::prePathEndSubRun(std::string const& iName) {
 }
 
 void
-Tracer::postPathEndSubRun(std::string const& iName, HLTPathStatus const&) {
+Tracer::postPathEndSubRun(std::string const& /*iName*/, HLTPathStatus const&) {
   indent(3) << " finished path for end subRun:" << std::endl;
 }
 

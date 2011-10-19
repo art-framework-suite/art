@@ -1,22 +1,16 @@
-// -*- C++ -*-
-//
-// Package:     Services
-// Class  :     Guess
-//
+#include "art/Framework/Services/UserInteraction/SimpleInteraction.h"
 
-// system include files
-#include <iostream>
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include <cerrno>
 #include <cstdlib>
-#include "art/Framework/Services/UserInteraction/SimpleInteraction.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include <iostream>
 
 using namespace art;
 using namespace std;
 
 namespace ui {
 
-  SimpleInteraction::SimpleInteraction(fhicl::ParameterSet const& iPS,
+  SimpleInteraction::SimpleInteraction(fhicl::ParameterSet const&,
                                        ActivityRegistry& iReg):
     UserInteraction(iReg)
   {

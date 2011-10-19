@@ -74,7 +74,7 @@ art::ProdToProdMapBuilder::buildBranchIDToIndexMap(BranchIDLists const & bidl)
        bidl_beg = bidl.begin(),
        bidl_it = bidl_beg,
        bidl_end = bidl.end();
-       bidl_it != bidl.end();
+       bidl_it != bidl_end;
        ++bidl_it) {
     BranchListIndex blix = bidl_it - bidl_beg;
     for (BranchIDList::const_iterator

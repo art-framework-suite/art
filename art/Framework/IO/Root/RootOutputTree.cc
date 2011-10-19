@@ -88,7 +88,7 @@ namespace art {
   }
 
   void
-  RootOutputTree::fillTTree(TTree * tree, vector<TBranch *> const& branches) {
+  RootOutputTree::fillTTree(TTree * /*tree*/, vector<TBranch *> const& branches) {
     for_all(branches, bind(&TBranch::Fill, _1));
   }
 

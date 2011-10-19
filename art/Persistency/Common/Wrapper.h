@@ -318,7 +318,7 @@ namespace art {
 
   template< class T >
   struct fillView<T, true> {
-    void operator()(T const          &          product
+    void operator()( T const          &          product
                     , std::vector<void const *> & view
                    ) {
       product.fillView(view);
@@ -327,8 +327,8 @@ namespace art {
 
   template< class T >
   struct fillView<T, false> {
-    void operator()(T const          &          product
-                    , std::vector<void const *> & view
+    void operator()( T const                   & /*product*/
+                   , std::vector<void const *> & /*view*/
                    ) {
       throw Exception(errors::ProductDoesNotSupportViews)
           << "Product type " << typeid(T).name()
@@ -338,8 +338,8 @@ namespace art {
 
   template< >
   struct fillView< std::vector<bool>, false > {
-    void operator()(std::vector<bool> const  &  product
-                    , std::vector<void const *> & view
+    void operator()( std::vector<bool> const  &  /*product*/
+                   , std::vector<void const *> & /*view*/
                    ) {
       throw Exception(errors::ProductDoesNotSupportViews)
           << "Product type std::vector<bool> has no fillView() capability\n";
@@ -348,8 +348,8 @@ namespace art {
 
   template< class E >
   struct fillView< std::vector<E>, false > {
-    void operator()(std::vector<E> const    &   product
-                    , std::vector<void const *> & view
+    void operator()( std::vector<E> const    &   product
+                   , std::vector<void const *> & view
                    ) {
       for (typename std::vector<E>::const_iterator b = product.begin()
            , e = product.end()

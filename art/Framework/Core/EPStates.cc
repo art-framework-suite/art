@@ -45,16 +45,16 @@ namespace statemachine {
    bool Machine::handleEmptyRuns() const { return handleEmptyRuns_; }
    bool Machine::handleEmptySubRuns() const { return handleEmptySubRuns_; }
 
-   void Machine::startingNewLoop(File const& file) {
+   void Machine::startingNewLoop(File const&) {
       ep_->startingNewLoop();
    }
 
-   void Machine::startingNewLoop(Stop const& stop) {
+   void Machine::startingNewLoop(Stop const&) {
       if (ep_->alreadyHandlingException()) return;
       ep_->startingNewLoop();
    }
 
-   void Machine::rewindAndPrepareForNextLoop(Restart const& restart) {
+   void Machine::rewindAndPrepareForNextLoop(Restart const&) {
       ep_->prepareForNextLoop();
       ep_->rewindInput();
    }
@@ -194,7 +194,7 @@ namespace statemachine {
 
    FirstFile::~FirstFile() { }
 
-   sc::result FirstFile::react(File const& file)
+   sc::result FirstFile::react(File const&)
    {
       if (context<HandleFiles>().shouldWeCloseOutput()) {
          return transit<NewInputAndOutputFiles>();
@@ -212,7 +212,7 @@ namespace statemachine {
 
    HandleNewInputFile1::~HandleNewInputFile1() { }
 
-   sc::result HandleNewInputFile1::react(File const& file)
+   sc::result HandleNewInputFile1::react(File const&)
    {
       if (context<HandleFiles>().shouldWeCloseOutput()) {
          return transit<NewInputAndOutputFiles>();
@@ -231,7 +231,7 @@ namespace statemachine {
 
    NewInputAndOutputFiles::~NewInputAndOutputFiles() { }
 
-   sc::result NewInputAndOutputFiles::react(File const& file)
+   sc::result NewInputAndOutputFiles::react(File const&)
    {
       if (context<HandleFiles>().shouldWeCloseOutput()) {
          return transit<NewInputAndOutputFiles>();
@@ -404,7 +404,7 @@ namespace statemachine {
 
    NewRun::~NewRun() { }
 
-   sc::result NewRun::react(File const& file)
+   sc::result NewRun::react(File const&)
    {
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
          return transit<HandleNewInputFile2>();
@@ -440,7 +440,7 @@ namespace statemachine {
       }
    }
 
-   sc::result HandleNewInputFile2::react(File const& file)
+   sc::result HandleNewInputFile2::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -466,7 +466,7 @@ namespace statemachine {
       return true;
    }
 
-   sc::result ContinueRun1::react(File const& file)
+   sc::result ContinueRun1::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -687,7 +687,7 @@ namespace statemachine {
       return true;
    }
 
-   sc::result FirstSubRun::react(File const& file)
+   sc::result FirstSubRun::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -716,7 +716,7 @@ namespace statemachine {
       return true;
    }
 
-   sc::result AnotherSubRun::react(File const& file)
+   sc::result AnotherSubRun::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -747,7 +747,7 @@ namespace statemachine {
       return true;
    }
 
-   sc::result HandleEvent::react(File const& file)
+   sc::result HandleEvent::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -797,7 +797,7 @@ namespace statemachine {
       return forward_event();
    }
 
-   sc::result HandleNewInputFile3::react(File const& file)
+   sc::result HandleNewInputFile3::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -837,7 +837,7 @@ namespace statemachine {
       }
    }
 
-   sc::result ContinueRun2::react(File const& file)
+   sc::result ContinueRun2::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {
@@ -865,7 +865,7 @@ namespace statemachine {
       return true;
    }
 
-   sc::result ContinueSubRun::react(File const& file)
+   sc::result ContinueSubRun::react(File const&)
    {
       checkInvariant();
       if (!context<HandleFiles>().shouldWeCloseOutput()) {

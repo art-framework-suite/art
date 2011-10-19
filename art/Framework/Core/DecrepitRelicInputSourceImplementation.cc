@@ -16,9 +16,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#ifdef RNGS
-//#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#endif
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <cassert>
@@ -286,7 +283,7 @@ namespace art {
   }
 
   std::auto_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(EventID const& eventID) {
+  DecrepitRelicInputSourceImplementation::readEvent(EventID const&) {
     throw art::Exception(art::errors::LogicError)
       << "DecrepitRelicInputSourceImplementation::readIt()\n"
       << "Random access is not implemented for this type of Input Source\n"
@@ -328,22 +325,10 @@ namespace art {
 
   void
   DecrepitRelicInputSourceImplementation::preRead() {  // roughly corresponds to "end of the prev event"
-#ifdef RNGS
-    ServiceHandle<RandomNumberGenerator> rng;
-    if (rng.isAvailable()) {
-      rng->takeSnapshot_();
-    }
-#endif
   }
 
   void
-  DecrepitRelicInputSourceImplementation::postRead(Event& event) {
-#ifdef RNGS
-    ServiceHandle<RandomNumberGenerator> rng;
-    if (rng.isAvailable()) {
-      rng->restoreSnapshot_(event);
-    }
-#endif
+  DecrepitRelicInputSourceImplementation::postRead(Event&) {
   }
 
   void

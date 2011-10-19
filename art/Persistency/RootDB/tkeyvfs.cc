@@ -1095,7 +1095,7 @@ static int unixDeviceCharacteristics(sqlite3_file * NotUsed)
 ** OpenExclusive().
 */
 static int unixOpen(
-  sqlite3_vfs * pVfs,          /* The VFS for which this is the xOpen method */
+  sqlite3_vfs * /*pVfs*/,      /* The VFS for which this is the xOpen method */
   const char * zPath,          /* Pathname of file to be opened */
   sqlite3_file * pFile,        /* The file descriptor to be filled in */
   int flags,                   /* Input flags to control the opening */
@@ -1228,8 +1228,8 @@ static int unixOpen(
 */
 static int unixDelete(
   sqlite3_vfs * NotUsed,    /* VFS containing this as the xDelete method */
-  const char * zPath,       /* Name of file to be deleted */
-  int dirSync               /* If true, fsync() directory after deleting file */
+  const char * /*zPath*/,   /* Name of file to be deleted */
+  int /*dirSync*/           /* If true, fsync() directory after deleting file */
 )
 {
   int rc = SQLITE_OK;
@@ -1258,7 +1258,7 @@ static int unixDelete(
 */
 static int unixAccess(
   sqlite3_vfs * NotUsed,  /* The VFS containing this xAccess method */
-  const char * zPath,     /* Path of the file to examine */
+  const char * /*zPath*/, /* Path of the file to examine */
   int flags,              /* What do we want to learn about the zPath file? */
   int * pResOut           /* Write result boolean here */
 )

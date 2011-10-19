@@ -32,7 +32,7 @@ private:
 };
 
 
-arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const &p)
+arttest::ProductIDGetter::ProductIDGetter(fhicl::ParameterSet const &)
 {
   produces<int>();
   produces<int>("i1");

@@ -168,17 +168,17 @@ namespace art {
     virtual void write(EventPrincipal const& e) = 0;
     virtual void beginJob(){}
     virtual void endJob(){}
-    virtual void beginRun(RunPrincipal const& r){}
-    virtual void endRun(RunPrincipal const& r){}
+    virtual void beginRun(RunPrincipal const&){}
+    virtual void endRun(RunPrincipal const&){}
     virtual void writeRun(RunPrincipal const& r) = 0;
-    virtual void beginSubRun(SubRunPrincipal const& sr){}
-    virtual void endSubRun(SubRunPrincipal const& sr){}
+    virtual void beginSubRun(SubRunPrincipal const&){}
+    virtual void endSubRun(SubRunPrincipal const&){}
     virtual void writeSubRun(SubRunPrincipal const& sr) = 0;
-    virtual void openFile(FileBlock const& fb) {}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void openFile(FileBlock const&) {}
+    virtual void respondToOpenInputFile(FileBlock const&) {}
+    virtual void respondToCloseInputFile(FileBlock const&) {}
+    virtual void respondToOpenOutputFiles(FileBlock const&) {}
+    virtual void respondToCloseOutputFiles(FileBlock const&) {}
 
     virtual bool isFileOpen() const { return true; }
 

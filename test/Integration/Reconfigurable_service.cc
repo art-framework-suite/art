@@ -15,7 +15,7 @@
 // ----------------------------------------------------------------------
 
 Reconfigurable::Reconfigurable(fhicl::ParameterSet const & pset,
-                               art::ActivityRegistry & r):
+                               art::ActivityRegistry &):
   debug_level_(pset.get<int>("debug_level",0)),
   other_value_(pset.get<int>("other_value",1))
 {

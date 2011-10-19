@@ -39,7 +39,7 @@ namespace art {
   }
 
   art::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool onlineStateTransitions) {
+  MockEventProcessor::runToCompletion(bool /*onlineStateTransitions*/) {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     handleEmptyRuns_,
@@ -106,7 +106,7 @@ namespace art {
 
   // Not used, this one does nothing
   art::MockEventProcessor::StatusCode
-  MockEventProcessor::runEventCount(int numberOfEventsToProcess) {
+  MockEventProcessor::runEventCount(int /*numberOfEventsToProcess*/) {
     return epSuccess;
   }
 
@@ -231,9 +231,9 @@ namespace art {
     return shouldWeStop_;
   }
 
-  void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
-  void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
-  void MockEventProcessor::setExceptionMessageSubRuns(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageFiles(std::string& /*message*/) { }
+  void MockEventProcessor::setExceptionMessageRuns(std::string& /*message*/) { }
+  void MockEventProcessor::setExceptionMessageSubRuns(std::string& /*message*/) { }
 
   bool MockEventProcessor::alreadyHandlingException() const { return false; }
 }

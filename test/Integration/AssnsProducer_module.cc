@@ -35,7 +35,7 @@ namespace {
   typedef art::Assns<size_t, std::string> AssnsV_t;
 }
 
-arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &p)
+arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const &)
 {
   produces<std::vector<size_t> >();
   produces<std::vector<std::string> >();

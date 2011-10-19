@@ -39,7 +39,7 @@ namespace art {
     template <typename T>
     struct DoNothing
     {
-      void operator()(T& a, fhicl::ParameterSet const& b) { }
+      void operator()(T&, fhicl::ParameterSet const&) { }
     };
   }
 }

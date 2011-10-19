@@ -30,7 +30,7 @@ namespace art {
 
 
   void
-  Parentage::write(std::ostream& os) const {
+  Parentage::write(std::ostream&) const {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
   }

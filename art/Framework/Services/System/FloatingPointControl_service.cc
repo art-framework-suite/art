@@ -162,7 +162,7 @@ void
 // ----------------------------------------------------------------------
 
 void
-  FloatingPointControl::postModule(const ModuleDescription& iDescription)
+  FloatingPointControl::postModule(const ModuleDescription&)
 {
 
 // On exit from a module, set the state of the fpu back to what it was before entry

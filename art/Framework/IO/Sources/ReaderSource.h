@@ -552,7 +552,7 @@ namespace art
 
   template <class T>
   std::shared_ptr<SubRunPrincipal>
-  ReaderSource<T>::readSubRun(std::shared_ptr<RunPrincipal> rp)
+  ReaderSource<T>::readSubRun(std::shared_ptr<RunPrincipal>)
   {
     if (!cachedSRP_) throw Exception(errors::LogicError)
       << "Error in ReaderSource<T>\n"
@@ -568,7 +568,7 @@ namespace art
 
   template <class T>
   std::auto_ptr<EventPrincipal>
-  ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal> srp)
+  ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal>)
   {
     if (haveEventLimit_) --remainingEvents_;
     return cachedE_;

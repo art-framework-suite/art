@@ -24,7 +24,7 @@ using namespace art;
 class Reconfiguring : public art::EDAnalyzer
 {
 public:
-  explicit Reconfiguring( fhicl::ParameterSet const & p )
+  explicit Reconfiguring( fhicl::ParameterSet const & )
   {
   }
 
@@ -35,7 +35,7 @@ private:
   typedef std::vector<fhicl::ParameterSet> ParameterSets;
 };
 
-void Reconfiguring::analyze( art::Event const & e )
+void Reconfiguring::analyze( art::Event const & )
 {
   ServiceHandle<Reconfigurable> rc;
   int level_before = rc->get_debug_level();

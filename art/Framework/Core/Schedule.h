@@ -347,7 +347,7 @@ namespace art {
 
   void
   inline
-  Schedule::reportSkipped(EventPrincipal const& ep) const
+  Schedule::reportSkipped(EventPrincipal const&) const
   {
   }
 

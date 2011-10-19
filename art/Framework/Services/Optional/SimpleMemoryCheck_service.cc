@@ -584,7 +584,7 @@ namespace art {
     }
   }
 
-  void SimpleMemoryCheck::preModule(const ModuleDescription & md)
+  void SimpleMemoryCheck::preModule(const ModuleDescription &)
   {
     update();                                                 // changelog 2
     moduleEntryVsize_ = current_->vsize;

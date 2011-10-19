@@ -68,7 +68,7 @@ template <class T>
 void verify_elements(std::vector<T> const& ptrs,
                      size_t sz,
                      art::EventNumber_t event_num,
-                     size_t nvalues)
+                     size_t /*nvalues*/)
 {
   for (size_t k = 0; k != sz; ++k)
     {

@@ -33,7 +33,7 @@ public:
   // We use vector<void *> so as to keep the type information out
   // of the EDProduct class.
   virtual void
-    fillView( std::vector<void const *> & view ) const
+    fillView( std::vector<void const *> & ) const
   { /* should be called only polymorphically */ }
 
   void

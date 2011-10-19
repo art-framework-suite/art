@@ -9,5 +9,5 @@ mergeReaders_(std::shared_ptr<DelayedReader>) {
 
 void
 art::DelayedReader::
-setGroupFinder_(cet::exempt_ptr<EventPrincipal const> ep) {
+setGroupFinder_(cet::exempt_ptr<EventPrincipal const>) {
 }

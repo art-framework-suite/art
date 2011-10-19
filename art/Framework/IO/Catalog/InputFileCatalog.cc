@@ -14,7 +14,7 @@ namespace art {
 
   InputFileCatalog::InputFileCatalog(fhicl::ParameterSet const& pset,
                                      std::string const& namesParameter,
-                                     bool canBeEmpty, bool noThrow) :
+                                     bool canBeEmpty, bool /*noThrow*/) :
     FileCatalog(),
     logicalFileNames_(canBeEmpty ?
         pset.get<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
@@ -48,7 +48,7 @@ namespace art {
 
   InputFileCatalog::~InputFileCatalog() {}
 
-  void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
+  void InputFileCatalog::findFile(std::string & /*pfn*/, std::string const& /*lfn*/, bool /*noThrow*/) {
     cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
   }
 

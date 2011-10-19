@@ -132,8 +132,8 @@ namespace art {
     {
       ParameterSets config;
       std::shared_ptr<SM> manager( new SM( config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
+                                         , ServiceRegistry::instance().lm_
+                                 )       );
       manager->put(wrap);
       return manager;
     }
@@ -147,10 +147,10 @@ namespace art {
     {
       ParameterSets config;
       std::shared_ptr<SM> manager( new SM( iToken
-                                           , iLegacy
-                                           , config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
+                                         , iLegacy
+                                         , config
+                                         , ServiceRegistry::instance().lm_
+                                 )       );
 
       manager->put(wrap);
       return manager;

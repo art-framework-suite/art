@@ -87,10 +87,10 @@ namespace art
     virtual bool endRun(Run &){return true;}
     virtual bool beginSubRun(SubRun &){return true;}
     virtual bool endSubRun(SubRun &){return true;}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
-    virtual void respondToCloseInputFile(FileBlock const& fb) {}
-    virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
-    virtual void respondToCloseOutputFiles(FileBlock const& fb) {}
+    virtual void respondToOpenInputFile(FileBlock const&) {}
+    virtual void respondToCloseInputFile(FileBlock const&) {}
+    virtual void respondToOpenOutputFiles(FileBlock const&) {}
+    virtual void respondToCloseOutputFiles(FileBlock const&) {}
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

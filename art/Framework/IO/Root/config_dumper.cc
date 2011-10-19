@@ -64,7 +64,7 @@ void print_stripped_module_pset(ParameterSet const& ps, ostream& output)
 // configurations.
 void print_all_module_psets(vector<ParameterSet> const& psets,
                             ostream& output,
-                            ostream& errors)
+                            ostream& /*errors*/)
 {
   for (size_t i = 0; i < psets.size(); ++i)
     {
@@ -89,7 +89,7 @@ inline bool matches_criteria(ParameterSet const& ps,
 void print_matching_parameter_sets(vector<ParameterSet> const& psets,
                                    stringvec const& module_labels,
                                    ostream& output,
-                                   ostream& errors)
+                                   ostream& /*errors*/)
 {
   for (size_t i = 0; i < psets.size(); ++i)
     {
@@ -151,7 +151,7 @@ bool read_all_parameter_sets(TFile& file,
 // does not declare the functions we use to be const, even though they do not
 // modify the underlying file.
 int print_pset_from_file(TFile& file,
-                         stringvec const& process_names,
+                         stringvec const& /*process_names*/,
                          stringvec const&  module_labels,
                          ostream& output,
                          ostream& errors)

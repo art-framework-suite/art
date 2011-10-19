@@ -14,7 +14,7 @@ extern "C" {
 
 using namespace std;
 
-static int callback(void * junk, int cnt, char ** vals, char ** col_name)
+static int callback(void *, int cnt, char ** vals, char ** col_name)
 {
   int i = 0;
   for (i = 0; i < cnt; ++i) {

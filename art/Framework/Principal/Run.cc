@@ -31,7 +31,7 @@ namespace art {
   }
 
   bool
-  Run::getProcessParameterSet(std::string const& processName,
+  Run::getProcessParameterSet(std::string const& /*processName*/,
                               std::vector<ParameterSet>& psets) const
   {
     // Get the relevant ProcessHistoryIDs

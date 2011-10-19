@@ -114,13 +114,13 @@ void Timing::postEndJob()
 
 // ----------------------------------------------------------------------
 
-void Timing::preEventProcessing(art::Event const& ev)
+void Timing::preEventProcessing(Event const& ev)
 {
   curr_event_ = ev.id();
   curr_event_time_ = getTime();
 }
 
-void Timing::postEventProcessing(Event const& e)
+void Timing::postEventProcessing(Event const&)
 {
   double t = getTime() - curr_event_time_;
   if (not summary_only_) {

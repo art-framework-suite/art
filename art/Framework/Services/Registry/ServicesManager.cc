@@ -30,9 +30,9 @@ ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager cons
 
 // this inheritance procedure needs to go away...
 ServicesManager::ServicesManager(ServiceToken iToken,
-                                 ServiceLegacy iLegacy,
-                                 ParameterSets const& psets,
-                                 LibraryManager const& lm):
+                                 ServiceLegacy,
+                                 ParameterSets const&,
+                                 LibraryManager const&):
   associatedManager_(iToken.manager_)
 {
   throw "You are calling the inheritance ctor of ServiceManager and should not be doing that!";

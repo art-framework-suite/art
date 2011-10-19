@@ -44,7 +44,7 @@ private:
 };
 
 
-arttest::MixProducer::MixProducer(fhicl::ParameterSet const &p)
+arttest::MixProducer::MixProducer(fhicl::ParameterSet const &)
   :
   eventCounter_(0)
 {

@@ -69,7 +69,7 @@ void
 
 void
   RefCore::pushBackItem( RefCore const & productToBeInserted
-                       , bool            checkPointer )
+                       , bool            /*checkPointer*/ )
 {
   if( productToBeInserted.isNull() ) {
     throw art::Exception(errors::InvalidReference, "Inconsistency")

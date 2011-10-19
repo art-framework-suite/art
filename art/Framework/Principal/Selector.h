@@ -168,7 +168,7 @@ public:
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
+  virtual bool doMatch(BranchDescription const&) const
   {
     return true;
   }
