@@ -319,6 +319,7 @@ namespace art
                            std::string const &template_name)
   {
     return in &&
+      in.TemplateFamily() &&
       in.TemplateFamily() ==
       Reflex::TypeTemplate::ByName(template_name, in.TemplateArgumentSize());
   }
