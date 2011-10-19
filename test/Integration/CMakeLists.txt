@@ -224,12 +224,8 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
   "Assertion `outR \\|\\| inR' failed"
 )
 
-SET_TESTS_PROPERTIES(ToyRawInput_t_03 PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Assertion `outSR \\|\\| inSR' failed"
-)
-
-SET_TESTS_PROPERTIES(ToyRawInput_t_04 PROPERTIES
+SET_TESTS_PROPERTIES(ToyRawInput_t_03 ToyRawInput_t_04
+  PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Assertion `outSR \\|\\| inSR' failed"
 )
