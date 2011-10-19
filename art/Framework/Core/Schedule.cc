@@ -105,6 +105,7 @@ namespace art
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     endpathsAreActive_(true)
   {
+    assert(actReg_);
      ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
      ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
      bool hasPath = false;

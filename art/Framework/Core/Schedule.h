@@ -83,15 +83,20 @@
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
+#include "cpp0x/functional"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "boost/noncopyable.hpp"
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
 
 // ----------------------------------------------------------------------
+namespace {
+  template <class T> class ScheduleSignalSentry;
+}
 
 namespace art {
   class ActivityRegistry;
@@ -99,8 +104,7 @@ namespace art {
   class TriggerNamesService;
   class WorkerRegistry;
 
-  class Schedule
-  {
+  class Schedule {
     typedef std::vector<std::string> vstring;
     typedef std::vector<Path> Paths;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
@@ -110,27 +114,28 @@ namespace art {
 
   public:
     typedef std::vector<Worker*> Workers;
+    enum State { Ready = 0, Running, Latched };
 
-    Schedule(fhicl::ParameterSet const& processDesc,
-             art::TriggerNamesService& tns,
-             WorkerRegistry& wregistry,
-             MasterProductRegistry& pregistry,
-             ActionTable& actions,
+    Schedule(fhicl::ParameterSet const & processDesc,
+             art::TriggerNamesService & tns,
+             WorkerRegistry & wregistry,
+             MasterProductRegistry & pregistry,
+             ActionTable & actions,
              std::shared_ptr<ActivityRegistry> areg);
 
-    enum State { Ready=0, Running, Latched };
+
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal& principal);
+    void processOneOccurrence(typename T::MyPrincipal & principal);
 
     void beginJob();
     void endJob();
 
     // Write the subRun
-    void writeSubRun(SubRunPrincipal const& srp);
+    void writeSubRun(SubRunPrincipal const & srp);
 
     // Write the run
-    void writeRun(RunPrincipal const& rp);
+    void writeRun(RunPrincipal const & rp);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
@@ -142,24 +147,21 @@ namespace art {
     void openOutputFiles(FileBlock & fb);
 
     // Call respondToOpenInputFile() on all Modules
-    void respondToOpenInputFile(FileBlock const& fb);
+    void respondToOpenInputFile(FileBlock const & fb);
 
     // Call respondToCloseInputFile() on all Modules
-    void respondToCloseInputFile(FileBlock const& fb);
+    void respondToCloseInputFile(FileBlock const & fb);
 
     // Call respondToOpenOutputFiles() on all Modules
-    void respondToOpenOutputFiles(FileBlock const& fb);
+    void respondToOpenOutputFiles(FileBlock const & fb);
 
     // Call respondToCloseOutputFiles() on all Modules
-    void respondToCloseOutputFiles(FileBlock const& fb);
+    void respondToCloseOutputFiles(FileBlock const & fb);
 
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-    std::pair<double,double> timeCpuReal() const
-    {
-      return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
-    }
+    std::pair<double, double> timeCpuReal() const;
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
@@ -172,24 +174,15 @@ namespace art {
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
-    int totalEvents() const
-    {
-      return total_events_;
-    }
+    int totalEvents() const;
 
     /// Return the number of events which have been passed by one or
     /// more trigger paths.
-    int totalEventsPassed() const
-    {
-      return total_passed_;
-    }
+    int totalEventsPassed() const;
 
     /// Return the number of events that have not passed any trigger.
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
-    int totalEventsFailed() const
-    {
-      return totalEvents() - totalEventsPassed();
-    }
+    int totalEventsFailed() const;
 
     /// Turn end_paths "off" if "active" is false;
     /// turn end_paths "on" if "active" is true.
@@ -201,7 +194,7 @@ namespace art {
 
     /// Return the trigger report information on paths,
     /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;
+    void getTriggerReport(TriggerReport & rep) const;
 
     /// Return whether a module has reached its maximum count.
     bool terminate() const;
@@ -210,18 +203,18 @@ namespace art {
     void clearCounters();
 
     // Retrieve all workers.
-    void getAllWorkers(Workers &out);
+    void getAllWorkers(Workers & out);
 
   private:
     typedef std::vector<cet::exempt_ptr<Worker> > OnDemandWorkers;
     typedef
-    std::multimap<std::string,
-                  cet::exempt_ptr<BranchDescription const> >
-    BranchesByModuleLabel;
+    std::multimap < std::string,
+        cet::exempt_ptr<BranchDescription const> >
+        BranchesByModuleLabel;
     typedef
-    std::multimap<cet::exempt_ptr<Worker>,
-                  cet::exempt_ptr<BranchDescription const> >
-    OnDemandBranches;
+    std::multimap < cet::exempt_ptr<Worker>,
+        cet::exempt_ptr<BranchDescription const> >
+        OnDemandBranches;
 
     void writeSummary();
 
@@ -241,36 +234,36 @@ namespace art {
     template <typename T>
     void runEndPaths(typename T::MyPrincipal &);
 
-    void setupOnDemandSystem(EventPrincipal& p);
+    void setupOnDemandSystem(EventPrincipal & p);
 
-    void reportSkipped(EventPrincipal const& ep) const;
-    void reportSkipped(SubRunPrincipal const&) const {}
-    void reportSkipped(RunPrincipal const&) const {}
+    void reportSkipped(EventPrincipal const & ep) const;
+    void reportSkipped(SubRunPrincipal const &) const;
+    void reportSkipped(RunPrincipal const &) const;
 
-    void fillWorkers(std::string const& name, PathWorkers& out, bool IsTrigPath, MasterProductRegistry &pregistry);
-    void fillTrigPath(int bitpos, std::string const& name, TrigResPtr trptr, MasterProductRegistry &pregistry);
-    void fillEndPath(int bitpos, std::string const& name, MasterProductRegistry &pregistry);
+    void fillWorkers(std::string const & name, PathWorkers & out, bool IsTrigPath, MasterProductRegistry & pregistry);
+    void fillTrigPath(int bitpos, std::string const & name, TrigResPtr trptr, MasterProductRegistry & pregistry);
+    void fillEndPath(int bitpos, std::string const & name, MasterProductRegistry & pregistry);
 
     void limitOutput();
 
     void addToAllWorkers(Worker* w);
 
-    void makeTriggerResultsInserter(fhicl::ParameterSet const& trig_pset, MasterProductRegistry &pregistry);
+    void makeTriggerResultsInserter(fhicl::ParameterSet const & trig_pset, MasterProductRegistry & pregistry);
 
     void fillBranchLookup(ProductList const & pList,
-                          BranchesByModuleLabel &branchLookup) const;
+                          BranchesByModuleLabel & branchLookup) const;
 
-    void catalogOnDemandBranches(OnDemandWorkers const &odw,
-                                  BranchesByModuleLabel const &branchLookup);
+    void catalogOnDemandBranches(OnDemandWorkers const & odw,
+                                 BranchesByModuleLabel const & branchLookup);
     void catalogOneOnDemandWorker(cet::exempt_ptr<Worker> wp,
-                                  BranchesByModuleLabel const &branchLookup);
+                                  BranchesByModuleLabel const & branchLookup);
 
     void pathConsistencyCheck(size_t expected_num_workers) const;
 
-    size_t checkOnePath(Path const &path, bool isEndPath) const;
+    size_t checkOnePath(Path const & path, bool isEndPath) const;
 
     size_t accumulateConsistencyFailures(size_t current_num_failures,
-                                         art::Path const &path,
+                                         art::Path const & path,
                                          bool isEndPath) const;
 
     fhicl::ParameterSet process_pset_;
@@ -301,162 +294,162 @@ namespace art {
     volatile bool       endpathsAreActive_;
   };
 
-  namespace
+  inline
+  std::pair<double, double> Schedule::timeCpuReal() const
   {
-    template <typename T>
-    class ScheduleSignalSentry
-    {
-    public:
-      ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* ep) :
-        a_(a),ep_(ep)
-      {
-        if (a_) T::preScheduleSignal(a_, ep_);
-      }
-
-      ~ScheduleSignalSentry()
-      {
-        if (a_ && ep_) T::postScheduleSignal(a_, ep_);
-      }
-
-    private:
-      // We own none of these resources.
-      ActivityRegistry*         a_;
-      typename T::MyPrincipal*  ep_;
-    };
+    return std::make_pair(stopwatch_->cpuTime(),
+                          stopwatch_->realTime());
   }
 
-  // -----------------------------
-  // ProcessOneOccurrence is a functor that has bound a specific
-  // Principal and can be called with a Path, to execute
-  // Path::processOneOccurrence for that event
-
-  template <typename T>
-  class ProcessOneOccurrence
+  inline
+  int Schedule::totalEvents() const
   {
-  public:
-    typedef void result_type;
-    ProcessOneOccurrence(typename T::MyPrincipal& principal) :
-      ep(principal)
-    {};
+    return total_events_;
+  }
 
-    void operator()(Path& p) {p.processOneOccurrence<T>(ep);}
+  inline
+  int Schedule::totalEventsPassed() const
+  {
+    return total_passed_;
+  }
 
-  private:
-    typename T::MyPrincipal&   ep;
-  };
+  inline
+  int Schedule::totalEventsFailed() const
+  {
+    return totalEvents() - totalEventsPassed();
+  }
 
   void
   inline
-  Schedule::reportSkipped(EventPrincipal const&) const
+  Schedule::reportSkipped(EventPrincipal const &) const
+  {
+  }
+
+  void
+  inline
+  Schedule::reportSkipped(SubRunPrincipal const & ep) const
+  {
+  }
+
+  void
+  inline
+  Schedule::reportSkipped(RunPrincipal const & ep) const
   {
   }
 
   template <typename T>
   void
-  Schedule::processOneOccurrence(typename T::MyPrincipal& ep)
+  Schedule::processOneOccurrence(typename T::MyPrincipal & ep)
   {
     this->resetAll();
     state_ = Running;
-
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
-
     if (T::isEvent_) {
       ++total_events_;
       setupOnDemandSystem(dynamic_cast<EventPrincipal &>(ep));
     }
-    try
-      {
-        ScheduleSignalSentry<T> sentry(actReg_.get(), &ep);
-        try
-          {
-            if (runTriggerPaths<T>(ep) && T::isEvent_ )  ++total_passed_;
-            state_ = Latched;
-            if (results_inserter_.get()) results_inserter_->doWork<T>(ep, 0);
-          }
-        catch(cet::exception& e)
-          {
-            actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
-            assert (action != actions::IgnoreCompletely);
-            assert (action != actions::FailPath);
-            assert (action != actions::FailModule);
-            if (action == actions::SkipEvent)
-              {
-                mf::LogWarning(e.category())
-                  << "an exception occurred and all paths for the event are being skipped: \n"
-                  << e.what();
-              }
-            else
-              throw;
-          }
-
-        if (endpathsAreActive_) runEndPaths<T>(ep);
+    try {
+      ScheduleSignalSentry<T> sentry(*actReg_, ep);
+      try {
+        if (runTriggerPaths<T>(ep) && T::isEvent_)  { ++total_passed_; }
+        state_ = Latched;
+        if (results_inserter_.get()) { results_inserter_->doWork<T>(ep, 0); }
       }
-    catch(cet::exception& ex)
-      {
-        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow);
-        switch(action)
-          {
-          case actions::IgnoreCompletely:
-            {
-              mf::LogWarning(ex.category())
-                << "exception being ignored for current event:\n"
-                << ex.what();
-              break;
-            }
-          default:
-            {
-              state_ = Ready;
-              throw art::Exception(errors::EventProcessorFailure)
-                << "An exception occurred during current event processing\n"
-                << ex;
-            }
-          }
+      catch (cet::exception & e) {
+        actions::ActionCodes action = (T::isEvent_ ? act_table_->find(e.root_cause()) : actions::Rethrow);
+        assert(action != actions::IgnoreCompletely);
+        assert(action != actions::FailPath);
+        assert(action != actions::FailModule);
+        if (action == actions::SkipEvent) {
+          mf::LogWarning(e.category())
+              << "an exception occurred and all paths for the event are being skipped: \n"
+              << e.what();
+        }
+        else
+        { throw; }
       }
-    catch (...)
-      {
-        mf::LogError("PassingThrough")
+      if (endpathsAreActive_) { runEndPaths<T>(ep); }
+    }
+    catch (cet::exception & ex) {
+      actions::ActionCodes action = (T::isEvent_ ? act_table_->find(ex.root_cause()) : actions::Rethrow);
+      switch (action) {
+        case actions::IgnoreCompletely: {
+          mf::LogWarning(ex.category())
+              << "exception being ignored for current event:\n"
+              << ex.what();
+          break;
+        }
+        default: {
+          state_ = Ready;
+          throw art::Exception(errors::EventProcessorFailure)
+              << "An exception occurred during current event processing\n"
+              << ex;
+        }
+      }
+    }
+    catch (...) {
+      mf::LogError("PassingThrough")
           << "an exception occurred during current event processing\n";
-        state_ = Ready;
-        throw;
-      }
-
+      state_ = Ready;
+      throw;
+    }
     // next thing probably is not needed, the product insertion code clears it
     state_ = Ready;
-
   }
 
   template <typename T>
   bool
-  Schedule::runTriggerPaths(typename T::MyPrincipal& ep)
+  Schedule::runTriggerPaths(typename T::MyPrincipal & ep)
   {
-    cet::for_all(trig_paths_, ProcessOneOccurrence<T>(ep));
+    cet::for_all(trig_paths_,
+                 std::bind(&Path::processOneOccurrence<T>, _1, std::ref(ep)));
     return results_->accept();
   }
 
   template <typename T>
   void
-  Schedule::runEndPaths(typename T::MyPrincipal& ep)
+  Schedule::runEndPaths(typename T::MyPrincipal & ep)
   {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    cet::for_all(end_paths_, ProcessOneOccurrence<T>(ep));
-
-    // We could get rid of the functor ProcessOneOccurrence if we used
-    // boost::lambda, but the use of lambda with member functions
-    // which take multiple arguments, by both non-const and const
-    // reference, seems much more obscure...
-    //
-    // using namespace boost::lambda;
-    // cet::for_all(end_paths_,
-    //          bind(&Path::processOneOccurrence,
-    //               boost::lambda::_1, // qualification to avoid ambiguity
-    //               var(ep),           //  pass by reference (not copy)
-    //               constant_ref(es))); // pass by const-reference (not copy)
+    cet::for_all(end_paths_,
+                 std::bind(&Path::processOneOccurrence<T>, _1, std::ref(ep)));
   }
 
-
 }  // art
+
+namespace {
+
+  /// Class ScheduleSignalSentry<T> is used to emit the pre- and post-schedule
+  /// signals associated with the principal associated with T.
+  template <typename T>
+  class ScheduleSignalSentry : private boost::noncopyable {
+  public:
+    typedef typename T::MyPrincipal principal_t;
+    ScheduleSignalSentry(art::ActivityRegistry & a, principal_t & ep);
+    ~ScheduleSignalSentry();
+
+  private:
+    art::ActivityRegistry & a_;
+    principal_t      &      ep_;
+  };
+
+  template <class T>
+  ScheduleSignalSentry<T>::ScheduleSignalSentry(art::ActivityRegistry & a,
+      typename ScheduleSignalSentry<T>::principal_t & ep) :
+    a_(a),
+    ep_(ep)
+  {
+    T::preScheduleSignal(&a_, &ep_);
+  }
+
+  template <class T>
+  ScheduleSignalSentry<T>::~ScheduleSignalSentry()
+  {
+    T::postScheduleSignal(&a_, &ep_);
+  }
+}
 
 // ======================================================================
 
