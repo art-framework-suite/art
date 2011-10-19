@@ -102,68 +102,79 @@ cet_test(EventSelectorFromFile_t.sh PREBUILT
   fcl/EventSelectorFromFile_r1.fcl
   fcl/EventSelectorFromFile_r2.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(test_simple_01_t.sh PREBUILT
   DATAFILES
   fcl/test_simple_01.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(test_view_01_t.sh PREBUILT
   DATAFILES
   fcl/test_view_01a.fcl
   fcl/test_view_01b.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(test_ptrvector_01_t.sh PREBUILT
   DATAFILES
   fcl/test_ptrvector_01a.fcl
   fcl/test_ptrvector_01b.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(test_simplederived_01_t.sh PREBUILT
   DATAFILES
   fcl/test_simplederived_01a.fcl
   fcl/test_simplederived_01b.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(outputCommand_t.sh PREBUILT
   DATAFILES
   fcl/outputCommand_w.fcl
   fcl/outputCommand_r.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(ptr_list_t.sh PREBUILT
   DATAFILES
   fcl/ptr_list_01.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(test_failingProducer_t.sh PREBUILT
   DATAFILES
   fcl/test_failingProducer_w.fcl
   fcl/test_failingProducer_r.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(issue_0923_t.sh PREBUILT
   DATAFILES
   fcl/issue_0923a.fcl
   fcl/issue_0923b.fcl
   fcl/messageDefaults.fcl
   issue_0923_ref.txt
-  )
+)
+
 cet_test(issue_0926_t.sh PREBUILT
   DATAFILES
   fcl/issue_0926a.fcl
   fcl/issue_0926b.fcl
   fcl/issue_0926c.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(issue_0940_t.sh PREBUILT
   DATAFILES
   fcl/issue_0940.fcl
   fcl/messageDefaults.fcl
-  )
+)
+
 cet_test(reconfig_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_reconfig_01.fcl
@@ -182,7 +193,7 @@ cet_test(issue_0930_t HANDBUILT
   PASS_REGULAR_EXPRESSION "LogicError BEGIN"
 )
 
-cet_test( test_FileDumperOutput.sh PREBUILT
+cet_test(test_FileDumperOutput.sh PREBUILT
   DATAFILES
   fcl/FileDumperOutputTest_w.fcl
   fcl/FileDumperOutputTest_r.fcl
@@ -194,7 +205,7 @@ cet_test(ToyRawInput_t_01 HANDBUILT
   DATAFILES
   fcl/ToyRawInput_01.fcl
   fcl/messageDefaults.fcl
- )
+)
 
 foreach(num 02 03 04)
   cet_test(ToyRawInput_t_${num} HANDBUILT
@@ -204,21 +215,24 @@ foreach(num 02 03 04)
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
     fcl/messageDefaults.fcl
-    )
+  )
 endforeach()
 
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_02 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "Assertion `outR \\|\\| inR' failed"
-  )
+)
 
-SET_TESTS_PROPERTIES(
-  ToyRawInput_t_03
-  ToyRawInput_t_04
-  PROPERTIES   PASS_REGULAR_EXPRESSION
+SET_TESTS_PROPERTIES(ToyRawInput_t_03 PROPERTIES
+  PASS_REGULAR_EXPRESSION
   "Assertion `outSR \\|\\| inSR' failed"
-  )
+)
+
+SET_TESTS_PROPERTIES(ToyRawInput_t_04 PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Assertion `outSR \\|\\| inSR' failed"
+)
 
 foreach(num 05 06 07 08 09 10)
   cet_test(ToyRawInput_t_${num} HANDBUILT
@@ -228,38 +242,38 @@ foreach(num 05 06 07 08 09 10)
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
     fcl/messageDefaults.fcl
-    )
+  )
 endforeach()
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_05 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "readNext returned a 'new' SubRun that was the same as the previous SubRun"
-  )
+)
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_06 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "readNext returned a 'new' Run that was the same as the previous Run"
-  )
+)
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_07 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "readNext returned a new Run and Event without a SubRun"
-  )
+)
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_08 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "readNext returned true but created no new data"
-  )
+)
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_09 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "readNext returned false but created new data"
-  )
+)
 
 SET_TESTS_PROPERTIES(ToyRawInput_t_10 PROPERTIES
   PASS_REGULAR_EXPRESSION
   "readNext returned a new Run with a SubRun from the wrong Run"
-  )
+)
 
 cet_test(ToyRawInput_w HANDBUILT
   TEST_EXEC art
@@ -313,6 +327,7 @@ cet_test(BareString_r HANDBUILT
   fcl/BareString_r.fcl
   TEST_PROPERTIES DEPENDS BareString_w
 )
+
 
 # Write the data file required for the other mixing tests.
 cet_test(ProductMix_w HANDBUILT
@@ -482,7 +497,7 @@ foreach(num 1 2)
     DATAFILES
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
-    )
+  )
   SET_TESTS_PROPERTIES(Assns_r${num} PROPERTIES DEPENDS Assns_w)
 endforeach()
 
@@ -604,6 +619,22 @@ foreach(num 1 2 3 4)
   )
 endforeach()
 
+cet_test(PtrVectorFastClone_w HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "PtrVectorFastClone_w.fcl"
+  DATAFILES
+  fcl/PtrVectorFastClone_w.fcl
+  TEST_PROPERTIES DEPENDS Ptrmv_w
+)
+
+cet_test(AssnsFastClone_w HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "AssnsFastClone_w.fcl"
+  DATAFILES
+  fcl/AssnsFastClone_w.fcl
+  TEST_PROPERTIES DEPENDS Assns_w
+)
+
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 
@@ -621,7 +652,7 @@ set(test_list
   TrigBits2_t
   TrigBits3_t
   TrigBits4_t
-  )
+)
 
 set(test_list ${test_list}
   Unscheduled_01_t
@@ -629,12 +660,11 @@ set(test_list ${test_list}
   Unscheduled_04_t
   Unscheduled_05_t
   Unscheduled_06_t
-  )
+)
 
 # There were two more Unscheduled tests in FW that tested out-of-order
 # module specification, but that is moot if we require analyzers to be
 # in end paths.
-
 foreach(test ${test_list})
   cet_test(${test} HANDBUILT
     TEST_EXEC art
@@ -642,7 +672,7 @@ foreach(test ${test_list})
     DATAFILES
     fcl/${test}.fcl
     fcl/messageDefaults.fcl
-    )
+  )
 endforeach()
 
 # Extra test properties
@@ -650,12 +680,12 @@ foreach(n 4;5;6)
   SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
     PASS_REGULAR_EXPRESSION
     "module for event:"
-    )
+  )
 endforeach()
 
 SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
   WILL_FAIL true
-  )
+)
 
 # This test is a little more complicated because we expect it to
 # abort, which is not covered by the WILL_FAIL test property.
@@ -667,4 +697,4 @@ cet_test(Unscheduled_03_t HANDBUILT
   DATAFILES
   fcl/Unscheduled_03_t.fcl
   fcl/messageDefaults.fcl
-  )
+)

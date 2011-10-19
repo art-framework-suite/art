@@ -1,0 +1,7 @@
+
+source:
+{
+  module_type: RootInput
+  maxEvents: 2
+  fileNames: [ "../Assns_w.d/out.root" ]
+}
