@@ -27,4 +27,4 @@ arttest::FailingProducer::produce(art::Event&) {
    throw art::Exception(art::errors::ProductNotFound) << "Intentional 'ProductNotFound' exception for testing purposes\n";
 }
 
-DEFINE_ART_MODULE(arttest::FailingProducer);
+DEFINE_ART_MODULE(arttest::FailingProducer)

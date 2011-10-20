@@ -24,4 +24,4 @@ void
 
 
 using arttest::ProblemTestClient_t1;
-DEFINE_ART_MODULE(ProblemTestClient_t1);
+DEFINE_ART_MODULE(ProblemTestClient_t1)

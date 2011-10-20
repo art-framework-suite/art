@@ -35,4 +35,4 @@ arttest::AddIntsProducer::produce(art::Event& e) {
    e.put(p);
 }
 
-DEFINE_ART_MODULE(arttest::AddIntsProducer);
+DEFINE_ART_MODULE(arttest::AddIntsProducer)

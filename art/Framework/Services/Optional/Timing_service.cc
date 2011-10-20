@@ -159,6 +159,6 @@ void Timing::postModule(ModuleDescription const& desc)
 
 // ======================================================================
 
-DEFINE_ART_SERVICE(Timing);
+DEFINE_ART_SERVICE(Timing)
 
 // ======================================================================

@@ -83,4 +83,4 @@ private:
   std::set<std::string> functionsCalled_;
 };
 
-DEFINE_ART_MODULE(arttest::TestProvenanceDumper);
+DEFINE_ART_MODULE(arttest::TestProvenanceDumper)

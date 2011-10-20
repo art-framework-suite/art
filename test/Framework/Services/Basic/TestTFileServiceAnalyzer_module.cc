@@ -51,4 +51,4 @@ void TestTFileServiceAnalyzer::analyze( const Event& evt, const EventSetup& ) {
   h_test2->Fill( 60. );
 }
 
-DEFINE_ART_MODULE(TestTFileServiceAnalyzer);
+DEFINE_ART_MODULE(TestTFileServiceAnalyzer)

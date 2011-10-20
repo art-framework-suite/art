@@ -21,4 +21,4 @@ public:
    void endJob() {}
 };
 
-DEFINE_ART_MODULE(arttest::U_S);
+DEFINE_ART_MODULE(arttest::U_S)

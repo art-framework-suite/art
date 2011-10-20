@@ -39,7 +39,7 @@ namespace art{
 }//namespace
 
 using art::TestSchedulerModule2;
-DEFINE_ART_MODULE(TestSchedulerModule2);
+DEFINE_ART_MODULE(TestSchedulerModule2)
 
 // Local Variables:
 // mode:c++

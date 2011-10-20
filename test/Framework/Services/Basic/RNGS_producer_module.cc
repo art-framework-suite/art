@@ -90,4 +90,4 @@ namespace test {
 
 #include "art/Framework/Core/ModuleMacros.h"
 using test::RNGS_producer;
-DEFINE_ART_MODULE(RNGS_producer);
+DEFINE_ART_MODULE(RNGS_producer)

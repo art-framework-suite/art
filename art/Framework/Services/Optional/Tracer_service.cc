@@ -454,6 +454,6 @@ Tracer::postModuleEndJob(ModuleDescription const& iDescription) {
 
 // ======================================================================
 
-DEFINE_ART_SERVICE(Tracer);
+DEFINE_ART_SERVICE(Tracer)
 
 // ======================================================================

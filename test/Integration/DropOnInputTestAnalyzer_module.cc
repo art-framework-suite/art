@@ -58,4 +58,4 @@ void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
   BOOST_REQUIRE(mapvec[cet::map_vector_key(0)] == "ONE");
 }
 
-DEFINE_ART_MODULE(arttest::DropOnInputTestAnalyzer);
+DEFINE_ART_MODULE(arttest::DropOnInputTestAnalyzer)

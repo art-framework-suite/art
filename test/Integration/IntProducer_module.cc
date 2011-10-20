@@ -101,4 +101,4 @@ IntProducer::put(PUTTER & p) {
   p.put(prod);
 }
 
-DEFINE_ART_MODULE(IntProducer);
+DEFINE_ART_MODULE(IntProducer)

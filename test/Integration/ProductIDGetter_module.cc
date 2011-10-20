@@ -69,4 +69,4 @@ void arttest::ProductIDGetter::produce(art::Event &e) {
   e.put(ptr);
 }
 
-DEFINE_ART_MODULE(arttest::ProductIDGetter);
+DEFINE_ART_MODULE(arttest::ProductIDGetter)

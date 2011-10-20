@@ -42,6 +42,6 @@ void
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_SYSTEM_SERVICE(CurrentModule);
+DEFINE_ART_SYSTEM_SERVICE(CurrentModule)
 
 // ======================================================================

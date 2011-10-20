@@ -49,4 +49,4 @@ arttest::DoubleProducer::produce( art::Event& e )
   e.put(p);
 }
 
-DEFINE_ART_MODULE(arttest::DoubleProducer);
+DEFINE_ART_MODULE(arttest::DoubleProducer)

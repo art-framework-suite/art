@@ -111,4 +111,4 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
   return true;
 }
 
-DEFINE_ART_MODULE(arttest::RandomNumberSaveTest);
+DEFINE_ART_MODULE(arttest::RandomNumberSaveTest)

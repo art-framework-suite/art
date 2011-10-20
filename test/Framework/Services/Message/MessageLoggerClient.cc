@@ -34,4 +34,4 @@ void
 
 
 using arttest::MessageLoggerClient;
-DEFINE_ART_MODULE(MessageLoggerClient);
+DEFINE_ART_MODULE(MessageLoggerClient)

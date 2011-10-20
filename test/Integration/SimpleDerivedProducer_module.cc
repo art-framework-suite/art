@@ -61,6 +61,6 @@ void
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(SimpleDerivedProducer);
+DEFINE_ART_MODULE(SimpleDerivedProducer)
 
 // ======================================================================

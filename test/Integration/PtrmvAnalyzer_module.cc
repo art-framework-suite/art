@@ -99,4 +99,4 @@ void arttest::PtrmvAnalyzer::analyze(art::Event const &e) {
   BOOST_CHECK_EQUAL((*pvp)[3]->second, "TWO");
 }
 
-DEFINE_ART_MODULE(arttest::PtrmvAnalyzer);
+DEFINE_ART_MODULE(arttest::PtrmvAnalyzer)

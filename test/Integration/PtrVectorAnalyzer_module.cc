@@ -91,6 +91,6 @@ private:
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(arttest::PtrVectorAnalyzer);
+DEFINE_ART_MODULE(arttest::PtrVectorAnalyzer)
 
 // ======================================================================

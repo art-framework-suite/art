@@ -38,5 +38,5 @@ void UnitTestClient_L1::analyze( art::Event      const & e
 
 using arttest::UnitTestClient_L;
 using arttest::UnitTestClient_L1;
-DEFINE_ART_MODULE(UnitTestClient_L);
-DEFINE_ART_MODULE(UnitTestClient_L1);
+DEFINE_ART_MODULE(UnitTestClient_L)
+DEFINE_ART_MODULE(UnitTestClient_L1)

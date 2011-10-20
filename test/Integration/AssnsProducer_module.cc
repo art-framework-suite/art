@@ -99,4 +99,4 @@ void arttest::AssnsProducer::produce(art::Event &e) {
 
 }
 
-DEFINE_ART_MODULE(arttest::AssnsProducer);
+DEFINE_ART_MODULE(arttest::AssnsProducer)

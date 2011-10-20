@@ -353,6 +353,5 @@ mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>
 }
 
 namespace arttest {
-  DEFINE_ART_MODULE(ART_MFT);
+  DEFINE_ART_MODULE(ART_MFT)
 }
-

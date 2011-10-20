@@ -618,7 +618,7 @@ EOF
 
 sub module_reg {
   my $fh = shift;
-  print $fh "DEFINE_ART_MODULE($qual_name);\n";
+  print $fh "DEFINE_ART_MODULE($qual_name)\n";
 }
 
 sub vprint {

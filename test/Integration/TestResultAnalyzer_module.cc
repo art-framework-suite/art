@@ -88,4 +88,4 @@ void arttest::TestResultAnalyzer::endJob()
       << "passed=" << passed_ << " failed=" << failed_ << "\n";
 }
 
-DEFINE_ART_MODULE(arttest::TestResultAnalyzer);
+DEFINE_ART_MODULE(arttest::TestResultAnalyzer)

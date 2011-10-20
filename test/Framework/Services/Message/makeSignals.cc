@@ -57,4 +57,4 @@ void
 
 
 using arttest::makeSignals;
-DEFINE_ART_MODULE(makeSignals);
+DEFINE_ART_MODULE(makeSignals)

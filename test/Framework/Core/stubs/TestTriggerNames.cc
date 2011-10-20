@@ -245,4 +245,4 @@ namespace arttest
 
 using arttest::TestTriggerNames;
 
-DEFINE_ART_MODULE(TestTriggerNames);
+DEFINE_ART_MODULE(TestTriggerNames)

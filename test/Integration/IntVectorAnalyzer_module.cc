@@ -72,6 +72,6 @@ private:
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(arttest::IntTestAnalyzer);
+DEFINE_ART_MODULE(arttest::IntTestAnalyzer)
 
 // ======================================================================

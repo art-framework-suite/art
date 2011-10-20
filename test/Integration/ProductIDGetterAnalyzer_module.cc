@@ -48,4 +48,4 @@ void arttest::ProductIDGetterAnalyzer::analyze(art::Event const &e) {
   BOOST_REQUIRE_EQUAL(**h, 4);
 }
 
-DEFINE_ART_MODULE(arttest::ProductIDGetterAnalyzer);
+DEFINE_ART_MODULE(arttest::ProductIDGetterAnalyzer)

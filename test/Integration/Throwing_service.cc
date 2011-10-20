@@ -43,7 +43,5 @@ arttest::Throwing::throwError(art::Event const&)
 }
 
 // ======================================================================
-DEFINE_ART_SERVICE(arttest::Throwing);
+DEFINE_ART_SERVICE(arttest::Throwing)
 // ======================================================================
-
-

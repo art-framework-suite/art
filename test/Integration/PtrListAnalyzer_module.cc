@@ -103,4 +103,4 @@ namespace arttest
 
 }
 
-DEFINE_ART_MODULE(arttest::PtrListAnalyzer);
+DEFINE_ART_MODULE(arttest::PtrListAnalyzer)

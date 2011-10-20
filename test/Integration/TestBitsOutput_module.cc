@@ -169,4 +169,4 @@ void arttest::TestBitsOutput::endJob()
    assert( currentContext() == 0 );
 }
 
-DEFINE_ART_MODULE(arttest::TestBitsOutput);
+DEFINE_ART_MODULE(arttest::TestBitsOutput)

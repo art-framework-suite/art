@@ -45,4 +45,4 @@ arttest::FailingAnalyzer::makeTrouble(art::Event const&)
 }
 
 
-DEFINE_ART_MODULE(arttest::FailingAnalyzer);
+DEFINE_ART_MODULE(arttest::FailingAnalyzer)

@@ -125,5 +125,5 @@ using arttest::TestFilterModule;
 using arttest::SewerModule;
 
 
-DEFINE_ART_MODULE(TestFilterModule);
-DEFINE_ART_MODULE(SewerModule);
+DEFINE_ART_MODULE(TestFilterModule)
+DEFINE_ART_MODULE(SewerModule)

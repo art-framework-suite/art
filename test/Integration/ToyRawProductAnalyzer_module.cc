@@ -85,4 +85,4 @@ void arttest::ToyRawProductAnalyzer::beginSubRun(art::SubRun const &sr) {
   std::cerr << sr.id() << " double = " << (*h) << "\n";
 }
 
-DEFINE_ART_MODULE(arttest::ToyRawProductAnalyzer);
+DEFINE_ART_MODULE(arttest::ToyRawProductAnalyzer)

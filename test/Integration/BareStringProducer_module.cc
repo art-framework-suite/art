@@ -51,4 +51,4 @@ BareStringProducer::produce( art::Event& e )
   e.put(p);
 }
 
-DEFINE_ART_MODULE(BareStringProducer);
+DEFINE_ART_MODULE(BareStringProducer)

@@ -2,14 +2,13 @@
 //
 // ======================================================================
 
+#include "test/Integration/Reconfigurable.h"
+
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "test/Integration/Reconfigurable.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
 #include <iostream>
 
 // ----------------------------------------------------------------------
@@ -33,7 +32,5 @@ void Reconfigurable::reconfigure(fhicl::ParameterSet const& pset)
 }
 
 // ======================================================================
-DEFINE_ART_SERVICE(Reconfigurable);
+DEFINE_ART_SERVICE(Reconfigurable)
 // ======================================================================
-
-

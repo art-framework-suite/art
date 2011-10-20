@@ -554,6 +554,6 @@ void
 
 // ======================================================================
 
-DEFINE_ART_SERVICE(RandomNumberGenerator);
+DEFINE_ART_SERVICE(RandomNumberGenerator)
 
 // ======================================================================

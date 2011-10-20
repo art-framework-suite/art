@@ -232,6 +232,6 @@ void
 
 // ======================================================================
 
-DEFINE_ART_SYSTEM_SERVICE(FloatingPointControl);
+DEFINE_ART_SYSTEM_SERVICE(FloatingPointControl)
 
 // ======================================================================

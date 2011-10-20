@@ -136,4 +136,4 @@ void arttest::MixProducer::produce(art::Event &e) {
   e.put(mv, "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
 }
 
-DEFINE_ART_MODULE(arttest::MixProducer);
+DEFINE_ART_MODULE(arttest::MixProducer)

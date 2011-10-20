@@ -169,6 +169,6 @@ FileDumperOutput::printPrincipal(P const & p) {
 
 // ======================================================================
 
-DEFINE_ART_MODULE(FileDumperOutput);
+DEFINE_ART_MODULE(FileDumperOutput)
 
 // ======================================================================

@@ -480,4 +480,4 @@ namespace arttest
 
 using arttest::TestMergeResults;
 
-DEFINE_ART_MODULE(TestMergeResults);
+DEFINE_ART_MODULE(TestMergeResults)

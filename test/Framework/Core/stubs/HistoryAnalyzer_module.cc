@@ -72,4 +72,4 @@ namespace arttest {
 }
 
 using arttest::HistoryAnalyzer;
-DEFINE_ART_MODULE(HistoryAnalyzer);
+DEFINE_ART_MODULE(HistoryAnalyzer)

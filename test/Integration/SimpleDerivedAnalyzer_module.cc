@@ -239,6 +239,6 @@ SimpleDerivedAnalyzer::test_PtrVector( art::Event const & e ) const
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(SimpleDerivedAnalyzer);
+DEFINE_ART_MODULE(SimpleDerivedAnalyzer)
 
 // ======================================================================

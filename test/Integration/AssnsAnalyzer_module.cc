@@ -190,4 +190,4 @@ void AssnsAnalyzer::analyze(art::Event const &e) {
   BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1u);
 }
 
-DEFINE_ART_MODULE(AssnsAnalyzer);
+DEFINE_ART_MODULE(AssnsAnalyzer)

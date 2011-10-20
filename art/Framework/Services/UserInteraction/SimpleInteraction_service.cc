@@ -87,4 +87,4 @@ namespace ui {
   }
 }
 
-DEFINE_ART_SERVICE(ui::SimpleInteraction);
+DEFINE_ART_SERVICE(ui::SimpleInteraction)

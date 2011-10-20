@@ -18,5 +18,5 @@
 #include "FWCore/Framework/test/stubs/TestPRegisterModule1.h"
 #include "FWCore/Framework/test/stubs/TestPRegisterModule2.h"
 
-DEFINE_ART_MODULE(TestPRegisterModule1);
-DEFINE_ART_MODULE(TestPRegisterModule2);
+DEFINE_ART_MODULE(TestPRegisterModule1)
+DEFINE_ART_MODULE(TestPRegisterModule2)

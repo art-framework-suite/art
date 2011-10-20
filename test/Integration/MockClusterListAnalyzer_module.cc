@@ -98,6 +98,6 @@ void
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(MockClusterListAnalyzer);
+DEFINE_ART_MODULE(MockClusterListAnalyzer)
 
 // ======================================================================

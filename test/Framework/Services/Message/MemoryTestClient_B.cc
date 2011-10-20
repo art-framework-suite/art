@@ -109,4 +109,4 @@ void  MemoryTestClient_B::initializeMemoryPattern(int pattern) {
 
 
 using arttest::MemoryTestClient_B;
-DEFINE_ART_MODULE(MemoryTestClient_B);
+DEFINE_ART_MODULE(MemoryTestClient_B)

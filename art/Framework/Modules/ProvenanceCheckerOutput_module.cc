@@ -169,6 +169,6 @@ namespace art {
 
 // ======================================================================
 
-DEFINE_ART_MODULE(art::ProvenanceCheckerOutput);
+DEFINE_ART_MODULE(art::ProvenanceCheckerOutput)
 
 // ======================================================================

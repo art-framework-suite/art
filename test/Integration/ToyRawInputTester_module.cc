@@ -133,4 +133,4 @@ private:
   string expectedMessage_;
 };
 
-DEFINE_ART_MODULE(arttest::ToyRawInputTester);
+DEFINE_ART_MODULE(arttest::ToyRawInputTester)

@@ -7,4 +7,4 @@ namespace arttest {
   typedef GenericOneSimpleProductAnalyzer<std::string, std::string> BareStringAnalyzer;
 }
 
-DEFINE_ART_MODULE(arttest::BareStringAnalyzer);
+DEFINE_ART_MODULE(arttest::BareStringAnalyzer)

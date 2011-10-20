@@ -6,4 +6,4 @@ namespace arttest {
    typedef GenericOneSimpleProductAnalyzer<int, IntProduct> IntTestAnalyzer;
 }
 
-DEFINE_ART_MODULE(arttest::IntTestAnalyzer);
+DEFINE_ART_MODULE(arttest::IntTestAnalyzer)

@@ -52,4 +52,4 @@ void arttest::TestFilter::endJob()
    assert(currentContext() == 0);
 }
 
-DEFINE_ART_MODULE(arttest::TestFilter);
+DEFINE_ART_MODULE(arttest::TestFilter)

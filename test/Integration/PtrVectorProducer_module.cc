@@ -67,6 +67,6 @@ PtrVectorProducer::produce( art::Event& e )
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(PtrVectorProducer);
+DEFINE_ART_MODULE(PtrVectorProducer)
 
 // ======================================================================

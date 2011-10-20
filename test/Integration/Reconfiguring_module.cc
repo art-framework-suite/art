@@ -63,6 +63,6 @@ void Reconfiguring::analyze( art::Event const & )
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(Reconfiguring);
+DEFINE_ART_MODULE(Reconfiguring)
 
 // ======================================================================

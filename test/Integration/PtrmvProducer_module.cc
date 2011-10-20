@@ -84,4 +84,4 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
   e.put(pvp);
 }
 
-DEFINE_ART_MODULE(arttest::PtrmvProducer);
+DEFINE_ART_MODULE(arttest::PtrmvProducer)

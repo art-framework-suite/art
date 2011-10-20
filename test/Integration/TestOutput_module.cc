@@ -55,4 +55,4 @@ void arttest::TestOutput::endJob()
    }
 }
 
-DEFINE_ART_MODULE(arttest::TestOutput);
+DEFINE_ART_MODULE(arttest::TestOutput)

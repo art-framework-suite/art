@@ -99,4 +99,4 @@ namespace arttest
 
 using arttest::TestResultAnalyzer;
 
-DEFINE_ART_MODULE(TestResultAnalyzer);
+DEFINE_ART_MODULE(TestResultAnalyzer)

@@ -63,4 +63,4 @@ namespace test {
 
 #include "art/Framework/Core/ModuleMacros.h"
 using test::RNGS_analyzer;
-DEFINE_ART_MODULE(RNGS_analyzer);
+DEFINE_ART_MODULE(RNGS_analyzer)

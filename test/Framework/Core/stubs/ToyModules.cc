@@ -308,14 +308,13 @@ using arttest::IntListProducer;
 using arttest::IntDequeProducer;
 using arttest::IntSetProducer;
 using arttest::ProdigalProducer;
-DEFINE_ART_MODULE(FailingProducer);
-DEFINE_ART_MODULE(NonProducer);
-DEFINE_ART_MODULE(Int16_tProducer);
-DEFINE_ART_MODULE(ToyDoubleProducer);
-DEFINE_ART_MODULE(AddIntsProducer);
-DEFINE_ART_MODULE(IntVectorProducer);
-DEFINE_ART_MODULE(IntListProducer);
-DEFINE_ART_MODULE(IntDequeProducer);
-DEFINE_ART_MODULE(IntSetProducer);
-DEFINE_ART_MODULE(ProdigalProducer);
-
+DEFINE_ART_MODULE(FailingProducer)
+DEFINE_ART_MODULE(NonProducer)
+DEFINE_ART_MODULE(Int16_tProducer)
+DEFINE_ART_MODULE(ToyDoubleProducer)
+DEFINE_ART_MODULE(AddIntsProducer)
+DEFINE_ART_MODULE(IntVectorProducer)
+DEFINE_ART_MODULE(IntListProducer)
+DEFINE_ART_MODULE(IntDequeProducer)
+DEFINE_ART_MODULE(IntSetProducer)
+DEFINE_ART_MODULE(ProdigalProducer)

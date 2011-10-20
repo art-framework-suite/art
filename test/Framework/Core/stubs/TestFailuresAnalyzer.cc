@@ -75,4 +75,4 @@ TestFailuresAnalyzer::analyze(const art::Event& /* iEvent */, const art::EventSe
 }
 
 //define this as a plug-in
-DEFINE_ART_MODULE(TestFailuresAnalyzer);
+DEFINE_ART_MODULE(TestFailuresAnalyzer)

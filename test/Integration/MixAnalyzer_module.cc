@@ -187,4 +187,4 @@ void arttest::MixAnalyzer::analyze(art::Event const &e) {
   }
 }
 
-DEFINE_ART_MODULE(arttest::MixAnalyzer);
+DEFINE_ART_MODULE(arttest::MixAnalyzer)

@@ -80,6 +80,6 @@ MockClusterListProducer::produce( art::Event& e )
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_MODULE(MockClusterListProducer);
+DEFINE_ART_MODULE(MockClusterListProducer)
 
 // ======================================================================

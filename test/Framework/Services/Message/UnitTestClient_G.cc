@@ -38,4 +38,4 @@ void
 
 
 using arttest::UnitTestClient_G;
-DEFINE_ART_MODULE(UnitTestClient_G);
+DEFINE_ART_MODULE(UnitTestClient_G)

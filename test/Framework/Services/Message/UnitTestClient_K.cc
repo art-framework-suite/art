@@ -27,4 +27,4 @@ void
 
 
 using arttest::UnitTestClient_K;
-DEFINE_ART_MODULE(UnitTestClient_K);
+DEFINE_ART_MODULE(UnitTestClient_K)

@@ -35,7 +35,7 @@ void TestSchedulerModule1::produce(Event& e, EventSetup const&)
   e.put(product);
 }
 
-DEFINE_ART_MODULE(TestSchedulerModule1);
+DEFINE_ART_MODULE(TestSchedulerModule1)
 
 
 // Configure (x)emacs for this file ...

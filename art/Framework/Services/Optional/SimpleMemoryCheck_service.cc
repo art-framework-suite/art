@@ -822,6 +822,6 @@ namespace art {
 
 // ======================================================================
 
-DEFINE_ART_SERVICE(SimpleMemoryCheck);
+DEFINE_ART_SERVICE(SimpleMemoryCheck)
 
 // ======================================================================

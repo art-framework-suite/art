@@ -6,4 +6,4 @@ namespace arttest {
    typedef GenericOneSimpleProductAnalyzer<double, DoubleProduct> DoubleTestAnalyzer;
 }
 
-DEFINE_ART_MODULE(arttest::DoubleTestAnalyzer);
+DEFINE_ART_MODULE(arttest::DoubleTestAnalyzer)

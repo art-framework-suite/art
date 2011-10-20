@@ -174,4 +174,4 @@ namespace arttest
 
 using arttest::TestOutputModule;
 
-DEFINE_ART_MODULE(TestOutputModule);
+DEFINE_ART_MODULE(TestOutputModule)
