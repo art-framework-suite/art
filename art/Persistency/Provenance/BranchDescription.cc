@@ -212,7 +212,7 @@ art::BranchDescription::swap(BranchDescription &other) {
   swap(psetIDs_, other.psetIDs_);
   swap(processConfigurationIDs_, other.processConfigurationIDs_);
   swap(transients_, other.transients_);
-};
+}
 
 void
 art::BranchDescription::throwIfInvalid_() const

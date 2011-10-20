@@ -82,15 +82,17 @@ macro(art_ut_exec TARGET_STEM MAIN_FUNC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/art_ut.cc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc @ONLY
     )
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc
+      PROPERTIES
+      COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+      COMPILE_FLAGS -Wno-overloaded-virtual
+      )
   add_executable(${TARGET_STEM}_ut ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc)
   target_link_libraries(${TARGET_STEM}_ut
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
     ${art_exec_link_libraries}
     ${common_exec_link_libraries} )
   install ( TARGETS ${TARGET_STEM}_ut DESTINATION ${flavorqual_dir}/bin )
-  set_target_properties(${TARGET_STEM}_ut PROPERTIES
-    COMPILE_DEFINITIONS "BOOST_TEST_DYN_LINK"
-    )
 endmacro()
 
 art_ut_exec(art artapp)

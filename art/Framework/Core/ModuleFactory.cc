@@ -42,8 +42,7 @@ ModuleFactory::makeWorker( WorkerParams      const & p
                            );
    make_t *symbol = nullptr;
    try {
-      // reinterpret_cast is required because void* can't be converted to a whole lot.
-      symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp") );
+     the_factory_().lm_.getSymbolByLibspec(libspec, "make_temp", symbol);
    }
    catch (art::Exception &e) {
      detail::wrapLibraryManagerException(e, "Module", libspec, p.releaseVersion_);

@@ -201,7 +201,7 @@ EventPrincipalTestFixture::gf() {
   return gf_s;
 }
 
-BOOST_FIXTURE_TEST_SUITE(eventprincipal_t, EventPrincipalTestFixture);
+BOOST_FIXTURE_TEST_SUITE(eventprincipal_t, EventPrincipalTestFixture)
 
 BOOST_AUTO_TEST_CASE(failgetbyIdTest)
 {
@@ -270,4 +270,4 @@ BOOST_AUTO_TEST_CASE(failgetbyInvalidIdTest)
   BOOST_CHECK_THROW(pEvent_->getByProductID(id), art::Exception);
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,4 +1,14 @@
 /*#include "sqliteInt.h"*/
+
+// Ignore warnings in order to preserve the relationship between this
+// file and the VFS template from which it was taken.
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 extern "C" {
 #include <sqlite3.h>
 }

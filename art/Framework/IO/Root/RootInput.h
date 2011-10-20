@@ -137,9 +137,6 @@ private:
   readIt( EventID const& id, MasterProductRegistry& );
 
   virtual void
-  skip( int offset, MasterProductRegistry& );
-
-  virtual void
   rewind_( );
 
   template <typename T>

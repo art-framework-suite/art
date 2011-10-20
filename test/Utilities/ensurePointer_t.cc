@@ -18,7 +18,7 @@ typedef std::vector<int> ivec_t;
 typedef std::vector<int *> ipvec_t;
 typedef std::vector<int const *> icpvec_t;
 
-BOOST_AUTO_TEST_SUITE(ensurePointer_t);
+BOOST_AUTO_TEST_SUITE(ensurePointer_t)
 
 // Check basic type handling.
 BOOST_AUTO_TEST_CASE(basic_types)

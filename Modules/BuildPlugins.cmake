@@ -14,7 +14,7 @@
 # simple plugin libraries
 include(CetParseArgs)
 macro (simple_plugin name type)
-  cet_parse_args(SP "" "ALLOW_UNDERSCORES;NOINSTALL" ${ARGN})
+  cet_parse_args(SP "" "USE_BOOST_UNIT;ALLOW_UNDERSCORES;NOINSTALL" ${ARGN})
   #message( STATUS "simple_plugin: PACKAGE_TOP_DIRECTORY is ${PACKAGE_TOP_DIRECTORY}")
   # base name on current subdirectory
   if( PACKAGE_TOP_DIRECTORY )
@@ -34,6 +34,14 @@ macro (simple_plugin name type)
   #message(STATUS "SIMPLE_PLUGIN: generating ${plugin_name}")
   add_library(${plugin_name} SHARED ${codename} )
   set(simple_plugin_liblist "${SP_DEFAULT_ARGS}")
+  if(SP_USE_BOOST_UNIT)
+    set_target_properties(${plugin_name}
+      PROPERTIES
+      COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+      COMPILE_FLAGS -Wno-overloaded-virtual
+      )
+    set(simple_plugin_liblist ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${simple_plugin_liblist})
+  endif()
   if( simple_plugin_liblist )
     target_link_libraries( ${plugin_name} ${simple_plugin_liblist} )
   endif( simple_plugin_liblist )

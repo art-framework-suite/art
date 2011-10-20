@@ -173,7 +173,7 @@ int print_pset_from_file(TFile& file,
                                   output, errors);
 
   return 0;
-};
+}
 
 // Extract all the requested module configuration ParameterSets (for
 // modules with the given labels, run as part of processes of the given

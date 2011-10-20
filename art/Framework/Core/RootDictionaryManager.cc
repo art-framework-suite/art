@@ -41,7 +41,7 @@ dumpReflexDictionaryInfo(std::ostream &os, std::string const &libpath) const {
                         std::regex(std::string("_(") + dm_.libType() + ")(" + dm_.dllExt() + ")$"),
                         std::string("(?1_" + mm_.libType() + "$2)"),
                         boost::match_default | boost::format_all);
-   CapFunc func = (CapFunc) mm_.getSymbolByPath(map_lib.str(), "SEAL_CAPABILITIES");
+   CapFunc func = mm_.getSymbolByPath<CapFunc>(map_lib.str(), "SEAL_CAPABILITIES");
    if (func == nullptr) {
       // TODO: Throw correct exception.
       throw cet::exception("Unable to find properly constructed map library corresponding to dictionary" + libpath);

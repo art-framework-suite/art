@@ -94,6 +94,7 @@ namespace art
     virtual std::shared_ptr<SubRunPrincipal>
     readSubRun(std::shared_ptr<RunPrincipal> rp);
 
+    using InputSource::readEvent;
     virtual std::auto_ptr<EventPrincipal>
     readEvent(std::shared_ptr<SubRunPrincipal> srp);
 

@@ -221,4 +221,4 @@ namespace arttest
   typedef art::ReaderSource<ToyFile> ToyRawInput;
 }
 
-DEFINE_ART_INPUT_SOURCE(arttest::ToyRawInput);
+DEFINE_ART_INPUT_SOURCE(arttest::ToyRawInput)

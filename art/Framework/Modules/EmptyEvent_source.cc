@@ -265,5 +265,5 @@ art::EmptyEvent::setRunAndEventInfo() {
    if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
 }
 
-DEFINE_ART_INPUT_SOURCE(EmptyEvent);
+DEFINE_ART_INPUT_SOURCE(EmptyEvent)
 

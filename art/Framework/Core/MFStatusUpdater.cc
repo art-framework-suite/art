@@ -28,6 +28,8 @@
   updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1, \
                            ActivityRegistry::stateTag::slot_type::arg2_type_ arg2)
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   areg_(areg),
   programStatus_(),

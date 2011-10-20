@@ -227,15 +227,8 @@ RootInput::rewind_()
   primaryFileSequence_->rewind_();
 }
 
-// Advance "offset" events.  Offset can be positive or negative (or zero).
-void
-RootInput::skip(int offset, MasterProductRegistry& mpr)
-{
-  primaryFileSequence_->skip(offset, mpr);
-}
-
 // ======================================================================
 
-DEFINE_ART_INPUT_SOURCE(RootInput);
+DEFINE_ART_INPUT_SOURCE(RootInput)
 
 // ======================================================================

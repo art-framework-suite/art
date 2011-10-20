@@ -1,13 +1,14 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
 
 int myvfs_init(void);
 
-static int callback(void * junk, int cnt, char ** vals, char ** col_name)
+static int callback(void * junk __attribute__((unused)), int cnt, char ** vals, char ** col_name)
 {
-  printf("\n");
   int i = 0;
+  printf("\n");
   for (i = 0; i < cnt; ++i) {
     if (vals[i]) {
       printf("%s: %s\n", col_name[i], vals[i]);

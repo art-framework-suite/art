@@ -327,13 +327,13 @@ namespace art {
 
   void
   inline
-  Schedule::reportSkipped(SubRunPrincipal const & ep) const
+  Schedule::reportSkipped(SubRunPrincipal const &) const
   {
   }
 
   void
   inline
-  Schedule::reportSkipped(RunPrincipal const & ep) const
+  Schedule::reportSkipped(RunPrincipal const &) const
   {
   }
 

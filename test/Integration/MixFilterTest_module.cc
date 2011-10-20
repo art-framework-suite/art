@@ -1,4 +1,3 @@
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/included/unit_test.hpp>
 
 #include "art/Framework/Core/ModuleMacros.h"
@@ -355,3 +354,4 @@ mixmap_vectorPtrs(std::vector<std::vector<art::Ptr<cet::map_vector<unsigned int>
 namespace arttest {
   DEFINE_ART_MODULE(ART_MFT)
 }
+

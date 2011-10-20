@@ -39,8 +39,7 @@ InputSourceFactory::make(ParameterSet const& conf,
    make_t *symbol = nullptr;
 
    try {
-      // reinterpret_cast is required because void* can't be converted to a whole lot.
-      symbol = reinterpret_cast<make_t*>( the_factory_().lm_.getSymbolByLibspec(libspec, "make") );
+     the_factory_().lm_.getSymbolByLibspec(libspec, "make", symbol);
    }
    catch (art::Exception const &e) {
      detail::wrapLibraryManagerException(e, "InputSource", libspec, getReleaseVersion());

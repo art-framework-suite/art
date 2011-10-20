@@ -302,7 +302,7 @@ EventTestFixture::gf() {
   return gf_s;
 }
 
-BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture);
+BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture)
 
 BOOST_AUTO_TEST_CASE(emptyEvent)
 {
@@ -633,4 +633,4 @@ BOOST_AUTO_TEST_CASE(printHistory)
   cet::copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+BOOST_AUTO_TEST_SUITE_END()

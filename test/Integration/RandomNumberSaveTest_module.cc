@@ -58,7 +58,6 @@ ostream & operator << (ostream & os,
   return os;
 }
 
-#define BOOST_TEST_DYN_LINK
 #include "boost/test/included/unit_test.hpp"
 
 arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const & p)

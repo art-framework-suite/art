@@ -29,7 +29,7 @@ void try_loading(LibraryManager& libs,
   void* sym = 0;
   try
     {
-      sym = libs.getSymbolByPath(path, expected_symbol);
+      libs.getSymbolByPath(path, expected_symbol, sym);
       if (sym)
         cout << "... ok\n";
       else
@@ -86,3 +86,7 @@ int main()
 
   return 0;
 }
+
+// Local Variables:
+// mode: c++
+// End:

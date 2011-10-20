@@ -90,6 +90,6 @@ void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 
 #endif /* art_Utilities_md5_h */
 
-// Local Variables:
-// mode: c++
-// End:
+/* Local Variables: */
+/* mode: c */
+/* End: */

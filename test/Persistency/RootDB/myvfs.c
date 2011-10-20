@@ -1,3 +1,8 @@
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 /*#include "sqliteInt.h"*/
 #include <sqlite3.h>
 #define SQLITE_OPEN_WAL              0x00080000  /* VFS only */
@@ -149,9 +154,9 @@ struct unixFile {
 # define O_BINARY 0
 #endif
 
-#if 0 // F13
+#if 0 /* F13 */
 typedef void (*sqlite3_syscall_ptr)(void);
-#endif // 0
+#endif /* 0 */
 
 /* Function Directory */
 static int sqlite3CantopenError(int lineno);
@@ -210,7 +215,7 @@ static int sqlite3CantopenError(int lineno)
   sqlite3_log(SQLITE_CANTOPEN,
               "cannot open file at line %d of [%.10s]",
               lineno, 20 + sqlite3_sourceid());
-#endif // 0
+#endif /* 0 */
   fprintf(stderr,
           "myvfs.c: cannot open file at line %d of [%.10s]",
           lineno, 20 + sqlite3_sourceid());
@@ -351,7 +356,7 @@ static const sqlite3_io_methods nolockIoMethods = {
   0,                          /* xShmLock */
   0,                          /* xShmBarrier */
   0                           /* xShmUnmap */
-#endif // 0
+#endif /* 0 */
 };
 
 static const sqlite3_io_methods * nolockIoFinderImpl(const char * z, unixFile * p)
@@ -402,7 +407,7 @@ static int unixLogErrorAtLine(
               "os_unix.c:%d: (%d) %s(%s) - %s",
               iLine, iErrno, zFunc, zPath, zErr
              );
-#endif // 0
+#endif /* 0 */
   fprintf(stderr,
           "myvfs.c:%d: (%d) %s(%s) - %s",
           iLine, iErrno, zFunc, zPath, zErr

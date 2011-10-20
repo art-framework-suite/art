@@ -1,15 +1,14 @@
 #ifndef art_Framework_Core_LibraryManager_h
 #define art_Framework_Core_LibraryManager_h
 
+#include <cstring>
 #include <string>
 #include <map>
 #include <set>
 #include <vector>
 
-namespace art
-{
-  class LibraryManager
-  {
+namespace art {
+  class LibraryManager {
   public:
     // Create a LibraryManager that searches through LD_LIBRARY_PATH
     // for dynamically loadable libraries having the given lib_type.
@@ -18,7 +17,7 @@ namespace art
     //      libaa_bb_cc_xyz_<lib_type>.<ext>
     //  and where <ext> is provided automatically as appropriate for
     // the platform.
-    explicit LibraryManager(std::string const& lib_type);
+    explicit LibraryManager(std::string const & lib_type);
 
     // The d'tor does NOT unload libraries, because that is dangerous
     // to do in C++. Use the compiler-generated destructor.
@@ -30,10 +29,20 @@ namespace art
     // symbol named sym_name is found in the library, return a null
     // pointer. If more than one library matching libspec if found, an
     // exception is thrown.
-    void* getSymbolByLibspec(std::string const &libspec,
-                             std::string const& sym_name) const;
-    void *getSymbolByPath(std::string const &lib_loc,
-                          std::string const &sym_name) const;
+    template <typename T>
+    T getSymbolByLibspec(std::string const & libspec,
+                         std::string const & sym_name) const;
+    template <typename T>
+    void getSymbolByLibspec(std::string const & libspec,
+                            std::string const & sym_name,
+                            T & sym) const;
+    template <typename T>
+    T getSymbolByPath(std::string const & lib_loc,
+                      std::string const & sym_name) const;
+    template <typename T>
+    void getSymbolByPath(std::string const & lib_loc,
+                         std::string const & sym_name,
+                         T & sym) const;
 
     // Get a list of loadable libraries (full paths). Returns the
     // number of entries.
@@ -56,11 +65,11 @@ namespace art
     void loadAllLibraries() const;
 
     // Check whether libraries are loaded.
-    bool libraryIsLoaded(std::string const &path) const;
+    bool libraryIsLoaded(std::string const & path) const;
     // Check whether library is loadable. Note this is *not* efficient
     // and is only intended for diagnostic purposes. If it needs to be
     // efficient the implementation will need to be improved.
-    bool libraryIsLoadable(std::string const &path) const;
+    bool libraryIsLoadable(std::string const & path) const;
 
     // This manager's library type
     std::string libType() const { return lib_type_; }
@@ -80,11 +89,15 @@ namespace art
     typedef std::map<std::string, std::string> good_spec_trans_map_t;
 
     // Private helper functions.
-    void lib_loc_map_inserter(std::string const &path);
-    void spec_trans_map_inserter(lib_loc_map_t::value_type const &entry,
-                                 std::string const &lib_type);
-    void good_spec_trans_map_inserter(spec_trans_map_t::value_type const &entry);
-    void *get_lib_ptr(std::string const &lib_loc) const;
+    void lib_loc_map_inserter(std::string const & path);
+    void spec_trans_map_inserter(lib_loc_map_t::value_type const & entry,
+                                 std::string const & lib_type);
+    void good_spec_trans_map_inserter(spec_trans_map_t::value_type const & entry);
+    void * get_lib_ptr(std::string const & lib_loc) const;
+    void * getSymbolByLibspec_(std::string const & libspec,
+                               std::string const & sym_name) const;
+    void * getSymbolByPath_(std::string const & lib_loc,
+                            std::string const & sym_name) const;
 
     std::string lib_type_; // eg _plugin.
     // Map of library filename -> full path.
@@ -98,46 +111,97 @@ namespace art
   };
 }
 
-template <class OutIter>
-size_t art::LibraryManager::getLoadableLibraries(OutIter dest) const {
-   size_t count = 0;
-   lib_loc_map_t::const_iterator
-      i = lib_loc_map_.begin(),
-      end_iter = lib_loc_map_.end();
-   for (;
-        i != end_iter;
-        ++i, ++count) {
-      *dest++ = i->second;
-   }
-   return count;
+template <typename T>
+inline
+T
+art::LibraryManager::
+getSymbolByLibspec(std::string const & libspec,
+                   std::string const & sym_name) const
+{
+  T sym;
+  getSymbolByLibspec(libspec, sym_name, sym);
+  return sym;
+}
+
+template <typename T>
+inline
+void
+art::LibraryManager::
+getSymbolByLibspec(std::string const & libspec,
+                   std::string const & sym_name,
+                   T & sym) const
+{
+  void *tmp = getSymbolByLibspec_(libspec, sym_name);
+  memcpy(&sym, &tmp, sizeof(T));
+}
+
+template <typename T>
+inline
+T
+art::LibraryManager::
+getSymbolByPath(std::string const & lib_loc,
+                std::string const & sym_name) const
+{
+  T sym;
+  getSymbolByPath(lib_loc, sym_name, sym);
+  return sym;
+}
+
+template <typename T>
+inline
+void
+art::LibraryManager::
+getSymbolByPath(std::string const & lib_loc,
+                std::string const & sym_name,
+                T & sym) const
+{
+  void *tmp = getSymbolByPath_(lib_loc, sym_name);
+  memcpy(&sym, &tmp, sizeof(T));
 }
 
 template <class OutIter>
-size_t art::LibraryManager::getLoadedLibraries(OutIter dest) const {
-   size_t count = 0;
-   lib_ptr_map_t::const_iterator
-      i = lib_ptr_map_.begin(),
-      end_iter = lib_ptr_map_.end();
-   for (;
-        i != end_iter;
-        ++i, ++count) {
-      *dest++ = i->first;
-   }
-   return count;
+size_t art::LibraryManager::getLoadableLibraries(OutIter dest) const
+{
+  size_t count = 0;
+  lib_loc_map_t::const_iterator
+  i = lib_loc_map_.begin(),
+  end_iter = lib_loc_map_.end();
+  for (;
+       i != end_iter;
+       ++i, ++count) {
+    *dest++ = i->second;
+  }
+  return count;
 }
 
 template <class OutIter>
-size_t art::LibraryManager::getValidLibspecs(OutIter dest) const {
-   size_t count = 0;
-   spec_trans_map_t::const_iterator
-      i = spec_trans_map_.begin(),
-      end_iter = spec_trans_map_.end();
-   for (;
-        i != end_iter;
-        ++i, ++count) {
-      *dest++ = i->first;
-   }
-   return count;
+size_t art::LibraryManager::getLoadedLibraries(OutIter dest) const
+{
+  size_t count = 0;
+  lib_ptr_map_t::const_iterator
+  i = lib_ptr_map_.begin(),
+  end_iter = lib_ptr_map_.end();
+  for (;
+       i != end_iter;
+       ++i, ++count) {
+    *dest++ = i->first;
+  }
+  return count;
+}
+
+template <class OutIter>
+size_t art::LibraryManager::getValidLibspecs(OutIter dest) const
+{
+  size_t count = 0;
+  spec_trans_map_t::const_iterator
+  i = spec_trans_map_.begin(),
+  end_iter = spec_trans_map_.end();
+  for (;
+       i != end_iter;
+       ++i, ++count) {
+    *dest++ = i->first;
+  }
+  return count;
 }
 
 #endif /* art_Framework_Core_LibraryManager_h */

@@ -40,7 +40,7 @@ struct TestFixture {
   }
 };
 
-BOOST_FIXTURE_TEST_SUITE(RootClassMapping_t, TestFixture);
+BOOST_FIXTURE_TEST_SUITE(RootClassMapping_t, TestFixture)
 
 BOOST_AUTO_TEST_CASE(write)
 {
@@ -72,4 +72,4 @@ BOOST_AUTO_TEST_CASE(read)
       << ".\n";
 }
 
-BOOST_AUTO_TEST_SUITE_END();
+BOOST_AUTO_TEST_SUITE_END()

@@ -127,9 +127,9 @@ void
 
       // go to lm and get the typeid and maker function for this service
       GET_TYPEID_t typeid_func
-         = reinterpret_cast<GET_TYPEID_t>(lm.getSymbolByLibspec(service_name,"get_typeid"));
+         = lm.getSymbolByLibspec<GET_TYPEID_t>(service_name,"get_typeid");
       MAKER_t make_func
-         = reinterpret_cast<MAKER_t>(lm.getSymbolByLibspec(service_name,"make"));
+         = lm.getSymbolByLibspec<MAKER_t>(service_name,"make");
 
       if(typeid_func==0)
         throw art::Exception(art::errors::LogicError,"Service")

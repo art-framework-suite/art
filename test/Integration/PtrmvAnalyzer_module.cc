@@ -7,7 +7,6 @@
 // from art v0_07_07.
 ////////////////////////////////////////////////////////////////////////
 
-#define BOOST_TEST_DYN_LINK
 #include <boost/test/included/unit_test.hpp>
 
 #include "art/Framework/Core/EDAnalyzer.h"
