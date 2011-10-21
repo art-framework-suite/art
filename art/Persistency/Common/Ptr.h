@@ -52,9 +52,9 @@ public:
   template <typename H>
   Ptr(H const & handle, key_type idx);
 
-  // Constructor for those users who do not have a product handle,
-  // but have a pointer to a product getter (such as the EventPrincipal).
-  // prodGetter will ususally be a pointer to the event principal.
+  // Constructor for those users who do not have a product handle, but
+  // have a pointer to a product getter. A ProductGetter may be obtained
+  // from the event using a ProductID.
   Ptr(ProductID const & productID, key_type itemKey, EDProductGetter const * prodGetter) :
     core_(productID, 0, prodGetter), key_(itemKey)
   { }
