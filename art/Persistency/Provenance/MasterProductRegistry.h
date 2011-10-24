@@ -14,6 +14,8 @@
 
 #include "Reflex/Type.h"
 
+#include "boost/noncopyable.hpp"
+
 #include <iosfwd>
 #include <map>
 #include <string>
@@ -28,7 +30,7 @@ namespace art {
   std::ostream &operator<<(std::ostream &os, MasterProductRegistry const &mpr);
 }
 
-class art::MasterProductRegistry {
+class art::MasterProductRegistry : boost::noncopyable {
 public:
   MasterProductRegistry();
 
