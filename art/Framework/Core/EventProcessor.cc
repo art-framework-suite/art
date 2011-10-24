@@ -370,6 +370,8 @@ namespace art {
     ServiceRegistry::Operate operate(serviceToken_);
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
+    // Old input sources may need this for now.
+    input_->storeMPRforBrokenRandomAccess(preg_);
     schedule_ = std::auto_ptr<Schedule>
                 (new Schedule(pset,
                               ServiceRegistry::instance().get<TNS>(),

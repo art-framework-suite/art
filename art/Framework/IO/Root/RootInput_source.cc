@@ -38,7 +38,8 @@ RootInput::RootInput( fhicl::ParameterSet const & pset,
                              )
    ),
   branchIDsToReplace_( ),
-  accessState_()
+  accessState_(),
+  mpr_()
 { }
 
 RootInput::~RootInput()
@@ -78,6 +79,7 @@ RootInput::endJob()
 std::shared_ptr<FileBlock>
 RootInput::readFile_(MasterProductRegistry& mpr)
 {
+  checkMPR(mpr);
   return primaryFileSequence_->readFile_(mpr);
 }
 
@@ -121,6 +123,7 @@ RootInput::nextItemType() {
 std::auto_ptr<EventPrincipal>
 RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr)
 {
+  checkMPR(mpr);
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
     return DecrepitRelicInputSourceImplementation::readEvent(srp);
@@ -177,6 +180,7 @@ RootInput::readRun()
 
 std::shared_ptr<FileBlock>
 RootInput::readFile(MasterProductRegistry& mpr) {
+  checkMPR(mpr);
   switch (accessState_.state()) {
   case AccessState::SEQUENTIAL:
     return DecrepitRelicInputSourceImplementation::readFile(mpr);
@@ -225,6 +229,20 @@ RootInput::rewind_()
 {
   accessState_.resetState();
   primaryFileSequence_->rewind_();
+}
+
+void
+RootInput::storeMPRforBrokenRandomAccess(MasterProductRegistry & mpr) {
+  mpr_.reset(&mpr);
+}
+
+void
+RootInput::checkMPR(MasterProductRegistry const & mpr) const {
+  if (&mpr != mpr_.get()) {
+    throw Exception(errors::LogicError)
+      << "Consistency error: MasterProductRegistry in current call does not match\n"
+      << "that stored!\n";
+  }
 }
 
 // ======================================================================

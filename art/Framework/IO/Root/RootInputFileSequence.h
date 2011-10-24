@@ -60,7 +60,7 @@ namespace art {
     std::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset, MasterProductRegistry&);
     void rewind_();
-    EventID seekToEvent(EventID const &eID, bool exact = false);
+    EventID seekToEvent(EventID const &eID, MasterProductRegistry& mpr, bool exact = false);
     EventID seekToEvent(off_t offset, MasterProductRegistry& mpr, bool exact = false);
     RootInputFileSharedPtr rootFileForLastReadEvent() const {
       return rootFileForLastReadEvent_;
@@ -80,6 +80,7 @@ namespace art {
     ProcessConfiguration const& processConfiguration() const;
     bool primary() const;
     void logFileAction(const char* msg, std::string const& file);
+    void mergeMPR(MasterProductRegistry & mpr);
 
     InputFileCatalog const& catalog_;
     bool firstFile_;

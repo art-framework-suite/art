@@ -33,8 +33,8 @@ namespace art
 class art::RootInput : public art::DecrepitRelicInputSourceImplementation
 {
 public:
-  explicit RootInput(fhicl::ParameterSet    const & pset,
-                     InputSourceDescription & desc);
+  RootInput(fhicl::ParameterSet const & pset,
+            InputSourceDescription & desc);
   virtual ~RootInput( );
 
   using DecrepitRelicInputSourceImplementation::runPrincipal;
@@ -93,6 +93,7 @@ private:
   };
 
   AccessState accessState_;
+  cet::exempt_ptr<MasterProductRegistry> mpr_;
 
   typedef  std::shared_ptr<RootInputFile>  RootInputFileSharedPtr;
   typedef  input::EntryNumber           EntryNumber;
@@ -144,8 +145,13 @@ private:
                          typename std::enable_if<std::is_convertible<T, off_t>::value >::type * = 0);
 
   template <typename T>
-  EventID postSeekChecks(EventID const &foundID, T eventSpec,
+  EventID postSeekChecks(EventID const &foundID, T eventSpec, MasterProductRegistry& mpr,
                          typename std::enable_if<! std::is_convertible<T, off_t>::value >::type * = 0);
+
+  virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry & mpr);
+
+  void checkMPR(MasterProductRegistry const & mpr) const;
+
 }; // RootInput
 
 template <typename T>
@@ -157,9 +163,9 @@ bool art::RootInput::seekToEvent(T eventSpec, bool exact) {
       << accessState_.state()
       << ".\n";
   }
-  EventID foundID = primaryFileSequence_->seekToEvent(eventSpec, exact);
+  EventID foundID = primaryFileSequence_->seekToEvent(eventSpec, *mpr_, exact);
   if (!foundID.isValid()) return false;
-  foundID = postSeekChecks(foundID, eventSpec);
+  foundID = postSeekChecks(foundID, eventSpec, *mpr_);
   accessState_.setWantedEventID(foundID);
   if (primaryFileSequence_->rootFile() !=
       accessState_.rootFileForLastReadEvent()) {
@@ -181,6 +187,7 @@ art::RootInput::postSeekChecks(EventID const &foundID,
                                T eventspec,
                                MasterProductRegistry& mpr,
                                typename std::enable_if<std::is_convertible<T, off_t>::value >::type *) {
+  checkMPR(mpr);
   if (eventspec == 0 && foundID == accessState_.lastReadEventID()) {
     // We're supposed to be reading the, "next" event but it's a
     // duplicate of the current one: skip it.
@@ -196,7 +203,8 @@ art::RootInput::postSeekChecks(EventID const &foundID,
 template <typename T>
 art::EventID
 art::RootInput::postSeekChecks(EventID const &foundID,
-                               T eventspec,
+                               T,
+                               MasterProductRegistry &,
                                typename std::enable_if<! std::is_convertible<T, off_t>::value >::type *) {
   // Default implementation is NOP.
   return foundID;

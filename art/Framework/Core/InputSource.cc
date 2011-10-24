@@ -37,3 +37,9 @@ void
 art::InputSource::doEndJob()
 { }
 
+void
+art::InputSource::
+storeMPRforBrokenRandomAccess(MasterProductRegistry &)
+{
+  // Do nothing.
+}

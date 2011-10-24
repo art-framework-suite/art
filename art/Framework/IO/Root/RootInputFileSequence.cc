@@ -111,7 +111,7 @@ namespace art {
     }
   }
 
-  EventID RootInputFileSequence::seekToEvent(EventID const &eID, bool exact) {
+  EventID RootInputFileSequence::seekToEvent(EventID const &eID, MasterProductRegistry& mpr, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(eID, true);
     typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
@@ -123,6 +123,7 @@ namespace art {
           // We found it. Close the currently open file, and open the correct one.
           fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
           initFile(false);
+          if (rootFile_ && primarySequence_) mergeMPR(mpr);
           // Now get the event from the correct file.
           found = rootFile_->setEntryAtEvent(eID, exact);
           assert (found);
@@ -235,16 +236,7 @@ namespace art {
 
     initFile(skipBadFiles_);
 
-    if (primarySequence_ && rootFile_) {
-      // make sure the new product registry is compatible with the main one
-      string mergeInfo = mpr.merge(rootFile_->productList(),
-                                   fileIter_->fileName(),
-                                   matchMode_);
-      if (!mergeInfo.empty()) {
-        throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
-      }
-      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
-    }
+    if (primarySequence_ && rootFile_) mergeMPR(mpr);
     return true;
   }
 
@@ -260,17 +252,10 @@ namespace art {
 
     initFile(false);
 
-    if (primarySequence_ && rootFile_) {
-      // make sure the new product registry is compatible to the main one
-      string mergeInfo = mpr.merge(rootFile_->productList(),
-                                   fileIter_->fileName(),
-                                   matchMode_);
-      if (!mergeInfo.empty()) {
-        throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
-      }
-      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+    if (rootFile_) {
+      if (primarySequence_) mergeMPR(mpr);
+      rootFile_->setToLastEntry();
     }
-    if (rootFile_) rootFile_->setToLastEntry();
     return true;
   }
 
@@ -505,6 +490,18 @@ namespace art {
         << ts << msg << file;
       mf::FlushMessageLog();
     }
+  }
+
+  void
+  RootInputFileSequence::mergeMPR(MasterProductRegistry &mpr) {
+    // make sure the new product registry is compatible with the main one
+    string mergeInfo = mpr.merge(rootFile_->productList(),
+                                 fileIter_->fileName(),
+                                 matchMode_);
+    if (!mergeInfo.empty()) {
+      throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::mergeMPR()") << mergeInfo;
+    }
+    BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
   }
 
 }  // art
