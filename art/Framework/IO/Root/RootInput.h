@@ -99,10 +99,14 @@ private:
   typedef  input::EntryNumber           EntryNumber;
 
   virtual input::ItemType nextItemType();
+
   using DecrepitRelicInputSourceImplementation::readEvent;
 
   virtual std::auto_ptr<EventPrincipal>
-  readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr);
+  readEvent(std::shared_ptr<SubRunPrincipal> srp);
+
+  std::auto_ptr<EventPrincipal>
+  readEvent_(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr);
 
   virtual std::shared_ptr<SubRunPrincipal>
   readSubRun(std::shared_ptr<RunPrincipal> rp);

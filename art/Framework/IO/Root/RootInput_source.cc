@@ -121,7 +121,12 @@ RootInput::nextItemType() {
 }
 
 std::auto_ptr<EventPrincipal>
-RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr)
+RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp) {
+  return readEvent_(srp, *mpr_);
+}
+
+std::auto_ptr<EventPrincipal>
+RootInput::readEvent_(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr)
 {
   checkMPR(mpr);
   switch (accessState_.state()) {
