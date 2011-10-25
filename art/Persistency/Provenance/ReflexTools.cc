@@ -169,7 +169,9 @@ namespace art
 
       if (!static_cast<bool>(t))
         {
-          if (!hasCintDictionary(name)) missingTypes().insert(name);
+          if (!hasCintDictionary(name)) {
+            missingTypes().insert(name);
+          }
           return;
         }
 
@@ -194,13 +196,14 @@ namespace art
         int mcnt = t.DataMemberSize();
         for(int i = 0; i < mcnt; ++i) {
           Member m = t.DataMemberAt(i);
-          if(m.IsTransient() ||
-             m.IsStatic() ||
+          if((!m.IsTransient()) &&
+             (!m.IsStatic()) &&
              // Work around problem with //! transient not telling Reflex
              // about Transient property.
-             (m.Properties().HasProperty("comment") &&
-              m.Properties().PropertyAsString("comment")[0] == '!')) continue;
-          checkType(m.TypeOf());
+             !(m.Properties().HasProperty("comment") &&
+               m.Properties().PropertyAsString("comment")[0] == '!')) {
+            checkType(m.TypeOf());
+          }
         }
         int cnt = t.BaseSize();
         for(int i = 0; i < cnt; ++i) {
