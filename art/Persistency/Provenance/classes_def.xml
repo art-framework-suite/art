@@ -60,6 +60,11 @@
     <version ClassVersion="11" checksum="1740239918"/>
     <version ClassVersion="10" checksum="3580977508"/>
    </class>
+   <ioread sourceClass="art::BranchDescription" version="[-10]"
+   targetClass="art::BranchDescription"
+   source="std::string fullClassName_;" target="producedClassName_">
+     <![CDATA[producedClassName_ = onfile.fullClassName_; ]]>
+   </ioread>
      <class name="std::set<fhicl::ParameterSetID>"/>
      <class name="art::ProcessConfigurationID"/>
      <class name="std::set<art::ProcessConfigurationID>"/>
