@@ -493,8 +493,8 @@ foreach(num 1 2)
     DATAFILES
     fcl/Assns_r_inc.fcl
     fcl/Assns_r${num}.fcl
+    TEST_PROPERTIES DEPENDS Assns_w
   )
-  SET_TESTS_PROPERTIES(Assns_r${num} PROPERTIES DEPENDS Assns_w)
 endforeach()
 
 cet_test(DropOnInput_null_t HANDBUILT
