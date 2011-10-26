@@ -123,6 +123,7 @@ Common:
     setupRequired(cpp0x     @CPP0X_VERSION@ @CPP0X_QUAL@)
     setupRequired(cetlib    @CETLIB_VERSION@ @CETLIB_QUAL@)
     setupRequired(boost     @BOOST_VERS@ @BOOST_QUAL@)
+    setupRequired(sqlite    @SQLITE_VERS@ @SQLITE_QUAL@)
     setupRequired(gcc       @GCC_VERSION@ @GCC_QUAL@)
 
 End:
