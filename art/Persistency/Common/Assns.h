@@ -5,7 +5,7 @@
 //
 // An association collection: a persistable collection of associations
 // between two items in other persistent collections, with an optional
-// ancillary object containing information about the assocition itself.
+// ancillary object containing information about the association itself.
 //
 // Note that the associations may be one-to-one, one-to-many or
 // many-to-many.
@@ -15,8 +15,8 @@
 // 1. When being filled and put into the event; or
 //
 // 2. When the emphasis is on the associations themselves (and possibly
-// their order) rather than particularly the associated objets. When it
-// is desireed to loop over A (or B) objects and access their
+// their order) rather than particularly the associated objects. When it
+// is desired to loop over A (or B) objects and access their
 // counterparts and/or extra data objects a FindOne or FindMany would be
 // more suitable.
 //

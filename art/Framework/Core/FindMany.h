@@ -6,7 +6,7 @@
 // A smart query object used as the main way of accessing associated
 // objects in an association (onoe-to-one, one-to-many or many-to-many).
 //
-// Given an Assns associating A with B (or B with A) (poosibly with an
+// Given an Assns associating A with B (or B with A) (possibly with an
 // associated data object D) and a sequence ACOLL of A objects to be
 // found in the Assns, allow indexed access to the B and/or D objects
 // associated with the A objects in ACOLL.
@@ -35,13 +35,13 @@
 // objects were specified.
 //
 // * If the specified A does not have an associated B or D then the
-// vector will be invalid.
+// vector will be empty.
 //
 // * If the required association collection has an extra data object D
 // with each association then it *must* be specified as a template
 // argument, even if it is not relevant to the current query.
 //
-// * *All* indexed accessors (at(), data(), get()) are bounds-checked,
+// * *All* indexed accessors (at(), data(), get()) are bounds-checked.
 //
 // Useful typedefs.
 //
@@ -56,7 +56,7 @@
 //
 // Constructors.
 //
-// // From Handle to colelction of A.
+// // From Handle to collection of A.
 // FindMany<ProdB>(Handle<ProdAColl> const &,
 //                 Event const &,
 //                 InputTag const &);
