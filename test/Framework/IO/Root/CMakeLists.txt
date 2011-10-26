@@ -1,6 +1,13 @@
 link_libraries (art_Framework_IO_RootVersion)
 cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp)
 
+cet_test(config_dumper_t HANDBUILT
+  TEST_EXEC config_dumper
+  TEST_ARGS ../../../../Integration/Assns_w.d/out.root
+  TEST_PROPERTIES
+  DEPENDS Assns_w
+  REQUIRED_FILES ../../../../Integration/Assns_w.d/out.root
+)
 
 ########################################################################
 # Old (pre-fork) tests -- not yet vetted / reactivated.
