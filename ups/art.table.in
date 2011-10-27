@@ -49,7 +49,7 @@ Qualifiers = "mu2e"
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir nova ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir mu2e ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
        setupRequired(root      @ROOT_VERSION@ -q mu2e)
@@ -88,7 +88,7 @@ Qualifiers = "mu2e:debug"
        setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir nova.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir mu2e.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
        exeActionRequired("setup__")
        setupRequired(root      @ROOT_VERSION@ -q mu2e:debug)
