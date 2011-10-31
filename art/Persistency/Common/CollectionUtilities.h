@@ -41,8 +41,8 @@
 // flattenCollections(...)
 //
 // A set of function templates to aid in the flattening of multiple
-// collections (as described usually as a vector of const pointers to
-// colletions) into one colletion, as required by acitivities such as
+// collections (as represented usually as a vector of const pointers to
+// colletions) into one collection, as required by acitivities such as
 // product mixing. The interfaces are as follows:
 //
 // 1. Flatten a vector of simple collections to a single collection
