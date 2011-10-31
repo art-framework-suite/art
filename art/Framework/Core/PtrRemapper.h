@@ -323,19 +323,22 @@ art::Ptr<PROD>
 art::PtrRemapper::
 operator()(Ptr<PROD> const &oldPtr,
            SIZE_TYPE offset) const {
-  ProdTransMap_t::const_iterator iter = prodTransMap_.find(oldPtr.id());
-  if (iter == prodTransMap_.end()) {
-    throw Exception(errors::LogicError)
-      << "PtrRemapper: could not find old ProductID "
-      << oldPtr.id()
-      << " in translation table: already translated?\n";
+  if (oldPtr.id().isValid()) {
+    ProdTransMap_t::const_iterator iter = prodTransMap_.find(oldPtr.id());
+    if (iter == prodTransMap_.end()) {
+      throw Exception(errors::LogicError)
+        << "PtrRemapper: could not find old ProductID "
+        << oldPtr.id()
+        << " in translation table: already translated?\n";
+    }
+    return (oldPtr.isNonnull())?
+      Ptr<PROD>(iter->second,
+                oldPtr.key() + offset,
+                event_->productGetter(iter->second)):
+      Ptr<PROD>(iter->second);
+  } else { // Default-constructed.
+    return Ptr<PROD>();
   }
-  return (oldPtr.isNonnull())?
-    Ptr<PROD>(iter->second,
-              oldPtr.key() + offset,
-              event_->productGetter(iter->second)):
-////              productGetter_):
-    Ptr<PROD>(iter->second);
 }
 
 // 2.

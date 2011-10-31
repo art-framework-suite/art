@@ -18,7 +18,7 @@ namespace art {
     if (R_b.IsReading()) {
       cl->ReadBuffer(R_b, objp);
       RefCore* obj = static_cast<RefCore *>(objp);
-      if (groupFinder_) {
+      if (groupFinder_ && obj->id().isValid()) { // Do not attempt to fluff empty RefCore
         obj->setProductGetter(groupFinder_->getGroup(obj->id()).result().get());
       } else {
         obj->setProductGetter(0);
