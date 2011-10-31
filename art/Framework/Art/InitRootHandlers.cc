@@ -72,6 +72,13 @@ namespace {
       }
     }
 
+    // Intercept one message and ignore:
+    if (el_message ==
+        "no dictionary for class art::Transient<art::ProductRegistry::Transients> is available")
+    {
+      return;
+    }
+
     // Intercept some messages and upgrade the severity
 
     if( (el_location.find("TBranchElement::Fill") != std::string::npos)
