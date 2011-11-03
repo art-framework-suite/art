@@ -22,10 +22,10 @@ art::detail::PtrVectorBaseStreamer::operator()(TBuffer &R_b, void *objp) {
     obj->zeroTransients(); // Clear transient rep.
     cl->ReadBuffer(R_b, objp);
   } else {
-    obj->fill_offsets(obj->indices_); // Fill persistent rep.
+    obj->fill_offsets(obj->indicies_); // Fill persistent rep.
     cl->WriteBuffer(R_b, objp);
     PtrVectorBase::indices_t tmp;
-    tmp.swap(obj->indices_); // Clear, no longer needed.
+    tmp.swap(obj->indicies_); // Clear, no longer needed.
   }
 }
 
