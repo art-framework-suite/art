@@ -53,7 +53,7 @@ protected:
 
 private:
   RefCore core_;
-  mutable indices_t indices_; // Will be zeroed-out by fillPtrs();
+  mutable indices_t indicies_; // Will be zeroed-out by fillPtrs();
 
   virtual void fill_offsets(indices_t &indices) = 0;
   virtual void fill_from_offsets(indices_t const &indices) const = 0;
@@ -96,12 +96,12 @@ inline void
 art::PtrVectorBase::clear() {
   core_ = RefCore();
   indices_t tmp;
-  indices_.swap(tmp); // Free up memory
+  indicies_.swap(tmp); // Free up memory
 }
 
 inline void
 art::PtrVectorBase::reserve(size_type n) {
-  indices_.reserve(n);
+  indicies_.reserve(n);
 }
 
 inline void

@@ -18,7 +18,7 @@
 
 art::PtrVectorBase::PtrVectorBase()
   : core_ ( )
-  , indices_ ( )
+  , indicies_ ( )
 {}
 
 art::PtrVectorBase::~PtrVectorBase()
@@ -27,11 +27,11 @@ art::PtrVectorBase::~PtrVectorBase()
 
 void
 art::PtrVectorBase::fillPtrs() const {
-  if (indices_.size() ==  0) return; // Empty or already done.
-  fill_from_offsets(indices_);
+  if (indicies_.size() ==  0) return; // Empty or already done.
+  fill_from_offsets(indicies_);
 
   indices_t tmp;
-  indices_.swap(tmp); // Zero -- no longer needed.
+  indicies_.swap(tmp); // Zero -- no longer needed.
 }
 
 bool
