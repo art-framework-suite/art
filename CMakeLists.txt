@@ -19,7 +19,7 @@ cmake_minimum_required (VERSION 2.6)
 # project name
 project(art)
 set( product art )
-set( version v1_00_04 )
+set( version v1_00_05 )
 if ( NOT qualifier )
   SET (qualifier a4)
 endif ( NOT qualifier )
