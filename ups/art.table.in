@@ -14,15 +14,15 @@ Qualifiers = ""
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@ )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@)
-    setupRequired(boost @BOOST_VERS@ gcc46)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46)
+    setupRequired(boost @BOOST_VERS@ -q gcc46)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
     setupRequired(root      @ROOT_VERSION@ )
 
 Flavor     = ANY
@@ -35,15 +35,15 @@ Qualifiers = "a4"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@ )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@)
-    setupRequired(boost @BOOST_VERS@ gcc46)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46)
+    setupRequired(boost @BOOST_VERS@ -q gcc46)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
     setupRequired(root      @ROOT_VERSION@ -q gcc46)
 
 Flavor     = ANY
@@ -56,15 +56,15 @@ Qualifiers = "a4:debug"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:debug)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:debug)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:debug)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:debug)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:debug)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:debug)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:debug)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:debug )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:debug)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:debug)
-    setupRequired(boost @BOOST_VERS@ gcc46:debug)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:debug)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:debug)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:debug)
     setupRequired(root      @ROOT_VERSION@ -q gcc46:debug)
 
 Flavor     = ANY
@@ -77,15 +77,15 @@ Qualifiers = "a4:opt"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:opt)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:opt)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:opt)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:opt)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:opt)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:opt)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:opt)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:opt )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:opt)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:opt)
-    setupRequired(boost @BOOST_VERS@ gcc46:opt)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:opt)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:opt)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:opt)
     setupRequired(root      @ROOT_VERSION@ -q gcc46:opt)
 
 Flavor     = ANY
@@ -98,15 +98,15 @@ Qualifiers = "a4:prof"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:prof)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:prof)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:prof)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:prof)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:prof)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:prof)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:prof)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:prof )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:prof)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:prof)
-    setupRequired(boost @BOOST_VERS@ gcc46:prof)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:prof)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:prof)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:prof)
     setupRequired(root      @ROOT_VERSION@ -q gcc46:prof)
 
 Flavor     = ANY
@@ -119,15 +119,15 @@ Qualifiers = "mu2e"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@ )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@)
-    setupRequired(boost @BOOST_VERS@ gcc46)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46)
+    setupRequired(boost @BOOST_VERS@ -q gcc46)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
     setupRequired(root      @ROOT_VERSION@ -q mu2e)
 
 Flavor     = ANY
@@ -140,15 +140,15 @@ Qualifiers = "mu2e:debug"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:debug)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:debug)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:debug)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:debug)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:debug)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:debug)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:debug)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:debug )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:debug)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:debug)
-    setupRequired(boost @BOOST_VERS@ gcc46:debug)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:debug)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:debug)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:debug)
     setupRequired(root      @ROOT_VERSION@ -q mu2e:debug)
 
 Flavor     = ANY
@@ -161,15 +161,15 @@ Qualifiers = "mu2e:opt"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:opt)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:opt)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:opt)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:opt)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:opt)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:opt)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:opt)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:opt )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:opt)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:opt)
-    setupRequired(boost @BOOST_VERS@ gcc46:opt)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:opt)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:opt)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:opt)
     setupRequired(root      @ROOT_VERSION@ -q mu2e:opt)
 
 Flavor     = ANY
@@ -182,15 +182,15 @@ Qualifiers = "mu2e:prof"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:prof)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:prof)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:prof)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:prof)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:prof)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:prof)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:prof)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:prof )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:prof)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:prof)
-    setupRequired(boost @BOOST_VERS@ gcc46:prof)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:prof)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:prof)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:prof)
     setupRequired(root      @ROOT_VERSION@ -q mu2e:prof)
 
 Flavor     = ANY
@@ -203,15 +203,15 @@ Qualifiers = "nova"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@ )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@)
-    setupRequired(boost @BOOST_VERS@ gcc46)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46)
+    setupRequired(boost @BOOST_VERS@ -q gcc46)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
     setupRequired(root      @ROOT_VERSION@ -q nova)
 
 Flavor     = ANY
@@ -224,15 +224,15 @@ Qualifiers = "nova:debug"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:debug)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:debug)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:debug)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:debug)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:debug)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:debug)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:debug)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:debug )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:debug)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:debug)
-    setupRequired(boost @BOOST_VERS@ gcc46:debug)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:debug)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:debug)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:debug)
     setupRequired(root      @ROOT_VERSION@ -q nova:debug)
 
 Flavor     = ANY
@@ -245,15 +245,15 @@ Qualifiers = "nova:opt"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:opt)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:opt)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:opt)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:opt)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:opt)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:opt)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:opt)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:opt )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:opt)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:opt)
-    setupRequired(boost @BOOST_VERS@ gcc46:opt)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:opt)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:opt)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:opt)
     setupRequired(root      @ROOT_VERSION@ -q nova:opt)
 
 Flavor     = ANY
@@ -266,15 +266,15 @@ Qualifiers = "nova:prof"
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ gcc46:prof)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ gcc46:prof)
-    setupRequired(clhep     @CLHEP_VERSION@ gcc46:prof)
+    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46:prof)
+    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46:prof)
+    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46:prof)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ @MESSAGEFACILITY_BASE_QUAL@:prof)
     setupRequired(fhiclcpp @FHICLCPP_VERSION@ @FHICLCPP_BASE_QUAL@:prof )
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:prof)
     setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:prof)
-    setupRequired(boost @BOOST_VERS@ gcc46:prof)
-    setupRequired(sqlite    @SQLITE_VERSION@ gcc46:prof)
+    setupRequired(boost @BOOST_VERS@ -q gcc46:prof)
+    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46:prof)
     setupRequired(root      @ROOT_VERSION@ -q nova:prof)
 
 Common:
