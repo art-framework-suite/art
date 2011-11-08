@@ -47,7 +47,7 @@ echo "called with $1, using qualifier a4$extraqual"
 # set up external products
 setup cmake
 setup gcc v4_6_1
-setup -j boost v1_46_1 -q gcc46$extraqual
+setup -j boost v1_47_0 -q gcc46$extraqual
 setup -j clhep v2_1_1_0 -q gcc46$extraqual
 setup -j cppunit v1_12_1 -q gcc46$extraqual
 setup -j gccxml v0_9_20110907 -q gcc46
@@ -56,10 +56,10 @@ setup -j python v2_7_2 -q gcc46
 setup -j root v5_30_02 -q gcc46$extraqual
 # set up CET products
 setup -j cetbuildtools v1_13_03
-setup -j cpp0x v1_02_04 -q a4$extraqual
-setup -j cetlib v1_02_04 -q a4$extraqual
-setup -j fhiclcpp v2_15_04 -q a4$extraqual
-setup -j messagefacility v1_09_04 -q a4$extraqual
+setup -j cpp0x v1_03_00 -q a4$extraqual
+setup -j cetlib v1_03_00 -q a4$extraqual
+setup -j fhiclcpp v2_16_00 -q a4$extraqual
+setup -j messagefacility v1_10_00 -q a4$extraqual
 setup -j sqlite v3_07_08_00 -q gcc46$extraqual
 
 test $?shell = 1 && set ss=csh || ss=sh
