@@ -1,0 +1,45 @@
+#!/bin/bash
+
+prog=${0##*/}
+
+function usage() {
+  local exit=$1
+  cat 1>&2 <<EOF
+$prog: Find whence in your source a particular parameter is requested.
+
+usage: ${prog} <parameter-name> [<ack-options-args>]+
+EOF
+  exit ${exit:-1}
+}
+
+function find_module() {
+  local file=$1
+  local stem=${1%.*}
+  case $stem in
+      *_module)
+      echo Module
+      ;;
+      *_service)
+      echo Service
+      ;;
+      *_source)
+      echo Source
+      ;;
+      *)
+      ack --cpp -f -G '\b'"${stem}"'(\b|_)'  </dev/null | xargs sed -ne 's/^[ \t]*DEFINE_ART_\(MODULE\|SERVICE\|INPUT\).*$/\L\u\1/p'
+  esac
+}
+
+if (( $# < 1 )); then
+  usage
+fi
+
+pname=$1
+
+shift
+
+ack --cpp -l "$@" --match 'get(_if_present|\s*<).*?\(\s*"'"$pname"'"' | \
+while read file; do
+  f=`find_module "$file"`
+  echo "${f:-class} `basename \"${file%%.*}\"` in package `dirname \"$file\" | cut -d/ -f1` ($file) uses parameter $pname."
+done
