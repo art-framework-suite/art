@@ -81,6 +81,7 @@
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/trim.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 #include "cpp0x/functional"
@@ -364,7 +365,7 @@ namespace art {
         if (action == actions::SkipEvent) {
           mf::LogWarning(e.category())
               << "an exception occurred and all paths for the event are being skipped: \n"
-              << e.what();
+              << cet::trim_right_copy(e.what(), " \n");
         }
         else
         { throw; }
@@ -377,7 +378,7 @@ namespace art {
         case actions::IgnoreCompletely: {
           mf::LogWarning(ex.category())
               << "exception being ignored for current event:\n"
-              << ex.what();
+              << cet::trim_right_copy(ex.what(), " \n");
           break;
         }
         default: {

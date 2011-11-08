@@ -14,6 +14,7 @@
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
+#include "cetlib/trim.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
@@ -72,7 +73,7 @@ namespace art {
 
       void forceCreation(ActivityRegistry& reg)
       {
-        if(!service_) service_ = make_(config_,reg);
+        if(!service_) makeAndCacheService(reg);
       }
 
       fhicl::ParameterSet const& getParameterSet() const { return config_; }
@@ -92,12 +93,44 @@ namespace art {
       MAKER_t make_;
       WrapperBase_ptr service_;
 
+      void makeAndCacheService(ActivityRegistry &reg) {
+        try {
+          service_ = make_(config_, reg);
+        }
+        catch (cet::exception &e) {
+          throw Exception(errors::OtherArt, "ServiceCreation", e)
+            << "cet::exception caught during construction of service type "
+            << cet::demangle_symbol(typeinfo_.name())
+            << ":\n";
+        }
+        catch (std::exception &e) {
+          throw Exception(errors::StdException, "ServiceCreation")
+            << "std::exception caught during construction of service type "
+            << cet::demangle_symbol(typeinfo_.name())
+            << ": "
+            << e.what();
+        }
+        catch (std::string const &s) {
+          throw Exception(errors::BadExceptionType)
+            << "String exception during construction of service type "
+            << cet::demangle_symbol(typeinfo_.name())
+            << ": "
+            << s;
+        }
+        catch (...) {
+          throw Exception(errors::Unknown)
+            << "String exception during construction of service type "
+            << cet::demangle_symbol(typeinfo_.name())
+            << ":\n";
+        }
+      }
+
       void
         createService( ActivityRegistry & reg, ServiceStack & creationOrder )
       {
         // When we actually create the Service object, we have to
         // remember the order of creation.
-        service_ = make_(config_, reg);
+        makeAndCacheService(reg);
         creationOrder.push(service_);
       }
 

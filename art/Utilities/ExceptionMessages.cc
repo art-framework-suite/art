@@ -1,6 +1,7 @@
 #include "art/Utilities/ExceptionMessages.h"
 
 #include "cetlib/exception.h"
+#include "cetlib/trim.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
   using mf::LogSystem;
@@ -17,8 +18,8 @@ namespace art {
     std::string shortDesc("ArtException");
     std::ostringstream longDesc;
     longDesc << "cet::exception caught in " << programName << "\n"
-             << e.explain_self();
-    LogSystem(shortDesc) << longDesc.str() << "\n";
+             << cet::trim_right_copy(e.explain_self(), " \n");
+    LogSystem(shortDesc) << longDesc.str();
   }
   catch(...) {
   }
@@ -29,8 +30,8 @@ namespace art {
     std::string shortDesc("std::bad_allocException");
     std::ostringstream longDesc;
     longDesc << "std::bad_alloc exception caught in " << programName << "\n"
-             << "The job has probably exhausted the virtual memory available to the process.\n";
-    LogSystem(shortDesc) << longDesc.str() << "\n";
+             << "The job has probably exhausted the virtual memory available to the process.";
+    LogSystem(shortDesc) << longDesc.str();
   }
   catch(...) {
   }
@@ -41,8 +42,8 @@ namespace art {
     std::string shortDesc("StdLibException");
     std::ostringstream longDesc;
     longDesc << "Standard library exception caught in " << programName << "\n"
-             << e.what();
-    LogSystem(shortDesc) << longDesc.str() << "\n";
+             << cet::trim_right_copy(e.what(), " \n");
+    LogSystem(shortDesc) << longDesc.str();
   }
   catch(...) {
   }
@@ -52,8 +53,8 @@ namespace art {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("UnknownException");
     std::ostringstream longDesc;
-    longDesc << "Unknown exception caught in " << programName << "\n";
-    LogSystem(shortDesc) << longDesc.str() << "\n";
+    longDesc << "Unknown exception caught in " << programName;
+    LogSystem(shortDesc) << longDesc.str();
   }
   catch(...) {
   }

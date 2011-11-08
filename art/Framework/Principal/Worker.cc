@@ -139,7 +139,7 @@ art::Worker::endJob() {
       << description() << "\n";
     throw art::Exception(errors::StdException)
       << "A std::exception is going through " << workerType() << ":\n"
-      << description() << "\n";
+      << description() << "\n" << e.what();
   }
   catch(std::string& s) {
     LogError("EndJob")
