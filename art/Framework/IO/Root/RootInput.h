@@ -138,9 +138,6 @@ private:
   virtual input::ItemType
   getNextItemType( );
 
-  virtual std::auto_ptr<EventPrincipal>
-  readIt( EventID const& id, MasterProductRegistry& );
-
   virtual void
   rewind_( );
 

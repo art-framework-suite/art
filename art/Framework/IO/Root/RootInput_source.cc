@@ -210,18 +210,6 @@ RootInput::readEvent_( )
   return result;
 }  // readEvent_()
 
-std::auto_ptr<EventPrincipal>
-RootInput::readIt( EventID const & id, MasterProductRegistry& mpr)
-{
-  assert("SHOULD NOT BE CALLED" == 0);
-  std::auto_ptr<EventPrincipal> result;
-  if (!result.get()) result = primaryFileSequence_->readIt(id, mpr);
-  if (result.get()) {
-    accessState_.setLastReadEventID(result->id());
-    accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
-  }
-}  // readIt()
-
 input::ItemType
 RootInput::getNextItemType()
 {
