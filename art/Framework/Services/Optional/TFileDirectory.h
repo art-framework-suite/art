@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Optional_detail_TFileDirectory_h
-#define art_Framework_Services_Optional_detail_TFileDirectory_h
+#ifndef art_Framework_Services_Optional_TFileDirectory_h
+#define art_Framework_Services_Optional_TFileDirectory_h
 
 /* \class TFileDirectory
  *
@@ -138,7 +138,7 @@ namespace art
   };
 }
 
-#endif /* art_Framework_Services_Optional_detail_TFileDirectory_h */
+#endif /* art_Framework_Services_Optional_TFileDirectory_h */
 
 /// emacs configuration
 
