@@ -9,9 +9,9 @@
 #    set fw_db=/some/path; source /some/path/this_file
 # or  fw_db=/some/path; . /some/path/this_file
 #
-# If ART_BUILD is undefined, it is set to whatever directory
+# If CETPKG_BUILD is undefined, it is set to whatever directory
 # you are in when this script is invoked.
-# $ART_BUILD/lib is added to LD_LIBRARY_PATH
+# $CETPKG_BUILD/lib is added to LD_LIBRARY_PATH
 
 test $?shell = 1 && set ss=csh || ss=sh
 #echo Shell type is $ss.
@@ -34,10 +34,10 @@ set_ msg3='ERROR: You MUST specify either -o, -p, or -d'
 test -z "$1" && ( echo ""; echo "$msg3"; echo "" ) && return
 
 # set the default type, just to avoid confusion
-setenv ART_TYPE RelWithDebInfo
-test "$1" = "-d" && set_ extraqual=":debug" && setenv ART_TYPE Debug
-test "$1" = "-o" && set_ extraqual=":opt" && setenv ART_TYPE Release
-test "$1" = "-p" && set_ extraqual=":prof" && setenv ART_TYPE MinSizeRel
+setenv CETPKG_TYPE RelWithDebInfo
+test "$1" = "-d" && set_ extraqual=":debug" && setenv CETPKG_TYPE Debug
+test "$1" = "-o" && set_ extraqual=":opt" && setenv CETPKG_TYPE Release
+test "$1" = "-p" && set_ extraqual=":prof" && setenv CETPKG_TYPE MinSizeRel
 echo "called with $1, using qualifier a4$extraqual"
 
 # we setup dependent products here
@@ -80,29 +80,35 @@ test -z "$db" -a "$ss" = csh && set me=`history 1|sed 's/^[ 	0-9:]*//'` && test 
     && set db=`sh -c "cd $me >/dev/null 2>&1 && pwd"` && vecho_ 'setting db via interactive history'
 
 test -z "$db" && echo "$msg" || vecho_ "db=$db"
-test -n "$db" && setenv ART_SOURCE `dirname $db`
+test -n "$db" && setenv CETPKG_SOURCE `dirname $db`
 #echo This script lives in $db
 
-tnotnull ART_BUILD && set_ thisdir=$ART_BUILD || set_ thisdir=`pwd`
-test -n "$thisdir" && setenv ART_BUILD $thisdir
+tnotnull CETPKG_BUILD && set_ thisdir=$CETPKG_BUILD || set_ thisdir=`pwd`
+test -n "$thisdir" && setenv CETPKG_BUILD $thisdir
 test -d "$thisdir/lib" || mkdir -p $thisdir/lib
 test -d "$thisdir/bin" || mkdir -p $thisdir/bin
 echo The working build directory is $thisdir
 
-tnotnull ART_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${ART_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
-tnotnull ART_BUILD && setenv LD_LIBRARY_PATH ${ART_BUILD}/lib:${LD_LIBRARY_PATH}
+tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${CETPKG_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
+tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH ${CETPKG_BUILD}/lib:${LD_LIBRARY_PATH}
 setenv LD_LIBRARY_PATH `dropit -D -p "$LD_LIBRARY_PATH"`
 
-tnotnull ART_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${ART_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
-tnotnull ART_BUILD && setenv PATH ${ART_BUILD}/bin:${PATH}
+tnotnull CETPKG_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${CETPKG_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
+tnotnull CETPKG_BUILD && setenv PATH ${CETPKG_BUILD}/bin:${PATH}
 setenv PATH `dropit -D`
 
 tnotnull FHICL_FILE_PATH || setenv FHICL_FILE_PATH '.'
 
+# Package-specific variable names.
+for i in SOURCE BUILD TYPE; do
+  eval setenv ART_${i} \${CETPKG_${i}}
+done
+
+# Show what we've done
 echo
-echo ART_SOURCE=$ART_SOURCE
-echo ART_BUILD=$ART_BUILD
-echo ART_TYPE=$ART_TYPE
+echo ART_SOURCE=CETPKG_SOURCE=$CETPKG_SOURCE
+echo ART_BUILD=CETPKG_BUILD=$CETPKG_BUILD
+echo ART_TYPE=CETPKG_TYPE=$CETPKG_TYPE
 echo $thisdir/lib has been added to LD_LIBRARY_PATH
 echo $thisdir/bin has been added to PATH
 echo
@@ -112,7 +118,7 @@ echo PATH is now ${PATH}
 echo
 echo FHICL_FILE_PATH is now ${FHICL_FILE_PATH}
 echo Please use this cmake command:
-echo cmake -DCMAKE_INSTALL_PREFIX=/install/path -DCMAKE_BUILD_TYPE=\$ART_TYPE \$ART_SOURCE
+echo cmake -DCMAKE_INSTALL_PREFIX=/install/path -DCMAKE_BUILD_TYPE=\$CETPKG_TYPE \$CETPKG_SOURCE
 echo "if building for mu2e or nova, add -Dqualifier:STRING=(nova|mu2e)"
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
