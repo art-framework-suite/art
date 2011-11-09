@@ -420,8 +420,9 @@ void
 
     engine_state_t  est;
     it->restoreTo( est );
-    assert( dict_[label] != 0 && "RNGservice::restoreSnapshot_()" );
-    bool  status = dict_[label]->getState(est);
+    eptr_t ep = dict_[label];
+    assert( ep != 0 && "RNGservice::restoreSnapshot_()" );
+    bool  status = ep->getState(est);
     tracker_[label] = VIA_PRODUCT;
     if( status ) {
       log << " successfully restored.\n";
