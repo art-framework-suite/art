@@ -285,7 +285,7 @@ namespace art {
   std::auto_ptr<EventPrincipal>
   DecrepitRelicInputSourceImplementation::readEvent(EventID const&) {
     throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::readIt()\n"
+      << "DecrepitRelicInputSourceImplementation::readEvent()\n"
       << "Random access is not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
   }
