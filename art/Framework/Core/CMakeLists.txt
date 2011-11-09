@@ -32,6 +32,7 @@ set( art_Framework_Core_sources
   WorkerInPath.cc
   WorkerRegistry.cc
   get_BranchDescription.cc
+  detail/OutputModuleUtils.cc
   detail/wrapLibraryManagerException.cc
 )
 

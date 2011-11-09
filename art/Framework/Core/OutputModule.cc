@@ -1,6 +1,7 @@
 #include "art/Framework/Core/OutputModule.h"
 
 #include "art/Framework/Core/CPCSentry.h"
+#include "art/Framework/Core/detail/OutputModuleUtils.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -26,81 +27,7 @@ namespace art {
   }
 }
 
-
-namespace {
-
-  //--------------------------------------------------------
-  // Remove whitespace (spaces and tabs) from a string.
-  void remove_whitespace(std::string& s) {
-    s.erase(remove(s.begin(), s.end(), ' '), s.end());
-    s.erase(remove(s.begin(), s.end(), '\t'), s.end());
-  }
-
-  void test_remove_whitespace() {
-    string a("noblanks");
-    string b("\t   no   blanks    \t");
-
-    remove_whitespace(b);
-    assert(a == b);
-  }
-
-  //--------------------------------------------------------
-  // Given a path-spec (string of the form "a:b", where the ":b" is
-  // optional), return a parsed_path_spec_t containing "a" and "b".
-
-  typedef std::pair<string,string> parsed_path_spec_t;
-  void parse_path_spec(std::string const& path_spec,
-                       parsed_path_spec_t& output) {
-    string trimmed_path_spec(path_spec);
-    remove_whitespace(trimmed_path_spec);
-
-    string::size_type colon = trimmed_path_spec.find(":");
-    if (colon == string::npos) {
-        output.first = trimmed_path_spec;
-    } else {
-        output.first  = trimmed_path_spec.substr(0, colon);
-        output.second = trimmed_path_spec.substr(colon+1,
-                                                 trimmed_path_spec.size());
-    }
-  }
-
-  void test_parse_path_spec() {
-    vector<std::string> paths;
-    paths.push_back("a:p1");
-    paths.push_back("b:p2");
-    paths.push_back("  c");
-    paths.push_back("ddd\t:p3");
-    paths.push_back("eee:  p4  ");
-
-    vector<parsed_path_spec_t> parsed(paths.size());
-    for (size_t i = 0; i < paths.size(); ++i)
-      parse_path_spec(paths[i], parsed[i]);
-
-    assert(parsed[0].first  == "a");
-    assert(parsed[0].second == "p1");
-    assert(parsed[1].first  == "b");
-    assert(parsed[1].second == "p2");
-    assert(parsed[2].first  == "c");
-    assert(parsed[2].second == "");
-    assert(parsed[3].first  == "ddd");
-    assert(parsed[3].second == "p3");
-    assert(parsed[4].first  == "eee");
-    assert(parsed[4].second == "p4");
-  }
-}
-
-
 namespace art {
-
-  namespace test {
-
-    void run_all_output_module_tests() {
-      test_remove_whitespace();
-      test_parse_path_spec();
-    }
-
-  }  // namespace
-
 
   // -------------------------------------------------------
   OutputModule::OutputModule(ParameterSet const& pset) :
@@ -150,9 +77,9 @@ namespace art {
 
     // If we get here, we have the possibility of having to deal with
     // path_specs that look at more than one process.
-    vector<parsed_path_spec_t> parsed_paths(path_specs.size());
+    vector<detail::parsed_path_spec_t> parsed_paths(path_specs.size());
     for (size_t i = 0; i < path_specs.size(); ++i)
-      parse_path_spec(path_specs[i], parsed_paths[i]);
+      detail::parse_path_spec(path_specs[i], parsed_paths[i]);
 
     selectors_.setup(parsed_paths, getAllTriggerNames(), process_name_);
   }
