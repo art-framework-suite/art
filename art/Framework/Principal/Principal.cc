@@ -57,7 +57,7 @@ namespace art {
   {
     if (hist.isValid()) {
       assert(! ProcessHistoryRegistry::empty());
-      bool found = ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
+      bool found __attribute__((unused)) = ProcessHistoryRegistry::get(hist, *processHistoryPtr_);
       assert(found);
     }
   }
