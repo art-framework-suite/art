@@ -281,7 +281,6 @@ Common:
   Action = setup
     prodDir()
     setupEnv()
-    setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
     exeActionRequired(GetFQDir)
     envSet(${UPS_PROD_NAME_UC}_VERSION, @version@)
     prodDir( _FQ_DIR, ${${UPS_PROD_NAME_UC}_FQ} )
