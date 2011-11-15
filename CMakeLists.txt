@@ -74,7 +74,7 @@ find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_1_0 )
 
-find_ups_product( cetbuildtools v1_14_00 )
+find_ups_product( cetbuildtools v1_14_02 )
 find_ups_product( cpp0x v1_03_00 )
 find_ups_product( cetlib v1_03_00 )
 find_ups_product( fhiclcpp v2_16_00 )

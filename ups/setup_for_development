@@ -41,8 +41,8 @@ set_ compilerqual=gcc46
 # set the default type, just to avoid confusion
 setenv CETPKG_TYPE RelWithDebInfo
 test "$1" = "-d" && set_ extraqual=":debug" && setenv CETPKG_TYPE Debug
-test "$1" = "-o" && set_ extraqual=":opt" && setenv CETPKG_TYPE Release
-test "$1" = "-p" && set_ extraqual=":prof" && setenv CETPKG_TYPE MinSizeRel
+test "$1" = "-o" && set_ extraqual=":opt" && setenv CETPKG_TYPE Opt
+test "$1" = "-p" && set_ extraqual=":prof" && setenv CETPKG_TYPE Prof
 set_ type=$1
 shift
 test -n "$1" && setenv CETPKG_QUAL "$1" && set_ rootqual="$1"
@@ -66,7 +66,7 @@ setup -j python v2_7_2 -q $compilerqual
 setup -j root v5_30_02 -q $rootqual:$extraqual
 # set up CET products
 setup cetpkgsupport
-setup -j cetbuildtools v1_14_01
+setup -j cetbuildtools v1_14_02
 setup -j cpp0x v1_03_00 -q $defaultqual$extraqual
 setup -j cetlib v1_03_00 -q $defaultqual$extraqual
 setup -j fhiclcpp v2_16_00 -q $defaultqual$extraqual
