@@ -9,7 +9,7 @@
 #    set fw_db=/some/path; source /some/path/this_file
 # or  fw_db=/some/path; . /some/path/this_file
 #
-# If CETPKG_BUILD is undefined, it is set to whatever directory
+# If ART_BUILD is undefined, CETPKG_BUILD is set to whatever directory
 # you are in when this script is invoked.
 # $CETPKG_BUILD/lib is added to LD_LIBRARY_PATH
 
@@ -65,7 +65,8 @@ setup -j libsigcpp v2_2_10 -q $compilerqual$extraqual
 setup -j python v2_7_2 -q $compilerqual
 setup -j root v5_30_02 -q $rootqual:$extraqual
 # set up CET products
-setup -j cetbuildtools v1_13_04
+setup cetpkgsupport
+setup -j cetbuildtools v1_14_01
 setup -j cpp0x v1_03_00 -q $defaultqual$extraqual
 setup -j cetlib v1_03_00 -q $defaultqual$extraqual
 setup -j fhiclcpp v2_16_00 -q $defaultqual$extraqual
@@ -93,7 +94,7 @@ test -z "$db" && echo "$msg" || vecho_ "db=$db"
 test -n "$db" && setenv CETPKG_SOURCE `dirname $db`
 #echo This script lives in $db
 
-tnotnull CETPKG_BUILD && set_ thisdir=$CETPKG_BUILD || set_ thisdir=`pwd`
+tnotnull ART_BUILD && set_ thisdir=$ART_BUILD || set_ thisdir=`pwd`
 test -n "$thisdir" && setenv CETPKG_BUILD $thisdir
 test -d "$thisdir/lib" || mkdir -p $thisdir/lib
 test -d "$thisdir/bin" || mkdir -p $thisdir/bin
