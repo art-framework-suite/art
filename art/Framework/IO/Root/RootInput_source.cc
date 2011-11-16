@@ -135,11 +135,14 @@ RootInput::readEvent_(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistr
   case AccessState::SEEKING_EVENT:
     accessState_.resetState();
     {
-      std::auto_ptr<EventPrincipal> result;
-      if (!result.get()) result = primaryFileSequence_->readIt(accessState_.wantedEventID(), mpr, true);
+      std::auto_ptr<EventPrincipal>
+        result(primaryFileSequence_->readIt(accessState_.wantedEventID(),
+                                            mpr,
+                                            true));
       if (result.get()) {
         accessState_.setLastReadEventID(result->id());
         accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
+        result->setSubRunPrincipal(srp);
       }
       return result;
     }
@@ -157,10 +160,15 @@ RootInput::readSubRun(std::shared_ptr<RunPrincipal> rp)
     return DecrepitRelicInputSourceImplementation::readSubRun(rp);
   case AccessState::SEEKING_SUBRUN:
     accessState_.setState(AccessState::SEEKING_EVENT);
-    setSubRunPrincipal(primaryFileSequence_->
-                       readIt(accessState_.wantedEventID().subRunID(),
-                              rp));
-    return subRunPrincipal();
+    {
+      std::shared_ptr<SubRunPrincipal>
+        result(primaryFileSequence_->
+               readIt(accessState_.wantedEventID().subRunID(),
+                      rp));
+      result->setRunPrincipal(rp);
+      setSubRunPrincipal(result);
+      return result;
+    }
   default:
     throw Exception(errors::LogicError)
       << "RootInputSource::readSubRun encountered an unknown or inappropriate AccessState.\n";
