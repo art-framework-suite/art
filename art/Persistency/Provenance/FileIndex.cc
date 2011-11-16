@@ -2,12 +2,13 @@
 
 #include "cetlib/container_algorithms.h"
 #include "cpp0x/algorithm"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include <iomanip>
 #include <ostream>
 
 using namespace cet;
 using namespace std;
-
 
 namespace {
    bool subRunUnspecified(art::EventID const &eID) {
@@ -267,42 +268,74 @@ namespace art {
    FileIndex::findEventForUnspecifiedSubRun(EventID const &eID,
                                             bool exact) const {
 
-      RunID const &runID = eID.runID();
-      EventNumber_t event = eID.event();
-      SubRunID last_subRunID;
+     RunID const &runID = eID.runID();
+     EventNumber_t event = eID.event();
+     SubRunID last_subRunID;
 
-      // Try to find the event.
-      const_iterator it = findEventPosition
-         (EventID::firstEvent
-          (SubRunID::firstSubRun(runID)),
-          false);
-      const_iterator itEnd = entries_.end();
-      if (it == itEnd) return it;
+     // Try to find the event.
+     const_iterator const firstEvent = findEventPosition
+                                       (EventID::firstEvent
+                                        (SubRunID::firstSubRun(runID)),
+                                        false);
+     const_iterator it = firstEvent;
+     const_iterator const itEnd = entries_.end();
+     if (it == itEnd) return it;
 
-      // Starting with start_it, jump to the first event of each subrun
-      // until we find either:
-      //
-      // 1. The next run.
-      // 2. An event number higher than we want.
-      // 3. The end of the file index.
-      while ((it != itEnd) &&
-             (it->eventID_.runID() == runID) &&
-             (it->eventID_.event() < event)) {
-         last_subRunID = it->eventID_.subRunID();
-         it = findEventPosition(EventID::invalidEvent(it->eventID_.subRunID().next()), false);
-      }
+     // Starting with it, jump to the first event of each subrun until
+     // we find either:
+     //
+     // 1. The next run.
+     // 2. An event number higher than we want.
+     // 3. The end of the file index.
+     while ((it != itEnd) &&
+            (it->eventID_.runID() == runID) &&
+            (it->eventID_.event() < event)) {
+       last_subRunID = it->eventID_.subRunID();
+       // Get the first event in the next subrun.
+       it = findEventPosition(EventID::firstEvent(it->eventID_.subRunID().next()), false);
+     }
 
-      if ((it != itEnd) &&
-          (it->eventID_.runID() == runID) &&
-          (it->eventID_.event() == event)) {
-         // We started on the correct event.
-         return it;
-      } else if (last_subRunID.isValid()) {
-         // Find the event.
-         return findEventPosition(EventID(last_subRunID, event), exact);
-      } else {
-         // Did not find anything.
-         return itEnd;
-      }
+     const_iterator result = itEnd;
+     if ((it != itEnd) &&
+         (it->eventID_.runID() == runID) &&
+         (it->eventID_.event() == event)) {
+       // We started on the correct event.
+       result = it;
+     } else if (last_subRunID.isValid()) {
+       // Find the event in the last subrun.
+       result = findEventPosition(EventID(last_subRunID, event), exact);
+     }
+     if (result == itEnd) {
+       // Did not find anything.
+       mf::LogWarning("FileIndex")
+         << "Could not find incompletely specified event "
+         << eID
+         << " with smart algorithm:\n"
+         << "Assuming pathological file structure (event selection?) and\n"
+         << "trying again (inefficient).\n"
+         << "NOTE: this will find only the event with matching event number "
+         << "and the\n"
+         << "      lowest subrun number: any others are inaccessible via this "
+         << "method.";
+       SubRunID trySubRun(SubRunID::firstSubRun(runID));
+       // Try to find the highest subrun number in this run.
+       const_iterator findIt(firstEvent);
+       SubRunID lastSubRunInRun(trySubRun);
+       for (;
+            findIt != itEnd && findIt->eventID_.runID() == runID;
+            findIt =
+              findEventPosition(EventID::firstEvent(lastSubRunInRun.next()),
+                                false))
+       {
+         lastSubRunInRun = findIt->eventID_.subRunID();
+       }
+       // Now loop through each subrun looking for an exact match to our event.
+       while ((findIt = findEventPosition(EventID(trySubRun, event), true)) == itEnd &&
+              trySubRun < lastSubRunInRun) {
+         trySubRun = trySubRun.next();
+       }
+       result = findIt;
+     }
+     return result;
    }
 }
