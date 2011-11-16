@@ -132,10 +132,10 @@ public:
    friend inline std::ostream&
    operator<<(std::ostream& oStream, EventID const& iID) {
       oStream << iID.subRun_ << " event: ";
-      if (iID.isValid()) {
-         oStream << iID.event_;
+      if (iID.event_ == INVALID_EVENT_NUMBER) {
+        oStream << "INVALID";
       } else {
-         oStream << "INVALID";
+        oStream << iID.event_;
       }
       return oStream;
    }
