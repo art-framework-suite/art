@@ -33,8 +33,8 @@ public:
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
   // observers:
-  bool  succeeded( ) const  { return result_; }
-  bool  failed   ( ) const  { return whyFailed_; }
+  bool  succeeded( ) const  { return static_cast<bool>(result_); }
+  bool  failed   ( ) const  { return static_cast<bool>(whyFailed_); }
 
   // properties:
   cet::exempt_ptr<Group const>           result   ( ) const  { return result_; }
