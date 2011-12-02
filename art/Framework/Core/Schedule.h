@@ -403,6 +403,7 @@ namespace art {
   bool
   Schedule::runTriggerPaths(typename T::MyPrincipal & ep)
   {
+  using std::placeholders::_1;
     cet::for_all(trig_paths_,
                  std::bind(&Path::processOneOccurrence<T>, _1, std::ref(ep)));
     return results_->accept();
@@ -412,6 +413,7 @@ namespace art {
   void
   Schedule::runEndPaths(typename T::MyPrincipal & ep)
   {
+  using std::placeholders::_1;
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
     cet::for_all(end_paths_,

@@ -283,6 +283,7 @@ void
 art::MixHelper::mixAndPut(EntryNumberSequence const & enSeq,
                           Event & e)
 {
+  using std::placeholders::_1;
   // Populate the remapper in case we need to remap any Ptrs.
   ptpBuilder_.populateRemapper(ptrRemapper_, e);
   // Do the branch-wise read, mix and put.

@@ -20,7 +20,7 @@ namespace {
   {
     typename T::slot_list_type slots = iFrom.slots();
 
-    cet::for_all(slots, std::bind( &T::connect, iTo, _1) );
+    cet::for_all(slots, std::bind( &T::connect, iTo, std::placeholders::_1) );
   }
 
   template<class T>
@@ -44,7 +44,7 @@ namespace {
     std::reverse(slotsTo.begin(), slotsTo.end());
     std::reverse(slotsFrom.begin(), slotsFrom.end());
 
-    cet::for_all(slotsFrom, std::bind( &T::connect, iTo, _1) );
+    cet::for_all(slotsFrom, std::bind( &T::connect, iTo, std::placeholders::_1) );
 
     std::reverse(slotsTo.begin(), slotsTo.end());
 
