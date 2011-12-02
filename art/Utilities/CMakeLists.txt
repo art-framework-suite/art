@@ -41,7 +41,6 @@ target_link_libraries(art_Utilities
   ${Boost_THREAD_LIBRARY}
   ${ROOT_CINT}
   ${ROOT_REFLEX}
-  -luuid
 )
 
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )

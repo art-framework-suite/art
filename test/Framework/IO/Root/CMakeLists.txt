@@ -37,7 +37,7 @@ link_libraries( IORootInput
 	${ROOT_NET}
 	${ROOT_TREE}
 	${CPPUNIT}
-	-luuid -ldl )
+	-ldl )
 
 add_executable( TestRootInput TestRootInput.cpp )
 add_test( TestRootInput ${EXECUTABLE_OUTPUT_PATH}/TestRootInput )
@@ -65,7 +65,7 @@ link_libraries( IORootOutput
 	${ROOT_NET}
 	${ROOT_TREE}
 	${CPPUNIT}
-	-luuid -ldl )
+	-ldl )
 
 add_executable( TestRootOutput TestRootOutput.cpp )
 add_test( TestRootOutput ${EXECUTABLE_OUTPUT_PATH}/TestRootOutput )
