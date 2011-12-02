@@ -350,6 +350,9 @@ declareMixOp(InputTag const & inputTag,
              T & t,
              bool outputProduct)
 {
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
   if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
   std::shared_ptr<MixOpBase>
   p(new MixOp<PROD>(inputTag,
@@ -386,6 +389,9 @@ declareMixOp(InputTag const & inputTag,
              T const & t,
              bool outputProduct)
 {
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
   if (outputProduct) { producesProvider_.produces<PROD>(outputInstanceLabel); }
   std::shared_ptr<MixOpBase>
   p(new MixOp<PROD>(inputTag,

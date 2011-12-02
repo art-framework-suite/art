@@ -46,13 +46,13 @@ namespace art {
   template<class TClass, class TMethod>                             \
   void                                                              \
   watch##stateTag (TClass* iObject, TMethod iMethod) {              \
-    watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, _1)); \
+    watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1)); \
   }
 #define AR_DECL_STATE_2_ARG_FUNC(stateTag)                              \
   template<class TClass, class TMethod>                                 \
   void                                                                  \
   watch##stateTag (TClass* iObject, TMethod iMethod) {                  \
-    watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, _1,_2));  \
+    watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1,std::placeholders::_2));  \
   }
 
 class art::ActivityRegistry : private boost::noncopyable {

@@ -155,6 +155,7 @@ namespace art
     void
     CachedProducts::clear()
     {
+      using std::placeholders::_1;
       for_all(selectors_, std::bind(&NamedEventSelector::clear, _1));
       fillDone_ = false;
       numberFound_ = 0;

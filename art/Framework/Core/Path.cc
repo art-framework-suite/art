@@ -97,6 +97,7 @@ namespace art {
 
   void
   Path::clearCounters() {
+    using std::placeholders::_1;
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     for_all(workers_, std::bind(&WorkerInPath::clearCounters, _1));
   }

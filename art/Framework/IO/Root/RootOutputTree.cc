@@ -89,7 +89,7 @@ namespace art {
 
   void
   RootOutputTree::fillTTree(TTree * /*tree*/, vector<TBranch *> const& branches) {
-    for_all(branches, bind(&TBranch::Fill, _1));
+    for_all(branches, bind(&TBranch::Fill, std::placeholders::_1));
   }
 
   void
