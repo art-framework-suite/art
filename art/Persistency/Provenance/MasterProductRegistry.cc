@@ -5,7 +5,7 @@
 #include "art/Utilities/TypeID.h"
 #include "art/Utilities/WrappedClassName.h"
 #include "cetlib/exception.h"
-
+#include <cassert>
 #include <ostream>
 #include <sstream>
 
