@@ -47,7 +47,7 @@ namespace art {
     branchParents_(),
     branchChildren_()
   {
-    hasNewlyDroppedBranch_.assign(false);
+    hasNewlyDroppedBranch_.fill(false);
 
     art::ServiceHandle<art::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
