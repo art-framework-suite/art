@@ -2,6 +2,7 @@
 #define art_Framework_IO_Root_FastCloningInfoProvider_h
 
 #include "cetlib/exempt_ptr.h"
+#include <unistd.h>
 
 namespace art {
   class FastCloningInfoProvider;
