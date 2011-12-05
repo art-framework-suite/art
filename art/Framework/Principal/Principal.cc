@@ -81,7 +81,7 @@ namespace art {
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     group->setResolvers(branchMapper(), *store_);
-    SharedGroupPtr g(group);
+    SharedGroupPtr g(group.release());
     groups_.insert(make_pair(bd.branchID(), g));
   }
 
@@ -93,7 +93,7 @@ namespace art {
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
     group->setResolvers(branchMapper(), *store_);
-    SharedGroupPtr g(group);
+    SharedGroupPtr g(group.release());
     groups_[bd.branchID()]->replace(*g);
   }
 
