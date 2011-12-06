@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(getSymbolPathPrecedence)
 
 BOOST_AUTO_TEST_CASE(getSymbolAmbiguity)
 {
-  BOOST_CHECK_THROW(lm_ref.getSymbolByLibspec<void *> ("3", "_init") == nullptr, cet::exception);
+  BOOST_CHECK_THROW(lm_ref.getSymbolByLibspec<void *> ("3", "_init"), cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(getSymbolNoAmbiguity)
