@@ -18,6 +18,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <exception>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>

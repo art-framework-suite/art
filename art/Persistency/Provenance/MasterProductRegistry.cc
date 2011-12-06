@@ -1,5 +1,5 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
-
+#include "Reflex/Type.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "art/Persistency/Provenance/ReflexTools.h"
 #include "art/Utilities/TypeID.h"

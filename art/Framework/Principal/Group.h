@@ -8,7 +8,6 @@ is the storage unit of such information.
 
 ----------------------------------------------------------------------*/
 
-#include "Reflex/Type.h"
 #include "art/Framework/Principal/GroupFactory.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"

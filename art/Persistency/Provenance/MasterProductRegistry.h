@@ -12,14 +12,16 @@
 #include "cpp0x/array"
 #include "cpp0x/memory"
 
-#include "Reflex/Type.h"
-
 #include "boost/noncopyable.hpp"
 
 #include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
+
+namespace Reflex {
+  class Type;
+}
 
 namespace art {
   class MasterProductRegistry;

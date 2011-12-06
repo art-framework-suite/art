@@ -1,9 +1,5 @@
 #include "art/Framework/Principal/AssnsGroup.h"
 
-#include "TClass.h"
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
-
 art::AssnsGroup::AssnsGroup()
   :
   Group(),

@@ -17,7 +17,6 @@ This description also applies to every product instance on the branch.
 #include "art/Persistency/Provenance/TypeLabel.h"
 #include "fhiclcpp/ParameterSetID.h"
 
-#include "Reflex/Type.h"
 #include "TBuffer.h"
 #include "TClassStreamer.h" // Temporary
 #include "TClass.h"
