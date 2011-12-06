@@ -1,12 +1,12 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 
-#include "art/Framework/IO/Root/RefCoreStreamer.h"
-#include "art/Persistency/Provenance/BranchDescription.h"
-#include "art/Utilities/TypeID.h"
-
 #include "TBranch.h"
 #include "TBranchElement.h"
 #include "TClass.h"
+#include "art/Framework/IO/Root/RefCoreStreamer.h"
+#include "art/Persistency/Provenance/BranchDescription.h"
+#include "art/Utilities/TypeID.h"
+#include <cassert>
 
 
 art::RootDelayedReader::

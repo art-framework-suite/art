@@ -40,7 +40,7 @@ public:
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-  bool  isValid( ) const  { return group_; }
+  bool  isValid( ) const  { return static_cast<bool>(group_); }
 
   BranchDescription const&  productDescription () const {return group_->productDescription();}
   BranchDescription const&  branchDescription  () const {return productDescription();}

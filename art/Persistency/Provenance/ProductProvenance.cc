@@ -1,10 +1,8 @@
 #include "art/Persistency/Provenance/ProductProvenance.h"
+
 #include "art/Persistency/Provenance/ParentageRegistry.h"
+#include <cassert>
 #include <ostream>
-
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
 
 namespace art {
   ProductProvenance::Transients::Transients() :

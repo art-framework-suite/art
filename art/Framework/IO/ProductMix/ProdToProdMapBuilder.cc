@@ -98,7 +98,7 @@ art::ProdToProdMapBuilder::buildBranchIDToIndexMap(BranchIDLists const & bidl)
                 << pix
                 << ").\n";
 #endif
-      tmpMap.insert(std::make_pair(*bids_it, std::make_pair(blix, pix)));
+      tmpMap.insert(std::make_pair(BranchID(*bids_it), std::make_pair(blix, pix)));
     }
   }
   tmpMap.swap(branchIDToIndexMap_);

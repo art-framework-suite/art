@@ -77,7 +77,7 @@ namespace art {
                  ModuleDescription const& md,
                  WorkerParams const& wp) :
     Worker(md, wp),
-    module_(ed) {
+    module_(ed.release()) {
     module_->setModuleDescription(md);
     module_->registerProducts(*wp.reg_, md);
   }

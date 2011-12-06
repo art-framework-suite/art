@@ -49,7 +49,7 @@ namespace art {
       BranchListIndex blix = it - breg.data().begin();
       for (BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
         ProductIndex pix = i - it->begin();
-        branchIDToIndexMap.insert(std::make_pair(*i, std::make_pair(blix, pix)));
+        branchIDToIndexMap.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }
     }
   }

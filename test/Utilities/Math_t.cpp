@@ -57,7 +57,7 @@ template <class FP>
 void
 time_fp_type()
 {
-  volatile FP values[] = { 1.0, 1.0/0.0, -2.5, 1.0/3.0, 0.0/0.0 };
+  volatile FP values[] = { FP(1.0), FP(1.0/0.0), FP(-2.5), FP(1.0/3.0), FP(0.0/0.0) };
   unsigned long sum = 0;
 
   art::HRTimeType start = art::hrRealTime();

@@ -131,7 +131,7 @@ art::EmptyEvent::readRun_() {
   Timestamp ts = Timestamp(presentTime_);
   RunAuxiliary runAux(eventID_.runID(), ts, Timestamp::invalidTimestamp());
   newRun_ = false;
-  typedef boost::shared_ptr<RunPrincipal> rp_ptr;
+  typedef std::shared_ptr<RunPrincipal> rp_ptr;
   return rp_ptr(new RunPrincipal(runAux, processConfiguration()));
 }
 
