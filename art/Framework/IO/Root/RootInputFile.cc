@@ -657,7 +657,7 @@ namespace art {
   }
 
   std::shared_ptr<SubRunPrincipal>
-  RootInputFile::readSubRun(std::shared_ptr<RunPrincipal> rp) {
+  RootInputFile::readSubRun(std::shared_ptr<RunPrincipal> rp __attribute__((unused))) {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kSubRun);
     subRunTree_.setEntryNumber(fileIndexIter_->entry_);
