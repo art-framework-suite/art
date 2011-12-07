@@ -92,12 +92,12 @@ namespace art {
       InputSourceDescription isd(md, preg, *areg);
       return shared_ptr<InputSource>(InputSourceFactory::make(main_input, isd).release());
     }
-    catch (art::Exception const & iException) {
+    catch (art::Exception const & x) {
       if (sourceSpecified == false &&
-          errors::Configuration == iException.categoryCode()) {
+          errors::Configuration == x.categoryCode()) {
         throw art::Exception(errors::Configuration, "FailedInputSource")
             << "Configuration of main input source has failed\n"
-            << iException;
+            << x;
       }
       else {
         throw;
@@ -254,7 +254,6 @@ namespace art {
     // the EventProcessor to explicitly call EndJob or use runToCompletion,
     // then the next line of code is never executed.
     terminateMachine();
-
     // manually destroy all these thing that may need the services around
     schedule_.reset();
     input_.reset();
@@ -276,7 +275,7 @@ namespace art {
   }
 
   void
-  EventProcessor::procOneEvent(EventPrincipal * pep)
+  EventProcessor::procOneEvent(EventPrincipal* pep)
   {
     if (0 != pep) {
       schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep);
@@ -289,7 +288,6 @@ namespace art {
     breakpoints::beginJob();
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-    
     // NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will
@@ -345,7 +343,7 @@ namespace art {
   }
 
   void
-  EventProcessor::connectSigs(EventProcessor * ep)
+  EventProcessor::connectSigs(EventProcessor* ep)
   {
     // When these signals are given, pass them to the appropriate
     // EventProcessor signals so that the outside world can see the
@@ -376,7 +374,6 @@ namespace art {
           << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
           << "Please report this error to the Framework group\n";
     }
-
     return returnCode;
   }
 
@@ -411,7 +408,6 @@ namespace art {
       while (true) {
         itemType = input_->nextItemType();
         FDEBUG(1) << "itemType = " << itemType << "\n";
-
         // Look for a shutdown signal
         {
           boost::mutex::scoped_lock sl(usr2_lock);
@@ -534,7 +530,7 @@ namespace art {
           << exceptionMessageRuns_
           << exceptionMessageFiles_;
     }
-    catch (char const * e) {
+    catch (char const* e) {
       terminateAbnormally();
       throw cet::exception("Unknown")
           << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
@@ -556,7 +552,6 @@ namespace art {
       FDEBUG(1) << "The state machine reports it has been terminated\n";
       machine_.reset();
     }
-
     if (stateMachineWasInErrorState_) {
       throw cet::exception("BadState")
           << "The boost state machine in the EventProcessor exited after\n"
