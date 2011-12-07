@@ -157,16 +157,14 @@ namespace art {
 
     ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
-    std::shared_ptr<ActivityRegistry>           actReg_;
+    std::shared_ptr<ActivityRegistry>             actReg_;
     MFStatusUpdater                               mfStatusUpdater_;
     WorkerRegistry                                wreg_;
     MasterProductRegistry                         preg_;
     ServiceToken                                  serviceToken_;
-    std::shared_ptr<InputSource>                input_;
+    std::shared_ptr<InputSource>                  input_;
     std::auto_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
-
-    std::shared_ptr<boost::thread>              event_loop_;
 
     boost::mutex                                  state_lock_;
     boost::mutex                                  stop_lock_;
@@ -176,9 +174,9 @@ namespace art {
     volatile Status                               last_rc_;
     std::string                                   last_error_text_;
     volatile bool                                 id_set_;
-    volatile pthread_t                            event_loop_id_;
+
     int                                           my_sig_num_;
-    std::shared_ptr<FileBlock>                  fb_;
+    std::shared_ptr<FileBlock>                    fb_;
 
     std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;
