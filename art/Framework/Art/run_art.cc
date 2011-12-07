@@ -169,8 +169,7 @@ int art::run_art(intermediate_table raw_config,
     proc = procTmp;
     proc->beginJob();
     proc.on();
-    bool onlineStateTransitions = false;
-    proc->runToCompletion(onlineStateTransitions);
+    proc->runToCompletion();
     proc.off();
     proc->endJob();
     rc = 0;

@@ -11,12 +11,8 @@
 
 */
 
-namespace bk {
-  void
-  beginJob();
-
-  void
-  beginRuns();
+namespace breakpoints {
+  void beginJob();
 }
 
 #endif /* art_Framework_Core_Breakpoints_h */

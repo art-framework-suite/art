@@ -10,10 +10,4 @@
 
 */
 
-namespace bk {
-  void
-  beginJob() {}
-
-  void
-  beginRuns() {}
-}
+void breakpoints::beginJob() {}

@@ -39,7 +39,7 @@ namespace art {
   }
 
   art::MockEventProcessor::StatusCode
-  MockEventProcessor::runToCompletion(bool /*onlineStateTransitions*/) {
+  MockEventProcessor::runToCompletion() {
     statemachine::Machine myMachine(this,
                                     fileMode_,
                                     handleEmptyRuns_,
@@ -105,10 +105,6 @@ namespace art {
   }
 
   // Not used, this one does nothing
-  art::MockEventProcessor::StatusCode
-  MockEventProcessor::runEventCount(int /*numberOfEventsToProcess*/) {
-    return epSuccess;
-  }
 
   void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";

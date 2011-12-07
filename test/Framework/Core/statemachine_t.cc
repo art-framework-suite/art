@@ -93,9 +93,7 @@ int main(int argc, char* argv[]) {
                                                    fileMode,
                                                    handleEmptyRuns,
                                                    handleEmptySubRuns);
-
-        bool onlineStateTransitions = false;
-        mockEventProcessor.runToCompletion(onlineStateTransitions);
+        mockEventProcessor.runToCompletion();
       }
     }
   }

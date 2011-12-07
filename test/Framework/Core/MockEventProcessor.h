@@ -26,8 +26,7 @@ namespace art
                        bool handleEmptyRuns,
                        bool handleEmptySubRuns);
 
-    virtual StatusCode runToCompletion(bool onlineStateTransitions);
-    virtual StatusCode runEventCount(int numberOfEventsToProcess);
+    virtual StatusCode runToCompletion();
 
     virtual void readFile();
     virtual void closeInputFile();

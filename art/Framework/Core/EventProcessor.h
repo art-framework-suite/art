@@ -40,24 +40,6 @@ namespace art {
 
   class ProcessDesc;
 
-  namespace event_processor
-  {
-    /*
-      Several of these state are likely to be transitory in
-      the offline because they are completly driven by the
-      data coming from the input source.
-    */
-    enum State { sInit=0,sJobReady,sRunGiven,sRunning,sStopping,
-                 sShuttingDown,sDone,sJobEnded,sError,sErrorEnded,sEnd,sInvalid };
-
-    enum Msg { mSetRun=0, mSkip, mRunAsync, mRunID, mRunCount, mBeginJob,
-               mStopAsync, mShutdownAsync, mEndJob, mCountComplete,
-               mInputExhausted, mStopSignal, mShutdownSignal, mFinished,
-               mAny, mDtor, mException, mInputRewind };
-
-    class StateSentry;
-  }  // event_processor
-
   class EventProcessor : public IEventProcessor, private boost::noncopyable
   {
   public:
@@ -71,9 +53,7 @@ namespace art {
     EventProcessor(fhicl::ParameterSet const& pset);
     ~EventProcessor();
 
-    /**This should be called before the first call to 'run'
-       If this is not called in time, it will automatically be called
-       the first time 'run' is called
+    /**This should be called before the first call to 'run'.
        */
     void beginJob();
 
@@ -81,61 +61,6 @@ namespace art {
        throws if any module's endJob throws an exception.
        */
     void endJob();
-
-    /**Member functions to support asynchronous interface.
-       */
-
-    char const* currentStateName() const;
-    char const* stateName(event_processor::State s) const;
-    char const* msgName(event_processor::Msg m) const;
-    event_processor::State getState() const;
-    void runAsync();
-    StatusCode statusAsync() const;
-
-    // Concerning the async control functions:
-    // The event processor is left with the running thread.
-    // The async thread is stuck at this point and the process
-    // is likely not going to be able to continue.
-    // The reason for this timeout could be either an infinite loop
-    // or I/O blocking forever.
-    // The only thing to do is end the process.
-    // If you call endJob, you will likely get an exception from the
-    // state checks telling you that it is not valid to call this function.
-    // All these function force the event processor state into an
-    // error state.
-
-    // tell the event loop to stop and wait for its completion
-    StatusCode stopAsync(unsigned int timeout_secs=60*2);
-
-    // tell the event loop to shutdown and wait for the completion
-    StatusCode shutdownAsync(unsigned int timeout_secs=60*2);
-
-    // wait until async event loop thread completes
-    // or timeout occurs (See StatusCode for return values)
-    StatusCode waitTillDoneAsync(unsigned int timeout_seconds=0);
-
-    // Run to completion (non-online)
-    StatusCode run() { return runToCompletion(false); }
-
-    // Process one event with the given EventID
-    StatusCode run(EventID const& id);
-
-    // Skip the specified number of events.
-    // If numberToSkip is negative, we will back up.
-    StatusCode skip(int numberToSkip);
-
-    // Rewind to the first event
-    void rewind();
-
-    /// Return a vector allowing const access to all the
-    /// ModuleDescriptions for this EventProccessor.
-
-    /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
-    /// *** passed to the caller. Do not call delete on these
-    /// *** pointers!
-
-    std::vector<ModuleDescription const*>
-    getAllModuleDescriptions() const;
 
     /// Return the number of events this EventProcessor has tried to process
     /// (inclues both successes and failures, including failures due
@@ -158,17 +83,6 @@ namespace art {
     /// inactive.
     bool endPathsEnabled() const;
 
-    /// Return the trigger report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport& rep) const;
-
-    /// Clears counters used by trigger report.
-    void clearCounters();
-
-    // Really should not be public,
-    //   but the EventFilter needs it for now.
-    ServiceToken getToken();
-
     /// signal is emitted after the Event has been created by the
     /// InputSource but before any modules have seen the Event
     ActivityRegistry::PreProcessEvent &
@@ -180,52 +94,18 @@ namespace art {
     postProcessEventSignal() {return postProcessEventSignal_;}
 
     //------------------------------------------------------------------
-    //
-    // Nested classes and structs below.
-
-
     // The function "runToCompletion" will run until the job is "complete",
     // which means:
     //       1 - no more input data
     //       2 - input maxEvents parameter limit reached
     //       3 - output maxEvents parameter limit reached
     //       4 - input maxSubRuns parameter limit reached
-    // The function "runEventCount" will pause after processing the
-    // number of input events specified by the argument.  One can
-    // call it again to resume processing at the same point.  This
-    // function will also stop at the same point as "runToCompletion"
-    // if the job is complete before the requested number of events
-    // are processed.  If the requested number of events is less than
-    // 1, "runEventCount" interprets this as infinity and does not
-    // pause until the job is complete.
     //
-    // The return values from these functions are as follows:
+    // The return values from runToCompletion are as follows:
     //   epSignal - processing terminated early, SIGUSR2 encountered
-    //   epCountComplete - "runEventCount" processed the number of events
-    //                     requested by the argument
     //   epSuccess - all other cases
     //
-    // We expect that in most cases, processes will call
-    // "runToCompletion" once per job and not use "runEventCount".
-    //
-    // If a process used "runEventCount", then it would need to
-    // check the value returned by "runEventCount" to determine
-    // if it processed the requested number of events.  It would
-    // only make sense to call it again if it returned epCountComplete
-    // on the preceding call.
-
-    // The online is an exceptional case.  Online uses the DaqSource
-    // and the StreamerOutputModule, which are specially written to
-    // handle multiple calls of "runToCompletion" in the same job.
-    // With most sources and output modules, this does not work.
-    // If and only if called by the online, the argument to runToCompletion
-    // is set to true and this affects the state initial and final state
-    // transitions that are managed directly in EventProcessor.cc. (I am
-    // not sure if there is a reason for this or it is just a historical
-    // peculiarity that could be cleaned up and removed).
-
-    virtual StatusCode runToCompletion(bool onlineStateTransitions);
-    virtual StatusCode runEventCount(int numberOfEventsToProcess);
+    virtual StatusCode runToCompletion();
 
     // The following functions are used by the code implementing our
     // boost statemachine
@@ -270,38 +150,27 @@ namespace art {
     virtual void setExceptionMessageFiles(std::string& message);
     virtual void setExceptionMessageRuns(std::string& message);
     virtual void setExceptionMessageSubRuns(std::string& message);
-
     virtual bool alreadyHandlingException() const;
 
   private:
     //------------------------------------------------------------------
     //
     // Now private functions.
+    
+    ServiceToken getToken();
+    
     // init() is used by only by constructors
     void init(std::shared_ptr<art::ProcessDesc> & processDesc,
               ServiceToken const& token,
               ServiceLegacy);
-
-
-
-    StatusCode runCommon(bool onlineStateTransitions, int numberOfEventsToProcess);
+    StatusCode runCommon(int numberOfEventsToProcess);
     void terminateMachine();
     void terminateAbnormally();
-
-    StatusCode doneAsync(event_processor::Msg m);
-
     std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
     void procOneEvent(EventPrincipal *pep);
-
-    StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
-
     void connectSigs(EventProcessor * ep);
-
-    void changeState(event_processor::Msg);
     void errorState();
     void setupSignal();
-
-    static void asyncRun(EventProcessor *);
 
     //------------------------------------------------------------------
     //
@@ -321,7 +190,6 @@ namespace art {
     std::auto_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
-    volatile event_processor::State               state_;
     std::shared_ptr<boost::thread>              event_loop_;
 
     boost::mutex                                  state_lock_;
@@ -349,7 +217,6 @@ namespace art {
     std::string                                   exceptionMessageSubRuns_;
     bool                                          alreadyHandlingException_;
 
-    friend class event_processor::StateSentry;
   };  // EventProcessor
 
   //--------------------------------------------------------------------

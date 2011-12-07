@@ -3,8 +3,10 @@
 
 /*
 
-
-Abstract base class for Event Processors
+Abstract base class for Event Processors. This defines the interface
+expected by the EventProcessor's state machine. It can be used for
+testing that state machine without creating a real EventProcessor object.
+See also MockEventProcessor.
 
 Original Authors: W. David Dagenhart, Marc Paterno
 */
@@ -39,8 +41,7 @@ namespace art
 
     virtual ~IEventProcessor();
 
-    virtual StatusCode runToCompletion(bool onlineStateTransitions) = 0;
-    virtual StatusCode runEventCount(int numberOfEventsToProcess) = 0;
+    virtual StatusCode runToCompletion() = 0;
 
     virtual void readFile() = 0;
     virtual void closeInputFile() = 0;
