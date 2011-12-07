@@ -166,13 +166,6 @@ namespace art {
     std::auto_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
-    boost::mutex                                  stop_lock_;
-    boost::condition                              stopper_;
-    boost::condition                              starter_;
-    volatile int                                  stop_count_;
-    volatile Status                               last_rc_;
-    std::string                                   last_error_text_;
-
     int                                           my_sig_num_;
     std::shared_ptr<FileBlock>                    fb_;
 
@@ -188,7 +181,6 @@ namespace art {
     std::string                                   exceptionMessageRuns_;
     std::string                                   exceptionMessageSubRuns_;
     bool                                          alreadyHandlingException_;
-
   };  // EventProcessor
 
   //--------------------------------------------------------------------
