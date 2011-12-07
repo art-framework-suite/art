@@ -62,19 +62,6 @@ namespace art {
        */
     void endJob();
 
-    /// Return the number of events this EventProcessor has tried to process
-    /// (inclues both successes and failures, including failures due
-    /// to exceptions during processing).
-    int totalEvents() const;
-
-    /// Return the number of events processed by this EventProcessor
-    /// which have been passed by one or more trigger paths.
-    int totalEventsPassed() const;
-
-    /// Return the number of events that have not passed any trigger.
-    /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
-    int totalEventsFailed() const;
-
     /// Turn end_paths "off" if "active" is false;
     /// turn end_paths "on" if "active" is true.
     void enableEndPaths(bool active);
