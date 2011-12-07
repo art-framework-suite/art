@@ -153,7 +153,6 @@ namespace art {
     StatusCode runCommon(int numberOfEventsToProcess);
     void terminateMachine();
     void terminateAbnormally();
-    std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
     void procOneEvent(EventPrincipal *pep);
     void connectSigs(EventProcessor * ep);
     void setupSignal();

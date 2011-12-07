@@ -261,19 +261,6 @@ namespace art {
     actReg_.reset();
   }
 
-  std::auto_ptr<EventPrincipal>
-  EventProcessor::doOneEvent(EventID const & id)
-  {
-    std::auto_ptr<EventPrincipal> pep;
-    {
-      SignalSentry eventSourceSentry(actReg_->preSourceSignal_,
-                                     actReg_->postSourceSignal_);
-      pep = input_->readEvent(id);
-    }
-    procOneEvent(pep.get());
-    return pep;
-  }
-
   void
   EventProcessor::procOneEvent(EventPrincipal* pep)
   {
