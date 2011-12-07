@@ -40,8 +40,7 @@ namespace art {
 
   class ProcessDesc;
 
-  class EventProcessor : public IEventProcessor, private boost::noncopyable
-  {
+  class EventProcessor : public IEventProcessor, private boost::noncopyable {
   public:
 
     // The input string 'config' contains the entire contents of a  configuration file.
@@ -50,7 +49,7 @@ namespace art {
     // 'defaultServices' are overridden by 'config'.
     // 'forcedServices' cause an exception if the same service is specified in 'config'.
 
-    EventProcessor(fhicl::ParameterSet const& pset);
+    EventProcessor(fhicl::ParameterSet const & pset);
     ~EventProcessor();
 
     /**This should be called before the first call to 'run'.
@@ -126,27 +125,27 @@ namespace art {
     virtual void processEvent();
     virtual bool shouldWeStop() const;
 
-    virtual void setExceptionMessageFiles(std::string& message);
-    virtual void setExceptionMessageRuns(std::string& message);
-    virtual void setExceptionMessageSubRuns(std::string& message);
+    virtual void setExceptionMessageFiles(std::string & message);
+    virtual void setExceptionMessageRuns(std::string & message);
+    virtual void setExceptionMessageSubRuns(std::string & message);
     virtual bool alreadyHandlingException() const;
 
   private:
     //------------------------------------------------------------------
     //
     // Now private functions.
-    
+
     ServiceToken getToken();
-    
+
     // init() is used by only by constructors
     void init(std::shared_ptr<art::ProcessDesc> & processDesc,
-              ServiceToken const& token,
+              ServiceToken const & token,
               ServiceLegacy);
     StatusCode runCommon(int numberOfEventsToProcess);
     void terminateMachine();
     void terminateAbnormally();
-    void procOneEvent(EventPrincipal *pep);
-    void connectSigs(EventProcessor * ep);
+    void procOneEvent(EventPrincipal* pep);
+    void connectSigs(EventProcessor* ep);
     void setupSignal();
 
     //------------------------------------------------------------------
