@@ -156,7 +156,6 @@ namespace art {
     std::auto_ptr<EventPrincipal> doOneEvent(EventID const& id);
     void procOneEvent(EventPrincipal *pep);
     void connectSigs(EventProcessor * ep);
-    void errorState();
     void setupSignal();
 
     //------------------------------------------------------------------
