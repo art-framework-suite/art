@@ -338,17 +338,6 @@ namespace art {
     actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal_);
     actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal_);
   }
-  void
-  EventProcessor::enableEndPaths(bool active)
-  {
-    schedule_->enableEndPaths(active);
-  }
-
-  bool
-  EventProcessor::endPathsEnabled() const
-  {
-    return schedule_->endPathsEnabled();
-  }
 
   art::EventProcessor::StatusCode
   EventProcessor::runToCompletion()

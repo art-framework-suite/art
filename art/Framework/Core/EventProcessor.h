@@ -62,14 +62,6 @@ namespace art {
        */
     void endJob();
 
-    /// Turn end_paths "off" if "active" is false;
-    /// turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active);
-
-    /// Return true if end_paths are active, and false if they are
-    /// inactive.
-    bool endPathsEnabled() const;
-
     /// signal is emitted after the Event has been created by the
     /// InputSource but before any modules have seen the Event
     ActivityRegistry::PreProcessEvent &
