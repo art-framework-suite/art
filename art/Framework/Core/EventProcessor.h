@@ -166,14 +166,12 @@ namespace art {
     std::auto_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
-    boost::mutex                                  state_lock_;
     boost::mutex                                  stop_lock_;
     boost::condition                              stopper_;
     boost::condition                              starter_;
     volatile int                                  stop_count_;
     volatile Status                               last_rc_;
     std::string                                   last_error_text_;
-    volatile bool                                 id_set_;
 
     int                                           my_sig_num_;
     std::shared_ptr<FileBlock>                    fb_;
