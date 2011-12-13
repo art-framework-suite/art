@@ -19,7 +19,6 @@ test $?shell = 1 && set ss=csh || ss=sh
 # make some things similar. need to use set_ because sh builtin set would hide function set
 # Note: perhaps the trickiest thing in this file is the sh set_ function tries to return the same status
 #       as at the start of the function (which most likely is the result of a back-tick expression
-#       as at the start of the function (which most likely is the result of a back-tick expression
 test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@"; return 0; }'
 test "$ss" =  sh && eval 'set_() { sts=$?;for xx in "$@";do var=`expr "$xx" : "\([^=]*\)"`;val=`expr "$xx" : "[^=]*=\(.*\)"`;eval "$var=\"$val\"";done;return $sts; }'
 test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }; source() { file=$1; shift; . $file "$@"; }; unsetenv_() { unset "$@"; }'
@@ -31,52 +30,29 @@ set_ msg2='ERROR: You MUST setup ups'
 test -z $UPS_DIR && ( echo ""; echo "$msg2"; echo "" ) && return
 
 set_ msg3='ERROR: You MUST specify either -o, -p, or -d'
+set_ msg4='Usage: setup_for_development <-d|-o|-p> [rootqual] [hybridqual]'
+test -z "$1" && ( echo ""; echo "$msg4"; echo "" ) 
 test -z "$1" && ( echo ""; echo "$msg3"; echo "" ) && return
+
 
 # Set the default qualifiers
 set_ defaultqual=a4
 set_ rootqual=gcc46
 set_ compilerqual=gcc46
+set_ hybridqual=$compilerqual
 
 # set the default type, just to avoid confusion
 setenv CETPKG_TYPE RelWithDebInfo
-test "$1" = "-d" && set_ extraqual=":debug" && setenv CETPKG_TYPE Debug
-test "$1" = "-o" && set_ extraqual=":opt" && setenv CETPKG_TYPE Opt
-test "$1" = "-p" && set_ extraqual=":prof" && setenv CETPKG_TYPE Prof
+test "$1" = "-d" && set_ extraqual=":+debug" && setenv CETPKG_TYPE Debug
+test "$1" = "-o" && set_ extraqual=":+opt" && setenv CETPKG_TYPE Opt
+test "$1" = "-p" && set_ extraqual=":+prof" && setenv CETPKG_TYPE Prof
 set_ type=$1
 shift
 test -n "$1" && setenv CETPKG_QUAL "$1" && set_ rootqual="$1"
 test -z "$1" && setenv CETPKG_QUAL "$defaultqual"
+test -n "$2" && set_ hybridqual=$2
 
-echo "called with $type, using qualifier $CETPKG_QUAL$extraqual"
-
-# we setup dependent products here
-# note that we do not test for them first...
-# use setup -j to avoid pulling dependencies
-
-# set up external products
-setup cmake
-setup gcc v4_6_1
-setup -j boost v1_47_0 -q $compilerqual$extraqual
-setup -j clhep v2_1_1_0 -q $compilerqual$extraqual
-setup -j cppunit v1_12_1 -q $compilerqual$extraqual
-setup -j gccxml v0_9_20110907 -q $compilerqual
-setup -j libsigcpp v2_2_10 -q $compilerqual$extraqual
-setup -j python v2_7_2 -q $compilerqual
-setup -j root v5_30_02 -q $rootqual:$extraqual
-# set up CET products
-setup cetpkgsupport
-setup -j cetbuildtools v1_14_03
-setup -j cpp0x v1_03_01 -q $defaultqual$extraqual
-setup -j cetlib v1_03_01 -q $defaultqual$extraqual
-setup -j fhiclcpp v2_16_01 -q $defaultqual$extraqual
-setup -j messagefacility v1_10_01 -q $defaultqual$extraqual
-setup -j sqlite v3_07_08_00 -q $compilerqual$extraqual
-
-test $?shell = 1 && set ss=csh || ss=sh
-test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@";}'
-test "$ss" =  sh && eval 'set_() { ss=$?;for xx in "$@";do var=`expr "$xx" : "\([^=]*\)"`;val=`expr "$xx" : "[^=]*=\(.*\)"`;eval "$var=\"$val\"";done;return $ss; }'
-test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }' && eval 'source() { file=$1; shift; . $file "$@"; }' && eval 'unsetenv() { unset "$@"; }'
+echo "called with $type, using qualifiers +$CETPKG_QUAL$extraqual and +$hybridqual$extraqual"
 
 # now is if we were passed a path or if not, if we can figure it out (maybe if we are interactive)
 #   bash, zsh, ksh and tcsh pass params to a source file, csh does not. but someone will be writing csh scripts
@@ -100,26 +76,35 @@ test -d "$thisdir/lib" || mkdir -p $thisdir/lib
 test -d "$thisdir/bin" || mkdir -p $thisdir/bin
 echo The working build directory is $thisdir
 
+# we setup dependent products here
+setenv UPS_OPTIONS -B
+source $CETPKG_SOURCE/ups/product_list
+
+echo Define LD_LIBRARY_PATH
 tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${CETPKG_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
 tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH ${CETPKG_BUILD}/lib:${LD_LIBRARY_PATH}
 setenv LD_LIBRARY_PATH `dropit -D -p "$LD_LIBRARY_PATH"`
 
+echo Define PATH
 tnotnull CETPKG_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${CETPKG_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
 tnotnull CETPKG_BUILD && setenv PATH ${CETPKG_BUILD}/bin:${PATH}
 setenv PATH `dropit -D`
 
+echo Define FHICL_FILE_PATH
 tnotnull FHICL_FILE_PATH || setenv FHICL_FILE_PATH '.'
 
+echo Define ART_ variables
 # Package-specific variable names.
-for i in SOURCE BUILD TYPE; do
-  eval setenv ART_${i} \${CETPKG_${i}}
-done
+setenv ART_SOURCE ${CETPKG_SOURCE}
+setenv ART_BUILD  ${CETPKG_BUILD}
+setenv ART_TYPE   ${CETPKG_TYPE}
 
 # Show what we've done
 echo
 echo ART_SOURCE=CETPKG_SOURCE=$CETPKG_SOURCE
 echo ART_BUILD=CETPKG_BUILD=$CETPKG_BUILD
 echo ART_TYPE=CETPKG_TYPE=$CETPKG_TYPE
+echo CETPKG_QUAL=$CETPKG_QUAL
 echo $thisdir/lib has been added to LD_LIBRARY_PATH
 echo $thisdir/bin has been added to PATH
 echo
@@ -130,10 +115,9 @@ echo
 echo FHICL_FILE_PATH is now ${FHICL_FILE_PATH}
 echo Please use this cmake command:
 
-test "$defaultqual" = "$CETPKG_QUAL" || set_ extradef="-Dqualifier:STRING=\\\$CETPKG_QUAL "
-echo cmake -DCMAKE_INSTALL_PREFIX=/install/path -DCMAKE_BUILD_TYPE=\$CETPKG_TYPE $extradef\$CETPKG_SOURCE
+echo cmake -DCMAKE_INSTALL_PREFIX=/install/path -DCMAKE_BUILD_TYPE=\$CETPKG_TYPE -Dqualifier:STRING=\$CETPKG_QUAL \$CETPKG_SOURCE
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
-unset ss msg db me thisdir py_ver extraqual msg2 msg3 defaultqual rootqual type compilerqual extradef
+unset ss msg db me thisdir py_ver extraqual msg2 msg3 defaultqual rootqual type compilerqual hybridqual extradef
 unset set_ setenv unsetenv tnotnull source nullout vecho_
