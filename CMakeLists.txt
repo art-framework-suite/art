@@ -29,12 +29,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules
 include(CetCMakeEnv)
 
 if ( NOT qualifier )
-  SET (qualifier a4)
+    message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
 endif ( NOT qualifier )
 cet_cmake_env( art v1_00_06 ${qualifier} )
 
 
 cet_set_compiler_flags(DIAGS VIGILANT EXTRA_FLAGS -pedantic)
+if ("${qualifier}" STREQUAL "e1")
+  cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
+endif()
+cet_report_compiler_flags()
+
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cppunit v1_12_1 )
