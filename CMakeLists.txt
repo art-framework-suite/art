@@ -14,59 +14,27 @@
 # ======================================================================
 
 
-# use cmake 2.6 or later
-cmake_minimum_required (VERSION 2.6)
-# project name
-project(art)
-set( product art )
-set( version v1_00_06 )
-if ( NOT qualifier )
-  SET (qualifier a4)
-endif ( NOT qualifier )
+# use cmake 2.8 or later
+cmake_minimum_required (VERSION 2.8)
 
 # cetbuildtools contains our cmake modules
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
 ENDIF()
-set(CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH})
-message(STATUS "module path is ${CMAKE_MODULE_PATH}" )
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules 
+                      $ENV{CETBUILDTOOLS_DIR}/Modules 
+		      ${CMAKE_MODULE_PATH})
 
-# because we want to move these libraries about,
-# do not embed full path in shared libraries or executables
-set (CMAKE_SKIP_RPATH)
-# get verbose output so we can debug cmake
-#set (CMAKE_VERBOSE_MAKEFILE TRUE)
+include(CetCMakeEnv)
 
-ENABLE_TESTING()
+if ( NOT qualifier )
+  SET (qualifier a4)
+endif ( NOT qualifier )
+cet_cmake_env( art v1_00_06 ${qualifier} )
 
-# make sure someone isn't typing cmake in the source code tree
-include(EnsureOutOfSourceBuild)
-cet_ensure_out_of_source_build()
 
-include(SetCompilerFlags)
 cet_set_compiler_flags(DIAGS VIGILANT EXTRA_FLAGS -pedantic)
-
-# define some necessary modules
-include(FindUpsPackage)
-include(FindUpsBoost)
-include(FindUpsRoot)
-include(ParseUpsVersion)
-include(SetFlavorQual)
-include(InstallSource)
-
-#set package version from ups version
-set_version_from_ups( ${version} )
-#define flavorqual and flavorqual_dir
-set_flavor_qual()
-
-
-# require ART_BUILD
-set( ART_BUILD $ENV{ART_BUILD} )
-if ( NOT ART_BUILD )
-  message(FATAL_ERROR "Can't locate ART_BUILD, required for building framework")
-endif ()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cppunit v1_12_1 )
@@ -74,11 +42,12 @@ find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_1_0 )
 
-find_ups_product( cetbuildtools v1_14_02 )
+find_ups_product( cetbuildtools v1_15_00 )
 find_ups_product( cpp0x v1_03_00 )
 find_ups_product( cetlib v1_03_00 )
 find_ups_product( fhiclcpp v2_16_00 )
 find_ups_product( messagefacility v1_10_00 )
+find_ups_product( sqlite v3_07_08_00 )
 find_ups_root( v5_30_02 )
 find_ups_boost( v1_47_0 filesystem
                         program_options
@@ -86,15 +55,8 @@ find_ups_boost( v1_47_0 filesystem
                         thread
                         unit_test_framework
  )
-find_ups_product( sqlite v3_07_08_00 )
 
-# make sure gcc has been set
-# note that gcc has no qualifier
-SET ( GCC_VERSION $ENV{GCC_VERSION} )
-IF (NOT GCC_VERSION)
-    MESSAGE (FATAL_ERROR "gcc has not been setup")
-ENDIF()
-message(STATUS "GCC version is ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}")
+cet_check_gcc()
 
 # include search path
 include_directories ("${PROJECT_BINARY_DIR}")
@@ -137,6 +99,8 @@ find_library(SQLITE3 NAMES sqlite3 PATHS $ENV{SQLITE_LIB} NO_DEFAULT_PATH)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 #build all executables in a single directory
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+
+message(STATUS "Project is ${product} ${version}")
 
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)
