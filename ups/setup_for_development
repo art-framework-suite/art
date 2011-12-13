@@ -30,7 +30,7 @@ set_ msg2='ERROR: You MUST setup ups'
 test -z $UPS_DIR && ( echo ""; echo "$msg2"; echo "" ) && return
 
 set_ msg3='ERROR: You MUST specify either -o, -p, or -d'
-set_ msg4='Usage: setup_for_development <-d|-o|-p> [rootqual] [hybridqual]'
+set_ msg4='Usage: setup_for_development <-d|-o|-p> [rootqual]'
 test -z "$1" && ( echo ""; echo "$msg4"; echo "" ) 
 test -z "$1" && ( echo ""; echo "$msg3"; echo "" ) && return
 
@@ -50,7 +50,8 @@ set_ type=$1
 shift
 test -n "$1" && setenv CETPKG_QUAL "$1" && set_ rootqual="$1"
 test -z "$1" && setenv CETPKG_QUAL "$defaultqual"
-test -n "$2" && set_ hybridqual=$2
+# e1 is a special case
+test "$1" = "e1" && set_ hybridqual=$1 && set_ rootqual=gcc46
 
 echo "called with $type, using qualifiers +$CETPKG_QUAL$extraqual and +$hybridqual$extraqual"
 
