@@ -653,9 +653,9 @@ set(test_list
 set(test_list ${test_list}
   Unscheduled_01_t
   Unscheduled_02_t
-  Unscheduled_04_t
-  Unscheduled_05_t
-  Unscheduled_06_t
+  #Unscheduled_04_t
+  #Unscheduled_05_t
+  #Unscheduled_06_t
 )
 
 # There were two more Unscheduled tests in FW that tested out-of-order
@@ -672,12 +672,12 @@ foreach(test ${test_list})
 endforeach()
 
 # Extra test properties
-foreach(n 4;5;6)
-  SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
-    PASS_REGULAR_EXPRESSION
-    "module for event:"
-  )
-endforeach()
+#foreach(n 4;5;6)
+#  SET_TESTS_PROPERTIES(Unscheduled_0${n}_t PROPERTIES
+#    PASS_REGULAR_EXPRESSION
+#    "module for event:"
+#  )
+#endforeach()
 
 SET_TESTS_PROPERTIES(Unscheduled_02_t PROPERTIES
   WILL_FAIL true

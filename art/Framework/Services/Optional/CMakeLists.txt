@@ -19,7 +19,7 @@ target_link_libraries(art_Framework_Services_Optional
 #simple_plugin(SimpleMemoryCheck "service")
 #simple_plugin(TFileService "service" art_Framework_Services_Optional)
 simple_plugin(Timing "service")
-simple_plugin(Tracer "service")
+#simple_plugin(Tracer "service")
 
 install_headers(SUBDIRS detail)
 install_source()

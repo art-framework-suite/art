@@ -1,6 +1,6 @@
 #include "ToyRawInput_wr_f1.fcl"
 
-services.scheduler.wantTracer: true
+#services.scheduler.wantTracer: true
 
 physics:
 {

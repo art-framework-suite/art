@@ -4,7 +4,7 @@ process_name: TESTING
 
 services:
 {
-  wantTracer: true
+  #wantTracer: true
 }
 
 services.messageDefaults: @local::messageDefaults

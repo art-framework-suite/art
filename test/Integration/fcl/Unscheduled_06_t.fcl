@@ -7,7 +7,7 @@ services:
   scheduler:
   {
     allowUnscheduled: true
-    wantTracer: true
+    #wantTracer: true
     Rethrow: [ "ProductNotFound" ]
   }
 }

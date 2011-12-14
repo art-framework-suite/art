@@ -193,13 +193,17 @@ namespace art {
     fileMode_ = scheduler.get<std::string>("fileMode", "");
     handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
     handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
+#if 0
     bool wantTracer = scheduler.get<bool>("wantTracer", false);
+#endif  // 0
     std::string processName = pset.get<std::string>("process_name");
     // build a list of service parameter sets that will be used by the service registry
     ParameterSets service_set;
     extractServices(services, service_set);
     // configured based on optional parameters
+#if 0
     if (wantTracer) { addService("Tracer", service_set); }
+#endif  // 0
     serviceToken_ = ServiceRegistry::createSet(service_set);
     // NOTE: the order here might be backwards, due to the "push_front" registering
     // that sigc++ does way in the guts of the add operation.

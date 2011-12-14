@@ -205,8 +205,10 @@ applyTFileName(intermediate_table &raw_config) const {
 
 void NovaConfigPostProcessor::
 applyTrace(intermediate_table &raw_config) const {
+#if 0
    if (wantTrace_) raw_config["services.scheduler.wantTracer"] =
       extended_value(false, BOOL, fhicl::detail::encode(trace_));
+#endif  // 0
 }
 
 void NovaConfigPostProcessor::
