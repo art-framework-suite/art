@@ -5,7 +5,7 @@ set( art_Framework_Core_sources
   EDAnalyzer.cc
   EDFilter.cc
   EDProducer.cc
-  EngineCreator.cc
+  #EngineCreator.cc
   EPStates.cc
   EventObserver.cc
   EventProcessor.cc
@@ -41,7 +41,7 @@ target_link_libraries(art_Framework_Core
   art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_System_TriggerNamesService_service
-  art_Framework_Services_Optional_RandomNumberGenerator_service
+  #art_Framework_Services_Optional_RandomNumberGenerator_service
   art_Framework_Principal
   art_Persistency_Common
   art_Persistency_Provenance

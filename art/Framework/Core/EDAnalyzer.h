@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/EngineCreator.h"
+//#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/EventObserver.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -25,8 +25,8 @@ namespace art
   class MasterProductRegistry;
 
   class EDAnalyzer
-    : public EventObserver,
-      public EngineCreator
+    : public EventObserver
+    //, public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;
@@ -34,8 +34,9 @@ namespace art
     typedef WorkerT<EDAnalyzer> WorkerType;
 
     EDAnalyzer()
-      : EngineCreator()
-      , moduleDescription_()
+      //: EngineCreator()
+      //, moduleDescription_()
+      : moduleDescription_()
       , current_context_(0)
     { }
     virtual ~EDAnalyzer();

@@ -11,7 +11,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+//#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
@@ -149,7 +149,9 @@ namespace art {
     // servicesManager.
     // order might be important here
     // only configured if pset present in services
+#if 0
     addOptionalService("RandomNumberGenerator", services, service_set);
+#endif  // 0
     addOptionalService("SimpleMemoryCheck", services, service_set);
     addOptionalService("Timing", services, service_set);
     addOptionalService("TFileService", services, service_set);
@@ -775,9 +777,11 @@ namespace art {
   void EventProcessor::terminateAbnormally() try
   {
     alreadyHandlingException_ = true;
+#if 0
     if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
       ServiceHandle<RandomNumberGenerator>()->saveToFile_();
     }
+#endif  // 0
     terminateMachine();
     alreadyHandlingException_ = false;
   }

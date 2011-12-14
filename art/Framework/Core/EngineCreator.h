@@ -1,3 +1,4 @@
+#error "Not available on this branch!"
 #ifndef art_Framework_Core_EngineCreator_h
 #define art_Framework_Core_EngineCreator_h
 

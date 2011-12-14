@@ -3,7 +3,7 @@
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+//#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Persistency/Provenance/FileIndex.h"
@@ -104,6 +104,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
   currentEventTree_(),
   dataBranches_()
 {
+#if 0
   if (readMode_ == RANDOM) {
     if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
       dist_.reset(new CLHEP::RandFlat(ServiceHandle<RandomNumberGenerator>()->getEngine()));
@@ -114,6 +115,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const & pset,
         << "services.RandomNumberGenerator: {}\n";
     }
   }
+#endif  // 0
   if (coverageFraction_ > (1 + std::numeric_limits<double>::epsilon())) {
     mf::LogWarning("Configuration")
         << "coverageFraction > 1: treating as a percentage.\n";

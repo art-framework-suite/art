@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Core/EngineCreator.h"
+//#include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
@@ -27,7 +27,7 @@ namespace art
 
   class EDProducer
     : public ProducerBase
-    , public EngineCreator
+    //, public EngineCreator
   {
   public:
     template <typename T> friend class WorkerT;

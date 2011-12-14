@@ -1,3 +1,4 @@
+#error "Not available on this branch!"
 #ifndef art_Framework_Services_Optional_RandomNumberGenerator_h
 #define art_Framework_Services_Optional_RandomNumberGenerator_h
 

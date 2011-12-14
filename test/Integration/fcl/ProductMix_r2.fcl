@@ -1,8 +1,8 @@
 process_name: "SR2"
 
-services.user: {
-  RandomNumberGenerator: { }
-}
+#services.user: {
+#  RandomNumberGenerator: { }
+#}
 
 physics:
 {
