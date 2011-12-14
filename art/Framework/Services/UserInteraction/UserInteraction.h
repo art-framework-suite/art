@@ -1,3 +1,4 @@
+#error "Not available on this branch!"
 #ifndef art_Framework_Services_UserInteraction_UserInteraction_h
 #define art_Framework_Services_UserInteraction_UserInteraction_h
 
