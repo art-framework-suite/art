@@ -4,9 +4,9 @@
 #  cd .../path/to/build/directory
 #  source .../path/to/art/ups/setup_for_development
 #  cmake [-DCMAKE_INSTALL_PREFIX=/install/path]
-#        [-Dqualifier:STRING=(nova|mu2e)]
-#        -DCMAKE_BUILD_TYPE=Debug
-#        $ART_SOURCE
+#        -Dqualifier:STRING=$CETPKG_QUAL
+#        -DCMAKE_BUILD_TYPE=$CETPKG_TYPE
+#        $CETPKG_SOURCE
 #  make
 #  make test
 #  make install
@@ -112,16 +112,16 @@ include(ArtDictionary)
 include(BuildPlugins)
 
 # tools (first)
-subdirs(tools)
+add_subdirectory(tools)
 
 # source
-subdirs (art)
+add_subdirectory (art)
 
 # testing
-subdirs(test)
+add_subdirectory(test)
 
 # ups - table and config files
-subdirs(ups)
+add_subdirectory(ups)
 
 # packaging utility
 include(UseCPack)
