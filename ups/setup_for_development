@@ -120,5 +120,5 @@ echo cmake -DCMAKE_INSTALL_PREFIX=/install/path -DCMAKE_BUILD_TYPE=\$CETPKG_TYPE
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
-unset ss msg db me thisdir py_ver extraqual msg2 msg3 defaultqual rootqual type compilerqual hybridqual extradef
+unset ss msg db me thisdir py_ver extraqual msg2 msg3 msg4 defaultqual rootqual type compilerqual hybridqual extradef
 unset set_ setenv unsetenv tnotnull source nullout vecho_
