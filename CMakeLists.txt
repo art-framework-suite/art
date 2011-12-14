@@ -123,5 +123,8 @@ add_subdirectory(test)
 # ups - table and config files
 add_subdirectory(ups)
 
+# CMake modules
+add_subdirectory(Modules)
+
 # packaging utility
 include(UseCPack)
