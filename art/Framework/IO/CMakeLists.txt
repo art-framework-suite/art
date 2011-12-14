@@ -2,7 +2,7 @@
 project(art_Framework_IO)
 
 # build art_Framework_IO libraries
-subdirs (Catalog)
-subdirs (ProductMix)
-subdirs (Root)
-subdirs (Sources)
+add_subdirectory (Catalog)
+add_subdirectory (ProductMix)
+add_subdirectory (Root)
+add_subdirectory (Sources)

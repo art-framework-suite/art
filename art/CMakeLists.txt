@@ -2,7 +2,7 @@
 project(artCode)
 
 # cmake will automatically order the library builds according to declared dependencies
-subdirs (Version)
-subdirs (Utilities)
-subdirs (Framework)
-subdirs (Persistency)
+add_subdirectory (Version)
+add_subdirectory (Utilities)
+add_subdirectory (Framework)
+add_subdirectory (Persistency)
