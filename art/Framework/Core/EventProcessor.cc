@@ -15,7 +15,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 //#include "art/Framework/Services/System/CurrentModule.h"
-#include "art/Framework/Services/System/FloatingPointControl.h"
+//#include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -208,7 +208,9 @@ namespace art {
 #endif  // 0
     // special construction
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
+#if 0
     serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
+#endif  // 0
     // May be able to do this with CurrentModule serive, else might need
     // small service to configure the ContextProvider of the
     // MessageFacility.
