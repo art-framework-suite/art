@@ -141,9 +141,6 @@ namespace art {
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
 
-    // Call openNewFileIfNeeded() on all OutputModules
-    void openNewOutputFilesIfNeeded();
-
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock & fb);
 
@@ -162,15 +159,10 @@ namespace art {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-    std::pair<double, double> timeCpuReal() const;
+      std::pair<double, double> timeCpuReal() const;
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
-
-    /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
-    /// *** passed to the caller. Do not call delete on these
-    /// *** pointers!
-    std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -185,23 +177,8 @@ namespace art {
     /// (N.B. totalEventsFailed() + totalEventsPassed() == totalEvents()
     int totalEventsFailed() const;
 
-    /// Turn end_paths "off" if "active" is false;
-    /// turn end_paths "on" if "active" is true.
-    void enableEndPaths(bool active);
-
-    /// Return true if end_paths are active, and false if they are
-    /// inactive.
-    bool endPathsEnabled() const;
-
-    /// Return the trigger report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerReport(TriggerReport & rep) const;
-
     /// Return whether a module has reached its maximum count.
     bool terminate() const;
-
-    ///  Clear all the counters in the trigger report.
-    void clearCounters();
 
     // Retrieve all workers.
     void getAllWorkers(Workers & out);
@@ -240,7 +217,6 @@ namespace art {
     void reportSkipped(EventPrincipal const & ep) const;
     void reportSkipped(SubRunPrincipal const &) const;
     void reportSkipped(RunPrincipal const &) const;
-
     void fillWorkers(std::string const & name, PathWorkers & out, bool IsTrigPath, MasterProductRegistry & pregistry);
     void fillTrigPath(int bitpos, std::string const & name, TrigResPtr trptr, MasterProductRegistry & pregistry);
     void fillEndPath(int bitpos, std::string const & name, MasterProductRegistry & pregistry);

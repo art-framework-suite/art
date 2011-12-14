@@ -778,10 +778,6 @@ namespace art
     for_all(all_output_workers_, std::bind(&OutputWorker::closeFile, _1));
   }
 
-  void Schedule::openNewOutputFilesIfNeeded() {
-    for_all(all_output_workers_, std::bind(&OutputWorker::openNewFileIfNeeded, _1));
-  }
-
   void Schedule::openOutputFiles(FileBlock & fb) {
     for_all(all_output_workers_, std::bind(&OutputWorker::openFile, _1, std::cref(fb)));
   }
@@ -819,31 +815,6 @@ namespace art
 
   void Schedule::beginJob() {
     for_all(all_workers_, std::bind(&Worker::beginJob, _1));
-  }
-
-  vector<ModuleDescription const*>
-  Schedule::getAllModuleDescriptions() const {
-    Workers::const_iterator i(workersBegin());
-    Workers::const_iterator e(workersEnd());
-
-    vector<ModuleDescription const*> result;
-    result.reserve(all_workers_.size());
-
-    for (; i!=e; ++i) {
-      ModuleDescription const* p = (*i)->descPtr();
-      result.push_back(p);
-    }
-    return result;
-  }
-
-  void
-  Schedule::enableEndPaths(bool active) {
-    endpathsAreActive_ = active;
-  }
-
-  bool
-  Schedule::endPathsEnabled() const {
-    return endpathsAreActive_;
   }
 
   void
@@ -894,25 +865,6 @@ namespace art
   void
   fillWorkerSummary(Worker const* pw, WorkerSummary& sum) {
     fillWorkerSummaryAux(*pw, sum);
-  }
-
-  void
-  Schedule::getTriggerReport(TriggerReport& rep) const {
-    rep.eventSummary.totalEvents = totalEvents();
-    rep.eventSummary.totalEventsPassed = totalEventsPassed();
-    rep.eventSummary.totalEventsFailed = totalEventsFailed();
-
-    fill_summary(trig_paths_,  rep.trigPathSummaries, &fillPathSummary);
-    fill_summary(end_paths_,   rep.endPathSummaries,  &fillPathSummary);
-    fill_summary(all_workers_, rep.workerSummaries,   &fillWorkerSummary);
-  }
-
-  void
-  Schedule::clearCounters() {
-    total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(all_workers_, std::bind(&Worker::clearCounters, _1));
   }
 
   void
