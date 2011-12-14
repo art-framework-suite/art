@@ -1,21 +1,21 @@
 # project name
 project(art_Integration_Test)
 
-set_source_files_properties(MixFilterTestETS_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0
-)
+#set_source_files_properties(MixFilterTestETS_module.cc
+#  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0
+#)
 
-set_source_files_properties(MixFilterTestETSc_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=1
-)
+#set_source_files_properties(MixFilterTestETSc_module.cc
+#  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=1
+#)
 
-set_source_files_properties(MixFilterTestNoStartEvent_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_NO_STARTEVENT
-)
+#set_source_files_properties(MixFilterTestNoStartEvent_module.cc
+#  PROPERTIES COMPILE_DEFINITIONS ART_TEST_NO_STARTEVENT
+#)
 
-set_source_files_properties(MixFilterTestOldStartEvent_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_OLD_STARTEVENT
-)
+#set_source_files_properties(MixFilterTestOldStartEvent_module.cc
+#  PROPERTIES COMPILE_DEFINITIONS ART_TEST_OLD_STARTEVENT
+#)
 
 simple_plugin(AddIntsProducer            "module" NOINSTALL )
 simple_plugin(AssnsAnalyzer              "module" NOINSTALL USE_BOOST_UNIT )
@@ -32,13 +32,13 @@ simple_plugin(IntProducer                "module" NOINSTALL )
 simple_plugin(IntTestAnalyzer            "module" NOINSTALL )
 simple_plugin(IntVectorAnalyzer          "module" NOINSTALL )
 simple_plugin(IntVectorProducer          "module" NOINSTALL )
-simple_plugin(MixAnalyzer                "module" NOINSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTest              "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestETS           "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestETSc          "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestNoStartEvent  "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
-simple_plugin(MixFilterTestOldStartEvent "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
-simple_plugin(MixProducer                "module" NOINSTALL )
+#simple_plugin(MixAnalyzer                "module" NOINSTALL USE_BOOST_UNIT )
+#simple_plugin(MixFilterTest              "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
+#simple_plugin(MixFilterTestETS           "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
+#simple_plugin(MixFilterTestETSc          "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
+#simple_plugin(MixFilterTestNoStartEvent  "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
+#simple_plugin(MixFilterTestOldStartEvent "module" art_Framework_IO_ProductMix NOINSTALL USE_BOOST_UNIT )
+#simple_plugin(MixProducer                "module" NOINSTALL )
 simple_plugin(MockClusterListAnalyzer    "module" NOINSTALL )
 simple_plugin(MockClusterListProducer    "module" NOINSTALL )
 simple_plugin(ProductIDGetter            "module" NOINSTALL USE_BOOST_UNIT )
@@ -326,136 +326,136 @@ cet_test(BareString_r HANDBUILT
 
 
 # Write the data file required for the other mixing tests.
-cet_test(ProductMix_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c "ProductMix_w.fcl"
-  DATAFILES
-  fcl/ProductMix_w.fcl
-)
+#cet_test(ProductMix_w HANDBUILT
+#  TEST_EXEC art
+#  TEST_ARGS --rethrow-all -c "ProductMix_w.fcl"
+#  DATAFILES
+#  fcl/ProductMix_w.fcl
+#)
 
 # Mix the events from ProductMix_w, analyzing the results and
 # writing an output file.
-cet_test(ProductMix_r1 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with primary event #2 having no secondaries to mix. No analysis is done
 # nor output written.
-cet_test(ProductMix_r1a HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1a.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1a.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1a HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1a.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1a.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with multiple secondary input files (actually, the same file specified
 # twice).
-cet_test(ProductMix_r1b HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1b.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1b.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1b HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1b.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1b.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with secondary input file wrappring and no eventsToSkip().
-cet_test(ProductMix_r1c1 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1c.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1c1 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1c.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1c.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
-SET_TESTS_PROPERTIES(ProductMix_r1c1
-  PROPERTIES
-  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
-  )
+#SET_TESTS_PROPERTIES(ProductMix_r1c1
+#  PROPERTIES
+#  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1"
+#  )
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with secondary input file wrappring and eventsToSkip().
-cet_test(ProductMix_r1c2 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1c.fcl
-  fcl/ProductMix_r1c2.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1c2 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1c2.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1c.fcl
+#  fcl/ProductMix_r1c2.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with secondary input file wrappring and eventsToSkip() const.
-cet_test(ProductMix_r1c3 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1c.fcl
-  fcl/ProductMix_r1c3.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1c3 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1c3.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1c.fcl
+#  fcl/ProductMix_r1c3.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with no startEvent function.
-cet_test(ProductMix_r1d1 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1d1.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1d1.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1d1 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1d1.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1d1.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Mix the events from ProductMix_w, testing that things behave properly
 # with an old-signature startEvent function.
-cet_test(ProductMix_r1d2 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1d2.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1d2.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1d2 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1d2.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1d2.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
-SET_TESTS_PROPERTIES(
-  ProductMix_r1c2
-  ProductMix_r1c3
-  PROPERTIES
-  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
-  )
+#SET_TESTS_PROPERTIES(
+#  ProductMix_r1c2
+#  ProductMix_r1c3
+#  PROPERTIES
+#  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0.*MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2"
+#  )
 
 # Mix the events from ProductMix_w, testing that we correctly detect an
 # inappropriate attempt to dereference a Ptr.
-cet_test(ProductMix_r1d HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r1d.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1d.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w
-)
+#cet_test(ProductMix_r1d HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r1d.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r1.fcl
+#  fcl/ProductMix_r1d.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_w
+#)
 
 # Read the output from ProductMix_r1a running the analysis to ensure that
 # everything works as read from an output file written post-mixing.
-cet_test(ProductMix_r2 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "ProductMix_r2.fcl"
-  DATAFILES
-  fcl/ProductMix_r2.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_r1
-)
+#cet_test(ProductMix_r2 HANDBUILT
+#  TEST_EXEC art_ut
+#  TEST_ARGS --rethrow-all -c "ProductMix_r2.fcl"
+#  DATAFILES
+#  fcl/ProductMix_r2.fcl
+#  TEST_PROPERTIES DEPENDS ProductMix_r1
+#)
 
 cet_test(Ptrmv_w HANDBUILT
   TEST_EXEC art_ut

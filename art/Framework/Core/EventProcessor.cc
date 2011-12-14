@@ -14,7 +14,7 @@
 //#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/System/CurrentModule.h"
+//#include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -203,7 +203,9 @@ namespace art {
     // that sigc++ does way in the guts of the add operation.
     typedef art::TriggerNamesService TNS;
     // no configuration available
+#if 0
     serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(*actReg_)));
+#endif  // 0
     // special construction
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
     serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));

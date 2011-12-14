@@ -8,7 +8,7 @@
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/CurrentModule.h"
+//#include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Framework/IO/Root/RefCoreStreamer.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -94,7 +94,11 @@ MixOp<PROD>::MixOp(InputTag const & inputTag,
   mixFunc_(mixFunc),
   inProducts_(),
   processName_(ServiceHandle<TriggerNamesService>()->getProcessName()),
+#if 0
   moduleLabel_(ServiceHandle<CurrentModule>()->label()),
+#else
+  moduleLabel_("current module label"),
+#endif  // 0
   branchInfo_(),
   outputProduct_(outputProduct)
 {}
