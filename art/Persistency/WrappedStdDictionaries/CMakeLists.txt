@@ -1,3 +1,3 @@
-build_dictionary()
+art_dictionary()
 
 install_source()

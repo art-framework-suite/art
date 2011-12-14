@@ -27,7 +27,7 @@ MACRO(check_class_version)
       "ensure your library is linked to any necessary libraries not already pulled in by ART.")
   ENDIF()
   IF(ART_CCV_UPDATE_IN_PLACE)
-    SET(EXTRA_ARGS ${EXTRA_ARGS} "-G")
+    SET(ART_CCV_EXTRA_ARGS ${ART_CCV_EXTRA_ARGS} "-G")
   ENDIF()
   IF(NOT dictname)
     MESSAGE(FATAL_ERROR "CHECK_CLASS_VERSION must be called after BUILD_DICTIONARY.")
@@ -35,7 +35,7 @@ MACRO(check_class_version)
   IF(ART_CCV_ENABLED)
     ADD_CUSTOM_TARGET(${dictname}_check ALL
       COMMAND ${EXECUTABLE_OUTPUT_PATH}/checkClassVersion
-      ${EXTRA_ARGS}
+      ${ART_CCV_EXTRA_ARGS}
       -l ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict.so
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
       DEPENDS checkClassVersion classes_def.xml

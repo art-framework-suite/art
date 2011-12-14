@@ -1,4 +1,4 @@
-cet_set_compiler_flags(ENABLE_ASSERTS DIAGS VIGILANT EXTRA_FLAGS -pedantic)
+cet_enable_asserts()
 
 # add_definitions(-DART_NO_MIX_PTRVECTOR)
 
