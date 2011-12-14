@@ -154,7 +154,9 @@ namespace art {
     addOptionalService("SimpleMemoryCheck", services, service_set);
 #endif  // 0
     addOptionalService("Timing", services, service_set);
+#if 0
     addOptionalService("TFileService", services, service_set);
+#endif  // 0
     ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
     std::vector<std::string> keys = user_services.get_pset_keys();
     for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)

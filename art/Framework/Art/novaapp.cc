@@ -25,7 +25,9 @@ int novaapp(int argc, char * argv[])
           << " <-c <config-file>> <other-options> [<source-file>]+";
   bpo::options_description desc(descstr.str());
   desc.add_options()
+#if 0
   ("TFileName,T", bpo::value<std::string>(), "File name for TFileService.")
+#endif  // 0
   ("config,c", bpo::value<std::string>(), "Configuration file.")
   ("estart,e", bpo::value<unsigned long>(), "Event # of first event to process.")
   ("help,h", "produce help message")

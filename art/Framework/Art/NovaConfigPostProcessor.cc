@@ -179,10 +179,15 @@ applyTFileName(intermediate_table &raw_config) const {
    std::string tFileName(tFileName_);
 
    try {
-      if (tFileName.empty() &&
+      if (tFileName.empty()
+#if 0
+         &&
           raw_config.exists("services.TFileService") &&
           raw_config["services.TFileService"].is_a(TABLE) &&
-          boost::any_cast<table_t&>(raw_config["services.TFileService"].value).empty()) {
+          boost::any_cast<table_t&>(raw_config["services.TFileService"].value).empty()
+#endif  // 0
+          )
+      {
          tFileName = "histo.root";
       }
    }
@@ -190,10 +195,12 @@ applyTFileName(intermediate_table &raw_config) const {
       // Ignore
    }
 
+#if 0
    if (!tFileName.empty()) {
       raw_config["services.TFileService.fileName"] =
          extended_value(false, STRING, fhicl::detail::encode(tFileName));
    }
+#endif  // 0
 }
 
 void NovaConfigPostProcessor::
