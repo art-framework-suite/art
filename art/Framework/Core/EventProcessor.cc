@@ -151,8 +151,8 @@ namespace art {
     // only configured if pset present in services
 #if 0
     addOptionalService("RandomNumberGenerator", services, service_set);
-#endif  // 0
     addOptionalService("SimpleMemoryCheck", services, service_set);
+#endif  // 0
     addOptionalService("Timing", services, service_set);
     addOptionalService("TFileService", services, service_set);
     ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());

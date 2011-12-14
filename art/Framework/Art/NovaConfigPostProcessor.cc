@@ -204,6 +204,7 @@ applyTrace(intermediate_table &raw_config) const {
 
 void NovaConfigPostProcessor::
 applyMemcheck(intermediate_table &raw_config) const {
+#if 0
    if (wantMemcheck_)  {
       if (memcheck_) {
          if (!raw_config.exists("services.SimpleMemoryCheck")) {
@@ -217,4 +218,5 @@ applyMemcheck(intermediate_table &raw_config) const {
          s.erase(s.find("SimpleMemoryCheck"));
       }
    }
+#endif  // 0
 }

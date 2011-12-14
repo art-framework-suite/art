@@ -29,7 +29,7 @@ services:
    # These are provided by Art, but are not system services and therefore
    # need to be configured to come to life.
    Timing: { }
-   SimpleMemoryCheck: { }
+   #SimpleMemoryCheck: { }
 
    user:
    {
