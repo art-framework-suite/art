@@ -75,13 +75,8 @@ class art::ProductRegistryHelper
 public:
 
   // Record the production of an object of type P, with optional
-  // instance name, in either the Run or SubRun.
-  template <class P, BranchType B>
-  void produces(std::string const& instanceName=std::string());
-
-  // Record the production of an object of type P, with optional
-  // instance name, in the Event.
-  template <class P>
+  // instance name, in the Event (by default), Run, or SubRun.
+  template <class P, BranchType B = InEvent>
   void produces(std::string const& instanceName=std::string());
 
   // Record the reconstitution of an object of type P, in either the
@@ -90,7 +85,7 @@ public:
   // optional instance name.
   template <class P, BranchType B>
   void reconstitutes(std::string const& modLabel,
-                                 std::string const& instanceName=std::string());
+                     std::string const& instanceName=std::string());
 
   void registerProducts(MasterProductRegistry &,
                         ModuleDescription const&);
@@ -114,20 +109,6 @@ private:
   TypeLabelList typeLabelList_;
 
 };
-
-// TODO: When we activate C++0x features, we can remove this
-// implementation in favor of a default template argument in the
-// two-template-parameter member produces.
-template <class P>
-inline
-void
-art::ProductRegistryHelper::produces(std::string const& instanceName)
-{
-  verifyInstanceName(instanceName);
-  TypeID productType(typeid(P));
-  verifyFriendlyClassName(productType.friendlyClassName());
-  produces_in_branch<InEvent>(productType, instanceName);
-}
 
 template <typename P, art::BranchType B>
 inline
