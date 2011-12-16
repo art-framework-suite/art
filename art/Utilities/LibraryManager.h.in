@@ -7,6 +7,8 @@
 #include <set>
 #include <vector>
 
+#include "art/Utilities/hard_cast.h"
+
 namespace art {
   class LibraryManager {
   public:
@@ -33,16 +35,18 @@ namespace art {
     T getSymbolByLibspec(std::string const & libspec,
                          std::string const & sym_name) const;
     template <typename T>
-    void getSymbolByLibspec(std::string const & libspec,
-                            std::string const & sym_name,
-                            T & sym) const;
+    void
+    getSymbolByLibspec(std::string const & libspec,
+                       std::string const & sym_name,
+                       T & sym) const;
     template <typename T>
     T getSymbolByPath(std::string const & lib_loc,
                       std::string const & sym_name) const;
     template <typename T>
-    void getSymbolByPath(std::string const & lib_loc,
-                         std::string const & sym_name,
-                         T & sym) const;
+    void
+    getSymbolByPath(std::string const & lib_loc,
+                    std::string const & sym_name,
+                    T & sym) const;
 
     // Get a list of loadable libraries (full paths). Returns the
     // number of entries.
@@ -118,9 +122,7 @@ art::LibraryManager::
 getSymbolByLibspec(std::string const & libspec,
                    std::string const & sym_name) const
 {
-  T sym;
-  getSymbolByLibspec(libspec, sym_name, sym);
-  return sym;
+   return hard_cast<T>(getSymbolByLibspec_(libspec, sym_name));
 }
 
 template <typename T>
@@ -131,8 +133,7 @@ getSymbolByLibspec(std::string const & libspec,
                    std::string const & sym_name,
                    T & sym) const
 {
-  void *tmp = getSymbolByLibspec_(libspec, sym_name);
-  memcpy(&sym, &tmp, sizeof(T));
+   hard_cast<T>(getSymbolByLibspec_(libspec, sym_name), sym);
 }
 
 template <typename T>
@@ -142,9 +143,7 @@ art::LibraryManager::
 getSymbolByPath(std::string const & lib_loc,
                 std::string const & sym_name) const
 {
-  T sym;
-  getSymbolByPath(lib_loc, sym_name, sym);
-  return sym;
+   return hard_cast<T>(getSymbolByPath_(lib_loc, sym_name));
 }
 
 template <typename T>
@@ -155,8 +154,7 @@ getSymbolByPath(std::string const & lib_loc,
                 std::string const & sym_name,
                 T & sym) const
 {
-  void *tmp = getSymbolByPath_(lib_loc, sym_name);
-  memcpy(&sym, &tmp, sizeof(T));
+   hard_cast<T>(getSymbolByPath_(lib_loc, sym_name), sym);
 }
 
 template <class OutIter>
