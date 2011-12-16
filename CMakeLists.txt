@@ -38,7 +38,7 @@ cet_cmake_env( art v1_00_06 ${qualifier} )
 
 cet_set_compiler_flags(DIAGS VIGILANT EXTRA_FLAGS -pedantic)
 if ("${qualifier}" STREQUAL "e1")
-  cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
+  cet_add_compiler_flags(CXX -fopenmp;-std=c++0x;-Wno-deprecated-declarations)
 endif()
 cet_report_compiler_flags()
 
