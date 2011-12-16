@@ -79,7 +79,12 @@ echo The working build directory is $thisdir
 
 # we setup dependent products here
 setenv UPS_OPTIONS -B
-source $CETPKG_SOURCE/ups/product_list
+#test "$ss" = csh && alias mysetup "`alias setup`" && alias setup 'mysetup \!* || return $?'
+#test "$ss" = sh && eval 'setup_body=`type setup | grep -e '"'"'\.'"'"'`' && eval 'function mysetup() { '"$setup_body"'; }' && eval 'function setup() { (( ${setup_result:-0} )) || { '"$setup_body"'; (( setup_result =  $? )); } } '
+source $CETPKG_SOURCE/ups/product_list # ; echo "** ${setup_result} **"; (( ${setup_result:-0} )) && return ${setup_result}
+#test "$ss" = csh && alias setup "`alias mysetup`" && unalias mysetup
+#test "$ss" = sh && eval 'function setup() { '"$setup_body"'; }' && unset setup_body mysetup setup_result
+set +x
 
 echo Define LD_LIBRARY_PATH
 tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${CETPKG_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
