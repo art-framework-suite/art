@@ -3,6 +3,28 @@ include(CetTest)
 
 art_dictionary(NOINSTALL)
 
+add_library(test_Utilities SHARED openmpTestFunc.cc)
+target_link_libraries(test_Utilities ${Boost_THREAD_LIBRARY})
+cet_test(openmp_simple_t LIBRARIES test_Utilities)
+cet_test(openmp_dlopen_t
+  LIBRARIES
+  art_Framework_Core
+  ${ROOT_CINTEX}
+  ${ROOT_PHYSICS}
+  ${ROOTSYS}/lib/libGraf.so
+  ${ROOT_TREE}
+  ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_RIO}
+  ${ROOT_THREAD}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
+  ${ROOT_REFLEX}
+  ${CPPUNIT}
+  -ldl)
+
 link_libraries(art_Utilities
   test_Utilities_dict
   ${MF_MESSAGELOGGER}
