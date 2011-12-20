@@ -34,11 +34,11 @@ MACRO(check_class_version)
   ENDIF()
   IF(ART_CCV_ENABLED)
     ADD_CUSTOM_TARGET(${dictname}_check ALL
-      COMMAND ${EXECUTABLE_OUTPUT_PATH}/checkClassVersion
+      COMMAND checkClassVersion
       ${ART_CCV_EXTRA_ARGS}
       -l ${LIBRARY_OUTPUT_PATH}/lib${dictname}_dict.so
       -x ${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml
-      DEPENDS checkClassVersion classes_def.xml
+      DEPENDS classes_def.xml
       VERBATIM
       )
     ADD_DEPENDENCIES(${dictname}_check ${dictname}_dict ${dictname} art_Framework_Core)
