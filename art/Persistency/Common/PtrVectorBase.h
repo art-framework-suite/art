@@ -118,7 +118,7 @@ template <typename T>
 inline
 typename art::Ptr<T>::key_type
 art::PtrVectorBase::key(Ptr<T> const &ptr) const {
-  return ptr.key_;
+  return ptr.key();
 }
 
 #endif /* art_Persistency_Common_PtrVectorBase_h */
