@@ -132,9 +132,6 @@ public:
   // Accessor for product ID.
   ProductID id() const { return core_.id(); }
 
-  // Accessor for product getter.
-  EDProductGetter const * productGetter() const { return core_.productGetter(); }
-
   key_type key() const { return key_; }
 
   bool hasCache() const { return 0 != core_.productPtr(); }
@@ -148,7 +145,11 @@ public:
   // MUST UPDATE WHEN CLASS IS CHANGED!
   static short Class_Version() { return 10; }
 
-private:
+private:  
+
+// Accessor for product getter.
+  EDProductGetter const * productGetter() const { return core_.productGetter(); }
+
   template<typename C>
   T const * getItem_(C const * product, key_type iKey);
 
