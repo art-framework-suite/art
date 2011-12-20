@@ -144,8 +144,7 @@ namespace art {
     StatusCode runCommon(int numberOfEventsToProcess);
     void terminateMachine();
     void terminateAbnormally();
-    void procOneEvent(EventPrincipal* pep);
-    void connectSigs(EventProcessor* ep);
+    void connectSigs();
     void setupSignal();
 
     //------------------------------------------------------------------
