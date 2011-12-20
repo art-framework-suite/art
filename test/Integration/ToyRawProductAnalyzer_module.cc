@@ -19,19 +19,6 @@ namespace arttest {
   class ToyRawProductAnalyzer;
 }
 
-extern "C" {
-   size_t openmpTestFunc(size_t numLoops, size_t mult) {
-      size_t total = 0;
-#pragma omp for
-      for (size_t i = 0; i<numLoops; ++i) {
-         size_t j = i * mult;
-#pragma omp critical(sec1)
-         total += j;
-      }
-      return total;
-   }
-}
-
 class arttest::ToyRawProductAnalyzer : public art::EDAnalyzer {
 public:
   explicit ToyRawProductAnalyzer(fhicl::ParameterSet const &p);

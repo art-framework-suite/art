@@ -6,9 +6,7 @@ art_dictionary(NOINSTALL)
 add_library(test_Utilities SHARED openmpTestFunc.cc)
 target_link_libraries(test_Utilities ${Boost_THREAD_LIBRARY})
 
-cet_test(openmp_simple_t LIBRARIES test_Utilities)
-cet_test(openmp_dlopen_t NO_AUTO
-  LIBRARIES
+set(OPENMP_TEST_LIBS
   art_Framework_Core
   ${ROOT_CINTEX}
   ${ROOT_PHYSICS}
@@ -23,8 +21,14 @@ cet_test(openmp_dlopen_t NO_AUTO
   ${ROOT_CORE}
   ${ROOT_CINT}
   ${ROOT_REFLEX}
-  ${CPPUNIT}
-  -ldl)
+  -ldl
+)
+
+cet_test(openmp_simple_t LIBRARIES test_Utilities)
+cet_test(openmp_dlopen_t NO_AUTO
+  LIBRARIES
+  ${OPENMP_TEST_LIBS}
+)
 
 cet_test(openmp_dlopen_standalone_t HANDBUILT
   TEST_EXEC openmp_dlopen_t
@@ -33,7 +37,13 @@ cet_test(openmp_dlopen_standalone_t HANDBUILT
 
 cet_test(openmp_dlopen_module_t HANDBUILT
   TEST_EXEC openmp_dlopen_t
-  TEST_ARGS "libtest_Integration_ToyRawProductAnalyzer_module.so" "openmpTestFunc"
+  TEST_ARGS "libtest_Integration_OpenMPSimpleTest_module.so" "openmpTestFunc"
+  )
+
+cet_test(openmp_LibraryManager_t
+  TEST_ARGS "test/Integration/OpenMPSimpleTest" "openmpTestFunc"
+  LIBRARIES
+  ${OPENMP_TEST_LIBS}
   )
 
 link_libraries(art_Utilities

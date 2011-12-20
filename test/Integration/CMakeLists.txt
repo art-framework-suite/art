@@ -41,6 +41,7 @@ simple_plugin(IntVectorProducer          "module" NOINSTALL )
 #simple_plugin(MixProducer                "module" NOINSTALL )
 simple_plugin(MockClusterListAnalyzer    "module" NOINSTALL )
 simple_plugin(MockClusterListProducer    "module" NOINSTALL )
+simple_plugin(OpenMPSimpleTest           "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ProductIDGetter            "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ProductIDGetterAnalyzer    "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(PtrListAnalyzer            "module" NOINSTALL )
@@ -629,6 +630,13 @@ cet_test(AssnsFastClone_w HANDBUILT
   DATAFILES
   fcl/AssnsFastClone_w.fcl
   TEST_PROPERTIES DEPENDS Assns_w
+)
+
+cet_test(OpenMPSimpleTest_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "OpenMPSimpleTest_t.fcl"
+  DATAFILES
+  fcl/OpenMPSimpleTest_t.fcl
 )
 
 ########################################################################

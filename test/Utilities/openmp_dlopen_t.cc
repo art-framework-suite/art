@@ -1,17 +1,24 @@
-#include <iostream>
-#include "test/Utilities/openmpTestFunc.h"
-
 #include "art/Utilities/hard_cast.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 extern "C" {
 #include <dlfcn.h>
 }
+
+#include <iostream>
 
 int main(int argc, char ** argv)
 {
   if (argc < 3) {
     return 1;
   }
+
+  mf::MessageDrop::instance()->jobMode = std::string("analysis");
+  mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
+  mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
+                           fhicl::ParameterSet());
+  mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
+
   dlerror();
   void * lib_ptr = dlopen(argv[1], RTLD_LAZY | RTLD_GLOBAL);
   if (lib_ptr == nullptr) {

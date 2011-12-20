@@ -1,0 +1,21 @@
+process_name: DEVELr
+
+physics:
+{
+  analyzers:
+  {
+    a1:
+    {
+      module_type: OpenMPSimpleTest
+    }
+  }
+
+  e1: [ a1 ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}
