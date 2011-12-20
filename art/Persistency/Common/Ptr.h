@@ -38,7 +38,7 @@ namespace art {
 
 template <typename T>
 class art::Ptr {
-  friend class PtrVectorBase;
+  //  friend class PtrVectorBase;
 public:
 
   typedef std::size_t   key_type;
