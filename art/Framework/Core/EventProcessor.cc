@@ -226,7 +226,7 @@ namespace art {
                               actReg_));
     //   initialize(token,legacy);
     FDEBUG(2) << pset.to_string() << std::endl;
-    connectSigs(this);
+    connectSigs();
     BranchIDListHelper::updateRegistries(preg_);
   }
 
@@ -250,14 +250,6 @@ namespace art {
     input_.reset();
     wreg_.clear();
     actReg_.reset();
-  }
-
-  void
-  EventProcessor::procOneEvent(EventPrincipal* pep)
-  {
-    if (0 != pep) {
-      schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep);
-    }
   }
 
   void
@@ -321,13 +313,13 @@ namespace art {
   }
 
   void
-  EventProcessor::connectSigs(EventProcessor* ep)
+  EventProcessor::connectSigs()
   {
     // When these signals are given, pass them to the appropriate
     // EventProcessor signals so that the outside world can see the
     // signal.
-    actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal_);
-    actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal_);
+    actReg_->preProcessEventSignal_.connect(preProcessEventSignal_);
+    actReg_->postProcessEventSignal_.connect(postProcessEventSignal_);
   }
 
   art::EventProcessor::StatusCode
