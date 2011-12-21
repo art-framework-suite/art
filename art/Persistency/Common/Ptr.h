@@ -21,6 +21,10 @@
 #include <list>
 #include <vector>
 
+#include <omp.h>
+#include <cassert>
+#include <boost/utility.hpp>
+
 namespace art {
   template <typename T>
   class Ptr;
@@ -34,6 +38,33 @@ namespace art {
       operator()(Ptr<PTRVAL> const & from) const { return detail::addr<TO, PTRVAL const>(*from); }
     };
   }
+}
+
+namespace art {
+  //Provides a mutex-like synchronization   
+  class omp_lockable : boost::noncopyable {
+   public:
+    omp_lockable():count(0xDEADBEEF) { omp_init_nest_lock ( &lock_ ); } 
+    ~omp_lockable(){ omp_destroy_nest_lock ( &lock_ ); }
+     
+    void acquire() {  assert(count==0xDEADBEEF); omp_set_nest_lock ( &lock_ );  }
+    void release() { omp_unset_nest_lock ( &lock_ ); }
+    
+   private:
+    const unsigned int count;
+    omp_nest_lock_t lock_;
+  };
+
+  class omp_lock_guard : boost::noncopyable {
+    public:
+     explicit omp_lock_guard ( omp_lockable& lockable )
+          :lockable_( lockable ) { lockable_.acquire(); }
+        
+     ~omp_lock_guard () { lockable_.release(); }
+     
+    private:
+       omp_lockable& lockable_; 
+  }; 
 }
 
 template <typename T>
@@ -83,6 +114,7 @@ public:
     key_(key_traits<key_type>::value)
   { }
 
+/*
   template<typename U>
   Ptr(Ptr<U> const & iOther, typename std::enable_if<std::is_base_of<T, U>::value>::type * = 0):
     core_(iOther.id(),
@@ -98,9 +130,28 @@ public:
           dynamic_cast<T const *>(iOther.get()),
           0),
     key_(iOther.key())
+  { } 
+*/
+
+  Ptr<T>& operator=(const Ptr<T>& src) {
+    omp_lock_guard g1(lock_);
+    omp_lock_guard g2(src.lock_);
+    core_=src.core_;
+    key_=src.key_;
+
+    return *this;
+  }
+
+  Ptr<T>(const Ptr<T>& src)
+  {
+    omp_lock_guard g(src.lock_);
+    core_=src.core_;
+    key_=src.key_; 
+  } 
+
+  ~ Ptr<T>()
   { }
 
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
 
   // Dereference operator
   T const &
@@ -110,48 +161,98 @@ public:
   T const *
   operator->() const;
 
+  // Member equals operator
+  bool
+  operator==(Ptr<T> const & rhs) const
+  {
+    omp_lock_guard g1(lock_);
+    omp_lock_guard g2(rhs.lock_);
+    return refCore() == rhs.refCore() && key() == rhs.key();
+  }
+
+  // Member less-than operator
+  bool
+  operator<(Ptr<T> const & rhs) const
+  {
+    omp_lock_guard g1(lock_);
+    omp_lock_guard g2(rhs.lock_);
+    // The ordering of integer keys guarantees that the ordering of Ptrs within
+    // a collection will be identical to the ordering of the referenced objects in the collection.
+    return (refCore() == rhs.refCore() ? key() < rhs.key() : refCore() < rhs.refCore());
+  }
+
+
   // Returns C++ pointer to the item
   T const * get() const {
+    omp_lock_guard g(lock_);
     return isNull() ? 0 : this->operator->();
   }
 
   // Checks for null
-  bool isNull() const { return !isNonnull(); }
+  bool isNull() const { 
+   omp_lock_guard g(lock_);
+   return !isNonnull(); 
+  }
 
   // Checks for non-null
-  bool isNonnull() const { return key_traits<key_type>::value != key_; }
+  bool isNonnull() const { 
+  omp_lock_guard g(lock_);
+  return key_traits<key_type>::value != key_; 
+  }
   // Checks for null
   //    bool operator!() const { return isNull(); }
 
   // Checks if collection is in memory or available
   // in the event. No type checking is done.
-  bool isAvailable() const { return core_.isAvailable(); }
+  bool isAvailable() const { 
+    omp_lock_guard g(lock_);
+    return core_.isAvailable(); 
+  }
 
   // Accessor for product ID.
-  ProductID id() const { return core_.id(); }
+  ProductID id() const {
+   omp_lock_guard g(lock_);
+   return core_.id();
+  }
 
-  key_type key() const { return key_; }
+  key_type key() const { 
+    omp_lock_guard g(lock_);      
+    return key_; 
+  } 
 
-  bool hasCache() const { return 0 != core_.productPtr(); }
+  bool hasCache() const { 
+    omp_lock_guard g(lock_);
+    return 0 != core_.productPtr(); 
+  }
 
-  RefCore const & refCore() const { return core_; }
-
+  RefCore const & refCore() const { 
+    omp_lock_guard g(lock_);
+  return core_; 
+  }
+  
+  // Accessor for product getter.
+  EDProductGetter const * productGetter() const { 
+   omp_lock_guard g(lock_);
+   return core_.productGetter(); 
+  }
+  
   // Fulfills the role of, "convertible to bool"
-  operator void const * () const { return get(); }
+  operator void const * () const { 
+   omp_lock_guard g(lock_);
+   return get(); 
+  }
 
   // MUST UPDATE WHEN CLASS IS CHANGED!
-  static short Class_Version() { return 10; }
+  static short Class_Version() { return 11; }
 
 private:  
-
-// Accessor for product getter.
-  EDProductGetter const * productGetter() const { return core_.productGetter(); }
 
   template<typename C>
   T const * getItem_(C const * product, key_type iKey);
 
   void getData_() const {
     if (!hasCache()) {
+       omp_lock_guard g(lock_);
       ////        const EDProduct* prod = productGetter()?productGetter()->getIt(core_.id()):0;
       const EDProduct * prod = productGetter() ? productGetter()->getIt() : 0;
       if (prod == 0) {
@@ -177,8 +278,10 @@ private:
     }
   }
   // ---------- member data --------------------------------
+  mutable omp_lockable lock_;//! transient
+
   RefCore core_;
-  key_type key_;
+  key_type key_; 
 };  // Ptr<>
 
 //------------------------------------------------------------
@@ -267,6 +370,7 @@ namespace art {
   T const *
   Ptr<T>::getItem_(C const * product, key_type iKey)
   {
+    omp_lock_guard g(lock_);
     return detail::ItemGetter<T, C>()(product, iKey);
   }
 
@@ -276,6 +380,7 @@ namespace art {
   T const &
   Ptr<T>::operator*() const
   {
+    omp_lock_guard g(lock_);
     getData_();
     return *reinterpret_cast<T const *>(core_.productPtr());
   }
@@ -286,6 +391,7 @@ namespace art {
   T const *
   Ptr<T>::operator->() const
   {
+    omp_lock_guard g(lock_);
     getData_();
     return reinterpret_cast<T const *>(core_.productPtr());
   }
@@ -295,7 +401,7 @@ namespace art {
   bool
   operator==(Ptr<T> const & lhs, Ptr<T> const & rhs)
   {
-    return lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
+    return lhs == rhs;//lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key();
   }
 
   template <typename T>
@@ -305,7 +411,7 @@ namespace art {
   {
     // The ordering of integer keys guarantees that the ordering of Ptrs within
     // a collection will be identical to the ordering of the referenced objects in the collection.
-    return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
+    return lhs < rhs;// (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
 
   template <class T, class H>
