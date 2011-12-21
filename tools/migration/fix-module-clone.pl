@@ -20,9 +20,19 @@ GetOptions($options,
 
 $options->{help} and usage();
 
-my $module_name = $ARGV[0] || usage("No <class_name> specified.");
-$module_name =~ s&.*::&&;
-my $header_file = $ARGV[1] || usage("No <file_name> specified.");
+my $header_file = $ARGV[0] || usage("No <file_name> specified.");
+my $module_name = $ARGV[1] if $ARGV[1];
+if ($module_name) {
+  $module_name =~ s&.*::&&;
+} else {
+  $module_name = $header_file;
+  $module_name =~ s&^(?:.*/)?(.*?)(?:_module)?\.(?:cxx|cc|C|cpp|h|hpp|H|hh)$&$1&;
+  if ($module_name) {
+    print "INFO: using deduced module class name $module_name.\n";
+  } else {
+    die "ERROR: Unable to deduce module class name from filename.\n";
+  }
+}
 
 if (system("grep -q -e '\bclone[ \t]*(?:\(|$)' \"$header_file\" >/dev/null 2>&1") == 0 and
     (!$options->{force})) {
@@ -37,8 +47,7 @@ my $in_class = 0;
 my $public = 0;
 my $clone_in = 0;
 while (<IN>) {
-  print;
-  if (m&^\s*(class|struct)\s+(?:[\w\d_]+::)*\Q$module_name\E[^;]*$& and !$in_class) {
+  if (m&^\s*(?:template.*)?(class|struct)\s+(?:[\w\d_]+::)*\Q$module_name\E[^;]*$& and !$in_class) {
     $in_class = 1;
     $public = 1 if $1 eq "struct";
   } elsif (m&^\s*class\s+& and $in_class) {
@@ -58,8 +67,28 @@ while (<IN>) {
 close(IN);
 close(OUT);
 
-print "$outfile\n";
-1;
+my $result = 1;
+if ($clone_in) {
+  system("cp -p \"$header_file\" \"$header_file.~\" && mv \"$outfile\" \"$header_file\"")
+    and die "ERROR: Unable to update header file from \"$outfile\": \"$outfile\" not deleted.\n";
+  $result = 0;
+} else {
+  print STDERR <<EOF;
+Unable to ascertain suitable place for insertion of clone method: insert
+by hand in a public section of the module class definition (not necessary
+for module template instantiations):
+
+virtual $module_name * clone() const { return new $module_name(*this); }
+
+EOF
+}
+
+print <<EOF;
+Remeber to implement a non-trivial copy constructor if deep copy is
+required for non-smart pointers or other resources.
+EOF
+
+exit($result);
 
 sub usage {
   my $exitval = ($_[0] and $_[0] =~ m&^\d+$&)?shift:1;
@@ -67,7 +96,7 @@ sub usage {
   print STDERR join("", @_), "\n" if scalar(@_);
   print STDERR <<EOF;
 usage: ${prog} --help|-h|-?
-       ${prog} [--force|-f] <class_name> <file_name>
+       ${prog} [--force|-f] <file_name> [<class_name>]
 EOF
   exit($exitval);
 }
