@@ -23,7 +23,7 @@ my $options = {};
 Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
 
 # Subsidiary packages to be recognized.
-my @known_packages = qw(cetbuildtools cpp0x cetlib fhicl-cpp messagefacility);
+my @known_packages = qw(cpp0x cetlib fhicl-cpp messagefacility);
 my %product_name = ( "fhicl-cpp" => "fhiclcpp" );
 
 GetOptions($options,
@@ -309,8 +309,6 @@ their Target Version.
 h1. ART Suite Release Notes v0.07.13.
 
 h2. ART version:"v0.07.13".
-
-h2. [[cetbuildtools:Release_Notes#v1.11.09|cetbuildtools v1.11.09]].
 
 h2. [[cpp0x:Release_Notes#v1.01.14|cpp0x v1.01.14]].
 
