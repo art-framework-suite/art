@@ -30,11 +30,15 @@ public:
 
 private:
   std::string inputLabel_;
+   bool keepString_;
+   bool keepMapVector_;
 };
 
 arttest::DropOnInputTestAnalyzer::DropOnInputTestAnalyzer(fhicl::ParameterSet const &p)
   :
-  inputLabel_(p.get<std::string>("input_label"))
+   inputLabel_(p.get<std::string>("input_label")),
+   keepString_(p.get<bool>("keepString", false)),
+   keepMapVector_(p.get<bool>("keepMapVector", true))
 {
 }
 
@@ -42,19 +46,24 @@ arttest::DropOnInputTestAnalyzer::~DropOnInputTestAnalyzer() {
 }
 
 void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
-  art::Handle<art::Ptr<std::string> > sh;
-  BOOST_CHECK(!e.getByLabel(inputLabel_, sh));
-  BOOST_REQUIRE(!sh.isValid());
+   art::Handle<art::Ptr<std::string> > sh;
+   BOOST_CHECK_EQUAL((e.getByLabel(inputLabel_, sh)), keepString_);
+   BOOST_REQUIRE_EQUAL(sh.isValid(), keepString_);
+   if (keepString_) {
+      BOOST_CHECK_EQUAL(*sh, "TWO");
+   }
 
-  typedef cet::map_vector<std::string> mv_t;
-  art::Handle<mv_t> mvth;
-  BOOST_CHECK(e.getByLabel(inputLabel_, mvth));
-  BOOST_REQUIRE(mvth.isValid());
-  mv_t const & mapvec = *mvth;
-  BOOST_REQUIRE(mapvec[cet::map_vector_key(7)] == "FOUR");
-  BOOST_REQUIRE(mapvec[cet::map_vector_key(5)] == "THREE");
-  BOOST_REQUIRE(mapvec[cet::map_vector_key(3)] == "TWO");
-  BOOST_REQUIRE(mapvec[cet::map_vector_key(0)] == "ONE");
+   typedef cet::map_vector<std::string> mv_t;
+   art::Handle<mv_t> mvth;
+   BOOST_CHECK_EQUAL((e.getByLabel(inputLabel_, mvth)), keepMapVector_);
+   BOOST_REQUIRE_EQUAL(mvth.isValid(), keepMapVector_);
+   if (keepMapVector_) {
+      mv_t const & mapvec = *mvth;
+      BOOST_REQUIRE(mapvec[cet::map_vector_key(7)] == "FOUR");
+      BOOST_REQUIRE(mapvec[cet::map_vector_key(5)] == "THREE");
+      BOOST_REQUIRE(mapvec[cet::map_vector_key(3)] == "TWO");
+      BOOST_REQUIRE(mapvec[cet::map_vector_key(0)] == "ONE");
+   }
 }
 
 DEFINE_ART_MODULE(arttest::DropOnInputTestAnalyzer)
