@@ -497,30 +497,25 @@ foreach(num 1 2)
   )
 endforeach()
 
-cet_test(DropOnInput_null_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "DropOnInput_null_t.fcl"
-  DATAFILES
-  fcl/DropOnInput_null_t.fcl
-  fcl/DropOnInput_t.fcl
-  TEST_PROPERTIES WILL_FAIL true DEPENDS Ptrmv_w
-)
+foreach(num RANGE 1 4)
+  cet_test(DropOnInput_t_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnInput_t_0${num}.fcl"
+    DATAFILES
+    fcl/DropOnInput_t_01.fcl
+    fcl/DropOnInput_t_0${num}.fcl
+    TEST_PROPERTIES DEPENDS Ptrmv_w
+    )
 
-cet_test(DropOnInput_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "DropOnInput_t.fcl"
-  DATAFILES
-  fcl/DropOnInput_t.fcl
-  TEST_PROPERTIES DEPENDS Ptrmv_w
-)
-
-cet_test(DropOnInput_r HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "DropOnInput_r.fcl"
-  DATAFILES
-  fcl/DropOnInput_r.fcl
-  TEST_PROPERTIES DEPENDS DropOnInput_t
-)
+  cet_test(DropOnInput_r_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnInput_r_0${num}.fcl"
+    DATAFILES
+    fcl/DropOnInput_t_0${num}.fcl
+    fcl/DropOnInput_r_0${num}.fcl
+    TEST_PROPERTIES DEPENDS DropOnInput_t_0${num}
+    )
+endforeach()
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.

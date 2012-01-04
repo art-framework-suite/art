@@ -1,0 +1,11 @@
+#include "DropOnInput_t_03.fcl"
+
+process_name: DOIr
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../DropOnInput_t_03.d/out.root" ]
+}
+
+physics.e1: [ a1 ]

@@ -49,8 +49,8 @@ void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
    art::Handle<art::Ptr<std::string> > sh;
    BOOST_CHECK_EQUAL((e.getByLabel(inputLabel_, sh)), keepString_);
    BOOST_REQUIRE_EQUAL(sh.isValid(), keepString_);
-   if (keepString_) {
-      BOOST_CHECK_EQUAL(*sh, "TWO");
+   if (keepString_ && keepMapVector_) {
+      BOOST_CHECK_EQUAL(**sh, "TWO");
    }
 
    typedef cet::map_vector<std::string> mv_t;
