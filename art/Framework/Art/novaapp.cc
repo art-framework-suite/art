@@ -83,6 +83,9 @@ int novaapp(int argc, char * argv[])
     while (flist) {
       std::string tmp;
       std::getline(flist, tmp);
+      if (tmp.find('#') != std::string::npos) {
+        // FIXME: do stuff.
+      }
       if (!tmp.empty()) { source_list.push_back(tmp); }
     }
   }
