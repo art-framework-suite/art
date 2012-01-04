@@ -511,6 +511,7 @@ foreach(num RANGE 1 4)
     TEST_EXEC art_ut
     TEST_ARGS --rethrow-all -c "DropOnInput_r_0${num}.fcl"
     DATAFILES
+    fcl/DropOnInput_t_01.fcl
     fcl/DropOnInput_t_0${num}.fcl
     fcl/DropOnInput_r_0${num}.fcl
     TEST_PROPERTIES DEPENDS DropOnInput_t_0${num}
