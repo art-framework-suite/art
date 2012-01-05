@@ -547,6 +547,26 @@ foreach(num RANGE 1 4)
     fcl/DropOnOutput_r_0${num}.fcl
     TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
     )
+
+  cet_test(DropOnOutput_wB_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnOutput_wB_0${num}.fcl"
+    DATAFILES
+    fcl/Ptrmv_w.fcl
+    fcl/DropOnOutput_wB_01.fcl
+    fcl/DropOnOutput_wB_0${num}.fcl
+    )
+
+  cet_test(DropOnOutput_rB_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all
+    -c "DropOnOutput_r_0${num}.fcl"
+    -s "../DropOnOutput_wB_0${num}.d/out.root"
+    DATAFILES
+    fcl/DropOnOutput_r_01.fcl
+    fcl/DropOnOutput_r_0${num}.fcl
+    TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
+    )
 endforeach()
 
 # Write a data file containing stored products and stored random number

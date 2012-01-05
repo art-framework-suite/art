@@ -1,0 +1,3 @@
+#include "Ptrmv_w.fcl"
+
+outputs.o1.outputCommands: [ "keep *", "drop Stringart::Ptr_ptrmvWriter__PtrmvW" ]
