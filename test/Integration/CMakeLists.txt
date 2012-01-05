@@ -565,7 +565,7 @@ foreach(num RANGE 1 4)
     DATAFILES
     fcl/DropOnOutput_r_01.fcl
     fcl/DropOnOutput_r_0${num}.fcl
-    TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
+    TEST_PROPERTIES DEPENDS DropOnOutput_wB_0${num}
     )
 endforeach()
 
