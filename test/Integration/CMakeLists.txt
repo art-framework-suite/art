@@ -497,6 +497,12 @@ foreach(num 1 2)
   )
 endforeach()
 
+# Use the file from Ptrmv_w to test DropOnInput and outputCommand drops.
+#
+# 1. Drop Ptr, keep base MapVector.
+# 2, Keep Ptr, drop base MapVector.
+# 3. Drop both.
+# 4. Keep both.
 foreach(num RANGE 1 4)
   cet_test(DropOnInput_t_0${num} HANDBUILT
     TEST_EXEC art_ut
@@ -515,6 +521,24 @@ foreach(num RANGE 1 4)
     fcl/DropOnInput_t_0${num}.fcl
     fcl/DropOnInput_r_0${num}.fcl
     TEST_PROPERTIES DEPENDS DropOnInput_t_0${num}
+    )
+
+  cet_test(DropOnOutput_w_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnOutput_w_0${num}.fcl"
+    DATAFILES
+    fcl/DropOnOutput_w_01.fcl
+    fcl/DropOnOutput_w_0${num}.fcl
+    TEST_PROPERTIES DEPENDS Ptrmv_w
+    )
+
+  cet_test(DropOnOutput_r_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnOutput_r_0${num}.fcl"
+    DATAFILES
+    fcl/DropOnOutput_r_01.fcl
+    fcl/DropOnOutput_r_0${num}.fcl
+    TEST_PROPERTIES DEPENDS DropOnOutput_w_0${num}
     )
 endforeach()
 

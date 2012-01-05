@@ -1,0 +1,5 @@
+#include "DropOnOutput_r_01.fcl"
+
+source.fileNames: [ "../DropOnOutput_w_04.d/out.root" ]
+physics.analyzers.a1.keepString: true
+physics.analyzers.a1.keepMapVector: true

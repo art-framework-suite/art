@@ -1,0 +1,20 @@
+process_name: DOOr
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../DropOnOutput_w_01.d/out.root" ]
+}
+
+physics: {
+  analyzers:
+  {
+    a1:
+    {
+      module_type: DropOnInputTestAnalyzer
+      input_label: ptrmvWriter
+    }
+  }
+  e1: [ a1 ]
+  end_paths: [ e1 ]
+}

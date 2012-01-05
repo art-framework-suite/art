@@ -1,0 +1,3 @@
+#include "DropOnOutput_w_01.fcl"
+
+outputs.o1.outputCommands: [ "keep *" ]

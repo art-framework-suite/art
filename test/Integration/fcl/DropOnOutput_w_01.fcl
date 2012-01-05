@@ -1,0 +1,23 @@
+process_name: DOO
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../Ptrmv_w.d/out.root" ]
+}
+
+physics:
+{
+  e1: [ o1 ]
+  end_paths: [ e1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    outputCommands: [ "keep *", "drop Stringart::Ptr_ptrmvWriter__PtrmvW" ]
+    fileName: "out.root"
+  }
+}
