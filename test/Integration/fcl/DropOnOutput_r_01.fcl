@@ -1,11 +1,5 @@
 process_name: DOOr
 
-source:
-{
-  module_type: RootInput
-  fileNames: [ "../DropOnOutput_w_01.d/out.root" ]
-}
-
 physics: {
   analyzers:
   {

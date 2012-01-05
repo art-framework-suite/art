@@ -506,7 +506,10 @@ endforeach()
 foreach(num RANGE 1 4)
   cet_test(DropOnInput_t_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "DropOnInput_t_0${num}.fcl"
+    TEST_ARGS --rethrow-all
+    -c "DropOnInput_t_0${num}.fcl"
+    -s "../Ptrmv_w.d/out.root"
+    --output "out.root"
     DATAFILES
     fcl/DropOnInput_t_01.fcl
     fcl/DropOnInput_t_0${num}.fcl
@@ -515,7 +518,9 @@ foreach(num RANGE 1 4)
 
   cet_test(DropOnInput_r_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "DropOnInput_r_0${num}.fcl"
+    TEST_ARGS --rethrow-all
+    -c "DropOnInput_r_0${num}.fcl"
+    -s "../DropOnInput_t_0${num}.d/out.root"
     DATAFILES
     fcl/DropOnInput_t_01.fcl
     fcl/DropOnInput_t_0${num}.fcl
@@ -534,7 +539,9 @@ foreach(num RANGE 1 4)
 
   cet_test(DropOnOutput_r_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "DropOnOutput_r_0${num}.fcl"
+    TEST_ARGS --rethrow-all
+    -c "DropOnOutput_r_0${num}.fcl"
+    -s "../DropOnOutput_w_0${num}.d/out.root"
     DATAFILES
     fcl/DropOnOutput_r_01.fcl
     fcl/DropOnOutput_r_0${num}.fcl

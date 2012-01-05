@@ -1,11 +1,4 @@
 #include "DropOnInput_t_04.fcl"
 
 process_name: DOIr
-
-source:
-{
-  module_type: RootInput
-  fileNames: [ "../DropOnInput_t_04.d/out.root" ]
-}
-
-physics.e1: [ a1 ]
+source.inputCommands: [ "keep *" ]
