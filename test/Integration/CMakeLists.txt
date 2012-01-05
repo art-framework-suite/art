@@ -528,24 +528,24 @@ foreach(num RANGE 1 4)
     TEST_PROPERTIES DEPENDS DropOnInput_t_0${num}
     )
 
-  cet_test(DropOnOutput_w_0${num} HANDBUILT
+  cet_test(DropOnOutput_wA_0${num} HANDBUILT
     TEST_EXEC art_ut
-    TEST_ARGS --rethrow-all -c "DropOnOutput_w_0${num}.fcl"
+    TEST_ARGS --rethrow-all -c "DropOnOutput_wA_0${num}.fcl"
     DATAFILES
-    fcl/DropOnOutput_w_01.fcl
-    fcl/DropOnOutput_w_0${num}.fcl
+    fcl/DropOnOutput_wA_01.fcl
+    fcl/DropOnOutput_wA_0${num}.fcl
     TEST_PROPERTIES DEPENDS Ptrmv_w
     )
 
-  cet_test(DropOnOutput_r_0${num} HANDBUILT
+  cet_test(DropOnOutput_rA_0${num} HANDBUILT
     TEST_EXEC art_ut
     TEST_ARGS --rethrow-all
     -c "DropOnOutput_r_0${num}.fcl"
-    -s "../DropOnOutput_w_0${num}.d/out.root"
+    -s "../DropOnOutput_wA_0${num}.d/out.root"
     DATAFILES
     fcl/DropOnOutput_r_01.fcl
     fcl/DropOnOutput_r_0${num}.fcl
-    TEST_PROPERTIES DEPENDS DropOnOutput_w_0${num}
+    TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
     )
 endforeach()
 
