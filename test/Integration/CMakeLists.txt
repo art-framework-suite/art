@@ -620,6 +620,16 @@ cet_test(RandomNumberTestFileSave_rB HANDBUILT
   TEST_PROPERTIES DEPENDS RandomNumberTestFileSave_wB
 )
 
+# Verify the ProvenanceChecker operation with a non-trivial event
+# structure.
+cet_test(ProvenanceChecker_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProvenanceChecker_t.fcl"
+  DATAFILES
+  fcl/Ptrmv_w.fcl
+  fcl/ProvenanceChecker_t.fcl
+)
+
 # Test the ProvenanceDumper module template (write and check).
 cet_test(ProvenanceDumper_w HANDBUILT
   TEST_EXEC art_ut
