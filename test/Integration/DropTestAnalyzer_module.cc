@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-// Class:       DropOnInputTestAnalyzer
+// Class:       DropTestAnalyzer
 // Module Type: analyzer
-// File:        DropOnInputTestAnalyzer_module.cc
+// File:        DropTestAnalyzer_module.cc
 //
 // Generated at Mon Aug  1 13:28:48 2011 by Chris Green using artmod
 // from art v0_07_12.
@@ -17,13 +17,13 @@
 #include <string>
 
 namespace arttest {
-  class DropOnInputTestAnalyzer;
+  class DropTestAnalyzer;
 }
 
-class arttest::DropOnInputTestAnalyzer : public art::EDAnalyzer {
+class arttest::DropTestAnalyzer : public art::EDAnalyzer {
 public:
-  explicit DropOnInputTestAnalyzer(fhicl::ParameterSet const &p);
-  virtual ~DropOnInputTestAnalyzer();
+  explicit DropTestAnalyzer(fhicl::ParameterSet const &p);
+  virtual ~DropTestAnalyzer();
 
   virtual void analyze(art::Event const &e);
 
@@ -34,7 +34,7 @@ private:
    bool keepMapVector_;
 };
 
-arttest::DropOnInputTestAnalyzer::DropOnInputTestAnalyzer(fhicl::ParameterSet const &p)
+arttest::DropTestAnalyzer::DropTestAnalyzer(fhicl::ParameterSet const &p)
   :
    inputLabel_(p.get<std::string>("input_label")),
    keepString_(p.get<bool>("keepString", false)),
@@ -42,10 +42,10 @@ arttest::DropOnInputTestAnalyzer::DropOnInputTestAnalyzer(fhicl::ParameterSet co
 {
 }
 
-arttest::DropOnInputTestAnalyzer::~DropOnInputTestAnalyzer() {
+arttest::DropTestAnalyzer::~DropTestAnalyzer() {
 }
 
-void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
+void arttest::DropTestAnalyzer::analyze(art::Event const &e) {
    art::Handle<art::Ptr<std::string> > sh;
    BOOST_CHECK_EQUAL((e.getByLabel(inputLabel_, sh)), keepString_);
    BOOST_REQUIRE_EQUAL(sh.isValid(), keepString_);
@@ -66,4 +66,4 @@ void arttest::DropOnInputTestAnalyzer::analyze(art::Event const &e) {
    }
 }
 
-DEFINE_ART_MODULE(arttest::DropOnInputTestAnalyzer)
+DEFINE_ART_MODULE(arttest::DropTestAnalyzer)

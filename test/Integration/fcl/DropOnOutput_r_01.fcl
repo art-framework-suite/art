@@ -5,7 +5,7 @@ physics: {
   {
     a1:
     {
-      module_type: DropOnInputTestAnalyzer
+      module_type: DropTestAnalyzer
       input_label: ptrmvWriter
     }
   }
