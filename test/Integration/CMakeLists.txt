@@ -505,6 +505,7 @@ endforeach()
 # 3. Drop both.
 # 4. Keep both.
 foreach(num RANGE 1 4)
+  # Test drop on input.
   cet_test(DropOnInput_t_0${num} HANDBUILT
     TEST_EXEC art_ut
     TEST_ARGS --rethrow-all
@@ -529,6 +530,7 @@ foreach(num RANGE 1 4)
     TEST_PROPERTIES DEPENDS DropOnInput_t_0${num}
     )
 
+  # Test drop on output with input file.
   cet_test(DropOnOutput_wA_0${num} HANDBUILT
     TEST_EXEC art_ut
     TEST_ARGS --rethrow-all -c "DropOnOutput_wA_0${num}.fcl"
@@ -549,6 +551,7 @@ foreach(num RANGE 1 4)
     TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
     )
 
+  # Test drop on output with in-job generated products.
   cet_test(DropOnOutput_wB_0${num} HANDBUILT
     TEST_EXEC art_ut
     TEST_ARGS --rethrow-all -c "DropOnOutput_wB_0${num}.fcl"

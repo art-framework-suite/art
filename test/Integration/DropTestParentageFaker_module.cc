@@ -3,6 +3,10 @@
 // Module Type: producer
 // File:        DropTestParentageFaker_module.cc
 //
+// Synopsis:    Make sure that one of the products produced by the
+//              PtrmvProducer module is registered as a parent to
+//              improve test coverage.
+//
 // Generated at Thu Jan  5 17:44:19 2012 by Chris Green using artmod
 // from art v1_00_06.
 ////////////////////////////////////////////////////////////////////////

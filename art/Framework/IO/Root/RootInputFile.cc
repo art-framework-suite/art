@@ -208,6 +208,7 @@ namespace art {
 
     readEventHistoryTree();
 
+    // Update transient presence information to match input tree contents.
     ProductList & prodList = ppList->productList_;
     for (ProductList::iterator
            it = prodList.begin(),
@@ -217,7 +218,6 @@ namespace art {
       BranchDescription & prod = it->second;
       prod.setPresent(treePointers_[prod.branchType()]->hasBranch(prod.branchName()));
     }
-
 
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable, ppList->productList_);
     productListHolder_ = ppList;
