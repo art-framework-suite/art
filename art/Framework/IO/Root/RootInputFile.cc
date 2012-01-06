@@ -208,17 +208,27 @@ namespace art {
 
     readEventHistoryTree();
 
+    ProductList & prodList = ppList->productList_;
+    for (ProductList::iterator
+           it = prodList.begin(),
+           itEnd = prodList.end();
+         it != itEnd;
+         ++it) {
+      BranchDescription & prod = it->second;
+      prod.setPresent(treePointers_[prod.branchType()]->hasBranch(prod.branchName()));
+    }
+
+
     dropOnInput(groupSelectorRules, dropDescendants, dropMergeable, ppList->productList_);
     productListHolder_ = ppList;
 
     // Set up information from the product registry.
-    ProductList const& prodList = ppList->productList_;
     for (ProductList::const_iterator
            it = prodList.begin(),
            itEnd = prodList.end();
          it != itEnd;
          ++it) {
-      BranchDescription const& prod = it->second;
+      BranchDescription const & prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod, prod.branchName());
     }
 
