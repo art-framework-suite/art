@@ -19,7 +19,6 @@ is the storage unit of such information.
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/value_ptr.h"
 #include "cpp0x/memory"
 
 namespace art {
@@ -106,7 +105,7 @@ private:
   art::TypeID                               wrapper_type_;
   cet::exempt_ptr<BranchMapper const>       ppResolver_;
   cet::exempt_ptr<DelayedReader const>      productResolver_;
-  mutable cet::value_ptr<EDProduct>         product_;
+  mutable std::auto_ptr<EDProduct>          product_;
   cet::exempt_ptr<BranchDescription const>  branchDescription_;
   mutable ProductID                         pid_;
   cet::exempt_ptr<Worker>                   productProducer_;
