@@ -1,3 +1,12 @@
 #include "Ptrmv_w.fcl"
 
+physics.producers.parentageFaker:
+{
+  module_type: DropTestParentageFaker
+  input_label: ptrmvWriter
+}
+
+physics.p2: [ parentageFaker ]
+physics.trigger_paths: [ p1, p2 ]
+
 outputs.o1.outputCommands: [ "keep *", "drop Stringart::Ptr_ptrmvWriter__PtrmvW" ]

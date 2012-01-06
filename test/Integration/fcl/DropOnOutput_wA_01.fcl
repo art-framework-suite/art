@@ -8,6 +8,16 @@ source:
 
 physics:
 {
+  producers:
+  {
+    parentageFaker:
+    {
+      module_type: DropTestParentageFaker
+      input_label: ptrmvWriter
+    }
+  }
+  p1: [ parentageFaker ]
+  trigger_paths: [ p1 ]
   e1: [ o1 ]
   end_paths: [ e1 ]
 }
