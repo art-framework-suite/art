@@ -22,12 +22,12 @@ Qualifiers = ""
     setupRequired(root      @ROOT_VERSION@ )
 
 Flavor     = ANY
-Qualifiers = "a4"
+Qualifiers = "a5"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a4 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a5 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
@@ -39,12 +39,12 @@ Qualifiers = "a4"
     setupRequired(root      @ROOT_VERSION@ -q gcc46)
 
 Flavor     = ANY
-Qualifiers = "a4:debug"
+Qualifiers = "a5:debug"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a4.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a5.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
@@ -56,12 +56,12 @@ Qualifiers = "a4:debug"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:debug)
 
 Flavor     = ANY
-Qualifiers = "a4:opt"
+Qualifiers = "a5:opt"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a4.opt ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a5.opt ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
@@ -73,12 +73,12 @@ Qualifiers = "a4:opt"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:opt)
 
 Flavor     = ANY
-Qualifiers = "a4:prof"
+Qualifiers = "a5:prof"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a4.prof ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a5.prof ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
