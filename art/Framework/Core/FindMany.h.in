@@ -1,7 +1,7 @@
-#ifndef art_Framework_Core_FindMany_h
-#define art_Framework_Core_FindMany_h
+#ifndef art_Framework_Core_@ART_IPR_CLASS_NAME@_h
+#define art_Framework_Core_@ART_IPR_CLASS_NAME@_h
 ////////////////////////////////////////////////////////////////////////
-// FindMany
+// @ART_IPR_CLASS_NAME@
 //
 // A smart query object used as the main way of accessing associated
 // objects in an association (onoe-to-one, one-to-many or many-to-many).
@@ -22,14 +22,14 @@
 // Notes:
 //
 // * ProdB and Data are the only template arguments that must be
-// specified when constructing a FindMany. Any other items are deducible
+// specified when constructing a @ART_IPR_CLASS_NAME@. Any other items are deducible
 // from arguments.
 //
-// * The FindMany needs a source of objects of type A, an event and an
+// * The @ART_IPR_CLASS_NAME@ needs a source of objects of type A, an event and an
 // input tag corresponding to the underlying association collection from
 // which to create itself.
 //
-// * When constructed, the FindMany will obtain and interrogate the
+// * When constructed, the @ART_IPR_CLASS_NAME@ will obtain and interrogate the
 // correct Assns and provide access to the B (and/or D) object(s)
 // associated with each supplied A object in the order in which the A
 // objects were specified.
@@ -57,26 +57,26 @@
 // Constructors.
 //
 // // From Handle to collection of A.
-// FindMany<ProdB>(Handle<ProdAColl> const &,
+// @ART_IPR_CLASS_NAME@<ProdB>(Handle<ProdAColl> const &,
 //                 Event const &,
 //                 InputTag const &);
-// FindMany<ProdB, Data>(Handle<ProdAColl> const &,
+// @ART_IPR_CLASS_NAME@<ProdB, Data>(Handle<ProdAColl> const &,
 //                       Event const &,
 //                       InputTag const &);
 //
 // // From View<A>.
-// FindMany<ProdB>(View<ProdA> const &,
+// @ART_IPR_CLASS_NAME@<ProdB>(View<ProdA> const &,
 //                 Event const &,
 //                 InputTag const &);
-// FindMany<ProdB, Data>(View<ProdA> const &,
+// @ART_IPR_CLASS_NAME@<ProdB, Data>(View<ProdA> const &,
 //                       Event const &,
 //                       InputTag const &);
 //
 // // From arbitrary sequence of Ptr<A>.
-// FindMany<ProdB>(PtrProdAColl const &,
+// @ART_IPR_CLASS_NAME@<ProdB>(PtrProdAColl const &,
 //                 Event const &,
 //                 InputTag const &);
-// FindMany<ProdB, Data>(PtrProdAColl const &,
+// @ART_IPR_CLASS_NAME@<ProdB, Data>(PtrProdAColl const &,
 //                       Event const &,
 //                       InputTag const &);
 //
@@ -95,11 +95,11 @@
 // size_type get(size_type,
 //               reference,
 //               data_reference)
-//   const; // *Must* be used for FindMany<ProdB, Data>.
+//   const; // *Must* be used for @ART_IPR_CLASS_NAME@<ProdB, Data>.
 //
 // Comparison operations.
 //
-// bool operator == (FindMany const & other) const;
+// bool operator == (@ART_IPR_CLASS_NAME@ const & other) const;
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -113,22 +113,28 @@
 
 #include <vector>
 
+#cmakedefine ART_IPR_BY_PTR
+
 namespace art {
   // General template
   template <typename ProdB, typename DATA = void>
-  class FindMany;
+  class @ART_IPR_CLASS_NAME@;
 
   // Specialization.
   template <typename ProdB>
-  class FindMany<ProdB, void>;
+  class @ART_IPR_CLASS_NAME@<ProdB, void>;
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Implementation of the specialization.
 template <typename ProdB>
-class art::FindMany<ProdB, void> {
+class art::@ART_IPR_CLASS_NAME@<ProdB, void> {
 public:
+#ifdef ART_IPR_BY_PTR
+  typedef std::vector<std::vector<Ptr<ProdB> > > bColl_t;
+#else
   typedef std::vector<std::vector<ProdB const *> > bColl_t;
+#endif
   typedef typename bColl_t::value_type value_type;
   typedef typename bColl_t::size_type size_type;
   typedef typename bColl_t::difference_type difference_type;
@@ -138,19 +144,19 @@ public:
   typedef ProdB assoc_t;
 
   template <typename ProdAColl>
-  FindMany(Handle<ProdAColl> const & aCollection,
-           Event const & e,
-           InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename ProdA>
-  FindMany(View<ProdA> const & view,
-           Event const & e,
-           InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename PtrProdAColl>
-  FindMany(PtrProdAColl const & aPtrColl,
-           Event const & e,
-           InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+                       Event const & e,
+                       InputTag const & tag);
 
   // Number of query results
   size_type size() const;
@@ -159,10 +165,10 @@ public:
   const_reference at(size_type i) const;
   size_type get(size_type i, reference item) const;
 
-  bool operator == (FindMany<ProdB, void> const & other) const;
+  bool operator == (@ART_IPR_CLASS_NAME@<ProdB, void> const & other) const;
 
 protected:
-  FindMany() : bCollection_() { }
+  @ART_IPR_CLASS_NAME@() : bCollection_() { }
   bColl_t & bCollection() { return bCollection_; }
 
 private:
@@ -170,9 +176,9 @@ private:
 };
 
 template <typename ProdB, typename Data>
-class art::FindMany : private art::FindMany<ProdB, void> {
+class art::@ART_IPR_CLASS_NAME@ : private art::@ART_IPR_CLASS_NAME@<ProdB, void> {
 private:
-  typedef FindMany<ProdB, void> base;
+  typedef @ART_IPR_CLASS_NAME@<ProdB, void> base;
 public:
   typedef std::vector<std::vector<Data const *> > dataColl_t;
   typedef typename base::value_type value_type;
@@ -189,19 +195,19 @@ public:
   typedef Data data_t;
 
   template <typename ProdAColl>
-  FindMany(Handle<ProdAColl> const & aCollection,
-           Event const & e,
-           InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename ProdA>
-  FindMany(View<ProdA> const & view,
-           Event const & e,
-           InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename PtrProdAColl>
-  FindMany(PtrProdAColl const & aPtrColl,
-           Event const & e,
-           InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+                       Event const & e,
+                       InputTag const & tag);
 
   using base::size;
   using base::at;
@@ -213,7 +219,7 @@ public:
   // Associated item and extra-data object by index (bounds-checked).
   size_type get(size_type i, reference item, data_reference data) const;
 
-  bool operator == (FindMany<ProdB, Data> const & other) const;
+  bool operator == (@ART_IPR_CLASS_NAME@<ProdB, Data> const & other) const;
 
 private:
   dataColl_t dataCollection_;
@@ -223,10 +229,10 @@ private:
 // Base class implementation.
 template <typename ProdB>
 template <typename ProdAColl>
-art::FindMany<ProdB, void>::
-FindMany(Handle<ProdAColl> const & aCollection,
-         Event const & e,
-         InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+@ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+                     Event const & e,
+                     InputTag const & tag)
   :
   bCollection_()
 {
@@ -237,10 +243,10 @@ FindMany(Handle<ProdAColl> const & aCollection,
 
 template <typename ProdB>
 template <typename ProdA>
-art::FindMany<ProdB, void>::
-FindMany(View<ProdA> const & view,
-         Event const & e,
-         InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+@ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+                     Event const & e,
+                     InputTag const & tag)
   :
   bCollection_()
 {
@@ -251,10 +257,10 @@ FindMany(View<ProdA> const & view,
 
 template <typename ProdB>
 template <typename PtrProdAColl>
-art::FindMany<ProdB, void>::
-FindMany(PtrProdAColl const & aPtrColl,
-         Event const & e,
-         InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+@ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+                     Event const & e,
+                     InputTag const & tag)
   :
   bCollection_()
 {
@@ -265,24 +271,24 @@ FindMany(PtrProdAColl const & aPtrColl,
 
 template <typename ProdB>
 inline
-typename art::FindMany<ProdB, void>::size_type
-art::FindMany<ProdB, void>::size() const
+typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::size() const
 {
   return bCollection_.size();
 }
 
 template <typename ProdB>
 inline
-typename art::FindMany<ProdB, void>::const_reference
-art::FindMany<ProdB, void>::at(size_type i) const
+typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::const_reference
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::at(size_type i) const
 {
   return bCollection_.at(i);
 }
 
 template <typename ProdB>
 inline
-typename art::FindMany<ProdB, void>::size_type
-art::FindMany<ProdB, void>::get(size_type i, reference item) const
+typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::get(size_type i, reference item) const
 {
   reference ref(bCollection_.at(i));
   item.insert(item.end(), ref.begin(), ref.end());
@@ -292,7 +298,7 @@ art::FindMany<ProdB, void>::get(size_type i, reference item) const
 template <typename ProdB>
 inline
 bool
-art::FindMany<ProdB, void>::operator == (FindMany<ProdB, void> const & other) const
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::operator == (@ART_IPR_CLASS_NAME@<ProdB, void> const & other) const
 {
   return bCollection_ == other.bCollection_;
 }
@@ -301,9 +307,9 @@ art::FindMany<ProdB, void>::operator == (FindMany<ProdB, void> const & other) co
 // Derived class implementation.
 template <typename ProdB, typename Data>
 template <typename ProdAColl>
-art::FindMany<ProdB, Data>::FindMany(Handle<ProdAColl> const & aCollection,
-                                     Event const & e,
-                                     InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::@ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+    Event const & e,
+    InputTag const & tag)
   :
   base(),
   dataCollection_()
@@ -315,9 +321,9 @@ art::FindMany<ProdB, Data>::FindMany(Handle<ProdAColl> const & aCollection,
 
 template <typename ProdB, typename Data>
 template <typename ProdA>
-art::FindMany<ProdB, Data>::FindMany(View<ProdA> const & view,
-                                     Event const & e,
-                                     InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::@ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+    Event const & e,
+    InputTag const & tag)
   :
   base(),
   dataCollection_()
@@ -329,9 +335,9 @@ art::FindMany<ProdB, Data>::FindMany(View<ProdA> const & view,
 
 template <typename ProdB, typename Data>
 template <typename PtrProdAColl>
-art::FindMany<ProdB, Data>::FindMany(PtrProdAColl const & aPtrColl,
-                                     Event const & e,
-                                     InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::@ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+    Event const & e,
+    InputTag const & tag)
   :
   base(),
   dataCollection_()
@@ -343,16 +349,16 @@ art::FindMany<ProdB, Data>::FindMany(PtrProdAColl const & aPtrColl,
 
 template <typename ProdB, typename Data>
 inline
-typename art::FindMany<ProdB, Data>::data_const_reference
-art::FindMany<ProdB, Data>::data(size_type i) const
+typename art::@ART_IPR_CLASS_NAME@<ProdB, Data>::data_const_reference
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::data(size_type i) const
 {
   return dataCollection_.at(i);
 }
 
 template <typename ProdB, typename Data>
 inline
-typename art::FindMany<ProdB, Data>::size_type
-art::FindMany<ProdB, Data>::get(size_type i, reference item, data_reference data) const
+typename art::@ART_IPR_CLASS_NAME@<ProdB, Data>::size_type
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::get(size_type i, reference item, data_reference data) const
 {
   size_type result = base::get(i, item);
   data_reference ref(dataCollection_.at(i));
@@ -363,12 +369,15 @@ art::FindMany<ProdB, Data>::get(size_type i, reference item, data_reference data
 template <typename ProdB, typename Data>
 inline
 bool
-art::FindMany<ProdB, Data>::operator == (FindMany<ProdB, Data> const & other) const
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::operator == (@ART_IPR_CLASS_NAME@<ProdB, Data> const & other) const
 {
   return dataCollection_ == other.dataCollection_ &&
          this->base::operator==(other);
 }
-#endif /* art_Framework_Core_FindMany_h */
+
+#undef ART_IPR_BY_PTR
+
+#endif /* art_Framework_Core_@ART_IPR_CLASS_NAME@_h */
 
 // Local Variables:
 // mode: c++
