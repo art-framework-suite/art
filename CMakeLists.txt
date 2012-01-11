@@ -36,7 +36,7 @@ endif ( NOT qualifier )
 cet_cmake_env( art v1_00_06 ${qualifier} )
 
 
-cet_set_compiler_flags(DIAGS VIGILANT EXTRA_FLAGS -pedantic)
+cet_set_compiler_flags(DIAGS VIGILANT WERROR EXTRA_FLAGS -pedantic)
 if ("${qualifier}" STREQUAL "e1")
   cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
 endif()
@@ -49,7 +49,7 @@ find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_1_0 )
 
-find_ups_product( cetbuildtools v1_15_00 )
+find_ups_product( cetbuildtools v1_15_03 )
 find_ups_product( cpp0x v1_03_00 )
 find_ups_product( cetlib v1_03_00 )
 find_ups_product( fhiclcpp v2_16_00 )
