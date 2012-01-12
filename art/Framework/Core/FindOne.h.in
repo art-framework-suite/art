@@ -53,7 +53,8 @@
 //
 // typedef ProdB assoc_t;
 // typedef Data data_t;
-// typedef typename std::vector<ProdB const *>::size_type size_type;
+// typedef typename std::vector<assoc_t const *>::size_type size_type; // FindOne
+// typedef typename std::vector<art::Ptr<assoc_t> >::size_type size_type; // FindOneP
 //
 // Constructors.
 //
@@ -88,14 +89,21 @@
 // Accessors.
 //
 // size_type size() const;
-// cet::maybe_ref<assoc_t const> at(size_type) const;
+// cet::maybe_ref<assoc_t const> at(size_type) const; // FindOne
+// art::Ptr<assoc_t> const & at(size_type) const; // FindOneP
 // cet::maybe_ref<data_t const> data(size_type) const;
 // void get(size_type,
-//          cet::maybe_ref<assoc_t const> &) const;
+//          cet::maybe_ref<assoc_t const> &) const; // FindOne
+// void get(size_type,
+//          art::Ptr<assoc_t> &) const; // FindOneP
 // void get(size_type,
 //          cet::maybe_ref<assoc_t const> &,
 //          cet::maybe_ref<data_t const> &)
-//   const; // *Must* be used for @ART_IPR_CLASS_NAME@<ProdB, Data>.
+//   const; // *Must* be used for FindOne<ProdB, Data>.
+// void get(size_type,
+//          art::Ptr<assoc_t> &,
+//          cet::maybe_ref<data_t const> &)
+//   const; // *Must* be used for FindOneP<ProdB, Data>.
 //
 // Comparison operations.
 //

@@ -47,7 +47,8 @@
 //
 // typedef ProdB assoc_t;
 // typedef Data data_t;
-// typedef std::vector<assoc_t const *> value_type;
+// typedef std::vector<assoc_t const *> value_type; // FindOne
+// typedef std::vector<art::Ptr<assoc_t> >_type; // FindOneP
 // typedef typename std::vector<value_type>::size_type size_type;
 // typedef value_type const & const_reference;
 // typedef value_type & reference;
