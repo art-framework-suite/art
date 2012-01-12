@@ -137,8 +137,11 @@ namespace art {
 template <typename ProdB>
 class art::@ART_IPR_CLASS_NAME@<ProdB, void> {
 public:
+
+  typedef ProdB assoc_t;
+
 #ifdef ART_IPR_BY_PTR
-  typedef std::vector<Ptr<ProdB> > bColl_t;
+  typedef std::vector<Ptr<assoc_t> > bColl_t;
 #else
   typedef std::vector<ProdB const *> bColl_t;
 #endif
@@ -147,8 +150,6 @@ public:
   typedef typename bColl_t::difference_type difference_type;
   typedef typename bColl_t::const_reference const_reference;
   typedef typename bColl_t::reference reference;
-
-  typedef ProdB assoc_t;
 
   template <typename ProdAColl>
   @ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
@@ -170,8 +171,8 @@ public:
 
   // Associated item by index (bounds-checked).
 #ifdef ART_IPR_BY_PTR
-  Ptr<ProdB> const & at(size_type i) const;
-  void get(size_type i, Ptr<ProdB> & item) const;
+  Ptr<assoc_t> const & at(size_type i) const;
+  void get(size_type i, Ptr<assoc_t> & item) const;
 #else
   cet::maybe_ref<assoc_t const> at(size_type i) const;
   void get(size_type i, cet::maybe_ref<assoc_t const> & item) const;
@@ -229,7 +230,11 @@ public:
 
   // Associated item and extra-data object by index (bounds-checked).
   void get(size_type i,
+#ifdef ART_IPR_BY_PTR
+           art::Ptr<assoc_t> & item,
+#else
            cet::maybe_ref<assoc_t const> & item,
+#endif
            cet::maybe_ref<Data const> & data) const;
 
   bool operator == (@ART_IPR_CLASS_NAME@<ProdB, Data> const & other) const;
@@ -293,7 +298,7 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::size() const
 template <typename ProdB>
 inline
 #ifdef ART_IPR_BY_PTR
-art::Ptr<ProdB> const &
+art::Ptr<typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::assoc_t> const &
 #else
 cet::maybe_ref < typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::assoc_t const >
 #endif
@@ -312,7 +317,7 @@ void
 art::@ART_IPR_CLASS_NAME@<ProdB, void>::
 get(size_type i,
 #ifdef ART_IPR_BY_PTR
-    Ptr<ProdB> & item
+    Ptr<assoc_t> & item
 #else
     cet::maybe_ref<assoc_t const> & item
 #endif
@@ -390,7 +395,11 @@ inline
 void
 art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 get(size_type i,
+#ifdef ART_IPR_BY_PTR
+    Ptr<assoc_t> & item,
+#else
     cet::maybe_ref<assoc_t const> & item,
+#endif
     cet::maybe_ref<Data const> & data) const
 {
   base::get(i, item);
