@@ -69,6 +69,85 @@ namespace {
   dereference(WRAP<T> const & wrapper) {
      return wrapper.ref();
   }
+
+  // Test references.
+  char const * const x[] = { "zero", "one", "two" };
+  char const * const a[] = { "A", "B", "C" };
+  size_t const ai[] = { 2, 0, 1 }; // Order in Acoll
+  size_t const bi[] = { 1, 2, 0 }; // Order in Bcoll
+
+  template <typename I, typename D, typename F, typename FV>
+  void
+  check_get_one_impl(F const & fA, FV const & fAV) {
+    I item;
+    D data;
+    for (size_t i = 0; i < 3; ++i) {
+      fA.get(i, item, data);
+      BOOST_CHECK_EQUAL(dereference(item), bi[i]);
+      BOOST_CHECK_EQUAL(dereference(data).d1, ai[i]);
+      BOOST_CHECK_EQUAL(dereference(data).d2, i);
+      fAV.get(i, item);
+      BOOST_CHECK_EQUAL(dereference(item), bi[i]);
+    }
+  }
+
+  template <typename T, typename D,
+            template <typename, typename> class FO>
+  typename std::enable_if<std::is_same<FO<T, void>, art::FindOne<T, void> >::value>::type
+  check_get(FO<T, D> const & fA,
+            FO<T, void> const & fAV) {
+    typedef cet::maybe_ref<typename FO<T, void>::assoc_t const> item_t;
+    typedef cet::maybe_ref<typename FO<T, D>::data_t const> data_t;
+    check_get_one_impl<item_t, data_t>(fA, fAV);
+  }
+
+  template <typename T, typename D,
+            template <typename, typename> class FO>
+  typename std::enable_if<std::is_same<FO<T, void>, art::FindOneP<T, void> >::value>::type
+  check_get(FO<T, D> const & fA,
+            FO<T, void> const & fAV) {
+    typedef art::Ptr<typename FO<T, void>::assoc_t> item_t;
+    typedef cet::maybe_ref<typename FO<T, D>::data_t const> data_t;
+    check_get_one_impl<item_t, data_t>(fA, fAV);
+  }
+
+  template <typename I, typename D, typename F, typename FV>
+  void
+  check_get_many_impl(F const & fA, FV const & fAV) {
+    I item;
+    D data;
+    I & ir1(item);
+    size_t result __attribute__((unused)) = fAV.get(0ul, ir1);
+    BOOST_CHECK_EQUAL(fAV.get(0ul, item), 1ul);
+    BOOST_CHECK_EQUAL(fAV.get(1ul, item), 2ul);
+    BOOST_CHECK_EQUAL(fAV.get(2ul, item), 1ul);
+    BOOST_CHECK_EQUAL(fA.get(0ul, item, data), 1ul);
+    BOOST_CHECK_EQUAL(fA.get(1ul, item, data), 2ul);
+    BOOST_CHECK_EQUAL(fA.get(2ul, item, data), 1ul);
+  }
+
+  template <typename T, typename D,
+            template <typename, typename> class FM>
+  typename std::enable_if<std::is_same<FM<T, void>, art::FindMany<T, void> >::value>::type
+  check_get(FM<T, D> const & fA,
+            FM<T, void> const & fAV) {
+//     typedef typename FM<T, void>::value_type item_t; // This throws in a const, no idea why.
+    typedef std::vector<T const *> item_t;
+    typedef typename FM<T, D>::dataColl_t::value_type data_t;
+    check_get_many_impl<item_t, data_t>(fA, fAV);
+  }
+
+  template <typename T, typename D,
+            template <typename, typename> class FM>
+  typename std::enable_if<std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>::type
+  check_get(FM<T, D> const & fA,
+            FM<T, void> const & fAV) {
+//     typedef typename FM<T, void>::value_type item_t; // This throws in a const, no idea why.
+    typedef std::vector<art::Ptr<T> > item_t;
+    typedef typename FM<T, D>::dataColl_t::value_type data_t;
+    check_get_many_impl<item_t, data_t>(fA, fAV);
+  }
+
 }
 
 arttest::AssnsAnalyzer::
@@ -90,8 +169,18 @@ arttest::AssnsAnalyzer::analyze(art::Event const & e)
 {
   testOne<art::FindOne>(e);
   testOne<art::FindOneP>(e);
-  testMany<art::FindMany>(e);
-  testMany<art::FindManyP>(e);
+
+  ////////////////////////////////////
+//   art::Handle<std::vector<size_t> > hAcoll;
+//   art::FindMany<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
+//   art::FindMany<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
+//   typedef typename art::FindMany<B_t, void>::value_type item_t;
+//   typedef typename art::FindMany<B_t, arttest::AssnTestData>::dataColl_t::value_type data_t;
+//   check_get_many_impl<item_t, data_t>(fmB, fmBV);
+  ////////////////////////////////////
+
+ testMany<art::FindMany>(e);
+ testMany<art::FindManyP>(e);
 }
 
 template <template <typename, typename> class FO>
@@ -99,25 +188,21 @@ void
 arttest::AssnsAnalyzer::
 testOne(art::Event const & e) const
 {
-  static char const * const x[] = { "zero", "one", "two" };
-  static char const * const a[] = { "A", "B", "C" };
-  static size_t const ai[] = { 2, 0, 1 }; // Order in Acoll
-  static size_t const bi[] = { 1, 2, 0 }; // Order in Bcoll
   art::Handle<AssnsAB_t> hAB;
   art::Handle<AssnsBA_t> hBA;
   art::Handle<AssnsABV_t> hABV;
   art::Handle<AssnsBAV_t> hBAV;
   if (testAB_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hAB));
-    BOOST_REQUIRE_EQUAL(hAB->size(), 3u);
+    BOOST_REQUIRE_EQUAL(hAB->size(), 3ul);
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hABV));
-    BOOST_REQUIRE_EQUAL(hABV->size(), 3u);
+    BOOST_REQUIRE_EQUAL(hABV->size(), 3ul);
   }
   if (testBA_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hBA));
-    BOOST_REQUIRE_EQUAL(hBA->size(), 3u);
+    BOOST_REQUIRE_EQUAL(hBA->size(), 3ul);
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hBAV));
-    BOOST_REQUIRE_EQUAL(hBAV->size(), 3u);
+    BOOST_REQUIRE_EQUAL(hBAV->size(), 3ul);
   }
   // Construct a FO using a handle to a collection.
   art::Handle<std::vector<size_t> > hAcoll;
@@ -156,6 +241,7 @@ testOne(art::Event const & e) const
     BOOST_CHECK_EQUAL(dereference(foA.data(i)).d1, ai[i]);
     BOOST_CHECK_EQUAL(dereference(foA.data(i)).d2, i);
     BOOST_CHECK_EQUAL(dereference(foAV.at(i)), bi[i]);
+    check_get(foA, foAV);
   }
   // Check alternative accessors and range checking for Assns.
   if (testAB_) {
@@ -209,16 +295,20 @@ testMany(art::Event const & e) const
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
   // Check FindMany.
   FM<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
-  BOOST_CHECK_EQUAL(fmB.at(0).size(), 1u);
-  BOOST_CHECK_EQUAL(fmB.at(1).size(), 2u);
-  BOOST_CHECK_EQUAL(fmB.at(2).size(), 1u);
-  BOOST_CHECK_EQUAL(fmB.data(0).size(), 1u);
-  BOOST_CHECK_EQUAL(fmB.data(1).size(), 2u);
-  BOOST_CHECK_EQUAL(fmB.data(2).size(), 1u);
+  BOOST_CHECK_EQUAL(fmB.at(0).size(), 1ul);
+  BOOST_CHECK_EQUAL(fmB.at(1).size(), 2ul);
+  BOOST_CHECK_EQUAL(fmB.at(2).size(), 1ul);
+  BOOST_CHECK_EQUAL(fmB.data(0).size(), 1ul);
+  BOOST_CHECK_EQUAL(fmB.data(1).size(), 2ul);
+  BOOST_CHECK_EQUAL(fmB.data(2).size(), 1ul);
   FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
-  BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1u);
-  BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2u);
-  BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1u);
+  BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1ul);
+  BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2ul);
+  BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1ul);
+//  typedef typename FM<B_t, void>::value_type item_t;
+//  typedef typename FM<B_t, arttest::AssnTestData>::dataColl_t::value_type data_t;
+//  check_get_many_impl<item_t, data_t>(fmB, fmBV);
+//  check_get(fmB, fmBV);
 }
 
 DEFINE_ART_MODULE(arttest::AssnsAnalyzer)
