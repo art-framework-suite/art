@@ -41,7 +41,7 @@ private:
 };
 
 
-arttest::OpenMPSimpleTest::OpenMPSimpleTest(fhicl::ParameterSet const & p)
+arttest::OpenMPSimpleTest::OpenMPSimpleTest(fhicl::ParameterSet const &)
 {
 }
 
@@ -49,10 +49,10 @@ arttest::OpenMPSimpleTest::~OpenMPSimpleTest()
 {
 }
 
-void arttest::OpenMPSimpleTest::analyze(art::Event const & e)
+void arttest::OpenMPSimpleTest::analyze(art::Event const &)
 {
    size_t total = openmpTestFunc(10, 20);
-   BOOST_REQUIRE_EQUAL(total, 900);
+   BOOST_REQUIRE_EQUAL(total, 900ul);
 }
 
 DEFINE_ART_MODULE(arttest::OpenMPSimpleTest)

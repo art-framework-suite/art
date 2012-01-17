@@ -175,7 +175,7 @@ applyOutput(intermediate_table &raw_config) const {
 }
 
 void RichConfigPostProcessor::
-applyTFileName(intermediate_table &raw_config) const {
+applyTFileName(intermediate_table &raw_config __attribute__((unused)) ) const {
    std::string tFileName(tFileName_);
 
    try {
@@ -204,7 +204,7 @@ applyTFileName(intermediate_table &raw_config) const {
 }
 
 void RichConfigPostProcessor::
-applyTrace(intermediate_table &raw_config) const {
+applyTrace(intermediate_table &raw_config __attribute__((unused)) ) const {
 #if 0
    if (wantTrace_) raw_config["services.scheduler.wantTracer"] =
       extended_value(false, BOOL, fhicl::detail::encode(trace_));
@@ -212,7 +212,7 @@ applyTrace(intermediate_table &raw_config) const {
 }
 
 void RichConfigPostProcessor::
-applyMemcheck(intermediate_table &raw_config) const {
+applyMemcheck(intermediate_table &raw_config __attribute__((unused)) ) const {
 #if 0
    if (wantMemcheck_)  {
       if (memcheck_) {
