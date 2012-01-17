@@ -25,7 +25,8 @@ simple_plugin(BareStringProducer         "module" NOINSTALL )
 simple_plugin(DerivedPtrVectorProducer   "module" NOINSTALL )
 simple_plugin(DoubleProducer             "module" NOINSTALL )
 simple_plugin(DoubleTestAnalyzer         "module" NOINSTALL )
-simple_plugin(DropOnInputTestAnalyzer    "module" NOINSTALL USE_BOOST_UNIT )
+simple_plugin(DropTestParentageFaker     "module" NOINSTALL )
+simple_plugin(DropTestAnalyzer           "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(FailingAnalyzer            "module" NOINSTALL )
 simple_plugin(FailingProducer            "module" NOINSTALL )
 simple_plugin(IntProducer                "module" NOINSTALL )
@@ -498,30 +499,80 @@ foreach(num 1 2)
   )
 endforeach()
 
-cet_test(DropOnInput_null_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "DropOnInput_null_t.fcl"
-  DATAFILES
-  fcl/DropOnInput_null_t.fcl
-  fcl/DropOnInput_t.fcl
-  TEST_PROPERTIES WILL_FAIL true DEPENDS Ptrmv_w
-)
+# Use the file from Ptrmv_w to test DropOnInput and outputCommand drops.
+#
+# 1. Drop Ptr, keep base MapVector.
+# 2, Keep Ptr, drop base MapVector.
+# 3. Drop both.
+# 4. Keep both.
+foreach(num RANGE 1 4)
+  # Test drop on input.
+  cet_test(DropOnInput_t_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all
+    -c "DropOnInput_t_0${num}.fcl"
+    -s "../Ptrmv_w.d/out.root"
+    --output "out.root"
+    DATAFILES
+    fcl/DropOnInput_t_01.fcl
+    fcl/DropOnInput_t_0${num}.fcl
+    TEST_PROPERTIES DEPENDS Ptrmv_w
+    )
 
-cet_test(DropOnInput_t HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "DropOnInput_t.fcl"
-  DATAFILES
-  fcl/DropOnInput_t.fcl
-  TEST_PROPERTIES DEPENDS Ptrmv_w
-)
+  cet_test(DropOnInput_r_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all
+    -c "DropOnInput_r_0${num}.fcl"
+    -s "../DropOnInput_t_0${num}.d/out.root"
+    DATAFILES
+    fcl/DropOnInput_t_01.fcl
+    fcl/DropOnInput_t_0${num}.fcl
+    fcl/DropOnInput_r_0${num}.fcl
+    TEST_PROPERTIES DEPENDS DropOnInput_t_0${num}
+    )
 
-cet_test(DropOnInput_r HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS --rethrow-all -c "DropOnInput_r.fcl"
-  DATAFILES
-  fcl/DropOnInput_r.fcl
-  TEST_PROPERTIES DEPENDS DropOnInput_t
-)
+  # Test drop on output with input file.
+  cet_test(DropOnOutput_wA_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnOutput_wA_0${num}.fcl"
+    DATAFILES
+    fcl/DropOnOutput_wA_01.fcl
+    fcl/DropOnOutput_wA_0${num}.fcl
+    TEST_PROPERTIES DEPENDS Ptrmv_w
+    )
+
+  cet_test(DropOnOutput_rA_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all
+    -c "DropOnOutput_r_0${num}.fcl"
+    -s "../DropOnOutput_wA_0${num}.d/out.root"
+    DATAFILES
+    fcl/DropOnOutput_r_01.fcl
+    fcl/DropOnOutput_r_0${num}.fcl
+    TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
+    )
+
+  # Test drop on output with in-job generated products.
+  cet_test(DropOnOutput_wB_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all -c "DropOnOutput_wB_0${num}.fcl"
+    DATAFILES
+    fcl/Ptrmv_w.fcl
+    fcl/DropOnOutput_wB_01.fcl
+    fcl/DropOnOutput_wB_0${num}.fcl
+    )
+
+  cet_test(DropOnOutput_rB_0${num} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS --rethrow-all
+    -c "DropOnOutput_r_0${num}.fcl"
+    -s "../DropOnOutput_wB_0${num}.d/out.root"
+    DATAFILES
+    fcl/DropOnOutput_r_01.fcl
+    fcl/DropOnOutput_r_0${num}.fcl
+    TEST_PROPERTIES DEPENDS DropOnOutput_wB_0${num}
+    )
+endforeach()
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.
@@ -593,6 +644,16 @@ cet_test(DropOnInput_r HANDBUILT
 #  fcl/RandomNumberTestFileSave_rB.fcl
 #  TEST_PROPERTIES DEPENDS RandomNumberTestFileSave_wB
 #)
+
+# Verify the ProvenanceChecker operation with a non-trivial event
+# structure.
+cet_test(ProvenanceChecker_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS --rethrow-all -c "ProvenanceChecker_t.fcl"
+  DATAFILES
+  fcl/Ptrmv_w.fcl
+  fcl/ProvenanceChecker_t.fcl
+)
 
 # Test the ProvenanceDumper module template (write and check).
 cet_test(ProvenanceDumper_w HANDBUILT

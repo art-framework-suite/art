@@ -8,7 +8,7 @@ endforeach()
 
 set( art_Framework_Art_sources
   InitRootHandlers.cc
-  NovaConfigPostProcessor.cc
+  RichConfigPostProcessor.cc
   artapp.cc
   find_config.cc
   novaapp.cc

@@ -1,7 +1,7 @@
-#ifndef art_Framework_Core_FindOne_h
-#define art_Framework_Core_FindOne_h
+#ifndef art_Framework_Core_@ART_IPR_CLASS_NAME@_h
+#define art_Framework_Core_@ART_IPR_CLASS_NAME@_h
 ////////////////////////////////////////////////////////////////////////
-// FindOne
+// @ART_IPR_CLASS_NAME@
 //
 // A smart query object used as the main way of accessing associated
 // objects in a one-to-one association.
@@ -21,18 +21,18 @@
 // Notes:
 //
 // * ProdB and Data are the only template arguments that must be
-// specified when constructing a FindOne. Any other items are deducible
+// specified when constructing a @ART_IPR_CLASS_NAME@. Any other items are deducible
 // from arguments.
 //
-// * An attempt to create a FindOne where one of the listed A objects
+// * An attempt to create a @ART_IPR_CLASS_NAME@ where one of the listed A objects
 // actually has multiple B objects associated with it will result in an
 // exception.
 //
-// * The FindOne needs a source of objects of type A, an event and an
+// * The @ART_IPR_CLASS_NAME@ needs a source of objects of type A, an event and an
 // input tag corresponding to the underlying association collection from
 // which to create itself.
 //
-// * When constructed, the FindOne will obtain and interrogate the
+// * When constructed, the @ART_IPR_CLASS_NAME@ will obtain and interrogate the
 // correct Assns and provide access to the B (and/or D) object(s)
 // associated with each supplied A object in the order in which the A
 // objects were specified.
@@ -53,31 +53,32 @@
 //
 // typedef ProdB assoc_t;
 // typedef Data data_t;
-// typedef typename std::vector<ProdB const *>::size_type size_type;
+// typedef typename std::vector<assoc_t const *>::size_type size_type; // FindOne
+// typedef typename std::vector<art::Ptr<assoc_t> >::size_type size_type; // FindOneP
 //
 // Constructors.
 //
 // // From Handle to collection of A.
-// FindOne<ProdB>(Handle<ProdAColl> const &,
+// @ART_IPR_CLASS_NAME@<ProdB>(Handle<ProdAColl> const &,
 //                Event const &,
 //                InputTag const &);
-// FindOne<ProdB, Data>(Handle<ProdAColl> const &,
+// @ART_IPR_CLASS_NAME@<ProdB, Data>(Handle<ProdAColl> const &,
 //                      Event const &,
 //                      InputTag const &);
 //
 // // From View<A>.
-// FindOne<ProdB>(View<ProdA> const &,
+// @ART_IPR_CLASS_NAME@<ProdB>(View<ProdA> const &,
 //                Event const &,
 //                InputTag const &);
-// FindOne<ProdB, Data>(View<ProdA> const &,
+// @ART_IPR_CLASS_NAME@<ProdB, Data>(View<ProdA> const &,
 //                      Event const &,
 //                      InputTag const &);
 //
 // // From arbitrary sequence of Ptr<A>.
-// FindOne<ProdB>(PtrProdAColl const &,
+// @ART_IPR_CLASS_NAME@<ProdB>(PtrProdAColl const &,
 //                Event const &,
 //                InputTag const &);
-// FindOne<ProdB, Data>(PtrProdAColl const &,
+// @ART_IPR_CLASS_NAME@<ProdB, Data>(PtrProdAColl const &,
 //                      Event const &,
 //                      InputTag const &);
 //
@@ -88,18 +89,25 @@
 // Accessors.
 //
 // size_type size() const;
-// cet::maybe_ref<assoc_t const> at(size_type) const;
+// cet::maybe_ref<assoc_t const> at(size_type) const; // FindOne
+// art::Ptr<assoc_t> const & at(size_type) const; // FindOneP
 // cet::maybe_ref<data_t const> data(size_type) const;
 // void get(size_type,
-//          cet::maybe_ref<assoc_t const> &) const;
+//          cet::maybe_ref<assoc_t const> &) const; // FindOne
+// void get(size_type,
+//          art::Ptr<assoc_t> &) const; // FindOneP
 // void get(size_type,
 //          cet::maybe_ref<assoc_t const> &,
 //          cet::maybe_ref<data_t const> &)
 //   const; // *Must* be used for FindOne<ProdB, Data>.
+// void get(size_type,
+//          art::Ptr<assoc_t> &,
+//          cet::maybe_ref<data_t const> &)
+//   const; // *Must* be used for FindOneP<ProdB, Data>.
 //
 // Comparison operations.
 //
-// bool operator == (FindOne const & other) const;
+// bool operator == (@ART_IPR_CLASS_NAME@ const & other) const;
 //
 ////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Core/detail/IPRHelper.h"
@@ -112,56 +120,67 @@
 
 #include <vector>
 
+#cmakedefine ART_IPR_BY_PTR
+
 namespace art {
   // General template
   template <typename ProdB, typename DATA = void>
-  class FindOne;
+  class @ART_IPR_CLASS_NAME@;
 
   // Specialization.
   template <typename ProdB>
-  class FindOne<ProdB, void>;
+  class @ART_IPR_CLASS_NAME@<ProdB, void>;
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Implementation of the specialization.
 template <typename ProdB>
-class art::FindOne<ProdB, void> {
+class art::@ART_IPR_CLASS_NAME@<ProdB, void> {
 public:
+
+  typedef ProdB assoc_t;
+
+#ifdef ART_IPR_BY_PTR
+  typedef std::vector<Ptr<assoc_t> > bColl_t;
+#else
   typedef std::vector<ProdB const *> bColl_t;
+#endif
   typedef typename bColl_t::value_type value_type;
   typedef typename bColl_t::size_type size_type;
   typedef typename bColl_t::difference_type difference_type;
   typedef typename bColl_t::const_reference const_reference;
   typedef typename bColl_t::reference reference;
 
-  typedef ProdB assoc_t;
-
   template <typename ProdAColl>
-  FindOne(Handle<ProdAColl> const & aCollection,
-          Event const & e,
-          InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename ProdA>
-  FindOne(View<ProdA> const & view,
-          Event const & e,
-          InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename PtrProdAColl>
-  FindOne(PtrProdAColl const & aPtrColl,
-          Event const & e,
-          InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+                       Event const & e,
+                       InputTag const & tag);
 
   // Number of query results
   size_type size() const;
 
   // Associated item by index (bounds-checked).
+#ifdef ART_IPR_BY_PTR
+  Ptr<assoc_t> const & at(size_type i) const;
+  void get(size_type i, Ptr<assoc_t> & item) const;
+#else
   cet::maybe_ref<assoc_t const> at(size_type i) const;
   void get(size_type i, cet::maybe_ref<assoc_t const> & item) const;
-
-  bool operator == (FindOne<ProdB, void> const & other) const;
+#endif
+  bool operator == (@ART_IPR_CLASS_NAME@<ProdB, void> const & other) const;
 
 protected:
-  FindOne() : bCollection_() { }
+  @ART_IPR_CLASS_NAME@() : bCollection_() { }
   bColl_t & bCollection() { return bCollection_; }
 
 private:
@@ -169,9 +188,9 @@ private:
 };
 
 template <typename ProdB, typename Data>
-class art::FindOne : private art::FindOne<ProdB, void> {
+class art::@ART_IPR_CLASS_NAME@ : private art::@ART_IPR_CLASS_NAME@<ProdB, void> {
 private:
-  typedef FindOne<ProdB, void> base;
+  typedef @ART_IPR_CLASS_NAME@<ProdB, void> base;
 public:
   typedef std::vector<Data const *> dataColl_t;
   typedef typename base::value_type value_type;
@@ -188,19 +207,19 @@ public:
   typedef Data data_t;
 
   template <typename ProdAColl>
-  FindOne(Handle<ProdAColl> const & aCollection,
-          Event const & e,
-          InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename ProdA>
-  FindOne(View<ProdA> const & view,
-          Event const & e,
-          InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+                       Event const & e,
+                       InputTag const & tag);
 
   template <typename PtrProdAColl>
-  FindOne(PtrProdAColl const & aPtrColl,
-          Event const & e,
-          InputTag const & tag);
+  @ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+                       Event const & e,
+                       InputTag const & tag);
 
   using base::size;
   using base::at;
@@ -211,10 +230,14 @@ public:
 
   // Associated item and extra-data object by index (bounds-checked).
   void get(size_type i,
+#ifdef ART_IPR_BY_PTR
+           art::Ptr<assoc_t> & item,
+#else
            cet::maybe_ref<assoc_t const> & item,
+#endif
            cet::maybe_ref<Data const> & data) const;
 
-  bool operator == (FindOne<ProdB, Data> const & other) const;
+  bool operator == (@ART_IPR_CLASS_NAME@<ProdB, Data> const & other) const;
 
 private:
   dataColl_t dataCollection_;
@@ -224,10 +247,10 @@ private:
 // Base class implementation.
 template <typename ProdB>
 template <typename ProdAColl>
-art::FindOne<ProdB, void>::
-FindOne(Handle<ProdAColl> const & aCollection,
-        Event const & e,
-        InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+@ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+                     Event const & e,
+                     InputTag const & tag)
   :
   bCollection_()
 {
@@ -238,10 +261,10 @@ FindOne(Handle<ProdAColl> const & aCollection,
 
 template <typename ProdB>
 template <typename ProdA>
-art::FindOne<ProdB, void>::
-FindOne(View<ProdA> const & view,
-        Event const & e,
-        InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+@ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+                     Event const & e,
+                     InputTag const & tag)
   :
   bCollection_()
 {
@@ -252,10 +275,10 @@ FindOne(View<ProdA> const & view,
 
 template <typename ProdB>
 template <typename PtrProdAColl>
-art::FindOne<ProdB, void>::
-FindOne(PtrProdAColl const & aPtrColl,
-        Event const & e,
-        InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+@ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+                     Event const & e,
+                     InputTag const & tag)
   :
   bCollection_()
 {
@@ -266,33 +289,51 @@ FindOne(PtrProdAColl const & aPtrColl,
 
 template <typename ProdB>
 inline
-typename art::FindOne<ProdB, void>::size_type
-art::FindOne<ProdB, void>::size() const
+typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::size() const
 {
   return bCollection_.size();
 }
 
 template <typename ProdB>
 inline
-cet::maybe_ref<typename art::FindOne<ProdB, void>::assoc_t const>
-art::FindOne<ProdB, void>::at(size_type i) const
+#ifdef ART_IPR_BY_PTR
+art::Ptr<typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::assoc_t> const &
+#else
+cet::maybe_ref < typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::assoc_t const >
+#endif
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::at(size_type i) const
 {
+#ifdef ART_IPR_BY_PTR
+  return bCollection_.at(i);
+#else
   return cet::maybe_ref<assoc_t const>(*bCollection_.at(i));
+#endif
 }
 
 template <typename ProdB>
 inline
 void
-art::FindOne<ProdB, void>::
-get(size_type i, cet::maybe_ref<assoc_t const> & item) const
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::
+get(size_type i,
+#ifdef ART_IPR_BY_PTR
+    Ptr<assoc_t> & item
+#else
+    cet::maybe_ref<assoc_t const> & item
+#endif
+   ) const
 {
+#ifdef ART_IPR_BY_PTR
+  item = bCollection_.at(i);
+#else
   item.reseat(*bCollection_.at(i));
+#endif
 }
 
 template <typename ProdB>
 inline
 bool
-art::FindOne<ProdB, void>::operator == (FindOne<ProdB, void> const & other) const
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::operator == (@ART_IPR_CLASS_NAME@<ProdB, void> const & other) const
 {
   return bCollection_ == other.bCollection_;
 }
@@ -301,9 +342,9 @@ art::FindOne<ProdB, void>::operator == (FindOne<ProdB, void> const & other) cons
 // Derived class implementation.
 template <typename ProdB, typename Data>
 template <typename ProdAColl>
-art::FindOne<ProdB, Data>::FindOne(Handle<ProdAColl> const & aCollection,
-                                   Event const & e,
-                                   InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::@ART_IPR_CLASS_NAME@(Handle<ProdAColl> const & aCollection,
+    Event const & e,
+    InputTag const & tag)
   :
   base(),
   dataCollection_()
@@ -315,9 +356,9 @@ art::FindOne<ProdB, Data>::FindOne(Handle<ProdAColl> const & aCollection,
 
 template <typename ProdB, typename Data>
 template <typename ProdA>
-art::FindOne<ProdB, Data>::FindOne(View<ProdA> const & view,
-                                   Event const & e,
-                                   InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::@ART_IPR_CLASS_NAME@(View<ProdA> const & view,
+    Event const & e,
+    InputTag const & tag)
   :
   base(),
   dataCollection_()
@@ -329,9 +370,9 @@ art::FindOne<ProdB, Data>::FindOne(View<ProdA> const & view,
 
 template <typename ProdB, typename Data>
 template <typename PtrProdAColl>
-art::FindOne<ProdB, Data>::FindOne(PtrProdAColl const & aPtrColl,
-                                   Event const & e,
-                                   InputTag const & tag)
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::@ART_IPR_CLASS_NAME@(PtrProdAColl const & aPtrColl,
+    Event const & e,
+    InputTag const & tag)
   :
   base(),
   dataCollection_()
@@ -344,7 +385,7 @@ art::FindOne<ProdB, Data>::FindOne(PtrProdAColl const & aPtrColl,
 template <typename ProdB, typename Data>
 inline
 cet::maybe_ref<Data const>
-art::FindOne<ProdB, Data>::data(size_type i) const
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::data(size_type i) const
 {
   return cet::maybe_ref<Data const>(*dataCollection_.at(i));
 }
@@ -352,9 +393,13 @@ art::FindOne<ProdB, Data>::data(size_type i) const
 template <typename ProdB, typename Data>
 inline
 void
-art::FindOne<ProdB, Data>::
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::
 get(size_type i,
+#ifdef ART_IPR_BY_PTR
+    Ptr<assoc_t> & item,
+#else
     cet::maybe_ref<assoc_t const> & item,
+#endif
     cet::maybe_ref<Data const> & data) const
 {
   base::get(i, item);
@@ -364,12 +409,15 @@ get(size_type i,
 template <typename ProdB, typename Data>
 inline
 bool
-art::FindOne<ProdB, Data>::operator == (FindOne<ProdB, Data> const & other) const
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::operator == (@ART_IPR_CLASS_NAME@<ProdB, Data> const & other) const
 {
   return dataCollection_ == other.dataCollection_ &&
          this->base::operator==(other);
 }
-#endif /* art_Framework_Core_FindOne_h */
+
+#undef ART_IPR_BY_PTR
+
+#endif /* art_Framework_Core_@ART_IPR_CLASS_NAME@_h */
 
 // Local Variables:
 // mode: c++

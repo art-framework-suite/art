@@ -63,7 +63,7 @@ Group::status() const {
   if (dropped()) return productstatus::dropped();
   cet::exempt_ptr<ProductProvenance const> pp(productProvenancePtr());
   if (!pp) {
-    if (product_) {
+    if (product_.get()) {
       if (product_->isPresent()) {
         return productstatus::present();
       } else {
@@ -73,7 +73,7 @@ Group::status() const {
       return productstatus::unknown();
     }
   }
-  if (product_) { // FIXME: Old CMS note said backward compatibility only?
+  if (product_.get()) { // FIXME: Old CMS note said backward compatibility only?
     if (product_->isPresent()) {
       pp->setPresent();
     } else {
@@ -133,7 +133,7 @@ Group::productProvenancePtr() const {
 
 void
 Group::setProduct(std::auto_ptr<EDProduct> prod) const {
-  assert (!product_);
+  assert (!product_.get());
   product_.reset(prod.release());  // Group takes ownership
 }
 

@@ -55,6 +55,11 @@ namespace art {
       return tree_ && auxBranch_ && metaTree_ && productProvenanceBranch_;
   }
 
+  bool
+  RootTree::hasBranch(std::string const & branchName) const {
+    return tree_->GetBranch(branchName.c_str()) != 0;
+  }
+
   void
   RootTree::addBranch(BranchKey const& key,
                       BranchDescription const& prod,

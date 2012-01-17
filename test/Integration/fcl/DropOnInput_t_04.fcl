@@ -1,0 +1,6 @@
+#include "DropOnInput_t_01.fcl"
+
+source.inputCommands: [ "keep *" ]
+
+physics.analyzers.a1.keepString: true
+physics.analyzers.a1.keepMapVector: true

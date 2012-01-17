@@ -37,6 +37,7 @@ namespace art {
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
     bool isValid() const;
+    bool hasBranch(std::string const & branchName) const;
     void addBranch(BranchKey const& key,
                    BranchDescription const& prod,
                    std::string const& branchName);

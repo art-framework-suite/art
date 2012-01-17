@@ -1,6 +1,6 @@
 #include "art/Framework/Art/novaapp.h"
-#include "art/Framework/Art/NovaConfigPostProcessor.h"
 
+#include "art/Framework/Art/RichConfigPostProcessor.h"
 #include "art/Framework/Art/find_config.h"
 #include "art/Framework/Art/run_art.h"
 #include "art/Utilities/FirstAbsoluteOrLookupWithDotPolicy.h"
@@ -8,6 +8,7 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/parse.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -85,6 +86,9 @@ int novaapp(int argc, char * argv[])
     while (flist) {
       std::string tmp;
       std::getline(flist, tmp);
+      if (tmp.find('#') != std::string::npos) {
+        // FIXME: do stuff.
+      }
       if (!tmp.empty()) { source_list.push_back(tmp); }
     }
   }
@@ -120,30 +124,30 @@ int novaapp(int argc, char * argv[])
               << "' is empty: using minimal defaults.\n";
   }
   // Apply our command-line options to the configuration.
-  NovaConfigPostProcessor ncpp;
+  RichConfigPostProcessor rcpp;
   if (vm.count("trace")) {
-    ncpp.trace(true);
+    rcpp.trace(true);
   }
   else if (vm.count("notrace")) {
-    ncpp.trace(false);
+    rcpp.trace(false);
   }
   if (vm.count("memcheck")) {
-    ncpp.memcheck(true);
+    rcpp.memcheck(true);
   }
   else if (vm.count("nomemcheck")) {
-    ncpp.memcheck(false);
+    rcpp.memcheck(false);
   }
-  if (!source_list.empty()) { ncpp.sources(source_list); }
+  if (!source_list.empty()) { rcpp.sources(source_list); }
   if (vm.count("TFileName"))
-  { ncpp.tFileName(vm["TFileName"].as<std::string>()); }
+  { rcpp.tFileName(vm["TFileName"].as<std::string>()); }
   if (vm.count("output"))
-  { ncpp.output(vm["output"].as<std::string>()); }
+  { rcpp.output(vm["output"].as<std::string>()); }
   if (vm.count("nevts"))
-  { ncpp.nevts(vm["nevts"].as<int>()); }
+  { rcpp.nevts(vm["nevts"].as<int>()); }
   if (vm.count("estart"))
-  { ncpp.startEvt(vm["estart"].as<unsigned long>()); }
+  { rcpp.startEvt(vm["estart"].as<unsigned long>()); }
   if (vm.count("nskip"))
-  { ncpp.skipEvts(vm["nskip"].as<unsigned long>()); }
-  ncpp.apply(raw_config);
+  { rcpp.skipEvts(vm["nskip"].as<unsigned long>()); }
+  rcpp.apply(raw_config);
   return art::run_art(raw_config, vm);
 }

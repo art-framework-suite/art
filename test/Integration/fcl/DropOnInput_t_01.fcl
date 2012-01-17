@@ -13,19 +13,10 @@ physics:
   {
     a1:
     {
-      module_type: DropOnInputTestAnalyzer
+      module_type: DropTestAnalyzer
       input_label: ptrmvWriter
     }
   }
-  e1: [ a1, o1 ]
+  e1: [ a1 ]
   end_paths: [ e1 ]
-}
-
-outputs:
-{
-  o1:
-  {
-    module_type: RootOutput
-    fileName: "out.root"
-  }
 }

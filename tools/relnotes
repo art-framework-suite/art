@@ -23,7 +23,7 @@ my $options = {};
 Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
 
 # Subsidiary packages to be recognized.
-my @known_packages = qw(cpp0x cetlib fhicl-cpp messagefacility);
+my @known_packages = qw(messagefacility fhicl-cpp cetlib cpp0x);
 my %product_name = ( "fhicl-cpp" => "fhiclcpp" );
 
 GetOptions($options,
@@ -175,24 +175,37 @@ sub product_name {
 sub pkg_version {
   my $package = shift;
   my $suite_version = suite_version(shift);
-  my $product = product_name($package);
-  open(SETUP, "wget -q -O - \"https://cdcvs.fnal.gov/redmine/projects/art/repository/raw/ups/setup_for_development?rev=${suite_version}\"|")
-    or die "Unable to obtain setup_for_development for ART version $suite_version.\n";
-  my $pv;
-  while (<SETUP>) {
-    ($pv) = m&^\s*setup.*\b${product}\b.*\b(v\S*).*$&;
-    last if $pv;
-  }
-  close(SETUP);
-  if (!$pv) {
-    printf STDERR "ERROR: Could not find package $package in ART Suite %s.\n", dot_version($suite_version);
+  ensure_gitconfig($package);
+  my $v_string =
+    for_package($package,
+                "cd /cvs/projects/$package; git log -1 --pretty=format:'\%d' $suite_version");
+  if (!$v_string) {
+    print STDERR "ERROR: Could not obtain log information for $package with suite tag $suite_version.\n";
     exit(1);
   }
-  return dot_version($pv);
+  $v_string =~ s&tag: &&g;
+  $v_string =~ s&^\s*\((.*)\)$&$1&;
+
+  my @pkg_versions = pkg_versions($v_string);
+
+  if (scalar @pkg_versions == 1) {
+    return dot_version($pkg_versions[0]);
+  } elsif (not scalar @pkg_versions) {
+    printf STDERR "ERROR: Could not find version for package $package tagged in ART Suite %s.\n", dot_version($suite_version);
+    exit(1);
+  } else {
+    printf STDERR "ERROR: multiple matching versions for package $package in ART Suite %s.\n", dot_version($suite_version);
+    exit(1);
+  }
 }
 
 sub suite_versions {
   my @versions = grep /^ART_SUITE/, (split /[,\s]/, $_[0]);
+  return sort by_version @versions;
+}
+
+sub pkg_versions {
+  my @versions = grep /^v\d/, (split /[,\s]/, $_[0]);
   return sort by_version @versions;
 }
 

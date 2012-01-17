@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_NovaConfigPostProcessor_h
-#define art_Framework_Art_NovaConfigPostProcessor_h
+#ifndef art_Framework_Art_RichConfigPostProcessor_h
+#define art_Framework_Art_RichConfigPostProcessor_h
 
 #include <string>
 #include <vector>
@@ -8,9 +8,9 @@ namespace fhicl {
    class intermediate_table;
 }
 
-class NovaConfigPostProcessor {
+class RichConfigPostProcessor {
  public:
-   NovaConfigPostProcessor();
+   RichConfigPostProcessor();
    void apply(fhicl::intermediate_table &raw_config) const;
 
    void sources(std::vector<std::string> const &sources);
@@ -43,7 +43,7 @@ class NovaConfigPostProcessor {
    bool wantTrace_;
    bool wantMemcheck_;
 };
-#endif /* art_Framework_Art_NovaConfigPostProcessor_h */
+#endif /* art_Framework_Art_RichConfigPostProcessor_h */
 
 // Local Variables:
 // mode: c++

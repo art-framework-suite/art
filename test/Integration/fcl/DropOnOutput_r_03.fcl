@@ -1,0 +1,4 @@
+#include "DropOnOutput_r_01.fcl"
+
+physics.analyzers.a1.keepString: false
+physics.analyzers.a1.keepMapVector: false

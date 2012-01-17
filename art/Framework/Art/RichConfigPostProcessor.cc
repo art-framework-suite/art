@@ -1,4 +1,4 @@
-#include "art/Framework/Art/NovaConfigPostProcessor.h"
+#include "art/Framework/Art/RichConfigPostProcessor.h"
 
 #include "art/Utilities/ensureTable.h"
 #include "boost/any.hpp"
@@ -20,7 +20,7 @@ using namespace fhicl;
 typedef extended_value::table_t table_t;
 typedef extended_value::sequence_t sequence_t;
 
-NovaConfigPostProcessor::NovaConfigPostProcessor()
+RichConfigPostProcessor::RichConfigPostProcessor()
    :
    sources_(),
    tFileName_(),
@@ -38,7 +38,7 @@ NovaConfigPostProcessor::NovaConfigPostProcessor()
 {
 }
 
-void NovaConfigPostProcessor::apply(intermediate_table &raw_config) const {
+void RichConfigPostProcessor::apply(intermediate_table &raw_config) const {
    applySource(raw_config);
    applyOutput(raw_config);
    applyTFileName(raw_config);
@@ -46,21 +46,21 @@ void NovaConfigPostProcessor::apply(intermediate_table &raw_config) const {
    applyMemcheck(raw_config);
 }
 
-void NovaConfigPostProcessor::sources(std::vector<std::string> const &sources) {
+void RichConfigPostProcessor::sources(std::vector<std::string> const &sources) {
    std::copy(sources.begin(),
              sources.end(),
              std::back_inserter(sources_));
 }
 
-void NovaConfigPostProcessor::tFileName(std::string const &tFileName) {
+void RichConfigPostProcessor::tFileName(std::string const &tFileName) {
    tFileName_ = fhicl::detail::encode(tFileName);
 }
 
-void NovaConfigPostProcessor::output(std::string const &output) {
+void RichConfigPostProcessor::output(std::string const &output) {
    output_ = fhicl::detail::encode(output);
 }
 
-void NovaConfigPostProcessor::
+void RichConfigPostProcessor::
 applySource(intermediate_table &raw_config) const {
    if ((sources_.size() == 0) &&
        !(wantNevts_ || wantStartEvt_ || wantSkipEvts_)) return;
@@ -90,7 +90,7 @@ applySource(intermediate_table &raw_config) const {
       extended_value(false, NUMBER, fhicl::detail::encode(skipEvts_));
 }
 
-void NovaConfigPostProcessor::
+void RichConfigPostProcessor::
 applyOutput(intermediate_table &raw_config) const {
    if (output_.empty()) return;
    bool need_end_paths_entry = false;
@@ -174,7 +174,7 @@ applyOutput(intermediate_table &raw_config) const {
    }
 }
 
-void NovaConfigPostProcessor::
+void RichConfigPostProcessor::
 applyTFileName(intermediate_table &raw_config) const {
    std::string tFileName(tFileName_);
 
@@ -203,7 +203,7 @@ applyTFileName(intermediate_table &raw_config) const {
 #endif  // 0
 }
 
-void NovaConfigPostProcessor::
+void RichConfigPostProcessor::
 applyTrace(intermediate_table &raw_config) const {
 #if 0
    if (wantTrace_) raw_config["services.scheduler.wantTracer"] =
@@ -211,7 +211,7 @@ applyTrace(intermediate_table &raw_config) const {
 #endif  // 0
 }
 
-void NovaConfigPostProcessor::
+void RichConfigPostProcessor::
 applyMemcheck(intermediate_table &raw_config) const {
 #if 0
    if (wantMemcheck_)  {

@@ -59,12 +59,35 @@ namespace art {
     class BcollHelper {
     public:
       BcollHelper(InputTag const & assnsTag);
+      template <typename Bcoll>
+      void init(size_t size, Bcoll & bColl) const;
 
-      void init(size_t size, std::vector<ProdB const *> & bColl) const;
-      void fill(size_t index, ProdB const * item, std::vector<ProdB const *> & bColl) const;
+      template <typename Bcoll>
+      typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
+      fill(size_t index,
+           Ptr<ProdB> const & item,
+           Bcoll & bColl) const;
 
-      void init(size_t size, std::vector<std::vector<ProdB const *> >  & bColl) const;
-      void fill(size_t index, ProdB const * item, std::vector<std::vector<ProdB const *> >  & bColl) const;
+      template <typename Bcoll>
+      typename std::enable_if<std::is_convertible<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
+      fill(size_t index,
+           Ptr<ProdB> const & item,
+           Bcoll & bColl) const;
+
+      template <typename Bcoll>
+      void init(size_t size, std::vector<Bcoll> & bColls) const;
+
+      template <typename Bcoll>
+      typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
+      fill(size_t index,
+           Ptr<ProdB> const & item,
+           std::vector<Bcoll> & bColls) const;
+
+      template <typename Bcoll>
+      typename std::enable_if<std::is_same<typename Bcoll::value_type, Ptr<ProdB> >::value>::type
+      fill(size_t index,
+           Ptr<ProdB> const & item,
+           std::vector<Bcoll> & bColls) const;
 
     private:
       InputTag const & assnsTag_;
@@ -135,7 +158,7 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_
     std::advance(itA, aIndex);
     if (itAssns->first.id() == pp() &&
         pointersEqual(itAssns->first.get(), ensurePointer<typename Assns<ProdA, ProdB, Data>::assn_iterator::value_type::first_type::const_pointer>(itA))) {
-      bh.fill(aIndex, itAssns->second.get(), bColl);
+      bh.fill(aIndex, itAssns->second, bColl);
       dh.fill(itAssns - beginAssns, *assnsHandle, aIndex, dColl);
     }
   }
@@ -169,7 +192,7 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_
       if (itAssns->first.id() == pp(*i) &&
           pointersEqual(itAssns->first.get(),
                         ensurePointer<typename Acoll::value_type::const_pointer>(i))) {
-        bh.fill(bIndex, itAssns->second.get(), bColl);
+        bh.fill(bIndex, itAssns->second, bColl);
         dh.fill(itAssns - beginAssns, *assnsHandle, bIndex, dColl);
         break;
       }
@@ -265,18 +288,22 @@ BcollHelper(InputTag const & assnsTag)
 }
 
 template <typename ProdB>
+template <typename Bcoll>
 inline
 void
 art::detail::BcollHelper<ProdB>::
-init(size_t size, std::vector<ProdB const *> & bColl) const
+init(size_t size, Bcoll & bColl) const
 {
   bColl.assign(size, 0);
 }
 
 template <typename ProdB>
-void
+template <typename Bcoll>
+typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
 art::detail::BcollHelper<ProdB>::
-fill(size_t index, ProdB const * item, std::vector<ProdB const *> & bColl) const
+fill(size_t index,
+     Ptr<ProdB> const & item,
+     Bcoll & bColl) const
 {
   if (bColl[index]) {
     throw Exception(errors::LogicError)
@@ -285,30 +312,62 @@ fill(size_t index, ProdB const * item, std::vector<ProdB const *> & bColl) const
         << assnsTag_
         << ".\n";
   }
-  else {
-    bColl[index] = item;
+  bColl[index] = item.get();
+}
+
+template <typename ProdB>
+template <typename Bcoll>
+typename std::enable_if<std::is_convertible<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
+art::detail::BcollHelper<ProdB>::
+fill(size_t index,
+     Ptr<ProdB> const & item,
+     Bcoll & bColl) const
+{
+  if (bColl[index]) {
+    throw Exception(errors::LogicError)
+        << "Attempted to create a FindOne object for a one-many or many-many"
+        << " association specified in collection "
+        << assnsTag_
+        << ".\n";
+  }
+  bColl[index] = item;
+}
+
+template <typename ProdB>
+template <typename Bcoll>
+inline
+void
+art::detail::BcollHelper<ProdB>::
+init(size_t size, std::vector<Bcoll> & bColls) const
+{
+  bColls.resize(size);
+}
+
+template <typename ProdB>
+template <typename Bcoll>
+inline
+typename std::enable_if<std::is_same<typename Bcoll::value_type, ProdB const *>::value>::type
+art::detail::BcollHelper<ProdB>::
+fill(size_t index,
+     Ptr<ProdB> const & item,
+     std::vector<Bcoll> & bColls) const
+{
+  if (item) {
+     bColls[index].push_back(item.get());
   }
 }
 
 template <typename ProdB>
+template <typename Bcoll>
 inline
-void
-art::detail::BcollHelper<ProdB>::
-init(size_t size, std::vector<std::vector<ProdB const *> >  & bColl) const
-{
-  bColl.resize(size);
-}
-
-template <typename ProdB>
-inline
-void
+typename std::enable_if<std::is_same<typename Bcoll::value_type, art::Ptr<ProdB> >::value>::type
 art::detail::BcollHelper<ProdB>::
 fill(size_t index,
-     ProdB const * item,
-     std::vector<std::vector<ProdB const *> >  & bColl) const
+     Ptr<ProdB> const & item,
+     std::vector<Bcoll> & bColls) const
 {
   if (item) {
-    bColl[index].push_back(item);
+     bColls[index].push_back(item);
   }
 }
 

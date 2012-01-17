@@ -53,7 +53,7 @@ operator()(Event const & e, InputTag const & tag) const {
     }
     catch (Exception & e) {
       if (e.categoryCode() == errors::ProductNotFound) {
-        throw Exception(errors::ProductNotFound, "FindOne")
+        throw Exception(errors::ProductNotFound, "AssnsQuery")
             << "Unable to find an appropriate association collection as specified"
             << " by tag: "
             << tag

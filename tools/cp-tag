@@ -10,8 +10,9 @@
 # Takes at least one version argument,
 ########################################################################
 
-# Subsidiary packages to be tagged,
-declare -a packages=(cetbuildtools cpp0x cetlib fhicl-cpp messagefacility)
+# Subsidiary packages to be tagged, These must be in order: ie package
+# n's product_list must set up package n+1.
+declare -a packages=(messagefacility fhicl-cpp cetlib cpp0x)
 
 # Tag message.
 tag_msg='ART suite cross-package tag'
@@ -87,9 +88,10 @@ while [[ -n "$1" ]]; do
 
   ssh p-art@cdcvs.fnal.gov "cd /cvs/projects/art && { git tag | grep -q $art_version || { echo 'Unable to find ART tag ${art_version}' 1>&2; exit 1; }; } && `maybe_tag \"ART_SUITE_${art_version}\" \"${art_version}\"`"
 
+  last_pkg=art
   for package in "${packages[@]}"; do
     product=`product_for "$package"`
-    pv=`wget -q -O - "https://cdcvs.fnal.gov/redmine/projects/art/repository/raw/ups/setup_for_development?rev=ART_SUITE_${art_version}" | \
+    pv=`wget -q -O - "https://cdcvs.fnal.gov/redmine/projects/${last_pkg}/repository/raw/ups/product_list?rev=ART_SUITE_${art_version}" | \
      grep -e 'setup.*\b'"$product"'\b' | \
      sed -e 's/^.*\(v[^ ]*\).*$/\1/'`
     if [[ -n "$pv" ]]; then
@@ -100,5 +102,6 @@ while [[ -n "$1" ]]; do
     fi
     ensure_gitconfig $package
     ptag "${package}" "ART_SUITE_${art_version}" "${pv}"
+    last_pkg=${package}
   done
 done
