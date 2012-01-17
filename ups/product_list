@@ -10,5 +10,5 @@ setup -B sqlite v3_07_08_00 -q +$compilerqual$extraqual
 
 # set up CET products
 setup cetpkgsupport
-setup cetbuildtools v1_15_03
+setup cetbuildtools v1_15_04
 setup -B messagefacility v1_10_04 -q +$CETPKG_QUAL$extraqual

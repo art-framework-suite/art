@@ -17,7 +17,7 @@
 # use cmake 2.8 or later
 cmake_minimum_required (VERSION 2.8)
 
-project(art)
+project(art-openmp) # Note -- do NOT merge this to main branch!
 
 # cetbuildtools contains our cmake modules
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
@@ -33,7 +33,7 @@ include(CetCMakeEnv)
 if ( NOT qualifier )
     message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
 endif ( NOT qualifier )
-cet_cmake_env( art v1_00_08 ${qualifier} )
+cet_cmake_env( art-openmp v1_00_08 ${qualifier} ) # Note -- do NOT merge this to main branch!
 
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR EXTRA_FLAGS -pedantic)
