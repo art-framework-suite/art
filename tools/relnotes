@@ -55,6 +55,17 @@ if (lc $package eq "art") { # Want ART Suite release notes.
   print "h2. ART ",
     vpage($dot_version),
       ".\n\n";
+  print <<EOF;
+h3. New features:
+
+
+h3. Bug fixes:
+
+
+h3. Known issues:
+
+
+EOF
   print map { my $package = $_;
               my $pv = pkg_version($package, $suite_version);
               sprintf("h2. \%s\%s.\n\n",
