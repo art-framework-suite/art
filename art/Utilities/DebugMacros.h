@@ -3,6 +3,8 @@
 
 #include "art/Utilities/fwd.h"
 
+#include <iostream>
+
 namespace art {
   struct debugvalue {
 

@@ -5,41 +5,7 @@ Product = @product@
 Group:
 
 Flavor     = ANY
-Qualifiers = ""
-
-  Action = GetFQDir
-       # faking out unsetup
-       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir '' ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
-       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-
-  Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
-    setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q @MESSAGEFACILITY_BASE_QUAL@)
-    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
-    setupRequired(root      @ROOT_VERSION@ )
-
-Flavor     = ANY
-Qualifiers = "a5"
-
-  Action = GetFQDir
-       # faking out unsetup
-       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a5 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
-       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-
-  Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
-    setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q @MESSAGEFACILITY_BASE_QUAL@)
-    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
-    setupRequired(root      @ROOT_VERSION@ -q gcc46)
-
-Flavor     = ANY
-Qualifiers = "a5:debug"
+Qualifiers = "+a5:+debug"
 
   Action = GetFQDir
        # faking out unsetup
@@ -56,7 +22,7 @@ Qualifiers = "a5:debug"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:debug)
 
 Flavor     = ANY
-Qualifiers = "a5:opt"
+Qualifiers = "+a5:+opt"
 
   Action = GetFQDir
        # faking out unsetup
@@ -73,7 +39,7 @@ Qualifiers = "a5:opt"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:opt)
 
 Flavor     = ANY
-Qualifiers = "a5:prof"
+Qualifiers = "+a5:+prof"
 
   Action = GetFQDir
        # faking out unsetup
@@ -90,24 +56,7 @@ Qualifiers = "a5:prof"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:prof)
 
 Flavor     = ANY
-Qualifiers = "e1"
-
-  Action = GetFQDir
-       # faking out unsetup
-       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir e1 ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
-       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-
-  Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
-    setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q @MESSAGEFACILITY_BASE_QUAL@)
-    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
-    setupRequired(root      @ROOT_VERSION@ -q gcc46)
-
-Flavor     = ANY
-Qualifiers = "e1:debug"
+Qualifiers = "+e1:+debug"
 
   Action = GetFQDir
        # faking out unsetup
@@ -124,7 +73,7 @@ Qualifiers = "e1:debug"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:debug)
 
 Flavor     = ANY
-Qualifiers = "e1:opt"
+Qualifiers = "+e1:+opt"
 
   Action = GetFQDir
        # faking out unsetup
@@ -141,7 +90,7 @@ Qualifiers = "e1:opt"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:opt)
 
 Flavor     = ANY
-Qualifiers = "e1:prof"
+Qualifiers = "+e1:+prof"
 
   Action = GetFQDir
        # faking out unsetup
@@ -158,24 +107,7 @@ Qualifiers = "e1:prof"
     setupRequired(root      @ROOT_VERSION@ -q gcc46:prof)
 
 Flavor     = ANY
-Qualifiers = "mu2e"
-
-  Action = GetFQDir
-       # faking out unsetup
-       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir mu2e ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
-       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-
-  Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
-    setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q @MESSAGEFACILITY_BASE_QUAL@)
-    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
-    setupRequired(root      @ROOT_VERSION@ -q mu2e)
-
-Flavor     = ANY
-Qualifiers = "mu2e:debug"
+Qualifiers = "+mu2e:+debug"
 
   Action = GetFQDir
        # faking out unsetup
@@ -192,7 +124,7 @@ Qualifiers = "mu2e:debug"
     setupRequired(root      @ROOT_VERSION@ -q mu2e:debug)
 
 Flavor     = ANY
-Qualifiers = "mu2e:opt"
+Qualifiers = "+mu2e:+opt"
 
   Action = GetFQDir
        # faking out unsetup
@@ -209,7 +141,7 @@ Qualifiers = "mu2e:opt"
     setupRequired(root      @ROOT_VERSION@ -q mu2e:opt)
 
 Flavor     = ANY
-Qualifiers = "mu2e:prof"
+Qualifiers = "+mu2e:+prof"
 
   Action = GetFQDir
        # faking out unsetup
@@ -226,24 +158,7 @@ Qualifiers = "mu2e:prof"
     setupRequired(root      @ROOT_VERSION@ -q mu2e:prof)
 
 Flavor     = ANY
-Qualifiers = "nova"
-
-  Action = GetFQDir
-       # faking out unsetup
-       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir nova ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
-       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-
-  Action = GetExtraProducts
-    setupRequired(cppunit   @CPPUNIT_VERSION@ -q gcc46)
-    setupRequired(libsigcpp @LIBSIGCPP_VERSION@ -q gcc46)
-    setupRequired(clhep     @CLHEP_VERSION@ -q gcc46)
-    setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q @MESSAGEFACILITY_BASE_QUAL@)
-    setupRequired(sqlite    @SQLITE_VERSION@ -q gcc46)
-    setupRequired(root      @ROOT_VERSION@ -q nova)
-
-Flavor     = ANY
-Qualifiers = "nova:debug"
+Qualifiers = "+nova:+debug"
 
   Action = GetFQDir
        # faking out unsetup
@@ -260,7 +175,7 @@ Qualifiers = "nova:debug"
     setupRequired(root      @ROOT_VERSION@ -q nova:debug)
 
 Flavor     = ANY
-Qualifiers = "nova:opt"
+Qualifiers = "+nova:+opt"
 
   Action = GetFQDir
        # faking out unsetup
@@ -277,7 +192,7 @@ Qualifiers = "nova:opt"
     setupRequired(root      @ROOT_VERSION@ -q nova:opt)
 
 Flavor     = ANY
-Qualifiers = "nova:prof"
+Qualifiers = "+nova:+prof"
 
   Action = GetFQDir
        # faking out unsetup
