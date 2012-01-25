@@ -111,43 +111,20 @@ namespace {
     check_get_one_impl<item_t, data_t>(fA, fAV);
   }
 
-  template <typename I, typename D, typename F, typename FV>
-  void
-  check_get_many_impl(F const & fA, FV const & fAV) {
-    I item;
-    D data;
-    I & ir1(item);
-    size_t result __attribute__((unused)) = fAV.get(0ul, ir1);
-    BOOST_CHECK_EQUAL(fAV.get(0ul, item), 1ul);
-    BOOST_CHECK_EQUAL(fAV.get(1ul, item), 2ul);
-    BOOST_CHECK_EQUAL(fAV.get(2ul, item), 1ul);
-    BOOST_CHECK_EQUAL(fA.get(0ul, item, data), 1ul);
-    BOOST_CHECK_EQUAL(fA.get(1ul, item, data), 2ul);
-    BOOST_CHECK_EQUAL(fA.get(2ul, item, data), 1ul);
-  }
-
   template <typename T, typename D,
             template <typename, typename> class FM>
-  typename std::enable_if<std::is_same<FM<T, void>, art::FindMany<T, void> >::value>::type
+  typename std::enable_if<std::is_same<FM<T, void>, art::FindMany<T, void> >::value || std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>::type
   check_get(FM<T, D> const & fA,
             FM<T, void> const & fAV) {
-//     typedef typename FM<T, void>::value_type item_t; // This throws in a const, no idea why.
-    typedef std::vector<T const *> item_t;
-    typedef typename FM<T, D>::dataColl_t::value_type data_t;
-    check_get_many_impl<item_t, data_t>(fA, fAV);
+    typename FM<T, void>::value_type item;
+    typename FM<T, D>::dataColl_t::value_type data;
+    BOOST_CHECK_EQUAL((fAV.get(0ul, item)), 1ul);
+    BOOST_CHECK_EQUAL((fAV.get(1ul, item)), 2ul);
+    BOOST_CHECK_EQUAL((fAV.get(2ul, item)), 1ul);
+    BOOST_CHECK_EQUAL((fA.get(0ul, item, data)), 1ul);
+    BOOST_CHECK_EQUAL((fA.get(1ul, item, data)), 2ul);
+    BOOST_CHECK_EQUAL((fA.get(2ul, item, data)), 1ul);
   }
-
-  template <typename T, typename D,
-            template <typename, typename> class FM>
-  typename std::enable_if<std::is_same<FM<T, void>, art::FindManyP<T, void> >::value>::type
-  check_get(FM<T, D> const & fA,
-            FM<T, void> const & fAV) {
-//     typedef typename FM<T, void>::value_type item_t; // This throws in a const, no idea why.
-    typedef std::vector<art::Ptr<T> > item_t;
-    typedef typename FM<T, D>::dataColl_t::value_type data_t;
-    check_get_many_impl<item_t, data_t>(fA, fAV);
-  }
-
 }
 
 arttest::AssnsAnalyzer::
@@ -169,15 +146,6 @@ arttest::AssnsAnalyzer::analyze(art::Event const & e)
 {
   testOne<art::FindOne>(e);
   testOne<art::FindOneP>(e);
-
-  ////////////////////////////////////
-//   art::Handle<std::vector<size_t> > hAcoll;
-//   art::FindMany<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
-//   art::FindMany<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
-//   typedef typename art::FindMany<B_t, void>::value_type item_t;
-//   typedef typename art::FindMany<B_t, arttest::AssnTestData>::dataColl_t::value_type data_t;
-//   check_get_many_impl<item_t, data_t>(fmB, fmBV);
-  ////////////////////////////////////
 
  testMany<art::FindMany>(e);
  testMany<art::FindManyP>(e);
@@ -305,10 +273,7 @@ testMany(art::Event const & e) const
   BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1ul);
   BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2ul);
   BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1ul);
-//  typedef typename FM<B_t, void>::value_type item_t;
-//  typedef typename FM<B_t, arttest::AssnTestData>::dataColl_t::value_type data_t;
-//  check_get_many_impl<item_t, data_t>(fmB, fmBV);
-//  check_get(fmB, fmBV);
+  check_get(fmB, fmBV);
 }
 
 DEFINE_ART_MODULE(arttest::AssnsAnalyzer)

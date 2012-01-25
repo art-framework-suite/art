@@ -164,8 +164,8 @@ public:
 
   // Associated item by index (bounds-checked).
   const_reference at(size_type i) const;
-  // FIXME: Deactivate pending trace of possible compiler bug.
-//  size_type get(size_type i, reference item) const;
+
+  size_type get(size_type i, reference item) const;
 
   bool operator == (@ART_IPR_CLASS_NAME@<ProdB, void> const & other) const;
 
@@ -213,15 +213,14 @@ public:
 
   using base::size;
   using base::at;
-  // FIXME: Deactivate pending trace of possible compiler bug.
-//  using base::get;
+  using base::get;
 
   // Association extra-data object by index (bounds-checked).
   data_const_reference data(size_type i) const;
 
   // Associated item and extra-data object by index (bounds-checked).
-  // FIXME: Deactivate pending trace of possible compiler bug.
-//  size_type get(size_type i, reference item, data_reference data) const;
+
+  size_type get(size_type i, reference item, data_reference data) const;
 
   bool operator == (@ART_IPR_CLASS_NAME@<ProdB, Data> const & other) const;
 
@@ -289,16 +288,15 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::at(size_type i) const
   return bCollection_.at(i);
 }
 
-  // FIXME: Deactivate pending trace of possible compiler bug.
-// template <typename ProdB>
-// inline
-// typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
-// art::@ART_IPR_CLASS_NAME@<ProdB, void>::get(size_type i, reference item) const
-// {
-//   reference ref(bCollection_.at(i));
-//   item.insert(item.end(), ref.begin(), ref.end());
-//   return ref.size();
-// }
+template <typename ProdB>
+inline
+typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::get(size_type i, reference item) const
+{
+  const_reference ref(bCollection_.at(i));
+  item.insert(item.end(), ref.begin(), ref.end());
+  return ref.size();
+}
 
 template <typename ProdB>
 inline
@@ -360,17 +358,16 @@ art::@ART_IPR_CLASS_NAME@<ProdB, Data>::data(size_type i) const
   return dataCollection_.at(i);
 }
 
-  // FIXME: Deactivate pending trace of possible compiler bug.
-// template <typename ProdB, typename Data>
-// inline
-// typename art::@ART_IPR_CLASS_NAME@<ProdB, Data>::size_type
-// art::@ART_IPR_CLASS_NAME@<ProdB, Data>::get(size_type i, reference item, data_reference data) const
-// {
-//   size_type result = base::get(i, item);
-//   data_reference ref(dataCollection_.at(i));
-//   data.insert(data.end(), ref.begin(), ref.end());;
-//   return result;
-// }
+template <typename ProdB, typename Data>
+inline
+typename art::@ART_IPR_CLASS_NAME@<ProdB, Data>::size_type
+art::@ART_IPR_CLASS_NAME@<ProdB, Data>::get(size_type i, reference item, data_reference data) const
+{
+  size_type result = base::get(i, item);
+  data_const_reference ref(dataCollection_.at(i));
+  data.insert(data.end(), ref.begin(), ref.end());;
+  return result;
+}
 
 template <typename ProdB, typename Data>
 inline
