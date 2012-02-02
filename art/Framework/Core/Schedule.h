@@ -110,15 +110,15 @@ namespace art {
     typedef std::vector<Path> Paths;
     typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef std::shared_ptr<Worker> WorkerPtr;
-    typedef std::vector<OutputWorker*> OutputWorkers;
+    typedef std::vector<OutputWorker *> OutputWorkers;
     typedef std::vector<WorkerInPath> PathWorkers;
 
   public:
-    typedef std::vector<Worker*> Workers;
+    typedef std::vector<Worker *> Workers;
     enum State { Ready = 0, Running, Latched };
 
     Schedule(fhicl::ParameterSet const & processDesc,
-             art::TriggerNamesService & tns,
+             art::TriggerNamesService const & tns,
              WorkerRegistry & wregistry,
              MasterProductRegistry & pregistry,
              ActionTable & actions,
@@ -159,7 +159,7 @@ namespace art {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-      std::pair<double, double> timeCpuReal() const;
+    std::pair<double, double> timeCpuReal() const;
 
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
@@ -223,7 +223,7 @@ namespace art {
 
     void limitOutput();
 
-    void addToAllWorkers(Worker* w);
+    void addToAllWorkers(Worker * w);
 
     void makeTriggerResultsInserter(fhicl::ParameterSet const & trig_pset, MasterProductRegistry & pregistry);
 
@@ -244,8 +244,8 @@ namespace art {
                                          bool isEndPath) const;
 
     fhicl::ParameterSet process_pset_;
-    WorkerRegistry*     worker_reg_;
-    ActionTable*        act_table_;
+    WorkerRegistry   *  worker_reg_;
+    ActionTable    *    act_table_;
     std::string         processName_;
     std::shared_ptr<ActivityRegistry> actReg_;
 
@@ -379,7 +379,7 @@ namespace art {
   bool
   Schedule::runTriggerPaths(typename T::MyPrincipal & ep)
   {
-  using std::placeholders::_1;
+    using std::placeholders::_1;
     cet::for_all(trig_paths_,
                  std::bind(&Path::processOneOccurrence<T>, _1, std::ref(ep)));
     return results_->accept();
@@ -389,7 +389,7 @@ namespace art {
   void
   Schedule::runEndPaths(typename T::MyPrincipal & ep)
   {
-  using std::placeholders::_1;
+    using std::placeholders::_1;
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
     cet::for_all(end_paths_,
