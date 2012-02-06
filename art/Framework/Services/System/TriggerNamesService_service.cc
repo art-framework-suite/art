@@ -53,7 +53,7 @@ TriggerNamesService::TriggerNamesService(ParameterSet const & pset)
 
 bool
 TriggerNamesService::getTrigPaths(TriggerResults const& triggerResults,
-                                  Strings& trigPaths) {
+                                  Strings& trigPaths) const {
 
   ParameterSet pset;
   if( ! ParameterSetRegistry::get(triggerResults.parameterSetID(), pset) )
