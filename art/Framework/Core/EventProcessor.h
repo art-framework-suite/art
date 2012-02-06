@@ -27,6 +27,8 @@
 #include "boost/thread/thread.hpp"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -147,6 +149,9 @@ namespace art {
     void connectSigs();
     void setupSignal();
 
+    void createSchedules(size_t numSchedules,
+                         fhicl::ParameterSet const & schedulePSet);
+
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -162,7 +167,7 @@ namespace art {
     MasterProductRegistry                         preg_;
     ServiceToken                                  serviceToken_;
     std::shared_ptr<InputSource>                  input_;
-    std::auto_ptr<Schedule>                       schedule_;
+    std::vector<std::unique_ptr<Schedule> >       schedules_;
     ActionTable                                   act_table_;
 
     int                                           my_sig_num_;
