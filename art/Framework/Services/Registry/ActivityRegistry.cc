@@ -58,159 +58,159 @@ namespace {
 void
 art::ActivityRegistry::connect(ActivityRegistry& iOther)
 {
-   postBeginJobSignal_.connect(iOther.postBeginJobSignal_);
-   postEndJobSignal_.connect(iOther.postEndJobSignal_);
+   sPostBeginJob_.connect(iOther.sPostBeginJob_);
+   sPostEndJob_.connect(iOther.sPostEndJob_);
 
-   jobFailureSignal_.connect(iOther.jobFailureSignal_);
+   sJobFailure_.connect(iOther.sJobFailure_);
 
-   preSourceSignal_.connect(iOther.preSourceSignal_);
-   postSourceSignal_.connect(iOther.postSourceSignal_);
+   sPreSource_.connect(iOther.sPreSource_);
+   sPostSource_.connect(iOther.sPostSource_);
 
-   preSourceSubRunSignal_.connect(iOther.preSourceSubRunSignal_);
-   postSourceSubRunSignal_.connect(iOther.postSourceSubRunSignal_);
+   sPreSourceSubRun_.connect(iOther.sPreSourceSubRun_);
+   sPostSourceSubRun_.connect(iOther.sPostSourceSubRun_);
 
-   preSourceRunSignal_.connect(iOther.preSourceRunSignal_);
-   postSourceRunSignal_.connect(iOther.postSourceRunSignal_);
+   sPreSourceRun_.connect(iOther.sPreSourceRun_);
+   sPostSourceRun_.connect(iOther.sPostSourceRun_);
 
-   preOpenFileSignal_.connect(iOther.preOpenFileSignal_);
-   postOpenFileSignal_.connect(iOther.postOpenFileSignal_);
+   sPreOpenFile_.connect(iOther.sPreOpenFile_);
+   sPostOpenFile_.connect(iOther.sPostOpenFile_);
 
-   preCloseFileSignal_.connect(iOther.preCloseFileSignal_);
-   postCloseFileSignal_.connect(iOther.postCloseFileSignal_);
+   sPreCloseFile_.connect(iOther.sPreCloseFile_);
+   sPostCloseFile_.connect(iOther.sPostCloseFile_);
 
-   preProcessEventSignal_.connect(iOther.preProcessEventSignal_);
-   postProcessEventSignal_.connect(iOther.postProcessEventSignal_);
+   sPreProcessEvent_.connect(iOther.sPreProcessEvent_);
+   sPostProcessEvent_.connect(iOther.sPostProcessEvent_);
 
-   preBeginRunSignal_.connect(iOther.preBeginRunSignal_);
-   postBeginRunSignal_.connect(iOther.postBeginRunSignal_);
+   sPreBeginRun_.connect(iOther.sPreBeginRun_);
+   sPostBeginRun_.connect(iOther.sPostBeginRun_);
 
-   preEndRunSignal_.connect(iOther.preEndRunSignal_);
-   postEndRunSignal_.connect(iOther.postEndRunSignal_);
+   sPreEndRun_.connect(iOther.sPreEndRun_);
+   sPostEndRun_.connect(iOther.sPostEndRun_);
 
-   preBeginSubRunSignal_.connect(iOther.preBeginSubRunSignal_);
-   postBeginSubRunSignal_.connect(iOther.postBeginSubRunSignal_);
+   sPreBeginSubRun_.connect(iOther.sPreBeginSubRun_);
+   sPostBeginSubRun_.connect(iOther.sPostBeginSubRun_);
 
-   preEndSubRunSignal_.connect(iOther.preEndSubRunSignal_);
-   postEndSubRunSignal_.connect(iOther.postEndSubRunSignal_);
+   sPreEndSubRun_.connect(iOther.sPreEndSubRun_);
+   sPostEndSubRun_.connect(iOther.sPostEndSubRun_);
 
-   preProcessPathSignal_.connect(iOther.preProcessPathSignal_);
-   postProcessPathSignal_.connect(iOther.postProcessPathSignal_);
+   sPreProcessPath_.connect(iOther.sPreProcessPath_);
+   sPostProcessPath_.connect(iOther.sPostProcessPath_);
 
-   prePathBeginRunSignal_.connect(iOther.prePathBeginRunSignal_);
-   postPathBeginRunSignal_.connect(iOther.postPathBeginRunSignal_);
+   sPrePathBeginRun_.connect(iOther.sPrePathBeginRun_);
+   sPostPathBeginRun_.connect(iOther.sPostPathBeginRun_);
 
-   prePathEndRunSignal_.connect(iOther.prePathEndRunSignal_);
-   postPathEndRunSignal_.connect(iOther.postPathEndRunSignal_);
+   sPrePathEndRun_.connect(iOther.sPrePathEndRun_);
+   sPostPathEndRun_.connect(iOther.sPostPathEndRun_);
 
-   prePathBeginSubRunSignal_.connect(iOther.prePathBeginSubRunSignal_);
-   postPathBeginSubRunSignal_.connect(iOther.postPathBeginSubRunSignal_);
+   sPrePathBeginSubRun_.connect(iOther.sPrePathBeginSubRun_);
+   sPostPathBeginSubRun_.connect(iOther.sPostPathBeginSubRun_);
 
-   prePathEndSubRunSignal_.connect(iOther.prePathEndSubRunSignal_);
-   postPathEndSubRunSignal_.connect(iOther.postPathEndSubRunSignal_);
+   sPrePathEndSubRun_.connect(iOther.sPrePathEndSubRun_);
+   sPostPathEndSubRun_.connect(iOther.sPostPathEndSubRun_);
 
-   preModuleSignal_.connect(iOther.preModuleSignal_);
-   postModuleSignal_.connect(iOther.postModuleSignal_);
+   sPreModule_.connect(iOther.sPreModule_);
+   sPostModule_.connect(iOther.sPostModule_);
 
-   preModuleBeginRunSignal_.connect(iOther.preModuleBeginRunSignal_);
-   postModuleBeginRunSignal_.connect(iOther.postModuleBeginRunSignal_);
+   sPreModuleBeginRun_.connect(iOther.sPreModuleBeginRun_);
+   sPostModuleBeginRun_.connect(iOther.sPostModuleBeginRun_);
 
-   preModuleEndRunSignal_.connect(iOther.preModuleEndRunSignal_);
-   postModuleEndRunSignal_.connect(iOther.postModuleEndRunSignal_);
+   sPreModuleEndRun_.connect(iOther.sPreModuleEndRun_);
+   sPostModuleEndRun_.connect(iOther.sPostModuleEndRun_);
 
-   preModuleBeginSubRunSignal_.connect(iOther.preModuleBeginSubRunSignal_);
-   postModuleBeginSubRunSignal_.connect(iOther.postModuleBeginSubRunSignal_);
+   sPreModuleBeginSubRun_.connect(iOther.sPreModuleBeginSubRun_);
+   sPostModuleBeginSubRun_.connect(iOther.sPostModuleBeginSubRun_);
 
-   preModuleEndSubRunSignal_.connect(iOther.preModuleEndSubRunSignal_);
-   postModuleEndSubRunSignal_.connect(iOther.postModuleEndSubRunSignal_);
+   sPreModuleEndSubRun_.connect(iOther.sPreModuleEndSubRun_);
+   sPostModuleEndSubRun_.connect(iOther.sPostModuleEndSubRun_);
 
-   preModuleConstructionSignal_.connect(iOther.preModuleConstructionSignal_);
-   postModuleConstructionSignal_.connect(iOther.postModuleConstructionSignal_);
+   sPreModuleConstruction_.connect(iOther.sPreModuleConstruction_);
+   sPostModuleConstruction_.connect(iOther.sPostModuleConstruction_);
 
-   postBeginJobWorkersSignal_.connect(iOther.postBeginJobWorkersSignal_);
+   sPostBeginJobWorkers_.connect(iOther.sPostBeginJobWorkers_);
 
-   preModuleBeginJobSignal_.connect(iOther.preModuleBeginJobSignal_);
-   postModuleBeginJobSignal_.connect(iOther.postModuleBeginJobSignal_);
+   sPreModuleBeginJob_.connect(iOther.sPreModuleBeginJob_);
+   sPostModuleBeginJob_.connect(iOther.sPostModuleBeginJob_);
 
-   preModuleEndJobSignal_.connect(iOther.preModuleEndJobSignal_);
-   postModuleEndJobSignal_.connect(iOther.postModuleEndJobSignal_);
+   sPreModuleEndJob_.connect(iOther.sPreModuleEndJob_);
+   sPostModuleEndJob_.connect(iOther.sPostModuleEndJob_);
 }
 
 void
 art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
 {
-  copySlotsToFrom(postBeginJobSignal_,iOther.postBeginJobSignal_);
-  copySlotsToFromReverse(postEndJobSignal_,iOther.postEndJobSignal_);
+  copySlotsToFrom(sPostBeginJob_,iOther.sPostBeginJob_);
+  copySlotsToFromReverse(sPostEndJob_,iOther.sPostEndJob_);
 
-  copySlotsToFromReverse(jobFailureSignal_,iOther.jobFailureSignal_);
+  copySlotsToFromReverse(sJobFailure_,iOther.sJobFailure_);
 
-  copySlotsToFrom(preSourceSignal_,iOther.preSourceSignal_);
-  copySlotsToFromReverse(postSourceSignal_,iOther.postSourceSignal_);
+  copySlotsToFrom(sPreSource_,iOther.sPreSource_);
+  copySlotsToFromReverse(sPostSource_,iOther.sPostSource_);
 
-  copySlotsToFrom(preSourceSubRunSignal_,iOther.preSourceSubRunSignal_);
-  copySlotsToFromReverse(postSourceSubRunSignal_,iOther.postSourceSubRunSignal_);
+  copySlotsToFrom(sPreSourceSubRun_,iOther.sPreSourceSubRun_);
+  copySlotsToFromReverse(sPostSourceSubRun_,iOther.sPostSourceSubRun_);
 
-  copySlotsToFrom(preSourceRunSignal_,iOther.preSourceRunSignal_);
-  copySlotsToFromReverse(postSourceRunSignal_,iOther.postSourceRunSignal_);
+  copySlotsToFrom(sPreSourceRun_,iOther.sPreSourceRun_);
+  copySlotsToFromReverse(sPostSourceRun_,iOther.sPostSourceRun_);
 
-  copySlotsToFrom(preOpenFileSignal_,iOther.preOpenFileSignal_);
-  copySlotsToFromReverse(postOpenFileSignal_,iOther.postOpenFileSignal_);
+  copySlotsToFrom(sPreOpenFile_,iOther.sPreOpenFile_);
+  copySlotsToFromReverse(sPostOpenFile_,iOther.sPostOpenFile_);
 
-  copySlotsToFrom(preCloseFileSignal_,iOther.preCloseFileSignal_);
-  copySlotsToFromReverse(postCloseFileSignal_,iOther.postCloseFileSignal_);
+  copySlotsToFrom(sPreCloseFile_,iOther.sPreCloseFile_);
+  copySlotsToFromReverse(sPostCloseFile_,iOther.sPostCloseFile_);
 
-  copySlotsToFrom(preProcessEventSignal_,iOther.preProcessEventSignal_);
-  copySlotsToFromReverse(postProcessEventSignal_,iOther.postProcessEventSignal_);
+  copySlotsToFrom(sPreProcessEvent_,iOther.sPreProcessEvent_);
+  copySlotsToFromReverse(sPostProcessEvent_,iOther.sPostProcessEvent_);
 
-  copySlotsToFrom(preBeginRunSignal_,iOther.preBeginRunSignal_);
-  copySlotsToFromReverse(postBeginRunSignal_,iOther.postBeginRunSignal_);
+  copySlotsToFrom(sPreBeginRun_,iOther.sPreBeginRun_);
+  copySlotsToFromReverse(sPostBeginRun_,iOther.sPostBeginRun_);
 
-  copySlotsToFrom(preEndRunSignal_,iOther.preEndRunSignal_);
-  copySlotsToFromReverse(postEndRunSignal_,iOther.postEndRunSignal_);
+  copySlotsToFrom(sPreEndRun_,iOther.sPreEndRun_);
+  copySlotsToFromReverse(sPostEndRun_,iOther.sPostEndRun_);
 
-  copySlotsToFrom(preBeginSubRunSignal_,iOther.preBeginSubRunSignal_);
-  copySlotsToFromReverse(postBeginSubRunSignal_,iOther.postBeginSubRunSignal_);
+  copySlotsToFrom(sPreBeginSubRun_,iOther.sPreBeginSubRun_);
+  copySlotsToFromReverse(sPostBeginSubRun_,iOther.sPostBeginSubRun_);
 
-  copySlotsToFrom(preEndSubRunSignal_,iOther.preEndSubRunSignal_);
-  copySlotsToFromReverse(postEndSubRunSignal_,iOther.postEndSubRunSignal_);
+  copySlotsToFrom(sPreEndSubRun_,iOther.sPreEndSubRun_);
+  copySlotsToFromReverse(sPostEndSubRun_,iOther.sPostEndSubRun_);
 
-  copySlotsToFrom(preProcessPathSignal_,iOther.preProcessPathSignal_);
-  copySlotsToFromReverse(postProcessPathSignal_,iOther.postProcessPathSignal_);
+  copySlotsToFrom(sPreProcessPath_,iOther.sPreProcessPath_);
+  copySlotsToFromReverse(sPostProcessPath_,iOther.sPostProcessPath_);
 
-  copySlotsToFrom(prePathBeginRunSignal_,iOther.prePathBeginRunSignal_);
-  copySlotsToFromReverse(postPathBeginRunSignal_,iOther.postPathBeginRunSignal_);
+  copySlotsToFrom(sPrePathBeginRun_,iOther.sPrePathBeginRun_);
+  copySlotsToFromReverse(sPostPathBeginRun_,iOther.sPostPathBeginRun_);
 
-  copySlotsToFrom(prePathEndRunSignal_,iOther.prePathEndRunSignal_);
-  copySlotsToFromReverse(postPathEndRunSignal_,iOther.postPathEndRunSignal_);
+  copySlotsToFrom(sPrePathEndRun_,iOther.sPrePathEndRun_);
+  copySlotsToFromReverse(sPostPathEndRun_,iOther.sPostPathEndRun_);
 
-  copySlotsToFrom(prePathBeginSubRunSignal_,iOther.prePathBeginSubRunSignal_);
-  copySlotsToFromReverse(postPathBeginSubRunSignal_,iOther.postPathBeginSubRunSignal_);
+  copySlotsToFrom(sPrePathBeginSubRun_,iOther.sPrePathBeginSubRun_);
+  copySlotsToFromReverse(sPostPathBeginSubRun_,iOther.sPostPathBeginSubRun_);
 
-  copySlotsToFrom(prePathEndSubRunSignal_,iOther.prePathEndSubRunSignal_);
-  copySlotsToFromReverse(postPathEndSubRunSignal_,iOther.postPathEndSubRunSignal_);
+  copySlotsToFrom(sPrePathEndSubRun_,iOther.sPrePathEndSubRun_);
+  copySlotsToFromReverse(sPostPathEndSubRun_,iOther.sPostPathEndSubRun_);
 
-  copySlotsToFrom(preModuleSignal_,iOther.preModuleSignal_);
-  copySlotsToFromReverse(postModuleSignal_,iOther.postModuleSignal_);
+  copySlotsToFrom(sPreModule_,iOther.sPreModule_);
+  copySlotsToFromReverse(sPostModule_,iOther.sPostModule_);
 
-  copySlotsToFrom(preModuleBeginRunSignal_,iOther.preModuleBeginRunSignal_);
-  copySlotsToFromReverse(postModuleBeginRunSignal_,iOther.postModuleBeginRunSignal_);
+  copySlotsToFrom(sPreModuleBeginRun_,iOther.sPreModuleBeginRun_);
+  copySlotsToFromReverse(sPostModuleBeginRun_,iOther.sPostModuleBeginRun_);
 
-  copySlotsToFrom(preModuleEndRunSignal_,iOther.preModuleEndRunSignal_);
-  copySlotsToFromReverse(postModuleEndRunSignal_,iOther.postModuleEndRunSignal_);
+  copySlotsToFrom(sPreModuleEndRun_,iOther.sPreModuleEndRun_);
+  copySlotsToFromReverse(sPostModuleEndRun_,iOther.sPostModuleEndRun_);
 
-  copySlotsToFrom(preModuleBeginSubRunSignal_,iOther.preModuleBeginSubRunSignal_);
-  copySlotsToFromReverse(postModuleBeginSubRunSignal_,iOther.postModuleBeginSubRunSignal_);
+  copySlotsToFrom(sPreModuleBeginSubRun_,iOther.sPreModuleBeginSubRun_);
+  copySlotsToFromReverse(sPostModuleBeginSubRun_,iOther.sPostModuleBeginSubRun_);
 
-  copySlotsToFrom(preModuleEndSubRunSignal_,iOther.preModuleEndSubRunSignal_);
-  copySlotsToFromReverse(postModuleEndSubRunSignal_,iOther.postModuleEndSubRunSignal_);
+  copySlotsToFrom(sPreModuleEndSubRun_,iOther.sPreModuleEndSubRun_);
+  copySlotsToFromReverse(sPostModuleEndSubRun_,iOther.sPostModuleEndSubRun_);
 
-  copySlotsToFrom(preModuleConstructionSignal_,iOther.preModuleConstructionSignal_);
-  copySlotsToFromReverse(postModuleConstructionSignal_,iOther.postModuleConstructionSignal_);
+  copySlotsToFrom(sPreModuleConstruction_,iOther.sPreModuleConstruction_);
+  copySlotsToFromReverse(sPostModuleConstruction_,iOther.sPostModuleConstruction_);
 
-  copySlotsToFrom(preModuleBeginJobSignal_,iOther.preModuleBeginJobSignal_);
-  copySlotsToFromReverse(postModuleBeginJobSignal_,iOther.postModuleBeginJobSignal_);
+  copySlotsToFrom(sPreModuleBeginJob_,iOther.sPreModuleBeginJob_);
+  copySlotsToFromReverse(sPostModuleBeginJob_,iOther.sPostModuleBeginJob_);
 
-  copySlotsToFrom(preModuleEndJobSignal_,iOther.preModuleEndJobSignal_);
-  copySlotsToFromReverse(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
+  copySlotsToFrom(sPreModuleEndJob_,iOther.sPreModuleEndJob_);
+  copySlotsToFromReverse(sPostModuleEndJob_,iOther.sPostModuleEndJob_);
 
-  copySlotsToFromReverse(postBeginJobWorkersSignal_,iOther.postBeginJobWorkersSignal_);
+  copySlotsToFromReverse(sPostBeginJobWorkers_,iOther.sPostBeginJobWorkers_);
 }
