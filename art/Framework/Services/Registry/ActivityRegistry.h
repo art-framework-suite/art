@@ -37,7 +37,7 @@ namespace art {
   class EventProcessor;
   class WorkerRegistry;
   class Schedule;
-  enum class BranchActionType; // C++2011 Forward declared enum.
+  enum BranchActionType; // C++2011 Forward declared enum.
   template <typename, BranchActionType> class OccurrenceTraits;
 
 }  // art

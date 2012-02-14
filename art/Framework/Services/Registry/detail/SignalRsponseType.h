@@ -1,0 +1,26 @@
+#ifndef art_Framework_Services_Registry_detail_SignalRsponseType_h
+#define art_Framework_Services_Registry_detail_SignalRsponseType_h
+
+// Definition for ActivityRegistry and friends of the two available
+// signal response types and a suitable overload set for a function to
+// connect a slot to a signal in the desired way.
+
+namespace art {
+  namespace detail {
+    enum class SignalResponseType { FIFO, LIFO };
+
+    template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
+    typename std::enable_if<STYPE == SignalResponseType::FIFO>::type
+    connect_to_signal(SIGNAL s, FUNC f) { s.connect(f); }
+
+    template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
+    typename std::enable_if<STYPE == SignalResponseType::LIFO>::type
+    connect_to_signal(SIGNAL s, FUNC f) { s.slots().push_front(f); }
+  }
+}
+
+#endif /* art_Framework_Services_Registry_detail_SignalRsponseType_h */
+
+// Local Variables:
+// mode: c++
+// End:
