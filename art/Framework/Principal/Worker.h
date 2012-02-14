@@ -25,7 +25,7 @@ the worker is reset().
 // ======================================================================
 
 #include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/BranchActionType.h"
+#include "art/Framework/Services/Registry/BranchActionType.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/RunStopwatch.h"
 #include "art/Framework/Principal/fwd.h"

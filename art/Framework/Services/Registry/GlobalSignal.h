@@ -49,13 +49,14 @@ public:
   watch(ReturnType(T::*slot)() const, T const & t) {
     watch(std::bind(slot, t));
   }
-private:
-  friend class ActivityRegistry;
-  void clear() { signal_.clear(); }
-  ReturnType invoke() const { return signal_.emit(); }
 
+  ReturnType invoke() const { return signal_.emit(); }
+  void clear() { signal_.clear(); }
+
+private:
   SigType_ signal_;
 };
+
 template <art::detail::SignalResponseType STYPE, typename ReturnType, typename A1> class art::GlobalSignal<STYPE, ReturnType, A1> {
 private:
   typedef sigc::signal<ReturnType, A1> SigType_;
@@ -77,13 +78,14 @@ public:
   watch(ReturnType(T::*slot)(A1) const, T const & t) {
     watch(std::bind(slot, t));
   }
-private:
-  friend class ActivityRegistry;
-  void clear() { signal_.clear(); }
-  ReturnType invoke(A1 a1) const { return signal_.emit(a1); }
 
+  ReturnType invoke(A1 a1) const { return signal_.emit(a1); }
+  void clear() { signal_.clear(); }
+
+private:
   SigType_ signal_;
 };
+
 template <art::detail::SignalResponseType STYPE, typename ReturnType, typename A1, typename A2> class art::GlobalSignal {
 private:
   typedef sigc::signal<ReturnType, A1, A2> SigType_;
@@ -105,11 +107,11 @@ public:
   watch(ReturnType(T::*slot)(A1, A2) const, T const & t) {
     watch(std::bind(slot, t));
   }
-private:
-  friend class ActivityRegistry;
-  void clear() { signal_.clear(); }
-  ReturnType invoke(A1 a1, A2 a2) const { return signal_.emit(a1, a2); }
 
+  ReturnType invoke(A1 a1, A2 a2) const { return signal_.emit(a1, a2); }
+  void clear() { signal_.clear(); }
+
+private:
   SigType_ signal_;
 };
 #else
@@ -130,12 +132,11 @@ public:
   template <typename T>
   void
   watch(ReturnType(T::*slot)(Args...) const, T const & t);
-private:
-  friend class ActivityRegistry;
 
-  void clear();
   ReturnType invoke(Args... args) const;
+  void clear();
 
+private:
   SigType_ signal_;
 };
 
@@ -169,19 +170,19 @@ watch(ReturnType(T::*slot)(Args...) const, T const & t)
 }
 
 template <typename ReturnType, typename... Args>
-void
-art::GlobalSignal<ReturnType, Args...>::
-clear()
-{
-  signal_.clear();
-}
-
-template <typename ReturnType, typename... Args>
 ReturnType
 art::GlobalSignal<ReturnType, Args...>::
 invoke(Args... args)
 {
   return signal_(std::forward<Args>(args)...);
+}
+
+template <typename ReturnType, typename... Args>
+void
+art::GlobalSignal<ReturnType, Args...>::
+clear()
+{
+  signal_.clear();
 }
 #endif /* ART_NO_FIXED_VARIADIC_EXPANSION */
 

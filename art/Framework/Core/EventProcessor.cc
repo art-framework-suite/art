@@ -172,8 +172,6 @@ namespace {
 // ----------- event processor functions ------------------
 
 art::EventProcessor::EventProcessor(fhicl::ParameterSet const & pset):
-  preProcessEventSignal_(),
-  postProcessEventSignal_(),
   actReg_(new ActivityRegistry),
   mfStatusUpdater_(*actReg_),
   wreg_(actReg_),
@@ -237,7 +235,6 @@ art::EventProcessor::EventProcessor(fhicl::ParameterSet const & pset):
   createSchedules(scheduler.get<size_t>("numSchedules", 1ul), pset);
   //   initialize(token,legacy);
   FDEBUG(2) << pset.to_string() << std::endl;
-  connectSigs();
   BranchIDListHelper::updateRegistries(preg_);
 }
 
@@ -301,10 +298,10 @@ art::EventProcessor::beginJob()
     throw;
   }
 for (auto & s : schedules_) { s->beginJob(); }
-  actReg_->postBeginJobSignal_();
+  actReg_->sPostBeginJob_();
   Schedule::Workers aw_vec;
 for (auto & s : schedules_) { s->getAllWorkers(aw_vec); }
-  actReg_->postBeginJobWorkersSignal_(input_.get(), aw_vec);
+  actReg_->sPostBeginJobWorkers_(input_.get(), aw_vec);
 }
 
 void
@@ -317,23 +314,13 @@ art::EventProcessor::endJob()
   c.call(std::bind(&EventProcessor::terminateMachine, this));
 for (auto & s : schedules_) { c.call(std::bind(&Schedule::endJob, s.get())); }
   c.call(std::bind(&InputSource::doEndJob, input_));
-  c.call(std::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
+  c.call(std::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->sPostEndJob_));
 }
 
 art::ServiceToken
 art::EventProcessor::getToken()
 {
   return serviceToken_;
-}
-
-void
-art::EventProcessor::connectSigs()
-{
-  // When these signals are given, pass them to the appropriate
-  // EventProcessor signals so that the outside world can see the
-  // signal.
-  actReg_->preProcessEventSignal_.connect(preProcessEventSignal_);
-  actReg_->postProcessEventSignal_.connect(postProcessEventSignal_);
 }
 
 art::EventProcessor::StatusCode
@@ -536,7 +523,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
 void
 art::EventProcessor::readFile()
 {
-  actReg_->preOpenFileSignal_();
+  actReg_->sPreOpenFile_();
   FDEBUG(1) << " \treadFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
@@ -544,14 +531,14 @@ art::EventProcessor::readFile()
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
   }
-  actReg_->postOpenFileSignal_(fb_->fileName());
+  actReg_->sPostOpenFile_(fb_->fileName());
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_->preCloseFileSignal_,
-                               actReg_->postCloseFileSignal_);
+  SignalSentry fileCloseSentry(actReg_->sPreCloseFile_,
+                               actReg_->sPostCloseFile_);
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -689,8 +676,8 @@ for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<SubRunPri
 
 int art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_->preSourceRunSignal_,
-                               actReg_->postSourceRunSignal_);
+  SignalSentry runSourceSentry(actReg_->sPreSourceRun_,
+                               actReg_->sPostSourceRun_);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().run();
@@ -698,8 +685,8 @@ int art::EventProcessor::readAndCacheRun()
 
 int art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_->preSourceSubRunSignal_,
-                                  actReg_->postSourceSubRunSignal_);
+  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun_,
+                                  actReg_->sPostSourceSubRun_);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().subRun();

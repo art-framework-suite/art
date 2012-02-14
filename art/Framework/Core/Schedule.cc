@@ -858,9 +858,9 @@ namespace art {
     md.moduleName_ = "TriggerResultInserter";
     md.moduleLabel_ = "TriggerResults";
     md.processConfiguration_ = ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion(), getPassID());
-    actReg_->preModuleConstructionSignal_(md);
+    actReg_->sPreModuleConstruction_(md);
     auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
-    actReg_->postModuleConstructionSignal_(md);
+    actReg_->sPostModuleConstruction_(md);
     results_inserter_.reset(new WorkerT<EDProducer>(producer, md, work_args));
     results_inserter_->setActivityRegistry(actReg_);
   }

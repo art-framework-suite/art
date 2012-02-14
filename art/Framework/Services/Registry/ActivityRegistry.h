@@ -37,9 +37,6 @@ namespace art {
   class EventProcessor;
   class WorkerRegistry;
   class Schedule;
-  enum BranchActionType; // C++2011 Forward declared enum.
-  template <typename, BranchActionType> class OccurrenceTraits;
-
 }  // art
 
 ////////////////////////////////////////////////////////////////////////
@@ -63,9 +60,7 @@ namespace art {
     watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1,std::placeholders::_2));  \
   }
 #define AR_DECL_SIGNAL(returnType, nArgs, stateTag, cMethod)  \
-  private: \
   stateTag s##stateTag##_; \
-  public: \
   returnType watch##stateTag(stateTag::slot_type const & iSlot) { \
     s##stateTag##_.cMethod(iSlot); \
   } \
@@ -92,11 +87,6 @@ namespace art {
 
 class art::ActivityRegistry : private boost::noncopyable {
 public:
-
-  friend class EventProcessor;
-  friend class Worker;
-  friend class WorkerRegistry;
-  template <typename, BranchActionType> friend class OccurrenceTraits;
 
   // ---------- signals ------------------------------------
   // Signal is emitted after all modules have had their beginJob called
@@ -131,7 +121,7 @@ public:
   AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreOpenFile)
 
   // Signal is emitted after the source opens a file
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostOpenFile)
+  AR_DECL_VOID_1ARG_SIGNAL(LIFO, std::string const &, PostOpenFile)
 
   // Signal is emitted before the Closesource closes a file
   AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreCloseFile)
@@ -141,11 +131,11 @@ public:
 
   // Signal is emitted after the Event has been created by the
   // InputSource but before any modules have seen the Event
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreProcessEvent)
+  AR_DECL_VOID_1ARG_SIGNAL(FIFO, Event const &, PreProcessEvent)
 
   // Signal is emitted after all modules have finished processing the
   // Event
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostProcessEvent)
+  AR_DECL_VOID_1ARG_SIGNAL(LIFO, Event const &, PostProcessEvent)
 
   // Signal is emitted after the Run has been created by the InputSource
   // but before any modules have seen the Run

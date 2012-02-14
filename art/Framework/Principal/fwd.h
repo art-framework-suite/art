@@ -2,7 +2,6 @@
 #define art_Framework_Principal_fwd_h
 
 // For enums only.
-#include "art/Framework/Principal/BranchActionType.h"
 #include "art/Framework/Principal/ActionCodes.h"
 
 namespace art {
