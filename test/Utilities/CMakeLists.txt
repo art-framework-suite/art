@@ -108,3 +108,5 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.sh.in
 cet_test(LibraryManager_t.sh HANDBUILT
   TEST_EXEC ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager_t.sh
   )
+
+cet_test(ScheduleID_t USE_BOOST_UNIT)
