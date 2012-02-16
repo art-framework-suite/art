@@ -20,39 +20,6 @@ namespace {
   }
 }
 
-// Required to test private functions:
-namespace art {
-  class ActivityRegistry {
-  public:
-    template <typename SIGNAL>
-    static
-    void
-    invoke(SIGNAL const & s, std::ostream & os, std::string const & text) {
-      s.invoke(os, text);
-    }
-
-    template <typename SIGNAL>
-    static
-    void
-    invoke(SIGNAL const & s, std::ostream & os) {
-      s.invoke(os);
-    }
-
-    template <typename SIGNAL>
-    static
-    void
-    invoke(SIGNAL const & s) {
-      s.invoke();
-    }
-
-    template <typename SIGNAL>
-    static
-    void clear(SIGNAL & s) {
-      s.clear();
-    }
-  };
-}
-
 BOOST_AUTO_TEST_SUITE(GlobalSignal_t)
 
 BOOST_AUTO_TEST_CASE(TestSignal2_t)
@@ -61,8 +28,19 @@ BOOST_AUTO_TEST_CASE(TestSignal2_t)
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
   s.watch(testCallback);
-  BOOST_CHECK_NO_THROW(art::ActivityRegistry::invoke(s, os, test_text));
+  BOOST_CHECK_NO_THROW(s.invoke(os, test_text));
   BOOST_CHECK(os.is_equal(test_text));
+}
+
+BOOST_AUTO_TEST_CASE(TestSignal2_clear_t)
+{
+  TestSignal2 s;
+  std::string const test_text { "Test text" };
+  boost::test_tools::output_test_stream os;
+  s.watch(testCallback);
+  s.clear();
+  BOOST_CHECK_NO_THROW(s.invoke(os, test_text));
+  BOOST_CHECK(os.is_empty());
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal1_t)
@@ -71,7 +49,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_t)
   std::string const test_text { "Test text" };
   boost::test_tools::output_test_stream os;
   s.watch(std::bind(testCallback, std::placeholders::_1, std::cref(test_text)));
-  BOOST_CHECK_NO_THROW(art::ActivityRegistry::invoke(s, os));
+  BOOST_CHECK_NO_THROW(s.invoke(os));
   BOOST_CHECK(os.is_equal(test_text));
 }
 
@@ -87,7 +65,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   // callable entity.
   std::ostringstream & osr(os);
   s.watch(std::bind(testCallback, std::ref(osr), std::cref(test_text)));
-  BOOST_CHECK_NO_THROW(art::ActivityRegistry::invoke(s));
+  BOOST_CHECK_NO_THROW(s.invoke());
   BOOST_CHECK(os.is_equal(test_text));
 }
 
