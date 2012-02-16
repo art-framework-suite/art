@@ -1,9 +1,11 @@
-#ifndef art_Framework_Services_Registry_detail_SignalRsponseType_h
-#define art_Framework_Services_Registry_detail_SignalRsponseType_h
+#ifndef art_Framework_Services_Registry_detail_SignalResponseType_h
+#define art_Framework_Services_Registry_detail_SignalResponseType_h
 
 // Definition for ActivityRegistry and friends of the two available
 // signal response types and a suitable overload set for a function to
 // connect a slot to a signal in the desired way.
+
+#include "cpp0x/type_traits"
 
 namespace art {
   namespace detail {
@@ -19,7 +21,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_Services_Registry_detail_SignalRsponseType_h */
+#endif /* art_Framework_Services_Registry_detail_SignalResponseType_h */
 
 // Local Variables:
 // mode: c++
