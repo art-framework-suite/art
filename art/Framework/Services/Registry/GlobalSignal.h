@@ -1,15 +1,14 @@
 #ifndef art_Framework_Services_Registry_GlobalSignal_h
 #define art_Framework_Services_Registry_GlobalSignal_h
 
-// Define a wrapper for global signals. invoke() and clear() signals are
-// private and to be called only be art::ActivityRegistry.
+// Define a wrapper for global signals. The invoke() and clear() signals
+// are intended to be called only be art::ActivityRegistry.
 
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 #include "cpp0x/functional"
-#include "cpp0x/type_traits"
 #include "sigc++/signal.h"
 
-#if ! (GCC_IS_AT_LEAST(4, 7, 0))
+#if ! ( defined (ART_NO_FIXED_VARIADIC_EXPANSION) || (GCC_IS_AT_LEAST(4, 7, 0)) )
 #define ART_NO_FIXED_VARIADIC_EXPANSION
 #endif
 
@@ -21,12 +20,10 @@ namespace art {
 #else
   template <detail::SignalResponseType, typename ReturnType, typename... Args > class GlobalSignal;
 #endif
-
-  // Forward declaration for friend declaration only.
-  class ActivityRegistry;
 }
 
 #ifdef ART_NO_FIXED_VARIADIC_EXPANSION
+// Zero argument callbacks.
 template <art::detail::SignalResponseType STYPE, typename ReturnType>
 class art::GlobalSignal<STYPE, ReturnType> {
 private:
@@ -56,7 +53,7 @@ public:
 private:
   SigType_ signal_;
 };
-
+// One argument callbacks.
 template <art::detail::SignalResponseType STYPE, typename ReturnType, typename A1> class art::GlobalSignal<STYPE, ReturnType, A1> {
 private:
   typedef sigc::signal<ReturnType, A1> SigType_;
@@ -85,7 +82,7 @@ public:
 private:
   SigType_ signal_;
 };
-
+// Two argument callbacks.
 template <art::detail::SignalResponseType STYPE, typename ReturnType, typename A1, typename A2> class art::GlobalSignal {
 private:
   typedef sigc::signal<ReturnType, A1, A2> SigType_;
@@ -116,7 +113,7 @@ private:
 };
 #else
 // For when variadic templates work per C++ 2011.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args >
+template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
 class art::GlobalSignal {
 private:
   typedef sigc::signal<ReturnType, Args...> SigType_;
