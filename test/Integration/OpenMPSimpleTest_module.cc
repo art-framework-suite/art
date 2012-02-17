@@ -12,21 +12,22 @@
 
 #include "boost/test/included/unit_test.hpp"
 
+#include "omp.h"
+
 namespace arttest {
   class OpenMPSimpleTest;
 }
 
 extern "C" {
-   size_t openmpTestFunc(size_t numLoops, size_t mult) {
-      size_t total = 0;
-#pragma omp for
-      for (size_t i = 0; i<numLoops; ++i) {
-         size_t j = i * mult;
-#pragma omp critical(sec1)
-         total += j;
-      }
-      return total;
-   }
+  size_t openmpTestFunc(size_t numLoops, size_t mult) {
+    size_t total = 0;
+#pragma omp parallel for reduction(+:total)
+    for (size_t i = 0; i<numLoops; ++i) {
+      total += i * mult;
+      std::cerr << omp_get_thread_num() << "\n";
+    }
+    return total;
+  }
 }
 
 class arttest::OpenMPSimpleTest : public art::EDAnalyzer {
@@ -51,8 +52,8 @@ arttest::OpenMPSimpleTest::~OpenMPSimpleTest()
 
 void arttest::OpenMPSimpleTest::analyze(art::Event const &)
 {
-   size_t total = openmpTestFunc(10, 20);
-   BOOST_REQUIRE_EQUAL(total, 900ul);
+  size_t total = openmpTestFunc(10, 20);
+  BOOST_REQUIRE_EQUAL(total, 900ul);
 }
 
 DEFINE_ART_MODULE(arttest::OpenMPSimpleTest)

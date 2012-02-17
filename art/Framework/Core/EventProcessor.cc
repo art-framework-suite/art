@@ -297,10 +297,10 @@ art::EventProcessor::beginJob()
                              " processing the beginJob of the 'source'\n";
     throw;
   }
-for (auto & s : schedules_) { s->beginJob(); }
+  for (auto & s : schedules_) { s->beginJob(); }
   actReg_->sPostBeginJob_();
   Schedule::Workers aw_vec;
-for (auto & s : schedules_) { s->getAllWorkers(aw_vec); }
+  for (auto & s : schedules_) { s->getAllWorkers(aw_vec); }
   actReg_->sPostBeginJobWorkers_(input_.get(), aw_vec);
 }
 
@@ -312,7 +312,7 @@ art::EventProcessor::endJob()
   // Make the services available
   ServiceRegistry::Operate operate(serviceToken_);
   c.call(std::bind(&EventProcessor::terminateMachine, this));
-for (auto & s : schedules_) { c.call(std::bind(&Schedule::endJob, s.get())); }
+  for (auto & s : schedules_) { c.call(std::bind(&Schedule::endJob, s.get())); }
   c.call(std::bind(&InputSource::doEndJob, input_));
   c.call(std::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->sPostEndJob_));
 }
@@ -545,37 +545,37 @@ art::EventProcessor::closeInputFile()
 
 void art::EventProcessor::openOutputFiles()
 {
-for (auto & s : schedules_) { s->openOutputFiles(*fb_); }
+  for (auto & s : schedules_) { s->openOutputFiles(*fb_); }
   FDEBUG(1) << "\topenOutputFiles\n";
 }
 
 void art::EventProcessor::closeOutputFiles()
 {
-for (auto & s : schedules_) { s->closeOutputFiles(); }
+  for (auto & s : schedules_) { s->closeOutputFiles(); }
   FDEBUG(1) << "\tcloseOutputFiles\n";
 }
 
 void art::EventProcessor::respondToOpenInputFile()
 {
-for (auto & s : schedules_) { s->respondToOpenInputFile(*fb_); }
+  for (auto & s : schedules_) { s->respondToOpenInputFile(*fb_); }
   FDEBUG(1) << "\trespondToOpenInputFile\n";
 }
 
 void art::EventProcessor::respondToCloseInputFile()
 {
-for (auto & s : schedules_) { s->respondToCloseInputFile(*fb_); }
+  for (auto & s : schedules_) { s->respondToCloseInputFile(*fb_); }
   FDEBUG(1) << "\trespondToCloseInputFile\n";
 }
 
 void art::EventProcessor::respondToOpenOutputFiles()
 {
-for (auto & s : schedules_) { s->respondToOpenOutputFiles(*fb_); }
+  for (auto & s : schedules_) { s->respondToOpenOutputFiles(*fb_); }
   FDEBUG(1) << "\trespondToOpenOutputFiles\n";
 }
 
 void art::EventProcessor::respondToCloseOutputFiles()
 {
-for (auto & s : schedules_) { s->respondToCloseOutputFiles(*fb_); }
+  for (auto & s : schedules_) { s->respondToCloseOutputFiles(*fb_); }
   FDEBUG(1) << "\trespondToCloseOutputFiles\n";
 }
 
@@ -605,7 +605,7 @@ void art::EventProcessor::prepareForNextLoop()
 void art::EventProcessor::writeSubRunCache()
 {
   while (!principalCache_.noMoreSubRuns()) {
-  for (auto & s : schedules_) { s->writeSubRun(principalCache_.lowestSubRun()); }
+    for (auto & s : schedules_) { s->writeSubRun(principalCache_.lowestSubRun()); }
     principalCache_.deleteLowestSubRun();
   }
   FDEBUG(1) << "\twriteSubRunCache\n";
@@ -614,7 +614,7 @@ void art::EventProcessor::writeSubRunCache()
 void art::EventProcessor::writeRunCache()
 {
   while (!principalCache_.noMoreRuns()) {
-  for (auto & s : schedules_) { s->writeRun(principalCache_.lowestRun()); }
+    for (auto & s : schedules_) { s->writeRun(principalCache_.lowestRun()); }
     principalCache_.deleteLowestRun();
   }
   FDEBUG(1) << "\twriteRunCache\n";
@@ -626,7 +626,7 @@ bool art::EventProcessor::shouldWeCloseOutput() const
   return
     (std::find_if(schedules_.begin(),
                   schedules_.end(),
-  [](std::unique_ptr<Schedule> const & s) { return s->shouldWeCloseOutput(); }
+                  [](std::unique_ptr<Schedule> const & s) { return s->shouldWeCloseOutput(); }
                  ) != schedules_.end());
 }
 
@@ -644,7 +644,7 @@ void art::EventProcessor::doErrorStuff()
 void art::EventProcessor::beginRun(int run)
 {
   RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal); }
+  for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal); }
   FDEBUG(1) << "\tbeginRun " << run << "\n";
 }
 
@@ -652,7 +652,7 @@ void art::EventProcessor::endRun(int run)
 {
   RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
   //input_->doEndRun(runPrincipal);
-for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal); }
+  for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal); }
   FDEBUG(1) << "\tendRun " << run << "\n";
 }
 
@@ -661,7 +661,7 @@ void art::EventProcessor::beginSubRun(int run, int subRun)
   SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
   // NOTE: Using 0 as the event number for the begin of a subRun block is a bad idea
   // subRun blocks know their start and end times why not also start and end events?
-for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal); }
+  for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal); }
   FDEBUG(1) << "\tbeginSubRun " << run << "/" << subRun << "\n";
 }
 
@@ -670,7 +670,7 @@ void art::EventProcessor::endSubRun(int run, int subRun)
   SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
   //NOTE: Using the max event number for the end of a subRun block is a bad idea
   // subRun blocks know their start and end times why not also start and end events?
-for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal); }
+  for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal); }
   FDEBUG(1) << "\tendSubRun " << run << "/" << subRun << "\n";
 }
 
@@ -694,7 +694,7 @@ int art::EventProcessor::readAndCacheSubRun()
 
 void art::EventProcessor::writeRun(int run)
 {
-for (auto & s : schedules_) { s->writeRun(principalCache_.runPrincipal(run)); }
+  for (auto & s : schedules_) { s->writeRun(principalCache_.runPrincipal(run)); }
   FDEBUG(1) << "\twriteRun " << run << "\n";
 }
 
@@ -706,7 +706,7 @@ void art::EventProcessor::deleteRunFromCache(int run)
 
 void art::EventProcessor::writeSubRun(int run, int subRun)
 {
-for (auto & s : schedules_) { s->writeSubRun(principalCache_.subRunPrincipal(run, subRun)); }
+  for (auto & s : schedules_) { s->writeSubRun(principalCache_.subRunPrincipal(run, subRun)); }
   FDEBUG(1) << "\twriteSubRun " << run << "/" << subRun << "\n";
 }
 
@@ -724,7 +724,7 @@ void art::EventProcessor::readEvent()
 
 void art::EventProcessor::processEvent()
 {
-for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_); }
+  for (auto & s : schedules_) { s->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_); }
   FDEBUG(1) << "\tprocessEvent\n";
 }
 
@@ -734,7 +734,7 @@ bool art::EventProcessor::shouldWeStop() const
   if (shouldWeStop_) { return true; }
   return (find_if(schedules_.begin(),
                   schedules_.end(),
-  [](std::unique_ptr<Schedule> const & s) { return s->terminate(); }
+                  [](std::unique_ptr<Schedule> const & s) { return s->terminate(); }
                  ) != schedules_.end());
 }
 
@@ -793,25 +793,16 @@ void
 art::EventProcessor::createSchedules(size_t numSchedules,
                                      fhicl::ParameterSet const & schedulePSet)
 {
-  #pragma omp parallel
-  {
-    #pragma omp single
+  for (size_t i = 0; i < numSchedules; ++i) {
     {
-      for (size_t i = 0; i < numSchedules; ++i) {
-        #pragma omp task
-        {
-          std::unique_ptr<Schedule>
-          sp(new Schedule(schedulePSet,
-          ServiceRegistry::instance().get<art::TriggerNamesService>(),
-          wreg_,
-          preg_,
-          act_table_,
-          actReg_));
-          #pragma omp critical
-          schedules_.push_back(std::move(sp));
-        }
-      }
+      std::unique_ptr<Schedule>
+        sp(new Schedule(schedulePSet,
+                        ServiceRegistry::instance().get<art::TriggerNamesService>(),
+                        wreg_,
+                        preg_,
+                        act_table_,
+                        actReg_));
+      schedules_.push_back(std::move(sp));
     }
-    #pragma omp taskwait
   }
 }

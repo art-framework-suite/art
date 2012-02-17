@@ -111,16 +111,16 @@ int art::run_art(intermediate_table raw_config,
               << "------------------------------------"
               << "\n";
     for (extended_value::table_t::const_iterator
-         i = raw_config.begin(),
-         end_iter = raw_config.end();
+           i = raw_config.begin(),
+           end_iter = raw_config.end();
          i != end_iter;
          ++i) {
       std::cerr << i->first << ": " << i->second.to_string() << "\n";
     }
     std::cerr
-        << "------------------------------------"
-        << "------------------------------------"
-        << "\n";
+      << "------------------------------------"
+      << "------------------------------------"
+      << "\n";
     return 7003;
   }
   char const * debug_config = getenv("ART_DEBUG_CONFIG");
@@ -131,6 +131,7 @@ int art::run_art(intermediate_table raw_config,
   }
   ParameterSet services_pset = main_pset.get<ParameterSet>("services", ParameterSet());
   ParameterSet scheduler_pset = services_pset.get<ParameterSet>("scheduler", ParameterSet());
+  int rc = -1;
   //
   // Start the messagefacility
   //
@@ -160,11 +161,10 @@ int art::run_art(intermediate_table raw_config,
   // Now create the EventProcessor
   //
   EventProcessorWithSentry proc;
-  int rc = -1;
   try {
     std::auto_ptr<art::EventProcessor>
-    procP(new
-          art::EventProcessor(main_pset));
+      procP(new
+            art::EventProcessor(main_pset));
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
@@ -195,4 +195,4 @@ int art::run_art(intermediate_table raw_config,
     art::printUnknownException("art"); // , "Thing5", rc);
   }
   return rc;
-}  // artapp
+}  // run_art
