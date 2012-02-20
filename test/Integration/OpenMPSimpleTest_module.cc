@@ -24,7 +24,6 @@ extern "C" {
 #pragma omp parallel for reduction(+:total)
     for (size_t i = 0; i<numLoops; ++i) {
       total += i * mult;
-      std::cerr << omp_get_thread_num() << "\n";
     }
     return total;
   }
