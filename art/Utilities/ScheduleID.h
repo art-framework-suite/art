@@ -32,6 +32,7 @@ private:
   id_type id_;
 };
 
+inline
 art::ScheduleID::ScheduleID(int64_t id)
   : id_((id < min_id() || id > max_id())
         ? throw std::out_of_range("art::ScheduleID: Invalid initializer.")
