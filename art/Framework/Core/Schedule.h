@@ -79,6 +79,7 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
+#include "art/Utilities/ScheduleID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/trim.h"
@@ -122,9 +123,8 @@ namespace art {
              WorkerRegistry & wregistry,
              MasterProductRegistry & pregistry,
              ActionTable & actions,
-             std::shared_ptr<ActivityRegistry> areg);
-
-
+             std::shared_ptr<ActivityRegistry> areg,
+             ScheduleID sID);
 
     template <typename T>
     void processOneOccurrence(typename T::MyPrincipal & principal);
@@ -269,6 +269,8 @@ namespace art {
     RunStopwatch::StopwatchPointer stopwatch_;
 
     volatile bool       endpathsAreActive_;
+
+    ScheduleID const id_;
   };
 
   inline

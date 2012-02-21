@@ -801,7 +801,8 @@ art::EventProcessor::createSchedules(size_t numSchedules,
                         wreg_,
                         preg_,
                         act_table_,
-                        actReg_));
+                        actReg_,
+                        ScheduleID(i)));
       schedules_.push_back(std::move(sp));
     }
   }

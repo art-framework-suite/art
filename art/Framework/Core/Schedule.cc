@@ -80,7 +80,8 @@ namespace art {
                      WorkerRegistry & wreg,
                      MasterProductRegistry & pregistry,
                      ActionTable & actions,
-                     std::shared_ptr<ActivityRegistry> areg):
+                     std::shared_ptr<ActivityRegistry> areg,
+                     ScheduleID sID):
     process_pset_(proc_pset),
     worker_reg_(&wreg),
     act_table_(&actions),
@@ -101,7 +102,8 @@ namespace art {
     total_events_(),
     total_passed_(),
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
-    endpathsAreActive_(true)
+    endpathsAreActive_(true),
+    id_(sID)
   {
     assert(actReg_);
     ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
