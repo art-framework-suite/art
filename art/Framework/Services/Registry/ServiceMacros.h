@@ -5,21 +5,29 @@
 // ServiceMacros : define the macros used to declare an ART service.
 //
 // All user services:
-// DEFINE_ART_{GLOBAL,PERSCHEDULE}_SERVICE
+//   DEFINE_ART_{GLOBAL,PERSCHEDULE}_SERVICE(My::Service)
 //
-// Some system services (special construction).
-// DEFINE_ART_{GLOBAL,PERSCHEDULE}_SYSTEM_SERVICE
+// Some system services (special construction) will use:
+//   DEFINE_ART_{GLOBAL,PERSCHEDULE}_SYSTEM_SERVICE(My::Service)
+//
+// The following macros are deprecated but still honored:
+//
+//   * DEFINE_ART_SERVICE is a deprecated synonym for
+//   DEFINE_ART_GLOBAL_SERVICE;
+//
+//   * DEFINE_ART_SYSTEM_SERVICE is a deprecated synonym for
+//   DEFINE_ART_GLOBAL_SYSTEM_SERVICE.
 //
 // All user services must have one of the following two constructors
 // depending on their type:
 //
 // GLOBAL:
-// MyService(fhicl::ParameterSet const &, art::ActivityRegistry &);
+//   MyService(fhicl::ParameterSet const &, art::ActivityRegistry &);
 //
 // PERSCHEDULE:
-// MyService(fhicl::ParameterSet const &,
-//           art::ActivityRegistry &,
-//           art::ScheduleID);
+//   MyService(fhicl::ParameterSet const &,
+//             art::ActivityRegistry &,
+//             art::ScheduleID);
 //
 // GLOBAL services *must* be safe against calls from multiple schedules
 // at the same time, but may register for callbacks for per-schedule
