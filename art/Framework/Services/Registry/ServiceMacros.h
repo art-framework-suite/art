@@ -59,49 +59,31 @@
     return art::ServiceScope::scope;            \
   }
 
-#define DEFINE_ART_GLOBAL_SERVICE_INT(klass)                            \
-  DEFINE_ART_SERVICE_SCOPE(GLOBAL)                                      \
+#define DEFINE_ART_SERVICE_INT(klass)                                   \
   extern "C" std::auto_ptr<art::ServiceWrapperBase>                     \
   make(fhicl::ParameterSet const & cfg, art::ActivityRegistry & reg)    \
   {                                                                     \
     return std::auto_ptr<art::ServiceWrapperBase>                       \
-           (new art::ServiceWrapper<klass>                                   \
-            (std::auto_ptr<klass>(new klass(cfg,reg))                        \
-            )                                                                \
-           );                                                                \
-  }
-
-#define DEFINE_ART_PERSCHEDULE_SERVICE_INT(klass)                       \
-  DEFINE_ART_SERVICE_SCOPE(PER_SCHEDULE)                                \
-  extern "C" std::vector<std::unique_ptr<art::ServiceWrapperBase>>      \
-      make(fhicl::ParameterSet const & cfg,                                 \
-           art::ActivityRegistry & reg,                                     \
-           size_t numSchedules)                                             \
-  {                                                                     \
-    std::vector<std::unique_ptr<art::ServiceWrapperBase>> result;       \
-    result.reserve(numSchedules);                                       \
-    for (size_t sID = 0; sID < numSchedules; ++sID)                     \
-    {                                                                   \
-      result.emplace_back(new art::ServiceWrapper<klass>                \
-                          (std::auto_ptr<klass>                         \
-                           (new klass(cfg, reg, ScheduleID(sID)))       \
-                          )                                             \
-                         );                                             \
-    }                                                                   \
+      (new art::ServiceWrapper<klass>                                   \
+       (std::auto_ptr<klass>(new klass(cfg,reg))                        \
+       )                                                                \
+      );                                                                \
   }
 
 ////////////////////////////////////////////////////////////////////////
 // New macros
 #define DEFINE_ART_GLOBAL_SERVICE(klass)         \
-  DEFINE_ART_GLOBAL_SERVICE_INT(klass)           \
+  DEFINE_ART_SERVICE_SCOPE(GLOBAL)               \
+  DEFINE_ART_SERVICE_INT(klass)                  \
   DEFINE_ART_SERVICE_HOOK(klass)
 
 #define DEFINE_ART_GLOBAL_SYSTEM_SERVICE(klass) \
   DEFINE_ART_SERVICE_SCOPE(GLOBAL)              \
   DEFINE_ART_SERVICE_HOOK(klass)
 
-#define DEFINE_ART_PERSCHEDULE_SERVICE(klass) \
-  DEFINE_ART_PERSCHEDULE_SERVICE_INT(klass)   \
+#define DEFINE_ART_PERSCHEDULE_SERVICE(klass)    \
+  DEFINE_ART_SERVICE_SCOPE(GLOBAL)               \
+  DEFINE_ART_SERVICE_INT(klass)                  \
   DEFINE_ART_SERVICE_HOOK(klass)
 
 #define DEFINE_ART_PERSCHEDULE_SYSTEM_SERVICE(klass) \
