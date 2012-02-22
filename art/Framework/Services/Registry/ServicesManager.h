@@ -28,7 +28,7 @@
 
 namespace art {
 
-   typedef std::auto_ptr<art::ServiceWrapperBase> (*MAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
+  typedef std::auto_ptr<art::ServiceWrapperBase> (*SERVICEMAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
 
   class ServiceToken;
 
@@ -38,8 +38,9 @@ namespace art {
     ServicesManager( ServicesManager const & );
     void operator = ( ServicesManager const & );
 
-  public:
+public:
     typedef  std::vector<fhicl::ParameterSet>       ParameterSets;
+private:
     typedef  std::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
     class Cache;
 
@@ -53,7 +54,7 @@ namespace art {
     class Cache
     {
     public:
-      Cache(fhicl::ParameterSet const & pset, TypeID id, MAKER_t maker):
+      Cache(fhicl::ParameterSet const & pset, TypeID id, SERVICEMAKER_t maker):
         config_(pset), typeinfo_(id), make_(maker), service_()
       { }
 
@@ -90,7 +91,7 @@ namespace art {
     private:
       fhicl::ParameterSet config_;
       TypeID typeinfo_;
-      MAKER_t make_;
+      SERVICEMAKER_t make_;
       WrapperBase_ptr service_;
 
       void makeAndCacheService(ActivityRegistry &reg) {
@@ -139,7 +140,7 @@ namespace art {
     // Takes the services described by iToken and places them into the manager.
     // Conflicts over Services provided by both the iToken and iConfiguration
     // are resolved based on the value of iLegacy
-
+public:
     ServicesManager( ParameterSets       const & psets
                    , art::LibraryManager const &
                    );
