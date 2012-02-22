@@ -52,6 +52,7 @@ simple_plugin(PtrmvProducer              "module" NOINSTALL )
 simple_plugin(RandomNumberSaveTest       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Reconfigurable             "service" NOINSTALL )
 simple_plugin(Reconfiguring              "module" NOINSTALL )
+simple_plugin(ServiceUsing               "service" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer      "module" NOINSTALL )
 simple_plugin(SimpleDerivedProducer      "module" NOINSTALL )
 simple_plugin(TestBitsOutput             "module" NOINSTALL )
@@ -690,6 +691,13 @@ cet_test(AssnsFastClone_w HANDBUILT
   DATAFILES
   fcl/AssnsFastClone_w.fcl
   TEST_PROPERTIES DEPENDS Assns_w
+)
+
+cet_test(ServiceUsingService_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "ServiceUsingService_t.fcl"
+  DATAFILES
+  fcl/ServiceUsingService_t.fcl
 )
 
 ########################################################################

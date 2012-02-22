@@ -205,14 +205,8 @@ namespace art {
     // special construction
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
     serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
-    // May be able to do this with CurrentModule serive, else might need
-    // small service to configure the ContextProvider of the
-    // MessageFacility.
-    // serviceToken_.add(std::auto_ptr<MessageLogger>(new
-    // MessageLogger(logger_pset,*actReg_)));
-    serviceToken_.forceCreation(*actReg_);
-    //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
+    serviceToken_.forceCreation(*actReg_);
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
     // Old input sources may need this for now.
