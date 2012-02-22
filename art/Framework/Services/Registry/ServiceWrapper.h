@@ -8,17 +8,24 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cpp0x/memory"
 #include "cpp0x/type_traits"
 
 namespace art {
-  template< class T >
+  template <typename T, ServiceScope SCOPE = ServiceScope::GLOBAL>
     class ServiceWrapper;
 
-  namespace detail {
+  // Partially specialized templates.
+  template <typename T>
+  class ServiceWrapper<T, ServiceScope::GLOBAL>;
 
+  template <typename T>
+  class ServiceWrapper<T, ServiceScope::PER_SCHEDULE>;
+
+  namespace detail {
     template <typename T, void (T::*)(fhicl::ParameterSet const&)>  struct reconfig_function;
     template <typename T> no_tag  has_reconfig_helper(...);
     template <typename T> yes_tag has_reconfig_helper(reconfig_function<T, &T::reconfigure> * dummy);
@@ -44,17 +51,13 @@ namespace art {
   }
 }
 
-
-
-// ----------------------------------------------------------------------
-
-template< class T >
-class art::ServiceWrapper
+template <typename T>
+class art::ServiceWrapper<T, art::ServiceScope::GLOBAL>
   : public ServiceWrapperBase
 {
   // non-copyable:
-  ServiceWrapper( ServiceWrapper const & );
-  void operator = ( ServiceWrapper const & );
+  ServiceWrapper( ServiceWrapper const & ) = delete;
+  void operator = ( ServiceWrapper const & ) = delete;
 
 public:
   // c'tor:
@@ -63,11 +66,8 @@ public:
   , service_ptr_      ( service_ptr )  // take ownership
   { }
 
-  // use compiler-generated (virtual) d'tor
-
   // accessor:
-  T &
-    get() const { return *service_ptr_; }
+  T & get() const { return *service_ptr_; }
 
   void reconfigure(fhicl::ParameterSet const& n)
   {
@@ -79,8 +79,14 @@ public:
 
 private:
   std::auto_ptr<T> service_ptr_;
+};
 
-};  // ServiceWrapper<>
+template <typename T>
+class art::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE>
+  : public ServiceWrapperBase
+{
+
+};
 
 // ======================================================================
 
