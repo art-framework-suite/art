@@ -17,9 +17,6 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-  template< typename T >
-    class ServiceWrapper;
-
   class ServiceRegistry
   {
     // non-copyable:
@@ -86,75 +83,6 @@ namespace art {
     static ServiceToken createSet(ParameterSets const &,
                                   ServiceToken,
                                   ServiceLegacy);
-
-    // create a service token that holds the service defined by iService
-    template<class T>
-    static ServiceToken
-      createContaining( std::auto_ptr<T> iService )
-    {
-      ParameterSets config;
-      typedef ServiceWrapper<T> SW;
-
-      std::shared_ptr<SM> manager( new SM( config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
-      std::shared_ptr<SW> wrapper( new SW(iService) );
-
-      manager->put(wrapper);
-      return manager;
-    }
-
-    template< class T >
-    static ServiceToken
-      createContaining( std::auto_ptr<T> iService
-                      , ServiceToken iToken
-                      , ServiceLegacy iLegacy
-                      )
-    {
-      ParameterSets config;
-      typedef ServiceWrapper<T> SW;
-
-      std::shared_ptr<SM> manager( new SM( iToken
-                                           , iLegacy
-                                           , config
-                                           , ServiceRegistry::instance().lm_
-                                   )       );
-      std::shared_ptr<SW> wrapper( new SW(iService));
-
-      manager->put(wrapper);
-      return manager;
-    }
-
-    // create a service token that holds the service held by iWrapper
-    template< class T >
-    static ServiceToken
-      createContaining( std::shared_ptr<ServiceWrapper<T> > wrap )
-    {
-      ParameterSets config;
-      std::shared_ptr<SM> manager( new SM( config
-                                         , ServiceRegistry::instance().lm_
-                                 )       );
-      manager->put(wrap);
-      return manager;
-    }
-
-    template<class T>
-    static ServiceToken
-      createContaining( std::shared_ptr<ServiceWrapper<T> > wrap
-                      , ServiceToken iToken
-                      , ServiceLegacy iLegacy
-                      )
-    {
-      ParameterSets config;
-      std::shared_ptr<SM> manager( new SM( iToken
-                                         , iLegacy
-                                         , config
-                                         , ServiceRegistry::instance().lm_
-                                 )       );
-
-      manager->put(wrap);
-      return manager;
-    }
 
   private:
     // returns old token

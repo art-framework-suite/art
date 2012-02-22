@@ -236,16 +236,14 @@ int main()
 
   // Now create and setup the service
   typedef art::TriggerNamesService TNS;
-  typedef ServiceWrapper<TNS> w_TNS;
 
-  std::shared_ptr<w_TNS> tnsptr
-    (new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
+  ServiceToken serviceToken_ =
+    ServiceRegistry::createSet(ServiceRegistry::ParameterSets());
 
-  ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);
+  serviceToken_.add(std::auto_ptr<TNS>(new TNS(proc_pset)));
 
   //make the services available
   ServiceRegistry::Operate operate(serviceToken_);
-
 
   // We are ready to run some tests
 
