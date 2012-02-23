@@ -1,22 +1,16 @@
 // Service to make sure we can use another service.
 
-#include "art/Framework/Services/System/CurrentModule.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "test/Integration/ServiceUsing.h"
 
-namespace arttest {
-  class ServiceUsing;
-}
-
-class arttest::ServiceUsing {
-public:
-  ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry &);
-};
-
+void
 arttest::ServiceUsing::
-ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry &)
+maybeGetNewValue(std::string const & service_name)
 {
-  art::ServiceHandle<art::CurrentModule>();
+  static std::string const watched_service("Reconfigurable");
+  if (service_name == watched_service) {
+    cached_debug_value_ = getNewValue();
+  }
 }
 
 DEFINE_ART_SERVICE(arttest::ServiceUsing)

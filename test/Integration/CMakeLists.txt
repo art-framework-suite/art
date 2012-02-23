@@ -60,6 +60,7 @@ simple_plugin(TestFilter                 "module" NOINSTALL )
 simple_plugin(TestOutput                 "module" NOINSTALL )
 simple_plugin(TestProvenanceDumper       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer         "module" NOINSTALL )
+simple_plugin(TestServiceUsingService    "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Throwing                   "service" NOINSTALL )
 simple_plugin(ToyRawInput                "source" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ToyRawInputTester          "module" NOINSTALL )
@@ -693,11 +694,19 @@ cet_test(AssnsFastClone_w HANDBUILT
   TEST_PROPERTIES DEPENDS Assns_w
 )
 
-cet_test(ServiceUsingService_t HANDBUILT
+cet_test(ServiceUsingService_01_t HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS -c "ServiceUsingService_t.fcl"
+  TEST_ARGS -c "ServiceUsingService_01.fcl"
   DATAFILES
-  fcl/ServiceUsingService_t.fcl
+  fcl/ServiceUsingService_01.fcl
+)
+
+cet_test(ServiceUsingService_02_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "ServiceUsingService_02.fcl"
+  DATAFILES
+  fcl/test_reconfig_01.fcl
+  fcl/ServiceUsingService_02.fcl
 )
 
 ########################################################################

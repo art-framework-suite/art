@@ -133,6 +133,8 @@ art::ActivityRegistry::connect(ActivityRegistry& iOther)
 
    preModuleEndJobSignal_.connect(iOther.preModuleEndJobSignal_);
    postModuleEndJobSignal_.connect(iOther.postModuleEndJobSignal_);
+
+   postServiceReconfigureSignal_.connect(iOther.postServiceReconfigureSignal_);
 }
 
 void
@@ -213,4 +215,6 @@ art::ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther)
   copySlotsToFromReverse(postModuleEndJobSignal_,iOther.postModuleEndJobSignal_);
 
   copySlotsToFromReverse(postBeginJobWorkersSignal_,iOther.postBeginJobWorkersSignal_);
+
+  copySlotsToFrom(postServiceReconfigureSignal_,iOther.postServiceReconfigureSignal_);
 }

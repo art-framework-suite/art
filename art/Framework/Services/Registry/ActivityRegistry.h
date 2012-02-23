@@ -490,6 +490,14 @@ public:
   }
   AR_DECL_STATE_1_ARG_FUNC(PostModuleEndSubRun)
 
+  // Signal emitted any time a service gets reconfigured.
+    typedef sigc::signal<void, std::string const &> PostServiceReconfigure;
+  PostServiceReconfigure postServiceReconfigureSignal_;
+  void watchPostServiceReconfigure(PostServiceReconfigure::slot_type const & iSlot) {
+    postServiceReconfigureSignal_.connect(iSlot);
+  }
+  AR_DECL_STATE_1_ARG_FUNC(PostServiceReconfigure)
+
   // ---------- member functions ---------------------------
 
   // Forwards our signals to slots connected to iOther

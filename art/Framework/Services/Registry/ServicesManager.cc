@@ -89,6 +89,10 @@ void ServicesManager::forceCreation(ActivityRegistry& reg)
       if(c!=factory_.end()) c->second.forceCreation(reg);
       // JBK - should an exception be thrown if name not found in map?
     }
+  // Need to make sure we can invoke a signal here and have it passed
+  // everywhere it needs to be.
+  registry_.postServiceReconfigureSignal_.
+    connect(reg.postServiceReconfigureSignal_);
 }
 
 void ServicesManager::getParameterSets(ParameterSets& out) const
@@ -109,8 +113,15 @@ void ServicesManager::putParameterSets(ParameterSets const& n)
     {
       string service_name = cur->get<string>("service_type","junk");
       NameIndex::iterator ii = index_.find(service_name);
-      if(ii!=index_.end())
+      if (ii!=index_.end()) {
         (ii->second)->second.putParameterSet(*cur);
+        // Note that we're invoking the signal on the *local*
+        // ActivityRegistry. This signal needs to be connected to the
+        // one in the EventProcessor's ActivityRegistry (see
+        // forceCreation() above) in order for the invocation to reach
+        // all the registered slots.
+        registry_.postServiceReconfigureSignal_(service_name);
+      }
     }
 }
 

@@ -4,8 +4,7 @@ services:
 {
   user:
   {
-    ServiceUsing:
-    {
-    }
+    Reconfigurable: { }
+    ServiceUsing: { }
   }
 }

@@ -1,0 +1,6 @@
+#include "test_reconfig_01.fcl"
+
+services.user.ServiceUsing: { }
+
+physics.analyzers.a2: { module_type: TestServiceUsingService }
+physics.e1: [ a1, a2 ]
