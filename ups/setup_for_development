@@ -53,7 +53,7 @@ test -z "$1" && setenv CETPKG_QUAL "$defaultqual"
 # e1 is a special case
 test "$1" = "e1" && set_ hybridqual=$1 && set_ rootqual=gcc46
 
-echo "called with $type, using qualifiers +$CETPKG_QUAL$extraqual and +$hybridqual$extraqual"
+echo "called with $type, using qualifiers +$CETPKG_QUAL$extraqual, $defaultqual$extraqual, $rootqual$extraqual, and +$hybridqual$extraqual"
 
 # now is if we were passed a path or if not, if we can figure it out (maybe if we are interactive)
 #   bash, zsh, ksh and tcsh pass params to a source file, csh does not. but someone will be writing csh scripts
@@ -77,9 +77,11 @@ test -d "$thisdir/lib" || mkdir -p $thisdir/lib
 test -d "$thisdir/bin" || mkdir -p $thisdir/bin
 echo The working build directory is $thisdir
 
+echo ----------- check this block for errors -----------------------
 # we setup dependent products here
 setenv UPS_OPTIONS -B
 source $CETPKG_SOURCE/ups/product_list
+echo ----------------------------------------------------------------
 
 echo Define LD_LIBRARY_PATH
 tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${CETPKG_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
