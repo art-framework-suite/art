@@ -13,6 +13,7 @@
 #include "boost/test/included/unit_test.hpp"
 #include "test/Integration/Reconfigurable.h"
 #include "test/Integration/ServiceUsing.h"
+#include "test/Integration/Wanted.h"
 
 namespace arttest {
   class TestServiceUsingService;
@@ -55,10 +56,13 @@ void arttest::TestServiceUsingService::beginJob()
 
 void arttest::TestServiceUsingService::endJob()
 {
+  art::ServiceHandle<Reconfigurable> reconfigurable;
+  BOOST_CHECK(reconfigurable->postBeginJobCalled());
+  BOOST_CHECK(art::ServiceHandle<Wanted>()->postBeginJobCalled());
+
   int const current_value = art::ServiceHandle<ServiceUsing>()->getCachedValue();
   BOOST_CHECK_NE(debug_level_, current_value);
-  BOOST_CHECK_EQUAL(art::ServiceHandle<Reconfigurable>()->get_debug_level(),
-                      current_value);
+  BOOST_CHECK_EQUAL(reconfigurable->get_debug_level(), current_value);
 }
 
 DEFINE_ART_MODULE(arttest::TestServiceUsingService)

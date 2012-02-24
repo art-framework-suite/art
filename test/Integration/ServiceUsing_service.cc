@@ -2,6 +2,16 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "test/Integration/ServiceUsing.h"
+#include "test/Integration/Wanted.h"
+
+arttest::ServiceUsing::
+ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry & reg )
+  :
+  cached_debug_value_(getNewValue()) // Uses ServiceHandle<Reconfigurable>
+{
+  (void) art::ServiceHandle<Wanted>(); // Required to force construction.
+  reg.watchPostServiceReconfigure(this, &arttest::ServiceUsing::maybeGetNewValue);
+}
 
 void
 arttest::ServiceUsing::

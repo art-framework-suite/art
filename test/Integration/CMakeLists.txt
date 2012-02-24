@@ -66,6 +66,7 @@ simple_plugin(ToyRawInput                "source" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ToyRawInputTester          "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer      "module" NOINSTALL )
 simple_plugin(U_S                        "module" ALLOW_UNDERSCORES NOINSTALL )
+simple_plugin(Wanted                     "service" NOINSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 

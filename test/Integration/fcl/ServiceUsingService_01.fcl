@@ -6,5 +6,6 @@ services:
   {
     Reconfigurable: { }
     ServiceUsing: { }
+    Wanted: { }
   }
 }

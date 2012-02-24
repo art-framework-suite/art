@@ -21,9 +21,15 @@ public:
   void reconfigure(fhicl::ParameterSet const& cfg);
   int get_debug_level() { return debug_level_; }
 
+  bool postBeginJobCalled() const { return postBeginJobCalled_; }
+
 private:
+  void postBeginJob();
+
   int debug_level_;
   int other_value_;
+
+  bool postBeginJobCalled_;
 
 };
 

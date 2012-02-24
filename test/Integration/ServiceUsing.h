@@ -33,15 +33,6 @@ getCachedValue() const
 }
 
 inline
-arttest::ServiceUsing::
-ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry & reg )
-  :
-  cached_debug_value_(getNewValue())
-{
-  reg.watchPostServiceReconfigure(this, &arttest::ServiceUsing::maybeGetNewValue);
-}
-
-inline
 int
 arttest::ServiceUsing::
 getNewValue()
