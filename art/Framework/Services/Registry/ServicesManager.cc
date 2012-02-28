@@ -6,8 +6,6 @@
 
 #include "art/Framework/Services/Registry/ServicesManager.h"
 
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Registry/ServiceToken.h"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include <set>
@@ -17,25 +15,16 @@ using fhicl::ParameterSet;
 using namespace art;
 using namespace std;
 
-ServicesManager::ServicesManager(ParameterSets const& psets, LibraryManager const& lm):
-  associatedManager_(),
-  registry_(),
+ServicesManager::ServicesManager(ParameterSets const& psets,
+                                 LibraryManager const& lm,
+                                ActivityRegistry &reg):
+  registry_(reg),
   factory_(),
   index_(),
   requestedCreationOrder_(),
   actualCreationOrder_()
 {
   fillFactory(psets,lm);
-}
-
-// this inheritance procedure needs to go away...
-ServicesManager::ServicesManager(ServiceToken iToken,
-                                 ServiceLegacy,
-                                 ParameterSets const&,
-                                 LibraryManager const&):
-  associatedManager_(iToken.manager_)
-{
-  throw "You are calling the inheritance ctor of ServiceManager and should not be doing that!";
 }
 
 ServicesManager::~ServicesManager()
@@ -54,31 +43,7 @@ ServicesManager::~ServicesManager()
   while(!actualCreationOrder_.empty()) actualCreationOrder_.pop();
 }
 
-void
-ServicesManager::connect(ActivityRegistry& iOther)
-{
-  registry_.connect(iOther);
-}
-
-void
-ServicesManager::connectTo(ActivityRegistry& iOther)
-{
-  iOther.connect(registry_);
-}
-
-void
-ServicesManager::copySlotsFrom(ActivityRegistry& iOther)
-{
-  registry_.copySlotsFrom(iOther);
-}
-
-void
-ServicesManager::copySlotsTo(ActivityRegistry& iOther)
-{
-  iOther.copySlotsFrom(registry_);
-}
-
-void ServicesManager::forceCreation(ActivityRegistry& reg)
+void ServicesManager::forceCreation()
 {
   TypeIDs::iterator it(requestedCreationOrder_.begin()),
     end(requestedCreationOrder_.end());
@@ -86,13 +51,9 @@ void ServicesManager::forceCreation(ActivityRegistry& reg)
   for(;it!=end;++it)
     {
       Factory::iterator c = factory_.find(*it);
-      if(c!=factory_.end()) c->second.forceCreation(reg);
+      if(c!=factory_.end()) c->second.forceCreation(registry_);
       // JBK - should an exception be thrown if name not found in map?
     }
-  // Need to make sure we can invoke a signal here and have it passed
-  // everywhere it needs to be.
-  registry_.postServiceReconfigureSignal_.
-    connect(reg.postServiceReconfigureSignal_);
 }
 
 void ServicesManager::getParameterSets(ParameterSets& out) const
@@ -115,11 +76,6 @@ void ServicesManager::putParameterSets(ParameterSets const& n)
       NameIndex::iterator ii = index_.find(service_name);
       if (ii!=index_.end()) {
         (ii->second)->second.putParameterSet(*cur);
-        // Note that we're invoking the signal on the *local*
-        // ActivityRegistry. This signal needs to be connected to the
-        // one in the EventProcessor's ActivityRegistry (see
-        // forceCreation() above) in order for the invocation to reach
-        // all the registered slots.
         registry_.postServiceReconfigureSignal_(service_name);
       }
     }

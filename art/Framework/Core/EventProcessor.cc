@@ -111,8 +111,6 @@ namespace art {
     return shared_ptr<InputSource>();
   }
 
-  // -------- functions to help prepare the services for initialization --------
-
   typedef std::vector<ParameterSet> ParameterSets;
 
   void addService(std::string const & name, ParameterSets & service_set)
@@ -196,7 +194,7 @@ namespace art {
     extractServices(services, service_set);
     // configured based on optional parameters
     if (wantTracer) { addService("Tracer", service_set); }
-    serviceToken_ = ServiceRegistry::createSet(service_set);
+    serviceToken_ = ServiceRegistry::createSet(service_set, *actReg_);
     // NOTE: the order here might be backwards, due to the "push_front" registering
     // that sigc++ does way in the guts of the add operation.
     typedef art::TriggerNamesService TNS;
@@ -206,7 +204,7 @@ namespace art {
     serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
     serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
     ServiceRegistry::Operate operate(serviceToken_);
-    serviceToken_.forceCreation(*actReg_);
+    serviceToken_.forceCreation();
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
     // Old input sources may need this for now.
@@ -218,7 +216,6 @@ namespace art {
                               preg_,
                               act_table_,
                               actReg_));
-    //   initialize(token,legacy);
     FDEBUG(2) << pset.to_string() << std::endl;
     connectSigs();
     BranchIDListHelper::updateRegistries(preg_);

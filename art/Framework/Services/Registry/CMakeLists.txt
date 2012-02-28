@@ -4,7 +4,6 @@ project(art_Framework_Services_Registry)
 set( art_Framework_Services_Registry_sources ActivityRegistry.cc
                                           ServiceRegistry.cc
                                           ServicesManager.cc
-                                          ServiceToken.cc
                                           ServiceWrapperBase.cc )
 
 add_library(art_Framework_Services_Registry SHARED ${art_Framework_Services_Registry_sources} )
