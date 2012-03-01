@@ -413,7 +413,7 @@ namespace art
         break;
 
       case input::IsRun:
-        if (pendingSubRun_)
+        if (pendingSubRun_ || (pendingEvent_ && cachedSRP_))
           {
             state_ = input::IsSubRun;
             pendingSubRun_ = false;
@@ -463,13 +463,18 @@ namespace art
   {
     if (readNext_())
       {
-        if (state_ != input::IsRun)
-          throw Exception(errors::DataCorruption)
-            << "Input file '"
-            << *currentFile_
-            << "' has a"
-            << (state_ == input::IsSubRun ? " SubRun" : "n Event")
-            << " where a Run is expected\n";
+        if (state_ != input::IsRun) {
+          if (cachedRP_) {
+            state_ = input::IsRun; // Regurgitate exsting cached run.
+          } else {
+            throw Exception(errors::DataCorruption)
+              << "Input file '"
+              << *currentFile_
+              << "' has a"
+              << (state_ == input::IsSubRun ? " SubRun" : "n Event")
+              << " where a Run is expected\n";
+          }
+        }
       }
     else
       {
@@ -536,8 +541,6 @@ namespace art
   ReaderSource<T>::closeFile()
   {
     detail_.closeCurrentFile();
-    cachedRP_.reset();
-    cachedSRP_.reset();
   }
 
   template <class T>
