@@ -1,0 +1,5 @@
+#include "ToyRawInput_common.fcl"
+
+source.fileNames: [ f1, f2 ]
+source.f1: [ [1, 0, 1] ]
+source.f2: [ [-1, 1, 2] ]
