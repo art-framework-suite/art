@@ -2,6 +2,11 @@ File    = table
 Product = @product@
 #*************************************************
 # Starting Group definition
+#
+# Qualifiers:
+# a5  - with gcc 4.6.1 and external clhep 2.1.2.2
+# e1  - with gcc 4.6.1 and -std=c++0x
+
 Group:
 
 Flavor     = ANY
