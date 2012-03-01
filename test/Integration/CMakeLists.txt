@@ -234,7 +234,7 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_03 ToyRawInput_t_04
   "Assertion `outSR \\|\\| inSR' failed"
 )
 
-foreach(num 05 06 07 08 09 10)
+foreach(num 05 06 07 08 09 10 11)
   cet_test(ToyRawInput_t_${num} HANDBUILT
     TEST_EXEC art
     TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
