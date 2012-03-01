@@ -128,7 +128,7 @@ namespace arttest
 
     bool readSomething = false;
 
-    if ((*current_)[0] != -1)
+    if ((*current_)[0] != -1) // New run
       {
         Timestamp runstart; // current time?
         outR = pm_.makeRunPrincipal((*current_)[0],  // run number
@@ -138,9 +138,9 @@ namespace arttest
                                  "r1");
          readSomething = true;
       }
-    if ((*current_)[1] != -1)
+    if ((*current_)[1] != -1) // New subrun
       {
-        assert(outR || inR);
+        assert(outR || inR); // Must have one or the other.
         SubRunID newSRID;
         if (data_.get<bool>("newRunSameSubRunFault", false) && inSR)
           {
