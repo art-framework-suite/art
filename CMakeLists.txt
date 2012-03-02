@@ -46,7 +46,7 @@ cet_report_compiler_flags()
 find_ups_product( cppunit v1_12_1 )
 find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
-find_ups_product( clhep v2_1_1_0 )
+find_ups_product( clhep v2_1_2_2 )
 
 find_ups_product( cetbuildtools v1_15_03 )
 find_ups_product( cpp0x v1_03_00 )
