@@ -14,7 +14,6 @@ install ( TARGETS art_Framework_Services_Registry DESTINATION ${flavorqual_dir}/
 install(FILES ActivityRegistry.h
               connect_but_block_self.h
               ServiceHandle.h
-              ServiceLegacy.h
               ServiceMacros.h
               ServiceRegistry.h
               ServicesManager.h
