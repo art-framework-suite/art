@@ -87,10 +87,14 @@ bool
 Group::resolveProduct(bool fillOnDemand,
                       TypeID const &wanted_wrapper_type) const {
   if (productUnavailable()) {
-    throw art::Exception(errors::ProductNotFound,"InaccessibleProduct")
-      << "resolveProduct: product is not accessible\n"
-      << productDescription() << '\n'
-      << *productProvenancePtr() << '\n';
+    cet::exempt_ptr<art::ProductProvenance const> pp = productProvenancePtr();
+    art::Exception e(errors::ProductNotFound,"InaccessibleProduct");
+    e << "resolveProduct: product is not accessible\n"
+      << productDescription() << '\n';
+    if (pp) {
+      e << (*pp) << '\n';
+    }
+    throw e;
   }
   return resolveProductIfAvailable(fillOnDemand, wanted_wrapper_type);
 }
