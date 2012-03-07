@@ -11,8 +11,6 @@ using namespace art;
 #include <iostream>
 #include <iterator>
 
-#include "TApplication.h"
-
 struct LibraryManagerTestFixture {
 
   LibraryManagerTestFixture();
@@ -20,9 +18,6 @@ struct LibraryManagerTestFixture {
 
   LibraryManager lm;
   LibraryManager const & lm_ref;
-
-private:
-  void init();
 };
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()
@@ -30,14 +25,6 @@ LibraryManagerTestFixture::LibraryManagerTestFixture()
   lm("dict"),
   lm_ref(lm)
 {
-  init();
-}
-
-void
-LibraryManagerTestFixture::init() {
-  int argc = 0;
-  char const * argv[] = { "" };
-  static TApplication s_tAPP("JUNK", &argc, const_cast<char**>(argv));
 }
 
 LibraryManagerTestFixture::~LibraryManagerTestFixture()

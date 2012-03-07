@@ -71,7 +71,7 @@ simple_plugin(Wanted                     "service" NOINSTALL )
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 
 # Common library link requirements for tests here.
-link_libraries(
+set(default_test_libraries
   art_Framework_Art
   art_Framework_Services_Registry
   art_Utilities
@@ -98,7 +98,9 @@ link_libraries(
 include(CetTest)
 
 # Tests
-cet_test(ReflexTools_t USE_BOOST_UNIT)
+cet_test(ReflexTools_t USE_BOOST_UNIT
+  LIBRARIES ${default_test_libraries}
+  )
 
 cet_test(EventSelectorFromFile_t.sh PREBUILT
   DATAFILES

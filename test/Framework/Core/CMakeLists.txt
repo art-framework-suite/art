@@ -1,7 +1,7 @@
 art_dictionary(NOINSTALL)
 
 # Library link requirements for tests here
-link_libraries(
+set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core
   art_Framework_Principal
@@ -31,11 +31,14 @@ include(CetTest)
 
 # Tests
 cet_test(IntermediateTablePostProcessor_t USE_BOOST_UNIT
+  LIBRARIES ${default_test_libraries}
   DATAFILES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/fcl/test_simple_01.fcl # Avoid duplication
   ${CMAKE_CURRENT_SOURCE_DIR}/../../Integration/fcl/messageDefaults.fcl # Avoid duplication
 )
-cet_test(RootDictionaryManager_t USE_BOOST_UNIT)
+cet_test(RootDictionaryManager_t USE_BOOST_UNIT
+  LIBRARIES ${default_test_libraries}
+  )
 
 #########################################################################
 # Old (pre-ART fork) tests.
@@ -47,7 +50,7 @@ file(GLOB cppunit_files *.cppunit.cc)
 foreach(cppunit_source ${cppunit_files})
   get_filename_component(test_name ${cppunit_source} NAME_WE )
   cet_test(${test_name} SOURCES testRunner.cpp ${cppunit_source}
-    LIBRARIES ${CPPUNIT}
+    LIBRARIES ${default_test_libraries} ${CPPUNIT}
     )
 endforeach()
 
@@ -60,7 +63,9 @@ foreach(cpp_test
     CPCSentry_t
     RegistryTemplate_t
     OutputModuleUtilities_t)
-  cet_test(${cpp_test} SOURCES ${cpp_test}.cpp)
+  cet_test(${cpp_test} SOURCES ${cpp_test}.cpp
+    LIBRARIES ${default_test_libraries}
+    )
 endforeach()
 
 # Compile the exec (don't run). Yes, add_executable /
@@ -68,7 +73,7 @@ endforeach()
 # uniform interface.
 cet_test(Statemachine_t NO_AUTO
   SOURCES statemachine_t.cc MockEventProcessor.cc
-  LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY} ${default_test_libraries}
   )
 
 # Copy the script (don't run). So much easier than writing the target yourself.
