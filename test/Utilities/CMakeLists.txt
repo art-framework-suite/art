@@ -38,11 +38,7 @@ cet_test(LibraryManager_t USE_BOOST_UNIT NO_AUTO)
 # dictionaries. One might argue that this qualifies it as an integration
 # test.
 target_link_libraries(LibraryManager_t
-  art_Framework_Core
-  art_Framework_Services_Registry
-  art_Framework_Principal
   art_Utilities
-  ${SIGC}
   ${Boost_FILESYSTEM_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_TREE}
@@ -50,12 +46,11 @@ target_link_libraries(LibraryManager_t
   ${ROOT_MATRIX}
   ${ROOT_NET}
   ${ROOT_MATHCORE}
-  ${ROOT_THREAD}
   ${ROOT_RIO}
+  ${ROOT_THREAD}
 	${ROOT_CORE}
   ${ROOT_CINT}
 	${ROOT_REFLEX}
-  ${CPPUNIT}
   -ldl
   )
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/LibraryManager_t.sh.in
