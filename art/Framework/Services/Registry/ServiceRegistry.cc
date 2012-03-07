@@ -6,8 +6,6 @@
 
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 
-#include "boost/thread/tss.hpp"
-
 using fhicl::ParameterSet;
 using art::ServiceRegistry;
 using art::ServiceToken;
@@ -66,11 +64,8 @@ ServiceToken
 ServiceRegistry &
   ServiceRegistry::instance()
 {
-  static boost::thread_specific_ptr<ServiceRegistry> s_registry;
-  if( 0 == s_registry.get() ) {
-    s_registry.reset(new ServiceRegistry);
-  }
-  return *s_registry;
+  static ServiceRegistry s_reg; // Thread-safe per C++2011.
+  return s_reg;
 }
 
 // ======================================================================
