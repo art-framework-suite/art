@@ -1,4 +1,6 @@
 #include "DropOnOutput_r_01.fcl"
 
+physics.end_paths: [ e1 ] # No ProvenanceDumper test.
+
 physics.analyzers.a1.keepString: false
 physics.analyzers.a1.keepMapVector: false

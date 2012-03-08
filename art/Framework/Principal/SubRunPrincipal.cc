@@ -83,6 +83,7 @@ namespace art {
 
   void
   SubRunPrincipal::mergeSubRun(std::shared_ptr<SubRunPrincipal> srp) {
+    if (srp.get() == this) return; // Nothing to do.
 
     aux_.mergeAuxiliary(srp->aux());
 

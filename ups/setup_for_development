@@ -36,7 +36,7 @@ test -z "$1" && ( echo ""; echo "$msg3"; echo "" ) && return
 
 
 # Set the default qualifiers
-set_ defaultqual=a6
+set_ defaultqual=a7
 set_ rootqual=gcc46
 set_ compilerqual=gcc46
 set_ hybridqual=$compilerqual

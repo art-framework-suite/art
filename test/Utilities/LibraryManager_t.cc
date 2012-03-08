@@ -18,7 +18,6 @@ struct LibraryManagerTestFixture {
 
   LibraryManager lm;
   LibraryManager const & lm_ref;
-
 };
 
 LibraryManagerTestFixture::LibraryManagerTestFixture()

@@ -65,6 +65,7 @@ RunPrincipal::put(std::auto_ptr<EDProduct> edp,
 
 void
 RunPrincipal::mergeRun(std::shared_ptr<RunPrincipal> rp) {
+  if (rp.get() == this) return; // Nothing to do.
 
   aux_.mergeAuxiliary(rp->aux());
 

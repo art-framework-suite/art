@@ -4,18 +4,18 @@ Product = @product@
 # Starting Group definition
 #
 # Qualifiers:
-# a5  - with gcc 4.6.1 and external clhep 2.1.2.2
+# a7  - with gcc 4.6.1 and external clhep 2.1.2.2
 # e1  - with gcc 4.6.1 and -std=c++0x
 
 Group:
 
 Flavor     = ANY
-Qualifiers = "a6:debug"
+Qualifiers = "a7:debug"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a6.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a7.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
@@ -27,12 +27,12 @@ Qualifiers = "a6:debug"
     setupRequired(root      @ROOT_VERSION@ -q +gcc46:+debug)
 
 Flavor     = ANY
-Qualifiers = "a6:opt"
+Qualifiers = "a7:opt"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a6.opt ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a7.opt ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts
@@ -44,12 +44,12 @@ Qualifiers = "a6:opt"
     setupRequired(root      @ROOT_VERSION@ -q +gcc46:+opt)
 
 Flavor     = ANY
-Qualifiers = "a6:prof"
+Qualifiers = "a7:prof"
 
   Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
-       execute( "get-directory-name subdir a6.prof ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       execute( "get-directory-name subdir a7.prof ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
 
   Action = GetExtraProducts

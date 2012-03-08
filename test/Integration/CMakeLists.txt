@@ -72,7 +72,7 @@ simple_plugin(Wanted                     "service" NOINSTALL )
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 
 # Common library link requirements for tests here.
-link_libraries(
+set(default_test_libraries
   art_Framework_Art
   art_Framework_Services_Registry
   art_Utilities
@@ -99,7 +99,9 @@ link_libraries(
 include(CetTest)
 
 # Tests
-cet_test(ReflexTools_t USE_BOOST_UNIT)
+cet_test(ReflexTools_t USE_BOOST_UNIT
+  LIBRARIES ${default_test_libraries}
+  )
 
 cet_test(EventSelectorFromFile_t.sh PREBUILT
   DATAFILES
@@ -235,7 +237,7 @@ SET_TESTS_PROPERTIES(ToyRawInput_t_03 ToyRawInput_t_04
   "Assertion `outSR \\|\\| inSR' failed"
 )
 
-foreach(num 05 06 07 08 09 10)
+foreach(num 05 06 07 08 09 10 11 12)
   cet_test(ToyRawInput_t_${num} HANDBUILT
     TEST_EXEC art
     TEST_ARGS --rethrow-all -c ToyRawInput_${num}.fcl
