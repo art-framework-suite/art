@@ -8,7 +8,6 @@
 // ======================================================================
 
 #include "art/Utilities/LibraryManager.h"
-#include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "cpp0x/memory"
@@ -17,6 +16,8 @@
 // ----------------------------------------------------------------------
 
 namespace art {
+  class ActivityRegistry;
+
   class ServiceRegistry
   {
     // non-copyable:
@@ -79,10 +80,7 @@ namespace art {
     typedef ServicesManager SM;
     typedef std::vector<fhicl::ParameterSet> ParameterSets;
 
-    static ServiceToken createSet(ParameterSets const & );
-    static ServiceToken createSet(ParameterSets const &,
-                                  ServiceToken,
-                                  ServiceLegacy);
+    static ServiceToken createSet(ParameterSets const &, ActivityRegistry & );
 
   private:
     // returns old token

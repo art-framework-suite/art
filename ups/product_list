@@ -1,14 +1,14 @@
 
 # set up external products
-setup -B clhep v2_1_1_0 -q +$hybridqual$extraqual
+setup -B clhep v2_1_2_2 -q +$hybridqual$extraqual
 setup -B cppunit v1_12_1 -q +$hybridqual$extraqual
 setup -B libsigcpp v2_2_10 -q +$hybridqual$extraqual
 setup -B gccxml v0_9_20110907 -q +$compilerqual
 setup -B python v2_7_2 -q +$compilerqual
-setup -B root v5_30_02 -q +$rootqual$extraqual
+setup -B root v5_32_01 -q +$rootqual$extraqual
 setup -B sqlite v3_07_08_00 -q +$compilerqual$extraqual
 
 # set up CET products
 setup cetpkgsupport
-setup cetbuildtools v1_15_04
-setup -B messagefacility v1_10_04 -q +$CETPKG_QUAL$extraqual
+setup cetbuildtools v1_15_08
+setup -B messagefacility v1_10_06 -q +$defaultqual$extraqual

@@ -33,25 +33,15 @@ class art::ServiceToken
 public:
   ServiceToken( ) { }
 
-  // the argument's signals are propagated to the Service's held by the token
-  void connectTo( ActivityRegistry & );
-  // the argument's signals will forward the token's signals
-  void connect( ActivityRegistry & );
-
-  // copy our Service's slots to the argument's signals
-  void copySlotsTo( ActivityRegistry & );
-  // the copy the argument's slots to the token's signals
-  void copySlotsFrom( ActivityRegistry & );
-
   template< class T >
     bool add( std::auto_ptr<T> serv )
   {
      return manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(serv)));
   }
 
-  void forceCreation(ActivityRegistry& reg)
+  void forceCreation()
   {
-    manager_->forceCreation(reg);
+    manager_->forceCreation();
   }
 
   void getParameterSets(ServicesManager::ParameterSets& out) const

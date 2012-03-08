@@ -53,6 +53,7 @@ simple_plugin(PtrmvProducer              "module" NOINSTALL )
 #simple_plugin(RandomNumberSaveTest       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Reconfigurable             "service" NOINSTALL )
 simple_plugin(Reconfiguring              "module" NOINSTALL )
+simple_plugin(ServiceUsing               "service" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer      "module" NOINSTALL )
 simple_plugin(SimpleDerivedProducer      "module" NOINSTALL )
 simple_plugin(TestBitsOutput             "module" NOINSTALL )
@@ -60,11 +61,13 @@ simple_plugin(TestFilter                 "module" NOINSTALL )
 simple_plugin(TestOutput                 "module" NOINSTALL )
 simple_plugin(TestProvenanceDumper       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer         "module" NOINSTALL )
+simple_plugin(TestServiceUsingService    "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Throwing                   "service" NOINSTALL )
 simple_plugin(ToyRawInput                "source" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ToyRawInputTester          "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer      "module" NOINSTALL )
 simple_plugin(U_S                        "module" ALLOW_UNDERSCORES NOINSTALL )
+simple_plugin(Wanted                     "service" NOINSTALL )
 
 art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
 
@@ -698,6 +701,21 @@ cet_test(OpenMPSimpleTest_t HANDBUILT
   TEST_ARGS -c "OpenMPSimpleTest_t.fcl"
   DATAFILES
   fcl/OpenMPSimpleTest_t.fcl
+)
+
+cet_test(ServiceUsingService_01_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "ServiceUsingService_01.fcl"
+  DATAFILES
+  fcl/ServiceUsingService_01.fcl
+)
+
+cet_test(ServiceUsingService_02_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -c "ServiceUsingService_02.fcl"
+  DATAFILES
+  fcl/test_reconfig_01.fcl
+  fcl/ServiceUsingService_02.fcl
 )
 
 ########################################################################

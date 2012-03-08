@@ -18,7 +18,6 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Framework/Core/WorkerRegistry.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
@@ -129,10 +128,6 @@ namespace art {
 
     ServiceToken getToken();
 
-    // init() is used by only by constructors
-    void init(std::shared_ptr<art::ProcessDesc> & processDesc,
-              ServiceToken const & token,
-              ServiceLegacy);
     StatusCode runCommon(int numberOfEventsToProcess);
     void terminateMachine();
     void terminateAbnormally();

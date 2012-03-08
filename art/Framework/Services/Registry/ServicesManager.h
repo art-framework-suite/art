@@ -9,7 +9,6 @@
 
 #include "art/Utilities/LibraryManager.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceLegacy.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
@@ -30,8 +29,6 @@ namespace art {
 
   typedef std::auto_ptr<art::ServiceWrapperBase> (*SERVICEMAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
 
-  class ServiceToken;
-
   class ServicesManager
   {
     // non-copyable:
@@ -40,6 +37,7 @@ namespace art {
 
 public:
     typedef  std::vector<fhicl::ParameterSet>       ParameterSets;
+
 private:
     typedef  std::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
     class Cache;
@@ -88,7 +86,6 @@ private:
           }
       }
 
-    private:
       fhicl::ParameterSet config_;
       TypeID typeinfo_;
       SERVICEMAKER_t make_;
@@ -137,18 +134,10 @@ private:
 
     };  // Cache
 
-    // Takes the services described by iToken and places them into the manager.
-    // Conflicts over Services provided by both the iToken and iConfiguration
-    // are resolved based on the value of iLegacy
 public:
-    ServicesManager( ParameterSets       const & psets
-                   , art::LibraryManager const &
-                   );
-    ServicesManager( ServiceToken                iToken
-                   , ServiceLegacy               iLegacy
-                   , ParameterSets       const & psets
-                   , art::LibraryManager const &
-                   );
+    ServicesManager(ParameterSets const &,
+                    LibraryManager const &,
+                    ActivityRegistry &);
 
     ~ServicesManager();
 
@@ -183,20 +172,9 @@ public:
       return true;
     }
 
-    //causes our ActivityRegistry's signals to be forwarded to iOther
-    void connect(ActivityRegistry & iOther);
-
-    //causes iOther's signals to be forwarded to us
-    void connectTo(ActivityRegistry & iOther);
-
-    //copy our Service's slots to the argument's signals
-    void copySlotsTo(ActivityRegistry &);
-    //the copy the argument's slots to the our signals
-    void copySlotsFrom(ActivityRegistry &);
-
     // force all the services that are not alrady made into existance
     // using 'reg'.  The order of creation will be the registration order.
-    void forceCreation(ActivityRegistry& reg);
+    void forceCreation();
 
     void getParameterSets(ParameterSets& out) const;
     void putParameterSets(ParameterSets const&);
@@ -204,19 +182,8 @@ public:
   private:
     void fillFactory( ParameterSets const & psets, LibraryManager const & lm );
 
-    // ---------- member data --------------------------------
-    // hold onto the Manager passed in from the ServiceToken so that
-    // the ActivityRegistry of that Manager does not go out of scope
-    // This must be first to get the Service destructors called in
-    // the correct order.
-
-    // we will probably not be using this because we do not use the
-    // inheritance or sharing features
-    // (although we may not understand this properly).
-    std::shared_ptr<ServicesManager> associatedManager_;
-
     // these are real things that we use.
-    art::ActivityRegistry registry_;
+    art::ActivityRegistry & registry_;
     Factory factory_;
     NameIndex index_;
 

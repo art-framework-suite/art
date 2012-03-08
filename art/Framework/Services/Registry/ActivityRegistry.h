@@ -251,6 +251,9 @@ public:
   // Signal is emitted after the module finished processing endSubRun
   AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleEndSubRun)
 
+  // Signal emitted any time a service gets reconfigured.
+  AR_DECL_VOID_1ARG_SIGNAL(FIFO, std::string const &, PostServiceReconfigure)
+
   // ---------- member functions ---------------------------
 
   // Forwards our signals to slots connected to iOther

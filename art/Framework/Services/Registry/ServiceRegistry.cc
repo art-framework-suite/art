@@ -4,6 +4,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 
 using fhicl::ParameterSet;
@@ -38,26 +39,13 @@ ServiceToken
 }
 
 ServiceToken
-  ServiceRegistry::createSet( std::vector<ParameterSet> const & iPS )
+ServiceRegistry::createSet(ParameterSets const & iPS, ActivityRegistry & reg)
 {
   std::shared_ptr<ServicesManager>
-    result( new ServicesManager( iPS
-                               , ServiceRegistry::instance().lm_
-          )                    );
-  return ServiceToken(result);
-}
-ServiceToken
-  ServiceRegistry::createSet( std::vector<ParameterSet> const & iPS
-                            , ServiceToken iToken
-                            , ServiceLegacy iLegacy
-                            )
-{
-  std::shared_ptr<ServicesManager>
-    result( new ServicesManager( iToken
-                               , iLegacy
-                               , iPS
-                               , ServiceRegistry::instance().lm_
-          )                    );
+    result(new ServicesManager(iPS,
+                               ServiceRegistry::instance().lm_,
+                               reg)
+          );
   return ServiceToken(result);
 }
 

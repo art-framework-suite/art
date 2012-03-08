@@ -17,6 +17,7 @@ set( art_Framework_Art_sources
 
 add_library(art_Framework_Art SHARED ${art_Framework_Art_sources} )
 target_link_libraries(art_Framework_Art
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_IO_Root
   art_Framework_Core
   art_Framework_Services_Registry
@@ -33,7 +34,6 @@ install ( TARGETS
 
 set ( common_exec_link_libraries
   art_Framework_Core
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_CINTEX}
   ${ROOT_PHYSICS}
   ${ROOTSYS}/lib/libGraf.so

@@ -112,8 +112,6 @@ namespace {
     return std::shared_ptr<art::InputSource>();
   }
 
-  // -------- functions to help prepare the services for initialization --------
-
   typedef std::vector<fhicl::ParameterSet> ParameterSets;
 
   void
@@ -208,7 +206,7 @@ art::EventProcessor::EventProcessor(fhicl::ParameterSet const & pset):
 #if 0
   if (wantTracer) { addService("Tracer", service_set); }
 #endif  // 0
-  serviceToken_ = ServiceRegistry::createSet(service_set);
+  serviceToken_ = ServiceRegistry::createSet(service_set, *actReg_);
   // NOTE: the order here might be backwards, due to the "push_front" registering
   // that sigc++ does way in the guts of the add operation.
   // no configuration available
@@ -222,14 +220,12 @@ art::EventProcessor::EventProcessor(fhicl::ParameterSet const & pset):
 #endif  // 0
 
   ServiceRegistry::Operate operate(serviceToken_);
-  serviceToken_.forceCreation(*actReg_);
-  //make the services available
+  serviceToken_.forceCreation();
   act_table_ = ActionTable(scheduler);
   input_ = makeInput(pset, processName, preg_, actReg_);
   // Old input sources may need this for now.
   input_->storeMPRforBrokenRandomAccess(preg_);
   createSchedules(scheduler.get<size_t>("numSchedules", 1ul), pset);
-  //   initialize(token,legacy);
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
 }

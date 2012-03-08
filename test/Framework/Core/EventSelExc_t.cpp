@@ -16,6 +16,7 @@
 
 
 #include "art/Framework/Core/EventSelector.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
@@ -237,8 +238,10 @@ int main()
   // Now create and setup the service
   typedef art::TriggerNamesService TNS;
 
+  art::ActivityRegistry aReg;
+
   ServiceToken serviceToken_ =
-    ServiceRegistry::createSet(ServiceRegistry::ParameterSets());
+    ServiceRegistry::createSet(ServiceRegistry::ParameterSets(), aReg);
 
   serviceToken_.add(std::auto_ptr<TNS>(new TNS(proc_pset)));
 
