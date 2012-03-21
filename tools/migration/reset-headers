@@ -18,7 +18,9 @@ function usage() {
 }
 
 function one_file() {
-  [[ -n "$emacs_block" ]] && EXTRA_ARGS=--emacs-block
+  [[ -n "$emacs_block" ]] && \
+    [[ "${1}" == *.h ]] && \
+    local EXTRA_ARGS=--emacs-block
   "${TMP}" "--top-dir=$TOP" $EXTRA_ARGS "${1}"
 }
 
