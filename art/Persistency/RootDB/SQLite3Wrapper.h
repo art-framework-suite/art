@@ -21,8 +21,10 @@ class art::SQLite3Wrapper : boost::noncopyable {
 public:
   typedef int (*callback_t)(void *, int, char **, char **) ;
 
+  // A default constructed wrapper is not associated with an SQLite database.
   SQLite3Wrapper();
 
+  // Create a database connected to the file named by 'key';
   explicit
   SQLite3Wrapper(std::string const & key,
                  int flags = SQLITE_OPEN_READONLY);
@@ -35,6 +37,8 @@ public:
 
   operator sqlite3 * () { return db_; }
 
+  // Query the environment variable ART_DEBUG_SQL to determine whether or
+  // not we should do tracing of SQLite interface calls.
   static bool wantTracing();
 
   void reset();
