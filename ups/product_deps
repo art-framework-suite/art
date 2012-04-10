@@ -1,9 +1,9 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent art	v1_00_11
+defaultqual	a7
 #
 product		version
-cetbuildtools	v1_16_00
 gcc		v4_6_1
 clhep		v2_1_2_2
 cppunit		v1_12_1
@@ -13,19 +13,22 @@ python		v2_7_2
 root		v5_30_06
 sqlite		v3_07_08_00
 messagefacility	v1_10_08
+# list products required ONLY for the build
+# any products here must NOT have qualifiers
+only_for_build	cetbuildtools	v1_17_00
  
 # a7  - with gcc 4.6.1 and external clhep 2.1.2.2
 # e1  - with gcc 4.6.1 and -std=c++0x
-qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite		gcc	cetbuildtools	notes
-a7:debug	a7:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-b-
-a7:opt		a7:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-b-
-a7:prof		a7:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-b-
-e1:debug	e1:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-b-		-std=c++0x;-Wno-deprecated-declarations
-e1:opt		e1:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-b-		-std=c++0x;-Wno-deprecated-declarations
-e1:prof		e1:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-b-		-std=c++0x;-Wno-deprecated-declarations
-mu2e:debug	a7:debug	mu2e:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-b-
-mu2e:opt	a7:opt		mu2e:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-b-
-mu2e:prof	a7:prof		mu2e:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-b-
-nova:debug	a7:debug	nova:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-b-
-nova:opt	a7:opt		nova:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-b-
-nova:prof	a7:prof		nova:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-b-
+qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite		gcc	notes
+a7:debug	a7:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-
+a7:opt		a7:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-
+a7:prof		a7:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-
+e1:debug	e1:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-std=c++0x;-Wno-deprecated-declarations
+e1:opt		e1:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-std=c++0x;-Wno-deprecated-declarations
+e1:prof		e1:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-std=c++0x;-Wno-deprecated-declarations
+mu2e:debug	a7:debug	mu2e:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-
+mu2e:opt	a7:opt		mu2e:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-
+mu2e:prof	a7:prof		mu2e:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-
+nova:debug	a7:debug	nova:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-
+nova:opt	a7:opt		nova:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-
+nova:prof	a7:prof		nova:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-

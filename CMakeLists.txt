@@ -4,13 +4,12 @@
 #  cd .../path/to/build/directory
 #  source .../path/to/art/ups/setup_for_development
 #  cmake [-DCMAKE_INSTALL_PREFIX=/install/path]
-#        -Dqualifier:STRING=$CETPKG_QUAL
 #        -DCMAKE_BUILD_TYPE=$CETPKG_TYPE
 #        $CETPKG_SOURCE
 #  make
 #  make test
 #  make install
-#  make package
+#  make package (builds distribution tarfile)
 # ======================================================================
 
 
@@ -29,12 +28,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules
 		      ${CMAKE_MODULE_PATH})
 
 include(CetCMakeEnv)
-
-if ( NOT qualifier )
-    message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
-endif ( NOT qualifier )
-cet_cmake_env( art v1_00_11 ${qualifier} )
-
+cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR EXTRA_FLAGS -pedantic)
 if ("${qualifier}" STREQUAL "e1")
@@ -48,7 +42,7 @@ find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_2_2 )
 
-find_ups_product( cetbuildtools v1_15_03 )
+find_ups_product( cetbuildtools v1_17_00 )
 find_ups_product( cpp0x v1_03_00 )
 find_ups_product( cetlib v1_03_00 )
 find_ups_product( fhiclcpp v2_16_00 )
@@ -98,8 +92,6 @@ find_library(SQLITE3 NAMES sqlite3 PATHS $ENV{SQLITE_LIB} NO_DEFAULT_PATH)
 
 # define common flags
 # set( CMAKE_CXX_LINK_FLAGS "${CPPUNIT} -luuid -ldl" )
-
-message(STATUS "Project is ${product} ${version}")
 
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)
