@@ -59,6 +59,30 @@ target_link_libraries( config_dumper
 
 install ( TARGETS config_dumper DESTINATION ${flavorqual_dir}/bin )
 
+add_executable( sam_metadata_dumper sam_metadata_dumper.cc )
+target_link_libraries( sam_metadata_dumper
+        art_Framework_IO_Root
+        art_Utilities
+        art_Framework_Core
+        ${Boost_PROGRAM_OPTIONS_LIBRARY}
+        ${ROOT_CINTEX}
+        ${ROOT_PHYSICS}
+        ${ROOTSYS}/lib/libGraf.so
+        ${ROOT_TREE}
+        ${ROOT_HIST}
+        ${ROOT_MATRIX}
+        ${ROOT_NET}
+        ${ROOT_MATHCORE}
+        ${ROOT_THREAD}
+        ${ROOT_RIO}
+        ${ROOT_CORE}
+        ${ROOT_CINT}
+        ${ROOT_REFLEX}
+        -ldl
+        )
+
+install ( TARGETS sam_metadata_dumper DESTINATION ${flavorqual_dir}/bin )
+
 install(FILES
   BranchMapperWithReader.h
   DuplicateChecker.h
