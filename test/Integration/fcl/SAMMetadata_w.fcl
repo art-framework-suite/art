@@ -1,0 +1,43 @@
+process_name: SAMMetadataW
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}
+
+physics:
+{
+  producers:
+  {
+    m1:
+    {
+      module_type: IntProducer
+      ivalue: 2
+    }
+  }
+   
+  filters:
+  {
+  }
+
+  analyzers:
+  {
+  }
+
+   p1: [ m1 ]
+   e1: [ o1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}
+
