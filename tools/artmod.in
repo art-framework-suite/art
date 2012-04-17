@@ -139,6 +139,7 @@ GetOptions($options,
            "impl-boilerplate=s",
            "split",
            "split-ext=s",
+           "use-boost-unit|boost-unit|u",
            "verbose|v",
           ) or pod2usage(-exitval => 2);
 
@@ -454,6 +455,10 @@ sub header_includes {
     if ($mode ne "combined") {
       push @header_lines,
         "#include \"${header_path}\"";
+    }
+    if ($options{"use-boost-unit"}) {
+      push @header_lines,
+        "\n#include <boost/test/included/unit_test.hpp>";
     }
   }
   if ($mode eq "module_reg" or $mode eq "combined") {
