@@ -71,7 +71,7 @@ namespace arttest
     typedef std::vector<std::vector<int> > vv_t;
     typedef vv_t::const_iterator iter;
 
-    art::PrincipalMaker pm_;
+    art::PrincipalMaker const & pm_;
 
     iter    current_;
     iter    end_;

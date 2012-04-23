@@ -39,6 +39,7 @@
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Utilities/Digest.h"
 #include "art/Utilities/Exception.h"
+#include "art/Version/GetReleaseVersion.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/algorithm"
@@ -48,6 +49,8 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include <iomanip>
 #include <sstream>
+#include <vector>
+#include <utility>
 
 using namespace cet;
 using namespace std;
@@ -257,6 +260,61 @@ namespace art {
     assert(b);
     b->Fill();
   }
+
+  void RootOutputFile::writeSamMetadata() {
+    SQLErrMsg errMsg;
+    // TODO - do we need to make a separate metaDataHandle?
+    //	      Don't think so -- there is one RootFileDB, so one handle
+    sqlite3_exec(metaDataHandle_,
+                 "BEGIN TRANSACTION; DROP TABLE IF EXISTS Sam_metadata; " // +
+                 "CREATE TABLE SAM_metadata(ID PRIMARY KEY, Name, Value); COMMIT;",
+                 0,
+                 0,
+                 errMsg);
+    errMsg.throwIfError();
+    fillSamMetadataMap();
+  }
+
+  void RootOutputFile::fillSamMetadataMap() {
+    // Fill the info that will go into this metadata table -
+    // For now, we are just creating a vector of pairs.
+    // Another issue is what is the meaning of the ID - 
+    //    we might be able to skip that altogether but
+    //     I'm not certain no two items in the sam metadata have the same name, 
+    //     so for now I am just going to assign an integer, starting from 0. 
+    typedef std::pair<std::string,std::string> SamMetadataEntry;
+    typedef std::vector< SamMetadataEntry > SamMetadataEntryCollection;
+    SamMetadataEntryCollection samMetadataNameValuePairs;
+    samMetadataNameValuePairs.push_back 
+    		( SamMetadataEntry ("appname", "art") );
+    samMetadataNameValuePairs.push_back 
+    		( SamMetadataEntry ("art_version", getReleaseVersion()) );
+    int SMDid = 0;
+    // Now put that info into the database
+    typedef  SamMetadataEntryCollection::const_iterator  const_iterator;
+    SQLErrMsg errMsg;
+    sqlite3_exec(metaDataHandle_, "BEGIN TRANSACTION;", 0, 0, errMsg);
+    sqlite3_stmt *stmt = 0;
+    sqlite3_prepare_v2(metaDataHandle_, 
+    	"INSERT INTO SAM_metadata(ID, Name, Value) VALUES(?, ?, ?);", 
+    							-1, &stmt, NULL);
+    for( const_iterator it = samMetadataNameValuePairs.begin()
+                      , e  = samMetadataNameValuePairs.end(); 
+		      it != e; ++it, ++SMDid )  {
+      std::string theName  (it->first);
+      std::string theValue (it->second);
+      sqlite3_bind_int (stmt, 1, SMDid);
+      sqlite3_bind_text(stmt, 2, theName.c_str(), 
+      				 theName.size() + 1, SQLITE_STATIC);
+      sqlite3_bind_text(stmt, 3, theValue.c_str(),
+      				 theValue.size() + 1, SQLITE_STATIC);
+      sqlite3_step(stmt);
+      sqlite3_reset(stmt);
+      sqlite3_clear_bindings(stmt);
+    }
+    sqlite3_finalize(stmt);
+    sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
+  } // fillSamMetadataMap()
 
   void RootOutputFile::writeParameterSetRegistry() {
     SQLErrMsg errMsg;

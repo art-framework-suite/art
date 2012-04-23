@@ -94,6 +94,7 @@ namespace art {
     virtual void writeProductDescriptionRegistry();
     virtual void writeParentageRegistry();
     virtual void writeBranchIDListRegistry();
+    virtual void writeSamMetadata();
     virtual void writeProductDependencies();
     virtual void finishEndFile();
 

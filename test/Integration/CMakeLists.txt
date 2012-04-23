@@ -720,6 +720,19 @@ cet_test(ServiceUsingService_02_t HANDBUILT
   fcl/ServiceUsingService_02.fcl
 )
 
+cet_test(SAM_metadata HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "SAMMetadata_w.fcl"
+  DATAFILES
+  fcl/SAMMetadata_w.fcl
+)
+
+cet_test(SAM_metadata_verify HANDBUILT
+  TEST_EXEC sam_metadata_dumper
+  TEST_ARGS -s ../SAM_metadata.d/out.root
+  TEST_PROPERTIES DEPENDS SAM_metadata
+)
+  
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 

@@ -35,7 +35,6 @@ sub vprint;
 
 ####################################
 # Variables and defaults.
-my $art_version = '@version@';
 my $currtime = localtime;
 my $current_filename;
 
@@ -46,7 +45,7 @@ my $default_boilerplate = << 'EOF';
 // File:        %f
 //
 // Generated at %d by %U using artmod
-// from art %v.
+// from %p %v.
 ////////////////////////////////////////////////////////////////////////
 EOF
 
@@ -140,6 +139,7 @@ GetOptions($options,
            "impl-boilerplate=s",
            "split",
            "split-ext=s",
+           "use-boost-unit|boost-unit|u",
            "verbose|v",
           ) or pod2usage(-exitval => 2);
 
@@ -241,6 +241,8 @@ sub ins_vals {
           { $wanted_data = $current_filename; last SW1; };
         $lc eq "n" and do
           { $wanted_data = join("::", @namespaces); last SW1; };
+        $lc eq "p" and do
+          { $wanted_data = '@product@'; last SW1; };
         $lc eq "t" and do
           { $wanted_data = $module_type; last SW1; };
         $lc eq "u" and do
@@ -249,7 +251,7 @@ sub ins_vals {
           { $wanted_data = (getpwuid($<))[6] ||
               (getpwuid($<))[0]; last SW1; };
         $lc eq "v" and do
-          { $wanted_data = $art_version; last SW1; };
+          { $wanted_data = '@version@'; last SW1; };
         print STDERR "Unrecognized substitution expression, ",
           "\"%$lc\" in boilerplate: ignored.";
         next WL;
@@ -453,6 +455,10 @@ sub header_includes {
     if ($mode ne "combined") {
       push @header_lines,
         "#include \"${header_path}\"";
+    }
+    if ($options{"use-boost-unit"}) {
+      push @header_lines,
+        "\n#include <boost/test/included/unit_test.hpp>";
     }
   }
   if ($mode eq "module_reg" or $mode eq "combined") {

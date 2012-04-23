@@ -104,6 +104,7 @@ namespace art {
 
     ProductRegistryHelper  h_;
     ProcessConfiguration   pc_;
+    PrincipalMaker         principalMaker_; // So it can be used by detail.
     ReaderDetail           detail_;
     strings                filenames_;
     iter                   currentFile_;
@@ -168,7 +169,8 @@ namespace art {
     act_(&d.activityRegistry),
     h_(),
     pc_(d.moduleDescription.processConfiguration_),
-    detail_(p, h_, PrincipalMaker(pc_)),
+    principalMaker_(pc_),
+    detail_(p, h_, principalMaker_),
     filenames_(p.get<strings>("fileNames")),
     currentFile_(),
     end_(),

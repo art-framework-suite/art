@@ -266,13 +266,14 @@ def main():
                         newLine=' '*indent+'</class>\n'
             out +=newLine
         outFile.writelines(out)
+        outFile.close()
         if (options.generate_in_place):
             final_dest = options.xmlfile
         else:
             final_dest = 'classes_def.xml.generated'
         if os.path.exists(final_dest):
-            os.rename(final_dest, final_dest + '~')
-        os.rename(filename, final_dest)
+            os.system("cp \"%s\" \"%s\"" % (final_dest, final_dest + '~') )
+        os.system("mv \"%s\" \"%s\"" % (filename, final_dest) )
     import sys
     if (foundRootDoesNotMatchError or
         (len(foundErrors)>0 and

@@ -1,17 +1,11 @@
-# This is shamelessly cribbed from Ron Rechenmacher's ups bootstrap "setup"
-#
-# This script sets up the environment for a developer working on framework.
-# It is not intended for any other purpose, and may cause problems in other environments.
+# There should be as little as possible here,
+# with most of the heavy lifting done by other small scripts
 #
 # When sourcing this file from a script, you may have to tell this
 # source file where it is via the fw_db shell (or env) variable.
 # I.e.:
 #    set fw_db=/some/path; source /some/path/this_file
 # or  fw_db=/some/path; . /some/path/this_file
-#
-# If ART_BUILD is undefined, CETPKG_BUILD is set to whatever directory
-# you are in when this script is invoked.
-# $CETPKG_BUILD/lib is added to LD_LIBRARY_PATH
 
 test $?shell = 1 && set ss=csh || ss=sh
 #echo Shell type is $ss.
@@ -23,41 +17,20 @@ test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || 
 test "$ss" =  sh && eval 'set_() { sts=$?;for xx in "$@";do var=`expr "$xx" : "\([^=]*\)"`;val=`expr "$xx" : "[^=]*=\(.*\)"`;eval "$var=\"$val\"";done;return $sts; }'
 test "$ss" =  sh && eval 'setenv() { export $1;eval "$1=\"\${2-}\""; }; source() { file=$1; shift; . $file "$@"; }; unsetenv_() { unset "$@"; }'
 test "$ss" =  sh && eval 'tnotnull() { eval "test -n \"\${$1-}\""; }'                             && eval 'nullout() { "$@" >/dev/null 2>&1; }'
-test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null"
-test "$ss" = csh && alias return exit 
+test "$ss" = csh && alias tnotnull "eval '"'test $?'"\!* -eq 1' && eval '"'test -n "$'"\!*"'"'"'" && alias nullout "\!* >& /dev/null" && alias unsetenv_ unsetenv
+test "$ss" = csh && alias return exit
 
-set_ msg2='ERROR: You MUST setup ups'
-test -z $UPS_DIR && ( echo ""; echo "$msg2"; echo "" ) && return
+set_ msg1='ERROR: You MUST setup ups'
+test -z $UPS_DIR && ( echo ""; echo "$msg1"; echo "" ) && return
 
 set_ msg3='ERROR: You MUST specify either -o, -p, or -d'
-set_ msg4='Usage: setup_for_development <-d|-o|-p> [rootqual]'
-test -z "$1" && ( echo ""; echo "$msg4"; echo "" ) 
-test -z "$1" && ( echo ""; echo "$msg3"; echo "" ) && return
+set_ msg4='Usage: setup_for_development <-d|-o|-p> <qualifier list>'
+test -z "$1" && ( echo ""; echo "$msg4"; echo "$msg3"; echo "" ) && return
 
-
-# Set the default qualifiers
-set_ defaultqual=a7
-set_ rootqual=gcc46
-set_ compilerqual=gcc46
-set_ hybridqual=$compilerqual
-
-# set the default type, just to avoid confusion
-setenv CETPKG_TYPE RelWithDebInfo
-test "$1" = "-d" && set_ extraqual=":+debug" && setenv CETPKG_TYPE Debug
-test "$1" = "-o" && set_ extraqual=":+opt" && setenv CETPKG_TYPE Opt
-test "$1" = "-p" && set_ extraqual=":+prof" && setenv CETPKG_TYPE Prof
-set_ type=$1
-shift
-test -n "$1" && setenv CETPKG_QUAL "$1" && set_ rootqual="$1"
-test -z "$1" && setenv CETPKG_QUAL "$defaultqual"
-# e1 is a special case
-test "$1" = "e1" && set_ hybridqual=$1 && set_ rootqual=gcc46
-
-echo "called with $type, using qualifiers +$CETPKG_QUAL$extraqual, $defaultqual$extraqual, $rootqual$extraqual, and +$hybridqual$extraqual"
-
-# now is if we were passed a path or if not, if we can figure it out (maybe if we are interactive)
+# make sure we know where this script lives
+# now if we were passed a path or if not, we can figure it out (maybe if we are interactive)
 #   bash, zsh, ksh and tcsh pass params to a source file, csh does not. but someone will be writing csh scripts
-set_ msg='Please set shell or env. variable fw_db (to be the path to the framework source code). Fix this and other errors may go away.'
+set_ msg2='Please set shell or env. variable fw_db (to be the path to the framework source code). Fix this and other errors may go away.'
 tnotnull fw_db && set_ db=`sh -c "cd $fw_db >/dev/null 2>&1 && pwd"` && vecho_ 'setting db from fw_db variable' || set_ db=
 
 test -z "$db" && tnotnull BASH_SOURCE && set_ me=`dirname $BASH_SOURCE` && set_ db=`sh -c "cd $me >/dev/null 2>&1 && pwd"` && vecho_ 'setting db via BASH_SOURCE'
@@ -66,61 +39,45 @@ test -z "$db" && tnotnull BASH_SOURCE && set_ me=`dirname $BASH_SOURCE` && set_ 
 test -z "$db" -a "$ss" = csh && test $?history = 0 && set history=5  # make sure history 1 works
 test -z "$db" -a "$ss" = csh && set me=`history 1|sed 's/^[ 	0-9:]*//'` && test -n "$me" && set me=`dirname $me[2]` \
     && set db=`sh -c "cd $me >/dev/null 2>&1 && pwd"` && vecho_ 'setting db via interactive history'
-
-test -z "$db" && echo "$msg" || vecho_ "db=$db"
-test -n "$db" && setenv CETPKG_SOURCE `dirname $db`
 #echo This script lives in $db
 
-tnotnull ART_BUILD && set_ thisdir=$ART_BUILD || set_ thisdir=`pwd`
-test -n "$thisdir" && setenv CETPKG_BUILD $thisdir
-test -d "$thisdir/lib" || mkdir -p $thisdir/lib
-test -d "$thisdir/bin" || mkdir -p $thisdir/bin
-echo The working build directory is $thisdir
+test -z "$db" && echo "$msg2" || vecho_ "db=$db"
+test -n "$db" && setenv CETPKG_SOURCE `dirname $db`
+
+# make sure we know the current directory
+setenv CETPKG_BUILD `pwd`
+#echo Build directory is $CETPKG_BUILD
+
+echo The working build directory is $CETPKG_BUILD
+echo The source code directory is $CETPKG_SOURCE
+
 
 echo ----------- check this block for errors -----------------------
-# we setup dependent products here
+set_ cetb=` grep only_for_build ../../art/ups/product_deps | grep cetbuildtools | awk '{ print $2 }' `
+set_ cetv=` grep only_for_build ../../art/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
+#echo Found $cetb $cetv
+setup -B $cetb $cetv
 setenv UPS_OPTIONS -B
-source $CETPKG_SOURCE/ups/product_list
+# now get the rest of the products
+set_ cmd="$CETBUILDTOOLS_DIR/bin/set_dev_products $CETPKG_SOURCE/ups $CETPKG_BUILD $*"
+#echo Ready to run $cmd
+source `$cmd`
+test "$?" = 0 || return
 echo ----------------------------------------------------------------
 
-echo Define LD_LIBRARY_PATH
-tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${CETPKG_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
-tnotnull CETPKG_BUILD && setenv LD_LIBRARY_PATH ${CETPKG_BUILD}/lib:${LD_LIBRARY_PATH}
-setenv LD_LIBRARY_PATH `dropit -D -p "$LD_LIBRARY_PATH"`
+# add lib to LD_LIBRARY_PATH
+source $CETBUILDTOOLS_DIR/bin/set_dev_lib
+# add bin to path
+source $CETBUILDTOOLS_DIR/bin/set_dev_bin
+# set FHICL_FILE_PATH
+source $CETBUILDTOOLS_DIR/bin/set_dev_fhicl
 
-echo Define PATH
-tnotnull CETPKG_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${CETPKG_BUILD}/bin:|:|" -e 's|^:||;s|:$||'`
-tnotnull CETPKG_BUILD && setenv PATH ${CETPKG_BUILD}/bin:${PATH}
-setenv PATH `dropit -D`
-
-echo Define FHICL_FILE_PATH
-tnotnull FHICL_FILE_PATH || setenv FHICL_FILE_PATH '.'
-
-echo Define ART_ variables
-# Package-specific variable names.
-setenv ART_SOURCE ${CETPKG_SOURCE}
-setenv ART_BUILD  ${CETPKG_BUILD}
-setenv ART_TYPE   ${CETPKG_TYPE}
-
-# Show what we've done
-echo
-echo ART_SOURCE=CETPKG_SOURCE=$CETPKG_SOURCE
-echo ART_BUILD=CETPKG_BUILD=$CETPKG_BUILD
-echo ART_TYPE=CETPKG_TYPE=$CETPKG_TYPE
-echo CETPKG_QUAL=$CETPKG_QUAL
-echo $thisdir/lib has been added to LD_LIBRARY_PATH
-echo $thisdir/bin has been added to PATH
-echo
-echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
-echo
-echo PATH is now ${PATH}
-echo
-echo FHICL_FILE_PATH is now ${FHICL_FILE_PATH}
-echo Please use this cmake command:
-
-echo cmake -DCMAKE_INSTALL_PREFIX=/install/path -DCMAKE_BUILD_TYPE=\$CETPKG_TYPE -Dqualifier:STRING=\$CETPKG_QUAL \$CETPKG_SOURCE
+# final sanity check
+source $CETBUILDTOOLS_DIR/bin/set_dev_check
+# report CETPKG variable settings
+source $CETBUILDTOOLS_DIR/bin/set_dev_report
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
-unset ss msg db me thisdir py_ver extraqual msg2 msg3 msg4 defaultqual rootqual type compilerqual hybridqual extradef
-unset set_ setenv unsetenv tnotnull source nullout vecho_
+unset ss db me thisdir msg1 msg2 msg3 msg4
+unset set_ setenv unsetenv_ tnotnull nullout vecho_
