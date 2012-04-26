@@ -53,8 +53,8 @@ echo The source code directory is $CETPKG_SOURCE
 
 
 echo ----------- check this block for errors -----------------------
-set_ cetb=` grep only_for_build ../../art/ups/product_deps | grep cetbuildtools | awk '{ print $2 }' `
-set_ cetv=` grep only_for_build ../../art/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
+set_ cetb=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $2 }' `
+set_ cetv=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
 #echo Found $cetb $cetv
 setup -B $cetb $cetv
 setenv UPS_OPTIONS -B
