@@ -55,6 +55,7 @@ namespace art {
     , maxSubRuns_          ( pset.get<int>("maxSubRuns", -1) )
     , remainingSubRuns_    ( maxSubRuns_ )
     , readCount_           ( 0 )
+    , reportFrequency_     ( pset.get<int>("reportFrequency", 1) )
     , processingMode_      ( RunsSubRunsAndEvents )
     , moduleDescription_   ( desc.moduleDescription )
     , time_                ( )
@@ -63,6 +64,10 @@ namespace art {
     , runPrincipal_        ( )
     , subRunPrincipal_     ( )
   {
+    if (reportFrequency_ < 0) {
+      throw art::Exception(art::errors::Configuration)
+        << "reportFrequency has a negative value, which is not meaningful.";
+    }
     std::string const defaultMode("RunsSubRunsAndEvents");
     std::string const runMode("Runs");
     std::string const runSubRunMode("RunsAndSubRuns");
@@ -277,7 +282,11 @@ namespace art {
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(result->time());
-      issueReports(result->id());
+      if ((reportFrequency_ > 0) &&
+          ! (readCount_ % reportFrequency_))
+      {
+        issueReports(result->id());
+      }
     }
     return result;
   }

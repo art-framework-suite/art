@@ -226,6 +226,7 @@ namespace art
     int maxSubRuns_;
     int remainingSubRuns_;
     int readCount_;
+    int const reportFrequency_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
     Timestamp time_;
