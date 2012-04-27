@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_00_12
-defaultqual	a7
+parent art_openmp	v0_00_03
+defaultqual	e1
 #
 product		version
 gcc		v4_6_1
@@ -18,14 +18,14 @@ messagefacility	v1_10_09
 only_for_build	cetbuildtools	v2_00_01
  
 # a7  - with gcc 4.6.1 and external clhep 2.1.2.2
-# e1  - with gcc 4.6.1 and -std=c++0x
+# e1  - with gcc 4.6.1 and -std=c++0x (and -fopenmp)
 qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite		gcc	notes
 a7:debug	a7:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-
 a7:opt		a7:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-
 a7:prof		a7:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-
-e1:debug	e1:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-std=c++0x;-Wno-deprecated-declarations
-e1:opt		e1:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-std=c++0x;-Wno-deprecated-declarations
-e1:prof		e1:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-std=c++0x;-Wno-deprecated-declarations
+e1:debug	e1:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-	-fopenmp;-std=c++0x;-Wno-deprecated-declarations
+e1:opt		e1:opt		gcc46:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-	-fopenmp;-std=c++0x;-Wno-deprecated-declarations
+e1:prof		e1:prof		gcc46:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-	-fopenmp;-std=c++0x;-Wno-deprecated-declarations
 mu2e:debug	a7:debug	mu2e:debug	gcc46:debug	gcc46:debug	gcc46:debug	gcc46	gcc46	gcc46:debug	-nq-
 mu2e:opt	a7:opt		mu2e:opt	gcc46:opt	gcc46:opt	gcc46:opt	gcc46	gcc46	gcc46:opt	-nq-
 mu2e:prof	a7:prof		mu2e:prof	gcc46:prof	gcc46:prof	gcc46:prof	gcc46	gcc46	gcc46:prof	-nq-
