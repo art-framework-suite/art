@@ -27,7 +27,6 @@ set(default_test_libraries
 # New tests (post-ART fork).
 ####################################
 # cet_test macro
-include(CetTest)
 
 # Tests
 cet_test(IntermediateTablePostProcessor_t USE_BOOST_UNIT

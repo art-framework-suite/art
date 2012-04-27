@@ -51,10 +51,12 @@ setenv CETPKG_BUILD `pwd`
 echo The working build directory is $CETPKG_BUILD
 echo The source code directory is $CETPKG_SOURCE
 
+set_ msg5='ERROR: setup of required products has failed'
+unset fail
 
 echo ----------- check this block for errors -----------------------
-set_ cetb=` grep only_for_build ../../art/ups/product_deps | grep cetbuildtools | awk '{ print $2 }' `
-set_ cetv=` grep only_for_build ../../art/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
+set_ cetb=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $2 }' `
+set_ cetv=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
 #echo Found $cetb $cetv
 setup -B $cetb $cetv
 setenv UPS_OPTIONS -B
@@ -62,15 +64,15 @@ setenv UPS_OPTIONS -B
 set_ cmd="$CETBUILDTOOLS_DIR/bin/set_dev_products $CETPKG_SOURCE/ups $CETPKG_BUILD $*"
 #echo Ready to run $cmd
 source `$cmd`
-test "$?" = 0 || return
+test "$?" = 0 || set_ fail="true"
+test "$fail" = "true" && echo "$msg5"
+test "$fail" = "true" && return 1
 echo ----------------------------------------------------------------
 
 # add lib to LD_LIBRARY_PATH
 source $CETBUILDTOOLS_DIR/bin/set_dev_lib
 # add bin to path
 source $CETBUILDTOOLS_DIR/bin/set_dev_bin
-# set FHICL_FILE_PATH
-source $CETBUILDTOOLS_DIR/bin/set_dev_fhicl
 
 # final sanity check
 source $CETBUILDTOOLS_DIR/bin/set_dev_check
@@ -79,5 +81,5 @@ source $CETBUILDTOOLS_DIR/bin/set_dev_report
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
-unset ss db me thisdir msg1 msg2 msg3 msg4
+unset ss db me thisdir msg1 msg2 msg3 msg4 msg5 fail
 unset set_ setenv unsetenv_ tnotnull nullout vecho_

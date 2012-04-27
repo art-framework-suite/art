@@ -1,4 +1,3 @@
-include(CetTest)
 
 art_dictionary(NOINSTALL)
 

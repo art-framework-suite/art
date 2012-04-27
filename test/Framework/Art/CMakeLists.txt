@@ -1,5 +1,4 @@
 # cet_test macro
-include(CetTest)
 
 link_libraries(
   art_Framework_Services_Registry
