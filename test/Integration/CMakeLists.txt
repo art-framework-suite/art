@@ -95,7 +95,6 @@ set(default_test_libraries
  )
 
 # cet_test macro
-include(CetTest)
 
 # Tests
 cet_test(ReflexTools_t USE_BOOST_UNIT

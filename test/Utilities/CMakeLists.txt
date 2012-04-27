@@ -1,5 +1,4 @@
 # cet_test macro
-include(CetTest)
 
 art_dictionary(NOINSTALL)
 
