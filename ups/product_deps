@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art_openmp	v0_00_03
+parent art_openmp	v0_00_04
 defaultqual	e1
 #
 product		version
@@ -15,7 +15,7 @@ sqlite		v3_07_08_00
 messagefacility	v1_10_09
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v2_00_02
+only_for_build	cetbuildtools	v2_00_05
  
 # a7  - with gcc 4.6.1 and external clhep 2.1.2.2
 # e1  - with gcc 4.6.1 and -std=c++0x (and -fopenmp)
