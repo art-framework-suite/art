@@ -456,7 +456,7 @@ sub header_includes {
       push @header_lines,
         "#include \"${header_path}\"";
     }
-    if ($options{"use-boost-unit"}) {
+    if ($options->{"use-boost-unit"}) {
       push @header_lines,
         "\n#include <boost/test/included/unit_test.hpp>";
     }
