@@ -91,9 +91,9 @@ while [[ -n "$1" ]]; do
   last_pkg=art
   for package in "${packages[@]}"; do
     product=`product_for "$package"`
-    pv=`wget -q -O - "https://cdcvs.fnal.gov/redmine/projects/${last_pkg}/repository/raw/ups/product_list?rev=ART_SUITE_${art_version}" | \
-     grep -e 'setup.*\b'"$product"'\b' | \
-     sed -e 's/^.*\(v[^ ]*\).*$/\1/'`
+    pv=`wget -q -O - "https://cdcvs.fnal.gov/redmine/projects/${last_pkg}/repository/raw/ups/product_deps?rev=ART_SUITE_${art_version}" | \
+     grep -e '^[ 	]**'"$product"'[ 	]\{1,\}' | \
+     sed -e 's/^.*\b'"$product"'\b[ 	]\{1,\}\(v[^ ]*\).*$/\1/'`
     if [[ -n "$pv" ]]; then
       echo "Found $package tag $pv corresponding to ART tag $art_version."
     else
