@@ -18,6 +18,8 @@
 #include "cetlib/demangle.h"
 #include "cpp0x/cstddef"
 #include "cpp0x/type_traits"
+
+#include <cassert>
 #include <list>
 #include <vector>
 
