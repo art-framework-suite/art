@@ -11,13 +11,29 @@ namespace art {
   class InputTag {
   public:
     InputTag();
-    InputTag(std::string const& label, std::string const& instance, std::string const& processName = "");
-    InputTag(char const*label, char const* instance, char const* processName="");
-    /// the input string is of the form:
-    /// label
-    /// label:instance
-    /// label:instance:process
+
+    // Create an InputTag by parsing the given string, which is
+    // expected to be in colon-delimited form, fitting one of the
+    // following patterns:
+    //
+    //   label
+    //   label:instance
+    //   label:instance:process
     InputTag(std::string const& s);
+    InputTag(char const * s);
+
+    // Create an InputTag with the given label, instance, and process
+    // specificiations.
+    InputTag(std::string const& label,
+	     std::string const& instance,
+	     std::string const& processName = std::string());
+
+    // Create an InputTag with the given label, instance, and process
+    // specifications.
+    InputTag(char const*label,
+	     char const* instance,
+	     char const* processName="");
+
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -35,6 +51,10 @@ namespace art {
     std::string label_;
     std::string instance_;
     std::string process_;
+
+    // Helper function, to parse colon-separated initialization
+    // string.
+    void set_from_string_(std::string const& s);
   };
 
   std::ostream& operator<<(std::ostream& ost, InputTag const& tag);

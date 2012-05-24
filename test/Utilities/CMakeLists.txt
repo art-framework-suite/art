@@ -19,6 +19,10 @@ cet_test(FriendlyName_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
+cet_test(InputTag_t USE_BOOST_UNIT
+  LIBRARIES ${default_test_libraries}
+  )
+
 cet_test(TypeID_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )

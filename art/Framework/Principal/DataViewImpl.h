@@ -91,10 +91,6 @@ public:
 
   template <typename PROD>
   bool
-  getByLabel(std::string const& label, Handle<PROD>& result) const;
-
-  template <typename PROD>
-  bool
   getByLabel(std::string const& label,
              std::string const& productInstanceName,
              Handle<PROD>& result) const;
@@ -233,15 +229,6 @@ art::DataViewImpl::get(SelectorBase const& sel,
   GroupQueryResult bh = this->get_(TypeID(typeid(PROD)),sel);
   convert_handle(bh, result);
   return bh.succeeded();
-}
-
-template <typename PROD>
-inline
-bool
-art::DataViewImpl::getByLabel(std::string const& label,
-                         Handle<PROD>& result) const
-{
-  return getByLabel(label, std::string(), result);
 }
 
 template <typename PROD>

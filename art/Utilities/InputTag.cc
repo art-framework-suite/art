@@ -8,8 +8,8 @@
 namespace art {
 
   InputTag::InputTag()
-  : label_(""),
-    instance_(""),
+  : label_(),
+    instance_(),
     process_()
   {
   }
@@ -31,9 +31,22 @@ namespace art {
 
 
   InputTag::InputTag(std::string const& s)
-  : label_(""),
-    instance_(""),
+  : label_(),
+    instance_(),
     process_()
+  {
+    set_from_string_(s);
+  }
+
+  InputTag::InputTag(const char* s)
+    : label_(),
+      instance_(),
+      process_()
+  {
+    set_from_string_(s);
+  }
+
+  void InputTag::set_from_string_(std::string const& s)
   {
     // string is delimited by colons
     std::vector<std::string> tokens;

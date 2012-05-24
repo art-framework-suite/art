@@ -101,10 +101,6 @@ public:
 
   template <typename PROD>
   bool
-  getByLabel(std::string const& label, Handle<PROD>& result) const;
-
-  template <typename PROD>
-  bool
   getByLabel(std::string const& label,
              std::string const& productInstanceName,
              Handle<PROD>& result) const;
@@ -118,30 +114,18 @@ public:
   void
   getManyByType(std::vector<Handle<PROD> >& results) const;
 
-  template< class ELEMENT >
-  std::size_t
-  getView( std::string const &            moduleLabel
-           , std::vector<ELEMENT const *> & result
-           ) const;
-
-  template< class ELEMENT >
-  std::size_t
-  getView( std::string const &            moduleLabel
-           , std::string const &            productInstanceName
-           , std::vector<ELEMENT const *> & result
-           ) const;
-
-  template< class ELEMENT >
-  std::size_t
-  getView( InputTag const &               tag
-           , std::vector<ELEMENT const *> & result
-           ) const;
-
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
-  template <class ELEMENT>
-  bool
-  getView(std::string const& moduleLabel, View<ELEMENT>& result) const;
+  template< class ELEMENT >
+  std::size_t
+  getView( std::string const &            moduleLabel,
+	   std::string const &            productInstanceName,
+	   std::vector<ELEMENT const *> & result) const;
+
+  template< class ELEMENT >
+  std::size_t
+  getView( InputTag const &               tag,
+	   std::vector<ELEMENT const *> & result) const;
 
   template <class ELEMENT>
   bool
@@ -154,9 +138,8 @@ public:
 
   template< typename ELEMENT >
   void
-  fillView_( GroupQueryResult & bh
-             , std::vector<ELEMENT const *> & result
-             ) const;
+  fillView_( GroupQueryResult & bh,
+	     std::vector<ELEMENT const *> & result) const;
 
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
@@ -291,17 +274,6 @@ art::Event::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 
 template <typename PROD>
 bool
-art::Event::getByLabel(std::string const& label, Handle<PROD>& result) const
-{
-  bool ok = this->Base::getByLabel(label, result);
-  if (ok) {
-    addToGotBranchIDs(*result.provenance());
-  }
-  return ok;
-}  // getByLabel<>()
-
-template <typename PROD>
-bool
 art::Event::getByLabel(std::string const& label,
                   std::string const& productInstanceName,
                   Handle<PROD>& result) const
@@ -340,23 +312,12 @@ art::Event::getManyByType(std::vector<Handle<PROD> >& results) const
   }
 }  // getManyByType<>()
 
-// ----------------------------------------------------------------------
 
 template< class ELEMENT >
 std::size_t
-art::Event::getView( std::string const &            moduleLabel
-                , std::vector<ELEMENT const *> & result
-                ) const
-{
-  return getView(moduleLabel, std::string(), result);
-}
-
-template< class ELEMENT >
-std::size_t
-art::Event::getView( std::string const &            moduleLabel
-                , std::string const &            productInstanceName
-                , std::vector<ELEMENT const *> & result
-                ) const
+art::Event::getView(std::string const &            moduleLabel,
+		    std::string const &            productInstanceName,
+		    std::vector<ELEMENT const *> & result) const
 {
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
@@ -403,14 +364,6 @@ art::Event::getView( InputTag const &               tag
   fillView_(bhv[0], result);
   return result.size() - orig_size;
 }  // getView<>()
-
-template <class ELEMENT>
-bool
-art::Event::getView(std::string const& moduleLabel,
-               View<ELEMENT>&     result) const
-{
-  return getView(moduleLabel, std::string(), result);
-}
 
 template <class ELEMENT>
 bool
