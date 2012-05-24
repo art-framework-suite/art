@@ -25,14 +25,14 @@ namespace art {
     // Create an InputTag with the given label, instance, and process
     // specificiations.
     InputTag(std::string const& label,
-	     std::string const& instance,
-	     std::string const& processName = std::string());
+       std::string const& instance,
+       std::string const& processName = std::string());
 
     // Create an InputTag with the given label, instance, and process
     // specifications.
     InputTag(char const*label,
-	     char const* instance,
-	     char const* processName="");
+       char const* instance,
+       char const* processName="");
 
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
@@ -59,6 +59,55 @@ namespace art {
 
   std::ostream& operator<<(std::ostream& ost, InputTag const& tag);
 
+  inline
+  InputTag::InputTag()
+  : label_(),
+    instance_(),
+    process_()
+  {
+  }
+
+
+  inline
+  InputTag::InputTag(std::string const& label, std::string const& instance, std::string const& processName)
+  : label_(label),
+    instance_(instance),
+    process_(processName)
+  {
+  }
+
+  inline
+  InputTag::InputTag(char const* label, char const* instance, char const* processName)
+  : label_(label),
+    instance_(instance),
+    process_(processName)
+  {
+  }
+
+  inline
+  InputTag::InputTag(std::string const& s)
+  : label_(),
+    instance_(),
+    process_()
+  {
+    set_from_string_(s);
+  }
+
+  inline
+  InputTag::InputTag(const char* s)
+    : label_(),
+      instance_(),
+      process_()
+  {
+    set_from_string_(s);
+  }
+
+  inline
+  bool InputTag::operator==(InputTag const& tag) const {
+    return (label_ == tag.label_)
+        && (instance_ == tag.instance_)
+        && (process_ == tag.process_);
+  }
 }
 
 #endif /* art_Utilities_InputTag_h */

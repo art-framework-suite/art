@@ -6,46 +6,6 @@
 #include <vector>
 
 namespace art {
-
-  InputTag::InputTag()
-  : label_(),
-    instance_(),
-    process_()
-  {
-  }
-
-
-  InputTag::InputTag(std::string const& label, std::string const& instance, std::string const& processName)
-  : label_(label),
-    instance_(instance),
-    process_(processName)
-  {
-  }
-
-  InputTag::InputTag(char const* label, char const* instance, char const* processName)
-  : label_(label),
-    instance_(instance),
-    process_(processName)
-  {
-  }
-
-
-  InputTag::InputTag(std::string const& s)
-  : label_(),
-    instance_(),
-    process_()
-  {
-    set_from_string_(s);
-  }
-
-  InputTag::InputTag(const char* s)
-    : label_(),
-      instance_(),
-      process_()
-  {
-    set_from_string_(s);
-  }
-
   void InputTag::set_from_string_(std::string const& s)
   {
     // string is delimited by colons
@@ -60,12 +20,6 @@ namespace art {
     if(nwords > 0) label_ = tokens[0];
     if(nwords > 1) instance_ = tokens[1];
     if(nwords > 2) process_=tokens[2];
-  }
-
-  bool InputTag::operator==(InputTag const& tag) const {
-    return (label_ == tag.label_)
-        && (instance_ == tag.instance_)
-        && (process_ == tag.process_);
   }
 
   std::string InputTag::encode() const {
