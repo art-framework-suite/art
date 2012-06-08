@@ -35,6 +35,11 @@ cet_have_qual( e2 )
 if ( ${CET_HAVE_QUAL} )
   cet_add_compiler_flags(CXX -std=c++0x)
 endif()
+cet_have_qual(sse2)
+if ( ${CET_HAVE_QUAL} )
+  cet_add_compiler_flags(CXX -msse2 -ftree-vectorizer-verbose=2)
+endif()
+
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
