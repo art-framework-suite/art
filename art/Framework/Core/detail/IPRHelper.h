@@ -312,7 +312,7 @@ fill(size_t index,
         << assnsTag_
         << ".\n";
   }
-  bColl[index] = item.get();
+  bColl[index] =  item.isAvailable() ? item.get() : nullptr;
 }
 
 template <typename ProdB>
@@ -353,7 +353,7 @@ fill(size_t index,
      std::vector<Bcoll> & bColls) const
 {
   if (item) {
-     bColls[index].push_back(item.get());
+    bColls[index].push_back( item.isAvailable() ? item.get() : nullptr);
   }
 }
 
