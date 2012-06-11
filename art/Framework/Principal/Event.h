@@ -119,13 +119,13 @@ public:
   template< class ELEMENT >
   std::size_t
   getView( std::string const &            moduleLabel,
-	   std::string const &            productInstanceName,
-	   std::vector<ELEMENT const *> & result) const;
+     std::string const &            productInstanceName,
+     std::vector<ELEMENT const *> & result) const;
 
   template< class ELEMENT >
   std::size_t
   getView( InputTag const &               tag,
-	   std::vector<ELEMENT const *> & result) const;
+     std::vector<ELEMENT const *> & result) const;
 
   template <class ELEMENT>
   bool
@@ -139,7 +139,7 @@ public:
   template< typename ELEMENT >
   void
   fillView_( GroupQueryResult & bh,
-	     std::vector<ELEMENT const *> & result) const;
+       std::vector<ELEMENT const *> & result) const;
 
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
@@ -316,8 +316,8 @@ art::Event::getManyByType(std::vector<Handle<PROD> >& results) const
 template< class ELEMENT >
 std::size_t
 art::Event::getView(std::string const &            moduleLabel,
-		    std::string const &            productInstanceName,
-		    std::vector<ELEMENT const *> & result) const
+        std::string const &            productInstanceName,
+        std::vector<ELEMENT const *> & result) const
 {
   TypeID typeID( typeid(ELEMENT) );
   GroupQueryResultVec bhv;
@@ -424,8 +424,7 @@ art::Event::fillView_( GroupQueryResult & bh
 
   std::vector<void const *> erased_ptrs;
   bh.result()->uniqueProduct()->fillView(erased_ptrs);
-  Handle<ELEMENT> h(bh);
-  addToGotBranchIDs(*h.provenance());
+  addToGotBranchIDs(Provenance(bh.result()));
 
   for( iter_t b = erased_ptrs.begin()
          , e = erased_ptrs.end();  b != e;  ++b ) {
