@@ -6,7 +6,11 @@ physics: {
 }
 
 outputs: {
-  out1: { module_type: FileDumperOutput }
+  out1:
+  {
+    module_type: FileDumperOutput
+    wantProductFriendlyClassName: true
+  }
 }
 
 source: {

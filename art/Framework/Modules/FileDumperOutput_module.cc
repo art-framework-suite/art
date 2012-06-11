@@ -53,7 +53,8 @@ private:
   printPrincipal(P const & p);
 
   bool wantOnDemandProduction;
-
+  bool wantProductFullClassName;
+  bool wantProductFriendlyClassName;
 };  // FileDumperOutput
 
 // ----------------------------------------------------------------------
@@ -61,6 +62,9 @@ private:
   FileDumperOutput::FileDumperOutput( ParameterSet const & ps )
 : OutputModule          ( ps )
 , wantOnDemandProduction( ps.get<bool>("onDemandProduction", false) )
+, wantProductFullClassName( ps.get<bool>("wantProductFullClassName", true) )
+, wantProductFriendlyClassName( ps.get<bool>("wantProductFriendlyClassName",
+                                             ! wantProductFullClassName) )
 { }
 
 // ----------------------------------------------------------------------
@@ -94,7 +98,7 @@ FileDumperOutput::printPrincipal(P const & p) {
 
   // prepare the data structure, a sequence of columns:
   typedef  std::vector<std::string>  column;
-  unsigned int ncols = 5;
+  unsigned int ncols = 6;
   std::vector<column> col(ncols);
 
   // provide column headings:
@@ -102,7 +106,8 @@ FileDumperOutput::printPrincipal(P const & p) {
   col[1].push_back("MODULE LABEL");
   col[2].push_back("PRODUCT INSTANCE NAME");
   col[3].push_back("DATA PRODUCT TYPE");
-  col[4].push_back("SIZE");
+  col[4].push_back("PRODUCT FRIENDLY TYPE");
+  col[5].push_back("SIZE");
 
   size_t present = 0;
   size_t not_present = 0;
@@ -131,12 +136,13 @@ FileDumperOutput::printPrincipal(P const & p) {
     col[1].push_back( g.moduleLabel() );
     col[2].push_back( g.productInstanceName() );
     col[3].push_back( g.productDescription().producedClassName() );
+    col[4].push_back( g.productDescription().friendlyClassName() );
 
     if( g.anyProduct() ) {
-      col[4].push_back( g.anyProduct()->productSize() );
+      col[5].push_back( g.anyProduct()->productSize() );
     }
     else {
-      col[4].push_back( g.onDemand() ? "o/d" : "?");
+      col[5].push_back( g.onDemand() ? "o/d" : "?");
     }
   }
 
@@ -151,6 +157,8 @@ FileDumperOutput::printPrincipal(P const & p) {
   for( unsigned row = 0, end = col[0].size(); row != end; ++row ) {
     std::string s;
     for( unsigned c = 0, end = ncols-1; c != end; ++c ) {
+      if (c == 3 && ! wantProductFullClassName) { continue; }
+      if (c == 4 && ! wantProductFriendlyClassName) { continue; }
       s.append( cet::rpad(col[c][row], width[c], '.') )
        .append( " | ");
     }
