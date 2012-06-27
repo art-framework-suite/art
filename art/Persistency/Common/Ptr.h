@@ -142,7 +142,8 @@ public:
   RefCore const & refCore() const { return core_; }
 
   // Fulfills the role of, "convertible to bool"
-  operator void const * () const { return get(); }
+  operator void const * () const { return(isNonnull() &&
+                                          isAvailable()) ? get() : nullptr; }
 
   // MUST UPDATE WHEN CLASS IS CHANGED!
   static short Class_Version() { return 10; }
@@ -260,7 +261,12 @@ namespace art {
               typename Ptr<T>::key_type idx) :
     core_(handle.id(), getItem_(handle.product(), idx), 0),
     key_(idx)
-  { }
+  {
+    if (core_.isNull()) {
+      throw Exception(errors::InvalidReference)
+        << "Attempt to construct a Ptr from a Handle with invalid ProductID. Perhaps a\ndefault-constructed Ptr is what you want?";
+    }
+  }
 
   template<typename T>
   template<typename C>
