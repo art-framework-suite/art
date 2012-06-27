@@ -1,0 +1,338 @@
+\documentclass[letterpaper,10pt,article]{memoir}
+\usepackage[cmyk]{xcolor}
+\usepackage{bookman}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{xspace}
+
+%
+% Add other packages here, as needed. hyperref really wants to be
+% last.
+%
+\usepackage{tikz-uml}
+\tikzumlset{fill class=yellow!10}
+\usepackage{listings}
+\lstset{ basicstyle=\ttfamily % for 'normal' code
+  , numbers=none % don't want line numbers
+  , tabsize=2 % don't waste space with huge tabs
+  , showstringspaces=false % do not use undercap as space
+  , keywordstyle=\bfseries % for identified keywords
+  , commentstyle=\itshape % for comments
+  , numberbychapter=false
+  , captionpos=b%
+  , backgroundcolor=\color{yellow!20}
+  , frame=trbl
+  , rulecolor=\color{brown}
+  , framexleftmargin=8pt
+  , framexrightmargin=8pt
+}
+\lstloadlanguages{[ISO]C++}
+\lstMakeShortInline[language=C++]|
+\usepackage[pdftex,colorlinks=true,linkcolor=blue]{hyperref}
+
+%------------------------------------------------------------
+% Page setup
+%------------------------------------------------------------
+\setstocksize{11in}{8.5in}
+\settrimmedsize{11in}{8.5in}{*}
+\settrims{0pt}{0pt}
+\setxlvchars{\normalfont}
+\setlxvchars{\normalfont}
+\setlrmarginsandblock{1.0in}{*}{1.}
+\setulmarginsandblock{*}{1.0in}{1.618}
+\setheadfoot{2\baselineskip}{\baselineskip}
+\checkandfixthelayout[nearest]
+\nouppercaseheads
+\setsecheadstyle{\bfseries}
+
+%------------------------------------------------------------
+% Setup for labels in the description environment; the default
+% bold is too strong when using the bookman font.
+%------------------------------------------------------------
+\renewcommand*{\descriptionlabel}[1]{\hspace\labelsep\normalfont\itshape #1:}
+
+%------------------------------------------------------------
+% Document title control. Change these as appropriate for your
+% document.
+%------------------------------------------------------------
+\newcommand{\longtitle}{Polymorphism and Data Products}
+\newcommand{\shorttitle}{Polymorphism and Data Products}
+
+%------------------------------------------------------------
+% Define new commands here
+%------------------------------------------------------------
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\name}[1]{\textsc{#1}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\cpp}{C\kern-0.15ex{+}\kern-0.1ex{+}\xspace} % C++
+\newenvironment{fixme}{\color{cyan}\itshape\begin{quotation}}{\end{quotation}}
+\newcommand{\product}[1]{\textbf{#1}\xspace}
+\newcommand{\art}{\product{art}}
+
+%------------------------------------------------------------
+% Document starts here
+%------------------------------------------------------------
+\begin{document}
+\firmlists
+	
+%------------------------------------------------------------
+% First page formatting is special.
+%------------------------------------------------------------
+\thispagestyle{empty}
+\begin{flushright}
+ {\color{magenta}\Huge\sffamily\bfseries\longtitle}
+\end{flushright}
+\medspace
+\begin{flushright}
+  {\itshape Marc Paterno}
+\end{flushright}
+
+%------------------------------------------------------------
+
+\begin{abstract}
+  This document explains why the \art development team discourages the
+  use of base class pointers in data products. It also explains the
+  rationale for, and the use of, ``views'', as provided by the \art
+  framework.
+\end{abstract}
+
+\chapter{Introduction\label{ch:introduction}}
+
+In \cpp, \emph{polymorphism}, or, to be more precise \emph{run-time
+  polymorphism},\footnote{Run-time polymorphism is to be distinguished
+  from \emph{parametric polymorphism}, also called \emph{compile-time
+    polymorphism}, which in \cpp is provided by class and function
+  templates.} is the mechanism, using |virtual| functions, through
+which a base class can declare a function and various derived classes
+can differently implement that function. The actual function chosen be
+executed is determined by the run-time type of the object on which the
+function call is made.
+
+\emph{Type erasure} is the compile-time process through which a
+program looses some (or all) type information about a given object. In
+\cpp, a program that uses run-time polymorphism frequently also uses
+type erasure---specifically, it does so whenever the concrete type of
+an object has any function members not in the interface of that
+concrete types base class. Any such functions become unavailable to
+code that knows only about the base class, unless a |dynamic_cast| is
+used to recover the hidden type information.
+
+In \art, recommended practice is the following:
+\begin{enumerate}
+  \item\label{no-erasure} data products should avoid type erasure, and
+  \item\label{poly-algor} polymorphic use of data products should be achieved through
+    algorithms that manipulate base class pointers or references.
+\end{enumerate}
+Item~\ref{no-erasure} means that data products should only contain
+concrete types, preferably contained by value (not by reference); they
+should \emph{not} contain pointers-to-base, especially pointers which
+are used to implement ownership. Item~\ref{poly-algor} means that many
+algorithms should be written as functions which accept
+pointers-to-base, or collections of pointers-to-base (with appropriate
+|const| qualification). We supply the function templates
+|Event::getView|, and the class template |View<E>| to support this
+use.
+
+This document explains the rationale for, and the behavior of,
+|Event::getView| and |View<E>|, and recommended practice on the design
+of data products and the design of algorithms that are polymorphic on
+those data products.
+
+\chapter{The problem with type erasure}
+
+A container such as |std::vector<Base*>| is unsuitable for use as a
+data product in \art because it (the container) does not \emph{own}
+the objects to which the elements point. This means that when the
+|vector| is deleted the pointed-to objects are \emph{not}
+deleted---and thus are leaked. For proper functioning, \art assumes
+that data products own their contents.
+
+One attempt to ``fix'' this problem---which we do not endorse---is to
+create a class template which, like |vector<Base*>|, is capable of
+holding any class that inherits from |Base|, but which, unlike
+|vector<Base*>|, owns the objects to which it points. This elimantes
+the problem of memory leaks, but it leads to other problems. These
+include:
+\begin{itemize}
+\item frequent use of |dynamic_cast|,
+\item complexity of management of ownership of the pointed-to elements, and
+\item complexity induced in |Ptr<E>|.
+\end{itemize}
+
+\section{Frequent use of \lstinline{dynamic_cast}}
+
+In code that uses type-erasing containers, it is common to find
+widespread use of |dynamic_cast|. This is because it is very rare for
+\emph{all} client code that uses the type-erased contained to be
+independent of the derived classes. If
+
+
+\section{Management of ownership}
+\section{Complexity in \lstinline{Ptr<T>}}
+
+\chapter{What is a ``view''?}
+
+In \art, we use the term ``view'' to denote \emph{a collection of
+  pointers to objects contained by collections, which collections are
+  data products in an \lstinline{Event}}.  \art supports two different
+class templates as ``views'': |std::vector<E const*>| and
+|art::View<E>|.
+
+The most efficient type, for most purposes, %
+is |std::vector<const T*>|. Note that the elements in the |vector| are
+pointers-to-const. The objects being pointed to (the objects of type
+|T|, which are elements in some collection in the event) may not be
+modified through these pointers; if the objects are of class-type,
+only |const| member functions can be called on them. The pointers may
+be modified (\textit{e.g.}, a pointer may be overwritten by a
+different value such as null), or the collection may be modified
+(\textit{e.g.}, it may be sorted, or elements can be removed), or
+both. The type |T| may be to the base class of the actual, concrete
+class of the objects stored in the |Event|; see
+\S\ref{ch:concrete-use} for an example. Thus the collection of
+pointers may be used polymorphically by an algorithm that depends only
+on the base class |T|, not on the (unspecified) exact type of the
+object being pointed to. It is important to note that the view
+|vector| \emph{does not own} the objects to which it points. These
+objects are not deleted when the |vector| is destroyed. One should not
+call |delete| on the contained pointers, or use one as the value
+passed to any function or constructor that takes ownership of the
+pointed-to object, \textit{e.g.}, the constructor of
+|std::shared_ptr|. Because it does not own the objects to which it
+points, such a |vector| is not suitable for persistence, and should
+2not be put into an |Event|.
+
+The class template |art::View<E>| should be used when one needs the
+ability to create a persistent object from a ``view''. At the cost of
+some additional overhead (when compared to |std::vector<E const*>|),
+|View<E>| provides the ability to create a |art::PtrVector<E>|. Like
+|std::vector<E const*>|, |View<E>| provides only |const| access to the
+objects pointed to by the ``view''. See \S\ref{ch:view-template} for
+more details on |art::View<E>|.
+
+\chapter{Obtaining ``views''}
+
+The class |Event| has an overload set\footnote{In \cpp, an
+  \emph{overload set} is a set of functions, function templates, or
+  both, with the same \emph{name}, but with different
+  \emph{types}. The type of a function is determined by its list of
+  parameters and its return type; the type of a function template is
+  determined by its list of function parameters, the list of template
+  parameters, and its return type. Functions and function templates in
+  an overload set are not permitted to differ only in return type.}
+named |getView|. There are four functions in the overload set; they
+differ in how they specify the collection into which the view is
+pointing (with two options: either a combination of module label and
+product instance name, or an |InputTag|) and by the class template
+used to contain the view (with two choices, either %
+|std::vector<E const*>| or |View<E>|). These function templates are shown in
+listing~\ref{l:getview}.
+\begin{lstlisting}[language=C++%
+                   , caption={The \lstinline{Event::getView} member function templates.}%
+                   , label={l:getview}
+                   , float=htb
+                   ]
+template <class E>
+std::size_t Event::getView(std::string const& moduleLabel,
+                           std::string const& productInstanceName,
+                           std::vector<E const*>& v) const;
+template <class E>
+std::size_t Event::getView(InputTag const& t, std::vector<E const*>& v) const;
+template <class E>
+bool Event::getView(std::string const& moduleLabel,
+                    std::string const& productInstanceName,
+                    View<E>& v) const;
+template <class E>
+bool Event::getView(InputTag const& t, View<E>& v) const;
+\end{lstlisting}
+
+For each member function template
+
+\chapter{The class template \lstinline{View<E>}\label{ch:view-template}}
+
+Listing~\ref{l:view} shows the main features of the class template |art::View<E>|.
+
+\begin{lstlisting}[language=C++%
+                   , caption={The public interface of class template \lstinline{art::View<E>}.}%
+                   , label={l:view}
+                   , float=htb
+                   ]
+template <class E> class art::View {
+public:
+  typedef std::vector<E const*> collection_type;
+  View(); // default constructed Views are invalid
+  bool isValid() const;
+  collection_type&       vals();
+  collection_type const& vals() const;
+  ProductID id() const;
+  void fill(PtrVector<T>& pv) const;
+
+  // The following are conversion operators to collection_type& and
+  // collection_type const&. These allow an object of type View<E> to
+  // be passed to any function that expects a std::vector<E const*>&
+  // or std::vector<E const*> const&.
+  operator collection_type& ();
+  operator collection_type const& () const;
+};
+\end{lstlisting}
+
+\chapter{A concrete use\label{ch:concrete-use}}
+The UML class diagram in figure~\ref{fig:prongdiagram} shows the
+relationship between the classes |Trajectory|, |MCParticle|, and
+|Track|. In our example, |Trajectory| is an \emph{abstract}
+class. This means it contains at least one \emph{pure} virtual
+function---a virtual function with no implementation. Because it is
+abstract, no instances of class |Trajectory| can be created. Instead,
+|Trajectory| is useful as a \emph{base class}, because it provides an
+interface that can be used polymorphically---by lstinline that depends on
+the base class |Trajectory|, but does not depend on knowing about any
+derived types. |Trajectory| contains one interesting member function,
+the virtual function |momentum(double s)|, which given a position |s|
+along the length of the trajectory, will provide the momentum of the
+represented object at that location. |Trajectory| has two subclasses,
+also called derived classes: |MCParticle| (which represents a Monte
+Carlo particle) and |Track| (which represents a reconstructed track in
+a detector).
+\begin{figure}[!ht]
+  \centering
+  \begin{tikzpicture}
+    \umlclass[type=abstract]{Trajectory}{}{\umlvirt{momentum(double s) : ThreeVector} \\ \umlvirt{$\sim$Trajectory()} \\ \ldots}
+    \umlclass[x=-4, y=-4]{MCParticle}{}{momentum(double) : ThreeVector \\ $\sim$MCParticle() \\ \ldots}
+    \umlclass[x= 4, y=-4]{Track}{}{momentum(double s) : ThreeVector \\ $\sim$Track() \\ \ldots}
+
+    \umlinherit[geometry=|-|]{MCParticle}{Trajectory}
+    \umlinherit[geometry=|-|]{Track}{Trajectory}
+  \end{tikzpicture}
+  \caption{The UML class diagram for our example problem. The lack of
+    an argument name in the function of \lstinline{MCParticle} is meant to
+    convey the information that this function does not use the value of the argument.}
+  \label{fig:prongdiagram}
+\end{figure}
+
+\appendix
+
+% \chapter{References\label{ch:references}}
+
+% Include as needed.
+
+% \chapter{Appendices\label{ch:appendices}}
+
+% Include as needed.
+
+% Include '\bibname', and the bibliography parts below, only if you
+% have a bibliography. Not every tech report needs to have one.
+
+%\bibname
+
+% The 'thebibliography' environment takes one required argument, which
+% is a piece of text as wide as the widest label in the
+% bibliography. Ugly, but true.
+%\begin{thebibliography}{9}
+
+% \bibitem{cpp:2003}
+%  \textit{ISO/IEC 14882:2003 (Second Edition) Programming Languages - C++},
+%   John Wiley \& Sons, Ltd.
+
+%\end{thebibliography}
+
+\end{document}
