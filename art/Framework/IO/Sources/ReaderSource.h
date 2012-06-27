@@ -15,12 +15,14 @@
 //    // Construct an object of type T. The ParameterSet provided will
 //    // be that constructed by the 'source' statement in the job
 //    // configuration file. The ProductRegistryHelper must be used
-//    // to register and products to be reconstituted by this source.
-//    T(fhicl::ParameterSet const&, art::ProductRegistryHelper& );
+//    // to register products to be reconstituted by this source.
+//    T(fhicl::ParameterSet const &,
+//      art::ProductRegistryHelper &,
+//      art::PrincipalMaker const &);
 //
 //    // Open the file of the given name, returning a new fileblock in
 //    // fb. If readFile is unable to return a valid FileBlock it
-//    // should throw (suggestions for suitable exceptions are:
+//    // should throw. Suggestions for suitable exceptions are:
 //    // art::Exception(art::errors::FileOpenError) or
 //    // art::Exception(art::errors::FileReadError).
 //    void readFile(std::string const& filename,
