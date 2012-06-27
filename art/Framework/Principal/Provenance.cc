@@ -11,23 +11,14 @@
 // ======================================================================
 
 #include "art/Framework/Principal/Provenance.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
-#if 0
-void
-art::Provenance::
-setProductProvenance(std::shared_ptr<ProductProvenance> bei) const {
-  assert(group_->productProvenancePtr().get() == 0);
-  productProvenancePtr_ = bei;
+fhicl::ParameterSet const &
+art::Provenance::parameterSet() const {
+  return
+    fhicl::ParameterSetRegistry::get(*psetIDs().begin());
 }
-
-std::shared_ptr<art::ProductProvenance>
-art::Provenance::resolve () const {
-  std::shared_ptr<ProductProvenance> prov =
-    store_->branchToProductProvenance(productDescription().branchID());
-  setProductProvenance(prov);
-  return prov;
-}
-#endif  // 0
 
 std::ostream &
 art::Provenance::write(std::ostream& os) const {

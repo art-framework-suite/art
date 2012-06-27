@@ -42,20 +42,21 @@ public:
 
   bool  isValid( ) const  { return static_cast<bool>(group_); }
 
-  BranchDescription const&  productDescription () const {return group_->productDescription();}
-  BranchDescription const&  branchDescription  () const {return productDescription();}
-  ProductID         const&  productID          () const {return group_->productID();}
-  Parentage         const&  event              () const {return parentage();}
-  Parentage         const&  parentage          () const {return productProvenance().parentage();}
-  BranchID          const&  branchID           () const {return productDescription().branchID();}
-  std::string       const&  branchName         () const {return productDescription().branchName();}
-  std::string       const&  producedClassName      () const {return productDescription().producedClassName();}
-  std::string       const&  moduleLabel        () const {return productDescription().moduleLabel();}
-  std::string       const&  processName        () const {return productDescription().processName();}
-  ProductStatus     const&  productStatus      () const {return productProvenance().productStatus();}
-  std::string       const&  productInstanceName() const {return productDescription().productInstanceName();}
-  std::string       const&  friendlyClassName  () const {return productDescription().friendlyClassName();}
-  std::set<fhicl::ParameterSetID> const&
+  BranchDescription   const & productDescription () const {return group_->productDescription();}
+  BranchDescription   const & branchDescription  () const {return productDescription();}
+  ProductID           const & productID          () const {return group_->productID();}
+  Parentage           const & event              () const {return parentage();}
+  Parentage           const & parentage          () const {return productProvenance().parentage();}
+  BranchID            const & branchID           () const {return productDescription().branchID();}
+  std::string         const & branchName         () const {return productDescription().branchName();}
+  std::string         const & producedClassName  () const {return productDescription().producedClassName();}
+  std::string         const & moduleLabel        () const {return productDescription().moduleLabel();}
+  std::string         const & processName        () const {return productDescription().processName();}
+  ProductStatus       const & productStatus      () const {return productProvenance().productStatus();}
+  std::string         const & productInstanceName() const {return productDescription().productInstanceName();}
+  std::string         const & friendlyClassName  () const {return productDescription().friendlyClassName();}
+  fhicl::ParameterSet const & parameterSet       () const;
+  std::set<fhicl::ParameterSetID> const &
                             psetIDs            () const {return productDescription().psetIDs();}
   std::vector<BranchID> const&
                             parents            () const {return parentage().parents();}

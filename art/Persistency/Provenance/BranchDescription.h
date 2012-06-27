@@ -83,7 +83,6 @@ public:
 
   int const & splitLevel() const {return guts().splitLevel_;}
   int const & basketSize() const {return guts().basketSize_;}
-  fhicl::ParameterSetID const& parameterSetID() const {return guts().parameterSetID_;}
   std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
   std::string const &branchName() const {return guts().branchName_;}
   BranchType const &branchType() const {return branchType_;}
@@ -104,12 +103,6 @@ public:
 
   struct Transients {
     Transients();
-
-    // The parameter set id of the producer.
-    // This is only valid if produced_ is true.
-    // This is just used as a cache, and is not logically
-    // part of the branch description.
-    fhicl::ParameterSetID parameterSetID_;
 
     // The branch name, which is currently derivable fron the other attributes.
     std::string branchName_;

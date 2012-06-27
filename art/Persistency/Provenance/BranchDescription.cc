@@ -40,7 +40,6 @@ namespace {
 }
 
 art::BranchDescription::Transients::Transients() :
-  parameterSetID_(),
   branchName_(),
   wrappedName_(),
   produced_(false),
@@ -81,7 +80,6 @@ BranchDescription(TypeLabel const &tl,
 {
   guts().present_ = true;
   guts().produced_ = true;
-  guts().parameterSetID_ = md.parameterSetID();
   psetIDs_.insert(md.parameterSetID());
   processConfigurationIDs_.insert(md.processConfigurationID());
   throwIfInvalid_();
@@ -232,9 +230,6 @@ art::BranchDescription::throwIfInvalid_() const
 
   if (friendlyClassName_.empty())
     throwExceptionWithText("Friendly class name is not allowed to be empty");
-
-  if (produced() && !parameterSetID().is_valid())
-    throwExceptionWithText("Invalid ParameterSetID detected");
 
   if (friendlyClassName_.find(underscore) != std::string::npos) {
     throw Exception(errors::LogicError, "IllegalCharacter")
