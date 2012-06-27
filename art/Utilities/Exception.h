@@ -35,7 +35,6 @@ namespace art {
     ,  UnimplementedFeature
     ,  InvalidReference
     ,  NullPointerError
-    ,  NoProductSpecified
     ,  EventTimeout
     ,  DataCorruption
 

@@ -30,7 +30,6 @@ std::string
 
   case ProductNotFound           : return "ProductNotFound";
   case DictionaryNotFound        : return "DictionaryNotFound";
-  case NoProductSpecified        : return "NoProductSpecified";
   case InsertFailure             : return "InsertFailure";
   case Configuration             : return "Configuration";
   case LogicError                : return "LogicError";
