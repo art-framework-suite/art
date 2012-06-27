@@ -1,0 +1,7 @@
+#include "Assns_r_inc.fcl"
+
+physics.analyzers.aa1.test_AB: true
+physics.analyzers.aa1.test_BA: true
+physics.analyzers.aa1.bCollMissing: true
+
+source.inputCommands: [ "keep *", "drop Strings_*_*_*" ]

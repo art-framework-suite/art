@@ -46,6 +46,7 @@ private:
   std::string inputLabel_;
   bool testAB_;
   bool testBA_;
+  bool bCollMissing_;
 };
 
 namespace {
@@ -132,7 +133,8 @@ AssnsAnalyzer(fhicl::ParameterSet const & p)
   :
   inputLabel_(p.get<std::string>("input_label")),
   testAB_(p.get<bool>("test_AB", true)),
-  testBA_(p.get<bool>("test_BA", false))
+  testBA_(p.get<bool>("test_BA", false)),
+  bCollMissing_(p.get<bool>("bCollMissing", false))
 {
 }
 
@@ -178,38 +180,56 @@ testOne(art::Event const & e) const
   FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
   FO<std::string, void> foBV(hAcoll, e, inputLabel_);
   art::Handle<std::vector<std::string> > hBcoll;
-  BOOST_REQUIRE(e.getByLabel(inputLabel_, hBcoll));
-  FO<size_t, arttest::AssnTestData> foA(hBcoll, e, inputLabel_);
-  FO<size_t, void> foAV(hBcoll, e, inputLabel_);
+  std::auto_ptr<FO<size_t, arttest::AssnTestData> > foA;
+  std::auto_ptr<FO<size_t, void> > foAV;
+  if (! bCollMissing_) {
+    BOOST_REQUIRE(e.getByLabel(inputLabel_, hBcoll));
+    foA.reset(new FO<size_t, arttest::AssnTestData>(hBcoll, e, inputLabel_));
+    foAV.reset(new FO<size_t, void>(hBcoll, e, inputLabel_));
+  }
   for (size_t i = 0; i < 3; ++i) {
     if (testAB_) {
       BOOST_CHECK_EQUAL(*(*hAB)[i].first, i);
-      BOOST_CHECK_EQUAL(*(*hAB)[i].second, std::string(x[i]));
+      if (! bCollMissing_) {
+        BOOST_CHECK_EQUAL(*(*hAB)[i].second, std::string(x[i]));
+      }
       BOOST_CHECK_EQUAL((*hAB).data(i).d1, (*hAB)[i].first.key());
       BOOST_CHECK_EQUAL((*hAB).data(i).d2, (*hAB)[i].second.key());
       BOOST_CHECK_EQUAL((*hAB).data(i).label, std::string(a[i]));
       BOOST_CHECK_EQUAL(*(*hABV)[i].first, i);
-      BOOST_CHECK_EQUAL(*(*hABV)[i].second, std::string(x[i]));
+      if (! bCollMissing_) {
+        BOOST_CHECK_EQUAL(*(*hABV)[i].second, std::string(x[i]));
+      }
     }
     if (testBA_) {
-      BOOST_CHECK_EQUAL(*(*hBA)[i].first, std::string(x[i]));
+      if (! bCollMissing_) {
+        BOOST_CHECK_EQUAL(*(*hBA)[i].first, std::string(x[i]));
+      }
       BOOST_CHECK_EQUAL(*(*hBA)[i].second, i);
       BOOST_CHECK_EQUAL((*hBA).data(i).d2, (*hBA)[i].first.key());
       BOOST_CHECK_EQUAL((*hBA).data(i).d1, (*hBA)[i].second.key());
       BOOST_CHECK_EQUAL((*hBA).data(i).label, std::string(a[i]));
-      BOOST_CHECK_EQUAL(*(*hBAV)[i].first, std::string(x[i]));
+      if (! bCollMissing_) {
+        BOOST_CHECK_EQUAL(*(*hBAV)[i].first, std::string(x[i]));
+      }
       BOOST_CHECK_EQUAL(*(*hBAV)[i].second, i);
     }
     // Check FindOne.
-    BOOST_CHECK_EQUAL(dereference(foB.at(i)), std::string(x[ai[i]]));
+    if (bCollMissing_) {
+      BOOST_CHECK(!foBV.at(i));
+    } else {
+      BOOST_CHECK_EQUAL(dereference(foB.at(i)), std::string(x[ai[i]]));
+    }
     BOOST_CHECK_EQUAL(dereference(foB.data(i)).d1, i);
     BOOST_CHECK_EQUAL(dereference(foB.data(i)).d2, bi[i]);
-    BOOST_CHECK_EQUAL(dereference(foBV.at(i)), std::string(x[ai[i]]));
-    BOOST_CHECK_EQUAL(dereference(foA.at(i)), bi[i]);
-    BOOST_CHECK_EQUAL(dereference(foA.data(i)).d1, ai[i]);
-    BOOST_CHECK_EQUAL(dereference(foA.data(i)).d2, i);
-    BOOST_CHECK_EQUAL(dereference(foAV.at(i)), bi[i]);
-    check_get(foA, foAV);
+    if (!bCollMissing_) {
+      BOOST_CHECK_EQUAL(dereference(foBV.at(i)), std::string(x[ai[i]]));
+      BOOST_CHECK_EQUAL(dereference(foA->at(i)), bi[i]);
+      BOOST_CHECK_EQUAL(dereference(foA->data(i)).d1, ai[i]);
+      BOOST_CHECK_EQUAL(dereference(foA->data(i)).d2, i);
+      BOOST_CHECK_EQUAL(dereference(foAV->at(i)), bi[i]);
+      BOOST_CHECK_NO_THROW(check_get(*foA, *foAV));
+    }
   }
   // Check alternative accessors and range checking for Assns.
   if (testAB_) {
@@ -228,9 +248,12 @@ testOne(art::Event const & e) const
   FO<B_t, arttest::AssnTestData> foBv(va, e, inputLabel_);
   BOOST_REQUIRE(foB == foBv);
   art::View<B_t> vb;
-  BOOST_REQUIRE(e.getView(inputLabel_, vb));
-  FO<A_t, arttest::AssnTestData> foAv(vb, e, inputLabel_);
-  BOOST_REQUIRE(foA == foAv);
+  std::auto_ptr<FO<A_t, arttest::AssnTestData> > foAv;
+  if (!bCollMissing_) {
+    BOOST_REQUIRE(e.getView(inputLabel_, vb));
+    foAv.reset(new FO<A_t, arttest::AssnTestData>(vb, e, inputLabel_));
+    BOOST_REQUIRE(*foA == *foAv);
+  }
   // Check FindOne on PtrVector.
   va.vals()[1] = 0;
   art::PtrVector<A_t> pva;
@@ -240,18 +263,22 @@ testOne(art::Event const & e) const
   BOOST_CHECK_EQUAL(foBpv.data(0), foB.data(0));
   BOOST_CHECK_EQUAL(foBpv.at(1), foB.at(2)); // Knocked out the middle.
   BOOST_CHECK_EQUAL(foBpv.data(1), foB.data(2));
-  vb.vals()[1] = 0;
   art::PtrVector<B_t> pvb;
-  vb.fill(pvb);
+  if (!bCollMissing_) {
+    vb.vals()[1] = 0;
+    vb.fill(pvb);
+  }
   FO<A_t, arttest::AssnTestData> foApv(pvb, e, inputLabel_);
-  BOOST_CHECK_EQUAL(foApv.at(0), foA.at(0));
-  BOOST_CHECK_EQUAL(foApv.data(0), foA.data(0));
-  BOOST_CHECK_EQUAL(foApv.at(1), foA.at(2)); // Knocked out the middle.
-  BOOST_CHECK_EQUAL(foApv.data(1), foA.data(2));
+  if (! bCollMissing_) {
+    BOOST_CHECK_EQUAL(foApv.at(0), foA->at(0));
+    BOOST_CHECK_EQUAL(foApv.data(0), foA->data(0));
+    BOOST_CHECK_EQUAL(foApv.at(1), foA->at(2)); // Knocked out the middle.
+    BOOST_CHECK_EQUAL(foApv.data(1), foA->data(2));
+  }
   // Check for range errors.
   BOOST_CHECK_THROW(foApv.at(3), std::out_of_range);
   BOOST_CHECK_THROW(foApv.data(3), std::out_of_range);
-  BOOST_CHECK_THROW((FO<B_t, arttest::AssnTestData> (hAcoll, e, art::InputTag(inputLabel_, "M"))), art::Exception);
+  // BOOST_CHECK_THROW((FO<B_t, arttest::AssnTestData> (hAcoll, e, art::InputTag(inputLabel_, "M"))), art::Exception);
 }
 
 template <template <typename, typename> class FM>
@@ -263,17 +290,30 @@ testMany(art::Event const & e) const
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
   // Check FindMany.
   FM<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
-  BOOST_CHECK_EQUAL(fmB.at(0).size(), 1ul);
-  BOOST_CHECK_EQUAL(fmB.at(1).size(), 2ul);
-  BOOST_CHECK_EQUAL(fmB.at(2).size(), 1ul);
+  BOOST_REQUIRE_EQUAL(fmB.size(), 3ul);
+  if (bCollMissing_) {
+    BOOST_CHECK(fmB.at(0).size() == 0);
+    BOOST_CHECK(fmB.at(1).size() == 0);
+    BOOST_CHECK(fmB.at(2).size() == 0);
+  } else {
+    BOOST_CHECK_EQUAL(fmB.at(0).size(), 1ul);
+    BOOST_CHECK_EQUAL(fmB.at(1).size(), 2ul);
+    BOOST_CHECK_EQUAL(fmB.at(2).size(), 1ul);
+  }
   BOOST_CHECK_EQUAL(fmB.data(0).size(), 1ul);
   BOOST_CHECK_EQUAL(fmB.data(1).size(), 2ul);
   BOOST_CHECK_EQUAL(fmB.data(2).size(), 1ul);
   FM<B_t, void> fmBV(hAcoll, e, art::InputTag(inputLabel_, "M"));
-  BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1ul);
-  BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2ul);
-  BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1ul);
-  check_get(fmB, fmBV);
+  if (bCollMissing_) {
+    BOOST_CHECK(fmBV.at(0).size() == 0);
+    BOOST_CHECK(fmBV.at(1).size() == 0);
+    BOOST_CHECK(fmBV.at(2).size() == 0);
+  } else {
+    BOOST_CHECK_EQUAL(fmBV.at(0).size(), 1ul);
+    BOOST_CHECK_EQUAL(fmBV.at(1).size(), 2ul);
+    BOOST_CHECK_EQUAL(fmBV.at(2).size(), 1ul);
+    BOOST_CHECK_NO_THROW(check_get(fmB, fmBV));
+  }
 }
 
 DEFINE_ART_MODULE(arttest::AssnsAnalyzer)

@@ -491,7 +491,7 @@ cet_test(Assns_w HANDBUILT
   fcl/Assns_w.fcl
 )
 
-foreach(num 1 2)
+foreach(num 1 2 3)
   cet_test(Assns_r${num} HANDBUILT
     TEST_EXEC art_ut
     TEST_ARGS --rethrow-all -c "Assns_r${num}.fcl"
