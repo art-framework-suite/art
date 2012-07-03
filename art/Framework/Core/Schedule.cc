@@ -88,7 +88,6 @@ namespace art
     act_table_(&actions),
     processName_(tns.getProcessName()),
     actReg_(areg),
-    state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
     end_path_name_list_(tns.getEndPaths()),
     results_        (new HLTGlobalStatus(trig_name_list_.size())),

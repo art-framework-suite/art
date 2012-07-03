@@ -273,7 +273,6 @@ namespace art {
     std::string         processName_;
     std::shared_ptr<ActivityRegistry> actReg_;
 
-    State   state_;
     vstring trig_name_list_;
     vstring end_path_name_list_;
 
@@ -343,7 +342,6 @@ namespace art {
   Schedule::processOneOccurrence(typename T::MyPrincipal & ep)
   {
     this->resetAll();
-    state_ = Running;
     // A RunStopwatch, but only if we are processing an event.
     std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
     if (T::isEvent_) {
@@ -354,7 +352,6 @@ namespace art {
       ScheduleSignalSentry<T> sentry(*actReg_, ep);
       try {
         if (runTriggerPaths<T>(ep) && T::isEvent_)  { ++total_passed_; }
-        state_ = Latched;
         if (results_inserter_.get()) { results_inserter_->doWork<T>(ep, 0); }
       }
       catch (cet::exception & e) {
@@ -382,7 +379,6 @@ namespace art {
           break;
         }
         default: {
-          state_ = Ready;
           throw art::Exception(errors::EventProcessorFailure)
               << "An exception occurred during current event processing\n"
               << ex;
@@ -392,11 +388,8 @@ namespace art {
     catch (...) {
       mf::LogError("PassingThrough")
           << "an exception occurred during current event processing\n";
-      state_ = Ready;
       throw;
     }
-    // next thing probably is not needed, the product insertion code clears it
-    state_ = Ready;
   }
 
   template <typename T>
