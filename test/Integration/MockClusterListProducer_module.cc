@@ -59,7 +59,7 @@ MockClusterListProducer::produce( art::Event& e )
    std::auto_ptr<product_t> prod( new product_t );
    arttest::MockCluster c1;
    c1.skew = 1;
-   for( int k = 0; k < (nvalues_ / 2); ++k ) {
+   for( unsigned k = 0; k < (nvalues_ / 2); ++k ) {
       art::Ptr<SimpleDerived> p(h, k);
       c1.cells.push_back(p);
    }

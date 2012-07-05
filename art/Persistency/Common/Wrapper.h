@@ -539,35 +539,6 @@ namespace art {
 ////////////////////////////////////////////////////////////////////////
 
 namespace art {
-
-  template <class T>
-  void DoSetPtr<T>::operator()(T const & obj,
-                               const std::type_info & toType,
-                               unsigned long index,
-                               void const* &ptr) const
-  {
-    // setPtr is the name of an overload set; each concrete collection
-    // T should supply a setPtr function, in the same namespace at
-    // that in which T is defined, or in the 'art' namespace.
-    setPtr(obj, toType, index, ptr);
-  }
-
-  template <class T>
-  void DoSetPtr<T>::operator()(T const & obj,
-                               const std::type_info & toType,
-                               const std::vector<unsigned long> &indices,
-                               std::vector<void const *> &ptr) const
-  {
-    // getElementAddresses is the name of an overload set; each
-    // concrete collection T should supply a getElementAddresses
-    // function, in the same namespace at that in which T is
-    // defined, or in the 'art' namespace.
-    getElementAddresses(obj, toType, indices, ptr);
-  }
-
-}
-
-namespace art {
   template <class COLLECTION>
   void
   getElementAddresses(COLLECTION const & coll,
@@ -628,6 +599,32 @@ namespace art {
       }
     }
   }
+
+  template <class T>
+  void DoSetPtr<T>::operator()(T const & obj,
+                               const std::type_info & toType,
+                               unsigned long index,
+                               void const* &ptr) const
+  {
+    // setPtr is the name of an overload set; each concrete collection
+    // T should supply a setPtr function, in the same namespace at
+    // that in which T is defined, or in the 'art' namespace.
+    setPtr(obj, toType, index, ptr);
+  }
+
+  template <class T>
+  void DoSetPtr<T>::operator()(T const & obj,
+                               const std::type_info & toType,
+                               const std::vector<unsigned long> &indices,
+                               std::vector<void const *> &ptr) const
+  {
+    // getElementAddresses is the name of an overload set; each
+    // concrete collection T should supply a getElementAddresses
+    // function, in the same namespace at that in which T is
+    // defined, or in the 'art' namespace.
+    getElementAddresses(obj, toType, indices, ptr);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,8 @@
 #include "art/Persistency/Common/Ptr.h"
 #include "art/Persistency/Provenance/ProductID.h"
 
+#include <vector>
+
 namespace arttest {
   class ProductIDGetter;
 }

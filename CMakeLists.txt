@@ -31,7 +31,7 @@ include(CetCMakeEnv)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR EXTRA_FLAGS -pedantic)
-cet_have_qual( e1 )
+cet_have_qual( e2 )
 if ( ${CET_HAVE_QUAL} )
   cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
 endif()
@@ -49,7 +49,7 @@ find_ups_product( cetlib v1_03_00 )
 find_ups_product( fhiclcpp v2_16_00 )
 find_ups_product( messagefacility v1_10_00 )
 find_ups_product( sqlite v3_07_08_00 )
-find_ups_root( v5_30_02 )
+find_ups_root( v5_34_00 )
 find_ups_boost( v1_47_0 filesystem
                         program_options
                         regex

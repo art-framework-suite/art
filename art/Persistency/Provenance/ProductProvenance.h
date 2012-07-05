@@ -38,9 +38,11 @@ public:
   explicit ProductProvenance(BranchID const& bid);
   ProductProvenance(BranchID const& bid,
                     ProductStatus status);
+#ifndef __GCCXML__
   ProductProvenance(BranchID const& bid,
                     ProductStatus status,
                     std::shared_ptr<Parentage> parentagePtr);
+#endif
   ProductProvenance(BranchID const& bid,
                     ProductStatus status,
                     ParentageID const& id);
@@ -71,8 +73,12 @@ public:
 
 private:
 
-  std::shared_ptr<Parentage> & parentagePtr() const {return transients_.get().parentagePtr_;}
-
+  std::shared_ptr<Parentage> & parentagePtr() const
+#ifdef __GCCXML__
+;
+#else
+ {return transients_.get().parentagePtr_;}
+#endif
   BranchID branchID_;
   mutable ProductStatus productStatus_;
   ParentageID parentageID_;

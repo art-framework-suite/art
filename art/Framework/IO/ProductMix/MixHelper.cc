@@ -244,8 +244,9 @@ generateEventSequence(size_t nSecondaries,
 {
   assert(enSeq.empty());
   assert(eIDseq.empty());
+  assert(nEventsInFile_ >= 0);
   bool over_threshold = (readMode_ == SEQUENTIAL) ?
-                        ((nEventsReadThisFile_ + nSecondaries) > nEventsInFile_) :
+                        ((nEventsReadThisFile_ + nSecondaries) > static_cast<size_t>(nEventsInFile_)) :
                         ((nEventsReadThisFile_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
   if (over_threshold) {
     if (openNextFile()) {

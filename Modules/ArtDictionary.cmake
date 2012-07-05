@@ -8,9 +8,6 @@ MACRO(art_dictionary)
     "UPDATE_IN_PLACE"
     ${ARGN}
     )
-  if (qualifier STREQUAL "e1")
-    SET(ART_DICT_EXTRA_ARGS COMPILE_FLAGS -std=c++98)
-  endif()
   build_dictionary(${ART_DICT_DEFAULT_ARGS} ${ART_DICT_EXTRA_ARGS})
   IF(ART_DICT_LIBRARIES)
     SET(ART_DICT_CCV_ARGS "LIBRARIES" ${ART_DICT_LIBRARIES})

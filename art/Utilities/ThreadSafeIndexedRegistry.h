@@ -12,7 +12,7 @@
 //
 // ----------------------------------------------------------------------
 
-#include "boost/thread.hpp"
+#include <mutex>
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -89,7 +89,7 @@ namespace art {
 
       static ThreadSafeIndexedRegistry* instance_;
 
-      static boost::mutex registry_mutex;
+      static std::mutex registry_mutex;
     };
 
     template <typename T, typename E>
@@ -108,7 +108,7 @@ namespace art {
     ThreadSafeIndexedRegistry<T, E>* ThreadSafeIndexedRegistry<T, E>::instance_ = 0;
 
     template <typename T, typename E>
-    boost::mutex ThreadSafeIndexedRegistry<T, E>::registry_mutex;
+    std::mutex ThreadSafeIndexedRegistry<T, E>::registry_mutex;
 
     // ----------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ namespace art {
     ThreadSafeIndexedRegistry<T, E>*
     ThreadSafeIndexedRegistry<T, E>::instance() {
       if (instance_ == 0) {
-        boost::mutex::scoped_lock lock(registry_mutex);
+        std::lock_guard<std::mutex> lock(registry_mutex);
         if (instance_ == 0) {
           static ThreadSafeIndexedRegistry<T, E> me;
           instance_ = &me;
@@ -128,14 +128,14 @@ namespace art {
     template <typename T, typename E>
     void
     ThreadSafeIndexedRegistry<T, E>::getMapped(size_type k, value_type& result) const {
-      boost::mutex::scoped_lock lock(registry_mutex);
+      std::lock_guard<std::mutex> lock(registry_mutex);
       result = data_[k];
     }
 
     template <typename T, typename E>
     bool
     ThreadSafeIndexedRegistry<T, E>::insertMapped(value_type const& v) {
-      boost::mutex::scoped_lock lock(registry_mutex);
+      std::lock_guard<std::mutex> lock(registry_mutex);
       data_.push_back(v);
       return true;
     }
