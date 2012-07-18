@@ -1,34 +1,34 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent art	v1_01_00
-defaultqual	a7
+defaultqual	e2
 #
 product		version
 gcc		v4_7_1
-clhep		v2_1_2_3
+clhep		v2_1_2_4
 cppunit		v1_12_1
 libsigcpp	v2_2_10
 gccxml		v0_9_20120702
 python		v2_7_3
-root		v5_34_00
+root		v5_34_01
 sqlite		v3_07_13_00
 messagefacility	v1_10_10
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
 only_for_build	cetbuildtools	v2_01_02
  
-# a7  - with gcc 4.7.1 and external clhep 2.1.2.2
+# a8  - with gcc 4.7.1 and external clhep 2.1.2.4
 # e2  - with gcc 4.7.1 and -std=c++0x
 qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite		gcc	notes
 e2:debug	e2:debug	e2:debug	e2:debug	gcc47:debug	e2:debug	gcc47	gcc47	gcc47:debug	-nq-	-std=c++0x;-Wno-deprecated-declarations
 e2:opt		e2:opt		e2:opt	        e2:opt	        gcc47:opt	e2:opt	        gcc47	gcc47	gcc47:opt	-nq-	-std=c++0x;-Wno-deprecated-declarations
 e2:prof		e2:prof		e2:prof	        e2:prof	        gcc47:prof	e2:prof	        gcc47	gcc47	gcc47:prof	-nq-	-std=c++0x;-Wno-deprecated-declarations
-mu2e:debug	a7:debug	mu2e:debug	gcc47:debug	gcc47:debug	gcc47:debug	gcc47	gcc47	gcc47:debug	-nq-
-mu2e:opt	a7:opt		mu2e:opt	gcc47:opt	gcc47:opt	gcc47:opt	gcc47	gcc47	gcc47:opt	-nq-
-mu2e:prof	a7:prof		mu2e:prof	gcc47:prof	gcc47:prof	gcc47:prof	gcc47	gcc47	gcc47:prof	-nq-
-nova:debug	a7:debug	nova:debug	gcc47:debug	gcc47:debug	gcc47:debug	gcc47	gcc47	gcc47:debug	-nq-
-nova:opt	a7:opt		nova:opt	gcc47:opt	gcc47:opt	gcc47:opt	gcc47	gcc47	gcc47:opt	-nq-
-nova:prof	a7:prof		nova:prof	gcc47:prof	gcc47:prof	gcc47:prof	gcc47	gcc47	gcc47:prof	-nq-
+mu2e:debug	a8:debug	mu2e:debug	gcc47:debug	gcc47:debug	gcc47:debug	gcc47	gcc47	gcc47:debug	-nq-
+mu2e:opt	a8:opt		mu2e:opt	gcc47:opt	gcc47:opt	gcc47:opt	gcc47	gcc47	gcc47:opt	-nq-
+mu2e:prof	a8:prof		mu2e:prof	gcc47:prof	gcc47:prof	gcc47:prof	gcc47	gcc47	gcc47:prof	-nq-
+nova:debug	a8:debug	nova:debug	gcc47:debug	gcc47:debug	gcc47:debug	gcc47	gcc47	gcc47:debug	-nq-
+nova:opt	a8:opt		nova:opt	gcc47:opt	gcc47:opt	gcc47:opt	gcc47	gcc47	gcc47:opt	-nq-
+nova:prof	a8:prof		nova:prof	gcc47:prof	gcc47:prof	gcc47:prof	gcc47	gcc47	gcc47:prof	-nq-
 
 # Local Variables:
 # tab-width: 8
