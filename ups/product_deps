@@ -15,7 +15,7 @@ sqlite		v3_07_13_00
 messagefacility	v1_10_10
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v2_01_02
+only_for_build	cetbuildtools	v2_01_03
  
 # a8  - with gcc 4.7.1 and external clhep 2.1.2.4
 # e2  - with gcc 4.7.1 and -std=c++0x
