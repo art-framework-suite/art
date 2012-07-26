@@ -120,8 +120,9 @@ namespace art {
 
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
-    if (TTreeCache *tc = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead())) {
-      if (theEntryNumber >= 0 && tc->GetOwner() == tree_ && tc->IsLearning()) {
+    if (TTreeCache *tc = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead(tree_))) {
+      assert(tree_ == tc->GetTree());
+      if (theEntryNumber >= 0 && tc->IsLearning()) {
         tc->SetLearnEntries(1);
         tc->SetEntryRange(0, tree_->GetEntries());
         for (BranchMap::const_iterator i = branches_->begin(), e = branches_->end(); i != e; ++i) {
