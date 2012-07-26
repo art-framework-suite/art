@@ -12,7 +12,7 @@ gccxml		v0_9_20120702
 python		v2_7_3
 root		v5_34_01
 sqlite		v3_07_13_00
-messagefacility	v1_10_10
+messagefacility	v1_10_11
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
 only_for_build	cetbuildtools	v2_01_03
