@@ -126,7 +126,7 @@ Qualifiers = "mu2e:debug"
     setupRequired(clhep     @CLHEP_VERSION@ -q +gcc46:+debug)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q +@MESSAGEFACILITY_BASE_QUAL@:+debug)
     setupRequired(sqlite    @SQLITE_VERSION@ -q +gcc46:+debug)
-    setupRequired(root      @ROOT_VERSION@ -q +mu2e:+debug)
+    setupRequired(root      @ROOT_VERSION@ -q +mu2e:+gcc46:+debug)
 
 Flavor     = ANY
 Qualifiers = "mu2e:opt"
@@ -143,7 +143,7 @@ Qualifiers = "mu2e:opt"
     setupRequired(clhep     @CLHEP_VERSION@ -q +gcc46:+opt)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q +@MESSAGEFACILITY_BASE_QUAL@:+opt)
     setupRequired(sqlite    @SQLITE_VERSION@ -q +gcc46:+opt)
-    setupRequired(root      @ROOT_VERSION@ -q +mu2e:+opt)
+    setupRequired(root      @ROOT_VERSION@ -q +mu2e:+gcc46:+opt)
 
 Flavor     = ANY
 Qualifiers = "mu2e:prof"
@@ -160,7 +160,7 @@ Qualifiers = "mu2e:prof"
     setupRequired(clhep     @CLHEP_VERSION@ -q +gcc46:+prof)
     setupRequired(messagefacility @MESSAGEFACILITY_VERSION@ -q +@MESSAGEFACILITY_BASE_QUAL@:+prof)
     setupRequired(sqlite    @SQLITE_VERSION@ -q +gcc46:+prof)
-    setupRequired(root      @ROOT_VERSION@ -q +mu2e:+prof)
+    setupRequired(root      @ROOT_VERSION@ -q +mu2e:+gcc46:+prof)
 
 Flavor     = ANY
 Qualifiers = "nova:debug"
