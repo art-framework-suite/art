@@ -19,6 +19,7 @@ install ( TARGETS art_Framework_Services_UserInteraction
   DESTINATION ${flavorqual_dir}/lib )
 
 simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
-
+simple_plugin(AdhocFileTransfer "service")
+simple_plugin(AdhocFileDelivery "service")
 install_headers()
 install_source()
