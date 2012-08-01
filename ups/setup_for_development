@@ -53,7 +53,8 @@ test -z "$1" && setenv CETPKG_QUAL "$defaultqual"
 # e1 is a special case
 test "$1" = "e1" && set_ hybridqual=$1 && set_ rootqual=gcc46
 # mu2e is a special case
-test "$1" = "mu2e" && set_ rootqual=gcc46:mu2e
+test "$1" = "mu2e" && set_ rootqual=gcc46:mu2e && set_ clver=v2_1_2_2
+test "$1" = "mu2e:cl24" && set_ rootqual=gcc46:mu2e && set_ clver=v2_1_2_4
 
 echo "called with $type, using qualifiers +$CETPKG_QUAL$extraqual, $defaultqual$extraqual, $rootqual$extraqual, and +$hybridqual$extraqual"
 
