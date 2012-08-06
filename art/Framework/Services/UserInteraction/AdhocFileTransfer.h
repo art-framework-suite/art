@@ -9,8 +9,8 @@
 /*
 
  Description: Class for service that return a fully qualified file name
-      of a file that has been copied into local scratch, when given a URI 
-      specifying a desired file.  
+      of a file that has been copied into local scratch, when given a URI
+      specifying a desired file.
       This inherits from the art::FileTransfer base class.
       Eventually, GeneralFileTransfer will freplace this class; this adhoc concrete
       class is meant as an early-testing scaffold.
@@ -36,9 +36,6 @@ class AdhocFileTransfer : public FileTransfer
 public:
   // ctor -- the services factory will expect this signature
   AdhocFileTransfer ( fhicl::ParameterSet const & pset, ActivityRegistry & acReg );
-
-  // Remaining boilerplate:
-  ~AdhocFileTransfer() {};
 
 private:
   // Classes inheriting FileTransfer interface must provide the following method:

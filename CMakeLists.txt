@@ -30,7 +30,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules
 include(CetCMakeEnv)
 cet_cmake_env()
 
-cet_set_compiler_flags(DIAGS VIGILANT WERROR EXTRA_FLAGS -pedantic)
+cet_set_compiler_flags(DIAGS VIGILANT WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
 cet_have_qual( e2 )
 if ( ${CET_HAVE_QUAL} )
   cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
@@ -53,6 +53,7 @@ find_ups_root( v5_34_00 )
 find_ups_boost( v1_47_0 filesystem
                         program_options
                         regex
+                        system
                         thread
                         unit_test_framework
  )

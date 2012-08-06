@@ -36,6 +36,7 @@ link_libraries(
   art_Persistency_RootDB
   art_Utilities
   ${Boost_THREAD_LIBRARY}
+  ${ROOT_CINTEX}
   )
 
 add_library(art_Persistency_Provenance SHARED ${art_Persistency_Provenance_sources} )

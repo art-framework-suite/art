@@ -44,7 +44,12 @@ macro (simple_plugin name type)
       COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
       COMPILE_FLAGS -Wno-overloaded-virtual
       )
-    set(simple_plugin_liblist ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} ${simple_plugin_liblist})
+    list(INSERT simple_plugin_liblist 0 ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  endif()
+  if("${type}" STREQUAL "service")
+    list(INSERT simple_plugin_liblist 0 art_Framework_Services_Registry)
+  elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
+    list(INSERT simple_plugin_liblist 0 art_Framework_Core)
   endif()
   if( simple_plugin_liblist )
     target_link_libraries( ${plugin_name} ${simple_plugin_liblist} )

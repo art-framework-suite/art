@@ -17,11 +17,6 @@ This description also applies to every product instance on the branch.
 #include "art/Persistency/Provenance/TypeLabel.h"
 #include "fhiclcpp/ParameterSetID.h"
 
-#include "TBuffer.h"
-#include "TClassStreamer.h" // Temporary
-#include "TClass.h"
-#include "TClassRef.h"
-
 #include <iosfwd>
 #include <set>
 #include <string>
@@ -186,23 +181,11 @@ private:
   mutable Transient<Transients> transients_;
 };  // BranchDescription
 
-class art::detail::BranchDescriptionStreamer : public TClassStreamer {
-public:
-  void operator()(TBuffer &R_b, void *objp);
-};
-
 namespace art {
   std::string match(BranchDescription const& a,
                     BranchDescription const& b,
                     std::string const& fileName,
                     BranchDescription::MatchMode m);
-}
-
-inline std::ostream&
-  art::operator<<(std::ostream& os, BranchDescription const& p)
-{
-  p.write(os);
-  return os;
 }
 
 #endif /* art_Persistency_Provenance_BranchDescription_h */

@@ -20,9 +20,6 @@
 #include <iterator>
 #include <vector>
 
-#include "TClass.h"
-#include "TROOT.h"
-
 namespace art {
   template <typename T> class PtrVector;
 

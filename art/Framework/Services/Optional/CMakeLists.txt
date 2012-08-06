@@ -8,18 +8,29 @@ add_library(art_Framework_Services_Optional
   ${art_Framework_Services_Optional_sources}
 )
 
+target_link_libraries(art_Framework_Services_Optional
+  ${CETLIB}
+  ${ROOT_HIST}
+  ${ROOT_CORE}
+)
+
 install ( TARGETS art_Framework_Services_Optional
   DESTINATION ${flavorqual_dir}/lib )
 
-target_link_libraries(art_Framework_Services_Optional
+simple_plugin(RandomNumberGenerator "service"
+  art_Framework_Principal
+  art_Persistency_Common
+  ${MF_MESSAGELOGGER}
+  ${MF_UTILITIES}
   ${CETLIB}
-)
+  ${SIGC}
+  ${CLHEP}
+  )
 
-simple_plugin(RandomNumberGenerator "service")
-simple_plugin(SimpleMemoryCheck "service")
-simple_plugin(TFileService "service" art_Framework_Services_Optional)
-simple_plugin(Timing "service")
-simple_plugin(Tracer "service")
+simple_plugin(SimpleMemoryCheck "service" art_Persistency_Provenance)
+simple_plugin(TFileService "service" art_Framework_Services_Optional ${ROOT_RIO})
+simple_plugin(Timing "service" art_Persistency_Provenance)
+simple_plugin(Tracer "service" art_Persistency_Provenance)
 
 install_headers(SUBDIRS detail)
 install_source()

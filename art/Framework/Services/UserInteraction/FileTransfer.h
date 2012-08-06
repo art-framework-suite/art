@@ -10,7 +10,7 @@
 
  Description: Abstract base class for services that return a fully qualified file name
       of a file that has been copied into local scratch, when given a URI specifying
-      a desired file.   We have in mind that GeneralFileTransfer will inherit from 
+      a desired file.   We have in mind that GeneralFileTransfer will inherit from
       this interface class.
 
 */
@@ -35,15 +35,15 @@ public:
   int copyToScratch( art::URI const & uri, std::string & fileFQname );
 
   // Remaining boilerplate:
-  virtual ~FileTransfer() = 0;
+  virtual ~FileTransfer() = default;
 
 private:
   // Classes inheriting this interface must provide the following method:
   virtual int doCopyToScratch( art::URI const & uri, std::string & fileFQname ) = 0;
 };
 
-inline int art::FileTransfer::copyToScratch( art::URI const & uri, 
-					     std::string & fileFQname ) {
+inline int art::FileTransfer::copyToScratch( art::URI const & uri,
+               std::string & fileFQname ) {
   return doCopyToScratch (uri, fileFQname);
 }
 

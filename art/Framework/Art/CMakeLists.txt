@@ -24,6 +24,7 @@ target_link_libraries(art_Framework_Art
   art_Persistency_Common
   art_Persistency_Provenance
   art_Utilities
+  ${ROOT_HIST}
   )
 
 install ( TARGETS
@@ -31,34 +32,6 @@ install ( TARGETS
   DESTINATION
   ${flavorqual_dir}/lib
   )
-
-set ( common_exec_link_libraries
-  art_Framework_Core
-  ${ROOT_CINTEX}
-  ${ROOT_PHYSICS}
-  ${ROOTSYS}/lib/libGraf.so
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-  ${ROOT_CORE}
-  ${ROOT_CINT}
-  ${ROOT_REFLEX}
-  ${CPPUNIT}
-  -ldl
-)
-
-set ( art_exec_link_libraries
-  art_Persistency_Common_dict
-  art_Framework_Art
-  art_Framework_Services_Registry
-  art_Utilities
-  ${SIGC}
-  ${Boost_FILESYSTEM_LIBRARY}
-)
 
 set (ART_EXECS
   art
@@ -71,9 +44,8 @@ set (ART_EXECS
 foreach (art_exec ${ART_EXECS})
   add_executable( ${art_exec} ${art_exec}.cc )
   target_link_libraries( ${art_exec}
-                         ${art_exec_link_libraries}
-                         ${common_exec_link_libraries} )
-  install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
+    art_Framework_Art
+    )
 endforeach (art_exec ${ART_EXECS})
 
 # Versions of the ART execs supporting modules using BOOST unit test framework.
@@ -89,10 +61,10 @@ macro(art_ut_exec TARGET_STEM MAIN_FUNC)
       )
   add_executable(${TARGET_STEM}_ut ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc)
   target_link_libraries(${TARGET_STEM}_ut
+    art_Framework_Art
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-    ${art_exec_link_libraries}
-    ${common_exec_link_libraries} )
-  install ( TARGETS ${TARGET_STEM}_ut DESTINATION ${flavorqual_dir}/bin )
+)
+install ( TARGETS ${TARGET_STEM}_ut DESTINATION ${flavorqual_dir}/bin )
 endmacro()
 
 art_ut_exec(art artapp)
@@ -101,7 +73,7 @@ art_ut_exec(mu2e novaapp)
 art_ut_exec(gm2 novaapp)
 
 add_executable( check_libs ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc )
-target_link_libraries( check_libs ${common_exec_link_libraries} )
+target_link_libraries( check_libs art_Utilities ${CETLIB})
 install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )
 
 install_headers()

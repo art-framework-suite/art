@@ -9,11 +9,11 @@
 /*
 
  Description: Class for service that returns a URI -- in this ad hoc case, always
-      just a file:// URI to an exisiting file -- when asked for a next input file.  
+      just a file:// URI to an exisiting file -- when asked for a next input file.
       (The list of files to "deliver" is specified at ctor time, from input source
-      parameters in the configuration file -- when SAM has a real concrete 
+      parameters in the configuration file -- when SAM has a real concrete
       FileDelivery class, it will be figuring out file URI's from the dataset
-      requested.) 
+      requested.)
       This inherits form the art::CatalogInterface base class.
       Eventually, SAMProtocol will replace this class; this adhoc concrete
       class is meant as an early-testing scaffold.
@@ -48,33 +48,30 @@ namespace art {
   typedef std::string module_id_t;
 }
 
-namespace art 
+namespace art
 {
 class AdhocFileDelivery : public CatalogInterface
 {
 public:
   // ctor -- the services factory will expect this signature
-  AdhocFileDelivery ( fhicl::ParameterSet const & ps, 
-  			ActivityRegistry & acReg );
+  AdhocFileDelivery ( fhicl::ParameterSet const & ps,
+        ActivityRegistry & acReg );
 
-  // Remaining boilerplate:
-  ~AdhocFileDelivery() {};
-  
 private:
   // Classes inheriting this interface must provide the following methods:
   int  doGetNextFileURI(URI & uri, double & waitTime);
   void doUpdateStatus (URI const & uri, int status);
   void doOutputFileOpened (module_id_t const & module_id);
-  void doOutputModuleInitiated (module_id_t const & module_id, 
-                                        fhicl::ParameterSet const & pset);  
-  void doOutputFileClosed (module_id_t const & module_id, 
+  void doOutputModuleInitiated (module_id_t const & module_id,
+                                        fhicl::ParameterSet const & pset);
+  void doOutputFileClosed (module_id_t const & module_id,
                                    URI const & file);
   void doEventSelected(module_id_t const & module_id,
-                     EventID event_id, HLTGlobalStatus acceptance_info); 
-  
+                     EventID event_id, HLTGlobalStatus acceptance_info);
+
   // helper functions
   std::vector<std::string> extractFileListFromPset
-  			(fhicl::ParameterSet const & pset);
+        (fhicl::ParameterSet const & pset);
   std::string prependFileDesignation(std::string const & name) const;
 
   // class data

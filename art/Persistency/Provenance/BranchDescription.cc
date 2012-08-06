@@ -8,6 +8,8 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "Cintex/Cintex.h"
+#include "TBuffer.h"
+#include "TClassStreamer.h" // Temporary
 
 #include <cassert>
 #include <cstdlib>
@@ -314,6 +316,11 @@ art::operator==(BranchDescription const& a, BranchDescription const& b) {
     (a.processConfigurationIDs() == b.processConfigurationIDs());
 }
 
+class art::detail::BranchDescriptionStreamer : public TClassStreamer {
+public:
+  void operator()(TBuffer &R_b, void *objp);
+};
+
 void
 art::detail::BranchDescriptionStreamer::operator()(TBuffer &R_b, void *objp) {
   static TClassRef cl(TClass::GetClass(typeid(BranchDescription)));
@@ -384,3 +391,11 @@ art::match(BranchDescription const& a,
   }
   return differences.str();
 }
+
+std::ostream&
+  art::operator<<(std::ostream& os, BranchDescription const& p)
+{
+  p.write(os);
+  return os;
+}
+

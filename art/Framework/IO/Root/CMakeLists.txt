@@ -28,7 +28,9 @@ target_link_libraries(art_Framework_IO_Root
   art_Framework_Services_Registry
   art_Persistency_Common
   art_Persistency_Provenance
-  art_Framework_IO_RootVersion)
+  art_Framework_IO_RootVersion
+  ${ROOT_TREE}
+  )
 
 install(TARGETS art_Framework_IO_Root art_Framework_IO_RootVersion DESTINATION ${flavorqual_dir}/lib )
 
@@ -41,20 +43,8 @@ target_link_libraries( config_dumper
         art_Utilities
         art_Framework_Core
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${ROOT_CINTEX}
-        ${ROOT_PHYSICS}
-        ${ROOTSYS}/lib/libGraf.so
         ${ROOT_TREE}
-        ${ROOT_HIST}
-        ${ROOT_MATRIX}
-        ${ROOT_NET}
-        ${ROOT_MATHCORE}
-        ${ROOT_THREAD}
         ${ROOT_RIO}
-        ${ROOT_CORE}
-        ${ROOT_CINT}
-        ${ROOT_REFLEX}
-        -ldl
         )
 
 install ( TARGETS config_dumper DESTINATION ${flavorqual_dir}/bin )
@@ -65,20 +55,7 @@ target_link_libraries( sam_metadata_dumper
         art_Utilities
         art_Framework_Core
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${ROOT_CINTEX}
-        ${ROOT_PHYSICS}
-        ${ROOTSYS}/lib/libGraf.so
-        ${ROOT_TREE}
-        ${ROOT_HIST}
-        ${ROOT_MATRIX}
-        ${ROOT_NET}
-        ${ROOT_MATHCORE}
-        ${ROOT_THREAD}
         ${ROOT_RIO}
-        ${ROOT_CORE}
-        ${ROOT_CINT}
-        ${ROOT_REFLEX}
-        -ldl
         )
 
 install ( TARGETS sam_metadata_dumper DESTINATION ${flavorqual_dir}/bin )

@@ -18,7 +18,6 @@
 #include "art/Persistency/RootDB/tkeyvfs.h"
 
 #include "TFile.h"
-#include "TTree.h"
 
 extern "C" {
 #include "sqlite3.h"
@@ -55,15 +54,15 @@ struct SamMetadataEntry
 
 // Print the human-readable form of a ParameterSet from which we strip
 // the "module_label" parameter.
-void print_one_sam_metadata_entry(SamMetadataEntry const & ent, 
-				  size_t idLen,
-				  size_t longestName,
-				  ostream & output)
+void print_one_sam_metadata_entry(SamMetadataEntry const & ent,
+          size_t idLen,
+          size_t longestName,
+          ostream & output)
 {
 //  std::cerr << "---> print_one_sam_metadata_entry \n";
   const size_t maxIDdigits = 5;
   const size_t maxNameSpacing = 20;
-  
+
   // right-justify SMDid (unless it is more than 5 digits)
   int id = static_cast<int>(ent.SMDid);
   size_t maxIDspace = std::min(idLen,maxIDdigits);
@@ -74,9 +73,9 @@ void print_one_sam_metadata_entry(SamMetadataEntry const & ent,
   }
   for (int i = 0; i<nspaces; ++i) output << " ";
   output << ent.SMDid << ": ";
-  
+
   output << ent.name;
-  
+
   // right-justify value (unless name is more than 20 characters)
   size_t nameSpacing = maxNameSpacing;
   if (longestName < maxNameSpacing) nameSpacing = longestName;
@@ -85,14 +84,14 @@ void print_one_sam_metadata_entry(SamMetadataEntry const & ent,
     output << " ";
     --nspaces;
   }
-  
+
   output << " " << ent.value << "\n";
 }
 
 // Print all the entries in the sam metadata from a file
 void print_all_sam_metadata_entries(vector<SamMetadataEntry> const & entries,
-                            	    ostream & output,
-                            	    ostream & /*errors*/)
+                                  ostream & output,
+                                  ostream & /*errors*/)
 {
 //  std::cerr << "---> print_all_sam_metadata_entries \n";
   // For nice formatting, determine maximum id lenght and name size,
@@ -101,8 +100,8 @@ void print_all_sam_metadata_entries(vector<SamMetadataEntry> const & entries,
   size_t longestName = 1;
   for (size_t i = 0; i < entries.size(); ++i) {
     if (entries[i].SMDid > maxID) maxID = entries[i].SMDid;
-    if (entries[i].name.size() > longestName) 
-    			longestName = entries[i].name.size();
+    if (entries[i].name.size() > longestName)
+          longestName = entries[i].name.size();
   }
   size_t idLen = 1;
   for (int i=0; (i<5) && (maxID >0); ++i) {
@@ -110,34 +109,34 @@ void print_all_sam_metadata_entries(vector<SamMetadataEntry> const & entries,
     if (maxID > 0) ++idLen;
   }
   for (size_t i = 0; i < entries.size(); ++i) {
-    print_one_sam_metadata_entry(entries[i], idLen, longestName, output); 
+    print_one_sam_metadata_entry(entries[i], idLen, longestName, output);
   }
 }
 
-// Read all the sam metadata entries stored in the table in 'file'. 
-// Write any error messages to errors.  
+// Read all the sam metadata entries stored in the table in 'file'.
+// Write any error messages to errors.
 // Return false on failure, and true on success.
 bool read_all_sam_metadata_entries(
-			TFile & file,
+      TFile & file,
                         vector<SamMetadataEntry>& all_metadata_entries,
                         ostream & errors)
 {
 //  std::cerr << "---> read_all_sam_metadata_entries \n";
   SamMetadataEntry ent;
   // Open the DB
-  art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");  
+  art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
   // Read the entries into memory.
   sqlite3_stmt * stmt = 0;
-  sqlite3_prepare_v2(sqliteDB, 
-  	"SELECT ID, Name, Value from SAM_metadata;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(sqliteDB,
+    "SELECT ID, Name, Value from SAM_metadata;", -1, &stmt, NULL);
   bool row_found = false;
   while (sqlite3_step(stmt) == SQLITE_ROW) {
     row_found = true;
     ent.SMDid = sqlite3_column_int (stmt, 0);
     ent.name  = std::string(
-    	reinterpret_cast<char const *>(sqlite3_column_text(stmt, 1)) );
+      reinterpret_cast<char const *>(sqlite3_column_text(stmt, 1)) );
     ent.value = std::string(
-    	reinterpret_cast<char const *>(sqlite3_column_text(stmt, 2)) );
+      reinterpret_cast<char const *>(sqlite3_column_text(stmt, 2)) );
     all_metadata_entries.push_back(ent);
   }
   if (!row_found) {
@@ -147,7 +146,7 @@ bool read_all_sam_metadata_entries(
   return true;
 }
 
-// Extract the sam metadata from the given TFile. 
+// Extract the sam metadata from the given TFile.
 // The metadata entries are written to the stream output, and
 // error messages are written to the stream errors.
 //
@@ -168,18 +167,18 @@ int print_sam_metadata_from_file(TFile & file,
     return 1;
   }
   // Iterate through all the entries, printing each one.
-  print_all_sam_metadata_entries(all_metadata_entries, output, errors); 
+  print_all_sam_metadata_entries(all_metadata_entries, output, errors);
   return 0;
 }
 
-// Extract all the requested metadata tables (for from the named files. 
+// Extract all the requested metadata tables (for from the named files.
 // The contents of the tables are written to the stream output, and
 // error messages are written to the stream errors.
 //
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
 int print_sam_metadata_from_files(
-			   stringvec const & file_names,
+         stringvec const & file_names,
                            ostream & output,
                            ostream & errors)
 {
@@ -260,11 +259,11 @@ int main(int argc, char * argv[])
 
   // Register the tkey VFS with sqlite:
   tkeyvfs_init();
-  
+
   // Do the work.
   return print_sam_metadata_from_files(file_names,
-				cout,
-				cerr);
+        cout,
+        cerr);
   // Testing.
   //   cout << "Specified module labels\n";
   //   cet::copy_all(module_labels,

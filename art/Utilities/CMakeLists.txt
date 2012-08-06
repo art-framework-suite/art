@@ -35,12 +35,16 @@ set(art_Utilities_sources
 add_library(art_Utilities SHARED ${art_Utilities_sources} )
 target_link_libraries(art_Utilities
   ${MF_MESSAGELOGGER}
+  ${FHICLCPP}
   ${CETLIB}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
+  ${Boost_SYSTEM_LIBRARY}
   ${Boost_THREAD_LIBRARY}
   ${ROOT_CINT}
   ${ROOT_REFLEX}
+  -lpthread
+  -ldl
 )
 
 install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
