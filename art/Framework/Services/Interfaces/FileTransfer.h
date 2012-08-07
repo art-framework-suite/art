@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_UserInteraction_FileTransfer_h
-#define art_Framework_Services_UserInteraction_FileTransfer_h
+#ifndef art_Framework_Services_Interfaces_FileTransfer_h
+#define art_Framework_Services_Interfaces_FileTransfer_h
 
 // -*- C++ -*-
 //
@@ -25,29 +25,28 @@ namespace art {
   class FileTransfer;
 }
 
-namespace art {
-  typedef std::string URI;
-}
-
-class art::FileTransfer
-{
+class art::FileTransfer {
 public:
-  int copyToScratch( art::URI const & uri, std::string & fileFQname );
+  int copyToScratch(std::string const & uri, std::string & fileFQname);
 
   // Remaining boilerplate:
   virtual ~FileTransfer() = default;
 
 private:
   // Classes inheriting this interface must provide the following method:
-  virtual int doCopyToScratch( art::URI const & uri, std::string & fileFQname ) = 0;
+  virtual int doCopyToScratch(std::string const & uri,
+                              std::string & fileFQname) = 0;
 };
 
-inline int art::FileTransfer::copyToScratch( art::URI const & uri,
-               std::string & fileFQname ) {
-  return doCopyToScratch (uri, fileFQname);
+inline
+int
+art::FileTransfer::copyToScratch(std::string const & uri,
+                                 std::string & fileFQname)
+{
+  return doCopyToScratch(uri, fileFQname);
 }
 
-#endif /* art_Framework_Services_UserInteraction_FileTransfer_h */
+#endif /* art_Framework_Services_Interfaces_FileTransfer_h */
 
 // Local Variables:
 // mode: c++

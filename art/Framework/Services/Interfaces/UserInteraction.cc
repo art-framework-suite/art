@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 // user include files
-#include "art/Framework/Services/UserInteraction/UserInteraction.h"
+#include "art/Framework/Services/Interfaces/UserInteraction.h"
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -25,8 +25,6 @@ using namespace art;
 using namespace std;
 
 namespace ui {
-
-  UserInteraction::~UserInteraction() { }
 
   UserInteraction::UserInteraction(ActivityRegistry&iReg)
   {

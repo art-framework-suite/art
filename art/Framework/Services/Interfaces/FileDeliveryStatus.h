@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_UserInteraction_FileDeliveryStatus_h
-#define art_Framework_Services_UserInteraction_FileDeliveryStatus_h
+#ifndef art_Framework_Services_Interfaces_FileDeliveryStatus_h
+#define art_Framework_Services_Interfaces_FileDeliveryStatus_h
 
 namespace art {
 
@@ -19,4 +19,8 @@ enum FileDeliveryStatus {
 
 } // end of art namespace
 
-#endif /* art_Framework_Services_UserInteraction_FileDeliveryStatus_h */
+#endif /* art_Framework_Services_Interfaces_FileDeliveryStatus_h */
+
+// Local Variables:
+// mode: c++
+// End:

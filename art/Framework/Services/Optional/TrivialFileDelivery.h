@@ -1,10 +1,10 @@
-#ifndef art_Framework_Services_UserInteraction_AdhocFileDelivery_h
-#define art_Framework_Services_UserInteraction_AdhocFileDelivery_h
+#ifndef art_Framework_Services_Optional_TrivialFileDelivery_h
+#define art_Framework_Services_Optional_TrivialFileDelivery_h
 
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     AdhocFileDelivery
+// Class  :     TrivialFileDelivery
 //
 /*
 
@@ -24,64 +24,49 @@
 //         Created:  Mon  30 Jul, 2012
 //
 
-#include "art/Framework/Services/UserInteraction/CatalogInterface.h"
+#include "art/Framework/Services/Interfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
 namespace art {
-  class AdhocFileDelivery;
+  class TrivialFileDelivery;
 }
 
 namespace art {
-  typedef std::string URI;
-  typedef std::string module_id_t;
-}
+  class TrivialFileDelivery : public CatalogInterface {
+  public:
+    // ctor -- the services factory will expect this signature
+    TrivialFileDelivery(fhicl::ParameterSet const & ps,
+                        ActivityRegistry & acReg);
 
-namespace art {
-  class FileDelivery;
-}
+  private:
+    // Classes inheriting this interface must provide the following methods:
+    int  doGetNextFileURI(std::string & uri, double & waitTime);
+    void doUpdateStatus(std::string const & uri, int status);
+    void doOutputFileOpened(std::string const & module_label);
+    void doOutputModuleInitiated(std::string const & module_label,
+                                 fhicl::ParameterSet const & pset);
+    void doOutputFileClosed(std::string const & module_label,
+                            std::string const & file);
+    void doEventSelected(std::string const & module_label,
+                         EventID const & event_id,
+                         HLTGlobalStatus const & acceptance_info);
 
-namespace art {
-  typedef std::string URI;
-  typedef std::string module_id_t;
-}
+    // helper functions
+    std::vector<std::string> extractFileListFromPset
+    (fhicl::ParameterSet const & pset);
+    std::string prependFileDesignation(std::string const & name) const;
 
-namespace art
-{
-class AdhocFileDelivery : public CatalogInterface
-{
-public:
-  // ctor -- the services factory will expect this signature
-  AdhocFileDelivery ( fhicl::ParameterSet const & ps,
-        ActivityRegistry & acReg );
-
-private:
-  // Classes inheriting this interface must provide the following methods:
-  int  doGetNextFileURI(URI & uri, double & waitTime);
-  void doUpdateStatus (URI const & uri, int status);
-  void doOutputFileOpened (module_id_t const & module_id);
-  void doOutputModuleInitiated (module_id_t const & module_id,
-                                        fhicl::ParameterSet const & pset);
-  void doOutputFileClosed (module_id_t const & module_id,
-                                   URI const & file);
-  void doEventSelected(module_id_t const & module_id,
-                     EventID event_id, HLTGlobalStatus acceptance_info);
-
-  // helper functions
-  std::vector<std::string> extractFileListFromPset
-        (fhicl::ParameterSet const & pset);
-  std::string prependFileDesignation(std::string const & name) const;
-
-  // class data
-  std::vector<std::string> fileList;
-  std::vector<std::string>::const_iterator nextFile;
-  std::vector<std::string>::const_iterator endOfFiles;
-};
+    // class data
+    std::vector<std::string> fileList;
+    std::vector<std::string>::const_iterator nextFile;
+    std::vector<std::string>::const_iterator endOfFiles;
+  };
 } // end of namespace art
 
-#endif /* art_Framework_Services_UserInteraction_AdhocFileTransfer_h */
+#endif /* art_Framework_Services_Optional_TrivialFileDelivery_h */
 
 // Local Variables:
 // mode: c++

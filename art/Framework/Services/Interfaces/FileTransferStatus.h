@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_UserInteraction_FileTransferStatus_h
-#define art_Framework_Services_UserInteraction_FileTransferStatus_h
+#ifndef art_Framework_Services_Interfaces_FileTransferStatus_h
+#define art_Framework_Services_Interfaces_FileTransferStatus_h
 
 namespace art {
 
@@ -20,4 +20,8 @@ enum FileTransferStatus {
 
 } // end of art namespace
 
-#endif /* art_Framework_Services_UserInteraction_FileTransferStatus_h */
+#endif /* art_Framework_Services_Interfaces_FileTransferStatus_h */
+
+// Local Variables:
+// mode: c++
+// End:

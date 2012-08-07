@@ -1,5 +1,5 @@
-#include "art/Framework/Services/UserInteraction/AdhocFileDelivery.h"
-#include "art/Framework/Services/UserInteraction/FileDeliveryStatus.h"
+#include "art/Framework/Services/Optional/TrivialFileDelivery.h"
+#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include <cerrno>
 #include <cstdlib>
@@ -9,27 +9,28 @@ using namespace art;
 using namespace std;
 using fhicl::ParameterSet;
 
-art::AdhocFileDelivery::AdhocFileDelivery 
-   ( ParameterSet const & pset, ActivityRegistry & )
-     : fileList(extractFileListFromPset(pset))
-     , nextFile(fileList.begin())
-     , endOfFiles(fileList.end())
+art::TrivialFileDelivery::TrivialFileDelivery
+(ParameterSet const & pset, ActivityRegistry &)
+  : fileList(extractFileListFromPset(pset))
+  , nextFile(fileList.begin())
+  , endOfFiles(fileList.end())
 {
 }
 
-int  art::AdhocFileDelivery::doGetNextFileURI(URI & uri, double & waitTime)
+int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & waitTime)
 {
   FileDeliveryStatus stat;
   if (nextFile == endOfFiles) {
     stat = NO_MORE_FILES;
     return stat;
   }
-  { ifstream f(nextFile->c_str());
+  {
+    ifstream f(nextFile->c_str());
     if (!f) {
       stat = NOT_FOUND;
       ++nextFile;
       return stat;
-    } 
+    }
   }
   uri = prependFileDesignation(*nextFile);
   waitTime = 0.0;
@@ -40,33 +41,32 @@ int  art::AdhocFileDelivery::doGetNextFileURI(URI & uri, double & waitTime)
 
 // The remaining doXXX methods are trivial in this class, ignoring the XXX events.
 // The real SAMProtocol concrete class might have real work in these.
-void art::AdhocFileDelivery::doUpdateStatus (URI const & , int ) {}
-void art::AdhocFileDelivery::doOutputFileOpened (module_id_t const & ){}
- void art::AdhocFileDelivery::doOutputModuleInitiated 
-    (module_id_t const & , ParameterSet const & ) {}  
-void art::AdhocFileDelivery::doOutputFileClosed 
-    (module_id_t const & , URI const & ) {}
-void art::AdhocFileDelivery::doEventSelected
-    (module_id_t const & ,
-     EventID , HLTGlobalStatus ) {}
-  
+void art::TrivialFileDelivery::doUpdateStatus(std::string const &, int) {}
+void art::TrivialFileDelivery::doOutputFileOpened(std::string const &) {}
+void art::TrivialFileDelivery::doOutputModuleInitiated
+(std::string const &, ParameterSet const &) {}
+void art::TrivialFileDelivery::doOutputFileClosed
+(std::string const &, std::string const &) {}
+void art::TrivialFileDelivery::doEventSelected
+(std::string const &,
+ EventID const &,
+ HLTGlobalStatus const &) {}
+
 // helper functions
-std::vector<std::string> 
-art::AdhocFileDelivery::extractFileListFromPset(ParameterSet const & pset)
+std::vector<std::string>
+art::TrivialFileDelivery::extractFileListFromPset(ParameterSet const & pset)
 {
-  ParameterSet p = pset.get<ParameterSet>("source"); 
+  ParameterSet p = pset.get<ParameterSet>("source");
   return p.get< std::vector<std::string> >("fileNames");
   // TODO -- How do we properly throw if either source or fileNames is absent?
-  // get() does throw, but is it the right throw and should we be catching it? 
+  // get() does throw, but is it the right throw and should we be catching it?
 }
 
-std::string 
-  art::AdhocFileDelivery::prependFileDesignation(std::string const & name) const
+std::string
+art::TrivialFileDelivery::prependFileDesignation(std::string const & name) const
 {
-  std::string s ("file://");
-  return s+name;
+  std::string s("file://");
+  return s + name;
 }
 
-
-
-DEFINE_ART_SERVICE(art::AdhocFileDelivery)
+DEFINE_ART_SERVICE(art::TrivialFileDelivery)

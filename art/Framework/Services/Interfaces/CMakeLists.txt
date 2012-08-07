@@ -1,13 +1,13 @@
-set(art_Framework_Services_UserInteraction_sources
+set(art_Framework_Services_Interfaces_sources
   UserInteraction.cc
 )
 
-add_library(art_Framework_Services_UserInteraction
+add_library(art_Framework_Services_Interfaces
   SHARED
-  ${art_Framework_Services_UserInteraction_sources}
+  ${art_Framework_Services_Interfaces_sources}
 )
 
-target_link_libraries(art_Framework_Services_UserInteraction
+target_link_libraries(art_Framework_Services_Interfaces
   art_Framework_Core
   art_Framework_Principal
   art_Persistency_Provenance
@@ -15,11 +15,8 @@ target_link_libraries(art_Framework_Services_UserInteraction
   ${FHICLCPP}
 )
 
-install ( TARGETS art_Framework_Services_UserInteraction
+install ( TARGETS art_Framework_Services_Interfaces
   DESTINATION ${flavorqual_dir}/lib )
 
-simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
-simple_plugin(AdhocFileTransfer "service")
-simple_plugin(AdhocFileDelivery "service")
 install_headers()
 install_source()

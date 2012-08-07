@@ -1,10 +1,10 @@
-#ifndef art_Framework_Services_UserInteraction_AdhocFileTransfer_h
-#define art_Framework_Services_UserInteraction_AdhocFileTransfer_h
+#ifndef art_Framework_Services_Optional_TrivialFileTransfer_h
+#define art_Framework_Services_Optional_TrivialFileTransfer_h
 
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     AdhocFileTransfer
+// Class  :     TrivialFileTransfer
 //
 /*
 
@@ -21,35 +21,34 @@
 //         Created:  Fri  27 Jul, 2012
 //
 
-#include "art/Framework/Services/UserInteraction/FileTransfer.h"
+#include "art/Framework/Services/Interfaces/FileTransfer.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
 namespace art {
-  class AdhocFileTransfer;
+  class TrivialFileTransfer;
 }
 
 namespace art {
-class AdhocFileTransfer : public FileTransfer
-{
-public:
-  // ctor -- the services factory will expect this signature
-  AdhocFileTransfer ( fhicl::ParameterSet const & pset, ActivityRegistry & acReg );
+  class TrivialFileTransfer : public FileTransfer {
+  public:
+    // ctor -- the services factory will expect this signature
+    TrivialFileTransfer(fhicl::ParameterSet const & pset, ActivityRegistry & acReg);
 
-private:
-  // Classes inheriting FileTransfer interface must provide the following method:
-  virtual int doCopyToScratch( art::URI const & uri, std::string & fileFQname );
+  private:
+    // Classes inheriting FileTransfer interface must provide the following method:
+    virtual int doCopyToScratch(std::string const & uri, std::string & fileFQname);
 
-  // helper functions
-  int stripURI(art::URI const & uri, std::string & inFileName) const;
-  int copyFile(std::ifstream & in, std::ofstream & out) const;
+    // helper functions
+    int stripURI(std::string const & uri, std::string & inFileName) const;
+    int copyFile(std::ifstream & in, std::ofstream & out) const;
 
-  // class data
-  std::string scratchArea;
-};
+    // class data
+    std::string scratchArea;
+  };
 } // end of art namespace
-#endif /* art_Framework_Services_UserInteraction_AdhocFileTransfer_h */
+#endif /* art_Framework_Services_Optional_TrivialFileTransfer_h */
 
 // Local Variables:
 // mode: c++

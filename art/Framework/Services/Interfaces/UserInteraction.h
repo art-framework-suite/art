@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_UserInteraction_UserInteraction_h
-#define art_Framework_Services_UserInteraction_UserInteraction_h
+#ifndef art_Framework_Services_Interfaces_UserInteraction_h
+#define art_Framework_Services_Interfaces_UserInteraction_h
 
 // -*- C++ -*-
 //
@@ -47,7 +47,7 @@ namespace ui {
     };
 
     explicit UserInteraction(art::ActivityRegistry&);
-    virtual ~UserInteraction();
+    virtual ~UserInteraction() = default;
 
     // must be supplied by user. called when the module list is
     // available.  this will supply user code with a list of
@@ -83,7 +83,7 @@ namespace ui {
   };
 }
 
-#endif /* art_Framework_Services_UserInteraction_UserInteraction_h */
+#endif /* art_Framework_Services_Interfaces_UserInteraction_h */
 
 // Local Variables:
 // mode: c++

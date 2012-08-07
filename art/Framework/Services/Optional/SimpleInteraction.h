@@ -1,10 +1,10 @@
-#ifndef art_Framework_Services_UserInteraction_SimpleInteraction_h
-#define art_Framework_Services_UserInteraction_SimpleInteraction_h
+#ifndef art_Framework_Services_Optional_SimpleInteraction_h
+#define art_Framework_Services_Optional_SimpleInteraction_h
 
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     UserInteraction
+// Class  :     Interfaces/
 //
 /*
 
@@ -18,7 +18,7 @@
 //
 
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Services/UserInteraction/UserInteraction.h"
+#include "art/Framework/Services/Interfaces/UserInteraction.h"
 #include <vector>
 
 namespace ui {
@@ -37,7 +37,7 @@ namespace ui {
   };
 }
 
-#endif /* art_Framework_Services_UserInteraction_SimpleInteraction_h */
+#endif /* art_Framework_Services_Optional_SimpleInteraction_h */
 
 // Local Variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#include "art/Framework/Services/UserInteraction/AdhocFileTransfer.h"
-#include "art/Framework/Services/UserInteraction/FileTransferStatus.h"
+#include "art/Framework/Services/Optional/TrivialFileTransfer.h"
+#include "art/Framework/Services/Interfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include <cerrno>
 #include <cstdlib>
@@ -13,36 +13,36 @@ using namespace art;
 using namespace std;
 using fhicl::ParameterSet;
 
-art::AdhocFileTransfer::AdhocFileTransfer 
-   ( ParameterSet const & , ActivityRegistry &  )
-     : scratchArea(std::getenv("ART_FILE_TRANSFER_SCRATCH_AREA"))
+art::TrivialFileTransfer::TrivialFileTransfer
+(ParameterSet const & , ActivityRegistry &)
+  : scratchArea(std::getenv("ART_FILE_TRANSFER_SCRATCH_AREA"))
 {
 }
 
-int art::AdhocFileTransfer::doCopyToScratch
-   ( art::URI const & uri, std::string & fileFQname )
+int art::TrivialFileTransfer::doCopyToScratch
+(std::string const & uri, std::string & fileFQname)
 {
   FileTransferStatus stat = OK; // Note that in our context, OK does not denote
-                                // successful file *creation*
+  // successful file *creation*
   fileFQname = "";
   std::string inFileName;
-  int inFileStatus = stripURI (uri, inFileName);
+  int inFileStatus = stripURI(uri, inFileName);
   if (inFileStatus != 0) {
     stat = BADREQUEST;
     return stat;
   }
   ifstream infile(inFileName.c_str());
-  if ( !infile ) {
+  if (!infile) {
     stat = NOTFOUND;
-      return stat;
+    return stat;
   }
   std::string ofileName = scratchArea + "/" + tmpnam(NULL);
-  ofstream outfile (ofileName.c_str());
-  if ( !outfile ) {
+  ofstream outfile(ofileName.c_str());
+  if (!outfile) {
     stat = FORBIDDEN;
     return stat;
   }
-  int copystat = copyFile ( infile, outfile );
+  int copystat = copyFile(infile, outfile);
   if (copystat != 0) {
     stat = FORBIDDEN;
     return stat;
@@ -61,11 +61,11 @@ int art::AdhocFileTransfer::doCopyToScratch
   //   scratch file name, to try to maintain traceability in case things break.
 }
 
-int art::AdhocFileTransfer::stripURI
-                (art::URI const & uri, std::string & inFileName) const
+int art::TrivialFileTransfer::stripURI
+(std::string const & uri, std::string & inFileName) const
 {
   const std::string filestr("file://");
-  if (uri.substr(0,7) != filestr) {
+  if (uri.substr(0, 7) != filestr) {
     inFileName = "";
     return 1;
   }
@@ -73,12 +73,12 @@ int art::AdhocFileTransfer::stripURI
   return 0;
 }
 
-int art::AdhocFileTransfer::copyFile(std::ifstream & in, std::ofstream & out) const
+int art::TrivialFileTransfer::copyFile(std::ifstream & in, std::ofstream & out) const
 {
-  std::copy(std::istream_iterator<char>(in), 
-            std::istream_iterator<char>(), 
+  std::copy(std::istream_iterator<char>(in),
+            std::istream_iterator<char>(),
             std::ostream_iterator<char>(out));
   return 0;
 }
 
-DEFINE_ART_SERVICE(art::AdhocFileTransfer)
+DEFINE_ART_SERVICE(art::TrivialFileTransfer)
