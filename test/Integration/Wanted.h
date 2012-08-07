@@ -1,5 +1,5 @@
-#ifndef LKJH
-#define LKJH
+#ifndef test_Integration_Wanted_h
+#define test_Integration_Wanted_h
 // Service with a name near the end of the alphabet with a hook to make
 // sure it gets called.
 
@@ -21,4 +21,8 @@ private:
 
   bool postBeginJobCalled_;
 };
-#endif
+#endif /* test_Integration_Wanted_h */
+
+// Local Variables:
+// mode: c++
+// End:
