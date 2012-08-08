@@ -48,7 +48,7 @@ Group::Group(std::unique_ptr<EDProduct> && edp,
   wrapper_type_(wrapper_type),
   ppResolver_(),
   productResolver_(),
-  product_(edp.release()),
+  product_(std::move(edp)),
   branchDescription_(&bd),
   pid_(pid),
   productProducer_(),
@@ -112,9 +112,9 @@ Group::resolveProductIfAvailable(bool fillOnDemand,
       << wrapper_type_.className()
       << ").\n";
   }
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
     edp(obtainDesiredProduct(fillOnDemand, wanted_wrapper_type));
-  if (edp.get()) setProduct(edp);
+  if (edp.get()) setProduct(std::move(edp));
   return uniqueProduct();
 }
 
@@ -138,10 +138,10 @@ Group::productProvenancePtr() const {
 void
 Group::setProduct(std::unique_ptr<EDProduct> && prod) const {
   assert (!product_.get());
-  product_.reset(prod.release());  // Group takes ownership
+  product_ = std::move(prod);  // Group takes ownership
 }
 
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 Group::obtainDesiredProduct(bool fillOnDemand,
                             TypeID const &wanted_wrapper_type) const {
   // Try unscheduled production.
@@ -149,11 +149,10 @@ Group::obtainDesiredProduct(bool fillOnDemand,
     productProducer_->
       doWork<OccurrenceTraits<EventPrincipal,
       BranchActionBegin> >(*onDemandPrincipal_, 0);
-    return std::auto_ptr<EDProduct>();
+    return std::unique_ptr<EDProduct>();
   } else {
     BranchKey const bk(productDescription());
-    std::auto_ptr<EDProduct> edp(productResolver_->getProduct(bk, wanted_wrapper_type));
-    return edp;
+    return std::unique_ptr<EDProduct>(productResolver_->getProduct(bk, wanted_wrapper_type));
   }
 }
 

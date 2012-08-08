@@ -12,15 +12,15 @@ namespace art {
   class ProductID;
 
   namespace gfactory {
-    std::auto_ptr<Group>
+    std::unique_ptr<Group>
     make_group(BranchDescription const &bd,
                ProductID const &pid);
-    std::auto_ptr<Group>
+    std::unique_ptr<Group>
     make_group(BranchDescription const &bd,
                ProductID const &pid,
                cet::exempt_ptr<Worker> productProducer,
                cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
-    std::auto_ptr<Group>
+    std::unique_ptr<Group>
     make_group(std::unique_ptr<EDProduct> && edp,
                BranchDescription const &bd,
                ProductID const &pid);

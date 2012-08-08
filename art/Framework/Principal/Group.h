@@ -43,9 +43,9 @@ protected: // Use GroupFactory to make.
         BranchDescription const &bd,
         ProductID const &pid,
         art::TypeID const &wrapper_type);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
-  friend std::auto_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
+  friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
+  friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
+  friend std::unique_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
 public:
   virtual ~Group();
 
@@ -96,7 +96,7 @@ public:
   TypeID const & producedWrapperType() const { return wrapper_type_; }
 
 protected:
-  std::auto_ptr<EDProduct> obtainDesiredProduct(bool fillOnDemand, TypeID const &) const;
+  std::unique_ptr<EDProduct> obtainDesiredProduct(bool fillOnDemand, TypeID const &) const;
   void setProduct(std::unique_ptr<EDProduct> && prod) const;
 
 private:
@@ -105,7 +105,7 @@ private:
   art::TypeID                               wrapper_type_;
   cet::exempt_ptr<BranchMapper const>       ppResolver_;
   cet::exempt_ptr<DelayedReader const>      productResolver_;
-  mutable std::auto_ptr<EDProduct>          product_;
+  mutable std::unique_ptr<EDProduct>          product_;
   cet::exempt_ptr<BranchDescription const>  branchDescription_;
   mutable ProductID                         pid_;
   cet::exempt_ptr<Worker>                   productProducer_;

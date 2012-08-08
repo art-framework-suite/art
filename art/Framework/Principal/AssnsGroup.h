@@ -29,9 +29,9 @@ private:
              ProductID const &pid,
              art::TypeID const &prinary_type,
              art::TypeID const &secondary_type);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
-  friend std::auto_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
-  friend std::auto_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
+  friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
+  friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
+  friend std::unique_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
 public:
   virtual ~AssnsGroup();
 
@@ -42,11 +42,11 @@ public:
   virtual bool resolveProductIfAvailable(bool fillOnDemand, TypeID const &) const;
 
 private:
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
   maybeObtainProductFromPartner(TypeID const &wanted_wrapper_type) const;
 
   art::TypeID secondary_wrapper_type_;
-  mutable cet::value_ptr<EDProduct> secondaryProduct_;
+  mutable std::unique_ptr<EDProduct> secondaryProduct_;
 };
 
 #endif /* art_Framework_Principal_AssnsGroup_h */

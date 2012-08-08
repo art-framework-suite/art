@@ -43,14 +43,14 @@ namespace {
   }
 }
 
-std::auto_ptr<art::Group>
+std::unique_ptr<art::Group>
 art::gfactory::
 make_group(BranchDescription const &bd,
            ProductID const &pid)
 {
   Reflex::Type atype(is_assns(bd));
   return
-    std::auto_ptr<Group>
+    std::unique_ptr<Group>
     (atype ?
      new AssnsGroup(bd,
                     pid,
@@ -61,7 +61,7 @@ make_group(BranchDescription const &bd,
                art::TypeID(type_of_wrapper(bd).TypeInfo())));
 }
 
-std::auto_ptr<art::Group>
+std::unique_ptr<art::Group>
 art::gfactory::
 make_group(BranchDescription const &bd,
            ProductID const &pid,
@@ -70,7 +70,7 @@ make_group(BranchDescription const &bd,
 {
   Reflex::Type atype(is_assns(bd));
   return
-    std::auto_ptr<Group>
+    std::unique_ptr<Group>
     (atype ?
      new AssnsGroup(bd,
                     pid,
@@ -85,7 +85,7 @@ make_group(BranchDescription const &bd,
                onDemandPrincipal));
 }
 
-std::auto_ptr<art::Group>
+std::unique_ptr<art::Group>
 art::gfactory::
 make_group(std::unique_ptr<EDProduct> && edp,
            BranchDescription const &bd,
@@ -93,14 +93,14 @@ make_group(std::unique_ptr<EDProduct> && edp,
 {
   Reflex::Type atype(is_assns(bd));
   return
-    std::auto_ptr<Group>
+    std::unique_ptr<Group>
     (atype ?
-     new AssnsGroup(edp,
+     new AssnsGroup(std::move(edp),
                     bd,
                     pid,
                     art::TypeID(type_of_wrapper(atype).TypeInfo()),
                     art::TypeID(type_of_wrapper_of_other_assns(atype).TypeInfo())) :
-     new Group(edp,
+     new Group(std::move(edp),
                bd,
                pid,
                art::TypeID(type_of_wrapper(bd).TypeInfo())));

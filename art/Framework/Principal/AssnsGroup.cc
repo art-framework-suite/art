@@ -74,7 +74,7 @@ resolveProductIfAvailable(bool fillOnDemand,
   if (uniqueProduct(wanted_wrapper_type)) return true; // Nothing to do.
   if (productUnavailable()) return false; // Nothing we *can* do.
   // Check partner first.
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
     edp(maybeObtainProductFromPartner(wanted_wrapper_type));
   // Now try to read from disk or execute on-demand.
   if (!edp.get()) edp = obtainDesiredProduct(fillOnDemand, wanted_wrapper_type);
@@ -83,7 +83,7 @@ resolveProductIfAvailable(bool fillOnDemand,
       // On-demand could have been called: attempt to convert.
       edp = maybeObtainProductFromPartner(wanted_wrapper_type);
     }
-    secondaryProduct_.reset(edp.release());
+    secondaryProduct_ = std::move(edp);
   } else {
     // Want the produced type anyway.
     if (edp.get()) setProduct(edp);
@@ -91,7 +91,7 @@ resolveProductIfAvailable(bool fillOnDemand,
   return uniqueProduct(wanted_wrapper_type);
 }
 
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::AssnsGroup::
 maybeObtainProductFromPartner(TypeID const &wanted_wrapper_type) const
 {
@@ -102,5 +102,5 @@ maybeObtainProductFromPartner(TypeID const &wanted_wrapper_type) const
   return
     uniqueProduct(other_wrapper_type) ?
     uniqueProduct(other_wrapper_type)->makePartner(wanted_wrapper_type.typeInfo()) :
-    std::auto_ptr<EDProduct>();
+    std::unique_ptr<EDProduct>();
 }
