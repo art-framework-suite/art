@@ -44,7 +44,7 @@ namespace {
   class EventProcessorWithSentry {
   public:
     explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) { }
-    explicit EventProcessorWithSentry(std::auto_ptr<art::EventProcessor> ep) :
+    explicit EventProcessorWithSentry(std::unique_ptr<art::EventProcessor> && ep) :
       ep_(ep),
       callEndJob_(false) { }
     ~EventProcessorWithSentry() {

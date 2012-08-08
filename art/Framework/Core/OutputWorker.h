@@ -20,7 +20,7 @@ namespace art {
 
   class OutputWorker : public WorkerT<OutputModule> {
   public:
-    OutputWorker(std::auto_ptr<OutputModule> mod,
+    OutputWorker(std::unique_ptr<OutputModule> && mod,
                  ModuleDescription const&,
                  WorkerParams const&);
 

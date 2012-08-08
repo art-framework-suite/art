@@ -176,7 +176,7 @@ struct EventTestFixture {
   EventTestFixture();
 
   template <class T>
-  ProductID addProduct(std::auto_ptr<T> product,
+  ProductID addProduct(std::unique_ptr<T> && product,
                        std::string const& tag,
                        std::string const& productLabel = std::string());
 
@@ -280,7 +280,7 @@ EventTestFixture::EventTestFixture()
 template <class T>
 ProductID
 EventTestFixture::
-addProduct(std::auto_ptr<T> product,
+addProduct(std::unique_ptr<T> && product,
            std::string const& tag,
            std::string const& productLabel)
 {

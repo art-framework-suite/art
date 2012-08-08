@@ -39,12 +39,12 @@ public:
   ///Put a new product.
   template <typename PROD>
   void
-  put(std::auto_ptr<PROD> product) {put<PROD>(product, std::string());}
+  put(std::unique_ptr<PROD> && product) {put<PROD>(product, std::string());}
 
   ///Put a new product with a 'product instance name'
   template <typename PROD>
   void
-  put(std::auto_ptr<PROD> product, std::string const& productInstanceName);
+  put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -79,7 +79,7 @@ private:
 
 template <typename PROD>
 void
-art::Run::put(std::auto_ptr<PROD> product, std::string const& productInstanceName)
+art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName)
 {
   if (product.get() == 0) {                // null pointer is illegal
     TypeID typeID(typeid(PROD));

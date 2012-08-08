@@ -25,7 +25,7 @@
 namespace art {
    template <typename T, typename P>
    void
-   put_product_in_principal(std::auto_ptr<T> product,
+   put_product_in_principal(std::unique_ptr<T> && product,
                             P &principal,
                             std::string const &module_label,
                             std::string const &instance_name = std::string());
@@ -34,7 +34,7 @@ namespace art {
 
 template <typename T, typename P>
 void
-art::put_product_in_principal(std::auto_ptr<T> product,
+art::put_product_in_principal(std::unique_ptr<T> && product,
                               P &principal,
                               std::string const &module_label,
                               std::string const &instance_name) {

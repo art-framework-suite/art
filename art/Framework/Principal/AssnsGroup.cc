@@ -21,7 +21,7 @@ AssnsGroup(BranchDescription const &bd,
 {}
 
 art::AssnsGroup::
-AssnsGroup(std::auto_ptr<EDProduct> edp,
+AssnsGroup(std::unique_ptr<EDProduct> && edp,
            BranchDescription const &bd,
            ProductID const &pid,
            art::TypeID const &primary_wrapper_type,

@@ -81,7 +81,7 @@ art::MasterProductRegistry::print(std::ostream &os) const {
 }
 
 void
-art::MasterProductRegistry::addProduct(std::auto_ptr<BranchDescription> bdp) {
+art::MasterProductRegistry::addProduct(std::unique_ptr<BranchDescription> && bdp) {
   assert(bdp->produced());
   throwIfFrozen();
   checkDicts(*bdp);

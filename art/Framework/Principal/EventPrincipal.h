@@ -40,8 +40,8 @@ public:
   EventPrincipal(EventAuxiliary const& aux,
                  ProcessConfiguration const& pc,
                  std::shared_ptr<History> history = std::shared_ptr<History>(new History),
-                 std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-                 std::auto_ptr<DelayedReader> rtrv = std::auto_ptr<DelayedReader>(new NoDelayedReader));
+                 std::unique_ptr<BranchMapper> && mapper = std::unique_ptr<BranchMapper>(new BranchMapper),
+                 std::unique_ptr<DelayedReader> && rtrv = std::unique_ptr<DelayedReader>(new NoDelayedReader));
 
   // use compiler-generated copy c'tor, copy assignment, and d'tor
 
@@ -85,12 +85,12 @@ public:
 
   GroupQueryResult getByProductID(ProductID const& pid) const;
 
-  void put(std::auto_ptr<EDProduct> edp, BranchDescription const& bd,
-           std::auto_ptr<ProductProvenance const> productProvenance);
+  void put(std::unique_ptr<EDProduct> && edp, BranchDescription const& bd,
+           std::unique_ptr<ProductProvenance const> && productProvenance);
 
   void addGroup(BranchDescription const& bd);
 
-  void addGroup(std::auto_ptr<EDProduct> prod,
+  void addGroup(std::unique_ptr<EDProduct> && prod,
                 BranchDescription const& bd);
 
   ////    virtual EDProduct const* getIt(ProductID const& pid) const;
@@ -106,7 +106,7 @@ private:
 
   BranchID productIDToBranchID(ProductID const& pid) const;
 
-  virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
+  virtual void addOrReplaceGroup(std::unique_ptr<Group> && g);
 
   virtual ProcessHistoryID const& processHistoryID() const {return history().processHistoryID();}
 

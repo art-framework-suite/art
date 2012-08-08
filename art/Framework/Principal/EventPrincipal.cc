@@ -23,8 +23,8 @@ namespace art {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
                                  ProcessConfiguration const& pc,
                                  std::shared_ptr<History> history,
-                                 std::auto_ptr<BranchMapper> mapper,
-                                 std::auto_ptr<DelayedReader> rtrv) :
+                                 std::unique_ptr<BranchMapper> && mapper,
+                                 std::unique_ptr<DelayedReader> && rtrv) :
   Principal(pc, history->processHistoryID(), mapper, rtrv),
   deferredGetters_(),
   aux_(aux),
@@ -85,7 +85,7 @@ namespace art {
   }
 
   void
-  EventPrincipal::addOrReplaceGroup(auto_ptr<Group> g) {
+  EventPrincipal::addOrReplaceGroup(std::unique_ptr<Group> && g) {
     cet::exempt_ptr<Group const> group =
       getExistingGroup(g->productDescription().branchID());
     if (!group) {
@@ -111,15 +111,15 @@ namespace art {
   }
 
   void
-  EventPrincipal::addGroup(auto_ptr<EDProduct> prod,
+  EventPrincipal::addGroup(std::unique_ptr<EDProduct> && prod,
          BranchDescription const& bd) {
     addOrReplaceGroup(gfactory::make_group(prod, bd, branchIDToProductID(bd.branchID())));
   }
 
   void
-  EventPrincipal::put(auto_ptr<EDProduct> edp,
+  EventPrincipal::put(std::unique_ptr<EDProduct> && edp,
                 BranchDescription const& bd,
-                auto_ptr<ProductProvenance const> productProvenance) {
+                std::unique_ptr<ProductProvenance const> && productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")

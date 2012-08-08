@@ -58,7 +58,7 @@ class art::ServiceWrapper
 
 public:
   // c'tor:
-  explicit ServiceWrapper( std::auto_ptr<T> service_ptr )
+  explicit ServiceWrapper( std::unique_ptr<T> && service_ptr )
   : ServiceWrapperBase( )
   , service_ptr_      ( service_ptr )  // take ownership
   { }

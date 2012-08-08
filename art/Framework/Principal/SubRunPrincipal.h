@@ -30,8 +30,8 @@ public:
 
   SubRunPrincipal(SubRunAuxiliary const& aux,
                   ProcessConfiguration const& pc,
-                  std::auto_ptr<BranchMapper> mapper = std::auto_ptr<BranchMapper>(new BranchMapper),
-                  std::auto_ptr<DelayedReader> rtrv = std::auto_ptr<DelayedReader>(new NoDelayedReader));
+                  std::unique_ptr<BranchMapper> && mapper = std::unique_ptr<BranchMapper>(new BranchMapper),
+                  std::unique_ptr<DelayedReader> && rtrv = std::unique_ptr<DelayedReader>(new NoDelayedReader));
 
   ~SubRunPrincipal() {}
 
@@ -60,19 +60,19 @@ public:
 
   void mergeSubRun(std::shared_ptr<SubRunPrincipal> srp);
 
-  void put(std::auto_ptr<EDProduct> edp,
+  void put(std::unique_ptr<EDProduct> && edp,
            BranchDescription const& bd,
-           std::auto_ptr<ProductProvenance const> productProvenance);
+           std::unique_ptr<ProductProvenance const> && productProvenance);
 
   void addGroup(BranchDescription const& bd);
 
-  void addGroup(std::auto_ptr<EDProduct> prod,
+  void addGroup(std::unique_ptr<EDProduct> && prod,
                 BranchDescription const& bd);
 
   BranchType branchType() const { return InSubRun; }
 
 private:
-  virtual void addOrReplaceGroup(std::auto_ptr<Group> g);
+  virtual void addOrReplaceGroup(std::unique_ptr<Group> && g);
 
   virtual ProcessHistoryID const& processHistoryID() const {return aux().processHistoryID_;}
 

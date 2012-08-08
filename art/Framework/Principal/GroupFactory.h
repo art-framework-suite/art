@@ -21,7 +21,7 @@ namespace art {
                cet::exempt_ptr<Worker> productProducer,
                cet::exempt_ptr<EventPrincipal> onDemandPrincipal);
     std::auto_ptr<Group>
-    make_group(std::auto_ptr<EDProduct> edp,
+    make_group(std::unique_ptr<EDProduct> && edp,
                BranchDescription const &bd,
                ProductID const &pid);
   }

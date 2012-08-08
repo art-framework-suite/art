@@ -55,9 +55,9 @@ public:
 
   Principal(ProcessConfiguration const& pc,
             ProcessHistoryID const& hist,
-            std::auto_ptr<BranchMapper> mapper,
+            std::unique_ptr<BranchMapper> && mapper,
             //std::shared_ptr<DelayedReader> rtrv);
-            std::auto_ptr<DelayedReader> rtrv);
+            std::unique_ptr<DelayedReader> && rtrv);
 
   virtual ~Principal();
 
@@ -120,9 +120,9 @@ protected:
   // ----- Add a new Group
   // *this takes ownership of the Group, which in turn owns its
   // data.
-  void addGroup_(std::auto_ptr<Group> g);
+  void addGroup_(std::unique_ptr<Group> && g);
   cet::exempt_ptr<Group const>  getExistingGroup(BranchID const &bid);
-  void replaceGroup(std::auto_ptr<Group> g);
+  void replaceGroup(std::unique_ptr<Group> && g);
   SharedConstGroupPtr const getGroup(BranchID const& bid) const;
   SharedConstGroupPtr const
   getResolvedGroup(BranchID const& bid,
@@ -135,7 +135,7 @@ protected:
 private:
   ////    virtual EDProduct const* getIt(ProductID const&) const;
 
-  virtual void addOrReplaceGroup(std::auto_ptr<Group> g) = 0;
+  virtual void addOrReplaceGroup(std::unique_ptr<Group> && g) = 0;
 
 
   virtual ProcessHistoryID const& processHistoryID() const = 0;

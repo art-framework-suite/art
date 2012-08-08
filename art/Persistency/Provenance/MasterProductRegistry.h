@@ -63,7 +63,7 @@ public:
 
   ////////////////////////////////////////////////////////////////////////
   // Mutators for use while we are unfrozen only.
-  void addProduct(std::auto_ptr<BranchDescription> bdp);
+  void addProduct(std::unique_ptr<BranchDescription> && bdp);
 
   void updateFromInput(ProductList const &other);
 

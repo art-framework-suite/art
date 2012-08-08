@@ -23,7 +23,7 @@ BranchMapper::readProvenance() const
 }
 
 BranchMapper::result_t
-BranchMapper::insert(std::auto_ptr<ProductProvenance const> pp_ptr)
+BranchMapper::insert(std::unique_ptr<ProductProvenance const> && pp_ptr)
 {
   readProvenance();
   result_t result(pp_ptr.get());

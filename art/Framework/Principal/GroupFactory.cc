@@ -87,7 +87,7 @@ make_group(BranchDescription const &bd,
 
 std::auto_ptr<art::Group>
 art::gfactory::
-make_group(std::auto_ptr<EDProduct> edp,
+make_group(std::unique_ptr<EDProduct> && edp,
            BranchDescription const &bd,
            ProductID const &pid)
 {

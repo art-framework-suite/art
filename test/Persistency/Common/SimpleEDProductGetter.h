@@ -15,7 +15,7 @@ class SimpleEDProductGetter : public art::EDProductGetter
   typedef std::map<art::ProductID, std::shared_ptr<art::EDProduct> > map_t;
   template <class T>
   void
-  addProduct(art::ProductID const& id, std::auto_ptr<T> p)
+  addProduct(art::ProductID const& id, std::unique_ptr<T> && p)
   {
     typedef art::Wrapper<T> wrapper_t;
 

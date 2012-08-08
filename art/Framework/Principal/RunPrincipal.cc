@@ -10,8 +10,8 @@ using art::RunPrincipal;
 
 RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
                            ProcessConfiguration const& pc,
-                           std::auto_ptr<BranchMapper> mapper,
-                           std::auto_ptr<DelayedReader> rtrv) :
+                           std::unique_ptr<BranchMapper> && mapper,
+                           std::unique_ptr<DelayedReader> && rtrv) :
   Principal(pc, aux.processHistoryID_, mapper, rtrv),
   aux_(aux) {
   if (ProductMetaData::instance().productProduced(InRun)) {
@@ -20,7 +20,7 @@ RunPrincipal::RunPrincipal(RunAuxiliary const& aux,
 }
 
 void
-RunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
+RunPrincipal::addOrReplaceGroup(std::unique_ptr<Group> && g) {
   cet::exempt_ptr<Group const> group =
     getExistingGroup(g->productDescription().branchID());
   if (!group) {
@@ -45,15 +45,15 @@ RunPrincipal::addGroup(BranchDescription const& bd) {
 }
 
 void
-RunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+RunPrincipal::addGroup(std::unique_ptr<EDProduct> && prod,
                        BranchDescription const& bd) {
   addOrReplaceGroup(gfactory::make_group(prod, bd, ProductID()));
 }
 
 void
-RunPrincipal::put(std::auto_ptr<EDProduct> edp,
+RunPrincipal::put(std::unique_ptr<EDProduct> && edp,
                   BranchDescription const& bd,
-                  std::auto_ptr<ProductProvenance const> productProvenance) {
+                  std::unique_ptr<ProductProvenance const> && productProvenance) {
   if (edp.get() == 0) {
     throw art::Exception(art::errors::InsertFailure,"Null Pointer")
       << "put: Cannot put because auto_ptr to product is null."

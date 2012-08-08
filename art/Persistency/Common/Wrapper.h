@@ -66,7 +66,7 @@ namespace art {
     typedef T value_type;
     typedef T wrapped_type;  // used with Reflex to identify Wrappers
     Wrapper() : EDProduct(), present(false), obj() {}
-    explicit Wrapper(std::auto_ptr<T> ptr);
+    explicit Wrapper(std::unique_ptr<T> && ptr);
     virtual ~Wrapper() {}
     T const * product() const {return (present ? &obj : 0);}
     T const * operator->() const {return product();}
@@ -284,7 +284,7 @@ namespace art {
   }
 
   template <class T>
-  Wrapper<T>::Wrapper(std::auto_ptr<T> ptr) :
+  Wrapper<T>::Wrapper(std::unique_ptr<T> && ptr) :
     EDProduct(),
     present(ptr.get() != 0),
     obj()

@@ -10,8 +10,8 @@ namespace art {
 
   SubRunPrincipal::SubRunPrincipal(SubRunAuxiliary const& aux,
                                    ProcessConfiguration const& pc,
-                                   std::auto_ptr<BranchMapper> mapper,
-                                   std::auto_ptr<DelayedReader> rtrv) :
+                                   std::unique_ptr<BranchMapper> && mapper,
+                                   std::unique_ptr<DelayedReader> && rtrv) :
     Principal(pc, aux.processHistoryID_, mapper, rtrv),
     runPrincipal_(),
     aux_(aux)
@@ -22,7 +22,7 @@ namespace art {
   }
 
   void
-  SubRunPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
+  SubRunPrincipal::addOrReplaceGroup(std::unique_ptr<Group> && g) {
     cet::exempt_ptr<Group const> group =
       getExistingGroup(g->productDescription().branchID());
     if (!group) {
@@ -46,15 +46,15 @@ namespace art {
   }
 
   void
-  SubRunPrincipal::addGroup(std::auto_ptr<EDProduct> prod,
+  SubRunPrincipal::addGroup(std::unique_ptr<EDProduct> && prod,
                             BranchDescription const& bd) {
     addOrReplaceGroup(gfactory::make_group(prod, bd, ProductID()));
   }
 
   void
-  SubRunPrincipal::put(std::auto_ptr<EDProduct> edp,
+  SubRunPrincipal::put(std::unique_ptr<EDProduct> && edp,
                        BranchDescription const& bd,
-                       std::auto_ptr<ProductProvenance const> productProvenance) {
+                       std::unique_ptr<ProductProvenance const> && productProvenance) {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")

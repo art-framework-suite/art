@@ -24,7 +24,7 @@ namespace art {
   public:
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
-    WorkerT(std::auto_ptr<T>,
+    WorkerT(std::unique_ptr<T> &&,
             ModuleDescription const&,
             WorkerParams const&);
 
@@ -73,7 +73,7 @@ namespace art {
 
   template <typename T>
   inline
-  WorkerT<T>::WorkerT(std::auto_ptr<T> ed,
+  WorkerT<T>::WorkerT(std::unique_ptr<T> && ed,
                  ModuleDescription const& md,
                  WorkerParams const& wp) :
     Worker(md, wp),

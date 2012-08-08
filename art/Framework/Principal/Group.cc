@@ -41,7 +41,7 @@ Group::Group(BranchDescription const& bd,
   onDemandPrincipal_(onDemandPrincipal)
 { }
 
-Group::Group(std::auto_ptr<EDProduct> edp,
+Group::Group(std::unique_ptr<EDProduct> && edp,
              BranchDescription const& bd,
              ProductID const& pid,
              art::TypeID const &wrapper_type) :
@@ -136,7 +136,7 @@ Group::productProvenancePtr() const {
 }
 
 void
-Group::setProduct(std::auto_ptr<EDProduct> prod) const {
+Group::setProduct(std::unique_ptr<EDProduct> && prod) const {
   assert (!product_.get());
   product_.reset(prod.release());  // Group takes ownership
 }

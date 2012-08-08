@@ -46,8 +46,8 @@ namespace art {
 
   Principal::Principal(ProcessConfiguration const& pc,
                        ProcessHistoryID const& hist,
-                       std::auto_ptr<BranchMapper> mapper,
-                       std::auto_ptr<DelayedReader> rtrv) :
+                       std::unique_ptr<BranchMapper> && mapper,
+                       std::unique_ptr<DelayedReader> && rtrv) :
     boost::noncopyable(),
     processHistoryPtr_(std::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
@@ -75,7 +75,7 @@ namespace art {
   }
 
   void
-  Principal::addGroup_(auto_ptr<Group> group) {
+  Principal::addGroup_(std::unique_ptr<Group> && group) {
     BranchDescription const& bd = group->productDescription();
     assert (!bd.producedClassName().empty());
     assert (!bd.friendlyClassName().empty());
@@ -87,7 +87,7 @@ namespace art {
   }
 
   void
-  Principal::replaceGroup(auto_ptr<Group> group) {
+  Principal::replaceGroup(std::unique_ptr<Group> && group) {
     BranchDescription const& bd = group->productDescription();
     assert (!bd.producedClassName().empty());
     assert (!bd.friendlyClassName().empty());

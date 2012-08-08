@@ -8,7 +8,7 @@
 #include "art/Framework/Core/OutputWorker.h"
 
 namespace art {
-  OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
+  OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
                              ModuleDescription const& md,
                              WorkerParams const& wp):
       WorkerT<OutputModule>(mod, md, wp)
