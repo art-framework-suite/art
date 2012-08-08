@@ -542,7 +542,7 @@ namespace art {
   ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal>)
   {
     if (haveEventLimit_) { --remainingEvents_; }
-    return cachedE_;
+    return std::move(cachedE_);
   }
 
   template <class T>

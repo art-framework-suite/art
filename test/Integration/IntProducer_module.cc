@@ -70,7 +70,7 @@ private:
 
   int value_;
   art::BranchType branchType_;
-  
+
 };  // IntProducer
 
 void
@@ -97,8 +97,7 @@ IntProducer::endRun( art::Run& r )
 template <typename PUTTER>
 void
 IntProducer::put(PUTTER & p) {
-  std::unique_ptr<IntProduct> prod(new IntProduct(value_));
-  p.put(prod);
+  p.put(std::unique_ptr<IntProduct>(new IntProduct(value_)));
 }
 
 DEFINE_ART_MODULE(IntProducer)

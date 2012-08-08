@@ -191,8 +191,8 @@ struct EventTestFixture {
 
 EventTestFixture::EventTestFixture()
   :
-  principal_(0),
-  currentEvent_(0)
+  principal_(),
+  currentEvent_()
 {
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
@@ -360,12 +360,12 @@ BOOST_AUTO_TEST_CASE(getByProductID)
 
   {
     ap_t one(new product_t(1));
-    ProductID id1 = addProduct(one, "int1_tag", "int1");
+    ProductID id1 = addProduct(std::move(one), "int1_tag", "int1");
     BOOST_REQUIRE(id1 != ProductID());
     wanted = id1;
 
     ap_t two(new product_t(2));
-    ProductID id2 = addProduct(two, "int2_tag", "int2");
+    ProductID id2 = addProduct(std::move(two), "int2_tag", "int2");
     BOOST_REQUIRE(id2 != ProductID());
     BOOST_REQUIRE(id2 != id1);
 
@@ -421,10 +421,10 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 4u);
 
@@ -463,16 +463,16 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
 
   //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   //  addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
   currentEvent_->put(std::move(twoHundred), "int1");
@@ -546,16 +546,16 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
 
   //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   //  addProduct(ap_vthing, "thing", "");
 
   ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
   currentEvent_->put(std::move(twoHundred), "int1");
@@ -597,10 +597,10 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   ap_t two(new product_t(2));
   ap_t three(new product_t(3));
   ap_t four(new product_t(4));
-  addProduct(one,   "int1_tag", "int1");
-  addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag");
-  addProduct(four,  "nolabel_tag");
+  addProduct(std::move(one),   "int1_tag", "int1");
+  addProduct(std::move(two),   "int2_tag", "int2");
+  addProduct(std::move(three), "int3_tag");
+  addProduct(std::move(four),  "nolabel_tag");
 
   //  std::unique_ptr<std::vector<arttest::Thing> > ap_vthing(new std::vector<arttest::Thing>);
   //  addProduct(ap_vthing, "thing", "");
@@ -609,7 +609,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   //  addProduct(ap_vthing2, "thing2", "inst2");
 
   ap_t oneHundred(new product_t(100));
-  addProduct(oneHundred, "int1_tag_late", "int1");
+  addProduct(std::move(oneHundred), "int1_tag_late", "int1");
 
   std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
   currentEvent_->put(std::move(twoHundred), "int1");

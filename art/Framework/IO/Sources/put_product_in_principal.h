@@ -52,8 +52,8 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
                                module_label,
                                instance_name);
 
-   std::unique_ptr<EDProduct> wp(new Wrapper<T>(product));
-   principal.put(wp,
+   std::unique_ptr<EDProduct> wp(new Wrapper<T>(std::move(product)));
+   principal.put(std::move(wp),
                  desc,
                  std::unique_ptr<ProductProvenance const>(
                    new ProductProvenance(desc.branchID(), productstatus::present())));

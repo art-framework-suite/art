@@ -39,7 +39,7 @@ public:
   ///Put a new product.
   template <typename PROD>
   void
-  put(std::unique_ptr<PROD> && product) {put<PROD>(product, std::string());}
+  put(std::unique_ptr<PROD> && product) {put<PROD>(std::move(product), std::string());}
 
   ///Put a new product with a 'product instance name'
   template <typename PROD>
@@ -92,7 +92,7 @@ art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstan
   BranchDescription const& desc =
     getBranchDescription(TypeID(*product), productInstanceName);
 
-  Wrapper<PROD> *wp(new Wrapper<PROD>(product));
+  Wrapper<PROD> *wp(new Wrapper<PROD>(std::move(product)));
 
   putProducts().push_back(std::make_pair(wp, &desc));
 

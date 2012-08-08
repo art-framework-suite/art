@@ -158,10 +158,10 @@ mixAndPut(Event & e,
           << "declared with outputProduct=false.\n";
     }
     if (outputInstanceLabel_.empty()) {
-      e.put(rProd);
+      e.put(std::move(rProd));
     }
     else {
-      e.put(rProd, outputInstanceLabel_);
+      e.put(std::move(rProd), outputInstanceLabel_);
     }
   } // false means don't want this in the event.
 }

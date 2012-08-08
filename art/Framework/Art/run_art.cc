@@ -43,10 +43,14 @@ namespace {
 
   class EventProcessorWithSentry {
   public:
-    explicit EventProcessorWithSentry() : ep_(0), callEndJob_(false) { }
+    explicit EventProcessorWithSentry() : ep_(), callEndJob_(false) { }
     explicit EventProcessorWithSentry(std::unique_ptr<art::EventProcessor> && ep) :
-      ep_(ep),
+      ep_(std::move(ep)),
       callEndJob_(false) { }
+    EventProcessorWithSentry(EventProcessorWithSentry &&) = default;
+    EventProcessorWithSentry &
+    operator =(EventProcessorWithSentry &&) = default;
+
     ~EventProcessorWithSentry() {
       if (callEndJob_ && ep_.get()) {
         try {
@@ -165,8 +169,8 @@ int art::run_art(intermediate_table raw_config,
     std::unique_ptr<art::EventProcessor>
     procP(new
           art::EventProcessor(main_pset));
-    EventProcessorWithSentry procTmp(procP);
-    proc = procTmp;
+    EventProcessorWithSentry procTmp(std::move(procP));
+    proc = std::move(procTmp);
     proc->beginJob();
     proc.on();
     proc->runToCompletion();
