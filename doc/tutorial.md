@@ -342,11 +342,11 @@ Event Product Access
           typedef std::vector<rb::CellHit> input_t;
           art::Handle<input_t> hitcol;
           evt.getByLabel(fInputCalHits, hitcol);
-        ...
-        std::auto_ptr<ProngList> prongcol( new ProngList );
-        evt.put(prongcol);
-        return true;
-      }
+          ...
+          std::unique_ptr<ProngList> prongcol( new ProngList );
+          evt.put(std::move(prongcol)); // Explicitly give up ownership.
+          return true;
+        }
 
 
 New Product Definition

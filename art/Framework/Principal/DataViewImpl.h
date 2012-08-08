@@ -31,7 +31,7 @@
 // std::unique_ptr<AppleCollection> pApples( new AppleCollection );
 // //fill the collection
 // ...
-// event.put(pApples);
+// event.put(std::move(pApples));
 //
 // std::unique_ptr<FruitCollection> pFruits( new FruitCollection );
 // //fill the collection

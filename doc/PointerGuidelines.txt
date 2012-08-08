@@ -65,17 +65,33 @@ The code below shows the common (but not universal) interface::
   X* xptr = p.operator->();       // member selection, abnormal use
   p->someMemberFunctionOfTypeX(); // member selection, normal use
 
-The Standard Library provides only one pointer class template: ``std::auto_ptr<T>``.
-To use it, one must include the header ``<memory>``.
+The Standard Library (ISO C++2011) provides several smart pointer types,
+available from ``<memory>``:
+
+* ``std::auto_ptr<T>``, inherited from C++03 (deprecated)
+* ``std::unique_ptr<T>``
+* ``std::shared_ptr<T>``
+* ``std::weak_ptr<T>``
 
 The Boost_ library, which may be used freely by any software project based on art,
 contains several other pointer class templates:
 
-* ``boost::shared_ptr<T>`` from ``"boost/shared_ptr.hpp"``
+* ``boost::unique_ptr<T>`` from ``"boost.unique_ptr.hpp"`` (see note) 
+* ``boost::shared_ptr<T>`` from ``"boost/shared_ptr.hpp"`` (see note) 
+* ``boost::weak_ptr<T>`` from ``"boost/weak_ptr.hpp"`` (see note) 
 * ``boost::scoped_ptr<T>`` from ``"boost/scoped_ptr.hpp"``
 * ``boost::intrusive_ptr<T>`` from ``"boost/intrusive_ptr.hpp"``
-* ``boost::weak_ptr<T>``   from   ``"boost/weak_ptr.hpp"``
-* ``art::value_ptr<T>``       from  ``"FWCore/Utilities/interface/value_ptr.h"``
+
+(Note: these pointers are now implemented in the standard library as of
+ISO C++2011. Use the SL versions in prefernece to the Boost ones).
+
+Also, The art suite includes two other smart pointer types:
+
+* ``cet::value_ptr<T>`` from  ``"cetlib/value_ptr.h"``
+* ``cet::exempt_ptr<T>`` from ``"cetlib/exempt_ptr.h"``
+
+The similarly-named smart pointers in STL and the Boost library have the
+same meaning and use.
 
 For ``scoped_ptr`` and ``shared_ptr``, there are also *array* forms.
 Since C++ code should rarely use arrays
@@ -97,43 +113,44 @@ and a *pointed-to object*
 Bare pointer:
   Bare pointers convey *no* sense of ownership. Their use should be rare.
 
-boost::scoped_ptr<T>:
-   ``scoped_ptr`` implements *sole ownership*, with the restriction that
-   the ``scoped_ptr`` object itself *can not be copied*.
-   If you want a pointer that is to be the only owner for some other object,
-   and makes sure that the pointer is not copied,
-   so that no other pointer refers to the same object *and*
-   your pointer never gives up its object to control by another object,
-   then ``scoped_ptr`` is the correct choice.
+``std::unique_ptr<T>``:
+  ``unique_ptr`` conveys *sole ownership* of the object. A
+  ``unique_ptr`` may *not* be copied, but its contents may be
+  transferred to another ``unique_ptr``using C++2011 *move
+  semantics*. After the contents of a ``unique_ptr`` have been passed on
+  (e.g. by calling a function that takes a ``std::unique_ptr<T> &&``),
+  the remaining ``unique_ptr` is empty, no longer having a pointer to
+  the previously-contained object. Note that the above example function
+  prototype specifies a ``&&``, or *r-value reference*: an unnamed
+  temporary is naturally an r-value reference. A named variable must be
+  converted to a r-value reference *at the site of the call* by using
+  ``std::move()``. For example, when putting an object into the ``art::Event``:
 
-std::auto_ptr<T>:
-  ``auto_ptr`` also conveys *sole ownership*, but with a difference from
-  ``scoped_ptr``. ``auto_ptr`` objects may be copied. Copying an ``auto_ptr``
-  object *transfers* ownership from one ``auto_ptr`` to another.
-  A function that takes an ``auto_ptr`` argument (by value, not by reference)
-  *takes ownership* of the object controlled by the ``auto_ptr``.
-  From the point of view of the *caller* of the function,
-  the function acts as a "sink":
-  it consumes the object it was given,
-  which is no longer available to the caller.
+  std::unique_ptr<MyProduct> myProdPtr(new MyProduct(...));
+  // Do stuff to product.
+  event.put(std::move(myProdPtr)); // myProdPtr is now empty.
 
-  This is used, for example, in the ``art::Event::put`` function,
-  which inserts an ``EDProduct`` into an ``Event``. Code that puts
-  an object into the ``Event`` gives up control of that object;
-  control of the object is passed to the ``Event``.
+  The use ``std::move()`` serves as documentation that the
+  ``unique_ptr`` has been transferred and the original is now empty. It
+  may be destroyed safely or assgined to and re=used.
 
-  ``auto_ptr`` is also useful in implementing functions which return an object
-  allocated on the heap (that is, allocated with ``new``).
-  If the function in question returns the newly-created object via
-  an ``auto_ptr``,
-  this makes sure that code that *calls* this function takes ownership of
-  the newly-created object.
-  With such an implementation, even code that fails to accept the newly-created
-  object does not cause a memory leak;
-  the unnamed ``auto_ptr`` object is immediately deleted,
-  which then deletes the pointed-to object.
+  ``unique_ptr`` is also useful in implementing functions which return
+  an object allocated on the heap (that is, allocated with ``new``).  If
+  the function in question returns the newly-created object via an
+  ``unique_ptr``, this makes sure that code that *calls* this function
+  takes ownership of the newly-created object.  With such an
+  implementation, even code that fails to accept the newly-created
+  object does not cause a memory leak; the unnamed ``unique_ptr`` object
+  is immediately deleted, which then deletes the pointed-to object.
 
-boost::shared_ptr<T>:
+``std::auto_ptr<T>``:
+  ``auto_ptr`` also conveys *sole ownership*. However, ownership is
+  transferred by copying, not move semantics. The act of copying an
+  ``auto_ptr`` empties the original. In C++2011, the use of ``auto_ptr``
+  is deprecated in favor of ``std::unique_ptr``, which has better
+  alignment of syntax and semantics.
+
+``std::shared_ptr<T>``, ``boost::shared_ptr<T>``:
   ``shared_ptr<T>`` implements *shared ownership*. Copies of a ``shared_ptr``
   object share control of the pointed-to object.
   ``shared_ptr`` should be used whenever shared ownership is desired.
@@ -142,7 +159,23 @@ boost::shared_ptr<T>:
   object to be shared between many owners. Try ``value_ptr`` (below)
   in such a case.
 
-boost::intrusive_ptr<T>:
+``std::weak_ptr<T>``, ``boost::weak_ptr<T>``:
+   ``weak_ptr`` is provided to give *shared access* with *no ownership*
+   to an object which is managed through a ``shared_ptr``.
+   Its correct use is fairly subtle,
+   and it should rarely be needed. It is chiefly used to break cyclic
+   references to objects.
+
+``boost::scoped_ptr<T>``:
+   ``scoped_ptr`` implements *sole ownership*, with the restriction that
+   the ``scoped_ptr`` object itself *can not be copied*.
+   If you want a pointer that is to be the only owner for some other object,
+   and makes sure that the pointer is not copied,
+   so that no other pointer refers to the same object *and*
+   your pointer never gives up its object to control by another object,
+   then ``scoped_ptr`` is the correct choice.
+
+``boost::intrusive_ptr<T>``:
    ``intrusive_ptr`` is very similar to ``shared_ptr``. They differ in
    that ``intrusive_ptr`` can only be used to point to an object with
    an embedded reference count. Its use will be rare.
@@ -150,17 +183,17 @@ boost::intrusive_ptr<T>:
    if it isn't obvious whether ``intrusive_ptr`` better fits your needs
    than ``shared_ptr``, try a ``shared_ptr``-based design first."
 
-boost::weak_ptr<T>:
-   ``weak_ptr`` is provided to give *shared access* with *no ownership*
-   to an object which is managed through a ``shared_ptr``.
-   Its correct use is fairly subtle,
-   and it should rarely be needed.
-
-art::value_ptr<T>:
+``cet::value_ptr<T>``:
    ``value_ptr`` implements *sole ownership*. Copying a ``value_ptr``
    causes a copy of the pointed-to object to be created. This makes
    ``value_ptr`` useful for managing class data members when the
    shared ownership of ``shared_ptr`` is inappropriate.
+
+``cet::exempt_ptr<T>``:
+  ``exempt_ptr`` *explicitly does not own* the memory associated with
+  its conained pointer. Use in preference to a bare pointer to make it
+  clear that the receiver of an ``exempt_ptr`` does not own its
+  pointed-to object.
 
 Usage Guidelines
 ================
@@ -307,25 +340,50 @@ are several and important:
 Summary
 =======
 
-The following table summarizes the guidelines in this document. In all the below,
-``T`` represents the type *pointed to* by the given pointer type.
+The following table summarizes the guidelines in this document. In all
+the below, ``T`` represents the type *pointed to* by the given pointer
+type.
 
-=================    =========   ==============   ========================================
-Pointer type         Ownership   Copy semantics   Example uses
-=================    =========   ==============   ========================================
-``T*``               none        shallow          should be rare, especially as class data
-``shared_ptr<T>``    shared      shallow          wherever shared ownership is needed,
-                                                  but not where shared ownership is
-                                                  inappropriate
-``auto_ptr<T>``      sole        transfer         return newly created object;
-                                                  pass ownership into called function
-``scoped_ptr<T>``    sole        not allowed      object created locally in function;
-                                                  data member for class that should not
-                                                  be copyable
-``value_ptr<T>``     sole        deep             "polymorphic" data member; keep pointer
-                                                  to base class, but do not share the
-                                                  instance you point to with others
-=================    =========   ==============   ========================================
+=================  =========  ==============  ==========================
+Pointer type       Ownership  Move / Copy     Example uses
+=================  =========  ==============  ==========================
+``T*``             none       shallow         should be rare, especially
+                                              as class data
+
+``unique_ptr<T>``  sole       move-transfer   return newly created object;
+                                              pass ownership into called
+                                              function
+
+``auto_ptr<T>``    sole       copy-transfer   Deprecated: use
+                                              unique_ptr<T> instead.
+
+``shared_ptr<T>``  shared     shallow         wherever shared ownership
+                                              is needed, but not where
+                                              shared ownership is
+                                              inappropriate.
+                                              Inappropriate use can
+                                              obfuscate correct
+                                              ownership and contribute
+                                              to fragile code.
+
+``weak_ptr<T>``    none       shallow         Use is subtle. When one of
+                                              these looks suitable,
+                                              cet::exempt_ptr<T> is
+                                              probably more appropriate.
+
+
+``scoped_ptr<T>``  sole       not allowed     object created locally in function;
+                                              data member for class that should not
+                                              be copyable.
+
+``value_ptr<T>``   sole       deep            "polymorphic" data member; keep pointer
+                                              to base class, but do not share the
+                                              instance you point to with others.
+
+``exempt_ptr<T>``  none       shallow         Use as necessary to convey
+                                              the information that the
+                                              memory pointed to is *not* owned.
+=================  =========  ==============  ========================================
 
 
 
