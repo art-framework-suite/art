@@ -90,12 +90,12 @@ void arttest::AssnsProducer::produce(art::Event &e) {
   avm->addSingle(art::Ptr<size_t>(vui_pid, 1, e.productGetter(vui_pid)),
                  art::Ptr<std::string>(vs_pid, 2, e.productGetter(vs_pid)));
 
-  e.put(vui);
-  e.put(vs);
-  e.put(a);
-  e.put(av);
-  e.put(am, "M");
-  e.put(avm, "M");
+  e.put(std::move(vui));
+  e.put(std::move(vs));
+  e.put(std::move(a));
+  e.put(std::move(av));
+  e.put(std::move(am), "M");
+  e.put(std::move(avm), "M");
 
 }
 

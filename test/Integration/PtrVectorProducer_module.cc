@@ -62,7 +62,7 @@ PtrVectorProducer::produce( art::Event& e )
   }
   prod->sort();
 
-  e.put(prod);
+  e.put(std::move(prod));
 }
 
 // ----------------------------------------------------------------------

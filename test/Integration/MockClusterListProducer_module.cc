@@ -75,7 +75,7 @@ MockClusterListProducer::produce( art::Event& e )
    c2.eNum = e.id().event() + 1;
    prod->push_back(c2);
 
-   e.put(prod);
+   e.put(std::move(prod));
 }
 
 // ----------------------------------------------------------------------

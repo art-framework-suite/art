@@ -99,7 +99,7 @@ namespace arttest {
   Int16_tProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
     std::unique_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -127,7 +127,7 @@ namespace arttest {
 
     // Make output
     std::unique_ptr<DoubleProduct> p(new DoubleProduct(value_));
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace arttest {
       value +=anInt->value;
     }
     std::unique_ptr<IntProduct> p(new IntProduct(value));
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -184,7 +184,7 @@ namespace arttest {
   IntVectorProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
     std::unique_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -210,7 +210,7 @@ namespace arttest {
   IntListProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
     std::unique_ptr<std::list<int> > p(new std::list<int>(count_, value_));
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -236,7 +236,7 @@ namespace arttest {
   IntDequeProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
     std::unique_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -263,7 +263,7 @@ namespace arttest {
     // EventSetup is not used.
     std::unique_ptr<std::set<int> > p(new std::set<int>());
     for (int i = start_; i < stop_; ++i) p->insert(i);
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -293,7 +293,7 @@ namespace arttest {
     e.getByLabel(label_, parent);
 
     std::unique_ptr<Prodigal> p(new Prodigal(parent->value));
-    e.put(p);
+    e.put(std::move(p));
   }
 
 }

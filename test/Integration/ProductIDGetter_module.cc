@@ -61,13 +61,13 @@ void arttest::ProductIDGetter::produce(art::Event &e) {
 
   BOOST_REQUIRE(ptr->id().isValid());
 
-  art::ProductID id(e.put(vip));
+  art::ProductID id(e.put(std::move(vip)));
 
   art::Ptr<int> ptr_check(id, 2, e.productGetter(id));
 
   BOOST_REQUIRE_EQUAL(ptr->id(), ptr_check.id());
 
-  e.put(ptr);
+  e.put(std::move(ptr));
 }
 
 DEFINE_ART_MODULE(arttest::ProductIDGetter)

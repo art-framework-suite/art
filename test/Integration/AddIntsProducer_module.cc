@@ -32,7 +32,7 @@ arttest::AddIntsProducer::produce(art::Event& e) {
       value +=anInt->value;
    }
    std::unique_ptr<IntProduct> p(new IntProduct(value));
-   e.put(p);
+   e.put(std::move(p));
 }
 
 DEFINE_ART_MODULE(arttest::AddIntsProducer)

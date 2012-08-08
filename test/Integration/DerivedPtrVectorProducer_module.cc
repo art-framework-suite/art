@@ -62,7 +62,7 @@ DerivedPtrVectorProducer::produce( art::Event& e )
     prod->push_back(p);
   }
 
-  e.put(prod);
+  e.put(std::move(prod));
 }
 
 // ----------------------------------------------------------------------

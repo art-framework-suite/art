@@ -55,7 +55,7 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
   (*mv)[cet::map_vector_key(5)] = "THREE";
   (*mv)[cet::map_vector_key(7)] = "FOUR";
 
-  art::ProductID mvID(e.put(mv));
+  art::ProductID mvID(e.put(std::move(mv)));
 
   e.put(std::unique_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter(mvID))));
 
@@ -68,7 +68,7 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
   pv->push_back(art::Ptr<std::string>(mvID, 7, e.productGetter(mvID)));
   pv->push_back(art::Ptr<std::string>(mvID, 3, e.productGetter(mvID)));
 
-  e.put(pv);
+  e.put(std::move(pv));
 
   e.put(std::unique_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID))));
 
@@ -81,7 +81,7 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
   pvp->push_back(art::Ptr<mvp_t>(mvID, 7, e.productGetter(mvID)));
   pvp->push_back(art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID)));
 
-  e.put(pvp);
+  e.put(std::move(pvp));
 }
 
 DEFINE_ART_MODULE(arttest::PtrmvProducer)

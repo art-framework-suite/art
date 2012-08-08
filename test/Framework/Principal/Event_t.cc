@@ -291,7 +291,7 @@ addProduct(std::unique_ptr<T> && product,
       << tag << '\n';
 
   Event temporaryEvent(*principal_, description->second);
-  ProductID id = temporaryEvent.put(product, productLabel);
+  ProductID id = temporaryEvent.put(std::move(product), productLabel);
   EDProducer::commitEvent(temporaryEvent);
   return id;
 }
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
   std::unique_ptr<arttest::IntProduct> three(new arttest::IntProduct(3));
-  currentEvent_->put(three, "int1");
+  currentEvent_->put(std::move(three), "int1");
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
   EDProducer::commitEvent(*currentEvent_);
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
 BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   std::unique_ptr<arttest::IntProduct> four(new arttest::IntProduct(4));
-  currentEvent_->put(four, "int1");
+  currentEvent_->put(std::move(four), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
   ProcessNameSelector should_match("CURRENT");
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(transaction)
     typedef std::unique_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
-    currentEvent_->put(three, "int1");
+    currentEvent_->put(std::move(three), "int1");
     BOOST_REQUIRE_EQUAL(principal_->size(), 0u);
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 1u);
     // DO NOT COMMIT!
@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   addProduct(oneHundred, "int1_tag_late", "int1");
 
   std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
+  currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
@@ -558,7 +558,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   addProduct(oneHundred, "int1_tag_late", "int1");
 
   std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
+  currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   addProduct(oneHundred, "int1_tag_late", "int1");
 
   std::unique_ptr<arttest::IntProduct> twoHundred(new arttest::IntProduct(200));
-  currentEvent_->put(twoHundred, "int1");
+  currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*currentEvent_);
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);

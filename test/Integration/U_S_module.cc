@@ -16,7 +16,7 @@ public:
 
    virtual void produce(art::Event &e) {
       std::unique_ptr<IntProduct> p(new IntProduct(1));
-      e.put(p);
+      e.put(std::move(p));
    }
    void endJob() {}
 };

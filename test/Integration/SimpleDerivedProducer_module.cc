@@ -56,7 +56,7 @@ void
   }
 
   // Put the product into the Event
-  e.put(prod, "derived");
+  e.put(std::move(prod), "derived");
 }
 
 // ----------------------------------------------------------------------

@@ -89,7 +89,7 @@ void arttest::MixProducer::produce(art::Event &e) {
   for (size_t i = 1; i < 11; ++i) {
     coll->push_back(i + 10 * (eventCounter_ - 1));
   }
-  e.put(coll, "doubleCollectionLabel"); // 1.
+  e.put(std::move(coll), "doubleCollectionLabel"); // 1.
   std::unique_ptr<std::vector<art::Ptr<double> > >
     vpd(new std::vector<art::Ptr<double> >);
   vpd->reserve(3);
@@ -109,9 +109,9 @@ void arttest::MixProducer::produce(art::Event &e) {
                             *pvd.get(),
 #endif
                             *vpd.get()));
-  e.put(vpd, "doubleVectorPtrLabel"); // 2.
-  e.put(pvd, "doublePtrVectorLabel"); // 3.
-  e.put(pwp, "ProductWithPtrsLabel"); // 4.
+  e.put(std::move(vpd), "doubleVectorPtrLabel"); // 2.
+  e.put(std::move(pvd), "doublePtrVectorLabel"); // 3.
+  e.put(std::move(pwp), "ProductWithPtrsLabel"); // 4.
 
   // map_vector, .
   std::unique_ptr<mv_t> mv(new mv_t);
@@ -132,8 +132,8 @@ void arttest::MixProducer::produce(art::Event &e) {
   mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 9, e.productGetter(mvID)));
   mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 5, e.productGetter(mvID)));
 
-  e.put(mvvp, "intVectorPtrLabel");
-  e.put(mv, "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
+  e.put(std::move(mvvp), "intVectorPtrLabel");
+  e.put(std::move(mv), "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
 }
 
 DEFINE_ART_MODULE(arttest::MixProducer)

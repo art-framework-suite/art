@@ -232,7 +232,7 @@ arttest::MixFilterTestDetail::
 finalizeEvent(art::Event & e)
 {
   e.put(std::unique_ptr<std::string>(new std::string("BlahBlahBlah")));
-  e.put(eIDs_);
+  e.put(std::move(eIDs_));
 #ifndef ART_TEST_NO_STARTEVENT
   BOOST_REQUIRE(startEvent_called_);
   startEvent_called_ = false;

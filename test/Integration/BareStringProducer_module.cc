@@ -48,7 +48,7 @@ BareStringProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, BareStringProducer::produce is running!\n";
   std::unique_ptr<std::string> p(new std::string(value_));
-  e.put(p);
+  e.put(std::move(p));
 }
 
 DEFINE_ART_MODULE(BareStringProducer)

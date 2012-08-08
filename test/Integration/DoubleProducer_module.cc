@@ -46,7 +46,7 @@ arttest::DoubleProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, DoubleProducer::produce is running!\n";
   std::unique_ptr<DoubleProduct> p(new DoubleProduct(value_));
-  e.put(p);
+  e.put(std::move(p));
 }
 
 DEFINE_ART_MODULE(arttest::DoubleProducer)
