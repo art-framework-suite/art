@@ -50,15 +50,18 @@ public:
     productSize() const
   { return "-"; }
 
+#ifndef __GCCXML__
   std::unique_ptr<EDProduct>
   makePartner(std::type_info const &wanted_type) const
-    { return do_makePartner(wanted_type); }
+{ return do_makePartner(wanted_type); }
+#endif
 
 protected:
-
+#ifndef __GCCXML__
   virtual
   std::unique_ptr<EDProduct>
   do_makePartner(std::type_info const &wanted_type) const = 0;
+#endif
 
   virtual void do_setPtr(std::type_info const &toType,
                          unsigned long index,

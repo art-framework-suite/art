@@ -66,8 +66,11 @@ namespace art {
     typedef T value_type;
     typedef T wrapped_type;  // used with Reflex to identify Wrappers
     Wrapper() : EDProduct(), present(false), obj() {}
+#ifndef __GCCXML__
     explicit Wrapper(std::unique_ptr<T> && ptr);
+#endif
     virtual ~Wrapper() {}
+
     T const * product() const {return (present ? &obj : 0);}
     T const * operator->() const {return product();}
 
@@ -75,13 +78,9 @@ namespace art {
     static const std::type_info & productTypeInfo() { return typeid(T);}
     static const std::type_info & typeInfo() { return typeid(Wrapper<T>);}
 
-    virtual void
-    fillView(std::vector<void const *> & view) const
-    { art::fillView<T>()(obj, view); }
+    virtual void fillView(std::vector<void const *> & view) const;
 
-    virtual std::string
-    productSize() const
-    { return art::productSize<T>()(obj); }
+    virtual std::string productSize() const;
 
     /**REFLEX must call the following constructor
        the constructor takes ownership of T* */
@@ -91,9 +90,11 @@ namespace art {
     static short Class_Version() { return 10; }
 
   private:
+#ifndef __GCCXML_
     virtual
     std::unique_ptr<EDProduct>
     do_makePartner(std::type_info const & wanted_type) const;
+#endif
 
     virtual bool isPresent_() const {return present;}
 
@@ -110,6 +111,17 @@ namespace art {
     T obj;
 
   };  // Wrapper<>
+
+#ifndef __GCCXML__
+  template <typename T>
+  void
+  Wrapper<T>::fillView(std::vector<void const *> & view) const
+  { art::fillView<T>()(obj, view); }
+
+  template <typename T>
+  std::string
+  Wrapper<T>::productSize() const
+  { return art::productSize<T>()(obj); }
 
   template <typename T>
   struct DoMakePartner {
@@ -433,8 +445,10 @@ namespace art {
       : public productSize<art::PtrVector<E>, true>
   { };
 
+#endif /* __GCCXML__ */
 }  // art
 
+#ifndef __GCCXML__
 namespace art {
   namespace detail {
 
@@ -626,8 +640,7 @@ namespace art {
   }
 
 }
-
-////////////////////////////////////////////////////////////////////////
+#endif /* __GCCXML__ */
 
 #endif /* art_Persistency_Common_Wrapper_h */
 

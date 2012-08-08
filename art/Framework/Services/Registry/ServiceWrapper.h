@@ -60,7 +60,7 @@ public:
   // c'tor:
   explicit ServiceWrapper( std::unique_ptr<T> && service_ptr )
   : ServiceWrapperBase( )
-  , service_ptr_      ( service_ptr )  // take ownership
+  , service_ptr_      ( std::move(service_ptr) )  // take ownership
   { }
 
   // use compiler-generated (virtual) d'tor

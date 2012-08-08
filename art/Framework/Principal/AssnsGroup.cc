@@ -27,7 +27,7 @@ AssnsGroup(std::unique_ptr<EDProduct> && edp,
            art::TypeID const &primary_wrapper_type,
            art::TypeID const &secondary_wrapper_type)
   :
-  Group(edp, bd, pid, primary_wrapper_type),
+  Group(std::move(edp), bd, pid, primary_wrapper_type),
   secondary_wrapper_type_(secondary_wrapper_type),
   secondaryProduct_()
 {}
@@ -86,7 +86,7 @@ resolveProductIfAvailable(bool fillOnDemand,
     secondaryProduct_ = std::move(edp);
   } else {
     // Want the produced type anyway.
-    if (edp.get()) setProduct(edp);
+    if (edp.get()) setProduct(std::move(edp));
   }
   return uniqueProduct(wanted_wrapper_type);
 }

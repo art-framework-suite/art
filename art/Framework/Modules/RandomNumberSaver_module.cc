@@ -61,13 +61,9 @@ void
   RandomNumberSaver::
   produce( Event & event )
 {
-  using std::unique_ptr;
 
   ServiceHandle<RNGservice>  rng;
-  unique_ptr<snapshot_t>  product_ptr( new snapshot_t( rng->accessSnapshot_()
-                                   )               );
-
-  event.put( product_ptr );
+  event.put(std::unique_ptr<snapshot_t>(new snapshot_t( rng->accessSnapshot_())));
 
   if( debug_ )  {
     rng->print_();

@@ -305,7 +305,7 @@ namespace art {
     if (!found) {
       // If only one input file, give up now, to save time.
       if (fileIndexes_.size() == 1) {
-        return unique_ptr<EventPrincipal>(0);
+        return unique_ptr<EventPrincipal>();
       }
       // Look for event in files previously opened without reopening unnecessary files.
       typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
@@ -320,7 +320,7 @@ namespace art {
           rootFileForLastReadEvent_ = rootFile_;
           unique_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1, mpr);
-          return ep;
+          return std::move(ep);
         }
       }
       // Look for event in files not yet opened.
@@ -331,17 +331,17 @@ namespace art {
           found = rootFile_->setEntryAtEvent(id, exact);
           if (found) {
             rootFileForLastReadEvent_ = rootFile_;
-            unique_ptr<EventPrincipal> ep = readCurrentEvent();
+            unique_ptr<EventPrincipal> ep(readCurrentEvent());
             skip(1, mpr);
-            return ep;
+            return std::move(ep);
           }
         }
       }
       // Not found
-      return unique_ptr<EventPrincipal>(0);
+      return unique_ptr<EventPrincipal>();
     }
     rootFileForLastReadEvent_ = rootFile_;
-    unique_ptr<EventPrincipal> eptr = readCurrentEvent();
+    unique_ptr<EventPrincipal> eptr(readCurrentEvent());
     skip(1, mpr);
     return eptr;
   }

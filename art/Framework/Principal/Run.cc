@@ -78,7 +78,7 @@ namespace art {
         std::unique_ptr<ProductProvenance const> runProductProvenancePtr(
                 new ProductProvenance(pit->second->branchID(),
                                       productstatus::present()));
-        rp.put(pr, *pit->second, runProductProvenancePtr);
+        rp.put(std::move(pr), *pit->second, std::move(runProductProvenancePtr));
         ++pit;
     }
 

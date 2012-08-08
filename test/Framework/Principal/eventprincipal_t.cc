@@ -190,7 +190,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::EventAuxiliary eventAux(eventID, now, true);
   pEvent_.reset(new art::EventPrincipal(eventAux, *process));
   pEvent_->setSubRunPrincipal(srp);
-  pEvent_->put(product, branchFromRegistry, productProvenancePtr);
+  pEvent_->put(std::move(product), branchFromRegistry, productProvenancePtr);
 
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 1u);
 }

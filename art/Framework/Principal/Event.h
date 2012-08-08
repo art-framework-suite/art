@@ -83,7 +83,7 @@ public:
   ///Put a new product.
   template <typename PROD>
   ProductID
-  put(std::unique_ptr<PROD> && product) {return put<PROD>(product, std::string());}
+  put(std::unique_ptr<PROD> && product) {return put<PROD>(std::move(product), std::string());}
 
   ///Put a new product with a 'product instance name'
   template <typename PROD>
@@ -231,7 +231,7 @@ art::Event::put(std::unique_ptr<PROD> && product, std::string const& productInst
   BranchDescription const& desc =
     getBranchDescription(TypeID(*product), productInstanceName);
 
-  Wrapper<PROD>* wp(new Wrapper<PROD>(product));
+  Wrapper<PROD>* wp(new Wrapper<PROD>(std::move(product)));
 
   detail::maybe_record_parents(putProducts(),
                                putProductsWithoutParents(),

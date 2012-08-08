@@ -12,7 +12,7 @@ namespace art {
                                    ProcessConfiguration const& pc,
                                    std::unique_ptr<BranchMapper> && mapper,
                                    std::unique_ptr<DelayedReader> && rtrv) :
-    Principal(pc, aux.processHistoryID_, mapper, rtrv),
+    Principal(pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv)),
     runPrincipal_(),
     aux_(aux)
   {
@@ -26,7 +26,7 @@ namespace art {
     cet::exempt_ptr<Group const> group =
       getExistingGroup(g->productDescription().branchID());
     if (!group) {
-      addGroup_(g);
+      addGroup_(std::move(g));
     } else {
       BranchDescription const& bd = group->productDescription();
       mf::LogWarning("SubRunMerging")
@@ -48,7 +48,7 @@ namespace art {
   void
   SubRunPrincipal::addGroup(std::unique_ptr<EDProduct> && prod,
                             BranchDescription const& bd) {
-    addOrReplaceGroup(gfactory::make_group(prod, bd, ProductID()));
+    addOrReplaceGroup(gfactory::make_group(std::move(prod), bd, ProductID()));
   }
 
   void
@@ -61,8 +61,8 @@ namespace art {
         << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }
-    branchMapper().insert(productProvenance);
-    this->addGroup(edp, bd);
+    branchMapper().insert(std::move(productProvenance));
+    this->addGroup(std::move(edp), bd);
   }
 
   RunPrincipal const& SubRunPrincipal::runPrincipal() const {
@@ -92,7 +92,7 @@ namespace art {
       std::unique_ptr<Group> g(new Group());
       g->swap(*i->second);
 
-      addOrReplaceGroup(g);
+      addOrReplaceGroup(std::move(g));
     }
   }
 }

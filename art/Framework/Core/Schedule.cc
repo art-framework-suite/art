@@ -963,7 +963,7 @@ namespace art
     unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
     actReg_->postModuleConstructionSignal_(md);
 
-    results_inserter_.reset(new WorkerT<EDProducer>(producer, md, work_args));
+    results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md, work_args));
     results_inserter_->setActivityRegistry(actReg_);
   }
 

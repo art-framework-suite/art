@@ -101,7 +101,7 @@ art::EmptyEvent::EmptyEvent
    eventSet_                ( false ),
    skipEventIncrement_      ( true ),
    resetEventOnSubRun_      ( pset.get<bool>("resetEventOnSubRun", true) ),
-   ep_                      ( 0 ),
+   ep_                      ( ),
    eType_                   ( EventAuxiliary::Any)
 {
    setTimestamp(Timestamp(presentTime_));
@@ -153,7 +153,7 @@ EmptyEvent::readSubRun_() {
 std::unique_ptr<EventPrincipal>
   EmptyEvent::readEvent_() {
    assert(ep_.get() != 0 || processingMode() != RunsSubRunsAndEvents);
-   return ep_;
+   return std::move(ep_);
 }
 
 void art::EmptyEvent::reallyReadEvent() {
@@ -161,9 +161,7 @@ void art::EmptyEvent::reallyReadEvent() {
   EventAuxiliary eventAux(eventID_,
                           Timestamp(presentTime_),
                           eType_);
-  std::unique_ptr<EventPrincipal> result(
-      new EventPrincipal(eventAux, processConfiguration()));
-  ep_ = result;
+  ep_.reset(new EventPrincipal(eventAux, processConfiguration()));
 }
 
 void art::EmptyEvent::skip(int offset)

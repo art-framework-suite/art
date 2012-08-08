@@ -157,7 +157,9 @@ namespace art {
                 new ProductProvenance(pit->second->branchID(),
                                       productstatus::present(),
                                       gotBranchIDVector));
-        ep.put(pr, *pit->second, productProvenancePtr);
+        ep.put(std::move(pr),
+               *pit->second,
+               std::move(productProvenancePtr));
         ++pit;
     }
 

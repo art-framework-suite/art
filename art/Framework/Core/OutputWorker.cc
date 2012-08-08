@@ -11,7 +11,7 @@ namespace art {
   OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
                              ModuleDescription const& md,
                              WorkerParams const& wp):
-      WorkerT<OutputModule>(mod, md, wp)
+    WorkerT<OutputModule>(std::move(mod), md, wp)
   {
   }
 

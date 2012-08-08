@@ -20,8 +20,5 @@ TriggerResultInserter::~TriggerResultInserter()
 
 void TriggerResultInserter::produce(art::Event& e)
 {
-  std::unique_ptr<TriggerResults>
-    results(new TriggerResults(*trptr_, pset_id_));
-
-  e.put(results);
+  e.put(std::unique_ptr<TriggerResults>(new TriggerResults(*trptr_, pset_id_)));
 }

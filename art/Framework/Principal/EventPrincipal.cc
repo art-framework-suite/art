@@ -25,7 +25,7 @@ namespace art {
                                  std::shared_ptr<History> history,
                                  std::unique_ptr<BranchMapper> && mapper,
                                  std::unique_ptr<DelayedReader> && rtrv) :
-  Principal(pc, history->processHistoryID(), mapper, rtrv),
+    Principal(pc, history->processHistoryID(), std::move(mapper), std::move(rtrv)),
   deferredGetters_(),
   aux_(aux),
   subRunPrincipal_(),
@@ -89,9 +89,9 @@ namespace art {
     cet::exempt_ptr<Group const> group =
       getExistingGroup(g->productDescription().branchID());
     if (!group) {
-      addGroup_(g);
+      addGroup_(std::move(g));
     } else if(group->onDemand()) {
-      replaceGroup(g);
+      replaceGroup(std::move(g));
     } else {
       BranchDescription const& bd = group->productDescription();
       throw art::Exception(art::errors::InsertFailure,"AlreadyPresent")
@@ -112,8 +112,10 @@ namespace art {
 
   void
   EventPrincipal::addGroup(std::unique_ptr<EDProduct> && prod,
-         BranchDescription const& bd) {
-    addOrReplaceGroup(gfactory::make_group(prod, bd, branchIDToProductID(bd.branchID())));
+                           BranchDescription const& bd) {
+    addOrReplaceGroup(gfactory::make_group(std::move(prod),
+                                           bd,
+                                           branchIDToProductID(bd.branchID())));
   }
 
   void
@@ -130,8 +132,8 @@ namespace art {
       throw art::Exception(art::errors::InsertFailure,"Null Product ID")
         << "put: Cannot put product with null Product ID.\n";
     }
-    branchMapper().insert(productProvenance);
-    this->addGroup(edp, bd);
+    branchMapper().insert(std::move(productProvenance));
+    this->addGroup(std::move(edp), bd);
   }
 
   EDProductGetter const *

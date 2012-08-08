@@ -609,7 +609,7 @@ namespace art {
   unique_ptr<EventPrincipal>
   RootInputFile::readCurrentEvent() {
     if (!eventTree_.current()) {
-      return unique_ptr<EventPrincipal>(0);
+      return unique_ptr<EventPrincipal>();
     }
     fillEventAuxiliary();
     fillHistory();
@@ -627,7 +627,7 @@ namespace art {
 
     // Create a group in the event for each product
     eventTree_.fillGroups(*thisEvent);
-    return thisEvent;
+    return std::move(thisEvent);
   }
 
   void

@@ -62,8 +62,7 @@ art::BranchMapperWithReader::readProvenance_() const
   BranchMapperWithReader * me = const_cast<BranchMapperWithReader*>(this);
   for (iter_t it  = infoVector.begin()
             , end = infoVector.end(); it != end; ++it) {
-    std::unique_ptr<ProductProvenance const> ap( new ProductProvenance(*it) );
-    me->insert(ap);
+    me->insert(std::unique_ptr<ProductProvenance const>(new ProductProvenance(*it)));
   }
 }
 
