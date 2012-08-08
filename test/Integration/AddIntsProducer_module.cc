@@ -31,7 +31,7 @@ arttest::AddIntsProducer::produce(art::Event& e) {
       e.getByLabel(*itLabel, anInt);
       value +=anInt->value;
    }
-   std::auto_ptr<IntProduct> p(new IntProduct(value));
+   std::unique_ptr<IntProduct> p(new IntProduct(value));
    e.put(p);
 }
 

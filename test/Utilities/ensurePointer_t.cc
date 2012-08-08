@@ -61,8 +61,8 @@ BOOST_AUTO_TEST_CASE(a_pointer_from_b_pointer)
 BOOST_AUTO_TEST_CASE(b_pointer_from_a_pointer)
 {
   apvec_t a;
-  std::auto_ptr<B> bp(new B);
-  std::auto_ptr<A> ap(new A);
+  std::unique_ptr<B> bp(new B);
+  std::unique_ptr<A> ap(new A);
   a.push_back(bp.get());
   a.push_back(ap.get());
   BOOST_CHECK_NO_THROW(art::ensurePointer<B *>(a.begin()));
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE(const_a_pointer_from_const_b_pointer)
 BOOST_AUTO_TEST_CASE(const_b_pointer_from_const_a_pointer)
 {
   acpvec_t a;
-  std::auto_ptr<B> bp(new B);
-  std::auto_ptr<A> ap(new A);
+  std::unique_ptr<B> bp(new B);
+  std::unique_ptr<A> ap(new A);
   a.push_back(bp.get());
   a.push_back(ap.get());
   BOOST_CHECK_NO_THROW(art::ensurePointer<B const *>(a.begin()));
@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_CASE(const_a_pointer_from_b_pointer)
 BOOST_AUTO_TEST_CASE(const_b_pointer_from_a_pointer)
 {
   apvec_t a;
-  std::auto_ptr<B> bp(new B);
-  std::auto_ptr<A> ap(new A);
+  std::unique_ptr<B> bp(new B);
+  std::unique_ptr<A> ap(new A);
   a.push_back(bp.get());
   a.push_back(ap.get());
   BOOST_CHECK_NO_THROW(art::ensurePointer<B const *>(a.begin()));

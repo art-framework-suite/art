@@ -56,7 +56,7 @@ DerivedPtrVectorProducer::produce( art::Event& e )
   art::Handle<input_t> h;
   e.getByLabel(input_label_, "derived", h);
 
-  std::auto_ptr<product_t> prod( new product_t );
+  std::unique_ptr<product_t> prod( new product_t );
   for( int k = 0; k != 16; ++k ) {
     art::Ptr<SimpleDerived> p(h, k);
     prod->push_back(p);

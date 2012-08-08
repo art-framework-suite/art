@@ -47,7 +47,7 @@ arttest::PtrmvProducer::~PtrmvProducer() {
 }
 
 void arttest::PtrmvProducer::produce(art::Event &e) {
-  std::auto_ptr<mv_t>
+  std::unique_ptr<mv_t>
     mv(new mv_t);
   mv->reserve(4);
   (*mv)[cet::map_vector_key(0)] = "ONE";
@@ -57,9 +57,9 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
 
   art::ProductID mvID(e.put(mv));
 
-  e.put(std::auto_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter(mvID))));
+  e.put(std::unique_ptr<art::Ptr<std::string> >(new art::Ptr<std::string>(mvID, 3, e.productGetter(mvID))));
 
-  std::auto_ptr<art::PtrVector<std::string> >
+  std::unique_ptr<art::PtrVector<std::string> >
     pv(new art::PtrVector<std::string>());
 
   pv->reserve(4);
@@ -70,9 +70,9 @@ void arttest::PtrmvProducer::produce(art::Event &e) {
 
   e.put(pv);
 
-  e.put(std::auto_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID))));
+  e.put(std::unique_ptr<art::Ptr<mvp_t> >(new art::Ptr<mvp_t>(mvID, 3, e.productGetter(mvID))));
 
-  std::auto_ptr<art::PtrVector<mvp_t> >
+  std::unique_ptr<art::PtrVector<mvp_t> >
     pvp(new art::PtrVector<mvp_t>());
 
   pvp->reserve(4);

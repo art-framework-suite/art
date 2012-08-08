@@ -50,14 +50,14 @@ public:
     productSize() const
   { return "-"; }
 
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
   makePartner(std::type_info const &wanted_type) const
     { return do_makePartner(wanted_type); }
 
 protected:
 
   virtual
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
   do_makePartner(std::type_info const &wanted_type) const = 0;
 
   virtual void do_setPtr(std::type_info const &toType,

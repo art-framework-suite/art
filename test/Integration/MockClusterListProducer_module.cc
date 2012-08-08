@@ -56,7 +56,7 @@ MockClusterListProducer::produce( art::Event& e )
    art::Handle<input_t> h;
    e.getByLabel(input_label_, "derived", h);
 
-   std::auto_ptr<product_t> prod( new product_t );
+   std::unique_ptr<product_t> prod( new product_t );
    arttest::MockCluster c1;
    c1.skew = 1;
    for( unsigned k = 0; k < (nvalues_ / 2); ++k ) {

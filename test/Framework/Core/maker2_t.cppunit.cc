@@ -66,8 +66,8 @@ void testmaker2::maker2Test()
   art::WorkerParams params1(p1, p1, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
   art::WorkerParams params2(p2, p2, preg, table, "PROD", art::getReleaseVersion(), art::getPassID());
 
-  std::auto_ptr<Worker> w1 = ModuleFactory::makeWorker(params1, createModuleDescription(params1));
-  std::auto_ptr<Worker> w2 = ModuleFactory::makeWorker(params2, createModuleDescription(params2));
+  std::unique_ptr<Worker> w1 = ModuleFactory::makeWorker(params1, createModuleDescription(params1));
+  std::unique_ptr<Worker> w2 = ModuleFactory::makeWorker(params2, createModuleDescription(params2));
 
 //  return 0;
 }

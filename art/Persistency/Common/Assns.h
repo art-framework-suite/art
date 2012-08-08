@@ -151,13 +151,13 @@ public:
                  Ptr<right_t> const & right);
   void swap(art::Assns<L, R, void> &other);
 
-  std::auto_ptr<EDProduct> makePartner() const;
+  std::unique_ptr<EDProduct> makePartner() const;
 
   static short Class_Version() { return 10; }
 
 protected:
   virtual void swap_(art::Assns<L, R, void> &other);
-  virtual std::auto_ptr<EDProduct> makePartner_() const;
+  virtual std::unique_ptr<EDProduct> makePartner_() const;
 
 private:
   friend class detail::AssnsStreamer<left_t, right_t>;
@@ -216,7 +216,7 @@ public:
                  data_t const & data);
   void swap(art::Assns<L, R, D> &other);
 
-  std::auto_ptr<EDProduct> makePartner() const;
+  std::unique_ptr<EDProduct> makePartner() const;
 
   static short Class_Version() { return 10; }
 
@@ -224,7 +224,7 @@ private:
   friend class art::Assns<right_t, left_t, data_t>; // partner_t.
 
   virtual void swap_(art::Assns<L, R, void> &other);
-  virtual std::auto_ptr<EDProduct> makePartner_() const;
+  virtual std::unique_ptr<EDProduct> makePartner_() const;
 
   std::vector<data_t> data_;
 };
@@ -325,7 +325,7 @@ art::Assns<L, R, void>::swap(art::Assns<L, R, void> &other)
 
 template <typename L, typename R>
 inline
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::Assns<L, R, void>::makePartner() const
 {
   return makePartner_();
@@ -343,13 +343,13 @@ art::Assns<L, R, void>::swap_(art::Assns<L, R, void> &other)
 }
 
 template <typename L, typename R>
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::Assns<L, R, void>::makePartner_() const
 {
   return
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     (new Wrapper<partner_t>
-     (std::auto_ptr<partner_t>(new partner_t(*this))));
+     (std::unique_ptr<partner_t>(new partner_t(*this))));
 }
 
 template <typename L, typename R>
@@ -478,7 +478,7 @@ art::Assns<L, R, D>::swap(Assns<L, R, D> &other)
 
 template <typename L, typename R, typename D>
 inline
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::Assns<L, R, D>::makePartner() const
 {
   return makePartner_();
@@ -499,13 +499,13 @@ art::Assns<L, R, D>::swap_(Assns<L, R, void> &other)
 }
 
 template <typename L, typename R, typename D>
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::Assns<L, R, D>::makePartner_() const
 {
   return
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     (new Wrapper<partner_t>
-     (std::auto_ptr<partner_t>(new partner_t(*this))));
+     (std::unique_ptr<partner_t>(new partner_t(*this))));
 }
 
 #endif /* art_Persistency_Common_Assns_h */

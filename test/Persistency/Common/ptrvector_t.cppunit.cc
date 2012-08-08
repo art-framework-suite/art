@@ -140,7 +140,7 @@ testPtrVector::get()
 {
   using namespace test_with_reflex;
   typedef std::vector<IntValue> IntCollection;
-  std::auto_ptr<IntCollection> ptr(new IntCollection);
+  std::unique_ptr<IntCollection> ptr(new IntCollection);
 
   ptr->push_back(0);
   ptr->push_back(1);
@@ -177,7 +177,7 @@ testPtrVector::get()
 
   /*
   typedef std::vector<Inherit1> I1Collection;
-  std::auto_ptr<I1Collection> ptr(new I1Collection);
+  std::unique_ptr<I1Collection> ptr(new I1Collection);
 
   ptr->push_back(0);
   ptr->push_back(1);

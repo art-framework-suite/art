@@ -36,10 +36,10 @@ namespace art {
     virtual bool modifiesEvent() const { return module_->modifiesEvent(); }
 
   template <typename ModType>
-  static std::auto_ptr<T> makeModule(ModuleDescription const& md,
+  static std::unique_ptr<T> makeModule(ModuleDescription const& md,
                                      fhicl::ParameterSet const& pset) {
-    std::auto_ptr<ModType> module = std::auto_ptr<ModType>(new ModType(pset));
-    return std::auto_ptr<T>(module.release());
+    std::unique_ptr<ModType> module = std::unique_ptr<ModType>(new ModType(pset));
+    return std::unique_ptr<T>(module.release());
   }
 
 

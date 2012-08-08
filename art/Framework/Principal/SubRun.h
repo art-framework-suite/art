@@ -85,7 +85,7 @@ art::SubRun::put(std::unique_ptr<PROD> && product, std::string const& productIns
   if (product.get() == 0) {                // null pointer is illegal
     TypeID typeID(typeid(PROD));
     throw art::Exception(art::errors::NullPointerError)
-      << "SubRun::put: A null auto_ptr was passed to 'put'.\n"
+      << "SubRun::put: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << typeID << ".\n"
       << "The specified productInstanceName was '" << productInstanceName << "'.\n";
   }

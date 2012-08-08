@@ -83,11 +83,11 @@ namespace art
     virtual input::ItemType nextItemType();
 
     /// Read next event
-    /// Indicate inability to get a new event by returning a null auto_ptr.
-    std::auto_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp);
+    /// Indicate inability to get a new event by returning a null unique_ptr.
+    std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp);
 
     /// Read a specific event
-    std::auto_ptr<EventPrincipal> readEvent(EventID const&);
+    std::unique_ptr<EventPrincipal> readEvent(EventID const&);
 
     /// Read next subRun
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
@@ -204,7 +204,7 @@ namespace art
     input::ItemType nextItemType_();
     virtual std::shared_ptr<RunPrincipal> readRun_() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun_() = 0;
-    virtual std::auto_ptr<EventPrincipal> readEvent_() = 0;
+    virtual std::unique_ptr<EventPrincipal> readEvent_() = 0;
     // Only subclasses that actually read a file will need to use the
     // MasterProductRegistry.
     virtual std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);

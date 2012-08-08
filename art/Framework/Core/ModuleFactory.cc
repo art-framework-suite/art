@@ -31,7 +31,7 @@ ModuleFactory &
 
 // ----------------------------------------------------------------------
 
-std::auto_ptr<Worker>
+std::unique_ptr<Worker>
 ModuleFactory::makeWorker( WorkerParams      const & p
                          , ModuleDescription const & md
                          )
@@ -53,7 +53,7 @@ ModuleFactory::makeWorker( WorkerParams      const & p
          << " with version " << p.releaseVersion_
          << " has internal symbol definition problems: consult an expert.";
    }
-   return std::auto_ptr<Worker>( symbol(p,md) );
+   return std::unique_ptr<Worker>( symbol(p,md) );
 
 }  // makeWorker()
 

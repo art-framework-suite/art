@@ -14,7 +14,7 @@ namespace {
                 art::ModuleDescription const& md,
                 art::MasterProductRegistry& preg)
   {
-    preg.addProduct(std::auto_ptr<art::BranchDescription>
+    preg.addProduct(std::unique_ptr<art::BranchDescription>
                     (new art::BranchDescription(tl, md)));
   }
 }

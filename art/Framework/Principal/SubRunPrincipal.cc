@@ -58,7 +58,7 @@ namespace art {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null."
+        << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }
     branchMapper().insert(productProvenance);
@@ -89,7 +89,7 @@ namespace art {
 
     for (Principal::const_iterator i = srp->begin(), iEnd = srp->end(); i != iEnd; ++i) {
 
-      std::auto_ptr<Group> g(new Group());
+      std::unique_ptr<Group> g(new Group());
       g->swap(*i->second);
 
       addOrReplaceGroup(g);

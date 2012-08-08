@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_SUITE(GroupFactory_t, TestFixture)
 
 BOOST_AUTO_TEST_CASE(Group)
 {
-  std::auto_ptr<art::Group>
+  std::unique_ptr<art::Group>
     g(art::gfactory::make_group(makeBranchDescription(art::InEvent,
                                                       "GGen",
                                                       "GEN",
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(Group)
 
 BOOST_AUTO_TEST_CASE(AssnsGroup)
 {
-  std::auto_ptr<art::Group>
+  std::unique_ptr<art::Group>
     g(art::gfactory::make_group(makeBranchDescription(art::InEvent,
                                                       "AgGen",
                                                       "GEN",

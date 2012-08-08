@@ -134,10 +134,10 @@ namespace art {
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
     int nwrwue = -1;
-    std::auto_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
+    std::unique_ptr<PathSignalSentry<T> > signaler(new PathSignalSentry<T>(actReg_.get(), name_, nwrwue, state_));
 
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
     if (T::isEvent_) {
       ++timesRun_;

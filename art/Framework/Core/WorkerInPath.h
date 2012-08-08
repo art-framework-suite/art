@@ -65,7 +65,7 @@ namespace art {
                                CurrentProcessingContext const* cpc) {
 
     // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+    std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
     if (T::isEvent_) {
       ++timesVisited_;

@@ -120,12 +120,12 @@ RootInput::nextItemType() {
   }
 }
 
-std::auto_ptr<EventPrincipal>
+std::unique_ptr<EventPrincipal>
 RootInput::readEvent(std::shared_ptr<SubRunPrincipal> srp) {
   return readEvent_(srp, *mpr_);
 }
 
-std::auto_ptr<EventPrincipal>
+std::unique_ptr<EventPrincipal>
 RootInput::readEvent_(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr)
 {
   checkMPR(mpr);
@@ -135,7 +135,7 @@ RootInput::readEvent_(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistr
   case AccessState::SEEKING_EVENT:
     accessState_.resetState();
     {
-      std::auto_ptr<EventPrincipal>
+      std::unique_ptr<EventPrincipal>
         result(primaryFileSequence_->readIt(accessState_.wantedEventID(),
                                             mpr,
                                             true));
@@ -206,10 +206,10 @@ RootInput::readFile(MasterProductRegistry& mpr) {
   }
 }
 
-std::auto_ptr<EventPrincipal>
+std::unique_ptr<EventPrincipal>
 RootInput::readEvent_( )
 {
-  std::auto_ptr<EventPrincipal> result;
+  std::unique_ptr<EventPrincipal> result;
   if (!result.get()) result = primaryFileSequence_->readEvent_();
   if (result.get()) {
     accessState_.setLastReadEventID(result->id());

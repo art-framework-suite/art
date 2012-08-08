@@ -62,7 +62,7 @@ private:
                              std::string const& release = art::getReleaseVersion(),
                              std::string const& pass = art::getPassID() );
 
-  std::auto_ptr<art::BranchDescription>
+  std::unique_ptr<art::BranchDescription>
   fake_single_process_branch(std::string const& tag,
                              std::string const& processName,
                              std::string const& productInstanceName = std::string() );
@@ -109,7 +109,7 @@ fake_single_module_process(std::string const& tag,
   return result;
 }
 
-std::auto_ptr<art::BranchDescription>
+std::unique_ptr<art::BranchDescription>
 MPRGlobalTestFixture::
 fake_single_process_branch(std::string const& tag,
                            std::string const& processName,
@@ -135,7 +135,7 @@ fake_single_process_branch(std::string const& tag,
                                               productInstanceName),
                                mod);
   branchKeys_.insert(std::make_pair(tag, art::BranchKey(*result)));
-  return std::auto_ptr<art::BranchDescription>(result);
+  return std::unique_ptr<art::BranchDescription>(result);
 }
 
 struct EventPrincipalTestFixture {
@@ -145,7 +145,7 @@ struct EventPrincipalTestFixture {
 
   MPRGlobalTestFixture &gf();
 
-  std::auto_ptr<art::EventPrincipal> pEvent_;
+  std::unique_ptr<art::EventPrincipal> pEvent_;
 };
 
 EventPrincipalTestFixture::EventPrincipalTestFixture()
@@ -162,7 +162,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   // Put products we'll look for into the EventPrincipal.
   typedef arttest::DummyProduct PRODUCT_TYPE;
   typedef art::Wrapper<PRODUCT_TYPE> WDP;
-  std::auto_ptr<art::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
+  std::unique_ptr<art::EDProduct>  product(new WDP(std::unique_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
 
   std::string tag("rick");
   BKmap_t::const_iterator i(gf().branchKeys_.find(tag));
@@ -174,7 +174,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::BranchDescription const& branchFromRegistry(it->second);
 
   std::shared_ptr<art::Parentage> entryDescriptionPtr(new art::Parentage);
-  std::auto_ptr<art::ProductProvenance const>
+  std::unique_ptr<art::ProductProvenance const>
     productProvenancePtr(new art::ProductProvenance(branchFromRegistry.branchID(),
                                                     art::productstatus::present(),
                                                     entryDescriptionPtr));

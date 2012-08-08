@@ -48,14 +48,14 @@ namespace art {
 
     typedef std::shared_ptr<RootInputFile> RootInputFileSharedPtr;
     typedef input::EntryNumber EntryNumber;
-    std::auto_ptr<EventPrincipal> readEvent_();
+    std::unique_ptr<EventPrincipal> readEvent_();
     std::shared_ptr<SubRunPrincipal> readSubRun_(std::shared_ptr<RunPrincipal> rp);
     std::shared_ptr<RunPrincipal> readRun_();
     std::shared_ptr<FileBlock> readFile_(MasterProductRegistry&);
     void closeFile_();
     void endJob();
     input::ItemType getNextItemType();
-    std::auto_ptr<EventPrincipal> readIt(EventID const& id, MasterProductRegistry& mpr, bool exact = false);
+    std::unique_ptr<EventPrincipal> readIt(EventID const& id, MasterProductRegistry& mpr, bool exact = false);
     std::shared_ptr<SubRunPrincipal> readIt(SubRunID const& id, std::shared_ptr<RunPrincipal> rp);
     std::shared_ptr<RunPrincipal> readIt(RunID const& run);
     void skip(int offset, MasterProductRegistry&);
@@ -74,7 +74,7 @@ namespace art {
     bool nextFile(MasterProductRegistry&);
     bool previousFile(MasterProductRegistry&);
     void rewindFile();
-    std::auto_ptr<EventPrincipal> readCurrentEvent();
+    std::unique_ptr<EventPrincipal> readCurrentEvent();
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
     ProcessConfiguration const& processConfiguration() const;

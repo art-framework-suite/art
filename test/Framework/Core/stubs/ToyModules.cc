@@ -98,7 +98,7 @@ namespace arttest {
   void
   Int16_tProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
+    std::unique_ptr<Int16_tProduct> p(new Int16_tProduct(value_));
     e.put(p);
   }
 
@@ -126,7 +126,7 @@ namespace arttest {
   ToyDoubleProducer::produce(art::Event& e, art::EventSetup const&) {
 
     // Make output
-    std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
+    std::unique_ptr<DoubleProduct> p(new DoubleProduct(value_));
     e.put(p);
   }
 
@@ -157,7 +157,7 @@ namespace arttest {
       e.getByLabel(*itLabel, anInt);
       value +=anInt->value;
     }
-    std::auto_ptr<IntProduct> p(new IntProduct(value));
+    std::unique_ptr<IntProduct> p(new IntProduct(value));
     e.put(p);
   }
 
@@ -183,7 +183,7 @@ namespace arttest {
   void
   IntVectorProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
+    std::unique_ptr<std::vector<int> > p(new std::vector<int>(count_, value_));
     e.put(p);
   }
 
@@ -209,7 +209,7 @@ namespace arttest {
   void
   IntListProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::list<int> > p(new std::list<int>(count_, value_));
+    std::unique_ptr<std::list<int> > p(new std::list<int>(count_, value_));
     e.put(p);
   }
 
@@ -235,7 +235,7 @@ namespace arttest {
   void
   IntDequeProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
+    std::unique_ptr<std::deque<int> > p(new std::deque<int>(count_, value_));
     e.put(p);
   }
 
@@ -261,7 +261,7 @@ namespace arttest {
   void
   IntSetProducer::produce(art::Event& e, art::EventSetup const&) {
     // EventSetup is not used.
-    std::auto_ptr<std::set<int> > p(new std::set<int>());
+    std::unique_ptr<std::set<int> > p(new std::set<int>());
     for (int i = start_; i < stop_; ++i) p->insert(i);
     e.put(p);
   }
@@ -292,7 +292,7 @@ namespace arttest {
     art::Handle<IntProduct> parent;
     e.getByLabel(label_, parent);
 
-    std::auto_ptr<Prodigal> p(new Prodigal(parent->value));
+    std::unique_ptr<Prodigal> p(new Prodigal(parent->value));
     e.put(p);
   }
 

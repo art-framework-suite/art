@@ -133,7 +133,7 @@ namespace art
 
     bool
     hasCintDictionary(string const& name) {
-      auto_ptr<G__ClassInfo> ci(new G__ClassInfo(name.c_str()));
+      unique_ptr<G__ClassInfo> ci(new G__ClassInfo(name.c_str()));
       return (ci.get() && ci->IsLoaded());
     }
 

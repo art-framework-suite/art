@@ -123,7 +123,7 @@ namespace art {
 
     if (edp.get() == 0) {
       throw art::Exception(art::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null.\n";
+        << "put: Cannot put because unique_ptr to product is null.\n";
     }
     ProductID pid = branchIDToProductID(bd.branchID());
     if (!pid.isValid()) {

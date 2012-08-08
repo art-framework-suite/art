@@ -45,7 +45,7 @@ void
   SimpleDerivedProducer::produce( art::Event & e )
 {
   // Fill up a collection of SimpleDerived objects
-  std::auto_ptr<SimpleDerivedProduct> prod(new SimpleDerivedProduct);
+  std::unique_ptr<SimpleDerivedProduct> prod(new SimpleDerivedProduct);
   int event_num = e.id().event();
   for (int i = 0; i != size_; ++i) {
     SimpleDerived sd;

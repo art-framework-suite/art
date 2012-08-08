@@ -38,7 +38,7 @@ public:
   {
     std::cerr << "IntVectorProducer::produce is running!\n";
     int value_ = e.id().event();
-    std::auto_ptr<intvector_t> p(new intvector_t);
+    std::unique_ptr<intvector_t> p(new intvector_t);
     for( int k = 0; k != nvalues_; ++k )
       p->push_back(value_ + k);
     e.put(p);

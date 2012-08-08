@@ -54,7 +54,7 @@ namespace art
     // given id can not be found. Derived classes that can not perform
     // random access should not implement this function; the default
     // implementation will throw an exception.
-    virtual std::auto_ptr<EventPrincipal> readEvent(EventID const& id);
+    virtual std::unique_ptr<EventPrincipal> readEvent(EventID const& id);
 
     // Skip forward (or backward, if n<0) n events. Derived classes that
     // can not perform random access should not implement this function;
@@ -75,7 +75,7 @@ namespace art
     virtual void closeFile() = 0;
     virtual std::shared_ptr<RunPrincipal> readRun() = 0;
     virtual std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp) = 0;
-    virtual std::auto_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) = 0;
+    virtual std::unique_ptr<EventPrincipal> readEvent(std::shared_ptr<SubRunPrincipal> srp) = 0;
 
     // Temporary workaround for broken design.
     virtual void storeMPRforBrokenRandomAccess(MasterProductRegistry&);

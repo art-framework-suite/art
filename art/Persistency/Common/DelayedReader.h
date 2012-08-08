@@ -24,17 +24,17 @@ namespace art {
 class art::DelayedReader {
 public:
   virtual ~DelayedReader();
-  std::auto_ptr<EDProduct> getProduct(BranchKey const& k, art::TypeID const &wrapper_type) const;
+  std::unique_ptr<EDProduct> getProduct(BranchKey const& k, art::TypeID const &wrapper_type) const;
   void setGroupFinder(cet::exempt_ptr<EventPrincipal const>);
   void mergeReaders(std::shared_ptr<DelayedReader> other) {mergeReaders_(other);}
 private:
-  virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const = 0;
+  virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const = 0;
   virtual void setGroupFinder_(cet::exempt_ptr<EventPrincipal const>);
   virtual void mergeReaders_(std::shared_ptr<DelayedReader>);
 };
 
 inline
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::DelayedReader::
 getProduct(BranchKey const& k, art::TypeID const &wrapper_type) const {
   return getProduct_(k, wrapper_type);

@@ -27,7 +27,7 @@
 
 namespace art {
 
-   typedef std::auto_ptr<art::ServiceWrapperBase> (*MAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
+   typedef std::unique_ptr<art::ServiceWrapperBase> (*MAKER_t)( fhicl::ParameterSet const &, art::ActivityRegistry & );
 
   class ServicesManager
   {

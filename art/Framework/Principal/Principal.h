@@ -181,11 +181,11 @@ private:
 
   // Pointer to the 'mapper' that will get provenance information
   // from the persistent store.
-  std::auto_ptr<BranchMapper> branchMapperPtr_;
+  std::unique_ptr<BranchMapper> branchMapperPtr_;
 
   // Pointer to the 'source' that will be used to obtain EDProducts
   // from the persistent store.
-  std::auto_ptr<DelayedReader> store_;
+  std::unique_ptr<DelayedReader> store_;
 };
 
 #endif /* art_Framework_Principal_Principal_h */

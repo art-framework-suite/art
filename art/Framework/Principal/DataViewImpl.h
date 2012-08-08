@@ -28,12 +28,12 @@
 //
 // Putting Data
 //
-// std::auto_ptr<AppleCollection> pApples( new AppleCollection );
+// std::unique_ptr<AppleCollection> pApples( new AppleCollection );
 // //fill the collection
 // ...
 // event.put(pApples);
 //
-// std::auto_ptr<FruitCollection> pFruits( new FruitCollection );
+// std::unique_ptr<FruitCollection> pFruits( new FruitCollection );
 // //fill the collection
 // ...
 // event.put("apple", pFruits);

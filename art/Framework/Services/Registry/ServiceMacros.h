@@ -25,11 +25,11 @@ art::TypeID \
 
 #define DEFINE_ART_SERVICE(klass) \
 extern "C" \
-std::auto_ptr<art::ServiceWrapperBase> \
+std::unique_ptr<art::ServiceWrapperBase> \
   make( fhicl::ParameterSet const & cfg, art::ActivityRegistry & reg ) \
-{ return std::auto_ptr<art::ServiceWrapperBase>( \
+{ return std::unique_ptr<art::ServiceWrapperBase>( \
     new art::ServiceWrapper<klass>( \
-      std::auto_ptr<klass>( \
+      std::unique_ptr<klass>( \
         new klass(cfg,reg)) ) ); \
 } \
 DEFINE_ART_SERVICE_HOOK(klass)

@@ -53,7 +53,7 @@ namespace test {
       product_t  avg  =  sum / N;
       std::cerr << "Average:  " << avg << '\n';
 
-      ev.put( std::auto_ptr<product_t>( new product_t(avg) )
+      ev.put( std::unique_ptr<product_t>( new product_t(avg) )
             , product_label()
             );
     }  // produce()

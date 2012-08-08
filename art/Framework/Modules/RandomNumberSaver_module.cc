@@ -61,10 +61,10 @@ void
   RandomNumberSaver::
   produce( Event & event )
 {
-  using std::auto_ptr;
+  using std::unique_ptr;
 
   ServiceHandle<RNGservice>  rng;
-  auto_ptr<snapshot_t>  product_ptr( new snapshot_t( rng->accessSnapshot_()
+  unique_ptr<snapshot_t>  product_ptr( new snapshot_t( rng->accessSnapshot_()
                                    )               );
 
   event.put( product_ptr );

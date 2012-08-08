@@ -92,7 +92,7 @@ namespace art {
 
   private:
     virtual
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     do_makePartner(std::type_info const & wanted_type) const;
 
     virtual bool isPresent_() const {return present;}
@@ -113,7 +113,7 @@ namespace art {
 
   template <typename T>
   struct DoMakePartner {
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     operator()(T const & obj,
                std::type_info const & wanted_wrapper_type) {
       if (typeid(Wrapper<typename T::partner_t>) == wanted_wrapper_type) {
@@ -128,7 +128,7 @@ namespace art {
 
   template <typename T>
   struct DoNotMakePartner {
-    std::auto_ptr<EDProduct>
+    std::unique_ptr<EDProduct>
     operator()(T const &,
                std::type_info const &) {
       throw Exception(errors::LogicError, "makePartner")
@@ -138,7 +138,7 @@ namespace art {
   };
 
   template <typename T>
-  std::auto_ptr<EDProduct>
+  std::unique_ptr<EDProduct>
   Wrapper<T>::do_makePartner(std::type_info const & wanted_wrapper) const
   {
     typename std::conditional <detail::has_makePartner_member<T>::value,
@@ -271,7 +271,7 @@ namespace art {
       static bool const value = false;
     };
 
-    template <typename T, std::auto_ptr<EDProduct> (T:: *)() const> struct makePartner_function;
+    template <typename T, std::unique_ptr<EDProduct> (T:: *)() const> struct makePartner_function;
     template <typename T> no_tag  has_makePartner_helper(...);
     template <typename T> yes_tag has_makePartner_helper(makePartner_function<T, &T::makePartner> * dummy);
 
@@ -305,7 +305,7 @@ namespace art {
     present(ptr != 0),
     obj()
   {
-    std::auto_ptr<T> temp(ptr);
+    std::unique_ptr<T> temp(ptr);
     if (present) {
       // The following will call swap if T has such a function,
       // and use assignment if T has no such function.

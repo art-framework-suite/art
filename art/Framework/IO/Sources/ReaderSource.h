@@ -95,7 +95,7 @@ namespace art {
     readSubRun(std::shared_ptr<RunPrincipal> rp);
 
     using InputSource::readEvent;
-    virtual std::auto_ptr<EventPrincipal>
+    virtual std::unique_ptr<EventPrincipal>
     readEvent(std::shared_ptr<SubRunPrincipal> srp);
 
   private:
@@ -115,7 +115,7 @@ namespace art {
 
     std::shared_ptr<RunPrincipal> cachedRP_;
     std::shared_ptr<SubRunPrincipal> cachedSRP_;
-    std::auto_ptr<EventPrincipal> cachedE_;
+    std::unique_ptr<EventPrincipal> cachedE_;
 
     bool pendingSubRun_;
     bool pendingEvent_;
@@ -538,7 +538,7 @@ namespace art {
   }
 
   template <class T>
-  std::auto_ptr<EventPrincipal>
+  std::unique_ptr<EventPrincipal>
   ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal>)
   {
     if (haveEventLimit_) { --remainingEvents_; }

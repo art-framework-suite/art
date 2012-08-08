@@ -77,7 +77,7 @@ namespace {
       return ep_.get();
     }
   private:
-    std::auto_ptr<art::EventProcessor> ep_;
+    std::unique_ptr<art::EventProcessor> ep_;
     bool callEndJob_;
   }; // EventProcessorWithSentry
 
@@ -162,7 +162,7 @@ int art::run_art(intermediate_table raw_config,
   EventProcessorWithSentry proc;
   int rc = -1;
   try {
-    std::auto_ptr<art::EventProcessor>
+    std::unique_ptr<art::EventProcessor>
     procP(new
           art::EventProcessor(main_pset));
     EventProcessorWithSentry procTmp(procP);

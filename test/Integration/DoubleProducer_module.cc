@@ -45,7 +45,7 @@ void
 arttest::DoubleProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, DoubleProducer::produce is running!\n";
-  std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
+  std::unique_ptr<DoubleProduct> p(new DoubleProduct(value_));
   e.put(p);
 }
 

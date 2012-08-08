@@ -133,7 +133,7 @@ namespace arttest
         Timestamp runstart; // current time?
         outR = pm_.makeRunPrincipal((*current_)[0],  // run number
                                     runstart);     // starting time
-        put_product_in_principal(std::auto_ptr<double>(new double(76.5)),
+        put_product_in_principal(std::unique_ptr<double>(new double(76.5)),
                                  *outR,
                                  "r1");
          readSomething = true;
@@ -155,7 +155,7 @@ namespace arttest
         outSR = pm_.makeSubRunPrincipal(newSRID.run(),
                                         newSRID.subRun(),
                                         runstart);     // starting time
-        put_product_in_principal(std::auto_ptr<double>(new double(7.0)),
+        put_product_in_principal(std::unique_ptr<double>(new double(7.0)),
                                  *outSR,
                                  "s1");
         readSomething = true;
@@ -168,14 +168,14 @@ namespace arttest
                                       outSR?outSR->subRun():inSR->subRun(),
                                       (*current_)[2],  // event number
                                       runstart);     // starting time
-        put_product_in_principal(std::auto_ptr<int>(new int(26)),
+        put_product_in_principal(std::unique_ptr<int>(new int(26)),
                                  *outE,
                                  "m1");
-        put_product_in_principal(std::auto_ptr<bool>(new bool(false)),
+        put_product_in_principal(std::unique_ptr<bool>(new bool(false)),
                                  *outE,
                                  "m2",
                                  "a");
-        put_product_in_principal(std::auto_ptr<bool>(new bool(true)),
+        put_product_in_principal(std::unique_ptr<bool>(new bool(true)),
                                  *outE,
                                  "m2",
                                  "b");

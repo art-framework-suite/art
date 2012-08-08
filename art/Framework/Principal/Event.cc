@@ -148,12 +148,12 @@ namespace art {
     }
 
     while(pit!=pie) {
-        auto_ptr<EDProduct> pr(pit->first);
+        unique_ptr<EDProduct> pr(pit->first);
         // note: ownership has been passed - so clear the pointer!
         pit->first = 0;
 
         // set provenance
-        auto_ptr<ProductProvenance const> productProvenancePtr(
+        unique_ptr<ProductProvenance const> productProvenancePtr(
                 new ProductProvenance(pit->second->branchID(),
                                       productstatus::present(),
                                       gotBranchIDVector));

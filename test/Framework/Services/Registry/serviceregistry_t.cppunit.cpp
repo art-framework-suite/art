@@ -75,7 +75,7 @@ testServiceRegistry::externalServiceTest()
    art::AssertHandler ah;
 
    {
-      std::auto_ptr<DummyService> dummyPtr(new DummyService);
+      std::unique_ptr<DummyService> dummyPtr(new DummyService);
       dummyPtr->value_ = 2;
       art::ServiceToken token(art::ServiceRegistry::createContaining(dummyPtr));
       {
@@ -109,7 +109,7 @@ testServiceRegistry::externalServiceTest()
    }
 
    {
-      std::auto_ptr<DummyService> dummyPtr(new DummyService);
+      std::unique_ptr<DummyService> dummyPtr(new DummyService);
       std::shared_ptr<art::serviceregistry::ServiceWrapper<DummyService> >
           wrapper(new art::serviceregistry::ServiceWrapper<DummyService>(dummyPtr));
       art::ServiceToken token(art::ServiceRegistry::createContaining(wrapper));

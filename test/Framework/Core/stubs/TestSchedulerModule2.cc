@@ -32,7 +32,7 @@ namespace art{
   {
 
     std::string myname = pset_.get<std::string>("module_name");
-    std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
+    std::unique_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
     e.put(product);
 
   }

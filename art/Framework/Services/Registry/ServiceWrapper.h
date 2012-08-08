@@ -78,7 +78,7 @@ public:
   }
 
 private:
-  std::auto_ptr<T> service_ptr_;
+  std::unique_ptr<T> service_ptr_;
 
 };  // ServiceWrapper<>
 

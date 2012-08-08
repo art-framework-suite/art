@@ -56,7 +56,7 @@ RunPrincipal::put(std::unique_ptr<EDProduct> && edp,
                   std::unique_ptr<ProductProvenance const> && productProvenance) {
   if (edp.get() == 0) {
     throw art::Exception(art::errors::InsertFailure,"Null Pointer")
-      << "put: Cannot put because auto_ptr to product is null."
+      << "put: Cannot put because unique_ptr to product is null."
       << "\n";
   }
   branchMapper().insert(productProvenance);
@@ -71,7 +71,7 @@ RunPrincipal::mergeRun(std::shared_ptr<RunPrincipal> rp) {
 
   for (Principal::const_iterator i = rp->begin(), iEnd = rp->end(); i != iEnd; ++i) {
 
-    std::auto_ptr<Group> g(new Group());
+    std::unique_ptr<Group> g(new Group());
     g->swap(*i->second);
 
     addOrReplaceGroup(g);

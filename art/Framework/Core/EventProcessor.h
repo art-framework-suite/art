@@ -157,15 +157,15 @@ namespace art {
     MasterProductRegistry                         preg_;
     ServiceToken                                  serviceToken_;
     std::shared_ptr<InputSource>                  input_;
-    std::auto_ptr<Schedule>                       schedule_;
+    std::unique_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
     int                                           my_sig_num_;
     std::shared_ptr<FileBlock>                    fb_;
 
-    std::auto_ptr<statemachine::Machine>          machine_;
+    std::unique_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;
-    std::auto_ptr<EventPrincipal>                 sm_evp_;
+    std::unique_ptr<EventPrincipal>                 sm_evp_;
     bool                                          shouldWeStop_;
     bool                                          stateMachineWasInErrorState_;
     std::string                                   fileMode_;

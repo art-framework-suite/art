@@ -24,7 +24,7 @@ InputSourceFactory &
   return the_factory;
 }
 
-std::auto_ptr<InputSource>
+std::unique_ptr<InputSource>
 InputSourceFactory::make(ParameterSet const& conf,
                         InputSourceDescription & desc)
 {
@@ -32,7 +32,7 @@ InputSourceFactory::make(ParameterSet const& conf,
 
    FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << std::endl;
 
-   typedef std::auto_ptr<InputSource>
+   typedef std::unique_ptr<InputSource>
       (make_t)(fhicl::ParameterSet const&,
                InputSourceDescription &);
 
@@ -49,7 +49,7 @@ InputSourceFactory::make(ParameterSet const& conf,
          << "InputSource " << libspec
          << " has internal symbol definition problems: consult an expert.";
    }
-   std::auto_ptr<InputSource> wm = symbol(conf, desc);
+   std::unique_ptr<InputSource> wm = symbol(conf, desc);
 
    FDEBUG(1) << "InputSourceFactory: created input source "
              << libspec

@@ -67,15 +67,15 @@ void arttest::MixProducer::produce(art::Event &e) {
   ++eventCounter_;
 
   // double
-  e.put(std::auto_ptr<double>(new double(eventCounter_)), "doubleLabel");
+  e.put(std::unique_ptr<double>(new double(eventCounter_)), "doubleLabel");
 
   // IntProduct
-  e.put(std::auto_ptr<IntProduct>(new IntProduct(eventCounter_ + 1000000)), "IntProductLabel");
+  e.put(std::unique_ptr<IntProduct>(new IntProduct(eventCounter_ + 1000000)), "IntProductLabel");
 
   // std::string
   std::ostringstream s;
   s << "string value: " << std::setfill('0') << std::setw(7) << eventCounter_ << "\n";
-  e.put(std::auto_ptr<std::string>(new std::string(s.str())), "stringLabel");
+  e.put(std::unique_ptr<std::string>(new std::string(s.str())), "stringLabel");
 
   // 1. std::vector<double>
   //
@@ -84,16 +84,16 @@ void arttest::MixProducer::produce(art::Event &e) {
   // 3. art::PtrVector<double>
   //
   // 4. ProductWithPtrs
-  std::auto_ptr<std::vector<double> > coll(new std::vector<double>);
+  std::unique_ptr<std::vector<double> > coll(new std::vector<double>);
   coll->reserve(10);
   for (size_t i = 1; i < 11; ++i) {
     coll->push_back(i + 10 * (eventCounter_ - 1));
   }
   e.put(coll, "doubleCollectionLabel"); // 1.
-  std::auto_ptr<std::vector<art::Ptr<double> > >
+  std::unique_ptr<std::vector<art::Ptr<double> > >
     vpd(new std::vector<art::Ptr<double> >);
   vpd->reserve(3);
-  std::auto_ptr<art::PtrVector<double> >
+  std::unique_ptr<art::PtrVector<double> >
     pvd(new art::PtrVector<double>());
   pvd->reserve(3);
   art::ProductID collID(getProductID<std::vector<double> >(e, "doubleCollectionLabel"));
@@ -103,7 +103,7 @@ void arttest::MixProducer::produce(art::Event &e) {
   pvd->push_back(art::Ptr<double>(collID, 1, e.productGetter(collID)));
   pvd->push_back(art::Ptr<double>(collID, 5, e.productGetter(collID)));
   pvd->push_back(art::Ptr<double>(collID, 9, e.productGetter(collID)));
-  std::auto_ptr<ProductWithPtrs>
+  std::unique_ptr<ProductWithPtrs>
     pwp(new ProductWithPtrs(
 #ifndef ART_NO_MIX_PTRVECTOR
                             *pvd.get(),
@@ -114,7 +114,7 @@ void arttest::MixProducer::produce(art::Event &e) {
   e.put(pwp, "ProductWithPtrsLabel"); // 4.
 
   // map_vector, .
-  std::auto_ptr<mv_t> mv(new mv_t);
+  std::unique_ptr<mv_t> mv(new mv_t);
   static size_t const mv_size = 5;
   mv->reserve(mv_size);
   for (size_t i = 0; i < mv_size; ++i) {
@@ -123,7 +123,7 @@ void arttest::MixProducer::produce(art::Event &e) {
   }
 
   // Ptr into map_vector.
-  std::auto_ptr<std::vector<art::Ptr<mvv_t> > > mvvp(new std::vector<art::Ptr<mvv_t> >);
+  std::unique_ptr<std::vector<art::Ptr<mvv_t> > > mvvp(new std::vector<art::Ptr<mvv_t> >);
   mvvp->reserve(mv_size);
   art::ProductID mvID(getProductID<mv_t>(e, "mapVectorLabel"));
   mvvp->push_back(art::Ptr<mvv_t>(mvID, 10 * (eventCounter_ - 1) + 7, e.productGetter(mvID)));

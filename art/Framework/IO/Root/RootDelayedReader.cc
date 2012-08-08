@@ -22,7 +22,7 @@ RootDelayedReader(EntryNumber const& entry,
 
 art::RootDelayedReader::~RootDelayedReader() {}
 
-std::auto_ptr<art::EDProduct>
+std::unique_ptr<art::EDProduct>
 art::RootDelayedReader::getProduct_(BranchKey const& k, art::TypeID const &wrapper_type) const {
   iterator iter = branchIter(k);
   if (!found(iter)) {
@@ -47,7 +47,7 @@ art::RootDelayedReader::getProduct_(BranchKey const& k, art::TypeID const &wrapp
     be.SetTargetClass(cl->GetName());
   }
 #endif
-  std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cl->New()));
+  std::unique_ptr<EDProduct> p(static_cast<EDProduct *>(cl->New()));
   EDProduct *pp = p.get();
   br->SetAddress(&pp);
   input::getEntry(br, entryNumber_);

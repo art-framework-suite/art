@@ -2,7 +2,7 @@
 
 art::InputSource::~InputSource() { }
 
-std::auto_ptr<art::EventPrincipal>
+std::unique_ptr<art::EventPrincipal>
 art::InputSource::readEvent(art::EventID const&)
 {
   throw art::Exception(art::errors::Configuration)

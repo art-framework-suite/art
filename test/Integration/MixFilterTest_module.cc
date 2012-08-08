@@ -124,7 +124,7 @@ private:
   size_t nSecondaries_;
   bool testRemapper_;
   std::vector<size_t> doubleVectorOffsets_, map_vectorOffsets_;
-  std::auto_ptr<art::EventIDSequence> eIDs_;
+  std::unique_ptr<art::EventIDSequence> eIDs_;
   bool startEvent_called_;
   bool processEventIDs_called_;
   int currentEvent_;
@@ -231,7 +231,7 @@ void
 arttest::MixFilterTestDetail::
 finalizeEvent(art::Event & e)
 {
-  e.put(std::auto_ptr<std::string>(new std::string("BlahBlahBlah")));
+  e.put(std::unique_ptr<std::string>(new std::string("BlahBlahBlah")));
   e.put(eIDs_);
 #ifndef ART_TEST_NO_STARTEVENT
   BOOST_REQUIRE(startEvent_called_);

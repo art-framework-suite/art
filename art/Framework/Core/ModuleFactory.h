@@ -27,7 +27,7 @@ class art::ModuleFactory
   void  operator = ( ModuleFactory const & );
 
 public:
-  static std::auto_ptr<Worker>
+  static std::unique_ptr<Worker>
     makeWorker( WorkerParams      const & wp
               , ModuleDescription const & md
               );

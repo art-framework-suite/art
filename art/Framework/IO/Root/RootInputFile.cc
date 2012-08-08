@@ -136,7 +136,7 @@ namespace art {
     ProcessHistoryMap *pHistMapPtr = &pHistMap;
     setMetaDataBranchAddress(metaDataTree, pHistMapPtr);
 
-    auto_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDLists);
+    unique_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDLists);
     BranchIDLists *branchIDListsPtr = branchIDListsAPtr.get();
     setMetaDataBranchAddress(metaDataTree, branchIDListsPtr);
 
@@ -586,14 +586,14 @@ namespace art {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
-  auto_ptr<EventPrincipal>
+  unique_ptr<EventPrincipal>
   RootInputFile::readEvent() {
     assert(fileIndexIter_ != fileIndexEnd_);
     assert(fileIndexIter_->getEntryType() == FileIndex::kEvent);
     assert(fileIndexIter_->eventID_.runID().isValid());
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(fileIndexIter_->entry_);
-    auto_ptr<EventPrincipal> ep = readCurrentEvent();
+    unique_ptr<EventPrincipal> ep = readCurrentEvent();
 
     assert(ep.get() != 0);
     assert(eventAux_.run() == fileIndexIter_->eventID_.run() + forcedRunOffset_);
@@ -606,10 +606,10 @@ namespace art {
 
   // Reads event at the current entry in the tree.
   // Note: This function neither uses nor sets fileIndexIter_.
-  auto_ptr<EventPrincipal>
+  unique_ptr<EventPrincipal>
   RootInputFile::readCurrentEvent() {
     if (!eventTree_.current()) {
-      return auto_ptr<EventPrincipal>(0);
+      return unique_ptr<EventPrincipal>(0);
     }
     fillEventAuxiliary();
     fillHistory();
@@ -618,7 +618,7 @@ namespace art {
     overrideRunNumber(const_cast<EventID&>(eventAux_.id()), eventAux_.isRealData());
 
     // We're not done ... so prepare the EventPrincipal
-    auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
+    unique_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventAux_,
                 processConfiguration_,
                 history_,

@@ -72,8 +72,8 @@ namespace art {
              bool dropDescendantsOfDroppedProducts);
     void reportOpened();
     void close(bool reallyClose);
-    std::auto_ptr<EventPrincipal> readCurrentEvent();
-    std::auto_ptr<EventPrincipal> readEvent();
+    std::unique_ptr<EventPrincipal> readCurrentEvent();
+    std::unique_ptr<EventPrincipal> readEvent();
     std::shared_ptr<SubRunPrincipal> readSubRun(std::shared_ptr<RunPrincipal> rp);
     std::string const& file() const {return file_;}
     std::shared_ptr<RunPrincipal> readRun();

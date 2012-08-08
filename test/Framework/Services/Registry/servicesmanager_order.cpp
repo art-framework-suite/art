@@ -42,7 +42,7 @@ int main()
 
   art::ActivityRegistry ar;
   fhicl::ParameterSet pset;
-  std::auto_ptr<Service0> s0(new Service0(pset, ar));
+  std::unique_ptr<Service0> s0(new Service0(pset, ar));
   std::shared_ptr<ServiceWrapper<Service0> >
       wrapper (new ServiceWrapper<Service0>(s0));
   legacy->put(wrapper);
@@ -81,7 +81,7 @@ int main()
 
   art::ActivityRegistry ar4;
   fhicl::ParameterSet pset4;
-  std::auto_ptr<Service4> s4(new Service4(pset4, ar4));
+  std::unique_ptr<Service4> s4(new Service4(pset4, ar4));
   std::shared_ptr<ServiceWrapper<Service4> >
       wrapper4 (new ServiceWrapper<Service4>(s4));
   sm.put(wrapper4);

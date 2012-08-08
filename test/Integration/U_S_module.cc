@@ -15,7 +15,7 @@ public:
    virtual ~U_S() {}
 
    virtual void produce(art::Event &e) {
-      std::auto_ptr<IntProduct> p(new IntProduct(1));
+      std::unique_ptr<IntProduct> p(new IntProduct(1));
       e.put(p);
    }
    void endJob() {}

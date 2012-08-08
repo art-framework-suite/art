@@ -55,7 +55,7 @@ namespace art {
         ModuleDescription moduleDesc(createModuleDescription(p));
         actReg_->preModuleConstructionSignal_(moduleDesc);
 
-        std::auto_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
+        std::unique_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
 
         actReg_->postModuleConstructionSignal_(moduleDesc);
         workerPtr->setActivityRegistry(actReg_);

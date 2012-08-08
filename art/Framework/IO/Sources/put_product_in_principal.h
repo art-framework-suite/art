@@ -41,7 +41,7 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
    if (product.get() == 0) {
       TypeID typeID(typeid(T));
       throw art::Exception(art::errors::NullPointerError)
-         << "put_product_in_principal: A null auto_ptr was passed to 'put'.\n"
+         << "put_product_in_principal: A null unique_ptr was passed to 'put'.\n"
          << "The pointer is of type " << typeID << ".\n"
          << "The specified product instance name was '"
          << instance_name << "'.\n";
@@ -52,10 +52,10 @@ art::put_product_in_principal(std::unique_ptr<T> && product,
                                module_label,
                                instance_name);
 
-   std::auto_ptr<EDProduct> wp(new Wrapper<T>(product));
+   std::unique_ptr<EDProduct> wp(new Wrapper<T>(product));
    principal.put(wp,
                  desc,
-                 std::auto_ptr<ProductProvenance const>(
+                 std::unique_ptr<ProductProvenance const>(
                    new ProductProvenance(desc.branchID(), productstatus::present())));
 }
 

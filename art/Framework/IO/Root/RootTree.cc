@@ -101,9 +101,9 @@ namespace art {
       }
   }
 
-  std::auto_ptr<DelayedReader>
+  std::unique_ptr<DelayedReader>
   RootTree::makeDelayedReader(bool oldFormat) const {
-    std::auto_ptr<DelayedReader>
+    std::unique_ptr<DelayedReader>
         store(new RootDelayedReader(entryNumber_, branches_, filePtr_, oldFormat));
     return store;
   }
@@ -138,9 +138,9 @@ namespace art {
     tree_->LoadTree(theEntryNumber);
   }
 
-  std::auto_ptr<BranchMapper>
+  std::unique_ptr<BranchMapper>
   RootTree::makeBranchMapper() const {
-    return std::auto_ptr<BranchMapper>(new BranchMapperWithReader(productProvenanceBranch_, entryNumber_));
+    return std::unique_ptr<BranchMapper>(new BranchMapperWithReader(productProvenanceBranch_, entryNumber_));
   }
 
   namespace input {

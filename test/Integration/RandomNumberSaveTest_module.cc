@@ -105,7 +105,7 @@ bool arttest::RandomNumberSaveTest::filter(art::Event & e)
     }
   } else {
     // Writing.
-    e.put(std::auto_ptr<prod_t>(new prod_t(nums)));
+    e.put(std::unique_ptr<prod_t>(new prod_t(nums)));
   }
   return true;
 }

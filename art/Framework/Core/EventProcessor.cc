@@ -199,17 +199,17 @@ namespace art {
     // that sigc++ does way in the guts of the add operation.
     typedef art::TriggerNamesService TNS;
     // no configuration available
-    serviceToken_.add(std::auto_ptr<CurrentModule>(new CurrentModule(*actReg_)));
+    serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
     // special construction
-    serviceToken_.add(std::auto_ptr<TNS>(new TNS(pset)));
-    serviceToken_.add(std::auto_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
+    serviceToken_.add(std::unique_ptr<TNS>(new TNS(pset)));
+    serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
     ServiceRegistry::Operate operate(serviceToken_);
     serviceToken_.forceCreation();
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
     // Old input sources may need this for now.
     input_->storeMPRforBrokenRandomAccess(preg_);
-    schedule_ = std::auto_ptr<Schedule>
+    schedule_ = std::unique_ptr<Schedule>
                 (new Schedule(pset,
                               ServiceRegistry::instance().get<TNS>(),
                               wreg_,

@@ -55,7 +55,7 @@ PtrVectorProducer::produce( art::Event& e )
   art::Handle<intvector_t> h;
   e.getByLabel(input_label_, h);
 
-  std::auto_ptr<product_t> prod( new product_t );
+  std::unique_ptr<product_t> prod( new product_t );
   for( int k = 0; k != 8; ++k ) {
     art::Ptr<int> p(h, 7-k);
     prod->push_back(p);

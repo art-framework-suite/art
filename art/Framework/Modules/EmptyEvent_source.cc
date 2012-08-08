@@ -39,7 +39,7 @@ public:
 private:
    virtual art::input::ItemType getNextItemType();
    virtual void setRunAndEventInfo();
-   virtual std::auto_ptr<EventPrincipal> readEvent_();
+   virtual std::unique_ptr<EventPrincipal> readEvent_();
    virtual std::shared_ptr<SubRunPrincipal> readSubRun_();
    virtual std::shared_ptr<RunPrincipal> readRun_();
    virtual void skip(int offset);
@@ -65,7 +65,7 @@ private:
    bool eventSet_;
    bool skipEventIncrement_;
    bool resetEventOnSubRun_;
-   std::auto_ptr<EventPrincipal> ep_;
+   std::unique_ptr<EventPrincipal> ep_;
    EventAuxiliary::ExperimentType eType_;
 };  // EmptyEvent
 
@@ -150,7 +150,7 @@ EmptyEvent::readSubRun_() {
    return subRunPrincipal;
 }
 
-std::auto_ptr<EventPrincipal>
+std::unique_ptr<EventPrincipal>
   EmptyEvent::readEvent_() {
    assert(ep_.get() != 0 || processingMode() != RunsSubRunsAndEvents);
    return ep_;
@@ -161,7 +161,7 @@ void art::EmptyEvent::reallyReadEvent() {
   EventAuxiliary eventAux(eventID_,
                           Timestamp(presentTime_),
                           eType_);
-  std::auto_ptr<EventPrincipal> result(
+  std::unique_ptr<EventPrincipal> result(
       new EventPrincipal(eventAux, processConfiguration()));
   ep_ = result;
 }

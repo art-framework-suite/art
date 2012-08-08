@@ -960,7 +960,7 @@ namespace art
     md.processConfiguration_ = ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion(), getPassID());
 
     actReg_->preModuleConstructionSignal_(md);
-    auto_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
+    unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset,results_));
     actReg_->postModuleConstructionSignal_(md);
 
     results_inserter_.reset(new WorkerT<EDProducer>(producer, md, work_args));

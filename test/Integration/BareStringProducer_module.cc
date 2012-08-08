@@ -47,7 +47,7 @@ void
 BareStringProducer::produce( art::Event& e )
 {
   std::cerr << "Holy cow, BareStringProducer::produce is running!\n";
-  std::auto_ptr<std::string> p(new std::string(value_));
+  std::unique_ptr<std::string> p(new std::string(value_));
   e.put(p);
 }
 

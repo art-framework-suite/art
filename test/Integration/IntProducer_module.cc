@@ -97,7 +97,7 @@ IntProducer::endRun( art::Run& r )
 template <typename PUTTER>
 void
 IntProducer::put(PUTTER & p) {
-  std::auto_ptr<IntProduct> prod(new IntProduct(value_));
+  std::unique_ptr<IntProduct> prod(new IntProduct(value_));
   p.put(prod);
 }
 

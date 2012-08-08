@@ -102,10 +102,10 @@ private:
 
   using DecrepitRelicInputSourceImplementation::readEvent;
 
-  virtual std::auto_ptr<EventPrincipal>
+  virtual std::unique_ptr<EventPrincipal>
   readEvent(std::shared_ptr<SubRunPrincipal> srp);
 
-  std::auto_ptr<EventPrincipal>
+  std::unique_ptr<EventPrincipal>
   readEvent_(std::shared_ptr<SubRunPrincipal> srp, MasterProductRegistry& mpr);
 
   virtual std::shared_ptr<SubRunPrincipal>
@@ -117,7 +117,7 @@ private:
   virtual std::shared_ptr<FileBlock>
   readFile(MasterProductRegistry&);
 
-  virtual std::auto_ptr<EventPrincipal>
+  virtual std::unique_ptr<EventPrincipal>
   readEvent_( );
 
   virtual std::shared_ptr<SubRunPrincipal>

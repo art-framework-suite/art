@@ -129,7 +129,7 @@ art::MixOp<PROD>::
 mixAndPut(Event & e,
           PtrRemapper const & remap) const
 {
-  std::auto_ptr<PROD> rProd(new PROD()); // Parens necessary for native types.
+  std::unique_ptr<PROD> rProd(new PROD()); // Parens necessary for native types.
   std::vector<PROD const *> inConverted;
   inConverted.reserve(inProducts_.size());
   try {

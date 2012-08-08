@@ -50,14 +50,14 @@ void arttest::ProductIDGetter::produce(art::Event &e) {
   art::ProductID p2(getProductID<int>(e, "i1"));
   BOOST_REQUIRE(p2.isValid());
   BOOST_REQUIRE_NE(p1, p2);
-  std::auto_ptr<std::vector<int> > vip(new std::vector<int>);
+  std::unique_ptr<std::vector<int> > vip(new std::vector<int>);
   vip->push_back(0);
   vip->push_back(2);
   vip->push_back(4);
   vip->push_back(6);
 
   art::ProductID pv(getProductID<std::vector<int> >(e));
-  std::auto_ptr<art::Ptr<int> >ptr(new art::Ptr<int>(pv, 2, e.productGetter(pv)));
+  std::unique_ptr<art::Ptr<int> >ptr(new art::Ptr<int>(pv, 2, e.productGetter(pv)));
 
   BOOST_REQUIRE(ptr->id().isValid());
 

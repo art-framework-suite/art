@@ -244,7 +244,7 @@ namespace {
 
 void testPtr::getTest() {
    typedef std::vector<IntValue> IntCollection;
-   std::auto_ptr<IntCollection> ptr(new IntCollection);
+   std::unique_ptr<IntCollection> ptr(new IntCollection);
 
    ptr->push_back(0);
    ptr->push_back(1);
@@ -273,7 +273,7 @@ void testPtr::getTest() {
 
    {
      typedef std::vector<IntValue2> SDCollection;
-     std::auto_ptr<SDCollection> ptr(new SDCollection);
+     std::unique_ptr<SDCollection> ptr(new SDCollection);
 
      ptr->push_back(IntValue2(0));
      ptr->back().value_ = 0;

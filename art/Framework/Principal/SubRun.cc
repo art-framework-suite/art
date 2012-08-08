@@ -45,12 +45,12 @@ namespace art {
     ProductPtrVec::iterator pie(putProducts().end());
 
     while(pit!=pie) {
-        std::auto_ptr<EDProduct> pr(pit->first);
+        std::unique_ptr<EDProduct> pr(pit->first);
         // note: ownership has been passed - so clear the pointer!
         pit->first = 0;
 
         // set provenance
-        std::auto_ptr<ProductProvenance const> subRunProductProvenancePtr(
+        std::unique_ptr<ProductProvenance const> subRunProductProvenancePtr(
                 new ProductProvenance(pit->second->branchID(),
                                       productstatus::present()));
         srp.put(pr, *pit->second, subRunProductProvenancePtr);

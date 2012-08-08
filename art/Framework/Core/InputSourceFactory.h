@@ -26,7 +26,7 @@ class art::InputSourceFactory
   void  operator = ( InputSourceFactory const & );
 
  public:
-  static std::auto_ptr<InputSource>
+  static std::unique_ptr<InputSource>
      make(fhicl::ParameterSet const&,
           InputSourceDescription &);
 

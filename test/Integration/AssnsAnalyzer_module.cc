@@ -180,8 +180,8 @@ testOne(art::Event const & e) const
   FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
   FO<std::string, void> foBV(hAcoll, e, inputLabel_);
   art::Handle<std::vector<std::string> > hBcoll;
-  std::auto_ptr<FO<size_t, arttest::AssnTestData> > foA;
-  std::auto_ptr<FO<size_t, void> > foAV;
+  std::unique_ptr<FO<size_t, arttest::AssnTestData> > foA;
+  std::unique_ptr<FO<size_t, void> > foAV;
   if (! bCollMissing_) {
     BOOST_REQUIRE(e.getByLabel(inputLabel_, hBcoll));
     foA.reset(new FO<size_t, arttest::AssnTestData>(hBcoll, e, inputLabel_));
@@ -248,7 +248,7 @@ testOne(art::Event const & e) const
   FO<B_t, arttest::AssnTestData> foBv(va, e, inputLabel_);
   BOOST_REQUIRE(foB == foBv);
   art::View<B_t> vb;
-  std::auto_ptr<FO<A_t, arttest::AssnTestData> > foAv;
+  std::unique_ptr<FO<A_t, arttest::AssnTestData> > foAv;
   if (!bCollMissing_) {
     BOOST_REQUIRE(e.getView(inputLabel_, vb));
     foAv.reset(new FO<A_t, arttest::AssnTestData>(vb, e, inputLabel_));

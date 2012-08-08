@@ -73,7 +73,7 @@ testServicesManager::putGetTest()
    }
    CPPUNIT_ASSERT(exceptionThrown);
 
-   std::auto_ptr< DummyService > pService(new DummyService);
+   std::unique_ptr< DummyService > pService(new DummyService);
    std::shared_ptr< ServiceWrapper<DummyService> >
       ptrWrapper (new ServiceWrapper<DummyService>(pService));
 

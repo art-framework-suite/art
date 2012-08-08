@@ -286,26 +286,26 @@ namespace art {
   //  when it is asked to do so.
   //
 
-  auto_ptr<EventPrincipal>
+  unique_ptr<EventPrincipal>
   RootInputFileSequence::readEvent_() {
     rootFileForLastReadEvent_ = rootFile_;
     return rootFile_->readEvent();
   }
 
-  auto_ptr<EventPrincipal>
+  unique_ptr<EventPrincipal>
   RootInputFileSequence::readCurrentEvent() {
     rootFileForLastReadEvent_ = rootFile_;
     return rootFile_->readCurrentEvent();
   }
 
-  auto_ptr<EventPrincipal>
+  unique_ptr<EventPrincipal>
   RootInputFileSequence::readIt(EventID const& id, MasterProductRegistry& mpr, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id, exact);
     if (!found) {
       // If only one input file, give up now, to save time.
       if (fileIndexes_.size() == 1) {
-        return auto_ptr<EventPrincipal>(0);
+        return unique_ptr<EventPrincipal>(0);
       }
       // Look for event in files previously opened without reopening unnecessary files.
       typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
@@ -318,7 +318,7 @@ namespace art {
           found = rootFile_->setEntryAtEvent(id, exact);
           assert (found);
           rootFileForLastReadEvent_ = rootFile_;
-          auto_ptr<EventPrincipal> ep = readCurrentEvent();
+          unique_ptr<EventPrincipal> ep = readCurrentEvent();
           skip(1, mpr);
           return ep;
         }
@@ -331,17 +331,17 @@ namespace art {
           found = rootFile_->setEntryAtEvent(id, exact);
           if (found) {
             rootFileForLastReadEvent_ = rootFile_;
-            auto_ptr<EventPrincipal> ep = readCurrentEvent();
+            unique_ptr<EventPrincipal> ep = readCurrentEvent();
             skip(1, mpr);
             return ep;
           }
         }
       }
       // Not found
-      return auto_ptr<EventPrincipal>(0);
+      return unique_ptr<EventPrincipal>(0);
     }
     rootFileForLastReadEvent_ = rootFile_;
-    auto_ptr<EventPrincipal> eptr = readCurrentEvent();
+    unique_ptr<EventPrincipal> eptr = readCurrentEvent();
     skip(1, mpr);
     return eptr;
   }

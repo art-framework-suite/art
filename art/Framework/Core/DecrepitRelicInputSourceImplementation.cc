@@ -264,7 +264,7 @@ namespace art {
     return subRunPrincipal_;
   }
 
-  std::auto_ptr<EventPrincipal>
+  std::unique_ptr<EventPrincipal>
   DecrepitRelicInputSourceImplementation::readEvent(std::shared_ptr<SubRunPrincipal> srp) {
     assert(doneReadAhead_);
     assert(state_ == input::IsEvent);
@@ -272,7 +272,7 @@ namespace art {
     doneReadAhead_ = false;
 
     preRead();
-    std::auto_ptr<EventPrincipal> result = readEvent_();
+    std::unique_ptr<EventPrincipal> result = readEvent_();
     assert(srp->run() == result->run());
     assert(srp->subRun() == result->subRun());
     result->setSubRunPrincipal(srp);
@@ -291,7 +291,7 @@ namespace art {
     return result;
   }
 
-  std::auto_ptr<EventPrincipal>
+  std::unique_ptr<EventPrincipal>
   DecrepitRelicInputSourceImplementation::readEvent(EventID const&) {
     throw art::Exception(art::errors::LogicError)
       << "DecrepitRelicInputSourceImplementation::readEvent()\n"

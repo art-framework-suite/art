@@ -31,7 +31,7 @@ private:
 void TestSchedulerModule1::produce(Event& e, EventSetup const&)
 {
   std::string myname = pset_.get<std::string>("module_name");
-  std::auto_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
+  std::unique_ptr<arttest::StringProduct> product(new arttest::StringProduct(myname));
   e.put(product);
 }
 
