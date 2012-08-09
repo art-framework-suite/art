@@ -33,7 +33,7 @@ cet_cmake_env()
 cet_set_compiler_flags(DIAGS VIGILANT WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
 cet_have_qual( e2 )
 if ( ${CET_HAVE_QUAL} )
-  cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
+  cet_add_compiler_flags(CXX -std=c++0x)
 endif()
 cet_report_compiler_flags()
 
