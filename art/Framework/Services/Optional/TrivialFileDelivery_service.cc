@@ -41,7 +41,7 @@ int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & wait
 
 // The remaining doXXX methods are trivial in this class, ignoring the XXX events.
 // The real SAMProtocol concrete class might have real work in these.
-void art::TrivialFileDelivery::doUpdateStatus(std::string const &, int) {}
+void art::TrivialFileDelivery::doUpdateStatus(std::string const &, FileDisposition) {}
 void art::TrivialFileDelivery::doOutputFileOpened(std::string const &) {}
 void art::TrivialFileDelivery::doOutputModuleInitiated
 (std::string const &, ParameterSet const &) {}

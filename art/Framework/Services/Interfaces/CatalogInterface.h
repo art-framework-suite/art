@@ -20,21 +20,22 @@
 //         Created:  Wed  25 Jul, 2012
 //
 
-#include "fhiclcpp/fwd.h"
+#include "art/Framework/Services/Interfaces/FileDisposition.h"
 #include "art/Persistency/Common/fwd.h"
+#include "fhiclcpp/fwd.h"
+
 #include <string>
 
 namespace art {
   class CatalogInterface;
 
   class EventID;
-  class HLTGlobalStatus;
 }
 
 class art::CatalogInterface {
 public:
   int  getNextFileURI(std::string & uri, double & waitTime);
-  void updateStatus(std::string const & uri, int status);
+  void updateStatus(std::string const & uri, FileDisposition status);
   void outputFileClosed(std::string const & module_label,
                         std::string const & fileFQname);
   void outputFileOpened(std::string const & module_label);
@@ -47,7 +48,7 @@ public:
 private:
   // Classes inheriting this interface must provide the following methods:
   virtual int  doGetNextFileURI(std::string & uri, double & waitTime) = 0;
-  virtual void doUpdateStatus(std::string const & uri, int status) = 0;
+  virtual void doUpdateStatus(std::string const & uri, FileDisposition status) = 0;
   virtual void doOutputFileOpened(std::string const & module_label) = 0;
   virtual void doOutputModuleInitiated(std::string const & module_label,
                                        fhicl::ParameterSet const & pset) = 0;
@@ -63,7 +64,7 @@ inline int art::CatalogInterface::getNextFileURI(std::string & uri, double & wai
   return doGetNextFileURI(uri, waitTime);
 }
 
-inline void art::CatalogInterface::updateStatus(std::string const & uri, int status)
+inline void art::CatalogInterface::updateStatus(std::string const & uri, FileDisposition status)
 {
   doUpdateStatus(uri, status);
 }

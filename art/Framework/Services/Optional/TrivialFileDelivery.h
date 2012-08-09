@@ -44,7 +44,7 @@ namespace art {
   private:
     // Classes inheriting this interface must provide the following methods:
     int  doGetNextFileURI(std::string & uri, double & waitTime);
-    void doUpdateStatus(std::string const & uri, int status);
+    void doUpdateStatus(std::string const & uri, FileDisposition status);
     void doOutputFileOpened(std::string const & module_label);
     void doOutputModuleInitiated(std::string const & module_label,
                                  fhicl::ParameterSet const & pset);
