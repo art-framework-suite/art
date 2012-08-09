@@ -11,14 +11,21 @@
 
 namespace art {
 
+  template <typename L, typename R, typename D> class Assns;
+  template <typename L, typename R> class Assns<L, R, void>;
+  class DelayedReader;
   class EDProduct;
   class EDProductGetter;
+  class GroupQueryResult;
+  class HLTGlobalStatus;
+  class HLTPathStatus;
   class OutputHandle;
+  template <typename T> class Ptr;
+  template <typename T> class PtrVector;
+  class PtrVectorBase;
   class ProductID;
   class RefCore;
-
-  template< typename T > class Handle;
-  template< typename T > class Wrapper;
+  template <typename T> class Wrapper;
 
 }  // art
 

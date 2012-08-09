@@ -2,8 +2,8 @@
 #define art_Framework_Principal_fwd_h
 
 // For enums only.
-#include "art/Framework/Principal/BranchActionType.h"
 #include "art/Framework/Principal/ActionCodes.h"
+#include "art/Framework/Principal/BranchActionType.h"
 
 namespace art {
 
@@ -15,8 +15,11 @@ namespace art {
   class Event;
   class EventPrincipal;
   class Group;
+  class GroupFactory;
+  template< typename T > class Handle;
   class NoDelayedReader;
   class Principal;
+  class Provenance;
   class Run;
   class RunPrincipal;
   class ProcessNameSelector; // Selector.h
