@@ -247,7 +247,7 @@ int main(int argc, char * argv[])
   if (file_count < 1) {
     cerr << "One or more input files must be specified;"
          << " supply filenames as program arguments\n"
-         << "For usage and options list, please do 'config_dumper --help'.\n";
+         << "For usage and options list, please do 'sam_metadata_dumper --help'.\n";
     return 3;
   }
   file_names.reserve(file_count);
