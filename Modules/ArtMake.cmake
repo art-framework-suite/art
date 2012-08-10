@@ -25,6 +25,7 @@ endmacro( _art_simple_plugin )
 
 macro( art_make )
   set(art_file_list "")
+  set(art_liblist FALSE)
   set(art_make_usage "USAGE: art_make( [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
   #message(STATUS "art_make debug: called with ${ARGN} from ${CMAKE_CURRENT_SOURCE_DIR}")
   cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;EXEC;SUBDIRS;TEST;EXCLUDE" "" ${ARGN})
