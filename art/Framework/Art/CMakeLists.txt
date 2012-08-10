@@ -65,6 +65,7 @@ foreach (art_exec ${ART_EXECS})
     # eventually.
     ${ART_EXEC_ROOT_LIBS}
     )
+  install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
 endforeach (art_exec ${ART_EXECS})
 
 # Versions of the ART execs supporting modules using BOOST unit test framework.
