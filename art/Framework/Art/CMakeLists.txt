@@ -41,10 +41,29 @@ set (ART_EXECS
   nova
 )
 
+set (ART_EXEC_ROOT_LIBS
+  ${ROOT_CINTEX}
+  ${ROOT_PHYSICS}
+  ${ROOTSYS}/lib/libGraf.so
+  ${ROOT_TREE}
+  ${ROOT_HIST}
+  ${ROOT_MATRIX}
+  ${ROOT_NET}
+  ${ROOT_MATHCORE}
+  ${ROOT_RIO}
+  ${ROOT_THREAD}
+  ${ROOT_CORE}
+  ${ROOT_CINT}
+  ${ROOT_REFLEX}
+)
+
 foreach (art_exec ${ART_EXECS})
   add_executable( ${art_exec} ${art_exec}.cc )
   target_link_libraries( ${art_exec}
     art_Framework_Art
+    # ROOT libraries added for use convenience ONLY -- they will go away
+    # eventually.
+    ${ART_EXEC_ROOT_LIBS}
     )
 endforeach (art_exec ${ART_EXECS})
 
@@ -62,6 +81,9 @@ macro(art_ut_exec TARGET_STEM MAIN_FUNC)
   add_executable(${TARGET_STEM}_ut ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc)
   target_link_libraries(${TARGET_STEM}_ut
     art_Framework_Art
+    # ROOT libraries added for use convenience ONLY -- they will go away
+    # eventually.
+    ${ART_EXEC_ROOT_LIBS}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
 )
 install ( TARGETS ${TARGET_STEM}_ut DESTINATION ${flavorqual_dir}/bin )
