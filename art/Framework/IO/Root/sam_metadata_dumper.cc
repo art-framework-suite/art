@@ -45,7 +45,7 @@ using art::ParameterSetBlob;
 using art::ParameterSetMap;
 
 typedef vector<string> stringvec;
-struct SamMetadataEntry
+struct FileCatalogMetadataEntry
 {
   int SMDid;
   std::string name;
@@ -54,12 +54,12 @@ struct SamMetadataEntry
 
 // Print the human-readable form of a ParameterSet from which we strip
 // the "module_label" parameter.
-void print_one_sam_metadata_entry(SamMetadataEntry const & ent,
+void print_one_fc_metadata_entry(FileCatalogMetadataEntry const & ent,
           size_t idLen,
           size_t longestName,
           ostream & output)
 {
-//  std::cerr << "---> print_one_sam_metadata_entry \n";
+//  std::cerr << "---> print_one_fc_metadata_entry \n";
   const size_t maxIDdigits = 5;
   const size_t maxNameSpacing = 20;
 
@@ -88,12 +88,12 @@ void print_one_sam_metadata_entry(SamMetadataEntry const & ent,
   output << " " << ent.value << "\n";
 }
 
-// Print all the entries in the sam metadata from a file
-void print_all_sam_metadata_entries(vector<SamMetadataEntry> const & entries,
+// Print all the entries in the file catalog metadata from a file
+void print_all_fc_metadata_entries(vector<FileCatalogMetadataEntry> const & entries,
                                   ostream & output,
                                   ostream & /*errors*/)
 {
-//  std::cerr << "---> print_all_sam_metadata_entries \n";
+//  std::cerr << "---> print_all_fc_metadata_entries \n";
   // For nice formatting, determine maximum id lenght and name size,
   // so that values can be lined up.
   int maxID = 1;
@@ -109,26 +109,25 @@ void print_all_sam_metadata_entries(vector<SamMetadataEntry> const & entries,
     if (maxID > 0) ++idLen;
   }
   for (size_t i = 0; i < entries.size(); ++i) {
-    print_one_sam_metadata_entry(entries[i], idLen, longestName, output);
+    print_one_fc_metadata_entry(entries[i], idLen, longestName, output);
   }
 }
 
-// Read all the sam metadata entries stored in the table in 'file'.
+// Read all the file catalog metadata entries stored in the table in 'file'.
 // Write any error messages to errors.
 // Return false on failure, and true on success.
-bool read_all_sam_metadata_entries(
-      TFile & file,
-                        vector<SamMetadataEntry>& all_metadata_entries,
-                        ostream & errors)
+bool read_all_fc_metadata_entries(TFile & file,
+				  vector<FileCatalogMetadataEntry>& all_metadata_entries,
+				  ostream & errors)
 {
-//  std::cerr << "---> read_all_sam_metadata_entries \n";
-  SamMetadataEntry ent;
+//  std::cerr << "---> read_all_fc_metadata_entries \n";
+  FileCatalogMetadataEntry ent;
   // Open the DB
   art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
   // Read the entries into memory.
   sqlite3_stmt * stmt = 0;
   sqlite3_prepare_v2(sqliteDB,
-    "SELECT ID, Name, Value from SAM_metadata;", -1, &stmt, NULL);
+    "SELECT ID, Name, Value from FileCatalog_metadata;", -1, &stmt, NULL);
   bool row_found = false;
   while (sqlite3_step(stmt) == SQLITE_ROW) {
     row_found = true;
@@ -140,13 +139,13 @@ bool read_all_sam_metadata_entries(
     all_metadata_entries.push_back(ent);
   }
   if (!row_found) {
-     errors << "No SAM Metadata rows found - table is missing or empty\n";
+     errors << "No file catalog Metadata rows found - table is missing or empty\n";
      return false;
   }
   return true;
 }
 
-// Extract the sam metadata from the given TFile.
+// Extract the file catalog metadata from the given TFile.
 // The metadata entries are written to the stream output, and
 // error messages are written to the stream errors.
 //
@@ -156,18 +155,18 @@ bool read_all_sam_metadata_entries(
 // Caution: We pass 'file' by non-const reference because the TFile interface
 // does not declare the functions we use to be const, even though they do not
 // modify the underlying file.
-int print_sam_metadata_from_file(TFile & file,
+int print_fc_metadata_from_file(TFile & file,
                                  ostream & output,
                                  ostream & errors)
 {
-//  std::cerr << "---> print_sam_metadata_from_file \n";
-  vector<SamMetadataEntry> all_metadata_entries;
-  if (! read_all_sam_metadata_entries(file, all_metadata_entries, errors)) {
+//  std::cerr << "---> print_fc_metadata_from_file \n";
+  vector<FileCatalogMetadataEntry> all_metadata_entries;
+  if (! read_all_fc_metadata_entries(file, all_metadata_entries, errors)) {
     errors << "Unable to to read metadata entries.\n";
     return 1;
   }
   // Iterate through all the entries, printing each one.
-  print_all_sam_metadata_entries(all_metadata_entries, output, errors);
+  print_all_fc_metadata_entries(all_metadata_entries, output, errors);
   return 0;
 }
 
@@ -177,12 +176,12 @@ int print_sam_metadata_from_file(TFile & file,
 //
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
-int print_sam_metadata_from_files(
+int print_fc_metadata_from_files(
          stringvec const & file_names,
                            ostream & output,
                            ostream & errors)
 {
-//  std::cerr << "---> print_sam_metadata_from_files \n";
+//  std::cerr << "---> print_fc_metadata_from_files \n";
   int rc = 0;
   for (stringvec::const_iterator
        i = file_names.begin(),
@@ -198,8 +197,8 @@ int print_sam_metadata_from_files(
              << "\nSkipping to next file.\n";
     }
     else {
-      output << "\nSAM metadata from file " << *i  << ":\n\n";
-      rc += print_sam_metadata_from_file(current_file, output, errors);
+      output << "\nFile catalog metadata from file " << *i  << ":\n\n";
+      rc += print_fc_metadata_from_file(current_file, output, errors);
       output << "-------------------------------\n";
     }
   }
@@ -261,7 +260,7 @@ int main(int argc, char * argv[])
   tkeyvfs_init();
 
   // Do the work.
-  return print_sam_metadata_from_files(file_names,
+  return print_fc_metadata_from_files(file_names,
         cout,
         cerr);
   // Testing.

@@ -57,7 +57,7 @@ namespace art {
     void writeParentageRegistry();
     void writeBranchIDListRegistry();
     void writeProductDependencies();
-    void writeSamMetadata();
+    void writeFileCatalogMetadata();
     
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, bool fastClone);
@@ -77,7 +77,7 @@ namespace art {
                           Principal const& principal,
                           std::set<ProductProvenance>& oToFill);
      void fillPsetMap();
-     void fillSamMetadataMap();
+     void fillFileCatalogMetadataMap();
 
     //-------------------------------
     // Member data

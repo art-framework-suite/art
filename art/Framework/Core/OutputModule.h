@@ -207,7 +207,7 @@ namespace art {
     virtual void writeBranchIDListRegistry() {}
     virtual void writeParentageRegistry() {}
     virtual void writeProductDescriptionRegistry() {}
-    virtual void writeSamMetadata() {}
+    virtual void writeFileCatalogMetadata() {}
     virtual void writeProductDependencies() {}
     virtual void writeBranchMapper() {}
     virtual void finishEndFile() {}

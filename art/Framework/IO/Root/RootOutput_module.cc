@@ -174,7 +174,7 @@ namespace art {
   void RootOutput::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
   void RootOutput::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void RootOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void RootOutput::writeSamMetadata() { rootOutputFile_->writeSamMetadata(); }
+  void RootOutput::writeFileCatalogMetadata() { rootOutputFile_->writeFileCatalogMetadata(); }
   void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void RootOutput::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
   bool RootOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }

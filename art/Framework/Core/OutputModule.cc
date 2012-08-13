@@ -270,7 +270,7 @@ namespace art {
     writeProductDescriptionRegistry();
     writeParentageRegistry();
     writeBranchIDListRegistry();
-    writeSamMetadata();
+    writeFileCatalogMetadata();
     writeProductDependencies();
     writeBranchMapper();
     finishEndFile();
