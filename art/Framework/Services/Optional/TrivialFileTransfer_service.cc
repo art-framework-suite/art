@@ -19,7 +19,7 @@ art::TrivialFileTransfer::TrivialFileTransfer
 {
 }
 
-int art::TrivialFileTransfer::doCopyToScratch
+int art::TrivialFileTransfer::doTranslateToLocalFilename
 (std::string const & uri, std::string & fileFQname)
 {
   FileTransferStatus stat = OK; // Note that in our context, OK does not denote

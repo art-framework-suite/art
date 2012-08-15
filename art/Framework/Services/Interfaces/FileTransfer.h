@@ -27,23 +27,27 @@ namespace art {
 
 class art::FileTransfer {
 public:
-  int copyToScratch(std::string const & uri, std::string & fileFQname);
+  int translateToLocalFilename(std::string const & uri,
+                               std::string & fileFQname);
 
   // Remaining boilerplate:
   virtual ~FileTransfer() = default;
 
 private:
   // Classes inheriting this interface must provide the following method:
-  virtual int doCopyToScratch(std::string const & uri,
-                              std::string & fileFQname) = 0;
+  virtual
+  int
+  doTranslateToLocalFilename(std::string const & uri,
+                             std::string & fileFQname) = 0;
 };
 
 inline
 int
-art::FileTransfer::copyToScratch(std::string const & uri,
-                                 std::string & fileFQname)
+art::FileTransfer::
+translateToLocalFilename(std::string const & uri,
+                         std::string & fileFQname)
 {
-  return doCopyToScratch(uri, fileFQname);
+  return doTranslateToLocalFilename(uri, fileFQname);
 }
 
 #endif /* art_Framework_Services_Interfaces_FileTransfer_h */
