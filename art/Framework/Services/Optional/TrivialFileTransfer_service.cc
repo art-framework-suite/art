@@ -22,33 +22,33 @@ art::TrivialFileTransfer::TrivialFileTransfer
 int art::TrivialFileTransfer::doTranslateToLocalFilename
 (std::string const & uri, std::string & fileFQname)
 {
-  FileTransferStatus stat = OK; // Note that in our context, OK does not denote
+  FileTransferStatus stat = FileTransferStatus::OK; // Note that in our context, OK does not denote
   // successful file *creation*
   fileFQname = "";
   std::string inFileName;
   int inFileStatus = stripURI(uri, inFileName);
   if (inFileStatus != 0) {
-    stat = BADREQUEST;
+    stat = FileTransferStatus::BADREQUEST;
     return stat;
   }
   ifstream infile(inFileName.c_str());
   if (!infile) {
-    stat = NOTFOUND;
+    stat = FileTransferStatus::NOTFOUND;
     return stat;
   }
   std::string ofileName = scratchArea + "/" + tmpnam(NULL);
   ofstream outfile(ofileName.c_str());
   if (!outfile) {
-    stat = FORBIDDEN;
+    stat = FileTransferStatus::FORBIDDEN;
     return stat;
   }
   int copystat = copyFile(infile, outfile);
   if (copystat != 0) {
-    stat = FORBIDDEN;
+    stat = FileTransferStatus::FORBIDDEN;
     return stat;
   }
   fileFQname = ofileName;
-  stat = CREATED;
+  stat = FileTransferStatus::CREATED;
   return stat;
   // Implementation plan details -- alternatives not chosen:
   // x We could merely return the file name (the URI with file:// stripped off).

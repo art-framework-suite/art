@@ -21,20 +21,20 @@ int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & wait
 {
   FileDeliveryStatus stat;
   if (nextFile == endOfFiles) {
-    stat = NO_MORE_FILES;
+    stat = FileDeliveryStatus::NO_MORE_FILES;
     return stat;
   }
   {
     ifstream f(nextFile->c_str());
     if (!f) {
-      stat = NOT_FOUND;
+      stat = FileDeliveryStatus::NOT_FOUND;
       ++nextFile;
       return stat;
     }
   }
   uri = prependFileDesignation(*nextFile);
   waitTime = 0.0;
-  stat = SUCCESS;
+  stat = FileDeliveryStatus::SUCCESS;
   ++nextFile;
   return stat;
 }
