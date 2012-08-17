@@ -6,13 +6,13 @@
 
 namespace art {
   class FastCloningInfoProvider;
-  class RootInput;
+  class DecrepitRelicInputSourceImplementation;
 }
 
 class art::FastCloningInfoProvider {
  public:
   FastCloningInfoProvider() : input_() {}
-  explicit FastCloningInfoProvider(cet::exempt_ptr<RootInput> input);
+  explicit FastCloningInfoProvider(cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input);
 
   bool fastCloningPermitted() const;
 
@@ -20,7 +20,7 @@ class art::FastCloningInfoProvider {
   off_t remainingSubRuns() const;
 
  private:
-  cet::exempt_ptr<RootInput> input_;
+  cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input_;
 };
 
 inline bool
