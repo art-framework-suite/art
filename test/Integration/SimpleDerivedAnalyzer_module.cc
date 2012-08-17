@@ -24,6 +24,11 @@ namespace arttest {
 
 using arttest::SimpleDerivedAnalyzer;
 
+void check_for_conversion(std::vector<arttest::SimpleDerived const*> const& v)
+{
+  assert(v.size() > 0);
+}
+
 //--------------------------------------------------------------------
 //
 // Produces a SimpleProduct product instance.
@@ -49,6 +54,12 @@ public:
     //  test_getViewReturnFalse(e);
     test_getViewThrowing(e);
     test_PtrVector(e);
+
+    art::View<arttest::SimpleDerived> v;
+    art::InputTag tag(inputLabel_, "derived", "DEVEL");
+    e.getView(tag, v);
+    assert(v.isValid());
+    check_for_conversion(v);
   }
 
   void test_getView( art::Event const & e ) const;
