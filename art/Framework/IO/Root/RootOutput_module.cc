@@ -67,7 +67,7 @@ namespace art {
     // Fill a map mapping branch names to an index specifying the order in the tree.
     if (tree != 0) {
       TObjArray * branches = tree->GetListOfBranches();
-      for (int i = 0; i < branches->GetEntries(); ++i) {
+      for (int i = 0, sz = branches->GetEntries(); i != sz; ++i) {
         TBranchElement * br = (TBranchElement *)branches->At(i);
         treeMap_.insert(std::make_pair(string(br->GetName()), i));
       }
@@ -96,25 +96,19 @@ namespace art {
   }
 
   void RootOutput::fillSelectedItemList(BranchType branchType, TTree * theTree) {
-
     Selections const& keptVector =    keptProducts()[branchType];
     OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
-
-    // Fill outputItemList with an entry for each branch.
-    for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-      BranchDescription const& prod = **it;
-      outputItemList.push_back(OutputItem(&prod));
-    }
-
-    // Sort outputItemList to allow fast copying.
-    // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
+    for (auto const& selection : keptVector) outputItemList.push_back(OutputItem(selection));
+    // Sort outputItemList to allow fast copying.  The branches in
+    // outputItemList must be in the same order as in the input tree,
+    // with all new branches at the end.
     cet::sort_all(outputItemList, OutputItem::Sorter(theTree));
   }
 
   void RootOutput::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
       if (fb.tree() == 0) {
-        fastCloning_ = false;
+     	fastCloning_ = false;
       }
       doOpenFile();
       respondToOpenInputFile(fb);
