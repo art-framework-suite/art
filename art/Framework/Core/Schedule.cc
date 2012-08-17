@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// Schedule
+// Class Schedule controls the execution of paths and endpaths.
 //
 // ======================================================================
 
@@ -76,7 +76,6 @@ namespace
 
 namespace art
 {
-
   Schedule::Schedule(ParameterSet const& proc_pset,
                      art::TriggerNamesService& tns,
                      WorkerRegistry& wreg,
@@ -105,159 +104,152 @@ namespace art
     endpathsAreActive_(true)
   {
     assert(actReg_);
-     ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
-     ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
-     bool hasPath = false;
+    ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
+    ParameterSet opts(services.get<ParameterSet>("scheduler", ParameterSet()));
+    bool hasPath = false;
 
-     int trig_bitpos = 0;
-     for (vstring::const_iterator
-             i = trig_name_list_.begin(),
-             e = trig_name_list_.end();
-          i != e;
-          ++i)
-        {
-          fillTrigPath(trig_bitpos, *i, results_, pregistry);
-           ++trig_bitpos;
-           hasPath = true;
-        }
+    int trig_bitpos = 0;
+    for (auto const& trig_name : trig_name_list_)
+      {
+	fillTrigPath(trig_bitpos, trig_name, results_, pregistry);
+	++trig_bitpos;
+	hasPath = true;
+      }
 
-     if (hasPath)
-        {
-           // the results inserter stands alone
-          makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
-          addToAllWorkers(results_inserter_.get());
-        }
+    if (hasPath)
+      {
+	// the results inserter stands alone
+	makeTriggerResultsInserter(tns.getTriggerPSet(), pregistry);
+	addToAllWorkers(results_inserter_.get());
+      }
 
-     TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
-     endpath_results_ = epptr;
+    TrigResPtr epptr(new HLTGlobalStatus(end_path_name_list_.size()));
+    endpath_results_ = epptr;
 
-     // fill normal endpaths
-     vstring::iterator eib(end_path_name_list_.begin());
-     vstring::iterator eie(end_path_name_list_.end());
-     for(int bitpos = 0; eib != eie; ++eib, ++bitpos)
-       fillEndPath(bitpos, *eib, pregistry);
+    // fill normal endpaths
+    vstring::iterator eib(end_path_name_list_.begin());
+    vstring::iterator eie(end_path_name_list_.end());
+    for(int bitpos = 0; eib != eie; ++eib, ++bitpos)
+      fillEndPath(bitpos, *eib, pregistry);
 
-     //See if all modules were used
-     set<string> usedWorkerLabels;
-     for(Workers::iterator i=workersBegin(), e = workersEnd(); i != e; ++i)
-        usedWorkerLabels.insert((*i)->description().moduleLabel_);
+    //See if all modules were used
+    set<string> usedWorkerLabels;
+    for (auto const& worker_ptr : all_workers_)
+      usedWorkerLabels.insert(worker_ptr->description().moduleLabel_);
 
-     vstring modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
-     set<string> modulesInConfigSet(modulesInConfig.begin(),
-                                    modulesInConfig.end());
-     vstring unusedLabels;
-     set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
-                    usedWorkerLabels.begin(),usedWorkerLabels.end(),
-                    back_inserter(unusedLabels));
-     //does the configuration say we should allow on demand?
-     bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
-     if(!unusedLabels.empty())
-        {
-           ParameterSet empty;
-           ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
-           ParameterSet producers = physics.get<ParameterSet>("producers", empty);
-           ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
-           ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-           ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
-           //Need to
-           // 1) create worker
-           // 2) if it is a WorkerT<EDProducer>, add it to our list
-           // 3) hand list to our delayed reader
-           vstring  shouldBeUsedLabels;
-           OnDemandWorkers onDemandWorkers;
-           for(vstring::iterator
-                  itLabel = unusedLabels.begin(),
-                  itLabelEnd = unusedLabels.end();
-               itLabel != itLabelEnd;
-               ++itLabel)
-              {
-                 if (allowUnscheduled)
-                    {
-                       // Need to hold onto the parameters long enough to
-                       // make the call to getWorker
-                       ParameterSet workersParams;
-                       producers.get_if_present(*itLabel, workersParams) ||
-                          filters.get_if_present(*itLabel, workersParams) ||
-                          outputs.get_if_present(*itLabel, workersParams) ||
-                          analyzers.get_if_present(*itLabel, workersParams);
-                       WorkerParams params(proc_pset, workersParams,
-                                           pregistry, *act_table_,
-                                           processName_, getReleaseVersion(),
-                                           getPassID());
-                       Worker* newWorker(wreg.getWorker(params));
-                       if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
-                           dynamic_cast<WorkerT<EDFilter>*>(newWorker) )
-                          {
-                            onDemandWorkers.
-                              push_back(cet::exempt_ptr<Worker>(newWorker));
-                            // add to list so it gets reset each new event
-                            addToAllWorkers(newWorker);
-                          }
-                       else
-                          {
-                             //not a producer so should be marked as not used
-                             shouldBeUsedLabels.push_back(*itLabel);
-                          }
-                    }
-                 else
-                    {
-                       // everything is marked are unused so no 'on demand'
-                       // allowed
-                       shouldBeUsedLabels.push_back(*itLabel);
-                    }
-              }
+    vstring const& modulesInConfig(proc_pset.get<vstring >("all_modules", vstring()));
+    set<string> modulesInConfigSet(modulesInConfig.begin(),
+				   modulesInConfig.end());
+    vstring unusedLabels;
+    set_difference(modulesInConfigSet.begin(),modulesInConfigSet.end(),
+		   usedWorkerLabels.begin(),usedWorkerLabels.end(),
+		   back_inserter(unusedLabels));
+    //does the configuration say we should allow on demand?
+    bool allowUnscheduled = opts.get<bool>("allowUnscheduled", false);
+    if(!unusedLabels.empty())
+      {
+	ParameterSet empty;
+	ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
+	ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+	ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+	ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+	ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
+	//Need to
+	// 1) create worker
+	// 2) if it is a WorkerT<EDProducer>, add it to our list
+	// 3) hand list to our delayed reader
+	vstring  shouldBeUsedLabels;
+	OnDemandWorkers onDemandWorkers;
+	for(vstring::iterator
+	      itLabel = unusedLabels.begin(),
+	      itLabelEnd = unusedLabels.end();
+	    itLabel != itLabelEnd;
+	    ++itLabel)
+	  {
+	    if (allowUnscheduled)
+	      {
+		// Need to hold onto the parameters long enough to
+		// make the call to getWorker
+		ParameterSet workersParams;
+		producers.get_if_present(*itLabel, workersParams) ||
+		  filters.get_if_present(*itLabel, workersParams) ||
+		  outputs.get_if_present(*itLabel, workersParams) ||
+		  analyzers.get_if_present(*itLabel, workersParams);
+		WorkerParams params(proc_pset, workersParams,
+				    pregistry, *act_table_,
+				    processName_, getReleaseVersion(),
+				    getPassID());
+		Worker* newWorker(wreg.getWorker(params));
+		if (dynamic_cast<WorkerT<EDProducer>*>(newWorker) ||
+		    dynamic_cast<WorkerT<EDFilter>*>(newWorker) )
+		  {
+		    onDemandWorkers.
+		      push_back(cet::exempt_ptr<Worker>(newWorker));
+		    // add to list so it gets reset each new event
+		    addToAllWorkers(newWorker);
+		  }
+		else
+		  {
+		    //not a producer so should be marked as not used
+		    shouldBeUsedLabels.push_back(*itLabel);
+		  }
+	      }
+	    else
+	      {
+		// everything is marked are unused so no 'on demand'
+		// allowed
+		shouldBeUsedLabels.push_back(*itLabel);
+	      }
+	  }
 
-           if (allowUnscheduled) {
-             BranchesByModuleLabel branchLookup;
-             fillBranchLookup(pregistry.productList(), branchLookup);
-             catalogOnDemandBranches(onDemandWorkers, branchLookup);
-           }
+	if (allowUnscheduled) {
+	  BranchesByModuleLabel branchLookup;
+	  fillBranchLookup(pregistry.productList(), branchLookup);
+	  catalogOnDemandBranches(onDemandWorkers, branchLookup);
+	}
 
-           if (!shouldBeUsedLabels.empty())
-              {
-                 ostringstream unusedStream;
-                 unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
-                 for (vstring::iterator
-                         i = shouldBeUsedLabels.begin() + 1,
-                         e = shouldBeUsedLabels.end();
-                      i != e;
-                      ++i)
-                    {
-                       unusedStream << ",'" << *i << "'";
-                    }
-                 LogInfo("path")
-                    << "The following module labels are not assigned to any path:\n"
-                    << unusedStream.str()
-                    << "\n";
-              }
-        }
+	if (!shouldBeUsedLabels.empty())
+	  {
+	    ostringstream unusedStream;
+	    unusedStream << "'"<< shouldBeUsedLabels.front() <<"'";
+	    for (vstring::iterator
+		   i = shouldBeUsedLabels.begin() + 1,
+		   e = shouldBeUsedLabels.end();
+		 i != e;
+		 ++i)
+	      {
+		unusedStream << ",'" << *i << "'";
+	      }
+	    LogInfo("path")
+	      << "The following module labels are not assigned to any path:\n"
+	      << unusedStream.str()
+	      << "\n";
+	  }
+      }
 
-     // All the workers should be in all_workers_ by this point. Thus
-     // we can now fill all_output_workers_.  We provide a little
-     // sanity-check to make sure no code modifications alter the
-     // number of workers at a later date... Much better would be to
-     // refactor this huge constructor into a series of well-named
-     // private functions.
-     size_t all_workers_count = all_workers_.size();
-     for (Workers::iterator
-             i = all_workers_.begin(),
-             e = all_workers_.end();
-          i != e;
-          ++i)
-        {
-           OutputWorker* ow = dynamic_cast<OutputWorker*>(*i);
-           if (ow) all_output_workers_.push_back(ow);
-        }
+    // All the workers should be in all_workers_ by this point. Thus
+    // we can now fill all_output_workers_.  We provide a little
+    // sanity-check to make sure no code modifications alter the
+    // number of workers at a later date... Much better would be to
+    // refactor this huge constructor into a series of well-named
+    // private functions.
+    size_t all_workers_count = all_workers_.size();
+    for (auto const& worker_ptr : all_workers_)
+      {
+	OutputWorker* ow = dynamic_cast<OutputWorker*>(worker_ptr);
+	if (ow) all_output_workers_.push_back(ow);
+      }
 
-     // Now that the output workers are filled in, set any output limits.
-     limitOutput();
+    // Now that the output workers are filled in, set any output limits.
+    limitOutput();
 
-     pregistry.setFrozen();
+    pregistry.setFrozen();
 
-     // Test path invariants.
-     pathConsistencyCheck(all_workers_count);
+    // Test path invariants.
 
-     ProductMetaData::create_instance(pregistry);
+    pathConsistencyCheck(all_workers_count);
+
+    ProductMetaData::create_instance(pregistry);
 
   } // Schedule::Schedule
 
@@ -270,12 +262,9 @@ namespace art
   {
     if (all_output_workers_.empty()) return false;
 
-    for (OutputWorkers::const_iterator
-           i = all_output_workers_.begin(),
-           e = all_output_workers_.end();
-         i != e; ++i)
+    for (auto const& ow_ptr : all_output_workers_)
       {
-        if (!(*i)->limitReached()) return false;
+	if (ow_ptr->limitReached() == false) return false;
       }
 
     LogInfo("SuccessfulTermination")
@@ -290,57 +279,57 @@ namespace art
                         bool isTrigPath,
                         MasterProductRegistry &pregistry)
   {
-     ParameterSet empty;
-     ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
-     vstring modnames =       physics.get<vstring >(name);
-     ParameterSet producers = physics.get<ParameterSet>("producers", empty);
-     ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
-     ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
-     ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
+    ParameterSet empty;
+    ParameterSet physics =   process_pset_.get<ParameterSet>("physics");
+    vstring modnames =       physics.get<vstring >(name);
+    ParameterSet producers = physics.get<ParameterSet>("producers", empty);
+    ParameterSet filters   = physics.get<ParameterSet>("filters", empty);
+    ParameterSet analyzers = physics.get<ParameterSet>("analyzers", empty);
+    ParameterSet outputs   = process_pset_.get<ParameterSet>("outputs", empty);
 
-     vstring::iterator it(modnames.begin()),ie(modnames.end());
-     PathWorkers tmpworkers;
+    //vstring::iterator it(modnames.begin()),ie(modnames.end());
+    PathWorkers tmpworkers;
 
-     for(; it != ie; ++it)
-        {
-           WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
-           if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
-           else if ((*it)[0] == '-')  filterAction = WorkerInPath::Ignore;
+    for (auto const& modname : modnames)
+      {
+	WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
+	if (modname[0] == '!')       filterAction = WorkerInPath::Veto;
+	else if (modname[0] == '-')  filterAction = WorkerInPath::Ignore;
 
-           string realname = *it;
-           if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
+	string realname(modname);
+	if (filterAction != WorkerInPath::Normal) realname.erase(0,1);
 
-           ParameterSet modpset;
-           // Look for the module's parameter set in the module
-           // groups. If we're a trigger path, the search order is:
-           // producers, filters, outputs, analyzers; otherwise it is:
-           // analyzers, outputs, producers, filters.
-           if ((isTrigPath?producers:analyzers).get_if_present(realname, modpset) ||
-               (isTrigPath?filters:outputs).get_if_present(realname, modpset) ||
-               (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
-               (isTrigPath?outputs:filters).get_if_present(realname, modpset))
-              {
-                 WorkerParams params(process_pset_, modpset, pregistry, *act_table_,
-                                     processName_, getReleaseVersion(), getPassID());
-                 WorkerInPath w(worker_reg_->getWorker(params), filterAction);
-                 tmpworkers.push_back(w);
-              } else {
-              string pathType("endpath");
-              if(!search_all(end_path_name_list_, name))
-                 {
-                    pathType = string("path");
-                 }
-              throw art::Exception(art::errors::Configuration)
-                 << "The unknown module label '"
-                 << realname
-                 << "' appears in "
-                 << pathType
-                 << " '"
-                 << name
-                 << "'\nplease check spelling or remove that label from the path.";
-           }
-        }
-     out.swap(tmpworkers);
+	ParameterSet modpset;
+	// Look for the module's parameter set in the module
+	// groups. If we're a trigger path, the search order is:
+	// producers, filters, outputs, analyzers; otherwise it is:
+	// analyzers, outputs, producers, filters.
+	if ((isTrigPath?producers:analyzers).get_if_present(realname, modpset) ||
+	    (isTrigPath?filters:outputs).get_if_present(realname, modpset) ||
+	    (isTrigPath?analyzers:producers).get_if_present(realname, modpset) ||
+	    (isTrigPath?outputs:filters).get_if_present(realname, modpset))
+	  {
+	    WorkerParams params(process_pset_, modpset, pregistry, *act_table_,
+				processName_, getReleaseVersion(), getPassID());
+	    WorkerInPath w(worker_reg_->getWorker(params), filterAction);
+	    tmpworkers.push_back(w);
+	  } else {
+	  string pathType("endpath");
+	  if(!search_all(end_path_name_list_, name))
+	    {
+	      pathType = string("path");
+	    }
+	  throw art::Exception(art::errors::Configuration)
+	    << "The unknown module label '"
+	    << realname
+	    << "' appears in "
+	    << pathType
+	    << " '"
+	    << name
+	    << "'\nplease check spelling or remove that label from the path.";
+	}
+      }
+    out.swap(tmpworkers);
   }
 
   void
@@ -351,17 +340,9 @@ namespace art
   {
     PathWorkers tmpworkers;
     Workers holder;
-    fillWorkers(name,tmpworkers, true, pregistry);
+    fillWorkers(name, tmpworkers, true, pregistry);
+    for (auto const& worker : tmpworkers) holder.push_back(worker.getWorker());
 
-    for(PathWorkers::iterator
-          i = tmpworkers.begin(),
-          e = tmpworkers.end();
-        i != e; ++i)
-      {
-        holder.push_back(i->getWorker());
-      }
-
-    // an empty path will cause an extra bit that is not used
     if(!tmpworkers.empty())
       {
         Path p(bitpos,name,tmpworkers,trptr,
@@ -376,14 +357,7 @@ namespace art
     PathWorkers tmpworkers;
     fillWorkers(name,tmpworkers, false, pregistry);
     Workers holder;
-
-    for(PathWorkers::iterator
-          i = tmpworkers.begin(),
-          e = tmpworkers.end();
-        i != e; ++i)
-      {
-        holder.push_back(i->getWorker());
-      }
+    for (auto const& pw : tmpworkers) holder.push_back(pw.getWorker());
 
     if (!tmpworkers.empty())
       {
@@ -767,9 +741,9 @@ namespace art
                                 << right << setw(22) << "per module-visit "
                                 << "";
 
-    LogAbsolute("ArtSummary") << "";
-    LogAbsolute("ArtSummary") << "T---Report end!" << "";
-    LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "";
+      LogAbsolute("ArtSummary") << "T---Report end!" << "";
+      LogAbsolute("ArtSummary") << "";
     }
   }
 
