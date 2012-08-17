@@ -7,6 +7,14 @@
 //
 // ======================================================================
 
+// FIXME! There is an incestuous relationship between RootOutputFile and
+// RootOutput that only works because the methods of RootOutput and
+// OutputItem used by RootOutputFile are all inline. A correct and
+// robust implementation would have a OutputItem defined in a separate
+// file and the information (basket size, etc) in a different class in
+// the main art/Framework/Root library accessed by both RootOutputFile
+// and RootOutput. This has been entered as issue #2885.
+
 #include "TROOT.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/RootOutput.h"
@@ -58,7 +66,7 @@ namespace art {
     void writeBranchIDListRegistry();
     void writeProductDependencies();
     void writeFileCatalogMetadata();
-    
+
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, bool fastClone);
     void respondToCloseInputFile(FileBlock const& fb);

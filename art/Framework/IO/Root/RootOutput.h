@@ -7,14 +7,20 @@
 //
 // ======================================================================
 
+// FIXME! There is an incestuous relationship between RootOutputFile and
+// RootOutput that only works because the methods of RootOutput and
+// OutputItem used by RootOutputFile are all inline. A correct and
+// robust implementation would have a OutputItem defined in a separate
+// file and the information (basket size, etc) in a different class in
+// the main art/Framework/Root library accessed by both RootOutputFile
+// and RootOutput. This has been entered as issue #2885.
+
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "boost/scoped_ptr.hpp"
 #include "cpp0x/array"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
-
-// ----------------------------------------------------------------------
 
 class TTree;
 
