@@ -43,6 +43,7 @@ namespace art {
 
   private:
     // Classes inheriting this interface must provide the following methods:
+    void doConfigure(std::vector<std::string> const & items);
     int  doGetNextFileURI(std::string & uri, double & waitTime);
     void doUpdateStatus(std::string const & uri, FileDisposition status);
     void doOutputFileOpened(std::string const & module_label);
@@ -53,6 +54,8 @@ namespace art {
     void doEventSelected(std::string const & module_label,
                          EventID const & event_id,
                          HLTGlobalStatus const & acceptance_info);
+    bool doIsSearchable();
+    void doRewind();
 
     // helper functions
     std::vector<std::string> extractFileListFromPset

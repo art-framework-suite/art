@@ -10,11 +10,16 @@ using namespace std;
 using fhicl::ParameterSet;
 
 art::TrivialFileDelivery::TrivialFileDelivery
-(ParameterSet const & pset, ActivityRegistry &)
-  : fileList(extractFileListFromPset(pset))
+(ParameterSet const &, ActivityRegistry &)
+  : fileList()
   , nextFile(fileList.begin())
   , endOfFiles(fileList.end())
 {
+}
+
+void art::TrivialFileDelivery::doConfigure(std::vector<std::string> const & items)
+{
+  fileList = items;
 }
 
 int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & waitTime)
@@ -51,6 +56,9 @@ void art::TrivialFileDelivery::doEventSelected
 (std::string const &,
  EventID const &,
  HLTGlobalStatus const &) {}
+
+bool art::TrivialFileDelivery::doIsSearchable() { return true; }
+void art::TrivialFileDelivery::doRewind() { nextFile=fileList.begin(); }
 
 // helper functions
 std::vector<std::string>

@@ -25,6 +25,7 @@
 #include "fhiclcpp/fwd.h"
 
 #include <string>
+#include <vector>
 
 namespace art {
   class CatalogInterface;
@@ -34,6 +35,7 @@ namespace art {
 
 class art::CatalogInterface {
 public:
+  void configure(std::vector<std::string> const & items);
   int  getNextFileURI(std::string & uri, double & waitTime);
   void updateStatus(std::string const & uri, FileDisposition status);
   void outputFileClosed(std::string const & module_label,
@@ -44,9 +46,12 @@ public:
   void eventSelected(std::string const & module_label,
                      EventID const & event_id,
                      HLTGlobalStatus const & acceptance_info);
+  bool isSearchable();
+  void rewind();
   virtual ~CatalogInterface() = default;
 private:
   // Classes inheriting this interface must provide the following methods:
+  virtual void doConfigure(std::vector<std::string> const & item) = 0;
   virtual int  doGetNextFileURI(std::string & uri, double & waitTime) = 0;
   virtual void doUpdateStatus(std::string const & uri, FileDisposition status) = 0;
   virtual void doOutputFileOpened(std::string const & module_label) = 0;
@@ -57,7 +62,14 @@ private:
   virtual void doEventSelected(std::string const & module_label,
                                EventID const & event_id,
                                HLTGlobalStatus const & acceptance_info) = 0;
+  virtual bool doIsSearchable() = 0;
+  virtual void doRewind() = 0;
 };
+
+inline void art::CatalogInterface::configure(std::vector<std::string> const & items)
+{
+  doConfigure(items);
+}
 
 inline int art::CatalogInterface::getNextFileURI(std::string & uri, double & waitTime)
 {
@@ -93,6 +105,16 @@ inline void art::CatalogInterface::eventSelected(std::string const & module_labe
     HLTGlobalStatus const & acceptance_info)
 {
   doEventSelected(module_label, event_id, acceptance_info);
+}
+
+inline bool art::CatalogInterface::isSearchable()
+{
+  return doIsSearchable();
+}
+
+inline void art::CatalogInterface::rewind()
+{
+  doRewind();
 }
 
 #endif /* art_Framework_Services_Interfaces_CatalogInterface_h */
