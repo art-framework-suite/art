@@ -6,6 +6,7 @@
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/View.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -30,7 +31,23 @@ public:
   , nvalues_    ( p.get<size_t>("nvalues") )
   { }
 
-  void analyze( art::Event const & e )
+  void analyze(art::Event const& e)
+  {
+    test_vector(e);
+    test_view(e);
+  }
+
+  void test_view(art::Event const& e)
+  {
+    art::View<int> vw;
+    e.getView(moduleLabel_, vw);
+    assert(vw.isValid());
+
+    // Test that the range-for loop compiles.
+    for (auto it : vw) { assert (*it >= 0); }
+  }
+
+  void test_vector( art::Event const & e )
   {
     std::vector<int const *> ptrs;
     size_t sz = e.getView(moduleLabel_, ptrs);

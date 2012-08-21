@@ -24,6 +24,7 @@ template <class T>
 class art::View  {
 public:
   typedef std::vector<T const*> collection_type;
+  typedef typename std::vector<T const*>::const_iterator const_iterator;
 
   View() : vals_(), id_(), prod_(0) { }
   collection_type&       vals()       { return vals_; }
@@ -43,6 +44,9 @@ public:
   // Conversion operators
   operator collection_type& ()             { return vals_; }
   operator collection_type const& () const { return vals_; }
+
+  const_iterator begin() const { return vals_.begin(); }
+  const_iterator end() const   { return vals_.end(); }
 
 private:
   typedef T const*              value_type;
