@@ -1,4 +1,5 @@
 set( art_Framework_Services_Optional_sources
+  MyServiceInterface.cc
   TFileDirectory.cc
   detail/TH1AddDirectorySentry.cc
 )
@@ -9,6 +10,7 @@ add_library(art_Framework_Services_Optional
 )
 
 target_link_libraries(art_Framework_Services_Optional
+  ${MF_MESSAGELOGGER}
   ${CETLIB}
   ${ROOT_HIST}
   ${ROOT_CORE}
@@ -34,6 +36,7 @@ simple_plugin(Timing "service" art_Persistency_Provenance)
 simple_plugin(Tracer "service" art_Persistency_Provenance)
 simple_plugin(TrivialFileDelivery "service")
 simple_plugin(TrivialFileTransfer "service")
+simple_plugin(MyService "service" art_Framework_Services_Optional)
 
 install_headers(SUBDIRS detail)
 install_source()
