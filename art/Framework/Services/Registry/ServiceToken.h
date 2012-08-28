@@ -34,9 +34,9 @@ public:
   ServiceToken( ) { }
 
   template< class T >
-    bool add( std::unique_ptr<T> && serv )
+    void add( std::unique_ptr<T> && serv )
   {
-    return manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(std::move(serv))));
+    manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(std::move(serv))));
   }
 
   void forceCreation()
