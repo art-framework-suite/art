@@ -1,95 +1,38 @@
-\documentclass[letterpaper,10pt,article]{memoir}
-\usepackage[cmyk]{xcolor}
-\usepackage{bookman}
-\usepackage[T1]{fontenc}
-\usepackage{microtype}
-\usepackage{xspace}
+
+\documentclass[screen]{memarticle}
+%\documentclass[draft,draftwater]{memarticle}
+%\documentclass{memarticle}
 
 %
-% Add other packages here, as needed. hyperref really wants to be
-% last.
+% Add other packages here, as needed.
 %
 \usepackage{tikz-uml}
 \tikzumlset{fill class=yellow!10}
-\usepackage{listings}
-\lstset{ basicstyle=\ttfamily % for 'normal' code
-  , numbers=none % don't want line numbers
-  , tabsize=2 % don't waste space with huge tabs
-  , showstringspaces=false % do not use undercap as space
-  , keywordstyle=\bfseries % for identified keywords
-  , commentstyle=\itshape % for comments
-  , numberbychapter=false
-  , captionpos=b%
-  , backgroundcolor=\color{yellow!20}
-  , frame=trbl
-  , rulecolor=\color{brown}
-  , framexleftmargin=8pt
-  , framexrightmargin=8pt
-}
-\lstloadlanguages{[ISO]C++}
-\lstMakeShortInline[language=C++]|
-\usepackage[pdftex,colorlinks=true,linkcolor=blue]{hyperref}
-
-%------------------------------------------------------------
-% Page setup
-%------------------------------------------------------------
-\setstocksize{11in}{8.5in}
-\settrimmedsize{11in}{8.5in}{*}
-\settrims{0pt}{0pt}
-\setxlvchars{\normalfont}
-\setlxvchars{\normalfont}
-\setlrmarginsandblock{1.0in}{*}{1.}
-\setulmarginsandblock{*}{1.0in}{1.618}
-\setheadfoot{2\baselineskip}{\baselineskip}
-\checkandfixthelayout[nearest]
-\nouppercaseheads
-\setsecheadstyle{\bfseries}
-
-%------------------------------------------------------------
-% Setup for labels in the description environment; the default
-% bold is too strong when using the bookman font.
-%------------------------------------------------------------
-\renewcommand*{\descriptionlabel}[1]{\hspace\labelsep\normalfont\itshape #1:}
 
 %------------------------------------------------------------
 % Document title control. Change these as appropriate for your
 % document.
 %------------------------------------------------------------
-\newcommand{\longtitle}{Polymorphism and Data Products}
-\newcommand{\shorttitle}{Polymorphism and Data Products}
+\newcommand{\doctitle}{Polymorphism and Data Products}
+\newcommand{\brieftitle}{\doctitle}
+\newcommand{\authors}{\href{mailto:paterno@fnal.gov}{Marc Paterno}}
+\newcommand{\docversion}{1}
 
 %------------------------------------------------------------
 % Define new commands here
 %------------------------------------------------------------
-\newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\name}[1]{\textsc{#1}}
-\newcommand{\eg}{\textit{e.g.}}
-\newcommand{\cpp}{C\kern-0.15ex{+}\kern-0.1ex{+}\xspace} % C++
-\newenvironment{fixme}{\color{cyan}\itshape\begin{quotation}}{\end{quotation}}
-\newcommand{\product}[1]{\textbf{#1}\xspace}
-\newcommand{\art}{\product{art}}
+
+\newcommand{\art}{\name{art}\xspace}
+\lstMakeShortInline[language=isocpp,style=cpplistingstyle]|
 
 %------------------------------------------------------------
 % Document starts here
 %------------------------------------------------------------
 \begin{document}
-\firmlists
+
+\topmatter
 	
-%------------------------------------------------------------
-% First page formatting is special.
-%------------------------------------------------------------
-\thispagestyle{empty}
-\begin{flushright}
- {\color{magenta}\Huge\sffamily\bfseries\longtitle}
-\end{flushright}
-\medspace
-\begin{flushright}
-  {\itshape Marc Paterno}
-\end{flushright}
-
-%------------------------------------------------------------
-
-\begin{abstract}
+\screenflush\begin{abstract}
   This document explains why the \art development team discourages the
   use of base class pointers in data products. It also explains the
   rationale for, and the use of, ``views'', as provided by the \art
@@ -237,7 +180,8 @@ std::size_t Event::getView(std::string const& moduleLabel,
                            std::string const& productInstanceName,
                            std::vector<E const*>& v) const;
 template <class E>
-std::size_t Event::getView(InputTag const& t, std::vector<E const*>& v) const;
+std::size_t Event::getView(InputTag const& t, 
+                           std::vector<E const*>& v) const;
 template <class E>
 bool Event::getView(std::string const& moduleLabel,
                     std::string const& productInstanceName,
