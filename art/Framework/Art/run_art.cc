@@ -7,7 +7,6 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
