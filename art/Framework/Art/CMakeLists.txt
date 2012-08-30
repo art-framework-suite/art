@@ -7,8 +7,14 @@ foreach(cfg_source
 endforeach()
 
 set( art_Framework_Art_sources
+  BasicOptionsHandler.cc
+  BasicPostProcessor.cc
+  BasicSourceOptionsHandler.cc
+  BasicOutputOptionsHandler.cc
+  DebugOptionsHandler.cc
+  FileCatalogOptionsHandler.cc
   InitRootHandlers.cc
-  RichConfigPostProcessor.cc
+  OptionsHandler.cc
   artapp.cc
   find_config.cc
   novaapp.cc

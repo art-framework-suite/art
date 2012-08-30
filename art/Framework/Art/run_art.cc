@@ -1,34 +1,37 @@
 #include "art/Framework/Art/run_art.h"
 
-#include "TError.h"
+#include "art/Framework/Art/BasicOptionsHandler.h"
+#include "art/Framework/Art/BasicPostProcessor.h"
+#include "art/Framework/Art/InitRootHandlers.h"
 #include "art/Framework/Core/EventProcessor.h"
-#include "art/Framework/Core/IntermediateTablePostProcessor.h"
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Art/InitRootHandlers.h"
+#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
+#include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "boost/program_options.hpp"
+
+#include "TError.h"
 
 #include <exception>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-using namespace fhicl;
-namespace  bpo = boost::program_options;
+namespace bpo = boost::program_options;
 
-using std::string;
-using std::ostringstream;
-using std::ifstream;
 // -----------------------------------------------
 namespace {
   struct RootErrorHandlerSentry {
@@ -86,22 +89,55 @@ namespace {
 
 } // namespace
 
-int art::run_art(intermediate_table raw_config,
-                 boost::program_options::variables_map const & vm)
+int art::run_art(int argc,
+                 char ** argv,
+                 bpo::options_description & all_desc,
+                 cet::filepath_maker & lookupPolicy,
+                 art::OptionsHandlers && handlers)
 {
-  //
-  // Make the parameter set from the intermediate table with any
-  // appropriate post-processing:
-  //
-  ParameterSet main_pset;
-  art::IntermediateTablePostProcessor itpp;
-  if (vm.count("rethrow-all")) {
-    itpp.wantRethrowAll();
+  std::ostringstream descstr;
+  descstr << argv[0]
+          << " <-c <config-file>> <other-options> [<source-file>]+\n\nAllowed options:\n";
+  all_desc.add_options()(argv[0], descstr.str().c_str());
+  // BasicOptionsHandler should always be first in the list!
+  handlers.emplace(handlers.begin(),
+                   new BasicOptionsHandler(all_desc, lookupPolicy));
+  handlers.emplace_back(new BasicPostProcessor);
+  // This must be added separately: how to deal with any non-option arguments.
+  bpo::positional_options_description pd;
+  // A single non-option argument will be taken to be the source data file.
+  pd.add("source", -1);
+  // Parse the command line.
+  bpo::variables_map vm;
+  try {
+    bpo::store(bpo::command_line_parser(argc, argv).options(all_desc).positional(pd).run(),
+               vm);
+    bpo::notify(vm);
   }
-  if (vm.count("rethrow-default")) {
-    itpp.wantRethrowDefault();
+  catch (bpo::error const & e) {
+    std::cerr << "Exception from command line processing in " << argv[0]
+              << ": " << e.what() << "\n";
+    return 7000;
   }
-  itpp.apply(raw_config);
+  // Preliminary argument checking.
+for (auto & handler : handlers) {
+    auto result = handler->checkOptions(vm);
+    if (result != 0) {
+      return result;
+    }
+  }
+  // Processing of arguments and post-processing of config.
+  fhicl::intermediate_table raw_config;
+for (auto & handler : handlers) {
+    auto result = handler->processOptions(vm, raw_config);
+    if (result != 0) {
+      return result;
+    }
+  }
+  //
+  // Make the parameter set from the intermediate table:
+  //
+  fhicl::ParameterSet main_pset;
   try {
     make_ParameterSet(raw_config, main_pset);
   }
@@ -113,12 +149,8 @@ int art::run_art(intermediate_table raw_config,
               << "------------------------------------"
               << "------------------------------------"
               << "\n";
-    for (extended_value::table_t::const_iterator
-         i = raw_config.begin(),
-         end_iter = raw_config.end();
-         i != end_iter;
-         ++i) {
-      std::cerr << i->first << ": " << i->second.to_string() << "\n";
+  for (auto const & item : raw_config) {
+      std::cerr << item.first << ": " << item.second.to_string() << "\n";
     }
     std::cerr
         << "------------------------------------"
@@ -132,15 +164,20 @@ int art::run_art(intermediate_table raw_config,
     std::cerr << main_pset.to_indented_string() << "\n";
     return 1;
   }
-  ParameterSet services_pset = main_pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet scheduler_pset = services_pset.get<ParameterSet>("scheduler", ParameterSet());
+  fhicl::ParameterSet
+  services_pset(main_pset.get<fhicl::ParameterSet>("services",
+                fhicl::ParameterSet()));
+  fhicl::ParameterSet
+  scheduler_pset(services_pset.get<fhicl::ParameterSet>("scheduler",
+                 fhicl::ParameterSet()));
   //
   // Start the messagefacility
   //
   mf::MessageDrop::instance()->jobMode = std::string("analysis");
   mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
   mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
-                           services_pset.get<ParameterSet>("message", ParameterSet()));
+                           services_pset.get<fhicl::ParameterSet>("message",
+                               fhicl::ParameterSet()));
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
   // Initialize:

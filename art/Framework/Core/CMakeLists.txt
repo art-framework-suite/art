@@ -15,7 +15,6 @@ set( art_Framework_Core_sources
   IEventProcessor.cc
   InputSource.cc
   InputSourceFactory.cc
-  IntermediateTablePostProcessor.cc
   MFStatusUpdater.cc
   ModuleFactory.cc
   OutputModule.cc

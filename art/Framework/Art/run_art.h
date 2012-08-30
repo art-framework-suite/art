@@ -1,13 +1,15 @@
 #ifndef art_Framework_Art_run_art_h
 #define art_Framework_Art_run_art_h
 
-#include "fhiclcpp/intermediate_table.h"
-
-#include "boost/program_options.hpp"
+#include "art/Framework/Art/OptionsHandlers.h"
+#include "cetlib/filepath_maker.h"
 
 namespace art {
-  int run_art(fhicl::intermediate_table raw_config,
-              boost::program_options::variables_map const & vm);
+  int run_art(int argc,
+              char ** argv,
+              bpo::options_description & all_desc,
+              cet::filepath_maker & lookupPolicy,
+              art::OptionsHandlers && handlers);
 }
 #endif /* art_Framework_Art_run_art_h */
 
