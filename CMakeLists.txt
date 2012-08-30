@@ -43,11 +43,11 @@ find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_2_2 )
 
-find_ups_product( cetbuildtools v2_01_00 )
-find_ups_product( cpp0x v1_03_00 )
-find_ups_product( cetlib v1_03_00 )
-find_ups_product( fhiclcpp v2_16_00 )
-find_ups_product( messagefacility v1_10_00 )
+find_cet_product( cetbuildtools v2_02_00 )
+find_cet_product( cpp0x v1_03_00 )
+find_cet_product( cetlib v1_03_00 )
+find_cet_product( fhiclcpp v2_16_00 )
+find_cet_product( messagefacility v1_10_00 )
 find_ups_product( sqlite v3_07_08_00 )
 find_ups_root( v5_34_00 )
 find_ups_boost( v1_47_0 filesystem
@@ -67,22 +67,6 @@ include_directories ( $ENV{LIBSIGCPP_LIB}/sigc++-2.0/include )
 
 # define CLHEP
 find_library( CLHEP  NAMES CLHEP   PATHS $ENV{CLHEP_BASE}/lib )
-
-# define CETLIB
-find_library( CETLIB NAMES cetlib PATHS $ENV{CETLIB_LIB} )
-
-# define FHICLCPP
-find_library( FHICLCPP NAMES fhiclcpp PATHS $ENV{FHICLCPP_LIB} )
-
-# define MESSAGEFACILITY
-find_library( MF_MESSAGELOGGER NAMES MF_MessageLogger
-                              PATHS $ENV{MESSAGEFACILITY_LIB} )
-find_library( MF_MESSAGESERVICE NAMES MF_MessageService
-                              PATHS $ENV{MESSAGEFACILITY_LIB} )
-find_library( MF_UTILITIES NAMES MF_Utilities
-                              PATHS $ENV{MESSAGEFACILITY_LIB} )
-find_library( MF_EXTENSIONS NAMES MF_ExtModules
-                              PATHS $ENV{MESSAGEFACILITY_LIB} )
 
 # have to make sure cmake doesn't select the system libraries
 # define libsigc
