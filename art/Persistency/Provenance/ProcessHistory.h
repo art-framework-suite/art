@@ -46,6 +46,9 @@ namespace art {
     const_iterator begin() const {return data_.begin();}
     const_iterator end() const {return data_.end();}
 
+    const_iterator cbegin() const {return begin();}
+    const_iterator cend() const {return end();}
+
     const_reverse_iterator rbegin() const {return data_.rbegin();}
     const_reverse_iterator rend() const {return data_.rend();}
 
