@@ -33,13 +33,16 @@ namespace art {
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
     std::vector<std::string> const& fileNames() const {return fileNames_;}
     FileCatalogItem const& currentFile() const {return *fileIter_;}
-    int  currentPosition() const;
-    bool getNextFile();
-    bool hasNextFile();
-    void rewind();
-    void rewindTo(int position);
-    bool isSearchable()       {return searchable_;}
-    bool empty() const        {return fileCatalogItems_.empty();}
+    size_t currentIndex() const;
+    bool   getNextFile();
+    bool   hasNextFile();
+    void   rewind();
+    void   rewindTo(size_t index);
+    bool   isSearchable()       {return searchable_;}
+    bool   empty() const        {return fileCatalogItems_.empty();}
+
+    static const size_t indexEnd;
+
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;

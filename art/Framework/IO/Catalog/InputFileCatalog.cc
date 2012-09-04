@@ -12,6 +12,10 @@
 #include "cetlib/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <limits>
+
+const size_t art::InputFileCatalog::indexEnd = std::numeric_limits<size_t>::max();
+
 namespace art {
 
   InputFileCatalog::InputFileCatalog(fhicl::ParameterSet const& pset,
@@ -59,9 +63,10 @@ namespace art {
     cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
   }
 
-  int  InputFileCatalog::currentPosition() const {
-    if( fileIter_==fileCatalogItems_.end() )  return -1;
-    return std::distance( fileIter_, fileCatalogItems_.begin() );
+  size_t InputFileCatalog::currentIndex() const {
+    //if( fileIter_==fileCatalogItems_.end() )  return -1;
+    //return std::distance( fileIter_, fileCatalogItems_.begin() );
+    return 0;
   }
 
   bool InputFileCatalog::getNextFile() {
@@ -90,7 +95,7 @@ namespace art {
     // TODO: service.rewind()
   }
 
-  void InputFileCatalog::rewindTo(int /*position*/) {
+  void InputFileCatalog::rewindTo(size_t /*position*/) {
     // TODO: rewind to a previous file location in the catalog
     //       service is not rewinded. only usable when FileDeliveryService::
     //       areFilesPersistent() is true

@@ -222,9 +222,10 @@ namespace art {
                                                            processingMode_,
                                                            forcedRunOffset_, eventsToProcess_, noEventSort_,
                                                            groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
-      if( catalog_.currentPosition() >= (int)fileIndexes_.size() )
-        fileIndexes_.resize( catalog_.currentPosition() );
-      fileIndexes_[catalog_.currentPosition()] = rootFile_->fileIndexSharedPtr();
+      assert( catalog_.currentIndex()!=InputFileCatalog::indexEnd );
+      if( catalog_.currentIndex()+1 > fileIndexes_.size() )
+        fileIndexes_.resize( catalog_.currentIndex()+1 );
+      fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) <<
@@ -269,10 +270,10 @@ namespace art {
     if( !catalog_.isSearchable() ) return false;
 
     // no file in the catalog
-    if( catalog_.currentPosition()==-1 ) return false;
+    if( catalog_.currentIndex()==InputFileCatalog::indexEnd ) return false;
     
     // first file in the catalog, move to the last file in the list
-    if( catalog_.currentPosition()==0 )
+    if( catalog_.currentIndex()==0 )
     {
       if( primarySequence_ ) return false;
 
@@ -280,7 +281,7 @@ namespace art {
     }
     else
     {
-      catalog_.rewindTo(catalog_.currentPosition()-1);
+      catalog_.rewindTo(catalog_.currentIndex()-1);
     }
 
     initFile(false);
