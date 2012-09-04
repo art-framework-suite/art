@@ -8,6 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Interfaces/FileDeliveryStatus.h" 
 #include "art/Framework/Services/Interfaces/FileTransferStatus.h" 
 #include "fhiclcpp/ParameterSet.h"
@@ -17,6 +18,9 @@
 // ----------------------------------------------------------------------
 
 namespace art {
+
+  class TrivialFileDelivery;
+  class TrivialFileTransfer;
 
   class InputFileCatalog : public FileCatalog {
   public:
@@ -43,6 +47,9 @@ namespace art {
     std::vector<FileCatalogItem> fileCatalogItems_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     bool searchable_;
+
+    ServiceHandle<TrivialFileDelivery> tfd_;
+    ServiceHandle<TrivialFileTransfer> tft_;
   };  // InputFileCatalog
 
 }  // art

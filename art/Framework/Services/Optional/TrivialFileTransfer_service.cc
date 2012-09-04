@@ -15,7 +15,7 @@ using fhicl::ParameterSet;
 
 art::TrivialFileTransfer::TrivialFileTransfer
 (ParameterSet const & , ActivityRegistry &)
-  : scratchArea(std::getenv("ART_FILE_TRANSFER_SCRATCH_AREA"))
+  : scratchArea("."/*std::getenv("ART_FILE_TRANSFER_SCRATCH_AREA")*/)
 {
 }
 

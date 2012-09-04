@@ -5,6 +5,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
+#include "art/Framework/Services/Optional/TrivialFileDelivery.h"
+#include "art/Framework/Services/Optional/TrivialFileTransfer.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/exception.h"
@@ -22,10 +24,9 @@ namespace art {
     fileNames_(logicalFileNames_),
     fileCatalogItems_(),
     fileIter_(fileCatalogItems_.begin()),
-    searchable_(true /*update the value after the service gets configured*/) {
+    searchable_(false /*update the value after the service gets configured*/) {
 
-    if (logicalFileNames_.empty()) {
-      if (canBeEmpty) return;
+    if (fileNames_.empty() && !canBeEmpty) {
       throw art::Exception(art::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
           << "Empty '" << namesParameter << "' parameter specified for input source.\n";
     }
@@ -48,6 +49,8 @@ namespace art {
     }
 
     // TODO: configure FileDelivery service
+    tfd_->configure(fileNames_);
+    searchable_ = tfd_->isSearchable();
   }
 
   InputFileCatalog::~InputFileCatalog() {}

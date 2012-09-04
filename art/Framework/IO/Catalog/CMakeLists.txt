@@ -9,6 +9,10 @@ link_libraries(
   )
 
 add_library(art_Framework_IO_Catalog SHARED ${art_Framework_IO_Catalog_sources} )
+target_link_libraries(art_Framework_IO_Catalog
+  art_Framework_Services_Optional_TrivialFileDelivery_service
+  art_Framework_Services_Optional_TrivialFileTransfer_service
+)
 
 install ( TARGETS art_Framework_IO_Catalog DESTINATION ${flavorqual_dir}/lib )
 
