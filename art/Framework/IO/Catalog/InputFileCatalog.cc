@@ -20,7 +20,10 @@ namespace art {
         pset.get<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
         pset.get<std::vector<std::string> >(namesParameter)),
     fileNames_(logicalFileNames_),
-    fileCatalogItems_() {
+    fileCatalogItems_(),
+    fileIter_(fileCatalogItems_.begin()),
+    searchable_(true /*update the value after the service gets configured*/),
+    persistent_(true /*update the value after the service gets configured*/) {
 
     if (logicalFileNames_.empty()) {
       if (canBeEmpty) return;
@@ -44,12 +47,51 @@ namespace art {
       }
       fileCatalogItems_.push_back(FileCatalogItem(*it, *lt));
     }
+
+    // TODO: configure FileDelivery service
   }
 
   InputFileCatalog::~InputFileCatalog() {}
 
   void InputFileCatalog::findFile(std::string & /*pfn*/, std::string const& /*lfn*/, bool /*noThrow*/) {
     cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
+  }
+
+  int  InputFileCatalog::currentPosition() const {
+    if( fileIter_==fileCatalogItems_.end() )  return -1;
+    return std::distance( fileIter_, fileCatalogItems_.begin() );
+  }
+
+  bool InputFileCatalog::getNextFile() {
+    // TODO:
+    // get next file from FileDelivery service
+    // and give it to currentFile_ object
+    // returns false if theres no more file
+    //
+    // If hasNextFile() has been called prior to
+    // getNextFile(), it does not actually go fetch
+    // the next file from FileDelivery service, 
+    // instead, it advances the iterator by one and
+    // make the "hidden" next file current.
+    return false;
+  }
+
+  bool InputFileCatalog::hasNextFile() {
+    // TODO:
+    // A probe. It tries(and actually does) retreive
+    // the next file from the FileDelivery service. But
+    // does not advance the current file pointer
+    return false;
+  }
+
+  void InputFileCatalog::rewind() {
+    // TODO: service.rewind()
+  }
+
+  void InputFileCatalog::rewindTo(int /*position*/) {
+    // TODO: rewind to a previous file location in the catalog
+    //       service is not rewinded. only usable when FileDeliveryService::
+    //       areFilesPersistent() is true
   }
 
 }  // art

@@ -8,6 +8,8 @@
 // ======================================================================
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
+#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h" 
+#include "art/Framework/Services/Interfaces/FileTransferStatus.h" 
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 #include <vector>
@@ -26,12 +28,23 @@ namespace art {
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
     std::vector<std::string> const& fileNames() const {return fileNames_;}
-    bool empty() const {return fileCatalogItems_.empty();}
+    FileCatalogItem const& currentFile() const {return *fileIter_;}
+    int  currentPosition() const;
+    bool getNextFile();
+    bool hasNextFile();
+    void rewind();
+    void rewindTo(int position);
+    bool isSearchable()       {return searchable_;}
+    bool areFilesPersistent() {return persistent_;}
+    bool empty() const        {return fileCatalogItems_.empty();}
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
     std::vector<std::string> logicalFileNames_;
     std::vector<std::string> fileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
+    std::vector<FileCatalogItem>::const_iterator fileIter_;
+    bool searchable_;
+    bool persistent_;
   };  // InputFileCatalog
 
 }  // art
