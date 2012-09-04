@@ -38,7 +38,7 @@ namespace art {
   class RootInputFileSequence : private boost::noncopyable {
   public:
     explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
-                                   InputFileCatalog const& catalog,
+                                   InputFileCatalog & catalog,
                                    bool primarySequence,
                                    FastCloningInfoProvider const &fcip,
                                    InputSource::ProcessingMode pMode,
@@ -82,11 +82,8 @@ namespace art {
     void logFileAction(const char* msg, std::string const& file);
     void mergeMPR(MasterProductRegistry & mpr);
 
-    InputFileCatalog const& catalog_;
+    InputFileCatalog & catalog_;
     bool firstFile_;
-    std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
-    std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
-    std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootInputFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
     std::vector<std::shared_ptr<FileIndex> > fileIndexes_;

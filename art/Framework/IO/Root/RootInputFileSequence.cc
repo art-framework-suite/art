@@ -29,7 +29,7 @@ using namespace std;
 namespace art {
 
   RootInputFileSequence::RootInputFileSequence( fhicl::ParameterSet const& pset,
-                                                InputFileCatalog const& catalog,
+                                                InputFileCatalog & catalog,
                                                 bool primarySequence,
                                                 FastCloningInfoProvider const &fcip,
                                                 InputSource::ProcessingMode pMode,
@@ -38,9 +38,6 @@ namespace art {
     //    input_(input),
     catalog_(catalog),
     firstFile_(true),
-    fileIterBegin_(fileCatalogItems().begin()),
-    fileIterEnd_(fileCatalogItems().end()),
-    fileIter_(fileIterEnd_),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
     fileIndexes_(fileCatalogItems().size()),
@@ -91,54 +88,67 @@ namespace art {
     sort_all(eventsToProcess_);
     string matchMode = pset.get<string>("fileMatchMode", string("permissive"));
     if (matchMode == string("strict")) matchMode_ = BranchDescription::Strict;
-    if (primary()) {
-      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
-        initFile(skipBadFiles_);
-        if (rootFile_) break;
+
+    while(catalog_.getNextFile())
+    {
+      initFile(skipBadFiles_);
+      if (rootFile_) break;
+    }
+
+    if (rootFile_) {
+      forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
+      if (forcedRunOffset_ < 0) {
+        throw art::Exception(errors::Configuration)
+          << "The value of the 'setRunNumber' parameter must not be\n"
+          << "less than the first run number in the first input file.\n"
+          << "'setRunNumber' was " << setRun_ <<", while the first run was "
+          << setRun_ - forcedRunOffset_ << ".\n";
       }
-      if (rootFile_) {
-        forcedRunOffset_ = rootFile_->setForcedRunOffset(setRun_);
-        if (forcedRunOffset_ < 0) {
-          throw art::Exception(errors::Configuration)
-            << "The value of the 'setRunNumber' parameter must not be\n"
-            << "less than the first run number in the first input file.\n"
-            << "'setRunNumber' was " << setRun_ <<", while the first run was "
-            << setRun_ - forcedRunOffset_ << ".\n";
-        }
-        mpr.updateFromInput(rootFile_->productList());
-        BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
-      }
+      mpr.updateFromInput(rootFile_->productList());
+      BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), 
+                                          catalog_.currentFile().fileName());
     }
   }
 
   EventID RootInputFileSequence::seekToEvent(EventID const &eID, MasterProductRegistry& mpr, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(eID, true);
+
+    // found in the current file
+    if( found ) return rootFile_->eventIDForFileIndexPosition(); 
+
+     // fail if not searchable
+    if( !catalog_.isSearchable() ) return EventID();
+
+    // Look for event in files previously opened without reopening unnecessary files.
     typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
-    if (!found) {
-      if (fileIndexes_.size() == 1) return EventID(); // Give up now.
-      // Look for event in files previously opened without reopening unnecessary files.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); (!found) && it != itEnd; ++it) {
-        if (*it && (*it)->containsEvent(eID, exact)) {
-          // We found it. Close the currently open file, and open the correct one.
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          if (rootFile_ && primarySequence_) mergeMPR(mpr);
-          // Now get the event from the correct file.
-          found = rootFile_->setEntryAtEvent(eID, exact);
-          assert (found);
-        }
+
+    for ( Iter itBegin = fileIndexes_.begin(), itEnd = fileIndexes_.end(), it = itBegin; 
+          (!found) && it != itEnd; 
+          ++it) 
+    {
+      if (*it && (*it)->containsEvent(eID, exact)) 
+      {
+        // We found it. Close the currently open file, and open the correct one.
+        catalog_.rewindTo( std::distance(itBegin, it) );
+        initFile(false);
+        if (rootFile_ && primarySequence_) mergeMPR(mpr);
+
+        // Now get the event from the correct file.
+        found = rootFile_->setEntryAtEvent(eID, exact);
+        assert (found);
+
+        return rootFile_->eventIDForFileIndexPosition();
       }
     }
-    if (!found) { // Look for event in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); (!found) && it != itEnd; ++it) {
-        if (!*it) {
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          found = rootFile_->setEntryAtEvent(eID, exact);
-        }
-      }
+
+    // Look for event in files not yet opened.
+    while ( catalog_.getNextFile() )
+    {
+      initFile(false);
+      found = rootFile_->setEntryAtEvent(eID, exact);
     }
+ 
     return (found)?rootFile_->eventIDForFileIndexPosition():EventID();
   }
 
@@ -194,43 +204,56 @@ namespace art {
     closeFile_();
     std::shared_ptr<TFile> filePtr;
     try {
-      logFileAction("  Initiating request to open file ", fileIter_->fileName());
-      filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
+      logFileAction("  Initiating request to open file ", catalog_.currentFile().fileName());
+      filePtr.reset(TFile::Open(catalog_.currentFile().fileName().c_str()));
     }
     catch (cet::exception e) {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) << e.explain_self() << "\n" <<
-          "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+          "RootInputFileSequence::initFile(): Input file " << catalog_.currentFile().fileName() << " was not found or could not be opened.\n";
       }
     }
     if (filePtr && !filePtr->IsZombie()) {
-      logFileAction("  Successfully opened file ", fileIter_->fileName());
-      rootFile_ = RootInputFileSharedPtr(new RootInputFile(fileIter_->fileName(), catalog_.url(),
-                                                           processConfiguration(), fileIter_->logicalFileName(), filePtr,
+      logFileAction("  Successfully opened file ", catalog_.currentFile().fileName());
+      rootFile_ = RootInputFileSharedPtr(new RootInputFile(catalog_.currentFile().fileName(), catalog_.url(),
+                                                           processConfiguration(), catalog_.currentFile().logicalFileName(), filePtr,
                                                            origEventID_, eventsToSkip_, whichSubRunsToSkip_,
                                                            fastCloningInfo_, treeCacheSize_, treeMaxVirtualSize_,
                                                            processingMode_,
                                                            forcedRunOffset_, eventsToProcess_, noEventSort_,
                                                            groupSelectorRules_, !primarySequence_, duplicateChecker_, dropDescendants_));
-      fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
+      if( catalog_.currentPosition() >= (int)fileIndexes_.size() )
+        fileIndexes_.resize( catalog_.currentPosition() );
+      fileIndexes_[catalog_.currentPosition()] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
         throw art::Exception(art::errors::FileOpenError) <<
-          "RootInputFileSequence::initFile(): Input file " << fileIter_->fileName() << " was not found or could not be opened.\n";
+          "RootInputFileSequence::initFile(): Input file " << catalog_.currentFile().fileName() << " was not found or could not be opened.\n";
       }
       mf::LogWarning("")
-        << "Input file: " << fileIter_->fileName()
+        << "Input file: " << catalog_.currentFile().fileName()
         << " was not found or could not be opened, and will be skipped.\n";
     }
   }
 
-  bool RootInputFileSequence::nextFile(MasterProductRegistry& mpr) {
-    if(fileIter_ != fileIterEnd_) ++fileIter_;
-    if(fileIter_ == fileIterEnd_) {
-      if (primarySequence_) {
+  bool RootInputFileSequence::nextFile(MasterProductRegistry& mpr) 
+  {
+    if( !catalog_.getNextFile() )
+    {
+      // no more files
+      if( primarySequence_ ) 
+      {
         return false;
-      } else {
-        fileIter_ = fileIterBegin_;
+      }
+
+      // rewind only if searchable
+      if( catalog_.isSearchable() ) 
+      {
+        catalog_.rewind();
+      }
+      else
+      {
+        return false;
       }
     }
 
@@ -240,15 +263,25 @@ namespace art {
     return true;
   }
 
-  bool RootInputFileSequence::previousFile(MasterProductRegistry& mpr) {
-    if(fileIter_ == fileIterBegin_) {
-      if (primarySequence_) {
-        return false;
-      } else {
-        fileIter_ = fileIterEnd_;
-      }
+  bool RootInputFileSequence::previousFile(MasterProductRegistry& mpr) 
+  {
+    // no going back for non-persistent files
+    if( !catalog_.isSearchable() ) return false;
+
+    // no file in the catalog
+    if( catalog_.currentPosition()==-1 ) return false;
+    
+    // first file in the catalog, move to the last file in the list
+    if( catalog_.currentPosition()==0 )
+    {
+      if( primarySequence_ ) return false;
+
+      while( catalog_.getNextFile() ) ;
     }
-    --fileIter_;
+    else
+    {
+      catalog_.rewindTo(catalog_.currentPosition()-1);
+    }
 
     initFile(false);
 
@@ -299,51 +332,57 @@ namespace art {
   }
 
   unique_ptr<EventPrincipal>
-  RootInputFileSequence::readIt(EventID const& id, MasterProductRegistry& mpr, bool exact) {
+  RootInputFileSequence::readIt(EventID const& id, MasterProductRegistry& /*mpr*/, bool exact) {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntryAtEvent(id, exact);
-    if (!found) {
-      // If only one input file, give up now, to save time.
-      if (fileIndexes_.size() == 1) {
-        return unique_ptr<EventPrincipal>();
-      }
-      // Look for event in files previously opened without reopening unnecessary files.
-      typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsEvent(id, exact)) {
-          // We found it. Close the currently open file, and open the correct one.
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          // Now get the event from the correct file.
-          found = rootFile_->setEntryAtEvent(id, exact);
-          assert (found);
-          rootFileForLastReadEvent_ = rootFile_;
-          unique_ptr<EventPrincipal> ep = readCurrentEvent();
-          skip(1, mpr);
-          return std::move(ep);
-        }
-      }
-      // Look for event in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (!*it) {
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          found = rootFile_->setEntryAtEvent(id, exact);
-          if (found) {
-            rootFileForLastReadEvent_ = rootFile_;
-            unique_ptr<EventPrincipal> ep(readCurrentEvent());
-            skip(1, mpr);
-            return std::move(ep);
-          }
-        }
-      }
-      // Not found
+
+    if( found )
+    {
+      rootFileForLastReadEvent_ = rootFile_;
+      unique_ptr<EventPrincipal> eptr(readEvent_());
+      return eptr;
+    }
+
+    if( !catalog_.isSearchable() )
+    {
       return unique_ptr<EventPrincipal>();
     }
-    rootFileForLastReadEvent_ = rootFile_;
-    unique_ptr<EventPrincipal> eptr(readCurrentEvent());
-    skip(1, mpr);
-    return eptr;
+
+    // Look for event in cached files
+    typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
+    for ( Iter itBegin = fileIndexes_.begin(), itEnd = fileIndexes_.end(), it = itBegin; 
+          it != itEnd; 
+          ++it) 
+    {
+      if (*it && (*it)->containsEvent(id, exact)) 
+      {
+        // We found it. Close the currently open file, and open the correct one.
+        catalog_.rewindTo( std::distance(itBegin, it) );
+        initFile(false);
+        // Now get the event from the correct file.
+        found = rootFile_->setEntryAtEvent(id, exact);
+        assert (found);
+        rootFileForLastReadEvent_ = rootFile_;
+        unique_ptr<EventPrincipal> ep = readEvent_();
+        return std::move(ep);
+      }
+    }
+
+    // Look for event in files not yet opened.
+    while( catalog_.getNextFile() )
+    {
+      initFile(false);
+      found = rootFile_->setEntryAtEvent(id, exact);
+      if (found) 
+      {
+        rootFileForLastReadEvent_ = rootFile_;
+        unique_ptr<EventPrincipal> ep(readEvent_());
+        return std::move(ep);
+      }
+    }
+
+    // Not found
+    return unique_ptr<EventPrincipal>();
   }
 
   std::shared_ptr<SubRunPrincipal>
@@ -351,36 +390,40 @@ namespace art {
 
     // Attempt to find subRun in currently open input file.
     bool found = rootFile_->setEntryAtSubRun(id);
-    if (found) {
+
+    if( found ) 
       return readSubRun_(rp);
+
+    if( !catalog_.isSearchable() )
+      return std::shared_ptr<SubRunPrincipal>();
+
+    // Look for event in cached files
+    typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
+    for ( Iter itBegin = fileIndexes_.begin(), itEnd = fileIndexes_.end(), it = itBegin; 
+          it != itEnd; 
+          ++it) 
+    {
+      if (*it && (*it)->containsSubRun(id, true)) 
+      {
+        // We found it. Close the currently open file, and open the correct one.
+        catalog_.rewindTo( std::distance(itBegin, it) );
+        initFile(false);
+        // Now get the subRun from the correct file.
+        found = rootFile_->setEntryAtSubRun(id);
+        assert (found);
+        return readSubRun_(rp);
+      }
     }
 
-    if (fileIndexes_.size() > 1) {
-      // Look for subRun in files previously opened without reopening unnecessary files.
-      typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsSubRun(id, true)) {
-          // We found it. Close the currently open file, and open the correct one.
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          // Now get the subRun from the correct file.
-          found = rootFile_->setEntryAtSubRun(id);
-          assert (found);
-          return readSubRun_(rp);
-        }
-      }
-      // Look for subRun in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (!*it) {
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          found = rootFile_->setEntryAtSubRun(id);
-          if (found) {
-            return readSubRun_(rp);
-          }
-        }
-      }
+    // Look for subRun in files not yet opened.
+    while( catalog_.getNextFile() )
+    {
+      initFile(false);
+      found = rootFile_->setEntryAtSubRun(id);
+      if (found) return readSubRun_(rp);
     }
+
+    // not found
     return std::shared_ptr<SubRunPrincipal>();
   }
 
@@ -389,43 +432,53 @@ namespace art {
 
     // Attempt to find run in currently open input file.
     bool found = rootFile_->setEntryAtRun(id);
-    if (found) {
+
+    if( found ) 
       return readRun_();
-    }
-    if (fileIndexes_.size() > 1) {
-      // Look for run in files previously opened without reopening unnecessary files.
-      typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (*it && (*it)->containsRun(id, true)) {
-          // We found it. Close the currently open file, and open the correct one.
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          // Now get the event from the correct file.
-          found = rootFile_->setEntryAtRun(id);
-          assert (found);
-          return readRun_();
-        }
-      }
-      // Look for run in files not yet opened.
-      for (Iter it = fileIndexes_.begin(), itEnd = fileIndexes_.end(); it != itEnd; ++it) {
-        if (!*it) {
-          fileIter_ = fileIterBegin_ + (it - fileIndexes_.begin());
-          initFile(false);
-          found = rootFile_->setEntryAtRun(id);
-          if (found) {
-            return readRun_();
-          }
-        }
+
+    if( !catalog_.isSearchable() )
+      return std::shared_ptr<RunPrincipal>();
+
+    // Look for event in cached files
+    typedef vector<std::shared_ptr<FileIndex> >::const_iterator Iter;
+    for ( Iter itBegin = fileIndexes_.begin(), itEnd = fileIndexes_.end(), it = itBegin; 
+          it != itEnd; 
+          ++it) 
+    {
+      if (*it && (*it)->containsRun(id, true)) 
+      {
+        // We found it. Close the currently open file, and open the correct one.
+        catalog_.rewindTo( std::distance(itBegin, it) );
+        initFile(false);
+        // Now get the event from the correct file.
+        found = rootFile_->setEntryAtRun(id);
+        assert (found);
+        return readRun_();
       }
     }
+
+    // Look for run in files not yet opened.
+    while( catalog_.getNextFile() )
+    {
+      initFile(false);
+      found = rootFile_->setEntryAtRun(id);
+      if (found) return readRun_();
+    }
+
+    // Not found
     return std::shared_ptr<RunPrincipal>();
   }
 
   input::ItemType
   RootInputFileSequence::getNextItemType() {
-    if (fileIter_ == fileIterEnd_) {
-      return input::IsStop;
+
+    // marked as the first file but failed to find a valid
+    // root file. we should make it stop.
+    if( firstFile_ && !rootFile_ )
+    {
+      return input::IsStop; 
     }
+
     if (firstFile_) {
       return input::IsFile;
     }
@@ -440,17 +493,27 @@ namespace art {
       }
       assert(entryType == FileIndex::kEnd);
     }
-    if (fileIter_ + 1 == fileIterEnd_) {
+
+    // now we are either at the end of a root file
+    // or the current file is not a root file
+    if( !catalog_.hasNextFile() ) 
       return input::IsStop;
-    }
+
     return input::IsFile;
   }
 
   // Rewind to before the first event that was read.
   void
   RootInputFileSequence::rewind_() {
+    if( !catalog_.isSearchable() )
+    {
+      throw art::Exception(errors::FileOpenError) 
+            << "RootInputFileSequence::rewind_() "
+            << "cannot rollback on non-searchable file catalogs.";
+    }
+
     firstFile_ = true;
-    fileIter_ = fileIterBegin_;
+    catalog_.rewind();
     if (duplicateChecker_.get() != 0) duplicateChecker_->rewind();
   }
 
@@ -496,12 +559,12 @@ namespace art {
   RootInputFileSequence::mergeMPR(MasterProductRegistry &mpr) {
     // make sure the new product registry is compatible with the main one
     string mergeInfo = mpr.merge(rootFile_->productList(),
-                                 fileIter_->fileName(),
+                                 catalog_.currentFile().fileName(),
                                  matchMode_);
     if (!mergeInfo.empty()) {
       throw art::Exception(errors::MismatchedInputFiles,"RootInputFileSequence::mergeMPR()") << mergeInfo;
     }
-    BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), fileIter_->fileName());
+    BranchIDListHelper::updateFromInput(rootFile_->branchIDLists(), catalog_.currentFile().fileName());
   }
 
 }  // art
