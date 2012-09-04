@@ -35,7 +35,6 @@ namespace art {
     void rewind();
     void rewindTo(int position);
     bool isSearchable()       {return searchable_;}
-    bool areFilesPersistent() {return persistent_;}
     bool empty() const        {return fileCatalogItems_.empty();}
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
@@ -44,7 +43,6 @@ namespace art {
     std::vector<FileCatalogItem> fileCatalogItems_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     bool searchable_;
-    bool persistent_;
   };  // InputFileCatalog
 
 }  // art

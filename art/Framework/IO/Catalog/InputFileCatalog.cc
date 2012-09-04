@@ -22,8 +22,7 @@ namespace art {
     fileNames_(logicalFileNames_),
     fileCatalogItems_(),
     fileIter_(fileCatalogItems_.begin()),
-    searchable_(true /*update the value after the service gets configured*/),
-    persistent_(true /*update the value after the service gets configured*/) {
+    searchable_(true /*update the value after the service gets configured*/) {
 
     if (logicalFileNames_.empty()) {
       if (canBeEmpty) return;
