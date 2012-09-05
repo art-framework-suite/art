@@ -36,6 +36,7 @@ int art::TrivialFileTransfer::doTranslateToLocalFilename
     stat = FileTransferStatus::NOTFOUND;
     return stat;
   }
+#if 0
   std::string ofileName = scratchArea + "/" + tmpnam(NULL);
   ofstream outfile(ofileName.c_str());
   if (!outfile) {
@@ -48,6 +49,8 @@ int art::TrivialFileTransfer::doTranslateToLocalFilename
     return stat;
   }
   fileFQname = ofileName;
+#endif
+  fileFQname = inFileName;
   stat = FileTransferStatus::CREATED;
   return stat;
   // Implementation plan details -- alternatives not chosen:

@@ -20,6 +20,8 @@ art::TrivialFileDelivery::TrivialFileDelivery
 void art::TrivialFileDelivery::doConfigure(std::vector<std::string> const & items)
 {
   fileList = items;
+  nextFile = fileList.begin();
+  endOfFiles = fileList.end();
 }
 
 int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & waitTime)
