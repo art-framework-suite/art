@@ -30,9 +30,7 @@ namespace art {
                               bool noThrow = false);
     virtual ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
-    std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
-    std::vector<std::string> const& fileNames() const {return fileNames_;}
-    FileCatalogItem const& currentFile() const {return *fileIter_;}
+    FileCatalogItem const& currentFile() const;
     size_t currentIndex() const;
     bool   getNextFile();
     bool   hasNextFile();
@@ -45,11 +43,16 @@ namespace art {
 
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
-    std::vector<std::string> logicalFileNames_;
-    std::vector<std::string> fileNames_;
+    bool retrieveNextFileFromCacheOrService(FileCatalogItem & item);
+
+    std::vector<std::string> fileSources_;
     std::vector<FileCatalogItem> fileCatalogItems_;
-    std::vector<FileCatalogItem>::const_iterator fileIter_;
+    FileCatalogItem nextItem_;
+    size_t fileIdx_;
+    size_t maxIdx_;
     bool searchable_;
+    bool nextFileProbed_;
+    bool hasNextFile_;
 
     ServiceHandle<TrivialFileDelivery> tfd_;
     ServiceHandle<TrivialFileTransfer> tft_;

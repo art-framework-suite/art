@@ -22,39 +22,26 @@ namespace art {
                                      std::string const& namesParameter,
                                      bool canBeEmpty, bool /*noThrow*/) :
     FileCatalog(),
-    logicalFileNames_(canBeEmpty ?
+    fileSources_(canBeEmpty ?
         pset.get<std::vector<std::string> >(namesParameter, std::vector<std::string>()) :
         pset.get<std::vector<std::string> >(namesParameter)),
-    fileNames_(logicalFileNames_),
-    fileCatalogItems_(),
-    fileIter_(fileCatalogItems_.begin()),
-    searchable_(false /*update the value after the service gets configured*/) {
+    fileCatalogItems_(1),
+    fileIdx_(indexEnd),
+    maxIdx_(0),
+    searchable_(false /*update the value after the service gets configured*/),
+    nextFileProbed_(false),
+    hasNextFile_(false) {
 
-    if (fileNames_.empty() && !canBeEmpty) {
+    if (fileSources_.empty() && !canBeEmpty) {
       throw art::Exception(art::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
           << "Empty '" << namesParameter << "' parameter specified for input source.\n";
     }
-    // Starting the catalog will write a catalog out if it does not exist.
-    // So, do not start (or even read) the catalog unless it is needed.
 
-    fileCatalogItems_.reserve(fileNames_.size());
-    typedef std::vector<std::string>::iterator iter;
-    for(iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end();
-        it != itEnd; ++it, ++lt) {
-      boost::trim(*it);
-      if (it->empty()) {
-        throw art::Exception(art::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
-          << "An empty string specified in '" << namesParameter << "' parameter for input source.\n";
-      }
-      if (isPhysical(*it)) {
-        lt->clear();
-      }
-      fileCatalogItems_.push_back(FileCatalogItem(*it, *lt));
-    }
-
-    // TODO: configure FileDelivery service
-    tfd_->configure(fileNames_);
+    // Configure FileDelivery service
+    tfd_->configure(fileSources_);
     searchable_ = tfd_->isSearchable();
+
+    if( searchable_ ) fileCatalogItems_.resize(fileSources_.size());
   }
 
   InputFileCatalog::~InputFileCatalog() {}
@@ -63,14 +50,20 @@ namespace art {
     cet::exception("You cannot do a logical file lookup! (InputFileCatalog::findFile");
   }
 
+  FileCatalogItem const & InputFileCatalog::currentFile() const {
+    if( fileIdx_==indexEnd ) {
+      throw art::Exception(art::errors::LogicError, 
+        "Cannot access the current file while the file catalog is empty!");
+    }
+    assert( fileIdx_ <= maxIdx_ );
+    return fileCatalogItems_[fileIdx_];
+  }
+
   size_t InputFileCatalog::currentIndex() const {
-    //if( fileIter_==fileCatalogItems_.end() )  return -1;
-    //return std::distance( fileIter_, fileCatalogItems_.begin() );
-    return 0;
+    return fileIdx_;
   }
 
   bool InputFileCatalog::getNextFile() {
-    // TODO:
     // get next file from FileDelivery service
     // and give it to currentFile_ object
     // returns false if theres no more file
@@ -80,25 +73,92 @@ namespace art {
     // the next file from FileDelivery service, 
     // instead, it advances the iterator by one and
     // make the "hidden" next file current.
+
+    if( nextFileProbed_ && !hasNextFile_ )
+      return false;
+
+    if( (nextFileProbed_ && hasNextFile_) || retrieveNextFileFromCacheOrService(nextItem_) ) 
+    {
+      nextFileProbed_ = false;
+      fileIdx_ = (fileIdx_ == indexEnd) ? 0 : (searchable_ ? (fileIdx_+1) : 0);
+      if( fileIdx_ > maxIdx_ ) maxIdx_ = fileIdx_;
+      fileCatalogItems_[fileIdx_] = nextItem_;
+      return true;
+    }
+
     return false;
   }
 
   bool InputFileCatalog::hasNextFile() {
-    // TODO:
     // A probe. It tries(and actually does) retreive
     // the next file from the FileDelivery service. But
     // does not advance the current file pointer
-    return false;
+    if( nextFileProbed_ )
+      return hasNextFile_;
+
+    hasNextFile_ = retrieveNextFileFromCacheOrService(nextItem_);
+    nextFileProbed_ = true;
+    return hasNextFile_;
+  }
+
+  bool InputFileCatalog::retrieveNextFileFromCacheOrService(FileCatalogItem & item) {
+    // Try to get it from cached files
+    if( fileIdx_ < maxIdx_ ) {
+      item = fileCatalogItems_[fileIdx_+1];
+      return true;
+    }
+      
+    // Try to get it from the service
+    std::string uri, pfn;
+    double wait = 0.0;
+
+    if( tfd_->getNextFileURI( uri, wait ) != FileDeliveryStatus::SUCCESS )
+      return false;
+
+    if( tft_->translateToLocalFilename( uri, pfn ) != FileTransferStatus::CREATED )
+      return false;
+
+    std::string lfn = pfn;
+   
+    boost::trim(pfn);
+
+    if (pfn.empty()) {
+      throw art::Exception(art::errors::Configuration, 
+        "InputFileCatalog::retrieveNextFileFromCacheService()\n")
+        << "An empty string specified in parameter for input source.\n";
+    }
+
+    if (isPhysical(pfn)) {
+      lfn.clear();
+    }
+
+    item = FileCatalogItem(pfn, lfn);
+    return true;
   }
 
   void InputFileCatalog::rewind() {
-    // TODO: service.rewind()
+    if ( !searchable_ ) {
+      throw art::Exception(art::errors::LogicError, "InputFileCatalog::rewind()\n")
+        << "A non-searchable catalog is not allowed to rewind!";
+    }
+    fileIdx_ = 0;
   }
 
-  void InputFileCatalog::rewindTo(size_t /*position*/) {
-    // TODO: rewind to a previous file location in the catalog
-    //       service is not rewinded. only usable when FileDeliveryService::
-    //       areFilesPersistent() is true
+  void InputFileCatalog::rewindTo(size_t index) {
+    // rewind to a previous file location in the catalog
+    // service is not rewinded. only usable when FileDeliveryService::
+    // areFilesPersistent() is true
+    if ( !searchable_ ) {
+      throw art::Exception(art::errors::LogicError, "InputFileCatalog::rewindTo()\n")
+        << "A non-searchable catalog is not allowed to rewind!";
+    }
+
+    if( index > maxIdx_ ) {
+      throw art::Exception(art::errors::InvalidNumber, "InputFileCatalog::rewindTo()\n")
+        << "Index " << index << " is out of range!";
+    }
+
+    fileIdx_ = index;
   }
 
 }  // art
