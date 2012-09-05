@@ -12,14 +12,11 @@
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Optional/MyService.h"
-#include "art/Framework/Services/Optional/MyServiceInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Framework/Services/System/MySystemService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
@@ -178,7 +175,6 @@ namespace art {
     shouldWeStop_(false),
     alreadyHandlingException_(false)
   {
-    mf::LogVerbatim("DEBUG") << "-----> Begin EventProcessor::EventProcessor(c PS&)";
     // The BranchIDListRegistry and ProductIDListRegistry are indexed registries, and are singletons.
     //  They must be cleared here because some processes run multiple EventProcessors in succession.
     BranchIDListHelper::clearRegistries();
@@ -206,20 +202,9 @@ namespace art {
     serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
     // special construction
     serviceToken_.add(std::unique_ptr<TNS>(new TNS(pset)));
-    serviceToken_.add(std::unique_ptr<MySystemService>(new MySystemService(pset, *actReg_)));
     serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
     ServiceRegistry::Operate operate(serviceToken_);
     serviceToken_.forceCreation();
-    {
-      ServiceHandle<MyService> h1;
-      mf::LogVerbatim("DEBUG") << "-----> h1: 0x" << std::hex << h1.operator->() << std::dec;
-      MyService* p1 = h1.operator->();
-      mf::LogVerbatim("DEBUG") << "-----> p1: 0x" << std::hex << p1 << std::dec;
-      ServiceHandle<MyServiceInterface> h2;
-      mf::LogVerbatim("DEBUG") << "-----> h2: 0x" << std::hex << h2.operator->() << std::dec;
-      MyServiceInterface* p2 = h2.operator->();
-      mf::LogVerbatim("DEBUG") << "-----> p2: 0x" << std::hex << p2 << std::dec;
-    }
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
     // Old input sources may need this for now.
@@ -234,7 +219,6 @@ namespace art {
     FDEBUG(2) << pset.to_string() << std::endl;
     connectSigs();
     BranchIDListHelper::updateRegistries(preg_);
-    mf::LogVerbatim("DEBUG") << "-----> End   EventProcessor::EventProcessor(c PS&)";
   }
 
   EventProcessor::~EventProcessor()
