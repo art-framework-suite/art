@@ -1,19 +1,17 @@
-#ifndef art_Framework_Services_System_MyService_h
-#define art_Framework_Services_System_MyService_h
+#ifndef test_Framework_Services_System_MySystemService_h
+#define test_Framework_Services_System_MySystemService_h
 
 // ======================================================================
 //
-// MyService
+// MySystemService
 //
 // This service is mine.
 //
 // ======================================================================
 
-#include "art/Framework/Services/Optional/MyServiceInterface.h"
-
 namespace art {
   class ActivityRegistry;
-  class MyService;
+  class MySystemService;
 }
 
 namespace fhicl {
@@ -22,20 +20,20 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-class art::MyService : public art::MyServiceInterface
+class art::MySystemService
 {
 public:
-  MyService(fhicl::ParameterSet const&, art::ActivityRegistry&);
+  MySystemService(fhicl::ParameterSet const&, art::ActivityRegistry&);
 
   // Use compiler-generated copy c'tor, copy assignment, and d'tor
 
 private:
 
-};  // MyService
+};  // MySystemService
 
 // ======================================================================
 
-#endif /* art_Framework_Services_System_MyService_h */
+#endif /* test_Framework_Services_System_MySystemService_h */
 
 // Local Variables:
 // mode: c++

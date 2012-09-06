@@ -61,7 +61,7 @@
   DEFINE_ART_CONVERTER_HOOK(svc,iface)
 
 // ======================================================================
-#endif // art_Framework_Services_Registry_ServiceMacros_h
+#endif /* art_Framework_Services_Registry_ServiceMacros_h */
 
 // Local Variables:
 // mode: c++

@@ -1,9 +1,9 @@
-#ifndef art_Framework_Services_System_MyServiceInterface_h
-#define art_Framework_Services_System_MyServiceInterface_h
+#ifndef test_Framework_Services_Interfaces_MySystemServiceInterface_h
+#define test_Framework_Services_Interfaces_MySystemServiceInterface_h
 
 // ======================================================================
 //
-// MyServiceInterface
+// MySystemServiceInterface
 //
 // This service is mine.
 //
@@ -11,7 +11,7 @@
 
 namespace art {
   class ActivityRegistry;
-  class MyServiceInterface;
+  class MySystemServiceInterface;
 }
 
 namespace fhicl {
@@ -20,20 +20,13 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-class art::MyServiceInterface
+class art::MySystemServiceInterface
 {
-public:
-  MyServiceInterface();
-
-  // Use compiler-generated copy c'tor, copy assignment, and d'tor
-
-private:
-
-};  // MyServiceInterface
+};  // MySystemServiceInterface
 
 // ======================================================================
 
-#endif /* art_Framework_Services_System_MyServiceInterface_h */
+#endif /* test_Framework_Services_Interfaces_MySystemServiceInterface_h */
 
 // Local Variables:
 // mode: c++

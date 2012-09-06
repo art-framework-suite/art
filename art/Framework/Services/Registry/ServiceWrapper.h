@@ -108,7 +108,7 @@ private:
 
 // ======================================================================
 
-#endif // art_Framework_Services_Registry_ServiceWrapper_h
+#endif /* art_Framework_Services_Registry_ServiceWrapper_h */
 
 // Local Variables:
 // mode: c++
