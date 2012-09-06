@@ -1,0 +1,24 @@
+process_name: TEST
+
+services.user.MyServiceInterface.service_provider: MyService
+
+physics:
+{
+  analyzers:
+  {
+    a1:
+    {
+      module_type: MyServiceUser
+    }
+  }
+
+  e1: [ a1 ]
+
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 1
+}

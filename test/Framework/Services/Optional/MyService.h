@@ -1,19 +1,16 @@
 #ifndef test_Framework_Services_Optional_MyService_h
 #define test_Framework_Services_Optional_MyService_h
 
-// ======================================================================
-//
-// MyService
-//
-// This service is mine.
-//
-// ======================================================================
+// MyService: test service inheriting from MyServiceInterface.
 
 #include "test/Framework/Services/Interfaces/MyServiceInterface.h"
 
+namespace arttest {
+  class MyService;
+}
+
 namespace art {
   class ActivityRegistry;
-  class MyService;
 }
 
 namespace fhicl {
@@ -22,7 +19,7 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-class art::MyService : public art::MyServiceInterface
+class arttest::MyService : public arttest::MyServiceInterface
 {
 public:
   MyService(fhicl::ParameterSet const&, art::ActivityRegistry&);

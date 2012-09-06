@@ -9,18 +9,23 @@
 //
 // ======================================================================
 
+namespace arttest {
+  class MySystemService;
+}
+
 namespace art {
   class ActivityRegistry;
-  class MySystemService;
 }
 
 namespace fhicl {
   class ParameterSet;
 }
 
+#include "test/Framework/Services/Interfaces/MySystemServiceInterface.h"
+
 // ----------------------------------------------------------------------
 
-class art::MySystemService
+class arttest::MySystemService : public arttest::MySystemServiceInterface
 {
 public:
   MySystemService(fhicl::ParameterSet const&, art::ActivityRegistry&);

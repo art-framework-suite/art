@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-using art::MySystemService;
+using arttest::MySystemService;
 using namespace cet;
 using namespace fhicl;
 using namespace std;
@@ -46,6 +46,7 @@ MySystemService::MySystemService(ParameterSet const & pset,
 
 // ======================================================================
 
-DEFINE_ART_SYSTEM_SERVICE(MySystemService)
+DEFINE_ART_SYSTEM_SERVICE_INTERFACE_IMPL(arttest::MySystemService, \
+                                         arttest::MySystemServiceInterface)
 
 // ======================================================================

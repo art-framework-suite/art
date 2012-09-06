@@ -1,30 +1,11 @@
 #ifndef test_Framework_Services_Interfaces_MyServiceInterface_h
 #define test_Framework_Services_Interfaces_MyServiceInterface_h
 
-// ======================================================================
-//
-// MyServiceInterface
-//
-// This service is mine.
-//
-// ======================================================================
+// MyServiceInterface: interface from which a test service can inherit.
 
-namespace art {
-  class ActivityRegistry;
-  class MyServiceInterface;
+namespace arttest {
+  class MyServiceInterface { };
 }
-
-namespace fhicl {
-  class ParameterSet;
-}
-
-// ----------------------------------------------------------------------
-
-class art::MyServiceInterface
-{
-};  // MyServiceInterface
-
-// ======================================================================
 
 #endif /* test_Framework_Services_Interfaces_MyServiceInterface_h */
 

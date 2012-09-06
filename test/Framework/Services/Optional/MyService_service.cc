@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-using art::MyService;
-using art::MyServiceInterface;
+using arttest::MyService;
+using arttest::MyServiceInterface;
 using namespace cet;
 using namespace fhicl;
 using namespace std;
@@ -51,6 +51,7 @@ MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)
 
 // ======================================================================
 
-DEFINE_ART_SERVICE_INTERFACE_IMPL(art::MyService, art::MyServiceInterface)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService, \
+                                  arttest::MyServiceInterface)
 
 // ======================================================================
