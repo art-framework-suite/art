@@ -100,23 +100,11 @@ void
 
       // go to lm and get the typeid and maker function for this service
       GET_TYPEID_t typeid_func
-         = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider,"get_typeid");
-      GET_TYPEID_t interface_typeid_func
-         = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider,"get_interface_typeid");
+         = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_typeid");
       MAKER_t make_func
-         = lm.getSymbolByLibspec<MAKER_t>(service_provider,"make");
+         = lm.getSymbolByLibspec<MAKER_t>(service_provider, "make");
       CONVERTER_t converter_func
-         = lm.getSymbolByLibspec<CONVERTER_t>(service_provider,"converter");
-
-      if(typeid_func==0)
-        throw art::Exception(art::errors::LogicError,"Service")
-          << "<Could not find the get_typeid function in the service library for " << service_provider
-          << "\n.  The library is probably built incorrectly.\n";
-
-      if(make_func==0)
-        throw art::Exception(art::errors::LogicError,"Service")
-          << "Could not find the maker function in the service library for " << service_provider
-          << "\n.  The library is probably built incorrectly.\n";
+        = lm.getSymbolByLibspec<CONVERTER_t>(service_provider, "converter", LibraryManager::nothrow);
 
       mf::LogVerbatim("DEBUG") << "-----> Inserting provider: " << typeid_func().name();
       std::pair<Factory::iterator, bool> svc = factory_.insert(std::make_pair(
@@ -124,6 +112,8 @@ void
 
       if (converter_func) {
         // This service has a declared interface.
+        GET_TYPEID_t interface_typeid_func
+          = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_interface_typeid");
         if (service_provider == service_name) {
           std::string iface_name(cet::demangle(interface_typeid_func().name()));
           throw Exception(errors::Configuration)
