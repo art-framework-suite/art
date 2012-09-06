@@ -197,7 +197,8 @@ void * art::LibraryManager::get_lib_ptr(std::string const & lib_loc) const
 void *
 art::LibraryManager::
 getSymbolByLibspec_(std::string const & libspec,
-                    std::string const & sym_name) const
+                    std::string const & sym_name,
+                    bool should_throw_on_dlsym) const
 {
   std::string lib_name_str;
   if (libspec.find("_") != std::string::npos) {
@@ -235,13 +236,14 @@ getSymbolByLibspec_(std::string const & libspec,
     throw art::Exception(errors::Configuration)
         << error_msg.str();
   }
-  return getSymbolByPath_(trans->second, sym_name);
+  return getSymbolByPath_(trans->second, sym_name, should_throw_on_dlsym);
 }
 
 void *
 art::LibraryManager::
 getSymbolByPath_(std::string const & lib_loc,
-                 std::string const & sym_name) const
+                 std::string const & sym_name,
+                 bool should_throw_on_dlsym) const
 {
   void * result = nullptr;
   void * lib_ptr = get_lib_ptr(lib_loc);
@@ -252,13 +254,14 @@ getSymbolByPath_(std::string const & lib_loc,
         << "\n"
         << cet::demangle_message(dlerror()) << "\n";
   }
-  else {   // Found library
+  else { // Found library
     dlerror();
     result = dlsym(lib_ptr, sym_name.c_str());
     char const * error = dlerror();
     if (error != nullptr) { // Error message
       result = nullptr;
-      throw art::Exception(errors::Configuration)
+      if (should_throw_on_dlsym) {
+        throw art::Exception(errors::Configuration)
           << "Unable to load requested symbol "
           <<  cet::demangle_symbol(sym_name)
           << " from library "
@@ -266,6 +269,7 @@ getSymbolByPath_(std::string const & lib_loc,
           << "\n"
           << cet::demangle_message(error)
           << "\n";
+      }
     }
   }
   return result;

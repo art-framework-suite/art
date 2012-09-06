@@ -27,10 +27,13 @@ namespace art {
 
     // Find and return a symbol named 'sym_name' in the library
     // identified by 'libspec'. The library is dynamically loaded if
-    // necessary. If no library matching libspec is found, or if no
-    // symbol named sym_name is found in the library, return a null
-    // pointer. If more than one library matching libspec if found, an
-    // exception is thrown.
+    // necessary. If more than one library matching libspec if found, an
+    // exception is thrown. If the correct library cannot be found or
+    // loaded, an exception is thrown. If the symbol specified cannot be
+    // loaded, an exception is thrown unless the final argument to the
+    // function call is LibraryManager::nothrow, in which case the
+    // desired function pointer will be NULL.
+
     template <typename T>
     T getSymbolByLibspec(std::string const & libspec,
                          std::string const & sym_name) const;
@@ -47,6 +50,30 @@ namespace art {
     getSymbolByPath(std::string const & lib_loc,
                     std::string const & sym_name,
                     T & sym) const;
+
+    // Versions which won't throw if they can't find the symbol.
+    static struct nothrow_t { } nothrow;
+
+    template <typename T>
+    T getSymbolByLibspec(std::string const & libspec,
+                         std::string const & sym_name,
+                         nothrow_t) const;
+    template <typename T>
+    void
+    getSymbolByLibspec(std::string const & libspec,
+                       std::string const & sym_name,
+                       T & sym,
+                       nothrow_t) const;
+    template <typename T>
+    T getSymbolByPath(std::string const & lib_loc,
+                      std::string const & sym_name,
+                      nothrow_t) const;
+    template <typename T>
+    void
+    getSymbolByPath(std::string const & lib_loc,
+                    std::string const & sym_name,
+                    T & sym,
+                    nothrow_t) const;
 
     // Get a list of loadable libraries (full paths). Returns the
     // number of entries.
@@ -99,9 +126,11 @@ namespace art {
     void good_spec_trans_map_inserter(spec_trans_map_t::value_type const & entry);
     void * get_lib_ptr(std::string const & lib_loc) const;
     void * getSymbolByLibspec_(std::string const & libspec,
-                               std::string const & sym_name) const;
+                               std::string const & sym_name,
+                               bool should_throw_on_dlsym = true) const;
     void * getSymbolByPath_(std::string const & lib_loc,
-                            std::string const & sym_name) const;
+                            std::string const & sym_name,
+                            bool should_throw_on_dlsym = true) const;
 
     std::string lib_type_; // eg _plugin.
     // Map of library filename -> full path.
@@ -170,6 +199,53 @@ size_t art::LibraryManager::getLoadableLibraries(OutIter dest) const
     *dest++ = i->second;
   }
   return count;
+}
+
+// Versions which won't throw on failure to obtain symbol.
+template <typename T>
+inline
+T
+art::LibraryManager::
+getSymbolByLibspec(std::string const & libspec,
+                   std::string const & sym_name,
+                   nothrow_t) const
+{
+  return hard_cast<T>(getSymbolByLibspec_(libspec, sym_name, false));
+}
+
+template <typename T>
+inline
+void
+art::LibraryManager::
+getSymbolByLibspec(std::string const & libspec,
+                   std::string const & sym_name,
+                   T & sym,
+                   nothrow_t) const
+{
+  hard_cast<T>(getSymbolByLibspec_(libspec, sym_name, false), sym);
+}
+
+template <typename T>
+inline
+T
+art::LibraryManager::
+getSymbolByPath(std::string const & lib_loc,
+                std::string const & sym_name,
+                nothrow_t) const
+{
+  return hard_cast<T>(getSymbolByPath_(lib_loc, sym_name, false));
+}
+
+template <typename T>
+inline
+void
+art::LibraryManager::
+getSymbolByPath(std::string const & lib_loc,
+                std::string const & sym_name,
+                T & sym,
+               nothrow_t) const
+{
+  hard_cast<T>(getSymbolByPath_(lib_loc, sym_name, false), sym);
 }
 
 template <class OutIter>
