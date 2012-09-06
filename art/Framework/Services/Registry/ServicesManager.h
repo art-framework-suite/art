@@ -34,11 +34,10 @@ namespace art {
   typedef std::unique_ptr<art::ServiceWrapperBase> (*MAKER_t)(fhicl::ParameterSet const &, art::ActivityRegistry &);
   typedef std::unique_ptr<art::ServiceWrapperBase> (*CONVERTER_t)(std::shared_ptr<art::ServiceWrapperBase> const &);
 
-  class ServicesManager
-  {
+  class ServicesManager {
     // non-copyable:
-    ServicesManager( ServicesManager const & );
-    void operator = ( ServicesManager const & );
+    ServicesManager(ServicesManager const &);
+    void operator = (ServicesManager const &);
 
   public:
     typedef  std::vector<fhicl::ParameterSet>       ParameterSets;
@@ -54,134 +53,114 @@ namespace art {
 
     // A Cache object encapsulates the (possibly delayed) creation of
     // a Service object.
-    class Cache
-    {
+    class Cache {
     public:
       Cache(fhicl::ParameterSet const & pset, TypeID id, MAKER_t maker, bool is_iface, Factory::iterator impl, CONVERTER_t cvt)
-        : config_(pset), typeinfo_(id), make_(maker), service_(), is_interface_(is_iface), interface_impl_(impl), converter_(cvt)
-      {
+        : config_(pset), typeinfo_(id), make_(maker), service_(), is_interface_(is_iface), interface_impl_(impl), converter_(cvt) {
       }
 
       Cache(WrapperBase_ptr premade_service)
-        : config_(), typeinfo_(), make_(), service_(premade_service), is_interface_(false), interface_impl_(), converter_()
-      {
+        : config_(), typeinfo_(), make_(), service_(premade_service), is_interface_(false), interface_impl_(), converter_() {
       }
 
       // Create the service if necessary, and return the WrapperBase_ptr
       // that refers to it.
-      WrapperBase_ptr getService(ActivityRegistry & reg, ServiceStack & creationOrder)
-      {
-        mf::LogVerbatim("DEBUG") << "-----> Begin Cache::getService()";
-        mf::LogVerbatim("DEBUG") << "-----> Cache::getService: service_type: " << config_.get<std::string>("service_type", "");
+      WrapperBase_ptr getService(ActivityRegistry & reg, ServiceStack & creationOrder) {
         if (is_interface_) {
           // This is a service interface, make the service provider do the work.
-          mf::LogVerbatim("DEBUG") << "-----> Cache::getService: is interface";
           if (!service_) {
             // No cached instance, we need to make it.
-	    if (!interface_impl_->second.service_) {
+            if (!interface_impl_->second.service_) {
               // The service provider has no cached instance, have it make one.
-	      mf::LogVerbatim("DEBUG") << "-----> Cache::getService: creating service provider ...";
-	      interface_impl_->second.createService(reg, creationOrder);
-	      mf::LogVerbatim("DEBUG") << "-----> Cache::getService: result SWB: 0x" <<
-		std::hex << interface_impl_->second.service_.get() << std::dec;
-	    }
+              interface_impl_->second.createService(reg, creationOrder);
+              std::hex << interface_impl_->second.service_.get() << std::dec;
+            }
             // Convert the service provider wrapper to a service interface wrapper,
             // and use that as our cached instance.
-	    interface_impl_->second.convertService(service_);
-	    mf::LogVerbatim("DEBUG") << "-----> Cache::getService: result SWB of converter: 0x" <<
-	      std::hex << service_.get() << std::dec;
+            interface_impl_->second.convertService(service_);
+            std::hex << service_.get() << std::dec;
           }
         }
         else {
-	  if (!service_) {
+          if (!service_) {
             // No cached instance, we need to make it.
-	    mf::LogVerbatim("DEBUG") << "-----> Cache::getService: creating ...";
-	    createService(reg, creationOrder);
-	    mf::LogVerbatim("DEBUG") << "-----> Cache::getService: result SWB: 0x" <<
-	      //std::hex << service_.get() << std::dec;
-	      std::hex << service_.get() << std::dec;
-	  }
+            createService(reg, creationOrder);
+            //std::hex << service_.get() << std::dec;
+            std::hex << service_.get() << std::dec;
+          }
         }
-	mf::LogVerbatim("DEBUG") <<   "-----> Cache::getService: returning SWB: 0x" <<
-	  std::hex << service_.get() << std::dec;
-	mf::LogVerbatim("DEBUG") << "-----> End   Cache::getService()";
+        std::hex << service_.get() << std::dec;
         return service_;
       }
 
-      void forceCreation(ActivityRegistry& reg)
-      {
+      void forceCreation(ActivityRegistry & reg) {
         assert(!is_interface_ && "Cache::forceCreation called on a service interface!");
-	if (!service_) {
+        if (!service_) {
           makeAndCacheService(reg);
         }
       }
 
-      fhicl::ParameterSet const& getParameterSet() const
-      {
+      fhicl::ParameterSet const & getParameterSet() const {
         return config_;
       }
 
-      void putParameterSet(fhicl::ParameterSet const& n)
-      {
-	if (config_ != n) {
-	  config_ = n;
-	  if (service_) {
+      void putParameterSet(fhicl::ParameterSet const & n) {
+        if (config_ != n) {
+          config_ = n;
+          if (service_) {
             service_->reconfigure(config_);
           }
-	}
+        }
       }
 
-      Factory::iterator getInterfaceImpl() const
-      {
+      Factory::iterator getInterfaceImpl() const {
         return interface_impl_;
       }
 
-      void makeAndCacheService(ActivityRegistry &reg) {
+      void makeAndCacheService(ActivityRegistry & reg) {
         assert(!is_interface_ && "Cache::makeAndCacheService called on a service interface!");
-	try {
-	  service_ = make_(config_, reg);
-	}
-	catch (cet::exception &e) {
-	  throw Exception(errors::OtherArt, "ServiceCreation", e)
-	    << "cet::exception caught during construction of service type "
-	    << cet::demangle_symbol(typeinfo_.name())
-	    << ":\n";
-	}
-	catch (std::exception &e) {
-	  throw Exception(errors::StdException, "ServiceCreation")
-	    << "std::exception caught during construction of service type "
-	    << cet::demangle_symbol(typeinfo_.name())
-	    << ": "
-	    << e.what();
-	}
-	catch (std::string const &s) {
-	  throw Exception(errors::BadExceptionType)
-	    << "String exception during construction of service type "
-	    << cet::demangle_symbol(typeinfo_.name())
-	    << ": "
-	    << s;
-	}
-	catch (...) {
-	  throw Exception(errors::Unknown)
-	    << "String exception during construction of service type "
-	    << cet::demangle_symbol(typeinfo_.name())
-	    << ":\n";
-	}
+        try {
+          service_ = make_(config_, reg);
+        }
+        catch (cet::exception & e) {
+          throw Exception(errors::OtherArt, "ServiceCreation", e)
+              << "cet::exception caught during construction of service type "
+              << cet::demangle_symbol(typeinfo_.name())
+              << ":\n";
+        }
+        catch (std::exception & e) {
+          throw Exception(errors::StdException, "ServiceCreation")
+              << "std::exception caught during construction of service type "
+              << cet::demangle_symbol(typeinfo_.name())
+              << ": "
+              << e.what();
+        }
+        catch (std::string const & s) {
+          throw Exception(errors::BadExceptionType)
+              << "String exception during construction of service type "
+              << cet::demangle_symbol(typeinfo_.name())
+              << ": "
+              << s;
+        }
+        catch (...) {
+          throw Exception(errors::Unknown)
+              << "String exception during construction of service type "
+              << cet::demangle_symbol(typeinfo_.name())
+              << ":\n";
+        }
       }
 
       void
-	createService( ActivityRegistry & reg, ServiceStack & creationOrder )
-      {
+      createService(ActivityRegistry & reg, ServiceStack & creationOrder) {
         assert(!is_interface_ && "Cache::createService called on a service interface!");
-	// When we actually create the Service object, we have to
-	// remember the order of creation.
-	makeAndCacheService(reg);
-	creationOrder.push(service_);
+        // When we actually create the Service object, we have to
+        // remember the order of creation.
+        makeAndCacheService(reg);
+        creationOrder.push(service_);
       }
 
       void
-	convertService(WrapperBase_ptr & swb)
-      {
+      convertService(WrapperBase_ptr & swb) {
         assert(!is_interface_ && "Cache::convertService called on a service interface!");
         swb = std::move(converter_(service_));
       }
@@ -196,7 +175,7 @@ namespace art {
 
     };  // Cache
 
-public:
+  public:
     ServicesManager(ParameterSets const &,
                     LibraryManager const &,
                     ActivityRegistry &);
@@ -205,41 +184,34 @@ public:
 
     template< class T >
     T &
-      get();  // not const because of possible lazy creation
+    get();  // not const because of possible lazy creation
 
     //returns true of the particular service is accessible -- that is,
     // it either can be made (if requested) or has already been made.
     template< class T >
     bool
-      isAvailable() const
-    {
+    isAvailable() const {
       return factory_.find(TypeID(typeid(T))) != factory_.end();
     }
 
     // TODO: needs to be converted to returning a void.
     template< class T >
     void
-      put( std::shared_ptr<ServiceWrapper<T> > premade_service )
-    {
+    put(std::shared_ptr<ServiceWrapper<T> > premade_service) {
       TypeID id(typeid(T));
-      mf::LogVerbatim("DEBUG") << "-----> Begin ServicesManager::put<" << cet::demangle_symbol(id.name()) << ">()";
       Factory::const_iterator it = factory_.find(id);
-
       if (it != factory_.end()) {
-        throw art::Exception(art::errors::LogicError,"Service")
-          << "The system has manually added service of type " << id.name()
-          << ", but the service system already has a configured service of that type\n";
+        throw art::Exception(art::errors::LogicError, "Service")
+            << "The system has manually added service of type " << id.name()
+            << ", but the service system already has a configured service of that type\n";
       }
-
-      mf::LogVerbatim("DEBUG") << "-----> inserting premade service.";
-      std::pair<Factory::iterator, bool> where = factory_.insert( std::make_pair(id, Cache(premade_service)) );
+      std::pair<Factory::iterator, bool> where = factory_.insert(std::make_pair(id, Cache(premade_service)));
       // TODO: Right now pre-made services do not have names, fix that.
       //if (service_name != "junk") {
       //  index_[service_name] = where.first;
       //}
       (void) where;
       actualCreationOrder_.push(premade_service);
-      mf::LogVerbatim("DEBUG") << "-----> End   ServicesManager::put<" << cet::demangle_symbol(id.name()) << ">()";
     }
 
     // force all the services that are not alrady made into existance
@@ -262,32 +234,26 @@ public:
 
   };  // ServicesManager
 
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
   template< class T >
   T &
-    ServicesManager::get()
+  ServicesManager::get()
   {
-    mf::LogVerbatim("DEBUG") << "-----> Begin ServicesManager::get<" << cet::demangle_symbol(typeid(T).name()) << ">()";
     // Find the correct Cache object.
     Factory::iterator it = factory_.find(TypeID(typeid(T)));
-    if( it == factory_.end() )
+    if (it == factory_.end())
       throw art::Exception(art::errors::NotFound, "Service")
-        << " unable to find requested service with compiler type name '"
-        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-
+          << " unable to find requested service with compiler type name '"
+          << cet::demangle_symbol(typeid(T).name()) << "'.\n";
     // Get the ServiceWrapperBase from the Cache object.
     WrapperBase_ptr swb = it->second.getService(registry_, actualCreationOrder_);
-
     // Cast it to the correct type.
     // Not sure this is technique is correct ... is is mostly copied
     // from the previous implementation.
     typedef ServiceWrapper<T> Wrapper;
     typedef std::shared_ptr<Wrapper> Wrapper_ptr;
-
     Wrapper_ptr concrete = std::dynamic_pointer_cast<Wrapper>(swb);
-    mf::LogVerbatim("DEBUG") << "-----> ServicesManager::get<T>: returning service at: 0x" << std::hex << &concrete.get()->get() << std::dec;
-    mf::LogVerbatim("DEBUG") << "-----> End   ServicesManager::get<" << cet::demangle_symbol(typeid(T).name()) << ">()";
     return concrete->get();
   }  // get<>()
 
