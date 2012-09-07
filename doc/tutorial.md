@@ -285,6 +285,7 @@ Output Filtering
 ================
 
 * Any output module can be configured to write out only those events passing a given *trigger path*.
+
 * The parameter set that configures the output module uses a parameter _SelectEvents_ to control the output,
   as shown in the example below
 
@@ -294,19 +295,38 @@ Output Filtering
         pathA: [ ... ]  # producers and filters are put in this path
         pathB: [ ... ]  # other producers, other filters are put in this path
 
-        outpath: [ pathAwriter ] # output modules and analyzers are put in this path
+        outA: [ passWriter ] # output modules and analyzers are put in this path
+        outB: [ failWriter ] # output modules and analyzers are put in this path
+        outC: [ exceptWriter ] # output modules and analyzers are put in this path
 
         trigger_paths: [ pathA, pathB ] # declare that these are "trigger paths"
-        end_paths: [ outpath ]          # declare this is an "end path"
+        end_paths: [ outA outB outC ]   # declare these are "end paths"
       }
 
       outputs:
       {
-        pathAwriter:
+        passWriter:
         {
           module_type: RootOutput
-          fileName: "pathA_events.root"
-          SelectEvents: { SelectEvents: [ pathA ] } # Only events passing pathA will be written
+          fileName: "pathA_passes.root"
+          # Write all the events for which pathA ended with 'true' from filtering.
+          # Events which caused an exception throw will not be written.
+          SelectEvents: { SelectEvents: [ "pathA@noexeception" ] }
+        }
+        failWriter:
+        {
+          module_type: RootOutput
+          fileName: "pathA_failures.root"
+          # Write all the events for which pathA ended with 'false' from filtering.
+          # Events which caused an exception throw will not be written.
+          SelectEvents: { SelectEvents: [ "!pathA@noexception" ] }
+        }
+        exceptWriter:
+        {
+          module_type: RootOutput
+          fileName: "pathA_exceptions.root"
+          # Write all the events for which pathA or pathB ended because an exception was thrown.
+          SelectEvents: { SelectEvents: [ "exception@pathA", "exception@pathB" ] }
         }
       }
 
