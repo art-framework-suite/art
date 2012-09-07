@@ -25,6 +25,8 @@ private:
   bpo::options_description const & desc_;
   bool requireMetadata_;
   bool wantSAMweb_;
+  std::string appFamily_;
+  std::string appVersion_;
 };
 #endif /* art_Framework_Art_FileCatalogOptionsHandler_h */
 

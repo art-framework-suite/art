@@ -27,7 +27,7 @@ namespace {
       case 0:
         return string_pair_t();
       case 1:
-        return string_pair_t(std::move(tmp[0]), std::string());
+        return string_pair_t(std::string("_default"), std::move(tmp[0]));
       case 2:
         return string_pair_t(std::move(tmp[0]), std::move(tmp[1]));
       default:
@@ -49,31 +49,45 @@ namespace {
     std::vector<std::string> data_tiers(vm["sam-data-tier"].as<std::vector<std::string> >());
     std::vector<std::string> stream_names(vm["sam-stream-name"].as<std::vector<std::string> >());
     std::map<std::string, std::string> sep_tiers, sep_streams;
-  for (auto const & tier : data_tiers) {
+    for (auto const & tier : data_tiers) {
       sep_tiers.insert(split_to_pair(tier));
     }
-  for (auto const & stream : stream_names) {
+    for (auto const & stream : stream_names) {
       sep_streams.insert(split_to_pair(stream));
     }
-  for (auto const & output : table) {
+    auto def_tier_it(sep_tiers.find("_default"));
+    auto def_tier((def_tier_it != sep_tiers.end()) ?
+                  def_tier_it->second :
+                  "");
+    auto def_stream_it(sep_streams.find("_default"));
+    auto def_stream((def_stream_it != sep_streams.end()) ?
+                    def_stream_it->second :
+                    "");
+    for (auto const & output : table) {
       if (!raw_config.exists(outputs_stem + output.first + ".module_type")) {
         continue; // Not a module parameter set.
       }
       auto tiers_it(sep_tiers.find(output.first));
-      if (tiers_it != sep_tiers.end()) {
+      std::string tier((tiers_it != sep_tiers.end()) ?
+                       tiers_it->second :
+                       def_tier);
+      if (!tier.empty()) {
         raw_config.put(outputs_stem + output.first + tier_spec_stem,
                        tiers_it->second);
       }
       if (!raw_config.exists(outputs_stem + output.first + tier_spec_stem)) {
         throw art::Exception(art::errors::Configuration)
-            << "Unspecified data tier for output \""
-            << output.first
-            << "\"\n";
+          << "Unspecified data tier for output \""
+          << output.first
+          << "\"\n";
       }
       auto streams_it(sep_streams.find(output.first));
+      std::string stream((streams_it != sep_streams.end()) ?
+                         streams_it->second :
+                         def_stream);
       raw_config.put(outputs_stem + output.first + stream_name_stem,
-                     (streams_it != sep_streams.end()) ?
-                     streams_it->second :
+                     (!stream.empty()) ?
+                     stream :
                      output.first);
     }
   }
@@ -84,13 +98,17 @@ FileCatalogOptionsHandler(bpo::options_description & desc)
   :
   desc_(desc),
   requireMetadata_(false),
-  wantSAMweb_(false)
+  wantSAMweb_(false),
+  appFamily_(),
+  appVersion_()
 {
   desc.add_options()
   ("sam-web-uri", bpo::value<std::string>(), "URI for SAM web service.")
   ("sam-process-id", bpo::value<std::string>(), "SAM process ID.")
-  ("sam-app-family", bpo::value<std::string>(), "SAM application family.")
-  ("sam-app-version", bpo::value<std::string>(), "SAM application version.")
+  ("sam-application-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
+  ("sam-app-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
+  ("sam-application-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
+  ("sam-app-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
   ("file-type", bpo::value<std::string>(), "File type for SAM metadata.")
   ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec (<module-label>:<tier-spec>).")
   ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
@@ -103,7 +121,9 @@ doCheckOptions(bpo::variables_map const & vm)
 {
   requireMetadata_ =
     vm.count("sam-application-family") > 0 ||
+    vm.count("sam-app-family") > 0 ||
     vm.count("sam-application-version") > 0 ||
+    vm.count("sam-app-version") > 0 ||
     vm.count("file-type") > 0 ||
     vm.count("sam-data-tier") > 0 ||
     vm.count("sam-stream-name") > 0;
@@ -119,14 +139,14 @@ doCheckOptions(bpo::variables_map const & vm)
     }
   }
   if (requireMetadata_ &&
-      !(vm.count("sam-application-family") == 1 &&
-        vm.count("sam-application-version") == 1 &&
-        vm.count("file-type") == 1 &&
-        vm.count("sam-data-tier") > 0)) {
+      (appFamily_.empty() ||
+       appVersion_.empty() ||
+       vm.count("file-type") == 0 ||
+       vm.count("sam-data-tier") == 0)) {
     throw Exception(errors::Configuration)
         << "SAM metadata information is required -- missing metadata:"
-        << ((vm.count("sam-application-family") == 0) ? "\n--sam-application-family" : "")
-        << ((vm.count("sam-application-version") == 0) ? "\n--sam-application-version" : "")
+        << (appFamily_.empty() ? "\n--sam-application-family" : "")
+        << (appVersion_.empty() ? "\n--sam-application-version" : "")
         << ((vm.count("file-type") == 0) ? "\n--file-type" : "")
         << ((vm.count("sam-data-tier") == 0) ? "\n--sam-data-tier" : "")
         << "\n";
