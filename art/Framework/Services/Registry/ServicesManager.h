@@ -73,23 +73,18 @@ namespace art {
             if (!interface_impl_->second.service_) {
               // The service provider has no cached instance, have it make one.
               interface_impl_->second.createService(reg, creationOrder);
-              std::hex << interface_impl_->second.service_.get() << std::dec;
             }
             // Convert the service provider wrapper to a service interface wrapper,
             // and use that as our cached instance.
             interface_impl_->second.convertService(service_);
-            std::hex << service_.get() << std::dec;
           }
         }
         else {
           if (!service_) {
             // No cached instance, we need to make it.
             createService(reg, creationOrder);
-            //std::hex << service_.get() << std::dec;
-            std::hex << service_.get() << std::dec;
           }
         }
-        std::hex << service_.get() << std::dec;
         return service_;
       }
 
