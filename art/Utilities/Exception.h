@@ -46,6 +46,7 @@ namespace art {
     ,  FileReadError
     ,  FatalRootError
     ,  MismatchedInputFiles
+    ,  CatalogServiceError
 
     ,  ProductDoesNotSupportViews
     ,  ProductDoesNotSupportPtr

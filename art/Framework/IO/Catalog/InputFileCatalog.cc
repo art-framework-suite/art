@@ -33,7 +33,7 @@ namespace art {
     hasNextFile_(false) {
 
     if (fileSources_.empty() && !canBeEmpty) {
-      throw art::Exception(art::errors::Configuration, "InputFileCatalog::InputFileCatalog()\n")
+      throw art::Exception(art::errors::CatalogServiceError, "InputFileCatalog::InputFileCatalog()\n")
           << "Empty '" << namesParameter << "' parameter specified for input source.\n";
     }
 
