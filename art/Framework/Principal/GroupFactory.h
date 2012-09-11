@@ -1,7 +1,7 @@
 #ifndef art_Framework_Principal_GroupFactory_h
 #define art_Framework_Principal_GroupFactory_h
 // A collection of functions to generate Groups.
-
+#ifndef __GCCXML__ // Not needed
 #include "art/Framework/Principal/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
@@ -26,6 +26,7 @@ namespace art {
                ProductID const &pid);
   }
 }
+#endif
 #endif /* art_Framework_Principal_GroupFactory_h */
 
 // Local Variables:

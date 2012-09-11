@@ -1,6 +1,5 @@
 #ifndef art_Framework_Art_OptionsHandler_h
 #define art_Framework_Art_OptionsHandler_h
-
 // Simple interface to allow easy addition of experiment-specific
 // command-line options and their processing.
 
@@ -15,7 +14,12 @@ namespace art {
 
 class art::OptionsHandler {
 public:
-  virtual ~OptionsHandler() = default;
+  virtual ~OptionsHandler()
+#ifndef __GCCXML__
+ = default;
+#else
+  ;
+#endif
   int checkOptions(bpo::variables_map const & vm);
   int processOptions(bpo::variables_map const & vm,
                      fhicl::intermediate_table & raw_config);

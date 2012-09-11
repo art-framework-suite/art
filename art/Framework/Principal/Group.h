@@ -29,7 +29,6 @@ namespace art {
 
 // Noncopyable through inheritance from EDProductGetter.
 class art::Group : public EDProductGetter {
-
 public:
   Group();
 protected: // Use GroupFactory to make.
@@ -39,6 +38,7 @@ protected: // Use GroupFactory to make.
         cet::exempt_ptr<Worker> productProducer = cet::exempt_ptr<Worker>(),
         cet::exempt_ptr<EventPrincipal> onDemandPrincipal =
           cet::exempt_ptr<EventPrincipal>());
+#ifndef __GCCXML__
   Group(std::unique_ptr<EDProduct> && edp,
         BranchDescription const &bd,
         ProductID const &pid,
@@ -46,6 +46,7 @@ protected: // Use GroupFactory to make.
   friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &);
   friend std::unique_ptr<Group> gfactory::make_group(BranchDescription const&, ProductID const &, cet::exempt_ptr<Worker>, cet::exempt_ptr<EventPrincipal>);
   friend std::unique_ptr<Group> gfactory::make_group(std::unique_ptr<EDProduct> &&, BranchDescription const&, ProductID const &);
+#endif
 public:
   virtual ~Group();
 
@@ -58,10 +59,11 @@ public:
   bool onDemand() const { return productProducer_ && onDemandPrincipal_; }
 
   virtual EDProduct const *getIt() const { resolveProductIfAvailable(true, producedWrapperType()); return uniqueProduct(); }
+#ifndef __GCCXML__
   virtual EDProduct const *anyProduct() const { return product_.get(); }
   virtual EDProduct const *uniqueProduct() const { return product_.get(); }
   virtual EDProduct const *uniqueProduct(TypeID const &) const { return product_.get(); }
-
+#endif
   cet::exempt_ptr<ProductProvenance const> productProvenancePtr() const;
 
   BranchDescription const &productDescription() const {return *branchDescription_;}
@@ -96,23 +98,26 @@ public:
   TypeID const & producedWrapperType() const { return wrapper_type_; }
 
 protected:
+#ifndef __GCCXML__
   std::unique_ptr<EDProduct> obtainDesiredProduct(bool fillOnDemand, TypeID const &) const;
   void setProduct(std::unique_ptr<EDProduct> && prod) const;
-
+#endif
 private:
   bool dropped() const;
 
   art::TypeID                               wrapper_type_;
   cet::exempt_ptr<BranchMapper const>       ppResolver_;
   cet::exempt_ptr<DelayedReader const>      productResolver_;
+#ifndef __GCCXML__
   mutable std::unique_ptr<EDProduct>          product_;
+#endif
   cet::exempt_ptr<BranchDescription const>  branchDescription_;
   mutable ProductID                         pid_;
   cet::exempt_ptr<Worker>                   productProducer_;
   // FIXME: This will be a generic principal when meta data is fixed.
   cet::exempt_ptr<EventPrincipal>           onDemandPrincipal_;
 };  // Group
-
+#ifndef __GCCXML__
 inline
 std::ostream &
 art::operator << (std::ostream &os, art::Group const &g)
@@ -121,6 +126,7 @@ art::operator << (std::ostream &os, art::Group const &g)
   return os;
 }
 
+#endif
 #endif /* art_Framework_Principal_Group_h */
 
 // Local Variables:

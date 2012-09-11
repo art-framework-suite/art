@@ -12,7 +12,9 @@
 //
 // ----------------------------------------------------------------------
 
+#ifndef __GCCXML__
 #include <mutex>
+#endif
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -89,9 +91,12 @@ namespace art {
 
       static ThreadSafeIndexedRegistry* instance_;
 
+#ifndef __GCCXML__
       static std::mutex registry_mutex;
+#endif
     };
 
+#ifndef __GCCXML__
     template <typename T, typename E>
     inline
     std::ostream&
@@ -230,6 +235,7 @@ namespace art {
     ThreadSafeIndexedRegistry<T, E>::~ThreadSafeIndexedRegistry()
     { }
 
+#endif
   }  // detail
 }  // art
 

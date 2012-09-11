@@ -42,8 +42,9 @@ public:
 
   result_t branchToProductProvenance(BranchID const &) const;
 
+#ifndef __GCCXML__
   result_t insert(std::unique_ptr<ProductProvenance const>&& );
-
+#endif
   void setDelayedRead(bool value) {delayedRead_ = value;}
 
 private:

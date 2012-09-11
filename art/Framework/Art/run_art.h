@@ -1,6 +1,6 @@
 #ifndef art_Framework_Art_run_art_h
 #define art_Framework_Art_run_art_h
-
+#ifndef __GCCXML__
 #include "art/Framework/Art/OptionsHandlers.h"
 #include "cetlib/filepath_maker.h"
 
@@ -11,6 +11,7 @@ namespace art {
               cet::filepath_maker & lookupPolicy,
               art::OptionsHandlers && handlers);
 }
+#endif
 #endif /* art_Framework_Art_run_art_h */
 
 // Local Variables:

@@ -80,6 +80,7 @@ public:
   ProcessHistoryID const&
   processHistoryID() const;
 
+#ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
   ProductID
@@ -89,6 +90,7 @@ public:
   template <typename PROD>
   ProductID
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
+#endif
 
   template <typename PROD>
   bool
@@ -153,7 +155,6 @@ public:
   EDProductGetter const * productGetter(ProductID const &) const;
 
   ProductID branchIDToProductID(BranchID const &bid) const;
-
 private:
   EventPrincipal const& eventPrincipal() const;
   EventPrincipal      & eventPrincipal();
@@ -201,7 +202,7 @@ private:
 };  // Event
 
 // ----------------------------------------------------------------------
-
+#ifndef __GCCXML__
 template <typename PROD>
 bool
 art::Event::get(ProductID const& oid, Handle<PROD>& result) const
@@ -432,7 +433,7 @@ art::Event::fillView_( GroupQueryResult & bh
   }
 
 }  // fillView_<>()
-
+#endif
 #endif /* art_Framework_Principal_Event_h */
 
 // Local Variables:
