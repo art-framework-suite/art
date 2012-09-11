@@ -63,7 +63,7 @@ namespace art {
     return fileIdx_;
   }
 
-  bool InputFileCatalog::getNextFile() {
+  bool InputFileCatalog::getNextFile(int attempts) {
     // get next file from FileDelivery service
     // and give it to currentFile_ object
     // returns false if theres no more file
@@ -77,7 +77,7 @@ namespace art {
     if( nextFileProbed_ && !hasNextFile_ )
       return false;
 
-    if( (nextFileProbed_ && hasNextFile_) || retrieveNextFileFromCacheOrService(nextItem_) ) 
+    if( (nextFileProbed_ && hasNextFile_) || retrieveNextFile(nextItem_, attempts) ) 
     {
       nextFileProbed_ = false;
       fileIdx_ = (fileIdx_ == indexEnd) ? 0 : (searchable_ ? (fileIdx_+1) : 0);
@@ -89,35 +89,99 @@ namespace art {
     return false;
   }
 
-  bool InputFileCatalog::hasNextFile() {
+  bool InputFileCatalog::hasNextFile(int attempts) {
     // A probe. It tries(and actually does) retreive
     // the next file from the FileDelivery service. But
     // does not advance the current file pointer
     if( nextFileProbed_ )
       return hasNextFile_;
 
-    hasNextFile_ = retrieveNextFileFromCacheOrService(nextItem_);
+    hasNextFile_    = retrieveNextFile(nextItem_, attempts);
     nextFileProbed_ = true;
+
     return hasNextFile_;
   }
 
-  bool InputFileCatalog::retrieveNextFileFromCacheOrService(FileCatalogItem & item) {
+  bool InputFileCatalog::retrieveNextFile(FileCatalogItem & item, int attempts) {
+
+    // Tell the service the current opened file (if theres one) is consumed
+    if( fileIdx_!=indexEnd && !currentFile().skipped() ) 
+      tfd_->updateStatus( currentFile().uri(), FileDisposition::CONSUMED );
+
+    // retrieve next file from service
+    FileCatalogStatus status = retrieveNextFileFromCacheOrService(item);
+
+    if( status == FileCatalogStatus::SUCCESS ) {
+      // mark the file as transferred
+      tfd_->updateStatus( item.uri(), FileDisposition::TRANSFERRED );
+      return true;
+    }
+
+    if( status == FileCatalogStatus::NO_MORE_FILES ) {
+      return false;
+    }
+
+    if( status == FileCatalogStatus::DELIVERY_ERROR ) {
+      if( attempts <= 1 ) {
+        throw art::Exception(art::errors::Configuration, 
+          "InputFileCatalog::retreiveNextFile()\n")
+          << "Delivery error encountered after reaching maximum number of attemtps!";
+      }
+      else {
+        return retrieveNextFile(item, attempts-1);
+      }
+    }
+
+    if( status == FileCatalogStatus::TRANSFER_ERROR ) {
+      if( attempts <= 1 ) {
+        // if we end up with a transfer error, the method returns
+        // with a true flag and empty filename. Weired enough, but
+        // the next file does exist we just cannot retrieve it. Therefore
+        // we notify the service that the file has been skipped
+        tfd_->updateStatus( item.uri(), FileDisposition::SKIPPED );
+        return true;
+      }
+      else {
+        return retrieveNextFile(item, attempts-1);
+      }
+    }
+
+    // should never reach here
+    assert(0);
+    return false;
+  }
+
+  FileCatalogStatus InputFileCatalog::retrieveNextFileFromCacheOrService(FileCatalogItem & item) {
     // Try to get it from cached files
     if( fileIdx_ < maxIdx_ ) {
       item = fileCatalogItems_[fileIdx_+1];
-      return true;
+      return FileCatalogStatus::SUCCESS;
     }
       
     // Try to get it from the service
     std::string uri, pfn;
     double wait = 0.0;
 
-    if( tfd_->getNextFileURI( uri, wait ) != FileDeliveryStatus::SUCCESS )
-      return false;
+    // get file delivered
+    int result = tfd_->getNextFileURI( uri, wait );
 
-    if( tft_->translateToLocalFilename( uri, pfn ) != FileTransferStatus::CREATED )
-      return false;
+    if( result == FileDeliveryStatus::NO_MORE_FILES )
+      return FileCatalogStatus::NO_MORE_FILES;
 
+    if( result != FileDeliveryStatus::SUCCESS )
+      return FileCatalogStatus::DELIVERY_ERROR;
+
+    // get file transfered
+    result = tft_->translateToLocalFilename( uri, pfn );
+
+    if( result != FileTransferStatus::CREATED )
+    {
+      item = FileCatalogItem("", "", uri);
+      item.skip(true);
+      return FileCatalogStatus::TRANSFER_ERROR;
+    }
+
+    // successfully retrieved the file
     std::string lfn = pfn;
    
     boost::trim(pfn);
@@ -132,8 +196,8 @@ namespace art {
       lfn.clear();
     }
 
-    item = FileCatalogItem(pfn, lfn);
-    return true;
+    item = FileCatalogItem(pfn, lfn, uri);
+    return FileCatalogStatus::SUCCESS;
   }
 
   void InputFileCatalog::rewind() {

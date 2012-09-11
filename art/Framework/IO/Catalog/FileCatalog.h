@@ -13,16 +13,19 @@ namespace art {
 
   class FileCatalogItem {
   public:
-    FileCatalogItem() : pfn_(), lfn_(), uri_() {}
+    FileCatalogItem() : pfn_(), lfn_(), uri_(), skipped_(false) {}
     FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const & uri) 
-      : pfn_(pfn), lfn_(lfn), uri_(uri) {}
+      : pfn_(pfn), lfn_(lfn), uri_(uri), skipped_(false) {}
     std::string const& fileName() const {return pfn_;}
     std::string const& logicalFileName() const {return lfn_;}
     std::string const& uri() const {return uri_;}
+    void skip(bool s) { skipped_ = s; }
+    bool skipped() const { return skipped_; }
   private:
     std::string pfn_;
     std::string lfn_;
     std::string uri_;
+    bool skipped_;
   };  // FileCatalogItem
 
 // ----------------------------------------------------------------------

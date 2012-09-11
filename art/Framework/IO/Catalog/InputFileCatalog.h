@@ -22,6 +22,13 @@ namespace art {
   class TrivialFileDelivery;
   class TrivialFileTransfer;
 
+  enum class FileCatalogStatus {
+    SUCCESS,
+    NO_MORE_FILES,
+    DELIVERY_ERROR,
+    TRANSFER_ERROR
+  };
+
   class InputFileCatalog : public FileCatalog {
   public:
     explicit InputFileCatalog(fhicl::ParameterSet const& pset,
@@ -32,8 +39,8 @@ namespace art {
     std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
     FileCatalogItem const& currentFile() const;
     size_t currentIndex() const;
-    bool   getNextFile();
-    bool   hasNextFile();
+    bool   getNextFile(int attempts=5);
+    bool   hasNextFile(int attempts=5);
     void   rewind();
     void   rewindTo(size_t index);
     bool   isSearchable()       {return searchable_;}
@@ -43,7 +50,8 @@ namespace art {
 
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
-    bool retrieveNextFileFromCacheOrService(FileCatalogItem & item);
+    bool retrieveNextFile(FileCatalogItem & item, int attempts);
+    FileCatalogStatus retrieveNextFileFromCacheOrService(FileCatalogItem & item);
 
     std::vector<std::string> fileSources_;
     std::vector<FileCatalogItem> fileCatalogItems_;
