@@ -25,5 +25,5 @@ physics:
 source:
 {
   module_type: RootInput
-  fileNames: [ "issue_0926b.root" ]
+  fileNames: [ "issue_0926b1.root", "issue_0926b2.root", "issue_0926b3.root" ]
 }
