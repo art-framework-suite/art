@@ -36,6 +36,7 @@ public:
   using Base::me;
   using Base::processHistory;
 
+#ifndef __GCCXML__
   ///Put a new product.
   template <typename PROD>
   void
@@ -45,6 +46,7 @@ public:
   template <typename PROD>
   void
   put(std::unique_ptr<PROD> && product, std::string const& productInstanceName);
+#endif
 
   // Return true if this Run has been subjected to a process with
   // the given processName, and false otherwise.
@@ -77,6 +79,7 @@ private:
   RunAuxiliary const& aux_;
 };
 
+#ifndef __GCCXML__
 template <typename PROD>
 void
 art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstanceName)
@@ -99,7 +102,7 @@ art::Run::put(std::unique_ptr<PROD> && product, std::string const& productInstan
   // product.release(); // The object has been copied into the Wrapper.
   // The old copy must be deleted, so we cannot release ownership.
 }
-
+#endif
 #endif /* art_Framework_Principal_Run_h */
 
 // Local Variables:
