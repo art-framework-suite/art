@@ -311,7 +311,7 @@ Output Filtering
           fileName: "pathA_passes.root"
           # Write all the events for which pathA ended with 'true' from filtering.
           # Events which caused an exception throw will not be written.
-          SelectEvents: { SelectEvents: [ "pathA@noexeception" ] }
+          SelectEvents: { SelectEvents: [ "pathA&noexeception" ] }
         }
         failWriter:
         {
@@ -319,7 +319,7 @@ Output Filtering
           fileName: "pathA_failures.root"
           # Write all the events for which pathA ended with 'false' from filtering.
           # Events which caused an exception throw will not be written.
-          SelectEvents: { SelectEvents: [ "!pathA@noexception" ] }
+          SelectEvents: { SelectEvents: [ "!pathA&noexception" ] }
         }
         exceptWriter:
         {
