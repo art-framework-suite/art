@@ -16,7 +16,6 @@
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
-#include "boost/noncopyable.hpp"
 #include "cpp0x/memory"
 #include <string>
 #include <vector>
@@ -28,8 +27,11 @@ class TFile;
 namespace art {
   class DelayedReader;
 
-  class RootTree : private boost::noncopyable {
+  class RootTree {
   public:
+    RootTree(RootTree const&) = delete;
+    RootTree& operator=(RootTree const&) = delete;
+
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
     RootTree(std::shared_ptr<TFile> filePtr, BranchType const& branchType);

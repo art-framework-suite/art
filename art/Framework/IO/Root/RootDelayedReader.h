@@ -12,9 +12,6 @@
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Provenance/BranchKey.h"
 #include "cpp0x/memory"
-
-#include "boost/noncopyable.hpp"
-
 #include <map>
 #include <string>
 
@@ -26,8 +23,11 @@ namespace art {
   class RootDelayedReader;
 }
 class art::RootDelayedReader :
-  public art::DelayedReader, private boost::noncopyable {
+  public art::DelayedReader {
 public:
+  RootDelayedReader(RootDelayedReader const&) = delete;
+  RootDelayedReader& operator=(RootDelayedReader const&) = delete;
+
   typedef input::BranchMap BranchMap;
   typedef input::EntryNumber EntryNumber;
   typedef input::BranchInfo BranchInfo;

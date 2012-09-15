@@ -21,7 +21,6 @@
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-#include "boost/noncopyable.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/thread/thread.hpp"
 #include "cpp0x/memory"
@@ -39,8 +38,10 @@ namespace art {
 
   class ProcessDesc;
 
-  class EventProcessor : public IEventProcessor, private boost::noncopyable {
+  class EventProcessor : public IEventProcessor {
   public:
+    EventProcessor(EventProcessor const&) = delete;
+    EventProcessor& operator=(EventProcessor const&) = delete;
 
     // The input string 'config' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and

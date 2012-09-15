@@ -88,7 +88,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "boost/noncopyable.hpp"
 #include <map>
 #include <set>
 #include <string>
@@ -420,8 +419,11 @@ namespace {
   /// Class ScheduleSignalSentry<T> is used to emit the pre- and post-schedule
   /// signals associated with the principal associated with T.
   template <typename T>
-  class ScheduleSignalSentry : private boost::noncopyable {
+  class ScheduleSignalSentry {
   public:
+    ScheduleSignalSentry(ScheduleSignalSentry<T> const&) = delete;
+    ScheduleSignalSentry<T> operator=(ScheduleSignalSentry<T> const&) = delete;
+
     typedef typename T::MyPrincipal principal_t;
     ScheduleSignalSentry(art::ActivityRegistry & a, principal_t & ep);
     ~ScheduleSignalSentry();

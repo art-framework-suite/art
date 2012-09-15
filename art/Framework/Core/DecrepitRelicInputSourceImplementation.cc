@@ -48,8 +48,6 @@ namespace art {
   DecrepitRelicInputSourceImplementation(ParameterSet const & pset,
                                          InputSourceDescription & desc)
     : ProductRegistryHelper( )
-    , boost::noncopyable   ( )
-//    , actReg_              ( desc.activityRegistry )
     , maxEvents_           ( pset.get<int>("maxEvents", -1) )
     , remainingEvents_     ( maxEvents_ )
     , maxSubRuns_          ( pset.get<int>("maxSubRuns", -1) )

@@ -5,8 +5,9 @@
  <class name="art::EDProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="241049717"/>
  </class>
- <class name="art::EDProductGetter" ClassVersion="10">
-  <version ClassVersion="10" checksum="3552558110"/>
+ <class name="art::EDProductGetter" ClassVersion="11">
+  <version ClassVersion="11" checksum="3926581880"/>
+  <version ClassVersion="10" checksum="3926581880"/>
  </class>
  <class name="art::RefCore" ClassVersion="10">
   <version ClassVersion="10" checksum="83101202"/>

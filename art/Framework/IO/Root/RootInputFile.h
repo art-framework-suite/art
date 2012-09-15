@@ -27,7 +27,6 @@
 #include "art/Persistency/Provenance/RunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/array"
 #include "cpp0x/memory"
@@ -48,8 +47,11 @@ namespace art {
   class DuplicateChecker;
   class GroupSelectorRules;
 
-  class RootInputFile : private boost::noncopyable {
+  class RootInputFile {
   public:
+    RootInputFile(RootInputFile const&) = delete;
+    RootInputFile& operator=(RootInputFile const&) = delete;
+
     typedef std::array<RootTree *, NumBranchTypes> RootTreePtrArray;
     RootInputFile(std::string const& fileName,
              std::string const& catalogName,

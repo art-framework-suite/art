@@ -15,7 +15,6 @@
 #include "art/Persistency/Provenance/BranchType.h"
 
 #include "cetlib/exempt_ptr.h"
-#include "boost/noncopyable.hpp"
 #include <ostream>
 #include <vector>
 
@@ -31,33 +30,35 @@ namespace art
   std::ostream& operator<< (std::ostream&, ProductMetaData const&);
 }
 
-class art::ProductMetaData : boost::noncopyable
+class art::ProductMetaData
 {
- public:
+public:
+  ProductMetaData(ProductMetaData const&) = delete;
+  ProductMetaData& operator=(ProductMetaData const&) = delete;
 
-   typedef MasterProductRegistry::ProcessLookup ProcessLookup;
-   typedef MasterProductRegistry::TypeLookup    TypeLookup;
+  typedef MasterProductRegistry::ProcessLookup ProcessLookup;
+  typedef MasterProductRegistry::TypeLookup    TypeLookup;
 
-   // Give access to the only instance; throws if it is not yet made.
-   static ProductMetaData const& instance();
+  // Give access to the only instance; throws if it is not yet made.
+  static ProductMetaData const& instance();
 
-   // Accessors: this is the facade presented by ProductMetaData
-   // for the MasterProductRegistry.
-   ProductList const& productList() const;
+  // Accessors: this is the facade presented by ProductMetaData
+  // for the MasterProductRegistry.
+  ProductList const& productList() const;
 
-   // Print all the BranchDescriptions we contain.
-   void printBranchDescriptions(std::ostream&) const;
+  // Print all the BranchDescriptions we contain.
+  void printBranchDescriptions(std::ostream&) const;
 
-   // Obtain lookup map to find a group by type of product.
-   TypeLookup const& productLookup() const;
+  // Obtain lookup map to find a group by type of product.
+  TypeLookup const& productLookup() const;
 
-   // Obtain lookup map to find a group by type of element in a product
-   // which is a collection.
-   TypeLookup const& elementLookup() const;
+  // Obtain lookup map to find a group by type of element in a product
+  // which is a collection.
+  TypeLookup const& elementLookup() const;
 
-   // Return true if any product is produced in this process for
-   // the given branch type.
-   bool productProduced(BranchType which) const;
+  // Return true if any product is produced in this process for
+  // the given branch type.
+  bool productProduced(BranchType which) const;
 
   friend class Schedule;
   friend class ::MPRGlobalTestFixture; // Used for testing.

@@ -48,7 +48,6 @@ namespace art {
                        ProcessHistoryID const& hist,
                        std::unique_ptr<BranchMapper> && mapper,
                        std::unique_ptr<DelayedReader> && rtrv) :
-    boost::noncopyable(),
     processHistoryPtr_(std::shared_ptr<ProcessHistory>(new ProcessHistory)),
     processConfiguration_(pc),
     processHistoryModified_(false),

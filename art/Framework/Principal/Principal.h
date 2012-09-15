@@ -32,7 +32,6 @@ pointer to a Group, when queried.
 #include "art/Persistency/Provenance/ProvenanceFwd.h"
 #include "art/Utilities/InputTag.h"
 #include "art/Utilities/TypeID.h"
-#include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include <map>
@@ -40,9 +39,10 @@ pointer to a Group, when queried.
 #include <vector>
 
 class art::Principal
-  : public boost::noncopyable
 {
 public:
+  Principal(Principal const&) = delete;
+  Principal& operator=(Principal const&) = delete;
   typedef std::map<BranchID, std::shared_ptr<Group> > GroupCollection;
   typedef GroupCollection::const_iterator const_iterator;
   typedef ProcessHistory::const_iterator ProcessNameConstIterator;

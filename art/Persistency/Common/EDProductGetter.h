@@ -4,15 +4,27 @@
 #include "art/Persistency/Provenance/ProductID.h"
 #include "art/Utilities/fwd.h"
 
-#include "boost/noncopyable.hpp"
-
 namespace art {
   class EDProduct;
   class EDProductGetter;
 }
 
-class art::EDProductGetter : private boost::noncopyable {
+class art::EDProductGetter {
 public:
+
+#ifdef __GCCXML__
+  EDProductGetter() {};
+private:
+  EDProductGetter(EDProductGetter const&);
+  EDProductGetter& operator=(EDProductGetter const&);
+public:
+
+#else
+  EDProductGetter() = default;
+  EDProductGetter(EDProductGetter const&) = delete;
+  EDProductGetter& operator=(EDProductGetter const&) = delete;
+#endif
+
   virtual ~EDProductGetter();
 
   virtual EDProduct const *getIt() const = 0;

@@ -10,7 +10,6 @@ RootOutputTree.h // used by ROOT output modules
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Persistency/Provenance/BranchType.h"
 #include "art/Persistency/Provenance/ProductProvenance.h"
-#include "boost/noncopyable.hpp"
 #include "cpp0x/memory"
 
 #include <set>
@@ -24,8 +23,11 @@ class TBranch;
 
 namespace art {
 
-  class RootOutputTree : private boost::noncopyable {
+  class RootOutputTree {
   public:
+    RootOutputTree(RootOutputTree const&) = delete;
+    RootOutputTree& operator=(RootOutputTree const&) = delete;
+
     // Constructor for trees with no fast cloning
     template <typename T>
     RootOutputTree(T* , // first argument is a dummy so that the compiler can resolve the match.

@@ -5,8 +5,6 @@
 #include "messagefacility/MessageLogger/MessageDrop.h"
 #include "messagefacility/MessageService/MessageLogger.h"
 
-#include "boost/noncopyable.hpp"
-
 #include <string>
 
 #define MFSU_0_ARG_UPDATER_DECL(stateTag)                               \
@@ -23,8 +21,11 @@ namespace art {
   class MFStatusUpdater;
 }
 
-class art::MFStatusUpdater : boost::noncopyable {
+class art::MFStatusUpdater {
 public:
+  MFStatusUpdater(MFStatusUpdater const&) = delete;
+  MFStatusUpdater operator=(MFStatusUpdater const&) = delete;
+  
   MFStatusUpdater(ActivityRegistry &areg);
 
   // Public interface to get state information.

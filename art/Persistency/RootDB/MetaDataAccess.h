@@ -4,14 +4,15 @@
 
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 
-#include "boost/noncopyable.hpp"
-
 namespace art {
   class MetaDataAccess;
 }
 
-class art::MetaDataAccess : private boost::noncopyable {
+class art::MetaDataAccess {
 public:
+  MetaDataAccess(MetaDataAccess const&) = delete;
+  MetaDataAccess& operator=(MetaDataAccess const&) = delete;
+
   static MetaDataAccess & instance();
 
   SQLite3Wrapper const & dbHandle() const { return dbHandle_; };

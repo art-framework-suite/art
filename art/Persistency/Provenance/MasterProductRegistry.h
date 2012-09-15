@@ -12,8 +12,6 @@
 #include "cpp0x/array"
 #include "cpp0x/memory"
 
-#include "boost/noncopyable.hpp"
-
 #include <iosfwd>
 #include <map>
 #include <string>
@@ -32,8 +30,11 @@ namespace art {
   std::ostream &operator<<(std::ostream &os, MasterProductRegistry const &mpr);
 }
 
-class art::MasterProductRegistry : boost::noncopyable {
+class art::MasterProductRegistry {
 public:
+  MasterProductRegistry(MasterProductRegistry const&) = delete;
+  MasterProductRegistry& operator=(MasterProductRegistry const&) = delete;
+
   MasterProductRegistry();
 
   // Used for indices to find branch IDs by type and process.

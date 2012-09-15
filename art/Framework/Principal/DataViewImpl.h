@@ -63,8 +63,6 @@
 #include "cpp0x/memory"
 #include "cpp0x/utility"
 
-#include "boost/noncopyable.hpp"
-
 #include <ostream>
 #include <string>
 #include <vector>
@@ -75,8 +73,11 @@ namespace art {
   operator<<(std::ostream& os, Handle<PROD> const& h);
 }
 
-class art::DataViewImpl : boost::noncopyable {
+class art::DataViewImpl {
 public:
+  DataViewImpl(DataViewImpl const&) = delete;
+  DataViewImpl& operator=(DataViewImpl const&) = delete;
+
   DataViewImpl(Principal & pcpl,
                ModuleDescription const& md,
                BranchType const& branchType);

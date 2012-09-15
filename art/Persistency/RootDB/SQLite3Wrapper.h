@@ -2,9 +2,6 @@
 #define art_Persistency_RootDB_SQLite3Wrapper_h
 
 // Sentry-like entity to manage the lifetime of an SQL database handle.
-
-#include "boost/noncopyable.hpp"
-
 #include <string>
 
 extern "C" {
@@ -17,8 +14,11 @@ namespace art {
 
 #include "TFile.h"
 
-class art::SQLite3Wrapper : boost::noncopyable {
+class art::SQLite3Wrapper {
 public:
+  SQLite3Wrapper(SQLite3Wrapper const&) = delete;
+  SQLite3Wrapper& operator=(SQLite3Wrapper const&) = delete;
+
   typedef int (*callback_t)(void *, int, char **, char **) ;
 
   // A default constructed wrapper is not associated with an SQLite database.

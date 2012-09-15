@@ -25,7 +25,6 @@
 #include "art/Utilities/GetPassID.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "boost/noncopyable.hpp"
 #include "boost/thread/xtime.hpp"
 #include "cetlib/exception_collector.h"
 #include "cpp0x/functional"
@@ -44,8 +43,10 @@ namespace art {
 
   namespace {
 
-    class SignalSentry : private boost::noncopyable {
+    class SignalSentry {
     public:
+      SignalSentry(SignalSentry const&) = delete;
+      SignalSentry& operator=(SignalSentry const&) = delete;
       typedef sigc::signal<void> Sig;
       SignalSentry(Sig & pre, Sig & post) : post_(post) { pre(); }
       ~SignalSentry() { post_(); }

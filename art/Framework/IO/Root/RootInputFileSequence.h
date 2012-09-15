@@ -17,8 +17,6 @@
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "boost/noncopyable.hpp"
-#include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include <string>
@@ -35,8 +33,11 @@ namespace art {
   class MasterProductRegistry;
   class RootInputFile;
 
-  class RootInputFileSequence : private boost::noncopyable {
+  class RootInputFileSequence {
   public:
+    RootInputFileSequence(RootInputFileSequence const&) = delete;
+    RootInputFileSequence& operator=(RootInputFileSequence const&) = delete;
+
     explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
                                    InputFileCatalog & catalog,
                                    bool primarySequence,

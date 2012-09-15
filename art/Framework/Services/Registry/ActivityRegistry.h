@@ -11,7 +11,6 @@
 //
 // ======================================================================
 
-#include "boost/noncopyable.hpp"
 #include "cpp0x/functional"
 #include "sigc++/signal.h"
 #include <string>
@@ -55,8 +54,12 @@ namespace art {
     watch##stateTag (std::bind(std::mem_fn(iMethod), iObject, std::placeholders::_1,std::placeholders::_2));  \
   }
 
-class art::ActivityRegistry : private boost::noncopyable {
+class art::ActivityRegistry {
 public:
+  ActivityRegistry() = default;
+  ActivityRegistry(ActivityRegistry const&) = delete;
+  ActivityRegistry& operator=(ActivityRegistry const&) = delete;
+
   // ---------- signals ------------------------------------
   typedef sigc::signal<void> PostBeginJob;
   // Signal is emitted after all modules have gotten their beginJob called

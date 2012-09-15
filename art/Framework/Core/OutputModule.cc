@@ -119,8 +119,6 @@ namespace art {
     }
   }
 
-  OutputModule::~OutputModule() { }
-
   void
   OutputModule::reconfigure(ParameterSet const&) {
      mf::LogError("FeatureNotImplemented")

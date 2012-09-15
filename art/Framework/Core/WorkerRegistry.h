@@ -14,7 +14,6 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/PassID.h"
 #include "art/Persistency/Provenance/ReleaseVersion.h"
-#include "boost/noncopyable.hpp"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
@@ -26,9 +25,11 @@ namespace art {
 
   class Worker;
 
-  class WorkerRegistry : private boost::noncopyable {
+  class WorkerRegistry {
 
   public:
+    WorkerRegistry(WorkerRegistry const&) = delete;
+    WorkerRegistry& operator=(WorkerRegistry const&) = delete;
 
     explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
 

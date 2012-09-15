@@ -22,7 +22,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ParentageID.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "boost/noncopyable.hpp"
+
 #include "cpp0x/array"
 #include "cpp0x/memory"
 #include <string>
@@ -36,16 +36,18 @@ namespace art {
 
   std::vector<std::string> const& getAllTriggerNames();
 
-  class OutputModule : public EventObserver,
-     private boost::noncopyable {
+  class OutputModule : public EventObserver {
   public:
+    OutputModule(OutputModule const&) = delete;
+    OutputModule& operator=(OutputModule const&) = delete;
+
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
     typedef OutputModule ModuleType;
     typedef OutputWorker WorkerType;
 
     explicit OutputModule(fhicl::ParameterSet const& pset);
-    virtual ~OutputModule();
+    virtual ~OutputModule() = default;
     void reconfigure(fhicl::ParameterSet const&);
     // Accessor for maximum number of events to be written.
     // -1 is used for unlimited.

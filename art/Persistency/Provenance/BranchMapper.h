@@ -14,8 +14,6 @@
 #include "cetlib/value_ptr.h"
 #include "cpp0x/memory"
 
-#include "boost/noncopyable.hpp"
-
 #include <iosfwd>
 #include <map>
 #include <set>
@@ -31,8 +29,11 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::BranchMapper : boost::noncopyable {
+class art::BranchMapper {
 public:
+  BranchMapper(BranchMapper const&) = delete;
+  BranchMapper& operator=(BranchMapper const&) = delete;
+
   typedef  cet::exempt_ptr<ProductProvenance const>  result_t;
 
   explicit BranchMapper(bool delayedRead = false);

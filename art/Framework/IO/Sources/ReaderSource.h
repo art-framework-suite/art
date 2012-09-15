@@ -56,7 +56,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/SubRunID.h"
-#include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/algorithm"
 #include "cpp0x/memory"
@@ -69,8 +68,11 @@
 namespace art {
 
   template <class T>
-  class ReaderSource : public InputSource, private boost::noncopyable {
+  class ReaderSource : public InputSource {
   public:
+    ReaderSource(ReaderSource<T> const&) = delete;
+    ReaderSource<T>& operator=(ReaderSource<T> const&) = delete;
+
     typedef T ReaderDetail;
 
     ReaderSource(fhicl::ParameterSet const & p,

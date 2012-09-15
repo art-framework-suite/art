@@ -51,7 +51,6 @@ Some examples of InputSource subclasses may be:
 #include "art/Persistency/Provenance/RunID.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "art/Persistency/Provenance/Timestamp.h"
-#include "boost/noncopyable.hpp"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
@@ -67,10 +66,13 @@ namespace art
 
   class DecrepitRelicInputSourceImplementation :
     public InputSource,
-    private ProductRegistryHelper,
-    private boost::noncopyable
+    private ProductRegistryHelper
   {
   public:
+
+
+    DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
+    DecrepitRelicInputSourceImplementation& operator=(DecrepitRelicInputSourceImplementation const&) = delete;
 
     DecrepitRelicInputSourceImplementation(fhicl::ParameterSet const&,
                                            InputSourceDescription &);
