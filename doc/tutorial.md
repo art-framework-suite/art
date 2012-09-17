@@ -6,10 +6,19 @@ copyright: The <b>art</b> tutorial
 
 generator: slideshow
 
-What art?
-=====================
+What is  art?
+=============
 
-The **art** Event Processing Framework coordinates event processing via configurable, pluggable modules (e.g. reconstruction, filtering, and analysis) that add data to and retrieve data from events, supporting a programming model that separates algorithm and data. An event is one unit of data, an interaction, or period of collected data.
+The **art** event processing framework coordinates *event processing*
+via configurable, pluggable modules (*e.g.*, reconstruction,
+filtering, and analysis) that add data to and retrieve data from
+events, supporting a programming model that separates algorithm and
+data.
+
+An *event* is one unit of data. It may represent an interaction, a
+beam crossing, or any period of collected data. Each experiment that
+uses the **art** framework can define the unit of data that
+corresponds to the *event* as it wishes.
 
 The art framework
 =================
