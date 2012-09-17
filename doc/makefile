@@ -1,4 +1,7 @@
-all: tutorial.html PolymorphismAndDataProducts.pdf
+all: tutorial.html PolymorphismAndDataProducts.pdf tutorial.tar.gz
+
+tutorial.tar.gz: tutorial.html
+	tar zcvf $@ tutorial.html images/ slidy/
 
 PolymorphismAndDataProducts.pdf: PolymorphismAndDataProducts.tex
 	latexmk --pdf PolymorphismAndDataProducts
