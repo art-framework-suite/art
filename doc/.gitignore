@@ -2,3 +2,6 @@
 *.pdf
 *.vpp~*
 PolymorphismAndDataProducts.out
+PolymorphismAndDataProducts.toc
+slidy/
+tutorial.tar.gz
