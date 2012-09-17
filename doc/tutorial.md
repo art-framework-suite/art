@@ -119,7 +119,6 @@ Sources
   * *NOvARawInputSource*: experiment-specfic source that reads binary DAQ files (provided by framework group)
   * *EmpyEvent*: creates *Events* containing no products (used, e.g., in simulation)
 
-
 Filter Interface
 ================
 
@@ -329,6 +328,18 @@ Output Filtering
           SelectEvents: { SelectEvents: [ "exception@pathA", "exception@pathB" ] }
         }
       }
+
+Verifying FHiCL Files
+=====================
+
+* The command line executables (**art**, **nova**, *etc*.) can be used
+  to process a configuration file, to do post-processing according to
+  the specified command-line arguments, and to print out the FHiCL
+  language representation of the configuration. To use this, define
+  the environment variable ART_DEBUG_CONFIG. For example, if you are
+  using the *bash* shell:
+
+       ART_DEBUG_CONFIG=1 nova -c my_file.fcl
 
 nova Command Line Arguments
 ============================
