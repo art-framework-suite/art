@@ -19,12 +19,14 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const &ps,
   :
   md_()
 {
+  size_t par_count = 0;
   std::string applicationFamily;
   std::string applicationVersion;
   std::string fileType;
-  if (ps.get_if_present("applicationFamily", applicationFamily) ||
-      ps.get_if_present("applicationVersion", applicationVersion) ||
-      ps.get_if_present("fileType", fileType)) {
+  par_count += ps.get_if_present("applicationFamily", applicationFamily);
+  par_count += ps.get_if_present("applicationVersion", applicationVersion);
+  par_count += ps.get_if_present("fileType", fileType);
+  if (par_count) {
     throw_if_empty(applicationFamily, "applicationFamily");
     addMetadata("applicationFamily", applicationFamily);
     throw_if_empty(applicationVersion, "applicationVersion");

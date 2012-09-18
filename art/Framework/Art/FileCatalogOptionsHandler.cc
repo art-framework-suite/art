@@ -47,7 +47,10 @@ namespace {
     std::string const tier_spec_stem(".dataTier");
     std::string const stream_name_stem(".streamName");
     std::vector<std::string> data_tiers(vm["sam-data-tier"].as<std::vector<std::string> >());
-    std::vector<std::string> stream_names(vm["sam-stream-name"].as<std::vector<std::string> >());
+    std::vector<std::string>
+      stream_names((vm.count("sam-stream-name") == 1) ?
+                   vm["sam-stream-name"].as<std::vector<std::string> >() :
+                   std::vector<std::string>());
     std::map<std::string, std::string> sep_tiers, sep_streams;
     for (auto const & tier : data_tiers) {
       sep_tiers.insert(split_to_pair(tier));
@@ -73,7 +76,7 @@ namespace {
                        def_tier);
       if (!tier.empty()) {
         raw_config.put(outputs_stem + output.first + tier_spec_stem,
-                       tiers_it->second);
+                       tier);
       }
       if (!raw_config.exists(outputs_stem + output.first + tier_spec_stem)) {
         throw art::Exception(art::errors::Configuration)
