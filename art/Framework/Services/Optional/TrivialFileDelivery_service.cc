@@ -79,4 +79,4 @@ art::TrivialFileDelivery::prependFileDesignation(std::string const & name) const
   return s + name;
 }
 
-DEFINE_ART_SERVICE(art::TrivialFileDelivery)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery, art::CatalogInterface)

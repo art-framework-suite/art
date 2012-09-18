@@ -261,7 +261,7 @@ namespace art {
     b->Fill();
   }
 
-  void RootOutputFile::writeFileCatalogMetadata() {
+  void RootOutputFile::writeFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) {
     SQLErrMsg errMsg;
     // ID is declared auto-increment, so don't specify it when filling a
     // row.
@@ -275,32 +275,15 @@ namespace art {
                  0,
                  errMsg);
     errMsg.throwIfError();
-    fillFileCatalogMetadataMap();
-  }
 
-  void RootOutputFile::fillFileCatalogMetadataMap() {
-    // Fill the info that will go into this metadata table -
-    // For now, we are just creating a vector of pairs.
-    typedef std::pair<std::string,std::string> FileCatalogMetadataEntry;
-    typedef std::vector< FileCatalogMetadataEntry > FileCatalogMetadataEntryCollection;
-    FileCatalogMetadataEntryCollection fileCatalogMetadataNameValuePairs;
-    fileCatalogMetadataNameValuePairs.push_back
-        ( FileCatalogMetadataEntry ("appname", "art") );
-    fileCatalogMetadataNameValuePairs.push_back
-        ( FileCatalogMetadataEntry ("art_version", getReleaseVersion()) );
-    // Now put that info into the database
-    typedef  FileCatalogMetadataEntryCollection::const_iterator  const_iterator;
-    SQLErrMsg errMsg;
     sqlite3_exec(metaDataHandle_, "BEGIN TRANSACTION;", 0, 0, errMsg);
     sqlite3_stmt *stmt = 0;
     sqlite3_prepare_v2(metaDataHandle_,
                        "INSERT INTO FileCatalog_metadata(Name, Value) VALUES(?, ?);",
                        -1, &stmt, NULL);
-    for( const_iterator it = fileCatalogMetadataNameValuePairs.begin()
-                      , e  = fileCatalogMetadataNameValuePairs.end();
-          it != e; ++it )  {
-      std::string theName  (it->first);
-      std::string theValue (it->second);
+    for ( auto const & nvp : md ) {
+      std::string const & theName  (nvp.first);
+      std::string const & theValue (nvp.second);
       sqlite3_bind_text(stmt, 1, theName.c_str(),
                theName.size() + 1, SQLITE_STATIC);
       sqlite3_bind_text(stmt, 2, theValue.c_str(),
@@ -311,7 +294,7 @@ namespace art {
     }
     sqlite3_finalize(stmt);
     sqlite3_exec(metaDataHandle_, "END TRANSACTION;", 0, 0, SQLErrMsg());
-  } // fillFileCatalogMetadataMap()
+  }
 
   void RootOutputFile::writeParameterSetRegistry() {
     SQLErrMsg errMsg;

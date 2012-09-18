@@ -45,11 +45,13 @@ namespace art {
     selectors_(),
     selector_config_id_(),
     branchParents_(),
-    branchChildren_()
+    branchChildren_(),
+    dataTier_(pset.get<std::string>("dataTier", "")),
+    streamName_(pset.get<std::string>("streamName", ""))
   {
     hasNewlyDroppedBranch_.fill(false);
 
-    art::ServiceHandle<art::TriggerNamesService> tns;
+    ServiceHandle<art::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
     ParameterSet selectevents =
@@ -321,6 +323,19 @@ namespace art {
           branchChildren_.insertChild(*j, child);
         }
       }
+    }
+  }
+
+  void
+  OutputModule::writeFileCatalogMetadata()
+  {
+    if (!dataTier_.empty()) {
+      // Add output module-specific info and tell our concrete class to write it out.
+      FileCatalogMetadata::collection_type md;
+      ServiceHandle<FileCatalogMetadata>()->getMetadata(md);
+      md.emplace_back("dataTier", dataTier_);
+      md.emplace_back("streamName", streamName_);
+      doWriteFileCatalogMetadata(md);
     }
   }
 

@@ -108,7 +108,7 @@ namespace art {
   void RootOutput::openFile(FileBlock const& fb) {
     if (!isFileOpen()) {
       if (fb.tree() == 0) {
-     	fastCloning_ = false;
+      fastCloning_ = false;
       }
       doOpenFile();
       respondToOpenInputFile(fb);
@@ -168,7 +168,7 @@ namespace art {
   void RootOutput::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
   void RootOutput::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void RootOutput::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void RootOutput::writeFileCatalogMetadata() { rootOutputFile_->writeFileCatalogMetadata(); }
+  void RootOutput::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) { rootOutputFile_->writeFileCatalogMetadata(md); }
   void RootOutput::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void RootOutput::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
   bool RootOutput::isFileOpen() const { return rootOutputFile_.get() != 0; }

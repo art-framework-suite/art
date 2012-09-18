@@ -41,6 +41,19 @@ namespace {
   }
 
   void
+  verifyInterfaces(fhicl::intermediate_table & raw_config)
+  {
+    if (!raw_config.exists("services.user.CatalogInterface.service_provider")) {
+      raw_config.put("services.user.CatalogInterface.service_provider",
+                     "TrivialFileDelivery");
+    }
+    if (!raw_config.exists("services.user.FileTransfer.service_provider")) {
+      raw_config.put("services.user.FileTransfer.service_provider",
+                     "TrivialFileTransfer");
+    }
+  }
+
+  void
   injectModuleLabels(fhicl::intermediate_table & int_table,
                      std::string const & table_spec,
                      std::vector<std::string> & all_modules)
@@ -93,6 +106,7 @@ doProcessOptions(bpo::variables_map const &,
                  fhicl::intermediate_table & raw_config)
 {
   verifyProcessName(raw_config);
+  verifyInterfaces(raw_config);
   // trigger_paths
   if (raw_config.exists("physics.trigger_paths")) {
     raw_config["trigger_paths.trigger_paths"] =

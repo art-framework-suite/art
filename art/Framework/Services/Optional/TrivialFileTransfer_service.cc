@@ -84,4 +84,4 @@ int art::TrivialFileTransfer::copyFile(std::ifstream & in, std::ofstream & out) 
   return 0;
 }
 
-DEFINE_ART_SERVICE(art::TrivialFileTransfer)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer, art::FileTransfer)

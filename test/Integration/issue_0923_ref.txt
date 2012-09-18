@@ -17,6 +17,11 @@ services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limi
                                                }
                                      }
                      }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                  }
+                  }
           }
 
 Art has completed and will exit with status 1.

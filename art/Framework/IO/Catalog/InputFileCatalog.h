@@ -9,8 +9,8 @@
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h" 
-#include "art/Framework/Services/Interfaces/FileTransferStatus.h" 
+#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/Interfaces/FileTransferStatus.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 #include <vector>
@@ -19,8 +19,8 @@
 
 namespace art {
 
-  class TrivialFileDelivery;
-  class TrivialFileTransfer;
+  class CatalogInterface;
+  class FileTransfer;
 
   enum class FileCatalogStatus {
     SUCCESS,
@@ -62,8 +62,8 @@ namespace art {
     bool nextFileProbed_;
     bool hasNextFile_;
 
-    ServiceHandle<TrivialFileDelivery> tfd_;
-    ServiceHandle<TrivialFileTransfer> tft_;
+    ServiceHandle<CatalogInterface> ci_;
+    ServiceHandle<FileTransfer> ft_;
   };  // InputFileCatalog
 
 }  // art

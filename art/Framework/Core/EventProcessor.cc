@@ -15,6 +15,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/System/CurrentModule.h"
+#include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
@@ -152,8 +153,7 @@ namespace art {
     addOptionalService("SimpleMemoryCheck", services, service_set);
     addOptionalService("Timing", services, service_set);
     addOptionalService("TFileService", services, service_set);
-    addService("TrivialFileDelivery", service_set);
-    addService("TrivialFileTransfer", service_set);
+    addService("FileCatalogMetadata", services, service_set);
     ParameterSet user_services = services.get<ParameterSet>("user", ParameterSet());
     std::vector<std::string> keys = user_services.get_pset_keys();
     for (std::vector<std::string>::iterator i = keys.begin(), e = keys.end(); i != e; ++i)
@@ -208,6 +208,9 @@ namespace art {
     serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
     ServiceRegistry::Operate operate(serviceToken_);
     serviceToken_.forceCreation();
+    // FileCatalogMetadata needs to know about the process name.
+    ServiceHandle<art::FileCatalogMetadata>()->addMetadata("process_name", processName);
+
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
     // Old input sources may need this for now.

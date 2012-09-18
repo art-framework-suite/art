@@ -714,6 +714,10 @@ cet_test(ServiceUsingService_02_t HANDBUILT
 cet_test(SAM_metadata HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c "SAMMetadata_w.fcl"
+  --sam-application-family "Ethel"
+  --sam-application-version "v0.00.01a"
+  --sam-file-type "MC"
+  --sam-data-tier "The one with the thickest frosting"
   DATAFILES
   fcl/SAMMetadata_w.fcl
 )

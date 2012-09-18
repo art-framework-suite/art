@@ -109,7 +109,7 @@ FileCatalogOptionsHandler(bpo::options_description & desc)
   ("sam-app-family", bpo::value<std::string>(&appFamily_), "SAM application family.")
   ("sam-application-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
   ("sam-app-version", bpo::value<std::string>(&appVersion_), "SAM application version.")
-  ("file-type", bpo::value<std::string>(), "File type for SAM metadata.")
+  ("sam-file-type", bpo::value<std::string>(), "File type for SAM metadata.")
   ("sam-data-tier", bpo::value<std::vector<std::string> >(), "SAM data tier spec (<module-label>:<tier-spec>).")
   ("sam-stream-name", bpo::value<std::vector<std::string> >(), "SAM stream name (<module-label>:<stream-name>).")
   ;
@@ -124,7 +124,7 @@ doCheckOptions(bpo::variables_map const & vm)
     vm.count("sam-app-family") > 0 ||
     vm.count("sam-application-version") > 0 ||
     vm.count("sam-app-version") > 0 ||
-    vm.count("file-type") > 0 ||
+    vm.count("sam-file-type") > 0 ||
     vm.count("sam-data-tier") > 0 ||
     vm.count("sam-stream-name") > 0;
   if (vm.count("sam-web-uri") || vm.count("sam-process-id")) {
@@ -141,13 +141,13 @@ doCheckOptions(bpo::variables_map const & vm)
   if (requireMetadata_ &&
       (appFamily_.empty() ||
        appVersion_.empty() ||
-       vm.count("file-type") == 0 ||
+       vm.count("sam-file-type") == 0 ||
        vm.count("sam-data-tier") == 0)) {
     throw Exception(errors::Configuration)
         << "SAM metadata information is required -- missing metadata:"
         << (appFamily_.empty() ? "\n--sam-application-family" : "")
         << (appVersion_.empty() ? "\n--sam-application-version" : "")
-        << ((vm.count("file-type") == 0) ? "\n--file-type" : "")
+        << ((vm.count("sam-file-type") == 0) ? "\n--sam-file-type" : "")
         << ((vm.count("sam-data-tier") == 0) ? "\n--sam-data-tier" : "")
         << "\n";
   }
@@ -170,9 +170,9 @@ doProcessOptions(bpo::variables_map const & vm,
         << "Non-empty / default process_name required for SAM metadata.\n";
   }
   if (wantSAMweb_) {
-    raw_config.put("service.CatalogInterface.service_type", "SAMFileDelievery");
+    raw_config.put("service.CatalogInterface.service_provider", "SAMFileDelievery");
     raw_config.put("service.CatalogInterface.webURI", vm["sam-web-uri"].as<std::string>());
-    raw_config.put("service.FileTransfer.service_type", "XXXFileTransfer");
+    raw_config.put("service.FileTransfer.service_provider", "XXXFileTransfer");
     raw_config.put("source.fileNames", std::vector<std::string> { vm["sam-process-id"].as<std::string>() });
   }
   if (requireMetadata_) {
@@ -181,7 +181,7 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.put("services.FileCatalogMetadata.applicationVersion",
                    vm["sam-application-version"].as<std::string>());
     raw_config.put("services.FileCatalogMetadata.fileType.",
-                   vm["file-type"].as<std::string>());
+                   vm["sam-file-type"].as<std::string>());
     fill_tiers_streams(vm, raw_config);
   }
   return 0;

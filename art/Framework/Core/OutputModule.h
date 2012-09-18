@@ -16,6 +16,7 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
+#include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -125,6 +126,9 @@ namespace art {
 
     BranchChildren branchChildren_;
 
+    std::string dataTier_;
+    std::string streamName_;
+
     //------------------------------------------------------------------
     // private member functions
     //------------------------------------------------------------------
@@ -209,7 +213,8 @@ namespace art {
     virtual void writeBranchIDListRegistry() {}
     virtual void writeParentageRegistry() {}
     virtual void writeProductDescriptionRegistry() {}
-    virtual void writeFileCatalogMetadata() {}
+    void writeFileCatalogMetadata();
+    virtual void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const &) { }
     virtual void writeProductDependencies() {}
     virtual void writeBranchMapper() {}
     virtual void finishEndFile() {}

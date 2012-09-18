@@ -52,6 +52,7 @@ endforeach()
 add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
 target_link_libraries(art_Framework_Core
   art_Framework_Services_System_CurrentModule_service
+  art_Framework_Services_System_FileCatalogMetadata_service
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service

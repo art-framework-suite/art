@@ -5,8 +5,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-#include "art/Framework/Services/Optional/TrivialFileDelivery.h"
-#include "art/Framework/Services/Optional/TrivialFileTransfer.h"
+#include "art/Framework/Services/Interfaces/CatalogInterface.h"
+#include "art/Framework/Services/Interfaces/FileTransfer.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/exception.h"
@@ -38,8 +38,8 @@ namespace art {
     }
 
     // Configure FileDelivery service
-    tfd_->configure(fileSources_);
-    searchable_ = tfd_->isSearchable();
+    ci_->configure(fileSources_);
+    searchable_ = ci_->isSearchable();
 
     if( searchable_ ) fileCatalogItems_.resize(fileSources_.size());
   }
@@ -52,7 +52,7 @@ namespace art {
 
   FileCatalogItem const & InputFileCatalog::currentFile() const {
     if( fileIdx_==indexEnd ) {
-      throw art::Exception(art::errors::LogicError, 
+      throw art::Exception(art::errors::LogicError,
         "Cannot access the current file while the file catalog is empty!");
     }
     assert( fileIdx_ <= maxIdx_ );
@@ -70,14 +70,14 @@ namespace art {
     //
     // If hasNextFile() has been called prior to
     // getNextFile(), it does not actually go fetch
-    // the next file from FileDelivery service, 
+    // the next file from FileDelivery service,
     // instead, it advances the iterator by one and
     // make the "hidden" next file current.
 
     if( nextFileProbed_ && !hasNextFile_ )
       return false;
 
-    if( (nextFileProbed_ && hasNextFile_) || retrieveNextFile(nextItem_, attempts) ) 
+    if( (nextFileProbed_ && hasNextFile_) || retrieveNextFile(nextItem_, attempts) )
     {
       nextFileProbed_ = false;
       fileIdx_ = (fileIdx_ == indexEnd) ? 0 : (searchable_ ? (fileIdx_+1) : 0);
@@ -105,15 +105,15 @@ namespace art {
   bool InputFileCatalog::retrieveNextFile(FileCatalogItem & item, int attempts) {
 
     // Tell the service the current opened file (if theres one) is consumed
-    if( fileIdx_!=indexEnd && !currentFile().skipped() ) 
-      tfd_->updateStatus( currentFile().uri(), FileDisposition::CONSUMED );
+    if( fileIdx_!=indexEnd && !currentFile().skipped() )
+      ci_->updateStatus( currentFile().uri(), FileDisposition::CONSUMED );
 
     // retrieve next file from service
     FileCatalogStatus status = retrieveNextFileFromCacheOrService(item);
 
     if( status == FileCatalogStatus::SUCCESS ) {
       // mark the file as transferred
-      tfd_->updateStatus( item.uri(), FileDisposition::TRANSFERRED );
+      ci_->updateStatus( item.uri(), FileDisposition::TRANSFERRED );
       return true;
     }
 
@@ -123,7 +123,7 @@ namespace art {
 
     if( status == FileCatalogStatus::DELIVERY_ERROR ) {
       if( attempts <= 1 ) {
-        throw art::Exception(art::errors::Configuration, 
+        throw art::Exception(art::errors::Configuration,
           "InputFileCatalog::retreiveNextFile()\n")
           << "Delivery error encountered after reaching maximum number of attemtps!";
       }
@@ -138,7 +138,7 @@ namespace art {
         // with a true flag and empty filename. Weired enough, but
         // the next file does exist we just cannot retrieve it. Therefore
         // we notify the service that the file has been skipped
-        tfd_->updateStatus( item.uri(), FileDisposition::SKIPPED );
+        ci_->updateStatus( item.uri(), FileDisposition::SKIPPED );
         return true;
       }
       else {
@@ -157,13 +157,13 @@ namespace art {
       item = fileCatalogItems_[fileIdx_+1];
       return FileCatalogStatus::SUCCESS;
     }
-      
+
     // Try to get it from the service
     std::string uri, pfn;
     double wait = 0.0;
 
     // get file delivered
-    int result = tfd_->getNextFileURI( uri, wait );
+    int result = ci_->getNextFileURI( uri, wait );
 
     if( result == FileDeliveryStatus::NO_MORE_FILES )
       return FileCatalogStatus::NO_MORE_FILES;
@@ -172,7 +172,7 @@ namespace art {
       return FileCatalogStatus::DELIVERY_ERROR;
 
     // get file transfered
-    result = tft_->translateToLocalFilename( uri, pfn );
+    result = ft_->translateToLocalFilename( uri, pfn );
 
     if( result != FileTransferStatus::CREATED )
     {
@@ -183,11 +183,11 @@ namespace art {
 
     // successfully retrieved the file
     std::string lfn = pfn;
-   
+
     boost::trim(pfn);
 
     if (pfn.empty()) {
-      throw art::Exception(art::errors::Configuration, 
+      throw art::Exception(art::errors::Configuration,
         "InputFileCatalog::retrieveNextFileFromCacheService()\n")
         << "An empty string specified in parameter for input source.\n";
     }

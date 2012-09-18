@@ -78,31 +78,31 @@ namespace art {
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
   private:
-    virtual void openFile(FileBlock const& fb);
-    virtual void respondToOpenInputFile(FileBlock const& fb);
-    virtual void respondToCloseInputFile(FileBlock const& fb);
-    virtual void write(EventPrincipal const& e);
-    virtual void writeSubRun(SubRunPrincipal const& sr);
-    virtual void writeRun(RunPrincipal const& r);
+    void openFile(FileBlock const& fb) override;
+    void respondToOpenInputFile(FileBlock const& fb) override;
+    void respondToCloseInputFile(FileBlock const& fb) override;
+    void write(EventPrincipal const& e) override;
+    void writeSubRun(SubRunPrincipal const& sr) override;
+    void writeRun(RunPrincipal const& r) override;
 
-    virtual bool isFileOpen() const;
-    virtual bool shouldWeCloseFile() const;
-    virtual void doOpenFile();
+    bool isFileOpen() const override;
+    bool shouldWeCloseFile() const override;
+    void doOpenFile() override;
 
 
-    virtual void startEndFile();
-    virtual void writeFileFormatVersion();
-    virtual void writeFileIndex();
-    virtual void writeEventHistory();
-    virtual void writeProcessConfigurationRegistry();
-    virtual void writeProcessHistoryRegistry();
-    virtual void writeParameterSetRegistry();
-    virtual void writeProductDescriptionRegistry();
-    virtual void writeParentageRegistry();
-    virtual void writeBranchIDListRegistry();
-    virtual void writeFileCatalogMetadata();
-    virtual void writeProductDependencies();
-    virtual void finishEndFile();
+    void startEndFile() override;
+    void writeFileFormatVersion() override;
+    void writeFileIndex() override;
+    void writeEventHistory() override;
+    void writeProcessConfigurationRegistry() override;
+    void writeProcessHistoryRegistry() override;
+    void writeParameterSetRegistry() override;
+    void writeProductDescriptionRegistry() override;
+    void writeParentageRegistry() override;
+    void writeBranchIDListRegistry() override;
+    void doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const & md) override;
+    void writeProductDependencies() override;
+    void finishEndFile() override;
 
     void fillSelectedItemList(BranchType branchtype, TTree *theTree);
 
