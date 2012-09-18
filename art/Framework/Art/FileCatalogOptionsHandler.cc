@@ -173,9 +173,9 @@ doProcessOptions(bpo::variables_map const & vm,
         << "Non-empty / default process_name required for SAM metadata.\n";
   }
   if (wantSAMweb_) {
-    raw_config.put("service.CatalogInterface.service_provider", "SAMFileDelievery");
+    raw_config.put("service.CatalogInterface.service_provider", "IFCatalogInterface");
     raw_config.put("service.CatalogInterface.webURI", vm["sam-web-uri"].as<std::string>());
-    raw_config.put("service.FileTransfer.service_provider", "XXXFileTransfer");
+    raw_config.put("service.FileTransfer.service_provider", "IFFileTransfer");
     raw_config.put("source.fileNames", std::vector<std::string> { vm["sam-process-id"].as<std::string>() });
   }
   if (requireMetadata_) {
