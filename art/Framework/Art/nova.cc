@@ -7,6 +7,7 @@ int main( int argc, char* argv[] ) {
    std::cout
      << "Art has completed and will exit with status "
      << result
-     << ".\n";
+     << "."
+     << std::endl;
    return result;
 }
