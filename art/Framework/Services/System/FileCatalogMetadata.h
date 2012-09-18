@@ -18,9 +18,9 @@ class art::FileCatalogMetadata {
 public:
   typedef std::vector<std::pair<std::string, std::string>> collection_type;
   typedef typename collection_type::value_type value_type;
-  
-  FileCatalogMetadata(fhicl::ParameterSet const&, ActivityRegistry&);
-  
+
+  FileCatalogMetadata(fhicl::ParameterSet const &, ActivityRegistry &);
+
   // Add a new value to the metadata store.
   void addMetadata(std::string const & key, std::string const & value);
   void getMetadata(collection_type & coll) const; // Dump stored metadata into the provided container.

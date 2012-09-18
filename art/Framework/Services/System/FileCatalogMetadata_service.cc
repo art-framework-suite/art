@@ -6,16 +6,17 @@
 
 namespace {
   void throw_if_empty(std::string const & par,
-                      char const * par_name) {
+                      char const * par_name)
+  {
     if (par.empty()) {
       throw art::Exception(art::errors::Configuration, "Missing Required Metadata")
-        <<  par_name;
+          <<  par_name;
     }
   }
 }
 
-art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const &ps,
-                                              ActivityRegistry &)
+art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const & ps,
+    ActivityRegistry &)
   :
   md_()
 {
@@ -31,7 +32,7 @@ art::FileCatalogMetadata::FileCatalogMetadata(fhicl::ParameterSet const &ps,
     addMetadata("applicationFamily", applicationFamily);
     throw_if_empty(applicationVersion, "applicationVersion");
     addMetadata("applicationVersion", applicationVersion);
-    throw_if_empty(fileType,"fileType");
+    throw_if_empty(fileType, "fileType");
     addMetadata("fileType", fileType);
   }
 }
