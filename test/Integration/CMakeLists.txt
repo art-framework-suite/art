@@ -727,7 +727,12 @@ cet_test(SAM_metadata_verify HANDBUILT
   TEST_ARGS -s ../SAM_metadata.d/out.root
   TEST_PROPERTIES DEPENDS SAM_metadata
 )
-  
+
+SET_TESTS_PROPERTIES(SAM_metadata_verify PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "\n\n0: applicationFamily  Ethel\n0: applicationVersion v0.00.01a\n0: fileType           MC\n0: process_name       SAMMetadataW\n0: dataTier           The one with the thickest frosting\n0: streamName         o1\n-"
+)
+
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 
