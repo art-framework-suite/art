@@ -126,6 +126,7 @@ private:
   mutable data_t ptrs_; //! transient
 }; // PtrVector<T>
 
+#ifndef __GCCXML__
 template <typename T>
 inline
 art::PtrVector<T>::PtrVector()
@@ -454,7 +455,7 @@ inline void
 art::swap(PtrVector<T> &lhs, PtrVector<T> &rhs) {
   lhs.swap(rhs);
 }
-
+#endif // __GCCXML__
 #endif /* art_Persistency_Common_PtrVector_h */
 
 // Local Variables:

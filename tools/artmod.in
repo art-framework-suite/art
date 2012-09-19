@@ -6,7 +6,8 @@
 #
 # Usage: artmod [<options>] <module-type> <qualified-name>
 #
-# <module-type> can be, "filter", "analyzer" or "producer."
+# <module-type> can be, "analyzer," "filter," "generator" (artdaq only),
+#   or "producer."
 #
 # <qualified-name> is the namespace-qualified name of the module class.
 #   For instance, "nova::trk::TrackAnalyzer."
@@ -49,76 +50,122 @@ my $default_boilerplate = << 'EOF';
 ////////////////////////////////////////////////////////////////////////
 EOF
 
-my $module_types = { analyzer => 1, filter => 1, producer => 1 };
+my $module_types = { analyzer => 1, filter => 1, generator => 1, producer => 1 };
 
 my $optional_entries =
   {
    analyzer =>
    {
-    beginJob => "virtual void beginJob()",
-    beginRun => "virtual void beginRun(art::Run const & r)",
-    beginSubRun => "virtual void beginSubRun(art::SubRun const & sr)",
-    endJob => "virtual void endJob()",
-    endRun => "virtual void endRun(art::Run const & r)",
-    endSubRun => "virtual void endSubRun(art::SubRun const & sr)",
-    reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const & fb)",
-    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const & fb)",
-    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const & fb)",
-    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const & fb)"
+    beginJob => "void beginJob() override",
+    beginRun => "void beginRun(art::Run const & r) override",
+    beginSubRun => "void beginSubRun(art::SubRun const & sr) override",
+    endJob => "void endJob() override",
+    endRun => "void endRun(art::Run const & r) override",
+    endSubRun => "void endSubRun(art::SubRun const & sr) override",
+    reconfigure => "void reconfigure(fhicl::ParameterSet const & p) override",
+    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
+    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
+    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const & fb) override",
+    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override"
    },
    filter =>
    {
-    beginJob => "virtual void beginJob()",
-    beginRun => "virtual bool beginRun(art::Run & r)",
-    beginSubRun => "virtual bool beginSubRun(art::SubRun & sr)",
-    endJob => "virtual void endJob()",
-    endRun => "virtual bool endRun(art::Run & r)",
-    endSubRun => "virtual bool endSubRun(art::SubRun & sr)",
-    reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const & fb)",
-    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const & fb)",
-    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const  &fb)",
-    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const & fb)"
+    beginJob => "void beginJob() override",
+    beginRun => "bool beginRun(art::Run & r) override",
+    beginSubRun => "bool beginSubRun(art::SubRun & sr) override",
+    endJob => "void endJob() override",
+    endRun => "bool endRun(art::Run & r) override",
+    endSubRun => "bool endSubRun(art::SubRun & sr) override",
+    reconfigure => "void reconfigure(fhicl::ParameterSet const & p) override",
+    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
+    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
+    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const  &fb) override",
+    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override"
    },
    producer =>
    {
-    beginJob => "virtual void beginJob()",
-    beginRun => "virtual void beginRun(art::Run & r)",
-    beginSubRun => "virtual void beginSubRun(art::SubRun & sr)",
-    endJob => "virtual void endJob()",
-    endRun => "virtual void endRun(art::Run & r)",
-    endSubRun => "virtual void endSubRun(art::SubRun & sr)",
-    reconfigure => "virtual void reconfigure(fhicl::ParameterSet const & p)",
-    respondToCloseInputFile => "virtual void respondToCloseInputFile(art::FileBlock const & fb)",
-    respondToCloseOutputFiles => "virtual void respondToCloseOutputFiles(art::FileBlock const & fb)",
-    respondToOpenInputFile => "virtual void respondToOpenInputFile(art::FileBlock const & fb)",
-    respondToOpenOutputFiles => "virtual void respondToOpenOutputFiles(art::FileBlock const & fb)"
+    beginJob => "void beginJob() override",
+    beginRun => "void beginRun(art::Run & r) override",
+    beginSubRun => "void beginSubRun(art::SubRun & sr) override",
+    endJob => "void endJob() override",
+    endRun => "void endRun(art::Run & r) override",
+    endSubRun => "void endSubRun(art::SubRun & sr) override",
+    reconfigure => "void reconfigure(fhicl::ParameterSet const & p) override",
+    respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
+    respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
+    respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const & fb) override",
+    respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override"
    }
+  };
+
+my $constructors =
+  {
+   analyzer =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   },
+   filter =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   },
+   generator =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   },
+   producer =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   }
+  };
+
+my $macros =
+  {
+   analyzer => "DEFINE_ART_MODULE",
+   filter => "DEFINE_ART_MODULE",
+   generator => "DEFINE_ARTDAQ_GENERATOR",
+   producer => "DEFINE_ART_MODULE",
   };
 
 my $required_entries =
   {
    analyzer =>
    {
-    analyze => "virtual void analyze(art::Event const & e)"
+    analyze => "void analyze(art::Event const & e) override"
    },
    filter =>
    {
-    filter => "virtual bool filter(art::Event & e)"
+    filter => "bool filter(art::Event & e) override"
+   },
+   generator =>
+   {
+    getNext_ => "bool getNext_(FragmentPtrs & output) override"
    },
    producer =>
    {
-    produce => "virtual void produce(art::Event & e)"
+    produce => "void produce(art::Event & e) override"
    }
   };
 
-my $base_header =
+my $base_headers =
   {
    analyzer => "art/Framework/Core/EDAnalyzer.h",
    filter => "art/Framework/Core/EDFilter.h",
+   generator => "artdaq/DAQdata/FragmentGenerator.h",
    producer => "art/Framework/Core/EDProducer.h"
   };
+
+my $base_classes =
+  {
+   analyzer => "art::EDAnalyzer",
+   filter => "art::EDFilter",
+   generator => "artdaq::FragmentGenerator",
+   producer => "art::EDProducer"
+  };
+
 
 my $indent = ' ' x 2;
 
@@ -449,7 +496,7 @@ sub header_includes {
   }
   my @header_lines = ();
   if ($mode eq "class_defn" or $mode eq "combined") {
-    push @header_lines, sprintf("#include \"%s\"", $base_header->{$module_type}),
+    push @header_lines, sprintf("#include \"%s\"", $base_headers->{$module_type}),
   }
   if ($mode eq "class_impl" or $mode eq "combined") {
     if ($mode ne "combined") {
@@ -485,11 +532,17 @@ sub class_decl {
 
 sub class_defn($\@\@) {
   my ($fh, $optional_ep_list, $unrecognized_entries) = @_;
-  my ($base_class) = ( ${base_header}->{${module_type}} =~ m&([^/]+)\.h$& );
+  my $base_class = ${base_classes}->{${module_type}};
   print $fh <<EOF;
-class ${qual_name} : public art::${base_class} {
+class ${qual_name} : public ${base_class} {
 public:
-${indent}explicit ${class_name}(fhicl::ParameterSet const & p);
+EOF
+print $fh "${indent}",
+  (${constructors}->{${module_type}}->{explicit}?"explicit":""),
+    "${class_name}(",
+      join(", ", @{${constructors}->{${module_type}}->{args}}),
+        ");\n";
+  print $fh <<EOF;
 ${indent}virtual ~${class_name}();
 
 EOF
@@ -575,8 +628,10 @@ sub class_impl($\@\@) {
   my ($fh, $optional_ep_list, $unrecognized_entries) = @_;
 
   # Constructor and destructor.
+  print $fh "${qual_name}::${class_name}(",
+      join(", ", @{${constructors}->{${module_type}}->{args}}),
+        ")\n";
   print $fh <<EOF;
-${qual_name}::${class_name}(fhicl::ParameterSet const & p)
 // :
 // Initialize member data here.
 {
@@ -624,7 +679,7 @@ EOF
 
 sub module_reg {
   my $fh = shift;
-  print $fh "DEFINE_ART_MODULE($qual_name)\n";
+  print $fh ${macros}->{${module_type}}, "($qual_name)\n";
 }
 
 sub vprint {
@@ -664,6 +719,16 @@ member functions are to be configured and whether to split the source
 into three files or combine it into one. In addition, the name of a file
 wherein boilerplate comments or code may be found for insertion into the
 source may be specified.
+
+=head2 HELP OPTIONS
+
+=item B<--help>
+
+This help.
+
+=item B<--help-types>
+
+Display each available module type, with required and optional interface.
 
 =head2 ARGUMENTS
 
