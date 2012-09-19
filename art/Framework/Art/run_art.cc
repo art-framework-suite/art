@@ -21,10 +21,11 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "boost/program_options.hpp"
-
+#include "boost/regex.hpp"
 #include "TError.h"
 
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -158,9 +159,30 @@ for (auto & handler : handlers) {
         << "\n";
     return 7003;
   }
-  char const * debug_config = getenv("ART_DEBUG_CONFIG");
+  char const * debug_config (getenv("ART_DEBUG_CONFIG"));
   if (debug_config != nullptr) {
-    std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
+    bool isFilename(false);
+    try {
+      // GCC 4.7.1 cannot handle complex character classes -- use boost::regex instead.
+      isFilename = boost::regex_match(debug_config, boost::regex("[[:alpha:]/\\.].*"));
+    }
+    catch(boost::regex_error e) {
+      std::cerr << "REGEX ERROR: " << e.code() << ".\n";
+    }
+    if (isFilename) {
+      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output to file "
+                << debug_config
+                << " **\n";
+      std::ofstream dc(debug_config);
+      if (dc) {
+        dc << main_pset.to_indented_string() << "\n";
+        return 1;
+      } else {
+        std::cerr << "Output of config to " << debug_config << " failed: fallback to stderr.\n";
+      }
+    } else {
+      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
+    }
     std::cerr << main_pset.to_indented_string() << "\n";
     return 1;
   }
