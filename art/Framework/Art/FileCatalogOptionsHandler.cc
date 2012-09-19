@@ -141,6 +141,19 @@ doCheckOptions(bpo::variables_map const & vm)
           << "not at all.\n";
     }
   }
+  return 0;
+}
+
+int
+art::FileCatalogOptionsHandler::
+doProcessOptions(bpo::variables_map const & vm,
+                 fhicl::intermediate_table & raw_config)
+{
+  // Couldn't do this check earlier.
+  if (requireMetadata_ && !raw_config.exists("outputs")) {
+    // Don't need metadata after all.
+    requireMetadata_ = false;
+  }
   if (requireMetadata_ &&
       (appFamily_.empty() ||
        appVersion_.empty() ||
@@ -154,15 +167,6 @@ doCheckOptions(bpo::variables_map const & vm)
         << ((vm.count("sam-data-tier") == 0) ? "\n--sam-data-tier" : "")
         << "\n";
   }
-  return 0;
-}
-
-int
-art::FileCatalogOptionsHandler::
-doProcessOptions(bpo::variables_map const & vm,
-                 fhicl::intermediate_table & raw_config)
-{
-  // Couldn't do this check earlier.
   std::string process_name;
   if (raw_config.exists("process_name")) {
     process_name = raw_config.get<std::string>("process_name");
