@@ -6,7 +6,8 @@
 #
 # Usage: artmod [<options>] <module-type> <qualified-name>
 #
-# <module-type> can be, "filter", "analyzer" or "producer."
+# <module-type> can be, "analyzer," "filter," "generator" (artdaq only),
+#   or "producer."
 #
 # <qualified-name> is the namespace-qualified name of the module class.
 #   For instance, "nova::trk::TrackAnalyzer."
@@ -49,7 +50,7 @@ my $default_boilerplate = << 'EOF';
 ////////////////////////////////////////////////////////////////////////
 EOF
 
-my $module_types = { analyzer => 1, filter => 1, producer => 1 };
+my $module_types = { analyzer => 1, filter => 1, generator => 1, producer => 1 };
 
 my $optional_entries =
   {
@@ -97,6 +98,38 @@ my $optional_entries =
    }
   };
 
+my $constructors =
+  {
+   analyzer =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   },
+   filter =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   },
+   generator =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   },
+   producer =>
+   {
+    explicit => 1,
+    args => [ "fhicl::ParameterSet const & p" ]
+   }
+  };
+
+my $macros =
+  {
+   analyzer => "DEFINE_ART_MODULE",
+   filter => "DEFINE_ART_MODULE",
+   generator => "DEFINE_ARTDAQ_GENERATOR",
+   producer => "DEFINE_ART_MODULE",
+  };
+
 my $required_entries =
   {
    analyzer =>
@@ -107,18 +140,32 @@ my $required_entries =
    {
     filter => "bool filter(art::Event & e) override"
    },
+   generator =>
+   {
+    getNext_ => "bool getNext_(FragmentPtrs & output) override"
+   },
    producer =>
    {
     produce => "void produce(art::Event & e) override"
    }
   };
 
-my $base_header =
+my $base_headers =
   {
    analyzer => "art/Framework/Core/EDAnalyzer.h",
    filter => "art/Framework/Core/EDFilter.h",
+   generator => "artdaq/DAQdata/FragmentGenerator.h",
    producer => "art/Framework/Core/EDProducer.h"
   };
+
+my $base_classes =
+  {
+   analyzer => "art::EDAnalyzer",
+   filter => "art::EDFilter",
+   generator => "artdaq::FragmentGenerator",
+   producer => "art::EDProducer"
+  };
+
 
 my $indent = ' ' x 2;
 
@@ -449,7 +496,7 @@ sub header_includes {
   }
   my @header_lines = ();
   if ($mode eq "class_defn" or $mode eq "combined") {
-    push @header_lines, sprintf("#include \"%s\"", $base_header->{$module_type}),
+    push @header_lines, sprintf("#include \"%s\"", $base_headers->{$module_type}),
   }
   if ($mode eq "class_impl" or $mode eq "combined") {
     if ($mode ne "combined") {
@@ -485,11 +532,17 @@ sub class_decl {
 
 sub class_defn($\@\@) {
   my ($fh, $optional_ep_list, $unrecognized_entries) = @_;
-  my ($base_class) = ( ${base_header}->{${module_type}} =~ m&([^/]+)\.h$& );
+  my $base_class = ${base_classes}->{${module_type}};
   print $fh <<EOF;
-class ${qual_name} : public art::${base_class} {
+class ${qual_name} : public ${base_class} {
 public:
-${indent}explicit ${class_name}(fhicl::ParameterSet const & p);
+EOF
+print $fh "${indent}",
+  (${constructors}->{${module_type}}->{explicit}?"explicit":""),
+    "${class_name}(",
+      join(", ", @{${constructors}->{${module_type}}->{args}}),
+        ");\n";
+  print $fh <<EOF;
 ${indent}virtual ~${class_name}();
 
 EOF
@@ -575,8 +628,10 @@ sub class_impl($\@\@) {
   my ($fh, $optional_ep_list, $unrecognized_entries) = @_;
 
   # Constructor and destructor.
+  print $fh "${qual_name}::${class_name}(",
+      join(", ", @{${constructors}->{${module_type}}->{args}}),
+        ")\n";
   print $fh <<EOF;
-${qual_name}::${class_name}(fhicl::ParameterSet const & p)
 // :
 // Initialize member data here.
 {
@@ -624,7 +679,7 @@ EOF
 
 sub module_reg {
   my $fh = shift;
-  print $fh "DEFINE_ART_MODULE($qual_name)\n";
+  print $fh ${macros}->{${module_type}}, "($qual_name)\n";
 }
 
 sub vprint {
