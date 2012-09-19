@@ -7,6 +7,11 @@
 // between two items in other persistent collections, with an optional
 // ancillary object containing information about the association itself.
 //
+// N.B. An Assns<A, B> only makes sense when A and B are distinct:
+// otherwise, there are ordering ambiguities when making and accessing
+// asociations. An attempt to specify an Assns<A,A> or <A, A, D> will
+// fail with "... has incomplete type and cannot be defined."
+//
 // Note that the associations may be one-to-one, one-to-many or
 // many-to-many.
 //
@@ -90,9 +95,16 @@ namespace art {
   template <typename L, typename R, typename D = void>
   class Assns;
 
-  // Specialization.
+  // Specializations.
+  // 1.
+  template <typename LR>
+  class Assns<LR, LR, void>; // Unimplemented.
+  // 2.
+  template <typename LR, typename D>
+  class Assns<LR, LR, D>; // Unimplemented.
+  // 3.
   template <typename L, typename R>
-  class Assns<L, R, void>;
+  class Assns<L, R, void>; // No data: base class.
 
   namespace detail {
     // Temporary streamer class until streamer method registration is
@@ -117,7 +129,7 @@ namespace art {
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Implementation of the specialization.
+// Implementation of the specialization (3).
 template <typename L, typename R>
 class art::Assns<L, R, void> {
 public:
