@@ -1,0 +1,42 @@
+all_modules: [ "out" ]
+outputs: { out: { dataTier: "The one with the thickest frosting"
+                  fileName: "out.root"
+                  module_label: "out"
+                  module_type: "RootOutput"
+                  streamName: "out"
+                }
+         }
+physics: { end_paths: [ "injected_end_path_1" ]
+           injected_end_path_1: [ "out" ]
+         }
+process_name: "SAMTEST"
+service: { CatalogInterface: { service_provider: "IFCatalogInterface"
+                               webURI: "http://example.com"
+                             }
+           FileTransfer: { service_provider: "IFFileTransfer"
+                         }
+         }
+services: { FileCatalogMetadata: { applicationFamily: "Ethel"
+                                   applicationVersion: "v0.00.01a"
+                                   fileType: "MC"
+                                 }
+            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                  }
+                  }
+          }
+source: { fileNames: [ "778213" ]
+          module_label: "source"
+        }
+
