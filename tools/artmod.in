@@ -665,6 +665,16 @@ into three files or combine it into one. In addition, the name of a file
 wherein boilerplate comments or code may be found for insertion into the
 source may be specified.
 
+=head2 HELP OPTIONS
+
+=item B<--help>
+
+This help.
+
+=item B<--help-types>
+
+Display each available module type, with required and optional interface.
+
 =head2 ARGUMENTS
 
 =over
