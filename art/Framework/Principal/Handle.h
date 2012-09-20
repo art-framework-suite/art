@@ -70,6 +70,7 @@ public:
   bool failedToGet( ) const; // was Handle used in a 'get' call whose data could not be found?
   Provenance const * provenance( ) const;
   ProductID id( ) const;
+  std::shared_ptr<cet::exception const> whyFailed() const;
 
   // mutators:
   void swap( Handle<T> & other );
@@ -174,6 +175,14 @@ art::ProductID
 art::Handle<T>::id() const
 {
   return prov_.isValid() ? prov_.productID() : ProductID();
+}
+
+template <class T>
+inline
+std::shared_ptr<cet::exception const>
+art::Handle<T>::whyFailed() const
+{
+  return whyFailed_;
 }
 
 // ----------------------------------------------------------------------
