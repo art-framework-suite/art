@@ -102,21 +102,23 @@ private:
   typedef typename std::conditional<std::is_void<Data>::value, IPRHelperDef, DATACOLL>::type dataColl_t;
 
 public:
+  typedef std::shared_ptr<cet::exception const> shared_exception_t;
+
   IPRHelper(Event const & e, InputTag const & tag) : event_(e), assnsTag_(tag) { }
 
   // 1. Dispatches to one of the other two: use when dColl not wanted.
   template <typename PidProvider, typename Acoll, typename Bcoll>
-  void
+  shared_exception_t
   operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const;
 
   // 2. Algorithm useful when index of Acoll == index of desired Ptr in Assns.
   template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value >::type
+  typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value, shared_exception_t>::type
   operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
 
   // 3. Algorithm useful when dealing with collections of Ptrs.
   template <typename PidProvider, typename Acoll, typename Bcoll>
-  typename std::enable_if<std::is_same<typename Acoll::value_type, Ptr<ProdA> >::value>::type
+  typename std::enable_if<std::is_same<typename Acoll::value_type, Ptr<ProdA> >::value, shared_exception_t>::type
   operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const;
 
 private:
@@ -127,24 +129,28 @@ private:
 // 1.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
-void
+typename art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::shared_exception_t
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl) const
 {
   IPRHelperDef dummy;
-  (*this)(aColl, pp, bColl, dummy);
+  return (*this)(aColl, pp, bColl, dummy);
 }
 
 // 2.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
-typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value >::type
+typename std::enable_if <std::is_same<typename std::remove_cv<typename std::remove_pointer<typename Acoll::value_type>::type>::type, ProdA>::value,
+                         typename art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::shared_exception_t>::type
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
   detail::DataCollHelper<Data> dh(assnsTag_);
   Handle<Assns<ProdA, ProdB, Data> > assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
+  if (!assnsHandle.isValid()) {
+    return assnsHandle.whyFailed(); // Failed to get Assns product.
+  }
   bh.init(aColl.size(), bColl);
   dh.init(aColl.size(), dColl);
   for (typename Assns<ProdA, ProdB, Data>::assn_iterator
@@ -162,18 +168,23 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_
       dh.fill(itAssns - beginAssns, *assnsHandle, aIndex, dColl);
     }
   }
+  return shared_exception_t();
 }
 
 // 3.
 template <typename ProdA, typename ProdB, typename Data, typename DATACOLL>
 template <typename PidProvider, typename Acoll, typename Bcoll>
-typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value>::type
+typename std::enable_if<std::is_same<typename Acoll::value_type, art::Ptr<ProdA> >::value,
+                        typename art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::shared_exception_t>::type
 art::detail::IPRHelper<ProdA, ProdB, Data, DATACOLL>::
 operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_t & dColl) const
 {
   detail::BcollHelper<ProdB> bh(assnsTag_);
   detail::DataCollHelper<Data> dh(assnsTag_);
   Handle<Assns<ProdA, ProdB, Data> > assnsHandle(detail::getAssnsHandle<ProdA, ProdB, Data>(event_, assnsTag_));
+  if (!assnsHandle.isValid()) {
+    return assnsHandle.whyFailed(); // Failed to get Assns product.
+  }
   bh.init(aColl.size(), bColl);
   dh.init(aColl.size(), dColl);
   for (typename Assns<ProdA, ProdB, Data>::assn_iterator
@@ -198,6 +209,7 @@ operator()(Acoll const & aColl, PidProvider const & pp, Bcoll & bColl, dataColl_
       }
     }
   }
+  return shared_exception_t();
 }
 
 template <typename DATA>

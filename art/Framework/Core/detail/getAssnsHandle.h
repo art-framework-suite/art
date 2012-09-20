@@ -47,23 +47,6 @@ art::detail::GetAssnsHandle<ProdA, ProdB, Data>::
 operator()(Event const & e, InputTag const & tag) const {
   Handle<Assns<ProdA, ProdB, Data> > h;
   e.getByLabel(tag, h);
-  if (h.failedToGet()) {
-    try { // Only way to get the exception is to cause it to be thrown:
-      h.product();
-    }
-    catch (Exception & e) {
-      if (e.categoryCode() == errors::ProductNotFound) {
-        throw Exception(errors::ProductNotFound, "AssnsQuery")
-            << "Unable to find an appropriate association collection as specified"
-            << " by tag: "
-            << tag
-            << ".\n";
-      }
-      else {
-        throw;
-      }
-    }
-  }
   return h;
 }
 #endif /* art_Framework_Core_detail_getAssnsHandle_h */

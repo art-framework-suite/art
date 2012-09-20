@@ -159,6 +159,9 @@ public:
                        Event const & e,
                        InputTag const & tag);
 
+  // Is this a valid query (did we find an Assns)?
+  bool isValid() const;
+
   // Number of query results
   size_type size() const;
 
@@ -174,7 +177,10 @@ protected:
   bColl_t & bCollection() { return bCollection_; }
 
 private:
+  void throwIfInvalid_() const;
+
   bColl_t bCollection_;
+  std::shared_ptr<cet::exception const> storedException_;
 };
 
 template <typename ProdB, typename Data>
@@ -212,6 +218,7 @@ public:
                        InputTag const & tag);
 
   using base::size;
+  using base::isValid;
   using base::at;
   using base::get;
 
@@ -237,11 +244,13 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
                      Event const & e,
                      InputTag const & tag)
   :
-  bCollection_()
+  bCollection_(),
+  storedException_()
 {
   typedef typename ProdAColl::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
-  finder(*aCollection, detail::ConstantProductIDProvider(aCollection.id()), bCollection_);
+  storedException_ =
+    finder(*aCollection, detail::ConstantProductIDProvider(aCollection.id()), bCollection_);
 }
 
 template <typename ProdB>
@@ -251,11 +260,13 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
                      Event const & e,
                      InputTag const & tag)
   :
-  bCollection_()
+  bCollection_(),
+  storedException_()
 {
   typename View<ProdA>::collection_type const & aCollection(view.vals());
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
-  finder(aCollection, detail::ConstantProductIDProvider(view.id()), bCollection_);
+  storedException_ =
+    finder(aCollection, detail::ConstantProductIDProvider(view.id()), bCollection_);
 }
 
 template <typename ProdB>
@@ -265,11 +276,13 @@ art::@ART_IPR_CLASS_NAME@<ProdB, void>::
                      Event const & e,
                      InputTag const & tag)
   :
-  bCollection_()
+  bCollection_(),
+  storedException_()
 {
   typedef typename PtrProdAColl::value_type::value_type ProdA;
   detail::IPRHelper<ProdA, ProdB, void, void> finder(e, tag);
-  finder(aPtrColl, detail::ProductIDProvider(), bCollection_);
+  storedException_ =
+    finder(aPtrColl, detail::ProductIDProvider(), bCollection_);
 }
 
 template <typename ProdB>
@@ -277,7 +290,16 @@ inline
 typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
 art::@ART_IPR_CLASS_NAME@<ProdB, void>::size() const
 {
+  throwIfInvalid_();
   return bCollection_.size();
+}
+
+template <typename ProdB>
+inline
+bool
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::isValid() const
+{
+  return (storedException_.get() == nullptr);
 }
 
 template <typename ProdB>
@@ -285,6 +307,7 @@ inline
 typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::const_reference
 art::@ART_IPR_CLASS_NAME@<ProdB, void>::at(size_type i) const
 {
+  throwIfInvalid_();
   return bCollection_.at(i);
 }
 
@@ -293,6 +316,7 @@ inline
 typename art::@ART_IPR_CLASS_NAME@<ProdB, void>::size_type
 art::@ART_IPR_CLASS_NAME@<ProdB, void>::get(size_type i, reference item) const
 {
+  throwIfInvalid_();
   const_reference ref(bCollection_.at(i));
   item.insert(item.end(), ref.begin(), ref.end());
   return ref.size();
@@ -303,7 +327,19 @@ inline
 bool
 art::@ART_IPR_CLASS_NAME@<ProdB, void>::operator == (@ART_IPR_CLASS_NAME@<ProdB, void> const & other) const
 {
+  throwIfInvalid_();
   return bCollection_ == other.bCollection_;
+}
+
+template <typename ProdB>
+inline
+void
+art::@ART_IPR_CLASS_NAME@<ProdB, void>::throwIfInvalid_() const
+{
+  if (!isValid()) {
+    throw Exception(errors::LogicError, "Invalid @ART_IPR_CLASS_NAME@", *storedException_)
+      << "Attempt to use a @ART_IPR_CLASS_NAME@ where the underlying art::Assns product was not found.";
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////

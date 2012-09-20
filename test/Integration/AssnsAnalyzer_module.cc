@@ -149,8 +149,8 @@ arttest::AssnsAnalyzer::analyze(art::Event const & e)
   testOne<art::FindOne>(e);
   testOne<art::FindOneP>(e);
 
- testMany<art::FindMany>(e);
- testMany<art::FindManyP>(e);
+  testMany<art::FindMany>(e);
+  testMany<art::FindManyP>(e);
 }
 
 template <template <typename, typename> class FO>
@@ -177,6 +177,14 @@ testOne(art::Event const & e) const
   // Construct a FO using a handle to a collection.
   art::Handle<std::vector<size_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
+
+  // First, check we can make an FO on a non-existent label without
+  // barfing immediately.
+  FO<std::string, void> foDead(hAcoll, e, "noModule");
+  BOOST_REQUIRE(!foDead.isValid());
+  BOOST_REQUIRE_THROW(foDead.size(), cet::exception);
+
+  // Now do our normal checks.
   FO<std::string, arttest::AssnTestData> foB(hAcoll, e, inputLabel_);
   FO<std::string, void> foBV(hAcoll, e, inputLabel_);
   art::Handle<std::vector<std::string> > hBcoll;
@@ -288,6 +296,14 @@ testMany(art::Event const & e) const
 {
   art::Handle<std::vector<size_t> > hAcoll;
   BOOST_REQUIRE(e.getByLabel(inputLabel_, hAcoll));
+
+  // First, check we can make an FO on a non-existent label without
+  // barfing immediately.
+  FM<B_t, void> fmDead(hAcoll, e, "noModule");
+  BOOST_REQUIRE(!fmDead.isValid());
+  BOOST_REQUIRE_THROW(fmDead.size(), cet::exception);
+
+  // Now do our normal checks.
   // Check FindMany.
   FM<B_t, arttest::AssnTestData> fmB(hAcoll, e, art::InputTag(inputLabel_, "M"));
   BOOST_REQUIRE_EQUAL(fmB.size(), 3ul);
