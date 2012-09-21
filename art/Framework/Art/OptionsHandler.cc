@@ -3,6 +3,7 @@
 #include "cetlib/exception.h"
 #include "cetlib/demangle.h"
 
+#include <iostream>
 #include <stdexcept>
 #include <typeinfo>
 
