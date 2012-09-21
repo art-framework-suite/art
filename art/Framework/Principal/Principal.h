@@ -41,8 +41,10 @@ pointer to a Group, when queried.
 class art::Principal
 {
 public:
+#ifndef __GCCXML__
   Principal(Principal const&) = delete;
   Principal& operator=(Principal const&) = delete;
+#endif
   typedef std::map<BranchID, std::shared_ptr<Group> > GroupCollection;
   typedef GroupCollection::const_iterator const_iterator;
   typedef ProcessHistory::const_iterator ProcessNameConstIterator;
@@ -52,13 +54,13 @@ public:
 
   typedef std::shared_ptr<Group> SharedGroupPtr;
   typedef std::string ProcessName;
-
+#ifndef __GCCXML
   Principal(ProcessConfiguration const& pc,
             ProcessHistoryID const& hist,
             std::unique_ptr<BranchMapper> && mapper,
             //std::shared_ptr<DelayedReader> rtrv);
             std::unique_ptr<DelayedReader> && rtrv);
-
+#endif
   virtual ~Principal();
 
   ////    EDProductGetter const* prodGetter() const {return this;}
@@ -117,6 +119,7 @@ public:
   virtual BranchType branchType() const = 0;
 
 protected:
+#ifndef __GCCXML__
   // ----- Add a new Group
   // *this takes ownership of the Group, which in turn owns its
   // data.
@@ -131,8 +134,9 @@ protected:
   BranchMapper &branchMapper() {return *branchMapperPtr_;}
 
   DelayedReader &productReader() { return *store_; }
-
+#endif
 private:
+#ifndef __GCCXML__
   ////    virtual EDProduct const* getIt(ProductID const&) const;
 
   virtual void addOrReplaceGroup(std::unique_ptr<Group> && g) = 0;
@@ -186,6 +190,7 @@ private:
   // Pointer to the 'source' that will be used to obtain EDProducts
   // from the persistent store.
   std::unique_ptr<DelayedReader> store_;
+#endif
 };
 
 #endif /* art_Framework_Principal_Principal_h */
