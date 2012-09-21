@@ -75,9 +75,10 @@ namespace art {
 
 class art::DataViewImpl {
 public:
+#ifndef __GCCXML__
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
-
+#endif
   DataViewImpl(Principal & pcpl,
                ModuleDescription const& md,
                BranchType const& branchType);

@@ -56,9 +56,14 @@ namespace art {
 
 class art::ActivityRegistry {
 public:
-  ActivityRegistry() = default;
+  ActivityRegistry()
+#ifndef __GCCXML__
+ = default;
   ActivityRegistry(ActivityRegistry const&) = delete;
   ActivityRegistry& operator=(ActivityRegistry const&) = delete;
+#else
+  ;
+#endif
 
   // ---------- signals ------------------------------------
   typedef sigc::signal<void> PostBeginJob;

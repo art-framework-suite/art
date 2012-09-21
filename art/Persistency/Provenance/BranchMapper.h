@@ -31,9 +31,10 @@ namespace art {
 
 class art::BranchMapper {
 public:
+#ifndef __GCCXML__
   BranchMapper(BranchMapper const&) = delete;
   BranchMapper& operator=(BranchMapper const&) = delete;
-
+#endif
   typedef  cet::exempt_ptr<ProductProvenance const>  result_t;
 
   explicit BranchMapper(bool delayedRead = false);
