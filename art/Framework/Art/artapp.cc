@@ -8,8 +8,11 @@
 #include "art/Framework/Art/run_art.h"
 #include "cetlib/filepath_maker.h"
 
+#include "boost/program_options.hpp"
+
 namespace  bpo = boost::program_options;
 
+#include <memory>
 int artapp(int argc, char * argv[])
 {
   // Configuration file lookup policy.

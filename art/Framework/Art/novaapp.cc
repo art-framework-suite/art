@@ -8,7 +8,13 @@
 #include "art/Framework/Art/run_art.h"
 #include "art/Utilities/FirstAbsoluteOrLookupWithDotPolicy.h"
 
+#include "boost/program_options.hpp"
+
 namespace  bpo = boost::program_options;
+
+#include <iostream>
+#include <memory>
+#include <string>
 
 int novaapp(int argc, char * argv[])
 {
