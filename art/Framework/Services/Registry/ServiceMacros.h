@@ -10,7 +10,7 @@
 // DEFINE_ART_SERVICE(svc);
 //   Define an art service of type <svc>.
 //
-// DEFINE_ART_SERVICE(svc, iface)
+// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc, iface)
 //   Define an art service of type <svc> implementing (inheriting from)
 //   interface <iface>.
 //
