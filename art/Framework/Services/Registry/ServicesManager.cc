@@ -9,6 +9,8 @@
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <cassert>
 #include <set>
 
 using std::shared_ptr;
@@ -25,7 +27,7 @@ ServicesManager::ServicesManager(ParameterSets const & psets,
   requestedCreationOrder_(),
   actualCreationOrder_()
 {
-  fillFactory(psets, lm);
+  fillFactory_(psets, lm);
 }
 
 ServicesManager::~ServicesManager()
@@ -77,9 +79,8 @@ void ServicesManager::putParameterSets(ParameterSets const & n)
 }
 
 void
-ServicesManager::fillFactory(ParameterSets  const & psets
-                             , LibraryManager const & lm
-                            )
+ServicesManager::fillFactory_(ParameterSets  const & psets,
+                              LibraryManager const & lm)
 {
   typedef art::TypeID(*GET_TYPEID_t)();
   for (ParameterSets::const_iterator it = psets.begin()
@@ -91,16 +92,22 @@ ServicesManager::fillFactory(ParameterSets  const & psets
       = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_typeid");
     MAKER_t make_func
       = lm.getSymbolByLibspec<MAKER_t>(service_provider, "make");
-    CONVERTER_t converter_func
-      = lm.getSymbolByLibspec<CONVERTER_t>(service_provider, "converter", LibraryManager::nothrow);
-    std::pair<Factory::iterator, bool> svc = factory_.insert(std::make_pair(
-          typeid_func(), Cache(*it, typeid_func(), make_func, false, factory_.end(), converter_func)));
-    if (converter_func) {
-      // This service has a declared interface.
-      GET_TYPEID_t interface_typeid_func
-        = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_interface_typeid");
+    GET_TYPEID_t iface_impl_typeid_func
+      = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_iface_impl_typeid", LibraryManager::nothrow);
+    CONVERTER_t converter_func(nullptr);
+    GET_TYPEID_t iface_typeid_func(nullptr);
+    // Check if his service has a declared interface.
+    if (iface_impl_typeid_func &&
+        iface_impl_typeid_func() == typeid_func()) {
+      // Note that we check for equality because it's possible that we
+      // could pick up the interface functions from a library to which
+      // our current library is linked, rather than our current library itself.
+      converter_func
+        = lm.getSymbolByLibspec<CONVERTER_t>(service_provider, "converter");
+      iface_typeid_func
+        = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_iface_typeid");
       if (service_provider == service_name) {
-        std::string iface_name(cet::demangle(interface_typeid_func().name()));
+        std::string iface_name(cet::demangle(iface_typeid_func().name()));
         throw Exception(errors::Configuration)
             << "Illegal use of service interface implementation as service name in configuration.\n"
             << "Correct use: services.user."
@@ -109,13 +116,46 @@ ServicesManager::fillFactory(ParameterSets  const & psets
             << service_provider
             << "\" }";
       }
-      factory_.insert(std::make_pair(interface_typeid_func(),
-                                     Cache(*it, interface_typeid_func(), make_func, true, svc.first, converter_func)));
+    }
+    // Insert the cache object for the main service implementation,
+    // including the converter to interface (converter_func) if defined.
+    auto svc = insertImpl_(typeid_func(), *it, make_func, converter_func);
+    if (converter_func) {
+      // Insert the cache object for the interface.
+      assert(iface_typeid_func);
+      insertInterface_(iface_typeid_func(), *it, svc.first);
     }
     index_[service_name] = svc.first;
     requestedCreationOrder_.push_back(typeid_func());
   }
 }  // fillFactory()
+
+std::pair<art::ServicesManager::Factory::iterator, bool>
+art::ServicesManager::
+insertImpl_(TypeID implType,
+            fhicl::ParameterSet const &pset,
+            MAKER_t make,
+            CONVERTER_t convert)
+{
+  return
+    factory_.insert(std::make_pair(implType,
+                                   Cache(pset,
+                                         implType,
+                                         make,
+                                         convert)));
+}
+
+void
+art::ServicesManager::
+insertInterface_(TypeID ifaceType,
+                 fhicl::ParameterSet const &pset,
+                 Factory::iterator implEntry)
+{
+  factory_.insert(std::make_pair(ifaceType,
+                                 Cache(pset,
+                                       ifaceType,
+                                       implEntry)));
+}
 
 namespace {
   struct NoOp {

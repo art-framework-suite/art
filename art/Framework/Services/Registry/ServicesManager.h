@@ -55,19 +55,52 @@ namespace art {
     // a Service object.
     class Cache {
     public:
-      Cache(fhicl::ParameterSet const & pset, TypeID id, MAKER_t maker, bool is_iface, Factory::iterator impl, CONVERTER_t cvt)
-        : config_(pset), typeinfo_(id), make_(maker), service_(), is_interface_(is_iface), interface_impl_(impl), converter_(cvt) {
+      // Service implementation entry.
+      Cache(fhicl::ParameterSet const & pset,
+            TypeID id,
+            MAKER_t maker,
+            CONVERTER_t cvt)
+        :
+        config_(pset),
+        typeinfo_(id),
+        is_interface_(false),
+        make_(maker),
+        service_(),
+        interface_impl_(),
+        converter_(cvt) {
+        // OK for cvt to be nullptr. Expect a value for maker, though.
+        assert(maker && "Service implementation missing maker function!");
       }
 
+      // Service interface entry.
+      Cache(fhicl::ParameterSet const & pset,
+            TypeID id,
+            Factory::iterator impl)
+        :
+        config_(pset),
+        typeinfo_(id),
+        is_interface_(true),
+        make_(nullptr),
+        service_(),
+        interface_impl_(impl),
+        converter_(nullptr) {
+      }
+
+      // Pre-made service.
       Cache(WrapperBase_ptr premade_service)
-        : config_(), typeinfo_(), make_(), service_(premade_service), is_interface_(false), interface_impl_(), converter_() {
+        : config_(),
+          typeinfo_(),
+          is_interface_(false),
+          make_(),
+          service_(premade_service),
+          interface_impl_(),
+          converter_() {
       }
 
       // Create the service if necessary, and return the WrapperBase_ptr
       // that refers to it.
       WrapperBase_ptr getService(ActivityRegistry & reg, ServiceStack & creationOrder) {
-        if (is_interface_) {
-          // This is a service interface, make the service provider do the work.
+        if (is_interface()) { // Service interface
           if (!service_) {
             // No cached instance, we need to make it.
             if (!interface_impl_->second.service_) {
@@ -79,7 +112,7 @@ namespace art {
             interface_impl_->second.convertService(service_);
           }
         }
-        else {
+        else { // Concrete service.
           if (!service_) {
             // No cached instance, we need to make it.
             createService(reg, creationOrder);
@@ -89,7 +122,7 @@ namespace art {
       }
 
       void forceCreation(ActivityRegistry & reg) {
-        assert(!is_interface_ && "Cache::forceCreation called on a service interface!");
+        assert(is_impl() && "Cache::forceCreation called on a service interface!");
         if (!service_) {
           makeAndCacheService(reg);
         }
@@ -113,7 +146,7 @@ namespace art {
       }
 
       void makeAndCacheService(ActivityRegistry & reg) {
-        assert(!is_interface_ && "Cache::makeAndCacheService called on a service interface!");
+        assert(is_impl() && "Cache::makeAndCacheService called on a service interface!");
         try {
           service_ = make_(config_, reg);
         }
@@ -147,7 +180,7 @@ namespace art {
 
       void
       createService(ActivityRegistry & reg, ServiceStack & creationOrder) {
-        assert(!is_interface_ && "Cache::createService called on a service interface!");
+        assert(is_impl() && "Cache::createService called on a service interface!");
         // When we actually create the Service object, we have to
         // remember the order of creation.
         makeAndCacheService(reg);
@@ -156,15 +189,19 @@ namespace art {
 
       void
       convertService(WrapperBase_ptr & swb) {
-        assert(!is_interface_ && "Cache::convertService called on a service interface!");
+        assert(is_impl() && "Cache::convertService called on a service interface!");
         swb = std::move(converter_(service_));
       }
 
+  private:
+      bool is_impl() { return !is_interface(); }
+      bool is_interface() { return is_interface_; }
+
       fhicl::ParameterSet config_;
       TypeID typeinfo_;
+      bool is_interface_;
       MAKER_t make_;
       WrapperBase_ptr service_;
-      bool is_interface_;
       Factory::iterator interface_impl_;
       CONVERTER_t converter_;
 
@@ -189,7 +226,6 @@ namespace art {
       return factory_.find(TypeID(typeid(T))) != factory_.end();
     }
 
-    // TODO: needs to be converted to returning a void.
     template< class T >
     void
     put(std::shared_ptr<ServiceWrapper<T> > premade_service) {
@@ -217,7 +253,18 @@ namespace art {
     void putParameterSets(ParameterSets const &);
 
   private:
-    void fillFactory(ParameterSets const & psets, LibraryManager const & lm);
+    void fillFactory_(ParameterSets const & psets, LibraryManager const & lm);
+
+    std::pair<Factory::iterator, bool>
+    insertImpl_(TypeID implType,
+                fhicl::ParameterSet const & pset,
+                MAKER_t make,
+                CONVERTER_t convert);
+
+    void
+    insertInterface_(TypeID ifaceType,
+                     fhicl::ParameterSet const & pset,
+                     Factory::iterator implEntry);
 
     // these are real things that we use.
     art::ActivityRegistry & registry_;
