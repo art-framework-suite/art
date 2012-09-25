@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_02_02
+parent art	v1_02_03
 defaultqual	e2
 #
 product		version
