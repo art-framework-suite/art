@@ -3,5 +3,5 @@
 *.vpp~*
 PolymorphismAndDataProducts.out
 PolymorphismAndDataProducts.toc
-slidy/
+./slidy/
 tutorial.tar.gz
