@@ -92,14 +92,17 @@ namespace {
 
 int art::run_art(int argc,
                  char ** argv,
-                 bpo::options_description & all_desc,
+                 bpo::options_description & in_desc,
                  cet::filepath_maker & lookupPolicy,
                  art::OptionsHandlers && handlers)
 {
   std::ostringstream descstr;
-  descstr << argv[0]
-          << " <-c <config-file>> <other-options> [<source-file>]+\n\nAllowed options:\n";
-  all_desc.add_options()(argv[0], descstr.str().c_str());
+  descstr << "Usage: "
+          << argv[0]
+          << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
+          << "Allowed options";
+  bpo::options_description all_desc(descstr.str());
+  all_desc.add(in_desc);
   // BasicOptionsHandler should always be first in the list!
   handlers.emplace(handlers.begin(),
                    new BasicOptionsHandler(all_desc, lookupPolicy));
