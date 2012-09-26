@@ -54,4 +54,4 @@ install(FILES
   DESTINATION  ${product}/${version}/include/art/Persistency/Common
 )
 
-install_source()
+install_source(SUBDIRS detail)
