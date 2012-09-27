@@ -18,7 +18,7 @@ BasicSourceOptionsHandler(bpo::options_description & desc)
   ("source,s", bpo::value<std::vector<std::string> >(), "Source data file (multiple OK).")
   ("source-list,S", bpo::value<std::string>(), "file containing a list of source files to read, one per line.")
   ("estart,e", bpo::value<unsigned long>(), "Event # of first event to process.")
-  ("nevts,n", bpo::value<int>(), "Number of events to process.")
+  ("nevts,n", bpo::value<unsigned long>(), "Number of events to process.")
   ("nskip", bpo::value<unsigned long>(), "Number of events to skip.")
   ;
 }
@@ -51,17 +51,19 @@ doProcessOptions(bpo::variables_map const & vm,
     }
     raw_config.put("source.fileNames",
                    source_list);
+  }
+  if (raw_config.exists("source.module_type")) {
     if (vm.count("nevts")) {
       raw_config.put("source.maxEvents",
-                     vm["nevts"].as<int>());
+                     vm["nevts"].as<unsigned long>());
     }
     if (vm.count("estart")) {
       raw_config.put("source.firstEvent",
-                     vm["estart"].as<int>());
+                     vm["estart"].as<unsigned long>());
     }
     if (vm.count("nskip")) {
       raw_config.put("source.skipEvents",
-                     vm["nskip"].as<int>());
+                     vm["nskip"].as<unsigned long>());
     }
   }
   return 0;

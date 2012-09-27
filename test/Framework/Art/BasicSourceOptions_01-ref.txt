@@ -1,0 +1,30 @@
+all_modules: []
+process_name: "TEST"
+services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                  }
+                  }
+          }
+source: { fileNames: [ "f0.txt"
+                     , "f1.root"
+                     , "f2.root"
+                     , "f3.root"
+                     ]
+          firstEvent: 5
+          maxEvents: 4
+          module_label: "source"
+          module_type: "EmptyEvent"
+          skipEvents: 2
+        }
+

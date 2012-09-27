@@ -1,0 +1,5 @@
+process_name: TEST
+source:
+{
+  module_type: EmptyEvent
+}
