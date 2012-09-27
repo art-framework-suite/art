@@ -3,5 +3,9 @@
 *.vpp~*
 PolymorphismAndDataProducts.out
 PolymorphismAndDataProducts.toc
-./slidy/
+PolymorphismAndDataProducts.aux
+PolymorphismAndDataProducts.log
+PolymorphismAndDataProducts.fdb_latexmk
+PolymorphismAndDataProducts.fls
+slidy
 tutorial.tar.gz

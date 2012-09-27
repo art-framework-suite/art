@@ -350,28 +350,52 @@ Verifying FHiCL Files
 
        ART_DEBUG_CONFIG=1 nova -c my_file.fcl
 
+  If you wish to write the post-processed configuration to a file instead
+  of the screen, specify a value for ART_DEBUG_CONFIG that starts with a
+  letter, such as:
+
+       ART_DEBUG_CONFIG=debug.fcl nova -c my_file.fcl
+
 nova Command Line Arguments
 ============================
 
-* Everything has reasonable default
-* Values on the command line override values in the configuration document
+* Everything has a reasonable default.
+
+* Values on the command line override values in the configuration document.
 
         $> nova -h
-        nova <options> [config-file]:
-          -T [ --TFileName ] arg   File name for TFileService.
-          -c [ --config ] arg      Configuration file.
-          -e [ --estart ] arg      Event # of first event to process.
-          -h [ --help ]            produce help message
-          -n [ --nevts ] arg       Number of events to process.
-          --nskip arg              Number of events to skip.
-          -o [ --output ] arg      Event output stream file.
-          -s [ --source ] arg      Source data file (multiple OK).
-          -S [ --source-list ] arg file containing a list of source files to read, one
-                                   per line.
-          --trace                  Activate tracing.
-          --notrace                Deactivate tracing.
-          --memcheck               Activate monitoring of memory use.
-          --nomemcheck             Deactivate monitoring of memory use.
+
+        Usage: nova <-c <config-file>> <other-options> [<source-file>]+
+        
+        Allowed options:
+          -c [ --config ] arg           Configuration file.
+          -h [ --help ]                 produce help message
+          --process-name arg            art process name.
+        
+          -s [ --source ] arg           Source data file (multiple OK).
+          -S [ --source-list ] arg      file containing a list of source files to read,
+                                        one per line.
+          -e [ --estart ] arg           Event # of first event to process.
+          -n [ --nevts ] arg            Number of events to process.
+          --nskip arg                   Number of events to skip.
+          -T [ --TFileName ] arg        File name for TFileService.
+          -o [ --output ] arg           Event output stream file.
+          --trace                       Activate tracing.
+          --notrace                     Deactivate tracing.
+          --memcheck                    Activate monitoring of memory use.
+          --nomemcheck                  Deactivate monitoring of memory use.
+          --rethrow-default             all exceptions default to rethrow.
+          --rethrow-all                 all exceptions overridden to rethrow (cf
+                                        rethrow-default).
+          --sam-web-uri arg             URI for SAM web service.
+          --sam-process-id arg          SAM process ID.
+          --sam-application-family arg  SAM application family.
+          --sam-app-family arg          SAM application family.
+          --sam-application-version arg SAM application version.
+          --sam-app-version arg         SAM application version.
+          --sam-file-type arg           File type for SAM metadata.
+          --sam-data-tier arg           SAM data tier spec (<module-label>:<tier-spec>).
+          --sam-stream-name arg         SAM stream name (<module-label>:<stream-name>).
 
 Event Product Access
 ====================
