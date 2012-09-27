@@ -12,11 +12,19 @@
 
 namespace  bpo = boost::program_options;
 
+#include <cstdlib>
+#include <iostream>
 #include <memory>
+
 int artapp(int argc, char * argv[])
 {
   // Configuration file lookup policy.
-  cet::filepath_lookup_after1 lookupPolicy("FHICL_FILE_PATH");
+  if (getenv("FHICL_FILE_PATH") == nullptr) {
+    std::cerr
+      << "INFO: environment variable FHICL_FILE_PATH was not set. Using \".\"\n";
+    setenv("FHICL_FILE_PATH", ".", 0);
+  }
+ cet::filepath_lookup_after1 lookupPolicy("FHICL_FILE_PATH");
   // Empty options_description.
   bpo::options_description all_desc;
   // Create and store options handlers.
