@@ -1,0 +1,23 @@
+all_modules: []
+process_name: "DUMMY"
+services: { SimpleMemoryCheck: {}
+            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            scheduler: { defaultExceptions: false
+                         wantTracer: true
+                       }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                  }
+                  }
+          }
+

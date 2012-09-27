@@ -1,0 +1,29 @@
+all_modules: [ "out" ]
+outputs: { out: { fileName: "out.root"
+                  module_label: "out"
+                  module_type: "RootOutput"
+                }
+         }
+physics: { end_paths: [ "injected_end_path_1" ]
+           injected_end_path_1: [ "out" ]
+         }
+process_name: "DUMMY"
+services: { TFileService: { fileName: "hist.root"
+                          }
+            message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                  }
+                  }
+          }
+

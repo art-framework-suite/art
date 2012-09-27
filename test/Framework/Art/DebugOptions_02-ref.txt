@@ -1,0 +1,26 @@
+all_modules: []
+process_name: "TEST"
+services: { message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
+                                                                          }
+                                                               default: { limit: -1
+                                                                        }
+                                                             }
+                                                 threshold: "INFO"
+                                                 type: "cout"
+                                               }
+                                     }
+                     }
+            scheduler: { FailPath: []
+                         FaileModule: []
+                         IgnoreCompletely: []
+                         SkipEvent: []
+                         defaultExceptions: false
+                         wantTracer: false
+                       }
+            user: { CatalogInterface: { service_provider: "TrivialFileDelivery"
+                                      }
+                    FileTransfer: { service_provider: "TrivialFileTransfer"
+                                  }
+                  }
+          }
+

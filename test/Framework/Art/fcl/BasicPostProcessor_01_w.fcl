@@ -1,0 +1,17 @@
+physics:
+{
+  filters: { f1: { } }
+  producers: { p1: { } }
+  analyzers: { a1: { } }
+
+  path1: [ p1, f1 ]
+  epath1: [ a1, p1 ]
+
+  trigger_paths: [ path1 ]
+  end_paths: [ epath1 ]
+}
+
+outputs:
+{
+  o1: { }
+}
