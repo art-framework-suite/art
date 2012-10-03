@@ -75,7 +75,7 @@ namespace {
 
 namespace art {
   Schedule::Schedule(ParameterSet const & proc_pset,
-                     art::TriggerNamesService & tns,
+                     art::TriggerNamesService const & tns,
                      WorkerRegistry & wreg,
                      MasterProductRegistry & pregistry,
                      ActionTable & actions,

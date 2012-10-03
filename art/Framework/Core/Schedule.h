@@ -117,7 +117,7 @@ namespace art {
     enum State { Ready = 0, Running, Latched };
 
     Schedule(fhicl::ParameterSet const & processDesc,
-             art::TriggerNamesService & tns,
+             art::TriggerNamesService const & tns,
              WorkerRegistry & wregistry,
              MasterProductRegistry & pregistry,
              ActionTable & actions,
