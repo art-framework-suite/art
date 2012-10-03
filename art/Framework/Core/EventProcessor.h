@@ -40,8 +40,8 @@ namespace art {
 
   class EventProcessor : public IEventProcessor {
   public:
-    EventProcessor(EventProcessor const&) = delete;
-    EventProcessor& operator=(EventProcessor const&) = delete;
+    EventProcessor(EventProcessor const &) = delete;
+    EventProcessor & operator=(EventProcessor const &) = delete;
 
     // The input string 'config' contains the entire contents of a  configuration file.
     // Also allows the attachement of pre-existing services specified  by 'token', and

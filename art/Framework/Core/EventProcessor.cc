@@ -46,8 +46,8 @@ namespace art {
 
     class SignalSentry {
     public:
-      SignalSentry(SignalSentry const&) = delete;
-      SignalSentry& operator=(SignalSentry const&) = delete;
+      SignalSentry(SignalSentry const &) = delete;
+      SignalSentry & operator=(SignalSentry const &) = delete;
       typedef sigc::signal<void> Sig;
       SignalSentry(Sig & pre, Sig & post) : post_(post) { pre(); }
       ~SignalSentry() { post_(); }
@@ -210,7 +210,6 @@ namespace art {
     serviceToken_.forceCreation();
     // FileCatalogMetadata needs to know about the process name.
     ServiceHandle<art::FileCatalogMetadata>()->addMetadata("process_name", processName);
-
     act_table_ = ActionTable(scheduler);
     input_ = makeInput(pset, processName, preg_, actReg_);
     // Old input sources may need this for now.
@@ -486,7 +485,7 @@ namespace art {
           << exceptionMessageRuns_
           << exceptionMessageFiles_;
     }
-    catch (char const* e) {
+    catch (char const * e) {
       terminateAbnormally();
       throw cet::exception("Unknown")
           << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
