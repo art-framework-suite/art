@@ -62,7 +62,7 @@ public:
   // not created until the normal paths complete execution.
   // Returns false if it fails to find the trigger path names.
   bool getTrigPaths(TriggerResults const & triggerResults,
-                    Strings & trigPaths);
+                    Strings & trigPaths) const;
 
   Strings const & getEndPaths() const { return end_names_; }
   std::string const & getEndPath(size_type const i) const { return end_names_.at(i);}
@@ -91,7 +91,7 @@ public:
     }
   }
 
-  void loadPosMap(PosMap & posmap, Strings const & names) {
+  void loadPosMap(PosMap & posmap, Strings const & names) const {
     size_type const n(names.size());
     for (size_type i = 0; i != n; ++i) {
       posmap[names[i]] = i;
