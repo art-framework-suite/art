@@ -28,16 +28,6 @@ namespace art
   bool
   value_type_of(Reflex::Type const& t, Reflex::Type& found_type);
 
-  inline
-  bool
-  wrapper_type_of(Reflex::Type const& possible_wrapper,
-                  Reflex::Type& found_wrapped_type)
-  {
-    return find_nested_type_named("wrapped_type",
-                                  possible_wrapper,
-                                  found_wrapped_type);
-  }
-
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void reportFailedDictionaryChecks();
 
