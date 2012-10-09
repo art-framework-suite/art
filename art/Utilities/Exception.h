@@ -21,41 +21,35 @@ namespace art {
   namespace errors {
 
     enum ErrorCodes {
-       OtherArt = 1
-    ,  StdException
-    ,  Unknown
-    ,  BadAlloc
-    ,  BadExceptionType
-
-    ,  ProductNotFound
-    ,  DictionaryNotFound
-    ,  InsertFailure
-    ,  Configuration
-    ,  LogicError
-    ,  UnimplementedFeature
-    ,  InvalidReference
-    ,  NullPointerError
-    ,  EventTimeout
-    ,  DataCorruption
-
-    ,  ScheduleExecutionFailure
-    ,  EventProcessorFailure
-    ,  EndJobFailure
-
-    ,  FileOpenError
-    ,  FileReadError
-    ,  FatalRootError
-    ,  MismatchedInputFiles
-    ,  CatalogServiceError
-
-    ,  ProductDoesNotSupportViews
-    ,  ProductDoesNotSupportPtr
-
-    ,  SQLExecutionError
-
-    ,  InvalidNumber
-
-    ,  NotFound
+      OtherArt = 1,
+      StdException,
+      Unknown,
+      BadAlloc,
+      BadExceptionType,
+      ProductNotFound,
+      DictionaryNotFound,
+      InsertFailure,
+      Configuration,
+      LogicError,
+      UnimplementedFeature,
+      InvalidReference,
+      TypeConversion,
+      NullPointerError,
+      EventTimeout,
+      DataCorruption,
+      ScheduleExecutionFailure,
+      EventProcessorFailure,
+      EndJobFailure,
+      FileOpenError,
+      FileReadError,
+      FatalRootError,
+      MismatchedInputFiles,
+      CatalogServiceError,
+      ProductDoesNotSupportViews,
+      ProductDoesNotSupportPtr,
+      SQLExecutionError,
+      InvalidNumber,
+      NotFound
     };
 
   }  // errors
