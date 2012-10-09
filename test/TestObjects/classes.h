@@ -7,31 +7,22 @@
 #include "test/TestObjects/ProductWithPtrs.h"
 #include "test/TestObjects/ToyProducts.h"
 
-namespace {
-  struct dictionary {
-    art::Wrapper<arttest::DummyProduct> dummyw12;
-    art::Wrapper<arttest::IntProduct> dummyw13;
-    art::Wrapper<arttest::Int16_tProduct> dummyw23;
-    art::Wrapper<arttest::DoubleProduct> dummyw14;
-    art::Wrapper<arttest::StringProduct> dummyw15;
-    art::Wrapper<arttest::Prodigal> dummyw24;
-
-    std::vector<arttest::SimpleDerived> dummy231;
-    art::Wrapper<std::vector<arttest::SimpleDerived> > dummy231w;
-
-    art::Ptr<arttest::SimpleDerived> dummy234;
-    art::PtrVector<arttest::SimpleDerived> dummy235;
-    art::PtrVector<arttest::Simple> dummy235a;
-    art::Wrapper<art::PtrVector<arttest::SimpleDerived> > dummy235w;
-
-    arttest::MockClusterList dummyMCL;
-    art::Wrapper<arttest::MockClusterList> dummyMCLw;
-
-    art::Wrapper<arttest::ProductWithPtrs> wpwp;
-    std::vector<art::Ptr<double> > wpwp1;
-    art::PtrVector<double> wpwp2;
-    art::Wrapper<std::vector<art::Ptr<double> > > wpwp3;
-    art::Wrapper<art::PtrVector<double> > wpwp4;
-    art::Ptr<double> wpwp5;
-  };
-}
+template class art::Wrapper<arttest::DummyProduct>;
+template class art::Wrapper<arttest::IntProduct>;
+template class art::Wrapper<arttest::Int16_tProduct>;
+template class art::Wrapper<arttest::DoubleProduct>;
+template class art::Wrapper<arttest::StringProduct>;
+template class art::Wrapper<arttest::Prodigal>;
+template class std::vector<arttest::SimpleDerived>;
+template class art::Wrapper<std::vector<arttest::SimpleDerived> >;
+template class art::Ptr<arttest::SimpleDerived>;
+template class art::PtrVector<arttest::SimpleDerived>;
+template class art::Wrapper<art::PtrVector<arttest::SimpleDerived> >;
+template class art::Wrapper<art::PtrVector<arttest::Simple> >;
+template class art::Wrapper<arttest::MockClusterList>;
+template class art::Wrapper<arttest::ProductWithPtrs>;
+template class std::vector<art::Ptr<double> >;
+template class art::PtrVector<double>;
+template class art::Wrapper<std::vector<art::Ptr<double> > >;
+template class art::Wrapper<art::PtrVector<double> >;
+template class art::Ptr<double>;

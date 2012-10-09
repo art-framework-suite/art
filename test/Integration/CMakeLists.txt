@@ -47,6 +47,7 @@ simple_plugin(ProductIDGetterAnalyzer    "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(PtrListAnalyzer            "module" NOINSTALL )
 simple_plugin(PtrVectorAnalyzer          "module" NOINSTALL )
 simple_plugin(PtrVectorProducer          "module" NOINSTALL )
+simple_plugin(PtrVectorSimpleAnalyzer    "module" NOINSTALL )
 simple_plugin(PtrmvAnalyzer              "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(PtrmvProducer              "module" NOINSTALL )
 simple_plugin(RandomNumberSaveTest       "module" NOINSTALL USE_BOOST_UNIT )
@@ -131,11 +132,27 @@ cet_test(test_ptrvector_01_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-cet_test(test_simplederived_01_t.sh PREBUILT
+cet_test(SimpleDerived_01_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl
   DATAFILES
   fcl/test_simplederived_01a.fcl
+)
+
+cet_test(SimpleDerived_01_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c test_simplederived_01b.fcl
+  DATAFILES
   fcl/test_simplederived_01b.fcl
-  fcl/messageDefaults.fcl
+  TEST_PROPERTIES DEPENDS SimpleDerived_01_w
+)
+
+cet_test(SimpleDerived_02_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c SimpleDerived_02.fcl
+  DATAFILES
+  fcl/SimpleDerived_02.fcl
+  TEST_PROPERTIES DEPENDS SimpleDerived_01_w
 )
 
 cet_test(outputCommand_t.sh PREBUILT

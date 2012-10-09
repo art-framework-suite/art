@@ -29,12 +29,14 @@ class arttest::DerivedPtrVectorProducer
 {
 public:
   typedef  std::vector<arttest::SimpleDerived>     input_t;
-  typedef  art::PtrVector<arttest::SimpleDerived>  product_t;
+  typedef  art::PtrVector<arttest::SimpleDerived>  derived_t;
+  typedef  art::PtrVector<arttest::Simple>  base_t;
 
   explicit DerivedPtrVectorProducer( fhicl::ParameterSet const & p )
   : input_label_( p.get<std::string>("input_label") )
   {
-    produces<product_t>();
+    produces<derived_t>();
+    produces<base_t>();
   }
 
   virtual ~DerivedPtrVectorProducer() { }
@@ -56,13 +58,14 @@ DerivedPtrVectorProducer::produce( art::Event& e )
   art::Handle<input_t> h;
   e.getByLabel(input_label_, "derived", h);
 
-  std::unique_ptr<product_t> prod( new product_t );
+  std::unique_ptr<derived_t> prod( new derived_t );
   for( int k = 0; k != 16; ++k ) {
     art::Ptr<SimpleDerived> p(h, k);
     prod->push_back(p);
   }
-
+  std::unique_ptr<base_t> base_prod(new base_t(*prod));
   e.put(std::move(prod));
+  e.put(std::move(base_prod));
 }
 
 // ----------------------------------------------------------------------

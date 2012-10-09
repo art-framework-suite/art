@@ -46,8 +46,9 @@
 
  <class name="art::Ptr<arttest::SimpleDerived>"/>
  <class name="art::PtrVector<arttest::SimpleDerived>"/>
- <class name="art::PtrVector<arttest::Simple>"/><!-- For view<Simple> -->
  <class name="art::Wrapper<art::PtrVector<arttest::SimpleDerived> >"/>
+ <class name="art::PtrVector<arttest::Simple>"/><!-- For view<Simple> -->
+ <class name="art::Wrapper<art::PtrVector<arttest::Simple> >"/>
 
  <class name="arttest::ProductWithPtrs"/>
  <class name="std::vector<art::Ptr<double> >"/>

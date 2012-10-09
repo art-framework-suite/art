@@ -6,10 +6,8 @@ physics:
   {
     a1:
     {
-      module_type: SimpleDerivedAnalyzer
-      input_label: m1a
-      input_label2: m1b
-      nvalues: 16
+      module_type: PtrVectorSimpleAnalyzer
+      input_label: m1b
     }
   }
   e1: [ a1 ]
