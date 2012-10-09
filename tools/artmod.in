@@ -538,7 +538,7 @@ class ${qual_name} : public ${base_class} {
 public:
 EOF
 print $fh "${indent}",
-  (${constructors}->{${module_type}}->{explicit}?"explicit":""),
+  (${constructors}->{${module_type}}->{explicit}?"explicit ":""),
     "${class_name}(",
       join(", ", @{${constructors}->{${module_type}}->{args}}),
         ");\n";
@@ -618,8 +618,10 @@ sub functions_first {
   }
 }
 
-sub qualify_func {
+sub qualify_strip_func {
   my $func = shift;
+  $func =~ s&^\s*\bvirtual\b\s*&&;
+  $func =~ s&\s*\boverride\b\s*$&&;
   $func =~ s&([A-Za-z_0-9]+)(\s*(?:\(|$))&${qual_name}::${1}${2}&;
   return $func;
 }
@@ -653,25 +655,22 @@ EOF
 
   foreach my $req (sort keys %{${required_entries}->{${module_type}}}) {
     my $f = $required_entries->{${module_type}}->{${req}};
-    $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
-      qualify_func($f),
+      qualify_strip_func($f),
         "\n{\n${indent}// Implementation of required member function here.\n}\n\n";
   }
 
   foreach my $entry (@{$optional_ep_list}) {
     my $f = $entry;
-    $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
-      qualify_func($f),
+      qualify_strip_func($f),
         "\n{\n${indent}// Implementation of optional member function here.\n}\n\n";
   }
 
   foreach my $entry (grep m&\)\s*$&, @{$unrecognized_entries}) {
     my $f = $entry;
-    $f =~ s&\s*\bvirtual\b\s*&&;
     print $fh
-      qualify_func($f),
+      qualify_strip_func($f),
         "\n{\n${indent}// Implementation of private member function here.\n}\n\n";
   }
 
