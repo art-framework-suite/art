@@ -142,13 +142,13 @@ public:
   operator void const * () const { return(isNonnull() &&
                                           isAvailable()) ? get() : nullptr; }
 
+  // Accessor for product getter.
+  EDProductGetter const * productGetter() const { return core_.productGetter(); }
+
   // MUST UPDATE WHEN CLASS IS CHANGED!
   static short Class_Version() { return 10; }
 
-private:  
-
-// Accessor for product getter.
-  EDProductGetter const * productGetter() const { return core_.productGetter(); }
+private:
 
   template<typename C>
   T const * getItem_(C const * product, key_type iKey);

@@ -145,7 +145,7 @@ art::PtrVector<T>::PtrVector(PtrVector<U> const &other)
 {
   // Ensure that types are compatible.
   STATIC_ASSERT(( std::is_base_of<T,U>::value || std::is_base_of<U,T>::value ), "PtrVector: incompatible types");
-  ptrs_.reserve(other.ptrs_.size());
+  ptrs_.reserve(other.size());
   std::copy(other.begin(), other.end(), std::back_inserter(ptrs_));
 }
 
