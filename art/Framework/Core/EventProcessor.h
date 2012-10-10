@@ -61,16 +61,6 @@ namespace art {
        */
     void endJob();
 
-    /// signal is emitted after the Event has been created by the
-    /// InputSource but before any modules have seen the Event
-    ActivityRegistry::PreProcessEvent &
-    preProcessEventSignal() {return preProcessEventSignal_;}
-
-    /// signal is emitted after all modules have finished processing
-    /// the Event
-    ActivityRegistry::PostProcessEvent &
-    postProcessEventSignal() {return postProcessEventSignal_;}
-
     //------------------------------------------------------------------
     // The function "runToCompletion" will run until the job is "complete",
     // which means:
@@ -140,8 +130,6 @@ namespace art {
     StatusCode runCommon(int numberOfEventsToProcess);
     void terminateMachine();
     void terminateAbnormally();
-    void connectSigs();
-    void setupSignal();
 
     //------------------------------------------------------------------
     //
@@ -150,8 +138,6 @@ namespace art {
     // only during construction, and never again. If they aren't
     // really needed, we should remove them.
 
-    ActivityRegistry::PreProcessEvent             preProcessEventSignal_;
-    ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     std::shared_ptr<ActivityRegistry>             actReg_;
     MFStatusUpdater                               mfStatusUpdater_;
     WorkerRegistry                                wreg_;

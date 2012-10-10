@@ -7,7 +7,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Principal/BranchActionType.h"
+#include "art/Framework/Services/Registry/BranchActionType.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
@@ -32,23 +32,23 @@ namespace art {
     static bool const isEvent_ = true;
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal * ep) {
       Event ev(*ep, ModuleDescription());
-      a->preProcessEventSignal_(ev);
+      a->sPreProcessEvent_(ev);
     }
     static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep) {
       Event ev(*ep, ModuleDescription());
-      a->postProcessEventSignal_(ev);
+      a->sPostProcessEvent_(ev);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->preProcessPathSignal_(s);
+      a->sPreProcessPath_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postProcessPathSignal_(s, status);
+      a->sPostProcessPath_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleSignal_(*md);
+      a->sPreModule_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleSignal_(*md);
+      a->sPostModule_(*md);
     }
   };
 
@@ -60,23 +60,23 @@ namespace art {
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
-      a->preBeginRunSignal_(run);
+      a->sPreBeginRun_(run);
     }
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
-      a->postBeginRunSignal_(run);
+      a->sPostBeginRun_(run);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathBeginRunSignal_(s);
+      a->sPrePathBeginRun_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathBeginRunSignal_(s, status);
+      a->sPostPathBeginRun_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleBeginRunSignal_(*md);
+      a->sPreModuleBeginRun_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleBeginRunSignal_(*md);
+      a->sPostModuleBeginRun_(*md);
     }
   };
 
@@ -87,23 +87,23 @@ namespace art {
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
-      a->preEndRunSignal_(ep->id(), ep->endTime());
+      a->sPreEndRun_(ep->id(), ep->endTime());
     }
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
-      a->postEndRunSignal_(run);
+      a->sPostEndRun_(run);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathEndRunSignal_(s);
+      a->sPrePathEndRun_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathEndRunSignal_(s, status);
+      a->sPostPathEndRun_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleEndRunSignal_(*md);
+      a->sPreModuleEndRun_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleEndRunSignal_(*md);
+      a->sPostModuleEndRun_(*md);
     }
   };
 
@@ -115,23 +115,23 @@ namespace art {
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal * ep) {
       SubRun subRun(*ep, ModuleDescription());
-      a->preBeginSubRunSignal_(subRun);
+      a->sPreBeginSubRun_(subRun);
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
       SubRun subRun(*ep, ModuleDescription());
-      a->postBeginSubRunSignal_(subRun);
+      a->sPostBeginSubRun_(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathBeginSubRunSignal_(s);
+      a->sPrePathBeginSubRun_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathBeginSubRunSignal_(s, status);
+      a->sPostPathBeginSubRun_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleBeginSubRunSignal_(*md);
+      a->sPreModuleBeginSubRun_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleBeginSubRunSignal_(*md);
+      a->sPostModuleBeginSubRun_(*md);
     }
   };
 
@@ -142,23 +142,23 @@ namespace art {
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
-      a->preEndSubRunSignal_(ep->id(), ep->beginTime());
+      a->sPreEndSubRun_(ep->id(), ep->beginTime());
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
       SubRun subRun(*ep, ModuleDescription());
-      a->postEndSubRunSignal_(subRun);
+      a->sPostEndSubRun_(subRun);
     }
     static void prePathSignal(ActivityRegistry *a, std::string const& s) {
-      a->prePathEndSubRunSignal_(s);
+      a->sPrePathEndSubRun_(s);
     }
     static void postPathSignal(ActivityRegistry *a, std::string const& s, HLTPathStatus const& status) {
-      a->postPathEndSubRunSignal_(s, status);
+      a->sPostPathEndSubRun_(s, status);
     }
     static void preModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->preModuleEndSubRunSignal_(*md);
+      a->sPreModuleEndSubRun_(*md);
     }
     static void postModuleSignal(ActivityRegistry *a, ModuleDescription const* md) {
-      a->postModuleEndSubRunSignal_(*md);
+      a->sPostModuleEndSubRun_(*md);
     }
   };
 }

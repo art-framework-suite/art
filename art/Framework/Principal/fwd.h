@@ -3,7 +3,6 @@
 
 // For enums only.
 #include "art/Framework/Principal/ActionCodes.h"
-#include "art/Framework/Principal/BranchActionType.h"
 
 namespace art {
 
