@@ -2,7 +2,7 @@
 ########################################################################
 # artmod
 #
-# Script to generate clean module source for ART.
+# Script to generate clean module source for art.
 #
 # Usage: artmod [<options>] <module-type> <qualified-name>
 #
@@ -15,7 +15,7 @@
 # For detailed documentation, see the pod at the end of this file; or
 # use the --help option.
 #
-# 2011/03/08 Chris Green for the ART team.
+# 2011/03/08 Chris Green for the art team.
 ########################################################################
 
 ####################################
@@ -692,7 +692,7 @@ __END__
 
 =head1 NAME
 
-artmod: Generate clean module source for ART.
+artmod: Generate clean module source for art.
 
 =head1 SYNOPSIS
 
@@ -714,7 +714,7 @@ Options marked with B<+> are repeatable and cumulative.
 
 =head1 DESCRIPTION
 
-I<artmod> is a tool to produce an ART module source skeleton for an
+I<artmod> is a tool to produce an art module source skeleton for an
 analyzer, a filter or a producer. The user can specify which optional
 member functions are to be configured and whether to split the source
 into three files or combine it into one. In addition, the name of a file
@@ -775,7 +775,7 @@ Certain format strings will be honored, such as:
   %u  The login name of the invoker of artmod.
   %U  The full name (if available) if the invoker of artmod, or
         the login name if not.
-  %v  The version of ART from which the generation script came.
+  %v  The version of art from which the generation script came.
 
 Literal % characters should be escaped (\%).
 
