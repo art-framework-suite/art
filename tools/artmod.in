@@ -175,6 +175,7 @@ my $options = {};
 # Main code.
 
 GetOptions($options,
+           "all-entries|A",
            "boilerplate|b=s",
            "entry-list|E=s",
            "entries|entry|e=s@",
@@ -215,7 +216,6 @@ if ((scalar @ARGV) == 1) {
   print STDERR "ERROR: Expected exactly two non-option arguments.\n";
   pod2usage(-exitval => 2);
 }
-
 
 # Process module type
 if (not exists $module_types->{lc $module_type}) {
@@ -572,6 +572,7 @@ EOF
     }
   }
   foreach my $entry (@{${options}-> {"entries"}},
+                     (${options}->{"all-entries"}?sort keys %{$optional_entries->{$module_type}}:()),
                      @file_entries) {
     if (not exists $entries_hash{$entry}) {
       push @entries, $entry;
@@ -701,7 +702,8 @@ B<artmod> B<--help-types>
 
 B<artmod> [I<optons>] [--] I<module-type> I<qualified-name>
 
-I<Options>: B<--boilerplate|-b> I<file> |
+I<Options>: B<--all-entries|-A> |
+         B<--boilerplate|-b> I<file> |
          B<--entries|--entry|-e> I<entry>+ |
          B<--header-loc> I<path> |
          B<--split> |
@@ -746,6 +748,12 @@ The namespace-qualified class name (eg ns1::ns2::MyClass).
 =head2 OPTIONS
 
 =over
+
+=item B<--all-entries>
+
+=item B<-A>
+
+Include all optional entry points for the specified module type.
 
 =item B<--boilerplate> I<file>
 
