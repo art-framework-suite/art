@@ -1,6 +1,6 @@
-#ifndef __GCCXML__
 #ifndef art_Framework_Services_Registry_ActivityRegistry_h
 #define art_Framework_Services_Registry_ActivityRegistry_h
+#ifndef __GCCXML__
 
 ////////////////////////////////////////////////////////////////////////
 // ActivityRegistry
@@ -296,8 +296,8 @@ public:
 #undef AR_DECL_VOID_1ARG_SIGNAL
 #undef AR_DECL_VOID_2ARG_SIGNAL
 
-#endif /* art_Framework_Services_Registry_ActivityRegistry_h */
 #endif /* __GCCXML__ */
+#endif /* art_Framework_Services_Registry_ActivityRegistry_h */
 
 // Local Variables:
 // mode: c++
