@@ -260,4 +260,4 @@ for (auto & handler : handlers) {
     art::printUnknownException("art"); // , "Thing5", rc);
   }
   return rc;
-}  // artapp
+}
