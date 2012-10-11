@@ -1,6 +1,6 @@
 // Test of GroupFactory functions
 
-#define BOOST_TEST_MODULE (ReflexTools_t)
+#define BOOST_TEST_MODULE (GroupFactory_t)
 #include "boost/test/auto_unit_test.hpp"
 
 #include <iostream>
