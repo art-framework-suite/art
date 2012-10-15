@@ -1,6 +1,7 @@
 #ifndef art_Framework_Services_System_FileCatalogMetadata_h
 #define art_Framework_Services_System_FileCatalogMetadata_h
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/fwd.h"
 
@@ -37,6 +38,7 @@ getMetadata(collection_type & coll) const
   cet::copy_all(md_, std::back_inserter(coll));
 }
 
+DECLARE_ART_SERVICE(art::FileCatalogMetadata, LEGACY)
 #endif /* art_Framework_Services_System_FileCatalogMetadata_h */
 
 // Local Variables:

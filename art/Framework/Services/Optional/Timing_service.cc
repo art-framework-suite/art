@@ -159,6 +159,9 @@ void Timing::postModule(ModuleDescription const& desc)
 
 // ======================================================================
 
+// The DECLARE macro call should be moved to the header file, should you
+// create one.
+DECLARE_ART_SERVICE(Timing, LEGACY)
 DEFINE_ART_SERVICE(Timing)
 
 // ======================================================================

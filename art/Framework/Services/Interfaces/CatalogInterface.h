@@ -21,6 +21,7 @@
 //
 
 #include "art/Framework/Services/Interfaces/FileDisposition.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/fwd.h"
 #include "fhiclcpp/fwd.h"
 
@@ -117,6 +118,7 @@ inline void art::CatalogInterface::rewind()
   doRewind();
 }
 
+DECLARE_ART_SERVICE_INTERFACE(art::CatalogInterface,LEGACY)
 #endif /* art_Framework_Services_Interfaces_CatalogInterface_h */
 
 // Local Variables:

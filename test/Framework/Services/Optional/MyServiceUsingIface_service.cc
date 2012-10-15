@@ -19,4 +19,7 @@ ServiceUsingIface(fhicl::ParameterSet const &,
   art::ServiceHandle<art::TrivialFileDelivery> h __attribute__((unused));
 }
 
+// The DECLARE macro call should be moved to the header file, should you
+// create one.
+DECLARE_ART_SERVICE(arttest::ServiceUsingIface, LEGACY)
 DEFINE_ART_SERVICE(arttest::ServiceUsingIface)

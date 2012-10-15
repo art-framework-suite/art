@@ -9,7 +9,6 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 

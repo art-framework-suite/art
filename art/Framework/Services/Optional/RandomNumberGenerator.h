@@ -159,6 +159,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/RNGsnapshot.h"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
@@ -280,6 +281,7 @@ private:
 
 // ======================================================================
 
+DECLARE_ART_SERVICE(RandomNumberGenerator, LEGACY)
 #endif /* art_Framework_Services_Optional_RandomNumberGenerator_h */
 
 // Local Variables:

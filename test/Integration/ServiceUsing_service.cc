@@ -1,6 +1,5 @@
 // Service to make sure we can use another service.
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "test/Integration/ServiceUsing.h"
 #include "test/Integration/Wanted.h"
 

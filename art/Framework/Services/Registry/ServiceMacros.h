@@ -3,72 +3,136 @@
 
 ////////////////////////////////////////////////////////////////////////
 //
-// ServiceMacros - Used to make an instance of an art service.
+// ServiceMacros - define the macros used to declare and define an art
+// service or an interface to be implemented by an art service.
+//
+// Notes:
+//
+// * Unlike modules, services require macro invocations in their
+// headers *and* their compile units.
+//
+// * In order to declare your service, you must define your service as
+// either a LEGACY, GLOBAL or PER_SCHEDULE service, as follows:
+//
+//   * LEGACY services are unaware of multi-schedule operation, and
+//     configuration of such a service precludes multi-schedule
+//     operation. Such services must have a constructor:
+//
+//       MyServer(fhicl::ParameterSet const &,
+//                art::ActivityRegistry &);
+//
+//   * GLOBAL services are expected to have the same signature as LEGACY
+//     services, but warrant additionally that it is safe to call their
+//     methods (including callbacks) from multiple schedules at the same
+//     time. A global service may register for callbacks for per-
+//     schedule signals (however the same callback must be registered
+//     for all schedules per the ActivityRegistry interface).
+//
+//   * PER_SCHEDULE services must provide a signature:
+//
+//       MyService(fhicl::ParameterSet const &,
+//                 art::ActivityRegistry &,
+//                 art::ScheduleID);
+//
+//     Note that Per-schedule services may register for global callbacks,
+//     but there will be n unique instances of the service (and
+//     therefore unique callbacks), one for each schedule.
+////////////////////////////////////////////////////////////////////////
 //
 // User-callable macros:
 //
-// DEFINE_ART_SERVICE(svc);
-//   Define an art service of type <svc>.
+// DECLARE_ART_SERVICE(svc,scope)
+//   Declare (in the header) an art service of type <svc> with scope
+//   (see above).
 //
-// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc, iface)
+// DEFINE_ART_SERVICE(svc,scope)
+//   Define (in MyService_service.cc) the service declared with
+//   DECLARE_ART_SERVICE.
+//
+////////////////////////////////////
+// DECLARE_ART_SERVICE_INTERFACE(iface,scope)
+//   Declare an interface to be used by services (must be invoked in the
+//   header for the interface, *not* any implementations thereof).
+//
+////////////////////////////////////
+// DECLARE_ART_SERVICE_INTERFACE_IMPL(svc,iface,scope)
+//   Declare (in the header) an art service of type <svc> implementing
+//   (inheriting from) interface <iface>, with scope <scope>.
+//
+// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface)
 //   Define an art service of type <svc> implementing (inheriting from)
-//   interface <iface>.
+//   interface <iface>, with scope <scope>.
 //
-// Additionally, some services closely integrated with art may call:
+////////////////////////////////////
+// Some services closely integrated with art may call:
 //
-// DEFINE_ART_SYSTEM_SERVICE(svc);
+// DECLARE_ART_SYSTEM_SERVICE(svc,scope);
 //
 // and must be constructed by the art system rather than automatically
-// as part of the service initialization process.
+// as part of the service initialization process. A DEFINE... macro call
+// is not necessary in this case.
+//
+////////////////////////////////////////////////////////////////////////
+// NOTES.
+//
+//
+// MS-aware services should be configured using:
+//
+// DEFINE_ART_SERVICE(svc,scope)
+//
+// or
+//
+// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface,scope)
+//
+// where scope is GLOBAL or PER_SCHEDULE (as defined in
+// art/Framework/Services/Registry/ServiceScope.h).
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Framework/Services/Registry/ServiceWrapperBase.h"
-#include "art/Utilities/TypeID.h"
-#include "cpp0x/memory"
-
-// Define a function returning the typeid of the service.
-#define DEFINE_ART_SERVICE_TYPEID(svc) \
-  extern "C" \
-  art::TypeID \
-  get_typeid() \
-  { return art::TypeID(typeid(svc)); }
-
-// Define a function returning the typeid of the interface.
-#define DEFINE_ART_INTERFACE_TYPEID(iface) \
-  extern "C" \
-  art::TypeID \
-  get_iface_typeid() \
-  { return art::TypeID(typeid(iface)); }
-
-// Define a function returning the typeid of the service implementing
-// the interface.
-#define DEFINE_ART_INTERFACE_IMPL_TYPEID(svc) \
-  extern "C" \
-  art::TypeID \
-  get_iface_impl_typeid() \
-  { return art::TypeID(typeid(svc)); }
-
-// Define a function to convert a ServiceWrapper<svc> to a
-// ServiceWrapper<iface>.
-#define DEFINE_ART_CONVERTER(svc,iface) \
-  extern "C" \
-  std::unique_ptr<art::ServiceWrapperBase> \
-  converter(std::shared_ptr<art::ServiceWrapperBase> const & swb) \
-  { return std::unique_ptr<art::ServiceWrapperBase>( \
-      static_cast<art::ServiceWrapperBase *>( \
-        std::dynamic_pointer_cast<art::ServiceWrapper<svc>>(swb).get()->getAs<iface>() \
-      ) \
-    ); \
-  }
-
-// Define a system service (no maker).
-#define DEFINE_ART_SYSTEM_SERVICE(svc) \
-  DEFINE_ART_SERVICE_TYPEID(svc)
+#include "art/Framework/Services/Registry/detail/helper_macros.h"
 
 ////////////////////////////////////////////////////////////////////////
-// Note that it make very little sense to have a system service
+// User service macros, Service must provide a constructor with the
+// correct signature (see notes above).
+
+////////////////////////////////////
+// Multi-schedule-aware service declarations.
+
+// Declare and define a service.
+#define DECLARE_ART_SERVICE(svc,scope) \
+  DECLARE_ART_SERVICE_DETAIL(svc,scope)
+
+#define DEFINE_ART_SERVICE(svc) \
+  DEFINE_ART_SH_CREATE(svc)
+
+// Declare an interface.
+#define DECLARE_ART_SERVICE_INTERFACE(svc,scope) \
+  DECLARE_ART_SERVICE_INTERFACE_DETAIL(svc,scope)
+
+// Declare and define a service implementing an interface.
+#define DECLARE_ART_SERVICE_INTERFACE_IMPL(svc,iface,scope) \
+  DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc,iface,scope)
+
+#define DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface) \
+  DEFINE_ART_SERVICE(svc) \
+  DEFINE_ART_SIH_CREATE(iface)
+
+// End of user service macros.
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+// No user-serviceable parts below.
+////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+// System service macros (requires support code in Event Processor)
+// since they have no maker function.
+
+#define DECLARE_ART_SYSTEM_SERVICE(svc,scope) \
+  DECLARE_ART_SYSTEM_SERVICE_DETAIL(svc,scope)
+
+////////////////////////////////////////////////////////////////////////
+// Note that it makes very little sense to have a system service
 // implementing an interface since it has to be constructed and added to
 // the service cache list with no way to define the maker and converter
 // functions. One could conceivably do a second add for the interface,
@@ -78,25 +142,6 @@
 //
 // 2012/09/24 CG.
 ////////////////////////////////////////////////////////////////////////
-
-// Define a service.
-#define DEFINE_ART_SERVICE(svc) \
-  extern "C" \
-  std::unique_ptr<art::ServiceWrapperBase> \
-  make(fhicl::ParameterSet const & cfg, art::ActivityRegistry & reg) \
-  { return std::unique_ptr<art::ServiceWrapperBase>( \
-      new art::ServiceWrapper<svc>( \
-        std::unique_ptr<svc>( \
-          new svc(cfg,reg)) ) ); \
-  } \
-  DEFINE_ART_SERVICE_TYPEID(svc)
-
-// Define a service implementing an interface.
-#define DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface) \
-  DEFINE_ART_SERVICE(svc) \
-  DEFINE_ART_INTERFACE_TYPEID(iface) \
-  DEFINE_ART_INTERFACE_IMPL_TYPEID(svc) \
-  DEFINE_ART_CONVERTER(svc,iface)
 
 #endif /* art_Framework_Services_Registry_ServiceMacros_h */
 

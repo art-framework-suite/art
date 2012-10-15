@@ -19,6 +19,8 @@
 //         Created:  Wed  25 Jul, 2012
 //
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
+
 #include <string>
 
 namespace art {
@@ -50,6 +52,7 @@ translateToLocalFilename(std::string const & uri,
   return doTranslateToLocalFilename(uri, fileFQname);
 }
 
+DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer,LEGACY)
 #endif /* art_Framework_Services_Interfaces_FileTransfer_h */
 
 // Local Variables:

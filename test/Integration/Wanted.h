@@ -5,6 +5,7 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace arttest {
   class Wanted;
@@ -21,6 +22,7 @@ private:
 
   bool postBeginJobCalled_;
 };
+DECLARE_ART_SERVICE(arttest::Wanted, LEGACY)
 #endif /* test_Integration_Wanted_h */
 
 // Local Variables:

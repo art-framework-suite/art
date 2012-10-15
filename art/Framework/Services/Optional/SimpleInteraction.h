@@ -19,6 +19,7 @@
 
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Interfaces/UserInteraction.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include <vector>
 
 namespace ui {
@@ -36,6 +37,7 @@ namespace ui {
   };
 }
 
+DECLARE_ART_SERVICE(ui::SimpleInteraction, LEGACY)
 #endif /* art_Framework_Services_Optional_SimpleInteraction_h */
 
 // Local Variables:

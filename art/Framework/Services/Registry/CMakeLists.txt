@@ -1,10 +1,11 @@
 # project name
 project(art_Framework_Services_Registry)
 
-set( art_Framework_Services_Registry_sources ActivityRegistry.cc
-                                          ServiceRegistry.cc
-                                          ServicesManager.cc
-                                          ServiceWrapperBase.cc )
+set(art_Framework_Services_Registry_sources
+  ActivityRegistry.cc
+  ServiceRegistry.cc
+  ServicesManager.cc
+  )
 
 add_library(art_Framework_Services_Registry SHARED ${art_Framework_Services_Registry_sources} )
 

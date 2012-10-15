@@ -26,6 +26,7 @@
 
 #include "art/Framework/Services/Interfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
@@ -69,6 +70,7 @@ namespace art {
   };
 } // end of namespace art
 
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery, art::CatalogInterface, LEGACY)
 #endif /* art_Framework_Services_Optional_TrivialFileDelivery_h */
 
 // Local Variables:

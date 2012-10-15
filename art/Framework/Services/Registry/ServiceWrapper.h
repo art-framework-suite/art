@@ -9,13 +9,23 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ServiceWrapperBase.h"
+
+#include "art/Framework/Services/Registry/ServiceScope.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/detail/metaprogramming.h"
 #include "cpp0x/memory"
 #include "cpp0x/type_traits"
 
 namespace art {
+// Forward declaration
+  class ActivityRegistry;
 
-  template<class T> class ServiceWrapper;
+  template<typename T, ServiceScope SCOPE>
+  class ServiceWrapper;
+
+  // Partial specialization.
+  template <typename T>
+  class ServiceWrapper<T, ServiceScope::PER_SCHEDULE>;
 
   namespace detail {
 
@@ -52,59 +62,127 @@ namespace art {
 // declare the linkage before the friend declaration
 extern "C" std::unique_ptr<art::ServiceWrapperBase> converter(std::shared_ptr<art::ServiceWrapperBase> const &);
 
-template<typename T>
+// General template.
+template<typename T, art::ServiceScope SCOPE>
 class art::ServiceWrapper : public ServiceWrapperBase
 {
-
-  // let the service interface macro access me
-  friend std::unique_ptr<art::ServiceWrapperBase> (::converter)(std::shared_ptr<art::ServiceWrapperBase> const &);
-
-  // non-copyable:
-  ServiceWrapper(ServiceWrapper const &);
-  void operator=(ServiceWrapper const &);
-
 public:
+  // Non-copyable.
+  ServiceWrapper(ServiceWrapper const &) = delete;
+  void operator=(ServiceWrapper const &) = delete;
 
-  // c'tor from a unique_ptr:
-  explicit ServiceWrapper(std::unique_ptr<T> && p)
-    : ServiceWrapperBase(), service_ptr_(std::move(p))
-  {
-  }
+  // C'tor from ParameterSet, ActivityRegistry.
+  ServiceWrapper(fhicl::ParameterSet const & ps,
+                 ActivityRegistry & areg)
+    :
+    ServiceWrapperBase(),
+    service_ptr_(new T(ps, areg))
+    {
+    }
 
-  // c'tor from shared_ptr:
+  // C'tor from shared_ptr.
   explicit ServiceWrapper(std::shared_ptr<T> && p)
     : ServiceWrapperBase(), service_ptr_(std::move(p))
-  {
-  }
+    {
+    }
 
-  // use compiler-generated (virtual) d'tor
+  T & get() { return *service_ptr_; }
 
-  // accessor:
-  T & get() const
-  {
-    return *service_ptr_;
-  }
-
-  void reconfigure(fhicl::ParameterSet const & n)
-  {
-    typename std::conditional<detail::has_reconfig_function<T>::value,
-      detail::DoReconfig<T>,
-      detail::DoNothing<T> >::type reconfig_or_nothing;
-    reconfig_or_nothing(*service_ptr_,n);
-  }
+  template<typename U, typename = typename std::enable_if<std::is_base_of<U,T>::value>::type>
+  ServiceWrapper<U, SCOPE> * getAs() const
+    {
+      return new ServiceWrapper<U, SCOPE>(std::static_pointer_cast<U>(service_ptr_));
+    }
 
 private:
+  void reconfigure_service(fhicl::ParameterSet const & n) override
+    {
+      typename std::conditional<detail::has_reconfig_function<T>::value,
+        detail::DoReconfig<T>,
+        detail::DoNothing<T> >::type reconfig_or_nothing;
+      reconfig_or_nothing(*service_ptr_,n);
+    }
 
-  // convert
-  template<typename U, typename = typename std::enable_if<std::is_base_of<U,T>::value>::type>
-  ServiceWrapper<U> * getAs() const
-  {
-    return new ServiceWrapper<U>(std::static_pointer_cast<U>(service_ptr_));
-  }
-  
   std::shared_ptr<T> service_ptr_;
 
-}; // ServiceWrapper<T>
+}; // ServiceWrapper<T, ServiceScope>
+
+// Partially-specialized template.
+template <typename T>
+class art::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE> : public ServiceWrapperBase {
+public:
+  // Non-copyable.
+  ServiceWrapper(ServiceWrapper const &) = delete;
+  void operator=(ServiceWrapper const &) = delete;
+
+  // C'tor from shared_ptrs.
+  explicit ServiceWrapper(std::vector<std::shared_ptr<T>> && service_ptrs)
+    :
+    ServiceWrapperBase(),
+    service_ptrs_(std::move(service_ptrs))
+    {
+    }
+
+  // C'tor from collection of convertible-to-shared-ptr
+  template <template <typename X> class SP>
+  explicit ServiceWrapper(std::vector<SP<T>> const & service_ptrs)
+    :
+    ServiceWrapperBase(),
+    service_ptrs_(service_ptrs.cbegin(),
+                  service_ptrs.cend())
+    {
+    }
+
+  // C'tor from ParameterSet, ActivityRegistry, nSchedules.
+  ServiceWrapper(fhicl::ParameterSet const & ps,
+                 ActivityRegistry & areg,
+                 size_t nSchedules)
+    :
+    ServiceWrapperBase(),
+    service_ptrs_(nSchedules)
+    {
+      int64_t iSched = -1;
+      std::generate(service_ptrs_.begin(),
+                    service_ptrs_.end(),
+                    [&]() -> std::unique_ptr<T> &&
+                    {
+                      return std::unique_ptr<T>(new T(ps,
+                                                      areg,
+                                                      ScheduleID(++iSched)));
+                    });
+    }
+
+  T & get(ScheduleID sID) { return *service_ptrs_.at(sID.id()); }
+
+  template<typename U, typename = typename std::enable_if<std::is_base_of<U,T>::value>::type>
+  ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE> * getAs() const
+    {
+      std::vector<std::unique_ptr<U>> converted_ptrs(service_ptrs_.size());
+      std::transform(service_ptrs_.begin(),
+                     service_ptrs_.end(),
+                     converted_ptrs.begin(),
+                     [this](std::unique_ptr<T> const & ptr_in) {
+                       return std::static_pointer_cast<U>(ptr_in);
+                     });
+      return new ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>(std::static_pointer_cast<U>(std::move(converted_ptrs)));
+    }
+
+private:
+  void reconfigure_service(fhicl::ParameterSet const & n) override
+    {
+      typename std::conditional<detail::has_reconfig_function<T>::value,
+        detail::DoReconfig<T>,
+        detail::DoNothing<T> >::type reconfig_or_nothing;
+      for (auto & service_ptr : service_ptrs_)
+      {
+        reconfig_or_nothing(*service_ptr, n);
+      }
+    }
+
+  std::vector<std::shared_ptr<T>> service_ptrs_;
+
+};
+
 
 // ======================================================================
 

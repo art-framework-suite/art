@@ -1,5 +1,4 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 static  char const *
   on_or_off( bool b )
@@ -232,6 +231,5 @@ void
 
 // ======================================================================
 
-DEFINE_ART_SYSTEM_SERVICE(FloatingPointControl)
 
 // ======================================================================

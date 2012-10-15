@@ -86,6 +86,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -152,6 +153,7 @@ private:
 
 // ======================================================================
 
+DECLARE_ART_SYSTEM_SERVICE(FloatingPointControl, LEGACY)
 #endif /* art_Framework_Services_System_FloatingPointControl_h */
 
 // Local Variables:

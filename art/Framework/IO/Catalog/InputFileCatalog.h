@@ -8,19 +8,19 @@
 // ======================================================================
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/Interfaces/CatalogInterface.h"
 #include "art/Framework/Services/Interfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/Interfaces/FileTransfer.h"
 #include "art/Framework/Services/Interfaces/FileTransferStatus.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <string>
 #include <vector>
 
 // ----------------------------------------------------------------------
 
 namespace art {
-
-  class CatalogInterface;
-  class FileTransfer;
 
   enum class FileCatalogStatus {
     SUCCESS,

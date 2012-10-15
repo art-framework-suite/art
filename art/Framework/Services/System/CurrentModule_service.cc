@@ -8,7 +8,6 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 
 using art::ActivityRegistry;
@@ -42,6 +41,5 @@ void
 
 // ----------------------------------------------------------------------
 
-DEFINE_ART_SYSTEM_SERVICE(CurrentModule)
 
 // ======================================================================

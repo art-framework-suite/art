@@ -8,6 +8,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace art {
   class ActivityRegistry;   // declaration only
@@ -50,6 +51,7 @@ private:
 
 // ======================================================================
 
+DECLARE_ART_SERVICE(TFileService, LEGACY)
 #endif /* art_Framework_Services_Optional_TFileService_h */
 
 // Local Variables:

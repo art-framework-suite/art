@@ -7,9 +7,13 @@
 //
 // ======================================================================
 
-#include "art/Utilities/LibraryManager.h"
+#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Framework/Services/Registry/detail/ServiceHelper.h"
+#include "art/Utilities/LibraryManager.h"
+#include "art/Utilities/ScheduleID.h"
+
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -55,14 +59,23 @@ namespace art {
 
     virtual ~ServiceRegistry();
 
-    template< class T >
-      T & get() const
-    {
-      if( ! manager_.get() )
-        throw art::Exception(art::errors::NotFound, "Service")
-          <<" no ServiceRegistry has been set for this thread";
-      return manager_-> template get<T>();
-    }
+    template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
+    T & get() const
+      {
+        if( ! manager_.get() )
+          throw art::Exception(art::errors::NotFound, "Service")
+            <<" no ServiceRegistry has been set for this thread";
+        return manager_-> template get<T>();
+      }
+
+    template< class T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+    T & get(ScheduleID sID) const
+      {
+        if( ! manager_.get() )
+          throw art::Exception(art::errors::NotFound, "Service")
+            <<" no ServiceRegistry has been set for this thread";
+        return manager_-> template get<T>(sID);
+      }
 
     template<class T> bool isAvailable() const
     {

@@ -6,7 +6,6 @@
 
 #include "art/Framework/Services/System/TriggerNamesService.h"
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -68,6 +67,5 @@ TriggerNamesService::getTrigPaths(TriggerResults const & triggerResults,
 
 // ======================================================================
 
-DEFINE_ART_SYSTEM_SERVICE(TriggerNamesService)
 
 // ======================================================================

@@ -1,6 +1,5 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 

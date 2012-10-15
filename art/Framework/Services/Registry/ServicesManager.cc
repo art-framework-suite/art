@@ -82,85 +82,78 @@ void
 ServicesManager::fillFactory_(ParameterSets  const & psets,
                               LibraryManager const & lm)
 {
-  typedef art::TypeID(*GET_TYPEID_t)();
-  for (ParameterSets::const_iterator it = psets.begin()
-                                          , e  = psets.end(); it != e; ++it) {
-    std::string service_name(it->get<std::string>("service_type"));
-    std::string service_provider(it->get<std::string>("service_provider", service_name));
-    // go to lm and get the typeid and maker function for this service
-    GET_TYPEID_t typeid_func
-      = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_typeid");
-    MAKER_t make_func
-      = lm.getSymbolByLibspec<MAKER_t>(service_provider, "make");
-    GET_TYPEID_t iface_impl_typeid_func
-      = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_iface_impl_typeid", LibraryManager::nothrow);
-    CONVERTER_t converter_func(nullptr);
-    GET_TYPEID_t iface_typeid_func(nullptr);
-    // Check if his service has a declared interface.
-    if (iface_impl_typeid_func &&
-        iface_impl_typeid_func() == typeid_func()) {
-      // Note that we check for equality because it's possible that we
-      // could pick up the interface functions from a library to which
-      // our current library is linked, rather than our current library itself.
-      converter_func
-        = lm.getSymbolByLibspec<CONVERTER_t>(service_provider, "converter");
-      iface_typeid_func
-        = lm.getSymbolByLibspec<GET_TYPEID_t>(service_provider, "get_iface_typeid");
+  Cache::setNSchedules(1); // Receive from EventProcessor when we go
+                           // multi-schedule.
+
+  // Loop over each configured service parameter set.
+  for (auto const & ps : psets) {
+    std::string service_name(ps.get<std::string>("service_type"));
+    std::string service_provider(ps.get<std::string>("service_provider", service_name));
+    // Get the helper from the library.
+    std::unique_ptr<detail::ServiceHelperBase> service_helper
+    { lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
+                                          "create_service_helper")() };
+    assert(!service_helper->is_interface() &&
+           "Registered service is not a service implementation!");
+    std::unique_ptr<detail::ServiceInterfaceHelper> iface_helper;
+    if (service_helper->is_interface_impl()) { // Expect an interface helper
+      iface_helper.reset(dynamic_cast<detail::ServiceInterfaceHelper*>
+                         (lm.getSymbolByLibspec<SHBCREATOR_t>
+                          (service_provider,
+                           "create_iface_helper")().release()));
+      assert(dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid() ==
+             iface_helper->get_typeid() &&
+             "Found unexepcted interface!");
       if (service_provider == service_name) {
-        std::string iface_name(cet::demangle(iface_typeid_func().name()));
+        std::string iface_name(cet::demangle(iface_helper->get_typeid().name()));
         throw Exception(errors::Configuration)
-            << "Illegal use of service interface implementation as service name in configuration.\n"
-            << "Correct use: services.user."
-            << iface_name
-            << ": { service_provider: \""
-            << service_provider
-            << "\" }";
+          << "Illegal use of service interface implementation as service name in configuration.\n"
+          << "Correct use: services.user."
+          << iface_name
+          << ": { service_provider: \""
+          << service_provider
+          << "\" }";
       }
     }
-    // Insert the cache object for the main service implementation,
-    // including the converter to interface (converter_func) if defined.
-    auto svc = insertImpl_(typeid_func(), *it, make_func, converter_func);
-    if (converter_func) {
-      // Insert the cache object for the interface.
-      assert(iface_typeid_func);
-      insertInterface_(iface_typeid_func(), *it, svc.first);
+    // Insert the cache object for the main service implementation. Note
+    // we save the typeid of the implementation because we're about to
+    // give away the helper.
+    TypeID service_typeid(service_helper->get_typeid());
+    auto svc = insertImpl_(ps, std::move(service_helper));
+    if (iface_helper) {
+      insertInterface_(ps, std::move(iface_helper), svc.first);
     }
     index_[service_name] = svc.first;
-    requestedCreationOrder_.push_back(typeid_func());
+    requestedCreationOrder_.emplace_back(std::move(service_typeid));
   }
 }  // fillFactory()
 
 std::pair<art::ServicesManager::Factory::iterator, bool>
 art::ServicesManager::
-insertImpl_(TypeID implType,
-            fhicl::ParameterSet const &pset,
-            MAKER_t make,
-            CONVERTER_t convert)
+insertImpl_(fhicl::ParameterSet const & pset,
+            std::unique_ptr<detail::ServiceHelperBase> && helper)
 {
+  // Need temporary because we can't guarantee the order of evaluation
+  // of the arguments to std::make_pair() below.
+  TypeID sType(helper->get_typeid());
   return
-    factory_.insert(std::make_pair(implType,
+    factory_.insert(std::make_pair(sType,
                                    Cache(pset,
-                                         implType,
-                                         make,
-                                         convert)));
+                                         std::move(helper))));
 }
 
 void
 art::ServicesManager::
-insertInterface_(TypeID ifaceType,
-                 fhicl::ParameterSet const &pset,
-                 Factory::iterator implEntry)
+  insertInterface_(fhicl::ParameterSet const & pset,
+                   std::unique_ptr<detail::ServiceHelperBase> && helper,
+                   Factory::iterator implEntry)
 {
-  factory_.insert(std::make_pair(ifaceType,
+  // Need temporary because we can't guarantee the order of evaluation
+  // of the arguments to std::make_pair() below.
+  TypeID iType(helper->get_typeid());
+  factory_.insert(std::make_pair(iType,
                                  Cache(pset,
-                                       ifaceType,
+                                       std::move(helper),
                                        implEntry)));
 }
-
-namespace {
-  struct NoOp {
-    void operator()(ServicesManager *) {}
-  };
-}
-
 // ======================================================================

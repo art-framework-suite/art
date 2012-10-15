@@ -23,6 +23,7 @@
 
 #include "art/Framework/Services/Interfaces/FileTransfer.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <string>
 
@@ -48,6 +49,7 @@ namespace art {
     std::string scratchArea;
   };
 } // end of art namespace
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer, art::FileTransfer, LEGACY)
 #endif /* art_Framework_Services_Optional_TrivialFileTransfer_h */
 
 // Local Variables:

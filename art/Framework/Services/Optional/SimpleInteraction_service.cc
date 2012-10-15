@@ -1,6 +1,5 @@
 #include "art/Framework/Services/Optional/SimpleInteraction.h"
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include <cerrno>
 #include <cstdlib>
 #include <iostream>

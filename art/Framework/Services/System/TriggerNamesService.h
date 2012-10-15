@@ -24,6 +24,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include <map>
 #include <string>
@@ -121,6 +122,7 @@ private:
 
 // ======================================================================
 
+DECLARE_ART_SYSTEM_SERVICE(TriggerNamesService, LEGACY)
 #endif /* art_Framework_Services_System_TriggerNamesService_h */
 
 // Local Variables:

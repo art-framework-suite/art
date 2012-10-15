@@ -8,6 +8,7 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include <string>
 
@@ -47,6 +48,7 @@ private:
 
 // ======================================================================
 
+DECLARE_ART_SYSTEM_SERVICE(CurrentModule, LEGACY)
 #endif /* art_Framework_Services_System_CurrentModule_h */
 
 // Local Variables:

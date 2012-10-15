@@ -7,7 +7,6 @@
 #include "test/Framework/Services/Optional/MyService.h"
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
@@ -51,7 +50,6 @@ MyService::MyService(ParameterSet const & pset, art::ActivityRegistry&)
 
 // ======================================================================
 
-DEFINE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService, \
-                                  arttest::MyServiceInterface)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService, arttest::MyServiceInterface)
 
 // ======================================================================

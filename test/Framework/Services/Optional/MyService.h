@@ -3,6 +3,7 @@
 
 // MyService: test service inheriting from MyServiceInterface.
 
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "test/Framework/Services/Interfaces/MyServiceInterface.h"
 
 namespace arttest {
@@ -32,6 +33,7 @@ private:
 
 // ======================================================================
 
+DECLARE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService, arttest::MyServiceInterface, LEGACY)
 #endif /* test_Framework_Services_Optional_MyService_h */
 
 // Local Variables:

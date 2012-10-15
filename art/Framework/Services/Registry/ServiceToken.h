@@ -14,6 +14,7 @@
 
 #include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "cpp0x/memory"
 
 namespace art {
@@ -33,10 +34,16 @@ class art::ServiceToken
 public:
   ServiceToken( ) { }
 
-  template< class T >
+  template <typename T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
     void add( std::unique_ptr<T> && serv )
   {
-    manager_->put(std::shared_ptr<ServiceWrapper<T> >(new ServiceWrapper<T>(std::move(serv))));
+    manager_->put(std::move(serv));
+  }
+
+  template <typename T, typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+  void add( std::vector<std::unique_ptr<T>> && services )
+  {
+    manager_->put(services);
   }
 
   void forceCreation()

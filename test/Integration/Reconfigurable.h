@@ -5,6 +5,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/fwd.h"
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ private:
 
 };
 
+DECLARE_ART_SERVICE(Reconfigurable, LEGACY)
 #endif /* test_Integration_Reconfigurable_h */
 
 
