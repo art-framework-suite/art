@@ -130,13 +130,13 @@ macro( art_make )
 
   # process plugin lists
   foreach( plugin_file ${plugin_sources} )
-    _art_simple_plugin( ${plugin_file} "source" ${art_liblist} )
+    _art_simple_plugin( ${plugin_file} "source" "${art_liblist}" )
   endforeach( plugin_file )
   foreach( plugin_file ${plugin_services} )
-    _art_simple_plugin( ${plugin_file} "service" ${art_liblist} )
+    _art_simple_plugin( ${plugin_file} "service" "${art_liblist}" )
   endforeach( plugin_file )
   foreach( plugin_file ${plugin_modules} )
-    _art_simple_plugin( ${plugin_file} "module" ${art_liblist} )
+    _art_simple_plugin( ${plugin_file} "module" "${art_liblist}" )
   endforeach( plugin_file )
 
   # is there a dictionary?
