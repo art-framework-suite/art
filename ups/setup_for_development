@@ -75,9 +75,10 @@ source $CETBUILDTOOLS_DIR/bin/set_dev_lib
 source $CETBUILDTOOLS_DIR/bin/set_dev_bin
 
 # final sanity check
-source $CETBUILDTOOLS_DIR/bin/set_dev_check
+#source $CETBUILDTOOLS_DIR/bin/set_dev_check
 # report CETPKG variable settings
-source $CETBUILDTOOLS_DIR/bin/set_dev_report
+#source $CETBUILDTOOLS_DIR/bin/set_dev_report
+source $CETBUILDTOOLS_DIR/bin/set_dev_check_report
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
