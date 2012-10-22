@@ -4,7 +4,7 @@ use vars qw(%inc_translations);
 BEGIN { %inc_translations = (
                              "NovaConfigPostProcessor.h" => "art/Framework/Art/NovaConfigPostProcessor.h",
                              "art/Framework/Core/Actions.h" => "art/Framework/Principal/Actions.h",
-                             "art/Framework/Core/BranchActionType.h" => "art/Framework/Principal/BranchActionType.h",
+                             "art/Framework/Core/BranchActionType.h" => "art/Framework/Services/Registry/BranchActionType.h",
                              "art/Framework/Core/CurrentProcessingContext.h" => "art/Framework/Principal/CurrentProcessingContext.h",
                              "art/Framework/Core/DataViewImpl.h" => "art/Framework/Principal/DataViewImpl.h",
                              "art/Framework/Core/DelayedReader.h" => "art/Persistency/Common/DelayedReader.h",
@@ -40,6 +40,7 @@ BEGIN { %inc_translations = (
                              "art/Framework/Core/find_config.h" => "art/Framework/Art/find_config.h",
                              "art/Framework/Core/novaapp.h" => "art/Framework/Art/novaapp.h",
                              "art/Framework/Core/run_art.h" => "art/Framework/Art/run_art.h",
+                             "art/Framework/Principal/BranchActionType.h" => "art/Framework/Services/Registry/BranchActionType.h",
                              "art/Framework/Principal/DelayedReader.h" => "art/Persistency/Common/DelayedReader.h",
                              "art/Framework/Services/UserInteraction/SimpleInteraction.h" => "art/Framework/Services/Optional/SimpleInteraction.h",
                              "art/Framework/Services/Optional/UserInteraction.h" => "art/Framework/Services/Interfaces/UserInteraction.h",
