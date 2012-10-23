@@ -3,6 +3,7 @@
 use strict;
 use File::Basename;
 
+my $wanted_header="art/Framework/Services/Registry/ServiceMacros.h";
 my @services_cc = `find . -name '*_service.*' -print`;
 chomp @services_cc;
 
@@ -32,8 +33,19 @@ sub fix_macros {
       close(TMPOUT);
       return;
     }
-    my ($service_spec, $args) = m&^\s*DEFINE_ART_((?:[^\s\(])+)\s*\((.*)\)& or
-      do { print TMPOUT; next; };
+    my ($service_spec, $args) = m&^\s*DEFINE_ART_((?:[^\s\(])+)(?:\s*\((.*)\))?&;
+    if (not $service_spec) {
+      ($header and m&^\s*#\s*include\s+["<]\Q$wanted_header\E[">]&o) or
+        print TMPOUT;
+      next;
+    }
+    if (not $args) {
+      print "FAIL.\n";
+      print STDERR "ERROR: unable to ascertain correct declare macro from ${service_cc}:\n",
+        "   broken line in DEFINE_ART_${service_spec}? Remove line break and re-try.\n";
+      close(TMPOUT);
+      return;
+    }
     chomp;
     $is_system_service = ($service_spec eq "SYSTEM_SERVICE");
     $declare_macro = "DECLARE_ART_${service_spec}($args, LEGACY)";
@@ -73,6 +85,29 @@ sub find_header {
   return;
 }
 
+sub ensure_servicemacros_include(\@) {
+  my $header_content = shift;
+  my $counter = 0;
+  my $last_seen;
+  foreach my $line (reverse @{$header_content}) {
+    --$counter;
+    if ($line =~ m&^\s*#\s*include\s+["<]([^">]+)&o) {
+      my $found_header = ${1};
+      return if ${found_header} eq ${wanted_header};
+      next unless ${found_header} =~ m&/&o;
+      $last_seen = ${counter};
+      if (${found_header} =~ m&^art/&o and
+          ${found_header} lt ${wanted_header}) {
+        ++$last_seen;
+        last;
+      }
+    } else {
+      next;
+    }
+  }
+  splice @{$header_content}, $last_seen, 0, "#include \"$wanted_header\"\n";
+}
+
 sub insert_declare_in_header {
   my ($header, $declare_macro) = @_;
   print "Fixing service header ${header} ... ";
@@ -80,6 +115,7 @@ sub insert_declare_in_header {
   open(TMPOUT, ">${tmp_file}") or die "Unable to open temporary file ${tmp_file} for write.";
   my @header_content = <HEADER>; # Slurp.
   close(HEADER);
+  ensure_servicemacros_include(@header_content);
   if (grep m&^\s*DECLARE_ART_(?:SERVICE|SYSTEM)&, @header_content) {
     print "(already done).\n";
     return; # Already done.
