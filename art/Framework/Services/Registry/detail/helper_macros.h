@@ -201,6 +201,8 @@
       ) \
     ); \
   } \
+    static_assert(scope_val == ServiceHelper<iface>::scope_val, /* Safety check */  \
+                  "Scope mismatch between interface " #iface " and implementation " #svc); \
   }; \
   } \
   }
