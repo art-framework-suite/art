@@ -268,23 +268,23 @@ namespace art {
     }
 
     // SP<T> must be convertible to std::shared_ptr<T>.
-    template <typename T,
-              template <typename X> class SP,
-              typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+    template <class SP,
+              typename = typename std::enable_if<detail::ServiceHelper<typename SP::element_type>::scope_val == ServiceScope::PER_SCHEDULE>::type>
     void
-    put(std::vector<SP<T>> && premade_services) {
+    put(std::vector<SP> && premade_services) {
+      typedef typename SP::element_type element_type;
       std::unique_ptr<detail::ServiceHelperBase>
-        service_helper(new detail::ServiceHelper<T>);
-      TypeID id(typeid(T));
+        service_helper(new detail::ServiceHelper<element_type>);
+      TypeID id(typeid(element_type));
       Factory::const_iterator it = factory_.find(id);
       if (it != factory_.end()) {
-        throw art::Exception(art::errors::LogicError, "Service")
+        throw art::Exception(art::errors::LogicError, "Service:")
           << "The system has manually added service of type "
           << cet::demangle_symbol(id.name())
           << ", but the service system already has a configured service"
           << " of that type\n";
       }
-      WrapperBase_ptr swb(new ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(std::move(premade_services)));
+      WrapperBase_ptr swb(new ServiceWrapper<element_type, detail::ServiceHelper<element_type>::scope_val>(std::move(premade_services)));
       actualCreationOrder_.push(swb);
       factory_.insert(std::make_pair(id, Cache(std::move(swb),
                                                std::move(service_helper))));
@@ -346,7 +346,7 @@ namespace art {
       throw art::Exception(art::errors::NotFound, "Service")
           << " unable to find requested service with compiler type name '"
           << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-    return it->get<T>(registry_, actualCreationOrder_, sID);
+    return it->second.get<T>(registry_, actualCreationOrder_, sID);
   }  // get<>()
 
 }  // art

@@ -124,13 +124,16 @@ public:
     }
 
   // C'tor from collection of convertible-to-shared-ptr
-  template <template <typename X> class SP>
-  explicit ServiceWrapper(std::vector<SP<T>> const & service_ptrs)
+  template <class SP>
+  explicit ServiceWrapper(std::vector<SP> && service_ptrs)
     :
     ServiceWrapperBase(),
-    service_ptrs_(service_ptrs.cbegin(),
-                  service_ptrs.cend())
+    service_ptrs_()
     {
+      service_ptrs_.reserve(service_ptrs.size());
+      for (auto && up : service_ptrs) {
+        service_ptrs_.emplace_back(std::move(up));
+      }
     }
 
   // C'tor from ParameterSet, ActivityRegistry, nSchedules.
@@ -139,17 +142,16 @@ public:
                  size_t nSchedules)
     :
     ServiceWrapperBase(),
-    service_ptrs_(nSchedules)
+    service_ptrs_()
     {
-      int64_t iSched = -1;
-      std::generate(service_ptrs_.begin(),
-                    service_ptrs_.end(),
-                    [&]() -> std::unique_ptr<T> &&
-                    {
-                      return std::unique_ptr<T>(new T(ps,
-                                                      areg,
-                                                      ScheduleID(++iSched)));
-                    });
+      service_ptrs_.reserve(nSchedules);
+      ScheduleID id(ScheduleID::min_id());
+      size_t iSched(0);
+      for (; iSched < nSchedules; ++iSched, id = id.next()) {
+        service_ptrs_.emplace_back(new T(ps,
+                                         areg,
+                                         id));
+      }
     }
 
   T & get(ScheduleID sID) { return *service_ptrs_.at(sID.id()); }
@@ -157,14 +159,14 @@ public:
   template<typename U, typename = typename std::enable_if<std::is_base_of<U,T>::value>::type>
   ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE> * getAs() const
     {
-      std::vector<std::unique_ptr<U>> converted_ptrs(service_ptrs_.size());
+      std::vector<std::shared_ptr<U>> converted_ptrs(service_ptrs_.size());
       std::transform(service_ptrs_.begin(),
                      service_ptrs_.end(),
                      converted_ptrs.begin(),
-                     [this](std::unique_ptr<T> const & ptr_in) {
+                     [](std::shared_ptr<T> const & ptr_in) {
                        return std::static_pointer_cast<U>(ptr_in);
                      });
-      return new ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>(std::static_pointer_cast<U>(std::move(converted_ptrs)));
+      return new ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>(std::move(converted_ptrs));
     }
 
 private:

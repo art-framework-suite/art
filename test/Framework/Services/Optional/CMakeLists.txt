@@ -13,6 +13,18 @@ cet_test(MyService_t HANDBUILT
 
 cet_test(MyServiceUsingIface_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c MyServiceUsingIface_t.fcl
+  TEST_ARGS --rethrow-all -c MyServiceUsingIface_t.fcl
   DATAFILES fcl/MyServiceUsingIface_t.fcl
+  )
+
+simple_plugin(PSTest "service" NOINSTALL)
+simple_plugin(PSTestAnalyzer "module" NOINSTALL
+  test_Framework_Services_Optional_PSTest_service)
+
+simple_plugin(PSTestInterfaceImpl "service" NOINSTALL)
+
+cet_test(PSTest_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c PSTest_t.fcl
+  DATAFILES fcl/PSTest_t.fcl
   )
