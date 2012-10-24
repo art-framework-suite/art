@@ -17,13 +17,16 @@ class art::ScheduleID {
 private:
   typedef uint16_t id_type; // Must be unsigned type.
 public:
-  explicit ScheduleID(int64_t id);
+  explicit ScheduleID(id_type id);
 
   static constexpr id_type min_id();
   static constexpr id_type max_id();
 
   // Value accessor (use should be rare).
   id_type id() const;
+
+  // Return the next scheduleID;
+  ScheduleID next() const { return ScheduleID(id_ + 1); }
 
   // Comparison operators.
   bool operator == (ScheduleID const & other) const;
@@ -33,7 +36,7 @@ private:
 };
 
 inline
-art::ScheduleID::ScheduleID(int64_t id)
+art::ScheduleID::ScheduleID(id_type id)
   : id_((id < min_id() || id > max_id())
         ? throw std::out_of_range("art::ScheduleID: Invalid initializer.")
         : id)

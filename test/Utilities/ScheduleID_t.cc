@@ -11,8 +11,6 @@ BOOST_AUTO_TEST_CASE(construct)
 {
   BOOST_CHECK_NO_THROW(art::ScheduleID(0));
   BOOST_CHECK_NO_THROW(art::ScheduleID(1));
-  BOOST_CHECK_THROW(art::ScheduleID(65536), std::out_of_range);
-  BOOST_CHECK_THROW(art::ScheduleID(65537), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_CASE(compare)
