@@ -11,8 +11,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
-#include "art/Framework/Services/Registry/ServiceWrapperBase.h"
+#include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
+#include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 
 ////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@
        ActivityRegistry & reg, \
        size_t nSchedules) const final override \
   { return \
-      std::unique_ptr<art::ServiceWrapperBase> \
+      std::unique_ptr<art::detail::ServiceWrapperBase> \
       (new ServiceWrapper<svc, \
        ServiceScope::PER_SCHEDULE>(cfg, reg, nSchedules)); \
   }
@@ -194,8 +194,8 @@
     { return TypeID(typeid(iface)); } \
     std::unique_ptr<ServiceWrapperBase> \
     convert(std::shared_ptr<ServiceWrapperBase> const & swb) const final override \
-  { return std::unique_ptr<art::ServiceWrapperBase>( \
-      static_cast<art::ServiceWrapperBase *>( \
+  { return std::unique_ptr<art::detail::ServiceWrapperBase>( \
+      static_cast<art::detail::ServiceWrapperBase *>( \
         std::dynamic_pointer_cast<ServiceWrapper<svc, ServiceScope::scopeArg> > \
         (swb).get()->getAs<iface>() \
       ) \

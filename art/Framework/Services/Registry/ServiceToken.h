@@ -12,7 +12,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "cpp0x/memory"

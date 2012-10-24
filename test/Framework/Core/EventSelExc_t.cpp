@@ -19,7 +19,6 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Common/TriggerResults.h"
 #include "cpp0x/array"

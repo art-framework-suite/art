@@ -20,9 +20,6 @@
 // ----------------------------------------------------------------------
 
 namespace art {
-  //template< typename T >
-  //  class ServiceWrapper;
-
   class ActivityRegistry;
 
   class ServiceRegistry

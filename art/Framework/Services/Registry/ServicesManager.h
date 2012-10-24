@@ -9,7 +9,7 @@
 #include "art/Utilities/LibraryManager.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/ServiceWrapper.h"
+#include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/Exception.h"
 #include "art/Utilities/TypeID.h"
@@ -39,7 +39,7 @@ namespace art {
   private:
     typedef std::unique_ptr<detail::ServiceHelperBase> (*SHBCREATOR_t) ();
 
-    typedef  std::shared_ptr<ServiceWrapperBase>  WrapperBase_ptr;
+    typedef  std::shared_ptr<detail::ServiceWrapperBase>  WrapperBase_ptr;
     class Cache;
 
     typedef  std::map< TypeID, Cache >  Factory;
@@ -261,7 +261,7 @@ namespace art {
           << ", but the service system already has a configured service"
           << " of that type\n";
       }
-      WrapperBase_ptr swb(new ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(std::move(premade_service)));
+      WrapperBase_ptr swb(new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(std::move(premade_service)));
       actualCreationOrder_.push(swb);
       factory_.insert(std::make_pair(id, Cache(std::move(swb),
                                                std::move(service_helper))));
@@ -284,7 +284,7 @@ namespace art {
           << ", but the service system already has a configured service"
           << " of that type\n";
       }
-      WrapperBase_ptr swb(new ServiceWrapper<element_type, detail::ServiceHelper<element_type>::scope_val>(std::move(premade_services)));
+      WrapperBase_ptr swb(new detail::ServiceWrapper<element_type, detail::ServiceHelper<element_type>::scope_val>(std::move(premade_services)));
       actualCreationOrder_.push(swb);
       factory_.insert(std::make_pair(id, Cache(std::move(swb),
                                                std::move(service_helper))));

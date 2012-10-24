@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Registry_ServiceWrapper_h
-#define art_Framework_Services_Registry_ServiceWrapper_h
+#ifndef art_Framework_Services_Registry_detail_ServiceWrapper_h
+#define art_Framework_Services_Registry_detail_ServiceWrapper_h
 
 // ======================================================================
 //
@@ -8,7 +8,7 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Registry/ServiceWrapperBase.h"
+#include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Utilities/ScheduleID.h"
@@ -20,15 +20,18 @@ namespace art {
 // Forward declaration
   class ActivityRegistry;
 
-  template<typename T, ServiceScope SCOPE>
-  class ServiceWrapper;
-
-  // Partial specialization.
-  template <typename T>
-  class ServiceWrapper<T, ServiceScope::PER_SCHEDULE>;
-
   namespace detail {
 
+    // General template.
+    template<typename T, ServiceScope SCOPE>
+    class ServiceWrapper;
+
+    // Partial specialization.
+    template <typename T>
+    class ServiceWrapper<T, ServiceScope::PER_SCHEDULE>;
+
+////////////////////////////////////
+    // Support structures.
     template<typename T, void (T::*)(fhicl::ParameterSet const &)>  struct reconfig_function;
     template<typename T> no_tag  has_reconfig_helper(...);
     template<typename T> yes_tag has_reconfig_helper(reconfig_function<T, &T::reconfigure> * dummy);
@@ -60,11 +63,11 @@ namespace art {
 // ----------------------------------------------------------------------
 
 // declare the linkage before the friend declaration
-extern "C" std::unique_ptr<art::ServiceWrapperBase> converter(std::shared_ptr<art::ServiceWrapperBase> const &);
+extern "C" std::unique_ptr<art::detail::ServiceWrapperBase> converter(std::shared_ptr<art::detail::ServiceWrapperBase> const &);
 
 // General template.
 template<typename T, art::ServiceScope SCOPE>
-class art::ServiceWrapper : public ServiceWrapperBase
+class art::detail::ServiceWrapper : public ServiceWrapperBase
 {
 public:
   // Non-copyable.
@@ -109,7 +112,7 @@ private:
 
 // Partially-specialized template.
 template <typename T>
-class art::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE> : public ServiceWrapperBase {
+class art::detail::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE> : public ServiceWrapperBase {
 public:
   // Non-copyable.
   ServiceWrapper(ServiceWrapper const &) = delete;
@@ -188,7 +191,7 @@ private:
 
 // ======================================================================
 
-#endif /* art_Framework_Services_Registry_ServiceWrapper_h */
+#endif /* art_Framework_Services_Registry_detail_ServiceWrapper_h */
 
 // Local Variables:
 // mode: c++
