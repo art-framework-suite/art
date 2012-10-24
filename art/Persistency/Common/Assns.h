@@ -394,8 +394,14 @@ template <typename L, typename R>
 void
 art::Assns<L, R, void>::fill_from_transients()
 {
-  // Precondition: ptr_data_1_ is empty;
-  // Precondition: ptr_data_2_ is empty;
+  if (!ptr_data_1_.empty()) {
+    assert(ptr_data_1_.size() == ptr_data_2_.size() &&
+           ptr_data_2_.size() == ptrs_.size() &&
+           "Assns: internal inconsistency between transient and persistent member data.");
+    // Multiple output modules: nothing to do on second and subsequent
+    // calls.
+    return;
+  }
   ptr_data_t & l_ref = left_first() ? ptr_data_1_ : ptr_data_2_;
   ptr_data_t & r_ref = left_first() ? ptr_data_2_ : ptr_data_1_;
   l_ref.reserve(ptrs_.size());
