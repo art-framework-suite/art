@@ -6,7 +6,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceCache.h"
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
@@ -14,41 +13,33 @@
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Utilities/Exception.h"
-#include "art/Utilities/LibraryManager.h"
 #include "art/Utilities/TypeID.h"
 #include "cetlib/demangle.h"
-#include "cetlib/trim.h"
 #include "cpp0x/memory"
 #include "cpp0x/utility"
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <cassert>
-#include <iomanip>
 #include <map>
-#include <stack>
 #include <string>
 #include <vector>
 
 namespace art {
   class ServicesManager;
+
+  class ActivityRegistry;
+  class LibraryManager;
+}
+
+namespace fhicl {
+  class ParameterSet;
 }
 
 class art::ServicesManager {
-  // non-copyable:
-  ServicesManager(ServicesManager const &);
-  void operator = (ServicesManager const &);
-
 public:
+  // non-copyable:
+  ServicesManager(ServicesManager const &) = delete;
+  void operator = (ServicesManager const &) = delete;
+
   typedef std::vector<fhicl::ParameterSet> ParameterSets;
-
-private:
-  typedef std::unique_ptr<detail::ServiceHelperBase> (*SHBCREATOR_t) ();
-
-
-  typedef  std::map< std::string, detail::ServiceCache::iterator > NameIndex;
-  typedef  std::vector< TypeID >      TypeIDs;
-
 
 public:
   ServicesManager(ParameterSets const &,
@@ -57,69 +48,36 @@ public:
 
   ~ServicesManager();
 
-  template <class T,
-            typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
+  template < class T,
+           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
   T &
   get();
 
-  template <class T,
-            typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+  template < class T,
+           typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>::type >
   T &
   get(ScheduleID);
 
-  //returns true of the particular service is accessible -- that is,
-  // it either can be made (if requested) or has already been made.
+  // Returns true of the particular service is accessible -- that is, it
+  // either can be made (if requested) or has already been made.
   template< class T >
   bool
   isAvailable() const {
     return factory_.find(TypeID(typeid(T))) != factory_.end();
   }
 
-  template <typename T,
-            typename = typename std::enable_if<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>::type>
+  template < typename T,
+           typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
   void
-  put(std::unique_ptr<T> && premade_service) {
-    std::unique_ptr<detail::ServiceHelperBase>
-      service_helper(new detail::ServiceHelper<T>);
-    TypeID id(typeid(T));
-    detail::ServiceCache::const_iterator it = factory_.find(id);
-    if (it != factory_.end()) {
-      throw art::Exception(art::errors::LogicError, "Service")
-        << "The system has manually added service of type "
-        << cet::demangle_symbol(id.name())
-        << ", but the service system already has a configured service"
-        << " of that type\n";
-    }
-    detail::WrapperBase_ptr swb(new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(std::move(premade_service)));
-    actualCreationOrder_.push(swb);
-    factory_.insert(std::make_pair(id, detail::ServiceCacheEntry(std::move(swb),
-                                                                 std::move(service_helper))));
-  }
+  put(std::unique_ptr<T> && premade_service);
 
   // SP<T> must be convertible to std::shared_ptr<T>.
-  template <class SP,
-            typename = typename std::enable_if<detail::ServiceHelper<typename SP::element_type>::scope_val == ServiceScope::PER_SCHEDULE>::type>
+  template < class SP,
+           typename = typename std::enable_if < detail::ServiceHelper<typename SP::element_type>::scope_val ==
+           ServiceScope::PER_SCHEDULE >::type >
   void
-  put(std::vector<SP> && premade_services) {
-    typedef typename SP::element_type element_type;
-    std::unique_ptr<detail::ServiceHelperBase>
-      service_helper(new detail::ServiceHelper<element_type>);
-    TypeID id(typeid(element_type));
-    detail::ServiceCache::const_iterator it = factory_.find(id);
-    if (it != factory_.end()) {
-      throw art::Exception(art::errors::LogicError, "Service:")
-        << "The system has manually added service of type "
-        << cet::demangle_symbol(id.name())
-        << ", but the service system already has a configured service"
-        << " of that type\n";
-    }
-    detail::WrapperBase_ptr swb(new detail::ServiceWrapper<element_type, detail::ServiceHelper<element_type>::scope_val>(std::move(premade_services)));
-    actualCreationOrder_.push(swb);
-    factory_.insert(std::make_pair(id, detail::ServiceCacheEntry(std::move(swb),
-                                                                 std::move(service_helper))));
-  }
+  put(std::vector<SP> && premade_services);  // force all the services that are not alrady made into existance
 
-  // force all the services that are not alrady made into existance
   // using 'reg'.  The order of creation will be the registration order.
   void forceCreation();
 
@@ -127,6 +85,11 @@ public:
   void putParameterSets(ParameterSets const &);
 
 private:
+  typedef std::unique_ptr<detail::ServiceHelperBase> (*SHBCREATOR_t)();
+
+  typedef  std::map< std::string, detail::ServiceCache::iterator > NameIndex;
+  typedef  std::vector< TypeID >      TypeIDs;
+
   void fillCache_(ParameterSets const & psets, LibraryManager const & lm);
 
   std::pair<detail::ServiceCache::iterator, bool>
@@ -148,35 +111,76 @@ private:
 
 };  // ServicesManager
 
-  // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
-  template <class T,
-            typename>
-  T &
-  art::ServicesManager::get()
-  {
-    // Find the correct ServiceCacheEntry object.
-    detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
-    if (it == factory_.end())
-      throw art::Exception(art::errors::NotFound, "Service")
-          << " unable to find requested service with compiler type name '"
-          << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-    return it->second.get<T>(registry_, actualCreationOrder_);
-  }  // get<>()
+template < class T,
+         typename >
+T &
+art::ServicesManager::get() {
+  // Find the correct ServiceCacheEntry object.
+  detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
+  if (it == factory_.end())
+    throw art::Exception(art::errors::NotFound, "Service")
+        << " unable to find requested service with compiler type name '"
+        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
+  return it->second.get<T>(registry_, actualCreationOrder_);
+}  // get<>()
 
-  template <class T,
-            typename>
-  T &
-  art::ServicesManager::get(ScheduleID sID)
-  {
-    // Find the correct ServiceCacheEntry object.
-    detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
-    if (it == factory_.end())
-      throw art::Exception(art::errors::NotFound, "Service")
-          << " unable to find requested service with compiler type name '"
-          << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-    return it->second.get<T>(registry_, actualCreationOrder_, sID);
-  }  // get<>()
+template < class T,
+         typename >
+T &
+art::ServicesManager::get(ScheduleID sID) {
+  // Find the correct ServiceCacheEntry object.
+  detail::ServiceCache::iterator it = factory_.find(TypeID(typeid(T)));
+  if (it == factory_.end())
+    throw art::Exception(art::errors::NotFound, "Service")
+        << " unable to find requested service with compiler type name '"
+        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
+  return it->second.get<T>(registry_, actualCreationOrder_, sID);
+}  // get<>()
+
+template <typename T, typename>
+void
+art::ServicesManager::put(std::unique_ptr<T> && premade_service)
+{
+  std::unique_ptr<detail::ServiceHelperBase>
+  service_helper(new detail::ServiceHelper<T>);
+  TypeID id(typeid(T));
+  detail::ServiceCache::const_iterator it = factory_.find(id);
+  if (it != factory_.end()) {
+    throw art::Exception(art::errors::LogicError, "Service")
+        << "The system has manually added service of type "
+        << cet::demangle_symbol(id.name())
+        << ", but the service system already has a configured service"
+        << " of that type\n";
+  }
+  detail::WrapperBase_ptr swb(new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(std::move(premade_service)));
+  actualCreationOrder_.push(swb);
+  factory_.insert(std::make_pair(id, detail::ServiceCacheEntry(std::move(swb),
+                                 std::move(service_helper))));
+}
+
+template <class SP, typename>
+void
+art::ServicesManager::put(std::vector<SP> && premade_services)
+{
+  typedef typename SP::element_type element_type;
+  std::unique_ptr<detail::ServiceHelperBase>
+  service_helper(new detail::ServiceHelper<element_type>);
+  TypeID id(typeid(element_type));
+  detail::ServiceCache::const_iterator it = factory_.find(id);
+  if (it != factory_.end()) {
+    throw art::Exception(art::errors::LogicError, "Service:")
+        << "The system has manually added service of type "
+        << cet::demangle_symbol(id.name())
+        << ", but the service system already has a configured service"
+        << " of that type\n";
+  }
+  detail::WrapperBase_ptr swb(new detail::ServiceWrapper<element_type, detail::ServiceHelper<element_type>::scope_val>(std::move(premade_services)));
+  actualCreationOrder_.push(swb);
+  factory_.insert(std::make_pair(id, detail::ServiceCacheEntry(std::move(swb),
+                                 std::move(service_helper))));
+}
 
 // ======================================================================
 

@@ -23,18 +23,17 @@ namespace art {
 }
 
 #ifndef __CGCCXML__
-class art::detail::ServiceWrapperBase
-{
+class art::detail::ServiceWrapperBase {
 public:
-  ServiceWrapperBase( ) { }
+  ServiceWrapperBase() { }
 
-// Noncopyable
-  ServiceWrapperBase( ServiceWrapperBase const & ) = delete;
-  void operator = ( ServiceWrapperBase const & ) = delete;
+  // Noncopyable
+  ServiceWrapperBase(ServiceWrapperBase const &) = delete;
+  void operator = (ServiceWrapperBase const &) = delete;
 
   virtual ~ServiceWrapperBase() = default;
 
-  void reconfigure(fhicl::ParameterSet const&);
+  void reconfigure(fhicl::ParameterSet const &);
 
 private:
   virtual void reconfigure_service(fhicl::ParameterSet const &) = 0;

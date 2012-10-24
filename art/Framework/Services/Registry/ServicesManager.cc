@@ -4,23 +4,20 @@
 //
 // ======================================================================
 
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Utilities/LibraryManager.h"
 
+#include "cpp0x/memory"
 #include "cpp0x/utility"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>
-#include <set>
 
-using std::shared_ptr;
-using fhicl::ParameterSet;
-using namespace art;
-using namespace std;
-
-ServicesManager::ServicesManager(ParameterSets const & psets,
-                                 LibraryManager const & lm,
-                                 ActivityRegistry & reg):
+art::ServicesManager::
+ServicesManager(ParameterSets const & psets,
+                LibraryManager const & lm,
+                ActivityRegistry & reg):
   registry_(reg),
   factory_(),
   index_(),
@@ -30,7 +27,7 @@ ServicesManager::ServicesManager(ParameterSets const & psets,
   fillCache_(psets, lm);
 }
 
-ServicesManager::~ServicesManager()
+art::ServicesManager::~ServicesManager()
 {
   // Force the Service destructors to execute in the reverse order of construction.
   // Note that services passed in by a token are not included in this loop and
@@ -45,7 +42,8 @@ ServicesManager::~ServicesManager()
   while (!actualCreationOrder_.empty()) { actualCreationOrder_.pop(); }
 }
 
-void ServicesManager::forceCreation()
+void
+art::ServicesManager::forceCreation()
 {
   TypeIDs::iterator it(requestedCreationOrder_.begin()),
           end(requestedCreationOrder_.end());
@@ -56,7 +54,9 @@ void ServicesManager::forceCreation()
   }
 }
 
-void ServicesManager::getParameterSets(ParameterSets & out) const
+void
+art::ServicesManager::
+getParameterSets(ParameterSets & out) const
 {
   ParameterSets tmp;
   detail::ServiceCache::const_iterator cur = factory_.begin(), end = factory_.end();
@@ -65,11 +65,13 @@ void ServicesManager::getParameterSets(ParameterSets & out) const
   tmp.swap(out);
 }
 
-void ServicesManager::putParameterSets(ParameterSets const & n)
+void
+art::ServicesManager::
+putParameterSets(ParameterSets const & n)
 {
   ParameterSets::const_iterator cur = n.begin(), end = n.end();
   for (; cur != end; ++cur) {
-    string service_name = cur->get<string>("service_type", "junk");
+    std::string service_name = cur->get<std::string>("service_type", "junk");
     NameIndex::iterator ii = index_.find(service_name);
     if (ii != index_.end()) {
       (ii->second)->second.putParameterSet(*cur);
@@ -79,25 +81,25 @@ void ServicesManager::putParameterSets(ParameterSets const & n)
 }
 
 void
-ServicesManager::fillCache_(ParameterSets  const & psets,
-                              LibraryManager const & lm)
+art::ServicesManager::
+fillCache_(ParameterSets  const & psets, LibraryManager const & lm)
 {
- // Receive from Eve ntProcessor when we go multi-schedule.
+  // Receive from Eve ntProcessor when we go multi-schedule.
   detail::ServiceCacheEntry::setNSchedules(1);
-
   // Loop over each configured service parameter set.
-  for (auto const & ps : psets) {
+for (auto const & ps : psets) {
     std::string service_name(ps.get<std::string>("service_type"));
     std::string service_provider(ps.get<std::string>("service_provider", service_name));
     // Get the helper from the library.
-    std::unique_ptr<detail::ServiceHelperBase> service_helper
-    { lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
-                                          "create_service_helper")() };
+    std::unique_ptr<detail::ServiceHelperBase> service_helper {
+      lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
+      "create_service_helper")()
+    };
     assert(!service_helper->is_interface() &&
            "Registered service is not a service implementation!");
     std::unique_ptr<detail::ServiceInterfaceHelper> iface_helper;
     if (service_helper->is_interface_impl()) { // Expect an interface helper
-      iface_helper.reset(dynamic_cast<detail::ServiceInterfaceHelper*>
+      iface_helper.reset(dynamic_cast<detail::ServiceInterfaceHelper *>
                          (lm.getSymbolByLibspec<SHBCREATOR_t>
                           (service_provider,
                            "create_iface_helper")().release()));
@@ -107,12 +109,12 @@ ServicesManager::fillCache_(ParameterSets  const & psets,
       if (service_provider == service_name) {
         std::string iface_name(cet::demangle(iface_helper->get_typeid().name()));
         throw Exception(errors::Configuration)
-          << "Illegal use of service interface implementation as service name in configuration.\n"
-          << "Correct use: services.user."
-          << iface_name
-          << ": { service_provider: \""
-          << service_provider
-          << "\" }";
+            << "Illegal use of service interface implementation as service name in configuration.\n"
+            << "Correct use: services.user."
+            << iface_name
+            << ": { service_provider: \""
+            << service_provider
+            << "\" }";
       }
     }
     // Insert the cache entry for the main service implementation. Note
@@ -139,21 +141,21 @@ insertImpl_(fhicl::ParameterSet const & pset,
   return
     factory_.insert(std::make_pair(sType,
                                    detail::ServiceCacheEntry(pset,
-                                         std::move(helper))));
+                                       std::move(helper))));
 }
 
 void
 art::ServicesManager::
-  insertInterface_(fhicl::ParameterSet const & pset,
-                   std::unique_ptr<detail::ServiceHelperBase> && helper,
-                   detail::ServiceCache::iterator implEntry)
+insertInterface_(fhicl::ParameterSet const & pset,
+                 std::unique_ptr<detail::ServiceHelperBase> && helper,
+                 detail::ServiceCache::iterator implEntry)
 {
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
   TypeID iType(helper->get_typeid());
   factory_.insert(std::make_pair(iType,
                                  detail::ServiceCacheEntry(pset,
-                                       std::move(helper),
-                                       implEntry)));
+                                     std::move(helper),
+                                     implEntry)));
 }
 // ======================================================================

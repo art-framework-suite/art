@@ -19,6 +19,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TypeID.h"
 
 #include "cpp0x/memory"
@@ -35,6 +36,8 @@ namespace art {
     struct ServicePSRHelper;
     template <typename SERVICE> struct ServiceHelper;
   }
+
+  class ActivityRegistry;
 }
 
 // Base class. Note virtual inheritance below.

@@ -74,7 +74,7 @@
   void * \
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb) const final override \
   { return \
-      &dynamic_cast<ServiceWrapper<svc, ServiceScope::scopeArg> *>(swb.get())->get(); \
+           &dynamic_cast<ServiceWrapper<svc, ServiceScope::scopeArg> *>(swb.get())->get(); \
   }
 
 // Legacy service.
@@ -91,7 +91,7 @@
   retrieve(std::shared_ptr<ServiceWrapperBase> & swb, \
            ScheduleID sID) const final override \
   { return \
-      &dynamic_cast<ServiceWrapper<svc, ServiceScope::PER_SCHEDULE> *>(swb.get())->get(sID); \
+           &dynamic_cast<ServiceWrapper<svc, ServiceScope::PER_SCHEDULE> *>(swb.get())->get(sID); \
   }
 
 ////////////////////////////////////////////////////////////////////////
@@ -103,10 +103,10 @@
   make(fhicl::ParameterSet const & cfg, \
        ActivityRegistry & reg) const final override \
   { return \
-      std::unique_ptr<ServiceWrapperBase> \
-      (new ServiceWrapper<svc, ServiceScope::scopeArg>(cfg, reg)); \
+           std::unique_ptr<ServiceWrapperBase> \
+           (new ServiceWrapper<svc, ServiceScope::scopeArg>(cfg, reg)); \
   } \
-
+   
 // Legacy services.
 #define DEFINE_ART_LEGACY_SERVICE_MAKER(svc) \
   DEFINE_ART_L_G_SERVICE_MAKER(svc,LEGACY)
@@ -122,9 +122,9 @@
        ActivityRegistry & reg, \
        size_t nSchedules) const final override \
   { return \
-      std::unique_ptr<art::detail::ServiceWrapperBase> \
-      (new ServiceWrapper<svc, \
-       ServiceScope::PER_SCHEDULE>(cfg, reg, nSchedules)); \
+           std::unique_ptr<art::detail::ServiceWrapperBase> \
+           (new ServiceWrapper<svc, \
+            ServiceScope::PER_SCHEDULE>(cfg, reg, nSchedules)); \
   }
 
 // CreateHelper.
@@ -133,9 +133,9 @@
   std::unique_ptr<art::detail::ServiceHelperBase> \
   createHelper() \
   { \
-  return \
-  new std::unique_ptr<art::detail::ServiceHelperBase> \
-  (art::detail::ServiceHelper<svc>); \
+    return \
+           new std::unique_ptr<art::detail::ServiceHelperBase> \
+           (art::detail::ServiceHelper<svc>); \
   }
 
 ////////////////////////////////////////////////////////////////////////
@@ -147,64 +147,64 @@
 // Declare a multi-schedule-aware service.
 #define DECLARE_ART_SERVICE_DETAIL(svc,scopeArg) \
   namespace art { \
-  namespace detail { \
-  template <> struct ServiceHelper<svc> : \
-    public ServiceImplHelper, \
-    DEFINE_ART_SH_SCOPE_M_INTERFACE(scopeArg), \
-    DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
-  { \
-    DEFINE_ART_SERVICE_TYPEID(svc) \
-    DEFINE_ART_SERVICE_SCOPE(scopeArg) \
-    bool is_interface_impl() const override { return false; } \
-    DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc) \
-    DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc) \
-  }; \
-  } \
+    namespace detail { \
+      template <> struct ServiceHelper<svc> : \
+        public ServiceImplHelper, \
+      DEFINE_ART_SH_SCOPE_M_INTERFACE(scopeArg), \
+      DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
+      { \
+        DEFINE_ART_SERVICE_TYPEID(svc) \
+        DEFINE_ART_SERVICE_SCOPE(scopeArg) \
+        bool is_interface_impl() const override { return false; } \
+        DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc) \
+        DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc) \
+      }; \
+    } \
   }
 
 // Declare an interface for services.
 #define DECLARE_ART_SERVICE_INTERFACE_DETAIL(iface,scopeArg) \
   namespace art { \
-  namespace detail { \
-  template <> struct ServiceHelper<iface> : \
-    public ServiceInterfaceHelper, \
-    DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
-  { \
-    DEFINE_ART_SERVICE_TYPEID(iface) \
-    DEFINE_ART_SERVICE_SCOPE(scopeArg) \
-    DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(iface) \
-  }; \
-  } \
+    namespace detail { \
+      template <> struct ServiceHelper<iface> : \
+        public ServiceInterfaceHelper, \
+      DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
+      { \
+        DEFINE_ART_SERVICE_TYPEID(iface) \
+        DEFINE_ART_SERVICE_SCOPE(scopeArg) \
+        DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(iface) \
+      }; \
+    } \
   }
 
 // Define a multi-schedule-aware service implementing an interface.
 #define DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc,iface,scopeArg) \
   namespace art { \
-  namespace detail { \
-  template <> struct ServiceHelper<svc> : \
-    public ServiceInterfaceImplHelper, \
-    DEFINE_ART_SH_SCOPE_M_INTERFACE(scopeArg), \
-    DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
-  { \
-    DEFINE_ART_SERVICE_TYPEID(svc) \
-    DEFINE_ART_SERVICE_SCOPE(scopeArg) \
-    DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc) \
-    DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc) \
-    art::TypeID get_interface_typeid() const final override \
-    { return TypeID(typeid(iface)); } \
-    std::unique_ptr<ServiceWrapperBase> \
-    convert(std::shared_ptr<ServiceWrapperBase> const & swb) const final override \
-  { return std::unique_ptr<art::detail::ServiceWrapperBase>( \
-      static_cast<art::detail::ServiceWrapperBase *>( \
-        std::dynamic_pointer_cast<ServiceWrapper<svc, ServiceScope::scopeArg> > \
-        (swb).get()->getAs<iface>() \
-      ) \
-    ); \
-  } \
-    static_assert(scope_val == ServiceHelper<iface>::scope_val, /* Safety check */  \
-                  "Scope mismatch between interface " #iface " and implementation " #svc); \
-  }; \
-  } \
+    namespace detail { \
+      template <> struct ServiceHelper<svc> : \
+        public ServiceInterfaceImplHelper, \
+      DEFINE_ART_SH_SCOPE_M_INTERFACE(scopeArg), \
+      DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
+      { \
+        DEFINE_ART_SERVICE_TYPEID(svc) \
+        DEFINE_ART_SERVICE_SCOPE(scopeArg) \
+        DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc) \
+        DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc) \
+        art::TypeID get_interface_typeid() const final override \
+        { return TypeID(typeid(iface)); } \
+        std::unique_ptr<ServiceWrapperBase> \
+        convert(std::shared_ptr<ServiceWrapperBase> const & swb) const final override \
+        { return std::unique_ptr<art::detail::ServiceWrapperBase>( \
+                 static_cast<art::detail::ServiceWrapperBase *>( \
+                     std::dynamic_pointer_cast<ServiceWrapper<svc, ServiceScope::scopeArg> > \
+                     (swb).get()->getAs<iface>() \
+                                                               ) \
+                                                                   ); \
+        } \
+        static_assert(scope_val == ServiceHelper<iface>::scope_val, /* Safety check */  \
+                      "Scope mismatch between interface " #iface " and implementation " #svc); \
+      }; \
+    } \
   }
 
 ////////////////////////////////////////////////////////////////////////
@@ -212,17 +212,17 @@
 // since system services have no maker function.
 #define DECLARE_ART_SYSTEM_SERVICE_DETAIL(svc,scopeArg) \
   namespace art { \
-  namespace detail { \
-  template <> struct ServiceHelper<svc> : \
-    public ServiceImplHelper, \
-    DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
-  { \
-    DEFINE_ART_SERVICE_TYPEID(svc) \
-    DEFINE_ART_SERVICE_SCOPE(scopeArg) \
-    bool is_interface_impl() const override { return false; } \
-    DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc) \
+    namespace detail { \
+      template <> struct ServiceHelper<svc> : \
+        public ServiceImplHelper, \
+      DEFINE_ART_SH_SCOPE_R_INTERFACE(scopeArg) \
+      { \
+        DEFINE_ART_SERVICE_TYPEID(svc) \
+        DEFINE_ART_SERVICE_SCOPE(scopeArg) \
+        bool is_interface_impl() const override { return false; } \
+        DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc) \
       }; \
-  } \
+    } \
   }
 
 ////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@
   std::unique_ptr<art::detail::ServiceHelperBase> \
   create_##type##_helper() { \
     return \
-      std::unique_ptr<art::detail::ServiceHelperBase>(new art::detail::ServiceHelper<svc>); \
+           std::unique_ptr<art::detail::ServiceHelperBase>(new art::detail::ServiceHelper<svc>); \
   }
 
 #endif /* art_Framework_Services_Registry_detail_helper_macros_h */
