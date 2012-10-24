@@ -27,7 +27,7 @@ ServicesManager::ServicesManager(ParameterSets const & psets,
   requestedCreationOrder_(),
   actualCreationOrder_()
 {
-  fillFactory_(psets, lm);
+  fillCache_(psets, lm);
 }
 
 ServicesManager::~ServicesManager()
@@ -50,7 +50,7 @@ void ServicesManager::forceCreation()
   TypeIDs::iterator it(requestedCreationOrder_.begin()),
           end(requestedCreationOrder_.end());
   for (; it != end; ++it) {
-    Factory::iterator c = factory_.find(*it);
+    detail::ServiceCache::iterator c = factory_.find(*it);
     if (c != factory_.end()) { c->second.forceCreation(registry_); }
     // JBK - should an exception be thrown if name not found in map?
   }
@@ -59,7 +59,7 @@ void ServicesManager::forceCreation()
 void ServicesManager::getParameterSets(ParameterSets & out) const
 {
   ParameterSets tmp;
-  Factory::const_iterator cur = factory_.begin(), end = factory_.end();
+  detail::ServiceCache::const_iterator cur = factory_.begin(), end = factory_.end();
   for (; cur != end; ++cur)
   { tmp.push_back(cur->second.getParameterSet()); }
   tmp.swap(out);
@@ -79,11 +79,11 @@ void ServicesManager::putParameterSets(ParameterSets const & n)
 }
 
 void
-ServicesManager::fillFactory_(ParameterSets  const & psets,
+ServicesManager::fillCache_(ParameterSets  const & psets,
                               LibraryManager const & lm)
 {
-  Cache::setNSchedules(1); // Receive from EventProcessor when we go
-                           // multi-schedule.
+ // Receive from Eve ntProcessor when we go multi-schedule.
+  detail::ServiceCacheEntry::setNSchedules(1);
 
   // Loop over each configured service parameter set.
   for (auto const & ps : psets) {
@@ -115,7 +115,7 @@ ServicesManager::fillFactory_(ParameterSets  const & psets,
           << "\" }";
       }
     }
-    // Insert the cache object for the main service implementation. Note
+    // Insert the cache entry for the main service implementation. Note
     // we save the typeid of the implementation because we're about to
     // give away the helper.
     TypeID service_typeid(service_helper->get_typeid());
@@ -126,9 +126,9 @@ ServicesManager::fillFactory_(ParameterSets  const & psets,
     index_[service_name] = svc.first;
     requestedCreationOrder_.emplace_back(std::move(service_typeid));
   }
-}  // fillFactory()
+}  // fillCache()
 
-std::pair<art::ServicesManager::Factory::iterator, bool>
+std::pair<art::detail::ServiceCache::iterator, bool>
 art::ServicesManager::
 insertImpl_(fhicl::ParameterSet const & pset,
             std::unique_ptr<detail::ServiceHelperBase> && helper)
@@ -138,7 +138,7 @@ insertImpl_(fhicl::ParameterSet const & pset,
   TypeID sType(helper->get_typeid());
   return
     factory_.insert(std::make_pair(sType,
-                                   Cache(pset,
+                                   detail::ServiceCacheEntry(pset,
                                          std::move(helper))));
 }
 
@@ -146,13 +146,13 @@ void
 art::ServicesManager::
   insertInterface_(fhicl::ParameterSet const & pset,
                    std::unique_ptr<detail::ServiceHelperBase> && helper,
-                   Factory::iterator implEntry)
+                   detail::ServiceCache::iterator implEntry)
 {
   // Need temporary because we can't guarantee the order of evaluation
   // of the arguments to std::make_pair() below.
   TypeID iType(helper->get_typeid());
   factory_.insert(std::make_pair(iType,
-                                 Cache(pset,
+                                 detail::ServiceCacheEntry(pset,
                                        std::move(helper),
                                        implEntry)));
 }

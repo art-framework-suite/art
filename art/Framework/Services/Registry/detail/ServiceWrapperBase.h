@@ -12,9 +12,13 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <memory>
+
 namespace art {
   namespace detail {
     class ServiceWrapperBase;
+
+    typedef std::shared_ptr<detail::ServiceWrapperBase>  WrapperBase_ptr;
   }
 }
 
