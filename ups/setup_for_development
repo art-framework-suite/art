@@ -50,6 +50,7 @@ set_ type=$1
 shift
 test -n "$1" && setenv CETPKG_QUAL "$1" && set_ rootqual="$1"
 test -z "$1" && setenv CETPKG_QUAL "$defaultqual"
+set_ clver=v2_1_2_2
 # e1 is a special case
 test "$1" = "e1" && set_ hybridqual=$1 && set_ rootqual=gcc46
 # mu2e is a special case
