@@ -51,19 +51,6 @@ public:
 
   void putParameterSet(fhicl::ParameterSet const & newConfig);
 
-  ServiceCache::iterator getInterfaceImpl() const;
-
-  void makeAndCacheService(ActivityRegistry & reg) const;
-
-  void
-  createService(ActivityRegistry & reg,
-                detail::ServiceStack & creationOrder) const;
-
-  void
-  convertService(WrapperBase_ptr & swb) const;
-
-  ServiceScope serviceScope() const;
-
   template < typename T,
            typename = typename std::enable_if < detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE >::type >
   T & get(ActivityRegistry & reg, detail::ServiceStack & creationOrder) const;
@@ -77,6 +64,17 @@ public:
   static void setNSchedules(size_t nSched);
 
 private:
+  void makeAndCacheService(ActivityRegistry & reg) const;
+
+  void
+  createService(ActivityRegistry & reg,
+                detail::ServiceStack & creationOrder) const;
+
+  void
+  convertService(WrapperBase_ptr & swb) const;
+
+  ServiceScope serviceScope() const;
+
   static size_t & nSchedules();
 
   bool is_impl() const;
@@ -105,14 +103,6 @@ art::detail::ServiceCacheEntry::
 getParameterSet() const
 {
   return config_;
-}
-
-inline
-art::detail::ServiceCache::iterator
-art::detail::ServiceCacheEntry::
-getInterfaceImpl() const
-{
-  return interface_impl_;
 }
 
 inline
