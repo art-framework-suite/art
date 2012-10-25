@@ -33,7 +33,7 @@ include(CetCMakeEnv)
 if ( NOT qualifier )
     message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
 endif ( NOT qualifier )
-cet_cmake_env( art v1_00_11_p01 ${qualifier} )
+cet_cmake_env( art v1_00_11_p02 ${qualifier} )
 
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR EXTRA_FLAGS -pedantic)
