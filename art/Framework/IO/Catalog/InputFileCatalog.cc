@@ -102,14 +102,22 @@ namespace art {
     return hasNextFile_;
   }
 
-  bool InputFileCatalog::retrieveNextFile(FileCatalogItem & item, int attempts) {
+  bool InputFileCatalog::retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly) {
 
     // Tell the service the current opened file (if theres one) is consumed
-    if( fileIdx_!=indexEnd && !currentFile().skipped() )
+    if( fileIdx_!=indexEnd             // there is a current file
+        && !currentFile().skipped()    // not skipped
+        && !currentFile().consumed() ) // not consumed
+    {
       ci_->updateStatus( currentFile().uri(), FileDisposition::CONSUMED );
+      fileCatalogItems_[fileIdx_].consume();
+    }
 
-    // retrieve next file from service
-    FileCatalogStatus status = retrieveNextFileFromCacheOrService(item);
+    // retrieve (deliver and transfer) next file from service
+    // or, do the transfer only
+    FileCatalogStatus status;
+    if( transferOnly ) { status = transferNextFile(item); } 
+    else               { status = retrieveNextFileFromCacheOrService(item); }
 
     if( status == FileCatalogStatus::SUCCESS ) {
       // mark the file as transferred
@@ -128,7 +136,7 @@ namespace art {
           << "Delivery error encountered after reaching maximum number of attemtps!";
       }
       else {
-        return retrieveNextFile(item, attempts-1);
+        return retrieveNextFile(item, attempts-1, false);
       }
     }
 
@@ -142,7 +150,7 @@ namespace art {
         return true;
       }
       else {
-        return retrieveNextFile(item, attempts-1);
+        return retrieveNextFile(item, attempts-1, true);
       }
     }
 
@@ -159,7 +167,7 @@ namespace art {
     }
 
     // Try to get it from the service
-    std::string uri, pfn;
+    std::string uri;
     double wait = 0.0;
 
     // get file delivered
@@ -171,13 +179,23 @@ namespace art {
     if( result != FileDeliveryStatus::SUCCESS )
       return FileCatalogStatus::DELIVERY_ERROR;
 
+    item = FileCatalogItem("", "", uri);
+
     // get file transfered
-    result = ft_->translateToLocalFilename( uri, pfn );
+    return transferNextFile(item);
+  }
+
+  FileCatalogStatus InputFileCatalog::transferNextFile(FileCatalogItem & item) {
+
+    std::string pfn;
+
+    int result = ft_->translateToLocalFilename( item.uri(), pfn );
 
     if( result != FileTransferStatus::CREATED )
     {
-      item = FileCatalogItem("", "", uri);
-      item.skip(true);
+      item.fileName("");
+      item.logicalFileName("");
+      item.skip();
       return FileCatalogStatus::TRANSFER_ERROR;
     }
 
@@ -196,7 +214,8 @@ namespace art {
       lfn.clear();
     }
 
-    item = FileCatalogItem(pfn, lfn, uri);
+    item.fileName(pfn);
+    item.logicalFileName(lfn);
     return FileCatalogStatus::SUCCESS;
   }
 
