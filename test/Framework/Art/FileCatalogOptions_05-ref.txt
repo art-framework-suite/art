@@ -10,16 +10,15 @@ physics: { end_paths: [ "injected_end_path_1" ]
            injected_end_path_1: [ "out" ]
          }
 process_name: "SAMTEST"
-service: { CatalogInterface: { service_provider: "IFCatalogInterface"
-                               webURI: "http://example.com"
-                             }
-           FileTransfer: { service_provider: "IFFileTransfer"
-                         }
-         }
-services: { FileCatalogMetadata: { applicationFamily: "Ethel"
+services: { CatalogInterface: { service_provider: "IFCatalogInterface"
+                                webURI: "http://example.com"
+                              }
+            FileCatalogMetadata: { applicationFamily: "Ethel"
                                    applicationVersion: "v0.00.01a"
                                    fileType: "MC"
                                  }
+            FileTransfer: { service_provider: "IFFileTransfer"
+                          }
             message: { destinations: { STDOUT: { categories: { ArtReport: { limit: 100
                                                                           }
                                                                default: { limit: -1
@@ -34,6 +33,7 @@ services: { FileCatalogMetadata: { applicationFamily: "Ethel"
                                       }
                     FileTransfer: { service_provider: "TrivialFileTransfer"
                                   }
+                    IFDH: {}
                   }
           }
 source: { fileNames: [ "778213" ]
