@@ -13,19 +13,25 @@ namespace art {
 
   class FileCatalogItem {
   public:
-    FileCatalogItem() : pfn_(), lfn_(), uri_(), skipped_(false) {}
+    FileCatalogItem() : pfn_(), lfn_(), uri_(), skipped_(false), consumed_(false) {}
     FileCatalogItem(std::string const& pfn, std::string const& lfn, std::string const & uri) 
       : pfn_(pfn), lfn_(lfn), uri_(uri), skipped_(false) {}
-    std::string const& fileName() const {return pfn_;}
+    std::string const& fileName()        const {return pfn_;}
     std::string const& logicalFileName() const {return lfn_;}
-    std::string const& uri() const {return uri_;}
-    void skip(bool s) { skipped_ = s; }
-    bool skipped() const { return skipped_; }
+    std::string const& uri()             const {return uri_;}
+    void fileName       (std::string const & pfn) { pfn_ = pfn; }
+    void logicalFileName(std::string const & lfn) { lfn_ = lfn; }
+    void uri            (std::string const & uri) { uri_ = uri; }
+    void skip()           { skipped_ = true; }
+    bool skipped()  const { return skipped_; }
+    void consume()        { consumed_ = true; }
+    bool consumed() const { return consumed_; }
   private:
     std::string pfn_;
     std::string lfn_;
     std::string uri_;
     bool skipped_;
+    bool consumed_;
   };  // FileCatalogItem
 
 // ----------------------------------------------------------------------

@@ -50,8 +50,9 @@ namespace art {
 
   private:
     void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
-    bool retrieveNextFile(FileCatalogItem & item, int attempts);
+    bool retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly = false);
     FileCatalogStatus retrieveNextFileFromCacheOrService(FileCatalogItem & item);
+    FileCatalogStatus transferNextFile(FileCatalogItem & item);
 
     std::vector<std::string> fileSources_;
     std::vector<FileCatalogItem> fileCatalogItems_;
