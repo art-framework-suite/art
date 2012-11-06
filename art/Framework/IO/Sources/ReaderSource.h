@@ -48,9 +48,13 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
+#include "art/Framework/IO/Sources/ReaderTraits.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Services/Interfaces/CatalogInterface.h"
+#include "art/Framework/Services/Interfaces/FileTransfer.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -120,6 +124,9 @@ private:
   iter                   end_;
   input::ItemType        state_;
 
+  ServiceHandle<CatalogInterface> ci_;
+  ServiceHandle<FileTransfer> ft_;
+
   std::shared_ptr<RunPrincipal> cachedRP_;
   std::shared_ptr<SubRunPrincipal> cachedSRP_;
   std::unique_ptr<EventPrincipal> cachedE_;
@@ -173,7 +180,7 @@ art::ReaderSource<T>::ReaderSource(fhicl::ParameterSet const & p,
   pc_(d.moduleDescription.processConfiguration_),
   principalMaker_(pc_),
   detail_(p, h_, principalMaker_),
-  filenames_(p.get<strings>("fileNames")),
+  filenames_(),
   currentFile_(),
   end_(),
   state_(input::IsInvalid),
@@ -208,6 +215,9 @@ art::ReaderSource<T>::ReaderSource(fhicl::ParameterSet const & p,
   finishProductRegistration_(d);
 
   // Deal with filenames and file services, if applicable.
+
+  p.get<strings>("fileNames");
+
   std::sort(filenames_.begin(),
             filenames_.end());
   currentFile_ = filenames_.begin();
