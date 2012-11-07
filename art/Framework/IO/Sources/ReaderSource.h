@@ -49,12 +49,10 @@
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/IO/Sources/ReaderTraits.h"
+#include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Services/Interfaces/CatalogInterface.h"
-#include "art/Framework/Services/Interfaces/FileTransfer.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/EventID.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -65,7 +63,7 @@
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <limits>
+#include <type_traits>
 
 // ----------------------------------------------------------------------
 
@@ -74,18 +72,17 @@ namespace art {
   class ReaderSource;
 }
 
+// No-one gets to override this class.
 template <class T>
 class art::ReaderSource final : public art::InputSource {
 public:
-  ReaderSource(ReaderSource<T> const&) = delete;
-  ReaderSource<T>& operator=(ReaderSource<T> const&) = delete;
+  ReaderSource(ReaderSource<T> const &) = delete;
+  ReaderSource<T> & operator=(ReaderSource<T> const &) = delete;
 
   typedef T ReaderDetail;
 
   ReaderSource(fhicl::ParameterSet const & p,
                InputSourceDescription & d);
-
-  ~ReaderSource() override;
 
   input::ItemType nextItemType() override;
   RunNumber_t run() const override;
@@ -101,31 +98,26 @@ public:
   std::shared_ptr<RunPrincipal> readRun() override;
 
   std::shared_ptr<SubRunPrincipal>
-    readSubRun(std::shared_ptr<RunPrincipal> rp) override;
+  readSubRun(std::shared_ptr<RunPrincipal> rp) override;
 
   using InputSource::readEvent;
   std::unique_ptr<EventPrincipal>
-    readEvent(std::shared_ptr<SubRunPrincipal> srp) override;
+  readEvent(std::shared_ptr<SubRunPrincipal> srp) override;
 
 private:
-  typedef std::vector<std::string> strings;
-  typedef strings::const_iterator  iter;
-
   struct cleanup_;
 
   cet::exempt_ptr<ActivityRegistry> act_;
 
-  ProductRegistryHelper  h_;
-  ProcessConfiguration   pc_;
-  PrincipalMaker         principalMaker_; // So it can be used by detail.
-  ReaderDetail           detail_;
-  strings                filenames_;
-  iter                   currentFile_;
-  iter                   end_;
-  input::ItemType        state_;
+  ProductRegistryHelper h_;
+  ProcessConfiguration pc_;
+  PrincipalMaker principalMaker_; // So it can be used by detail.
+  ReaderDetail detail_;
+  input::ItemType state_;
 
-  ServiceHandle<CatalogInterface> ci_;
-  ServiceHandle<FileTransfer> ft_;
+  //  detail::FileNamesHandler<Reader_wantFileServices<T>::value> fh_;
+  detail::FileNamesHandler<false> fh_;
+  std::string currentFileName_;
 
   std::shared_ptr<RunPrincipal> cachedRP_;
   std::shared_ptr<SubRunPrincipal> cachedSRP_;
@@ -180,10 +172,9 @@ art::ReaderSource<T>::ReaderSource(fhicl::ParameterSet const & p,
   pc_(d.moduleDescription.processConfiguration_),
   principalMaker_(pc_),
   detail_(p, h_, principalMaker_),
-  filenames_(),
-  currentFile_(),
-  end_(),
   state_(input::IsInvalid),
+  fh_(p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())),
+  currentFileName_(),
   cachedRP_(),
   cachedSRP_(),
   cachedE_(),
@@ -207,26 +198,10 @@ art::ReaderSource<T>::ReaderSource(fhicl::ParameterSet const & p,
     remainingEvents_ = maxEvents_par;
     haveEventLimit_ = true;
   }
-
   // Verify we got a real ActivityRegistry.
   if (!act_) { throw Exception(errors::LogicError) << "no ActivityRegistry\n"; }
-
   // Finish product registration.
   finishProductRegistration_(d);
-
-  // Deal with filenames and file services, if applicable.
-
-  p.get<strings>("fileNames");
-
-  std::sort(filenames_.begin(),
-            filenames_.end());
-  currentFile_ = filenames_.begin();
-  end_ = filenames_.end();
-}
-
-template <class T>
-art::ReaderSource<T>::~ReaderSource()
-{
 }
 
 template <class T>
@@ -258,28 +233,28 @@ art::ReaderSource<T>::throwIfInsane_(bool result, RunPrincipal * newR,
   if (result) {
     if (!newR && !newSR && !newE)
       throw Exception(errors::LogicError)
-        << "readNext returned true but created no new data\n";
+          << "readNext returned true but created no new data\n";
     if (cachedRP_ && newR && cachedRP_.get() == newR) {
       // Avoid double delete with cleanup sentry and statemachine
       // teardown.
       newR = 0;
       errMsg
-        << "readNext returned a new Run which is the old Run for "
-        << cachedRP_->id() << ".\nIf you don't have a new run, don't return one!\n";
+          << "readNext returned a new Run which is the old Run for "
+          << cachedRP_->id() << ".\nIf you don't have a new run, don't return one!\n";
     }
     if (cachedSRP_ && newSR && cachedSRP_.get() == newSR) {
       // Avoid double delete with cleanup sentry and statemachine
       // teardown.
       newSR = 0;
       errMsg
-        << "readNext returned a new SubRun which is the old SubRun for "
-        << cachedSRP_->id() << ".\nIf you don't have a new subRun, don't return one!\n";
+          << "readNext returned a new SubRun which is the old SubRun for "
+          << cachedSRP_->id() << ".\nIf you don't have a new subRun, don't return one!\n";
     }
     // Either or both of the above cases could be true and we need
     // to make both of them safe before we throw:
     if (!errMsg.str().empty())
       throw Exception(errors::LogicError)
-        << errMsg.str();
+          << errMsg.str();
     if (cachedRP_ && cachedSRP_) {
       if (!newR && newSR && newSR->id() == cachedSRP_->id())
         throwDataCorruption_("readNext returned a 'new' SubRun "
@@ -343,7 +318,7 @@ art::ReaderSource<T>::throwIfInsane_(bool result, RunPrincipal * newR,
   else {
     if (newR || newSR || newE)
       throw Exception(errors::LogicError)
-        << "readNext returned false but created new data\n";
+          << "readNext returned false but created new data\n";
   }
   sentry.clear();
 }
@@ -385,12 +360,8 @@ template <class T>
 void
 art::ReaderSource<T>::checkForNextFile_()
 {
-  if (currentFile_ == end_ || ++currentFile_ == end_) {
-    state_ = input::IsStop;
-  }
-  else {
-    state_ = input::IsFile;
-  }
+  currentFileName_ = fh_.next();
+  state_ = currentFileName_.empty() ? input::IsStop : input::IsFile;
 }
 
 template <class T>
@@ -399,47 +370,47 @@ art::ReaderSource<T>::nextItemType()
 {
   if (remainingEvents_ == 0) { state_ = input::IsStop; }
   switch (state_) {
-  case input::IsInvalid:
-    if (currentFile_ == end_) {
-      state_ = input::IsStop;
-    }
-    else {
-      state_ = input::IsFile;
-    }
-    break;
-  case input::IsFile:
-    readNextAndRequireRun_();
-    break;
-  case input::IsRun:
-    if (pendingSubRun_ || (pendingEvent_ && cachedSRP_)) {
-      state_ = input::IsSubRun;
-      pendingSubRun_ = false;
-    }
-    else if (pendingEvent_)
-      throw Exception(errors::DataCorruption)
-        << "Input file '"
-        << *currentFile_
-        << "' contains an Event "
-        << cachedE_->id()
-        << " that belongs to no SubRun\n";
-    else
-    { readNextAndRequireRun_(); }
-    break;
-  case input::IsSubRun:
-    if (pendingEvent_) {
-      state_ = input::IsEvent;
-      pendingEvent_ = false;
-    }
-    else
-    { readNextAndRefuseEvent_(); }
-    break;
-  case input::IsEvent:
-    if (!readNext_()) {
-      checkForNextFile_();
-    }
-    break;
-  case input::IsStop:
-    break;
+    case input::IsInvalid:
+      if (Reader_generator<T>::value) {
+        state_ = input::IsFile; // Once.
+      }
+      else {
+        checkForNextFile_();
+      }
+      break;
+    case input::IsFile:
+      readNextAndRequireRun_();
+      break;
+    case input::IsRun:
+      if (pendingSubRun_ || (pendingEvent_ && cachedSRP_)) {
+        state_ = input::IsSubRun;
+        pendingSubRun_ = false;
+      }
+      else if (pendingEvent_)
+        throw Exception(errors::DataCorruption)
+            << "Input file '"
+            << currentFileName_
+            << "' contains an Event "
+            << cachedE_->id()
+            << " that belongs to no SubRun\n";
+      else
+      { readNextAndRequireRun_(); }
+      break;
+    case input::IsSubRun:
+      if (pendingEvent_) {
+        state_ = input::IsEvent;
+        pendingEvent_ = false;
+      }
+      else
+      { readNextAndRefuseEvent_(); }
+      break;
+    case input::IsEvent:
+      if (!readNext_()) {
+        checkForNextFile_();
+      }
+      break;
+    case input::IsStop:
+      break;
   }
   if ((state_ == input::IsRun ||
        state_ == input::IsSubRun) &&
@@ -459,11 +430,11 @@ art::ReaderSource<T>::readNextAndRequireRun_()
       }
       else {
         throw Exception(errors::DataCorruption)
-          << "Input file '"
-          << *currentFile_
-          << "' has a"
-          << (state_ == input::IsSubRun ? " SubRun" : "n Event")
-          << " where a Run is expected\n";
+            << "Input file '"
+            << currentFileName_
+            << "' has a"
+            << (state_ == input::IsSubRun ? " SubRun" : "n Event")
+            << " where a Run is expected\n";
       }
     }
   }
@@ -477,11 +448,12 @@ void
 art::ReaderSource<T>::readNextAndRefuseEvent_()
 {
   if (readNext_()) {
-    if (state_ == input::IsEvent)
+    if (state_ == input::IsEvent) {
       throw Exception(errors::DataCorruption)
-        << "Input file '"
-        << *currentFile_
-        << "' has an Event where a Run or SubRun is expected\n";
+          << "Input file '"
+          << currentFileName_
+          << "' has an Event where a Run or SubRun is expected\n";
+    }
   }
   else {
     checkForNextFile_();
@@ -493,9 +465,9 @@ art::RunNumber_t
 art::ReaderSource<T>::run() const
 {
   if (!cachedRP_) throw Exception(errors::LogicError)
-                    << "Error in ReaderSource<T>\n"
-                    << "run() called when no RunPrincipal exists\n"
-                    << "Please report this to the art developers\n";
+        << "Error in ReaderSource<T>\n"
+        << "run() called when no RunPrincipal exists\n"
+        << "Please report this to the art developers\n";
   return cachedRP_->id().run();
 }
 
@@ -504,9 +476,9 @@ art::SubRunNumber_t
 art::ReaderSource<T>::subRun() const
 {
   if (!cachedSRP_) throw Exception(errors::LogicError)
-                     << "Error in ReaderSource<T>\n"
-                     << "subRun() called when no SubRunPrincipal exists\n"
-                     << "Please report this to the art developers\n";
+        << "Error in ReaderSource<T>\n"
+        << "subRun() called when no SubRunPrincipal exists\n"
+        << "Please report this to the art developers\n";
   return cachedSRP_->id().subRun();
 }
 
@@ -515,10 +487,10 @@ std::shared_ptr<art::FileBlock>
 art::ReaderSource<T>::readFile(MasterProductRegistry &)
 {
   FileBlock * newF = 0;
-  detail_.readFile(*currentFile_, newF);
+  detail_.readFile(currentFileName_, newF);
   if (!newF) {
     throw Exception(errors::LogicError)
-      << "detail_::readFile() failed to return a valid FileBlock object\n";
+        << "detail_::readFile() failed to return a valid FileBlock object\n";
   }
   return std::shared_ptr<FileBlock>(newF);
 }
@@ -535,9 +507,9 @@ std::shared_ptr<art::RunPrincipal>
 art::ReaderSource<T>::readRun()
 {
   if (!cachedRP_) throw Exception(errors::LogicError)
-                    << "Error in ReaderSource<T>\n"
-                    << "readRun() called when no RunPrincipal exists\n"
-                    << "Please report this to the art developers\n";
+        << "Error in ReaderSource<T>\n"
+        << "readRun() called when no RunPrincipal exists\n"
+        << "Please report this to the art developers\n";
   return cachedRP_;
 }
 
@@ -546,9 +518,9 @@ std::shared_ptr<art::SubRunPrincipal>
 art::ReaderSource<T>::readSubRun(std::shared_ptr<RunPrincipal>)
 {
   if (!cachedSRP_) throw Exception(errors::LogicError)
-                     << "Error in ReaderSource<T>\n"
-                     << "readSubRun() called when no SubRunPrincipal exists\n"
-                     << "Please report this to the art developers\n";
+        << "Error in ReaderSource<T>\n"
+        << "readSubRun() called when no SubRunPrincipal exists\n"
+        << "Please report this to the art developers\n";
   if (subRunIsNew_) {
     if (haveSRLimit_) { --remainingSubRuns_; }
     subRunIsNew_ = false;
