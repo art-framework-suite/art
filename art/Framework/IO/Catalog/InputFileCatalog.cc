@@ -116,7 +116,7 @@ namespace art {
     // retrieve (deliver and transfer) next file from service
     // or, do the transfer only
     FileCatalogStatus status;
-    if( transferOnly ) { status = transferNextFile(item); } 
+    if( transferOnly ) { status = transferNextFile(item); }
     else               { status = retrieveNextFileFromCacheOrService(item); }
 
     if( status == FileCatalogStatus::SUCCESS ) {
@@ -191,7 +191,7 @@ namespace art {
 
     int result = ft_->translateToLocalFilename( item.uri(), pfn );
 
-    if( result != FileTransferStatus::CREATED )
+    if( result != FileTransferStatus::SUCCESS )
     {
       item.fileName("");
       item.logicalFileName("");

@@ -1,4 +1,7 @@
 set(art_Framework_Services_Interfaces_sources
+  FileDeliveryStatus.cc
+  FileDisposition.cc
+  FileTransferStatus.cc
   UserInteraction.cc
 )
 
@@ -18,5 +21,5 @@ target_link_libraries(art_Framework_Services_Interfaces
 install ( TARGETS art_Framework_Services_Interfaces
   DESTINATION ${flavorqual_dir}/lib )
 
-install_headers()
+install_headers(SUBDIRS detail)
 install_source()
