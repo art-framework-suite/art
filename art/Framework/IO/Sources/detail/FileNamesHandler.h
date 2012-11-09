@@ -1,15 +1,14 @@
 #ifndef art_Framework_IO_Sources_detail_FileNamesHandler_h
 #define art_Framework_IO_Sources_detail_FileNamesHandler_h
 
-#include "art/Framework/Services/Interfaces/CatalogInterface.h"
-#include "art/Framework/Services/Interfaces/FileTransfer.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/IO/Sources/detail/FileServiceProxy.h"
 
 #include <string>
 #include <vector>
 
 namespace art {
   namespace detail {
+
     template <bool wantFileServices>
     class FileNamesHandler;
 
@@ -18,13 +17,13 @@ namespace art {
     class FileNamesHandler<true> {
     public:
       explicit FileNamesHandler(std::vector<std::string> && fileNames,
-                                size_t attempts = 5);
+                                size_t attempts = 5,
+                                double waitBetweenAttempts = 5.0);
+
       std::string next();
 
     private:
-      ServiceHandle<CatalogInterface> ci_;
-      ServiceHandle<FileTransfer> ft_;
-      size_t const attempts_;
+      FileServiceProxy fp_;
     };
 
     // Handle files when we don't.
@@ -45,21 +44,20 @@ namespace art {
 
 art::detail::FileNamesHandler<true>::
 FileNamesHandler(std::vector<std::string> && fileNames,
-                 size_t attempts)
+                 size_t attempts,
+                 double waitBetweenAttempts)
   :
-  ci_(),
-  ft_(),
-  attempts_(attempts)
+  fp_(std::move(fileNames),
+      attempts,
+      waitBetweenAttempts)
 {
-  std::sort(fileNames.begin(), fileNames.end());
-  ci_->configure(std::move(fileNames));
 }
 
 std::string
 art::detail::FileNamesHandler<true>::
 next()
 {
-  return std::string();
+  return fp_.next();
 }
 
 art::detail::FileNamesHandler<false>::

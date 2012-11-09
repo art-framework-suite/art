@@ -115,8 +115,7 @@ private:
   ReaderDetail detail_;
   input::ItemType state_;
 
-  //  detail::FileNamesHandler<Reader_wantFileServices<T>::value> fh_;
-  detail::FileNamesHandler<false> fh_;
+  detail::FileNamesHandler<Reader_wantFileServices<T>::value> fh_;
   std::string currentFileName_;
 
   std::shared_ptr<RunPrincipal> cachedRP_;
