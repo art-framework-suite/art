@@ -3,15 +3,19 @@
 
 ----------------------------------------------------------------------*/
 
+#include "art/Framework/Core/OutputWorker.h"
+
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/WorkerParams.h"
-#include "art/Framework/Core/OutputWorker.h"
 
 namespace art {
   OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
                              ModuleDescription const& md,
                              WorkerParams const& wp):
-    WorkerT<OutputModule>(std::move(mod), md, wp)
+    WorkerT<OutputModule>(std::move(mod), md, wp),
+    ci_(),
+    fileName_()
   {
   }
 
@@ -21,6 +25,10 @@ namespace art {
   void
   OutputWorker::closeFile() {
     module().doCloseFile();
+    if (!fileName_.empty()) {
+      ci_->outputFileClosed(description().moduleLabel(), fileName_);
+      fileName_ = std::string();
+    }
   }
 
   bool
@@ -35,7 +43,11 @@ namespace art {
 
   void
   OutputWorker::openFile(FileBlock const& fb) {
+    fileName_ = fb.fileName();
     module().doOpenFile(fb);
+    if (!fileName_.empty()) {
+      ci_->outputFileOpened(description().moduleLabel());
+    }
   }
 
   void
