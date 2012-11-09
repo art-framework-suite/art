@@ -36,4 +36,4 @@ simple_plugin(TrivialFileDelivery "service")
 simple_plugin(TrivialFileTransfer "service")
 
 install_headers(SUBDIRS detail)
-install_source()
+install_source(SUBDIRS detail)
