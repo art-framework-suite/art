@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////
 // ReaderTraits
 //
-// Attributes controlling the behavior of ReaderSource with respect to a
+// Attributes controlling the behavior of Source with respect to a
 // particular detail class.
 //
 // Specialize as required.
