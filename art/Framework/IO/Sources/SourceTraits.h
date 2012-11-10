@@ -1,7 +1,7 @@
 #ifndef art_Framework_IO_Sources_ReaderTraits_h
 #define art_Framework_IO_Sources_ReaderTraits_h
 ////////////////////////////////////////////////////////////////////////
-// ReaderTraits
+// SourceTraits
 //
 // Attributes controlling the behavior of Source with respect to a
 // particular detail class.
@@ -14,17 +14,17 @@ namespace art {
   // We are a generator, not a reader (or, we read our data from
   // somewhere other than files specified by source.fileNames).
   template <typename DETAIL>
-  struct Reader_generator {
+  struct Source_generator {
     static constexpr bool value = false;
   };
 
   // Use the standard service interfaces (CatalogInterface and
   // FileTransfer) to obtain files.
   template <typename DETAIL>
-  struct Reader_wantFileServices {
+  struct Source_wantFileServices {
     // If you're a generator, you almost certainly don't want to use the
     // standard file services.
-    static constexpr bool value = !Reader_generator<DETAIL>::value;
+    static constexpr bool value = !Source_generator<DETAIL>::value;
   };
 
 }
