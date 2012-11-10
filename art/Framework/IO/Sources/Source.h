@@ -48,7 +48,7 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/IO/Sources/ReaderTraits.h"
+#include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -79,7 +79,7 @@ public:
   Source(Source<T> const &) = delete;
   Source<T> & operator=(Source<T> const &) = delete;
 
-  typedef T ReaderDetail;
+  typedef T SourceDetail;
 
   Source(fhicl::ParameterSet const & p,
                InputSourceDescription & d);
@@ -112,10 +112,10 @@ private:
   ProductRegistryHelper h_;
   ProcessConfiguration pc_;
   PrincipalMaker principalMaker_; // So it can be used by detail.
-  ReaderDetail detail_;
+  SourceDetail detail_;
   input::ItemType state_;
 
-  detail::FileNamesHandler<Reader_wantFileServices<T>::value> fh_;
+  detail::FileNamesHandler<Source_wantFileServices<T>::value> fh_;
   std::string currentFileName_;
 
   std::shared_ptr<RunPrincipal> cachedRP_;
@@ -370,7 +370,7 @@ art::Source<T>::nextItemType()
   if (remainingEvents_ == 0) { state_ = input::IsStop; }
   switch (state_) {
     case input::IsInvalid:
-      if (Reader_generator<T>::value) {
+      if (Source_generator<T>::value) {
         state_ = input::IsFile; // Once.
       }
       else {

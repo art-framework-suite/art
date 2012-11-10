@@ -7,7 +7,7 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceMacros.h"
-#include "art/Framework/IO/Sources/ReaderTraits.h"
+#include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/Source.h"
 #include "test/Integration/ToySource.h"
 
@@ -21,7 +21,7 @@ namespace art {
   // We don't want the file services: we must say so by specializing the
   // template *before* specifying the typedef.
   template<>
-  struct Reader_wantFileServices<arttest::ToyReader> {
+  struct Source_wantFileServices<arttest::ToyReader> {
     static constexpr bool value = false;
   };
 }
