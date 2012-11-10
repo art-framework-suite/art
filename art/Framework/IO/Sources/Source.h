@@ -1,14 +1,14 @@
-#ifndef art_Framework_IO_Sources_ReaderSource_h
-#define art_Framework_IO_Sources_ReaderSource_h
+#ifndef art_Framework_IO_Sources_Source_h
+#define art_Framework_IO_Sources_Source_h
 
 // ======================================================================
 //
-// The ReaderSource class template is used to create InputSources which
+// The Source class template is used to create InputSources which
 // are capable of reading Runs, SubRuns and Events from non-standard
-// input files. Sources instantiated from ReaderSource are *not* random
+// input files. Sources instantiated from Source are *not* random
 // access sources.
 //
-// The ReaderSource class template requires the use of a type T as its
+// The Source class template requires the use of a type T as its
 // template parameter. The type T must supply the following non-static
 // member functions:
 //
@@ -48,7 +48,7 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/PrincipalMaker.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/IO/Sources/ReaderTraits.h"
+#include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -69,27 +69,27 @@
 
 namespace art {
   template <class T>
-  class ReaderSource;
+  class Source;
 }
 
 // No-one gets to override this class.
 template <class T>
-class art::ReaderSource final : public art::InputSource {
+class art::Source final : public art::InputSource {
 public:
-  ReaderSource(ReaderSource<T> const &) = delete;
-  ReaderSource<T> & operator=(ReaderSource<T> const &) = delete;
+  Source(Source<T> const &) = delete;
+  Source<T> & operator=(Source<T> const &) = delete;
 
-  typedef T ReaderDetail;
+  typedef T SourceDetail;
 
-  ReaderSource(fhicl::ParameterSet const & p,
+  Source(fhicl::ParameterSet const & p,
                InputSourceDescription & d);
 
   input::ItemType nextItemType() override;
   RunNumber_t run() const override;
   SubRunNumber_t subRun() const override;
 
-  // ReaderSource does not use the MasterProductRegistry it is passed.
-  // This *could* be used for merging files read by a ReaderSource;
+  // Source does not use the MasterProductRegistry it is passed.
+  // This *could* be used for merging files read by a Source;
   // however, doing so requires solving some hard problems of file
   // merging in a more general manner than has been done thus far.
   std::shared_ptr<FileBlock> readFile(MasterProductRegistry &) override;
@@ -112,10 +112,10 @@ private:
   ProductRegistryHelper h_;
   ProcessConfiguration pc_;
   PrincipalMaker principalMaker_; // So it can be used by detail.
-  ReaderDetail detail_;
+  SourceDetail detail_;
   input::ItemType state_;
 
-  detail::FileNamesHandler<Reader_wantFileServices<T>::value> fh_;
+  detail::FileNamesHandler<Source_wantFileServices<T>::value> fh_;
   std::string currentFileName_;
 
   std::shared_ptr<RunPrincipal> cachedRP_;
@@ -163,7 +163,7 @@ private:
 };
 
 template <class T>
-art::ReaderSource<T>::ReaderSource(fhicl::ParameterSet const & p,
+art::Source<T>::Source(fhicl::ParameterSet const & p,
                                    InputSourceDescription & d) :
   InputSource(),
   act_(&d.activityRegistry),
@@ -205,13 +205,13 @@ art::ReaderSource<T>::ReaderSource(fhicl::ParameterSet const & p,
 
 template <class T>
 void
-art::ReaderSource<T>::throwDataCorruption_(const char * msg)
+art::Source<T>::throwDataCorruption_(const char * msg)
 {
   throw Exception(errors::DataCorruption) << msg;
 }
 
 template <class T>
-struct art::ReaderSource<T>::cleanup_ {
+struct art::Source<T>::cleanup_ {
   RunPrincipal * r;
   SubRunPrincipal * sr;
   EventPrincipal * e;
@@ -223,7 +223,7 @@ struct art::ReaderSource<T>::cleanup_ {
 
 template <class T>
 void
-art::ReaderSource<T>::throwIfInsane_(bool result, RunPrincipal * newR,
+art::Source<T>::throwIfInsane_(bool result, RunPrincipal * newR,
                                      SubRunPrincipal * newSR,
                                      EventPrincipal * newE) const
 {
@@ -324,7 +324,7 @@ art::ReaderSource<T>::throwIfInsane_(bool result, RunPrincipal * newR,
 
 template <class T>
 bool
-art::ReaderSource<T>::readNext_()
+art::Source<T>::readNext_()
 {
   RunPrincipal * newR = 0;
   SubRunPrincipal * newSR = 0;
@@ -357,7 +357,7 @@ art::ReaderSource<T>::readNext_()
 
 template <class T>
 void
-art::ReaderSource<T>::checkForNextFile_()
+art::Source<T>::checkForNextFile_()
 {
   currentFileName_ = fh_.next();
   state_ = currentFileName_.empty() ? input::IsStop : input::IsFile;
@@ -365,12 +365,12 @@ art::ReaderSource<T>::checkForNextFile_()
 
 template <class T>
 art::input::ItemType
-art::ReaderSource<T>::nextItemType()
+art::Source<T>::nextItemType()
 {
   if (remainingEvents_ == 0) { state_ = input::IsStop; }
   switch (state_) {
     case input::IsInvalid:
-      if (Reader_generator<T>::value) {
+      if (Source_generator<T>::value) {
         state_ = input::IsFile; // Once.
       }
       else {
@@ -420,7 +420,7 @@ art::ReaderSource<T>::nextItemType()
 
 template <class T>
 void
-art::ReaderSource<T>::readNextAndRequireRun_()
+art::Source<T>::readNextAndRequireRun_()
 {
   if (readNext_()) {
     if (state_ != input::IsRun) {
@@ -444,7 +444,7 @@ art::ReaderSource<T>::readNextAndRequireRun_()
 
 template <class T>
 void
-art::ReaderSource<T>::readNextAndRefuseEvent_()
+art::Source<T>::readNextAndRefuseEvent_()
 {
   if (readNext_()) {
     if (state_ == input::IsEvent) {
@@ -461,10 +461,10 @@ art::ReaderSource<T>::readNextAndRefuseEvent_()
 
 template <class T>
 art::RunNumber_t
-art::ReaderSource<T>::run() const
+art::Source<T>::run() const
 {
   if (!cachedRP_) throw Exception(errors::LogicError)
-        << "Error in ReaderSource<T>\n"
+        << "Error in Source<T>\n"
         << "run() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
   return cachedRP_->id().run();
@@ -472,10 +472,10 @@ art::ReaderSource<T>::run() const
 
 template <class T>
 art::SubRunNumber_t
-art::ReaderSource<T>::subRun() const
+art::Source<T>::subRun() const
 {
   if (!cachedSRP_) throw Exception(errors::LogicError)
-        << "Error in ReaderSource<T>\n"
+        << "Error in Source<T>\n"
         << "subRun() called when no SubRunPrincipal exists\n"
         << "Please report this to the art developers\n";
   return cachedSRP_->id().subRun();
@@ -483,7 +483,7 @@ art::ReaderSource<T>::subRun() const
 
 template <class T>
 std::shared_ptr<art::FileBlock>
-art::ReaderSource<T>::readFile(MasterProductRegistry &)
+art::Source<T>::readFile(MasterProductRegistry &)
 {
   FileBlock * newF = 0;
   detail_.readFile(currentFileName_, newF);
@@ -496,17 +496,17 @@ art::ReaderSource<T>::readFile(MasterProductRegistry &)
 
 template <class T>
 void
-art::ReaderSource<T>::closeFile()
+art::Source<T>::closeFile()
 {
   detail_.closeCurrentFile();
 }
 
 template <class T>
 std::shared_ptr<art::RunPrincipal>
-art::ReaderSource<T>::readRun()
+art::Source<T>::readRun()
 {
   if (!cachedRP_) throw Exception(errors::LogicError)
-        << "Error in ReaderSource<T>\n"
+        << "Error in Source<T>\n"
         << "readRun() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
   return cachedRP_;
@@ -514,10 +514,10 @@ art::ReaderSource<T>::readRun()
 
 template <class T>
 std::shared_ptr<art::SubRunPrincipal>
-art::ReaderSource<T>::readSubRun(std::shared_ptr<RunPrincipal>)
+art::Source<T>::readSubRun(std::shared_ptr<RunPrincipal>)
 {
   if (!cachedSRP_) throw Exception(errors::LogicError)
-        << "Error in ReaderSource<T>\n"
+        << "Error in Source<T>\n"
         << "readSubRun() called when no SubRunPrincipal exists\n"
         << "Please report this to the art developers\n";
   if (subRunIsNew_) {
@@ -529,7 +529,7 @@ art::ReaderSource<T>::readSubRun(std::shared_ptr<RunPrincipal>)
 
 template <class T>
 std::unique_ptr<art::EventPrincipal>
-art::ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal>)
+art::Source<T>::readEvent(std::shared_ptr<SubRunPrincipal>)
 {
   if (haveEventLimit_) { --remainingEvents_; }
   return std::move(cachedE_);
@@ -537,7 +537,7 @@ art::ReaderSource<T>::readEvent(std::shared_ptr<SubRunPrincipal>)
 
 template <class T>
 void
-art::ReaderSource<T>::finishProductRegistration_(InputSourceDescription & d)
+art::Source<T>::finishProductRegistration_(InputSourceDescription & d)
 {
   ModuleDescription md;
   // These _xERROR_ strings should never appear in branch names; they
@@ -549,7 +549,7 @@ art::ReaderSource<T>::finishProductRegistration_(InputSourceDescription & d)
   h_.registerProducts(d.productRegistry, md);
 }
 
-#endif /* art_Framework_IO_Sources_ReaderSource_h */
+#endif /* art_Framework_IO_Sources_Source_h */
 
 
 // Local Variables:

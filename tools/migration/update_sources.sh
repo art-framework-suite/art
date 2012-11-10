@@ -77,6 +77,9 @@ function one_file() {
   perl -wapi\~ -f fix-services.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
   perl -wapi\~ -f fix-header-locs-2011-07.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
 
+  # ReaderSource -> Source.
+  perl -wapi\~ -f fix-ReaderSource.pl "${F}" >/dev/null 2>&1 && rm -f "${F}~"
+
   # "lumi|luminosty|luminosityblock" -> subrun
   if one_file_lumi "$F"; then
     echo "OK"

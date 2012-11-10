@@ -40,4 +40,4 @@ install(TARGETS art_Framework_Principal
   )
 
 install_headers(SUBDIRS detail)
-install_source()
+install_source(SUBDIRS detail)

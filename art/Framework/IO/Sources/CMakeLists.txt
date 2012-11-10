@@ -17,4 +17,4 @@ install (TARGETS art_Framework_IO_Sources
   DESTINATION ${flavorqual_dir}/lib )
 
 install_headers(SUBDIRS detail)
-install_source()
+install_source(SUBDIRS detail)
