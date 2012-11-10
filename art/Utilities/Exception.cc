@@ -47,6 +47,7 @@ std::string
   case FileReadError             : return "FileReadError";
   case FatalRootError            : return "FatalRootError";
   case MismatchedInputFiles      : return "MismatchedInputFiles";
+  case CatalogServiceError       : return "CatalogServiceError";
 
   case ProductDoesNotSupportViews: return "ProductDoesNotSupportViews";
   case ProductDoesNotSupportPtr  : return "ProductDoesNotSupportPtr";
