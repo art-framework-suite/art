@@ -1,5 +1,13 @@
 # project name
-project(art_Integration_Test)
+add_library(test_Integration
+  SHARED
+  ToySource.cc
+)
+
+target_link_libraries(test_Integration
+  art_Framework_Core
+  ${FHICLCPP}
+)
 
 set_source_files_properties(MixFilterTestETS_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0
@@ -62,7 +70,8 @@ simple_plugin(TestProvenanceDumper       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer         "module" NOINSTALL )
 simple_plugin(TestServiceUsingService    "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Throwing                   "service" NOINSTALL )
-simple_plugin(ToyRawInput                "source" art_Framework_IO_Sources NOINSTALL USE_BOOST_UNIT )
+simple_plugin(ToyRawFileInput            "source" test_Integration art_Framework_IO_Sources NOINSTALL USE_BOOST_UNIT )
+simple_plugin(ToyRawInput                "source" test_Integration art_Framework_IO_Sources NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ToyRawInputTester          "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer      "module" NOINSTALL )
 simple_plugin(U_S                        "module" ALLOW_UNDERSCORES NOINSTALL )
@@ -209,7 +218,6 @@ cet_test(ToyRawInput_t_01 HANDBUILT
   TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
   DATAFILES
   fcl/ToyRawInput_01.fcl
-  fcl/messageDefaults.fcl
 )
 
 foreach(num 02 03 04)
@@ -219,7 +227,6 @@ foreach(num 02 03 04)
     DATAFILES
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
-    fcl/messageDefaults.fcl
   )
 endforeach()
 
@@ -242,7 +249,6 @@ foreach(num 05 06 07 08 09 10 11 12)
     DATAFILES
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
-    fcl/messageDefaults.fcl
   )
 endforeach()
 
