@@ -1,5 +1,3 @@
-#include "messageDefaults.fcl"
-
 BEGIN_PROLOG
 
 std_f1: [ [1, 0, 1], [-1, -1, 2], [-1, 1, 3], [2, 1, 1] ]
@@ -10,8 +8,6 @@ END_PROLOG
 
 services:
 {
-  message: @local::messageDefaults
-
   scheduler:
   {
     wantTracer: true

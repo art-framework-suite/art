@@ -7,33 +7,28 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceMacros.h"
-#include "art/Framework/IO/Sources/ReaderTraits.h"
 #include "art/Framework/IO/Sources/Source.h"
+#include "cetlib/filepath_maker.h"
+#include "fhiclcpp/intermediate_table.h"
+#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/parse.h"
 #include "test/Integration/ToySource.h"
 
-namespace arttest {
+#include "cpp0x/memory"
+
+namespace arttest
+{
   // ToyFile is the sort of class that experimenters who make use of
   // Source must write.
-  class ToyReader;
-}
+  class ToyFileReader;
 
-namespace art {
-  // We don't want the file services: we must say so by specializing the
-  // template *before* specifying the typedef.
-  template<>
-  struct Reader_wantFileServices<arttest::ToyReader> {
-    static constexpr bool value = false;
-  };
-}
-
-namespace arttest {
   // ToyRawInput is an instantiation of the Source template.
-  typedef art::Source<ToyReader> ToyRawInput;
+  typedef art::Source<ToyFileReader> ToyRawFileInput;
 }
 
-class arttest::ToyReader final : public ToySource {
+class arttest::ToyFileReader final : public ToySource {
 public:
-  ToyReader(fhicl::ParameterSet const& ps,
+  ToyFileReader(fhicl::ParameterSet const& ps,
             art::ProductRegistryHelper& help,
             art::PrincipalMaker const& pm);
 
@@ -42,7 +37,7 @@ public:
 };
 
 
-arttest::ToyReader::ToyReader(fhicl::ParameterSet const& ps,
+arttest::ToyFileReader::ToyFileReader(fhicl::ParameterSet const& ps,
                               art::ProductRegistryHelper& help,
                               art::PrincipalMaker const& pm)
   :
@@ -51,24 +46,29 @@ arttest::ToyReader::ToyReader(fhicl::ParameterSet const& ps,
 }
 
 void
-arttest::ToyReader::readFile(std::string const &name,
+arttest::ToyFileReader::readFile(std::string const &name,
                              art::FileBlock*& fb)
 {
   if (throw_on_readFile_) throw_exception_from("readFile");
-  if (!data_.get_if_present(name, fileData_))
+  fhicl::intermediate_table raw_config;
+  cet::filepath_lookup_after1 lookupPolicy("FHICL_FILE_PATH");
+  fhicl::parse_document(name, lookupPolicy, raw_config);
+  fhicl::ParameterSet file_pset;
+  make_ParameterSet(raw_config, file_pset);
+
+  if (!file_pset.get_if_present("data", fileData_))
   {
     throw art::Exception(art::errors::Configuration)
-      << "ToyReader expects to find a parameter representing a file's\n"
-      << "contents whose name is "
+      << "ToyFileReader expects to find a parameter \"data\" representing a file's\n"
+      << "contents in file "
       << name
       << "\n";
   }
   currentFilename_ = name;
   current_ = fileData_.begin();
   end_ = fileData_.end();
-  fb = new art::FileBlock(art::FileFormatVersion(1, "ToyReader 2011a"),
+  fb = new art::FileBlock(art::FileFormatVersion(1, "ToyFileReader 2011a"),
                           currentFilename_);
 }
 
-
-DEFINE_ART_INPUT_SOURCE(arttest::ToyRawInput)
+DEFINE_ART_INPUT_SOURCE(arttest::ToyRawFileInput)
