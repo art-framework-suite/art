@@ -15,7 +15,7 @@ sqlite		v3_07_13_00
 messagefacility	v1_10_15
 # list products required ONLY for the build
 # any products here must NOT have qualifiers
-only_for_build	cetbuildtools	v2_05_00
+only_for_build	cetbuildtools	v2_05_01
  
 # e2  - with gcc 4.7.1 and -std=c++0x
 qualifier	messagefacility	root		clhep		cppunit		libsigcpp	gccxml	python	sqlite		gcc	notes
