@@ -9,6 +9,7 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/IO/Sources/Source.h"
 #include "cetlib/filepath_maker.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
@@ -51,7 +52,7 @@ arttest::ToyFileReader::readFile(std::string const &name,
 {
   if (throw_on_readFile_) throw_exception_from("readFile");
   fhicl::intermediate_table raw_config;
-  cet::filepath_lookup_after1 lookupPolicy("FHICL_FILE_PATH");
+  cet::filepath_lookup_after1 lookupPolicy(".:");
   fhicl::parse_document(name, lookupPolicy, raw_config);
   fhicl::ParameterSet file_pset;
   make_ParameterSet(raw_config, file_pset);
