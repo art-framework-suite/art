@@ -5,6 +5,9 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/intermediate_table.h"
+#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/parse.h"
 
 
 #include <sstream>
@@ -45,7 +48,19 @@ public:
     for (size_t i=0; i != numFilesExpected_; ++i)
       {
         expected << "open " << fileNames_[i] << '\n';
-        vv_t tokens(p.get<vv_t>(fileNames_[i]));
+
+        vv_t tokens;
+        try { // Assume it's a real filename
+          fhicl::intermediate_table raw_config;
+          cet::filepath_lookup_after1 lookupPolicy(".:");
+          fhicl::parse_document(fileNames_[i], lookupPolicy, raw_config);
+          fhicl::ParameterSet file_pset;
+          make_ParameterSet(raw_config, file_pset);
+          assert(file_pset.get_if_present("data", tokens));
+        }
+        catch (...) { // Attempt to read the parameter set by that name instead.
+          assert (p.get_if_present(fileNames_[i], tokens));
+        }
         RunNumber_t currentRun = -1;
         SubRunNumber_t currentSubRun = -1;
         for (vv_t::const_iterator
