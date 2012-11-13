@@ -8,6 +8,7 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/WorkerParams.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art {
   OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
@@ -17,6 +18,8 @@ namespace art {
     ci_(),
     fileName_()
   {
+    ci_->outputModuleInitiated(description().moduleLabel(),
+                               fhicl::ParameterSetRegistry::get(description().parameterSetID()));
   }
 
   OutputWorker::~OutputWorker() {
