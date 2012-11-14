@@ -46,7 +46,14 @@ namespace art {
 
   void
   OutputWorker::openFile(FileBlock const& fb) {
-    fileName_ = fb.fileName();
+    // FIXME: FileBlock abstraction is currently broken! When it is
+    // fixed, we should get the correct filename (or generate it here,
+    // even), since the FileBlock currently contains only the details
+    // for the input file.
+    //
+    //    fileName_ = fb.fileName();
+    fhicl::ParameterSetRegistry::
+      get(description().parameterSetID()).get_if_present("fileName", fileName_);
     module().doOpenFile(fb);
     if (!fileName_.empty()) {
       ci_->outputFileOpened(description().moduleLabel());
