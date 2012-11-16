@@ -5,12 +5,12 @@ defaultqual	e2
 #
 product		version
 gcc		v4_7_1
-clhep		v2_1_2_4
+clhep		v2_1_3_1
 cppunit		v1_12_1
 libsigcpp	v2_2_10
 gccxml		v0_9_20120702
 python		v2_7_3
-root		v5_34_01
+root		v5_34_01a
 sqlite		v3_07_13_00
 messagefacility	v1_10_15
 # list products required ONLY for the build
