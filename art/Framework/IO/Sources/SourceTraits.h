@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Sources_ReaderTraits_h
-#define art_Framework_IO_Sources_ReaderTraits_h
+#ifndef art_Framework_IO_Sources_SourceTraits_h
+#define art_Framework_IO_Sources_SourceTraits_h
 ////////////////////////////////////////////////////////////////////////
 // SourceTraits
 //
@@ -28,7 +28,7 @@ namespace art {
   };
 
 }
-#endif /* art_Framework_IO_Sources_ReaderTraits_h */
+#endif /* art_Framework_IO_Sources_SourceTraits_h */
 
 // Local Variables:
 // mode: c++

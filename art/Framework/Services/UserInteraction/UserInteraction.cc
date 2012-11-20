@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 // user include files
-#include "art/Framework/Services/Interfaces/UserInteraction.h"
+#include "art/Framework/Services/UserInteraction/UserInteraction.h"
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventID.h"

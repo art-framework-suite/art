@@ -1,5 +1,5 @@
 #include "art/Framework/Services/Optional/TrivialFileDelivery.h"
-#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
 #include <cerrno>
 #include <cstdlib>
 #include <iostream>

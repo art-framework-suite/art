@@ -18,7 +18,7 @@
 //
 
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Services/Interfaces/UserInteraction.h"
+#include "art/Framework/Services/UserInteraction/UserInteraction.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include <vector>
 

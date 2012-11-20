@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Interfaces_FileTransfer_h
-#define art_Framework_Services_Interfaces_FileTransfer_h
+#ifndef art_Framework_Services_FileServiceInterfaces_FileTransfer_h
+#define art_Framework_Services_FileServiceInterfaces_FileTransfer_h
 
 // -*- C++ -*-
 //
@@ -53,7 +53,7 @@ translateToLocalFilename(std::string const & uri,
 }
 
 DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer,LEGACY)
-#endif /* art_Framework_Services_Interfaces_FileTransfer_h */
+#endif /* art_Framework_Services_FileServiceInterfaces_FileTransfer_h */
 
 // Local Variables:
 // mode: c++

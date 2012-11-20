@@ -5,8 +5,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
-#include "art/Framework/Services/Interfaces/CatalogInterface.h"
-#include "art/Framework/Services/Interfaces/FileTransfer.h"
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Utilities/Exception.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/exception.h"

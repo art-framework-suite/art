@@ -20,7 +20,7 @@ simple_plugin(RandomNumberGenerator "service"
   ${CLHEP}
   )
 
-simple_plugin(SimpleInteraction "service" art_Framework_Services_Interfaces)
+simple_plugin(SimpleInteraction "service" art_Framework_Services_UserInteraction)
 simple_plugin(SimpleMemoryCheck "service" art_Persistency_Provenance)
 simple_plugin(TFileService "service" art_Framework_Services_Optional ${ROOT_RIO})
 simple_plugin(Timing "service" art_Persistency_Provenance)

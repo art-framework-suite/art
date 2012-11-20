@@ -15,7 +15,7 @@ appear in one worker.
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Interfaces/CatalogInterface.h"
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "cpp0x/memory"
 
 namespace art {

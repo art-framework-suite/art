@@ -8,10 +8,10 @@
 // ======================================================================
 
 #include "art/Framework/IO/Catalog/FileCatalog.h"
-#include "art/Framework/Services/Interfaces/CatalogInterface.h"
-#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h"
-#include "art/Framework/Services/Interfaces/FileTransfer.h"
-#include "art/Framework/Services/Interfaces/FileTransferStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 
