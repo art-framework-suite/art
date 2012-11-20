@@ -2,7 +2,6 @@
 project(art_Framework_Services_Registry)
 
 set(art_Framework_Services_Registry_sources
-  ActivityRegistry.cc
   ServiceRegistry.cc
   ServicesManager.cc
   detail/ServiceCacheEntry.cc

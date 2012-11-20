@@ -274,16 +274,6 @@ public:
   // Signal emitted any time a service gets reconfigured.
   AR_DECL_VOID_1ARG_SIGNAL(LIFO, std::string const &, PostServiceReconfigure)
 
-  // ---------- member functions ---------------------------
-
-  // Forwards our signals to slots connected to iOther
-  void connect(ActivityRegistry & iOther);
-
-  // Copy the slots from iOther and connect them directly to our own
-  // this allows us to 'forward' signals more efficiently, BUT if iOther
-  // gains new slots after this call, we will not see them This is also
-  // careful to keep the order of the slots proper for services.
-  void copySlotsFrom(ActivityRegistry & iOther);
 };  // ActivityRegistry
 
 #undef AR_DECL_STATE_0_ARG_FUNC
