@@ -1,6 +1,8 @@
 # project name
 project(art_Utilities)
 
+include(ArtMake)
+
 foreach(cfg_source
     LibraryManager.h
     LibraryManager.cc
@@ -32,22 +34,20 @@ set(art_Utilities_sources
   md5.c
   )
 
-add_library(art_Utilities SHARED ${art_Utilities_sources} )
-target_link_libraries(art_Utilities
-  ${MF_MESSAGELOGGER}
-  ${FHICLCPP}
-  ${CETLIB}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_REGEX_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_THREAD_LIBRARY}
-  ${ROOT_CINT}
-  ${ROOT_REFLEX}
-  -lpthread
-  -ldl
-)
-
-install ( TARGETS art_Utilities DESTINATION ${flavorqual_dir}/lib )
+art_make_library( LIBRARY_NAME art_Utilities
+                  SOURCE ${art_Utilities_sources}
+		  LIBRARIES  ${MF_MESSAGELOGGER}
+			     ${FHICLCPP}
+			     ${CETLIB}
+			     ${Boost_FILESYSTEM_LIBRARY}
+			     ${Boost_REGEX_LIBRARY}
+			     ${Boost_SYSTEM_LIBRARY}
+			     ${Boost_THREAD_LIBRARY}
+			     ${ROOT_CINT}
+			     ${ROOT_REFLEX}
+			     -lpthread
+			     -ldl
+                 )
 
 install_headers(SUBDIRS detail EXTRAS ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.h)
 install_source(SUBDIRS detail EXTRAS ${CMAKE_CURRENT_BINARY_DIR}/LibraryManager.h)
