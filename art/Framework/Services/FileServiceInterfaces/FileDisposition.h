@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Interfaces_FileDisposition_h
-#define art_Framework_Services_Interfaces_FileDisposition_h
+#ifndef art_Framework_Services_FileServiceInterfaces_FileDisposition_h
+#define art_Framework_Services_FileServiceInterfaces_FileDisposition_h
 
 #include <string>
 
@@ -19,7 +19,7 @@ enum class art::FileDisposition {
     INCOMPLETE
             };
 
-#endif /* art_Framework_Services_Interfaces_FileDisposition_h */
+#endif /* art_Framework_Services_FileServiceInterfaces_FileDisposition_h */
 
 // Local Variables:
 // mode: c++

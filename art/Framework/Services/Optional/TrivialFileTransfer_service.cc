@@ -1,5 +1,5 @@
 #include "art/Framework/Services/Optional/TrivialFileTransfer.h"
-#include "art/Framework/Services/Interfaces/FileTransferStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include <cerrno>
 #include <cstdlib>
 #include <iostream>

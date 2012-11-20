@@ -21,7 +21,7 @@
 //         Created:  Fri  27 Jul, 2012
 //
 
-#include "art/Framework/Services/Interfaces/FileTransfer.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/ParameterSet.h"

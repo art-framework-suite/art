@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Interfaces_FileDeliveryStatus_h
-#define art_Framework_Services_Interfaces_FileDeliveryStatus_h
+#ifndef art_Framework_Services_FileServiceInterfaces_FileDeliveryStatus_h
+#define art_Framework_Services_FileServiceInterfaces_FileDeliveryStatus_h
 
 #include <string>
 
@@ -32,7 +32,7 @@ namespace art {
 
 } // end of art namespace
 
-#endif /* art_Framework_Services_Interfaces_FileDeliveryStatus_h */
+#endif /* art_Framework_Services_FileServiceInterfaces_FileDeliveryStatus_h */
 
 // Local Variables:
 // mode: c++

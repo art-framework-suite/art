@@ -24,7 +24,7 @@
 //         Created:  Mon  30 Jul, 2012
 //
 
-#include "art/Framework/Services/Interfaces/CatalogInterface.h"
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/HLTGlobalStatus.h"
