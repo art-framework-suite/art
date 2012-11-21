@@ -294,7 +294,7 @@ art::EventProcessor::beginJob()
     throw;
   }
   schedule_->beginJob();
-  actReg_->sPostBeginJob_();
+  actReg_->sPostBeginJob.invoke();
   Schedule::Workers aw_vec;
   schedule_->getAllWorkers(aw_vec);
   actReg_->sPostBeginJobWorkers_(input_.get(), aw_vec);

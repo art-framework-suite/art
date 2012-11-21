@@ -219,7 +219,7 @@ RandomNumberGenerator( ParameterSet const    & pset
 , debug_                  ( pset.get<bool>( "debug", DEFAULT_DEBUG_VALUE) )
 {
   // Register for callbacks:
-  reg.watchPostBeginJob   (this, & RNGservice::postBeginJob   );
+  reg.sPostBeginJob.watch   (this, & RNGservice::postBeginJob   );
   reg.watchPostEndJob     (this, & RNGservice::postEndJob     );
   reg.watchPreProcessEvent(this, & RNGservice::preProcessEvent);
 

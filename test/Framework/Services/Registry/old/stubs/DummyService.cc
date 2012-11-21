@@ -32,7 +32,7 @@ DummyService::DummyService(const fhicl::ParameterSet& iPSet,art::ActivityRegistr
 value_(iPSet.get<int>("value")),
 beginJobCalled_(false)
 {
-   iAR.watchPostBeginJob(this,&DummyService::doOnBeginJob);
+   iAR.sPostBeginJob.watch(this,&DummyService::doOnBeginJob);
 }
 
 // DummyService::DummyService(const DummyService& rhs)

@@ -29,7 +29,7 @@ DummyServiceE0::DummyServiceE0(const fhicl::ParameterSet& iPSet,
   if (testCounter != 0) abort();
   ++testCounter;
 
-  iAR.watchPostBeginJob(this, &testserviceregistry::DummyServiceE0::postBeginJob);
+  iAR.sPostBeginJob.watch(this, &testserviceregistry::DummyServiceE0::postBeginJob);
   iAR.watchPostEndJob(this, &testserviceregistry::DummyServiceE0::postEndJob);
 }
 
@@ -61,7 +61,7 @@ DummyServiceA1::DummyServiceA1(const fhicl::ParameterSet& iPSet,
   if (testCounter != 1) abort();
   ++testCounter;
 
-  iAR.watchPostBeginJob(this, &testserviceregistry::DummyServiceA1::postBeginJob);
+  iAR.sPostBeginJob.watch(this, &testserviceregistry::DummyServiceA1::postBeginJob);
   iAR.watchPostEndJob(this, &testserviceregistry::DummyServiceA1::postEndJob);
 }
 
@@ -93,7 +93,7 @@ DummyServiceD2::DummyServiceD2(const fhicl::ParameterSet& iPSet,
   if (testCounter != 2) abort();
   ++testCounter;
 
-  iAR.watchPostBeginJob(this, &testserviceregistry::DummyServiceD2::postBeginJob);
+  iAR.sPostBeginJob.watch(this, &testserviceregistry::DummyServiceD2::postBeginJob);
   iAR.watchPostEndJob(this, &testserviceregistry::DummyServiceD2::postEndJob);
 }
 
@@ -128,7 +128,7 @@ DummyServiceB3::DummyServiceB3(const fhicl::ParameterSet& iPSet,
   if (testCounter != 3) abort();
   ++testCounter;
 
-  iAR.watchPostBeginJob(this, &testserviceregistry::DummyServiceB3::postBeginJob);
+  iAR.sPostBeginJob.watch(this, &testserviceregistry::DummyServiceB3::postBeginJob);
   iAR.watchPostEndJob(this, &testserviceregistry::DummyServiceB3::postEndJob);
 }
 
@@ -160,7 +160,7 @@ DummyServiceC4::DummyServiceC4(const fhicl::ParameterSet& iPSet,
   if (testCounter != 4) abort();
   ++testCounter;
 
-  iAR.watchPostBeginJob(this, &testserviceregistry::DummyServiceC4::postBeginJob);
+  iAR.sPostBeginJob.watch(this, &testserviceregistry::DummyServiceC4::postBeginJob);
   iAR.watchPostEndJob(this, &testserviceregistry::DummyServiceC4::postEndJob);
 }
 

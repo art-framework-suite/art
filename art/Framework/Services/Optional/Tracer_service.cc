@@ -123,7 +123,7 @@ Tracer::Tracer(fhicl::ParameterSet const& iPS, ActivityRegistry&iRegistry)
 : indentation_( iPS.get<std::string>("indentation", "++") )
 , depth_      ( 0 )
 {
-  iRegistry.watchPostBeginJob(this, &Tracer::postBeginJob);
+  iRegistry.sPostBeginJob.watch(this, &Tracer::postBeginJob);
   iRegistry.watchPostEndJob(this, &Tracer::postEndJob);
 
   iRegistry.watchPreModule(this, &Tracer::preModuleEvent);

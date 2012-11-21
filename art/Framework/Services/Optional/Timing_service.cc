@@ -73,7 +73,7 @@ Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
   min_event_time_(0.),
   total_event_count_(0)
 {
-  iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
+  iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
   iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
   iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);

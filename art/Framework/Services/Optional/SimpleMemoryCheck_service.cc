@@ -378,7 +378,7 @@ namespace art {
     }
     // The following are not currenty used/implemented below for either
     // of the print modes (but are left here for reference)
-    //  iReg.watchPostBeginJob(this,
+    //  iReg.sPostBeginJob.watch(this,
     //       &SimpleMemoryCheck::postBeginJob);
     //  iReg.watchPreProcessEvent(this,
     //       &SimpleMemoryCheck::preEventProcessing);
