@@ -142,7 +142,7 @@ namespace art {
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal const* ep) {
-      a->sPreEndSubRun_(ep->id(), ep->beginTime());
+      a->sPreEndSubRun.invoke(ep->id(), ep->beginTime());
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
       SubRun subRun(*ep, ModuleDescription());

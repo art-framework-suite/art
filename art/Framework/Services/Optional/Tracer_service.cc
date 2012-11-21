@@ -177,7 +177,7 @@ Tracer::Tracer(fhicl::ParameterSet const& iPS, ActivityRegistry&iRegistry)
   iRegistry.watchPreBeginSubRun(this, &Tracer::preBeginSubRun);
   iRegistry.watchPostBeginSubRun(this, &Tracer::postBeginSubRun);
 
-  iRegistry.watchPreEndSubRun(this, &Tracer::preEndSubRun);
+  iRegistry.sPreEndSubRun.watch(this, &Tracer::preEndSubRun);
   iRegistry.watchPostEndSubRun(this, &Tracer::postEndSubRun);
 
   iRegistry.watchPreSource(this, &Tracer::preSourceEvent);
