@@ -7,6 +7,19 @@
 
 #include <string>
 
+#define MFSU_UPDATER_DECL(stateTag)                                   \
+  template <typename ...Args>                                         \
+  auto                                                                \
+  updateStatusTo##stateTag(Args...) ->                                \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type
+
+#define MFSU_UPDATER_DEFN(stateTag)                                   \
+  template <typename ...Args>                                         \
+  auto                                                                \
+  art::MFStatusUpdater::                                              \
+  updateStatusTo##stateTag(Args...args __attribute__((unused))) ->    \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type
+
 #define MFSU_0_ARG_UPDATER_DECL(stateTag)                               \
   ActivityRegistry::stateTag::slot_type::result_type updateStatusTo##stateTag()
 #define MFSU_1_ARG_UPDATER_DECL(stateTag)                               \
@@ -25,7 +38,7 @@ class art::MFStatusUpdater {
 public:
   MFStatusUpdater(MFStatusUpdater const&) = delete;
   MFStatusUpdater operator=(MFStatusUpdater const&) = delete;
-  
+
   MFStatusUpdater(ActivityRegistry &areg);
 
   // Public interface to get state information.
@@ -33,7 +46,7 @@ public:
   std::string const &workFlowSatus() const { return workFlowStatus_; }
 
 private:
-  MFSU_0_ARG_UPDATER_DECL(PostBeginJob);
+  MFSU_UPDATER_DECL(PostBeginJob);
   MFSU_0_ARG_UPDATER_DECL(PostEndJob);
   MFSU_0_ARG_UPDATER_DECL(JobFailure);
   MFSU_0_ARG_UPDATER_DECL(PreSource);
@@ -107,6 +120,11 @@ private:
   mf::service::MessageLogger& mls_;
   mf::service::MessageLogger::EnabledState savedEnabledState_;
 };
+
+#undef MFSU_UPDATER_DECL
+#ifndef MFSU_IMPL
+#undef MFSU_UPDATER_DEFN
+#endif
 
 #undef MFSU_0_ARG_UPDATER_DECL
 #undef MFSU_1_ARG_UPDATER_DECL

@@ -1,3 +1,4 @@
+#define MFSU_IMPL
 #include "art/Framework/Core/MFStatusUpdater.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -11,6 +12,21 @@
 
 #include <sstream>
 #include <string>
+#include <tuple>
+
+namespace {
+  // Return the Ith argument of the parameter pack for the enclosing
+  // function.
+  template <size_t I, typename...Args>
+  typename std::tuple_element<I, std::tuple<Args...>>::type
+  arg_num(Args...args)
+  {
+    return std::get<I>(std::make_tuple(args...));
+  }
+}
+
+#define MFSU_WATCH_UPDATER_NEW(stateTag)                                \
+  areg.s##stateTag.watch(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
 
 #define MFSU_WATCH_UPDATER(stateTag)                                    \
   areg.watch##stateTag(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
@@ -37,7 +53,7 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   md_(*mf::MessageDrop::instance()),
   mls_(*(mf::MessageFacilityService::instance().theML.get()))
 {
-  MFSU_WATCH_UPDATER(PostBeginJob);
+  MFSU_WATCH_UPDATER_NEW(PostBeginJob);
   MFSU_WATCH_UPDATER(PostEndJob);
   MFSU_WATCH_UPDATER(JobFailure);
   MFSU_WATCH_UPDATER(PreSource);
@@ -171,7 +187,7 @@ art::MFStatusUpdater::moduleIDString(const ModuleDescription &desc,
   return result;
 }
 
-MFSU_0_ARG_UPDATER_DEFN(PostBeginJob) {
+MFSU_UPDATER_DEFN(PostBeginJob) {
   setContext("PostBeginJob");
   setWorkFlowStatus("BeforeEvents");
 }
