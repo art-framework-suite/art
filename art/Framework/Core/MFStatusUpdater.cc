@@ -74,7 +74,7 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostEndRun);
   MFSU_WATCH_UPDATER(PreBeginSubRun);
   MFSU_WATCH_UPDATER(PostBeginSubRun);
-  MFSU_WATCH_UPDATER(PreEndSubRun);
+  MFSU_WATCH_UPDATER_NEW(PreEndSubRun);
   MFSU_WATCH_UPDATER(PostEndSubRun);
   MFSU_WATCH_UPDATER(PreProcessPath);
   MFSU_WATCH_UPDATER(PostProcessPath);
@@ -281,9 +281,9 @@ MFSU_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
   setWorkFlowStatus("PostBeginSubRun");
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PreEndSubRun) {
+MFSU_UPDATER_DEFN(PreEndSubRun) {
   std::ostringstream os;
-  os << "End Subrun " << arg1;
+  os << "End Subrun " << arg_num<0>(args...);
   setWorkFlowStatus(os.str());
 }
 

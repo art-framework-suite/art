@@ -186,7 +186,9 @@ public:
   AR_DECL_VOID_1ARG_SIGNAL(LIFO, SubRun const &, PostBeginSubRun)
 
   // Signal is emitted before the endSubRun is processed
-  AR_DECL_VOID_2ARG_SIGNAL(FIFO, SubRunID const &, Timestamp const &, PreEndSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               SubRunID const &,
+               Timestamp const &> sPreEndSubRun;
 
   // Signal is emitted after all modules have finished processing the
   // SubRun

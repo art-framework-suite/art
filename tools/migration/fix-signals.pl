@@ -2,7 +2,7 @@
 
 use strict;
 
-my @signals = qw(PostBeginJob);
+my @signals = qw(PostBeginJob PreEndSubRun);
 
 foreach my $signal (@signals) {
   s&(->|\.)watch\Q$signal\E\b&$1s$signal\.watch&g;

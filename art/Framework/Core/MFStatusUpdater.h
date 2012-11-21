@@ -67,7 +67,7 @@ private:
   MFSU_1_ARG_UPDATER_DECL(PostEndRun);
   MFSU_1_ARG_UPDATER_DECL(PreBeginSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostBeginSubRun);
-  MFSU_2_ARG_UPDATER_DECL(PreEndSubRun);
+  MFSU_UPDATER_DECL(PreEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PreProcessPath);
   MFSU_2_ARG_UPDATER_DECL(PostProcessPath);
