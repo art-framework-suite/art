@@ -1,8 +1,6 @@
 # project name
 project(art_Utilities)
 
-include(ArtMake)
-
 foreach(cfg_source
     LibraryManager.h
     LibraryManager.cc
