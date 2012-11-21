@@ -1,8 +1,8 @@
 #ifndef art_Framework_Services_Registry_LocalSignal_h
 #define art_Framework_Services_Registry_LocalSignal_h
 
-// Define a wrapper for local signals. The invoke() and clear() signals
-// are intended to be called only be art::ActivityRegistry.
+// Define a wrapper for local signals. The invoke() and clear()
+// functions are intended to be called only by art code.
 
 // Multi-threaded behavior:
 //
@@ -20,44 +20,47 @@
 #include "sigc++/signal.h"
 
 namespace art {
-  template <detail::SignalResponseType, typename ReturnType, typename... Args > class LocalSignal;
+  template <detail::SignalResponseType, typename ResultType, typename... Args > class LocalSignal;
 }
 
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename...Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
 class art::LocalSignal {
 private:
-  typedef sigc::signal<ReturnType, Args...> SigType_;
+  typedef sigc::signal<ResultType, Args...> SigType_;
   typedef std::vector<SigType_> ContainerType_;
 public:
+  // Typedefs
+  typedef ResultType result_type;
   typedef typename ContainerType_::size_type size_type;
+
   // Constructor.
   LocalSignal(size_t nSchedules);
 
   // 1. Free function or functor (or pre-bound member function).
   void
-  watch(ScheduleID sID, std::function < ReturnType(Args...) > slot);
+  watch(ScheduleID sID, std::function < ResultType(Args...) > slot);
   // 2. Non-const member function.
   template <typename T>
   void
-  watch(ScheduleID sID, ReturnType(T::*slot)(Args...), T & t);
+  watch(ScheduleID sID, ResultType(T::*slot)(Args...), T & t);
   // 3. Const member function.
   template <typename T>
   void
-  watch(ScheduleID sID, ReturnType(T::*slot)(Args...) const, T const & t);
+  watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const & t);
 
   // 1. Free function or functor (or pre-bound member function).
   void
-  watchAll(std::function < ReturnType(Args...) > slot);
+  watchAll(std::function < ResultType(Args...) > slot);
   // 2. Non-const member function.
   template <typename T>
   void
-  watchAll(ReturnType(T::*slot)(Args...), T & t);
+  watchAll(ResultType(T::*slot)(Args...), T & t);
   // 3. Const member function.
   template <typename T>
   void
-  watchAll(ReturnType(T::*slot)(Args...) const, T const & t);
+  watchAll(ResultType(T::*slot)(Args...) const, T const & t);
 
-  ReturnType invoke(ScheduleID sID, Args... args) const;
+  ResultType invoke(ScheduleID sID, Args... args) const;
   void clear(ScheduleID sID);
   void clearAll();
 
@@ -65,8 +68,8 @@ private:
   ContainerType_ signals_;
 };
 
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename...Args>
-art::LocalSignal<STYPE, ReturnType, Args...>::
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
+art::LocalSignal<STYPE, ResultType, Args...>::
 LocalSignal(size_t nSchedules)
 :
   signals_(nSchedules)
@@ -74,40 +77,40 @@ LocalSignal(size_t nSchedules)
 }
 
 // 1.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename...Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
-watch(ScheduleID sID, std::function < ReturnType(Args...) > slot)
+art::LocalSignal<STYPE, ResultType, Args...>::
+watch(ScheduleID sID, std::function < ResultType(Args...) > slot)
 {
   detail::connect_to_signal<STYPE>(signals_.at(sID.id()),  slot);
 }
 
 // 2.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename...Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
 template <typename T>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
-watch(ScheduleID sID, ReturnType(T::*slot)(Args...), T & t)
+art::LocalSignal<STYPE, ResultType, Args...>::
+watch(ScheduleID sID, ResultType(T::*slot)(Args...), T & t)
 {
   watch(std::bind(slot, t));
 
 }
 
 // 3.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename...Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename...Args>
 template <typename T>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
-watch(ScheduleID sID, ReturnType(T::*slot)(Args...) const, T const & t)
+art::LocalSignal<STYPE, ResultType, Args...>::
+watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const & t)
 {
   watch(std::bind(slot, t));
 }
 
 // 1.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
-watchAll(std::function<ReturnType(Args...)> slot)
+art::LocalSignal<STYPE, ResultType, Args...>::
+watchAll(std::function<ResultType(Args...)> slot)
 {
   for ( auto & signal : signals_ ) {
     detail::connect_to_signal<STYPE>(signal, slot);
@@ -115,44 +118,44 @@ watchAll(std::function<ReturnType(Args...)> slot)
 }
 
 // 2.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 template <typename T>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
-watchAll(ReturnType(T::*slot)(Args...), T & t)
+art::LocalSignal<STYPE, ResultType, Args...>::
+watchAll(ResultType(T::*slot)(Args...), T & t)
 {
   watchAll(std::bind(slot, t));
 }
 
 // 3.
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 template <typename T>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
-watchAll(ReturnType(T::*slot)(Args...) const, T const & t)
+art::LocalSignal<STYPE, ResultType, Args...>::
+watchAll(ResultType(T::*slot)(Args...) const, T const & t)
 {
   watchAll(std::bind(slot, t));
 }
 
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
-ReturnType
-art::LocalSignal<STYPE, ReturnType, Args...>::
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
+ResultType
+art::LocalSignal<STYPE, ResultType, Args...>::
 invoke(ScheduleID sID, Args... args) const
 {
   return signals_.at(sID.id())(std::forward<Args>(args)...);
 }
 
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
+art::LocalSignal<STYPE, ResultType, Args...>::
 clear(ScheduleID sID)
 {
   signals_.at(sID.id()).clear();
 }
 
-template <art::detail::SignalResponseType STYPE, typename ReturnType, typename... Args>
+template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
 void
-art::LocalSignal<STYPE, ReturnType, Args...>::
+art::LocalSignal<STYPE, ResultType, Args...>::
 clearAll()
 {
   for ( auto & signal : signals_ ) {
