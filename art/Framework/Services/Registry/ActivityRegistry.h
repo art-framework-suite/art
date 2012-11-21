@@ -24,8 +24,12 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Services/Registry/GlobalSignal.h"
+#include "art/Framework/Services/Registry/detail/SignalResponseType.h"
+
 #include "cpp0x/functional"
 #include "sigc++/signal.h"
+
 #include <string>
 #include <vector>
 
@@ -110,7 +114,8 @@ public:
 
   // ---------- signals ------------------------------------
   // Signal is emitted after all modules have had their beginJob called
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PostBeginJob)
+  //AR_DECL_VOID_0ARG_SIGNAL(FIFO, PostBeginJob)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPostBeginJob;
 
   // Signal is emitted after all modules have had their endJob called
   AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostEndJob)
