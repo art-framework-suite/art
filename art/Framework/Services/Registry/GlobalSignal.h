@@ -1,12 +1,21 @@
 #ifndef art_Framework_Services_Registry_GlobalSignal_h
 #define art_Framework_Services_Registry_GlobalSignal_h
 
-// Define a wrapper for global signals. The invoke() and clear()
+////////////////////////////////////////////////////////////////////////
+// GlobalSignal.h
+//
+// Define a wrapper for global signals. The watch(...) functions are for
+// users wishing to register for callbacks; the invoke() and clear()
 // functions are intended to be called only by art code.
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
-#include "cpp0x/functional"
+#include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
+
 #include "sigc++/signal.h"
+
+#include <functional>
 
 namespace art {
   template <detail::SignalResponseType, typename ResultType, typename... Args > class GlobalSignal;
@@ -63,7 +72,7 @@ void
 art::GlobalSignal<STYPE, ResultType, Args...>::
 watch(ResultType(T::*slot)(Args...), T & t)
 {
-  watch(std::bind(slot, t));
+  watch(detail::makeWatchFunc(slot, t));
 }
 
 // 2b.
@@ -73,7 +82,7 @@ void
 art::GlobalSignal<STYPE, ResultType, Args...>::
 watch(T * t, ResultType(T::*slot)(Args...))
 {
-  watch(std::bind(slot, t));
+  watch(detail::makeWatchFunc(slot, *t));
 }
 
 // 3a.
@@ -83,7 +92,7 @@ void
 art::GlobalSignal<STYPE, ResultType, Args...>::
 watch(ResultType(T::*slot)(Args...) const, T const & t)
 {
-  watch(std::bind(slot, t));
+  watch(detail::makeWatchFunc(slot, t));
 }
 
 // 3b.
@@ -93,7 +102,7 @@ void
 art::GlobalSignal<STYPE, ResultType, Args...>::
 watch(T const * t, ResultType(T::*slot)(Args...) const)
 {
-  watch(std::bind(slot, t));
+  watch(detail::makeWatchFunc(slot, *t));
 }
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>

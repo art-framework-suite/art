@@ -1,9 +1,13 @@
 #ifndef art_Framework_Services_Registry_LocalSignal_h
 #define art_Framework_Services_Registry_LocalSignal_h
 
-// Define a wrapper for local signals. The invoke() and clear()
+////////////////////////////////////////////////////////////////////////
+// LocalSignal.h
+//
+// Define a wrapper for local signals. The watch(...) functions are for
+// users wishing to register for callbacks; the invoke() and clear()
 // functions are intended to be called only by art code.
-
+//
 // Multi-threaded behavior:
 //
 // watch...() access should be sequential only by construction since
@@ -13,11 +17,15 @@
 // invoke...() access should be only from within the correct schedule's
 // context so lock-free access to the correct signal is automatic and
 // safe.
+////////////////////////////////////////////////////////////////////////
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
+#include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/functional"
+
 #include "sigc++/signal.h"
+
+#include <functional>
 
 namespace art {
   template <detail::SignalResponseType, typename ResultType, typename... Args > class LocalSignal;
@@ -92,8 +100,7 @@ void
 art::LocalSignal<STYPE, ResultType, Args...>::
 watch(ScheduleID sID, ResultType(T::*slot)(Args...), T & t)
 {
-  watch(std::bind(slot, t));
-
+  watch(sID, detail::makeWatchFunc(slot, t));
 }
 
 // 3.
@@ -103,7 +110,7 @@ void
 art::LocalSignal<STYPE, ResultType, Args...>::
 watch(ScheduleID sID, ResultType(T::*slot)(Args...) const, T const & t)
 {
-  watch(std::bind(slot, t));
+  watch(sID, detail::makeWatchFunc(slot, t));
 }
 
 // 1.
@@ -124,7 +131,7 @@ void
 art::LocalSignal<STYPE, ResultType, Args...>::
 watchAll(ResultType(T::*slot)(Args...), T & t)
 {
-  watchAll(std::bind(slot, t));
+  watchAll(detail::makeWatchFunc(slot, t));
 }
 
 // 3.
@@ -134,7 +141,7 @@ void
 art::LocalSignal<STYPE, ResultType, Args...>::
 watchAll(ResultType(T::*slot)(Args...) const, T const & t)
 {
-  watchAll(std::bind(slot, t));
+  watchAll(detail::makeWatchFunc(slot, t));
 }
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
