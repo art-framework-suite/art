@@ -15,14 +15,13 @@ set(art_Framework_IO_Root_sources
   rootNames.cc
   )
 
-add_library(art_Framework_IO_RootVersion SHARED
-  GetFileFormatEra.cc
-  GetFileFormatVersion.cc
+art_make_library( LIBRARY_NAME art_Framework_IO_RootVersion
+                  SOURCE GetFileFormatEra.cc GetFileFormatVersion.cc
 )
 
-add_library(art_Framework_IO_Root SHARED ${art_Framework_IO_Root_sources} )
-target_link_libraries(art_Framework_IO_Root
-  art_Framework_Core
+art_make_library( LIBRARY_NAME art_Framework_IO_Root
+                  SOURCE ${art_Framework_IO_Root_sources}
+                  LIBRARIES art_Framework_Core
   art_Framework_IO_Catalog
   art_Framework_Principal
   art_Framework_Services_Registry
@@ -32,14 +31,11 @@ target_link_libraries(art_Framework_IO_Root
   ${ROOT_TREE}
   )
 
-install(TARGETS art_Framework_IO_Root art_Framework_IO_RootVersion DESTINATION ${flavorqual_dir}/lib )
-
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog )
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
 
-add_executable( config_dumper config_dumper.cc )
-target_link_libraries( config_dumper
-        art_Framework_IO_Root
+art_make_exec( NAME config_dumper
+               LIBRARIES art_Framework_IO_Root
         art_Utilities
         art_Framework_Core
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
@@ -47,18 +43,13 @@ target_link_libraries( config_dumper
         ${ROOT_RIO}
         )
 
-install ( TARGETS config_dumper DESTINATION ${flavorqual_dir}/bin )
-
-add_executable( sam_metadata_dumper sam_metadata_dumper.cc )
-target_link_libraries( sam_metadata_dumper
-        art_Framework_IO_Root
+art_make_exec( NAME sam_metadata_dumper
+               LIBRARIES art_Framework_IO_Root
         art_Utilities
         art_Framework_Core
         ${Boost_PROGRAM_OPTIONS_LIBRARY}
         ${ROOT_RIO}
         )
-
-install ( TARGETS sam_metadata_dumper DESTINATION ${flavorqual_dir}/bin )
 
 install(FILES
   BranchMapperWithReader.h

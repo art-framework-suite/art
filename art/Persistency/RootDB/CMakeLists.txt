@@ -5,8 +5,9 @@ set(art_Persistency_RootDB_suorce
   tkeyvfs.cc
 )
 
-link_libraries(
-  ${ROOT_RIO}
+art_make_library( LIBRARY_NAME art_Persistency_RootDB
+                  SOURCE ${art_Persistency_RootDB_suorce}
+                  LIBRARIES ${ROOT_RIO}
   ${ROOT_THREAD}
   ${ROOT_CORE}
   ${ROOT_CINT}
@@ -14,10 +15,5 @@ link_libraries(
   ${SQLITE3}
   )
 
-add_library(art_Persistency_RootDB SHARED ${art_Persistency_RootDB_suorce} )
-install(TARGETS art_Persistency_RootDB
-  DESTINATION
-  ${flavorqual_dir}/lib
-  )
 install_headers()
 install_source()

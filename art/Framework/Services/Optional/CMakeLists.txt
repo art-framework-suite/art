@@ -3,19 +3,12 @@ set( art_Framework_Services_Optional_sources
   detail/TH1AddDirectorySentry.cc
 )
 
-add_library(art_Framework_Services_Optional
-  SHARED
-  ${art_Framework_Services_Optional_sources}
-)
-
-target_link_libraries(art_Framework_Services_Optional
-  ${CETLIB}
+art_make_library( LIBRARY_NAME art_Framework_Services_Optional
+                  SOURCE ${art_Framework_Services_Optional_sources}
+                  LIBRARIES ${CETLIB}
   ${ROOT_HIST}
   ${ROOT_CORE}
 )
-
-install ( TARGETS art_Framework_Services_Optional
-  DESTINATION ${flavorqual_dir}/lib )
 
 simple_plugin(RandomNumberGenerator "service"
   art_Framework_Principal

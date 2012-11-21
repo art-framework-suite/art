@@ -4,13 +4,29 @@
 # Users may opt to just include art_make() in their CMakeLists.txt
 # This implementation is intended to be called NO MORE THAN ONCE per subdirectory.
 #
+# NOTE: art_make_exec, art_make_test_exec, cet_make_exec and cet_make_test_exec 
+# are no longer part of cet_make or art_make.  
+# cet_make_test_exec is redundant - use cet_make_exec.
+#
 # art_make( [LIBRARY_NAME <library name>]
 #           [LIBRARIES <library list>]
 #           [SUBDIRS <source subdirectory>] (e.g., detail)
-#           [EXEC <exec source>]
-#           [TEST <test source>]
 #           [EXCLUDE <ignore these files>] )
 #
+#
+# art_make_library( [LIBRARY_NAME <library name>]  
+#                   [SOURCE <source code list>] 
+#                   [LIBRARIES <library list>] 
+#                   [WITH_STATIC_LIBRARY] )
+#
+# art_make_exec( NAME <executable name>  
+#                [SOURCE <source code list>] 
+#                [LIBRARIES <library link list>]
+#                [USE_BOOST_UNIT]
+#                [NO_INSTALL] )
+# -- build a regular executable
+#           [EXEC <exec source>]
+#           [TEST <test source>]
 
 include(CetMake)
 include(CetParseArgs)
@@ -23,12 +39,29 @@ macro( _art_simple_plugin file type liblist )
     simple_plugin( ${plugbase} ${type} ${liblist} )
 endmacro( _art_simple_plugin )
 
+macro( art_make_library )
+endmacro( art_make_library )
+
+macro( art_make_exec )
+  cet_make_exec( ${ARGN} )
+endmacro( art_make_exec )
+
+macro( art_make_test )
+  cet_parse_args( AMT "NAME;LIBRARIES;SOURCE" "USE_BOOST_UNIT;NO_INSTALL" ${ARGN})
+  cet_make_exec( ${ARGN} NO_INSTALL )
+  ADD_TEST(${AMT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${AMT_NAME})
+endmacro( art_make_test )
+
+macro( art_make_library )
+  cet_make_library( ${ARGN} )
+endmacro( art_make_library )
+
 macro( art_make )
   set(art_file_list "")
   set(art_liblist FALSE)
-  set(art_make_usage "USAGE: art_make( [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
+  set(art_make_usage "USAGE: art_make( LIBRARY_NAME <library name> [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
   #message(STATUS "art_make debug: called with ${ARGN} from ${CMAKE_CURRENT_SOURCE_DIR}")
-  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;EXEC;SUBDIRS;TEST;EXCLUDE" "" ${ARGN})
+  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;EXEC;SUBDIRS;TEST;EXCLUDE" "WITH_STATIC_LIBRARY" ${ARGN})
   # there are no default arguments
   if( AM_DEFAULT_ARGS )
      message("ART_MAKE: Incorrect arguments. ${ARGV}")
@@ -37,17 +70,6 @@ macro( art_make )
   # check for extra link libraries
   if(AM_LIBRARIES)
      set(art_liblist ${AM_LIBRARIES})
-  endif()
-  # add executables to the list of known files 
-  if(AM_EXEC)
-     foreach( exec_file ${AM_EXEC} )
-        set(art_file_list ${art_file_list} ${exec_file} )
-     endforeach( exec_file )
-  endif()
-  if(AM_TEST)
-     foreach( test_file ${AM_TEST} )
-        set(art_file_list ${art_file_list} ${test_file} )
-     endforeach( test_file )
   endif()
   # now look for other source files in this directory
   #message(STATUS "art_make debug: listed files ${art_file_list}")
@@ -150,18 +172,6 @@ macro( art_make )
      else()
         build_dictionary(  )
      endif()
-  endif()
-
-  # OK - now build the executables
-  if(AM_EXEC)
-     foreach( exec_file ${AM_EXEC} )
-        cet_make_exec( ${exec_file} "${art_liblist}" "${art_make_library_name}" )
-     endforeach( exec_file )
-  endif()
-  if(AM_TEST)
-     foreach( test_file ${AM_TEST} )
-        cet_make_test_exec( ${test_file} "${art_liblist}" "${art_make_library_name}" )
-     endforeach( test_file )
   endif()
 
 endmacro( art_make )

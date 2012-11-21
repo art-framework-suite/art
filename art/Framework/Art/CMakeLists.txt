@@ -21,9 +21,9 @@ set( art_Framework_Art_sources
   run_art.cc
   )
 
-add_library(art_Framework_Art SHARED ${art_Framework_Art_sources} )
-target_link_libraries(art_Framework_Art
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+art_make_library( LIBRARY_NAME art_Framework_Art
+                  SOURCE ${art_Framework_Art_sources} 
+                  LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_IO_Root
   art_Framework_Core
   art_Framework_Services_Registry
@@ -31,12 +31,6 @@ target_link_libraries(art_Framework_Art
   art_Persistency_Provenance
   art_Utilities
   ${ROOT_HIST}
-  )
-
-install ( TARGETS
-  art_Framework_Art
-  DESTINATION
-  ${flavorqual_dir}/lib
   )
 
 set (ART_EXECS
