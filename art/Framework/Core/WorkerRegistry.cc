@@ -53,11 +53,11 @@ namespace art {
     if (workerIt == m_workerMap.end())
       {
         ModuleDescription moduleDesc(createModuleDescription(p));
-        actReg_->sPreModuleConstruction_(moduleDesc);
+        actReg_->sPreModuleConstruction.invoke(moduleDesc);
 
         std::unique_ptr<Worker> workerPtr = ModuleFactory::makeWorker(p, moduleDesc);
 
-        actReg_->sPostModuleConstruction_(moduleDesc);
+        actReg_->sPostModuleConstruction.invoke(moduleDesc);
         workerPtr->setActivityRegistry(actReg_);
 
         // Transfer ownership of worker to the registry

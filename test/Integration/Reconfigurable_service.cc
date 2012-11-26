@@ -17,8 +17,8 @@ Reconfigurable::Reconfigurable(fhicl::ParameterSet const & pset,
   other_value_(pset.get<int>("other_value",1)),
   postBeginJobCalled_(false)
 {
-  // r.watchPostProcessEvent(this, &Reconfigurable::throwError);
-  r.watchPostBeginJob(this, &Reconfigurable::postBeginJob);
+  // r.sPostProcessEvent.watch(this, &Reconfigurable::throwError);
+  r.sPostBeginJob.watch(this, &Reconfigurable::postBeginJob);
   mf::LogInfo("testing") << "Reconfigurable service created";
 }
 

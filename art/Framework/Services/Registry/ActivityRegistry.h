@@ -24,8 +24,12 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Services/Registry/GlobalSignal.h"
+#include "art/Framework/Services/Registry/detail/SignalResponseType.h"
+
 #include "cpp0x/functional"
 #include "sigc++/signal.h"
+
 #include <string>
 #include <vector>
 
@@ -51,57 +55,6 @@ namespace art {
   class Schedule;
 }  // art
 
-////////////////////////////////////////////////////////////////////////
-// Helper macros (do not call yourself).
-#define AR_DECL_STATE_0_ARG_FUNC(stateTag)                      \
-  template<class TClass, class TMethod>                         \
-  void                                                          \
-  watch##stateTag (TClass* iObject, TMethod iMethod) {          \
-    watch##stateTag (std::bind(std::mem_fn(iMethod), iObject)); \
-  }
-#define AR_DECL_STATE_1_ARG_FUNC(stateTag)                              \
-  template<class TClass, class TMethod>                                 \
-  void                                                                  \
-  watch##stateTag (TClass* iObject, TMethod iMethod) {                  \
-    watch##stateTag (std::bind(std::mem_fn(iMethod),                    \
-                               iObject,                                 \
-                               std::placeholders::_1));                 \
-  }
-#define AR_DECL_STATE_2_ARG_FUNC(stateTag)                              \
-  template<class TClass, class TMethod>                                 \
-  void                                                                  \
-  watch##stateTag (TClass* iObject, TMethod iMethod) {                  \
-    watch##stateTag (std::bind(std::mem_fn(iMethod),                    \
-                               iObject,                                 \
-                               std::placeholders::_1,                   \
-                               std::placeholders::_2));                 \
-  }
-#define AR_DECL_SIGNAL(returnType, nArgs, stateTag, cMethod)      \
-  stateTag s##stateTag##_;                                        \
-  returnType watch##stateTag(stateTag::slot_type const & iSlot) { \
-    s##stateTag##_.cMethod(iSlot);                                \
-  }                                                               \
-  AR_DECL_STATE_##nArgs##_ARG_FUNC(stateTag)
-#define AR_DECL_FIFO_SIGNAL(returnType, nArgs, stateTag)  \
-  AR_DECL_SIGNAL(returnType, nArgs, stateTag, connect)
-#define AR_DECL_LIFO_SIGNAL(returnType, nArgs, stateTag)          \
-  AR_DECL_SIGNAL(returnType, nArgs, stateTag, slots().push_front)
-////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////
-// Top level macros (call in definition of Activity registry). Add your
-// own as appropriate (and undef them at the end).
-#define AR_DECL_VOID_0ARG_SIGNAL(stackType, stateTag) \
-  typedef sigc::signal<void> stateTag;                \
-  AR_DECL_##stackType##_SIGNAL(void, 0, stateTag)
-#define AR_DECL_VOID_1ARG_SIGNAL(stackType, arg, stateTag)  \
-  typedef sigc::signal<void, arg> stateTag;                 \
-  AR_DECL_##stackType##_SIGNAL(void, 1, stateTag)
-#define AR_DECL_VOID_2ARG_SIGNAL(stackType, arg1, arg2, stateTag)      \
-  typedef sigc::signal<void, arg1, arg2> stateTag;                     \
-  AR_DECL_##stackType##_SIGNAL(void, 2, stateTag)
-////////////////////////////////////////////////////////////////////////
-
 class art::ActivityRegistry {
 public:
   ActivityRegistry() = default;
@@ -110,191 +63,219 @@ public:
 
   // ---------- signals ------------------------------------
   // Signal is emitted after all modules have had their beginJob called
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PostBeginJob)
+  //AR_DECL_VOID_0ARG_SIGNAL(FIFO, PostBeginJob)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPostBeginJob;
 
   // Signal is emitted after all modules have had their endJob called
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostEndJob)
+  GlobalSignal<detail::SignalResponseType::LIFO, void> sPostEndJob;
 
   // Signal is emitted if event processing or end-of-job
   // processing fails with an uncaught exception.
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, JobFailure)
+  GlobalSignal<detail::SignalResponseType::LIFO, void> sJobFailure;
 
   // Signal is emitted before the source starts creating an Event
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreSource)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPreSource;
 
   // Signal is emitted after the source starts creating an Event
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostSource)
+  GlobalSignal<detail::SignalResponseType::LIFO, void> sPostSource;
 
   // Signal is emitted before the source starts creating a SubRun
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreSourceSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPreSourceSubRun;
 
   // Signal is emitted after the source starts creating a SubRun
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostSourceSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void> sPostSourceSubRun;
 
   // Signal is emitted before the source starts creating a Run
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreSourceRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPreSourceRun;
 
   // Signal is emitted after the source starts creating a Run
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostSourceRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void> sPostSourceRun;
 
   // Signal is emitted before the source opens a file
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreOpenFile)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPreOpenFile;
 
   // Signal is emitted after the source opens a file
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, std::string const &, PostOpenFile)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &> sPostOpenFile;
 
   // Signal is emitted before the Closesource closes a file
-  AR_DECL_VOID_0ARG_SIGNAL(FIFO, PreCloseFile)
+  GlobalSignal<detail::SignalResponseType::FIFO, void> sPreCloseFile;
 
   // Signal is emitted after the source opens a file
-  AR_DECL_VOID_0ARG_SIGNAL(LIFO, PostCloseFile)
+  GlobalSignal<detail::SignalResponseType::LIFO, void> sPostCloseFile;
 
   // Signal is emitted after the Event has been created by the
   // InputSource but before any modules have seen the Event
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, Event const &, PreProcessEvent)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               Event const &> sPreProcessEvent;
 
   // Signal is emitted after all modules have finished processing the
   // Event
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, Event const &, PostProcessEvent)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               Event const &> sPostProcessEvent;
 
   // Signal is emitted after the Run has been created by the InputSource
   // but before any modules have seen the Run
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, Run const &, PreBeginRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               Run const &> sPreBeginRun;
 
   // Signal is emitted after all modules have finished processing the
   // beginRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, Run const &, PostBeginRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               Run const &> sPostBeginRun;
 
   // Signal is emitted before the endRun is processed
-  AR_DECL_VOID_2ARG_SIGNAL(FIFO, RunID const &, Timestamp const &, PreEndRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               RunID const &,
+               Timestamp const &> sPreEndRun;
 
   // Signal is emitted after all modules have finished processing the
   // Run
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, Run const &, PostEndRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               Run const &> sPostEndRun;
 
   // Signal is emitted after the SubRun has been created by the
   // InputSource but before any modules have seen the SubRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, SubRun const &, PreBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               SubRun const &> sPreBeginSubRun;
 
   // Signal is emitted after all modules have finished processing the
   // beginSubRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, SubRun const &, PostBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               SubRun const &> sPostBeginSubRun;
 
   // Signal is emitted before the endSubRun is processed
-  AR_DECL_VOID_2ARG_SIGNAL(FIFO, SubRunID const &, Timestamp const &, PreEndSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               SubRunID const &,
+               Timestamp const &> sPreEndSubRun;
 
   // Signal is emitted after all modules have finished processing the
   // SubRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, SubRun const &, PostEndSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               SubRun const &> sPostEndSubRun;
 
   // Signal is emitted before starting to process a Path for an event
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, std::string const &, PreProcessPath)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               std::string const &> sPreProcessPath;
 
   // Signal is emitted after all modules have finished for the Path for
   // an event
-  AR_DECL_VOID_2ARG_SIGNAL(LIFO, std::string const &, HLTPathStatus const &, PostProcessPath)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &,
+               HLTPathStatus const &> sPostProcessPath;
 
   // Signal is emitted before starting to process a Path for beginRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, std::string const &, PrePathBeginRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               std::string const &> sPrePathBeginRun;
 
   // Signal is emitted after all modules have finished for the Path for beginRun
-  AR_DECL_VOID_2ARG_SIGNAL(LIFO, std::string const &, HLTPathStatus const &, PostPathBeginRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &,
+               HLTPathStatus const &> sPostPathBeginRun;
 
   // Signal is emitted before starting to process a Path for endRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, std::string const &, PrePathEndRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               std::string const &> sPrePathEndRun;
 
   // Signal is emitted after all modules have finished for the Path for endRun
-  AR_DECL_VOID_2ARG_SIGNAL(LIFO, std::string const &, HLTPathStatus const &, PostPathEndRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &,
+               HLTPathStatus const &> sPostPathEndRun;
 
   // Signal is emitted before starting to process a Path for beginSubRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, std::string const &, PrePathBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               std::string const &> sPrePathBeginSubRun;
 
   // Signal is emitted after all modules have finished for the Path for beginSubRun
-  AR_DECL_VOID_2ARG_SIGNAL(LIFO, std::string const &, HLTPathStatus const &, PostPathBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &,
+               HLTPathStatus const &> sPostPathBeginSubRun;
 
   // Signal is emitted before starting to process a Path for endRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, std::string const &, PrePathEndSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               std::string const &> sPrePathEndSubRun;
 
   // Signal is emitted after all modules have finished for the Path for endRun
-  AR_DECL_VOID_2ARG_SIGNAL(LIFO, std::string const &, HLTPathStatus const &, PostPathEndSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &,
+               HLTPathStatus const &> sPostPathEndSubRun;
 
   // Signal is emitted before the module is constructed
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleConstruction)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleConstruction;
 
   // Signal is emitted after the module was construction
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleConstruction)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleConstruction;
 
   // JBK added
   // Signal is emitted after beginJob
-  AR_DECL_VOID_2ARG_SIGNAL(LIFO, InputSource *, std::vector<Worker *> const &, PostBeginJobWorkers)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               InputSource *,
+               std::vector<Worker *> const &> sPostBeginJobWorkers;
   // end JBK added
 
   // Signal is emitted before the module does beginJob
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleBeginJob)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleBeginJob;
 
   // Signal is emitted after the module had done beginJob
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleBeginJob)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleBeginJob;
 
   // Signal is emitted before the module does endJob
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleEndJob)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleEndJob;
 
   // Signal is emitted after the module had done endJob
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleEndJob)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleEndJob;
 
   // Signal is emitted before the module starts processing the Event
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModule)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModule;
 
   // Signal is emitted after the module finished processing the Event
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModule)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModule;
 
   // Signal is emitted before the module starts processing beginRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleBeginRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleBeginRun;
 
   // Signal is emitted after the module finished processing beginRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleBeginRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleBeginRun;
 
   // Signal is emitted before the module starts processing endRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleEndRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleEndRun;
 
   // Signal is emitted after the module finished processing endRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleEndRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleEndRun;
 
   // Signal is emitted before the module starts processing beginSubRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleBeginSubRun;
 
   // Signal is emitted after the module finished processing beginSubRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleBeginSubRun;
 
   // Signal is emitted before the module starts processing endSubRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, ModuleDescription const &, PreModuleEndSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               ModuleDescription const &> sPreModuleEndSubRun;
 
   // Signal is emitted after the module finished processing endSubRun
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, ModuleDescription const &, PostModuleEndSubRun)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               ModuleDescription const &> sPostModuleEndSubRun;
 
   // Signal emitted any time a service gets reconfigured.
-  AR_DECL_VOID_1ARG_SIGNAL(LIFO, std::string const &, PostServiceReconfigure)
+  GlobalSignal<detail::SignalResponseType::LIFO, void,
+               std::string const &> sPostServiceReconfigure;
 
-  // ---------- member functions ---------------------------
-
-  // Forwards our signals to slots connected to iOther
-  void connect(ActivityRegistry & iOther);
-
-  // Copy the slots from iOther and connect them directly to our own
-  // this allows us to 'forward' signals more efficiently, BUT if iOther
-  // gains new slots after this call, we will not see them This is also
-  // careful to keep the order of the slots proper for services.
-  void copySlotsFrom(ActivityRegistry & iOther);
 };  // ActivityRegistry
-
-#undef AR_DECL_STATE_0_ARG_FUNC
-#undef AR_DECL_STATE_1_ARG_FUNC
-#undef AR_DECL_STATE_2_ARG_FUNC
-#undef AR_DECL_SIGNAL
-#undef AR_DECL_FIFO_SIGNAL
-#undef AR_DECL_LIFO_SIGNAL
-#undef AR_DECL_VOID_0ARG_SIGNAL
-#undef AR_DECL_VOID_1ARG_SIGNAL
-#undef AR_DECL_VOID_2ARG_SIGNAL
 
 #endif /* __GCCXML__ */
 #endif /* art_Framework_Services_Registry_ActivityRegistry_h */

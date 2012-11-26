@@ -1,3 +1,4 @@
+#define MFSU_IMPL
 #include "art/Framework/Core/MFStatusUpdater.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -11,22 +12,11 @@
 
 #include <sstream>
 #include <string>
+#include <tuple>
+#include <utility>
 
-#define MFSU_WATCH_UPDATER(stateTag)                                    \
-  areg.watch##stateTag(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
-
-#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                 \
-  art::ActivityRegistry::stateTag::slot_type::result_type \
-  art::MFStatusUpdater::updateStatusTo##stateTag()
-#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                               \
-  art::ActivityRegistry::stateTag::slot_type::result_type               \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1)
-#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                               \
-  art::ActivityRegistry::stateTag::slot_type::result_type               \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1, \
-                           ActivityRegistry::stateTag::slot_type::arg2_type_ arg2)
+#define MFSU_WATCH_UPDATER(stateTag)                                \
+  areg.s##stateTag.watch(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 

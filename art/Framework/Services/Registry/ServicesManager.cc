@@ -75,7 +75,7 @@ putParameterSets(ParameterSets const & n)
     NameIndex::iterator ii = index_.find(service_name);
     if (ii != index_.end()) {
       (ii->second)->second.putParameterSet(*cur);
-      registry_.sPostServiceReconfigure_(service_name);
+      registry_.sPostServiceReconfigure.invoke(service_name);
     }
   }
 }

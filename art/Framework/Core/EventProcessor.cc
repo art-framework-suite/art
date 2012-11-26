@@ -294,10 +294,10 @@ art::EventProcessor::beginJob()
     throw;
   }
   schedule_->beginJob();
-  actReg_->sPostBeginJob_();
+  actReg_->sPostBeginJob.invoke();
   Schedule::Workers aw_vec;
   schedule_->getAllWorkers(aw_vec);
-  actReg_->sPostBeginJobWorkers_(input_.get(), aw_vec);
+  actReg_->sPostBeginJobWorkers.invoke(input_.get(), aw_vec);
 }
 
 void
@@ -310,7 +310,7 @@ art::EventProcessor::endJob()
   c.call(std::bind(&EventProcessor::terminateMachine, this));
   c.call(std::bind(&Schedule::endJob, schedule_.get()));
   c.call(std::bind(&InputSource::doEndJob, input_));
-  c.call(std::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->sPostEndJob_));
+  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_->sPostEndJob));
 }
 
 art::ServiceToken
@@ -519,7 +519,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
 void
 art::EventProcessor::readFile()
 {
-  actReg_->sPreOpenFile_();
+  actReg_->sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
@@ -527,14 +527,14 @@ art::EventProcessor::readFile()
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
   }
-  actReg_->sPostOpenFile_(fb_->fileName());
+  actReg_->sPostOpenFile.invoke(fb_->fileName());
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_->sPreCloseFile_,
-                               actReg_->sPostCloseFile_);
+  SignalSentry fileCloseSentry(actReg_->sPreCloseFile.signal_,
+                               actReg_->sPostCloseFile.signal_);
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -687,8 +687,8 @@ art::EventProcessor::endSubRun(int run, int subRun)
 int
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_->sPreSourceRun_,
-                               actReg_->sPostSourceRun_);
+  SignalSentry runSourceSentry(actReg_->sPreSourceRun.signal_,
+                               actReg_->sPostSourceRun.signal_);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().run();
@@ -697,8 +697,8 @@ art::EventProcessor::readAndCacheRun()
 int
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun_,
-                                  actReg_->sPostSourceSubRun_);
+  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun.signal_,
+                                  actReg_->sPostSourceSubRun.signal_);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().subRun();

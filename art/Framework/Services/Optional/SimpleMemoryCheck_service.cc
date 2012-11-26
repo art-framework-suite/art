@@ -347,42 +347,42 @@ namespace art {
     }
 #endif
     if (!oncePerEventMode) { // default, prints on increases
-      iReg.watchPostSource(this,
+      iReg.sPostSource.watch(this,
                            &SimpleMemoryCheck::postSource);
-      iReg.watchPostModuleConstruction(this,
+      iReg.sPostModuleConstruction.watch(this,
                                        &SimpleMemoryCheck::postModuleConstruction);
-      iReg.watchPostModuleBeginJob(this,
+      iReg.sPostModuleBeginJob.watch(this,
                                    &SimpleMemoryCheck::postModuleBeginJob);
-      iReg.watchPostProcessEvent(this,
+      iReg.sPostProcessEvent.watch(this,
                                  &SimpleMemoryCheck::postEventProcessing);
-      iReg.watchPostModule(this,
+      iReg.sPostModule.watch(this,
                            &SimpleMemoryCheck::postModule);
-      iReg.watchPostEndJob(this,
+      iReg.sPostEndJob.watch(this,
                            &SimpleMemoryCheck::postEndJob);
     }
     else {
-      iReg.watchPostProcessEvent(this,
+      iReg.sPostProcessEvent.watch(this,
                                  &SimpleMemoryCheck::postEventProcessing);
-      iReg.watchPostEndJob(this,
+      iReg.sPostEndJob.watch(this,
                            &SimpleMemoryCheck::postEndJob);
     }
     if (moduleSummaryRequested) {                             // changelog 2
-      iReg.watchPreProcessEvent(this,
+      iReg.sPreProcessEvent.watch(this,
                                 &SimpleMemoryCheck::preEventProcessing);
-      iReg.watchPreModule(this,
+      iReg.sPreModule.watch(this,
                           &SimpleMemoryCheck::preModule);
       if (oncePerEventMode) {
-        iReg.watchPostModule(this,
+        iReg.sPostModule.watch(this,
                              &SimpleMemoryCheck::postModule);
       }
     }
     // The following are not currenty used/implemented below for either
     // of the print modes (but are left here for reference)
-    //  iReg.watchPostBeginJob(this,
+    //  iReg.sPostBeginJob.watch(this,
     //       &SimpleMemoryCheck::postBeginJob);
-    //  iReg.watchPreProcessEvent(this,
+    //  iReg.sPreProcessEvent.watch(this,
     //       &SimpleMemoryCheck::preEventProcessing);
-    //  iReg.watchPreModule(this,
+    //  iReg.sPreModule.watch(this,
     //       &SimpleMemoryCheck::preModule);
     typedef art::MallocOpts::opt_type opt_type;
     art::MallocOptionSetter & mopts = art::getGlobalOptionSetter();

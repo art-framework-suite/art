@@ -6,7 +6,7 @@ arttest::Wanted::Wanted(fhicl::ParameterSet const &,
                         art::ActivityRegistry & r):
   postBeginJobCalled_(false)
 {
-  r.watchPostBeginJob(this, &Wanted::postBeginJob);
+  r.sPostBeginJob.watch(this, &Wanted::postBeginJob);
 }
 
 
