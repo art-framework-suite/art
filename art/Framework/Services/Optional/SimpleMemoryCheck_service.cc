@@ -367,7 +367,7 @@ namespace art {
                            &SimpleMemoryCheck::postEndJob);
     }
     if (moduleSummaryRequested) {                             // changelog 2
-      iReg.watchPreProcessEvent(this,
+      iReg.sPreProcessEvent.watch(this,
                                 &SimpleMemoryCheck::preEventProcessing);
       iReg.watchPreModule(this,
                           &SimpleMemoryCheck::preModule);
@@ -380,7 +380,7 @@ namespace art {
     // of the print modes (but are left here for reference)
     //  iReg.sPostBeginJob.watch(this,
     //       &SimpleMemoryCheck::postBeginJob);
-    //  iReg.watchPreProcessEvent(this,
+    //  iReg.sPreProcessEvent.watch(this,
     //       &SimpleMemoryCheck::preEventProcessing);
     //  iReg.watchPreModule(this,
     //       &SimpleMemoryCheck::preModule);

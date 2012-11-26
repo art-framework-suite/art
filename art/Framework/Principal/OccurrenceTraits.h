@@ -32,7 +32,7 @@ namespace art {
     static bool const isEvent_ = true;
     static void preScheduleSignal(ActivityRegistry *a, EventPrincipal * ep) {
       Event ev(*ep, ModuleDescription());
-      a->sPreProcessEvent_(ev);
+      a->sPreProcessEvent.invoke(ev);
     }
     static void postScheduleSignal(ActivityRegistry *a, EventPrincipal* ep) {
       Event ev(*ep, ModuleDescription());
@@ -60,7 +60,7 @@ namespace art {
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
-      a->sPreBeginRun_(run);
+      a->sPreBeginRun.invoke(run);
     }
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
@@ -87,7 +87,7 @@ namespace art {
     static bool const begin_ = false;
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, RunPrincipal const* ep) {
-      a->sPreEndRun_(ep->id(), ep->endTime());
+      a->sPreEndRun.invoke(ep->id(), ep->endTime());
     }
     static void postScheduleSignal(ActivityRegistry *a, RunPrincipal* ep) {
       Run run(*ep, ModuleDescription());
@@ -115,7 +115,7 @@ namespace art {
     static bool const isEvent_ = false;
     static void preScheduleSignal(ActivityRegistry *a, SubRunPrincipal * ep) {
       SubRun subRun(*ep, ModuleDescription());
-      a->sPreBeginSubRun_(subRun);
+      a->sPreBeginSubRun.invoke(subRun);
     }
     static void postScheduleSignal(ActivityRegistry *a, SubRunPrincipal* ep) {
       SubRun subRun(*ep, ModuleDescription());

@@ -76,7 +76,7 @@ Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
   iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
   iRegistry.watchPostEndJob(this, &Timing::postEndJob);
 
-  iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);
+  iRegistry.sPreProcessEvent.watch(this, &Timing::preEventProcessing);
   iRegistry.watchPostProcessEvent(this, &Timing::postEventProcessing);
 
   iRegistry.watchPreModule(this, &Timing::preModule);

@@ -31,7 +31,7 @@ namespace ui {
     iReg.watchPostBeginJobWorkers(this, &UserInteraction::postBeginJobWorkers);
     //iReg.watchPreModule(this, &Tracer::preModuleEvent);
     //iReg.watchPostModule(this, &UserInteraction::postModuleEvent);
-    iReg.watchPreProcessEvent(this, &UserInteraction::preEvent);
+    iReg.sPreProcessEvent.watch(this, &UserInteraction::preEvent);
     iReg.watchPostProcessEvent(this, &UserInteraction::postEvent);
   }
 
