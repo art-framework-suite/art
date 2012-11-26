@@ -156,7 +156,8 @@ public:
 
   // Signal is emitted after the Event has been created by the
   // InputSource but before any modules have seen the Event
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, Event const &, PreProcessEvent)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               Event const &> sPreProcessEvent;
 
   // Signal is emitted after all modules have finished processing the
   // Event
@@ -164,14 +165,17 @@ public:
 
   // Signal is emitted after the Run has been created by the InputSource
   // but before any modules have seen the Run
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, Run const &, PreBeginRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               Run const &> sPreBeginRun;
 
   // Signal is emitted after all modules have finished processing the
   // beginRun
   AR_DECL_VOID_1ARG_SIGNAL(LIFO, Run const &, PostBeginRun)
 
   // Signal is emitted before the endRun is processed
-  AR_DECL_VOID_2ARG_SIGNAL(FIFO, RunID const &, Timestamp const &, PreEndRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               RunID const &,
+               Timestamp const &> sPreEndRun;
 
   // Signal is emitted after all modules have finished processing the
   // Run
@@ -179,7 +183,8 @@ public:
 
   // Signal is emitted after the SubRun has been created by the
   // InputSource but before any modules have seen the SubRun
-  AR_DECL_VOID_1ARG_SIGNAL(FIFO, SubRun const &, PreBeginSubRun)
+  GlobalSignal<detail::SignalResponseType::FIFO, void,
+               SubRun const &> sPreBeginSubRun;
 
   // Signal is emitted after all modules have finished processing the
   // beginSubRun

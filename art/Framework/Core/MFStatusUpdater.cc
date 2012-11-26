@@ -13,36 +13,13 @@
 #include <sstream>
 #include <string>
 #include <tuple>
-
-namespace {
-  // Return the Ith argument of the parameter pack for the enclosing
-  // function.
-  template <size_t I, typename...Args>
-  typename std::tuple_element<I, std::tuple<Args...>>::type
-  arg_num(Args...args)
-  {
-    return std::get<I>(std::make_tuple(args...));
-  }
-}
+#include <utility>
 
 #define MFSU_WATCH_UPDATER_NEW(stateTag)                                \
   areg.s##stateTag.watch(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
 
 #define MFSU_WATCH_UPDATER(stateTag)                                    \
   areg.watch##stateTag(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
-
-#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                 \
-  art::ActivityRegistry::stateTag::slot_type::result_type \
-  art::MFStatusUpdater::updateStatusTo##stateTag()
-#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                               \
-  art::ActivityRegistry::stateTag::slot_type::result_type               \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1)
-#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                               \
-  art::ActivityRegistry::stateTag::slot_type::result_type               \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1, \
-                           ActivityRegistry::stateTag::slot_type::arg2_type_ arg2)
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -66,13 +43,13 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostOpenFile);
   MFSU_WATCH_UPDATER(PreCloseFile);
   MFSU_WATCH_UPDATER(PostCloseFile);
-  MFSU_WATCH_UPDATER(PreProcessEvent);
+  MFSU_WATCH_UPDATER_NEW(PreProcessEvent);
   MFSU_WATCH_UPDATER(PostProcessEvent);
-  MFSU_WATCH_UPDATER(PreBeginRun);
+  MFSU_WATCH_UPDATER_NEW(PreBeginRun);
   MFSU_WATCH_UPDATER(PostBeginRun);
-  MFSU_WATCH_UPDATER(PreEndRun);
+  MFSU_WATCH_UPDATER_NEW(PreEndRun);
   MFSU_WATCH_UPDATER(PostEndRun);
-  MFSU_WATCH_UPDATER(PreBeginSubRun);
+  MFSU_WATCH_UPDATER_NEW(PreBeginSubRun);
   MFSU_WATCH_UPDATER(PostBeginSubRun);
   MFSU_WATCH_UPDATER_NEW(PreEndSubRun);
   MFSU_WATCH_UPDATER(PostEndSubRun);
@@ -187,7 +164,7 @@ art::MFStatusUpdater::moduleIDString(const ModuleDescription &desc,
   return result;
 }
 
-MFSU_UPDATER_DEFN(PostBeginJob) {
+MFSU_0_ARG_UPDATER_DEFN_NEW(PostBeginJob) {
   setContext("PostBeginJob");
   setWorkFlowStatus("BeforeEvents");
 }
@@ -241,7 +218,7 @@ MFSU_0_ARG_UPDATER_DEFN(PostCloseFile) {
   restoreContext("PostCloseFile");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreProcessEvent) {
+MFSU_1_ARG_UPDATER_DEFN_NEW(PreProcessEvent) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
@@ -251,7 +228,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostProcessEvent) {
   setWorkFlowStatus("PostProcessEvent");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreBeginRun) {
+MFSU_1_ARG_UPDATER_DEFN_NEW(PreBeginRun) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
@@ -261,7 +238,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostBeginRun) {
   setWorkFlowStatus("PostBeginRun");
 }
 
-MFSU_2_ARG_UPDATER_DEFN(PreEndRun) {
+MFSU_2_ARG_UPDATER_DEFN_NEW(PreEndRun) {
   std::stringstream os;
   os << "End " << arg1;
   setWorkFlowStatus(os.str());
@@ -271,7 +248,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostEndRun) {
   setWorkFlowStatus("PostEndRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN(PreBeginSubRun) {
+MFSU_1_ARG_UPDATER_DEFN_NEW(PreBeginSubRun) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
@@ -281,9 +258,9 @@ MFSU_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
   setWorkFlowStatus("PostBeginSubRun");
 }
 
-MFSU_UPDATER_DEFN(PreEndSubRun) {
+MFSU_2_ARG_UPDATER_DEFN_NEW(PreEndSubRun) {
   std::ostringstream os;
-  os << "End Subrun " << arg_num<0>(args...);
+  os << "End Subrun " << arg1;
   setWorkFlowStatus(os.str());
 }
 

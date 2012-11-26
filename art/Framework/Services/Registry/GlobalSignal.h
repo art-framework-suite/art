@@ -27,6 +27,7 @@ private:
   typedef sigc::signal<ResultType, Args...> SigType_;
 public:
   // Typedefs
+  typedef typename SigType_::slot_type slot_type;
   typedef ResultType result_type;
 
   // 1. Free function or functor (or pre-bound member function).
