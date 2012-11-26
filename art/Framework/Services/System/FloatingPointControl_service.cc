@@ -25,9 +25,9 @@ FloatingPointControl::FloatingPointControl( ParameterSet const & cfg
 , stateMap_          ( )
 , stateStack_        ( )
 {
-  reg.watchPostEndJob(this, & FloatingPointControl::postEndJob);
-  reg.watchPreModule (this, & FloatingPointControl::preModule);
-  reg.watchPostModule(this, & FloatingPointControl::postModule);
+  reg.sPostEndJob.watch(this, & FloatingPointControl::postEndJob);
+  reg.sPreModule.watch (this, & FloatingPointControl::preModule);
+  reg.sPostModule.watch(this, & FloatingPointControl::postModule);
 
   // Get the state of the fpu and save it as the "OSdefault" state.
   // The language here is a bit odd.  We use "OSdefault" to label the fpu

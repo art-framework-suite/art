@@ -21,14 +21,14 @@ CurrentModule::CurrentModule( ActivityRegistry & r )
 : desc_( )
 {
   // activities to monitor in order to note the current module
-  r.watchPreModuleConstruction( this, & CurrentModule::track_module );
-  r.watchPreModule            ( this, & CurrentModule::track_module );
-  r.watchPreModuleBeginJob    ( this, & CurrentModule::track_module );
-  r.watchPreModuleEndJob      ( this, & CurrentModule::track_module );
-  r.watchPreModuleBeginRun    ( this, & CurrentModule::track_module );
-  r.watchPreModuleEndRun      ( this, & CurrentModule::track_module );
-  r.watchPreModuleBeginSubRun ( this, & CurrentModule::track_module );
-  r.watchPreModuleEndSubRun   ( this, & CurrentModule::track_module );
+  r.sPreModuleConstruction.watch( this, & CurrentModule::track_module );
+  r.sPreModule.watch            ( this, & CurrentModule::track_module );
+  r.sPreModuleBeginJob.watch    ( this, & CurrentModule::track_module );
+  r.sPreModuleEndJob.watch      ( this, & CurrentModule::track_module );
+  r.sPreModuleBeginRun.watch    ( this, & CurrentModule::track_module );
+  r.sPreModuleEndRun.watch      ( this, & CurrentModule::track_module );
+  r.sPreModuleBeginSubRun.watch ( this, & CurrentModule::track_module );
+  r.sPreModuleEndSubRun.watch   ( this, & CurrentModule::track_module );
 }  // CurrentModule()
 
 // ----------------------------------------------------------------------

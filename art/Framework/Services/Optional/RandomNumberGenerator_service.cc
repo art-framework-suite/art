@@ -220,7 +220,7 @@ RandomNumberGenerator( ParameterSet const    & pset
 {
   // Register for callbacks:
   reg.sPostBeginJob.watch   (this, & RNGservice::postBeginJob   );
-  reg.watchPostEndJob     (this, & RNGservice::postEndJob     );
+  reg.sPostEndJob.watch     (this, & RNGservice::postEndJob     );
   reg.sPreProcessEvent.watch(this, & RNGservice::preProcessEvent);
 
   assert( invariant_holds_() && "RNGservice::RNGservice()" );

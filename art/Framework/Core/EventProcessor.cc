@@ -297,7 +297,7 @@ art::EventProcessor::beginJob()
   actReg_->sPostBeginJob.invoke();
   Schedule::Workers aw_vec;
   schedule_->getAllWorkers(aw_vec);
-  actReg_->sPostBeginJobWorkers_(input_.get(), aw_vec);
+  actReg_->sPostBeginJobWorkers.invoke(input_.get(), aw_vec);
 }
 
 void
@@ -519,7 +519,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
 void
 art::EventProcessor::readFile()
 {
-  actReg_->sPreOpenFile_();
+  actReg_->sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
@@ -527,7 +527,7 @@ art::EventProcessor::readFile()
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
   }
-  actReg_->sPostOpenFile_(fb_->fileName());
+  actReg_->sPostOpenFile.invoke(fb_->fileName());
 }
 
 void
