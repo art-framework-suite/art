@@ -15,11 +15,8 @@
 #include <tuple>
 #include <utility>
 
-#define MFSU_WATCH_UPDATER_NEW(stateTag)                                \
+#define MFSU_WATCH_UPDATER(stateTag)                                \
   areg.s##stateTag.watch(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
-
-#define MFSU_WATCH_UPDATER(stateTag)                                    \
-  areg.watch##stateTag(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
@@ -30,7 +27,7 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   md_(*mf::MessageDrop::instance()),
   mls_(*(mf::MessageFacilityService::instance().theML.get()))
 {
-  MFSU_WATCH_UPDATER_NEW(PostBeginJob);
+  MFSU_WATCH_UPDATER(PostBeginJob);
   MFSU_WATCH_UPDATER(PostEndJob);
   MFSU_WATCH_UPDATER(JobFailure);
   MFSU_WATCH_UPDATER(PreSource);
@@ -43,15 +40,15 @@ art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry &areg) :
   MFSU_WATCH_UPDATER(PostOpenFile);
   MFSU_WATCH_UPDATER(PreCloseFile);
   MFSU_WATCH_UPDATER(PostCloseFile);
-  MFSU_WATCH_UPDATER_NEW(PreProcessEvent);
+  MFSU_WATCH_UPDATER(PreProcessEvent);
   MFSU_WATCH_UPDATER(PostProcessEvent);
-  MFSU_WATCH_UPDATER_NEW(PreBeginRun);
+  MFSU_WATCH_UPDATER(PreBeginRun);
   MFSU_WATCH_UPDATER(PostBeginRun);
-  MFSU_WATCH_UPDATER_NEW(PreEndRun);
+  MFSU_WATCH_UPDATER(PreEndRun);
   MFSU_WATCH_UPDATER(PostEndRun);
-  MFSU_WATCH_UPDATER_NEW(PreBeginSubRun);
+  MFSU_WATCH_UPDATER(PreBeginSubRun);
   MFSU_WATCH_UPDATER(PostBeginSubRun);
-  MFSU_WATCH_UPDATER_NEW(PreEndSubRun);
+  MFSU_WATCH_UPDATER(PreEndSubRun);
   MFSU_WATCH_UPDATER(PostEndSubRun);
   MFSU_WATCH_UPDATER(PreProcessPath);
   MFSU_WATCH_UPDATER(PostProcessPath);
@@ -164,7 +161,7 @@ art::MFStatusUpdater::moduleIDString(const ModuleDescription &desc,
   return result;
 }
 
-MFSU_0_ARG_UPDATER_DEFN_NEW(PostBeginJob) {
+MFSU_0_ARG_UPDATER_DEFN(PostBeginJob) {
   setContext("PostBeginJob");
   setWorkFlowStatus("BeforeEvents");
 }
@@ -218,7 +215,7 @@ MFSU_0_ARG_UPDATER_DEFN(PostCloseFile) {
   restoreContext("PostCloseFile");
 }
 
-MFSU_1_ARG_UPDATER_DEFN_NEW(PreProcessEvent) {
+MFSU_1_ARG_UPDATER_DEFN(PreProcessEvent) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
@@ -228,7 +225,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostProcessEvent) {
   setWorkFlowStatus("PostProcessEvent");
 }
 
-MFSU_1_ARG_UPDATER_DEFN_NEW(PreBeginRun) {
+MFSU_1_ARG_UPDATER_DEFN(PreBeginRun) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
@@ -238,7 +235,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostBeginRun) {
   setWorkFlowStatus("PostBeginRun");
 }
 
-MFSU_2_ARG_UPDATER_DEFN_NEW(PreEndRun) {
+MFSU_2_ARG_UPDATER_DEFN(PreEndRun) {
   std::stringstream os;
   os << "End " << arg1;
   setWorkFlowStatus(os.str());
@@ -248,7 +245,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostEndRun) {
   setWorkFlowStatus("PostEndRun");
 }
 
-MFSU_1_ARG_UPDATER_DEFN_NEW(PreBeginSubRun) {
+MFSU_1_ARG_UPDATER_DEFN(PreBeginSubRun) {
   std::ostringstream os;
   os << arg1.id();
   setWorkFlowStatus(os.str());
@@ -258,7 +255,7 @@ MFSU_1_ARG_UPDATER_DEFN(PostBeginSubRun) {
   setWorkFlowStatus("PostBeginSubRun");
 }
 
-MFSU_2_ARG_UPDATER_DEFN_NEW(PreEndSubRun) {
+MFSU_2_ARG_UPDATER_DEFN(PreEndSubRun) {
   std::ostringstream os;
   os << "End Subrun " << arg1;
   setWorkFlowStatus(os.str());

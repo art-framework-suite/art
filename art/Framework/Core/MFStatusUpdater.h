@@ -7,54 +7,30 @@
 
 #include <string>
 
-#define MFSU_0_ARG_UPDATER_DECL_NEW(stateTag)                   \
+#define MFSU_0_ARG_UPDATER_DECL(stateTag)                   \
   typename decltype(ActivityRegistry::s##stateTag)::result_type \
   updateStatusTo##stateTag()
-#define MFSU_0_ARG_UPDATER_DEFN_NEW(stateTag)                         \
+#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                         \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type  \
   art::MFStatusUpdater::updateStatusTo##stateTag()
 
-#define MFSU_0_ARG_UPDATER_DECL(stateTag)                               \
-  ActivityRegistry::stateTag::slot_type::result_type updateStatusTo##stateTag()
-#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                 \
-  art::ActivityRegistry::stateTag::slot_type::result_type \
-  art::MFStatusUpdater::updateStatusTo##stateTag()
-
-#define MFSU_1_ARG_UPDATER_DECL_NEW(stateTag)                   \
+#define MFSU_1_ARG_UPDATER_DECL(stateTag)                   \
   typename decltype(ActivityRegistry::s##stateTag)::result_type \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_)
-#define MFSU_1_ARG_UPDATER_DEFN_NEW(stateTag)                           \
+#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                           \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
   art::MFStatusUpdater::                                                \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_ arg1 __attribute__((unused)))
 
-#define MFSU_1_ARG_UPDATER_DECL(stateTag)                               \
-  ActivityRegistry::stateTag::slot_type::result_type                    \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_)
-#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                               \
-  art::ActivityRegistry::stateTag::slot_type::result_type               \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1)
-
-#define MFSU_2_ARG_UPDATER_DECL_NEW(stateTag)                           \
+#define MFSU_2_ARG_UPDATER_DECL(stateTag)                           \
   typename decltype(ActivityRegistry::s##stateTag)::result_type         \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_, \
                            typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg2_type_)
-#define MFSU_2_ARG_UPDATER_DEFN_NEW(stateTag)                           \
+#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                           \
   typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
   art::MFStatusUpdater::                                                \
   updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_ arg1 __attribute__((unused)), \
                            typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg2_type_ arg2 __attribute__((unused)))
-
-#define MFSU_2_ARG_UPDATER_DECL(stateTag)                               \
-  ActivityRegistry::stateTag::slot_type::result_type                    \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_, \
-                           ActivityRegistry::stateTag::slot_type::arg2_type_)
-#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                               \
-  art::ActivityRegistry::stateTag::slot_type::result_type               \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_ arg1, \
-                           ActivityRegistry::stateTag::slot_type::arg2_type_ arg2)
 
 namespace art {
   class MFStatusUpdater;
@@ -72,7 +48,7 @@ public:
   std::string const &workFlowSatus() const { return workFlowStatus_; }
 
 private:
-  MFSU_0_ARG_UPDATER_DECL_NEW(PostBeginJob);
+  MFSU_0_ARG_UPDATER_DECL(PostBeginJob);
   MFSU_0_ARG_UPDATER_DECL(PostEndJob);
   MFSU_0_ARG_UPDATER_DECL(JobFailure);
   MFSU_0_ARG_UPDATER_DECL(PreSource);
@@ -85,15 +61,15 @@ private:
   MFSU_1_ARG_UPDATER_DECL(PostOpenFile);
   MFSU_0_ARG_UPDATER_DECL(PreCloseFile);
   MFSU_0_ARG_UPDATER_DECL(PostCloseFile);
-  MFSU_1_ARG_UPDATER_DECL_NEW(PreProcessEvent);
+  MFSU_1_ARG_UPDATER_DECL(PreProcessEvent);
   MFSU_1_ARG_UPDATER_DECL(PostProcessEvent);
-  MFSU_1_ARG_UPDATER_DECL_NEW(PreBeginRun);
+  MFSU_1_ARG_UPDATER_DECL(PreBeginRun);
   MFSU_1_ARG_UPDATER_DECL(PostBeginRun);
-  MFSU_2_ARG_UPDATER_DECL_NEW(PreEndRun);
+  MFSU_2_ARG_UPDATER_DECL(PreEndRun);
   MFSU_1_ARG_UPDATER_DECL(PostEndRun);
-  MFSU_1_ARG_UPDATER_DECL_NEW(PreBeginSubRun);
+  MFSU_1_ARG_UPDATER_DECL(PreBeginSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostBeginSubRun);
-  MFSU_2_ARG_UPDATER_DECL_NEW(PreEndSubRun);
+  MFSU_2_ARG_UPDATER_DECL(PreEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PreProcessPath);
   MFSU_2_ARG_UPDATER_DECL(PostProcessPath);
@@ -150,18 +126,12 @@ private:
 #undef MFSU_0_ARG_UPDATER_DECL
 #undef MFSU_1_ARG_UPDATER_DECL
 #undef MFSU_2_ARG_UPDATER_DECL
-#undef MFSU_0_ARG_UPDATER_DECL_NEW
-#undef MFSU_1_ARG_UPDATER_DECL_NEW
-#undef MFSU_2_ARG_UPDATER_DECL_NEW
 #undef MFSU_UPDATER_DECL
 
 #ifndef MFSU_IMPL
 #undef MFSU_0_ARG_UPDATER_DEFN
 #undef MFSU_1_ARG_UPDATER_DEFN
 #undef MFSU_2_ARG_UPDATER_DEFN
-#undef MFSU_0_ARG_UPDATER_DEFN_NEW
-#undef MFSU_1_ARG_UPDATER_DEFN_NEW
-#undef MFSU_2_ARG_UPDATER_DEFN_NEW
 #endif
 
 
