@@ -19,6 +19,9 @@
 
 namespace art {
   template <detail::SignalResponseType, typename ResultType, typename... Args > class GlobalSignal;
+
+  // Forward declaration for friendship.
+  class EventProcessor;
 }
 
 template <art::detail::SignalResponseType STYPE, typename ResultType, typename... Args>
@@ -54,6 +57,8 @@ public:
   void clear();
 
 private:
+  friend class art::EventProcessor; // SignalSentry needs signal_;
+
   SigType_ signal_;
 };
 
