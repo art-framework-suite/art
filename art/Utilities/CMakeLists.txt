@@ -32,8 +32,7 @@ set(art_Utilities_sources
   md5.c
   )
 
-art_make_library( LIBRARY_NAME art_Utilities
-                  SOURCE ${art_Utilities_sources}
+art_make_library( SOURCE ${art_Utilities_sources}
 		  LIBRARIES  ${MF_MESSAGELOGGER}
 			     ${FHICLCPP}
 			     ${CETLIB}
