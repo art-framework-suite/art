@@ -53,20 +53,34 @@ macro( art_make_test )
 endmacro( art_make_test )
 
 macro( art_make_library )
-  cet_make_library( ${ARGN} )
+  cet_parse_args( AML "LIBRARY_NAME;LIBRARIES;EXEC;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
+  # calculate base name
+  STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+  STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
+  if( AML_LIBRARY_NAME )
+     cet_make_library( ${ARGN} )
+  else()
+     ##message(STATUS "ART_MAKE_LIBRARY: default library name ${art_make_lib_name}")
+     cet_make_library( LIBRARY_NAME ${art_make_lib_name} ${ARGN} )
+  endif()
 endmacro( art_make_library )
 
 macro( art_make )
   set(art_file_list "")
   set(art_liblist FALSE)
-  set(art_make_usage "USAGE: art_make( LIBRARY_NAME <library name> [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
+  set(art_make_usage "USAGE: art_make( [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
   #message(STATUS "art_make debug: called with ${ARGN} from ${CMAKE_CURRENT_SOURCE_DIR}")
   cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;EXEC;SUBDIRS;TEST;EXCLUDE" "WITH_STATIC_LIBRARY" ${ARGN})
-  # there are no default arguments
-  if( AM_DEFAULT_ARGS )
-     message("ART_MAKE: Incorrect arguments. ${ARGV}")
-     message(SEND_ERROR  ${art_make_usage})
-  endif()
+
+  # calculate base name
+  STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+  STRING( REGEX REPLACE "/" "_" art_make_name "${CURRENT_SUBDIR}" )
+  ##if( AM_LIBRARY_NAME )
+  ##   message(STATUS "ART_MAKE: specified library name ${AM_LIBRARY_NAME}")
+  ##else()
+  ##   message(STATUS "ART_MAKE: default library name ${art_make_lib_name}")
+  ##endif()
+
   # check for extra link libraries
   if(AM_LIBRARIES)
      set(art_liblist ${AM_LIBRARIES})
@@ -128,10 +142,6 @@ macro( art_make )
       endif()
   endforeach(file)
   #message(STATUS "art_make debug: known files ${art_file_list}")
-
-  # calculate base name
-  STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
-  STRING( REGEX REPLACE "/" "_" art_make_name "${CURRENT_SUBDIR}" )
 
   if( have_library )
     #message( STATUS "art_make debug: building library for ${CMAKE_CURRENT_SOURCE_DIR}")
