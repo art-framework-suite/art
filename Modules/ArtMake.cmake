@@ -15,7 +15,7 @@
 #
 #
 # art_make_library( [LIBRARY_NAME <library name>]  
-#                   [SOURCE <source code list>] 
+#                   SOURCE <source code list>
 #                   [LIBRARIES <library list>] 
 #                   [WITH_STATIC_LIBRARY] )
 #
@@ -39,9 +39,6 @@ macro( _art_simple_plugin file type liblist )
     simple_plugin( ${plugbase} ${type} ${liblist} )
 endmacro( _art_simple_plugin )
 
-macro( art_make_library )
-endmacro( art_make_library )
-
 macro( art_make_exec )
   cet_make_exec( ${ARGN} )
 endmacro( art_make_exec )
@@ -52,23 +49,35 @@ macro( art_make_test )
   ADD_TEST(${AMT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${AMT_NAME})
 endmacro( art_make_test )
 
+# art_make_library( [LIBRARY_NAME <library name>]  
+#                   SOURCE <source code list>
+#                   [LIBRARIES <library list>] 
+#                   [WITH_STATIC_LIBRARY] )
 macro( art_make_library )
-  cet_parse_args( AML "LIBRARY_NAME;LIBRARIES;EXEC;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
-  # calculate base name
-  STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
-  STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
-  if( AML_LIBRARY_NAME )
-     cet_make_library( ${ARGN} )
+  cet_parse_args( AML "LIBRARY_NAME;LIBRARIES;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
+  set(art_make_library_usage "USAGE: art_make_library( SOURCE <source code list> [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [WITH_STATIC_LIBRARY] )")
+  # you must supply a source code list
+  if( AML_SOURCE )
+    # calculate base name
+    STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+    STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
+    if( AML_LIBRARY_NAME )
+       cet_make_library( ${ARGN} )
+    else()
+       ##message(STATUS "ART_MAKE_LIBRARY:  library name ${art_make_lib_name}")
+       cet_make_library( LIBRARY_NAME ${art_make_lib_name} ${ARGN} )
+    endif()
   else()
-     ##message(STATUS "ART_MAKE_LIBRARY: default library name ${art_make_lib_name}")
-     cet_make_library( LIBRARY_NAME ${art_make_lib_name} ${ARGN} )
+     message(${art_make_library_usage})
+     message("art_make_library called from ${CMAKE_CURRENT_SOURCE_DIR}")
+     message(FATAL  " ART_MAKE_LIBRARY: you must supply a source code list")
   endif()
 endmacro( art_make_library )
 
 macro( art_make )
   set(art_file_list "")
   set(art_liblist FALSE)
-  set(art_make_usage "USAGE: art_make( [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
+  #set(art_make_usage "USAGE: art_make( [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [EXEC <exec source>]  [TEST <test source>] [EXCLUDE <ignore these files>] )")
   #message(STATUS "art_make debug: called with ${ARGN} from ${CMAKE_CURRENT_SOURCE_DIR}")
   cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;EXEC;SUBDIRS;TEST;EXCLUDE" "WITH_STATIC_LIBRARY" ${ARGN})
 
