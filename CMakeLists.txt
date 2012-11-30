@@ -31,14 +31,15 @@ include(CetCMakeEnv)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
-cet_have_qual( e2 )
-if ( ${CET_HAVE_QUAL} )
+cet_have_qual(e2 E2)
+if ( E2 )
   cet_add_compiler_flags(CXX -std=c++0x)
 endif()
-cet_have_qual(sse2)
-if ( ${CET_HAVE_QUAL} )
+cet_have_qual(sse2 SSE2)
+if ( SSE2 )
   cet_add_compiler_flags(CXX -msse2 -ftree-vectorizer-verbose=2)
 endif()
+cet_have_qual(tbb HAVE_TBB)
 
 cet_report_compiler_flags()
 
@@ -61,7 +62,9 @@ find_ups_boost( v1_47_0 filesystem
                         thread
                         unit_test_framework
  )
-
+if (HAVE_TBB)
+  find_ups_product( tbb v4_1 )
+endif()
 cet_check_gcc()
 
 # include search path
@@ -79,6 +82,12 @@ find_library( SIGC    NAMES sigc-2.0  PATHS $ENV{LIBSIGCPP_LIB} NO_DEFAULT_PATH 
 find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_LIB}   NO_DEFAULT_PATH )
 
 find_library(SQLITE3 NAMES sqlite3 PATHS $ENV{SQLITE_LIB} NO_DEFAULT_PATH)
+
+if (HAVE_TBB)
+  find_library(TBB NAMES tbb PATHS ENV TBB_LIB NO_DEFAULT_PATH)
+  find_library(TBBMALLOC NAMES tbbmalloc PATHS ENV TBB_LIB NO_DEFAULT_PATH)
+  find_library(TBBMALLOC_PROXY NAMES tbbmalloc_proxy PATHS ENV TBB_LIB NO_DEFAULT_PATH)
+endif()
 
 # define common flags
 # set( CMAKE_CXX_LINK_FLAGS "${CPPUNIT} -luuid -ldl" )
