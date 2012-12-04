@@ -21,7 +21,4 @@ add_subdirectory (Persistency/RootDB)
 add_subdirectory (TestObjects)
 add_subdirectory (Version)
 add_subdirectory (Utilities)
-
-if(HAVE_TBB)
-  add_subdirectory(tbb)
-endif()
+add_subdirectory(tbb)
