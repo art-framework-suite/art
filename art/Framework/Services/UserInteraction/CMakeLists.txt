@@ -8,4 +8,4 @@ art_make_library(LIBRARY_NAME art_Framework_Services_UserInteraction
   )
 
 install_headers(SUBDIRS detail)
-install_source()
+install_source(SUBDIRS detail)

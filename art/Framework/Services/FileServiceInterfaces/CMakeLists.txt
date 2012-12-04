@@ -10,4 +10,4 @@ art_make_library(SOURCE ${art_Framework_Services_FileServiceInterfaces_sources}
   )
 
 install_headers(SUBDIRS detail)
-install_source()
+install_source(SUBDIRS detail)
