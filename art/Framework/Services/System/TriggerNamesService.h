@@ -122,7 +122,7 @@ private:
 
 // ======================================================================
 
-DECLARE_ART_SYSTEM_SERVICE(TriggerNamesService, LEGACY)
+DECLARE_ART_SYSTEM_SERVICE(art::TriggerNamesService, LEGACY)
 #endif /* art_Framework_Services_System_TriggerNamesService_h */
 
 // Local Variables:
