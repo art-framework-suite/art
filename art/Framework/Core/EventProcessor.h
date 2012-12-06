@@ -127,7 +127,7 @@ namespace art {
 
     ServiceToken getToken();
 
-    StatusCode runCommon(int numberOfEventsToProcess);
+    StatusCode runCommon();
     void terminateMachine();
     void terminateAbnormally();
 

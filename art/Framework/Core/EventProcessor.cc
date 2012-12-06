@@ -322,9 +322,7 @@ art::EventProcessor::getToken()
 art::EventProcessor::StatusCode
 art::EventProcessor::runToCompletion()
 {
-  //StateSentry toerror(this);
-  int numberOfEventsToProcess = -1;
-  StatusCode returnCode = runCommon(numberOfEventsToProcess);
+  StatusCode returnCode = runCommon();
   if (machine_.get() != 0) {
     throw art::Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
@@ -334,7 +332,7 @@ art::EventProcessor::runToCompletion()
 }
 
 art::EventProcessor::StatusCode
-art::EventProcessor::runCommon(int numberOfEventsToProcess)
+art::EventProcessor::runCommon()
 {
   StatusCode returnCode = epSuccess;
   stateMachineWasInErrorState_ = false;
@@ -389,11 +387,6 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
       else if (itemType == input::IsEvent) {
         machine_->process_event(statemachine::Event());
         ++iEvents;
-        if (numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {
-          returnCode = epCountComplete;
-          FDEBUG(1) << "Event count complete, pausing event loop\n";
-          break;
-        }
       }
       // This should be impossible
       else {
