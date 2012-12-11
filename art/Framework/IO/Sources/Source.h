@@ -360,7 +360,9 @@ void
 art::Source<T>::checkForNextFile_()
 {
   currentFileName_ = fh_.next();
-  state_ = currentFileName_.empty() ? input::IsStop : input::IsFile;
+  state_ = (Source_generator<T>::value || currentFileName_.empty()) ?
+           input::IsStop :
+           input::IsFile;
 }
 
 template <class T>
