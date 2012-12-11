@@ -67,7 +67,8 @@ art_make_library( LIBRARY_NAME art_Framework_Core
   ${CETLIB}
   ${CLHEP}
   ${SIGC}
-)
+  ${TBB}
+  )
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

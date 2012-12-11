@@ -25,6 +25,7 @@
 #include "boost/thread/thread.hpp"
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <string>
 #include <vector>
 
@@ -121,15 +122,14 @@ namespace art {
     virtual bool alreadyHandlingException() const;
 
   private:
-    //------------------------------------------------------------------
-    //
-    // Now private functions.
+    void configureServices_(fhicl::ParameterSet const & pset);
+    void initSchedules_(fhicl::ParameterSet const & pset);
 
-    ServiceToken getToken();
+    ServiceToken getToken_();
 
-    StatusCode runCommon();
-    void terminateMachine();
-    void terminateAbnormally();
+    StatusCode runCommon_();
+    void terminateMachine_();
+    void terminateAbnormally_();
 
     //------------------------------------------------------------------
     //
@@ -147,7 +147,6 @@ namespace art {
     std::unique_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
-    int                                           my_sig_num_;
     std::shared_ptr<FileBlock>                    fb_;
 
     std::unique_ptr<statemachine::Machine>          machine_;
