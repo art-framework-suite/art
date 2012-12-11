@@ -1,0 +1,7 @@
+process_name: DEVEL
+
+source:
+{
+  module_type: GeneratorTest
+  fileNames: [ dummy ]
+}
