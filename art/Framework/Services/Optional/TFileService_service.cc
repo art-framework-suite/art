@@ -32,14 +32,14 @@ TFileService::TFileService( ParameterSet const & cfg
 , closeFileFast_   ( cfg.get<bool>("closeFileFast", false) )
 {
   // activities to monitor in order to set the proper directory
-  r.watchPreModuleConstruction(this, & TFileService::setDirectoryName);
-  r.watchPreModule            (this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginJob    (this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndJob      (this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginRun    (this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndRun      (this, & TFileService::setDirectoryName);
-  r.watchPreModuleBeginSubRun (this, & TFileService::setDirectoryName);
-  r.watchPreModuleEndSubRun   (this, & TFileService::setDirectoryName);
+  r.sPreModuleConstruction.watch(this, & TFileService::setDirectoryName);
+  r.sPreModule.watch            (this, & TFileService::setDirectoryName);
+  r.sPreModuleBeginJob.watch    (this, & TFileService::setDirectoryName);
+  r.sPreModuleEndJob.watch      (this, & TFileService::setDirectoryName);
+  r.sPreModuleBeginRun.watch    (this, & TFileService::setDirectoryName);
+  r.sPreModuleEndRun.watch      (this, & TFileService::setDirectoryName);
+  r.sPreModuleBeginSubRun.watch (this, & TFileService::setDirectoryName);
+  r.sPreModuleEndSubRun.watch   (this, & TFileService::setDirectoryName);
 }
 
 // ----------------------------------------------------------------------

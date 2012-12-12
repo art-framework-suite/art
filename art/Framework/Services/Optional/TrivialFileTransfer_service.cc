@@ -1,5 +1,5 @@
 #include "art/Framework/Services/Optional/TrivialFileTransfer.h"
-#include "art/Framework/Services/Interfaces/FileTransferStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include <cerrno>
 #include <cstdlib>
 #include <iostream>
@@ -21,36 +21,21 @@ art::TrivialFileTransfer::TrivialFileTransfer
 int art::TrivialFileTransfer::doTranslateToLocalFilename
 (std::string const & uri, std::string & fileFQname)
 {
-  FileTransferStatus stat = FileTransferStatus::OK; // Note that in our context, OK does not denote
-  // successful file *creation*
+  FileTransferStatus stat = FileTransferStatus::PENDING;
   fileFQname = "";
   std::string inFileName;
   int inFileStatus = stripURI(uri, inFileName);
   if (inFileStatus != 0) {
-    stat = FileTransferStatus::BADREQUEST;
+    stat = FileTransferStatus::BAD_REQUEST;
     return stat;
   }
   ifstream infile(inFileName.c_str());
   if (!infile) {
-    stat = FileTransferStatus::NOTFOUND;
+    stat = FileTransferStatus::NOT_FOUND;
     return stat;
   }
-#if 0
-  std::string ofileName = scratchArea + "/" + tmpnam(NULL);
-  ofstream outfile(ofileName.c_str());
-  if (!outfile) {
-    stat = FileTransferStatus::FORBIDDEN;
-    return stat;
-  }
-  int copystat = copyFile(infile, outfile);
-  if (copystat != 0) {
-    stat = FileTransferStatus::FORBIDDEN;
-    return stat;
-  }
-  fileFQname = ofileName;
-#endif
   fileFQname = inFileName;
-  stat = FileTransferStatus::CREATED;
+  stat = FileTransferStatus::SUCCESS;
   return stat;
   // Implementation plan details -- alternatives not chosen:
   // x We could merely return the file name (the URI with file:// stripped off).

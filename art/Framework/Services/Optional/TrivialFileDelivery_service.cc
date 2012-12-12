@@ -1,5 +1,5 @@
 #include "art/Framework/Services/Optional/TrivialFileDelivery.h"
-#include "art/Framework/Services/Interfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
 #include <cerrno>
 #include <cstdlib>
 #include <iostream>
@@ -33,9 +33,11 @@ int  art::TrivialFileDelivery::doGetNextFileURI(std::string & uri, double & wait
   {
     ifstream f(nextFile->c_str());
     if (!f) {
-      stat = FileDeliveryStatus::NOT_FOUND;
-      ++nextFile;
-      return stat;
+      // Throw here, otherwise we don't know what file we couldn't find.
+      throw Exception(errors::CatalogServiceError)
+        << "Input file not found: "
+        << *nextFile
+        << ".\n";
     }
   }
   uri = prependFileDesignation(*nextFile);

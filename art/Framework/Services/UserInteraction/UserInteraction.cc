@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 // user include files
-#include "art/Framework/Services/Interfaces/UserInteraction.h"
+#include "art/Framework/Services/UserInteraction/UserInteraction.h"
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/EventID.h"
@@ -28,11 +28,11 @@ namespace ui {
 
   UserInteraction::UserInteraction(ActivityRegistry & iReg)
   {
-    iReg.watchPostBeginJobWorkers(this, &UserInteraction::postBeginJobWorkers);
-    //iReg.watchPreModule(this, &Tracer::preModuleEvent);
-    //iReg.watchPostModule(this, &UserInteraction::postModuleEvent);
-    iReg.watchPreProcessEvent(this, &UserInteraction::preEvent);
-    iReg.watchPostProcessEvent(this, &UserInteraction::postEvent);
+    iReg.sPostBeginJobWorkers.watch(this, &UserInteraction::postBeginJobWorkers);
+    //iReg.sPreModule.watch(this, &Tracer::preModuleEvent);
+    //iReg.sPostModule.watch(this, &UserInteraction::postModuleEvent);
+    iReg.sPreProcessEvent.watch(this, &UserInteraction::preEvent);
+    iReg.sPostProcessEvent.watch(this, &UserInteraction::postEvent);
   }
 
   void UserInteraction::postBeginJobWorkers(InputSource * is,

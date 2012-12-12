@@ -48,7 +48,7 @@ private:
 
 // ======================================================================
 
-DECLARE_ART_SYSTEM_SERVICE(CurrentModule, LEGACY)
+DECLARE_ART_SYSTEM_SERVICE(art::CurrentModule, LEGACY)
 #endif /* art_Framework_Services_System_CurrentModule_h */
 
 // Local Variables:

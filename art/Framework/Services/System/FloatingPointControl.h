@@ -153,7 +153,7 @@ private:
 
 // ======================================================================
 
-DECLARE_ART_SYSTEM_SERVICE(FloatingPointControl, LEGACY)
+DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, LEGACY)
 #endif /* art_Framework_Services_System_FloatingPointControl_h */
 
 // Local Variables:

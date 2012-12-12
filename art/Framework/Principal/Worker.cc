@@ -8,10 +8,10 @@ namespace {
   class ModuleBeginJobSignalSentry {
   public:
     ModuleBeginJobSignalSentry(art::ActivityRegistry* a, art::ModuleDescription& md):a_(a), md_(&md) {
-      if(a_) a_->sPreModuleBeginJob_(*md_);
+      if(a_) a_->sPreModuleBeginJob.invoke(*md_);
     }
     ~ModuleBeginJobSignalSentry() {
-      if(a_) a_->sPostModuleBeginJob_(*md_);
+      if(a_) a_->sPostModuleBeginJob.invoke(*md_);
     }
   private:
     art::ActivityRegistry* a_;
@@ -22,10 +22,10 @@ namespace {
   public:
     ModuleEndJobSignalSentry(art::ActivityRegistry* a,
                              art::ModuleDescription& md):a_(a), md_(&md) {
-      if(a_) a_->sPreModuleEndJob_(*md_);
+      if(a_) a_->sPreModuleEndJob.invoke(*md_);
     }
     ~ModuleEndJobSignalSentry() {
-      if(a_) a_->sPostModuleEndJob_(*md_);
+      if(a_) a_->sPostModuleEndJob.invoke(*md_);
     }
   private:
     art::ActivityRegistry* a_;

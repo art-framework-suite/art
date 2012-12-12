@@ -9,7 +9,7 @@ ServiceUsing(fhicl::ParameterSet const &, art::ActivityRegistry & reg )
   cached_debug_value_(getNewValue()) // Uses ServiceHandle<Reconfigurable>
 {
   (void) art::ServiceHandle<Wanted>(); // Required to force construction.
-  reg.watchPostServiceReconfigure(this, &arttest::ServiceUsing::maybeGetNewValue);
+  reg.sPostServiceReconfigure.watch(this, &arttest::ServiceUsing::maybeGetNewValue);
 }
 
 void

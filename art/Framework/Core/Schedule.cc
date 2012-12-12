@@ -885,9 +885,9 @@ namespace art {
     md.moduleName_ = "TriggerResultInserter";
     md.moduleLabel_ = "TriggerResults";
     md.processConfiguration_ = ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion(), getPassID());
-    actReg_->sPreModuleConstruction_(md);
+    actReg_->sPreModuleConstruction.invoke(md);
     unique_ptr<EDProducer> producer(new TriggerResultInserter(trig_pset, results_));
-    actReg_->sPostModuleConstruction_(md);
+    actReg_->sPostModuleConstruction.invoke(md);
     results_inserter_.reset(new WorkerT<EDProducer>(std::move(producer), md, work_args));
     results_inserter_->setActivityRegistry(actReg_);
   }

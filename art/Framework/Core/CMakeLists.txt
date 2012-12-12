@@ -49,9 +49,9 @@ foreach(ART_IPR_BASE_NAME FindOne FindMany)
     @ONLY)
 endforeach()
 
-add_library(art_Framework_Core SHARED ${art_Framework_Core_sources} )
-target_link_libraries(art_Framework_Core
-  art_Framework_Services_System_CurrentModule_service
+art_make_library( LIBRARY_NAME art_Framework_Core
+                  SOURCE ${art_Framework_Core_sources} 
+                  LIBRARIES art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_FileCatalogMetadata_service
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_System_TriggerNamesService_service
@@ -67,13 +67,8 @@ target_link_libraries(art_Framework_Core
   ${CETLIB}
   ${CLHEP}
   ${SIGC}
-)
-
-install ( TARGETS
-  art_Framework_Core
-  DESTINATION
-  ${flavorqual_dir}/lib
+  ${TBB}
   )
 
 install_headers(SUBDIRS detail)
-install_source()
+install_source(SUBDIRS detail)

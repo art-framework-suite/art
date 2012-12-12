@@ -47,7 +47,8 @@ namespace art {
     branchParents_(),
     branchChildren_(),
     dataTier_(pset.get<std::string>("dataTier", "")),
-    streamName_(pset.get<std::string>("streamName", ""))
+    streamName_(pset.get<std::string>("streamName", "")),
+    ci_()
   {
     hasNewlyDroppedBranch_.fill(false);
 
@@ -138,8 +139,8 @@ namespace art {
   }
 
 
-  Trig OutputModule::getTriggerResults(Event const& ev) const {
-    return selectors_.getOneTriggerResults(ev);
+  Trig OutputModule::getTriggerResults(Event const& e) const {
+    return selectors_.getOneTriggerResults(e);
   }
 
    namespace {
@@ -164,20 +165,25 @@ namespace art {
 
     FDEBUG(2) << "writeEvent called\n";
 
-    // This ugly little bit is here to prevent making the Event
-    // if we don't need it.
-    if (!wantAllEvents_) {
-      // use module description and const_cast unless interface to
-      // event is changed to just take a const EventPrincipal
-      Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
-      if (!selectors_.wantEvent(e)) {
-        return true;
+    Event e(const_cast<EventPrincipal &>(ep), moduleDescription_);
+    if (wantAllEvents_ || selectors_.wantEvent(e))  {
+      write(ep); // Write the event.
+
+      // Declare that the event was selected for write.
+      Trig trHandle(getTriggerResults(e));
+      HLTGlobalStatus const &
+        trRef(trHandle.isValid() ?
+              static_cast<HLTGlobalStatus>(*trHandle) :
+              HLTGlobalStatus());
+      ci_->eventSelected(moduleDescription_.moduleLabel(),
+                         ep.id(),
+                         trRef);
+
+      // Finish.
+      updateBranchParents(ep);
+      if (remainingEvents_ > 0) {
+        --remainingEvents_;
       }
-    }
-    write(ep);
-    updateBranchParents(ep);
-    if (remainingEvents_ > 0) {
-      --remainingEvents_;
     }
     return true;
   }

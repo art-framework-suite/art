@@ -14,6 +14,8 @@ appear in one worker.
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "cpp0x/memory"
 
 namespace art {
@@ -45,6 +47,10 @@ namespace art {
     bool limitReached() const;
 
     void configure(OutputModuleDescription const& desc);
+
+private:
+    ServiceHandle<CatalogInterface> ci_;
+    std::string fileName_; // Needed for CatalogInterface interactions.
   };
 
 }

@@ -26,14 +26,10 @@ namespace art
 
     // Status codes:
     //   0     successful completion
-    //   1     exception of unknown type caught
-    //   2     everything else
     //   3     signal received
-    //   4     input complete
-    //   5     call timed out
-    //   6     input count complete
-    enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
-                  epInputComplete=4, epTimedOut=5, epCountComplete=6 };
+    //  values are for historical reasons.
+    enum Status { epSuccess=0,
+		  epSignal=3 };
 
     // Eventually, we might replace StatusCode with a class. This
     // class should have an automatic conversion to 'int'.

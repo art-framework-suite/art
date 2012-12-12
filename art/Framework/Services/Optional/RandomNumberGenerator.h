@@ -281,7 +281,7 @@ private:
 
 // ======================================================================
 
-DECLARE_ART_SERVICE(RandomNumberGenerator, LEGACY)
+DECLARE_ART_SERVICE(art::RandomNumberGenerator, LEGACY)
 #endif /* art_Framework_Services_Optional_RandomNumberGenerator_h */
 
 // Local Variables:

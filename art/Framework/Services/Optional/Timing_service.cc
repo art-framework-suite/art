@@ -73,14 +73,14 @@ Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry):
   min_event_time_(0.),
   total_event_count_(0)
 {
-  iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
-  iRegistry.watchPostEndJob(this, &Timing::postEndJob);
+  iRegistry.sPostBeginJob.watch(this, &Timing::postBeginJob);
+  iRegistry.sPostEndJob.watch(this, &Timing::postEndJob);
 
-  iRegistry.watchPreProcessEvent(this, &Timing::preEventProcessing);
-  iRegistry.watchPostProcessEvent(this, &Timing::postEventProcessing);
+  iRegistry.sPreProcessEvent.watch(this, &Timing::preEventProcessing);
+  iRegistry.sPostProcessEvent.watch(this, &Timing::postEventProcessing);
 
-  iRegistry.watchPreModule(this, &Timing::preModule);
-  iRegistry.watchPostModule(this, &Timing::postModule);
+  iRegistry.sPreModule.watch(this, &Timing::preModule);
+  iRegistry.sPostModule.watch(this, &Timing::postModule);
 }
 
 // ----------------------------------------------------------------------

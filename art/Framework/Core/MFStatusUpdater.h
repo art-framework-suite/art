@@ -7,15 +7,30 @@
 
 #include <string>
 
-#define MFSU_0_ARG_UPDATER_DECL(stateTag)                               \
-  ActivityRegistry::stateTag::slot_type::result_type updateStatusTo##stateTag()
-#define MFSU_1_ARG_UPDATER_DECL(stateTag)                               \
-  ActivityRegistry::stateTag::slot_type::result_type                    \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_)
-#define MFSU_2_ARG_UPDATER_DECL(stateTag)                               \
-  ActivityRegistry::stateTag::slot_type::result_type                    \
-  updateStatusTo##stateTag(ActivityRegistry::stateTag::slot_type::arg1_type_, \
-                           ActivityRegistry::stateTag::slot_type::arg2_type_)
+#define MFSU_0_ARG_UPDATER_DECL(stateTag)                   \
+  typename decltype(ActivityRegistry::s##stateTag)::result_type \
+  updateStatusTo##stateTag()
+#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                         \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type  \
+  art::MFStatusUpdater::updateStatusTo##stateTag()
+
+#define MFSU_1_ARG_UPDATER_DECL(stateTag)                   \
+  typename decltype(ActivityRegistry::s##stateTag)::result_type \
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_)
+#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                           \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
+  art::MFStatusUpdater::                                                \
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_ arg1 __attribute__((unused)))
+
+#define MFSU_2_ARG_UPDATER_DECL(stateTag)                           \
+  typename decltype(ActivityRegistry::s##stateTag)::result_type         \
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_, \
+                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg2_type_)
+#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                           \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
+  art::MFStatusUpdater::                                                \
+  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg1_type_ arg1 __attribute__((unused)), \
+                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::arg2_type_ arg2 __attribute__((unused)))
 
 namespace art {
   class MFStatusUpdater;
@@ -25,7 +40,7 @@ class art::MFStatusUpdater {
 public:
   MFStatusUpdater(MFStatusUpdater const&) = delete;
   MFStatusUpdater operator=(MFStatusUpdater const&) = delete;
-  
+
   MFStatusUpdater(ActivityRegistry &areg);
 
   // Public interface to get state information.
@@ -111,6 +126,14 @@ private:
 #undef MFSU_0_ARG_UPDATER_DECL
 #undef MFSU_1_ARG_UPDATER_DECL
 #undef MFSU_2_ARG_UPDATER_DECL
+#undef MFSU_UPDATER_DECL
+
+#ifndef MFSU_IMPL
+#undef MFSU_0_ARG_UPDATER_DEFN
+#undef MFSU_1_ARG_UPDATER_DEFN
+#undef MFSU_2_ARG_UPDATER_DEFN
+#endif
+
 
 #endif /* art_Framework_Core_MFStatusUpdater_h */
 

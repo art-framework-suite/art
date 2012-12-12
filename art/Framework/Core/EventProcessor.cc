@@ -31,6 +31,9 @@
 #include "cpp0x/functional"
 #include "cpp0x/utility"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "tbb/task_scheduler_init.h"
+
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -185,7 +188,6 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   input_(),
   schedule_(),
   act_table_(),
-  my_sig_num_(getSigNum()),
   fb_(),
   shouldWeStop_(false),
   alreadyHandlingException_(false)
@@ -196,43 +198,26 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   // TODO: Fix const-correctness. The ParameterSets that are
   // returned here should be const, so that we can be sure they are
   // not modified.
-  ParameterSet services = pset.get<ParameterSet>("services", ParameterSet());
-  ParameterSet scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
-  ParameterSet fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
+  ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
+  ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
   fileMode_ = scheduler.get<std::string>("fileMode", "");
   handleEmptyRuns_ = scheduler.get<bool>("handleEmptyRuns", true);
   handleEmptySubRuns_ = scheduler.get<bool>("handleEmptySubRuns", true);
-  bool wantTracer = scheduler.get<bool>("wantTracer", false);
-  std::string processName = pset.get<std::string>("process_name");
-  // build a list of service parameter sets that will be used by the service registry
-  ParameterSets service_set;
-  extractServices(services, service_set);
-  // configured based on optional parameters
-  if (wantTracer) { addService("Tracer", service_set); }
-  serviceToken_ = ServiceRegistry::createSet(service_set, *actReg_);
-  // NOTE: the order here might be backwards, due to the "push_front" registering
-  // that sigc++ does way in the guts of the add operation.
-  typedef art::TriggerNamesService TNS;
-  // no configuration available
-  serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
-  // special construction
-  serviceToken_.add(std::unique_ptr<TNS>(new TNS(pset)));
-  serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
-  ServiceRegistry::Operate operate(serviceToken_);
+  std::string const processName = pset.get<std::string>("process_name");
+
+  // Services
+  configureServices_(pset);
+  ServiceRegistry::Operate operate(serviceToken_); // Make usable.
   serviceToken_.forceCreation();
   // FileCatalogMetadata needs to know about the process name.
   ServiceHandle<art::FileCatalogMetadata>()->addMetadata("process_name", processName);
+
   act_table_ = ActionTable(scheduler);
   input_ = makeInput(pset, processName, preg_, actReg_);
   // Old input sources may need this for now.
   input_->storeMPRforBrokenRandomAccess(preg_);
-  schedule_ = std::unique_ptr<Schedule>
-              (new Schedule(pset,
-                            ServiceRegistry::instance().get<TNS>(),
-                            wreg_,
-                            preg_,
-                            act_table_,
-                            actReg_));
+
+  initSchedules_(pset);
   FDEBUG(2) << pset.to_string() << std::endl;
   BranchIDListHelper::updateRegistries(preg_);
 }
@@ -240,7 +225,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
 art::EventProcessor::~EventProcessor()
 {
   // Make the services available while everything is being deleted.
-  ServiceToken token = getToken();
+  ServiceToken token = getToken_();
   ServiceRegistry::Operate op(token);
   // The state machine should have already been cleaned up
   // and destroyed at this point by a call to EndJob or
@@ -251,7 +236,7 @@ art::EventProcessor::~EventProcessor()
   // executable the solution to this problem is for the code using
   // the EventProcessor to explicitly call EndJob or use runToCompletion,
   // then the next line of code is never executed.
-  terminateMachine();
+  terminateMachine_();
   // manually destroy all these thing that may need the services around
   schedule_.reset();
   input_.reset();
@@ -294,10 +279,10 @@ art::EventProcessor::beginJob()
     throw;
   }
   schedule_->beginJob();
-  actReg_->sPostBeginJob_();
+  actReg_->sPostBeginJob.invoke();
   Schedule::Workers aw_vec;
   schedule_->getAllWorkers(aw_vec);
-  actReg_->sPostBeginJobWorkers_(input_.get(), aw_vec);
+  actReg_->sPostBeginJobWorkers.invoke(input_.get(), aw_vec);
 }
 
 void
@@ -307,14 +292,66 @@ art::EventProcessor::endJob()
   cet::exception_collector c;
   // Make the services available
   ServiceRegistry::Operate operate(serviceToken_);
-  c.call(std::bind(&EventProcessor::terminateMachine, this));
+  c.call(std::bind(&EventProcessor::terminateMachine_, this));
   c.call(std::bind(&Schedule::endJob, schedule_.get()));
   c.call(std::bind(&InputSource::doEndJob, input_));
-  c.call(std::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->sPostEndJob_));
+  c.call(std::bind(&decltype(ActivityRegistry::sPostEndJob)::invoke, actReg_->sPostEndJob));
+}
+
+void
+art::EventProcessor::
+configureServices_(ParameterSet const & pset)
+{
+  ParameterSet const services = pset.get<ParameterSet>("services", ParameterSet());
+  ParameterSet const scheduler = services.get<ParameterSet>("scheduler", ParameterSet());
+  bool const wantTracer = scheduler.get<bool>("wantTracer", false);
+  // build a list of service parameter sets that will be used by the service registry
+  ParameterSets service_set;
+  extractServices(services, service_set);
+  // configured based on optional parameters
+  if (wantTracer) { addService("Tracer", service_set); }
+  serviceToken_ = ServiceRegistry::createSet(service_set, *actReg_);
+  // NOTE: the order here might be backwards, due to the "push_front" registering
+  // that sigc++ does way in the guts of the add operation.
+  // no configuration available
+  serviceToken_.add(std::unique_ptr<CurrentModule>(new CurrentModule(*actReg_)));
+  // special construction
+  serviceToken_.add(std::unique_ptr<TriggerNamesService>(new TriggerNamesService(pset)));
+  ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
+  serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
+}
+
+void
+art::EventProcessor::
+initSchedules_(ParameterSet const & pset)
+{
+  ParameterSet const services =
+    pset.get<ParameterSet>("services", ParameterSet());
+  ParameterSet const scheduler =
+    services.get<ParameterSet>("scheduler", ParameterSet());
+
+  // Initialize TBB with desired number of threads.
+  int num_threads =
+    scheduler.get<int>("num_threads",
+                       tbb::task_scheduler_init::default_num_threads());
+  if (num_threads < 1) {
+    throw Exception(errors::Configuration)
+      << "Specified threads must be >= 1!\n";
+  }
+  tbb::task_scheduler_init init(num_threads);
+
+  schedule_ =
+    std::unique_ptr<Schedule>
+    (new Schedule(pset,
+                  ServiceRegistry::instance().get<TriggerNamesService>(),
+                  wreg_,
+                  preg_,
+                  act_table_,
+                  actReg_));
 }
 
 art::ServiceToken
-art::EventProcessor::getToken()
+art::EventProcessor::getToken_()
 {
   return serviceToken_;
 }
@@ -322,9 +359,7 @@ art::EventProcessor::getToken()
 art::EventProcessor::StatusCode
 art::EventProcessor::runToCompletion()
 {
-  //StateSentry toerror(this);
-  int numberOfEventsToProcess = -1;
-  StatusCode returnCode = runCommon(numberOfEventsToProcess);
+  StatusCode returnCode = runCommon_();
   if (machine_.get() != 0) {
     throw art::Exception(errors::LogicError)
         << "State machine not destroyed on exit from EventProcessor::runToCompletion\n"
@@ -334,7 +369,7 @@ art::EventProcessor::runToCompletion()
 }
 
 art::EventProcessor::StatusCode
-art::EventProcessor::runCommon(int numberOfEventsToProcess)
+art::EventProcessor::runCommon_()
 {
   StatusCode returnCode = epSuccess;
   stateMachineWasInErrorState_ = false;
@@ -389,11 +424,6 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
       else if (itemType == input::IsEvent) {
         machine_->process_event(statemachine::Event());
         ++iEvents;
-        if (numberOfEventsToProcess > 0 && iEvents >= numberOfEventsToProcess) {
-          returnCode = epCountComplete;
-          FDEBUG(1) << "Event count complete, pausing event loop\n";
-          break;
-        }
       }
       // This should be impossible
       else {
@@ -451,7 +481,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
   // We've seen crashes which are not understood when that is not
   // done.  Maintainers of this code should be careful about this.
   catch (cet::exception & e) {
-    terminateAbnormally();
+    terminateAbnormally_();
     e << "cet::exception caught in EventProcessor and rethrown\n";
     e << exceptionMessageSubRuns_;
     e << exceptionMessageRuns_;
@@ -459,7 +489,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
     throw e;
   }
   catch (std::bad_alloc & e) {
-    terminateAbnormally();
+    terminateAbnormally_();
     throw cet::exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cet::exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
@@ -468,7 +498,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
         << exceptionMessageFiles_;
   }
   catch (std::exception & e) {
-    terminateAbnormally();
+    terminateAbnormally_();
     throw cet::exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cet::exception\n"
         << "Previous information:\n" << e.what() << "\n"
@@ -477,7 +507,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
         << exceptionMessageFiles_;
   }
   catch (std::string const & e) {
-    terminateAbnormally();
+    terminateAbnormally_();
     throw cet::exception("Unknown")
         << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
         << e
@@ -487,7 +517,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
         << exceptionMessageFiles_;
   }
   catch (char const * e) {
-    terminateAbnormally();
+    terminateAbnormally_();
     throw cet::exception("Unknown")
         << "The EventProcessor caught a string-based exception type and converted it to a cet::exception\n"
         << e
@@ -497,7 +527,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
         << exceptionMessageFiles_;
   }
   catch (...) {
-    terminateAbnormally();
+    terminateAbnormally_();
     throw cet::exception("Unknown")
         << "The EventProcessor caught an unknown exception type and converted it to a cet::exception\n"
         << exceptionMessageSubRuns_
@@ -519,7 +549,7 @@ art::EventProcessor::runCommon(int numberOfEventsToProcess)
 void
 art::EventProcessor::readFile()
 {
-  actReg_->sPreOpenFile_();
+  actReg_->sPreOpenFile.invoke();
   FDEBUG(1) << " \treadFile\n";
   fb_ = input_->readFile(preg_);
   if (!fb_) {
@@ -527,14 +557,14 @@ art::EventProcessor::readFile()
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
   }
-  actReg_->sPostOpenFile_(fb_->fileName());
+  actReg_->sPostOpenFile.invoke(fb_->fileName());
 }
 
 void
 art::EventProcessor::closeInputFile()
 {
-  SignalSentry fileCloseSentry(actReg_->sPreCloseFile_,
-                               actReg_->sPostCloseFile_);
+  SignalSentry fileCloseSentry(actReg_->sPreCloseFile.signal_,
+                               actReg_->sPostCloseFile.signal_);
   input_->closeFile();
   FDEBUG(1) << "\tcloseInputFile\n";
 }
@@ -687,8 +717,8 @@ art::EventProcessor::endSubRun(int run, int subRun)
 int
 art::EventProcessor::readAndCacheRun()
 {
-  SignalSentry runSourceSentry(actReg_->sPreSourceRun_,
-                               actReg_->sPostSourceRun_);
+  SignalSentry runSourceSentry(actReg_->sPreSourceRun.signal_,
+                               actReg_->sPostSourceRun.signal_);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
   return principalCache_.runPrincipal().run();
@@ -697,8 +727,8 @@ art::EventProcessor::readAndCacheRun()
 int
 art::EventProcessor::readAndCacheSubRun()
 {
-  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun_,
-                                  actReg_->sPostSourceSubRun_);
+  SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun.signal_,
+                                  actReg_->sPostSourceSubRun.signal_);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
   return principalCache_.subRunPrincipal().subRun();
@@ -779,14 +809,14 @@ art::EventProcessor::alreadyHandlingException() const
 }
 
 void
-art::EventProcessor::terminateMachine()
+art::EventProcessor::terminateMachine_()
 {
   if (machine_.get() != 0) {
     if (!machine_->terminated()) {
       machine_->process_event(statemachine::Stop());
     }
     else {
-      FDEBUG(1) << "EventProcess::terminateMachine  The state machine was already terminated \n";
+      FDEBUG(1) << "EventProcess::terminateMachine_: The state machine was already terminated \n";
     }
     if (machine_->terminated()) {
       FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
@@ -796,13 +826,13 @@ art::EventProcessor::terminateMachine()
 }
 
 void
-art::EventProcessor::terminateAbnormally() try
+art::EventProcessor::terminateAbnormally_() try
 {
   alreadyHandlingException_ = true;
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
     ServiceHandle<RandomNumberGenerator>()->saveToFile_();
   }
-  terminateMachine();
+  terminateMachine_();
   alreadyHandlingException_ = false;
 }
 catch (...)

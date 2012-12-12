@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Interfaces_CatalogInterface_h
-#define art_Framework_Services_Interfaces_CatalogInterface_h
+#ifndef art_Framework_Services_FileServiceInterfaces_CatalogInterface_h
+#define art_Framework_Services_FileServiceInterfaces_CatalogInterface_h
 
 // -*- C++ -*-
 //
@@ -20,7 +20,7 @@
 //         Created:  Wed  25 Jul, 2012
 //
 
-#include "art/Framework/Services/Interfaces/FileDisposition.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/fwd.h"
 #include "fhiclcpp/fwd.h"
@@ -119,7 +119,7 @@ inline void art::CatalogInterface::rewind()
 }
 
 DECLARE_ART_SERVICE_INTERFACE(art::CatalogInterface,LEGACY)
-#endif /* art_Framework_Services_Interfaces_CatalogInterface_h */
+#endif /* art_Framework_Services_FileServiceInterfaces_CatalogInterface_h */
 
 // Local Variables:
 // mode: c++

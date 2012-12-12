@@ -16,6 +16,7 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/BranchChildren.h"
 #include "art/Persistency/Provenance/BranchID.h"
@@ -67,8 +68,7 @@ namespace art {
     BranchChildren const& branchChildren() const {return branchChildren_;}
 
   protected:
-    //const Trig& getTriggerResults(Event const& ep) const;
-    Trig getTriggerResults(Event const& ep) const;
+    Trig getTriggerResults(Event const& e) const;
 
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('write').
@@ -128,6 +128,7 @@ namespace art {
 
     std::string dataTier_;
     std::string streamName_;
+    ServiceHandle<CatalogInterface> ci_;
 
     //------------------------------------------------------------------
     // private member functions

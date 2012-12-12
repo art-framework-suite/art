@@ -1,5 +1,13 @@
 # project name
-project(art_Integration_Test)
+add_library(test_Integration
+  SHARED
+  ToySource.cc
+)
+
+target_link_libraries(test_Integration
+  art_Framework_Core
+  ${FHICLCPP}
+)
 
 set_source_files_properties(MixFilterTestETS_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0
@@ -29,6 +37,7 @@ simple_plugin(DropTestParentageFaker     "module" NOINSTALL )
 simple_plugin(DropTestAnalyzer           "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(FailingAnalyzer            "module" NOINSTALL )
 simple_plugin(FailingProducer            "module" NOINSTALL )
+simple_plugin(GeneratorTest              "source" art_Framework_IO_Sources NOINSTALL )
 simple_plugin(IntProducer                "module" NOINSTALL )
 simple_plugin(IntTestAnalyzer            "module" NOINSTALL )
 simple_plugin(IntVectorAnalyzer          "module" NOINSTALL )
@@ -63,7 +72,8 @@ simple_plugin(TestProvenanceDumper       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(TestResultAnalyzer         "module" NOINSTALL )
 simple_plugin(TestServiceUsingService    "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Throwing                   "service" NOINSTALL )
-simple_plugin(ToyRawInput                "source" NOINSTALL USE_BOOST_UNIT )
+simple_plugin(ToyRawFileInput            "source" test_Integration art_Framework_IO_Sources NOINSTALL USE_BOOST_UNIT )
+simple_plugin(ToyRawInput                "source" test_Integration art_Framework_IO_Sources NOINSTALL USE_BOOST_UNIT )
 simple_plugin(ToyRawInputTester          "module" NOINSTALL )
 simple_plugin(ToyRawProductAnalyzer      "module" NOINSTALL )
 simple_plugin(U_S                        "module" ALLOW_UNDERSCORES NOINSTALL )
@@ -226,7 +236,6 @@ cet_test(ToyRawInput_t_01 HANDBUILT
   TEST_ARGS --rethrow-all -c ToyRawInput_01.fcl
   DATAFILES
   fcl/ToyRawInput_01.fcl
-  fcl/messageDefaults.fcl
 )
 
 foreach(num 02 03 04)
@@ -236,7 +245,6 @@ foreach(num 02 03 04)
     DATAFILES
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
-    fcl/messageDefaults.fcl
   )
 endforeach()
 
@@ -259,7 +267,6 @@ foreach(num 05 06 07 08 09 10 11 12)
     DATAFILES
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
-    fcl/messageDefaults.fcl
   )
 endforeach()
 
@@ -307,7 +314,6 @@ cet_test(ToyRawInput_r1 HANDBUILT
   TEST_ARGS --rethrow-all -c ToyRawInput_r1.fcl
   DATAFILES
   fcl/ToyRawInput_r1.fcl
-  fcl/ToyRawInput_wr_f1.fcl
   TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
@@ -317,7 +323,6 @@ cet_test(ToyRawInput_r2 HANDBUILT
   DATAFILES
   fcl/ToyRawInput_r2.fcl
   fcl/ToyRawInput_r1.fcl
-  fcl/ToyRawInput_wr_f1.fcl
   TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
@@ -327,8 +332,47 @@ cet_test(ToyRawInput_r3 HANDBUILT
   DATAFILES
   fcl/ToyRawInput_r3.fcl
   fcl/ToyRawInput_r1.fcl
-  fcl/ToyRawInput_wr_f1.fcl
   TEST_PROPERTIES DEPENDS ToyRawInput_w
+)
+
+cet_test(ToyRawFileInput_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ToyRawFileInput_w.fcl
+  DATAFILES
+  fcl/ToyRawFileInput_data.fcl
+  fcl/ToyRawFileInput_w.fcl
+  fcl/ToyRawInput_w.fcl
+  fcl/ToyRawInput_wr_f1.fcl
+  fcl/ToyRawInput_common.fcl
+)
+
+cet_test(ToyRawFileInput_r1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ToyRawFileInput_r1.fcl
+  DATAFILES
+  fcl/ToyRawFileInput_r1.fcl
+  fcl/ToyRawInput_r1.fcl
+  TEST_PROPERTIES DEPENDS ToyRawFileInput_w
+)
+
+cet_test(ToyRawFileInput_r2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ToyRawFileInput_r2.fcl
+  DATAFILES
+  fcl/ToyRawFileInput_r2.fcl
+  fcl/ToyRawInput_r2.fcl
+  fcl/ToyRawInput_r1.fcl
+  TEST_PROPERTIES DEPENDS ToyRawFileInput_w
+)
+
+cet_test(ToyRawFileInput_r3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ToyRawFileInput_r3.fcl
+  DATAFILES
+  fcl/ToyRawFileInput_r3.fcl
+  fcl/ToyRawInput_r3.fcl
+  fcl/ToyRawInput_r1.fcl
+  TEST_PROPERTIES DEPENDS ToyRawFileInput_w
 )
 
 cet_test(BareString_w HANDBUILT
@@ -749,6 +793,14 @@ SET_TESTS_PROPERTIES(SAM_metadata_verify PROPERTIES
   PASS_REGULAR_EXPRESSION
   "\n\n0: applicationFamily  Ethel\n0: applicationVersion v0.00.01a\n0: fileType           MC\n0: process_name       SAMMetadataW\n0: dataTier           The one with the thickest frosting\n0: streamName         o1\n-"
 )
+
+cet_test(GeneratorSource_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c "GeneratorSource_t.fcl"
+  DATAFILES
+  fcl/GeneratorSource_t.fcl
+  )
+
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
