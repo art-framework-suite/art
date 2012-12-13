@@ -6,6 +6,7 @@ set( @product@_UPS_VERSION v@VERSION_MAJOR@_@VERSION_MINOR@_@VERSION_PATCH@ )
 
 find_library( ART_FRAMEWORK_ART NAMES art_Framework_Art PATHS $ENV{ART_LIB} )
 find_library( ART_FRAMEWORK_CORE NAMES art_Framework_Core PATHS $ENV{ART_LIB} )
+find_library( ART_FRAMEWORK_IO_SOURCES NAMES art_Framework_IO_Sources PATHS $ENV{ART_LIB} )
 find_library( ART_FRAMEWORK_PRINCIPAL NAMES art_Framework_Principal PATHS $ENV{ART_LIB} )
 find_library( ART_FRAMEWORK_SERVICES_REGISTRY NAMES art_Framework_Services_Registry PATHS $ENV{ART_LIB} )
 find_library( ART_PERSISTENCY_COMMON NAMES art_Persistency_Common PATHS $ENV{ART_LIB} )

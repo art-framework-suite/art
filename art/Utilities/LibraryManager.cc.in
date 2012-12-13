@@ -36,7 +36,7 @@ art::LibraryManager::LibraryManager(std::string const & lib_type)
   // TODO: We could also consider searching the ld.so.conf list, if
   // anyone asks for it.
   static cet::search_path const ld_lib_path("LD_LIBRARY_PATH");
-  static std::string const pattern("@CMAKE_SHARED_LIBRARY_PREFIX@[A-Za-z0-9_]*_");
+  static std::string const pattern("@CMAKE_SHARED_LIBRARY_PREFIX@([-A-Za-z0-9]*_)+[A-Za-z0-9]+_");
   std::vector<std::string> matches;
   ld_lib_path.find_files(pattern + lib_type +
                          "\\@CMAKE_SHARED_LIBRARY_SUFFIX@",
