@@ -161,6 +161,50 @@ for (auto & handler : handlers) {
         << "\n";
     return 7003;
   }
+
+  return run_art_common_(main_pset);
+}
+
+int art::run_art_string_config(const std::string& config_string)
+{
+  //
+  // Make the parameter set from the configuration string:
+  //
+  fhicl::ParameterSet main_pset;
+  try {
+    // create an intermediate table from the input string
+    fhicl::intermediate_table raw_config;
+    parse_document(config_string, raw_config);
+
+    // run post-processing
+    bpo::variables_map vm;
+    BasicPostProcessor bpp;
+    bpp.processOptions(vm, raw_config);
+
+    // create the parameter set
+    make_ParameterSet(raw_config, main_pset);
+  }
+  catch (cet::exception & e) {
+    std::cerr << "ERROR: Failed to create a parameter set from an input configuration string with exception "
+              << e.what()
+              << ".\n";
+    std::cerr << "       Input configuration string follows:\n"
+              << "------------------------------------"
+              << "------------------------------------"
+              << "\n";
+    std::cerr << config_string << "\n";
+    std::cerr
+        << "------------------------------------"
+        << "------------------------------------"
+        << "\n";
+    return 7003;
+  }
+
+  return run_art_common_(main_pset);
+}
+
+int art::run_art_common_(fhicl::ParameterSet main_pset)
+{
   char const * debug_config (getenv("ART_DEBUG_CONFIG"));
   if (debug_config != nullptr) {
     bool isFilename(false);
