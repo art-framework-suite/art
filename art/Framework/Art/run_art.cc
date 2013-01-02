@@ -161,104 +161,8 @@ for (auto & handler : handlers) {
         << "\n";
     return 7003;
   }
-  char const * debug_config (getenv("ART_DEBUG_CONFIG"));
-  if (debug_config != nullptr) {
-    bool isFilename(false);
-    try {
-      // GCC 4.7.1 cannot handle complex character classes -- use boost::regex instead.
-      isFilename = boost::regex_match(debug_config, boost::regex("[[:alpha:]/\\.].*"));
-    }
-    catch(boost::regex_error e) {
-      std::cerr << "REGEX ERROR: " << e.code() << ".\n";
-    }
-    if (isFilename) {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output to file "
-                << debug_config
-                << " **\n";
-      std::ofstream dc(debug_config);
-      if (dc) {
-        dc << main_pset.to_indented_string() << "\n";
-        return 1;
-      } else {
-        std::cerr << "Output of config to " << debug_config << " failed: fallback to stderr.\n";
-      }
-    } else {
-      std::cerr << "** ART_DEBUG_CONFIG is defined: config debug output follows **\n";
-    }
-    std::cerr << main_pset.to_indented_string() << "\n";
-    return 1;
-  }
-  fhicl::ParameterSet
-  services_pset(main_pset.get<fhicl::ParameterSet>("services",
-                fhicl::ParameterSet()));
-  fhicl::ParameterSet
-  scheduler_pset(services_pset.get<fhicl::ParameterSet>("scheduler",
-                 fhicl::ParameterSet()));
-  //
-  // Start the messagefacility
-  //
-  mf::MessageDrop::instance()->jobMode = std::string("analysis");
-  mf::MessageDrop::instance()->runEvent = std::string("JobSetup");
-  mf::StartMessageFacility(mf::MessageFacilityService::MultiThread,
-                           services_pset.get<fhicl::ParameterSet>("message",
-                               fhicl::ParameterSet()));
-  mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
-  //
-  // Initialize:
-  //   unix signal facility
-  art::setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
-  //   init root handlers facility
-  if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
-    art::unloadRootSigHandler();
-  }
-  RootErrorHandlerSentry re_sentry(scheduler_pset.get<bool>("resetRootErrHandler", true));
-  // Load all dictionaries.
-  art::RootDictionaryManager rdm;
-  art::completeRootHandlers();
-  art::ServiceToken dummyToken;
-  // TODO: Possibly remove addServices -- we have already made
-  // most of them. Have to see how the module factory interacts
-  // with the current module facility.
-  // processDesc->addServices(defaultServices, forcedServices);
-  //
-  // Now create the EventProcessor
-  //
-  EventProcessorWithSentry proc;
-  int rc = -1;
-  try {
-    std::unique_ptr<art::EventProcessor>
-    procP(new
-          art::EventProcessor(main_pset));
-    EventProcessorWithSentry procTmp(std::move(procP));
-    proc = std::move(procTmp);
-    proc->beginJob();
-    proc.on();
-    proc->runToCompletion();
-    proc.off();
-    proc->endJob();
-    rc = 0;
-  }
-  catch (art::Exception & e) {
-    rc = e.returnCode();
-    art::printArtException(e, "art"); // , "Thing1", rc);
-  }
-  catch (cet::exception & e) {
-    rc = 8001;
-    art::printArtException(e, "art"); // , "Thing2", rc);
-  }
-  catch (std::bad_alloc & bda) {
-    rc = 8004;
-    art::printBadAllocException("art"); // , "Thing3", rc);
-  }
-  catch (std::exception & e) {
-    rc = 8002;
-    art::printStdException(e, "art"); // , "Thing4", rc);
-  }
-  catch (...) {
-    rc = 8003;
-    art::printUnknownException("art"); // , "Thing5", rc);
-  }
-  return rc;
+
+  return run_art_common_(main_pset);
 }
 
 int art::run_art_string_config(const std::string& config_string)
@@ -296,6 +200,11 @@ int art::run_art_string_config(const std::string& config_string)
     return 7003;
   }
 
+  return run_art_common_(main_pset);
+}
+
+int art::run_art_common_(fhicl::ParameterSet main_pset)
+{
   char const * debug_config (getenv("ART_DEBUG_CONFIG"));
   if (debug_config != nullptr) {
     bool isFilename(false);
