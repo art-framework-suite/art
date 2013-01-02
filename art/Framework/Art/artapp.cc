@@ -38,3 +38,8 @@ int artapp(int argc, char * argv[])
   handlers.emplace_back(new art::FileCatalogOptionsHandler(all_desc));
   return art::run_art(argc, argv, all_desc, lookupPolicy, std::move(handlers));
 }
+
+int artapp_string_config(const std::string& config_string)
+{
+  return art::run_art_string_config(config_string);
+}
