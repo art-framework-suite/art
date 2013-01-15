@@ -122,6 +122,14 @@ my $constructors =
    }
   };
 
+my $macros_include =
+  {
+   analyzer => "art/Framework/Core/ModuleMacros.h",
+   filter => "art/Framework/Core/ModuleMacros.h",
+   generator => "artdaq/DAQdata/GeneratorMacros.hh",
+   producer => "art/Framework/Core/ModuleMacros.h",
+  };
+
 my $macros =
   {
    analyzer => "DEFINE_ART_MODULE",
@@ -166,6 +174,13 @@ my $base_classes =
    producer => "art::EDProducer"
   };
 
+my $module_suffix =
+  {
+   analyzer => "_module",
+   filter => "_module",
+   generator => "_generator",
+   producer => "_module"
+  };
 
 my $indent = ' ' x 2;
 
@@ -346,7 +361,9 @@ sub generate_multi {
 
   ####################################
   # Header
-  $current_filename = sprintf("%s/${class_name}.h", getcwd());
+  $current_filename = sprintf("%s/${class_name}%s.h",
+                              getcwd(),
+                              ${module_suffix}->${module_type});
   my $fh = new FileHandle(">${current_filename}");
   unless (defined $fh) {
     print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
@@ -417,7 +434,7 @@ sub generate_multi {
 
   ####################################
   # Module registration.
-  $current_filename = sprintf("%s/${class_name}_module.cc", getcwd());
+  $current_filename = sprintf("%s/${class_name}%s.cc", getcwd());
   $fh = new FileHandle(">${current_filename}");
   unless (defined $fh) {
     print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
@@ -513,7 +530,7 @@ sub header_includes {
       push @header_lines,
         "#include \"${header_path}\"";
     }
-    push @header_lines, '#include "art/Framework/Core/ModuleMacros.h"';
+    push @header_lines, sprintf('#include "%s"', ${macros_include}->{${module_type}});
   }
   print $fh join("\n", @header_lines), "\n";
 }
@@ -723,6 +740,8 @@ source may be specified.
 
 =head2 HELP OPTIONS
 
+=over
+
 =item B<--help>
 
 This help.
@@ -730,6 +749,8 @@ This help.
 =item B<--help-types>
 
 Display each available module type, with required and optional interface.
+
+=back
 
 =head2 ARGUMENTS
 
