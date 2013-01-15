@@ -82,11 +82,6 @@ find_library( CPPUNIT NAMES cppunit   PATHS $ENV{CPPUNIT_LIB}   NO_DEFAULT_PATH 
 # SQLite
 find_library(SQLITE3 NAMES sqlite3 PATHS $ENV{SQLITE_LIB} NO_DEFAULT_PATH)
 
-# TBB
-find_library(TBB NAMES tbb PATHS ENV TBB_LIB NO_DEFAULT_PATH)
-find_library(TBBMALLOC NAMES tbbmalloc PATHS ENV TBB_LIB NO_DEFAULT_PATH)
-find_library(TBBMALLOC_PROXY NAMES tbbmalloc_proxy PATHS ENV TBB_LIB NO_DEFAULT_PATH)
-
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)
 include(BuildPlugins)
