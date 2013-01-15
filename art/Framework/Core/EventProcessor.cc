@@ -332,7 +332,7 @@ initSchedules_(ParameterSet const & pset)
   // Initialize TBB with desired number of threads.
   int num_threads =
     scheduler.get<int>("num_threads",
-                       tbb::task_scheduler_init::automatic);
+                       tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
 
   schedule_ =
