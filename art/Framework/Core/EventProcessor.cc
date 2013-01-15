@@ -32,8 +32,6 @@
 #include "cpp0x/utility"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "tbb/task_scheduler_init.h"
-
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -186,6 +184,7 @@ art::EventProcessor::EventProcessor(ParameterSet const & pset)
   preg_(),
   serviceToken_(),
   input_(),
+  tbbManager_(tbb::task_scheduler_init::deferred),
   schedule_(),
   act_table_(),
   fb_(),
@@ -333,12 +332,8 @@ initSchedules_(ParameterSet const & pset)
   // Initialize TBB with desired number of threads.
   int num_threads =
     scheduler.get<int>("num_threads",
-                       tbb::task_scheduler_init::default_num_threads());
-  if (num_threads < 1) {
-    throw Exception(errors::Configuration)
-      << "Specified threads must be >= 1!\n";
-  }
-  tbb::task_scheduler_init init(num_threads);
+                       tbb::task_scheduler_init::automatic);
+  tbbManager_.initialize(num_threads);
 
   schedule_ =
     std::unique_ptr<Schedule>
