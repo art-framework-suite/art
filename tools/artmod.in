@@ -361,9 +361,8 @@ sub generate_multi {
 
   ####################################
   # Header
-  $current_filename = sprintf("%s/${class_name}%s.h",
-                              getcwd(),
-                              ${module_suffix}->${module_type});
+  $current_filename = sprintf("%s/${class_name}.h",
+                              getcwd());
   my $fh = new FileHandle(">${current_filename}");
   unless (defined $fh) {
     print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
@@ -434,7 +433,9 @@ sub generate_multi {
 
   ####################################
   # Module registration.
-  $current_filename = sprintf("%s/${class_name}%s.cc", getcwd());
+  $current_filename = sprintf("%s/${class_name}%s.cc",
+                              getcwd(),
+                              ${module_suffix}->{${module_type}});
   $fh = new FileHandle(">${current_filename}");
   unless (defined $fh) {
     print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
@@ -459,7 +460,9 @@ sub generate_multi {
 
 sub generate_combined {
   my ($h_b, $i_b);
-  $current_filename = sprintf("%s/${class_name}_module.cc", getcwd());
+  $current_filename = sprintf("%s/${class_name}%s.cc",
+                              getcwd(),
+                              ${module_suffix}->{${module_type}});
   my $fh = new FileHandle(">${current_filename}");
   unless (defined $fh) {
     print STDERR "ERROR: unable to open \"${current_filename}\" for output.";
