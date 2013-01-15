@@ -9,7 +9,7 @@
 //
 // N.B. An Assns<A, B> only makes sense when A and B are distinct:
 // otherwise, there are ordering ambiguities when making and accessing
-// asociations. An attempt to specify an Assns<A,A> or <A, A, D> will
+// associations. An attempt to specify an Assns<A,A> or <A, A, D> will
 // fail with "... has incomplete type and cannot be defined."
 //
 // Note that the associations may be one-to-one, one-to-many or
