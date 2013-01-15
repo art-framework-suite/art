@@ -26,6 +26,8 @@
 #include "cpp0x/memory"
 #include "fhiclcpp/ParameterSet.h"
 
+#include "tbb/task_scheduler_init.h"
+
 #include <string>
 #include <vector>
 
@@ -144,6 +146,7 @@ namespace art {
     MasterProductRegistry                         preg_;
     ServiceToken                                  serviceToken_;
     std::shared_ptr<InputSource>                  input_;
+    tbb::task_scheduler_init tbbManager_;
     std::unique_ptr<Schedule>                       schedule_;
     ActionTable                                   act_table_;
 
