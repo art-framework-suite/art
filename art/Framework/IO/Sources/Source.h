@@ -25,10 +25,12 @@
 //    // should throw. Suggestions for suitable exceptions are:
 //    // art::Exception(art::errors::FileOpenError) or
 //    // art::Exception(art::errors::FileReadError).
+//    //
+//    // Most people will require only this signature:
 //    void readFile(std::string const& filename,
 //                  art::FileBlock*& fb);
-//
-//    // OR ...
+//    // However, if you need to merge in product registration
+//    // information you will need the signature below:
 //    void readFile(std::string const& filename,
 //                  art::FileBlock*& fb,
 //                  art::MasterProductRegistry & mpr);
@@ -81,10 +83,10 @@ namespace art {
 
     // Does the detail object have a readFile method taking a
     // MasterProductRegistry?
-    template <typename T,
-              void (T:: *)(std::string const &,
-                           art::FileBlock *&,
-                           art::MasterProductRegistry &)>
+    template < typename T,
+             void (T:: *)(std::string const &,
+                          art::FileBlock *& ,
+                          art::MasterProductRegistry &) >
     struct readFile_function;
 
     template <typename X>
@@ -102,24 +104,24 @@ namespace art {
     };
 
     template <typename T> struct call_readFile_mpr {
-  public:
+    public:
       call_readFile_mpr(std::string const & fn,
                         FileBlock *& fb,
                         MasterProductRegistry & mpr) : fn_(fn), fb_(fb), mpr_(mpr) { };
       void operator()(T & t) { t.readFile(fn_, fb_, mpr_); }
-  private:
+    private:
       std::string const & fn_;
       FileBlock *& fb_;
       MasterProductRegistry & mpr_;
     };
 
     template <typename T> struct call_readFile_no_mpr {
-  public:
+    public:
       call_readFile_no_mpr(std::string const & fn,
                            FileBlock *& fb,
                            MasterProductRegistry &) : fn_(fn), fb_(fb) { };
       void operator()(T & t) { t.readFile(fn_, fb_); }
-  private:
+    private:
       std::string const & fn_;
       FileBlock *& fb_;
     };
@@ -137,7 +139,7 @@ public:
   typedef T SourceDetail;
 
   Source(fhicl::ParameterSet const & p,
-               InputSourceDescription & d);
+         InputSourceDescription & d);
 
   input::ItemType nextItemType() override;
   RunNumber_t run() const override;
@@ -215,7 +217,7 @@ private:
 
 template <class T>
 art::Source<T>::Source(fhicl::ParameterSet const & p,
-                                   InputSourceDescription & d) :
+                       InputSourceDescription & d) :
   InputSource(),
   act_(&d.activityRegistry),
   h_(),
@@ -275,8 +277,8 @@ struct art::Source<T>::cleanup_ {
 template <class T>
 void
 art::Source<T>::throwIfInsane_(bool result, RunPrincipal * newR,
-                                     SubRunPrincipal * newSR,
-                                     EventPrincipal * newE) const
+                               SubRunPrincipal * newSR,
+                               EventPrincipal * newE) const
 {
   cleanup_ sentry(newR, newSR, newE);
   std::ostringstream errMsg;
@@ -540,7 +542,7 @@ art::Source<T>::readFile(MasterProductRegistry & mpr)
 {
   FileBlock * newF = 0;
   typename std::conditional<detail::has_readFile_mpr<T>::value, detail::call_readFile_mpr<T>, detail::call_readFile_no_mpr<T> >::type
-    call_correct_readFile(currentFileName_, newF, mpr);
+  call_correct_readFile(currentFileName_, newF, mpr);
   call_correct_readFile(detail_);
   if (!newF) {
     throw Exception(errors::LogicError)
