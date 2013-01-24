@@ -28,6 +28,11 @@
 //    void readFile(std::string const& filename,
 //                  art::FileBlock*& fb);
 //
+//    // OR ...
+//    void readFile(std::string const& filename,
+//                  art::FileBlock*& fb,
+//                  art::MasterProductRegistry & mpr);
+//
 //    // Read the next part of the current file. Return false if nothing
 //    // was read; return true and set the appropriate 'out' arguments
 //    // if something was read.
@@ -58,19 +63,69 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessConfiguration.h"
 #include "art/Persistency/Provenance/SubRunID.h"
+#include "art/Utilities/detail/metaprogramming.h"
 #include "cetlib/exempt_ptr.h"
 #include "cpp0x/algorithm"
 #include "cpp0x/memory"
+#include "cpp0x/type_traits"
 #include "fhiclcpp/ParameterSet.h"
-
-#include <type_traits>
 
 // ----------------------------------------------------------------------
 
 namespace art {
   template <class T>
   class Source;
+
+  namespace detail {
+    // Template metaprogramming.
+
+    // Does the detail object have a readFile method taking a
+    // MasterProductRegistry?
+    template <typename T,
+              void (T:: *)(std::string const &,
+                           art::FileBlock *&,
+                           art::MasterProductRegistry &)>
+    struct readFile_function;
+
+    template <typename X>
+    no_tag
+    has_readFile_mpr_helper(...);
+
+    template <typename X>
+    yes_tag
+    has_readFile_mpr_helper(readFile_function<X, &X::readFile> * dummy);
+
+    template <typename X>
+    struct has_readFile_mpr {
+      static bool const value =
+        sizeof(has_readFile_mpr_helper<X>(0)) == sizeof(yes_tag);
+    };
+
+    template <typename T> struct call_readFile_mpr {
+  public:
+      call_readFile_mpr(std::string const & fn,
+                        FileBlock *& fb,
+                        MasterProductRegistry & mpr) : fn_(fn), fb_(fb), mpr_(mpr) { };
+      void operator()(T & t) { t.readFile(fn_, fb_, mpr_); }
+  private:
+      std::string const & fn_;
+      FileBlock *& fb_;
+      MasterProductRegistry & mpr_;
+    };
+
+    template <typename T> struct call_readFile_no_mpr {
+  public:
+      call_readFile_no_mpr(std::string const & fn,
+                           FileBlock *& fb,
+                           MasterProductRegistry &) : fn_(fn), fb_(fb) { };
+      void operator()(T & t) { t.readFile(fn_, fb_); }
+  private:
+      std::string const & fn_;
+      FileBlock *& fb_;
+    };
+  }
 }
+
 
 // No-one gets to override this class.
 template <class T>
@@ -88,11 +143,7 @@ public:
   RunNumber_t run() const override;
   SubRunNumber_t subRun() const override;
 
-  // Source does not use the MasterProductRegistry it is passed.
-  // This *could* be used for merging files read by a Source;
-  // however, doing so requires solving some hard problems of file
-  // merging in a more general manner than has been done thus far.
-  std::shared_ptr<FileBlock> readFile(MasterProductRegistry &) override;
+  std::shared_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
   void closeFile() override;
 
   std::shared_ptr<RunPrincipal> readRun() override;
@@ -485,10 +536,12 @@ art::Source<T>::subRun() const
 
 template <class T>
 std::shared_ptr<art::FileBlock>
-art::Source<T>::readFile(MasterProductRegistry &)
+art::Source<T>::readFile(MasterProductRegistry & mpr)
 {
   FileBlock * newF = 0;
-  detail_.readFile(currentFileName_, newF);
+  typename std::conditional<detail::has_readFile_mpr<T>::value, detail::call_readFile_mpr<T>, detail::call_readFile_no_mpr<T> >::type
+    call_correct_readFile(currentFileName_, newF, mpr);
+  call_correct_readFile(detail_);
   if (!newF) {
     throw Exception(errors::LogicError)
         << "detail_::readFile() failed to return a valid FileBlock object\n";
