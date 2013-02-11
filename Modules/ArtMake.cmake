@@ -18,6 +18,7 @@
 #                   SOURCE <source code list>
 #                   [LIBRARIES <library list>] 
 #                   [WITH_STATIC_LIBRARY] )
+#                   [NO_INSTALL] )
 #
 # art_make_exec( NAME <executable name>  
 #                [SOURCE <source code list>] 
@@ -54,7 +55,7 @@ endmacro( art_make_test )
 #                   [LIBRARIES <library list>] 
 #                   [WITH_STATIC_LIBRARY] )
 macro( art_make_library )
-  cet_parse_args( AML "LIBRARY_NAME;LIBRARIES;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
+  cet_parse_args( AML "LIBRARY_NAME;LIBRARIES;SOURCE" "WITH_STATIC_LIBRARY;NO_INSTALL" ${ARGN})
   set(art_make_library_usage "USAGE: art_make_library( SOURCE <source code list> [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [WITH_STATIC_LIBRARY] )")
   # you must supply a source code list
   if( AML_SOURCE )
