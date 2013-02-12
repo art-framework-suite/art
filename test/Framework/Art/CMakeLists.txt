@@ -102,8 +102,8 @@ config_ref_test(BasicOutputOptions_01)
 # BasicSourceOptionsHandler.
 
 # Should pass and provide config output file for comparison in
-# BasicSourceOptions_01_r against reference.
-cet_test(BasicSourceOptions_01 HANDBUILT
+# BasicSourceOptions_01 against reference.
+cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
   -c empty_config.fcl
@@ -114,7 +114,7 @@ cet_test(BasicSourceOptions_01 HANDBUILT
   BasicSourceOptions-srclist.txt
   )
 
-config_test_pass(BasicSourceOptions_01)
+config_test_pass(BasicSourceOptions_01_w)
 
 # Compare output from BasicSourceOptions_01_w against reference.
 config_ref_test(BasicSourceOptions_01)
