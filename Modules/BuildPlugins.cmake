@@ -49,15 +49,15 @@ macro (simple_plugin name type)
   if(ART_FRAMEWORK_CORE)
     # using art as a product
     if("${type}" STREQUAL "service")
-      list(INSERT simple_plugin_liblist 0 ${ART_FRAMEWORK_SERVICES_REGISTRY})
+      list(INSERT simple_plugin_liblist 0 ${ART_FRAMEWORK_SERVICES_REGISTRY} ${SIGC})
     elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
       list(INSERT simple_plugin_liblist 0
-	${ART_FRAMEWORK_CORE}
-	${ART_PERSISTENCY_PROVENANCE}
-	${ART_FRAMEWORK_PRINCIPAL}
-	${ART_UTILITIES}
-	${ROOT_CORE}
-	)
+	      ${ART_FRAMEWORK_CORE}
+	      ${ART_FRAMEWORK_PRINCIPAL}
+	      ${ART_PERSISTENCY_PROVENANCE}
+	      ${ART_UTILITIES}
+	      ${ROOT_CORE}
+	      )
     endif()
   else()
     # this block is used when building art
