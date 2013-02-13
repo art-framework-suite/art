@@ -64,7 +64,13 @@ macro (simple_plugin name type)
     if("${type}" STREQUAL "service")
       list(INSERT simple_plugin_liblist 0 art_Framework_Services_Registry)
     elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
-      list(INSERT simple_plugin_liblist 0 art_Framework_Core)
+      list(INSERT simple_plugin_liblist 0
+        art_Framework_Core
+        art_Framework_Principal
+        art_Persistency_Provenance
+        art_Utilities
+        ${ROOT_CORE}
+        )
     endif()
   endif()
   if( simple_plugin_liblist )
