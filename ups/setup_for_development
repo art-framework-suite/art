@@ -61,6 +61,7 @@ set_ cetb=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildt
 set_ cetv=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
 #echo Found $cetb $cetv
 setup -B $cetb $cetv
+test "$?" = 0 || set_ setup_fail="true"
 setenv UPS_OPTIONS -B
 # now get the rest of the products
 set_ cmd="$CETBUILDTOOLS_DIR/bin/set_dev_products $CETPKG_SOURCE $CETPKG_BUILD $*"
