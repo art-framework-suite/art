@@ -13,5 +13,8 @@ find_library( ART_PERSISTENCY_COMMON NAMES art_Persistency_Common PATHS $ENV{ART
 find_library( ART_PERSISTENCY_COMMON_DICT NAMES art_Persistency_Common_dict PATHS $ENV{ART_LIB} )
 find_library( ART_PERSISTENCY_PROVENANCE NAMES art_Persistency_Provenance PATHS $ENV{ART_LIB} )
 find_library( ART_UTILITIES NAMES art_Utilities PATHS $ENV{ART_LIB} )
+find_library( ART_FRAMEWORK_SERVICES_OPTIONAL NAMES art_Framework_Services_Optional PATHS $ENV{ART_LIB} )
+find_library( ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE NAMES art_Framework_Services_Optional_TFileService_service PATHS $ENV{ART_LIB} )
+find_library( ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE NAMES art_Framework_Services_Optional_RandomNumberGenerator_service PATHS $ENV{ART_LIB} )
 
 check_required_components(@product@)

@@ -182,6 +182,23 @@ my $module_suffix =
    producer => "_module"
   };
 
+my $basic_mod_headers =
+  [ '"art/Framework/Principal/Event.h"',
+    '"art/Framework/Principal/Handle.h"',
+    '"art/Framework/Principal/Run.h"',
+    '"art/Framework/Principal/SubRun.h"',
+    '"cpp0x/memory"',
+    '"fhiclcpp/ParameterSet.h"'
+  ];
+
+my $included_headers =
+  {
+   analyzer => $basic_mod_headers,
+   filter => $basic_mod_headers,
+   generator => [ '"fhiclcpp/ParameterSet.h"' ],
+   producer => $basic_mod_headers
+  };
+
 my $indent = ' ' x 2;
 
 my $options = {};
@@ -514,28 +531,28 @@ sub header_includes {
     print STDERR "LOGIC ERROR: unknown header_includes mode $mode.\n";
     exit 9;
   }
-  my @header_lines = ();
+  my @headers = ();
   if ($mode eq "class_defn" or $mode eq "combined") {
-    push @header_lines, sprintf("#include \"%s\"", $base_headers->{$module_type}),
+    push @headers, "\"$base_headers->{$module_type}\"",
   }
   if ($mode eq "class_impl" or $mode eq "combined") {
-    if ($mode ne "combined") {
-      push @header_lines,
-        "#include \"${header_path}\"";
-    }
-    if ($options->{"use-boost-unit"}) {
-      push @header_lines,
-        "\n#include <boost/test/included/unit_test.hpp>";
-    }
+    push @headers, @{$included_headers->{$module_type}};
   }
   if ($mode eq "module_reg" or $mode eq "combined") {
-    if ($mode ne "combined") {
-      push @header_lines,
-        "#include \"${header_path}\"";
-    }
-    push @header_lines, sprintf('#include "%s"', ${macros_include}->{${module_type}});
+    push @headers, "\"$macros_include->{$module_type}\"";
   }
-  print $fh join("\n", @header_lines), "\n";
+
+  print $fh
+    join("\n",
+         map { $_?"#include $_":$_; }
+         ((($mode eq "class_impl" or $mode eq "module_reg")?"\"${header_path}\"":()),
+          (($options->{"use-boost-unit"} and
+            ($mode eq "class_impl" or $mode eq "combined"))?("<boost/test/included/unit_test.hpp>", "\n"):()),
+          sort(grep /^"/, @headers),
+          "",
+          sort(grep /^</, @headers))
+        ),
+          "\n";
 }
 
 sub class_decl {
