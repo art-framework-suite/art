@@ -6,8 +6,8 @@
  *  Copyright 2009 FNAL. All rights reserved.
  *
  */
-#ifndef TBBProcessingDemo_TaskQueueBase_h
-#define TBBProcessingDemo_TaskQueueBase_h
+#ifndef tech_testbed_TaskQueueBase_h
+#define tech_testbed_TaskQueueBase_h
 
 #include "tbb/task.h"
 namespace demo {
@@ -100,4 +100,8 @@ namespace demo {
    }
 }
 
-#endif
+#endif /* tech_testbed_TaskQueueBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

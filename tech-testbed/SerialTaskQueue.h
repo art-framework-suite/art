@@ -6,8 +6,8 @@
  *  Copyright 2009 FNAL. All rights reserved.
  *
  */
-#ifndef TBBProcessingDemo_SerialTaskQueue_h
-#define TBBProcessingDemo_SerialTaskQueue_h
+#ifndef tech_testbed_SerialTaskQueue_h
+#define tech_testbed_SerialTaskQueue_h
 
 #include <atomic>
 
@@ -44,4 +44,8 @@ namespace demo {
    };
 }
 
-#endif
+#endif /* tech_testbed_SerialTaskQueue_h */
+
+// Local Variables:
+// mode: c++
+// End:

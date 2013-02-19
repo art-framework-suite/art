@@ -6,8 +6,8 @@
  *  Copyright 2009 FNAL. All rights reserved.
  *
  */
-#ifndef TBBProcessingDemo_WaitingTaskList_h
-#define TBBProcessingDemo_WaitingTaskList_h
+#ifndef tech_testbed_WaitingTaskList_h
+#define tech_testbed_WaitingTaskList_h
 
 #include <atomic>
 namespace tbb {
@@ -66,4 +66,8 @@ namespace demo {
    };
 }
 
-#endif
+#endif /* tech_testbed_WaitingTaskList_h */
+
+// Local Variables:
+// mode: c++
+// End:
