@@ -24,7 +24,7 @@ eventsProcessed() const
 
 void
 demo::Schedule::
-operator()(cet::exempt_ptr<EventPrincipal> const &)
+operator()(std::unique_ptr<EventPrincipal> &&)
 {
   ++eventsProcessed_;
 }

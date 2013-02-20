@@ -1,13 +1,19 @@
 #include "tech-testbed/ScheduleTask.hh"
 
+#include "tech-testbed/make_reader.hh"
+
 demo::ScheduleTask::
-ScheduleTask(cet::exempt_ptr<EventPrincipal> const & ep,
-             cet::exempt_ptr<Schedule> const & sched,
-             ScheduleQueue & sQ)
+ScheduleTask(std::unique_ptr<EventPrincipal> && ep,
+             cet::exempt_ptr<Schedule> const sched,
+             task * topTask,
+             SerialTaskQueue & sQ,
+             size_t & evCounter)
  :
-  ep_(ep),
+  ep_(std::move(ep)),
   sched_(sched),
-  sQ_(sQ)
+  topTask_(topTask),
+  sQ_(sQ),
+  evCounter_(evCounter)
 {
 }
 
@@ -16,11 +22,12 @@ demo::ScheduleTask::
 execute()
 {
   // Do the work.
-  (*sched_)(ep_);
-  // Make our schedule available for more work.
-  sQ_.push(sched_);
-  // If we happen to end up with another ScheduleTask operating on this
-  // schedule before this one has gone away this is perfectly fine:
-  // schedule is still ready to do the work.
+  (*sched_)(std::move(ep_));
+  // Push a new reader for our schedule back onto the queue.
+  auto func = make_reader(sched_,
+                          topTask_,
+                          sQ_,
+                          evCounter_);
+  sQ_.push(std::move(func));
   return nullptr;
 }

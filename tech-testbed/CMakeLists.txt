@@ -4,10 +4,10 @@ include(CetTest)
 
 art_make_library(SOURCE
   Schedule.cc
-  ScheduleBroker.cc
   ScheduleTask.cc
   SerialTaskQueue.cpp
   WaitingTaskList.cpp
+  make_reader.cc
   LIBRARIES
   ${TBB}
   )

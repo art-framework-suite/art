@@ -5,6 +5,7 @@
 #include "tech-testbed/EventPrincipal.hh"
 
 #include <cstdint>
+#include <memory>
 
 namespace demo {
   class Schedule;
@@ -19,10 +20,10 @@ public:
   ScheduleID id() const;
   size_t eventsProcessed() const;
 
-  void operator()(cet::exempt_ptr<EventPrincipal> const & ep);
+  void operator()(std::unique_ptr<EventPrincipal> && ep);
 
 private:
   ScheduleID const sID_;
-  size_t eventsProcessed_; // Note: not thread-safe.
+  size_t eventsProcessed_;
 };
 #endif /* tech_testbed_Schedule_hh */
