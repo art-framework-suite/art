@@ -2,6 +2,10 @@
 #include "art/Utilities/quiet_unit_test.hpp"
 using namespace boost::unit_test;
 
+#include "tech-testbed/EventPrincipalQueue.hh"
+#include "tech-testbed/ScheduleBroker.hh"
+#include "tech-testbed/ScheduleQueue.hh"
+
 #include "tbb/task_scheduler_init.h"
 
 #include <cstdlib>
@@ -10,16 +14,19 @@ using namespace boost::unit_test;
 class TaskTestbed {
 public:
   TaskTestbed();
-  bool operator() ();
+  void operator() (size_t nSchedules,
+                     size_t nEvents);
 
 private:
   tbb::task_scheduler_init tbbManager_;
+  demo::WaitingTaskList pTasks_;
 };
 
 // Actual working function
 void exec_taskTestbed() {
   TaskTestbed work;
-  BOOST_REQUIRE(work());
+  work(10, 201);
+  work(15, 704);
 }
 
 bool
@@ -46,16 +53,74 @@ int main(int argc, char *argv[]) {
 
 TaskTestbed::TaskTestbed()
 :
-  tbbManager_()
+  tbbManager_(),
+  pTasks_()
 {
-
 }
 
-bool
+void
 TaskTestbed::
-operator() ()
+operator() (size_t nSchedules,
+            size_t nEvents)
 {
-  return true;
+  // Prepare the waiting task list for operation (in case this isn't the
+  // first time we've been called).
+  pTasks_.reset();
+
+  // Queues.
+  demo::ScheduleQueue sQ;
+  demo::EventPrincipalQueue epQ;
+
+  // Dummy task (never spawned) to handle all the others as children.
+  std::shared_ptr<tbb::task> topTask
+  { new (tbb::task::allocate_root()) tbb::empty_task {},
+      [](tbb::task* iTask){tbb::task::destroy(*iTask);}
+  };
+  topTask->set_ref_count(2);
+
+  // Primary broker task which will spawn schedule tasks.
+  demo::ScheduleBroker * sb { new (topTask->allocate_child())
+      demo::ScheduleBroker(epQ, sQ, topTask.get(), pTasks_)
+  };
+
+  // Add ScheduleBroker task.
+  pTasks_.add(sb);
+
+  // Load scheduleQ.
+  std::vector<demo::Schedule> schedules;
+  for (size_t i { 0 }; i < nSchedules; ++i) {
+    schedules.emplace_back(i);
+    sQ.push(cet::exempt_ptr<demo::Schedule>(&schedules.back()));
+  }
+
+  pTasks_.doneWaiting(); // Start processing events.
+
+  // Some EventPrincipals to process.
+  std::vector<demo::EventPrincipal> principals;
+  principals.reserve(nEvents);
+  for (size_t i { 0 }; i < nEvents; ++i) {
+    principals.emplace_back();
+    epQ.push(cet::exempt_ptr<demo::EventPrincipal>(&principals.back()));
+    usleep(10000);
+  }
+
+  __sync_synchronize();
+
+  // Done for now. Tell the broker to finish when it's done with
+  // outstanding events.
+  sb->drain();
+
+  // Wait for all tasks to complete.
+  topTask->wait_for_all();
+
+  size_t total = 0;
+  for (auto const & sched : schedules) {
+    total += sched.eventsProcessed();
+  }
+
+  BOOST_REQUIRE_EQUAL(nEvents, total);
+
+  return;
 }
 
 // Local Variables:
