@@ -1,0 +1,24 @@
+
+set( @product@_VERSION @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@ )
+set( @product@_UPS_VERSION v@VERSION_MAJOR@_@VERSION_MINOR@_@VERSION_PATCH@ )
+
+@PACKAGE_INIT@
+
+@CONFIG_FIND_UPS_COMMANDS@
+
+@CONFIG_FIND_LIBRARY_COMMANDS@
+
+# Eventually the following lines will no longer be necessary
+# include search path
+include_directories ( $ENV{LIBSIGCPP_INC}/sigc++-2.0 )
+include_directories ( $ENV{LIBSIGCPP_LIB}/sigc++-2.0/include )
+# define cppunit - have to override system library
+cet_find_library( CPPUNIT NAMES cppunit   PATHS ENV CPPUNIT_LIB   NO_DEFAULT_PATH )
+# dictionaries
+cet_find_library( ART_PERSISTENCY_COMMON_DICT NAMES art_Persistency_Common_dict PATHS ENV ART_LIB NO_DEFAULT_PATH )
+# services
+cet_find_library( ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE NAMES art_Framework_Services_Optional_TFileService_service PATHS ENV ART_LIB NO_DEFAULT_PATH )
+cet_find_library( ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE NAMES art_Framework_Services_Optional_RandomNumberGenerator_service PATHS ENV ART_LIB NO_DEFAULT_PATH )
+
+check_required_components(@product@)
+
