@@ -9,6 +9,8 @@ using namespace boost::unit_test;
 
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
+#include <random>
 
 class TaskTestbed {
 public:
@@ -23,8 +25,11 @@ private:
 // Actual working function
 void exec_taskTestbed() {
   TaskTestbed work;
-  work(10, 20021);
-  work(15, 70004);
+  auto const perSchedule = 4000;
+  auto const runs { 10, 15, 20, 25, 30, 31, 32 };
+  for (auto const ns : runs) {
+    work(ns, ns * perSchedule);
+  }
 }
 
 bool
@@ -47,7 +52,6 @@ int main(int argc, char *argv[]) {
   }
   return unit_test_main(&init_unit_test_suite, argc, argv);
 }
-
 
 TaskTestbed::TaskTestbed()
 :
@@ -73,10 +77,13 @@ operator() (size_t nSchedules,
 
   size_t evCounter = nEvents;
 
+  std::random_device rd;
+
   std::vector<demo::Schedule> schedules;
   schedules.reserve(nSchedules);
+  tbb::tick_count t0 = tbb::tick_count::now();
   for (size_t i { 0 }; i < nSchedules; ++i) {
-    schedules.emplace_back(i);
+    schedules.emplace_back(i, rd(), 5000);
     sQ.push(demo::make_reader(cet::exempt_ptr<demo::Schedule>(&schedules.back()),
                               topTask.get(),
                               sQ,
@@ -85,13 +92,35 @@ operator() (size_t nSchedules,
 
   // Wait for all tasks to complete.
   topTask->wait_for_all();
+  tbb::tick_count t1 = tbb::tick_count::now();
 
-  size_t total = 0;
+  size_t totalEvents = 0;
+  tbb::tick_count::interval_t totalTime(0.0);
   for (auto const & sched : schedules) {
-    total += sched.eventsProcessed();
+    auto evts = sched.eventsProcessed();
+    auto time = sched.timeTaken();
+    std::cout << "Schedule " << sched.id()
+              << " processed "
+              << sched.itemsGenerated() << " items from "
+              << evts << " events ("
+              << sched.itemsGenerated() / static_cast<double>(evts)
+              << "/event) in "
+              << time.seconds() * 1000 << " ms."
+              << std::endl;
+    totalEvents += evts;
+    totalTime += time;
   }
 
-  BOOST_REQUIRE_EQUAL(nEvents, total);
+  auto elapsed_time = (t1 -t0).seconds();
+  std::cout << "Processed a total of "
+            << totalEvents << " events using "
+            << nSchedules << " schedules in "
+            << totalTime.seconds() << " s CPU, "
+            << elapsed_time << " s elapsed (speedup x"
+            << totalTime.seconds() / elapsed_time << ")."
+            << std::endl;
+
+  BOOST_REQUIRE_EQUAL(nEvents, totalEvents);
 
   return;
 }

@@ -10,6 +10,7 @@ art_make_library(SOURCE
   make_reader.cc
   LIBRARIES
   ${TBB}
+  -lrt
   )
 
 # Test code from Chris J.
