@@ -24,6 +24,6 @@ cet_test(WaitingTaskList_test USE_BOOST_UNIT
   LIBRARIES tech-testbed
   )
 
-cet_test(taskTestbed USE_BOOST_UNIT
+cet_test(taskTestbed USE_BOOST_UNIT NO_AUTO
   LIBRARIES tech-testbed
   )

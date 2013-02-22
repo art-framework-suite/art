@@ -26,7 +26,8 @@ private:
 void exec_taskTestbed() {
   TaskTestbed work;
   auto const perSchedule = 4000;
-  auto const runs { 10, 15, 20, 25, 30, 31, 32 };
+//  auto const runs { 10, 15, 20, 25, 30, 31, 32 };
+  auto const runs { 32 };
   for (auto const ns : runs) {
     work(ns, ns * perSchedule);
   }
@@ -83,7 +84,7 @@ operator() (size_t nSchedules,
   schedules.reserve(nSchedules);
   tbb::tick_count t0 = tbb::tick_count::now();
   for (size_t i { 0 }; i < nSchedules; ++i) {
-    schedules.emplace_back(i, rd(), 5000);
+    schedules.emplace_back(i, rd(), 50000);
     sQ.push(demo::make_reader(cet::exempt_ptr<demo::Schedule>(&schedules.back()),
                               topTask.get(),
                               sQ,
