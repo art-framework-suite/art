@@ -807,7 +807,7 @@ cet_test(GeneratorSource_t HANDBUILT
 
 # Utility script to turn an expected abort into a pass (see test
 # Unscheduled_03_t below).
-cet_test(test_must_abort PREBUILT NO_AUTO)
+cet_script(test_must_abort NO_INSTALL)
 
 set(test_list
   BitsPass_t

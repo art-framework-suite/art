@@ -68,8 +68,7 @@ cet_test(Statemachine_t NO_AUTO
   LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY} ${default_test_libraries}
   )
 
-# Copy the script (don't run). So much easier than writing the target yourself.
-cet_test(Statemachine_t.sh PREBUILT NO_AUTO)
+cet_script(Statemachine_t.sh NO_INSTALL)
 
 # Shorthand to avoid writing almost the same thing three times.
 macro(statemachine_test i)

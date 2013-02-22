@@ -3,25 +3,15 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/artmod.in
   @ONLY
   )
 
-ADD_CUSTOM_TARGET(artmod ALL
-  COMMAND ${CMAKE_COMMAND} -E
-  copy  "${CMAKE_CURRENT_BINARY_DIR}/artmod"
-  "${EXECUTABLE_OUTPUT_PATH}/"
-  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/artmod"
-  )
+cet_script(artmod GENERATED)
 
-ADD_CUSTOM_TARGET(checkClassVersion ALL
-  COMMAND ${CMAKE_COMMAND} -E
-  copy "${CMAKE_CURRENT_SOURCE_DIR}/checkClassVersion"
-  "${EXECUTABLE_OUTPUT_PATH}/"
-  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/checkClassVersion"
-  )
+cet_script(checkClassVersion)
 
 foreach(type Analyzer Producer Filter)
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${type}_module.cc
     COMMAND artmod
     ARGS -A ${type} arttest::ToolsTest${type}
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/artmod
+    DEPENDS artmod
     COMMENT "Generating ToolsTest${type}_module.cc"
     VERBATIM
     )
@@ -34,8 +24,3 @@ foreach(type Analyzer Producer Filter)
     )
   simple_plugin(ToolsTest${type} "module" NOINSTALL)
 endforeach()
-
-INSTALL(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/artmod
-  ${EXECUTABLE_OUTPUT_PATH}/checkClassVersion
-  DESTINATION ${flavorqual_dir}/bin
-  )
