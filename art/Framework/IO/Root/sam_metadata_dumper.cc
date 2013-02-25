@@ -129,7 +129,8 @@ bool read_all_fc_metadata_entries(TFile & file,
   sqlite3_prepare_v2(sqliteDB,
     "SELECT ID, Name, Value from FileCatalog_metadata;", -1, &stmt, NULL);
   bool row_found = false;
-  while (sqlite3_step(stmt) == SQLITE_ROW) {
+  int sqlite_status = SQLITE_OK;
+  while ((sqlite_status = sqlite3_step(stmt)) == SQLITE_ROW) {
     row_found = true;
     ent.SMDid = sqlite3_column_int (stmt, 0);
     ent.name  = std::string(
@@ -137,6 +138,21 @@ bool read_all_fc_metadata_entries(TFile & file,
     ent.value = std::string(
       reinterpret_cast<char const *>(sqlite3_column_text(stmt, 2)) );
     all_metadata_entries.push_back(ent);
+  }
+  if (sqlite_status != SQLITE_DONE) {
+    errors << "Unexpected status from table read: "
+           << sqlite3_errmsg(sqliteDB)
+           << " (0x"
+           << sqlite_status
+           <<").\n";
+  }
+  int finalize_status __attribute__((unused)) = sqlite3_finalize(stmt);
+  if (finalize_status != SQLITE_OK) {
+    errors << "Unexpected status from DB status cleanup: "
+           << sqlite3_errmsg(sqliteDB)
+           << " (0x"
+           << finalize_status
+           <<").\n";
   }
   if (!row_found) {
      errors << "No file catalog Metadata rows found - table is missing or empty\n";
