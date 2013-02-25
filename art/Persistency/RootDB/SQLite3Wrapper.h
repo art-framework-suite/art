@@ -31,7 +31,7 @@ public:
 
   SQLite3Wrapper(TFile * tfile,
                  std::string const & key,
-                 int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_TRANSIENT_DB);
+                 int flags = SQLITE_OPEN_READWRITE);
 
   std::string const & key() const { return key_; }
 
