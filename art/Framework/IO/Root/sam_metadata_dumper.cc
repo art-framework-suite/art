@@ -9,7 +9,6 @@
 
 #include "boost/program_options.hpp"
 
-#include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/rootNames.h"
 #include "art/Framework/IO/Root/setMetaDataBranchAddress.h"
@@ -17,19 +16,21 @@
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Persistency/RootDB/tkeyvfs.h"
 
+#include "TError.h"
 #include "TFile.h"
 
 extern "C" {
 #include "sqlite3.h"
 }
 
+#include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <iterator>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 namespace bpo = boost::program_options;
 
@@ -117,8 +118,8 @@ void print_all_fc_metadata_entries(vector<FileCatalogMetadataEntry> const & entr
 // Write any error messages to errors.
 // Return false on failure, and true on success.
 bool read_all_fc_metadata_entries(TFile & file,
-				  vector<FileCatalogMetadataEntry>& all_metadata_entries,
-				  ostream & errors)
+          vector<FileCatalogMetadataEntry>& all_metadata_entries,
+          ostream & errors)
 {
 //  std::cerr << "---> read_all_fc_metadata_entries \n";
   FileCatalogMetadataEntry ent;
@@ -221,6 +222,23 @@ int print_fc_metadata_from_files(
   return rc;
 }
 
+void RootErrorHandler(int level,
+                      bool die,
+                      char const * location,
+                      char const * message)
+{
+  // Ignore dictionary errors.
+  if (level == kWarning &&
+      (!die) &&
+      strcmp(location, "TClass::TClass") == 0 &&
+      std::string(message).find("no dictionary") != std::string::npos) {
+    return;
+  }
+  else {
+    // Default behavior
+    DefaultErrorHandler(level, die, location, message);
+  }
+}
 
 int main(int argc, char * argv[])
 {
@@ -268,9 +286,9 @@ int main(int argc, char * argv[])
   file_names.reserve(file_count);
   cet::copy_all(vm["source"].as<stringvec>(),
                 std::back_inserter(file_names));
-  // Prepare for dealing with Root. We use the RootDictionaryManager to
-  // load all necessary dictionaries.
-  art::RootDictionaryManager dictionary_loader;
+
+  // Set the ROOT error handler.
+  SetErrorHandler(RootErrorHandler);
 
   // Register the tkey VFS with sqlite:
   tkeyvfs_init();
