@@ -1774,6 +1774,12 @@ extern "C" {
   {
 #ifndef TKEYVFS_NO_ROOT
     RootFileSentry rfs(rootFile);
+    // Note that the sentry *is* the correct thing to do, here:
+    // gRootFile is required in unixOpen(), which is called as part of
+    // the chain of functions of which sqlite3_open_v2() is the first
+    // call. By the time we return from sqlite3_open_v2() then, we no
+    // longer require gRootFile and the sentry can do the job of
+    // cleaning up when it goes out of scope.
 #endif // TKEYVFS_NO_ROOT
     return sqlite3_open_v2(filename, ppDb, flags, "tkeyvfs");
   }
