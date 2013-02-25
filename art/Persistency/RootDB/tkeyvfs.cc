@@ -1120,7 +1120,6 @@ static int unixOpen(
   int isCreate     = (flags & SQLITE_OPEN_CREATE);
   int isReadonly   = (flags & SQLITE_OPEN_READONLY);
   int isReadWrite  = (flags & SQLITE_OPEN_READWRITE);
-  int isTransient  = (flags & SQLITE_OPEN_TRANSIENT_DB);
   char zTmpname[MAX_PATHNAME + 1];
   const char * zName = zPath;
 #if TKEYVFS_TRACE
@@ -1154,10 +1153,10 @@ static int unixOpen(
     p->rootFile = gRootFile;
   }
   p->saveToRootFile = (p->rootFile &&
+                       p->rootFile->IsWritable() &&
                        (eType & SQLITE_OPEN_MAIN_DB) &&
                        (isCreate || isReadWrite) &&
-                       !isDelete &&
-                       !isTransient);
+                       !isDelete);
 #endif // TKEYVFS_NO_ROOT
   if ((eType & SQLITE_OPEN_MAIN_DB) && !isCreate) {
     /**/
@@ -1775,6 +1774,12 @@ extern "C" {
   {
 #ifndef TKEYVFS_NO_ROOT
     RootFileSentry rfs(rootFile);
+    // Note that the sentry *is* the correct thing to do, here:
+    // gRootFile is required in unixOpen(), which is called as part of
+    // the chain of functions of which sqlite3_open_v2() is the first
+    // call. By the time we return from sqlite3_open_v2() then, we no
+    // longer require gRootFile and the sentry can do the job of
+    // cleaning up when it goes out of scope.
 #endif // TKEYVFS_NO_ROOT
     return sqlite3_open_v2(filename, ppDb, flags, "tkeyvfs");
   }
