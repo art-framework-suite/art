@@ -1,4 +1,4 @@
-#include "art/Framework/Art/novaapp.h"
+#include "art/Framework/Art/@ART_MAIN_FUNC@.h"
 
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
@@ -16,8 +16,11 @@ namespace  bpo = boost::program_options;
 #include <memory>
 #include <string>
 
-int novaapp(int argc, char * argv[])
+#cmakedefine01 ART_RETHROW_DEFAULT
+
+int @ART_MAIN_FUNC@(int argc, char * argv[])
 {
+  // Configuration file lookup policy.
   char const * fhicl_env = getenv("FHICL_FILE_PATH");
   std::string search_path;
   if (fhicl_env == nullptr) {
@@ -39,7 +42,16 @@ int novaapp(int argc, char * argv[])
   // be done for you.
   handlers.emplace_back(new art::BasicSourceOptionsHandler(all_desc));
   handlers.emplace_back(new art::BasicOutputOptionsHandler(all_desc));
-  handlers.emplace_back(new art::DebugOptionsHandler(all_desc));
+  handlers.emplace_back(new art::DebugOptionsHandler(all_desc, ART_RETHROW_DEFAULT));
   handlers.emplace_back(new art::FileCatalogOptionsHandler(all_desc));
   return art::run_art(argc, argv, all_desc, lookupPolicy, std::move(handlers));
 }
+
+int @ART_MAIN_FUNC@_string_config(const std::string& config_string)
+{
+  return art::run_art_string_config(config_string);
+}
+
+// Local Variables:
+// mode: c++
+// End:

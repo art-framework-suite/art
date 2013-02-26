@@ -1,9 +1,9 @@
-#include "art/Framework/Art/artapp.h"
+#include "art/Framework/Art/@ART_MAIN_FUNC@.h"
 
 #include <iostream>
 
 int main( int argc, char* argv[] ) {
-  int result = artapp(argc,argv);
+  int result = @ART_MAIN_FUNC@(argc,argv);
   std::cout
     << "Art has completed and will exit with status "
     << result
@@ -11,3 +11,7 @@ int main( int argc, char* argv[] ) {
     << std::endl;
   return result;
 }
+
+// Local Variables:
+// mode: c++
+// End:
