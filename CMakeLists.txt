@@ -16,8 +16,6 @@
 # use cmake 2.8 or later
 cmake_minimum_required (VERSION 2.8)
 
-project(art)
-
 # cetbuildtools contains our cmake modules
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
@@ -47,7 +45,7 @@ find_ups_product( cppunit v1_12_1 )
 find_ups_product( gccxml v0_9 )
 find_ups_product( libsigcpp v2_2_10 )
 find_ups_product( clhep v2_1_2_2 )
-find_ups_product( cetbuildtools v3_02_01 )
+find_ups_product( cetbuildtools v3_03_00 )
 find_ups_product( messagefacility v1_10_00 )
 find_ups_product( sqlite v3_07_08_00 )
 find_ups_root( v5_34_00 )

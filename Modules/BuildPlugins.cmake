@@ -7,14 +7,17 @@
 # simple_plugin( <name> <plugin type>
 #                [library list]
 #                [ALLOW_UNDERSCORES]
-#                [NOINSTALL] )
+#                [NO_INSTALL] )
 #        the base plugin name is derived from the current source code subdirectory
-#        specify NOINSTALL when building a plugin for the tests
+#        specify NO_INSTALL when building a plugin for the tests
 
 # simple plugin libraries
 include(CetParseArgs)
 macro (simple_plugin name type)
-  cet_parse_args(SP "" "USE_BOOST_UNIT;ALLOW_UNDERSCORES;NOINSTALL" ${ARGN})
+  cet_parse_args(SP "" "USE_BOOST_UNIT;ALLOW_UNDERSCORES;NO_INSTALL;NOINSTALL" ${ARGN})
+  if (NOINSTALL)
+    message(SEND_ERROR "simple_plugin now requires NO_INSTALL instead of NOINSTALL")
+  endif()
   #message( STATUS "simple_plugin: PACKAGE_TOP_DIRECTORY is ${PACKAGE_TOP_DIRECTORY}")
   # base name on current subdirectory
   if( PACKAGE_TOP_DIRECTORY )
@@ -76,7 +79,7 @@ macro (simple_plugin name type)
   if( simple_plugin_liblist )
     target_link_libraries( ${plugin_name} ${simple_plugin_liblist} )
   endif( simple_plugin_liblist )
-  if( NOT SP_NOINSTALL )
+  if( NOT SP_NO_INSTALL )
     install( TARGETS ${plugin_name}  DESTINATION ${flavorqual_dir}/lib )
     cet_add_to_library_list( ${plugin_name} )
   endif()
