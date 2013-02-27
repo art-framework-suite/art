@@ -158,7 +158,6 @@ endfunction( art_make_library )
 ####################################
 function( art_make )
   set(art_file_list "")
-  set(art_liblist FALSE)
   cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE" "WITH_STATIC_LIBRARY" ${ARGN})
 
   if(AM_LIBRARIES)
