@@ -158,7 +158,12 @@ endfunction( art_make_library )
 ####################################
 function( art_make )
   set(art_file_list "")
-  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE" "WITH_STATIC_LIBRARY" ${ARGN})
+  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
+
+  if(AM_SOURCE)
+    message(FATAL_ERROR "ART_MAKE: SOURCE is not a valid argument: library sources are computed.
+Use EXCLUDE to exclude particular (eg exec) source files from library.")
+  endif()
 
   if(AM_LIBRARIES)
     message(FATAL_ERROR "ART_MAKE: LIBRARIES is ambiguous -- use {LIB,DICT,SERVICE,MODULE,SOURCE}_LIBRARIES, instead.")
