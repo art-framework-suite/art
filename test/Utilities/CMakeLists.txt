@@ -1,6 +1,6 @@
 # cet_test macro
 
-art_dictionary(NOINSTALL)
+art_dictionary(NO_INSTALL)
 
 set(default_test_libraries
   art_Utilities

@@ -1,3 +1,3 @@
-simple_plugin(RNGS_analyzer  "module" NOINSTALL )
-simple_plugin(RNGS_producer  "module" NOINSTALL )
-simple_plugin(TestTFileServiceAnalyzer  "module" NOINSTALL )
+simple_plugin(RNGS_analyzer  "module" NO_INSTALL )
+simple_plugin(RNGS_producer  "module" NO_INSTALL )
+simple_plugin(TestTFileServiceAnalyzer  "module" NO_INSTALL )
