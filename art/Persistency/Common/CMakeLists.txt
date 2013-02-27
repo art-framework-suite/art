@@ -15,18 +15,19 @@ set(art_Persistency_Common_sources
   traits.cc
 )
 
-link_libraries(
-  art_Persistency_Provenance
-  art_Utilities
-  ${ROOT_CORE}
-  ${Boost_THREAD_LIBRARY}
-  )
+set( art_Persistency_Common_libraries 
+	art_Persistency_Provenance
+	art_Utilities
+	${ROOT_CORE}
+	${Boost_THREAD_LIBRARY}
+	)
 
-add_library(art_Persistency_Common SHARED ${art_Persistency_Common_sources})
+art_make_library( LIBRARY_NAME art_Persistency_Common
+                  SOURCE ${art_Persistency_Common_sources}
+		  LIBRARIES ${art_Persistency_Common_libraries}
+		 )
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Common)
-
-install(TARGETS art_Persistency_Common DESTINATION ${flavorqual_dir}/lib)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

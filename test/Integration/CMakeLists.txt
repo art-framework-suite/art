@@ -62,6 +62,7 @@ simple_plugin(PtrmvProducer              "module" NOINSTALL )
 simple_plugin(RandomNumberSaveTest       "module" NOINSTALL USE_BOOST_UNIT )
 simple_plugin(Reconfigurable             "service" NOINSTALL )
 simple_plugin(Reconfiguring              "module" NOINSTALL )
+simple_plugin(SAMMetadataTest            "module" NOINSTALL )
 simple_plugin(ServiceUsing               "service" NOINSTALL )
 simple_plugin(SimpleDerivedAnalyzer      "module" NOINSTALL )
 simple_plugin(SimpleDerivedProducer      "module" NOINSTALL )
@@ -791,7 +792,7 @@ cet_test(SAM_metadata_verify HANDBUILT
 
 SET_TESTS_PROPERTIES(SAM_metadata_verify PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "\n\n0: applicationFamily  Ethel\n0: applicationVersion v0.00.01a\n0: fileType           MC\n0: process_name       SAMMetadataW\n0: dataTier           The one with the thickest frosting\n0: streamName         o1\n-"
+  "\n\n0: applicationFamily  Ethel\n0: applicationVersion v0.00.01a\n0: fileType           MC\n0: process_name       SAMMetadataW\n0: testMetadata       success!\n0: dataTier           The one with the thickest frosting\n0: streamName         o1\n-"
 )
 
 cet_test(GeneratorSource_t HANDBUILT
@@ -807,7 +808,7 @@ cet_test(GeneratorSource_t HANDBUILT
 
 # Utility script to turn an expected abort into a pass (see test
 # Unscheduled_03_t below).
-cet_test(test_must_abort PREBUILT NO_AUTO)
+cet_script(test_must_abort NO_INSTALL)
 
 set(test_list
   BitsPass_t

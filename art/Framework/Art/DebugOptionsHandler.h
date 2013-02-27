@@ -11,13 +11,16 @@ namespace art {
 
 class art::DebugOptionsHandler : public art::OptionsHandler {
 public:
-  explicit DebugOptionsHandler(bpo::options_description & desc);
+  explicit DebugOptionsHandler(bpo::options_description & desc,
+                               bool rethrowDefault = false);
 private:
   // Check selected options for consistency.
   int doCheckOptions(bpo::variables_map const & vm);
   // Act on selected options.
   int doProcessOptions(bpo::variables_map const & vm,
                        fhicl::intermediate_table & raw_config);
+
+  bool rethrowDefault_;
 };
 #endif /* art_Framework_Art_DebugOptionsHandler_h */
 

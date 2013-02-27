@@ -24,7 +24,7 @@ cet_test(artapp_t USE_BOOST_UNIT
   art_Framework_Art
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   DATAFILES
-  empty_config.fcl
+  fcl/empty_config.fcl
 )
 
 ########################################################################
@@ -102,16 +102,16 @@ config_ref_test(BasicOutputOptions_01)
 # BasicSourceOptionsHandler.
 
 # Should pass and provide config output file for comparison in
-# BasicSourceOptions_01_r against reference.
+# BasicSourceOptions_01 against reference.
 cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c BasicSourceOptions_01_w.fcl
+  -c empty_config.fcl
   -s f0.txt
-  -S BasicSourceOptions_01-srclist.txt
+  -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
-  DATAFILES fcl/BasicSourceOptions_01_w.fcl
-  BasicSourceOptions_01-srclist.txt
+  DATAFILES fcl/empty_config.fcl
+  BasicSourceOptions-srclist.txt
   )
 
 config_test_pass(BasicSourceOptions_01_w)
@@ -119,6 +119,21 @@ config_test_pass(BasicSourceOptions_01_w)
 # Compare output from BasicSourceOptions_01_w against reference.
 config_ref_test(BasicSourceOptions_01)
 
+cet_test(BasicSourceOptions_02 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c BasicSourceOptions_02.fcl
+  -s f0.txt
+  -S BasicSourceOptions-srclist.txt
+  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
+  DATAFILES fcl/BasicSourceOptions_02.fcl
+  BasicSourceOptions-srclist.txt
+  )
+
+set_tests_properties(BasicSourceOptions_02
+  PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "Error: source files specified for EmptyEvent source."
+  )
 
 ####################################
 # BasicPostProcessor.

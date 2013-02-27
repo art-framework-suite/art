@@ -1,12 +1,31 @@
-foreach(cfg_source
-    check_libs.cc
-    )
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${cfg_source}.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${cfg_source} @ONLY
-    )
-endforeach()
+# Confgure file to handle differences for Mac.
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY
+  )
 
-set( art_Framework_Art_sources
+####################################
+# Configure for desired default exception handling.
+SET(ART_MAIN_FUNC artapp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY
+  )
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY
+  )
+
+SET(ART_MAIN_FUNC mu2eapp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY
+  )
+
+SET(ART_RETHROW_DEFAULT TRUE)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY
+  )
+####################################
+
+set(art_Framework_Art_sources
   BasicOptionsHandler.cc
   BasicPostProcessor.cc
   BasicSourceOptionsHandler.cc
@@ -15,9 +34,9 @@ set( art_Framework_Art_sources
   FileCatalogOptionsHandler.cc
   InitRootHandlers.cc
   OptionsHandler.cc
-  artapp.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
   find_config.cc
-  novaapp.cc
   run_art.cc
   )
 
@@ -32,14 +51,6 @@ art_make_library( LIBRARY_NAME art_Framework_Art
   art_Utilities
   ${ROOT_HIST}
   )
-
-set (ART_EXECS
-  art
-  gm2
-  lar
-  mu2e
-  nova
-)
 
 set (ART_EXEC_ROOT_LIBS
   ${ROOT_CINTEX}
@@ -57,47 +68,43 @@ set (ART_EXEC_ROOT_LIBS
   ${ROOT_REFLEX}
 )
 
-foreach (art_exec ${ART_EXECS})
-  add_executable( ${art_exec} ${art_exec}.cc )
-  target_link_libraries( ${art_exec}
+# Build an art exec.
+macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
+  set(ART_MAIN_FUNC ${MAIN_FUNC})
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY
+    )
+  art_make_exec(NAME ${TARGET_STEM}
+    SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
+    ${ARGN}
+    LIBRARIES
     art_Framework_Art
     # ROOT libraries added for use convenience ONLY -- they will go away
     # eventually.
     ${ART_EXEC_ROOT_LIBS}
     )
-  install ( TARGETS ${art_exec} DESTINATION ${flavorqual_dir}/bin )
-endforeach (art_exec ${ART_EXECS})
-
-# Versions of the ART execs supporting modules using BOOST unit test framework.
-macro(art_ut_exec TARGET_STEM MAIN_FUNC)
-  set(ART_UT_MAIN_FUNC ${MAIN_FUNC})
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/art_ut.cc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc @ONLY
-    )
-  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc
-      PROPERTIES
-      COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-      COMPILE_FLAGS -Wno-overloaded-virtual
-      )
-  add_executable(${TARGET_STEM}_ut ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}_ut.cc)
-  target_link_libraries(${TARGET_STEM}_ut
-    art_Framework_Art
-    # ROOT libraries added for use convenience ONLY -- they will go away
-    # eventually.
-    ${ART_EXEC_ROOT_LIBS}
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-)
-install ( TARGETS ${TARGET_STEM}_ut DESTINATION ${flavorqual_dir}/bin )
 endmacro()
 
-art_ut_exec(art artapp)
-art_ut_exec(nova novaapp)
-art_ut_exec(mu2e novaapp)
-art_ut_exec(gm2 novaapp)
+# Standard execs
+art_exec(art art artapp)
+art_exec(gm2 art artapp)
+art_exec(lar art artapp)
+art_exec(mu2e art mu2eapp)
+art_exec(nova art artapp)
 
-add_executable( check_libs ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc )
-target_link_libraries( check_libs art_Utilities ${CETLIB})
-install ( TARGETS check_libs DESTINATION ${flavorqual_dir}/bin )
+# Execs with Boost unit testing enabled for modules.
+art_exec(art_ut art_ut artapp USE_BOOST_UNIT)
+art_exec(gm2_ut art_ut artapp USE_BOOST_UNIT)
+art_exec(lar_ut art_ut artapp USE_BOOST_UNIT)
+art_exec(mu2e_ut art_ut mu2eapp USE_BOOST_UNIT)
+art_exec(nova_ut art_ut artapp USE_BOOST_UNIT)
+
+art_make_exec(NAME check_libs
+  SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
+  LIBRARIES
+  art_Utilities
+  ${CETLIB}
+  )
 
 install_headers()
 install_source()

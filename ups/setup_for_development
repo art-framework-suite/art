@@ -1,3 +1,5 @@
+# NO USER-SERVICEABLE PARTS BELOW.
+#
 # There should be as little as possible here,
 # with most of the heavy lifting done by other small scripts
 #
@@ -52,21 +54,23 @@ echo The working build directory is $CETPKG_BUILD
 echo The source code directory is $CETPKG_SOURCE
 
 set_ msg5='ERROR: setup of required products has failed'
-unset fail
 
 echo ----------- check this block for errors -----------------------
+set_ setup_fail="false"
 set_ cetb=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $2 }' `
 set_ cetv=` grep only_for_build $CETPKG_SOURCE/ups/product_deps | grep cetbuildtools | awk '{ print $3 }' `
 #echo Found $cetb $cetv
 setup -B $cetb $cetv
+test "$?" = 0 || set_ setup_fail="true"
 setenv UPS_OPTIONS -B
 # now get the rest of the products
-set_ cmd="$CETBUILDTOOLS_DIR/bin/set_dev_products $CETPKG_SOURCE/ups $CETPKG_BUILD $*"
+set_ cmd="$CETBUILDTOOLS_DIR/bin/set_dev_products $CETPKG_SOURCE $CETPKG_BUILD $*"
 #echo Ready to run $cmd
 source `$cmd`
-test "$?" = 0 || set_ fail="true"
-test "$fail" = "true" && echo "$msg5"
-test "$fail" = "true" && return 1
+#echo "$cmd returned $setup_fail"
+test "$setup_fail" = "true" && echo "$msg5"
+test "$setup_fail" = "true" && return 1
+test -e "diag_report" && cat diag_report
 echo ----------------------------------------------------------------
 
 # add lib to LD_LIBRARY_PATH
@@ -74,13 +78,10 @@ source $CETBUILDTOOLS_DIR/bin/set_dev_lib
 # add bin to path
 source $CETBUILDTOOLS_DIR/bin/set_dev_bin
 
-# final sanity check
-#source $CETBUILDTOOLS_DIR/bin/set_dev_check
-# report CETPKG variable settings
-#source $CETBUILDTOOLS_DIR/bin/set_dev_report
+# final sanity check and report
 source $CETBUILDTOOLS_DIR/bin/set_dev_check_report
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_ return
-unset ss db me thisdir msg1 msg2 msg3 msg4 msg5 fail
+unset ss db me thisdir msg1 msg2 msg3 msg4 msg5 setup_fail
 unset set_ setenv unsetenv_ tnotnull nullout vecho_

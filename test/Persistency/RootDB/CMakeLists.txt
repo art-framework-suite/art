@@ -5,7 +5,7 @@ set_source_files_properties(
   COMPILE_DEFINITIONS TKEYVFS_NO_ROOT
   )
 
-cet_test(dbtest_wrap_sql PREBUILT NO_AUTO)
+cet_script(dbtest_wrap_sql NO_INSTALL)
 
 cet_test(tkeyvfs_t_01 NO_AUTO
   SOURCES test1.c myvfs.c

@@ -46,7 +46,13 @@ doProcessOptions(bpo::variables_map const & vm,
   }
   // Post-process the config.
   if (source_list.size() > 0) {
-    if (!raw_config.exists("source.module_type")) {
+    if (raw_config.exists("source.module_type")) {
+      if (raw_config.get<std::string>("source.module_type") == "EmptyEvent") {
+        throw Exception(errors::Configuration)
+          << "Error: source files specified for EmptyEvent source.";
+      }
+    }
+    else {
       raw_config.put("source.module_type", "RootInput");
     }
     raw_config.put("source.fileNames",

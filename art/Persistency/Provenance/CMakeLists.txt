@@ -32,17 +32,19 @@ set(art_Persistency_Provenance_sources
   TransientStreamer.cc )
 
 
-link_libraries( 
+set( art_Persistency_Provenance_libraries
   art_Persistency_RootDB
   art_Utilities
   ${Boost_THREAD_LIBRARY}
   ${ROOT_CINTEX}
   )
 
-add_library(art_Persistency_Provenance SHARED ${art_Persistency_Provenance_sources} )
+art_make_library( LIBRARY_NAME art_Persistency_Provenance
+                  SOURCE ${art_Persistency_Provenance_sources}
+                  LIBRARIES ${art_Persistency_Provenance_libraries}
+		 )
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance)
 
-install ( TARGETS art_Persistency_Provenance DESTINATION ${flavorqual_dir}/lib )
 install_headers()
 install_source()

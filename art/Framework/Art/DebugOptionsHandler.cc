@@ -10,13 +10,17 @@
 #include <string>
 
 art::DebugOptionsHandler::
-DebugOptionsHandler(bpo::options_description & desc)
+DebugOptionsHandler(bpo::options_description & desc,
+                    bool rethrowDefault)
+:
+  rethrowDefault_(rethrowDefault)
 {
   desc.add_options()
   ("trace", "Activate tracing.")
   ("notrace", "Deactivate tracing.")
   ("memcheck", "Activate monitoring of memory use.")
   ("nomemcheck", "Deactivate monitoring of memory use.")
+  ("default-exceptions", "some exceptions may be handled differently by default (e.g. ProductNotFound).")
   ("rethrow-default", "all exceptions default to rethrow.")
   ("rethrow-all", "all exceptions overridden to rethrow (cf rethrow-default).")
   ;
@@ -26,10 +30,12 @@ int
 art::DebugOptionsHandler::
 doCheckOptions(bpo::variables_map const & vm)
 {
-  if (vm.count("rethrow-all") == 1 &&
-      vm.count("rethrow-default") == 1) {
+  if ((vm.count("rethrow-all") +
+       vm.count("rethrow-default") +
+       vm.count("no-rethrow-default")) > 1) {
     throw Exception(errors::Configuration)
-        << "Options --rethrow-all and --rethrow-default are incompatible.\n";
+        << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
+        << "are mutually incompatible.\n";
   }
   return 0;
 }
@@ -63,7 +69,8 @@ doProcessOptions(bpo::variables_map const & vm,
     raw_config.erase("services.SimpleMemoryCheck");
   }
   if (vm.count("rethrow-all") == 1 ||
-      vm.count("rethrow-default") == 1) {
+      vm.count("rethrow-default") == 1 ||
+      (rethrowDefault_ && vm.count("default-exceptions") == 0) ) {
     raw_config.put("services.scheduler.defaultExceptions", false);
     if (vm.count("rethrow-all") == 1) {
       raw_config.putEmptySequence("services.scheduler.IgnoreCompletely");
