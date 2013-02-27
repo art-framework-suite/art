@@ -158,13 +158,15 @@ endfunction( art_make_library )
 ####################################
 function( art_make )
   set(art_file_list "")
-  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE" "WITH_STATIC_LIBRARY" ${ARGN})
+  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
+
+  if(AM_SOURCE)
+    message(FATAL_ERROR "ART_MAKE: SOURCE is not a valid argument: library sources are computed.
+Use EXCLUDE to exclude particular (eg exec) source files from library.")
+  endif()
 
   if(AM_LIBRARIES)
     message(FATAL_ERROR "ART_MAKE: LIBRARIES is ambiguous -- use {LIB,DICT,SERVICE,MODULE,SOURCE}_LIBRARIES, instead.")
-    if(AM_DICT_LIBRARIES OR AM_SERVICE_LIBRARIES OR AM_MODULE_LIBRARIES OR AM_SOURCE_LIBRARIES)
-      set(ignore_libraries YES)
-    endif()
   endif()
 
   # check for extra link libraries
@@ -251,22 +253,6 @@ function( art_make )
     _debug_message("Configured to build library ${art_make_library_name} with sources:
             ${source_names}.")
   endif( )
-
-  # Process extra library lists.
-  if (NOT ignore_libraries)
-    if (NOT AM_SOURCE_LIBRARIES)
-      set(AM_SOURCE_LIBRARIES ${art_liblist})
-    endif()
-    if (NOT AM_SERVICE_LIBRARIES)
-      set(AM_SERVICE_LIBRARIES ${art_liblist})
-    endif()
-    if (NOT AM_MODULE_LIBRARIES)
-      set(AM_MODULE_LIBRARIES ${art_liblist})
-    endif()
-    if (NOT AM_DICT_LIBRARIES)
-      set(AM_DICT_LIBRARIES ${art_liblist})
-    endif()
-  endif()
 
   # process plugin lists
   foreach( plugin_file ${plugin_sources} )
