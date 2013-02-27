@@ -22,5 +22,5 @@ foreach(type Analyzer Producer Filter)
     PROPERTIES
     COMPILE_FLAGS "-Wno-unused-parameter -Wno-return-type"
     )
-  simple_plugin(ToolsTest${type} "module" NOINSTALL)
+  simple_plugin(ToolsTest${type} "module" NO_INSTALL)
 endforeach()

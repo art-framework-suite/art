@@ -35,7 +35,7 @@ cet_test(RootDictionaryManager_t USE_BOOST_UNIT
 #########################################################################
 # Old (pre-ART fork) tests.
 
-simple_plugin(TestMod module NOINSTALL ${CPPUNIT})
+simple_plugin(TestMod module NO_INSTALL ${CPPUNIT})
 
 # cppunit tests en masse.
 file(GLOB cppunit_files *.cppunit.cc)
