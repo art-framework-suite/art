@@ -80,7 +80,7 @@ simple_plugin(ToyRawProductAnalyzer      "module" NO_INSTALL )
 simple_plugin(U_S                        "module" ALLOW_UNDERSCORES NO_INSTALL )
 simple_plugin(Wanted                     "service" NO_INSTALL )
 
-art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NOINSTALL)
+art_dictionary(DICTIONARY_LIBRARIES ${CETLIB} NO_INSTALL)
 
 # Common library link requirements for tests here.
 set(default_test_libraries

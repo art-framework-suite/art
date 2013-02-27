@@ -1,5 +1,5 @@
 
-art_dictionary(NOINSTALL)
+art_dictionary(NO_INSTALL)
 
 set(standard_libraries
   art_Persistency_Provenance
