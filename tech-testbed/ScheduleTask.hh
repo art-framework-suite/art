@@ -4,7 +4,7 @@
 #include "cetlib/exempt_ptr.h"
 #include "tech-testbed/EventPrincipal.hh"
 #include "tech-testbed/Schedule.hh"
-#include "tech-testbed/SerialTaskQueue.h"
+#include "tech-testbed/SerialTaskQueue.hh"
 
 #include "tbb/task.h"
 

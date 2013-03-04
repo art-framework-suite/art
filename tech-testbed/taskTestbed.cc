@@ -2,7 +2,7 @@
 #include "art/Utilities/quiet_unit_test.hpp"
 using namespace boost::unit_test;
 
-#include "tech-testbed/SerialTaskQueue.h"
+#include "tech-testbed/SerialTaskQueue.hh"
 #include "tech-testbed/make_reader.hh"
 
 #include "tbb/task_scheduler_init.h"
@@ -28,7 +28,7 @@ void exec_taskTestbed() {
   TaskTestbed work;
   auto const perSchedule = 4000;
 //  auto const runs { 10, 15, 20, 25, 30, 31, 32 };
-  auto const runs { 32 };
+  auto const runs { 30 };
   for (auto const ns : runs) {
     work(ns, ns * perSchedule);
   }

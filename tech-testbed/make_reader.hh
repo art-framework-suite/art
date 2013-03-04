@@ -1,9 +1,9 @@
-#ifndef LQOOOOAS
-#define LQOOOOAS
+#ifndef tech_testbed_make_reader_hh
+#define tech_testbed_make_reader_hh
 
 #include "cetlib/exempt_ptr.h"
 #include "tech-testbed/Schedule.hh"
-#include "tech-testbed/SerialTaskQueue.h"
+#include "tech-testbed/SerialTaskQueue.hh"
 
 #include "tbb/task.h"
 
@@ -18,4 +18,4 @@ namespace demo {
               size_t & evCounter);
 }
 
-#endif
+#endif /* tech_testbed_make_reader_hh */
