@@ -22,7 +22,7 @@ make_reader(cet::exempt_ptr<Schedule> sched,
     else {
       --evCounter;
       tbb::task::spawn(*(new (topTask->allocate_root())
-                         ScheduleTask(std::unique_ptr<EventPrincipal>(new EventPrincipal),
+                         ScheduleTask(std::unique_ptr<EventPrincipal>(new EventPrincipal { evCounter }),
                                       sched,
                                       topTask,
                                       sQ,

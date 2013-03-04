@@ -5,5 +5,7 @@ namespace demo {
 }
 
 class demo::EventPrincipal {
+public:
+  size_t id;
 };
 #endif /* tech_testbed_EventPrincipal_hh */

@@ -9,6 +9,7 @@ using namespace boost::unit_test;
 
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iostream>
 #include <random>
 
@@ -97,6 +98,8 @@ operator() (size_t nSchedules,
 
   size_t totalEvents = 0;
   tbb::tick_count::interval_t totalTime(0.0);
+  std::ofstream file("taskTestbed.dat");
+  demo::Schedule::printHeader(file);
   for (auto const & sched : schedules) {
     auto evts = sched.eventsProcessed();
     auto time = sched.timeTaken();
@@ -110,6 +113,7 @@ operator() (size_t nSchedules,
               << std::endl;
     totalEvents += evts;
     totalTime += time;
+    file << sched;
   }
 
   auto elapsed_time = (t1 -t0).seconds();

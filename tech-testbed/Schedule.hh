@@ -7,6 +7,7 @@
 #include "tbb/tick_count.h"
 
 #include <cstdint>
+#include <iosfwd>
 #include <memory>
 #include <random>
 
@@ -18,6 +19,8 @@ namespace demo {
 
 class demo::Schedule {
 public:
+  typedef std::vector<tbb::tick_count::interval_t> Intervals;
+
   Schedule(ScheduleID sID,
            unsigned int seed,
            size_t scale);
@@ -29,6 +32,9 @@ public:
 
   void operator()(std::unique_ptr<EventPrincipal> && ep);
 
+  static void printHeader(std::ostream & os);
+  void print(std::ostream & os) const;
+
 private:
   ScheduleID const sID_;
   std::mt19937_64 engine_;
@@ -36,5 +42,12 @@ private:
   size_t eventsProcessed_;
   size_t items_;
   tbb::tick_count::interval_t timeTaken_;
+  tbb::tick_count prevCycle_;
+  Intervals eventTimes_;
+  std::vector<size_t> ids_;
+  Intervals cycleTimes_;
 };
+
+std::ostream & operator << (std::ostream & os, demo::Schedule const & s);
+
 #endif /* tech_testbed_Schedule_hh */
