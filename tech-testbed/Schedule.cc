@@ -54,7 +54,7 @@ timeTaken() const
 
 void
 demo::Schedule::
-operator()(std::unique_ptr<EventPrincipal> && ep)
+operator()(std::shared_ptr<EventPrincipal> && ep)
 {
   tbb::tick_count t0 { tbb::tick_count::now() };
   std::vector<double> results(dist_(engine_));

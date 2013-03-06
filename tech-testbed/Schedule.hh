@@ -30,7 +30,7 @@ public:
   size_t itemsGenerated() const;
   tbb::tick_count::interval_t timeTaken() const;
 
-  void operator()(std::unique_ptr<EventPrincipal> && ep);
+  void operator()(std::shared_ptr<EventPrincipal> && ep);
 
   static void printHeader(std::ostream & os);
   void print(std::ostream & os) const;

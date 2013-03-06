@@ -19,4 +19,5 @@ cet_test(SerialTaskQueue_test USE_BOOST_UNIT
 
 cet_test(taskTestbed USE_BOOST_UNIT NO_AUTO
   LIBRARIES tech-testbed
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )

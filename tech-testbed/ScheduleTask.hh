@@ -3,6 +3,7 @@
 
 #include "cetlib/exempt_ptr.h"
 #include "tech-testbed/EventPrincipal.hh"
+#include "tech-testbed/EventQueue.hh"
 #include "tech-testbed/Schedule.hh"
 #include "tech-testbed/SerialTaskQueue.hh"
 
@@ -16,17 +17,17 @@ namespace demo {
 
 class demo::ScheduleTask : public tbb::task {
 public:
-ScheduleTask(std::unique_ptr<EventPrincipal> && ep,
+ScheduleTask(std::shared_ptr<EventPrincipal> && ep,
              cet::exempt_ptr<Schedule> sched,
              task * topTask,
              SerialTaskQueue & sQ,
-             size_t & evCounter);
+             EventQueue & eQ);
   task * execute() final override;
 private:
-  std::unique_ptr<EventPrincipal> ep_;
+  std::shared_ptr<EventPrincipal> ep_;
   cet::exempt_ptr<Schedule> const sched_;
   tbb::task * topTask_;
   SerialTaskQueue & sQ_;
-  size_t & evCounter_;
+  EventQueue & eQ_;
 };
 #endif /* tech_testbed_ScheduleTask_hh */

@@ -11,22 +11,23 @@ demo::
 make_reader(cet::exempt_ptr<Schedule> sched,
             tbb::task * topTask,
             SerialTaskQueue & sQ,
-            size_t & evCounter)
+            EventQueue & eQ)
 {
   assert(topTask != nullptr);
 
-  return [sched, topTask, &sQ, &evCounter]() {
-    if (evCounter == 0) {
+  return [sched, topTask, &sQ, &eQ]() {
+    std::shared_ptr<EventPrincipal> ep;
+    eQ.pop(ep);
+    if (ep.get() == nullptr) { // Done.
       topTask->decrement_ref_count();
     }
     else {
-      --evCounter;
       tbb::task::spawn(*(new (topTask->allocate_root())
-                         ScheduleTask(std::unique_ptr<EventPrincipal>(new EventPrincipal { evCounter }),
+                         ScheduleTask(std::move(ep),
                                       sched,
                                       topTask,
                                       sQ,
-                                      evCounter)));
+                                      eQ)));
     }
   };
 }
