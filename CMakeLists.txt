@@ -83,9 +83,6 @@ add_subdirectory (art)
 # testing
 add_subdirectory(test)
 
-# Technology test bed.
-add_subdirectory(tech-testbed)
-
 # ups - table and config files
 add_subdirectory(ups)
 
