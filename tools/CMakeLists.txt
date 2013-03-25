@@ -5,7 +5,6 @@ foreach(type Analyzer Producer Filter)
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${type}_module.cc
     COMMAND artmod
     ARGS -A ${type} arttest::ToolsTest${type}
-    DEPENDS artmod
     COMMENT "Generating ToolsTest${type}_module.cc"
     VERBATIM
     )
