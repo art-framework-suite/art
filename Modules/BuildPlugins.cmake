@@ -57,8 +57,10 @@ macro (simple_plugin name type)
       list(INSERT simple_plugin_liblist 0
 	      ${ART_FRAMEWORK_CORE}
 	      ${ART_FRAMEWORK_PRINCIPAL}
+	      ${ART_PERSISTENCY_COMMON}
 	      ${ART_PERSISTENCY_PROVENANCE}
 	      ${ART_UTILITIES}
+        ${CETLIB}
 	      ${ROOT_CORE}
 	      )
     endif()
