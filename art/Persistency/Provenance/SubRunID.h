@@ -14,7 +14,7 @@ namespace art {
   class SubRunID;
 
   std::ostream &
-  operator<<(std::ostream & oStream,
+  operator<<(std::ostream & os,
              SubRunID const & iID);
 }
 
@@ -24,7 +24,6 @@ public:
   SubRunID(RunNumber_t rID,
            SubRunNumber_t srID);
 
-#ifndef __GCCXML__
   RunID const & runID() const;
   RunNumber_t run() const;
   SubRunNumber_t subRun() const;
@@ -53,8 +52,7 @@ public:
   bool operator>=(SubRunID const & other) const;
 
   friend std::ostream &
-  operator<<(std::ostream & oStream, SubRunID const & iID);
-#endif /* __GCCXML__ */
+  operator<<(std::ostream & os, SubRunID const & iID);
 
 private:
 #ifndef __GCCXML__
@@ -372,20 +370,6 @@ art::SubRunID::
 FIRST_SUBRUN_NUMBER()
 {
   return 0;
-}
-
-inline
-std::ostream &
-art::operator<<(std::ostream & oStream, SubRunID const & iID)
-{
-  oStream << iID.run_ << " subRun: ";
-  if (iID.isValid()) {
-    oStream << iID.subRun_;
-  }
-  else {
-    oStream << "INVALID";
-  }
-  return oStream;
 }
 #endif /* __GCCXML__ */
 

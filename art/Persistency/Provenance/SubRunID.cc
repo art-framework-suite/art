@@ -1,16 +1,16 @@
-#include "art/Persistency/Provenance/EventID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 #include <ostream>
 
 std::ostream &
-art::operator<<(std::ostream & os, EventID const & iID)
+art::operator<<(std::ostream & os, SubRunID const & iID)
 {
-  os << iID.subRun_ << " event: ";
+  os << iID.run_ << " subRun: ";
   if (iID.isFlush()) {
     os << "FLUSH";
   }
   else if (iID.isValid()) {
-    os << iID.event_;
+    os << iID.subRun_;
   }
   else {
     os << "INVALID";

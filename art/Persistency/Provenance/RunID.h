@@ -11,14 +11,14 @@
 #include "art/Persistency/Provenance/SortInvalidFirst.h"
 #include "art/Utilities/Exception.h"
 #include "cpp0x/cstdint"
-#include <ostream>
+#include <iosfwd>
 
 namespace art {
   typedef std::uint32_t RunNumber_t;
   class RunID;
 
   std::ostream &
-  operator<<(std::ostream & oStream,
+  operator<<(std::ostream & os,
              art::RunID const & iID);
 }
 
@@ -27,7 +27,6 @@ public:
   RunID();
   explicit RunID(RunNumber_t i);
 
-#ifndef __GCCXML__
   RunNumber_t run() const;
 
   bool isValid() const;
@@ -49,8 +48,7 @@ public:
   bool operator>=(RunID const & other) const;
 
   friend std::ostream &
-  operator<<(std::ostream & oStream, RunID const & iID);
-#endif /* __GCCXML__ */
+  operator<<(std::ostream & os, RunID const & iID);
 
 private:
 #ifndef __GCCXML__
@@ -271,20 +269,6 @@ art::RunID::
 FIRST_RUN_NUMBER()
 {
   return 1;
-}
-
-inline
-std::ostream &
-art::operator<<(std::ostream & oStream, art::RunID const & iID)
-{
-  oStream << "run: ";
-  if (iID.isValid()) {
-    oStream << iID.run_;
-  }
-  else {
-    oStream << "INVALID";
-  }
-  return oStream;
 }
 #endif /* __GCCXML__ */
 
