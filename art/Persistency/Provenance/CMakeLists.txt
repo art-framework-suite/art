@@ -28,7 +28,6 @@ set(art_Persistency_Provenance_sources
   ProductProvenance.cc
   ReflexTools.cc
   RunAuxiliary.cc
-  RunID.cc
   TransientStreamer.cc )
 
 
