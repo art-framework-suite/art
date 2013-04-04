@@ -13,6 +13,10 @@ set(standard_libraries
   -ldl
   )
 
+cet_test(EventID_t USE_BOOST_UNIT
+  LIBRARIES art_Persistency_Provenance
+  )
+
 file(GLOB cppunit_files *.cppunit.cc)
 foreach(cppunit_source ${cppunit_files})
   get_filename_component(test_name ${cppunit_source} NAME_WE )

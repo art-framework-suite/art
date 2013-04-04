@@ -13,8 +13,8 @@ namespace art {
     currentSubRunPrincipal_( )
   { }
 
-  RunPrincipal & PrincipalCache::runPrincipal(RunNumber_t run) {
-    RunIterator iter = runPrincipals_.find(run);
+  RunPrincipal & PrincipalCache::runPrincipal(RunID run) {
+    auto iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipal\n"
@@ -24,8 +24,8 @@ namespace art {
     return *iter->second.get();
   }
 
-  RunPrincipal const& PrincipalCache::runPrincipal(RunNumber_t run) const {
-    ConstRunIterator iter = runPrincipals_.find(run);
+  RunPrincipal const& PrincipalCache::runPrincipal(RunID run) const {
+    auto iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipal\n"
@@ -35,8 +35,8 @@ namespace art {
     return *iter->second.get();
   }
 
-  std::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(RunNumber_t run) {
-    RunIterator iter = runPrincipals_.find(run);
+  std::shared_ptr<RunPrincipal> PrincipalCache::runPrincipalPtr(RunID run) {
+    auto iter = runPrincipals_.find(run);
     if (iter == runPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::runPrincipalPtr\n"
@@ -76,9 +76,8 @@ namespace art {
     return currentRunPrincipal_;
   }
 
-  SubRunPrincipal & PrincipalCache::subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) {
-    SubRunKey key(run, subRun);
-    SubRunIterator iter = subRunPrincipals_.find(key);
+  SubRunPrincipal & PrincipalCache::subRunPrincipal(SubRunID const & sr) {
+    auto iter = subRunPrincipals_.find(sr);
     if (iter == subRunPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipal\n"
@@ -88,9 +87,8 @@ namespace art {
     return *iter->second.get();
   }
 
-  SubRunPrincipal const& PrincipalCache::subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) const {
-    SubRunKey key(run, subRun);
-    ConstSubRunIterator iter = subRunPrincipals_.find(key);
+  SubRunPrincipal const& PrincipalCache::subRunPrincipal(SubRunID const & sr) const {
+    auto iter = subRunPrincipals_.find(sr);
     if (iter == subRunPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipal\n"
@@ -100,9 +98,8 @@ namespace art {
     return *iter->second.get();
   }
 
-  std::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun) {
-    SubRunKey key(run, subRun);
-    SubRunIterator iter = subRunPrincipals_.find(key);
+  std::shared_ptr<SubRunPrincipal> PrincipalCache::subRunPrincipalPtr(SubRunID const & sr) {
+    auto iter = subRunPrincipals_.find(sr);
     if (iter == subRunPrincipals_.end()) {
       throw art::Exception(art::errors::LogicError)
         << "PrincipalCache::subRunPrincipalPtr\n"
@@ -143,14 +140,13 @@ namespace art {
   }
 
   bool PrincipalCache::insert(std::shared_ptr<RunPrincipal> rp) {
-    RunNumber_t run = rp->run();
-    RunIterator iter = runPrincipals_.find(run);
+    auto iter = runPrincipals_.find(rp->id());
     // For random access input, we require that the current run
     // principal be the last inserted regardless of whether it has been
     // seen before.
     currentRunPrincipal_ = rp;
     if (iter == runPrincipals_.end()) {
-      runPrincipals_[run] = rp;
+      runPrincipals_[rp->id()] = rp;
       return true;
     }
 
@@ -161,16 +157,14 @@ namespace art {
   }
 
   bool PrincipalCache::insert(std::shared_ptr<SubRunPrincipal> srp) {
-    RunNumber_t run = srp->run();
-    SubRunNumber_t subRun = srp->subRun();
-    SubRunKey key(run, subRun);
-    SubRunIterator iter = subRunPrincipals_.find(key);
+    auto srid = srp->id();
+    auto iter = subRunPrincipals_.find(srid);
     // For random access input, we require that the current run
     // principal be the last inserted regardless of whether it has been
     // seen before.
     currentSubRunPrincipal_ = srp;
     if (iter == subRunPrincipals_.end()) {
-      subRunPrincipals_[key] = srp;
+      subRunPrincipals_[srid] = srp;
       return true;
     }
 
@@ -189,12 +183,12 @@ namespace art {
   }
 
   RunPrincipal const& PrincipalCache::lowestRun() const {
-    ConstRunIterator iter = runPrincipals_.begin();
+    auto iter = runPrincipals_.begin();
     return *iter->second.get();
   }
 
   SubRunPrincipal const& PrincipalCache::lowestSubRun() const {
-    ConstSubRunIterator iter = subRunPrincipals_.begin();
+    auto iter = subRunPrincipals_.begin();
     return *iter->second.get();
   }
 
@@ -206,11 +200,11 @@ namespace art {
     subRunPrincipals_.erase(subRunPrincipals_.begin());
   }
 
-  void PrincipalCache::deleteRun(RunNumber_t run) {
+  void PrincipalCache::deleteRun(RunID run) {
     runPrincipals_.erase(runPrincipals_.find(run));
   }
 
-  void PrincipalCache::deleteSubRun(RunNumber_t run, SubRunNumber_t subRun) {
-    subRunPrincipals_.erase(subRunPrincipals_.find(SubRunKey(run, subRun)));
+  void PrincipalCache::deleteSubRun(SubRunID const & sr) {
+    subRunPrincipals_.erase(subRunPrincipals_.find(sr));
   }
 }

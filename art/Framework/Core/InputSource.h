@@ -69,8 +69,8 @@ namespace art
     virtual void doEndJob();
 
     virtual input::ItemType nextItemType() = 0;
-    virtual RunNumber_t run() const = 0;
-    virtual SubRunNumber_t subRun() const = 0;
+    virtual RunID run() const = 0;
+    virtual SubRunID subRun() const = 0;
     virtual std::shared_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
     virtual void closeFile() = 0;
     virtual std::shared_ptr<RunPrincipal> readRun() = 0;

@@ -1,8 +1,19 @@
 #include "art/Persistency/Provenance/EventID.h"
 
-art::EventNumber_t const art::EventID::INVALID_EVENT_NUMBER = -1;
-art::EventNumber_t const art::EventID::MAX_VALID_EVENT_NUMBER = -2;
-art::EventNumber_t const art::EventID::FIRST_EVENT_NUMBER = 1;
-// art::EventNumber_t const art::EventID::INVALID_EVENT_NUMBER = 0;
-// art::EventNumber_t const art::EventID::MAX_VALID_EVENT_NUMBER = -1;
-// art::EventNumber_t const art::EventID::FIRST_EVENT_NUMBER = 1;
+#include <ostream>
+
+std::ostream &
+art::operator<<(std::ostream & os, EventID const & iID)
+{
+  os << iID.subRun_ << " event: ";
+  if (iID.isFlush()) {
+    os << "FLUSH";
+  }
+  else if (iID.isValid()) {
+    os << iID.event_;
+  }
+  else {
+    os << "INVALID";
+  }
+  return os;
+}

@@ -142,8 +142,8 @@ public:
          InputSourceDescription & d);
 
   input::ItemType nextItemType() override;
-  RunNumber_t run() const override;
-  SubRunNumber_t subRun() const override;
+  RunID run() const final override;
+  SubRunID subRun() const final override;
 
   std::shared_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
   void closeFile() override;
@@ -515,25 +515,25 @@ art::Source<T>::readNextAndRefuseEvent_()
 }
 
 template <class T>
-art::RunNumber_t
+art::RunID
 art::Source<T>::run() const
 {
   if (!cachedRP_) throw Exception(errors::LogicError)
         << "Error in Source<T>\n"
         << "run() called when no RunPrincipal exists\n"
         << "Please report this to the art developers\n";
-  return cachedRP_->id().run();
+  return cachedRP_->id();
 }
 
 template <class T>
-art::SubRunNumber_t
+art::SubRunID
 art::Source<T>::subRun() const
 {
   if (!cachedSRP_) throw Exception(errors::LogicError)
         << "Error in Source<T>\n"
         << "subRun() called when no SubRunPrincipal exists\n"
         << "Please report this to the art developers\n";
-  return cachedSRP_->id().subRun();
+  return cachedSRP_->id();
 }
 
 template <class T>
