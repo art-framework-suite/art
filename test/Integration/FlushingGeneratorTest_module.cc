@@ -39,7 +39,8 @@ private:
 
 
 arttest::FlushingGeneratorTest::FlushingGeneratorTest(fhicl::ParameterSet const & p)
-  : OutputModule(p)
+  :
+  OutputModule(p)
 {
 }
 

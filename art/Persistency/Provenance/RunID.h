@@ -98,7 +98,7 @@ bool
 art::RunID::
 isValid() const
 {
-  return (run_ < MAX_VALID_RUN_NUMBER());
+  return (run_ != INVALID_RUN_NUMBER());
 }
 
 inline
@@ -115,11 +115,11 @@ art::RunID::
 next() const
 {
   if (!isValid()) {
-    throw art::Exception(art::errors::InvalidNumber)
+    throw Exception(errors::InvalidNumber)
         << "cannot increment invalid run number.";
   }
   else if (run_ == MAX_NATURAL_RUN_NUMBER()) {
-    throw art::Exception(art::errors::InvalidNumber)
+    throw Exception(errors::InvalidNumber)
         << "cannot increment maximum run number.";
   }
   return RunID(run_ + 1);
@@ -131,11 +131,11 @@ art::RunID::
 previous() const
 {
   if (!isValid()) {
-    throw art::Exception(art::errors::InvalidNumber)
+    throw Exception(errors::InvalidNumber)
         << "cannot decrement minimum run number.";
   }
   else if (run_ == MAX_NATURAL_RUN_NUMBER()) {
-    throw art::Exception(art::errors::InvalidNumber)
+    throw Exception(errors::InvalidNumber)
         << "cannot increment maximum run number.";
   }
   return RunID(run_ - 1);
@@ -219,8 +219,16 @@ inline
 art::RunNumber_t
 art::RunID::inRangeOrInvalid(RunNumber_t r)
 {
-  return (r < FIRST_RUN_NUMBER() ||
-          r > MAX_NATURAL_RUN_NUMBER()) ? INVALID_RUN_NUMBER() : r;
+  if (r == INVALID_RUN_NUMBER() ||
+      (r >= FIRST_RUN_NUMBER() &&
+       r <=  MAX_NATURAL_RUN_NUMBER())) {
+    return r;
+  }
+  else {
+    throw Exception(errors::InvalidNumber)
+      << "Attempt to construct RunID with an invalid number.\n"
+      << "Maybe you want RunID::flushRun()?";
+  }
 }
 
 inline

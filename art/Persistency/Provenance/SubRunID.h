@@ -21,6 +21,7 @@ namespace art {
 class art::SubRunID {
 public:
   SubRunID();
+  SubRunID(RunID rID, SubRunNumber_t srID);
   SubRunID(RunNumber_t rID,
            SubRunNumber_t srID);
 
@@ -60,8 +61,6 @@ private:
 
   explicit SubRunID(FlushFlag);
   SubRunID(RunID rID, FlushFlag);
-
-  SubRunID(RunID rID, SubRunNumber_t srID);
 
   SubRunNumber_t inRangeOrInvalid(SubRunNumber_t sr);
 
@@ -126,7 +125,7 @@ bool
 art::SubRunID::
 isValid() const
 {
-  return (subRun_ != INVALID_SUBRUN_NUMBER());
+  return (subRun_ != INVALID_SUBRUN_NUMBER() && run_.isValid());
 }
 
 inline
@@ -317,8 +316,16 @@ art::SubRunNumber_t
 art::SubRunID::
 inRangeOrInvalid(SubRunNumber_t sr)
 {
-  return (sr < FIRST_SUBRUN_NUMBER() ||
-          sr > MAX_NATURAL_SUBRUN_NUMBER()) ? INVALID_SUBRUN_NUMBER() : sr;
+  if (sr == INVALID_SUBRUN_NUMBER() ||
+      (sr >= FIRST_SUBRUN_NUMBER() &&
+       sr <= MAX_NATURAL_SUBRUN_NUMBER())) {
+    return sr;
+  }
+  else {
+    throw Exception(errors::InvalidNumber)
+      << "Attempt to construct SubRunID with an invalid number.\n"
+      << "Maybe you want SubRunID::flushSubRun()?";
+  }
 }
 
 inline

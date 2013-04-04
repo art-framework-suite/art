@@ -637,7 +637,10 @@ void
 art::EventProcessor::writeSubRunCache()
 {
   while (!principalCache_.noMoreSubRuns()) {
-    schedule_->writeSubRun(principalCache_.lowestSubRun());
+    auto const & lowestSubRun = principalCache_.lowestSubRun();
+    if (!lowestSubRun.id().isFlush()) {
+      schedule_->writeSubRun(lowestSubRun);
+    }
     principalCache_.deleteLowestSubRun();
   }
   FDEBUG(1) << "\twriteSubRunCache\n";
@@ -647,7 +650,10 @@ void
 art::EventProcessor::writeRunCache()
 {
   while (!principalCache_.noMoreRuns()) {
-    schedule_->writeRun(principalCache_.lowestRun());
+    auto const & lowestRun = principalCache_.lowestRun();
+    if (!lowestRun.id().isFlush()) {
+      schedule_->writeRun(lowestRun);
+    }
     principalCache_.deleteLowestRun();
   }
   FDEBUG(1) << "\twriteRunCache\n";
@@ -673,88 +679,101 @@ art::EventProcessor::doErrorStuff()
 }
 
 void
-art::EventProcessor::beginRun(int run)
+art::EventProcessor::beginRun(RunID run)
 {
-  RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-  schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal);
-  FDEBUG(1) << "\tbeginRun " << run << "\n";
+  if (!run.isFlush()) {
+    RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
+    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionBegin> >(runPrincipal);
+    FDEBUG(1) << "\tbeginRun " << run.run() << "\n";
+  }
 }
 
 void
-art::EventProcessor::endRun(int run)
+art::EventProcessor::endRun(RunID run)
 {
-  RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
-  //input_->doEndRun(runPrincipal);
-  schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
-  FDEBUG(1) << "\tendRun " << run << "\n";
+  if (!run.isFlush()) {
+    RunPrincipal & runPrincipal = principalCache_.runPrincipal(run);
+    schedule_->processOneOccurrence<OccurrenceTraits<RunPrincipal, BranchActionEnd> >(runPrincipal);
+    FDEBUG(1) << "\tendRun " << run.run() << "\n";
+  }
 }
 
 void
-art::EventProcessor::beginSubRun(int run, int subRun)
+art::EventProcessor::beginSubRun(SubRunID const & sr)
 {
-  SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
-  // NOTE: Using 0 as the event number for the begin of a subRun block is a bad idea
-  // subRun blocks know their start and end times why not also start and end events?
-  schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal);
-  FDEBUG(1) << "\tbeginSubRun " << run << "/" << subRun << "\n";
+  if (!sr.isFlush()) {
+    // NOTE: Using 0 as the event number for the begin of a subRun block
+    // is a bad idea subRun blocks know their start and end times why
+    // not also start and end events?
+    SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
+    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionBegin> >(subRunPrincipal);
+    FDEBUG(1) << "\tbeginSubRun " << sr << "\n";
+  }
 }
 
 void
-art::EventProcessor::endSubRun(int run, int subRun)
+art::EventProcessor::endSubRun(SubRunID const & sr)
 {
-  SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(run, subRun);
-  //NOTE: Using the max event number for the end of a subRun block is a bad idea
-  // subRun blocks know their start and end times why not also start and end events?
-  schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal);
-  FDEBUG(1) << "\tendSubRun " << run << "/" << subRun << "\n";
+  if (!sr.isFlush()) {
+    // NOTE: Using the max event number for the end of a subRun block is
+    // a bad idea subRun blocks know their start and end times why not
+    // also start and end events?
+    SubRunPrincipal & subRunPrincipal = principalCache_.subRunPrincipal(sr);
+    schedule_->processOneOccurrence<OccurrenceTraits<SubRunPrincipal, BranchActionEnd> >(subRunPrincipal);
+    FDEBUG(1) << "\tendSubRun " << sr << "\n";
+  }
 }
 
-int
+art::RunID
 art::EventProcessor::readAndCacheRun()
 {
   SignalSentry runSourceSentry(actReg_->sPreSourceRun.signal_,
                                actReg_->sPostSourceRun.signal_);
   principalCache_.insert(input_->readRun());
   FDEBUG(1) << "\treadAndCacheRun " << "\n";
-  return principalCache_.runPrincipal().run();
+  return principalCache_.runPrincipal().id();
 }
 
-int
+art::SubRunID
 art::EventProcessor::readAndCacheSubRun()
 {
   SignalSentry subRunSourceSentry(actReg_->sPreSourceSubRun.signal_,
                                   actReg_->sPostSourceSubRun.signal_);
   principalCache_.insert(input_->readSubRun(principalCache_.runPrincipalPtr()));
   FDEBUG(1) << "\treadAndCacheSubRun " << "\n";
-  return principalCache_.subRunPrincipal().subRun();
+  return principalCache_.subRunPrincipal().id();
 }
 
 void
-art::EventProcessor::writeRun(int run)
+art::EventProcessor::writeRun(RunID run)
 {
-  schedule_->writeRun(principalCache_.runPrincipal(run));
-  FDEBUG(1) << "\twriteRun " << run << "\n";
+  if (!run.isFlush()) {
+    schedule_->writeRun(principalCache_.runPrincipal(run));
+    FDEBUG(1) << "\twriteRun " << run.run() << "\n";
+  }
 }
 
 void
-art::EventProcessor::deleteRunFromCache(int run)
+art::EventProcessor::deleteRunFromCache(RunID run)
 {
   principalCache_.deleteRun(run);
-  FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
+  FDEBUG(1) << "\tdeleteRunFromCache " << run.run() << "\n";
 }
 
 void
-art::EventProcessor::writeSubRun(int run, int subRun)
+art::EventProcessor::writeSubRun(SubRunID const & sr)
 {
-  schedule_->writeSubRun(principalCache_.subRunPrincipal(run, subRun));
-  FDEBUG(1) << "\twriteSubRun " << run << "/" << subRun << "\n";
+  if (!sr.isFlush()) {
+    schedule_->writeSubRun(principalCache_.subRunPrincipal(sr));
+    FDEBUG(1) << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
+  }
 }
 
 void
-art::EventProcessor::deleteSubRunFromCache(int run, int subRun)
+art::EventProcessor::deleteSubRunFromCache(SubRunID const & sr)
 {
-  principalCache_.deleteSubRun(run, subRun);
-  FDEBUG(1) << "\tdeleteSubRunFromCache " << run << "/" << subRun << "\n";
+  principalCache_.deleteSubRun(sr);
+  FDEBUG(1) << "\tdeleteSubRunFromCache " << sr.run() << "/" << sr.subRun() << "\n";
 }
 
 void
@@ -767,8 +786,10 @@ art::EventProcessor::readEvent()
 void
 art::EventProcessor::processEvent()
 {
-  schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
-  FDEBUG(1) << "\tprocessEvent\n";
+  if (!sm_evp_->id().isFlush()) {
+    schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*sm_evp_);
+    FDEBUG(1) << "\tprocessEvent\n";
+  }
 }
 
 bool

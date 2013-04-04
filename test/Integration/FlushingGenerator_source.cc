@@ -17,8 +17,8 @@ public:
   FlushingGeneratorDetail & operator =(FlushingGeneratorDetail const &) = delete;
 
   FlushingGeneratorDetail(fhicl::ParameterSet const & ps,
-                      art::ProductRegistryHelper & help,
-                      art::PrincipalMaker const & pm);
+                          art::ProductRegistryHelper & help,
+                          art::PrincipalMaker const & pm);
 
   void closeCurrentFile();
 
@@ -34,16 +34,18 @@ private:
   bool readFileCalled_;
   art::PrincipalMaker const & pm_;
   size_t ev_num_;
+  art::EventID curr_evid_;
 };
 
 arttest::FlushingGeneratorDetail::
 FlushingGeneratorDetail(fhicl::ParameterSet const &,
-                    art::ProductRegistryHelper &,
-                    art::PrincipalMaker const & pm)
+                        art::ProductRegistryHelper &,
+                        art::PrincipalMaker const & pm)
   :
   readFileCalled_(false),
   pm_(pm),
-  ev_num_(0)
+  ev_num_(0),
+  curr_evid_(1, 0, 1)
 {
 }
 
@@ -72,20 +74,32 @@ readNext(art::RunPrincipal * const & inR,
          art::EventPrincipal *& outE)
 {
   art::Timestamp runstart;
-  if (++ev_num_ > 5) {
+  if (++ev_num_ > 10) { // Done.
     return false;
   }
-  if (inR == nullptr) {
-    outR = pm_.makeRunPrincipal(1, runstart);
+  else if (ev_num_ == 3) { // Flush subrun, current run.
+    art::EventID const evid(art::EventID::flushEvent(inR->id()));
+    outSR = pm_.makeSubRunPrincipal(evid.subRunID(), runstart);
+    outE = pm_.makeEventPrincipal(evid, runstart);
+    curr_evid_ = curr_evid_.nextSubRun();
   }
-  if (inSR == nullptr) {
-    art::SubRunID srid(outR?outR->run():inR->run(), 0);
-    outSR = pm_.makeSubRunPrincipal(srid.run(), srid.subRun(), runstart);
+  else if (ev_num_ == 6) { // Flush run.
+    art::EventID const evid(art::EventID::flushEvent());
+    outR = pm_.makeRunPrincipal(evid.runID(), runstart);
+    outSR = pm_.makeSubRunPrincipal(evid.subRunID(), runstart);
+    outE = pm_.makeEventPrincipal(evid, runstart);
+    curr_evid_ = curr_evid_.nextRun();
   }
-  outE = pm_.makeEventPrincipal(outR?outR->run():inR->run(),
-                                outSR?outSR->subRun():inSR->subRun(),
-                                ev_num_,
-                                runstart);
+  else {
+    if (inR == nullptr || inR->id() != curr_evid_.runID()) {
+      outR = pm_.makeRunPrincipal(curr_evid_.runID(), runstart);
+    }
+    if (inSR == nullptr || inSR->id() != curr_evid_.subRunID()) {
+      outSR = pm_.makeSubRunPrincipal(curr_evid_.subRunID(), runstart);
+    }
+    outE = pm_.makeEventPrincipal(curr_evid_, runstart);
+    curr_evid_ = curr_evid_.next();
+  }
   return true;
 }
 

@@ -164,10 +164,10 @@ namespace art
     Timestamp const& timestamp() const {return time_;}
 
     /// Accessor for current run number
-    RunNumber_t run() const;
+    RunID run() const final override;
 
     /// Accessor for current subRun number
-    SubRunNumber_t subRun() const;
+    SubRunID subRun() const final override;
 
     /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
     ProcessingMode processingMode() const {return processingMode_;}

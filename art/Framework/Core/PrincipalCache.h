@@ -32,18 +32,18 @@ namespace art {
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    RunPrincipal & runPrincipal(RunNumber_t run);
-    RunPrincipal const& runPrincipal(RunNumber_t run) const;
-    std::shared_ptr<RunPrincipal> runPrincipalPtr(RunNumber_t run);
+    RunPrincipal & runPrincipal(RunID run);
+    RunPrincipal const& runPrincipal(RunID run) const;
+    std::shared_ptr<RunPrincipal> runPrincipalPtr(RunID run);
 
     // Current run (most recently read and inserted run)
     RunPrincipal & runPrincipal();
     RunPrincipal const& runPrincipal() const;
     std::shared_ptr<RunPrincipal> runPrincipalPtr();
 
-    SubRunPrincipal & subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun);
-    SubRunPrincipal const& subRunPrincipal(RunNumber_t run, SubRunNumber_t subRun) const;
-    std::shared_ptr<SubRunPrincipal> subRunPrincipalPtr(RunNumber_t run, SubRunNumber_t subRun);
+    SubRunPrincipal & subRunPrincipal(SubRunID const & sr);
+    SubRunPrincipal const& subRunPrincipal(SubRunID const & sr) const;
+    std::shared_ptr<SubRunPrincipal> subRunPrincipalPtr(SubRunID const & sr);
 
     // Current subRun (most recently read and inserted subRun)
     SubRunPrincipal & subRunPrincipal();
@@ -62,17 +62,12 @@ namespace art {
     void deleteLowestRun();
     void deleteLowestSubRun();
 
-    void deleteRun(RunNumber_t run);
-    void deleteSubRun(RunNumber_t run, SubRunNumber_t subRun);
+    void deleteRun(RunID run);
+    void deleteSubRun(SubRunID const & sr);
 
   private:
 
-    typedef std::map<RunNumber_t, std::shared_ptr<RunPrincipal> >::iterator RunIterator;
-    typedef std::map<RunNumber_t, std::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
-    typedef std::map<SubRunKey, std::shared_ptr<SubRunPrincipal> >::iterator SubRunIterator;
-    typedef std::map<SubRunKey, std::shared_ptr<SubRunPrincipal> >::const_iterator ConstSubRunIterator;
-
-    std::map<RunNumber_t, std::shared_ptr<RunPrincipal> > runPrincipals_;
+    std::map<RunID, std::shared_ptr<RunPrincipal> > runPrincipals_;
     std::map<SubRunKey, std::shared_ptr<SubRunPrincipal> > subRunPrincipals_;
 
     std::shared_ptr<RunPrincipal> currentRunPrincipal_;

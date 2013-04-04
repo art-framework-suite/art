@@ -47,10 +47,10 @@ public:
   static EventID firstEvent();
   static EventID firstEvent(SubRunID const & srID);
   static EventID invalidEvent();
-  static EventID invalidEvent(RunID const & rID);
+  static EventID invalidEvent(RunID rID);
   static EventID invalidEvent(SubRunID const & srID);
   static EventID flushEvent();
-  static EventID flushEvent(RunID const & rID);
+  static EventID flushEvent(RunID rID);
 
   // Comparison operators.
   bool operator==(EventID const & other) const;
@@ -265,7 +265,7 @@ invalidEvent()
 inline
 art::EventID
 art::EventID::
-invalidEvent(RunID const & rID)
+invalidEvent(RunID rID)
 {
   return EventID(SubRunID::invalidSubRun(rID), INVALID_EVENT_NUMBER());
 }
@@ -289,7 +289,7 @@ flushEvent()
 inline
 art::EventID
 art::EventID::
-flushEvent(RunID const & rID)
+flushEvent(RunID rID)
 {
   return EventID(rID, FlushFlag());
 }
@@ -372,8 +372,16 @@ art::EventNumber_t
 art::EventID::
 inRangeOrInvalid(EventNumber_t e)
 {
-  return (e < FIRST_EVENT_NUMBER() ||
-          e > MAX_NATURAL_EVENT_NUMBER()) ? INVALID_EVENT_NUMBER() : e;
+  if (e == INVALID_EVENT_NUMBER() ||
+      (e >= FIRST_EVENT_NUMBER() &&
+       e <= MAX_NATURAL_EVENT_NUMBER())) {
+    return e;
+  }
+  else {
+    throw Exception(errors::InvalidNumber)
+      << "Attempt to construct SubRunID with an invalid number.\n"
+      << "Maybe you want EventID::flushSubRun()?";
+  }
 }
 
 constexpr

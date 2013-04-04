@@ -41,10 +41,7 @@ BOOST_AUTO_TEST_CASE(Flush)
   BOOST_REQUIRE(!fs.runID().isFlush());
   BOOST_REQUIRE_EQUAL(fs.run(), RunID::firstRun().run());
 
-  EventID fBad(f.run(), f.subRun(), f.event());
-  BOOST_REQUIRE(!fBad.isValid());
-  BOOST_REQUIRE(!fBad.subRunID().isValid());
-  BOOST_REQUIRE(!fBad.runID().isValid());
+  BOOST_REQUIRE_THROW(EventID(f.run(), f.subRun(), f.event()), art::Exception);
 }
 
 BOOST_AUTO_TEST_CASE(Comparison)
