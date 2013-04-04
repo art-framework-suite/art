@@ -44,7 +44,7 @@ BlockingPrescaler(fhicl::ParameterSet const & ps)
   count_(0),
   m_(ps.get<size_t>("blockSize", 1)),
   n_(ps.get<size_t>("stepSize")),
-  offset_(ps.get<size_t>("offset"))
+  offset_(ps.get<size_t>("offset", 0))
 {
 }
 
