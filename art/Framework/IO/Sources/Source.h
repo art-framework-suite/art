@@ -142,8 +142,8 @@ public:
          InputSourceDescription & d);
 
   input::ItemType nextItemType() override;
-  RunID run() const final override;
-  SubRunID subRun() const final override;
+  RunID run() const override;
+  SubRunID subRun() const override;
 
   std::shared_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
   void closeFile() override;
