@@ -9,43 +9,70 @@
 // access sources.
 //
 // The Source class template requires the use of a type T as its
-// template parameter. The type T must supply the following non-static
-// member functions:
+// template parameter, satisfying the conditions outlined below. In
+// one's XXX_module.cc class one must provide a typedef and module macro
+// call along the lines of:
 //
-//    // Construct an object of type T. The ParameterSet provided will
-//    // be that constructed by the 'source' statement in the job
-//    // configuration file. The ProductRegistryHelper must be used
-//    // to register products to be reconstituted by this source.
-//    T(fhicl::ParameterSet const &,
-//      art::ProductRegistryHelper &,
-//      art::PrincipalMaker const &);
+// namespace arttest {
+//  typedef art::Source<GeneratorTestDetail> GeneratorTest;
+// }
 //
-//    // Open the file of the given name, returning a new fileblock in
-//    // fb. If readFile is unable to return a valid FileBlock it
-//    // should throw. Suggestions for suitable exceptions are:
-//    // art::Exception(art::errors::FileOpenError) or
-//    // art::Exception(art::errors::FileReadError).
-//    //
-//    // Most people will require only this signature:
-//    void readFile(std::string const& filename,
-//                  art::FileBlock*& fb);
-//    // However, if you need to merge in product registration
-//    // information you will need the signature below:
-//    void readFile(std::string const& filename,
-//                  art::FileBlock*& fb,
-//                  art::MasterProductRegistry & mpr);
+// DEFINE_ART_INPUT_SOURCE(arttest::GeneratorTest)
 //
-//    // Read the next part of the current file. Return false if nothing
-//    // was read; return true and set the appropriate 'out' arguments
-//    // if something was read.
-//    bool readNext(art::RunPrincipal* const& inR,
-//                  art::SubRunPrincipal* const& inSR,
-//                  art::RunPrincipal*& outR,
-//                  art::SubRunPrincipal*& outSR,
-//                  art::EventPrincipal*& outE)
+// However, there are several "flavors" of InputSource possible using
+// this template, and one may wish to specify them using the "traits"
+// found in SourceTraits.h. Any traits you wish to specialize must be
+// defined *after* the definition of your detail class T, but *before*
+// the typedef above which will attempt to instantiate them. See
+// SourceTraits.h for descriptions of the different traits one might
+// wish to apply.
 //
-//    // Close the current input file.
-//    void closeCurrentFile();
+// The type T must supply the following non-static member functions:
+//
+//    * Construct an object of type T. The ParameterSet provided will be
+//    that constructed by the 'source' statement in the job
+//    configuration file. The ProductRegistryHelper must be used to
+//    register products to be reconstituted by this source.
+//
+//      T(fhicl::ParameterSet const &,
+//        art::ProductRegistryHelper &,
+//        art::PrincipalMaker const &);
+//
+//    * Open the file of the given name, returning a new fileblock in
+//    fb. If readFile is unable to return a valid FileBlock it should
+//    throw. Suggestions for suitable exceptions are:
+//    art::Exception(art::errors::FileOpenError) or
+//    art::Exception(art::errors::FileReadError).
+//
+//      void readFile(std::string const& filename,
+//                    art::FileBlock*& fb);
+//
+//    * Read the next part of the current file. Return false if nothing
+//    was read; return true and set the appropriate 'out' arguments if
+//    something was read.
+//
+//      bool readNext(art::RunPrincipal* const& inR,
+//                    art::SubRunPrincipal* const& inSR,
+//                    art::RunPrincipal*& outR,
+//                    art::SubRunPrincipal*& outSR,
+//                    art::EventPrincipal*& outE);
+//
+//    * After readNext has returned false, the behavior differs
+//    depending on whether Source_Generator<XXX>::value is true or
+//    false. If false (the default), then readFile(...) will be called
+//    provided there is an unused string remaining in
+//    source.fileNames. If true, then the source will finish unless
+//    there exists an *optional* function:
+//
+//      bool hasMoreData(); // or
+//
+//      bool hasMoreData() const;
+//
+//    which returns true.
+//
+//    * Close the current input file.
+//
+//      void closeCurrentFile();
 //
 // ======================================================================
 
@@ -81,53 +108,43 @@ namespace art {
   namespace detail {
     // Template metaprogramming.
 
-    // Does the detail object have a readFile method taking a
-    // MasterProductRegistry?
-    template < typename T,
-             void (T:: *)(std::string const &,
-                          art::FileBlock *& ,
-                          art::MasterProductRegistry &) >
-    struct readFile_function;
+    // Does the detail object have a hasMoreData function?
+    template < typename T, bool (T:: *)() > struct hasMoreData_function;
+    template < typename T, bool (T:: *)() const > struct hasMoreData_const_function;
 
     template <typename X>
     no_tag
-    has_readFile_mpr_helper(...);
+    has_hasMoreData_helper(...);
 
-    template <typename X>
+    tempate <typename X>
     yes_tag
-    has_readFile_mpr_helper(readFile_function<X, &X::readFile> * dummy);
+    has_hasMoreData_helper(...)(hasMoreData_function<X, &X::hasMoreData> * dummy);
+
+    tempate <typename X>
+    yes_tag
+    has_hasMoreData_helper(...)(hasMoreData_const_function<X, &X::hasMoreData> * dummy);
 
     template <typename X>
-    struct has_readFile_mpr {
+    struct has_hasMoreData {
       static bool const value =
-        sizeof(has_readFile_mpr_helper<X>(0)) == sizeof(yes_tag);
+        sizeof(has_hasMoreData_helper<X>(0)) == sizeof(yes_tag);
     };
 
-    template <typename T> struct call_readFile_mpr {
-    public:
-      call_readFile_mpr(std::string const & fn,
-                        FileBlock *& fb,
-                        MasterProductRegistry & mpr) : fn_(fn), fb_(fb), mpr_(mpr) { };
-      void operator()(T & t) { t.readFile(fn_, fb_, mpr_); }
-    private:
-      std::string const & fn_;
-      FileBlock *& fb_;
-      MasterProductRegistry & mpr_;
+    template <typename T> struct do_call_hasMoreData {
+      bool operator()(T & t)
+        {
+          return t.hasMoreData();
+        }
     };
 
-    template <typename T> struct call_readFile_no_mpr {
-    public:
-      call_readFile_no_mpr(std::string const & fn,
-                           FileBlock *& fb,
-                           MasterProductRegistry &) : fn_(fn), fb_(fb) { };
-      void operator()(T & t) { t.readFile(fn_, fb_); }
-    private:
-      std::string const & fn_;
-      FileBlock *& fb_;
+    template <typename T> struct do_not_call_hasMoreData {
+      bool operator()(T &)
+        {
+          return false;
+        }
     };
   }
 }
-
 
 // No-one gets to override this class.
 template <class T>
@@ -142,8 +159,8 @@ public:
          InputSourceDescription & d);
 
   input::ItemType nextItemType() override;
-  RunID run() const final override;
-  SubRunID subRun() const final override;
+  RunID run() const override;
+  SubRunID subRun() const override;
 
   std::shared_ptr<FileBlock> readFile(MasterProductRegistry & mpr) override;
   void closeFile() override;
@@ -413,7 +430,10 @@ void
 art::Source<T>::checkForNextFile_()
 {
   currentFileName_ = fh_.next();
-  state_ = (Source_generator<T>::value || currentFileName_.empty()) ?
+  std::conditional<detail::has_hasMoreData<T>::value, detail:do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >::type
+    generatorHasMoreData;
+  state_ = ((Source_generator<T>::value && ! generatorHasMoreData()) ||
+            currentFileName_.empty()) ?
            input::IsStop :
            input::IsFile;
 }
@@ -538,12 +558,10 @@ art::Source<T>::subRun() const
 
 template <class T>
 std::shared_ptr<art::FileBlock>
-art::Source<T>::readFile(MasterProductRegistry & mpr)
+art::Source<T>::readFile(MasterProductRegistry &)
 {
   FileBlock * newF = 0;
-  typename std::conditional<detail::has_readFile_mpr<T>::value, detail::call_readFile_mpr<T>, detail::call_readFile_no_mpr<T> >::type
-  call_correct_readFile(currentFileName_, newF, mpr);
-  call_correct_readFile(detail_);
+  detail_.readFile(currentFileName_, newF);
   if (!newF) {
     throw Exception(errors::LogicError)
         << "detail_::readFile() failed to return a valid FileBlock object\n";
