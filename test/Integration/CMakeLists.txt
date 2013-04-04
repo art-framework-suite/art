@@ -812,6 +812,12 @@ cet_test(FlushingGenerator_t HANDBUILT
   fcl/FlushingGenerator_t.fcl
   )
 
+cet_test(BlockingPrescaler_t.sh PREBUILT
+  DATAFILES
+  BlockingPrescaler_t-ref.txt
+  fcl/BlockingPrescaler_t.fcl
+  )
+
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 
