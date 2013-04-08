@@ -31,6 +31,17 @@ namespace arttest
     int value;
   };
 
+  struct CompressedIntProduct
+  {
+    explicit CompressedIntProduct(int i=0) : value(i) { }
+    ~CompressedIntProduct() { }
+
+    CompressedIntProduct &operator+= (CompressedIntProduct const &other)
+    { value += other.value; return *this; }
+
+    int value;
+  };
+
 
 
   struct Int16_tProduct

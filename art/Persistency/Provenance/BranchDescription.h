@@ -53,6 +53,7 @@ class art::BranchDescription {
 public:
   static int const invalidSplitLevel = -1;
   static int const invalidBasketSize = 0;
+  static int const invalidCompression = -1;
   enum MatchMode { Strict = 0,
                    Permissive };
 
@@ -78,6 +79,7 @@ public:
 
   int const & splitLevel() const {return guts().splitLevel_;}
   int const & basketSize() const {return guts().basketSize_;}
+  int const & compression() const {return guts().compression_;}
   std::set<fhicl::ParameterSetID> const& psetIDs() const {return psetIDs_;}
   std::string const &branchName() const {return guts().branchName_;}
   BranchType const &branchType() const {return branchType_;}
@@ -128,6 +130,10 @@ public:
     // The basket size of the branch, as marked
     // in the data dictionary.
     int basketSize_;
+
+    // The compression of the branch, as marked
+    // in the data dictionary.
+    int compression_;
   };
 
 private:

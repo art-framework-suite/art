@@ -43,6 +43,8 @@ simple_plugin(FlushingGeneratorTestFilter "module" NO_INSTALL )
 simple_plugin(GeneratorTest               "source" art_Framework_IO_Sources NO_INSTALL )
 simple_plugin(IntProducer                 "module" NO_INSTALL )
 simple_plugin(IntTestAnalyzer             "module" NO_INSTALL )
+simple_plugin(CompressedIntProducer       "module" NO_INSTALL )
+simple_plugin(CompressedIntTestAnalyzer   "module" NO_INSTALL )
 simple_plugin(IntVectorAnalyzer           "module" NO_INSTALL )
 simple_plugin(IntVectorProducer           "module" NO_INSTALL )
 simple_plugin(MixAnalyzer                 "module" NO_INSTALL USE_BOOST_UNIT )
@@ -817,6 +819,13 @@ cet_test(BlockingPrescaler_t.sh PREBUILT
   BlockingPrescaler_t-ref.txt
   fcl/BlockingPrescaler_t.fcl
   )
+
+cet_test(test_compressed_simple_01_t.sh PREBUILT
+  DATAFILES
+  fcl/test_compressed_simple_01.fcl
+  fcl/test_compressed_simple_01r.fcl
+  fcl/messageDefaults.fcl
+)
 
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
