@@ -12,7 +12,7 @@
 namespace art {
   class ProcessHistory {
   public:
-    typedef ProcessConfiguration value_type;
+    typedef ProcessConfiguration    value_type;
     typedef std::vector<value_type> collection_type;
 
     typedef collection_type::iterator       iterator;
@@ -21,21 +21,25 @@ namespace art {
     typedef collection_type::reverse_iterator       reverse_iterator;
     typedef collection_type::const_reverse_iterator const_reverse_iterator;
 
-    typedef collection_type::reference reference;
+    typedef collection_type::reference       reference;
     typedef collection_type::const_reference const_reference;
 
     typedef collection_type::size_type size_type;
 
-    ProcessHistory() : data_(), transients_() {}
-    explicit ProcessHistory(size_type n) : data_(n), transients_() {}
-    explicit ProcessHistory(collection_type const& vec) : data_(vec), transients_() {}
+    ProcessHistory();
+    explicit ProcessHistory(size_type n);
+    explicit ProcessHistory(collection_type const& vec);
 
-    void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
-    void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
-    bool empty() const {return data_.empty();}
-    size_type size() const {return data_.size();}
-    size_type capacity() const {return data_.capacity();}
-    void reserve(size_type n) {data_.reserve(n);}
+    void swap(ProcessHistory& other);
+
+    // Put the given ProcessConfiguration into the history. This makes
+    // our ProcessHistoryID become invalid.
+    void push_back(const_reference t);
+
+    bool empty() const;
+    size_type size() const;
+    size_type capacity() const;
+    void reserve(size_type n);
 
     reference operator[](size_type i) {return data_[i];}
     const_reference operator[](size_type i) const {return data_[i];}
@@ -52,12 +56,6 @@ namespace art {
     const_reverse_iterator rbegin() const {return data_.rbegin();}
     const_reverse_iterator rend() const {return data_.rend();}
 
-//     iterator begin() {return data_.begin();}
-//     iterator end() {return data_.end();}
-
-//     reverse_iterator rbegin() {return data_.rbegin();}
-//     reverse_iterator rend() {return data_.rend();}
-
     collection_type const& data() const {return data_;}
     ProcessHistoryID id() const;
 
@@ -69,45 +67,112 @@ namespace art {
     bool getConfigurationForProcess(std::string const& name, ProcessConfiguration& config) const;
 
     struct Transients {
-      Transients() : phid_() {}
       ProcessHistoryID phid_;
     };
 
   private:
-    ProcessHistoryID & phid() const {return transients_.get().phid_;}
     collection_type data_;
     mutable Transient<Transients> transients_;
+
+    void invalidateProcessHistoryID_() { transients_.get().phid_ = ProcessHistoryID(); }
+
+    ProcessHistoryID & phid() const {return transients_.get().phid_;}
   };
+
 
   // Free swap function
   inline
   void
-  swap(ProcessHistory& a, ProcessHistory& b) {
+  swap(art::ProcessHistory& a, art::ProcessHistory& b) {
     a.swap(b);
   }
 
   inline
   bool
-  operator==(ProcessHistory const& a, ProcessHistory const& b) {
+  operator==(art::ProcessHistory const& a, art::ProcessHistory const& b) {
     return a.data() == b.data();
   }
 
   inline
   bool
-  operator!=(ProcessHistory const& a, ProcessHistory const& b) {
+  operator!=(art::ProcessHistory const& a, art::ProcessHistory const& b) {
     return !(a==b);
   }
 
   bool
-  isAncestor(ProcessHistory const& a, ProcessHistory const& b);
+  isAncestor(art::ProcessHistory const& a, art::ProcessHistory const& b);
 
   inline
   bool
-  isDescendant(ProcessHistory const& a, ProcessHistory const& b) {
+  isDescendant(art::ProcessHistory const& a, art::ProcessHistory const& b) {
     return isAncestor(b, a);
   }
 
-  std::ostream& operator<<(std::ostream& ost, ProcessHistory const& ph);
+  std::ostream& operator<<(std::ostream& ost, art::ProcessHistory const& ph);
+
+
+}
+
+//--------------------------------------------------------------------
+// Implementation of ProcessHistory
+
+inline
+art::ProcessHistory::ProcessHistory() :
+  data_(),
+  transients_()
+{ }
+
+inline
+art::ProcessHistory::ProcessHistory(size_type n) :
+  data_(n),
+  transients_()
+{ }
+
+inline
+art::ProcessHistory::ProcessHistory(collection_type const& vec) :
+  data_(vec),
+  transients_()
+{ }
+
+inline
+void art::ProcessHistory::swap(ProcessHistory& other)
+{
+  data_.swap(other.data_);
+  phid().swap(other.phid());
+}
+
+inline
+void art::ProcessHistory::push_back(const_reference t)
+{
+  data_.push_back(t);
+  invalidateProcessHistoryID_();
+}
+
+inline
+bool art::ProcessHistory::empty() const
+{
+  return data_.empty();
+}
+
+inline
+art::ProcessHistory::size_type
+art::ProcessHistory::size() const
+{
+  return data_.size();
+}
+
+inline
+art::ProcessHistory::size_type
+art::ProcessHistory::capacity() const
+{
+  return data_.capacity();
+}
+
+inline
+void
+art::ProcessHistory::reserve(size_type n)
+{
+  data_.reserve(n);
 }
 
 #endif /* art_Persistency_Provenance_ProcessHistory_h */

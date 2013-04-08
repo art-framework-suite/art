@@ -26,8 +26,8 @@
 
 namespace art {
   class Provenance;
-  std::ostream &
-    operator << ( std::ostream &, Provenance const & );
+  std::ostream & operator << ( std::ostream &, Provenance const & );
+  bool operator==(Provenance const& a, Provenance const& b);
 }
 
 // ----------------------------------------------------------------------
@@ -64,6 +64,7 @@ public:
   bool isPresent()  const {return productstatus::present(productStatus());}
 
   std::ostream & write(std::ostream& os) const;
+  bool equals(Provenance const& other) const { return group_ == other.group_; }
 
 private:
   cet::exempt_ptr<Group const> group_;
@@ -77,6 +78,12 @@ inline  std::ostream &
   art::operator << ( std::ostream & os, Provenance const & p )
 {
   return p.write(os);
+}
+
+inline bool
+art::operator==( art::Provenance const& a, art::Provenance const& b)
+{
+  return a.equals(b);
 }
 
 // ======================================================================

@@ -10,7 +10,6 @@
 using namespace cet;
 using namespace std;
 
-
 namespace art {
   ProcessHistoryID
   ProcessHistory::id() const {
@@ -35,7 +34,8 @@ namespace art {
 
   bool
   ProcessHistory::getConfigurationForProcess(string const& name,
-                                             ProcessConfiguration& config) const {
+                                             ProcessConfiguration& config) const
+  {
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       if (i->processName() == name) {
         config = *i;

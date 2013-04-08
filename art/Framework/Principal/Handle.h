@@ -6,6 +6,9 @@
 // Handle: Non-owning "smart pointer" for reference to EDProducts and
 //         their Provenances.
 //
+// ValidHandle: A Handle that can not be invalid, and thus does not check
+//          for validity upon dereferencing.
+//
 // If the pointed-to EDProduct or Provenance is destroyed, use of the
 // Handle becomes undefined. There is no way to query the Handle to
 // discover if this has happened.
@@ -14,7 +17,10 @@
 // -- Product and Provenance pointers both null;
 // -- Both pointers valid
 //
-// To check validity, one can use the isValid() function.
+// ValidHandles must have Product and Provenance pointers valid.
+//
+// To check validity, one can use the Handle::isValid() function.
+// ValidHandles cannot be invalid, and so have no validity checks.
 //
 // If failedToGet() returns true then the requested data is not available
 // If failedToGet() returns false but isValid() is also false then no
@@ -34,12 +40,11 @@
 
 namespace art {
   // defined herein:
-  template <typename T>
-    class Handle;
-  template <class T>
-    void  swap(Handle<T> & a, Handle<T> & b);
-  template <class T>
-    void  convert_handle(GroupQueryResult const &, Handle<T> &);
+  template <typename T> class Handle;
+  template <typename T> class ValidHandle;
+  template <class T> void swap(Handle<T> & a, Handle<T> & b);
+  template <class T> void swap(ValidHandle<T> & a, ValidHandle<T> & b);
+  template <class T> void convert_handle(GroupQueryResult const &, Handle<T> &);
 
   // forward declarations:
   class EDProduct;
@@ -165,7 +170,6 @@ inline
 art::Provenance const *
 art::Handle<T>::provenance() const
 {
-  // Should we throw if the pointer is null?
   return & prov_;
 }
 
@@ -228,6 +232,67 @@ void
 }
 
 // ======================================================================
+template <typename T>
+class art::ValidHandle
+{
+public:
+  typedef T element_type;
+
+  ValidHandle() = delete;
+  ValidHandle(T const* prod, Provenance prov);
+  ValidHandle(ValidHandle const&) = default;
+  ValidHandle& operator=(ValidHandle const&) = default;
+  T const & operator*() const;
+  T const * operator->() const; // alias for product()
+  T const * product() const;
+  Provenance const* provenance() const;
+
+private:
+  T const*   prod_;
+  Provenance prov_;  
+};
+
+template <class T>
+art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov) :
+  prod_(prod),
+  prov_(prov)
+{
+  if (prod == nullptr)
+    throw Exception(art::errors::NullPointerError)
+      << "Attempt to create ValidHandle with null pointer";
+}
+
+template <class T>
+inline
+T const &
+art::ValidHandle<T>::operator*() const
+{
+  return *prod_;
+}
+
+template <class T>
+inline
+T const *
+art::ValidHandle<T>::operator->() const
+{
+  return prod_;
+}
+
+template <class T>
+inline
+T const*
+art::ValidHandle<T>::product() const
+{
+  return prod_;
+}
+
+template <class T>
+inline
+art::Provenance const *
+art::ValidHandle<T>::provenance() const
+{
+  return & prov_;
+}
 
 #endif /* art_Framework_Principal_Handle_h */
 
