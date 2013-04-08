@@ -557,7 +557,7 @@ namespace statemachine {
 
   void HandleSubRuns::setupCurrentSubRun()
   {
-    art::RunID run = context<HandleRuns>().currentRun();
+    art::RunID run __attribute__((unused)) = context<HandleRuns>().currentRun();
     assert(run.isValid());
     subRunException_ = true;
     currentSubRun_ = ep_.readAndCacheSubRun();
