@@ -1,4 +1,4 @@
-# project name
+2# project name
 project(FrameworkCoreStubs)
 
 # version number
@@ -27,8 +27,6 @@ simple_plugin(AddIntsProducer  "module" NO_INSTALL )
 simple_plugin(HistoryAnalyzer  "module" NO_INSTALL )
 simple_plugin(IntProducer  "module" NO_INSTALL )
 simple_plugin(IntTestAnalzer  "module" NO_INSTALL )
-simple_plugin(CompressedIntProducer  "module" NO_INSTALL )
-simple_plugin(CompressedIntTestAnalzer  "module" NO_INSTALL )
 simple_plugin(IntVectorProducer  "module" NO_INSTALL )
 simple_plugin(NonProducer  "module" NO_INSTALL )
 simple_plugin(SewerModule  "module" NO_INSTALL )
