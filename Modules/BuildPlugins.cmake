@@ -7,36 +7,69 @@
 # simple_plugin( <name> <plugin type>
 #                [library list]
 #                [ALLOW_UNDERSCORES]
-#                [NO_INSTALL] )
-#        the base plugin name is derived from the current source code subdirectory
-#        specify NO_INSTALL when building a plugin for the tests
+#                [BASENAME_ONLY]
+#                [NO_INSTALL]
+#   )
+#
+# The plugin library's name is constructed from the specified name, its
+# specified plugin type (eg service, module, source), and (unless
+# BASENAME_ONLY is specified) the package subdirectory path (replacing
+# "/" with "_").
+#
+# Options:
+#
+# ALLOW_UNDERSCORES
+#
+#   Allow underscores in subdirectory names. Discouraged, as it creates
+#   a possible ambiguity in the encoded plugin library name (art_test/XX
+#   is indistinguishable from art/test/XX).
+#
+# BASENAME_ONLY
+#
+#    Omit the subdirectory path from the library name. Discouraged, as
+#    it creates an ambiguity between modules with the same source
+#    filename in different packages or different subdirectories within
+#    the same package. The latter case is not possible however, because
+#    CMake will throw an error because the two CMake targets will have
+#    the same name and that is not permitted.
+#
+# NO_INSTALL
+#
+#    If specified, the plugin library will not be part of the installed
+#    product (use for test modules, etc.).
+#
+########################################################################
 
 # simple plugin libraries
 include(CetParseArgs)
 macro (simple_plugin name type)
-  cet_parse_args(SP "" "USE_BOOST_UNIT;ALLOW_UNDERSCORES;NO_INSTALL;NOINSTALL" ${ARGN})
+  cet_parse_args(SP "" "USE_BOOST_UNIT;ALLOW_UNDERSCORES;BASENAME_ONLY;NO_INSTALL;NOINSTALL" ${ARGN})
   if (NOINSTALL)
     message(SEND_ERROR "simple_plugin now requires NO_INSTALL instead of NOINSTALL")
   endif()
-  #message( STATUS "simple_plugin: PACKAGE_TOP_DIRECTORY is ${PACKAGE_TOP_DIRECTORY}")
-  # base name on current subdirectory
-  if( PACKAGE_TOP_DIRECTORY )
-     STRING( REGEX REPLACE "^${PACKAGE_TOP_DIRECTORY}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+  if (SP_BASENAME_ONLY)
+    set(plugin_name "${name}_${type}")
   else()
-     STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+    #message( STATUS "simple_plugin: PACKAGE_TOP_DIRECTORY is ${PACKAGE_TOP_DIRECTORY}")
+    # base name on current subdirectory
+    if( PACKAGE_TOP_DIRECTORY )
+      STRING( REGEX REPLACE "^${PACKAGE_TOP_DIRECTORY}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+    else()
+      STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+    endif()
+    if(NOT SP_ALLOW_UNDERSCORES )
+      string(REGEX MATCH [_] has_underscore "${CURRENT_SUBDIR}")
+      if( has_underscore )
+        message(SEND_ERROR  "found underscore in plugin subdirectory: ${CURRENT_SUBDIR}" )
+      endif( has_underscore )
+      string(REGEX MATCH [_] has_underscore "${name}")
+      if( has_underscore )
+        message(SEND_ERROR  "found underscore in plugin name: ${name}" )
+      endif( has_underscore )
+    endif()
+    STRING( REGEX REPLACE "/" "_" plugname "${CURRENT_SUBDIR}" )
+    set(plugin_name "${plugname}_${name}_${type}")
   endif()
-  if( NOT SP_ALLOW_UNDERSCORES )
-    string(REGEX MATCH [_] has_underscore "${CURRENT_SUBDIR}")
-    if( has_underscore )
-      message(SEND_ERROR  "found underscore in plugin subdirectory: ${CURRENT_SUBDIR}" )
-    endif( has_underscore )
-    string(REGEX MATCH [_] has_underscore "${name}")
-    if( has_underscore )
-      message(SEND_ERROR  "found underscore in plugin name: ${name}" )
-    endif( has_underscore )
-  endif()
-  STRING( REGEX REPLACE "/" "_" plugname "${CURRENT_SUBDIR}" )
-  set(plugin_name "${plugname}_${name}_${type}")
   set(codename "${name}_${type}.cc")
   #message(STATUS "SIMPLE_PLUGIN: generating ${plugin_name}")
   add_library(${plugin_name} SHARED ${codename} )
