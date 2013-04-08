@@ -116,13 +116,13 @@ namespace art {
     no_tag
     has_hasMoreData_helper(...);
 
-    tempate <typename X>
+    template <typename X>
     yes_tag
-    has_hasMoreData_helper(...)(hasMoreData_function<X, &X::hasMoreData> * dummy);
+    has_hasMoreData_helper(hasMoreData_function<X, &X::hasMoreData> * dummy);
 
-    tempate <typename X>
+    template <typename X>
     yes_tag
-    has_hasMoreData_helper(...)(hasMoreData_const_function<X, &X::hasMoreData> * dummy);
+    has_hasMoreData_helper(hasMoreData_const_function<X, &X::hasMoreData> * dummy);
 
     template <typename X>
     struct has_hasMoreData {
@@ -430,9 +430,9 @@ void
 art::Source<T>::checkForNextFile_()
 {
   currentFileName_ = fh_.next();
-  std::conditional<detail::has_hasMoreData<T>::value, detail:do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >::type
+  typename std::conditional<detail::has_hasMoreData<T>::value, detail::do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >::type
     generatorHasMoreData;
-  state_ = ((Source_generator<T>::value && ! generatorHasMoreData()) ||
+  state_ = ((Source_generator<T>::value && ! generatorHasMoreData(detail_)) ||
             currentFileName_.empty()) ?
            input::IsStop :
            input::IsFile;
