@@ -1,0 +1,31 @@
+process_name: DEVEL
+
+source:
+{
+  module_type: EmptyEvent
+  maxEvents: 25
+}
+
+services:
+{
+  scheduler:
+  {
+    wantSummary: true
+  }
+}
+
+physics:
+{
+  filters:
+  {
+    prescale:
+    {
+      module_type: BlockingPrescaler
+      blockSize: 5
+      stepSize: 7
+      offset: 11
+    }
+  }
+  p1: [ prescale ]
+  trigger_paths: [ p1 ]
+}

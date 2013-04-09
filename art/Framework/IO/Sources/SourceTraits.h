@@ -8,8 +8,36 @@
 //
 // Specialize as required.
 //
+////////////////////////////////////
+// Available traits.
+//
+// Specialize the following traits for your source detail class if you
+// wish to tune the behavior of your InputSource:
+//
+// 1. Source_generator.
+//
+// Your source detail class does not read files or
+// otherwise use the input string provided to it in its readFile(...)
+// function. Defaults to false; specialize to true for your detail class
+// XXXX as below:
+//
+// namespace art {
+//   template<>
+//     struct Source_generator<XXXX> {
+//       static constexpr bool value = true;
+//     };
+// }
+//
+// 2. Source_wantFileServices.
+//
+// Your source detail will be working from the list of filenames
+// provided by the FHiCL parameter source.fileNames, but does not want
+// them treated as real files by the standard service interfaces
+// (CatalogInterface and FileTransfer). Use this if source.fileNames is
+// a list of URLS for streaming data, for instance. Defaults to
+// !Source_generator<DETAIL>::value (see above); specialize as you wish.
+//
 ////////////////////////////////////////////////////////////////////////
-
 namespace art {
   // We are a generator, not a reader (or, we read our data from
   // somewhere other than files specified by source.fileNames).

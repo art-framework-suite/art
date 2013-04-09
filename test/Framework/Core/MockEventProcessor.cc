@@ -33,6 +33,7 @@ namespace art {
     fileMode_(fileMode),
     handleEmptyRuns_(handleEmptyRuns),
     handleEmptySubRuns_(handleEmptySubRuns),
+    subRun_(SubRunID::firstSubRun()),
     shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
     shouldWeStop_(false)  {
@@ -57,13 +58,13 @@ namespace art {
 
       if (ch == 'r') {
         output_ << "    *** nextItemType: Run " << t.value << " ***\n";
-        run_ = t.value;
-        myMachine.process_event( statemachine::Run(t.value) );
+        subRun_ = SubRunID::firstSubRun(RunID(t.value));
+        myMachine.process_event( statemachine::Run(subRun_.runID()) );
       }
       else if (ch == 'l') {
         output_ << "    *** nextItemType: SubRun " << t.value << " ***\n";
-        subRun_ = t.value;
-        myMachine.process_event( statemachine::SubRun(t.value) );
+        subRun_ = SubRunID(subRun_.run(), t.value);
+        myMachine.process_event( statemachine::SubRun(subRun_) );
       }
       else if (ch == 'e') {
         output_ << "    *** nextItemType: Event ***\n";
@@ -172,46 +173,46 @@ namespace art {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::beginRun(int run) {
-    output_ << "\tbeginRun " << run << "\n";
+  void MockEventProcessor::beginRun(RunID run) {
+    output_ << "\tbeginRun " << run.run() << "\n";
   }
 
-  void MockEventProcessor::endRun(int run) {
-    output_ << "\tendRun " << run << "\n";
+  void MockEventProcessor::endRun(RunID run) {
+    output_ << "\tendRun " << run.run() << "\n";
   }
 
-  void MockEventProcessor::beginSubRun(int run, int subRun) {
-    output_ << "\tbeginSubRun " << run << "/" << subRun << "\n";
+  void MockEventProcessor::beginSubRun(SubRunID const & sr) {
+    output_ << "\tbeginSubRun " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
-  void MockEventProcessor::endSubRun(int run, int subRun) {
-    output_ << "\tendSubRun " << run << "/" << subRun << "\n";
+  void MockEventProcessor::endSubRun(SubRunID const & sr) {
+    output_ << "\tendSubRun " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
-  int MockEventProcessor::readAndCacheRun() {
-    output_ << "\treadAndCacheRun " << run_ << "\n";
-    return run_;
+  RunID MockEventProcessor::readAndCacheRun() {
+    output_ << "\treadAndCacheRun " << subRun_.run() << "\n";
+    return subRun_.runID();
   }
 
-  int MockEventProcessor::readAndCacheSubRun() {
-    output_ << "\treadAndCacheSubRun " << subRun_ << "\n";
+  SubRunID MockEventProcessor::readAndCacheSubRun() {
+    output_ << "\treadAndCacheSubRun " << subRun_.subRun() << "\n";
     return subRun_;
   }
 
-  void MockEventProcessor::writeRun(int run) {
-    output_ << "\twriteRun " << run << "\n";
+  void MockEventProcessor::writeRun(RunID run) {
+    output_ << "\twriteRun " << run.run() << "\n";
   }
 
-  void MockEventProcessor::deleteRunFromCache(int run) {
-    output_ << "\tdeleteRunFromCache " << run << "\n";
+  void MockEventProcessor::deleteRunFromCache(RunID run) {
+    output_ << "\tdeleteRunFromCache " << run.run() << "\n";
   }
 
-  void MockEventProcessor::writeSubRun(int run, int subRun) {
-    output_ << "\twriteSubRun " << run << "/" << subRun << "\n";
+  void MockEventProcessor::writeSubRun(SubRunID const & sr) {
+    output_ << "\twriteSubRun " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
-  void MockEventProcessor::deleteSubRunFromCache(int run, int subRun) {
-    output_ << "\tdeleteSubRunFromCache " << run << "/" << subRun << "\n";
+  void MockEventProcessor::deleteSubRunFromCache(SubRunID const & sr) {
+    output_ << "\tdeleteSubRunFromCache " << sr.run() << "/" << sr.subRun() << "\n";
   }
 
   void MockEventProcessor::readEvent() {

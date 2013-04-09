@@ -7,152 +7,423 @@
 #include "art/Persistency/Provenance/SortInvalidFirst.h"
 #include "art/Persistency/Provenance/SubRunID.h"
 #include "cpp0x/cstdint"
-#include <ostream>
+
+#include <iosfwd>
 
 namespace art {
-   typedef std::uint32_t EventNumber_t;
-   class EventID;
+  typedef std::uint32_t EventNumber_t;
+  class EventID;
+
+  std::ostream &
+  operator<<(std::ostream & os, EventID const & iID);
 }
 
 class art::EventID {
 public:
-   EventID() : subRun_(), event_() {}
-   EventID(RunNumber_t r, SubRunNumber_t sr, EventNumber_t e) :
-      subRun_(r, sr), event_(inRangeOrInvalid(e))
-   {}
-   // This needs to be done in enough places in the framework that this
-   // constructor should be public.
-   EventID(SubRunID const &sID, EventNumber_t e) :
-      subRun_(sID), event_(inRangeOrInvalid(e))
-   {}
+  EventID();
+  EventID(RunNumber_t r, SubRunNumber_t sr, EventNumber_t e);
 
+  // This needs to be done in enough places in the framework that this
+  // constructor should be public.
+  EventID(SubRunID const & sID, EventNumber_t e);
 
-   bool isValid() const {
-      return (event_ != INVALID_EVENT_NUMBER) && subRun_.isValid();
-   }
+  RunID const & runID() const;
+  RunNumber_t run() const;
+  SubRunID const & subRunID() const;
+  SubRunNumber_t subRun() const;
+  EventNumber_t event() const;
 
-   SubRunID const &subRunID() const { return subRun_; }
-   RunID const &runID() const { return subRun_.runID(); }
+  bool isValid() const;
+  bool isFlush() const;
 
-   RunNumber_t run() const { return subRun_.run(); }
-   SubRunNumber_t subRun() const { return subRun_.subRun(); }
-   EventNumber_t event() const { return event_; }
+  EventID next() const;
+  EventID nextSubRun(EventNumber_t first = FIRST_EVENT_NUMBER()) const;
+  EventID nextRun() const;
+  EventID previous() const;
+  EventID previousSubRun() const;
+  EventID previousRun() const;
 
-   EventID next() const {
-      if (!isValid()) {
-         throw art::Exception(art::errors::InvalidNumber)
-            << "cannot increment invalid event number.";
-      } else if (event_ == MAX_VALID_EVENT_NUMBER) {
-         return nextSubRun();
-      } else {
-         return EventID(subRun_, event_ + 1);
-      }
-   }
+  static EventID maxEvent();
+  static EventID firstEvent();
+  static EventID firstEvent(SubRunID const & srID);
+  static EventID invalidEvent();
+  static EventID invalidEvent(RunID rID);
+  static EventID invalidEvent(SubRunID const & srID);
+  static EventID flushEvent();
+  static EventID flushEvent(RunID rID);
 
-   EventID nextSubRun(EventNumber_t first_event = FIRST_EVENT_NUMBER) const {
-      return EventID(subRun_.next(), first_event);
-   }
+  // Comparison operators.
+  bool operator==(EventID const & other) const;
+  bool operator!=(EventID const & other) const;
+  bool operator<(EventID const & other) const;
+  bool operator>(EventID const & other) const;
+  bool operator<=(EventID const & other) const;
+  bool operator>=(EventID const & other) const;
 
-   EventID nextRun() const {
-      return EventID(subRun_.nextRun(), FIRST_EVENT_NUMBER);
-   }
-
-   EventID previous() {
-      if (!isValid()) {
-         throw art::Exception(art::errors::InvalidNumber)
-            << "cannot decrement invalid event number.";
-      } else if (event_ == FIRST_EVENT_NUMBER) {
-         return previousSubRun();
-      } else {
-         return EventID(subRun_, event_ - 1);
-      }
-   }
-
-   EventID previousSubRun() {
-      return EventID(subRun_.previous(), MAX_VALID_EVENT_NUMBER);
-   }
-
-   EventID previousRun() {
-      return EventID(subRun_.previousRun(), MAX_VALID_EVENT_NUMBER);
-   }
-
-   static EventID maxEvent() {
-      return EventID(SubRunID::maxSubRun(), MAX_VALID_EVENT_NUMBER);
-   }
-
-   static EventID firstEvent() {
-      return EventID(SubRunID::firstSubRun(), FIRST_EVENT_NUMBER);
-   }
-
-   static EventID firstEvent(SubRunID const & srID) {
-      return EventID(srID, FIRST_EVENT_NUMBER);
-   }
-
-   static EventID invalidEvent() { return EventID(); }
-
-   static EventID invalidEvent(RunID const & rID) {
-      return EventID(SubRunID::invalidSubRun(rID), INVALID_EVENT_NUMBER);
-   }
-
-   static EventID invalidEvent(SubRunID const &srID) {
-      return EventID(srID, INVALID_EVENT_NUMBER);
-   }
-
-   // Valid comparison operators
-   bool operator==(EventID const& other) const {
-      return other.subRun_ == subRun_ && other.event_ == event_;
-   }
-
-   bool operator!=(EventID const& other) const {
-      return !(*this == other);
-   }
-
-   bool operator<(EventID const& other) const {
-      static SortInvalidFirst<EventNumber_t> op(INVALID_EVENT_NUMBER);
-      if (subRun_ == other.subRun_) {
-         return op(event_, other.event_);
-      } else {
-         return subRun_ < other.subRun_;
-      }
-   }
-
-   bool operator>(EventID const& other) const {
-      return (other < *this);
-   }
-
-   bool operator<=(EventID const& other) const {
-      return (*this < other) || (*this == other);
-   }
-
-
-   bool operator>=(EventID const& other) const {
-      return ! (*this < other);
-   }
-
-   friend inline std::ostream&
-   operator<<(std::ostream& oStream, EventID const& iID) {
-      oStream << iID.subRun_ << " event: ";
-      if (iID.event_ == INVALID_EVENT_NUMBER) {
-        oStream << "INVALID";
-      } else {
-        oStream << iID.event_;
-      }
-      return oStream;
-   }
+  friend std::ostream &
+  operator<<(std::ostream & os, EventID const & iID);
 
 private:
-   static EventNumber_t const INVALID_EVENT_NUMBER;
-   static EventNumber_t const MAX_VALID_EVENT_NUMBER;
-   static EventNumber_t const FIRST_EVENT_NUMBER;
+  struct FlushFlag { };
 
-   EventNumber_t inRangeOrInvalid(EventNumber_t e) {
-      return (e < FIRST_EVENT_NUMBER ||
-              e > MAX_VALID_EVENT_NUMBER)?INVALID_EVENT_NUMBER:e;
-   }
+  explicit EventID(FlushFlag);
+  EventID(RunID rID, FlushFlag);
 
-   SubRunID subRun_;
-   EventNumber_t event_;
+  EventNumber_t inRangeOrInvalid(EventNumber_t e);
+
+  static constexpr EventNumber_t INVALID_EVENT_NUMBER();
+  static constexpr EventNumber_t MAX_VALID_EVENT_NUMBER();
+  static constexpr EventNumber_t FLUSH_EVENT_NUMBER();
+  static constexpr EventNumber_t MAX_NATURAL_EVENT_NUMBER();
+  static constexpr EventNumber_t FIRST_EVENT_NUMBER();
+
+  SubRunID subRun_;
+  EventNumber_t event_;
 };
+
+#ifndef __GCCXML__
+inline
+art::EventID::
+EventID()
+  :
+  subRun_(),
+  event_()
+{
+}
+
+inline
+art::EventID::
+EventID(RunNumber_t r, SubRunNumber_t sr, EventNumber_t e)
+  :
+  subRun_(r, sr),
+  event_(inRangeOrInvalid(e))
+{
+}
+
+inline
+art::EventID::
+EventID(SubRunID const & sID, EventNumber_t e)
+  :
+  subRun_(sID),
+  event_(inRangeOrInvalid(e))
+{
+}
+
+inline
+art::RunID const &
+art::EventID::
+runID() const
+{
+  return subRun_.runID();
+}
+
+inline
+art::RunNumber_t
+art::EventID::
+run() const
+{
+  return subRun_.run();
+}
+
+inline
+art::SubRunID const &
+art::EventID::
+subRunID() const
+{
+  return subRun_;
+}
+
+inline
+art::SubRunNumber_t
+art::EventID::
+subRun() const
+{
+  return subRun_.subRun();
+}
+
+inline
+art::EventNumber_t
+art::EventID::
+event() const
+{
+  return event_;
+}
+
+inline
+bool
+art::EventID::
+isValid() const
+{
+  return (event_ != INVALID_EVENT_NUMBER()) && subRun_.isValid();
+}
+
+inline
+bool
+art::EventID::
+isFlush() const
+{
+  return (event_ == FLUSH_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::next() const
+{
+  if (!isValid()) {
+    throw art::Exception(art::errors::InvalidNumber)
+        << "cannot increment invalid event number.";
+  }
+  else if (event_ == MAX_NATURAL_EVENT_NUMBER()) {
+    return nextSubRun();
+  }
+  else {
+    return EventID(subRun_, event_ + 1);
+  }
+}
+
+inline
+art::EventID
+art::EventID::
+nextSubRun(EventNumber_t first) const
+{
+  return EventID(subRun_.next(), first);
+}
+
+inline
+art::EventID
+art::EventID::
+nextRun() const
+{
+  return EventID(subRun_.nextRun(), FIRST_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+previous() const
+{
+  if (!isValid()) {
+    throw art::Exception(art::errors::InvalidNumber)
+        << "cannot decrement invalid event number.";
+  }
+  else if (event_ == FIRST_EVENT_NUMBER()) {
+    return previousSubRun();
+  }
+  else {
+    return EventID(subRun_, event_ - 1);
+  }
+}
+
+inline
+art::EventID
+art::EventID::
+previousSubRun() const
+{
+  return EventID(subRun_.previous(), MAX_NATURAL_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+previousRun() const
+{
+  return EventID(subRun_.previousRun(), MAX_NATURAL_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+maxEvent()
+{
+  return EventID(SubRunID::maxSubRun(), MAX_NATURAL_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+firstEvent()
+{
+  return EventID(SubRunID::firstSubRun(), FIRST_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+firstEvent(SubRunID const & srID)
+{
+  return EventID(srID, FIRST_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+invalidEvent()
+{
+  return EventID();
+}
+
+inline
+art::EventID
+art::EventID::
+invalidEvent(RunID rID)
+{
+  return EventID(SubRunID::invalidSubRun(rID), INVALID_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+invalidEvent(SubRunID const & srID)
+{
+  return EventID(srID, INVALID_EVENT_NUMBER());
+}
+
+inline
+art::EventID
+art::EventID::
+flushEvent()
+{
+  return EventID(FlushFlag());
+}
+
+inline
+art::EventID
+art::EventID::
+flushEvent(RunID rID)
+{
+  return EventID(rID, FlushFlag());
+}
+
+// Comparison operators.
+inline
+bool
+art::EventID::
+operator==(EventID const & other) const
+{
+  return other.subRun_ == subRun_ && other.event_ == event_;
+}
+
+inline
+bool
+art::EventID::
+operator!=(EventID const & other) const
+{
+  return !(*this == other);
+}
+
+inline
+bool
+art::EventID::
+operator<(EventID const & other) const
+{
+  static SortInvalidFirst<EventNumber_t> op(INVALID_EVENT_NUMBER());
+  if (subRun_ == other.subRun_) {
+    return op(event_, other.event_);
+  }
+  else {
+    return subRun_ < other.subRun_;
+  }
+}
+
+inline
+bool
+art::EventID::
+operator>(EventID const & other) const
+{
+  return (other < *this);
+}
+
+inline
+bool
+art::EventID::
+operator<=(EventID const & other) const
+{
+  return (*this < other) || (*this == other);
+}
+
+inline
+bool
+art::EventID::
+operator>=(EventID const & other) const
+{
+  return !(*this < other);
+}
+
+inline
+art::EventID::
+EventID(FlushFlag)
+  :
+  subRun_(SubRunID::flushSubRun()),
+  event_(FLUSH_EVENT_NUMBER())
+{
+}
+
+inline
+art::EventID::
+EventID(RunID rID, FlushFlag)
+  :
+  subRun_(SubRunID::flushSubRun(rID)),
+  event_(FLUSH_EVENT_NUMBER())
+{
+}
+
+inline
+art::EventNumber_t
+art::EventID::
+inRangeOrInvalid(EventNumber_t e)
+{
+  if (e == INVALID_EVENT_NUMBER() ||
+      (e >= FIRST_EVENT_NUMBER() &&
+       e <= MAX_NATURAL_EVENT_NUMBER())) {
+    return e;
+  }
+  else {
+    throw Exception(errors::InvalidNumber)
+      << "Attempt to construct SubRunID with an invalid number.\n"
+      << "Maybe you want EventID::flushSubRun()?";
+  }
+}
+
+constexpr
+art::EventNumber_t
+art::EventID::
+INVALID_EVENT_NUMBER()
+{
+  return -1;
+}
+
+constexpr
+art::EventNumber_t
+art::EventID::
+MAX_VALID_EVENT_NUMBER()
+{
+  return INVALID_EVENT_NUMBER() - 1;
+}
+
+constexpr
+art::EventNumber_t
+art::EventID::
+FLUSH_EVENT_NUMBER()
+{
+  return MAX_VALID_EVENT_NUMBER();
+}
+
+constexpr
+art::EventNumber_t
+art::EventID::
+MAX_NATURAL_EVENT_NUMBER()
+{
+  return FLUSH_EVENT_NUMBER() - 1;
+}
+
+constexpr
+art::EventNumber_t
+art::EventID::
+FIRST_EVENT_NUMBER()
+{
+  return 1;
+}
+#endif /* __GCCXML__ */
 
 #endif /* art_Persistency_Provenance_EventID_h */
 

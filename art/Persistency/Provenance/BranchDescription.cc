@@ -8,6 +8,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "Cintex/Cintex.h"
+#include "Compression.h"
 #include "TBuffer.h"
 #include "TClassStreamer.h" // Temporary
 
@@ -48,7 +49,8 @@ art::BranchDescription::Transients::Transients() :
   present_(true),
   transient_(false),
   splitLevel_(),
-  basketSize_()
+  basketSize_(),
+  compression_(invalidCompression)
 {
 }
 
@@ -159,6 +161,37 @@ void art::BranchDescription::fluffTransients_() const {
   } else {
     transients_.get().basketSize_ = invalidBasketSize;
   }
+  if (wp.HasProperty("compression")) {
+    // FIXME: We need to check for a parsing error from the strtol() here!
+    int compression = strtol(wp.PropertyAsString("compression").c_str(), 0, 0);
+    if (compression < 0) {
+      throw Exception(errors::Configuration, "IllegalCompression")
+        << "' An illegal ROOT compression of "
+        << compression
+        << " is specified for class "
+        << transients_.get().wrappedName_
+        << "'.\n";
+    }
+    int algorithm = compression / 100;
+    int level = compression % 100;
+    if (algorithm >= ROOT::kUndefinedCompressionAlgorithm) {
+      throw Exception(errors::Configuration, "IllegalCompressionAlgorithm")
+        << "' An illegal ROOT compression algorithm of "
+        << algorithm
+        << " is specified for class "
+        << transients_.get().wrappedName_
+        << "'.\n";
+    }
+    if (level > 9) {
+      throw Exception(errors::Configuration, "IllegalCompressionLevel")
+        << "' An illegal ROOT compression level of "
+        << algorithm
+        << " is specified for class "
+        << transients_.get().wrappedName_
+        << "'.  The compression level must between 0 and 9 inclusive.\n";
+    }
+    transients_.get().compression_ = compression;
+  }
 }
 
 ParameterSetID const&
@@ -185,6 +218,11 @@ art::BranchDescription::merge(BranchDescription const& other) {
   }
   if (guts().basketSize_ == invalidBasketSize) {
     guts().basketSize_ = other.guts().basketSize_;
+  }
+  // FIXME: This is probably wrong! We are going from defaulted compression
+  //        to a possibly different compression, bad.
+  if (guts().compression_ == invalidCompression) {
+    guts().compression_ = other.guts().compression_;
   }
 }
 

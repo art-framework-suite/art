@@ -15,8 +15,6 @@ set(art_Persistency_Provenance_sources
   FileIndex.cc
   Hash.cc
   History.cc
-  SubRunAuxiliary.cc
-  SubRunID.cc
   MasterProductRegistry.cc
   ModuleDescription.cc
   ParameterSetBlob.cc
@@ -29,7 +27,10 @@ set(art_Persistency_Provenance_sources
   ReflexTools.cc
   RunAuxiliary.cc
   RunID.cc
-  TransientStreamer.cc )
+  SubRunAuxiliary.cc
+  SubRunID.cc
+  TransientStreamer.cc
+ )
 
 
 set( art_Persistency_Provenance_libraries

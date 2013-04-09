@@ -39,18 +39,18 @@ namespace statemachine {
 
   class Run : public sc::event<Run> {
   public:
-    Run(art::RunNumber_t id);
-    art::RunNumber_t id() const;
+    Run(art::RunID id);
+    art::RunID id() const;
   private:
-    art::RunNumber_t id_;
+    art::RunID id_;
   };
 
   class SubRun : public sc::event<SubRun> {
   public:
-    SubRun(art::SubRunNumber_t id);
-    art::SubRunNumber_t id() const;
+    SubRun(art::SubRunID id);
+    art::SubRunID const & id() const;
   private:
-    art::SubRunNumber_t id_;
+    art::SubRunID id_;
   };
 
   // It is slightly confusing that this one refers to
@@ -226,11 +226,11 @@ namespace statemachine {
     typedef sc::transition<File, NewInputAndOutputFiles> reactions;
 
     bool beginRunCalled() const;
-    art::RunNumber_t currentRun() const;
+    art::RunID currentRun() const;
     bool runException() const;
     void setupCurrentRun();
-    void beginRun(art::RunNumber_t run);
-    void endRun(art::RunNumber_t run);
+    void beginRun(art::RunID run);
+    void endRun(art::RunID run);
     void finalizeRun(Run const&);
     void finalizeRun();
     void beginRunIfNotDoneAlready();
@@ -238,8 +238,8 @@ namespace statemachine {
     art::IEventProcessor & ep_;
     bool exitCalled_;
     bool beginRunCalled_;
-    art::RunNumber_t currentRun_;
-    std::set<art::RunNumber_t> previousRuns_;
+    art::RunID currentRun_;
+    std::set<art::RunID> previousRuns_;
     bool runException_;
   };
 
@@ -298,15 +298,14 @@ namespace statemachine {
   class HandleSubRuns : public sc::state<HandleSubRuns, HandleRuns, FirstSubRun>
   {
   public:
-     typedef std::pair<art::RunNumber_t, art::SubRunNumber_t> SubRunID;
     HandleSubRuns(my_context ctx);
     void exit();
     ~HandleSubRuns();
     bool checkInvariant();
 
-    SubRunID currentSubRun() const;
+    art::SubRunID const & currentSubRun() const;
     bool currentSubRunEmpty() const;
-    std::vector<SubRunID> const& unhandledSubRuns() const;
+    std::vector<art::SubRunID> const& unhandledSubRuns() const;
     void setupCurrentSubRun();
     void finalizeAllSubRuns();
     void finalizeSubRun();
@@ -319,9 +318,9 @@ namespace statemachine {
     art::IEventProcessor & ep_;
     bool exitCalled_;
     bool currentSubRunEmpty_;
-    SubRunID currentSubRun_;
-    std::set<SubRunID> previousSubRuns_;
-    std::vector<SubRunID> unhandledSubRuns_;
+    art::SubRunID currentSubRun_;
+    std::set<art::SubRunID> previousSubRuns_;
+    std::vector<art::SubRunID> unhandledSubRuns_;
     bool subRunException_;
   };
 

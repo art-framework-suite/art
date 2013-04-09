@@ -102,7 +102,9 @@ endmacro( _art_simple_plugin )
 # art_make_exec
 ####################################
 macro( art_make_exec )
-  cet_make_exec( ${ARGN} )
+  set(cet_arguments ${ARGN})
+  list(REMOVE_ITEM  cet_arguments NAME)
+  cet_make_exec( ${cet_arguments} )
 endmacro( art_make_exec )
 
 ####################################

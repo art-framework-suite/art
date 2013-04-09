@@ -1,8 +1,19 @@
 #include "art/Persistency/Provenance/SubRunID.h"
 
-art::SubRunNumber_t const art::SubRunID::INVALID_SUBRUN_NUMBER = -1;
-art::SubRunNumber_t const art::SubRunID::MAX_VALID_SUBRUN_NUMBER = -2;
-art::SubRunNumber_t const art::SubRunID::FIRST_SUBRUN_NUMBER = 0;
-// art::SubRunNumber_t const art::SubRunID::INVALID_SUBRUN_NUMBER = 0;
-// art::SubRunNumber_t const art::SubRunID::MAX_VALID_SUBRUN_NUMBER = -1;
-// art::SubRunNumber_t const art::SubRunID::FIRST_SUBRUN_NUMBER = 1;
+#include <ostream>
+
+std::ostream &
+art::operator<<(std::ostream & os, SubRunID const & iID)
+{
+  os << iID.run_ << " subRun: ";
+  if (iID.isFlush()) {
+    os << "FLUSH";
+  }
+  else if (iID.isValid()) {
+    os << iID.subRun_;
+  }
+  else {
+    os << "INVALID";
+  }
+  return os;
+}

@@ -369,16 +369,16 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::endJob() { }
 
-  RunNumber_t
+  RunID
   DecrepitRelicInputSourceImplementation::run() const {
     assert(runPrincipal());
-    return runPrincipal()->run();
+    return runPrincipal()->id();
   }
 
-  SubRunNumber_t
+  SubRunID
   DecrepitRelicInputSourceImplementation::subRun() const {
     assert(subRunPrincipal());
-    return subRunPrincipal()->subRun();
+    return subRunPrincipal()->id();
   }
 
 }  // art

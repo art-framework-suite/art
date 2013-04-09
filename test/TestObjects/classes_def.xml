@@ -5,6 +5,9 @@
  <class name="arttest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="3673612331"/>
  </class>
+ <class name="arttest::CompressedIntProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="1683733468"/>
+ </class>
  <class name="arttest::Int16_tProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="3993725207"/>
  </class>
@@ -35,6 +38,7 @@
  </class>
  <class name="art::Wrapper<arttest::DummyProduct>"/>
  <class name="art::Wrapper<arttest::IntProduct>"/>
+ <class name="art::Wrapper<arttest::CompressedIntProduct>" compression="9"/>
  <class name="art::Wrapper<arttest::Int16_tProduct>"/>
  <class name="art::Wrapper<arttest::DoubleProduct>"/>
  <class name="art::Wrapper<arttest::StringProduct>"/>

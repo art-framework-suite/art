@@ -12,6 +12,8 @@ Original Authors: W. David Dagenhart, Marc Paterno
 */
 
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/RunID.h"
+#include "art/Persistency/Provenance/SubRunID.h"
 
 #include <string>
 
@@ -29,7 +31,7 @@ namespace art
     //   3     signal received
     //  values are for historical reasons.
     enum Status { epSuccess=0,
-		  epSignal=3 };
+      epSignal=3 };
 
     // Eventually, we might replace StatusCode with a class. This
     // class should have an automatic conversion to 'int'.
@@ -59,18 +61,18 @@ namespace art
 
     virtual void doErrorStuff() = 0;
 
-    virtual void beginRun(int run) = 0;
-    virtual void endRun(int run) = 0;
+    virtual void beginRun(RunID) = 0;
+    virtual void endRun(RunID) = 0;
 
-    virtual void beginSubRun(int run, int subRun) = 0;
-    virtual void endSubRun(int run, int subRun) = 0;
+    virtual void beginSubRun(SubRunID const &) = 0;
+    virtual void endSubRun(SubRunID const &) = 0;
 
-    virtual int readAndCacheRun() = 0;
-    virtual int readAndCacheSubRun() = 0;
-    virtual void writeRun(int run) = 0;
-    virtual void deleteRunFromCache(int run) = 0;
-    virtual void writeSubRun(int run, int subRun) = 0;
-    virtual void deleteSubRunFromCache(int run, int subRun) = 0;
+    virtual RunID readAndCacheRun() = 0;
+    virtual SubRunID readAndCacheSubRun() = 0;
+    virtual void writeRun(RunID) = 0;
+    virtual void deleteRunFromCache(RunID) = 0;
+    virtual void writeSubRun(SubRunID const &) = 0;
+    virtual void deleteSubRunFromCache(SubRunID const &) = 0;
 
     virtual void readEvent() = 0;
     virtual void processEvent() = 0;

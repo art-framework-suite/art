@@ -76,52 +76,52 @@ namespace art {
     //   epSignal - processing terminated early, SIGUSR2 encountered
     //   epSuccess - all other cases
     //
-    virtual StatusCode runToCompletion();
+    StatusCode runToCompletion() override;
 
     // The following functions are used by the code implementing our
     // boost statemachine
 
-    virtual void readFile();
-    virtual void closeInputFile();
-    virtual void openOutputFiles();
-    virtual void closeOutputFiles();
+    void readFile() override;
+    void closeInputFile() override;
+    void openOutputFiles() override;
+    void closeOutputFiles() override;
 
-    virtual void respondToOpenInputFile();
-    virtual void respondToCloseInputFile();
-    virtual void respondToOpenOutputFiles();
-    virtual void respondToCloseOutputFiles();
+    void respondToOpenInputFile() override;
+    void respondToCloseInputFile() override;
+    void respondToOpenOutputFiles() override;
+    void respondToCloseOutputFiles() override;
 
-    virtual void startingNewLoop();
-    virtual bool endOfLoop();
-    virtual void rewindInput();
-    virtual void prepareForNextLoop();
-    virtual void writeSubRunCache();
-    virtual void writeRunCache();
-    virtual bool shouldWeCloseOutput() const;
+    void startingNewLoop() override;
+    bool endOfLoop() override;
+    void rewindInput() override;
+    void prepareForNextLoop() override;
+    void writeSubRunCache() override;
+    void writeRunCache() override;
+    bool shouldWeCloseOutput() const override;
 
-    virtual void doErrorStuff();
+    void doErrorStuff() override;
 
-    virtual void beginRun(int run);
-    virtual void endRun(int run);
+    void beginRun(RunID run) override;
+    void endRun(RunID run) override;
 
-    virtual void beginSubRun(int run, int subRun);
-    virtual void endSubRun(int run, int subRun);
+    void beginSubRun(SubRunID const & sr) override;
+    void endSubRun(SubRunID const & sr) override;
 
-    virtual int readAndCacheRun();
-    virtual int readAndCacheSubRun();
-    virtual void writeRun(int run);
-    virtual void deleteRunFromCache(int run);
-    virtual void writeSubRun(int run, int subRun);
-    virtual void deleteSubRunFromCache(int run, int subRun);
+    RunID readAndCacheRun() override;
+    SubRunID readAndCacheSubRun() override;
+    void writeRun(RunID run) override;
+    void deleteRunFromCache(RunID run) override;
+    void writeSubRun(SubRunID const & sr) override;
+    void deleteSubRunFromCache(SubRunID const & sr) override;
 
-    virtual void readEvent();
-    virtual void processEvent();
-    virtual bool shouldWeStop() const;
+    void readEvent() override;
+    void processEvent() override;
+    bool shouldWeStop() const override;
 
-    virtual void setExceptionMessageFiles(std::string & message);
-    virtual void setExceptionMessageRuns(std::string & message);
-    virtual void setExceptionMessageSubRuns(std::string & message);
-    virtual bool alreadyHandlingException() const;
+    void setExceptionMessageFiles(std::string & message) override;
+    void setExceptionMessageRuns(std::string & message) override;
+    void setExceptionMessageSubRuns(std::string & message) override;
+    bool alreadyHandlingException() const override;
 
   private:
     void configureServices_(fhicl::ParameterSet const & pset);

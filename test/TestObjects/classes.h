@@ -9,6 +9,7 @@
 
 template class art::Wrapper<arttest::DummyProduct>;
 template class art::Wrapper<arttest::IntProduct>;
+template class art::Wrapper<arttest::CompressedIntProduct>;
 template class art::Wrapper<arttest::Int16_tProduct>;
 template class art::Wrapper<arttest::DoubleProduct>;
 template class art::Wrapper<arttest::StringProduct>;

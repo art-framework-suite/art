@@ -134,6 +134,11 @@ namespace art {
                  &pProd,
                  (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
                  (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
+      if (prod.compression() != BranchDescription::invalidCompression) {
+         branch->SetCompressionSettings(prod.compression());
+         //branch->SetCompressionAlgorithm(prod.compress() / 100);
+         //branch->SetCompressionLevel(prod.compress() % 100);
+      }
       if (produced) {
         producedBranches_.push_back(branch);
       } else {

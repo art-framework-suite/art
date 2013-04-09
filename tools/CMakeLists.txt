@@ -1,17 +1,10 @@
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/artmod.in
-  "${CMAKE_CURRENT_BINARY_DIR}/artmod"
-  @ONLY
-  )
-
-cet_script(artmod GENERATED)
-
 cet_script(checkClassVersion)
 
+# artmod is now in cetpkgsupport, but code generation is tested here.
 foreach(type Analyzer Producer Filter)
   ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${type}_module.cc
     COMMAND artmod
     ARGS -A ${type} arttest::ToolsTest${type}
-    DEPENDS artmod
     COMMENT "Generating ToolsTest${type}_module.cc"
     VERBATIM
     )
