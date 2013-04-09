@@ -4,6 +4,7 @@
 
 int main( int argc, char* argv[] ) {
   int result = @ART_MAIN_FUNC@(argc,argv);
+  std::cout << std::flush; // Ensure output ordering.
   std::cout
     << "Art has completed and will exit with status "
     << result
