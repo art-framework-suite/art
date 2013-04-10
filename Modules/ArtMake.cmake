@@ -38,6 +38,7 @@
 #           [SUBDIRS <source subdirectory>] (e.g., detail)
 #           [EXCLUDE <ignore these files>]
 #           [WITH_STATIC_LIBRARY]
+#           [BASENAME_ONLY] (passed to simple_plugin)
 #         )
 #
 # * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead.
@@ -94,8 +95,14 @@ macro( _art_simple_plugin file type liblist )
   #message(STATUS "_art_simple_plugin: ${file} ${type} ${liblist}")
   STRING( REGEX REPLACE "^${CMAKE_CURRENT_SOURCE_DIR}/(.*)_${type}.cc" "\\1" plugbase "${file}" )
   #message(STATUS "_art_simple_plugin: have ${type} plugin ${plugbase}")
-  _debug_message("Configured to build plugin ${plugbase} of type ${type}.")
-  simple_plugin( ${plugbase} ${type} ${liblist} )
+  #message(STATUS "_art_simple_plugin: AM_BASENAME_ONLY is ${AM_BASENAME_ONLY}")
+  if( AM_BASENAME_ONLY )
+    _debug_message("Configured to build plugin ${plugbase} of type ${type} with BASENAME_ONLY.")
+    simple_plugin( ${plugbase} ${type} ${liblist} BASENAME_ONLY )
+  else()
+    _debug_message("Configured to build plugin ${plugbase} of type ${type}.")
+    simple_plugin( ${plugbase} ${type} ${liblist} )
+  endif()
 endmacro( _art_simple_plugin )
 
 ####################################
@@ -160,7 +167,7 @@ endfunction( art_make_library )
 ####################################
 function( art_make )
   set(art_file_list "")
-  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE;SOURCE" "WITH_STATIC_LIBRARY" ${ARGN})
+  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE;SOURCE" "WITH_STATIC_LIBRARY;BASENAME_ONLY" ${ARGN})
 
   if(AM_SOURCE)
     message(FATAL_ERROR "ART_MAKE: SOURCE is not a valid argument: library sources are computed.
