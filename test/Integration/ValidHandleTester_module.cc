@@ -50,6 +50,9 @@ void ValidHandleTester::analyze(art::Event const & e)
   auto p = e.getValidHandle<std::string>(input_tag_);
   assert(*p == expected_value_);
   assert(*p.provenance() == *h.provenance());
+
+  // Make sure conversion-to-pointer works.
+  [&](std::string const* x){ assert(*x == expected_value_); }(p);
 }
 
 DEFINE_ART_MODULE(ValidHandleTester)

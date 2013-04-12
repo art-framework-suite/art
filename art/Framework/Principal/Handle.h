@@ -242,6 +242,7 @@ public:
   ValidHandle(T const* prod, Provenance prov);
   ValidHandle(ValidHandle const&) = default;
   ValidHandle& operator=(ValidHandle const&) = default;
+  operator T const*() const;    // conversion to T const*
   T const & operator*() const;
   T const * operator->() const; // alias for product()
   T const * product() const;
@@ -260,6 +261,13 @@ art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov) :
   if (prod == nullptr)
     throw Exception(art::errors::NullPointerError)
       << "Attempt to create ValidHandle with null pointer";
+}
+
+template <class T>
+inline
+art::ValidHandle<T>::operator T const* () const
+{
+  return prod_;
 }
 
 template <class T>
