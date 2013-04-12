@@ -98,6 +98,18 @@ public:
       Handle<PROD>& result) const;
 
   template <typename PROD>
+  PROD const&
+  getByLabel(InputTag const& tag) const;
+
+  template <typename PROD>
+  art::ValidHandle<PROD>
+  getValidHandle(InputTag const& tag) const;
+
+  template <typename PROD>
+  PROD const*
+  getPointerByLabel(InputTag const& tag) const;
+
+  template <typename PROD>
   bool
   getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
@@ -261,6 +273,33 @@ art::Event::get(SelectorBase const& sel,
 }  // get<>()
 
 // ----------------------------------------------------------------------
+
+template <typename PROD>
+PROD const&
+art::Event::getByLabel(InputTag const& tag) const
+{
+  art::Handle<PROD> h;
+  getByLabel(tag, h);
+  return *h;
+}
+
+template <typename PROD>
+art::ValidHandle<PROD>
+art::Event::getValidHandle(InputTag const& tag) const
+{
+  art::Handle<PROD> h;
+  getByLabel(tag, h);
+  return art::ValidHandle<PROD>(&(*h), *h.provenance());
+}
+
+template <typename PROD>
+PROD const*
+art::Event::getPointerByLabel(InputTag const& tag) const
+{
+  art::Handle<PROD> h;
+  getByLabel(tag, h);
+  return &(*h);
+}
 
 template <typename PROD>
 bool

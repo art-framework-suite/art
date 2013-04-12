@@ -36,8 +36,16 @@ arttest::PtrVectorSimpleAnalyzer::PtrVectorSimpleAnalyzer(fhicl::ParameterSet co
 void arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const & e)
 {
   typedef art::PtrVector<arttest::Simple> SimplePtrVector;
+
+  auto p = e.getPointerByLabel<SimplePtrVector>(input_label_);
+  assert(p);
+  assert( p->size() > 0);
+  //assert( p->pop_back()); // This fails to compile, because *p is const.
+
   art::Handle<SimplePtrVector> h;
-  assert(e.getByLabel(input_label_, h));
+  bool status = e.getByLabel(input_label_, h);
+  assert(status);
+
   int const event_num = e.id().event();
   for (size_t i = 0, sz = h->size(); i != sz; ++i) {
     assert((unsigned)(*h)[i]->key == sz - i + event_num);

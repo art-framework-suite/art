@@ -1,3 +1,4 @@
+#error This file should not be compiled.
 //
 // Reads some simple test objects in the event, run, and subRun
 // principals.  Then checks to see if the values in these

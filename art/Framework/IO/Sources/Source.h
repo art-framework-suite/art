@@ -429,13 +429,20 @@ template <class T>
 void
 art::Source<T>::checkForNextFile_()
 {
-  currentFileName_ = fh_.next();
-  typename std::conditional<detail::has_hasMoreData<T>::value, detail::do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >::type
-    generatorHasMoreData;
-  state_ = ((Source_generator<T>::value && ! generatorHasMoreData(detail_)) ||
-            currentFileName_.empty()) ?
-           input::IsStop :
-           input::IsFile;
+  state_ = input::IsStop; // Default -- may change below.
+  if (Source_generator<T>::value) {
+    typename std::conditional<detail::has_hasMoreData<T>::value, detail::do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T> >::type
+      generatorHasMoreData;
+    if (generatorHasMoreData(detail_)) {
+      state_ = input::IsFile;
+    }
+  }
+  else {
+    currentFileName_ = fh_.next();
+    if (!currentFileName_.empty()) {
+      state_ = input::IsFile;
+    }
+  }
 }
 
 template <class T>

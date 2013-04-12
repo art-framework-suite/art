@@ -455,6 +455,7 @@ inline void
 art::swap(PtrVector<T> &lhs, PtrVector<T> &rhs) {
   lhs.swap(rhs);
 }
+
 #endif // __GCCXML__
 #endif /* art_Persistency_Common_PtrVector_h */
 

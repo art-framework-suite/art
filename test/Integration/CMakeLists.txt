@@ -30,6 +30,7 @@ simple_plugin(AssnsAnalyzer               "module" NO_INSTALL USE_BOOST_UNIT )
 simple_plugin(AssnsProducer               "module" NO_INSTALL )
 simple_plugin(BareStringAnalyzer          "module" NO_INSTALL )
 simple_plugin(BareStringProducer          "module" NO_INSTALL )
+simple_plugin(ValidHandleTester           "module" NO_INSTALL )
 simple_plugin(DerivedPtrVectorProducer    "module" NO_INSTALL )
 simple_plugin(DoubleProducer              "module" NO_INSTALL )
 simple_plugin(DoubleTestAnalyzer          "module" NO_INSTALL )
@@ -396,6 +397,13 @@ cet_test(BareString_r HANDBUILT
   TEST_PROPERTIES DEPENDS BareString_w
 )
 
+cet_test(ValidHandleTester HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c ValidHandleTester.fcl
+  DATAFILES
+  fcl/ValidHandleTester.fcl
+  TEST_PROPERTIES DEPENDS BareString_w
+)
 
 # Write the data file required for the other mixing tests.
 cet_test(ProductMix_w HANDBUILT
