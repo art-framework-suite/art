@@ -85,7 +85,7 @@ macro (simple_plugin name type)
   if(ART_FRAMEWORK_CORE)
     # using art as a product
     if("${type}" STREQUAL "service")
-      list(INSERT simple_plugin_liblist 0 ${ART_FRAMEWORK_SERVICES_REGISTRY} ${SIGC})
+      list(INSERT simple_plugin_liblist 0 ${ART_FRAMEWORK_SERVICES_REGISTRY} ${FHICLCPP} ${CETLIB} ${SIGC})
     elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
       list(INSERT simple_plugin_liblist 0
 	      ${ART_FRAMEWORK_CORE}
@@ -93,6 +93,7 @@ macro (simple_plugin name type)
 	      ${ART_PERSISTENCY_COMMON}
 	      ${ART_PERSISTENCY_PROVENANCE}
 	      ${ART_UTILITIES}
+        ${FHICLCPP}
         ${CETLIB}
 	      ${ROOT_CORE}
 	      )
