@@ -43,7 +43,7 @@ foreach(test_cpp CRC32Calculator_t.cpp Digest_t.cpp MallocOpts_t.cpp)
     )
 endforeach()
 
-foreach(cppunit_test HRTime_t.cpp Math_t.cpp)
+foreach(cppunit_test HRTime_t.cpp)
   get_filename_component(tname ${cppunit_test} NAME_WE )
   cet_test(${tname}
     SOURCES ${cppunit_test}
