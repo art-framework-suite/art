@@ -82,6 +82,7 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
     # ROOT libraries added for use convenience ONLY -- they will go away
     # eventually.
     ${ART_EXEC_ROOT_LIBS}
+    ${MF_MESSAGELOGGER}
     )
 endmacro()
 

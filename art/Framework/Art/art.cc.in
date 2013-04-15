@@ -1,10 +1,15 @@
 #include "art/Framework/Art/@ART_MAIN_FUNC@.h"
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include <iostream>
 
 int main( int argc, char* argv[] ) {
   int result = @ART_MAIN_FUNC@(argc,argv);
-  std::cout << std::flush; // Ensure output ordering.
+  // Make sure the message logger is shut down so our message really is
+  // the last one put out.
+  mf::MessageFacilityService::instance().MFPresence.reset();
+  // End message.
   std::cout
     << "Art has completed and will exit with status "
     << result
