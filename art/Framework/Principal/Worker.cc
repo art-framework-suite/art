@@ -37,7 +37,7 @@ namespace {
 art::Worker::Worker(ModuleDescription const& iMD,
                     WorkerParams const& iWP)
   :
-  stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
+  timer_(),
   timesRun_(),
   timesVisited_(),
   timesPassed_(),

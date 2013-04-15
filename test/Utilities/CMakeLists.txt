@@ -12,7 +12,6 @@ set(default_test_libraries
 
 cet_test(CPUTimer_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
-  TEST_PROPERTIES ENVIRONMENT BOOST_TEST_SHOW_PROGRESS=yes
   )
 
 cet_test(FriendlyName_t USE_BOOST_UNIT

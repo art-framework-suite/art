@@ -78,7 +78,7 @@ public:
   void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
 
   std::pair<double,double> timeCpuReal() const {
-    return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
+      return std::pair<double,double>(timer_.cpuTime(),timer_.realTime());
   }
 
   void clearCounters() {
@@ -119,7 +119,8 @@ private:
   virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
   virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-  RunStopwatch::StopwatchPointer stopwatch_;
+  //RunStopwatch::StopwatchPointer stopwatch_;
+  art::CPUTimer timer_;
 
   int timesRun_;
   int timesVisited_;
@@ -176,7 +177,7 @@ bool art::Worker::doWork(typename T::MyPrincipal& ep,
                          CurrentProcessingContext const* cpc) {
 
   // A RunStopwatch, but only if we are processing an event.
-  std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
+  //std::unique_ptr<RunStopwatch> stopwatch(T::isEvent_ ? new RunStopwatch(stopwatch_) : 0);
 
   if (T::isEvent_) {
     ++timesVisited_;
