@@ -84,10 +84,10 @@ void
 art::ServicesManager::
 fillCache_(ParameterSets  const & psets, LibraryManager const & lm)
 {
-  // Receive from Eve ntProcessor when we go multi-schedule.
+  // Receive from EventProcessor when we go multi-schedule.
   detail::ServiceCacheEntry::setNSchedules(1);
   // Loop over each configured service parameter set.
-for (auto const & ps : psets) {
+  for (auto const & ps : psets) {
     std::string service_name(ps.get<std::string>("service_type"));
     std::string service_provider(ps.get<std::string>("service_provider", service_name));
     // Get the helper from the library.
@@ -95,17 +95,40 @@ for (auto const & ps : psets) {
       lm.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
       "create_service_helper")()
     };
-    assert(!service_helper->is_interface() &&
-           "Registered service is not a service implementation!");
+    if (service_helper->is_interface()) {
+      throw Exception(errors::LogicError)
+        << "Service "
+        << service_name
+        << " (of type "
+        << service_helper->get_typeid().className()
+        << ")\nhas been registered as an interface in its header using\n"
+        << "DECLARE_ART_SERVICE_INTERFACE.\n"
+        << "Use DECLARE_ART_SERVICE OR DECLARE_ART_SERVICE_INTERFACE_IMPL\n"
+        << "as appropriate. A true service interface should *not* be\n"
+        << "compiled into a  _service.so plugin library.\n";
+    }
     std::unique_ptr<detail::ServiceInterfaceHelper> iface_helper;
     if (service_helper->is_interface_impl()) { // Expect an interface helper
       iface_helper.reset(dynamic_cast<detail::ServiceInterfaceHelper *>
                          (lm.getSymbolByLibspec<SHBCREATOR_t>
                           (service_provider,
                            "create_iface_helper")().release()));
-      assert(dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid() ==
-             iface_helper->get_typeid() &&
-             "Found unexepcted interface!");
+      if (dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid() !=
+          iface_helper->get_typeid()) {
+        throw Exception(errors::LogicError)
+          << "Service registration for "
+          << service_provider
+          << " is internally inconsistent: "
+          << iface_helper->get_typeid()
+          << " ("
+          << iface_helper->get_typeid().className()
+          << ") != "
+          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid()
+          << " ("
+          << dynamic_cast<detail::ServiceInterfaceImplHelper *>(service_helper.get())->get_interface_typeid().className()
+          << ").\n"
+          << "Contact the art developers <artists@fnal.gov>.\n";
+      }
       if (service_provider == service_name) {
         std::string iface_name(cet::demangle(iface_helper->get_typeid().name()));
         throw Exception(errors::Configuration)
@@ -114,7 +137,7 @@ for (auto const & ps : psets) {
             << iface_name
             << ": { service_provider: \""
             << service_provider
-            << "\" }";
+            << "\" }\n";
       }
     }
     // Insert the cache entry for the main service implementation. Note
