@@ -324,7 +324,7 @@ inRangeOrInvalid(SubRunNumber_t sr)
   else {
     throw Exception(errors::InvalidNumber)
       << "Attempt to construct SubRunID with an invalid number.\n"
-      << "Maybe you want SubRunID::flushSubRun()?";
+      << "Maybe you want SubRunID::flushSubRun()?\n";
   }
 }
 
@@ -335,7 +335,7 @@ checkSane()
 {
   if (isValid() && ! run_.isValid()) {
     throw art::Exception(art::errors::InvalidNumber)
-        << "SubRunID is not meaningful with valid subRun and invalid Run.";
+        << "SubRunID is not meaningful with valid subRun and invalid Run.\n";
   }
 }
 

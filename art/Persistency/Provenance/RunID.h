@@ -227,7 +227,7 @@ art::RunID::inRangeOrInvalid(RunNumber_t r)
   else {
     throw Exception(errors::InvalidNumber)
       << "Attempt to construct RunID with an invalid number.\n"
-      << "Maybe you want RunID::flushRun()?";
+      << "Maybe you want RunID::flushRun()?\n";
   }
 }
 
