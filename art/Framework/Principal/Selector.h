@@ -77,7 +77,7 @@ public:
     pn_(pn.empty() ? std::string("*") : pn)
   { }
 
-  virtual ProcessNameSelector* clone() const
+  virtual ProcessNameSelector* clone() const override
   {
     return new ProcessNameSelector(*this);
   }
@@ -88,7 +88,7 @@ public:
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
+  virtual bool doMatch(BranchDescription const& p) const override
   {
     return (pn_=="*") || (p.processName() == pn_);
   }
@@ -109,13 +109,13 @@ public:
     pin_(pin)
   { }
 
-  virtual ProductInstanceNameSelector* clone() const
+  virtual ProductInstanceNameSelector* clone() const override
   {
     return new ProductInstanceNameSelector(*this);
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
+  virtual bool doMatch(BranchDescription const& p) const override
   {
     return p.productInstanceName() == pin_;
   }
@@ -136,13 +136,13 @@ public:
     label_(label)
   { }
 
-  virtual ModuleLabelSelector* clone() const
+  virtual ModuleLabelSelector* clone() const override
   {
     return new ModuleLabelSelector(*this);
   }
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const
+  virtual bool doMatch(BranchDescription const& p) const override
   {
     return p.moduleLabel() == label_;
   }
@@ -162,13 +162,13 @@ public:
   MatchAllSelector()
   { }
 
-  virtual MatchAllSelector* clone() const
+  virtual MatchAllSelector* clone() const override
   {
     return new MatchAllSelector;
   }
 
 private:
-  virtual bool doMatch(BranchDescription const&) const
+  virtual bool doMatch(BranchDescription const&) const override
   {
     return true;
   }
@@ -186,9 +186,9 @@ template <class A, class B>
 class art::AndHelper : public SelectorBase {
 public:
   AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
-  virtual AndHelper *clone() const { return new AndHelper(*this); }
+  virtual AndHelper *clone() const override { return new AndHelper(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return a_.match(p) && b_.match(p); }
+  virtual bool doMatch(BranchDescription const& p) const override { return a_.match(p) && b_.match(p); }
 
   A a_;
   B b_;
@@ -214,9 +214,9 @@ template <class A, class B>
 class art::OrHelper : public art::SelectorBase {
 public:
   OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
-  virtual OrHelper *clone() { return new OrHelper(*this); }
+  virtual OrHelper *clone() const override { return new OrHelper(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return a_.match(p) || b_.match(p); }
+  virtual bool doMatch(BranchDescription const& p) const override { return a_.match(p) || b_.match(p); }
 
   A a_;
   B b_;
@@ -242,9 +242,9 @@ template <class A>
 class art::NotHelper : public art::SelectorBase {
 public:
   explicit NotHelper(A const& a) : a_(a) { }
-  NotHelper *clone() const { return new NotHelper(*this); }
+  NotHelper *clone() const override { return new NotHelper(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return ! a_.match(p); }
+  virtual bool doMatch(BranchDescription const& p) const override { return ! a_.match(p); }
 
   A a_;
 };
@@ -270,9 +270,9 @@ public:
   typedef T wrapped_type;
   explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
   ~ComposedSelectorWrapper() {};
-  ComposedSelectorWrapper<T>* clone() const { return new ComposedSelectorWrapper<T>(*this); }
+  ComposedSelectorWrapper<T>* clone() const override { return new ComposedSelectorWrapper<T>(*this); }
 private:
-  virtual bool doMatch(BranchDescription const& p) const { return expression_.match(p); }
+  virtual bool doMatch(BranchDescription const& p) const override { return expression_.match(p); }
 
   wrapped_type expression_;
 };
@@ -290,10 +290,10 @@ public:
   Selector& operator= (Selector const& other);
   void swap(Selector& other);
   virtual ~Selector();
-  virtual Selector* clone() const;
+  virtual Selector* clone() const override;
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const;
+  virtual bool doMatch(BranchDescription const& p) const override;
 
   cet::value_ptr<SelectorBase> sel_;
 };
