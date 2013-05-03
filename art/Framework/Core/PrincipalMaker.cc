@@ -7,10 +7,17 @@
 #include "art/Persistency/Provenance/SubRunAuxiliary.h"
 
 #include <cassert>
+#include <memory>
 
 art::PrincipalMaker::PrincipalMaker(ProcessConfiguration const & pc) :
   processConfig_(pc)
 { }
+
+art::RunPrincipal *
+art::PrincipalMaker::makeRunPrincipal(RunAuxiliary const & runAux) const
+{
+  return new RunPrincipal(runAux, processConfig_);
+}
 
 art::RunPrincipal *
 art::PrincipalMaker::makeRunPrincipal(RunID r,
@@ -30,6 +37,13 @@ art::PrincipalMaker::makeRunPrincipal(RunNumber_t r,
 }
 
 art::SubRunPrincipal *
+art::PrincipalMaker::makeSubRunPrincipal(SubRunAuxiliary const & subRunAux
+                                        ) const
+{
+  return new SubRunPrincipal(subRunAux, processConfig_);
+}
+
+art::SubRunPrincipal *
 art::PrincipalMaker::makeSubRunPrincipal(SubRunID const & sr,
                                          Timestamp const & startTime) const
 {
@@ -45,6 +59,14 @@ art::PrincipalMaker::makeSubRunPrincipal(RunNumber_t r,
                                          Timestamp const & startTime) const
 {
   return makeSubRunPrincipal(SubRunID(r, sr), startTime);
+}
+
+art::EventPrincipal *
+art::PrincipalMaker::makeEventPrincipal(EventAuxiliary const & eventAux,
+                                        std::shared_ptr<History> && history
+                                       ) const
+{
+  return new EventPrincipal(eventAux, processConfig_, history);
 }
 
 art::EventPrincipal *

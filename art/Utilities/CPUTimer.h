@@ -3,48 +3,40 @@
 
 #include "art/Utilities/fwd.h"
 
-#include <sys/time.h>
+namespace art
 
-namespace art {
-class CPUTimer
 {
+  class CPUTimer
+  {
+  public:
+    CPUTimer();
+    CPUTimer(const CPUTimer&) = delete;
+    CPUTimer& operator=(const CPUTimer&) = delete;
 
-   public:
-      CPUTimer();
-      virtual ~CPUTimer();
+    // Return time in seconds.
+    double realTime() const;
+    double cpuTime() const;
 
-      // ---------- const member functions ---------------------
-      double realTime() const ;
-      double cpuTime() const ;
+    void start();
+    void stop();
+    void reset();
 
-      // ---------- static member functions --------------------
+  private:
 
-      // ---------- member functions ---------------------------
-      void start();
-      void stop();
-      void reset();
+    struct Times {
+      double real_;
+      double cpu_;
+    };
 
-   private:
-      CPUTimer(const CPUTimer&); // stop default
+    Times calculateDeltaTime() const;
 
-      const CPUTimer& operator=(const CPUTimer&); // stop default
+    enum State {kRunning, kStopped} state_;
+    struct timeval startRealTime_;
+    struct timeval startCPUTime_;
 
-      struct Times {
-        double real_;
-        double cpu_;
-      };
-
-      Times calculateDeltaTime() const;
-
-      // ---------- member data --------------------------------
-      enum State {kRunning, kStopped} state_;
-      struct timeval startRealTime_;
-      struct timeval startCPUTime_;
-
-      double accumulatedRealTime_;
-      double accumulatedCPUTime_;
-
-};
+    double accumulatedRealTime_;
+    double accumulatedCPUTime_;
+  };
 }
 
 #endif /* art_Utilities_CPUTimer_h */

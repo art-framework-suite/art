@@ -292,10 +292,13 @@ Configuration: Sample of FHiCL include file
 Output Filtering
 ================
 
-* Any output module can be configured to write out only those events passing a given *trigger path*.
+* Any output module can be configured to write out only those events
+  passing a given *trigger path*; this is controlled by the parameter
+  _SelectEvents_, as shown in the example below.
 
-* The parameter set that configures the output module uses a parameter _SelectEvents_ to control the output,
-  as shown in the example below
+* Any output module can be configured to write out only those branches
+  of interest; this is controlled by the parameter _outputCommands_, as
+  shown in the example below.
 
       # this is only a fragment of a full configuration ...
       physics:
@@ -320,6 +323,9 @@ Output Filtering
           # Write all the events for which pathA ended with 'true' from filtering.
           # Events which caused an exception throw will not be written.
           SelectEvents: { SelectEvents: [ "pathA&noexeception" ] }
+          # Drop all branches, except those containing products created
+          # by a producer with module label 'valuable':
+          outputCommands: [ "drop *", "keep *_valuable_*_*" ]
         }
         failWriter:
         {
@@ -328,6 +334,9 @@ Output Filtering
           # Write all the events for which pathA ended with 'false' from filtering.
           # Events which caused an exception throw will not be written.
           SelectEvents: { SelectEvents: [ "!pathA&noexception" ] }
+          # Keep all branches, except those containing products with
+          # 'friendly class name' of 'UninterestingThings'
+          outputCommands: [ "keep *", "drop UninterestingThings_*_*_*" ]
         }
         exceptWriter:
         {
@@ -335,6 +344,8 @@ Output Filtering
           fileName: "pathA_exceptions.root"
           # Write all the events for which pathA or pathB ended because an exception was thrown.
           SelectEvents: { SelectEvents: [ "exception@pathA", "exception@pathB" ] }
+          # No outputCommands means that all branches are written for
+          # these events.
         }
       }
 

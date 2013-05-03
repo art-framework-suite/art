@@ -4,38 +4,37 @@
 //
 
 #include "art/Utilities/CPUTimer.h"
+#include <sys/time.h>
 #include <sys/resource.h>
+#include <time.h>
 #include <errno.h>
 #include "cetlib/exception.h"
 
-using namespace art;
+#include <chrono>
 
-CPUTimer::CPUTimer() :
+art::CPUTimer::CPUTimer() :
   state_(kStopped),
   startRealTime_(),
   startCPUTime_(),
-  accumulatedRealTime_(0),
-  accumulatedCPUTime_(0)
+  accumulatedRealTime_(),
+  accumulatedCPUTime_()
 {
-  startRealTime_.tv_sec=0;
-  startRealTime_.tv_usec=0;
-  startCPUTime_.tv_sec=0;
-  startCPUTime_.tv_usec=0;
-}
-
-CPUTimer::~CPUTimer()
-{
+  startRealTime_.tv_sec = 0;
+  startRealTime_.tv_usec = 0;
+  startCPUTime_.tv_sec = 0;
+  startCPUTime_.tv_usec = 0;
 }
 
 void
-CPUTimer::start() {
-  if(kStopped == state_) {
+art::CPUTimer::start() {
+  if (kStopped == state_) {
     rusage theUsage;
-    if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
-      throw cet::exception("CPUTimerFailed")<<errno;
+    if ( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
+      throw cet::exception("CPUTimerFailed") << errno;
     }
-    startCPUTime_.tv_sec =theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec;
-    startCPUTime_.tv_usec =theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec;
+    // Add system and user time from getrusage, to yield total CPU time.
+    startCPUTime_.tv_sec  = theUsage.ru_stime.tv_sec+theUsage.ru_utime.tv_sec;
+    startCPUTime_.tv_usec = theUsage.ru_stime.tv_usec+theUsage.ru_utime.tv_usec;
 
     gettimeofday(&startRealTime_, 0);
     state_ = kRunning;
@@ -43,8 +42,8 @@ CPUTimer::start() {
 }
 
 void
-CPUTimer::stop() {
-  if(kRunning == state_) {
+art::CPUTimer::stop() {
+  if (kRunning == state_) {
     Times t = calculateDeltaTime();
     accumulatedCPUTime_ += t.cpu_;
     accumulatedRealTime_ += t.real_;
@@ -53,16 +52,16 @@ CPUTimer::stop() {
 }
 
 void
-CPUTimer::reset(){
+art::CPUTimer::reset(){
   accumulatedCPUTime_ =0;
   accumulatedRealTime_=0;
 }
 
-CPUTimer::Times
-CPUTimer::calculateDeltaTime() const
+art::CPUTimer::Times
+art::CPUTimer::calculateDeltaTime() const
 {
   rusage theUsage;
-  if( 0 != getrusage(RUSAGE_SELF, &theUsage)) {
+  if (0 != getrusage(RUSAGE_SELF, &theUsage)) {
     throw cet::exception("CPUTimerFailed")<<errno;
   }
   const double microsecToSec = 1E-6;
@@ -77,18 +76,18 @@ CPUTimer::calculateDeltaTime() const
 }
 
 double
-CPUTimer::realTime() const
+art::CPUTimer::realTime() const
 {
-  if(kStopped == state_) {
+  if (kStopped == state_) {
     return accumulatedRealTime_;
   }
   return accumulatedRealTime_ + calculateDeltaTime().real_;
 }
 
 double
-CPUTimer::cpuTime() const
+art::CPUTimer::cpuTime() const
 {
-  if(kStopped== state_) {
+  if (kStopped== state_) {
     return accumulatedCPUTime_;
   }
   return accumulatedCPUTime_+ calculateDeltaTime().cpu_;

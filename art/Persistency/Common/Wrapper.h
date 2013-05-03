@@ -72,7 +72,7 @@ public:
   Wrapper();
 
 #ifndef __GCCXML__
-  explicit Wrapper(std::unique_ptr<T> && ptr);
+  explicit Wrapper(std::unique_ptr<T> ptr);
 #endif
 
   virtual ~Wrapper();
@@ -150,7 +150,7 @@ Wrapper()
 
 template <typename T>
 art::Wrapper<T>::
-Wrapper(std::unique_ptr<T> && ptr) :
+Wrapper(std::unique_ptr<T> ptr) :
   EDProduct(),
   present(ptr.get() != 0),
   obj()

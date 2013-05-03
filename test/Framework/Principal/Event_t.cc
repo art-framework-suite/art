@@ -434,6 +434,12 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   BOOST_REQUIRE(currentEvent_->get(sel, h));
   BOOST_REQUIRE_EQUAL(h->value, 2);
 
+  Selector sel2(ProductInstanceNameSelector("int2") ||
+                ProductInstanceNameSelector("int1"));
+  handle_vec handles;
+  currentEvent_->getMany(sel2, handles);
+  BOOST_REQUIRE_EQUAL(handles.size(), std::size_t(2));
+
   std::string instance;
   Selector sel1(ProductInstanceNameSelector(instance) &&
                 ModuleLabelSelector("modMulti"));;
@@ -441,7 +447,7 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   BOOST_REQUIRE(currentEvent_->get(sel1, h));
   BOOST_REQUIRE_EQUAL(h->value, 3);
 
-  handle_vec handles;
+  handles.clear();
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 3u);
   handles.clear();

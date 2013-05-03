@@ -380,7 +380,7 @@ inRangeOrInvalid(EventNumber_t e)
   else {
     throw Exception(errors::InvalidNumber)
       << "Attempt to construct SubRunID with an invalid number.\n"
-      << "Maybe you want EventID::flushSubRun()?";
+      << "Maybe you want EventID::flushSubRun()?\n";
   }
 }
 
