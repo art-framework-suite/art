@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(timer1)
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
   timer().stop();
 
-  BOOST_CHECK_CLOSE(timer().realTime(), 0.050, 1.0); // difference in percentage
+  BOOST_CHECK_CLOSE(timer().realTime(), 0.050, 5.0); // difference in percentage
   std::cout << "timer1 cpu: " << timer().cpuTime() << " real: " << timer().realTime() << std::endl;
   BOOST_CHECK_SMALL(timer().cpuTime(), small_cputime);
 }
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(timer2)
   double const cpu = timer().cpuTime();
   double const real = timer().realTime();
 
-  BOOST_CHECK_CLOSE(real, 0.050, 1.0); // difference in percentage
+  BOOST_CHECK_CLOSE(real, 0.050, 5.0); // difference in percentage
   BOOST_CHECK_SMALL(cpu, small_cputime);
 }
 
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE(checkUsage)
   std::cout << busy_loop(dur) << "\n";
   timer().stop();
 
-  BOOST_CHECK_CLOSE(timer().realTime(), dur, 1.0);
-  BOOST_CHECK_CLOSE(timer().cpuTime(), dur, 1.0);
+  BOOST_CHECK_CLOSE(timer().realTime(), dur, 5.0);
+  BOOST_CHECK_CLOSE(timer().cpuTime(), dur, 5.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

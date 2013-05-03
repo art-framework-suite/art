@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v1_07_00
+parent art	v1_07_01
 defaultqual	e2
 #
 product		version
@@ -8,7 +8,7 @@ gcc		v4_7_1
 clhep		v2_1_3_1
 cppunit		v1_12_1
 libsigcpp	v2_2_10
-gccxml		v0_9_20120702
+gccxml		v0_9_20130503
 python		v2_7_3
 root		v5_34_05
 sqlite		v3_07_16_00
