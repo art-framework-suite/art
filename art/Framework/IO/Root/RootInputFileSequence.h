@@ -40,7 +40,6 @@ namespace art {
 
     explicit RootInputFileSequence(fhicl::ParameterSet const& pset,
                                    InputFileCatalog & catalog,
-                                   bool primarySequence,
                                    FastCloningInfoProvider const &fcip,
                                    InputSource::ProcessingMode pMode,
                                    MasterProductRegistry &pReg,
@@ -101,7 +100,6 @@ namespace art {
     int forcedRunOffset_;
     RunNumber_t setRun_;
     GroupSelectorRules groupSelectorRules_;
-    bool primarySequence_;
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     RootInputFileSharedPtr rootFileForLastReadEvent_;
