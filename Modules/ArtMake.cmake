@@ -26,6 +26,20 @@
 # products source/ area. See install_headers() and install_source() in
 # cetbuildtools/Modules/InstallSource.cmake.
 #
+# * art_make() knows about the following plugin types:
+#
+#   * dictionaries (*_dict.cc)
+#   * modules (*_module.cc)
+#   * services (*_service.cc)
+#   * sources (*_source.cc)
+#
+#  You may specify a plugin-type-specific library link list as
+#  XXXX_LIBRARIES. If you have another plugin type (fleeble, say), you
+#  may make its existence known to art_make() by specifying a (possibly
+#  empty) FLEEBLE_LIBRARIES argument. Source files matching,
+#  "*_fleeble.cc' will be identified by that command as being plugins of
+#  type, "fleeble" and use FLEEBLE_LIBRARIES against which to link.
+#
 ####################################
 # USAGE:
 #
@@ -167,16 +181,36 @@ endfunction( art_make_library )
 # art_make
 ####################################
 function( art_make )
+  set(arg_option_names
+    LIBRARY_NAME LIBRARIES SUBDIRS EXCLUDE SOURCE LIB_LIBRARIES DICT_LIBRARIES
+    MODULE_LIBRARIES SERVICE_LIBRARIES SOURCE_LIBRARIES)
+  set(plugin_types source module service) # Defaults
+  # Add DICT_LIBRARIES, MODULE_LIBRARIES, GENERATOR_LIBRARIES, etc. as
+  # appropriate.
+  foreach (OPT ${ARGN})
+    if ((NOT OPT STREQUAL "LIB_LIBRARIES") AND
+        (NOT OPT STREQUAL "DICT_LIBRARIES") AND
+        (NOT OPT STREQUAL "MODULE_LIBRARIES") AND
+        (NOT OPT STREQUAL "SERVICE_LIBRARIES") AND
+        (NOT OPT STREQUAL "SOURCE_LIBRARIES") AND
+        (OPT MATCHES "^([A-Z]+)_LIBRARIES$"))
+      string(TOLOWER ${CMAKE_MATCH_1} plugin_type)
+      list(APPEND plugin_types ${plugin_type})
+      list(APPEND arg_option_names ${OPT})
+    endif()
+  endforeach()
+  foreach (plugin_type ${plugin_types})
+    list(APPEND plugin_glob_list "*_${plugin_type}.cc")
+  endforeach()
   set(art_file_list "")
-  cet_parse_args( AM "LIBRARY_NAME;LIBRARIES;LIB_LIBRARIES;DICT_LIBRARIES;SERVICE_LIBRARIES;MODULE_LIBRARIES;SOURCE_LIBRARIES;SUBDIRS;EXCLUDE;SOURCE" "WITH_STATIC_LIBRARY;BASENAME_ONLY;NO_PLUGINS" ${ARGN})
-
+  cet_parse_args( AM "${arg_option_names}" "WITH_STATIC_LIBRARY;BASENAME_ONLY;NO_PLUGINS" ${ARGN})
   if(AM_SOURCE)
     message(FATAL_ERROR "ART_MAKE: SOURCE is not a valid argument: library sources are computed.
 Use EXCLUDE to exclude particular (eg exec) source files from library.")
   endif()
 
   if(AM_LIBRARIES)
-    message(FATAL_ERROR "ART_MAKE: LIBRARIES is ambiguous -- use {LIB,DICT,SERVICE,MODULE,SOURCE}_LIBRARIES, instead.")
+    message(FATAL_ERROR "ART_MAKE: LIBRARIES is ambiguous -- use {LIB,DICT,SERVICE,MODULE,SOURCE,XXX}_LIBRARIES, instead.")
   endif()
 
   # check for extra link libraries
@@ -188,49 +222,38 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   #message(STATUS "art_make debug: listed files ${art_file_list}")
   FILE( GLOB src_files *.c *.cc *.cpp *.C *.cxx )
   FILE( GLOB ignore_dot_files  .*.c .*.cc .*.cpp .*.C .*.cxx )
-  FILE( GLOB plugin_sources  *_source.cc )
-  FILE( GLOB plugin_services *_service.cc )
-  FILE( GLOB plugin_modules  *_module.cc )
+  FILE( GLOB plugin_files ${plugin_glob_list})
   # also check subdirectories
   if( AM_SUBDIRS )
     foreach( sub ${AM_SUBDIRS} )
+      foreach (glob ${plugin_glob_list})
+        list (APPEND subdir_plugin_glob_list ${sub}/${glob})
+      endforeach()
 	    FILE( GLOB subdir_src_files ${sub}/*.c ${sub}/*.cc ${sub}/*.cpp ${sub}/*.C ${sub}/*.cxx )
 	    FILE( GLOB subdir_ignore_dot_files ${sub}/.*.c ${sub}/.*.cc ${sub}/.*.cpp ${sub}/.*.C ${sub}/.*.cxx )
-	    FILE( GLOB subdir_plugin_sources  ${sub}/*_source.cc )
-	    FILE( GLOB subdir_plugin_services ${sub}/*_service.cc )
-	    FILE( GLOB subdir_plugin_modules  ${sub}/*_module.cc )
+	    FILE( GLOB subdir_plugin_files ${subdir_plugin_glob_list} )
       if (subdir_src_files)
 	      list(APPEND src_files ${subdir_src_files})
       endif(subdir_src_files)
       if (subdir_ignore_dot_files)
 	      list(APPEND ignore_dot_files ${subdir_ignore_dot_files})
       endif(subdir_ignore_dot_files)
-      if (subdir_plugin_sources)
-	      list(APPEND plugin_sources ${subdir_plugin_sources})
-      endif(subdir_plugin_sources)
-      if (subdir_plugin_services)
-	      list(APPEND plugin_services ${subdir_plugin_services})
-      endif(subdir_plugin_services)
-      if (subdir_plugin_modules)
-	      list(APPEND plugin_modules ${subdir_plugin_modules})
-      endif(subdir_plugin_modules)
+      if (subdir_plugin_files)
+	      list(APPEND plugin_files ${subdir_plugin_files})
+      endif(subdir_plugin_files)
     endforeach(sub)
   endif( AM_SUBDIRS )
-  if (ignore_dot_files OR plugin_sources OR plugin_services OR plugin_modules)
-    LIST(REMOVE_ITEM src_files ${ignore_dot_files} ${plugin_sources} ${plugin_services} ${plugin_modules} )
+  if (ignore_dot_files OR plugin_files)
+    LIST(REMOVE_ITEM src_files ${ignore_dot_files} ${plugin_files} )
   endif()
   if (ignore_dot_files)
-    LIST(REMOVE_ITEM plugin_sources ${ignore_dot_files})
-    LIST(REMOVE_ITEM plugin_modules ${ignore_dot_files})
-    LIST(REMOVE_ITEM plugin_services ${ignore_dot_files})
+    LIST(REMOVE_ITEM plugin_files ${ignore_dot_files})
   endif()
   #message(STATUS "art_make debug: exclude files ${AM_EXCLUDE}")
   if(AM_EXCLUDE)
     foreach( exclude_file ${AM_EXCLUDE} )
       LIST(REMOVE_ITEM src_files ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
-      LIST(REMOVE_ITEM plugin_sources ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
-      LIST(REMOVE_ITEM plugin_modules ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
-      LIST(REMOVE_ITEM plugin_services ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
+      LIST(REMOVE_ITEM plugin_files ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
     endforeach( exclude_file )
   endif()
   #message(STATUS "art_make debug: other files ${src_files}")
@@ -278,14 +301,12 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   if( AM_NO_PLUGINS )
       _debug_message("Ignoring plugins in ${CMAKE_CURRENT_SOURCE_DIR}")
   else()
-    foreach( plugin_file ${plugin_sources} )
-      _art_simple_plugin( ${plugin_file} "source" "${AM_SOURCE_LIBRARIES}" )
-    endforeach( plugin_file )
-    foreach( plugin_file ${plugin_services} )
-      _art_simple_plugin( ${plugin_file} "service" "${AM_SERVICE_LIBRARIES}" )
-    endforeach( plugin_file )
-    foreach( plugin_file ${plugin_modules} )
-      _art_simple_plugin( ${plugin_file} "module" "${AM_MODULE_LIBRARIES}" )
+    foreach( plugin_file ${plugin_files} )
+      if ("${plugin_file}" MATCHES "^.*_([a-z]+)\\.cc$")
+        set (plugin_type ${CMAKE_MATCH_1})
+        string (TOUPPER ${plugin_type} PLUGIN_TYPE)
+      endif()
+      _art_simple_plugin( ${plugin_file} ${plugin_type} "${AM_${PLUGIN_TYPE}_LIBRARIES}" )
     endforeach( plugin_file )
   endif( )
 
