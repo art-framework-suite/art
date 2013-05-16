@@ -30,7 +30,7 @@ private:
 
 arttest::PSTestAnalyzer::PSTestAnalyzer(fhicl::ParameterSet const &)
 {
-  art::ScheduleID const id(art::ScheduleID::min_id());
+  art::ScheduleID const id(art::ScheduleID::first());
   (void) art::ServiceHandle<arttest::PSTest>(id)->schedule();
   (void) art::ServiceHandle<arttest::PSTestInterface>(id)->schedule();
   (void) art::ServiceHandle<arttest::PSTestInterfaceImpl>(id)->schedule();
