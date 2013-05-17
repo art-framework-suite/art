@@ -32,6 +32,14 @@ cet_test(RootDictionaryManager_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
   )
 
+cet_test(ScheduleContext_t
+  LIBRARIES
+  art_Framework_Core
+  art_Framework_Services_Registry
+  art_Utilities
+  ${TBB}
+  )
+
 #########################################################################
 # Old (pre-ART fork) tests.
 

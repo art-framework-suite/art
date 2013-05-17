@@ -6,7 +6,6 @@ set(art_Framework_Services_Registry_sources
   ServicesManager.cc
   detail/ScheduleTask.cc
   detail/ServiceCacheEntry.cc
-  get_scheduleID.cc
   )
 
 art_make_library( LIBRARY_NAME art_Framework_Services_Registry
