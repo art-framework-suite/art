@@ -11,12 +11,25 @@ BOOST_AUTO_TEST_CASE(construct)
 {
   BOOST_CHECK_NO_THROW(art::ScheduleID(0));
   BOOST_CHECK_NO_THROW(art::ScheduleID(1));
+  BOOST_CHECK(!art::ScheduleID().isValid());
+  BOOST_CHECK(art::ScheduleID::first().isValid());
+  BOOST_CHECK(art::ScheduleID::last().isValid());
 }
 
 BOOST_AUTO_TEST_CASE(compare)
 {
   BOOST_CHECK(art::ScheduleID(57) == art::ScheduleID(57));
   BOOST_CHECK(art::ScheduleID(57) != art::ScheduleID(58));
+  BOOST_CHECK(art::ScheduleID::first() < art::ScheduleID::last());
+  BOOST_CHECK(!(art::ScheduleID::last() < art::ScheduleID::first()));
+  BOOST_CHECK(art::ScheduleID::first() <= art::ScheduleID::last());
+  BOOST_CHECK(art::ScheduleID::first() <= art::ScheduleID::first());
+  BOOST_CHECK(!(art::ScheduleID::last() <= art::ScheduleID::first()));
+  BOOST_CHECK(art::ScheduleID::last() > art::ScheduleID::first());
+  BOOST_CHECK(!(art::ScheduleID::first() > art::ScheduleID::last()));
+  BOOST_CHECK(art::ScheduleID::last() >= art::ScheduleID::first());
+  BOOST_CHECK(art::ScheduleID::last() >= art::ScheduleID::last());
+  BOOST_CHECK(!(art::ScheduleID::first() >= art::ScheduleID::last()));
 }
 
 BOOST_AUTO_TEST_CASE(id)

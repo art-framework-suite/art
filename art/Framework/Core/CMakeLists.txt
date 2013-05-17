@@ -26,6 +26,7 @@ set( art_Framework_Core_sources
   ProductRegistryHelper.cc
   RootDictionaryManager.cc
   Schedule.cc
+  ScheduleContext.cc
   TriggerNames.cc
   TriggerResultInserter.cc
   WorkerInPath.cc
