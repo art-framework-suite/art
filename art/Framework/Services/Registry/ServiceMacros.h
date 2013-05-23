@@ -45,7 +45,7 @@
 //   Declare (in the header) an art service of type <svc> with scope
 //   (see above).
 //
-// DEFINE_ART_SERVICE(svc,scope)
+// DEFINE_ART_SERVICE(svc)
 //   Define (in MyService_service.cc) the service declared with
 //   DECLARE_ART_SERVICE.
 //
@@ -71,21 +71,6 @@
 // and must be constructed by the art system rather than automatically
 // as part of the service initialization process. A DEFINE... macro call
 // is not necessary in this case.
-//
-////////////////////////////////////////////////////////////////////////
-// NOTES.
-//
-//
-// MS-aware services should be configured using:
-//
-// DEFINE_ART_SERVICE(svc,scope)
-//
-// or
-//
-// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface,scope)
-//
-// where scope is GLOBAL or PER_SCHEDULE (as defined in
-// art/Framework/Services/Registry/ServiceScope.h).
 //
 ////////////////////////////////////////////////////////////////////////
 
