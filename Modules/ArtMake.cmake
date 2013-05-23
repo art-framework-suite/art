@@ -26,10 +26,11 @@
 # products source/ area. See install_headers() and install_source() in
 # cetbuildtools/Modules/InstallSource.cmake.
 #
-# * art_make() knows about the following plugin types:
+# * art_make() knows about ROOT dictionaries (as signalled by the
+# presence of classes.h and classes_def.xml), and the following plugin
+# types:
 #
-#   * dictionaries (*_dict.cc)
-#   * modules (*_module.cc)
+#   * modules -- producers, filters, analyzers and outputs (*_module.cc)
 #   * services (*_service.cc)
 #   * sources (*_source.cc)
 #
