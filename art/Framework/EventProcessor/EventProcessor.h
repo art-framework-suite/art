@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_EventProcessor_h
-#define art_Framework_Core_EventProcessor_h
+#ifndef art_Framework_EventProcessor_EventProcessor_h
+#define art_Framework_EventProcessor_EventProcessor_h
 
 // ======================================================================
 //
@@ -172,7 +172,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Framework_Core_EventProcessor_h */
+#endif /* art_Framework_EventProcessor_EventProcessor_h */
 
 // Local Variables:
 // mode: c++

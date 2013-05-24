@@ -6,9 +6,7 @@ set( art_Framework_Core_sources
   EDFilter.cc
   EDProducer.cc
   EngineCreator.cc
-  EPStates.cc
   EventObserver.cc
-  EventProcessor.cc
   EventSelector.cc
   GroupSelector.cc
   GroupSelectorRules.cc
@@ -26,13 +24,13 @@ set( art_Framework_Core_sources
   ProductRegistryHelper.cc
   RootDictionaryManager.cc
   Schedule.cc
-  ScheduleContext.cc
   TriggerNames.cc
   TriggerResultInserter.cc
   WorkerInPath.cc
   WorkerRegistry.cc
   get_BranchDescription.cc
   detail/OutputModuleUtils.cc
+  detail/ScheduleTask.cc
   detail/wrapLibraryManagerException.cc
 )
 
@@ -50,11 +48,11 @@ foreach(ART_IPR_BASE_NAME FindOne FindMany)
     @ONLY)
 endforeach()
 
-art_make_library( LIBRARY_NAME art_Framework_Core
-                  SOURCE ${art_Framework_Core_sources} 
-                  LIBRARIES art_Framework_Services_System_CurrentModule_service
-  art_Framework_Services_System_FileCatalogMetadata_service
-  art_Framework_Services_System_FloatingPointControl_service
+art_make_library(
+  LIBRARY_NAME art_Framework_Core
+  SOURCE ${art_Framework_Core_sources} 
+  LIBRARIES
+  art_Framework_Services_System_CurrentModule_service
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service
   art_Framework_Principal

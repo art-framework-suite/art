@@ -3,7 +3,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/InitRootHandlers.h"
-#include "art/Framework/Core/EventProcessor.h"
+#include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/Core/RootDictionaryManager.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"

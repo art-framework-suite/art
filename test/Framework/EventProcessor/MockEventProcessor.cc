@@ -3,7 +3,7 @@
 
 */
 
-#include "test/Framework/Core/MockEventProcessor.h"
+#include "test/Framework/EventProcessor/MockEventProcessor.h"
 
 #include <sstream>
 

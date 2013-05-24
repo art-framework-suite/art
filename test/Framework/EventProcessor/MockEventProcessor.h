@@ -11,7 +11,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 */
 
 #include "art/Framework/Core/IEventProcessor.h"
-#include "art/Framework/Core/EPStates.h"
+#include "art/Framework/EventProcessor/EPStates.h"
 #include <iostream>
 #include <string>
 

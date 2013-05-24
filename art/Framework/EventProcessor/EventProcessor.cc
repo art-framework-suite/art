@@ -1,7 +1,7 @@
-#include "art/Framework/Core/EventProcessor.h"
+#include "art/Framework/EventProcessor/EventProcessor.h"
 
 #include "art/Framework/Core/Breakpoints.h"
-#include "art/Framework/Core/EPStates.h"
+#include "art/Framework/EventProcessor/EPStates.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSource.h"
@@ -17,6 +17,7 @@
 #include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
+#include "art/Framework/Services/System/ScheduleContext.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/BranchIDListHelper.h"
 #include "art/Persistency/Provenance/BranchType.h"
@@ -318,6 +319,7 @@ configureServices_(ParameterSet const & pset)
   serviceToken_.add(std::unique_ptr<TriggerNamesService>(new TriggerNamesService(pset)));
   ParameterSet const fpc_pset = services.get<ParameterSet>("floating_point_control", ParameterSet());
   serviceToken_.add(std::unique_ptr<FloatingPointControl>(new FloatingPointControl(fpc_pset, *actReg_)));
+  serviceToken_.add(std::unique_ptr<ScheduleContext>(new ScheduleContext));
 }
 
 void

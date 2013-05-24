@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_EPStates_h
-#define art_Framework_Core_EPStates_h
+#ifndef art_Framework_EventProcessor_EPStates_h
+#define art_Framework_EventProcessor_EPStates_h
 
 // ======================================================================
 //
@@ -428,7 +428,7 @@ namespace statemachine {
 
 // ======================================================================
 
-#endif /* art_Framework_Core_EPStates_h */
+#endif /* art_Framework_EventProcessor_EPStates_h */
 
 // Local Variables:
 // mode: c++

@@ -4,7 +4,6 @@ project(art_Framework_Services_Registry)
 set(art_Framework_Services_Registry_sources
   ServiceRegistry.cc
   ServicesManager.cc
-  detail/ScheduleTask.cc
   detail/ServiceCacheEntry.cc
   )
 
