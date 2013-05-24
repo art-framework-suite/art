@@ -242,11 +242,24 @@ public:
   ValidHandle(T const* prod, Provenance prov);
   ValidHandle(ValidHandle const&) = default;
   ValidHandle& operator=(ValidHandle const&) = default;
+
+  // pointer behaviors
   operator T const*() const;    // conversion to T const*
   T const & operator*() const;
   T const * operator->() const; // alias for product()
   T const * product() const;
+
+  // inspectors
+  bool isValid() const;  // always true
+  bool failedToGet() const; // always false
   Provenance const* provenance() const;
+  ProductID id() const;
+  std::shared_ptr<cet::exception const> whyFailed() const; // always null
+
+  // mutators
+  void swap(ValidHandle<T>& other);
+  // No clear() function, because a ValidHandle may not have an invalid
+  // state, and that is what clear() would obtain.
 
 private:
   T const*   prod_;
@@ -296,10 +309,51 @@ art::ValidHandle<T>::product() const
 
 template <class T>
 inline
+bool
+art::ValidHandle<T>::isValid() const
+{
+  return true;
+}
+
+template <class T>
+inline
+bool
+art::ValidHandle<T>::failedToGet() const
+{
+  return false;
+}
+
+template <class T>
+inline
 art::Provenance const *
 art::ValidHandle<T>::provenance() const
 {
   return & prov_;
+}
+
+template <class T>
+inline
+art::ProductID
+art::ValidHandle<T>::id() const
+{
+  return prov_.productID();
+}
+
+template <class T>
+inline
+std::shared_ptr<cet::exception const>
+art::ValidHandle<T>::whyFailed() const
+{
+  return std::shared_ptr<cet::exception const>();
+}
+
+template <class T>
+inline
+void
+art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
+{
+  std::swap(prod_, other.prod_);
+  std::swap(prov_, other.prov_);
 }
 
 #endif /* art_Framework_Principal_Handle_h */
