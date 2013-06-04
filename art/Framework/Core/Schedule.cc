@@ -98,8 +98,7 @@ namespace art {
     wantSummary_(tns.wantSummary()),
     total_events_(),
     total_passed_(),
-    stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
-    endpathsAreActive_(true)
+    stopwatch_(new RunStopwatch::StopwatchPointer::element_type)
   {
     assert(actReg_);
     ParameterSet services(process_pset_.get<ParameterSet>("services", ParameterSet()));
@@ -750,18 +749,6 @@ namespace art {
       result.push_back(p);
     }
     return result;
-  }
-
-  void
-  Schedule::enableEndPaths(bool active)
-  {
-    endpathsAreActive_ = active;
-  }
-
-  bool
-  Schedule::endPathsEnabled() const
-  {
-    return endpathsAreActive_;
   }
 
   void
