@@ -195,13 +195,10 @@ private:
 
   void writeSummary();
 
-  Workers::const_iterator workersBegin() const { return all_workers_.begin(); }
-
-  Workers::const_iterator workersEnd() const { return all_workers_.end(); }
-
-  Workers::iterator workersBegin() { return  all_workers_.begin(); }
-
-  Workers::iterator workersEnd() { return all_workers_.end(); }
+  Workers::const_iterator workersBegin() const;
+  Workers::const_iterator workersEnd() const;
+  Workers::iterator workersBegin();
+  Workers::iterator workersEnd();
 
   void resetAll();
 
@@ -267,6 +264,35 @@ private:
   int                            total_passed_;
   RunStopwatch::StopwatchPointer stopwatch_;
 };
+
+inline
+art::Schedule::Workers::const_iterator
+art::Schedule::workersBegin() const
+{
+  return all_workers_.begin();
+}
+
+inline
+art::Schedule::Workers::const_iterator
+art::Schedule::workersEnd() const
+{
+  return all_workers_.end();
+}
+
+inline
+art::Schedule::Workers::iterator
+art::Schedule::workersBegin()
+{
+  return  all_workers_.begin();
+}
+
+inline
+art::Schedule::Workers::iterator
+art::Schedule::workersEnd()
+{
+  return all_workers_.end();
+}
+
 
 inline
 std::pair<double, double>
