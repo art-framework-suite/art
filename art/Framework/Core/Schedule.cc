@@ -684,11 +684,6 @@ namespace art {
     for_all(all_output_workers_, std::bind(&OutputWorker::closeFile, _1));
   }
 
-  void Schedule::openNewOutputFilesIfNeeded()
-  {
-    for_all(all_output_workers_, std::bind(&OutputWorker::openNewFileIfNeeded, _1));
-  }
-
   void Schedule::openOutputFiles(FileBlock & fb)
   {
     for_all(all_output_workers_, std::bind(&OutputWorker::openFile, _1, std::cref(fb)));

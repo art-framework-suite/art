@@ -34,8 +34,6 @@ namespace art {
     // Call shouldWeCloseFile() on the controlled OutputModule.
     bool shouldWeCloseFile() const;
 
-    void openNewFileIfNeeded();
-
     bool wantAllEvents() const;
 
     void openFile(FileBlock const& fb);

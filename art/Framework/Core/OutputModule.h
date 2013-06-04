@@ -160,11 +160,6 @@ namespace art {
     // Tell the OutputModule that is must end the current file.
     void doCloseFile();
 
-    // Tell the OutputModule to open an output file, if one is not
-    // already open.
-    void maybeOpenFile();
-
-
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
     void reallyCloseFile();

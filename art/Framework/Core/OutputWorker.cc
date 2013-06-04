@@ -40,11 +40,6 @@ namespace art {
   }
 
   void
-  OutputWorker::openNewFileIfNeeded() {
-    module().maybeOpenFile();
-  }
-
-  void
   OutputWorker::openFile(FileBlock const& fb) {
     // FIXME: FileBlock abstraction is currently broken! When it is
     // fixed, we should get the correct filename (or generate it here,
