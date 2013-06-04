@@ -186,18 +186,11 @@ art::Schedule::Schedule(ParameterSet const & proc_pset,
     OutputWorker * ow = dynamic_cast<OutputWorker *>(worker_ptr);
     if (ow) { all_output_workers_.push_back(ow); }
   }
-  // Now that the output workers are filled in, set any output limits.
-  limitOutput();
   pregistry.setFrozen();
   // Test path invariants.
   pathConsistencyCheck(all_workers_count);
   ProductMetaData::create_instance(pregistry);
 } // art::Schedule::Schedule
-
-void
-art::Schedule::limitOutput()
-{
-}
 
 bool art::Schedule::terminate() const
 {

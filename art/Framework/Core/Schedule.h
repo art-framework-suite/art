@@ -217,8 +217,6 @@ private:
   void fillEndPath(int bitpos, std::string const & name,
                    MasterProductRegistry & pregistry);
 
-  void limitOutput();
-
   void addToAllWorkers(Worker * w);
 
   void makeTriggerResultsInserter(fhicl::ParameterSet const & trig_pset,
