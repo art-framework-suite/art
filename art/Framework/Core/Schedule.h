@@ -108,13 +108,6 @@ namespace art {
 
 
 class art::Schedule {
-  typedef std::vector<std::string> vstring;
-  typedef std::vector<Path> Paths;
-  typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
-  typedef std::shared_ptr<Worker> WorkerPtr;
-  typedef std::vector<OutputWorker *> OutputWorkers;
-  typedef std::vector<WorkerInPath> PathWorkers;
-
 public:
   typedef std::vector<Worker *> Workers;
 
@@ -124,8 +117,6 @@ public:
            MasterProductRegistry & pregistry,
            ActionTable & actions,
            std::shared_ptr<ActivityRegistry> areg);
-
-
 
   template <typename T>
   void processOneOccurrence(typename T::MyPrincipal & principal);
@@ -163,8 +154,6 @@ public:
   // Call shouldWeCloseFile() on all OutputModules.
   bool shouldWeCloseOutput() const;
 
-  std::pair<double, double> timeCpuReal() const;
-
   /// Return whether a module has reached its maximum count.
   bool terminate() const;
 
@@ -172,6 +161,15 @@ public:
   void getAllWorkers(Workers & out);
 
 private:
+  typedef std::vector<std::string> vstring;
+  typedef std::vector<Path> Paths;
+  typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+  typedef std::shared_ptr<Worker> WorkerPtr;
+  typedef std::vector<OutputWorker *> OutputWorkers;
+  typedef std::vector<WorkerInPath> PathWorkers;
+
+  std::pair<double, double> timeCpuReal() const;
+
   /// Return the number of events this Schedule has tried to process
   /// (inclues both successes and failures, including failures due
   /// to exceptions during processing).
