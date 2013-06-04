@@ -114,7 +114,6 @@ namespace art {
 
   public:
     typedef std::vector<Worker *> Workers;
-    enum State { Ready = 0, Running, Latched };
 
     Schedule(fhicl::ParameterSet const & processDesc,
              art::TriggerNamesService const & tns,
