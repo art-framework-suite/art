@@ -170,6 +170,13 @@ namespace art {
     /// *** pointers!
     std::vector<ModuleDescription const *> getAllModuleDescriptions() const;
 
+    /// Return whether a module has reached its maximum count.
+    bool terminate() const;
+
+    // Retrieve all workers.
+    void getAllWorkers(Workers & out);
+
+private:
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).
@@ -187,16 +194,9 @@ namespace art {
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport & rep) const;
 
-    /// Return whether a module has reached its maximum count.
-    bool terminate() const;
-
     ///  Clear all the counters in the trigger report.
     void clearCounters();
 
-    // Retrieve all workers.
-    void getAllWorkers(Workers & out);
-
-  private:
     typedef std::vector<cet::exempt_ptr<Worker> > OnDemandWorkers;
     typedef
     std::multimap < std::string,
