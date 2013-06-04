@@ -230,10 +230,6 @@ private:
 
   void setupOnDemandSystem(EventPrincipal & p);
 
-  void reportSkipped(EventPrincipal const & ep) const;
-  void reportSkipped(SubRunPrincipal const &) const;
-  void reportSkipped(RunPrincipal const &) const;
-
   void fillWorkers(std::string const & name, PathWorkers & out, bool IsTrigPath,
                    MasterProductRegistry & pregistry);
   void fillTrigPath(int bitpos, std::string const & name, TrigResPtr trptr,
@@ -316,24 +312,6 @@ int
 art::Schedule::totalEventsFailed() const
 {
   return totalEvents() - totalEventsPassed();
-}
-
-void
-inline
-art::Schedule::reportSkipped(EventPrincipal const &) const
-{
-}
-
-void
-inline
-art::Schedule::reportSkipped(SubRunPrincipal const &) const
-{
-}
-
-void
-inline
-art::Schedule::reportSkipped(RunPrincipal const &) const
-{
 }
 
 template <typename T>
