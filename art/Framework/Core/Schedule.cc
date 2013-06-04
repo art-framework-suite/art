@@ -737,20 +737,6 @@ namespace art {
     for_all(all_workers_, std::bind(&Worker::beginJob, _1));
   }
 
-  vector<ModuleDescription const *>
-  Schedule::getAllModuleDescriptions() const
-  {
-    Workers::const_iterator i(workersBegin());
-    Workers::const_iterator e(workersEnd());
-    vector<ModuleDescription const *> result;
-    result.reserve(all_workers_.size());
-    for (; i != e; ++i) {
-      ModuleDescription const * p = (*i)->descPtr();
-      result.push_back(p);
-    }
-    return result;
-  }
-
   void
   fillModuleInPathSummary(Path const &,
                           ModuleInPathSummary &)

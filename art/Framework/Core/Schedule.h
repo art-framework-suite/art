@@ -165,14 +165,6 @@ public:
 
   std::pair<double, double> timeCpuReal() const;
 
-  /// Return a vector allowing const access to all the
-  /// ModuleDescriptions for this Schedule.
-
-  /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
-  /// *** passed to the caller. Do not call delete on these
-  /// *** pointers!
-  std::vector<ModuleDescription const *> getAllModuleDescriptions() const;
-
   /// Return whether a module has reached its maximum count.
   bool terminate() const;
 
